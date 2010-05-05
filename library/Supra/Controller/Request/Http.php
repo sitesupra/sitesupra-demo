@@ -52,7 +52,8 @@ class Http implements RequestInterface
 		$this->setQuery($_GET);
 		$this->setPost($_POST);
 		
-		$this->requestUri = $_SERVER['REQUEST_URI'];
+		$this->requestUri = $_SERVER['SCRIPT_URL'];
+		\Log::sinfo('Request URI: ', $this->requestUri);
 		$this->setBasePath('');
 		$this->setPath($this->requestUri);
 	}
