@@ -2,6 +2,9 @@
 
 namespace Supra\Log;
 
+use \DateTime;
+use \DateTimeZone;
+
 /**
  * Main logger class
  */
@@ -9,13 +12,13 @@ class Logger
 {
 	/**
 	 * Logger singleton instance
-	 * @var \Supra\Log\Logger
+	 * @var Logger
 	 */
 	protected static $instance;
 
 	/**
 	 * Logger instances
-	 * @var array of \Supra\Log\Writer\WriterInterface[]
+	 * @var Writer\WriterInterface[]
 	 */
 	private $loggers = array();
 
@@ -33,13 +36,13 @@ class Logger
 
 	/**
 	 * Bootstrap logger
-	 * @var \Supra\Log\Writer\WriterInterface
+	 * @var Writer\WriterInterface
 	 */
 	protected static $bootstrapLogger;
 
 	/**
 	 * The default timezone
-	 * @var \DateTimeZone
+	 * @var DateTimeZone
 	 */
 	protected static $defaultTimezone;
 
@@ -161,7 +164,7 @@ class Logger
 	 */
 	static public function setDefaultTimezone($timezone)
 	{
-		self::$defaultTimezone = new \DateTimeZone($timezone);
+		self::$defaultTimezone = new DateTimeZone($timezone);
 	}
 
 	/**
@@ -170,7 +173,7 @@ class Logger
 	 */
 	static public function getDateInDefaultTimezone($format, $time = null)
 	{
-		$dateTime = new \DateTime();
+		$dateTime = new DateTime();
 		$dateTime->setTimeZone(self::$defaultTimezone);
 
 		if ( ! is_null($time)) {
@@ -208,7 +211,7 @@ class Logger
 	 * Get log writer instance by it's name
 	 *
 	 * @param string $name
-	 * @return \Supra\Log\Writer\WriterInterface
+	 * @return Writer\WriterInterface
 	 */
 	static protected function getLoggers($name = null)
 	{
@@ -306,7 +309,7 @@ class Logger
 	 * Log writer factory
 	 *
 	 * @param array $configuration
-	 * @return \Supra\Log\Writer\WriterInterface
+	 * @return Writer\WriterInterface
 	 */
 	static function logWriterFactory(array $configuration)
 	{

@@ -9,13 +9,13 @@ class Registry
 {
 	/**
 	 * The singleton instance
-	 * @var \Supra\Loader\Registry
+	 * @var Registry
 	 */
 	protected static $instance;
 
 	/**
 	 * List of registered namespace paths
-	 * @var \Supra\Loader\NamespaceRecord
+	 * @var NamespaceRecord
 	 */
 	protected $registry = array();
 
@@ -27,7 +27,7 @@ class Registry
 
 	/**
 	 * Generate instance of the loader
-	 * @return \Supra\Loader\Registry
+	 * @return Registry
 	 */
 	public static function getInstance()
 	{
@@ -39,8 +39,7 @@ class Registry
 
 	/**
 	 * Binds the namespace classses to be searched in the path specified
-	 * @param string $namespace
-	 * @param string $path
+	 * @param NamespaceRecord $namespaceRecord
 	 */
 	public function registerNamespace(NamespaceRecord $namespaceRecord)
 	{
@@ -48,12 +47,19 @@ class Registry
 		$this->registryOrdered = false;
 	}
 
+	/**
+	 * Register root "\" namespace
+	 * @param string $path
+	 */
 	public function registerRootNamespace($path)
 	{
 		$namespaceRecord = new NamespaceRecord('', $path);
 		$this->registerNamespace($namespaceRecord);
 	}
 
+	/**
+	 * Order registred namespaces by depth
+	 */
 	protected function orderRegistry()
 	{
 		if ( ! $this->registryOrdered) {
@@ -74,16 +80,31 @@ class Registry
 		}
 	}
 
+	/**
+	 * Normalize namespace name by appending \ in the front and end
+	 * @param string $namespace
+	 * @return string
+	 */
 	public static function normalizeNamespaceName($namespace)
 	{
 		return '\\' . ltrim(rtrim($namespace, '\\') . '\\', '\\');
 	}
 
+	/**
+	 * Normalize class name by appending \ in the front
+	 * @param string $class
+	 * @return string
+	 */
 	public static function normalizeClassName($class)
 	{
 		return '\\' . ltrim($class, '\\');
 	}
 
+	/**
+	 * Try loading class by it's name
+	 * @param string $className
+	 * @return boolean
+	 */
 	public function load($className)
 	{
 		$this->orderRegistry();
@@ -101,6 +122,11 @@ class Registry
 		return false;
 	}
 
+	/**
+	 * Autoload method
+	 * @param string $className
+	 * @return boolean
+	 */
 	public function autoload($className)
 	{
 		return $this->load($className);

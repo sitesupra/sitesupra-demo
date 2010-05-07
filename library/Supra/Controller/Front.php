@@ -9,7 +9,7 @@ class Front
 {
 	/**
 	 * Singleton instance
-	 * @var \Supra\Controller\Front
+	 * @var Front
 	 */
 	static protected $instance;
 
@@ -27,7 +27,7 @@ class Front
 
 	/**
 	 * Return the front controller instance
-	 * @return \Supra\Controller\Front
+	 * @return Front
 	 */
 	public static function getInstance()
 	{
@@ -53,7 +53,7 @@ class Front
 	 * Compare two routers. Used to sort the routers by
 	 * @param RouterInterface $a
 	 * @param RouterInterface $b
-	 * @return <type>
+	 * @return integer
 	 */
 	protected function compareRouters(Router\RouterInterface $a, Router\RouterInterface $b)
 	{
