@@ -11,6 +11,18 @@ use Supra\Controller\Exception;
 abstract class RouterAbstraction implements RouterInterface
 {
 	/**
+	 * Default router parameters
+	 * @var array
+	 */
+	static protected $defaultParameters = array();
+
+	/**
+	 * Router parameters
+	 * @var array
+	 */
+	protected $parameters = array();
+
+	/**
 	 * Controller class name
 	 * @var string
 	 */
@@ -53,4 +65,35 @@ abstract class RouterAbstraction implements RouterInterface
 		return $this->controller;
 	}
 
+	/**
+	 * Set parameters
+	 * @param array $parameters
+	 */
+	public function setParameters(array $parameters)
+	{
+		$this->parameters = static::$defaultParameters + $parameters;
+	}
+
+	/**
+	 * Gets parameters
+	 * @return array
+	 */
+	public function getParameters()
+	{
+		return $this->parameters;
+	}
+
+	/**
+	 * Get parameter value
+	 * @param string $key
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	public function getParameter($key, $default = null)
+	{
+		if (array_key_exists($key, $this->parameters)) {
+			return $this->parameters[$key];
+		}
+		return $default;
+	}
 }

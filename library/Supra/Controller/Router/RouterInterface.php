@@ -35,6 +35,26 @@ interface RouterInterface
 	public function getController();
 
 	/**
+	 * Set parameters
+	 * @param array $parameters
+	 */
+	public function setParameters(array $parameters);
+
+	/**
+	 * Gets parameters
+	 * @return array
+	 */
+	public function getParameters();
+
+	/**
+	 * Get parameter value
+	 * @param string $key
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	public function getParameter($key, $default = null);
+
+	/**
 	 * Represents the router as string
 	 * @return string
 	 */

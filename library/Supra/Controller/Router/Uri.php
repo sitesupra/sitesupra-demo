@@ -31,11 +31,13 @@ class Uri extends RouterAbstraction
 	/**
 	 * Router constructor
 	 * @param string $uri
+	 * @param array $params
 	 */
-	public function __construct($uri)
+	public function __construct($uri, array $params = array())
 	{
 		$this->uri = trim($uri, '/');
 		$this->depth = substr_count($this->uri, '/');
+		$this->setParameters($params);
 	}
 
 	/**

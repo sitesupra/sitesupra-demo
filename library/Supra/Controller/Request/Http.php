@@ -219,4 +219,24 @@ class Http implements RequestInterface
 	{
 		return $this->basePath;
 	}
+
+	/**
+	 * If the request was a post request
+	 * @return boolean
+	 */
+	public function isPost()
+	{
+		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		return $requestMethod == 'POST';
+	}
+
+	/**
+	 * If the request was a get request
+	 * @return boolean
+	 */
+	public function isGet()
+	{
+		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		return $requestMethod == 'GET';
+	}
 }
