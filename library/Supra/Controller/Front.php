@@ -59,8 +59,12 @@ class Front
 	{
 		$aPriority = $a->getPriority();
 		$bPriority = $b->getPriority();
-		if ($aPriority == $bPriority) return 0;
-		if ($aPriority > $bPriority) return 1;
+		if ($aPriority == $bPriority) {
+			return 0;
+		}
+		if ($aPriority > $bPriority) {
+			return 1;
+		}
 		return -1;
 	}
 
