@@ -2,7 +2,7 @@
 
 namespace Supra\Ip;
 
-use Supra\Log\Logger as Log;
+use Supra\Log\Logger;
 
 /**
  * SiteSupra IP Range Manipulations
@@ -38,7 +38,7 @@ class Range
 	 * @param string $rangeString range
 	 * @param boolean $strict
 	 */
-	function __construct($rangeString = null, $strict = true)
+	public function __construct($rangeString = null, $strict = true)
 	{
 		$this->strict = $strict;
 		if ( ! is_null($rangeString)) {
@@ -51,7 +51,7 @@ class Range
 	 * @param string $rangeString range
 	 * @return boolean success
 	 */
-	function fromString($rangeString)
+	public function fromString($rangeString)
 	{
 		if ( ! is_string($rangeString)) {
 			throw new Exception('The IP range parameter is not a string');
@@ -65,7 +65,7 @@ class Range
 				$ip = null;
 				$rangeStart = null;
 				$rangeEnd = null;
-				$subnet = 0;
+				$subnet = null;
 
 				// subnet
 				if (strpos($range, '/') !== false) {
@@ -73,53 +73,67 @@ class Range
 					if (count($rangeParts) != 2) {
 						throw new Exception(sprintf('IP range format not recognized: "%s"', $range));
 					}
-					list($range, $subnet) = $rangeParts;
+					list($range, $subnetString) = $rangeParts;
 
-					if (preg_match('/^\d{1,2}$/', $subnet)) {
-						$subnet = (int)$subnet;
+					if (preg_match('/^\d{1,2}$/', $subnetString)) {
+						$subnet = (int)$subnetString;
 						if ($subnet > 32) {
 							throw new Exception(sprintf('IP range format not recognized, CIDR incorrect: "%s"', $range));
 						}
 						$subnet = str_repeat('1', $subnet) . str_repeat('0', 32 - $subnet);
 						$subnet = bindec($subnet);
 					} else {
-						$subnet = ip2long($subnet);
+						$subnet = ip2long($subnetString);
+						if ($subnet === false) {
+							throw new Exception("Subnet value $subnetString is not valid");
+						}
 					}
 
 				}
 
 				// range using *
-				if (strpos($range, '*') !== false)
-				{
-
+				if (strpos($range, '*') !== false) {
+					
 					// validate format
-					if (!preg_match('/^(\d{1,3}\.){0,3}\*$/', $range))
-					{
+					if ( ! preg_match('/^(\d{1,3}\.){0,3}\*$/', $range)) {
 						throw new Exception(sprintf('IP range format not recognized, * range incorrect: "%s"', $range));
 					}
 					$range = rtrim($range, '*.');
 					$rangeParts = explode('.', $range);
 
-					$rangeStart = ip2long(implode('.', $rangeParts + array(0,0,0,0)));
-					$rangeEnd = ip2long(implode('.', $rangeParts + array(255,255,255,255)));
-				}
-				elseif (strpos($range, '-') !== false)
-				{
+					$rangeStartString = implode('.', $rangeParts + array(0, 0, 0, 0));
+					$rangeStart = ip2long($rangeStartString);
+					if ($rangeStart === false) {
+						throw new Exception("IP address $rangeStartString is not valid");
+					}
+					$rangeEndString = implode('.', $rangeParts + array(255, 255, 255, 255));
+					$rangeEnd = ip2long(implode('.', $rangeParts + array(255, 255, 255, 255)));
+					if ($rangeEnd === false) {
+						throw new Exception("IP address $rangeEndString is not valid");
+					}
+				} elseif (strpos($range, '-') !== false) {
 					$rangeParts = explode('-', $range);
 					if (count($rangeParts) != 2) {
 						throw new Exception(sprintf('IP range format not recognized, - range incorrect: "%s"', $range));
 					}
 
-					list($rangeStart, $rangeEnd) = $rangeParts;
-					$rangeStart = ip2long($rangeStart);
-					$rangeEnd = ip2long($rangeEnd);
-				}
-				else
-				{
+					list($rangeStartString, $rangeEndString) = $rangeParts;
+					$rangeStart = ip2long($rangeStartString);
+					if ($rangeStart === false) {
+						throw new Exception("IP address $rangeStartString is not valid");
+					}
+					$rangeEnd = ip2long($rangeEndString);
+					if ($rangeEnd === false) {
+						throw new Exception("IP address $rangeEndString is not valid");
+					}
+				} else {
 					$rangeStart = $rangeEnd = null;
 					$ip = ip2long($range);
+					if ($ip === false) {
+						throw new Exception("IP address $range is not valid");
+					}
 					// Subnet 255.255.255.255 - only this IP is valid when no subnet defined
-					if ($subnet == 0) {
+					if (is_null($subnet)) {
 						$subnet = -1;
 					}
 				}
@@ -130,20 +144,15 @@ class Range
 					'ip' => $ip,
 					'subnet' => $subnet,
 				);
-
 			} catch (Exception $e) {
-
 				if ($this->strict) {
 					throw $e;
 				} else {
-					Log::swarn($e->getMessage());
+					Logger::swarn($e->getMessage());
 					unset($ranges[$i]);
 				}
-
 			}
-
 		}
-
 		$this->ranges = $ranges;
 
 		return true;
@@ -151,29 +160,37 @@ class Range
 
 	/**
 	 * If IP is in the range specified
-	 * @param string $ip
+	 * @param integer|string $ip
 	 * @return boolean result
 	 */
-	function includes($ip)
+	public function includes($ip)
 	{
-		/**
-		 * Cycle through ranges
-		 */
-		foreach ($this->ranges as $range) {
-			if (!is_null($range['start']))
-			{
-				if ($ip < $range['start']) continue;
-				if (($ip & $range['subnet']) != ($range['start'] & $range['subnet'])) continue;
-			}
-			if (!is_null($range['end']))
-			{
-				if ($ip > $range['end']) continue;
-				if (($ip & $range['subnet']) != ($range['end'] & $range['subnet'])) continue;
-			}
+		if ( ! is_numeric($ip)) {
+			$ip = ip2long($ip);
+		}
 
-			if (!is_null($range['ip']))
-			{
-				if (($ip & $range['subnet']) != ($range['ip'] & $range['subnet'])) continue;
+		// Cycle through ranges
+		foreach ($this->ranges as $range) {
+			if ( ! is_null($range['start'])) {
+				if ($ip < $range['start']) {
+					continue;
+				}
+				if (($ip & $range['subnet']) != ($range['start'] & $range['subnet'])) {
+					continue;
+				}
+			}
+			if ( ! is_null($range['end'])) {
+				if ($ip > $range['end']) {
+					continue;
+				}
+				if (($ip & $range['subnet']) != ($range['end'] & $range['subnet'])) {
+					continue;
+				}
+			}
+			if ( ! is_null($range['ip'])) {
+				if (($ip & $range['subnet']) != ($range['ip'] & $range['subnet'])) {
+					continue;
+				}
 			}
 
 			return true;

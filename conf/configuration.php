@@ -5,7 +5,7 @@ $log = \Log::getInstance();
 // Set custom bootstrap writer
 $bootstrapWriter = new \Supra\Log\Writer\Log4j();
 $bootstrapWriter->addFilter(new \Supra\Log\Filter\Level(array('level' => \Log::DEBUG)));
-$log->setBootstrapWriter($bootstrapWriter);
+\Log::setBootstrapWriter($bootstrapWriter);
 
 // Configure Log4j writer
 $log4j = new Supra\Log\Writer\Log4j();

@@ -18,6 +18,8 @@ define('SUPRA_WEBROOT_PATH', SUPRA_PATH . 'webroot' . DIRECTORY_SEPARATOR);
 define('SUPRA_LOG_PATH', SUPRA_PATH . 'log' . DIRECTORY_SEPARATOR);
 define('SUPRA_CONF_PATH', SUPRA_PATH . 'conf' . DIRECTORY_SEPARATOR);
 
+set_include_path(SUPRA_LIBRARY_PATH . PATH_SEPARATOR . get_include_path());
+
 // Require all to the loader required classes
 $loaderPath = SUPRA_LIBRARY_PATH
 		. 'Supra' . DIRECTORY_SEPARATOR
@@ -30,6 +32,8 @@ require_once $loaderPath . 'Exception.php';
 // Initiate and set the root namespace directory to the loader
 $loader = \Supra\Loader\Registry::getInstance();
 $loader->registerRootNamespace(SUPRA_LIBRARY_PATH);
+$testsNamespace = new \Supra\Loader\NamespaceRecord('Supra\\Tests', SUPRA_PATH . 'tests/Supra');
+$loader->registerNamespace($testsNamespace);
 spl_autoload_register(array($loader, 'autoload'));
 
 // Set the initial timezone to the logger

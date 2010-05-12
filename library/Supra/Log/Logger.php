@@ -7,6 +7,24 @@ use \DateTimeZone;
 
 /**
  * Main logger class
+ * @method void static dump(mixed $argument)
+ * @method void static debug(mixed $argument)
+ * @method void static info(mixed $argument)
+ * @method void static warn(mixed $argument)
+ * @method void static error(mixed $argument)
+ * @method void static fatal(mixed $argument)
+ * @method void static pdump(mixed $argument)
+ * @method void static pdebug(mixed $argument)
+ * @method void static pinfo(mixed $argument)
+ * @method void static pwarn(mixed $argument)
+ * @method void static perror(mixed $argument)
+ * @method void static pfatal(mixed $argument)
+ * @method void static sdump(mixed $argument)
+ * @method void static sdebug(mixed $argument)
+ * @method void static sinfo(mixed $argument)
+ * @method void static swarn(mixed $argument)
+ * @method void static serror(mixed $argument)
+ * @method void static sfatal(mixed $argument)
  */
 class Logger
 {
@@ -27,12 +45,6 @@ class Logger
 	 * @var string
 	 */
 	private $defaultLogger = self::LOGGER_APPLICATION;
-
-	/**
-	 * Logger configuration
-	 * @var associative array
-	 */
-	private $loggerConfiguration = array();
 
 	/**
 	 * Bootstrap logger
@@ -135,7 +147,7 @@ class Logger
 	 * @param string $name
 	 * @return boolean
 	 */
-	static private function isSystemLogger($name)
+	private static function isSystemLogger($name)
 	{
 		return in_array($name,
 			array(
@@ -150,7 +162,7 @@ class Logger
 	 * Return static instance
 	 * @return Logger
 	 */
-	static function getInstance()
+	public static function getInstance()
 	{
 		if (is_null(self::$instance)) {
 			self::$instance = new self;
@@ -162,7 +174,7 @@ class Logger
 	 * Sets default timezone used for date output to the log
 	 * @param string $timezone
 	 */
-	static public function setDefaultTimezone($timezone)
+	public static function setDefaultTimezone($timezone)
 	{
 		self::$defaultTimezone = new DateTimeZone($timezone);
 	}
@@ -171,7 +183,7 @@ class Logger
 	 * Sets default timezone used for date output to the log
 	 * @param string $timezone
 	 */
-	static public function getDateInDefaultTimezone($format, $time = null)
+	public static function getDateInDefaultTimezone($format, $time = null)
 	{
 		$dateTime = new DateTime();
 		$dateTime->setTimeZone(self::$defaultTimezone);
@@ -202,7 +214,7 @@ class Logger
 	 * Set the bootstrap writer
 	 * @param Writer\WriterInterface $writer
 	 */
-	public function setBootstrapWriter(Writer\WriterInterface $writer)
+	public static function setBootstrapWriter(Writer\WriterInterface $writer)
 	{
 		self::$bootstrapLogger = $writer;
 	}
@@ -213,7 +225,7 @@ class Logger
 	 * @param string $name
 	 * @return Writer\WriterInterface
 	 */
-	static protected function getLoggers($name = null)
+	protected static function getLoggers($name = null)
 	{
 		try {
 			
@@ -240,68 +252,6 @@ class Logger
 		} catch (Exception $e) {
 			return array();
 		}
-
-	}
-
-	/**
-	 * Get logger configuration array
-	 *
-	 * @param string $name
-	 * @return array
-	 */
-	static function getLoggerConfiguration($name = null)
-	{
-
-		$instance = self::getInstance();
-
-		// use default if no name provided
-		if ($name == null) {
-			$name = $instance->defaultLogger;
-		}
-
-		// configuration not cached
-		if (!isset($instance->loggerConfiguration[$name])) {
-
-			// log supra.ini configuration
-			$log = SupraConfigHandler::getUserConfigValue('log');
-			if (!empty($log) && isset(self::$loggerAliases[$log])) {
-				$configuration = self::$loggerAliases[$log];
-			} else {
-				$configuration = self::$defaultLoggerConfiguration;
-			}
-
-			$configuration['name'] = $name;
-
-			// supra.ini level filter configuration
-			$logLevel = SupraConfigHandler::getUserConfigValue('log.level');
-			$logLevel = strtoupper($logLevel);
-			if (!empty($logLevel) && isset(self::$levels[$logLevel])) {
-				$configuration['Filter']['level'] = $logLevel;
-			}
-
-			// socket/log4j supra.ini host and port configuration
-			if ($configuration['Writer']['id'] == 'Writer\\socket' || $configuration['Writer']['id'] == 'Writer\\log4j') {
-				$logSocketHost = SupraConfigHandler::getUserConfigValue('log.socket.host');
-				$logSocketPort = SupraConfigHandler::getUserConfigValue('log.socket.port');
-				if (!empty($logSocketHost)) {
-					$configuration['Writer']['host'] = $logSocketHost;
-				}
-				if (!empty($logSocketPort)) {
-					$configuration['Writer']['port'] = $logSocketPort;
-				}
-			}
-
-			if (!self::isSystemLogger($name) && SupraConfigHandler::getUserConfigValue('log.name') != null) {
-				// application log name from supra.ini
-				$configuration['name'] = SupraConfigHandler::getUserConfigValue('log.name');
-			}
-
-			$instance->loggerConfiguration[$name] = $configuration;
-		} elseif (!isset($instance->loggerConfiguration[$name]['name'])) {
-			$instance->loggerConfiguration[$name]['name'] = $name;
-		}
-
-		return $instance->loggerConfiguration[$name];
 
 	}
 
@@ -470,146 +420,53 @@ class Logger
 	}
 
 	/**
-	 * Variable dump debug logging method
+	 * Magic static method for calling dump(), debug(), etc methods
+	 * @param string $name
+	 * @param array $arguments
+	 * @return null
 	 */
-	public static function dump()
+	public static function  __callStatic($name,  $arguments)
 	{
-		$args = array();
-		foreach (func_get_args() as $arg) {
-			ob_start();
-			var_dump($arg);
-			$args[] = ob_get_clean();
+		$name = strtoupper($name);
+
+		// switch between simple methods and methods with "p" or "s" prefix
+		foreach (array(0, 1) as $loggerPrefixLength) {
+			$loggerPrefix = substr($name, 0, $loggerPrefixLength);
+			$logLevel = substr($name, $loggerPrefixLength);
+			
+			// special logics for dump method
+			if ($logLevel == 'DUMP') {
+				$logLevel = self::DEBUG;
+				ob_start();
+				foreach ($arguments as &$arg) {
+					var_dump($arg);
+				}
+				$arguments = array(ob_get_clean());
+			}
+
+			// find appropriate
+			if (isset(self::$levels[$logLevel])) {
+				switch ($loggerPrefix) {
+					case 'P':
+						$logger = self::LOGGER_PHP;
+					break;
+					case 'S':
+						$logger = self::LOGGER_SUPRA;
+					break;
+					case '':
+						self::_log($logLevel, $arguments);
+						return;
+					break;
+					default:
+						$method = __CLASS__ . '::' . $name . '()';
+						throw new \Exception("Method $method does not exist");
+				}
+				self::_log($logLevel, $arguments, $logger);
+				return;
+			}
 		}
-		self::_log(self::DEBUG, $args);
+		$method = __CLASS__ . '::' . $name . '()';
+		throw new \Exception("Method $method does not exist");
 	}
 
-	/**
-	 * Debug level logging method
-	 */
-	public static function debug()
-	{
-		$args = func_get_args();
-		self::_log(self::DEBUG, $args);
-	}
-
-	/**
-	 * Info level logging method
-	 */
-	public static function info()
-	{
-		$args = func_get_args();
-		self::_log(self::INFO, $args);
-	}
-
-	/**
-	 * Warn level logging method
-	 */
-	public static function warn() {
-		$args = func_get_args();
-		self::_log(self::WARN, $args);
-	}
-
-	/**
-	 * Error level logging method
-	 */
-	public static function error()
-	{
-		$args = func_get_args();
-		self::_log(self::ERROR, $args);
-	}
-	/**
-	 * Fatal level logging method
-	 */
-	public static function fatal()
-	{
-		$args = func_get_args();
-		self::_log(self::FATAL, $args);
-	}
-	/**
-	 * Debug level framework logging
-	 */
-	public static function sdebug()
-	{
-		$args = func_get_args();
-		self::_log(self::DEBUG, $args, self::LOGGER_SUPRA);
-	}
-
-	/**
-	 * Info level logging method
-	 */
-	public static function sinfo()
-	{
-		$args = func_get_args();
-		self::_log(self::INFO, $args, self::LOGGER_SUPRA);
-	}
-
-	/**
-	 * Warn level logging method
-	 */
-	public static function swarn()
-	{
-		$args = func_get_args();
-		self::_log(self::WARN, $args, self::LOGGER_SUPRA);
-	}
-
-	/**
-	 * Error level logging method
-	 */
-	public static function serror()
-	{
-		$args = func_get_args();
-		self::_log(self::ERROR, $args, self::LOGGER_SUPRA);
-	}
-	/**
-	 * Error level logging method
-	 */
-	public static function sfatal()
-	{
-		$args = func_get_args();
-		self::_log(self::FATAL, $args, self::LOGGER_SUPRA);
-	}
-
-	/**
-	 * Debug level PHP logging
-	 */
-	public static function pdebug()
-	{
-		$args = func_get_args();
-		self::_log(self::DEBUG, $args, self::LOGGER_PHP, $offset = 1);
-	}
-
-	/**
-	 * Info level logging method
-	 */
-	public static function pinfo()
-	{
-		$args = func_get_args();
-		self::_log(self::INFO, $args, self::LOGGER_PHP, $offset = 1);
-	}
-
-	/**
-	 * Warn level logging method
-	 */
-	public static function pwarn()
-	{
-		$args = func_get_args();
-		self::_log(self::WARN, $args, self::LOGGER_PHP, $offset = 1);
-	}
-
-	/**
-	 * Error level logging method
-	 */
-	public static function perror()
-	{
-		$args = func_get_args();
-		self::_log(self::ERROR, $args, self::LOGGER_PHP, $offset = 1);
-	}
-	/**
-	 * Error level logging method
-	 */
-	public static function pfatal()
-	{
-		$args = func_get_args();
-		self::_log(self::FATAL, $args, self::LOGGER_PHP, $offset = 1);
-	}
 }

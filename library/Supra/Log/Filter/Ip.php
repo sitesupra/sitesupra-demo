@@ -47,7 +47,7 @@ class Ip implements FilterInterface
 		if (empty($_SERVER['REMOTE_ADDR'])) {
 			return false;
 		}
-		$ip = ip2long($_SERVER['REMOTE_ADDR']);
+		$ip = $_SERVER['REMOTE_ADDR'];
 		if (empty($ip)) {
 			return false;
 		}
