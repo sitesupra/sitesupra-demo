@@ -13,8 +13,16 @@ class Http implements ResponseInterface
 	 */
 	protected $headers = array();
 
+	/**
+	 * Output data
+	 * @var array
+	 */
 	protected $output = array();
 
+	/**
+	 * Whether the response is redirect
+	 * @var boolean
+	 */
 	protected $redirect = false;
 
 	/**
@@ -30,12 +38,18 @@ class Http implements ResponseInterface
         return $name;
     }
 
+	/**
+	 * Response prepare method
+	 */
 	public function prepare()
 	{
 		ob_end_clean();
 		ob_start('ob_gzhandler');
 	}
 
+	/**
+	 * Stores header data
+	 */
 	public function header($name, $value, $replace = true)
 	{
 		$name = static::normalizeHeader($name);
@@ -45,6 +59,10 @@ class Http implements ResponseInterface
 		$this->headers[$name][] = $value;
 	}
 
+	/**
+	 * Sends the header to client
+	 * @param string $name
+	 */
 	protected function sendHeader($name)
 	{
 		$replace = true;
@@ -54,6 +72,10 @@ class Http implements ResponseInterface
 		}
 	}
 
+	/**
+	 * Removes the header specified from the buffer
+	 * @param string $name
+	 */
 	public function removeHeader($name)
 	{
 		$name = static::normalizeHeader($name);

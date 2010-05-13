@@ -10,6 +10,9 @@ use Supra\Log\Logger as Log;
  */
 class Controller extends \Supra\Controller\Simple
 {
+	/**
+	 * Default action
+	 */
 	protected function indexAction()
 	{
 		$instanceListenerFunction = function() {
@@ -24,6 +27,10 @@ class Controller extends \Supra\Controller\Simple
 		EventRegistry::fire($this, 'test');
 
 	}
+
+	/**
+	 * Action for URL foo/bar
+	 */
 	protected function fooBarAction()
 	{
 		$this->getResponse()->output('foo/bar action');

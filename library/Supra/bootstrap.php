@@ -6,7 +6,7 @@ ob_start();
 // Check the PHP version installed. Supra7 requires 5.3 version as minimum
 const SUPRA_REQUIRED_PHP_VERSION = '5.3';
 if (version_compare(phpversion(),  SUPRA_REQUIRED_PHP_VERSION, 'lt')) {
-	die ('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.');
+	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.');
 }
 
 // Define the main supra folders
@@ -17,6 +17,7 @@ define('SUPRA_LIBRARY_PATH', SUPRA_PATH . 'library' . DIRECTORY_SEPARATOR);
 define('SUPRA_WEBROOT_PATH', SUPRA_PATH . 'webroot' . DIRECTORY_SEPARATOR);
 define('SUPRA_LOG_PATH', SUPRA_PATH . 'log' . DIRECTORY_SEPARATOR);
 define('SUPRA_CONF_PATH', SUPRA_PATH . 'conf' . DIRECTORY_SEPARATOR);
+define('SUPRA_COMPONENT_PATH', SUPRA_WEBROOT_PATH . 'components' . DIRECTORY_SEPARATOR);
 
 set_include_path(SUPRA_LIBRARY_PATH . PATH_SEPARATOR . get_include_path());
 
@@ -32,8 +33,7 @@ require_once $loaderPath . 'Exception.php';
 // Initiate and set the root namespace directory to the loader
 $loader = \Supra\Loader\Registry::getInstance();
 $loader->registerRootNamespace(SUPRA_LIBRARY_PATH);
-$testsNamespace = new \Supra\Loader\NamespaceRecord('Supra\\Tests', SUPRA_PATH . 'tests/Supra');
-$loader->registerNamespace($testsNamespace);
+
 spl_autoload_register(array($loader, 'autoload'));
 
 // Set the initial timezone to the logger

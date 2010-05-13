@@ -7,14 +7,18 @@ namespace Supra\Controller\Response;
  */
 class Cli implements ResponseInterface
 {
+	/**
+	 * Prepare response
+	 */
 	function prepare()
 	{
+		// Don't open any output buffering for CLI response
 		ob_end_clean();
-		// don't open any output buffering for CLI response
 	}
 
+	/**
+	 * Flush the buffer
+	 */
 	function flush()
-	{
-		
-	}
+	{}
 }

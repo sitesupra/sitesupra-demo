@@ -19,6 +19,11 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 */
 	protected $response;
 
+	/**
+	 * Execute controller
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
+	 */
 	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		$this->request = $request;

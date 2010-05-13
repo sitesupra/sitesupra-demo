@@ -8,7 +8,7 @@ require_once SUPRA_PATH . 'library/Supra/bootstrap.php';
 $frontController = new \Supra\Controller\Front();
 
 //TODO: should do automatically
-require_once SUPRA_PATH . 'components/rss/config.php';
+require_once SUPRA_COMPONENT_PATH . 'rss/config.php';
 
 $frontController->execute();
 

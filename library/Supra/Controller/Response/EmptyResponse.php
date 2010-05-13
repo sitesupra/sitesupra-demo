@@ -18,4 +18,11 @@ class EmptyResponse implements ResponseInterface
 	 */
 	public function flush()
 	{}
+
+	/**
+	 * Output method
+	 * @param string $output
+	 */
+	public function output($output)
+	{}
 }
