@@ -2,7 +2,7 @@
 
 define('SUPRA_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
 
-require_once SUPRA_PATH . 'library/Supra/bootstrap.php';
+require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
 
 // Start the front cotroller
 $frontController = new \Supra\Controller\Front();
