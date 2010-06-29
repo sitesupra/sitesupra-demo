@@ -1,6 +1,6 @@
 <?php
 
-require_once SUPRA_CONF_PATH . 'doctrine.php';
+require_once SUPRA_CONF_PATH . 'database.php';
 
 // This is for doctrine CLI requests
 $helpers = array(

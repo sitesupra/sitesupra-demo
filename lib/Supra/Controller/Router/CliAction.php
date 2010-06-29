@@ -61,7 +61,7 @@ class CliAction extends RouterAbstraction
 			return false;
 		}
 
-		$requestActions = $request->getAction(0);
+		$requestActions = $request->getActions(null);
 
 		if ($this->depth > count($requestActions)) {
 			\Log::sdebug('Router depth exceeds request action count, does not match for router ', $this->__toString());

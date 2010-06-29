@@ -3,84 +3,157 @@
 namespace Supra\Controller\Pages;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Page controller page object
  * @Entity
  */
-class Page
+class Page extends PageAbstraction
 {
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;
 
 	/**
-	 * @OneToOne(targetEntity="PageData")
-	 * @var PageData
+	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"})
+	 * @var Collection
 	 */
-	protected $pageData;
+	protected $data;
+
+	/**
+	 * @ManyToOne(targetEntity="Template", cascade={"persist"})
+	 * @var Template
+	 */
+	protected $template;
+
+	/**
+	 * @Column(type="string", unique=true)
+	 * @var string
+	 */
+	protected $path = '';
+
+	/**
+	 * @Column(type="string", name="path_part")
+	 * @var string
+	 */
+	protected $pathPart = '';
 
 	/**
 	 * @OneToMany(targetEntity="Page", mappedBy="parent")
+	 * @var Collection
 	 */
 	protected $children;
 
 	/**
      * @ManyToOne(targetEntity="Page", inversedBy="children")
      * @JoinColumn(name="parent_id", referencedColumnName="id")
+	 * @var Page
      */
 	protected $parent;
+
+	/**
+	 * Page place holders
+	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="page", cascade={"persist", "remove"})
+	 * @var Collection
+	 */
+	protected $placeHolders;
+
+	/**
+	 * @Column(type="integer")
+	 * @var int
+	 */
+	protected $depth = 1;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct()
 	{
-		$this->children = new ArrayCollection();
+		parent::__construct();
+		$this->pageData = new ArrayCollection();
 	}
 
 	/**
-	 * Get page id
-	 * @return integer
+	 * Set page template
+	 * @param Template $template
 	 */
-	public function getId()
+	public function setTemplate(Template $template)
 	{
-		return $this->id;
+		$this->template = $template;
 	}
 
 	/**
-	 * Get parent page
-	 * @return Page
+	 * Get page template
+	 * @return Template
 	 */
-	public function getParent()
+	public function getTemplate()
 	{
-		return $this->parent;
+		return $this->template;
 	}
 
 	/**
-	 * Set parent page
-	 * @var Page $parent
+	 * Set page path
+	 * @param string $path
 	 */
-	public function setParent(Page $parent)
+	protected function setPath($path)
 	{
-		if ( ! empty($this->parent)) {
-			$this->parent->getChildren()->remove($this);
+		$path = trim($path, '/');
+		$this->path = $path;
+	}
+
+	/**
+	 * Get page path
+	 * @return string
+	 */
+	public function getPath()
+	{
+		return $this->path;
+	}
+
+	public function setParent(PageAbstraction $page = null)
+	{
+		if ( ! ($page instanceof Page)) {
+			throw new Exception("Page parent can be only instance of Page class");
 		}
-		$this->parent = $parent;
-		$parent->getChildren()->add($this);
+		parent::setParent($page);
+
+		$this->setPathPart($this->pathPart);
+		$this->setDepth($page->depth + 1);
 	}
 
 	/**
-	 * Get children pages
-	 * @return ArrayCollection
+	 * Set page depth
+	 * @param int $depth
 	 */
-	public function getChildren()
+	protected function setDepth($depth)
 	{
-		return $this->children;
+		$this->depth = $depth;
+	}
+
+	/**
+	 * Sets path part of the page
+	 * @param string $pathPart
+	 */
+	public function setPathPart($pathPart)
+	{
+
+		$this->pathPart = $pathPart;
+
+		if (is_null($this->parent)) {
+			\Log::debug("Cannot set path for the root page");
+			$this->setPath('');
+			return;
+		}
+
+		$pathPart = \urlencode($pathPart);
+
+		if ($pathPart == '') {
+			throw new Exception('Path part cannot be empty');
+		}
+
+		$path = $this->getParent()->getPath();
+
+		$path .= '/' . $pathPart;
+
+		$this->setPath($path);
 	}
 
 }

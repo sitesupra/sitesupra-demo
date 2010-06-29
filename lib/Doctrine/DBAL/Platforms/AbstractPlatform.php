@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -42,6 +40,7 @@ use Doctrine\DBAL\DBALException,
  * @author  Jonathan Wage <jonwage@gmail.com>
  * @author  Roman Borschel <roman@code-factory.org>
  * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @todo Remove any unnecessary methods.
  */
 abstract class AbstractPlatform
@@ -77,9 +76,61 @@ abstract class AbstractPlatform
     const TRIM_BOTH = 3;
 
     /**
+     * @var array
+     */
+    protected $doctrineTypeMapping = null;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
+
+    /**
+     * Register a doctrine type to be used in conjunction with a column type of this platform.
+     *
+     * @param string $dbType
+     * @param string $doctrineType
+     */
+    public function registerDoctrineTypeMapping($dbType, $doctrineType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+
+        if (!Types\Type::hasType($doctrineType)) {
+            throw DBALException::typeNotFound($doctrineType);
+        }
+
+        $dbType = strtolower($dbType);
+        $this->doctrineTypeMapping[$dbType] = $doctrineType;
+    }
+
+    /**
+     * Get the Doctrine type that is mapped for the given database column type.
+     * 
+     * @param  string $dbType
+     * @return string
+     */
+    public function getDoctrineTypeMapping($dbType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+        
+        $dbType = strtolower($dbType);
+        if (isset($this->doctrineTypeMapping[$dbType])) {
+            return $this->doctrineTypeMapping[$dbType];
+        } else {
+            throw new \Doctrine\DBAL\DBALException("Unknown database type ".$dbType." requested, " . get_class($this) . " may not support it.");
+        }
+    }
+
+    /**
+     * Lazy load Doctrine Type Mappings
+     *
+     * @return void
+     */
+    abstract protected function initializeDoctrineTypeMappings();
 
     /**
      * Gets the character used for identifier quoting.
@@ -488,9 +539,46 @@ abstract class AbstractPlatform
         return 'COS(' . $value . ')';
     }
 
-    public function getForUpdateSql()
+    public function getForUpdateSQL()
     {
         return 'FOR UPDATE';
+    }
+
+    /**
+     * Honors that some SQL vendors such as MsSql use table hints for locking instead of the ANSI SQL FOR UPDATE specification.
+     *
+     * @param  string $fromClause
+     * @param  int $lockMode
+     * @return string
+     */
+    public function appendLockHint($fromClause, $lockMode)
+    {
+        return $fromClause;
+    }
+
+    /**
+     * Get the sql snippet to append to any SELECT statement which locks rows in shared read lock.
+     *
+     * This defaults to the ASNI SQL "FOR UPDATE", which is an exclusive lock (Write). Some database
+     * vendors allow to lighten this constraint up to be a real read lock.
+     *
+     * @return string
+     */
+    public function getReadLockSQL()
+    {
+        return $this->getForUpdateSQL();
+    }
+
+    /**
+     * Get the SQL snippet to append to any SELECT statement which obtains an exclusive lock on the rows.
+     *
+     * The semantics of this lock mode should equal the SELECT .. FOR UPDATE of the ASNI SQL standard.
+     *
+     * @return string
+     */
+    public function getWriteLockSQL()
+    {
+        return $this->getForUpdateSQL();
     }
 
     public function getDropDatabaseSQL($database)
@@ -1863,5 +1951,15 @@ abstract class AbstractPlatform
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         return 'TRUNCATE '.$tableName;
+    }
+
+    /**
+     * This is for test reasons, many vendors have special requirements for dummy statements.
+     * 
+     * @return string
+     */
+    public function getDummySelectSQL()
+    {
+        return 'SELECT 1';
     }
 }

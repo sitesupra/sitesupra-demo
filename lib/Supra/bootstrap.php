@@ -55,4 +55,8 @@ $phpErrorHandler();
 // Alias \Log to the \Supra\Log\Logger
 class_alias('\Supra\Log\Logger', 'Log');
 
+// Set mb enciding to UTF-8
+mb_internal_encoding('UTF-8');
+mb_regex_encoding('UTF-8');
+
 require_once SUPRA_CONF_PATH . 'configuration.php';

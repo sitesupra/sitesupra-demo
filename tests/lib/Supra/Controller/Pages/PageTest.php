@@ -1,8 +1,9 @@
 <?php
 
-namespace Supra\Controller\Pages;
+namespace Supra\Tests\Controller\Pages;
 
 use Supra\Controller\Pages\Page;
+use Supra\Controller\Pages\PageData;
 use Doctrine\ORM\EntityManager;
 use Supra\Database\Doctrine;
 
@@ -25,8 +26,11 @@ class PageTest extends \PHPUnit_Framework_TestCase
 		$default = Doctrine::getInstance()->getEntityManager();
 		$config = $default->getConfiguration();
 		$connectionOptions = array(
-			'driver' => 'pdo_sqlite',
-			'path' => SUPRA_DATA_PATH . 'database.test.sqlite'
+			'driver' => 'pdo_mysql',
+			//'path' => SUPRA_DATA_PATH . 'database.test.sqlite'
+			'dbname' => 'test',
+			'user' => 'root',
+			'password' => '1qaz'
 		);
 		$this->entityManager = EntityManager::create($connectionOptions, $config);
 
@@ -67,6 +71,7 @@ class PageTest extends \PHPUnit_Framework_TestCase
 	public function testRootPageCreation()
 	{
 		$rootPage = new Page();
+		$rootPage->setPath('/');
 		$this->entityManager->persist($rootPage);
 		$this->entityManager->flush();
 	}
@@ -77,7 +82,7 @@ class PageTest extends \PHPUnit_Framework_TestCase
 	public function testGetId()
 	{
 		$this->testRootPageCreation();
-		$page = $this->entityManager->find('Supra\Controller\Pages\Page', 1);
+		$page = $this->entityManager->find('Supra\\Controller\\Pages\\Page', 1);
 		self::assertEquals(1, $page->getId());
 	}
 
@@ -86,8 +91,11 @@ class PageTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testGetParent() {
 		$this->testSetParent();
-		$page = $this->entityManager->find('Supra\Controller\Pages\Page', 2);
+		
+		/* @var $page Page */
+		$page = $this->entityManager->find('Supra\\Controller\\Pages\\Page', 2);
 		$parent = $page->getParent();
+		
 		self::assertEquals(1, $parent->getId());
 	}
 
@@ -100,6 +108,7 @@ class PageTest extends \PHPUnit_Framework_TestCase
 		$rootPage = $this->entityManager->find('Supra\Controller\Pages\Page', 1);
 
 		$page = new Page();
+		$page->setPath('/test/');
 		$this->entityManager->persist($page);
 		$page->setParent($rootPage);
 		$this->entityManager->flush();
@@ -112,15 +121,30 @@ class PageTest extends \PHPUnit_Framework_TestCase
 		$this->testGetParent();
 		$parent = $this->entityManager->find('Supra\Controller\Pages\Page', 1);
 		$children = $parent->getChildren();
-		self::isInstanceOf('\Doctrine\Common\Collections\ArrayCollection')->
-				evaluate($children);
+		self::assertType('\Doctrine\ORM\PersistentCollection', $children);
 		self::assertEquals(1, count($children));
 		self::assertEquals(2, $children[0]->getId());
 
 		$parent = $this->entityManager->find('Supra\Controller\Pages\Page', 2);
 		$children = $parent->getChildren();
-		self::isInstanceOf('\Doctrine\Common\Collections\ArrayCollection')->
-				evaluate($children);
+		self::assertType('\Doctrine\ORM\PersistentCollection', $children);
 		self::assertEquals(0, count($children));
+
+	}
+
+	public function testPageData()
+	{
+		$this->testGetParent();
+		/* @var $page Page */
+		$page = $this->entityManager->find('Supra\Controller\Pages\Page', 1);
+
+		$pageData = new PageData();
+		$pageData->setTitle('Home page');
+		$this->entityManager->persist($pageData);
+
+		$page->setPageData($pageData);
+
+		$this->entityManager->persist($page);
+		$this->entityManager->flush();
 	}
 }

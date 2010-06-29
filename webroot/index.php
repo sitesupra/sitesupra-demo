@@ -9,6 +9,7 @@ $frontController = new \Supra\Controller\Front();
 
 //TODO: should do automatically
 require_once SUPRA_COMPONENT_PATH . 'rss/config.php';
+require_once SUPRA_COMPONENT_PATH . 'pages/config.php';
 
 $frontController->execute();
 

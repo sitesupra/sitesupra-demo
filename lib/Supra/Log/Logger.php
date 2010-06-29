@@ -7,24 +7,24 @@ use \DateTimeZone;
 
 /**
  * Main logger class
- * @method void static dump(mixed $argument)
- * @method void static debug(mixed $argument)
- * @method void static info(mixed $argument)
- * @method void static warn(mixed $argument)
- * @method void static error(mixed $argument)
- * @method void static fatal(mixed $argument)
- * @method void static pdump(mixed $argument)
- * @method void static pdebug(mixed $argument)
- * @method void static pinfo(mixed $argument)
- * @method void static pwarn(mixed $argument)
- * @method void static perror(mixed $argument)
- * @method void static pfatal(mixed $argument)
- * @method void static sdump(mixed $argument)
- * @method void static sdebug(mixed $argument)
- * @method void static sinfo(mixed $argument)
- * @method void static swarn(mixed $argument)
- * @method void static serror(mixed $argument)
- * @method void static sfatal(mixed $argument)
+ * @method void dump(mixed $argument)
+ * @method void debug(mixed $argument)
+ * @method void info(mixed $argument)
+ * @method void warn(mixed $argument)
+ * @method void error(mixed $argument)
+ * @method void fatal(mixed $argument)
+ * @method void pdump(mixed $argument)
+ * @method void pdebug(mixed $argument)
+ * @method void pinfo(mixed $argument)
+ * @method void pwarn(mixed $argument)
+ * @method void perror(mixed $argument)
+ * @method void pfatal(mixed $argument)
+ * @method void sdump(mixed $argument)
+ * @method void sdebug(mixed $argument)
+ * @method void sinfo(mixed $argument)
+ * @method void swarn(mixed $argument)
+ * @method void serror(mixed $argument)
+ * @method void sfatal(mixed $argument)
  */
 class Logger
 {
@@ -141,22 +141,6 @@ class Logger
 			),
 		),
 	);
-
-	/**
-	 * Detects if the logger is system or application logger
-	 * @param string $name
-	 * @return boolean
-	 */
-	private static function isSystemLogger($name)
-	{
-		return in_array($name,
-			array(
-				self::LOGGER_BOOTSTRAP,
-				self::LOGGER_PHP,
-				self::LOGGER_SUPRA
-			)
-		);
-	}
 
 	/**
 	 * Return static instance

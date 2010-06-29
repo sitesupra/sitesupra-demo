@@ -5,26 +5,30 @@ namespace Supra\Controller\Pages;
 /**
  * PageData class
  * @Entity
+ * @Table(name="page_data")
  */
-class PageData
+class PageData extends PageDataAbstraction
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
-	 * @OneToOne(targetEntity="Page")
+	 * @ManyToOne(targetEntity="Page", inversedBy="data")
+	 * @var Page
 	 */
 	protected $page;
 
 	/**
-	 * @Column(type="string")
-	 * @var string
+	 * @param Page $page
 	 */
-	protected $title;
+	public function setPage(Page $page)
+	{
+		$this->page = $page;
+	}
 
-	
+	/**
+	 * @return Page
+	 */
+	public function getPage()
+	{
+		return $this->page;
+	}
+
 }

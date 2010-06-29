@@ -2,6 +2,9 @@
 
 namespace Supra\Log\Writer;
 
+require_once SUPRA_LIBRARY_PATH . 'Supra/Log/Event.php';
+require_once SUPRA_LIBRARY_PATH . 'Supra/Log/Formatter/Log4j.php';
+
 use Supra\Log\Filter;
 use Supra\Log\Formatter;
 use Supra\Log\Logger;

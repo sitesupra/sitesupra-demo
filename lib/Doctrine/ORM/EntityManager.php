@@ -22,6 +22,7 @@ namespace Doctrine\ORM;
 use Closure, Exception,
     Doctrine\Common\EventManager,
     Doctrine\DBAL\Connection,
+    Doctrine\DBAL\LockMode,
     Doctrine\ORM\Mapping\ClassMetadata,
     Doctrine\ORM\Mapping\ClassMetadataFactory,
     Doctrine\ORM\Proxy\ProxyFactory;
@@ -318,11 +319,13 @@ class EntityManager
      *
      * @param string $entityName
      * @param mixed $identifier
+     * @param int $lockMode
+     * @param int $lockVersion
      * @return object
      */
-    public function find($entityName, $identifier)
+    public function find($entityName, $identifier, $lockMode = LockMode::NONE, $lockVersion = null)
     {
-        return $this->getRepository($entityName)->find($identifier);
+        return $this->getRepository($entityName)->find($identifier, $lockMode, $lockVersion);
     }
 
     /**
@@ -479,6 +482,20 @@ class EntityManager
     }
 
     /**
+     * Acquire a lock on the given entity.
+     *
+     * @param object $entity
+     * @param int $lockMode
+     * @param int $lockVersion
+     * @throws OptimisticLockException
+     * @throws PessimisticLockException
+     */
+    public function lock($entity, $lockMode, $lockVersion = null)
+    {
+        $this->_unitOfWork->lock($entity, $lockMode, $lockVersion);
+    }
+
+    /**
      * Gets the repository for an entity class.
      *
      * @param string $entityName  The name of the Entity.
@@ -599,6 +616,10 @@ class EntityManager
                 $hydrator = new Internal\Hydration\SingleScalarHydrator($this);
                 break;
             default:
+                if ($class = $this->_config->getCustomHydrationMode($hydrationMode)) {
+                    $hydrator = new $class($this);
+                    break;
+                }
                 throw ORMException::invalidHydrationMode($hydrationMode);
         }
 

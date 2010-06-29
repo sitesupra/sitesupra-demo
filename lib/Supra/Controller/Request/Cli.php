@@ -34,7 +34,7 @@ class Cli implements RequestInterface
 	 * @param integer $limit
 	 * @return string[]
 	 */
-	public function getAction($limit = null)
+	public function getActions($limit = null)
 	{
 		$actions = $this->actions;
 		if ($limit > 0) {
@@ -68,12 +68,13 @@ class Cli implements RequestInterface
 	}
 
 	/**
-	 * Get request actions
-	 * @return array
+	 * Get all actions as string joined by $glue argument value
+	 * @param string $glue
+	 * @return string
 	 */
-	public function getActions()
+	public function getActionString($glue = ' ')
 	{
-		return $this->actions;
+		return implode($glue, $this->getActions());
 	}
 
 }

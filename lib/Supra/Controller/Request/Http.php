@@ -63,7 +63,7 @@ class Http implements RequestInterface
 	 * @param integer $limit
 	 * @return string[]
 	 */
-	public function getAction($limit = 1)
+	public function getActions($limit = null)
 	{
 		$path = $this->getPath();
 		if (empty($path)) {
@@ -238,5 +238,15 @@ class Http implements RequestInterface
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
 		return $requestMethod == 'GET';
+	}
+
+	/**
+	 * Get all actions as string joined by $glue argument value
+	 * @param string $glue
+	 * @return string
+	 */
+	public function getActionString($glue = '/')
+	{
+		return implode($glue, $this->getActions());
 	}
 }

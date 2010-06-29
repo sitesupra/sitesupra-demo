@@ -65,7 +65,7 @@ class ApcCache extends AbstractCache
     protected function _doContains($id)
     {
         $found = false;
-        $result = apc_fetch($id, $found);
+        apc_fetch($id, $found);
         return $found;
     }
 

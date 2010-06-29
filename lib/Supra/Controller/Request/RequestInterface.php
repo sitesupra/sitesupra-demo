@@ -20,5 +20,12 @@ interface RequestInterface
 	 * @param integer $limit
 	 * @return string[]
 	 */
-	public function getAction($limit = null);
+	public function getActions($limit);
+
+	/**
+	 * Get all actions as string joined by $glue argument value
+	 * @param string $glue
+	 * @return string
+	 */
+	public function getActionString($glue);
 }

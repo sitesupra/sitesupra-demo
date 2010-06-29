@@ -21,7 +21,7 @@ abstract class Simple extends ControllerAbstraction
 	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		parent::execute($request, $response);
-		$actions = $request->getAction(null);
+		$actions = $request->getActions(null);
 
 		\Log::sdebug('Actions: ', $actions);
 
