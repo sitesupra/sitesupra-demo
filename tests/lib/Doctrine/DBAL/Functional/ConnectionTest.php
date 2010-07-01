@@ -8,7 +8,25 @@ require_once __DIR__ . '/../../TestInit.php';
 
 class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
 {
-    
+    public function setUp()
+    {
+        $this->resetSharedConn();
+        parent::setUp();
+    }
+
+    public function testGetWrappedConnection()
+    {
+        $this->assertType('Doctrine\DBAL\Driver\Connection', $this->_conn->getWrappedConnection());
+    }
+
+    public function testCommitWithRollbackOnlyThrowsException()
+    {
+        $this->_conn->beginTransaction();
+        $this->_conn->setRollbackOnly();
+        $this->setExpectedException('Doctrine\DBAL\ConnectionException');
+        $this->_conn->commit();
+    }
+
     public function testTransactionNestingBehavior()
     {
         try {
@@ -36,7 +54,7 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
     }
     
-    public function testTransactionBehavior()
+    public function testTransactionBehaviorWithRollback()
     {
         try {
             $this->_conn->beginTransaction();
@@ -50,7 +68,10 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
             $this->_conn->rollback();
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
-        
+    }
+
+    public function testTransactionBehaviour()
+    {
         try {
             $this->_conn->beginTransaction();
             $this->assertEquals(1, $this->_conn->getTransactionNestingLevel());
@@ -61,14 +82,25 @@ class ConnectionTest extends \Doctrine\Tests\DbalFunctionalTestCase
         }
 
         $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
+    }
+
+    public function testTransactionalWithException()
+    {
         try {
             $this->_conn->transactional(function($conn) {
-                $conn->executeQuery("select 1");
+                $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
                 throw new \RuntimeException("Ooops!");
             });
         } catch (\RuntimeException $expected) {
             $this->assertEquals(0, $this->_conn->getTransactionNestingLevel());
         }
     }
-    
+
+    public function testTransactional()
+    {
+        $this->_conn->transactional(function($conn) {
+            /* @var $conn Connection */
+            $conn->executeQuery($conn->getDatabasePlatform()->getDummySelectSQL());
+        });
+    }
 }

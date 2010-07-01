@@ -22,10 +22,9 @@ class AllTests
     public static function suite()
     {
         $suite = new DoctrineTestSuite('Doctrine Tests');
-
-        $suite->addTest(Common\AllTests::suite());
-        $suite->addTest(DBAL\AllTests::suite());
         $suite->addTest(ORM\AllTests::suite());
+        $suite->addTest(DBAL\AllTests::suite());
+        $suite->addTest(Common\AllTests::suite());
 
         return $suite;
     }

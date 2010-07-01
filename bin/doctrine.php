@@ -1,7 +1,7 @@
 <?php
 
 // Supra starting
-define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR);
 
 require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
 
