@@ -25,18 +25,6 @@ class Page extends PageAbstraction
 	protected $template;
 
 	/**
-	 * @Column(type="string", unique=true)
-	 * @var string
-	 */
-	protected $path = '';
-
-	/**
-	 * @Column(type="string", name="path_part")
-	 * @var string
-	 */
-	protected $pathPart = '';
-
-	/**
 	 * @OneToMany(targetEntity="Page", mappedBy="parent")
 	 * @var Collection
 	 */
@@ -90,24 +78,9 @@ class Page extends PageAbstraction
 	}
 
 	/**
-	 * Set page path
-	 * @param string $path
+	 * Sets page as parent of this page
+	 * @param PageAbstraction $page
 	 */
-	protected function setPath($path)
-	{
-		$path = trim($path, '/');
-		$this->path = $path;
-	}
-
-	/**
-	 * Get page path
-	 * @return string
-	 */
-	public function getPath()
-	{
-		return $this->path;
-	}
-
 	public function setParent(PageAbstraction $page = null)
 	{
 		if ( ! ($page instanceof Page)) {
@@ -115,7 +88,13 @@ class Page extends PageAbstraction
 		}
 		parent::setParent($page);
 
-		$this->setPathPart($this->pathPart);
+		// Change full path for all data items
+		$pageDatas = $this->getDataCollection();
+		foreach ($pageDatas as $pageData) {
+			/* @var $pageData PageData */
+			$pageData->setPathPart($pageData->getPathPart());
+		}
+
 		$this->setDepth($page->depth + 1);
 	}
 
@@ -126,34 +105,6 @@ class Page extends PageAbstraction
 	protected function setDepth($depth)
 	{
 		$this->depth = $depth;
-	}
-
-	/**
-	 * Sets path part of the page
-	 * @param string $pathPart
-	 */
-	public function setPathPart($pathPart)
-	{
-
-		$this->pathPart = $pathPart;
-
-		if (is_null($this->parent)) {
-			\Log::debug("Cannot set path for the root page");
-			$this->setPath('');
-			return;
-		}
-
-		$pathPart = \urlencode($pathPart);
-
-		if ($pathPart == '') {
-			throw new Exception('Path part cannot be empty');
-		}
-
-		$path = $this->getParent()->getPath();
-
-		$path .= '/' . $pathPart;
-
-		$this->setPath($path);
 	}
 
 }

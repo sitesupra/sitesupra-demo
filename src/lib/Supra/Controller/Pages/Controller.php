@@ -87,7 +87,7 @@ class Controller extends ControllerAbstraction
 		//TODO: parametrize
 		$qb = $em->createQueryBuilder();
 		$qb->select('tph')
-			->from('Supra\\Controller\\Pages\\TemplatePlaceHolder', 'tph')
+			->from('Supra\Controller\Pages\TemplatePlaceHolder', 'tph')
 			->where(
 				$qb->expr()->in('tph.layoutPlaceHolderName', $layoutPlaceHolderNames)
 			)

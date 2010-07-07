@@ -7,9 +7,9 @@ use Supra\Controller\Request;
 use Supra\Controller\Response;
 
 /**
- * Block object absrtaction
+ * Block object abstraction
  */
-abstract class BlockAbsrtaction extends ControllerAbstraction
+abstract class BlockAbstraction extends ControllerAbstraction
 {
 	/**
 	 * Execute controller

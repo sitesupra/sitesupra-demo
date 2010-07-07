@@ -100,9 +100,26 @@ abstract class PageAbstraction extends EntityAbstraction
 	/**
 	 * @return Collection
 	 */
-	public function getData()
+	public function getDataCollection()
 	{
 		return $this->data;
+	}
+
+	/**
+	 * Get data item by locale
+	 * @param string $locale
+	 * @return PageDataAbstraction
+	 */
+	public function getData($locale)
+	{
+		$dataCollection = $this->getDataCollection();
+		/* @var $data PageDataAbstraction */
+		foreach ($dataCollection as $data) {
+			if ($data->getLocale() == $locale) {
+				return $data;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -122,7 +139,7 @@ abstract class PageAbstraction extends EntityAbstraction
 	 */
 	public function removeData($locale)
 	{
-		$dataCollection = $this->getData();
+		$dataCollection = $this->getDataCollection();
 		/* @var $data PageDataAbstraction */
 		foreach ($dataCollection as $key => $data) {
 			if ($data->getLocale() == $locale) {

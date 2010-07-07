@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Response;
 
+use Supra\Http\Cookie;
+
 /**
  * Description of Http
  */
@@ -24,6 +26,12 @@ class Http implements ResponseInterface
 	 * @var boolean
 	 */
 	protected $redirect = false;
+
+	/**
+	 * Cookies
+	 * @var Cookie[]
+	 */
+	protected $cookies = array();
 
 	/**
 	 * Normalizes header name
@@ -138,9 +146,30 @@ class Http implements ResponseInterface
 		foreach ($this->headers as $name => $values) {
 			$this->sendHeader($name);
 		}
+		foreach ($this->cookies as $cookie) {
+			$this->sendCookie($cookie);
+		}
 		if ( ! $this->isRedirect()) {
 			echo implode('', $this->output);
 		}
 		ob_end_flush();
+	}
+
+	/**
+	 * Set cookie
+	 * @param Cookie $cookie
+	 */
+	public function setCookie(Cookie $cookie)
+	{
+		$this->cookies[] = $cookie;
+	}
+
+	/**
+	 * Send cookie to the client
+	 * @param Cookie $cookie
+	 */
+	public function sendCookie(Cookie $cookie)
+	{
+		$cookie->send();
 	}
 }

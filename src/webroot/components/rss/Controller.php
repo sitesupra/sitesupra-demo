@@ -23,7 +23,7 @@ class Controller extends \Supra\Controller\Simple
 		// test calling listener by instance and by classname
 		EventRegistry::fire($this, 'index');
 		EventRegistry::fire(__CLASS__, 'index');
-		$this->getResponse()->output('INDEX');
+		$this->getResponse()->output('Hello world!');
 		EventRegistry::fire($this, 'test');
 
 	}

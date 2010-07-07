@@ -7,3 +7,4 @@ $namespace = new \Supra\Loader\NamespaceRecord('Project\\Pages', __DIR__);
 // Bind to URL
 $router = new \Supra\Controller\Router\Uri('/');
 $frontController->route($router, '\\Project\\Pages\\Controller');
+

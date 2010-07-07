@@ -2,6 +2,10 @@
 
 namespace Supra\Controller\Request;
 
+use Supra\Uri\Path,
+		Supra\Controller\Exception,
+		Supra\Log\Logger;
+
 /**
  * Http request object
  */
@@ -11,19 +15,25 @@ class Http implements RequestInterface
 	 * Server arguments
 	 * @var array
 	 */
-	protected $server;
+	protected $server = array();
 
 	/**
 	 * GET parameters
 	 * @var array
 	 */
-	protected $query;
+	protected $query = array();
 
 	/**
 	 * POST array
 	 * @var array
 	 */
-	protected $post;
+	protected $post = array();
+
+	/**
+	 * Cookies received from the client
+	 * @var array
+	 */
+	protected $cookies = array();
 
 	/**
 	 * Full request URI
@@ -32,14 +42,8 @@ class Http implements RequestInterface
 	protected $requestUri;
 
 	/**
-	 * Base path used to route the controller
-	 * @var string
-	 */
-	protected $basePath;
-
-	/**
 	 * Path remainder used by controller
-	 * @var string
+	 * @var Path
 	 */
 	protected $path;
 
@@ -48,14 +52,28 @@ class Http implements RequestInterface
 	 */
 	public function __construct()
 	{
-		$this->setServer($_SERVER);
-		$this->setQuery($_GET);
-		$this->setPost($_POST);
-		
+		if (isset($_SERVER)) {
+			$this->setServer($_SERVER);
+		}
+		if (isset($_GET)) {
+			$this->setQuery($_GET);
+		}
+		if (isset($_POST)) {
+			$this->setPost($_POST);
+		}
+		if (isset($_COOKIE)) {
+			$this->setCookies($_COOKIE);
+		}
+
+		if ( ! isset($_SERVER['SCRIPT_URL'])) {
+			throw new Exception("Script URL not set in Http request object");
+		}
+
 		$this->requestUri = $_SERVER['SCRIPT_URL'];
-		\Log::sinfo('Request URI: ', $this->requestUri);
-		$this->setBasePath('');
-		$this->setPath($this->requestUri);
+		Logger::sinfo('Request URI: ', $this->requestUri);
+
+		$path = new Path($this->requestUri);
+		$this->setPath($path);
 	}
 
 	/**
@@ -65,11 +83,7 @@ class Http implements RequestInterface
 	 */
 	public function getActions($limit = null)
 	{
-		$path = $this->getPath();
-		if (empty($path)) {
-			return array();
-		}
-		$actions = explode('/', $path);
+		$actions = $this->path->getPathList();
 		if ($limit > 0) {
 			return array_slice($actions, 0, $limit);
 		} else {
@@ -185,39 +199,53 @@ class Http implements RequestInterface
 	}
 
 	/**
-	 * Set path paraeter
-	 * @param string $path
+	 * Gets cookies
+	 * @return array
 	 */
-	public function setPath($path)
+	public function getCookies()
 	{
-		$this->path = trim($path, '/');
+		return $this->cookies;
+	}
+
+	/**
+	 * Sets cookies
+	 * @param array $cookies
+	 */
+	public function setCookies(array $cookies)
+	{
+		$this->cookies = $cookies;
+	}
+
+	/**
+	 * Get cookie parameter
+	 * @param string $key
+	 * @param string $default
+	 * @return string
+	 */
+	public function getCookie($key, $default = null)
+	{
+		if ( ! array_key_exists($key, $this->cookies)) {
+			return $default;
+		}
+		return $this->cookies[$key];
+	}
+
+	/**
+	 * Set path parameter
+	 * @param Path $path
+	 */
+	public function setPath(Path $path)
+	{
+		$this->path = $path;
 	}
 
 	/**
 	 * Get path parameter
-	 * @return string
+	 * @return Path
 	 */
 	public function getPath()
 	{
 		return $this->path;
-	}
-
-	/**
-	 * Set base path parameter
-	 * @param string $basePath
-	 */
-	public function setBasePath($basePath)
-	{
-		$this->basePath = '/' . trim($basePath, '/');
-	}
-
-	/**
-	 * Get base path argument
-	 * @return string
-	 */
-	public function getBasePath()
-	{
-		return $this->basePath;
 	}
 
 	/**
@@ -247,6 +275,10 @@ class Http implements RequestInterface
 	 */
 	public function getActionString($glue = '/')
 	{
-		return implode($glue, $this->getActions());
+		$previousSeparator = $this->path->getSeparator();
+		$this->path->setSeparator($glue);
+		$path = $this->path->getPath();
+		$this->path->setSeparator($previousSeparator);
+		return $path;
 	}
 }
