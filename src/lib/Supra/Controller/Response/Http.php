@@ -146,12 +146,18 @@ class Http implements ResponseInterface
 		foreach ($this->headers as $name => $values) {
 			$this->sendHeader($name);
 		}
+		$this->headers = array();
+		
 		foreach ($this->cookies as $cookie) {
 			$this->sendCookie($cookie);
 		}
+		$this->cookies = array();
+
 		if ( ! $this->isRedirect()) {
 			echo implode('', $this->output);
 		}
+		$this->output = array();
+		
 		ob_end_flush();
 	}
 

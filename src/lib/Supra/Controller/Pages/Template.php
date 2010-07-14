@@ -2,15 +2,21 @@
 
 namespace Supra\Controller\Pages;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
 
 /**
  * Page controller template class
  * @Entity
+ * @Table(name="template")
  */
 class Template extends PageAbstraction
 {
+	/**
+	 * Data class
+	 * @var string
+	 */
+	static protected $dataClass = 'TemplateData';
 
 	/**
 	 * @OneToMany(targetEntity="TemplateData", mappedBy="page", cascade={"persist", "remove"})
@@ -61,9 +67,7 @@ class Template extends PageAbstraction
 	{
 		if ( ! is_null($parent)) {
 
-			if ( ! ($parent instanceof Template)) {
-				throw new Exception("The parent of Template must be the instance of Template");
-			}
+			$this->isInstanceOf($page, __NAMESPACE__ . '\Template', __METHOD__);
 
 			// Remove associated template layout objects
 			$templateLayouts = $this->getTemplateLayouts();
@@ -82,10 +86,14 @@ class Template extends PageAbstraction
 	public function addTemplateLayout(TemplateLayout $templateLayout)
 	{
 		if ( ! is_null($this->getParent())) {
-			throw new Exception("Cannot set templateLayout to not root template");
+			throw new Exception("Template layout can be set to root template only");
 		}
-		$templateLayout->setTemplate($this);
-		$this->templateLayouts->add($templateLayout);
+		if ($this->lock('templateLayout')) {
+			if ($this->addUnique($this->templateLayouts, $templateLayout, 'media')) {
+				$templateLayout->setTemplate($this);
+			}
+			$this->unlock('templateLayout');
+		}
 	}
 
 	/**
@@ -101,18 +109,14 @@ class Template extends PageAbstraction
 	 * Add layout for specific media
 	 * @param string $media
 	 * @param Layout $layout
+	 * @throws Exception if layout for this media already exists
 	 */
 	public function addLayout($media, Layout $layout)
 	{
-		$this->removeLayout($media);
-
 		$templateLayout = new TemplateLayout();
 		$templateLayout->setMedia($media);
-
-		$templateLayout->setTemplate($this);
 		$templateLayout->setLayout($layout);
-
-		$this->addTemplateLayout($templateLayout);
+		$templateLayout->setTemplate($this);
 	}
 
 	/**
@@ -132,6 +136,23 @@ class Template extends PageAbstraction
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get layout object by
+	 * @param string $media
+	 * @return Layout
+	 */
+	public function getLayout($media)
+	{
+		$templateLayouts = $this->getTemplateLayouts();
+		/* @var $templateLayout TemplateLayout */
+		foreach ($templateLayouts as $key => $templateLayout) {
+			if ($templateLayout->getMedia() == $media) {
+				return $templateLayout->getLayout();
+			}
+		}
+		throw new Exception("No layout found for template #{$this->getId()} media '{$media}'");
 	}
 
 }

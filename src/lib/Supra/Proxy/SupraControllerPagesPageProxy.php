@@ -40,22 +40,16 @@ class SupraControllerPagesPageProxy extends \Supra\Controller\Pages\Page impleme
         return parent::getTemplate();
     }
 
-    public function getPath()
-    {
-        $this->_load();
-        return parent::getPath();
-    }
-
     public function setParent(\Supra\Controller\Pages\PageAbstraction $page = NULL)
     {
         $this->_load();
         return parent::setParent($page);
     }
 
-    public function setPathPart($pathPart)
+    public function getTemplates()
     {
         $this->_load();
-        return parent::setPathPart($pathPart);
+        return parent::getTemplates();
     }
 
     public function getId()
@@ -82,16 +76,22 @@ class SupraControllerPagesPageProxy extends \Supra\Controller\Pages\Page impleme
         return parent::getPlaceHolders();
     }
 
-    public function getData()
+    public function getDataCollection()
     {
         $this->_load();
-        return parent::getData();
+        return parent::getDataCollection();
     }
 
-    public function setData($locale, \Supra\Controller\Pages\PageDataAbstraction $data)
+    public function getData($locale)
     {
         $this->_load();
-        return parent::setData($locale, $data);
+        return parent::getData($locale);
+    }
+
+    public function setData(\Supra\Controller\Pages\PageDataAbstraction $data)
+    {
+        $this->_load();
+        return parent::setData($data);
     }
 
     public function removeData($locale)
@@ -100,12 +100,24 @@ class SupraControllerPagesPageProxy extends \Supra\Controller\Pages\Page impleme
         return parent::removeData($locale);
     }
 
+    public function addPlaceHolder(\Supra\Controller\Pages\PlaceHolder $placeHolder)
+    {
+        $this->_load();
+        return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('data', 'template', 'path', 'pathPart', 'children', 'parent', 'placeHolders', 'depth', 'id');
+        return array('id', 'depth', 'template', 'parent', 'data', 'children', 'placeHolders');
     }
 }

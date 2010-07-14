@@ -1,0 +1,4 @@
+Supra\Controller\Pages\PageAbstraction:
+  type: mappedSuperclass
+  table: null
+  lifecycleCallbacks: {  }

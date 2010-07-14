@@ -58,22 +58,40 @@ class SupraControllerPagesPageAbstractionProxy extends \Supra\Controller\Pages\P
         return parent::getPlaceHolders();
     }
 
-    public function getData()
+    public function getDataCollection()
     {
         $this->_load();
-        return parent::getData();
+        return parent::getDataCollection();
     }
 
-    public function setData($locale, \Supra\Controller\Pages\PageDataAbstraction $data)
+    public function getData($locale)
     {
         $this->_load();
-        return parent::setData($locale, $data);
+        return parent::getData($locale);
+    }
+
+    public function setData(\Supra\Controller\Pages\PageDataAbstraction $data)
+    {
+        $this->_load();
+        return parent::setData($data);
     }
 
     public function removeData($locale)
     {
         $this->_load();
         return parent::removeData($locale);
+    }
+
+    public function addPlaceHolder(\Supra\Controller\Pages\PlaceHolder $placeHolder)
+    {
+        $this->_load();
+        return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
     }
 
 

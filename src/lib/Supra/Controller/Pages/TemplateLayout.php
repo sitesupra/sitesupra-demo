@@ -85,7 +85,9 @@ class TemplateLayout extends EntityAbstraction
 	 */
 	public function setTemplate(Template $template = null)
 	{
-		$this->template = $template;
+		if ($this->writeOnce($this->template, $template)) {
+			$this->template->addTemplateLayout($this);
+		}
 	}
 
 	/**

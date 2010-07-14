@@ -2,12 +2,13 @@
 
 namespace Supra\Controller\Pages;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
 
 /**
  * Layout class
  * @Entity
+ * @Table(name="layout")
  */
 class Layout extends EntityAbstraction
 {
@@ -67,6 +68,35 @@ class Layout extends EntityAbstraction
 	public function getPlaceHolders()
 	{
 		return $this->placeHolders;
+	}
+
+	/**
+	 * Adds place holder
+	 * @param LayoutPlaceHolder $placeHolder
+	 */
+	public function addPlaceHolder(LayoutPlaceHolder $placeHolder)
+	{
+		if ($this->lock('placeHolders')) {
+			$this->placeHolders->add($placeHolder);
+			$placeHolder->setLayout($this);
+			$this->unlock('placeHolders');
+		}
+	}
+
+	/**
+	 * Collects place holder names
+	 * @return array
+	 */
+	public function getPlaceHolderNames()
+	{
+		$names = array();
+
+		/* @var $layoutPlaceHolder LayoutPlaceHolder */
+		foreach ($this->placeHolders as $layoutPlaceHolder) {
+			$names[] = $layoutPlaceHolder->getName();
+		}
+
+		return $names;
 	}
 
 }

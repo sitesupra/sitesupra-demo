@@ -1,0 +1,31 @@
+Supra\Controller\Pages\LayoutPlaceHolder:
+  type: entity
+  table: layout_place_holder
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    name:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+  oneToOne:
+    layout:
+      targetEntity: Layout
+      cascade: {  }
+      mappedBy: null
+      joinColumns:
+        layout_id:
+          referencedColumnName: id
+      orphanRemoval: false
+  lifecycleCallbacks: {  }

@@ -1,0 +1,22 @@
+Supra\Controller\Pages\TemplateBlock:
+  type: entity
+  table: template_block
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    name:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+  lifecycleCallbacks: {  }

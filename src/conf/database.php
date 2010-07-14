@@ -12,7 +12,8 @@ $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
 
 // Metadata driver
-$driverImpl = $config->newDefaultAnnotationDriver(SUPRA_LIBRARY_PATH . 'Supra/');
+//$driverImpl = $config->newDefaultAnnotationDriver(SUPRA_LIBRARY_PATH . 'Supra/');
+$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
 $config->setMetadataDriverImpl($driverImpl);
 
 // Proxy configuration

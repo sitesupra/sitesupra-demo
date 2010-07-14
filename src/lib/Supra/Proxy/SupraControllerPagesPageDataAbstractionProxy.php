@@ -58,6 +58,18 @@ class SupraControllerPagesPageDataAbstractionProxy extends \Supra\Controller\Pag
         return parent::getTitle();
     }
 
+    public function setMaster(\Supra\Controller\Pages\PageAbstraction $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {

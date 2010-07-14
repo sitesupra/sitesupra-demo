@@ -15,6 +15,11 @@ class Sql implements SQLLogger
 	 */
 	function logSQL($sql, array $params = null)
 	{
-		Logger::debug("Query '$sql' has been run with parameters ", $params);
+		$message = "-- Query\n$sql\n/* has been run";
+		if (count($params) > 0) {
+			$message .= " with parameters [" . implode(', ', $params) . "]";
+		}
+		$message .= "*/";
+		Logger::debug($message);
 	}
 }

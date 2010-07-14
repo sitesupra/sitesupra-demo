@@ -1,0 +1,31 @@
+Supra\Controller\Pages\Layout:
+  type: entity
+  table: layout
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    file:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+  oneToMany:
+    placeHolders:
+      targetEntity: LayoutPlaceHolder
+      cascade:
+        - remove
+        - persist
+      mappedBy: layout
+      orphanRemoval: false
+      orderBy: null
+  lifecycleCallbacks: {  }

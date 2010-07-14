@@ -34,10 +34,28 @@ class SupraControllerPagesPageDataProxy extends \Supra\Controller\Pages\PageData
         return parent::setPage($page);
     }
 
+    public function setMaster(\Supra\Controller\Pages\PageAbstraction $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
     public function getPage()
     {
         $this->_load();
         return parent::getPage();
+    }
+
+    public function getPath()
+    {
+        $this->_load();
+        return parent::getPath();
+    }
+
+    public function setPathPart($pathPart)
+    {
+        $this->_load();
+        return parent::setPathPart($pathPart);
     }
 
     public function getId()
@@ -70,12 +88,18 @@ class SupraControllerPagesPageDataProxy extends \Supra\Controller\Pages\PageData
         return parent::getTitle();
     }
 
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('page', 'id', 'locale', 'title');
+        return array('id', 'path', 'pathPart', 'locale', 'title', 'page');
     }
 }

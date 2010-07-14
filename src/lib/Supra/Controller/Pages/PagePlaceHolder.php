@@ -21,7 +21,9 @@ class PagePlaceHolder extends PlaceHolder
 	 */
 	public function setPage(Page $page)
 	{
-		$this->page = $page;
+		if ($this->writeOnce($this->page, $page)) {
+			$this->page->addPlaceHolder($this);
+		}
 	}
 
 	/**
@@ -31,5 +33,15 @@ class PagePlaceHolder extends PlaceHolder
 	public function getPage()
 	{
 		return $this->page;
+	}
+
+	/**
+	 * Set master object
+	 * @param PageAbstraction $master
+	 */
+	public function setMaster(PageAbstraction $master)
+	{
+		$this->isInstanceOf($master, __NAMESPACE__ . '\Page', __METHOD__);
+		$this->setPage($master);
 	}
 }

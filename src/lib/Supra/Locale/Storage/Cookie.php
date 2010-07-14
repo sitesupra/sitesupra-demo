@@ -12,7 +12,7 @@ use Supra\Controller\Request\RequestInterface,
 /**
  * Stores the current locale in the cookie
  */
-class Cookie
+class Cookie extends StorageAbstraction
 {
 	/**
 	 * Cookie name for the current locale storage
@@ -24,6 +24,7 @@ class Cookie
 	 * Store the detected locale
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
+	 * @param string $localeIdentifier
 	 */
 	public function store(RequestInterface $request, ResponseInterface $response, $localeIdentifier)
 	{

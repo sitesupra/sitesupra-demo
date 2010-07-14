@@ -2,11 +2,13 @@
 
 namespace Supra\Controller\Pages;
 
-use Supra\Controller\ControllerAbstraction;
-use Supra\Controller\Response;
-use Supra\Controller\Request;
-use Supra\Controller\Pages\Exception;
-use Doctrine\ORM\PersistentCollection;
+use Supra\Controller\ControllerAbstraction,
+		Supra\Controller\Response,
+		Supra\Controller\Request,
+		Supra\Controller\Pages\Exception,
+		Doctrine\ORM\PersistentCollection,
+		Supra\Database\Doctrine,
+		Supra\Locale\Data as LocaleData;
 
 /**
  * Page controller
@@ -18,28 +20,58 @@ class Controller extends ControllerAbstraction
 	 * Page class to be used
 	 * @var string
 	 */
-	protected $pageEntityName = 'Supra\\Controller\\Pages\\Page';
+	const PAGE_ENTITY = 'Supra\\Controller\\Pages\\Page';
+
+	/**
+	 * Page data class to be used
+	 * @var string
+	 */
+	const PAGE_DATA_ENTITY = 'Supra\\Controller\\Pages\\PageData';
+
+	/**
+	 * Current locale, set on execute start
+	 * @var string
+	 */
+	protected $locale;
+
+	/**
+	 * Current media type
+	 * @var string
+	 */
+	protected $media = 'screen';
+
+	/**
+	 * Construct
+	 */
+	public function  __construct()
+	{
+		$this->setLocale();
+		$this->setMedia();
+	}
 
 	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
 	protected function getDoctrineEntityManager()
 	{
-		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		$em = Doctrine::getInstance()->getEntityManager();
 		return $em;
 	}
 
-	public function getPageEntityName()
+	/**
+	 * Sets current locale
+	 */
+	protected function setLocale()
 	{
-		return $this->pageEntityName;
+		$this->locale = LocaleData::getInstance()->getCurrent();
 	}
 
-	public function setPageEntityName($pageEntityName)
+	/**
+	 * Sets current media
+	 */
+	protected function setMedia()
 	{
-		if ( ! \class_exists($pageEntityName)) {
-			throw new Exception("Class by name '$pageEntityName' has not been found, provided as page entity name");
-		}
-		$this->pageEntityName = $pageEntityName;
+		$this->media = 'screen';
 	}
 
 	/**
@@ -50,29 +82,29 @@ class Controller extends ControllerAbstraction
 	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		parent::execute($request, $response);
-
+		
 		$page = $this->getRequestPage();
+		\Log::debug('Found page #', $page->getId());
 
-		$templates = $this->getTemplates($page);
-
+		$templates = $page->getTemplates();
+		if (empty($templates[0])) {
+			throw new Exception('Response from getTemplates should contain at least 1 template for page #' . $page->getId());
+		}
 		/* @var $rootTemplate Template */
 		$rootTemplate = $templates[0];
 
+		\Log::debug("Root template #{$rootTemplate->getId()} found for page #{$page->getId()}");
+
 		/* @var $layout Layout */
-		$layout = $rootTemplate->getLayout();
+		$layout = $rootTemplate->getLayout($this->media);
 		if (empty($layout)) {
 			throw new Exception("No layout defined for template #{$rootTemplate->getId()}");
 		}
+		\Log::debug("Root template {$rootTemplate->getId()} has layout {$layout->getFile()} for media {$this->media}");
 
-		$layoutPlaceHolderNames = array();
+		$layoutPlaceHolderNames = $layout->getPlaceHolderNames();
 
-		/* @var $layoutPlaceHolders PersistentCollection */
-		$layoutPlaceHolders = $layout->getPlaceHolders();
-
-		/* @var $layoutPlaceHolder LayoutPlaceHolder */
-		foreach ($layoutPlaceHolders as $layoutPlaceHolder) {
-			$layoutPlaceHolderNames[] = $layoutPlaceHolder->getName();
-		}
+		\Log::debug('Layout place holder names: ', $layoutPlaceHolderNames);
 
 		/* @var $templateIds int[] */
 		$templateIds = array();
@@ -81,6 +113,8 @@ class Controller extends ControllerAbstraction
 		foreach ($templates as $template) {
 			$templateIds[] = $template->getId();
 		}
+
+		\Log::debug('Found these templates: ', implode(', ', $templateIds));
 
 		$em = $this->getDoctrineEntityManager();
 		
@@ -100,7 +134,9 @@ class Controller extends ControllerAbstraction
 		$query = $em->createQuery($dql);
 		$result = $query->getResult();
 
-		\Log::debug($result);
+		\Log::debug(count($result));
+
+		$response->output('So far so good');
 
 	}
 
@@ -125,46 +161,24 @@ class Controller extends ControllerAbstraction
 		$action = trim($action, '/');
 
 		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository($this->getPageEntityName());
+		$er = $em->getRepository(static::PAGE_DATA_ENTITY);
+
+		$searchCriteria = array(
+			'locale' => $this->locale,
+			'path' => $action,
+		);
 
 		//TODO: think about "enable path params" feature
-		/* @var $page Page */
-		$page = $er->findOneByPath($action);
+		
+		/* @var $page PageData */
+		$pageData = $er->findOneBy($searchCriteria);
 
-		if (empty($page)) {
+		if (empty($pageData)) {
 			//TODO: 404 page
 			throw new Exception("No page found by path '$action' in pages controller");
 		}
-
-		return $page;
+		
+		return $pageData->getPage();
 	}
 
-	/**
-	 * Get template list
-	 * @param Page $page
-	 * @return Template[]
-	 * @throws Exception
-	 */
-	protected function getTemplates(Page $page)
-	{
-		/* @var $template Template */
-		$template = $page->getTemplate();
-
-		if (empty($template)) {
-			//TODO: 404 page or specific error?
-			throw new Exception("No template assigned to the page {$page->getId()}");
-		}
-
-		/* @var $templates Template[] */
-		$templates = array();
-		/* @var $rootTemplate Template */
-		$rootTemplate = null;
-		do {
-			array_unshift($templates, $template);
-			$rootTemplate = $template;
-			$template = $template->getParent();
-		} while ( ! is_null($template));
-
-		return $templates;
-	}
 }

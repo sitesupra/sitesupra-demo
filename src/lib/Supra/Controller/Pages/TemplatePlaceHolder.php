@@ -21,7 +21,9 @@ class TemplatePlaceHolder extends PlaceHolder
 	 */
 	public function setTemplate(Template $template)
 	{
-		$this->template = $template;
+		if ($this->writeOnce($this->template, $template)) {
+			$template->addPlaceHolder($this);
+		}
 	}
 
 	/**
@@ -31,5 +33,15 @@ class TemplatePlaceHolder extends PlaceHolder
 	public function getTemplate()
 	{
 		return $this->template;
+	}
+
+	/**
+	 * Set master object
+	 * @param PageAbstraction $master
+	 */
+	public function setMaster(PageAbstraction $master)
+	{
+		$this->isInstanceOf($master, __NAMESPACE__ . '\Template', __METHOD__);
+		$this->setTemplate($master);
 	}
 }

@@ -6,7 +6,7 @@ namespace Supra\Controller\Pages;
  * PageData class
  * @MappedSuperclass
  */
-class PageDataAbstraction extends EntityAbstraction
+abstract class PageDataAbstraction extends EntityAbstraction
 {
 	/**
 	 * @Id
@@ -68,5 +68,10 @@ class PageDataAbstraction extends EntityAbstraction
 		return $this->title;
 	}
 
+	/**
+	 * Set master object (page/template)
+	 * @param PageAbstraction $master
+	 */
+	abstract public function setMaster(PageAbstraction $master);
 
 }

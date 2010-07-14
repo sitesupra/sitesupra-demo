@@ -1,11 +1,12 @@
 <?php
 
-$log = \Log::getInstance();
+$log = \Supra\Log\Logger::getInstance();
 
 // Set custom bootstrap writer
 $bootstrapWriter = new \Supra\Log\Writer\Log4j();
+$bootstrapWriter->setName('Bootstrap');
 $bootstrapWriter->addFilter(new \Supra\Log\Filter\Level(array('level' => \Log::DEBUG)));
-\Log::setBootstrapWriter($bootstrapWriter);
+\Supra\Log\Logger::setBootstrapWriter($bootstrapWriter);
 
 // Configure Log4j writer
 $log4j = new Supra\Log\Writer\Log4j();

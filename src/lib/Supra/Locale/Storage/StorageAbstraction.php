@@ -7,7 +7,7 @@ use Supra\Locale\Data;
 /**
  * Locale storage abstraction
  */
-abstract class StorageAbstraction
+abstract class StorageAbstraction implements StorageInterface
 {
 	/**
 	 * The locale data provider

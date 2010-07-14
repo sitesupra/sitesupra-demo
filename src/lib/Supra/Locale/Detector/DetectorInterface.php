@@ -3,7 +3,8 @@
 namespace Supra\Locale\Detector;
 
 use Supra\Controller\Request\RequestInterface,
-		Supra\Controller\Response\ResponseInterface;
+		Supra\Controller\Response\ResponseInterface,
+		Supra\Locale\Data;
 
 /**
  * Locale detector interface

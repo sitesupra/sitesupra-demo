@@ -2,15 +2,21 @@
 
 namespace Supra\Controller\Pages;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
 
 /**
  * Page controller page object
  * @Entity
+ * @Table(name="page")
  */
 class Page extends PageAbstraction
 {
+	/**
+	 * Data class
+	 * @var string
+	 */
+	static protected $dataClass = 'PageData';
 
 	/**
 	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"})
@@ -83,9 +89,8 @@ class Page extends PageAbstraction
 	 */
 	public function setParent(PageAbstraction $page = null)
 	{
-		if ( ! ($page instanceof Page)) {
-			throw new Exception("Page parent can be only instance of Page class");
-		}
+		$this->isInstanceOf($page, __NAMESPACE__ . '\Page', __METHOD__);
+		
 		parent::setParent($page);
 
 		// Change full path for all data items
@@ -105,6 +110,30 @@ class Page extends PageAbstraction
 	protected function setDepth($depth)
 	{
 		$this->depth = $depth;
+	}
+
+	/**
+	 * Get page template hierarchy starting with the root template
+	 * @return Template[]
+	 * @throws Exception
+	 */
+	public function getTemplates()
+	{
+		$template = $this->getTemplate();
+
+		if (empty($template)) {
+			//TODO: 404 page or specific error?
+			throw new Exception("No template assigned to the page {$page->getId()}");
+		}
+
+		/* @var $templates Template[] */
+		$templates = array();
+		do {
+			array_unshift($templates, $template);
+			$template = $template->getParent();
+		} while ( ! is_null($template));
+
+		return $templates;
 	}
 
 }

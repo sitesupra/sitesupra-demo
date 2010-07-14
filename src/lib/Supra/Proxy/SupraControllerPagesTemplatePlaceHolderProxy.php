@@ -40,12 +40,48 @@ class SupraControllerPagesTemplatePlaceHolderProxy extends \Supra\Controller\Pag
         return parent::getTemplate();
     }
 
+    public function setMaster(\Supra\Controller\Pages\PageAbstraction $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
+    public function setName($name)
+    {
+        $this->_load();
+        return parent::setName($name);
+    }
+
+    public function getName()
+    {
+        $this->_load();
+        return parent::getName();
+    }
+
+    public function setLocked($locked = true)
+    {
+        $this->_load();
+        return parent::setLocked($locked);
+    }
+
+    public function getLocked()
+    {
+        $this->_load();
+        return parent::getLocked();
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('template', 'id', 'layoutPlaceHolderName', 'locked');
+        return array('id', 'name', 'locked', 'template');
     }
 }

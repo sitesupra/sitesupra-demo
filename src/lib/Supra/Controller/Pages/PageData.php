@@ -32,7 +32,19 @@ class PageData extends PageDataAbstraction
 	 */
 	public function setPage(Page $page)
 	{
-		$this->page = $page;
+		if ($this->writeOnce($this->page, $page)) {
+			$page->setData($this);
+		}
+	}
+
+	/**
+	 * Set master object page
+	 * @param PageAbstraction $master
+	 */
+	public function setMaster(PageAbstraction $master)
+	{
+		$this->isInstanceOf($master, __NAMESPACE__ . '\Page', __METHOD__);
+		$this->setPage($master);
 	}
 
 	/**

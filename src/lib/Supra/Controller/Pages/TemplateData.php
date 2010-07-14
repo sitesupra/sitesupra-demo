@@ -20,7 +20,27 @@ class TemplateData extends PageDataAbstraction
 	 */
 	public function setTemplate(Template $template)
 	{
-		$this->template = $template;
+		if ($this->template == $template) {
+			return;
+		}
+		if ( ! empty($this->template)) {
+			throw new Exception("Not allowed to change template for template data object #{$this->getId()}");
+		}
+		if ($this->lock('template')) {
+			$this->template = $template;
+			$template->setData($this);
+			$this->unlock('template');
+		}
+	}
+
+	/**
+	 * Set master template
+	 * @param PageAbstraction $master
+	 */
+	public function setMaster(PageAbstraction $master)
+	{
+		$this->isInstanceOf($master, __NAMESPACE__ . '\Template', __METHOD__);
+		$this->setTemplate($master);
 	}
 
 	/**

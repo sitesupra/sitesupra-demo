@@ -1,11 +1,12 @@
 <?php
 
 namespace Supra\Controller\Pages;
+use Supra\Controller\Exception as ControllerException;
 
 /**
  * Pages controller exception
  */
-class Exception extends \Supra\Controller\Exception
+class Exception extends ControllerException
 {
 	
 }

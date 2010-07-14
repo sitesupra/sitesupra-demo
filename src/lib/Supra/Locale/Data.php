@@ -9,6 +9,12 @@ class Data
 {
 
 	/**
+	 * Instance
+	 * @var Data
+	 */
+	protected static $instance;
+
+	/**
 	 * Locales defined
 	 * @var array
 	 */
@@ -25,6 +31,18 @@ class Data
 	 * @var string
 	 */
 	protected $current;
+
+	/**
+	 * Singleton pattern
+	 * @return Data
+	 */
+	public static function getInstance()
+	{
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
 
 	/**
 	 * Add locale data

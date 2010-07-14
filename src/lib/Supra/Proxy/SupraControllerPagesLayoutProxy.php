@@ -46,6 +46,24 @@ class SupraControllerPagesLayoutProxy extends \Supra\Controller\Pages\Layout imp
         return parent::getPlaceHolders();
     }
 
+    public function addPlaceHolder(\Supra\Controller\Pages\LayoutPlaceHolder $placeHolder)
+    {
+        $this->_load();
+        return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function getPlaceHolderNames()
+    {
+        $this->_load();
+        return parent::getPlaceHolderNames();
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {

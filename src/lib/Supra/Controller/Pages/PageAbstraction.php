@@ -2,8 +2,8 @@
 
 namespace Supra\Controller\Pages;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
 
 /**
  * Page abstraction
@@ -11,6 +11,12 @@ use Doctrine\Common\Collections\Collection;
  */
 abstract class PageAbstraction extends EntityAbstraction
 {
+	/**
+	 * Data class
+	 * @var string
+	 */
+	static protected $dataClass = null;
+
 	/**
 	 * @Id
 	 * @Column(type="integer")
@@ -47,6 +53,7 @@ abstract class PageAbstraction extends EntityAbstraction
 	{
 		$this->children = new ArrayCollection();
 		$this->placeHolders = new ArrayCollection();
+		$this->data = new ArrayCollection();
 	}
 
 	/**
@@ -126,11 +133,16 @@ abstract class PageAbstraction extends EntityAbstraction
 	 * @param string $locale
 	 * @param PageDataAbstraction $data
 	 */
-	public function setData($locale, PageDataAbstraction $data)
+	public function setData(PageDataAbstraction $data)
 	{
-		$this->removeData($locale);
-		$data->setLocale($locale);
-		$this->data->add($data);
+		$this->isInstanceOf($data, __NAMESPACE__ . '\\' . static::$dataClass, __METHOD__);
+		
+		if ($this->lock('data')) {
+			if ($this->addUnique($this->data, $data, 'locale')) {
+				$data->setMaster($this);
+			}
+			$this->unlock('data');
+		}
 	}
 
 	/**
@@ -149,6 +161,16 @@ abstract class PageAbstraction extends EntityAbstraction
 			}
 		}
 		return false;
+	}
+
+	public function addPlaceHolder(PlaceHolder $placeHolder)
+	{
+		if ($this->lock('placeHolder')) {
+			if ($this->addUnique($this->placeHolders, $placeHolder, 'name')) {
+				$placeHolder->setMaster($this);
+			}
+			$this->unlock('placeHolder');
+		}
 	}
 
 }

@@ -58,6 +58,12 @@ class SupraControllerPagesTemplateProxy extends \Supra\Controller\Pages\Template
         return parent::removeLayout($media);
     }
 
+    public function getLayout($media)
+    {
+        $this->_load();
+        return parent::getLayout($media);
+    }
+
     public function getId()
     {
         $this->_load();
@@ -82,16 +88,22 @@ class SupraControllerPagesTemplateProxy extends \Supra\Controller\Pages\Template
         return parent::getPlaceHolders();
     }
 
-    public function getData()
+    public function getDataCollection()
     {
         $this->_load();
-        return parent::getData();
+        return parent::getDataCollection();
     }
 
-    public function setData($locale, \Supra\Controller\Pages\PageDataAbstraction $data)
+    public function getData($locale)
     {
         $this->_load();
-        return parent::setData($locale, $data);
+        return parent::getData($locale);
+    }
+
+    public function setData(\Supra\Controller\Pages\PageDataAbstraction $data)
+    {
+        $this->_load();
+        return parent::setData($data);
     }
 
     public function removeData($locale)
@@ -100,12 +112,24 @@ class SupraControllerPagesTemplateProxy extends \Supra\Controller\Pages\Template
         return parent::removeData($locale);
     }
 
+    public function addPlaceHolder(\Supra\Controller\Pages\PlaceHolder $placeHolder)
+    {
+        $this->_load();
+        return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('data', 'templateLayouts', 'children', 'parent', 'placeHolders', 'id');
+        return array('id', 'parent', 'data', 'templateLayouts', 'children', 'placeHolders');
     }
 }

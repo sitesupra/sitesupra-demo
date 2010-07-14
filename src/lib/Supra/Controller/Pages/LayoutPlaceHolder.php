@@ -12,6 +12,7 @@ class LayoutPlaceHolder extends EntityAbstraction
 	/**
 	 * @Id
 	 * @Column(type="integer")
+	 * @GeneratedValue
 	 * @var integer
 	 */
 	protected $id;
@@ -60,7 +61,9 @@ class LayoutPlaceHolder extends EntityAbstraction
 	 */
 	public function setLayout(Layout $layout)
 	{
-		$this->layout = $layout;
+		if ($this->writeOnce($this->layout, $layout)) {
+			$this->layout->addPlaceHolder($this);
+		}
 	}
 
 	/**

@@ -34,6 +34,12 @@ class SupraControllerPagesTemplateDataProxy extends \Supra\Controller\Pages\Temp
         return parent::setTemplate($template);
     }
 
+    public function setMaster(\Supra\Controller\Pages\PageAbstraction $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
     public function getTemplate()
     {
         $this->_load();
@@ -70,12 +76,18 @@ class SupraControllerPagesTemplateDataProxy extends \Supra\Controller\Pages\Temp
         return parent::getTitle();
     }
 
+    public function getProperty($name)
+    {
+        $this->_load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('template', 'id', 'locale', 'title');
+        return array('id', 'locale', 'title', 'template');
     }
 }
