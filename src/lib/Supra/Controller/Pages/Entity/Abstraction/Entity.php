@@ -109,8 +109,12 @@ abstract class Entity
 	 * @return boolean true if added, false if already the same instance has been added
 	 * @throws Exception if element with the same unique field values exists
 	 */
-	protected function addUnique(Collection $collection, $newItem, $uniqueFields)
+	protected function addUnique(Collection $collection, $newItem, $uniqueFields = null)
 	{
+		if (is_null($uniqueFields)) {
+			$uniqueFields = array();
+		}
+		
 		// One field can be passed as string
 		if ( ! is_array($uniqueFields)) {
 			$uniqueFields = array($uniqueFields);
@@ -129,6 +133,10 @@ abstract class Entity
 				// The instance already added
 				if ($item == $newItem) {
 					return false;
+				}
+
+				if (empty($uniqueFields)) {
+					continue;
 				}
 
 				/* @var $field string */

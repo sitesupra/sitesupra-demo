@@ -30,6 +30,14 @@ class LayoutPlaceHolder extends Abstraction\Entity
 	protected $layout;
 
 	/**
+	 * @param string $name
+	 */
+	public function  __construct($name)
+	{
+		$this->setName($name);
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getId()
@@ -41,7 +49,7 @@ class LayoutPlaceHolder extends Abstraction\Entity
 	 * Set name
 	 * @param string $name
 	 */
-	public function setName($name)
+	protected function setName($name)
 	{
 		$this->name = $name;
 	}

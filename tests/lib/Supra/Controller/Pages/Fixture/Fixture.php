@@ -26,8 +26,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$page = new Entity\Page();
 
-		$pageData = new Entity\PageData();
-		$pageData->setLocale('en');
+		$pageData = new Entity\PageData('en');
 		$pageData->setTitle('Home');
 
 		$pageData->setPage($page);
@@ -37,8 +36,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$layout->setFile('root.html');
 
 		foreach (array('header', 'main') as $name) {
-			$layoutPlaceHolder = new Entity\LayoutPlaceHolder();
-			$layoutPlaceHolder->setName($name);
+			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
 			$layoutPlaceHolder->setLayout($layout);
 		}
 
@@ -46,8 +44,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$template->addLayout('screen', $layout);
 
 		foreach (array('header', 'main') as $name) {
-			$templatePlaceHolder = new Entity\TemplatePlaceHolder();
-			$templatePlaceHolder->setName($name);
+			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
 			if ($name != 'main') {
 				$templatePlaceHolder->setLocked(true);
 			}
@@ -61,16 +58,14 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 		}
 
-		$templateData = new Entity\TemplateData();
-		$templateData->setLocale('en');
+		$templateData = new Entity\TemplateData('en');
 		$templateData->setTemplate($template);
 		$templateData->setTitle('Root template');
 
 		$page->setTemplate($template);
 
 		foreach (array('main') as $name) {
-			$pagePlaceHolder = new Entity\PagePlaceHolder();
-			$pagePlaceHolder->setName($name);
+			$pagePlaceHolder = new Entity\PagePlaceHolder($name);
 			$pagePlaceHolder->setPage($page);
 
 			if ($name == 'main') {

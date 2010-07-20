@@ -114,8 +114,7 @@ class Template extends Abstraction\Page
 	 */
 	public function addLayout($media, Layout $layout)
 	{
-		$templateLayout = new TemplateLayout();
-		$templateLayout->setMedia($media);
+		$templateLayout = new TemplateLayout($media);
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
 	}

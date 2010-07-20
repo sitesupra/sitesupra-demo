@@ -35,6 +35,11 @@ class TemplateLayout extends Abstraction\Entity
 	 */
 	protected $template;
 
+	public function  __construct($media)
+	{
+		$this->setMedia($media);
+	}
+
 	/**
 	 * @return int
 	 */
@@ -47,7 +52,7 @@ class TemplateLayout extends Abstraction\Entity
 	 * Set media
 	 * @param string $media
 	 */
-	public function setMedia($media)
+	protected function setMedia($media)
 	{
 		$this->media = $media;
 	}

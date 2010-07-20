@@ -32,6 +32,15 @@ abstract class Data extends Entity
 	protected $title;
 
 	/**
+	 * Construct
+	 * @param string $locale
+	 */
+	public function __construct($locale)
+	{
+		$this->setLocale($locale);
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getId()
@@ -42,7 +51,7 @@ abstract class Data extends Entity
 	/**
 	 * @param string $locale
 	 */
-	public function setLocale($locale)
+	protected function setLocale($locale)
 	{
 		$this->locale = $locale;
 	}

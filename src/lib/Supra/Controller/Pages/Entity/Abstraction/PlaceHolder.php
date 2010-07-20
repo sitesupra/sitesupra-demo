@@ -39,9 +39,11 @@ abstract class PlaceHolder extends Entity
 
 	/**
 	 * Constructor
+	 * @param string $name
 	 */
-	public function __construct()
+	public function __construct($name)
 	{
+		$this->setName($name);
 		$this->blocks = new ArrayCollection();
 	}
 
@@ -49,7 +51,8 @@ abstract class PlaceHolder extends Entity
 	 * Set layout place holder name
 	 * @param string $Name
 	 */
-	public function setName($name) {
+	protected function setName($name)
+	{
 		$this->name = $name;
 	}
 
@@ -57,7 +60,8 @@ abstract class PlaceHolder extends Entity
 	 * Get layout place holder name
 	 * @return string
 	 */
-	public function getName() {
+	public function getName()
+	{
 		return $this->name;
 	}
 
@@ -93,7 +97,7 @@ abstract class PlaceHolder extends Entity
 	{
 		if ($this->lock('block')) {
 			$this->checkBlock($block);
-			if ($this->addUnique($this->blocks, $block, 'id')) {
+			if ($this->addUnique($this->blocks, $block)) {
 				$block->setPlaceHolder($this);
 			}
 			$this->unlock('block');
