@@ -83,7 +83,7 @@ abstract class WriterAbstraction implements WriterInterface
 	 * Get log formatter
 	 * @return Formatter\FormatterInterface
 	 */
-	protected function getFormatter()
+	public function getFormatter()
 	{
 		if (is_null($this->formatter)) {
 			$this->formatter = new static::$defaultFormatter(static::$defaultFormatterParameters);
@@ -175,8 +175,20 @@ abstract class WriterAbstraction implements WriterInterface
 			}
 			
 			$params = Logger::getBacktraceInfo($offset);
-			
-			$event = new Event($arguments[0], $level, $params['file'], $params['line'], $this->name, $params);
+
+			// Generate logger name
+			$loggerName = null;
+			if ($this->name != '') {
+				$loggerName = $this->name;
+			}
+			if (isset($arguments[2]) && $arguments[2] != '') {
+				if ($loggerName != '') {
+					$loggerName .= ' ';
+				}
+				$loggerName .= $arguments[2];
+			}
+
+			$event = new Event($arguments[0], $level, $params['file'], $params['line'], $loggerName, $params);
 			$this->write($event);
 			
 		} catch (Exception $e) {

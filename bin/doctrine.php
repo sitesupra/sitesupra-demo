@@ -28,7 +28,7 @@ if (file_exists($configFile)) {
 $helperSet = ($helperSet) ?: new \Symfony\Components\Console\Helper\HelperSet();
 
 $cli = new \Symfony\Components\Console\Application('Doctrine Command Line Interface', Doctrine\Common\Version::VERSION);
-$cli->setCatchExceptions(true);
+$cli->setCatchExceptions(false);
 $cli->setHelperSet($helperSet);
 $cli->addCommands(array(
     // DBAL Commands

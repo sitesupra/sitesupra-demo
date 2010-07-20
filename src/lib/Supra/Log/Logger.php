@@ -207,9 +207,9 @@ class Logger
 	 * Get log writer instance by it's name
 	 *
 	 * @param string $name
-	 * @return Writer\WriterInterface
+	 * @return Writer\WriterInterface[]
 	 */
-	protected static function getLoggers($name = null)
+	public static function getLoggers($name = null)
 	{
 		try {
 			
@@ -290,7 +290,7 @@ class Logger
 				// the base error_log when nothing is loaded
 				$params = self::getBacktraceInfo($offset + 1);
 				$str = $method . ' - ';
-				if (!empty($params['file'])) {
+				if ( ! empty($params['file'])) {
 					$str .= $params['file'] . '(' . $params['line'] . '): ';
 				}
 				foreach ($args as &$arg) {
@@ -302,7 +302,7 @@ class Logger
 		}
 
 		foreach ($loggers as $logger) {
-			$logger->$method($args, 2 + $offset);
+			$logger->$method($args, 2 + $offset, $loggerName);
 		}
 	}
 

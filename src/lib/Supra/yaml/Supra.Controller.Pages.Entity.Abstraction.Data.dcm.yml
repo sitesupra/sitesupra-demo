@@ -1,0 +1,38 @@
+Supra\Controller\Pages\Entity\Abstraction\Data:
+  type: entity
+  table: data_abstraction
+  inheritanceType: JOINED
+  discriminatorColumn:
+    name: discr
+    type: string
+    length: null
+    fieldName: discr
+  discriminatorMap:
+    template: Supra\Controller\Pages\Entity\TemplateData
+    page: Supra\Controller\Pages\Entity\PageData
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    locale:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+    title:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+  lifecycleCallbacks: {  }

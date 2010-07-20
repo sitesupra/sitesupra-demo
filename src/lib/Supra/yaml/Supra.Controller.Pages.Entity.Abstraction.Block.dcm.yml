@@ -1,0 +1,4 @@
+Supra\Controller\Pages\Entity\Abstraction\Block:
+  type: mappedSuperclass
+  table: null
+  lifecycleCallbacks: {  }

@@ -42,6 +42,12 @@ interface WriterInterface
 	public function setFormatter(Formatter\FormatterInterface $formatter);
 
 	/**
+	 * Get log formatter
+	 * @return Formatter\FormatterInterface
+	 */
+	public function getFormatter();
+
+	/**
 	 * Set log filter
 	 * @param Filter\FilterInterface $filter
 	 * @param boolean $append

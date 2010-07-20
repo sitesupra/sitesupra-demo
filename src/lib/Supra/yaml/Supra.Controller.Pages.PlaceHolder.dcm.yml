@@ -1,4 +1,0 @@
-Supra\Controller\Pages\PlaceHolder:
-  type: mappedSuperclass
-  table: null
-  lifecycleCallbacks: {  }

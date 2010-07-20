@@ -1,0 +1,38 @@
+Supra\Controller\Pages\Entity\TemplateBlock:
+  type: entity
+  table: template_block
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    locked:
+      type: boolean
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+    component:
+      type: string
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+  oneToOne:
+    placeHolder:
+      targetEntity: TemplatePlaceHolder
+      cascade: {  }
+      mappedBy: null
+      joinColumns:
+        placeHolder_id:
+          referencedColumnName: id
+      orphanRemoval: false
+  lifecycleCallbacks: {  }

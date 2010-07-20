@@ -83,6 +83,8 @@ class PhpErrorHandler
 	/**
 	 * Handle unaught exception
 	 * @param \Exception $exception
+	 * TODO: when handling uncaught exception the debug_backtrace does not
+	 *		contain the file:line the exception was thrown.
 	 */
 	public function handleException($exception)
 	{

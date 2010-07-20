@@ -73,6 +73,8 @@ class Event
 	 * @param string $level
 	 * @param string $file
 	 * @param int $line
+	 * @param string $logger
+	 * @param array $params
 	 */
 	function __construct($data, $level, $file, $line, $logger, array $params = array())
 	{

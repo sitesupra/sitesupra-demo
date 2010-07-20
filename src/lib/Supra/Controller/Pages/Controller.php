@@ -8,7 +8,8 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Controller\Pages\Exception,
 		Doctrine\ORM\PersistentCollection,
 		Supra\Database\Doctrine,
-		Supra\Locale\Data as LocaleData;
+		Supra\Locale\Data as LocaleData,
+		Doctrine\ORM\Query\Expr;
 
 /**
  * Page controller
@@ -20,13 +21,13 @@ class Controller extends ControllerAbstraction
 	 * Page class to be used
 	 * @var string
 	 */
-	const PAGE_ENTITY = 'Supra\\Controller\\Pages\\Page';
+	const PAGE_ENTITY = 'Supra\Controller\Pages\Entity\Page';
 
 	/**
 	 * Page data class to be used
 	 * @var string
 	 */
-	const PAGE_DATA_ENTITY = 'Supra\\Controller\\Pages\\PageData';
+	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
 
 	/**
 	 * Current locale, set on execute start
@@ -103,38 +104,71 @@ class Controller extends ControllerAbstraction
 		\Log::debug("Root template {$rootTemplate->getId()} has layout {$layout->getFile()} for media {$this->media}");
 
 		$layoutPlaceHolderNames = $layout->getPlaceHolderNames();
-
 		\Log::debug('Layout place holder names: ', $layoutPlaceHolderNames);
 
 		/* @var $templateIds int[] */
 		$templateIds = array();
-		
 		/* @var $template Template */
 		foreach ($templates as $template) {
 			$templateIds[] = $template->getId();
 		}
-
 		\Log::debug('Found these templates: ', implode(', ', $templateIds));
 
-		$em = $this->getDoctrineEntityManager();
-		
-		//TODO: parametrize
-		$qb = $em->createQueryBuilder();
-		$qb->select('tph')
-			->from('Supra\Controller\Pages\TemplatePlaceHolder', 'tph')
-			->where(
-				$qb->expr()->in('tph.layoutPlaceHolderName', $layoutPlaceHolderNames)
-			)
-			->where(
-				$qb->expr()->in('tph.template.id', $templateIds)
-			);
+		// We need the further block processing if there are any place holders
+		// in the layout
+		if (count($layoutPlaceHolderNames) > 0) {
+			
+			$em = $this->getDoctrineEntityManager();
 
-		$dql = $qb->getDQL();
-		
-		$query = $em->createQuery($dql);
-		$result = $query->getResult();
+			// Find template place holders
+			$qb = $em->createQueryBuilder();
+			$qb->select('tph')
+					->from('Supra\Controller\Pages\Entity\TemplatePlaceHolder', 'tph')
+					->where($qb->expr()->in('tph.name', $layoutPlaceHolderNames))
+					->andWhere($qb->expr()->in('tph.template.id', $templateIds))
+					->orderBy('tph.template.depth', 'ASC');
 
-		\Log::debug(count($result));
+			$dql = $qb->getDQL();
+			$query = $em->createQuery($dql);
+			$templatePlaceHolders = $query->getResult();
+
+			// Find page place holders
+			$qb = $em->createQueryBuilder();
+			$qb->select('pph')
+					->from('Supra\Controller\Pages\Entity\PagePlaceHolder', 'pph')
+					->where($qb->expr()->in('pph.name', $layoutPlaceHolderNames))
+					->andWhere($qb->expr()->eq('pph.page.id', $page->getId()));
+
+			$dql = $qb->getDQL();
+			$query = $em->createQuery($dql);
+			$pagePlaceHolders = $query->getResult();
+
+			// Union both - template and page - place holder
+			$placeHolders = array_merge($templatePlaceHolders, $pagePlaceHolders);
+
+			\Log::debug('Count of place holders found: ' . count($placeHolders));
+
+			$placeHoldersByName = array();
+
+			/* @var $placeHolder PlaceHolder */
+			foreach ($placeHolders as $placeHolder) {
+				
+				$name = $placeHolder->getName();
+				
+				if (isset($placeHoldersByName[$name])) {
+					/* @var $currentPlaceHolder PlaceHolder */
+					$currentPlaceHolder = $placeHoldersByName[$name];
+					// Don't overwrite if parent place holder object was locked
+					if ($currentPlaceHolder->getLocked()) {
+						continue;
+					}
+				}
+
+				$placeHoldersByName[$name] = $placeHolder;
+			}
+
+			
+		}
 
 		$response->output('So far so good');
 
@@ -177,7 +211,7 @@ class Controller extends ControllerAbstraction
 			//TODO: 404 page
 			throw new Exception("No page found by path '$action' in pages controller");
 		}
-		
+
 		return $pageData->getPage();
 	}
 

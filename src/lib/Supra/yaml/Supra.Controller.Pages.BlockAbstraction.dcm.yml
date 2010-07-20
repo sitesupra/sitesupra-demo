@@ -1,4 +1,0 @@
-Supra\Controller\Pages\BlockAbstraction:
-  type: mappedSuperclass
-  table: null
-  lifecycleCallbacks: {  }
