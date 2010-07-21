@@ -25,6 +25,7 @@ class LayoutPlaceHolder extends Abstraction\Entity
 
 	/**
 	 * @ManyToOne(targetEntity="Layout", inversedBy="placeHolders")
+	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
 	 * @var Layout
 	 */
 	protected $layout;

@@ -7,9 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection,
 
 /**
  * Page abstraction
- * @MappedSuperclass
+ * @Entity
+ * @InheritanceType("JOINED")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\Template", "page" = "Supra\Controller\Pages\Entity\Page"})
+ * @Table(name="page_abstraction")
  */
-abstract class Page extends Entity
+class Page extends Entity
 {
 	/**
 	 * Data class
@@ -86,6 +90,7 @@ abstract class Page extends Entity
 	 */
 	public function setParent(Page $parent = null)
 	{
+		$this->matchDiscriminator($parent);
 		if ( ! empty($this->parent)) {
 			$this->parent->getChildren()->remove($this);
 		}
@@ -141,9 +146,8 @@ abstract class Page extends Entity
 	 */
 	public function setData(Data $data)
 	{
-		$this->isInstanceOf($data, static::$dataClass, __METHOD__);
-		
 		if ($this->lock('data')) {
+			$this->matchDiscriminator($data);
 			if ($this->addUnique($this->data, $data, 'locale')) {
 				$data->setMaster($this);
 			}

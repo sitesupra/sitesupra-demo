@@ -43,6 +43,12 @@ abstract class Entity
 	}
 
 	/**
+	 * Id getter is mandatory
+	 * @return integer
+	 */
+	abstract public function getId();
+
+	/**
 	 * Lock to prevent infinite loops
 	 * @param string $name
 	 * @return boolean
@@ -70,6 +76,14 @@ abstract class Entity
 	}
 
 	/**
+	 * Unlocks all locks, must be run before throwing exception
+	 */
+	protected function unlockAll()
+	{
+		$this->locks = array();
+	}
+
+	/**
 	 * Set the property value. Return true on success, false on equal parameter,
 	 * exception when argument not valid or
 	 * @param mixed $property
@@ -82,10 +96,12 @@ abstract class Entity
 	{
 		$sourceEntity = get_class($this);
 		if (empty($value)) {
-			throw new Exception("Second argument sent to method 
+			$this->unlockAll();
+			throw new Exception("Second argument sent to method
 					$sourceEntity::writeOnce() cannot be empty");
 		}
 		if ( ! is_object($value)) {
+			$this->unlockAll();
 			throw new Exception("Second argument sent to method 
 					$sourceEntity::writeOnce() must be an object");
 		}
@@ -93,6 +109,7 @@ abstract class Entity
 			return false;
 		}
 		if ( ! empty($property)) {
+			$this->unlockAll();
 			$targetEntity = get_class($value);
 			throw new Exception("The property $targetEntity is write-once,
 					cannot rewrite with different value for $sourceEntity");
@@ -147,6 +164,8 @@ abstract class Entity
 					}
 				}
 				
+				$this->unlockAll();
+
 				// If we are here it means all unique parameters were equal
 				throw new Exception("Cannot add element to collection,
 					the element with the same values for unique fields already exists");
@@ -167,6 +186,7 @@ abstract class Entity
 	{
 		$method = 'get' . \ucfirst($name);
 		if ( ! \method_exists($this, $method)) {
+			$this->unlockAll();
 			$class = \get_class($this);
 			throw new Exception("Could not found getter function for object
 					$class property $name");
@@ -185,7 +205,59 @@ abstract class Entity
 	protected function isInstanceOf(Entity $instance, $class, $method)
 	{
 		if ( ! ($instance instanceof $class)) {
+			$this->unlockAll();
 			throw new Exception("Object can accept instance of $class in method $method");
 		}
+	}
+
+	/**
+	 * Get discriminator key for the object ("page", "template", null if not found)
+	 * @return string
+	 */
+	public function getDiscriminator()
+	{
+		$className = get_class($this);
+		$em = self::getConnection();
+		$metaData = $em->getClassMetadata($className);
+		$key = \array_search($className, $metaData->discriminatorMap);
+		if ($key !== false) {
+			return $key;
+		}
+		return null;
+	}
+
+	/**
+	 * Check if discriminators match for objects.
+	 * If strict, they must be equal, if not strict, page object matches template object as well
+	 * @param Entity $object
+	 * @param boolean $strict
+	 */
+	public function matchDiscriminator(Entity $object, $strict = true)
+	{
+		$disrcA = $this->getDiscriminator();
+		$disrcB = $object->getDiscriminator();
+
+		if ($disrcA == $disrcB) {
+			return;
+		}
+
+		if ( ! $strict && ($discrA == 'page' && $discrB == 'template')) {
+			return;
+		}
+
+		$this->unlockAll();
+		throw new Exception("The object discriminators do not match for {$this} and {$object}");
+
+	}
+
+	public function __toString()
+	{
+		$id = $this->getId();
+		if ( ! empty($id)) {
+			return get_class($this) . '#' . $id;
+		}
+
+		//TODO: must include all props
+		return get_class($this) . '#unstored';
 	}
 }

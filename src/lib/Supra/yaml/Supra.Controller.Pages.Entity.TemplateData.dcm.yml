@@ -35,4 +35,13 @@ Supra\Controller\Pages\Entity\TemplateData:
         template_id:
           referencedColumnName: id
       orphanRemoval: false
+  oneToMany:
+    blockProperties:
+      targetEntity: BlockProperty
+      cascade:
+        - remove
+        - persist
+      mappedBy: data
+      orphanRemoval: false
+      orderBy: null
   lifecycleCallbacks: {  }

@@ -39,7 +39,7 @@ class Template extends Abstraction\Page
 
 	/**
      * @ManyToOne(targetEntity="Template", inversedBy="children")
-     * @JoinColumn(name="parent_id", referencedColumnName="id")
+	 * @JoinColumn(name="parent_id", referencedColumnName="id")
 	 * @var Template
      */
 	protected $parent;
@@ -68,7 +68,7 @@ class Template extends Abstraction\Page
 	{
 		if ( ! is_null($parent)) {
 
-			$this->isInstanceOf($page, __CLASS__, __METHOD__);
+			$this->matchDiscriminator($parent);
 
 			// Remove associated template layout objects
 			$templateLayouts = $this->getTemplateLayouts();

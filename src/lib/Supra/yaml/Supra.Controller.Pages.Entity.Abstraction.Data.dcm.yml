@@ -1,6 +1,6 @@
 Supra\Controller\Pages\Entity\Abstraction\Data:
   type: entity
-  table: data_abstraction
+  table: data
   inheritanceType: JOINED
   discriminatorColumn:
     name: discr
@@ -35,4 +35,13 @@ Supra\Controller\Pages\Entity\Abstraction\Data:
       scale: 0
       nullable: false
       unique: false
+  oneToMany:
+    blockProperties:
+      targetEntity: BlockProperty
+      cascade:
+        - remove
+        - persist
+      mappedBy: data
+      orphanRemoval: false
+      orderBy: null
   lifecycleCallbacks: {  }

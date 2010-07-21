@@ -6,9 +6,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Page and template place holder data abstraction
- * @MappedSuperclass
+ * @Entity
+ * @InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplatePlaceHolder", "page" = "Supra\Controller\Pages\Entity\PagePlaceHolder"})
+ * @Table(name="place_holder")
  */
-abstract class PlaceHolder extends Entity
+class PlaceHolder extends Entity
 {
 	/**
 	 * @Id
@@ -19,23 +23,23 @@ abstract class PlaceHolder extends Entity
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="LayoutPlaceHolder")
-	 * @JoinColumn(name="layout_place_holder_id")
-	 * @var LayoutPlaceHolder
-	 * NOTE: removed because decided to specify layout place holder by name not object so layout could be changed with no hassle
-	protected $layoutPlaceHolder;
-	 */
-
-	/**
 	 * @Column(name="name", type="string")
 	 * @var string
 	 */
 	protected $name;
 
 	/**
+	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $blocks;
+
+	/**
+	 * @ManyToOne(targetEntity="Page")
+	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=false)
+	 * @var Page
+	 */
+	protected $master;
 
 	/**
 	 * Constructor
@@ -45,6 +49,15 @@ abstract class PlaceHolder extends Entity
 	{
 		$this->setName($name);
 		$this->blocks = new ArrayCollection();
+	}
+
+	/**
+	 * Get Id
+	 * @return integer
+	 */
+	public function getId()
+	{
+		return $this->id;
 	}
 
 	/**
@@ -64,12 +77,6 @@ abstract class PlaceHolder extends Entity
 	{
 		return $this->name;
 	}
-
-	/**
-	 * Set master object
-	 * @param Page $master
-	 */
-	abstract public function setMaster(Page $master);
 
 	/**
 	 * Place holder locked status always is false for pages
@@ -96,7 +103,7 @@ abstract class PlaceHolder extends Entity
 	public function addBlock(Block $block)
 	{
 		if ($this->lock('block')) {
-			$this->checkBlock($block);
+			$this->matchDiscriminator($block);
 			if ($this->addUnique($this->blocks, $block)) {
 				$block->setPlaceHolder($this);
 			}
@@ -105,10 +112,23 @@ abstract class PlaceHolder extends Entity
 	}
 	
 	/**
-	 * Checks block object instance
-	 * @param $block Block
-	 * @throws Exception on failure
+	 * Set master page/template
+	 * @param Page $page
 	 */
-	abstract protected function checkBlock(Block $block);
+	public function setMaster(Page $master)
+	{
+		$this->matchDiscriminator($master);
+		if ($this->writeOnce($this->master, $master)) {
+			$this->master->addPlaceHolder($this);
+		}
+	}
+
+	/**
+	 * @return Page
+	 */
+	public function getMaster()
+	{
+		return $this->master;
+	}
 	
 }

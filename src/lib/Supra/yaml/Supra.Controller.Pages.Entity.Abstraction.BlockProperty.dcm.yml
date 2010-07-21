@@ -1,4 +1,32 @@
 Supra\Controller\Pages\Entity\Abstraction\BlockProperty:
-  type: mappedSuperclass
-  table: null
+  type: entity
+  table: block_property
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+  oneToOne:
+    data:
+      targetEntity: Data
+      cascade: {  }
+      mappedBy: null
+      joinColumns:
+        data_id:
+          referencedColumnName: id
+      orphanRemoval: false
+    block:
+      targetEntity: Block
+      cascade: {  }
+      mappedBy: null
+      joinColumns:
+        block_id:
+          referencedColumnName: id
+      orphanRemoval: false
   lifecycleCallbacks: {  }

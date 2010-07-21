@@ -28,6 +28,12 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
     }
 
     
+    public function getId()
+    {
+        $this->_load();
+        return parent::getId();
+    }
+
     public function setFile($file)
     {
         $this->_load();
@@ -62,6 +68,24 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 

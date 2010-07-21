@@ -13,6 +13,7 @@ class PageData extends Abstraction\Data
 {
 	/**
 	 * @ManyToOne(targetEntity="Page", inversedBy="data")
+	 * @JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
 	 * @var Page
 	 */
 	protected $page;
@@ -45,7 +46,7 @@ class PageData extends Abstraction\Data
 	 */
 	public function setMaster(Abstraction\Page $master)
 	{
-		$this->isInstanceOf($master, __NAMESPACE__ . '\Page', __METHOD__);
+		$this->matchDiscriminator($master);
 		$this->setPage($master);
 	}
 

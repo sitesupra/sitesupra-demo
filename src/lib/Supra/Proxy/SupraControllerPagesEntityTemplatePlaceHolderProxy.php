@@ -40,12 +40,6 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         return parent::getTemplate();
     }
 
-    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
-    {
-        $this->_load();
-        return parent::setMaster($master);
-    }
-
     public function setLocked($locked = true)
     {
         $this->_load();
@@ -58,10 +52,10 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         return parent::getLocked();
     }
 
-    public function setName($name)
+    public function getId()
     {
         $this->_load();
-        return parent::setName($name);
+        return parent::getId();
     }
 
     public function getName()
@@ -82,10 +76,40 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         return parent::addBlock($block);
     }
 
+    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
+    public function getMaster()
+    {
+        $this->_load();
+        return parent::getMaster();
+    }
+
     public function getProperty($name)
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 
@@ -94,6 +118,6 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('template', 'locked', 'blocks', 'id', 'name');
+        return array('id', 'name', 'blocks', 'master', 'locked');
     }
 }

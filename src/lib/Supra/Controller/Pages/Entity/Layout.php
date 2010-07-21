@@ -44,6 +44,15 @@ class Layout extends Abstraction\Entity
 	}
 
 	/**
+	 * Get id
+	 * @return integer
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	/**
 	 * Set layout template file
 	 * @param string $file
 	 */

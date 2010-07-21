@@ -1,6 +1,6 @@
 Supra\Controller\Pages\Entity\TemplateBlock:
   type: entity
-  table: template_block
+  table: null
   fields:
     id:
       type: integer
@@ -17,7 +17,7 @@ Supra\Controller\Pages\Entity\TemplateBlock:
       length: null
       precision: 0
       scale: 0
-      nullable: false
+      nullable: true
       unique: false
     component:
       type: string
@@ -28,11 +28,20 @@ Supra\Controller\Pages\Entity\TemplateBlock:
       unique: false
   oneToOne:
     placeHolder:
-      targetEntity: TemplatePlaceHolder
+      targetEntity: PlaceHolder
       cascade: {  }
       mappedBy: null
       joinColumns:
-        placeHolder_id:
+        place_holder_id:
           referencedColumnName: id
       orphanRemoval: false
+  oneToMany:
+    blockProperties:
+      targetEntity: BlockProperty
+      cascade:
+        - remove
+        - persist
+      mappedBy: block
+      orphanRemoval: false
+      orderBy: null
   lifecycleCallbacks: {  }

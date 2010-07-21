@@ -34,12 +34,6 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
         return parent::getId();
     }
 
-    public function setMedia($media)
-    {
-        $this->_load();
-        return parent::setMedia($media);
-    }
-
     public function getMedia()
     {
         $this->_load();
@@ -74,6 +68,24 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 

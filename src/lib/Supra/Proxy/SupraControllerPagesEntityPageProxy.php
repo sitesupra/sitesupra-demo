@@ -112,12 +112,30 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getProperty($name);
     }
 
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
+    }
+
 
     public function __sleep()
     {
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('data', 'template', 'children', 'parent', 'placeHolders', 'id', 'depth');
+        return array('id', 'depth', 'data', 'template', 'children', 'parent', 'placeHolders');
     }
 }

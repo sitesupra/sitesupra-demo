@@ -34,12 +34,6 @@ abstract class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Con
         return parent::getId();
     }
 
-    public function setLocale($locale)
-    {
-        $this->_load();
-        return parent::setLocale($locale);
-    }
-
     public function getLocale()
     {
         $this->_load();
@@ -64,10 +58,34 @@ abstract class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Con
         return parent::setMaster($master);
     }
 
+    public function addBlockProperty(\Supra\Controller\Pages\Entity\Abstraction\BlockProperty $blockProperty)
+    {
+        $this->_load();
+        return parent::addBlockProperty($blockProperty);
+    }
+
     public function getProperty($name)
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 
@@ -76,6 +94,6 @@ abstract class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Con
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('id', 'locale', 'title');
+        return array('id', 'locale', 'title', 'blockProperties');
     }
 }

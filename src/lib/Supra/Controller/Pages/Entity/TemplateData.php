@@ -13,6 +13,7 @@ class TemplateData extends Abstraction\Data
 {
 	/**
 	 * @ManyToOne(targetEntity="Template", inversedBy="data")
+	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
 	 */
 	protected $template;
@@ -41,7 +42,7 @@ class TemplateData extends Abstraction\Data
 	 */
 	public function setMaster(Abstraction\Page $master)
 	{
-		$this->isInstanceOf($master, __NAMESPACE__ . '\Template', __METHOD__);
+		$this->matchDiscriminator($master);
 		$this->setTemplate($master);
 	}
 

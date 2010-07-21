@@ -4,18 +4,12 @@ namespace Supra\Controller\Pages\Entity;
 
 /**
  * @Entity
- * @Table(name="template_block")
  */
 class TemplateBlock extends Abstraction\Block
 {
-	/**
-	 * @ManyToOne(targetEntity="TemplatePlaceHolder", inversedBy="blocks")
-	 * @var TemplatePlaceHolder
-	 */
-	protected $placeHolder;
 
 	/**
-	 * @Column(type="boolean")
+	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
 	protected $locked = false;

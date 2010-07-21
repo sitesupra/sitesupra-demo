@@ -25,6 +25,9 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	public function testFixture()
 	{
 		$page = new Entity\Page();
+		
+		$em = Doctrine::getInstance()->getEntityManager();
+		$em->persist($page);
 
 		$pageData = new Entity\PageData('en');
 		$pageData->setTitle('Home');
@@ -74,10 +77,6 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPlaceHolder($pagePlaceHolder);
 			}
 		}
-
-		$em = Doctrine::getInstance()->getEntityManager();
-
-		$em->persist($page);
 
 		$em->flush();
 	}

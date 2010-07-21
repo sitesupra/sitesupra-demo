@@ -1,6 +1,6 @@
 Supra\Controller\Pages\Entity\PagePlaceHolder:
   type: entity
-  table: page_place_holder
+  table: null
   fields:
     id:
       type: integer
@@ -19,22 +19,22 @@ Supra\Controller\Pages\Entity\PagePlaceHolder:
       scale: 0
       nullable: false
       unique: false
-  oneToOne:
-    page:
-      targetEntity: Page
-      cascade: {  }
-      mappedBy: null
-      joinColumns:
-        page_id:
-          referencedColumnName: id
-      orphanRemoval: false
   oneToMany:
     blocks:
-      targetEntity: PageBlock
+      targetEntity: Block
       cascade:
         - remove
         - persist
       mappedBy: placeHolder
       orphanRemoval: false
       orderBy: null
+  oneToOne:
+    master:
+      targetEntity: Page
+      cascade: {  }
+      mappedBy: null
+      joinColumns:
+        master_id:
+          referencedColumnName: id
+      orphanRemoval: false
   lifecycleCallbacks: {  }

@@ -166,7 +166,8 @@ class Cookie
 	 * Sets domain
 	 * @param string $domain
 	 */
-	public function setDomain($domain) {
+	public function setDomain($domain)
+	{
 		$this->domain = $domain;
 	}
 

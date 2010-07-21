@@ -34,12 +34,6 @@ class SupraControllerPagesEntityLayoutPlaceHolderProxy extends \Supra\Controller
         return parent::getId();
     }
 
-    public function setName($name)
-    {
-        $this->_load();
-        return parent::setName($name);
-    }
-
     public function getName()
     {
         $this->_load();
@@ -62,6 +56,24 @@ class SupraControllerPagesEntityLayoutPlaceHolderProxy extends \Supra\Controller
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 

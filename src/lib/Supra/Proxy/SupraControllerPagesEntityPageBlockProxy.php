@@ -58,10 +58,34 @@ class SupraControllerPagesEntityPageBlockProxy extends \Supra\Controller\Pages\E
         return parent::setComponent($component);
     }
 
+    public function addBlockProperty(\Supra\Controller\Pages\Entity\Abstraction\BlockProperty $blockProperty)
+    {
+        $this->_load();
+        return parent::addBlockProperty($blockProperty);
+    }
+
     public function getProperty($name)
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 
@@ -70,6 +94,6 @@ class SupraControllerPagesEntityPageBlockProxy extends \Supra\Controller\Pages\E
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('placeHolder', 'id', 'component');
+        return array('id', 'component', 'placeHolder', 'blockProperties');
     }
 }

@@ -25,16 +25,22 @@ class TemplateLayout extends Abstraction\Entity
 
 	/**
 	 * @ManyToOne(targetEntity="Layout", cascade={"persist"})
+	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
 	 * @var Layout
 	 */
 	protected $layout;
 
 	/**
 	 * @ManyToOne(targetEntity="Template")
+	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
 	 */
 	protected $template;
 
+	/**
+	 * Constructor
+	 * @param string $media
+	 */
 	public function  __construct($media)
 	{
 		$this->setMedia($media);

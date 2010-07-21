@@ -2,12 +2,14 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * @Entity
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
- * @Table(name="data_abstraction")
+ * @Table(name="data")
  */
 abstract class Data extends Entity
 {
@@ -32,11 +34,18 @@ abstract class Data extends Entity
 	protected $title;
 
 	/**
+	 * @OneToMany(targetEntity="BlockProperty", mappedBy="data", cascade={"persist", "remove"})
+	 * @var Collection
+	 */
+	protected $blockProperties;
+
+	/**
 	 * Construct
 	 * @param string $locale
 	 */
 	public function __construct($locale)
 	{
+		$this->blockProperties = new ArrayCollection();
 		$this->setLocale($locale);
 	}
 
@@ -85,5 +94,19 @@ abstract class Data extends Entity
 	 * @param Page $master
 	 */
 	abstract public function setMaster(Page $master);
+
+	/**
+	 * @param BlockProperty $blockProperty
+	 */
+	public function addBlockProperty(BlockProperty $blockProperty)
+	{
+		if ($this->lock('blockProperties')) {
+			if ($this->addUnique($this->blockProperties, $blockProperty)) {
+				$blockProperty->setData($this);
+			}
+			$this->unlock('blockProperties');
+		}
+	}
+
 
 }

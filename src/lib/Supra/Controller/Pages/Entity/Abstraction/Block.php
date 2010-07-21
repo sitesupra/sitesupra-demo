@@ -4,13 +4,19 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Supra\Controller\ControllerAbstraction,
 		Supra\Controller\Request,
-		Supra\Controller\Response;
+		Supra\Controller\Response,
+		Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
 
 /**
  * Block database entity abstraction
- * @MappedSuperclass
+ * @Entity
+ * @InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateBlock", "page" = "Supra\Controller\Pages\Entity\PageBlock"})
+ * @Table(name="block")
  */
-abstract class Block extends Entity
+class Block extends Entity
 {
 	/**
 	 * @Id
@@ -27,9 +33,25 @@ abstract class Block extends Entity
 	protected $component;
 
 	/**
+	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
+	 * @JoinColumn(name="place_holder_id", referencedColumnName="id", nullable=false)
 	 * @var PlaceHolder
 	 */
 	protected $placeHolder;
+
+	/**
+	 * @OneToMany(targetEntity="BlockProperty", mappedBy="block", cascade={"persist", "remove"})
+	 * @var Collection
+	 */
+	protected $blockProperties;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+		$this->blockProperties = new ArrayCollection();
+	}
 
 	/**
 	 * Page block is not locked at any time
@@ -73,6 +95,19 @@ abstract class Block extends Entity
 	public function setComponent($component)
 	{
 		$this->component = $component;
+	}
+
+	/**
+	 * @param BlockProperty $blockProperty
+	 */
+	public function addBlockProperty(BlockProperty $blockProperty)
+	{
+		if ($this->lock('blockProperties')) {
+			if ($this->addUnique($this->blockProperties, $blockProperty)) {
+				$blockProperty->setBlock($this);
+			}
+			$this->unlock('blockProperties');
+		}
 	}
 
 }

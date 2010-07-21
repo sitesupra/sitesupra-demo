@@ -1,4 +1,31 @@
 Supra\Controller\Pages\Entity\Abstraction\Page:
-  type: mappedSuperclass
-  table: null
+  type: entity
+  table: page_abstraction
+  inheritanceType: JOINED
+  discriminatorColumn:
+    name: discr
+    type: string
+    length: null
+    fieldName: discr
+  discriminatorMap:
+    template: Supra\Controller\Pages\Entity\Template
+    page: Supra\Controller\Pages\Entity\Page
+  fields:
+    id:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
+      id: true
+      generator:
+        strategy: IDENTITY
+    depth:
+      type: integer
+      length: null
+      precision: 0
+      scale: 0
+      nullable: false
+      unique: false
   lifecycleCallbacks: {  }

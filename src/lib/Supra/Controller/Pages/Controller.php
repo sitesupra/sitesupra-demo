@@ -125,8 +125,8 @@ class Controller extends ControllerAbstraction
 			$qb->select('tph')
 					->from('Supra\Controller\Pages\Entity\TemplatePlaceHolder', 'tph')
 					->where($qb->expr()->in('tph.name', $layoutPlaceHolderNames))
-					->andWhere($qb->expr()->in('tph.template.id', $templateIds))
-					->orderBy('tph.template.depth', 'ASC');
+					->andWhere($qb->expr()->in('tph.master.id', $templateIds))
+					->orderBy('tph.master.depth', 'ASC');
 
 			$dql = $qb->getDQL();
 			$query = $em->createQuery($dql);
@@ -137,7 +137,7 @@ class Controller extends ControllerAbstraction
 			$qb->select('pph')
 					->from('Supra\Controller\Pages\Entity\PagePlaceHolder', 'pph')
 					->where($qb->expr()->in('pph.name', $layoutPlaceHolderNames))
-					->andWhere($qb->expr()->eq('pph.page.id', $page->getId()));
+					->andWhere($qb->expr()->eq('pph.master.id', $page->getId()));
 
 			$dql = $qb->getDQL();
 			$query = $em->createQuery($dql);

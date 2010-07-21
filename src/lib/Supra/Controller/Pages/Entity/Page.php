@@ -27,6 +27,7 @@ class Page extends Abstraction\Page
 
 	/**
 	 * @ManyToOne(targetEntity="Template", cascade={"persist"})
+	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
 	 */
 	protected $template;
@@ -39,7 +40,6 @@ class Page extends Abstraction\Page
 
 	/**
      * @ManyToOne(targetEntity="Page", inversedBy="children")
-     * @JoinColumn(name="parent_id", referencedColumnName="id")
 	 * @var Page
      */
 	protected $parent;
@@ -84,8 +84,6 @@ class Page extends Abstraction\Page
 	 */
 	public function setParent(Abstraction\Page $page = null)
 	{
-		$this->isInstanceOf($page, __CLASS__, __METHOD__);
-		
 		parent::setParent($page);
 
 		// Change full path for all data items

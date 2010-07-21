@@ -40,16 +40,10 @@ class SupraControllerPagesEntityPagePlaceHolderProxy extends \Supra\Controller\P
         return parent::getPage();
     }
 
-    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
+    public function getId()
     {
         $this->_load();
-        return parent::setMaster($master);
-    }
-
-    public function setName($name)
-    {
-        $this->_load();
-        return parent::setName($name);
+        return parent::getId();
     }
 
     public function getName()
@@ -76,10 +70,40 @@ class SupraControllerPagesEntityPagePlaceHolderProxy extends \Supra\Controller\P
         return parent::addBlock($block);
     }
 
+    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
+    {
+        $this->_load();
+        return parent::setMaster($master);
+    }
+
+    public function getMaster()
+    {
+        $this->_load();
+        return parent::getMaster();
+    }
+
     public function getProperty($name)
     {
         $this->_load();
         return parent::getProperty($name);
+    }
+
+    public function getDiscriminator()
+    {
+        $this->_load();
+        return parent::getDiscriminator();
+    }
+
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    {
+        $this->_load();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function __toString()
+    {
+        $this->_load();
+        return parent::__toString();
     }
 
 
@@ -88,6 +112,6 @@ class SupraControllerPagesEntityPagePlaceHolderProxy extends \Supra\Controller\P
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('page', 'blocks', 'id', 'name');
+        return array('id', 'name', 'blocks', 'master');
     }
 }
