@@ -91,12 +91,12 @@ class Controller extends ControllerAbstraction
 		if (empty($templates[0])) {
 			throw new Exception('Response from getTemplates should contain at least 1 template for page #' . $page->getId());
 		}
-		/* @var $rootTemplate Template */
+		/* @var $rootTemplate Entity\Template */
 		$rootTemplate = $templates[0];
 
 		\Log::debug("Root template #{$rootTemplate->getId()} found for page #{$page->getId()}");
 
-		/* @var $layout Layout */
+		/* @var $layout Entity\Layout */
 		$layout = $rootTemplate->getLayout($this->media);
 		if (empty($layout)) {
 			throw new Exception("No layout defined for template #{$rootTemplate->getId()}");
@@ -107,11 +107,8 @@ class Controller extends ControllerAbstraction
 		\Log::debug('Layout place holder names: ', $layoutPlaceHolderNames);
 
 		/* @var $templateIds int[] */
-		$templateIds = array();
-		/* @var $template Template */
-		foreach ($templates as $template) {
-			$templateIds[] = $template->getId();
-		}
+		$templateIds = Entity\Abstraction\Entity::collectIds($templates);
+		
 		\Log::debug('Found these templates: ', implode(', ', $templateIds));
 
 		// We need the further block processing if there are any place holders
@@ -120,43 +117,48 @@ class Controller extends ControllerAbstraction
 			
 			$em = $this->getDoctrineEntityManager();
 
+			/* @var $templatePageIds int[] */
+			$templatePageIds = $templateIds;
+			$templatePageIds[] = $page->getId();
+
 			// Find template place holders
 			$qb = $em->createQueryBuilder();
-			$qb->select('tph')
-					->from('Supra\Controller\Pages\Entity\TemplatePlaceHolder', 'tph')
-					->where($qb->expr()->in('tph.name', $layoutPlaceHolderNames))
-					->andWhere($qb->expr()->in('tph.master.id', $templateIds))
-					->orderBy('tph.master.depth', 'ASC');
+
+			$qb->select('ph')
+					->from('Supra\Controller\Pages\Entity\Abstraction\PlaceHolder', 'ph')
+					->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
+					->andWhere($qb->expr()->in('ph.master.id', $templatePageIds))
+					// templates first (type: 0-templates, 1-pages)
+					->orderBy('ph.type', 'ASC')
+					->addOrderBy('ph.master.depth', 'ASC');
+			
+			/*
+			$qb->select('b')
+					->from('Supra\Controller\Pages\Entity\Abstraction\Block', 'b')
+					->where($qb->expr()->in('b.placeHolder.name', $layoutPlaceHolderNames))
+					->andWhere($qb->expr()->in('b.placeHolder.master.id', $templatePageIds))
+					// templates first (type: 0-templates, 1-pages)
+					->orderBy('b.placeHolder.type', 'ASC')
+					->addOrderBy('b.placeHolder.master.depth', 'ASC');
+			 */
 
 			$dql = $qb->getDQL();
+			
 			$query = $em->createQuery($dql);
-			$templatePlaceHolders = $query->getResult();
-
-			// Find page place holders
-			$qb = $em->createQueryBuilder();
-			$qb->select('pph')
-					->from('Supra\Controller\Pages\Entity\PagePlaceHolder', 'pph')
-					->where($qb->expr()->in('pph.name', $layoutPlaceHolderNames))
-					->andWhere($qb->expr()->eq('pph.master.id', $page->getId()));
-
-			$dql = $qb->getDQL();
-			$query = $em->createQuery($dql);
-			$pagePlaceHolders = $query->getResult();
-
-			// Union both - template and page - place holder
-			$placeHolders = array_merge($templatePlaceHolders, $pagePlaceHolders);
+			$placeHolders = $query->getResult();
 
 			\Log::debug('Count of place holders found: ' . count($placeHolders));
 
 			$placeHoldersByName = array();
+			$placeHolderIds = array();
 
-			/* @var $placeHolder PlaceHolder */
+			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 			foreach ($placeHolders as $placeHolder) {
-				
+
 				$name = $placeHolder->getName();
 				
 				if (isset($placeHoldersByName[$name])) {
-					/* @var $currentPlaceHolder PlaceHolder */
+					/* @var $currentPlaceHolder Entity\Abstraction\PlaceHolder */
 					$currentPlaceHolder = $placeHoldersByName[$name];
 					// Don't overwrite if parent place holder object was locked
 					if ($currentPlaceHolder->getLocked()) {
@@ -164,9 +166,24 @@ class Controller extends ControllerAbstraction
 					}
 				}
 
+				//FIXME: we need unlocked template PH as well to search for locked blocks!
 				$placeHoldersByName[$name] = $placeHolder;
 			}
 
+			$placeHolderIds = Entity\Abstraction\Entity::collectIds($placeHoldersByName);
+
+			// Don't search for blocks if no place holders found
+			if ( ! empty($placeHolderIds)) {
+				
+				// Selection of blocks
+				$qb = $em->createQueryBuilder();
+				$qb->select('b')
+						->from('Supra\Controller\Pages\Entity\Abstraction\Block', 'b')
+						->where($qb->expr()->in('b.place_holder.id', $placeHolderIds));
+
+				//TODO: continue...
+				
+			}
 			
 		}
 
@@ -204,7 +221,7 @@ class Controller extends ControllerAbstraction
 
 		//TODO: think about "enable path params" feature
 		
-		/* @var $page PageData */
+		/* @var $page Entity\PageData */
 		$pageData = $er->findOneBy($searchCriteria);
 
 		if (empty($pageData)) {

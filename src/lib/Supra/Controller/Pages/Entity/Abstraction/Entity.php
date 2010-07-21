@@ -250,6 +250,10 @@ abstract class Entity
 
 	}
 
+	/**
+	 * Object string value
+	 * @return string
+	 */
 	public function __toString()
 	{
 		$id = $this->getId();
@@ -257,7 +261,21 @@ abstract class Entity
 			return get_class($this) . '#' . $id;
 		}
 
-		//TODO: must include all props
+		//TODO: could include all property values if no ID
 		return get_class($this) . '#unstored';
+	}
+
+	/**
+	 * Collects Id array from entity collection
+	 * @param array|Collection $entities
+	 * @return array
+	 */
+	public static function collectIds($entities)
+	{
+		$ids = array();
+		foreach ($entities as $entity) {
+			$ids[] = $entity->getId();
+		}
+		return $ids;
 	}
 }

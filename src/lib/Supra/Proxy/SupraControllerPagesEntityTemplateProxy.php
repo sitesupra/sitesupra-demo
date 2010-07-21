@@ -64,6 +64,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::getLayout($media);
     }
 
+    public function getTemplatesHierarchy()
+    {
+        $this->_load();
+        return parent::getTemplatesHierarchy();
+    }
+
     public function getId()
     {
         $this->_load();

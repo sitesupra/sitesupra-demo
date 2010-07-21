@@ -8,6 +8,10 @@ namespace Supra\Controller\Pages\Entity;
  */
 class TemplatePlaceHolder extends Abstraction\PlaceHolder
 {
+	/**
+	 * @var integer
+	 */
+	protected $type = 0;
 
 	/**
 	 * @Column(type="boolean", nullable=true)

@@ -110,12 +110,7 @@ class Page extends Abstraction\Page
 			throw new Exception("No template assigned to the page {$page->getId()}");
 		}
 
-		/* @var $templates Template[] */
-		$templates = array();
-		do {
-			array_unshift($templates, $template);
-			$template = $template->getParent();
-		} while ( ! is_null($template));
+		$templates = $template->getTemplatesHierarchy();
 
 		return $templates;
 	}

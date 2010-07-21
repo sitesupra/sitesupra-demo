@@ -23,6 +23,15 @@ class PlaceHolder extends Entity
 	protected $id;
 
 	/**
+	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
+	 * column for distinguishing the place holder type,
+	 * 0: template; 1: page
+	 * @Column(type="integer")
+	 * @var integer
+	 */
+	protected $type;
+
+	/**
 	 * @Column(name="name", type="string")
 	 * @var string
 	 */

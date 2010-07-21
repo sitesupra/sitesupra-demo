@@ -155,4 +155,22 @@ class Template extends Abstraction\Page
 		throw new Exception("No layout found for template #{$this->getId()} media '{$media}'");
 	}
 
+	/**
+	 * Get array of template hierarchy starting from the root
+	 * @return Template[]
+	 */
+	public function getTemplatesHierarchy()
+	{
+		$template = $this;
+
+		/* @var $templates Template[] */
+		$templates = array();
+		do {
+			array_unshift($templates, $template);
+			$template = $template->getParent();
+		} while ( ! is_null($template));
+
+		return $templates;
+	}
+
 }

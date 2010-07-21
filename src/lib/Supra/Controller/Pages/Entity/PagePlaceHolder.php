@@ -8,6 +8,10 @@ namespace Supra\Controller\Pages\Entity;
  */
 class PagePlaceHolder extends Abstraction\PlaceHolder
 {
+	/**
+	 * @var integer
+	 */
+	protected $type = 1;
 
 	/**
 	 * Set page
