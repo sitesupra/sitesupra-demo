@@ -77,13 +77,9 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Execute controller
-	 * @param RequestInterface $request
-	 * @param ResponseInterface $response 
 	 */
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
+	public function execute()
 	{
-		parent::execute($request, $response);
-		
 		$page = $this->getRequestPage();
 		\Log::debug('Found page #', $page->getId());
 
@@ -111,6 +107,8 @@ class Controller extends ControllerAbstraction
 		
 		\Log::debug('Found these templates: ', implode(', ', $templateIds));
 
+		$blockResponsesByPlace = array();
+
 		// We need the further block processing if there are any place holders
 		// in the layout
 		if (count($layoutPlaceHolderNames) > 0) {
@@ -132,16 +130,6 @@ class Controller extends ControllerAbstraction
 					->orderBy('ph.type', 'ASC')
 					->addOrderBy('ph.master.depth', 'ASC');
 			
-			/*
-			$qb->select('b')
-					->from('Supra\Controller\Pages\Entity\Abstraction\Block', 'b')
-					->where($qb->expr()->in('b.placeHolder.name', $layoutPlaceHolderNames))
-					->andWhere($qb->expr()->in('b.placeHolder.master.id', $templatePageIds))
-					// templates first (type: 0-templates, 1-pages)
-					->orderBy('b.placeHolder.type', 'ASC')
-					->addOrderBy('b.placeHolder.master.depth', 'ASC');
-			 */
-
 			$dql = $qb->getDQL();
 			
 			$query = $em->createQuery($dql);
@@ -150,24 +138,30 @@ class Controller extends ControllerAbstraction
 			\Log::debug('Count of place holders found: ' . count($placeHolders));
 
 			$placeHoldersByName = array();
-			$placeHolderIds = array();
+			$templatePlaceHolderIds = array();
+
+			$blocksByPlaceName = \array_combine(
+					$layoutPlaceHolderNames,
+					\array_fill(0, count($layoutPlaceHolderNames), array()));
 
 			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 			foreach ($placeHolders as $placeHolder) {
 
 				$name = $placeHolder->getName();
 				
+				// Don't overwrite if parent place holder object was locked
+				// Also locked blocks are ignored if place of parent template was locked
 				if (isset($placeHoldersByName[$name])) {
-					/* @var $currentPlaceHolder Entity\Abstraction\PlaceHolder */
-					$currentPlaceHolder = $placeHoldersByName[$name];
-					// Don't overwrite if parent place holder object was locked
-					if ($currentPlaceHolder->getLocked()) {
-						continue;
-					}
+					continue;
 				}
 
-				//FIXME: we need unlocked template PH as well to search for locked blocks!
-				$placeHoldersByName[$name] = $placeHolder;
+				// add only in cases when it's the page place or locked one
+				if ($placeHolder->getMaster() == $page || $placeHolder->getLocked()) {
+					$placeHoldersByName[$name] = $placeHolder;
+				} else {
+					// collect not matched template place holders to search for locked blocks
+					$templatePlaceHolderIds[] = $placeHolder->getId();
+				}
 			}
 
 			$placeHolderIds = Entity\Abstraction\Entity::collectIds($placeHoldersByName);
@@ -175,20 +169,141 @@ class Controller extends ControllerAbstraction
 			// Don't search for blocks if no place holders found
 			if ( ! empty($placeHolderIds)) {
 				
+				$qb = $em->createQueryBuilder();
+				$expr = $qb->expr();
+
+				$condition = $expr->orX();
+				// locked block condition
+				if ( ! empty($templatePlaceHolderIds)) {
+					$lockedBlocks = $expr->andX();
+					$in = $expr->in('b.placeHolder.id', $templatePlaceHolderIds);
+					$lockedBlocks->add($in);
+					$lockedBlocks->add('b.locked = TRUE');
+					$condition->add($lockedBlocks);
+				}
+
+				$blocks = $expr->in('b.placeHolder.id', $placeHolderIds);
+				$condition->add($blocks);
+
 				// Selection of blocks
 				$qb = $em->createQueryBuilder();
 				$qb->select('b')
 						->from('Supra\Controller\Pages\Entity\Abstraction\Block', 'b')
-						->where($qb->expr()->in('b.place_holder.id', $placeHolderIds));
+						->where($condition)
+						->orderBy('b.position', 'ASC');
 
-				//TODO: continue...
-				
+				$dql = $qb->getDQL();
+				\Log::debug("Block query : " . $dql);
+				$query = $em->createQuery($dql);
+				$blocks = $query->getResult();
+
+				\Log::debug("Block count found: " . count($blocks));
+
+				// Collect locked blocks from not locked template places
+				/* @var $block Entity\TemplateBlock */
+				foreach ($blocks as $block) {
+					$placeHolder = $block->getPlaceHolder();
+					if ($block->getLocked() && ! in_array($placeHolder, $placeHoldersByName)) {
+						$blocksByPlaceName[$placeHolder->getName()][] = $block;
+					}
+				}
+
+				// Collect all other blocks
+				/* @var $block Entity\TemplateBlock */
+				foreach ($blocks as $block) {
+					$placeHolder = $block->getPlaceHolder();
+					if (in_array($placeHolder, $placeHoldersByName)) {
+						$blocksByPlaceName[$placeHolder->getName()][] = $block;
+					}
+				}
+
+				$output = array();
+
+				foreach ($blocksByPlaceName as $placeName => $blocks) {
+					/* @var $block Entity\Abstraction\Block */
+					foreach ($blocks as $block) {
+						$component = $block->getComponent();
+						if ( ! \class_exists($component)) {
+							\Log::swarn('Block component was not found: ' . $component);
+							continue;
+						}
+						$blockController = new $component();
+						if ( ! ($blockController instanceof BlockController)) {
+							\Log::swarn("Block controller $component must be instance of BlockController");
+							continue;
+						}
+
+						$blockResponse = $blockController->getResponseObject($this->getRequest());
+
+						$blockController->prepare($this->getRequest(), $blockResponse);
+						$blockController->execute();
+						$blockController->output();
+
+						$blockResponsesByPlace[$placeName][] = $blockController->getResponse();
+
+					}
+				}
+
 			}
 			
 		}
 
-		$response->output('So far so good');
+		$this->processLayout($layout, $blockResponsesByPlace);
 
+	}
+
+	/**
+	 * TODO: Should move to other layout processing class maybe
+	 * @param Entity\Layout $layout
+	 * @param array $blocks array of block responses
+	 */
+	function processLayout(Entity\Layout $layout, $blocks)
+	{
+		$layoutContent = $layout->getFileContent();
+		$response = $this->getResponse();
+
+		$startDelimiter = '<!--placeHolder(';
+		$startLength = strlen($startDelimiter);
+		$endDelimiter = ')-->';
+		$endLength = strlen($endDelimiter);
+
+		do {
+			$pos = strpos($layoutContent, $startDelimiter);
+			if ($pos !== false) {
+				$response->output(substr($layoutContent, 0, $pos));
+				$layoutContent = substr($layoutContent, $pos);
+				$pos = strpos($layoutContent, $endDelimiter);
+				if ($pos === false) {
+					break;
+				}
+
+				$placeName = substr($layoutContent, $startLength, $pos - $startLength);
+				if ($placeName === '') {
+					throw new Exception("Place holder name empty in layout {$layout}");
+				}
+
+				if ( ! \array_key_exists($placeName, $blocks)) {
+					\Log::swarn("Place holder '$placeName' has no content");
+				} else {
+					/* @var $blockResponse Response\Http */
+					foreach ($blocks[$placeName] as $blockResponse) {
+						$blockResponse->flushToResponse($response);
+					}
+				}
+
+				$layoutContent = substr($layoutContent, $pos + $endLength);
+			}
+		} while ($pos !== false);
+
+		$response->output($layoutContent);
+	}
+
+	/**
+	 * Output method
+	 */
+	public function output()
+	{
+		//$this->getResponse()->output('So far so good');
 	}
 
 	/**

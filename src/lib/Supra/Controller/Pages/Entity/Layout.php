@@ -3,7 +3,8 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection;
+		Doctrine\Common\Collections\Collection,
+		Supra\Controller\Pages\Exception;
 
 /**
  * Layout class
@@ -106,6 +107,22 @@ class Layout extends Abstraction\Entity
 		}
 
 		return $names;
+	}
+
+	public function getFileContent()
+	{
+		$file = $this->getFile();
+		if (empty($file)) {
+			throw new Exception("No file defined for layout {$this}");
+		}
+		$filePath = \SUPRA_TEMPLATE_PATH . $file;
+		if ( ! \file_exists($filePath) || ! \is_readable($filePath)) {
+			throw new Exception("Layout file {$file} is not found
+					or not readable for layout {$this}");
+		}
+		$fileContent = \file_get_contents($filePath);
+		return $fileContent;
+
 	}
 
 }

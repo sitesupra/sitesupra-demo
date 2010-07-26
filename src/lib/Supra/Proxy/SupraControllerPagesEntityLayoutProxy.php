@@ -64,6 +64,12 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
         return parent::getPlaceHolderNames();
     }
 
+    public function getFileContent()
+    {
+        $this->_load();
+        return parent::getFileContent();
+    }
+
     public function getProperty($name)
     {
         $this->_load();

@@ -8,11 +8,21 @@ namespace Supra\Controller;
 interface ControllerInterface
 {
 	/**
-	 * Executes the controller
+	 * Prepares the controller
 	 * @param Request\RequestInterface $request
 	 * @param Response\ResponseInterface $response
 	 */
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response);
+	public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response);
+
+	/**
+	 * Executes the controller
+	 */
+	public function execute();
+
+	/**
+	 * Outputs the result
+	 */
+	public function output();
 
 	/**
 	 * Generate response object

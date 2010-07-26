@@ -90,7 +90,9 @@ class Front
 		$controller = $this->findController($request);
 		$response = $controller->getResponseObject($request);
 		$response->prepare();
-		$controller->execute($request, $response);
+		$controller->prepare($request, $response);
+		$controller->execute();
+		$controller->output();
 		$response->flush();
 	}
 

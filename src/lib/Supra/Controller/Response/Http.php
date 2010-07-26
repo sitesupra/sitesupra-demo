@@ -9,6 +9,8 @@ use Supra\Http\Cookie;
  */
 class Http implements ResponseInterface
 {
+	protected static $gzOutputBufferingStarted = false;
+
 	/**
 	 * Headers
 	 * @var array
@@ -51,12 +53,18 @@ class Http implements ResponseInterface
 	 */
 	public function prepare()
 	{
-		ob_end_clean();
-		ob_start('ob_gzhandler');
+		if ( ! self::$gzOutputBufferingStarted) {
+			ob_end_clean();
+			ob_start('ob_gzhandler');
+			self::$gzOutputBufferingStarted = true;
+		}
 	}
 
 	/**
 	 * Stores header data
+	 * @param string $name
+	 * @param string $value
+	 * @param boolean $replace
 	 */
 	public function header($name, $value, $replace = true)
 	{
@@ -64,7 +72,7 @@ class Http implements ResponseInterface
 		if ($replace || ! array_key_exists($name, $this->headers)) {
 			$this->headers[$name] = array();
 		}
-		$this->headers[$name][] = $value;
+		$this->headers[$name][] = array('value' => $value, 'replace' => $replace);
 	}
 
 	/**
@@ -73,10 +81,8 @@ class Http implements ResponseInterface
 	 */
 	protected function sendHeader($name)
 	{
-		$replace = true;
-		foreach ($this->headers[$name] as $value) {
-			header($name . ': ' . $value, $replace);
-			$replace = false;
+		foreach ($this->headers[$name] as $data) {
+			header($name . ': ' . $data['value'], $data['replace']);
 		}
 	}
 
@@ -139,6 +145,15 @@ class Http implements ResponseInterface
 	}
 
 	/**
+	 * Get output string
+	 * @return string
+	 */
+	public function getOutput()
+	{
+		return implode('', $this->output);
+	}
+
+	/**
 	 * Send the headers and output the content
 	 */
 	public function flush()
@@ -159,6 +174,28 @@ class Http implements ResponseInterface
 		$this->output = array();
 		
 		ob_end_flush();
+	}
+
+	/**
+	 * Flush this response to the parent response
+	 * @param Http $response
+	 */
+	public function flushToResponse(Http $response)
+	{
+		foreach ($this->headers as $name => $headers) {
+			foreach ($headers as $headerData) {
+				$response->header($name, $headerData['value'], $headerData['replace']);
+			}
+		}
+		$this->headers = array();
+
+		foreach ($this->cookies as $cookie) {
+			$response->setCookie($cookie);
+		}
+		$this->cookies = array();
+
+		$response->output(implode('', $this->output));
+		$this->output = array();
 	}
 
 	/**

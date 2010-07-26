@@ -15,12 +15,10 @@ abstract class Simple extends ControllerAbstraction
 
 	/**
 	 * Executes the controller
-	 * @param Request\RequestInterface $request
-	 * @param Response\ResponseInterface $response
 	 */
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
+	public function execute()
 	{
-		parent::execute($request, $response);
+		$request = $this->getRequest();
 		$actions = $request->getActions(null);
 
 		\Log::sdebug('Actions: ', $actions);

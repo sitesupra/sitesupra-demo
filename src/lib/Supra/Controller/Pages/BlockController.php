@@ -12,13 +12,11 @@ use Supra\Controller\ControllerAbstraction,
 abstract class BlockController extends ControllerAbstraction
 {
 	/**
-	 * Execute controller
-	 * @param RequestInterface $request
-	 * @param ResponseInterface $response
+	 * Output
 	 */
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
+	public function output()
 	{
-		parent::execute($request, $response);
+		//TODO: use smarty view
 	}
 
 	/**

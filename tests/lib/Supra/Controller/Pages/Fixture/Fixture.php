@@ -57,6 +57,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block = new Entity\TemplateBlock();
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
+				$block->setPosition(100);
 			}
 
 		}
@@ -75,6 +76,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block = new Entity\PageBlock();
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($pagePlaceHolder);
+				$block->setPosition(100);
 			}
 		}
 

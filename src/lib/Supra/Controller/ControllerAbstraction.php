@@ -20,15 +20,27 @@ abstract class ControllerAbstraction implements ControllerInterface
 	protected $response;
 
 	/**
-	 * Execute controller
+	 * Prepares controller for execution
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
 	 */
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
+	public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		$this->request = $request;
 		$this->response = $response;
 	}
+
+	/**
+	 * Execute controller
+	 */
+	public function execute()
+	{}
+
+	/**
+	 * Output the result
+	 */
+	public function output()
+	{}
 
 	/**
 	 * Get request object

@@ -28,8 +28,8 @@ class FirePhp extends WriterAbstraction
 	 * Default formatter parameters
 	 * @var array
 	 */
-	public static $defaultFormatterParametrs = array(
-		'format' => '%logger% - %message%',
+	public static $defaultFormatterParameters = array(
+		'format' => '%message%',
 		'timeFormat' => 'Y-m-d H:i:s',
 	);
 

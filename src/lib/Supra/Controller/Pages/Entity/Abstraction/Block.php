@@ -33,6 +33,18 @@ class Block extends Entity
 	protected $component;
 
 	/**
+	 * @Column(type="integer")
+	 * @var int
+	 */
+	protected $position;
+
+	/**
+	 * @Column(type="boolean", nullable=true)
+	 * @var boolean
+	 */
+	protected $locked = false;
+
+	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
 	 * @JoinColumn(name="place_holder_id", referencedColumnName="id", nullable=false)
 	 * @var PlaceHolder
@@ -54,12 +66,21 @@ class Block extends Entity
 	}
 
 	/**
-	 * Page block is not locked at any time
+	 * Get locked value, false for page blocks
 	 * @return boolean
 	 */
 	public function getLocked()
 	{
-		return false;
+		return $this->locked;
+	}
+
+	/**
+	 * Gets place holder
+	 * @return PlaceHolder
+	 */
+	public function getPlaceHolder()
+	{
+		return $this->placeHolder;
 	}
 
 	/**
@@ -95,6 +116,24 @@ class Block extends Entity
 	public function setComponent($component)
 	{
 		$this->component = $component;
+	}
+
+	/**
+	 * Get order number
+	 * @return int
+	 */
+	public function getPosition()
+	{
+		return $this->position;
+	}
+
+	/**
+	 * Set order number
+	 * @param int $position
+	 */
+	public function setPosition($position)
+	{
+		$this->position = $position;
 	}
 
 	/**

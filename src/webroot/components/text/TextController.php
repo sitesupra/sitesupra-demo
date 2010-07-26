@@ -11,10 +11,9 @@ use Supra\Controller\Pages\BlockController,
  */
 class TextController extends \Supra\Controller\Pages\BlockController
 {
-	public function execute(Request\RequestInterface $request, Response\ResponseInterface $response)
+	public function execute()
 	{
-		parent::execute($request, $response);
-
+		$response = $this->getResponse();
 		if ( ! ($response instanceof Response\Http)) {
 			return;
 		}
