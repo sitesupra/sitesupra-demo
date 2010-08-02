@@ -88,7 +88,7 @@ class Front
 	{
 		$request = $this->getRequestObject();
 		$controller = $this->findController($request);
-		$response = $controller->getResponseObject($request);
+		$response = $controller->createResponse($request);
 		$response->prepare();
 		$controller->prepare($request, $response);
 		$controller->execute();

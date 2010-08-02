@@ -29,5 +29,5 @@ interface ControllerInterface
 	 * @param Request\RequestInterface $request
 	 * @return Response\ResponseInterface
 	 */
-	public function getResponseObject(Request\RequestInterface $request);
+	public function createResponse(Request\RequestInterface $request);
 }

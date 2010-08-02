@@ -6,7 +6,9 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Controller\Request,
 		Supra\Controller\Response,
 		Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection;
+		Doctrine\Common\Collections\Collection,
+		Supra\Controller\Pages\Exception,
+		Supra\Controller\Pages\BlockController;
 
 /**
  * Block database entity abstraction
@@ -58,6 +60,12 @@ class Block extends Entity
 	protected $blockProperties;
 
 	/**
+	 * Block controller
+	 * @var BlockController
+	 */
+	protected $controller;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -92,6 +100,7 @@ class Block extends Entity
 		if ($this->writeOnce($this->placeHolder, $placeHolder)) {
 			$this->placeHolder->addBlock($this);
 		}
+		$this->validateLock();
 	}
 
 	/**
@@ -149,4 +158,69 @@ class Block extends Entity
 		}
 	}
 
+	/**
+	 * Whether the block is inside one of place holder Ids provided
+	 * @param array $placeHolderIds
+	 * @return boolean
+	 */
+	public function inPlaceHolder(array $placeHolderIds)
+	{
+		$placeHolder = $this->getPlaceHolder();
+		$placeHolderId = $placeHolder->getId();
+		$in = in_array($placeHolderId, $placeHolderIds);
+		return $in;
+	}
+
+	/**
+	 * Validates if the block is not being locked inside unlocked placeholder
+	 * @throws Exception if tries to lock block inside unlocked placeholder
+	 */
+	protected function validateLock()
+	{
+		if ($this->locked) {
+			if (isset($this->placeHolder)) {
+				if ( ! $this->placeHolder->getLocked()) {
+					$this->locked = false;
+					throw new Exception("The block {$this} cannot be locked
+							because the place holder {$this->placeHolder} isn't locked");
+				}
+			}
+		}
+	}
+
+	/**
+	 * Factory of the block controller
+	 * @return BlockController
+	 */
+	public function controllerFactory()
+	{
+		$component = $this->getComponent();
+		if ( ! \class_exists($component)) {
+			\Log::swarn("Block component $component was not found for block $block");
+			return null;
+		}
+
+		$blockController = new $component();
+		if ( ! ($blockController instanceof BlockController)) {
+			\Log::swarn("Block controller $component must be instance of BlockController in block $block");
+			return null;
+		}
+		return $blockController;
+	}
+
+	/**
+	 * @param BlockController $blockController
+	 */
+	public function setController(BlockController $blockController)
+	{
+		$this->controller = $blockController;
+	}
+
+	/**
+	 * @return BlockController
+	 */
+	public function getController()
+	{
+		return $this->controller;
+	}
 }

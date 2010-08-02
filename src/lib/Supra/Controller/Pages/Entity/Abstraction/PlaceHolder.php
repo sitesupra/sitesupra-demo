@@ -24,8 +24,8 @@ class PlaceHolder extends Entity
 
 	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
-	 * column for distinguishing the place holder type,
-	 * 0: template; 1: page
+	 *		column for distinguishing the place holder type,
+	 *		0: template; 1: page
 	 * @Column(type="integer")
 	 * @var integer
 	 */
@@ -139,5 +139,5 @@ class PlaceHolder extends Entity
 	{
 		return $this->master;
 	}
-	
+
 }

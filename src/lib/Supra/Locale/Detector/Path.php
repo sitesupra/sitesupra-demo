@@ -18,6 +18,6 @@ class Path extends DetectorAbstraction
 	 */
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
-		
+		//TODO: do functionality
 	}
 }

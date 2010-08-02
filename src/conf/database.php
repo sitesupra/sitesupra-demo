@@ -31,7 +31,7 @@ $connectionOptions = array(
 	'driver' => 'pdo_mysql',
 	'user' => 'root',
 	'password' => '1qaz',
-	'dbname' => 'test'
+	'dbname' => 'supra7'
 );
 
 $em = EntityManager::create($connectionOptions, $config);

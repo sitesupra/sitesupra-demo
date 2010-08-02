@@ -234,10 +234,12 @@ abstract class Entity
 	 */
 	public function matchDiscriminator(Entity $object, $strict = true)
 	{
-		$disrcA = $this->getDiscriminator();
-		$disrcB = $object->getDiscriminator();
+		$discrA = $this->getDiscriminator();
+		$discrB = $object->getDiscriminator();
 
-		if ($disrcA == $disrcB) {
+		\Log::debug("Checking discr matching for $this and $object: $discrA and $discrB");
+
+		if ($discrA == $discrB) {
 			return;
 		}
 
@@ -277,5 +279,16 @@ abstract class Entity
 			$ids[] = $entity->getId();
 		}
 		return $ids;
+	}
+
+	public static function findBy($criteria = array())
+	{
+		
+	}
+
+	public static function getQueryBuilderResult(\Doctrine\ORM\QueryBuilder $queryBuilder)
+	{
+		$query = $queryBuilder->getQuery();
+		return $query->getResult();
 	}
 }

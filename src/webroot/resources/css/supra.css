@@ -1,0 +1,125 @@
+/**
+  * Global reset
+  */
+html,head,body,
+div,blockquote,q,img,object,param,embed,area,map,b,i,em,strong,tt,sub,sup,big,small,hr
+h1, h2, h3, h4, h5, h6,
+abbr,acronym,address,bdo,cite,code,ins,del,dfn,kbd,br,
+ul,ol,li,dl,dt,dd,
+table,tr,td,th,tbody,thead,tfoot,col,colgroup,caption,
+form,label,fieldset,legend,
+a,base,span,pre,p {
+	margin: 0;
+	padding: 0;
+}
+body, html {
+	height: 100%;
+}
+body {
+	background: #F3FFE4;
+}
+html {
+	border: none;
+}
+
+a, a:active, a:link {
+	color: #329C42;
+	outline-color: #329C42;
+}
+a:hover {
+	text-decoration: none;
+}
+a img {
+	border: none;
+}
+
+table, td {
+	border-collapse: collapse;
+}
+
+/**
+  * Typography: fonts, font sizes.
+  */
+body {
+	font: 76% Arial, Helvetica, sans-serif, Times, Georgia;
+	color: #666;
+}
+h2 {
+	font-size: 1.67em;
+	padding: 13px 13px 4px;
+	color: #333;
+}
+h3 {
+	font-size: 1em;
+	font-weight: normal;
+	color: #333;
+}
+big {
+	font-size: 1.34em;
+	font-weight: normal;
+}
+
+
+/**
+  * Header
+  */
+#header {
+	background: #FFF;
+	border-bottom: 1px solid #99998C;
+	
+	color: #999;
+	font-size: 1.17em;
+	
+	width: 100%;
+	overflow: hidden;
+	padding: 33px 34px 15px 35px;
+}
+#header .logo {
+	float: left;
+}
+#header .version {
+	float: right;
+}
+
+/**
+  * Content styles
+  */
+#content {
+	padding: 17px 34px 40px 34px;
+}
+
+.block {
+	background: #FFF;
+	border-top: 1px solid #D8E0C9;
+	padding: 3px 13px;
+	line-height: 1.1em;
+}
+
+.block h3 {
+	padding: 7px 0 1px;
+}
+.block p {
+	padding: 0 0 9px;
+}
+  
+.block.introduction {
+	background: #FFFFD8;
+	border: 1px solid #E4EED5;
+	padding: 0;
+	line-height: 1.6em;
+	
+}
+.block.introduction p {
+	color: #333;
+	font-size: 1.34em;
+	
+	border: 1px solid #FFF;
+	padding: 20px 14px 24px;
+}
+
+/**
+  * Footer
+  */
+#footer {
+	padding: 30px 46px;
+}

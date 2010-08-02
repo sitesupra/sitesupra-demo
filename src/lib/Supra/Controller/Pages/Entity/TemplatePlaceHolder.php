@@ -44,6 +44,16 @@ class TemplatePlaceHolder extends Abstraction\PlaceHolder
 	public function setLocked($locked = true)
 	{
 		$this->locked = (bool)$locked;
+		if ( ! $this->locked) {
+			/* @var $block TemplateBlock */
+			foreach ($this->getBlocks() as $block) {
+				if ($block->getLocked()) {
+					\Log::sinfo("Block {$block} lock removed after the place
+							holder {$this} lock was removed");
+					$block->setLocked(false);
+				}
+			}
+		}
 	}
 
 	/**

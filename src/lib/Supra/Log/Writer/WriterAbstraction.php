@@ -85,8 +85,9 @@ abstract class WriterAbstraction implements WriterInterface
 	 */
 	public function getFormatter()
 	{
-		if (is_null($this->formatter)) {
-			$this->formatter = new static::$defaultFormatter(static::$defaultFormatterParameters);
+		if (\is_null($this->formatter)) {
+			$parameters = static::$defaultFormatterParameters;
+			$this->formatter = new static::$defaultFormatter($parameters);
 		}
 		return $this->formatter;
 	}

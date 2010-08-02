@@ -12,7 +12,7 @@ abstract class CliAbstraction extends ControllerAbstraction
 	 * @param Request\RequestInterface $request
 	 * @return Response\ResponseInterface
 	 */
-	public function getResponseObject(Request\RequestInterface $request)
+	public function createResponse(Request\RequestInterface $request)
 	{
 		$response = new Response\Cli();
 		return $response;

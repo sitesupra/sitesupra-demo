@@ -37,6 +37,27 @@ class BlockProperty extends Entity
 	protected $block;
 
 	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $name;
+
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $value;
+
+	/**
+	 * Constructor
+	 * @param string $name
+	 */
+	public function __construct($name)
+	{
+		$this->name = $name;
+	}
+
+	/**
 	 * @return integer
 	 */
 	public function getId()
@@ -80,6 +101,31 @@ class BlockProperty extends Entity
 			$this->checkScope($this->block);
 			$block->addBlockProperty($this);
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	/**
+	 * TODO: should we validate the value? should we serialize arrays passed?
+	 * @param string $value
+	 */
+	public function setValue($value)
+	{
+		$this->value = $value;
 	}
 
 	/**

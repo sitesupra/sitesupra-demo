@@ -7,7 +7,6 @@ namespace Supra\Controller\Pages\Entity;
  */
 class TemplateBlock extends Abstraction\Block
 {
-
 	/**
 	 * Set locked value
 	 * @param boolean $locked
@@ -15,6 +14,6 @@ class TemplateBlock extends Abstraction\Block
 	public function setLocked($locked = true)
 	{
 		$this->locked = $locked;
+		$this->validateLock();
 	}
-
 }

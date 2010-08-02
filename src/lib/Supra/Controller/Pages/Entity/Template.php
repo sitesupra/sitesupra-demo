@@ -20,7 +20,7 @@ class Template extends Abstraction\Page
 	static protected $dataClass = 'Supra\Controller\Pages\Entity\TemplateData';
 
 	/**
-	 * @OneToMany(targetEntity="TemplateData", mappedBy="page", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="TemplateData", mappedBy="template", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $data;

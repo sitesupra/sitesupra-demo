@@ -18,6 +18,6 @@ class TextController extends \Supra\Controller\Pages\BlockController
 			return;
 		}
 		/* @var $response Response\Http */
-		$response->output('<div style="">Block</div>');
+		$response->output('<div style="">TEXT: ' . $this->getProperty('html', 'defaultText') . '</div>');
 	}
 }
