@@ -58,6 +58,24 @@ class SupraControllerPagesEntityAbstractionBlockPropertyProxy extends \Supra\Con
         return parent::setBlock($block);
     }
 
+    public function getName()
+    {
+        $this->_load();
+        return parent::getName();
+    }
+
+    public function getValue()
+    {
+        $this->_load();
+        return parent::getValue();
+    }
+
+    public function setValue($value)
+    {
+        $this->_load();
+        return parent::setValue($value);
+    }
+
     public function getProperty($name)
     {
         $this->_load();
@@ -88,6 +106,6 @@ class SupraControllerPagesEntityAbstractionBlockPropertyProxy extends \Supra\Con
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('id', 'data', 'block');
+        return array('id', 'data', 'block', 'name', 'value');
     }
 }

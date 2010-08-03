@@ -40,6 +40,12 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         return parent::getLocked();
     }
 
+    public function getPlaceHolder()
+    {
+        $this->_load();
+        return parent::getPlaceHolder();
+    }
+
     public function setPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
     {
         $this->_load();
@@ -64,10 +70,46 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         return parent::setComponent($component);
     }
 
+    public function getPosition()
+    {
+        $this->_load();
+        return parent::getPosition();
+    }
+
+    public function setPosition($position)
+    {
+        $this->_load();
+        return parent::setPosition($position);
+    }
+
     public function addBlockProperty(\Supra\Controller\Pages\Entity\Abstraction\BlockProperty $blockProperty)
     {
         $this->_load();
         return parent::addBlockProperty($blockProperty);
+    }
+
+    public function inPlaceHolder(array $placeHolderIds)
+    {
+        $this->_load();
+        return parent::inPlaceHolder($placeHolderIds);
+    }
+
+    public function controllerFactory()
+    {
+        $this->_load();
+        return parent::controllerFactory();
+    }
+
+    public function setController(\Supra\Controller\Pages\BlockController $blockController)
+    {
+        $this->_load();
+        return parent::setController($blockController);
+    }
+
+    public function getController()
+    {
+        $this->_load();
+        return parent::getController();
     }
 
     public function getProperty($name)
@@ -100,6 +142,6 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('id', 'component', 'placeHolder', 'blockProperties', 'locked');
+        return array('id', 'component', 'position', 'locked', 'placeHolder', 'blockProperties');
     }
 }

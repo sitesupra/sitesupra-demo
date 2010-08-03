@@ -118,6 +118,6 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         if (!$this->__isInitialized__) {
             throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
         }
-        return array('id', 'name', 'blocks', 'master', 'locked');
+        return array('id', 'type', 'name', 'blocks', 'master', 'locked');
     }
 }

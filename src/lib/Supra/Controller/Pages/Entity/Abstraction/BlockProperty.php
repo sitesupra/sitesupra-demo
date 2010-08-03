@@ -43,7 +43,7 @@ class BlockProperty extends Entity
 	protected $name;
 
 	/**
-	 * @Column(type="string", nullable=true)
+	 * @Column(type="text", nullable=true)
 	 * @var string
 	 */
 	protected $value;

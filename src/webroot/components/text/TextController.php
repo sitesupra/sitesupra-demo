@@ -15,9 +15,26 @@ class TextController extends \Supra\Controller\Pages\BlockController
 	{
 		$response = $this->getResponse();
 		if ( ! ($response instanceof Response\Http)) {
+			\Log::sdebug('Response is not an instance of Http response in block controller ' . __CLASS__);
 			return;
 		}
+
+		$block = $this->getBlock();
+		$comment = '';
+		if ( ! empty($block)) {
+			$comment .= "Block $block.\n";
+			if ($block->getLocked()) {
+				$comment .= "Block is locked.\n";
+			}
+			if ($block->getPlaceHolder()->getLocked()) {
+				$comment .= "Place holder is locked.\n";
+			}
+			$comment .= "Master " . $block->getPlaceHolder()->getMaster()->__toString() . ".\n";
+		}
+
 		/* @var $response Response\Http */
-		$response->output('<div style="">TEXT: ' . $this->getProperty('html', 'defaultText') . '</div>');
+		$response->output('<div title="' . htmlspecialchars($comment) . '">');
+		$response->output($this->getProperty('html', 'defaultText'));
+		$response->output('</div>');
 	}
 }

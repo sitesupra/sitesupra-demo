@@ -205,6 +205,9 @@ class Block extends Entity
 			\Log::swarn("Block controller $component must be instance of BlockController in block $block");
 			return null;
 		}
+
+		$blockController->setBlock($this);
+
 		return $blockController;
 	}
 

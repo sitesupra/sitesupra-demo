@@ -17,7 +17,13 @@ abstract class BlockController extends ControllerAbstraction
 	protected $properties = array();
 
 	/**
-	 * Output
+	 * Block which created the controller
+	 * @var Entity\Abstraction\Block
+	 */
+	protected $block;
+
+	/**
+	 * Output controller result to response
 	 */
 	public function output()
 	{
@@ -93,6 +99,24 @@ abstract class BlockController extends ControllerAbstraction
 	public function propertyExists($name)
 	{
 		return \array_key_exists($name, $this->properties);
+	}
+
+	/**
+	 * Set the block which called the controller
+	 * @param Entity\Abstraction\Block $block
+	 */
+	public function setBlock(Entity\Abstraction\Block $block)
+	{
+		$this->block = $block;
+	}
+
+	/**
+	 * Get the block which created the controller
+	 * @return Entity\Abstraction\Block
+	 */
+	public function getBlock()
+	{
+		return $this->block;
 	}
 
 }

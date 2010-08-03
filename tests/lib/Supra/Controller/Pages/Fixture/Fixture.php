@@ -9,6 +9,90 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class Fixture extends \PHPUnit_Extensions_OutputTestCase
 {
+	/**
+	 * Generates random text
+	 * @return string
+	 */
+	protected function randomText()
+	{
+		$possibilities = array(
+			0 => array(1 => 1, 2 => 1),
+			1 => array(1 => 0.3, 2 => 1),
+			2 => array(1 => 1, 2 => 0.5),
+		);
+
+		$prevType = 0;
+		$txt = '';
+		$letters = rand(100, 2000);
+		$pow = 1;
+		for ($i = 0; $i < $letters; null) {
+			$chr = \chr(rand(97, 122));
+			//\Log::debug("Have chosen $chr");
+			if (\in_array($chr, array('e', 'y', 'u', 'i', 'o', 'a'))) {
+				$type = 1;
+			} else {
+				$type = 2;
+			}
+			//\Log::debug("Type is $type");
+
+			$possibility = $possibilities[$prevType][$type];
+			if ($possibility != 1) {
+				if ($possibility == 0) {
+					continue;
+				}
+				$possibility = pow($possibility, $pow);
+				//\Log::debug("Possibility is $possibility");
+				$rand = \rand(0, 100) / 100;
+				if ($rand > $possibility) {
+					//\Log::debug("Skipping because of no luck");
+					continue;
+				}
+			}
+
+			$txt .= $chr;
+			if ($type == $prevType) {
+				$pow++;
+				//\Log::debug("Increasing power to $pow");
+			} else {
+				$pow = 1;
+				//\Log::debug("Resetting power");
+			}
+			$prevType = $type;
+			$i++;
+		}
+
+		$list = array();
+		while (strlen($txt) > 10) {
+			$length = rand(5, 10);
+			$list[] = substr($txt, 0, $length);
+			$txt = substr($txt, $length);
+		}
+		if ( ! empty($txt)) {
+			$list[] = $txt;
+		}
+
+		$s = array();
+		while (count($list) > 0) {
+			$length = rand(4, 10);
+			$length = min($length, count($list));
+			$s[] = \array_splice($list, 0, $length);
+		}
+
+		$txt = '<p>';
+		foreach ($s as $sentence) {
+			$sentence = implode(' ', $sentence);
+			$sentence .= '. ';
+			if (rand(0, 5) == 1) {
+				$sentence .= '</p><p>';
+			}
+			$sentence = \ucfirst($sentence);
+			$txt .= $sentence;
+		}
+		$txt .= '</p>';
+
+		return $txt;
+	}
+
 	public function testRebuild()
 	{
 		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -53,7 +137,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		foreach (array('header', 'main', 'footer') as $name) {
 			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
 			if ($name != 'main') {
-				$templatePlaceHolder->setLocked(true);
+				$templatePlaceHolder->setLocked();
 			}
 			$templatePlaceHolder->setTemplate($template);
 
@@ -63,6 +147,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 
+				// used later in page
 				$headerTemplateBlock = $block;
 
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
@@ -93,52 +178,39 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
-				$blockProperty->setValue('Bye <strong>World</strong>! <small>(Template value)</small>');
+				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
 			}
 		}
 
 		$page->setTemplate($template);
 
 		foreach (array('header', 'main', 'footer') as $name) {
-			$pagePlaceHolder = new Entity\PagePlaceHolder($name);
-			$pagePlaceHolder->setPage($page);
-
+			
 			if ($name == 'header') {
-				// this won't be read because template's place holder is locked
-				$block = new Entity\PageBlock();
-				$block->setComponent('Project\Text\TextController');
-				$block->setPlaceHolder($pagePlaceHolder);
-				$block->setPosition(100);
-
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
 				$blockProperty->setBlock($headerTemplateBlock);
 				$blockProperty->setData($page->getData('en'));
-				$blockProperty->setValue('Page Header');
+				$blockProperty->setValue('<h1>Hello SiteSupra!</h1>');
 			}
 
 			if ($name == 'main') {
-				$block = new Entity\PageBlock();
-				$block->setComponent('Project\Text\TextController');
-				$block->setPlaceHolder($pagePlaceHolder);
-				$block->setPosition(100);
+				$pagePlaceHolder = new Entity\PagePlaceHolder($name);
+				$pagePlaceHolder->setPage($page);
 
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($page->getData('en'));
-				$blockProperty->setValue('Page source');
+				foreach (\range(1, 5) as $i) {
+					$block = new Entity\PageBlock();
+					$block->setComponent('Project\Text\TextController');
+					$block->setPlaceHolder($pagePlaceHolder);
+					// reverse order
+					$block->setPosition(100 * $i);
+
+					$blockProperty = new Entity\Abstraction\BlockProperty('html');
+					$blockProperty->setBlock($block);
+					$blockProperty->setData($page->getData('en'));
+					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');
+				}
 			}
 
-			if ($name == 'footer') {
-				$block = new Entity\PageBlock();
-				$block->setComponent('Project\Text\TextController');
-				$block->setPlaceHolder($pagePlaceHolder);
-				$block->setPosition(100);
-
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($page->getData('en'));
-				$blockProperty->setValue('Bye <strong>World</strong>! <small>(Page value)</small>');
-			}
 		}
 
 		$em->flush();

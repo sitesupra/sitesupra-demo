@@ -100,8 +100,60 @@ class Controller extends ControllerAbstraction
 	 */
 	public function execute()
 	{
-		$request = $this->getRequest();
+		// fetch page/template hierarchy list
+		$masters = $this->collectMasterNodes();
+		
+		/* @var $masterIds int[] */
+		$masterIds = Entity\Abstraction\Entity::collectIds($masters);
+		\Log::sdebug('Found these pages/templates: ', implode(', ', $masterIds));
 
+		/* @var $rootTemplate Entity\Template */
+		$rootTemplate = $masters[0];
+
+		/* @var $page Entity\Page */
+		$page = array_pop($masters);
+
+		\Log::sdebug("Root template #{$rootTemplate->getId()} found for page #{$page->getId()}");
+
+		/* @var $layout Entity\Layout */
+		$layout = $rootTemplate->getLayout($this->media);
+		if (empty($layout)) {
+			throw new Exception("No layout defined for template #{$rootTemplate->getId()} media {$this->media}");
+		}
+		\Log::sdebug("Root template {$rootTemplate->getId()} has layout {$layout->getFile()} for media {$this->media}");
+
+		$layoutPlaceNames = $layout->getPlaceHolderNames();
+		\Log::sdebug('Layout place holder names: ', $layoutPlaceNames);
+
+		// find place holders
+		$places = $this->findPlaceHolders($masterIds, $layoutPlaceNames);
+
+		// find blocks organized by place holder name
+		$blocks = $this->findBlocks($places, $page);
+
+		$this->getBlockControllers($blocks);
+		\Log::sdebug("Block controllers created for {$page}");
+		
+		$this->collectBlockProperties($blocks, $page);
+		\Log::sdebug("Block properties collected for {$page}");
+		
+		$this->prepareBlockControllers($blocks);
+		\Log::sdebug("Blocks prepared for {$page}");
+
+		$this->outputBlockControllers($blocks);
+		\Log::sdebug("Blocks executed for {$page}");
+
+		$this->processLayout($layout, $blocks);
+		\Log::sdebug("Layout {$layout} processed and output to response for {$page}");
+
+	}
+
+	/**
+	 * Collects template/page hierarchy array
+	 * @return array
+	 */
+	protected function collectMasterNodes()
+	{
 		$page = $this->getRequestPage();
 		\Log::sdebug('Found page #', $page->getId());
 
@@ -109,51 +161,9 @@ class Controller extends ControllerAbstraction
 		if (empty($templates[0])) {
 			throw new Exception('Response from getTemplates should contain at least 1 template for page #' . $page->getId());
 		}
-		/* @var $rootTemplate Entity\Template */
-		$rootTemplate = $templates[0];
-
-		\Log::sdebug("Root template #{$rootTemplate->getId()} found for page #{$page->getId()}");
-
-		/* @var $layout Entity\Layout */
-		$layout = $rootTemplate->getLayout($this->media);
-		if (empty($layout)) {
-			throw new Exception("No layout defined for template #{$rootTemplate->getId()}");
-		}
-		\Log::sdebug("Root template {$rootTemplate->getId()} has layout {$layout->getFile()} for media {$this->media}");
-
-		$layoutPlaceHolderNames = $layout->getPlaceHolderNames();
-		\Log::sdebug('Layout place holder names: ', $layoutPlaceHolderNames);
-
-		/* @var $templateIds int[] */
-		$templateIds = Entity\Abstraction\Entity::collectIds($templates);
-		
-		\Log::sdebug('Found these templates: ', implode(', ', $templateIds));
-
-		$blockResponsesByPlace = array();
-
-		$em = $this->getDoctrineEntityManager();
-
-		/* @var $masterIds int[] */
-		$masterIds = $templateIds;
-		$masterIds[] = $page->getId();
-
-		// find place holders
-		$placeHolders = $this->findPlaceHolders($masterIds, $layoutPlaceHolderNames);
-
-		// find blocks organized by place holder name
-		$blocks = $this->findBlocks($placeHolders, $page);
-
-		$this->getBlockControllers($blocks);
-		\Log::sdebug("Block controllers created");
-		
-		$this->collectBlockProperties($blocks, $page);
-		
-		$this->prepareBlockControllers($blocks);
-
-		$this->outputBlockControllers($blocks);
-
-		$this->processLayout($layout, $blocks);
-		
+		$masters = $templates;
+		$masters[] = $page;
+		return $masters;
 	}
 
 	/**
@@ -161,7 +171,7 @@ class Controller extends ControllerAbstraction
 	 * @param Entity\Layout $layout
 	 * @param array $blocks array of block responses
 	 */
-	function processLayout(Entity\Layout $layout, $blocks)
+	protected function processLayout(Entity\Layout $layout, array $blocks)
 	{
 		$layoutContent = $layout->getFileContent();
 		$response = $this->getResponse();
@@ -259,13 +269,13 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * @param array $masterIds
-	 * @param array $layoutPlaceHolderNames
+	 * @param array $layoutPlaceNames
 	 * @return array of placeholders
 	 */
-	protected function findPlaceHolders(array $masterIds, array $layoutPlaceHolderNames)
+	protected function findPlaceHolders(array $masterIds, array $layoutPlaceNames)
 	{
 		$em = $this->getDoctrineEntityManager();
-		if (empty($masterIds) || empty($layoutPlaceHolderNames)) {
+		if (empty($masterIds) || empty($layoutPlaceNames)) {
 			return array();
 		}
 
@@ -274,28 +284,28 @@ class Controller extends ControllerAbstraction
 
 		$qb->select('ph')
 				->from(static::PLACE_HOLDER_ENTITY, 'ph')
-				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
+				->where($qb->expr()->in('ph.name', $layoutPlaceNames))
 				->andWhere($qb->expr()->in('ph.master.id', $masterIds))
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
 				->addOrderBy('ph.master.depth', 'ASC');
 
 		$query = $qb->getQuery();
-		$placeHolders = $query->getResult();
+		$places = $query->getResult();
 
-		\Log::sdebug('Count of place holders found: ' . count($placeHolders));
+		\Log::sdebug('Count of place holders found: ' . count($places));
 
-		return $placeHolders;
+		return $places;
 	}
 
 
 	/**
 	 * Search blocks inside the place holders
-	 * @param array $placeHolders
+	 * @param array $places
 	 * @param Entity\Abstraction\Page $finalNode
 	 * @return array of blocks
 	 */
-	protected function findBlocks($placeHolders, $finalNode)
+	protected function findBlocks($places, $finalNode)
 	{
 		$em = $this->getDoctrineEntityManager();
 		
@@ -316,11 +326,11 @@ class Controller extends ControllerAbstraction
 		 */
 		$parentPlaceHolderIds = array();
 
-		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
-		foreach ($placeHolders as $placeHolder) {
+		/* @var $place Entity\Abstraction\PlaceHolder */
+		foreach ($places as $place) {
 
-			$name = $placeHolder->getName();
-			$id = $placeHolder->getId();
+			$name = $place->getName();
+			$id = $place->getId();
 
 			// Don't overwrite if final place holder already found
 			if (isset($finalPlaceHolderIds[$name])) {
@@ -328,7 +338,7 @@ class Controller extends ControllerAbstraction
 			}
 			
 			// add only in cases when it's the page place or locked one
-			if ($placeHolder->getMaster() == $finalNode || $placeHolder->getLocked()) {
+			if ($place->getMaster() == $finalNode || $place->getLocked()) {
 				$finalPlaceHolderIds[$name] = $id;
 			} else {
 				// collect not matched template place holders to search for locked blocks

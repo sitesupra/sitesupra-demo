@@ -24,7 +24,7 @@ class TemplateLayout extends Abstraction\Entity
 	protected $media;
 
 	/**
-	 * @ManyToOne(targetEntity="Layout", cascade={"persist"})
+	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
 	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
 	 * @var Layout
 	 */

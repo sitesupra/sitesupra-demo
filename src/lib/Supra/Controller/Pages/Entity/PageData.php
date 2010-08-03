@@ -12,7 +12,7 @@ use Supra\Controller\Pages\Exception;
 class PageData extends Abstraction\Data
 {
 	/**
-	 * @ManyToOne(targetEntity="Page", inversedBy="data")
+	 * @ManyToOne(targetEntity="Page", inversedBy="data", fetch="EAGER")
 	 * @JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
 	 * @var Page
 	 */

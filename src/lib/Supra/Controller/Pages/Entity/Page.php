@@ -26,7 +26,7 @@ class Page extends Abstraction\Page
 	protected $data;
 
 	/**
-	 * @ManyToOne(targetEntity="Template", cascade={"persist"})
+	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
 	 */
