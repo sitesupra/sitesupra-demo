@@ -5,10 +5,10 @@ namespace Supra\Controller\Pages;
 use Supra\Controller\ControllerAbstraction,
 		Supra\Controller\Response,
 		Supra\Controller\Request,
-		Supra\Controller\Pages\Exception,
-		Doctrine\ORM\PersistentCollection,
+		Supra\Controller\Layout,
 		Supra\Database\Doctrine,
 		Supra\Locale\Data as LocaleData,
+		Doctrine\ORM\PersistentCollection,
 		Doctrine\ORM\Query\Expr,
 		Closure;
 
@@ -143,7 +143,9 @@ class Controller extends ControllerAbstraction
 		$this->outputBlockControllers($blocks);
 		\Log::sdebug("Blocks executed for {$page}");
 
-		$this->processLayout($layout, $blocks);
+		$placeResponses = $this->getPlaceResponses($blocks);
+
+		$this->processLayout($layout, $placeResponses);
 		\Log::sdebug("Layout {$layout} processed and output to response for {$page}");
 
 	}
@@ -167,55 +169,25 @@ class Controller extends ControllerAbstraction
 	}
 
 	/**
-	 * TODO: Should move to other layout processing class maybe
 	 * @param Entity\Layout $layout
 	 * @param array $blocks array of block responses
 	 */
-	protected function processLayout(Entity\Layout $layout, array $blocks)
+	protected function processLayout(Entity\Layout $layout, array $placeResponses)
 	{
-		$layoutContent = $layout->getFileContent();
+		$layoutProcessor = $this->getLayoutProcessor();
+		$layoutSrc = $layout->getFile();
 		$response = $this->getResponse();
+		$layoutProcessor->process($response, $placeResponses, $layoutSrc);
+	}
 
-		$startDelimiter = '<!--placeHolder(';
-		$startLength = strlen($startDelimiter);
-		$endDelimiter = ')-->';
-		$endLength = strlen($endDelimiter);
-
-		do {
-			$pos = strpos($layoutContent, $startDelimiter);
-			if ($pos !== false) {
-				$response->output(substr($layoutContent, 0, $pos));
-				$layoutContent = substr($layoutContent, $pos);
-				$pos = strpos($layoutContent, $endDelimiter);
-				if ($pos === false) {
-					break;
-				}
-
-				$placeName = substr($layoutContent, $startLength, $pos - $startLength);
-				if ($placeName === '') {
-					throw new Exception("Place holder name empty in layout {$layout}");
-				}
-
-				if ( ! \array_key_exists($placeName, $blocks)) {
-					\Log::swarn("Place holder '$placeName' has no content");
-				} else {
-
-					\Log::sdebug("Starting to output placeholder $placeName");
-
-					/* @var $block Entity\Abstraction\Block */
-					foreach ($blocks[$placeName] as $block) {
-						$controller = $block->getController();
-						$blockResponse = $controller->getResponse();
-						$blockResponse->flushToResponse($response);
-						\Log::sdebug("Flushed response of block {$block}");
-					}
-				}
-
-				$layoutContent = substr($layoutContent, $pos + $endLength);
-			}
-		} while ($pos !== false);
-
-		$response->output($layoutContent);
+	/**
+	 * @return Layout\Processor\ProcessorInterface
+	 */
+	protected function getLayoutProcessor()
+	{
+		$processor = new Layout\Processor\Html();
+		$processor->setLayoutDir(\SUPRA_PATH . 'template');
+		return $processor;
 	}
 
 	/**
@@ -468,6 +440,30 @@ class Controller extends ControllerAbstraction
 	}
 
 	/**
+	 * Iterates through blocks and returs array of place holder responses
+	 * @param array $blocks
+	 * @return array
+	 */
+	protected function getPlaceResponses(array &$blocks)
+	{
+		$placeResponses = array();
+
+		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) use (&$placeResponses) {
+			$response = $block->getController()->getResponse();
+			if ( ! isset($placeResponses[$placeName])) {
+				$placeResponses[$placeName] = $response;
+			} else {
+				$response->flushToResponse($placeResponses[$placeName]);
+			}
+		};
+
+		// Iterates through all blocks and collects placeholder responses
+		$this->iterateBlocks($blocks, $collectResponses);
+
+		return $placeResponses;
+	}
+
+	/**
 	 * Iteration funciton for specific array of blocks
 	 * @param array $blocks
 	 * @param Closure $function
@@ -479,7 +475,7 @@ class Controller extends ControllerAbstraction
 			/* @var $block Entity\Abstraction\Block */
 			foreach ($blockList as $blockKey => $block) {
 				try {
-					$result = $function($block);
+					$result = $function($block, $placeName);
 				} catch (SkipBlockException $e) {
 					\Log::sdebug("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 					unset($blocks[$placeName][$blockKey]);

@@ -2,7 +2,8 @@
 
 namespace Supra\Controller\Response;
 
-use Supra\Http\Cookie;
+use Supra\Http\Cookie,
+		Supra\Controller\Exception;
 
 /**
  * Description of Http
@@ -180,8 +181,12 @@ class Http implements ResponseInterface
 	 * Flush this response to the parent response
 	 * @param Http $response
 	 */
-	public function flushToResponse(Http $response)
+	public function flushToResponse(ResponseInterface $response)
 	{
+		if ( ! ($response instanceof Http)) {
+			throw new Exception("The response object passed to Response\Http::flushToResponse() must be compatible with the source object");
+		}
+		
 		foreach ($this->headers as $name => $headers) {
 			foreach ($headers as $headerData) {
 				$response->header($name, $headerData['value'], $headerData['replace']);

@@ -72,7 +72,9 @@ big {
 	
 	width: 100%;
 	overflow: hidden;
-	padding: 33px 34px 15px 35px;
+}
+#header .inner {
+	margin: 33px 34px 15px 35px;
 }
 #header .logo {
 	float: left;

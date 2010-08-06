@@ -109,7 +109,11 @@ class Layout extends Abstraction\Entity
 		return $names;
 	}
 
-	public function getFileContent()
+	/**
+	 * Get layout content
+	 * @return string
+	 */
+	public function getContent()
 	{
 		$file = $this->getFile();
 		if (empty($file)) {

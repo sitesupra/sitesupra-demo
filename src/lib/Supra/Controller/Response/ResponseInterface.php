@@ -22,4 +22,10 @@ interface ResponseInterface
 	 * @param string $output
 	 */
 	public function output($output);
+
+	/**
+	 * Flush this response to the parent response
+	 * @param ResponseInterface $response
+	 */
+	public function flushToResponse(ResponseInterface $response);
 }
