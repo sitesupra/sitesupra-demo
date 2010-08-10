@@ -126,6 +126,22 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Check if a database type is currently supported by this platform.
+     *
+     * @param string $dbType
+     * @return bool
+     */
+    public function hasDoctrineTypeMappingFor($dbType)
+    {
+        if ($this->doctrineTypeMapping === null) {
+            $this->initializeDoctrineTypeMappings();
+        }
+
+        $dbType = strtolower($dbType);
+        return isset($this->doctrineTypeMapping[$dbType]);
+    }
+
+    /**
      * Lazy load Doctrine Type Mappings
      *
      * @return void
@@ -700,7 +716,7 @@ abstract class AbstractPlatform
             $columnData['type'] = $column->getType();
             $columnData['length'] = $column->getLength();
             $columnData['notnull'] = $column->getNotNull();
-            $columnData['unique'] = ($column->hasPlatformOption("unique"))?$column->getPlatformOption('unique'):false;
+            $columnData['unique'] = false; // TODO: what do we do about this?
             $columnData['version'] = ($column->hasPlatformOption("version"))?$column->getPlatformOption('version'):false;
             if(strtolower($columnData['type']) == "string" && $columnData['length'] === null) {
                 $columnData['length'] = 255;
@@ -709,13 +725,10 @@ abstract class AbstractPlatform
             $columnData['scale'] = $column->getScale();
             $columnData['default'] = $column->getDefault();
             $columnData['columnDefinition'] = $column->getColumnDefinition();
+            $columnData['autoincrement'] = $column->getAutoincrement();
 
             if(in_array($column->getName(), $options['primary'])) {
                 $columnData['primary'] = true;
-
-                if($table->isIdGeneratorIdentity()) {
-                    $columnData['autoincrement'] = true;
-                }
             }
 
             $columns[$columnData['name']] = $columnData;
@@ -1654,6 +1667,17 @@ abstract class AbstractPlatform
     {
         throw DBALException::notSupported(__METHOD__);
     }
+
+    /**
+     * Obtain DBMS specific SQL to be used to create datetime with timezone offset fields.
+     * 
+     * @param array $fieldDeclaration
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
+        return $this->getDateTimeTypeDeclarationSQL($fieldDeclaration);
+    }
+    
     
     /**
      * Obtain DBMS specific SQL to be used to create date fields in statements
@@ -1828,11 +1852,19 @@ abstract class AbstractPlatform
      * the format of a stored datetime value of this platform.
      * 
      * @return string The format string.
-     * 
-     * @todo We need to get the specific format for each dbms and override this
-     * function for each platform
      */
     public function getDateTimeFormatString()
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    /**
+     * Gets the format string, as accepted by the date() function, that describes
+     * the format of a stored datetime with timezone value of this platform.
+     *
+     * @return string The format string.
+     */
+    public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:s';
     }

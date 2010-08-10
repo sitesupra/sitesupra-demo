@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -19,33 +17,33 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\DBAL\Logging;
+namespace Doctrine\ORM\Query\AST;
 
 /**
- * A SQL logger that logs to the standard output using echo/var_dump.
- * 
+ * InstanceOfExpression ::= IdentificationVariable ["NOT"] "INSTANCE" ["OF"] (AbstractSchemaName | InputParameter)
+ *
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
- * @version $Revision$
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
+ * @version $Revision: 3938 $
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author  Jonathan Wage <jonwage@gmail.com>
  * @author  Roman Borschel <roman@code-factory.org>
  */
-class EchoSQLLogger implements SQLLogger
+class InstanceOfExpression extends Node
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function logSQL($sql, array $params = null, $executionMS = null)
+    public $not;
+    public $identificationVariable;
+    public $value;
+    
+    public function __construct($identVariable)
     {
-    	echo $sql . PHP_EOL;
+        $this->identificationVariable = $identVariable;
+    }
 
-        if ($params) {
-            var_dump($params);
-    	}
-
-        echo "Took " . number_format($executionMS, 4) . " seconds" . PHP_EOL;
+    public function dispatch($sqlWalker)
+    {
+        return $sqlWalker->walkInstanceOfExpression($this);
     }
 }
+

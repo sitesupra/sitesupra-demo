@@ -85,7 +85,9 @@ class MySqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableTableColumnDefinition($tableColumn)
     {
-        $dbType = strtolower($tableColumn['Type']);
+        $tableColumn = array_change_key_case($tableColumn, CASE_LOWER);
+
+        $dbType = strtolower($tableColumn['type']);
         $dbType = strtok($dbType, '(), ');
         if (isset($tableColumn['length'])) {
             $length = $tableColumn['length'];
@@ -114,7 +116,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             case 'real':
             case 'numeric':
             case 'decimal':
-                if(preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['Type'], $match)) {
+                if(preg_match('([A-Za-z]+\(([0-9]+)\,([0-9]+)\))', $tableColumn['type'], $match)) {
                     $precision = $match[1];
                     $scale = $match[2];
                     $length = null;
@@ -149,15 +151,11 @@ class MySqlSchemaManager extends AbstractSchemaManager
             'length'        => $length,
             'unsigned'      => (bool)$unsigned,
             'fixed'         => (bool)$fixed,
-            'default'       => $tableColumn['Default'],
-            'notnull'       => (bool) ($tableColumn['Null'] != 'YES'),
+            'default'       => $tableColumn['default'],
+            'notnull'       => (bool) ($tableColumn['null'] != 'YES'),
             'scale'         => null,
             'precision'     => null,
-            'platformOptions' => array(
-                'primary' => (strtolower($tableColumn['Key']) == 'pri') ? true : false,
-                'unique' => (strtolower($tableColumn['Key']) == 'uni') ? true :false,
-                'autoincrement' => (bool) (strpos($tableColumn['Extra'], 'auto_increment') !== false),
-            ),
+            'autoincrement' => (bool) (strpos($tableColumn['extra'], 'auto_increment') !== false),
         );
 
         if ($scale !== null && $precision !== null) {
@@ -165,7 +163,7 @@ class MySqlSchemaManager extends AbstractSchemaManager
             $options['precision'] = $precision;
         }
 
-        return new Column($tableColumn['Field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
+        return new Column($tableColumn['field'], \Doctrine\DBAL\Types\Type::getType($type), $options);
     }
 
     public function _getPortableTableForeignKeyDefinition($tableForeignKey)

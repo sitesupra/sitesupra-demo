@@ -39,6 +39,7 @@ use PDO, Closure, Exception,
  * @author  Roman Borschel <roman@code-factory.org>
  * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author  Lukas Smith <smith@pooteeweet.org> (MDB2 library)
+ * @author  Benjamin Eberlei <kontakt@beberlei.de>
  */
 class Connection implements DriverConnection
 {
@@ -552,8 +553,9 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        if ($this->_config->getSQLLogger() !== null) {
-            $this->_config->getSQLLogger()->logSQL($query, $params);
+        $hasLogger = $this->_config->getSQLLogger() !== null;
+        if ($hasLogger) {
+            $queryStart = microtime(true);
         }
 
         if ($params) {
@@ -566,6 +568,10 @@ class Connection implements DriverConnection
             }
         } else {
             $stmt = $this->_conn->query($query);
+        }
+
+        if ($hasLogger) {
+            $this->_config->getSQLLogger()->logSQL($query, $params, microtime(true) - $queryStart);
         }
 
         return $stmt;
@@ -605,6 +611,8 @@ class Connection implements DriverConnection
      */
     public function query()
     {
+        $this->connect();
+
         return call_user_func_array(array($this->_conn, 'query'), func_get_args());
     }
 
@@ -624,8 +632,9 @@ class Connection implements DriverConnection
     {
         $this->connect();
 
-        if ($this->_config->getSQLLogger() !== null) {
-            $this->_config->getSQLLogger()->logSQL($query, $params);
+        $hasLogger = $this->_config->getSQLLogger() !== null;
+        if ($hasLogger) {
+            $queryStart = microtime(true);
         }
 
         if ($params) {
@@ -639,6 +648,10 @@ class Connection implements DriverConnection
             $result = $stmt->rowCount();
         } else {
             $result = $this->_conn->exec($query);
+        }
+
+        if ($hasLogger) {
+            $this->_config->getSQLLogger()->logSQL($query, $params, microtime(true) - $queryStart);
         }
 
         return $result;

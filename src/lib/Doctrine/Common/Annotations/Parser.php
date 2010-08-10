@@ -19,10 +19,15 @@
 
 namespace Doctrine\Common\Annotations;
 
-use Doctrine\Common\ClassLoader;
+use Closure, Doctrine\Common\ClassLoader;
 
 /**
  * A simple parser for docblock annotations.
+ *
+ * This Parser can be subclassed to customize certain aspects of the annotation
+ * parsing and/or creation process. Note though that currently no special care
+ * is taken to maintain full backwards compatibility for subclasses. Implementation
+ * details of the default Parser can change without explicit notice.
  *
  * @since 2.0
  * @author Benjamin Eberlei <kontakt@beberlei.de>
@@ -54,7 +59,7 @@ class Parser
      *
      * @var boolean
      */
-    private $isNestedAnnotation = false;
+    protected $isNestedAnnotation = false;
 
     /**
      * Default namespace for annotations.
@@ -76,11 +81,75 @@ class Parser
     private $context = '';
 
     /**
+     * @var boolean Whether to try to autoload annotations that are not yet defined.
+     */
+    private $autoloadAnnotations = false;
+
+    /**
+     * @var Closure The custom function used to create new annotations, if any.
+     */
+    private $annotationCreationFunction;
+
+    /**
      * Constructs a new AnnotationParser.
      */
-    public function __construct()
+    public function __construct(Lexer $lexer = null)
     {
-        $this->lexer = new Lexer;
+        $this->lexer = $lexer ?: new Lexer;
+    }
+
+    /**
+     * Gets the lexer used by this parser.
+     * 
+     * @return Lexer The lexer.
+     */
+    public function getLexer()
+    {
+        return $this->lexer;
+    }
+
+    /**
+     * Sets a flag whether to try to autoload annotation classes, as well as to distinguish
+     * between what is an annotation and what not by triggering autoloading.
+     *
+     * NOTE: Autoloading of annotation classes is inefficient and requires silently failing
+     *       autoloaders. In particular, setting this option to TRUE renders the Parser
+     *       incompatible with a {@link ClassLoader}.
+     * @param boolean $bool Boolean flag.
+     */
+    public function setAutoloadAnnotations($bool)
+    {
+        $this->autoloadAnnotations = $bool;
+    }
+
+    /**
+     * Sets the custom function to use for creating new annotations.
+     *
+     * The function is supplied two arguments. The first argument is the name
+     * of the annotation and the second argument an array of values for this
+     * annotation. The function is assumed to return an object or NULL.
+     * Whenever the function returns NULL for an annotation, the parser falls
+     * back to the default annotation creation process.
+     *
+     * Whenever the function returns NULL for an annotation, the implementation falls
+     * back to the default annotation creation process.
+     *
+     * @param Closure $func
+     */
+    public function setAnnotationCreationFunction(Closure $func)
+    {
+        $this->annotationCreationFunction = $func;
+    }
+
+    /**
+     * Gets a flag whether to try to autoload annotation classes.
+     *
+     * @see setAutoloadAnnotations
+     * @return boolean
+     */
+    public function getAutoloadAnnotations()
+    {
+        return $this->autoloadAnnotations;
     }
 
     /**
@@ -103,6 +172,16 @@ class Parser
     public function setAnnotationNamespaceAlias($namespace, $alias)
     {
         $this->namespaceAliases[$alias] = $namespace;
+    }
+
+    /**
+     * Gets the namespace alias mappings used by this parser.
+     *
+     * @return array The namespace alias mappings.
+     */
+    public function getNamespaceAliases()
+    {
+        return $this->namespaceAliases;
     }
 
     /**
@@ -243,12 +322,8 @@ class Parser
             $name = implode('\\', $nameParts);
         }
 
-        // Is it really an annotation?
-        // If the lookahead is "(" it surely is, otherwise classExists decides.
-        if (
-            $this->lexer->lookahead != null && ! $this->lexer->isNextToken(Lexer::T_OPEN_PARENTHESIS) &&
-            ! ClassLoader::classExists($name)
-        ) {
+        // Does the annotation class exist?
+        if ( ! class_exists($name, $this->autoloadAnnotations)) {
             $this->lexer->skipUntil(Lexer::T_AT);
             return false;
         }
@@ -266,7 +341,12 @@ class Parser
             $this->match(Lexer::T_CLOSE_PARENTHESIS);
         }
 
-        return new $name($values);
+        if ($this->annotationCreationFunction !== null) {
+            $func = $this->annotationCreationFunction;
+            $annot = $func($name, $values);
+        }
+
+        return isset($annot) ? $annot : $this->newAnnotation($name, $values);
     }
 
     /**
@@ -438,5 +518,21 @@ class Parser
         }
 
         return array(null, $this->Value());
+    }
+
+    /**
+     * Constructs a new annotation with a given map of values.
+     *
+     * The default construction procedure is to instantiate a new object of a class
+     * with the same name as the annotation. Subclasses can override this method to
+     * change the construction process of new annotations.
+     *
+     * @param string The name of the annotation.
+     * @param array The map of annotation values.
+     * @return mixed The new annotation with the given values.
+     */
+    protected function newAnnotation($name, array $values)
+    {
+        return new $name($values);
     }
 }

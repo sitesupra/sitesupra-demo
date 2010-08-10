@@ -143,7 +143,11 @@ class ClassMetadata extends ClassMetadataInfo
             }
             return $id;
         } else {
-            return array($this->identifier[0] => $this->reflFields[$this->identifier[0]]->getValue($entity));
+            $value = $this->reflFields[$this->identifier[0]]->getValue($entity);
+            if ($value !== null) {
+                return array($this->identifier[0] => $value);
+            }
+            return array();
         }
     }
 
@@ -154,14 +158,10 @@ class ClassMetadata extends ClassMetadataInfo
      * @param mixed $id
      * @todo Rename to assignIdentifier()
      */
-    public function setIdentifierValues($entity, $id)
+    public function setIdentifierValues($entity, array $id)
     {
-        if ($this->isIdentifierComposite) {
-            foreach ($id as $idField => $idValue) {
-                $this->reflFields[$idField]->setValue($entity, $idValue);
-            }
-        } else {
-            $this->reflFields[$this->identifier[0]]->setValue($entity, $id);
+        foreach ($id as $idField => $idValue) {
+            $this->reflFields[$idField]->setValue($entity, $idValue);
         }
     }
 

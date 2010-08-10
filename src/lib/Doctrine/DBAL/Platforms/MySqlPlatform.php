@@ -124,15 +124,15 @@ class MySqlPlatform extends AbstractPlatform
         $sql = "SELECT DISTINCT k.`CONSTRAINT_NAME`, k.`COLUMN_NAME`, k.`REFERENCED_TABLE_NAME`, ".
                "k.`REFERENCED_COLUMN_NAME` /*!50116 , c.update_rule, c.delete_rule */ ".
                "FROM information_schema.key_column_usage k /*!50116 ".
-               "INNER JOIN information_schema.referential_constraints c ON k.`CONSTRAINT_NAME` = c.constraint_name AND ".
+               "INNER JOIN information_schema.referential_constraints c ON ".
                "  c.constraint_name = k.constraint_name AND ".
                "  c.table_name = '$table' */ WHERE k.table_name = '$table'";
 
-        if ( ! is_null($database)) {
-            $sql .= " AND table_schema = '$database'";
+        if ($database) {
+            $sql .= " AND k.table_schema = '$database' /*!50116 AND c.constraint_schema = '$database' */";
         }
 
-        $sql .= " AND `REFERENCED_COLUMN_NAME` is not NULL";
+        $sql .= " AND k.`REFERENCED_COLUMN_NAME` is not NULL";
 
         return $sql;
     }
@@ -172,7 +172,7 @@ class MySqlPlatform extends AbstractPlatform
     /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
-        if ( ! empty($field['length'])) {
+        if ( ! empty($field['length']) && is_numeric($field['length'])) {
             $length = $field['length'];
             if ($length <= 255) {
                 return 'TINYTEXT';

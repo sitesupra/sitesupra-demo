@@ -1,7 +1,5 @@
 <?php
 /*
- *  $Id$
- *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -19,41 +17,44 @@
  * <http://www.doctrine-project.org>.
  */
 
+
 namespace Doctrine\DBAL\Types;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+
 /**
- * Type that maps a PHP array to a clob SQL type.
+ * Variable DateTime Type using date_create() instead of DateTime::createFromFormat()
  *
- * @since 2.0
+ * This type has performance implications as it runs twice as long as the regular
+ * {@see DateTimeType}, however in certain PostgreSQL configurations with
+ * TIMESTAMP(n) columns where n > 0 it is necessary to use this type.
+ *
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @link        www.doctrine-project.com
+ * @since       2.0
+ * @author      Benjamin Eberlei <kontakt@beberlei.de>
+ * @author      Guilherme Blanco <guilhermeblanco@hotmail.com>
+ * @author      Jonathan Wage <jonwage@gmail.com>
+ * @author      Roman Borschel <roman@code-factory.org>
  */
-class ArrayType extends Type
+class VarDateTimeType extends DateTimeType
 {
-    public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
-    {
-        return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
-    }
-
-    public function convertToDatabaseValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
-    {
-        return serialize($value);
-    }
-
-    public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    /**
+     * @throws ConversionException
+     * @param string $value
+     * @param AbstractPlatform $platform
+     * @return DateTime
+     */
+    public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === null) {
             return null;
         }
 
-        $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        $val = unserialize($value);
-        if ($val === false) {
+        $val = date_create($value);
+        if (!$val) {
             throw ConversionException::conversionFailed($value, $this->getName());
         }
         return $val;
-    }
-
-    public function getName()
-    {
-        return Type::TARRAY;
     }
 }

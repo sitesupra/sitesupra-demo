@@ -256,11 +256,12 @@ class Controller extends ControllerAbstraction
 
 		$qb->select('ph')
 				->from(static::PLACE_HOLDER_ENTITY, 'ph')
+				->join('ph.master', 'm')
 				->where($qb->expr()->in('ph.name', $layoutPlaceNames))
-				->andWhere($qb->expr()->in('ph.master.id', $masterIds))
+				->andWhere($qb->expr()->in('m.id', $masterIds))
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
-				->addOrderBy('ph.master.depth', 'ASC');
+				->addOrderBy('m.depth', 'ASC');
 
 		$query = $qb->getQuery();
 		$places = $query->getResult();
@@ -327,20 +328,21 @@ class Controller extends ControllerAbstraction
 		$qb = $em->createQueryBuilder();
 		$qb->select('b')
 				->from(static::BLOCK_ENTITY, 'b')
+				->join('b.placeHolder', 'ph')
 				->orderBy('b.position', 'ASC');
 		
 		$expr = $qb->expr();
 
 		// final placeholder blocks
 		if ( ! empty($finalPlaceHolderIds)) {
-			$qb->orWhere($expr->in('b.placeHolder.id', $finalPlaceHolderIds));
+			$qb->orWhere($expr->in('ph.id', $finalPlaceHolderIds));
 		}
 		
 		// locked block condition
 		if ( ! empty($parentPlaceHolderIds)) {
 			$lockedBlocksCondition = $expr->andX()
 					->addMultiple(array(
-						$expr->in('b.placeHolder.id', $parentPlaceHolderIds),
+						$expr->in('ph.id', $parentPlaceHolderIds),
 						'b.locked = TRUE'
 					));
 			$qb->orWhere($lockedBlocksCondition);
@@ -508,6 +510,7 @@ class Controller extends ControllerAbstraction
 				$master = $finalNode;
 			}
 			\Log::sdebug("Master node for {$block} is found - {$master}");
+			// FIXME: n+1 problem
 			$data = $master->getData($locale);
 			if (empty($data)) {
 				\Log::swarn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");

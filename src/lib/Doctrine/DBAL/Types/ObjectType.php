@@ -9,7 +9,7 @@ namespace Doctrine\DBAL\Types;
  */
 class ObjectType extends Type
 {
-    public function getSqlDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
         return $platform->getClobTypeDeclarationSQL($fieldDeclaration);
     }
@@ -21,8 +21,16 @@ class ObjectType extends Type
 
     public function convertToPHPValue($value, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
     {
+        if ($value === null) {
+            return null;
+        }
+
         $value = (is_resource($value)) ? stream_get_contents($value) : $value;
-        return unserialize($value);
+        $val = unserialize($value);
+        if ($val === false) {
+            throw ConversionException::conversionFailed($value, $this->getName());
+        }
+        return $val;
     }
 
     public function getName()

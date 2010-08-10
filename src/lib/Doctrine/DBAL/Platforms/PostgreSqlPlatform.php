@@ -249,6 +249,9 @@ class PostgreSqlPlatform extends AbstractPlatform
                     a.attname AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
+                    (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
+                    (SELECT format_type(t2.typbasetype, t2.typtypmod) FROM pg_catalog.pg_type t2
+                     WHERE t2.typtype = 'd' AND t2.typname = format_type(a.atttypid, a.atttypmod)) AS domain_complete_type,
                     a.attnotnull AS isnotnull,
                     (SELECT 't'
                      FROM pg_index
@@ -366,6 +369,21 @@ class PostgreSqlPlatform extends AbstractPlatform
             if ($columnDiff->hasChanged('notnull')) {
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'SET' : 'DROP') . ' NOT NULL';
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            }
+            if ($columnDiff->hasChanged('autoincrement')) {
+                if ($column->getAutoincrement()) {
+                    // add autoincrement
+                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+
+                    $sql[] = "CREATE SEQUENCE " . $seqName;
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->name . "))";
+                    $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
+                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                } else {
+                    // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
+                    $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
+                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                }
             }
         }
 
@@ -532,6 +550,14 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
+        return 'TIMESTAMP(0) WITHOUT TIME ZONE';
+    }
+
+    /**
+     * @override
+     */
+    public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
+    {
         return 'TIMESTAMP(0) WITH TIME ZONE';
     }
     
@@ -548,7 +574,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
-        return 'TIME';
+        return 'TIME(0) WITHOUT TIME ZONE';
     }
 
     /**
@@ -611,7 +637,7 @@ class PostgreSqlPlatform extends AbstractPlatform
         return strtolower($column);
     }
     
-    public function getDateTimeFormatString()
+    public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sO';
     }
@@ -666,7 +692,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             'date' => 'date',
             'datetime' => 'datetime',
             'timestamp' => 'datetime',
-            'timestamptz' => 'datetime',
+            'timestamptz' => 'datetimetz',
             'time' => 'time',
             'timetz' => 'time',
             'float' => 'decimal',

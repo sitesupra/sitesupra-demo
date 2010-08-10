@@ -135,7 +135,7 @@ class Html implements ProcessorInterface
 	 */
 	protected function securityCheck($filename)
 	{
-		if (preg_match('!(^|/\\)\.\.($|/\\)!')) {
+		if (preg_match('!(^|/|\\\\)\.\.($|/|\\\\)!', $filename)) {
 			throw new Exception("Security error for '$filename': Layout filename cannot contain '..' part");
 		}
 		if (\filesize($filename) > self::FILE_SIZE_LIMIT) {
