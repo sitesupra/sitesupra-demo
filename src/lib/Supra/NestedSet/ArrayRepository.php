@@ -109,17 +109,26 @@ class ArrayRepository extends RepositoryAbstraction
 		$this->truncate($node->getLeftValue(), $spaceUsed);
 	}
 
-	public function search(SearchCondition\SearchConditionInterface $filter, Closure $order = null)
+	public function search(SearchCondition\SearchConditionInterface $filter, SearchOrder\SearchOrderInterface $order = null)
 	{
 		if ( ! ($filter instanceof SearchCondition\ArraySearchCondition)) {
 			throw new Exception\InvalidOperation("Only ArraySearchCondition instance can be passed to search method");
 		}
 		$filterClosure = $filter->getSearchClosure();
-		$result = $this->searchByClosure($filterClosure, $order);
+		
+		$orderClosure = null;
+		if ( ! \is_null($order)) {
+			if ( ! ($order instanceof SearchOrder\ArraySearchOrder)) {
+				throw new Exception\InvalidOperation("Only ArraySearchCondition instance can be passed to search method");
+			}
+			$orderClosure = $order->getOrderClosure();
+		}
+		
+		$result = $this->searchByClosure($filterClosure, $orderClosure);
 		return $result;
 	}
 
-	public function searchByClosure(Closure $filterClosure, Closure $order = null)
+	public function searchByClosure(Closure $filterClosure, Closure $orderClosure = null)
 	{
 		$result = array();
 		foreach ($this->array as $item) {
@@ -127,8 +136,8 @@ class ArrayRepository extends RepositoryAbstraction
 				$result[] = $item;
 			}
 		}
-		if ( ! \is_null($order)) {
-			usort($result, $order);
+		if ( ! \is_null($orderClosure)) {
+			usort($result, $orderClosure);
 		}
 		return $result;
 	}

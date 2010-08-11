@@ -82,7 +82,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 			throw new Exception\InvalidOperation("Unknown method $method called for search condition object, no field match found");
 		}
 		
-		$found = false;
+		$relationFound = false;
 		foreach (self::$relationMethods as $relationTest => $relationString) {
 			if (\strcasecmp($relationString, $methodRemainder) === 0) {
 				$relationFound = $relationTest;

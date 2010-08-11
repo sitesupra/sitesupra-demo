@@ -9,5 +9,5 @@ use Closure;
  */
 interface RepositoryInterface
 {
-	public function search(SearchCondition\SearchConditionInterface $filter, Closure $order = null);
+	public function search(SearchCondition\SearchConditionInterface $filter, SearchOrder\SearchOrderInterface $order = null);
 }

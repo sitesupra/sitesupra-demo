@@ -216,11 +216,10 @@ abstract class NodeAbstraction implements NodeInterface
 			$searchCondition->levelMoreThanOrEqualsTo($lvl - $levelLimit);
 		}
 
-		$order = function($nodeA, $nodeB) {
-			return $nodeB->getLevel() - $nodeA->getLevel();
-		};
+		$orderRule = $this->createSearchOrderRule()
+				->byLevelDescending();
 
-		$ancestors = $this->repository->search($searchCondition, $order);
+		$ancestors = $this->repository->search($searchCondition, $orderRule);
 		return $ancestors;
 	}
 
@@ -245,11 +244,10 @@ abstract class NodeAbstraction implements NodeInterface
 			$searchCondition->levelLessThanOrEqualsTo($lvl + $levelLimit);
 		}
 
-		$order = function($nodeA, $nodeB) {
-			return $nodeA->getLeftValue() - $nodeB->getLeftValue();
-		};
+		$orderRule = $this->createSearchOrderRule()
+				->byLeftAscending();
 
-		$descendants = $this->repository->search($searchCondition, $order);
+		$descendants = $this->repository->search($searchCondition, $orderRule);
 		return $descendants;
 	}
 
