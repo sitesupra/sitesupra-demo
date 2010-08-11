@@ -3,7 +3,7 @@
 namespace Supra\Tests\NestedSet\Node;
 
 use Supra\Tests\NestedSet\Fixture,
-		Supra\NestedSet\Repository\ArrayRepository,
+		Supra\NestedSet\ArrayRepository,
 		Supra\NestedSet\Node\ArrayNode;
 
 /**
@@ -77,26 +77,18 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 */
-	public function testGetStart() {
-		self::assertEquals(0, $this->food->getStart());
-		self::assertEquals(12, $this->beef->getStart());
-		self::assertEquals(6, $this->yellow->getStart());
+	public function testGetLeftValue() {
+		self::assertEquals(0, $this->food->getLeftValue());
+		self::assertEquals(12, $this->beef->getLeftValue());
+		self::assertEquals(6, $this->yellow->getLeftValue());
 	}
 
 	/**
 	 */
-	public function testGetEnd() {
-		self::assertEquals(17, $this->food->getEnd());
-		self::assertEquals(13, $this->beef->getEnd());
-		self::assertEquals(9, $this->yellow->getEnd());
-	}
-
-	/**
-	 */
-	public function testGetDepth() {
-		self::assertEquals(0, $this->food->getDepth());
-		self::assertEquals(2, $this->beef->getDepth());
-		self::assertEquals(2, $this->yellow->getDepth());
+	public function testGetRightValue() {
+		self::assertEquals(17, $this->food->getRightValue());
+		self::assertEquals(13, $this->beef->getRightValue());
+		self::assertEquals(9, $this->yellow->getRightValue());
 	}
 
 	/**
@@ -247,6 +239,7 @@ DOC
 	 */
 	public function testGetNextSibling() {
 		self::assertEquals(null, $this->food->getNextSibling());
+		self::assertNotNull($this->beef->getNextSibling());
 		self::assertEquals('Pork', $this->beef->getNextSibling()->getTitle());
 		self::assertEquals(null, $this->yellow->getNextSibling());
 	}
@@ -256,6 +249,7 @@ DOC
 	public function testGetPrevSibling() {
 		self::assertEquals(null, $this->food->getPrevSibling());
 		self::assertEquals(null, $this->beef->getPrevSibling());
+		self::assertNotNull($this->yellow->getPrevSibling());
 		self::assertEquals('Red', $this->yellow->getPrevSibling()->getTitle());
 	}
 
@@ -440,7 +434,6 @@ DOC
 
 		$this->yellow->moveAsLastChildOf($this->food);
 		$output = $this->repository->drawTree();
-		\Log::debug($output);
 
 		self::assertEquals('(0; 17) 0 Food
   (1; 6) 1 Fruit

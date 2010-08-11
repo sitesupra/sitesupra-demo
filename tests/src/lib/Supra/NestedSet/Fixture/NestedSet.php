@@ -2,7 +2,7 @@
 
 namespace Supra\Tests\NestedSet\Fixture;
 
-use Supra\NestedSet\Repository\ArrayRepository;
+use Supra\NestedSet\ArrayRepository;
 
 /**
  * 

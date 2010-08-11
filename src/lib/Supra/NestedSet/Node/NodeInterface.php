@@ -7,21 +7,21 @@ namespace Supra\NestedSet\Node;
  */
 interface NodeInterface
 {
-	public function getStart();
+	public function getLeftValue();
 
-	public function getEnd();
+	public function getRightValue();
 
-	public function getDepth();
+	public function getLevel();
 
-	public function setStart($start);
+	public function setLeftValue($lft);
 
-	public function setEnd($end);
+	public function setRightValue($rgt);
 
-	public function setDepth($depth);
+	public function setLevel($lvl);
 
-	public function moveStart($diff);
+	public function moveLeftValue($diff);
 
-	public function moveEnd($diff);
+	public function moveRightValue($diff);
 
-	public function moveDepth($diff);
+	public function moveLevel($diff);
 }
