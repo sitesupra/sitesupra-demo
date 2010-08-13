@@ -2,7 +2,7 @@
 
 namespace Supra\NestedSet\Node;
 
-use Supra\NestedSet\RepositoryInterface,
+use Supra\NestedSet\RepositoryAbstraction,
 		Supra\NestedSet\Exception;
 
 /**
@@ -21,20 +21,20 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * @var int
 	 */
-	protected $lft;
+	protected $left;
 
 	/**
 	 * @var int
 	 */
-	protected $rgt;
+	protected $right;
 
 	/**
 	 * @var int
 	 */
-	protected $lvl;
+	protected $level;
 
 	/**
-	 * @var RepositoryInterface
+	 * @var RepositoryAbstraction
 	 */
 	protected $repository;
 
@@ -42,12 +42,6 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @var string
 	 */
 	protected $title;
-
-	public function  __construct($lft = null, $rgt = null, $lvl = null) {
-		$this->lft = $lft;
-		$this->rgt = $rgt;
-		$this->lvl = $lvl;
-	}
 
 	public function setTitle($title)
 	{
@@ -60,7 +54,7 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this->title;
 	}
 
-	public function setRepository(RepositoryInterface $repository)
+	public function setRepository(RepositoryAbstraction $repository)
 	{
 		$this->repository = $repository;
 		return $this;
@@ -73,53 +67,58 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getLeftValue()
 	{
-		return $this->lft;
+		return $this->left;
 	}
 
 	public function getRightValue()
 	{
-		return $this->rgt;
+		return $this->right;
 	}
 
 	public function getLevel()
 	{
-		return $this->lvl;
+		return $this->level;
 	}
 
-	public function setLeftValue($lft)
+	public function setLeftValue($left)
 	{
-		$this->lft = $lft;
+		$this->left = $left;
 		return $this;
 	}
 
-	public function setRightValue($rgt)
+	public function setRightValue($right)
 	{
-		$this->rgt = $rgt;
+		$this->right = $right;
 		return $this;
 	}
 
-	public function setLevel($lvl)
+	public function setLevel($level)
 	{
-		$this->lvl = $lvl;
+		$this->level = $level;
 		return $this;
 	}
 
 	public function moveLeftValue($diff)
 	{
-		$this->lft += $diff;
+		$this->setLeftValue($this->getLeftValue() + $diff);
 		return $this;
 	}
 
 	public function moveRightValue($diff)
 	{
-		$this->rgt += $diff;
+		$this->setRightValue($this->getRightValue() + $diff);
 		return $this;
 	}
 
 	public function moveLevel($diff)
 	{
-		$this->lvl += $diff;
+		$this->setLevel($this->getLevel() + $diff);
 		return $this;
+	}
+
+	public function getIntervalSize()
+	{
+		return $this->getRightValue() - $this->getLeftValue();
 	}
 
 	public function addChild(NodeInterface $child)
@@ -129,7 +128,11 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function delete()
 	{
+		$left = $this->getLeftValue();
+		$spaceUsed = $this->getIntervalSize() + 1;
 		$this->repository->delete($this);
+
+		$this->repository->truncate($left, $spaceUsed);
 	}
 
 	public function hasNextSibling()
@@ -145,7 +148,6 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 
 	/**
-	 * FIXME: do another count for Doctrine node by the COUNT(*) query
 	 * @return int
 	 */
 	public function getNumberChildren()
@@ -156,10 +158,11 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getNumberDescendants()
 	{
-		$intervalSize = $this->rgt - $this->lft;
+		$intervalSize = $this->getIntervalSize();
 		$intervalSize = $intervalSize - 1;
 		if ($intervalSize % 2 != 0) {
-			throw new Exception\InvalidStructure("The size of node {$this->dump()} must be odd number, even number received");
+			$dump = static::dump($this);
+			throw new Exception\InvalidStructure("The size of node {$dump} must be odd number, even number received");
 		}
 		$descendantCount = $intervalSize / 2;
 		return $descendantCount;
@@ -178,7 +181,8 @@ abstract class NodeAbstraction implements NodeInterface
 		}
 		$parents = $this->getAncestors(1);
 		if ( ! isset($parents[0])) {
-			throw new Exception\InvalidStructure("Parent node was not found for {$this->dump()} but must exist");
+			$dump = static::dump($this);
+			throw new Exception\InvalidStructure("Parent node was not found for {$dump} but must exist");
 		}
 		$parent = $parents[0];
 		return $parent;
@@ -197,26 +201,26 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getAncestors($levelLimit = 0, $includeNode = false)
 	{
-		$lft = $this->getLeftValue();
-		$rgt = $this->getRightValue();
-		$lvl = $this->getLevel();
+		$left = $this->getLeftValue();
+		$right = $this->getRightValue();
+		$level = $this->getLevel();
 
-		$searchCondition = $this->createSearchCondition();
+		$searchCondition = $this->repository->createSearchCondition();
 		if ($includeNode) {
-			$searchCondition->leftLessThanOrEqualsTo($lft)
-					->rightMoreThanOrEqualsTo($rgt);
+			$searchCondition->leftLessThanOrEqualsTo($left)
+					->rightMoreThanOrEqualsTo($right);
 		} else {
-			$searchCondition->leftLessThan($lft)
-					->rightMoreThan($rgt);
+			$searchCondition->leftLessThan($left)
+					->rightMoreThan($right);
 		}
 
 		if ($levelLimit < 0) {
 			throw new Exception\InvalidOperation("Level limit cannot be negative in getAncestors method");
 		} elseif ($levelLimit > 0) {
-			$searchCondition->levelMoreThanOrEqualsTo($lvl - $levelLimit);
+			$searchCondition->levelMoreThanOrEqualsTo($level - $levelLimit);
 		}
 
-		$orderRule = $this->createSearchOrderRule()
+		$orderRule = $this->repository->createSelectOrderRule()
 				->byLevelDescending();
 
 		$ancestors = $this->repository->search($searchCondition, $orderRule);
@@ -225,26 +229,26 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getDescendants($levelLimit = 0, $includeNode = false)
 	{
-		$lft = $this->getLeftValue();
-		$rgt = $this->getRightValue();
-		$lvl = $this->getLevel();
+		$left = $this->getLeftValue();
+		$right = $this->getRightValue();
+		$level = $this->getLevel();
 
-		$searchCondition = $this->createSearchCondition();
+		$searchCondition = $this->repository->createSearchCondition();
 		if ($includeNode) {
-			$searchCondition->leftMoreThanOrEqualsTo($lft)
-					->rightLessThanOrEqualsTo($rgt);
+			$searchCondition->leftMoreThanOrEqualsTo($left)
+					->rightLessThanOrEqualsTo($right);
 		} else {
-			$searchCondition->leftMoreThan($lft)
-					->rightLessThan($rgt);
+			$searchCondition->leftMoreThan($left)
+					->rightLessThan($right);
 		}
 
 		if ($levelLimit < 0) {
 			throw new Exception\InvalidOperation("Level limit cannot be negative in getDescendants method");
 		} elseif ($levelLimit > 0) {
-			$searchCondition->levelLessThanOrEqualsTo($lvl + $levelLimit);
+			$searchCondition->levelLessThanOrEqualsTo($level + $levelLimit);
 		}
 
-		$orderRule = $this->createSearchOrderRule()
+		$orderRule = $this->repository->createSelectOrderRule()
 				->byLeftAscending();
 
 		$descendants = $this->repository->search($searchCondition, $orderRule);
@@ -256,14 +260,15 @@ abstract class NodeAbstraction implements NodeInterface
 		if ( ! $this->hasChildren()) {
 			return null;
 		}
-		$lft = $this->lft + 1;
+		$left = $this->getLeftValue() + 1;
 
-		$searchCondition = $this->createSearchCondition();
-		$searchCondition->leftEqualsTo($lft);
+		$searchCondition = $this->repository->createSearchCondition();
+		$searchCondition->leftEqualsTo($left);
 
 		$firstChild = $this->repository->search($searchCondition);
 		if ( ! isset($firstChild[0])) {
-			throw new Exception\InvalidStructure("Could not find the first child of {$this->dump()} but it must exist");
+			$dump = static::dump($this);
+			throw new Exception\InvalidStructure("Could not find the first child of {$dump} but it must exist");
 		}
 		$firstChild = $firstChild[0];
 		return $firstChild;
@@ -274,14 +279,15 @@ abstract class NodeAbstraction implements NodeInterface
 		if ( ! $this->hasChildren()) {
 			return null;
 		}
-		$rgt = $this->rgt - 1;
+		$right = $this->getRightValue() - 1;
 
-		$searchCondition = $this->createSearchCondition()
-				->rightEqualsTo($rgt);
+		$searchCondition = $this->repository->createSearchCondition()
+				->rightEqualsTo($right);
 
 		$lastChild = $this->repository->search($searchCondition);
 		if ( ! isset($lastChild[0])) {
-			throw new Exception\InvalidStructure("Could not find the last child of {$this->dump()} but it must exist");
+			$dump = static::dump($this);
+			throw new Exception\InvalidStructure("Could not find the last child of {$dump} but it must exist");
 		}
 		$lastChild = $lastChild[0];
 		return $lastChild;
@@ -289,9 +295,9 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getNextSibling()
 	{
-		$lft = $this->rgt + 1;
-		$searchCondition = $this->createSearchCondition()
-				->leftEqualsTo($lft);
+		$left = $this->getRightValue() + 1;
+		$searchCondition = $this->repository->createSearchCondition()
+				->leftEqualsTo($left);
 
 		$nextSibling = $this->repository->search($searchCondition);
 		if ( ! isset($nextSibling[0])) {
@@ -303,12 +309,12 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function getPrevSibling()
 	{
-		$rgt = $this->lft - 1;
-		if ($rgt < 0) {
+		$right = $this->getLeftValue() - 1;
+		if ($right <= 0) {
 			return null;
 		}
-		$searchCondition = $this->createSearchCondition()
-				->rightEqualsTo($rgt);
+		$searchCondition = $this->repository->createSearchCondition()
+				->rightEqualsTo($right);
 
 		$prevSibling = $this->repository->search($searchCondition);
 		if ( ! isset($prevSibling[0])) {
@@ -346,39 +352,39 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function hasChildren()
 	{
-		$hasChildren = ($this->rgt - $this->lft > 1);
+		$hasChildren = ($this->getIntervalSize() > 1);
 		return $hasChildren;
 	}
 
 	public function moveAsNextSiblingOf(NodeInterface $afterNode)
 	{
 		$pos = $afterNode->getRightValue() + 1;
-		$lvl = $afterNode->getLevel();
-		$this->move($pos, $lvl);
+		$level = $afterNode->getLevel();
+		$this->move($pos, $level);
 		return $this;
 	}
 
 	public function moveAsPrevSiblingOf(NodeInterface $beforeNode)
 	{
 		$pos = $beforeNode->getLeftValue();
-		$lvl = $beforeNode->getLevel();
-		$this->move($pos, $lvl);
+		$level = $beforeNode->getLevel();
+		$this->move($pos, $level);
 		return $this;
 	}
 
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
 		$pos = $parentNode->getLeftValue() + 1;
-		$lvl = $parentNode->getLevel() + 1;
-		$this->move($pos, $lvl);
+		$level = $parentNode->getLevel() + 1;
+		$this->move($pos, $level);
 		return $this;
 	}
 
 	public function moveAsLastChildOf(NodeInterface $parentNode)
 	{
 		$pos = $parentNode->getRightValue();
-		$lvl = $parentNode->getLevel() + 1;
-		$this->move($pos, $lvl);
+		$level = $parentNode->getLevel() + 1;
+		$this->move($pos, $level);
 		return $this;
 	}
 
@@ -390,13 +396,15 @@ abstract class NodeAbstraction implements NodeInterface
 
 	public function isRoot()
 	{
-		$isRoot = ($this->lvl == 0);
+		$isRoot = ($this->getLevel() == 0);
 		return $isRoot;
 	}
 
 	public function isAncestorOf(NodeInterface $node)
 	{
-		if ($this->lft < $node->getLeftValue() && $this->rgt > $node->getRightValue()) {
+		if ($this->getLeftValue() < $node->getLeftValue()
+				&& $this->getRightValue() > $node->getRightValue()) {
+			
 			return true;
 		}
 		return false;
@@ -414,16 +422,16 @@ abstract class NodeAbstraction implements NodeInterface
 		return $isEqual;
 	}
 
-	protected function move($pos, $lvl)
+	protected function move($pos, $level)
 	{
-		$spaceNeeded = $this->rgt - $this->lft + 1;
-		$this->allowMove($pos);
+		$spaceNeeded = $this->getIntervalSize() + 1;
+		$this->validateMove($pos);
 
 		// I) reserve the space
 		$this->repository->extend($pos, $spaceNeeded);
 
-		$oldPos = $this->lft;
-		$levelDiff = $lvl - $this->lvl;
+		$oldPos = $this->getLeftValue();
+		$levelDiff = $level - $this->getLevel();
 
 		// II) move the node to the place
 		$this->repository->move($this, $pos, $levelDiff);
@@ -433,10 +441,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this;
 	}
 
-	protected function allowMove($pos)
+	protected function validateMove($pos)
 	{
-		if ($this->lft <= $pos && $this->rgt >= $pos) {
-			throw new Exception\InvalidOperation("The move not allowed for {$this->dump()} to position $pos");
+		if ($this->getLeftValue() <= $pos && $this->getRightValue() >= $pos) {
+			$dump = static::dump($this);
+			throw new Exception\InvalidOperation("The move not allowed for {$dump} to position $pos");
 		}
 	}
 
@@ -451,7 +460,7 @@ abstract class NodeAbstraction implements NodeInterface
 
 		$tree = '';
 		foreach ($array as $item) {
-			$tree .= $item->dump();
+			$tree .= static::dump($item);
 			$tree .= "\n";
 		}
 		return $tree;
@@ -462,23 +471,28 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this->getTitle();
 	}
 
-	public function dump()
+	public static function dump(NodeInterface $node)
 	{
-		$prefix = \str_repeat(static::DUMP_PREFIX, $this->getLevel());
-		$lft = $this->getLeftValue();
-		$rgt = $this->getRightValue();
-		$lvl = $this->getLevel();
-		$title = $this->getTitle();
+		$prefix = \str_repeat(static::DUMP_PREFIX, $node->getLevel());
+		$left = $node->getLeftValue();
+		$right = $node->getRightValue();
+		$level = $node->getLevel();
+		$title = $node->getTitle();
 		$dumpData = array(
 			static::DUMP_PREFIX_POS => $prefix,
-			static::DUMP_LEFT_POS => $lft,
-			static::DUMP_RIGHT_POS => $rgt,
-			static::DUMP_LEVEL_POS => $lvl,
+			static::DUMP_LEFT_POS => $left,
+			static::DUMP_RIGHT_POS => $right,
+			static::DUMP_LEVEL_POS => $level,
 			static::DUMP_TITLE_POS => $title
 		);
 		ksort($dumpData);
 		$dumpString = vsprintf(static::DUMP_FORMAT, $dumpData);
 		return $dumpString;
+	}
+
+	public function dumpThis()
+	{
+		return self::dump($this);
 	}
 
 }

@@ -16,9 +16,11 @@ class ArrayRepository extends RepositoryAbstraction
 
 	protected $max = 0;
 
-	public function getMax()
+	protected function getMax()
 	{
-		return $this->max;
+		$max = $this->max;
+		$this->max += 2;
+		return $max;
 	}
 
 	public function createNode($title = null)
@@ -26,12 +28,12 @@ class ArrayRepository extends RepositoryAbstraction
 		$node = new ArrayNode();
 		$node->setTitle($title);
 		$this->add($node);
+		$this->array[] = $node;
 		return $node;
 	}
 
 	public function extend($offset, $size)
 	{
-
 		/* @var $node NodeInterface */
 		foreach ($this->array as $node) {
 			if ($node->getLeftValue() >= $offset) {
@@ -56,32 +58,16 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	public function add(NodeInterface $node)
-	{
-		if ( ! \in_array($node, $this->array)) {
-
-			$node->setRepository($this);
-
-			$max = $this->getMax();
-			$node->setLeftValue($max);
-			$node->setRightValue($max + 1);
-			$node->setLevel(0);
-			$this->array[] = $node;
-			
-			$this->max += 2;
-		}
-	}
-
 	public function move(NodeInterface $node, $pos, $levelDiff = 0)
 	{
 		$diff = $pos - $node->getLeftValue();
-		$lft = $node->getLeftValue();
-		$rgt = $node->getRightValue();
+		$left = $node->getLeftValue();
+		$right = $node->getRightValue();
 		if ($diff == 0 && $levelDiff == 0) {
 			return;
 		}
 		foreach ($this->array as $item) {
-			if ($item->getLeftValue() >= $lft && $item->getRightValue() <= $rgt) {
+			if ($item->getLeftValue() >= $left && $item->getRightValue() <= $right) {
 				$item->moveLeftValue($diff);
 				$item->moveRightValue($diff);
 				$item->moveLevel($levelDiff);
@@ -89,41 +75,32 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	public function drawTree()
-	{
-		$output = NodeAbstraction::output($this->array);
-		return $output;
-	}
-
 	public function delete(NodeInterface $node)
 	{
-		$spaceUsed = $node->getRightValue() - $node->getLeftValue() + 1;
-		$lft = $node->getLeftValue();
-		$rgt = $node->getRightValue();
+		$left = $node->getLeftValue();
+		$right = $node->getRightValue();
 		foreach ($this->array as $key => $item) {
-			if ($item->getLeftValue() >= $lft && $item->getRightValue() <= $rgt) {
+			if ($item->getLeftValue() >= $left && $item->getRightValue() <= $right) {
 				unset($this->array[$key]);
 			}
 		}
-
-		$this->truncate($node->getLeftValue(), $spaceUsed);
 	}
 
-	public function search(SearchCondition\SearchConditionInterface $filter, SearchOrder\SearchOrderInterface $order = null)
+	public function search(SearchCondition\SearchConditionInterface $filter, SelectOrder\SelectOrderInterface $order = null)
 	{
 		if ( ! ($filter instanceof SearchCondition\ArraySearchCondition)) {
-			throw new Exception\InvalidOperation("Only ArraySearchCondition instance can be passed to search method");
+			throw new Exception\WrongInstance($filter, 'SearchCondition\ArraySearchCondition');
 		}
 		$filterClosure = $filter->getSearchClosure();
-		
+
 		$orderClosure = null;
 		if ( ! \is_null($order)) {
-			if ( ! ($order instanceof SearchOrder\ArraySearchOrder)) {
-				throw new Exception\InvalidOperation("Only ArraySearchCondition instance can be passed to search method");
+			if ( ! ($order instanceof SelectOrder\ArraySelectOrder)) {
+				throw new Exception\WrongInstance($order, 'SelectOrder\ArraySelectOrder');
 			}
 			$orderClosure = $order->getOrderClosure();
 		}
-		
+
 		$result = $this->searchByClosure($filterClosure, $orderClosure);
 		return $result;
 	}
@@ -162,15 +139,15 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getRootNodes()
+	public function createSearchCondition()
 	{
 		$searchCondition = new SearchCondition\ArraySearchCondition();
-		$searchCondition->levelEqualsTo(0);
+		return $searchCondition;
+	}
 
-		$rootNodes = $this->search($searchCondition);
-		return $rootNodes;
+	public function createSelectOrderRule()
+	{
+		$SelectOrder = new SelectOrder\ArraySelectOrder();
+		return $SelectOrder;
 	}
 }

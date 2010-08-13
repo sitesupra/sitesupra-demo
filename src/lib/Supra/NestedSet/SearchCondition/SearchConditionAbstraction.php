@@ -34,7 +34,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 	const RIGHT_FIELD = 'right';
 	const LEVEL_FIELD = 'level';
 
-	const RELATION_EQUALS = '=';
+	const RELATION_EQUALS = '==';
 	const RELATION_LESS = '<';
 	const RELATION_MORE = '>';
 	const RELATION_LESS_OR_EQUALS = '<=';

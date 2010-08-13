@@ -2,26 +2,20 @@
 
 namespace Supra\NestedSet\Node;
 
-use Supra\NestedSet\RepositoryInterface,
-		Supra\NestedSet\Exception,
-		Supra\NestedSet\SearchCondition\ArraySearchCondition,
-		Supra\NestedSet\SearchOrder\ArraySearchOrder;
+use Supra\NestedSet\ArrayRepository;
 
 /**
  * 
  */
 class ArrayNode extends NodeAbstraction
 {
-	public function createSearchCondition()
-	{
-		$searchCondition = new ArraySearchCondition();
-		return $searchCondition;
-	}
+	/**
+	 * @var ArrayRepository
+	 */
+	protected $repository;
 
-	public function createSearchOrderRule()
+	public function setRepository(ArrayRepository $repository)
 	{
-		$searchOrder = new ArraySearchOrder();
-		return $searchOrder;
+		return parent::setRepository($repository);
 	}
-
 }

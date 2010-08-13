@@ -2,12 +2,19 @@
 
 namespace Supra\NestedSet;
 
-use Closure;
+use Doctrine\ORM\EntityRepository,
+		Supra\NestedSet\Exception,
+		Supra\NestedSet\DoctrineRepository,
+		Doctrine\ORM\Mapping,
+		Doctrine\ORM\EntityManager;
 
 /**
- * 
+ * The entity repositories must implement this interface
  */
 interface RepositoryInterface
 {
-	public function search(SearchCondition\SearchConditionInterface $filter, SearchOrder\SearchOrderInterface $order = null);
+	/**
+	 * @return DoctrineRepository
+	 */
+	public function getNestedSetRepository();
 }

@@ -2,43 +2,27 @@
 
 namespace Supra\Tests\NestedSet\Fixture;
 
-use Supra\NestedSet\ArrayRepository;
-
 /**
  * 
  */
 class NestedSet
 {
-	static function foodTree()
+	public static function organizeTree($nodes)
 	{
-		$rep = new ArrayRepository();
+		$nodes['meat']->moveAsNextSiblingOf($nodes['fruit']);
+		$nodes['pork']->moveAsLastChildOf($nodes['meat']);
+		$nodes['meat']->addChild($nodes['fruit']);
 
-		$food = $rep->createNode('Food');
-		$meat = $rep->createNode('Meat');
-		$fruit = $rep->createNode('Fruit');
-		$pork = $rep->createNode('Pork');
-		$red = $rep->createNode('Red');
-		$yellow = $rep->createNode('Yellow');
-		$beef = $rep->createNode('Beef');
-		$cherry = $rep->createNode('Cherry');
-		$banana = $rep->createNode('Banana');
+		$nodes['fruit']->moveAsLastChildOf($nodes['food']);
+		$nodes['meat']->moveAsLastChildOf($nodes['food']);
 
-		$meat->moveAsNextSiblingOf($fruit);
-		$pork->moveAsLastChildOf($meat);
-		$meat->addChild($fruit);
+		$nodes['red']->moveAsLastChildOf($nodes['fruit']);
+		$nodes['yellow']->moveAsNextSiblingOf($nodes['red']);
 
-		$fruit->moveAsLastChildOf($food);
-		$meat->moveAsLastChildOf($food);
+		$nodes['cherry']->moveAsLastChildOf($nodes['red']);
+		$nodes['banana']->moveAsLastChildOf($nodes['yellow']);
 
-		$red->moveAsLastChildOf($fruit);
-		$yellow->moveAsNextSiblingOf($red);
-
-		$cherry->moveAsLastChildOf($red);
-		$banana->moveAsLastChildOf($yellow);
-
-		$beef->moveAsNextSiblingOf($pork);
-		$pork->moveAsNextSiblingOf($beef);
-
-		return $rep;
+		$nodes['beef']->moveAsNextSiblingOf($nodes['pork']);
+		$nodes['pork']->moveAsNextSiblingOf($nodes['beef']);
 	}
 }

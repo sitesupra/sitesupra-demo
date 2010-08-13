@@ -3,7 +3,7 @@
 namespace Supra\NestedSet\Node;
 
 use Supra\NestedSet\SearchCondition\SearchConditionAbstraction,
-		Supra\NestedSet\SearchOrder\SearchOrderAbstraction;
+		Supra\NestedSet\SelectOrder\SelectOrderAbstraction;
 
 /**
  * 
@@ -16,25 +16,9 @@ interface NodeInterface
 
 	public function getLevel();
 
-	public function setLeftValue($lft);
+	public function setLeftValue($left);
 
-	public function setRightValue($rgt);
+	public function setRightValue($right);
 
-	public function setLevel($lvl);
-
-	public function moveLeftValue($diff);
-
-	public function moveRightValue($diff);
-
-	public function moveLevel($diff);
-
-	/**
-	 * @return SearchConditionAbstraction
-	 */
-	public function createSearchCondition();
-
-	/**
-	 * @return SearchOrderAbstraction
-	 */
-	public function createSearchOrderRule();
+	public function setLevel($level);
 }
