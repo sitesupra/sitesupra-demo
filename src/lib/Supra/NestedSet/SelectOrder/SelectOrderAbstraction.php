@@ -1,21 +1,21 @@
 <?php
 
-namespace Supra\NestedSet\SearchOrder;
+namespace Supra\NestedSet\SelectOrder;
 
 use Supra\NestedSet\Exception;
 
 /**
- * @method SearchOrderAbstraction byLeft(int $direction)
- * @method SearchOrderAbstraction byLeftAscending()
- * @method SearchOrderAbstraction byLeftDescending()
- * @method SearchOrderAbstraction byRight(int $direction)
- * @method SearchOrderAbstraction byRightAscending()
- * @method SearchOrderAbstraction byRightDescending()
- * @method SearchOrderAbstraction byLevel(int $direction)
- * @method SearchOrderAbstraction byLevelAscending()
- * @method SearchOrderAbstraction byLevelDescending()
+ * @method SelectOrderAbstraction byLeft(int $direction)
+ * @method SelectOrderAbstraction byLeftAscending()
+ * @method SelectOrderAbstraction byLeftDescending()
+ * @method SelectOrderAbstraction byRight(int $direction)
+ * @method SelectOrderAbstraction byRightAscending()
+ * @method SelectOrderAbstraction byRightDescending()
+ * @method SelectOrderAbstraction byLevel(int $direction)
+ * @method SelectOrderAbstraction byLevelAscending()
+ * @method SelectOrderAbstraction byLevelDescending()
  */
-class SearchOrderAbstraction implements SearchOrderInterface
+class SelectOrderAbstraction implements SelectOrderInterface
 {
 	const FIELD_POS = 0;
 	const DIRECTION_POS = 1;

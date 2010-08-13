@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\NestedSet\SearchOrder;
+namespace Supra\NestedSet\SelectOrder;
 
 use Supra\NestedSet\Node\NodeInterface,
 		Supra\NestedSet\Exception;
@@ -8,24 +8,24 @@ use Supra\NestedSet\Node\NodeInterface,
 /**
  * 
  */
-class ArraySearchOrder extends SearchOrderAbstraction
+class ArraySelectOrder extends SelectOrderAbstraction
 {
 	public function getOrderClosure()
 	{
 		$orderRules = $this->orderRules;
 		$orderClosure = function (NodeInterface $nodeA, NodeInterface $nodeB) use (&$orderRules) {
 			foreach ($orderRules as $orderRule) {
-				$field = $orderRule[ArraySearchOrder::FIELD_POS];
+				$field = $orderRule[ArraySelectOrder::FIELD_POS];
 				switch ($field) {
-					case SearchOrderAbstraction::LEFT_FIELD:
+					case SelectOrderAbstraction::LEFT_FIELD:
 						$valueA = $nodeA->getLeftValue();
 						$valueB = $nodeB->getLeftValue();
 						break;
-					case SearchOrderAbstraction::RIGHT_FIELD:
+					case SelectOrderAbstraction::RIGHT_FIELD:
 						$valueA = $nodeA->getRightValue();
 						$valueB = $nodeB->getRightValue();
 						break;
-					case SearchOrderAbstraction::LEVEL_FIELD:
+					case SelectOrderAbstraction::LEVEL_FIELD:
 						$valueA = $nodeA->getLevel();
 						$valueB = $nodeB->getLevel();
 						break;
@@ -38,11 +38,11 @@ class ArraySearchOrder extends SearchOrderAbstraction
 					continue;
 				}
 
-				$direction = $orderRule[ArraySearchOrder::DIRECTION_POS];
+				$direction = $orderRule[ArraySelectOrder::DIRECTION_POS];
 				switch ($direction) {
-					case SearchOrderAbstraction::DIRECTION_ASCENDING:
+					case SelectOrderAbstraction::DIRECTION_ASCENDING:
 						break;
-					case SearchOrderAbstraction::DIRECTION_DESCENDING:
+					case SelectOrderAbstraction::DIRECTION_DESCENDING:
 						$diff = ( - $diff);
 						break;
 					default:
