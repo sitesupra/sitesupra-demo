@@ -13,8 +13,6 @@ abstract class RepositoryAbstraction
 
 	public function add(NodeInterface $node)
 	{
-		$node->setRepository($this);
-
 		$max = $this->getMax();
 		$node->setLeftValue($max + 1);
 		$node->setRightValue($max + 2);

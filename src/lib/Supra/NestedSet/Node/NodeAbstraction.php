@@ -427,17 +427,24 @@ abstract class NodeAbstraction implements NodeInterface
 		$spaceNeeded = $this->getIntervalSize() + 1;
 		$this->validateMove($pos);
 
-		// I) reserve the space
-		$this->repository->extend($pos, $spaceNeeded);
+		// Maybe could use functionality with better performance
+		if (true) {
+			$levelDiff = $level - $this->getLevel();
+			$this->repository->betterMove($this, $pos, $levelDiff);
+		} else {
 
-		$oldPos = $this->getLeftValue();
-		$levelDiff = $level - $this->getLevel();
+			// I) reserve the space
+			$this->repository->extend($pos, $spaceNeeded);
 
-		// II) move the node to the place
-		$this->repository->move($this, $pos, $levelDiff);
+			$oldPos = $this->getLeftValue();
+			$levelDiff = $level - $this->getLevel();
 
-		// III) trim the unused space
-		$this->repository->truncate($oldPos, $spaceNeeded);
+			// II) move the node to the place
+			$this->repository->move($this, $pos, $levelDiff);
+
+			// III) trim the unused space
+			$this->repository->truncate($oldPos, $spaceNeeded);
+		}
 		return $this;
 	}
 

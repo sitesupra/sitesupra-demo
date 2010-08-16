@@ -184,9 +184,11 @@ DOC
 	 */
 	public function testGetFirstChild() {
 		$child = $this->food->getFirstChild();
+		self::assertNotNull($child);
 		self::assertEquals('Fruit', $child->getTitle());
 
 		$child = $this->yellow->getFirstChild();
+		self::assertNotNull($child);
 		self::assertEquals('Banana', $child->getTitle());
 		
 		$child = $this->beef->getFirstChild();
@@ -197,9 +199,11 @@ DOC
 	 */
 	public function testGetLastChild() {
 		$child = $this->food->getLastChild();
+		self::assertNotNull($child);
 		self::assertEquals('Meat', $child->getTitle());
 
 		$child = $this->yellow->getLastChild();
+		self::assertNotNull($child);
 		self::assertEquals('Banana', $child->getTitle());
 
 		$child = $this->beef->getLastChild();
@@ -268,7 +272,9 @@ DOC
 	 */
 	public function testGetParent() {
 		self::assertEquals(null, $this->food->getParent());
+		self::assertNotNull($this->beef->getParent());
 		self::assertEquals('Meat', $this->beef->getParent()->getTitle());
+		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals('Fruit', $this->yellow->getParent()->getTitle());
 	}
 
@@ -474,6 +480,7 @@ DOC
 	 */
 	public function testIsEqualTo() {
 		self::assertEquals(false, $this->food->isEqualTo($this->yellow));
+		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals(true, $this->food->isEqualTo($this->yellow->getParent()->getParent()));
 	}
 

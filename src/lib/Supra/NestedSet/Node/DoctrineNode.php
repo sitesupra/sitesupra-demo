@@ -13,63 +13,36 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity,
 class DoctrineNode extends NodeAbstraction
 {
 	/**
-	 * @var Entity
-	 */
-	protected $entity;
-
-	/**
 	 * @var DoctrineRepository
 	 */
 	protected $repository;
 
-	public function  __construct(Entity $entity)
+	public function belongsTo(Entity $entity)
 	{
-		$this->entity = $entity;
+		if ( ! ($entity instanceof NodeInterface)) {
+			throw new Exception\WrongInstance($entity, 'Node\NodeInterface');
+		}
+
+		$this->left = $entity->getLeftValue();
+		$this->right = $entity->getRightValue();
+		$this->level = $entity->getLevel();
+
 		$rep = $entity->getRepository();
 		if ( ! ($rep instanceof RepositoryInterface)) {
 			throw new Exception\WrongInstance($rep, 'RepositoryInterface');
 		}
 		$nestedSetRepository = $rep->getNestedSetRepository();
 		$this->setRepository($nestedSetRepository);
-		if ($this->getRightValue() === null) {
-			$nestedSetRepository->add($this);
+		
+		if ($this->right === null) {
+			$nestedSetRepository->add($entity);
 		}
-		$nestedSetRepository->register($this);
+		$nestedSetRepository->register($entity);
 	}
 
-	public function setRepository(DoctrineRepository $repository)
+	public function setRepository($repository)
 	{
 		return parent::setRepository($repository);
-	}
-
-	public function getLeftValue()
-	{
-		return $this->entity->getLeftValue();
-	}
-
-	public function getLevel()
-	{
-		return $this->entity->getLevel();
-	}
-
-	public function getRightValue()
-	{
-		return $this->entity->getRightValue();
-	}
-
-	public function setLeftValue($left)
-	{
-		return $this->entity->setLeftValue($left);
-	}
-
-	public function setLevel($level)
-	{
-		return $this->entity->setLevel($level);
-	}
-
-	public function setRightValue($right)
-	{
-		return $this->entity->setRightValue($right);
 	}
 
 	/**
@@ -105,10 +78,9 @@ class DoctrineNode extends NodeAbstraction
 		return $count;
 	}
 
-	public function free()
+	public function free(Entity $entity)
 	{
-		$this->repository->free($this);
-		$this->entity = null;
+		$this->repository->free($entity);
 		$this->repository = null;
 	}
 

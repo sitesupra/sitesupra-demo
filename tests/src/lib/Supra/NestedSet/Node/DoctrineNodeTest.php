@@ -16,6 +16,11 @@ use Supra\Tests\NestedSet\Fixture,
 class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 {
 	/**
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+
+	/**
 	 * @var DoctrineRepository
 	 */
 	protected $repository;
@@ -35,7 +40,8 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected $yellow;
 
-	protected function getConnection() {
+	protected function getConnection()
+	{
 		$config = new Configuration();
 
 		// Doctrine cache (array cache for development)
@@ -93,6 +99,8 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function setUp() {
 
+		\Log::info($this->name, ': ', \memory_get_usage(true));
+
 		$this->entityManager = $this->getConnection();
 		$this->rebuild();
 
@@ -109,7 +117,18 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 * This method is called after a test is executed.
 	 */
 	protected function tearDown() {
+		$this->food->free();
+		$this->beef->free();
+		$this->yellow->free();
 
+		$this->repository->destroy();
+		unset($this->repository);
+		unset($this->food);
+		unset($this->beef);
+		unset($this->yellow);
+
+		$this->entityManager->close();
+		unset($this->entityManager);
 	}
 
 	/**
@@ -152,10 +171,18 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	/**
 	 */
 	public function testAddChild() {
-		$badBeef = $this->repository->createNode('Bad Beef');
+
+		\Log::debug($this->repository->drawTree());
+
+		$badBeef = new Model\Product('Bad Beef');
+		$this->entityManager->persist($badBeef);
+
+
 		$this->beef->addChild($badBeef);
 
 		$output = $this->repository->drawTree();
+
+		\Log::debug($this->repository->drawTree());
 
 		$expected = <<<DOC
 (1; 20) 0 Food
@@ -242,9 +269,11 @@ DOC
 	 */
 	public function testGetFirstChild() {
 		$child = $this->food->getFirstChild();
+		self::assertNotNull($child);
 		self::assertEquals('Fruit', $child->getTitle());
 
 		$child = $this->yellow->getFirstChild();
+		self::assertNotNull($child);
 		self::assertEquals('Banana', $child->getTitle());
 		
 		$child = $this->beef->getFirstChild();
@@ -255,9 +284,11 @@ DOC
 	 */
 	public function testGetLastChild() {
 		$child = $this->food->getLastChild();
+		self::assertNotNull($child);
 		self::assertEquals('Meat', $child->getTitle());
 
 		$child = $this->yellow->getLastChild();
+		self::assertNotNull($child);
 		self::assertEquals('Banana', $child->getTitle());
 
 		$child = $this->beef->getLastChild();
@@ -326,7 +357,9 @@ DOC
 	 */
 	public function testGetParent() {
 		self::assertEquals(null, $this->food->getParent());
+		self::assertNotNull($this->beef->getParent());
 		self::assertEquals('Meat', $this->beef->getParent()->getTitle());
+		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals('Fruit', $this->yellow->getParent()->getTitle());
 	}
 
@@ -532,6 +565,7 @@ DOC
 	 */
 	public function testIsEqualTo() {
 		self::assertEquals(false, $this->food->isEqualTo($this->yellow));
+		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals(true, $this->food->isEqualTo($this->yellow->getParent()->getParent()));
 	}
 

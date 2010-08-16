@@ -30,19 +30,19 @@ class Product extends Entity implements NodeInterface
 	protected $id = null;
 
 	/**
-	 * @Column(type="integer", name="lft")
+	 * @Column(type="integer", name="lft", nullable=true)
 	 * @var integer
 	 */
 	protected $left;
 
 	/**
-	 * @Column(type="integer", name="rgt")
+	 * @Column(type="integer", name="rgt", nullable=true)
 	 * @var integer
 	 */
 	protected $right;
 
 	/**
-	 * @Column(type="integer", name="lvl")
+	 * @Column(type="integer", name="lvl", nullable=true)
 	 * @var integer
 	 */
 	protected $level;
@@ -74,48 +74,72 @@ class Product extends Entity implements NodeInterface
 		return $this->left;
 	}
 
-	public function setLeftValue($left)
-	{
-		$this->left = $left;
-	}
-
 	public function getRightValue()
 	{
 		return $this->right;
-	}
-
-	public function setRightValue($right)
-	{
-		$this->right = $right;
 	}
 
 	public function getLevel()
 	{
 		return $this->level;
 	}
+	
+	public function setLeftValue($left)
+	{
+		$this->left = $left;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->setLeftValue($left);
+		}
+	}
+
+	public function setRightValue($right)
+	{
+		$this->right = $right;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->setRightValue($right);
+		}
+	}
 
 	public function setLevel($level)
 	{
 		$this->level = $level;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->setLevel($level);
+		}
 	}
 
-	public function setNestedSetNode(DoctrineNode $nestedSetNode)
+	public function moveLeftValue($left)
 	{
-		$this->nestedSetNode = $nestedSetNode;
+		$this->left += $left;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->moveLeftValue($left);
+		}
+	}
+
+	public function moveRightValue($right)
+	{
+		$this->right += $right;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->moveRightValue($right);
+		}
+	}
+
+	public function moveLevel($level)
+	{
+		$this->level += $level;
+		if (isset($this->nestedSetNode)) {
+			$this->nestedSetNode->moveLevel($level);
+		}
 	}
 
 	/**
 	 * @PrePersist
 	 * @PostLoad
-	 * @return DoctrineNode
 	 */
-	public function getNestedSetNode()
+	public function createNestedSetNode()
 	{
-		if ( ! isset($this->nestedSetNode)) {
-			$node = new DoctrineNode($this);
-			$this->nestedSetNode = $node;
-		}
-		return $this->nestedSetNode;
+		$this->nestedSetNode = new DoctrineNode();
+		$this->nestedSetNode->belongsTo($this);
 	}
 
 	public function __toString()
@@ -126,7 +150,10 @@ class Product extends Entity implements NodeInterface
 
 	public function __call($method, $arguments)
 	{
-		$node = $this->getNestedSetNode();
+		$node = $this->nestedSetNode;
+		if (\is_null($this->nestedSetNode)) {
+			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
+		}
 
 		if ( ! \method_exists($node, $method)) {
 			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
@@ -144,8 +171,10 @@ class Product extends Entity implements NodeInterface
 
 	public function free()
 	{
-		$this->getNestedSetNode()->free();
-		$this->nestedSetNode = null;
+		if ( ! is_null($this->nestedSetNode)) {
+			$this->nestedSetNode->free($this);
+			$this->nestedSetNode = null;
+		}
 	}
 
 	public function getTitle()

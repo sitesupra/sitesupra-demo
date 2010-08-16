@@ -23,6 +23,12 @@ class ArrayRepository extends RepositoryAbstraction
 		return $max;
 	}
 
+	public function add(NodeInterface $node)
+	{
+		$node->setRepository($this);
+		parent::add($node);
+	}
+
 	public function createNode($title = null)
 	{
 		$node = new ArrayNode();
@@ -72,6 +78,48 @@ class ArrayRepository extends RepositoryAbstraction
 				$item->moveRightValue($diff);
 				$item->moveLevel($levelDiff);
 			}
+		}
+	}
+
+	public function betterMove(NodeInterface $node, $pos, $levelDiff)
+	{
+		$left = $node->getLeftValue();
+		$right = $node->getRightValue();
+		$spaceUsed = $right - $left + 1;
+		if ($pos > $left) {
+			$a = $right + 1;
+			$b = $pos - 1;
+			$moveA = $pos - $left - $spaceUsed;
+			$moveB = - $spaceUsed;
+		} else {
+			$a = $left - 1;
+			$b = $pos;
+			$moveA = $pos - $left;
+			$moveB = $spaceUsed;
+		}
+		foreach ($this->array as $item) {
+			if (self::isBetween($item->getLeftValue(), $left, $right)) {
+				$item->moveLeftValue($moveA);
+				$item->moveRightValue($moveA);
+				$item->moveLevel($levelDiff);
+				continue;
+			}
+
+			if (self::isBetween($item->getLeftValue(), $a, $b)) {
+				$item->moveLeftValue($moveB);
+			}
+			if (self::isBetween($item->getRightValue(), $a, $b)) {
+				$item->moveRightValue($moveB);
+			}
+		}
+	}
+
+	public static function isBetween($a, $b, $c)
+	{
+		if ($b <= $c) {
+			return $b <= $a && $a <= $c;
+		} else {
+			return $b >= $a && $a >= $c;
 		}
 	}
 
@@ -147,7 +195,7 @@ class ArrayRepository extends RepositoryAbstraction
 
 	public function createSelectOrderRule()
 	{
-		$SelectOrder = new SelectOrder\ArraySelectOrder();
-		return $SelectOrder;
+		$selectOrder = new SelectOrder\ArraySelectOrder();
+		return $selectOrder;
 	}
 }

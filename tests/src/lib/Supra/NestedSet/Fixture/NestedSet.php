@@ -9,12 +9,10 @@ class NestedSet
 {
 	public static function organizeTree($nodes)
 	{
-		$nodes['meat']->moveAsNextSiblingOf($nodes['fruit']);
 		$nodes['pork']->moveAsLastChildOf($nodes['meat']);
-		$nodes['meat']->addChild($nodes['fruit']);
 
-		$nodes['fruit']->moveAsLastChildOf($nodes['food']);
-		$nodes['meat']->moveAsLastChildOf($nodes['food']);
+		$nodes['food']->addChild($nodes['fruit']);
+		$nodes['food']->addChild($nodes['meat']);
 
 		$nodes['red']->moveAsLastChildOf($nodes['fruit']);
 		$nodes['yellow']->moveAsNextSiblingOf($nodes['red']);
@@ -22,7 +20,6 @@ class NestedSet
 		$nodes['cherry']->moveAsLastChildOf($nodes['red']);
 		$nodes['banana']->moveAsLastChildOf($nodes['yellow']);
 
-		$nodes['beef']->moveAsNextSiblingOf($nodes['pork']);
-		$nodes['pork']->moveAsNextSiblingOf($nodes['beef']);
+		$nodes['beef']->moveAsPrevSiblingOf($nodes['pork']);
 	}
 }

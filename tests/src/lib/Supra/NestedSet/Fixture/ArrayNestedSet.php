@@ -13,15 +13,15 @@ class ArrayNestedSet extends NestedSet
 	{
 		$rep = new ArrayRepository();
 
-		$nodes['food'] = $rep->createNode('Food');
-		$nodes['meat'] = $rep->createNode('Meat');
-		$nodes['fruit'] = $rep->createNode('Fruit');
-		$nodes['pork'] = $rep->createNode('Pork');
-		$nodes['red'] = $rep->createNode('Red');
-		$nodes['yellow'] = $rep->createNode('Yellow');
-		$nodes['beef'] = $rep->createNode('Beef');
-		$nodes['cherry'] = $rep->createNode('Cherry');
 		$nodes['banana'] = $rep->createNode('Banana');
+		$nodes['cherry'] = $rep->createNode('Cherry');
+		$nodes['beef'] = $rep->createNode('Beef');
+		$nodes['yellow'] = $rep->createNode('Yellow');
+		$nodes['red'] = $rep->createNode('Red');
+		$nodes['pork'] = $rep->createNode('Pork');
+		$nodes['fruit'] = $rep->createNode('Fruit');
+		$nodes['meat'] = $rep->createNode('Meat');
+		$nodes['food'] = $rep->createNode('Food');
 
 		self::organizeTree($nodes);
 

@@ -15,7 +15,7 @@ interface NodeInterface
 	public function getRightValue();
 
 	public function getLevel();
-
+	
 	public function setLeftValue($left);
 
 	public function setRightValue($right);
