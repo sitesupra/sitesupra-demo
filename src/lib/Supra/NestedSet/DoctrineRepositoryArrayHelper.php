@@ -14,9 +14,11 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 		}
 	}
 
-	public function free(Node\NodeInterface $node)
+	public function free(Node\NodeInterface $node = null)
 	{
-		if (\in_array($node, $this->array, true)) {
+		if (is_null($node)) {
+			$this->array = array();
+		} elseif (\in_array($node, $this->array, true)) {
 			$key = \array_search($node,	$this->array, true);
 			unset($this->array[$key]);
 		}
@@ -24,8 +26,6 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 
 	public function destroy()
 	{
-		foreach ($this->array as $key => $node) {
-			unset($this->array[$key]);
-		}
+		$this->free();
 	}
 }

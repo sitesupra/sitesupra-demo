@@ -36,7 +36,8 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 	 * Sets up the fixture, for example, opens a network connection.
 	 * This method is called before a test is executed.
 	 */
-	protected function setUp() {
+	protected function setUp()
+	{
 		$rep = Fixture\ArrayNestedSet::foodTree();
 		$this->food = $rep->byTitle('Food');
 		$this->beef = $rep->byTitle('Beef');
@@ -48,20 +49,23 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 	 * Tears down the fixture, for example, closes a network connection.
 	 * This method is called after a test is executed.
 	 */
-	protected function tearDown() {
+	protected function tearDown()
+	{
 
 	}
 
 	/**
 	 */
-	public function testSetTitle() {
+	public function testSetTitle()
+	{
 		$this->food->setTitle('Yam-yam');
 		self::assertEquals('Yam-yam', $this->food->getTitle());
 	}
 
 	/**
 	 */
-	public function testGetTitle() {
+	public function testGetTitle()
+	{
 		self::assertEquals('Food', $this->food->getTitle());
 		self::assertEquals('Beef', $this->beef->getTitle());
 		self::assertEquals('Yellow', $this->yellow->getTitle());
@@ -69,7 +73,8 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 */
-	public function testSetRepository() {
+	public function testSetRepository()
+	{
 		$rep = new ArrayRepository();
 		$this->food->setRepository($rep);
 		self::assertEquals($rep, $this->food->getRepository());
@@ -77,7 +82,8 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 */
-	public function testGetLeftValue() {
+	public function testGetLeftValue()
+	{
 		self::assertEquals(1, $this->food->getLeftValue());
 		self::assertEquals(13, $this->beef->getLeftValue());
 		self::assertEquals(7, $this->yellow->getLeftValue());
@@ -85,7 +91,8 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 */
-	public function testGetRightValue() {
+	public function testGetRightValue()
+	{
 		self::assertEquals(18, $this->food->getRightValue());
 		self::assertEquals(14, $this->beef->getRightValue());
 		self::assertEquals(10, $this->yellow->getRightValue());
@@ -93,7 +100,8 @@ class ArrayNodeTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 */
-	public function testAddChild() {
+	public function testAddChild()
+	{
 		$badBeef = $this->repository->createNode('Bad Beef');
 		$this->beef->addChild($badBeef);
 
@@ -118,7 +126,8 @@ DOC;
 
 	/**
 	 */
-	public function testDelete() {
+	public function testDelete()
+	{
 		$this->yellow->delete();
 
 		$output = $this->repository->drawTree();
@@ -154,7 +163,8 @@ DOC
 
 	/**
 	 */
-	public function testGetAncestors() {
+	public function testGetAncestors()
+	{
 		self::assertEquals(array(), $this->food->getAncestors());
 		self::assertEquals(1, count($this->food->getAncestors(0, true)));
 		self::assertEquals(2, count($this->yellow->getAncestors()));
@@ -167,7 +177,8 @@ DOC
 
 	/**
 	 */
-	public function testGetDescendants() {
+	public function testGetDescendants()
+	{
 		self::assertEquals(array(), $this->beef->getDescendants());
 		self::assertEquals(1, count($this->beef->getDescendants(0, true)));
 		self::assertEquals(8, count($this->food->getDescendants()));
@@ -182,7 +193,8 @@ DOC
 
 	/**
 	 */
-	public function testGetFirstChild() {
+	public function testGetFirstChild()
+	{
 		$child = $this->food->getFirstChild();
 		self::assertNotNull($child);
 		self::assertEquals('Fruit', $child->getTitle());
@@ -197,7 +209,8 @@ DOC
 
 	/**
 	 */
-	public function testGetLastChild() {
+	public function testGetLastChild()
+	{
 		$child = $this->food->getLastChild();
 		self::assertNotNull($child);
 		self::assertEquals('Meat', $child->getTitle());
@@ -212,7 +225,8 @@ DOC
 
 	/**
 	 */
-	public function testHasNextSibling() {
+	public function testHasNextSibling()
+	{
 		self::assertEquals(false, $this->food->hasNextSibling());
 		self::assertEquals(true, $this->beef->hasNextSibling());
 		self::assertEquals(false, $this->yellow->hasNextSibling());
@@ -220,7 +234,8 @@ DOC
 
 	/**
 	 */
-	public function testHasPrevSibling() {
+	public function testHasPrevSibling()
+	{
 		self::assertEquals(false, $this->food->hasPrevSibling());
 		self::assertEquals(false, $this->beef->hasPrevSibling());
 		self::assertEquals(true, $this->yellow->hasPrevSibling());
@@ -228,7 +243,8 @@ DOC
 
 	/**
 	 */
-	public function testGetNextSibling() {
+	public function testGetNextSibling()
+	{
 		self::assertEquals(null, $this->food->getNextSibling());
 		self::assertNotNull($this->beef->getNextSibling());
 		self::assertEquals('Pork', $this->beef->getNextSibling()->getTitle());
@@ -237,7 +253,8 @@ DOC
 
 	/**
 	 */
-	public function testGetPrevSibling() {
+	public function testGetPrevSibling()
+	{
 		self::assertEquals(null, $this->food->getPrevSibling());
 		self::assertEquals(null, $this->beef->getPrevSibling());
 		self::assertNotNull($this->yellow->getPrevSibling());
@@ -246,7 +263,8 @@ DOC
 
 	/**
 	 */
-	public function testGetNumberChildren() {
+	public function testGetNumberChildren()
+	{
 		self::assertEquals(2, $this->food->getNumberChildren());
 		self::assertEquals(0, $this->beef->getNumberChildren());
 		self::assertEquals(1, $this->yellow->getNumberChildren());
@@ -254,7 +272,8 @@ DOC
 
 	/**
 	 */
-	public function testGetNumberDescendants() {
+	public function testGetNumberDescendants()
+	{
 		self::assertEquals(8, $this->food->getNumberDescendants());
 		self::assertEquals(0, $this->beef->getNumberDescendants());
 		self::assertEquals(1, $this->yellow->getNumberDescendants());
@@ -262,7 +281,8 @@ DOC
 
 	/**
 	 */
-	public function testHasParent() {
+	public function testHasParent()
+	{
 		self::assertEquals(false, $this->food->hasParent());
 		self::assertEquals(true, $this->beef->hasParent());
 		self::assertEquals(true, $this->yellow->hasParent());
@@ -270,7 +290,8 @@ DOC
 
 	/**
 	 */
-	public function testGetParent() {
+	public function testGetParent()
+	{
 		self::assertEquals(null, $this->food->getParent());
 		self::assertNotNull($this->beef->getParent());
 		self::assertEquals('Meat', $this->beef->getParent()->getTitle());
@@ -280,7 +301,8 @@ DOC
 
 	/**
 	 */
-	public function testGetPath() {
+	public function testGetPath()
+	{
 		self::assertEquals('Food', $this->food->getPath());
 		self::assertEquals('Food X Meat X Beef', $this->beef->getPath(' X '));
 		self::assertEquals('Food > Fruit', $this->yellow->getPath(' > ', false));
@@ -288,7 +310,8 @@ DOC
 
 	/**
 	 */
-	public function testGetChildren() {
+	public function testGetChildren()
+	{
 		$children = $this->food->getChildren();
 		self::assertEquals(2, count($children));
 		self::assertEquals('Fruit', $children[0]->getTitle());
@@ -304,7 +327,8 @@ DOC
 
 	/**
 	 */
-	public function testGetSiblings() {
+	public function testGetSiblings()
+	{
 		$siblings = $this->food->getSiblings();
 		self::assertEquals(1, count($siblings));
 		self::assertEquals('Food', $siblings[0]->getTitle());
@@ -334,7 +358,8 @@ DOC
 
 	/**
 	 */
-	public function testGetLevel() {
+	public function testGetLevel()
+	{
 		self::assertEquals(0, $this->food->getLevel());
 		self::assertEquals(2, $this->yellow->getLevel());
 		self::assertEquals(2, $this->beef->getLevel());
@@ -342,7 +367,8 @@ DOC
 
 	/**
 	 */
-	public function testHasChildren() {
+	public function testHasChildren()
+	{
 		self::assertEquals(true, $this->food->hasChildren());
 		self::assertEquals(true, $this->yellow->hasChildren());
 		self::assertEquals(false, $this->beef->hasChildren());
@@ -350,7 +376,8 @@ DOC
 
 	/**
 	 */
-	public function testMoveAsNextSiblingOf() {
+	public function testMoveAsNextSiblingOf()
+	{
 		try {
 			$this->food->moveAsNextSiblingOf($this->yellow);
 			self::fail("Shoudln't be able to move parent after it's child");
@@ -373,7 +400,8 @@ DOC
 
 	/**
 	 */
-	public function testMoveAsPrevSiblingOf() {
+	public function testMoveAsPrevSiblingOf()
+	{
 		try {
 			$this->food->moveAsPrevSiblingOf($this->yellow);
 			self::fail("Shoudln't be able to move parent before it's child");
@@ -396,7 +424,8 @@ DOC
 
 	/**
 	 */
-	public function testMoveAsFirstChildOf() {
+	public function testMoveAsFirstChildOf()
+	{
 		try {
 			$this->food->moveAsFirstChildOf($this->yellow);
 			self::fail("Shoudln't be able to move parent under it's child");
@@ -419,7 +448,8 @@ DOC
 
 	/**
 	 */
-	public function testMoveAsLastChildOf() {
+	public function testMoveAsLastChildOf()
+	{
 		try {
 			$this->food->moveAsLastChildOf($this->yellow);
 			self::fail("Shoudln't be able to move parent under it's child");
@@ -442,7 +472,8 @@ DOC
 
 	/**
 	 */
-	public function testIsLeaf() {
+	public function testIsLeaf()
+	{
 		self::assertEquals(false, $this->food->isLeaf());
 		self::assertEquals(false, $this->yellow->isLeaf());
 		self::assertEquals(true, $this->beef->isLeaf());
@@ -450,7 +481,8 @@ DOC
 
 	/**
 	 */
-	public function testIsRoot() {
+	public function testIsRoot()
+	{
 		self::assertEquals(true, $this->food->isRoot());
 		self::assertEquals(false, $this->yellow->isRoot());
 		self::assertEquals(false, $this->beef->isRoot());
@@ -458,7 +490,8 @@ DOC
 
 	/**
 	 */
-	public function testIsAncestorOf() {
+	public function testIsAncestorOf()
+	{
 		self::assertEquals(true, $this->food->isAncestorOf($this->yellow));
 		self::assertEquals(false, $this->beef->isAncestorOf($this->yellow));
 		self::assertEquals(false, $this->beef->isAncestorOf($this->food));
@@ -468,7 +501,8 @@ DOC
 
 	/**
 	 */
-	public function testIsDescendantOf() {
+	public function testIsDescendantOf()
+	{
 		self::assertEquals(false, $this->food->isDescendantOf($this->yellow));
 		self::assertEquals(false, $this->beef->isDescendantOf($this->yellow));
 		self::assertEquals(true, $this->beef->isDescendantOf($this->food));
@@ -478,7 +512,8 @@ DOC
 
 	/**
 	 */
-	public function testIsEqualTo() {
+	public function testIsEqualTo()
+	{
 		self::assertEquals(false, $this->food->isEqualTo($this->yellow));
 		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals(true, $this->food->isEqualTo($this->yellow->getParent()->getParent()));

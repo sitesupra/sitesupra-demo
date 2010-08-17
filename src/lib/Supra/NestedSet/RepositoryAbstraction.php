@@ -5,12 +5,29 @@ namespace Supra\NestedSet;
 use Supra\NestedSet\Node\NodeInterface;
 
 /**
- * 
+ * Nested set repository abstraction
  */
-abstract class RepositoryAbstraction
+abstract class RepositoryAbstraction implements RepositoryInterface
 {
+	/**
+	 * Get maximal right interval value among all nodes
+	 * @return int
+	 */
 	abstract protected function getMax();
 
+	/**
+	 * Created to implement RepositoryInterface
+	 * @return RepositoryAbstraction
+	 */
+	public function getNestedSetRepository()
+	{
+		return $this;
+	}
+
+	/**
+	 * Adds the new node to the repository
+	 * @param NodeInterface $node
+	 */
 	public function add(NodeInterface $node)
 	{
 		$max = $this->getMax();
@@ -20,6 +37,7 @@ abstract class RepositoryAbstraction
 	}
 
 	/**
+	 * Get root nodes' array
 	 * @return array
 	 */
 	public function getRootNodes()
@@ -31,6 +49,10 @@ abstract class RepositoryAbstraction
 		return $rootNodes;
 	}
 
+	/**
+	 * Output the dump of the whole node tree
+	 * @return string
+	 */
 	public function drawTree()
 	{
 		$searchCondition = $this->createSearchCondition();

@@ -1,11 +1,11 @@
 <?php
 
-namespace Supra\Tests\Ip;
+namespace Supra\Tests\Uri;
 
 use Supra\Tests\TestSuite;
 
 /**
- * All IP tests
+ * All tests
  */
 class AllTests
 {
@@ -13,8 +13,8 @@ class AllTests
 	{
 		$suite = new TestSuite();
 
-		$suite->addTestSuite('Supra\Tests\Ip\RangeTest');
-		
+		$suite->addTestSuite('Supra\Tests\Uri\PathTest');
+
 		return $suite;
 	}
 }

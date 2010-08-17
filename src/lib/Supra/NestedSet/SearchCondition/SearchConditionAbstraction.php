@@ -41,12 +41,20 @@ class SearchConditionAbstraction implements SearchConditionInterface
 	const RELATION_MORE_OR_EQUALS = '>=';
 	const RELATION_NOT_EQUALS = '!=';
 
+	/**
+	 * Possible fields for search conditions
+	 * @var array
+	 */
 	private static $fields = array(
 		self::LEFT_FIELD,
 		self::RIGHT_FIELD,
 		self::LEVEL_FIELD,
 	);
 
+	/**
+	 * Allowed relations and their method names
+	 * @var array
+	 */
 	private static $relationMethods = array(
 		self::RELATION_EQUALS => 'equalsTo',
 		self::RELATION_LESS => 'lessThan',
@@ -56,8 +64,18 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		self::RELATION_NOT_EQUALS => 'notEqualsTo'
 	);
 
+	/**
+	 * Collection of conditions
+	 * @var array
+	 */
 	protected $conditions = array();
 
+	/**
+	 * Add a condition to the collection
+	 * @param string $field
+	 * @param string $relation
+	 * @param int $value
+	 */
 	public function add($field, $relation, $value)
 	{
 		$this->conditions[] = array(
@@ -67,6 +85,12 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		);
 	}
 
+	/**
+	 * Magic for condition adding methods
+	 * @param string $method
+	 * @param array $arguments
+	 * @return SearchConditionAbstraction 
+	 */
 	public function __call($method, $arguments)
 	{
 		$fieldFound = false;
@@ -79,7 +103,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 			}
 		}
 		if ($fieldFound === false) {
-			throw new Exception\InvalidOperation("Unknown method $method called for search condition object, no field match found");
+			throw new \BadMethodCallException("Unknown method $method called for search condition object, no field match found");
 		}
 		
 		$relationFound = false;
@@ -90,14 +114,17 @@ class SearchConditionAbstraction implements SearchConditionInterface
 			}
 		}
 		if ($relationFound === false) {
-			throw new Exception\InvalidOperation("Unknown method $method called for search condition object, no relation match found");
+			throw new \BadMethodCallException("Unknown method $method called for search condition object, no relation match found");
 		}
 
 		if ( ! isset($arguments[0])) {
-			throw new Exception\InvalidOperation("No value passed to method $method");
+			throw new \InvalidArgumentException("No value passed to method $method");
+		}
+		if ( !\is_int($arguments[0])) {
+			throw new \InvalidArgumentException("Not integer value passed to method $method");
 		}
 		$value = (int)$arguments[0];
-
+		
 		$this->add($fieldFound, $relationFound, $value);
 		return $this;
 	}

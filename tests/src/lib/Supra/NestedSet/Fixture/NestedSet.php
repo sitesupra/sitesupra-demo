@@ -7,6 +7,10 @@ namespace Supra\Tests\NestedSet\Fixture;
  */
 class NestedSet
 {
+	/**
+	 * Organizes the nodes as required for tests
+	 * @param array $nodes
+	 */
 	public static function organizeTree($nodes)
 	{
 		$nodes['pork']->moveAsLastChildOf($nodes['meat']);

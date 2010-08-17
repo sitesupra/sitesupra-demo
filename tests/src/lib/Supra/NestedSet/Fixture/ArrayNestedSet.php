@@ -5,10 +5,13 @@ namespace Supra\Tests\NestedSet\Fixture;
 use Supra\NestedSet\ArrayRepository;
 
 /**
- * 
+ * Fixture for array nested set test
  */
 class ArrayNestedSet extends NestedSet
 {
+	/**
+	 * @return ArrayRepository
+	 */
 	static function foodTree()
 	{
 		$rep = new ArrayRepository();

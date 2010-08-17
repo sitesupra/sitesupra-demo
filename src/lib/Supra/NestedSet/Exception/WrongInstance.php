@@ -3,12 +3,22 @@
 namespace Supra\NestedSet\Exception;
 
 /**
- * 
+ * Error of wrong object instance received
  */
 class WrongInstance extends Exception
 {
+	/**
+	 * @var string
+	 */
 	const MESSAGE_FORMAT = 'Wrong object received, "Supra\NestedSet\%1$s" expected "%2$s" received';
 
+	/**
+	 * Constructor
+	 * @param \stdClass $receivedObject
+	 * @param string $expected
+	 * @param int $code
+	 * @param \Exception $previous
+	 */
 	public function __construct($receivedObject, $expected, $code = null, $previous = null)
 	{
 		$received = \get_class($receivedObject);

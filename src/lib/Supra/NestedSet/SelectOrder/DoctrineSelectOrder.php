@@ -7,10 +7,16 @@ use Supra\NestedSet\Node\NodeInterface,
 		Doctrine\ORM\QueryBuilder;
 
 /**
- * 
+ * Sorting conditions for database nested set repository
  */
 class DoctrineSelectOrder extends SelectOrderAbstraction
 {
+	/**
+	 * Add order rules to the query builder
+	 * NB! The alias of the main table must be "e".
+	 * @param QueryBuilder $qb
+	 * @return QueryBuilder
+	 */
 	public function getOrderDQL(QueryBuilder $qb)
 	{
 		$orderRules = $this->orderRules;

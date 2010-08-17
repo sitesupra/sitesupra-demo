@@ -22,8 +22,7 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
-            unset($this->_entityPersister);
-            unset($this->_identifier);
+            unset($this->_entityPersister, $this->_identifier);
         }
     }
 
@@ -106,6 +105,12 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::addPlaceHolder($placeHolder);
     }
 
+    public function getRepository()
+    {
+        $this->_load();
+        return parent::getRepository();
+    }
+
     public function getProperty($name)
     {
         $this->_load();
@@ -133,9 +138,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        if (!$this->__isInitialized__) {
-            throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
-        }
-        return array('id', 'depth', 'data', 'template', 'children', 'parent', 'placeHolders');
+        return array('__isInitialized__', 'id', 'depth', 'data', 'template', 'children', 'parent', 'placeHolders');
     }
 }

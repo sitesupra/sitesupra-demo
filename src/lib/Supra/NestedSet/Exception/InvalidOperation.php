@@ -3,7 +3,7 @@
 namespace Supra\NestedSet\Exception;
 
 /**
- * Exception for nested set structure errors
+ * Exception for not allowed operations
  */
 class InvalidOperation extends Exception
 {}

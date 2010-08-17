@@ -24,5 +24,11 @@ namespace Supra\NestedSet\SearchCondition;
  */
 interface SearchConditionInterface
 {
+	/**
+	 * Add a condition to the collection
+	 * @param string $field
+	 * @param string $relation
+	 * @param int $value
+	 */
 	public function add($field, $operator, $value);
 }

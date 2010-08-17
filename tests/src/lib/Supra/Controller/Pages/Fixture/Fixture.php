@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Test\Controller\Pages\Fixture;
+namespace Supra\Tests\Controller\Pages\Fixture;
 
 use Supra\Controller\Pages\Entity,
 		Supra\Database\Doctrine;
@@ -9,6 +9,18 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class Fixture extends \PHPUnit_Extensions_OutputTestCase
 {
+	const CONNECTION_NAME = '';
+
+	/**
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	protected function getEntityManager()
+	{
+		$supraDatabase = \Supra\Database\Doctrine::getInstance();
+		$em = $supraDatabase->getEntityManager(static::CONNECTION_NAME);
+		return $em;
+	}
+
 	/**
 	 * Generates random text
 	 * @return string
@@ -93,25 +105,30 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		return $txt;
 	}
 
-	public function testRebuild()
+	public function rebuild()
 	{
-		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		$em = $this->getEntityManager();
 		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
 		$metaDatas = $em->getMetadataFactory()->getAllMetadata();
+
+		$classFilter = function(\Doctrine\ORM\Mapping\ClassMetadata $classMetadata) {
+			return (strpos($classMetadata->namespace, 'Supra\Controller\Pages\Entity') === 0);
+		};
+		$metaDatas = \array_filter($metaDatas, $classFilter);
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
 	}
 
 	/**
-	 * @depends testRebuild
 	 */
 	public function testFixture()
 	{
+		$this->rebuild();
+
 		$page = new Entity\Page();
 		
-		$em = Doctrine::getInstance()->getEntityManager();
-		$em->persist($page);
+		$em = $this->getEntityManager();
 
 		$pageData = new Entity\PageData('en');
 		$pageData->setTitle('Home');
@@ -212,6 +229,8 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 			}
 
 		}
+
+		$em->persist($page);
 
 		$em->flush();
 	}

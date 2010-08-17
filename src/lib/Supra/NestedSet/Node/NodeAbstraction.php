@@ -6,7 +6,7 @@ use Supra\NestedSet\RepositoryAbstraction,
 		Supra\NestedSet\Exception;
 
 /**
- * 
+ * Abstract class for nested set node objects
  */
 abstract class NodeAbstraction implements NodeInterface
 {
@@ -43,104 +43,184 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	protected $title;
 
+	/**
+	 * @param string $title
+	 * @return NodeAbstraction
+	 */
 	public function setTitle($title)
 	{
 		$this->title = $title;
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTitle()
 	{
 		return $this->title;
 	}
 
+	/**
+	 * Sets repository
+	 * @param RepositoryAbstraction $repository
+	 * @return NodeAbstraction
+	 */
 	public function setRepository(RepositoryAbstraction $repository)
 	{
 		$this->repository = $repository;
 		return $this;
 	}
 
+	/**
+	 * @return RepositoryAbstraction
+	 */
 	public function getRepository()
 	{
 		return $this->repository;
 	}
 
+	/**
+	 * Get interval left value (starting from 1)
+	 * @return int
+	 */
 	public function getLeftValue()
 	{
 		return $this->left;
 	}
 
+	/**
+	 * Get interval right value (more than 1)
+	 * @return int
+	 */
 	public function getRightValue()
 	{
 		return $this->right;
 	}
 
+	/**
+	 * Get node depth level
+	 * @return int
+	 */
 	public function getLevel()
 	{
 		return $this->level;
 	}
 
+	/**
+	 * Set interval left value
+	 * @param int $left
+	 * @return NodeAbstraction
+	 */
 	public function setLeftValue($left)
 	{
 		$this->left = $left;
 		return $this;
 	}
 
+	/**
+	 * Set interval right value
+	 * @param int $right
+	 * @return NodeAbstraction
+	 */
 	public function setRightValue($right)
 	{
 		$this->right = $right;
 		return $this;
 	}
 
+	/**
+	 * Set node depth level
+	 * @param int $level
+	 * @return NodeAbstraction
+	 */
 	public function setLevel($level)
 	{
 		$this->level = $level;
 		return $this;
 	}
 
+	/**
+	 * Increase left value
+	 * @param int $diff
+	 * @return NodeAbstraction
+	 */
 	public function moveLeftValue($diff)
 	{
 		$this->setLeftValue($this->getLeftValue() + $diff);
 		return $this;
 	}
 
+	/**
+	 * Increase right value
+	 * @param int $diff
+	 * @return NodeAbstraction
+	 */
 	public function moveRightValue($diff)
 	{
 		$this->setRightValue($this->getRightValue() + $diff);
 		return $this;
 	}
 
+	/**
+	 * Inclrease level value
+	 * @param int $diff
+	 * @return NodeAbstraction
+	 */
 	public function moveLevel($diff)
 	{
 		$this->setLevel($this->getLevel() + $diff);
 		return $this;
 	}
 
+	/**
+	 * Get interval size
+	 * @return int
+	 */
 	public function getIntervalSize()
 	{
 		return $this->getRightValue() - $this->getLeftValue();
 	}
 
+	/**
+	 * Add child node for the current node
+	 * @param NodeInterface $child
+	 * @return NodeAbstraction
+	 */
 	public function addChild(NodeInterface $child)
 	{
 		$child->moveAsLastChildOf($this);
+		return $this;
 	}
 
+	/**
+	 * Deletes the current node from the repository
+	 */
 	public function delete()
 	{
 		$left = $this->getLeftValue();
 		$spaceUsed = $this->getIntervalSize() + 1;
 		$this->repository->delete($this);
 
+		// Free the unused space
 		$this->repository->truncate($left, $spaceUsed);
+		return null;
 	}
 
+	/**
+	 * Does the node have next sibling
+	 * @return boolean
+	 */
 	public function hasNextSibling()
 	{
 		$nextSibling = $this->getNextSibling();
 		return ( ! \is_null($nextSibling));
 	}
 
+	/**
+	 * Does the node have previous sibling
+	 * @return boolean
+	 */
 	public function hasPrevSibling()
 	{
 		$prevSibling = $this->getPrevSibling();
@@ -148,6 +228,7 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 
 	/**
+	 * Get count of children (direct descendants)
 	 * @return int
 	 */
 	public function getNumberChildren()
@@ -156,6 +237,10 @@ abstract class NodeAbstraction implements NodeInterface
 		return count($children);
 	}
 
+	/**
+	 * Get number of descendants
+	 * @return int
+	 */
 	public function getNumberDescendants()
 	{
 		$intervalSize = $this->getIntervalSize();
@@ -168,12 +253,20 @@ abstract class NodeAbstraction implements NodeInterface
 		return $descendantCount;
 	}
 
+	/**
+	 * Does the node has parent node
+	 * @return boolean
+	 */
 	public function hasParent()
 	{
 		$hasParent = ( ! $this->isRoot());
 		return $hasParent;
 	}
 
+	/**
+	 * Get node's parent node
+	 * @return NodeAbstraction
+	 */
 	public function getParent()
 	{
 		if ( ! $this->hasParent()) {
@@ -188,6 +281,12 @@ abstract class NodeAbstraction implements NodeInterface
 		return $parent;
 	}
 
+	/**
+	 * Get path of ancestor nodes to the current node. Uses __toString() method.
+	 * @param string $separator
+	 * @param boolean $includeNode
+	 * @return string
+	 */
 	public function getPath($separator = ' > ', $includeNode = true)
 	{
 		$pathNodes = $this->getAncestors(0, $includeNode);
@@ -199,6 +298,12 @@ abstract class NodeAbstraction implements NodeInterface
 		return $path;
 	}
 
+	/**
+	 * Get array of ancestor nodes
+	 * @param int $levelLimit
+	 * @param boolean $includeNode
+	 * @return array
+	 */
 	public function getAncestors($levelLimit = 0, $includeNode = false)
 	{
 		$left = $this->getLeftValue();
@@ -227,6 +332,12 @@ abstract class NodeAbstraction implements NodeInterface
 		return $ancestors;
 	}
 
+	/**
+	 * Get array of descendant nodes
+	 * @param int $levelLimit
+	 * @param boolean $includeNode
+	 * @return array
+	 */
 	public function getDescendants($levelLimit = 0, $includeNode = false)
 	{
 		$left = $this->getLeftValue();
@@ -255,6 +366,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $descendants;
 	}
 
+	/**
+	 * Get the first node children. Null is returned if it hasn't any.
+	 * @return NodeAbstraction
+	 * @throws Exception\InvalidStructure if nested set structure is invalid
+	 */
 	public function getFirstChild()
 	{
 		if ( ! $this->hasChildren()) {
@@ -274,6 +390,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $firstChild;
 	}
 
+	/**
+	 * Get the last node children. Null is returned if it hasn't any.
+	 * @return NodeAbstraction
+	 * @throws Exception\InvalidStructure if nested set structure is invalid
+	 */
 	public function getLastChild()
 	{
 		if ( ! $this->hasChildren()) {
@@ -293,6 +414,10 @@ abstract class NodeAbstraction implements NodeInterface
 		return $lastChild;
 	}
 
+	/**
+	 * Get next sibling
+	 * @return NodeAbstraction
+	 */
 	public function getNextSibling()
 	{
 		$left = $this->getRightValue() + 1;
@@ -307,6 +432,10 @@ abstract class NodeAbstraction implements NodeInterface
 		return $nextSibling;
 	}
 
+	/**
+	 * Get previous sibling
+	 * @return NodeAbstraction
+	 */
 	public function getPrevSibling()
 	{
 		$right = $this->getLeftValue() - 1;
@@ -324,11 +453,20 @@ abstract class NodeAbstraction implements NodeInterface
 		return $prevSibling;
 	}
 
+	/**
+	 * Get array of direct descendants
+	 * @return array
+	 */
 	public function getChildren()
 	{
 		return $this->getDescendants(1, false);
 	}
 
+	/**
+	 * Get siblings of the current node
+	 * @param boolean $includeNode
+	 * @return array
+	 */
 	public function getSiblings($includeNode = true)
 	{
 		$parent = $this->getParent();
@@ -350,12 +488,21 @@ abstract class NodeAbstraction implements NodeInterface
 		return $siblings;
 	}
 
+	/**
+	 * Does the node has children
+	 * @return boolean
+	 */
 	public function hasChildren()
 	{
 		$hasChildren = ($this->getIntervalSize() > 1);
 		return $hasChildren;
 	}
 
+	/**
+	 * Move the current node as next sibling of the node passed
+	 * @param NodeInterface $afterNode
+	 * @return NodeAbstraction
+	 */
 	public function moveAsNextSiblingOf(NodeInterface $afterNode)
 	{
 		$pos = $afterNode->getRightValue() + 1;
@@ -364,6 +511,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this;
 	}
 
+	/**
+	 * Move the current node as previous sibling of the node passed
+	 * @param NodeInterface $beforeNode
+	 * @return NodeAbstraction
+	 */
 	public function moveAsPrevSiblingOf(NodeInterface $beforeNode)
 	{
 		$pos = $beforeNode->getLeftValue();
@@ -372,6 +524,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this;
 	}
 
+	/**
+	 * Move the current node as the first child of the node passed
+	 * @param NodeInterface $parentNode
+	 * @return NodeAbstraction
+	 */
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
 		$pos = $parentNode->getLeftValue() + 1;
@@ -380,6 +537,11 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this;
 	}
 
+	/**
+	 * Move the current node as last child of the node passed
+	 * @param NodeInterface $parentNode
+	 * @return NodeAbstraction
+	 */
 	public function moveAsLastChildOf(NodeInterface $parentNode)
 	{
 		$pos = $parentNode->getRightValue();
@@ -388,18 +550,31 @@ abstract class NodeAbstraction implements NodeInterface
 		return $this;
 	}
 
+	/**
+	 * Wheather the node is a leaf node
+	 * @return boolean
+	 */
 	public function isLeaf()
 	{
 		$isLeaf = ( ! $this->hasChildren());
 		return $isLeaf;
 	}
 
+	/**
+	 * Wheather the node is a root node
+	 * @return boolean
+	 */
 	public function isRoot()
 	{
 		$isRoot = ($this->getLevel() == 0);
 		return $isRoot;
 	}
 
+	/**
+	 * If the current node is ancestor of the given node
+	 * @param NodeInterface $node
+	 * @return boolean
+	 */
 	public function isAncestorOf(NodeInterface $node)
 	{
 		if ($this->getLeftValue() < $node->getLeftValue()
@@ -410,44 +585,64 @@ abstract class NodeAbstraction implements NodeInterface
 		return false;
 	}
 
+	/**
+	 * If the current node is descendant of the given node
+	 * @param NodeInterface $node
+	 * @return boolean
+	 */
 	public function isDescendantOf(NodeInterface $node)
 	{
 		$isAncestor = $node->isAncestorOf($this);
 		return $isAncestor;
 	}
 
+	/**
+	 * If the nodes are equal. Works for nodes within one repository only.
+	 * @param NodeInterface $node
+	 * @return boolean
+	 */
 	public function isEqualTo(NodeInterface $node)
 	{
 		$isEqual = ($this->getLeftValue() == $node->getLeftValue());
 		return $isEqual;
 	}
 
+	/**
+	 * Inner move function for node
+	 * @param int $pos
+	 * @param int $level
+	 * @return NodeAbstraction
+	 */
 	protected function move($pos, $level)
 	{
-		$spaceNeeded = $this->getIntervalSize() + 1;
 		$this->validateMove($pos);
 
-		// Maybe could use functionality with better performance
-		if (true) {
-			$levelDiff = $level - $this->getLevel();
-			$this->repository->betterMove($this, $pos, $levelDiff);
-		} else {
+		// Functionality with better performance
+		$levelDiff = $level - $this->getLevel();
+		$this->repository->move($this, $pos, $levelDiff);
 
-			// I) reserve the space
-			$this->repository->extend($pos, $spaceNeeded);
+//		$spaceNeeded = $this->getIntervalSize() + 1;
+//		
+//		// I) reserve the space
+//		$this->repository->extend($pos, $spaceNeeded);
+//
+//		$oldPos = $this->getLeftValue();
+//		$levelDiff = $level - $this->getLevel();
+//
+//		// II) move the node to the place
+//		$this->repository->oldMove($this, $pos, $levelDiff);
+//
+//		// III) trim the unused space
+//		$this->repository->truncate($oldPos, $spaceNeeded);
 
-			$oldPos = $this->getLeftValue();
-			$levelDiff = $level - $this->getLevel();
-
-			// II) move the node to the place
-			$this->repository->move($this, $pos, $levelDiff);
-
-			// III) trim the unused space
-			$this->repository->truncate($oldPos, $spaceNeeded);
-		}
 		return $this;
 	}
 
+	/**
+	 * Check if the move is valid, block node movement under it's descendants
+	 * @param int $pos
+	 * @throws Exception\InvalidOperation on invalid move
+	 */
 	protected function validateMove($pos)
 	{
 		if ($this->getLeftValue() <= $pos && $this->getRightValue() >= $pos) {
@@ -456,28 +651,60 @@ abstract class NodeAbstraction implements NodeInterface
 		}
 	}
 
+	/**
+	 * Debug output of node collection
+	 * @param array $nodes
+	 * @return string
+	 */
 	public static function output(array $nodes)
 	{
+		$tree = '';
+		$prevNode = null;
 		$array = array();
 		foreach ($nodes as $item) {
 			$array[$item->getLeftValue()] = $item;
 		}
-		
 		ksort($array);
-
-		$tree = '';
+		
+		/* @var $item NodeInterface */
 		foreach ($array as $item) {
+
+			// Mark skipped tree parts with dots
+			if ( ! \is_null($prevNode)) {
+				$levelDiff = $item->getLevel() - $prevNode->getLevel();
+				$nextLeftVal = $prevNode->getLeftValue() + 2 - $levelDiff;
+				if ($item->getLeftValue() != $nextLeftVal) {
+					$tree .= "...\n";
+				}
+			} else {
+				if ($item->getLeftValue() != 1) {
+					$tree .= "...\n";
+				}
+			}
+
+			// Output the node
 			$tree .= static::dump($item);
 			$tree .= "\n";
+			
+			$prevNode = $item;
 		}
 		return $tree;
 	}
 
+	/**
+	 * Convert node to string for debug, title is used by default
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->getTitle();
 	}
 
+	/**
+	 * Dump the node data as string
+	 * @param NodeInterface $node
+	 * @return string
+	 */
 	public static function dump(NodeInterface $node)
 	{
 		$prefix = \str_repeat(static::DUMP_PREFIX, $node->getLevel());
@@ -497,9 +724,15 @@ abstract class NodeAbstraction implements NodeInterface
 		return $dumpString;
 	}
 
+	/**
+	 * Not static version of dump($node) method
+	 * @return string
+	 */
 	public function dumpThis()
 	{
-		return self::dump($this);
+		// Use late static binding
+		$dumpString = static::dump($this);
+		return $dumpString;
 	}
 
 }

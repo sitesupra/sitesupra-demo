@@ -6,10 +6,15 @@ use Supra\NestedSet\Node\NodeInterface,
 		Supra\NestedSet\Exception;
 
 /**
- * 
+ * Search condition class for arrays
  */
 class ArraySearchCondition extends SearchConditionAbstraction
 {
+	/**
+	 * Create closure of the search
+	 * @return \Closure
+	 * @throws Exception\InvalidOperation on invalid parameters
+	 */
 	public function getSearchClosure()
 	{
 		$conditions = $this->conditions;

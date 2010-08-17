@@ -14,7 +14,11 @@ use Closure,
  */
 class DoctrineRepository extends RepositoryAbstraction
 {
-	protected $array = array();
+	/**
+	 * Loaded object repository
+	 * @var DoctrineRepositoryArrayHelper
+	 */
+	protected $arrayHelper;
 
 	/**
 	 * @var EntityManager
@@ -79,22 +83,22 @@ class DoctrineRepository extends RepositoryAbstraction
 		return $max;
 	}
 
-	public function extend($offset, $size)
-	{
-		$size = (int)$size;
-		$offset = (int)$offset;
-
-		foreach (array('left', 'right') as $field) {
-			$dql = "UPDATE {$this->className} e
-					SET e.{$field} = e.{$field} + ?2
-					WHERE e.{$field} >= ?1";
-
-			$query = $this->entityManager->createQuery($dql);
-			$query->execute(array(1 => $offset, 2 => $size));
-		}
-
-		$this->arrayHelper->extend($offset, $size);
-	}
+//	public function extend($offset, $size)
+//	{
+//		$size = (int)$size;
+//		$offset = (int)$offset;
+//
+//		foreach (array('left', 'right') as $field) {
+//			$dql = "UPDATE {$this->className} e
+//					SET e.{$field} = e.{$field} + ?2
+//					WHERE e.{$field} >= ?1";
+//
+//			$query = $this->entityManager->createQuery($dql);
+//			$query->execute(array(1 => $offset, 2 => $size));
+//		}
+//
+//		$this->arrayHelper->extend($offset, $size);
+//	}
 
 	public function truncate($offset, $size)
 	{
@@ -113,7 +117,7 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->arrayHelper->truncate($offset, $size);
 	}
 
-	public function betterMove(Node\DoctrineNode $node, $pos, $levelDiff)
+	public function move(Node\DoctrineNode $node, $pos, $levelDiff)
 	{
 		// flush before update
 		$this->entityManager->flush();
@@ -138,6 +142,8 @@ class DoctrineRepository extends RepositoryAbstraction
 		}
 
 		// Using SQL because DQL does not support such format
+		// Will fail with SQL server implementation without function IF(cond, yes, no)
+		// NB! It's important to set "lvl" as first for MySQL
 		$sql = "UPDATE {$this->tableName}
 				SET lvl = lvl + IF(lft BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
 					lft = lft + IF(lft BETWEEN {$left} AND {$right}, {$moveA}, IF(lft BETWEEN {$a} AND {$b}, {$moveB}, 0)),
@@ -148,35 +154,42 @@ class DoctrineRepository extends RepositoryAbstraction
 		$connection = $this->entityManager->getConnection();
 		$statement = $connection->prepare($sql);
 		$result = $statement->execute();
+		// Throw the exception if the exceptions are not thrown by the statement
 		if ( ! $result) {
-			throw new \Exception('Problem');
+			$errorInfo = $statement->errorInfo();
+			$errorString = $errorInfo[2];
+			throw new \PDOException($errorString);
 		}
 
-		$this->arrayHelper->betterMove($node, $pos, $levelDiff);
-		
-	}
-
-	public function move(Node\DoctrineNode $node, $pos, $levelDiff = 0)
-	{
-		$pos = (int)$pos;
-		$levelDiff = (int)$levelDiff;
-		
-		$left = $node->getLeftValue();
-		$right = $node->getRightValue();
-		$diff = $pos - $left;
-
-		$dql = "UPDATE {$this->className} e
-				SET e.left = e.left + {$diff},
-					e.right = e.right + {$diff},
-					e.level = e.level + {$levelDiff}
-				WHERE e.left >= {$left} AND e.right <= {$right}";
-
-		$query = $this->entityManager->createQuery($dql);
-		$query->execute();
-
 		$this->arrayHelper->move($node, $pos, $levelDiff);
+		
 	}
 
+//	public function oldMove(Node\DoctrineNode $node, $pos, $levelDiff = 0)
+//	{
+//		$pos = (int)$pos;
+//		$levelDiff = (int)$levelDiff;
+//
+//		$left = $node->getLeftValue();
+//		$right = $node->getRightValue();
+//		$diff = $pos - $left;
+//
+//		$dql = "UPDATE {$this->className} e
+//				SET e.left = e.left + {$diff},
+//					e.right = e.right + {$diff},
+//					e.level = e.level + {$levelDiff}
+//				WHERE e.left >= {$left} AND e.right <= {$right}";
+//
+//		$query = $this->entityManager->createQuery($dql);
+//		$query->execute();
+//
+//		$this->arrayHelper->move($node, $pos, $levelDiff);
+//	}
+
+	/**
+	 * Deletes the nested set part under the node including the node
+	 * @param Node\DoctrineNode $node
+	 */
 	public function delete(Node\DoctrineNode $node)
 	{
 		$left = $node->getLeftValue();
@@ -242,9 +255,13 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->arrayHelper->register($node);
 	}
 
-	public function free(Node\NodeInterface $node)
+	public function free(Node\NodeInterface $node = null)
 	{
-		$this->arrayHelper->free($node);
+		if (is_null($node)) {
+			$this->arrayHelper->free();
+		} else {
+			$this->arrayHelper->free($node);
+		}
 	}
 
 	public function destroy()

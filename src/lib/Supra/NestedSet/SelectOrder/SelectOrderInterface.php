@@ -3,6 +3,7 @@
 namespace Supra\NestedSet\SelectOrder;
 
 /**
+ * Sorting conditions interface
  * @method SelectOrderInterface byLeft(int $direction)
  * @method SelectOrderInterface byLeftAscending()
  * @method SelectOrderInterface byLeftDescending()
@@ -15,5 +16,10 @@ namespace Supra\NestedSet\SelectOrder;
  */
 interface SelectOrderInterface
 {
+	/**
+	 * Add sorting rule
+	 * @param string $field
+	 * @param integer $direction
+	 */
 	public function add($field, $direction);
 }

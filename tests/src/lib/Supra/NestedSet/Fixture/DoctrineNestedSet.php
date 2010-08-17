@@ -7,10 +7,14 @@ use Supra\NestedSet\DoctrineRepository,
 		Doctrine\ORM\EntityManager;
 
 /**
- * 
+ * Testing fixture for database nested set
  */
 class DoctrineNestedSet extends NestedSet
 {
+	/**
+	 * @param EntityManager $em
+	 * @return Model\ProductRepository
+	 */
 	static function foodTree(EntityManager $em)
 	{
 		// Faster inserts
@@ -29,8 +33,11 @@ class DoctrineNestedSet extends NestedSet
 		$statement = $connection->prepare($sql);
 		$statement->execute();
 
+		/* @var $rep Model\ProductRepository */
 		$rep = $em->getRepository('Supra\Tests\NestedSet\Model\Product');
 
+		// This took too long to generate the fixture
+		
 //		$nodes['food'] = new Model\Product('Food');
 //		$nodes['meat'] = new Model\Product('Meat');
 //		$nodes['fruit'] = new Model\Product('Fruit');

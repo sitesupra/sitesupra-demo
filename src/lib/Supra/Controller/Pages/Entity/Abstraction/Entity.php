@@ -5,7 +5,8 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 use Doctrine\ORM\EntityManager,
 		Supra\Database\Doctrine,
 		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Exception;
+		Supra\Controller\Pages\Exception,
+		Doctrine\ORM\EntityRepository;
 
 /**
  * Base entity class for Pages controller
@@ -40,6 +41,17 @@ abstract class Entity
 	public static function getConnection()
 	{
 		return Doctrine::getInstance()->getEntityManager(self::$connnection);
+	}
+
+	/**
+	 * @return EntityRepository
+	 */
+	public function getRepository()
+	{
+		$em = self::getConnection();
+		$className = get_class($this);
+		$rep = $em->getRepository($className);
+		return $rep;
 	}
 
 	/**
@@ -283,7 +295,7 @@ abstract class Entity
 
 	public static function findBy($criteria = array())
 	{
-		
+		// not implemented yet
 	}
 
 	public static function getQueryBuilderResult(\Doctrine\ORM\QueryBuilder $queryBuilder)

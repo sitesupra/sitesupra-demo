@@ -9,12 +9,12 @@ use Doctrine\ORM\EntityRepository,
 		Doctrine\ORM\EntityManager;
 
 /**
- * The entity repositories must implement this interface
+ * The nested set and Doctrine entity repositories must implement this interface
  */
 interface RepositoryInterface
 {
 	/**
-	 * @return DoctrineRepository
+	 * @return RepositoryAbstraction
 	 */
 	public function getNestedSetRepository();
 }

@@ -5,6 +5,7 @@ namespace Supra\NestedSet\SelectOrder;
 use Supra\NestedSet\Exception;
 
 /**
+ * Sorting conditions abstraction
  * @method SelectOrderAbstraction byLeft(int $direction)
  * @method SelectOrderAbstraction byLeftAscending()
  * @method SelectOrderAbstraction byLeftDescending()
@@ -27,19 +28,36 @@ class SelectOrderAbstraction implements SelectOrderInterface
 	const DIRECTION_ASCENDING = 1;
 	const DIRECTION_DESCENDING = -1;
 
+	/**
+	 * Possible sort fields
+	 * @var array
+	 */
 	private static $fields = array(
 		self::LEFT_FIELD,
 		self::RIGHT_FIELD,
 		self::LEVEL_FIELD
 	);
 
+	/**
+	 * Possible sort directions with the textual representations
+	 * @var array
+	 */
 	private static $directions = array(
 		self::DIRECTION_ASCENDING => 'ascending',
 		self::DIRECTION_DESCENDING => 'descending',
 	);
 
+	/**
+	 * Collection of order rules
+	 * @var array
+	 */
 	protected $orderRules = array();
 
+	/**
+	 * Add sorting rule
+	 * @param string $field
+	 * @param integer $direction
+	 */
 	public function add($field, $direction)
 	{
 		$this->orderRules[] = array(
@@ -48,6 +66,12 @@ class SelectOrderAbstraction implements SelectOrderInterface
 		);
 	}
 
+	/**
+	 * Magic method for addign sorting rules
+	 * @param string $method
+	 * @param array $arguments
+	 * @return SelectOrderAbstraction
+	 */
 	public function __call($method, $arguments)
 	{
 		$methodRemainder = $method;
@@ -55,7 +79,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 		if (\stripos($method, 'by') === 0) {
 			$methodRemainder = substr($method, 2);
 		} else {
-			throw new Exception\InvalidOperation("Unknown method $method called for search order object");
+			throw new \BadMethodCallException("Unknown method $method called for search order object");
 		}
 
 		$fieldFound = false;
@@ -67,7 +91,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 			}
 		}
 		if ($fieldFound === false) {
-			throw new Exception\InvalidOperation("Unknown method $method called for search order object, no field match found");
+			throw new \BadMethodCallException("Unknown method $method called for search order object, no field match found");
 		}
 
 		if ($methodRemainder != '') {
@@ -79,7 +103,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 				}
 			}
 			if ($direction === false) {
-				throw new Exception\InvalidOperation("Unknown method $method called for search order object, no relation match found");
+				throw new \BadMethodCallException("Unknown method $method called for search order object, no relation match found");
 			}
 		} else {
 			if ( ! isset($arguments[0])) {

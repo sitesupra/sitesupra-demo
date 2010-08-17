@@ -38,18 +38,18 @@ class ArrayRepository extends RepositoryAbstraction
 		return $node;
 	}
 
-	public function extend($offset, $size)
-	{
-		/* @var $node NodeInterface */
-		foreach ($this->array as $node) {
-			if ($node->getLeftValue() >= $offset) {
-				$node->moveLeftValue($size);
-			}
-			if ($node->getRightValue() >= $offset) {
-				$node->moveRightValue($size);
-			}
-		}
-	}
+//	public function extend($offset, $size)
+//	{
+//		/* @var $node NodeInterface */
+//		foreach ($this->array as $node) {
+//			if ($node->getLeftValue() >= $offset) {
+//				$node->moveLeftValue($size);
+//			}
+//			if ($node->getRightValue() >= $offset) {
+//				$node->moveRightValue($size);
+//			}
+//		}
+//	}
 
 	public function truncate($offset, $size)
 	{
@@ -64,24 +64,24 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	public function move(NodeInterface $node, $pos, $levelDiff = 0)
-	{
-		$diff = $pos - $node->getLeftValue();
-		$left = $node->getLeftValue();
-		$right = $node->getRightValue();
-		if ($diff == 0 && $levelDiff == 0) {
-			return;
-		}
-		foreach ($this->array as $item) {
-			if ($item->getLeftValue() >= $left && $item->getRightValue() <= $right) {
-				$item->moveLeftValue($diff);
-				$item->moveRightValue($diff);
-				$item->moveLevel($levelDiff);
-			}
-		}
-	}
+//	public function oldMove(NodeInterface $node, $pos, $levelDiff = 0)
+//	{
+//		$diff = $pos - $node->getLeftValue();
+//		$left = $node->getLeftValue();
+//		$right = $node->getRightValue();
+//		if ($diff == 0 && $levelDiff == 0) {
+//			return;
+//		}
+//		foreach ($this->array as $item) {
+//			if ($item->getLeftValue() >= $left && $item->getRightValue() <= $right) {
+//				$item->moveLeftValue($diff);
+//				$item->moveRightValue($diff);
+//				$item->moveLevel($levelDiff);
+//			}
+//		}
+//	}
 
-	public function betterMove(NodeInterface $node, $pos, $levelDiff)
+	public function move(NodeInterface $node, $pos, $levelDiff)
 	{
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();

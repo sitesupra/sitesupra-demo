@@ -13,8 +13,10 @@ class AllTests
 	{
 		$suite = new TestSuite();
 
-		$suite->addTestSuite('Supra\\Tests\\Controller\\FrontTest');
-		$suite->addTestSuite('Supra\\Tests\\Controller\\EmptyControllerTest');
+		$suite->addTestSuite('Supra\Tests\Controller\Layout\Processor\HtmlTest');
+		$suite->addTestSuite('Supra\Tests\Controller\FrontTest');
+		$suite->addTestSuite('Supra\Tests\Controller\EmptyControllerTest');
+		$suite->addTestSuite('Supra\Tests\Controller\Pages\Fixture\TestFixture');
 		
 		return $suite;
 	}

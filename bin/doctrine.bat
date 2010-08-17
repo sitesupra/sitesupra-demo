@@ -1,1 +1,2 @@
-php "%~dp0doctrine-client.php"
+cd "%~dp0"
+php "doctrine-client.php"

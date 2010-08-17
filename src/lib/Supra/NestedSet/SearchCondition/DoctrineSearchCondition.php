@@ -7,10 +7,17 @@ use Supra\NestedSet\Node\NodeInterface,
 		Doctrine\ORM\QueryBuilder;
 
 /**
- * 
+ * Search condition class for doctrine
  */
 class DoctrineSearchCondition extends SearchConditionAbstraction
 {
+	/**
+	 * Adds search filter to the query builder passed.
+	 * NB! The alias of the main table must be "e".
+	 * @param QueryBuilder $qb
+	 * @return QueryBuilder
+	 * @throws Exception\InvalidOperation on invalid parameters
+	 */
 	function getSearchDQL(QueryBuilder $qb)
 	{
 		$expr = $qb->expr();

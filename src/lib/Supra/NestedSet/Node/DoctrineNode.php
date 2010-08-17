@@ -8,7 +8,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity,
 		Supra\NestedSet\Exception;
 
 /**
- * 
+ * Doctrine database nested set node object
  */
 class DoctrineNode extends NodeAbstraction
 {
@@ -17,6 +17,10 @@ class DoctrineNode extends NodeAbstraction
 	 */
 	protected $repository;
 
+	/**
+	 * Pass the doctrine entity the nested set node belongs to
+	 * @param Entity $entity
+	 */
 	public function belongsTo(Entity $entity)
 	{
 		if ( ! ($entity instanceof NodeInterface)) {
@@ -26,6 +30,7 @@ class DoctrineNode extends NodeAbstraction
 		$this->left = $entity->getLeftValue();
 		$this->right = $entity->getRightValue();
 		$this->level = $entity->getLevel();
+		$this->title = $entity->__toString();
 
 		$rep = $entity->getRepository();
 		if ( ! ($rep instanceof RepositoryInterface)) {
@@ -40,7 +45,11 @@ class DoctrineNode extends NodeAbstraction
 		$nestedSetRepository->register($entity);
 	}
 
-	public function setRepository($repository)
+	/**
+	 * @param DoctrineRepository $repository
+	 * @return DoctrineNode
+	 */
+	public function setRepository(DoctrineRepository $repository)
 	{
 		return parent::setRepository($repository);
 	}
@@ -78,6 +87,11 @@ class DoctrineNode extends NodeAbstraction
 		return $count;
 	}
 
+	/**
+	 * Prepare object to be processed by garbage collector by removing it's
+	 * instance from the Doctrine Repository Array Helper object
+	 * @param Entity $entity
+	 */
 	public function free(Entity $entity)
 	{
 		$this->repository->free($entity);

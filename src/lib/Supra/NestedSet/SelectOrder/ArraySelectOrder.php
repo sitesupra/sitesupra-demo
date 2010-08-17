@@ -6,10 +6,14 @@ use Supra\NestedSet\Node\NodeInterface,
 		Supra\NestedSet\Exception;
 
 /**
- * 
+ * Sorting conditions for array nested set repository
  */
 class ArraySelectOrder extends SelectOrderAbstraction
 {
+	/**
+	 * Create closure of sorting rules used by usort() function
+	 * @return \Closure
+	 */
 	public function getOrderClosure()
 	{
 		$orderRules = $this->orderRules;

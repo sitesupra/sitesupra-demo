@@ -3,7 +3,7 @@
 namespace Supra\NestedSet\Exception;
 
 /**
- * Errors of invalid calls or arguments
+ * Errors of invalid tree structure
  */
 class InvalidStructure extends Exception
 {}
