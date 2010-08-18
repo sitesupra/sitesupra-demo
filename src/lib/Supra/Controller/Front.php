@@ -50,7 +50,8 @@ class Front
 	}
 
 	/**
-	 * Compare two routers. Used to sort the routers by
+	 * Compare two routers.
+	 * Used to sort the routers by depth starting from the deapest level.
 	 * @param RouterInterface $a
 	 * @param RouterInterface $b
 	 * @return integer
@@ -59,13 +60,8 @@ class Front
 	{
 		$aPriority = $a->getPriority();
 		$bPriority = $b->getPriority();
-		if ($aPriority == $bPriority) {
-			return 0;
-		}
-		if ($aPriority > $bPriority) {
-			return 1;
-		}
-		return -1;
+		$diff = $aPriority - $bPriority;
+		return ( - $diff);
 	}
 
 	/**

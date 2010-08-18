@@ -118,6 +118,8 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
+
+		Entity\Abstraction\Entity::setConnectionName(static::CONNECTION_NAME);
 	}
 
 	/**
@@ -126,15 +128,42 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->rebuild();
 
-		$page = new Entity\Page();
-		
 		$em = $this->getEntityManager();
+		
+		$rootPage = $this->createPage();
+		$em->persist($rootPage);
+		$em->flush();
+
+		$page = $this->createPage(1, $rootPage);
+		$em->persist($page);
+		$rootPage->addChild($page);
+		$em->flush();
+	}
+
+	protected static $constants = array(
+		0 => array(
+			'title' => 'Home',
+			'pathPart' => '',
+		),
+		1 => array(
+			'title' => 'About',
+			'pathPart' => 'about',
+		),
+	);
+
+	protected function createPage($type = 0, Entity\Page $parentNode = null)
+	{
+		$page = new Entity\Page();
 
 		$pageData = new Entity\PageData('en');
-		$pageData->setTitle('Home');
+		$pageData->setTitle(self::$constants[$type]['title']);
+
+		if ( ! is_null($parentNode)) {
+			$page->setParent($parentNode);
+		}
 
 		$pageData->setPage($page);
-		$pageData->setPathPart('');
+		$pageData->setPathPart(self::$constants[$type]['pathPart']);
 
 		$layout = new Entity\Layout();
 		$layout->setFile('root.html');
@@ -202,7 +231,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$page->setTemplate($template);
 
 		foreach (array('header', 'main', 'footer') as $name) {
-			
+
 			if ($name == 'header') {
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
 				$blockProperty->setBlock($headerTemplateBlock);
@@ -230,9 +259,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 		}
 
-		$em->persist($page);
-
-		$em->flush();
+		return $page;
 	}
-	
+
 }

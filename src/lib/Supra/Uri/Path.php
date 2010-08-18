@@ -149,8 +149,10 @@ class Path
 
 		$pathString = $path->getPath();
 		$pathDepth = $path->getDepth();
-		
-		if ($pathDepth > $this->depth) {
+
+		if ($pathDepth == 0) {
+			return true;
+		} elseif ($pathDepth > $this->depth) {
 			return false;
 		} elseif ($pathDepth == $this->depth) {
 			$probe = $this->getPath();

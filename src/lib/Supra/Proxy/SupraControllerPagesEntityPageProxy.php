@@ -51,6 +51,78 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getTemplates();
     }
 
+    public function getLeftValue()
+    {
+        $this->_load();
+        return parent::getLeftValue();
+    }
+
+    public function getRightValue()
+    {
+        $this->_load();
+        return parent::getRightValue();
+    }
+
+    public function getLevel()
+    {
+        $this->_load();
+        return parent::getLevel();
+    }
+
+    public function setLeftValue($left)
+    {
+        $this->_load();
+        return parent::setLeftValue($left);
+    }
+
+    public function setRightValue($right)
+    {
+        $this->_load();
+        return parent::setRightValue($right);
+    }
+
+    public function setLevel($level)
+    {
+        $this->_load();
+        return parent::setLevel($level);
+    }
+
+    public function moveLeftValue($diff)
+    {
+        $this->_load();
+        return parent::moveLeftValue($diff);
+    }
+
+    public function moveRightValue($diff)
+    {
+        $this->_load();
+        return parent::moveRightValue($diff);
+    }
+
+    public function moveLevel($diff)
+    {
+        $this->_load();
+        return parent::moveLevel($diff);
+    }
+
+    public function createNestedSetNode()
+    {
+        $this->_load();
+        return parent::createNestedSetNode();
+    }
+
+    public function __call($method, $arguments)
+    {
+        $this->_load();
+        return parent::__call($method, $arguments);
+    }
+
+    public function free()
+    {
+        $this->_load();
+        return parent::free();
+    }
+
     public function getId()
     {
         $this->_load();
@@ -138,6 +210,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'depth', 'data', 'template', 'children', 'parent', 'placeHolders');
+        return array('__isInitialized__', 'id', 'depth', 'left', 'right', 'level', 'data', 'template', 'children', 'parent', 'placeHolders');
     }
 }

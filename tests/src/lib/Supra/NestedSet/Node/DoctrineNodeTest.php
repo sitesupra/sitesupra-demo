@@ -47,6 +47,12 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	protected $memory = array();
 
 	/**
+	 * Is database built already?
+	 * @var boolean
+	 */
+	private static $built = false;
+
+	/**
 	 * Get Doctrine entity manager
 	 * @return EntityManager
 	 */
@@ -62,6 +68,10 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function rebuild()
 	{
+		if (self::$built) {
+			return;
+		}
+
 		$em = $this->entityManager;
 		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
 		$metaDatas = $em->getMetadataFactory()->getAllMetadata();
@@ -76,6 +86,11 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
+
+		// Fixture data
+		Fixture\DoctrineNestedSet::foodTree($this->entityManager);
+
+		self::$built = true;
 	}
 
 	/**
@@ -87,10 +102,10 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 		\Log::debug("Setting up {$this->name}");
 		$this->memory['preSetUp'] = \memory_get_usage(false);
 
-		$this->entityManager = $this->getConnection();
+		$em = $this->entityManager = $this->getConnection();
 		$this->rebuild();
 
-		$rep = Fixture\DoctrineNestedSet::foodTree($this->entityManager);
+		$rep = $em->getRepository('Supra\Tests\NestedSet\Model\Product');
 		$this->repository = $rep;
 
 		// Get sample products to work with
@@ -101,6 +116,8 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 		$this->memory['postSetUp'] = \memory_get_usage(false);
 
 		\Log::debug("Running {$this->name}");
+
+		$em->beginTransaction();
 	}
 
 	/**
@@ -109,6 +126,7 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown()
 	{
+		$this->entityManager->rollback();
 
 		$this->memory['preTearDown'] = \memory_get_usage(false);
 
@@ -127,7 +145,7 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 		unset($this->entityManager);
 
 		$this->memory['postTearDown'] = \memory_get_usage(false);
-		\Log::error($this->memory);
+		\Log::debug("Memory usage: ", $this->memory);
 
 		$peak = max($this->memory) - $this->memory['preSetUp'];
 		$freed = max($this->memory) - $this->memory['postTearDown'];
