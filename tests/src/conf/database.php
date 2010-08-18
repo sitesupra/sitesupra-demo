@@ -16,7 +16,6 @@ $config->setQueryCacheImpl($cache);
 $entityPaths = array(
 		SUPRA_TESTS_LIBRARY_PATH . 'Supra/NestedSet/Model',
 		SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
-		SUPRA_TESTS_LIBRARY_PATH . 'DoctrineTest/Models/',
 );
 $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 $config->setMetadataDriverImpl($driverImpl);

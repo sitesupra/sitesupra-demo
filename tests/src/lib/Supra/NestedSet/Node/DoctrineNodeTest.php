@@ -9,7 +9,8 @@ use Supra\Tests\NestedSet\Fixture,
 		Supra\Tests\NestedSet\Model,
 		Doctrine\ORM\EntityManager,
 		Doctrine\ORM\Configuration,
-		Supra\Database\Doctrine;
+		Supra\Database\Doctrine,
+		Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  */
@@ -64,6 +65,14 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 		$em = $this->entityManager;
 		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
 		$metaDatas = $em->getMetadataFactory()->getAllMetadata();
+
+		// we need the product model only
+		$metaDatas = \array_filter($metaDatas, function(ClassMetadata $classMetadata) {
+			if ($classMetadata->namespace == 'Supra\Tests\NestedSet\Model') {
+				return true;
+			}
+			return false;
+		});
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
