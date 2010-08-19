@@ -7,8 +7,7 @@ use Doctrine\ORM\EntityRepository,
 		Supra\NestedSet\DoctrineRepository,
 		Supra\NestedSet\RepositoryInterface,
 		Doctrine\ORM\Mapping,
-		Doctrine\ORM\EntityManager,
-		BadMethodCallException;
+		Doctrine\ORM\EntityManager;
 
 /**
  * Product repository
@@ -49,13 +48,13 @@ class ProductRepository extends EntityRepository implements RepositoryInterface
 		try {
 			$result = parent::__call($method, $arguments);
 			return $result;
-		} catch (BadMethodCallException $e) {
+		} catch (\BadMethodCallException $e) {
 			// Does nothing, will be attached to next exception if method does not exist
 		}
 		
 		$object = $this->nestedSetRepository;
 		if ( ! \method_exists($object, $method)) {
-			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object.", null, $e);
+			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.", null, $e);
 		}
 
 		$callable = array($object, $method);

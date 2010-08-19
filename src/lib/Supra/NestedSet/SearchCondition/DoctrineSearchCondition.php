@@ -16,7 +16,7 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 	 * NB! The alias of the main table must be "e".
 	 * @param QueryBuilder $qb
 	 * @return QueryBuilder
-	 * @throws Exception\InvalidOperation on invalid parameters
+	 * @throws Exception\InvalidArgument on invalid parameters
 	 */
 	function getSearchDQL(QueryBuilder $qb)
 	{
@@ -31,7 +31,7 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 				case SearchConditionAbstraction::LEVEL_FIELD:
 					break;
 				default:
-					throw new Exception\InvalidOperation("Field $field is not recognized");
+					throw new Exception\InvalidArgument("Field $field is not recognized");
 			}
 
 			$field = "e.$field";
@@ -58,7 +58,7 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 					$where = $expr->neq($field, $value);
 					break;
 				default:
-					throw new Exception\InvalidOperation("Relation $relation is not recognized");
+					throw new Exception\InvalidArgument("Relation $relation is not recognized");
 			}
 
 			$qb->andWhere($where);

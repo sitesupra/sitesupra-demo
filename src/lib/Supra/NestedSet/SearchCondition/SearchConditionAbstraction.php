@@ -103,7 +103,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 			}
 		}
 		if ($fieldFound === false) {
-			throw new \BadMethodCallException("Unknown method $method called for search condition object, no field match found");
+			throw new Exception\BadMethodCall("Unknown method $method called for search condition object, no field match found");
 		}
 		
 		$relationFound = false;
@@ -114,14 +114,14 @@ class SearchConditionAbstraction implements SearchConditionInterface
 			}
 		}
 		if ($relationFound === false) {
-			throw new \BadMethodCallException("Unknown method $method called for search condition object, no relation match found");
+			throw new Exception\BadMethodCall("Unknown method $method called for search condition object, no relation match found");
 		}
 
 		if ( ! isset($arguments[0])) {
-			throw new \InvalidArgumentException("No value passed to method $method");
+			throw new Exception\InvalidArgument("No value passed to method $method");
 		}
 		if ( !\is_int($arguments[0])) {
-			throw new \InvalidArgumentException("Not integer value passed to method $method");
+			throw new Exception\InvalidArgument("Not integer value passed to method $method");
 		}
 		$value = (int)$arguments[0];
 		

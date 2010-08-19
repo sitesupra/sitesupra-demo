@@ -2,8 +2,10 @@
 
 namespace Supra\NestedSet\Exception;
 
+use RuntimeException;
+
 /**
  * Exception for not allowed operations
  */
-class InvalidOperation extends Exception
+class InvalidOperation extends RuntimeException implements INestedSetException
 {}

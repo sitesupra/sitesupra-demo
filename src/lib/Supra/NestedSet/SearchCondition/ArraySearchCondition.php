@@ -13,7 +13,7 @@ class ArraySearchCondition extends SearchConditionAbstraction
 	/**
 	 * Create closure of the search
 	 * @return \Closure
-	 * @throws Exception\InvalidOperation on invalid parameters
+	 * @throws Exception\InvalidArgument on invalid parameters
 	 */
 	public function getSearchClosure()
 	{
@@ -32,7 +32,7 @@ class ArraySearchCondition extends SearchConditionAbstraction
 						$testValue = $node->getLevel();
 						break;
 					default:
-						throw new Exception\InvalidOperation("Field $field is not recognized");
+						throw new Exception\InvalidArgument("Field $field is not recognized");
 				}
 				$relation = $condition[ArraySearchCondition::RELATION_POS];
 				$value = $condition[ArraySearchCondition::VALUE_POS];
@@ -56,7 +56,7 @@ class ArraySearchCondition extends SearchConditionAbstraction
 						$result = ($testValue != $value);
 						break;
 					default:
-						throw new Exception\InvalidOperation("Relation $relation is not recognized");
+						throw new Exception\InvalidArgument("Relation $relation is not recognized");
 				}
 				if ( ! $result) {
 					return false;

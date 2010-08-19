@@ -303,6 +303,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param int $levelLimit
 	 * @param boolean $includeNode
 	 * @return array
+	 * @throws Exception\Domain
 	 */
 	public function getAncestors($levelLimit = 0, $includeNode = false)
 	{
@@ -320,7 +321,7 @@ abstract class NodeAbstraction implements NodeInterface
 		}
 
 		if ($levelLimit < 0) {
-			throw new Exception\InvalidOperation("Level limit cannot be negative in getAncestors method");
+			throw new Exception\Domain("Level limit cannot be negative in getAncestors method");
 		} elseif ($levelLimit > 0) {
 			$searchCondition->levelMoreThanOrEqualsTo($level - $levelLimit);
 		}
@@ -337,6 +338,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param int $levelLimit
 	 * @param boolean $includeNode
 	 * @return array
+	 * @throws Exception\Domain
 	 */
 	public function getDescendants($levelLimit = 0, $includeNode = false)
 	{
@@ -354,7 +356,7 @@ abstract class NodeAbstraction implements NodeInterface
 		}
 
 		if ($levelLimit < 0) {
-			throw new Exception\InvalidOperation("Level limit cannot be negative in getDescendants method");
+			throw new Exception\Domain("Level limit cannot be negative in getDescendants method");
 		} elseif ($levelLimit > 0) {
 			$searchCondition->levelLessThanOrEqualsTo($level + $levelLimit);
 		}

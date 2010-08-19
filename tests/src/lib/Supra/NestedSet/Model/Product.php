@@ -6,8 +6,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity,
 		Supra\NestedSet\Exception,
 		Supra\NestedSet\Node\NodeInterface,
 		Supra\NestedSet\Node\NodeAbstraction,
-		Supra\NestedSet\Node\DoctrineNode,
-		BadMethodCallException;
+		Supra\NestedSet\Node\DoctrineNode;
 
 /**
  * @Entity(repositoryClass="Supra\Tests\NestedSet\Model\ProductRepository")
@@ -222,11 +221,11 @@ class Product extends Entity implements NodeInterface
 	{
 		$node = $this->nestedSetNode;
 		if (\is_null($this->nestedSetNode)) {
-			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
+			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
 		}
 
 		if ( ! \method_exists($node, $method)) {
-			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
+			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
 		$result = \call_user_func_array($callable, $arguments);

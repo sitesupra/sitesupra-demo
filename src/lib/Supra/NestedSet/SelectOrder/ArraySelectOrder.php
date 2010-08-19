@@ -13,6 +13,7 @@ class ArraySelectOrder extends SelectOrderAbstraction
 	/**
 	 * Create closure of sorting rules used by usort() function
 	 * @return \Closure
+	 * @throws Exception\InvalidArgument
 	 */
 	public function getOrderClosure()
 	{
@@ -34,7 +35,7 @@ class ArraySelectOrder extends SelectOrderAbstraction
 						$valueB = $nodeB->getLevel();
 						break;
 					default:
-						throw new Exception\InvalidOperation("Field $field is not recognized");
+						throw new Exception\InvalidArgument("Field $field is not recognized");
 				}
 
 				$diff = $valueA - $valueB;
@@ -50,7 +51,7 @@ class ArraySelectOrder extends SelectOrderAbstraction
 						$diff = ( - $diff);
 						break;
 					default:
-						throw new Exception\InvalidOperation("Direction $direction is not recognized");
+						throw new Exception\InvalidArgument("Direction $direction is not recognized");
 				}
 				return $diff;
 			}

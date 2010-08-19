@@ -2,10 +2,12 @@
 
 namespace Supra\NestedSet\Exception;
 
+use LogicException;
+
 /**
  * Not implemented functionality exception
  */
-class NotImplemented extends Exception
+class NotImplemented extends LogicException implements INestedSetException
 {
 	/**
 	 * Constructor

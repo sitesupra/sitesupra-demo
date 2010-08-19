@@ -79,7 +79,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 		if (\stripos($method, 'by') === 0) {
 			$methodRemainder = substr($method, 2);
 		} else {
-			throw new \BadMethodCallException("Unknown method $method called for search order object");
+			throw new Exception\BadMethodCall("Unknown method $method called for search order object");
 		}
 
 		$fieldFound = false;
@@ -91,7 +91,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 			}
 		}
 		if ($fieldFound === false) {
-			throw new \BadMethodCallException("Unknown method $method called for search order object, no field match found");
+			throw new Exception\BadMethodCall("Unknown method $method called for search order object, no field match found");
 		}
 
 		if ($methodRemainder != '') {
@@ -103,7 +103,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 				}
 			}
 			if ($direction === false) {
-				throw new \BadMethodCallException("Unknown method $method called for search order object, no relation match found");
+				throw new Exception\BadMethodCall("Unknown method $method called for search order object, no relation match found");
 			}
 		} else {
 			if ( ! isset($arguments[0])) {
