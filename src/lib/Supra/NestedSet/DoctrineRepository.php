@@ -88,11 +88,11 @@ class DoctrineRepository extends RepositoryAbstraction
 				->createQuery($dql);
 		$max = (int)$query->getSingleScalarResult();
 
-		// locally keep the MAX value in case when something is not flushed
-		if ($max < $this->max) {
-			$max = $this->max;
-		}
-		$this->max = $max + 2;
+		// Maybe array helper stores even bigger value.
+		// In reality it won't happen because items are flushed on DQL run.
+		$maxArrayHelper = $this->arrayHelper->getCurrentMax();
+		$max = max($max, $maxArrayHelper);
+
 		return $max;
 	}
 

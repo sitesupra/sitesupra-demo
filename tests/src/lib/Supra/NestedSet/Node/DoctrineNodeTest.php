@@ -206,12 +206,12 @@ class DoctrineNodeTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAddChild()
 	{
-
 		\Log::debug($this->repository->drawTree());
 
 		$badBeef = new Model\Product('Bad Beef');
 		$this->entityManager->persist($badBeef);
 
+		self::assertEquals(19, $badBeef->getLeftValue());
 
 		$this->beef->addChild($badBeef);
 
@@ -629,6 +629,24 @@ DOC
 		self::assertEquals(false, $this->food->isEqualTo($this->yellow));
 		self::assertNotNull($this->yellow->getParent());
 		self::assertEquals(true, $this->food->isEqualTo($this->yellow->getParent()->getParent()));
+	}
+
+	public function testPersistRemove()
+	{
+		$car = new Model\Product('Car');
+		$this->entityManager->persist($car);
+		self::assertEquals(19, $car->getLeftValue());
+		
+		$carB = new Model\Product('Car');
+		$this->entityManager->persist($carB);
+		self::assertEquals(21, $carB->getLeftValue());
+
+		$this->entityManager->remove($car);
+		self::assertEquals(19, $carB->getLeftValue());
+
+		$this->entityManager->remove($carB);
+		
+		$this->testAddChild();
 	}
 
 }

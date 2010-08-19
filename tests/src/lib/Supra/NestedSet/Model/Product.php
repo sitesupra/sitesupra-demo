@@ -3,10 +3,7 @@
 namespace Supra\Tests\NestedSet\Model;
 
 use Supra\Controller\Pages\Entity\Abstraction\Entity,
-		Supra\NestedSet\Exception,
-		Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Node\NodeAbstraction,
-		Supra\NestedSet\Node\DoctrineNode;
+		Supra\NestedSet;
 
 /**
  * @Entity(repositoryClass="Supra\Tests\NestedSet\Model\ProductRepository")
@@ -17,37 +14,37 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity,
  * })
  * @HasLifecycleCallbacks
  * @method int getNumberChildren()
- * @method NodeAbstraction addChild(NodeInterface $child)
+ * @method NestedSet\Node\NodeAbstraction addChild(NestedSet\Node\NodeInterface $child)
  * @method void delete()
  * @method boolean hasNextSibling()
  * @method boolean hasPrevSibling()
  * @method int getNumberDescendants()
  * @method boolean hasParent()
- * @method NodeAbstraction getParent()
+ * @method NestedSet\Node\NodeAbstraction getParent()
  * @method string getPath(string $separator, boolean $includeNode)
  * @method array getAncestors(int $levelLimit, boolean $includeNode)
  * @method array getDescendants(int $levelLimit, boolean $includeNode)
- * @method NodeAbstraction getFirstChild()
- * @method NodeAbstraction getLastChild()
- * @method NodeAbstraction getNextSibling()
- * @method NodeAbstraction getPrevSibling()
+ * @method NestedSet\Node\NodeAbstraction getFirstChild()
+ * @method NestedSet\Node\NodeAbstraction getLastChild()
+ * @method NestedSet\Node\NodeAbstraction getNextSibling()
+ * @method NestedSet\Node\NodeAbstraction getPrevSibling()
  * @method array getChildren()
  * @method array getSiblings(boolean $includeNode)
  * @method boolean hasChildren()
- * @method NodeAbstraction moveAsNextSiblingOf(NodeInterface $afterNode)
- * @method NodeAbstraction moveAsPrevSiblingOf(NodeInterface $beforeNode)
- * @method NodeAbstraction moveAsFirstChildOf(NodeInterface $parentNode)
- * @method NodeAbstraction moveAsLastChildOf(NodeInterface $parentNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsNextSiblingOf(NestedSet\Node\NodeInterface $afterNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsPrevSiblingOf(NestedSet\Node\NodeInterface $beforeNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsFirstChildOf(NestedSet\Node\NodeInterface $parentNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsLastChildOf(NestedSet\Node\NodeInterface $parentNode)
  * @method boolean isLeaf()
  * @method boolean isRoot()
- * @method boolean isAncestorOf(NodeInterface $node)
- * @method boolean isDescendantOf(NodeInterface $node)
- * @method boolean isEqualTo(NodeInterface $node)
+ * @method boolean isAncestorOf(NestedSet\Node\NodeInterface $node)
+ * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
+ * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-class Product extends Entity implements NodeInterface
+class Product extends Entity implements NestedSet\Node\NodeInterface
 {
 	/**
-	 * @var DoctrineNode
+	 * @var NestedSet\Node\DoctrineNode
 	 */
 	protected $nestedSetNode;
 
@@ -224,7 +221,7 @@ class Product extends Entity implements NodeInterface
 	 */
 	public function createNestedSetNode()
 	{
-		$this->nestedSetNode = new DoctrineNode();
+		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
 		$this->nestedSetNode->belongsTo($this);
 	}
 
@@ -248,11 +245,11 @@ class Product extends Entity implements NodeInterface
 	{
 		$node = $this->nestedSetNode;
 		if (\is_null($this->nestedSetNode)) {
-			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
+			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
 		}
 
 		if ( ! \method_exists($node, $method)) {
-			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
+			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
 		$result = \call_user_func_array($callable, $arguments);
@@ -265,11 +262,14 @@ class Product extends Entity implements NodeInterface
 		return $result;
 	}
 
-	// Looks that this is not needed, nested set node can do this as well
-//	public function dumpThis()
-//	{
-//		return NodeAbstraction::dump($this);
-//	}
+	/**
+	 * TODO: test if it works if remove called right after persist()
+	 * @PreRemove
+	 */
+	public function removeTrigger()
+	{
+		$this->delete();
+	}
 
 	/**
 	 * Free the node unsetting the pointers to other objects.

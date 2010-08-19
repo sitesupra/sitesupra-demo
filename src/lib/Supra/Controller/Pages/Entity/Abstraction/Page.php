@@ -37,12 +37,12 @@ class Page extends Entity
 	/**
 	 * @var Collection
 	 */
-	protected $children;
+//	protected $children;
 
 	/**
 	 * @var Page
      */
-	protected $parent;
+//	protected $parent;
 
 	/**
 	 * Object's place holders
@@ -61,7 +61,7 @@ class Page extends Entity
 	 */
 	public function __construct()
 	{
-		$this->children = new ArrayCollection();
+//		$this->children = new ArrayCollection();
 		$this->placeHolders = new ArrayCollection();
 		$this->data = new ArrayCollection();
 	}
@@ -79,33 +79,33 @@ class Page extends Entity
 	 * Get parent page
 	 * @return Page
 	 */
-	public function getParent()
-	{
-		return $this->parent;
-	}
+//	public function getParent()
+//	{
+//		return $this->parent;
+//	}
 
 	/**
 	 * Set parent page
 	 * @var Page $parent
 	 */
-	public function setParent(Page $parent = null)
-	{
-		$this->matchDiscriminator($parent);
-		if ( ! empty($this->parent)) {
-			$this->parent->getChildren()->remove($this);
-		}
-		$this->parent = $parent;
-		$parent->getChildren()->add($this);
-	}
+//	public function setParent(Page $parent = null)
+//	{
+//		$this->matchDiscriminator($parent);
+//		if ( ! empty($this->parent)) {
+//			$this->parent->getChildren()->remove($this);
+//		}
+//		$this->parent = $parent;
+//		$parent->getChildren()->add($this);
+//	}
 
 	/**
 	 * Get children pages
 	 * @return Collection
 	 */
-	public function getChildren()
-	{
-		return $this->children;
-	}
+//	public function getChildren()
+//	{
+//		return $this->children;
+//	}
 
 	/**
 	 * @return \Doctrine\ORM\PersistentCollection

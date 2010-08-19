@@ -5,10 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,
-		Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Node\NodeAbstraction,
-		Supra\NestedSet\Node\DoctrineNode,
-		BadMethodCallException;
+		Supra\NestedSet;
 
 /**
  * Page controller page object
@@ -20,37 +17,37 @@ use Doctrine\Common\Collections\ArrayCollection,
  * })
  * @HasLifecycleCallbacks
  * @method int getNumberChildren()
- * @method NodeAbstraction addChild(NodeInterface $child)
+ * @method NestedSet\Node\NodeAbstraction addChild(NestedSet\Node\NodeInterface $child)
  * @method void delete()
  * @method boolean hasNextSibling()
  * @method boolean hasPrevSibling()
  * @method int getNumberDescendants()
  * @method boolean hasParent()
- * @method NodeAbstraction getParent()
+ * @method NestedSet\Node\NodeAbstraction getParent()
  * @method string getPath(string $separator, boolean $includeNode)
  * @method array getAncestors(int $levelLimit, boolean $includeNode)
  * @method array getDescendants(int $levelLimit, boolean $includeNode)
- * @method NodeAbstraction getFirstChild()
- * @method NodeAbstraction getLastChild()
- * @method NodeAbstraction getNextSibling()
- * @method NodeAbstraction getPrevSibling()
+ * @method NestedSet\Node\NodeAbstraction getFirstChild()
+ * @method NestedSet\Node\NodeAbstraction getLastChild()
+ * @method NestedSet\Node\NodeAbstraction getNextSibling()
+ * @method NestedSet\Node\NodeAbstraction getPrevSibling()
  * @method array getChildren()
  * @method array getSiblings(boolean $includeNode)
  * @method boolean hasChildren()
- * @method NodeAbstraction moveAsNextSiblingOf(NodeInterface $afterNode)
- * @method NodeAbstraction moveAsPrevSiblingOf(NodeInterface $beforeNode)
- * @method NodeAbstraction moveAsFirstChildOf(NodeInterface $parentNode)
- * @method NodeAbstraction moveAsLastChildOf(NodeInterface $parentNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsNextSiblingOf(NestedSet\Node\NodeInterface $afterNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsPrevSiblingOf(NestedSet\Node\NodeInterface $beforeNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsFirstChildOf(NestedSet\Node\NodeInterface $parentNode)
+ * @method NestedSet\Node\NodeAbstraction moveAsLastChildOf(NestedSet\Node\NodeInterface $parentNode)
  * @method boolean isLeaf()
  * @method boolean isRoot()
- * @method boolean isAncestorOf(NodeInterface $node)
- * @method boolean isDescendantOf(NodeInterface $node)
- * @method boolean isEqualTo(NodeInterface $node)
+ * @method boolean isAncestorOf(NestedSet\Node\NodeInterface $node)
+ * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
+ * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-class Page extends Abstraction\Page implements NodeInterface
+class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 {
 	/**
-	 * @var DoctrineNode
+	 * @var NestedSet\Node\DoctrineNode
 	 */
 	protected $nestedSetNode;
 
@@ -95,13 +92,13 @@ class Page extends Abstraction\Page implements NodeInterface
 	 * @OneToMany(targetEntity="Page", mappedBy="parent")
 	 * @var Collection
 	 */
-	protected $children;
+//	protected $children;
 
 	/**
      * @ManyToOne(targetEntity="Page", inversedBy="children")
 	 * @var Page
      */
-	protected $parent;
+//	protected $parent;
 
 	/**
 	 * Page place holders
@@ -141,19 +138,19 @@ class Page extends Abstraction\Page implements NodeInterface
 	 * Sets page as parent of this page
 	 * @param Abstraction\Page $page
 	 */
-	public function setParent(Abstraction\Page $page = null)
-	{
-		parent::setParent($page);
-
-		// Change full path for all data items
-		$pageDatas = $this->getDataCollection();
-		foreach ($pageDatas as $pageData) {
-			/* @var $pageData PageData */
-			$pageData->setPathPart($pageData->getPathPart());
-		}
-
-		$this->setDepth($page->depth + 1);
-	}
+//	public function setParent(Abstraction\Page $page = null)
+//	{
+//		parent::setParent($page);
+//
+//		// Change full path for all data items
+//		$pageDatas = $this->getDataCollection();
+//		foreach ($pageDatas as $pageData) {
+//			/* @var $pageData PageData */
+//			$pageData->setPathPart($pageData->getPathPart());
+//		}
+//
+//		$this->setDepth($page->depth + 1);
+//	}
 
 	/**
 	 * Get page template hierarchy starting with the root template
@@ -292,7 +289,7 @@ class Page extends Abstraction\Page implements NodeInterface
 	 */
 	public function createNestedSetNode()
 	{
-		$this->nestedSetNode = new DoctrineNode();
+		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
 		$this->nestedSetNode->belongsTo($this);
 	}
 
@@ -306,11 +303,11 @@ class Page extends Abstraction\Page implements NodeInterface
 	{
 		$node = $this->nestedSetNode;
 		if (\is_null($this->nestedSetNode)) {
-			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
+			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
 		}
 
 		if ( ! \method_exists($node, $method)) {
-			throw new BadMethodCallException("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
+			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
 		$result = \call_user_func_array($callable, $arguments);
@@ -321,6 +318,14 @@ class Page extends Abstraction\Page implements NodeInterface
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @PreRemove
+	 */
+	public function removeTrigger()
+	{
+		$this->delete();
 	}
 
 	/**

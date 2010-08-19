@@ -11,6 +11,10 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 {
 	const CONNECTION_NAME = '';
 
+	protected $headerTemplateBlock;
+
+	protected $rootPage;
+
 	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
@@ -133,10 +137,10 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$rootPage = $this->createPage();
 		$em->persist($rootPage);
 		$em->flush();
+		$this->rootPage = $rootPage;
 
 		$page = $this->createPage(1, $rootPage);
 		$em->persist($page);
-		$rootPage->addChild($page);
 		$em->flush();
 	}
 
@@ -151,29 +155,12 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		),
 	);
 
-	protected function createPage($type = 0, Entity\Page $parentNode = null)
+	protected function createTemplate()
 	{
-		$page = new Entity\Page();
-
-		$pageData = new Entity\PageData('en');
-		$pageData->setTitle(self::$constants[$type]['title']);
-
-		if ( ! is_null($parentNode)) {
-			$page->setParent($parentNode);
-		}
-
-		$pageData->setPage($page);
-		$pageData->setPathPart(self::$constants[$type]['pathPart']);
-
-		$layout = new Entity\Layout();
-		$layout->setFile('root.html');
-
-		foreach (array('header', 'main', 'footer') as $name) {
-			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
-			$layoutPlaceHolder->setLayout($layout);
-		}
-
 		$template = new Entity\Template();
+		$this->getEntityManager()->persist($template);
+
+		$layout = $this->createLayout();
 		$template->addLayout('screen', $layout);
 
 		$templateData = new Entity\TemplateData('en');
@@ -194,7 +181,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPosition(100);
 
 				// used later in page
-				$headerTemplateBlock = $block;
+				$this->headerTemplateBlock = $block;
 
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
 				$blockProperty->setBlock($block);
@@ -227,14 +214,51 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
 			}
 		}
+		$this->getEntityManager()->persist($template);
+		$this->getEntityManager()->flush();
+		return $template;
+	}
+
+	protected function createLayout()
+	{
+		$layout = new Entity\Layout();
+		$layout->setFile('root.html');
+
+		foreach (array('header', 'main', 'footer') as $name) {
+			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
+			$layoutPlaceHolder->setLayout($layout);
+		}
+		return $layout;
+	}
+
+	protected function createPage($type = 0, Entity\Page $parentNode = null)
+	{
+		$template = $this->createTemplate();
+		$this->getEntityManager()->persist($template);
+
+		$page = new Entity\Page();
+		$this->getEntityManager()->persist($page);
 
 		$page->setTemplate($template);
+
+		if ($type == 1) {
+			$this->rootPage->addChild($page);
+		}
+		$this->getEntityManager()->flush();
+
+		$pageData = new Entity\PageData('en');
+		$pageData->setTitle(self::$constants[$type]['title']);
+
+		$pageData->setPage($page);
+		$pageData->setPathPart(self::$constants[$type]['pathPart']);
+
+		$this->getEntityManager()->flush();
 
 		foreach (array('header', 'main', 'footer') as $name) {
 
 			if ($name == 'header') {
 				$blockProperty = new Entity\Abstraction\BlockProperty('html');
-				$blockProperty->setBlock($headerTemplateBlock);
+				$blockProperty->setBlock($this->headerTemplateBlock);
 				$blockProperty->setData($page->getData('en'));
 				$blockProperty->setValue('<h1>Hello SiteSupra!</h1>');
 			}

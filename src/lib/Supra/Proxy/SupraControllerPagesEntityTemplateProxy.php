@@ -27,12 +27,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     }
 
     
-    public function setParent(\Supra\Controller\Pages\Entity\Abstraction\Page $parent = NULL)
-    {
-        $this->_load();
-        return parent::setParent($parent);
-    }
-
     public function addTemplateLayout(\Supra\Controller\Pages\Entity\TemplateLayout $templateLayout)
     {
         $this->_load();
@@ -69,22 +63,88 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::getTemplatesHierarchy();
     }
 
+    public function getLeftValue()
+    {
+        $this->_load();
+        return parent::getLeftValue();
+    }
+
+    public function getRightValue()
+    {
+        $this->_load();
+        return parent::getRightValue();
+    }
+
+    public function getLevel()
+    {
+        $this->_load();
+        return parent::getLevel();
+    }
+
+    public function setLeftValue($left)
+    {
+        $this->_load();
+        return parent::setLeftValue($left);
+    }
+
+    public function setRightValue($right)
+    {
+        $this->_load();
+        return parent::setRightValue($right);
+    }
+
+    public function setLevel($level)
+    {
+        $this->_load();
+        return parent::setLevel($level);
+    }
+
+    public function moveLeftValue($diff)
+    {
+        $this->_load();
+        return parent::moveLeftValue($diff);
+    }
+
+    public function moveRightValue($diff)
+    {
+        $this->_load();
+        return parent::moveRightValue($diff);
+    }
+
+    public function moveLevel($diff)
+    {
+        $this->_load();
+        return parent::moveLevel($diff);
+    }
+
+    public function createNestedSetNode()
+    {
+        $this->_load();
+        return parent::createNestedSetNode();
+    }
+
+    public function __call($method, $arguments)
+    {
+        $this->_load();
+        return parent::__call($method, $arguments);
+    }
+
+    public function removeTrigger()
+    {
+        $this->_load();
+        return parent::removeTrigger();
+    }
+
+    public function free()
+    {
+        $this->_load();
+        return parent::free();
+    }
+
     public function getId()
     {
         $this->_load();
         return parent::getId();
-    }
-
-    public function getParent()
-    {
-        $this->_load();
-        return parent::getParent();
-    }
-
-    public function getChildren()
-    {
-        $this->_load();
-        return parent::getChildren();
     }
 
     public function getPlaceHolders()
@@ -156,6 +216,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'depth', 'data', 'templateLayouts', 'children', 'parent', 'placeHolders');
+        return array('__isInitialized__', 'id', 'depth', 'left', 'right', 'level', 'data', 'templateLayouts', 'placeHolders');
     }
 }

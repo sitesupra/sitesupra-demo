@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Exception;
  * PageData class
  * @Entity
  * @Table(name="page_data")
+ * @HasLifecycleCallbacks
  */
 class PageData extends Abstraction\Data
 {
@@ -19,7 +20,7 @@ class PageData extends Abstraction\Data
 	protected $page;
 
 	/**
-	 * @Column(type="string", unique=true)
+	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $path = '';
@@ -83,7 +84,6 @@ class PageData extends Abstraction\Data
 	 */
 	public function setPathPart($pathPart)
 	{
-
 		$this->pathPart = $pathPart;
 
 		$page = $this->getPage();
@@ -92,19 +92,41 @@ class PageData extends Abstraction\Data
 			throw new Exception('Page data page object must be set before setting path part');
 		}
 
-		$parentPage = $page->getParent();
+		// TODO: maybe should make more elegant solution than lft comparison?
 
-		if (is_null($parentPage)) {
+		$leftValue = $page->getLeftValue();
+
+		if ($leftValue == 1) {
 			\Log::debug("Cannot set path for the root page");
 			$this->setPath('');
 			return;
 		}
+		
+//		$parentPage = $page->getParent();
+//
+//		if (is_null($parentPage)) {
+//			\Log::debug("Cannot set path for the root page");
+//			$this->setPath('');
+//			return;
+//		}
 
-		$pathPart = \urlencode($pathPart);
+		$this->generatePath();
 
-		if ($pathPart == '') {
-			throw new Exception('Path part cannot be empty');
-		}
+//		if ($pathPart == '') {
+//			throw new Exception('Path part cannot be empty');
+//		}
+	}
+
+	/**
+	 * TODO: Not sure whether it can be useful, doesn't run on inserts...
+	 * @PreUpdate
+	 */
+	public function generatePath()
+	{
+		$pathPart = \urlencode($this->pathPart);
+
+		$page = $this->getPage();
+		$parentPage = $page->getParent();
 
 		$parentData = $parentPage->getData($this->getLocale());
 		if (empty($parentData)) {

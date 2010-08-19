@@ -39,12 +39,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getTemplate();
     }
 
-    public function setParent(\Supra\Controller\Pages\Entity\Abstraction\Page $page = NULL)
-    {
-        $this->_load();
-        return parent::setParent($page);
-    }
-
     public function getTemplates()
     {
         $this->_load();
@@ -117,6 +111,12 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::__call($method, $arguments);
     }
 
+    public function removeTrigger()
+    {
+        $this->_load();
+        return parent::removeTrigger();
+    }
+
     public function free()
     {
         $this->_load();
@@ -127,18 +127,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
     {
         $this->_load();
         return parent::getId();
-    }
-
-    public function getParent()
-    {
-        $this->_load();
-        return parent::getParent();
-    }
-
-    public function getChildren()
-    {
-        $this->_load();
-        return parent::getChildren();
     }
 
     public function getPlaceHolders()
@@ -210,6 +198,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'depth', 'left', 'right', 'level', 'data', 'template', 'children', 'parent', 'placeHolders');
+        return array('__isInitialized__', 'id', 'depth', 'left', 'right', 'level', 'data', 'template', 'placeHolders');
     }
 }

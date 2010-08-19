@@ -8,6 +8,19 @@ namespace Supra\NestedSet;
 class DoctrineRepositoryArrayHelper extends ArrayRepository
 {
 	/**
+	 * Get the maximal value of interval index among the nodes
+	 */
+	public function getCurrentMax()
+	{
+		$max = 0;
+		/* @var $node Node\NodeInterface */
+		foreach ($this->array as $node) {
+			$max = max($max, $node->getRightValue());
+		}
+		return $max;
+	}
+
+	/**
 	 * Register the loaded node
 	 * @param Node\NodeInterface $node
 	 */
