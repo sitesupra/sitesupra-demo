@@ -45,6 +45,11 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	protected $max = 0;
 
+	/**
+	 * Constructor
+	 * @param EntityManager $em
+	 * @param Mapping\ClassMetadata $class
+	 */
 	public function  __construct(EntityManager $em, Mapping\ClassMetadata $class)
 	{
 		$this->entityManager = $em;
@@ -63,11 +68,19 @@ class DoctrineRepository extends RepositoryAbstraction
 		return $this->entityManager;
 	}
 
+	/**
+	 * Get class name of managed Doctrine entity
+	 * @return string
+	 */
 	public function getClassName()
 	{
 		return $this->className;
 	}
 
+	/**
+	 * Get maximal interval value used by nodes
+	 * @return int
+	 */
 	protected function getMax()
 	{
 		$dql = "SELECT MAX(e.right) FROM {$this->className} e";
@@ -100,6 +113,11 @@ class DoctrineRepository extends RepositoryAbstraction
 //		$this->arrayHelper->extend($offset, $size);
 //	}
 
+	/**
+	 * Remove unused space in the nested set intervals
+	 * @param int $offset
+	 * @param int $size
+	 */
 	public function truncate($offset, $size)
 	{
 		$size = (int)$size;
@@ -117,6 +135,12 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->arrayHelper->truncate($offset, $size);
 	}
 
+	/**
+	 * Move the node to the new position and change level by {$levelDiff}
+	 * @param Node\DoctrineNode $node
+	 * @param int $pos
+	 * @param int $levelDiff
+	 */
 	public function move(Node\DoctrineNode $node, $pos, $levelDiff)
 	{
 		// flush before update
@@ -204,6 +228,12 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->arrayHelper->delete($node);
 	}
 
+	/**
+	 * Perform the search in the database
+	 * @param SearchCondition\SearchConditionInterface $filter
+	 * @param SelectOrder\SelectOrderInterface $order
+	 * @return array
+	 */
 	public function search(SearchCondition\SearchConditionInterface $filter, SelectOrder\SelectOrderInterface $order = null)
 	{
 		$em = $this->getEntityManager();
@@ -230,12 +260,20 @@ class DoctrineRepository extends RepositoryAbstraction
 		return $result;
 	}
 
+	/**
+	 * Create search condition object
+	 * @return SearchCondition\DoctrineSearchCondition
+	 */
 	public function createSearchCondition()
 	{
 		$searchCondition = new SearchCondition\DoctrineSearchCondition();
 		return $searchCondition;
 	}
 
+	/**
+	 * Create order rule object
+	 * @return SelectOrder\DoctrineSelectOrder
+	 */
 	public function createSelectOrderRule()
 	{
 		$SelectOrder = new SelectOrder\DoctrineSelectOrder();
@@ -243,18 +281,18 @@ class DoctrineRepository extends RepositoryAbstraction
 	}
 
 	/**
-	 * Must be called after update/delete action
+	 * Register the node
+	 * @param Node\NodeInterface $node
 	 */
-	public function reloadNodesFromDatabase()
-	{
-		throw new Exception\NotImplemented(__METHOD__);
-	}
-
 	public function register(Node\NodeInterface $node)
 	{
 		$this->arrayHelper->register($node);
 	}
 
+	/**
+	 * Free the node
+	 * @param Node\NodeInterface $node
+	 */
 	public function free(Node\NodeInterface $node = null)
 	{
 		if (is_null($node)) {
@@ -264,6 +302,9 @@ class DoctrineRepository extends RepositoryAbstraction
 		}
 	}
 
+	/**
+	 * Prepare object for garbage collector
+	 */
 	public function destroy()
 	{
 		$this->arrayHelper->destroy();

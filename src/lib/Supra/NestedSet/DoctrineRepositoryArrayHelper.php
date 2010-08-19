@@ -3,10 +3,14 @@
 namespace Supra\NestedSet;
 
 /**
- * 
+ * Array nested set repository to keep and update Doctrine nodes locally
  */
 class DoctrineRepositoryArrayHelper extends ArrayRepository
 {
+	/**
+	 * Register the loaded node
+	 * @param Node\NodeInterface $node
+	 */
 	public function register(Node\NodeInterface $node)
 	{
 		if ( ! \in_array($node, $this->array, true)) {
@@ -14,6 +18,10 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 		}
 	}
 
+	/**
+	 * Free the node
+	 * @param Node\NodeInterface $node
+	 */
 	public function free(Node\NodeInterface $node = null)
 	{
 		if (is_null($node)) {
@@ -24,6 +32,9 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 		}
 	}
 
+	/**
+	 * Prepare the repository for removal
+	 */
 	public function destroy()
 	{
 		$this->free();

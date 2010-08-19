@@ -56,6 +56,7 @@ class DoctrineNode extends NodeAbstraction
 
 	/**
 	 * @return int
+	 * @nestedSetMethod
 	 */
 	public function getNumberChildren()
 	{

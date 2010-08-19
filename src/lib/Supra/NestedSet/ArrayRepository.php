@@ -2,20 +2,29 @@
 
 namespace Supra\NestedSet;
 
-use Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Node\ArrayNode,
-		Supra\NestedSet\Node\NodeAbstraction,
-		Closure;
+use Closure;
 
 /**
- * 
+ * Array nested set repository
  */
 class ArrayRepository extends RepositoryAbstraction
 {
+	/**
+	 * List of managed nodes
+	 * @var array
+	 */
 	protected $array = array();
 
+	/**
+	 * Maximal value of interval index
+	 * @var int
+	 */
 	protected $max = 0;
 
+	/**
+	 * Get maximal interval value used by nodes
+	 * @return int
+	 */
 	protected function getMax()
 	{
 		$max = $this->max;
@@ -23,15 +32,24 @@ class ArrayRepository extends RepositoryAbstraction
 		return $max;
 	}
 
-	public function add(NodeInterface $node)
+	/**
+	 * Add the node to the repository
+	 * @param Node\NodeInterface $node
+	 */
+	public function add(Node\NodeInterface $node)
 	{
 		$node->setRepository($this);
 		parent::add($node);
 	}
 
+	/**
+	 * New node factory
+	 * @param string $title
+	 * @return Node\ArrayNode
+	 */
 	public function createNode($title = null)
 	{
-		$node = new ArrayNode();
+		$node = new Node\ArrayNode();
 		$node->setTitle($title);
 		$this->add($node);
 		$this->array[] = $node;
@@ -40,7 +58,7 @@ class ArrayRepository extends RepositoryAbstraction
 
 //	public function extend($offset, $size)
 //	{
-//		/* @var $node NodeInterface */
+//		/* @var $node Node\NodeInterface */
 //		foreach ($this->array as $node) {
 //			if ($node->getLeftValue() >= $offset) {
 //				$node->moveLeftValue($size);
@@ -51,9 +69,14 @@ class ArrayRepository extends RepositoryAbstraction
 //		}
 //	}
 
+	/**
+	 * Remove unused space in the nested set intervals
+	 * @param int $offset
+	 * @param int $size
+	 */
 	public function truncate($offset, $size)
 	{
-		/* @var $node NodeInterface */
+		/* @var $node Node\NodeInterface */
 		foreach ($this->array as $node) {
 			if ($node->getLeftValue() >= $offset) {
 				$node->moveLeftValue(- $size);
@@ -64,7 +87,7 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-//	public function oldMove(NodeInterface $node, $pos, $levelDiff = 0)
+//	public function oldMove(Node\NodeInterface $node, $pos, $levelDiff = 0)
 //	{
 //		$diff = $pos - $node->getLeftValue();
 //		$left = $node->getLeftValue();
@@ -81,7 +104,13 @@ class ArrayRepository extends RepositoryAbstraction
 //		}
 //	}
 
-	public function move(NodeInterface $node, $pos, $levelDiff)
+	/**
+	 * Move the node to the new position and change level by {$levelDiff}
+	 * @param Node\NodeInterface $node
+	 * @param int $pos
+	 * @param int $levelDiff
+	 */
+	public function move(Node\NodeInterface $node, $pos, $levelDiff)
 	{
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
@@ -114,7 +143,14 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	public static function isBetween($a, $b, $c)
+	/**
+	 * Whether the value {$a} is between {$b} and {$c}
+	 * @param int $a
+	 * @param int $b
+	 * @param int $c
+	 * @return boolean
+	 */
+	private static function isBetween($a, $b, $c)
 	{
 		if ($b <= $c) {
 			return $b <= $a && $a <= $c;
@@ -123,7 +159,11 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
-	public function delete(NodeInterface $node)
+	/**
+	 * Delete the node
+	 * @param Node\NodeInterface $node
+	 */
+	public function delete(Node\NodeInterface $node)
 	{
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
@@ -134,6 +174,12 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
+	/**
+	 * Perform the search in the array
+	 * @param SearchCondition\SearchConditionInterface $filter
+	 * @param SelectOrder\SelectOrderInterface $order
+	 * @return array
+	 */
 	public function search(SearchCondition\SearchConditionInterface $filter, SelectOrder\SelectOrderInterface $order = null)
 	{
 		if ( ! ($filter instanceof SearchCondition\ArraySearchCondition)) {
@@ -153,6 +199,12 @@ class ArrayRepository extends RepositoryAbstraction
 		return $result;
 	}
 
+	/**
+	 * Perform data select by search and order closures
+	 * @param Closure $filterClosure
+	 * @param Closure $orderClosure
+	 * @return array
+	 */
 	public function searchByClosure(Closure $filterClosure, Closure $orderClosure = null)
 	{
 		$result = array();
@@ -169,11 +221,11 @@ class ArrayRepository extends RepositoryAbstraction
 
 	/**
 	 * @param string $title
-	 * @return ArrayNode
+	 * @return Node\ArrayNode
 	 */
 	public function byTitle($title)
 	{
-		$filter = function(NodeInterface $node) use ($title) {
+		$filter = function(Node\NodeInterface $node) use ($title) {
 			if ($node->getTitle() == $title) {
 				return true;
 			}
@@ -187,12 +239,20 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 	}
 
+	/**
+	 * Create search condition object
+	 * @return SearchCondition\ArraySearchCondition
+	 */
 	public function createSearchCondition()
 	{
 		$searchCondition = new SearchCondition\ArraySearchCondition();
 		return $searchCondition;
 	}
 
+	/**
+	 * Create order rule object
+	 * @return SelectOrder\ArraySelectOrder
+	 */
 	public function createSelectOrderRule()
 	{
 		$selectOrder = new SelectOrder\ArraySelectOrder();

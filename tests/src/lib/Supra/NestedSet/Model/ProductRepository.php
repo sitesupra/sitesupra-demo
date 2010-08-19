@@ -7,7 +7,8 @@ use Doctrine\ORM\EntityRepository,
 		Supra\NestedSet\DoctrineRepository,
 		Supra\NestedSet\RepositoryInterface,
 		Doctrine\ORM\Mapping,
-		Doctrine\ORM\EntityManager;
+		Doctrine\ORM\EntityManager,
+		Supra\NestedSet\Node;
 
 /**
  * Product repository
@@ -38,37 +39,6 @@ class ProductRepository extends EntityRepository implements RepositoryInterface
 	}
 
 	/**
-	 * Magic method to call methods of nested set repository class
-	 * @param string $method
-	 * @param array $arguments
-	 * @return mixed
-	 */
-	function __call($method, array $arguments)
-	{
-		try {
-			$result = parent::__call($method, $arguments);
-			return $result;
-		} catch (\BadMethodCallException $e) {
-			// Does nothing, will be attached to next exception if method does not exist
-		}
-		
-		$object = $this->nestedSetRepository;
-		if ( ! \method_exists($object, $method)) {
-			throw new Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.", null, $e);
-		}
-
-		$callable = array($object, $method);
-		$result = \call_user_func_array($callable, $arguments);
-
-		// Compare the result with $node and return $this on match to keep method chaining
-		if ($result === $object) {
-			$result = $this;
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Search the product by title
 	 * @param string $title
 	 * @return Product
@@ -77,6 +47,25 @@ class ProductRepository extends EntityRepository implements RepositoryInterface
 	{
 		$record = $this->findOneByTitle($title);
 		return $record;
+	}
+
+	/**
+	 * Output the dump of the whole node tree
+	 * @return string
+	 */
+	public function drawTree()
+	{
+		$output = $this->nestedSetRepository->drawTree();
+		return $output;
+	}
+
+	/**
+	 * Free the node
+	 * @param Node\NodeInterface $node
+	 */
+	public function free(Node\NodeInterface $node = null)
+	{
+		$this->nestedSetRepository->free($node);
 	}
 
 	/**

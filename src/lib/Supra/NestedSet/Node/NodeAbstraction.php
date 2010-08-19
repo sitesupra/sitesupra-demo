@@ -186,6 +186,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Add child node for the current node
 	 * @param NodeInterface $child
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function addChild(NodeInterface $child)
 	{
@@ -195,6 +196,7 @@ abstract class NodeAbstraction implements NodeInterface
 
 	/**
 	 * Deletes the current node from the repository
+	 * @nestedSetMethod
 	 */
 	public function delete()
 	{
@@ -210,6 +212,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Does the node have next sibling
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function hasNextSibling()
 	{
@@ -220,6 +223,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Does the node have previous sibling
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function hasPrevSibling()
 	{
@@ -230,6 +234,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get count of children (direct descendants)
 	 * @return int
+	 * @nestedSetMethod
 	 */
 	public function getNumberChildren()
 	{
@@ -240,6 +245,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get number of descendants
 	 * @return int
+	 * @nestedSetMethod
 	 */
 	public function getNumberDescendants()
 	{
@@ -256,6 +262,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Does the node has parent node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function hasParent()
 	{
@@ -266,6 +273,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get node's parent node
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function getParent()
 	{
@@ -286,6 +294,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param string $separator
 	 * @param boolean $includeNode
 	 * @return string
+	 * @nestedSetMethod
 	 */
 	public function getPath($separator = ' > ', $includeNode = true)
 	{
@@ -304,6 +313,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param boolean $includeNode
 	 * @return array
 	 * @throws Exception\Domain
+	 * @nestedSetMethod
 	 */
 	public function getAncestors($levelLimit = 0, $includeNode = false)
 	{
@@ -339,6 +349,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param boolean $includeNode
 	 * @return array
 	 * @throws Exception\Domain
+	 * @nestedSetMethod
 	 */
 	public function getDescendants($levelLimit = 0, $includeNode = false)
 	{
@@ -372,6 +383,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Get the first node children. Null is returned if it hasn't any.
 	 * @return NodeAbstraction
 	 * @throws Exception\InvalidStructure if nested set structure is invalid
+	 * @nestedSetMethod
 	 */
 	public function getFirstChild()
 	{
@@ -396,6 +408,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Get the last node children. Null is returned if it hasn't any.
 	 * @return NodeAbstraction
 	 * @throws Exception\InvalidStructure if nested set structure is invalid
+	 * @nestedSetMethod
 	 */
 	public function getLastChild()
 	{
@@ -419,6 +432,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get next sibling
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function getNextSibling()
 	{
@@ -437,6 +451,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get previous sibling
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function getPrevSibling()
 	{
@@ -458,6 +473,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Get array of direct descendants
 	 * @return array
+	 * @nestedSetMethod
 	 */
 	public function getChildren()
 	{
@@ -468,6 +484,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Get siblings of the current node
 	 * @param boolean $includeNode
 	 * @return array
+	 * @nestedSetMethod
 	 */
 	public function getSiblings($includeNode = true)
 	{
@@ -493,6 +510,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Does the node has children
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function hasChildren()
 	{
@@ -504,6 +522,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Move the current node as next sibling of the node passed
 	 * @param NodeInterface $afterNode
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function moveAsNextSiblingOf(NodeInterface $afterNode)
 	{
@@ -517,6 +536,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Move the current node as previous sibling of the node passed
 	 * @param NodeInterface $beforeNode
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function moveAsPrevSiblingOf(NodeInterface $beforeNode)
 	{
@@ -530,6 +550,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Move the current node as the first child of the node passed
 	 * @param NodeInterface $parentNode
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
@@ -543,6 +564,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * Move the current node as last child of the node passed
 	 * @param NodeInterface $parentNode
 	 * @return NodeAbstraction
+	 * @nestedSetMethod
 	 */
 	public function moveAsLastChildOf(NodeInterface $parentNode)
 	{
@@ -555,6 +577,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Wheather the node is a leaf node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function isLeaf()
 	{
@@ -565,6 +588,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Wheather the node is a root node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function isRoot()
 	{
@@ -576,6 +600,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * If the current node is ancestor of the given node
 	 * @param NodeInterface $node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function isAncestorOf(NodeInterface $node)
 	{
@@ -591,6 +616,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * If the current node is descendant of the given node
 	 * @param NodeInterface $node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function isDescendantOf(NodeInterface $node)
 	{
@@ -602,6 +628,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * If the nodes are equal. Works for nodes within one repository only.
 	 * @param NodeInterface $node
 	 * @return boolean
+	 * @nestedSetMethod
 	 */
 	public function isEqualTo(NodeInterface $node)
 	{
