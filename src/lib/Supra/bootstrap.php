@@ -21,7 +21,8 @@ define('SUPRA_COMPONENT_PATH', SUPRA_WEBROOT_PATH . 'components' . DIRECTORY_SEP
 define('SUPRA_DATA_PATH', SUPRA_PATH . 'data' . DIRECTORY_SEPARATOR);
 define('SUPRA_TEMPLATE_PATH', SUPRA_PATH . 'template' . DIRECTORY_SEPARATOR);
 
-set_include_path(SUPRA_LIBRARY_PATH . PATH_SEPARATOR . get_include_path());
+// This is not required for currently used libraries
+//set_include_path(SUPRA_LIBRARY_PATH . PATH_SEPARATOR . get_include_path());
 
 // Require all to the loader required classes
 $loaderPath = SUPRA_LIBRARY_PATH
@@ -30,11 +31,13 @@ $loaderPath = SUPRA_LIBRARY_PATH
 
 require_once $loaderPath . 'Registry.php';
 require_once $loaderPath . 'NamespaceRecord.php';
-require_once $loaderPath . 'Exception.php';
 
 // Initiate and set the root namespace directory to the loader
-$loader = \Supra\Loader\Registry::getInstance();
-$loader->registerRootNamespace(SUPRA_LIBRARY_PATH);
+$loader = Supra\Loader\Registry::getInstance();
+
+// Set Supra namespace
+$supraNamespace = new Supra\Loader\NamespaceRecord('Supra', SUPRA_LIBRARY_PATH . 'Supra');
+$loader->registerNamespace($supraNamespace);
 
 // Set Doctrine namespace
 $doctrineNamespace = new Supra\Loader\NamespaceRecord('Doctrine', SUPRA_LIBRARY_PATH . 'Doctrine');
@@ -47,14 +50,14 @@ $loader->registerNamespace($symfonyNamespace);
 spl_autoload_register(array($loader, 'autoload'));
 
 // Set the initial timezone to the logger
-\Supra\Log\Logger::setDefaultTimezone(date_default_timezone_get());
+Supra\Log\Logger::setDefaultTimezone(date_default_timezone_get());
 
 // Ask Supra to handle the PHP generated errors
-$phpErrorHandler = new \Supra\Log\Plugin\PhpErrorHandler();
+$phpErrorHandler = new Supra\Log\Plugin\PhpErrorHandler();
 $phpErrorHandler();
 
-// Alias \Log to the \Supra\Log\Logger
-class_alias('\Supra\Log\Logger', 'Log');
+// Alias Log to the Supra\Log\Logger
+class_alias('Supra\Log\Logger', 'Log');
 
 // Set mb enciding to UTF-8
 mb_internal_encoding('UTF-8');

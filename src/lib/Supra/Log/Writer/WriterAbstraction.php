@@ -62,7 +62,7 @@ abstract class WriterAbstraction implements WriterInterface
 	 * Default formatter class
 	 * @var string
 	 */
-	public static $defaultFormatter = '\\Supra\\Log\\Formatter\\Simple';
+	public static $defaultFormatter = 'Supra\Log\Formatter\Simple';
 
 	/**
 	 * Default formatter parameters

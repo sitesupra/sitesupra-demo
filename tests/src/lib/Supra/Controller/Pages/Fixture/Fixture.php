@@ -20,7 +20,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	 */
 	protected function getEntityManager()
 	{
-		$supraDatabase = \Supra\Database\Doctrine::getInstance();
+		$supraDatabase = Doctrine::getInstance();
 		$em = $supraDatabase->getEntityManager(static::CONNECTION_NAME);
 		return $em;
 	}
@@ -142,6 +142,10 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$page = $this->createPage(1, $rootPage);
 		$em->persist($page);
 		$em->flush();
+
+		$page2 = $this->createPage(2, $page);
+		$em->persist($page2);
+		$em->flush();
 	}
 
 	protected static $constants = array(
@@ -152,6 +156,10 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		1 => array(
 			'title' => 'About',
 			'pathPart' => 'about',
+		),
+		2 => array(
+			'title' => 'Contacts',
+			'pathPart' => 'contacts',
 		),
 	);
 
@@ -241,8 +249,8 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 		$page->setTemplate($template);
 
-		if ($type == 1) {
-			$this->rootPage->addChild($page);
+		if ( ! is_null($parentNode)) {
+			$parentNode->addChild($page);
 		}
 		$this->getEntityManager()->flush();
 

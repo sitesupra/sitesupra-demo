@@ -2,13 +2,14 @@
 
 namespace Project\Rss;
 
-use Supra\Event\Registry as EventRegistry;
-use Supra\Log\Logger as Log;
+use Supra\Event\Registry as EventRegistry,
+		Supra\Log\Logger,
+		Supra\Controller\SimpleController;
 
 /**
  * RSS controller
  */
-class Controller extends \Supra\Controller\Simple
+class Controller extends SimpleController
 {
 	/**
 	 * Default action
@@ -16,7 +17,7 @@ class Controller extends \Supra\Controller\Simple
 	protected function indexAction()
 	{
 		$instanceListenerFunction = function() {
-			Log::info('RSS controller instance listener succeeded');
+			Logger::info('RSS controller instance listener succeeded');
 		};
 		EventRegistry::listen($this, 'test', $instanceListenerFunction);
 		

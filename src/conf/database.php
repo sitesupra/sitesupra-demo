@@ -2,12 +2,13 @@
 
 use Doctrine\ORM\EntityManager,
 		Doctrine\ORM\Configuration,
-		Supra\Database\Doctrine;
+		Supra\Database\Doctrine,
+		Doctrine\Common\Cache\ArrayCache;
 
-$config = new Configuration;
+$config = new Configuration();
 
 // Doctrine cache (array cache for development)
-$cache = new \Doctrine\Common\Cache\ArrayCache();
+$cache = new ArrayCache();
 //$cache = new \Doctrine\Common\Cache\MemcacheCache();
 //$memcache = new \Memcache();
 //$memcache->addserver('127.0.0.1');

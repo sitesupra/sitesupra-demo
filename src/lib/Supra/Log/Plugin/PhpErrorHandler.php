@@ -29,7 +29,7 @@ class PhpErrorHandler
 	public function handleError($errno, $errstr = null, $errfile = null, $errline = null)
 	{
 		// Filter by system's error reporting level
-		if (!($errno & error_reporting())) {
+		if ( ! ($errno & error_reporting())) {
 			return;
 		}
 

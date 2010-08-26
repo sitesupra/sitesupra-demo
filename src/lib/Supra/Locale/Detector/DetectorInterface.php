@@ -2,8 +2,8 @@
 
 namespace Supra\Locale\Detector;
 
-use Supra\Controller\Request\RequestInterface,
-		Supra\Controller\Response\ResponseInterface,
+use Supra\Request\RequestInterface,
+		Supra\Response\ResponseInterface,
 		Supra\Locale\Data;
 
 /**

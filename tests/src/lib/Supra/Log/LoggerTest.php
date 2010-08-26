@@ -2,8 +2,9 @@
 
 namespace Supra\Tests\Log;
 
-use Supra\Tests\TestCase;
-use Supra\Log\Logger;
+use Supra\Tests\TestCase,
+		Supra\Log\Logger,
+		Supra\Log\Writer;
 
 /**
  * Supra Logger test class
@@ -40,8 +41,8 @@ class LoggerTest extends TestCase
 	{
 		$instance1 = Logger::getInstance();
 		$instance2 = Logger::getInstance();
-		self::isInstanceOf('Supra\\Log\\Logger')->evaluate($instance1);
-		self::isInstanceOf('Supra\\Log\\Logger')->evaluate($instance2);
+		self::isInstanceOf('Supra\Log\Logger')->evaluate($instance1);
+		self::isInstanceOf('Supra\Log\Logger')->evaluate($instance2);
 		self::assertEquals($instance1, $instance2);
 	}
 
@@ -100,8 +101,8 @@ class LoggerTest extends TestCase
 
 	public function testWriter()
 	{
-		$writerA = new \Supra\Log\Writer\Mock();
-		$writerB = new \Supra\Log\Writer\Mock();
+		$writerA = new Writer\Mock();
+		$writerB = new Writer\Mock();
 		Logger::getInstance()->addWriter('test', $writerA);
 	}
 	

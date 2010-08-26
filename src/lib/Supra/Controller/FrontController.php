@@ -2,17 +2,15 @@
 
 namespace Supra\Controller;
 
+use Supra\Request,
+		Supra\Response,
+		Supra\Router;
+
 /**
  * Front controller
  */
-class Front
+class FrontController
 {
-	/**
-	 * Singleton instance
-	 * @var Front
-	 */
-	static protected $instance;
-
 	/**
 	 * Routing array
 	 * @var Router\RouterInterface[]
@@ -24,18 +22,6 @@ class Front
 	 * @var boolean
 	 */
 	protected $routersOrdered = true;
-
-	/**
-	 * Return the front controller instance
-	 * @return Front
-	 */
-	public static function getInstance()
-	{
-		if (is_null(self::$instance)) {
-			self::$instance = new self;
-		}
-		return self::$instance;
-	}
 
 	/**
 	 * Routing rules
@@ -89,7 +75,6 @@ class Front
 		$controller->prepare($request, $response);
 		$controller->execute();
 		$controller->output();
-		$response->flush();
 	}
 
 	/**
@@ -100,6 +85,7 @@ class Front
 	public function findController($request)
 	{
 		foreach ($this->getRouters() as $router) {
+			/* @var $router Router\RouterAbstraction */
 			if ($router->match($request)) {
 				$controller = $router->getController();
 				return $controller;

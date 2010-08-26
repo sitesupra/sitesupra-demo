@@ -2,10 +2,13 @@
 
 namespace Supra\Controller;
 
+use Supra\Request,
+		Supra\Response;
+
 /**
  * Simple HTTP controller based on controller methods in form [method]Action()
  */
-abstract class Simple extends ControllerAbstraction
+abstract class SimpleController extends ControllerAbstraction
 {
 	/**
 	 * Default action when no action is provided

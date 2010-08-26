@@ -126,17 +126,22 @@ class PageData extends Abstraction\Data
 		$pathPart = \urlencode($this->pathPart);
 
 		$page = $this->getPage();
-		$parentPage = $page->getParent();
 
-		$parentData = $parentPage->getData($this->getLocale());
-		if (empty($parentData)) {
-			throw new Exception("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->getLocale()} required by page {$page->getId()}");
+		if ($page->hasParent()) {
+			$parentPage = $page->getParent();
+
+			$parentData = $parentPage->getData($this->getLocale());
+			if (empty($parentData)) {
+				throw new Exception("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->getLocale()} required by page {$page->getId()}");
+			}
+			$path = $parentData->getPath();
+
+			$path .= '/' . $pathPart;
+
+			$this->setPath($path);
+		} else {
+			$this->setPath(null);
 		}
-		$path = $parentData->getPath();
-
-		$path .= '/' . $pathPart;
-
-		$this->setPath($path);
 	}
 
 }

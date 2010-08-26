@@ -2,6 +2,9 @@
 
 namespace Supra\Controller;
 
+use Supra\Request,
+		Supra\Response;
+
 /**
  * Controller abstraction class
  */
@@ -40,7 +43,10 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 * Output the result
 	 */
 	public function output()
-	{}
+	{
+		$response = $this->getResponse();
+		$response->flush();
+	}
 
 	/**
 	 * Get request object

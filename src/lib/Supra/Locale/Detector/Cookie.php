@@ -2,9 +2,9 @@
 
 namespace Supra\Locale\Detector;
 
-use Supra\Controller\Request\RequestInterface,
-		Supra\Controller\Response\ResponseInterface,
-		Supra\Controller\Request\Http as HttpRequest;
+use Supra\Request\RequestInterface,
+		Supra\Response\ResponseInterface,
+		Supra\Request\Http;
 
 /**
  * Cookie locale detector
@@ -34,12 +34,12 @@ class Cookie extends DetectorAbstraction
 	 */
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
-		if ( ! ($request instanceof HttpRequest)) {
+		if ( ! ($request instanceof Http)) {
 			\Log::swarn('Request must be instance of Http request object to use cookie locale detection');
 			return;
 		}
 
-		/* @var $request \Supra\Controller\Request\Http */
+		/* @var $request Http */
 		$locale = $request->getCookie($this->cookieName, null);
 		return $locale;
 	}

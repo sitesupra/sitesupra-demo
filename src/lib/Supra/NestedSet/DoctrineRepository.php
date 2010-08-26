@@ -50,7 +50,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @param EntityManager $em
 	 * @param Mapping\ClassMetadata $class
 	 */
-	public function  __construct(EntityManager $em, Mapping\ClassMetadata $class)
+	public function __construct(EntityManager $em, Mapping\ClassMetadata $class)
 	{
 		$this->entityManager = $em;
 		$this->classMetadata = $class;
@@ -174,6 +174,9 @@ class DoctrineRepository extends RepositoryAbstraction
 					rgt = rgt + IF(rgt BETWEEN {$left} AND {$right}, {$moveA}, IF(rgt BETWEEN {$a} AND {$b}, {$moveB}, 0))
 				WHERE lft BETWEEN {$min} AND {$max}
 					OR rgt BETWEEN {$min} AND {$max}";
+
+		//TODO: trigger some stuff...
+		//$this->
 
 		$connection = $this->entityManager->getConnection();
 		$statement = $connection->prepare($sql);

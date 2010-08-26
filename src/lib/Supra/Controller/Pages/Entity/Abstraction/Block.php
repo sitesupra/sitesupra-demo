@@ -3,8 +3,8 @@
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Supra\Controller\ControllerAbstraction,
-		Supra\Controller\Request,
-		Supra\Controller\Response,
+		Supra\Request,
+		Supra\Response,
 		Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,

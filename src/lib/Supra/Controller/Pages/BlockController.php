@@ -3,8 +3,8 @@
 namespace Supra\Controller\Pages;
 
 use Supra\Controller\ControllerAbstraction,
-		Supra\Controller\Request,
-		Supra\Controller\Response;
+		Supra\Request,
+		Supra\Response;
 
 /**
  * Block controller abstraction
@@ -21,14 +21,6 @@ abstract class BlockController extends ControllerAbstraction
 	 * @var Entity\Abstraction\Block
 	 */
 	protected $block;
-
-	/**
-	 * Output controller result to response
-	 */
-	public function output()
-	{
-		//TODO: use smarty view
-	}
 
 	/**
 	 * Generate response object

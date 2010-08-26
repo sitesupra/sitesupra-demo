@@ -3,13 +3,13 @@
 namespace Project\Text;
 
 use Supra\Controller\Pages\BlockController,
-		Supra\Controller\Request,
-		Supra\Controller\Response;
+		Supra\Request,
+		Supra\Response;
 
 /**
  * Simple text block
  */
-class TextController extends \Supra\Controller\Pages\BlockController
+class TextController extends BlockController
 {
 	public function execute()
 	{

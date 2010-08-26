@@ -103,44 +103,7 @@ class Logger
 	 * Default bootstrap logger
 	 * @var string
 	 */
-	private static $bootstrapLoggerClass = 'Supra\\Log\\Writer\\System';
-
-	/**
-	 * Short names of loggers
-	 * @var array
-	 */
-	private static $loggerAliases = array(
-		'daily_file' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\DailyFile',
-			),
-		),
-		'file' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\File',
-			),
-		),
-		'socket' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\Log4j',
-			),
-		),
-		'system' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\System',
-			),
-		),
-		'firephp' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\FirePhp',
-			),
-		),
-		'null' => array(
-			'Writer' => array(
-				'id' => 'Supra\\Log\\Writer\\Null',
-			),
-		),
-	);
+	private static $bootstrapLoggerClass = 'Supra\Log\Writer\System';
 
 	/**
 	 * Return static instance

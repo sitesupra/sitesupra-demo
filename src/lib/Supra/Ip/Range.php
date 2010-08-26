@@ -13,7 +13,7 @@ use Supra\Log\Logger;
  *
  * Usage:
  * <code>
- *	 	$range = new \Supra\Ip\Range();
+ *	 	$range = new Supra\Ip\Range();
  *		$range->fromString('10.0.1.0/24,127.0.0.*');
  *		$allow = $range->includes('10.0.1.24'); // true
  *		$allow = $range->includes('192.168.0.1'); // false

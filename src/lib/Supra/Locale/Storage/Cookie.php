@@ -2,9 +2,9 @@
 
 namespace Supra\Locale\Storage;
 
-use Supra\Controller\Request\RequestInterface,
-		Supra\Controller\Response\ResponseInterface,
-		Supra\Controller\Response\Http as HttpResponse,
+use Supra\Request\RequestInterface,
+		Supra\Response\ResponseInterface,
+		Supra\Response\Http as HttpResponse,
 		Supra\Locale\Exception,
 		Supra\Http\Cookie as HttpCookie,
 		Supra\Log\Logger;

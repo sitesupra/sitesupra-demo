@@ -13,7 +13,7 @@ class AllTests
 	{
 		$suite = new TestSuite();
 		
-		$suite->addTestSuite('Supra\\Tests\\Log\\LoggerTest');
+		$suite->addTestSuite('Supra\Tests\Log\LoggerTest');
 		$suite->addTest(Writer\AllTests::suite());
 		
 		return $suite;

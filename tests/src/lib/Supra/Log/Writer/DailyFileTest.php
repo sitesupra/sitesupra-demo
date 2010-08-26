@@ -78,7 +78,7 @@ class DailyFileTest extends TestCase
 
 		$formatter = new Simple(array(
 			'format' => '[%time%] %level% %logger% - %file%(%line%): %message%',
-			'timeFormat' => '\\D\\A\\T\\E',
+			'timeFormat' => '\D\A\T\E',
 		));
 		$writer->setFormatter($formatter);
 

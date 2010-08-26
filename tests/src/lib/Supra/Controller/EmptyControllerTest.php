@@ -4,8 +4,8 @@ namespace Supra\Tests\Controller;
 
 use Supra\Tests\TestCase;
 use Supra\Controller\EmptyController;
-use Supra\Controller\Request;
-use Supra\Controller\Response;
+use Supra\Request;
+use Supra\Response;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
@@ -37,7 +37,7 @@ class EmptyControllerTest extends \PHPUnit_Extensions_OutputTestCase
 		$controller = new EmptyController();
 		$request = new Request\Cli();
 		$response = $controller->createResponse($request);
-		self::isInstanceOf('Supra\\Controller\\Response\\EmptyResponse')
+		self::isInstanceOf('Supra\Controller\Response\EmptyResponse')
 			->evaluate($response);
 	}
 }

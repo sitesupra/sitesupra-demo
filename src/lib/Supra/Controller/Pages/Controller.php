@@ -3,8 +3,8 @@
 namespace Supra\Controller\Pages;
 
 use Supra\Controller\ControllerAbstraction,
-		Supra\Controller\Response,
-		Supra\Controller\Request,
+		Supra\Response,
+		Supra\Request,
 		Supra\Controller\Layout,
 		Supra\Database\Doctrine,
 		Supra\Locale\Data as LocaleData,
@@ -188,14 +188,6 @@ class Controller extends ControllerAbstraction
 		$processor = new Layout\Processor\Html();
 		$processor->setLayoutDir(\SUPRA_PATH . 'template');
 		return $processor;
-	}
-
-	/**
-	 * Output method
-	 */
-	public function output()
-	{
-		//$this->getResponse()->output('So far so good');
 	}
 
 	/**
@@ -433,7 +425,6 @@ class Controller extends ControllerAbstraction
 		$prepare = function(Entity\Abstraction\Block $block) {
 			$blockController = $block->getController();
 			$blockController->execute();
-			$blockController->output();
 			return $block;
 		};
 		

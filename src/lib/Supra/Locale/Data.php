@@ -2,6 +2,9 @@
 
 namespace Supra\Locale;
 
+use Supra\Request\RequestInterface,
+		Supra\Response\ResponseInterface;
+
 /**
  * Localization
  */
@@ -133,7 +136,7 @@ class Data
 		return $this->current;
 	}
 
-	public function detect(\Supra\Controller\Request\RequestInterface $request, \Supra\Controller\Response\ResponseInterface $response)
+	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
 		/* @var $detector Detector\DetectorInterface */
 		foreach ($this->detectors as $detector) {

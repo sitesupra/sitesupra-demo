@@ -2,6 +2,9 @@
 
 namespace Supra\Controller;
 
+use Supra\Request,
+		Supra\Response;
+
 /**
  * Controller interface
  */

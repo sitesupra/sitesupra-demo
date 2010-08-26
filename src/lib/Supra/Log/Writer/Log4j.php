@@ -11,7 +11,7 @@ class Log4j extends Socket
 	 * Default formatter
 	 * @var string
 	 */
-	public static $defaultFormatter = 'Supra\\Log\\Formatter\\Log4j';
+	public static $defaultFormatter = 'Supra\Log\Formatter\Log4j';
 
 	/**
 	 * Default formatter parameters

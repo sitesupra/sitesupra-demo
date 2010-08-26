@@ -2,8 +2,8 @@
 
 namespace Supra\Tests\Controller\Layout\Processor;
 
-use Supra\Tests\Controller\Response\ResponseMock,
-		\Supra\Controller\Layout\Processor\Html;
+use Supra\Tests\Response\ResponseMock,
+		Supra\Controller\Layout\Processor\Html;
 
 /**
  * Test class for Html.

@@ -2,20 +2,37 @@
 
 namespace Supra\Loader;
 
+use Supra\Loader\Exception;
+
 /**
  * Namespace record in the loader registry
  */
 class NamespaceRecord
 {
-
+	/**
+	 * @var string
+	 */
 	protected $namespace;
 
+	/**
+	 * @var string
+	 */
 	protected $path;
 
+	/**
+	 * @var int
+	 */
 	protected $length;
 
+	/**
+	 * @var int
+	 */
 	protected $depth;
 
+	/**
+	 * @param int $namespace
+	 * @param int $path
+	 */
 	public function __construct($namespace, $path)
 	{
 		$this->setNamespace($namespace);
@@ -23,46 +40,76 @@ class NamespaceRecord
 
 		$this->length = strlen($this->getNamespace());
 		$this->depth = substr_count($this->getNamespace(), '\\');
-		
 	}
 
+	/**
+	 * @param string $namespace
+	 */
 	public function setNamespace($namespace)
 	{
 		$namespace = Registry::normalizeNamespaceName($namespace);
 		$this->namespace = $namespace;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getNamespace()
 	{
 		return $this->namespace;
 	}
 
+	/**
+	 * @param string $path
+	 */
 	public function setPath($path)
 	{
 		$this->path = rtrim($path, '/\\') . \DIRECTORY_SEPARATOR;
+		if ( ! \is_dir($this->path)) {
+			throw new Exception\InvalidPath($path);
+		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getPath()
 	{
 		return $this->path;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getLength()
 	{
 		return $this->length;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getDepth()
 	{
 		return $this->depth;
 	}
 
+	/**
+	 * Whether the class is inside the given namespace
+	 * @param string $className
+	 * @return bool
+	 */
 	public function contains($className)
 	{
 		$classNamespace = substr($className, 0, $this->getLength());
 		return $classNamespace == $this->getNamespace();
 	}
 
+	/**
+	 * Search for class and return it's path if succeeds
+	 * @param string $className
+	 * @return string
+	 */
 	public function findClass($className)
 	{
 		if ( ! $this->contains($className)) {
@@ -75,7 +122,7 @@ class NamespaceRecord
 		$classPath = $namespacePath . $classPath . '.php';
 		if ( ! file_exists($classPath)) {
 			return null;
-			/*throw new Exception("Class ${className} should be contained inside"
+			/*throw new Exception\ClassNotFound("Class ${className} should be contained inside"
 					. " the ${namespacePath} namespace but could not be found"
 					. " by path ${classPath}");*/
 		}

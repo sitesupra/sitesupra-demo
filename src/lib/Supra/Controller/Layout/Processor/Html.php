@@ -2,7 +2,7 @@
 
 namespace Supra\Controller\Layout\Processor;
 
-use Supra\Controller\Response\ResponseInterface,
+use Supra\Response\ResponseInterface,
 		Supra\Controller\Pages\Entity\Layout,
 		Closure;
 
