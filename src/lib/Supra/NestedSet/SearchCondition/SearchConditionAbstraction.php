@@ -120,7 +120,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		if ( ! isset($arguments[0])) {
 			throw new Exception\InvalidArgument("No value passed to method $method");
 		}
-		if ( !\is_int($arguments[0])) {
+		if (  ! \is_int($arguments[0])) {
 			throw new Exception\InvalidArgument("Not integer value passed to method $method");
 		}
 		$value = (int)$arguments[0];

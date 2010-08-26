@@ -5,5 +5,5 @@ namespace Supra\NestedSet\Exception;
 /**
  * Nested set exception interface
  */
-interface INestedSetException
+interface NestedSetException
 {}

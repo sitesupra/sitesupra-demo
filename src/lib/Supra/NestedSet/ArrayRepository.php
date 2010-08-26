@@ -2,8 +2,6 @@
 
 namespace Supra\NestedSet;
 
-use Closure;
-
 /**
  * Array nested set repository
  */
@@ -201,11 +199,11 @@ class ArrayRepository extends RepositoryAbstraction
 
 	/**
 	 * Perform data select by search and order closures
-	 * @param Closure $filterClosure
-	 * @param Closure $orderClosure
+	 * @param \Closure $filterClosure
+	 * @param \Closure $orderClosure
 	 * @return array
 	 */
-	public function searchByClosure(Closure $filterClosure, Closure $orderClosure = null)
+	public function searchByClosure(\Closure $filterClosure, \Closure $orderClosure = null)
 	{
 		$result = array();
 		foreach ($this->array as $item) {

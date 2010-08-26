@@ -2,12 +2,10 @@
 
 namespace Supra\NestedSet\Exception;
 
-use LogicException;
-
 /**
  * Error of wrong object instance received
  */
-class WrongInstance extends LogicException implements INestedSetException
+class WrongInstance extends \LogicException implements NestedSetException
 {
 	/**
 	 * @var string

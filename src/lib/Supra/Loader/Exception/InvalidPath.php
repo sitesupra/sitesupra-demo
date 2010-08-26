@@ -7,7 +7,7 @@ use InvalidArgumentException;
 /**
  * Invalid path exception
  */
-class InvalidPath extends InvalidArgumentException implements ILoaderException
+class InvalidPath extends InvalidArgumentException implements LoaderException
 {
 	/**
 	 * @param string $path

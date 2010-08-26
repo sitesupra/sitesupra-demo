@@ -3,8 +3,7 @@
 namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface,
-		Supra\Controller\Pages\Entity\Layout,
-		Closure;
+		Supra\Controller\Pages\Entity\Layout;
 
 /**
  * Simple layout processor
@@ -149,7 +148,7 @@ class Html implements ProcessorInterface
 		return $exists;
 	}
 
-	protected function walk($layoutSrc, Closure $cdataCallback, Closure $macroCallback)
+	protected function walk($layoutSrc, \Closure $cdataCallback, \Closure $macroCallback)
 	{
 		$layoutContent = $this->getContent($layoutSrc);
 

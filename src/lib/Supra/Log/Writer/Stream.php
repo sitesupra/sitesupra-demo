@@ -66,7 +66,7 @@ class Stream extends WriterAbstraction
 				$replaceWith[] = $date;
 			}
 			
-			if (!empty($replaceWhat)) {
+			if ( ! empty($replaceWhat)) {
 				$url = str_replace($replaceWhat, $replaceWith, $url);
 			}
 			
@@ -85,7 +85,7 @@ class Stream extends WriterAbstraction
 	protected function _write($event)
 	{
 		$stream = $this->getStream();
-		if (!is_resource($stream) || @fwrite($stream, $event['message'] . PHP_EOL) === false) {
+		if ( ! is_resource($stream) || @fwrite($stream, $event['message'] . PHP_EOL) === false) {
 			throw new Exception(__CLASS__ . ': cannot write in the stream');
 		}
 	}

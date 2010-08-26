@@ -164,7 +164,7 @@ abstract class WriterAbstraction implements WriterInterface
 		
 		try {
 			$level = strtoupper($method);
-			if (!isset(Logger::$levels[$level])) {
+			if ( ! isset(Logger::$levels[$level])) {
 				throw new Exception('Method ' . get_class($this) . '::' . $method . '() is not defined');
 			}
 			

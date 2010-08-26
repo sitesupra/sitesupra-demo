@@ -9,8 +9,7 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Database\Doctrine,
 		Supra\Locale\Data as LocaleData,
 		Doctrine\ORM\PersistentCollection,
-		Doctrine\ORM\Query\Expr,
-		Closure;
+		Doctrine\ORM\Query\Expr;
 
 /**
  * Page controller
@@ -459,9 +458,9 @@ class Controller extends ControllerAbstraction
 	/**
 	 * Iteration funciton for specific array of blocks
 	 * @param array $blocks
-	 * @param Closure $function
+	 * @param \Closure $function
 	 */
-	protected function iterateBlocks(array &$blocks, Closure $function)
+	protected function iterateBlocks(array &$blocks, \Closure $function)
 	{
 		/* @var $blockList array */
 		foreach ($blocks as $placeName => $blockList) {

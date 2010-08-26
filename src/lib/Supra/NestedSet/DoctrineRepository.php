@@ -2,8 +2,7 @@
 
 namespace Supra\NestedSet;
 
-use Closure,
-		Doctrine\ORM\EntityManager,
+use Doctrine\ORM\EntityManager,
 		Doctrine\ORM\Mapping,
 		Doctrine\ORM\QueryBuilder,
 		Supra\Controller\Pages\Entity\Abstraction\Entity,
