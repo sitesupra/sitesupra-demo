@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Request;
+namespace Supra\Request;
 
 /**
  * CLI request object

@@ -1,9 +1,8 @@
 <?php
 
-namespace Supra\Controller\Router;
+namespace Supra\Router;
 
 use Supra\Controller\ControllerInterface;
-use Supra\Controller\Exception;
 
 /**
  * Description of RouterAbstraction
@@ -60,7 +59,7 @@ abstract class RouterAbstraction implements RouterInterface
 		}
 		$this->controller = new $this->controllerClass;
 		if ( ! ($this->controller instanceof ControllerInterface)) {
-			throw new Exception("Controller class {$this->controllerClass} does not implement Supra\\Controller\\ControllerInterface");
+			throw new Exception("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
 		}
 		return $this->controller;
 	}

@@ -1,9 +1,8 @@
 <?php
 
-namespace Supra\Controller\Response;
+namespace Supra\Response;
 
-use Supra\Http\Cookie,
-		Supra\Controller\Exception;
+use Supra\Http\Cookie;
 
 /**
  * Description of Http
@@ -184,7 +183,7 @@ class Http implements ResponseInterface
 	public function flushToResponse(ResponseInterface $response)
 	{
 		if ( ! ($response instanceof Http)) {
-			throw new Exception("The response object passed to Response\Http::flushToResponse() must be compatible with the source object");
+			throw new Exception\IncompatibleObject("The response object passed to Response\Http::flushToResponse() must be compatible with the source object");
 		}
 		
 		foreach ($this->headers as $name => $headers) {

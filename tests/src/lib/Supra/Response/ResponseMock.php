@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Tests\Controller\Response;
+namespace Supra\Tests\Response;
 
-use Supra\Controller\Response\Http;
+use Supra\Response\Http;
 
 /**
  * 

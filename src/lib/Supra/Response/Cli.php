@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Response;
+namespace Supra\Response;
 
 /**
  * Cli response object

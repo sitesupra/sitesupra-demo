@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Controller\Router;
+namespace Supra\Router;
 
-use Supra\Controller\Request\RequestInterface;
+use Supra\Request\RequestInterface;
 use Supra\Controller\ControllerInterface;
 
 /**

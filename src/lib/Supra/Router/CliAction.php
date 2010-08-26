@@ -1,9 +1,9 @@
 <?php
 
-namespace Supra\Controller\Router;
+namespace Supra\Router;
 
-use Supra\Controller\Request\RequestInterface;
-use Supra\Controller\Request\Cli;
+use Supra\Request\RequestInterface;
+use Supra\Request\Cli;
 
 /**
  * Router based on action provided in
@@ -57,7 +57,7 @@ class CliAction extends RouterAbstraction
     public function match(RequestInterface $request)
 	{
 		if ( ! ($request instanceof Cli)) {
-			\Log::sdebug('Not the instance of Request\\Cli');
+			\Log::sdebug('Not the instance of Request\Cli');
 			return false;
 		}
 

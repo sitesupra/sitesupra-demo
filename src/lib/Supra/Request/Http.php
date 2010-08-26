@@ -1,9 +1,8 @@
 <?php
 
-namespace Supra\Controller\Request;
+namespace Supra\Request;
 
 use Supra\Uri\Path,
-		Supra\Controller\Exception,
 		Supra\Log\Logger;
 
 /**
@@ -66,7 +65,7 @@ class Http implements RequestInterface
 		}
 
 		if ( ! isset($_SERVER['SCRIPT_URL'])) {
-			throw new Exception("Script URL not set in Http request object");
+			throw new Exception\InvalidRequest("Script URL not set in Http request object");
 		}
 
 		$this->requestUri = $_SERVER['SCRIPT_URL'];

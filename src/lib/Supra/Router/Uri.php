@@ -1,10 +1,10 @@
 <?php
 
-namespace Supra\Controller\Router;
+namespace Supra\Router;
 
-use Supra\Controller\Request\RequestInterface;
-use Supra\Controller\Request\Http;
-use Supra\Uri\Path;
+use Supra\Request\RequestInterface,
+		Supra\Request\Http,
+		Supra\Uri\Path;
 
 /**
  * URI router
@@ -43,7 +43,7 @@ class Uri extends RouterAbstraction
 	public function match(RequestInterface $request)
 	{
 		if ( ! ($request instanceof Http)) {
-			\Log::sdebug('Not the instance of Request\\Http');
+			\Log::sdebug('Not the instance of Request\Http');
 			return false;
 		}
 
