@@ -140,8 +140,12 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @param int $pos
 	 * @param int $levelDiff
 	 */
-	public function move(Node\DoctrineNode $node, $pos, $levelDiff)
+	public function move(Node\NodeInterface $node, $pos, $levelDiff)
 	{
+		if ( ! $node instanceof Node\DoctrineNode) {
+			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
+		}
+		
 		// flush before update
 		$this->entityManager->flush();
 

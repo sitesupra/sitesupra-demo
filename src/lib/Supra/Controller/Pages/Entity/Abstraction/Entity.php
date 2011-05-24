@@ -242,7 +242,8 @@ abstract class Entity
 
 	/**
 	 * Check if discriminators match for objects.
-	 * If strict, they must be equal, if not strict, page object matches template object as well
+	 * If strict, they must be equal, if not strict, page object matches template object as well.
+	 * As example PageData object can have Page block properties assigned to template block object.
 	 * @param Entity $object
 	 * @param boolean $strict
 	 */
