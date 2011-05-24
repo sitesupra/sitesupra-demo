@@ -163,7 +163,7 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 
 		if (empty($template)) {
 			//TODO: 404 page or specific error?
-			throw new Exception("No template assigned to the page {$page->getId()}");
+			throw new Exception("No template assigned to the page {$this->getId()}");
 		}
 
 		$templates = $template->getTemplatesHierarchy();

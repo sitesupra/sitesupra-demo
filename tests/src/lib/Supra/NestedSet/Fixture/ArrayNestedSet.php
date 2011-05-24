@@ -14,6 +14,7 @@ class ArrayNestedSet extends NestedSet
 	 */
 	static function foodTree()
 	{
+		$nodes = array();
 		$rep = new ArrayRepository();
 
 		$nodes['banana'] = $rep->createNode('Banana');

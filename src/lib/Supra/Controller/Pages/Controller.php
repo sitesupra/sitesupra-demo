@@ -9,7 +9,8 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Database\Doctrine,
 		Supra\Locale\Data as LocaleData,
 		Doctrine\ORM\PersistentCollection,
-		Doctrine\ORM\Query\Expr;
+		Doctrine\ORM\Query\Expr,
+		Supra\Controller\NotFoundException;
 
 /**
  * Page controller
@@ -164,6 +165,7 @@ class Controller extends ControllerAbstraction
 		}
 		$masters = $templates;
 		$masters[] = $page;
+		
 		return $masters;
 	}
 
@@ -224,7 +226,7 @@ class Controller extends ControllerAbstraction
 
 		if (empty($pageData)) {
 			//TODO: 404 page
-			throw new Exception("No page found by path '$action' in pages controller");
+			throw new NotFoundException("No page found by path '$action' in pages controller");
 		}
 
 		return $pageData->getPage();

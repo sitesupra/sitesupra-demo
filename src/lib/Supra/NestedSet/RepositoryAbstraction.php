@@ -79,4 +79,12 @@ abstract class RepositoryAbstraction implements RepositoryInterface
 	 * @return SelectOrderAbstraction
 	 */
 	abstract public function createSelectOrderRule();
+	
+	/**
+	 * Move the node to the new position and change level by {$levelDiff}
+	 * @param NodeInterface $node
+	 * @param int $pos
+	 * @param int $levelDiff
+	 */
+	abstract public function move(NodeInterface $node, $pos, $levelDiff);
 }

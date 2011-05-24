@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 //echo shell_exec('php "' . __DIR__ . DIRECTORY_SEPARATOR . 'doctrine.php"');

@@ -9,7 +9,13 @@ $frontController = new Supra\Controller\FrontController();
 
 //TODO: should do automatically
 require_once SUPRA_COMPONENT_PATH . 'rss/config.php';
-require_once SUPRA_COMPONENT_PATH . 'pages/config.php';
+//require_once SUPRA_COMPONENT_PATH . 'pages/config.php';
+
+require_once SUPRA_COMPONENT_PATH . 'pages/Configuration.php';
+$configuration = new \Project\Pages\Configuration();
+//TODO: should be called by MAGIC METHOD RUNNER and provide required attributes
+$configuration->configure($frontController, \Supra\Loader\Registry::getInstance());
+
 require_once SUPRA_COMPONENT_PATH . 'text/config.php';
 
 $frontController->execute();

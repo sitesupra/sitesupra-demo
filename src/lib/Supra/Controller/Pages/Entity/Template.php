@@ -11,9 +11,9 @@ use Doctrine\Common\Collections\ArrayCollection,
  * Page controller template class
  * @Entity(repositoryClass="Supra\Controller\Pages\Repository\TemplateRepository")
  * @Table(name="template", indexes={
- *		@index(name="page_lft_idx", columns={"lft"}),
- *		@index(name="page_rgt_idx", columns={"rgt"}),
- *		@index(name="page_lvl_idx", columns={"lvl"})
+ *		@index(name="template_lft_idx", columns={"lft"}),
+ *		@index(name="template_rgt_idx", columns={"rgt"}),
+ *		@index(name="template_lvl_idx", columns={"lvl"})
  * })
  * @HasLifecycleCallbacks
  * @method int getNumberChildren()

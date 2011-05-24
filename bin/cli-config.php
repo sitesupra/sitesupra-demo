@@ -7,4 +7,4 @@ $helpers = array(
 	'db' => new \Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper($em->getConnection()),
 	'em' => new \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper($em)
 );
-$helperSet = new Symfony\Components\Console\Helper\HelperSet($helpers);
+$helperSet = new Symfony\Component\Console\Helper\HelperSet($helpers);

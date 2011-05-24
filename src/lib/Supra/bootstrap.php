@@ -47,7 +47,7 @@ $loader->registerNamespace($doctrineNamespace);
 $symfonyNamespace = new Supra\Loader\NamespaceRecord('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
-spl_autoload_register(array($loader, 'autoload'));
+$loader->registerSystemAutoload();
 
 // Set the initial timezone to the logger
 Supra\Log\Logger::setDefaultTimezone(date_default_timezone_get());

@@ -11,20 +11,51 @@ use Doctrine\DBAL\Logging\SQLLogger,
 class Sql implements SQLLogger
 {
 	/**
+	 * @var string
+	 */
+	private $sql;
+	
+	/**
+	 * @var array
+	 */
+	private $params;
+	
+	/**
+	 * @var array
+	 */
+	private $types;
+	
+	/**
+	 * @var float
+	 */
+	private $start;
+
+	/**
 	 * {@inheritdoc}
 	 */
-	function logSQL($sql, array $params = null, $executionMS = null)
+	public function startQuery($sql, array $params = null, array $types = null)
 	{
-		$message = "-- Query\n$sql\n/* has been run";
-		if (count($params) > 0) {
-			$message .= " with parameters [" . implode(', ', $params) . "]";
+		$this->sql = $sql;
+		$this->params = $params;
+		$this->types = $types;
+		$this->start = microtime(true);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function stopQuery()
+	{
+		$message = "Query\n{$this->sql}\n/* has been run";
+		if (count($this->params) > 0) {
+			$message .= " with parameters [" . implode(', ', $this->params) . "]";
 		}
-		if ($executionMS !== null) {
-			$executionMS = round(1000000 * $executionMS);
-			$message .= ", execution time {$executionMS}ms*/";
-		} else {
-			$message .= "*/";
-		}
+		
+		$executionMs = microtime(true) - $this->start;
+		$executionMs = round(1000000 * $executionMs);
+		$message .= ", execution time {$executionMs}ms*/";
+		
 		Logger::debug($message);
 	}
+
 }

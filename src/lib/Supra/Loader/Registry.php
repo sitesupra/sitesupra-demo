@@ -34,6 +34,7 @@ class Registry
 		if (is_null(self::$instance)) {
 			self::$instance = new self();
 		}
+		
 		return self::$instance;
 	}
 
@@ -68,9 +69,11 @@ class Registry
 			{
 				$aDepth = $a->getDepth();
 				$bDepth = $b->getDepth();
+				
 				if ($aDepth == $bDepth) {
 					return 0;
 				}
+				
 				return $aDepth < $bDepth ? 1 : -1;
 			};
 
@@ -130,5 +133,13 @@ class Registry
 	public function autoload($className)
 	{
 		return $this->load($className);
+	}
+	
+	/**
+	 * Registers the autoloader
+	 */
+	public function registerSystemAutoload()
+	{
+		spl_autoload_register(array($this, 'autoload'));
 	}
 }

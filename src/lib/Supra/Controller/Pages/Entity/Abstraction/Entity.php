@@ -97,7 +97,7 @@ abstract class Entity
 
 	/**
 	 * Set the property value. Return true on success, false on equal parameter,
-	 * exception when argument not valid or
+	 * exception when argument not valid or different value was already set
 	 * @param mixed $property
 	 * @param mixed $value
 	 * @return bool
@@ -140,6 +140,8 @@ abstract class Entity
 	 */
 	protected function addUnique(Collection $collection, $newItem, $uniqueFields = null)
 	{
+		$uniqueFieldValues = array();
+		
 		if (is_null($uniqueFields)) {
 			$uniqueFields = array();
 		}

@@ -25,4 +25,4 @@ ALTER TABLE template ADD FOREIGN KEY (id) REFERENCES page_abstraction(id) ON DEL
 ALTER TABLE template_data ADD FOREIGN KEY (template_id) REFERENCES template(id);
 ALTER TABLE template_data ADD FOREIGN KEY (id) REFERENCES data(id) ON DELETE CASCADE;
 ALTER TABLE template_layout ADD FOREIGN KEY (layout_id) REFERENCES layout(id);
-ALTER TABLE template_layout ADD FOREIGN KEY (template_id) REFERENCES template(id)
+ALTER TABLE template_layout ADD FOREIGN KEY (template_id) REFERENCES template(id);
