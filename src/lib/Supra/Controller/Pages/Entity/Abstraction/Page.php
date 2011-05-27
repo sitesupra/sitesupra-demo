@@ -51,6 +51,9 @@ class Page extends Entity
 	protected $placeHolders;
 
 	/**
+	 * This field duplicates page and template field "level". This is done 
+	 * because we need to know the depth of the master element as well when
+	 * searching for place holders
 	 * @Column(type="integer")
 	 * @var int
 	 */
@@ -184,7 +187,7 @@ class Page extends Entity
 	}
 
 	/**
-	 * Get page depth
+	 * Get element depth
 	 * @return int $depth
 	 */
 	protected function getDepth()
@@ -193,12 +196,12 @@ class Page extends Entity
 	}
 
 	/**
-	 * Set page depth
+	 * Set element depth
 	 * @param int $depth
 	 */
 	protected function setDepth($depth)
 	{
 		$this->depth = $depth;
 	}
-
+	
 }

@@ -255,7 +255,7 @@ class Controller extends ControllerAbstraction
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
 				->addOrderBy('m.depth', 'ASC');
-
+		
 		$query = $qb->getQuery();
 		$places = $query->getResult();
 
@@ -271,18 +271,18 @@ class Controller extends ControllerAbstraction
 	 * @param Entity\Abstraction\Page $finalNode
 	 * @return array of blocks
 	 */
-	protected function findBlocks($places, $finalNode)
+	protected function findBlocks(array $places, Entity\Abstraction\Page $finalNode)
 	{
 		$em = $this->getDoctrineEntityManager();
 		
-		/*
+		/**
 		 * @var $finalPlaceHolderIds array
 		 * The list of final (locked or belongs to the final master) placeholder ids.
 		 * The block list will be taken from these placeholders.
 		 */
 		$finalPlaceHolderIds = array();
 
-		/*
+		/**
 		 * @var $parentPlaceHolderIds array
 		 * The list of placeholder ids which are parents of final placeholders.
 		 * The locked blocks will be searched within these placeholders.
@@ -349,7 +349,7 @@ class Controller extends ControllerAbstraction
 		$blocksByPlaceHolderName = array();
 
 		// Helper function to add block to the final array
-		$addBlock = function($block) use (&$blocksByPlaceHolderName) {
+		$addBlock = function(Entity\Abstraction\Block $block) use (&$blocksByPlaceHolderName) {
 			$name = $block->getPlaceHolder()->getName();
 			if ( ! isset($blocksByPlaceHolderName[$name])) {
 				$blocksByPlaceHolderName[$name] = array();

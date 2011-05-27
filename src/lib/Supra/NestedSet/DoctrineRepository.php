@@ -152,6 +152,13 @@ class DoctrineRepository extends RepositoryAbstraction
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
 		$spaceUsed = $right - $left + 1;
+		$moveA = null;
+		$moveB = null;
+		$a = null;
+		$b = null;
+		$min = null;
+		$max = null;
+		
 		if ($pos > $left) {
 			$a = $right + 1;
 			$b = $pos - 1;
@@ -171,25 +178,29 @@ class DoctrineRepository extends RepositoryAbstraction
 		// Using SQL because DQL does not support such format
 		// Will fail with SQL server implementation without function IF(cond, yes, no)
 		// NB! It's important to set "lvl" as first for MySQL
-		$sql = "UPDATE {$this->tableName}
-				SET lvl = lvl + IF(lft BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
-					lft = lft + IF(lft BETWEEN {$left} AND {$right}, {$moveA}, IF(lft BETWEEN {$a} AND {$b}, {$moveB}, 0)),
-					rgt = rgt + IF(rgt BETWEEN {$left} AND {$right}, {$moveA}, IF(rgt BETWEEN {$a} AND {$b}, {$moveB}, 0))
-				WHERE lft BETWEEN {$min} AND {$max}
-					OR rgt BETWEEN {$min} AND {$max}";
+		$dql = "UPDATE {$this->className} e
+				SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
+					e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
+					e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
+				WHERE e.left BETWEEN {$min} AND {$max}
+					OR e.right BETWEEN {$min} AND {$max}";
 
 		//TODO: trigger some stuff...
 		//$this->
+		
+		$query = $this->entityManager->createQuery($dql);
+		$result = $query->execute();
 
-		$connection = $this->entityManager->getConnection();
-		$statement = $connection->prepare($sql);
-		$result = $statement->execute();
-		// Throw the exception if the exceptions are not thrown by the statement
-		if ( ! $result) {
-			$errorInfo = $statement->errorInfo();
-			$errorString = $errorInfo[2];
-			throw new \PDOException($errorString);
-		}
+//		$connection = $this->entityManager->getConnection();
+//		$statement = $connection->prepare($sql);
+//		$result = $statement->execute();
+//		
+//		// Throw the exception if the exceptions are not thrown by the statement
+//		if ( ! $result) {
+//			$errorInfo = $statement->errorInfo();
+//			$errorString = $errorInfo[2];
+//			throw new \PDOException($errorString);
+//		}
 
 		$this->arrayHelper->move($node, $pos, $levelDiff);
 		

@@ -292,6 +292,8 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function setLevel($level)
 	{
 		$this->level = $level;
+		$this->setDepth($level);
+		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->setLevel($level);
 		}
@@ -334,6 +336,8 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function moveLevel($diff)
 	{
 		$this->level += $diff;
+		$this->setDepth($this->level);
+		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->moveLevel($diff);
 		}

@@ -570,6 +570,10 @@ class SchemaTool
                 }
             }
         }
+		
+		foreach ($fullSchema->getSequences() AS $sequence) {
+			$visitor->acceptSequence($sequence);
+		}
 
         return $visitor->getQueries();
     }

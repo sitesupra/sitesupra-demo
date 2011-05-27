@@ -5,6 +5,7 @@ define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_
 
 require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
 
+// Register namespaces for tests
 $loader = \Supra\Loader\Registry::getInstance();
 
 define('SUPRA_TESTS_PATH', SUPRA_PATH . '../tests/src/');

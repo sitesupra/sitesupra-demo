@@ -123,6 +123,8 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function setTemplate(Template $template)
 	{
 		$this->template = $template;
+		
+		$this->depth = $template->getDepth() + 1;
 	}
 
 	/**
@@ -148,8 +150,6 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 //			/* @var $pageData PageData */
 //			$pageData->setPathPart($pageData->getPathPart());
 //		}
-//
-//		$this->setDepth($page->depth + 1);
 //	}
 
 	/**
@@ -234,6 +234,8 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function setLevel($level)
 	{
 		$this->level = $level;
+//		$this->setDepth($level);
+		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->setLevel($level);
 		}
@@ -276,6 +278,8 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function moveLevel($diff)
 	{
 		$this->level += $diff;
+//		$this->setDepth($this->level);
+		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->moveLevel($diff);
 		}

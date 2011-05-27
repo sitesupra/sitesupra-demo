@@ -26,6 +26,8 @@ class PlaceHolder extends Entity
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
 	 *		column for distinguishing the place holder type,
 	 *		0: template; 1: page
+	 * FIXME: The DDC-482 was done but "INSTANCE OF" was created for WHERE
+	 *		conditions only
 	 * @Column(type="integer")
 	 * @var integer
 	 */
