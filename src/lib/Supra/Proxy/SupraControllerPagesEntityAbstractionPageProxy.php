@@ -22,8 +22,7 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
-            unset($this->_entityPersister);
-            unset($this->_identifier);
+            unset($this->_entityPersister, $this->_identifier);
         }
     }
 
@@ -32,24 +31,6 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
     {
         $this->_load();
         return parent::getId();
-    }
-
-    public function getParent()
-    {
-        $this->_load();
-        return parent::getParent();
-    }
-
-    public function setParent(\Supra\Controller\Pages\Entity\Abstraction\Page $parent = NULL)
-    {
-        $this->_load();
-        return parent::setParent($parent);
-    }
-
-    public function getChildren()
-    {
-        $this->_load();
-        return parent::getChildren();
     }
 
     public function getPlaceHolders()
@@ -88,6 +69,12 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::addPlaceHolder($placeHolder);
     }
 
+    public function getRepository()
+    {
+        $this->_load();
+        return parent::getRepository();
+    }
+
     public function getProperty($name)
     {
         $this->_load();
@@ -115,9 +102,23 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        if (!$this->__isInitialized__) {
-            throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
+        return array('__isInitialized__', 'id', 'depth');
+    }
+
+    public function __clone()
+    {
+        if (!$this->__isInitialized__ && $this->_entityPersister) {
+            $this->__isInitialized__ = true;
+            $class = $this->_entityPersister->getClassMetadata();
+            $original = $this->_entityPersister->load($this->_identifier);
+            if ($original === null) {
+                throw new \Doctrine\ORM\EntityNotFoundException();
+            }
+            foreach ($class->reflFields AS $field => $reflProperty) {
+                $reflProperty->setValue($this, $reflProperty->getValue($original));
+            }
+            unset($this->_entityPersister, $this->_identifier);
         }
-        return array('id', 'depth');
+        
     }
 }

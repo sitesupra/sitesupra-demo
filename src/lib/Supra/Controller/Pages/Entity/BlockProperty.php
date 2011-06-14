@@ -1,14 +1,14 @@
 <?php
 
-namespace Supra\Controller\Pages\Entity\Abstraction;
+namespace Supra\Controller\Pages\Entity;
 
-use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Exception,
+		Supra\Controller\Pages\Entity\Abstraction\Entity,
+		Supra\Controller\Pages\Entity\Abstraction\Data,
+		Supra\Controller\Pages\Entity\Abstraction\Block;
 
 /**
  * Block property class.
- * FIXME: in fact it suites to be in the Supra\Controller\Pages\Entity namespace
- *		but the Data and Block abstractions points to it so it's easier to keep
- *		it here.
  * @Entity
  * @Table(name="block_property")
  */
@@ -23,19 +23,27 @@ class BlockProperty extends Entity
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="Data")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data")
 	 * @JoinColumn(name="data_id", referencedColumnName="id", nullable=false)
 	 * @var Data
 	 */
 	protected $data;
 
 	/**
-	 * @ManyToOne(targetEntity="Block")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block")
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
 	 * @var Block
 	 */
 	protected $block;
 
+	/**
+	 * Content type (class name of Supra\Editable\EditableInterface class)
+	 * @TODO remove nullable
+	 * @Column(type="string", nullable="true")
+	 * @var string
+	 */
+	protected $type;
+	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -51,10 +59,12 @@ class BlockProperty extends Entity
 	/**
 	 * Constructor
 	 * @param string $name
+	 * @param string $type
 	 */
-	public function __construct($name)
+	public function __construct($name, $type)
 	{
 		$this->name = $name;
+		$this->type = $type;
 	}
 
 	/**
@@ -101,6 +111,24 @@ class BlockProperty extends Entity
 			$this->checkScope($this->block);
 			$block->addBlockProperty($this);
 		}
+	}
+	
+	/**
+	 * Get content type
+	 * @return string
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	/**
+	 * Set content type
+	 * @param string $type 
+	 */
+	public function setType($type)
+	{
+		$this->type = $type;
 	}
 
 	/**

@@ -47,7 +47,7 @@ class Controller extends ControllerAbstraction
 	 * Block abstraction class to be used
 	 * @var string
 	 */
-	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\BlockProperty';
+	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\BlockProperty';
 
 	/**
 	 * Current locale, set on execute start
@@ -60,7 +60,7 @@ class Controller extends ControllerAbstraction
 	 * @var string
 	 */
 	protected $media = 'screen';
-
+	
 	/**
 	 * Construct
 	 */
@@ -94,7 +94,7 @@ class Controller extends ControllerAbstraction
 	{
 		$this->media = 'screen';
 	}
-
+	
 	/**
 	 * Execute controller
 	 */
@@ -388,6 +388,7 @@ class Controller extends ControllerAbstraction
 		// function which adds controllers for the block
 		$controllerFactory = function(Entity\Abstraction\Block $block) {
 			$blockController = $block->controllerFactory();
+			
 			if (empty($blockController)) {
 				throw new SkipBlockException('Block controller was not found');
 			}
@@ -537,7 +538,7 @@ class Controller extends ControllerAbstraction
 
 		$result = $query->getResult();
 		
-		/* @var $blockProperty Entity\Abstraction\BlockProperty */
+		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($result as $blockProperty) {
 			$block = $blockProperty->getBlock();
 			$block->getController()->addProperty($blockProperty);

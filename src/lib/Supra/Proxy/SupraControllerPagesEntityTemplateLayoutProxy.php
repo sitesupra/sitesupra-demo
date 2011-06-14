@@ -22,8 +22,7 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
-            unset($this->_entityPersister);
-            unset($this->_identifier);
+            unset($this->_entityPersister, $this->_identifier);
         }
     }
 
@@ -64,6 +63,12 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
         return parent::getTemplate();
     }
 
+    public function getRepository()
+    {
+        $this->_load();
+        return parent::getRepository();
+    }
+
     public function getProperty($name)
     {
         $this->_load();
@@ -91,9 +96,23 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
 
     public function __sleep()
     {
-        if (!$this->__isInitialized__) {
-            throw new \RuntimeException("Not fully loaded proxy can not be serialized.");
+        return array('__isInitialized__', 'id', 'media', 'layout', 'template');
+    }
+
+    public function __clone()
+    {
+        if (!$this->__isInitialized__ && $this->_entityPersister) {
+            $this->__isInitialized__ = true;
+            $class = $this->_entityPersister->getClassMetadata();
+            $original = $this->_entityPersister->load($this->_identifier);
+            if ($original === null) {
+                throw new \Doctrine\ORM\EntityNotFoundException();
+            }
+            foreach ($class->reflFields AS $field => $reflProperty) {
+                $reflProperty->setValue($this, $reflProperty->getValue($original));
+            }
+            unset($this->_entityPersister, $this->_identifier);
         }
-        return array('id', 'media', 'layout', 'template');
+        
     }
 }

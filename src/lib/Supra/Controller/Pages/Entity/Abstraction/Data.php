@@ -2,7 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Supra\Controller\Pages\Entity\BlockProperty;
 
 /**
  * @Entity
@@ -34,7 +35,7 @@ abstract class Data extends Entity
 	protected $title;
 
 	/**
-	 * @OneToMany(targetEntity="BlockProperty", mappedBy="data", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="data", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $blockProperties;

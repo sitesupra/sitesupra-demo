@@ -8,7 +8,9 @@ use Supra\Controller\ControllerAbstraction,
 		Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\BlockController;
+		Supra\Controller\Pages\BlockController,
+		Supra\Controller\Pages\Entity\BlockProperty,
+		Supra\Editable\EditableAbstraction;
 
 /**
  * Block database entity abstraction
@@ -54,7 +56,7 @@ class Block extends Entity
 	protected $placeHolder;
 
 	/**
-	 * @OneToMany(targetEntity="BlockProperty", mappedBy="block", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $blockProperties;
@@ -196,13 +198,13 @@ class Block extends Entity
 	{
 		$component = $this->getComponent();
 		if ( ! \class_exists($component)) {
-			\Log::swarn("Block component $component was not found for block $block");
+			\Log::swarn("Block component $component was not found for block $this");
 			return null;
 		}
 
 		$blockController = new $component();
 		if ( ! ($blockController instanceof BlockController)) {
-			\Log::swarn("Block controller $component must be instance of BlockController in block $block");
+			\Log::swarn("Block controller $component must be instance of BlockController in block $this");
 			return null;
 		}
 
