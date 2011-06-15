@@ -11,11 +11,11 @@ interface EditableInterface
 	 * Loads content data
 	 * @return mixed
 	 */
-	public function getData();
+	public function getContent();
 	
 	/**
 	 * Sets content data
-	 * @param mixed $data
+	 * @param mixed $content
 	 */
-	public function setData($data);
+	public function setContent($content);
 }

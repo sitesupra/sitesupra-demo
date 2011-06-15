@@ -36,7 +36,7 @@ class TextController extends BlockController
 		$response->output('<div title="' . htmlspecialchars($comment) . '">');
 //		$response->output($this->getPropertyValue('html', 'defaultText'));
 		
-		$this->outputProperty('html', 'defaultText', $response);
+		$this->outputProperty('html', 'defaultText');
 		
 		$response->output('</div>');
 	}

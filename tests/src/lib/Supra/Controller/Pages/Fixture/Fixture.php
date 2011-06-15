@@ -191,7 +191,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				// used later in page
 				$this->headerTemplateBlock = $block;
 
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template Header');
@@ -203,7 +203,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template source');
@@ -216,7 +216,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPosition(100);
 				$block->setLocked();
 
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
@@ -265,10 +265,21 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		foreach (array('header', 'main', 'footer') as $name) {
 
 			if ($name == 'header') {
-				$blockProperty = new Entity\Abstraction\BlockProperty('html');
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
 				$blockProperty->setBlock($this->headerTemplateBlock);
 				$blockProperty->setData($page->getData('en'));
-				$blockProperty->setValue('<h1>Hello SiteSupra!</h1>');
+				$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
+				
+				$placeHolder = new Entity\PagePlaceHolder('header');
+				$placeHolder->setMaster($page);
+				
+				$block = new Entity\PageBlock();
+				$block->setComponent('Project\Text\TextController');
+				$block->setPlaceHolder($placeHolder);
+				$block->setPosition(0);
+				
+				$blockProperty->setData($pageData);
+				$blockProperty->setValue('this shouldn\'t be shown');
 			}
 
 			if ($name == 'main') {
@@ -282,7 +293,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 					// reverse order
 					$block->setPosition(100 * $i);
 
-					$blockProperty = new Entity\Abstraction\BlockProperty('html');
+					$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
 					$blockProperty->setBlock($block);
 					$blockProperty->setData($page->getData('en'));
 					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');

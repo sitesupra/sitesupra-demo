@@ -6,7 +6,9 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Request,
 		Supra\Response,
 		Supra\Editable\EditableAbstraction,
-		Supra\Editable\EditableInterface;
+		Supra\Editable\EditableInterface,
+		Supra\Controller\Pages\Request\HttpEditRequest,
+		Supra\Controller\Pages\Response\Block as BlockResponse;
 
 /**
  * Block controller abstraction
@@ -38,7 +40,15 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		return new Response\Http();
+		$response = null;
+		
+		if ($request instanceof HttpEditRequest) {
+			$response = new BlockResponse\ResponseEdit();
+		} else {
+			$response = new BlockResponse\ResponseView();
+		}
+		
+		return $response;
 	}
 
 	/**
@@ -120,47 +130,74 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * Get the content and output it to the response or return if no response 
 	 * object set
+	 * 
+	 * @TODO move to block response object
+	 * 
 	 * @param string $name
 	 * @param string $default
-	 * @param Response\ResponseInterface $response
-	 * @return string
 	 */
-	public function outputProperty($name, $default = null, Response\ResponseInterface $response = null)
+	public function outputProperty($name, $default = null)
 	{
-		$data = $this->getPropertyValue($name, $default);
+		$property = null;
+		
+		if ($this->propertyExists($name)) {
+			$property = $this->getProperty($name);
+		}
 		
 		$propertyDefinitions = $this->getPropertyDefinition();
 		$editable = null;
 		
+		//FIXME: some of this functionality should be moved to getPropertyValue
 		if (isset($propertyDefinitions[$name])) {
 			$editable = $propertyDefinitions[$name];
 			
 			if ( ! $editable instanceof EditableInterface) {
 				throw new Exception("Definition of property must be an instance of editable");
 			}
+			
+			$newProperty = false;
+			
+			if (empty($property)) {
+				$newProperty = true;
+			} else {
+				$propertyType = (string) $property->getType();
+				
+				if ( ! $editable instanceof $propertyType) {
+					$newProperty = true;
+				}
+			}
+			
+			/*
+			 * Must create new property here
+			 * 
+			 * FIXME: there is no real nead to create new property here because 
+			 * we will be using only content here...
+			 */
+			if ($newProperty) {
+				
+				$propertyType = get_class($editable);
+				
+				$property = new Entity\BlockProperty($name, $propertyType);
+				$property->setValue($default);
+				$property->setBlock($this->getBlock());
+				
+				// Must set some DATA object. Where to get this? And why data is set to property not block?
+				//$property->setData();
+			}
+			
+			$content = $property->getValue();
+			$editable->setContent($content);
+		} else {
+			throw new Exception("Content '{$name}' is not defined for block ");
 		}
 		
-		if ( ! empty($editable)) {
-			$editable->setData($data);
+		$response = $this->getResponse();
+		
+		if ( ! $response instanceof BlockResponse\Response) {
+			throw new Exception("Block controller response object must be instance of block response");
 		}
 		
-		// Default action is VIEW
-		$action = EditableAbstraction::ACTION_VIEW;
-		
-		// Check the editing mode by the request class
-		$request = $this->getRequest();
-		if ($request instanceof Request\HttpEditRequest) {
-			$action = EditableAbstraction::ACTION_EDIT;
-		}
-		
-		$filteredValue = $editable->getFilteredValue($action);
-		
-		if ($response instanceof Response\ResponseInterface) {
-			$response->output($filteredValue);
-			return;
-		}
-		
-		return $filteredValue;
+		$response->outputEditable($editable);
 	}
 
 	/**

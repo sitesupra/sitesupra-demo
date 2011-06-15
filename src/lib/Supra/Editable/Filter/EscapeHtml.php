@@ -16,10 +16,10 @@ class EscapeHtml implements FilterInterface
 	 */
 	public function filter(EditableInterface $editable)
 	{
-		$data = $editable->getData();
-		$data = htmlspecialchars($data);
+		$content = $editable->getContent();
+		$content = htmlspecialchars($content);
 		
-		return $data;
+		return $content;
 	}
 
 }

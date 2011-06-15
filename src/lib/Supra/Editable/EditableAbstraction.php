@@ -25,7 +25,7 @@ abstract class EditableAbstraction implements EditableInterface
 	/**
 	 * @return mixed
 	 */
-	protected $data;
+	protected $content;
 
 	/**
 	 * Content label
@@ -51,18 +51,18 @@ abstract class EditableAbstraction implements EditableInterface
 	 * Loads content data
 	 * @return mixed
 	 */
-	public function getData()
+	public function getContent()
 	{
-		return $this->data;
+		return $this->content;
 	}
 	
 	/**
 	 * Sets content data
-	 * @param mixed $data
+	 * @param mixed $content
 	 */
-	public function setData($data)
+	public function setContent($content)
 	{
-		$this->data = $data;
+		$this->content = $content;
 	}
 	
 	/**

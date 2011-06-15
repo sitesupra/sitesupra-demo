@@ -100,11 +100,17 @@ class FrontController
 	 */
 	protected function getRequestObject()
 	{
+		$request = null;
+		
 		if ( ! isset($_SERVER['SERVER_NAME'])) {
 			$request = new Request\Cli();
 		} else {
 			$request = new Request\Http();
 		}
+		
+		// TODO: remove, for dev purposes only
+//		$request = new Pages\Request\HttpEditRequest();
+		
 		return $request;
 	}
 

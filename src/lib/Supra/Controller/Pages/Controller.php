@@ -10,7 +10,9 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Locale\Data as LocaleData,
 		Doctrine\ORM\PersistentCollection,
 		Doctrine\ORM\Query\Expr,
-		Supra\Controller\NotFoundException;
+		Supra\Controller\NotFoundException,
+		Supra\Controller\Pages\Request\HttpEditRequest,
+		Supra\Controller\Pages\Response\PlaceHolder as PlaceHolderResponse;
 
 /**
  * Page controller
@@ -433,6 +435,24 @@ class Controller extends ControllerAbstraction
 		// Iterates through all blocks and calls the function passed
 		$this->iterateBlocks($blocks, $prepare);
 	}
+	
+	/**
+	 * Creates place holder response object
+	 * @param string $placeName
+	 * @return PlaceHolderResponse\Response
+	 */
+	public function createPlaceResponse($placeName)
+	{
+		$response = null;
+		
+		if ($this->request instanceof HttpEditRequest) {
+			$response = new PlaceHolderResponse\ResponseEdit();
+		} else {
+			$response = new PlaceHolderResponse\ResponseView();
+		}
+		
+		return $response;
+	}
 
 	/**
 	 * Iterates through blocks and returs array of place holder responses
@@ -442,14 +462,16 @@ class Controller extends ControllerAbstraction
 	protected function getPlaceResponses(array &$blocks)
 	{
 		$placeResponses = array();
+		$controller = $this;
 
-		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) use (&$placeResponses) {
+		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) use (&$placeResponses, $controller) {
 			$response = $block->getController()->getResponse();
+			
 			if ( ! isset($placeResponses[$placeName])) {
-				$placeResponses[$placeName] = $response;
-			} else {
-				$response->flushToResponse($placeResponses[$placeName]);
+				$placeResponses[$placeName] = $controller->createPlaceResponse($placeName);
 			}
+			
+			$response->flushToResponse($placeResponses[$placeName]);
 		};
 
 		// Iterates through all blocks and collects placeholder responses

@@ -16,10 +16,10 @@ class EditableHtml implements FilterInterface
 	 */
 	public function filter(EditableInterface $editable)
 	{
-		$data = $editable->getData();
+		$content = $editable->getContent();
 		
 		$html = '<div id="content_html_111" class="yui3-page-content yui3-page-content-html yui3-page-content-html-111">';
-		$html .= $data;
+		$html .= $content;
 		$html .= '</div>';
 		
 		return $html;

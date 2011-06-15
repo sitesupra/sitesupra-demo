@@ -16,6 +16,6 @@ class Raw implements FilterInterface
 	 */
 	public function filter(EditableInterface $editable)
 	{
-		return $editable->getData();
+		return $editable->getContent();
 	}
 }

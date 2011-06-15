@@ -3,9 +3,9 @@
 namespace Supra\Editable;
 
 /**
- * Html editable content
+ * Html editable content, extends string so the string could be extended to HTML content
  */
-class Html extends EditableAbstraction
+class Html extends String
 {
 	const EDITOR_NAME = 'html';
 	
