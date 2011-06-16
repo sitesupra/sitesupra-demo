@@ -83,6 +83,7 @@ class Http implements RequestInterface
 	public function getActions($limit = null)
 	{
 		$actions = $this->path->getPathList();
+		
 		if ($limit > 0) {
 			return array_slice($actions, 0, $limit);
 		} else {
@@ -130,6 +131,7 @@ class Http implements RequestInterface
 		if ( ! array_key_exists($key, $this->server)) {
 			return $default;
 		}
+		
 		return $this->server[$key];
 	}
 
@@ -162,6 +164,7 @@ class Http implements RequestInterface
 		if ( ! array_key_exists($key, $this->query)) {
 			return $default;
 		}
+		
 		return $this->query[$key];
 	}
 
@@ -194,6 +197,7 @@ class Http implements RequestInterface
 		if ( ! array_key_exists($key, $this->post)) {
 			return $default;
 		}
+		
 		return $this->post[$key];
 	}
 
@@ -226,6 +230,7 @@ class Http implements RequestInterface
 		if ( ! array_key_exists($key, $this->cookies)) {
 			return $default;
 		}
+		
 		return $this->cookies[$key];
 	}
 
@@ -254,6 +259,7 @@ class Http implements RequestInterface
 	public function isPost()
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		
 		return $requestMethod == 'POST';
 	}
 
@@ -264,6 +270,7 @@ class Http implements RequestInterface
 	public function isGet()
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		
 		return $requestMethod == 'GET';
 	}
 
@@ -278,6 +285,7 @@ class Http implements RequestInterface
 		$this->path->setSeparator($glue);
 		$path = $this->path->getPath();
 		$this->path->setSeparator($previousSeparator);
+		
 		return $path;
 	}
 }

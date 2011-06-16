@@ -82,12 +82,14 @@ class FrontController
 	 * @param Request\RequestInterface $request
 	 * @return ControllerInterface
 	 */
-	public function findController($request)
+	public function findController(Request\RequestInterface $request)
 	{
 		foreach ($this->getRouters() as $router) {
 			/* @var $router Router\RouterAbstraction */
+			
 			if ($router->match($request)) {
 				$controller = $router->getController();
+				
 				return $controller;
 			}
 		}
@@ -107,9 +109,6 @@ class FrontController
 		} else {
 			$request = new Request\Http();
 		}
-		
-		// TODO: remove, for dev purposes only
-//		$request = new Pages\Request\HttpEditRequest();
 		
 		return $request;
 	}

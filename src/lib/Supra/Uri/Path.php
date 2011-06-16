@@ -143,8 +143,8 @@ class Path
 	 */
 	public function startsWith(Path $path)
 	{
-
-		//\Log::error('aaa');
+		$probe = null;
+		$result = null;
 
 		if ($this->separator != $path->getSeparator()) {
 			throw new \Exception("The path separators for {$this} and {$path} must be equal for both parts in method " . __METHOD__);

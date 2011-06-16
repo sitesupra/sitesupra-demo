@@ -29,23 +29,29 @@ abstract class SimpleController extends ControllerAbstraction
 		if (empty($actions)) {
 			$actions = array(static::$defaultAction);
 		} else {
-			$first = true;
+			
+			// Normalize name
 			foreach ($actions as &$action) {
-				if ( ! $first) {
-					$action = ucfirst($action);
-				}
-				$first = false;
+				$action = explode('-', $action);
+				$action = array_map('mb_strtolower', $action);
+				$action = array_map('ucfirst', $action);
+				$action = implode($action);
 			}
 			unset($action);
 		}
 
 		$method = implode('', $actions) . 'Action';
+		$method = lcfirst($method);
 
 		\Log::sdebug('Method: ', $method);
 
-		if ( ! method_exists($this, $method)) {
+		$methods = get_class_methods($this);
+		
+		// TODO: do case sensitive method name search
+		if ( ! in_array($method, $methods)) {
 			throw new NotFoundException();
 		}
+		
 		$this->$method();
 	}
 

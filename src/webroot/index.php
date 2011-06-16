@@ -18,4 +18,6 @@ $configuration->configure($frontController, \Supra\Loader\Registry::getInstance(
 
 require_once SUPRA_COMPONENT_PATH . 'text/config.php';
 
+require_once SUPRA_COMPONENT_PATH . 'distributed-controller/config.php';
+
 $frontController->execute();

@@ -51,8 +51,10 @@ class Uri extends RouterAbstraction
 
 		if ($path->startsWith($this->path)) {
 			$path->setBasePath($this->path);
+			
 			return true;
 		}
+		
 		return false;
 	}
 

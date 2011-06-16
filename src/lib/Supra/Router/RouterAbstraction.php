@@ -40,7 +40,7 @@ abstract class RouterAbstraction implements RouterInterface
 	public function setControllerClass($controllerClass)
 	{
 		if (empty($controllerClass)) {
-			throw new Exception("Controller class name is not provided for the router");
+			throw new Exception\RuntimeException("Controller class name is not provided for the router");
 		}
 		$this->controllerClass = $controllerClass;
 	}
@@ -55,11 +55,11 @@ abstract class RouterAbstraction implements RouterInterface
 			return $this->controller;
 		}
 		if ( ! class_exists($this->controllerClass)) {
-			throw new Exception("Controller class {$this->controllerClass} cannot be found");
+			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
 		}
 		$this->controller = new $this->controllerClass;
 		if ( ! ($this->controller instanceof ControllerInterface)) {
-			throw new Exception("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
+			throw new Exception\RuntimeException("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
 		}
 		return $this->controller;
 	}
