@@ -1,0 +1,207 @@
+.yui3-right-container,
+.yui3-left-container {
+	width: 25%;
+	max-width: 400px;
+	min-width: 250px;
+	position: absolute;
+	top: 60px;
+	bottom: 10px;
+	border: 1px solid #eee;
+}
+.yui3-right-container {
+	right: 10px;
+	width: 17%;
+}
+.yui3-left-container {
+	left: 10px;
+}
+
+.yui3-top-container {
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	top: 67px;
+}
+
+.yui3-right-container .yui3-form-default .yui3-input label {
+	width: auto;
+	padding: 0 5px 7px;
+}
+.yui3-right-container .yui3-form-default .yui3-input-string label,
+.yui3-right-container .yui3-form-default .yui3-input-select-list label {
+	display: block;
+}
+.yui3-right-container .yui3-form-default .yui3-input-checkbox label {
+	padding: 7px 5px;
+	line-height: 1em;
+	vertical-align: middle;
+}
+.yui3-right-container .yui3-form-default .yui3-input-string input {
+	width: 100%;
+}
+.yui3-right-container .yui3-form-default .yui3-input-path input {
+	width: 50%;
+}
+
+.yui3-right-container .yui3-form-default .yui3-button-delete,
+.yui3-right-container .yui3-form-default .yui3-button-edit,
+.yui3-right-container .yui3-form-default .yui3-button-save {
+	margin-top: 10px;
+}
+
+/**
+ * Heading
+ */
+.yui3-right-container h2 {
+	font-size: 14px;
+	line-height: 16px;
+	padding: 8px 10px;
+	margin: 0;
+	background: #eee;
+	position: relative;
+}
+.yui3-right-container .yui3-form-default h2 {
+	margin: 0 -10px;
+}
+
+.yui3-right-container .yui3-form-buttons,
+.yui3-left-container .yui3-form-buttons {
+	padding: 0 10px 10px;
+	margin: 0 0 10px;
+	border-bottom: 1px solid #eee;
+}
+.yui3-right-container .yui3-form-default .yui3-form-buttons,
+.yui3-left-container .yui3-form-default .yui3-form-buttons {
+	margin: 0;
+}
+.yui3-left-container .yui3-form-buttons .yui3-button,
+.yui3-right-container .yui3-form-buttons .yui3-button {
+	margin: 10px 10px 0 0;
+}
+
+/**
+ * Buttons
+ */
+.yui3-page-buttons {
+	position: absolute;
+	z-index: 2;
+	right: 0;
+	top: 0;
+	height: 50px;
+	width: 350px;
+	overflow: hidden;
+}
+.yui3-page-buttons .yui3-button,
+.yui3-page-buttons .yui3-button div,
+.yui3-page-buttons .yui3-button button {
+	background-image: url(/cms/supra/img/toolbar/buttons-mid.png);
+}
+.yui3-page-buttons .yui3-button {
+	background-position: 100% -66px;
+	margin-right: 10px;
+}
+.yui3-page-buttons .yui3-button div {
+	background-position: 0 0;
+}
+.yui3-page-buttons .yui3-button button {
+	background-position: 0 -33px;
+}
+.yui3-page-buttons .yui3-button-focused,
+.yui3-page-buttons .yui3-button-mouse-hover {
+	background-position: 100% -165px;
+}
+.yui3-page-buttons .yui3-button-focused div,
+.yui3-page-buttons .yui3-button-mouse-hover div {
+	background-position: 0 -99px;
+}
+.yui3-page-buttons .yui3-button-focused button,
+.yui3-page-buttons .yui3-button-mouse-hover button {
+	background-position: 100% -132px;
+}
+.yui3-page-buttons .yui3-button-down {
+	background-position: 100% -264px;
+}
+.yui3-page-buttons .yui3-button-down div {
+	background-position: 0 -198px;
+}
+.yui3-page-buttons .yui3-button-down button {
+	background-position: 100% -231px;
+}
+
+.yui3-page-buttons .yui3-button-mid-blue {
+	background-position: 100% -363px;
+}
+.yui3-page-buttons .yui3-button-mid-blue div {
+	background-position: 0 -297px;
+}
+.yui3-page-buttons .yui3-button-mid-blue button {
+	background-position: 0 -330px;
+}
+.yui3-page-buttons .yui3-button p,
+.yui3-page-buttons .yui3-button-mid-blue p {
+	color: #333;
+	text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover {
+	background-position: 100% -462px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused div,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover div {
+	background-position: 0 -396px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused button,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover button {
+	background-position: 100% -429px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down {
+	background-position: 100% -561px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down div {
+	background-position: 0 -495px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down button {
+	background-position: 100% -528px;
+}
+
+.yui3-page-buttons .yui3-page-buttons-group {
+	white-space: nowrap;
+	position: absolute;
+	right: 0;
+	padding-top: 9px;
+	top: -50px; /* Node is animated inside view */
+}
+
+/**
+ * Properties form
+ * Show scrollbar only on content; buttons and heading should be visible at all times
+ */
+.yui3-form-properties .yui3-form-content {
+	margin: 0;
+	padding: 0 10px 10px;
+	top: 85px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: absolute;
+	overflow-y: auto;
+}
+ .yui3-form-properties h2 {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+}
+ .yui3-form-properties .yui3-page-buttons {
+	position: absolute;
+	z-index: 2;
+	right: 0;
+	top: 9px;
+}
+ .yui3-form-properties .yui3-form-buttons {
+	margin-bottom: 0;
+	left: 0;
+	top: 32px;
+	right: 0;
+	position: absolute;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>Content Manager v2</title>
+	
+	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
+	<script src="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/yui/yui-min.js&/cms/yui.3.3.0/build/loader/loader-min.js&/cms/supra/build/supra/supra.js&/cms/supra/build/supra/modules.js"></script>
+	
+	<!-- Load all base CSS files at once -->
+	<link rel="stylesheet" type="text/css" href="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/cssreset/reset.css&/cms/supra/build/supra/reset.css&/cms/supra/build/supra/common.css" />
+	
+</head>
+<body>
+	
+	<div class="cms-content" id="cmsContent"></div>
+	
+	<script type="text/javascript">
+		Supra('supra.manager', function (Y) {
+			//Set current manager path
+			Supra.Manager.Loader.setBasePath('/cms/content-manager-2/');
+			Supra.setWebsiteModulePath('/cms/content-manager-2/');
+			
+			//Configuration / parameters
+			Supra.data.set({
+				//Session (used in Ajax requests)
+				'session_name': 'SID',
+				'session_id': 'REPLACE_WITH_SESSION_ID_STRING',
+				
+				//Date & time formats
+				'date_format': 'dd.mm.yyyy',
+				'time_format': '24',
+				
+				//User data
+				'user': {
+					'userid': 1,
+					'username': 'Chuck Noriss',
+					'avatar': null
+				},
+				
+				//Page which will be initially loaded
+				'page': {
+					'id': 12
+				},
+				
+				//HTMLEditor + plugins
+				'supra.htmleditor': {
+					'stylesheets': {
+						'skip_default': false
+					},
+					'plugins': {
+						'image': {
+							'size': '200x200'
+						}
+					}
+				},
+				
+				//Gallery manager
+				'supra.gallerymanager': {
+					'properties': [
+						{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''},
+						{'id': 'description', 'type': 'String', 'label': 'Description', 'value': ''},
+						{'id': 'author', 'type': 'String', 'label': 'Author name', 'value': ''}
+					]
+				},
+			});
+			
+			
+			//Load base actions
+			Supra.Manager.loadActions(['Header', 'Root', 'Page']);
+			
+			//Execute initial actions
+			Supra.Manager.executeAction('Root');
+		});
+	</script>
+
+</body>
+</html>

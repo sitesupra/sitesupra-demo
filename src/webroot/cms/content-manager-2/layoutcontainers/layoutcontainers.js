@@ -1,0 +1,360 @@
+/**
+ * Actions: LayoutLeftContainer, LayoutRightContainer, LayoutTopContainer
+ * 
+ * Automatically syncs with iframe
+ * Containers for other actions, for example:
+ * 		LayoutLeftContainer - PageInsertBlock, MediaLibrary
+ * 		LayoutRightContainer - PageSettings,
+ * 		LayoutTopContainer - PageToolbar, EditorToolbar
+ */
+SU(function (Y) {
+
+	//Shortcut
+	var Manager = SU.Manager;
+	var Action = Manager.Action;
+	var Loader = Manager.Loader;
+	
+	//Container prototype
+	var ContainerProto = {
+		
+		/**
+		 * Unique action name
+		 * @type {String}
+		 * @private
+		 */
+		NAME: '',
+		
+		/**
+		 * Container classname
+		 * @type {String}
+		 * @private
+		 */
+		CONTAINER_SELECTOR: '',
+		
+		/**
+		 * Container can be hidden
+		 * @type {Boolean}
+		 * @private
+		 */
+		CAN_HIDE: true,
+		
+		/**
+		 * Action which will be visible if container can't be hidden
+		 * @type {Boolean}
+		 * @private
+		 */
+		PRIMARY_ACTION: '',
+		
+		/**
+		 * No need for template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: false,
+		
+		/**
+		 * Load CSS
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Currently visible action
+		 * @type {String}
+		 * @private
+		 */
+		active_action: null,
+		
+		/**
+		 * Initialize
+		 * @private
+		 */
+		initialize: function () {
+			//Update 
+			var nodes = Manager.getAction('LayoutContainers').getContainer(this.CONTAINER_SELECTOR);
+			this.set('srcNode', new Y.NodeList(nodes));
+			
+			//Set contentBox
+			this.set('boundingBox', this.get('srcNode'));
+			this.set('contentBox', this.getContainer(this.CONTAINER_SELECTOR + '-content'));
+			
+			//Show / hide buttons when action is shown / hidden
+			this.on('visibleChange', function (evt) {
+				if (evt.prevVal != evt.newVal) {
+					if (evt.newVal) {
+						this.getContainer().removeClass('hidden');
+					} else if (this.CAN_HIDE) {
+						this.getContainer().addClass('hidden');
+						this.setActiveAction(null);
+					} else {
+						this.setActiveAction(null);
+					}
+					
+					this.fire('resize');
+				}
+			}, this);
+		},
+		
+		/**
+		 * Returns currently active child action
+		 * 
+		 * @return Active action ID
+		 * @type {String}
+		 */
+		getActiveAction: function () {
+			return this.active_action;
+		},
+		
+		/**
+		 * Changes active child action
+		 * 
+		 * @param {String} actionId Action ID
+		 */
+		setActiveAction: function (actionId) {
+			if (!this.CAN_HIDE && !actionId) {
+				actionId = this.PRIMARY_ACTION;
+				Manager.getAction(actionId).execute();
+				return;
+			}
+			
+			if (this.active_action != actionId) {
+				var children = this.getChildActions(),
+					oldActionId = this.active_action;
+				
+				this.active_action = null;
+				
+				for(var id in children) {
+					if (id == actionId) {
+						children[id].show();
+						this.active_action = id;
+					} else if (id == oldActionId) {
+						children[id].hide();
+					}
+				}
+				
+				this.fire('activeActionChange', {newVal: this.active_action, oldVal: oldActionId});
+				
+				if (this.active_action) {
+					this.show();
+					if (this.layout) {
+						this.layout.syncUI();
+					} else {
+						this.fire('resize');
+					}
+				} else if (this.CAN_HIDE) {
+					this.hide();
+				} else {
+					if (this.layout) {
+						this.layout.syncUI();
+					} else {
+						this.fire('resize');
+					}
+				}
+			}
+		},
+		
+		/**
+		 * If active action is actionId, then unset it
+		 * 
+		 * @param {String} actionId Action ID
+		 */
+		unsetActiveAction: function (actionId) {
+			if (this.active_action == actionId) {
+				this.setActiveAction(null);
+			}
+		},
+		
+		/**
+		 * Add action
+		 * @param {Object} actionId
+		 */
+		addChildAction: function (actionId) {
+			//Check if it's not already added
+			var actions = this.getChildActions();
+			if (actionId in actions) return;
+			
+			//Change action place holder
+			var action = Manager.getAction(actionId);
+			action.hide();
+			action.setPlaceHolder(this.get('contentBox'));
+			
+			//Call super class method
+			Supra.Manager.Action.Base.prototype.addChildAction.apply(this, arguments);
+		},
+		
+		/**
+		 * Render widgets
+		 * @private
+		 */
+		render: function () {
+			if (!this.CAN_HIDE) {
+				this.show();
+			}
+		},
+		
+		/**
+		 * Execute action
+		 * 
+		 * @param {String} actionId Action name which will be visible inside container
+		 */
+		execute: function (actionId) {
+			this.setActiveAction(actionId);
+		}
+	};
+	
+	//Create Action for right container
+	new Action(SU.mix({}, ContainerProto, {
+		/**
+		 * Unique action name
+		 * @type {String}
+		 * @private
+		 */
+		NAME: 'LayoutRightContainer',
+		
+		/**
+		 * Container classname
+		 * @type {String}
+		 * @private
+		 */
+		CONTAINER_SELECTOR: '.yui3-right-container',
+		
+	}));
+	
+	
+	//Create Action for left container
+	new Action(SU.mix({}, ContainerProto, {
+		/**
+		 * Unique action name
+		 * @type {String}
+		 * @private
+		 */
+		NAME: 'LayoutLeftContainer',
+		
+		/**
+		 * Container classname
+		 * @type {String}
+		 * @private
+		 */
+		CONTAINER_SELECTOR: '.yui3-left-container'
+		
+	}));
+	
+	//Create Action for top container
+	new Action(SU.mix({}, ContainerProto, {
+		/**
+		 * Unique action name
+		 * @type {String}
+		 * @private
+		 */
+		NAME: 'LayoutTopContainer',
+		
+		/**
+		 * Container classname
+		 * @type {String}
+		 * @private
+		 */
+		CONTAINER_SELECTOR: '.yui3-top-container',
+		
+		/**
+		 * Container can be hidden
+		 * @type {Boolean}
+		 * @private
+		 */
+		CAN_HIDE: false,
+		
+		/**
+		 * Action which will be visible if container can't be hidden
+		 * @type {String}
+		 * @private
+		 */
+		PRIMARY_ACTION: 'PageToolbar'
+		
+	}));
+	
+	/*
+	 * LayoutContainers action manages Left Right and Top actions
+	 * and links them to other actions
+	 */
+	new Action({
+		/**
+		 * Unique action name
+		 * @type {String}
+		 * @private
+		 */
+		NAME: 'LayoutContainers',
+		
+		/**
+		 * No need for template
+		 * @type {Boolean}
+		 */
+		HAS_TEMPLATE: true,
+		
+		/**
+		 * Load CSS
+		 * @type {Boolean}
+		 */
+		HAS_STYLESHEET: true,
+		
+		
+		/**
+		 * Initialize
+		 * @private
+		 */
+		initialize: function () {
+			this.addChildAction('LayoutTopContainer');
+			this.addChildAction('LayoutLeftContainer');
+			this.addChildAction('LayoutRightContainer');
+			
+			var pageContent = Manager.getAction('PageContent');
+			pageContent.on('iframeReady', function () {
+				
+				var iframeObj = pageContent.iframeObj;
+				
+				//iFrame position sync with other actions
+				iframeObj.plug(SU.PluginLayout, {
+					'offset': [10, 10, 10, 10]	//Default offset from page viewport
+				});
+				
+				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				
+				//Top bar 
+				iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
+				iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.getContainer(), 'left', 10);
+				iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.getContainer(), 'right', 10);
+				
+				//Left and right bars also should sync position when Editor toolbar is shown/hidden
+				layoutLeftContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
+				layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
+				
+				layoutRightContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
+				layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
+				
+				//On left container show hide right container and wise versa
+				layoutLeftContainer.on('visibleChange', function (evt) {
+					if (evt.newVal != evt.prevVal && evt.newVal) layoutRightContainer.hide();
+				});
+				layoutRightContainer.on('visibleChange', function (evt) {
+					if (evt.newVal != evt.prevVal && evt.newVal) layoutLeftContainer.hide();
+				})
+			});
+			
+			//Show PageToolbar and load EditorToolbar
+			Manager.executeAction('EditorToolbar', true);
+			Manager.executeAction('PageToolbar');
+		},
+		
+		/**
+		 * Execute
+		 * @private
+		 */
+		execute: function () {
+			Manager.executeAction('LayoutLeftContainer');
+			Manager.executeAction('LayoutRightContainer');
+			Manager.executeAction('LayoutTopContainer');
+		}
+	});
+	
+});

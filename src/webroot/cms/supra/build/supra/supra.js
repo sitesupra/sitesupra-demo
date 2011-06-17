@@ -1,0 +1,303 @@
+if (typeof Supra === "undefined") {	
+(function () {
+	
+	/**
+	 * Create YUI instance for internal use
+	 */
+	var Y = YUI(), yui_base_set = false;
+	
+	/**
+	 * Global Supra namespace
+	 * 
+	 * Shorthand of YUI(Supra.YUI_BASE).use(...)
+	 * Only required argument is "ready callback function"
+	 * 
+	 * @param {Object} base Optional. Extend base with this argument
+	 * @param {String} require Optional. Module which will be loaded before calling ready function
+	 * @param {Function} fn Required. Ready callback function
+	 */
+	var Supra = this.Supra = this.SU = function () {
+		var base = null;
+		var args = [].concat(Supra.useModules);
+		
+		for(var i=0, ii=arguments.length; i<ii; i++) {
+			var type = Y.Lang.type(arguments[i]);
+			
+			if (type == 'function') {	// Callback function
+				
+				// catch errors in callback function
+				var fn = arguments[i];
+				args.push(function () {
+					try {
+						fn.apply(this, arguments);
+					} catch (e) {
+						Y.log(e, 'error');
+					}
+				});
+			
+			} else if (type == 'string') {				// Module
+				
+				// add module to the arguments  
+				args.push(arguments[i]);
+				
+			} else if (type == 'array') { 		// List of modules
+			
+				args = args.concat(arguments[i]);
+			
+			} else if (type == 'object') { 		// Base parameters
+				
+				// additional parameters for base
+				base = arguments[i];
+				
+				if ('modules' in base) {
+					base = {'groups': {'supra': base}};
+				}
+			}
+		}
+		
+		if (!yui_base_set) {
+			base = (base ? Y.mix(base, Supra.YUI_BASE, false, null, 0, true) : Supra.YUI_BASE);
+		}
+		
+		//Re-use same YUI instance
+		if (base) {
+			//If additional base properties are set, apply them
+			Y.applyConfig(base);
+			Y._setup();
+		}
+		
+		Y.use.apply(Y,args);
+	};
+	
+	/* Make YUI instance globally accessible */
+	Supra.Y = Y;
+	
+	/**
+	 * Configuration for YUI
+	 */
+	
+	/* YUI() base configuration */
+	Supra.YUI_BASE = {
+		//YUI file combo
+		combine:	true,
+	    root:		"/cms/yui." + YUI.version + "/build/",
+		base:		"/cms/yui." + YUI.version + "/build/",
+	    comboBase:	"/cms/yui." + YUI.version + "/combo/combo.php?",
+	    filter: "raw",
+		//Default skin
+		skin: {
+			defaultSkin: "supra"
+		},
+		
+		//group to enable automatic loading of Supra modules
+		groups: {
+			supra: {
+				//Supra modules
+				combine: true,
+				root: "/cms/supra/build/",
+				base: "/cms/supra/build/",
+				//Use YUI file combo
+				comboBase: "/cms/yui." + YUI.version + "/combo/combo.php?",
+				filter: "raw",
+				modules: null	//@see modules.js
+			},
+			website: {
+				//Website specific modules
+				combine: true,
+				root: "/cms/",
+				base: "/cms/",
+				//Use YUI file combo
+				comboBase: "/cms/yui." + YUI.version + "/combo/combo.php?",
+				filter: "raw",
+				modules: {}
+			}
+		}
+	};
+	
+	/**
+	 * Add module to module definition list
+	 * 
+	 * @param {String} id Module id
+	 * @param {Object} definition Module definition
+	 */
+	Supra.addModule = function (id, definition) {
+		if (Y.Lang.isString(id) && Y.Lang.isObject(definition)) {
+			var groupId = id.indexOf('website.') == 0 ? 'website' : 'supra';
+			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
+		}
+	};
+	
+	/**
+	 * Set path to modules with 'website' prefix
+	 * 
+	 * @param {String} path
+	 */
+	Supra.setWebsiteModulePath = function (path) {
+		var config = Supra.YUI_BASE.groups.website;
+		
+		//Add trailing slash
+		path = path.replace(/\/$/, '') + '/';
+		config.root = path;
+		config.base = path;
+	};
+	
+	/**
+	 * List of modules, which are added to use() automatically when using Supra()
+	 * @type {Array}
+	 */
+	Supra.useModules = [
+		'event',
+		'event-delegate',
+		'supra.event',
+		'supra.lang',
+		'node',
+		'widget',
+		'supra.datatype-date-parse',
+		'supra.base',
+		'supra.debug',
+		'supra.panel',
+		'supra.template',
+		'json',
+		'io',
+		'supra.io',
+		'supra.dom'
+	];
+	
+	/**
+	 * Data storage
+	 */
+	Supra.data = {
+		
+		//Date format
+		'date_format': '%d.%m.%Y',
+		
+		//First day of the week: 1 - Monday, 0 - Sunday
+		'date_first_week_day': 1,
+		
+		//Time format
+		'time_format': '%H:%M:%S',
+		'time_format_short': '%H:%M',
+		
+		/**
+		 * Set data
+		 */
+		set: function (key ,value) {
+			var group = null;
+			if (value && Y.Lang.isObject(value)) {
+				if (key in Supra.YUI_BASE.groups.supra.modules) group = Supra.YUI_BASE.groups.supra.modules;
+				else if (key in Supra.YUI_BASE.groups.website.modules) group = Supra.YUI_BASE.groups.website.modules;
+				
+				if (group) {
+					var mod = Supra.YUI_BASE.groups.supra.modules[key], found = false;
+					if (value.requires) {
+						for(var i=0,ii=value.requires.length; i<ii; i++) {
+							if (Y.Array.indexOf(mod.requires, value.requires[i]) == -1) {
+								mod.requires.push(value.requires[i]);
+							}
+						}
+					}
+				}
+			}
+			
+			if (value === undefined && Y.Lang.isObject(key)) {
+				Supra.mix(Supra.data, key); 
+			} else {
+				Supra.data[key] = value;
+				
+				var fn = '_set_' + key;
+				if (fn in Supra.data) {
+					Supra.data[fn](value);
+				}
+			}
+		},
+		
+		/**
+		 * Returns data
+		 * 
+		 * @param {String} key
+		 * @param {Object} default_value
+		 * @return Data item
+		 * @type {Object}
+		 */
+		get: function (keys, default_value) {
+			var keys = Y.Lang.isArray(keys) ? keys : [keys],
+				ret = Supra.data;
+			
+			for(var i=0,ii=keys.length; i<ii; i++) {
+				if (keys[i] in ret) {
+					ret = ret[keys[i]];
+				} else {
+					return default_value;
+				}
+			}
+			
+			return ret;
+		},
+		
+		/**
+		 * Mix together
+		 * 
+		 * @param {String} key
+		 * @param {Object} value
+		 */
+		mix: function (key, value) {
+			Supra.data.set(key, Supra.Y.mix(value, Supra.data.get(key, {}), false, null, 0, 2));
+		},
+		
+		/**
+		 * When date format changes update YUI configuration
+		 */
+		_set_date_format: function (format) {
+			Supra.Y.config.dateFormat = format;
+		},
+	};
+	
+	//Update YUI configuration
+	Supra.Y.config.dateFormat = Supra.data.date_format;
+	
+	
+	/**
+	 * Add module to automatically included module list
+	 * 
+	 * @param {String} module Name of the module, which will be automatically loaded
+	 */
+	Supra.autoLoadModule = function (module) {
+		Supra.useModules.push(module);
+	};
+	
+	/**
+	 * Mix objects together
+	 * 
+	 * @param {Object} dest Destination object
+	 * @param {Object} src Source object
+	 * @param {Boolean} deep If true, object children which are object will be mixed together
+	 * @return Mixed object
+	 * @type {Object}
+	 */
+	Supra.mix = function () {
+		if (!arguments.length || !Y.Lang.isObject(arguments[0])) return null;
+		var dest = arguments[0];
+		var args = [].slice.call(arguments, 1, arguments.length);
+		var deep = Y.Lang.isBoolean(args[args.length-1]) ? args[args.length-1] : false;
+		
+		for(var i=0, ii=args.length; i<ii; i++) {
+			if (Y.Lang.isObject(args[i])) {
+				for(var k in args[i]) {
+					if (deep && Y.Lang.isObject(args[i][k])) {
+						if (Y.Lang.isObject(dest[k])) {
+							dest[k] = Supra.mix(dest[k], args[i][k]);
+						} else {
+							dest[k] = Supra.mix({}, args[i][k]);
+						}
+					} else {
+						dest[k] = args[i][k];
+					}
+				}
+			}
+		}
+		
+		return dest;
+	};
+
+})();
+}

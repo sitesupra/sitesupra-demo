@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>YUI 3 + Supra</title>
+	
+	<script src="/cms/yui.3.1.0/build/yui/yui-min.js"></script>
+	
+	<!-- Load rest of JS files needed right now at once -->
+	<script src="/cms/yui.3.1.0/combo/combo.php?
+			/cms/supra/build/supra/supra.js&
+			/cms/supra/build/header/header.js&
+			
+			/cms/supra/build/manager-dashboard/dashboard.js&
+			/cms/supra/build/manager-dashboard/app-list.js&
+			/cms/supra/build/manager-dashboard/app-categories.js&
+			/cms/supra/build/manager-dashboard/app-dd.js&
+			/cms/supra/build/manager-dashboard/inbox.js&
+			/cms/supra/build/manager-dashboard/quick-stats.js&
+			
+			"></script>
+	
+	<!-- Load all CSS files needed right now at once -->
+	<link rel="stylesheet" type="text/css" href="/cms/yui.3.1.0/combo/combo.php?
+			/cms/yui.3.1.0/build/cssreset/reset.css&
+			/cms/supra/build/supra/reset.css&
+			/cms/supra/build/supra/common.css&
+			/cms/supra/build/header/header.css&
+			
+			/cms/supra/build/manager-dashboard/css/dashboard.css
+			" />
+	
+</head>
+<body>
+	
+	<!-- Page header -->
+	<div class="cms-header" id="cmsHeader">
+		<a class="pseudo-link logo">
+			<img src="/cms/supra/img/header-logo.png" alt="Site supra" />
+		</a>
+	</div>
+	
+	<div class="cms-content">
+				
+		<!-- APP list -->
+		<div id="dashboardAppList">
+			<ul class="app-list" id="drop">
+				<li class="app-list-expand">
+					<button>
+						<span class="more">More</span>
+						<span class="less">Less</span>
+					</button>
+				</li>
+				<li class="app-list-item"><a href="content.html">
+					<img src="/cms/supra/img/apps/content_48x48.png" alt="" />
+					<span>Pages</span>
+				</a></li>
+				<li class="app-list-item"><a>
+					<img src="/cms/supra/img/apps/news_48x48.png" alt="" />
+					<span>News</span>
+				</a></li>
+				<li class="app-list-item"><a>
+					<img src="/cms/supra/img/apps/forum_48x48.png" alt="" />
+					<span>Forum</span>
+				</a></li>
+				<li class="app-list-item"><a>
+					<img src="/cms/supra/img/apps/blog_48x48.png" alt="" />
+					<span>Blog</span>
+				</a></li>
+				<li class="app-list-item"><a>
+					<img src="/cms/supra/img/apps/poll_48x48.png" alt="" />
+					<span>Poll</span>
+				</a></li>
+				<li class="clear"><!-- --></li>
+			</ul>
+			
+			<!-- App categories -->
+			<div class="app-categories hidden" id="app-categories">
+				<ul class="categories">
+					<li><a href="#content1">Manage content</a></li>
+					<li><a href="#content2">Keep up with customers</a></li>
+					<li><a href="#content3">Track performance</a></li>
+					<li><a href="#content4">Maintenance</a></li>
+				</ul>
+				<div>
+					<div id="content1">
+						<ul class="app-list">
+							<li class="app-list-item"><a href="content.html">
+								<img src="/cms/supra/img/apps/content_48x48.png" alt="" />
+								<span>Pages</span>
+							</a></li>
+							<li class="app-list-item"><a>
+								<img src="/cms/supra/img/apps/news_48x48.png" alt="" />
+								<span>News</span>
+							</a></li>
+							<li class="app-list-item"><a>
+								<img src="/cms/supra/img/apps/forum_48x48.png" alt="" />
+								<span>Forum</span>
+							</a></li>
+							<li class="app-list-item"><a>
+								<img src="/cms/supra/img/apps/blog_48x48.png" alt="" />
+								<span>Blog</span>
+							</a></li>
+							<li class="app-list-item"><a>
+								<img src="/cms/supra/img/apps/poll_48x48.png" alt="" />
+								<span>Poll</span>
+							</a></li>
+							<li class="clear"><!-- --></li>
+						</ul>
+					</div>
+					<div id="content2">
+						<ul class="app-list">
+							<li class="app-list-item"><a href="content.html">
+								<img src="/cms/supra/img/apps/content_48x48.png" alt="" />
+								<span>Pages</span>
+							</a></li>
+							<li class="clear"><!-- --></li>
+						</ul>
+					</div>
+					<div id="content3">
+						<ul class="app-list">
+							<li class="app-list-item"><a href="content.html">
+								<img src="/cms/supra/img/apps/content_48x48.png" alt="" />
+								<span>Pages</span>
+							</a></li>
+							<li class="clear"><!-- --></li>
+						</ul>
+					</div>
+					<div id="content4">
+						<ul class="app-list">
+							<li class="app-list-item"><a href="content.html">
+								<img src="/cms/supra/img/apps/content_48x48.png" alt="" />
+								<span>Pages</span>
+							</a></li>
+							<li class="clear"><!-- --></li>
+						</ul>
+					</div>
+				</div>
+				<div class="clear"><!-- --></div>
+			</div>
+		</div>
+		
+		<!-- Inbox -->
+		
+		<!--
+		<div id="dashboardInbox" class="hidden">
+			<table>
+				<tr>
+					<th>Type</th>
+					<th>Message</th>
+					<th>Country & language</th>
+					<th>Date</th>
+				</tr>
+				<tr>
+					<td><img src="/cms/supra/img/inbox/types/cart.png" alt="Shop" /></td>
+					<td>Purchase of the video camera SUH-87949 - 1400 USD</td>
+					<td><img src="/cms/supra/img/flags/flag_lv.gif" alt="Latvia" /> <span>(Lat)</span></td>
+					<td>12.12.2009</td>
+				</tr>
+				<tr>
+					<td><img src="/cms/supra/img/inbox/types/page.png" alt="Page" /></td>
+					<td>How can I get in touch with you?</td>
+					<td><img src="/cms/supra/img/flags/flag_sw.gif" alt="Sweden" /> <span>(Swe)</span></td>
+					<td>12.12.2009</td>
+				</tr>
+				<tr>
+					<td><img src="/cms/supra/img/inbox/types/app.png" alt="Application" /></td>
+					<td>Please rework design on landing page!</td>
+					<td><img src="/cms/supra/img/flags/flag_lv.gif" alt="Latvia" /> <span>(Lat)</span></td>
+					<td>12.12.2009</td>
+				</tr>
+			</table>
+		</div>
+		-->
+		
+		<!-- Quick stats -->
+		<!--
+		<div id="dashboardQuickStats" class="hidden">
+			<br /><br /><br /><br />
+		</div>
+		-->
+		
+		<div class="clear"><!-- --></div>
+	</div>
+	
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+.version-list li {
+	padding: 5px 5px 20px;
+	line-height: 16px;
+	cursor: pointer;
+}
+
+.version-list ul {
+	padding: 10px 0 0;
+}
+.version-list li:hover {
+	background: #eee;
+	padding-bottom: 5px;
+	
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+.version-list li h5 {
+	line-height: 20px;
+	font-weight: bold;
+	padding: 0 0 1px;
+}
+
+.version-list-buttons {
+	text-align: center;
+}
+
+.version-item-buttons {
+	padding: 5px 0 0;
+	display: none;
+}
+.version-list li:hover .version-item-buttons {
+	display: block;
+}
+.version-item-buttons .yui3-button {
+	margin-right: 13px;
+}

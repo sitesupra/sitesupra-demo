@@ -1,0 +1,468 @@
+YUI.add("supra.calendar", function (Y) {
+	
+	var getClass = Y.ClassNameManager.getClassName,
+		YDate = Y.DataType.Date;
+	
+	//Internal date format
+	var DATE_FORMAT = '%Y-%m-%d';
+	
+	/**
+	 * Calendar class 
+	 * 
+	 * @alias Supra.Calendar
+	 * @param {Object} config Configuration
+	 */
+	function Calendar (config) {
+		Calendar.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	Calendar.NAME = "calendar";
+	
+	Calendar.ATTRS = {
+		'dateFormat': Supra.data.get('date_format'),
+		'firstWeekDay': Supra.data.get('date_first_week_day'),
+		
+		'headerTitle': '',
+		'navigationNode': null,
+		'bodyNode': null,
+		'datesNode': null,
+		
+		/**
+		 * Date
+		 */
+		'date': {
+			value: new Date(),
+			setter: '_setDate'
+		},
+		
+		/**
+		 * Predefined date list
+		 */
+		'dates': {
+			value: [],
+			setter: '_setDates'
+		},
+		
+		/**
+		 * Currently visible month
+		 */
+		'displayDate': {
+			value: null,
+			setter: '_setDisplayDate'
+		},
+		
+		/**
+		 * Min date
+		 */
+		'minDate': {
+			value: null,
+			setter: '_setMinDate'
+		},
+		
+		/**
+		 * Max date
+		 */
+		'maxDate': {
+			value: null,
+			setter: '_setMaxDate'
+		}
+	};
+	
+	Calendar.HTML_PARSER = {
+		'navigationNode': function (srcNode) {
+			return srcNode.one('.' + getClass(Calendar.NAME, 'nav'));
+		},
+		'bodyNode': function (srcNode) {
+			return srcNode.one('.' + getClass(Calendar.NAME, 'body'));
+		},
+		'datesNode': function (srcNode) {
+			return srcNode.one('.' + getClass(Calendar.NAME, 'dates'));
+		}
+	};
+	
+	Y.extend(Calendar, Y.Widget, {
+		/**
+		 * Calendar animation object
+		 * @type {Object}
+		 */
+		anim: null,
+		animReverse: null,
+		animDir: -1,
+		
+		renderUI: function () {
+			var contentNode = this.get('contentBox'),
+				navNode = this.get('navigationNode'),
+				bodyNode = this.get('bodyNode'),
+				suggestionsNode = this.get('suggestionsNode');
+			
+			if (!navNode) {
+				navNode = Y.Node.create(
+					'<div class="' + getClass(Calendar.NAME, 'nav') + '">\
+						<a class="' + getClass(Calendar.NAME, 'prev') + '"></a>\
+						<a class="' + getClass(Calendar.NAME, 'next') + '"></a>\
+						<p></p>\
+					</div>');
+				
+				contentNode.prepend(navNode);
+				this.set('navigationNode', navNode);
+				
+				navNode.one('.yui3-calendar-prev').on('click', this.goPrevMonth, this);
+				navNode.one('.yui3-calendar-next').on('click', this.goNextMonth, this);
+			}
+			
+			if (!bodyNode) {
+				bodyNode = Y.Node.create(
+					'<div class="' + getClass(Calendar.NAME, 'body') + '"></div>');
+				
+				navNode.insert(bodyNode, 'after');
+				this.set('bodyNode', bodyNode);
+				
+				bodyNode.delegate('click', Y.bind(this._selectDate, this), 'td');
+			}
+			
+			if (!suggestionsNode) {
+				suggestionsNode = Y.Node.create(
+					'<div class="' + getClass(Calendar.NAME, 'suggestions') + '"></div>');
+				
+				contentNode.append(suggestionsNode);
+				this.set('suggestionsNode', suggestionsNode);
+			}
+			
+			this.set('displayDate', this.get('date'));
+			this.set('date', this.get('date'));
+			this.set('dates', this.get('dates'));
+			
+			//Redraw when date chagnes
+			this.after('dateChange', this.syncUISelected, this);
+			
+			//Redraw when display date changes
+			this.after('displayDateChange', this.onDisplayDateChange, this);
+			
+			//Create animation
+			this.anim = new Y.Anim({
+				node: bodyNode,
+			    duration: 0.1,
+			    easing: Y.Easing.easeOutStrong,
+				from: {opacity: 1, left: 0},
+				to: {opacity: 0, left: -16}
+			});
+			this.anim.on('end', function () {
+				this.syncUI();
+				this.animReverse.set('from', {opacity: 0, left: this.animDir * -16});
+				this.animReverse.run();
+			}, this);
+			
+			this.animReverse = new Y.Anim({
+				node: bodyNode,
+			    duration: 0.1,
+			    easing: Y.Easing.easeOut,
+				from: {opacity: 0, left: 16},
+				to: {opacity: 1, left: 0}
+			});
+		},
+		
+		onDisplayDateChange: function (e) {
+			if (e.prevVal.getFullYear() != e.newVal.getFullYear() || e.prevVal.getMonth() != e.newVal.getMonth()) {
+				this.animDir = e.newVal.getTime() > e.prevVal.getTime() ? -1 : 1;
+				this.anim.set('to', {opacity: 0, left: this.animDir * 16});
+				this.anim.run();
+			}
+		},
+		
+		renderCalendarBody: function () {
+			var date = this._dateGetDateOnly(this.get('date')),
+				dateTime = date.getTime(),
+				minDate = this.get('minDate'),
+				maxDate = this.get('maxDate'),
+				minDateTime = 0,
+				maxDateTime = 0,
+				curDate = this._dateGetDateOnly(this.get('displayDate')),
+				curDateTime = 0,
+				curMonth = curDate.getMonth(),
+				lastDate = new Date(curDate),
+				lastDateTime = null,
+				firstWeekDay = parseInt(this.get('firstWeekDay'), 10) || 1,
+				weekDayNames = Y.Intl.get('datatype-date-format').a,
+				bodyNode = this.get('bodyNode'),
+				headHTML = [],
+				bodyHTML = [],
+				rowHTML = [],
+				k,
+				classname = '';
+			
+			if (minDate) minDateTime = this._dateGetDateOnly(minDate).getTime();
+			if (maxDate) maxDateTime = this._dateGetDateOnly(maxDate).getTime();
+			
+			//Set date to first which is visible in calendar (possibly last month)
+			curDate.setDate(1);
+			var day = firstWeekDay - curDate.getDay() + 1;
+			curDate.setDate(day > 1 ? day - 7 : day);
+			curDateTime = curDate.getTime();
+			
+			//Set date to last which is visible in calendar (possible next month)
+			lastDate = new Date(curDate);
+			lastDate.setDate(curDate.getDate() + 41);
+			/*
+			lastDate.setDate(1);
+			lastDate.setMonth(lastDate.getMonth() + 1);
+			
+			if (lastDate.getDay() != (firstWeekDay + 6) % 7) {
+				lastDate.setDate(lastDate.getDate() + (7 - lastDate.getDay() + firstWeekDay));
+			}
+			*/
+			lastDateTime = lastDate.getTime();
+			
+			//Render header
+			for(var i=firstWeekDay,ii=7+firstWeekDay; i<ii; i++) {
+				k = i % 7;
+				headHTML.push('<th>' + weekDayNames[k].substr(0,1) + '</th>');
+			}
+			
+			//Render body
+			k = 0;
+			
+			while(curDateTime < lastDateTime) {
+				classname = '';
+				if (curDateTime == dateTime) {
+					classname += ' selected';
+				}
+				
+				if ((minDateTime && minDateTime > curDateTime) || (maxDateTime && maxDateTime < curDateTime)) {
+					classname += ' disabled';
+				}
+				if (curMonth != curDate.getMonth()) {
+					classname += ' out';
+				}
+				
+				rowHTML.push('<td data-date="' + YDate.format(curDate, {format: DATE_FORMAT}) + '"' + (classname ? ' class="' + classname + '"' : '') + '>' + curDate.getDate() + '</td>');
+				
+				k++;
+				if (k == 7) {
+					k = 0;
+					bodyHTML.push('<tr>' + rowHTML.join('') + '</tr>');
+					rowHTML = [];
+				}
+				
+				curDate.setDate(curDate.getDate()+1);
+				curDateTime = curDate.getTime();
+			}
+			
+			if (rowHTML.length) bodyHTML.push('<tr>' + rowHTML.join('') + '</tr>');
+			
+			bodyNode.set('innerHTML', '<table><thead><tr>' + headHTML.join('') + '</tr></thead><tbody>' + bodyHTML.join('') + '</tbody></table>');
+		},
+		
+		syncUI: function () {
+			var date = this.get('displayDate');
+			
+			//Set navigation month
+			var monthName = YDate.format(date, {format: '%B %Y'});
+			this.get('navigationNode').one('p').set('innerHTML', monthName);
+			
+			this.renderCalendarBody();
+		},
+		
+		syncUISelected: function () {
+			var bodyNode = this.get('bodyNode'),
+				nodeSelected = bodyNode.one('.selected'),
+				date = YDate.format(this.get('date'), {format: DATE_FORMAT});
+			
+			//Unmark old element
+			if (nodeSelected) nodeSelected.removeClass('selected')
+			
+			//Mark new element
+			nodeSelected = bodyNode.one('td[data-date="' + date + '"]');
+			if (nodeSelected) nodeSelected.addClass('selected');
+		},
+		
+		/**
+		 * Show previous month
+		 */
+		goPrevMonth: function (e) {
+			var date = new Date(this.get('displayDate'));
+			date.setMonth(date.getMonth() - 1);
+			this.set('displayDate', date);
+			
+			if (e) e.halt();
+		},
+		
+		/**
+		 * Show next month
+		 */
+		goNextMonth: function (e) {
+			var date = new Date(this.get('displayDate'));
+			date.setMonth(date.getMonth() + 1);
+			this.set('displayDate', date);
+			
+			if (e) e.halt();
+		},
+		
+		/**
+		 * Set selected date
+		 * 
+		 * @param {Event} e
+		 */
+		_selectDate: function (e) {
+			var target = e.target;
+				target = target.test('TD') ? target : target.ancestor('TD');
+			
+			if (target.hasClass('disabled')) return;
+			
+			var attr = target.getAttribute('data-date'),
+				date = YDate.parse(attr, {format: DATE_FORMAT});
+			
+			this.set('date', date);
+		},
+		
+		/**
+		 * Validate and set date
+		 * 
+		 * @param {Date} date
+		 * @return Date
+		 * @type {Date}
+		 * @private
+		 */
+		_setDate: function (date) {
+			var format = this.get('dateFormat'),
+				minDate = this.get('minDate'),
+				maxDate = this.get('maxDate');
+			
+			date = YDate.parse(date, {'format': format});
+			date = date || this.get('date') || new Date();
+			
+			if (minDate && date.getTime() < minDate.getTime()) {
+				date = new Date(minDate);
+			} else if (maxDate && date.getTime() > maxDate.getTime()) {
+				date = new Date(maxDate);
+			}
+			
+			return date;
+		},
+		
+		/**
+		 * Validate and set date
+		 * 
+		 * @param {Date} date
+		 * @return Date
+		 * @type {Date}
+		 * @private
+		 */
+		_setDisplayDate: function (date) {
+			var format = this.get('dateFormat');
+			
+			date = YDate.parse(date, {'format': format});
+			date = date || this.get('displayDate') || new Date();
+			
+			return date;
+		},
+		
+		/**
+		 * Validate and set min-date
+		 * 
+		 * @param {Date} date
+		 * @return Date
+		 * @type {Date}
+		 * @private
+		 */
+		_setMinDate: function (minDate) {
+			var format = this.get('dateFormat'),
+				date = this.get('date') || new Date();
+			
+			minDate = minDate ? YDate.parse(minDate, {'format': format}) : null;
+			if (minDate && date.getTime() < minDate.getTime()) {
+				this.set('date', new Date(minDate));
+			}
+			return minDate;
+		},
+		
+		/**
+		 * Validate and set max-date
+		 * 
+		 * @param {Date} date
+		 * @return Date
+		 * @type {Date}
+		 * @private
+		 */
+		_setMaxDate: function (maxDate) {
+			var format = this.get('dateFormat'),
+				date = this.get('date') || new Date();
+			
+			maxDate = maxDate ? YDate.parse(maxDate, {'format': format}) : null;
+			if (maxDate && date.getTime() < maxDate.getTime()) {
+				this.set('date', new Date(maxDate));
+			}
+			return maxDate;
+		},
+		
+		/**
+		 * Removes time from date (sets to 00:00:00)
+		 * 
+		 * @param {Date} date
+		 * @return Date object with time 00:00:00
+		 * @type {Date}
+		 */
+		_dateGetDateOnly: function (date) {
+			var d = new Date(date);
+			d.setHours(0);
+			d.setMinutes(0);
+			d.setSeconds(0);
+			d.setMilliseconds(0);
+			return d;
+		},
+		
+		/**
+		 * Draw predefined date list
+		 * 
+		 * @param {Array} dates Date list
+		 */
+		_setDates: function (dates) {
+			var datesNode = this.get('datesNode');
+			
+			if (Y.Lang.isArray(dates)) {
+				if (!datesNode) {
+					datesNode = Y.Node.create('<div class="' + getClass(Calendar.NAME, 'dates') + '"></div>');
+					datesNode.delegate('click', Y.bind(this._onDatesItemClick, this), 'a');
+					this.set('datesNode', datesNode);
+				} else {
+					datesNode.all('a').remove();
+				}
+				
+				var date = '';
+				for(var i=0,ii=dates.length; i<ii; i++) {
+					date = YDate.format(dates[i].date, {format: DATE_FORMAT});
+					datesNode.append(Y.Node.create('<a data-date="' + dates[i].date + '">' + dates[i].title + '</a>'));
+				}
+				
+				this.get('contentBox').append(datesNode);
+			} else if (datesNode) {
+				datesNode.remove();
+				this.set('datesNode', null);
+			}
+			
+			return dates;
+		},
+		
+		/**
+		 * Handle click on dates item
+		 */
+		_onDatesItemClick: function (e) {
+			var target = e.target;
+			var date = target.getAttribute('data-date');
+			
+			date = YDate.parse(date, {'format': DATE_FORMAT});
+			
+			this.set('date', date);
+			this.set('displayDate', date);
+		}
+		
+	});
+	
+	
+	Supra.Calendar = Calendar;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:["widget", "anim", "datatype-date", "supra.calendar-css"]});

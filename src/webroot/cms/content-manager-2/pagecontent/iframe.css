@@ -1,0 +1,190 @@
+/**
+ * This stylesheet is added to iframe content
+ */
+
+.yui3-hidden {
+	display: none !important;
+}
+
+.yui3-page-content {
+	overflow: hidden;
+}
+
+.yui3-page-content-proto-overlay {
+	display: none;
+}
+.yui3-page-content-proto-editing {
+	display: none !important;
+}
+
+.yui3-editable .yui3-page-content-proto-overlay {
+	display: block;
+	position: absolute;
+	padding: 5px;
+	margin: -5px 0 0 -5px;
+	cursor: pointer;
+	z-index: 9999;
+	
+	/* FF 3 */
+	-moz-border-radius: 4px;
+	-moz-transition-property: -moz-box-shadow, box-shadow, border-color;
+	-moz-transition-duration: 0.25s;
+	
+	/* Webkit */
+	-webkit-border-radius: 4px;
+	-webkit-transition-property: -webkit-box-shadow, border-color;
+	-webkit-transition-duration: 0.25s;
+	
+	/* FF4, IE9, ... */
+	border-radius: 4px;
+	transition-property: box-shadow, border-color;
+	transition-duration: 0.25s;
+	
+	box-shadow: 0;
+	border: 2px solid rgba(255,0,0,0);
+}
+.yui3-editable .yui3-page-content-proto-overlay:hover,
+.yui3-editable .yui3-page-content-proto-overlay-hover {
+	/* FF3 */
+	-moz-box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
+	-moz-transition-property:  -moz-box-shadow, box-shadow, border-color;
+	-moz-transition-duration: 0.2s;
+	
+	/* WebKit */
+	-webkit-box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
+	-webkit-transition-property: -webkit-box-shadow, border-color;
+	-webkit-transition-duration: 0.2s;
+	
+	/* FF4, IE9, ... */
+	box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
+	transition-property: box-shadow, border-color;
+	transition-duration: 0.25s;
+	
+	border: 2px solid #FF0000;
+	background: rgba(255,242,242,0.5);
+}
+
+.yui3-editable .yui3-page-content-proto-overlay span {
+	display: none;
+	position: absolute;
+	left: 0;
+	right: 0;
+	width: 100%;
+	text-align: center;
+	top: 50%;
+	margin-top: -6px;
+	font: 18px Arial, Helvetica;
+	color: #f00000;
+}
+.yui3-editable .yui3-page-content-proto-overlay:hover span {
+	display: block;
+}
+
+.yui3-page-content-editing {
+	outline: 2px solid #f00;
+	
+	position: relative;
+	z-index: 10000;
+	
+	-moz-outline-radius: 0 0 4px 4px;
+	-webkit-outline-radius: 0 0 4px 4px;
+	outline-radius: 0 0 4px 4px;
+	
+	-moz-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	-webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	
+	overflow: hidden;
+}
+
+/**
+ * Specific content styles
+ */
+
+.yui3-page-content-list {
+	overflow: visible;
+	min-height: 10px;
+}
+
+.yui3-page-content-html-editing img {
+	cursor: pointer !important;
+}
+.yui3-page-content-html-editing img.yui3-image-selected,
+.yui3-page-content-html-editing img.yui3-gallery-selected {
+	/* Image focused */
+	outline: 2px dashed #ccc;
+}
+
+.yui3-highlight .yui3-highlight-list {
+	outline: 2px solid #f00;
+	
+	-moz-outline-radius: 4px;
+	-webkit-outline-radius: 4px;
+	outline-radius: 4px;
+	
+	-moz-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	-webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	
+	overflow: hidden;
+}
+
+/**
+ * = Controls
+ */
+.yui3-controls {
+	position: relative;
+	height: 0px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	z-index: 10001;
+}
+	.yui3-controls-content {
+		position: absolute;
+		top: -44px;
+		left: -2px;
+		right: -2px;
+		
+		background: #f5f5f5;
+		-moz-border-radius: 4px 4px 0 0;
+		-webkit-border-radius: 4px 4px 0 0;
+		border-radius: 4px 4px 0 0;
+		border: 2px solid #f00;
+		border-bottom: 0;
+		
+		-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+		-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+		
+		padding: 5px;
+	}
+	.yui3-controls-content .yui3-button-mid-blue {
+		float: right;
+	}
+
+/**
+ * = Content
+ */
+*::-moz-focus-inner {
+	border: 0;
+	outline: none;
+}
+
+table:focus {
+	-moz-box-shadow: 0 0 3px #A2E4FF;
+	-webkit-box-shadow: 0 0 3px #A2E4FF;
+	box-shadow: 0 0 3px #A2E4FF;
+}
+td:focus {
+	-moz-box-shadow: 0 0 1px #A2E4FF;
+	-webkit-box-shadow: 0 0 1px #A2E4FF;
+	box-shadow: 0 0 1px #A2E4FF;
+}
+
+.su-uneditable, .su-uneditable * {
+	cursor: default !important;
+}
+.su-editable, .su-editable * {
+	cursor: text !important;
+}

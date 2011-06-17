@@ -1,0 +1,102 @@
+/**
+  * Table of contents:
+  *		= Common classes
+  *		= Links
+  *		= Headings
+  *
+  */
+html {
+	height: 100%;
+}
+html, body {
+	min-height: 100%;
+}
+body {
+	font: 13px Arial, Helvetica, sans-serif;
+	color: #333;
+}
+
+/**
+  * = Common classes
+  */
+.clear {
+	clear: both;
+	height: 0;
+}
+.clearfix:after {
+	clear: both;
+	content: ' ';
+	display: block;
+	font-size: 0;
+	line-height: 0;
+	visibility: hidden;
+	width: 0;
+	height: 0;
+}
+.clearfix {
+	display: block;
+	min-height: 0;
+}
+
+.hidden {
+	display: none !important;
+}
+
+a.visible, em.visible, i.visible, strong.visible, b.visible, span.visible { display: inline !important; }
+table.visible { display: table !important; }
+tr.visible { display: table-row !important; }
+td.visible, th.visible { display: table-cell !important; }
+div.visible, p.visible, ul.visible, ol.visible, li.visible, h1.visible, h2.visible, h3.visible, h4.visible,
+h5.visible, h6.visible, pre.visible, code.visible, form.visible, fieldset.visible, blockquote.visible {
+	display: block !important;
+}
+
+/**
+  * = Links
+  */
+a, .pseudo-link {
+	color: #36C;
+	outline-color: #36C;
+	text-decoration: underline;
+	cursor: pointer;
+}
+	a:hover, .pseudo-link:hover {
+		text-decoration: none;
+	}
+	
+a.disabled, .pseudo-link.disabled {
+	color: #ccc;
+	text-decoration: none;
+	cursor: default;
+}
+
+
+/**
+  * = Headings
+  */
+h1 {
+	font-size: 22px;
+	font-weight: normal;
+}
+h2 {
+	font-size: 18px;
+}
+h3 {
+	font-size: 16px;
+}
+h4 {
+	font-size: 15px;
+}
+h5, h6 {
+	font-size: 14px;
+}
+
+/**
+ * Forms
+ */
+input, select, textarea {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;		/* Safari, Chrome */
+	-moz-box-sizing: border-box;		/* FF */
+	-ms-box-sizing: border-box;			/* IE8 */
+}

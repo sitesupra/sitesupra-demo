@@ -1,0 +1,34 @@
+.page-versions {
+	padding: 15px 15px 30px;
+}
+	.page-versions label {
+		display: block;
+		text-align: center;
+		margin: 10px 0 0;
+		padding: 0;
+		color: #999;
+	}
+	.page-versions .buttons .yui3-button {
+		margin-top: 10px;
+	}
+	.page-versions .yui3-button-large {
+		font-size: 16px;
+	}
+	.page-versions .yui3-button-large button {
+		width: 200px;
+	}
+	.page-versions .yui3-button-large small {
+		font-size: 12px;
+		line-height: 1em;
+		display: block;
+		text-align: center;
+	}
+	
+	.page-versions .yui3-button-mid-red {
+		width: 158px;
+		margin: 8px auto 0;
+		display: block;
+	}
+	.page-versions .yui3-button-mid-red button {
+		width: 150px;
+	}

@@ -1,0 +1,30 @@
+.yui3-template-list {
+	list-style: none;
+	padding: 5px 0 10px 5px;
+	float: left;
+}
+.yui3-template-list li {
+	padding: 5px 130px 5px 0;
+	cursor: pointer;
+}
+.yui3-template-list div {
+	width: 130px;
+	height: 130px;
+	border: 1px solid #ccc;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	float: right;
+	margin-right: -130px;
+}
+.yui3-template-list li:hover div {
+	border-color: #36c;
+}
+.yui3-template-list img {
+	display: block;
+	margin: 3px 0 0 3px;
+}
+.yui3-template-list p {
+	padding: 55px 20px 0 0;
+	font-size: 12px;
+}

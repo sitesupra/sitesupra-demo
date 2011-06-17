@@ -49,16 +49,9 @@ abstract class DistributedController extends ControllerAbstraction
 			$request->getPath()->setBasePath(new \Supra\Uri\Path($baseAction));
 		}
 		
-		// Normalize abc-DEF to class AbcDef so the request remains case insensitive
-		$baseAction = explode('-', $baseAction);
-		$baseAction = array_map('mb_strtolower', $baseAction);
-		$baseAction = array_map('ucfirst', $baseAction);
-		$baseAction = implode($baseAction);
-		
 		// Finding class NAMESPACE\AbcDef\AbcDefAction
 		$baseNamespace = $this->getBaseNamespace();
-		$class = $baseNamespace . '\\' . $baseAction . '\\' . $baseAction 
-				. static::ACTION_CLASS_SUFFIX;
+		$class = $this->getClassName($baseNamespace, $baseAction);
 
 		\Log::sdebug('Class: ', $class);
 
@@ -77,6 +70,36 @@ abstract class DistributedController extends ControllerAbstraction
 		$actionController->execute();
 		
 		$response->flushToResponse($this->getResponse());
+	}
+	
+	/**
+	 * @param string $url
+	 * @return string
+	 */
+	protected function normalizeUrl($url)
+	{
+		$url = explode('-', $url);
+		$url = array_map('mb_strtolower', $url);
+		$url = array_map('ucfirst', $url);
+		$url = implode($url);
+		
+		return $url;
+	}
+	
+	/**
+	 * @param string $namespace
+	 * @param string $action
+	 * @return string 
+	 */
+	protected function getClassName($namespace, $action)
+	{
+		// Normalize abc-DEF to class AbcDef so the request remains case insensitive
+		$action = $this->normalizeUrl($action);
+		
+		$class = $namespace . '\\' . $action . '\\' . $action 
+				. static::ACTION_CLASS_SUFFIX;
+		
+		return $class;
 	}
 
 	/**

@@ -1,0 +1,14 @@
+/**
+  * = Page content wrapper 
+  */
+.cms-content {
+	margin: 15px 0 15px;
+	padding: 0 20px;
+}
+
+body.loading {
+	background: url(/cms/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+body.loading .cms-content {
+	opacity: 0;
+}

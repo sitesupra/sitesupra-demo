@@ -1,0 +1,89 @@
+.yui3-gallery-manager {
+	position: absolute;
+	z-index: 2;
+	top: 177px;
+	bottom: 10px;
+	left: 10px;
+	right: 10px;
+	background: #fff;
+}
+.yui3-gallery-manager-content {
+	border: 1px solid #eee;
+	background: #fff;
+	width: 100%;
+	height: 100%;
+	
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.yui3-gallery-manager h2 {
+    background: #eee;
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0;
+    padding: 8px 10px;
+    position: relative;
+}
+
+
+/**
+ * Heading
+ */
+.yui3-gallery-manager h2 {
+	font-size: 14px;
+	line-height: 16px;
+	padding: 8px 10px;
+	margin: 0;
+	background: #eee;
+	position: relative;
+}
+
+.yui3-gallery-manager .yui3-form-buttons {
+	padding: 0 0 10px;
+	border-bottom: 1px solid #eee;
+	margin: 0 10px 10px;
+}
+.yui3-gallery-manager .yui3-form-buttons .yui3-button {
+	margin: 10px 10px 0 0;
+}
+
+/**
+ * List
+ */
+.yui3-gallery-manager .list {
+	padding: 0 10px;
+	overflow: hidden;
+}
+.yui3-gallery-manager .list > li {
+	padding: 5px;
+	margin: 0 10px 10px 0; 
+	background: #fff;
+	float: left;
+	min-width: 60px;
+	min-height: 60px;
+	
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,.25);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.25);
+	box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.yui3-gallery-manager .list img {
+	display: block;
+	cursor: move;
+}
+
+.yui3-gallery-manager .list > li.yui3-dd-dragging {
+	/* Item which is draged */
+	opacity: 0.25;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+.yui3-gallery-manager .list > li.gallery-item-proxy {
+	/* Drag proxy item */
+	opacity: 0.5;
+	width: 60px !important;
+	height: 60px !important;
+}

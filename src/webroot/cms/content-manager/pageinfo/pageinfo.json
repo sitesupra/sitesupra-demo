@@ -1,0 +1,16 @@
+{
+	"latest": {
+		"id": 222,
+		"type": "published",
+		"preview_url": "/cms/supra/img/page-preview-1.jpg"
+	},
+	
+	"scheduled": {
+		"id": 111,
+		"type": "publish",
+		"date": "12.05.10",
+		"preview_url": "/cms/supra/img/page-preview-2.jpg"
+	},
+	
+	"last_modified_by": "Kaspars"
+}

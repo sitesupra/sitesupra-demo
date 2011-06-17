@@ -20,4 +20,6 @@ require_once SUPRA_COMPONENT_PATH . 'text/config.php';
 
 require_once SUPRA_COMPONENT_PATH . 'distributed-controller/config.php';
 
+require_once SUPRA_WEBROOT_PATH . 'cms/content-manager-2/config.php';
+
 $frontController->execute();
