@@ -112,7 +112,7 @@ Supra(function (Y) {
 			this.loading = true;
 			this.data = null;
 			
-			Supra.io(this.getPath() + 'page.json.php', {
+			Supra.io(this.getPath(), {
 				'data': {'id': page_id},
 				'on': {
 					'success': function (evt, data) {
