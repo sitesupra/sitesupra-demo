@@ -45,6 +45,15 @@ class TemplateData extends Abstraction\Data
 		$this->matchDiscriminator($master);
 		$this->setTemplate($master);
 	}
+	
+	/**
+	 * Get master object (page/template)
+	 * @return Template
+	 */
+	public function getMaster()
+	{
+		return $this->getTemplate();
+	}
 
 	/**
 	 * @return Template

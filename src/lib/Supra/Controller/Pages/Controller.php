@@ -4,7 +4,8 @@ namespace Supra\Controller\Pages;
 
 use Supra\Controller\ControllerAbstraction,
 		Supra\Response,
-		Supra\Request,
+		Supra\Response\ResponseInterface,
+		Supra\Request\RequestInterface,
 		Supra\Controller\Layout,
 		Supra\Database\Doctrine,
 		Supra\Locale\Data as LocaleData,
@@ -66,10 +67,25 @@ class Controller extends ControllerAbstraction
 	/**
 	 * Construct
 	 */
-	public function  __construct()
+	public function __construct()
 	{
 		$this->setLocale();
 		$this->setMedia();
+	}
+	
+	/**
+	 * Downcasts receives request object into 
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
+	 */
+	public function prepare(RequestInterface $request, ResponseInterface $response)
+	{
+		// Downcast to local request object
+		if ( ! $request instanceof namespace\Request\Request) {
+			$request = new namespace\Request\RequestView($request);
+		}
+		
+		parent::prepare($request, $response);
 	}
 
 	/**
@@ -195,10 +211,10 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Generate response object
-	 * @param Request\RequestInterface
+	 * @param RequestInterface
 	 * @return Response\Http
 	 */
-	public function createResponse(Request\RequestInterface $request)
+	public function createResponse(RequestInterface $request)
 	{
 		return new Response\Http();
 	}
@@ -445,7 +461,8 @@ class Controller extends ControllerAbstraction
 	{
 		$response = null;
 		
-		if ($this->request instanceof HttpEditRequest) {
+		// TODO: create edit response for unlocked place holders ONLY
+		if ($this->request instanceof namespace\Request\RequestEdit) {
 			$response = new PlaceHolderResponse\ResponseEdit();
 		} else {
 			$response = new PlaceHolderResponse\ResponseView();

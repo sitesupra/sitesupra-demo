@@ -95,6 +95,12 @@ abstract class Data extends Entity
 	 * @param Page $master
 	 */
 	abstract public function setMaster(Page $master);
+	
+	/**
+	 * Get master object (page/template)
+	 * @return Page
+	 */
+	abstract public function getMaster();
 
 	/**
 	 * @param BlockProperty $blockProperty

@@ -2,12 +2,10 @@
 
 namespace Supra\Controller\Pages\Request;
 
-use Supra\Request\Http;
-
 /**
  * Request object for edit mode requests
  */
-class HttpEditRequest extends Http
+class RequestEdit extends Request
 {
 	//TODO: should overwrite the constructor, etc
 }

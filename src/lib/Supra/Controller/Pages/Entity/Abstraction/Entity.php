@@ -306,4 +306,25 @@ abstract class Entity
 		$query = $queryBuilder->getQuery();
 		return $query->getResult();
 	}
+	
+	/**
+	 * Are the both entity records equal in means of database record
+	 * @param Entity $entity
+	 * @return boolean
+	 */
+	public function equals(Entity $entity)
+	{
+		// Equals if matches
+		if ($entity == $this) {
+			return true;
+		}
+		
+		$id = $this->getId();
+		
+		if ( ! empty($id) && $entity->getId() == $id) {
+			return true;
+		}
+		
+		return false;
+	}
 }

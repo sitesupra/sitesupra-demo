@@ -1,11 +1,10 @@
 <?php
 
-namespace Supra\Cms\ContentManager\index;
+namespace Supra\Cms\ContentManager\root;
 
 /**
- * Description of IndexAction
  */
-class IndexAction extends \Supra\Controller\SimpleController
+class RootAction extends \Supra\Controller\SimpleController
 {
 	public function indexAction()
 	{

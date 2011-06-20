@@ -3,7 +3,8 @@
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection;
+		Doctrine\Common\Collections\Collection,
+		Supra\Controller\Pages\Entity\BlockProperty;
 
 /**
  * Page abstraction
@@ -202,6 +203,63 @@ class Page extends Entity
 	protected function setDepth($depth)
 	{
 		$this->depth = $depth;
+	}
+	
+	public function isBlockPropertyEditable(BlockProperty $blockProperty)
+	{
+		$page = $blockProperty->getData()
+				->getMaster();
+		
+		$editable = $page->equals($this);
+
+		return $editable;
+	}
+	
+	private function containsBlock(Block $block)
+	{
+		$page = $block->getPlaceHolder()
+				->getMaster();
+		
+		$contains = $page->equals($this);
+		
+		return $contains;
+	}
+	
+	public function isBlockEditable(Block $block)
+	{
+		// Contents are editable if block belongs to the page
+		if ($this->containsBlock($block)) {
+			return true;
+		}
+		
+		// Also if it's not locked
+		if ( ! $block->getLocked()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function isBlockManageable(Block $block)
+	{
+		// Contents are editable if block belongs to the page
+		if ($this->containsBlock($block)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function isPlaceHolderEditable(PlaceHolder $placeHolder)
+	{
+		// Place holder can be ediable if it belongs to the page
+		$page = $placeHolder->getMaster();
+		
+		if ($page->equals($this)) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 }

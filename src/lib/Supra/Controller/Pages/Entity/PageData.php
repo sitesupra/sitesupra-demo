@@ -50,6 +50,15 @@ class PageData extends Abstraction\Data
 		$this->matchDiscriminator($master);
 		$this->setPage($master);
 	}
+	
+	/**
+	 * Get master object (page/template)
+	 * @return Page
+	 */
+	public function getMaster()
+	{
+		return $this->getPage();
+	}
 
 	/**
 	 * @return Page

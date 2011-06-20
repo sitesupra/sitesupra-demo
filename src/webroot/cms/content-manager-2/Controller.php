@@ -13,7 +13,7 @@ class Controller extends DistributedController
 	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'index';
+	protected static $defaultAction = 'root';
 	
 	public function getBaseNamespace()
 	{
