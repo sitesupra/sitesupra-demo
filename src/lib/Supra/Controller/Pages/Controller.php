@@ -29,12 +29,6 @@ class Controller extends ControllerAbstraction
 	const PAGE_ENTITY = 'Supra\Controller\Pages\Entity\Page';
 
 	/**
-	 * Page data class to be used
-	 * @var string
-	 */
-	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
-
-	/**
 	 * Block abstraction class to be used
 	 * @var string
 	 */
@@ -69,7 +63,6 @@ class Controller extends ControllerAbstraction
 	 */
 	public function __construct()
 	{
-		$this->setLocale();
 		$this->setMedia();
 	}
 	
@@ -85,7 +78,19 @@ class Controller extends ControllerAbstraction
 			$request = new namespace\Request\RequestView($request);
 		}
 		
+		$em = $this->getDoctrineEntityManager();
+		$request->setDoctrineEntityManager($em);
+		
 		parent::prepare($request, $response);
+	}
+	
+	/**
+	 * Overriden to specify correct return class
+	 * @return \Supra\Controller\Pages\Request\Request
+	 */
+	public function getRequest()
+	{
+		return $this->request;
 	}
 
 	/**
@@ -94,16 +99,17 @@ class Controller extends ControllerAbstraction
 	protected function getDoctrineEntityManager()
 	{
 		$em = Doctrine::getInstance()->getEntityManager();
+		
 		return $em;
 	}
 
 	/**
 	 * Sets current locale
 	 */
-	protected function setLocale()
-	{
-		$this->locale = LocaleData::getInstance()->getCurrent();
-	}
+//	protected function setLocale()
+//	{
+//		$this->locale = LocaleData::getInstance()->getCurrent();
+//	}
 
 	/**
 	 * Sets current media
@@ -119,7 +125,7 @@ class Controller extends ControllerAbstraction
 	public function execute()
 	{
 		// fetch page/template hierarchy list
-		$masters = $this->collectMasterNodes();
+		$masters = $this->collectPageHierarchy();
 		
 		/* @var $masterIds int[] */
 		$masterIds = Entity\Abstraction\Entity::collectIds($masters);
@@ -172,19 +178,16 @@ class Controller extends ControllerAbstraction
 	 * Collects template/page hierarchy array
 	 * @return array
 	 */
-	protected function collectMasterNodes()
+	protected function collectPageHierarchy()
 	{
-		$page = $this->getRequestPage();
+		$page = $this->getRequest()
+				->getRequestPage();
+		
 		\Log::sdebug('Found page #', $page->getId());
 
-		$templates = $page->getTemplates();
-		if (empty($templates[0])) {
-			throw new Exception('Response from getTemplates should contain at least 1 template for page #' . $page->getId());
-		}
-		$masters = $templates;
-		$masters[] = $page;
+		$hierarchy = $page->getHierarchy();
 		
-		return $masters;
+		return $hierarchy;
 	}
 
 	/**
@@ -220,37 +223,6 @@ class Controller extends ControllerAbstraction
 	}
 
 	/**
-	 * Get request page by current action
-	 * @return Page
-	 * @throws Exception
-	 */
-	protected function getRequestPage()
-	{
-		$action = $this->request->getActionString();
-		$action = trim($action, '/');
-
-		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository(static::PAGE_DATA_ENTITY);
-
-		$searchCriteria = array(
-			'locale' => $this->locale,
-			'path' => $action,
-		);
-
-		//TODO: think about "enable path params" feature
-		
-		/* @var $page Entity\PageData */
-		$pageData = $er->findOneBy($searchCriteria);
-
-		if (empty($pageData)) {
-			//TODO: 404 page
-			throw new NotFoundException("No page found by path '$action' in pages controller");
-		}
-
-		return $pageData->getPage();
-	}
-
-	/**
 	 * @param array $masterIds
 	 * @param array $layoutPlaceNames
 	 * @return array of placeholders
@@ -275,8 +247,28 @@ class Controller extends ControllerAbstraction
 				->addOrderBy('m.depth', 'ASC');
 		
 		$query = $qb->getQuery();
-		$places = $query->getResult();
-
+		$allPlaces = $query->getResult();
+		
+		$places = array();
+		$lockedPlaces = array();
+		
+		foreach ($allPlaces as $place) {
+			/* @var $place PlaceHolder */
+			
+			$name = $place->getName();
+			
+			// Skipping already locked places
+			if (array_key_exists($name, $lockedPlaces)) {
+				continue;
+			}
+			
+			if ($place->getLocked()) {
+				$lockedPlaces[$name] = true;
+			}
+			
+			$places[] = $place;
+		}
+		
 		\Log::sdebug('Count of place holders found: ' . count($places));
 
 		return $places;
@@ -532,20 +524,27 @@ class Controller extends ControllerAbstraction
 
 		$cnt = 0;
 
-		$locale = $this->locale;
+		$locale = $this->getRequest()
+				->getLocale();
 
-		$collectCondition = function($block) use (&$cnt, $qb, $expr, &$or, $finalNode, $locale) {
+		$collectCondition = function(Entity\Abstraction\Block $block) use (&$cnt, $qb, $expr, &$or, $finalNode, $locale) {
+			
+			$master = null;
+			
 			if ($block->getLocked()) {
 				$master = $block->getPlaceHolder()
 						->getMaster();
 			} else {
 				$master = $finalNode;
 			}
+			
 			\Log::sdebug("Master node for {$block} is found - {$master}");
+			
 			// FIXME: n+1 problem
 			$data = $master->getData($locale);
+			
 			if (empty($data)) {
-				\Log::swarn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
+				\Log::swarn("The data record has not been found for page {$master} locale {$locale}, will not fill block parameters");
 				throw new SkipBlockException('Page data for locale not found');;
 			}
 
@@ -573,6 +572,7 @@ class Controller extends ControllerAbstraction
 				->from(static::BLOCK_PROPERTY_ENTITY, 'bp')
 				->where($or);
 		$query = $qb->getQuery();
+		
 		\Log::sdebug("Running query {$qb->getDQL()} to find block properties");
 
 		$result = $query->getResult();

@@ -215,7 +215,7 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * Get array of template hierarchy starting from the root
 	 * @return Template[]
 	 */
-	public function getTemplatesHierarchy()
+	public function getHierarchy()
 	{
 		$template = $this;
 

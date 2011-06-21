@@ -153,11 +153,11 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 //	}
 
 	/**
-	 * Get page template hierarchy starting with the root template
-	 * @return Template[]
+	 * Get page and it's template hierarchy starting with the root template
+	 * @return Abstraction\Page[]
 	 * @throws Exception
 	 */
-	public function getTemplates()
+	public function getHierarchy()
 	{
 		$template = $this->getTemplate();
 
@@ -166,9 +166,11 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 			throw new Exception("No template assigned to the page {$this->getId()}");
 		}
 
-		$templates = $template->getTemplatesHierarchy();
+		$hierarchy = $template->getHierarchy();
+		
+		$hierarchy[] = $this;
 
-		return $templates;
+		return $hierarchy;
 	}
 
 	/**

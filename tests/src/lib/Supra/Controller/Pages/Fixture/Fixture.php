@@ -278,6 +278,8 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
 				
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
+				$blockProperty->setBlock($block);
 				$blockProperty->setData($pageData);
 				$blockProperty->setValue('this shouldn\'t be shown');
 			}

@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection,
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\Template", "page" = "Supra\Controller\Pages\Entity\Page"})
  * @Table(name="page_abstraction")
  */
-class Page extends Entity
+abstract class Page extends Entity
 {
 	/**
 	 * Data class
@@ -261,5 +261,11 @@ class Page extends Entity
 		
 		return false;
 	}
+	
+	/**
+	 * Loads array of page/template hierarchy
+	 * @return Page[]
+	 */
+	abstract public function getHierarchy();
 	
 }

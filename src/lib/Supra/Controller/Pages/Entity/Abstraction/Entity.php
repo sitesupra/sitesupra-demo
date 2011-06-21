@@ -293,6 +293,7 @@ abstract class Entity
 		foreach ($entities as $entity) {
 			$ids[] = $entity->getId();
 		}
+		
 		return $ids;
 	}
 
