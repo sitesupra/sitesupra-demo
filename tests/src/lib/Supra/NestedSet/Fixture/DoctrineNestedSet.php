@@ -32,6 +32,11 @@ class DoctrineNestedSet extends NestedSet
 		$connection = $em->getConnection();
 		$statement = $connection->prepare($sql);
 		$statement->execute();
+		
+		// For postgresql
+		$sql = "SELECT setval('product_id_seq', MAX(id)) FROM product";
+		$statement = $connection->prepare($sql);
+		$statement->execute();
 
 		/* @var $rep Model\ProductRepository */
 		$rep = $em->getRepository('Supra\Tests\NestedSet\Model\Product');

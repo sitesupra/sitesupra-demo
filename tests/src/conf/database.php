@@ -29,11 +29,13 @@ $sqlLogger = new \Supra\Log\Logger\Sql();
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(
-	'driver' => 'pdo_mysql',
-	'user' => 'root',
-	'password' => '1qaz',
+	'driver' => 'pdo_pgsql',
+	'user' => 'arena',
+	'password' => 'arena',
 	'dbname' => 'supra7test'
 );
+
+$config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 $em = EntityManager::create($connectionOptions, $config);
 
