@@ -16,7 +16,11 @@ class ResponseEdit extends Response
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		$response->output('<div class="place-holder">');
+		//TODO: hardcoded
+		static $ids = array('sidebar', 'inner', 'footer');
+		$id = array_shift($ids);
+		
+		$response->output('<div id="content_list_' . $id . '" class="yui3-page-content yui3-page-content-list yui3-page-content-list-' . $id . '">');
 		parent::flushToResponse($response);
 		$response->output('</div>');
 	}

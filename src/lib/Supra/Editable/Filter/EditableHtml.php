@@ -16,9 +16,13 @@ class EditableHtml implements FilterInterface
 	 */
 	public function filter(EditableInterface $editable)
 	{
+		//TODO: hardcoded
+		static $ids = array('111', '222', '333', '444', '555', '666', '777');
+		$id = array_shift($ids);
+		
 		$content = $editable->getContent();
 		
-		$html = '<div id="content_html_111" class="yui3-page-content yui3-page-content-html yui3-page-content-html-111">';
+		$html = '<div id="content_html_' . $id . '" class="yui3-page-content yui3-page-content-html yui3-page-content-html-' . $id . '">';
 		$html .= $content;
 		$html .= '</div>';
 		

@@ -22,8 +22,10 @@ class ResponseEdit extends Response
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		$response->output('<div class="block">');
+		//TODO: pass the block 
+		
+//		$response->output('<div class="block">');
 		parent::flushToResponse($response);
-		$response->output('</div>');
+//		$response->output('</div>');
 	}
 }

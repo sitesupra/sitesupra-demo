@@ -12,12 +12,6 @@ use Supra\Request\Http,
 class RequestView extends Request
 {
 	/**
-	 * Page data class to be used
-	 * @var string
-	 */
-	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
-	
-	/**
 	 * @param Http $request
 	 */
 	public function __construct(Http $request)

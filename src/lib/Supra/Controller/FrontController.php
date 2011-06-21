@@ -70,11 +70,23 @@ class FrontController
 	{
 		$request = $this->getRequestObject();
 		$controller = $this->findController($request);
+		
+		$this->runController($controller, $request);
+		
+		$controller->output();
+	}
+	
+	/**
+	 * Runs controller
+	 * @param ControllerInterface $controller
+	 * @param Request\RequestInterface $request
+	 */
+	public function runController(ControllerInterface $controller, Request\RequestInterface $request)
+	{
 		$response = $controller->createResponse($request);
 		$response->prepare();
 		$controller->prepare($request, $response);
 		$controller->execute();
-		$controller->output();
 	}
 
 	/**

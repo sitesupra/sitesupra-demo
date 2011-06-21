@@ -14,6 +14,7 @@ abstract class Response extends Http
 	 * Get the content and output it to the response or return if requested
 	 * 
 	 * TODO: no editable mode for editables belonging to parent objects
+	 * TODO: must send block property object not editable
 	 * 
 	 * @param EditableInterface $editable
 	 * @return string

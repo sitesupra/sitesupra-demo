@@ -43,12 +43,6 @@ class Block extends Entity
 	protected $position;
 
 	/**
-	 * @Column(type="boolean", nullable=true)
-	 * @var boolean
-	 */
-	protected $locked = false;
-
-	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
 	 * @JoinColumn(name="place_holder_id", referencedColumnName="id", nullable=false)
 	 * @var PlaceHolder
@@ -76,12 +70,12 @@ class Block extends Entity
 	}
 
 	/**
-	 * Get locked value, false for page blocks
+	 * Get locked value, always false for page blocks
 	 * @return boolean
 	 */
 	public function getLocked()
 	{
-		return $this->locked;
+		return false;
 	}
 
 	/**
@@ -170,6 +164,7 @@ class Block extends Entity
 		$placeHolder = $this->getPlaceHolder();
 		$placeHolderId = $placeHolder->getId();
 		$in = in_array($placeHolderId, $placeHolderIds);
+		
 		return $in;
 	}
 
@@ -179,15 +174,18 @@ class Block extends Entity
 	 */
 	protected function validateLock()
 	{
-		if ($this->locked) {
-			if (isset($this->placeHolder)) {
-				if ( ! $this->placeHolder->getLocked()) {
-					$this->locked = false;
-					throw new Exception("The block {$this} cannot be locked
-							because the place holder {$this->placeHolder} isn't locked");
-				}
-			}
-		}
+		//FIXME: I think this can be removed because it is legal to lock the 
+		// block inside unlocked place holder currently
+		
+//		if ($this->locked) {
+//			if (isset($this->placeHolder)) {
+//				if ( ! $this->placeHolder->getLocked()) {
+//					$this->locked = false;
+//					throw new Exception("The block {$this} cannot be locked
+//							because the place holder {$this->placeHolder} isn't locked");
+//				}
+//			}
+//		}
 	}
 
 	/**

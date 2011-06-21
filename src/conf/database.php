@@ -40,6 +40,7 @@ $connectionOptions = array(
 	'dbname' => 'supra7'
 );
 
+// TODO: move to some other configuration
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 $em = EntityManager::create($connectionOptions, $config);

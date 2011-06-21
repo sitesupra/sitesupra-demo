@@ -91,8 +91,30 @@ class PageAction extends SimpleController
 	
 	public function previewAction()
 	{
+		//TODO: Must get real controller, should be bound somehow
+		$controller = new \Project\Pages\Controller();
+
+		$request = new \Supra\Controller\Pages\Request\RequestEdit();
+		
+		//FIXME: hardcoded now
+		$request->setLocale('en');
+		$response = $controller->createResponse($request);
+		$controller->prepare($request, $response);
+		
+		$em = $request->getDoctrineEntityManager();
+		$pageDao = $em->getRepository(\Supra\Controller\Pages\Controller::PAGE_ENTITY);
+		
+		//FIXME: hardcoded value
+		$requestPage = $pageDao->findOneById(2);
+		
+		$request->setRequestPage($requestPage);
+		
+		$controller->execute();
+		
+		$response->flushToResponse($this->response);
+		
 		//TODO: fetch from the page controller
-		$this->response->output(file_get_contents(__DIR__ . '/sample-acme-page.html'));
+//		$this->response->output(file_get_contents(__DIR__ . '/sample-acme-page.html'));
 	}
 
 }

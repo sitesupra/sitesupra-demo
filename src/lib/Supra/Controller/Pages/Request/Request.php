@@ -11,6 +11,12 @@ use Supra\Request\Http,
 abstract class Request extends Http
 {
 	/**
+	 * Page data class to be used
+	 * @var string
+	 */
+	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
+	
+	/**
 	 * @var \Doctrine\ORM\EntityManager
 	 */
 	private $doctrineEntityManager;
