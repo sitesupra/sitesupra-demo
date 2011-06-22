@@ -150,6 +150,7 @@ if (typeof Supra === "undefined") {
 		'event-delegate',
 		'supra.event',
 		'supra.lang',
+		'substitute',
 		'node',
 		'widget',
 		'supra.datatype-date-parse',

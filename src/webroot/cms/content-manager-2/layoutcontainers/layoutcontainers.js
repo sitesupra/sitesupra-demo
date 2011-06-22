@@ -316,9 +316,9 @@ SU(function (Y) {
 					'offset': [10, 10, 10, 10]	//Default offset from page viewport
 				});
 				
-				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				var layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
+					layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
+					layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
 				
 				//Top bar 
 				iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);

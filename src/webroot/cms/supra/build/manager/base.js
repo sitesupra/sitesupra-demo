@@ -51,6 +51,7 @@ YUI.add('supra.manager-base', function (Y) {
 		 * If action isn't loaded yet, then returns temporary
 		 * action object
 		 *
+		 * @alias Supra.action
 		 * @param {String} action_name
 		 * @return Action object
 		 * @type {ActionBase Object}
@@ -141,6 +142,7 @@ YUI.add('supra.manager-base', function (Y) {
 		/**
 		 * Execute action
 		 *
+		 * @alias Supra.exec
 		 * @param {String} action_name
 		 */
 		executeAction: function (action_name) {

@@ -308,8 +308,9 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 		 * Create dropdown and options
 		 */
 		createDropdown: function () {
-			var toolbar = this.htmleditor.get('toolbar');
-			var dropdown = toolbar ? toolbar.getButton('style') : null;
+			var toolbar = this.htmleditor.get('toolbar'),
+				dropdown = toolbar ? toolbar.getButton('style') : null;
+			
 			if (!dropdown) return;
 			
 			this.dropdown = Y.Node.create('<select></select>');
@@ -319,7 +320,12 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 			this.dropdown = Y.Node.getDOMNode(this.dropdown);
 			
 			//Create options
-			var selectors = this.selectors, tagName, i, imax, option;
+			var selectors = this.selectors,
+				tagName = null,
+				i = 0,
+				imax = 0,
+				option = null,
+				node = null;
 			
 			node = document.createElement('option');
 			node.tag = '';
@@ -328,13 +334,12 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 			this.dropdown.appendChild(node);
 			
 			for(tagName in selectors) {
-				for(i = 0, imax = selectors[tagName].length; i < imax; i++) {
+				for(var i = 0, imax = selectors[tagName].length; i < imax; i++) {
 					option = selectors[tagName][i];
 					node = document.createElement('option');
 					node.value = option.classname;
 					node.innerHTML = option.attributes.title;
 					option.node = node;
-					 
 				}
 			}
 			

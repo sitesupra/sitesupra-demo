@@ -301,34 +301,39 @@ YUI.add('supra.tree-node', function(Y) {
 			}
 		},
 		ATTRS: {
-			label: {
+			'label': {
 				value: '',
 				setter: 'setLabel'
 			},
-			icon: {
+			'icon': {
 				value: '',
 				setter: 'setIcon'
 			},
-			isSelected: {
+			'isSelected': {
 				value: false,
 				setter: '_setIsSelected'
 			},
-			selectable: {
+			'selectable': {
 				value: true
 			},
-			loading: {
+			'loading': {
 				value: false,
 				setter: '_setLoading'
 			},
-			nodeToggle: {
+			'nodeToggle': {
 				value: null
 			},
-			data: {
+			'data': {
 				value: null
-			}
+			},
+			'defaultChildType': {  
+	            value: null
+	        }
 		},
 		CLASS_NAME: C('tree-node'),
 	});
+	
+	Supra.TreeNode.ATTRS.defaultChildType.value = Supra.TreeNode;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

@@ -96,7 +96,7 @@ YUI.add('supra.button', function (Y) {
 			this.set('nodeLabel', btn);
 		},
 		disabled: function (srcNode) {
-			var btn = this.get("nodeButton");
+			var btn = this.get('nodeButton');
 			if (btn) {
 				var disabled = btn.get('disabled') ? true : false;
 				this.set('disabled', disabled);
@@ -105,16 +105,16 @@ YUI.add('supra.button', function (Y) {
 			return false;
 		},
 		label: function (srcNode) {
-			var label = this.get("nodeLabel");
+			var label = this.get('nodeLabel');
 			if (label) {
-				return label.get("innerHTML");
+				return label.get('innerHTML');
 			}
 			return this.get('label');
         },
 		icon: function (srcNode) {
-			var node = srcNode.one("img");
+			var node = srcNode.one('img');
 			if (node) {
-				return node.get("src");
+				return node.get('src');
 			}
 			return null;
 		}
@@ -244,7 +244,7 @@ YUI.add('supra.button', function (Y) {
 			var labelNode = this.get('nodeLabel');
 			if (labelNode) {
 				label = label || '&nbsp;';
-				labelNode.set("innerHTML", label);
+				labelNode.set('innerHTML', label);
 			}
 		},
 		

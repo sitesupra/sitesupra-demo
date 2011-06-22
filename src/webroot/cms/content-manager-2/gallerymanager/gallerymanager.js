@@ -183,9 +183,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				'offset': [10, 10, 10, 10]	//Default offset from page viewport
 			});
 			
-			layoutTopContainer = Manager.getAction('LayoutTopContainer'),
-			layoutLeftContainer = Manager.getAction('LayoutLeftContainer'),
-			layoutRightContainer = Manager.getAction('LayoutRightContainer');
+			var layoutTopContainer = Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = Manager.getAction('LayoutRightContainer');
 			
 			//Top bar 
 			this.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);

@@ -107,7 +107,7 @@ SU('dd-drag', function (Y) {
 			
 			this.iframeObj = new this.Iframe({
 				'srcNode': this.getContainer(),
-				'url': page_data.internal_url,
+				'html': page_data.internal_html,
 				'contentData': page_data.contents
 			});
 			

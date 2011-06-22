@@ -54,6 +54,48 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Media Library widget
+	 */
+	'supra.medialibrary': {
+		path: 'medialibrary/medialibrary.js',
+		requires: [
+			'supra.medialibrary-base',
+			'supra.medialibrary-list'
+		]
+	},
+	
+	'supra.medialibrary-base': {
+		path: 'medialibrary/medialibrary-base.js',
+		requires: [
+			'widget'
+		]
+	},
+	
+	'supra.medialibrary-data': {
+		path: 'medialibrary/data.js',
+		requires: [
+			'attribute',
+			'array-extras'
+		]
+	},
+	
+	'supra.medialibrary-list': {
+		path: 'medialibrary/medialist.js',
+		requires: [
+			'widget',
+			'supra.slideshow',
+			'supra.medialibrary-data'
+		]
+	},
+	
+	'supra.medialibrary-list-dnd': {
+		path: 'medialibrary/medialist-dnd.js',
+		requires: [
+			'supra.medialibrary-list'
+		]
+	},
+	
+	/**
 	 * Editor widget
 	 */
 	'supra.editor': {
@@ -225,6 +267,18 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.tooltip': {
 		path: 'panel/tooltip.js',
 		requires: ['supra.panel']
+	},
+	
+	/**
+	 * Slideshow widget
+	 */
+	'supra.slideshow': {
+		path: 'slideshow/slideshow.js',
+		requires: ['widget', 'anim', 'supra.slideshow-css']
+	},
+	'supra.slideshow-css': {
+		path: 'slideshow/slideshow.css',
+		type: 'css'
 	},
 	
 	/**

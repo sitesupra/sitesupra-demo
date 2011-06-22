@@ -99,11 +99,12 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 * Update position
 		 */
 		syncUI: function () {
-			var config = this.get('offset');
-			var changed = {'left': false, 'top': false, 'right': false, 'bottom': false};
-			var offset = {'left': config[0], 'top': config[1], 'right': config[2], 'bottom': config[3]},
+			var config = this.get('offset'),
+				changed = {'left': false, 'top': false, 'right': false, 'bottom': false},
+				offset = {'left': config[0], 'top': config[1], 'right': config[2], 'bottom': config[3]},
 				offsets = this.offsets,
 				pos = null,
+				size = null,
 				xy = null,
 				node = null,
 				win_w = Y.DOM.winWidth(),
@@ -133,9 +134,9 @@ YUI.add('supra.plugin-layout', function (Y) {
 				}
 			}
 			
-			var host = this.get('host');
-			var node = host.get('boundingBox');
-			var style = {};
+			var host = this.get('host'),
+				node = host.get('boundingBox'),
+				style = {};
 			
 			if (!node) node = host.get('srcNode');
 			

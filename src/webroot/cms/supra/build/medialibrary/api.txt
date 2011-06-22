@@ -1,0 +1,59 @@
+Media Library
+	Base:
+		
+	List:
+		Constants:
+			Supra.MediaLibraryData.TYPE_FOLDER
+			Supra.MediaLibraryData.TYPE_IMAGE
+			Supra.MediaLibraryData.TYPE_FILE
+		
+		Attributes:
+			requestURI
+				Request URI
+			
+			requestParams
+				Request GET parameters
+		
+		Events:
+			load:failure
+				Data loading failed,
+				event object has additional property id, which is folder or item id
+			
+			load:failure:N
+				Data loading for item with ID "N" failed,
+				event object has additional property id, which is folder or item id
+			
+			load:success
+				Data loading was successful,
+				event object has additional properties data and id, which is folder or item id
+			
+			load:success:N
+				Data loading for item with ID "N" was successful,
+				event object has additional properties data and id, which is folder or item id
+		
+		Methods:
+			loadData (id, properties)
+				Loads folder, file or image data by ID
+				Only specified properties are loaded for files and images
+			
+			getData (id)
+				Returns all loaded data about folder, file or image
+			
+			getChildrenData (id)
+				Returns list of all children data for folder
+				
+			removeData (id, all)
+				Removes folder, image or file data
+				If all is true, then removes item also from parents child list
+				
+			setRequestParam (name, value)
+				Set additional GET request parameter
+			
+			setRequestParams (params)
+				Set additional GET request parameters
+				
+			hasData (id, property)
+				Returns true if item is loaded and property exists, otherwise false
+				
+			destroy ()
+				Destroys all data

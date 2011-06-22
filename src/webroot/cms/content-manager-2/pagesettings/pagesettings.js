@@ -381,13 +381,13 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				case 'template':
 					//Set version info
 					var node = this.getContainer('.button-template small');
-					node.one('span').set('innerHTML', Y.Lang.escapeHTML(page_data.template.title));
+					node.one('span').set('text', page_data.template.title);
 					node.one('img').set('src', page_data.template.img);
 					break;
 				case 'version':
 					var node = this.getContainer('.button-version small');
-					node.one('b').set('innerHTML', Y.Lang.escapeHTML(page_data.version.title));
-					node.one('span').set('innerHTML', Y.Lang.escapeHTML(page_data.version.author + ', ' + page_data.version.date));
+					node.one('b').set('text', page_data.version.title);
+					node.one('span').set('text', page_data.version.author + ', ' + page_data.version.date);
 					break;
 				default:
 					var obj = {};

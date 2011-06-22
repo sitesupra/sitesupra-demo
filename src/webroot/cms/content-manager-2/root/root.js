@@ -29,7 +29,7 @@ Supra(function (Y) {
 			this.addChildAction('Header');
 			this.addChildAction('Page');
 			
-			var header = Manager.getAction('Header');
+			var header = Manager.getAction('Header'),
 				page = Manager.getAction('Page'),
 				buttons = Manager.getAction('PageButtons'),
 				toolbar = Manager.getAction('PageToolbar'),
@@ -78,14 +78,18 @@ Supra(function (Y) {
 		},
 		
 		execute: function () {
-			if (Manager.getAction('PageToolbar').get('ready')) {
-				Manager.PageToolbar.setActiveGroupAction(this.NAME);
+			var toolbar = Manager.getAction('PageToolbar'),
+				buttons = Manager.getAction('PageButtons'),
+				content = Manager.getAction('PageContent');
+			
+			if (toolbar.get('ready')) {
+				toolbar.setActiveGroupAction(this.NAME);
 			}
-			if (Manager.getAction('PageButtons').get('ready')) {
-				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			if (buttons.get('ready')) {
+				buttons.setActiveAction(this.NAME);
 			}
-			if (Manager.getAction('PageContent').get('ready')) {
-				Manager.getAction('PageContent').stopEditing();
+			if (content.get('ready')) { 
+				content.stopEditing();
 			}
 		}
 	});

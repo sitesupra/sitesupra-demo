@@ -54,6 +54,10 @@ YUI.add("supra.input-proto", function (Y) {
 			var label = this.get('labelNode');
 			if (!label) {
 				var label = srcNode.one("label");
+				if (!label) {
+					label = srcNode.previous();
+					if (label && !label.test('label')) label = null;
+				}
 				this.set("labelNode", label);
 			}
 			return label;

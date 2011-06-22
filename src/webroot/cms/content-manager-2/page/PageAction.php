@@ -35,7 +35,7 @@ class PageAction extends SimpleController
 				'date' => '21.05.2011',
 			),
 			'active' => true,
-			'internal_url' => '/cms/content-manager-2/page/preview',
+			'internal_html' => $this->previewAction(),
 			'contents' =>
 			array(
 				0 =>
@@ -89,7 +89,7 @@ class PageAction extends SimpleController
 		$this->response->output(json_encode($array));
 	}
 	
-	public function previewAction()
+	private function previewAction()
 	{
 		//TODO: Must get real controller, should be bound somehow
 		$controller = new \Project\Pages\Controller();
@@ -111,10 +111,12 @@ class PageAction extends SimpleController
 		
 		$controller->execute();
 		
-		$response->flushToResponse($this->response);
+//		$response->flushToResponse($this->response);
 		
 		//TODO: fetch from the page controller
 //		$this->response->output(file_get_contents(__DIR__ . '/sample-acme-page.html'));
+		
+		return $response->getOutput();
 	}
 
 }

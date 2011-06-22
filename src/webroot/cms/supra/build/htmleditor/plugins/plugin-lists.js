@@ -47,7 +47,8 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			var node = this.htmleditor.getSelectedElement(),
 				down = false,
 				buttons = this.buttons,
-				selected = null;
+				selected = null,
+				i = null;
 			
 			while(node) {
 				if (node.tagName in buttons) {

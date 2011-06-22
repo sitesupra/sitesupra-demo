@@ -1,0 +1,75 @@
+<div class="yui3-linkmanager yui3-sidebar">
+	
+	<!-- Form header -->
+	<h2 class="yui3-sidebar-header">Link to <span></span></h2>
+	
+	<!-- Buttons -->
+	<div class="yui3-sidebar-buttons">
+		<button type="button" class="button-back"><p>Back</p></button>
+		<button type="button" class="button-close"><p>Close</p></button>
+	</div>
+	
+	<div class="yui3-sidebar-content"><form>
+		
+		<!-- Slider -->
+		<div class="slideshow">
+			<div id="linkToRoot">
+				Select what you want to link
+				
+				<a data-slideshow="linkToFile">Link to file</a>
+				<a data-slideshow="linkToPage">Link to page</a>
+				
+			</div>
+			
+			<!-- Link to page -->
+			<div id="linkToPage" class="hidden">
+				
+				<!-- Internal / External selector -->
+				<select id="linkManagerType" name="linktype" suType="SelectList">
+					<option value="internal" selected="selected">Internal</option>
+					<option value="external">External</option>
+				</select>
+				
+				<div class="slideshow">
+					<!-- Tree -->
+					<div id="linkManagerInternal">
+						
+						<div class="tree"></div>
+						
+					</div>
+					
+					<!-- Properties -->
+					<div id="linkManagerExternal" class="hidden">
+							
+						<label for="linkManagerExternalHref">Link address</label>
+						<input type="text" name="href" id="linkManagerExternalHref" />
+						
+					</div>
+				</div>
+				
+				<div class="link-controls">
+					
+					<label for="linkManagerTarget">Open link in new window</label>
+					<select id="linkManagerTarget" name="target" suType="SelectList">
+						<option value="" selected="selected">Off</option>
+						<option value="_blank">On</option>
+					</select>
+					
+					<label for="linkManagerTitle">Link title</label>
+					<input type="text" id="linkManagerTitle" name="title" value="" />
+					
+				</div>
+				
+			</div>
+			
+			<!-- Link to file -->
+			<div id="linkToFile" class="hidden">
+				
+				
+				
+			</div>
+		</div>
+		
+	</form></div>
+	
+</div>

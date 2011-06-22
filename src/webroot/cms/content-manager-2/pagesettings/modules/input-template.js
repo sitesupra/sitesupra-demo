@@ -64,7 +64,7 @@ YUI.add("website.input-template", function (Y) {
 			
 			var node = this.get('replacementNode');
 			if (node) {
-				node.set("innerHTML", Y.Lang.escapeHTML(template_title));
+				node.set("text", template_title);
 			}
 			
 			var node = this.get('previewNode');
@@ -120,7 +120,7 @@ YUI.add("website.input-template", function (Y) {
 					node = Y.Node.create("<span></span>");
 					this.get("srcNode").prepend(node);
 				}
-				node.set("innerHTML", Y.Lang.escapeHTML(this.get("value")));
+				node.set("text", this.get("value"));
 				this.set("replacementNode", node);
 			}
 			
@@ -133,7 +133,7 @@ YUI.add("website.input-template", function (Y) {
 			this.get("inputNode").set("value", value);
 			var node = this.get("replacementNode");
 			if (node) {
-				node.set("innerHTML", Y.Lang.escapeHTML(value));
+				node.set("text", value);
 			}
 			
 			this._original_value = value;

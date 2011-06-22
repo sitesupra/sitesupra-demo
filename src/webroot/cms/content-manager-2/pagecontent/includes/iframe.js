@@ -24,11 +24,11 @@ YUI.add('supra.page-iframe', function (Y) {
 			value: null
 		},
 		/*
-		 * Iframe url
+		 * Iframe HTML content
 		 */
-		'url': {
+		'html': {
 			value: null,
-			setter: '_setUrl'
+			setter: '_setHTML'
 		},
 		/*
 		 * Page content blocks
@@ -86,16 +86,35 @@ YUI.add('supra.page-iframe', function (Y) {
 			return link;
 		},
 		
-		_onIframeLoad: function () {
-			//Save document & window instances
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
-			var doc = win.document;
-			this.set('win', win);
-			this.set('doc', doc);
+		showOverlay: function () {
+			this.overlay.removeClass('hidden');
+		},
+		
+		hideOverlay: function () {
+			this.overlay.addClass('hidden');
+		},
+		
+		renderUI: function () {
+			PageIframe.superclass.renderUI.apply(this, arguments);
+
+			var cont = this.get('contentBox');
+			var iframe = this.get('nodeIframe');
 			
-			//Prevent from leaving page by disabling links
-			//and inputs, which prevents forms from submitting
-			var body = new Y.Node(doc.body);
+			this.overlay = Y.Node.create('<div class="yui3-iframe-overlay hidden"></div>');
+			cont.append(this.overlay);
+			
+			this.set('html', this.get('html'));
+			cont.removeClass('hidden');
+		},
+		
+		/**
+		 * Prevent user from leaving page by disabling links 
+		 * and inputs, which will prevent from submit
+		 * 
+		 * @private
+		 */
+		_preventFromLeaving: function (body) {
+			//Prevent from leaving page 
 			var links = body.all('a');
 			
 			for(var i=0,ii=links.size(); i<ii; i++) {
@@ -104,25 +123,19 @@ YUI.add('supra.page-iframe', function (Y) {
 			}
 			Y.delegate('click', function (e) {
 				e.preventDefault();
-			}, doc.body, 'a');
+			}, body, 'a');
 			
 			var inputs = body.all('input,button,select,textarea');
 			
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				inputs.item(i).set('disabled', true);
 			}
-			
-			//Trigger ready event
-			this.fire('ready', {'iframe': this, 'body': body});
-			
-			//Add stylesheet to iframe
-			var links = [];
-			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				links[links.length] = this.addStyleSheet("/cms/supra/build/button/button.css");
-				links[links.length] = this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css");
-			}
-			
-			//Wait till stylesheets are loaded
+		},
+		
+		/**
+		 * Wait till stylesheets are loaded
+		 */
+		_onStylesheetLoad: function (links, body) {
 			var fn = Y.bind(function () {
 				var loaded = true;
 				for(var i=0,ii=links.length; i<ii; i++) {
@@ -135,13 +148,16 @@ YUI.add('supra.page-iframe', function (Y) {
 				if (loaded) {
 					//Add contents
 					if (this.contents) this.contents.destroy();
-					this.contents = new PageContents({'iframe': this, 'doc': doc, 'win': win, 'body': body, 'contentData': this.get('contentData')});
+					this.contents = new PageContents({'iframe': this, 'doc': this.get('doc'), 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
 					this.contents.render();
 					
 					this.contents.on('activeContentChange', function (event) {
 					    this.fire('activeContentChange', {newVal: event.newVal, prevVal: event.prevVal});
 					}, this);
 					
+					//Trigger ready event
+					this.fire('ready', {'iframe': this, 'body': body});
+			
 				} else {
 					setTimeout(fn, 50);
 				}
@@ -149,37 +165,59 @@ YUI.add('supra.page-iframe', function (Y) {
 			setTimeout(fn, 50);
 		},
 		
-		showOverlay: function () {
-			this.overlay.removeClass('hidden');
-		},
-		
-		hideOverlay: function () {
-			this.overlay.addClass('hidden');
-		},
-		
-		bindUI: function () {
-			PageIframe.superclass.renderUI.apply(this, arguments);
+		_afterSetHTML: function () {
+			var doc = this.get('doc'),
+				body = new Y.Node(doc.body);
 			
-			//Load callback
-			this.get('nodeIframe').on('load', this._onIframeLoad, this);
+			this._preventFromLeaving(body);
+			
+			//Add stylesheets to iframe
+			var links = [];
+			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
+				links[links.length] = this.addStyleSheet("/cms/supra/build/button/button.css");
+				links[links.length] = this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css");
+			}
+			
+			//When stylesheets are loaded initialize PageContents
+			this._onStylesheetLoad(links, body);
 		},
 		
-		renderUI: function () {
-			PageIframe.superclass.renderUI.apply(this, arguments);
-
-			var cont = this.get('contentBox');
-			var iframe = this.get('nodeIframe');
+		/**
+		 * On HTML attribute change update iframe content and page content blocks
+		 * 
+		 * @param {String} html
+		 * @return HTML
+		 * @type {String}
+		 */
+		_setHTML: function (html) {
+			if (this.get('html') === html) return html;
 			
-			this.overlay = Y.Node.create('<div class="yui3-iframe-overlay hidden"></div>');
-			cont.append(this.overlay);
+			//Clean up
+			this._unsetHTML();
 			
-			this.set('url', this.get('url'));
-			cont.removeClass('hidden');
+			//Save document & window instances
+			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var doc = win.document;
+			this.set('win', win);
+			this.set('doc', doc);
+			
+			//Change iframe HTML
+			doc.writeln(html);
+			
+			//Small delay before continuing
+			setTimeout(Y.bind(this._afterSetHTML, this), 50);
+			
+			return html;
 		},
 		
-		_setUrl: function (url) {
-			this.get('nodeIframe').setAttribute('src', url);
-			return url;
+		/**
+		 * Clean up before HTML change
+		 */
+		_unsetHTML: function () {
+			if (this.contents) {
+				this.contents.destroy();
+				this.contents = null;
+			}
 		}
 		
 	});

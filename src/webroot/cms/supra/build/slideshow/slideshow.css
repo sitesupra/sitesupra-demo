@@ -1,0 +1,19 @@
+/* Slideshow */
+.yui3-slideshow,
+.yui3-slideshow-content {
+	height: 100%;
+	width: 100%;
+	position: relative;
+}
+.yui3-slideshow-content {
+	overflow: hidden;
+}
+.yui3-slideshow-slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}

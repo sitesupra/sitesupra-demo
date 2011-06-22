@@ -9,7 +9,7 @@
 	
 	position: relative;
 	overflow: hidden;
-	z-index: 1;
+	z-index: 2;
 	
 	border-radius: 4px;
 	-moz-border-radius: 4px;
@@ -91,9 +91,11 @@
 	padding: 8px 10px 0;
 	height: 42px;
 	width: 800px;
-	position: relative;
-	margin: 0 auto;
+	position: absolute;
+	z-index: 1;
+	margin: 50px 0 0 -400px;
 	top: 0;
+	left: 50%;
 	
 	-moz-transition-property: top;
 	-moz-transition-duration: 1s;

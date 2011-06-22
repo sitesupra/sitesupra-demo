@@ -84,7 +84,7 @@
  */
 .yui3-page-buttons {
 	position: absolute;
-	z-index: 2;
+	z-index: 3;
 	right: 0;
 	top: 0;
 	height: 50px;
@@ -186,22 +186,60 @@
 	position: absolute;
 	overflow-y: auto;
 }
- .yui3-form-properties h2 {
+.yui3-form-properties h2 {
 	position: absolute;
 	left: 0;
 	right: 0;
 	top: 0;
 }
- .yui3-form-properties .yui3-page-buttons {
+.yui3-form-properties .yui3-page-buttons {
 	position: absolute;
 	z-index: 2;
 	right: 0;
 	top: 9px;
 }
- .yui3-form-properties .yui3-form-buttons {
+.yui3-form-properties .yui3-form-buttons {
 	margin-bottom: 0;
 	left: 0;
 	top: 32px;
 	right: 0;
 	position: absolute;
+}
+
+/**
+ * Sidebar
+ */
+.yui3-sidebar-header {
+	font-size: 14px;
+	line-height: 16px;
+	padding: 8px 10px;
+	margin: 0;
+	background: #eee;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+}
+
+/* Buttons */
+.yui3-sidebar-buttons {
+	left: 0;
+	top: 32px;
+	right: 0;
+	position: absolute;
+    border-bottom: 1px solid #EEEEEE;
+    margin: 0;
+    padding: 0 10px 10px;
+}
+.yui3-sidebar-buttons .yui3-button {
+	margin: 10px 10px 0 0;
+}
+
+/* Content */
+.yui3-sidebar-content {
+	position: absolute;
+	top: 85px;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }

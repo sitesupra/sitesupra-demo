@@ -6,10 +6,16 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 	SU.HTMLEditor.addPlugin('insertlink', defaultConfiguration, {
 		
 		/**
+		 * Link editor is visible
+		 * @type {Boolean}
+		 */
+		visible: false,
+		
+		
+		/**
 		 * Insert link around current selection
 		 */
-		insertLink: function (href) {
-			//@TODO allow to pass 'href' as argument instead of showing prompt
+		insertLink: function () {
 			if (!this.htmleditor.editingAllowed) return;
 			
 			var htmleditor = this.htmleditor,
@@ -25,8 +31,8 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 					'currentTarget': nodes.item(0)
 				});
 				
-				//Confirm  that command was executed successfully 
-				return true;
+				//Prevent default 
+				return false;
 			}
 			else if (selection.collapsed)
 			{
@@ -35,15 +41,17 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 			}
 			else if (htmleditor.isSelectionEditable(selection))
 			{
-				//Create new link
-				var callback = Y.bind(this.insertLinkConfirmed, this);
-				this.prompt('/', selection, callback);
+				//Show link manager
+				this.showLinkManager(null, Y.bind(function (data) {
+					this.insertLinkConfirmed(data, selection);
+				}, this));
 				
-				//Confirm  that command was executed successfully
-				return true;
+				//Prevent default
+				return false;
 			}
 			
-			return false;
+			//Nothing was done
+			return true;
 		},
 		
 		/**
@@ -51,20 +59,29 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		 * 
 		 * @param {Object} event
 		 */
-		insertLinkConfirmed: function (event) {
-			if (event.button == 'ok') {
+		insertLinkConfirmed: function (data, selection) {
+			if (data && data.href) {
 				var htmleditor = this.htmleditor;
 				
 				//Restore selection
-				htmleditor.setSelection(event.data);
+				htmleditor.setSelection(selection);
 				
 				//Insert link
-				var text = this.htmleditor.getSelectionText(),
-					href = this.normalizeHref(event.value),
-					html = '<a href="' + href + '">' + text + '</a>';
-					
-				this.htmleditor.replaceSelection(html, null);
+				var uid = htmleditor.generateDataUID(),
+					text = this.htmleditor.getSelectionText(),
+					href = this.normalizeHref(data.href),
+					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Lang.escapeHTML(data.title || '') + '" href="' + href + '">' + text + '</a>';
+				
+				htmleditor.setData(uid, data)
+				htmleditor.replaceSelection(html, null);
 			}
+			
+			//Trigger selection change event
+			this.visible = false;
+			this.htmleditor.refresh(true);
+			
+			var button = this.htmleditor.get('toolbar').getButton('insertlink');
+			if (button) button.set('down', false).set('disabled', true);
 		},
 		
 		/**
@@ -77,34 +94,55 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 			if (!this.htmleditor.editingAllowed || !this.htmleditor.isEditable(target)) return;
 			
 			//Get current value
-			var href = this.normalizeHref(target.getAttribute('href')),
-				callback = Y.bind(this.editLinkConfirmed, this);
+			var data = this.htmleditor.getData(target);
 			
-			this.prompt(href, target, callback);
+			if (!data) {
+				data = {
+					'type': 'link',
+					'title': target.getAttribute('title'),
+					'target': target.getAttribute('target'),
+					'href': this.normalizeHref(target.getAttribute('href'))
+				}
+			}
+			
+			this.showLinkManager(data, Y.bind(function (data) {
+				this.editLinkConfirmed(data, target);
+			}, this));
 		},
 		
 		/**
-		 * After user entered value in prompt change link
+		 * After user changed link save data into htmleditor and update href
 		 * 
 		 * @param {Object} event
 		 */
-		editLinkConfirmed: function (event) {
-			if (event.button == 'ok') {
-				var href = event.value;
+		editLinkConfirmed: function (data, target) {
+			if (data && data.href) {
+				this.htmleditor.setData(target, data);
 				
-				if (href) {
-					//Change href
-					href = this.normalizeHref(href);
-					event.data.setAttribute('href', href);
+				//HREF attribute
+				var href = this.normalizeHref(data.href);
+				target.setAttribute('href', href);
+				
+				//Title attribute
+				target.setAttribute('title', data.title || '');
+				
+				//Target attribute
+				if (data.target) {
+					target.setAttribute('target', data.target);
 				} else {
-					//Insert all link children nodes before link and remove <A>
-					var node = event.data;
-					node.insert(node.get('childNodes'), 'before').remove();
-					
-					//Trigger selection change event
-					this.htmleditor.refresh();
+					target.removeAttribute('target');
 				}
+			} else {
+				//Insert all link children nodes before link and remove <A>
+				target.insert(target.get('childNodes'), 'before').remove();
 			}
+			
+			//Trigger selection change event
+			this.visible = false;
+			this.htmleditor.refresh(true);
+			
+			var button = this.htmleditor.get('toolbar').getButton('insertlink');
+			if (button) button.set('down', false).set('disabled', true);
 		},
 		
 		/**
@@ -120,24 +158,29 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		},
 		
 		/**
-		 * Show link prompt
+		 * Show link manager
 		 * 
 		 * @param {String} href
 		 * @param {Object} target
 		 * @param {Function} callback
 		 */
-		prompt: function (href, data, callback) {
+		showLinkManager: function (data, callback) {
 			if (!callback) return;
 			
-			//@TODO Replace with page selection when it's ready
-			
-			var value = prompt('Enter link address:', href);
-			if (value !== null) {
-				callback({
-					'button': 'ok',
-					'data': data,
-					'value': value
-				});
+			SU.Manager.getAction('LinkManager').once('execute', function () {
+				this.visible = true;
+			}, this);
+			SU.Manager.getAction('LinkManager').execute(data, callback);
+		},
+		
+		/**
+		 * Hide link manager
+		 */
+		hideLinkManager: function () {
+			if (this.visible) {
+				SU.Manager.getAction('LinkManager').hide();
+				this.visible = false;
+				this.htmleditor.refresh();
 			}
 		},
 		
@@ -156,6 +199,7 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 			var container = htmleditor.get('srcNode');
 			container.delegate('dblclick', Y.bind(this.editLink, this), 'a');
 			
+			var self = this;
 			var toolbar = htmleditor.get('toolbar');
 			var button = toolbar ? toolbar.getButton('insertlink') : null;
 			if (button) {
@@ -167,17 +211,21 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 				
 				//If there is no text selection disable toolbar button
 				htmleditor.on('selectionChange', function (event) {
-					var allowEditing = false, down = false;
+					var allowEditing = false,
+						down = false;
 					
 					//Check if cursor is inside link
 					var node = this.getSelectedElement();
 					if (node && node.tagName == 'A') {
-						if (this.editingAllowed) allowEditing = true;
-						down = true;
+						if (this.editingAllowed) {
+							allowEditing = true;
+							down = self.visible;
+						}
 					} else if (this.editingAllowed) {
 						//Check if there is text selection
 						if (!this.selection.collapsed) {
 							allowEditing = true;
+							down = self.visible;
 						}
 					}
 					
@@ -185,6 +233,9 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 					button.set('down', down);
 				});
 			}
+			
+			this.visible = false;
+			htmleditor.on('nodeChange', this.hideLinkManager, this);
 		},
 		
 		/**

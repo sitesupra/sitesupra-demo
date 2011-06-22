@@ -15,8 +15,11 @@
 	-moz-user-select: none;
 }
 	.tree-node div {
-		padding: 3px 13px 3px 25px;
+		padding: 3px 13px 3px 10px;
 		float: left;
+	}
+	.yui3-tree-node-dragable .tree-node div {
+		padding-left: 26px;
 	}
 	.tree-node-root-expandable div {
 		padding-left: 3px;
@@ -45,9 +48,11 @@
 		visibility: hidden;
 	}
 	
+	.yui3-tree-content > .yui3-tree-node > .tree-node span.toggle,
 	.yui3-tree-dragable-content>.yui3-tree-node>.tree-node span.toggle {
 		display: none !important;
 	}
+	.yui3-tree-content > .yui3-tree-node > .tree-node-root-expandable span.toggle
 	.yui3-tree-dragable-content>.yui3-tree-node>.tree-node-root-expandable span.toggle {
 		display: inline-block !important;
 	}
@@ -109,27 +114,52 @@
 	}
 
 .tree-children .tree-node div {
-	padding-left: 26px;
+	padding-left: 10px;
 }
 .tree-children .tree-children .tree-node div {
-	padding-left: 46px;
+	padding-left: 30px;
 }
 .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 66px;
+	padding-left: 50px;
 }
 .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 86px;
+	padding-left: 70px;
 }
 .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 106px;
+	padding-left: 90px;
 }
 .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 126px;
+	padding-left: 110px;
 }
 .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 146px;
+	padding-left: 130px;
 }
 .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 150px;
+}
+
+.yui3-tree-dragable .tree-children .tree-node div {
+	padding-left: 26px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-node div {
+	padding-left: 46px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 66px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 86px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 106px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 126px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 146px;
+}
+.yui3-tree-dragable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 166px;
 }
 

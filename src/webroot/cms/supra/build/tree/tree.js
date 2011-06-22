@@ -39,7 +39,7 @@ YUI.add('supra.tree', function(Y) {
 	Y.extend(Tree, Y.Widget);
 	
 	
-	Supra.Tree = Y.Base.create('supra.tree', Tree, [Y.WidgetParent], {
+	Supra.Tree = Y.Base.create('tree', Tree, [Y.WidgetParent], {
 		_data: [],
 		_data_indexed: {},
 		
