@@ -8,7 +8,10 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 	//Add as left bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('PageInsertBlock');
 	
-	//Create Action class
+	/**
+	 * Sidebar panel action to Insert new block 
+	 * Actual block information is taken from Blocks action
+	 */
 	new Action({
 		
 		/**
@@ -52,7 +55,9 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 					'success': function (evt, data) {
 						
 						this.data = {};
+						var block_action = Manager.getAction('Blocks');
 						
+						//Create tabs
 						for(var i in data) {
 							var group = data[i];
 							var group_blocks = group.blocks;
@@ -60,9 +65,11 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 							var content = this.tabs.addTab({"id": group.id, "title": group.title});
 								content.append('<div class="block-list"><ul></ul></div>');
 								content = content.one('ul');
-								
+							
+							//Create block items
 							for (var k in group_blocks) {
-								var block = group_blocks[k];
+								//Get block data from Blocks action
+								var block = block_action.getBlock(group_blocks[k]);
 								var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Lang.escapeHTML(block.description) + '" /><label>' + Y.Lang.escapeHTML(block.title) + '</label></li>');
 								content.append(node);
 								

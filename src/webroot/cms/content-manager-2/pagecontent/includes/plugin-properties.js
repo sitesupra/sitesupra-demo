@@ -60,7 +60,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 	 */
 	function Properties () {
 		Properties.superclass.constructor.apply(this, arguments);
-		
 	}
 	
 	Properties.NAME = 'page-content-properties';
@@ -106,7 +105,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		initializer: function (config) {
 			var data = this.get('data');
-			
 			if (!data || !('type' in data)) return;
 			
 			var type = data.type,
@@ -129,20 +127,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('host').on('editing-end', this.hidePropertiesForm, this);
 			
 			//Properties form
-			var form_config = {'autoDiscoverInputs': false, 'inputs': []},
-				properties = this.get('properties');
-			
-			for(var i=0, ii=properties.length; i<ii; i++) {
-				form_config.inputs.push(properties[i]);
-			}
-			
-			var form = new Supra.Form(form_config);
-				form.render(Manager.PageContentSettings.getContainer());
-				form.get('boundingBox').addClass('yui3-form-properties');
-				form.hide();
-			
-			this.set('form', form);
-			
+			this.initializeProperties();
+			var form = this.get('form');
 			
 			//Form heading
 			var heading = Y.Node.create('<h2>' + Y.Lang.escapeHTML(block.title) + ' block properties</h2>');
@@ -165,6 +151,43 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
 				btn.render(buttons).on('click', this.deleteContent, this);
 			
+		},
+		
+		/**
+		 * Initialize properties form
+		 */
+		initializeProperties: function () {
+			var form_config = {'autoDiscoverInputs': false, 'inputs': []},
+				properties = this.get('properties'),
+				host = this.get('host'),
+				host_node = host.getNode();
+			
+			var host_properties = {
+				'doc': host.get('doc'),
+				'win': host.get('win'),
+				'toolbar': SU.Manager.EditorToolbar.getToolbar()
+			};
+			
+			for(var i=0, ii=properties.length; i<ii; i++) {
+				if (properties[i].inline) {
+					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
+					host_properties.srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + properties[i].id);
+					form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+				} else {
+					form_config.inputs.push(properties[i]);
+				}
+			}
+			
+			var form = new Supra.Form(form_config),
+				data = this.get('data').properties;
+			
+			form.render(Manager.PageContentSettings.getContainer());
+			form.get('boundingBox').addClass('yui3-form-properties');
+			form.hide();
+			
+			form.setValues(data, 'id');
+			
+			this.set('form', form);
 		},
 		
 		/**
@@ -202,7 +225,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Show properties form
 		 */
 		showPropertiesForm: function () {
-			Manager.getAction('PageContentSettings').execute(this.get('form'));
+			var form = this.get('form'),
+				data = this.get('data').properties;
+			
+			form.setValues(data, 'id');
+			Manager.getAction('PageContentSettings').execute(form);
 		},
 		
 		/**
@@ -220,4 +247,4 @@ YUI.add('supra.page-content-properties', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'plugin', 'supra.button', 'supra.form']});
+}, YUI.version, {requires:['widget', 'plugin', 'supra.button', 'supra.form', 'supra.input-inline-html']});

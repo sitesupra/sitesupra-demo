@@ -17,7 +17,7 @@ $supraTestsNamespace = new \Supra\Loader\NamespaceRecord('Supra\Tests', SUPRA_TE
 $loader->registerNamespace($supraTestsNamespace);
 
 // Doctrine test namespace registering
-$doctrineTestsNamespace = new \Supra\Loader\NamespaceRecord('Doctrine\Tests', SUPRA_TESTS_LIBRARY_PATH . 'Doctrine');
-$loader->registerNamespace($doctrineTestsNamespace);
+//$doctrineTestsNamespace = new \Supra\Loader\NamespaceRecord('Doctrine\Tests', SUPRA_TESTS_LIBRARY_PATH . 'Doctrine');
+//$loader->registerNamespace($doctrineTestsNamespace);
 
 require_once SUPRA_TESTS_CONF_PATH . 'configuration.php';

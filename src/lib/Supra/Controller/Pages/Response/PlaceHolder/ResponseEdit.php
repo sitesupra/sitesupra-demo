@@ -16,12 +16,16 @@ class ResponseEdit extends Response
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		//TODO: hardcoded
-		static $ids = array('sidebar', 'inner', 'footer');
-		$id = array_shift($ids);
+		$placeHolder = $this->getPlaceHolder();
 		
-		$response->output('<div id="content_list_' . $id . '" class="yui3-page-content yui3-page-content-list yui3-page-content-list-' . $id . '">');
+		$placeHolderName = $placeHolder->getName();
+		
+		$response->output('<div id="content_list_' . $placeHolderName 
+				. '" class="yui3-page-content yui3-page-content-list yui3-page-content-list-' 
+				. $placeHolderName . '">');
+		
 		parent::flushToResponse($response);
+		
 		$response->output('</div>');
 	}
 }

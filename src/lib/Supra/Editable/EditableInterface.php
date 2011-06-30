@@ -18,4 +18,11 @@ interface EditableInterface
 	 * @param mixed $content
 	 */
 	public function setContent($content);
+	
+	/**
+	 * Get filtered value for the editable content by action
+	 * @param string $action
+	 * @return string
+	 */
+	public function getFilteredValue($action);
 }

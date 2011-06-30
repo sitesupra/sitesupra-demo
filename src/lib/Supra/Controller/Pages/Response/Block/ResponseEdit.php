@@ -22,10 +22,64 @@ class ResponseEdit extends Response
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		//TODO: pass the block 
+		$block = $this->getBlock();
+		$blockId = $block->getId();
 		
-//		$response->output('<div class="block">');
+		// Normalize block name
+		//TODO: move to the block method
+		$blockName = $block->getComponent();
+		$blockName = trim($blockName, '\\');
+		$blockName = str_replace('\\', '_', $blockName);
+		
+		// TEMP
+//		$blockName = 'html';
+		
+		$response->output('<div id="content_' . $blockName . '_' . $blockId
+				. '" class="yui3-page-content yui3-page-content-' . $blockName 
+				. ' yui3-page-content-' . $blockName . '-' . $blockId . '">');
+		
 		parent::flushToResponse($response);
-//		$response->output('</div>');
+		
+		$response->output('</div>');
+	}
+	
+	/**
+	 * @param BlockProperty $property
+	 * @return string
+	 */
+	public function outputProperty(BlockProperty $property)
+	{
+		$data = $property->getValue();
+		$editable = $property->getEditable();
+		$filteredValue = $editable->getFilteredValue(static::EDITABLE_FILTER_ACTION);
+		
+		//TODO: should be customizable somewhere
+		if ($property->getEditable() instanceof \Supra\Editable\Html) {
+			
+			$propertyName = $property->getName();
+			
+			$block = $property->getBlock();
+			$blockId = $block->getId();
+			
+			// Normalize block name
+			//TODO: move to the block method
+			$blockName = $block->getComponent();
+			$blockName = trim($blockName, '\\');
+			$blockName = str_replace('\\', '_', $blockName);
+			
+			// TEMP
+//			$blockName = 'html';
+			
+			$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName 
+					. '" class="yui3-page-content-inline yui3-input-html-inline-content">';
+			$html .= $filteredValue;
+			$html .= '</div>';
+			
+			$filteredValue = $html;
+		}
+		
+		$this->output($filteredValue);
+		
+		return $filteredValue;
 	}
 }

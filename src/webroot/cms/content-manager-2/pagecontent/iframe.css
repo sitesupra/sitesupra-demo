@@ -6,127 +6,194 @@
 	display: none !important;
 }
 
-.yui3-page-content {
+.yui3-content {
 	overflow: hidden;
 }
 
-.yui3-page-content-proto-overlay {
+/**
+ * Overlay
+ */
+.yui3-content-overlay,
+.yui3-editable .yui3-content-overlay.yui3-content-editing {
+	/* By default not visible */
 	display: none;
 }
-.yui3-page-content-proto-editing {
-	display: none !important;
-}
-
-.yui3-editable .yui3-page-content-proto-overlay {
+.yui3-editable .yui3-content-overlay {
+	/* Show if content is editable */
+	
 	display: block;
 	position: absolute;
-	padding: 5px;
-	margin: -5px 0 0 -5px;
+	/*padding: 5px;
+	margin: -5px 0 0 -5px;*/
 	cursor: pointer;
 	z-index: 9999;
 	
 	/* FF 3 */
+	-moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 	-moz-border-radius: 4px;
-	-moz-transition-property: -moz-box-shadow, box-shadow, border-color;
-	-moz-transition-duration: 0.25s;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.35s;
 	
 	/* Webkit */
+	-webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 	-webkit-border-radius: 4px;
-	-webkit-transition-property: -webkit-box-shadow, border-color;
-	-webkit-transition-duration: 0.25s;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.35s;
 	
 	/* FF4, IE9, ... */
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 	border-radius: 4px;
-	transition-property: box-shadow, border-color;
-	transition-duration: 0.25s;
+	transition-property: opacity;
+	transition-duration: 0.35s;
 	
 	box-shadow: 0;
-	border: 2px solid rgba(255,0,0,0);
+	border: 2px solid #3B85D1;
+	background: url(/cms/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	opacity: 0;
 }
-.yui3-editable .yui3-page-content-proto-overlay:hover,
-.yui3-editable .yui3-page-content-proto-overlay-hover {
+.yui3-editable .yui3-content-overlay:hover,
+.yui3-editable .yui3-content-overlay-hover {
 	/* FF3 */
-	-moz-box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
-	-moz-transition-property:  -moz-box-shadow, box-shadow, border-color;
-	-moz-transition-duration: 0.2s;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.35s;
 	
 	/* WebKit */
-	-webkit-box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
-	-webkit-transition-property: -webkit-box-shadow, border-color;
-	-webkit-transition-duration: 0.2s;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.35s;
 	
 	/* FF4, IE9, ... */
-	box-shadow: 0 1px 20px rgba(0, 0, 0, 0.25);
-	transition-property: box-shadow, border-color;
-	transition-duration: 0.25s;
+	transition-property: opacity;
+	transition-duration: 0.35s;
 	
-	border: 2px solid #FF0000;
-	background: rgba(255,242,242,0.5);
+	opacity: 1;
 }
 
-.yui3-editable .yui3-page-content-proto-overlay span {
+.yui3-editable .yui3-content-overlay span {
 	display: none;
+	background: #3B85D1;
+	padding: 8px 20px;
+	margin: -18px 0 0 -66px;
+	
 	position: absolute;
-	left: 0;
-	right: 0;
-	width: 100%;
-	text-align: center;
+	left: 50%;
 	top: 50%;
-	margin-top: -6px;
-	font: 18px Arial, Helvetica;
-	color: #f00000;
+	
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	
+	color: #ffffff;
+	font: 18px/21px Arial, Helvetica;
+	text-align: center;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.15);
 }
-.yui3-editable .yui3-page-content-proto-overlay:hover span {
+.yui3-editable .yui3-content-dragable.yui3-content-overlay span {
+	margin: -29px 0 0 -103px;
+}
+
+.yui3-editable .yui3-content-overlay:hover span {
 	display: block;
 }
 
-.yui3-page-content-editing {
-	outline: 2px solid #f00;
+
+/* Overlay shouldn't be visible while reordering */
+.yui3-editable .yui3-content-reorder .yui3-content-overlay {
+	display: none;
+}
+
+/* Overlay proxy element */
+.yui3-editable .yui3-content-proxy {
+	opacity: 1;
+	padding: 0;
+	background: none;
+	display: block !important;
+	
+	/* Remove animation, looks better without it */
+	-moz-transition-property: none;
+	-webkit-transition-property: none;
+	transition-property: none;
+}
+
+/**
+ * Drag & drop
+ */
+.yui3-dd-shim {
+	width: auto !important;
+	height: auto !important;
+	position: fixed !important;
+	right: 0;
+	bottom: 0;
+}
+.yui3-editable .yui3-content-proxy span {
+	display: none !important;
+}
+
+.yui3-editable .yui3-content-draging {
+	/* Item which is being dragged (this is not proxy) */
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+
+/**
+ * Default content
+ */
+.yui3-content-editing,
+.yui3-content-editing .yui3-content-inline {
+	outline: 2px dashed rgba(0,0,0,.35);
 	
 	position: relative;
 	z-index: 10000;
 	
-	-moz-outline-radius: 0 0 4px 4px;
-	-webkit-outline-radius: 0 0 4px 4px;
-	outline-radius: 0 0 4px 4px;
-	
-	-moz-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
-	-webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
-	box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	-moz-outline-radius: 4px;
+	-webkit-outline-radius: 4px;
+	outline-radius: 4px;
 	
 	overflow: hidden;
+	min-height: 1.5em;
+}
+
+/**
+ * HTML content
+ */
+.yui3-content-editing.yui3-content-inline-editable {
+	outline: none;
+	overflow: visible;
+}
+
+/**
+ * List content
+ */
+.yui3-content-list {
+	overflow: visible;
+	min-height: 10px;
 }
 
 /**
  * Specific content styles
  */
 
-.yui3-page-content-list {
-	overflow: visible;
-	min-height: 10px;
-}
-
-.yui3-page-content-html-editing img {
+.yui3-content-editing .yui3-input-html-inline img {
 	cursor: pointer !important;
 }
-.yui3-page-content-html-editing img.yui3-image-selected,
-.yui3-page-content-html-editing img.yui3-gallery-selected {
+.yui3-content-editing .yui3-input-html-inline img.yui3-image-selected,
+.yui3-content-editing .yui3-input-html-inline img.yui3-gallery-selected {
 	/* Image focused */
 	outline: 2px dashed #ccc;
 }
 
 .yui3-highlight .yui3-highlight-list {
-	outline: 2px solid #f00;
+	outline: 2px solid #3B85D1;
 	
 	-moz-outline-radius: 4px;
 	-webkit-outline-radius: 4px;
 	outline-radius: 4px;
 	
-	-moz-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
-	-webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
-	box-shadow: 0 1px 4px rgba(0,0,0,0.25) inset;
+	-moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	-webkit-box-shadow:  0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
 	
 	overflow: hidden;
+	background: url(/cms/supra/img/htmleditor/editable-background.png) 0 0 repeat;
 }
 
 /**

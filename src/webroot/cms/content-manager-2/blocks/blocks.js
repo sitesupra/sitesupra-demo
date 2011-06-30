@@ -3,7 +3,10 @@ SU(function (Y) {
 	//Shortcut
 	var Action = SU.Manager.Action;
 	
-	//Create Action class
+	/**
+	 * Action for retrieving all blocks
+	 * or block information
+	 */
 	new Action({
 		
 		/**

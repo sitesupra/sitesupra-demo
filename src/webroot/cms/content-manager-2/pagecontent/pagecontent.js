@@ -2,9 +2,8 @@ SU('dd-drag', function (Y) {
 	
 	var includes = [
 		'includes/contents/proto.js',
-		'includes/contents/html.js',
+		'includes/contents/editable.js',
 		'includes/contents/list.js',
-		'includes/contents/sample.js',
 		'includes/plugin-properties.js',
 		'includes/iframe.js',
 		'includes/layout.js'
@@ -35,6 +34,11 @@ SU('dd-drag', function (Y) {
 		 */
 		editing: false,
 		
+		/**
+		 * Document was registered with DND manager 
+		 * @type {Boolean}
+		 */
+		dnd_registered: false,
 		
 		/**
 		 * Initialize
@@ -139,9 +143,24 @@ SU('dd-drag', function (Y) {
 		},
 		
 		/**
+		 * Initialize drag and drop
+		 */
+		initDD: function () {
+			if (!this.dnd_registered) {
+				//Iframe has DND functionality too and it initialized first,
+				//must register this document object to DND too
+				Y.config.doc = document;
+                Y.DD.DDM._setupListeners();
+				this.dnd_registered = true;
+			}
+		},
+		
+		/**
 		 * Add item to contents D&D list
 		 */
 		registerDD: function (item) {
+			this.initDD();
+			
 			var dd = new Y.DD.Drag({
 	            node: item.node,
 	            dragMode: 'intersect'
@@ -235,9 +254,9 @@ SU('dd-drag', function (Y) {
 		 * On editing start change toolbar
 		 */
 		startEditing: function () {
-			Manager.PageToolbar.setActiveGroupAction('Page');
 			if (!this.editing) {
 				this.editing = true;
+				Manager.PageToolbar.setActiveGroupAction('Page');
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 		},

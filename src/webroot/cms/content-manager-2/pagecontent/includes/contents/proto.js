@@ -1,8 +1,17 @@
 YUI.add('supra.page-content-proto', function (Y) {
 	
-	//Shortcut
-	var Action = SU.Manager.PageContent;
+	//Shortcuts
+	var Manager = SU.Manager,
+		Action = Manager.PageContent,
+		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
+	//Templates
+	var HTML_CLICK = '<span>Click to edit</span>';
+	var HTML_CLICK_DRAG = '<span>Click to edit<br />Drag &amp; drop to move</span>';
+	
+	/**
+	 * Content block
+	 */
 	function ContentProto () {
 		this.children = {};
 		this.node = null;
@@ -12,7 +21,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 	}
 	
 	ContentProto.NAME = 'page-content-proto';
-	ContentProto.CLASS_NAME = Y.ClassNameManager.getClassName(ContentProto.NAME);
+	ContentProto.CLASS_NAME = getClassName(ContentProto.NAME);
+	
+	//CSS classes
+	var CLASSNAME = getClassName('content'),									// yui3-content
+		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),					// yui3-content-overlay
+		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),	// yui3-content-overlay-hover
+		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),				// yui3-content-dragable
+		CLASSNAME_EDITING = getClassName('content', 'editing');					// yui3-content-editing
+	
 	ContentProto.ATTRS = {
 		'data': {
 			value: null
@@ -39,6 +56,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 		'editable': {
 			value: false,
 			readOnly: true
+		},
+		'dragable': {
+			value: false,
+			setter: '_setDragable'
 		},
 		'highlight': {
 			value: false,
@@ -108,7 +129,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		bindUI: function () {
 			if (this.get('editable') && this.overlay) {
 				this.overlay.on('click', function() {
-				
+					
 					this.get('super').set('activeContent', this);
 					
 				}, this);
@@ -144,11 +165,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		renderOverlay: function () {
-			var div = new Y.Node(this.get('doc').createElement('DIV'));
-			this.overlay = div;
-			this.overlay.set('innerHTML', '<span>Click to edit!</span>');
-			this.overlay.addClass(Y.ClassNameManager.getClassName(ContentProto.NAME, 'overlay'));
+			var div = new Y.Node(this.get('doc').createElement('DIV')),
+				html = HTML_CLICK;
 			
+			this.overlay = div;
+			
+			if (this.get('dragable')) {
+				this.overlay.addClass(CLASSNAME_DRAGABLE);
+				html = HTML_CLICK_DRAG;
+			}
+			
+			this.overlay.addClass(CLASSNAME_OVERLAY);
+			this.overlay.set('innerHTML', html);
 			this.getNode().insert(div, 'before');
 		},
 		
@@ -158,7 +186,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var body = this.get('body');
 			
 			var type = data.type;
-			var classname = type[0].toUpperCase() + type.substr(1);
+			var properties = Manager.Blocks.getBlock(type);
+			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
 			
 			if (classname in Action) {
 				var block = this.children[data.id] = new Action[classname]({
@@ -170,6 +199,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 					'super': this.get('super')
 				});
 				block.render();
+			} else {
+				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
 			}
 			
 			return block;
@@ -185,12 +216,17 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			if (!this.getNode()) {
-				var type = data.type;
-				var id = data.id;
-				var node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="yui3-page-content yui3-page-content-' + type + ' yui3-page-content-' + type + '-' + id + '">' + data.value || '' + '</div>');
+				var type = data.type,
+					id = data.id,
+					classname_type = CLASSNAME + '-' + type,
+					node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
 				
 				this.node = node;
 				this.get('parent').getNode().append(node);
+			}
+			
+			if (this.get('dragable')) {
+				this.set('dragable', true);
 			}
 		},
 		
@@ -215,25 +251,48 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 		},
 		
+		/**
+		 * Returns all block properties
+		 * 
+		 * @return List of block properties
+		 * @type {Object}
+		 */
+		getProperties: function () {
+			var data = this.get('data'),
+				type = data && data.type ? data.type : null,
+				properties = type ? Manager.Blocks.getBlock(type) : null;
+			
+			return properties ? properties.properties : null;
+		},
+		
+		_setDragable: function (value) {
+			var node = this.overlay;
+			
+			if (node) {
+				if (value) {
+					node.addClass(CLASSNAME_DRAGABLE);
+				} else {
+					node.removeClass(CLASSNAME_DRAGABLE);
+				}	
+			}
+			
+			return !!value;
+		},
+		
 		_setEditing: function (value) {
 			if (value == this.get('editing')) return !!value;
 			
-			var classname_overlay = Y.ClassNameManager.getClassName(ContentProto.NAME, 'editing');
-			var classname_node = Y.ClassNameManager.getClassName(this.constructor.NAME, 'editing');
-			
 			if (value) {
 				if (this.overlay) {
-					this.overlay.addClass(classname_overlay);
+					this.overlay.addClass(CLASSNAME_EDITING);
 				}
-				this.getNode().addClass(classname_node);
-				this.getNode().addClass('yui3-page-content-editing');
+				this.getNode().addClass(CLASSNAME_EDITING);
 				
 				this.fire('editing-start');
 				this.get('super').fire('editing-start', this.get('data'));
 			} else {
-				if (this.overlay) this.overlay.removeClass(classname_overlay);
-				this.getNode().removeClass(classname_node);
-				this.getNode().removeClass('yui3-page-content-editing');
+				if (this.overlay) this.overlay.removeClass(CLASSNAME_EDITING);
+				this.getNode().removeClass(CLASSNAME_EDITING);
 				
 				this.fire('editing-end');
 				this.get('super').fire('editing-end', this.get('data'));
@@ -247,12 +306,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (!this.overlay) return false;
 			if (value == this.get('highlightOverlay')) return !!value;
 			
-			var classname_overlay = Y.ClassNameManager.getClassName(ContentProto.NAME, 'overlay', 'hover');
-			
 			if (value) {
-				this.overlay.addClass(classname_overlay);
+				this.overlay.addClass(CLASSNAME_OVERLAY_HOVER);
 			} else {
-				this.overlay.removeClass(classname_overlay);
+				this.overlay.removeClass(CLASSNAME_OVERLAY_HOVER);
 			}
 			
 			return !!value;
@@ -260,10 +317,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		_setHighlight: function (value) {
 			if (value) {
-				if (this.overlay) {
-					this.overlay.addClass(classname_overlay);
-				}
-				
 				this.getNode().addClass('yui3-highlight-' + this.get('data').type);
 				if (this.get('editing')) {
 					this.set('editing', false);

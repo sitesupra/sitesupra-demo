@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\Http,
-		Supra\Controller\Pages\Entity\Abstraction\Page;
+		Supra\Controller\Pages\Entity\Abstraction\Data;
 
 /**
  * Page controller request
@@ -27,26 +27,31 @@ abstract class Request extends Http
 	private $locale;
 	
 	/**
-	 * @var Page
+	 * @var Data
 	 */
-	private $requestPage;
+	private $requestPageData;
 	
 	/**
-	 * @return Page
+	 * @return Data
 	 */
-	public function getRequestPage()
+	public function getRequestPageData()
 	{
-		return $this->requestPage;
+		return $this->requestPageData;
 	}
 	
 	/**
 	 * @param Page $requestPage
 	 */
-	public function setRequestPage(Page $requestPage)
+	public function setRequestPageData(Data $requestPageData)
 	{
-		$this->requestPage = $requestPage;
+		$this->requestPageData = $requestPageData;
 	}
-
+	
+	public function getRequestPageSet() {}
+	public function getPlaceHolderSet() {}
+	public function getBlockSet() {}
+	public function getBlockPropertyFilters() {}
+	
 	/**
 	 * @param \Doctrine\ORM\EntityManager $em
 	 */

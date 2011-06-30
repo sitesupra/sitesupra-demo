@@ -36,7 +36,11 @@ class TextController extends BlockController
 		$response->output('<div title="' . htmlspecialchars($comment) . '">');
 //		$response->output($this->getPropertyValue('html', 'defaultText'));
 		
-		$this->outputProperty('html', 'defaultText');
+//		$response->output("<h2>HELLO</h2>");
+		
+		$this->outputProperty('html', 'defaultText1');
+		
+//		$response->output("<h2>BYE</h2>");
 		
 		$response->output('</div>');
 	}
@@ -51,6 +55,9 @@ class TextController extends BlockController
 		
 		$html = new \Supra\Editable\Html("The Main Content");
 		$contents['html'] = $html;
+		
+//		$html = new \Supra\Editable\Html("The Secondary Content");
+//		$contents['html2'] = $html;
 		
 		return $contents;
 	}

@@ -265,7 +265,6 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				return false;
 			}
 			
-			console.log(data.records);
 			this.addData(id, data.records);
 			this.fire('load:success', {'id': id, 'data': data.records});
 			this.fire('load:success:' + id, {'id': id, 'data': data.records});

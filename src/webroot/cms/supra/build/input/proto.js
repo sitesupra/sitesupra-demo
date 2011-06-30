@@ -127,13 +127,13 @@ YUI.add("supra.input-proto", function (Y) {
 			var cont = this.get("contentBox");
 			var bound = this.get("boundingBox");
 			
-			if (!inp) {
+			if (!inp && this.INPUT_TEMPLATE) {
 				inp = Y.Node.create(this.INPUT_TEMPLATE);
 				cont.prepend(inp);
 				this.set("inputNode", inp);
 			}
 			
-			if (!lbl && this.LABEL_TEMPLATE) {
+			if (inp && !lbl && this.LABEL_TEMPLATE) {
 				var id = inp.getAttribute("id");
 				
 				lbl = Y.Node.create(this.LABEL_TEMPLATE);
@@ -154,7 +154,7 @@ YUI.add("supra.input-proto", function (Y) {
 			}
 			
 			//Move label inside bounding box
-			if (lbl && cont.compareTo(inp)) {
+			if (lbl && inp && cont.compareTo(inp)) {
 				bound.prepend(lbl);
 			}
 			

@@ -3,27 +3,8 @@
 		"id": "features",
 		"title": "Site features",
 		"blocks": [
-			{
-				"id": "html",
-				"title": "Text",
-				"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
-				"icon": "/cms/supra/img/blocks/text.png",
-				"default_html": "<h2>Sample heading</h2><p>Click here to edit heading and text...</p>",
-				"properties": [
-					{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
-				]
-			},
-			{
-				"id": "sample",
-				"title": "Sample",
-				"description": "Sample block",
-				"icon": "/cms/supra/img/blocks/sample.png",
-				"default_html": "<h2>Sample block title</h2>",
-				"properties": [
-					{"id": "title", "type": "String", "label": "Title", "value": "Sample block title"},
-					{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
-				]
-			}
+			"html",
+			"sample"
 		]
 	},
 	{

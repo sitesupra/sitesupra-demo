@@ -5,7 +5,8 @@ namespace Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Exception,
 		Supra\Controller\Pages\Entity\Abstraction\Entity,
 		Supra\Controller\Pages\Entity\Abstraction\Data,
-		Supra\Controller\Pages\Entity\Abstraction\Block;
+		Supra\Controller\Pages\Entity\Abstraction\Block,
+		Supra\Editable\EditableInterface;
 
 /**
  * Block property class.
@@ -55,6 +56,11 @@ class BlockProperty extends Entity
 	 * @var string
 	 */
 	protected $value;
+	
+	/**
+	 * @var EditableInterface
+	 */
+	protected $editable;
 
 	/**
 	 * Constructor
@@ -154,6 +160,22 @@ class BlockProperty extends Entity
 	public function setValue($value)
 	{
 		$this->value = $value;
+	}
+	
+	/**
+	 * @return EditableInterface
+	 */
+	public function getEditable()
+	{
+		return $this->editable;
+	}
+
+	/**
+	 * @param EditableInterface $editable
+	 */
+	public function setEditable(EditableInterface $editable)
+	{
+		$this->editable = $editable;
 	}
 
 	/**

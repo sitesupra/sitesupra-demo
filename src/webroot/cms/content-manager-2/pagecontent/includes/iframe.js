@@ -203,6 +203,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			//Change iframe HTML
 			doc.writeln(html);
+			doc.close();
 			
 			//Small delay before continuing
 			setTimeout(Y.bind(this._afterSetHTML, this), 50);
@@ -294,28 +295,31 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
-				var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]);
-				for(var i in this.contentBlocks) {
-					var node = this.contentBlocks[i].getNode(),
-						intersect = node.intersect(region);
-					
-					if (intersect.inRegion && this.contentBlocks[i].isChildTypeAllowed(e.block.id)) {
-						return this.contentBlocks[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block});
+				if (e.block) {
+					var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]);
+					for(var i in this.contentBlocks) {
+						var node = this.contentBlocks[i].getNode(),
+							intersect = node.intersect(region);
+						
+						if (intersect.inRegion && this.contentBlocks[i].isChildTypeAllowed(e.block.id)) {
+							return this.contentBlocks[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block});
+						}
 					}
 				}
-				
 			}, this);
 			
 			this.on('block:dragstart', function (e) {
-				this.set('highlight', true);
-				var type = e.block.id;
-				
-				for(var i in this.contentBlocks) {
-					if (this.contentBlocks[i].isChildTypeAllowed(type)) {
-						this.contentBlocks[i].set('highlight', true);
+				//Only if dragging block
+				if (e.block) {
+					this.set('highlight', true);
+					var type = e.block.id;
+					
+					for(var i in this.contentBlocks) {
+						if (this.contentBlocks[i].isChildTypeAllowed(type)) {
+							this.contentBlocks[i].set('highlight', true);
+						}
 					}
 				}
-				
 			}, this);
 			
 			Y.on('resize', Y.throttle(fn, 50), win);
@@ -329,7 +333,9 @@ YUI.add('supra.page-iframe', function (Y) {
 			for(var i=0,ii=data.length; i<ii; i++) {
 				
 				var type = data[i].type;
-				var classname = type[0].toUpperCase() + type.substr(1);
+				var properties = SU.Manager.Blocks.getBlock(type);
+				var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
+				
 				if (classname in Action) {
 					var block = this.contentBlocks[data[i].id] = new Action[classname]({
 						'doc': doc,
@@ -340,6 +346,8 @@ YUI.add('supra.page-iframe', function (Y) {
 						'super': this
 					});
 					block.render();
+				} else {
+					Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
 				}
 				
 			}
@@ -383,7 +391,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				}
 			} else if (Y.Lang.isString(content)) {
 				if (!old || content != old.getId()) {
-					//@TODO
+					//@TODO Set active content by ID
 				}
 			} else {
 				SU.Manager.Page.hideEditorToolbar();
@@ -419,4 +427,4 @@ YUI.add('supra.page-iframe', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'supra.page-content-proto', 'supra.page-content-list', 'supra.page-content-html', 'supra.page-content-sample']});
+}, YUI.version, {requires:['widget', 'supra.page-content-list', 'supra.page-content-editable']});

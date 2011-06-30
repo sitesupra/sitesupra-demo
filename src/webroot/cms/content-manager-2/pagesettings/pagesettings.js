@@ -403,7 +403,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		renderBlocks: function () {
 			var blocks = Manager.PageContent.getContentBlocks(),
 				block = null,
-				block_id = null,
+				block_type = null,
 				block_definition = null,
 				container = this.getContainer('ul.block-list'),
 				item = null;
@@ -412,8 +412,8 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			
 			for(var id in blocks) {
 				block = blocks[id];
-				block_id = block.constructor.NAME.replace('page-content-', '');
-				block_definition = Manager.Blocks.getBlock(block_id);
+				block_type = block.getType();
+				block_definition = Manager.Blocks.getBlock(block_type);
 				
 				item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Lang.escapeHTML(block_definition.title) + '</p></li>');
 				item.setData('content_id', id);

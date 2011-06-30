@@ -368,6 +368,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 		type: 'css'
 	},
 	
+	//Inline HTML editor
+	'supra.input-inline-html': {
+		path: 'input/html-inline.js',
+		requires: ['supra.input-proto']
+	},
+	
 	/**
 	 * Calendar widget
 	 */

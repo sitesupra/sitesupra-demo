@@ -197,6 +197,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * Bind drag & drop event listeners
 		 */
 		bindDragDrop: function () {
+			//Initialize drag and drop
+			Manager.PageContent.initDD();
+			
 			var fnDragDrag = Y.bind(this.onDragDrag, this),
 				fnDragStart = Y.bind(this.onDragStart, this),
 				fnDropOver = Y.bind(this.onDropOver, this);

@@ -27,11 +27,42 @@ abstract class BlockController extends ControllerAbstraction
 	protected $block;
 	
 	/**
+	 * Current request page
+	 * @var Entity\Abstraction\Page
+	 */
+	protected $page;
+	
+	/**
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
 	 */
 	abstract protected function getPropertyDefinition();
+
+	/**
+	 * Overriden to specify correct return class
+	 * @return \Supra\Controller\Pages\Request\Request
+	 */
+	public function getRequest()
+	{
+		return parent::getRequest();
+	}
+	
+	/**
+	 * @return Entity\Abstraction\Page
+	 */
+	public function getPage()
+	{
+		return $this->page;
+	}
+
+	/**
+	 * @param Entity\Abstraction\Page $page
+	 */
+	public function setPage(Entity\Abstraction\Page $page)
+	{
+		$this->page = $page;
+	}
 
 	/**
 	 * Generate response object
@@ -43,11 +74,16 @@ abstract class BlockController extends ControllerAbstraction
 		$response = null;
 		
 		// TODO: create edit response only for not locked blocks
-		if ($request instanceof namespace\Request\RequestEdit) {
+		if ($request instanceof namespace\Request\RequestEdit
+				&& $this->page->isBlockEditable($this->block)) {
+			
 			$response = new BlockResponse\ResponseEdit();
 		} else {
 			$response = new BlockResponse\ResponseView();
 		}
+		
+		// Response object needs a block entity
+		$response->setBlock($this->block);
 		
 		return $response;
 	}
@@ -125,7 +161,7 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function propertyExists($name)
 	{
-		return \array_key_exists($name, $this->properties);
+		return array_key_exists($name, $this->properties);
 	}
 	
 	/**
@@ -170,9 +206,6 @@ abstract class BlockController extends ControllerAbstraction
 			
 			/*
 			 * Must create new property here
-			 * 
-			 * FIXME: there is no real nead to create new property here because 
-			 * we will be using only content here...
 			 */
 			if ($newProperty) {
 				
@@ -183,7 +216,8 @@ abstract class BlockController extends ControllerAbstraction
 				$property->setBlock($this->getBlock());
 				
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
-				//$property->setData();
+				//FIXME: should do somehow easier than that
+				$property->setData($this->getRequest()->getRequestPageData());
 			}
 			
 			$content = $property->getValue();
@@ -198,7 +232,19 @@ abstract class BlockController extends ControllerAbstraction
 			throw new Exception("Block controller response object must be instance of block response");
 		}
 		
-		$response->outputEditable($editable);
+		//TODO: Here must add filter which would add <DIV> for edit action
+		//TODO: Someone passes the actual request page here
+//		/* @var $page Entity\Abstraction\Page */
+//		if ($page->isBlockPropertyEditable($property)) {
+//			
+//			$
+//			
+//			$editable->addFilter();
+//		}
+		
+		$property->setEditable($editable);
+		
+		$response->outputProperty($property);
 	}
 
 	/**

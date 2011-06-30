@@ -30,23 +30,23 @@ class RequestView extends Request
 	 * Overriden with page detection
 	 * @return Page
 	 */
-	public function getRequestPage()
+	public function getRequestPageData()
 	{
-		$page = parent::getRequestPage();
+		$data = parent::getRequestPageData();
 		
-		if (empty($page)) {
-			$page = $this->detectRequestPage();
+		if (empty($data)) {
+			$data = $this->detectRequestPageData();
 			
-			$this->setRequestPage($page);
+			$this->setRequestPageData($data);
 		}
 
-		return $page;
+		return $data;
 	}
 	
 	/**
 	 * @return Page
 	 */
-	protected function detectRequestPage()
+	protected function detectRequestPageData()
 	{
 		$action = $this->getActionString();
 		$action = trim($action, '/');
@@ -69,8 +69,6 @@ class RequestView extends Request
 			throw new NotFoundException("No page found by path '$action' in pages controller");
 		}
 
-		$page = $pageData->getPage();
-
-		return $page;
+		return $pageData;
 	}
 }

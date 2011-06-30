@@ -1,12 +1,25 @@
 [
 	{
+		"id": "Project_Text_TextController",
+		"title": "Text",
+		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
+		"icon": "/cms/supra/img/blocks/text.png",
+		"default_html": "<h2>Sample heading</h2><p>Click here to edit heading and text...</p>",
+		"classname": "Editable",
+		"properties": [
+			{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}}
+		]
+	},
+	{
 		"id": "html",
 		"title": "Text",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 		"icon": "/cms/supra/img/blocks/text.png",
 		"default_html": "<h2>Sample heading</h2><p>Click here to edit heading and text...</p>",
+		"classname": "Editable",
 		"properties": [
-			{"id": "html", "type": "Hidden", "value": ""},
+			{"id": "html1", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
+			{"id": "html2", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
 			{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
 		]
 	},
@@ -16,6 +29,7 @@
 		"description": "Sample block",
 		"icon": "/cms/supra/img/blocks/sample.png",
 		"default_html": "<h2>Sample block title</h2>",
+		"classname": "Editable",
 		"properties": [
 			{"id": "title", "type": "String", "label": "Title", "value": "Sample block title"},
 			{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
@@ -26,7 +40,8 @@
 		"title": "Gallery",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 		"icon": "/cms/supra/img/blocks/gallery.png",
-		"default_html": [],
+		"default_html": "",
+		"classname": "Editable",
 		"properties": [
 			{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
 		]
@@ -36,7 +51,8 @@
 		"title": "Feedback",
 		"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 		"icon": "/cms/supra/img/blocks/feedback.png",
-		"default_html": null,
+		"default_html": "",
+		"classname": "Editable",
 		"properties": [
 			{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
 		]

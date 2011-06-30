@@ -161,13 +161,13 @@ class Controller extends ControllerAbstraction
 		$this->collectBlockProperties($blocks, $page);
 		\Log::sdebug("Block properties collected for {$page}");
 		
-		$this->prepareBlockControllers($blocks);
+		$this->prepareBlockControllers($blocks, $page);
 		\Log::sdebug("Blocks prepared for {$page}");
 
 		$this->outputBlockControllers($blocks);
 		\Log::sdebug("Blocks executed for {$page}");
 
-		$placeResponses = $this->getPlaceResponses($blocks);
+		$placeResponses = $this->getPlaceResponses($places, $blocks, $page);
 
 		$this->processLayout($layout, $placeResponses);
 		\Log::sdebug("Layout {$layout} processed and output to response for {$page}");
@@ -181,7 +181,8 @@ class Controller extends ControllerAbstraction
 	protected function collectPageHierarchy()
 	{
 		$page = $this->getRequest()
-				->getRequestPage();
+				->getRequestPageData()
+				->getMaster();
 		
 		\Log::sdebug('Found page #', $page->getId());
 
@@ -223,6 +224,7 @@ class Controller extends ControllerAbstraction
 	}
 
 	/**
+	 * Finds all place holders we are interested in, creates missing holders
 	 * @param array $masterIds
 	 * @param array $layoutPlaceNames
 	 * @return array of placeholders
@@ -230,10 +232,11 @@ class Controller extends ControllerAbstraction
 	protected function findPlaceHolders(array $masterIds, array $layoutPlaceNames)
 	{
 		$em = $this->getDoctrineEntityManager();
+		
 		if (empty($masterIds) || empty($layoutPlaceNames)) {
 			return array();
 		}
-
+		
 		// Find template place holders
 		$qb = $em->createQueryBuilder();
 
@@ -268,6 +271,8 @@ class Controller extends ControllerAbstraction
 			
 			$places[] = $place;
 		}
+		
+		//TODO: create missing place holders automatically, copy unlocked blocks from the parent template
 		
 		\Log::sdebug('Count of place holders found: ' . count($places));
 
@@ -412,15 +417,17 @@ class Controller extends ControllerAbstraction
 	/**
 	 * @param array $blocks
 	 */
-	protected function prepareBlockControllers(array &$blocks)
+	protected function prepareBlockControllers(array &$blocks, Entity\Abstraction\Page $page)
 	{
 		$request = $this->getRequest();
 
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block) use ($request) {
+		$prepare = function(Entity\Abstraction\Block $block) use ($page, $request) {
 			$blockController = $block->getController();
+			$blockController->setPage($page);
 			$blockResponse = $blockController->createResponse($request);
 			$blockController->prepare($request, $blockResponse);
+			
 			return $block;
 		};
 
@@ -446,19 +453,23 @@ class Controller extends ControllerAbstraction
 	
 	/**
 	 * Creates place holder response object
-	 * @param string $placeName
+	 * @param Entity\Abstraction\Page $page
+	 * @param Entity\Abstraction\PlaceHolder $placeHolder
 	 * @return PlaceHolderResponse\Response
 	 */
-	public function createPlaceResponse($placeName)
+	public function createPlaceResponse(Entity\Abstraction\Page $page, Entity\Abstraction\PlaceHolder $placeHolder)
 	{
 		$response = null;
 		
 		// TODO: create edit response for unlocked place holders ONLY
-		if ($this->request instanceof namespace\Request\RequestEdit) {
+		if ($this->request instanceof namespace\Request\RequestEdit
+				&& $page->isPlaceHolderEditable($placeHolder)) {
 			$response = new PlaceHolderResponse\ResponseEdit();
 		} else {
 			$response = new PlaceHolderResponse\ResponseView();
 		}
+		
+		$response->setPlaceHolder($placeHolder);
 		
 		return $response;
 	}
@@ -468,16 +479,43 @@ class Controller extends ControllerAbstraction
 	 * @param array $blocks
 	 * @return array
 	 */
-	protected function getPlaceResponses(array &$blocks)
+	protected function getPlaceResponses(array $places, array &$blocks, Entity\Abstraction\Page $page)
 	{
+		/* @var $finalPlacesByName array */
+		$finalPlacesByName = array();
+		
+		/* @var $place Entity\Abstraction\PlaceHolder */
+		foreach ($places as $place) {
+			$name = $place->getName();
+			$finalPlacesByName[$name] = $place;
+		}
+		
 		$placeResponses = array();
 		$controller = $this;
 
-		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) use (&$placeResponses, $controller) {
+		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) 
+				use (&$placeResponses, $controller, &$page, $finalPlacesByName) {
+			
 			$response = $block->getController()->getResponse();
 			
 			if ( ! isset($placeResponses[$placeName])) {
-				$placeResponses[$placeName] = $controller->createPlaceResponse($placeName);
+				
+				if ( ! isset($finalPlacesByName[$placeName])) {
+					//TODO: what is the action on such case?
+					throw new Exception("Logic problem – final place holder by name $placeName is not found");
+				}
+				
+				// Get place holder object
+				$placeHolder = $finalPlacesByName[$placeName];
+				
+				$placeResponse = $controller->createPlaceResponse($page, $placeHolder);
+				
+				
+//				if ($page->isPlaceHolderEditable($placeHolder)) {
+//					$placeResponse->setPlaceHolder($placeHolder);
+//				}
+				
+				$placeResponses[$placeName] = $placeResponse;
 			}
 			
 			$response->flushToResponse($placeResponses[$placeName]);
