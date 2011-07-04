@@ -3,7 +3,8 @@
 namespace Supra\Controller\Pages\Response\Block;
 
 use Supra\Response\ResponseInterface,
-		Supra\Editable\EditableAbstraction;
+		Supra\Editable\EditableAbstraction,
+		Supra\Controller\Pages\Entity;
 
 /**
  * Response for block in edit mode
@@ -44,10 +45,10 @@ class ResponseEdit extends Response
 	}
 	
 	/**
-	 * @param BlockProperty $property
+	 * @param Entity\BlockProperty $property
 	 * @return string
 	 */
-	public function outputProperty(BlockProperty $property)
+	public function outputProperty(Entity\BlockProperty $property)
 	{
 		$data = $property->getValue();
 		$editable = $property->getEditable();

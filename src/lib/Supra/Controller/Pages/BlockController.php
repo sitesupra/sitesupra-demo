@@ -91,7 +91,7 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * @param Set\BlockPropertySet $blockPropertySet
 	 */
-	public function setBlockPropertySet(array $blockPropertySet)
+	public function setBlockPropertySet(Set\BlockPropertySet $blockPropertySet)
 	{
 		$this->properties = $blockPropertySet;
 	}

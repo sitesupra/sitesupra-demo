@@ -67,6 +67,7 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Execute controller
+	 * @return Set\RequestSet
 	 */
 	public function execute()
 	{
@@ -85,8 +86,18 @@ class Controller extends ControllerAbstraction
 		$requestSet->setDoctrineEntityManager($this->getDoctrineEntityManager());
 		$requestSet->setPage($page);
 		
+		$this->processRequestSet($requestSet);
+	}
+	
+	/**
+	 * Processes the request set object
+	 * @param Set\RequestSet $requestSet
+	 */
+	public function processRequestSet(Set\RequestSet $requestSet)
+	{
 		$blocks = $requestSet->getBlockSet();
 		$layout = $requestSet->getLayout();
+		$page = $requestSet->getPage();
 		
 		$places = $requestSet->getPlaceHolderSet();
 
@@ -284,7 +295,7 @@ class Controller extends ControllerAbstraction
 	 * @param array $blocks
 	 * @param \Closure $function
 	 */
-	protected function iterateBlocks(array &$blocks, \Closure $function)
+	protected function iterateBlocks(Set\BlockSet $blocks, \Closure $function)
 	{
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $index => $block) {

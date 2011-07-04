@@ -4,8 +4,7 @@ namespace Supra\Controller\Pages\Response\Block;
 
 use Supra\Response\Http,
 		Supra\Editable\EditableInterface,
-		Supra\Controller\Pages\Entity\Abstraction\Block,
-		Supra\Controller\Pages\Entity\BlockProperty;
+		Supra\Controller\Pages\Entity;
 
 /**
  * Response for block
@@ -13,12 +12,12 @@ use Supra\Response\Http,
 abstract class Response extends Http
 {
 	/**
-	 * @var Block
+	 * @var Entity\Abstraction\Block
 	 */
 	private $block;
 	
 	/**
-	 * @return Block
+	 * @return Entity\Abstraction\Block
 	 */
 	public function getBlock()
 	{
@@ -28,7 +27,7 @@ abstract class Response extends Http
 	/**
 	 * @param Block $block
 	 */
-	public function setBlock($block)
+	public function setBlock(Entity\Abstraction\Block $block)
 	{
 		$this->block = $block;
 	}
@@ -38,10 +37,10 @@ abstract class Response extends Http
 	 * 
 	 * TODO: no editable mode for editables belonging to parent objects
 	 * 
-	 * @param BlockProperty $property
+	 * @param Entity\BlockProperty $property
 	 * @return string
 	 */
-	public function outputProperty(BlockProperty $property)
+	public function outputProperty(Entity\BlockProperty $property)
 	{
 		$data = $property->getValue();
 		$editable = $property->getEditable();

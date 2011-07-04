@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Set;
 
+use Supra\Controller\Pages\Entity;
+
 /**
  * Set of page block properties
  */

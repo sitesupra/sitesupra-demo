@@ -26,4 +26,21 @@ class BlockSet extends AbstractSet
 		}
 	}
 	
+	/**
+	 * @return BlockSet
+	 */
+	public function getPlaceHolderBlockSet(Entity\Abstraction\PlaceHolder $placeHolder)
+	{
+		$blockSet = new BlockSet();
+		
+		/* @var $block Entity\Abstraction\Block */
+		foreach ($this as $block) {
+			if ($block->getPlaceHolder()->equals($placeHolder)) {
+				$blockSet[] = $block;
+			}
+		}
+		
+		return $blockSet;
+	}
+	
 }

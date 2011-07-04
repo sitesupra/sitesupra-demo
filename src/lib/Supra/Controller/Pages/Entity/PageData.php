@@ -127,15 +127,23 @@ class PageData extends Abstraction\Data
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPathPart()
+	{
+		return $this->pathPart;
+	}
+	
+	/**
 	 * TODO: Not sure whether it can be useful, doesn't run on inserts...
 	 * @PreUpdate
 	 */
 	public function generatePath()
 	{
-		$pathPart = \urlencode($this->pathPart);
+		$pathPart = urlencode($this->pathPart);
 
 		$page = $this->getPage();
-
+		
 		if ($page->hasParent()) {
 			$parentPage = $page->getParent();
 
