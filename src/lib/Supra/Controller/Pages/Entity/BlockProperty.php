@@ -188,7 +188,7 @@ class BlockProperty extends Entity
 			try {
 				// do not-strict match (allows page data with template block)
 				$this->data->matchDiscriminator($this->block, false);
-			} catch (Exception $e) {
+			} catch (Exception\PagesControllerException $e) {
 				$object = null;
 				throw $e;
 			}

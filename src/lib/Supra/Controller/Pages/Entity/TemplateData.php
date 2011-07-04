@@ -27,7 +27,7 @@ class TemplateData extends Abstraction\Data
 			return;
 		}
 		if ( ! empty($this->template)) {
-			throw new Exception("Not allowed to change template for template data object #{$this->getId()}");
+			throw new Exception\RuntimeException("Not allowed to change template for template data object #{$this->getId()}");
 		}
 		if ($this->lock('template')) {
 			$this->template = $template;

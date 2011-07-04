@@ -255,10 +255,11 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$em = $this->getEntityManager();
 		$className = $this->className;
-
+		$alias = 'e';
+		
 		$qb = $em->createQueryBuilder();
-		$qb->select('e')
-				->from($className, 'e');
+		$qb->select($alias)
+				->from($className, $alias);
 
 		if ( ! ($filter instanceof SearchCondition\DoctrineSearchCondition)) {
 			throw new Exception\WrongInstance($filter, 'SearchCondition\DoctrineSearchCondition');

@@ -5,7 +5,8 @@ namespace Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,
-		Supra\NestedSet;
+		Supra\NestedSet,
+		Supra\Controller\Pages\Set\PageSet;
 
 /**
  * Page controller template class
@@ -70,12 +71,6 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	protected $level;
 	
 	/**
-	 * Data class
-	 * @var string
-	 */
-	static protected $dataClass = 'Supra\Controller\Pages\Entity\TemplateData';
-
-	/**
 	 * @OneToMany(targetEntity="TemplateData", mappedBy="template", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
@@ -86,19 +81,6 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * @var Collection
 	 */
 	protected $templateLayouts;
-
-	/**
-	 * @OneToMany(targetEntity="Template", mappedBy="parent")
-	 * @var Collection
-	 */
-//	protected $children;
-
-	/**
-     * @ManyToOne(targetEntity="Template", inversedBy="children")
-	 * @JoinColumn(name="parent_id", referencedColumnName="id")
-	 * @var Template
-     */
-//	protected $parent;
 
 	/**
 	 * Template place holders
@@ -143,7 +125,7 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	public function addTemplateLayout(TemplateLayout $templateLayout)
 	{
 		if ($this->hasParent()) {
-			throw new Exception("Template layout can be set to root template only");
+			throw new Exception\RuntimeException("Template layout can be set to root template only");
 		}
 		if ($this->lock('templateLayout')) {
 			if ($this->addUnique($this->templateLayouts, $templateLayout, 'media')) {
@@ -166,7 +148,7 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * Add layout for specific media
 	 * @param string $media
 	 * @param Layout $layout
-	 * @throws Exception if layout for this media already exists
+	 * @throws Exception\RuntimeException if layout for this media already exists
 	 */
 	public function addLayout($media, Layout $layout)
 	{
@@ -199,7 +181,7 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * @param string $media
 	 * @return Layout
 	 */
-	public function getLayout($media)
+	public function getLayout($media = Layout::MEDIA_SCREEN)
 	{
 		$templateLayouts = $this->getTemplateLayouts();
 		/* @var $templateLayout TemplateLayout */
@@ -208,27 +190,24 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 				return $templateLayout->getLayout();
 			}
 		}
-		throw new Exception("No layout found for template #{$this->getId()} media '{$media}'");
+		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
 	}
 
 	/**
 	 * Get array of template hierarchy starting from the root
-	 * @return Template[]
+	 * @return PageSet
 	 */
-	public function getHierarchy()
+	public function getTemplateHierarchy()
 	{
-		$template = $this;
-
 		/* @var $templates Template[] */
-		$templates = array();
-		do {
-			array_unshift($templates, $template);
-			$template = $template->getParent();
-		} while ( ! is_null($template));
-
-		return $templates;
+		$templates = $this->getAncestors(0, true);
+		$templates = array_reverse($templates);
+		
+		$pageSet = new PageSet($templates);
+		
+		return $pageSet;
 	}
-
+	
 	/**
 	 * Get left value
 	 * @return int

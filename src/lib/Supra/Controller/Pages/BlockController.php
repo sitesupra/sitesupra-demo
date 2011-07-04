@@ -16,7 +16,7 @@ use Supra\Controller\ControllerAbstraction,
 abstract class BlockController extends ControllerAbstraction
 {
 	/**
-	 * @var array
+	 * @var Set\BlockPropertySet
 	 */
 	protected $properties = array();
 
@@ -89,29 +89,11 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param array $properties
+	 * @param Set\BlockPropertySet $blockPropertySet
 	 */
-//	public function addProperties(array $properties)
-//	{
-//		$this->properties = array_merge($this->properties, $properties);
-//	}
-
-	/**
-	 * @param array $properties
-	 */
-//	public function setProperties(array $properties)
-//	{
-//		$this->properties = $properties;
-//	}
-
-	/**
-	 * @param Entity\BlockProperty $property
-	 */
-	public function addProperty(Entity\BlockProperty $property)
+	public function setBlockPropertySet(array $blockPropertySet)
 	{
-		$name = $property->getName();
-		
-		$this->properties[$name] = $property;
+		$this->properties = $blockPropertySet;
 	}
 
 	/**
@@ -125,7 +107,7 @@ abstract class BlockController extends ControllerAbstraction
 			return $this->properties[$name];
 		} else {
 			$blockName = get_class($this);
-			throw new Exception("The property '{$name}' was not found for block '{$blockName}'");
+			throw new Exception\RuntimeException("The property '{$name}' was not found for block '{$blockName}'");
 		}
 	}
 	
@@ -189,7 +171,7 @@ abstract class BlockController extends ControllerAbstraction
 			$editable = $propertyDefinitions[$name];
 			
 			if ( ! $editable instanceof EditableInterface) {
-				throw new Exception("Definition of property must be an instance of editable");
+				throw new Exception\RuntimeException("Definition of property must be an instance of editable");
 			}
 			
 			$newProperty = false;
@@ -223,13 +205,13 @@ abstract class BlockController extends ControllerAbstraction
 			$content = $property->getValue();
 			$editable->setContent($content);
 		} else {
-			throw new Exception("Content '{$name}' is not defined for block ");
+			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 		}
 		
 		$response = $this->getResponse();
 		
 		if ( ! $response instanceof BlockResponse\Response) {
-			throw new Exception("Block controller response object must be instance of block response");
+			throw new Exception\RuntimeException("Block controller response object must be instance of block response");
 		}
 		
 		//TODO: Here must add filter which would add <DIV> for edit action

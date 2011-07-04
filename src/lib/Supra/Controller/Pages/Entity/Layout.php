@@ -13,7 +13,11 @@ use Doctrine\Common\Collections\ArrayCollection,
  */
 class Layout extends Abstraction\Entity
 {
-
+	/**
+	 * @TODO: move to separate media classes?
+	 */
+	const MEDIA_SCREEN = 'screen';
+	
 	/**
 	 * Layout ID
 	 * @Id
@@ -117,11 +121,11 @@ class Layout extends Abstraction\Entity
 	{
 		$file = $this->getFile();
 		if (empty($file)) {
-			throw new Exception("No file defined for layout {$this}");
+			throw new Exception\RuntimeException("No file defined for layout {$this}");
 		}
 		$filePath = \SUPRA_TEMPLATE_PATH . $file;
 		if ( ! \file_exists($filePath) || ! \is_readable($filePath)) {
-			throw new Exception("Layout file {$file} is not found
+			throw new Exception\RuntimeException("Layout file {$file} is not found
 					or not readable for layout {$this}");
 		}
 		$fileContent = \file_get_contents($filePath);

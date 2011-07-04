@@ -109,12 +109,12 @@ abstract class Entity
 		$sourceEntity = get_class($this);
 		if (empty($value)) {
 			$this->unlockAll();
-			throw new Exception("Second argument sent to method
+			throw new Exception\RuntimeException("Second argument sent to method
 					$sourceEntity::writeOnce() cannot be empty");
 		}
 		if ( ! is_object($value)) {
 			$this->unlockAll();
-			throw new Exception("Second argument sent to method 
+			throw new Exception\RuntimeException("Second argument sent to method 
 					$sourceEntity::writeOnce() must be an object");
 		}
 		if ($property == $value) {
@@ -123,7 +123,7 @@ abstract class Entity
 		if ( ! empty($property)) {
 			$this->unlockAll();
 			$targetEntity = get_class($value);
-			throw new Exception("The property $targetEntity is write-once,
+			throw new Exception\RuntimeException("The property $targetEntity is write-once,
 					cannot rewrite with different value for $sourceEntity");
 		}
 		$property = $value;
@@ -136,7 +136,7 @@ abstract class Entity
 	 * @param Entity $newItem
 	 * @param mixed $uniqueFields
 	 * @return boolean true if added, false if already the same instance has been added
-	 * @throws Exception if element with the same unique field values exists
+	 * @throws Exception\RuntimeException if element with the same unique field values exists
 	 */
 	protected function addUnique(Collection $collection, $newItem, $uniqueFields = null)
 	{
@@ -181,7 +181,7 @@ abstract class Entity
 				$this->unlockAll();
 
 				// If we are here it means all unique parameters were equal
-				throw new Exception("Cannot add element to collection,
+				throw new Exception\RuntimeException("Cannot add element to collection,
 					the element with the same values for unique fields already exists");
 			}
 		}
@@ -194,7 +194,7 @@ abstract class Entity
 	 * Get property of an object by name
 	 * @param string $name
 	 * @return mixed
-	 * @throws Exception if property getter method is not found
+	 * @throws Exception\RuntimeException if property getter method is not found
 	 */
 	public function getProperty($name)
 	{
@@ -202,7 +202,7 @@ abstract class Entity
 		if ( ! \method_exists($this, $method)) {
 			$this->unlockAll();
 			$class = \get_class($this);
-			throw new Exception("Could not found getter function for object
+			throw new Exception\RuntimeException("Could not found getter function for object
 					$class property $name");
 		}
 		$value = $this->$method();
@@ -214,13 +214,13 @@ abstract class Entity
 	 * @param Entity $instance
 	 * @param string $class
 	 * @param string $method
-	 * @throws Exception if the instance check fails
+	 * @throws Exception\RuntimeException if the instance check fails
 	 */
 	protected function isInstanceOf(Entity $instance, $class, $method)
 	{
 		if ( ! ($instance instanceof $class)) {
 			$this->unlockAll();
-			throw new Exception("Object can accept instance of $class in method $method");
+			throw new Exception\RuntimeException("Object can accept instance of $class in method $method");
 		}
 	}
 
@@ -263,8 +263,8 @@ abstract class Entity
 		}
 
 		$this->unlockAll();
-		throw new Exception("The object discriminators do not match for {$this} and {$object}");
-
+		
+		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
 	}
 
 	/**
@@ -284,12 +284,13 @@ abstract class Entity
 
 	/**
 	 * Collects Id array from entity collection
-	 * @param array|Collection $entities
+	 * @param array|Collection|\Traversable $entities
 	 * @return array
 	 */
 	public static function collectIds($entities)
 	{
 		$ids = array();
+		
 		foreach ($entities as $entity) {
 			$ids[] = $entity->getId();
 		}

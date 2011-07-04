@@ -194,6 +194,7 @@ class ArrayRepository extends RepositoryAbstraction
 		}
 
 		$result = $this->searchByClosure($filterClosure, $orderClosure);
+		
 		return $result;
 	}
 
@@ -206,14 +207,17 @@ class ArrayRepository extends RepositoryAbstraction
 	public function searchByClosure(\Closure $filterClosure, \Closure $orderClosure = null)
 	{
 		$result = array();
+		
 		foreach ($this->array as $item) {
 			if ($filterClosure($item)) {
 				$result[] = $item;
 			}
 		}
+		
 		if ( ! \is_null($orderClosure)) {
 			usort($result, $orderClosure);
 		}
+		
 		return $result;
 	}
 

@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\Http,
-		Supra\Controller\Pages\Entity\Abstraction\Data;
+		Supra\Controller\Pages\Entity;
 
 /**
  * Page controller request
@@ -27,12 +27,17 @@ abstract class Request extends Http
 	private $locale;
 	
 	/**
-	 * @var Data
+	 * @var string
+	 */
+	private $media = Entity\Layout::MEDIA_SCREEN;
+	
+	/**
+	 * @var Entity\Abstraction\Data
 	 */
 	private $requestPageData;
 	
 	/**
-	 * @return Data
+	 * @return Entity\Abstraction\Data
 	 */
 	public function getRequestPageData()
 	{
@@ -40,17 +45,12 @@ abstract class Request extends Http
 	}
 	
 	/**
-	 * @param Page $requestPage
+	 * @param Entity\Abstraction\Data $requestPageData
 	 */
-	public function setRequestPageData(Data $requestPageData)
+	public function setRequestPageData(Entity\Abstraction\Data $requestPageData)
 	{
 		$this->requestPageData = $requestPageData;
 	}
-	
-	public function getRequestPageSet() {}
-	public function getPlaceHolderSet() {}
-	public function getBlockSet() {}
-	public function getBlockPropertyFilters() {}
 	
 	/**
 	 * @param \Doctrine\ORM\EntityManager $em
@@ -83,4 +83,21 @@ abstract class Request extends Http
 	{
 		return $this->locale;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getMedia()
+	{
+		return $this->media;
+	}
+
+	/**
+	 * @param string $media
+	 */
+	public function setMedia($media)
+	{
+		$this->media = $media;
+	}
+
 }

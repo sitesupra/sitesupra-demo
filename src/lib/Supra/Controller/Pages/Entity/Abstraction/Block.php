@@ -96,7 +96,6 @@ class Block extends Entity
 		if ($this->writeOnce($this->placeHolder, $placeHolder)) {
 			$this->placeHolder->addBlock($this);
 		}
-		$this->validateLock();
 	}
 
 	/**
@@ -167,27 +166,7 @@ class Block extends Entity
 		
 		return $in;
 	}
-
-	/**
-	 * Validates if the block is not being locked inside unlocked placeholder
-	 * @throws Exception if tries to lock block inside unlocked placeholder
-	 */
-	protected function validateLock()
-	{
-		//FIXME: I think this can be removed because it is legal to lock the 
-		// block inside unlocked place holder currently
-		
-//		if ($this->locked) {
-//			if (isset($this->placeHolder)) {
-//				if ( ! $this->placeHolder->getLocked()) {
-//					$this->locked = false;
-//					throw new Exception("The block {$this} cannot be locked
-//							because the place holder {$this->placeHolder} isn't locked");
-//				}
-//			}
-//		}
-	}
-
+	
 	/**
 	 * Factory of the block controller
 	 * @return BlockController

@@ -4,7 +4,8 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Entity\BlockProperty;
+		Supra\Controller\Pages\Entity\BlockProperty,
+		Supra\Controller\Pages\Set\PageSet;
 
 /**
  * Page abstraction
@@ -17,12 +18,6 @@ use Doctrine\Common\Collections\ArrayCollection,
 abstract class Page extends Entity
 {
 	/**
-	 * Data class
-	 * @var string
-	 */
-	static protected $dataClass = null;
-
-	/**
 	 * @Id
 	 * @Column(type="integer")
 	 * @GeneratedValue
@@ -34,16 +29,6 @@ abstract class Page extends Entity
 	 * @var Collection
 	 */
 	protected $data;
-
-	/**
-	 * @var Collection
-	 */
-//	protected $children;
-
-	/**
-	 * @var Page
-     */
-//	protected $parent;
 
 	/**
 	 * Object's place holders
@@ -65,7 +50,6 @@ abstract class Page extends Entity
 	 */
 	public function __construct()
 	{
-//		$this->children = new ArrayCollection();
 		$this->placeHolders = new ArrayCollection();
 		$this->data = new ArrayCollection();
 	}
@@ -78,38 +62,6 @@ abstract class Page extends Entity
 	{
 		return $this->id;
 	}
-
-	/**
-	 * Get parent page
-	 * @return Page
-	 */
-//	public function getParent()
-//	{
-//		return $this->parent;
-//	}
-
-	/**
-	 * Set parent page
-	 * @var Page $parent
-	 */
-//	public function setParent(Page $parent = null)
-//	{
-//		$this->matchDiscriminator($parent);
-//		if ( ! empty($this->parent)) {
-//			$this->parent->getChildren()->remove($this);
-//		}
-//		$this->parent = $parent;
-//		$parent->getChildren()->add($this);
-//	}
-
-	/**
-	 * Get children pages
-	 * @return Collection
-	 */
-//	public function getChildren()
-//	{
-//		return $this->children;
-//	}
 
 	/**
 	 * @return \Doctrine\ORM\PersistentCollection
@@ -263,9 +215,9 @@ abstract class Page extends Entity
 	}
 	
 	/**
-	 * Loads array of page/template hierarchy
-	 * @return Page[]
+	 * Loads array of page/template template hierarchy
+	 * @return PageSet
 	 */
-	abstract public function getHierarchy();
+	abstract public function getTemplateHierarchy();
 	
 }

@@ -340,6 +340,7 @@ abstract class NodeAbstraction implements NodeInterface
 				->byLevelDescending();
 
 		$ancestors = $this->repository->search($searchCondition, $orderRule);
+		
 		return $ancestors;
 	}
 

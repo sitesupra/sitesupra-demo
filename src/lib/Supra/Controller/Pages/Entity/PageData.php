@@ -98,7 +98,7 @@ class PageData extends Abstraction\Data
 		$page = $this->getPage();
 
 		if (empty($page)) {
-			throw new Exception('Page data page object must be set before setting path part');
+			throw new Exception\RuntimeException('Page data page object must be set before setting path part');
 		}
 
 		// TODO: maybe should make more elegant solution than lft comparison?
@@ -122,7 +122,7 @@ class PageData extends Abstraction\Data
 		$this->generatePath();
 
 //		if ($pathPart == '') {
-//			throw new Exception('Path part cannot be empty');
+//			throw new Exception\RuntimeException('Path part cannot be empty');
 //		}
 	}
 
@@ -141,7 +141,7 @@ class PageData extends Abstraction\Data
 
 			$parentData = $parentPage->getData($this->getLocale());
 			if (empty($parentData)) {
-				throw new Exception("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->getLocale()} required by page {$page->getId()}");
+				throw new Exception\RuntimeException("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->getLocale()} required by page {$page->getId()}");
 			}
 			$path = $parentData->getPath();
 

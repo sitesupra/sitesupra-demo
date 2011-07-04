@@ -5,7 +5,8 @@ namespace Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,
-		Supra\NestedSet;
+		Supra\NestedSet,
+		Supra\Controller\Pages\Set\PageSet;
 
 /**
  * Page controller page object
@@ -70,12 +71,6 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	protected $level;
 
 	/**
-	 * Data class
-	 * @var string
-	 */
-	static protected $dataClass = 'Supra\Controller\Pages\Entity\PageData';
-
-	/**
 	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
@@ -87,18 +82,6 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * @var Template
 	 */
 	protected $template;
-
-	/**
-	 * @OneToMany(targetEntity="Page", mappedBy="parent")
-	 * @var Collection
-	 */
-//	protected $children;
-
-	/**
-     * @ManyToOne(targetEntity="Page", inversedBy="children")
-	 * @var Page
-     */
-//	protected $parent;
 
 	/**
 	 * Page place holders
@@ -154,23 +137,22 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 
 	/**
 	 * Get page and it's template hierarchy starting with the root template
-	 * @return Abstraction\Page[]
-	 * @throws Exception
+	 * @return PageSet
+	 * @throws Exception\RuntimeException
 	 */
-	public function getHierarchy()
+	public function getTemplateHierarchy()
 	{
 		$template = $this->getTemplate();
 
 		if (empty($template)) {
 			//TODO: 404 page or specific error?
-			throw new Exception("No template assigned to the page {$this->getId()}");
+			throw new Exception\RuntimeException("No template assigned to the page {$this->getId()}");
 		}
 
-		$hierarchy = $template->getHierarchy();
-		
-		$hierarchy[] = $this;
+		$pageSet = $template->getTemplateHierarchy();
+		$pageSet[] = $this;
 
-		return $hierarchy;
+		return $pageSet;
 	}
 
 	/**
