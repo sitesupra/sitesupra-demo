@@ -276,11 +276,10 @@ class RequestSet
 		
 		// locked block condition
 		if ( ! empty($parentPlaceHolderIds)) {
-			$lockedBlocksCondition = $expr->andX()
-					->addMultiple(array(
-						$expr->in('ph.id', $parentPlaceHolderIds),
-						'b.locked = TRUE'
-					));
+			$lockedBlocksCondition = $expr->andX(
+					$expr->in('ph.id', $parentPlaceHolderIds),
+					'b.locked = TRUE'
+			);
 			$qb->orWhere($lockedBlocksCondition);
 		}
 		

@@ -29,9 +29,11 @@ class PageAction extends SimpleController
 
 		$em = $request->getDoctrineEntityManager();
 		$pageDao = $em->getRepository(\Supra\Controller\Pages\Set\RequestSet::PAGE_ENTITY);
+//		$pageDao = $em->getRepository(\Supra\Controller\Pages\Set\RequestSet::TEMPLATE_ENTITY);
 
 		//FIXME: hardcoded value
 		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
+//		$page = $pageDao->findOneById(1);
 		$page = $pageDao->findOneById(2);
 		/* @var $pageData \Supra\Controller\Pages\Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);

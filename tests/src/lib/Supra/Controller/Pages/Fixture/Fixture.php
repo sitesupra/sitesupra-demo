@@ -207,6 +207,18 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template source');
+				
+				// A locked block
+				$block = new Entity\TemplateBlock();
+				$block->setComponent('Project\Text\TextController');
+				$block->setPlaceHolder($templatePlaceHolder);
+				$block->setPosition(200);
+				$block->setLocked(true);
+
+				$blockProperty = new Entity\BlockProperty('html', '\Supra\Editable\Html');
+				$blockProperty->setBlock($block);
+				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setValue('Template locked block');
 			}
 
 			if ($name == 'footer') {

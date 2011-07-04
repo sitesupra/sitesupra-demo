@@ -8,12 +8,6 @@ namespace Supra\Controller\Pages\Entity;
 class TemplateBlock extends Abstraction\Block
 {
 	/**
-	 * @Column(type="boolean", nullable=true)
-	 * @var boolean
-	 */
-	protected $locked = false;
-	
-	/**
 	 * Get locked value
 	 * @return boolean
 	 */
@@ -29,6 +23,5 @@ class TemplateBlock extends Abstraction\Block
 	public function setLocked($locked = true)
 	{
 		$this->locked = $locked;
-		$this->validateLock();
 	}
 }

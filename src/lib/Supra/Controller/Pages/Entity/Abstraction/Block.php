@@ -60,6 +60,13 @@ class Block extends Entity
 	 * @var BlockController
 	 */
 	protected $controller;
+	
+	/**
+	 * This property is always false for page block
+	 * @Column(type="boolean", nullable=true)
+	 * @var boolean
+	 */
+	protected $locked = false;
 
 	/**
 	 * Constructor
