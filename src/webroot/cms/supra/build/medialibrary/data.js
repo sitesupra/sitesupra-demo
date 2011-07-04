@@ -16,6 +16,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 	 */
 	function Data (config) {
 		var attrs = {
+			//Save request URI
+			'saveURI': {value: ''},
+			
 			//Request URI
 			'requestURI': {value: ''},
 			
@@ -307,6 +310,30 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			});
 			
 			return this;
+		},
+		
+		/**
+		 * Save data
+		 * Chainable
+		 * 
+		 * @param {Number} id File or folder ID
+		 * @param {Object} data Data
+		 */
+		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */) {
+			var url = this.get('saveURI');
+			data = Supra.mix({
+				'id': id || 0
+			}, data);
+			
+			Supra.io(url, {
+				'data': data,
+				'method': 'post',
+				'context': this,
+				'on': {
+					'success': function (transaction, data) { if (Y.Lang.isFunction(callback)) callback(data, id || 0); },
+					'failure': function (transaction, data) { if (Y.Lang.isFunction(callback)) callback(null, id || 0); }
+				}
+			});
 		},
 		
 		/**

@@ -414,25 +414,27 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			container.all('li').remove();
 			
 			for(var id in blocks) {
-				block = blocks[id];
-				block_type = block.getType();
-				block_definition = Manager.Blocks.getBlock(block_type);
-				
-				item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Lang.escapeHTML(block_definition.title) + '</p></li>');
-				item.setData('content_id', id);
-				
-				container.append(item);
+				if (!blocks[id].isLocked()) {
+					block = blocks[id];
+					block_type = block.getType();
+					block_definition = Manager.Blocks.getBlock(block_type);
+					
+					item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Lang.escapeHTML(block_definition.title) + '</p></li>');
+					item.setData('content_id', id);
+					
+					container.append(item);
+				}
 			}
 			
 			var li = container.all('li');
 			li.on('mouseenter', function (evt) {
-				var target = evt.target.test('LI') ? evt.target : evt.target.ancestor('LI'),
+				var target = evt.target.closest('LI'),
 					content_id = target.getData('content_id');
 					
 				blocks[content_id].set('highlightOverlay', true);
 			});
 			li.on('mouseleave', function (evt) {
-				var target = evt.target.test('LI') ? evt.target : evt.target.ancestor('LI'),
+				var target = evt.target.closest('LI'),
 					content_id = target.getData('content_id');
 				
 				blocks[content_id].set('highlightOverlay', false);
@@ -440,7 +442,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			li.on('click', function (evt) {
 				this.hide();
 				
-				var target = evt.target.test('LI') ? evt.target : evt.target.ancestor('LI'),
+				var target = evt.target.closest('LI'),
 					content_id = target.getData('content_id');
 				
 				//Start editing content

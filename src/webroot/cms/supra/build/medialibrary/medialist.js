@@ -136,6 +136,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	
 	List.ATTRS = {
 		/**
+		 * URI for save requests
+		 * @type {String}
+		 */
+		'saveUri': {
+			value: ''
+		},
+		
+		/**
 		 * Request URI
 		 * @type {String}
 		 */
@@ -296,7 +304,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var data = this.get('dataObject');
 			if (!data) {
 				data = new Data({
-					'requestURI': this.get('requestURI')
+					'requestURI': this.get('requestURI'),
+					'saveURI': this.get('saveURI')
 				});
 				
 				data.setRequestParam(Data.PARAM_DISPLAY_TYPE, this.get('displayType') || List.DISPLAY_ALL);
@@ -328,7 +337,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			//On item click open it
 			content.delegate('click', function (event) {
 				var target = event.target;
-					target = target.test('li') ? target : target.ancestor('li');
+					target = target.closest('li');
 				
 				var id = target.getData('itemId');
 				

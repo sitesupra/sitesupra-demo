@@ -226,9 +226,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			//On list click check if actually item was clicked
 			Y.one('#galleryManagerList').on('click', function (evt) {
-				var target = evt.target;
-				if (!target.test('LI')) target = target.ancestor('LI');
-				
+				var target = evt.target.closest('LI');
 				if (target) {
 					this.showImageSettings(target.getData('imageId'));
 				}

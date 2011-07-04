@@ -49,6 +49,28 @@
 	vertical-align: middle;
 }
 
+.yui3-medialist ul.folder li.renaming {
+	cursor: default;
+	padding: 2px 0 2px 5px !important;
+}
+.yui3-medialist ul.folder li.renaming span,
+.yui3-medialist ul.folder li.renaming label {
+	display: none;
+}
+.yui3-medialist ul.folder li.renaming .yui3-input,
+.yui3-medialist ul.folder li.renaming input {
+	display: inline-block;
+	vertical-align: middle;
+}
+.yui3-medialist ul.folder li.renaming .yui3-input {
+	padding: 0;
+}
+.yui3-medialist ul.folder li.renaming input {
+	width: 362px;
+	height: 26px;
+	line-height: 26px;
+}
+
 /**
  * Image / File
  */

@@ -164,7 +164,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 		 * On slideshow link click navigate to slide
 		 */
 		onSlideshowLinkClick: function (e) {
-			var target = (e.target.test('a') ? e.target : e.target.ancestor('a')),
+			var target = e.target.closest('a'),
 				id = target.getAttribute('data-slideshow');
 			
 			if (id) {

@@ -50,7 +50,7 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 		 * @param {Object} e
 		 */
 		onDragStart: function (e) {
-			var target = e.target.test('LI') ? e.target : e.target.ancestor('LI');
+			var target = e.target.closest('LI');
 			if (!target) return;
 			
 			var widget = this.get('host'),

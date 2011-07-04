@@ -84,12 +84,12 @@ YUI.add("website.version-list", function (Y) {
 		 */
 		selectVersion: function (evt) {
 			//Buttons has their own event handlers
-			var button = evt.target.test('.yui3-button') ? evt.target : evt.target.ancestor('.yui3-button');
+			var button = evt.target.closest('.yui3-button');
 			if(button) return;
 			
 			//
 			var versions = this._versions,
-				target = evt.target.test('LI') ? evt.target : evt.target.ancestor('LI'),
+				target = evt.target.closest('LI'),
 				version_id = target.getData('version_id');
 			
 			for(var i=0,ii=versions.length; i<ii; i++) if (version_id == versions[i].id) {

@@ -36,6 +36,17 @@ YUI.add('supra.base', function (Y) {
 				target = Y[classname] || Supra[classname];
 			
 			return target ? source instanceof target : false;
+		},
+		
+		/**
+		 * Returns node or closest ancestor matching selector
+		 * 
+		 * @param {String} selector CSS selector
+		 * @return Y.Node matching selector
+		 * @type {Object}
+		 */
+		closest: function (selector) {
+			return this.test(selector) ? this : this.ancestor(selector);
 		}
 	};
 	

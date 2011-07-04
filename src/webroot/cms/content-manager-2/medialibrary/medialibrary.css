@@ -1,7 +1,7 @@
 .yui3-medialibrary {
 	position: absolute;
 	z-index: 2;
-	top: 128px;
+	top: 127px;
 	bottom: 10px;
 	left: 10px;
 	right: 10px;
@@ -25,5 +25,6 @@
 }
 .yui3-medialibrary .yui3-medialist ul.folder > li {
 	border: 1px solid #fff;
+	border-bottom: 0;
 	padding: 3px 3px 3px 5px;
 }

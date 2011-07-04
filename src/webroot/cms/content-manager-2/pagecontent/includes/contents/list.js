@@ -42,16 +42,10 @@ YUI.add('supra.page-content-list', function (Y) {
 			var overlay_selector = '.' + CLASSNAME_OVERLAY;
 			
 			this.getNode().on('click', function (e) {
-				var target = e.target,
+				var target = e.target.closest(overlay_selector),
 					overlay = null;
 				
-				//Find overlay from target
-				if (!target.test(overlay_selector)) {
-					target = target.ancestor(overlay_selector);
-				}
-				if (!target) {
-					return;
-				}
+				if (!target) return;
 				
 				for(var id in this.children) {
 					//If children is editable and is not part of drag & drop

@@ -258,6 +258,12 @@ YUI.add('supra.page-content-editable', function (Y) {
 						//Bind command to editor instead of toolbar, because toolbar is shared between editors
 						inputs[id].getEditor().addCommand('settings', Y.bind(this.onSettingsCommand, this));
 						
+						//If there is no inline node, then show error
+						if (!inline_node) {
+							Y.error('Block "' + this.getId() + '" (' + this.getType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
+							continue;
+						}
+						
 						//When clicking on node enable corresponding editor
 						inline_node.on('mousedown', function (event, id) {
 							this.set('active_html_property', id);

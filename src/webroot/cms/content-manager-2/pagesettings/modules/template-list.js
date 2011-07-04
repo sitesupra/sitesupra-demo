@@ -79,7 +79,7 @@ YUI.add("website.template-list", function (Y) {
 			}
 			
 			content.all('li').on('click', function (evt) {
-				var target = evt.target.test('LI') ? evt.target : evt.target.ancestor('LI'),
+				var target = evt.target.closest('LI'),
 					template_id = target.getData('template_id');
 				
 				for(var i=0,ii=templates.length; i<ii; i++) if (template_id == templates[i].id) {
