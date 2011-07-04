@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add('supra.htmleditor-toolbar', function (Y) {
 	
 	var BUTTONS_DEFAULT = {

@@ -1,5 +1,26 @@
 /**
- * List of supra modules
+ * List of modules, which are added to use() automatically when using Supra()
+ * @type {Array}
+ */
+Supra.useModules = [
+	'event',
+	'event-delegate',
+	'supra.event',
+	'supra.lang',
+	'substitute',
+	'supra.datatype-date-parse',
+	'supra.base',					// + base, node
+	'supra.panel',					// + supra.button, widget, overlay
+	'supra.io',						// + io, json
+	'supra.dom',
+	
+	'supra.debug'
+];
+
+
+/**
+ * Supra module definitions
+ * @type {Object}
  */
 Supra.YUI_BASE.groups.supra.modules = {
 	/**
@@ -31,7 +52,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	'supra.io': {
-		path: 'io/io.js'
+		path: 'io/io.js',
+		requires: ['io', 'json']
 	},
 	
 	/**
@@ -65,7 +87,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	'supra.medialibrary-base': {
-		path: 'medialibrary/medialibrary-base.js',
+		path: 'medialibrary/base.js',
 		requires: [
 			'widget'
 		]
@@ -84,15 +106,43 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: [
 			'widget',
 			'supra.slideshow',
-			'supra.medialibrary-data'
+			'supra.medialibrary-data',
+			'supra.medialibrary-list-css'
 		]
 	},
 	
-	'supra.medialibrary-list-dnd': {
-		path: 'medialibrary/medialist-dnd.js',
+	'supra.medialibrary-list-extended': {
+		path: 'medialibrary/medialist-extended.js',
 		requires: [
+			'supra.medialibrary-list',
+			'supra.medialibrary-slideshow'
+		]
+	},
+	
+	'supra.medialibrary-list-css' :{
+		path: 'medialibrary/medialist.css',
+		type: 'css'
+	},
+	
+	'supra.medialibrary-list-dd': {
+		path: 'medialibrary/medialist-dd.js',
+		requires: [
+			'plugin',
 			'supra.medialibrary-list'
 		]
+	},
+	
+	'supra.medialibrary-slideshow': {
+		path: 'medialibrary/slideshow.js',
+		requires: [
+			'widget',
+			'anim',
+			'supra.medialibrary-slideshow-css'
+		]
+	},
+	'supra.medialibrary-slideshow-css' :{
+		path: 'medialibrary/slideshow.css',
+		type: 'css'
 	},
 	
 	/**
@@ -294,13 +344,6 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
-	 * Client-side template engine
-	 */
-	'supra.template': {
-		path: 'template/template.js'
-	},
-	
-	/**
 	 * Tree widget
 	 */
 	'supra.tree': {
@@ -368,7 +411,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		type: 'css'
 	},
 	
-	//Inline HTML editor
+	//In-line HTML editor
 	'supra.input-inline-html': {
 		path: 'input/html-inline.js',
 		requires: ['supra.input-proto']
@@ -415,7 +458,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.manager': {
 		path: 'manager/manager.js',
-		requires: ['supra.authorization', 'supra.manager-base', 'supra.manager-loader', 'supra.manager-loader-actions', 'supra.manager-action', 'supra.manager-action-base', 'supra.manager-action-plugin-manager', 'supra.manager-action-plugin-base', 'supra.manager-action-plugin-panel', 'supra.manager-action-plugin-form', 'supra.manager-action-plugin-footer']
+		requires: ['supra.authorization', 'supra.manager-base', 'supra.manager-loader', 'supra.manager-loader-actions', 'supra.manager-action', 'supra.manager-action-base', 'supra.manager-action-plugin-manager', 'supra.manager-action-plugin-base', 'supra.manager-action-plugin-panel', 'supra.manager-action-plugin-form', 'supra.manager-action-plugin-footer', 'supra.manager-action-plugin-container']
 	},
 	'supra.manager-base': {
 		path: 'manager/base.js',
@@ -455,6 +498,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.manager-action-plugin-footer': {
 		path: 'manager/action/plugin-footer.js',
 		requires: ['supra.manager-action-plugin-base', 'supra.footer']
+	},
+	'supra.manager-action-plugin-container': {
+		path: 'manager/action/plugin-container.js',
+		requires: ['supra.manager-action-plugin-base']
 	}
 	
 };

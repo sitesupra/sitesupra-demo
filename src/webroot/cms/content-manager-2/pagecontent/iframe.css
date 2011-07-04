@@ -10,6 +10,16 @@
 	overflow: hidden;
 }
 
+.yui3-content,
+.yui3-widget,
+.yui3-input,
+.yui3-dd-proxy {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: 0 !important;
+	background: none !important;
+}
+
 /**
  * Overlay
  */

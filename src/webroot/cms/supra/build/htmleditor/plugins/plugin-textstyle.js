@@ -55,7 +55,12 @@ YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 				id;
 			
 			for(id in buttons) {
-				down = htmleditor.get('doc').queryCommandState(id);
+				try {
+					down = htmleditor.get('doc').queryCommandState(id);
+				} catch (err) {
+					//If selected content is not 'contenteditable' error is thrown
+					down = false;
+				}
 				
 				buttons[id].set('disabled', !allowEditing);
 				buttons[id].set('down', down);

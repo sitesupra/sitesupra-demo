@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-loader-actions', function (Y) {
 	
 	/**
@@ -8,7 +11,8 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 	 */
 	Supra.Manager.Loader.setActionBasePaths({
 		'Header': '/cms/content-manager-2',
-		'SiteMap': '/cms/content-manager-2'
+		'SiteMap': '/cms/content-manager-2',
+		'MediaLibrary': '/cms/content-manager-2'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

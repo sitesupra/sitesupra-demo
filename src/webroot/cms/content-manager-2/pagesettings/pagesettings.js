@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 //Add module definition
 SU.addModule('website.template-list', {
 	path: 'pagesettings/modules/template-list.js',
@@ -26,7 +29,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 	var Loader = Manager.Loader;
 	
 	//Calendar dates
-	DEFAULT_DATES = [
+	var DEFAULT_DATES = [
 		{'date': '2011-06-16', 'title': 'Select today'},
 		{'date': '2011-06-17', 'title': 'Select tomorrow'}
 	];		

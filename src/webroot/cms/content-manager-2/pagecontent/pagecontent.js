@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 SU('dd-drag', function (Y) {
 	
 	var includes = [
@@ -130,8 +133,8 @@ SU('dd-drag', function (Y) {
 			}, this);
 			
 			//Media library handle file insert
-			var medialibrary = SU.Manager.getAction('MediaLibrary');
-			medialibrary.on('insert', function (event) {
+			var mediasidebar = SU.Manager.getAction('MediaSidebar');
+			mediasidebar.on('insert', function (event) {
 				var content = this.getContentContainer().get('activeContent');
 				if (content && 'editor' in content) {
 					var data = event.image;

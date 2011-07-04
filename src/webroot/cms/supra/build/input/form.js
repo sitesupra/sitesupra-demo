@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add("supra.form", function (Y) {
 	
 	//Input configuration defaults

@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.page-content-editable', function (Y) {
 	
 	//Shortcut
@@ -19,11 +22,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 	ContentEditable.ATTRS = {
 		'editable': {
 			value: true,
-			readOnly: true
+			writeOnce: true
 		},
 		'dragable': {
-			value: true,
-			readOnly: true
+			value: true
 		},
 		'title': {
 			value: ''

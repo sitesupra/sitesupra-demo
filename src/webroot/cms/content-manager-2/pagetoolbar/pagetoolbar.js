@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 SU(function (Y) {
 
 	/**
@@ -132,6 +135,103 @@ SU(function (Y) {
 		 */
 		animationRunning: false,
 		
+		
+		/**
+		 * Add button group.
+		 * Chainable
+		 * 
+		 * @param {String} id Group ID
+		 * @param {Array} buttons Button list
+		 */
+		addGroup: function (id, buttons) {
+			var data = {};
+			
+			data[id] = buttons;
+			this.renderButtons(data);
+			
+			return this;
+		},
+		
+		/**
+		 * Returns true if group exists
+		 * 
+		 * @param {String} id Group ID
+		 * @return True if group exists, otherwise false
+		 * @type {Boolean}
+		 */
+		hasGroup: function (id) {
+			var buttons = this.get('buttons');
+			return id in buttons;
+		},
+		
+		/**
+		 * Set active group action, changes buttons to ones associated with action.
+		 * Chainable
+		 * 
+		 * @param {String} active_group
+		 */
+		setActiveGroupAction: function (active_group) {
+			var old_animation_index = null,
+				button_groups;
+			
+			button_groups = this.get('buttons');
+			if (active_group && !(active_group in button_groups)) {
+				return this;
+			}
+			
+			if (!active_group && this.active_group) {
+				old_animation_index = Y.Array.indexOf(this.history, this.active_group);
+				this.removeHistory(this.active_group);
+				active_group = this.history[this.history.length-1];
+			}
+			
+			if (active_group != this.active_group) {
+				
+				if (this.active_group) {
+					if (old_animation_index === null) old_animation_index = Y.Array.indexOf(this.history, this.active_group); 
+					this.animationQueue.push({'action_id': this.active_group, 'visible': false, 'index': old_animation_index});
+					
+					//Hide old group actions
+					var button_config = this.get('buttons')[this.active_group],
+						action = null,
+						type = null;
+					
+					for(var i=0,ii=button_config.length; i<ii; i++) {
+						type = button_config[i].type || 'toggle';
+						if (type == 'toggle') {
+							action = Manager.getAction(button_config[i].action);
+							action.hide();
+						}
+					}
+				}
+				
+				if (active_group && active_group in this.groups) {
+					this.animationQueue.push({'action_id': active_group, 'visible': true, 'index': Y.Array.indexOf(this.history, active_group)});
+					this.addHistory(active_group);
+				} else {
+					active_group = null;
+				}
+				
+				this.active_group = active_group;
+				
+				/*
+				 * If next animation which will be added is the same as this, then
+				 * ignore
+				 */
+				setTimeout(Y.bind(this.animate, this), 10);
+			}
+			
+			return this;
+		},
+		
+		unsetActiveGroupAction: function (active_group) {
+			if (active_group && active_group == this.active_group) {
+				this.setActiveGroupAction(null);
+			}
+			
+			return this;
+		},
+		
 		/**
 		 * Run next animation from queue
 		 */
@@ -202,6 +302,7 @@ SU(function (Y) {
 		
 		/**
 		 * When button is clicked call action which is configured with button
+		 * 
 		 * @param {Object} event
 		 */
 		handleButtonClick: function (event) {
@@ -210,9 +311,14 @@ SU(function (Y) {
 				buttons = this.buttons;
 			
 			var config = this.get('buttons')[group_id];
-			for(var i=0,ii=config.length; i<ii; i++) if (config[i].id == target_id) {
-				config = config[i]; break;
+			
+			for(var i=0,ii=config.length; i<ii; i++) {
+				if (config[i].id == target_id) {
+					config = config[i]; break;
+				}
 			}
+			
+			if (!config) return;
 			
 			var action_id = config.action;
 			var action = SU.Manager.getAction(action_id);
@@ -233,7 +339,7 @@ SU(function (Y) {
 				if (config.actionFunction) {
 					//If actionFunction is specified then call it
 					action.once('execute', function () {
-						action[config.actionFunction]();
+						action[config.actionFunction](config.id);
 					});
 				}
 				
@@ -247,20 +353,20 @@ SU(function (Y) {
 		
 		/**
 		 * Create buttons
+		 * @private
 		 */
-		renderButtons: function () {
+		renderButtons: function (button_groups) {
 			var container = this.getContainer('.yui3-editor-toolbar-main'),
 				subcontainer = null,
-				button_groups = Supra.mix({}, BUTTONS_DEFAULT, this.get('buttons') || {}),
 				button_config,
 				button,
 				action,
 				id,
-				type;
-			
-			this.set('buttons', button_groups);
+				type,
+				attr_buttons = this.get('buttons') || {};
 			
 			for(var group_id in button_groups) {
+				attr_buttons[group_id] = button_groups[group_id];
 				button_config = button_groups[group_id];
 				
 				//Create group container
@@ -292,63 +398,8 @@ SU(function (Y) {
 					}
 				}
 			}
-		},
-		
-		/**
-		 * Set active group action, changes buttons to ones associated with action
-		 * 
-		 * @param {String} action_id
-		 */
-		setActiveGroupAction: function (active_group) {
-			var old_animation_index = null;
 			
-			if (!active_group && this.active_group) {
-				old_animation_index = Y.Array.indexOf(this.history, this.active_group);
-				this.removeHistory(this.active_group);
-				active_group = this.history[this.history.length-1];
-			}
-			
-			if (active_group != this.active_group) {
-				
-				if (this.active_group) {
-					if (old_animation_index === null) old_animation_index = Y.Array.indexOf(this.history, this.active_group); 
-					this.animationQueue.push({'action_id': this.active_group, 'visible': false, 'index': old_animation_index});
-					
-					//Hide old group actions
-					var button_config = this.get('buttons')[this.active_group],
-						action = null,
-						type = null;
-					
-					for(var i=0,ii=button_config.length; i<ii; i++) {
-						type = button_config[i].type || 'toggle';
-						if (type == 'toggle') {
-							action = Manager.getAction(button_config[i].action);
-							action.hide();
-						}
-					}
-				}
-				
-				if (active_group && active_group in this.groups) {
-					this.animationQueue.push({'action_id': active_group, 'visible': true, 'index': Y.Array.indexOf(this.history, active_group)});
-					this.addHistory(active_group);
-				} else {
-					active_group = null;
-				}
-				
-				this.active_group = active_group;
-				
-				/*
-				 * If next animation which will be added is the same as this, then
-				 * ignore
-				 */
-				setTimeout(Y.bind(this.animate, this), 10);
-			}
-		},
-		
-		unsetActiveGroupAction: function (active_group) {
-			if (active_group && active_group == this.active_group) {
-				this.setActiveGroupAction(null);
-			}
+			this.set('buttons', attr_buttons);
 		},
 		
 		/**
@@ -392,7 +443,8 @@ SU(function (Y) {
 		 */
 		render: function () {
 			//Render buttons
-			this.renderButtons();
+			var button_groups = Supra.mix({}, BUTTONS_DEFAULT, this.get('buttons') || {});
+			this.renderButtons(button_groups);
 			
 			//Show / hide buttons when action is shown / hidden
 			this.on('visibleChange', function (evt) {

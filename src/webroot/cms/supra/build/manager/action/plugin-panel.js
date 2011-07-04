@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-action-plugin-panel', function (Y) {
 	
 	var Action = Supra.Manager.Action;
@@ -49,7 +52,7 @@ YUI.add('supra.manager-action-plugin-panel', function (Y) {
 		},
 		
 		execute: function () {
-			PluginPanel.superclass.render.apply(this, arguments);
+			PluginPanel.superclass.execute.apply(this, arguments);
 			
 			//Hide panels
 			var instances = this.instances;

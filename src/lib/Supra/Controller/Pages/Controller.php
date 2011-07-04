@@ -228,8 +228,7 @@ class Controller extends ControllerAbstraction
 		$response = null;
 		
 		// TODO: create edit response for unlocked place holders ONLY
-		if ($this->request instanceof namespace\Request\RequestEdit
-				&& $page->isPlaceHolderEditable($placeHolder)) {
+		if ($this->request instanceof namespace\Request\RequestEdit) {
 			$response = new PlaceHolderResponse\ResponseEdit();
 		} else {
 			$response = new PlaceHolderResponse\ResponseView();

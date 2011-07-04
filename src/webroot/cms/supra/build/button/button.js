@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.button', function (Y) {
 	
 	function Button (config) {

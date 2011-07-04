@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-action-base', function (Y) {
 	
 	var Manager = Supra.Manager,
@@ -210,11 +213,16 @@ YUI.add('supra.manager-action-base', function (Y) {
 		/**
 		 * Returns data path
 		 * 
+		 * @param {String} filename Optional. Filename inside action
 		 * @return URI path to template
 		 * @type {String}
 		 */
-		getDataPath: function () {
-			return this.get('dataPath');
+		getDataPath: function (filename) {
+			if (filename) { 
+				return this.getPath() + filename + Manager.Loader.EXTENSION_DATA;
+			} else {
+				return this.get('dataPath');
+			}
 		},
 		
 		/**

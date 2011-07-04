@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Main manager action, initiates all other actions
  */

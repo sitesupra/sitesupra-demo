@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 SU(function (Y) {
 
 	//Shortcut

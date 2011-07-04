@@ -1,9 +1,12 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Actions: LayoutLeftContainer, LayoutRightContainer, LayoutTopContainer
  * 
  * Automatically syncs with iframe
  * Containers for other actions, for example:
- * 		LayoutLeftContainer - PageInsertBlock, MediaLibrary
+ * 		LayoutLeftContainer - PageInsertBlock, MediaSidebar
  * 		LayoutRightContainer - PageSettings,
  * 		LayoutTopContainer - PageToolbar, EditorToolbar
  */

@@ -46,8 +46,16 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 				buttons = this.buttons,
 				down,
 				format,
-				//currentFormat is empty string (or false in Safari) or "H1", "P", ...
-				currentFormat = htmleditor.get('doc').queryCommandValue('formatblock');
+				//currentFormat is empty string (false in Safari) or "H1", "P", ...
+				currentFormat = null;
+				
+				try {
+					currentFormat = htmleditor.get('doc').queryCommandValue('formatblock');
+				} catch (err) {
+					//If selected text is not 'contenteditable' then error is thrown
+					currentFormat = '';
+				}
+				
 				if (currentFormat) currentFormat = currentFormat.toUpperCase();
 			
 			for(format in buttons) {

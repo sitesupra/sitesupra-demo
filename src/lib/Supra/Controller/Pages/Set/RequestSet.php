@@ -188,7 +188,7 @@ class RequestSet
 	}
 	
 	/**
-	 * @return array
+	 * @return PlaceHolderSet
 	 */
 	public function getPlaceHolderSet()
 	{

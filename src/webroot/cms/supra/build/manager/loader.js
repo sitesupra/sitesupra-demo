@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-loader', function (Y) {
 	
 	var Manager = Supra.Manager;
@@ -216,7 +219,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * @return Info about where action files can be found 
 		 * @type {Object}
 		 */
-		getActionInfo: function (action_name) {
+		getActionInfo: function (action_name /* Action name */) {
 			if (action_name in this.action_info_cache) return this.action_info_cache[action_name];
 			
 			var file = this.getActionFileFromName(action_name);
@@ -267,8 +270,8 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * @type {String}
 		 * @private
 		 */
-		getActionFileFromName: function (action_name) {
-			return String(action_name).replace(/[^a-z\-\_]*/ig, '').toLowerCase();
+		getActionFileFromName: function (action_name /* Action name */) {
+			return String(action_name).replace(/[^a-z0-9\-\_]*/ig, '').toLowerCase();
 		},
 		
 		/**
@@ -277,7 +280,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * @param {String} id Action name 
 		 * @param {String} path Path to action manager
 		 */
-		setActionBasePath: function (action_name, path) {
+		setActionBasePath: function (action_name  /* Action name */, path /* Path */) {
 			//Remove trailing slash
 			var path = path.replace(/[\/\\]*$/g, '');
 			this.paths[action_name] = path;

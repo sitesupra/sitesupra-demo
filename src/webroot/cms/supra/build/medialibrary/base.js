@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Media library base
  */

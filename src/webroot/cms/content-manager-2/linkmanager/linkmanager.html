@@ -14,10 +14,15 @@
 		<!-- Slider -->
 		<div class="slideshow">
 			<div id="linkToRoot">
-				Select what you want to link
 				
-				<a data-slideshow="linkToFile">Link to file</a>
-				<a data-slideshow="linkToPage">Link to page</a>
+				<div class="title">
+					Select what you want to link
+				</div>
+				
+				<div class="select">
+					<a data-slideshow="linkToFile" class="file">Link to file</a>
+					<a data-slideshow="linkToPage" class="page">Link to page</a>
+				</div>
 				
 			</div>
 			
@@ -65,7 +70,18 @@
 			<!-- Link to file -->
 			<div id="linkToFile" class="hidden">
 				
+				<div id="linkToFileMediaList"></div>
 				
+				<div class="link-controls">
+					
+					<label for="linkManagerFileTitle">Link title</label>
+					<input type="text" id="linkManagerFileTitle" name="file_title" value="" />
+					
+					<div class="link-controls-buttons">
+						<button>Open Library app</button>
+					</div>
+					
+				</div>
 				
 			</div>
 		</div>

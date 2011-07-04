@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /*
  * Add custom date format support to Y.DataType.Date.parse
  * Example:

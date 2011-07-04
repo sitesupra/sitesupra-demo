@@ -1,3 +1,7 @@
+//Invoke strict mode
+"use strict";
+
+
 YUI.add('supra.tree-node-dragable', function(Y) {
 	
 	function TreeNodeDragable (config) {

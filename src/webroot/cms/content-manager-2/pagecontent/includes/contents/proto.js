@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.page-content-proto', function (Y) {
 	
 	//Shortcuts
@@ -55,7 +58,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		'editable': {
 			value: false,
-			readOnly: true
+			writeOnce: true
 		},
 		'dragable': {
 			value: false,
@@ -180,7 +183,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			this.getNode().insert(div, 'before');
 		},
 		
-		createBlock: function (data) {
+		createBlock: function (data, attrs) {
 			var win = this.get('win');
 			var doc = this.get('doc');
 			var body = this.get('body');
@@ -190,14 +193,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
 			
 			if (classname in Action) {
-				var block = this.children[data.id] = new Action[classname]({
+				var block = this.children[data.id] = new Action[classname](SU.mix(attrs || {}, {
 					'doc': doc,
 					'win': win,
 					'body': body,
 					'data': data,
 					'parent': this,
 					'super': this.get('super')
-				});
+				}));
 				block.render();
 			} else {
 				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
@@ -211,7 +214,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
-					this.createBlock(data.contents[i]);
+					this.createBlock(data.contents[i], {
+						'dragable': !data.contents[i].locked && !this.isLocked(),
+						'editable': !data.contents[i].locked
+					});
 				}
 			}
 			
@@ -226,13 +232,25 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			if (this.get('dragable')) {
-				this.set('dragable', true);
+				if (!this.isLocked()) {
+					this.set('dragable', true);
+				} else {
+					this.set('dragable', false);
+				}
 			}
 		},
 		
+		/**
+		 * Returns if specific child type is allowed
+		 * If is locked then child is not allowed
+		 * 
+		 * @param {String} type Block type
+		 * @return True if child with type is allowed, otherwise false
+		 * @type {Boolean}
+		 */
 		isChildTypeAllowed: function (type) {
 			var data = this.get('data');
-			if ('allow' in data) {
+			if ('allow' in data && !this.isLocked()) {
 				for(var i=0, ii=data.allow.length; i<ii; i++) {
 					if (data.allow[i] == type) {
 						return true;
@@ -241,6 +259,36 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			return false;
 		},
+		
+		/**
+		 * Returns if block is locked
+		 * 
+		 * @return True if block is locked, otherwise false
+		 * @type {Boolean}
+		 */
+		isLocked: function () {
+			var data = this.get('data');
+			if ('locked' in data) {
+				return data.locked;
+			}
+			return false;
+		},
+		
+		/**
+		 * Returns if parent is locked
+		 * 
+		 * @return True if parent is locked, otherwise false
+		 * @type {Boolean}
+		 */
+		isParentLocked: function () {
+			var parent = this.get('parent');
+			if (parent) {
+				return parent.isLocked();
+			} else {
+				return false;
+			}
+		},
+		
 		
 		removeChild: function (child) {
 			for(var i in this.children) {

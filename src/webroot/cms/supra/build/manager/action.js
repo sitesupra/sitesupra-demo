@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-action', function (Y) {
 	
 	var Manager = Supra.Manager;

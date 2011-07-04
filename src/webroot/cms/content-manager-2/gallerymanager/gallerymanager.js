@@ -1,6 +1,9 @@
+//Invoke strict mode
+"use strict";
+
 SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 
-	//Shortcut
+	//Shortcuts
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
 	
@@ -24,7 +27,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		NAME: 'GalleryManager',
 		
 		/**
-		 * Page manager has stylesheet, include it
+		 * Action has stylesheet, include it
 		 * @type {Boolean}
 		 * @private
 		 */
@@ -351,7 +354,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @param {Object} data Data
 		 * @private
 		 */
-		renderData: function (data) {
+		renderData: function () {
 			var list = this.getContainer('.list'),
 				images = this.data.images,
 				preview_size = this.PREVIEW_SIZE,
@@ -364,11 +367,8 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//Add new items
 			for(var i=0,ii=images.length; i<ii; i++) {
 				src = null;
-				for(var k=0,kk=images[i].sizes.length; k<kk; k++) {
-					if (images[i].sizes[k].id == preview_size) {
-						src = images[i].sizes[k].external_path;
-						break;
-					}
+				if (preview_size in images[i].sizes) {
+					src = images[i].sizes[preview_size].external_path;
 				}
 				
 				if (src) {
@@ -434,7 +434,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		execute: function (data, callback) {
 			this.data = data;
 			this.callback = callback;
-			this.renderData(data);
+			this.renderData();
 			this.show();
 		}
 	});

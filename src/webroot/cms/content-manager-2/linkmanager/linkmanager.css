@@ -20,6 +20,34 @@
 	padding: 0 0 5px 5px;
 }
 
+/**
+ * Main slide
+ */
+#linkToRoot .title {
+	text-align: center;
+	padding: 20px 0;
+}
+#linkToRoot .select {
+	text-align: center;
+}
+#linkToRoot .select a {
+	display: inline-block;
+	vertical-align: middle;
+	text-align: center;
+	margin: 0 10px;
+	width: 100px;
+	height: 30px;
+	padding: 70px 0 0;
+	
+	border: 1px solid #eee;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+/**
+ * Link to page
+ */
 #linkToPage > .yui3-slideshow {
 	position: absolute;
 	top: 52px;
@@ -57,4 +85,20 @@
 	bottom: 0;
 	right: 0;
 	border-top: 1px solid #eee;
+}
+
+.yui3-linkmanager .link-controls-buttons {
+	text-align: center;
+	margin: 0 10px 10px;
+}
+
+/**
+ * Media library
+ */
+.yui3-linkmanager .yui3-medialist {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 115px; /* File controls at the bottom */
+	width: 100%;
 }

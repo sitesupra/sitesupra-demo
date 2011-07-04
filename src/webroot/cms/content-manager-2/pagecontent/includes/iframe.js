@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /*
  * SU.Manager.PageContent.Iframe
  */
@@ -343,7 +346,9 @@ YUI.add('supra.page-iframe', function (Y) {
 						'body': body,
 						'data': data[i],
 						'parent': null,
-						'super': this
+						'super': this,
+						'dragable': !data[i].locked,
+						'editable': !data[i].locked
 					});
 					block.render();
 				} else {

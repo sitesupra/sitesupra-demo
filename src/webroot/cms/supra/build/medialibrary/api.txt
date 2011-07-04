@@ -1,18 +1,22 @@
 Media Library
 	Base:
-		
-	List:
+	
+	
+	
+	Data:
 		Constants:
 			Supra.MediaLibraryData.TYPE_FOLDER
 			Supra.MediaLibraryData.TYPE_IMAGE
 			Supra.MediaLibraryData.TYPE_FILE
-		
+	
+	
 		Attributes:
 			requestURI
 				Request URI
 			
 			requestParams
-				Request GET parameters
+				Request params
+		
 		
 		Events:
 			load:failure
@@ -30,6 +34,7 @@ Media Library
 			load:success:N
 				Data loading for item with ID "N" was successful,
 				event object has additional properties data and id, which is folder or item id
+				
 		
 		Methods:
 			loadData (id, properties)
@@ -38,6 +43,10 @@ Media Library
 			
 			getData (id)
 				Returns all loaded data about folder, file or image
+			
+			hasData (id, property)
+				Returns if item has specific data loaded
+				Property can be string, array of properties or object with property values which should match
 			
 			getChildrenData (id)
 				Returns list of all children data for folder
@@ -52,8 +61,76 @@ Media Library
 			setRequestParams (params)
 				Set additional GET request parameters
 				
-			hasData (id, property)
-				Returns true if item is loaded and property exists, otherwise false
-				
 			destroy ()
 				Destroys all data
+	
+	
+	
+	
+	List:
+		Constants:
+			Supra.MediaLibraryList.DISPLAY_ALL
+			Supra.MediaLibraryList.DISPLAY_FOLDERS
+			Supra.MediaLibraryList.DISPLAY_IMAGES
+			Supra.MediaLibraryList.DISPLAY_FILES
+		
+		
+		Attributes:
+			requestURI
+				Request URI
+			
+			rootFolderId
+				Root folder ID
+			
+			foldersSelectable
+				Folder can be selected
+			
+			filesSelectable
+				Files can be selected
+				
+			imagesSelectable
+				Images can be selected
+			
+			displayType
+				Type of data which should be displayed
+			
+			dataObject
+				Data handler object
+			
+			thumbnailSize
+				Image thumbnail size ID
+				
+			previewSize
+				Image preview size ID
+			
+			loadItemProperties
+				Additional properties which always should be loaded
+			
+			noAnimations
+				Enable/disable animations. Default is enabled (false)
+		
+		
+		Events:
+			itemRender
+				After item (file, image, folder) is rendered
+				
+			select
+				After item is selected
+		
+		
+		Methods:
+			getSelectedItem ()
+				Returns selected item data
+			
+			setSelectedItem (id)
+				Marks item as selected if it's opened
+		
+			load (id, callback)
+				Load item information
+				Callback arguments are item ID and data
+			
+			open (id, callback)
+				Load and show item
+				ID is item ID or array of IDs (path to item)
+				Callback arguments are item ID and data
+		

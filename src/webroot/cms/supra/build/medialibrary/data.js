@@ -1,11 +1,14 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Media library data
  * Handle data loading, saving, searching
  */
 YUI.add('supra.medialibrary-data', function (Y) {
 	
-	//Propeties which will be loaded by default
-	var DEFAULT_PROPERTIES = ['id', 'type', 'title'];
+	//Properties which always will be loaded
+	var REQUIRED_PROPERTIES = ['id', 'type', 'title'];
 	
 	/**
 	 * Media list
@@ -24,6 +27,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		this.dataIndexed = {};		
 		this.addAttrs(attrs, config || {});
 	}
+	
+	Data.PARAM_DISPLAY_TYPE = 'type';
 	
 	Data.TYPE_FOLDER = 1;
 	Data.TYPE_IMAGE = 2;
@@ -49,14 +54,22 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Add data to the parent.
 		 * Chainable
 		 * 
-		 * @param {Number} parent
-		 * @param {Object} data
+		 * @param {Number} parent Parent folder ID
+		 * @param {Object} data File or folder data
 		 */
-		addData: function (parent, data) {
+		addData: function (parent /* Parent folder ID */, data /* File or folder data */) {
 			if (Y.Lang.isArray(data)) {
-				//Add each item to the list
-				for(var i=0,ii=data.length; i<ii; i++) {
-					this.addData(parent, data[i]);
+				if (data.length) {
+					//Add each item to the list
+					for(var i=0,ii=data.length; i<ii; i++) {
+						this.addData(parent, data[i]);
+					}
+				} else {
+					//Add empty children array to parent
+					var indexed = this.dataIndexed;
+					if (parent in indexed) {
+						if (!indexed[parent].children) indexed[parent].children = [];
+					}
 				}
 			} else {
 				var indexed = this.dataIndexed;
@@ -79,13 +92,33 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		},
 		
 		/**
+		 * Returns all parent folder IDs for item
+		 * 
+		 * @param {Number} id File or folder ID
+		 * @return List of folder IDs
+		 * @type {Array}
+		 */
+		getPath: function (id /* File or folder ID */) {
+			var indexed = this.dataIndexed,
+				ret = [],
+				item = id;
+			
+			while (item && item in indexed) {
+				item = indexed[item].parent;
+				ret.push(item);
+			}
+			
+			return ret.length ? ret.reverse() : [0];
+		},
+		
+		/**
 		 * Returns data by ID or null if not found
 		 * 
-		 * @param {Number} id
+		 * @param {Number} id File or folder ID
 		 * @return Folder or file data
 		 * @type {Object} 
 		 */
-		getData: function (id) {
+		getData: function (id /* File or folder ID */) {
 			var indexed = this.dataIndexed;
 			return id in indexed ? indexed[id] : null;
 		},
@@ -93,11 +126,11 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * Returns list of all children
 		 * 
-		 * @param {Number} id
+		 * @param {Number} id File or folder ID
 		 * @return List of children data
 		 * @type {Array}
 		 */
-		getChildrenData: function (id) {
+		getChildrenData: function (id /* File or folder ID */) {
 			var data = this.getData(id),
 				children,
 				child,
@@ -118,15 +151,35 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		
 		/**
 		 * Returns true if item has specific data loaded, otherwise false
+		 * If key is an array, then file or folder must have data for all specified keys loaded
+		 * If key is an object, then also values must match 
 		 * 
-		 * @param {Number} id Item Id
-		 * @param {String} key Data key
-		 * @return True if item has data
+		 * @param {Number} id File or folder ID
+		 * @param {String} key Optional. Data key, array of keys or object of keys and values
+		 * @return True if item has all data, otherwise false
 		 * @type {Boolean}
 		 */
-		hasData: function (id, key) {
-			var indexed = this.dataIndexed;
-			return (id in indexed && key in indexed[id] ? true : false);
+		hasData: function (id /* File or folder ID */, key /* Data key or array of keys */) {
+			var indexed = this.dataIndexed,
+				data;
+			if (!id in indexed) return false;
+			data = indexed[id];
+			
+			if (Y.Lang.isArray(key)) {
+				for(var i=0,ii=key.length; i<ii; i++) {
+					if (!(key[i] in data)) return false;
+				}
+				return true;
+			} else if (Y.Lang.isObject(key)) {
+				for(var i in key) {
+					if (!(i in data) || data[i] !== key[i]) return false;
+				}
+				return true;
+			} else if (key) {
+				return (key in data ? true : false);
+			} else {
+				return true;
+			}
 		},
 		
 		/**
@@ -136,7 +189,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {Number} id File or folder ID
 		 * @param {Boolean} all If true then removes also from parents children list
 		 */
-		removeData: function (id, all) {
+		removeData: function (id /* File or folder ID */, all /* Remove all data */) {
 			if (!id) {
 				var indexed = this.dataIndexed;
 				for(var id in indexed) {
@@ -192,8 +245,10 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {String} name Parameter name
 		 * @param {String} value Parameter value
 		 */
-		setRequestParam: function (name, value) {
+		setRequestParam: function (name /* Parameter name */, value /* Parameter value */) {
 			var params = this.get('requestParams') || {};
+			if (name in params && params[name] === value) return this;
+			
 			params[name] = value;
 			this.set('requestParams', params);
 			
@@ -204,9 +259,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Set request parameters
 		 * Chainable
 		 * 
-		 * @param {Object} data Paramters
+		 * @param {Object} data List of parameters
 		 */
-		setRequestParams: function (data) {
+		setRequestParams: function (data /* List of parameters */) {
 			if (Y.Lang.isObject(data)) {
 				var params = this.get('requestParams') || {};
 				for(var i in data) {
@@ -222,10 +277,10 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Load image, file or folder data
 		 * Chainable
 		 * 
-		 * @param {Number} id Item ID
-		 * @param {Array} data List of properties which should be loaded
+		 * @param {Number} id File or folder ID
+		 * @param {Array} data Optional list of properties
 		 */
-		loadData: function (id, properties) {
+		loadData: function (id /* File or folder ID */, properties /* List of properties */) {
 			var url = this.get('requestURI'),
 				data;
 			
@@ -234,8 +289,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				return this
 			}
 			
-			properties = Y.Array.unique(properties || []).concat(DEFAULT_PROPERTIES);
-			properties = properties.join(',');
+			properties = (properties || []).concat(REQUIRED_PROPERTIES);
+			properties = Y.Array.unique(properties).join(',');
 			
 			data = Supra.mix({
 				'id': id || 0,
@@ -246,9 +301,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'data': data,
 				'context': this,
 				'on': {
-					'success': function (transaction, data) { this._loadComplete(data, id); },
-					'failure': function (transaction, data) { this._loadComplete(null, id); }
-				}
+					'success': function (transaction, data) { this._loadComplete(data, id || 0); },
+					'failure': function (transaction, data) { this._loadComplete(null, id || 0); }
+				}	
 			});
 			
 			return this;
@@ -256,8 +311,12 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		
 		/**
 		 * Handle data load complete
+		 * 
+		 * @param {Object} data File or folder data
+		 * @param {Number} id Folder ID
+		 * @private
 		 */
-		_loadComplete: function (data, id) {
+		_loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
 			if (!data || !data.records) {
 				Y.error('Supra.MediaLibraryData:loadList error occured while loading data for folder "' + id + '"');
 				this.fire('load:failure', {'data': null});
@@ -273,7 +332,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		
 		/**
-		 * Destroy class
+		 * Destroy data object
 		 */
 		destroy: function () {
 			delete(this.data);

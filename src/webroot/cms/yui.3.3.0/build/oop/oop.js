@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /*
 Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:

@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.header', function(Y) {
 	
 	function Header (config) {

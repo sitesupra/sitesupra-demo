@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add("supra.input-select-list", function (Y) {
 	
 	function Input (config) {

@@ -1,5 +1,13 @@
+//Invoke strict mode
+"use strict";
+
 if (typeof Supra === "undefined") {	
 (function () {
+	/*
+	 * Invoke strict mode because using combo may be
+	 * loaded with script which doesn't have strict mode
+	 */
+	"use strict";
 	
 	/**
 	 * Create YUI instance for internal use
@@ -16,7 +24,7 @@ if (typeof Supra === "undefined") {
 	 * @param {String} require Optional. Module which will be loaded before calling ready function
 	 * @param {Function} fn Required. Ready callback function
 	 */
-	var Supra = this.Supra = this.SU = function () {
+	var Supra = window.Supra = window.SU = function () {
 		var base = null;
 		var args = [].concat(Supra.useModules);
 		
@@ -83,13 +91,14 @@ if (typeof Supra === "undefined") {
 	    root:		"/cms/yui." + YUI.version + "/build/",
 		base:		"/cms/yui." + YUI.version + "/build/",
 	    comboBase:	"/cms/yui." + YUI.version + "/combo/combo.php?",
-	    filter: "raw",
+	    filter:		"min",
+		
 		//Default skin
 		skin: {
 			defaultSkin: "supra"
 		},
 		
-		//group to enable automatic loading of Supra modules
+		//Add groups to enable automatic loading of Supra modules
 		groups: {
 			supra: {
 				//Supra modules
@@ -140,29 +149,6 @@ if (typeof Supra === "undefined") {
 		config.root = path;
 		config.base = path;
 	};
-	
-	/**
-	 * List of modules, which are added to use() automatically when using Supra()
-	 * @type {Array}
-	 */
-	Supra.useModules = [
-		'event',
-		'event-delegate',
-		'supra.event',
-		'supra.lang',
-		'substitute',
-		'node',
-		'widget',
-		'supra.datatype-date-parse',
-		'supra.base',
-		'supra.debug',
-		'supra.panel',
-		'supra.template',
-		'json',
-		'io',
-		'supra.io',
-		'supra.dom'
-	];
 	
 	/**
 	 * Data storage

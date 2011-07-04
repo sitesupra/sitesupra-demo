@@ -74,9 +74,7 @@ abstract class BlockController extends ControllerAbstraction
 		$response = null;
 		
 		// TODO: create edit response only for not locked blocks
-		if ($request instanceof namespace\Request\RequestEdit
-				&& $this->page->isBlockEditable($this->block)) {
-			
+		if ($request instanceof namespace\Request\RequestEdit) {
 			$response = new BlockResponse\ResponseEdit();
 		} else {
 			$response = new BlockResponse\ResponseView();

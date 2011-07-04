@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add("supra.calendar", function (Y) {
 	
 	var getClass = Y.ClassNameManager.getClassName,

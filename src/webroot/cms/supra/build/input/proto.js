@@ -1,5 +1,7 @@
-YUI.add("supra.input-proto", function (Y) {
+//Invoke strict mode
+"use strict";
 	
+YUI.add("supra.input-proto", function (Y) {
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);

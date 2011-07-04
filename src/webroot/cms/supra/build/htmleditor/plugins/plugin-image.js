@@ -102,9 +102,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				btn.on('click', function () {
 					//Open Media library on 'Replace'
 					if (this.selected_image) {
-						//Open settings form and open MediaLibrary
+						//Open settings form and open MediaSidebar
 						this.hideSettingsForm();
-						Manager.getAction('MediaLibrary').execute();
+						Manager.getAction('MediaSidebar').execute({
+							onselect: Y.bind(this.insertImage, this)
+						});
 					}
 				}, this);
 			
@@ -138,7 +140,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				this.original_data = null;
 				
 				this.hideSettingsForm();
-				this.hideMediaLibrary();
+				this.hideMediaSidebar();
 			}
 		},
 		
@@ -171,7 +173,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				this.original_data = null;
 				
 				this.hideSettingsForm();
-				this.hideMediaLibrary();
+				this.hideMediaSidebar();
 			}
 		},
 		
@@ -316,20 +318,22 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		/**
 		 * Show/hide media library bar
 		 */
-		toggleMediaLibrary: function () {
+		toggleMediaSidebar: function () {
 			var button = this.htmleditor.get('toolbar').getButton('insertimage');
 			if (button.get('down')) {
-				Manager.executeAction('MediaLibrary');
+				Manager.executeAction('MediaSidebar', {
+					onselect: Y.bind(this.insertImage, this)
+				});
 			} else {
-				this.hideMediaLibrary();
+				this.hideMediaSidebar();
 			}
 		},
 		
 		/**
 		 * Hide media library bar
 		 */
-		hideMediaLibrary: function () {
-			Manager.getAction('MediaLibrary').hide();
+		hideMediaSidebar: function () {
+			Manager.getAction('MediaSidebar').hide();
 		},
 		
 		/**
@@ -383,7 +387,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					htmleditor.setData(uid, data);
 				}
 				
-				this.hideMediaLibrary();
+				this.hideMediaSidebar();
 			}
 		},
 		
@@ -397,9 +401,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			if (!this.htmleditor.isEditable(target)) return;
 			
 			var htmleditor = this.htmleditor,
-				image_data = Manager.MediaLibrary.data.get(image_id);
+				image_data = Manager.MediaSidebar.getData(image_id);
 			
-			if (image_data.type != SU.Manager.MediaLibrary.TYPE_IMAGE) {
+			if (image_data.type != Supra.MediaLibraryData.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
 				return;
 			}
@@ -436,10 +440,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		getImageURLBySize: function (data, size) {
 			var size = size ? size : this.configuration.size;
 			
-			for (var i = 0, ii = data.sizes.length; i < ii; i++) {
-				if (data.sizes[i].id == size) {
-					return data.sizes[i].external_path;
-				}
+			if (size in data.sizes) {
+				return data.sizes[size].external_path;
 			}
 			
 			return null;
@@ -462,12 +464,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
-			var medialibrary = Manager.getAction('MediaLibrary'),
+			var mediasidebar = Manager.getAction('MediaSidebar'),
 				toolbar = htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('insertimage') : null;
 			
 			// Add command
-			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaLibrary, this));
+			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaSidebar, this));
 			
 			//When image looses focus hide settings form
 			htmleditor.on('selectionChange', this.settingsFormApply, this);
@@ -478,28 +480,25 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			if (button) {
 				//When media library is shown/hidden make button selected/unselected
-				medialibrary.after('visibleChange', function (evt) {
+				mediasidebar.after('visibleChange', function (evt) {
 					button.set('down', evt.newVal);
 				});
 				
-				//When un-editable node is selected disable medialibrary toolbar button
+				//When un-editable node is selected disable mediasidebar toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
 					button.set('disabled', !event.allowed);
 				});
 			}
 			
-			//Insert image when user click on image in Media Library
-			medialibrary.on('insert', this.insertImage, this);
-			
 			//When media library is hidden show settings form if image is selected
-			medialibrary.on('hide', function () {
+			mediasidebar.on('hide', function () {
 				if (this.selected_image) {
 					Manager.executeAction('PageContentSettings', this.settings_form);
 				}
 			}, this);
 			
 			//Hide media library when editor is closed
-			htmleditor.on('disable', this.hideMediaLibrary, this);
+			htmleditor.on('disable', this.hideMediaSidebar, this);
 			htmleditor.on('disable', this.settingsFormApply, this);
 			
 			//Disable image object resizing
@@ -554,8 +553,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				//On mouse up or drag end remove temporary listeners and
 				//reference to image
-				fnMouseUp = srcNode.once('mouseup', this.onDragEnd, this);
-				fnDragEnd = e.target.once('dragend', this.onDragEnd, this);
+				this.fn_mouse_up = srcNode.once('mouseup', this.onDragEnd, this);
+				this.fn_drag_end = e.target.once('dragend', this.onDragEnd, this);
 			}, this);
 			srcNode.on('dragend', this.onDragEnd, this);
 			

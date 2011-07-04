@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add("supra.io", function (Y) {
 	
 	Supra.io = function (url, cfg, context) {
@@ -49,7 +52,7 @@ YUI().add("supra.io", function (Y) {
 			cfg.data = Supra.io.serializeIntoString(cfg.data);
 		}
 		
-		cfg.on.success = function (transaction, response, arguments) {
+		cfg.on.success = function (transaction, response, args) {
 			var data = null;
 			
 			try {
@@ -64,13 +67,13 @@ YUI().add("supra.io", function (Y) {
 			} catch (e) {
 				//Failed to parse response, call failure event
 				if (io.failure) {
-					return io.failure.apply(this, arguments);
+					return io.failure.apply(this, args);
 				}
 			}
 			
 			//Callback
 			if (Y.Lang.isFunction(fn_success)) {
-				return fn_success.apply(this, [transaction, data, arguments]);
+				return fn_success.apply(this, [transaction, data, args]);
 			}
 			
 			return null;
@@ -116,4 +119,4 @@ YUI().add("supra.io", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["io"]});
+}, YUI.version, {requires: ["io", "json"]});

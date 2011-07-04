@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.manager-action-plugin-footer', function (Y) {
 	
 	var Action = Supra.Manager.Action;
@@ -48,7 +51,7 @@ YUI.add('supra.manager-action-plugin-footer', function (Y) {
 		},
 		
 		execute: function () {
-			PluginFooter.superclass.render.apply(this, arguments);
+			PluginFooter.superclass.execute.apply(this, arguments);
 			
 			// @TODO reset form values
 		}

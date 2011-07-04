@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.datatable-row', function (Y) {
 	
 	function DataTableRow (host, data, index) {

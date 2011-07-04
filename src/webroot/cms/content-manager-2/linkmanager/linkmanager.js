@@ -1,9 +1,12 @@
-SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
+//Invoke strict mode
+"use strict";
+
+SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', function (Y) {
 	
-	//Shortcut
-	var Manager = SU.Manager;
-	var Action = Manager.Action;
-	var Loader = Manager.Loader;
+	//Shortcuts
+	var Manager = SU.Manager,
+		Action = Manager.Action,
+		Loader = Manager.Loader;
 	
 	//Add as right bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('LinkManager');
@@ -41,6 +44,12 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 		 * @type {Object}
 		 */
 		link_slideshow: null,
+		
+		/**
+		 * Media library list, Supra.MediaLibraryList instance
+		 * @type {Object}
+		 */
+		medialist: null,
 		
 		/**
 		 * Supra.Form instance
@@ -101,7 +110,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
 			this.button_back.render();
 			this.button_back.hide();
-			this.button_back.on('click', this.slideshow.scrollBack, this.slideshow);
+			this.button_back.on('click', this.scrollBack, this);
 			
 			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
 			this.button_close.render();
@@ -134,6 +143,21 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 			Action.Base.prototype.hide.apply(this, arguments);
 			//Hide action
 			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
+		},
+		
+		/**
+		 * Scroll back slideshow 
+		 */
+		scrollBack: function () {
+			//Back button also controls medialist slideshow
+			if (this.slideshow.get('slide') == 'linkToFile') {
+				if (!this.medialist.slideshow.isRootSlide()) {
+					this.medialist.slideshow.scrollBack();
+					return;
+				}
+			}
+			
+			this.slideshow.scrollBack();
 		},
 		
 		/**
@@ -185,6 +209,31 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 		},
 		
 		/**
+		 * On slide create widgets, etc.
+		 * 
+		 * @param {Object} node
+		 */
+		onLinkToFile: function (node) {
+			if (!this.medialist) {
+				//"Open App" button
+					var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
+					btn.on('click', function () {
+						//@TODO
+					});
+					btn.render();
+					
+				//Create list widget
+					var list = this.medialist = (new Supra.MediaLibraryList({
+						'srcNode': node.one('#linkToFileMediaList'),
+						'foldersSelectable': false,
+						'filesSelectable': true,
+						'requestURI': Loader.getActionInfo('medialibrary').path_data + '.php',
+						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
+					})).render(); 
+			}
+		},
+		
+		/**
 		 * Restore state matching data
 		 * 
 		 * @param {Object} data
@@ -197,8 +246,17 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 				'href': '',
 				'page_id': null,
 				'page_path': '',
+				'file_id': null,
+				'file_path': [],
+				'file_title': '',
 				'linktype': 'internal'
 			}, data || {});
+			
+			//Since file title is different input 'title' is used to transfer data
+			//reverse it
+			if (data.title && !data.file_title) {
+				data.file_title = data.title;
+			}
 			
 			if (this.link_slideshow) {
 				this.link_slideshow.set('noAnimations', true);
@@ -241,8 +299,20 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 					break;
 				case 'file':
 					this.slideshow.set('slide', 'linkToFile');
+					
+					var path = [].concat(data.file_path, [data.file_id]);
+					this.medialist.set('noAnimations', true);
+					this.medialist.open(path, Y.bind(function () {
+						this.medialist.setSelectedItem(data.file_id);
+					}, this));
+					this.medialist.set('noAnimations', false);
+					
 					break;
 				default:
+					//Open root folder
+					if (this.medialist) this.medialist.open(null);
+					this.slideshow.set('slide', 'linkToRoot');
+					
 					break;
 			}
 			
@@ -259,9 +329,10 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 		 * @type {Object}
 		 */
 		getData: function () {
-			var data = SU.mix(this.data || {}, this.form.getValues('name'));
+			var data = SU.mix(this.data || {}, this.form.getValues('name')),
+				slide_id = this.slideshow.get('slide');
 			
-			if (this.slideshow.get('slide') == 'linkToPage') {
+			if (slide_id == 'linkToPage') {
 				if (data.linktype == 'internal') {
 					//Link to page
 					var tree_node = this.tree.get('selectedNode'),
@@ -294,10 +365,19 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', function (Y) {
 						'title': data.title
 					};
 				}
-			} else {
+			} else if (slide_id == 'linkToFile') {
 				//Link to file
+				var item_data = this.medialist.getSelectedItem();
+				if (!item_data) return;
 				
-				//@TODO
+				return {
+					'type': 'file',
+					'href': item_data.file_web_path,
+					'target': '',
+					'title': data.file_title,
+					'file_id': item_data.id,
+					'file_path': item_data.path
+				};
 			}
 		},
 		

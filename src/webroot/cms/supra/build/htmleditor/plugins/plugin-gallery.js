@@ -106,7 +106,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				gallery_data = this.htmleditor.getData(gallery_id);
 			
 			//Hide media library if it's opened
-			Manager.MediaLibrary.hide();
+			Manager.MediaSidebar.hide();
 			
 			//Hide settings form
 			this.hideSettingsForm();
@@ -342,7 +342,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (typeof image_id == 'object') {
 				image_data = image_id;
 			} else {
-				image_data = Manager.MediaLibrary.data.get(image_id);
+				image_data = Manager.MediaSidebar.getData(image_id);
 			}
 			
 			if (target.test('img.gallery')) {
@@ -374,9 +374,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (!gallery_id || !this.htmleditor.isEditable(target)) return;
 			
 			var htmleditor = this.htmleditor,
-				folder_data = Manager.MediaLibrary.data.get(gallery_id, true);
+				folder_data = Manager.MediaSidebar.getData(gallery_id, true);
 			
-			if (folder_data.type != SU.Manager.MediaLibrary.TYPE_FOLDER) {
+			if (folder_data.type != SU.MediaLibraryData.TYPE_FOLDER) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
@@ -388,8 +388,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Get first image data
 			for(var i in folder_data.children) {
 				image = folder_data.children[i];
-				if (!this.isInImages(image.id, image_data)) {
-					image_data.push(folder_data.children[i]);
+				if (image.type == SU.MediaLibraryData.TYPE_IMAGE) {
+					if (!this.isInImages(image.id, image_data)) {
+						image_data.push(folder_data.children[i]);
+					}
 				}
 			}
 			
@@ -399,7 +401,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var url = this.getImageURLBySize(image_data[0]);
 			
 			//Create image
-			img = Y.Node.create('<img class="gallery" id="' + uid + '" src="' + url + '" title="' + Y.Lang.escapeHTML(image_data[0].title) + '" alt="' + Y.Lang.escapeHTML(image_data[0].description) + '" />');
+			var img = Y.Node.create('<img class="gallery" id="' + uid + '" src="' + url + '" title="' + Y.Lang.escapeHTML(image_data[0].title) + '" alt="' + Y.Lang.escapeHTML(image_data[0].description) + '" />');
 			
 			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
 				target.insert(img, 'before');
@@ -427,10 +429,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		getImageURLBySize: function (data, size) {
 			var size = size ? size : this.configuration.size;
 			
-			for (var i = 0, ii = data.sizes.length; i < ii; i++) {
-				if (data.sizes[i].id == size) {
-					return data.sizes[i].external_path;
-				}
+			if (size in data.sizes) {
+				return data.sizes[size].external_path;
 			}
 			
 			return null;
@@ -491,13 +491,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					e.halt();
 					
 					if (image_id && image_id.match(/^\d+$/)) {
-						//Image was dropped from MediaLibrary
+						//Image was dropped from MediaSidebar
 						
-						var image_data = Manager.MediaLibrary.data.get(image_id);
-						if (image_data.type == SU.Manager.MediaLibrary.TYPE_FOLDER) {
-							//Folder was dropped from MediaLibrary
+						var image_data = Manager.MediaSidebar.getData(image_id);
+						if (image_data.type == SU.MediaLibraryData.TYPE_FOLDER) {
+							//Folder was dropped from MediaSidebar
 							//Get folder data with all children
-							image_data = Manager.MediaLibrary.data.get(image_id, true);
+							image_data = Manager.MediaSidebar.getData(image_id, true);
 							
 							if (target) {
 								for(var i in image_data.children) {
@@ -505,7 +505,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 								}
 							}
 						} else {
-							//Image was dropped from MediaLibrary
+							//Image was dropped from MediaSidebar
 							if (target) {
 								this.dropImage(target, image_id);
 							}
@@ -537,8 +537,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						}
 					}
 				}
-				
-				dragImage = null;
 			}, this);
 			
 			srcNode.on('imageDrop', this.dropFolder, this);

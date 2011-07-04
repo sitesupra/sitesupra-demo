@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 SU('supra.tabs', 'dd-drag', function (Y) {
 	
 	//Shortcut

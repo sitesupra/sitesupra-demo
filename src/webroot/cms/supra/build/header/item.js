@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.header-item', function(Y) {
 	
 	function Item (config) {

@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add('supra.htmleditor-base', function (Y) {
 	
 	function HTMLEditor () {

@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.page-content-properties', function (Y) {
 	
 	//Shortcut
@@ -98,6 +101,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		_node_content: null,
 		
+		_button_delete: false,
+		
 		destructor: function () {
 			var form = this.get('form');
 			form.destroy();
@@ -151,6 +156,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
 				btn.render(buttons).on('click', this.deleteContent, this);
 			
+			//Don't show delete button if block or placeholder is locked
+			var host = this.get('host');
+			if (host.isLocked() || host.isParentLocked()) {
+				btn.hide();
+			}
 		},
 		
 		/**

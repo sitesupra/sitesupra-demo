@@ -1,0 +1,31 @@
+/**
+ * Media Library slideshow
+ */
+.yui3-ml-slideshow,
+.yui3-ml-slideshow-content {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	overflow: hidden;
+}
+.yui3-ml-slideshow-content {
+	width: 9000px;
+}
+.yui3-ml-slideshow-slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 399px;
+	height: 100%;
+	border-right: 1px solid #eee;
+	background: #fff;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.yui3-medialist .yui3-ml-slideshow ul.folder > li {
+	border-top: 0;
+}
+.yui3-medialist .yui3-ml-slideshow ul.folder > li.selected {
+	background: #CDECFF;
+}

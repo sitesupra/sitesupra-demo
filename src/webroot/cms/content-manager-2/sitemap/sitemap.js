@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragable', function (Y) {
 
 	//Shortcut

@@ -85,8 +85,7 @@ class PageAction extends SimpleController
 			),
 			'active' => true,
 			'internal_html' => $response->getOutput(),
-			'contents' =>
-			array()
+			'contents' => array()
 		);
 		
 		$contents = array();
@@ -99,60 +98,54 @@ class PageAction extends SimpleController
 		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 			
-			//TODO: specify if place holder is menegeable
-//			if ($page->isPlaceHolderEditable($placeHolder))
-			{
-				
-				$placeHolderData = array(
-					'id' => $placeHolder->getName(),
-					'type' => 'list',
-					
-					//TODO: not specified now
-					'allow' => array(
-						0 => 'html',
-						1 => 'string',
-						2 => 'sample',
-					),
-					'contents' => array()
+			$placeHolderData = array(
+				'id' => $placeHolder->getName(),
+				'type' => 'list',
+				'locked' => ! $page->isPlaceHolderEditable($placeHolder),
+
+				//TODO: not specified now
+				'allow' => array(
+					0 => 'html',
+					1 => 'string',
+					2 => 'sample',
+				),
+				'contents' => array()
+			);
+
+			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
+
+
+			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
+			foreach ($blockSubset as $block) {
+
+				$blockData = array(
+					'id' => $block->getId(),
+					//TODO: move normalizing to somewhere else
+					'type' => trim(str_replace('\\', '_', $block->getComponent()), '_'),
+					'locked' => ! $page->isBlockEditable($block),
+					'properties' => array(),
 				);
-				
-				$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
-				
-				
-				/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
-				foreach ($blockSubset as $block) {
-					
-					//TODO: must specify somehow if block is manageable
-					if ($page->isBlockEditable($block)) {
-						$blockData = array(
-							'id' => $block->getId(),
-							//TODO: move normalizing to somewhere else
-							'type' => trim(str_replace('\\', '_', $block->getComponent()), '_'),
-							'properties' => array(),
+
+				$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
+
+				/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
+				foreach ($blockPropertySubset as $blockProperty) {
+					if ($page->isBlockPropertyEditable($blockProperty)) {
+						$propertyData = array(
+							$blockProperty->getName() => array(
+								'html' => $blockProperty->getValue(),
+								'data' => array()
+							),
 						);
-						
-						$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
-						
-						/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
-						foreach ($blockPropertySubset as $blockProperty) {
-							if ($page->isBlockPropertyEditable($blockProperty)) {
-								$propertyData = array(
-									$blockProperty->getName() => array(
-										'html' => $blockProperty->getValue(),
-										'data' => array()
-									),
-								);
-								
-								$blockData['properties'][] = $propertyData;
-							}
-						}
-						
-						$placeHolderData['contents'][] = $blockData;
+
+						$blockData['properties'][] = $propertyData;
 					}
 				}
-				
-				$array['contents'][] = $placeHolderData;
+
+				$placeHolderData['contents'][] = $blockData;
 			}
+				
+			$array['contents'][] = $placeHolderData;
 		}
 		
 		

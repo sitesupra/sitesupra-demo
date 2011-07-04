@@ -185,6 +185,18 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		},
 		
 		/**
+		 * Show or hide link manager based on toolbar button state
+		 */
+		toggleLinkManager: function () {
+			var button = this.htmleditor.get('toolbar').getButton('insertlink');
+			if (button.get('down')) {
+				this.insertLink();
+			} else {
+				this.hideLinkManager();
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -193,7 +205,7 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		 */
 		init: function (htmleditor) {
 			// Add command
-			htmleditor.addCommand('insertlink', Y.bind(this.insertLink, this));
+			htmleditor.addCommand('insertlink', Y.bind(this.toggleLinkManager, this));
 			
 			// When double clicking on link show popup
 			var container = htmleditor.get('srcNode');
@@ -235,7 +247,12 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 			}
 			
 			this.visible = false;
-			htmleditor.on('nodeChange', this.hideLinkManager, this);
+			
+			//When selection changes hide link manager
+			htmleditor.on('selectionChange', this.hideLinkManager, this);
+			
+			//Hide link manager when editor is closed
+			htmleditor.on('disable', this.hideLinkManager, this);
 		},
 		
 		/**

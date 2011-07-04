@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.datatable-checkboxes', function (Y) {
 	
 	function CheckboxPlugin (config) {

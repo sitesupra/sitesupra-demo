@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.panel', function (Y) {
 	
 	var ARROW_CLASSNAMES = {

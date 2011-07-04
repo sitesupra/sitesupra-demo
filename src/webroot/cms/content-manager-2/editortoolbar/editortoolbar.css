@@ -43,6 +43,7 @@
 	text-shadow: 0 -1px 0 rgba(0,0,0,1);
 	text-align: center;
 	display: block;
+	padding: 0;
 	
 	-moz-transition: color 0.5s;
 	-webkit-transition: color 0.5s;
@@ -96,6 +97,10 @@
 	margin: 50px 0 0 -400px;
 	top: 0;
 	left: 50%;
+	
+	position: relative;
+	margin: 0 auto;
+	left: auto;
 	
 	-moz-transition-property: top;
 	-moz-transition-duration: 1s;

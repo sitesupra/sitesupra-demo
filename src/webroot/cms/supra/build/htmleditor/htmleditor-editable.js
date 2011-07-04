@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add('supra.htmleditor-editable', function (Y) {
 	
 	Y.mix(Supra.HTMLEditor.prototype, {
@@ -62,7 +65,7 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 			//If only one node is selected, then 
 			if (selection.start == selection.end) return this.isEditable(selection.start);
 			
-			var rootNode = Y.Node.getDOMNode(this.get('srcNode'));
+			var rootNode = Y.Node.getDOMNode(this.get('srcNode')),
 				node = selection.start,
 				endNode = selection.end,
 				skipNextChildren = false;

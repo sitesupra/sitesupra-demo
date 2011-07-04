@@ -1,5 +1,7 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.slideshow', function (Y) {
-	
 	//Shortcut
 	var getClass = Y.ClassNameManager.getClassName;
 	
@@ -15,6 +17,7 @@ YUI.add('supra.slideshow', function (Y) {
 		
 		this.history = [];
 		this.slides = {};
+		this.remove_on_hide = {};
 		this.anim = null;
 	}
 	
@@ -25,18 +28,24 @@ YUI.add('supra.slideshow', function (Y) {
 		 * Slide list
 		 * @type {Object}
 		 */
-		'slides': {},
+		'slides': {
+			value: null
+		},
 		
 		/**
 		 * Currently visible slide ID
 		 * @type {String}
 		 */
-		'slide': '',
+		'slide': {
+			value: null
+		},
 		
 		/**
 		 * Don't use animations
 		 */
-		'noAnimations': false
+		'noAnimations': {
+			value: false
+		}
 	};
 	
 	Slideshow.HTML_PARSER = {
@@ -71,6 +80,12 @@ YUI.add('supra.slideshow', function (Y) {
 		 * @type {Object}
 		 */
 		slides: {},
+		
+		/**
+		 * List of slides which will be removed when hidden
+		 * @type {Object}
+		 */
+		remove_on_hide: {},
 		
 		/**
 		 * Animation instance
@@ -147,9 +162,10 @@ YUI.add('supra.slideshow', function (Y) {
 		/**
 		 * Scroll to slide
 		 * 
-		 * @param {Object} slideId
+		 * @param {Object} slideId Slide ID
+		 * @param {Function} callback Callback function
 		 */
-		scrollTo: function (slideId) {
+		scrollTo: function (slideId /* Slide ID */, callback /* Callback function */) {
 			var oldSlideId = this.get('slide');
 			if (slideId == oldSlideId || !this.anim || !(slideId in this.slides)) return slideId;
 			
@@ -180,20 +196,48 @@ YUI.add('supra.slideshow', function (Y) {
 				//When animation ends hide old slide
 				this.anim.once('end', function () {
 					if (oldSlideId in this.slides) {
-						this.slides[oldSlideId].addClass('hidden');
+						if (oldSlideId in this.remove_on_hide) {
+							//Remove slide
+							this.slides[oldSlideId].remove();
+							delete(this.slides[oldSlideId]);
+							delete(this.remove_on_hide[oldSlideId]);
+						} else {
+							//Hide slide
+							this.slides[oldSlideId].addClass('hidden');
+						}
+					}
+					
+					//Execute callback
+					if (Y.Lang.isFunction(callback)) {
+						callback(slideId);
 					}
 				}, this);
 				
+				this.anim.stop();
 				this.anim.set('from', {'scroll': [from, 0]});
 				this.anim.set('to', {'scroll': [to, 0]});
 				this.anim.run();
 			} else {
 				if (oldSlideId in this.slides) {
-					this.slides[oldSlideId].addClass('hidden');
+					if (oldSlideId in this.remove_on_hide) {
+						//Remove slide
+						this.slides[oldSlideId].remove();
+						delete(this.slides[oldSlideId]);
+						delete(this.remove_on_hide[oldSlideId]);
+					} else {
+						//Hide slide
+						this.slides[oldSlideId].addClass('hidden');
+					}
 				}
 				this.get('contentBox').set('scrollLeft', to);
+				
+				//Execute callback
+				if (Y.Lang.isFunction(callback)) {
+					callback(slideId);
+				}
 			}
 			
+			this.set('slide', slideId, {silent: true});
 			return slideId;
 		},
 		
@@ -216,23 +260,37 @@ YUI.add('supra.slideshow', function (Y) {
 		/**
 		 * Adds slide to the slideshow
 		 * 
+		 * @param {String} slideId Slide ID
+		 * @param {Boolean} remove_on_hide Remove slide when it's hidden
 		 * @return Slide boundingBox node
 		 * @type {Object}
 		 */
-		addSlide: function (slideId) {
+		addSlide: function (slideId, remove_on_hide) {
 			if (!slideId) return null;
+			
+			if (remove_on_hide) {
+				this.remove_on_hide[slideId] = true;
+			}
 			
 			if (!(slideId in this.slides)) {
 				var classSlide = getClass(Slideshow.NAME, 'slide'),
 					classContent = getClass(Slideshow.NAME, 'slide', 'content'),
-					slide = this.slides[slidesId] = Y.Node.create('<div class="hidden ' + classSlide + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
+					slide = this.slides[slideId] = Y.Node.create('<div class="hidden ' + classSlide + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
 				
 				this.slides[slideId] = slide;
 				this.get('contentBox').append(slide);
+				
+				//If there are no slides, then make this as main
+				if (!this.get('slide')) {
+					slide.removeClass('hidden');
+					this.history.push(slideId);
+					this.set('slide', slideId, {'silent': true});
+				}
+				
 				return slide;
 			}
 			
-			return this.slides[slidesId];
+			return this.slides[slideId];
 		},
 		
 		/**
@@ -247,6 +305,37 @@ YUI.add('supra.slideshow', function (Y) {
 			} else {
 				return null;
 			}
+		},
+		
+		/**
+		 * Returns true if currently opened slide is first one
+		 * 
+		 * @return True if current slide is first one
+		 * @type {Boolean}
+		 */
+		isRootSlide: function () {
+			return this.history.length <= 1;
+		},
+		
+		/**
+		 * Returns if slide is in history
+		 * 
+		 * @param {String} slideId Slide ID
+		 * @return True if slide is in history
+		 * @type {Boolean}
+		 */
+		isInHistory: function (slideId /* Slide ID */) {
+			return Y.Array.indexOf(this.history, slideId) !== -1;
+		},
+		
+		/**
+		 * Returns list of opened slides
+		 * 
+		 * @return List of slides
+		 * @type {Array}
+		 */
+		getHistory: function () {
+			return this.history;
 		},
 		
 		/**

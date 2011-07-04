@@ -1,4 +1,8 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add("supra.lang", function (Y) {
+	
 	//If already defined, then exit
 	if (Y.Lang.escapeHTML) return;
 	

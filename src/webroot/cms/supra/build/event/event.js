@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Adds on('exist', ...) event to YUI Event class
  * 

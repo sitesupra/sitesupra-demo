@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI().add('supra.htmleditor-parser', function (Y) {
 	
 	/* Tag white list, all other tags will be removed */

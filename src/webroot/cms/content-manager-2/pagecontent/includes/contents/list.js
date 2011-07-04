@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add('supra.page-content-list', function (Y) {
 	
 	//Shortcut
@@ -68,8 +71,12 @@ YUI.add('supra.page-content-list', function (Y) {
 				
 				var block = this.createBlock({
 					'id': randomId,
+					'locked': false,
 					'type': e.block.id,
 					'value': e.block.default_html
+				}, {
+					'dragable': !this.isLocked(),
+					'editable': true
 				});
 				
 				this.get('super').set('activeContent', block);

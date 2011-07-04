@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 /**
  * Create and show/hide specific buttons when required
  */

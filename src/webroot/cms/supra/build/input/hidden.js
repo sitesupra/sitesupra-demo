@@ -1,3 +1,6 @@
+//Invoke strict mode
+"use strict";
+
 YUI.add("supra.input-hidden", function (Y) {
 	
 	function Input (config) {
