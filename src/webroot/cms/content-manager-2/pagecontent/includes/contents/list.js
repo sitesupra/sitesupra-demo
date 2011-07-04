@@ -147,6 +147,10 @@ YUI.add('supra.page-content-list', function (Y) {
 				if (region) dragable_regions.push(region);
 			}
 			
+			dragable_regions.sort(function (a,b) {
+				return a.region.top < b.region.top ? -1 : 1;
+			});
+			
 			this.dragable_regions = dragable_regions;
 		},
 		
@@ -216,10 +220,9 @@ YUI.add('supra.page-content-list', function (Y) {
 					
 					//If page is not in edit mode, then set it
 					Action.startEditing();
-				} else {
-					return;
 				}
-			} else if (drag_index > 0) {
+			}
+			if (drag_index > 0) {
 				if (this.testDrop(top, drag_index, drag_index - 1)) {
 					drag_cont = drag.next();
 					drop = this.children[regions[drag_index - 1].id].overlay;
@@ -243,14 +246,8 @@ YUI.add('supra.page-content-list', function (Y) {
 					
 					//If page is not in edit mode, then set it
 					Action.startEditing();
-				} else {
-					return;
 				}
-			} else {
-				return;
 			}
-			
-			//e.drop.sizeShim();
 		},
 		
 		/**
