@@ -108,6 +108,20 @@
 
 /* Overlay shouldn't be visible while reordering */
 .yui3-editable .yui3-content-reorder .yui3-content-overlay {
+	/* All overlays */
+	opacity: 0.5;
+	background: none;
+}
+.yui3-editable .yui3-content-reorder .yui3-content-overlay span {
+	/* All overlay inner nodes */
+	display: none;
+}
+.yui3-editable .yui3-content-reorder .yui3-content-proxy {
+	/* Proxy node */
+	opacity: 1;
+}
+.yui3-editable .yui3-content-reorder .yui3-dd-dragging {
+	/* Overlay node */
 	display: none;
 }
 

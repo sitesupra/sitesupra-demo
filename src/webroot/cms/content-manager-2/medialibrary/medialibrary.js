@@ -60,6 +60,22 @@ SU('supra.medialibrary-list-extended', function () {
 		 */
 		HAS_STYLESHEET: true,
 		
+		
+		/**
+		 * Media list object
+		 * @type {Object}
+		 * @private
+		 */
+		medialist: null,
+		
+		/**
+		 * "Sort by" input node
+		 * @type {Object}
+		 * @private
+		 */
+		input_sortby: null,
+		
+		
 		/**
 		 * Initialize
 		 * @private
@@ -82,8 +98,18 @@ SU('supra.medialibrary-list-extended', function () {
 				'filesSelectable': false,
 				'imagesSelectable': false,
 				'requestURI': this.getDataPath() + '.php',
+				'saveURI': this.getDataPath('save') + '.php',
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
+			
+			//Create "Sort by" widget
+			var input = this.input_sortby = new Supra.Input.SelectList({
+				'srcNode': this.getContainer('#mediaLibrarySort')
+			});
+			input.render();
+			input.on('change', function (event) {
+				this.medialist.set('sortBy', event.value);
+			}, this);
 		},
 		
 		/**
@@ -95,14 +121,23 @@ SU('supra.medialibrary-list-extended', function () {
 		handleToolbarButton: function (button_id) {
 			switch (button_id) {
 				case 'mlupload':
+					//@TODO
 					break;
 				case 'mlfolder':
-					var folder = this.medialist.getSelectedFolder();
-					
+					var folder = this.medialist.getSelectedFolder() || {'id': 0};
+					if (folder) {
+						//Close any opened image or file
+						this.medialist.open(folder.id);
+						
+						//Add folder
+						this.medialist.addFolder(null, '');
+					}
 					break;
 				case 'mldelete':
+					this.medialist.deleteSelectedItem();
 					break;
 				case 'mlundo':
+					//@TODO
 					break;
 			}
 		},

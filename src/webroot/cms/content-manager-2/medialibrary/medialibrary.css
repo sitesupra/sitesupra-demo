@@ -19,9 +19,25 @@
 	box-sizing: border-box;
 }
 
+.yui3-medialibrary .yui3-medialibrary-controls {
+	height: 32px;
+	padding: 10px 0 10px 10px;
+}
+.yui3-medialibrary .yui3-medialibrary-controls .yui3-button p {
+	display: inline-block;
+	min-width: 60px;
+}
+.yui3-medialibrary .yui3-medialibrary-controls label {
+	width: auto;
+}
+
 .yui3-medialibrary .yui3-medialist {
-	width: 100%;
-	height: 100%;
+	border-top: 1px solid #eee;
+	position: absolute;
+	left: 1px;
+	top: 52px;
+	right: 1px;
+	bottom: 1px;
 }
 .yui3-medialibrary .yui3-medialist ul.folder > li {
 	border: 1px solid #fff;

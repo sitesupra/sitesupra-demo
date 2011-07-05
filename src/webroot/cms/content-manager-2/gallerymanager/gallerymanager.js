@@ -110,7 +110,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			//Properties form
 			var form_config = {
-				'inputs': Supra.data.get(['supra.gallerymanager', 'properties'], DEFAULT_PROPERTIES)
+				'inputs': Supra.data.get(['gallerymanager', 'properties'], DEFAULT_PROPERTIES)
 			};
 			
 			var form = new Supra.Form(form_config);

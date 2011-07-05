@@ -1,6 +1,10 @@
 //Invoke strict mode
 "use strict";
 
+/**
+ * MediaLibraryList handles folder/file/image data loading and opening,
+ * allows selecting files, folders and images
+ */
 YUI.add('supra.medialibrary-list', function (Y) {
 	
 	/*
@@ -85,9 +89,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_FOLDER = '\
-		<li class="type-folder">\
+		<li class="type-folder" data-id="{id}">\
 			<a><img src="/cms/supra/img/medialibrary/icon-folder.png" alt="" /></a>\
-			<span>{title}</span>\
+			<span>{title_escaped}</span>\
 		</li>';
 	
 	/**
@@ -95,9 +99,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_FILE = '\
-		<li class="type-file">\
+		<li class="type-file" data-id="{id}">\
 			<a><img src="/cms/supra/img/medialibrary/icon-file.png" alt="" /></a>\
-			<span>{title}</span>\
+			<span>{title_escaped}</span>\
 		</li>';
 	
 	/**
@@ -105,9 +109,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = '\
-		<li class="type-image">\
+		<li class="type-image" data-id="{id}">\
 			<a><img src="/cms/supra/img/medialibrary/icon-image.png" alt="" /></a>\
-			<span>{title}</span>\
+			<span>{title_escaped}</span>\
 		</li>';
 	
 	/**
@@ -117,8 +121,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FILE = '\
 		<div class="file">\
 			<div class="preview"><img src="/cms/supra/img/medialibrary/icon-file-large.png" alt="" /></div>\
-			<span>{title}</span>\
-			<span>{description}</span>\
+			<span>{title_escaped}</span>\
+			<span>{description_escaped}</span>\
 		</div>';
 	
 	/**
@@ -128,8 +132,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_IMAGE = '\
 		<div class="image">\
 			<div class="preview"><img src="{previewUrl}" alt="" /></div>\
-			<span>{title}</span>\
-			<span>{description}</span>\
+			<span>{title_escaped}</span>\
+			<span>{description_escaped}</span>\
 		</div>';
 	
 	
@@ -139,7 +143,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * URI for save requests
 		 * @type {String}
 		 */
-		'saveUri': {
+		'saveURI': {
 			value: ''
 		},
 		
@@ -574,7 +578,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				slide = this.slideshow.addSlide('slide_' + id, remove_on_hide);
 				
 				if (loaded) {
-					this.renderItem(id, [data]);
+					if (data && data.type == Data.TYPE_FOLDER) {
+						this.renderItem(id);
+					} else {
+						this.renderItem(id, [data]);
+					}
 				}
 			} else {
 				//Remove 'selected' from elements
@@ -600,6 +608,15 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}
 				data_object.loadData(id, properties);
 			}
+			
+			//Mark item in parent slide as selected
+			if (id && id != this.get('rootFolderId') && data) {
+				var parent_slide = this.slideshow.getSlide('slide_' + data.parent);
+				if (parent_slide) {
+					var node = parent_slide.one('li[data-id="' + id + '"]');
+					if (node) node.addClass('selected');
+				}
+			} 
 			
 			//Scroll to slide
 			if (this.slideshow.isInHistory('slide_' + id)) {
@@ -671,14 +688,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Chainable.
 		 * 
 		 * @param {Number} id File or folder ID
-		 * @param {Object} data Item dat
+		 * @param {Object} data Item data
+		 * @param {Boolean} append Append or replace, default is replace
 		 * @private
 		 */
-		renderItem: function (id /* File or folder ID */, data /* Item data */) {
+		renderItem: function (id /* File or folder ID */, data /* Item data */, append /* Append or replace */) {
 			var slide = this.slideshow.getSlide('slide_' + id),
 				template,
 				node,
 				item;
+			
+			//Get data if arguments is not passed
+			if (typeof data === 'undefined' || data === null) {
+				data = this.get('dataObject').getData(id);
+				if (!data || data.type == Data.TYPE_FOLDER) {
+					data = this.get('dataObject').getChildrenData(id);
+				}
+			}
 			
 			if (data && data.length) {
 				if (data.length == 1 && data[0].id == id && data[0].type != Data.TYPE_FOLDER) {
@@ -690,17 +716,37 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {
 					//Folder
-					node = this.renderTemplate({}, this.get('templateFolder'));
+					if (append) {
+						node = slide.one('ul.folder');
+					}
+					if (!node) {
+						node = this.renderTemplate({}, this.get('templateFolder'));
+					}
+					 
 					var templates = {
 						1: this.get('templateFolderItemFolder'),
 						2: this.get('templateFolderItemImage'),
 						3: this.get('templateFolderItemFile')
 					};
 					
+					//Sort data
+					data = this.sortData(data);
+					
 					for(var i=0,ii=data.length; i<ii; i++) {
 						item = this.renderTemplate(data[i], templates[data[i].type]);
 						item.setData('itemId', data[i].id);
-						node.append(item);
+						
+						if (append) {
+							//Add after last folder item
+							var li = node.all('li.type-folder');
+							if (li.size()) {
+								li.item(li.size() - 1).insert(item, 'after');
+							} else {
+								node.prepend(item);
+							}
+						} else {
+							node.append(item);
+						}
 					}
 					
 					slide.setData('itemId', id);
@@ -715,6 +761,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Sort or filter data
+		 * 
+		 * @param {Array} data
+		 * @return Sorted and filtered data
+		 * @type {Array}
+		 * @private
+		 */
+		sortData: function (data) {
+			return data;
 		},
 		
 		/**
@@ -741,6 +799,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					item_data['previewUrl'] = item_data[preview_key];
 				}
 			}
+			
+			item_data.title_escaped = Y.Lang.escapeHTML(item_data.title);
+			item_data.description_escaped = Y.Lang.escapeHTML(item_data.description);
+			item_data.filename_escaped = Y.Lang.escapeHTML(item_data.filename);
+			
 			return item_data;
 		},
 		

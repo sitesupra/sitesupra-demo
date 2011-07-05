@@ -13,7 +13,7 @@ class PageAction extends SimpleController
 	/**
 	 * @return string
 	 */
-	public function indexAction()
+	public function pageAction()
 	{
 		//TODO: Must get real controller, should be bound somehow
 		$controller = new \Project\Pages\Controller();
@@ -107,9 +107,7 @@ class PageAction extends SimpleController
 
 				//TODO: not specified now
 				'allow' => array(
-					0 => 'html',
-					1 => 'string',
-					2 => 'sample',
+					0 => 'Project_Text_TextController',
 				),
 				'contents' => array()
 			);
@@ -284,5 +282,41 @@ class PageAction extends SimpleController
 		// TODO: json encoding must be already inside the manager action response object
 		$this->response->output(json_encode($array));
 	}
+	
+	public function insertblockAction()
+	{
+		1+1;
+		
+		$array = array(
+			'id' => null,
+			'type' => null,
+			'locked' => null,
+			'properties' => array(
+				'html' => array(
+					'html' => null,
+					'data' => array(),
+				),
+//				'visible' => true,
+			),
+			'html' => null,
+		);
+		
+		$this->response->output(json_encode($array));
+	}
+//	"id": 
+//	"type": "html",
+//	"locked": false,
+//	"properties": {
+//		"html1": {
+//			"html": "Aaaaaaaaaaaaa",
+//			"data": {}
+//		},
+//		"html2": {
+//			"html": "Bbbbbbbbbbbbb",
+//			"data": {}
+//		},
+//		"visible": false
+//	},
+//	"html": "<div id=\"content_html_<?php echo $id; _html1\" class=\"yui3-content-inline\">\n<h2>Lorem ipsum<\/h2>\n<p>Lorem ipsum<\/p>\n<\/div>\n<br \/><small>Here ends <em>html1<\/em> and starts <em>html2<\/em> editable area<\/small><br \/><br \/>\n<div id=\"content_html_<?php echo $id; ? >_html2\" class=\"yui3-content-inline\">\n<h2>Lorem ipsum<\/h2>\n<p>Lorem ipsum<\/p>\n<\/div>"
 	
 }

@@ -70,11 +70,15 @@
 	}
 
 .yui3-input .input-label-replacement input,
+.yui3-input.input-label-replacement input,
+.yui3-input-focused.input-label-replacement span,
 .yui3-input-focused .input-label-replacement span {
 	display: none;
 }
+.yui3-input-focused.input-label-replacement input,
 .yui3-input-focused .input-label-replacement input {
 	display: inline;
+	width: 100%;
 }
 
 .yui3-input-form .fields-oneline {
@@ -98,6 +102,7 @@
 		width: 50%;
 		text-overflow: ellipsis;
 	}
+	.yui3-input-path-focused.input-label-replacement span,
 	.yui3-input-path-focused .input-label-replacement span {
 			display: inline-block;
 		}

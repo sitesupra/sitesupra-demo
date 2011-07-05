@@ -61,19 +61,25 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//On new block drop create it and start editing
 			this.on('dragend:hit', function (e) {
-				var randomId = +(new Date()) + '' + ~~(Math.random()*100000);
 				
-				var block = this.createBlock({
-					'id': randomId,
-					'locked': false,
-					'type': e.block.id,
-					'value': e.block.default_html
-				}, {
-					'dragable': !this.isLocked(),
-					'editable': true
-				});
-				
-				this.get('super').set('activeContent', block);
+				Manager.Page.getBlockInsertData({
+					'type': e.block.type,
+					'placeholder_id': this.getId()
+				}, function (data) {
+					var block = this.createBlock({
+						'id': data.id,
+						'locked': false,
+						'type': data.type,
+						'data': data,
+						'value': data.html
+					}, {
+						'dragable': !this.isLocked(),
+						'editable': true
+					});
+					
+					this.get('super').set('activeContent', block);
+					
+				}, this);
 				
 				return false;
 			}, this);

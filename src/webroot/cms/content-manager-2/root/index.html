@@ -58,13 +58,36 @@
 				},
 				
 				//Gallery manager
-				'supra.gallerymanager': {
+				'gallerymanager': {
 					'properties': [
 						{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''},
 						{'id': 'description', 'type': 'String', 'label': 'Description', 'value': ''},
 						{'id': 'author', 'type': 'String', 'label': 'Author name', 'value': ''}
 					]
-				}
+				},
+				
+				//Languages
+				'language': 'lv',
+				'context': 'lv',
+				
+				'contexts': [
+					{
+						'id': 'lv',
+						'title': 'Latvia',
+						'languages': [{'id': 'lv', 'title': 'Latvian'}, {'id': 'ru', 'title': 'Russian'}, {'id': 'en', 'title': 'English'}]
+					},
+					{
+						'id': 'ru',
+						'title': 'Russia',
+						'languages': [{'id': 'ru', 'title': 'Russian'}]
+					},
+					{
+						'id': 'gb',
+						'title': 'United Kingdom',
+						'languages': [{'id': 'en', 'title': 'English'}]
+					}
+				]
+
 			});
 			
 			

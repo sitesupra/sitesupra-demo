@@ -226,15 +226,27 @@ YUI.add('supra.medialibrary-data', function (Y) {
 						parent = indexed[id].parent;
 						if (parent && parent in indexed) {
 							parent = indexed[parent];
+							parent.children_count--;
 							if (parent.children) {
 								child_index = Y.Array.lastIndexOf(parent.children, id);
-								if (child_index != -1) parent.children.splice(child_index);
+								if (child_index != -1) {
+									parent.children.splice(child_index, 1);
+								}
 							}
 						}
 					}
 					
 					//Destroy data
 					delete(indexed[id]);
+					
+					//Remove from root folder list (if it's there)
+					var data_list = this.data;
+					for(var i=0,ii=data_list.length; i<ii; i++) {
+						if (data_list[i].id == id) {
+							data_list.splice(i, 1);
+							break;
+						}
+					}
 				}
 			}
 			
@@ -304,8 +316,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'data': data,
 				'context': this,
 				'on': {
-					'success': function (transaction, data) { this._loadComplete(data, id || 0); },
-					'failure': function (transaction, data) { this._loadComplete(null, id || 0); }
+					'success': function (transaction, data) { this.loadComplete(data, id || 0); },
+					'failure': function (transaction, data) { this.loadComplete(null, id || 0); }
 				}	
 			});
 			
@@ -321,19 +333,59 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 */
 		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */) {
 			var url = this.get('saveURI');
-			data = Supra.mix({
-				'id': id || 0
-			}, data);
+			data = Supra.mix({}, data);
+			
+			if (id == -1) {
+				data.action = 'insert';
+				data.type = Data.TYPE_FOLDER;
+			} else {
+				data.id = id || 0;
+				data.action = 'update';
+			}
 			
 			Supra.io(url, {
 				'data': data,
 				'method': 'post',
 				'context': this,
 				'on': {
-					'success': function (transaction, data) { if (Y.Lang.isFunction(callback)) callback(data, id || 0); },
-					'failure': function (transaction, data) { if (Y.Lang.isFunction(callback)) callback(null, id || 0); }
+					'success': function (transaction, data) {
+						this.afterSaveData(id || 0, data);
+						if (Y.Lang.isFunction(callback)) callback(data, id || 0);
+					},
+					'failure': function (transaction, data) {
+						this.afterSaveData(id || 0, null);
+						if (Y.Lang.isFunction(callback)) callback(null, id || 0);
+					}
 				}
 			});
+		},
+		
+		/**
+		 * After data save
+		 * 
+		 * @param {Number} id
+		 * @param {Object} data
+		 * @private
+		 */
+		afterSaveData: function (id, data) {
+			//After new item is saved update data
+			if (id == -1) {
+				if (data) {
+					var data_item = this.dataIndexed[-1];
+					data_item.id = data;
+					
+					//New folder
+					this.dataIndexed[data] = data_item;
+					delete(this.dataIndexed[-1]);
+					
+					//Add to parents children list
+					if (data_item.parent && data_item.parent in this.dataIndexed) {
+						this.dataIndexed[data_item.parent].children.push(data);
+					}
+				} else {
+					delete(this.dataIndexed[-1]);
+				}
+			}
 		},
 		
 		/**
@@ -343,7 +395,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {Number} id Folder ID
 		 * @private
 		 */
-		_loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
+		loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
 			if (!data || !data.records) {
 				Y.error('Supra.MediaLibraryData:loadList error occured while loading data for folder "' + id + '"');
 				this.fire('load:failure', {'data': null});
@@ -355,8 +407,6 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			this.fire('load:success', {'id': id, 'data': data.records});
 			this.fire('load:success:' + id, {'id': id, 'data': data.records});
 		},
-		
-		/**
 		
 		/**
 		 * Destroy data object

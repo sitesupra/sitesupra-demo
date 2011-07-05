@@ -26,7 +26,7 @@ $all_data = Array(
 	),
 	2 => Array(
 		'id' => 2,
-		'title' => 'Misc',
+		'title' => 'Abstract',
 		'type' => 1,
 		'children' => Array(5, 8),
 	),
@@ -49,8 +49,8 @@ $all_data = Array(
 		'children' => Array(),
 	),
 	
-	4 => Array(
-		'id' => 4,
+	6 => Array(
+		'id' => 6,
 		'type' => 2,
 		'title' => 'Flowers',
 		'filename' => 'flower.jpg',
@@ -81,8 +81,8 @@ $all_data = Array(
 		'200x200_url' => '/cms/supra/img/media/picture-2.jpg',
 		'original_url' => '/cms/supra/img/media/picture-2-original.jpg',
 	),
-	6 => Array(
-		'id' => 6,
+	4 => Array(
+		'id' => 4,
 		'type' => 2,
 		'title' => 'Koala',
 		'filename' => 'koala.jpg',

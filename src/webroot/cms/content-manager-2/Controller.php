@@ -16,6 +16,11 @@ class Controller extends DistributedController
 	protected static $defaultAction = 'root';
 	
 	/**
+	 * @var string
+	 */
+	protected static $extension = 'json';
+	
+	/**
 	 * @return string
 	 */
 	public function getBaseNamespace()

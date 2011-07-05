@@ -64,13 +64,18 @@ YUI.add("supra.input-string", function (Y) {
 				input = this.get('inputNode'),
 				mask = this.get('valueMask');
 			
+			if (key >= 186 && key <= 222) {
+				//Normalize to match fromCharCode with charCodeAt
+				key = key - 144;
+			}
+			
 			if (key == this.KEY_RETURN) {
 				input.blur();
 			} else if (key == this.KEY_ESCAPE) {
 				input.set('value', this._original_value);
 				input.blur();
 				this.fire("reset");
-			} else if (mask) {
+			} else if (mask && (key >= 42 || key == 32)) {
 				//Validate against mask
 				var str = String.fromCharCode(key),
 					inputNode = Y.Node.getDOMNode(input),
@@ -79,6 +84,7 @@ YUI.add("supra.input-string", function (Y) {
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
 				if (e.ctrlKey && key == 118) return;
+				console.log(mask, mask.toString());
 				if (!mask.test(value)) return e.halt();
 			}
 		},
@@ -110,6 +116,8 @@ YUI.add("supra.input-string", function (Y) {
 				
 				if (!srcNodeIsInput) {
 					srcNode.addClass("input-label-replacement");
+				} else {
+					this.get('boundingBox').addClass("input-label-replacement");
 				}
 				
 				if (!node) {

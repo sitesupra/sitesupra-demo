@@ -113,11 +113,47 @@
 	cursor: pointer;
 }
 
-/*
-.yui3-medialist ul.folder .type-image span {
-	
+.yui3-medialist div.file .center,
+.yui3-medialist div.image .center {
+	text-align: center;
+	padding: 10px 0 0;
 }
-.yui3-medialist ul.folder .type-image a {
-	float: right;
+
+.yui3-medialist div.file .localize,
+.yui3-medialist div.image .localize {
+	padding: 5px 5px 10px;
 }
-*/
+
+.yui3-medialist div.file .center .yui3-button button p,
+.yui3-medialist div.image .center .yui3-button button p {
+	width: 180px;
+}
+
+.yui3-medialist div.file .inp-description span,
+.yui3-medialist div.file .inp-description input,
+.yui3-medialist div.image .inp-description span,
+.yui3-medialist div.image .inp-description input {
+	color: #666;
+}
+
+.yui3-medialist div.file .inp-filename span,
+.yui3-medialist div.file .inp-filename input,
+.yui3-medialist div.image .inp-filename span,
+.yui3-medialist div.image .inp-filename input {
+	font-size: 12px;
+}
+
+
+.yui3-medialist .yui3-input label {
+	display: none;
+}
+.yui3-medialist .yui3-input.input-label-replacement span {
+	padding: 0 5px;
+}
+.yui3-medialist .yui3-input.input-label-replacement span:hover {
+	padding: 0 4px;
+}
+.yui3-medialist .yui3-input-focused.input-label-replacement span,
+.yui3-medialist .yui3-input-focused .input-label-replacement span {
+	display: none;
+}

@@ -184,9 +184,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			if (slideId && slideId in this.slides) {
 				if (slideId in this.remove_on_hide) {
 					//Remove slide
-					this.slides[slideId].remove();
-					delete(this.slides[slideId]);
-					delete(this.remove_on_hide[slideId]);
+					this.removeSlide(slideId);
 				} else {
 					//Hide slide
 					this.slides[slideId].addClass('hidden');
@@ -206,8 +204,8 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			if (slideId == oldSlideId || !this.anim || !(slideId in this.slides)) return slideId;
 			
 			//Stop previous animations, otherwise new content may not be shown
-			this.anim.stop();
-			this.slide_anim.stop();
+			this.anim.stop(true);
+			this.slide_anim.stop(true);
 			
 			//Hide all slides after caller slide
 			var callerIndex = (callerId ? Y.Array.indexOf(this.history, callerId) : -1);
@@ -253,6 +251,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			//Animate
 			if (!this.get('noAnimations')) {
 				//Show new slide
+				this.slides[slideId].setStyle('left', (index - 1) * slideWidth + 'px');
 				this.slide_anim.set('node', this.slides[slideId]);
 				this.slide_anim.set('from', {'left': (index - 1) * slideWidth + 'px'});
 				this.slide_anim.set('to', {'left': (index) * slideWidth + 'px'});
@@ -277,7 +276,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 				this.anim.run();
 			} else {
 				//Show new slide
-				this.slides[slideId].setStyle('left', (index - 1) * slideWidth + 'px')
+				this.slides[slideId].setStyle('left', index * slideWidth + 'px')
 					.removeClass('hidden');
 				
 				//Hide old slide
@@ -344,6 +343,22 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			}
 			
 			return this.slides[slideId];
+		},
+		
+		/**
+		 * Remove slide
+		 * 
+		 * @param {String} slideId
+		 */
+		removeSlide: function (slideId) {
+			if (slideId in this.slides) {
+				//Remove slide
+				this.slides[slideId].remove();
+				delete(this.slides[slideId]);
+				delete(this.remove_on_hide[slideId]);
+			}
+			
+			return this;
 		},
 		
 		/**

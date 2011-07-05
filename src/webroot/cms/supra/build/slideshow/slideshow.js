@@ -198,9 +198,7 @@ YUI.add('supra.slideshow', function (Y) {
 					if (oldSlideId in this.slides) {
 						if (oldSlideId in this.remove_on_hide) {
 							//Remove slide
-							this.slides[oldSlideId].remove();
-							delete(this.slides[oldSlideId]);
-							delete(this.remove_on_hide[oldSlideId]);
+							this.removeSlide(oldSlideId);
 						} else {
 							//Hide slide
 							this.slides[oldSlideId].addClass('hidden');
@@ -221,9 +219,7 @@ YUI.add('supra.slideshow', function (Y) {
 				if (oldSlideId in this.slides) {
 					if (oldSlideId in this.remove_on_hide) {
 						//Remove slide
-						this.slides[oldSlideId].remove();
-						delete(this.slides[oldSlideId]);
-						delete(this.remove_on_hide[oldSlideId]);
+						this.removeSlide(oldSlideId);
 					} else {
 						//Hide slide
 						this.slides[oldSlideId].addClass('hidden');
@@ -291,6 +287,22 @@ YUI.add('supra.slideshow', function (Y) {
 			}
 			
 			return this.slides[slideId];
+		},
+		
+		/**
+		 * Remove slide
+		 * 
+		 * @param {String} slideId
+		 */
+		removeSlide: function (slideId) {
+			if (slideId in this.slides) {
+				//Remove slide
+				this.slides[slideId].remove();
+				delete(this.slides[slideId]);
+				delete(this.remove_on_hide[slideId]);
+			}
+			
+			return this;
 		},
 		
 		/**

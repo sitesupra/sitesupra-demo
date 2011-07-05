@@ -72,7 +72,16 @@ YUI.add('supra.page-content-proto', function (Y) {
 			value: false,
 			setter: '_setHighlightOverlay'
 		},
-		'title': ''
+		'title': {
+			value: ''
+		},
+		
+		/**
+		 * HTML which will be used instead of DOM
+		 */
+		'html': {
+			value: ''
+		}
 	};
 	
 	Y.extend(ContentProto, Y.Base, {

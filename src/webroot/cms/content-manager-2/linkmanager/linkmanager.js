@@ -218,7 +218,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 				//"Open App" button
 					var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
 					btn.on('click', function () {
-						//@TODO
+						Manager.executeAction('MediaLibrary');
 					});
 					btn.render();
 					

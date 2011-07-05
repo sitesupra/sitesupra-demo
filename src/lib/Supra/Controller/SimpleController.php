@@ -32,6 +32,8 @@ abstract class SimpleController extends ControllerAbstraction
 			
 			// Normalize name
 			foreach ($actions as &$action) {
+				// Ignore extension, @TODO: could implement this in some other level
+				$action = strstr($action, '.', true);
 				$action = explode('-', $action);
 				$action = array_map('mb_strtolower', $action);
 				$action = array_map('ucfirst', $action);
@@ -49,7 +51,8 @@ abstract class SimpleController extends ControllerAbstraction
 		
 		// TODO: do case sensitive method name search
 		if ( ! in_array($method, $methods)) {
-			throw new NotFoundException();
+			$className = get_class($this);
+			throw new NotFoundException("Method '{$method}' doesn't exist for class '{$className}'");
 		}
 		
 		$this->$method();

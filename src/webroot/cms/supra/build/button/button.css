@@ -53,7 +53,8 @@ button::-moz-focus-inner {
 	.yui3-button-small p, .yui3-button-small-blue p, .yui3-button-small-red p {
 		font-size: 12px;
 		height: 20px;
-		line-height: 16px;
+		line-height: 20px;
+		padding: 0 5px;
 	}
 	
 	/* Gray small sized button*/
