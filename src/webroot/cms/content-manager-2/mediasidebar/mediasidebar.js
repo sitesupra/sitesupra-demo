@@ -69,8 +69,9 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 			//Create media list
 			this.renderMediaList();
 			
-			//Back and Close buttons
+			//Back, Close and App buttons
 			this.renderHeader();
+			this.renderFooter();
 		},
 		
 		/**
@@ -132,6 +133,19 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
 			this.button_close.render();
 			this.button_close.on('click', this.hide, this);
+		},
+		
+		/**
+		 * Create footer button
+		 */
+		renderFooter: function () {
+			var button = this.getContainer('.yui3-sidebar-footer button');
+			
+			this.button_app = new Supra.Button({'srcNode': button});
+			this.button_app.render();
+			this.button_app.on('click', function () {
+				Manager.executeAction('MediaLibrary');
+			});
 		},
 		
 		/**

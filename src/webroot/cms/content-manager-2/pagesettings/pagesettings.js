@@ -347,7 +347,33 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			var page_data = this.page_data;
 			Supra.mix(page_data, this.form.getValuesObject());
 			
-			Manager.Page.setPageData(page_data);
+			//Remove unneded data for save request
+			var post_data = Supra.mix({}, page_data);
+			post_data.version = post_data.version.id;
+			post_data.template = post_data.template.id;
+			
+			delete(post_data.version_id);
+			delete(post_data.schedule_hours);
+			delete(post_data.schedule_minutes);
+			delete(post_data.path_prefix);
+			delete(post_data.internal_html);
+			delete(post_data.contents);
+			
+			post_data.context = Supra.data.get('context');
+			post_data.language = Supra.data.get('language');
+			
+			//Save data
+			var url = this.getDataPath('save');
+			Supra.io(url, {
+				'data': post_data,
+				'method': 'POST',
+				'on': {
+					'success': function (transaction, version) {
+						page_data.version = version;
+						Manager.Page.setPageData(page_data);
+					}
+				}
+			}, this);
 			
 			this.hide();
 		},

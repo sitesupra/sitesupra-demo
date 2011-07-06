@@ -105,8 +105,18 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		
 		/**
 		 * Image and file property inputs
+		 * @type {Array}
+		 * @private
 		 */
 		property_widgets: [],
+		
+		/**
+		 * Slider widget instance
+		 * @type {Object}
+		 * @private
+		 */
+		slider: null,
+		
 		
 		/**
 		 * Add folder to the parent.
@@ -117,12 +127,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		addFolder: function (parent, title) {
 			var parent_id = null,
-				parent_data = null,
-				data_object = this.get('dataObject');
+				parent_data = null;
 			
 			if (parent) {
 				parent_id = parent;
-				parent_data = data_object.getData(parent_id);
+				parent_data = this.getItemData(parent_id);
 				
 				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
 					return false;
@@ -197,13 +206,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		getSelectedFolder: function () {
 			var history = this.slideshow.getHistory(),
-				data_object = this.get('dataObject'),
 				item_id = String(history[history.length - 1]).replace('slide_', ''),
-				folder_data = data_object.getData(item_id);
+				folder_data = this.getItemData(item_id);
 			
 			while(folder_data) {
 				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
-				folder_data = data_object.getData(folder_data.parent);
+				folder_data = this.getItemData(folder_data.parent);
 			}
 			
 			return null;
@@ -215,7 +223,24 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		renderUI: function () {
+			var container = this.get('boundingBox');
+			container.addClass(Y.ClassNameManager.getClassName(Extended.NAME, 'extended'));
+			
 			Extended.superclass.renderUI.apply(this, arguments);
+			
+			//Initialize drag and drop to prevent DD from being attached to iframe
+			if ('Manager' in Supra && 'PageContent' in Supra.Manager) {
+				Supra.Manager.PageContent.initDD();
+			}
+			
+			//Create slider
+			var slider = this.slider = new Y.Slider({
+				'length': container.get('offsetWidth') - 16,	//16px margin
+				'value': 1000,	//At the end
+				'max': 1000,	//for better precision
+				'thumbUrl': Y.config.base + '/slider/assets/skins/supra/thumb-x.png'
+			});
+			slider.render(container);
 		},
 		
 		/**
@@ -224,7 +249,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		bindUI: function () {
-			var content = this.get('contentBox');
+			var content = this.get('contentBox'),
+				container = this.get('boundingBox');
 			
 			//On folder click start rename
 			content.delegate('click', this.handleRenameClick, 'ul.folder > li.type-folder', this);
@@ -237,8 +263,47 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			//On sort change redraw lists
 			this.after('sortByChange', this.handleSortingChange, this);
-						
+			
+			//On slide update slideshow
+			this.slider.after('valueChange', this.syncScrollPosition, this);
+			
+			//After resize update slider width
+			Y.on('resize', Y.throttle(Y.bind(this.updateScroll, this), 50), window);
+			
+			this.slideshow.on('slideChange', this.updateScroll, this);
+			
 			Extended.superclass.bindUI.apply(this, arguments);
+		},
+		
+		updateScroll: function () {
+			var w = this.get('boundingBox').get('offsetWidth');
+			this.slider.set('length', w - 16);		//16px margin
+			this.syncScrollPosition(w);
+		},
+		
+		/**
+		 * Sync scroll position
+		 */
+		syncScrollPosition: function (width) {
+			var pos = this.slider.get('value'),
+				content_width = this.slideshow.history.length * this.slideshow._getWidth(),
+				container_width = typeof width == 'number' ? width : this.get('boundingBox').get('offsetWidth'),
+				offset = 0;
+			
+			if (container_width < content_width) {
+				offset = Math.round((content_width - container_width) * pos / 1000);
+			}
+			
+			this.slideshow.get('contentBox').setStyle('left', - offset + 'px');
+		},
+		
+		/**
+		 * Update widget
+		 * 
+		 * @private
+		 */
+		syncUI: function () {
+			Extended.superclass.syncUI.apply(this, arguments);
 		},
 		
 		/**
@@ -504,25 +569,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			} else if (!value) {
 				data.input.set('value', data.data[name]);
 			}
-		},
-		
-		/**
-		 * Returns item data
-		 * 
-		 * @param {Mumber} id Item ID
-		 */
-		getItemData: function (id /* Item ID */) {
-			return this.get('dataObject').getData(id || this.get('rootFolderId'));
-		},
-		
-		/**
-		 * Update widget
-		 * 
-		 * @private
-		 */
-		syncUI: function () {
-			Extended.superclass.syncUI.apply(this, arguments);
 		}
+		
 	}, {});
 	
 	
@@ -532,4 +580,4 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.form', 'supra.medialibrary-list', 'supra.medialibrary-slideshow']});
+}, YUI.version, {'requires': ['slider', 'supra.form', 'supra.medialibrary-list', 'supra.medialibrary-slideshow']});

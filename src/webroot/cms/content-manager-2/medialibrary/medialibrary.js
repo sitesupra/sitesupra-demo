@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.medialibrary-list-extended', function () {
+SU('supra.medialibrary-list-extended', function (Y) {
 	
 	//Toolbar buttons
 	var TOOLBAR_BUTTONS = [
@@ -44,7 +44,7 @@ SU('supra.medialibrary-list-extended', function () {
 	var Action = Manager.Action;
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginContainer, {
 		
 		/**
 		 * Unique action name
@@ -75,6 +75,11 @@ SU('supra.medialibrary-list-extended', function () {
 		 */
 		input_sortby: null,
 		
+		/**
+		 * Previous editor toolbar state
+		 */
+		editor_toolbar_visible: false,
+		
 		
 		/**
 		 * Initialize
@@ -89,7 +94,15 @@ SU('supra.medialibrary-list-extended', function () {
 		 */
 		render: function () {
 			//Add buttons to toolbar
-			SU.Manager.getAction('PageToolbar').addGroup(this.NAME, TOOLBAR_BUTTONS);
+			Manager.getAction('PageToolbar').addGroup(this.NAME, TOOLBAR_BUTTONS);
+			
+			//Add side buttons
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'close',
+				'callback': Y.bind(function () {
+					this.hide();
+				}, this)
+			}]);
 			
 			//Create slideshow
 			var list = this.medialist = (new Supra.MediaLibraryExtendedList({
@@ -146,14 +159,33 @@ SU('supra.medialibrary-list-extended', function () {
 		 * Hide
 		 */
 		hide: function () {
-			SU.Manager.getAction('PageToolbar').unsetActiveGroupAction(this.NAME);
+			Action.Base.prototype.hide.apply(this, arguments);
+			
+			Manager.getAction('PageToolbar').unsetActiveGroupAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
+			//If editor toolbar was visible before, then show it now
+			if (this.editor_toolbar_visible) {
+				Manager.getAction('Page').showEditorToolbar();
+			}
 		},
 		
 		/**
 		 * Execute action
 		 */
 		execute: function () {
-			SU.Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME);
+			Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME);
+			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
+			//Hide editor toolbar if it's visible
+			if (Manager.getAction('EditorToolbar').get('visible')) {
+				this.editor_toolbar_visible = true;
+				Manager.getAction('Page').hideEditorToolbar();
+			} else {
+				this.editor_toolbar_visible = false;
+			}
+			
+			this.show();
 		}
 	});
 	

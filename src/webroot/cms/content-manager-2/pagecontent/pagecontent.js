@@ -259,7 +259,7 @@ SU('dd-drag', function (Y) {
 		startEditing: function () {
 			if (!this.editing) {
 				this.editing = true;
-				Manager.PageToolbar.setActiveGroupAction('Page');
+				Manager.getAction('PageToolbar').setActiveGroupAction('Page');
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 		},
@@ -282,6 +282,37 @@ SU('dd-drag', function (Y) {
 		 */
 		isEditing: function () {
 			return this.editing;
+		},
+		
+		/**
+		 * Loads and returns block data
+		 * 
+		 * @param {Object} data Block information
+		 * @param {Function} callback Callback function
+		 * @param {Object} context
+		 */
+		getBlockInsertData: function (data, callback, context) {
+			var url = this.getDataPath('insertblock') + '.php';
+			var page_info = Manager.Page.getPageData();
+			
+			data = Supra.mix({
+				'page_id': page_info.id,
+				'version_id': page_info.version.id,
+				
+				'context': Supra.data.get('context'),
+				'language': Supra.data.get('language')
+			}, data);
+			
+			Supra.io(url, {
+				'data': data,
+				'on': {
+					'success': function (evt, data) {
+						if (data && Y.Lang.isFunction(callback)) {
+							callback.call(context, data);
+						}
+					}
+				}
+			});
 		},
 		
 		/**

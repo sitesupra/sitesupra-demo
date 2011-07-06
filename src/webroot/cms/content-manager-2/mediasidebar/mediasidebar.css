@@ -29,3 +29,13 @@
 	width: 100%;
 	height: 100%;
 }
+
+/**
+ * Footer
+ */
+.yui3-mediasidebar .yui3-sidebar-footer {
+	height: 32px;
+	border-top: 1px solid #eee;
+	padding: 10px;
+	text-align: center;
+}

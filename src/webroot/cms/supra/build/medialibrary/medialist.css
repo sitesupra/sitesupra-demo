@@ -1,5 +1,6 @@
 .yui3-medialist {
 	font-size: 14px;
+	position: relative;
 }
 
 /**
@@ -156,4 +157,29 @@
 .yui3-medialist .yui3-input-focused.input-label-replacement span,
 .yui3-medialist .yui3-input-focused .input-label-replacement span {
 	display: none;
+}
+
+/**
+ * Slider
+ */
+.yui3-medialist-extended {
+	padding-bottom: 34px;
+}
+.yui3-medialist .yui3-slider {
+	position: absolute;
+	display: block;
+	height: 34px;
+	background: #fff;
+	left: -1px;
+	bottom: -1px;
+	right: -1px;
+	border-top: 1px solid #eee;
+}
+.yui3-medialist .yui3-slider-content {
+	margin: 8px 0 0;
+	display: block;
+}
+.yui3-medialist .yui3-slider-x .yui3-slider-thumb {
+	top: -4px !important;
+	cursor: pointer;
 }

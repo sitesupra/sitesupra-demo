@@ -465,7 +465,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (slide_id) {
 				item_id = slide_id.replace('slide_', '');
 				if (item_id == id) {
-					var item_data = this.get('dataObject').getData(item_id);
+					var item_data = this.getItemData(item_id);
 					if (item_data.type == Data.TYPE_FILE) {
 						this.file_selected = true;
 					} else if (item_data.type == Data.TYPE_IMAGE) {
@@ -819,6 +819,15 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		renderTemplate: function (data /* Item data */, template /* Template */) {
 			var html = Y.substitute(template || '', this.getRenderData(data));
 			return Y.Node.create(html);
+		},
+		
+		/**
+		 * Returns loaded item data
+		 * 
+		 * @param {Mumber} id Item ID
+		 */
+		getItemData: function (id /* Item ID */) {
+			return this.get('dataObject').getData(id || this.get('rootFolderId'));
 		},
 		
 		/**

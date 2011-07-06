@@ -114,6 +114,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.medialibrary-list-extended': {
 		path: 'medialibrary/medialist-extended.js',
 		requires: [
+			'slider',
 			'supra.form',
 			'supra.medialibrary-list',
 			'supra.medialibrary-slideshow'

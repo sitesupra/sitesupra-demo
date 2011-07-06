@@ -206,37 +206,6 @@ Supra(function (Y) {
 		},
 		
 		/**
-		 * Loads and returns block data
-		 * 
-		 * @param {Object} data Block information
-		 * @param {Function} callback Callback function
-		 * @param {Object} context
-		 */
-		getBlockInsertData: function (data, callback, context) {
-			var url = this.getDataPath('insertblock');
-			var page_info = Manager.Page.getPageData();
-			
-			data = Supra.mix({
-				'page_id': page_info.id,
-				'version_id': page_info.version.id,
-				
-				'context': Supra.data.get('context'),
-				'language': Supra.data.get('language')
-			}, data);
-			
-			Supra.io(url, {
-				'data': data,
-				'on': {
-					'success': function (evt, data) {
-						if (data && Y.Lang.isFunction(callback)) {
-							callback.call(context, data);
-						}
-					}
-				}
-			});
-		},
-		
-		/**
 		 * Hide editor toolbar
 		 */
 		hideEditorToolbar: function () {
