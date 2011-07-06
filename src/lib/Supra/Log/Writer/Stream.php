@@ -20,8 +20,7 @@ class Stream extends WriterAbstraction
 	 * @var array
 	 */
 	public static $defaultParameters = array(
-		'url' => null,
-		'dateFormat' => 'Ymd',
+		'url' => null
 	);
 	
 	/**
@@ -56,26 +55,25 @@ class Stream extends WriterAbstraction
 			}
 			$url = $this->parameters['url'];
 			
-			// replacement arrays
-			$replaceWhat = $replaceWith = array();
-			
-			// date handling
-			if (strpos($url, '%date%') !== false) {
-				$date = Logger::getDateInDefaultTimezone($this->parameters['dateFormat']);
-				$replaceWhat[] = '%date%';
-				$replaceWith[] = $date;
-			}
-			
-			if ( ! empty($replaceWhat)) {
-				$url = str_replace($replaceWhat, $replaceWith, $url);
-			}
+			$url = $this->formatUrl($url);
 			
 			$this->stream = @fopen($url, 'a');
 			if ($this->stream === false) {
 				throw new Exception(__CLASS__ . ': cannot open stream');
 			}
 		}
+		
 		return $this->stream;
+	}
+	
+	/**
+	 * Formats URL
+	 * @param string $url
+	 * @return string
+	 */
+	protected function formatUrl($url)
+	{
+		return $url;
 	}
 	
 	/**
