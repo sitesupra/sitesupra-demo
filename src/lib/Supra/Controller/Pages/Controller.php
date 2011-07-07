@@ -21,12 +21,10 @@ use Supra\Controller\ControllerAbstraction,
 class Controller extends ControllerAbstraction
 {
 	/**
-	 * Construct
+	 * List of block controllers
+	 * @var array
 	 */
-	public function __construct()
-	{
-		
-	}
+	private $blockControllers = array();
 	
 	/**
 	 * Downcasts receives request object into 
@@ -67,50 +65,27 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Execute controller
-	 * @return Set\RequestSet
 	 */
 	public function execute()
 	{
-		// Current request page
-		$page = $this->getRequest()
-				->getRequestPageData()
-				->getMaster();
+		$request = $this->getRequest();
 		
-		$locale = $this->getRequest()
-				->getLocale();
+		$blocks = $request->getBlockSet();
+		$layout = $request->getLayout();
+		$page = $request->getPage();
 		
-		$media = $this->getRequest()
-				->getMedia();
-		
-		$requestSet = new Set\RequestSet($locale, $media);
-		$requestSet->setDoctrineEntityManager($this->getDoctrineEntityManager());
-		$requestSet->setPage($page);
-		
-		$this->processRequestSet($requestSet);
-	}
-	
-	/**
-	 * Processes the request set object
-	 * @param Set\RequestSet $requestSet
-	 */
-	public function processRequestSet(Set\RequestSet $requestSet)
-	{
-		$blocks = $requestSet->getBlockSet();
-		$layout = $requestSet->getLayout();
-		$page = $requestSet->getPage();
-		
-		$places = $requestSet->getPlaceHolderSet();
+		$places = $request->getPlaceHolderSet();
 
-		$this->getBlockControllers($requestSet);
-		\Log::sdebug("Block controllers created for {$page}");
+		$this->findBlockControllers($request);
+		\Log::sdebug("Block controllers found for {$page}");
 		
-		$this->prepareBlockControllers($requestSet);
+		$this->prepareBlockControllers($request);
 		\Log::sdebug("Blocks prepared for {$page}");
 
-		$this->outputBlockControllers($requestSet);
+		$this->executeBlockControllers($request);
 		\Log::sdebug("Blocks executed for {$page}");
 
-		$placeResponses = $this->getPlaceResponses($requestSet);
+		$placeResponses = $this->getPlaceResponses($request);
 
 		$this->processLayout($layout, $placeResponses);
 		\Log::sdebug("Layout {$layout} processed and output to response for {$page}");
@@ -150,71 +125,52 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Create block controllers
-	 * @param Set\RequestSet $requestSet
 	 */
-	protected function getBlockControllers(Set\RequestSet $requestSet)
+	protected function findBlockControllers()
 	{
-		$blocks = $requestSet->getBlockSet();
-		$blockPropertySet = $requestSet->getBlockPropertySet();
-		
 		// function which adds controllers for the block
-		$controllerFactory = function(Entity\Abstraction\Block $block) use ($blockPropertySet) {
-			$blockController = $block->controllerFactory();
+		$controllerFactory = function(Entity\Abstraction\Block $block) {
+			$blockController = $block->createController();
 			
 			if (empty($blockController)) {
 				throw new Exception\InvalidBlockException('Block controller was not found');
 			}
 			
-			$block->setController($blockController);
-			
-			$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
-			$blockController->setBlockPropertySet($blockPropertySubset);
+			return $blockController;
 		};
 
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($blocks, $controllerFactory);
+		$this->blockControllers = $this->iterateBlocks($controllerFactory);
 	}
 	
 	/**
-	 * @param Set\RequestSet $requestSet
+	 * Prepare block controllers
 	 */
-	protected function prepareBlockControllers(Set\RequestSet $requestSet)
+	protected function prepareBlockControllers()
 	{
-		$page = $requestSet->getPage();
-		$blocks = $requestSet->getBlockSet();
-		
 		$request = $this->getRequest();
-
+		
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block) use ($page, $request) {
-			$blockController = $block->getController();
-			$blockController->setPage($page);
-			$blockResponse = $blockController->createResponse($request);
-			$blockController->prepare($request, $blockResponse);
-			
-			return $block;
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request) {
+			$block->prepareController($blockController, $request);
 		};
 
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($blocks, $prepare);
+		$this->iterateBlocks($prepare);
 	}
 
 	/**
-	 * @param Set\RequestSet $requestSet
+	 * Execute block controllers
 	 */
-	protected function outputBlockControllers(Set\RequestSet $requestSet)
+	protected function executeBlockControllers()
 	{
-		$blocks = $requestSet->getBlockSet();
-		
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block) {
-			$blockController = $block->getController();
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) {
 			$blockController->execute();
-			return $block;
 		};
 		
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($blocks, $prepare);
+		$this->iterateBlocks($prepare);
 	}
 	
 	/**
@@ -241,24 +197,27 @@ class Controller extends ControllerAbstraction
 
 	/**
 	 * Iterates through blocks and returs array of place holder responses
-	 * @param array $blocks
 	 * @return array
 	 */
-	protected function getPlaceResponses(Set\RequestSet $requestSet)
+	protected function getPlaceResponses()
 	{
-		$placeHolders = $requestSet->getPlaceHolderSet();
-		$blocks = $requestSet->getBlockSet();
-		$page = $requestSet->getPage();
+		$request = $this->getRequest();
+		
+		$placeHolders = $request->getPlaceHolderSet();
+		$page = $request->getPage();
 		
 		$finalPlaceHolders = $placeHolders->getFinalPlaceHolders();
 		
 		$placeResponses = array();
 		$controller = $this;
 
-		$collectResponses = function(Entity\Abstraction\Block $block, $placeName) 
+		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController) 
 				use (&$placeResponses, $controller, &$page, $finalPlaceHolders) {
 			
-			$response = $block->getController()->getResponse();
+			$response = $blockController->getResponse();
+			
+			$placeName = $block->getPlaceHolder()
+					->getName();
 			
 			if ( ! isset($placeResponses[$placeName])) {
 				
@@ -284,31 +243,40 @@ class Controller extends ControllerAbstraction
 		};
 
 		// Iterates through all blocks and collects placeholder responses
-		$this->iterateBlocks($blocks, $collectResponses);
+		$this->iterateBlocks($collectResponses);
 
 		return $placeResponses;
 	}
 
 	/**
 	 * Iteration funciton for specific array of blocks
-	 * @param array $blocks
 	 * @param \Closure $function
+	 * @return array
 	 */
-	protected function iterateBlocks(Set\BlockSet $blocks, \Closure $function)
+	protected function iterateBlocks(\Closure $function)
 	{
+		$blocks = $this->getRequest()
+				->getBlockSet();
+		
+		$return = array();
+		
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $index => $block) {
 			
-			$placeHolderName = $block->getPlaceHolder()
-					->getName();
+			$blockController = null;
+			if (isset($this->blockControllers[$index])) {
+				$blockController = $this->blockControllers[$index];
+			}
 			
 			try {
-				$result = $function($block, $placeHolderName);
+				$return[$index] = $function($block, $blockController);
 			} catch (Exception\InvalidBlockException $e) {
 				\Log::swarn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);
 			}
 		}
+		
+		return $return;
 	}
 	
 }

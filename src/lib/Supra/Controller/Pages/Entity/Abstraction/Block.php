@@ -3,14 +3,14 @@
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Supra\Controller\ControllerAbstraction,
-		Supra\Request,
-		Supra\Response,
 		Doctrine\Common\Collections\ArrayCollection,
 		Doctrine\Common\Collections\Collection,
 		Supra\Controller\Pages\Exception,
 		Supra\Controller\Pages\BlockController,
 		Supra\Controller\Pages\Entity\BlockProperty,
-		Supra\Editable\EditableAbstraction;
+		Supra\Editable\EditableAbstraction,
+		Supra\Controller\Pages\Request\Request,
+		Supra\Controller\Pages\Response\Block\Response;
 
 /**
  * Block database entity abstraction
@@ -31,6 +31,7 @@ class Block extends Entity
 	protected $id;
 
 	/**
+	 * @TODO: store with backslashes replaced with underscores (?)
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -55,12 +56,6 @@ class Block extends Entity
 	 */
 	protected $blockProperties;
 
-	/**
-	 * Block controller
-	 * @var BlockController
-	 */
-	protected $controller;
-	
 	/**
 	 * This property is always false for page block
 	 * @Column(type="boolean", nullable=true)
@@ -178,7 +173,7 @@ class Block extends Entity
 	 * Factory of the block controller
 	 * @return BlockController
 	 */
-	public function controllerFactory()
+	public function createController()
 	{
 		$component = $this->getComponent();
 		if ( ! class_exists($component)) {
@@ -198,20 +193,34 @@ class Block extends Entity
 
 		return $blockController;
 	}
-
+	
 	/**
-	 * @param BlockController $blockController
+	 * Prepares controller
+	 * @param BlockController $controller
+	 * @param Request $request
 	 */
-	public function setController(BlockController $blockController)
+	public function prepareController(BlockController $controller, Request $request)
 	{
-		$this->controller = $blockController;
+		// Set properties for controller
+		$blockPropertySet = $request->getBlockPropertySet();
+		$blockPropertySubset = $blockPropertySet->getBlockPropertySet($this);
+		$controller->setBlockPropertySet($blockPropertySubset);
+		
+		// Create response
+		$response = $controller->createResponse($request);
+		
+		// Prepare
+		$controller->prepare($request, $response);
+	}
+	
+	/**
+	 * Executes the controller of the block
+	 * @param BlockController $controller
+	 */
+	public function executeController(BlockController $controller)
+	{
+		// Execute
+		$controller->execute();
 	}
 
-	/**
-	 * @return BlockController
-	 */
-	public function getController()
-	{
-		return $this->controller;
-	}
 }

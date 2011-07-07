@@ -18,38 +18,30 @@ class PageAction extends SimpleController
 		//TODO: Must get real controller, should be bound somehow
 		$controller = new \Project\Pages\Controller();
 
-		$request = new \Supra\Controller\Pages\Request\RequestEdit();
-
 		//FIXME: hardcoded now
 		$locale = 'en';
 		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
-		$request->setLocale($locale);
+		$pageId = 2;
+		
+		// Create special request
+		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
+
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
 
+		// Entity manager 
 		$em = $request->getDoctrineEntityManager();
-		$pageDao = $em->getRepository(\Supra\Controller\Pages\Set\RequestSet::PAGE_ENTITY);
-//		$pageDao = $em->getRepository(\Supra\Controller\Pages\Set\RequestSet::TEMPLATE_ENTITY);
+		$pageDao = $em->getRepository(\Supra\Controller\Pages\Request\Request::PAGE_ABSTRACT_ENTITY);
 
-		//FIXME: hardcoded value
 		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
-//		$page = $pageDao->findOneById(1);
-		$page = $pageDao->findOneById(2);
+		$page = $pageDao->findOneById($pageId);
+		
 		/* @var $pageData \Supra\Controller\Pages\Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);
 		
-		$requestSet = new \Supra\Controller\Pages\Set\RequestSet($locale, $media);
-		$requestSet->setDoctrineEntityManager($em);
-		$requestSet->setPage($page);
-
 		$request->setRequestPageData($pageData);
+		$controller->execute($request);
 
-		$controller->processRequestSet($requestSet);
-
-//		$response->flushToResponse($this->response);
-		//TODO: fetch from the page controller
-//		$this->response->output(file_get_contents(__DIR__ . '/sample-acme-page.html'));
-		
 		$pathPart = null;
 		$pathPrefix = null;
 		
@@ -91,11 +83,11 @@ class PageAction extends SimpleController
 		);
 		
 		$contents = array();
-		$page = $requestSet->getPage();
-		$placeHolderSet = $requestSet->getPlaceHolderSet()
+		$page = $request->getPage();
+		$placeHolderSet = $request->getPlaceHolderSet()
 				->getFinalPlaceHolders();
-		$blockSet = $requestSet->getBlockSet();
-		$blockPropertySet = $requestSet->getBlockPropertySet();
+		$blockSet = $request->getBlockSet();
+		$blockPropertySet = $request->getBlockPropertySet();
 		
 		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {

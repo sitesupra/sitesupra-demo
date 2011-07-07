@@ -242,6 +242,12 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function getBlock()
 	{
+		// Workaround for not existent block
+		//TODO: remove
+		if (empty($this->block)) {
+			$this->block = new Entity\PageBlock();
+		}
+		
 		return $this->block;
 	}
 	
