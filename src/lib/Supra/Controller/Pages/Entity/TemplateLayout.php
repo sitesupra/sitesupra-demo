@@ -31,7 +31,7 @@ class TemplateLayout extends Abstraction\Entity
 	protected $layout;
 
 	/**
-	 * @ManyToOne(targetEntity="Template")
+	 * @ManyToOne(targetEntity="Template", inversedBy="templateLayouts")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
 	 */

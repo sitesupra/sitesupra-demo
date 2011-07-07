@@ -31,7 +31,8 @@ abstract class Page extends Entity
 	protected $data;
 
 	/**
-	 * Object's place holders
+	 * Object's place holders\
+	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $placeHolders;

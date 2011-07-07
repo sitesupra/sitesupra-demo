@@ -24,14 +24,14 @@ class BlockProperty extends Entity
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data", inversedBy="blockProperties")
 	 * @JoinColumn(name="data_id", referencedColumnName="id", nullable=false)
 	 * @var Data
 	 */
 	protected $data;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties")
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
 	 * @var Block
 	 */

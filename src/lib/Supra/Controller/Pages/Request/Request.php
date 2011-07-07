@@ -70,15 +70,9 @@ abstract class Request extends Http
 	
 	/**
 	 * @var Entity\Abstraction\Data
-	 * @TODO: remove?
 	 */
 	private $requestPageData;
 	
-//	/**
-//	 * @var Entity\Abstraction\Page
-//	 */
-//	private $page;
-//	
 	/**
 	 * @var Set\PageSet
 	 */

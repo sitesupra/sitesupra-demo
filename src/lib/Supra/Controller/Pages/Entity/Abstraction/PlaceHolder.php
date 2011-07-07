@@ -46,7 +46,7 @@ class PlaceHolder extends Entity
 	protected $blocks;
 
 	/**
-	 * @ManyToOne(targetEntity="Page")
+	 * @ManyToOne(targetEntity="Page", inversedBy="placeHolders")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=false)
 	 * @var Page
 	 */

@@ -84,7 +84,7 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 
 	/**
 	 * Template place holders
-	 * @OneToMany(targetEntity="TemplatePlaceHolder", mappedBy="template", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="TemplatePlaceHolder", mappedBy="master", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $placeHolders;

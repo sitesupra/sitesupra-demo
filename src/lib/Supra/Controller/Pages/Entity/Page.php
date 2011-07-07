@@ -85,7 +85,7 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 
 	/**
 	 * Page place holders
-	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="page", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="master", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $placeHolders;

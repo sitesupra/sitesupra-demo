@@ -52,6 +52,10 @@ $commands = array (
     'comment' => 'Generate repository classes from your mapping information.',
   ),
   array (
+    'command' => 'orm:info',
+    'comment' => 'Show basic information about all mapped entities.',
+  ),
+  array (
     'command' => 'orm:run-dql',
     'comment' => 'Executes arbitrary DQL directly from the command line.',
   ),
