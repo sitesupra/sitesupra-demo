@@ -5,7 +5,7 @@ define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_
 
 require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
 
-$configFile = 'cli-config.php';
+$configFile = __DIR__ . '/cli-config.php';
 
 $helperSet = null;
 if (file_exists($configFile)) {
