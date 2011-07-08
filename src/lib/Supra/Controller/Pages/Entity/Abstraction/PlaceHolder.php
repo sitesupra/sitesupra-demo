@@ -141,5 +141,21 @@ class PlaceHolder extends Entity
 	{
 		return $this->master;
 	}
+	
+	/**
+	 * @return int
+	 */
+	public function getMaxBlockPosition()
+	{
+		$blocks = $this->getBlocks();
+		$sort = null;
+		
+		/* @var $block Block */
+		foreach ($blocks as $block) {
+			$sort = max($sort, $block->getPosition());
+		}
+		
+		return $sort;
+	}
 
 }

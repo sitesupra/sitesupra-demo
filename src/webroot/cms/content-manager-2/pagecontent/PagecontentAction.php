@@ -12,7 +12,8 @@ class PagecontentAction extends SimpleController
 	public function insertblockAction()
 	{
 		//FIXME: hardcoded now
-		$locale = $_GET['locale'];
+		$locale = $_GET['language'];
+		$locale = 'en';
 		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
 		$pageId = $_GET['page_id'];
 		$placeHolderName = $_GET['placeholder_id'];
