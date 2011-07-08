@@ -84,7 +84,6 @@ YUI.add("supra.input-string", function (Y) {
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
 				if (e.ctrlKey && key == 118) return;
-				console.log(mask, mask.toString());
 				if (!mask.test(value)) return e.halt();
 			}
 		},

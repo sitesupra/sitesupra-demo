@@ -60,10 +60,21 @@ Supra(function (Y) {
 		},
 		
 		/**
-		 * Render widgets
+		 * Render widgets, bind listeners
 		 * @private
 		 */
-		render: function () {},
+		render: function () {
+			//Bind to editing-start / end to change title in header
+			Manager.getAction('PageContent').on('activeContentChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					if (evt.newVal) {
+						this.setPageTitle(this.data.title, evt.newVal.getTitle());
+					} else {
+						this.setPageTitle(this.data.title);
+					}
+				}
+			}, this);
+		},
 		
 		/**
 		 * Execute action
@@ -72,7 +83,7 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load data
-			this.loadPageData(data ? data.id : '');
+			this.loadPage(data ? data.id : '');
 			
 			//Load all other actions
 			Manager.executeAction('Blocks');
@@ -84,23 +95,6 @@ Supra(function (Y) {
 				Manager.executeAction('PageContent');
 			});
 			
-			//Bind to editing-start / end to change title in header
-			var content = Manager.getAction('PageContent');
-			
-			content.on('activeContentChange', function (evt) {
-				if (evt.newVal) {
-					var content = evt.newVal;
-					var block_type = content.get('data').type;
-					var block = Manager.Blocks.getBlock(block_type);
-					
-					this.setPageTitle(this.data.title, block.title);
-					
-					Manager.PageContent.startEditing();
-				} else {
-					this.setPageTitle(this.data.title);
-				}
-			}, this);
-			
 			//Show all actions
 			Manager.getAction('PageContent').show();
 		},
@@ -111,23 +105,101 @@ Supra(function (Y) {
 		 * @param {Number} page_id
 		 * @private
 		 */
-		loadPageData: function (page_id) {
+		loadPage: function (page_id) {
 			this.loading = true;
 			this.data = null;
 			
 			Supra.io(this.getDataPath(), {
 				'data': {'id': page_id},
 				'on': {
-					'success': function (evt, data) {
-		    			this.loading = false;
-						this.data = data;
-						this.setPageTitle(data.title);
-						
-						this.fire('loaded', {'data': data});
-					}
+					'success': this.onLoadComplete
 				}
 			}, this);
 		},
+		
+		/**
+		 * On page load complete update data
+		 * 
+		 * @param {Number} transaction Request transaction ID
+		 * @param {Object} data Response JSON data
+		 */
+		onLoadComplete: function (transaction, data) {
+			this.loading = false;
+			this.data = data;
+			this.setPageTitle(data.title);
+			
+			this.fire('loaded', {'data': data});
+		},
+		
+		/**
+		 * Publish page
+		 */
+		publishPage: function () {
+			var uri = this.getDataPath('save'),
+				page_data = this.data;
+			
+			var post_data = {
+				'page': page_data.id,
+				'version': page_data.version.id,
+				'language': Supra.data.get('language'),
+				'action': 'publish'
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'on': {
+					'success': this.onPublishComplete
+				}
+			}, this);
+		},
+		
+		/**
+		 * On save complete update page data
+		 * 
+		 * @param {Number} transaction Request transaction ID
+		 * @param {Object} data Response JSON data
+		 */
+		onPublishComplete: function (transaction, data) {
+			this.setPageData({
+				'version': data
+			});
+		},
+		
+		/**
+		 * Delete page
+		 */
+		deletePage: function () {
+			var uri = this.getDataPath('delete'),
+				page_data = this.data;
+			
+			var post_data = {
+				'page': page_data.id,
+				'version': page_data.version.id,
+				'language': Supra.data.get('language'),
+				'action': 'delete'
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'on': {
+					'success': this.onDeleteComplete
+				}
+			}, this);
+		},
+		
+		/**
+		 * On delete request complete load new page
+		 * 
+		 * @param {Number} transaction Request transaction ID
+		 * @param {Object} data Response JSON data
+		 */
+		onDeleteComplete: function (transaction, data) {
+			//Data is page ID which should be loaded next (parent page?)
+			this.loadPage(data);
+		},
+		
 		
 		/**
 		 * Returns page data if page is loaded, otherwise null
@@ -203,20 +275,6 @@ Supra(function (Y) {
 			} else {
 				header.addItem('page', {'title': html});
 			}
-		},
-		
-		/**
-		 * Hide editor toolbar
-		 */
-		hideEditorToolbar: function () {
-			Manager.getAction('EditorToolbar').hide();
-		},
-		
-		/**
-		 * Show editor toolbar
-		 */
-		showEditorToolbar: function () {
-			Manager.getAction('EditorToolbar').execute();
 		}
 	});
 	

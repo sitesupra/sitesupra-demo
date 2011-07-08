@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.medialibrary-list-extended', function (Y) {
+SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y) {
 	
 	//Toolbar buttons
 	var TOOLBAR_BUTTONS = [
@@ -98,7 +98,7 @@ SU('supra.medialibrary-list-extended', function (Y) {
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'close',
+				'id': 'done',
 				'callback': Y.bind(function () {
 					this.hide();
 				}, this)
@@ -114,6 +114,12 @@ SU('supra.medialibrary-list-extended', function (Y) {
 				'saveURI': this.getDataPath('save') + '.php',
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
+			
+			//Add file upload support
+			list.plug(Supra.MediaLibraryList.Upload, {
+				'requestUri': this.getDataPath('upload') + '.php',
+				'dragContainer': new Y.Node(document.body)
+			});
 			
 			//Create "Sort by" widget
 			var input = this.input_sortby = new Supra.Input.SelectList({
@@ -134,7 +140,7 @@ SU('supra.medialibrary-list-extended', function (Y) {
 		handleToolbarButton: function (button_id) {
 			switch (button_id) {
 				case 'mlupload':
-					//@TODO
+					this.medialist.upload.openBrowser();
 					break;
 				case 'mlfolder':
 					var folder = this.medialist.getSelectedFolder() || {'id': 0};
@@ -166,7 +172,7 @@ SU('supra.medialibrary-list-extended', function (Y) {
 			
 			//If editor toolbar was visible before, then show it now
 			if (this.editor_toolbar_visible) {
-				Manager.getAction('Page').showEditorToolbar();
+				Manager.getAction('EditorToolbar').execute();
 			}
 		},
 		
@@ -180,7 +186,7 @@ SU('supra.medialibrary-list-extended', function (Y) {
 			//Hide editor toolbar if it's visible
 			if (Manager.getAction('EditorToolbar').get('visible')) {
 				this.editor_toolbar_visible = true;
-				Manager.getAction('Page').hideEditorToolbar();
+				Manager.getAction('EditorToolbar').hide();
 			} else {
 				this.editor_toolbar_visible = false;
 			}

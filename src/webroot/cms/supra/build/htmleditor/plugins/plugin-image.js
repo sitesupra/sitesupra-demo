@@ -5,7 +5,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 	};
 	
 	var defaultProps = {
-		'type': 'image',
+		'type': null,
 		'title': '',
 		'description': '',
 		'align': 'right',
@@ -353,6 +353,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 						imageData = this.htmleditor.getData(imageId);
 					
 					var data = Supra.mix({}, defaultProps, {
+						'type': this.NAME,
 						'title': data.title,
 						'description': data.description,
 						'align': imageData.align,
@@ -375,6 +376,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					//Find image by size and set initial image properties
 					var src = this.getImageURLBySize(data);
 					var data = Supra.mix({}, defaultProps, {
+						'type': this.NAME,
 						'title': data.title,
 						'description': data.description,
 						'image': data	//Original image data
@@ -422,6 +424,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			//Set additional image properties
 			var data = Supra.mix({}, defaultProps, {
+				'type': this.NAME,
 				'title': image_data.title,
 				'description': image_data.description,
 				'image': image_data	//Original image data
@@ -456,58 +459,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			} catch (err) {}
 		},
 			
-		/**
-		 * Initialize plugin for editor,
-		 * Called when editor instance is initialized
-		 * 
-		 * @param {Object} htmleditor HTMLEditor instance
-		 * @constructor
-		 */
-		init: function (htmleditor, configuration) {
-			var mediasidebar = Manager.getAction('MediaSidebar'),
-				toolbar = htmleditor.get('toolbar'),
-				button = toolbar ? toolbar.getButton('insertimage') : null;
-			
-			// Add command
-			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaSidebar, this));
-			
-			//When image looses focus hide settings form
-			htmleditor.on('selectionChange', this.settingsFormApply, this);
-			
-			// When clicking on image show image settings
-			var container = htmleditor.get('srcNode');
-			container.delegate('click', Y.bind(this.showImageSettings, this), 'img');
-			
-			if (button) {
-				//When media library is shown/hidden make button selected/unselected
-				mediasidebar.after('visibleChange', function (evt) {
-					button.set('down', evt.newVal);
-				});
-				
-				//When un-editable node is selected disable mediasidebar toolbar button
-				htmleditor.on('editingAllowedChange', function (event) {
-					button.set('disabled', !event.allowed);
-				});
-			}
-			
-			//When media library is hidden show settings form if image is selected
-			mediasidebar.on('hide', function () {
-				if (this.selected_image) {
-					Manager.executeAction('PageContentSettings', this.settings_form);
-				}
-			}, this);
-			
-			//Hide media library when editor is closed
-			htmleditor.on('disable', this.hideMediaSidebar, this);
-			htmleditor.on('disable', this.settingsFormApply, this);
-			
-			//Disable image object resizing
-			this.disableImageObjectResizing();
-			htmleditor.on('enable', this.disableImageObjectResizing, this);
-			
-			this.bindUIDnD(htmleditor);
-		},
-		
 		/**
 		 * Handle drag end (success or failure)
 		 */
@@ -627,12 +578,66 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 		} : function (e) {}),
 		
+		
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			var mediasidebar = Manager.getAction('MediaSidebar'),
+				toolbar = htmleditor.get('toolbar'),
+				button = toolbar ? toolbar.getButton('insertimage') : null;
+			
+			// Add command
+			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaSidebar, this));
+			
+			//When image looses focus hide settings form
+			htmleditor.on('selectionChange', this.settingsFormApply, this);
+			
+			// When clicking on image show image settings
+			var container = htmleditor.get('srcNode');
+			container.delegate('click', Y.bind(this.showImageSettings, this), 'img');
+			
+			if (button) {
+				//When media library is shown/hidden make button selected/unselected
+				mediasidebar.after('visibleChange', function (evt) {
+					button.set('down', evt.newVal);
+				});
+				
+				//When un-editable node is selected disable mediasidebar toolbar button
+				htmleditor.on('editingAllowedChange', function (event) {
+					button.set('disabled', !event.allowed);
+				});
+			}
+			
+			//When media library is hidden show settings form if image is selected
+			mediasidebar.on('hide', function () {
+				if (this.selected_image) {
+					Manager.executeAction('PageContentSettings', this.settings_form);
+				}
+			}, this);
+			
+			//Hide media library when editor is closed
+			htmleditor.on('disable', this.hideMediaSidebar, this);
+			htmleditor.on('disable', this.settingsFormApply, this);
+			
+			//Disable image object resizing
+			this.disableImageObjectResizing();
+			htmleditor.on('enable', this.disableImageObjectResizing, this);
+			
+			this.bindUIDnD(htmleditor);
+		},
+		
 		/**
 		 * Clean up node
-		 * Remove all styles from node
+		 * Remove all styles and data about node
 		 */
 		cleanUp: function (target, data) {
-			if (target.test('img') && data && data.type == 'image') {
+			if (target.test('img') && data && data.type == this.NAME) {
 				this.htmleditor.removeData(target);
 				this.setImageProperty('style', '', target);
 				this.setImageProperty('align', '', target);
@@ -645,8 +650,46 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		destroy: function () {
 			
-		}
+		},
 		
+		/**
+		 * Process HTML and replace all nodes with macros {supra.image id="..."}
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {HTML}
+		 */
+		processHTML: function (html) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			html = html.replace(/<img [^>]*id="([^"]+)"[^>]*>/ig, function (html, id) {
+				if (!id) return html;
+				var data = htmleditor.getData(id);
+				
+				if (data && data.type == NAME) {
+					return '{supra.' + NAME + ' id="' + id + '"}';
+				} else {
+					return html;
+				}
+			});
+			return html;
+		},
+		
+		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save
+		 * 
+		 * @param {String} id Data ID
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (id, data) {
+			data.image = data.image.id;
+			return data;
+		}
 	});
 	
 	

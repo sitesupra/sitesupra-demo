@@ -24,7 +24,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.NAME = 'medialist';
 	Extended.CLASS_NAME = Y.ClassNameManager.getClassName(Extended.NAME);
 	
-	
 	/**
 	 * Constant, file template
 	 * @type {String}
@@ -71,6 +70,16 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="center"><button type="button">Replace</button></div>\
 		</div>';
 	
+	/**
+	 * Constant, folder item template for temporary file
+	 * @type {String}
+	 */
+	Extended.TEMPLATE_FOLDER_ITEM_TEMP = '\
+		<li class="type-temp" data-id="{id}">\
+			<span class="title">{title_escaped}</span>\
+			<span class="progress"><em></em></span>\
+		</li>';
+	
 	
 	Extended.ATTRS = {
 		/**
@@ -97,6 +106,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		'templateImage': {
 			value: Extended.TEMPLATE_IMAGE
+		},
+		'templateFolderItemTemp': {
+			value: Extended.TEMPLATE_FOLDER_ITEM_TEMP
 		}
 	};
 	
@@ -171,6 +183,59 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Add file
+		 */
+		addFile: function (parent, data) {
+			var parent_id = null,
+				parent_data = null;
+			
+			if (parent) {
+				parent_id = parent;
+				parent_data = this.getItemData(parent_id);
+				
+				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
+					return false;
+				}
+			} else {
+				parent_data = this.getSelectedFolder();
+				if (parent_data) {
+					parent_id = parent_data.id;
+				} else {
+					parent_id = this.get('rootFolderId');
+					parent_data = {'id': parent_id};
+				}
+			}
+			
+			if (parent_data) {
+				//Don't have an ID for this item yet, generate random number
+				var file_id = -(~~(Math.random() * 64000));
+				
+				//If there is no slide, then skip
+				var slide = this.slideshow.getSlide('slide_' + parent_id);
+				if (!slide) {
+					return file_id;
+				}
+				
+				var data = Supra.mix({
+					id: file_id,
+					parent: parent_id,
+					type: Supra.MediaLibraryData.TYPE_TEMP,
+					title: ''
+				}, data || {});
+				
+				data[this.get('thumbnailSize') + '_url'] = null;
+				
+				//Add item to the file list
+				this.renderItem(parent_id, [data], true);
+				this.get('dataObject').addData(parent_id, [data]);
+				
+				return file_id;
+			}
+			
+			return null;
 		},
 		
 		/**

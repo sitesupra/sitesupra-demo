@@ -1,9 +1,9 @@
-YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
+YUI().add('supra.htmleditor-plugin-link', function (Y) {
 	
 	var defaultConfiguration = {
 	};
 	
-	SU.HTMLEditor.addPlugin('insertlink', defaultConfiguration, {
+	SU.HTMLEditor.addPlugin('link', defaultConfiguration, {
 		
 		/**
 		 * Link editor is visible
@@ -72,6 +72,7 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 					href = this.normalizeHref(data.href),
 					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Lang.escapeHTML(data.title || '') + '" href="' + href + '">' + text + '</a>';
 				
+				data.type = this.NAME;
 				htmleditor.setData(uid, data)
 				htmleditor.replaceSelection(html, null);
 			}
@@ -98,7 +99,7 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 			
 			if (!data) {
 				data = {
-					'type': 'link',
+					'type': this.NAME,
 					'title': target.getAttribute('title'),
 					'target': target.getAttribute('target'),
 					'href': this.normalizeHref(target.getAttribute('href'))
@@ -117,6 +118,7 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		 */
 		editLinkConfirmed: function (data, target) {
 			if (data && data.href) {
+				data.type = this.NAME;
 				this.htmleditor.setData(target, data);
 				
 				//HREF attribute
@@ -259,7 +261,52 @@ YUI().add('supra.htmleditor-plugin-insertlink', function (Y) {
 		 * Clean up after plugin
 		 * Called when editor instance is destroyed
 		 */
-		destroy: function () {}
+		destroy: function () {},
+		
+		
+		/**
+		 * Process HTML and replace all nodes with macros {supra.image id="..."}
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {HTML}
+		 */
+		processHTML: function (html) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			//Opening tag
+			html = html.replace(/<a [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
+				if (!id) return html;
+				var data = htmleditor.getData(id);
+				
+				if (data && data.type == NAME) {
+					return '{supra.' + NAME + ' id="' + id + '"}';
+				} else {
+					return html;
+				}
+			});
+			
+			//Closing tag
+			html = html.replace(/<\/a[^>]*>/g, '{/supra.' + NAME + '}');
+			
+			return html;
+		},
+		
+		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save
+		 * 
+		 * @param {String} id Data ID
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (id, data) {
+			data.image = data.image.id;
+			return data;
+		}
 		
 	});
 	

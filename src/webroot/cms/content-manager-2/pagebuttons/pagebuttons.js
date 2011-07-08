@@ -11,7 +11,8 @@ SU('anim', function (Y) {
 		'close':	{'label': 'Close'},
 		'save': 	{'label': 'Save'},
 		'publish':	{'label': 'Publish', 'style': 'mid-blue'},
-		'apply':	{'label': 'Apply', 'style': 'mid-blue'}
+		'apply':	{'label': 'Apply', 'style': 'mid-blue'},
+		'done':		{'label': 'Done', 'style': 'mid-blue'}
 	};
 	var BUTTON_DEFAULT_CONF = {
 		'type': 'button',

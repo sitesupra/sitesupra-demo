@@ -23,9 +23,7 @@ YUI.add('supra.page-content-list', function (Y) {
 	
 	ContentList.NAME = 'page-content-list';
 	ContentList.CLASS_NAME = Y.ClassNameManager.getClassName(ContentList.NAME);
-	ContentList.ATTRS = {
-		'title': 'Block list'
-	};
+	ContentList.ATTRS = {};
 	
 	Y.extend(ContentList, Action.Proto, {
 		drag_delegate: null,
@@ -62,10 +60,10 @@ YUI.add('supra.page-content-list', function (Y) {
 			//On new block drop create it and start editing
 			this.on('dragend:hit', function (e) {
 				
-				Manager.PageContent.getBlockInsertData({
+				this.get('super').getBlockInsertData({
 					'type': e.block.id,
 					'placeholder_id': this.getId()
-				}, this.createBlockFromData, this);
+				}, this.createChildFromData, this);
 				
 				return false;
 			}, this);
@@ -78,8 +76,8 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * 
 		 * @param {Object} data Block data
 		 */
-		createBlockFromData: function (data) {
-			var block = this.createBlock({
+		createChildFromData: function (data) {
+			var block = this.createChild({
 				'id': data.id,
 				'locked': false,
 				'type': data.type,
@@ -90,6 +88,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				'editable': true
 			});
 			
+			//When new item is created focus on it
 			this.get('super').set('activeContent', block);
 		},
 		

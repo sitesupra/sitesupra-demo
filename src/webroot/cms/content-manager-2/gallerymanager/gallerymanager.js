@@ -127,12 +127,14 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': 'Apply', 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': 'Done', 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.settingsFormApply, this);
 			
 			//Close button
+			/*
 			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
 				btn.render(buttons).on('click', this.settingsFormCancel, this);
+			*/
 			
 			//Delete button
 			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
@@ -171,13 +173,15 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//Buttons
 			var buttons = this.getContainer('.yui3-form-buttons');
 			
-			//Apply button
-			var btn = new Supra.Button({'label': 'Apply', 'style': 'mid-blue'});
+			//Done button
+			var btn = new Supra.Button({'label': 'Done', 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.applyChanges, this);
 			
 			//Close button
+			/*
 			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
 				btn.render(buttons).on('click', this.cancelChanges, this);
+			*/
 			
 			this.bindDragDrop();
 			

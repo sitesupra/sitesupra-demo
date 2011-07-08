@@ -72,9 +72,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 			value: false,
 			setter: '_setHighlightOverlay'
 		},
-		'title': {
-			value: ''
-		},
 		
 		/**
 		 * HTML which will be used instead of DOM
@@ -89,40 +86,55 @@ YUI.add('supra.page-content-proto', function (Y) {
 		node: null,
 		overlay: null,
 		
-		destructor: function () {
-			if (this.get('editing')) {
-				this.get('super').set('activeContent', null);
-			}
-			
-			if (this.overlay) {
-				this.overlay.remove();
-			}
-			
-			var node = this.getNode();
-			if (node) {
-				node.remove();
-			}
-		},
-		
+		/**
+		 * Returns block type
+		 * 
+		 * @return Block type
+		 * @type {String}
+		 */
 		getType: function () {
 			var data = this.get('data');
 			return (data ? data.type : null);
 		},
 		
+		/**
+		 * Returns block instance ID (content ID)
+		 * 
+		 * @return ID
+		 * @type {Number}
+		 */
 		getId: function () {
 			var data = this.get('data');
 			return (data ? data.id : null);
 		},
 		
+		/**
+		 * Returns block title
+		 * 
+		 * @return Block title
+		 * @type {String}
+		 */
+		getTitle: function () {
+			return this.getBlock().title;
+		},
+		
+		/**
+		 * Returns container node ID which is inside content
+		 * 
+		 * @return Container node ID
+		 * @type {String}
+		 */
 		getNodeId: function () {
 			var id = 'content_' + this.getType() + '_' + this.getId();
 			return id;
 		},
 		
-		getTitle: function () {
-			return this.get('title');
-		},
-		
+		/**
+		 * Returns container node inside content
+		 * 
+		 * @return Container node
+		 * @type {Object}
+		 */
 		getNode: function () {
 			if (!this.node) {
 				this.node = this.get('body').one('#' + this.getNodeId());
@@ -130,123 +142,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return this.node;
 		},
 		
-		render: function () {
-			this.renderUI();
-			this.bindUI();
-			
-			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(this.syncUI, this), 1);
-		},
-		
-		bindUI: function () {
-			if (this.get('editable') && this.overlay) {
-				this.overlay.on('click', function() {
-					
-					this.get('super').set('activeContent', this);
-					
-				}, this);
-				
-				//Handle block save / cancel
-				this.on('block:save', function () {
-					// Unset active content
-					this.get('super').set('activeContent', null);
-				});
-				this.on('block:cancel', function () {
-					// Unset active content
-					this.get('super').set('activeContent', null);
-				});
-			}
-		},
-		
-		syncUI: function (traverse) {
-			if (this.overlay) {
-				var node = this.getNode();
-				var w = node.get('offsetWidth'), h = node.get('offsetHeight');
-			
-				this.overlay.setStyles({
-					width: w + 'px',
-					height: h + 'px'
-				});
-			}
-			
-			if (traverse !== false) {
-				for (var i in this.children) {
-					this.children[i].syncUI();
-				}
-			}
-		},
-		
-		renderOverlay: function () {
-			var div = new Y.Node(this.get('doc').createElement('DIV')),
-				html = HTML_CLICK;
-			
-			this.overlay = div;
-			
-			if (this.get('dragable')) {
-				this.overlay.addClass(CLASSNAME_DRAGABLE);
-				html = HTML_CLICK_DRAG;
-			}
-			
-			this.overlay.addClass(CLASSNAME_OVERLAY);
-			this.overlay.set('innerHTML', html);
-			this.getNode().insert(div, 'before');
-		},
-		
-		createBlock: function (data, attrs) {
-			var win = this.get('win');
-			var doc = this.get('doc');
-			var body = this.get('body');
-			
-			var type = data.type;
-			var properties = Manager.Blocks.getBlock(type);
-			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
-			
-			if (classname in Action) {
-				var block = this.children[data.id] = new Action[classname](SU.mix(attrs || {}, {
-					'doc': doc,
-					'win': win,
-					'body': body,
-					'data': data,
-					'parent': this,
-					'super': this.get('super')
-				}));
-				block.render();
-			} else {
-				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
-			}
-			
-			return block;
-		},
-		
-		renderUI: function () {
+		/**
+		 * Returns block information
+		 * 
+		 * @return Block information
+		 * @type {Object}
+		 */
+		getBlock: function () {
 			var data = this.get('data');
-			
-			if ('contents' in data) {
-				for(var i=0,ii=data.contents.length; i<ii; i++) {
-					this.createBlock(data.contents[i], {
-						'dragable': !data.contents[i].locked && !this.isLocked(),
-						'editable': !data.contents[i].locked
-					});
-				}
-			}
-			
-			if (!this.getNode()) {
-				var type = data.type,
-					id = data.id,
-					classname_type = CLASSNAME + '-' + type,
-					node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
-				
-				this.node = node;
-				this.get('parent').getNode().append(node);
-			}
-			
-			if (this.get('dragable')) {
-				if (!this.isLocked()) {
-					this.set('dragable', true);
-				} else {
-					this.set('dragable', false);
-				}
-			}
+			return data && data.type ? Manager.Blocks.getBlock(data.type) : null;
+		},
+		
+		/**
+		 * Returns all block properties
+		 * 
+		 * @return List of block properties
+		 * @type {Object}
+		 */
+		getProperties: function () {
+			var block = this.getBlock();
+			return block ? block.properties : null;
 		},
 		
 		/**
@@ -265,6 +180,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 						return true;
 					}
 				}
+			} else if (!data.allow) {
+				return true;
 			}
 			return false;
 		},
@@ -298,7 +215,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 		},
 		
-		
+		/**
+		 * Remove child
+		 * 
+		 * @param {Object} child
+		 */
 		removeChild: function (child) {
 			for(var i in this.children) {
 				if (this.children[i] === child) {
@@ -309,19 +230,185 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Returns all block properties
+		 * Create child block
 		 * 
-		 * @return List of block properties
-		 * @type {Object}
+		 * @param {Object} data
+		 * @param {Object} attrs
 		 */
-		getProperties: function () {
-			var data = this.get('data'),
-				type = data && data.type ? data.type : null,
-				properties = type ? Manager.Blocks.getBlock(type) : null;
+		createChild: function (data, attrs) {
+			var win = this.get('win');
+			var doc = this.get('doc');
+			var body = this.get('body');
 			
-			return properties ? properties.properties : null;
+			var type = data.type;
+			var properties = Manager.Blocks.getBlock(type);
+			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
+			
+			if (classname in Action) {
+				var block = this.children[data.id] = new Action[classname](SU.mix(attrs || {}, {
+					'doc': doc,
+					'win': win,
+					'body': body,
+					'data': data,
+					'parent': this,
+					'super': this.get('super')
+				}));
+				block.render();
+			} else {
+				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
+			}
+			
+			return block;
 		},
 		
+		
+		/**
+		 * Render widget
+		 * 
+		 * @private
+		 */
+		render: function () {
+			this.renderUI();
+			this.bindUI();
+			
+			//Use timeout to make sure everything is styled before doing sync
+			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+		},
+		
+		/**
+		 * Bind event listeners
+		 * 
+		 * @private
+		 */
+		bindUI: function () {
+			if (this.get('editable') && this.overlay) {
+				this.overlay.on('click', function() {
+					this.get('super').set('activeContent', this);
+				}, this);
+				
+				//Handle block save / cancel
+				this.on('block:save', function () {
+					// Unset active content
+					if (this.get('super').get('activeContent') === this) {
+						this.get('super').set('activeContent', null);
+					}
+				});
+				this.on('block:cancel', function () {
+					// Unset active content
+					this.unresolved_changes = false;
+					if (this.get('super').get('activeContent') === this) {
+						this.get('super').set('activeContent', null);
+					}
+				});
+			}
+		},
+		
+		/**
+		 * Update overlay position
+		 * 
+		 * @param {Boolean} traverse Traverse children and update their overlays
+		 */
+		syncOverlayPosition: function (traverse) {
+			if (this.overlay) {
+				var node = this.getNode();
+				var w = node.get('offsetWidth'), h = node.get('offsetHeight');
+			
+				this.overlay.setStyles({
+					width: w + 'px',
+					height: h + 'px'
+				});
+			}
+			
+			if (traverse !== false) {
+				for (var i in this.children) {
+					this.children[i].syncOverlayPosition();
+				}
+			}
+		},
+		
+		/**
+		 * Render UI (create nodes, widgets, etc)
+		 * 
+		 * @private
+		 */
+		renderUI: function () {
+			var data = this.get('data');
+			
+			if ('contents' in data) {
+				for(var i=0,ii=data.contents.length; i<ii; i++) {
+					this.createChild(data.contents[i], {
+						'dragable': !data.contents[i].locked && !this.isLocked(),
+						'editable': !data.contents[i].locked
+					});
+				}
+			}
+			
+			if (!this.getNode()) {
+				var type = data.type,
+					id = data.id,
+					classname_type = CLASSNAME + '-' + type,
+					node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
+				
+				this.node = node;
+				this.get('parent').getNode().append(node);
+			}
+			
+			if (this.get('dragable')) {
+				if (!this.isLocked()) {
+					this.set('dragable', true);
+				} else {
+					this.set('dragable', false);
+				}
+			}
+		},
+		
+		/**
+		 * Destructor
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.get('editing')) {
+				this.get('super').set('activeContent', null);
+			}
+			
+			if (this.overlay) {
+				this.overlay.remove();
+			}
+			
+			var node = this.getNode();
+			if (node) {
+				node.remove();
+			}
+		},
+		
+		/**
+		 * Render oberlay
+		 * 
+		 * @private
+		 */
+		renderOverlay: function () {
+			var div = new Y.Node(this.get('doc').createElement('DIV')),
+				html = HTML_CLICK;
+			
+			this.overlay = div;
+			
+			if (this.get('dragable')) {
+				this.overlay.addClass(CLASSNAME_DRAGABLE);
+				html = HTML_CLICK_DRAG;
+			}
+			
+			this.overlay.addClass(CLASSNAME_OVERLAY);
+			this.overlay.set('innerHTML', html);
+			this.getNode().insert(div, 'before');
+		},
+		
+		/**
+		 * dragable attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @private
+		 */
 		_setDragable: function (value) {
 			var node = this.overlay;
 			
@@ -336,29 +423,43 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return !!value;
 		},
 		
+		/**
+		 * editing attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @private
+		 */
 		_setEditing: function (value) {
 			if (value == this.get('editing')) return !!value;
 			
 			if (value) {
-				if (this.overlay) {
-					this.overlay.addClass(CLASSNAME_EDITING);
-				}
+				if (this.overlay) this.overlay.addClass(CLASSNAME_EDITING);
 				this.getNode().addClass(CLASSNAME_EDITING);
 				
+				//Fire editing-start event and propagate up to parent
 				this.fire('editing-start');
 				this.get('super').fire('editing-start', this.get('data'));
 			} else {
 				if (this.overlay) this.overlay.removeClass(CLASSNAME_EDITING);
 				this.getNode().removeClass(CLASSNAME_EDITING);
 				
+				//Fire editing-end event and propagate up to parent
 				this.fire('editing-end');
 				this.get('super').fire('editing-end', this.get('data'));
-				this.syncUI();
+				
+				//Update overlay position
+				this.syncOverlayPosition();
 			}
 			
 			return !!value;
 		},
 		
+		/**
+		 * highlightOverlay attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @private
+		 */
 		_setHighlightOverlay: function (value) {
 			if (!this.overlay) return false;
 			if (value == this.get('highlightOverlay')) return !!value;
@@ -372,9 +473,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return !!value;
 		},
 		
+		/**
+		 * highlight attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @private
+		 */
 		_setHighlight: function (value) {
 			if (value) {
-				this.getNode().addClass('yui3-highlight-' + this.get('data').type);
+				this.getNode().addClass('yui3-highlight-' + this.getType());
 				if (this.get('editing')) {
 					this.set('editing', false);
 				}
@@ -382,7 +489,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					this.set('highlightOverlay', false);
 				}
 			} else {
-				this.getNode().removeClass('yui3-highlight-' + this.get('data').type);
+				this.getNode().removeClass('yui3-highlight-' + this.getType());
 			}
 			
 			return !!value;

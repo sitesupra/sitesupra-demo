@@ -40,7 +40,7 @@
 	bottom: 1px;
 }
 .yui3-medialibrary .yui3-medialist ul.folder > li {
-	border: 1px solid #fff;
+	border: 1px solid transparent;
 	border-bottom: 0;
 	padding: 3px 3px 3px 5px;
 }

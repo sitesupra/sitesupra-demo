@@ -36,6 +36,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 	Data.TYPE_FOLDER = 1;
 	Data.TYPE_IMAGE = 2;
 	Data.TYPE_FILE = 3;
+	Data.TYPE_TEMP = 4;
 	
 	Data.prototype = {
 		

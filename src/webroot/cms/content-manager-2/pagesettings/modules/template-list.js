@@ -16,7 +16,13 @@ YUI.add("website.template-list", function (Y) {
 	TemplateList.NAME = "template-list";
 	TemplateList.CLASS_NAME = Y.ClassNameManager.getClassName(TemplateList.NAME);
 	TemplateList.ATTRS = {
-		'uri': null
+		'requestUri': {
+			value: null
+		},
+		'template': {
+			value: null,
+			setter: '_setTemplate'
+		}
 	};
 	
 	TemplateList.HTML_PARSER = {};
@@ -36,7 +42,7 @@ YUI.add("website.template-list", function (Y) {
 		 * @private
 		 */
 		_loadTemplates: function () {
-			var uri = this.get('uri');
+			var uri = this.get('requestUri');
 			Supra.io(uri, this._loadTemplatesComplete, this);
 		},
 		
@@ -52,6 +58,17 @@ YUI.add("website.template-list", function (Y) {
 			this.syncUI();
 		},
 		
+		/**
+		 * Set selected template
+		 */
+		_setTemplate: function (value) {
+			this.get('contentBox').all('li').removeClass('selected').each(function () {
+				if (this.getData('template_id') == value) {
+					this.addClass('selected');
+				}
+			});
+		},
+		
 		syncUI: function () {
 			TemplateList.superclass.syncUI.apply(this, arguments);
 			
@@ -63,7 +80,8 @@ YUI.add("website.template-list", function (Y) {
 			
 			var content = this.get('contentBox'),
 				template,
-				item;
+				item,
+				selected = this.get('template');
 			
 			//Remove old items
 			content.all('li').remove();
@@ -72,7 +90,7 @@ YUI.add("website.template-list", function (Y) {
 			for(var i=0,ii=templates.length; i<ii; i++) {
 				template = templates[i];
 				
-				item = Y.Node.create('<li class="clearfix"><div><img src="' + template.img + '" alt="" /></div><p>' + Y.Lang.escapeHTML(template.title) + '</p></li>');
+				item = Y.Node.create('<li class="clearfix ' + (selected == template.id ? 'selected' : '') + '"><div><img src="' + template.img + '" alt="" /></div><p>' + Y.Lang.escapeHTML(template.title) + '</p></li>');
 				item.setData('template_id', template.id);
 				
 				content.append(item);

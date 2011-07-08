@@ -224,11 +224,11 @@ if (typeof Supra === "undefined") {
 		/**
 		 * Mix together
 		 * 
-		 * @param {String} key
-		 * @param {Object} value
+		 * @param {Object} target
+		 * @param {Object} source
 		 */
-		mix: function (key, value) {
-			Supra.data.set(key, Supra.Y.mix(value, Supra.data.get(key, {}), false, null, 0, 2));
+		mix: function (target, source) {
+			Supra.data.set(target, Supra.Y.mix(source, Supra.data.get(target, {}), false, null, 0, 2));
 		},
 		
 		/**

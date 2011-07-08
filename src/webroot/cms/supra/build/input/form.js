@@ -433,20 +433,20 @@ YUI.add("supra.form", function (Y) {
 		 * Optionally other attribute can be used instead of "name"
 		 * 
 		 * @param {String} key
+		 * @param {Boolean} save Return save value
 		 * @return Form input values
 		 * @type {Object}
 		 */
-		getValues: function (key) {
+		getValues: function (key, save) {
 			var key = key || 'name';
 			var values = {};
 			var definitions = this.inputs_definition;
+			var prop = save ? 'saveValue' : 'value';
 			
 			for(var id in this.inputs) {
 				var input = this.inputs[id];
-				if (!input.get('disabled')) {
-					var val = input.get('value');
-					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
-				}
+				var val = input.get(prop);
+				values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
 			}
 			
 			return values;
@@ -456,13 +456,16 @@ YUI.add("supra.form", function (Y) {
 		 * Set input values
 		 * 
 		 * @param {Object} data
+		 * @param {Object} key
 		 */
-		setValues: function (data, key) {
+		setValues: function (data, key, skip_encode) {
 			var key = key || 'name',
 				definitions = this.inputs_definition,
 				input = null,
 				key_value = null;
-				data = this.serializeObject(data, null, true);
+				data = skip_encode ? data : this.serializeObject(data, null, true);
+			
+			data = data || {};
 			
 			for(var id in this.inputs) {
 				input = this.inputs[id];
@@ -474,6 +477,16 @@ YUI.add("supra.form", function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Set input values without converting names {'a': {'b': 'c'}} into {'a[b]': 'c'}
+		 * 
+		 * @param {Object} data
+		 * @param {Object} key
+		 */
+		setValuesObject: function (data, key) {
+			return this.setValues(data, key, true);
 		},
 		
 		/**

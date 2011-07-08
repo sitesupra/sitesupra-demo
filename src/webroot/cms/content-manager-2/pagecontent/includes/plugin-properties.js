@@ -63,6 +63,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	 */
 	function Properties () {
 		Properties.superclass.constructor.apply(this, arguments);
+		this._original_values = null;
 	}
 	
 	Properties.NAME = 'page-content-properties';
@@ -72,7 +73,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Property values
 		 */
 		'data': {
-			'value': {}
+			'value': {},
+			'setter': '_setData',
+			'getter': '_getData'
 		},
 		
 		/*
@@ -103,13 +106,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		_button_delete: false,
 		
+		_original_values: null,
+		
 		destructor: function () {
 			var form = this.get('form');
 			form.destroy();
 		},
 		
 		initializer: function (config) {
-			var data = this.get('data');
+			var data = this.get('host').get('data');
 			if (!data || !('type' in data)) return;
 			
 			var type = data.type,
@@ -126,6 +131,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Bind to editing-start and editing-end events
 			if (this.get('showOnEdit')) {
 				this.get('host').on('editing-start', this.showPropertiesForm, this);
+				setTimeout(Y.bind(this.showPropertiesForm, this), 50);
 			}
 			
 			//Hide form when editing ends
@@ -145,13 +151,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': 'Apply', 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': 'Done', 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.savePropertyChanges, this);
 			
+			/*
 			//Cancel button
 			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
 				btn.render(buttons).on('click', this.cancelPropertyChanges, this);
-				
+			*/
+			
 			//Delete button
 			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
 				btn.render(buttons).on('click', this.deleteContent, this);
@@ -204,18 +212,20 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Save changes
 		 */
 		savePropertyChanges: function () {
-			// @TODO Save properties
-			SU.Manager.PageContentSettings.hide();
+			this._original_values = this.getValues();
 			this.get('host').fire('properties:save');
+			
+			SU.Manager.PageContentSettings.hide();
 		},
 		
 		/**
 		 * CancelSave changes
 		 */
 		cancelPropertyChanges: function () {
-			// @TODO Revert property changes
-			SU.Manager.PageContentSettings.hide();
+			this.setNonInlineValues(this._original_values);
 			this.get('host').fire('properties:cancel');
+			
+			SU.Manager.PageContentSettings.hide();
 		},
 		
 		/**
@@ -235,10 +245,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Show properties form
 		 */
 		showPropertiesForm: function () {
-			var form = this.get('form'),
-				data = this.get('data').properties;
-			
-			form.setValues(data, 'id');
+			var form = this.get('form');
 			Manager.getAction('PageContentSettings').execute(form);
 		},
 		
@@ -248,7 +255,96 @@ YUI.add('supra.page-content-properties', function (Y) {
 		hidePropertiesForm: function () {
 			this.get('form').hide();
 			Manager.getAction('PageContentSettings').hide();
+		},
+		
+		/**
+		 * Property data setter
+		 * 
+		 * @param {Object} data
+		 * @private
+		 */
+		_setData: function (data) {
+			var form = this.get('form'),
+				data = Supra.mix({}, data);
+			
+			this._original_values = data.properties;
+			this.setValues(data.properties);
+			return data;
+		},
+		
+		/**
+		 * Property data getter
+		 * 
+		 * @return Property data
+		 * @type {Object]
+		 * @private
+		 */
+		_getData: function (data) {
+			var data = data || {};
+			data.properties = this.getValues();
+			return data;
+		},
+		
+		/**
+		 * Returns all property values
+		 * 
+		 * @return Values
+		 * @type {Object}
+		 */
+		getValues: function () {
+			var form = this.get('form');
+			if (form) {
+				return form.getValues('id');
+			} else {
+				return {};
+			}
+		},
+		
+		/**
+		 * Returns all non-inline property values
+		 * 
+		 * @return Values
+		 * @type {Object}
+		 */
+		getNonInlineValues: function (values) {
+			var values = values ? values : this.getValues(),
+				properties = this.get('properties'),
+				out = {};
+			
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				if (!properties[i].inline) out[properties[i].id] = values[properties[i].id];
+			}
+			
+			return out;
+		},
+		
+		setValues: function (values) {
+			var form = this.get('form');
+			if (form) {
+				form.setValuesObject(values, 'id');
+			}
+		},
+		
+		setNonInlineValues: function (values) {
+			var values = this.getNonInlineValues(values);
+			this.setValues(values);
+		},
+		
+		/**
+		 * Returns all property values processed for saving
+		 * 
+		 * @return Values
+		 * @type {Object}
+		 */
+		getSaveValues: function () {
+			var form = this.get('form');
+			if (form) {
+				return form.getValues('id', true);
+			} else {
+				return {};
+			}
 		}
+		
 	});
 	
 	Manager.PageContent.PluginProperties = Properties;

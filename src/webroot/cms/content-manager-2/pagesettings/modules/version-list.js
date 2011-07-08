@@ -16,7 +16,7 @@ YUI.add("website.version-list", function (Y) {
 	VersionList.NAME = "version-list";
 	VersionList.CLASS_NAME = Y.ClassNameManager.getClassName(VersionList.NAME);
 	VersionList.ATTRS = {
-		'uri': null
+		'requestUri': null
 	};
 	
 	VersionList.HTML_PARSER = {};
@@ -36,7 +36,7 @@ YUI.add("website.version-list", function (Y) {
 		 * @private
 		 */
 		_loadVersions: function () {
-			var uri = this.get('uri');
+			var uri = this.get('requestUri');
 			Supra.io(uri, this._loadVersionsComplete, this);
 		},
 		

@@ -3,7 +3,8 @@
 		"id": "features",
 		"title": "Site features",
 		"blocks": [
-			"Project_Text_TextController"
+			"Project_Text_TextController",
+			"sample"
 		]
 	},
 	{

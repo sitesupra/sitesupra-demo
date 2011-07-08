@@ -77,6 +77,17 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 		},
 		
+		_getSaveValue: function (value) {
+			if (this.htmleditor) {
+				return {
+					'html': this.htmleditor.getProcessedHTML(),
+					'data': this.htmleditor.getProcessedData()
+				};
+			} else {
+				return value;
+			}
+		},
+		
 		_setValue: function (value) {
 			if (this.htmleditor) {
 				this.htmleditor.setHTML(value.html);

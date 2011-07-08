@@ -22,6 +22,10 @@ YUI.add("supra.input-proto", function (Y) {
 			setter: "_setValue",
 			getter: "_getValue"
 		},
+		"saveValue": {
+			value: "",
+			getter: "_getSaveValue"
+		},
 		"defaultValue": {
 			value: null
 		},
@@ -210,6 +214,10 @@ YUI.add("supra.input-proto", function (Y) {
 		
 		_getValue: function () {
 			return this.get("inputNode").get("value");
+		},
+		
+		_getSaveValue: function () {
+			return this.get("value");
 		},
 		
 		_setValue: function (value) {

@@ -1,11 +1,18 @@
 YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
+	/**
+	 * Default gallery image properties
+	 */
+	var DEFAULT_IMAGE_PROPERTIES = [
+		{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''}
+	];
+	
 	var defaultConfiguration = {
 		'size': '200x200'
 	};
 	
 	var defaultProps = {
-		'type': 'gallery',
+		'type': null,
 		'title': '',
 		'description': '',
 		'align': 'right',
@@ -454,21 +461,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 			
 		/**
-		 * Initialize plugin for editor,
-		 * Called when editor instance is initialized
-		 * 
-		 * @param {Object} htmleditor HTMLEditor instance
-		 * @constructor
-		 */
-		init: function (htmleditor, configuration) {
-			// When clicking on gallery image show gallery settings
-			var container = htmleditor.get('srcNode');
-			container.delegate('click', Y.bind(this.showGallerySettings, this), 'img.gallery');
-			
-			this.bindUIDnD(htmleditor);
-		},
-		
-		/**
 		 * Bind HTML5 Drag & Drop event listeners
 		 * 
 		 * @param {Object} htmleditor HTMLEditor instance
@@ -524,7 +516,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 							if (image_data.type == 'image') {
 								//Image was dropped
 								this.dropImage(target, image_data.image);
-							} else if (image_data.type == 'gallery') {
+							} else if (image_data.type == this.NAME) {
 								//Gallery was dropped, combine them
 								var images = image_data.images;
 								for(var i=0,ii=images.length; i<ii; i++) {
@@ -542,12 +534,81 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			srcNode.on('imageDrop', this.dropFolder, this);
 		},
 		
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			// When clicking on gallery image show gallery settings
+			var container = htmleditor.get('srcNode');
+			container.delegate('click', Y.bind(this.showGallerySettings, this), 'img.gallery');
+			
+			this.bindUIDnD(htmleditor);
+		},
+		
 		/**
 		 * Clean up after plugin
 		 * Called when editor instance is destroyed
 		 */
 		destroy: function () {
 			
+		},
+		
+		/**
+		 * Process HTML and replace all nodes with macros {supra.gallery id="..."}
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {HTML}
+		 */
+		processHTML: function (html) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			html = html.replace(/<img [^>]*id="([^"]+)"[^>]*>/ig, function (html, id) {
+				if (!id) return html;
+				var data = htmleditor.getData(id);
+				
+				if (data && data.type == NAME) {
+					return '{supra.' + NAME + ' id="' + id + '"}';
+				} else {
+					return html;
+				}
+			});
+			return html;
+		},
+		
+		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save
+		 * 
+		 * @param {String} id Data ID
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (id, data) {
+			var images = [],
+				image = {},
+				properties = Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES),
+				kk = properties.length;
+			
+			//Extract only image ID and properties, remove all other data
+			for(var i=0,ii=data.images.length; i<ii; i++) {
+				image = {'id': data.images[i].id};
+				images.push(image);
+				for(var k=0; k<kk; k++) {
+					image[properties[k].id] = data.images[i][properties[k].id]
+				}
+			}
+			
+			data.images = images;
+			return data;
 		}
 		
 	});

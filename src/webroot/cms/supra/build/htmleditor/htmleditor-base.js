@@ -133,6 +133,25 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		},
 		
 		/**
+		 * Returns HTML with nodes converted into macros
+		 * 
+		 * @return HTML
+		 * @type {String}
+		 */
+		getProcessedHTML: function () {
+			var html = this.getHTML(),
+				plugins = this.getAllPlugins();
+			
+			for(var id in plugins) {
+				if (plugins[id].processHTML) {
+					html = plugins[id].processHTML(html);
+				}
+			}
+			
+			return html;
+		},
+		
+		/**
 		 * Enable/disable editor
 		 * 
 		 * @param {Boolean} value

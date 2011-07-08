@@ -27,12 +27,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 		'dragable': {
 			value: true
 		},
-		'title': {
-			value: ''
-		},
-		'active_html_property': {
+		'active_inline_property': {
 			value: null,
-			setter: 'setActiveHTMLProperty'
+			setter: 'setActiveInlineProperty'
 		}
 	};
 	
@@ -58,18 +55,25 @@ YUI.add('supra.page-content-editable', function (Y) {
 		active_inline_input: null,
 		
 		/**
-		 * HTML inputs
+		 * Inline HTML inputs
 		 * @type {Object}
 		 * @private
 		 */
 		html_inputs: null,
 		
 		/**
-		 * HTML input count
+		 * Inline HTML input count
 		 * @type {Number}
 		 * @private
 		 */
 		html_inputs_count: 0,
+		
+		/**
+		 * There are changes which are not saved
+		 * @type {Boolean}
+		 * @private
+		 */
+		unresolved_changes: false,
 		
 		/**
 		 * Returns all property inputs
@@ -96,93 +100,153 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			if (this.get('editable')) {
 				this.bindUISettings();
-				
-				//Handle block save / cancel
-				this.on('block:save', function () {
-					/* @TODO Save data */
-				});
-				this.on('block:cancel', function () {
-					/* @TODO Revert data changes */
-				});
 			}
 		},
 		
 		/**
-		 * Bind Settings form
+		 * Save changed properties
+		 * 
+		 * @private
+		 */
+		savePropertyChanges: function () {
+			if (this.properties && this.unresolved_changes) {
+				var page_data = Manager.Page.getPageData();
+				var values = this.properties.getValues();
+				
+				//Some inputs (like InlineHTML) needs data to be processed before saving it
+				var save_values = this.properties.getSaveValues();
+				
+				var post_data = {
+					id: page_data.id,
+					version: page_data.version.id,
+					block_id: this.getId(),
+					language: Supra.data.get('language'),
+					properties: save_values
+				};
+				
+				var url = Manager.PageContent.getDataPath('save');
+				Supra.io(url, {
+					'data': post_data,
+					'method': 'post',
+					'on': {
+						'success': function (transaction, response) {
+							var data = this.get('data');
+							data.properties = values;
+							this.set('data', data);
+						}
+					}
+				}, this);
+			}
+			
+			this.unresolved_changes = false;
+		},
+		
+		/**
+		 * Cancel property changes and revert back
+		 */
+		cancelPropertyChanges: function () {
+			var data = this.get('data');
+			this.properties.setValues(data.properties);
+			this.unresolved_changes = false;
+			
+			this.syncOverlayPosition();
+		},
+		
+		/**
+		 * Bind Settings (Properties) form
 		 * 
 		 * @private
 		 */
 		bindUISettings: function () {
 			//When starting editing for first time create form
-			this.once('editing-start', function () {
-				
-				//Find if there are any HTML properties
-				var has_html_properties = false,
-					properties = this.getProperties();
-				
-				for(var i=0,ii=properties.length; i<ii; i++) {
-					if (properties[i].inline && properties[i].type == 'InlineHTML') {
-						has_html_properties = true;
-						break;
-					}
-				}
-				
-				//Add properties plugin (creates form)
-				this.plug(Action.PluginProperties, {
-					'data': this.get('data'),
-					//If there are inline HTML properties, then settings form is opened using toolbar buttons
-					'showOnEdit': has_html_properties ? false: true
-				});
-				
-				//Find all inline and HTML properties
-				this.findInlineInputs();
-				
-				//When properties form is hidden, unset "Settings" button down state
-				if (has_html_properties) {
-					this.properties.get('form').on('visibleChange', function (evt) {
-						if (evt.newVal != evt.prevVal && !evt.newVal) {
-							var toolbar = Manager.EditorToolbar.getToolbar();
-							toolbar.getButton('settings').set('down', false);
-						}
-					}, this);
-				} else {
-					
-					//If there are no inline properties, then 
-					//on properties form save / cancel trigger block save / cancel 
-					this.on('properties:save', function () {
-						this.fire('block:save');
-					});
-					this.on('properties:cancel', function () {
-						this.fire('block:cancel');
-					});
-					
-				}
-			}, this);
-			
+			this.once('editing-start', this.renderUISettings, this);
+			this.on('editing-start', this.onEditingStart, this);
+			this.on('editing-end', this.onEditingEnd, this);
+		},
+		
+		onEditingStart: function () {
 			//If there are InlineHTML contents, show toolbar when editing
-			this.on('editing-start', function () {
-				if (this.html_inputs_count) {
-					for(var id in this.html_inputs) {
-						//Enable only first editor
-						this.set('active_html_property', id);
-						break;
-					}
-					Manager.Page.showEditorToolbar();
+			if (this.inline_inputs_count) {
+				for(var id in this.inline_inputs) {
+					//Enable only first editor
+					this.set('active_inline_property', id);
+					break;
 				}
-			}, this);
-			
-			this.on('editing-end', function () {
-				if (this.html_inputs_count) {
-					this.set('active_html_property', null);
-					Manager.Page.hideEditorToolbar();
+				if (id in this.html_inputs) {
+					Manager.EditorToolbar.execute();
 				}
-			});
+			}
+			this.unresolved_changes = true;
+			this.properties.set('data', this.get('data'));
+		},
+		
+		onEditingEnd: function () {
+			if (this.inline_inputs_count) {
+				this.set('active_inline_property', null);
+			}
 			
-			//On editing-end event hide settings form
-			this.on('editing-end', function () {
+			if (this.html_inputs_count) {
+				if (this.unresolved_changes) {
+					this.fire('block:save');
+				}
+				
+				//Hide editor toolbar
+				Manager.EditorToolbar.hide();
+				
+				//Unset settings button 'down' state
 				var toolbar = Manager.EditorToolbar.getToolbar();
 				toolbar.getButton('settings').set('down', false);
+			}
+		},
+		
+		renderUISettings: function () {
+			//Find if there are any HTML properties
+			var properties = this.getProperties(),
+				has_html_properties = false;
+			
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				if (properties[i].inline && properties[i].type == 'InlineHTML') {
+					has_html_properties = true;
+					break;
+				}
+			}
+			
+			//Add properties plugin (creates form)
+			this.plug(Action.PluginProperties, {
+				'data': this.get('data'),
+				//If there are inline HTML properties, then settings form is opened using toolbar buttons
+				'showOnEdit': has_html_properties ? false: true
 			});
+			
+			//Find all inline and HTML properties
+			this.findInlineInputs();
+			
+			//When properties form is hidden, unset "Settings" button down state
+			if (has_html_properties) {
+				
+				this.properties.get('form').on('visibleChange', function (evt) {
+					if (evt.newVal != evt.prevVal && !evt.newVal) {
+						var toolbar = Manager.EditorToolbar.getToolbar();
+						toolbar.getButton('settings').set('down', false);
+					}
+				}, this);
+				
+			} else {
+				
+				//If there are no inline html properties, then 
+				//on properties form save / cancel trigger block save / cancel 
+				this.on('properties:save', function () {
+					this.fire('block:save');
+				});
+				this.on('properties:cancel', function () {
+					this.fire('block:cancel');
+				});
+				
+			}
+			
+			//Handle block save / cancel
+			this.on('block:save', this.savePropertyChanges, this);
+			this.on('block:cancel', this.cancelPropertyChanges, this);
 		},
 		
 		/**
@@ -195,8 +259,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				this.renderOverlay();
 				
 				//Find if there are any inline properties
-				var has_inline_properties = false,
-					properties = this.getProperties();
+				var properties = this.getProperties();
 				
 				for(var i=0,ii=properties.length; i<ii; i++) {
 					if (properties[i].inline) {
@@ -266,7 +329,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 						
 						//When clicking on node enable corresponding editor
 						inline_node.on('mousedown', function (event, id) {
-							this.set('active_html_property', id);
+							this.set('active_inline_property', id);
 						}, this, id);
 					}
 				}
@@ -274,15 +337,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 		
 		/**
-		 * Set active inline property
+		 * Active inline property setter
 		 * 
 		 * @param {String} property_id Property ID
 		 * @return Property ID
 		 * @type {String}
 		 * @private
 		 */
-		setActiveHTMLProperty: function (property_id) {
-			var old_property_id = this.get('active_html_property');
+		setActiveInlineProperty: function (property_id) {
+			var old_property_id = this.get('active_inline_property');
 			
 			if (property_id != old_property_id) {
 				if (old_property_id && old_property_id in this.html_inputs) {

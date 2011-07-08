@@ -25,7 +25,8 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 					this.plugins[id] = Supra.mix({
 						'htmleditor': this,
 						'id': id,
-						'configuration': configuration
+						'configuration': configuration,
+						'NAME': id
 					}, plugins[id].properties);
 					
 					if (this.plugins[id].init(this, configuration) === false) {
@@ -57,7 +58,8 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				this.plugins[id] = Supra.mix({
 					'htmleditor': this,
 					'id': id,
-					'configuration': configuration
+					'configuration': configuration,
+					'NAME': id
 				}, properties);
 				
 				if (this.plugins[id].init(this, configuration) === false) {

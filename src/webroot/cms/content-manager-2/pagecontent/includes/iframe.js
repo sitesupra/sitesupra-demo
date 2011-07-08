@@ -7,7 +7,8 @@
 YUI.add('supra.page-iframe', function (Y) {
 	
 	//Shortcut
-	var Action = SU.Manager.PageContent;
+	var Manager = SU.Manager,
+		Action = Manager.PageContent;
 	
 	/*
 	 * Iframe
@@ -20,32 +21,39 @@ YUI.add('supra.page-iframe', function (Y) {
 	PageIframe.NAME = 'page-iframe';
 	PageIframe.CLASS_NAME = Y.ClassNameManager.getClassName(PageIframe.NAME);
 	PageIframe.ATTRS = {
-		/*
+		/**
 		 * Iframe element
 		 */
 		'nodeIframe': {
 			value: null
 		},
-		/*
+		/**
 		 * Iframe HTML content
 		 */
 		'html': {
-			value: null,
-			setter: '_setHTML'
+			value: null
 		},
-		/*
+		/**
+		 * Overlay visibility
+		 */
+		'overlayVisible': {
+			value: false,
+			setter: '_setOverlayVisible'
+		},
+		/**
 		 * Page content blocks
 		 */
 		'contentData': {
 			value: null
 		},
-		/*
+		
+		/**
 		 * Iframe document instance
 		 */
 		'doc': {
 			value: null
 		},
-		/*
+		/**
 		 * Iframe window instance
 		 */
 		'win': {
@@ -89,14 +97,6 @@ YUI.add('supra.page-iframe', function (Y) {
 			return link;
 		},
 		
-		showOverlay: function () {
-			this.overlay.removeClass('hidden');
-		},
-		
-		hideOverlay: function () {
-			this.overlay.addClass('hidden');
-		},
-		
 		renderUI: function () {
 			PageIframe.superclass.renderUI.apply(this, arguments);
 
@@ -106,8 +106,23 @@ YUI.add('supra.page-iframe', function (Y) {
 			this.overlay = Y.Node.create('<div class="yui3-iframe-overlay hidden"></div>');
 			cont.append(this.overlay);
 			
-			this.set('html', this.get('html'));
+			this.setHTML(this.get('html'));
 			cont.removeClass('hidden');
+		},
+		
+		/**
+		 * Overlay visiblity setter
+		 * 
+		 * @param {Object} value
+		 * @private
+		 */
+		_setOverlayVisible: function (value) {
+			if (value) {
+				this.overlay.removeClass('hidden');
+			} else {
+				this.overlay.addClass('hidden');
+			}
+			return !!value;
 		},
 		
 		/**
@@ -155,7 +170,12 @@ YUI.add('supra.page-iframe', function (Y) {
 					this.contents.render();
 					
 					this.contents.on('activeContentChange', function (event) {
-					    this.fire('activeContentChange', {newVal: event.newVal, prevVal: event.prevVal});
+						if (event.newVal) {
+							Action.startEditing();
+						}
+					});
+					this.contents.after('activeContentChange', function (event) {
+						this.fire('activeContentChange', {newVal: event.newVal, prevVal: event.prevVal});
 					}, this);
 					
 					//Trigger ready event
@@ -177,8 +197,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			//Add stylesheets to iframe
 			var links = [];
 			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				links[links.length] = this.addStyleSheet("/cms/supra/build/button/button.css");
-				links[links.length] = this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css");
+				links.push(this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css"));
 			}
 			
 			//When stylesheets are loaded initialize PageContents
@@ -191,9 +210,11 @@ YUI.add('supra.page-iframe', function (Y) {
 		 * @param {String} html
 		 * @return HTML
 		 * @type {String}
+		 * @private
 		 */
-		_setHTML: function (html) {
-			if (this.get('html') === html) return html;
+		setHTML: function (html) {
+			//Set attribute
+			this.set('html', html);
 			
 			//Clean up
 			this._unsetHTML();
@@ -216,6 +237,8 @@ YUI.add('supra.page-iframe', function (Y) {
 		
 		/**
 		 * Clean up before HTML change
+		 * 
+		 * @private
 		 */
 		_unsetHTML: function () {
 			if (this.contents) {
@@ -260,8 +283,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			value: false
 		},
 		'activeContent': {
-			value: null,
-			setter: '_setActiveContent'
+			value: null
 		},
 		/*
 		 * Highlight list nodes
@@ -275,26 +297,19 @@ YUI.add('supra.page-iframe', function (Y) {
 	Y.extend(PageContents, Y.Base, {
 		contentBlocks: {},
 		
-		destructor: function () {
-			var r = PageContents.superclass.initializer.apply(this, arguments);
-			
-			
-			
-			return r;
-		},
-		
 		bindUI: function () {
 			
-			var win = this.get('iframe').get('win');
-			
-			//Fix context
-			var fn = Y.bind(function () {
-				
-				for(var i in this.contentBlocks) {
-					this.contentBlocks[i].syncUI();
+			//Set 'editing' attribute after content changes
+			this.after('activeContentChange', function (evt) {
+				if (evt.newVal !== evt.prevVal) {
+					if (evt.prevVal && evt.prevVal.get('editing')) {
+						evt.prevVal.set('editing', false);
+					}
+					if (evt.newVal && !evt.newVal.get('editing')) {
+						evt.newVal.set('editing', true);
+					}
 				}
-				
-			}, this);
+			});
 			
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
@@ -325,46 +340,64 @@ YUI.add('supra.page-iframe', function (Y) {
 				}
 			}, this);
 			
-			Y.on('resize', Y.throttle(fn, 50), win);
+			this.once('destroy', this.beforeDestroy, this);
+			
+			//Fix context
+			var win = this.get('iframe').get('win');
+			this.onResize = Y.throttle(Y.bind(this.onResize, this), 50);
+			Y.on('resize', this.onResize, win);
 		},
 		
-		_renderContentBlocks: function (data) {
-			var body = this.get('body');
-			var doc = this.get('doc');
-			var win = this.get('win');
-			
-			for(var i=0,ii=data.length; i<ii; i++) {
+		/**
+		 * On resize sync overlay position
+		 */
+		onResize: function () {
+			for(var i in this.contentBlocks) {
+				this.contentBlocks[i].syncOverlayPosition();
+			}
+		},
+		
+		/**
+		 * Create children
+		 * 
+		 * @param {Object} data
+		 * @private
+		 */
+		createChildren: function (data) {
+			var data = data || this.get('contentData');
+			if (data) {
+				var body = this.get('body');
+				var doc = this.get('doc');
+				var win = this.get('win');
 				
-				var type = data[i].type;
-				var properties = SU.Manager.Blocks.getBlock(type);
-				var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
-				
-				if (classname in Action) {
-					var block = this.contentBlocks[data[i].id] = new Action[classname]({
-						'doc': doc,
-						'win': win,
-						'body': body,
-						'data': data[i],
-						'parent': null,
-						'super': this,
-						'dragable': !data[i].locked,
-						'editable': !data[i].locked
-					});
-					block.render();
-				} else {
-					Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
+				for(var i=0,ii=data.length; i<ii; i++) {
+					
+					var type = data[i].type;
+					var properties = Manager.Blocks.getBlock(type);
+					var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
+					
+					if (classname in Action) {
+						var block = this.contentBlocks[data[i].id] = new Action[classname]({
+							'doc': doc,
+							'win': win,
+							'body': body,
+							'data': data[i],
+							'parent': null,
+							'super': this,
+							'dragable': !data[i].locked,
+							'editable': !data[i].locked
+						});
+						block.render();
+					} else {
+						Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
+					}
+					
 				}
-				
 			}
 		},
 		
 		renderUI: function () {
-			
-			var data = this.get('contentData');
-			if (data) {
-				this._renderContentBlocks(data);
-			}
-			
+			this.createChildren();
 			this.get('body').addClass('yui3-editable');
 		},
 		
@@ -373,6 +406,41 @@ YUI.add('supra.page-iframe', function (Y) {
 			this.bindUI();
 		},
 		
+		/**
+		 * Loads and returns block data
+		 * 
+		 * @param {Object} data Block information
+		 * @param {Function} callback Callback function
+		 * @param {Object} context
+		 */
+		getBlockInsertData: function (data, callback, context) {
+			var url = Manager.PageContent.getDataPath('insertblock') + '.php';
+			var page_info = Manager.Page.getPageData();
+			
+			data = Supra.mix({
+				'page_id': page_info.id,
+				'version_id': page_info.version.id,
+				
+				'language': Supra.data.get('language')
+			}, data);
+			
+			Supra.io(url, {
+				'data': data,
+				'on': {
+					'success': function (evt, data) {
+						if (data && Y.Lang.isFunction(callback)) {
+							callback.call(context, data);
+						}
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Remove child Supra.Manager.PageContent.Proto object
+		 * 
+		 * @param {Object} child
+		 */
 		removeChild: function (child) {
 			for(var i in this.contentBlocks) {
 				if (this.contentBlocks[i] === child) {
@@ -382,29 +450,12 @@ YUI.add('supra.page-iframe', function (Y) {
 			}
 		},
 		
-		_setActiveContent: function (content) {
-			var old = this.get('activeContent');
-			
-			if (old) {
-				old.set('editing', false);
-			}
-			
-			if (content instanceof Action.Proto) {
-				if (!old || content !== old) {
-					content.set('editing', true);
-					return content;
-				}
-			} else if (Y.Lang.isString(content)) {
-				if (!old || content != old.getId()) {
-					//@TODO Set active content by ID
-				}
-			} else {
-				SU.Manager.Page.hideEditorToolbar();
-			}
-			
-			return content;
-		},
-		
+		/**
+		 * highlight attribute setter
+		 * 
+		 * @param {Boolean} value If true highlight will be shown
+		 * @private
+		 */
 		_setHighlight: function (value) {
 			if (value) {
 				this.set('disabled', true);
@@ -423,6 +474,22 @@ YUI.add('supra.page-iframe', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		beforeDestroy: function () {
+			//Destroy children
+			var child = null,
+				blocks = this.contentBlocks;
+			
+			for(var i in blocks) {
+				child = blocks[i];
+				delete(blocks[i]);
+				child.destroy();
+			}
+			
+			//Unsubscribe resize
+			var win = this.get('iframe').get('win');
+			Y.unsubscribe('resize', this.onResize, win);
 		}
 	});
 	

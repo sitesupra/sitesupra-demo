@@ -49,6 +49,13 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		 */
 		'noAnimations': {
 			value: false
+		},
+		
+		/**
+		 * Animation duration 
+		 */
+		'animationDuration': {
+			value: 0.5
 		}
 	};
 	
@@ -146,13 +153,13 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			
 			this.anim = new Y.Anim({
 				node: this.get('contentBox'),
-				duration: 0.5,
+				duration: this.get('animationDuration'),
 				easing: Y.Easing.easeOutStrong
 			});
 			
 			this.slide_anim = new Y.Anim({
 				node: this.get('contentBox'),
-				duration: 0.5,
+				duration: this.get('animationDuration'),
 				easing: Y.Easing.easeOutStrong
 			});
 			

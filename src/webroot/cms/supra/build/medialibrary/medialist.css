@@ -72,6 +72,54 @@
 	line-height: 26px;
 }
 
+.yui3-medialist ul.folder > li.type-temp {
+	line-height: 23px;
+	cursor: default;
+	position: relative;
+}
+.yui3-medialist ul.folder > li.type-temp:hover {
+	background: none;
+}
+.yui3-medialist ul.folder > li.type-temp .title {
+	padding-left: 28px;
+	position: relative;
+	z-index: 1;
+}
+.yui3-medialist ul.folder > li.type-temp .progress {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 25px;
+	padding: 1px;
+	border: 1px solid #CDECFF;
+}
+
+.yui3-medialist ul.folder > li.type-temp .progress em {
+	display: block;
+	float: left;
+	width: 50%;
+	height: 25px;
+	background: url(/cms/supra/img/medialibrary/upload-progress.png) 0 0 repeat;
+	
+	-moz-animation-duration: 7s;
+	-webkit-animation-duration: 7s;
+	-moz-animation-name: progressBar;
+	-webkit-animation-name: progressBar;
+	-moz-animation-iteration-count: infinite;
+	-webkit-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	-webkit-animation-timing-function: linear;
+}
+@-moz-keyframes progressBar {
+	from { background-position: 0% 0%; }
+	to { background-position: 0% 260px; }
+}
+@-webkit-keyframes progressBar {
+	from { background-position: 0% 0% }
+	to { background-position: 0% 260px; }
+}
+
 /**
  * Image / File
  */
@@ -182,4 +230,30 @@
 .yui3-medialist .yui3-slider-x .yui3-slider-thumb {
 	top: -4px !important;
 	cursor: pointer;
+}
+
+/**
+ * HTML5 drag & drop
+ */
+.yui3-html5-dd-target {
+	/*
+	box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
+	-moz-box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
+	-webkit-box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
+	*/
+	
+	border: 2px solid #3B85D1 !important;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	
+	height: auto !important;
+	bottom: 0;
+}
+.yui3-medialist .yui3-ml-slideshow ul.folder > li.yui3-html5-dd-target {
+	border: 1px solid #41AFF2;
+	background: #fff;
+	box-shadow: 0 0 5px #CDECFF;
+	-moz-box-shadow: 0 0 5px #CDECFF;
+	-webkit-box-shadow: 0 0 5px #CDECFF;
 }

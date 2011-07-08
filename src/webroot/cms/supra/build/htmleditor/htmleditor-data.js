@@ -24,6 +24,32 @@ YUI().add('supra.htmleditor-data', function (Y) {
 		},
 		
 		/**
+		 * Returns all data processed for saving
+		 * 
+		 * @return Data
+		 * @type {Object}
+		 */
+		getProcessedData: function () {
+			//Data has to be deep cloned to avoid overwriting values
+			var data = Supra.mix({}, this.data, true),
+				type = null,
+				plugins = this.getAllPlugins(),
+				plugin = null;
+			
+			for(var id in data) {
+				type = data[id].type;
+				if (type in plugins) {
+					plugin = plugins[type];
+					if (plugin.processData) {
+						data[id] = plugin.processData(id, data[id]);
+					}
+				}
+			}
+			
+			return data;
+		},
+		
+		/**
 		 * Returns all data encoded as JSON string
 		 * 
 		 * @return Data encoded as JSON string
@@ -137,9 +163,9 @@ YUI().add('supra.htmleditor-data', function (Y) {
 			var data = this.data,
 				id,
 				srcNode = this.get('srcNode');
-				
+			
 			for(id in data) {
-				if (!srcNode.one('#' + id).size()) {
+				if (!srcNode.one('#' + id)) {
 					delete(data[id]);
 				}
 			}

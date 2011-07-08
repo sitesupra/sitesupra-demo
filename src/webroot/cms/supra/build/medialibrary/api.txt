@@ -60,7 +60,7 @@ Media Library
 			
 			setRequestParams (params)
 				Set additional GET request parameters
-				
+			
 			destroy ()
 				Destroys all data
 	
@@ -125,6 +125,9 @@ Media Library
 			setSelectedItem (id)
 				Marks item as selected if it's opened
 		
+			getItemNode (id)
+				Return item node (which is in folder list) 
+			
 			load (id, callback)
 				Load item information
 				Callback arguments are item ID and data
@@ -133,4 +136,3 @@ Media Library
 				Load and show item
 				ID is item ID or array of IDs (path to item)
 				Callback arguments are item ID and data
-		

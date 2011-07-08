@@ -76,13 +76,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, empty folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_EMPTY = '<div class="empty">No files in this folder</div>';
+	List.TEMPLATE_EMPTY = '<div class="empty" data-id="{id}">No files in this folder</div>';
 	
 	/**
 	 * Constant, folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER = '<ul class="folder"></ul>';
+	List.TEMPLATE_FOLDER = '<ul class="folder" data-id="{id}"></ul>';
 	
 	/**
 	 * Constant, folder item template for folder
@@ -113,6 +113,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			<a><img src="/cms/supra/img/medialibrary/icon-image.png" alt="" /></a>\
 			<span>{title_escaped}</span>\
 		</li>';
+	
+	/**
+	 * Constant, folder item template for temporary file
+	 * @type {String}
+	 */
+	List.TEMPLATE_FOLDER_ITEM_TEMP = '<li class="type-temp" data-id="{id}"></li>';
 	
 	/**
 	 * Constant, file template
@@ -266,6 +272,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		'templateFolderItemImage': {
 			value: List.TEMPLATE_FOLDER_ITEM_IMAGE
 		},
+		'templateFolderItemTemp': {
+			value: List.TEMPLATE_FOLDER_ITEM_TEMP
+		},
 		'templateFile': {
 			value: List.TEMPLATE_FILE
 		},
@@ -323,7 +332,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			//Create slideshow
 			var slideshowClass = this.get('slideshowClass');
 			var slideshow = this.slideshow = (new slideshowClass({
-				'srcNode': this.get('contentBox')
+				'srcNode': this.get('contentBox'),
+				'animationDuration': 0.35
 			})).render();
 			
 			//Start loading data
@@ -502,6 +512,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						loaded = true;
 					} else if (data.type == Data.TYPE_IMAGE && data_object.hasData(id, List.IMAGE_PROPERTIES)) {
 						loaded = true;
+					} else if (data.type == Data.TYPE_TEMP) {
+						loaded = true;
 					}
 				} else if (data.children) {
 					loaded = true;
@@ -556,11 +568,15 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Check if data needs to be loaded
 			if (data) {
-				if (data.type != Data.TYPE_FOLDER) {
+				if (data.type == Data.TYPE_TEMP) {
+					return this;
+				} else if (data.type != Data.TYPE_FOLDER) {
 					loading_folder = false;
 					if (data.type == Data.TYPE_FILE && data_object.hasData(id, List.FILE_PROPERTIES)) {
 						loaded = true;
 					} else if (data.type == Data.TYPE_IMAGE && data_object.hasData(id, List.IMAGE_PROPERTIES)) {
+						loaded = true;
+					} else if (data.type == Data.TYPE_TEMP) {
 						loaded = true;
 					}
 				} else if (data.children) {
@@ -684,6 +700,21 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Returns item node
+		 * @param {Number} id File or folder ID
+		 */
+		getItemNode: function (id) {
+			var data = this.get('dataObject').getData(id);
+			if (data) {
+				var slide = this.slideshow.getSlide('slide_' + data.parent);
+				if (slide) {
+					return slide.one('li[data-id="' + id + '"]');
+				}
+			}
+			return null;
+		},
+		
+		/**
 		 * Render item
 		 * Chainable.
 		 * 
@@ -709,7 +740,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (data && data.length) {
 				if (data.length == 1 && data[0].id == id && data[0].type != Data.TYPE_FOLDER) {
 					//File or image
-					template = (data[0].type == Data.TYPE_FILE ? this.get('templateFile') : this.get('templateImage'));
+					if (data[0].type == Data.TYPE_FILE) {
+						template = this.get('templateFile');
+					} else if (data[0].type == Data.TYPE_IMAGE) {
+						template = this.get('templateImage');
+					}
 					
 					node = this.renderTemplate(data[0], template);
 					slide.empty().append(node);
@@ -720,13 +755,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						node = slide.one('ul.folder');
 					}
 					if (!node) {
-						node = this.renderTemplate({}, this.get('templateFolder'));
+						node = this.renderTemplate({'id': id}, this.get('templateFolder'));
 					}
 					 
 					var templates = {
 						1: this.get('templateFolderItemFolder'),
 						2: this.get('templateFolderItemImage'),
-						3: this.get('templateFolderItemFile')
+						3: this.get('templateFolderItemFile'),
+						4: this.get('templateFolderItemTemp')
 					};
 					
 					//Sort data
@@ -755,7 +791,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}
 			} else {
 				//Empty
-				node = this.renderTemplate(data, this.get('templateEmpty'));
+				node = this.renderTemplate({'id': id}, this.get('templateEmpty'));
 				slide.empty().append(node);
 				this.fire('itemRender', {'node': node, 'data': data, 'type': null});
 			}

@@ -85,7 +85,7 @@ YUI().add("supra.io", function (Y) {
 	
 	
 	Supra.io.serialize = function (obj, prefix) {
-		if (!Y.Lang.isObject(obj) || !Y.Lang.isArray(obj)) return obj;
+		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var o = {}, name = null;
 		
 		for(var i in obj) {
@@ -93,7 +93,7 @@ YUI().add("supra.io", function (Y) {
 				name = (prefix ? prefix + '[' + encodeURIComponent(i) + ']' : encodeURIComponent(i));
 				
 				if (Y.Lang.isObject(obj[i]) || Y.Lang.isArray(obj[i])) {
-					o = Y.mix(this.serializeObject(obj[i], name), o);
+					Supra.mix(o, this.serialize(obj[i], name));
 				} else {
 					o[name] = encodeURIComponent(obj[i]);
 				}

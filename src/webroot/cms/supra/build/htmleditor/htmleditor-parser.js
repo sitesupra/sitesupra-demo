@@ -4,10 +4,13 @@
 YUI().add('supra.htmleditor-parser', function (Y) {
 	
 	/* Tag white list, all other tags will be removed */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed'];
 	
 	/* List of inline elements */
 	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big'};
+	
+	/* List of tags which doesn't need to be closed */
+	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed'};
 	
 	/* Elements which should be checked for inline style */
 	Supra.HTMLEditor.STYLED_INLINE   = ['span', 'b', 'i', 'em', 'sub', 'sup', 'small', 'strong', 's', 'strike', 'a', 'u', 'q', 'big'];
@@ -99,19 +102,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				tagClose,
 				tagContent,
 				tagsAdd = [],
-				tagsAppend = '';
-				tagsPrepend = '';
+				tagsAppend = '',
+				tagsPrepend = '',
 				k = 0,
 				kk = styleToTag.length;
 			
 			for(var i=0,ii=styleTags.length; i<ii; i++) {
 				styleTag = styleTags[i];
 				
-				tagOpenStart = html.lastIndexOf('<' + styleTag);
+				tagOpenStart = html.indexOf('<' + styleTag);
+				
+				//If there is a letter after style tag then match isn't correct
+				while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
+					tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
+				}
+				
 				tagOpenEnd = html.indexOf('>', tagOpenStart);
 				tagsAdd = [];
 				
 				while(tagOpenStart != -1) {
+					//See if correct tag was matched
 					tagClose = html.indexOf('</' + styleTag, tagOpenStart);
 					
 					if (tagClose == -1) {
@@ -135,7 +145,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 							 + '</_' + html.substring(tagClose + 2);
 					}
 					
-					tagOpenStart = html.lastIndexOf('<' + styleTag);
+					tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 1);
+					
+					//If there is a letter after style tag then match isn't correct
+					html.charAt(tagOpenStart + styleTag.length + 1).match(/a-z/i);
+					while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
+						tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
+					}
+					
 					tagOpenEnd = html.indexOf('>', tagOpenStart);
 					tagsAdd = [];
 				}
@@ -164,7 +181,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
-		 * Strip tags from HTML leaving only whitelisted tags
+		 * Strip tags from HTML leaving only whiteList tags
 		 * 
 		 * @param {String} html HTML from which tags should be striped
 		 * @param {Array} whiteList List of allowed tags. Array or comma separated list

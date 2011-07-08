@@ -142,9 +142,24 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary-slideshow-css'
 		]
 	},
-	'supra.medialibrary-slideshow-css' :{
+	'supra.medialibrary-slideshow-css': {
 		path: 'medialibrary/slideshow.css',
 		type: 'css'
+	},
+	
+	'supra.medialibrary-upload': {
+		path: 'medialibrary/upload.js',
+		requires: [
+			'supra.medialibrary-upload-io',
+			'plugin'
+		]
+	},
+	'supra.medialibrary-upload-io': {
+		path: 'medialibrary/upload-io.js',
+		requires: [
+			'base',
+			'json'
+		]
 	},
 	
 	/**
@@ -176,7 +191,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-data',
 			'supra.htmleditor-toolbar',
 			
-			'supra.htmleditor-plugin-insertlink',
+			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-image',
 			'supra.htmleditor-plugin-table',
@@ -229,7 +244,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		
 		/* Plugins */
-		'supra.htmleditor-plugin-insertlink': {
+		'supra.htmleditor-plugin-link': {
 			path: 'htmleditor/plugins/plugin-link.js',
 			requires: ['supra.htmleditor-base']
 		},

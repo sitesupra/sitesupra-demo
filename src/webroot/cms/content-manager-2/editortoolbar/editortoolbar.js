@@ -90,18 +90,18 @@ SU('supra.htmleditor', function (Y) {
 			
 			//Add "Apply", "Close" buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'apply',
+				'id': 'done',
 				'callback': Y.bind(function () {
-					/* @TODO Apply changes */
-					Manager.PageContent.getIframe().contents.set('activeContent', null);
+					var active_content = Manager.PageContent.getActiveContent();
+						active_content.fire('block:save');
 				}, this)
-			}, {
+			}/*, {
 				'id': 'close',
 				'callback': Y.bind(function () {
-					/* @TODO Revert */
-					Manager.PageContent.getIframe().contents.set('activeContent', null);
+					var active_content = Manager.PageContent.getActiveContent();
+						active_content.fire('block:cancel');
 				}, this)
-			}]);
+			}*/]);
 		},
 		
 		/**
@@ -117,7 +117,7 @@ SU('supra.htmleditor', function (Y) {
 				nodes[id].addClass('yui3-editor-toolbar-' + id + '-hidden');
 			}
 			
-			//Hide "Apply", "Close" buttons
+			//Hide "Done", "Close" buttons
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 		},
 		
@@ -135,7 +135,7 @@ SU('supra.htmleditor', function (Y) {
 				nodes[id].removeClass('yui3-editor-toolbar-' + id + '-hidden');
 			}
 			
-			//Show "Apply", "Close" buttons
+			//Show "Done", "Close" buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
 		}
 	});

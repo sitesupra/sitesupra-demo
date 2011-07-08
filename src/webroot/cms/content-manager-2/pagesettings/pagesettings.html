@@ -1,117 +1,123 @@
 <div class="yui3-page-settings">
 	
-	<div class="yui3-form-properties">
-		<!-- Form header -->
-		<h2>Page Settings</h2>
-		
-		<!-- Buttons -->
-		<div class="yui3-form-buttons">
-			<button type="button" class="button-cancel"><p>Cancel</p></button>
-			<button type="button" class="button-back"><p>Back</p></button>
-			<button type="button" class="button-save"><p>Save</p></button>
-		</div>
-		
-		<!-- Form -->
-		<form><fieldset id="slideMain">
-			
-			<label for="title">Page title</label>
-			<input type="text" name="title" id="title" value="" />
-			
-			<label for="path">Page URL</label>
-			<input type="text" name="path" id="path" value="" />
-			
-			<button type="button" class="button-delete"><p>Delete</p></button>
-			
-			<label for="active">Active</label>
-			<select name="active" id="active" value="" suType="SelectList">
-				<option value="1">On</option>
-				<option value="0">Off</option>
-			</select>
-			
-			<div class="input-group input-group-button">
-				<button type="button" class="button-meta"><p>Meta</p></button>
-			</div>
-			
-			<div class="input-group input-group-button">
-				<button type="button" class="button-version"><p>
-					Version<br />
-					<small>
-						<b></b><br />
-						Last change: <span></span>
-					</small>
-				</p></button>
-				<input type="hidden" name="version_id" />
-			</div>
-			
-			<div class="input-group input-group-button">
-				<button type="button" class="button-template"><p>
-					Template<br />
-					<small>
-						<span></span><img src="/cms/supra/img/px.gif" alt="" />
-					</small>
-				</p></button>
-				<input type="hidden" name="template[id]" />
-				<input type="hidden" name="template[img]" />
-				<input type="hidden" name="template[title]" />
-			</div>
-			
-			<div class="input-group input-group-button">
-				<button type="button" class="button-schedule"><p>Schedule: publish</p></button>
-			</div>
-			
-			<div class="input-group input-group-button">
-				<button type="button" class="button-blocks"><p>View blocks on page</p></button>
-			</div>
-			
-		</fieldset><fieldset id="slideMeta" class="hidden">
-			
-			<h3>Meta</h3>
-			
-			<label for="keywords">Keywords</label>
-			<input type="text" name="keywords" id="keywords" value="" />
-			
-			<label for="description">Description</label>
-			<input type="text" name="description" id="description" value="" />
-		
-		</fieldset><fieldset id="slideVersion" class="hidden">
-		
-			<h3>Version</h3>
-			<div class="version-list">
-				<ul></ul>
-				<div class="clear"><!-- --></div>
-				<div class="version-list-buttons">
-					<button type="button" class="button-new-version"><p>New version</p></button>
-				</div>
-			</div>
-		
-		</fieldset><fieldset id="slideTemplate" class="hidden">
-		
-			<h3>Templates</h3>
-			<ul class="template-list"></ul>
-			<div class="clear"><!-- --></div>
-		
-		</fieldset><fieldset id="slideSchedule" class="hidden">
-		
-			<h3>Schedule publish</h3>
-			<div class="calendar"></div>
-			<div class="time">
-				<label>Select time</label>
-				<input type="text" name="schedule_hours" value="" suValueMask="^[0-9]*$" maxlength="2" />
-				<span>/</span>
-				<input type="text" name="schedule_minutes" value="" suValueMask="^[0-9]*$" maxlength="2" />
-				
-				<br />
-				
-				<button type="button"><p>Apply</p></button>
-			</div>
-		
-		</fieldset><fieldset id="slideBlocks" class="hidden">
-		
-			<h3>Blocks on the page</h3>
-			<ul class="block-list"></ul>
-			<div class="clear"><!-- --></div>
-		
-		</fieldset></form>
+	<!-- Form header -->
+	<h2 class="yui3-sidebar-header">Page settings</h2>
+	
+	<!-- Buttons -->
+	<div class="yui3-sidebar-buttons">
+		<!-- <button type="button" class="button-cancel"><p>Cancel</p></button> -->
+		<button type="button" class="button-back"><p>Back</p></button>
+		<button type="button" class="button-save"><p>Done</p></button>
 	</div>
+	
+	<div class="yui3-sidebar-content"><form>
+	
+		<!-- Slideshow -->
+		<div class="slideshow">
+			
+			<div id="slideMain">
+			
+				<label for="title">Page title</label>
+				<input type="text" name="title" id="title" value="" />
+				
+				<label for="path">Page URL</label>
+				<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\\-\\_]*$" />
+				
+				<button type="button" class="button-delete"><p>Delete</p></button>
+				
+				<label for="active">Active</label>
+				<select name="active" id="active" value="" suType="SelectList">
+					<option value="1">On</option>
+					<option value="0">Off</option>
+				</select>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-meta"><p>Meta</p></button>
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-version"><p>
+						Version<br />
+						<small>
+							<b></b><br />
+							Last change: <span></span>
+						</small>
+					</p></button>
+					<input type="hidden" name="version_id" />
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-template"><p>
+						Template<br />
+						<small>
+							<span></span><img src="/cms/supra/img/px.gif" alt="" />
+						</small>
+					</p></button>
+					<input type="hidden" name="template[id]" />
+					<input type="hidden" name="template[img]" />
+					<input type="hidden" name="template[title]" />
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-schedule"><p>Schedule: publish</p></button>
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-blocks"><p>View blocks on page</p></button>
+				</div>
+				
+			</div><div id="slideMeta" class="hidden">
+				
+				<h3>Meta</h3>
+				
+				<label for="keywords">Keywords</label>
+				<input type="text" name="keywords" id="keywords" value="" />
+				
+				<label for="description">Description</label>
+				<input type="text" name="description" id="description" value="" />
+			
+			</div><div id="slideVersion" class="hidden">
+			
+				<h3>Version</h3>
+				<div class="version-list">
+					<ul></ul>
+					<div class="clear"><!-- --></div>
+					<div class="version-list-buttons">
+						<button type="button" class="button-new-version"><p>New version</p></button>
+					</div>
+				</div>
+			
+			</div><div id="slideTemplate" class="hidden">
+			
+				<h3>Templates</h3>
+				<ul class="template-list"></ul>
+				<div class="clear"><!-- --></div>
+			
+			</div><div id="slideSchedule" class="hidden">
+			
+				<h3>Schedule publish</h3>
+				<div class="calendar"></div>
+				<div class="time">
+					<label>Select time</label>
+					<input type="text" name="schedule_hours" value="" suValueMask="^[0-9]*$" maxlength="2" />
+					<span>/</span>
+					<input type="text" name="schedule_minutes" value="" suValueMask="^[0-9]*$" maxlength="2" />
+					
+					<br />
+					
+					<button type="button"><p>Apply</p></button>
+				</div>
+			
+			</div><div id="slideBlocks" class="hidden">
+			
+				<h3>Blocks on the page</h3>
+				<ul class="block-list"></ul>
+				<div class="clear"><!-- --></div>
+			
+			</div>
+			
+		</div>
+	
+	</form></div>
 	
 </div>

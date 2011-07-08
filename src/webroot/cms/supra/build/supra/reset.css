@@ -41,6 +41,11 @@ body {
 .hidden {
 	display: none !important;
 }
+.offscreen {
+	position: absolute;
+	left: -9000px;
+	top: -9000px;
+}
 
 a.visible, em.visible, i.visible, strong.visible, b.visible, span.visible { display: inline !important; }
 table.visible { display: table !important; }
