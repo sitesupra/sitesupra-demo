@@ -71,7 +71,7 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	protected $level;
 
 	/**
-	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
 	protected $data;
@@ -89,15 +89,6 @@ class Page extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	 * @var Collection
 	 */
 	protected $placeHolders;
-
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		$this->pageData = new ArrayCollection();
-	}
 
 	/**
 	 * Set page template

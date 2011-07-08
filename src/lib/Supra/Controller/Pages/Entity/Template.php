@@ -71,13 +71,13 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	protected $level;
 	
 	/**
-	 * @OneToMany(targetEntity="TemplateData", mappedBy="template", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="TemplateData", mappedBy="template", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
 	protected $data;
 
 	/**
-	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"}, indexBy="media")
 	 * @var Collection
 	 */
 	protected $templateLayouts;
@@ -97,26 +97,6 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 		$this->templateLayouts = new ArrayCollection();
 		parent::__construct();
 	}
-
-	/**
-	 * Removes all layout data if parent is set
-	 * @param Abstraction\Page $parent
-	 */
-//	public function setParent(Abstraction\Page $parent = null)
-//	{
-//		if ( ! is_null($parent)) {
-//
-//			$this->matchDiscriminator($parent);
-//
-//			// Remove associated template layout objects
-//			$templateLayouts = $this->getTemplateLayouts();
-//			foreach ($templateLayouts as $key => $templateLayout) {
-//				$templateLayouts->remove($key);
-//				self::getConnection()->remove($templateLayout);
-//			}
-//		}
-//		parent::setParent($parent);
-//	}
 
 	/**
 	 * Set templateLayout
@@ -166,13 +146,14 @@ class Template extends Abstraction\Page implements NestedSet\Node\NodeInterface
 	{
 		$templateLayouts = $this->getTemplateLayouts();
 		/* @var $templateLayout TemplateLayout */
-		foreach ($templateLayouts as $key => $templateLayout) {
-			if ($templateLayout->getMedia() == $media) {
-				$templateLayout->remove($key);
-				self::getConnection()->remove($templateLayout);
-				return true;
-			}
+		$templateLayout = $templateLayouts->remove($media);
+		
+		if ( ! is_null($templateLayout)) {
+			self::getConnection()->remove($templateLayout);
+			
+			return true;
 		}
+		
 		return false;
 	}
 

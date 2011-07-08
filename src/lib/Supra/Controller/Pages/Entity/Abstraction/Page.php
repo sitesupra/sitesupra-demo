@@ -31,8 +31,8 @@ abstract class Page extends Entity
 	protected $data;
 
 	/**
-	 * Object's place holders\
-	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"})
+	 * Object's place holders
+	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
@@ -88,13 +88,9 @@ abstract class Page extends Entity
 	public function getData($locale)
 	{
 		$dataCollection = $this->getDataCollection();
-		/* @var $data Data */
-		foreach ($dataCollection as $data) {
-			if ($data->getLocale() == $locale) {
-				return $data;
-			}
-		}
-		return null;
+		$data = $dataCollection->get($locale);
+		
+		return $data;
 	}
 
 	/**
@@ -120,16 +116,21 @@ abstract class Page extends Entity
 	{
 		$dataCollection = $this->getDataCollection();
 		/* @var $data Data */
-		foreach ($dataCollection as $key => $data) {
-			if ($data->getLocale() == $locale) {
-				$dataCollection->remove($key);
-				self::getConnection()->remove($data);
-				return true;
-			}
+		$data = $dataCollection->remove($locale);
+		
+		if ( ! empty($data)) {
+			self::getConnection()->remove($data);
+			
+			return true;
 		}
+		
 		return false;
 	}
 
+	/**
+	 * Adds placeholder
+	 * @param PlaceHolder $placeHolder
+	 */
 	public function addPlaceHolder(PlaceHolder $placeHolder)
 	{
 		if ($this->lock('placeHolder')) {

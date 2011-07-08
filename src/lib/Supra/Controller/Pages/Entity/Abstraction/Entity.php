@@ -127,6 +127,7 @@ abstract class Entity
 					cannot rewrite with different value for $sourceEntity");
 		}
 		$property = $value;
+		
 		return true;
 	}
 
@@ -134,59 +135,26 @@ abstract class Entity
 	 * Adds an element to collection preserving uniqueness of fields
 	 * @param Collection $collection
 	 * @param Entity $newItem
-	 * @param mixed $uniqueFields
+	 * @param string $uniqueField
 	 * @return boolean true if added, false if already the same instance has been added
 	 * @throws Exception\RuntimeException if element with the same unique field values exists
 	 */
-	protected function addUnique(Collection $collection, $newItem, $uniqueFields = null)
+	protected function addUnique(Collection $collection, $newItem, $uniqueField = null)
 	{
-		$uniqueFieldValues = array();
-		
-		if (is_null($uniqueFields)) {
-			$uniqueFields = array();
+		if ($collection->contains($newItem)) {
+			return false;
 		}
 		
-		// One field can be passed as string
-		if ( ! is_array($uniqueFields)) {
-			$uniqueFields = array($uniqueFields);
+		if (is_null($uniqueField)) {
+			$collection->add($newItem);
+		} else {
+			//FIXME: ugly
+			$getter = 'get' . $uniqueField;
+			$indexBy = $newItem->$getter();
+			
+			$collection->set($indexBy, $newItem);
 		}
-
-		if ($collection->count() > 0) {
-
-			/* @var $field string */
-			foreach ($uniqueFields as $field) {
-				$uniqueFieldValues[$field] = $newItem->getProperty($field);
-			}
-
-			/* @var $item Entity */
-			foreach ($collection as $item) {
-
-				// The instance already added
-				if ($item == $newItem) {
-					return false;
-				}
-
-				if (empty($uniqueFields)) {
-					continue;
-				}
-
-				/* @var $field string */
-				foreach ($uniqueFields as $field) {
-					$value = $item->getProperty($field);
-					if ($value != $uniqueFieldValues[$field]) {
-						continue 2;
-					}
-				}
-				
-				$this->unlockAll();
-
-				// If we are here it means all unique parameters were equal
-				throw new Exception\RuntimeException("Cannot add element to collection,
-					the element with the same values for unique fields already exists");
-			}
-		}
-
-		$collection->add($newItem);
+		
 		return true;
 	}
 

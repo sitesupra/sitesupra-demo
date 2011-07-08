@@ -45,7 +45,7 @@ class Block extends Entity
 
 	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
-	 * @JoinColumn(name="place_holder_id", referencedColumnName="id", nullable=false)
+	 * @JoinColumn(name="place_holder_id", referencedColumnName="id")
 	 * @var PlaceHolder
 	 */
 	protected $placeHolder;

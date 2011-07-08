@@ -35,7 +35,7 @@ class Layout extends Abstraction\Entity
 	protected $file;
 
 	/**
-	 * @OneToMany(targetEntity="LayoutPlaceHolder", mappedBy="layout", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="LayoutPlaceHolder", mappedBy="layout", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
@@ -91,8 +91,9 @@ class Layout extends Abstraction\Entity
 	public function addPlaceHolder(LayoutPlaceHolder $placeHolder)
 	{
 		if ($this->lock('placeHolders')) {
-			$this->placeHolders->add($placeHolder);
-			$placeHolder->setLayout($this);
+			if ($this->addUnique($this->placeHolders, $placeHolder, 'name')) {
+				$placeHolder->setLayout($this);
+			}
 			$this->unlock('placeHolders');
 		}
 	}
@@ -103,12 +104,7 @@ class Layout extends Abstraction\Entity
 	 */
 	public function getPlaceHolderNames()
 	{
-		$names = array();
-
-		/* @var $layoutPlaceHolder LayoutPlaceHolder */
-		foreach ($this->placeHolders as $layoutPlaceHolder) {
-			$names[] = $layoutPlaceHolder->getName();
-		}
+		$names = $this->placeHolders->getKeys();
 
 		return $names;
 	}
