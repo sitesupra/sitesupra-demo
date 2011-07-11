@@ -278,8 +278,15 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		 * Delete page
 		 */
 		deletePage: function () {
-			Manager.Page.deletePage();
-			this.hide();
+			
+			Manager.executeAction('Confirmation', {
+				'message': 'Are you sure you want to delete selected page?',
+				'buttons': [
+					{'id': 'delete', 'label': 'Yes', 'click': function () { Manager.Page.deletePage(); this.hide(); }, 'context': this},
+					{'id': 'no', 'label': 'No'}
+				]
+			});
+			
 		},
 		
 		/**

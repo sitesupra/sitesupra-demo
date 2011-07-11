@@ -245,7 +245,6 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 				'title': '',
 				'href': '',
 				'page_id': null,
-				'page_path': '',
 				'file_id': null,
 				'file_path': [],
 				'file_title': '',
@@ -268,7 +267,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			this.data = data;
 			this.slideshow.set('noAnimations', true);
 			
-			switch (data.type) {
+			switch (data.resource) {
 				case 'page':
 					this.slideshow.set('slide', 'linkToPage');
 					
@@ -349,9 +348,8 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 					}
 					
 					return {
-						'type': 'page',
+						'resource': 'page',
 						'page_id': page_id,
-						'page_path': page_path,
 						'href': page_path,
 						'target': data.target,
 						'title': data.title
@@ -359,7 +357,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 				} else {
 					//Link to external resource
 					return {
-						'type': 'link',
+						'resource': 'link',
 						'href': data.href,
 						'target': data.target,
 						'title': data.title
@@ -371,7 +369,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 				if (!item_data) return;
 				
 				return {
-					'type': 'file',
+					'resource': 'file',
 					'href': item_data.file_web_path,
 					'target': '',
 					'title': data.file_title,

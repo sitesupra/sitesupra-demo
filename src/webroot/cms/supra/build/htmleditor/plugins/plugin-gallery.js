@@ -121,6 +121,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Show gallery
 			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (gallery_data, changed) {
 				if (changed && this.selected_gallery) {
+					gallery_data.type = this.NAME;
+					
 					this.htmleditor.setData(gallery_id, gallery_data);
 					this.setGalleryProperty('images', gallery_data.images);
 				}
@@ -310,6 +312,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 				
 				gallery_data = Supra.mix({}, defaultProps, {
+					'type': this.NAME,
 					'align': image_data.align,
 					'style': image_data.style,
 					'title': image_data.title,
@@ -418,6 +421,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Set additional gallery properties
 			var data = Supra.mix({}, defaultProps, {
+				'type': this.NAME,
 				'title': image_data[0].title,
 				'description': image_data[0].description,
 				'images': image_data
@@ -603,7 +607,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				image = {'id': data.images[i].id};
 				images.push(image);
 				for(var k=0; k<kk; k++) {
-					image[properties[k].id] = data.images[i][properties[k].id]
+					image[properties[k].id] = data.images[i][properties[k].id] || '';
 				}
 			}
 			

@@ -304,7 +304,12 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 * @type {Object}
 		 */
 		processData: function (id, data) {
-			data.image = data.image.id;
+			//Remove unneeded data
+			delete(data.file_path);
+			
+			//HREF is needed for external links
+			if (data.resource != 'link') delete(data.href);
+			
 			return data;
 		}
 		

@@ -16,6 +16,12 @@ YUI.add("supra.footer", function (Y) {
 	
 	var BUTTON_STYLES = {
 		"save": "mid-blue",
+		"ok": "mid-blue",
+		"cancel": "mid",
+		"yes": "mid-blue",
+		"no": "mid",
+		"apply": "mid-blue",
+		"done": "mid",
 		"delete": "mid-red"
 	};
 	
@@ -80,10 +86,7 @@ YUI.add("supra.footer", function (Y) {
 		renderUI: function () {
 			Footer.superclass.renderUI.apply(this, arguments);
 			
-			var srcNode = this.get('srcNode');
-			var contentBox = this.get('contentBox');
-			
-			var buttons = {};
+			var button_count = 0;
 			var definitions = this.buttons_definition || {};
 			
 			//Find all buttons
@@ -91,43 +94,11 @@ YUI.add("supra.footer", function (Y) {
 				definitions = Supra.mix(this.discoverButtons(), definitions, true);
 			}
 			
-			//Normalize definitions
-			//by adding missing parameters
-			var definition = null,
-				id = null,
-				node = null;
-			
-			var button_count = 0;
-			
 			//Create Inputs
 			for(var i in definitions) {
-				definition = definitions[i] = this.normalizeButtonConfig(definitions[i]);
-				id = definition.id;
-				
-				//Try finding input
-				if (!definition.srcNode) {
-					node = srcNode.one('#' + id);
-					if (!node) {
-						node = srcNode.one('input.' + id + ', button.' + id);
-					}
-					
-					definition.srcNode = node;
-				}
-				
-				buttons[id] = new Supra.Button(definition);
-				
-				if (definition.srcNode) {
-					buttons[id].render();
-				} else {
-					//If input doesn't exist, then create it
-					buttons[id].render(contentBox);
-				}
-				
+				this._renderButton(definitions[i]);
 				button_count++;
 			}
-			
-			this.buttons = buttons;
-			this.buttons_definition = definitions;
 			
 			//Style
 			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Footer.NAME, this.get('style')));
@@ -160,15 +131,19 @@ YUI.add("supra.footer", function (Y) {
 		discoverButtons: function () {
 			var buttons = this.get('srcNode').all('input[type="button"],input[type="submit"],button');
 			var config = {};
+			var styles = BUTTON_STYLES;
 			
 			for(var i=0,ii=buttons.size(); i<ii; i++) {
 				var button = buttons.item(i);
 				
 				var id = button.getAttribute('id');
 				if (!id) {
-					if (button.hasClass('save'))        id = 'save';
-					else if (button.hasClass('delete')) id = 'delete';
-					else if (button.hasClass('cancel')) id = 'cancel';
+					for(var style in styles) {
+						if (button.hasClass(style)) {
+							id = style;
+							break;
+						}
+					}
 				}
 				
 				if (!id) continue;
@@ -178,7 +153,6 @@ YUI.add("supra.footer", function (Y) {
 				
 				config[id] = {
 					"id": id,
-					"style": (id in BUTTON_STYLES ? BUTTON_STYLES[id] : 'mid'),
 					"label": label,
 					"srcNode": button,
 					"disabled": disabled
@@ -196,14 +170,29 @@ YUI.add("supra.footer", function (Y) {
 		 * @return Normalized button configuration
 		 * @type {Object}
 		 */
-		normalizeButtonConfig: function () {
+		normalizeButtonConfig: function (config) {
+			var style_definition = {};
+			if ('id' in config && config.id in BUTTON_STYLES) {
+				style_definition.style = BUTTON_STYLES[config.id];
+			}
+			
 			//Convert arguments into
 			//[{}, INPUT_DEFINITION, argument1, argument2, ...]
 			var args = [].slice.call(arguments,0);
-				args = [{}, BUTTON_DEFINITION].concat(args);
+				args = [{}, BUTTON_DEFINITION, style_definition].concat(args);
 			
 			//Mix them together
 			return Supra.mix.apply(Supra, args);
+		},
+		
+		/**
+		 * Returns all buttons
+		 * 
+		 * @return Button list
+		 * @type {Object]
+		 */
+		getButtons: function () {
+			return this.buttons;
 		},
 		
 		/**
@@ -214,12 +203,69 @@ YUI.add("supra.footer", function (Y) {
 		 */
 		addButton: function (config) {
 			if (this.get('rendered')) {
-				//@TODO Add possibility to add button during runtime
+				this._renderButton(config);
+				this.show();
 			} else {
 				var index = this.button_index++;
 				var id = ('id' in config && config.id ? config.id : 'button' + index);
 				var conf = (id in this.buttons_definition ? this.buttons_definition[id] : {});
 				this.buttons_definition[id] = Supra.mix(conf, config);
+			}
+			
+			return this;
+		},
+		
+		/**
+		 * Render button
+		 * @param {Object} definition
+		 */
+		_renderButton: function (definition) {
+			var srcNode = this.get('srcNode'),
+				contentBox = this.get('contentBox'),
+				definition = this.normalizeButtonConfig(definition),
+				id = definition.id,
+				buttons = this.buttons = (this.buttons || {}),
+				node = null;
+			
+			//Try finding input
+			if (!definition.srcNode) {
+				node = srcNode.one('#' + id);
+				if (!node) {
+					node = srcNode.one('input.' + id + ', button.' + id);
+				}
+				
+				definition.srcNode = node;
+			}
+			
+			//Remove old button if it already exist
+			if (id in buttons) {
+				this.removeButton(id);
+			}
+			
+			buttons[id] = new Supra.Button(definition);
+			
+			if (definition.srcNode) {
+				buttons[id].render();
+			} else {
+				//If input doesn't exist, then create it
+				buttons[id].render(contentBox);
+			}
+			
+			return this;
+		},
+		
+		/**
+		 * Remove button
+		 * Chainable
+		 * 
+		 * @param {String} id Button ID
+		 */
+		removeButton: function (id) {
+			if (id in this.buttons) {
+				var node = this.buttons[id].get('srcNode');
+				this.buttons[id].destroy();
+				delete(this.buttons[id]);
+				node.destroy();
 			}
 			
 			return this;
@@ -251,6 +297,7 @@ YUI.add("supra.footer", function (Y) {
 		
 		/**
 		 * Disable / enable button
+		 * Chainable
 		 * 
 		 * @param {String} id Button ID
 		 * @param {Boolean} disabled

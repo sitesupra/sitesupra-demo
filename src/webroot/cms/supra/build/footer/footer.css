@@ -14,6 +14,13 @@
 	.yui3-footer .right {
 		float: right;
 	}
+	
+	.yui3-footer .yui3-button {
+		margin-left: 10px;
+	}
+	.yui3-footer .yui3-button:first-child {
+		margin-left: 0;
+	}
 
 .yui3-footer-hidden {
 	display: none;
