@@ -154,6 +154,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				this.original_data = null;
 				
 				this.hideSettingsForm();
+				
+				//Property changed, update editor 'changed' state
+				this.htmleditor._changed();
 			}
 		},
 		

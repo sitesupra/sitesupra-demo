@@ -97,6 +97,9 @@ YUI().add('supra.htmleditor-data', function (Y) {
 			}
 			
 			this.data[id] = data;
+			
+			//Data was changed, update state
+			this._changed();
 		},
 		
 		/**

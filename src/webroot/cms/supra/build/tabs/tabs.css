@@ -13,8 +13,7 @@
 		-moz-border-radius: 4px 4px 0 0;
 		-webkit-border-radius: 4px 4px 0 0;
 		border-radius: 4px 4px 0 0;
-		background: #FCFCFC;
-		border: 1px solid #969696;
+		background: #eee;
 		border-bottom: 0;
 		
 		-moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.35) inset;
@@ -48,8 +47,7 @@
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
-	background: #FCFCFC;
-	border: 1px solid #969696;
+	background: #eee;
 	padding: 4px;
 	min-height: 10px;
 }

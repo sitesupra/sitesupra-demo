@@ -437,6 +437,35 @@ YUI.add('supra.page-iframe', function (Y) {
 		},
 		
 		/**
+		 * Send block delete request
+		 * 
+		 * @param {Object} block
+		 */
+		sendBlockDelete: function (block, callback, context) {
+			var url = Manager.PageContent.getDataPath('deleteblock');
+			var page_info = Manager.Page.getPageData();
+			var data = {
+				'page_id': page_info.id,
+				'version_id': page_info.version.id,
+				'id': block.getId(),
+				
+				'language': Supra.data.get('language')
+			};
+			
+			Supra.io(url, {
+				'data': data,
+				'on': {
+					'success': function (evt, data) {
+						if (Y.Lang.isFunction(callback)) {
+							callback.call(context, data);
+						}
+					}
+				},
+				'context': context
+			});
+		},
+		
+		/**
 		 * Remove child Supra.Manager.PageContent.Proto object
 		 * 
 		 * @param {Object} child
@@ -444,8 +473,14 @@ YUI.add('supra.page-iframe', function (Y) {
 		removeChild: function (child) {
 			for(var i in this.contentBlocks) {
 				if (this.contentBlocks[i] === child) {
-					delete(this.contentBlocks[i]);
-					child.destroy();
+					
+					//Send request
+					this.sendBlockDelete(child, function (response) {
+						if (response) {
+							delete(this.contentBlocks[i]);
+							child.destroy();
+						}
+					}, this);
 				}
 			}
 		},

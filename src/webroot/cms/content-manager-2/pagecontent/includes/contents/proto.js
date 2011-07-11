@@ -223,8 +223,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 		removeChild: function (child) {
 			for(var i in this.children) {
 				if (this.children[i] === child) {
-					delete(this.children[i]);
-					child.destroy();
+					
+					//Send request
+					this.get('super').sendBlockDelete(child, function (response) {
+						if (response) {
+							delete(this.children[i]);
+							child.destroy();
+						}
+					}, this);
+					
 				}
 			}
 		},

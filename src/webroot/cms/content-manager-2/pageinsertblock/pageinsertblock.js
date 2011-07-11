@@ -148,7 +148,7 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 			this.set('tabs', tab_config);
 			
 			//Create tabs
-			var tabs = this.tabs = new Supra.Tabs({'style': 'vertical'});
+			var tabs = this.tabs = new Supra.Tabs();
 			
 			for(var id in tab_config) {
 				if (Y.Lang.isObject(tab_config[id])) {

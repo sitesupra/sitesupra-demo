@@ -29,6 +29,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		},
 		'toolbar': {
 			value: null
+		},
+		'changed': {
+			value: false
 		}
 	};
 	
@@ -110,6 +113,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				selectionNode = srcNode.firstChild || srcNode;
 			
 			this.setSelection({'start': selectionNode, 'start_offset': 0, 'end': selectionNode, 'end_offset': 0});
+			
+			//Reset state
+			this.set('changed', false);
 			
 			//Fire "nodeChange" event
 			this.selection = null;
@@ -223,6 +229,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			if (!event.stopped && !this.editingAllowed && (event._event.charCode || !this.navigationCharCode(charCode))) {
 				event.halt();
 				return;
+			} else if (!this.get('changed')) {
+				this._changed();
 			}
 		},
 		
@@ -232,13 +240,18 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * @param {Object} event
 		 */
 		_handleKeyUp: function (event) {
-			var charCode = event.charCode;
+			var charCode = event.charCode,
+				navKey = this.navigationCharCode(charCode);
 			
-			if (this.editingAllowed || this.navigationCharCode(charCode)) {
+			if (this.editingAllowed || navKey) {
 				if (this.fire('keyUp', event) !== false) {
 					setTimeout(Y.bind(function () {
 						this._handleNodeChange(event);
 					}, this), 0);
+					
+					if (!navKey && !this.get('changed')) {
+						this._changed();
+					}
 				}
 			}
 		},
@@ -311,6 +324,15 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				return true;
 			}
 			return false;
+		},
+		
+		/**
+		 * Update 'changed' state if needed
+		 */
+		_changed: function () {
+			if (!this.get('changed')) {
+				this.set('changed', true);
+			}
 		}
 		
 	});

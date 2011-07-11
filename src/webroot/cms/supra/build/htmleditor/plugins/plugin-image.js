@@ -141,6 +141,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				this.hideSettingsForm();
 				this.hideMediaSidebar();
+				
+				//Property changed, update editor 'changed' state
+				this.htmleditor._changed();
 			}
 		},
 		

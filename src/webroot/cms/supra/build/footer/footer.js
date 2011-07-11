@@ -25,6 +25,17 @@ YUI.add("supra.footer", function (Y) {
 		"delete": "mid-red"
 	};
 	
+	var BUTTON_LABELS = {
+		"save": "Save",
+		"ok": "Ok",
+		"cancel": "Cancel",
+		"yes": "Yes",
+		"no": "No",
+		"apply": "Apply",
+		"done": "Done",
+		"delete": "Delete"
+	};
+	
 	function bubbleEvent (event, event_name) {
 		this.fire(event_name, event);
 	}
@@ -174,6 +185,9 @@ YUI.add("supra.footer", function (Y) {
 			var style_definition = {};
 			if ('id' in config && config.id in BUTTON_STYLES) {
 				style_definition.style = BUTTON_STYLES[config.id];
+			}
+			if ('id' in config && config.id in BUTTON_LABELS) {
+				style_definition.label = BUTTON_LABELS[config.id];
 			}
 			
 			//Convert arguments into

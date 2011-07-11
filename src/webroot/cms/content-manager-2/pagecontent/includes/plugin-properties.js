@@ -97,6 +97,21 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		'showOnEdit': {
 			'value': false
+		},
+		
+		/*
+		 * Property has changed
+		 */
+		'changed': {
+			'value': false,
+			'setter': '_setChanged'
+		},
+		
+		/*
+		 * Inline property has changed
+		 */
+		'inlineChanged': {
+			'value': false
 		}
 	};
 	
@@ -205,7 +220,45 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			form.setValues(data, 'id');
 			
+			//Bind to change event
+			var inputs = form.getInputs();
+			for(var id in inputs) {
+				inputs[id].on('change', this.onPropertyChange, this);
+			}
+			
 			this.set('form', form);
+		},
+		
+		/**
+		 * On property change update state
+		 * 
+		 * @param {Object} evt
+		 */
+		onPropertyChange: function (evt) {
+			var changed = this.get('changed'),
+				inlineChanged = this.get('inlineChanged');
+			
+			if (changed && inlineChanged) return;
+			
+			var input = evt.target,
+				id = input.get('id'),
+				properties = this.get('properties');
+			
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				if (properties[i].id == id) {
+					if (properties[i].inline) {
+						if (!inlineChanged) {
+							this.set('inlineChanged', true);
+							this.set('changed', true);
+						}
+					} else {
+						if (!changed) {
+							this.set('changed', true);
+						}
+					}
+					break;
+				}
+			}
 		},
 		
 		/**
@@ -215,6 +268,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this._original_values = this.getValues();
 			this.get('host').fire('properties:save');
 			
+			this.set('inlineChanged', false);
+			this.set('changed', false);
 			SU.Manager.PageContentSettings.hide();
 		},
 		
@@ -225,6 +280,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.setNonInlineValues(this._original_values);
 			this.get('host').fire('properties:cancel');
 			
+			this.set('inlineChanged', false);
+			this.set('changed', false);
 			SU.Manager.PageContentSettings.hide();
 		},
 		
@@ -232,13 +289,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Delete content
 		 */
 		deleteContent: function () {
-			//Trigger event; plugins or other contents may use this
-			this.fire('delete');
-			
-			//Remove content
-			var host = this.get('host');
-			var parent = host.get('parent') || host.get('parent');
-			parent.removeChild(host);
+			Supra.Manager.executeAction('Confirmation', {
+				'message': 'Are you sure you want to delete selected block',
+				'buttons': [
+					{'id': 'yes', 'context': this, 'click': function () {
+						
+						//Trigger event; plugins or other contents may use this
+						this.fire('delete');
+						
+						//Remove content
+						var host = this.get('host');
+						var parent = host.get('parent');
+						parent.removeChild(host);
+						
+					}},
+					{'id': 'no'}
+				]
+			});
 		},
 		
 		/**

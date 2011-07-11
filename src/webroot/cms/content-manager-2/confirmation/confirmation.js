@@ -1,6 +1,18 @@
 //Invoke strict mode
 "use strict";
 
+/**
+ * Confirmation dialog
+ * 
+ * @example
+ * 		Supra.Manager.executeAction('Confirmation', {
+ * 			'message': 'Are you sure?',
+ * 			'buttons': [
+ * 				{'id': 'yes', 'click': function () { alert('Yes'); }, 'context': this},
+ * 				{'id': 'no', 'label': 'No, some other time'},
+ * 			]
+ * 		});
+ */
 SU('supra.form', function (Y) {
 	
 	var DEFAULT_CONFIG = {

@@ -51,9 +51,9 @@ YUI.add('supra.tabs', function(Y) {
 	
 	Tabs.HTML_PARSER = {
 		'nodeButtonContainer': function (srcNode) {
-			var node = srcNode.one('.yui-tabs-buttons');
+			var node = srcNode.one('.yui3-tabs-buttons');
 			if (!node) {
-				node = Y.Node.create('<div class="yui-tabs-buttons"></div>');
+				node = Y.Node.create('<div class="yui3-tabs-buttons"></div>');
 				this.get('contentBox').append(node);
 			}
 			
@@ -62,9 +62,9 @@ YUI.add('supra.tabs', function(Y) {
 		},
 		'nodeContentContainer': function (srcNode) {
 			var className = this.getClassName('contents'),
-				node = srcNode.one('.yui-tabs-contents');
+				node = srcNode.one('.yui3-tabs-contents');
 			if (!node) {
-				node = Y.Node.create('<div class="yui-tabs-contents"></div>');
+				node = Y.Node.create('<div class="yui3-tabs-contents"></div>');
 				this.get('contentBox').append(node);
 			}
 			
@@ -105,9 +105,9 @@ YUI.add('supra.tabs', function(Y) {
 				var nodeButtonContainer = this.get('nodeButtonContainer'),
 					nodeContentContainer = this.get('nodeContentContainer');
 				
-				nodeButtonContainer.removeClass('yui-tabs-buttons');
+				nodeButtonContainer.removeClass('yui3-tabs-buttons');
 				nodeButtonContainer.addClass(this.getClassName('buttons'));
-				nodeContentContainer.removeClass('yui-tabs-contents');
+				nodeContentContainer.removeClass('yui3-tabs-contents');
 				nodeContentContainer.addClass(this.getClassName('contents'));
 			}
 			
