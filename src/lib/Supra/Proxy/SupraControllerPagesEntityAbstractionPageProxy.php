@@ -15,7 +15,8 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,84 +26,120 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getPlaceHolders()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPlaceHolders();
     }
 
     public function getDataCollection()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDataCollection();
     }
 
     public function getData($locale)
     {
-        $this->_load();
+        $this->__load();
         return parent::getData($locale);
     }
 
     public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
     {
-        $this->_load();
+        $this->__load();
         return parent::setData($data);
     }
 
     public function removeData($locale)
     {
-        $this->_load();
+        $this->__load();
         return parent::removeData($locale);
     }
 
     public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
     {
-        $this->_load();
+        $this->__load();
         return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function isBlockPropertyEditable(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
+    {
+        $this->__load();
+        return parent::isBlockPropertyEditable($blockProperty);
+    }
+
+    public function isBlockEditable(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
+    {
+        $this->__load();
+        return parent::isBlockEditable($block);
+    }
+
+    public function isBlockManageable(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
+    {
+        $this->__load();
+        return parent::isBlockManageable($block);
+    }
+
+    public function isPlaceHolderEditable(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    {
+        $this->__load();
+        return parent::isPlaceHolderEditable($placeHolder);
+    }
+
+    public function getTemplateHierarchy()
+    {
+        $this->__load();
+        return parent::getTemplateHierarchy();
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'depth');
+        return array('__isInitialized__', 'id', 'placeHolders', 'depth');
     }
 
     public function __clone()

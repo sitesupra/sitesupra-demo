@@ -15,7 +15,8 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,120 +26,126 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function getLocked()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLocked();
     }
 
     public function getPlaceHolder()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPlaceHolder();
     }
 
     public function setPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
     {
-        $this->_load();
+        $this->__load();
         return parent::setPlaceHolder($placeHolder);
     }
 
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getComponent()
     {
-        $this->_load();
+        $this->__load();
         return parent::getComponent();
     }
 
     public function setComponent($component)
     {
-        $this->_load();
+        $this->__load();
         return parent::setComponent($component);
     }
 
     public function getPosition()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPosition();
     }
 
     public function setPosition($position)
     {
-        $this->_load();
+        $this->__load();
         return parent::setPosition($position);
     }
 
     public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
     {
-        $this->_load();
+        $this->__load();
         return parent::addBlockProperty($blockProperty);
     }
 
     public function inPlaceHolder(array $placeHolderIds)
     {
-        $this->_load();
+        $this->__load();
         return parent::inPlaceHolder($placeHolderIds);
     }
 
-    public function controllerFactory()
+    public function createController()
     {
-        $this->_load();
-        return parent::controllerFactory();
+        $this->__load();
+        return parent::createController();
     }
 
-    public function setController(\Supra\Controller\Pages\BlockController $blockController)
+    public function prepareController(\Supra\Controller\Pages\BlockController $controller, \Supra\Controller\Pages\Request\Request $request)
     {
-        $this->_load();
-        return parent::setController($blockController);
+        $this->__load();
+        return parent::prepareController($controller, $request);
     }
 
-    public function getController()
+    public function executeController(\Supra\Controller\Pages\BlockController $controller)
     {
-        $this->_load();
-        return parent::getController();
+        $this->__load();
+        return parent::executeController($controller);
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'component', 'position', 'locked', 'placeHolder', 'blockProperties');
+        return array('__isInitialized__', 'id', 'component', 'position', 'placeHolder', 'blockProperties', 'locked');
     }
 
     public function __clone()

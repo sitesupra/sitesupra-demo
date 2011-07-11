@@ -15,7 +15,8 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,108 +26,126 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function setPage(\Supra\Controller\Pages\Entity\Page $page)
     {
-        $this->_load();
+        $this->__load();
         return parent::setPage($page);
     }
 
     public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
     {
-        $this->_load();
+        $this->__load();
         return parent::setMaster($master);
+    }
+
+    public function getMaster()
+    {
+        $this->__load();
+        return parent::getMaster();
     }
 
     public function getPage()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPage();
     }
 
     public function getPath()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPath();
     }
 
     public function setPathPart($pathPart)
     {
-        $this->_load();
+        $this->__load();
         return parent::setPathPart($pathPart);
+    }
+
+    public function getPathPart()
+    {
+        $this->__load();
+        return parent::getPathPart();
     }
 
     public function generatePath()
     {
-        $this->_load();
+        $this->__load();
         return parent::generatePath();
     }
 
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getLocale()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLocale();
     }
 
     public function setTitle($title)
     {
-        $this->_load();
+        $this->__load();
         return parent::setTitle($title);
     }
 
     public function getTitle()
     {
-        $this->_load();
+        $this->__load();
         return parent::getTitle();
     }
 
     public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
     {
-        $this->_load();
+        $this->__load();
         return parent::addBlockProperty($blockProperty);
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'page', 'path', 'pathPart');
+        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'master', 'page', 'path', 'pathPart');
     }
 
     public function __clone()

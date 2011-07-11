@@ -15,7 +15,8 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,84 +26,114 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getData()
     {
-        $this->_load();
+        $this->__load();
         return parent::getData();
     }
 
     public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
     {
-        $this->_load();
+        $this->__load();
         return parent::setData($data);
     }
 
     public function getBlock()
     {
-        $this->_load();
+        $this->__load();
         return parent::getBlock();
     }
 
     public function setBlock(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
     {
-        $this->_load();
+        $this->__load();
         return parent::setBlock($block);
+    }
+
+    public function getType()
+    {
+        $this->__load();
+        return parent::getType();
+    }
+
+    public function setType($type)
+    {
+        $this->__load();
+        return parent::setType($type);
     }
 
     public function getName()
     {
-        $this->_load();
+        $this->__load();
         return parent::getName();
     }
 
     public function getValue()
     {
-        $this->_load();
+        $this->__load();
         return parent::getValue();
     }
 
     public function setValue($value)
     {
-        $this->_load();
+        $this->__load();
         return parent::setValue($value);
+    }
+
+    public function getEditable()
+    {
+        $this->__load();
+        return parent::getEditable();
+    }
+
+    public function setEditable(\Supra\Editable\EditableInterface $editable)
+    {
+        $this->__load();
+        return parent::setEditable($editable);
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 

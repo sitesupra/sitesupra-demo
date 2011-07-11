@@ -15,7 +15,8 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,72 +26,78 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getMedia()
     {
-        $this->_load();
+        $this->__load();
         return parent::getMedia();
     }
 
     public function setLayout(\Supra\Controller\Pages\Entity\Layout $layout)
     {
-        $this->_load();
+        $this->__load();
         return parent::setLayout($layout);
     }
 
     public function getLayout()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLayout();
     }
 
     public function setTemplate(\Supra\Controller\Pages\Entity\Template $template = NULL)
     {
-        $this->_load();
+        $this->__load();
         return parent::setTemplate($template);
     }
 
     public function getTemplate()
     {
-        $this->_load();
+        $this->__load();
         return parent::getTemplate();
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 

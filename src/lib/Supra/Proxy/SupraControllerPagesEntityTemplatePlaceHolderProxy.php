@@ -15,7 +15,8 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,96 +26,108 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function setTemplate(\Supra\Controller\Pages\Entity\Template $template)
     {
-        $this->_load();
+        $this->__load();
         return parent::setTemplate($template);
     }
 
     public function getTemplate()
     {
-        $this->_load();
+        $this->__load();
         return parent::getTemplate();
     }
 
     public function setLocked($locked = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::setLocked($locked);
     }
 
     public function getLocked()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLocked();
     }
 
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getName()
     {
-        $this->_load();
+        $this->__load();
         return parent::getName();
     }
 
     public function getBlocks()
     {
-        $this->_load();
+        $this->__load();
         return parent::getBlocks();
     }
 
     public function addBlock(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
     {
-        $this->_load();
+        $this->__load();
         return parent::addBlock($block);
     }
 
     public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
     {
-        $this->_load();
+        $this->__load();
         return parent::setMaster($master);
     }
 
     public function getMaster()
     {
-        $this->_load();
+        $this->__load();
         return parent::getMaster();
+    }
+
+    public function getMaxBlockPosition()
+    {
+        $this->__load();
+        return parent::getMaxBlockPosition();
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 
