@@ -37,6 +37,7 @@ class PageData extends Abstraction\Data
 	public function setPage(Page $page)
 	{
 		if ($this->writeOnce($this->page, $page)) {
+			$this->master = $page;
 			$page->setData($this);
 		}
 	}

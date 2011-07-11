@@ -15,7 +15,8 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         $this->_entityPersister = $entityPersister;
         $this->_identifier = $identifier;
     }
-    private function _load()
+    /** @private */
+    public function __load()
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
@@ -25,198 +26,228 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
             unset($this->_entityPersister, $this->_identifier);
         }
     }
-
+    
     
     public function addTemplateLayout(\Supra\Controller\Pages\Entity\TemplateLayout $templateLayout)
     {
-        $this->_load();
+        $this->__load();
         return parent::addTemplateLayout($templateLayout);
     }
 
     public function getTemplateLayouts()
     {
-        $this->_load();
+        $this->__load();
         return parent::getTemplateLayouts();
     }
 
     public function addLayout($media, \Supra\Controller\Pages\Entity\Layout $layout)
     {
-        $this->_load();
+        $this->__load();
         return parent::addLayout($media, $layout);
     }
 
     public function removeLayout($media)
     {
-        $this->_load();
+        $this->__load();
         return parent::removeLayout($media);
     }
 
-    public function getLayout($media)
+    public function getLayout($media = 'screen')
     {
-        $this->_load();
+        $this->__load();
         return parent::getLayout($media);
     }
 
-    public function getPageHierarchy()
+    public function getTemplateHierarchy()
     {
-        $this->_load();
-        return parent::getPageHierarchy();
+        $this->__load();
+        return parent::getTemplateHierarchy();
     }
 
     public function getLeftValue()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLeftValue();
     }
 
     public function getRightValue()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRightValue();
     }
 
     public function getLevel()
     {
-        $this->_load();
+        $this->__load();
         return parent::getLevel();
     }
 
     public function setLeftValue($left)
     {
-        $this->_load();
+        $this->__load();
         return parent::setLeftValue($left);
     }
 
     public function setRightValue($right)
     {
-        $this->_load();
+        $this->__load();
         return parent::setRightValue($right);
     }
 
     public function setLevel($level)
     {
-        $this->_load();
+        $this->__load();
         return parent::setLevel($level);
     }
 
     public function moveLeftValue($diff)
     {
-        $this->_load();
+        $this->__load();
         return parent::moveLeftValue($diff);
     }
 
     public function moveRightValue($diff)
     {
-        $this->_load();
+        $this->__load();
         return parent::moveRightValue($diff);
     }
 
     public function moveLevel($diff)
     {
-        $this->_load();
+        $this->__load();
         return parent::moveLevel($diff);
     }
 
     public function createNestedSetNode()
     {
-        $this->_load();
+        $this->__load();
         return parent::createNestedSetNode();
     }
 
     public function __call($method, $arguments)
     {
-        $this->_load();
+        $this->__load();
         return parent::__call($method, $arguments);
     }
 
     public function removeTrigger()
     {
-        $this->_load();
+        $this->__load();
         return parent::removeTrigger();
     }
 
     public function free()
     {
-        $this->_load();
+        $this->__load();
         return parent::free();
     }
 
     public function getId()
     {
-        $this->_load();
+        $this->__load();
         return parent::getId();
     }
 
     public function getPlaceHolders()
     {
-        $this->_load();
+        $this->__load();
         return parent::getPlaceHolders();
     }
 
     public function getDataCollection()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDataCollection();
     }
 
     public function getData($locale)
     {
-        $this->_load();
+        $this->__load();
         return parent::getData($locale);
     }
 
     public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
     {
-        $this->_load();
+        $this->__load();
         return parent::setData($data);
     }
 
     public function removeData($locale)
     {
-        $this->_load();
+        $this->__load();
         return parent::removeData($locale);
     }
 
     public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
     {
-        $this->_load();
+        $this->__load();
         return parent::addPlaceHolder($placeHolder);
+    }
+
+    public function isBlockPropertyEditable(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
+    {
+        $this->__load();
+        return parent::isBlockPropertyEditable($blockProperty);
+    }
+
+    public function isBlockEditable(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
+    {
+        $this->__load();
+        return parent::isBlockEditable($block);
+    }
+
+    public function isBlockManageable(\Supra\Controller\Pages\Entity\Abstraction\Block $block)
+    {
+        $this->__load();
+        return parent::isBlockManageable($block);
+    }
+
+    public function isPlaceHolderEditable(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    {
+        $this->__load();
+        return parent::isPlaceHolderEditable($placeHolder);
     }
 
     public function getRepository()
     {
-        $this->_load();
+        $this->__load();
         return parent::getRepository();
     }
 
     public function getProperty($name)
     {
-        $this->_load();
+        $this->__load();
         return parent::getProperty($name);
     }
 
     public function getDiscriminator()
     {
-        $this->_load();
+        $this->__load();
         return parent::getDiscriminator();
     }
 
     public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
-        $this->_load();
+        $this->__load();
         return parent::matchDiscriminator($object, $strict);
     }
 
     public function __toString()
     {
-        $this->_load();
+        $this->__load();
         return parent::__toString();
+    }
+
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
     }
 
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'depth', 'left', 'right', 'level', 'data', 'templateLayouts', 'placeHolders');
+        return array('__isInitialized__', 'id', 'placeHolders', 'depth', 'left', 'right', 'level', 'data', 'templateLayouts');
     }
 
     public function __clone()

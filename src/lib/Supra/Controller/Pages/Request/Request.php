@@ -18,37 +18,43 @@ abstract class Request extends Http
 	 */
 	const PAGE_ABSTRACT_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Page';
 	/**
-	 * Page class to be used
+	 * Page class name
 	 * @var string
 	 */
 	const PAGE_ENTITY = 'Supra\Controller\Pages\Entity\Page';
 	
 	/**
-	 * Page data class to be used
+	 * Data abstraction class name
+	 * @var string
+	 */
+	const DATA_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Data';
+	
+	/**
+	 * Page data class name
 	 * @var string
 	 */
 	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
 	
 	/**
-	 * Template class to be used
+	 * Template class name
 	 * @var string
 	 */
 	const TEMPLATE_ENTITY = 'Supra\Controller\Pages\Entity\Template';
 
 	/**
-	 * Block abstraction class to be used
+	 * Block abstraction class name
 	 * @var string
 	 */
 	const BLOCK_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Block';
 
 	/**
-	 * Block abstraction class to be used
+	 * Block abstraction class name
 	 * @var string
 	 */
 	const PLACE_HOLDER_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\PlaceHolder';
 
 	/**
-	 * Block abstraction class to be used
+	 * Block abstraction class name
 	 * @var string
 	 */
 	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\BlockProperty';

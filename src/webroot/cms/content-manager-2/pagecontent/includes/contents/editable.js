@@ -124,7 +124,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 					properties: save_values
 				};
 				
-				var url = Manager.PageContent.getDataPath('save');
+				var url = Manager.PageContent.getDataPath('save') + '.php';
 				Supra.io(url, {
 					'data': post_data,
 					'method': 'post',

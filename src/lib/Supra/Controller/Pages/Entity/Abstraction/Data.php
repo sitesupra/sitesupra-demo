@@ -39,6 +39,14 @@ abstract class Data extends Entity
 	 * @var Collection
 	 */
 	protected $blockProperties;
+	
+	/**
+	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
+	 * @ManyToOne(targetEntity="Page", cascade={"persist", "remove"})
+	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
+	 * @var Page
+	 */
+	protected $master;
 
 	/**
 	 * Construct

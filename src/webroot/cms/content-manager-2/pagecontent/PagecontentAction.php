@@ -5,10 +5,13 @@ namespace Supra\Cms\ContentManager\pagecontent;
 use Supra\Controller\SimpleController;
 
 /**
- * 
+ * Controller for page content requests
  */
 class PagecontentAction extends SimpleController
 {
+	/**
+	 * Insert block action
+	 */
 	public function insertblockAction()
 	{
 		//FIXME: hardcoded now
@@ -75,5 +78,83 @@ class PagecontentAction extends SimpleController
 		);
 		
 		$this->response->output(json_encode($array));
+	}
+	
+	/**
+	 * Content save action
+	 */
+	public function saveAction()
+	{
+		//TODO: Hardcoded
+		$locale = 'en';
+		
+//		$locale = $_POST['language'];
+		$pageId = $_POST['id'];
+		$blockId = $_POST['block_id'];
+		
+		//TODO: Fix this
+		$name = 'html';
+		$type = 'Supra\Editable\Html';
+		$value = $_POST['properties']['html']['html'];
+		
+		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		
+		$blockPropertyEntity = \Supra\Controller\Pages\Request\Request::BLOCK_PROPERTY_ENTITY;
+		
+		$query = $em->createQuery("SELECT p FROM $blockPropertyEntity AS p
+				JOIN p.data AS d
+				JOIN d.master AS m
+				JOIN p.block AS b
+			WHERE m.id = ?0 AND b.id = ?1 AND d.locale = ?2 AND p.name = ?3 AND p.type = ?4");
+		
+		$params = array(
+			$pageId,
+			$blockId,
+			$locale,
+			$name,
+			$type
+		);
+		
+		$query->execute($params);
+		
+		/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
+		$blockProperty = null;
+		
+		try {
+			$blockProperty = $query->getSingleResult();
+		} catch (\Doctrine\ORM\NoResultException $noResults) {
+			
+			$dataEntity = \Supra\Controller\Pages\Request\Request::DATA_ENTITY;
+			$blockEntity = \Supra\Controller\Pages\Request\Request::BLOCK_ENTITY;
+			
+			$dataQuery = $em->createQuery("SELECT d FROM $dataEntity d
+					JOIN d.master AS m
+					WHERE m.id = ?0 AND d.locale = ?1");
+			
+			$params = array(
+				$pageId, $locale
+			);
+			$dataQuery->execute($params);
+			$data = $dataQuery->getSingleResult();
+			
+			$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
+					WHERE b.id = ?0");
+			
+			$params = array($blockId);
+			$blockQuery->execute($params);
+			$block = $blockQuery->getSingleResult();
+			
+			$blockProperty = new \Supra\Controller\Pages\Entity\BlockProperty($name, $type);
+			$em->persist($blockProperty);
+			$blockProperty->setData($data);
+			$blockProperty->setBlock($block);
+		}
+		
+		$blockProperty->setValue($value);
+		
+		$em->flush();
+		
+		// OK response
+		$this->getResponse()->output(true);
 	}
 }

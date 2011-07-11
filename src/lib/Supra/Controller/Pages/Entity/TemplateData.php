@@ -23,16 +23,9 @@ class TemplateData extends Abstraction\Data
 	 */
 	public function setTemplate(Template $template)
 	{
-		if ($this->template == $template) {
-			return;
-		}
-		if ( ! empty($this->template)) {
-			throw new Exception\RuntimeException("Not allowed to change template for template data object #{$this->getId()}");
-		}
-		if ($this->lock('template')) {
-			$this->template = $template;
+		if ($this->writeOnce($this->template, $template)) {
+			$this->master = $template;
 			$template->setData($this);
-			$this->unlock('template');
 		}
 	}
 

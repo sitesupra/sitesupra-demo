@@ -140,175 +140,18 @@ class PageAction extends SimpleController
 			$array['contents'][] = $placeHolderData;
 		}
 		
-		
-//				array(
-//					'id' => 'main',
-//					'type' => 'list',
-//					'allow' =>
-//					array(
-//						0 => 'html',
-//						1 => 'string',
-//						2 => 'sample',
-//					),
-//					'contents' =>
-//					array(
-//						array(
-//							'id' => 5,
-//							'type' => 'Project_Text_TextController',
-////							'type' => 'html',
-//							'properties' => 
-//							array(
-//								'html' => 
-//								array(
-//									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-//									'data' => array()
-//								),
-////								'html2' => 
-////								array(
-////									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-////									'data' => array()
-////								),
-////								'visible' => true,
-//							),
-//						),
-//						array(
-//							'id' => 6,
-//							'type' => 'Project_Text_TextController',
-//							'properties' => 
-//							array(
-//								'html' => 
-//								array(
-//									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-//									'data' => array()
-//								),
-//							),
-//						),
-//						array(
-//							'id' => 7,
-//							'type' => 'Project_Text_TextController',
-//							'properties' => 
-//							array(
-//								'html' => 
-//								array(
-//									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-//									'data' => array()
-//								),
-//							),
-//						),
-//						array(
-//							'id' => 8,
-//							'type' => 'Project_Text_TextController',
-//							'properties' => 
-//							array(
-//								'html' => 
-//								array(
-//									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-//									'data' => array()
-//								),
-//							),
-//						),
-//						array(
-//							'id' => 9,
-//							'type' => 'Project_Text_TextController',
-//							'properties' => 
-//							array(
-//								'html' => 
-//								array(
-//									'html' => '<h1>HTML Ipsum Presents</h1><p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus</p>',
-//									'data' => array()
-//								),
-//							),
-//						),
-////						array(
-////							'id' => 6,
-////							'type' => 'html',
-////							'properties' => 
-////							array(
-////								'html1' => 
-////								array(
-////									'html' => '<h2>Header Level 2</h2><ol><li>Lorem ipsum</li></ol>',
-////									'data' => array()
-////								),
-////								'html2' => 
-////								array(
-////									'html' => '<h2>Header Level 2</h2><ol><li>Lorem ipsum</li></ol>',
-////									'data' => array()
-////								),
-////								'visible' => true,
-////							),
-////						),
-//					),
-//				),
-////				array(
-////					'id' => 'sidebar',
-////					'type' => 'list',
-////					'allow' =>
-////					array(
-////						0 => 'string',
-////					),
-////					'contents' =>
-////					array(
-////						array(
-////							'id' => 7,
-////							'type' => 'html',
-////							'properties' => 
-////							array(
-////								'html1' => 
-////								array(
-////									'html' => '<ul><li><a href="javascript://">Lorem ipsum dolor sit amet</a></li><li><a href="javascript://">Consectetuer adipiscing elit.</a></li><li><a href="javascript://">Aliquam tincidunt mauris eu risus.</a></li><li><a href="javascript://">Vestibulum auctor dapibus neque.</a></li></ul>',
-////									'data' => array()
-////								),
-////								'html2' => 
-////								array(
-////									'html' => '',
-////									'data' => array()
-////								),
-////								'visible' => true,
-////							),
-////						),
-////					),
-////				),
-//			),
-//		);
-
 		// TODO: json encoding must be already inside the manager action response object
 		$this->response->output(json_encode($array));
 	}
 	
-	public function insertblockAction()
+	public function saveAction()
 	{
 		1+1;
-		
-		$array = array(
-			'id' => null,
-			'type' => null,
-			'locked' => null,
-			'properties' => array(
-				'html' => array(
-					'html' => null,
-					'data' => array(),
-				),
-//				'visible' => true,
-			),
-			'html' => null,
-		);
-		
-		$this->response->output(json_encode($array));
 	}
-//	"id": 
-//	"type": "html",
-//	"locked": false,
-//	"properties": {
-//		"html1": {
-//			"html": "Aaaaaaaaaaaaa",
-//			"data": {}
-//		},
-//		"html2": {
-//			"html": "Bbbbbbbbbbbbb",
-//			"data": {}
-//		},
-//		"visible": false
-//	},
-//	"html": "<div id=\"content_html_<?php echo $id; _html1\" class=\"yui3-content-inline\">\n<h2>Lorem ipsum<\/h2>\n<p>Lorem ipsum<\/p>\n<\/div>\n<br \/><small>Here ends <em>html1<\/em> and starts <em>html2<\/em> editable area<\/small><br \/><br \/>\n<div id=\"content_html_<?php echo $id; ? >_html2\" class=\"yui3-content-inline\">\n<h2>Lorem ipsum<\/h2>\n<p>Lorem ipsum<\/p>\n<\/div>"
+	
+	public function deleteAction()
+	{
+		1+1;
+	}
 	
 }

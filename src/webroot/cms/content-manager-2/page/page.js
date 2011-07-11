@@ -135,7 +135,7 @@ Supra(function (Y) {
 		 * Publish page
 		 */
 		publishPage: function () {
-			var uri = this.getDataPath('save'),
+			var uri = this.getDataPath('save') + '.php',
 				page_data = this.data;
 			
 			var post_data = {
@@ -170,7 +170,7 @@ Supra(function (Y) {
 		 * Delete page
 		 */
 		deletePage: function () {
-			var uri = this.getDataPath('delete'),
+			var uri = this.getDataPath('delete') + '.php',
 				page_data = this.data;
 			
 			var post_data = {
