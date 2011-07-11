@@ -102,13 +102,24 @@ abstract class Data extends Entity
 	 * Set master object (page/template)
 	 * @param Page $master
 	 */
-	abstract public function setMaster(Page $master);
+	public function setMaster(Page $master)
+	{
+		$this->matchDiscriminator($master);
+		
+		if ($this->writeOnce($this->master, $master)) {
+			$this->master = $master;
+			$master->setData($this);
+		}
+	}
 	
 	/**
 	 * Get master object (page/template)
 	 * @return Page
 	 */
-	abstract public function getMaster();
+	public function getMaster()
+	{
+		return $this->master;
+	}
 
 	/**
 	 * @param BlockProperty $blockProperty

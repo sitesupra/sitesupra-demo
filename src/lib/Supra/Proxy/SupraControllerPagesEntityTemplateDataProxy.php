@@ -28,28 +28,16 @@ class SupraControllerPagesEntityTemplateDataProxy extends \Supra\Controller\Page
     }
     
     
-    public function setTemplate(\Supra\Controller\Pages\Entity\Template $template)
-    {
-        $this->__load();
-        return parent::setTemplate($template);
-    }
-
-    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
-    {
-        $this->__load();
-        return parent::setMaster($master);
-    }
-
-    public function getMaster()
-    {
-        $this->__load();
-        return parent::getMaster();
-    }
-
     public function getTemplate()
     {
         $this->__load();
         return parent::getTemplate();
+    }
+
+    public function setTemplate(\Supra\Controller\Pages\Entity\Template $template)
+    {
+        $this->__load();
+        return parent::setTemplate($template);
     }
 
     public function getId()
@@ -74,6 +62,18 @@ class SupraControllerPagesEntityTemplateDataProxy extends \Supra\Controller\Page
     {
         $this->__load();
         return parent::getTitle();
+    }
+
+    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
+    {
+        $this->__load();
+        return parent::setMaster($master);
+    }
+
+    public function getMaster()
+    {
+        $this->__load();
+        return parent::getMaster();
     }
 
     public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
@@ -121,7 +121,7 @@ class SupraControllerPagesEntityTemplateDataProxy extends \Supra\Controller\Page
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'master', 'template');
+        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'master');
     }
 
     public function __clone()

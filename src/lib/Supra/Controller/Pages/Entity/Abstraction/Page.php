@@ -64,6 +64,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	protected $id = null;
 
 	/**
+	 * @OneToMany(targetEntity="Data", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
 	protected $data;
@@ -75,15 +76,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	 */
 	protected $placeHolders;
 
-//	/**
-//	 * This field duplicates page and template field "level". This is done 
-//	 * because we need to know the depth of the master element as well when
-//	 * searching for place holders
-//	 * @Column(type="integer")
-//	 * @var int
-//	 */
-//	protected $depth;
-	
 	/**
 	 * @Column(type="integer", name="lft", nullable=true)
 	 * @var integer
@@ -197,24 +189,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 		}
 	}
 
-//	/**
-//	 * Get element depth
-//	 * @return int $depth
-//	 */
-//	protected function getDepth()
-//	{
-//		return $this->depth;
-//	}
-
-//	/**
-//	 * Set element depth
-//	 * @param int $depth
-//	 */
-//	protected function setDepth($depth)
-//	{
-//		$this->depth = $depth;
-//	}
-	
 	/**
 	 * Get left value
 	 * @return int
@@ -278,7 +252,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	public function setLevel($level)
 	{
 		$this->level = $level;
-//		$this->setDepth($level);
 		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->setLevel($level);
@@ -322,7 +295,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	public function moveLevel($diff)
 	{
 		$this->level += $diff;
-//		$this->setDepth($this->level);
 		
 		if (isset($this->nestedSetNode)) {
 			$this->nestedSetNode->moveLevel($diff);

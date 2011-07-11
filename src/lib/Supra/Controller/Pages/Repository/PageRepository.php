@@ -7,7 +7,8 @@ use Doctrine\ORM\EntityRepository,
 		Supra\NestedSet\RepositoryInterface,
 		Doctrine\ORM\Mapping,
 		Doctrine\ORM\EntityManager,
-		BadMethodCallException;
+		BadMethodCallException,
+		Supra\Controller\Pages\Entity\Page;
 
 /**
  * Page repository
@@ -75,5 +76,16 @@ class PageRepository extends EntityRepository implements RepositoryInterface
 	{
 		$this->__call('destroy', array());
 		$this->nestedSetRepository = null;
+	}
+	
+	/**
+	 * Get root node
+	 * @return Page
+	 */
+	public function getRootNode()
+	{
+		$rootNode = $this->findOneByLeft(1);
+		
+		return $rootNode;
 	}
 }

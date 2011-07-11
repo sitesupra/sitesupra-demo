@@ -11,15 +11,10 @@ use Doctrine\Common\Collections\ArrayCollection,
  * Page controller page object
  * @Entity(repositoryClass="Supra\Controller\Pages\Repository\PageRepository")
  * @Table(name="page")
+ * @method PageData getData(string $locale)
  */
 class Page extends Abstraction\Page
 {
-	/**
-	 * @OneToMany(targetEntity="PageData", mappedBy="page", cascade={"persist", "remove"}, indexBy="locale")
-	 * @var Collection
-	 */
-	protected $data;
-
 	/**
 	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)

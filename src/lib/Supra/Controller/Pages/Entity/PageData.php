@@ -13,13 +13,6 @@ use Supra\Controller\Pages\Exception;
 class PageData extends Abstraction\Data
 {
 	/**
-	 * @ManyToOne(targetEntity="Page", inversedBy="data", fetch="EAGER")
-	 * @JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
-	 * @var Page
-	 */
-	protected $page;
-
-	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -32,41 +25,19 @@ class PageData extends Abstraction\Data
 	protected $pathPart = '';
 
 	/**
-	 * @param Page $page
-	 */
-	public function setPage(Page $page)
-	{
-		if ($this->writeOnce($this->page, $page)) {
-			$this->master = $page;
-			$page->setData($this);
-		}
-	}
-
-	/**
-	 * Set master object page
-	 * @param Abstraction\Page $master
-	 */
-	public function setMaster(Abstraction\Page $master)
-	{
-		$this->matchDiscriminator($master);
-		$this->setPage($master);
-	}
-	
-	/**
-	 * Get master object (page/template)
-	 * @return Page
-	 */
-	public function getMaster()
-	{
-		return $this->getPage();
-	}
-
-	/**
 	 * @return Page
 	 */
 	public function getPage()
 	{
-		return $this->page;
+		return $this->getMaster();
+	}
+	
+	/**
+	 * @param Page $page
+	 */
+	public function setPage(Page $page)
+	{
+		$this->setMaster($page);
 	}
 
 	/**
@@ -96,7 +67,7 @@ class PageData extends Abstraction\Data
 	{
 		$this->pathPart = $pathPart;
 
-		$page = $this->getPage();
+		$page = $this->getMaster();
 
 		if (empty($page)) {
 			throw new Exception\RuntimeException('Page data page object must be set before setting path part');
@@ -112,19 +83,7 @@ class PageData extends Abstraction\Data
 			return;
 		}
 		
-//		$parentPage = $page->getParent();
-//
-//		if (is_null($parentPage)) {
-//			\Log::debug("Cannot set path for the root page");
-//			$this->setPath('');
-//			return;
-//		}
-
 		$this->generatePath();
-
-//		if ($pathPart == '') {
-//			throw new Exception\RuntimeException('Path part cannot be empty');
-//		}
 	}
 
 	/**
@@ -143,7 +102,7 @@ class PageData extends Abstraction\Data
 	{
 		$pathPart = urlencode($this->pathPart);
 
-		$page = $this->getPage();
+		$page = $this->getMaster();
 		
 		if ($page->hasParent()) {
 			$parentPage = $page->getParent();

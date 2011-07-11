@@ -29,9 +29,9 @@ $sqlLogger = new \Supra\Log\Logger\Sql();
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(
-	'driver' => 'pdo_pgsql',
-	'user' => 'arena',
-	'password' => 'arena',
+	'driver' => 'pdo_mysql',
+	'user' => 'root',
+	'password' => 'root',
 	'dbname' => 'supra7test'
 );
 
