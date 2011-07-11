@@ -70,6 +70,84 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::addPlaceHolder($placeHolder);
     }
 
+    public function getLeftValue()
+    {
+        $this->__load();
+        return parent::getLeftValue();
+    }
+
+    public function getRightValue()
+    {
+        $this->__load();
+        return parent::getRightValue();
+    }
+
+    public function getLevel()
+    {
+        $this->__load();
+        return parent::getLevel();
+    }
+
+    public function setLeftValue($left)
+    {
+        $this->__load();
+        return parent::setLeftValue($left);
+    }
+
+    public function setRightValue($right)
+    {
+        $this->__load();
+        return parent::setRightValue($right);
+    }
+
+    public function setLevel($level)
+    {
+        $this->__load();
+        return parent::setLevel($level);
+    }
+
+    public function moveLeftValue($diff)
+    {
+        $this->__load();
+        return parent::moveLeftValue($diff);
+    }
+
+    public function moveRightValue($diff)
+    {
+        $this->__load();
+        return parent::moveRightValue($diff);
+    }
+
+    public function moveLevel($diff)
+    {
+        $this->__load();
+        return parent::moveLevel($diff);
+    }
+
+    public function createNestedSetNode()
+    {
+        $this->__load();
+        return parent::createNestedSetNode();
+    }
+
+    public function __call($method, $arguments)
+    {
+        $this->__load();
+        return parent::__call($method, $arguments);
+    }
+
+    public function removeTrigger()
+    {
+        $this->__load();
+        return parent::removeTrigger();
+    }
+
+    public function free()
+    {
+        $this->__load();
+        return parent::free();
+    }
+
     public function isBlockPropertyEditable(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
     {
         $this->__load();
@@ -139,7 +217,7 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'placeHolders', 'depth');
+        return array('__isInitialized__', 'id', 'placeHolders', 'left', 'right', 'level');
     }
 
     public function __clone()

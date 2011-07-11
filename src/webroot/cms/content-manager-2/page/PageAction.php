@@ -21,7 +21,7 @@ class PageAction extends SimpleController
 		//FIXME: hardcoded now
 		$locale = 'en';
 		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
-		$pageId = 2;
+		$pageId = $_GET['id'];
 		
 		// Create special request
 		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
@@ -36,8 +36,18 @@ class PageAction extends SimpleController
 		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
 		
+		//TODO: Page not found...
+		if (is_null($page)) {
+			return;
+		}
+		
 		/* @var $pageData \Supra\Controller\Pages\Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);
+		
+		//TODO: Page not found...
+		if (is_null($pageData)) {
+			return;
+		}
 		
 		$request->setRequestPageData($pageData);
 		$controller->execute($request);

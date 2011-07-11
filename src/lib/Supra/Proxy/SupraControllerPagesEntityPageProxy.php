@@ -46,6 +46,48 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getTemplateHierarchy();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
+    public function getPlaceHolders()
+    {
+        $this->__load();
+        return parent::getPlaceHolders();
+    }
+
+    public function getDataCollection()
+    {
+        $this->__load();
+        return parent::getDataCollection();
+    }
+
+    public function getData($locale)
+    {
+        $this->__load();
+        return parent::getData($locale);
+    }
+
+    public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
+    {
+        $this->__load();
+        return parent::setData($data);
+    }
+
+    public function removeData($locale)
+    {
+        $this->__load();
+        return parent::removeData($locale);
+    }
+
+    public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    {
+        $this->__load();
+        return parent::addPlaceHolder($placeHolder);
+    }
+
     public function getLeftValue()
     {
         $this->__load();
@@ -124,48 +166,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::free();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getPlaceHolders()
-    {
-        $this->__load();
-        return parent::getPlaceHolders();
-    }
-
-    public function getDataCollection()
-    {
-        $this->__load();
-        return parent::getDataCollection();
-    }
-
-    public function getData($locale)
-    {
-        $this->__load();
-        return parent::getData($locale);
-    }
-
-    public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
-    {
-        $this->__load();
-        return parent::setData($data);
-    }
-
-    public function removeData($locale)
-    {
-        $this->__load();
-        return parent::removeData($locale);
-    }
-
-    public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
-    {
-        $this->__load();
-        return parent::addPlaceHolder($placeHolder);
-    }
-
     public function isBlockPropertyEditable(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
     {
         $this->__load();
@@ -229,7 +229,7 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'placeHolders', 'depth', 'left', 'right', 'level', 'data', 'template');
+        return array('__isInitialized__', 'id', 'placeHolders', 'left', 'right', 'level', 'data', 'template');
     }
 
     public function __clone()

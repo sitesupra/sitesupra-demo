@@ -280,7 +280,7 @@ abstract class Request extends Http
 				->andWhere($qb->expr()->in('m.id', $pageSetIds))
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
-				->addOrderBy('m.depth', 'ASC');
+				->addOrderBy('m.level', 'ASC');
 		
 		$query = $qb->getQuery();
 		$placeHolderArray = $query->getResult();
