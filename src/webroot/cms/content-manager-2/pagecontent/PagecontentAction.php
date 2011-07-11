@@ -115,7 +115,7 @@ class PagecontentAction extends SimpleController
 			$type
 		);
 		
-		$query->execute($params);
+		$query->setParameters($params);
 		
 		/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
 		$blockProperty = null;
@@ -134,14 +134,14 @@ class PagecontentAction extends SimpleController
 			$params = array(
 				$pageId, $locale
 			);
-			$dataQuery->execute($params);
+			$dataQuery->setParameters($params);
 			$data = $dataQuery->getSingleResult();
 			
 			$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
 					WHERE b.id = ?0");
 			
 			$params = array($blockId);
-			$blockQuery->execute($params);
+			$blockQuery->setParameters($params);
 			$block = $blockQuery->getSingleResult();
 			
 			$blockProperty = new \Supra\Controller\Pages\Entity\BlockProperty($name, $type);
@@ -152,6 +152,26 @@ class PagecontentAction extends SimpleController
 		
 		$blockProperty->setValue($value);
 		
+		$em->flush();
+		
+		// OK response
+		$this->getResponse()->output(true);
+	}
+	
+	public function deleteblockAction()
+	{
+		$blockId = $_POST['id'];
+		
+		$em = \Supra\Database\Doctrine::getInstance()
+				->getEntityManager();
+		$blockEntity = \Supra\Controller\Pages\Request\Request::BLOCK_ENTITY;
+		$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
+					WHERE b.id = ?0");
+		
+		$blockQuery->setParameters(array($blockId));
+		$block = $blockQuery->getSingleResult();
+		
+		$em->remove($block);
 		$em->flush();
 		
 		// OK response

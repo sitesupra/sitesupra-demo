@@ -454,6 +454,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			Supra.io(url, {
 				'data': data,
+				'method': 'post',
 				'on': {
 					'success': function (evt, data) {
 						if (Y.Lang.isFunction(callback)) {
