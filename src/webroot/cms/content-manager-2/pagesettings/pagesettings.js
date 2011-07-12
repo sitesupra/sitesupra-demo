@@ -30,8 +30,14 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 	
 	//Calendar dates
 	var DEFAULT_DATES = [
-		{'date': '2011-06-16', 'title': 'Select today'},
-		{'date': '2011-06-17', 'title': 'Select tomorrow'}
+		{
+			'date': Y.DataType.Date.format(new Date(), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'title': 'Select today'
+		},
+		{
+			'date': Y.DataType.Date.format(new Date(+new Date() + 86400000), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'title': 'Select tomorrow'
+		}
 	];
 	
 	var SLIDE_ROOT = 'slideMain';
@@ -416,7 +422,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			delete(post_data.internal_html);
 			delete(post_data.contents);
 			
-			post_data.language = Supra.data.get('language');
+			post_data.locale = Supra.data.get('locale');
 			
 			//Save data
 			var url = this.getDataPath('save');

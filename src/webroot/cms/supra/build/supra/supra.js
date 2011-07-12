@@ -156,14 +156,14 @@ if (typeof Supra === "undefined") {
 	Supra.data = {
 		
 		//Date format
-		'date_format': '%d.%m.%Y',
+		'dateFormat': '%d.%m.%Y',
 		
 		//First day of the week: 1 - Monday, 0 - Sunday
-		'date_first_week_day': 1,
+		'dateFirstWeekDay': 1,
 		
 		//Time format
-		'time_format': '%H:%M:%S',
-		'time_format_short': '%H:%M',
+		'timeFormat': '%H:%M:%S',
+		'timeFormatShort': '%H:%M',
 		
 		/**
 		 * Set data
@@ -189,9 +189,11 @@ if (typeof Supra === "undefined") {
 			if (value === undefined && Y.Lang.isObject(key)) {
 				Supra.mix(Supra.data, key); 
 			} else {
+				var fn = '_' + key + 'Change',
+					prevVal = Supra.data[key];
+				
 				Supra.data[key] = value;
 				
-				var fn = '_set_' + key;
 				if (fn in Supra.data) {
 					Supra.data[fn](value);
 				}
@@ -234,9 +236,17 @@ if (typeof Supra === "undefined") {
 		/**
 		 * When date format changes update YUI configuration
 		 */
-		_set_date_format: function (format) {
-			Supra.Y.config.dateFormat = format;
+		_dateFormatChange: function (newVal, prevVal) {
+			Supra.Y.config.dateFormat = newVal;
+			Supra.Y.Global.fire('dataFormatChange', {'newVal': newVal, 'prevVal': prevVal});
 		},
+		
+		/**
+		 * On locale change fire event
+		 */
+		_localeChange: function (newVal, prevVal) {
+			Supra.Y.Global.fire('localeChange', {'newVal': newVal, 'prevVal': prevVal});
+		}
 	};
 	
 	//Update YUI configuration

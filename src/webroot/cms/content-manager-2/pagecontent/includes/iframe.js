@@ -421,7 +421,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				'page_id': page_info.id,
 				'version_id': page_info.version.id,
 				
-				'language': Supra.data.get('language')
+				'locale': Supra.data.get('locale')
 			}, data);
 			
 			Supra.io(url, {
@@ -447,9 +447,10 @@ YUI.add('supra.page-iframe', function (Y) {
 			var data = {
 				'page_id': page_info.id,
 				'version_id': page_info.version.id,
+				
 				'id': block.getId(),
 				
-				'language': Supra.data.get('language')
+				'locale': Supra.data.get('locale')
 			};
 			
 			Supra.io(url, {
@@ -464,6 +465,61 @@ YUI.add('supra.page-iframe', function (Y) {
 				},
 				'context': context
 			});
+		},
+		
+		/**
+		 * Save block order request
+		 * 
+		 * @param {Object} block
+		 * @param {Object} order
+		 */
+		sendBlockOrder: function (block, order) {
+			var url = Manager.PageContent.getDataPath('orderblocks');
+			var page_info = Manager.Page.getPageData();
+			var data = {
+				'page_id': page_info.id,
+				'version_id': page_info.version.id,
+				
+				'id': block.getId(),
+				'order': order,
+				
+				'locale': Supra.data.get('locale')
+			};
+			
+			Supra.io(url, {
+				'data': data,
+				'method': 'post'
+			});
+		},
+		
+		/**
+		 * Save block properties
+		 * 
+		 * @param {Object} block Block
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
+		 */
+		sendBlockProperties: function (block, callback, context) {
+			var url = Manager.PageContent.getDataPath('save'),
+				page_data = Manager.Page.getPageData(),
+				values = block.properties.getValues();
+			
+			//Some inputs (like InlineHTML) needs data to be processed before saving it
+			var save_values = block.properties.getSaveValues();
+			
+			var post_data = {
+				'id': page_data.id,
+				'version': page_data.version.id,
+				'block_id': block.getId(),
+				'locale': Supra.data.get('locale'),
+				'properties': save_values
+			};
+			
+			Supra.io(url, {
+				'data': post_data,
+				'method': 'post',
+				'on': {'success': callback}
+			}, context);
 		},
 		
 		/**

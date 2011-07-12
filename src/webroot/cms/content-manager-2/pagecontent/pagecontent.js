@@ -3,6 +3,9 @@
 
 SU('dd-drag', function (Y) {
 	
+	var LOCALE_LEAVE = 'There are unsaved changes. Are you sure you want to leave this page?';
+	
+	
 	var includes = [
 		'includes/contents/proto.js',
 		'includes/contents/editable.js',
@@ -74,6 +77,16 @@ SU('dd-drag', function (Y) {
 				},
 				'context': this
 			});
+			
+			//If user tries to navigate away show prompt if there are unsaved changes
+			window.onbeforeunload = Y.bind(function (evt) {
+			    window.onbeforeunload = null;
+				if (this.hasUnsavedChanges()) {
+					evt.returnValue = LOCALE_LEAVE;
+					return LOCALE_LEAVE;
+				}
+			}, this);
+			
 			
 			Manager.getAction('Page').on('loaded', this.ready, this);
 		},
@@ -301,6 +314,20 @@ SU('dd-drag', function (Y) {
 					Manager.Root.execute();
 				}
 			}]);
+		},
+		
+		/**
+		 * Returns if there are unsaved changed
+		 * 
+		 * @return True if has unsaved changes, otherwise false
+		 * @type {Boolean}
+		 */
+		hasUnsavedChanges: function () {
+			var blocks = this.getContentBlocks();
+			for(var id in blocks) {
+				if (blocks[id].get('changed')) return true;
+			}
+			return false;
 		},
 		
 		/**

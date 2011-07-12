@@ -31,6 +31,7 @@ YUI.add('supra.page-content-list', function (Y) {
 		dragable_regions: null,
 		drag_region: null,
 		drag_index: 0,
+		drag_order_changed: false,
 		
 		bindUI: function () {
 			ContentList.superclass.bindUI.apply(this, arguments);
@@ -110,7 +111,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				target: {},
 				dragConfig: {
 					haltDown: false,
-					clickTimeThresh: 100
+					clickTimeThresh: 1000
 				}
 			});
 			
@@ -151,17 +152,15 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//Find drop target regions
 			var dragable_regions = [],
-				region = null;
+				region = null,
+				order = this.children_order;
 			
-			for(var id in this.children) {
-				region = this.getChildRegion(id);
+			for(var i=0,ii=order.length; i<ii; i++) {
+				region = this.getChildRegion(order[i]);
 				if (region) dragable_regions.push(region);
 			}
 			
-			dragable_regions.sort(function (a,b) {
-				return a.region.top < b.region.top ? -1 : 1;
-			});
-			
+			this.drag_order_changed = false;
 			this.dragable_regions = dragable_regions;
 		},
 		
@@ -173,8 +172,15 @@ YUI.add('supra.page-content-list', function (Y) {
 			var node = e.target.get('node').next();
 			if (node) node.removeClass(CLASSNAME_DRAGING);
 			
+			//Save new order
+			if (this.drag_order_changed) {
+				this.drag_order_changed = false;
+				this.get('super').sendBlockOrder(this, this.children_order);
+			}
+			
 			//Clean up
 			this.dragable_regions = null;
+			this.dragable_regions_initial = null;
 			this.drag_index = null;
 			this.drag_region = null;
 		},
@@ -188,12 +194,14 @@ YUI.add('supra.page-content-list', function (Y) {
 				drag_region = null,
 				drag_index = null,
 				top = e.target.get('dragNode').getY(),
-				regions = this.dragable_regions;
+				regions = this.dragable_regions,
+				
+				direction = 0;
 			
 			if (!this.drag_region) {
+				//Find drag region and index
 				var id = drag.getData('contentId');
 				
-				//Find drag region and index
 				for (var i=0,ii=regions.length; i<ii; i++) {
 					if (regions[i].id == id) {
 						drag_region = this.drag_region = regions[i].region;
@@ -206,58 +214,56 @@ YUI.add('supra.page-content-list', function (Y) {
 				drag_index = this.drag_index;
 			}
 			
+			//Check if items can and needs to be swapped
 			if (drag_index < regions.length - 1) {
-				//Check if items can be swapped
 				if (this.testDrop(top, drag_index, drag_index + 1)) {
-					drag_cont = drag.next();
-					drop = this.children[regions[drag_index + 1].id].overlay;
-					drop_cont = drop.next();
-					
-					//Swap nodes
-					drop_cont.insert(drag, 'after');
-					drag.insert(drag_cont, 'after');
-					
-					//Update region
-					regions[drag_index] = this.getChildRegion(regions[drag_index].id);
-					regions[drag_index + 1] = this.getChildRegion(regions[drag_index + 1].id);
-					
-					//Swap array items
-					var item = regions.splice(drag_index, 1)[0];
-					regions.splice(drag_index + 1, 0, item);
-					
-					//Update index
-					this.drag_index++;
-					this.drag_region = regions[drag_index].region;
-					
-					//If page is not in edit mode, then set it
-					Action.startEditing();
+					direction = 1;
 				}
 			}
 			if (drag_index > 0) {
 				if (this.testDrop(top, drag_index, drag_index - 1)) {
-					drag_cont = drag.next();
-					drop = this.children[regions[drag_index - 1].id].overlay;
-					drop_cont = drop.next();
-					
-					//Swap nodes
+					direction = -1;
+				}
+			}
+			
+			if (direction !== 0) {
+				drag_cont = drag.next();
+				drop = this.children[regions[drag_index + direction].id].overlay;
+				drop_cont = drop.next();
+				
+				//Swap nodes
+				if (direction > 0) {
+					drop_cont.insert(drag, 'after');
+					drag.insert(drag_cont, 'after');
+				} else {
 					drop.insert(drag, 'before');
 					drag.insert(drag_cont, 'after');
-					
-					//Update region
-					regions[drag_index] = this.getChildRegion(regions[drag_index].id);
-					regions[drag_index - 1] = this.getChildRegion(regions[drag_index - 1].id);
-					
-					//Swap array items
-					var item = regions.splice(drag_index, 1)[0];
-					regions.splice(drag_index - 1, 0, item);
-					
-					//Update index
-					this.drag_index--;
-					this.drag_region = regions[drag_index].region;
-					
-					//If page is not in edit mode, then set it
-					Action.startEditing();
 				}
+				
+				//Update region
+				regions[drag_index] = this.getChildRegion(regions[drag_index].id);
+				regions[drag_index + direction] = this.getChildRegion(regions[drag_index + direction].id);
+				
+				//Swap array items
+				var item = regions.splice(drag_index, 1)[0];
+				regions.splice(drag_index + direction, 0, item);
+				
+				//Update drag index
+				this.drag_index += direction;
+				this.drag_region = regions[drag_index].region;
+				
+				//Update order array
+				var order_item_a = String(regions[drag_index].id),
+					order_item_b = String(regions[drag_index + direction].id),
+					order_index_a = Y.Array.indexOf(this.children_order, order_item_a),
+					order_index_b = Y.Array.indexOf(this.children_order, order_item_b);
+				
+				this.drag_order_changed = true;
+				this.children_order.splice(order_index_a, 1, order_item_b);
+				this.children_order.splice(order_index_b, 1, order_item_a);
+				
+				//If page is not in edit mode, then set it
+				Action.startEditing();
 			}
 		},
 		

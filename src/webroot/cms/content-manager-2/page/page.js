@@ -141,7 +141,7 @@ Supra(function (Y) {
 			var post_data = {
 				'page': page_data.id,
 				'version': page_data.version.id,
-				'language': Supra.data.get('language'),
+				'locale': Supra.data.get('locale'),
 				'action': 'publish'
 			};
 			
@@ -176,7 +176,7 @@ Supra(function (Y) {
 			var post_data = {
 				'page': page_data.id,
 				'version': page_data.version.id,
-				'language': Supra.data.get('language'),
+				'locale': Supra.data.get('locale'),
 				'action': 'delete'
 			};
 			

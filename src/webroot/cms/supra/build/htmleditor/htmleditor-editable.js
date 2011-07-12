@@ -135,20 +135,15 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 		 * @type {Boolean}
 		 */
 		navigationCharCode: function (charCode) {
-			switch(charCode) {
-				case 33:	//Page up
-				case 34:	//Page down
-				case 35:	//End
-				case 36:	//Home
-				case 37:	//Left
-				case 38:	//Up
-				case 39:	//Right
-				case 40:	//Down
-				case 91:	//Left windows
-				case 92:	//Right windows
-				case 93:	//Context
-					return true;
-			}
+			//Space, backspace, return
+			if (charCode == 32 || charCode == 8 || charCode == 13) return false;
+			
+			// before 40 are navigation keys
+			// 91	- Left windows
+			// 92	- Right windows
+			// 93	- Context
+			if (charCode <= 40 || charCode == 91 || charCode == 92 || charCode == 93) return true;
+			
 			return false;
 		}
 

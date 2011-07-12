@@ -22,9 +22,11 @@ YUI.add("supra.calendar", function (Y) {
 	
 	Calendar.NAME = "calendar";
 	
+	Calendar.INTERNAL_DATE_FORMAT = DATE_FORMAT;
+	
 	Calendar.ATTRS = {
-		'dateFormat': Supra.data.get('date_format'),
-		'firstWeekDay': Supra.data.get('date_first_week_day'),
+		'dateFormat': Supra.data.get('dateFormat'),
+		'firstWeekDay': Supra.data.get('dateFirstWeekDay'),
 		
 		'headerTitle': '',
 		'navigationNode': null,

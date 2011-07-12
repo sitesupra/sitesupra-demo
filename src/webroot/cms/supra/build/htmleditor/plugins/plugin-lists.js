@@ -22,7 +22,9 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 		 */
 		exec: function (data, command) {
 			if (command in this.commands) {
-				return this.htmleditor.get('doc').execCommand(this.commands[command], false, null);
+				var res = this.htmleditor.get('doc').execCommand(this.commands[command], false, null);
+				this.htmleditor._changed();
+				return res;
 			} else {
 				return false;
 			}

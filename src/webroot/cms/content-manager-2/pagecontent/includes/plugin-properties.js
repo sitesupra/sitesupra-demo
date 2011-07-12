@@ -100,11 +100,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/*
-		 * Property has changed
+		 * Normal property has changed
 		 */
-		'changed': {
-			'value': false,
-			'setter': '_setChanged'
+		'normalChanged': {
+			'value': false
 		},
 		
 		/*
@@ -125,6 +124,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		destructor: function () {
 			var form = this.get('form');
+			
+			this.get('host').unsubscribe('block:save', this.onBlockSaveCancel, this);
+			this.get('host').unsubscribe('block:cancel', this.onBlockSaveCancel, this);
+			
 			form.destroy();
 		},
 		
@@ -155,6 +158,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Properties form
 			this.initializeProperties();
 			var form = this.get('form');
+			
+			
+			//On block save/cancel update 'changed' attributes
+			this.get('host').on('block:save', this.onBlockSaveCancel, this);
+			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
+			
 			
 			//Form heading
 			var heading = Y.Node.create('<h2>' + Y.Lang.escapeHTML(block.title) + ' block properties</h2>');
@@ -235,10 +244,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @param {Object} evt
 		 */
 		onPropertyChange: function (evt) {
-			var changed = this.get('changed'),
+			var normalChanged = this.get('normalChanged'),
 				inlineChanged = this.get('inlineChanged');
 			
-			if (changed && inlineChanged) return;
+			if (normalChanged && inlineChanged) return;
 			
 			var input = evt.target,
 				id = input.get('id'),
@@ -249,11 +258,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 					if (properties[i].inline) {
 						if (!inlineChanged) {
 							this.set('inlineChanged', true);
-							this.set('changed', true);
 						}
 					} else {
-						if (!changed) {
-							this.set('changed', true);
+						if (!normalChanged) {
+							this.set('normalChanged', true);
 						}
 					}
 					break;
@@ -268,8 +276,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this._original_values = this.getValues();
 			this.get('host').fire('properties:save');
 			
-			this.set('inlineChanged', false);
-			this.set('changed', false);
+			this.set('normalChanged', false);
 			SU.Manager.PageContentSettings.hide();
 		},
 		
@@ -280,9 +287,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.setNonInlineValues(this._original_values);
 			this.get('host').fire('properties:cancel');
 			
-			this.set('inlineChanged', false);
-			this.set('changed', false);
+			this.set('normalChanged', false);
 			SU.Manager.PageContentSettings.hide();
+		},
+		
+		/**
+		 * On block save/cancel
+		 */
+		onBlockSaveCancel: function () {
+			this.set('normalChanged', false);
+			this.set('inlineChanged', false);
 		},
 		
 		/**

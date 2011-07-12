@@ -58,7 +58,7 @@ Supra.Manager.Action.Base extends Y.Base (EventTarget + Attribute + Plugin host)
 		Change stylesheet path
 	
 	getStylesheetPath()
-		Returns stylesheet path, for example: "/cms/content-manager/pageinfo/pageinfo.css"
+		Returns stylesheet path, for example: "/cms/content-manager-2/pageinfo/pageinfo.css"
 	
 	setHasTemplate(has_template)
 		Set if action has template, will use default template path
@@ -70,13 +70,14 @@ Supra.Manager.Action.Base extends Y.Base (EventTarget + Attribute + Plugin host)
 		Change template path
 	
 	getTemplatePath()
-		Returns template path, for example: "/cms/content-manager/pageinfo/pageinfo.html"
+		Returns template path, for example: "/cms/content-manager-2/pageinfo/pageinfo.html"
 	
 	setDataPath(path)
 		Change data path.	
 	
-	getDataPath()
-		Returns data path
+	getDataPath(filename)
+		Returns data path, if subpath is specified, then filename is used instead of action name for file:
+		"/cms/content-manager-2/pageinfo/pageinfo.json" -> "/cms/content-manager-2/pageinfo/FILENAME.json"
 	
 	setPlaceHolder(node)
 		Set place holder node where action content will be inserted

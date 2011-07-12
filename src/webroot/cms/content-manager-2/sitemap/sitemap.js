@@ -79,7 +79,7 @@ SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragab
 			this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 			
 			//Create language bar
-			//@TODO Add language selector
+			//@TODO Add locale selector
 			
 			//When action is hidden hide container
 			this.on('visibleChange', function (evt) {

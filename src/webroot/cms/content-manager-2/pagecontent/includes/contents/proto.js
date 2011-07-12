@@ -17,6 +17,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 	 */
 	function ContentProto () {
 		this.children = {};
+		this.children_order = [];
 		this.node = null;
 		this.overlay = null;
 		
@@ -74,6 +75,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Block has changed values
+		 */
+		'changed': {
+			value: false,
+			getter: '_getChanged'
+		},
+		
+		/**
 		 * HTML which will be used instead of DOM
 		 */
 		'html': {
@@ -82,9 +91,36 @@ YUI.add('supra.page-content-proto', function (Y) {
 	};
 	
 	Y.extend(ContentProto, Y.Base, {
+		/**
+		 * Children block list
+		 * @type {Object}
+		 */
 		children: {},
+		
+		/**
+		 * List of block IDs in correct order
+		 * @type {Array}
+		 */
+		children_order: [],
+		
+		/**
+		 * Children order list (children IDs)
+		 * @type {Array}
+		 */
+		order: [],
+		
+		/**
+		 * Block node
+		 * @type {Object}
+		 */
 		node: null,
+		
+		/**
+		 * Block overlay node
+		 * @type {Object}
+		 */
 		overlay: null,
+		
 		
 		/**
 		 * Returns block type
@@ -221,17 +257,20 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Object} child
 		 */
 		removeChild: function (child) {
-			for(var i in this.children) {
-				if (this.children[i] === child) {
-					
-					//Send request
-					this.get('super').sendBlockDelete(child, function (response) {
-						if (response) {
-							delete(this.children[i]);
-							child.destroy();
-						}
-					}, this);
-					
+			var id = child.getId();
+			if (id in this.children) {
+				//Send request
+				this.get('super').sendBlockDelete(child, function (response) {
+					if (response) {
+						delete(this.children[id]);
+						child.destroy();
+					}
+				}, this);
+				
+				//Remove from order list
+				var index = Y.Array.indexOf(this.children_order, String(id));
+				if (index != -1) {
+					this.children_order.splice(index, 1);
 				}
 			}
 		},
@@ -261,6 +300,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 					'super': this.get('super')
 				}));
 				block.render();
+				
+				//Add to order list
+				this.children_order.push(String(data.id));
 			} else {
 				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
 			}
@@ -500,6 +542,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * Changed getter
+		 */
+		_getChanged: function () {
+			//Not editable, so nothing can change
+			return false;
 		}
 		
 	});

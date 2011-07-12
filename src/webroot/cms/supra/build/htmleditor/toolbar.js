@@ -144,7 +144,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					break;
 				case 'button':
 				default:
-					node = new Supra.Button({"label": data.title, "icon": data.icon, "type": data.buttonType || "push", "style": "group"});
+					node = new Supra.Button({"label": data.title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
 					node.render(cont);
 					
 					node.on('click', function (evt, data) {

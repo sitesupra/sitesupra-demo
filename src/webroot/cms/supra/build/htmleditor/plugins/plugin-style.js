@@ -302,6 +302,7 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 			
 			this.htmleditor.fire('selectionChange');
 			this.htmleditor.fire('nodeChange');
+			this.htmleditor._changed();
 		},
 		
 		/**

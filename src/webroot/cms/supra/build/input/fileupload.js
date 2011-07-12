@@ -270,8 +270,8 @@ YUI.add("supra.input-file-upload", function (Y) {
 			var params = {};
 			
 			//Add session ID to request parameters
-			var sid_name = Supra.data.get('session_name', null),
-				sid_id = Supra.data.get('session_id', null);
+			var sid_name = Supra.data.get('sessionName', null),
+				sid_id = Supra.data.get('sessionId', null);
 			
 			if (sid_name && sid_id) {
 				params[sid_name] = sid_id;

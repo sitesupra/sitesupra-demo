@@ -25,8 +25,7 @@ YUI.add('supra.button', function (Y) {
 			setter: '_setLabel'
 		},
 		type: {
-			value: 'push',		// Valid types are 'push', 'toggle'
-			setter: '_setType'
+			value: 'push'		// Valid types are 'push', 'toggle'
 		},
 		style: {
 			value: 'mid',
@@ -281,7 +280,7 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_onMouseDown: function () {
-			if (this.get('disabled') || this.get('type') == 'toggle') return;
+			if (this.get('disabled') || (this.get('type') == 'toggle' && this.get('down'))) return;
 			var box = this.get('boundingBox');
 			if (box) {
 				box.addClass(this.getClassName('down'));

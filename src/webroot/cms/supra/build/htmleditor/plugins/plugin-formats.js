@@ -24,6 +24,7 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 		
 		exec: function (data, command) {
 			this.htmleditor.get('doc').execCommand('formatblock', false, command);
+			this.htmleditor._changed();
 			return true;
 		},
 		

@@ -11,7 +11,11 @@ Supra.Manager.PageContent
 			
 		getActiveContent()
 			Returns active content block
-			
+		
+		
+		hasUnsavedChanges()
+			Returns if there are unsaved changes
+		
 		
 		startEditing()
 			Change state to editing
@@ -105,9 +109,12 @@ Supra.Manager.PageContent.Proto
 		
 		super
 			IframeContents object
-			
+		
 		editable
 			Is content editable or not
+		
+		changed
+			Has content changed since last save
 		
 		draggable
 			Is content dragable (sort sorting) or not

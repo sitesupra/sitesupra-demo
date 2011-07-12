@@ -126,6 +126,9 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				//Remove placeholder since it's not needed anymore
 				this.placeHolder.parentNode.removeChild(this.placeHolder);
 				delete(this.placeHolder);
+				
+				//Content was changed
+				this.htmleditor._changed();
 			}
 		},
 		
@@ -146,9 +149,13 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			//<p>...WebKitFix</p>  or  ...<p>WebKitFix</p>
 			html = html.replace(/(^<p>(.*)|()<p>)(&nbsp;)?WebKitFix<\/p>$/i, '$2');
 			
-			//Remove script and style tags
+			//Remove script, style and link nodes
 			html = html.replace(/<script[^>]*\/?>([\s\S]*?<\/script>)?/ig, '');
 			html = html.replace(/<style[^>]*\/?>([\s\S]*?<\/style>)?/ig, '');
+			html = html.replace(/<link[^>]*\/?>/ig, '');
+			
+			//Remove "su..." ids to prevent conflict
+			html = html.replace(/id=("|')?su[0-9]+("|')?\s?/ig, '');
 			
 			//Fire pasteHTML event and allow listeners to modify content
 			var event = {'html': html};

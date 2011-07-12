@@ -24,7 +24,9 @@ YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 		 * @type {Boolean}
 		 */
 		exec: function (data, command) {
-			return this.htmleditor.get('doc').execCommand(command, null, false);
+			var res = this.htmleditor.get('doc').execCommand(command, null, false);
+			this.htmleditor._changed();
+			return res;
 		},
 		
 		/**

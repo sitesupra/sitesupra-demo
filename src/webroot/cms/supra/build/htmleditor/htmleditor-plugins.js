@@ -133,15 +133,13 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 		 * @type {Object}
 		 */
 		getPluginConfiguration: function (pluginId, defaultConfig) {
-			if (!(pluginId in Supra.HTMLEditor.PLUGINS) || defaultConfig) return false;
+			if (!(pluginId in Supra.HTMLEditor.PLUGINS) && !defaultConfig) return false;
 			
 			var configuration = Supra.data.get(['supra.htmleditor', 'plugins', pluginId]),
 				defaultConfig = defaultConfig || Supra.HTMLEditor.PLUGINS[pluginId].configuration;
 			
 			if (configuration) {
-				if (configuration === false) {
-					return false;
-				} else if (Y.Lang.isObject(configuration)) {
+				if (Y.Lang.isObject(configuration)) {
 					//Mix together user configuration and default
 					configuration = Supra.mix({}, defaultConfig, configuration);
 					
@@ -149,6 +147,9 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				} else {
 					return configuration;
 				}
+			} else if (configuration === false) {
+				//If configuration is false then plugin is disabled
+				return false;
 			}
 			
 			return defaultConfig;

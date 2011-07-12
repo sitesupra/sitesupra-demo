@@ -110,31 +110,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		savePropertyChanges: function () {
 			if (this.properties && this.unresolved_changes) {
-				var page_data = Manager.Page.getPageData();
-				var values = this.properties.getValues();
-				
-				//Some inputs (like InlineHTML) needs data to be processed before saving it
-				var save_values = this.properties.getSaveValues();
-				
-				var post_data = {
-					id: page_data.id,
-					version: page_data.version.id,
-					block_id: this.getId(),
-					language: Supra.data.get('language'),
-					properties: save_values
-				};
-				
-				var url = Manager.PageContent.getDataPath('save') + '.php';
-				Supra.io(url, {
-					'data': post_data,
-					'method': 'post',
-					'on': {
-						'success': function (transaction, response) {
-							var data = this.get('data');
-							data.properties = values;
-							this.set('data', data);
-						}
+				this.get('super').sendBlockProperties(this, function (transaction, response) {
+					
+					if (response) {
+						var data = this.get('data');
+						data.properties = this.properties.getValues();
+						this.set('data', data);
 					}
+					
 				}, this);
 			}
 			
@@ -358,6 +341,16 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 			
 			return old_property_id;
+		},
+		
+		/**
+		 * Changed getter
+		 */
+		_getChanged: function () {
+			if (this.get('editable') && this.properties) {
+				return this.properties.get('normalChanged') || this.properties.get('inlineChanged');
+			}
+			return false;
 		}
 	});
 	

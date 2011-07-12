@@ -29,9 +29,6 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		},
 		'toolbar': {
 			value: null
-		},
-		'changed': {
-			value: false
 		}
 	};
 	
@@ -76,6 +73,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			this.selection = null;
 			this.initPlugins();
 			
+			this._changed = Y.throttle(Y.bind(this._changed, this), 1000);
+			
 			this.setHTML(this.get('srcNode').get('innerHTML'));
 		},
 		
@@ -113,9 +112,6 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				selectionNode = srcNode.firstChild || srcNode;
 			
 			this.setSelection({'start': selectionNode, 'start_offset': 0, 'end': selectionNode, 'end_offset': 0});
-			
-			//Reset state
-			this.set('changed', false);
 			
 			//Fire "nodeChange" event
 			this.selection = null;
@@ -219,17 +215,18 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * @param {Object} event
 		 */
 		_handleKeyPress: function (event) {
-			var charCode = event.charCode || event.keyCode;
+			var charCode = event.charCode || event.keyCode,
+				navKey = this.navigationCharCode(charCode);
 			
 			/* 
 			 * Cancel key press if node is not editable and key wasn't "navigation" key.
 			 * If original event charCode is not empty, then this key definitely changes
 			 * text and should be canceled
 			 */
-			if (!event.stopped && !this.editingAllowed && (event._event.charCode || !this.navigationCharCode(charCode))) {
+			if (!event.stopped && !this.editingAllowed && (event._event.charCode || !navKey)) {
 				event.halt();
 				return;
-			} else if (!this.get('changed')) {
+			} else if (!navKey && !event.ctrlKey) {
 				this._changed();
 			}
 		},
@@ -249,7 +246,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 						this._handleNodeChange(event);
 					}, this), 0);
 					
-					if (!navKey && !this.get('changed')) {
+					if (!navKey && !event.ctrlKey) {
 						this._changed();
 					}
 				}
@@ -330,9 +327,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * Update 'changed' state if needed
 		 */
 		_changed: function () {
-			if (!this.get('changed')) {
-				this.set('changed', true);
-			}
+			this.fire('change');
 		}
 		
 	});

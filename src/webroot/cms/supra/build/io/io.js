@@ -40,8 +40,8 @@ YUI().add("supra.io", function (Y) {
 			cfg.data = {};
 		}
 		
-		var sid_name = SU.data.get('session_name', null),
-			sid_id = SU.data.get('session_id', null);
+		var sid_name = SU.data.get('sessionName', null),
+			sid_id = SU.data.get('sessionId', null);
 			
 		if (sid_name && sid_id) {
 			cfg.data[sid_name] = sid_id;

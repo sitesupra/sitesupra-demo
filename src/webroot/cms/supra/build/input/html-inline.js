@@ -25,10 +25,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 		
 		bindUI: function () {
 			if (this.htmleditor) {
-				this.htmleditor.on('changedChange', function (evt) {
-					if (evt.newVal && evt.newVal != evt.prevVal) {
-						this.fire('change');
-					}
+				this.htmleditor.on('change', function (evt) {
+					this.fire('change');
 				}, this);
 			}
 		},

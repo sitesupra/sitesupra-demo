@@ -21,7 +21,7 @@ YUI.add("mywidget", function (Y) {
 		},
 		
 		bindUI: function () {
-			MyWidget.superclass.renderUI.apply(this, arguments);
+			MyWidget.superclass.bindUI.apply(this, arguments);
 			//...
 			
 		},

@@ -20,7 +20,10 @@ HTMLEditor
 			Selection changed to different node
 			
 		editingAllowedChange
-			Selection changed to editable / un-editable content 
+			Selection changed to editable / un-editable content
+		
+		change
+			Fired when something in content changes, but not more often that once per second 
 	
 	Base:
 		setHTML(html)
