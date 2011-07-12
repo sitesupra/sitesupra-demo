@@ -82,7 +82,7 @@ YUI.add('supra.tree', function(Y) {
 		},
 		
 		_renderTreeUIChild: function (data, i) {
-			var node = this.add({'data': data, 'label': data.title, 'icon': data.icon}, i);
+			this.add({'data': data, 'label': data.title, 'icon': data.icon}, i);
 		},
 		
 		/**
@@ -188,15 +188,12 @@ YUI.add('supra.tree', function(Y) {
 			// Define a function to handle the response data.
 			function complete(id, data, args) {
 				// Remove all nodes and data
-				for(var i=0,ii=this.size(); i<ii; i++) {
-					this.item(i).destroy();
+				for(var i=0, ii=this.size(); i<ii; i++) {
+					this.remove(i);
 				}
 				
 				this._data = [];
 				this._data_indexed = {};
-				
-				//Get new data
-				var id = id; // Transaction ID.
 				
 				//Create data index
 				var data_indexed = {};
@@ -221,6 +218,7 @@ YUI.add('supra.tree', function(Y) {
 				
 				this._data = data;
 				this._data_indexed = data_indexed;
+				
 				this.renderTreeUI(data);
 				
 				this.fire('render:complete');

@@ -200,16 +200,6 @@ YUI.add("supra.footer", function (Y) {
 		},
 		
 		/**
-		 * Returns all buttons
-		 * 
-		 * @return Button list
-		 * @type {Object]
-		 */
-		getButtons: function () {
-			return this.buttons;
-		},
-		
-		/**
 		 * Add button
 		 * 
 		 * @param {Object} config Button configuration, see Supra.Button 

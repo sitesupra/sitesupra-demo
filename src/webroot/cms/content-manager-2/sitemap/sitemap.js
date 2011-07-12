@@ -1,10 +1,19 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragable', function (Y) {
+//Add module definitions
+SU.addModule('website.sitemap-tree-node', {
+	path: 'sitemap/modules/sitemap-tree-node.js',
+	requires: ['supra.tree-dragable']
+});
+
+SU('supra.languagebar', 'website.sitemap-tree-node', function (Y) {
+
+	var LOCALE_LANGUAGEBAR_LABEL = 'Viewing structure for:';
 
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Manager = SU.Manager,
+		Action = Manager.Action;
 	
 	//Create Action class
 	new Action({
@@ -28,6 +37,13 @@ SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragab
 		 * @private
 		 */
 		tree: null,
+		
+		/**
+		 * Language bar widget instance
+		 * @type {Object}
+		 * @private
+		 */
+		languagebar: null,
 		
 		/**
 		 * Page select mode (select or insert)
@@ -69,17 +85,32 @@ SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragab
 		 * Set configuration/properties, bind listeners, etc.
 		 */
 		initialize: function () {
+			Manager.getAction('PageContent').initDD();
 			
 			//Create tree
 			this.tree = new SU.TreeDragable({
-				srcNode: '#tree',
-				requestUri: this.getDataPath()
+				'srcNode': this.getContainer('.tree'),
+				'requestUri': this.getDataPath() + '?locale=' + SU.data.get('locale'),
+				'defaultChildType': SU.SitemapTreeNode
 			});
 			
 			this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 			
 			//Create language bar
-			//@TODO Add locale selector
+			this.languagebar = new SU.LanguageBar({
+				'locale': SU.data.get('locale'),
+				'contexts': SU.data.get('contexts'),
+				
+				'localeLabel': LOCALE_LANGUAGEBAR_LABEL
+			});
+			
+			this.languagebar.on('localeChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					//Reload tree
+					this.tree.set('requestUri', this.getDataPath() + '?locale=' + evt.newVal);
+					this.tree.reload();
+				}
+			}, this);
 			
 			//When action is hidden hide container
 			this.on('visibleChange', function (evt) {
@@ -101,13 +132,16 @@ SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragab
 		 */
 		onTreeNodeClick: function (evt) {
 			if (this.mode == 'select') {
+				//Before changing page update locale
+				Supra.data.set('locale', this.languagebar.get('locale'));
+				
+				//Change page
 				this.fire('page:select', {
 					'data': evt.data
 				});
 				
 				this.hide();
 			} else {
-				this.tooltip.hide();
 				var data = evt.data;
 				
 				//Restore select mode
@@ -121,49 +155,14 @@ SU('supra.tooltip', 'supra.tree', 'supra.tree-dragable', 'supra.tree-node-dragab
 		},
 		
 		/**
-		 * Handle new page click
-		 */
-		onNewPageClick: function () {
-			this.mode = 'insert';
-			this.showTooltip('Select where you want to place your page');
-			
-			this.button_newpage.set('disabled', true);
-			this.selectedPageNode = this.tree.get('selectedNode');
-			this.tree.set('selectedNode', null);
-		},
-		
-		/**
-		 * Show tooltip message
-		 */
-		showTooltip: function (message) {
-			if (!this.tooltip) {
-				this.tooltip = new Supra.Tooltip({
-					'alignTarget': this.tree.get('boundingBox'),
-					'alignPosition': 'L'
-				});
-				
-				this.tooltip.render(this.getContainer());
-			}
-			
-			this.tooltip.set('textMessage', message);
-			this.tooltip.show();
-		},
-		
-		/**
 		 * Render widgets and bind
 		 */
 		render: function () {
 			//Render tree
 			this.tree.render();
 			
-			//New page button
-			var buttons = this.getContainer('.yui3-form-buttons');
-			var btn = new Supra.Button({'label': 'New page', 'style': 'mid-blue'});
-				btn.render(buttons);
-				btn.on('click', this.onNewPageClick, this);
-			
-			this.button_newpage = btn;
-			this.getContainer('.yui3-sitemap-content').prepend(buttons);
+			//Render language bar
+			this.languagebar.render(this.getContainer('.languages'));
 			
 			//Page select event
 			this.tree.on('node-click', this.onTreeNodeClick, this);

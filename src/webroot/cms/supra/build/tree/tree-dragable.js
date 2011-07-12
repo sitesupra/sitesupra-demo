@@ -19,7 +19,7 @@ YUI.add('supra.tree-dragable', function(Y) {
 		_renderTreeUIChild: function (data, i) {
 			var isDragable = (data && 'isDragable' in data ? data.isDragable : true);
 			var isDropTarget = (data && 'isDropTarget' in data ? data.isDropTarget : true);
-			var node = this.add({'data': data, 'label': data.title, 'icon': data.icon, 'isDropTarget': isDropTarget, 'isDragable': isDragable}, i);
+			this.add({'data': data, 'label': data.title, 'icon': data.icon, 'isDropTarget': isDropTarget, 'isDragable': isDragable}, i);
 		}
 	});
 	

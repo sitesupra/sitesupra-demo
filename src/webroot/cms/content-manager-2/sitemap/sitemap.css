@@ -18,8 +18,7 @@
 	box-sizing: border-box;
 }
 
-.yui3-sitemap .yui3-form-buttons {
-	position: static;
+.yui3-sitemap .languages {
 	border-bottom: 1px solid #eee;
 	padding: 10px 13px;
 	margin: 0 13px 5px;
@@ -33,4 +32,11 @@
 }
 .yui3-sitemap .yui3-tree .tree-node {
 	padding-right: 50px;
+}
+
+.yui3-sitemap .yui3-tree .tree-node label {
+	color: #999;
+}
+.yui3-sitemap .yui3-tree .tree-node-published > .tree-node label {
+	color: #333;
 }

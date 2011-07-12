@@ -1,0 +1,64 @@
+.yui3-languagebar {
+	font-size: 14px;
+}
+
+.yui3-languagebar a,
+.yui3-languagebar span {
+	vertical-align: text-top;
+	white-space: nowrap;
+	display: inline-block;
+	line-height: 16px;
+}
+.yui3-languagebar img {
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.yui3-languagebar .label {
+	color: #999;
+}
+
+.yui3-languagebar a {
+	text-decoration: none;
+	color: #333;
+	padding: 0 3px;
+}
+.yui3-languagebar a span {
+	text-decoration: underline;
+}
+.yui3-languagebar a:hover span {
+	text-decoration: none;
+}
+
+.yui3-languagebar img {
+	margin-left: 5px;
+}
+
+.yui3-languagebar .contexts {
+	color: #999;
+	font-size: 13px;
+	list-style: none;
+	padding: 10px;
+	min-width: 120px;
+}
+.yui3-languagebar .langs {
+	list-style: none;
+	padding: 5px 10px 8px;
+}
+.yui3-languagebar .langs a {
+	color: #fff;
+	padding: 1px 0;
+	display: block;
+}
+.yui3-languagebar .langs a img {
+	margin: 0 3px 0 0;
+}
+
+/**
+ * Position panel and arrow 
+ */
+/*
+.yui3-languagebar .yui3-panel-arrow-top {
+	left: 50% !important;
+}
+*/

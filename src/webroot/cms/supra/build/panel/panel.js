@@ -159,11 +159,11 @@ YUI.add('supra.panel', function (Y) {
 		_setArrowPosition: function (pos) {
 			var old = this.get('arrowPosition') || ['T', 'C'];
 			if (!Y.Lang.isArray(pos) &&
-				pos.length != 2 &&
-				pos[0] != 'L' &&
-				pos[0] != 'R' &&
-				pos[0] != 'T' &&
-				pos[0] != 'B')
+				pos.length != 2 && (
+				pos[0] != 'L' ||
+				pos[0] != 'R' ||
+				pos[0] != 'T' ||
+				pos[0] != 'B'))
 			{
 					return old;
 			}
@@ -356,6 +356,8 @@ YUI.add('supra.panel', function (Y) {
 			if (this.get('arrowVisible')) {
 				this._setArrowVisible(this.get('arrowVisible'));
 			}
+			
+			Y.later(1, this, this.syncUI);
 		},
 		
 		syncUI: function () {
@@ -380,6 +382,7 @@ YUI.add('supra.panel', function (Y) {
 			this.get('boundingBox').removeClass('yui3-panel-hidden');
 			
 			Panel.superclass.show.apply(this, arguments);
+			
 			this.syncUI();
 			
 			return this;

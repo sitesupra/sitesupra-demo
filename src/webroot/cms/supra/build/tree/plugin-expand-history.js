@@ -7,8 +7,8 @@ YUI.add('supra.tree-plugin-expand-history', function (Y) {
 		ExpandHistoryPlugin.superclass.constructor.apply(this, arguments);
 	}
 
-	// When plugged into a node instance, the plugin will be 
-	// available on the "checkboxes" property.
+	// When plugged into a tree instance, the plugin will be 
+	// available on the "state" property.
 	ExpandHistoryPlugin.NS = 'state';
 	
 	ExpandHistoryPlugin.ATTRS = {

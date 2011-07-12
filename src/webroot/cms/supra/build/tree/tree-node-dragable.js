@@ -66,7 +66,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			}
 			
 			//Create marker node if it doesn't exist
-			var market = this.marker;
+			var marker = this.marker;
 			if (!this.marker) {
 				marker = this.marker = Y.Node.create('<div class="yui3-tree-node-marker"></div>');
 			} else {
@@ -75,10 +75,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			
 			target = new Y.Node(target);
 			
-			var target_label = target.one('label');
-			var top = y,
+			var target_label = target.one('label'),
+				top = y,
 				left = target_label.getX() - 23,
-				height = 1;
+				height = 1,
 				width = target_label.get('offsetWidth') + 24;
 			
 			if (position == 'after') {

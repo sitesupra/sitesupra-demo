@@ -103,7 +103,9 @@ YUI.add('supra.page-content-list', function (Y) {
 				dragable_regions = null;
 			
 			this.drag_selector = selector;
-			Y.config.doc = this.get('doc');
+			
+			//DD must be initialized for iframe
+			Action.initDD(this.get('doc'));
 			
 			var del = this.drag_delegate = new Y.DD.Delegate({
 				container: cont,
@@ -131,7 +133,8 @@ YUI.add('supra.page-content-list', function (Y) {
 			//Use throttle, because drag event executes very often
 			del.on('drag:drag', Y.throttle(Y.bind(this.onDragDrag, this), 50));
 			
-			Y.config.doc = document;
+			//Restore document
+			Action.initDD(document);
 		},
 		
 		onDragStart: function (e) {
@@ -322,7 +325,10 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			if (this.drag_delegate) {
 				this.drag_delegate.destroy();
+				delete(this.drag_delegate);
 			}
+			
+			delete(this.children_order);
 		}
 	});
 	

@@ -200,6 +200,9 @@ YUI.add('supra.page-iframe', function (Y) {
 				links.push(this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css"));
 			}
 			
+			//Reset DD
+			Action.resetDD(doc);
+			
 			//When stylesheets are loaded initialize PageContents
 			this._onStylesheetLoad(links, body);
 		},
@@ -226,6 +229,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			this.set('doc', doc);
 			
 			//Change iframe HTML
+			doc.open();
 			doc.writeln(html);
 			doc.close();
 			
@@ -244,6 +248,11 @@ YUI.add('supra.page-iframe', function (Y) {
 			if (this.contents) {
 				this.contents.destroy();
 				this.contents = null;
+			}
+			
+			var doc = this.get('doc');
+			if (doc) {
+				Y.one(doc).purge();
 			}
 		}
 		

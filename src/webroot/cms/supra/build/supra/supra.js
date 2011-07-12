@@ -237,15 +237,19 @@ if (typeof Supra === "undefined") {
 		 * When date format changes update YUI configuration
 		 */
 		_dateFormatChange: function (newVal, prevVal) {
-			Supra.Y.config.dateFormat = newVal;
-			Supra.Y.Global.fire('dataFormatChange', {'newVal': newVal, 'prevVal': prevVal});
+			if (newVal !== prevVal) {
+				Supra.Y.config.dateFormat = newVal;
+				Supra.Y.Global.fire('dataFormatChange', {'newVal': newVal, 'prevVal': prevVal});
+			}
 		},
 		
 		/**
 		 * On locale change fire event
 		 */
 		_localeChange: function (newVal, prevVal) {
-			Supra.Y.Global.fire('localeChange', {'newVal': newVal, 'prevVal': prevVal});
+			if (newVal !== prevVal) {
+				Supra.Y.Global.fire('localeChange', {'newVal': newVal, 'prevVal': prevVal});
+			}
 		}
 	};
 	

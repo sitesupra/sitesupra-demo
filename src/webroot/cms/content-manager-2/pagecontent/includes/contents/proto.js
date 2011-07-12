@@ -421,6 +421,12 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.get('super').set('activeContent', null);
 			}
 			
+			var children = this.children;
+			this.children = {};
+			for(var id in children) {
+				children[id].destroy();
+			}
+			
 			if (this.overlay) {
 				this.overlay.remove();
 			}

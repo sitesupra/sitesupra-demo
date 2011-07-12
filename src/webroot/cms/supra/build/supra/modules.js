@@ -464,6 +464,18 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Language bar
+	 */
+	'supra.languagebar': {
+		path: 'languagebar/languagebar.js',
+		requires: ['supra.tooltip', 'supra.languagebar-css']
+	},
+	'supra.languagebar-css': {
+		path: 'languagebar/languagebar.css',
+		type: 'css'
+	},
+	
+	/**
 	 * Authorization
 	 */
 	'supra.authorization': {

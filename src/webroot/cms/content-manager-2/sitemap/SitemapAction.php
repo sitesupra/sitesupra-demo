@@ -72,6 +72,14 @@ class SitemapAction extends SimpleController
 	{
 		$data = $page->getData($locale);
 		$pathPart = null;
+		$templateName = null;
+		
+		//TODO: need to know template ID as well
+		if ($page instanceof \Supra\Controller\Pages\Entity\Page) {
+			$templateName = $page->getTemplate()
+					->getData($locale)
+					->getTitle();
+		}
 		
 		if ($data instanceof \Supra\Controller\Pages\Entity\PageData) {
 			$pathPart = $data->getPathPart();
@@ -80,8 +88,9 @@ class SitemapAction extends SimpleController
 		$array = array(
 			'id' => $page->getId(),
 			'title' => $data->getTitle(),
+			'template' => $templateName,
 			'path' => $pathPart,
-			'icon' => 'page'
+			'icon' => 'page',
 		);
 		
 		if ($page->hasChildren()) {

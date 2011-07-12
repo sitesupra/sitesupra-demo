@@ -23,7 +23,7 @@ YUI.add('supra.tree-node', function(Y) {
 	Supra.TreeNode = Y.Base.create('supra.tree-node', TreeNode, [Y.WidgetChild, Y.WidgetParent], {
 		ROOT_TYPE: TreeNode,
 		BOUNDING_TEMPLATE: '<li></li>',
-		CONTENT_TEMPLATE: '<div class="tree-node tree-node-published">\
+		CONTENT_TEMPLATE: '<div class="tree-node">\
 			  					<div><span class="toggle hidden"></span><span class="img"><img src="/cms/supra/img/tree/none.png" /></span> <label></label></div>\
 			  				</div>\
 			  				<ul class="tree-children">\

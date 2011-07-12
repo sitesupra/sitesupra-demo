@@ -81,12 +81,12 @@ YUI.add('supra.tooltip', function (Y) {
 					this.set('arrowAlign', this.get('alignTarget'));
 					break;
 				case 'T':
-					this.set('arrowPosition', ['C', 'T']);
+					this.set('arrowPosition', ['T', 'C']);
 					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.TC, Y.WidgetPositionAlign.BC]});
 					this.set('arrowAlign', this.get('alignTarget'));
 					break;
 				case 'B':
-					this.set('arrowPosition', ['C', 'B']);
+					this.set('arrowPosition', ['B', 'C']);
 					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.BC, Y.WidgetPositionAlign.TC]});
 					this.set('arrowAlign', this.get('alignTarget'));
 					break;
@@ -115,12 +115,14 @@ YUI.add('supra.tooltip', function (Y) {
 		 * @private
 		 */
 		_setHTMLMessage: function (message) {
-			var node = this.get('boundingBox').one('P');
-			if (!node) {
-				node = Y.Node.create('<p></p>');
-				this.get('boundingBox').append(node);
+			if (message) {
+				var node = this.get('boundingBox').one('P');
+				if (!node) {
+					node = Y.Node.create('<p></p>');
+					this.get('boundingBox').append(node);
+				}
+				node.set('innerHTML', message);
 			}
-			node.set('innerHTML', message);
 			return message;
 		},
 		
