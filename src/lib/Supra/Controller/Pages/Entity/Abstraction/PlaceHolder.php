@@ -43,7 +43,7 @@ class PlaceHolder extends Entity
 	protected $name;
 
 	/**
-	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"}, indexBy="id")
+	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"})
 	 * @var Collection
 	 */
 	protected $blocks;
@@ -118,7 +118,7 @@ class PlaceHolder extends Entity
 	{
 		if ($this->lock('block')) {
 			$this->matchDiscriminator($block);
-			if ($this->addUnique($this->blocks, $block, 'id')) {
+			if ($this->addUnique($this->blocks, $block)) {
 				$block->setPlaceHolder($this);
 			}
 			$this->unlock('block');

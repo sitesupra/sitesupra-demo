@@ -53,8 +53,8 @@ class Block extends Entity
 	protected $placeHolder;
 
 	/**
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}, indexBy="name")
-	 * @var ArrayCollection
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"})
+	 * @var Collection
 	 */
 	protected $blockProperties;
 
@@ -150,7 +150,7 @@ class Block extends Entity
 	public function addBlockProperty(BlockProperty $blockProperty)
 	{
 		if ($this->lock('blockProperties')) {
-			if ($this->addUnique($this->blockProperties, $blockProperty, 'name')) {
+			if ($this->addUnique($this->blockProperties, $blockProperty)) {
 				$blockProperty->setBlock($this);
 			}
 			$this->unlock('blockProperties');

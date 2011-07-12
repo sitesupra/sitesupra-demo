@@ -179,9 +179,9 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$templateData->setTemplate($template);
 		$templateData->setTitle('Root template');
 
-		foreach (array('header', 'main', 'footer') as $name) {
+		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
-			if ($name != 'main') {
+			if ($name == 'header' || $name == 'footer') {
 				$templatePlaceHolder->setLocked();
 			}
 			$templatePlaceHolder->setTemplate($template);
@@ -237,6 +237,18 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
 			}
+			
+			if ($name == 'sidebar') {
+				$block = new Entity\TemplateBlock();
+				$block->setComponent('Project\Text\TextController');
+				$block->setPlaceHolder($templatePlaceHolder);
+				$block->setPosition(100);
+
+				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$blockProperty->setBlock($block);
+				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
+			}
 		}
 		$this->getEntityManager()->persist($template);
 		$this->getEntityManager()->flush();
@@ -246,6 +258,9 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$childTemplateData = new Entity\TemplateData('en');
 		$childTemplateData->setTemplate($childTemplate);
 		$childTemplateData->setTitle('Child template');
+		
+		$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
+		$templatePlaceHolder->setTemplate($childTemplate);
 		
 		$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
 		$templatePlaceHolder->setTemplate($childTemplate);
