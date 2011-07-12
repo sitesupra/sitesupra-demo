@@ -2,7 +2,10 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection,
+		Supra\Controller\Pages\Exception,
+		Supra\Controller\Pages\Entity\PagePlaceHolder,
+		Supra\Controller\Pages\Entity\TemplatePlaceHolder;
 
 /**
  * Page and template place holder data abstraction
@@ -40,7 +43,7 @@ class PlaceHolder extends Entity
 	protected $name;
 
 	/**
-	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"}, indexBy="id")
 	 * @var Collection
 	 */
 	protected $blocks;
@@ -115,7 +118,7 @@ class PlaceHolder extends Entity
 	{
 		if ($this->lock('block')) {
 			$this->matchDiscriminator($block);
-			if ($this->addUnique($this->blocks, $block)) {
+			if ($this->addUnique($this->blocks, $block, 'id')) {
 				$block->setPlaceHolder($this);
 			}
 			$this->unlock('block');
@@ -156,6 +159,33 @@ class PlaceHolder extends Entity
 		}
 		
 		return $sort;
+	}
+	
+	/**
+	 * Creates new instance based on the discriminator of source entity
+	 * @param Entity $base 
+	 * @param string $name
+	 * @return PlaceHolder
+	 */
+	public static function factory(Entity $base, $name)
+	{
+		$discriminator = $base->getDiscriminator();
+		$placeHolder = null;
+		
+		switch ($discriminator) {
+			case 'page':
+				$placeHolder = new PagePlaceHolder($name);
+				break;
+			
+			case 'template':
+				$placeHolder = new TemplatePlaceHolder($name);
+				break;
+			
+			default:
+				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");
+		}
+		
+		return $placeHolder;
 	}
 
 }

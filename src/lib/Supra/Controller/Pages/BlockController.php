@@ -73,7 +73,6 @@ abstract class BlockController extends ControllerAbstraction
 	{
 		$response = null;
 		
-		// TODO: create edit response only for not locked blocks
 		if ($request instanceof namespace\Request\RequestEdit) {
 			$response = new BlockResponse\ResponseEdit();
 		} else {
@@ -148,7 +147,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * Get the content and output it to the response or return if no response 
 	 * object set
 	 * 
-	 * @TODO move to block response object
+	 * @TODO could move to block response object
 	 * 
 	 * @param string $name
 	 * @param string $default

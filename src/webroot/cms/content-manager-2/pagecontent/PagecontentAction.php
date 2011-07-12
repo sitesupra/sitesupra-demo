@@ -85,12 +85,12 @@ class PagecontentAction extends SimpleController
 	 */
 	public function saveAction()
 	{
-		//TODO: Hardcoded
-		$locale = 'en';
-		
-//		$locale = $_POST['language'];
+		$locale = $_POST['locale'];
 		$pageId = $_POST['id'];
 		$blockId = $_POST['block_id'];
+		
+		//TODO: Hardcoded
+		$locale = 'en';
 		
 		//TODO: Fix this
 		$name = 'html';
@@ -158,6 +158,9 @@ class PagecontentAction extends SimpleController
 		$this->getResponse()->output(true);
 	}
 	
+	/**
+	 * Removes the block
+	 */
 	public function deleteblockAction()
 	{
 		$blockId = $_POST['id'];
@@ -176,5 +179,13 @@ class PagecontentAction extends SimpleController
 		
 		// OK response
 		$this->getResponse()->output(true);
+	}
+	
+	/**
+	 * Action called on block order action
+	 */
+	public function orderblocksAction()
+	{
+		
 	}
 }

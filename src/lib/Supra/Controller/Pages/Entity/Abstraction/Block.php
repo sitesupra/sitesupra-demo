@@ -10,7 +10,9 @@ use Supra\Controller\ControllerAbstraction,
 		Supra\Controller\Pages\Entity\BlockProperty,
 		Supra\Editable\EditableAbstraction,
 		Supra\Controller\Pages\Request\Request,
-		Supra\Controller\Pages\Response\Block\Response;
+		Supra\Controller\Pages\Response\Block\Response,
+		Supra\Controller\Pages\Entity\PageBlock,
+		Supra\Controller\Pages\Entity\TemplateBlock;
 
 /**
  * Block database entity abstraction
@@ -51,8 +53,8 @@ class Block extends Entity
 	protected $placeHolder;
 
 	/**
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"})
-	 * @var Collection
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}, indexBy="name")
+	 * @var ArrayCollection
 	 */
 	protected $blockProperties;
 
@@ -148,13 +150,21 @@ class Block extends Entity
 	public function addBlockProperty(BlockProperty $blockProperty)
 	{
 		if ($this->lock('blockProperties')) {
-			if ($this->addUnique($this->blockProperties, $blockProperty)) {
+			if ($this->addUnique($this->blockProperties, $blockProperty, 'name')) {
 				$blockProperty->setBlock($this);
 			}
 			$this->unlock('blockProperties');
 		}
 	}
-
+	
+	/**
+	 * @return ArrayCollection
+	 */
+	public function getBlockProperties()
+	{
+		return $this->blockProperties;
+	}
+	
 	/**
 	 * Whether the block is inside one of place holder Ids provided
 	 * @param array $placeHolderIds
@@ -221,6 +231,54 @@ class Block extends Entity
 	{
 		// Execute
 		$controller->execute();
+	}
+	
+	/**
+	 * Creates new instance based on the discriminator of the base entity
+	 * @param Entity $base
+	 * @return Block
+	 */
+	public static function factory(Entity $base)
+	{
+		$discriminator = $base->getDiscriminator();
+		$block = null;
+		
+		switch ($discriminator) {
+			case 'page':
+				$block = new PageBlock();
+				break;
+			
+			case 'template':
+				$block = new TemplateBlock();
+				break;
+			
+			default:
+				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");
+		}
+		
+		return $block;
+	}
+	
+	/**
+	 * Creates new instance based on the discriminator of base entity and 
+	 * the properties of source entity
+	 * @param Entity $base 
+	 * @param Block $source
+	 * @return Block
+	 */
+	public static function factoryClone(Entity $base, Block $source)
+	{
+		$block = self::factory($base);
+		
+		$block->setComponent($source->getComponent());
+		$block->setPosition($source->getPosition());
+		
+		foreach ($source->getBlockProperties() as $blockProperty) {
+			$blockProperty = clone($blockProperty);
+			$block->addBlockProperty($blockProperty);
+		}
+		
+		return $block;
 	}
 
 }

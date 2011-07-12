@@ -86,4 +86,23 @@ class PlaceHolderSet extends AbstractSet
 	{
 		return $this->parentPlaceHolderSet;
 	}
+	
+	/**
+	 * Loads the last place holder in the set by the name provided
+	 * @param string $name
+	 * @return Entity\Abstraction\PlaceHolder | null
+	 */
+	public function getLastByName($name)
+	{
+		$placeHolder = null;
+		
+		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+		foreach ($this as $placeHolderTest) {
+			if ($placeHolderTest->getName() == $name) {
+				$placeHolder = $placeHolderTest;
+			}
+		}
+		
+		return $placeHolder;
+	}
 }

@@ -183,7 +183,6 @@ class Controller extends ControllerAbstraction
 	{
 		$response = null;
 		
-		// TODO: create edit response for unlocked place holders ONLY
 		if ($this->request instanceof namespace\Request\RequestEdit) {
 			$response = new PlaceHolderResponse\ResponseEdit();
 		} else {
@@ -201,6 +200,7 @@ class Controller extends ControllerAbstraction
 	 */
 	protected function getPlaceResponses()
 	{
+		$placeResponses = array();
 		$request = $this->getRequest();
 		
 		$placeHolders = $request->getPlaceHolderSet();
@@ -208,11 +208,12 @@ class Controller extends ControllerAbstraction
 		
 		$finalPlaceHolders = $placeHolders->getFinalPlaceHolders();
 		
-		$placeResponses = array();
-		$controller = $this;
-
+		foreach ($finalPlaceHolders as $name => $placeHolder) {
+			$placeResponses[$name] = $this->createPlaceResponse($page, $placeHolder);
+		}
+		
 		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController) 
-				use (&$placeResponses, $controller, &$page, $finalPlaceHolders) {
+				use (&$placeResponses, &$page, $finalPlaceHolders) {
 			
 			$response = $blockController->getResponse();
 			
@@ -221,22 +222,8 @@ class Controller extends ControllerAbstraction
 			
 			if ( ! isset($placeResponses[$placeName])) {
 				
-				if ( ! isset($finalPlaceHolders[$placeName])) {
-					//TODO: what is the action on such case?
-					throw new Exception\LogicException("Logic problem – final place holder by name $placeName is not found");
-				}
-				
-				// Get place holder object
-				$placeHolder = $finalPlaceHolders[$placeName];
-				
-				$placeResponse = $controller->createPlaceResponse($page, $placeHolder);
-				
-				
-//				if ($page->isPlaceHolderEditable($placeHolder)) {
-//					$placeResponse->setPlaceHolder($placeHolder);
-//				}
-				
-				$placeResponses[$placeName] = $placeResponse;
+				//TODO: what is the action on such case?
+				throw new Exception\LogicException("Logic problem – final place holder by name $placeName is not found");
 			}
 			
 			$response->flushToResponse($placeResponses[$placeName]);

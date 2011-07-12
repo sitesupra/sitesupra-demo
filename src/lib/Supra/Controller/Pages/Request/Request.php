@@ -257,7 +257,8 @@ abstract class Request extends Http
 			return $this->placeHolderSet;
 		}
 		
-		$this->placeHolderSet = new Set\PlaceHolderSet($this->getPage());
+		$page = $this->getPage();
+		$this->placeHolderSet = new Set\PlaceHolderSet($page);
 		
 		$pageSetIds = $this->getPageSetIds();
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
@@ -285,11 +286,54 @@ abstract class Request extends Http
 		$query = $qb->getQuery();
 		$placeHolderArray = $query->getResult();
 		
-		//TODO: create missing place holders automatically, copy unlocked blocks from the parent template
 		foreach ($placeHolderArray as $placeHolder) {
 			/* @var $place PlaceHolder */
 			$this->placeHolderSet->append($placeHolder);
 		}
+		
+		// Create missing place holders automatically
+		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
+		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
+		
+		foreach ($layoutPlaceHolderNames as $name) {
+			if ( ! $finalPlaceHolders->offsetExists($name)) {
+				$placeHolder = Entity\Abstraction\PlaceHolder::factory($page, $name);
+				$placeHolder->setMaster($page);
+				
+				// Copy unlocked blocks from the parent template
+				$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
+				
+				if ( ! is_null($parentPlaceHolder)) {
+					$blocks = $parentPlaceHolder->getBlocks();
+					
+					/* @var $block Entity\Abstraction\Block */
+					foreach ($blocks as $block) {
+						
+						if ($block->getLocked()) {
+							continue;
+						}
+						
+						// Create new block
+						$block = Entity\Abstraction\Block::factoryClone($page, $block);
+						$placeHolder->addBlock($block);
+						
+						$blockProperties = $block->getBlockProperties();
+						$data = $this->getRequestPageData();
+						
+						/* @var $blockProperty Entity\BlockProperty */
+						foreach ($blockProperties as $blockProperty) {
+							$blockProperty->setData($data);
+						}
+					}
+				}
+				
+				$em->persist($placeHolder);
+				$this->placeHolderSet->append($placeHolder);
+			}
+		}
+		
+		$em->flush();
 		
 		\Log::sdebug('Count of place holders found: ' . count($this->placeHolderSet));
 		

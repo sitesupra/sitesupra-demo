@@ -31,7 +31,7 @@ class BlockProperty extends Entity
 	protected $data;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties", cascade={"persist"})
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
 	 * @var Block
 	 */
@@ -39,8 +39,7 @@ class BlockProperty extends Entity
 
 	/**
 	 * Content type (class name of Supra\Editable\EditableInterface class)
-	 * @TODO remove nullable
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $type;
@@ -192,6 +191,18 @@ class BlockProperty extends Entity
 				$object = null;
 				throw $e;
 			}
+		}
+	}
+	
+	/**
+	 * Doctrine safe clone method with cloning of children
+	 */
+	public function __clone()
+	{
+		if ( ! empty($this->id)) {
+			$this->id = null;
+			$this->block = null;
+			$this->data = null;
 		}
 	}
 

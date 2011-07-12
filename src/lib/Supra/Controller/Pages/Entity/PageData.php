@@ -73,11 +73,11 @@ class PageData extends Abstraction\Data
 			throw new Exception\RuntimeException('Page data page object must be set before setting path part');
 		}
 
-		// TODO: maybe should make more elegant solution than lft comparison?
+		// Check if path part is not added to the root page
+		// TODO: maybe should make more elegant solution than level check?
+		$level = $page->getLevel();
 
-		$leftValue = $page->getLeftValue();
-
-		if ($leftValue == 1) {
+		if ($level == 0) {
 			\Log::debug("Cannot set path for the root page");
 			$this->setPath('');
 			return;

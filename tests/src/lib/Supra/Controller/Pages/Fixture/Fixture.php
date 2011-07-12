@@ -14,6 +14,8 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	protected $headerTemplateBlock;
 
 	protected $rootPage;
+	
+	protected $template;
 
 	/**
 	 * @return \Doctrine\ORM\EntityManager
@@ -134,16 +136,18 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 		$em = $this->getEntityManager();
 		
-		$rootPage = $this->createPage();
+		$this->template = $this->createTemplate();
+		
+		$rootPage = $this->createPage(0, null, $this->template->getParent());
 		$em->persist($rootPage);
 		$em->flush();
 		$this->rootPage = $rootPage;
 
-		$page = $this->createPage(1, $rootPage);
+		$page = $this->createPage(1, $rootPage, $this->template);
 		$em->persist($page);
 		$em->flush();
 
-		$page2 = $this->createPage(2, $page);
+		$page2 = $this->createPage(2, $page, $this->template);
 		$em->persist($page2);
 		$em->flush();
 	}
@@ -208,17 +212,17 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template source');
 				
-				// A locked block
-				$block = new Entity\TemplateBlock();
-				$block->setComponent('Project\Text\TextController');
-				$block->setPlaceHolder($templatePlaceHolder);
-				$block->setPosition(200);
-				$block->setLocked(true);
-
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en'));
-				$blockProperty->setValue('Template locked block');
+//				// A locked block
+//				$block = new Entity\TemplateBlock();
+//				$block->setComponent('Project\Text\TextController');
+//				$block->setPlaceHolder($templatePlaceHolder);
+//				$block->setPosition(200);
+//				$block->setLocked(true);
+//
+//				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+//				$blockProperty->setBlock($block);
+//				$blockProperty->setData($template->getData('en'));
+//				$blockProperty->setValue('Template locked block');
 			}
 
 			if ($name == 'footer') {
@@ -236,7 +240,33 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		}
 		$this->getEntityManager()->persist($template);
 		$this->getEntityManager()->flush();
-		return $template;
+		
+		$childTemplate = new Entity\Template();
+		
+		$childTemplateData = new Entity\TemplateData('en');
+		$childTemplateData->setTemplate($childTemplate);
+		$childTemplateData->setTitle('Child template');
+		
+		$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
+		$templatePlaceHolder->setTemplate($childTemplate);
+		
+		// A locked block
+		$block = new Entity\TemplateBlock();
+		$block->setComponent('Project\Text\TextController');
+		$block->setPlaceHolder($templatePlaceHolder);
+		$block->setPosition(200);
+		$block->setLocked(true);
+
+		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+		$blockProperty->setBlock($block);
+		$blockProperty->setData($childTemplateData);
+		$blockProperty->setValue('<h2>Template locked block</h2>');
+		
+		$this->getEntityManager()->persist($childTemplate);
+		$childTemplate->moveAsLastChildOf($template);
+		$this->getEntityManager()->flush();
+		
+		return $childTemplate;
 	}
 
 	protected function createLayout()
@@ -244,18 +274,15 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$layout = new Entity\Layout();
 		$layout->setFile('root.html');
 
-		foreach (array('header', 'main', 'footer') as $name) {
+		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
 			$layoutPlaceHolder->setLayout($layout);
 		}
 		return $layout;
 	}
 
-	protected function createPage($type = 0, Entity\Page $parentNode = null)
+	protected function createPage($type = 0, Entity\Page $parentNode = null, Entity\Template $template = null)
 	{
-		$template = $this->createTemplate();
-		$this->getEntityManager()->persist($template);
-
 		$page = new Entity\Page();
 		$this->getEntityManager()->persist($page);
 
@@ -300,7 +327,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$pagePlaceHolder = new Entity\PagePlaceHolder($name);
 				$pagePlaceHolder->setPage($page);
 
-				foreach (\range(1, 5) as $i) {
+				foreach (\range(1, 2) as $i) {
 					$block = new Entity\PageBlock();
 					$block->setComponent('Project\Text\TextController');
 					$block->setPlaceHolder($pagePlaceHolder);
