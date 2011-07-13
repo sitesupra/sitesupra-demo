@@ -113,7 +113,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	}
 
 	/**
-	 * @return \Doctrine\ORM\PersistentCollection
+	 * @return Collection
 	 */
 	public function getPlaceHolders()
 	{

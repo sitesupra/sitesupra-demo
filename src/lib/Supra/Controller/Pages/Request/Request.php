@@ -108,7 +108,7 @@ abstract class Request extends Http
 	 * @param string $locale
 	 * @param string $media 
 	 */
-	public function __construct($locale, $media)
+	public function __construct($locale, $media = Entity\Layout::MEDIA_SCREEN)
 	{
 		$this->locale = $locale;
 		$this->media = $media;

@@ -186,6 +186,55 @@ class PagecontentAction extends SimpleController
 	 */
 	public function orderblocksAction()
 	{
+		$pageId = $_POST['page_id'];
+		$locale = $_POST['locale'];
+		$placeHolderName = $_POST['id'];
+		$blockOrder = $_POST['order'];
+		$blockPositionById = array_flip($blockOrder);
 		
+		if (count($blockOrder) != count($blockPositionById)) {
+			\Log::swarn("Block order array received contains duplicate block IDs: ", $blockOrder);
+		}
+		
+		//TODO: hardcoded
+		$locale = 'en';
+		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
+		
+//		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
+		
+		$em = \Supra\Database\Doctrine::getInstance()
+				->getEntityManager();
+//		$request->setDoctrineEntityManager($em);
+		
+		$pageDao = $em->getRepository('Supra\Controller\Pages\Entity\Abstraction\Page');
+		
+		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
+		$page = $pageDao->findOneById($pageId);
+		$data = $page->getData($locale);
+//		$request->setRequestPageData($data);
+		
+		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
+		$placeHolder = $page->getPlaceHolders()
+				->offsetGet($placeHolderName);
+		
+		$blocks = $placeHolder->getBlocks();
+		
+		$maxPosition = max($blockPositionById);
+		
+		/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
+		foreach ($blocks as $block) {
+			$id = $block->getId();
+			
+			if ( ! array_key_exists($id, $blockPositionById)) {
+				$maxPosition++;
+				$block->setPosition($maxPosition);
+			} else {
+				$block->setPosition($blockPositionById[$id]);
+			}
+		}
+		
+		$em->flush();
+		
+		$this->getResponse()->output(true);
 	}
 }
