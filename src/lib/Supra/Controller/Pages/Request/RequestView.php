@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\Http,
 		Supra\Locale\Data as LocaleData,
+		Supra\Controller\NotFoundException,
 		Supra\Controller\Pages\Entity\Abstraction\Page;
 
 /**
@@ -66,6 +67,12 @@ class RequestView extends Request
 
 		if (empty($pageData)) {
 			//TODO: 404 page
+
+			// for better exception message presentation
+			if(empty($action)) {
+				$action = '/';
+			}
+
 			throw new NotFoundException("No page found by path '$action' in pages controller");
 		}
 
