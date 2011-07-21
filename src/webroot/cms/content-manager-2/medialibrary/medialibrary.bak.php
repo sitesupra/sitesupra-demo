@@ -22,7 +22,7 @@ $all_data = Array(
 		'id' => 1,
 		'title' => 'Images',
 		'type' => 1,
-		'children' => Array(3, 4, 6),
+		'children' => Array(),
 	),
 	2 => Array(
 		'id' => 2,
