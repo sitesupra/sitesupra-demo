@@ -19,13 +19,13 @@ class FileStorage
 	 * File Storage internal path
 	 * @var string
 	 */
-	public $internalPath = null;
+	protected $internalPath = null;
 
 	/**
 	 * File Storage external path
 	 * @var string
 	 */
-	public $externalPath = null;
+	protected $externalPath = null;
 
 	/**
      * Protecting from new FileStorage
@@ -40,40 +40,35 @@ class FileStorage
 	private function __clone(){}
 
 	/**
-	 * Magic setter and getter method
-	 * @param string $name
-	 * @param array $arguments
+	 * @return string
 	 */
-	public function __call($name, $arguments)
+	public function getInternalPath()
 	{
-		// prefix set or get
-		$prefix = \substr($name, 0, 3);
-		$property = \strtolower(\substr($name, 3, 1)) . \substr($name, 4);
+		return $this->internalPath;
+	}
 
+	/**
+	 * @param string $internalPath
+	 */
+	public function setInternalPath($internalPath)
+	{
+		$this->internalPath = $internalPath;
+	}
 
-		// checking for property presence
-		if (\property_exists($this, $property)) {
-			if ($prefix == 'set') {
-				// checking for arguments presence
-				if (empty($arguments)) {
-					$message = 'Arguments can\'t be empty';
-					throw new Exception($message);
-					\Log::error($message);
-				} else {
-					$this->setValue($property, $arguments);
-				}
-			} else if ($prefix == 'get') {
-				return $this->getValue($property);
-			} else {
-				$message = 'Unknown action "' . $prefix . '". Supported only set and get';
-				throw new \Exception($message);
-				\Log::error($message);
-			}
-		} else {
-			$message = 'There is no such property as "' . $property . '" in FileStorage object';
-			throw new \Exception($message);
-			\Log::error($message);
-		}
+	/**
+	 * @return string
+	 */
+	public function getExternalPath()
+	{
+		return $this->externalPath;
+	}
+
+	/**
+	 * @param string $externalPath
+	 */
+	public function setExternalPath($externalPath)
+	{
+		$this->externalPath = $externalPath;
 	}
 
 	/**
@@ -86,30 +81,6 @@ class FileStorage
 			self::$instance = new FileStorage;
 		}
 		return self::$instance;
-	}
-
-	/**
-	 * Setter method
-	 * @param string $property
-	 * @param array $arguments
-	 */
-	private function setValue($property, $arguments = null)
-	{
-		if (\count($arguments) == 1) {
-			$this->$property = $arguments[0];
-		} else {
-			$this->$property = $arguments;
-		}
-	}
-
-	/**
-	 * Getter method
-	 * @param string $property
-	 * @return mixed
-	 */
-	private function getValue($property)
-	{
-		return $this->$property;
 	}
 
 	/**
