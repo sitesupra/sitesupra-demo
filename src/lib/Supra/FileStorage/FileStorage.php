@@ -28,6 +28,12 @@ class FileStorage
 	protected $externalPath = null;
 
 	/**
+	 * Default file storage internal/external
+	 * @var string
+	 */
+	protected $defaultStorage = 'external';
+
+	/**
      * Protecting from new FileStorage
      * @return FileStorage
      */
@@ -110,17 +116,8 @@ class FileStorage
 
 	function storeFileData(\Supra\FileStorage\Entity\File $file, $source)
 	{
-//		SupraDatabase::getConnection(__CLASS__);
-//		$log = Logger::getLogger(__CLASS__);
-//		Repository::getInstance('Logger', __CLASS__);
-
-		\Log::debug();
-
-		$file->setSize();
-
 		$dest = $file->getPath();
-
+		
 		copy($source, $dest);
 	}
-
 }
