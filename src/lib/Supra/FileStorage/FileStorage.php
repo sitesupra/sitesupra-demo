@@ -56,17 +56,23 @@ class FileStorage
 			if ($prefix == 'set') {
 				// checking for arguments presence
 				if (empty($arguments)) {
-					throw new Exception('Arguments can\'t be empty');
+					$message = 'Arguments can\'t be empty';
+					throw new Exception($message);
+					\Log::error($message);
 				} else {
 					$this->setValue($property, $arguments);
 				}
 			} else if ($prefix == 'get') {
 				return $this->getValue($property);
 			} else {
-				throw new \Exception('Unknown action "' . $prefix . '". Supported only set and get');
+				$message = 'Unknown action "' . $prefix . '". Supported only set and get';
+				throw new \Exception($message);
+				\Log::error($message);
 			}
 		} else {
-			throw new \Exception('There is no such property as "' . $property . '" in FileStorage object');
+			$message = 'There is no such property as "' . $property . '" in FileStorage object';
+			throw new \Exception($message);
+			\Log::error($message);
 		}
 	}
 
