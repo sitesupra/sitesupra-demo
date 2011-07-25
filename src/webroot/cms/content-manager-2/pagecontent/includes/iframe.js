@@ -233,8 +233,8 @@ YUI.add('supra.page-iframe', function (Y) {
 			doc.writeln(html);
 			doc.close();
 			
-			//Small delay before continuing
-			setTimeout(Y.bind(this._afterSetHTML, this), 50);
+			//Small delay before continue
+			Y.later(50, this, this._afterSetHTML);
 			
 			return html;
 		},
@@ -436,12 +436,9 @@ YUI.add('supra.page-iframe', function (Y) {
 			Supra.io(url, {
 				'data': data,
 				'on': {
-					'success': function (evt, data) {
-						if (data && Y.Lang.isFunction(callback)) {
-							callback.call(context, data);
-						}
-					}
-				}
+					'success': callback
+				},
+				'context': context
 			});
 		},
 		
@@ -457,7 +454,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				'page_id': page_info.id,
 				'version_id': page_info.version.id,
 				
-				'id': block.getId(),
+				'block_id': block.getId(),
 				
 				'locale': Supra.data.get('locale')
 			};
@@ -466,11 +463,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				'data': data,
 				'method': 'post',
 				'on': {
-					'success': function (evt, data) {
-						if (Y.Lang.isFunction(callback)) {
-							callback.call(context, data);
-						}
-					}
+					'success': callback
 				},
 				'context': context
 			});
@@ -489,7 +482,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				'page_id': page_info.id,
 				'version_id': page_info.version.id,
 				
-				'id': block.getId(),
+				'place_holder_id': block.getId(),
 				'order': order,
 				
 				'locale': Supra.data.get('locale')
@@ -517,8 +510,8 @@ YUI.add('supra.page-iframe', function (Y) {
 			var save_values = block.properties.getSaveValues();
 			
 			var post_data = {
-				'id': page_data.id,
-				'version': page_data.version.id,
+				'page_id': page_data.id,
+				'version_id': page_data.version.id,
 				'block_id': block.getId(),
 				'locale': Supra.data.get('locale'),
 				'properties': save_values
@@ -541,11 +534,9 @@ YUI.add('supra.page-iframe', function (Y) {
 				if (this.contentBlocks[i] === child) {
 					
 					//Send request
-					this.sendBlockDelete(child, function (response) {
-						if (response) {
-							delete(this.contentBlocks[i]);
-							child.destroy();
-						}
+					this.sendBlockDelete(child, function () {
+						delete(this.contentBlocks[i]);
+						child.destroy();
 					}, this);
 				}
 			}

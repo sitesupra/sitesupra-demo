@@ -34,10 +34,10 @@ Supra('supra.header', function (Y) {
 			
 			//Move node the begining of document
 			var body = new Y.Node(document.body);
-			body.prepend(this.getContainer());
+			body.prepend(this.one());
 			
 			this.header = new Supra.Header({
-				'srcNode': this.getContainer()
+				'srcNode': this.one()
 			});
 			
 			//Widget functions should be available on Action

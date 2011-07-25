@@ -44,6 +44,8 @@ YUI.add("supra.input-string", function (Y) {
 		KEY_ESCAPE: 27,
 		
 		bindUI: function () {
+			var r = Input.superclass.bindUI.apply(this, arguments);
+			
 			var input = this.get('inputNode');
 			
 			input.on("focus", this._onFocus, this);
@@ -75,7 +77,8 @@ YUI.add("supra.input-string", function (Y) {
 				input.set('value', this._original_value);
 				input.blur();
 				this.fire("reset");
-			} else if (mask && (key >= 42 || key == 32)) {
+			} else if (mask && (key >= 42 || key == 32) && key != 46) {
+				//46 - "Delete"
 				//Validate against mask
 				var str = String.fromCharCode(key),
 					inputNode = Y.Node.getDOMNode(input),
@@ -134,6 +137,12 @@ YUI.add("supra.input-string", function (Y) {
 				}
 				
 				node.set("innerHTML", Y.Lang.escapeHTML(this.get("value")) || '&nbsp;');
+				
+				//If there is no label text then hide it
+				var labelNode = this.get('labelNode');
+				if (labelNode && !labelNode.get('text')) {
+					labelNode.addClass('hidden');
+				}
 			}
 			
 			//Value mask

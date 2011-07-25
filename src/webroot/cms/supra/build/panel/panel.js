@@ -65,6 +65,14 @@ YUI.add('supra.panel', function (Y) {
 		closeVisible: {
 			value: false,
 			setter: '_setCloseVisible'
+		},
+		
+		/**
+		 * Mask all other content
+		 */
+		useMask: {
+			value: false,
+			setter: '_useMask'
 		}
 	};
 	
@@ -117,6 +125,41 @@ YUI.add('supra.panel', function (Y) {
 		 * @private
 		 */
 		CLOSE_CLASSNAME: 'close',
+		
+		/**
+		 * useMask attribute setter
+		 * Use mask to cover all other content
+		 * 
+		 * @param {Boolean} useMask
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_useMask: function (useMask) {
+			var maskNode = this.get('maskNode');
+			
+			if (useMask) {
+				if (!maskNode) {
+					var classname = Y.ClassNameManager.getClassName(Panel.NAME, 'mask'),
+						body = new Y.Node(document.body);
+					
+					if (!this.get('visible')) classname += ' hidden';
+					
+					maskNode = Y.Node.create('<div class="' + classname + '"></div>');
+					maskNode.setStyle('zIndex', this.get('zIndex'));
+					body.prepend(maskNode);
+					
+					this.set('maskNode', maskNode);
+				}
+			} else {
+				if (maskNode) {
+					maskNode.remove();
+					this.set('maskNode', null);
+				}
+			}
+			
+			return useMask;
+		},
 		
 		/**
 		 * Set arrow visiblity.
@@ -205,7 +248,7 @@ YUI.add('supra.panel', function (Y) {
 					//Arrow should be vertically centered
 					case 'C': offset = ~~((this.get('boundingBox').get('offsetHeight') - this._arrow.get('offsetHeight')) / 2); break;
 					//Arrow position is set in pixels
-					default: offset = parseInt(position[1]) || 0;
+					default: offset = parseInt(position[1], 10) || 0;
 				}
 				this._arrow.setStyle('top', offset + 'px');
 			} else {
@@ -215,7 +258,7 @@ YUI.add('supra.panel', function (Y) {
 					case 'R': offset = this.get('boundingBox').get('offsetWidth') - this._arrow.get('offsetWidth') - this.ARROW_OFFSET; break;
 					case 'C': offset = ~~((this.get('boundingBox').get('offsetWidth') - this._arrow.get('offsetWidth')) / 2); break;
 					//Arrow position is set in pixels
-					default: offset = parseInt(position[1]) || 0;
+					default: offset = parseInt(position[1], 10) || 0;
 				}
 				this._arrow.setStyle('left', offset + 'px');
 			}
@@ -358,6 +401,36 @@ YUI.add('supra.panel', function (Y) {
 			}
 			
 			Y.later(1, this, this.syncUI);
+		},
+		
+		bindUI: function () {
+			Panel.superclass.bindUI.apply(this, arguments);
+			
+			//On visible change show/hide mask
+			this.on('visibleChange', function (evt) {
+				var maskNode = this.get('maskNode');
+				if (maskNode && evt.newVal != evt.prevVal) {
+					if (evt.newVal) {
+						maskNode.removeClass('hidden');
+					} else {
+						maskNode.addClass('hidden');
+					}
+				}
+			}, this);
+			
+			//On zIndex change update mask
+			this.on('zIndexChange', function (evt) {
+				var maskNode = this.get('maskNode');
+				if (maskNode) {
+					maskNode.setStyle('zIndex', evt.newVal);
+				}
+			});
+			
+			//Before destroy remove mask
+			this.before('destroy', function () {
+				var maskNode = this.get('maskNode');
+				if (maskNode) maskNode.remove();
+			});
 		},
 		
 		syncUI: function () {

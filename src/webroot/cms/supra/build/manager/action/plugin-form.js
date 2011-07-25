@@ -21,7 +21,7 @@ YUI.add('supra.manager-action-plugin-form', function (Y) {
 			}
 			
 			//Find container node
-			var node = this.host.getContainer('form');
+			var node = this.host.one('form');
 			if (!node) {
 				//Use panels content box if form is not found
 				var panel = this.plugins.getPlugin('PluginPanel');
@@ -29,7 +29,7 @@ YUI.add('supra.manager-action-plugin-form', function (Y) {
 			}
 			if (!node) {
 				//Use first found item
-				node = this.host.getContainer();
+				node = this.host.one();
 			}
 			
 			//Create form

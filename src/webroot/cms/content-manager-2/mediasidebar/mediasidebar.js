@@ -80,7 +80,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		 * @private
 		 */
 		renderMediaList: function () {
-			var container = this.getContainer('.yui3-sidebar-content');
+			var container = this.one('.yui3-sidebar-content');
 			var list = this.medialist = new Supra.MediaLibraryList({
 				//Use media library action data path
 				'requestURI': Loader.getActionInfo('medialibrary').path_data + '.php',
@@ -123,7 +123,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		 * @private
 		 */
 		renderHeader: function () {
-			var buttons = this.getContainer().all('button');
+			var buttons = this.all('button');
 			
 			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
 			this.button_back.render();
@@ -139,7 +139,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		 * Create footer button
 		 */
 		renderFooter: function () {
-			var button = this.getContainer('.yui3-sidebar-footer button');
+			var button = this.one('.yui3-sidebar-footer button');
 			
 			this.button_app = new Supra.Button({'srcNode': button});
 			this.button_app.render();

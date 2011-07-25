@@ -260,11 +260,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var id = child.getId();
 			if (id in this.children) {
 				//Send request
-				this.get('super').sendBlockDelete(child, function (response) {
-					if (response) {
-						delete(this.children[id]);
-						child.destroy();
-					}
+				this.get('super').sendBlockDelete(child, function (data, status) {
+					delete(this.children[id]);
+					child.destroy();
 				}, this);
 				
 				//Remove from order list

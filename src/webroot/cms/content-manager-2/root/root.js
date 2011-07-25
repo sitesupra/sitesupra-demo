@@ -29,11 +29,11 @@ Supra(function (Y) {
 		 * Bind Actions together
 		 */
 		render: function () {
-			this.addChildAction('Header');
+			//this.addChildAction('Header');
 			this.addChildAction('Page');
 			
-			var header = Manager.getAction('Header'),
-				page = Manager.getAction('Page'),
+			//var header = Manager.getAction('Header'),
+			var page = Manager.getAction('Page'),
 				buttons = Manager.getAction('PageButtons'),
 				toolbar = Manager.getAction('PageToolbar'),
 				sitemap = Manager.getAction('SiteMap');
@@ -45,11 +45,12 @@ Supra(function (Y) {
 				Y.one('body').removeClass('loading');
 			});
 			
+			/*
 			//Add "Pages" to the header
 			header.on('execute', function () {
 				
 				header.addItem('manager', {
-					'type': 'link',
+					'type': 'label',
 					'icon': '/cms/supra/img/apps/content_32x32.png',
 					'title': 'Pages'
 				});
@@ -60,6 +61,7 @@ Supra(function (Y) {
 			
 			//Execute action
 			header.execute();
+			*/
 			
 			//Add empty button set
 			buttons.on('render', function () {
@@ -78,12 +80,18 @@ Supra(function (Y) {
 			sitemap.on('page:select', function (evt) {
 				page.execute(evt.data);
 			}, this);
+			
+			//Load page after execute
+			this.on('render', function () {
+				SU.Manager.executeAction('Page', Supra.data.get('page', {'id': 0}));
+			});
 		},
 		
 		execute: function () {
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons'),
-				content = Manager.getAction('PageContent');
+				content = Manager.getAction('PageContent'),
+				page = Manager.getAction('Page');
 			
 			if (toolbar.get('ready')) {
 				toolbar.setActiveGroupAction(this.NAME);

@@ -3,11 +3,12 @@
 namespace Supra\Cms\ContentManager\page;
 
 use Supra\Controller\SimpleController;
+use \Supra\Cms\ContentManager\CmsActionController;
 
 /**
  * 
  */
-class PageAction extends SimpleController
+class PageAction extends CmsActionController
 {
 
 	/**
@@ -21,7 +22,7 @@ class PageAction extends SimpleController
 		//FIXME: hardcoded now
 		$locale = 'en';
 		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
-		$pageId = $_GET['id'];
+		$pageId = $_GET['page_id'];
 		
 		// Create special request
 		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
@@ -150,8 +151,7 @@ class PageAction extends SimpleController
 			$array['contents'][] = $placeHolderData;
 		}
 		
-		// TODO: json encoding must be already inside the manager action response object
-		$this->response->output(json_encode($array));
+		$this->getResponse()->setResponseData($array);
 	}
 	
 	public function saveAction()

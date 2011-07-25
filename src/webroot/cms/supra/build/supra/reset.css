@@ -47,6 +47,10 @@ body {
 	top: -9000px;
 }
 
+.center {
+	text-align: center;
+}
+
 a.visible, em.visible, i.visible, strong.visible, b.visible, span.visible { display: inline !important; }
 table.visible { display: table !important; }
 tr.visible { display: table-row !important; }

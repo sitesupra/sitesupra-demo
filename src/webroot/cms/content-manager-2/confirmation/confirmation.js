@@ -17,6 +17,7 @@ SU('supra.form', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',
+		'useMask': true,
 		'buttons': []
 	};
 	
@@ -41,7 +42,7 @@ SU('supra.form', function (Y) {
 		 * @private
 		 */
 		renderMessage: function (config) {
-			this.getContainer('p').set('innerHTML', Y.Lang.escapeHTML(config.message || ''));
+			this.one('p').set('innerHTML', Y.Lang.escapeHTML(config.message || ''));
 		},
 		
 		/**
@@ -76,8 +77,11 @@ SU('supra.form', function (Y) {
 			
 			this.renderMessage(config);
 			this.renderButtons(this.config);
+			 
+			this.panel.set('useMask', config.useMask);
 			
 			//Show in the middle of the screen
+			this.panel.set('zIndex', 100);
 			this.panel.centered();
 		}
 	});

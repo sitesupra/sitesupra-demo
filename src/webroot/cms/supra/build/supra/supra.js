@@ -91,7 +91,7 @@ if (typeof Supra === "undefined") {
 	    root:		"/cms/yui." + YUI.version + "/build/",
 		base:		"/cms/yui." + YUI.version + "/build/",
 	    comboBase:	"/cms/yui." + YUI.version + "/combo/combo.php?",
-	    filter:		"min",
+	    filter:		"min",	//min, debug, raw
 		
 		//Default skin
 		skin: {

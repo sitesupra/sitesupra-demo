@@ -126,6 +126,20 @@ YUI.add('supra.tree', function(Y) {
 		},
 		
 		/**
+		 * Returns ID by Y.Node element
+		 * 
+		 * @param {Object} node Node
+		 * @return Node ID
+		 * @type {String}
+		 */
+		getIdByNode: function (node) {
+			node = node.closest('LI');
+			if (node) {
+				return node.getData('nodeId');
+			}
+		},
+		
+		/**
 		 * Handle .set('selectedNode')
 		 * @param {Object} node
 		 */
@@ -175,10 +189,6 @@ YUI.add('supra.tree', function(Y) {
 			}
 		},
 		
-		removeNode: function () {
-			
-		},
-		
 		/**
 		 * Reload tree data
 		 */
@@ -186,7 +196,10 @@ YUI.add('supra.tree', function(Y) {
 			var uri = this.get('requestUri');
 			
 			// Define a function to handle the response data.
-			function complete(id, data, args) {
+			function complete(data, status) {
+				//On failure assume nothing was returned
+				if (!status) data = [];
+				
 				// Remove all nodes and data
 				for(var i=0, ii=this.size(); i<ii; i++) {
 					this.remove(i);
@@ -206,8 +219,7 @@ YUI.add('supra.tree', function(Y) {
 					if ('children' in tmp[i] && tmp[i].children) {
 						for(var k=0, kk=tmp[i].children.length; k<kk; k++) {
 							Y.mix(tmp[i].children[k], {
-								parent: tmp[i].id,
-								fullpath: (tmp[i].fullpath || '') + '/' + tmp[i].children[k].path
+								parent: tmp[i].id
 							});
 							tmp.push(tmp[i].children[k]);
 						}

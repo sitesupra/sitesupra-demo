@@ -21,7 +21,7 @@ YUI.add('supra.manager-action-plugin-container', function (Y) {
 		initialize: function () {
 			//On visibility change show/hide container
 			this.host.on('visibleChange', function (evt) {
-				var node = this.getContainer();
+				var node = this.one();
 				if (node && evt.newVal != evt.prevVal) {
 					if (evt.newVal) {
 						node.removeClass('hidden');

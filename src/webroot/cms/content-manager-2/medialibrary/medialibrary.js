@@ -106,7 +106,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			
 			//Create slideshow
 			var list = this.medialist = (new Supra.MediaLibraryExtendedList({
-				'srcNode': this.getContainer('#mediaLibraryList'),
+				'srcNode': this.one('#mediaLibraryList'),
 				'foldersSelectable': true,
 				'filesSelectable': false,
 				'imagesSelectable': false,
@@ -123,7 +123,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			
 			//Create "Sort by" widget
 			var input = this.input_sortby = new Supra.Input.SelectList({
-				'srcNode': this.getContainer('#mediaLibrarySort')
+				'srcNode': this.one('#mediaLibrarySort')
 			});
 			input.render();
 			input.on('change', function (event) {

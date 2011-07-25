@@ -16,11 +16,14 @@
 
 .yui3-languagebar .label {
 	color: #999;
+	vertical-align: middle;
 }
 
 .yui3-languagebar a {
-	text-decoration: none;
 	color: #333;
+	line-height: 30px;
+	text-decoration: none;
+	vertical-align: middle;
 	padding: 0 3px;
 }
 .yui3-languagebar a span {
@@ -34,9 +37,13 @@
 	margin-left: 5px;
 }
 
+/**
+ * Popup panel
+ */
 .yui3-languagebar .contexts {
 	color: #999;
 	font-size: 13px;
+	text-align: left;
 	list-style: none;
 	padding: 10px;
 	min-width: 120px;
@@ -47,6 +54,7 @@
 }
 .yui3-languagebar .langs a {
 	color: #fff;
+	line-height: 16px;
 	padding: 1px 0;
 	display: block;
 }

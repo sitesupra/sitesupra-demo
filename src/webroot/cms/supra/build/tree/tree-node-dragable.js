@@ -32,7 +32,14 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		 */
 		'defaultChildType': {  
             value: TreeNodeDragable
-        }
+        },
+		
+		/**
+		 * Dragable node selector
+		 */
+		'dragableSelector': {
+			value: 'div.tree-node'
+		}
 	};
 	
 	Y.extend(TreeNodeDragable, Supra.TreeNode, {
@@ -49,7 +56,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			TreeNodeDragable.superclass.renderUI.apply(this, arguments);
 			
 			if (this.get('isDragable')) {
-				this.get('boundingBox').one('div.tree-node').addClass('isdragable');
+				var node = this.get('boundingBox').one(this.get('dragableSelector'));
+				
+				//If class is extended node may not be present
+				if (node) node.addClass('isdragable');
 			}
 		},
 		
@@ -248,7 +258,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			
 			if (this.get('isDragable')) {
 				var node = this.get('boundingBox');
-				var treenode = node.one('div.tree-node');
+				var treenode = node.one(this.get('dragableSelector'));
+				
+				//If class is extended node may not be present
+				if (!treenode) return;
 				
 				var dd = this.dd = new Y.DD.Drag({
 					node: treenode,
@@ -283,7 +296,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				
 			} else if (this.get('isDropTarget')) {
 				var node = this.get('boundingBox');
-				var treenode = node.one('div.tree-node');
+				var treenode = node.one(this.get('dragableSelector'));
+				
+				//If class is extended node may not be present
+				if (!treenode) return;
 				
 				var dd = this.dd = new Y.DD.Drop({
 					node: treenode,
@@ -295,10 +311,13 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		
 		_setDragable: function (val) {
 			if (val && val != this.get('isDragable')) {
+				var node = this.get('boundingBox').one(this.get('dragableSelector'));
+				if (!node) return !val;
+				
 				if (val) {
-					this.get('boundingBox').one('div.tree-node').addClass('isdragable');
+					node.addClass('isdragable');
 				} else {
-					this.get('boundingBox').one('div.tree-node').removeClass('isdragable');
+					node.removeClass('isdragable');
 				}
 			}
 			

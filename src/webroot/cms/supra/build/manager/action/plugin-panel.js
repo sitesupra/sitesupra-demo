@@ -21,7 +21,7 @@ YUI.add('supra.manager-action-plugin-panel', function (Y) {
 			}
 			
 			//Panel
-			var node = this.host.getContainer('DIV');
+			var node = this.host.one('DIV');
 			if (node) {
 				
 				var config = {

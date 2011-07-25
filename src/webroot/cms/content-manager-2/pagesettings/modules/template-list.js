@@ -53,7 +53,7 @@ YUI.add("website.template-list", function (Y) {
 		 * @param {Object} data
 		 * @private
 		 */
-		_loadTemplatesComplete: function (transaction, data) {
+		_loadTemplatesComplete: function (data) {
 			this._templates = data;
 			this.syncUI();
 		},

@@ -317,9 +317,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'data': data,
 				'context': this,
 				'on': {
-					'success': function (transaction, data) { this.loadComplete(data, id || 0); },
-					'failure': function (transaction, data) { this.loadComplete(null, id || 0); }
-				}	
+					'complete': function (data, success) { this.loadComplete(data, id || 0); }
+				}
 			});
 			
 			return this;
@@ -349,13 +348,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'method': 'post',
 				'context': this,
 				'on': {
-					'success': function (transaction, data) {
+					'complete': function (data, status) {
 						this.afterSaveData(id || 0, data);
 						if (Y.Lang.isFunction(callback)) callback(data, id || 0);
-					},
-					'failure': function (transaction, data) {
-						this.afterSaveData(id || 0, null);
-						if (Y.Lang.isFunction(callback)) callback(null, id || 0);
 					}
 				}
 			});

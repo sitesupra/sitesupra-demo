@@ -25,18 +25,27 @@ YUI.add("supra.input-path", function (Y) {
 		
 		_setPath: function (value) {
 			var node = this.get('pathNode'),
-				input = this.get('inputNode');
+				input = this.get('inputNode'),
+				replacement = this.get('replacementNode');
 			
+			if (!node && replacement) {
+				node = replacement.one('small');
+			}
 			if (!node) {
 				node = input.previous('small');
-				if (!node) {
-					node = Y.Node.create('<small></small>');
+			}
+			if (!node) {
+				node = Y.Node.create('<small></small>');
+				
+				if (replacement) {
+					replacement.prepend(node);
+				} else {
 					input.insert(node, 'before');
 				}
-				this.set('pathNode', node);
 			}
 			
 			if (node) {
+				this.set('pathNode', node);
 				node.set("innerHTML", Y.Lang.escapeHTML(value));
 			}
 			
@@ -46,10 +55,15 @@ YUI.add("supra.input-path", function (Y) {
 		_onFocus: function () {
 			Input.superclass._onFocus.apply(this, arguments);
 			
+			/*
+			if (this.get('disabled')) return;
+			
 			var node = this.get("replacementNode");
 			if (node) {
 				node.set("innerHTML", '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>');
+				this.set('pathNode', node.one('small'));
 			}
+			*/
 		},
 		_onBlur: function () {
 			var input = this.get("inputNode");
@@ -60,13 +74,21 @@ YUI.add("supra.input-path", function (Y) {
 			var node = this.get("replacementNode");
 			if (node) {
 				node.set("innerHTML", '<small>' + this.get('path') + '</small>' + this.get('value'));
+				this.set('pathNode', node.one('small'));
 			}
 		},
 		
-		bindUI: function () {
-			var r = Input.superclass.bindUI.apply(this, arguments);
+		_setValue: function (value) {
+			this.get("inputNode").set("value", value);
+			var node = this.get("replacementNode");
 			
-			return r;
+			if (node) {
+				node.set("innerHTML", '<small>' + this.get('path') + '</small>' + Y.Lang.escapeHTML(value) || '&nbsp;');
+				this.set('pathNode', node.one('small'));
+			}
+			
+			this._original_value = value;
+			return value;
 		},
 		
 		renderUI: function () {

@@ -110,13 +110,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		savePropertyChanges: function () {
 			if (this.properties && this.unresolved_changes) {
-				this.get('super').sendBlockProperties(this, function (transaction, response) {
+				this.get('super').sendBlockProperties(this, function (status, response_data) {
 					
-					if (response) {
-						var data = this.get('data');
-						data.properties = this.properties.getValues();
-						this.set('data', data);
-					}
+					var data = this.get('data');
+					data.properties = this.properties.getValues();
+					this.set('data', data);
 					
 				}, this);
 			}

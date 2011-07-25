@@ -2,12 +2,13 @@
 
 namespace Supra\Cms\ContentManager\sitemap;
 
-use \Supra\Controller\SimpleController;
+use Supra\Controller\SimpleController;
+use Supra\Cms\ContentManager\CmsActionController;
 
 /**
  * Sitemap
  */
-class SitemapAction extends SimpleController
+class SitemapAction extends CmsActionController
 {
 	public function sitemapAction()
 	{
@@ -43,7 +44,7 @@ class SitemapAction extends SimpleController
 		}
 		
 		$this->getResponse()
-				->output(json_encode($response));
+				->setResponseData($response);
 //		[
 //	{"id": 12, "title": "Home", "path": "", "icon": "home", "published": true, "scheduled": false, "children": [
 //		{"id": 13, "title": "News", "path": "news", "icon": "news", "published": true, "scheduled": false},

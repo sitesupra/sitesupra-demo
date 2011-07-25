@@ -1,10 +1,31 @@
 <div class="yui3-sitemap">
 	<div class="yui3-sitemap-content">
 		
-		<div class="languages"></div>
-		<ul class="tree"></ul>
+		<img src="/cms/supra/img/sitemap/new-page-icon.png" alt="" class="new-page-button" />
 		
-		<div class="clear"><!-- --></div>
+		<div class="yui3-sitemap-scrollable">
+			
+			<div class="languages"></div>
+			
+			<div class="flowmap"></div>
+			
+		</div>
+		
+		
+		<div class="sitemap-settings hidden">
+			
+			<form>
+				<input type="text" name="title" />
+				<input type="text" name="path" suValueMask="^[a-zA-Z0-9\-\_]*$" suType="Path" />
+				<input type="hidden" name="template" suType="Template" />
+				
+				<div class="center">
+					<button type="button">Delete page</button>
+				</div>
+				
+			</form>
+			
+		</div>
 		
 	</div>
 </div>

@@ -52,9 +52,9 @@ YUI.add('supra.tree-node', function(Y) {
 			}
 		},
 		
-		collapse: function () {
+		collapse: function (silent) {
 			this.get('boundingBox').addClass(C('tree-node', 'collapsed'));
-			this.getTree().fire('toggle', {node: this, data: this.get('data'), newVal: false});
+			if (silent !== true) this.getTree().fire('toggle', {node: this, data: this.get('data'), newVal: false});
 		},
 		
 		collapseAll: function () {
@@ -64,9 +64,9 @@ YUI.add('supra.tree-node', function(Y) {
 			}
 		},
 		
-		expand: function () {
+		expand: function (silent) {
 			this.get('boundingBox').removeClass(C('tree-node', 'collapsed'));
-			this.getTree().fire('toggle', {node: this, data: this.get('data'), newVal: true});
+			if (silent !== true) this.getTree().fire('toggle', {node: this, data: this.get('data'), newVal: true});
 		},
 		
 		expandAll: function () {
@@ -76,12 +76,109 @@ YUI.add('supra.tree-node', function(Y) {
 			}
 		},
 		
+		/**
+		 * On addChild update data
+		 * Handle only sorting, new items should be handled by default handler
+		 * 
+		 * @param {Object} event
+		 */
+		onAddChild: function (event) {
+			//-1 index is for new items, handle only sorting
+			if (event.child.get('index') == -1) return;
+			
+			//Stop propagation, otherwise it will propagate to the root element and
+			//child-parent association will be wrong
+			event.stopPropagation();
+			
+			//Prevent default implementation, it is buggy!?
+			event.preventDefault();
+			
+			var data = this.getTree().getIndexedData();			//all tree data
+			var index = event.index;							//new index
+			
+			var child = event.child;							//TreeNode instance
+			var child_data = child.get('data');					//drag element data
+			
+			var target = event.currentTarget;					//TreeNode instance
+			var target_data = target.get('data');				//drop target data
+			
+			var parent = child.get('parent');					//TreeNode instance of old parent
+			
+			if (!('children' in target_data)) {
+				target_data.children = [];
+			}
+			
+			//Remove from parents children list
+			if (parent) {
+				parent.remove(child.get('index'));
+			}
+			
+			//Update "parent" in data
+			child_data.parent = target_data.id;
+			
+			//Insert into new parents data and new parents children list
+			var children = target._items;
+			if (Y.Lang.isNumber(index)) {
+	            target_data.children.splice(index, 0, child_data);
+				children.splice(index, 0, child);
+	        }  else {
+	            target_data.children.push(child_data);
+				children.push(child);
+	        }
+			
+			//Update child parent
+			child._set("parent", target);
+    		child.addTarget(target);
+			event.index = child.get("index");
+			
+			//Insert node into correct position
+			var sibling = null;
+			if (Y.Lang.isNumber(index)) {
+				sibling = target._childrenContainer.get('children').item(index);
+			}
+			
+			if (sibling) {
+				sibling.insert(child.get('boundingBox'), 'before');
+			} else {
+				target._childrenContainer.append(child.get('boundingBox'));
+			}
+			
+			//Update UI
+			if (parent) parent.syncUI();
+			target.syncUI();
+		},
+		
+		/**
+		 * On remove child remove data from parent
+		 */
+		onRemoveChild: function (event) {
+			var data = this.getTree().getIndexedData();			//all tree data
+			
+			var child = event.child;							//TreeNode instance
+			var child_data = child.get('data');					//drag element data
+			
+			var parent = child.get('parent');					//TreeNode instance of old parent
+			
+			if (parent) {
+				var parent_data = data[data[child_data.id].parent];	//Old parent data
+				
+				//Remove data from old parent
+				for(var i=0,ii=parent_data.children.length; i<ii; i++) {
+					if (parent_data.children[i].id == child_data.id) {
+						parent_data.children.splice(i,1);
+						break;
+					}
+				}
+			}
+		},
+		
 		bindUI: function () {
 			//Handle click
 			this.get('boundingBox').one('div').on('click', function (evt) {
 				var event_name = 'node-click';
 				if (evt.target.get('tagName') == 'A') {
 					event_name = 'newpage-click';
+					evt.preventDefault();
 				}
 				
 				if (this.getTree().fire(event_name, {node: this, data: this.get('data')})) {
@@ -95,95 +192,32 @@ YUI.add('supra.tree-node', function(Y) {
 				var data = this.get('data');
 				if (data && data.children && data.children.length) {
 					this.toggle();
-					event.preventDefault();
-					event.stopPropagation();
+					event.halt();
 				}
-			}, this);
-			
-			//On addChild update data
-			this.on('addChild', function (event) {
-				//Stop propagation, otherwise it will propagate to the root element and
-				//child-parent association will be wrong
-				event.stopPropagation();
-				
-				//Prevent default implementation, it is buggy!?
-				event.preventDefault();
-				
-				var data = this.getTree().getIndexedData();			//all tree data
-				var index = event.index;							//new index
-				
-				var child = event.child;							//TreeNode instance
-				var child_data = child.get('data');					//drag element data
-				
-				var target = event.currentTarget;					//TreeNode instance
-				var target_data = target.get('data');				//drop target data
-				
-				var parent = child.get('parent');					//TreeNode instance of old parent
-				var parent_data = data[data[child_data.id].parent];	//Old parent data
-				
-				if (!('children' in target_data)) {
-					target_data.children = [];
-				}
-				
-				//Remove data from old parent
-				for(var i=0,ii=parent_data.children.length; i<ii; i++) {
-					if (parent_data.children[i].id == child_data.id) {
-						parent_data.children.splice(i,1);
-						break;
-					}
-				}
-				
-				//Update "parent" in data
-				child_data.parent = target_data.id;
-				
-				//Remove from parents children list
-				if (parent) {
-					parent.remove(child.get('index'));
-				}
-				
-				//Insert into new parents data and new parents children list
-				var children = target._items;
-				if (Y.Lang.isNumber(index)) {
-		            target_data.children.splice(index, 0, child);
-					children.splice(index, 0, child);
-		        }  else {
-		            target_data.children.push(child_data);
-					children.push(child);
-		        }
-				
-				//Update child parent
-				child._set("parent", target);
-        		child.addTarget(target);
-				event.index = child.get("index");
-				
-				//Insert node into correct position
-				var sibling = null;
-				if (Y.Lang.isNumber(index)) {
-					sibling = target._childrenContainer.get('children').item(index);
-				}
-				
-				if (sibling) {
-					sibling.insert(child.get('boundingBox'), 'before');
-				} else {
-					target._childrenContainer.append(child.get('boundingBox'));
-				}
-				
-				//Update UI
-				parent.syncUI();
-				target.syncUI();
-				
 			}, this);
 			
 			this.after('addChild', function (event) {
 				var target = event.currentTarget;
 				target.syncUI();
 			});
+			
+			//On addChild update data
+			//Handle only sorting, new items should be handled by default handler
+			this.on('addChild', this.onAddChild, this);
+			
+			this.on('removeChild', this.onRemoveChild, this);
+			
 		},
 		
 		renderUI: function () {
 			var data = this.get('data');
 			
 			this._childrenContainer = this.get('boundingBox').one('ul');
+			
+			//Data
+			if (data.id) {
+				this.get('boundingBox').setData('nodeId', data.id);
+			}
 			
 			//Label
 			this.setLabel(this.get('label'));
@@ -245,6 +279,13 @@ YUI.add('supra.tree-node', function(Y) {
 			return p;
 		},
 		
+		/**
+		 * Returns tree node by ID
+		 * 
+		 * @param {String} id
+		 * @return TreeNode
+		 * @type {Object}
+		 */
 		getNodeById: function (id) {
 			var i = 0, node;
 			while(node = this.item(i)) {

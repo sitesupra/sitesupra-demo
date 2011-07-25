@@ -75,20 +75,20 @@ SU(function (Y) {
 		 */
 		initialize: function () {
 			//Update 
-			var nodes = Manager.getAction('LayoutContainers').getContainer(this.CONTAINER_SELECTOR);
+			var nodes = Manager.getAction('LayoutContainers').one(this.CONTAINER_SELECTOR);
 			this.set('srcNode', new Y.NodeList(nodes));
 			
 			//Set contentBox
 			this.set('boundingBox', this.get('srcNode'));
-			this.set('contentBox', this.getContainer(this.CONTAINER_SELECTOR + '-content'));
+			this.set('contentBox', this.one(this.CONTAINER_SELECTOR + '-content'));
 			
 			//Show / hide buttons when action is shown / hidden
 			this.on('visibleChange', function (evt) {
 				if (evt.prevVal != evt.newVal) {
 					if (evt.newVal) {
-						this.getContainer().removeClass('hidden');
+						this.one().removeClass('hidden');
 					} else if (this.CAN_HIDE) {
-						this.getContainer().addClass('hidden');
+						this.one().addClass('hidden');
 						this.setActiveAction(null);
 					} else {
 						this.setActiveAction(null);
@@ -324,16 +324,16 @@ SU(function (Y) {
 					layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
 				
 				//Top bar 
-				iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
-				iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.getContainer(), 'left', 10);
-				iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.getContainer(), 'right', 10);
+				iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+				iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+				iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 				
 				//Left and right bars also should sync position when Editor toolbar is shown/hidden
 				layoutLeftContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
-				layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
+				layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
 				
 				layoutRightContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
-				layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
+				layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
 				
 				//On left container show hide right container and wise versa
 				layoutLeftContainer.on('visibleChange', function (evt) {

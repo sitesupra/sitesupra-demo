@@ -35,7 +35,7 @@ YUI.add("website.input-template", function (Y) {
 		_loadTemplates: function () {
 			Supra.io(this.get('templateRequestUri'), this._loadTemplatesComplete, this);
 		},
-		_loadTemplatesComplete: function (transaction, data) {
+		_loadTemplatesComplete: function (data) {
 			this._templates = data;
 			this.syncUI();
 		},

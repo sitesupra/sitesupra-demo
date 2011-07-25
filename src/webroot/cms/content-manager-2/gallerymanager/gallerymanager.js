@@ -86,9 +86,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//On visibility change update container class and disable/enable toolbar
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal) {
-					this.getContainer().removeClass('hidden');
+					this.one().removeClass('hidden');
 				} else {
-					this.getContainer().addClass('hidden');
+					this.one().addClass('hidden');
 					this.callback = null;
 					this.data = null;
 				}
@@ -105,7 +105,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').getContainer();
+			var content = Manager.getAction('PageContentSettings').one();
 			if (!content) return;
 			
 			//Properties form
@@ -155,7 +155,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			for(var i=0,ii=images.length; i<ii; i++) {
 				if (images[i] === selected) {
-					this.getContainer('.list').one('img[alt="' + selected.id + '"]').ancestor('li').remove();
+					this.one('.list img[alt="' + selected.id + '"]').ancestor('li').remove();
 					this.data.images.splice(i,1);
 					this.settingsFormCancel();
 					return this;
@@ -171,7 +171,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 */
 		render: function () {
 			//Buttons
-			var buttons = this.getContainer('.yui3-form-buttons');
+			var buttons = this.one('.yui3-form-buttons');
 			
 			//Done button
 			var btn = new Supra.Button({'label': 'Done', 'style': 'mid-blue'});
@@ -195,9 +195,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				layoutRightContainer = Manager.getAction('LayoutRightContainer');
 			
 			//Top bar 
-			this.layout.addOffset(layoutTopContainer, layoutTopContainer.getContainer(), 'top', 10);
-			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.getContainer(), 'left', 10);
-			this.layout.addOffset(layoutRightContainer, layoutRightContainer.getContainer(), 'right', 10);
+			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 		},
 		
 		/**
@@ -357,7 +357,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @private
 		 */
 		renderData: function () {
-			var list = this.getContainer('.list'),
+			var list = this.one('.list'),
 				images = this.data.images,
 				preview_size = this.PREVIEW_SIZE,
 				src,
@@ -389,7 +389,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @private
 		 */
 		applyChanges: function () {
-			var items = this.getContainer('.list').all('li'),
+			var items = this.all('li'),
 				order = {},
 				data = this.data,
 				images = [];

@@ -35,7 +35,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').getContainer();
+			var content = Manager.getAction('PageContentSettings').one();
 			if (!content) return;
 			
 			//Properties form

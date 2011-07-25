@@ -356,7 +356,7 @@ SU(function (Y) {
 		 * @private
 		 */
 		renderButtons: function (button_groups) {
-			var container = this.getContainer('.yui3-editor-toolbar-main'),
+			var container = this.one('.yui3-editor-toolbar-main'),
 				subcontainer = null,
 				button_config,
 				button,
@@ -449,9 +449,9 @@ SU(function (Y) {
 			//Show / hide buttons when action is shown / hidden
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal) {
-					this.getContainer().removeClass('hidden');
+					this.one().removeClass('hidden');
 				} else {
-					this.getContainer().addClass('hidden');
+					this.one().addClass('hidden');
 					
 					//Hide all subactions
 					var buttons = this.buttons;

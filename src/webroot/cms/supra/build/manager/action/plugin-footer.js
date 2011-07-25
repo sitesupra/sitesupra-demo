@@ -21,7 +21,7 @@ YUI.add('supra.manager-action-plugin-footer', function (Y) {
 			}
 			
 			//Find container
-			var node = this.host.getContainer('div.footer');
+			var node = this.host.one('div.footer');
 			
 			//Add widget
 			if (node) {

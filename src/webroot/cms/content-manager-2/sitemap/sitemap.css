@@ -1,11 +1,12 @@
 .yui3-sitemap {
 	position: absolute;
 	z-index: 2;
-	top: 127px;
+	top: 60px;
 	bottom: 10px;
 	left: 10px;
 	right: 10px;
 	background: #fff;
+	overflow: hidden;
 }
 .yui3-sitemap-content {
 	border: 1px solid #eee;
@@ -18,25 +19,358 @@
 	box-sizing: border-box;
 }
 
+.yui3-sitemap-scrollable {
+	overflow: auto;
+	height: 100%;
+	width: 100%;
+}
+
+
+/**
+ * Language bar
+ */
 .yui3-sitemap .languages {
 	border-bottom: 1px solid #eee;
-	padding: 10px 13px;
+	padding: 3px 13px;
 	margin: 0 13px 5px;
+	text-align: center;
 }
 
-.yui3-sitemap .yui3-tree {
-	float: left;
+/**
+ * New page icon
+ */
+.yui3-sitemap .new-page-button {
+	display: block;
+	cursor: move;
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	margin-top: -32px;
 }
-.yui3-sitemap .yui3-tree-loading {
+
+/**
+ * Flowmap
+ */
+.flowmap {
+	text-align: center;
+	padding-bottom: 80px;	/* Needed space for properties panel */
+}
+.flowmap-node,
+.flowmap-node-inner,
+.flowmap-children .yui3-flowmap-item {
+	display: inline-block;
+	text-align: center;
+	vertical-align: top;
+}
+.flowmap-node {
+	position: relative;
+	position: relative;
+	width: 100%;
+}
+
+.flowmap-node-inner {
+	cursor: pointer;
+	padding: 10px 10px 0;
+	position: relative;
+}
+.flowmap-node-inner * {
+	cursor: pointer;
+}
+
+.flowmap-node-inner:hover {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	background: #eee;
+}
+
+
+.flowmap > .yui3-tree-node {
+	width: auto !important;
+}
+
+.yui3-tree-node-selected .flowmap-node-inner {
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.flowmap-node label {
+	display: block;
+	font-size: 14px;
+	padding: 5px 0 9px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.flowmap-node span.img {
+	display: inline-block;
+}
+.flowmap-node img {
+	display: block;
+	margin: 0 auto;
+	
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,.15);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.15);
+	box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+/* Root */
+.flowmap > .yui3-flowmap-item > .flowmap-node {
+	background: url(/cms/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
+	width: auto;
+	padding: 0 5px 20px;
+}
+
+/* Children */
+.flowmap-children .yui3-flowmap-item {
+	padding: 23px 0 0;
+	width: 146px;
+	background: url(/cms/supra/img/sitemap/lines.png) 50% 0 no-repeat;
+	
+	-moz-transition: width 0.25s;
+	-webkit-transition: width 0.25s;
+	transition: width 0.25s;
+}
+.flowmap-children .yui3-flowmap-item:first-child {
+	background-position: 50% -240px;
+}
+.flowmap-children .yui3-flowmap-item:last-child {
+	background-position: 50% -480px;
+}
+
+.flowmap-children .flowmap-node {
+	height: 152px;
+	padding: 0 5px;
+}
+.flowmap-children .flowmap-children {
+	margin-top: 60px;
+	background: #fff;
+	text-align: left;
+}
+
+.yui3-tree-node-collapsed .flowmap-children,
+.flowmap-children .flowmap-children:empty {
+	display: none;
+}
+
+/* Toggle */
+.flowmap-children .flowmap-node .toggle {
+	position: absolute;
+	width: 28px;
+	height: 28px;
+	display: block;
+	left: 50%;
+	top: 170px;
+	margin-left: -14px;
+	background: url(/cms/supra/img/sitemap/icon-toggle.png) 0 -28px no-repeat;
+	cursor: pointer;
+}
+.flowmap-children .flowmap-node .toggle:hover {
+	background-position: 0 -84px;
+}
+.flowmap-children .flowmap-node .toggle.hidden {
+	display: none;
+}
+
+.flowmap-children .yui3-tree-node-collapsed .flowmap-node .toggle {
+	background-position: 0 0;
+}
+.flowmap-children .yui3-tree-node-collapsed .flowmap-node .toggle:hover {
+	background-position: 0 -56px;
+}
+
+
+/* Drag icon */
+.flowmap-children .tree-node div {
 	float: none;
 }
-.yui3-sitemap .yui3-tree .tree-node {
-	padding-right: 50px;
+.flowmap-children .tree-children .tree-node div {
+	padding-left: 10px;
+}
+.flowmap-children .tree-children .tree-children .tree-node div {
+	padding-left: 30px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 50px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 70px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 90px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 110px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 130px;
+}
+.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+	padding-left: 150px;
 }
 
-.yui3-sitemap .yui3-tree .tree-node label {
-	color: #999;
+.flowmap-children .tree-node.isdragable .tree-node div {
+	background: none;
 }
-.yui3-sitemap .yui3-tree .tree-node-published > .tree-node label {
-	color: #333;
+.flowmap-children .tree-node.isdragable:hover div {
+	background: #eee;
+}
+.flowmap-children .yui3-tree-node-selected div,
+.flowmap-children .yui3-tree-node-selected.isdragable:hover div {
+	background: #CDECFF;
+}
+
+/* Edit */
+.tree-node span.edit,
+.flowmap-node span.edit {
+	background: url(/cms/supra/img/sitemap/edit.png) 0 0 no-repeat;
+	width: 16px;
+	height: 16px;
+	margin-left: 3px;
+	vertical-align: middle;
+}
+.tree-node span.edit.hidden,
+.flowmap-node span.edit {
+	display: inline-block !important;
+	visibility: hidden;
+}
+.tree-node:hover span.edit,
+.flowmap-node-inner:hover span.edit {
+	visibility: visible;
+}
+.tree-node span.edit:hover,
+.flowmap-node-inner span.edit:hover {
+	background-position: 0 -16px;
+}
+
+.flowmap-node span.edit {
+	position: absolute;
+	margin: 0;
+	right: 13px;
+	bottom: 37px;
+}
+
+.yui3-dd-drop-active-valid span.edit,
+.yui3-dd-dragging-active-valid span.edit {
+	/* while dragging don't show edit icon */
+	display: none !important;
+}
+
+/* Off screen proxy */
+.flowmap-children.offscreen .tree-children {
+	display: block !important;
+}
+
+/**
+ * Panel
+ */
+.sitemap-settings {
+	width: 450px;
+}
+.sitemap-settings form {
+	margin: 10px 10px 0;
+}
+.sitemap-settings .yui3-input-string input {
+	width: 100%;
+}
+
+.sitemap-settings .center {
+	padding: 10px;
+}
+.sitemap-settings .yui3-input {
+	margin: 0;
+}
+.sitemap-settings .yui3-input span {
+	width: 100%;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.sitemap-settings .yui3-input-focused span {
+	display: none;
+}
+.sitemap-settings .yui3-input-path small {
+	font-size: 14px;
+	color: #999;
+	width: auto;
+}
+
+
+.sitemap-settings .yui3-input-template {
+	padding: 5px 280px 5px 0;
+	cursor: pointer;
+	overflow: hidden;
+}
+.sitemap-settings .yui3-input-template div {
+	width: 124px;
+	height: 124px;
+	border: 3px solid #f5f5f5;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	float: right;
+	margin-right: -130px;
+}
+.sitemap-settings .yui3-input-template:hover div {
+	border-color: #e0e0e0;
+}
+.sitemap-settings .yui3-input-template.selected div,
+.sitemap-settings .yui3-input-template.yui3-input-disabled.selected div {
+	border-color: #CDECFF;
+}
+.sitemap-settings .yui3-input-template img {
+	display: block;
+}
+.sitemap-settings .yui3-input-template p {
+	padding: 52px 20px 0 5px;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: left;
+}
+
+.sitemap-settings .yui3-input-template.yui3-input-disabled {
+	cursor: default;
+}
+.sitemap-settings .yui3-input-template.yui3-input-disabled:hover div {
+	border-color: #f5f5f5;
+}
+
+/**
+ * Template list
+ */
+.yui3-sitemap-template-list {
+	list-style: none;
+	padding: 5px 10px;
+	max-height: 420px;
+	overflow-y: auto;
+	float: left;
+}
+.yui3-sitemap-template-list li {
+	padding: 5px 130px 5px 0;
+	cursor: pointer;
+}
+.yui3-sitemap-template-list div {
+	width: 124px;
+	height: 124px;
+	border: 3px solid #f5f5f5;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	float: right;
+	margin-right: -130px;
+}
+.yui3-sitemap-template-list li:hover div {
+	border-color: #e0e0e0;
+}
+.yui3-sitemap-template-list li.selected div {
+	border-color: #CDECFF;
+}
+.yui3-sitemap-template-list img {
+	display: block;
+}
+.yui3-sitemap-template-list p {
+	padding: 52px 20px 0 0;
+	font-size: 12px;
 }

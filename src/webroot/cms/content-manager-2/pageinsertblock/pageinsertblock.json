@@ -1,20 +1,23 @@
-[
-	{
-		"id": "features",
-		"title": "Site features",
-		"blocks": [
-			"Project_Text_TextController",
-			"sample"
-		]
-	},
-	{
-		"id": "design",
-		"title": "Design",
-		"blocks": []
-	},
-	{
-		"id": "commerce",
-		"title": "Commerce",
-		"blocks": []
-	}
-]
+{
+	"status": 1,
+	"data": [
+		{
+			"id": "features",
+			"title": "Site features",
+			"blocks": [
+				"Project_Text_TextController",
+				"sample"
+			]
+		},
+		{
+			"id": "design",
+			"title": "Design",
+			"blocks": []
+		},
+		{
+			"id": "commerce",
+			"title": "Commerce",
+			"blocks": []
+		}
+	]
+}

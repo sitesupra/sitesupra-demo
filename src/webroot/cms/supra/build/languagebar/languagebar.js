@@ -92,7 +92,8 @@ YUI.add("supra.languagebar", function (Y) {
 			if (!this.panel) {
 				this.panel = new Supra.Tooltip({
 					'alignTarget': this.get('srcNode').one('a'),
-					'alignPosition': 'T'
+					'alignPosition': 'T',
+					'zIndex': 1
 				});
 				this.panel.render(this.get('contentBox'));
 				

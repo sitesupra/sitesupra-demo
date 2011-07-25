@@ -231,7 +231,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				block = null,
 				block_type = null,
 				block_definition = null,
-				container = this.getContainer('ul.block-list'),
+				container = this.one('ul.block-list'),
 				item = null;
 			
 			container.all('li').remove();
@@ -288,7 +288,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			Manager.executeAction('Confirmation', {
 				'message': 'Are you sure you want to delete selected page?',
 				'buttons': [
-					{'id': 'delete', 'label': 'Yes', 'click': function () { Manager.Page.deletePage(); this.hide(); }, 'context': this},
+					{'id': 'delete', 'label': 'Yes', 'click': function () { Manager.Page.deleteCurrentPage(); this.hide(); }, 'context': this},
 					{'id': 'no', 'label': 'No'}
 				]
 			});
@@ -300,7 +300,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		 */
 		createForm: function () {
 			
-			var buttons = this.getContainer().all('button');
+			var buttons = this.all('button');
 			
 			//Apply button
 			(new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'mid-blue'}))
@@ -342,14 +342,14 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			
 			//Slideshow
 			var slideshow = this.slideshow = new Supra.Slideshow({
-				'srcNode': this.getContainer('div.slideshow')
+				'srcNode': this.one('div.slideshow')
 			});
 			slideshow.render();
 			slideshow.on('slideChange', this.onSlideChange, this);
 			
 			//Form
 			var form = this.form = new Supra.Form({
-				'srcNode': this.getContainer('form')
+				'srcNode': this.one('form')
 			});
 			form.render();
 			
@@ -381,12 +381,12 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			switch(key) {
 				case 'template':
 					//Set version info
-					var node = this.getContainer('.button-template small');
+					var node = this.one('.button-template small');
 					node.one('span').set('text', page_data.template.title);
 					node.one('img').set('src', page_data.template.img);
 					break;
 				case 'version':
-					var node = this.getContainer('.button-version small');
+					var node = this.one('.button-version small');
 					node.one('b').set('text', page_data.version.title);
 					node.one('span').set('text', page_data.version.author + ', ' + page_data.version.date);
 					break;
@@ -415,9 +415,12 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			
 			//Remove unneeded data for save request
 			var post_data = Supra.mix({}, page_data);
-			post_data.version = post_data.version.id;
+			post_data.page_id = post_data.id;
+			post_data.version_id = post_data.version.id;
 			post_data.template = post_data.template.id;
 			
+			delete(post_data.id);
+			delete(post_data.version);
 			delete(post_data.path_prefix);
 			delete(post_data.internal_html);
 			delete(post_data.contents);
@@ -430,11 +433,9 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				'data': post_data,
 				'method': 'POST',
 				'on': {
-					'success': function (transaction, version) {
-						if (version) {
-							page_data.version = version;
-							Manager.Page.setPageData(page_data);
-						}
+					'success': function (version) {
+						page_data.version = version;
+						Manager.Page.setPageData(page_data);
 					}
 				}
 			}, this);
@@ -456,13 +457,13 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
 					if (evt.newVal) {
-						this.getContainer().removeClass('hidden');
+						this.one().removeClass('hidden');
 					} else {
 						this.slideshow.set('noAnimation', true);
 						this.slideshow.scrollBack();
 						this.slideshow.set('noAnimation', false);
 						
-						this.getContainer().addClass('hidden');
+						this.one().addClass('hidden');
 					}
 				}
 			}, this);

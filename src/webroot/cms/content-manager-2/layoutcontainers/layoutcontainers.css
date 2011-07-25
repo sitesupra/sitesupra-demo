@@ -18,9 +18,9 @@
 
 .yui3-top-container {
 	position: absolute;
-	left: 10px;
-	right: 10px;
-	top: 67px;
+	left: 0;
+	right: 0;
+	top: 0;
 }
 
 .yui3-right-container .yui3-form-default .yui3-input label {

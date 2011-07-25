@@ -75,7 +75,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 		render: function () {
 			//Slideshow widget
 			this.slideshow = new Supra.Slideshow({
-				'srcNode': this.getContainer('div.slideshow')
+				'srcNode': this.one('div.slideshow')
 			});
 			
 			this.slideshow.render();
@@ -87,7 +87,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 				}
 			}, this);
 			this.slideshow.after('slideChange', function (evt) {
-				var heading = this.getContainer('h2.yui3-sidebar-header span');
+				var heading = this.one('h2.yui3-sidebar-header span');
 				
 				if (this.slideshow.history.length <= 1) {
 					this.button_back.hide();
@@ -100,12 +100,12 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			}, this);
 			
 			//
-			var links = this.getContainer().all('#linkToRoot a[data-slideshow]');
+			var links = this.all('#linkToRoot a[data-slideshow]');
 				links.on('click', this.onSlideshowLinkClick, this);
 			
 			
 			//Back and Close buttons
-			var buttons = this.getContainer().all('button');
+			var buttons = this.all('button');
 			
 			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
 			this.button_back.render();
@@ -120,9 +120,9 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			//On visibility change show/hide container
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal) {
-					this.getContainer().removeClass('hidden');
+					this.one().removeClass('hidden');
 				} else {
-					this.getContainer().addClass('hidden');
+					this.one().addClass('hidden');
 				}
 			}, this);
 			
@@ -131,7 +131,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			
 			//Create form
 			this.form = new Supra.Form({
-				'srcNode': this.getContainer('form')
+				'srcNode': this.one('form')
 			});
 			this.form.render();
 		},
@@ -385,8 +385,16 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 		 * @param {Number} id
 		 */
 		getTreePagePath: function (id) {
-			var data = this.tree.getIndexedData();
-			return id && id in data ? data[id].fullpath : '';
+			var data = this.tree.getIndexedData(),
+				item = (id in data ? data[id] : null),
+				list = [];
+			 
+			 while(item) {
+			 	list.push(item.path);
+				item = data[item.parent];
+			 }
+			 
+			 return list.length > 1 ? list.reverse().join('/') + '/' : '/';
 		},
 		
 		/**

@@ -53,9 +53,9 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 			
 			var url = this.getDataPath();
 			
-			SU.io(url, {
+			Supra.io(url, {
 				'on': {
-					'success': function (evt, data) {
+					'success': function (data) {
 						
 						this.data = {};
 						var block_action = Manager.getAction('Blocks');

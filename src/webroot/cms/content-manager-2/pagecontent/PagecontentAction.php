@@ -3,11 +3,12 @@
 namespace Supra\Cms\ContentManager\pagecontent;
 
 use Supra\Controller\SimpleController;
+use Supra\Cms\ContentManager\CmsActionController;
 
 /**
  * Controller for page content requests
  */
-class PagecontentAction extends SimpleController
+class PagecontentAction extends CmsActionController
 {
 	/**
 	 * Insert block action
@@ -77,7 +78,7 @@ class PagecontentAction extends SimpleController
 			'html' => $response->getOutput(),
 		);
 		
-		$this->response->output(json_encode($array));
+		$this->getResponse()->setResponseData($array);
 	}
 	
 	/**
@@ -86,7 +87,7 @@ class PagecontentAction extends SimpleController
 	public function saveAction()
 	{
 		$locale = $_POST['locale'];
-		$pageId = $_POST['id'];
+		$pageId = $_POST['page_id'];
 		$blockId = $_POST['block_id'];
 		
 		//TODO: Hardcoded
@@ -155,7 +156,7 @@ class PagecontentAction extends SimpleController
 		$em->flush();
 		
 		// OK response
-		$this->getResponse()->output(true);
+		$this->getResponse()->setResponseData(true);
 	}
 	
 	/**
@@ -163,7 +164,7 @@ class PagecontentAction extends SimpleController
 	 */
 	public function deleteblockAction()
 	{
-		$blockId = $_POST['id'];
+		$blockId = $_POST['block_id'];
 		
 		$em = \Supra\Database\Doctrine::getInstance()
 				->getEntityManager();
@@ -178,7 +179,7 @@ class PagecontentAction extends SimpleController
 		$em->flush();
 		
 		// OK response
-		$this->getResponse()->output(true);
+		$this->getResponse()->setResponseData(true);
 	}
 	
 	/**
@@ -235,6 +236,6 @@ class PagecontentAction extends SimpleController
 		
 		$em->flush();
 		
-		$this->getResponse()->output(true);
+		$this->getResponse()->setResponseData(true);
 	}
 }

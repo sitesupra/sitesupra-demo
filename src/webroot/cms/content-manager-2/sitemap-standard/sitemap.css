@@ -1,0 +1,90 @@
+.yui3-sitemap {
+	position: absolute;
+	z-index: 2;
+	top: 60px;
+	bottom: 10px;
+	left: 10px;
+	right: 10px;
+	background: #fff;
+}
+.yui3-sitemap-content {
+	border: 1px solid #eee;
+	width: 100%;
+	height: 100%;
+	
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.yui3-sitemap .languages {
+	border-bottom: 1px solid #eee;
+	padding: 10px 13px;
+	margin: 0 13px 5px;
+}
+
+.yui3-sitemap .new-page {
+	padding-left: 80px;
+	position: relative;
+}
+.yui3-sitemap .new-page .new-page-button {
+	display: block;
+	cursor: move;
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	margin-top: -32px;
+}
+
+.yui3-sitemap .yui3-tree {
+	float: left;
+}
+.yui3-sitemap .yui3-tree-loading {
+	float: none;
+}
+.yui3-sitemap .yui3-tree .tree-node {
+	padding-right: 50px;
+}
+
+.yui3-sitemap .yui3-tree .tree-node label {
+	color: #999;
+}
+.yui3-sitemap .yui3-tree .tree-node-published > .tree-node label {
+	color: #333;
+}
+
+/**
+ * Panel
+ */
+.sitemap-settings {
+	width: 450px;
+	top: 39px !important;
+	bottom: 2px !important;
+}
+.sitemap-settings .yui3-input-string input {
+	width: 100%;
+}
+
+.sitemap-settings .center {
+	padding: 10px;
+}
+.sitemap-settings .yui3-input {
+	margin: 0;
+}
+.sitemap-settings .yui3-input span {
+	width: 100%;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.sitemap-settings .yui3-input-focused span {
+	display: none;
+}
+.sitemap-settings .yui3-input-path small {
+	font-size: 14px;
+	color: #999;
+	width: auto;
+}

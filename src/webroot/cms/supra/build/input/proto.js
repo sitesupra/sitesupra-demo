@@ -95,17 +95,23 @@ YUI.add("supra.input-proto", function (Y) {
 			
 			var input = this.get('inputNode');
 			
-			//On value change fire "change" event
-			input.on("change", function () {
-				this.fire("change", {value: this.get("value")});
-			}, this);
+			//On value change fire "change" event if srcNode is not input
+			//because it's automatically fired in that case
+			if (!this.get('srcNode').test('input,textarea,select')) {
+				input.on("change", function () {
+					this.fire("change", {value: this.get("value")});
+				}, this);
+			}
 			
-			//On focus, focus input
+			//On Input focus, focus input element
 			this.on('focusedChange', function (event) {
-				if (event.newVal) {
+				if (event.newVal && event.newVal != event.prevVal) {
 					this.get('inputNode').focus();
 				}
 			}, this);
+			
+			//On input element blur, blur Input
+			input.on('blur', this.blur, this);
 			
 			return r;
 		},

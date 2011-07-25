@@ -307,13 +307,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'message': 'Are you sure you want to delete selected block',
 				'buttons': [
 					{'id': 'yes', 'context': this, 'click': function () {
+						var host = this.get('host');
+						var parent = host.get('parent');
+						
+						//Discard all changes
+						host.unresolved_changes = false;
 						
 						//Trigger event; plugins or other contents may use this
 						this.fire('delete');
 						
 						//Remove content
-						var host = this.get('host');
-						var parent = host.get('parent');
 						parent.removeChild(host);
 						
 					}},

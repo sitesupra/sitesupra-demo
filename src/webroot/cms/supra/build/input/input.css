@@ -37,6 +37,14 @@
 		-webkit-border-radius: 4px;
 		border-radius: 4px;
 	}
+	.yui3-input-disabled span:hover {
+		/* Revert :hover style */
+		background: none;
+		border: 0;
+		padding: 0 5px;
+		line-height: 30px;
+		cursor: default;
+	}
 	
 	.yui3-input label {
 		padding: 7px 10px 0 5px;
@@ -97,9 +105,10 @@
 }	
 	.yui3-input-path small {
 		font-size: 12px;
+		line-height: 26px;
 		vertical-align: middle;
 		display: inline-block;
-		width: 50%;
+		padding-right: 2px;
 		text-overflow: ellipsis;
 	}
 	.yui3-input-path-focused.input-label-replacement span,

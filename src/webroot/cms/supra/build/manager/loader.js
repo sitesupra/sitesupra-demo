@@ -181,7 +181,7 @@ YUI.add('supra.manager-loader', function (Y) {
 					Supra.io(templatePath, {
 						'type': 'html',
 						'on': {
-							'success': Y.bind(function (o, html) {
+							'success': function (html, status) {
 								templateLoaded = true;
 								delete(loading[templatePath]);
 								cache[templatePath] = html;
@@ -189,8 +189,8 @@ YUI.add('supra.manager-loader', function (Y) {
 								
 								//If stylesheet request already completed, call callback
 								if (stylesheetLoaded) callback(html);
-							}, this),
-							'failure': Y.bind(function () {
+							},
+							'failure': function () {
 								//@TODO Handle failure
 								templateLoaded = true;
 								delete(loading[templatePath]);
@@ -198,9 +198,9 @@ YUI.add('supra.manager-loader', function (Y) {
 								
 								//If stylesheet request already completed, call callback
 								if (stylesheetLoaded) callback(template);
-							}, this)
+							}
 						}
-					});
+					}, this);
 				} else {
 					template = cache[templatePath];
 				}

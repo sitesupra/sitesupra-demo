@@ -33,7 +33,8 @@ abstract class SimpleController extends ControllerAbstraction
 			// Normalize name
 			foreach ($actions as &$action) {
 				// Ignore extension, @TODO: could implement this in some other level
-				$action = strstr($action, '.', true);
+				// Removes extension
+				$action = preg_replace('/\..*/', '', $action);
 				$action = explode('-', $action);
 				$action = array_map('mb_strtolower', $action);
 				$action = array_map('ucfirst', $action);

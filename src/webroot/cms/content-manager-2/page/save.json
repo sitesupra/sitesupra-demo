@@ -1,6 +1,9 @@
 {
-	"id": 666,
-	"title": "Draft (auto-saved)",
-	"author": "Admin",
-	"date": "06.07.11"
+	"status": 1,
+	"data": {
+		"id": 666,
+		"title": "Draft (auto-saved)",
+		"author": "Admin",
+		"date": "06.07.11"
+	}
 }

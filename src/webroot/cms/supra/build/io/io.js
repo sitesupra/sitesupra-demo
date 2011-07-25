@@ -3,6 +3,8 @@
 
 YUI().add("supra.io", function (Y) {
 	
+	var ERROR_INVALID_RESPONSE = 'Error occured, please try again later';
+	
 	Supra.io = function (url, cfg, context) {
 		var cfg = cfg || {},
 			fn = null,
@@ -21,7 +23,8 @@ YUI().add("supra.io", function (Y) {
 			'sync': false,
 			'on': {
 				'success': fn_success,
-				'failure': function () {}
+				'failure': null,
+				'complete': null
 			}
 		};
 		
@@ -32,8 +35,11 @@ YUI().add("supra.io", function (Y) {
 		//Use cfg_default and Y.mix to make sure properties for cfg exist
 		cfg = Y.mix(cfg, cfg_default, false, null, 0, true);
 		
-		//Success method is overwrite, save to call later
-		fn_success = cfg.on.success;
+		//Success and failure methods are overwritten, save references to originals
+		cfg.on._success = cfg.on.success;
+		cfg.on._failure = cfg.on.failure;
+		cfg.on._complete = cfg.on.complete;
+		cfg.on.complete = null;
 		
 		//Add session id to data
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
@@ -52,38 +58,110 @@ YUI().add("supra.io", function (Y) {
 			cfg.data = Supra.io.serializeIntoString(cfg.data);
 		}
 		
+		//Set callbacks
 		cfg.on.success = function (transaction, response, args) {
-			var data = null;
-			
-			try {
-				switch((cfg.type || '').toLowerCase()) {
-					case 'json':
-						data = Y.JSON.parse(response.responseText);
-						break;
-					default:
-						data = response.responseText;
-						break;
-				}
-			} catch (e) {
-				//Failed to parse response, call failure event
-				if (io.failure) {
-					return io.failure.apply(this, args);
-				}
-			}
-			
-			//Callback
-			if (Y.Lang.isFunction(fn_success)) {
-				return fn_success.apply(this, [transaction, data, args]);
-			}
-			
-			return null;
+			var response = Supra.io.parseResponse(cfg, response.responseText);
+			return Supra.io.handleResponse(cfg, response);
+		};
+		
+		cfg.on.failure = function (transaction, response, args) {
+			return Supra.io.handleResponse(cfg, {
+				'success': false,
+				'data': null,
+				'error_message': ERROR_INVALID_RESPONSE
+			});
 		};
 		
 		io = Y.io(url, cfg);
 		return io;
 	};
 	
+	/**
+	 * Parse response and check for correct format
+	 * 
+	 * @param {Object} cfg Request configuration
+	 * @param {String} responseText Response text
+	 * @return Parsed response
+	 * @type {Object}
+	 * @private
+	 */
+	Supra.io.parseResponse = function (cfg, responseText) {
+		var data = null,
+			response = {'status': false, 'data': null};
+		
+		try {
+			switch((cfg.type || '').toLowerCase()) {
+				case 'json':
+					data = Y.JSON.parse(responseText);
+					Supra.mix(response, data);
+					break;
+				default:
+					response = {'status': true, 'data': responseText};
+					break;
+			}
+		} catch (e) {
+			response.error_message = ERROR_INVALID_RESPONSE;
+		}
+		
+		return response;
+	};
 	
+	/**
+	 * Handle response.
+	 * Show error message, confirmation window and call success or failure callbacks
+	 * 
+	 * @param {Object} cfg Request configuration
+	 * @param {Object} response Response object
+	 * @private
+	 */
+	Supra.io.handleResponse = function (cfg, response) {
+		//Show error message
+		if (response.error_message) {
+			SU.Manager.executeAction('Confirmation', {
+			    'message': response.error_message,
+			    'buttons': [
+			        {'id': 'delete', 'label': 'Ok'}
+			    ]
+			});
+		}
+		
+		//Show error message
+		if (response.confirmation_message) {
+			SU.Manager.executeAction('Confirmation', {
+			    'message': response.confirmation_message,
+			    'buttons': [{'id': 'yes'}, {'id': 'no'}]
+			});
+			//@TODO
+		}
+		
+		//Call callbacks
+		var fn = response.status ? cfg.on._success : cfg.on._failure;
+		
+		delete(cfg.on._success);
+		delete(cfg.on._failure);
+		delete(cfg.on.success);
+		delete(cfg.on.failure);
+		
+		if (Y.Lang.isFunction(cfg.on._complete)) {
+			cfg.on._complete.apply(cfg.context, [response.data, response.status]);
+		}
+		
+		delete(cfg.on._complete);
+		delete(cfg.on.complete);
+		
+		if (Y.Lang.isFunction(fn)) {
+			return fn.apply(cfg.context, [response.data, response.status]);
+		} else {
+			return null;
+		}
+	};
+	
+	
+	/**
+	 * 
+	 * @param {Object} obj
+	 * @param {Object} prefix
+	 */
 	Supra.io.serialize = function (obj, prefix) {
 		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var o = {}, name = null;
@@ -103,7 +181,14 @@ YUI().add("supra.io", function (Y) {
 		return o;
 	};
 	
-	Supra.io.serializeIntoString = function (obj, prefix) {
+	/**
+	 * Serialize data into string
+	 * 
+	 * @param {Object} obj
+	 * @return Serialized data
+	 * @type {String}
+	 */
+	Supra.io.serializeIntoString = function (obj) {
 		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var obj = Supra.io.serialize(obj);
 		var o = [];

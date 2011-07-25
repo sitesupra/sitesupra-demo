@@ -47,7 +47,7 @@ YUI.add("website.version-list", function (Y) {
 		 * @param {Object} data
 		 * @private
 		 */
-		_loadVersionsComplete: function (transaction, data) {
+		_loadVersionsComplete: function (data) {
 			this._versions = data;
 			this.syncUI();
 		},

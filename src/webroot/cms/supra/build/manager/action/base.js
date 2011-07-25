@@ -262,7 +262,11 @@ YUI.add('supra.manager-action-base', function (Y) {
          * @type {String}
 		 */
 		getPath: function () {
-			return this.get('actionPath');
+			var path = this.get('actionPath');
+			if (!path) {
+				path = SU.Manager.Loader.getActionInfo(this.NAME).folder;
+			}
+			return path;
 		},
 		
 		/**
@@ -303,6 +307,39 @@ YUI.add('supra.manager-action-base', function (Y) {
 			} else {
 				return srcNode.item(0);
 			}
+		},
+		
+		/**
+		 * Alias for getContainer
+		 * 
+		 * @param {String} selector Optional. CSS selector
+		 * @return Container node element matching css selector or first container element, Y.Node
+		 * @type {Object}
+		 */
+		one: function (selector) {
+			return this.getContainer(selector);
+		},
+		
+		/**
+		 * Returns all nodes matching selector
+		 * 
+		 * @param {String} selector Optional. CSS selector
+		 * @return All nodes matching css selector, Y.NodeList
+		 * @type {Object}
+		 */
+		all: function (selector) {
+			//Y.NodeList
+			var srcNode = this.get('srcNode');
+			if (!srcNode) return null;
+			
+			var matches = srcNode.filter(selector) || new Y.NodeList(selector);
+			
+			srcNode.each(function () {
+				var sub = this.all(selector);
+				if (sub) matches = matches.concat(sub);
+			});
+			
+			return matches;
 		},
 		
 		/**

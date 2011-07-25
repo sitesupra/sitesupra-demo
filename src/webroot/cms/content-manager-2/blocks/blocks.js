@@ -38,9 +38,9 @@ SU(function (Y) {
 			//Load data
 			var url = this.getDataPath();
 			
-			SU.io(url, {
+			Supra.io(url, {
 				'on': {
-					'success': function (evt, data) {
+					'success': function (data) {
 						this.data = {};
 						
 						for(var i=0,ii=data.length; i<ii; i++) {

@@ -91,6 +91,11 @@ Supra.Manager.Action.Base extends Y.Base (EventTarget + Attribute + Plugin host)
 	getContainer(selector)
 		Returns action container node matching css selector or first container node
 	
+	one(selector)
+		Alias for getContainer
+	
+	all(selector)
+		Returns all nodes inside action matching selector
 	
 	--- PLUGINS, WIDGETS ---
 	

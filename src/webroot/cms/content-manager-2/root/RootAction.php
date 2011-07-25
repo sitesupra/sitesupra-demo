@@ -2,14 +2,17 @@
 
 namespace Supra\Cms\ContentManager\root;
 
+use Supra\Controller\SimpleController;
+
 /**
  */
-class RootAction extends \Supra\Controller\SimpleController
+class RootAction extends SimpleController
 {
 	public function indexAction()
 	{
 		//TODO: introduce some template engine
 		$output = file_get_contents(dirname(__DIR__) . '/index.html');
-		$this->response->output($output);
+		
+		$this->getResponse()->output($output);
 	}
 }

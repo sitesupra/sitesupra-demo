@@ -512,8 +512,7 @@ YUI.add("supra.form", function (Y) {
 		
 		/**
 		 * Returns inputs
-		 * 
-		 * @param 
+		 *  
 		 * @return All inputs
 		 * @type {Object}
 		 */
