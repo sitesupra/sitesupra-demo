@@ -18,21 +18,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
 	}
 
-	/**
-	 * @param string $dirName
-	 * @return \Supra\FileStorage\Entity\Folder
-	 */
-	public function createRootDir($dirName)
-	{
-		$dir = new \Supra\FileStorage\Entity\Folder();
-		$dir->setName($dirName);
-
-		self::getConnection()->persist($dir);
-		self::getConnection()->flush();
-		
-		return $dir;
-	}
-
 	public function testUploadFileToExternal()
 	{	
 		// clean up
@@ -40,10 +25,23 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$query->execute();
 		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
 		$query->execute();
-		
-		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$dir = $this->createRootDir('rootdir');
+		// directories
+		$dir = null;
+		$dirNames = array('one', 'two', 'three', 'four');
+		foreach ($dirNames as $dirName) {
+			$parentDir = $dir;
+			$dir = new \Supra\FileStorage\Entity\Folder();
+			$dir->setName($dirName);
+			self::getConnection()->persist($dir);
+			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
+				$parentDir->addChild($dir);
+			}
+		}
+		self::getConnection()->flush();
+		
+		// file
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);

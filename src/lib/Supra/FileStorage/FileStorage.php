@@ -146,16 +146,26 @@ class FileStorage
 	 * @param \Supra\FileStorage\Entity\File $file
 	 * @param string $source 
 	 */
-	function storeFileData($file, $source)
+	function storeFileData($file, $sourceFilePath)
 	{
-		$dest = $this->getInternalPath()
-				. $file->getPath(DIRECTORY_SEPARATOR, true);
-		
 		// file validation
 		foreach ($this->uploadFilters as $filter) {
 			$filter->validate($file);
 		}
 		
-		copy($source, $dest);
+		// get dir path
+		// TODO external/internal switch
+		$dest = $this->getInternalPath() . 
+				$file->getPath(DIRECTORY_SEPARATOR, false);
+		
+		// mkdir
+		// FIXME chmod
+		$mkDirResult = mkdir($dest, 0777, true);
+		
+		// get full dest path
+		$dest .= DIRECTORY_SEPARATOR . $file->getName();
+		
+		// copy
+		copy($sourceFilePath, $dest);
 	}
 }
