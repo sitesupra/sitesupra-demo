@@ -28,6 +28,7 @@ class FileRepository extends EntityRepository implements RepositoryInterface
 	{
 		parent::__construct($em, $class);
 		$this->nestedSetRepository = new DoctrineRepository($em, $class);
+		$this->nestedSetRepository->setClassName("Supra\FileStorage\Entity\Abstraction\File");
 	}
 
 	/**
