@@ -32,7 +32,12 @@ class FileStorage
 	 * @var string
 	 */
 	protected $defaultStorage = 'external';
-
+	
+    /**
+    * Upload filters array for processing
+    * @var array
+    */
+	private $uploadFilters = array();
 	/**
      * Protecting from new FileStorage
      * @return FileStorage
@@ -90,6 +95,11 @@ class FileStorage
 		}
 		return self::$instance;
 	}
+	
+	public function addUploadFilter(\Supra\Validation\UploadFilterInterface $filter)
+	{
+		$this->uploadFilters[] = $filter;
+	}
 
 	/**
 	 * FileStorage
@@ -120,6 +130,11 @@ class FileStorage
 	{
 		$dest = $this->getInternalPath()
 				. $file->getPath(DIRECTORY_SEPARATOR, true);
+		
+		// file validation
+		foreach ($this->uploadFilters as $filter) {
+			$filter->validate($file);
+		}
 		
 		copy($source, $dest);
 	}

@@ -67,5 +67,17 @@ class File extends Abstraction\File
 	{
 		return $this->fileSize;
 	}
+	
+	/**
+	 * Gets file extension
+	 * @return string
+	 */
+	public function getExtension()
+	{
+		$fileinfo = pathinfo($this->getName());
+		$extension = $fileinfo['extension'];
+		
+		return $extension;
+	}
 
 }
