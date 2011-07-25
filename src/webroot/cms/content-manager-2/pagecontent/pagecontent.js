@@ -29,10 +29,21 @@ SU('dd-drag', function (Y) {
 		NAME: 'PageContent',
 		
 		/**
-		 * Page manager has stylesheet, include it
+		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
 		
 		/**
 		 * Page editing state
@@ -50,6 +61,9 @@ SU('dd-drag', function (Y) {
 		 * @type {Boolean}
 		 */
 		dependancies_loaded: false,
+		
+		
+		
 		
 		/**
 		 * Initialize
@@ -73,6 +87,10 @@ SU('dd-drag', function (Y) {
 						this.dependancies_loaded = true;
 						this.ready();
 					}, this));
+				},
+				attributes: {
+					'async': 'async',	//Load asynchronously
+					'defer': 'defer'	//For browsers that doesn't support async
 				},
 				'context': this
 			});
@@ -315,18 +333,26 @@ SU('dd-drag', function (Y) {
 			}, this);
 			
 			//Add toolbar buttons
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'publish',
-				'callback': function () {
-					Manager.Page.publishPage();
-					Manager.Root.execute();
-				}
-			}, {
+			var buttons = [];
+			
+			if (Supra.Authorization.isAllowed(['page', 'publish'], true)) {
+				buttons.push({
+					'id': 'publish',
+					'callback': function () {
+						Manager.Page.publishPage();
+						Manager.Root.execute();
+					}
+				});
+			}
+			
+			buttons.push({
 				'id': 'close',
 				'callback': function () {
 					Manager.Root.execute();
 				}
-			}]);
+			});
+			
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, buttons);
 		},
 		
 		/**

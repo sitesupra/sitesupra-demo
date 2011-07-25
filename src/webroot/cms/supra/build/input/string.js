@@ -44,7 +44,7 @@ YUI.add("supra.input-string", function (Y) {
 		KEY_ESCAPE: 27,
 		
 		bindUI: function () {
-			var r = Input.superclass.bindUI.apply(this, arguments);
+			Input.superclass.bindUI.apply(this, arguments);
 			
 			var input = this.get('inputNode');
 			
@@ -59,6 +59,11 @@ YUI.add("supra.input-string", function (Y) {
 			
 			//Handle keydown
 			input.on("keydown", this._onKeyDown, this);
+			
+			//Handle value attribute change
+			if (!this.get('srcNode').compareTo(input)) {
+				this.on('valueChange', this._afterValueChange, this);
+			}
 		},
 		
 		_onKeyDown: function (e) {
@@ -163,6 +168,12 @@ YUI.add("supra.input-string", function (Y) {
 			
 			this._original_value = value;
 			return value;
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 		
 	});

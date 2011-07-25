@@ -23,7 +23,7 @@ SU.addModule('website.sitemap-settings', {
 	requires: ['supra.panel', 'supra.form', 'website.input-template']
 });
 
-SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {
+SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {
 
 	var LOCALE_LANGUAGEBAR_LABEL = 'Viewing structure for:';
 	
@@ -48,6 +48,16 @@ SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap
 		HAS_STYLESHEET: true,
 		
 		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
+		
+		/**
 		 * Language bar widget instance
 		 * @type {Object}
 		 * @private
@@ -67,6 +77,22 @@ SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap
 		 * @private
 		 */
 		flowmap: null,
+		
+		/**
+		 * Animate node
+		 * @type {Object}
+		 * @private
+		 */
+		anim_node: null,
+		
+		/**
+		 * Animation object
+		 * @type {Object}
+		 * @private
+		 */
+		animation: null,
+		
+		
 		
 		
 		/**
@@ -114,9 +140,15 @@ SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap
 			
 			this.flowmap.plug(SU.Tree.ExpandHistoryPlugin);
 			
-			this.flowmap.plug(SU.Tree.NewPagePlugin, {
-				'dragNode': this.one('.new-page-button')
-			});
+			//New page
+			var new_page_node = this.one('.new-page-button');
+			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
+				this.flowmap.plug(SU.Tree.NewPagePlugin, {
+					'dragNode': new_page_node
+				});
+			} else {
+				new_page_node.addClass('hidden');
+			}
 			
 			//When tree is rendered set selected page
 			this.flowmap.after('render:complete', function () {
@@ -150,7 +182,63 @@ SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap
 				'version': evt.data.version
 			});
 			
-			this.hide();
+			var target = this.flowmap.getNodeById(evt.data.id);
+			this.animate(target.get('boundingBox'));
+		},
+		
+		/**
+		 * Animate sitemap out
+		 */
+		animate: function (node, reverse) {
+			if (reverse) {
+				this.anim_node.setStyles({'opacity': 1, 'display': 'block'});
+				this.set('visible', true);
+			}
+			
+			var target_node = this.one('.yui3-sitemap-content'),
+				target_region = target_node.get('region'),
+				node = node.one('div.flowmap-node-inner, div.tree-node'),
+				node_region = node.get('region'),
+				anim_from = null,
+				anim_to = {'left': '0px', 'top': '0px', 'right': '0px', 'bottom': '0px', 'opacity': 1};
+			
+			if (!this.animation) {
+				this.anim_node = this.one('.yui3-sitemap-anim');
+				target_node.append(this.anim_node);
+				
+				this.animation = new Y.Anim({
+					'node': this.anim_node,
+					'duration': 0.5,
+					'easing': Y.Easing.easeIn
+				});
+			}
+			
+			anim_from = {
+				'left': node_region.left - target_region.left + 'px',
+				'right': target_region.right - node_region.right + 'px',
+				'top': node_region.top - target_region.top + 'px',
+				'bottom': target_region.bottom - node_region.bottom + 'px',
+				'opacity': 0.35
+			};
+			
+			if (reverse) {
+				this.animation.set('from', anim_to);
+				this.animation.set('to', anim_from);
+			} else {
+				this.animation.set('from', anim_from);
+				this.animation.set('to', anim_to);
+				
+				this.anim_node.setStyles({'opacity': 0, 'display': 'block'});
+			}
+			
+			this.animation.run();
+			
+			this.animation.once('end', function () {
+				if (!reverse) {
+					this.set('visible', false);
+				}
+				this.anim_node.hide();
+			}, this);
 		},
 		
 		/**
@@ -163,6 +251,28 @@ SU('supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap
 			
 			//Page select event
 			this.flowmap.on('node-click', this.onTreeNodeClick, this);
+		},
+		
+		hide: function () {
+			var node = this.flowmap.get('selectedNode');
+			if (node) {
+				this.animate(node.get('boundingBox'));
+			} else {
+				this.set('visible', false);
+			}
+			return this;
+		},
+		
+		show: function () {
+			
+			var node = this.flowmap.get('selectedNode');
+			if (node) {
+				this.animate(node.get('boundingBox'), true);
+			} else {
+				this.set('visible', true);
+			}
+			
+			return this;
 		},
 		
 		/**

@@ -23,18 +23,21 @@ SU('supra.htmleditor', function (Y) {
 		/**
 		 * No template for toolbar
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
 		
 		/**
-		 * Style toolbar
+		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
 		
 		/**
 		 * List of buttons
 		 * @type {Object}
+		 * @private
 		 */
 		buttons: {},
 		
@@ -42,8 +45,10 @@ SU('supra.htmleditor', function (Y) {
 		 * Tab instance
 		 * @type {Object}
 		 * @see Supra.Tabs
+		 * @private
 		 */
 		tabs: {},
+		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.

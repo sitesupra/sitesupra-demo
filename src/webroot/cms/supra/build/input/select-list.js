@@ -1,23 +1,23 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add("supra.input-select-list", function (Y) {
+YUI.add('supra.input-select-list', function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
 	
-	Input.NAME = "input-select-list";
+	Input.NAME = 'input-select-list';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		"values": {
+		'values': {
 			value: []
 		}
 	};
 	
 	Input.HTML_PARSER = {
-		"values": function () {
+		'values': function () {
 			var input = this.get('inputNode'),
 				values = [];
 			
@@ -50,18 +50,21 @@ YUI.add("supra.input-select-list", function (Y) {
 		
 		bindUI: function () {
 			var input = this.get('inputNode');
-			input.on("focus", this._onFocus, this);
-			input.on("blur", this._onBlur, this);
+			input.on('focus', this._onFocus, this);
+			input.on('blur', this._onBlur, this);
+			
+			//Handle value attribute change
+			this.on('valueChange', this._afterValueChange, this);
 		},
 		
 		_onFocus: function () {
-			if (this.get('boundingBox').hasClass("yui3-input-focused")) return;
+			if (this.get('boundingBox').hasClass('yui3-input-focused')) return;
 			
-			this.get('boundingBox').addClass("yui3-input-focused");
-			this.get("inputNode").focus();
+			this.get('boundingBox').addClass('yui3-input-focused');
+			this.get('inputNode').focus();
 		},
 		_onBlur: function () {
-			this.get('boundingBox').removeClass("yui3-input-focused");
+			this.get('boundingBox').removeClass('yui3-input-focused');
 		},
 		
 		renderUI: function () {
@@ -70,6 +73,7 @@ YUI.add("supra.input-select-list", function (Y) {
 			
 			var values = this.get('values'),
 				value = this.get('value'),
+				has_value_match = false,
 				contentBox = this.get('contentBox'),
 				button,
 				input = Y.Node.getDOMNode(this.get('inputNode'));
@@ -87,7 +91,7 @@ YUI.add("supra.input-select-list", function (Y) {
 			this.get('inputNode').addClass('hidden');
 			
 			for(var i=0,ii=values.length-1; i<=ii; i++) {
-				button = new Supra.Button({"label": values[i].title, "icon": values[i].icon, "type": "toggle", "style": "group"});
+				button = new Supra.Button({'label': values[i].title, 'icon': values[i].icon, 'type': 'toggle', 'style': 'group'});
 				this.buttons[values[i].id] = button;
 				
 				if (i == 0) {
@@ -103,6 +107,11 @@ YUI.add("supra.input-select-list", function (Y) {
 					if (value == values[i].id) input.value = value;
 				}
 				
+				if (values[i].id == value) {
+					//Mark value as found
+					has_value_match = true;
+				}
+				
 				button.render(contentBox);
 				
 				//On click update input value
@@ -111,18 +120,42 @@ YUI.add("supra.input-select-list", function (Y) {
 				}, this, values[i].id);
 			}
 			
+			if (!has_value_match) {
+				if (values.length) {
+					value = values[0].id;
+					if (input) input.value = value;
+					this.set('value', value);
+				}
+			}
+			
 			if (value in this.buttons) {
 				this.buttons[value].set('down', true);
 			}
 		},
 		
 		_setValue: function (value) {
-			this.get("inputNode").set("value", value);
-			this.fire("change", {value: value});
+			this.get('inputNode').set('value', value);
 			
 			var buttons = this.buttons;
 			for(var i in this.buttons) {
 				this.buttons[i].set('down', i == value);
+			}
+			
+			return value;
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
+		},
+		
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			//Disable buttons
+			for(var i in this.buttons) {
+				this.buttons[i].set('disabled', value);
 			}
 			
 			return value;
@@ -135,7 +168,7 @@ YUI.add("supra.input-select-list", function (Y) {
 			var value = this.get('defaultValue'),
 				values = this.get('values');
 			
-			this.setValue(value !== null ? value : (values.length ? values[0].id : ''));
+			this.set('value', value !== null ? value : (values.length ? values[0].id : ''));
 			return this;
 		},
 		
@@ -147,4 +180,4 @@ YUI.add("supra.input-select-list", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto", "supra.button"]});
+}, YUI.version, {requires:['supra.input-proto', 'supra.button']});

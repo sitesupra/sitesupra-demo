@@ -13,6 +13,22 @@ SU('supra.form', function (Y) {
 		NAME: 'Popup',
 		
 		/**
+		 * Action doesn't have a template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
+		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 */
 		initialize: function () {

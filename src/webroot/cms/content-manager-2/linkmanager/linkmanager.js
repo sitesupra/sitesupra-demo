@@ -23,8 +23,18 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 		/**
 		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
 		
 		/**
 		 * Buttons
@@ -68,6 +78,8 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 		 * @type {Function}
 		 */
 		callback: null,
+		
+		
 		
 		/**
 		 * Render widgets and add event listeners

@@ -57,8 +57,19 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		/**
 		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
 		
 		/**
 		 * Form instance
@@ -96,6 +107,9 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		 * @type {Object}
 		 */
 		page_data: {},
+		
+		
+		
 		
 		/**
 		 * On slide change show/hide buttons and call callback function
@@ -284,6 +298,9 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		 * Delete page
 		 */
 		deletePage: function () {
+			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)){
+				return false;
+			}
 			
 			Manager.executeAction('Confirmation', {
 				'message': 'Are you sure you want to delete selected page?',
@@ -293,6 +310,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				]
 			});
 			
+			return true;
 		},
 		
 		/**
@@ -317,8 +335,12 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			this.button_back.render().hide().on('click', function () { this.slideshow.scrollBack(); }, this);
 			
 			//Delete button
-			(new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'}))
-				.render().on('click', this.deletePage, this);
+			var button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'});
+				button_delete.render().on('click', this.deletePage, this);
+				
+			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
+				button_delete.hide();
+			}
 			
 			//Meta button
 			(new Supra.Button({'srcNode': buttons.filter('.button-meta').item(0)}))
@@ -352,6 +374,12 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				'srcNode': this.one('form')
 			});
 			form.render();
+			
+			//Disable inputs if form is not editable
+			if (!Supra.Authorization.isAllowed(['page', 'edit'], true)) {
+				var inputs = form.getInputs();
+				for(var id in inputs) inputs[id].set('disabled', true);
+			}
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);

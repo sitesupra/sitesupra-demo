@@ -100,10 +100,10 @@
 .yui3-tooltip .yui3-panel-arrow-left {
 	background-image: url(/cms/supra/img/panel/tooltip-arrow-left.png);
 	left: -12px !important;
-	margin-top: -5px;
+	margin-top: -8px;
 }
 .yui3-tooltip .yui3-panel-arrow-right {
 	background-image: url(/cms/supra/img/panel/tooltip-arrow-right.png);
 	right: -12px !important;
-	margin-top: -5px;
+	margin-top: -8px;
 }

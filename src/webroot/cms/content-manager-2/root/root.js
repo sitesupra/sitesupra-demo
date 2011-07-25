@@ -20,19 +20,28 @@ Supra(function (Y) {
 		NAME: 'Root',
 		
 		/**
-		 * Root action doesn't have template
+		 * Action doesn't have stylesheet
 		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Action doesn't have template
+		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
+		
+		
+		
 		
 		/**
 		 * Bind Actions together
 		 */
 		render: function () {
-			//this.addChildAction('Header');
 			this.addChildAction('Page');
 			
-			//var header = Manager.getAction('Header'),
 			var page = Manager.getAction('Page'),
 				buttons = Manager.getAction('PageButtons'),
 				toolbar = Manager.getAction('PageToolbar'),
@@ -44,24 +53,6 @@ Supra(function (Y) {
 			SU.Manager.getAction('PageContent').after('iframeReady', function () {
 				Y.one('body').removeClass('loading');
 			});
-			
-			/*
-			//Add "Pages" to the header
-			header.on('execute', function () {
-				
-				header.addItem('manager', {
-					'type': 'label',
-					'icon': '/cms/supra/img/apps/content_32x32.png',
-					'title': 'Pages'
-				});
-				
-				//Open page
-				page.execute(Supra.data.get('page', {'id': 0}));
-			});
-			
-			//Execute action
-			header.execute();
-			*/
 			
 			//Add empty button set
 			buttons.on('render', function () {
@@ -90,8 +81,7 @@ Supra(function (Y) {
 		execute: function () {
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons'),
-				content = Manager.getAction('PageContent'),
-				page = Manager.getAction('Page');
+				content = Manager.getAction('PageContent');
 			
 			if (toolbar.get('ready')) {
 				toolbar.setActiveGroupAction(this.NAME);

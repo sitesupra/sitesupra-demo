@@ -1,20 +1,20 @@
 //Invoke strict mode
 "use strict";
 	
-YUI.add("supra.input-path", function (Y) {
+YUI.add('supra.input-path', function (Y) {
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
 	
-	Input.NAME = "input-path";
+	Input.NAME = 'input-path';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		"path": {
-			value: "",
+		'path': {
+			value: '',
 			setter: '_setPath'
 		},
-		"pathNode": {
+		'pathNode': {
 			value: null
 		}
 	};
@@ -46,7 +46,7 @@ YUI.add("supra.input-path", function (Y) {
 			
 			if (node) {
 				this.set('pathNode', node);
-				node.set("innerHTML", Y.Lang.escapeHTML(value));
+				node.set('innerHTML', Y.Lang.escapeHTML(value));
 			}
 			
 			return value;
@@ -58,32 +58,32 @@ YUI.add("supra.input-path", function (Y) {
 			/*
 			if (this.get('disabled')) return;
 			
-			var node = this.get("replacementNode");
+			var node = this.get('replacementNode');
 			if (node) {
-				node.set("innerHTML", '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>');
+				node.set('innerHTML', '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>');
 				this.set('pathNode', node.one('small'));
 			}
 			*/
 		},
 		_onBlur: function () {
-			var input = this.get("inputNode");
+			var input = this.get('inputNode');
 			this.set('value', input.get('value').replace(/[^a-z0-9\-\_]/gi, ''));
 			
 			Input.superclass._onBlur.apply(this, arguments);
 			
-			var node = this.get("replacementNode");
+			var node = this.get('replacementNode');
 			if (node) {
-				node.set("innerHTML", '<small>' + this.get('path') + '</small>' + this.get('value'));
+				node.set('innerHTML', '<small>' + this.get('path') + '</small>' + this.get('value'));
 				this.set('pathNode', node.one('small'));
 			}
 		},
 		
 		_setValue: function (value) {
-			this.get("inputNode").set("value", value);
-			var node = this.get("replacementNode");
+			this.get('inputNode').set('value', value);
+			var node = this.get('replacementNode');
 			
 			if (node) {
-				node.set("innerHTML", '<small>' + this.get('path') + '</small>' + Y.Lang.escapeHTML(value) || '&nbsp;');
+				node.set('innerHTML', '<small>' + this.get('path') + '</small>' + Y.Lang.escapeHTML(value) || '&nbsp;');
 				this.set('pathNode', node.one('small'));
 			}
 			
@@ -97,7 +97,7 @@ YUI.add("supra.input-path", function (Y) {
 			//Replacement text
 			var replacement_node = this.get('replacementNode');
 			if (replacement_node) {
-				replacement_node.set("innerHTML", '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>' + Y.Lang.escapeHTML(this.get('value')));
+				replacement_node.set('innerHTML', '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>' + Y.Lang.escapeHTML(this.get('value')));
 			}
 			
 			//Path text
@@ -117,4 +117,4 @@ YUI.add("supra.input-path", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto", "supra.input-string"]});
+}, YUI.version, {requires:['supra.input-proto', 'supra.input-string']});

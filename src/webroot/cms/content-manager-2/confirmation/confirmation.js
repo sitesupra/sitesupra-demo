@@ -30,10 +30,24 @@ SU('supra.form', function (Y) {
 		/**
 		 * Unique action name
 		 * @type {String}
+		 * @private
 		 */
 		NAME: 'Confirmation',
 		
+		/**
+		 * Load stylesheet
+		 * @type {Boolean}
+		 * @private
+		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
 		
 		/**
 		 * Render message

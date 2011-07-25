@@ -54,11 +54,19 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		NAME: 'MediaLibrary',
 		
 		/**
-		 * Action has stylesheet, include it
+		 * Load stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
 		
 		
 		/**
@@ -87,6 +95,9 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 */
 		initialize: function () {
 		},
+		
+		
+		
 		
 		/**
 		 * Render widgets

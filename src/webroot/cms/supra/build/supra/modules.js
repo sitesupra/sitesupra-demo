@@ -1,3 +1,49 @@
+(function () {
+	
+	var Y = Supra.Y;
+	
+	/**
+	 * Add module to module definition list
+	 * 
+	 * @param {String} id Module id
+	 * @param {Object} definition Module definition
+	 */
+	Supra.addModule = function (id, definition) {
+		if (Y.Lang.isString(id) && Y.Lang.isObject(definition)) {
+			var groupId = id.indexOf('website.') == 0 ? 'website' : 'supra';
+			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
+		}
+	};
+	
+	/**
+	 * Set path to modules with 'website' prefix
+	 * 
+	 * @param {String} path
+	 */
+	Supra.setWebsiteModulePath = function (path) {
+		var config = Supra.YUI_BASE.groups.website;
+		
+		//Add trailing slash
+		path = path.replace(/\/$/, '') + '/';
+		config.root = path;
+		config.base = path;
+	};
+	
+	/**
+	 * Add module to automatically included module list
+	 * 
+	 * @param {String} module Name of the module, which will be automatically loaded
+	 */
+	Supra.autoLoadModule = function (module) {
+		Supra.useModules.push(module);
+	};
+	
+	
+})();
+
+
+
+
 /**
  * List of modules, which are added to use() automatically when using Supra()
  * @type {Array}
@@ -14,7 +60,7 @@ Supra.useModules = [
 	'supra.io',						// + io, json
 	'supra.dom',
 	
-	'supra.debug'
+	'supra.authorization'
 ];
 
 
@@ -290,11 +336,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.header': {
 		path: 'header/header.js',
-		requires: ['widget', 'supra.header-item', 'supra.header-css']
+		requires: ['supra.header.appdock', 'supra.header-css']
 	},
-	'supra.header-item': {
-		path: 'header/item.js',
-		requires: ['widget']
+	'supra.header.appdock': {
+		path: 'header/appdock.js',
+		requires: ['supra.tooltip']
 	},
 	'supra.header-css': {
 		path: 'header/header.css',
@@ -415,13 +461,27 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/fileupload.js',
 		requires: ['supra.input-proto', 'uploader']
 	},
+	'supra.input-select': {
+		path: 'input/select.js',
+		requires: ['supra.input-string']
+	},
 	'supra.input-select-list': {
 		path: 'input/select-list.js',
 		requires: ['supra.input-proto', 'supra.button']
 	},
+	
 	'supra.form': {
 		path: 'input/form.js',
-		requires: ['supra.input-proto', 'supra.input-hidden', 'supra.input-string', 'supra.input-path', 'supra.input-checkbox', 'supra.input-file-upload', 'supra.input-select-list']
+		requires: [
+			'supra.input-proto',
+			'supra.input-hidden',
+			'supra.input-string',
+			'supra.input-path',
+			'supra.input-checkbox',
+			'supra.input-file-upload',
+			'supra.input-select',
+			'supra.input-select-list'
+		]
 	},
 	'supra.input-css': {
 		path: 'input/input.css',

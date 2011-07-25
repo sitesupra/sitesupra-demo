@@ -1,0 +1,10 @@
+{
+	"status": 1,
+	"data": [
+		{"id": "content", "path": "/cms/content-manager-2", "icon": "/cms/supra/img/apps/content", "title": "Pages"},
+		{"id": "medialibrary", "path": "/cms/medialibrary", "icon": "/cms/supra/img/apps/content", "title": "Media library"},
+		{"id": "publication", "path": "/cms/publication", "icon": "/cms/supra/img/apps/content", "title": "Publications"},
+		{"id": "auditlog", "path": "/cms/auditlog", "icon": "/cms/supra/img/apps/audit", "title": "Audit log"},
+		{"id": "users", "path": "/cms/users", "icon": "/cms/supra/img/apps/content", "title": "Backoffice users"}
+	]
+}

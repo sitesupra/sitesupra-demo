@@ -7,14 +7,17 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
 	
-	//Default properties
-	var DEFAULT_PROPERTIES = [
-		/* Default properties if none is set in configuration */
-		{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''}
-	];
+	//Default properties if none is set in configuration
+	var DEFAULT_PROPERTIES = [{
+			'id': 'title',
+			'type': 'String',
+			'label': 'Title',
+			'value': ''
+	}];
 	
 	//Add as child, when EditorToolbar will be hidden GalleryManager will be hidden also (page editing is closed)
 	Manager.getAction('EditorToolbar').addChildAction('GalleryManager');
+	
 	
 	//Create Action class
 	new Action({
@@ -27,11 +30,18 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		NAME: 'GalleryManager',
 		
 		/**
-		 * Action has stylesheet, include it
+		 * Load stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
 		
 		/**
 		 * Image preview size
@@ -75,6 +85,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @private
 		 */
 		selected_image_data: null,
+		
 		
 		/**
 		 * Initialize

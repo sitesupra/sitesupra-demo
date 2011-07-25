@@ -12,7 +12,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 					{"id": "insertlink", "type": "button", "buttonType": "toggle", "title": "Link", "icon": "/cms/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
 					{"type": "separator"},
-					{"id": "inserttable", "type": "button", "buttonType": "toggle", "title": "Table", "icon": "/cms/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
+					{"id": "inserttable", "type": "button", "buttonType": "push", "title": "Table", "icon": "/cms/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
 					{"type": "separator"},
 					{"id": "settings", "type": "button", "buttonType": "toggle", "title": "Settings", "icon": "/cms/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]

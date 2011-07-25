@@ -28,6 +28,22 @@ SU(function (Y) {
 		NAME: '',
 		
 		/**
+		 * No template for this action
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: false,
+		
+		/**
+		 * No stylehseet for this action
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		
+		
+		/**
 		 * Container classname
 		 * @type {String}
 		 * @private
@@ -47,20 +63,6 @@ SU(function (Y) {
 		 * @private
 		 */
 		PRIMARY_ACTION: '',
-		
-		/**
-		 * No need for template
-		 * @type {Boolean}
-		 * @private
-		 */
-		HAS_TEMPLATE: false,
-		
-		/**
-		 * Load CSS
-		 * @type {Boolean}
-		 * @private
-		 */
-		HAS_STYLESHEET: false,
 		
 		/**
 		 * Currently visible action
@@ -288,14 +290,16 @@ SU(function (Y) {
 		NAME: 'LayoutContainers',
 		
 		/**
-		 * No need for template
+		 * Load action template
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: true,
 		
 		/**
-		 * Load CSS
+		 * Load action stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
 		

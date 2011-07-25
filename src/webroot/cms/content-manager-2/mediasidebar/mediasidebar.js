@@ -22,10 +22,21 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		NAME: 'MediaSidebar',
 		
 		/**
-		 * Include stylesheet
+		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
 		
 		/**
 		 * Supra.MediaLibraryList instance
@@ -50,6 +61,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		 * @type {Object}
 		 */
 		button_back: null,
+		
+		
 		
 		
 		/**

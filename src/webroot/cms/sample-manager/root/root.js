@@ -13,10 +13,20 @@ SU('supra.datatable', function (Y) {
 		NAME: 'Root',
 		
 		/**
-		 * Has stylesheet
+		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: true,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.

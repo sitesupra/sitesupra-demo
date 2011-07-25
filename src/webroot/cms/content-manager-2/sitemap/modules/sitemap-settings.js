@@ -85,9 +85,14 @@ YUI().add('website.sitemap-settings', function (Y) {
 			}
 			
 			//Delete button
+			
 			var btn = new Supra.Button({'srcNode': contbox.one('button'), 'style': 'mid-red'});
 				btn.render();
 				btn.on('click', this.deletePage, this);
+			
+			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
+				btn.hide();
+			}
 			
 			this.button_delete = btn;
 		},

@@ -23,26 +23,6 @@
 	top: 0;
 }
 
-.yui3-right-container .yui3-form-default .yui3-input label {
-	width: auto;
-	padding: 0 5px 7px;
-}
-.yui3-right-container .yui3-form-default .yui3-input-string label,
-.yui3-right-container .yui3-form-default .yui3-input-select-list label {
-	display: block;
-}
-.yui3-right-container .yui3-form-default .yui3-input-checkbox label {
-	padding: 7px 5px;
-	line-height: 1em;
-	vertical-align: middle;
-}
-.yui3-right-container .yui3-form-default .yui3-input-string input {
-	width: 100%;
-}
-.yui3-right-container .yui3-form-default .yui3-input-path input {
-	width: 50%;
-}
-
 .yui3-right-container .yui3-form-default .yui3-button-delete,
 .yui3-right-container .yui3-form-default .yui3-button-edit,
 .yui3-right-container .yui3-form-default .yui3-button-save {

@@ -53,10 +53,21 @@ SU('anim', function (Y) {
 		NAME: 'PageButtons',
 		
 		/**
-		 * No need for template
+		 * Action doesn't have stylesheet
 		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Action doesn't have template
+		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
+		
+		
+		
 		
 		/**
 		 * Currently visible action
@@ -94,6 +105,9 @@ SU('anim', function (Y) {
 		 * @type {Boolean}
 		 */
 		animationRunning: false,
+		
+		
+		
 		
 		/**
 		 * Run next animation from queue

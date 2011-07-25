@@ -13,6 +13,15 @@ Supra('action-panel', 'action-datagrid', function (Y) {
 		NAME: 'Root',
 		
 		/**
+		 * Automatically load template and insert before initializing action
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
+		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 */
 		initialize: function () {

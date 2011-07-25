@@ -35,6 +35,11 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		 * Attach event listeners
 		 */
 		bindUI: function () {
+			if (!Supra.Authorization.isAllowed(['page', 'order'], true)) {
+				this.set('isDragable', false);
+				this.set('isDropTarget', false);
+			}
+			
 			FlowMapItemNormal.superclass.bindUI.apply(this, arguments);
 			
 			var node_edit = this.get('boundingBox').one('span.edit');

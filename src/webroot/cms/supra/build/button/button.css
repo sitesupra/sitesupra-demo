@@ -365,3 +365,6 @@ button::-moz-focus-inner {
 .yui3-button img {
 	vertical-align: middle;
 }
+.yui3-button-group-list {
+	margin: 0 0 10px;
+}

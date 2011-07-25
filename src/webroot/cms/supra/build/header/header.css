@@ -2,118 +2,128 @@
   * = Page header 
   */
 .cms-header {
-	padding: 10px 20px 0;
-	margin-bottom: 10px;
-	overflow: hidden;
 }
-	.cms-header .logo {
-		float: left;
-		display: block;
-		margin: 5px 10px 0 0;
-	}
-	.cms-header .logo img {
-		display: block;
-	}
-	.cms-header .search {
-		float: right;
-		display: block;
-	}
+
+
+.yui3-app-current {
+	position: absolute;
+	z-index: 101;
+	left: 0;
+	top: 0;
+	display: block;
+	padding: 10px;
+	cursor: pointer;
+	text-decoration: none;
+}
+.yui3-app-current img {
+	display: inline-block;
+	vertical-align: middle;
+	opacity: 0.8;
 	
-	.cms-header .item-arrow {
-		width: 7px;
-		height: 42px;
-		background: url(/cms/supra/img/header-arrow.gif) 0 50% no-repeat;
-		float: left;
-	}
+	-moz-transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+.yui3-app-current span {
+	vertical-align: middle;
+	color: #ccc;
+	padding-left: 10px;
 	
-	.cms-header .yui3-item {
-		float: left;
-		position: relative;
-		padding: 5px 0 5px 7px;
-		margin: 0 6px;
-	}
-		.cms-header .yui3-item img,
-		.cms-header .yui3-item h3,
-		.cms-header .yui3-item a {
-			display: inline-block;
-			vertical-align: middle;
-		}
-		.cms-header .yui3-item img {
-			margin: 0 5px 0 0;
-		}
-		.cms-header .yui3-item h3 {
-			margin-right: 10px;
-			font-weight: normal;
-			font-size: 14px;
-			line-height: 32px;
-			color: #666;
-		}
-		.cms-header .yui3-item small {
-			font-size: 14px;
-			color: #ccc;
-			vertical-align: baseline;
-		}
-		.cms-header .yui3-item a {
-			font-size: 14px;
-			font-style: italic;
-		}
-		.cms-header .yui3-item a.overlay {
-			display: block;
-			position: absolute;
-			left: 0;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			background: #fff;
-			opacity: 0;
-		}
-		
-	.cms-header .yui3-item-label,
-	.cms-header .yui3-item-label a {
-		cursor: default;
-	}
-		
-	.cms-header .yui3-item-link:hover {
-		background: #f6f6f6;
-		
-		-moz-box-shadow: 0 1px 1px rgba(0,0,0,0.15) inset;
-		-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.15) inset;
-		box-shadow: 0 1px 1px rgba(0,0,0,0.15) inset;
-		
-		-moz-border-radius: 4px;
-		-webkit-border-radius: 4px;
-		border-radius: 4px;
-	}
-		.cms-header .yui3-item-link:hover a {
-			text-decoration: none;
-		}
-		
-	.cms-header .user {
-		color: #666;
-		font-size: 14px;
-		position: absolute;
-		right: 21px;
-		top: 17px;
-	}
-	.cms-header .user .avatar {
-		vertical-align: middle;
-		-webkit-border-radius: 1px;
-		-moz-border-radius: 1px;
-		-ms-border-radius: 1px;
-		border-radius: 1px;
-	}
-	.cms-header .user .username {
-		line-height: 32px;
-		vertical-align: middle;
-		padding-left: 10px;
-	}
-	.cms-header .user .logout {
-		display: inline-block;
-		width: 32px;
-		height: 32px;
-		vertical-align: middle;
-		background: url(/cms/supra/img/icon-logout.png) 50% 8px no-repeat;
-	}
-	.cms-header .user .logout:hover {
-		background-position: 50% -24px; 
-	}
+	-moz-transition: color 0.5s;
+	-webkit-transition: color 0.5s;
+	transition: color 0.5s;
+}
+.yui3-app-current:hover img {
+	opacity: 1;
+	
+	/* Hover opacity animation */
+	-moz-transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+.yui3-app-current:hover span {
+	color: #fff;
+	
+	-moz-transition: color 0.5s;
+	-webkit-transition: color 0.5s;
+	transition: color 0.5s;
+}
+
+.yui3-app-dock-visible .yui3-app-current span {
+	color: #333;
+}
+
+.yui3-app-dock {
+	position: absolute;
+	z-index: 100;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+}
+.yui3-app-dock ul {
+	width: 444px;
+	overflow: hidden;
+	margin: 70px 10px 10px 20px;
+}
+.yui3-app-dock li {
+	display: block;
+	float: left;
+	padding: 10px 0 0;
+	margin: 15px 10px 30px;
+	width: 128px;
+	text-align: center;
+}
+.yui3-app-dock li a {
+	display: block;
+	text-decoration: none;
+}
+.yui3-app-dock li img {
+	display: inline-block;
+}
+.yui3-app-dock li span {
+	display: block;
+	white-space: nowrap;
+	color: #333;
+	padding-top: 5px;
+}
+.yui3-app-dock li:hover span {
+	text-decoration: underline;
+}
+
+
+/* FadeIn / FadeOut animation */
+.yui3-app-dock {
+	opacity: 0;
+	
+	-moz-transition: opacity 0.35s;
+	-webkit-transition: opacity 0.35s;
+	transition: opacity 0.35s;
+}
+.yui3-app-dock-visible .yui3-app-dock {
+	opacity: 1;
+	
+	-moz-transition: opacity 0.15s;
+	-webkit-transition: opacity 0.15s;
+	transition: opacity 0.15s;
+}
+
+.yui3-app-dock ul {
+	-moz-transform: scale(1.75) translate(0, 0);
+	-webkit-transform: scale(1.75) translate(0, 0);
+	transform: scale(1.75) translate(0, 0);
+	
+	-moz-transition: all 0.35s;
+	-webkit-transition: all 0.35s;
+	transition: all 0.5s;
+}
+.yui3-app-dock-visible .yui3-app-dock ul {
+	-moz-transform: scale(1) translate(0, 0);
+	-webkit-transform: scale(1) translate(0, 0);
+	transform: scale(1) translate(0, 0);
+	
+	-moz-transition: all 0.35s;
+	-webkit-transition: all 0.35s;
+	transition: all 0.35s;
+}

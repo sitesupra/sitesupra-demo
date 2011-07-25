@@ -20,10 +20,21 @@ SU(function (Y) {
 		NAME: 'Blocks',
 		
 		/**
-		 * No template for toolbar
+		 * Action doesn't have a stylesheet
 		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Action doesn't have a template
+		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
+		
+		
+		
 		
 		/**
 		 * Block data

@@ -6,6 +6,9 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 	var defaultConfiguration = {
 	};
 	
+	/*
+	 * Handle style dropdown
+	 */
 	SU.HTMLEditor.addPlugin('style', defaultConfiguration, {
 		
 		/**

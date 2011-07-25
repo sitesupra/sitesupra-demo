@@ -24,22 +24,28 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		NAME: 'PageInsertBlock',
 		
 		/**
-		 * No need for template
+		 * Load stylesheet
 		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: true,
+		
+		/**
+		 * Action doesn't have template
+		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
 		
-		/**
-		 * Load stylesheet
-		 * @type {Boolean}
-		 */
-		HAS_STYLESHEET: true,
+		
 		
 		/**
 		 * Block data
 		 * @type {Object}
 		 */
 		data: null,
+		
+		
 		
 		
 		/**

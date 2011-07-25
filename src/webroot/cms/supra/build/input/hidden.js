@@ -18,11 +18,24 @@ YUI.add("supra.input-hidden", function (Y) {
 		INPUT_TEMPLATE: '<input type="hidden" value="" />',
 		LABEL_TEMPLATE: '<label></label>',
 		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			//Handle value attribute change
+			this.on('valueChange', this._afterValueChange, this);
+		},
+		
 		_setValue: function (value) {
 			this.get("inputNode").set("value", value);
 			
 			this._original_value = value;
 			return value;
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 	});
 	

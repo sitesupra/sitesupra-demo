@@ -126,6 +126,10 @@ YUI.add('supra.manager-loader', function (Y) {
 					delete(this.loading[o.data]);
 					this.loaded[o.data] = true;
 				},
+				attributes: {
+					'async': 'async',	//Load asynchronously
+					'defer': 'defer'	//For browsers that doesn't support async
+				},
 				context: this,
 				data: action_name
 			});
@@ -139,6 +143,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * @param {Object} callback
 		 */
 		loadTemplate: function (action_name, callback) {
+			
 			var action = Manager.getAction(action_name);
 			
 			var templatePath = action.getTemplatePath();
@@ -158,6 +163,7 @@ YUI.add('supra.manager-loader', function (Y) {
 			//Load stylesheet if needed
 			if (stylesheetPath && hasStylesheet) {
 				stylesheetLoaded = false;
+				
 				Y.Get.css(stylesheetPath, {
 					'onSuccess': function () {
 						stylesheetLoaded = true;

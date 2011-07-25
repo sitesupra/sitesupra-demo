@@ -314,7 +314,7 @@ YUI.add('supra.page-iframe', function (Y) {
 					if (evt.prevVal && evt.prevVal.get('editing')) {
 						evt.prevVal.set('editing', false);
 					}
-					if (evt.newVal && !evt.newVal.get('editing')) {
+					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
 						evt.newVal.set('editing', true);
 					}
 				}

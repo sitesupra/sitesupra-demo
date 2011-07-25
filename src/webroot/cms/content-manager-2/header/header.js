@@ -20,72 +20,41 @@ Supra('supra.header', function (Y) {
 		NAME: 'Header',
 		
 		/**
-		 * Change place holder to document body
-		 * @type {HTMLElement}
+		 * No stylesheet for this action
+		 * @type {Boolean}
 		 * @private
 		 */
-		PLACE_HOLDER: new Y.Node(document.body),
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * No template for this action
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: false,
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 * @private
 		 */
 		initialize: function () {
+			//Change srcNode
+			this.set('srcNode', Y.all('#cmsHeader'));
 			
-			//Move node the begining of document
-			var body = new Y.Node(document.body);
-			body.prepend(this.one());
-			
-			this.header = new Supra.Header({
-				'srcNode': this.one()
+			//Create application dock bar
+			this.app = new Supra.AppDock({
+				'data': Supra.data.get('application'),
+				'requestUri': this.getDataPath('applications')
 			});
-			
-			//Widget functions should be available on Action
-			//Supra.Manager.Header.addItem, etc.
-			this.importMethods(this.header, ['addItem', 'removeItem', 'getItem']);
-			
-			//On item click fire event on Action
-			this.header.on('itemClick', function (event) {
-				this.fire(event.id + 'Click', event);
-				this.fire('itemClick', event);
-			}, this);
 		},
 		
 		/**
 		 * Render widgets
-		 * 
 		 * @private
 		 */
 		render: function () {
-			this.header.render();
-		},
-		
-		/**
-		 * Add item to the header
-		 * Call to this method will actually call widgets addItem method
-		 * 
-		 * @param {String} item_id Item ID
-		 * @param {Object} item_config Item configuration
-		 */
-		addItem: function (item_id, item_config) {},
-		
-		/**
-		 * Remove item from the header
-		 * Call to this method will actually call widgets removeItem method
-		 * 
-		 * @param {String} item_id Item ID
-		 */
-		removeItem: function (item_id) {},
-		
-		/**
-		 * Returns item instance Supra.HeaderItem
-		 * Call to this method will actually call widgets getItem method
-		 * 
-		 * @param {String} item_id Item ID
-		 * @return Item instance
-		 * @type {Object}
-		 */
-		getItem: function (item_id) {}
+			this.app.render(this.one());
+		}
 	});
 	
 });

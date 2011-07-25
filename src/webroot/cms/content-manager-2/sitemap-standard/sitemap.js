@@ -37,6 +37,16 @@ SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpa
 		HAS_STYLESHEET: true,
 		
 		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_TEMPLATE: true,
+		
+		
+		
+		
+		/**
 		 * Tree widget instance
 		 * @type {Object}
 		 * @private
@@ -70,6 +80,8 @@ SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpa
 		 * @private
 		 */
 		button_delete: null,
+		
+		
 		
 		
 		/**

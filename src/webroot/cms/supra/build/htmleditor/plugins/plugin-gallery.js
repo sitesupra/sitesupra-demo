@@ -53,7 +53,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						{'id': 'border', 'title': 'Border', 'icon': '/cms/supra/img/htmleditor/image-style-border.png'},
 						{'id': 'lightbox', 'title': 'Lightbox', 'icon': '/cms/supra/img/htmleditor/image-style-lightbox.png'}
 					]}
-				]
+				],
+				'style': 'vertical'
 			};
 			
 			var form = new Supra.Form(form_config);

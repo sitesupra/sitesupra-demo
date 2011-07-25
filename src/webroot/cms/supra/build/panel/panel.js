@@ -92,6 +92,13 @@ YUI.add('supra.panel', function (Y) {
 		_close: null,
 		
 		/**
+		 * Fade animation (Y.Anim instance)
+		 * @type {Object}
+		 * @private
+		 */
+		_fade_anim: null,
+		
+		/**
 		 * Arrow template
 		 * @type {String}
 		 * @private
@@ -430,6 +437,12 @@ YUI.add('supra.panel', function (Y) {
 			this.before('destroy', function () {
 				var maskNode = this.get('maskNode');
 				if (maskNode) maskNode.remove();
+				
+				//Remove animation if it exists
+				if (this._fade_anim) {
+					this._fade_anim.destroy();
+					delete(this._fade_anim);
+				}
 			});
 		},
 		
@@ -459,6 +472,59 @@ YUI.add('supra.panel', function (Y) {
 			this.syncUI();
 			
 			return this;
+		},
+		
+		/**
+		 * Fade in
+		 */
+		fadeIn: function () {
+			var bounding_box = this.get('boundingBox');
+			bounding_box.setStyle('opacity', 0);
+			
+			this.show();
+			this.syncUI();
+			
+			if (this._fade_anim) {
+				this._fade_anim.stop(true);
+				this._fade_anim.set('from', {opacity: 0});
+				this._fade_anim.set('to', {opacity: 1});
+			} else {
+				this._fade_anim = new Y.Anim({
+					'node': bounding_box,
+					'from': {opacity: 0},
+					'to': {opacity: 1},
+					'duration': 0.25,
+					'easing': Y.Easing.easeOut
+				});
+			}
+			
+			this._fade_anim.run();
+		},
+		
+		/**
+		 * Fade out
+		 */
+		fadeOut: function () {
+			var bounding_box = this.get('boundingBox');
+			bounding_box.setStyle('opacity', 1);
+			this.show();
+			
+			if (this._fade_anim) {
+				this._fade_anim.stop(true);
+				this._fade_anim.set('from', {opacity: 1});
+				this._fade_anim.set('to', {opacity: 0});
+			} else {
+				this._fade_anim = new Y.Anim({
+					'node': bounding_box,
+					'from': {opacity: 1},
+					'to': {opacity: 0},
+					'duration': 0.25,
+					'easing': Y.Easing.easeOut
+				});
+			}
+			
+			//this._fade_anim.once('end', this.hide, this);
+			this._fade_anim.run();
 		},
 		
 		/**

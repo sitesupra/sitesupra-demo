@@ -45,7 +45,7 @@ YUI.add("supra.form", function (Y) {
 			value: null
 		},
 		"style": {
-			value: "default"
+			value: ""
 		}
 	};
 	Form.HTML_PARSER = {
@@ -321,7 +321,11 @@ YUI.add("supra.form", function (Y) {
 			this.inputs_definition = definitions;
 			
 			//Style
-			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, this.get('style')));
+			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, 'default'));
+			var style = this.get('style');
+			if (style) {
+				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
+			}
 		},
 		
 		/**
@@ -497,7 +501,7 @@ YUI.add("supra.form", function (Y) {
 		resetValues: function (list) {
 			var inputs = this.inputs;
 			
-			if (list) {
+			if (Y.Lang.isArray(list)) {
 				for(var i=0,ii=list.length; i<ii; i++) {
 					if (list[i] in inputs) inputs[list[i]].resetValue();
 				}
@@ -633,4 +637,4 @@ YUI.add("supra.form", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["widget", "supra.input-proto", "supra.input-hidden", "supra.input-string", "supra.input-path", "supra.input-checkbox", "supra.input-file-upload", "supra.input-select-list"]});
+}, YUI.version, {requires:["widget", "supra.input-proto", "supra.input-hidden", "supra.input-string", "supra.input-path", "supra.input-checkbox", "supra.input-file-upload", "supra.input-select", "supra.input-select-list"]});

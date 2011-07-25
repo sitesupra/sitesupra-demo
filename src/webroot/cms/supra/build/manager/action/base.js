@@ -39,17 +39,79 @@ YUI.add('supra.manager-action-base', function (Y) {
 	 * Action attributes 
 	 */
 	ActionBase.ATTRS = {
-		'created': { 'value': false },
-		'ready': { 'value': false },
-		'actionPath': { 'value': null },
-		'templatePath': { 'value': null },
-		'stylesheetPath': { 'value': null },
-		'dataPath': { 'value': null },
-		'srcNode': { 'value': null },
-		'placeHolderNode': { 'value': null, 'getter': '_getPlaceHolderNode' },
-		'hasStylesheet': { 'value': false },
-		'hasTemplate': { 'value': true },
-		'visible': { 'value': false }
+		/**
+		 * Action state
+		 * Action has been loaded and created
+		 */
+		'created': {
+			'value': false
+		},
+		/**
+		 * Action state
+		 * Action is ready
+		 */
+		'ready': {
+			'value': false
+		},
+		
+		/**
+		 * Action has stylesheet or not
+		 */
+		'hasStylesheet': {
+			'value': false
+		},
+		/**
+		 * Action has template or not
+		 */
+		'hasTemplate': {
+			'value': false
+		},
+		
+		/**
+		 * Path to action
+		 */
+		'actionPath': {
+			'value': null
+		},
+		/**
+		 * Action template path
+		 */
+		'templatePath': {
+			'value': null
+		},
+		/**
+		 * Action stylesheet path
+		 */
+		'stylesheetPath': {
+			'value': null
+		},
+		/**
+		 * Action data path
+		 */
+		'dataPath': {
+			'value': null
+		},
+		
+		/**
+		 * Action srcNode
+		 */
+		'srcNode': {
+			'value': null
+		},
+		/**
+		 * Action place holder; node in which action template was inserted
+		 */
+		'placeHolderNode': {
+			'value': null,
+			'getter': '_getPlaceHolderNode'
+		},
+		
+		/**
+		 * Action visibility state
+		 */
+		'visible': {
+			'value': false
+		}
 	};
 	
 	Y.extend(ActionBase, Y.Base, {

@@ -380,12 +380,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		renderUI: function () {
 			var data = this.get('data');
+			var permission_order = Supra.Authorization.isAllowed(['block', 'order'], true);
+			var permission_edit = Supra.Authorization.isAllowed(['block', 'edit'], true);
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
 					this.createChild(data.contents[i], {
-						'dragable': !data.contents[i].locked && !this.isLocked(),
-						'editable': !data.contents[i].locked
+						'dragable': !data.contents[i].locked && !this.isLocked() && permission_order,
+						'editable': !data.contents[i].locked && permission_edit
 					});
 				}
 			}
@@ -400,8 +402,12 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.get('parent').getNode().append(node);
 			}
 			
+			if (!permission_edit) {
+				this.set('editable', false);
+			}
+			
 			if (this.get('dragable')) {
-				if (!this.isLocked()) {
+				if (!this.isLocked() && permission_order) {
 					this.set('dragable', true);
 				} else {
 					this.set('dragable', false);

@@ -17,16 +17,21 @@ Supra(function (Y) {
 		NAME: 'Page',
 		
 		/**
-		 * No need for stylesheet
+		 * Action doesn't have stylesheet
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_STYLESHEET: false,
 		
 		/**
-		 * No need for template
+		 * Action doesn't have template
 		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: false,
+		
+		
+		
 		
 		/**
 		 * Loading page data
@@ -40,44 +45,19 @@ Supra(function (Y) {
 		 */
 		data: null,
 		
+		
+		
+		
 		/**
 		 * Initialize
 		 * @private
 		 */
 		initialize: function () {
-			// When page manager is hidden, hide header item
-			/*
-			this.on('visibleChange', function (event) {
-				if (event.newVal != evt.prevVal && !event.newVal) {
-					Manager.getAction('Header').getItem('page').hide();
-				}
-			});
-			*/
-			
 			//When page manager is hidden, hide other page actions
 			this.addChildAction('LayoutContainers');
 			this.addChildAction('EditorToolbar');
 			this.addChildAction('PageContent');
 			this.addChildAction('PageButtons');
-		},
-		
-		/**
-		 * Render widgets, bind listeners
-		 * @private
-		 */
-		render: function () {
-			//Bind to editing-start / end to change title in header
-			/*
-			Manager.getAction('PageContent').on('activeContentChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					if (evt.newVal) {
-						this.setPageTitle(this.data.title, evt.newVal.getTitle());
-					} else {
-						this.setPageTitle(this.data.title);
-					}
-				}
-			}, this);
-			*/
 		},
 		
 		/**
@@ -135,8 +115,6 @@ Supra(function (Y) {
 			
 			if (status) {
 				this.data = data;
-				this.setPageTitle(data.title);
-				
 				this.fire('loaded', {'data': data});
 			}
 		},
@@ -263,58 +241,11 @@ Supra(function (Y) {
 				}
 			}
 			
-			if ('title' in changes) {
-				this.setPageTitle(changes.title);
-			}
-			
 			if ('template' in changes) {
 				/* @TODO */
 			}
 			
 			Supra.mix(this.data, page_data);
-		},
-		
-		/**
-		 * Change page title
-		 * 
-		 * @param {Object} page
-		 * @param {Object} block
-		 */
-		setPageTitle: function (page, block) {
-			/*
-			var header = Manager.getAction('Header');
-			if (!header.isInitialized()) {
-				header.on('execute', function () {
-					this.setPageTitle(page, block);
-				}, this);
-				return;
-			}
-			
-			var page = page;
-			var block = block;
-			var labelType = '';		//Editing block
-			var labelMajor = '';	//Free text
-			var labelMinor = '';	//at About us page
-			var html = '';
-			
-			if (block) {
-				labelMajor = Y.Lang.escapeHTML(block);
-				labelMinor = ' <small>at</small> ' + Y.Lang.escapeHTML(page) + ' <small>page</small>';
-			} else if (page) {
-				labelMajor = Y.Lang.escapeHTML(page);
-			}
-			
-			html = labelMajor + labelMinor;
-			
-			//Change page title in header
-			var item = header.getItem('page');
-			if (item) {
-				item.setTitle(html, true);
-				item.show();
-			} else {
-				header.addItem('page', {'title': html});
-			}
-			*/
 		}
 	});
 	

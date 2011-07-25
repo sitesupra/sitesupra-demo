@@ -9,6 +9,22 @@
 .yui3-content {
 	overflow: hidden;
 }
+/*
+.yui3-content:after {
+	clear: both;
+	content: ' ';
+	display: block;
+	font-size: 0;
+	line-height: 0;
+	visibility: hidden;
+	width: 0;
+	height: 0;
+}
+.yui3-content {
+	display: block;
+	min-height: 0;
+}
+*/
 
 .yui3-content,
 .yui3-widget,
@@ -202,7 +218,9 @@
 .yui3-content-editing .yui3-input-html-inline img.yui3-image-selected,
 .yui3-content-editing .yui3-input-html-inline img.yui3-gallery-selected {
 	/* Image focused */
-	outline: 2px dashed #ccc;
+	-moz-box-shadow: 0 0 4px #39f;
+	-webkit-box-shadow: 0 0 4px #39f;
+	box-shadow: 0 0 4px #39f;
 }
 
 .yui3-highlight .yui3-highlight-list {
@@ -262,16 +280,34 @@
 	outline: none;
 }
 
+.yui3-content-editing table.yui3-table-selected td,
+.yui3-content-editing table.yui3-table-selected th {
+	/*outline: 1px dotted #ccc;*/
+}
+.yui3-content-editing table.yui3-table-selected .yui3-cell-selected {
+	box-shadow: 0 0 4px #39f;
+	-moz-box-shadow: 0 0 4px #39f;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.yui3-content-editing table.yui3-table-selected .yui3-cell-selected {
+		outline: 2px dotted #39f;
+		box-shadow: none;
+	}
+}
+
+/*
 table:focus {
 	-moz-box-shadow: 0 0 3px #A2E4FF;
 	-webkit-box-shadow: 0 0 3px #A2E4FF;
 	box-shadow: 0 0 3px #A2E4FF;
 }
+th:focus,
 td:focus {
 	-moz-box-shadow: 0 0 1px #A2E4FF;
 	-webkit-box-shadow: 0 0 1px #A2E4FF;
 	box-shadow: 0 0 1px #A2E4FF;
 }
+*/
 
 .su-uneditable, .su-uneditable * {
 	cursor: default !important;

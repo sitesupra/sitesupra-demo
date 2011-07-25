@@ -307,6 +307,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				} else if (nodelist) {
 					var first = null;
 					while(nodelist.lastChild) {
+						node = nodelist.lastChild;
 						first = nodelist.lastChild;
 						range.insertNode(nodelist.lastChild);
 					}

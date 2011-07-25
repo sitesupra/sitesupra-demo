@@ -35,7 +35,8 @@ SU(function (Y) {
 				'id': 'blockbar',
 				'title': 'Insert',
 				'icon': '/cms/supra/img/toolbar/icon-insert.png',
-				'action': 'PageInsertBlock'
+				'action': 'PageInsertBlock',
+				'permissions': ['block', 'insert']
 			},
 			{
 				'id': 'history',
@@ -88,10 +89,21 @@ SU(function (Y) {
 		NAME: 'PageToolbar',
 		
 		/**
-		 * Has template
+		 * Action doesn't have stylesheet
 		 * @type {Boolean}
+		 * @private
+		 */
+		HAS_STYLESHEET: false,
+		
+		/**
+		 * Load template
+		 * @type {Boolean}
+		 * @private
 		 */
 		HAS_TEMPLATE: true,
+		
+		
+		
 		
 		/**
 		 * Currently selected action
@@ -134,6 +146,8 @@ SU(function (Y) {
 		 * @type {Boolean}
 		 */
 		animationRunning: false,
+		
+		
 		
 		
 		/**
@@ -363,6 +377,7 @@ SU(function (Y) {
 				action,
 				id,
 				type,
+				permissions,
 				attr_buttons = this.get('buttons') || {};
 			
 			for(var group_id in button_groups) {
@@ -377,8 +392,14 @@ SU(function (Y) {
 				//Create buttons
 				for(var i=0,ii=button_config.length; i<ii; i++) {
 					if (Y.Lang.isObject(button_config[i])) {
+						
 						id = button_config[i].id;
 						type = button_config[i].type || 'toggle';
+						permissions = button_config[i].permissions;
+						
+						if (permissions && !Supra.Authorization.isAllowed(permissions, true)) {
+							continue;
+						}
 						
 						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon});
 						button.set('topbarButtonId', id);

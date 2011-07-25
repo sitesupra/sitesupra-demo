@@ -25,6 +25,21 @@
 	width: 100%;
 }
 
+/**
+ * Animation
+ */
+.yui3-sitemap-anim {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+	z-index: 100;
+	border: 1px solid #aaa;
+	display: none;
+}
+
 
 /**
  * Language bar
@@ -291,12 +306,6 @@
 .sitemap-settings .yui3-input-focused span {
 	display: none;
 }
-.sitemap-settings .yui3-input-path small {
-	font-size: 14px;
-	color: #999;
-	width: auto;
-}
-
 
 .sitemap-settings .yui3-input-template {
 	padding: 5px 280px 5px 0;

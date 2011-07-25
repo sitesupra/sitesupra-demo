@@ -188,6 +188,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
 				btn.render(buttons).on('click', this.deleteContent, this);
 			
+			if (!Supra.Authorization.isAllowed(['block', 'delete'], true)) {
+				btn.hide();
+			}
+			
 			//Don't show delete button if block or placeholder is locked
 			var host = this.get('host');
 			if (host.isLocked() || host.isParentLocked()) {
@@ -199,7 +203,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Initialize properties form
 		 */
 		initializeProperties: function () {
-			var form_config = {'autoDiscoverInputs': false, 'inputs': []},
+			var form_config = {'autoDiscoverInputs': false, 'inputs': [], 'style': 'vertical'},
 				properties = this.get('properties'),
 				host = this.get('host'),
 				host_node = host.getNode();

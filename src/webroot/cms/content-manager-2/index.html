@@ -1,24 +1,25 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
-	<meta http-equiv="content-type" content="text/html;charset=utf-8"/> 
-	<title>Content Manager v2</title> 
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>Content Manager v2</title>
 	
-	<!-- Load all base (YUI, Loader, Supra) JS files at once --> 
-	<script src="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/yui/yui-min.js&amp;/cms/yui.3.3.0/build/loader/loader-min.js&amp;/cms/supra/build/supra/supra.js&amp;/cms/supra/build/supra/modules.js"></script> 
+	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
+	<script src="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/yui/yui-min.js&amp;/cms/yui.3.3.0/build/loader/loader-min.js&amp;/cms/supra/build/supra/supra.js&amp;/cms/supra/build/supra/data.js&amp;/cms/supra/build/supra/modules.js"></script>
 	
-	<!-- Load all base CSS files at once --> 
-	<link rel="stylesheet" type="text/css" href="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/cssreset/reset.css&amp;/cms/supra/build/supra/reset.css&amp;/cms/supra/build/supra/common.css" /> 
+	<!-- Load all base CSS files at once -->
+	<link rel="stylesheet" type="text/css" href="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/cssreset/reset.css&amp;/cms/supra/build/supra/reset.css&amp;/cms/supra/build/supra/common.css" />
 	
-</head> 
-<body> 
+</head>
+<body>
 	
-	<div class="cms-content" id="cmsContent"></div> 
+	<div class="cms-header" id="cmsHeader"></div>
+	<div class="cms-content" id="cmsContent"></div>
 	
-	<script type="text/javascript"> 
+	<script type="text/javascript">
 	//<![CDATA[
 	
-		Supra('supra.manager', function (Y) {
+		Supra('supra.manager', 'supra.authorization', function (Y) {
 			//Set current manager path
 			Supra.Manager.Loader.setBasePath('/cms/content-manager-2/');
 			Supra.setWebsiteModulePath('/cms/content-manager-2/');
@@ -85,9 +86,32 @@
 						'title': 'United Kingdom',
 						'languages': [{'id': 'en', 'title': 'English'}]
 					}
-				]
+				],
+				
+				//Application
+				'application': {
+					'id': 'content',
+					'path': '/cms/content-manager-2',
+					'icon': '/cms/supra/img/apps/content',
+					'title': 'Pages'
+				}
 
 			});
+			
+			Supra.Authorization.setPermissions([
+				{'id': [],		 				'allow': true},
+				{'id': ['page'], 				'allow': true},
+				{'id': ['page', 'delete'], 		'allow': true},
+				{'id': ['page', 'create'], 		'allow': true},
+				{'id': ['page', 'order'],  		'allow': true},
+				{'id': ['page', 'edit'],  		'allow': true},
+				{'id': ['page', 'publish'], 	'allow': true},
+				{'id': ['block'],  				'allow': true},
+				{'id': ['block', 'delete'],  	'allow': true},
+				{'id': ['block', 'insert'],  	'allow': true},
+				{'id': ['block', 'order'],  	'allow': true},
+				{'id': ['block', 'edit'],  		'allow': true}
+			]);
 			
 			
 			//Load base actions
@@ -95,10 +119,11 @@
 			
 			//Execute initial actions
 			Supra.Manager.executeAction('Root');
+			Supra.Manager.executeAction('Header');
 		});
 		
 	//]]>
-	</script> 
- 
-</body> 
+	</script>
+
+</body>
 </html>

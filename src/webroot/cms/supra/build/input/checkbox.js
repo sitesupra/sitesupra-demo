@@ -20,16 +20,12 @@ YUI.add("supra.input-checkbox", function (Y) {
 		_original_value: null,
 		
 		bindUI: function () {
-			var r = Input.superclass.bindUI.apply(this, arguments);
+			Input.superclass.bindUI.apply(this, arguments);
 			
 			var input = this.get('inputNode');
 			
-			//On value change fire "change" event
-			input.on("click", function () {
-				this.fire("change", {value: this.get("value")});
-			}, this);
-			
-			return r;
+			//Handle value attribute change
+			this.on('valueChange', this._afterValueChange, this);
 		},
 		
 		renderUI: function () {
@@ -43,6 +39,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 		
 		_setValue: function (value) {
 			var value = !!value;
+			
 			this.get("inputNode").set("checked", value);
 			
 			this._original_value = value;
