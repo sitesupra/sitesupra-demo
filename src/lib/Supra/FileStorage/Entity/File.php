@@ -97,5 +97,55 @@ class File extends Abstraction\File
 		
 		return $extension;
 	}
+	
+	/**
+	 * Get meta-data for locale
+	 *
+	 * @param string $locale
+	 * @return \Supra\FileStorage\Entity\MetaData
+	 */
+	public function getMetaData($locale = null)
+	{
+		if (empty($locale)) {
+			// FIXME replace with current locale
+			$locale = 'en';
+		}
+		if ($this->metaData->containsKey($locale)) {
+			return $this->metaData->get($locale);
+		} else {
+			return null;
+		}
+	}
 
+	/**
+	 * Get localized title
+	 *
+	 * @param string $locale
+	 * @return string
+	 */
+	public function getTitle($locale = null)
+	{
+		$metaData = $this->getMetaData($locale);
+		if ($metaData instanceof \Supra\FileStorage\Entity\MetaData) {
+			return $metaData->getTitle();
+		} else {
+			return $this->getName();
+		}
+	}
+
+	/**
+	 * Get localised description
+	 *
+	 * @param string $locale
+	 * @return string
+	 */
+	public function getDescription($locale = null)
+	{
+		$metaData = $this->getMetaData($locale);
+		if ($metaData instanceof \Supra\FileStorage\Entity\MetaData) {
+			return $metaData->getDescription();
+		} else {
+			return $this->getName();
+		}
+	}
 }

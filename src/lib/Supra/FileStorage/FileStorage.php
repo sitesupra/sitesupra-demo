@@ -115,30 +115,19 @@ class FileStorage
 		$this->uploadFilters[] = $filter;
 	}
 
-	/**
-	 * FileStorage
-	 */
-//  checkWebSafe() using Upload Filters
-//  deleteFile($fileObj)
-//  deleteFolder($fileObj) only empty folders
-//  storeUploadedFile
-//  LIST (children by folder id)
-// getDoctrineRepository()
-//  setPrivate (File $file)
-//  setPublic (File $file)
-// getFile($fileId)
-// getFolder($fileId)
-// getFileContents(File $file)
-// getFileHandle(File $file)
-// setDbConnection
-
-	/**
-	 *
-	 * @param \Supra\FileStorage\Entity\File $file
-	 * @param <type> $source 
-	 * @autowired
-	 */
-	private static $log; // Logger
+	//  checkWebSafe() using Upload Filters
+	//  deleteFile($fileObj)
+	//  deleteFolder($fileObj) only empty folders
+	//  storeUploadedFile
+	//  LIST (children by folder id)
+	// getDoctrineRepository()
+	//  setPrivate (File $file)
+	//  setPublic (File $file)
+	// getFile($fileId)
+	// getFolder($fileId)
+	// getFileContents(File $file)
+	// getFileHandle(File $file)
+	// setDbConnection
 
 	/**
 	 * Store file data

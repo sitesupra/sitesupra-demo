@@ -38,6 +38,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
 				$parentDir->addChild($dir);
 			}
+//			// meta-data getter test
+//			\Log::debug(array(
+//					'Folder __toString(): ' => $dir->__toString(),
+//					'Folder getTitle(): ' => $dir->getTitle(),
+//					'Folder getDescription(): ' => $dir->getDescription()
+//				));
 		}
 		self::getConnection()->flush();
 		
@@ -67,10 +73,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		self::getConnection()->flush();
 		
-//		$repo = $dir->getRepository();
-		$repo = self::getConnection()->getRepository("Supra\FileStorage\Entity\Folder");
-		$roots = $repo->getRootNodes();
-		1+1;
+//		// meta-data getter test
+//		\Log::debug(array(
+//				'File __toString(): ' => $file->__toString(),
+//				'File getTitle(): ' => $file->getTitle('ru'),
+//				'File getDescription(): ' => $file->getDescription(),
+//			));
+		
+//		$repo = self::getConnection()->getRepository("Supra\FileStorage\Entity\Folder");
+//		$roots = $repo->getRootNodes();
+//		1+1;
 	}
 	
 	public function testUploadFilterFail()

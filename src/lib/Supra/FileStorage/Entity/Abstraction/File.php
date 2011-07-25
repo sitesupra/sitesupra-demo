@@ -282,9 +282,13 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 		return $this->fileName;
 	}
 	
-	public function getTitle() 
+	public function getTitle($locale = null) 
 	{
-		// TODO should get localised title in case of files
+		return $this->getName();
+	}
+	
+	public function getDescription($locale = null)
+	{
 		return $this->getName();
 	}
 	
