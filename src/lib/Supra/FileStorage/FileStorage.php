@@ -58,7 +58,8 @@ class FileStorage
 	 */
 	public function setInternalPath($internalPath)
 	{
-		$this->internalPath = $internalPath;
+		$internalPath = rtrim($internalPath, '\/') . DIRECTORY_SEPARATOR;
+		$this->internalPath = SUPRA_PATH . $internalPath;
 	}
 
 	/**
@@ -74,7 +75,8 @@ class FileStorage
 	 */
 	public function setExternalPath($externalPath)
 	{
-		$this->externalPath = $externalPath;
+		$externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
+		$this->externalPath = SUPRA_WEBROOT_PATH . $externalPath;
 	}
 
 	/**
@@ -116,7 +118,8 @@ class FileStorage
 
 	function storeFileData(\Supra\FileStorage\Entity\File $file, $source)
 	{
-		$dest = $file->getPath();
+		$dest = $this->getInternalPath()
+				. $file->getPath(DIRECTORY_SEPARATOR, true);
 		
 		copy($source, $dest);
 	}

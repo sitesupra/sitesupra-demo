@@ -22,7 +22,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	 * @param string $dirName
 	 * @return \Supra\FileStorage\Entity\Folder
 	 */
-	public function testCreateRootDir($dirName)
+	public function createRootDir($dirName)
 	{
 		$dir = new \Supra\FileStorage\Entity\Folder();
 		$dir->setName($dirName);
@@ -37,22 +37,28 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$dir = $this->testCreateRootDir('rootdir');
+		$dir = $this->createRootDir('rootdir');
 
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);
 		
-		$dir->addChild($file);
-
-		$file->setName(basename($uploadFile));
-		$file->setSize(filesize($uploadFile));
+		$fileName = baseName($uploadFile);
+		$fileSize = fileSize($uploadFile);
+		$file->setName($fileName);
+		$file->setSize($fileSize);
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimeType = finfo_file($finfo, $uploadFile);
+		finfo_close($finfo);
+		$file->setMimeType($mimeType);
 		
+		$dir->addChild($file);
+	
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
 
 		$filestorage = FileStorage::getInstance();
-		$filestorage->storeFile($file, $uploadFile);
+		$filestorage->storeFileData($file, $uploadFile);
 
 		self::getConnection()->flush();
 	}

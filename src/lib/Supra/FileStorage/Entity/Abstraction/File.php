@@ -83,7 +83,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	 * @Column(type="string", name="file_name", nullable=false)
 	 * @var string
 	 */
-	protected $filename;
+	protected $fileName;
 
 	/**
 	 * Constructor
@@ -272,6 +272,27 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 			$this->nestedSetNode->free($this);
 			$this->nestedSetNode = null;
 		}
+	}
+	
+	public function setName(string $fileName) 
+	{
+		$this->fileName = $fileName;
+	}
+	
+	public function getName() 
+	{
+		return $this->fileName;
+	}
+	
+	public function getTitle() 
+	{
+		// TODO should get localised title in case of files
+		return $this->getName();
+	}
+	
+	public function __toString()
+	{
+		return $this->getName();
 	}
 
 }

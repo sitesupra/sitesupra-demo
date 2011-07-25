@@ -12,11 +12,6 @@ use Doctrine\ORM\EntityManager,
  */
 abstract class Entity
 {
-	/**
-	 * Connection name
-	 * @var string
-	 */
-	static private $connnection;
 
 	/**
 	 * Locks to pervent infinite loop calls
@@ -39,7 +34,7 @@ abstract class Entity
 	 */
 	public static function getConnection()
 	{
-		return Doctrine::getInstance()->getEntityManager(self::$connnection);
+		return Doctrine::getInstance()->getEntityManager(null);
 	}
 
 	/**
