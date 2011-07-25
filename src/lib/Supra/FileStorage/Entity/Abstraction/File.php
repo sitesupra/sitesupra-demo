@@ -2,9 +2,7 @@
 
 namespace Supra\FileStorage\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection,
-		Supra\NestedSet;
+use	Supra\NestedSet;
 
 /**
  * File abstraction

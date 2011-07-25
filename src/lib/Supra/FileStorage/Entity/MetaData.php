@@ -31,7 +31,7 @@ class MetaData extends Abstraction\Entity
 	protected $title;
 
 	/**
-	 * @Column(type="string")
+	 * @Column(type="string",nullable=true)
 	 * @var string
 	 */
 	protected $description;
@@ -114,13 +114,9 @@ class MetaData extends Abstraction\Entity
 	 */
 	public function setMaster(File $master)
 	{
-//		$this->matchDiscriminator($master);
-//
-//		if ($this->writeOnce($this->master, $master)) {
-//			$this->master = $master;
-//			$master->setData($this);
-//		}
+		// TODO match/writeOnce
 		$this->master = $master;
+		$master->setMetaData($this);
 	}
 
 	/**
