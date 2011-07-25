@@ -125,32 +125,32 @@ abstract class Entity
 //		return true;
 //	}
 
-//	/**
-//	 * Adds an element to collection preserving uniqueness of fields
-//	 * @param Collection $collection
-//	 * @param Entity $newItem
-//	 * @param string $uniqueField
-//	 * @return boolean true if added, false if already the same instance has been added
-//	 * @throws Exception\RuntimeException if element with the same unique field values exists
-//	 */
-//	protected function addUnique(Collection $collection, $newItem, $uniqueField = null)
-//	{
-//		if ($collection->contains($newItem)) {
-//			return false;
-//		}
-//
-//		if (is_null($uniqueField)) {
-//			$collection->add($newItem);
-//		} else {
-//			//FIXME: ugly
-//			$getter = 'get' . $uniqueField;
-//			$indexBy = $newItem->$getter();
-//
-//			$collection->set($indexBy, $newItem);
-//		}
-//
-//		return true;
-//	}
+	/**
+	 * Adds an element to collection preserving uniqueness of fields
+	 * @param Collection $collection
+	 * @param Entity $newItem
+	 * @param string $uniqueField
+	 * @return boolean true if added, false if already the same instance has been added
+	 * @throws Exception\RuntimeException if element with the same unique field values exists
+	 */
+	protected function addUnique(Collection $collection, $newItem, $uniqueField = null)
+	{
+		if ($collection->contains($newItem)) {
+			return false;
+		}
+
+		if (is_null($uniqueField)) {
+			$collection->add($newItem);
+		} else {
+			//FIXME: ugly
+			$getter = 'get' . $uniqueField;
+			$indexBy = $newItem->$getter();
+
+			$collection->set($indexBy, $newItem);
+		}
+
+		return true;
+	}
 
 	/**
 	 * Get property of an object by name

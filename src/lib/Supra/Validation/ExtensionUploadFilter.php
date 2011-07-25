@@ -2,7 +2,7 @@
 
 namespace Supra\Validation;
 
-class ExtensionUploadFilter extends UploadFilterAbstract implements \Supra\Validation\UploadFilter
+class ExtensionUploadFilter extends UploadFilterAbstract implements \Supra\Validation\UploadFilterInterface
 {
 	/**
 	 * Validates file extension

@@ -2,6 +2,9 @@
 
 namespace Supra\FileStorage\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection,
+		Doctrine\Common\Collections\Collection;
+
 /**
  * File object
  * @Entity(repositoryClass="Supra\FileStorage\Repository\FileRepository")
@@ -28,6 +31,11 @@ class File extends Abstraction\File
 	 */
 	protected $metaData;
 	
+	public function __construct() {
+		parent::__construct();
+		$this->metaData = new ArrayCollection();
+	}
+	
 	/**
 	 * Set mime-type
 	 *
@@ -53,7 +61,7 @@ class File extends Abstraction\File
 	 *
 	 * @param int $fileSize
 	 */
-	public function setSize(int $fileSize) 
+	public function setSize($fileSize) 
 	{
 		$this->fileSize = $fileSize;
 	}
@@ -66,6 +74,16 @@ class File extends Abstraction\File
 	public function getSize() 
 	{
 		return $this->fileSize;
+	}
+	
+	/**
+	 * Set meta data
+	 *
+	 * @param MetaData $data 
+	 */
+	public function setMetaData($data)
+	{
+		$this->addUnique($this->metaData, $data, 'locale');
 	}
 	
 	/**
