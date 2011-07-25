@@ -2,7 +2,7 @@
 
 namespace Supra\Validation;
 
-class MimeTypeUploadFilter implements \Supra\Validation\UploadFilterInterface
+class MimeTypeUploadFilter implements \Supra\Validation\UploadFilter
 {
 	/**
 	 * Validates file mimetype

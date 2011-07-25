@@ -5,7 +5,7 @@ namespace Supra\Validation;
 /**
  * File size validation class
  */
-class FileSizeUploadFilter implements \Supra\Validation\UploadFilterInterface
+class FileSizeUploadFilter implements \Supra\Validation\UploadFilter
 {
 	/**
 	 * Maximum file upload size

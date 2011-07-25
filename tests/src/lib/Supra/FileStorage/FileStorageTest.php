@@ -12,7 +12,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
  */
 class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 {
-	
+
 	private static function getConnection()
 	{
 		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -34,13 +34,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	}
 
 	public function testUploadFileToExternal()
-	{	
-		// clean up
-		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\MetaData");
-		$query->execute();
-		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
-		$query->execute();
-		
+	{
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
 		$dir = $this->createRootDir('rootdir');
@@ -58,20 +52,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file->setMimeType($mimeType);
 		
 		$dir->addChild($file);
-		
+	
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
-		
+
 		$filestorage = FileStorage::getInstance();
 		$filestorage->storeFileData($file, $uploadFile);
 
 		self::getConnection()->flush();
-		
-//		$repo = $dir->getRepository();
-		$repo = self::getConnection()->getRepository("Supra\FileStorage\Entity\Folder");
-		$roots = $repo->getRootNodes();
-		1+1;
 	}
 
 }

@@ -51,8 +51,6 @@ class FileStorage
 	private function __clone(){}
 
 	/**
-	 * Get file storage internal directory path
-	 * 
 	 * @return string
 	 */
 	public function getInternalPath()
@@ -61,8 +59,6 @@ class FileStorage
 	}
 
 	/**
-	 * Set file storage internal directory
-	 * 
 	 * @param string $internalPath
 	 */
 	public function setInternalPath($internalPath)
@@ -72,8 +68,6 @@ class FileStorage
 	}
 
 	/**
-	 * Get file storage external directory path
-	 * 
 	 * @return string
 	 */
 	public function getExternalPath()
@@ -82,8 +76,6 @@ class FileStorage
 	}
 
 	/**
-	 * Set file storage external directory
-	 * 
 	 * @param string $externalPath
 	 */
 	public function setExternalPath($externalPath)
@@ -94,7 +86,6 @@ class FileStorage
 
 	/**
 	 * Returning only one instance of object
-	 * 
 	 * @return FileStorage
 	 */
 	public static function getInstance()
@@ -105,12 +96,7 @@ class FileStorage
 		return self::$instance;
 	}
 	
-	/**
-	 * Add upload filter
-	 *
-	 * @param \Supra\Validation\UploadFilterInterface $filter
-	 */
-	public function addUploadFilter($filter)
+	public function addUploadFilter(\Supra\Validation\UploadFilterInterface $filter)
 	{
 		$this->uploadFilters[] = $filter;
 	}
@@ -140,13 +126,7 @@ class FileStorage
 	 */
 	private static $log; // Logger
 
-	/**
-	 * Store file data
-	 *
-	 * @param \Supra\FileStorage\Entity\File $file
-	 * @param string $source 
-	 */
-	function storeFileData($file, $source)
+	function storeFileData(\Supra\FileStorage\Entity\File $file, $source)
 	{
 		$dest = $this->getInternalPath()
 				. $file->getPath(DIRECTORY_SEPARATOR, true);
