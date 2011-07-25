@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Validation;
+namespace Supra\FileStorage\UploadFilter;
 
 interface UploadFilterInterface
 {

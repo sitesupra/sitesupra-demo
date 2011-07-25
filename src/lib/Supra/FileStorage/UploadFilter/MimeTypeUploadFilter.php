@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Validation;
+namespace Supra\FileStorage\UploadFilter;
 
-class MimeTypeUploadFilter implements \Supra\Validation\UploadFilterInterface
+class MimeTypeUploadFilter implements UploadFilterInterface
 {
 	/**
 	 * Validates file mimetype
@@ -13,7 +13,7 @@ class MimeTypeUploadFilter implements \Supra\Validation\UploadFilterInterface
 		$result = $this->checkList($file->getMimeType());
 		if( ! $result) {
 			$message = 'File mimetype "'.$file->getMimeType().'" is not allowed';
-			throw new \Supra\Validation\UploadFilterException($message);
+			throw new UploadFilterException($message);
 			\Log::error($message);
 		}
 	}

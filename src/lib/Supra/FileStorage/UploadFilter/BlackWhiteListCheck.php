@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Validation;
+namespace Supra\FileStorage\UploadFilter;
 
-abstract class UploadFilterAbstract
+abstract class BlackWhiteListCheck
 {
 	
 	const MODE_WHITELIST = 1;
@@ -37,6 +37,17 @@ abstract class UploadFilterAbstract
 	public function addItem($item)
 	{
 		$this->list[] = strtolower($item);
+	}
+	
+	/**
+	 * Adds items to list of allowed/denied properties
+	 * @param array $item 
+	 */
+	public function addItems(array $items)
+	{
+		foreach ($items as $item) {
+			$this->list[] = strtolower($item);
+		}
 	}
 	
 	/**
