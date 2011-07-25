@@ -75,7 +75,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		return $this->className;
 	}
-
+	
+	/**
+	 * Overrides the class name
+	 * @param string $className
+	 */
+	public function setClassName($className)
+	{
+		$this->className = $className;
+	}
+	
 	/**
 	 * Get maximal interval value used by nodes
 	 * @return int
