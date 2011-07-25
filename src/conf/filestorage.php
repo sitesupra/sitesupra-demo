@@ -2,6 +2,8 @@
 
 $fileStorage = Supra\FileStorage\FileStorage::getInstance();
 
+// FIXME: should doctrine entity manager be as file stogare parameter?
+//$fileStorage->setDoctrineEntityManager(\Supra\Database\Doctrine::getInstance()->getEntityManager());
 $fileStorage->setInternalPath('files');
 $fileStorage->setExternalPath('files');
 

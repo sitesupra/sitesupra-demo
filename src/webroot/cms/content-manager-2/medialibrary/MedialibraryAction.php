@@ -127,6 +127,20 @@ class MediaLibraryAction extends SimpleController
 	 */
 	public function medialibraryAction()
 	{
+		// FIXME: should doctrine entity manager be as file stogare parameter?
+		$fileStorage = \Supra\FileStorage\FileStorage::getInstance();
+		
+		// FIXME: getting default DEM right now
+		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		
+		// TODO: currently FileRepository is not assigned to the file abstraction
+		// FIXME: store the classname as constant somewhere?
+		$repo = $em->getRepository('\Supra\FileStorage\Abstraction\File');
+		$nodes = $repo->getRootNodes();
+		
+		//TODO: parse $nodes into JS array
+		//...
+		
 		$id = isset($_GET['id']) ? $_GET['id'] : 0;
 
 		//Result type (0 - all, 1 - only folders, 2 - images and folders, 3 - files and folder
