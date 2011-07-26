@@ -2,8 +2,7 @@
 
 namespace Supra\Cms\ContentManager\page;
 
-use Supra\Controller\SimpleController;
-use \Supra\Cms\ContentManager\CmsActionController;
+use Supra\Cms\ContentManager\CmsActionController;
 
 /**
  * 

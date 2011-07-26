@@ -2,12 +2,12 @@
 
 namespace Supra\Cms\ContentManager\medialibrary;
 
-use Supra\Controller\SimpleController;
+use Supra\Cms\ContentManager\CmsActionController;
 
 /**
  *
  */
-class MediaLibraryAction extends SimpleController
+class MediaLibraryAction extends CmsActionController
 {
 
 	public $hardcodedReturn = array(
@@ -135,8 +135,8 @@ class MediaLibraryAction extends SimpleController
 		
 		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
-		$repo = $em->getRepository('\Supra\FileStorage\Abstraction\File');
-		$nodes = $repo->getRootNodes();
+//		$repo = $em->getRepository('\Supra\FileStorage\Entity\Abstraction\File');
+//		$nodes = $repo->getRootNodes();
 		
 		//TODO: parse $nodes into JS array
 		//...
@@ -194,7 +194,7 @@ class MediaLibraryAction extends SimpleController
 			'totalRecords' => count($output),
 			'records' => $output,
 		);
-		echo json_encode($return);
+		$this->getResponse()->setResponseData($return);
 	}
 
 	public function listAction()
