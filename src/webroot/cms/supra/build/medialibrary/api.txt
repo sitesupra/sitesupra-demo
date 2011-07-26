@@ -11,8 +11,11 @@ Media Library
 	
 	
 		Attributes:
-			requestURI
-				Request URI
+			listURI
+				Request URI or folder, file and image list
+			
+			viewURI
+				Request URI for file or image
 			
 			requestParams
 				Request params
@@ -76,8 +79,11 @@ Media Library
 		
 		
 		Attributes:
-			requestURI
-				Request URI
+			listURI
+				Request URI or folder, file and image list
+			
+			viewURI
+				Request URI for file or image
 			
 			rootFolderId
 				Root folder ID

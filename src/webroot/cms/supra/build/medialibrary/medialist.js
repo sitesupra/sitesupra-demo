@@ -154,10 +154,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
-		 * Request URI
+		 * Request URI for image or file
 		 * @type {String}
 		 */
-		'requestURI': {
+		'viewURI': {
+			value: null
+		},
+		
+		/**
+		 * Request URI for folder, image or file list
+		 * @type {String}
+		 */
+		'listURI': {
 			value: null
 		},
 		
@@ -317,7 +325,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var data = this.get('dataObject');
 			if (!data) {
 				data = new Data({
-					'requestURI': this.get('requestURI'),
+					'listURI': this.get('listURI'),
+					'viewURI': this.get('viewURI'),
 					'saveURI': this.get('saveURI')
 				});
 				
@@ -530,10 +539,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 				if (loading_folder) {
 					var properties = [this.get('thumbnailSize') + '_url'].concat(this.get('loadItemProperties'));
+					data_object.loadData(id, properties, 'list');
 				} else {
 					var properties = [this.get('previewSize') + '_url'].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
+					data_object.loadData(id, properties, 'view');
 				}
-				data_object.loadData(id, properties);
 			} else {
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {
@@ -619,10 +629,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 				if (loading_folder) {
 					var properties = [this.get('thumbnailSize') + '_url'].concat(this.get('loadItemProperties'));
+					data_object.loadData(id, properties, 'list');
 				} else {
 					var properties = [this.get('previewSize') + '_url'].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
+					data_object.loadData(id, properties, 'view');
 				}
-				data_object.loadData(id, properties);
 			}
 			
 			//Mark item in parent slide as selected

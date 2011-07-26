@@ -19,8 +19,11 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			//Save request URI
 			'saveURI': {value: ''},
 			
-			//Request URI
-			'requestURI': {value: ''},
+			//Request URI for file/image
+			'viewURI': {value: ''},
+			
+			//Request URI for folder, file and image list
+			'listURI': {value: ''},
 			
 			//Request params
 			'requestParams': {value: {}}
@@ -296,8 +299,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {Number} id File or folder ID
 		 * @param {Array} data Optional list of properties
 		 */
-		loadData: function (id /* File or folder ID */, properties /* List of properties */) {
-			var url = this.get('requestURI'),
+		loadData: function (id /* File or folder ID */, properties /* List of properties */, type /* Request type */) {
+			var url = type == 'view' ? this.get('viewURI') : this.get('listURI'),
 				data;
 			
 			if (!url) {

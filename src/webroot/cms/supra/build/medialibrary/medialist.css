@@ -224,12 +224,16 @@
 	border-top: 1px solid #eee;
 }
 .yui3-medialist .yui3-slider-content {
-	margin: 8px 0 0;
+	margin: 8px 0 0 8px;
 	display: block;
 }
 .yui3-medialist .yui3-slider-x .yui3-slider-thumb {
 	top: -4px !important;
 	cursor: pointer;
+}
+
+.yui3-medialist .yui3-slider.yui3-slider-hidden {
+	display: none;
 }
 
 /**

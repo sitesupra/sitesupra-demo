@@ -6,6 +6,7 @@
 	left: 10px;
 	right: 10px;
 	background: #fff;
+	overflow: hidden;
 }
 .yui3-medialibrary-content {
 	border: 1px solid #eee;

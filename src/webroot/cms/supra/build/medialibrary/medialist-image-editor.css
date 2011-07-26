@@ -1,0 +1,110 @@
+.yui3-imageeditor {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	
+	background: #fff;
+	border: 1px solid #eee;
+	
+	text-align: center;
+}
+.yui3-imageeditor-content {
+	display: inline-block;
+	vertical-align: middle;
+	position: relative;
+}
+.yui3-imageeditor .v-center {
+	display: inline-block;
+	vertical-align: middle;
+	height: 100%;
+	width: 0;
+}
+.yui3-imageeditor img {
+	display: block;
+	vertical-align: middle;
+	
+	-moz-transition: all 0.25s;
+	-webkit-transition: all 0.25s;
+	transition: all 0.25s;
+}
+
+.yui3-imageeditor .overlay-t,
+.yui3-imageeditor .overlay-b,
+.yui3-imageeditor .overlay-l,
+.yui3-imageeditor .overlay-r {
+	position: absolute;
+	z-index: 1;
+	background: #fff;
+	opacity: 0.5;
+}
+.yui3-imageeditor .overlay-t {
+	left: 0;
+	right: 0;
+	top: 0;
+}
+.yui3-imageeditor .overlay-b {
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+.yui3-imageeditor .overlay-l {
+	left: 0;
+}
+.yui3-imageeditor .overlay-r {
+	right: 0;
+}
+.yui3-imageeditor .overlay-c {
+	position: absolute;
+	z-index: 1;
+	border: 1px solid #000;
+	cursor: move;
+}
+.yui3-imageeditor .drag-lt,
+.yui3-imageeditor .drag-rt,
+.yui3-imageeditor .drag-rb,
+.yui3-imageeditor .drag-lb {
+	position: absolute;
+	display: block;
+	width: 19px;
+	height: 19px;
+	background: url(/cms/supra/img/medialibrary/icon-crop-node.png) 50% 50% no-repeat;
+}
+.yui3-imageeditor .drag-lt {
+	left: -9px;
+	top: -9px;
+	cursor: nw-resize;
+}
+.yui3-imageeditor .drag-rt {
+	right: -9px;
+	top: -9px;
+	cursor: ne-resize;
+}
+.yui3-imageeditor .drag-lb {
+	left: -9px;
+	bottom: -9px;
+	cursor: sw-resize;
+}
+.yui3-imageeditor .drag-rb {
+	right: -9px;
+	bottom: -9px;
+	cursor: se-resize;
+}
+
+.yui3-imageeditor.loading {
+	background: #fff url(/cms/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+
+.yui3-imageeditor.loading .overlay-t,
+.yui3-imageeditor.loading .overlay-b,
+.yui3-imageeditor.loading .overlay-l,
+.yui3-imageeditor.loading .overlay-r,
+.yui3-imageeditor.loading .overlay-c {
+	display: none;
+}
+.yui3-imageeditor.loading  img {
+	-moz-transition: none;
+	-webkit-transition: none;
+	transition: none;
+}

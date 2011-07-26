@@ -39,6 +39,42 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    }
 	];
 	
+	//Image editor toolbar buttons
+	var TOOLBAR_IMAGEEDITOR_BUTTONS = [
+	    {
+	        'id': 'mlimagerotateleft',
+			'title': 'Rotate left',
+			'icon': '/cms/supra/img/toolbar/icon-media-rotateleft.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button'
+	    },
+		{
+	        'id': 'mlimagerotateright',
+			'title': 'Rotate right',
+			'icon': '/cms/supra/img/toolbar/icon-media-rotateright.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button'
+	    },
+		{
+	        'id': 'mlimagecrop',
+			'title': 'Crop',
+			'icon': '/cms/supra/img/toolbar/icon-media-crop.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button'
+	    },
+		{
+	        'id': 'mlimageundo',
+			'title': 'Undo history',
+			'icon': '/cms/supra/img/toolbar/icon-media-undo.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button'
+	    }
+	];
+	
 	//Shortcuts
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
@@ -106,6 +142,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		render: function () {
 			//Add buttons to toolbar
 			Manager.getAction('PageToolbar').addGroup(this.NAME, TOOLBAR_BUTTONS);
+			Manager.getAction('PageToolbar').addGroup(this.NAME + 'imageeditor', TOOLBAR_IMAGEEDITOR_BUTTONS);
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
@@ -114,6 +151,13 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 					this.hide();
 				}, this)
 			}]);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME + 'imageeditor', [{
+				'id': 'done',
+				'callback': Y.bind(function () {
+					this.medialist.fire('imageeditor:close');
+				}, this)
+			}]);
+			
 			
 			//Create slideshow
 			var list = this.medialist = (new Supra.MediaLibraryExtendedList({
@@ -121,7 +165,8 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'foldersSelectable': true,
 				'filesSelectable': false,
 				'imagesSelectable': false,
-				'requestURI': this.getDataPath() + '.php',
+				'viewURI': this.getDataPath('view') + '.php',
+				'listURI': this.getDataPath('list') + '.php',
 				'saveURI': this.getDataPath('save') + '.php',
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
@@ -139,6 +184,16 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			input.render();
 			input.on('change', function (event) {
 				this.medialist.set('sortBy', event.value);
+			}, this);
+			
+			//On image editor show/hide update buttons
+			list.on('imageeditor:open', function () {
+				Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME + 'imageeditor');
+				Manager.getAction('PageButtons').setActiveAction(this.NAME + 'imageeditor');
+			}, this);
+			list.on('imageeditor:close', function () {
+				Manager.getAction('PageToolbar').unsetActiveGroupAction(this.NAME + 'imageeditor');
+				Manager.getAction('PageButtons').unsetActiveAction(this.NAME + 'imageeditor');
 			}, this);
 		},
 		
@@ -169,6 +224,12 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				case 'mlundo':
 					//@TODO
 					break;
+				case 'mlimagecrop':
+				case 'mlimagerotateleft':
+				case 'mlimagerotateright':
+				case 'mlimageundo':
+					this.medialist.imageeditor.command(button_id.replace('mlimage', ''));
+					break;
 			}
 		},
 		
@@ -191,8 +252,10 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 * Execute action
 		 */
 		execute: function () {
-			Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME);
-			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
+				Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			}
 			
 			//Hide editor toolbar if it's visible
 			if (Manager.getAction('EditorToolbar').get('visible')) {

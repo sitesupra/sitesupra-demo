@@ -443,6 +443,17 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Returns true if group is in history
+		 * 
+		 * @param {String} active_group Group action ID
+		 * @return True if group is in history
+		 * @type {Boolean}
+		 */
+		inHistory: function (active_group) {
+			return Y.Array.indexOf(this.history, active_group) != -1;
+		},
+		
+		/**
 		 * Removes action and all actions which were opened after it
 		 * 
 		 * @param {String} active_group Group action ID

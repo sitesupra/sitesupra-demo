@@ -68,6 +68,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			<div class="center"><button type="button">Download</button></div>\
 			<div class="center"><button type="button">Replace</button></div>\
+			<div class="center"><button type="button" class="edit">Edit</button></div>\
 		</div>';
 	
 	/**
@@ -179,7 +180,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				node = node.item(node.size() - 1);
 				
-				this.renameFolder(node);
+				this.edit.renameFolder(node);
 			}
 			
 			return this;
@@ -306,6 +307,16 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				'thumbUrl': Y.config.base + '/slider/assets/skins/supra/thumb-x.png'
 			});
 			slider.render(container);
+			
+			//Add plugin for editing files and folders
+			this.plug(List.Edit, {
+				'dataObject': this.get('dataObject')
+			});
+			
+			//Add plugin for editing images
+			this.plug(List.ImageEditor, {
+				'dataObject': this.get('dataObject')
+			});
 		},
 		
 		/**
@@ -318,7 +329,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				container = this.get('boundingBox');
 			
 			//On folder click start rename
-			content.delegate('click', this.handleRenameClick, 'ul.folder > li.type-folder', this);
+			content.delegate('click', this.edit.handleRenameClick, 'ul.folder > li.type-folder', this.edit);
 			
 			//On list click close folder
 			content.delegate('click', this.handleCloseFolderClick, 'div.yui3-ml-slideshow-slide', this);
@@ -440,96 +451,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * Handle click on folder, show rename controls
-		 * 
-		 * @param {Object} event
-		 * @private
-		 */
-		handleRenameClick: function (event) {
-			var target = event.target.closest('li.type-folder');
-			
-			if (!target || !target.hasClass('selected') || target.hasClass('renaming')) return;
-			this.renameFolder(target);
-			
-			event.halt();
-		},
-		
-		/**
-		 * Rename folder
-		 * 
-		 * @param {Object} target Folder node
-		 */
-		renameFolder: function (target /* Folder node */) {
-			var id = target.getData('itemId'),
-				data = this.get('dataObject').getData(id) || {};
-			
-			//Create input
-			var input = Y.Node.create('<input type="text" value="" />');
-			input.setAttribute('value', data.title);
-			
-			target.one('span').insert(input, 'after');
-			target.addClass('renaming');
-			
-			var string = new Supra.Input.String({
-				'srcNode': input,
-				'value': data.title
-			});
-			string.render();
-			Y.Node.getDOMNode(input).focus();
-			
-			//On blur confirm changes
-			input.on('blur', this.handleRenameComplete, this, {
-				'data': data,
-				'node': target,
-				'object': string,
-				'id': id
-			});
-		},
-		
-		/**
-		 * Handle renaming confirm/cancel
-		 * 
-		 * @param {Object} event Event
-		 * @param {Object} obj Item data
-		 * @private
-		 */
-		handleRenameComplete: function (event /* Event */, obj /* Item data */) {
-			var value = obj.object.get('value'),
-				id = obj.id,
-				post_data = null;
-			
-			if (obj.data.title != value && value) {
-				obj.data.title = value;
-				obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(value));
-				
-				post_data = {
-					'title': value
-				};
-				
-				if (obj.id == -1) {
-					//For new item add also parent ID
-					post_data.parent = obj.data.parent;
-				}
-				
-				this.get('dataObject').saveData(obj.id, post_data, function (data, id) {
-					if (id == -1) {
-						//Update node itemId
-						obj.node.setData('itemId', data);
-					}
-				});
-			} else if (id == -1) {
-				this.get('dataObject').removeData(obj.id, true);
-				obj.node.remove();
-				
-				//Redraw parent
-				this.renderItem(obj.data.parent);
-			}
-			
-			obj.node.removeClass('renaming');
-			obj.object.destroy();
-		},
-		
-		/**
 		 * Handle click outside folder, close sub-folders
 		 * 
 		 * @param {Object} event
@@ -596,43 +517,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					
 					var obj = new Supra.Input.String(props);
 					obj.render();
-					obj.on('change', this.onItemPropertyChange, this, {'data': event.data, 'input': obj});
+					obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
 					inp.push(obj);
 				}, this);
 				
+				//Save input instances to destroy them when re-rendered
 				this.property_widgets = inp;
-			}
-		},
-		
-		/**
-		 * When image or file property is changed save them
-		 * 
-		 * @param {Object} event Event
-		 * @param {Object} data Item data
-		 * @private
-		 */
-		onItemPropertyChange: function (event /* Event */, data /* Item data*/) {
-			var name = data.input.getAttribute('name'),
-				value = data.input.get('value');
-			
-			if (value && value != data.data[name]) {
-				var data_object = this.get('dataObject'),
-					item_data = data_object.getData(data.data.id),
-					props = {};
-				
-				props[name] = item_data[name] = value;
-				
-				data_object.saveData(data.data.id, props);
-				
-				//Update title in folder list
-				if (name == 'title') {
-					var parent_id = this.getItemData(data.data.id).parent,
-						li = this.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + data.data.id + '"]');
-					
-					li.one('span').set('innerHTML', Y.Lang.escapeHTML(value));
-				}
-			} else if (!value) {
-				data.input.set('value', data.data[name]);
 			}
 		}
 		
@@ -645,4 +535,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['slider', 'supra.form', 'supra.medialibrary-list', 'supra.medialibrary-slideshow']});
+}, YUI.version, {'requires': [
+	'slider',
+	'supra.form',
+	'supra.medialibrary-list',
+	'supra.medialibrary-slideshow',
+	'supra.medialibrary-list-edit',
+	'supra.medialibrary-image-editor'
+]});

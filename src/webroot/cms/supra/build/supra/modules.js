@@ -163,7 +163,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'slider',
 			'supra.form',
 			'supra.medialibrary-list',
-			'supra.medialibrary-slideshow'
+			'supra.medialibrary-slideshow',
+			'supra.medialibrary-list-edit',
+			'supra.medialibrary-image-editor'
 		]
 	},
 	
@@ -178,6 +180,26 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'plugin',
 			'supra.medialibrary-list'
 		]
+	},
+	
+	'supra.medialibrary-list-edit': {
+		path: 'medialibrary/medialist-edit.js',
+		requires: [
+			'plugin'
+		]
+	},
+	
+	'supra.medialibrary-image-editor': {
+		path: 'medialibrary/medialist-image-editor.js',
+		requires: [
+			'plugin',
+			'transition',
+			'supra.medialibrary-image-editor-css'
+		]
+	},
+	'supra.medialibrary-image-editor-css': {
+		path: 'medialibrary/medialist-image-editor.css',
+		type: 'css'
 	},
 	
 	'supra.medialibrary-slideshow': {
