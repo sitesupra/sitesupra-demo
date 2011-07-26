@@ -94,9 +94,12 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		 */
 		renderMediaList: function () {
 			var container = this.one('.yui3-sidebar-content');
+			var medialibrary = Manager.getAction('MediaLibrary');
+			
 			var list = this.medialist = new Supra.MediaLibraryList({
 				//Use media library action data path
-				'requestURI': Loader.getActionInfo('medialibrary').path_data + '.php',
+				'listURI': medialibrary.getDataPath('list') + '.php',
+				'viewURI': medialibrary.getDataPath('view') + '.php',
 				
 				//Display only images + folders
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
