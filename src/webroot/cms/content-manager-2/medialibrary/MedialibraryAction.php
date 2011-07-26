@@ -3,203 +3,144 @@
 namespace Supra\Cms\ContentManager\medialibrary;
 
 use Supra\Cms\ContentManager\CmsActionController;
+use Supra\FileStorage\FileStorage;
 
-/**
- *
- */
 class MediaLibraryAction extends CmsActionController
 {
+	const TYPE_FOLDER = 1;
+	const TYPE_IMAGE = 2;
+	const TYPE_FILE = 3;
 
-	public $hardcodedReturn = array(
-		0 => array(
-			'id' => 0,
-			'title' => '',
-			'type' => 1,
-			'children' => array(1, 2),
-		),
-		1 => array(
-			'id' => 1,
-			'title' => 'Images',
-			'type' => 1,
-			'children' => array(),
-		),
-		2 => array(
-			'id' => 2,
-			'title' => 'Abstract',
-			'type' => 1,
-			'children' => array(5, 8),
-		),
-		3 => array(
-			'id' => 3,
-			'title' => 'Illustrations',
-			'type' => 1,
-			'children' => array(7, 9),
-		),
-		9 => array(
-			'id' => 9,
-			'title' => 'Summer',
-			'type' => 1,
-			'children' => array(10),
-		),
-		10 => array(
-			'id' => 10,
-			'title' => 'June',
-			'type' => 1,
-			'children' => array(),
-		),
-		6 => array(
-			'id' => 6,
-			'type' => 2,
-			'title' => 'Flowers',
-			'filename' => 'flower.jpg',
-			'description' => 'Short description',
-			'size' => '213kb',
-			'sizes' => array(
-				'60x60' => array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => '/cms/supra/img/media/picture-1-thumb.jpg'),
-				'200x200' => array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => '/cms/supra/img/media/picture-1.jpg'),
-				'original' => array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => '/cms/supra/img/media/picture-1-original.jpg'),
-			),
-			'60x60_url' => '/cms/supra/img/media/picture-1-thumb.jpg',
-			'200x200_url' => '/cms/supra/img/media/picture-1.jpg',
-			'original_url' => '/cms/supra/img/media/picture-1-original.jpg',
-		),
-		5 => array(
-			'id' => 5,
-			'type' => 2,
-			'title' => 'Tulips',
-			'filename' => 'tulips.jpg',
-			'description' => 'Short description',
-			'size' => '64kb',
-			'sizes' => array(
-				'60x60' => array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => '/cms/supra/img/media/picture-2-thumb.jpg'),
-				'200x200' => array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => '/cms/supra/img/media/picture-2.jpg'),
-				'original' => array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => '/cms/supra/img/media/picture-2-original.jpg'),
-			),
-			'60x60_url' => '/cms/supra/img/media/picture-2-thumb.jpg',
-			'200x200_url' => '/cms/supra/img/media/picture-2.jpg',
-			'original_url' => '/cms/supra/img/media/picture-2-original.jpg',
-		),
-		4 => array(
-			'id' => 4,
-			'type' => 2,
-			'title' => 'Koala',
-			'filename' => 'koala.jpg',
-			'description' => 'Short description',
-			'size' => '64kb',
-			'sizes' => array(
-				'60x60' => array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => '/cms/supra/img/media/picture-3-thumb.jpg'),
-				'200x200' => array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => '/cms/supra/img/media/picture-3.jpg'),
-				'original' => array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => '/cms/supra/img/media/picture-3-original.jpg'),
-			),
-			'60x60_url' => '/cms/supra/img/media/picture-3-thumb.jpg',
-			'200x200_url' => '/cms/supra/img/media/picture-3.jpg',
-			'original_url' => '/cms/supra/img/media/picture-3-original.jpg',
-		),
-		7 => array(
-			'id' => 7,
-			'type' => 2,
-			'title' => 'Penguins',
-			'filename' => 'penguins.jpg',
-			'description' => 'Short description',
-			'size' => '110kb',
-			'sizes' => array(
-				'60x60' => array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => '/cms/supra/img/media/picture-4-thumb.jpg'),
-				'200x200' => array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => '/cms/supra/img/media/picture-4.jpg'),
-				'original' => array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => '/cms/supra/img/media/picture-4-original.jpg'),
-			),
-			'60x60_url' => '/cms/supra/img/media/picture-4-thumb.jpg',
-			'200x200_url' => '/cms/supra/img/media/picture-4.jpg',
-			'original_url' => '/cms/supra/img/media/picture-4-original.jpg',
-		),
-		8 => array(
-			'id' => 8,
-			'type' => 3,
-			'title' => 'Report',
-			'filename' => 'report.xml',
-			'description' => 'Annual financial report for our shareholders bla bla blaaa',
-			'size' => '110kb',
-			'file_web_path' => '/cms/supra/img/media/report.xml',
-		),
-	);
-
-	/**
-	 * @return string
-	 */
-	public function medialibraryAction()
+	public function listAction()
 	{
 		// FIXME: should doctrine entity manager be as file stogare parameter?
-		$fileStorage = \Supra\FileStorage\FileStorage::getInstance();
-		
+		$fileStorage = FileStorage::getInstance();
+
 		// FIXME: getting default DEM right now
 		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
-		
+
 		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
-//		$repo = $em->getRepository('\Supra\FileStorage\Entity\Abstraction\File');
-//		$nodes = $repo->getRootNodes();
-		
+		/* @var $repo FileRepository */
+		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+		$rootNodes = $repo->getRootNodes();
+
 		//TODO: parse $nodes into JS array
 		//...
-		
-		$id = isset($_GET['id']) ? $_GET['id'] : 0;
-
-		//Result type (0 - all, 1 - only folders, 2 - images and folders, 3 - files and folder
-		$type = isset($_GET['type']) ? $_GET['type'] : 0;
-
-		//List of properties which should be returned for each file or image
-		$properties = isset($_GET['properties']) ? $_GET['properties'] : 'id';
-		$properties = explode(',', $properties);
 
 		$output = array();
 
-		if (isset($this->hardcodedReturn[$id])) {
-			if ($this->hardcodedReturn[$id]['type'] == 1) {
-				//Folder
-				$children = $this->hardcodedReturn[$id]['children'];
+		if ( ! empty($_GET['id'])) {
+			$id = $_GET['id'];
+			$node = $repo->findOneById($id);
+			$rootNodes = $node->getChildren();
+		}
 
-				foreach ($children as $child_id) {
-					$child = $this->hardcodedReturn[$child_id];
+		foreach ($rootNodes as $rootNode) {
 
-					if ($type && $child['type'] != 1 && $type != $child['type']) {
-						//If type is 2 (Images) then show only images, if type is 3 then only files
-						//Always show folders
-						continue;
-					}
+			$item = array();
 
-					if ($child['type'] == 1) {
-						$child['children_count'] = count($child['children']);
-						unset($child['children']);
-					} else {
-						$child = $this->getProperties($child, $properties);
-					}
+			$item['id'] = $rootNode->getId();
+			$item['title'] = $rootNode->getName();
 
-					$output [] = $child;
-				}
-			} else {
-				//File or image
-				$child = $this->hardcodedReturn[$id];
+			if ($rootNode instanceof \Supra\FileStorage\Entity\Folder) {
+				$item['type'] = self::TYPE_FOLDER;
+			} else if ($rootNode instanceof \Supra\FileStorage\Entity\File) {
 
-				if ( ! $type || $type == $child['type']) {
-					//If type is 2 (Images) then show only images, if type is 3 then only files
+				$isImage = $rootNode->isMimeTypeImage($rootNode->getMimeType());
 
-					$child = getProperties($child, $properties);
-
-					$output [] = $child;
+				if ($isImage) {
+					$item['type'] = self::TYPE_IMAGE;
+				} else {
+					$item['type'] = self::TYPE_FILE;
 				}
 			}
+
+			$item['children_count'] = $rootNode->getNumberChildren();
+
+			$output[] = $item;
 		}
-		
-		// TODO: json encoding must be already inside the manager action response object
+
 		$return = array(
 			'totalRecords' => count($output),
 			'records' => $output,
 		);
+
 		$this->getResponse()->setResponseData($return);
 	}
 
-	public function listAction()
+	public function viewAction()
 	{
-		1 + 1;
+		if ( ! empty($_GET['id'])) {
+			$id = $_GET['id'];
+
+			// FIXME: should doctrine entity manager be as file stogare parameter?
+			$fileStorage = FileStorage::getInstance();
+
+			// FIXME: getting default DEM right now
+			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+
+			// TODO: currently FileRepository is not assigned to the file abstraction
+			// FIXME: store the classname as constant somewhere?
+			/* @var $repo FileRepository */
+			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			/* @var $node \Supra\FileStorage\Entity\File */
+			$node = $repo->findOneById($id);
+
+			$isImage = $node->isMimeTypeImage($node->getMimeType());
+
+			if ($isImage) {
+				$type = self::TYPE_IMAGE;
+			} else {
+				$type = self::TYPE_FILE;
+			}
+
+//			$type = $this->getType($node->getMimeType());
+			//List of properties which should be returned for each file or image
+			$properties = isset($_GET['properties']) ? $_GET['properties'] : 'id';
+			$properties = explode(',', $properties);
+
+			$filePath = $node->getPath(DIRECTORY_SEPARATOR, true);
+
+			$output = array();
+
+			if ($type == self::TYPE_FILE) {
+				$output[] = array(
+					'title' => 'Report',
+					'filename' => 'report.xml',
+					'description' => 'Annual financial report for our shareholders bla bla blaaa',
+					'file_web_path' => $filePath,
+					'id' => $node->getId(),
+					'type' => $type
+				);
+			}
+
+			if ($type == self::TYPE_IMAGE) {
+				$output[] = array(
+					'id' => $node->getId(),
+					'type' => $type,
+					'title' => $node->getTitle(),
+					'filename' => $node->getName(),
+					'description' => 'Hardcoded Description',
+					'size' => $node->getSize(),
+					'sizes' => Array(
+						'60x60' => Array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => $filePath),
+						'200x200' => Array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => $filePath),
+						'original' => Array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => $filePath),
+					),
+					'60x60_url' => $filePath,
+					'200x200_url' => $filePath,
+					'original_url' => $filePath,
+				);
+			}
+
+			$return = array(
+				'totalRecords' => count($output),
+				'records' => $output,
+			);
+
+			$this->getResponse()->setResponseData($return);
+		}
 	}
 
 	public function createAction()
@@ -215,31 +156,6 @@ class MediaLibraryAction extends CmsActionController
 	public function deleteAction()
 	{
 		1 + 1;
-	}
-
-	/**
-	 * PRIVATE METHODS
-	 */
-
-	/**
-	 *
-	 * @param <type> $data
-	 * @param <type> $properties
-	 * @return string
-	 */
-	private function getProperties($data, $properties)
-	{
-		$output = array();
-
-		foreach ($properties as $property) {
-			if (isset($data[$property])) {
-				$output[$property] = $data[$property];
-			} else {
-				$output[$property] = null;
-			}
-		}
-
-		return $output;
 	}
 
 }

@@ -6,7 +6,7 @@ use	Supra\NestedSet;
 
 /**
  * File abstraction
- * @Entity
+ * @Entity(repositoryClass="Supra\FileStorage\Repository\FileRepository")
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"file" = "Supra\FileStorage\Entity\File", "folder" = "Supra\FileStorage\Entity\Folder"})

@@ -148,4 +148,15 @@ class File extends Abstraction\File
 			return $this->getName();
 		}
 	}
+	
+	public function isMimeTypeImage($mimetype)
+	{
+		$image = strpos($mimetype, 'image/');
+
+		if ($image === 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }

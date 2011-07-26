@@ -125,20 +125,6 @@ $all_data = Array(
 	),
 );
 
-function getProperties ($data, $properties) {
-	$output = Array();
-	
-	foreach($properties as $property) {
-		if (isset($data[$property])) {
-			$output[$property] = $data[$property];
-		} else {
-			$output[$property] = null;
-		}
-	}
-	
-	return $output;
-}
-
 $output = Array();
 
 if (isset($all_data[$id])) {
@@ -159,7 +145,7 @@ if (isset($all_data[$id])) {
 				$child['children_count'] = count($child['children']);
 				unset($child['children']);
 			} else {
-				$child = getProperties($child, $properties);
+				$child = $this->getProperties($child, $properties);
 			}
 			
 			$output []= $child;
@@ -171,7 +157,7 @@ if (isset($all_data[$id])) {
 		if (!$type || $type == $child['type']) {
 			//If type is 2 (Images) then show only images, if type is 3 then only files
 			
-			$child = getProperties($child, $properties);
+			$child = $this->getProperties($child, $properties);
 			
 			$output []= $child;
 		}
