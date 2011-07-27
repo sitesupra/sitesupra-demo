@@ -19,6 +19,12 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			//Save request URI
 			'saveURI': {value: ''},
 			
+			//Folder insert request URI
+			'insertURI': {value: ''},
+			
+			//Delete request URI
+			'deleteURI': {value: ''},
+			
 			//Request URI for file/image
 			'viewURI': {value: ''},
 			
@@ -333,17 +339,17 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * 
 		 * @param {Number} id File or folder ID
 		 * @param {Object} data Data
+		 * @param {Function} callback Callback function
 		 */
 		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */) {
 			var url = this.get('saveURI');
 			data = Supra.mix({}, data);
 			
 			if (id == -1) {
-				data.action = 'insert';
+				var url = this.get('insertURI');
 				data.type = Data.TYPE_FOLDER;
 			} else {
 				data.id = id || 0;
-				data.action = 'update';
 			}
 			
 			Supra.io(url, {
@@ -388,14 +394,14 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		},
 		
 		/**
-		 * Save data
+		 * Delete data
 		 * Chainable
 		 * 
 		 * @param {Number} id File or folder ID
-		 * @param {Object} data Data
+		 * @param {Function} callback Callback function
 		 */
 		saveDeleteData: function (id /* File or folder ID */, callback /* Callback function */) {
-			var url = this.get('saveURI');
+			var url = this.get('deleteURI');
 			var data = {
 				'id': id,
 				'action': 'delete'

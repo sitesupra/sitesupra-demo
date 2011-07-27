@@ -62,7 +62,32 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//No images in gallery
 			if (!image_data.length) return;
 			
+			//Get list
+			if (Manager.PageContent) {
+				this.insertGalleryBlock(image_data);
+			}
 			
+		},
+		
+		insertGalleryBlock: function (images) {
+			var list = Manager.PageContent.getActiveContent().get('parent');
+			
+			//If list is locked or gallery is not a valid child type then cancel
+			if (list.isLocked() || !list.isChildTypeAllowed('gallery')) return;
+			
+			//Insert block
+			list.get('super').getBlockInsertData({
+				'type': 'gallery',
+				'placeholder_id': list.getId()
+			}, function (data) {
+				this.createChildFromData(data);
+				
+				var block = this.get('super').get('activeContent');
+				for(var i=0,ii=images.length; i<ii; i++) {
+					block.addImage(images[i]);
+				}
+				
+			}, list);
 		},
 		
 		/**

@@ -509,6 +509,9 @@ YUI.add('supra.page-iframe', function (Y) {
 			//Some inputs (like InlineHTML) needs data to be processed before saving it
 			var save_values = block.properties.getSaveValues();
 			
+			//Allow block to modify data before saving it
+			save_values = block.processData(save_values);
+			
 			var post_data = {
 				'page_id': page_data.id,
 				'version_id': page_data.version.id,

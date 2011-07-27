@@ -25,10 +25,11 @@ YUI.add("supra.input-hidden", function (Y) {
 			this.on('valueChange', this._afterValueChange, this);
 		},
 		
+		_getValue: function (value) {
+			return value;
+		},
+		
 		_setValue: function (value) {
-			this.get("inputNode").set("value", value);
-			
-			this._original_value = value;
 			return value;
 		},
 		

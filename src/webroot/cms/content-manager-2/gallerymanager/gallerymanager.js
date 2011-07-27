@@ -127,6 +127,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.get('boundingBox').addClass('yui3-form-properties');
+				form.get('boundingBox').addClass('yui3-form-vertical');
 				form.hide();
 			
 			//Form heading
@@ -406,9 +407,11 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				images = [];
 			
 			//Get image order
-			items.each(function (item, index) {
-				order[this.getData('imageId')] = index;
-			});
+			if (items.length) {
+				items.each(function (item, index) {
+					order[this.getData('imageId')] = index;
+				});
+			}
 			
 			//Sort images array
 			data.images.sort(function (a, b) {

@@ -165,6 +165,8 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'viewURI': this.getDataPath('view') + '.php',
 				'listURI': this.getDataPath('list') + '.php',
 				'saveURI': this.getDataPath('save') + '.php',
+				'deleteURI': this.getDataPath('delete') + '.php',
+				'insertURI': this.getDataPath('insert') + '.php',
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
 			

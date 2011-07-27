@@ -3,9 +3,19 @@
 
 YUI.add('supra.page-content-gallery', function (Y) {
 	
-	//Shortcut
+	/**
+	 * Default gallery image properties
+	 */
+	var DEFAULT_IMAGE_PROPERTIES = [
+		{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''}
+	];
+	
+	/*
+	 * Shortcuts
+	 */
 	var Manager = SU.Manager,
 		Action = Manager.PageContent;
+	
 	
 	/**
 	 * Content block which has editable properties
@@ -19,6 +29,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	
 	Y.extend(ContentGallery, Action.Editable, {
 		
+		/**
+		 * When form is rendered add gallery button
+		 */
 		renderUISettings: function () {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
@@ -36,16 +49,75 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		openGalleryManager: function () {
 			
+			this.properties.hidePropertiesForm();
+			
 			//Data
-			var gallery_data = this.get('data').properties;
+			var gallery_data = this.properties.getValues();
 			
 			//Show gallery
 			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (gallery_data, changed) {
 				if (changed) {
-					//@TODO
+					this.unresolved_changes = true;
 				}
+				
+				//Show settings form
+				this.properties.showPropertiesForm();
 			}, this));
 		},
+		
+		/**
+		 * Hide settings form
+		 */
+		hideSettingsForm: function () {
+			if (this.settings_form && this.settings_form.get('visible')) {
+				Manager.PageContentSettings.hide();
+			}
+		},
+		
+		/**
+		 * Add image to the gallery
+		 */	
+		addImage: function (image_data) {
+			var values = this.properties.getValues();
+			var images = values.images || [];
+			
+			images.push(image_data);
+			
+			this.properties.setValues({
+				'images': images
+			});
+		},
+		
+		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save
+		 * 
+		 * @param {String} id Data ID
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (id, data) {
+			console.log(data);
+			return data;
+			
+			var images = [],
+				image = {},
+				properties = Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES),
+				kk = properties.length;
+			
+			//Extract only image ID and properties, remove all other data
+			for(var i=0,ii=data.images.length; i<ii; i++) {
+				image = {'id': data.images[i].id};
+				images.push(image);
+				for(var k=0; k<kk; k++) {
+					image[properties[k].id] = data.images[i][properties[k].id] || '';
+				}
+			}
+			
+			data.images = images;
+			return data;
+		}
 		
 	});
 	

@@ -154,6 +154,22 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * URI for folder insert requests
+		 * @type {String}
+		 */
+		'insertURI': {
+			value: ''
+		},
+		
+		/**
+		 * URI for folder delete requests
+		 * @type {String}
+		 */
+		'deleteURI': {
+			value: ''
+		},
+		
+		/**
 		 * Request URI for image or file
 		 * @type {String}
 		 */
@@ -327,7 +343,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				data = new Data({
 					'listURI': this.get('listURI'),
 					'viewURI': this.get('viewURI'),
-					'saveURI': this.get('saveURI')
+					'saveURI': this.get('saveURI'),
+					'insertURI': this.get('insertURI'),
+					'deleteURI': this.get('deleteURI')
 				});
 				
 				data.setRequestParam(Data.PARAM_DISPLAY_TYPE, this.get('displayType') || List.DISPLAY_ALL);
