@@ -6,7 +6,8 @@
 			"title": "Site features",
 			"blocks": [
 				"Project_Text_TextController",
-				"sample"
+				"sample",
+				"gallery"
 			]
 		},
 		{

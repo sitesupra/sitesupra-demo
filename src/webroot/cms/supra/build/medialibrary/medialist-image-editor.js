@@ -54,6 +54,14 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		 */
 		'imageData': {
 			value: null
+		},
+		
+		/**
+		 * Editing mode
+		 * @type {String}
+		 */
+		'mode': {
+			value: ''
 		}
 	};
 	
@@ -153,8 +161,24 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			//On close event hide image editor
 			this.get('host').on(Plugin.NS + ':close', this.close, this);
 			
+			//On mode change enable/disable crop
+			this.on('modeChange', this.onModeChange, this);
+			
 			//On document resize update layout
 			Y.on('resize', Y.throttle(Y.bind(this.syncUI, this)));
+		},
+		
+		/**
+		 * On mode change show/hide crop tool
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		onModeChange: function (event) {
+			if (event.prevVal != event.newVal) {
+				this.node.removeClass(event.prevVal);
+				this.node.addClass(event.newVal);
+			}
 		},
 		
 		/**
@@ -228,6 +252,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		 */
 		cmdCrop: function () {
 			this.node.addClass('loading');
+			this.set('mode', '');
 			
 			//Save image data
 			var image_data = this.get('imageData');
@@ -339,6 +364,9 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			this.opened = false;
 		},
 		
+		/**
+		 * Update container width
+		 */
 		syncUI: function () {
 			if (this.opened && this.node) {
 				var container_node = this.get('host').get('boundingBox'),
@@ -381,10 +409,11 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		
 		/**
 		 * Set initial state for 'move'
+		 * 
+		 * @param {Event} event Event
+		 * @private
 		 */
 		startMove: function (event) {
-			console.log('START MOVE');
-			
 			this.moving = true;
 			this.startX = event.clientX;
 			this.startY = event.clientY;
@@ -398,7 +427,10 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		},
 		
 		/**
-		 * Handle mouse move
+		 * Handle mouse move while moving selected region
+		 * 
+		 * @param {Event} event Event
+		 * @private
 		 */
 		onMove: function (event) {
 			var deltaX = event.clientX - this.startX,
@@ -411,7 +443,10 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		},
 		
 		/**
-		 * Handle mouse move end
+		 * Handle mouseup while moving selected region
+		 * 
+		 * @param {Event} event Event
+		 * @private
 		 */
 		endMove: function (event) {
 			this.moving = false;
@@ -420,9 +455,13 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			Y.one(document).unsubscribe('mousemove', this.onMove, this);
 		},
 		
+		/**
+		 * Start resizing
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
 		startResize: function (event) {
-			console.log('START RESIZE');
-			
 			this.startX = event.clientX;
 			this.startY = event.clientY;
 			this.startCrop = Supra.mix({}, this.crop);
@@ -434,6 +473,12 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			event.halt();
 		},
 		
+		/**
+		 * Handle mouse move while resizing
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
 		onResize: function (event) {
 			var deltaX = event.clientX - this.startX,
 				deltaY = event.clientY - this.startY,
@@ -464,6 +509,12 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			this.syncCropGuides();
 		},
 		
+		/**
+		 * Handle mouse up while resizing
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
 		endResize: function (event) {
 			this.resizing = false;
 			this.startCrop = null;
@@ -472,13 +523,17 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		},
 		
 		/**
-		 * On drag start
+		 * On drag start check if user is moving or resizing image
+		 * 
+		 * @param {Event} event Event
+		 * @private
 		 */
 		startDrag: function (event) {
 			var target = event.target,
 				direction = 'lt';
 			
 			if (target.test('span')) {
+				//Resizing
 				if (target.test('.drag-lt')) {
 					this.resizing = {'l': true, 't': true, 'w': false, 'h': false};
 				} else if (target.test('.drag-rt')) {
@@ -490,6 +545,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				}
 				this.startResize(event);
 			} else {
+				//Moving
 				this.startMove(event);
 			}
 		}

@@ -60,11 +60,14 @@ YUI().add("supra.io", function (Y) {
 		
 		//Set callbacks
 		cfg.on.success = function (transaction, response, args) {
-			var response = Supra.io.parseResponse(cfg, response.responseText);
+			var response = Supra.io.parseResponse(url, cfg, response.responseText);
 			return Supra.io.handleResponse(cfg, response);
 		};
 		
 		cfg.on.failure = function (transaction, response, args) {
+			
+			Y.error('Request to "' + url + '" failed');
+			
 			return Supra.io.handleResponse(cfg, {
 				'success': false,
 				'data': null,
@@ -85,7 +88,7 @@ YUI().add("supra.io", function (Y) {
 	 * @type {Object}
 	 * @private
 	 */
-	Supra.io.parseResponse = function (cfg, responseText) {
+	Supra.io.parseResponse = function (url, cfg, responseText) {
 		var data = null,
 			response = {'status': false, 'data': null};
 		
@@ -100,6 +103,7 @@ YUI().add("supra.io", function (Y) {
 					break;
 			}
 		} catch (e) {
+			Y.error('Unable to parse "' + url + '" request response: invalid JSON');
 			response.error_message = ERROR_INVALID_RESPONSE;
 		}
 		

@@ -242,7 +242,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				//Add file
 				var new_file_id = this.get('host').addFile(folder, data),
 					new_file_node = this.get('host').getItemNode(new_file_id);
-				
+								
 				//Place it before temporary item
 				if (new_file_node && node) {
 					node.insert(new_file_node, 'before');

@@ -7,12 +7,13 @@ SU('dd-drag', function (Y) {
 	
 	
 	var includes = [
-		'includes/contents/proto.js',
-		'includes/contents/editable.js',
-		'includes/contents/list.js',
-		'includes/plugin-properties.js',
-		'includes/iframe.js',
-		'includes/layout.js'
+		'{pagecontent}includes/contents/proto.js',
+		'{pagecontent}includes/contents/editable.js',
+		'{pagecontent}includes/contents/list.js',
+		'{pagecontent}includes/contents/gallery.js',
+		'{pagecontent}includes/plugin-properties.js',
+		'{pagecontent}includes/iframe.js',
+		'{pagecontent}includes/layout.js'
 	];
 
 	//Shortcut
@@ -76,7 +77,7 @@ SU('dd-drag', function (Y) {
 			
 			//Change path	
 			for(var id in incl) {
-				args.push(path + incl[id]);
+				args.push(incl[id].replace('{pagecontent}', path));
 			}
 			
 			//Load modules

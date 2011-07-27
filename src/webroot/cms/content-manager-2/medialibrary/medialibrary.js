@@ -75,6 +75,10 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    }
 	];
 	
+	var NAME_EDITOR = 'MediaLibraryimageeditor',
+		NAME_EDITOR_CROP = 'MediaLibraryimageeditorcrop';
+	
+	
 	//Shortcuts
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
@@ -142,22 +146,15 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		render: function () {
 			//Add buttons to toolbar
 			Manager.getAction('PageToolbar').addGroup(this.NAME, TOOLBAR_BUTTONS);
-			Manager.getAction('PageToolbar').addGroup(this.NAME + 'imageeditor', TOOLBAR_IMAGEEDITOR_BUTTONS);
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
-				'callback': Y.bind(function () {
+				'context': this,
+				'callback': function () {
 					this.hide();
-				}, this)
+				}
 			}]);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME + 'imageeditor', [{
-				'id': 'done',
-				'callback': Y.bind(function () {
-					this.medialist.fire('imageeditor:close');
-				}, this)
-			}]);
-			
 			
 			//Create slideshow
 			var list = this.medialist = (new Supra.MediaLibraryExtendedList({
@@ -186,15 +183,67 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				this.medialist.set('sortBy', event.value);
 			}, this);
 			
-			//On image editor show/hide update buttons
-			list.on('imageeditor:open', function () {
-				Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME + 'imageeditor');
-				Manager.getAction('PageButtons').setActiveAction(this.NAME + 'imageeditor');
-			}, this);
-			list.on('imageeditor:close', function () {
-				Manager.getAction('PageToolbar').unsetActiveGroupAction(this.NAME + 'imageeditor');
-				Manager.getAction('PageButtons').unsetActiveAction(this.NAME + 'imageeditor');
-			}, this);
+			//On image editor events show/hide buttons
+			list.on('imageeditor:open', this.openEditorButtons, this);
+			list.on('imageeditor:close', this.closeEditorButtons, this);
+		},
+		
+		/**
+		 * Open editor buttons
+		 */
+		openEditorButtons: function () {
+			if (!Manager.getAction('PageButtons').hasActionButtons(NAME_EDITOR)) {
+				
+				Manager.getAction('PageToolbar').addGroup(NAME_EDITOR, TOOLBAR_IMAGEEDITOR_BUTTONS);
+				Manager.getAction('PageButtons').addActionButtons(NAME_EDITOR, [{
+					'id': 'done',
+					'context': this,
+					'callback': function () {
+						this.medialist.fire('imageeditor:close');
+					}
+				}]);
+				
+			}
+			
+			Manager.getAction('PageToolbar').setActiveGroupAction(NAME_EDITOR);
+			Manager.getAction('PageButtons').setActiveAction(NAME_EDITOR);
+		},
+		
+		/**
+		 * Close editor buttons
+		 */
+		closeEditorButtons: function () {
+			Manager.getAction('PageToolbar').unsetActiveGroupAction(NAME_EDITOR);
+			Manager.getAction('PageButtons').unsetActiveAction(NAME_EDITOR);
+		},
+		
+		/**
+		 * Open editor crop functionality buttons
+		 */
+		openEditorCropButtons: function () {
+			if (!Manager.getAction('PageButtons').hasActionButtons(NAME_EDITOR_CROP)) {
+				
+				Manager.getAction('PageToolbar').addGroup(NAME_EDITOR_CROP, []);
+				Manager.getAction('PageButtons').addActionButtons(NAME_EDITOR_CROP, [{
+					'id': 'done',
+					'label': 'Crop',
+					'context': this,
+					'callback': function () {
+						this.medialist.imageeditor.command('crop');
+						this.openEditorButtons();
+					}
+				}, {
+					'id': 'cancel',
+					'context': this,
+					'callback': function () {
+						this.medialist.imageeditor.set('mode', '');
+						this.openEditorButtons();
+					}
+				}]);
+			}
+			
+			Manager.getAction('PageToolbar').setActiveGroupAction(NAME_EDITOR_CROP);
+			Manager.getAction('PageButtons').setActiveAction(NAME_EDITOR_CROP);
 		},
 		
 		/**
@@ -206,9 +255,12 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		handleToolbarButton: function (button_id) {
 			switch (button_id) {
 				case 'mlupload':
+					
 					this.medialist.upload.openBrowser();
 					break;
+					
 				case 'mlfolder':
+					
 					var folder = this.medialist.getSelectedFolder() || {'id': 0};
 					if (folder) {
 						//Close any opened image or file
@@ -218,16 +270,27 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 						this.medialist.addFolder(null, '');
 					}
 					break;
+					
 				case 'mldelete':
+					
 					this.medialist.deleteSelectedItem();
 					break;
+					
 				case 'mlundo':
+					
 					//@TODO
 					break;
+					
 				case 'mlimagecrop':
+					
+					this.medialist.imageeditor.set('mode', 'crop');
+					this.openEditorCropButtons();
+					break;
+					
 				case 'mlimagerotateleft':
 				case 'mlimagerotateright':
 				case 'mlimageundo':
+				
 					this.medialist.imageeditor.command(button_id.replace('mlimage', ''));
 					break;
 			}

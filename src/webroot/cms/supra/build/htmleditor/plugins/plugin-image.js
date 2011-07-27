@@ -420,6 +420,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Lang.escapeHTML(image_data.title) + '" alt="' + Y.Lang.escapeHTML(image_data.description) + '" />');
 			
+			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
 				target.insert(img, 'before');
 			} else {
@@ -486,8 +487,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			if (!image_id) return;
 			
 			//Only if dropped from gallery
-			//Drop on image is handled by gallery plugin
-			if (image_id.match(/^\d+$/) && e.drop && !e.drop.test('IMG')) {
+			if (image_id.match(/^\d+$/) && e.drop) {
 				e.halt();
 				this.dropImage(e.drop, image_id);
 			}

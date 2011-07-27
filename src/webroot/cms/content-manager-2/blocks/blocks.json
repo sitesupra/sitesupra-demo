@@ -39,9 +39,14 @@
 			"title": "Gallery",
 			"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 			"icon": "/cms/supra/img/blocks/gallery.png",
-			"classname": "Editable",
+			"classname": "Gallery",
 			"properties": [
-				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
+				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true},
+				{"id": "style", "type": "SelectList", "label": "Style", "value": "preview", "values": [
+					{"id": "preview", "title": "Preview", "icon": "/cms/supra/img/htmleditor/gallery-style-1.png"},
+					{"id": "list", "title": "List", "icon": "/cms/supra/img/htmleditor/gallery-style-2.png"}
+				]},
+				{"id": "images", "type": "Hidden", "label": "", "value": []}
 			]
 		},
 		{

@@ -538,10 +538,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, this);
 				
 				if (loading_folder) {
-					var properties = [this.get('thumbnailSize') + '_url'].concat(this.get('loadItemProperties'));
+					var properties = [].concat(this.get('loadItemProperties'));
 					data_object.loadData(id, properties, 'list');
 				} else {
-					var properties = [this.get('previewSize') + '_url'].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
+					var properties = [].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
 					data_object.loadData(id, properties, 'view');
 				}
 			} else {
@@ -628,10 +628,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, this);
 				
 				if (loading_folder) {
-					var properties = [this.get('thumbnailSize') + '_url'].concat(this.get('loadItemProperties'));
+					var properties = [].concat(this.get('loadItemProperties'));
 					data_object.loadData(id, properties, 'list');
 				} else {
-					var properties = [this.get('previewSize') + '_url'].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
+					var properties = [].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
 					data_object.loadData(id, properties, 'view');
 				}
 			}
@@ -832,11 +832,22 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		getRenderData: function (data) {
-			var preview_key = this.get('previewSize') + '_url',
-				thumbnail_key = this.get('thumbnailSize') + '_url',
+			var preview_size = this.get('previewSize'),
+				thumbnail_size = this.get('thumbnailSize'),
+				preview_key = preview_size + '_url',
+				thumbnail_key = thumbnail_size + '_url',
 				item_data = data || {};
 			
-			if (preview_key in item_data || thumbnail_key in item_data) {
+			if (item_data.sizes) {
+				item_data = SU.mix({}, item_data);
+				
+				if (thumbnail_size in item_data.sizes) {
+					item_data['thumbnailUrl'] = item_data.sizes[thumbnail_size].external_path;
+				}
+				if (preview_size in item_data.sizes) {
+					item_data['previewUrl'] = item_data.sizes[preview_size].external_path;
+				}
+			} else if (preview_key in item_data || thumbnail_key in item_data) {
 				item_data = SU.mix({}, item_data);
 				
 				if (thumbnail_key in item_data) {

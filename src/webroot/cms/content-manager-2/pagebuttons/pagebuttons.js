@@ -232,7 +232,7 @@ SU('anim', function (Y) {
 				
 				button = new Supra.Button(conf);
 				if (conf.callback && Y.Lang.isFunction(conf.callback)) {
-					button.on('click', conf.callback);
+					button.on('click', conf.callback, conf.context || button);
 				}
 				
 				buttons.push(button);
@@ -241,6 +241,17 @@ SU('anim', function (Y) {
 			
 			this.groups[action_id] = subcontainer;
 			this.buttons[action_id] = buttons;
+		},
+		
+		/**
+		 * Returns true if action has buttons
+		 * 
+		 * @param {String} action_id Action ID
+		 * @return If action is defined
+		 * @type {Boolean}
+		 */
+		hasActionButtons: function (action_id) {
+			return action_id in this.groups;
 		},
 		
 		setActiveAction: function (action_id) {

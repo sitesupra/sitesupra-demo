@@ -250,16 +250,21 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					item_id = item.id,
 					parent_id = item.parent;
 				
-				//Remove all data
-				data_object.removeData(item_id, true);
-				
-				//If item is opened, then open parent and redraw list
-				if (this.slideshow.isInHistory('slide_' + item_id)) {
-					this.open(parent_id);
-				}
-				if (this.slideshow.getSlide('slide_' + parent_id)) {
-					this.renderItem(parent_id);
-				}
+				//Send request to server
+				data_object.saveDeleteData(item_id, Y.bind(function () {
+					
+					//Remove all data
+					data_object.removeData(item_id, true);
+					
+					//If item is opened, then open parent and redraw list
+					if (this.slideshow.isInHistory('slide_' + item_id)) {
+						this.open(parent_id);
+					}
+					if (this.slideshow.getSlide('slide_' + parent_id)) {
+						this.renderItem(parent_id);
+					}
+					
+				}, this));
 			}
 			return this;
 		},

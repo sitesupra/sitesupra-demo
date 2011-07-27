@@ -95,14 +95,10 @@ YUI.add('supra.medialibrary-upload-io', function (Y) {
 		 * @private
 		 */
 		onLoad: function (evt) {
-			var data = null,
-				event_data = this.get('eventData') || {};
+			var event_data = this.get('eventData') || {},
+				response = Supra.io.parseResponse(this.get('requestUri'), {'type': 'json'}, this.xhr.responseText);
 			
-			try {
-				data = Y.JSON.parse(this.xhr.responseText);
-			} catch (err) {}
-			
-			this.fire('load', SU.mix({'data': data}, event_data));
+			this.fire('load', SU.mix({'data': response.data}, event_data));
 			
 			//Once file is uploaded, this object becomes useless
 			this.destroy();

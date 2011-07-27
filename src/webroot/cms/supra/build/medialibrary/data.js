@@ -388,6 +388,32 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		},
 		
 		/**
+		 * Save data
+		 * Chainable
+		 * 
+		 * @param {Number} id File or folder ID
+		 * @param {Object} data Data
+		 */
+		saveDeleteData: function (id /* File or folder ID */, callback /* Callback function */) {
+			var url = this.get('saveURI');
+			var data = {
+				'id': id,
+				'action': 'delete'
+			};
+			
+			Supra.io(url, {
+				'data': data,
+				'method': 'post',
+				'context': this,
+				'on': {
+					'complete': function (data, status) {
+						if (Y.Lang.isFunction(callback)) callback(data, id || 0);
+					}
+				}
+			});
+		},
+		
+		/**
 		 * Handle data load complete
 		 * 
 		 * @param {Object} data File or folder data
@@ -396,7 +422,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 */
 		loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
 			if (!data || !data.records) {
-				Y.error('Supra.MediaLibraryData:loadList error occured while loading data for folder "' + id + '"');
+				Y.error('Supra.MediaLibraryData:loadData error occured while loading data for folder "' + id + '"');
 				this.fire('load:failure', {'data': null});
 				this.fire('load:failure:' + id, {'data': null});
 				return false;

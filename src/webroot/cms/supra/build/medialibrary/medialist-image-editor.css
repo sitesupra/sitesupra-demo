@@ -9,11 +9,17 @@
 	border: 1px solid #eee;
 	
 	text-align: center;
+	
+	/* Show scrollbars if image is larger than editor area*/
+	overflow: auto;
 }
 .yui3-imageeditor-content {
 	display: inline-block;
 	vertical-align: middle;
 	position: relative;
+	
+	/* 10px margin to add spacing from sides when image is larger than editor area */
+	margin: 10px;
 }
 .yui3-imageeditor .v-center {
 	display: inline-block;
@@ -34,6 +40,7 @@
 .yui3-imageeditor .overlay-b,
 .yui3-imageeditor .overlay-l,
 .yui3-imageeditor .overlay-r {
+	display: none;
 	position: absolute;
 	z-index: 1;
 	background: #fff;
@@ -56,9 +63,10 @@
 	right: 0;
 }
 .yui3-imageeditor .overlay-c {
+	display: none;
 	position: absolute;
 	z-index: 1;
-	border: 1px solid #000;
+	border: 1px dashed #000;
 	cursor: move;
 }
 .yui3-imageeditor .drag-lt,
@@ -92,10 +100,14 @@
 	cursor: se-resize;
 }
 
-.yui3-imageeditor.loading {
-	background: #fff url(/cms/supra/img/ajax-loader.gif) 50% 50% no-repeat;
-}
 
+.yui3-imageeditor.crop .overlay-t,
+.yui3-imageeditor.crop .overlay-b,
+.yui3-imageeditor.crop .overlay-l,
+.yui3-imageeditor.crop .overlay-r,
+.yui3-imageeditor.crop .overlay-c {
+	display: block;
+}
 .yui3-imageeditor.loading .overlay-t,
 .yui3-imageeditor.loading .overlay-b,
 .yui3-imageeditor.loading .overlay-l,
@@ -103,8 +115,10 @@
 .yui3-imageeditor.loading .overlay-c {
 	display: none;
 }
-.yui3-imageeditor.loading  img {
-	-moz-transition: none;
-	-webkit-transition: none;
-	transition: none;
+
+.yui3-imageeditor.loading {
+	background: #fff url(/cms/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+.yui3-imageeditor.loading img {
+	opacity: 0.5;
 }
