@@ -8,10 +8,25 @@ namespace Supra\FileStorage\ImageProcessor;
  */
 abstract class ImageProcessor 
 {
+	/**
+	 * Source file name (path)
+	 *
+	 * @var string
+	 */
 	protected $sourceFilename;
-	protected $targetWidth;
-	protected $targetHeight;
+
+	/**
+	 * Output image compression quality (0-100, JPEG)
+	 *
+	 * @var int
+	 */
 	protected $targetQuality = 100;
+
+	/**
+	 * Output file name (path)
+	 *
+	 * @var string
+	 */
 	protected $targetFilename;
 	
 	/**
@@ -20,7 +35,7 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @return array
 	 */
-	public static function getImageInfo($filename)
+	public function getImageInfo($filename)
 	{
 		if( ! file_exists($filename)|| ! is_readable($filename)) {
 			throw new Exception('File ' . $filename . ' not found');
@@ -45,7 +60,7 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @return int
 	 */
-	public static function getImageWidth($filename)
+	public function getImageWidth($filename)
 	{
 		$imageInfo = self::getImageInfo($filename);
 		if (is_array($imageInfo) && isset($imageInfo['width'])) {
@@ -59,7 +74,7 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @return int
 	 */
-	public static function getImageHeight($filename)
+	public function getImageHeight($filename)
 	{
 		$imageInfo = self::getImageInfo($filename);
 		if (is_array($imageInfo) && isset($imageInfo['height'])) {
@@ -73,26 +88,13 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @return string
 	 */
-	public static function getImageMime($filename)
+	public function getImageMime($filename)
 	{
 		$imageInfo = self::getImageInfo($filename);
 		if (is_array($imageInfo) && isset($imageInfo['mime'])) {
 			return $imageInfo['mime'];
 		}
 	}
-
-//	/**
-//	 * Get image aspect ratio helper (h/w)
-//	 *
-//	 * @param string $filename
-//	 * @return float
-//	 */
-//	public static function getImageRatio($filename)
-//	{
-//		$imageInfo = self::getImageInfo($filename);
-//		$ratio = $imageInfo['width'] / $imageInfo['height'];
-//		return $ratio;
-//	}
 
 	/**
 	 * Create GD resource image from file
@@ -232,39 +234,17 @@ abstract class ImageProcessor
 	}
 
 	/**
-	 * Set source image
+	 * Set source image file
 	 *
 	 * @param string $filename
 	 * @return ImageProcessor 
 	 */
-	public function setSourceImage($filename)
+	public function setSourceFile($filename)
 	{
+		if ( ! file_exists($filename)) {
+			throw new Exception('Source image does not exist');
+		}
 		$this->sourceFilename = $filename;
-		return $this;
-	}
-
-
-	/**
-	 * Set target width
-	 *
-	 * @param int $width
-	 * @return ImageProcessor 
-	 */
-	public function setTargetWidth($width)
-	{
-		$this->targetWidth = $width;
-		return $this;
-	}
-
-	/**
-	 * Set target height
-	 *
-	 * @param int $height
-	 * @return ImageProcessor 
-	 */
-	public function setTargetHeight($height)
-	{
-		$this->targetHeight = $height;
 		return $this;
 	}
 
@@ -274,7 +254,7 @@ abstract class ImageProcessor
 	 * @param int $quality
 	 * @return ImageProcessor 
 	 */
-	public function setTargetQuality($quality) 
+	public function setOutputQuality($quality) 
 	{
 		$this->targetQuality = $quality;
 		return $this;
@@ -286,7 +266,7 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @return ImageProcessor 
 	 */
-	public function setTargetFilename($filename)
+	public function setOutputFile($filename)
 	{
 		$this->targetFilename = $filename;
 		return $this;
@@ -299,8 +279,6 @@ abstract class ImageProcessor
 	public function reset()
 	{
 		$this->sourceFilename = null;
-		$this->targetWidth = null;
-		$this->targetHeight = null;
 		$this->targetQuality = 100;
 		$this->targetFilename = null;
 	}
