@@ -11,11 +11,11 @@ class MediaLibraryAction extends CmsActionController
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
 
+	/**
+	 * Used for list folder
+	 */
 	public function listAction()
 	{
-		// FIXME: should doctrine entity manager be as file stogare parameter?
-		$fileStorage = FileStorage::getInstance();
-
 		// FIXME: getting default DEM right now
 		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
 
@@ -69,13 +69,13 @@ class MediaLibraryAction extends CmsActionController
 		$this->getResponse()->setResponseData($return);
 	}
 
+	/**
+	 * Used for view file or image information
+	 */
 	public function viewAction()
 	{
 		if ( ! empty($_GET['id'])) {
 			$id = $_GET['id'];
-
-			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$fileStorage = FileStorage::getInstance();
 
 			// FIXME: getting default DEM right now
 			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -99,14 +99,106 @@ class MediaLibraryAction extends CmsActionController
 		}
 	}
 
-	public function createAction()
+	/**
+	 * Used for new folder creation
+	 */
+	public function insertAction()
 	{
+		if ( ! empty($_POST['title'])) {
+			// FIXME: getting default DEM right now
+			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+			$dir = new \Supra\FileStorage\Entity\Folder();
+			// FIXME: should doctrine entity manager be as file stogare parameter?
+			$fileStorage = FileStorage::getInstance();
 
+			$dirName = $_POST['title'];
+			$dir->setName($dirName);
+			$em->persist($dir);
+
+			if ( ! empty($_POST['parent'])) {
+
+				$folderId = $_POST['parent'];
+
+				// TODO: currently FileRepository is not assigned to the file abstraction
+				// FIXME: store the classname as constant somewhere?
+				/* @var $repo FileRepository */
+				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+				/* @var $node \Supra\FileStorage\Entity\File */
+				$folder = $repo->findOneById($folderId);
+
+				//TODO: some check on not existant folder
+
+				$folder->addChild($dir);
+			}
+
+			$em->flush();
+
+			$destination = $dir->getPath(DIRECTORY_SEPARATOR, true);
+
+			$mkDirResult = $fileStorage->createFolder($destination);
+
+			$insertedId = $dir->getId();
+
+			$this->getResponse()->setResponseData($insertedId);
+		}
 	}
 
+	/**
+	 * Used for folder or file renaming
+	 */
 	public function saveAction()
 	{
-		
+		if ( ! empty($_POST['id'])) {
+
+			// FIXME: should doctrine entity manager be as file stogare parameter?
+			$fileStorage = FileStorage::getInstance();
+
+			// FIXME: getting default DEM right now
+			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+
+			// TODO: currently FileRepository is not assigned to the file abstraction
+			// FIXME: store the classname as constant somewhere?
+			/* @var $repo FileRepository */
+			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			/* @var $folder \Supra\FileStorage\Entity\File */
+			$file = $repo->findOneById($_POST['id']);
+			
+			
+			if ($file instanceof \Supra\FileStorage\Entity\Folder) {
+				
+				if(isset($_POST['title'])){
+					$title = $_POST['title'];
+				} else {
+					throw new MedialibraryException('Folder title isn\'t set');
+				}
+				
+				$file = $fileStorage->renameFolder($file, $title);
+				
+			} else if ($file instanceof \Supra\FileStorage\Entity\File) {
+				
+				if(isset($_POST['title'])) {
+					// TODO: Localization? 
+					$this->getResponse()->setResponseData(null);
+					return;
+					
+				} else if(isset($_POST['filename'])){
+					
+					$filename = $_POST['filename'];
+					$file = $fileStorage->renameFile($file, $filename);
+					
+				} else {
+					throw new MedialibraryException('File name isn\'t set');
+				}	
+				
+			} else {
+				throw new MedialibraryException('');
+			}
+			
+			$em->flush();
+
+			$fileId = $file->getId();
+			$this->getResponse()->setResponseData($fileId);
+		}
 	}
 
 	public function deleteAction()
@@ -114,10 +206,13 @@ class MediaLibraryAction extends CmsActionController
 		1 + 1;
 	}
 
+	/**
+	 * File upload action
+	 */
 	public function uploadAction()
 	{
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
-			
+
 			$file = $_FILES['file'];
 
 			// FIXME: should doctrine entity manager be as file stogare parameter?
@@ -134,18 +229,18 @@ class MediaLibraryAction extends CmsActionController
 			$fileEntity->setMimeType($file['type']);
 
 			if ( ! empty($_POST['folder'])) {
-				
+
 				$folderId = $_POST['folder'];
-				
+
 				// TODO: currently FileRepository is not assigned to the file abstraction
 				// FIXME: store the classname as constant somewhere?
 				/* @var $repo FileRepository */
 				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$folder = $repo->findOneById($folderId);
-				
+
 				//TODO: some check on not existant folder
-				
+
 				$folder->addChild($fileEntity);
 			}
 
@@ -153,8 +248,7 @@ class MediaLibraryAction extends CmsActionController
 			$fileData->setMaster($fileEntity);
 			$fileData->setTitle($file['name']);
 
-			$filestorage = FileStorage::getInstance();
-			$filestorage->storeFileData($fileEntity, $file['tmp_name']);
+			$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 
 			$em->flush();
 
@@ -164,10 +258,16 @@ class MediaLibraryAction extends CmsActionController
 		}
 	}
 
+	/**
+	 * Pretty hardcoded output right now
+	 * @param \Supra\FileStorage\Entity\File $node
+	 * @return array $output response
+	 */
 	private function imageAndFileOutput(&$node)
 	{
+		// checking for image MIME type
 		$isImage = $node->isMimeTypeImage($node->getMimeType());
-		
+
 		$type = null;
 
 		if ($isImage) {

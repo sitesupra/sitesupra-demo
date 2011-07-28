@@ -29,7 +29,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		// directories
 		$dir = null;
-		$dirNames = array('one', 'two', 'three', 'four');
+		$dirNames = array('one');
 		foreach ($dirNames as $dirName) {
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
