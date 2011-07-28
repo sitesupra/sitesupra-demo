@@ -8,7 +8,8 @@ YUI().add("supra.lang", function (Y) {
 	
 	//Shortcuts
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
-	
+	var WINDOW = window.constructor;
+	var DOCUMENT = document.constructor;
 	
 	
 	/**
@@ -53,8 +54,8 @@ YUI().add("supra.lang", function (Y) {
 			Y.Lang.isObject(obj, true) &&			//is object and not function
 			!obj.nodeType &&						//not HTMLElement
 			!Y.Lang.isArray(obj) &&					//not array
-			!(obj instanceof HTMLDocument) &&		//not document
-			!(obj instanceof Window)) {				//not window
+			!(obj instanceof DOCUMENT) &&			//not document
+			!(obj instanceof WINDOW)) {				//not window
 			
 			// Not own constructor property must be Object
 			if ( obj.constructor &&
