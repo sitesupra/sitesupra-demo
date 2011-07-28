@@ -34,9 +34,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var gallery_id = e.drag_id,
 				target = e.drop;
 			
-			//Prevent default (which is insert folder thumbnail image) 
-			e.halt();
-			
 			//If there is no folder or trying to drop on un-editable element
 			if (!gallery_id || !this.htmleditor.isEditable(target)) return;
 			
@@ -47,6 +44,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
+			
+			//Prevent default (which is insert folder thumbnail image) 
+			e.halt();
+			
 			
 			var image_data = [],
 				image;
@@ -100,7 +101,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		init: function (htmleditor, configuration) {
 			//On image folder drop add gallery
-			htmleditor.get('srcNode').on('imageDrop', this.dropFolder, this);
+			htmleditor.get('srcNode').on('dataDrop', this.dropFolder, this);
 		},
 		
 		/**

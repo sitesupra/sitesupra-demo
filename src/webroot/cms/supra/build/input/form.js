@@ -22,7 +22,13 @@ YUI.add("supra.form", function (Y) {
 	 * @param {Object} config Configuration
 	 */
 	function Form (config) {
-		Form.superclass.constructor.apply(this, arguments);
+		//Fix 'value' references for inputs
+		this.fixInputConfigValueReferences(config);
+		
+		Form.superclass.constructor.apply(this, [config]);
+		
+		this.inputs = {};
+		this.inputs_definition = {};
 		this.init.apply(this, arguments);
 		this.processAttributes();
 	}
@@ -65,12 +71,12 @@ YUI.add("supra.form", function (Y) {
 		/*
 		 * List of input definitions
 		 */
-		inputs_definition: {},
+		inputs_definition: null,
 		
 		/*
 		 * List of input fields
 		 */
-		inputs: {},
+		inputs: null,
 		
 		/**
 		 * Search for inputs in DOM
@@ -144,6 +150,31 @@ YUI.add("supra.form", function (Y) {
 			}
 			
 			return config;
+		},
+		
+		/**
+		 * Fix input config value references to prevent two inputs with
+		 * same type (like Hidden) having same raw value
+		 * 
+		 * @param {Object} config
+		 */
+		fixInputConfigValueReferences: function (config) {
+			if (config.inputs) {
+				var empty = {},
+					value = null;
+				
+				for(var i=0,ii=config.inputs.length; i<ii; i++) {
+					value = config.inputs[i].value;
+					if (Y.Lang.isObject(value)) {
+						empty = (Y.Lang.isArray(value) ? [] : {});
+						try {
+						config.inputs[i].value = Supra.mix(empty, config.inputs[i].value, true);
+						} catch (err) {
+							console.error('Yep, it\'s here');
+						}
+					}
+				}
+			}
 		},
 		
 		/**

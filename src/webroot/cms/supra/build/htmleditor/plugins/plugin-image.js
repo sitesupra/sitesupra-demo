@@ -24,22 +24,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		silent: false,
 		
 		/**
-		 * Image which is beeing dragged
+		 * DropTarget object for editor srcNode
 		 * @type {Object}
+		 * @private
 		 */
-		drag_image: null,
+		drop: null,
 		
-		/**
-		 * Drag end event listener attach point
-		 * @type {Object}
-		 */
-		fn_drag_end: null,
-		
-		/**
-		 * Drag & drop mouse up event listener attach point
-		 * @type {Object}
-		 */
-		fn_mouse_up: null,
 		
 		/**
 		 * Generate settings form
@@ -465,126 +455,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		},
 			
 		/**
-		 * Handle drag end (success or failure)
-		 */
-		onDragEnd: function () {
-			this.drag_image = null;
-			if (this.fn_drag_end) this.fn_drag_end.detach();
-			if (this.fn_mouse_up) this.fn_mouse_up.detach();
-			this.fn_drag_end = null;
-			this.fn_mouse_up = null;
-		},
-		
-		/**
-		 * Handle drop
-		 * 
-		 * @param {Object} e Event
-		 */
-		onDrop: function (e) {
-			this.onDragEnd();
-			
-			var image_id = e.drag_id;
-			if (!image_id) return;
-			
-			//Only if dropped from gallery
-			if (image_id.match(/^\d+$/) && e.drop) {
-				e.halt();
-				this.dropImage(e.drop, image_id);
-			}
-		},
-		
-		/**
-		 * Bind HTML5 Drag & Drop event listeners
-		 * 
-		 * @param {Object} htmleditor HTMLEditor instance
-		 */
-		bindUIDnD: function (htmleditor) {
-			//Allow HTML5 Drag & Drop
-			var srcNode = htmleditor.get('srcNode');
-			
-			//Handle image drag which is in content
-			srcNode.on('dragstart', function (e) {
-				this.drag_image = e.target;
-				
-				//On mouse up or drag end remove temporary listeners and
-				//reference to image
-				this.fn_mouse_up = srcNode.once('mouseup', this.onDragEnd, this);
-				this.fn_drag_end = e.target.once('dragend', this.onDragEnd, this);
-			}, this);
-			srcNode.on('dragend', this.onDragEnd, this);
-			
-			//On dragover change cursor to copy and prevent native drop
-			srcNode.on('dragover', function (e) {
-				//If draging image which already was in content, then allow native drop unless
-				//droping on another image
-				if (this.drag_image && !e.target.test('IMG')) return;
-				
-				if (e.preventDefault) e.preventDefault(); // Don't drop anything
-			    e._event.dataTransfer.dropEffect = 'copy';
-			    return false;
-			}, this);
-			
-			//Handle drop event (triggered only if native drop was prevented in dragover) 
-			srcNode.on('drop', function (e) {
-				var data = e._event.dataTransfer.getData('text'),
-					image = this.drag_image,
-					target = null;
-				
-				this._fixTarget(e);
-				target = e.target;
-				
-				//Trigger event to allow other plugins to override this behaviour
-				var res = srcNode.fire('imageDrop', {
-					'drag_id': data,
-					'drag': image,
-					'drop': target
-				});
-				
-				//Clean up
-				this.onDragEnd();
-				
-				//If any listener called e.halt() then stop image from being
-				//dropped using native drop
-				if (res === false) {
-					if (e.preventDefault) e.preventDefault(); // Don't drop anything
-					return false;
-				}
-			}, this);
-			
-			srcNode.on('imageDrop', this.onDrop, this);
-		},
-		
-		/**
-		 * IE reports srcNode as target, get correct drop target from mouse position
-		 * 
-		 * @param {Object} e
-		 */
-		_fixTarget: (Y.UA.ie ? function (e) {
-			//IE reports srcNode as target, fix it
-			var htmleditor = this.htmleditor,
-				srcNode = htmleditor.get('srcNode'),
-				target = null,
-				tmp_target = null,
-				pos = srcNode.getXY(),
-				src_dom_node = Y.Node.getDOMNode(srcNode),
-				scroll_x = htmleditor.get('doc').documentElement.scrollLeft,
-				scroll_y = htmleditor.get('doc').documentElement.scrollTop;
-			
-			target = htmleditor.get('doc').elementFromPoint(e._event.x + pos[0] - scroll_x, e._event.y + pos[1] - scroll_y);
-			tmp_target = target;
-			
-			//Check if srcNode is target or one of the targets ancestors
-			while(tmp_target) {
-				if (tmp_target === src_dom_node) {
-					e.target = new Y.Node(target);
-				}
-				tmp_target = tmp_target.parentNode;
-			}
-		} : function (e) {}),
-		
-		
-		
-		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -634,6 +504,38 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			htmleditor.on('enable', this.disableImageObjectResizing, this);
 			
 			this.bindUIDnD(htmleditor);
+		},
+		
+		bindUIDnD: function (htmleditor) {
+			var srcNode = htmleditor.get('srcNode'),
+				doc = htmleditor.get('doc');
+			
+			//On drop insert image
+			srcNode.on('dataDrop', this.onDrop, this);
+			
+			//Enable drag & drop
+			this.drop = new Manager.PageContent.PluginDropTarget({
+				'srcNode': srcNode,
+				'doc': doc
+			});
+		},
+		
+		/**
+		 * Handle drop
+		 * 
+		 * @param {Object} e Event
+		 */
+		onDrop: function (e) {
+			var image_id = e.drag_id;
+			if (!image_id) return;
+			
+			console.log(image_id, e.drop);
+			
+			//Only if dropped from gallery
+			if (image_id.match(/^\d+$/) && e.drop) {
+				e.halt();
+				this.dropImage(e.drop, image_id);
+			}
 		},
 		
 		/**

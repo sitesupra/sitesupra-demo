@@ -29,10 +29,6 @@ YUI.add("supra.input-hidden", function (Y) {
 			return value;
 		},
 		
-		_setValue: function (value) {
-			return value;
-		},
-		
 		_afterValueChange: function (evt) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});

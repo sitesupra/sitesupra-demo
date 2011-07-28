@@ -42,7 +42,7 @@
 			}
 			
 			if (value === undefined && Y.Lang.isObject(key)) {
-				Supra.mix(Supra.data, key); 
+				Supra.mix(Supra.data, key, true); 
 			} else {
 				var fn = '_' + key + 'Change',
 					prevVal = Supra.data[key];

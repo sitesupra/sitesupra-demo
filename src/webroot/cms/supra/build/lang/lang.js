@@ -6,6 +6,18 @@ YUI().add("supra.lang", function (Y) {
 	//If already defined, then exit
 	if (Y.Lang.escapeHTML) return;
 	
+	//Shortcuts
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	
+	
+	
+	/**
+	 * Escape html entities
+	 * 
+	 * @param {String} html HTML
+	 * @return Escaped html
+	 * @type {String}
+	 */
 	Y.Lang.escapeHTML = function (html) {
 		return String(html || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 	};
@@ -27,6 +39,34 @@ YUI().add("supra.lang", function (Y) {
 			}
 			return arr;
 		}
+	};
+	
+	/**
+	 * Returns true if obj is Object and not Array, Function, document or window
+	 * 
+	 * @param {Object} obj
+	 * @return True if obj is plain object
+	 * @type {Boolean}
+	 */
+	Y.Lang.isPlainObject = function (obj) {
+		if (obj &&									//not empty
+			Y.Lang.isObject(obj, true) &&			//is object and not function
+			!obj.nodeType &&						//not HTMLElement
+			!Y.Lang.isArray(obj) &&					//not array
+			!(obj instanceof HTMLDocument) &&		//not document
+			!(obj instanceof Window)) {				//not window
+			
+			// Not own constructor property must be Object
+			if ( obj.constructor &&
+				!hasOwnProperty.call(obj, "constructor") &&
+				!hasOwnProperty.call(obj.constructor.prototype, "isPrototypeOf") ) {
+				return false;
+			}
+			
+			return true;
+			
+		}
+		return false;
 	};
 	
 	/**

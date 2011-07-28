@@ -235,11 +235,13 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 					btn.render();
 					
 				//Create list widget
+					var medialibrary = Manager.getAction('MediaLibrary');
 					var list = this.medialist = (new Supra.MediaLibraryList({
 						'srcNode': node.one('#linkToFileMediaList'),
 						'foldersSelectable': false,
 						'filesSelectable': true,
-						'requestURI': Loader.getActionInfo('medialibrary').path_data + '.php',
+						'listURI': medialibrary.getDataPath('list') + '.php',
+						'viewURI': medialibrary.getDataPath('view') + '.php',
 						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
 					})).render(); 
 			}

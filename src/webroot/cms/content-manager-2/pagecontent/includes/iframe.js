@@ -594,4 +594,9 @@ YUI.add('supra.page-iframe', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'supra.page-content-list', 'supra.page-content-editable', 'supra.page-content-gallery']});
+}, YUI.version, {requires:[
+	'widget',
+	'supra.page-content-list',
+	'supra.page-content-editable',
+	'supra.page-content-gallery'
+]});

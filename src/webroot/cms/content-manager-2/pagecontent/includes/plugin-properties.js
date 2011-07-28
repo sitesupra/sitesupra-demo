@@ -3,7 +3,7 @@
 
 YUI.add('supra.page-content-properties', function (Y) {
 	
-	//Shortcut
+	//Shortcuts
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
@@ -136,7 +136,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			if (!data || !('type' in data)) return;
 			
 			var type = data.type,
-				block = Manager.Blocks.getBlock(type);
+				//Make sure orginal block data is not modified
+				block = Supra.mix({}, Manager.Blocks.getBlock(type), true);
 			
 			if (!block) return;
 			this.set('properties', block.properties);
@@ -158,7 +159,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Properties form
 			this.initializeProperties();
 			var form = this.get('form');
-			
 			
 			//On block save/cancel update 'changed' attributes
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
@@ -309,6 +309,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		deleteContent: function () {
 			Supra.Manager.executeAction('Confirmation', {
 				'message': 'Are you sure you want to delete selected block',
+				'useMask': true,
 				'buttons': [
 					{'id': 'yes', 'context': this, 'click': function () {
 						var host = this.get('host');

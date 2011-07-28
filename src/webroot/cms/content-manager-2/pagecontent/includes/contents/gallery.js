@@ -30,22 +30,92 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	Y.extend(ContentGallery, Action.Editable, {
 		
 		/**
+		 * Data drag and drop object, PluginDropTarget instance
+		 * @type {Object}
+		 */
+		drop: null,
+		
+		
+		/**
 		 * When form is rendered add gallery button
+		 * @private
 		 */
 		renderUISettings: function () {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
 			var container = this.properties.get('form').get('contentBox');
-			var button_gallery = new Supra.Button({
+			
+			//Manage image button
+			var button = new Supra.Button({
 				'label': 'Manage images'
 			});
 			
-			button_gallery.render(container);
-			button_gallery.on('click', this.openGalleryManager, this);
+			button.render(container);
+			button.on('click', this.openGalleryManager, this);
+			
+			//Add image button
+			var button = new Supra.Button({
+				'label': 'Add images'
+			});
+			
+			button.render(container);
+			button.on('click', this.openMediaLibrary, this);
+			
+			//Add image drag and drop support
+			this.bindDnD();
+		},
+		
+		/**
+		 * Bind drag & drop to allow droping images from media library
+		 * 
+		 * @private
+		 */
+		bindDnD: function () {
+			var srcNode = this.getNode(),
+				doc = this.get('doc');
+			
+			//On drop add image or images
+			srcNode.on('dataDrop', this.onDrop, this);
+			
+			//Enable drag & drop
+			this.drop = new Manager.PageContent.PluginDropTarget({
+				'srcNode': srcNode,
+				'doc': doc
+			});
+		},
+		
+		/**
+		 * On image or folder drop add images to the gallery
+		 * 
+		 * @param {Event} e Event
+		 * @private
+		 */
+		onDrop: function (e) {
+			var item_id = e.drag_id,
+				item_data = Manager.MediaSidebar.getData(item_id),
+				image = null;
+			
+			if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+				
+				//Add single image
+				this.addImage(item_data);
+				
+			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
+				
+				//Add all images from folder
+				for(var i in item_data.children) {
+					image = item_data.children[i];
+					if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+						this.addImage(item_data.children[i]);
+					}
+				}
+				
+			}
 		},
 		
 		/**
 		 * Open gallery manager and update data when it closes
+		 * @private
 		 */
 		openGalleryManager: function () {
 			
@@ -66,7 +136,22 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		},
 		
 		/**
+		 * Open media library sidebar
+		 * @private
+		 */
+		openMediaLibrary: function () {
+			
+			Manager.executeAction('MediaSidebar', {
+				'onselect': Y.bind(function (event) {
+					this.addImage(event.image);
+				}, this)
+			});
+			
+		},
+		
+		/**
 		 * Hide settings form
+		 * @private
 		 */
 		hideSettingsForm: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
@@ -80,6 +165,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		addImage: function (image_data) {
 			var values = this.properties.getValues();
 			var images = values.images || [];
+			
+			//Check if image doesn't exist in data already
+			for(var i=0,ii=images.length; i<ii; i++) {
+				if (images[i].id == image_data.id) return;
+			}
 			
 			images.push(image_data);
 			
@@ -97,10 +187,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @return Processed data
 		 * @type {Object}
 		 */
-		processData: function (id, data) {
-			console.log(data);
-			return data;
-			
+		processData: function (data) {
 			var images = [],
 				image = {},
 				properties = Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES),
@@ -127,4 +214,4 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.page-content-editable']});
+}, YUI.version, {requires:['supra.page-content-editable', 'supra.page-content-droptarget']});

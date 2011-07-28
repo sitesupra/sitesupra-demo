@@ -264,13 +264,15 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				case 'mlfolder':
 					
 					var folder = this.medialist.getSelectedFolder() || {'id': 0};
-					if (folder) {
-						//Close any opened image or file
+					
+					//Close any opened image or file
+					if (this.medialist.getSelectedItem()) {
 						this.medialist.open(folder.id);
-						
-						//Add folder
-						this.medialist.addFolder(null, '');
 					}
+					
+					//Add folder
+					this.medialist.addFolder(null, '');
+					
 					break;
 					
 				case 'mldelete':

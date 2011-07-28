@@ -224,7 +224,6 @@ YUI.add('supra.input-proto', function (Y) {
 		},
 		
 		_setValue: function (value) {
-			var value = value;
 			this.get('inputNode').set('value', value);
 			
 			this._original_value = value;

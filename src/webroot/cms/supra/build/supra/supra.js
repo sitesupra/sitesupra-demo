@@ -124,7 +124,8 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
-	 * Mix objects together
+	 * Mix objects or arrays together
+	 * HTMLNode 	
 	 * 
 	 * @param {Object} dest Destination object
 	 * @param {Object} src Source object
@@ -132,30 +133,61 @@ if (typeof Supra === "undefined") {
 	 * @return Mixed object
 	 * @type {Object}
 	 */
-	Supra.mix = function () {
-		if (!arguments.length || !Y.Lang.isObject(arguments[0])) return null;
-		var dest = arguments[0];
-		var args = [].slice.call(arguments, 1, arguments.length);
-		var deep = Y.Lang.isBoolean(args[args.length-1]) ? args[args.length-1] : false;
+	Supra.mix = function() {
+		var options = null,
+			key = null,
+			src = null,
+			copy = null,
+			copyIsArray = null,
+			target = arguments[0] || {},
+			length = arguments.length,
+			deep = false;
 		
-		for(var i=0, ii=args.length; i<ii; i++) {
-			if (Y.Lang.isObject(args[i])) {
-				for(var k in args[i]) {
-					if (deep && Y.Lang.isObject(args[i][k])) {
-						if (Y.Lang.isObject(dest[k])) {
-							dest[k] = Supra.mix(dest[k], args[i][k]);
+		//Last argument for deep mixing
+		if ( typeof arguments[arguments.length - 1] === 'boolean' ) {
+			deep = arguments[arguments.length - 1];
+			length--;
+		}
+		
+		if (!Y.Lang.isObject(target)) {
+			//If not an object and not a function reset to object
+			target = {};
+		}
+		
+		for (var i=1; i<length; i++) {
+			
+			if ((options = arguments[i]) != null && options !== target) {
+				// Extend the base object
+				for (key in options) {
+					src = target[key];
+					copy = options[key];
+	
+					//Prevent loop
+					if (target === copy) {
+						continue;
+					}
+	
+					//Recurse only if object or array, nodes are recursed
+					if (deep && copy && (Y.Lang.isPlainObject(copy) || (copyIsArray = Y.Lang.isArray(copy)))) {
+						if (copyIsArray) {
+							copyIsArray = false;
+							src = src && Y.Lang.isArray(src) ? src : [];
 						} else {
-							dest[k] = Supra.mix({}, args[i][k]);
+							src = src && Y.Lang.isPlainObject(src) ? src : {};
 						}
-					} else {
-						dest[k] = args[i][k];
+						
+						target[key] = Supra.mix( src, copy, deep );
+	
+					} else if (copy !== undefined) {
+						target[key] = copy;
 					}
 				}
 			}
 		}
-		
-		return dest;
+	
+		// Return the modified object
+		return target;
 	};
-
+	
 })();
 }

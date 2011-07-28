@@ -12,6 +12,7 @@ SU('dd-drag', function (Y) {
 		'{pagecontent}includes/contents/list.js',
 		'{pagecontent}includes/contents/gallery.js',
 		'{pagecontent}includes/plugin-properties.js',
+		'{pagecontent}includes/plugin-droptarget.js',
 		'{pagecontent}includes/iframe.js',
 		'{pagecontent}includes/layout.js'
 	];
