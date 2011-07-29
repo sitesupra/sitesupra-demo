@@ -3,7 +3,7 @@
 namespace Supra\FileStorage\ImageProcessor;
 
 /**
- * ImageResizer
+ * Image resizer
  *
  */
 class ImageResizer extends ImageProcessor
@@ -158,6 +158,15 @@ class ImageResizer extends ImageProcessor
 			copy($this->sourceFilename, $this->targetFilename);
 		}
 
+	}
+
+	/**
+	 * Process
+	 * 
+	 */
+	public function resize() 
+	{
+		$this->process();
 	}
 
 	/**

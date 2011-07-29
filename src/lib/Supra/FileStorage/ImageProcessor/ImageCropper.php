@@ -3,7 +3,7 @@
 namespace Supra\FileStorage\ImageProcessor;
 
 /**
- * ImageCropper
+ * Image cropper
  *
  */
 class ImageCropper extends ImageProcessor
@@ -185,6 +185,15 @@ class ImageCropper extends ImageProcessor
 		$this->saveImageToFile($croppedImage, $this->targetFilename, 
 				$imageInfo['mime'], $this->targetQuality);
 		
+	}
+
+	/**
+	 * Process
+	 * 
+	 */
+	public function crop()
+	{
+		$this->process();
 	}
 
 	/**

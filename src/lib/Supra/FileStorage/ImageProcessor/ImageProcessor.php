@@ -245,6 +245,10 @@ abstract class ImageProcessor
 			throw new Exception('Source image does not exist');
 		}
 		$this->sourceFilename = $filename;
+// TODO decide if such functionality is needed
+//		if (empty($this->targetFilename)) {
+//			$this->targetFilename = $filename;
+//		}
 		return $this;
 	}
 
