@@ -9,6 +9,6 @@
 		"path": "<?php echo $_POST['path']; ?>",
 		"published": false,
 		"scheduled": false,
-		"preview": "/cms/supra/img/sitemap/preview/blank.jpg"
+		"preview": "/cms/lib/supra/img/sitemap/preview/blank.jpg"
 	}
 }

@@ -12,7 +12,7 @@ SU(function (Y) {
 			{
 				'id': 'sitemap',
 				'title': SU.Intl.get(['sitemap', 'button']),
-				'icon': '/cms/supra/img/toolbar/icon-sitemap.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-sitemap.png',
 				'action': 'SiteMap',
 				'type': 'button'	/* Default is 'toggle' */
 			}
@@ -21,20 +21,20 @@ SU(function (Y) {
 			{
 				'id': 'blockbar',
 				'title': SU.Intl.get(['insertblock', 'button']),
-				'icon': '/cms/supra/img/toolbar/icon-insert.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-insert.png',
 				'action': 'PageInsertBlock',
 				'permissions': ['block', 'insert']
 			},
 			{
 				'id': 'history',
 				'title': SU.Intl.get(['history', 'button']),
-				'icon': '/cms/supra/img/toolbar/icon-history.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 				'action': 'PageHistory'
 			},
 			{
 				'id': 'settings',
 				'title': SU.Intl.get(['settings', 'button']),
-				'icon': '/cms/supra/img/toolbar/icon-settings.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
 				'action': 'PageSettings'
 			}
 		]

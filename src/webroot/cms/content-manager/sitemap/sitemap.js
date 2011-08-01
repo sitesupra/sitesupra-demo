@@ -101,7 +101,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
 				'id': 'history',
 				'title': SU.Intl.get(['sitemap', 'undo_history']),
-				'icon': '/cms/supra/img/toolbar/icon-history.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 				'action': 'PageHistory'
 			}]);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);

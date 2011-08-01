@@ -13,7 +13,7 @@
 .yui3-page-buttons .yui3-button,
 .yui3-page-buttons .yui3-button div,
 .yui3-page-buttons .yui3-button button {
-	background-image: url(/cms/supra/img/toolbar/buttons-mid.png);
+	background-image: url(/cms/lib/supra/img/toolbar/buttons-mid.png);
 }
 .yui3-page-buttons .yui3-button {
 	background-position: 100% -66px;

@@ -51,7 +51,7 @@ YUI.add("website.input-template", function (Y) {
 			
 			var value = this.get('value');
 			var template_title = '';
-			var template_src = '/cms/supra/img/px.gif';
+			var template_src = '/cms/lib/supra/img/px.gif';
 			
 			if (!(value in templates)) {
 				for(var i in templates) {
@@ -111,7 +111,7 @@ YUI.add("website.input-template", function (Y) {
 			//Find or create preview node
 			var node = this.get("srcNode").one("img");
 			if (!node) {
-				node = Y.Node.create("<img src=\"/cms/supra/img/px.gif\" alt=\"\" />");
+				node = Y.Node.create("<img src=\"/cms/lib/supra/img/px.gif\" alt=\"\" />");
 				this.get("srcNode").prepend(node);
 			}
 			this.set("previewNode", node);

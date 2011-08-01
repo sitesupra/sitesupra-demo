@@ -19,7 +19,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 	
 	Y.extend(FlowMapItemNormal, Supra.TreeNodeDragable, {
 		CONTENT_TEMPLATE: '<div class="tree-node">\
-			  					<div><span class="toggle hidden"></span><span class="img"><img src="/cms/supra/img/tree/none.png" /></span> <label></label> <span class="edit hidden"></div>\
+			  					<div><span class="toggle hidden"></span><span class="img"><img src="/cms/lib/supra/img/tree/none.png" /></span> <label></label> <span class="edit hidden"></div>\
 			  				</div>\
 			  				<ul class="tree-children">\
 			  				</ul>',

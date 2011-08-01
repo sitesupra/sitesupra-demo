@@ -74,7 +74,7 @@
 	
 	box-shadow: 0;
 	border: 2px solid #3B85D1;
-	background: url(/cms/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
 	opacity: 0;
 }
 .yui3-editable .yui3-content-overlay:hover,
@@ -235,7 +235,7 @@
 	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
 	
 	overflow: hidden;
-	background: url(/cms/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
 }
 
 /**

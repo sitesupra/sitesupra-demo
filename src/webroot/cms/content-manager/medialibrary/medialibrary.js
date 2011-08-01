@@ -8,7 +8,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    {
 	        'id': 'mlupload',
 			'title': SU.Intl.get(['medialibrary', 'upload']),
-			'icon': '/cms/supra/img/toolbar/icon-media-upload.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-upload.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -16,7 +16,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mlfolder',
 			'title': SU.Intl.get(['medialibrary', 'new_folder']),
-			'icon': '/cms/supra/img/toolbar/icon-media-folder.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-folder.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -24,7 +24,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mldelete',
 			'title': SU.Intl.get(['medialibrary', 'delete']),
-			'icon': '/cms/supra/img/toolbar/icon-media-delete.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-delete.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -32,7 +32,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mlundo',
 			'title': SU.Intl.get(['medialibrary', 'undo_history']),
-			'icon': '/cms/supra/img/toolbar/icon-media-undo.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-undo.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -44,7 +44,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    {
 	        'id': 'mlimagerotateleft',
 			'title': SU.Intl.get(['medialibrary', 'rotate_left']),
-			'icon': '/cms/supra/img/toolbar/icon-media-rotateleft.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-rotateleft.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -52,7 +52,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mlimagerotateright',
 			'title': SU.Intl.get(['medialibrary', 'rotate_right']),
-			'icon': '/cms/supra/img/toolbar/icon-media-rotateright.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-rotateright.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -60,7 +60,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mlimagecrop',
 			'title': SU.Intl.get(['medialibrary', 'crop']),
-			'icon': '/cms/supra/img/toolbar/icon-media-crop.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-crop.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
@@ -68,7 +68,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		{
 	        'id': 'mlimageundo',
 			'title': SU.Intl.get(['medialibrary', 'undo_history']),
-			'icon': '/cms/supra/img/toolbar/icon-media-undo.png',
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-undo.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'

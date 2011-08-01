@@ -200,7 +200,8 @@ YUI.add('supra.page-iframe', function (Y) {
 			//Add stylesheets to iframe
 			var links = [];
 			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				links.push(this.addStyleSheet("/cms/content-manager-2/pagecontent/iframe.css"));
+				var app_path = Supra.data.get(['application', 'path']);
+				links.push(this.addStyleSheet(app_path + "/pagecontent/iframe.css"));
 			}
 			
 			//Reset DD

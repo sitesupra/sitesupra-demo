@@ -131,7 +131,7 @@
 
 /* Root */
 .flowmap > .yui3-flowmap-item > .flowmap-node {
-	background: url(/cms/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
+	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
 	width: auto;
 	padding: 0 5px 20px;
 }
@@ -140,7 +140,7 @@
 .flowmap-children .yui3-flowmap-item {
 	padding: 23px 0 0;
 	width: 146px;
-	background: url(/cms/supra/img/sitemap/lines.png) 50% 0 no-repeat;
+	background: url(/cms/lib/supra/img/sitemap/lines.png) 50% 0 no-repeat;
 	
 	-moz-transition: width 0.25s;
 	-webkit-transition: width 0.25s;
@@ -177,7 +177,7 @@
 	left: 50%;
 	top: 170px;
 	margin-left: -14px;
-	background: url(/cms/supra/img/sitemap/icon-toggle.png) 0 -28px no-repeat;
+	background: url(/cms/lib/supra/img/sitemap/icon-toggle.png) 0 -28px no-repeat;
 	cursor: pointer;
 }
 .flowmap-children .flowmap-node .toggle:hover {
@@ -238,7 +238,7 @@
 /* Edit */
 .tree-node span.edit,
 .flowmap-node span.edit {
-	background: url(/cms/supra/img/sitemap/edit.png) 0 0 no-repeat;
+	background: url(/cms/lib/supra/img/sitemap/edit.png) 0 0 no-repeat;
 	width: 16px;
 	height: 16px;
 	margin-left: 3px;

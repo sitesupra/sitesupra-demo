@@ -5,10 +5,10 @@
 	<title>Content Manager v2</title>
 	
 	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
-	<script src="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/yui/yui-min.js&amp;/cms/yui.3.3.0/build/loader/loader-min.js&amp;/cms/supra/build/supra/supra.js&amp;/cms/supra/build/supra/data.js&amp;/cms/supra/build/supra/modules.js"></script>
+	<script src="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.3.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
 	
 	<!-- Load all base CSS files at once -->
-	<link rel="stylesheet" type="text/css" href="/cms/yui.3.3.0/combo/combo.php?/cms/yui.3.3.0/build/cssreset/reset.css&amp;/cms/supra/build/supra/reset.css&amp;/cms/supra/build/supra/common.css" />
+	<link rel="stylesheet" type="text/css" href="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css&amp;/cms/lib/supra/build/supra/common.css" />
 	
 </head>
 <body>
@@ -21,8 +21,8 @@
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
 			//Set current manager path
-			Supra.Manager.Loader.setBasePath('/cms/content-manager-2/');
-			Supra.setWebsiteModulePath('/cms/content-manager-2/');
+			Supra.Manager.Loader.setBasePath('/cms/content-manager/');
+			Supra.setWebsiteModulePath('/cms/content-manager/');
 			
 			//Configuration / parameters
 			Supra.data.set({
@@ -91,8 +91,8 @@
 				//Application
 				'application': {
 					'id': 'content',
-					'path': '/cms/content-manager-2',
-					'icon': '/cms/supra/img/apps/content',
+					'path': '/cms/content-manager',
+					'icon': '/cms/lib/supra/img/apps/content',
 					'title': 'Pages'
 				},
 				

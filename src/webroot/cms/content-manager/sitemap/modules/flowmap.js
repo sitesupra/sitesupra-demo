@@ -14,12 +14,12 @@ YUI().add('website.sitemap-flowmap', function (Y) {
 	 * 		<ul class="tree">
 	 * 			<li id="tree0_node0">
 	 * 				<div class="tree-node tree-node-published">
-	 * 					<span class="img"><img src="/cms/supra/img/tree/home.png" /></span> <label>Home</label>
+	 * 					<span class="img"><img src="/cms/lib/supra/img/tree/home.png" /></span> <label>Home</label>
 	 * 				</div>
 	 * 				<ul class="tree-children">
 	 * 					<li id="tree0_node1">
 	 *		 				<div class="tree-node tree-node-scheduled">
-	 * 							<span class="img"><img src="/cms/supra/img/tree/page.png" /></span> <label>Page</label>
+	 * 							<span class="img"><img src="/cms/lib/supra/img/tree/page.png" /></span> <label>Page</label>
 	 * 
 	 * 						</div>
 	 *					</li>

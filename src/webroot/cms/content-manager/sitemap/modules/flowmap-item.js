@@ -43,7 +43,7 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 		BOUNDING_TEMPLATE: '<li></li>',
 		CONTENT_TEMPLATE: '<div class="flowmap-node">\
 								<div class="flowmap-node-inner">\
-									<span class="img"><img src="/cms/supra/img/tree/none.png" /></span>\
+									<span class="img"><img src="/cms/lib/supra/img/tree/none.png" /></span>\
 									<label></label>\
 									<span class="edit hidden"></span>\
 								</div>\

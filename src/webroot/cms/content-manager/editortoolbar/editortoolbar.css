@@ -3,7 +3,7 @@
 }
 
 .yui3-editor-toolbar-main {
-	background: url(/cms/supra/img/toolbar/buttons-background.png) 0 -50px repeat-x;
+	background: url(/cms/lib/supra/img/toolbar/buttons-background.png) 0 -50px repeat-x;
 	height: 50px;
 	text-align: center;
 	
@@ -73,7 +73,7 @@
 	transition: opacity 0.2s;
 }
 .yui3-editor-toolbar-main .yui3-button.yui3-button-down {
-	background: url(/cms/supra/img/toolbar/buttons-background.png) 0 0 no-repeat;
+	background: url(/cms/lib/supra/img/toolbar/buttons-background.png) 0 0 no-repeat;
 }
 
 .yui3-editor-toolbar-main .yui3-button.yui3-button-disabled p {
@@ -84,7 +84,7 @@
 }
 
 .yui3-editor-toolbar-text {
-	background: url(/cms/supra/img/toolbar/buttons-background.png) 0 -100px repeat-x;
+	background: url(/cms/lib/supra/img/toolbar/buttons-background.png) 0 -100px repeat-x;
 	padding: 8px 10px 0;
 	height: 42px;
 	width: 800px;
@@ -137,7 +137,7 @@
 	right: 0;
 	bottom: 0;
 	margin-top: 50px;
-	background: url("/cms/supra/img/toolbar/buttons-background.png") 0 -50px repeat-x;
+	background: url("/cms/lib/supra/img/toolbar/buttons-background.png") 0 -50px repeat-x;
 }
 .yui3-editor-toolbar-html .yui3-editor-toolbar-main {
 	background: none;
