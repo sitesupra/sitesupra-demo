@@ -2,6 +2,10 @@
 
 namespace Supra\FileStorage;
 
+use Supra\FileStorage\UploadFilter;
+use Supra\FileStorage\Helpers;
+use Supra\FileStorage\Entity;
+
 /**
  * File storage
  *
@@ -19,6 +23,7 @@ class FileStorage
 	 * File Storage internal path
 	 * @var string
 	 */
+
 	protected $internalPath = null;
 
 	/**
@@ -34,26 +39,53 @@ class FileStorage
 	protected $defaultStorage = 'external';
 
 	/**
-	 * Upload filters array for processing
+	 * Upload file filters array for processing
 	 * @var array
 	 */
-	private $uploadFilters = array();
+	private $fileUploadFilters = array();
+
+	/**
+	 * Upload folder filters array for processing
+	 * @var array
+	 */
+	private $folderUploadFilters = array();
+	
+	/**
+	 * $_FILES['error'] messages
+	 * TODO: separate messages to MediaLibrary UI and to Logger
+	 * @var array
+	 */
+	public $fileUploadErrorMessages = array(
+		'1' => 'The uploaded file exceeds the maximum upload file size',
+		'2' => 'The uploaded file exceeds the maximum upload file size',
+		'3' => 'The uploaded file was only partially uploaded',
+		'4' => 'No file was uploaded',
+		'6' => 'Missing a temporary folder',
+		'7' => 'Failed to write file to disk',
+		'8' => 'A PHP extension stopped the file upload',
+	);
 
 	/**
 	 * Protecting from new FileStorage
 	 * @return FileStorage
 	 */
-	private function __construct(){}
+	private function __construct()
+	{
 		
+	}
+
 	/**
 	 * Protecting from cloning
 	 * @return FileStorage
 	 */
-	private function __clone(){}
+	private function __clone()
+	{
 		
+	}
+
 	/**
 	 * Get file storage internal directory path
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getInternalPath()
@@ -63,7 +95,7 @@ class FileStorage
 
 	/**
 	 * Set file storage internal directory
-	 * 
+	 *
 	 * @param string $internalPath
 	 */
 	public function setInternalPath($internalPath)
@@ -74,7 +106,7 @@ class FileStorage
 
 	/**
 	 * Get file storage external directory path
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getExternalPath()
@@ -84,7 +116,7 @@ class FileStorage
 
 	/**
 	 * Set file storage external directory
-	 * 
+	 *
 	 * @param string $externalPath
 	 */
 	public function setExternalPath($externalPath)
@@ -95,7 +127,7 @@ class FileStorage
 
 	/**
 	 * Returning only one instance of object
-	 * 
+	 *
 	 * @return FileStorage
 	 */
 	public static function getInstance()
@@ -107,13 +139,23 @@ class FileStorage
 	}
 
 	/**
-	 * Add upload filter
+	 * Add file upload filter
 	 *
-	 * @param \Supra\Validation\UploadFilterInterface $filter
+	 * @param \Supra\Validation\FileValidationInterface $filter
 	 */
-	public function addUploadFilter($filter)
+	public function addFileUploadFilter($filter)
 	{
-		$this->uploadFilters[] = $filter;
+		$this->fileUploadFilters[] = $filter;
+	}
+
+	/**
+	 * Add folder upload filter
+	 *
+	 * @param \Supra\Validation\FolderValidationInterface $filter
+	 */
+	public function addFolderUploadFilter($filter)
+	{
+		$this->folderUploadFilters[] = $filter;
 	}
 
 	//  checkWebSafe() using Upload Filters
@@ -134,58 +176,74 @@ class FileStorage
 	 * Store file data
 	 *
 	 * @param \Supra\FileStorage\Entity\File $file
-	 * @param string $source 
+	 * @param string $source
 	 */
 	function storeFileData($file, $sourceFilePath)
 	{
 		// file validation
-		foreach ($this->uploadFilters as $filter) {
-			$filter->validate($file);
+		foreach ($this->fileUploadFilters as $filter) {
+			$filter->validateFile($file);
 		}
 
 		// get dir path
 		$destination = $file->getPath(DIRECTORY_SEPARATOR, false);
-
-		$mkDirResult = $this->createFolder($destination);
 
 		// get full dest path
 		$destination .= DIRECTORY_SEPARATOR . $file->getName();
 
 		// copy
 		// TODO: copy to internal and external
-		if( ! copy($sourceFilePath, $this->getInternalPath(). DIRECTORY_SEPARATOR . $destination)) {
-			throw new FileStorageException('Failed to copy file form "'.$sourceFilePath.'" to "'.$destination.'"');
+		if ( ! copy($sourceFilePath, $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination)) {
+			throw new FileStorageException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
 		}
 	}
 
 	/**
 	 * Rename file in all file storages
-	 * @param \Supra\FileStorage\Entity\File $file
+	 * @param Entity\File $file
 	 * @param string $filename new file name
-	 * @return \Supra\FileStorage\Entity\File
 	 */
-	public function renameFile(&$file, $filename)
+	public function renameFile(Entity\File $file, $filename)
 	{
+		$oldExtension = $file->getExtension();
+		$oldFileName = $file->getName();
+
 		//TODO: $file->getFilesFileStorage() @return internal/external
 		$internalPath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
-		$file = $this->_renameFile($file, $filename, $internalPath);
-		$file = $this->_renameFile($file, $filename, $externalPath);
+		$file->setName($filename);
 
-		return $file;
+		try {
+			$newExtension = $file->getExtension();
+
+			if ($oldExtension != $newExtension) {
+				throw new FileStorageException('You can\'t change file extension');
+			}
+
+			foreach ($this->fileUploadFilters as $filter) {
+				$filter->validateFile($file);
+			}
+
+			$this->renameFileInFileSystem($file, $filename, $internalPath);
+			$this->renameFileInFileSystem($file, $filename, $externalPath);
+		} catch (FileStorageException $exception) {
+			$file->setName($oldFileName);
+			throw $exception;
+		}
 	}
 
 	/**
 	 * Actual file rename which is triggered by $this->renameFile();
-	 * @param \Supra\FileStorage\Entity\File $file
+	 * @param Entity\File $file
 	 * @param string $filename new file name
 	 * @param string $path
 	 * @return \Supra\FileStorage\Entity\File
 	 */
-	private function _renameFile(&$file, $filename, $path) {
+	private function renameFileInFileSystem(Entity\File $file, $filename, $path)
+	{
 		if (file_exists($path)) {
-			if (rename($path, dirname($path). DIRECTORY_SEPARATOR . $filename)) {
+			if (rename($path, dirname($path) . DIRECTORY_SEPARATOR . $filename)) {
 				$file->setName($filename);
 			}
 		}
@@ -193,65 +251,75 @@ class FileStorage
 //		else {
 //			throw new FileStorageException('File does not exists in ' . $path);
 //		}
-
-		return $file;
 	}
 
 	/**
 	 * Rename folder in all file storages
-	 * @param \Supra\FileStorage\Entity\Folder $folder
+	 * @param Entity\Folder $folder
 	 * @param string $title new folder name
-	 * @return \Supra\FileStorage\Entity\Folder
 	 */
-	public function renameFolder(&$folder, $title)
+	public function renameFolder(Entity\Folder $folder, $title)
 	{
 		$internalPath = $this->getInternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = $this->getExternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
+		// old folder name for rollback if validation fails
+		$oldFolderName = $folder->getName();
 
-		$folder = $this->_renameFolder($folder, $title, $internalPath);
-		$folder = $this->_renameFolder($folder, $title, $externalPath);
+		$folder->setName($title);
 
-		return $folder;
+		try {
+			// validating folder before renaming
+			foreach ($this->folderUploadFilters as $filter) {
+				$filter->validateFolder($folder);
+			}
+
+			// rename folder in both file storages
+			$this->renameFolderInFileSystem($folder, $title, $internalPath);
+			$this->renameFolderInFileSystem($folder, $title, $externalPath);
+		} catch (FileStorageException $exception) {
+			$folder->setName($oldFolderName);
+			throw $exception;
+		}
 	}
 
 	/**
 	 * Actual folder rename which is triggered by $this->renameFolder();
-	 * @param \Supra\FileStorage\Entity\Folder $folder
+	 * @param Entity\Folder $folder
 	 * @param string $title new folder name
 	 * @param string $path
-	 * @return \Supra\FileStorage\Entity\Folder
 	 */
-	private function _renameFolder(&$folder, $title, $path)
+	private function renameFolderInFileSystem(Entity\Folder $folder, $title, $path)
 	{
 		if (is_dir($path)) {
-			if (rename($path, dirname($path). DIRECTORY_SEPARATOR . $title)) {
+			if (rename($path, dirname($path) . DIRECTORY_SEPARATOR . $title)) {
 				$folder->setName($title);
 			}
 		} else {
 			throw new FileStorageException($path . ' is not a folder');
 		}
-
-		return $folder;
 	}
 
 	/**
 	 * Creates new folder in all file storages
-	 * @param string $folder
+	 * @param string $folderName
 	 * @return true or throws FileStorageException
 	 */
-	public function createFolder($folder)
+	public function createFolder($destination, $folderName = '')
 	{
-		if ( ! empty($folder)) {
-			$internal = $this->_createFolder($this->getInternalPath() . $folder);
-			$external = $this->_createFolder($this->getExternalPath() . $folder);
+		$fileNameHelper = new Helpers\FileNameValidationHelper();
+		$fileNameHelper->validate($folderName);
 
-			if (($external === true) && ($internal === true)) {
-				return true;
-			} else {
-				throw new FileStorageException('Something went wrong while creating folder');
-			}
+		if (( ! empty($folderName)) && ( ! empty($destination))) {
+			$folderName = DIRECTORY_SEPARATOR . $folderName;
+		}
+
+		$internal = $this->createFolderInFileSystem($this->getInternalPath() . $destination . $folderName);
+		$external = $this->createFolderInFileSystem($this->getExternalPath() . $destination . $folderName);
+
+		if (($external === true) && ($internal === true)) {
+			return true;
 		} else {
-			throw new FileStorageException('Destination is empty');
+			throw new FileStorageException('Something went wrong while creating folder');
 		}
 	}
 
@@ -260,19 +328,40 @@ class FileStorage
 	 * @param string $fullPath
 	 * @return true or throws FileStorageException
 	 */
-	private function _createFolder($fullPath)
+	private function createFolderInFileSystem($fullPath)
 	{
 		// mkdir
 		// FIXME chmod
-		if ( ! is_dir($fullPath)) {
-			if (mkdir($fullPath, 0777)) {
-				return true;
+
+		$externalPath = $this->getExternalPath();
+		$internalPath = $this->getInternalPath();
+
+		if (($fullPath != $externalPath) && ($fullPath != $internalPath)) {
+			if ( ! is_dir($fullPath)) {
+				if (mkdir($fullPath, 0777)) {
+					return true;
+				} else {
+					throw new FileStorageException('Could not create folder in ' . $fullPath);
+				}
 			} else {
-				throw new FileStorageException('Could not create folder in ' . $fullPath);
+				throw new FileStorageException('Folder with such name already exists');
 			}
 		} else {
 			return true;
 		}
+	}
+
+	/**
+	 * Returns file extension
+	 * @param string $filename
+	 * @return string
+	 */
+	private function getExtension(string $filename)
+	{
+		$fileinfo = pathinfo($filename);
+		$extension = $fileinfo['extension'];
+
+		return $extension;
 	}
 
 }

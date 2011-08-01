@@ -272,7 +272,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 		}
 	}
 	
-	public function setName(string $fileName) 
+	public function setName($fileName) 
 	{
 		$this->fileName = $fileName;
 	}

@@ -14,6 +14,24 @@ class JsonResponse extends Http
 	private $responseData;
 	
 	/**
+	 * Error message
+	 * @var string
+	 */
+	private $errorMessage;
+	
+	/**
+	 * Confirmation message
+	 * @var string
+	 */
+	private $confirmationMessage;
+	
+	/**
+	 * Status message. Boolean true/false or 1/0
+	 * @var boolean
+	 */
+	private $status = 1;
+	
+	/**
 	 * If the data is already sent
 	 * @var boolean
 	 */
@@ -26,7 +44,34 @@ class JsonResponse extends Http
 	{
 		$this->responseData = $data;
 	}
-	
+
+	/**
+	 * Sets error message
+	 * @param string $errorMessage
+	 */
+	public function setErrorMessage($errorMessage)
+	{
+		$this->errorMessage = $errorMessage;
+	}
+
+	/**
+	 * Sets confirmation message
+	 * @param string $confirmationMessage
+	 */
+	public function setConfirmationMessage($confirmationMessage)
+	{
+		$this->confirmationMessage = $confirmationMessage;
+	}
+
+	/**
+	 * Sets response status. Boolean true/false or 1/0
+	 * @param boolean $status
+	 */
+	public function setStatus($status)
+	{
+		$this->status = $status;
+	}
+			
 	/**
 	 * Do json encoding before passing to the parent, called internally only
 	 * @param array $data
@@ -48,12 +93,13 @@ class JsonResponse extends Http
 	 */
 	private function generateOutput()
 	{
-		//TODO: add all properties
 		$responseData = array(
-			"status" => 1,
+			"status" => $this->status,
 			"data" => $this->responseData,
+			"error_message" => $this->errorMessage,
+			"confirmation_message" => $this->confirmationMessage,
 		);
-		
+				
 		$this->output($responseData);
 	}
 	

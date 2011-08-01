@@ -3,16 +3,18 @@
 namespace Supra\Cms\ContentManager\medialibrary;
 
 use Supra\Cms\ContentManager\CmsActionController;
-use Supra\FileStorage\FileStorage;
+use Supra\FileStorage\Helpers\FileNameValidationHelper;
+use Supra\FileStorage;
 
 class MediaLibraryAction extends CmsActionController
 {
+	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
 
 	/**
-	 * Used for list folder
+	 * Used for list folder item
 	 */
 	public function listAction()
 	{
@@ -25,11 +27,9 @@ class MediaLibraryAction extends CmsActionController
 		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 		$rootNodes = $repo->getRootNodes();
 
-		//TODO: parse $nodes into JS array
-		//...
-
 		$output = array();
 
+		// if parent dir is set then we set folder as rootNode
 		if ( ! empty($_GET['id'])) {
 			$id = $_GET['id'];
 			$node = $repo->findOneById($id);
@@ -42,6 +42,7 @@ class MediaLibraryAction extends CmsActionController
 
 			$item['id'] = $rootNode->getId();
 			$item['title'] = $rootNode->getName();
+
 
 			if ($rootNode instanceof \Supra\FileStorage\Entity\Folder) {
 				$item['type'] = self::TYPE_FOLDER;
@@ -57,7 +58,7 @@ class MediaLibraryAction extends CmsActionController
 			}
 
 			$item['children_count'] = $rootNode->getNumberChildren();
-
+			
 			$output[] = $item;
 		}
 
@@ -109,12 +110,14 @@ class MediaLibraryAction extends CmsActionController
 			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$fileStorage = FileStorage::getInstance();
+			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			$dirName = $_POST['title'];
-			$dir->setName($dirName);
-			$em->persist($dir);
 
+			$em->persist($dir);
+			$dir->setName($dirName);
+
+			// Adding child folder if parent exists
 			if ( ! empty($_POST['parent'])) {
 
 				$folderId = $_POST['parent'];
@@ -126,19 +129,34 @@ class MediaLibraryAction extends CmsActionController
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$folder = $repo->findOneById($folderId);
 
-				//TODO: some check on not existant folder
-
-				$folder->addChild($dir);
+				if(!empty($folder)) {
+					$folder->addChild($dir);
+				} else {
+					throw new MedialibraryException('Parent folder entity not found');
+				}				
 			}
+
+			$destination = $dir->getPath(DIRECTORY_SEPARATOR, false);
+			$folderName = $dir->getName();
+
+			// trying to create folder
+			try {
+				$fileStorage->createFolder($destination, $folderName);
+			} catch (FileStorage\FileStorageException $exc) {
+				$this->setErrorMessage($exc->getMessage());
+				return;
+			} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+				$this->setErrorMessage($exc->getMessage());
+				return;
+			} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					unset($folder,$dir);
+					return;
+				}
 
 			$em->flush();
 
-			$destination = $dir->getPath(DIRECTORY_SEPARATOR, true);
-
-			$mkDirResult = $fileStorage->createFolder($destination);
-
 			$insertedId = $dir->getId();
-
 			$this->getResponse()->setResponseData($insertedId);
 		}
 	}
@@ -151,7 +169,7 @@ class MediaLibraryAction extends CmsActionController
 		if ( ! empty($_POST['id'])) {
 
 			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$fileStorage = FileStorage::getInstance();
+			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			// FIXME: getting default DEM right now
 			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -162,38 +180,73 @@ class MediaLibraryAction extends CmsActionController
 			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 			/* @var $folder \Supra\FileStorage\Entity\File */
 			$file = $repo->findOneById($_POST['id']);
-			
-			
+
+			// find out with what we are working now with file or folder
 			if ($file instanceof \Supra\FileStorage\Entity\Folder) {
-				
-				if(isset($_POST['title'])){
-					$title = $_POST['title'];
-				} else {
-					throw new MedialibraryException('Folder title isn\'t set');
-				}
-				
-				$file = $fileStorage->renameFolder($file, $title);
-				
-			} else if ($file instanceof \Supra\FileStorage\Entity\File) {
-				
-				if(isset($_POST['title'])) {
-					// TODO: Localization? 
-					$this->getResponse()->setResponseData(null);
+
+				// if is set folders new title we rename folder
+				try {
+					if (isset($_POST['title'])) {
+						$title = $_POST['title'];
+					} else {
+						throw new MedialibraryException('Folder title isn\'t set');
+					}
+				} catch (MedialibraryException $exc) {
+					$this->setErrorMessage($exc->getMessage());
 					return;
-					
-				} else if(isset($_POST['filename'])){
-					
-					$filename = $_POST['filename'];
-					$file = $fileStorage->renameFile($file, $filename);
-					
-				} else {
-					throw new MedialibraryException('File name isn\'t set');
-				}	
-				
+				}
+
+				// trying to rename folder. Catching all FileStorage and Validation exceptions
+				// and passing them to MediaLibrary UI
+				try {
+					$fileStorage->renameFolder($file, $title);
+				} catch (FileStorage\FileStorageException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					return;
+				} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					return;
+				} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					return;
+				}
+			} else if ($file instanceof \Supra\FileStorage\Entity\File) {
+
+				try {
+					if (isset($_POST['title'])) {
+						// TODO: Localization?
+						$this->getResponse()->setResponseData(null);
+						return;
+					} else if (isset($_POST['filename'])) {
+
+						$filename = $_POST['filename'];
+
+						// trying to rename file. Catching all FileStorage and Validation exceptions
+						// and passing them to MediaLibrary UI
+						try {
+							$fileStorage->renameFile($file, $filename);
+						} catch (FileStorage\FileStorageException $exc) {
+							$this->setErrorMessage($exc->getMessage());
+							return;
+						} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+							$this->setErrorMessage($exc->getMessage());
+							return;
+						} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+							$this->setErrorMessage($exc->getMessage());
+							return;
+						}
+					} else {
+						throw new MedialibraryException('File name isn\'t set');
+					}
+				} catch (MedialibraryException $exc) {
+					$this->setErrorMessage($message);
+					return;
+				}
 			} else {
-				throw new MedialibraryException('');
+				throw new MedialibraryException('Wrong entity passed');
 			}
-			
+
+			// flushing results to database
 			$em->flush();
 
 			$fileId = $file->getId();
@@ -211,12 +264,12 @@ class MediaLibraryAction extends CmsActionController
 	 */
 	public function uploadAction()
 	{
+		// FIXME: should doctrine entity manager be as file stogare parameter?
+		$fileStorage = FileStorage\FileStorage::getInstance();
+
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
-			$file = $_FILES['file'];
-
-			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$fileStorage = FileStorage::getInstance();
+			$fileE = $_FILES['file'];
 
 			// FIXME: getting default DEM right now
 			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -224,10 +277,11 @@ class MediaLibraryAction extends CmsActionController
 			$fileEntity = new \Supra\FileStorage\Entity\File();
 			$em->persist($fileEntity);
 
-			$fileEntity->setName($file['name']);
-			$fileEntity->setSize($file['size']);
-			$fileEntity->setMimeType($file['type']);
+			$fileEntity->setName($fileE['name']);
+			$fileEntity->setSize($fileE['size']);
+			$fileEntity->setMimeType($fileE['type']);
 
+			// adding file as folders child if parent folder is set
 			if ( ! empty($_POST['folder'])) {
 
 				$folderId = $_POST['folder'];
@@ -240,21 +294,41 @@ class MediaLibraryAction extends CmsActionController
 				$folder = $repo->findOneById($folderId);
 
 				//TODO: some check on not existant folder
-
-				$folder->addChild($fileEntity);
+				if(!empty($folder)) {
+					$folder->addChild($fileEntity);
+				} else {
+					throw new MedialibraryException('Parent folder entity not found');
+				}
 			}
 
+			// file metadata
 			$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($file['name']);
+			$fileData->setTitle($fileE['name']);
 
-			$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			// trying to upload file
+			try {
+				$fileStorage->storeFileData($fileEntity, $fileE['tmp_name']);
+			} catch (FileStorage\FileStorageException $exc) {
+				$this->setErrorMessage($exc->getMessage());
+				return;
+			} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+				$this->setErrorMessage($exc->getMessage());
+				return;
+			} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+				$this->setErrorMessage($exc->getMessage());
+				return;
+			}
 
 			$em->flush();
 
+			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity);
 
 			$this->getResponse()->setResponseData($output);
+		} else {
+			//TODO: Separate messages to UI and to logger
+			$this->setErrorMessage($fileStorage->fileUploadErrorMessages[$_FILES['error']]);
 		}
 	}
 
@@ -276,6 +350,7 @@ class MediaLibraryAction extends CmsActionController
 			$type = self::TYPE_FILE;
 		}
 
+		// getting full file path
 		$filePath = $node->getPath(DIRECTORY_SEPARATOR, true);
 
 		$output = null;
@@ -311,6 +386,16 @@ class MediaLibraryAction extends CmsActionController
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Sets error message to JsonResponse object
+	 * @param string $message error message
+	 */
+	private function setErrorMessage($message)
+	{
+		$this->getResponse()->setErrorMessage($message);
+		$this->getResponse()->setStatus(false);
 	}
 
 }

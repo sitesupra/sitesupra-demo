@@ -155,8 +155,11 @@ class DoctrineRepository extends RepositoryAbstraction
 			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
 		}
 		
+		// Decision was to remove the fush operation
+		// because it's the only place where lvl, lft, rgt are being changed.
+		//
 		// flush before update
-		$this->entityManager->flush();
+		//$this->entityManager->flush();
 
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();

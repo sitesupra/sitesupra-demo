@@ -11,6 +11,15 @@ $extensionFilter = new Supra\FileStorage\UploadFilter\ExtensionUploadFilter();
 $extensionFilter->setMode(Supra\FileStorage\UploadFilter\ExtensionUploadFilter::MODE_WHITELIST);
 $extensionFilter->addItems(array('gif','png','jpg','jpeg'));
 
-$fileStorage->addUploadFilter($extensionFilter);
+$fileNameFilter = new Supra\FileStorage\UploadFilter\FileNameUploadFilter();
 
-?>
+$existingFileNameFilter = new Supra\FileStorage\UploadFilter\ExistingFileNameUploadFilter();
+
+// file filters
+$fileStorage->addFileUploadFilter($extensionFilter);
+$fileStorage->addFileUploadFilter($fileNameFilter);
+$fileStorage->addFileUploadFilter($existingFileNameFilter);
+
+// folder filters
+$fileStorage->addFolderUploadFilter($fileNameFilter);
+$fileStorage->addFolderUploadFilter($existingFileNameFilter);

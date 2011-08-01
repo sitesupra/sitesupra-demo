@@ -2,13 +2,13 @@
 
 namespace Supra\FileStorage\UploadFilter;
 
-class ExtensionUploadFilter extends BlackWhiteListCheck implements UploadFilterInterface
+class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidationInterface
 {
 	/**
 	 * Validates file extension
 	 * @param \Supra\FileStorage\Entity\File $file 
 	 */
-	public function validate(\Supra\FileStorage\Entity\File $file)
+	public function validateFile(\Supra\FileStorage\Entity\File $file)
 	{
 		$result = $this->checkList($file->getExtension());
 		if( ! $result) {

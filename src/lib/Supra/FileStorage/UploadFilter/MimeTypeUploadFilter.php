@@ -2,13 +2,13 @@
 
 namespace Supra\FileStorage\UploadFilter;
 
-class MimeTypeUploadFilter implements UploadFilterInterface
+class MimeTypeUploadFilter implements FileValidationInterface
 {
 	/**
 	 * Validates file mimetype
 	 * @param \Supra\FileStorage\Entity\File $file 
 	 */
-	public function validate(\Supra\FileStorage\Entity\File $file)
+	public function validateFile(\Supra\FileStorage\Entity\File $file)
 	{
 		$result = $this->checkList($file->getMimeType());
 		if( ! $result) {
