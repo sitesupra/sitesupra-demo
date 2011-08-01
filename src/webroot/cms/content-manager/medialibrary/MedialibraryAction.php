@@ -334,7 +334,8 @@ class MediaLibraryAction extends CmsActionController
 			$this->getResponse()->setResponseData($output);
 		} else {
 			//TODO: Separate messages to UI and to logger
-			$this->setErrorMessage($fileStorage->fileUploadErrorMessages[$_FILES['error']]);
+			$errors = $fileStorage->fileUploadErrorMessages;
+			$this->setErrorMessage($errors[$_FILES['file']['error']]);
 		}
 	}
 
