@@ -42,9 +42,9 @@ abstract class ImageProcessor
 		}
 		
 		$imageInfo = getimagesize($filename);
-		
+
 		if (empty($imageInfo[0]) && empty($imageInfo[1])) {
-			$imageInfo = null;
+			throw new \Exception('Could not get image size information');
 		} else {		
 			$imageInfo['height'] = &$imageInfo['1'];
 			$imageInfo['width'] = &$imageInfo['0'];

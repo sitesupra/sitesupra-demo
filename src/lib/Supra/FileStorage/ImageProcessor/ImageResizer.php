@@ -37,6 +37,7 @@ class ImageResizer extends ImageProcessor
 	public function setCropMode($value = false) 
 	{
 		$this->cropMode = (bool)$value;
+		return $this;
 	}
 
 
@@ -48,7 +49,7 @@ class ImageResizer extends ImageProcessor
 	 */
 	public function setTargetWidth($width)
 	{
-		$this->targetWidth = $width;
+		$this->targetWidth = intval($width);
 		return $this;
 	}
 
@@ -60,7 +61,7 @@ class ImageResizer extends ImageProcessor
 	 */
 	public function setTargetHeight($height)
 	{
-		$this->targetHeight = $height;
+		$this->targetHeight = intval($height);
 		return $this;
 	}
 	
@@ -73,16 +74,16 @@ class ImageResizer extends ImageProcessor
 
 		// parameter check
 		if (empty($this->sourceFilename)) {
-			throw new Exception('Source image is not set');
-		}
-		if (empty($this->targetWidth)) {
-			throw new Exception('Target width is not set');
-		}
-		if (empty($this->targetHeight)) {
-			throw new Exception('Target height is not set');
+			throw new \Exception('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new Exception('Target (output) file is not set');
+			throw new \Exception('Target (output) file is not set');
+		}
+		if (empty($this->targetWidth) || ($this->targetWidth <= 0)) {
+			throw new \Exception('Target width is not set or is invalid');
+		}
+		if (empty($this->targetHeight) || ($this->targetHeight <= 0)) {
+			throw new \Exception('Target height is not set or is invalid');
 		}
 		
 		// get original image info
