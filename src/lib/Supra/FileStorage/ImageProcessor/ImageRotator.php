@@ -41,10 +41,10 @@ class ImageRotator extends ImageProcessor
 
 		// parameter check
 		if (empty($this->sourceFilename)) {
-			throw new Exception('Source image is not set');
+			throw new \Exception('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new Exception('Target (output) file is not set');
+			throw new \Exception('Target (output) file is not set');
 		}
 
 		if ($this->rotationCount != 0) {
@@ -60,6 +60,15 @@ class ImageRotator extends ImageProcessor
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			copy($this->sourceFilename, $this->targetFilename);
 		}
+	}
+
+	/**
+	 * Rotate
+	 * 
+	 */
+	public function rotate()
+	{
+		$this->process();
 	}
 
 	/**

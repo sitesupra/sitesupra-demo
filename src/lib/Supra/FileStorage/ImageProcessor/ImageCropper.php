@@ -9,12 +9,12 @@ namespace Supra\FileStorage\ImageProcessor;
 class ImageCropper extends ImageProcessor
 {
 
-	protected $left = 0;
-	protected $top = 0;
-	protected $right = 0;
-	protected $bottom = 0;
-	protected $width = 0;
-	protected $height = 0;
+	protected $left = null;
+	protected $top = null;
+	protected $right = null;
+	protected $bottom = null;
+	protected $width = null;
+	protected $height = null;
 
 	/**
 	 * Set left offset
@@ -50,9 +50,7 @@ class ImageCropper extends ImageProcessor
 	public function setRight($value)
 	{
 		$this->right = intval($value);
-		if ($this->right != 0) {
-			$this->width = 0;
-		}
+		$this->width = null;
 		return $this;
 	}
 
@@ -66,9 +64,7 @@ class ImageCropper extends ImageProcessor
 	public function setBottom($value)
 	{
 		$this->bottom = intval($value);
-		if ($this->bottom != 0) {
-			$this->height = 0;
-		}
+		$this->height = null;
 		return $this;
 	}
 
@@ -81,9 +77,7 @@ class ImageCropper extends ImageProcessor
 	public function setWidth($value)
 	{
 		$this->width = intval($value);
-		if ($this->width != 0) {
-			$this->right = 0;
-		}
+		$this->right = null;
 		return $this;
 	}
 
@@ -96,9 +90,7 @@ class ImageCropper extends ImageProcessor
 	public function setHeight($value)
 	{
 		$this->height = intval($value);
-		if ($this->height != 0) {
-			$this->bottom = 0;
-		}
+		$this->bottom = null;
 		return $this;
 	}
 	
@@ -111,19 +103,19 @@ class ImageCropper extends ImageProcessor
 
 		// parameter check
 		if (empty($this->sourceFilename)) {
-			throw new Exception('Source image is not set');
+			throw new \Exception('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new Exception('Target (output) file is not set');
+			throw new \Exception('Target (output) file is not set');
 		}
 
 		// check if there are enough dimensions
-		if (($this->left == 0) 
-			|| ($this->top == 0) 
-			|| (($this->right == 0) && ($this->width == 0))
-			|| (($this->bottom == 0) && ($this->height == 0))
+		if (($this->left === null) 
+			|| ($this->top === null) 
+			|| (($this->right === null) && empty($this->width))
+			|| (($this->bottom === null) && empty($this->height))
 		) {
-			throw new Exception('Crop dimensions are incomplete to process');
+			throw new \Exception('Crop dimensions are incomplete to process image');
 		}
 
 		$image = $this->createImageFromFile($this->sourceFilename);
@@ -131,10 +123,10 @@ class ImageCropper extends ImageProcessor
 
 		// check if left and top are in range
 		if (($this->left < 0) || ($this->left >= $imageInfo['width'])) {
-			throw new Exception('Left offset is out of borders');
+			throw new \Exception('Left offset is out of borders');
 		}
 		if (($this->top < 0 ) || ($this->top >= $imageInfo['height'])) {
-			throw new Exception('Top offset is out of borders');
+			throw new \Exception('Top offset is out of borders');
 		}
 
 		// invert right and bottom if required
@@ -146,23 +138,23 @@ class ImageCropper extends ImageProcessor
 		}
 
 		// check if right and bottom are in range
-		if ($this->right >= $imageInfo['width']) {
-			throw new Exception('Right offset is out of borders');
+		if (($this->right < 0) || ($this->right >= $imageInfo['width'])) {
+			throw new \Exception('Right offset is out of borders');
 		}
-		if ($this->bottom >= $imageInfo['height']) {
-			throw new Exception('Bottom offset is out borders');
+		if (($this->bottom < 0) || ($this->bottom >= $imageInfo['height'])) {
+			throw new \Exception('Bottom offset is out borders');
 		}
 
 		//convert right/bottom to width/height or check width/height
-		if ($this->right != 0) {
+		if ($this->right !== null) {
 			$this->width = $this->right - $this->left + 1;
-		} else if ($this->width >= ($imageInfo['width'] - $this->left)) {
-			throw new Exception('Crop width exceeds maximum (out of borders)');
+		} else if ($this->width > ($imageInfo['width'] - $this->left)) {
+			throw new \Exception('Crop width exceeds maximum (out of borders)');
 		}
-		if ($this->bottom != 0) {
+		if ($this->bottom !== null) {
 			$this->height = $this->bottom - $this->top + 1;
-		} else if ($this->height >= ($imageInfo['height'] - $this->top)) {
-			throw new Exception('Crop height exceeds maximum (out of borders)');
+		} else if ($this->height > ($imageInfo['height'] - $this->top)) {
+			throw new \Exception('Crop height exceeds maximum (out of borders)');
 		}
 
 		// create output image
@@ -203,11 +195,11 @@ class ImageCropper extends ImageProcessor
 	public function reset()
 	{
 		parent::reset();
-		$this->left = 0;
-		$this->top = 0;
-		$this->right = 0;
-		$this->bottom = 0;
-		$this->width = 0;
-		$this->height = 0;
+		$this->left = null;
+		$this->top = null;
+		$this->right = null;
+		$this->bottom = null;
+		$this->width = null;
+		$this->height = null;
 	}
 }
