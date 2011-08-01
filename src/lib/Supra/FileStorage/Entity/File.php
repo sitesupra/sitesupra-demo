@@ -3,7 +3,7 @@
 namespace Supra\FileStorage\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection;
+ Doctrine\Common\Collections\Collection;
 
 /**
  * File object
@@ -18,64 +18,68 @@ class File extends Abstraction\File
 	 * @var string
 	 */
 	protected $mimeType;
-
 	/**
 	 * @Column(type="integer", name="file_size", nullable=false)
 	 * @var integer
 	 */
 	protected $fileSize;
-
 	/**
 	 * @OneToMany(targetEntity="MetaData", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
 	protected $metaData;
-	
-	public function __construct() {
+	/**
+	 * @Column(type="boolean", name="public" nullable=false)
+	 * @var integer
+	 */
+	protected $public = true;
+
+	public function __construct()
+	{
 		parent::__construct();
 		$this->metaData = new ArrayCollection();
 	}
-	
+
 	/**
 	 * Set mime-type
 	 *
 	 * @param string $mimeType 
 	 */
-	public function setMimeType($mimeType) 
+	public function setMimeType($mimeType)
 	{
 		$this->mimeType = $mimeType;
 	}
-	
+
 	/**
 	 * Get mime-type
 	 *
 	 * @return string
 	 */
-	public function getMimeType() 
+	public function getMimeType()
 	{
 		return $this->mimeType;
 	}
-	
+
 	/**
 	 * Set file size
 	 *
 	 * @param int $fileSize
 	 */
-	public function setSize($fileSize) 
+	public function setSize($fileSize)
 	{
 		$this->fileSize = $fileSize;
 	}
-	
+
 	/**
 	 * Get file size
 	 *
 	 * @return int
 	 */
-	public function getSize() 
+	public function getSize()
 	{
 		return $this->fileSize;
 	}
-	
+
 	/**
 	 * Set meta data
 	 *
@@ -85,7 +89,7 @@ class File extends Abstraction\File
 	{
 		$this->addUnique($this->metaData, $data, 'locale');
 	}
-	
+
 	/**
 	 * Gets file extension
 	 * @return string
@@ -94,10 +98,10 @@ class File extends Abstraction\File
 	{
 		$fileinfo = pathinfo($this->getName());
 		$extension = $fileinfo['extension'];
-		
+
 		return $extension;
 	}
-	
+
 	/**
 	 * Get meta-data for locale
 	 *
@@ -148,7 +152,7 @@ class File extends Abstraction\File
 			return $this->getName();
 		}
 	}
-	
+
 	public function isMimeTypeImage($mimetype)
 	{
 		$image = strpos($mimetype, 'image/');
@@ -159,4 +163,15 @@ class File extends Abstraction\File
 			return false;
 		}
 	}
+
+	public function isPublic()
+	{
+		return $this->public;
+	}
+
+	public function setPublic($public)
+	{
+		$this->public = $public;
+	}
+
 }

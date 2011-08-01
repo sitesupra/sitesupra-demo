@@ -68,6 +68,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 //		$roots = $repo->getRootNodes();
 //		1+1;
 
+		$path = $file->getPath(DIRECTORY_SEPARATOR,true);
+		if ($path == 'one/chuck.jpg') {
+			$this->assertTrue(true);
+		} else {
+			$this->fail('File path is wrong');
+		}
 	}
 
 	public function testUploadFilterFail()
@@ -108,10 +114,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$result = $this->createFolder('testDir');
 
-		if ($result instanceof \Supra\FileStorage\Entity\Folder) {
+		if ( ! ($result instanceof \Supra\FileStorage\Entity\Folder)) {
+			$this->fail('Failed to create folder');
+		}
+
+		$path = $result->getPath(DIRECTORY_SEPARATOR,true);
+		
+		if ($path == 'testDir') {
 			$this->assertTrue(true);
 		} else {
-			$this->fail('Failed to create folder');
+			$this->fail('File path is wrong');
 		}
 
 	}
@@ -124,6 +136,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		try {
 			$this->createFolder('testDir');
+
 		} catch (FileStorage\FileStorageException $e) {
 			$this->assertTrue(true);
 			return;
@@ -139,6 +152,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		try {
 			$result = $this->createFolder('Copy*Pase');
+
+			$path = $result->getPath(DIRECTORY_SEPARATOR,true);
+
+			if ($path == 'Copy*Pase') {
+				$this->fail('Record should not exist in database');
+			}
 		} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
 			$this->assertTrue(true);
 			return;
@@ -154,6 +173,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		try {
 			$result = $this->createFolder('.Folder');
+
+			$path = $result->getPath(DIRECTORY_SEPARATOR,true);
+
+			if ($path == '.Folder') {
+				$this->fail('Record should not exist in database');
+			}
 		} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
 			$this->assertTrue(true);
 			return;
@@ -177,7 +202,14 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$externalPath = is_dir($filestorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
 
 			if ($internalPath && $externalPath) {
-				$this->assertTrue(true);
+
+				$path = $dir->getPath(DIRECTORY_SEPARATOR,true);
+
+				if ($path != 'folder') {
+					$this->fail('Record should exist in database');
+				} else {
+					$this->assertTrue(true);
+				}
 				return;
 			} else {
 				$this->assertTrue(false);
@@ -372,7 +404,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testCreateMultiLevelFolder()
 	{
-		$this->cleanUp();
+		$this->cleanUp(true);
 
 		$filestorage = FileStorage\FileStorage::getInstance();
 
@@ -403,6 +435,72 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	}
 
+	public function testCreateMultiLevelFolderAndUploadFile()
+	{
+		$this->cleanUp(true);
+
+		$filestorage = FileStorage\FileStorage::getInstance();
+
+		$dir = null;
+		$dirNames = array('one', 'two', 'three');
+		foreach ($dirNames as $dirName) {
+			$parentDir = $dir;
+			$dir = new \Supra\FileStorage\Entity\Folder();
+			$dir->setName($dirName);
+			self::getConnection()->persist($dir);
+			self::getConnection()->flush();
+			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
+				$parentDir->addChild($dir);
+				$filestorage->createFolder($parentDir->getPath(DIRECTORY_SEPARATOR, true), $dirName);
+			} else {
+				$filestorage->createFolder($dir->getPath(DIRECTORY_SEPARATOR, false), $dirName);
+			}
+		}
+
+		$internalPath = is_dir($filestorage->getInternalPath() . 'one/two/three');
+		$externalPath = is_dir($filestorage->getExternalPath() . 'one/two/three');
+
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
+		self::getConnection()->flush();
+		$file = new \Supra\FileStorage\Entity\File();
+		self::getConnection()->persist($file);
+
+		$fileName = baseName($uploadFile);
+		$fileSize = fileSize($uploadFile);
+		$file->setName($fileName);
+		$file->setSize($fileSize);
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimeType = finfo_file($finfo, $uploadFile);
+		finfo_close($finfo);
+		$file->setMimeType($mimeType);
+		
+		$dir->addChild($file);
+
+		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
+		$fileData->setMaster($file);
+		$fileData->setTitle(basename($uploadFile));
+
+		$filestorage = FileStorage\FileStorage::getInstance();
+		$filestorage->storeFileData($file, $uploadFile);
+
+		self::getConnection()->flush();
+
+		if ($internalPath && $externalPath) {
+			$path = $file->getPath(DIRECTORY_SEPARATOR,true);
+			$filePath = 'one/two/three/chuck.jpg';
+			if ($path == $filePath && file_exists($filestorage->getInternalPath() . $filePath )) {
+				$this->assertTrue(true);
+			} else {
+				$this->fail('File path is wrong');
+			}
+
+			$this->assertTrue(true);
+		} else {
+			$this->fail('There is no folders');
+		}
+
+	}
+
 	private function deleteFilesAndFolders()
 	{
 		$filestorage = FileStorage\FileStorage::getInstance();
@@ -417,15 +515,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$objects = scandir($dir);
 			foreach ($objects as $object) {
 				if ($object != "." && $object != ".." && $object != ".svn") {
-					if (filetype($dir . $object) == "dir") {
-						$this->removeFolders($dir . $object);
+					$dir = rtrim($dir, DIRECTORY_SEPARATOR);
+					if (filetype($dir . DIRECTORY_SEPARATOR .$object) == "dir") {
+						$this->removeFolders($dir . DIRECTORY_SEPARATOR . $object);
 					} else {
-						unlink($dir . DIRECTORY_SEPARATOR . $object);
+						@unlink($dir . DIRECTORY_SEPARATOR . $object);
 					}
 				}
 			}
 			reset($objects);
-			rmdir($dir);
+			@rmdir($dir);
 		}
 
 	}
@@ -441,6 +540,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->deleteFilesAndFolders();
 		}
 
+	}
+
+	public function testCleanUp()
+	{
+	  $this->cleanUp();
 	}
 
 }

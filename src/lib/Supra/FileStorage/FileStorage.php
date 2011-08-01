@@ -87,6 +87,7 @@ class FileStorage
 	 * @var integer chmod
 	 */
 	private $folderAccessMode = 0750;
+	
 	/**
 	 * File access mode
 	 * @var integer chmod
@@ -139,7 +140,7 @@ class FileStorage
 	 * Set folder access mode
 	 * @param integer $folderAccessMode chmod
 	 */
-	public function setFolderAccessMode($folderAccessMode)
+	public function setFolderAccessModeInFileSystem($folderAccessMode)
 	{
 		$this->folderAccessMode = $folderAccessMode;
 	}
@@ -148,7 +149,7 @@ class FileStorage
 	 * Set file access mode
 	 * @param integer $fileAccessMode chmod
 	 */
-	public function setFileAccessMode($fileAccessMode)
+	public function setFileAccessModeInFileSystem($fileAccessMode)
 	{
 		$this->fileAccessMode = $fileAccessMode;
 	}
@@ -217,9 +218,7 @@ class FileStorage
 		// get full dest path
 		$destination .= DIRECTORY_SEPARATOR . $file->getName();
 
-		// copy
-		// TODO: copy to internal and external
-		$filePath = $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination;
+		$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
 
 		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new FileStorageException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
@@ -239,9 +238,12 @@ class FileStorage
 		$oldFileName = $file->getName();
 
 		//TODO: $file->getFilesFileStorage() @return internal/external
-		$internalPath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
-		$externalPath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
-
+		if($file->isPublic()) {
+			$filePath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		} else {
+			$filePath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		}
+		
 		$file->setName($filename);
 
 		try {
@@ -255,8 +257,8 @@ class FileStorage
 				$filter->validateFile($file);
 			}
 
-			$this->renameFileInFileSystem($file, $filename, $internalPath);
-			$this->renameFileInFileSystem($file, $filename, $externalPath);
+			$this->renameFileInFileSystem($file, $filename, $filePath);
+
 		} catch (FileStorageException $exception) {
 			$file->setName($oldFileName);
 			throw $exception;
@@ -292,6 +294,7 @@ class FileStorage
 	{
 		$internalPath = $this->getInternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = $this->getExternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
+
 		// old folder name for rollback if validation fails
 		$oldFolderName = $folder->getName();
 
@@ -306,6 +309,7 @@ class FileStorage
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($folder, $title, $internalPath);
 			$this->renameFolderInFileSystem($folder, $title, $externalPath);
+
 		} catch (FileStorageException $exception) {
 			$folder->setName($oldFolderName);
 			throw $exception;
