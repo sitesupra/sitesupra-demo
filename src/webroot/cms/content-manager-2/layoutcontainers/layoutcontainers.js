@@ -10,14 +10,19 @@
  * 		LayoutRightContainer - PageSettings,
  * 		LayoutTopContainer - PageToolbar, EditorToolbar
  */
-SU(function (Y) {
+Supra('supra.plugin-layout', function (Y) {
 
 	//Shortcut
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
-	//Container prototype
+	/**
+	 * All layout containers extend this prototype
+	 *  
+	 * @type {Object}
+	 * @private
+	 */
 	var ContainerProto = {
 		
 		/**
@@ -209,7 +214,7 @@ SU(function (Y) {
 	};
 	
 	//Create Action for right container
-	new Action(SU.mix({}, ContainerProto, {
+	new Action(Supra.mix({}, ContainerProto, {
 		/**
 		 * Unique action name
 		 * @type {String}
@@ -228,7 +233,7 @@ SU(function (Y) {
 	
 	
 	//Create Action for left container
-	new Action(SU.mix({}, ContainerProto, {
+	new Action(Supra.mix({}, ContainerProto, {
 		/**
 		 * Unique action name
 		 * @type {String}
@@ -246,7 +251,7 @@ SU(function (Y) {
 	}));
 	
 	//Create Action for top container
-	new Action(SU.mix({}, ContainerProto, {
+	new Action(Supra.mix({}, ContainerProto, {
 		/**
 		 * Unique action name
 		 * @type {String}
@@ -312,55 +317,50 @@ SU(function (Y) {
 			this.addChildAction('LayoutTopContainer');
 			this.addChildAction('LayoutLeftContainer');
 			this.addChildAction('LayoutRightContainer');
+		},
+		
+		
+		/**
+		 * Bind layouts together
+		 * @private
+		 */
+		bindLayouts: function () {
+			var layoutTopContainer = Supra.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
-			var pageContent = Manager.getAction('PageContent');
-			pageContent.on('iframeReady', function () {
-				
-				var iframeObj = pageContent.iframeObj;
-				
-				//iFrame position sync with other actions
-				iframeObj.plug(SU.PluginLayout, {
-					'offset': [10, 10, 10, 10]	//Default offset from page viewport
-				});
-				
-				var layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-					layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-					layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
-				
-				//Top bar 
-				iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-				iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-				iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
-				
-				//Left and right bars also should sync position when Editor toolbar is shown/hidden
-				layoutLeftContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
-				layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-				
-				layoutRightContainer.plug(SU.PluginLayout, {'offset': [10, 10, 10, 10]});
-				layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-				
-				//On left container show hide right container and wise versa
-				layoutLeftContainer.on('visibleChange', function (evt) {
-					if (evt.newVal != evt.prevVal && evt.newVal) layoutRightContainer.hide();
-				});
-				layoutRightContainer.on('visibleChange', function (evt) {
-					if (evt.newVal != evt.prevVal && evt.newVal) layoutLeftContainer.hide();
-				})
+			//Left and right container are under top container, maintain this position
+			layoutLeftContainer.plug(Supra.PluginLayout, {'offset': [10, 10, 10, 10]});
+			layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			
+			layoutRightContainer.plug(Supra.PluginLayout, {'offset': [10, 10, 10, 10]});
+			layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			
+			//On left container show hide right container and wise versa
+			layoutLeftContainer.on('visibleChange', function (evt) {
+				if (evt.newVal != evt.prevVal && evt.newVal) layoutRightContainer.hide();
+			});
+			layoutRightContainer.on('visibleChange', function (evt) {
+				if (evt.newVal != evt.prevVal && evt.newVal) layoutLeftContainer.hide();
 			});
 			
-			//Show PageToolbar and load EditorToolbar
-			Manager.executeAction('EditorToolbar', true);
-			Manager.executeAction('PageToolbar');
+			//Call only once
+			this.bindLayouts = function () {};
 		},
 		
 		/**
 		 * Execute
-		 * @private
 		 */
-		execute: function () {
+		execute: function (callback, context) {
 			Manager.executeAction('LayoutLeftContainer');
 			Manager.executeAction('LayoutRightContainer');
 			Manager.executeAction('LayoutTopContainer');
+			
+			this.bindLayouts();
+			
+			if (Y.Lang.isFunction(callback)) {
+				callback.call(context, this);
+			}
 		}
 	});
 	

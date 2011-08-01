@@ -122,7 +122,7 @@ YUI.add("website.version-list", function (Y) {
 				item = Y.Node.create('<li class="clearfix version-' + version.type + '">\
 										<h5>' + Y.Lang.escapeHTML(version.title) + '</h5>\
 										<p>' + Y.Lang.escapeHTML(version.description) + '</p>\
-										<small>Last change: ' + Y.Lang.escapeHTML(version.author) + ', ' + Y.Lang.escapeHTML(version.date) + '</small>\
+										<small>' + SU.Intl.get(['settings', 'last_change']) + ' ' + Y.Lang.escapeHTML(version.author) + ', ' + Y.Lang.escapeHTML(version.date) + '</small>\
 										<div class="version-item-buttons"></div>\
 									  </li>');
 				
@@ -130,8 +130,8 @@ YUI.add("website.version-list", function (Y) {
 				
 				//Buttons
 				buttons = item.one('.version-item-buttons');
-				(new Supra.Button({'style': 'mid', 'label': 'Rename'})).render(buttons).on('click', this.renameVersion, this);
-				(new Supra.Button({'style': 'mid-red', 'label': 'Delete'})).render(buttons).on('click', this.deleteVersion, this);
+				(new Supra.Button({'style': 'mid', 'label': SU.Intl.get(['buttons', 'rename'])})).render(buttons).on('click', this.renameVersion, this);
+				(new Supra.Button({'style': 'mid-red', 'label': SU.Intl.get(['buttons', 'delete'])})).render(buttons).on('click', this.deleteVersion, this);
 				
 				content.append(item);
 			}

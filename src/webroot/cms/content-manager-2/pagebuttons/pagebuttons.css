@@ -1,0 +1,134 @@
+/**
+ * Buttons
+ */
+.yui3-page-buttons {
+	position: absolute;
+	z-index: 3;
+	right: 0;
+	top: 0;
+	height: 50px;
+	width: 350px;
+	overflow: hidden;
+}
+.yui3-page-buttons .yui3-button,
+.yui3-page-buttons .yui3-button div,
+.yui3-page-buttons .yui3-button button {
+	background-image: url(/cms/supra/img/toolbar/buttons-mid.png);
+}
+.yui3-page-buttons .yui3-button {
+	background-position: 100% -66px;
+	margin-right: 10px;
+}
+.yui3-page-buttons .yui3-button div {
+	background-position: 0 0;
+}
+.yui3-page-buttons .yui3-button button {
+	background-position: 0 -33px;
+}
+.yui3-page-buttons .yui3-button-focused,
+.yui3-page-buttons .yui3-button-mouse-hover {
+	background-position: 100% -165px;
+}
+.yui3-page-buttons .yui3-button-focused div,
+.yui3-page-buttons .yui3-button-mouse-hover div {
+	background-position: 0 -99px;
+}
+.yui3-page-buttons .yui3-button-focused button,
+.yui3-page-buttons .yui3-button-mouse-hover button {
+	background-position: 100% -132px;
+}
+.yui3-page-buttons .yui3-button-down {
+	background-position: 100% -264px;
+}
+.yui3-page-buttons .yui3-button-down div {
+	background-position: 0 -198px;
+}
+.yui3-page-buttons .yui3-button-down button {
+	background-position: 100% -231px;
+}
+
+/* Blue */
+
+.yui3-page-buttons .yui3-button-mid-blue {
+	background-position: 100% -363px;
+}
+.yui3-page-buttons .yui3-button-mid-blue div {
+	background-position: 0 -297px;
+}
+.yui3-page-buttons .yui3-button-mid-blue button {
+	background-position: 0 -330px;
+}
+.yui3-page-buttons .yui3-button p,
+.yui3-page-buttons .yui3-button-mid-blue p {
+	color: #333;
+	text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover {
+	background-position: 100% -462px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused div,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover div {
+	background-position: 0 -396px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-focused button,
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-mouse-hover button {
+	background-position: 100% -429px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down {
+	background-position: 100% -561px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down div {
+	background-position: 0 -495px;
+}
+.yui3-page-buttons .yui3-button-mid-blue.yui3-button-down button {
+	background-position: 100% -528px;
+}
+
+/* Green */
+
+.yui3-page-buttons .yui3-button-mid-green {
+	background-position: 100% -660px;
+}
+.yui3-page-buttons .yui3-button-mid-green div {
+	background-position: 0 -594px;
+}
+.yui3-page-buttons .yui3-button-mid-green button {
+	background-position: 0 -627px;
+}
+.yui3-page-buttons .yui3-button p,
+.yui3-page-buttons .yui3-button-mid-green p {
+	color: #333;
+	text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-focused,
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-mouse-hover {
+	background-position: 100% -759px;
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-focused div,
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-mouse-hover div {
+	background-position: 0 -693px;
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-focused button,
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-mouse-hover button {
+	background-position: 100% -726px;
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-down {
+	background-position: 100% -858px;
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-down div {
+	background-position: 0 -792px;
+}
+.yui3-page-buttons .yui3-button-mid-green.yui3-button-down button {
+	background-position: 100% -825px;
+}
+
+
+
+.yui3-page-buttons .yui3-page-buttons-group {
+	white-space: nowrap;
+	position: absolute;
+	right: 0;
+	padding-top: 9px;
+	top: -50px; /* Node is animated inside view */
+}

@@ -2,7 +2,7 @@
 "use strict";
 
 /*
- * SU.PluginLayout
+ * Supra.PluginLayout
  */
 YUI.add('supra.plugin-layout', function (Y) {
 	
@@ -193,7 +193,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 	PluginLayout.LEFT = 'left';
 	PluginLayout.RIGHT = 'right';
 	
-	SU.PluginLayout = PluginLayout;
+	Supra.PluginLayout = PluginLayout;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

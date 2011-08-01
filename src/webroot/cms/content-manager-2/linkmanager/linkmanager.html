@@ -1,12 +1,12 @@
 <div class="yui3-linkmanager yui3-sidebar">
 	
 	<!-- Form header -->
-	<h2 class="yui3-sidebar-header">Link to <span></span></h2>
+	<h2 class="yui3-sidebar-header">{#linkmanager.title#}<span></span></h2>
 	
 	<!-- Buttons -->
 	<div class="yui3-sidebar-buttons">
-		<button type="button" class="button-back"><p>Back</p></button>
-		<button type="button" class="button-close"><p>Close</p></button>
+		<button type="button" class="button-back"><p>{#buttons.back#}</p></button>
+		<button type="button" class="button-close"><p>{#buttons.close#}</p></button>
 	</div>
 	
 	<div class="yui3-sidebar-content"><form>
@@ -16,12 +16,12 @@
 			<div id="linkToRoot">
 				
 				<div class="title">
-					Select what you want to link
+					{#linkmanager.select#}
 				</div>
 				
 				<div class="select">
-					<a data-slideshow="linkToFile" class="file">Link to file</a>
-					<a data-slideshow="linkToPage" class="page">Link to page</a>
+					<a data-slideshow="linkToFile" class="file">{#linkmanager.link_to_file#}</a>
+					<a data-slideshow="linkToPage" class="page">{#linkmanager.link_to_page#}</a>
 				</div>
 				
 			</div>
@@ -31,8 +31,8 @@
 				
 				<!-- Internal / External selector -->
 				<select id="linkManagerType" name="linktype" suType="SelectList">
-					<option value="internal" selected="selected">Internal</option>
-					<option value="external">External</option>
+					<option value="internal" selected="selected">{#linkmanager.link_internal#}</option>
+					<option value="external">{#linkmanager.link_external#}</option>
 				</select>
 				
 				<div class="slideshow">
@@ -46,7 +46,7 @@
 					<!-- Properties -->
 					<div id="linkManagerExternal" class="hidden">
 							
-						<label for="linkManagerExternalHref">Link address</label>
+						<label for="linkManagerExternalHref">{#linkmanager.link_address#}</label>
 						<input type="text" name="href" id="linkManagerExternalHref" />
 						
 					</div>
@@ -54,13 +54,13 @@
 				
 				<div class="link-controls">
 					
-					<label for="linkManagerTarget">Open link in new window</label>
+					<label for="linkManagerTarget">{#linkmanager.new_window#}</label>
 					<select id="linkManagerTarget" name="target" suType="SelectList">
-						<option value="" selected="selected">Off</option>
-						<option value="_blank">On</option>
+						<option value="" selected="selected">{#buttons.off#}</option>
+						<option value="_blank">{#buttons.on#}</option>
 					</select>
 					
-					<label for="linkManagerTitle">Link title</label>
+					<label for="linkManagerTitle">{#linkmanager.link_title#}</label>
 					<input type="text" id="linkManagerTitle" name="title" value="" />
 					
 				</div>
@@ -74,11 +74,11 @@
 				
 				<div class="link-controls">
 					
-					<label for="linkManagerFileTitle">Link title</label>
+					<label for="linkManagerFileTitle">{#linkmanager.link_title#}</label>
 					<input type="text" id="linkManagerFileTitle" name="file_title" value="" />
 					
 					<div class="link-controls-buttons">
-						<button>Open Library app</button>
+						<button>{#linkmanager.open_library_app#}</button>
 					</div>
 					
 				</div>

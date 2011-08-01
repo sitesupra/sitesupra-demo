@@ -42,17 +42,17 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			//Properties form
 			var form_config = {
 				'inputs': [
-					{'id': 'title', 'type': 'String', 'label': 'Image title', 'value': ''},
-					{'id': 'description', 'type': 'String', 'label': 'Alt title', 'value': ''},
-					{'id': 'align', 'type': 'SelectList', 'label': 'Alignment', 'value': 'right', 'values': [
-						{'id': 'left', 'title': 'Left', 'icon': '/cms/supra/img/htmleditor/align-left.png'},
-						{'id': 'middle', 'title': 'Center', 'icon': '/cms/supra/img/htmleditor/align-center.png'},
-						{'id': 'right', 'title': 'Right', 'icon': '/cms/supra/img/htmleditor/align-right.png'}
+					{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_title']), 'value': ''},
+					{'id': 'description', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_description']), 'value': ''},
+					{'id': 'align', 'type': 'SelectList', 'label': Supra.Intl.get(['htmleditor', 'image_alignment']), 'value': 'right', 'values': [
+						{'id': 'left', 'title': Supra.Intl.get(['htmleditor', 'alignment_left']), 'icon': '/cms/supra/img/htmleditor/align-left.png'},
+						{'id': 'middle', 'title': Supra.Intl.get(['htmleditor', 'alignment_center']), 'icon': '/cms/supra/img/htmleditor/align-center.png'},
+						{'id': 'right', 'title': Supra.Intl.get(['htmleditor', 'alignment_right']), 'icon': '/cms/supra/img/htmleditor/align-right.png'}
 					]},
-					{'id': 'style', 'type': 'SelectList', 'label': 'Style', 'value': 'default', 'values': [
-						{'id': '', 'title': 'Normal', 'icon': '/cms/supra/img/htmleditor/image-style-normal.png'},
-						{'id': 'border', 'title': 'Border', 'icon': '/cms/supra/img/htmleditor/image-style-border.png'},
-						{'id': 'lightbox', 'title': 'Lightbox', 'icon': '/cms/supra/img/htmleditor/image-style-lightbox.png'}
+					{'id': 'style', 'type': 'SelectList', 'title': Supra.Intl.get(['htmleditor', 'image_style']), 'value': 'default', 'values': [
+						{'id': '', 'title': Supra.Intl.get(['htmleditor', 'style_normal']), 'icon': '/cms/supra/img/htmleditor/image-style-normal.png'},
+						{'id': 'border', 'title': Supra.Intl.get(['htmleditor', 'style_border']), 'icon': '/cms/supra/img/htmleditor/image-style-border.png'},
+						{'id': 'lightbox', 'title': Supra.Intl.get(['htmleditor', 'style_lightbox']), 'icon': '/cms/supra/img/htmleditor/image-style-lightbox.png'}
 					]}
 				],
 				'style': 'vertical'
@@ -69,7 +69,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 			
 			//Form heading
-			var heading = Y.Node.create('<h2>Image properties</h2>');
+			var heading = Y.Node.create('<h2>' + Supra.Intl.get(['htmleditor', 'image_properties']) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
 			//Buttons
@@ -77,17 +77,17 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': 'Apply', 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.settingsFormApply, this);
 			
 			//Cancel button
-			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'close']), 'style': 'mid'});
 				btn.render(buttons).on('click', this.settingsFormCancel, this);
 			
 			
 			//Add 'Delete' and 'Replace buttons'
 			//Replace button
-			var btn = new Supra.Button({'label': 'Replace', 'style': 'mid'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'replace']), 'style': 'mid'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('yui3-button-edit');
 				btn.on('click', function () {
@@ -102,7 +102,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				}, this);
 			
 			//Delete button
-			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('yui3-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
@@ -528,8 +528,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		onDrop: function (e) {
 			var image_id = e.drag_id;
 			if (!image_id) return;
-			
-			console.log(image_id, e.drop);
 			
 			//Only if dropped from gallery
 			if (image_id.match(/^\d+$/) && e.drop) {

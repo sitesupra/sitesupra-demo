@@ -7,7 +7,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	 * Default gallery image properties
 	 */
 	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''}
+		{'id': 'title', 'type': 'String', 'label': SU.Intl.get(['htmleditor', 'label_title']), 'value': ''}
 	];
 	
 	/*
@@ -47,7 +47,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Manage image button
 			var button = new Supra.Button({
-				'label': 'Manage images'
+				'label': SU.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
 			button.render(container);
@@ -55,7 +55,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Add image button
 			var button = new Supra.Button({
-				'label': 'Add images'
+				'label': SU.Intl.get(['htmleditor', 'add_images'])
 			});
 			
 			button.render(container);

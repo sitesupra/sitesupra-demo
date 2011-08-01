@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.htmleditor', function (Y) {
+SU('transition', 'supra.htmleditor', function (Y) {
 
 	//Shortcut
 	var Manager = SU.Manager,
@@ -78,6 +78,7 @@ SU('supra.htmleditor', function (Y) {
 		render: function () {
 			
 			this.toolbar.render(this.getPlaceHolder());
+			this.toolbar.get('boundingBox').addClass('yui3-editor-toolbar-html');
 			this.toolbar.hide();
 			
 			this.on('visibleChange', function (evt) {
@@ -91,7 +92,6 @@ SU('supra.htmleditor', function (Y) {
 					this.toolbar.set('disabled', evt.newVal);
 				}
 			}, this);
-			
 			
 			//Add "Apply", "Close" buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
@@ -114,7 +114,21 @@ SU('supra.htmleditor', function (Y) {
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			Manager.getAction('LayoutTopContainer').unsetActiveAction(this.NAME);
+			//Manager.getAction('LayoutTopContainer').unsetActiveAction(this.NAME);
+			
+			//Hide toolbar
+			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
+			group_node.transition({
+				'duration': 0.35,
+				'easing': 'ease-out',
+				'marginTop': '50px'
+			}, Y.bind(function () {
+				this.toolbar.set('visible', false);
+				Manager.getAction('LayoutTopContainer').fire('resize');
+			}, this));
+			
+			//Show button toolbar
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			
 			//Toggle classnames
 			var nodes = this.toolbar.groupNodes;
@@ -132,7 +146,24 @@ SU('supra.htmleditor', function (Y) {
 		execute: function (dontShow) {
 			if (dontShow) return;
 			
-			Manager.getAction('LayoutTopContainer').setActiveAction(this.NAME);
+			//Show toolbar and resize container
+			this.toolbar.set('visible', true);
+			Manager.getAction('LayoutTopContainer').fire('resize');
+			
+			//Add empty button set to PageToolbar to hide buttons
+			var pagetoolbar = Manager.getAction('PageToolbar');
+			if (!pagetoolbar.hasActionButtons(this.NAME)) {
+				pagetoolbar.addActionButtons(this.NAME, []);
+			}
+			pagetoolbar.setActiveAction(this.NAME);
+			
+			//Show toolbar
+			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
+			group_node.transition({
+				'duration': 0.35,
+				'easing': 'ease-out',
+				'marginTop': '0px'
+			});
 			
 			//Toggle classnames
 			var nodes = this.toolbar.groupNodes;
@@ -142,6 +173,8 @@ SU('supra.htmleditor', function (Y) {
 			
 			//Show "Done", "Close" buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
+			this.show();
 		}
 	});
 	

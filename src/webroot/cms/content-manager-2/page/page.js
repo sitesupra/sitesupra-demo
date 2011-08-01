@@ -71,16 +71,53 @@ Supra(function (Y) {
 			
 			//Load all other actions
 			Manager.executeAction('Blocks');
-			Manager.executeAction('LayoutContainers');
-			
-			var containers = Manager.getAction('LayoutContainers');
-			containers.on('execute', function () {
-				Manager.executeAction('PageButtons');
-				Manager.executeAction('PageContent');
-			});
+			Manager.executeAction('LayoutContainers', this.onLayoutReady, this);
 			
 			//Show all actions
 			Manager.getAction('PageContent').show();
+		},
+		
+		/**
+		 * When layout is ready create buttons and content
+		 */
+		onLayoutReady: function () {
+			var pagecontent = Manager.getAction('PageContent'),
+				pagetoolbar = Manager.getAction('PageToolbar');
+			
+			
+			Manager.executeAction('PageButtons');
+			Manager.executeAction('PageContent');
+			
+			//When content is ready bind to layout changes
+			pagecontent.on('iframeReady', this.onIframeReady, this);
+			
+			//Show PageToolbar and load EditorToolbar
+			pagetoolbar.execute();
+			pagetoolbar.once('execute', function () {
+				//Execute action, last argument 'true' is used to hide toolbar
+				Manager.executeAction('EditorToolbar', true);
+			});
+		},
+		
+		/**
+		 * When iframe is ready 
+		 */
+		onIframeReady: function () {
+			var pagecontent = Manager.getAction('PageContent'),
+				iframeObj = pagecontent.iframeObj,
+				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				
+			//iFrame position sync with other actions
+			iframeObj.plug(SU.PluginLayout, {
+				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+			});
+			
+			//Top bar 
+			iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+			iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 		},
 		
 		/**

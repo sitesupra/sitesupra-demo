@@ -1,13 +1,13 @@
 <div class="yui3-page-settings">
 	
 	<!-- Form header -->
-	<h2 class="yui3-sidebar-header">Page settings</h2>
+	<h2 class="yui3-sidebar-header">{#settings.title#}</h2>
 	
 	<!-- Buttons -->
 	<div class="yui3-sidebar-buttons">
-		<!-- <button type="button" class="button-cancel"><p>Cancel</p></button> -->
-		<button type="button" class="button-back"><p>Back</p></button>
-		<button type="button" class="button-save"><p>Done</p></button>
+		<!-- <button type="button" class="button-cancel"><p>{#buttons.cancel#}</p></button> -->
+		<button type="button" class="button-back"><p>{#buttons.back#}</p></button>
+		<button type="button" class="button-save"><p>{#buttons.done#}</p></button>
 	</div>
 	
 	<div class="yui3-sidebar-content"><form class="yui3-form-vertical">
@@ -17,30 +17,30 @@
 			
 			<div id="slideMain">
 			
-				<label for="title">Page title</label>
+				<label for="title">{#settings.page_title#}</label>
 				<input type="text" name="title" id="title" value="" />
 				
-				<label for="path">Page URL</label>
+				<label for="path">{#settings.page_url#}</label>
 				<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\\-\\_]*$" />
 				
-				<button type="button" class="button-delete"><p>Delete</p></button>
+				<button type="button" class="button-delete"><p>{#buttons.delete#}</p></button>
 				
-				<label for="active">Active</label>
+				<label for="active">{#settings.active#}</label>
 				<select name="active" id="active" value="" suType="SelectList">
-					<option value="1">On</option>
-					<option value="0">Off</option>
+					<option value="1">{#buttons.on#}</option>
+					<option value="0">{#buttons.off#}</option>
 				</select>
 				
 				<div class="input-group input-group-button">
-					<button type="button" class="button-meta"><p>Meta</p></button>
+					<button type="button" class="button-meta"><p>{#settings.meta#}</p></button>
 				</div>
 				
 				<div class="input-group input-group-button">
 					<button type="button" class="button-version"><p>
-						Version<br />
+						{#settings.version#}<br />
 						<small>
 							<b></b><br />
-							Last change: <span></span>
+							{#settings.last_change#} <span></span>
 						</small>
 					</p></button>
 					<input type="hidden" name="version_id" />
@@ -48,7 +48,7 @@
 				
 				<div class="input-group input-group-button">
 					<button type="button" class="button-template"><p>
-						Template<br />
+						{#settings.template#}<br />
 						<small>
 							<span></span><img src="/cms/supra/img/px.gif" alt="" />
 						</small>
@@ -59,58 +59,58 @@
 				</div>
 				
 				<div class="input-group input-group-button">
-					<button type="button" class="button-schedule"><p>Schedule: publish</p></button>
+					<button type="button" class="button-schedule"><p>{#settings.schedule#}</p></button>
 				</div>
 				
 				<div class="input-group input-group-button">
-					<button type="button" class="button-blocks"><p>View blocks on page</p></button>
+					<button type="button" class="button-blocks"><p>{#settings.blocks#}</p></button>
 				</div>
 				
 			</div><div id="slideMeta" class="hidden">
 				
-				<h3>Meta</h3>
+				<h3>{#settings.meta_title#}</h3>
 				
-				<label for="keywords">Keywords</label>
+				<label for="keywords">{#settings.keywords#}</label>
 				<input type="text" name="keywords" id="keywords" value="" />
 				
-				<label for="description">Description</label>
+				<label for="description">{#settings.description#}</label>
 				<input type="text" name="description" id="description" value="" />
 			
 			</div><div id="slideVersion" class="hidden">
 			
-				<h3>Version</h3>
+				<h3>{#settings.version_title#}</h3>
 				<div class="version-list">
 					<ul></ul>
 					<div class="clear"><!-- --></div>
 					<div class="version-list-buttons">
-						<button type="button" class="button-new-version"><p>New version</p></button>
+						<button type="button" class="button-new-version"><p>{#settings.new_version#}</p></button>
 					</div>
 				</div>
 			
 			</div><div id="slideTemplate" class="hidden">
 			
-				<h3>Templates</h3>
+				<h3>{#settings.template_title#}</h3>
 				<ul class="template-list"></ul>
 				<div class="clear"><!-- --></div>
 			
 			</div><div id="slideSchedule" class="hidden">
 			
-				<h3>Schedule publish</h3>
+				<h3>{#settings.schedule_title#}</h3>
 				<div class="calendar"></div>
 				<div class="time">
-					<label>Select time</label>
+					<label>{#settings.time#}</label>
 					<input type="text" name="schedule_hours" value="" suValueMask="^[0-9]*$" maxlength="2" />
 					<span>/</span>
 					<input type="text" name="schedule_minutes" value="" suValueMask="^[0-9]*$" maxlength="2" />
 					
 					<br />
 					
-					<button type="button"><p>Apply</p></button>
+					<button type="button"><p>{#buttons.apply#}</p></button>
 				</div>
 			
 			</div><div id="slideBlocks" class="hidden">
 			
-				<h3>Blocks on the page</h3>
+				<h3>{#settings.blocks_title#}</h3>
 				<ul class="block-list"></ul>
 				<div class="clear"><!-- --></div>
 			

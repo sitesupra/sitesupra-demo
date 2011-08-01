@@ -52,6 +52,7 @@ Supra.useModules = [
 	'event',
 	'event-delegate',
 	'supra.event',
+	'supra.intl',
 	'supra.lang',
 	'substitute',
 	'supra.datatype-date-parse',
@@ -84,6 +85,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Supra.Intl
+	 */
+	'supra.intl': {
+		path: 'intl/intl.js',
+		requires: ['intl', 'supra.io']
+	},
+	
+	/**
 	 * Y.Lang extension
 	 */
 	'supra.lang': {
@@ -107,6 +116,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.event': {
 		path: 'event/event.js'
+	},
+	
+	/**
+	 * Layout plugin
+	 */
+	'supra.plugin-layout': {
+		path: 'layout/layout.js',
+		requires: ['widget', 'plugin']
 	},
 	
 	/**

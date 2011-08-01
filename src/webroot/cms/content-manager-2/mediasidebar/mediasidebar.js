@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
+SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,
@@ -116,6 +116,12 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 			list.plug(Supra.MediaLibraryList.DD);
 			list.render(container);
 			
+			//Add HTML5 file upload support
+			list.plug(Supra.MediaLibraryList.Upload, {
+				'requestUri': medialibrary.getDataPath('upload') + '.php',
+				'dragContainer': new Y.Node(document.body)
+			});
+			
 			//Show/hide back button when slide changes
 			list.slideshow.on('slideChange', function (evt) {
 				if (list.slideshow.isRootSlide()) {
@@ -160,8 +166,17 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 			this.button_app = new Supra.Button({'srcNode': button});
 			this.button_app.render();
 			this.button_app.on('click', function () {
+				//Disable upload (MediaLibrary has its own upload instance)
+				this.medialist.upload.set('disabled', true);
+				
+				//Show media library
 				Manager.executeAction('MediaLibrary');
-			});
+				
+				Manager.getAction('MediaLibrary').on('hide', function () {
+					//Enable upload back
+					this.medialist.upload.set('disabled', false);
+				}, this);
+			}, this);
 		},
 		
 		/**
@@ -194,6 +209,10 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
+			
+			//Disable upload (otherwise all media library instances
+			//will be affected by HTML5 drag and drop)
+			this.medialist.upload.set('disabled', true);
 		},
 		
 		/**
@@ -210,6 +229,9 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', function (Y) {
 			
 			//Show MediaSidebar in left container
 			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			
+			//Enable upload
+			this.medialist.upload.set('disabled', false);
 		}
 	});
 	

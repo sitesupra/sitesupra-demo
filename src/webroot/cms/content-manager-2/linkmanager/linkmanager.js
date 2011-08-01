@@ -106,7 +106,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 					heading.hide();
 				} else {
 					this.button_back.show();
-					heading.set('text', evt.newVal == 'linkToPage' ? 'page' : 'file');
+					heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
 					heading.show();
 				}
 			}, this);

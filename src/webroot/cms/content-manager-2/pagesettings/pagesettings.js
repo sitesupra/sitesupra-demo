@@ -32,11 +32,11 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 	var DEFAULT_DATES = [
 		{
 			'date': Y.DataType.Date.format(new Date(), Supra.Calendar.INTERNAL_DATE_FORMAT),
-			'title': 'Select today'
+			'title': Supra.Intl.get(['settings', 'select_today'])
 		},
 		{
 			'date': Y.DataType.Date.format(new Date(+new Date() + 86400000), Supra.Calendar.INTERNAL_DATE_FORMAT),
-			'title': 'Select tomorrow'
+			'title': Supra.Intl.get(['settings', 'select_tomorrow'])
 		}
 	];
 	
@@ -303,10 +303,18 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			}
 			
 			Manager.executeAction('Confirmation', {
-				'message': 'Are you sure you want to delete selected page?',
+				'message': Supra.Intl.get(['settings', 'delete_message']),
 				'buttons': [
-					{'id': 'delete', 'label': 'Yes', 'click': function () { Manager.Page.deleteCurrentPage(); this.hide(); }, 'context': this},
-					{'id': 'no', 'label': 'No'}
+					{
+						'id': 'delete',
+						'label': Supra.Intl.get(['buttons', 'yes']),
+						'click': function () { Manager.Page.deleteCurrentPage(); this.hide(); },
+						'context': this
+					},
+					{
+						'id': 'no',
+						'label': Supra.Intl.get(['buttons', 'no'])
+					}
 				]
 			});
 			

@@ -175,8 +175,10 @@ YUI.add('supra.manager-base', function (Y) {
 				return false;
 
 			} else {
-				//Action is loaded, but object wasn't created
-				Y.log('Action ' + action_name + ' was loaded, but action object wasn\'t found', 'error');
+				this.addActionToQueue(action_name, args);
+				
+				//Action is loaded, but object wasn't created or is not yet ready
+				//Y.log('Action ' + action_name + ' was loaded, but action object wasn\'t found', 'error');
 			}
 		},
 		

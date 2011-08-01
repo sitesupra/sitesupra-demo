@@ -328,7 +328,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 		setActiveInlineProperty: function (property_id) {
 			var old_property_id = this.get('active_inline_property');
 			
-			if (property_id != old_property_id) {
+			//Can't set active inline property if editing is disabled
+			var editing_disabled = this.get('super').get('disabled');
+			
+			if (!editing_disabled && property_id != old_property_id) {
 				if (old_property_id && old_property_id in this.html_inputs) {
 					this.html_inputs[old_property_id].set('disabled', true);
 				}

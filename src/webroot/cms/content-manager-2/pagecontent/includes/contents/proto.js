@@ -9,8 +9,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
 	//Templates
-	var HTML_CLICK = '<span>Click to edit</span>';
-	var HTML_CLICK_DRAG = '<span>Click to edit<br />Drag &amp; drop to move</span>';
+	var HTML_CLICK = '<span>' + SU.Intl.get(['page', 'click_to_edit']) + '</span>';
+	var HTML_CLICK_DRAG = '<span>' + SU.Intl.get(['page', 'click_to_edit_drag_to_move']) + '</span>';
 	
 	/**
 	 * Content block

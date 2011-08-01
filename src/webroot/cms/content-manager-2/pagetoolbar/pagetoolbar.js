@@ -11,38 +11,31 @@ SU(function (Y) {
 		'Root': [
 			{
 				'id': 'sitemap',
-				'title': 'Sitemap',
+				'title': SU.Intl.get(['sitemap', 'button']),
 				'icon': '/cms/supra/img/toolbar/icon-sitemap.png',
-				'action': 'SiteMap'
-			},
-			{
-				'id': 'edit',
-				'title': 'Edit page',
-				'icon': '/cms/supra/img/toolbar/icon-edit-page.png',
-				'action': 'PageContent',
-				'actionFunction': 'startEditing',
+				'action': 'SiteMap',
 				'type': 'button'	/* Default is 'toggle' */
 			}
 		],
 		'Page': [
 			{
-				'id': 'settings',
-				'title': 'Settings',
-				'icon': '/cms/supra/img/toolbar/icon-settings.png',
-				'action': 'PageSettings'
-			},
-			{
 				'id': 'blockbar',
-				'title': 'Insert',
+				'title': SU.Intl.get(['insertblock', 'button']),
 				'icon': '/cms/supra/img/toolbar/icon-insert.png',
 				'action': 'PageInsertBlock',
 				'permissions': ['block', 'insert']
 			},
 			{
 				'id': 'history',
-				'title': 'History',
+				'title': SU.Intl.get(['history', 'button']),
 				'icon': '/cms/supra/img/toolbar/icon-history.png',
 				'action': 'PageHistory'
+			},
+			{
+				'id': 'settings',
+				'title': SU.Intl.get(['settings', 'button']),
+				'icon': '/cms/supra/img/toolbar/icon-settings.png',
+				'action': 'PageSettings'
 			}
 		]
 	};
@@ -157,7 +150,7 @@ SU(function (Y) {
 		 * @param {String} id Group ID
 		 * @param {Array} buttons Button list
 		 */
-		addGroup: function (id, buttons) {
+		addActionButtons: function (id, buttons) {
 			var data = {};
 			
 			data[id] = buttons;
@@ -173,7 +166,7 @@ SU(function (Y) {
 		 * @return True if group exists, otherwise false
 		 * @type {Boolean}
 		 */
-		hasGroup: function (id) {
+		hasActionButtons: function (id) {
 			var buttons = this.get('buttons');
 			return id in buttons;
 		},
@@ -184,7 +177,7 @@ SU(function (Y) {
 		 * 
 		 * @param {String} active_group
 		 */
-		setActiveGroupAction: function (active_group) {
+		setActiveAction: function (active_group) {
 			var old_animation_index = null,
 				button_groups;
 			
@@ -238,9 +231,9 @@ SU(function (Y) {
 			return this;
 		},
 		
-		unsetActiveGroupAction: function (active_group) {
+		unsetActiveAction: function (active_group) {
 			if (active_group && active_group == this.active_group) {
-				this.setActiveGroupAction(null);
+				this.setActiveAction(null);
 			}
 			
 			return this;

@@ -166,7 +166,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			
 			//Form heading
-			var heading = Y.Node.create('<h2>' + Y.Lang.escapeHTML(block.title) + ' block properties</h2>');
+			var heading = Y.Node.create('<h2>' + Y.Lang.escapeHTML(block.title) + ' ' + SU.Intl.get(['page', 'block_properties']) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
 			
@@ -175,7 +175,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': 'Done', 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.savePropertyChanges, this);
 			
 			/*
@@ -185,7 +185,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			*/
 			
 			//Delete button
-			var btn = new Supra.Button({'label': 'Delete', 'style': 'mid-red'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(buttons).on('click', this.deleteContent, this);
 			
 			if (!Supra.Authorization.isAllowed(['block', 'delete'], true)) {
@@ -308,7 +308,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		deleteContent: function () {
 			Supra.Manager.executeAction('Confirmation', {
-				'message': 'Are you sure you want to delete selected block',
+				'message': SU.Intl.get(['page', 'delete_block_confirmation']),
 				'useMask': true,
 				'buttons': [
 					{'id': 'yes', 'context': this, 'click': function () {

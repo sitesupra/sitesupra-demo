@@ -117,28 +117,30 @@ button::-moz-focus-inner {
 	}
 
 /* Middle size buttons */
-.yui3-button-mid, .yui3-button-group, .yui3-button-mid-blue, .yui3-button-mid-red,
-.yui3-button-mid div, .yui3-button-group div, .yui3-button-mid-blue div, .yui3-button-mid-red div,
-.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button {
+.yui3-button-mid, .yui3-button-group, .yui3-button-mid-blue, .yui3-button-mid-red, .yui3-button-mid-green,
+.yui3-button-mid div, .yui3-button-group div, .yui3-button-mid-blue div, .yui3-button-mid-red div, .yui3-button-mid-green div,
+.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
 	background-image: url(/cms/supra/build/button/button-mid.png);
 }
-	.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button {
+	.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
 		height: 32px;
 		overflow: hidden;
 	}
-	.yui3-button-mid button, .yui3-button-mid-blue button, .yui3-button-mid-red button {
+	.yui3-button-mid button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
 		min-width: 60px;
 	}
-	.yui3-button-mid p, .yui3-button-group p, .yui3-button-mid-blue p, .yui3-button-mid-red p {
+	.yui3-button-mid p, .yui3-button-group p, .yui3-button-mid-blue p, .yui3-button-mid-red p, .yui3-button-mid-green p {
 		height: 32px;
 		line-height: 32px;
 	}
 	.yui3-button-mid p,
-	.yui3-button-mid-blue p {
+	.yui3-button-mid-blue p,
+	.yui3-button-mid-green p {
 		text-shadow: 0 1px 0 rgba(255,255,255,.35);
 		padding: 0 5px;
 	}
-	.yui3-button-mid-blue p {
+	.yui3-button-mid-blue p,
+	.yui3-button-mid-green p {
 		color: #000;
 		text-shadow: 0 1px 0 rgba(255,255,255,.5);
 	}
@@ -226,9 +228,25 @@ button::-moz-focus-inner {
 	.yui3-button-mid-red.yui3-button-down div { background-position: 0 -768px; }
 	.yui3-button-mid-red.yui3-button-down button { background-position: 0 -800px; }
 	
+	/* Green middle sized button*/
+	.yui3-button-mid-green { background-position: 100% -928px; }
+	.yui3-button-mid-green div { background-position: 0 -864px; padding: 0 4px; }
+	.yui3-button-mid-green button { background-position: 0 -896px; }
+	
+	.yui3-button-mid-green.yui3-button-focused,
+	.yui3-button-mid-green.yui3-button-mouse-hover { background-position: 100% -1064px; }
+	.yui3-button-mid-green.yui3-button-focused div,
+	.yui3-button-mid-green.yui3-button-mouse-hover div { background-position: 0 -960px; }
+	.yui3-button-mid-green.yui3-button-focused button,
+	.yui3-button-mid-green.yui3-button-mouse-hover button { background-position: 0 -992px; }
+	
+	.yui3-button-mid-green.yui3-button-down { background-position: 100% -1120px; }
+	.yui3-button-mid-green.yui3-button-down div { background-position: 0 -1056px; }
+	.yui3-button-mid-green.yui3-button-down button { background-position: 0 -1088px; }
+	
 	/* WebKit specific styles */
 	@media screen and (-webkit-min-device-pixel-ratio:0) {
-		.yui3-button-mid p, .yui3-button-group p, .yui3-button-mid-blue p, .yui3-button-mid-red p {
+		.yui3-button-mid p, .yui3-button-group p, .yui3-button-mid-blue p, .yui3-button-mid-red p, .yui3-button-mid-green p {
 			line-height: 32px;
 			padding: 0 4px;
 			vertical-align: middle;
@@ -328,6 +346,10 @@ button::-moz-focus-inner {
 .yui3-button-small-red.yui3-button-disabled p,
 .yui3-button-mid-red.yui3-button-disabled p {
 	color: #9F4B4D;
+}
+.yui3-button-small-green.yui3-button-disabled p,
+.yui3-button-mid-green.yui3-button-disabled p {
+	color: #3FA43F;
 }
 
 /* Close button */

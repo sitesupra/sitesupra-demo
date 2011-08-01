@@ -98,6 +98,10 @@ YUI().add("supra.io", function (Y) {
 					data = Y.JSON.parse(responseText);
 					Supra.mix(response, data);
 					break;
+				case 'jsonplain':
+					data = Y.JSON.parse(responseText);
+					Supra.mix(response, {'status': true, 'data': data});
+					break;
 				default:
 					response = {'status': true, 'data': responseText};
 					break;
@@ -123,6 +127,7 @@ YUI().add("supra.io", function (Y) {
 		if (response.error_message) {
 			SU.Manager.executeAction('Confirmation', {
 			    'message': response.error_message,
+			    'useMask': true,
 			    'buttons': [
 			        {'id': 'delete', 'label': 'Ok'}
 			    ]
@@ -133,6 +138,7 @@ YUI().add("supra.io", function (Y) {
 		if (response.confirmation_message) {
 			SU.Manager.executeAction('Confirmation', {
 			    'message': response.confirmation_message,
+			    'useMask': true,
 			    'buttons': [{'id': 'yes'}, {'id': 'no'}]
 			});
 			//@TODO

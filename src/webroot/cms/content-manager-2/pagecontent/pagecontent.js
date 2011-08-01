@@ -13,8 +13,7 @@ SU('dd-drag', function (Y) {
 		'{pagecontent}includes/contents/gallery.js',
 		'{pagecontent}includes/plugin-properties.js',
 		'{pagecontent}includes/plugin-droptarget.js',
-		'{pagecontent}includes/iframe.js',
-		'{pagecontent}includes/layout.js'
+		'{pagecontent}includes/iframe.js'
 	];
 
 	//Shortcut
@@ -164,8 +163,11 @@ SU('dd-drag', function (Y) {
 		startEditing: function () {
 			if (!this.editing) {
 				this.editing = true;
-				Manager.getAction('PageToolbar').setActiveGroupAction('Page');
+				Manager.getAction('PageToolbar').setActiveAction('Page');
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+				
+				//Enable highlights
+				this.getContentContainer().set('highlight', false);
 			}
 		},
 		
@@ -176,6 +178,9 @@ SU('dd-drag', function (Y) {
 			if (this.editing) {
 				this.editing = false;
 				Manager.PageContent.getIframe().contents.set('activeContent', null);
+				
+				//Disable highlights
+				this.getContentContainer().set('highlight', true);
 			}
 		},
 		

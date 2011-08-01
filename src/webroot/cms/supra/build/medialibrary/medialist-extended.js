@@ -33,18 +33,18 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="preview">\
 				<img src="/cms/supra/img/medialibrary/icon-file-large.png" alt="" />\
 			</div>\
-			<span class="inp-title" title="Title">\
+			<span class="inp-title" title="{#medialibrary.label_title#}">\
 				<input type="text" name="title" value="{title_escaped}" />\
 			</span>\
-			<span class="inp-description" title="Description">\
+			<span class="inp-description" title="{#medialibrary.label_description#}">\
 				<input type="text" name="description" value="{description_escaped}" />\
 			</span>\
-			<div class="localize"><button type="button">Localize</button></div>\
-			<span class="inp-filename" title="Filename">\
+			<div class="localize"><button type="button">{#medialibrary.localize#}</button></div>\
+			<span class="inp-filename" title="{#medialibrary.label_filename#}">\
 				<input type="text" name="filename" value="{filename_escaped}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">Download</button></div>\
-			<div class="center"><button type="button">Replace</button></div>\
+			<div class="center"><button type="button">{#medialibrary.download#}</button></div>\
+			<div class="center"><button type="button">{#buttons.replace#}</button></div>\
 		</div>';
 	
 	/**
@@ -56,19 +56,19 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="preview">\
 				<img src="{previewUrl}" alt="" />\
 			</div>\
-			<span class="inp-title" title="Title">\
+			<span class="inp-title" title="{#medialibrary.label_title#}">\
 				<input type="text" name="title" value="{title_escaped}" />\
 			</span>\
-			<span class="inp-description" title="Description">\
+			<span class="inp-description" title="{#medialibrary.label_description#}">\
 				<input type="text" name="description" value="{description_escaped}" />\
 			</span>\
-			<div class="localize"><button type="button">Localize</button></div>\
-			<span class="inp-filename" title="Filename">\
+			<div class="localize"><button type="button">{#medialibrary.localize#}</button></div>\
+			<span class="inp-filename" title="{#medialibrary.label_filename#}">\
 				<input type="text" name="filename" value="{filename_escaped}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">Download</button></div>\
-			<div class="center"><button type="button">Replace</button></div>\
-			<div class="center"><button type="button" class="edit">Edit</button></div>\
+			<div class="center"><button type="button">{#medialibrary.download#}</button></div>\
+			<div class="center"><button type="button">{#medialibrary.replace#}</button></div>\
+			<div class="center"><button type="button" class="edit">{#medialibrary.edit#}</button></div>\
 		</div>';
 	
 	/**
@@ -187,59 +187,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * Add file
-		 */
-		addFile: function (parent, data) {
-			var parent_id = null,
-				parent_data = null;
-			
-			if (parent) {
-				parent_id = parent;
-				parent_data = this.getItemData(parent_id);
-				
-				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
-					return false;
-				}
-			} else {
-				parent_data = this.getSelectedFolder();
-				if (parent_data) {
-					parent_id = parent_data.id;
-				} else {
-					parent_id = this.get('rootFolderId');
-					parent_data = {'id': parent_id};
-				}
-			}
-			
-			if (parent_data) {
-				//Don't have an ID for this item yet, generate random number
-				var file_id = -(~~(Math.random() * 64000));
-				
-				//If there is no slide, then skip
-				var slide = this.slideshow.getSlide('slide_' + parent_id);
-				if (!slide) {
-					return file_id;
-				}
-				
-				var data = Supra.mix({
-					id: file_id,
-					parent: parent_id,
-					type: Supra.MediaLibraryData.TYPE_TEMP,
-					title: ''
-				}, data || {});
-				
-				data[this.get('thumbnailSize') + '_url'] = null;
-				
-				//Add item to the file list
-				this.renderItem(parent_id, [data], true);
-				this.get('dataObject').addData(parent_id, [data]);
-				
-				return file_id;
-			}
-			
-			return null;
-		},
-		
-		/**
 		 * Deletes selected item.
 		 * Chainable
 		 */
@@ -267,25 +214,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				}, this));
 			}
 			return this;
-		},
-		
-		/**
-		 * Returns currently selected folder
-		 * 
-		 * @return Selected folder data
-		 * @type {Object}
-		 */
-		getSelectedFolder: function () {
-			var history = this.slideshow.getHistory(),
-				item_id = String(history[history.length - 1]).replace('slide_', ''),
-				folder_data = this.getItemData(item_id);
-			
-			while(folder_data) {
-				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
-				folder_data = this.getItemData(folder_data.parent);
-			}
-			
-			return null;
 		},
 		
 		/**

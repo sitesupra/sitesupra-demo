@@ -56,7 +56,13 @@ SU('supra.form', function (Y) {
 		 * @private
 		 */
 		renderMessage: function (config) {
-			this.one('p').set('innerHTML', Y.Lang.escapeHTML(config.message || ''));
+			var message = config.message || '';
+			if (message) {
+				//Replace all constants with internationalized strings
+				message = Supra.Intl.replace(message);
+			}
+			
+			this.one('p').set('innerHTML', Y.Lang.escapeHTML(message));
 		},
 		
 		/**

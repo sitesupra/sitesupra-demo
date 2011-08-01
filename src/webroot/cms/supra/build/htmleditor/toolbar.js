@@ -8,38 +8,44 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			{
 				"id": "main",
 				"controls": [
-					{"id": "insertimage", "type": "button", "buttonType": "toggle", "title": "Image", "icon": "/cms/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+					{"id": "insertimage", "type": "button", "buttonType": "toggle", "icon": "/cms/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
 					{"type": "separator"},
-					{"id": "insertlink", "type": "button", "buttonType": "toggle", "title": "Link", "icon": "/cms/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
+					{"id": "insertlink", "type": "button", "buttonType": "toggle", "icon": "/cms/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
 					{"type": "separator"},
-					{"id": "inserttable", "type": "button", "buttonType": "push", "title": "Table", "icon": "/cms/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
+					{"id": "inserttable", "type": "button", "buttonType": "push", "icon": "/cms/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
 					{"type": "separator"},
-					{"id": "settings", "type": "button", "buttonType": "toggle", "title": "Settings", "icon": "/cms/supra/img/htmleditor/icon-settings.png", "command": "settings"}
+					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]
 			},
 			{
 				"id": "text",
 				"controls": [
-					{"id": "bold", "type": "button", "title": "Bold", "icon": "/cms/supra/img/htmleditor/icon-bold.png", "command": "bold"},
-					{"id": "italic", "type": "button", "title": "Italic", "icon": "/cms/supra/img/htmleditor/icon-italic.png", "command": "italic"},
-					{"id": "underline", "type": "button", "title": "Underline", "icon": "/cms/supra/img/htmleditor/icon-underline.png", "command": "underline"},
+					{"id": "bold", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-bold.png", "command": "bold"},
+					{"id": "italic", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-italic.png", "command": "italic"},
+					{"id": "underline", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-underline.png", "command": "underline"},
 					{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
 					{"type": "separator"},
-					{"id": "p", "type": "button", "title": "Paragraph", "icon": "/cms/supra/img/htmleditor/icon-p.png", "command": "p"},
-					{"id": "h1", "type": "button", "title": "Heading 1", "icon": "/cms/supra/img/htmleditor/icon-h1.png", "command": "h1"},
-					{"id": "h2", "type": "button", "title": "Heading 2", "icon": "/cms/supra/img/htmleditor/icon-h2.png", "command": "h2"},
-					{"id": "h3", "type": "button", "title": "Heading 3", "icon": "/cms/supra/img/htmleditor/icon-h3.png", "command": "h3"},
-					{"id": "h4", "type": "button", "title": "Heading 4", "icon": "/cms/supra/img/htmleditor/icon-h4.png", "command": "h4"},
-					{"id": "h5", "type": "button", "title": "Heading 5", "icon": "/cms/supra/img/htmleditor/icon-h5.png", "command": "h5"},
+					{"id": "p", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-p.png", "command": "p"},
+					{"id": "h1", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-h1.png", "command": "h1"},
+					{"id": "h2", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-h2.png", "command": "h2"},
+					{"id": "h3", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-h3.png", "command": "h3"},
+					{"id": "h4", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-h4.png", "command": "h4"},
+					{"id": "h5", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-h5.png", "command": "h5"},
 					{"type": "separator"},
-					{"id": "ul", "type": "button", "title": "Ordered list", "icon": "/cms/supra/img/htmleditor/icon-ul.png", "command": "ul"},
-					{"id": "ol", "type": "button", "title": "Ordered list", "icon": "/cms/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+					{"id": "ul", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-ul.png", "command": "ul"},
+					{"id": "ol", "type": "button", "icon": "/cms/supra/img/htmleditor/icon-ol.png", "command": "ol"},
 					{"type": "separator"},
-					{"id": "style", "type": "dropdown", "title": "Style", "command": "style"}
+					{"id": "style", "type": "dropdown", "command": "style"}
 				]
 			}
 		]
 	};
+	
+	var TEMPLATE_GROUP = '<div class="yui3-editor-toolbar-{id} yui3-editor-toolbar-{id}-hidden">\
+							<div class="yui3-editor-toolbar-{id}-content"></div>\
+						  </div>';
+	
+	
 	
 	function HTMLEditorToolbar (config) {
 		this.controls = {};
@@ -125,6 +131,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			
 			var cont = typeof group_id == 'string' ? this.groupNodes(group_id) : group_id,
 				label,
+				title,
 				node,
 				node_source,
 				first = options && 'first' in options ? options.first : true,
@@ -136,7 +143,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					cont.append(node);
 					break;
 				case 'dropdown':
-					label = Y.Node.create('<label class="yui3-toolbar-label">' + Y.Lang.escapeHTML(data.title) + ':</label>');
+					title = Y.Lang.escapeHTML(Supra.Intl.get(['htmleditor', data.id]));
+					label = Y.Node.create('<label class="yui3-toolbar-label">' + title + ':</label>');
 					node = Y.Node.create('<select></select>');
 					cont.append(label);
 					cont.append(node);
@@ -144,7 +152,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					break;
 				case 'button':
 				default:
-					node = new Supra.Button({"label": data.title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
+					title = Y.Lang.escapeHTML(Supra.Intl.get(['htmleditor', data.id]));
+					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
 					node.render(cont);
 					
 					node.on('click', function (evt, data) {
@@ -195,10 +204,14 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			var groups = BUTTONS_DEFAULT.groups;
 			for(var i=0,ii=groups.length; i<ii; i++) {
 				//Create tab
-				var cont = this.groupNodes[groups[i].id] = Y.Node.create('<div class="yui3-editor-toolbar-' + groups[i].id + ' yui3-editor-toolbar-' + groups[i].id + '-hidden"></div>').appendTo(this.get('contentBox')),
+				var template = Y.substitute(TEMPLATE_GROUP, {'id': groups[i].id}),
+					cont = this.groupNodes[groups[i].id] = Y.Node.create(template).appendTo(this.get('contentBox')),
 					first = true,
 					nextFirst = false,
 					last = false;
+				
+				//Use content
+				cont = cont.one('div');
 				
 				if (!('controls' in groups[i])) continue;
 				

@@ -76,7 +76,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, empty folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_EMPTY = '<div class="empty" data-id="{id}">No files in this folder</div>';
+	List.TEMPLATE_EMPTY = '<div class="empty" data-id="{id}">{#medialibrary.folder_empty#}</div>';
 	
 	/**
 	 * Constant, folder template
@@ -457,6 +457,59 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Add file
+		 */
+		addFile: function (parent, data) {
+			var parent_id = null,
+				parent_data = null;
+			
+			if (parent) {
+				parent_id = parent;
+				parent_data = this.getItemData(parent_id);
+				
+				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
+					return false;
+				}
+			} else {
+				parent_data = this.getSelectedFolder();
+				if (parent_data) {
+					parent_id = parent_data.id;
+				} else {
+					parent_id = this.get('rootFolderId');
+					parent_data = {'id': parent_id};
+				}
+			}
+			
+			if (parent_data) {
+				//Don't have an ID for this item yet, generate random number
+				var file_id = -(~~(Math.random() * 64000));
+				
+				//If there is no slide, then skip
+				var slide = this.slideshow.getSlide('slide_' + parent_id);
+				if (!slide) {
+					return file_id;
+				}
+				
+				var data = Supra.mix({
+					id: file_id,
+					parent: parent_id,
+					type: Supra.MediaLibraryData.TYPE_TEMP,
+					title: ''
+				}, data || {});
+				
+				data[this.get('thumbnailSize') + '_url'] = null;
+				
+				//Add item to the file list
+				this.renderItem(parent_id, [data], true);
+				this.get('dataObject').addData(parent_id, [data]);
+				
+				return file_id;
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Returns selected item data
 		 * 
 		 * @return Selected item data
@@ -486,6 +539,25 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					}
 				}
 			}
+			return null;
+		},
+		
+		/**
+		 * Returns currently selected folder
+		 * 
+		 * @return Selected folder data
+		 * @type {Object}
+		 */
+		getSelectedFolder: function () {
+			var history = this.slideshow.getHistory(),
+				item_id = String(history[history.length - 1]).replace('slide_', ''),
+				folder_data = this.getItemData(item_id);
+			
+			while(folder_data) {
+				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
+				folder_data = this.getItemData(folder_data.parent);
+			}
+			
 			return null;
 		},
 		
@@ -895,6 +967,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 */
 		renderTemplate: function (data /* Item data */, template /* Template */) {
 			var html = Y.substitute(template || '', this.getRenderData(data));
+				html = Supra.Intl.replace(html);
+			
 			return Y.Node.create(html);
 		},
 		

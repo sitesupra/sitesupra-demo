@@ -94,7 +94,10 @@
 					'path': '/cms/content-manager-2',
 					'icon': '/cms/supra/img/apps/content',
 					'title': 'Pages'
-				}
+				},
+				
+				//Internationalization
+				'lang': 'en'
 
 			});
 			
@@ -115,11 +118,16 @@
 			
 			
 			//Load base actions
-			Supra.Manager.loadActions(['Page', 'Root']);
+			Supra.Manager.loadActions(['Page', 'Root', 'Header']);
 			
-			//Execute initial actions
-			Supra.Manager.executeAction('Root');
-			Supra.Manager.executeAction('Header');
+			//Load internationalization data
+			Supra.Intl.loadAppData(Supra.data.get(['application', 'path']), function () {
+				
+				//Execute initial actions
+				Supra.Manager.executeAction('Root');
+				Supra.Manager.executeAction('Header');
+				
+			});
 		});
 		
 	//]]>

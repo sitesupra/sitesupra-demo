@@ -171,15 +171,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 			}, this);
 		},
 		
-		syncUI: function () {
-			var slideId = this.get('slide'),
-				index = Y.Array.indexOf(this.history, slideId);
-			
-			this.slide_width = null;
-			this.slide_width = this._getWidth();
-			
-			//this.get('contentBox').set('scrollLeft', index * this.slide_width);
-		},
+		syncUI: function () {},
 		
 		/**
 		 * Hide slide

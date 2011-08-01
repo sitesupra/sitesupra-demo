@@ -340,8 +340,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {Number} id File or folder ID
 		 * @param {Object} data Data
 		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
 		 */
-		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */) {
+		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */, context /* Callback context */) {
 			var url = this.get('saveURI');
 			data = Supra.mix({}, data);
 			
@@ -359,7 +360,13 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'on': {
 					'complete': function (data, status) {
 						this.afterSaveData(id || 0, data);
-						if (Y.Lang.isFunction(callback)) callback(data, id || 0);
+						if (Y.Lang.isFunction(callback)) {
+							if (context) {
+								callback.call(context, data, id || 0);
+							} else {
+								callback(data, id || 0);
+							}
+						}
 					}
 				}
 			});

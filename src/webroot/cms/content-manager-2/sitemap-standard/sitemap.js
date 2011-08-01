@@ -12,10 +12,7 @@ SU.addModule('website.sitemap-tree-newpage', {
 });
 
 SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpage', function (Y) {
-
-	var LOCALE_LANGUAGEBAR_LABEL = 'Viewing structure for:';
-	var LOCALE_DELETE_PAGE = 'Are you sure you want to delete selected page?';
-
+	
 	//Shortcut
 	var Manager = SU.Manager,
 		Action = Manager.Action;
@@ -166,7 +163,7 @@ SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpa
 				'locale': SU.data.get('locale'),
 				'contexts': SU.data.get('contexts'),
 				
-				'localeLabel': LOCALE_LANGUAGEBAR_LABEL
+				'localeLabel': SU.Intl.get(['sitemap', 'viewing_structure'])
 			});
 			
 			this.languagebar.on('localeChange', function (evt) {
@@ -362,10 +359,10 @@ SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpa
 			if (!this.property_data) return;
 			
 			Manager.executeAction('Confirmation', {
-				'message': LOCALE_DELETE_PAGE,
+				'message': SU.Intl.get(['settings', 'delete_message']),
 				'buttons': [
-					{'id': 'delete', 'label': 'Yes', 'click': this.deletePageConfirm, 'context': this},
-					{'id': 'no', 'label': 'No'}
+					{'id': 'delete', 'label': SU.Intl.get(['buttons', 'yes']), 'click': this.deletePageConfirm, 'context': this},
+					{'id': 'no', 'label': SU.Intl.get(['buttons', 'no'])}
 				]
 			});
 		},

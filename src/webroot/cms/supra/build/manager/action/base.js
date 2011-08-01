@@ -590,6 +590,9 @@ YUI.add('supra.manager-action-base', function (Y) {
 			if (hasTemplate || hasStylesheet) {
 				//Load template
 				Manager.Loader.loadTemplate(this.NAME, Y.bind(function (template) {
+					//Parse internationalizations
+					template = Supra.Intl.replace(template);
+					
 					this.template = template;
 					this._fireReady();
 					Manager.runExecutionQueue();

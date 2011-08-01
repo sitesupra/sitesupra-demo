@@ -264,9 +264,6 @@ YUI.add('supra.page-content-list', function (Y) {
 				this.drag_order_changed = true;
 				this.children_order.splice(order_index_a, 1, order_item_b);
 				this.children_order.splice(order_index_b, 1, order_item_a);
-				
-				//If page is not in edit mode, then set it
-				Action.startEditing();
 			}
 		},
 		

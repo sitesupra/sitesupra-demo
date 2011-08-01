@@ -23,9 +23,7 @@ SU.addModule('website.sitemap-settings', {
 	requires: ['supra.panel', 'supra.form', 'website.input-template']
 });
 
-SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {
-
-	var LOCALE_LANGUAGEBAR_LABEL = 'Viewing structure for:';
+SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
@@ -99,6 +97,16 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 		 * Set configuration/properties, bind listeners, etc.
 		 */
 		initialize: function () {
+			//Add buttons to toolbar
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+				'id': 'history',
+				'title': SU.Intl.get(['sitemap', 'undo_history']),
+				'icon': '/cms/supra/img/toolbar/icon-history.png',
+				'action': 'PageHistory'
+			}]);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
+			//Drag & drop
 			Manager.getAction('PageContent').initDD();
 			
 			this.initializeLanguageBar();
@@ -115,7 +123,7 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 			this.languagebar = new SU.LanguageBar({
 				'locale': SU.data.get('locale'),
 				'contexts': SU.data.get('contexts'),
-				'localeLabel': LOCALE_LANGUAGEBAR_LABEL
+				'localeLabel': SU.Intl.get(['sitemap', 'viewing_structure'])
 			});
 			
 			this.languagebar.on('localeChange', function (evt) {
@@ -191,20 +199,21 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 		 */
 		animate: function (node, reverse) {
 			if (reverse) {
-				this.anim_node.setStyles({'opacity': 1, 'display': 'block'});
+				if (this.anim_node) {
+					this.anim_node.setStyles({'opacity': 1, 'display': 'block'});
+				}
 				this.set('visible', true);
 			}
 			
-			var target_node = this.one('.yui3-sitemap-content'),
-				target_region = target_node.get('region'),
-				node = node.one('div.flowmap-node-inner, div.tree-node'),
-				node_region = node.get('region'),
+			var node = node ? node.one('div.flowmap-node-inner, div.tree-node') : null,
+				node_region = node ? node.get('region') : null,
 				anim_from = null,
-				anim_to = {'left': '0px', 'top': '0px', 'right': '0px', 'bottom': '0px', 'opacity': 1};
+				anim_to = {'left': '10px', 'top': '60px', 'right': '10px', 'bottom': '10px', 'opacity': 1},
+				target_region = this.one().get('region');
 			
 			if (!this.animation) {
 				this.anim_node = this.one('.yui3-sitemap-anim');
-				target_node.append(this.anim_node);
+				this.one('.yui3-sitemap').insert(this.anim_node, 'after');
 				
 				this.animation = new Y.Anim({
 					'node': this.anim_node,
@@ -213,11 +222,20 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 				});
 			}
 			
+			if (!node_region) {
+				node_region = {
+					'width': 146,
+					'height': 182,
+					'left': ~~(target_region.width / 2 - 73),
+					'top': 103
+				};
+			}
+			
 			anim_from = {
-				'left': node_region.left - target_region.left + 'px',
-				'right': target_region.right - node_region.right + 'px',
-				'top': node_region.top - target_region.top + 'px',
-				'bottom': target_region.bottom - node_region.bottom + 'px',
+				'left': node_region.left + 'px',
+				'right': target_region.width - node_region.width - node_region.left + 'px',
+				'top': node_region.top + 'px',
+				'bottom': target_region.height - node_region.height - node_region.top + 'px',
 				'opacity': 0.35
 			};
 			
@@ -235,9 +253,27 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 			
 			this.animation.once('end', function () {
 				if (!reverse) {
+					//Fade out
+					
+					this.anim_node.transition({
+						'opacity': 0,
+						'easing': 'ease-out',
+    					'duration': 0.25
+					}, function () {
+						this.setStyle('display', 'none');
+					});
+					
 					this.set('visible', false);
+					
+					Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+					
+				} else {
+					Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+					Manager.getAction('PageButtons').setActiveAction(this.NAME);
+					
+					this.anim_node.hide();
 				}
-				this.anim_node.hide();
 			}, this);
 		},
 		
@@ -254,12 +290,14 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 		},
 		
 		hide: function () {
+			
 			var node = this.flowmap.get('selectedNode');
 			if (node) {
 				this.animate(node.get('boundingBox'));
 			} else {
-				this.set('visible', false);
+				this.animate(null);
 			}
+			
 			return this;
 		},
 		
@@ -269,7 +307,7 @@ SU('anim', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap
 			if (node) {
 				this.animate(node.get('boundingBox'), true);
 			} else {
-				this.set('visible', true);
+				this.animate(null, true);
 			}
 			
 			return this;

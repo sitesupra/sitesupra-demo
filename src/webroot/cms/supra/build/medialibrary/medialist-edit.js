@@ -114,10 +114,19 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				
 				this.get('dataObject').saveData(obj.id, post_data, function (data, id) {
 					if (id == -1) {
-						//Update node itemId
-						obj.node.setData('itemId', data);
+						if (data) {
+							//Update node itemId
+							obj.node.setData('itemId', data);
+						} else {
+							//On failure remove temporary folder
+							this.get('dataObject').removeData(obj.id, true);
+							obj.node.remove();
+							
+							//Redraw parent
+							this.host.renderItem(obj.data.parent);
+						}
 					}
-				});
+				}, this);
 			} else if (id == -1) {
 				this.get('dataObject').removeData(obj.id, true);
 				obj.node.remove();

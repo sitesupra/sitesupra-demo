@@ -22,6 +22,10 @@
 	background: #fff;
 	overflow-x: hidden;
 	overflow-y: auto;
+	
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .yui3-medialist .yui3-ml-slideshow ul.folder > li {

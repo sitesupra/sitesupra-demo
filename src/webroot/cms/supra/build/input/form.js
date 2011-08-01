@@ -167,11 +167,7 @@ YUI.add("supra.form", function (Y) {
 					value = config.inputs[i].value;
 					if (Y.Lang.isObject(value)) {
 						empty = (Y.Lang.isArray(value) ? [] : {});
-						try {
 						config.inputs[i].value = Supra.mix(empty, config.inputs[i].value, true);
-						} catch (err) {
-							console.error('Yep, it\'s here');
-						}
 					}
 				}
 			}

@@ -36,6 +36,15 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 */
 		'dragContainer': {
 			value: null
+		},
+		
+		/**
+		 * File upload disabled
+		 * @type {Boolean}
+		 */
+		'disabled': {
+			value: false,
+			setter: '_setDisabled'
 		}
 	};
 	
@@ -54,9 +63,19 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		last_drop_id: null,
 		
 		/**
+		 * Event subscribers
+		 * @type {Array}
+		 */
+		subscribers: [],
+		
+		
+		
+		/**
 		 * Initialize plugin
 		 */
 		initializer: function () {
+			
+			this.subscribers = [];
 			
 			//Create invisible input which will be used for "Browse file" window
 			var input = Y.Node.create('<input class="offscreen" type="file" multiple="multiple" />');
@@ -64,16 +83,24 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			this.get('host').get('contentBox').append(input);
 			this.set('input', input); 
 			
-			//Set up HTML5 DD
-			var node = this.get('dragContainer') || this.get('host').get('boundingBox');
-			
-			node.on('dragenter', this.dragEnter, this);
-			node.on('dragexit', this.dragExit, this);
-			node.on('dragover', this.dragOver, this);
-			node.on('drop', this.dragDrop, this);
+			//Enable
+			if (!this.get('disabled')) {
+				this.set('disabled', false);
+			}
+		},
+		
+		/**
+		 * Returns container node for drag and drop
+		 * 
+		 * @return Container node
+		 * @type {Object}
+		 */
+		getNode: function () {
+			return this.get('dragContainer') || this.get('host').get('boundingBox');
 		},
 		
 		dragEnter: function (evt) {
+			
 			evt.halt();
 		},
 		
@@ -83,6 +110,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		
 		dragOver: function (evt) {
 			evt.halt();
+			
 			var target = evt.target,
 				node = target.closest('li.type-folder'),
 				folder_node = null,
@@ -92,7 +120,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				folder_id = parseInt(node.getData('itemId'), 10);
 				folder_node = node;
 			} else {
-				node = target.closest('div.yui3-ml-slideshow-slide');
+				node = target.closest('div.yui3-ml-slideshow-slide, div.yui3-slideshow-slide');
 				if (node) {
 					node = node.one('ul.folder,div.empty');
 					if (node) {
@@ -112,6 +140,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				
 				this.last_drop_target = folder_node;
 				this.last_drop_id = folder_id;
+				
+				//Sync position
+				this.get('host').slideshow.syncUI();
 			}
 			
 			if (folder_id || folder_id === 0) {
@@ -129,6 +160,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				var files = evt._event.dataTransfer.files,
 					folder = this.last_drop_id;
 				
+				//Sync position
+				this.get('host').slideshow.syncUI();
+				
+				//Upload all files
 				this.uploadFiles(folder, files);
 			}
 			
@@ -174,7 +209,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			if (!files || !files.length) return;
 			
 			//Find folder
-			var folder = folder ? folder : this.get('host').get('rootFolderId');
+			var folder = folder ? folder : this.get('host').get('rootFolderId'),
 				data = {'folder': folder},
 				event_data = null,
 				io = null,
@@ -276,6 +311,30 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				default:
 					return true;
 			}
+		},
+		
+		/**
+		 * Disabled attribute setter
+		 */
+		_setDisabled: function (disabled) {
+			//Enable HTML5 drag & drop
+			var node = this.getNode();
+			
+			//Remove listeners
+			for(var i=0,ii=this.subscribers.length; i<ii; i++) {
+				this.subscribers[i].detach();
+			}
+			this.subscribers = [];
+			
+			//Add listeners
+			if (!disabled) {
+				this.subscribers.push(node.on('dragenter', this.dragEnter, this));
+				this.subscribers.push(node.on('dragexit', this.dragExit, this));
+				this.subscribers.push(node.on('dragover', this.dragOver, this));
+				this.subscribers.push(node.on('drop', this.dragDrop, this));
+			}
+			
+			return !!disabled;
 		}
 		
 	});

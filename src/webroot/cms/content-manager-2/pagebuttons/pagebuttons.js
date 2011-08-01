@@ -7,12 +7,13 @@
 SU('anim', function (Y) {
 
 	var BUTTON_DEFAULTS = {
-		'cancel':	{'label': 'Cancel'},
-		'close':	{'label': 'Close'},
-		'save': 	{'label': 'Save'},
-		'publish':	{'label': 'Publish', 'style': 'mid-blue'},
-		'apply':	{'label': 'Apply', 'style': 'mid-blue'},
-		'done':		{'label': 'Done', 'style': 'mid-blue'}
+		'cancel':	{'label': SU.Intl.get(['buttons', 'cancel'])},
+		'close':	{'label': SU.Intl.get(['buttons', 'close'])},
+		'save': 	{'label': SU.Intl.get(['buttons', 'save'])},
+		'publish':	{'label': SU.Intl.get(['page', 'publish']), 'style': 'mid-blue'},
+		'apply':	{'label': SU.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'},
+		'done':		{'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'},
+		'edit':		{'label': SU.Intl.get(['page', 'edit']), 'style': 'mid-green'}
 	};
 	var BUTTON_DEFAULT_CONF = {
 		'type': 'button',
@@ -53,11 +54,11 @@ SU('anim', function (Y) {
 		NAME: 'PageButtons',
 		
 		/**
-		 * Action doesn't have stylesheet
+		 * Load action stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: false,
+		HAS_STYLESHEET: true,
 		
 		/**
 		 * Action doesn't have template
@@ -92,7 +93,7 @@ SU('anim', function (Y) {
 		 * Used to show previous action buttons when action is hidden
 		 * @type {Array}
 		 */
-		history: ['Root'],
+		history: [],
 		
 		/**
 		 * Animation queue
@@ -291,6 +292,17 @@ SU('anim', function (Y) {
 			if (action_id && action_id == this.active_action) {
 				this.setActiveAction(null);
 			}
+		},
+		
+		/**
+		 * Returns true if group is in history
+		 * 
+		 * @param {String} action_id Action ID
+		 * @return True if group is in history
+		 * @type {Boolean}
+		 */
+		inHistory: function (action_id) {
+			return Y.Array.indexOf(this.history, action_id) != -1;
 		},
 		
 		/**

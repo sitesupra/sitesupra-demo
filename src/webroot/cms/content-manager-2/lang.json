@@ -1,0 +1,174 @@
+{
+	"status": true,
+	"data": {
+		"buttons": {
+			"yes": "Yes",
+			"no": "No",
+			"on": "On",
+			"off": "Off",
+			"done": "Done",
+			"back": "Back",
+			"close": "Close",
+			"save": "Save",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"apply": "Apply",
+			"replace": "Replace",
+			"rename": "Rename"
+		},
+		
+		"page": {
+			"edit": "Edit page",
+			"publish": "Publish",
+			
+			"block_properties": "block properties",
+			"delete_block_confirmation": "Are you sure you want to delete selected block",
+			
+			"click_to_edit": "Click to edit",
+			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move"
+		},
+		
+		"htmleditor": {
+			"label_title": "Title",
+			"manage_images": "Manage images",
+			"add_images": "Add images",
+			
+			"insertimage": "Image",
+			"insertlink": "Link",
+			"inserttable": "Table",
+			"settings": "Settings",
+			"bold": "Bold",
+			"italic": "Italic",
+			"underline": "Underline",
+			"p": "Paragraph",
+			"h1": "Heading 1",
+			"h2": "Heading 2",
+			"h3": "Heading 3",
+			"h4": "Heading 4",
+			"h5": "Heading 5",
+			"il": "Unordered list",
+			"ol": "Ordered list",
+			"style": "Style",
+			
+			"image_properties": "Image properties",
+			"image_title": "Image title",
+			"image_description": "Alt title",
+			"image_alignment": "Alignment",
+			"alignment_left": "Left",
+			"alignment_center": "Center",
+			"alignment_right": "Right",
+			"image_style": "Style",
+			"style_normal": "Normal",
+			"style_border": "Border",
+			"style_lightbox": "Lightbox",
+			
+			"table_style": "Table style",
+			"table_properties": "Table properties",
+			"insert_row_before": "Insert row before",
+			"insert_row_after": "Insert row after",
+			"delete_row": "Delete row",
+			"merge_cells": "Merge cells",
+			"insert_col_before": "Insert column before",
+			"insert_col_after": "Insert column after",
+			"delete_col": "Delete column"
+		},
+		
+		"settings": {
+			"title": "Page settings",
+			"button": "Settings",
+			
+			"page_title": "Page title",
+			"page_url": "Page URL",
+			
+			"active": "Active",
+			
+			"meta": "Meta",
+			"meta_title": "Meta",
+			"keywords": "Keywords",
+			"description": "Description",
+			
+			"version": "Version",
+			"version_title": "Version",
+			"last_change": "Last change:",
+			"new_version": "New version",
+			
+			"template": "Template",
+			"template_title": "Templates",
+			
+			"schedule": "Schedule: publish",
+			"schedule_title": "Schedule publish",
+			"select_today": "Select today",
+			"select_tomorrow": "Select tomorrow",
+			"time": "Selected time",
+			
+			"blocks": "View blocks on page",
+			"blocks_title": "Blocks on the page",
+			
+			"delete_message": "Are you sure you want to delete selected page?"
+		},
+		
+		"sitemap": {
+			"title": "Sitemap",
+			"button": "Sitemap",
+			
+			"undo_history": "Undo history",
+			
+			"viewing_structure": "Viewing structure for:",
+			"delete": "Delete page"
+		},
+		
+		"insertblock": {
+			"button": "Insert"
+		},
+		
+		"history": {
+			"button": "History"
+		},
+		
+		"gallerymanager": {
+			"title": "Manage gallery images",
+			"label_title": "Title"
+		},
+		
+		"linkmanager": {
+			"title": "Link to",
+			"title_page": "page",
+			"title_file": "file",
+			
+			"select": "Select what you want to link",
+			"link_to_file": "Link to file",
+			"link_to_page": "Link to page",
+			"link_internal": "Internal",
+			"link_external": "External",
+			"link_address": "Link address",
+			"new_window": "Open link in new window",
+			"link_title": "Link title",
+			"open_library_app": "Open Library app"
+		},
+		
+		"medialibrary": {
+			"upload": "Upload",
+			"new_folder": "New folder",
+			"delete": "Delete",
+			"undo_history": "Undo history",
+			
+			"rotate_left": "Rotate left",
+			"rotate_right": "Rotate right",
+			"crop": "Crop",
+			
+			"sort_by": "Sort by:",
+			"sort_az": "A-Z",
+			"sort_date": "Date added",
+			
+			"folder_empty": "No files in this folder",
+			
+			"label_title": "Title",
+			"label_description": "Description",
+			"label_filename": "Filename",
+			
+			"localize": "Localize",
+			"download": "Download",
+			"edit": "Edit"
+		}
+	}
+}

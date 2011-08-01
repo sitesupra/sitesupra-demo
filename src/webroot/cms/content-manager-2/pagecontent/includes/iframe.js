@@ -169,6 +169,9 @@ YUI.add('supra.page-iframe', function (Y) {
 					this.contents = new PageContents({'iframe': this, 'doc': this.get('doc'), 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
 					this.contents.render();
 					
+					//Disable editing
+					this.contents.set('highlight', true);
+					
 					this.contents.on('activeContentChange', function (event) {
 						if (event.newVal) {
 							Action.startEditing();

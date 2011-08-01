@@ -44,32 +44,32 @@ Supra(function (Y) {
 			
 			var page = Manager.getAction('Page'),
 				buttons = Manager.getAction('PageButtons'),
-				toolbar = Manager.getAction('PageToolbar'),
-				sitemap = Manager.getAction('SiteMap');
+				toolbar = Manager.getAction('PageToolbar');
 			
-			//Show loading screen until content is loaded (last action)
+			//Show loading screen until content is loaded (last executed action)
 			Y.one('body').addClass('loading');
 			
 			SU.Manager.getAction('PageContent').after('iframeReady', function () {
 				Y.one('body').removeClass('loading');
 			});
 			
-			//Add empty button set
-			buttons.on('render', function () {
-				buttons.addActionButtons(this.NAME, []);
+			//Add 'Edit' button
+			buttons.after('render', function () {
+				buttons.addActionButtons(this.NAME, [{
+					'id': 'edit',
+					'callback': function () {
+						Manager.PageContent.startEditing();
+					}
+				}]);
+				buttons.setActiveAction(this.NAME);
 			}, this);
 			toolbar.on('render', function () {
-				toolbar.setActiveGroupAction(this.NAME);
+				toolbar.setActiveAction(this.NAME);
 			}, this);
 			
 			//On page unload destroy everything???
 			Y.on('beforeunload', function () {
 			    this.destroy();
-			}, this);
-			
-			//On SiteMap page change reload
-			sitemap.on('page:select', function (evt) {
-				page.execute(evt.data);
 			}, this);
 			
 			//Load page after execute
@@ -78,13 +78,28 @@ Supra(function (Y) {
 			});
 		},
 		
+		/**
+		 * Bind SiteMap action to Page
+		 */
+		bindSiteMap: function () {
+			//When page is selected in sitemap load it
+			Manager.getAction('SiteMap').on('page:select', function (evt) {
+				//evt.data is in format  {'id': 1, 'version': 2}
+				Manager.getAction('Page').execute(evt.data);
+			}, this);
+		},
+		
+		
+		/**
+		 * Execute action
+		 */
 		execute: function () {
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons'),
 				content = Manager.getAction('PageContent');
 			
 			if (toolbar.get('ready')) {
-				toolbar.setActiveGroupAction(this.NAME);
+				toolbar.setActiveAction(this.NAME);
 			}
 			if (buttons.get('ready')) {
 				buttons.setActiveAction(this.NAME);

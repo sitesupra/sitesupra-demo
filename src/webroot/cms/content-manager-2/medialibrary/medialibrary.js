@@ -7,7 +7,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	var TOOLBAR_BUTTONS = [
 	    {
 	        'id': 'mlupload',
-			'title': 'Upload',
+			'title': SU.Intl.get(['medialibrary', 'upload']),
 			'icon': '/cms/supra/img/toolbar/icon-media-upload.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -15,7 +15,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mlfolder',
-			'title': 'New folder',
+			'title': SU.Intl.get(['medialibrary', 'new_folder']),
 			'icon': '/cms/supra/img/toolbar/icon-media-folder.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -23,7 +23,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mldelete',
-			'title': 'Delete',
+			'title': SU.Intl.get(['medialibrary', 'delete']),
 			'icon': '/cms/supra/img/toolbar/icon-media-delete.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -31,7 +31,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mlundo',
-			'title': 'Undo history',
+			'title': SU.Intl.get(['medialibrary', 'undo_history']),
 			'icon': '/cms/supra/img/toolbar/icon-media-undo.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -43,7 +43,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	var TOOLBAR_IMAGEEDITOR_BUTTONS = [
 	    {
 	        'id': 'mlimagerotateleft',
-			'title': 'Rotate left',
+			'title': SU.Intl.get(['medialibrary', 'rotate_left']),
 			'icon': '/cms/supra/img/toolbar/icon-media-rotateleft.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -51,7 +51,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mlimagerotateright',
-			'title': 'Rotate right',
+			'title': SU.Intl.get(['medialibrary', 'rotate_right']),
 			'icon': '/cms/supra/img/toolbar/icon-media-rotateright.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -59,7 +59,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mlimagecrop',
-			'title': 'Crop',
+			'title': SU.Intl.get(['medialibrary', 'crop']),
 			'icon': '/cms/supra/img/toolbar/icon-media-crop.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -67,7 +67,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	    },
 		{
 	        'id': 'mlimageundo',
-			'title': 'Undo history',
+			'title': SU.Intl.get(['medialibrary', 'undo_history']),
 			'icon': '/cms/supra/img/toolbar/icon-media-undo.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
@@ -145,7 +145,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 */
 		render: function () {
 			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addGroup(this.NAME, TOOLBAR_BUTTONS);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, TOOLBAR_BUTTONS);
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
@@ -196,7 +196,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		openEditorButtons: function () {
 			if (!Manager.getAction('PageButtons').hasActionButtons(NAME_EDITOR)) {
 				
-				Manager.getAction('PageToolbar').addGroup(NAME_EDITOR, TOOLBAR_IMAGEEDITOR_BUTTONS);
+				Manager.getAction('PageToolbar').addActionButtons(NAME_EDITOR, TOOLBAR_IMAGEEDITOR_BUTTONS);
 				Manager.getAction('PageButtons').addActionButtons(NAME_EDITOR, [{
 					'id': 'done',
 					'context': this,
@@ -207,7 +207,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				
 			}
 			
-			Manager.getAction('PageToolbar').setActiveGroupAction(NAME_EDITOR);
+			Manager.getAction('PageToolbar').setActiveAction(NAME_EDITOR);
 			Manager.getAction('PageButtons').setActiveAction(NAME_EDITOR);
 		},
 		
@@ -215,7 +215,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 * Close editor buttons
 		 */
 		closeEditorButtons: function () {
-			Manager.getAction('PageToolbar').unsetActiveGroupAction(NAME_EDITOR);
+			Manager.getAction('PageToolbar').unsetActiveAction(NAME_EDITOR);
 			Manager.getAction('PageButtons').unsetActiveAction(NAME_EDITOR);
 		},
 		
@@ -225,10 +225,10 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		openEditorCropButtons: function () {
 			if (!Manager.getAction('PageButtons').hasActionButtons(NAME_EDITOR_CROP)) {
 				
-				Manager.getAction('PageToolbar').addGroup(NAME_EDITOR_CROP, []);
+				Manager.getAction('PageToolbar').addActionButtons(NAME_EDITOR_CROP, []);
 				Manager.getAction('PageButtons').addActionButtons(NAME_EDITOR_CROP, [{
 					'id': 'done',
-					'label': 'Crop',
+					'label': SU.Intl.get(['medialibrary', 'crop']),
 					'context': this,
 					'callback': function () {
 						this.medialist.imageeditor.command('crop');
@@ -244,7 +244,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				}]);
 			}
 			
-			Manager.getAction('PageToolbar').setActiveGroupAction(NAME_EDITOR_CROP);
+			Manager.getAction('PageToolbar').setActiveAction(NAME_EDITOR_CROP);
 			Manager.getAction('PageButtons').setActiveAction(NAME_EDITOR_CROP);
 		},
 		
@@ -306,13 +306,17 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
-			Manager.getAction('PageToolbar').unsetActiveGroupAction(this.NAME);
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
 			//If editor toolbar was visible before, then show it now
 			if (this.editor_toolbar_visible) {
 				Manager.getAction('EditorToolbar').execute();
 			}
+			
+			//Disable upload (otherwise all media library instances
+			//will be affected by HTML5 drag and drop)
+			this.medialist.upload.set('disabled', true);
 		},
 		
 		/**
@@ -320,7 +324,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 */
 		execute: function () {
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
-				Manager.getAction('PageToolbar').setActiveGroupAction(this.NAME);
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
@@ -331,6 +335,9 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			} else {
 				this.editor_toolbar_visible = false;
 			}
+			
+			//Enable upload
+			this.medialist.upload.set('disabled', false);
 			
 			this.show();
 		}
