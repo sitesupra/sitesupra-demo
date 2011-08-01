@@ -23,7 +23,6 @@ class FileStorage
 	 * File Storage internal path
 	 * @var string
 	 */
-
 	protected $internalPath = null;
 
 	/**
@@ -49,7 +48,7 @@ class FileStorage
 	 * @var array
 	 */
 	private $folderUploadFilters = array();
-	
+
 	/**
 	 * $_FILES['error'] messages
 	 * TODO: separate messages to MediaLibrary UI and to Logger
@@ -82,6 +81,17 @@ class FileStorage
 	{
 		
 	}
+
+	/**
+	 * Folder access mode
+	 * @var integer chmod
+	 */
+	private $folderAccessMode = 0750;
+	/**
+	 * File access mode
+	 * @var integer chmod
+	 */
+	private $fileAccessMode = 0640;
 
 	/**
 	 * Get file storage internal directory path
@@ -126,6 +136,24 @@ class FileStorage
 	}
 
 	/**
+	 * Set folder access mode
+	 * @param integer $folderAccessMode chmod
+	 */
+	public function setFolderAccessMode($folderAccessMode)
+	{
+		$this->folderAccessMode = $folderAccessMode;
+	}
+
+	/**
+	 * Set file access mode
+	 * @param integer $fileAccessMode chmod
+	 */
+	public function setFileAccessMode($fileAccessMode)
+	{
+		$this->fileAccessMode = $fileAccessMode;
+	}
+
+	/**
 	 * Returning only one instance of object
 	 *
 	 * @return FileStorage
@@ -158,19 +186,17 @@ class FileStorage
 		$this->folderUploadFilters[] = $filter;
 	}
 
-	//  checkWebSafe() using Upload Filters
-	//  deleteFile($fileObj)
-	//  deleteFolder($fileObj) only empty folders
-	//  storeUploadedFile
-	//  LIST (children by folder id)
-	// getDoctrineRepository()
-	//  setPrivate (File $file)
-	//  setPublic (File $file)
-	// getFile($fileId)
-	// getFolder($fileId)
-	// getFileContents(File $file)
-	// getFileHandle(File $file)
-	// setDbConnection
+	// TODO: deleteFile($fileObj)
+	// TODO: deleteFolder($fileObj) only empty folders
+	// TODO: LIST (children by folder id)
+	// TODO: getDoctrineRepository()
+	// TODO: setPrivate (File $file)
+	// TODO: setPublic (File $file)
+	// TODO: getFile($fileId)
+	// TODO: getFolder($fileId)
+	// TODO: getFileContents(File $file)
+	// TODO: getFileHandle(File $file)
+	// TODO: setDbConnection
 
 	/**
 	 * Store file data
@@ -193,8 +219,12 @@ class FileStorage
 
 		// copy
 		// TODO: copy to internal and external
-		if ( ! copy($sourceFilePath, $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination)) {
+		$filePath = $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination;
+
+		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new FileStorageException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
+		} else {
+			chmod($filePath, $this->fileAccessMode);
 		}
 	}
 
@@ -330,15 +360,12 @@ class FileStorage
 	 */
 	private function createFolderInFileSystem($fullPath)
 	{
-		// mkdir
-		// FIXME chmod
-
 		$externalPath = $this->getExternalPath();
 		$internalPath = $this->getInternalPath();
 
 		if (($fullPath != $externalPath) && ($fullPath != $internalPath)) {
 			if ( ! is_dir($fullPath)) {
-				if (mkdir($fullPath, 0777)) {
+				if (mkdir($fullPath, $this->folderAccessMode)) {
 					return true;
 				} else {
 					throw new FileStorageException('Could not create folder in ' . $fullPath);

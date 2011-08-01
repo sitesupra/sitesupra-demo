@@ -417,15 +417,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$objects = scandir($dir);
 			foreach ($objects as $object) {
 				if ($object != "." && $object != ".." && $object != ".svn") {
-					if (filetype($dir . "/" . $object) == "dir") {
-						$this->removeFolders($dir . "/" . $object);
+					if (filetype($dir . $object) == "dir") {
+						$this->removeFolders($dir . $object);
 					} else {
-						@unlink($dir . "/" . $object);
+						unlink($dir . DIRECTORY_SEPARATOR . $object);
 					}
 				}
 			}
 			reset($objects);
-			@rmdir($dir);
+			rmdir($dir);
 		}
 
 	}

@@ -58,7 +58,7 @@ class MediaLibraryAction extends CmsActionController
 			}
 
 			$item['children_count'] = $rootNode->getNumberChildren();
-			
+
 			$output[] = $item;
 		}
 
@@ -133,7 +133,7 @@ class MediaLibraryAction extends CmsActionController
 					$folder->addChild($dir);
 				} else {
 					throw new MedialibraryException('Parent folder entity not found');
-				}				
+				}
 			}
 
 			$destination = $dir->getPath(DIRECTORY_SEPARATOR, false);
@@ -269,7 +269,7 @@ class MediaLibraryAction extends CmsActionController
 
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
-			$fileE = $_FILES['file'];
+			$file = $_FILES['file'];
 
 			// FIXME: getting default DEM right now
 			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
@@ -277,9 +277,9 @@ class MediaLibraryAction extends CmsActionController
 			$fileEntity = new \Supra\FileStorage\Entity\File();
 			$em->persist($fileEntity);
 
-			$fileEntity->setName($fileE['name']);
-			$fileEntity->setSize($fileE['size']);
-			$fileEntity->setMimeType($fileE['type']);
+			$fileEntity->setName($file['name']);
+			$fileEntity->setSize($file['size']);
+			$fileEntity->setMimeType($file['type']);
 
 			// adding file as folders child if parent folder is set
 			if ( ! empty($_POST['folder'])) {
@@ -304,11 +304,17 @@ class MediaLibraryAction extends CmsActionController
 			// file metadata
 			$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($fileE['name']);
+			$fileData->setTitle($file['name']);
+
+			// moving uploaded file to Supra tmp folder
+			$tempFile = SUPRA_TMP_PATH . $file['name'];
+			if( ! move_uploaded_file($file['tmp_name'], $tempFile)) {
+				throw new MedialibraryException('Current upload is not valid. Failed to move file to Supra temp directory');
+			}
 
 			// trying to upload file
 			try {
-				$fileStorage->storeFileData($fileEntity, $fileE['tmp_name']);
+				$fileStorage->storeFileData($fileEntity, $tempFile);
 			} catch (FileStorage\FileStorageException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
