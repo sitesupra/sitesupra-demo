@@ -18,8 +18,8 @@ class MediaLibraryAction extends CmsActionController
 	 */
 	public function listAction()
 	{
-		// FIXME: getting default DEM right now
-		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		$fileStorage = FileStorage\FileStorage::getInstance();
+		$em = $fileStorage->getEntityManager();
 
 		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
@@ -78,8 +78,8 @@ class MediaLibraryAction extends CmsActionController
 		if ( ! empty($_GET['id'])) {
 			$id = $_GET['id'];
 
-			// FIXME: getting default DEM right now
-			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+			$fileStorage = FileStorage\FileStorage::getInstance();
+			$em = $fileStorage->getEntityManager();
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -106,11 +106,12 @@ class MediaLibraryAction extends CmsActionController
 	public function insertAction()
 	{
 		if ( ! empty($_POST['title'])) {
-			// FIXME: getting default DEM right now
-			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+
+			$fileStorage = FileStorage\FileStorage::getInstance();
+			$em = $fileStorage->getEntityManager();
+
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			$dirName = $_POST['title'];
 
@@ -171,8 +172,7 @@ class MediaLibraryAction extends CmsActionController
 			// FIXME: should doctrine entity manager be as file stogare parameter?
 			$fileStorage = FileStorage\FileStorage::getInstance();
 
-			// FIXME: getting default DEM right now
-			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+			$em = $fileStorage->getEntityManager();
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -269,17 +269,16 @@ class MediaLibraryAction extends CmsActionController
 
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
-			$file = $_FILES['file'];
+			$fileE = $_FILES['file'];
 
-			// FIXME: getting default DEM right now
-			$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+			$em = $fileStorage->getEntityManager();
 
 			$fileEntity = new \Supra\FileStorage\Entity\File();
 			$em->persist($fileEntity);
 
-			$fileEntity->setName($file['name']);
-			$fileEntity->setSize($file['size']);
-			$fileEntity->setMimeType($file['type']);
+			$fileEntity->setName($fileE['name']);
+			$fileEntity->setSize($fileE['size']);
+			$fileEntity->setMimeType($fileE['type']);
 
 			// adding file as folders child if parent folder is set
 			if ( ! empty($_POST['folder'])) {
@@ -304,17 +303,11 @@ class MediaLibraryAction extends CmsActionController
 			// file metadata
 			$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($file['name']);
-
-			// moving uploaded file to Supra tmp folder
-			$tempFile = SUPRA_TMP_PATH . $file['name'];
-			if( ! move_uploaded_file($file['tmp_name'], $tempFile)) {
-				throw new MedialibraryException('Current upload is not valid. Failed to move file to Supra temp directory');
-			}
+			$fileData->setTitle($fileE['name']);
 
 			// trying to upload file
 			try {
-				$fileStorage->storeFileData($fileEntity, $tempFile);
+				$fileStorage->storeFileData($fileEntity, $fileE['tmp_name']);
 			} catch (FileStorage\FileStorageException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
@@ -334,8 +327,7 @@ class MediaLibraryAction extends CmsActionController
 			$this->getResponse()->setResponseData($output);
 		} else {
 			//TODO: Separate messages to UI and to logger
-			$errors = $fileStorage->fileUploadErrorMessages;
-			$this->setErrorMessage($errors[$_FILES['file']['error']]);
+			$this->setErrorMessage($fileStorage->fileUploadErrorMessages[$_FILES['error']]);
 		}
 	}
 

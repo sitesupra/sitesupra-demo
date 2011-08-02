@@ -29,7 +29,7 @@ class File extends Abstraction\File
 	 */
 	protected $metaData;
 	/**
-	 * @Column(type="boolean", name="public" nullable=false)
+	 * @Column(type="boolean", name="public")
 	 * @var integer
 	 */
 	protected $public = true;

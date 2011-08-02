@@ -68,8 +68,7 @@ class FileStorage
 	 * Protecting from new FileStorage
 	 * @return FileStorage
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		
 	}
 
@@ -77,8 +76,7 @@ class FileStorage
 	 * Protecting from cloning
 	 * @return FileStorage
 	 */
-	private function __clone()
-	{
+	private function __clone() {
 		
 	}
 
@@ -87,7 +85,7 @@ class FileStorage
 	 * @var integer chmod
 	 */
 	private $folderAccessMode = 0750;
-	
+
 	/**
 	 * File access mode
 	 * @var integer chmod
@@ -187,12 +185,19 @@ class FileStorage
 		$this->folderUploadFilters[] = $filter;
 	}
 
+	/**
+	 * Get Doctrine entity manager
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
+	{
+		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
+	}
+
 	// TODO: deleteFile($fileObj)
 	// TODO: deleteFolder($fileObj) only empty folders
 	// TODO: LIST (children by folder id)
 	// TODO: getDoctrineRepository()
-	// TODO: setPrivate (File $file)
-	// TODO: setPublic (File $file)
 	// TODO: getFile($fileId)
 	// TODO: getFolder($fileId)
 	// TODO: getFileContents(File $file)
@@ -238,12 +243,12 @@ class FileStorage
 		$oldFileName = $file->getName();
 
 		//TODO: $file->getFilesFileStorage() @return internal/external
-		if($file->isPublic()) {
+		if ($file->isPublic()) {
 			$filePath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		} else {
 			$filePath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		}
-		
+
 		$file->setName($filename);
 
 		try {
@@ -309,7 +314,6 @@ class FileStorage
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($folder, $title, $internalPath);
 			$this->renameFolderInFileSystem($folder, $title, $externalPath);
-
 		} catch (FileStorageException $exception) {
 			$folder->setName($oldFolderName);
 			throw $exception;
@@ -393,6 +397,99 @@ class FileStorage
 		$extension = $fileinfo['extension'];
 
 		return $extension;
+	}
+
+	/**
+	 * Moves file or folder to public storage
+	 * @param Entity\Abstraction\File $file
+	 * @param boolean $public true by default. If public == false moves file to private storage
+	 */
+	public function setPublic(Entity\Abstraction\File $file, $public = true)
+	{
+
+		if ($file instanceof Entity\File) {
+			$this->setPublicForFile($file, $public);
+		} else if ($file instanceof Entity\Folder) {
+			$this->setPublicForFolder($file, $public);
+		} else {
+			throw new FileStorageException('Wrong entity passed');
+		}
+	}
+
+	/**
+	 * Moves file or folder to private storage
+	 * @param Entity\Abstraction\File $file
+	 */
+	public function setPrivate(Entity\Abstraction\File $file)
+	{
+		$this->setPublic($file, false);
+	}
+
+	/**
+	 * Moves file to public storage if $public is true. Otherwise moves to private.
+	 * @param Entity\File $file
+	 * @param boolean $public
+	 */
+	private function setPublicForFile(Entity\File $file, $public)
+	{
+
+		$filePath = $file->getPath(DIRECTORY_SEPARATOR, true);
+
+		if ($public) {
+			if ($file->isPublic()) {
+				\Log::info($file->getId() . ' ' . $file->getName() . ' is already public');
+			} else {
+				$this->moveFileToExternalStorage($filePath);
+				$file->setPublic(true);
+			}
+		} else {
+			if ($file->isPublic()) {
+				$this->moveFileToInternalStorage($filePath);
+				$file->setPublic(false);
+			} else {
+				\Log::info($file->getId() . '#' . $filePath . ' is already private');
+			}
+		}
+	}
+
+	/**
+	 * Moves folder to public storage if $public is true. Otherwise moves to private.
+	 * @param Entity\Folder $folder
+	 * @param boolean $public
+	 */
+	private function setPublicForFolder(Entity\Folder $folder, $public)
+	{
+		$children = $folder->getChildren();
+		1+1;
+//		throw new FileStorageException('Not done yet');
+	}
+
+	/**
+	 * Actual file move to external storage
+	 * @param string $filePath
+	 */
+	private function moveFileToExternalStorage($filePath)
+	{
+		$oldPath = $this->getInternalPath() . $filePath;
+		$newPath = $this->getExternalPath() . $filePath;
+
+		if (!rename($oldPath, $newPath)) {
+			throw new FileStorageException('Failed to move file to the public storage');
+		}
+	}
+
+	/**
+	 * Actual file move to internal storage
+	 * @param string $filePath
+	 */
+	private function moveFileToInternalStorage($filePath)
+	{
+		$oldPath = $this->getExternalPath() . $filePath;
+		$newPath = $this->getInternalPath() . $filePath;
+
+		if (!rename($oldPath, $newPath)) {
+			throw new FileStorageException('Failed to move file to the private storage');
+		}
 	}
 
 }
