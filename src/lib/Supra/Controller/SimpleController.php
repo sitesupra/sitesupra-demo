@@ -2,8 +2,8 @@
 
 namespace Supra\Controller;
 
-use Supra\Request,
-		Supra\Response;
+use Supra\Request;
+use Supra\Response;
 
 /**
  * Simple HTTP controller based on controller methods in form [method]Action()

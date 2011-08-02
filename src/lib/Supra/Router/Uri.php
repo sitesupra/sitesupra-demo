@@ -2,9 +2,9 @@
 
 namespace Supra\Router;
 
-use Supra\Request\RequestInterface,
-		Supra\Request\Http,
-		Supra\Uri\Path;
+use Supra\Request\RequestInterface;
+use Supra\Request\Http;
+use Supra\Uri\Path;
 
 /**
  * URI router

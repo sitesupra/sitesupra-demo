@@ -2,9 +2,9 @@
 
 namespace Supra\NestedSet\SearchCondition;
 
-use Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Exception,
-		Doctrine\ORM\QueryBuilder;
+use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Exception;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Search condition class for doctrine

@@ -2,10 +2,10 @@
 
 namespace Supra\Controller\Pages\Request;
 
-use Supra\Request\Http,
-		Supra\Locale\Data as LocaleData,
-		Supra\Controller\NotFoundException,
-		Supra\Controller\Pages\Entity\Abstraction\Page;
+use Supra\Request\Http;
+use Supra\Locale\Data as LocaleData;
+use Supra\Controller\NotFoundException;
+use Supra\Controller\Pages\Entity\Abstraction\Page;
 
 /**
  * Page controller request object on view method

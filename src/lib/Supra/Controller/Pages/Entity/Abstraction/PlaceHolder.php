@@ -2,10 +2,10 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection,
-		Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\Entity\PagePlaceHolder,
-		Supra\Controller\Pages\Entity\TemplatePlaceHolder;
+use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity\PagePlaceHolder;
+use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
 
 /**
  * Page and template place holder data abstraction

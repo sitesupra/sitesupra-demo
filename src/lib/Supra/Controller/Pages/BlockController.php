@@ -2,13 +2,13 @@
 
 namespace Supra\Controller\Pages;
 
-use Supra\Controller\ControllerAbstraction,
-		Supra\Request,
-		Supra\Response,
-		Supra\Editable\EditableAbstraction,
-		Supra\Editable\EditableInterface,
-		Supra\Controller\Pages\Request\HttpEditRequest,
-		Supra\Controller\Pages\Response\Block as BlockResponse;
+use Supra\Controller\ControllerAbstraction;
+use Supra\Request;
+use Supra\Response;
+use Supra\Editable\EditableAbstraction;
+use Supra\Editable\EditableInterface;
+use Supra\Controller\Pages\Request\HttpEditRequest;
+use Supra\Controller\Pages\Response\Block as BlockResponse;
 
 /**
  * Block controller abstraction

@@ -2,8 +2,8 @@
 
 namespace Supra\NestedSet\Node;
 
-use Supra\NestedSet\SearchCondition\SearchConditionAbstraction,
-		Supra\NestedSet\SelectOrder\SelectOrderAbstraction;
+use Supra\NestedSet\SearchCondition\SearchConditionAbstraction;
+use Supra\NestedSet\SelectOrder\SelectOrderAbstraction;
 
 /**
  * Node interface for nested set nodes and Doctrine entities

@@ -2,8 +2,8 @@
 
 namespace Supra\NestedSet\Node;
 
-use Supra\NestedSet\RepositoryAbstraction,
-		Supra\NestedSet\Exception;
+use Supra\NestedSet\RepositoryAbstraction;
+use Supra\NestedSet\Exception;
 
 /**
  * Abstract class for nested set node objects

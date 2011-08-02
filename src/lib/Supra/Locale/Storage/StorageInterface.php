@@ -2,9 +2,9 @@
 
 namespace Supra\Locale\Storage;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface,
-		Supra\Locale\Data;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
+use Supra\Locale\Data;
 
 /**
  * Interface for storages for current locale

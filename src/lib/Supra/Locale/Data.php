@@ -2,8 +2,8 @@
 
 namespace Supra\Locale;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
 
 /**
  * Localization
@@ -138,6 +138,8 @@ class Data
 
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
+		$locale = null;
+		
 		/* @var $detector Detector\DetectorInterface */
 		foreach ($this->detectors as $detector) {
 			$locale = $detector->detect($request, $response);

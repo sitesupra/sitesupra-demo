@@ -2,9 +2,9 @@
 
 namespace Supra\NestedSet\SelectOrder;
 
-use Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Exception,
-		Doctrine\ORM\QueryBuilder;
+use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Exception;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Sorting conditions for database nested set repository

@@ -2,11 +2,11 @@
 
 namespace Supra\Controller\Pages\Request;
 
-use Supra\Request\Http,
-		Supra\Controller\Pages\Entity,
-		Doctrine\ORM\EntityManager,
-		Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\Set;
+use Supra\Request\Http;
+use Supra\Controller\Pages\Entity;
+use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Set;
 
 /**
  * Page controller request

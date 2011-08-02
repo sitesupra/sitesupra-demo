@@ -2,10 +2,10 @@
 
 namespace Supra\Controller\Pages\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\Set\PageSet;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Set\PageSet;
 
 /**
  * Page controller page object

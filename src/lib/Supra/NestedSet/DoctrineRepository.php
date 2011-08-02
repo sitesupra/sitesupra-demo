@@ -2,11 +2,11 @@
 
 namespace Supra\NestedSet;
 
-use Doctrine\ORM\EntityManager,
-		Doctrine\ORM\Mapping,
-		Doctrine\ORM\QueryBuilder,
-		Supra\Controller\Pages\Entity\Abstraction\Entity,
-		Node\NodeInterface;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping;
+use Doctrine\ORM\QueryBuilder;
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Node\NodeInterface;
 
 /**
  * 

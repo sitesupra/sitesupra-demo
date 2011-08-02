@@ -2,11 +2,11 @@
 
 namespace Supra\Controller\Pages\Entity;
 
-use Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\Entity\Abstraction\Entity,
-		Supra\Controller\Pages\Entity\Abstraction\Data,
-		Supra\Controller\Pages\Entity\Abstraction\Block,
-		Supra\Editable\EditableInterface;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Supra\Controller\Pages\Entity\Abstraction\Data;
+use Supra\Controller\Pages\Entity\Abstraction\Block;
+use Supra\Editable\EditableInterface;
 
 /**
  * Block property class.

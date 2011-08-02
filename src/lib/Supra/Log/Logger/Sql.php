@@ -2,8 +2,8 @@
 
 namespace Supra\Log\Logger;
 
-use Doctrine\DBAL\Logging\SQLLogger,
-		Supra\Log\Logger;
+use Doctrine\DBAL\Logging\SQLLogger;
+use Supra\Log\Logger;
 
 /**
  * Sql class

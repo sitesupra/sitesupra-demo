@@ -2,10 +2,10 @@
 
 namespace Supra\FileStorage\Entity\Abstraction;
 
-use Doctrine\ORM\EntityManager,
-		Supra\Database\Doctrine,
-		Doctrine\Common\Collections\Collection,
-		Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManager;
+use Supra\Database\Doctrine;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * Base entity class for file storage

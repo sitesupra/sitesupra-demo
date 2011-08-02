@@ -2,9 +2,9 @@
 
 namespace Supra\Controller\Pages\Set;
 
-use ArrayObject,
-		Supra\Controller\Pages\Entity\Abstraction\Entity,
-		Supra\Controller\Pages\Exception;
+use ArrayObject;
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Set containing entity objects

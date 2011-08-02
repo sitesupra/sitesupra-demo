@@ -2,8 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection,
-		Supra\Controller\Pages\Entity\BlockProperty;
+use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Controller\Pages\Entity\BlockProperty;
 
 /**
  * @Entity

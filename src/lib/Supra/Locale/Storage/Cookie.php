@@ -2,12 +2,12 @@
 
 namespace Supra\Locale\Storage;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface,
-		Supra\Response\Http as HttpResponse,
-		Supra\Locale\Exception,
-		Supra\Http\Cookie as HttpCookie,
-		Supra\Log\Logger;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
+use Supra\Response\Http as HttpResponse;
+use Supra\Locale\Exception;
+use Supra\Http\Cookie as HttpCookie;
+use Supra\Log\Logger;
 
 /**
  * Stores the current locale in the cookie

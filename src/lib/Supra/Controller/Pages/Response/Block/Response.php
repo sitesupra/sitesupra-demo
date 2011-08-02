@@ -2,9 +2,9 @@
 
 namespace Supra\Controller\Pages\Response\Block;
 
-use Supra\Response\Http,
-		Supra\Editable\EditableInterface,
-		Supra\Controller\Pages\Entity;
+use Supra\Response\Http;
+use Supra\Editable\EditableInterface;
+use Supra\Controller\Pages\Entity;
 
 /**
  * Response for block

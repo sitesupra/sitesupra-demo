@@ -2,12 +2,12 @@
 
 namespace Supra\FileStorage\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection,
- Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * File object
- * @Entity(repositoryClass="Supra\FileStorage\Repository\FileRepository")
+ * @Entity(repositoryClass="Supra\FileStorage\Repository\ForbiddenRepository")
  * @Table(name="file")
  */
 class File extends Abstraction\File

@@ -2,9 +2,9 @@
 
 namespace Supra\Locale\Detector;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface,
-		Supra\Locale\Data;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
+use Supra\Locale\Data;
 
 /**
  * Locale detector interface

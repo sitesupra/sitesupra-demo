@@ -2,14 +2,14 @@
 
 namespace Supra\FileStorage\Repository;
 
-use Doctrine\ORM\EntityRepository,
-		Supra\NestedSet\DoctrineRepository,
-		Supra\NestedSet\RepositoryInterface,
-		Doctrine\ORM\Mapping,
-		Doctrine\ORM\EntityManager,
-		BadMethodCallException,
-		Supra\FileStorage\Entity\File,
-		Supra\FileStorage\Exception;
+use Doctrine\ORM\EntityRepository;
+use Supra\NestedSet\DoctrineRepository;
+use Supra\NestedSet\RepositoryInterface;
+use Doctrine\ORM\Mapping;
+use Doctrine\ORM\EntityManager;
+use BadMethodCallException;
+use Supra\FileStorage\Entity\File;
+use Supra\FileStorage\Exception;
 
 /**
  * FileRepository

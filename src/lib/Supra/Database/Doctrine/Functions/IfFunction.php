@@ -2,11 +2,11 @@
 
 namespace Supra\Database\Doctrine\Functions;
 
-use Doctrine\ORM\Query\Lexer,
-		Doctrine\ORM\Query\AST\Functions\FunctionNode,
-		Doctrine\ORM\Query\SqlWalker,
-		Doctrine\ORM\Query\Parser,
-		Doctrine\ORM\Query\AST\ConditionalPrimary;
+use Doctrine\ORM\Query\Lexer;
+use Doctrine\ORM\Query\AST\Functions\FunctionNode;
+use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\Parser;
+use Doctrine\ORM\Query\AST\ConditionalPrimary;
 
 /**
  * Function IF

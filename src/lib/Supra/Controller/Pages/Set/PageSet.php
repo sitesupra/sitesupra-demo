@@ -2,9 +2,9 @@
 
 namespace Supra\Controller\Pages\Set;
 
-use Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\Entity\Template,
-		Supra\Controller\Pages\Entity\Abstraction\Page;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity\Template;
+use Supra\Controller\Pages\Entity\Abstraction\Page;
 
 /**
  * Set containing 

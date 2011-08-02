@@ -2,8 +2,8 @@
 
 namespace Supra\Controller\Pages\Response\PlaceHolder;
 
-use Supra\Response\ResponseInterface,
-		Supra\Editable\EditableAbstraction;
+use Supra\Response\ResponseInterface;
+use Supra\Editable\EditableAbstraction;
 
 /**
  * Response for place holder edit mode

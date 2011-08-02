@@ -2,9 +2,9 @@
 
 namespace Supra\Locale\Detector;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface,
-		Supra\Request\Http;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
+use Supra\Request\Http;
 
 /**
  * Cookie locale detector

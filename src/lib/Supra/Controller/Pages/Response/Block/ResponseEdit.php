@@ -2,9 +2,9 @@
 
 namespace Supra\Controller\Pages\Response\Block;
 
-use Supra\Response\ResponseInterface,
-		Supra\Editable\EditableAbstraction,
-		Supra\Controller\Pages\Entity;
+use Supra\Response\ResponseInterface;
+use Supra\Editable\EditableAbstraction;
+use Supra\Controller\Pages\Entity;
 
 /**
  * Response for block in edit mode

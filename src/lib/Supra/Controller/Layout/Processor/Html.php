@@ -2,8 +2,8 @@
 
 namespace Supra\Controller\Layout\Processor;
 
-use Supra\Response\ResponseInterface,
-		Supra\Controller\Pages\Entity\Layout;
+use Supra\Response\ResponseInterface;
+use Supra\Controller\Pages\Entity\Layout;
 
 /**
  * Simple layout processor

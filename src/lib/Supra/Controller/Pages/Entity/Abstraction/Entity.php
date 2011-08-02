@@ -2,11 +2,11 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\ORM\EntityManager,
-		Supra\Database\Doctrine,
-		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Exception,
-		Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManager;
+use Supra\Database\Doctrine;
+use Doctrine\Common\Collections\Collection;
+use Supra\Controller\Pages\Exception;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * Base entity class for Pages controller

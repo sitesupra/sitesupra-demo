@@ -2,8 +2,8 @@
 
 namespace Supra\Controller\Pages\Set;
 
-use Supra\Controller\Pages\Entity,
-		Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Set of place holders

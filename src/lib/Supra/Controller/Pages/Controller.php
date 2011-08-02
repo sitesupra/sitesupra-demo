@@ -2,18 +2,18 @@
 
 namespace Supra\Controller\Pages;
 
-use Supra\Controller\ControllerAbstraction,
-		Supra\Response,
-		Supra\Response\ResponseInterface,
-		Supra\Request\RequestInterface,
-		Supra\Controller\Layout,
-		Supra\Database\Doctrine,
-		Supra\Locale\Data as LocaleData,
-		Doctrine\ORM\PersistentCollection,
-		Doctrine\ORM\Query\Expr,
-		Supra\Controller\NotFoundException,
-		Supra\Controller\Pages\Request\HttpEditRequest,
-		Supra\Controller\Pages\Response\PlaceHolder as PlaceHolderResponse;
+use Supra\Controller\ControllerAbstraction;
+use Supra\Response;
+use Supra\Response\ResponseInterface;
+use Supra\Request\RequestInterface;
+use Supra\Controller\Layout;
+use Supra\Database\Doctrine;
+use Supra\Locale\Data as LocaleData;
+use Doctrine\ORM\PersistentCollection;
+use Doctrine\ORM\Query\Expr;
+use Supra\Controller\NotFoundException;
+use Supra\Controller\Pages\Request\HttpEditRequest;
+use Supra\Controller\Pages\Response\PlaceHolder as PlaceHolderResponse;
 
 /**
  * Page controller

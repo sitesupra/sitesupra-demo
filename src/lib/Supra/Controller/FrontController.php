@@ -2,9 +2,9 @@
 
 namespace Supra\Controller;
 
-use Supra\Request,
-		Supra\Response,
-		Supra\Router;
+use Supra\Request;
+use Supra\Response;
+use Supra\Router;
 
 /**
  * Front controller

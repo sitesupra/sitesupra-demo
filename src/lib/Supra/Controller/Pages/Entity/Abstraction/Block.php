@@ -2,17 +2,17 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Supra\Controller\ControllerAbstraction,
-		Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Exception,
-		Supra\Controller\Pages\BlockController,
-		Supra\Controller\Pages\Entity\BlockProperty,
-		Supra\Editable\EditableAbstraction,
-		Supra\Controller\Pages\Request\Request,
-		Supra\Controller\Pages\Response\Block\Response,
-		Supra\Controller\Pages\Entity\PageBlock,
-		Supra\Controller\Pages\Entity\TemplateBlock;
+use Supra\Controller\ControllerAbstraction;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\BlockController;
+use Supra\Controller\Pages\Entity\BlockProperty;
+use Supra\Editable\EditableAbstraction;
+use Supra\Controller\Pages\Request\Request;
+use Supra\Controller\Pages\Response\Block\Response;
+use Supra\Controller\Pages\Entity\PageBlock;
+use Supra\Controller\Pages\Entity\TemplateBlock;
 
 /**
  * Block database entity abstraction

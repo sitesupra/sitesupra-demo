@@ -2,11 +2,11 @@
 
 namespace Supra\NestedSet;
 
-use Doctrine\ORM\EntityRepository,
-		Supra\NestedSet\Exception,
-		Supra\NestedSet\DoctrineRepository,
-		Doctrine\ORM\Mapping,
-		Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
+use Supra\NestedSet\Exception;
+use Supra\NestedSet\DoctrineRepository;
+use Doctrine\ORM\Mapping;
+use Doctrine\ORM\EntityManager;
 
 /**
  * The nested set and Doctrine entity repositories must implement this interface

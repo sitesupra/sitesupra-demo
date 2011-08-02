@@ -2,8 +2,8 @@
 
 namespace Supra\NestedSet\SelectOrder;
 
-use Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Exception;
+use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Exception;
 
 /**
  * Sorting conditions for array nested set repository

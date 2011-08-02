@@ -2,8 +2,8 @@
 
 namespace Supra\Locale\Detector;
 
-use Supra\Request\RequestInterface,
-		Supra\Response\ResponseInterface;
+use Supra\Request\RequestInterface;
+use Supra\Response\ResponseInterface;
 
 /**
  * Path locale detector

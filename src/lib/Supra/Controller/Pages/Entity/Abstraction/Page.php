@@ -2,11 +2,11 @@
 
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
-use Doctrine\Common\Collections\ArrayCollection,
-		Doctrine\Common\Collections\Collection,
-		Supra\Controller\Pages\Entity\BlockProperty,
-		Supra\Controller\Pages\Set\PageSet,
-		Supra\NestedSet;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Supra\Controller\Pages\Entity\BlockProperty;
+use Supra\Controller\Pages\Set\PageSet;
+use Supra\NestedSet;
 
 /**
  * Page abstraction

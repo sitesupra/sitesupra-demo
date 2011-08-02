@@ -2,8 +2,8 @@
 
 namespace Supra\NestedSet\SearchCondition;
 
-use Supra\NestedSet\Node\NodeInterface,
-		Supra\NestedSet\Exception;
+use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Exception;
 
 /**
  * Search condition class for arrays

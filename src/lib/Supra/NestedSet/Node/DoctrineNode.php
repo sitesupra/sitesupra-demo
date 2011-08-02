@@ -2,10 +2,10 @@
 
 namespace Supra\NestedSet\Node;
 
-use Supra\Controller\Pages\Entity\Abstraction\Entity,
-		Supra\NestedSet\DoctrineRepository,
-		Supra\NestedSet\RepositoryInterface,
-		Supra\NestedSet\Exception;
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Supra\NestedSet\DoctrineRepository;
+use Supra\NestedSet\RepositoryInterface;
+use Supra\NestedSet\Exception;
 
 /**
  * Doctrine database nested set node object

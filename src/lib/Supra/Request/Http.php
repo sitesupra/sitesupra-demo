@@ -2,8 +2,8 @@
 
 namespace Supra\Request;
 
-use Supra\Uri\Path,
-		Supra\Log\Logger;
+use Supra\Uri\Path;
+use Supra\Log\Logger;
 
 /**
  * Http request object
