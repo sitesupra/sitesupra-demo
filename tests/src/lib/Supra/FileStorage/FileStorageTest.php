@@ -466,6 +466,93 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 	}
 
+		public function testCreateMultiLevelFolderWithFilesAndSetPrivate() {
+		$this->cleanUp(true);
+
+		$filestorage = FileStorage\FileStorage::getInstance();
+
+		$dir = null;
+		$dirNames = array('one', 'two', 'three');
+		foreach ($dirNames as $dirName) {
+			$parentDir = $dir;
+			$dir = new \Supra\FileStorage\Entity\Folder();
+			$dir->setName($dirName);
+			self::getConnection()->persist($dir);
+			self::getConnection()->flush();
+			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
+				$parentDir->addChild($dir);
+				$filestorage->createFolder($parentDir->getPath(DIRECTORY_SEPARATOR, true), $dirName);
+			} else {
+				$filestorage->createFolder($dir->getPath(DIRECTORY_SEPARATOR, false), $dirName);
+			}
+				self::getConnection()->flush();
+				$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
+				$file = new \Supra\FileStorage\Entity\File();
+				self::getConnection()->persist($file);
+
+				$fileName = baseName($uploadFile);
+				$fileSize = fileSize($uploadFile);
+				$file->setName($fileName);
+				$file->setSize($fileSize);
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$mimeType = finfo_file($finfo, $uploadFile);
+				finfo_close($finfo);
+				$file->setMimeType($mimeType);
+
+				$dir->addChild($file);
+
+				$fileData = new \Supra\FileStorage\Entity\MetaData('en');
+				$fileData->setMaster($file);
+				$fileData->setTitle(basename($uploadFile));
+
+				$filestorage->storeFileData($file, $uploadFile);
+				self::getConnection()->flush();
+
+		}
+		self::getConnection()->flush();
+		/*@var $filestorage \Supra\FileStorage */
+		$em = $filestorage->getEntityManager();
+		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+		$node = $repo->findOneByFileName('one');
+
+		$filestorage->setPrivate($node);
+		self::getConnection()->flush();
+		$filePath = $filestorage->getInternalPath() . 'one/two/three/chuck.jpg';
+
+		self::assertFileExists($filePath, 'File should exist in internal storage');
+	}
+
+	public function testCreateFileAndMoveItToPrivate()
+	{
+		$this->cleanUp();
+		$filestorage = FileStorage\FileStorage::getInstance();
+		$file = $this->createFile();
+
+		$filestorage->setPrivate($file);
+		self::getConnection()->flush();
+
+		$filePath = $filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+
+		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
+	}
+
+	public function testCreateFileAndMoveItToPrivateThenBackToPublic()
+	{
+		$this->cleanUp();
+		$filestorage = FileStorage\FileStorage::getInstance();
+		$file = $this->createFile();
+
+		$filestorage->setPrivate($file);
+		self::getConnection()->flush();
+
+		$filestorage->setPublic($file);
+		self::getConnection()->flush();
+
+		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+
+		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
+	}
+
 	private function deleteFilesAndFolders()
 	{
 		$filestorage = FileStorage\FileStorage::getInstance();

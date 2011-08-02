@@ -49,7 +49,7 @@ class FileStorage
 	 * @var array
 	 */
 	private $folderUploadFilters = array();
-
+	
 	/**
 	 * $_FILES['error'] messages
 	 * TODO: separate messages to MediaLibrary UI and to Logger
@@ -69,7 +69,8 @@ class FileStorage
 	 * Protecting from new FileStorage
 	 * @return FileStorage
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		
 	}
 
@@ -77,7 +78,8 @@ class FileStorage
 	 * Protecting from cloning
 	 * @return FileStorage
 	 */
-	private function __clone() {
+	private function __clone()
+	{
 		
 	}
 
@@ -211,7 +213,7 @@ class FileStorage
 	 * @param \Supra\FileStorage\Entity\File $file
 	 * @param string $source
 	 */
-	function storeFileData($file, $sourceFilePath)
+	function storeFileData(Entity\File $file, $sourceFilePath)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
@@ -226,7 +228,7 @@ class FileStorage
 
 		$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
 
-		if ( ! copy($sourceFilePath, $filePath)) {
+		if (!copy($sourceFilePath, $filePath)) {
 			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
 		} else {
 			chmod($filePath, $this->fileAccessMode);
@@ -319,7 +321,7 @@ class FileStorage
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($folder, $title, $internalPath);
 			$this->renameFolderInFileSystem($folder, $title, $externalPath);
-			
+
 		} catch (Exception\RuntimeException $exception) {
 			$folder->setName($oldFolderName);
 			throw $exception;
@@ -406,7 +408,7 @@ class FileStorage
 	 * @param string $filename
 	 * @return string
 	 */
-	private function getExtension(string $filename)
+	private function getExtension($filename)
 	{
 		$fileinfo = pathinfo($filename);
 		$extension = $fileinfo['extension'];
@@ -474,9 +476,12 @@ class FileStorage
 	 */
 	private function setPublicForFolder(Entity\Folder $folder, $public)
 	{
-		$children = $folder->getChildren();
-		1+1;
-//		throw new FileStorageException('Not done yet');
+		$descendants = $folder->getDescendants();
+		foreach ($descendants as $node) {
+			if ($node instanceof Entity\File) {
+				$this->setPublicForFile($node, $public);
+			}
+		}
 	}
 
 	/**
