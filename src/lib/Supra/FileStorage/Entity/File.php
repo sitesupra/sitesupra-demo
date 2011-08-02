@@ -138,7 +138,7 @@ class File extends Abstraction\File
 	}
 
 	/**
-	 * Get localised description
+	 * Get localized description
 	 *
 	 * @param string $locale
 	 * @return string

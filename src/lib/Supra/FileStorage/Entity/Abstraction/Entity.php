@@ -36,6 +36,17 @@ abstract class Entity
 	{
 		return Doctrine::getInstance()->getEntityManager(null);
 	}
+	
+	/**
+	 * Get class name to get the repository for
+	 * @return string
+	 */
+	protected function getRepositoryClassName()
+	{
+		$className = get_class($this);
+		
+		return $className;
+	}
 
 	/**
 	 * @return EntityRepository
@@ -43,8 +54,9 @@ abstract class Entity
 	public function getRepository()
 	{
 		$em = self::getConnection();
-		$className = get_class($this);
+		$className = $this->getRepositoryClassName();
 		$rep = $em->getRepository($className);
+		
 		return $rep;
 	}
 

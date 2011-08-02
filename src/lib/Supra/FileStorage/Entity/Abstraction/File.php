@@ -272,6 +272,17 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 		}
 	}
 	
+	/**
+	 * Get class name to get the repository for
+	 * @return string
+	 */
+	protected function getRepositoryClassName()
+	{
+		$className = __CLASS__;
+		
+		return $className;
+	}
+	
 	public function setName($fileName) 
 	{
 		$this->fileName = $fileName;

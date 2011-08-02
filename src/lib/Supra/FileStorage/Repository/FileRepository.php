@@ -8,7 +8,8 @@ use Doctrine\ORM\EntityRepository,
 		Doctrine\ORM\Mapping,
 		Doctrine\ORM\EntityManager,
 		BadMethodCallException,
-		Supra\FileStorage\Entity\File;
+		Supra\FileStorage\Entity\File,
+		Supra\FileStorage\Exception;
 
 /**
  * FileRepository
@@ -26,9 +27,14 @@ class FileRepository extends EntityRepository implements RepositoryInterface
 	 */
 	public function __construct(EntityManager $em, Mapping\ClassMetadata $class)
 	{
+		$className = $class->getName();
+		
+		if ($className != 'Supra\FileStorage\Entity\Abstraction\File') {
+			throw new Exception\LogicException("File repository should be called for file abstraction entity only, requested for '{$className}'");
+		}
+		
 		parent::__construct($em, $class);
 		$this->nestedSetRepository = new DoctrineRepository($em, $class);
-		$this->nestedSetRepository->setClassName("Supra\FileStorage\Entity\Abstraction\File");
 	}
 
 	/**
