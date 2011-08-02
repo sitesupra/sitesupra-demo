@@ -7,13 +7,13 @@ $fileStorage = Supra\FileStorage\FileStorage::getInstance();
 $fileStorage->setInternalPath('files');
 $fileStorage->setExternalPath('files');
 
-$extensionFilter = new Supra\FileStorage\UploadFilter\ExtensionUploadFilter();
-$extensionFilter->setMode(Supra\FileStorage\UploadFilter\ExtensionUploadFilter::MODE_WHITELIST);
+$extensionFilter = new Supra\FileStorage\Validation\ExtensionUploadFilter();
+$extensionFilter->setMode(Supra\FileStorage\Validation\ExtensionUploadFilter::MODE_WHITELIST);
 $extensionFilter->addItems(array('gif','png','jpg','jpeg'));
 
-$fileNameFilter = new Supra\FileStorage\UploadFilter\FileNameUploadFilter();
+$fileNameFilter = new Supra\FileStorage\Validation\FileNameUploadFilter();
 
-$existingFileNameFilter = new Supra\FileStorage\UploadFilter\ExistingFileNameUploadFilter();
+$existingFileNameFilter = new Supra\FileStorage\Validation\ExistingFileNameUploadFilter();
 
 // file filters
 $fileStorage->addFileUploadFilter($extensionFilter);

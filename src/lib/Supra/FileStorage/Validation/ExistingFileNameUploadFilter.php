@@ -1,7 +1,7 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
-
+namespace Supra\FileStorage\Validation;
+use Supra\FileStorage\Exception;
 /**
  * Existing file or folder name validation class
  */
@@ -28,8 +28,9 @@ class ExistingFileNameUploadFilter implements FileValidationInterface, FolderVal
 				$recordName = $record->getName();
 				if ($creatingFilename == $recordName) {
 					$message = $type . ' with such name already exists.';
-					throw new UploadFilterException($message);
 					\Log::error($message);
+					throw new Exception\UploadFilterException($message);
+					
 				}
 			}
 		}

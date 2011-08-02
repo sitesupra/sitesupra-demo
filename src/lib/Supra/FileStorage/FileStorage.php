@@ -2,9 +2,10 @@
 
 namespace Supra\FileStorage;
 
-use Supra\FileStorage\UploadFilter;
+use Supra\FileStorage\Validation;
 use Supra\FileStorage\Helpers;
 use Supra\FileStorage\Entity;
+use Supra\FileStorage\Exception;
 
 /**
  * File storage
@@ -226,7 +227,7 @@ class FileStorage
 		$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
 
 		if ( ! copy($sourceFilePath, $filePath)) {
-			throw new FileStorageException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
+			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
 		} else {
 			chmod($filePath, $this->fileAccessMode);
 		}
@@ -242,7 +243,6 @@ class FileStorage
 		$oldExtension = $file->getExtension();
 		$oldFileName = $file->getName();
 
-		//TODO: $file->getFilesFileStorage() @return internal/external
 		if ($file->isPublic()) {
 			$filePath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		} else {
@@ -255,7 +255,7 @@ class FileStorage
 			$newExtension = $file->getExtension();
 
 			if ($oldExtension != $newExtension) {
-				throw new FileStorageException('You can\'t change file extension');
+				throw new Exception\UploadFilterException('You can\'t change file extension');
 			}
 
 			foreach ($this->fileUploadFilters as $filter) {
@@ -264,7 +264,10 @@ class FileStorage
 
 			$this->renameFileInFileSystem($file, $filename, $filePath);
 
-		} catch (FileStorageException $exception) {
+		} catch (Exception\RuntimeException $exception) {
+			$file->setName($oldFileName);
+			throw $exception;
+		} catch (Exception\UploadFilterException $exception) {
 			$file->setName($oldFileName);
 			throw $exception;
 		}
@@ -280,7 +283,9 @@ class FileStorage
 	private function renameFileInFileSystem(Entity\File $file, $filename, $path)
 	{
 		if (file_exists($path)) {
-			if (rename($path, dirname($path) . DIRECTORY_SEPARATOR . $filename)) {
+			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $filename;
+			$result = rename($path, $newPath);
+			if ($result) {
 				$file->setName($filename);
 			}
 		}
@@ -314,7 +319,8 @@ class FileStorage
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($folder, $title, $internalPath);
 			$this->renameFolderInFileSystem($folder, $title, $externalPath);
-		} catch (FileStorageException $exception) {
+			
+		} catch (Exception\RuntimeException $exception) {
 			$folder->setName($oldFolderName);
 			throw $exception;
 		}
@@ -329,42 +335,51 @@ class FileStorage
 	private function renameFolderInFileSystem(Entity\Folder $folder, $title, $path)
 	{
 		if (is_dir($path)) {
-			if (rename($path, dirname($path) . DIRECTORY_SEPARATOR . $title)) {
+			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $title;
+			$result = rename($path, $newPath);
+			if ($result) {
 				$folder->setName($title);
 			}
 		} else {
-			throw new FileStorageException($path . ' is not a folder');
+			throw new Exception\RuntimeException($path . ' is not a folder');
 		}
 	}
 
 	/**
 	 * Creates new folder in all file storages
 	 * @param string $folderName
-	 * @return true or throws FileStorageException
+	 * @return true or throws Exception\RuntimeException
 	 */
 	public function createFolder($destination, $folderName = '')
 	{
 		$fileNameHelper = new Helpers\FileNameValidationHelper();
-		$fileNameHelper->validate($folderName);
+		$result = $fileNameHelper->validate($folderName);
+
+		if( ! $result) {
+			throw new Exception\UploadFilterException($fileNameHelper->getErrorMessage());
+		}
 
 		if (( ! empty($folderName)) && ( ! empty($destination))) {
 			$folderName = DIRECTORY_SEPARATOR . $folderName;
 		}
 
-		$internal = $this->createFolderInFileSystem($this->getInternalPath() . $destination . $folderName);
-		$external = $this->createFolderInFileSystem($this->getExternalPath() . $destination . $folderName);
+		$internalPath = $this->getInternalPath() . $destination . $folderName;
+		$externalPath = $this->getExternalPath() . $destination . $folderName;
 
-		if (($external === true) && ($internal === true)) {
+		$internalFolderResult = $this->createFolderInFileSystem($internalPath);
+		$externalFolderResult = $this->createFolderInFileSystem($externalPath);
+
+		if ($internalFolderResult && $externalFolderResult) {
 			return true;
 		} else {
-			throw new FileStorageException('Something went wrong while creating folder');
+			throw new Exception\RuntimeException('Something went wrong while creating folder');
 		}
 	}
 
 	/**
 	 * Actual folder creation function which is triggered by $this->createFolder();
 	 * @param string $fullPath
-	 * @return true or throws FileStorageException
+	 * @return true or throws Exception\RuntimeException
 	 */
 	private function createFolderInFileSystem($fullPath)
 	{
@@ -376,10 +391,10 @@ class FileStorage
 				if (mkdir($fullPath, $this->folderAccessMode)) {
 					return true;
 				} else {
-					throw new FileStorageException('Could not create folder in ' . $fullPath);
+					throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
 				}
 			} else {
-				throw new FileStorageException('Folder with such name already exists');
+				throw new Exception\RuntimeException('Folder with such name already exists');
 			}
 		} else {
 			return true;
@@ -412,7 +427,7 @@ class FileStorage
 		} else if ($file instanceof Entity\Folder) {
 			$this->setPublicForFolder($file, $public);
 		} else {
-			throw new FileStorageException('Wrong entity passed');
+			throw new Exception\RuntimeException('Wrong entity passed');
 		}
 	}
 
@@ -474,7 +489,7 @@ class FileStorage
 		$newPath = $this->getExternalPath() . $filePath;
 
 		if (!rename($oldPath, $newPath)) {
-			throw new FileStorageException('Failed to move file to the public storage');
+			throw new Exception\RuntimeException('Failed to move file to the public storage');
 		}
 	}
 
@@ -488,7 +503,7 @@ class FileStorage
 		$newPath = $this->getInternalPath() . $filePath;
 
 		if (!rename($oldPath, $newPath)) {
-			throw new FileStorageException('Failed to move file to the private storage');
+			throw new Exception\RuntimeException('Failed to move file to the private storage');
 		}
 	}
 

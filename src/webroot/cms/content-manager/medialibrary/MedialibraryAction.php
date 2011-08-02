@@ -143,18 +143,13 @@ class MediaLibraryAction extends CmsActionController
 			// trying to create folder
 			try {
 				$fileStorage->createFolder($destination, $folderName);
-			} catch (FileStorage\FileStorageException $exc) {
+			} catch (FileStorage\Exception\RuntimeException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
-			} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+			} catch (FileStorage\Exception\UploadFilterException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
-			} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
-					$this->setErrorMessage($exc->getMessage());
-					unset($folder,$dir);
-					return;
-				}
-
+			}
 			$em->flush();
 
 			$insertedId = $dir->getId();
@@ -200,13 +195,10 @@ class MediaLibraryAction extends CmsActionController
 				// and passing them to MediaLibrary UI
 				try {
 					$fileStorage->renameFolder($file, $title);
-				} catch (FileStorage\FileStorageException $exc) {
+				} catch (FileStorage\Exception\RuntimeException $exc) {
 					$this->setErrorMessage($exc->getMessage());
 					return;
-				} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
-					$this->setErrorMessage($exc->getMessage());
-					return;
-				} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+				} catch (FileStorage\Exception\UploadFilterException $exc) {
 					$this->setErrorMessage($exc->getMessage());
 					return;
 				}
@@ -225,16 +217,13 @@ class MediaLibraryAction extends CmsActionController
 						// and passing them to MediaLibrary UI
 						try {
 							$fileStorage->renameFile($file, $filename);
-						} catch (FileStorage\FileStorageException $exc) {
+						} catch (FileStorage\Exception\RuntimeException $exc) {
 							$this->setErrorMessage($exc->getMessage());
 							return;
-						} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
+						} catch (FileStorage\Exception\UploadFilterException $exc) {
 							$this->setErrorMessage($exc->getMessage());
 							return;
-						} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
-							$this->setErrorMessage($exc->getMessage());
-							return;
-						}
+						} 
 					} else {
 						throw new MedialibraryException('File name isn\'t set');
 					}
@@ -269,16 +258,16 @@ class MediaLibraryAction extends CmsActionController
 
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
-			$fileE = $_FILES['file'];
+			$file = $_FILES['file'];
 
 			$em = $fileStorage->getEntityManager();
 
 			$fileEntity = new \Supra\FileStorage\Entity\File();
 			$em->persist($fileEntity);
 
-			$fileEntity->setName($fileE['name']);
-			$fileEntity->setSize($fileE['size']);
-			$fileEntity->setMimeType($fileE['type']);
+			$fileEntity->setName($file['name']);
+			$fileEntity->setSize($file['size']);
+			$fileEntity->setMimeType($file['type']);
 
 			// adding file as folders child if parent folder is set
 			if ( ! empty($_POST['folder'])) {
@@ -292,8 +281,7 @@ class MediaLibraryAction extends CmsActionController
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$folder = $repo->findOneById($folderId);
 
-				//TODO: some check on not existant folder
-				if(!empty($folder)) {
+				if( ! empty($folder)) {
 					$folder->addChild($fileEntity);
 				} else {
 					throw new MedialibraryException('Parent folder entity not found');
@@ -303,18 +291,15 @@ class MediaLibraryAction extends CmsActionController
 			// file metadata
 			$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($fileE['name']);
+			$fileData->setTitle($file['name']);
 
 			// trying to upload file
 			try {
-				$fileStorage->storeFileData($fileEntity, $fileE['tmp_name']);
-			} catch (FileStorage\FileStorageException $exc) {
+				$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			} catch (FileStorage\Exception\RuntimeException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
-			} catch (FileStorage\Helpers\FileStorageHelpersException $exc) {
-				$this->setErrorMessage($exc->getMessage());
-				return;
-			} catch (FileStorage\UploadFilter\UploadFilterException $exc) {
+			} catch (FileStorage\Exception\UploadFilterException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
 			}

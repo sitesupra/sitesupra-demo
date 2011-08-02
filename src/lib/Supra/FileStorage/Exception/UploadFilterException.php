@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
+namespace Supra\FileStorage\Exception;
 
 class UploadFilterException extends \RuntimeException
 {

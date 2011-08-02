@@ -1,6 +1,7 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
+namespace Supra\FileStorage\Validation;
+use Supra\FileStorage\Exception;
 
 class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidationInterface
 {
@@ -13,8 +14,8 @@ class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidatio
 		$result = $this->checkList($file->getExtension());
 		if( ! $result) {
 			$message = 'File extension "'.$file->getExtension().'" is not allowed';
-			throw new UploadFilterException($message);
 			\Log::error($message);
+			throw new Exception\UploadFilterException($message);
 		}
 	}
 	

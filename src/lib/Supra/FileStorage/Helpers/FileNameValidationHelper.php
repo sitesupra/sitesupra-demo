@@ -1,6 +1,7 @@
 <?php
 
 namespace Supra\FileStorage\Helpers;
+use Supra\FileStorage\Exception;
 
 class FileNameValidationHelper
 {
@@ -20,6 +21,13 @@ class FileNameValidationHelper
 		'>',
 	);
 
+	public function getErrorMessage()
+	{
+		return 'File contains depricated characters '
+				. implode(', ', $this->characterList)
+				. ' or starts with a dot.';
+	}
+
 	/**
 	 * Validates file or folder name
 	 * @param $name
@@ -35,10 +43,10 @@ class FileNameValidationHelper
 		$fistDotMatch = preg_match('/^\./', $name, $fistDotMatch);
 
 		if (( ! empty($depricatedCharacters)) || ( ! empty($fistDotMatch))) {
-			$message = 'File contains depricated characters ' . implode(', ', $this->characterList) . ' or starts with a dot.';
-			throw new FileStorageHelpersException($message);
-			\Log::error($message);
+			return false;
 		}
+
+		return true;
 	}
 
 }

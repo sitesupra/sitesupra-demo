@@ -4,7 +4,7 @@ namespace Supra\Tests\FileStorage;
 
 use Supra\Tests\TestCase;
 use Supra\FileStorage;
-use Supra\FileStorage\UploadFilter;
+use Supra\FileStorage\Exception;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
@@ -19,7 +19,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	private static function getConnection()
 	{
 		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
-
 	}
 
 	public function testUploadFileToInternal()
@@ -68,7 +67,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 //		$roots = $repo->getRootNodes();
 //		1+1;
 
-		$path = $file->getPath(DIRECTORY_SEPARATOR,true);
+		$path = $file->getPath(DIRECTORY_SEPARATOR, true);
 		if ($path == 'one/chuck.jpg') {
 			$this->assertTrue(true);
 		} else {
@@ -97,15 +96,13 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$filestorage = FileStorage\FileStorage::getInstance();
 
-		$failed = false;
 		try {
 			$filestorage->storeFileData($file, $uploadFile);
-		} catch (UploadFilter\UploadFilterException $e) {
-			$failed = true;
+		} catch (Exception\UploadFilterException $exc) {
+			return;
 		}
 
-		$this->assertTrue($failed);
-
+		$this->fail('UploadFilterException should be thrown');
 	}
 
 	public function testCreateFolder()
@@ -114,18 +111,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$result = $this->createFolder('testDir');
 
-		if ( ! ($result instanceof \Supra\FileStorage\Entity\Folder)) {
+		if (!($result instanceof \Supra\FileStorage\Entity\Folder)) {
 			$this->fail('Failed to create folder');
 		}
 
-		$path = $result->getPath(DIRECTORY_SEPARATOR,true);
-		
+		$path = $result->getPath(DIRECTORY_SEPARATOR, true);
+
 		if ($path == 'testDir') {
 			$this->assertTrue(true);
 		} else {
 			$this->fail('File path is wrong');
 		}
-
 	}
 
 	public function testCreateExistentFolder()
@@ -136,14 +132,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		try {
 			$this->createFolder('testDir');
-
-		} catch (FileStorage\FileStorageException $e) {
-			$this->assertTrue(true);
+		} catch (Exception\RuntimeException $e) {
 			return;
 		}
 
-		$this->fail('Test overwrited folder');
-
+		$this->fail('Test overwrited folder. FileStorage\Exception\RuntimeException should be thrown');
 	}
 
 	public function testCreateInvalidFolderWithSymbol()
@@ -153,18 +146,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		try {
 			$result = $this->createFolder('Copy*Pase');
 
-			$path = $result->getPath(DIRECTORY_SEPARATOR,true);
+			$path = $result->getPath(DIRECTORY_SEPARATOR, true);
 
 			if ($path == 'Copy*Pase') {
 				$this->fail('Record should not exist in database');
 			}
-		} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
-			$this->assertTrue(true);
+
+		} catch (Exception\UploadFilterException $e) {
 			return;
 		}
 
-		$this->fail('Created file should exist in file storage');
-
+		$this->fail('On folder create Validation need to throw upload filter exception');
 	}
 
 	public function testCreateInvalidFolderWithFirstDot()
@@ -174,18 +166,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		try {
 			$result = $this->createFolder('.Folder');
 
-			$path = $result->getPath(DIRECTORY_SEPARATOR,true);
+			$path = $result->getPath(DIRECTORY_SEPARATOR, true);
 
 			if ($path == '.Folder') {
 				$this->fail('Record should not exist in database');
 			}
-		} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
-			$this->assertTrue(true);
+		} catch (Exception\UploadFilterException $e) {
 			return;
 		}
 
-		$this->assertTrue(false);
-
+		$this->fail('On folder create Validation need to throw upload filter exception');
 	}
 
 	public function testCreateFolderAndRenameIt()
@@ -203,20 +193,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($internalPath && $externalPath) {
 
-				$path = $dir->getPath(DIRECTORY_SEPARATOR,true);
+				$path = $dir->getPath(DIRECTORY_SEPARATOR, true);
 
 				if ($path != 'folder') {
 					$this->fail('Record should exist in database');
-				} else {
-					$this->assertTrue(true);
 				}
-				return;
-			} else {
-				$this->assertTrue(false);
-			}
-		}
 
-		$this->assertTrue(false);
+				return;
+			}
+		} else {
+			$this->fail('Wrong entity passed');
+		}
 
 	}
 
@@ -230,14 +217,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$filestorage = FileStorage\FileStorage::getInstance();
 			try {
 				$result = $this->createFolder('Copy*Pase');
-			} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
-				$this->assertTrue(true);
+			} catch (Exception\UploadFilterException $e) {
 				return;
 			}
 		}
 
 		$this->fail('Created file should exist in file storage');
-
 	}
 
 	private function createFolder($name)
@@ -261,7 +246,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		} else {
 			return null;
 		}
-
 	}
 
 	public function testCreateFile()
@@ -270,14 +254,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$internalPath = file_exists($filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
+		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
-		if ($internalPath) {
-			$this->assertTrue(true);
-		} else {
-			$this->fail('Created file should exist in file storage');
-		}
-
+		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
 	}
 
 	public function testCreateExistentFile()
@@ -288,13 +267,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		try {
 			$file = $this->createFile();
-		} catch (UploadFilter\UploadFilterException $e) {
-			$this->assertTrue(true);
+		} catch (Exception\UploadFilterException $e) {
 			return;
 		}
 
 		$this->fail('Test overwrited file');
-
 	}
 
 	public function testCreateFileAndRenameIt()
@@ -303,22 +280,19 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$internalPath = file_exists($filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
+		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$externalPath = file_exists($filePath);
 
-		if ($internalPath) {
+		if ($externalPath) {
 
 			$filestorage->renameFile($file, 'CHUUUUCK.jpg');
-			$renamedFilePath = $filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
-			if (file_exists($renamedFilePath)) {
-				$this->assertTrue(true);
-				return;
-			} else {
-				$this->fail('Renamed file should exist in file storage');
-			}
+			$renamedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+
+			self::assertFileExists($renamedFilePath,'Renamed file should exist in file storage');
+		
 		} else {
 			$this->fail('Created file should exist in file storage');
 		}
-
 	}
 
 	public function testCreateFileAndRenameItWrong()
@@ -327,21 +301,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$internalPath = file_exists($filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
+		$externalPath = file_exists($filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
 
-		if ($internalPath) {
+		if ($externalPath) {
 			try {
 				$filestorage->renameFile($file, 'CHUU*UUCK.jpg');
-			} catch (\Supra\FileStorage\Helpers\FileStorageHelpersException $e) {
-				$this->assertTrue(true);
+			} catch (Exception\UploadFilterException $e) {
 				return;
 			}
 		} else {
 			$this->fail('File should exist in file storage');
 		}
-
-		$this->fail('Something went wrong');
-
 	}
 
 	public function testCreateFileAndRenameItRightButWithWrongExtension()
@@ -351,14 +321,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file = $this->createFile();
 		$oldName = $file->getName();
 
-		$internalPath = file_exists($filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
+		$externalPath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$externalPathResult = file_exists($externalPath);
 
 		$catched = false;
 
-		if ($internalPath) {
+		if ($externalPathResult) {
 			try {
 				$filestorage->renameFile($file, 'CHUUUCK.png');
-			} catch (FileStorage\FileStorageException $exc) {
+			} catch (Exception\UploadFilterException $exc) {
 				$catched = true;
 			}
 		} else {
@@ -366,11 +337,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 
 		if (($file->getName() == $oldName) && $catched) {
-			$this->assertTrue(true);
+			return;
 		} else {
-			$this->fail('File extension should be the same and rename should throw FileStorageException');
+			$this->fail('File extension should be the same and rename should throw Exception\UploadFilterException');
 		}
-
 	}
 
 	private function createFile()
@@ -399,7 +369,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		self::getConnection()->flush();
 
 		return $file;
-
 	}
 
 	public function testCreateMultiLevelFolder()
@@ -432,7 +401,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		} else {
 			$this->fail('There is no folders');
 		}
-
 	}
 
 	public function testCreateMultiLevelFolderAndUploadFile()
@@ -473,7 +441,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
-		
+
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -486,19 +454,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		self::getConnection()->flush();
 
 		if ($internalPath && $externalPath) {
-			$path = $file->getPath(DIRECTORY_SEPARATOR,true);
+			$path = $file->getPath(DIRECTORY_SEPARATOR, true);
 			$filePath = 'one/two/three/chuck.jpg';
-			if ($path == $filePath && file_exists($filestorage->getInternalPath() . $filePath )) {
-				$this->assertTrue(true);
-			} else {
+			$fileFullPath = $filestorage->getExternalPath() . $filePath;
+			if ( ! ($path == $filePath) || ! file_exists($fileFullPath)) {
 				$this->fail('File path is wrong');
 			}
 
-			$this->assertTrue(true);
 		} else {
 			$this->fail('There is no folders');
 		}
-
 	}
 
 	private function deleteFilesAndFolders()
@@ -506,7 +471,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage = FileStorage\FileStorage::getInstance();
 		$this->removeFolders($filestorage->getExternalPath());
 		$this->removeFolders($filestorage->getInternalPath());
-
 	}
 
 	private function removeFolders($dir)
@@ -516,7 +480,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			foreach ($objects as $object) {
 				if ($object != "." && $object != ".." && $object != ".svn") {
 					$dir = rtrim($dir, DIRECTORY_SEPARATOR);
-					if (filetype($dir . DIRECTORY_SEPARATOR .$object) == "dir") {
+					if (filetype($dir . DIRECTORY_SEPARATOR . $object) == "dir") {
 						$this->removeFolders($dir . DIRECTORY_SEPARATOR . $object);
 					} else {
 						@unlink($dir . DIRECTORY_SEPARATOR . $object);
@@ -526,7 +490,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			reset($objects);
 			@rmdir($dir);
 		}
-
 	}
 
 	private function cleanUp($delete = false)
@@ -539,12 +502,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		if (self::DELETE_FILES || $delete) {
 			$this->deleteFilesAndFolders();
 		}
-
 	}
 
 	public function testCleanUp()
 	{
-	  $this->cleanUp();
+		$this->cleanUp();
 	}
 
 }

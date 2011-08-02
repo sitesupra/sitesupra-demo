@@ -1,7 +1,8 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
+namespace Supra\FileStorage\Validation;
 
+use Supra\FileStorage\Exception;
 use Supra\FileStorage\Helpers;
 
 /**
@@ -24,7 +25,13 @@ class FileNameUploadFilter implements FileValidationInterface, FolderValidationI
 	private function validate($name)
 	{
 		$fileNameHelper = new Helpers\FileNameValidationHelper();
-		$fileNameHelper->validate($name);
+		$result = $fileNameHelper->validate($name);
+		if( ! $result) {
+			$message = $fileNameHelper->getErrorMessage();
+			\Log::error($message);
+			throw new Exception\UploadFilterException($message);
+		}
+
 	}
 	
 }

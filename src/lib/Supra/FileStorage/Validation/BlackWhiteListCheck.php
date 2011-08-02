@@ -1,6 +1,7 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
+namespace Supra\FileStorage\Validation;
+use Supra\FileStorage\Exception;
 
 abstract class BlackWhiteListCheck
 {

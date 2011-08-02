@@ -1,6 +1,7 @@
 <?php
 
-namespace Supra\FileStorage\UploadFilter;
+namespace Supra\FileStorage\Validation;
+use Supra\FileStorage\Exception;
 
 /**
  * File size validation class
@@ -30,8 +31,10 @@ class FileSizeUploadFilter implements FileValidationInterface
 	{
 		if ($file->getSize() > $this->maxSize) {
 			$message = 'File size is bigger than "'.$this->maxSize;
-			throw new UploadFilterException($message);
+
 			\Log::error($message);
+			throw new Exception\UploadFilterException($message);
+			
 		}
 	}
 
