@@ -2,6 +2,7 @@
 
 namespace Supra\NestedSet\Node;
 
+//TODO: remove page entity requirement
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\NestedSet\DoctrineRepository;
 use Supra\NestedSet\RepositoryInterface;

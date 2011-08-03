@@ -4,13 +4,14 @@ namespace Supra\FileStorage\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Supra\NestedSet;
 
 /**
  * File object
  * @Entity(repositoryClass="Supra\FileStorage\Repository\ForbiddenRepository")
  * @Table(name="file")
  */
-class File extends Abstraction\File
+class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 {
 
 	/**

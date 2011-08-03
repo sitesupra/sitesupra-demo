@@ -191,6 +191,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function addChild(NodeInterface $child)
 	{
 		$child->moveAsLastChildOf($this);
+		
 		return $this;
 	}
 
@@ -490,11 +491,14 @@ abstract class NodeAbstraction implements NodeInterface
 	public function getSiblings($includeNode = true)
 	{
 		$parent = $this->getParent();
+		$siblings = null;
+		
 		if ( ! \is_null($parent)) {
 			$siblings = $parent->getChildren();
 		} else {
 			$siblings = $this->repository->getRootNodes();
 		}
+		
 		if ( ! $includeNode) {
 			foreach ($siblings as $key => $sibling) {
 				if ($sibling->isEqualTo($this)) {
@@ -505,6 +509,7 @@ abstract class NodeAbstraction implements NodeInterface
 			// reset index
 			$siblings = array_values($siblings);
 		}
+		
 		return $siblings;
 	}
 
@@ -530,6 +535,7 @@ abstract class NodeAbstraction implements NodeInterface
 		$pos = $afterNode->getRightValue() + 1;
 		$level = $afterNode->getLevel();
 		$this->move($pos, $level);
+		
 		return $this;
 	}
 
@@ -544,7 +550,21 @@ abstract class NodeAbstraction implements NodeInterface
 		$pos = $beforeNode->getLeftValue();
 		$level = $beforeNode->getLevel();
 		$this->move($pos, $level);
+		
 		return $this;
+	}
+	
+	/**
+	 * Check if children can be added to the node
+	 * @param NodeInterface $parentNode
+	 * @throws Exception\InvalidOperation
+	 */
+	private function validateAddingChildren(NodeInterface $parentNode)
+	{
+		if ($parentNode instanceof NodeLeafInterface) {
+			$parentDump = static::dump($parentNode);
+			throw new Exception\InvalidOperation("Children cannot added to the NodeLeafInterface object {$parentDump}");
+		}
 	}
 
 	/**
@@ -555,9 +575,12 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
+		$this->validateAddingChildren($parentNode);
+		
 		$pos = $parentNode->getLeftValue() + 1;
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
+		
 		return $this;
 	}
 
@@ -569,9 +592,12 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsLastChildOf(NodeInterface $parentNode)
 	{
+		$this->validateAddingChildren($parentNode);
+		
 		$pos = $parentNode->getRightValue();
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
+		
 		return $this;
 	}
 
