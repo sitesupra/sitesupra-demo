@@ -67,6 +67,12 @@ SU('anim', function (Y) {
 		 */
 		HAS_TEMPLATE: false,
 		
+		/**
+		 * Dependancy list
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['LayoutContainers'],
+		
 		
 		
 		
@@ -109,6 +115,23 @@ SU('anim', function (Y) {
 		
 		
 		
+		
+		/**
+		 * Render widgets
+		 * @private
+		 */
+		render: function () {
+			//Render buttons
+			var button_groups = this.get('buttons') || {};
+			var first_action_id = null;
+			
+			for(var action_id in button_groups) {
+				if (!first_action_id) first_action_id = action_id;
+				this.addActionButtons(action_id, button_groups[action_id]);
+			}
+			
+			this.setActiveAction(first_action_id);
+		},
 		
 		/**
 		 * Run next animation from queue

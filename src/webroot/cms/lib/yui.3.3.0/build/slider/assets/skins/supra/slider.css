@@ -44,7 +44,7 @@ build: 2676
 .yui3-slider-x .yui3-slider-rail,
 .yui3-slider-x .yui3-slider-rail-cap-left,
 .yui3-slider-x .yui3-slider-rail-cap-right {
-    background-image: url(/cms/yui.3.3.0/build/slider/assets/skins/supra/rail-x.png);
+    background-image: url(/cms/lib/yui.3.3.0/build/slider/assets/skins/supra/rail-x.png);
     background-repeat: repeat-x;
     /* alternate: rail-x-lines.png */
 }
@@ -89,7 +89,7 @@ build: 2676
 .yui3-slider-y .yui3-slider-rail,
 .yui3-slider-y .yui3-slider-rail-cap-top,
 .yui3-slider-y .yui3-slider-rail-cap-bottom {
-    background-image: url(/cms/yui.3.3.0/build/slider/assets/skins/supra/rail-y.png);
+    background-image: url(/cms/lib/yui.3.3.0/build/slider/assets/skins/supra/rail-y.png);
     background-repeat: repeat-y;
     /* alternate: rail-y-lines.png */
 }

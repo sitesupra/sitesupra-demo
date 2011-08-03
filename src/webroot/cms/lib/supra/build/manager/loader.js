@@ -16,40 +16,53 @@ YUI.add('supra.manager-loader', function (Y) {
 		EXTENSION_STYLE: '.css',
 		EXTENSION_DATA: '.json',
 		
-		/*
+		/**
 		 * Path to current manager
+		 * @type {String}
 		 */
 		base: null,
 		
-		/*
+		/**
 		 * Paths to external managers
+		 * @type {Object}
 		 */
 		paths: {},
 		
-		/*
+		/**
 		 * List of loaded actions
+		 * @type {Object}
 		 */
 		loaded: {},
 		
-		/*
+		/**
 		 * List of actions which are currently loading
+		 * @type {Object}
 		 */
 		loading: {},
 		
-		/*
+		/**
 		 * Action info cache
+		 * @type {Object}
 		 */
 		action_info_cache: {},
 		
-		/*
+		/**
 		 * Action template cache
+		 * @type {Object}
 		 */
 		template_cache: {},
 		
-		/*
+		/**
 		 * List of templates which are loading
+		 * @type {Object}
 		 */
 		template_loading: {},
+		
+		/**
+		 * Action dependancies
+		 * @type Object}
+		 */
+		dependancies: {},
 		
 		/**
 		 * Set manager base path
@@ -80,7 +93,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		},
 		
 		/**
-		 * Returns if action is loaded
+		 * Returns if action is loading
 		 * 
 		 * @param {String} action_name Action name
 		 * @return True if action is in loading action list
@@ -118,13 +131,18 @@ YUI.add('supra.manager-loader', function (Y) {
 			if (this.isLoaded(action_name) || this.isLoading(action_name)) return false;
 			
 			var info = this.getActionInfo(action_name);
-			this.loading[action_name] = true;
+			this.loading[action_name] = {
+				'script': true,
+				'style': false,
+				'template': false,
+				'dependancies': false
+			};
 			
 			//Get SCRIPT
 			Y.Get.script(info.path_script, {
 				onSuccess: function (o) {
-					delete(this.loading[o.data]);
-					this.loaded[o.data] = true;
+					//Script is loaded, but template and stylesheet is not
+					//rest is handled by Supra.Managet.Action
 				},
 				attributes: {
 					'async': 'async',	//Load asynchronously
@@ -135,6 +153,76 @@ YUI.add('supra.manager-loader', function (Y) {
 			});
 			
 			return true;
+		},
+		
+		/**
+		 * Load stylesheet and template
+		 * 
+		 * @private
+		 */
+		loadExtras: function (action_name) {
+			var self = this,
+				action = Manager.getAction(action_name);
+			
+			//Script finished loading
+			if (action_name in this.loading) {
+				this.loading[action_name].script = false;
+				
+				this.loadTemplate(action_name, function (template) {
+					
+					//Replace locale strings and set template
+					action.template = Supra.Intl.replace(template);
+					
+					if (!(action_name in self.dependancies)) {
+						//There are no depedancies, fire loaded
+						action._fireLoaded();
+						Manager.runExecutionQueue();
+					}
+					
+				});
+			} else {
+				//Action was created, but is was not loaded using Supra.Manager.Loader.loadAction()
+				//so there is no this.loading[action_name] for given action
+				action._fireLoaded();
+				Manager.runExecutionQueue();
+			}
+		},
+		
+		/**
+		 * Check if dependancies are resolved
+		 * 
+		 * @param {String} action_name Action name
+		 */
+		checkDependancies: function (action_name) {
+			var dependancies = this.dependancies,
+				list = [],
+				index = 0,
+				is_loaded = false;
+			
+			for(var id in this.dependancies) {
+				list = this.dependancies[id];
+				index = Y.Array.indexOf(list, action_name);
+				if (index !== -1) {
+					list.splice(index, 1);
+				}
+				
+				//No more dependancies
+				if (!list.length) {
+					delete(this.dependancies[id]);
+					
+					this.loading[id].dependancies = false;
+					
+					if (!this.loading[id].style && !this.loading[id].template) {
+						//Only if style and template is loaded
+						Manager.getAction(id)._fireLoaded();
+						is_loaded = true;
+					}
+				}
+			}
+			
+			if (is_loaded) {
+				Manager.runExecutionQueue();
+			}
 		},
 		
 		/**
@@ -164,14 +252,21 @@ YUI.add('supra.manager-loader', function (Y) {
 			if (stylesheetPath && hasStylesheet) {
 				stylesheetLoaded = false;
 				
+				//CSS are loaded synchronously
 				Y.Get.css(stylesheetPath, {
 					'onSuccess': function () {
 						stylesheetLoaded = true;
+						Manager.Loader.loading[action_name].style = false;
 						
 						//If template request already completed, call callback
 						if (templateLoaded) callback(template);
 					}
 				});
+				
+				//If there is no need to load template then return
+				if (templateLoaded) {
+					return;
+				}
 			}
 			
 			//Load template if needed
@@ -189,6 +284,8 @@ YUI.add('supra.manager-loader', function (Y) {
 						'on': {
 							'success': function (html, status) {
 								templateLoaded = true;
+								Manager.Loader.loading[action_name].template = false;
+								
 								delete(loading[templatePath]);
 								cache[templatePath] = html;
 								template = html;
@@ -199,6 +296,8 @@ YUI.add('supra.manager-loader', function (Y) {
 							'failure': function () {
 								//@TODO Handle failure
 								templateLoaded = true;
+								Manager.Loader.loading[action_name].template = false;
+								
 								delete(loading[templatePath]);
 								cache[templatePath] = template;
 								
@@ -211,6 +310,10 @@ YUI.add('supra.manager-loader', function (Y) {
 					template = cache[templatePath];
 				}
 			}
+			
+			//Set loaded states
+			this.loading[action_name].template = !templateLoaded;
+			this.loading[action_name].style = !stylesheetLoaded;
 			
 			if (templateLoaded && stylesheetLoaded) {
 				//Action doesn't have stylesheet and template

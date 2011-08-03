@@ -132,3 +132,17 @@
 	padding-top: 9px;
 	top: -50px; /* Node is animated inside view */
 }
+
+/**
+ * Toolbar button animation
+ */
+.yui3-editor-toolbar-group {
+    position: absolute;
+    right: 0;
+	left: 0;
+    top: -50px;
+    white-space: nowrap;
+}
+.yui3-editor-toolbar-group:first-child {
+	top: 0;
+}

@@ -48,9 +48,8 @@ YUI.add('supra.manager-action-base', function (Y) {
 		},
 		/**
 		 * Action state
-		 * Action is ready
 		 */
-		'ready': {
+		'loaded': {
 			'value': false
 		},
 		
@@ -190,7 +189,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		},
 		
 		/**
-		 * Returns children actions which state is 'ready'
+		 * Returns children actions which state is 'created'
 		 */
 		getActiveChildActions: function () {
 			var ret = {}, children = this.children;
@@ -556,13 +555,13 @@ YUI.add('supra.manager-action-base', function (Y) {
 		},
 		
 		/**
-		 * Returns true if action is ready, otherwise false
+		 * Returns true if action is loaded, otherwise false
 		 * 
-		 * @return Action ready state
+		 * @return Action loaded state
 		 * @type {Boolean}
 		 */
-		isReady: function () {
-			return this.get('ready');
+		isLoaded: function () {
+			return this.get('loaded');
 		},
 		
 		/**
@@ -575,44 +574,23 @@ YUI.add('supra.manager-action-base', function (Y) {
 			return this.get('created');
 		},
 		
-		/**
-		 * Load template, stylesheet
-         *
-         * @private
-		 */
-		_loadTemplate: function () {
-			Manager.fire(this.NAME + ':load');
-			this.fire('load');
-			
-			var hasTemplate = this.getHasTemplate() && this.getTemplatePath();
-			var hasStylesheet = this.getHasStylesheet() && this.getStylesheetPath();
-			
-			if (hasTemplate || hasStylesheet) {
-				//Load template
-				Manager.Loader.loadTemplate(this.NAME, Y.bind(function (template) {
-					//Parse internationalizations
-					template = Supra.Intl.replace(template);
-					
-					this.template = template;
-					this._fireReady();
-					Manager.runExecutionQueue();
-				}, this));
-			} else {
-				//Action don't have a template
-				this._fireReady();
-				Manager.runExecutionQueue();
-			}
-		},
-
         /**
-         * Fires 'ready' event
+         * Fires 'loaded' event
          *
          * @private
          */
-		_fireReady: function () {
-			this.set('ready', true);
-			this.fire('ready');
-			Manager.fire(this.NAME + ':ready');
+		_fireLoaded: function () {
+			//Final changes to action object
+			if (this._beforeLoaded) {
+				this._beforeLoaded();
+			}
+			
+			this.set('loaded', true);
+			this.fire('loaded');
+			Manager.fire(this.NAME + ':loaded');
+			
+			//Action is loaded, execute all other actions which depend on this
+			Manager.Loader.checkDependancies(this.NAME);
 		},
 		
 		/**
@@ -695,6 +673,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		_preExecute: function (event) {
 			//Initialization phase
 			if (!this.get('created')) {
+				this.create();
 				this._preInitialize();
 				this.initialize();
 				this._preRender();
@@ -721,7 +700,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		_execute: function () {
 			var args = [].slice.call(arguments, 0);
 			
-			if (!this.get('ready') || !this.get('initialized')) {
+			if (!this.get('loaded') || !this.get('initialized')) {
 				args = [this.NAME].concat(args);
 				Manager.executeAction.apply(Manager, args);
 			} else {
@@ -734,7 +713,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * Overwritten by _execute
 		 */
 		execute: function () {
-			if (!this.get('ready')) {
+			if (!this.get('loaded')) {
 				var args = [].slice.call(arguments, 0);
 					args = [this.NAME].concat(args);
 				
@@ -761,6 +740,13 @@ YUI.add('supra.manager-action-base', function (Y) {
 			this.set('visible', false);
 			return this;
 		},
+		
+		/**
+         * On action create it's possible to change placeholder
+         *
+         * @private
+         */
+		create: function () {},
 		
 		/**
          * Initialize action

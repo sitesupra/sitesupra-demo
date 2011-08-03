@@ -1,4 +1,6 @@
-/* Slideshow */
+/**
+ * Slideshow
+ */
 .yui3-slideshow,
 .yui3-slideshow-content {
 	height: 100%;
@@ -14,6 +16,36 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+/**
+ * Multi-view slideshow
+ */
+.yui3-slideshow-multiview,
+.yui3-slideshow-multiview-content {
+	height: 100%;
+	width: 100%;
+	position: relative;
+	overflow: hidden;
+}
+.yui3-slideshow-multiview-content {
+	width: 9000px;
+}
+.yui3-slideshow-multiview-slide {
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	width: 399px;
+	height: 100%;
+	border-right: 1px solid #eee;
+	background: #fff;
 	overflow-x: hidden;
 	overflow-y: auto;
 	

@@ -71,36 +71,76 @@ YUI.add('supra.manager-action', function (Y) {
 			action.set('actionPath', action_info.folder);
 		
 		/*
-		 * Overwrite execute function
+		 * When everything is loaded overwrite execute function
 		 */
-			if (action.execute !== SU.Manager.Action.Base.prototype.execute) {
-				action._originalExecute = action.execute;
-			} else {
-				action._originalExecute = function () {};
+			function onLoadReady () {
+				//Remove reference
+				delete(action._beforeLoaded);
+				
+				//
+				if (action.execute !== SU.Manager.Action.Base.prototype.execute) {
+					action._originalExecute = action.execute;
+				} else {
+					action._originalExecute = function () {};
+				}
+				action.execute = action._execute;
+				
+				delete(Manager.temporaries[name]);
+				Manager.actions[name] = action;
+				Manager[name] = action;
+				
+				//On first 'execute' make sure Action is initialized
+				action.once('execute', action._preExecute, action);
+				
+				//After execute do call plugins
+				action.before('execute', action._postExecute, action);
+				
+				//On execute call original execute method
+				action.on('execute', function (event) {
+					return this._originalExecute.apply(this, event.details[0]);
+				}, action);
+				
+				//Set loaded state
+				delete(Manager.Loader.loading[name]);
+				Manager.Loader.loaded[name] = true;
+				
+				//Run queued execute requests
+				Manager.runExecutionQueue();
 			}
-			action.execute = action._execute;
 			
-			delete(Manager.temporaries[name]);
-			Manager.actions[name] = action;
-			Manager[name] = action;
+			action._beforeLoaded = onLoadReady;
 			
-			//On first 'execute' make sure Action is initialized
-			action.once('execute', action._preExecute, action);
+		/*
+		 * Set dependancies
+		 */
+		if (object.DEPENDANCIES && object.DEPENDANCIES.length) {
+			var dependancies = object.DEPENDANCIES,
+				load_list = [];
 			
-			//After execute do call plugins
-			action.before('execute', action._postExecute, action);
+			for(var i=0,ii=dependancies.length; i<ii; i++) {
+				if (!Manager.Loader.isLoaded(dependancies[i])) {
+					load_list.push(dependancies[i]);
+					
+					if (!Manager.Loader.isLoading(dependancies[i])) {
+						Manager.Loader.loadAction(dependancies[i]);
+					}
+				}
+			}
 			
-			//On execute call original execute method
-			action.on('execute', function (event) {
-				return this._originalExecute.apply(this, event.details[0]);
-			}, action);
-		
+			if (load_list.length) {
+				Manager.loadActions(load_list);
+				
+				if (!(name in Manager.Loader.dependancies)) Manager.Loader.dependancies[name] = [];
+				Manager.Loader.dependancies[name] = load_list;
+				Manager.Loader.loading[name].dependancies = true;
+			}
+		}
 		
 		/*
 		 * Action script is loaded,
 		 * load template and stylesheet if needed
 		 */
-		action._loadTemplate();
+		Manager.Loader.loadExtras(name);
 		
 		return action;
 	};

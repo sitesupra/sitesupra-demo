@@ -34,6 +34,15 @@ Supra('supra.header', function (Y) {
 		HAS_TEMPLATE: false,
 		
 		/**
+		 * Dependancy list
+		 * @type {Array}
+		 */
+		DEPENDANCIES: [],
+		
+		
+		
+		
+		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 * @private
 		 */
@@ -46,6 +55,10 @@ Supra('supra.header', function (Y) {
 				'data': Supra.data.get('application'),
 				'requestUri': this.getDataPath('applications')
 			});
+			
+			Supra.Manager.executeAction('LayoutContainers');
+			Supra.Manager.executeAction('PageToolbar');
+			Supra.Manager.executeAction('PageButtons');
 		},
 		
 		/**

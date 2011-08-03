@@ -122,8 +122,8 @@ YUI.add('supra.manager-base', function (Y) {
 				if (action_name in this.actions) {
 					var action = this.actions[action_name];
 					
-					//Only if ready
-					if (action.get('ready')) {
+					//Only if loaded
+					if (action.get('loaded')) {
 						//Execute
 						try {
 							action.execute.apply(action, exec_info.args);
@@ -153,7 +153,7 @@ YUI.add('supra.manager-base', function (Y) {
 			var Loader = Supra.Manager.Loader;
 			
 			if (action_name in this.actions) {
-				if (this.actions[action_name].isReady()) {
+				if (this.actions[action_name].isLoaded()) {
 					try {
 						var action = this.actions[action_name];
 						action.execute.apply(action, args);
@@ -161,7 +161,7 @@ YUI.add('supra.manager-base', function (Y) {
 						Y.error(e);
 					}
 				} else {
-					//If not ready then add to queue
+					//If not loaded then add to queue
 					this.addActionToQueue(action_name, args);
 				}
 				return true;
@@ -177,8 +177,8 @@ YUI.add('supra.manager-base', function (Y) {
 			} else {
 				this.addActionToQueue(action_name, args);
 				
-				//Action is loaded, but object wasn't created or is not yet ready
-				//Y.log('Action ' + action_name + ' was loaded, but action object wasn\'t found', 'error');
+				//Action is loaded, but object wasn't created
+				Y.log('Action ' + action_name + ' was loaded, but action object wasn\'t found', 'error');
 			}
 		},
 		

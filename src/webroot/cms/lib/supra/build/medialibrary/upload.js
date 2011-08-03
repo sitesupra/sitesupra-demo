@@ -120,7 +120,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				folder_id = parseInt(node.getData('itemId'), 10);
 				folder_node = node;
 			} else {
-				node = target.closest('div.yui3-ml-slideshow-slide, div.yui3-slideshow-slide');
+				node = target.closest('div.yui3-slideshow-multiview-slide, div.yui3-slideshow-slide');
 				if (node) {
 					node = node.one('ul.folder,div.empty');
 					if (node) {
@@ -173,11 +173,22 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		
 		/**
 		 * Open "Browse file" window
+		 * 
+		 * @param {Number} file_id Optional. File ID which will be replaced
 		 */
-		openBrowser: function () {
+		openBrowser: function (file_id /* File ID */) {
 			//Open file browse window
 			var input = this.get('input');
 			var node = Y.Node.getDOMNode(input);
+			
+			if (file_id) {
+				input.removeAttribute('multiple');
+				input.setData('fileId', file_id);
+			} else {
+				input.setAttribute('multiple', 'multiple');
+				input.setData('fileId', null);
+			}
+			
 			node.click();
 		},
 		
@@ -193,19 +204,28 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			if (!files.length) return;
 			
 			//Find folder
-			var folder = this.get('host').getSelectedFolder();
-				folder = folder ? folder.id : this.get('host').get('rootFolderId');
+			var file_id = this.get('input').getData('fileId'),
+				folder = this.get('host').getSelectedFolder();
 			
-			this.uploadFiles(folder, files);
+			folder = folder ? folder.id : this.get('host').get('rootFolderId');
+			
+			if (!file_id) {
+				//Upload new files
+				this.uploadFiles(folder, files);
+			} else {
+				//Replace file
+				this.replaceFile(file_id, files);
+			}
 		},
 		
 		/**
 		 * Upload files
 		 * 
-		 * @param {FileList} files
+		 * @param {Number} folder Folder ID into which file will be uploaded
+		 * @param {FileList} files File list
 		 * @private
 		 */
-		uploadFiles: function (folder, files) {
+		uploadFiles: function (folder /* Folder ID */, files /* File list */) {
 			if (!files || !files.length) return;
 			
 			//Find folder
@@ -250,13 +270,56 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		/**
+		 * Replace file
+		 * 
+		 * @param {Number} file_id File ID which will be replaced
+		 * @param {FileList} files File list
+		 * @private
+		 */
+		replaceFile: function (file_id /* File ID */, files /* File list */) {
+			if (!files || !files.length) return;
+			
+			//Find folder
+			var data = {'file_id': file_id},
+				event_data = null,
+				io = null,
+				uri = this.get('requestUri');
+			
+			for(var i=0,ii=files.length; i<ii; i++) {
+				//If only images are displayed, then only images can be uploaded. Same with files
+				if (!this.testFileType(files.item(i))) continue;
+				
+				//Event data will be passed to 'load' and 'progress' event listeners
+				event_data = {
+					'file_id': file_id
+				};
+				
+				io = new IO({
+					'file': files.item(i),
+					'requestUri': uri,
+					'data': data,
+					'eventData': event_data
+				});
+				
+				//Add event listeners
+				io.on('load', this.onFileComplete, this);
+				io.on('progress', this.onFileProgress, this);
+				
+				//Start uploading
+				io.start();
+			}
+		},
+		
+		/**
 		 * On file upload progress update progress bar
 		 * 
 		 * @param {Event} evt
 		 * @private
 		 */
 		onFileProgress: function (evt) {
-			evt.node.one('em').setStyle('width', ~~(evt.percentage) + '%');
+			if (evt.node) {
+				evt.node.one('em').setStyle('width', ~~(evt.percentage) + '%');
+			}
 		},
 		
 		/**
@@ -266,6 +329,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * @private
 		 */
 		onFileComplete: function (evt) {
+			if (!evt.node) return;
+			
 			var host = this.get('host'),
 				data = evt.data,
 				node = evt.node,
@@ -283,7 +348,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 					node.insert(new_file_node, 'before');
 				}
 			} else {
-				Y.log('Failed to upload "' + evt.file_name + '"');
+				Y.log('Failed to upload "' + evt.file_name + '"', 'error');
 			}
 			
 			//Remove temporary data and node

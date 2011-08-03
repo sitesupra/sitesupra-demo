@@ -7,9 +7,6 @@ SU('transition', 'supra.htmleditor', function (Y) {
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
-	//Add as left bar child
-	Manager.getAction('LayoutTopContainer').addChildAction('EditorToolbar');
-	
 	//Create Action class
 	new Action({
 		
@@ -35,6 +32,15 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		HAS_STYLESHEET: true,
 		
 		/**
+		 * Dependancy list
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['LayoutContainers'],
+		
+		
+		
+		
+		/**
 		 * List of buttons
 		 * @type {Object}
 		 * @private
@@ -49,15 +55,33 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 */
 		tabs: {},
 		
+		/**
+		 * Toolbar instance
+		 * @type {Object}
+		 * @see Supra.HTMLEditorToolbar
+		 * @private
+		 */
+		toolbar: null,
+		
+		
+		
+		
+		
+		/**
+		 * On action create it's possible to change place holder
+		 * @private
+		 */
+		create: function () {
+			//Add action as top bar child
+			Manager.getAction('LayoutTopContainer').addChildAction('EditorToolbar');
+		},
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 * @private
 		 */
 		initialize: function () {
-			
 			this.toolbar = new Supra.HTMLEditorToolbar();
-			
 		},
 		
 		/**
@@ -76,7 +100,6 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 * @private
 		 */
 		render: function () {
-			
 			this.toolbar.render(this.getPlaceHolder());
 			this.toolbar.get('boundingBox').addClass('yui3-editor-toolbar-html');
 			this.toolbar.hide();
@@ -114,7 +137,8 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			//Manager.getAction('LayoutTopContainer').unsetActiveAction(this.NAME);
+			
+			if (!this.get('created')) return;
 			
 			//Hide toolbar
 			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');

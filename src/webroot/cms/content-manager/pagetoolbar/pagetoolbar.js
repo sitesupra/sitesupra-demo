@@ -4,43 +4,6 @@
 SU(function (Y) {
 
 	/**
-	 * Default buttons
-	 * @type {Object}
-	 */
-	var BUTTONS_DEFAULT = {
-		'Root': [
-			{
-				'id': 'sitemap',
-				'title': SU.Intl.get(['sitemap', 'button']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-sitemap.png',
-				'action': 'SiteMap',
-				'type': 'button'	/* Default is 'toggle' */
-			}
-		],
-		'Page': [
-			{
-				'id': 'blockbar',
-				'title': SU.Intl.get(['insertblock', 'button']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-insert.png',
-				'action': 'PageInsertBlock',
-				'permissions': ['block', 'insert']
-			},
-			{
-				'id': 'history',
-				'title': SU.Intl.get(['history', 'button']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
-				'action': 'PageHistory'
-			},
-			{
-				'id': 'settings',
-				'title': SU.Intl.get(['settings', 'button']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
-				'action': 'PageSettings'
-			}
-		]
-	};
-	
-	/**
 	 * Animations
 	 * @type {Object}
 	 */
@@ -69,9 +32,6 @@ SU(function (Y) {
 		Loader = Manager.Loader;
 	
 	
-	//Add action as left bar child
-	Manager.getAction('LayoutTopContainer').addChildAction('PageToolbar');
-	
 	//Create Action class
 	new Action({
 		
@@ -82,11 +42,11 @@ SU(function (Y) {
 		NAME: 'PageToolbar',
 		
 		/**
-		 * Action doesn't have stylesheet
+		 * Load stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: false,
+		HAS_STYLESHEET: true,
 		
 		/**
 		 * Load template
@@ -94,6 +54,12 @@ SU(function (Y) {
 		 * @private
 		 */
 		HAS_TEMPLATE: true,
+		
+		/**
+		 * Dependancy list
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['LayoutContainers'],
 		
 		
 		
@@ -299,6 +265,15 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * On action create it's possible to change place holder
+		 * @private
+		 */
+		create: function () {
+			//Add action as top bar child
+			Manager.getAction('LayoutTopContainer').addChildAction('PageToolbar');
+		},
+		
+		/**
 		 * Initialize
 		 * @private
 		 */
@@ -468,7 +443,7 @@ SU(function (Y) {
 		 */
 		render: function () {
 			//Render buttons
-			var button_groups = Supra.mix({}, BUTTONS_DEFAULT, this.get('buttons') || {});
+			var button_groups = this.get('buttons') || {};
 			this.renderButtons(button_groups);
 			
 			//Show / hide buttons when action is shown / hidden

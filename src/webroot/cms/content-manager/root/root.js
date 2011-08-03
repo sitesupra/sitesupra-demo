@@ -10,6 +10,62 @@ Supra(function (Y) {
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
+	/**
+	 * Default page toolbar buttons
+	 * @type {Object}
+	 */
+	var DEFAULT_TOOLBAR = {
+		'Root': [
+			{
+				'id': 'sitemap',
+				'title': SU.Intl.get(['sitemap', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-sitemap.png',
+				'action': 'SiteMap',
+				'type': 'button'	/* Default is 'toggle' */
+			}
+		],
+		'Page': [
+			{
+				'id': 'blockbar',
+				'title': SU.Intl.get(['insertblock', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-insert.png',
+				'action': 'PageInsertBlock',
+				'permissions': ['block', 'insert']
+			},
+			{
+				'id': 'history',
+				'title': SU.Intl.get(['history', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
+				'action': 'PageHistory'
+			},
+			{
+				'id': 'settings',
+				'title': SU.Intl.get(['settings', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
+				'action': 'PageSettings'
+			}
+		]
+	};
+	
+	/**
+	 * Default buttons
+	 * @type {Object}
+	 */
+	var DEFAULT_BUTTONS = {
+		'Root': [
+			{
+				'id': 'edit',
+				'callback': function () {
+					Manager.PageContent.startEditing();
+				}
+			}
+		]
+	};
+	
+	Supra.Manager.getAction('PageToolbar').set('buttons', DEFAULT_TOOLBAR);
+	Supra.Manager.getAction('PageButtons').set('buttons', DEFAULT_BUTTONS);
+	
+	
 	//Create Action class
 	new Action({
 		
@@ -33,18 +89,11 @@ Supra(function (Y) {
 		 */
 		HAS_TEMPLATE: false,
 		
-		
-		
-		
 		/**
 		 * Bind Actions together
 		 */
 		render: function () {
 			this.addChildAction('Page');
-			
-			var page = Manager.getAction('Page'),
-				buttons = Manager.getAction('PageButtons'),
-				toolbar = Manager.getAction('PageToolbar');
 			
 			//Show loading screen until content is loaded (last executed action)
 			Y.one('body').addClass('loading');
@@ -52,20 +101,6 @@ Supra(function (Y) {
 			SU.Manager.getAction('PageContent').after('iframeReady', function () {
 				Y.one('body').removeClass('loading');
 			});
-			
-			//Add 'Edit' button
-			buttons.after('render', function () {
-				buttons.addActionButtons(this.NAME, [{
-					'id': 'edit',
-					'callback': function () {
-						Manager.PageContent.startEditing();
-					}
-				}]);
-				buttons.setActiveAction(this.NAME);
-			}, this);
-			toolbar.on('render', function () {
-				toolbar.setActiveAction(this.NAME);
-			}, this);
 			
 			//On page unload destroy everything???
 			Y.on('beforeunload', function () {
@@ -98,13 +133,13 @@ Supra(function (Y) {
 				buttons = Manager.getAction('PageButtons'),
 				content = Manager.getAction('PageContent');
 			
-			if (toolbar.get('ready')) {
+			if (toolbar.get('created')) {
 				toolbar.setActiveAction(this.NAME);
 			}
-			if (buttons.get('ready')) {
+			if (buttons.get('created')) {
 				buttons.setActiveAction(this.NAME);
 			}
-			if (content.get('ready')) { 
+			if (content.get('created')) { 
 				content.stopEditing();
 			}
 		}

@@ -115,7 +115,7 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 				}
 			}
 			
-			host.fire('plugins:ready');
+			host.fire('plugins:initialize');
 		},
 		
 		/**

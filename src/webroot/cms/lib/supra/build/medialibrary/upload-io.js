@@ -69,9 +69,10 @@ YUI.add('supra.medialibrary-upload-io', function (Y) {
 			//Use FormData
 			var fd = new FormData(),
 				data = this.get('data') || {},
-				uri = this.get('requestUri');
+				uri = this.get('requestUri'),
+				limit = 500;	//500 MB
 			
-			fd.append("MAX_FILE_SIZE", "100000");
+			fd.append("MAX_FILE_SIZE", limit * 1024 * 1024);
 			fd.append("file", this.get('file'));
 			for(var i in data) fd.append(i, data[i]);
 			
@@ -98,7 +99,14 @@ YUI.add('supra.medialibrary-upload-io', function (Y) {
 			var event_data = this.get('eventData') || {},
 				response = Supra.io.parseResponse(this.get('requestUri'), {'type': 'json'}, this.xhr.responseText);
 			
-			this.fire('load', SU.mix({'data': response.data}, event_data));
+			//Handle error message if there is one
+			Supra.io.handleResponse(null, response);
+			
+			if (response.status && response.data) {
+				this.fire('load', SU.mix({'data': response.data}, event_data));
+			} else {
+				this.fire('load', SU.mix({'data': null}, event_data));
+			}
 			
 			//Once file is uploaded, this object becomes useless
 			this.destroy();

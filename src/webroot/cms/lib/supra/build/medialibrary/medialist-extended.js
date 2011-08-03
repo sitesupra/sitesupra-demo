@@ -67,7 +67,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				<input type="text" name="filename" value="{filename_escaped}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
 			<div class="center"><button type="button">{#medialibrary.download#}</button></div>\
-			<div class="center"><button type="button">{#medialibrary.replace#}</button></div>\
+			<div class="center"><button type="button">{#buttons.replace#}</button></div>\
 			<div class="center"><button type="button" class="edit">{#medialibrary.edit#}</button></div>\
 		</div>';
 	
@@ -88,7 +88,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @type {Function}
 		 */
 		'slideshowClass': {
-			'value': Supra.MediaLibrarySlideshow
+			'value': Supra.SlideshowMultiView
 		},
 		
 		/**
@@ -265,7 +265,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			content.delegate('click', this.edit.handleRenameClick, 'ul.folder > li.type-folder', this.edit);
 			
 			//On list click close folder
-			content.delegate('click', this.handleCloseFolderClick, 'div.yui3-ml-slideshow-slide', this);
+			content.delegate('click', this.handleCloseFolderClick, 'div.yui3-slideshow-multiview-slide', this);
 			
 			//On item render set up form
 			this.on('itemRender', this.handleItemRender, this);
@@ -396,7 +396,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			if (target.closest('ul.folder')) return;
 			
 			// Get slide
-			target = target.closest('div.yui3-ml-slideshow-slide');
+			target = target.closest('div.yui3-slideshow-multiview-slide');
 			if (!target) return;
 			
 			var id = target.getData('itemId');
@@ -407,6 +407,35 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			//Scroll to slide
 			this.open(id);
+		},
+		
+		/**
+		 * Handle download click
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		handleDownloadClick: function (event /* Event */) {
+			var uri = this.get('downloadURI'),
+				item = this.getSelectedItem();
+			
+			//Add 'id' to the uri
+			uri += (uri.indexOf('?') !== -1 ? '&' : '?') + 'id=' + item.id;
+			
+			//Open in new tab
+			window.open(uri);
+		},
+		
+		/**
+		 * Handle replace button click
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		handleReplaceClick: function (event /* Event */) {
+			var item = this.getSelectedItem(); 
+			
+			this.upload.openBrowser(item.id);
 		},
 		
 		/**
@@ -440,6 +469,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				inp.push(btn_download);
 				inp.push(btn_replace);
 				
+				btn_download.on('click', this.handleDownloadClick, this);
+				btn_replace.on('click', this.handleReplaceClick, this);
+				
 				//Create form
 				node.all('input').each(function (item) {
 					var props = {
@@ -472,7 +504,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	'slider',
 	'supra.form',
 	'supra.medialibrary-list',
-	'supra.medialibrary-slideshow',
+	'supra.slideshow-multiview',
 	'supra.medialibrary-list-edit',
 	'supra.medialibrary-image-editor'
 ]});

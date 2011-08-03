@@ -5,6 +5,6 @@
 		{"id": "medialibrary", "path": "/cms/medialibrary", "icon": "/cms/lib/supra/img/apps/content", "title": "Media library"},
 		{"id": "publication", "path": "/cms/publication", "icon": "/cms/lib/supra/img/apps/content", "title": "Publications"},
 		{"id": "auditlog", "path": "/cms/auditlog", "icon": "/cms/lib/supra/img/apps/audit", "title": "Audit log"},
-		{"id": "users", "path": "/cms/users", "icon": "/cms/lib/supra/img/apps/content", "title": "Backoffice users"}
+		{"id": "internal-user-manager", "path": "/cms/internal-user-manager", "icon": "/cms/lib/supra/img/apps/content", "title": "Backoffice users"}
 	]
 }

@@ -5,9 +5,11 @@
  * Slideshow for Media Library app
  * (not used for MediaBar or LinkManager)
  */
-YUI.add('supra.medialibrary-slideshow', function (Y) {
+YUI.add('supra.slideshow-multiview', function (Y) {
 	//Shortcut
 	var getClass = Y.ClassNameManager.getClassName;
+	
+	var DEFAULT_SLIDE_WIDTH = 400;
 	
 	/**
 	 * Slideshow class 
@@ -21,11 +23,11 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		
 		this.history = [];
 		this.slides = {};
-		this.remove_on_hide = {};
+		this.removeOnHide = {};
 		this.anim = null;
 	}
 	
-	Slideshow.NAME = 'ml-slideshow';
+	Slideshow.NAME = 'slideshow-multiview';
 	
 	Slideshow.ATTRS = {
 		/**
@@ -96,7 +98,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		 * List of slides which will be removed when hidden
 		 * @type {Object}
 		 */
-		remove_on_hide: {},
+		removeOnHide: {},
 		
 		/**
 		 * Animation instance
@@ -181,7 +183,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		 */
 		hideSlide: function (slideId) {
 			if (slideId && slideId in this.slides) {
-				if (slideId in this.remove_on_hide) {
+				if (slideId in this.removeOnHide) {
 					//Remove slide
 					this.removeSlide(slideId);
 				} else {
@@ -312,21 +314,41 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		 * Adds slide to the slideshow
 		 * 
 		 * @param {String} slideId Slide ID
-		 * @param {Boolean} remove_on_hide Remove slide when it's hidden
+		 * @param {Boolean} removeOnHide Remove slide when it's hidden
 		 * @return Slide boundingBox node
 		 * @type {Object}
 		 */
-		addSlide: function (slideId, remove_on_hide) {
+		addSlide: function (slideId, removeOnHide) {
 			if (!slideId) return null;
 			
-			if (remove_on_hide) {
-				this.remove_on_hide[slideId] = true;
+			//Convert arguments into options object
+			var options = slideId;
+			if (!Y.Lang.isObject(slideId)) {
+				options = {
+					'slideId': slideId,
+					'removeOnHide': !!removeOnHide
+				};
+			}
+			
+			slideId = options.slideId;
+			
+			options = Supra.mix({
+				'className': '',
+				'width': DEFAULT_SLIDE_WIDTH
+			}, options);
+			
+			
+			if (options.removeOnHide) {
+				this.removeOnHide[slideId] = true;
 			}
 			
 			if (!(slideId in this.slides)) {
 				var classSlide = getClass(Slideshow.NAME, 'slide'),
 					classContent = getClass(Slideshow.NAME, 'slide', 'content'),
-					slide = this.slides[slideId] = Y.Node.create('<div class="hidden ' + classSlide + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
+					slide = this.slides[slideId] = Y.Node.create('<div class="hidden ' + classSlide + ' ' + options.className + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
+				
+				slide.setStyle('width', options.width + 'px');
+				slide.setData('width', options.width);
 				
 				this.slides[slideId] = slide;
 				this.get('contentBox').prepend(slide);
@@ -354,7 +376,7 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 				//Remove slide
 				this.slides[slideId].remove();
 				delete(this.slides[slideId]);
-				delete(this.remove_on_hide[slideId]);
+				delete(this.removeOnHide[slideId]);
 			}
 			
 			return this;
@@ -408,24 +430,24 @@ YUI.add('supra.medialibrary-slideshow', function (Y) {
 		/**
 		 * Returns width of the slide container
 		 * 
+		 * @param {String} slideId Slide ID
 		 * @return Width of the slide container
 		 * @type {Number}
 		 */
-		_getWidth: function () {
-			if (!this.slide_width) {
-				//this.slide_width = this.get('boundingBox').get('offsetWidth');
-				this.slide_width = 400;
+		_getWidth: function (slideId) {
+			if (slideId && slideId in this.slides) {
+				return this.slides[slideId].getData('width');
 			}
-			return this.slide_width;
+			return DEFAULT_SLIDE_WIDTH;
 		}
 		
 	});
 	
 	
-	Supra.MediaLibrarySlideshow = Slideshow;
+	Supra.SlideshowMultiView = Slideshow;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'anim', 'supra.medialibrary-slideshow-css']});
+}, YUI.version, {requires:['widget', 'anim', 'supra.slideshow-css']});

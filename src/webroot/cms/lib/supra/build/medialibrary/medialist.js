@@ -186,6 +186,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Request URI for downloading, image or file
+		 * @type {String}
+		 */
+		'downloadURI': {
+			value: null
+		},
+		
+		/**
 		 * Root folder ID
 		 * @type {Number}
 		 */

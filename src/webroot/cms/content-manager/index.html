@@ -116,16 +116,15 @@
 				{'id': ['block', 'edit'],  		'allow': true}
 			]);
 			
-			
-			//Load base actions
-			Supra.Manager.loadActions(['Page', 'Root', 'Header']);
-			
 			//Load internationalization data
 			Supra.Intl.loadAppData(Supra.data.get(['application', 'path']), function () {
 				
+				//Start loading actions
+				Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons', 'Page']);
+				
 				//Execute initial actions
-				Supra.Manager.executeAction('Root');
 				Supra.Manager.executeAction('Header');
+				Supra.Manager.executeAction('Root');
 				
 			});
 		});

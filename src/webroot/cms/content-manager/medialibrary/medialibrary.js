@@ -162,6 +162,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'foldersSelectable': true,
 				'filesSelectable': false,
 				'imagesSelectable': false,
+				'downloadURI': this.getDataPath('download') + '.php',
 				'viewURI': this.getDataPath('view') + '.php',
 				'listURI': this.getDataPath('list') + '.php',
 				'saveURI': this.getDataPath('save') + '.php',
