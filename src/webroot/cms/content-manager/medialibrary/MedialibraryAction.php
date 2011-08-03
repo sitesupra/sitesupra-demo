@@ -268,10 +268,11 @@ class MediaLibraryAction extends CmsActionController
 				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$fileToReplace = $repo->findOneById($_POST['file_id']);
-
-				$em->persist($fileToReplace);
 				
 				if ( ! empty($fileToReplace) && ($fileToReplace instanceof FileStorage\Entity\File)) {
+					
+					$em->persist($fileToReplace);
+					
 					try {
 						$fileStorage->replaceFile($fileToReplace, $file);
 					} catch (FileStorage\Exception\RuntimeException $exc) {
@@ -284,9 +285,15 @@ class MediaLibraryAction extends CmsActionController
 						\Log::error($exc->getMessage());
 						return;
 					}
+					
+					$em->flush();
 				}
-			
-				$em->flush();
+							
+				$output = $this->imageAndFileOutput($fileToReplace);
+
+				$this->getResponse()->setResponseData($output);
+				
+				return;
 			}
 
 			$fileEntity = new \Supra\FileStorage\Entity\File();

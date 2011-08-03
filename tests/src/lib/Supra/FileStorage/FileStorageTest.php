@@ -590,7 +590,66 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->deleteFilesAndFolders();
 		}
 	}
+	
+	public function testReplaceFile() {
+		
+		$this->cleanUp(true);
 
+		// directories
+
+		$dir = $this->createFolder('one');
+
+		self::getConnection()->flush();
+
+		// file
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
+
+		$file = new \Supra\FileStorage\Entity\File();
+		self::getConnection()->persist($file);
+
+		$fileName = baseName($uploadFile);
+		$fileSize = fileSize($uploadFile);
+		$file->setName($fileName);
+		$file->setSize($fileSize);
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimeType = finfo_file($finfo, $uploadFile);
+		finfo_close($finfo);
+		$file->setMimeType($mimeType);
+
+		$dir->addChild($file);
+
+		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
+		$fileData->setMaster($file);
+		$fileData->setTitle(basename($uploadFile));
+
+		$filestorage = FileStorage\FileStorage::getInstance();
+		$filestorage->storeFileData($file, $uploadFile);
+
+		self::getConnection()->flush();
+		
+		// replace
+		$replaceFile = __DIR__ . DIRECTORY_SEPARATOR . 'JohnMclane.jpg';
+
+		$fileName = baseName($replaceFile);
+		$fileSize = fileSize($replaceFile);
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimeType = finfo_file($finfo, $replaceFile);
+		finfo_close($finfo);
+
+		$replaceFileInfo = array(
+			'name' => $fileName,
+			'type' => $mimeType,
+			'size' => $fileSize,
+			'tmp_name' => $replaceFile,
+		);
+
+		$filestorage->replaceFile($file, $replaceFileInfo);	
+		
+		$replacedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		
+		self::assertFileExists($replacedFilePath, 'JohnMclane.jpg should replace chuck.jpg. But it\'s obvious that nobody cant replace Chuck Norris');
+	}
+	
 	public function testCleanUp()
 	{
 		$this->cleanUp();

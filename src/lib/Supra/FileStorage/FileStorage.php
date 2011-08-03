@@ -229,9 +229,9 @@ class FileStorage
 		$isPublic = $file->isPublic();
 
 		if ($isPublic) {
-			$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
+			$filePath = $this->getExternalPath() . $destination;
 		} else {
-			$filePath = $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination;
+			$filePath = $this->getInternalPath() . $destination;
 		}
 
 		if ( ! copy($sourceFilePath, $filePath)) {
@@ -532,8 +532,6 @@ class FileStorage
 	public function replaceFile(Entity\File $fileEntity, $file)
 	{
 
-		$oldFileEntity = $fileEntity;
-
 		$oldMimeType = $fileEntity->getMimeType();
 		$newMimeType = $file['type'];
 
@@ -545,16 +543,18 @@ class FileStorage
 				throw new Exception\UploadFilterException('New file should be image too');
 			}
 		}
-
+		
+		// TODO: change to versioning
+		$this->removeFile($fileEntity);
+		
 		// setting new data
 		$fileEntity->setName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
-
+		
 		$this->storeFileData($fileEntity, $file['tmp_name']);
-
-		// TODO: change to versioning
-		$this->removeFile($oldFileEntity);
+		
+		
 	}
 
 	public function removeFile(Entity\File $file)
@@ -568,22 +568,19 @@ class FileStorage
 		}
 
 		$fileExists = file_exists($filePath);
-
+		
+		$result = false;
+		
 		if ($fileExists) {
-
+			
 			$result = unlink($filePath);
-
-			if ($result) {
-				$em = $this->getEntityManager();
-				$dbResult = $em->remove($file);
-				if ( ! $dbResult) {
-					throw new Exception\RuntimeException('Failed to delete record from database');
-				}
-			} else {
-				throw new Exception\RuntimeException('Failed to delete file from file storage');
-			}
+			
 		} else {
 			throw new Exception\RuntimeException('File doesn\'t exist in file storage');
+		}
+		
+		if ( ! $result) {
+			throw new Exception\RuntimeException('Failed to delete file from file storage');
 		}
 	}
 
