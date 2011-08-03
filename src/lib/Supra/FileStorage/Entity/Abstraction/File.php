@@ -253,7 +253,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 
 	/**
-	 * @PreRemove
+	 * @PostRemove
 	 */
 	public function removeTrigger()
 	{
