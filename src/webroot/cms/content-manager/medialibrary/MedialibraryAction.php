@@ -8,6 +8,7 @@ use Supra\FileStorage;
 
 class MediaLibraryAction extends CmsActionController
 {
+
 	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
@@ -130,7 +131,7 @@ class MediaLibraryAction extends CmsActionController
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$folder = $repo->findOneById($folderId);
 
-				if(!empty($folder)) {
+				if ( ! empty($folder)) {
 					$folder->addChild($dir);
 				} else {
 					throw new MedialibraryException('Parent folder entity not found');
@@ -223,7 +224,7 @@ class MediaLibraryAction extends CmsActionController
 						} catch (FileStorage\Exception\UploadFilterException $exc) {
 							$this->setErrorMessage($exc->getMessage());
 							return;
-						} 
+						}
 					} else {
 						throw new MedialibraryException('File name isn\'t set');
 					}
@@ -262,6 +263,32 @@ class MediaLibraryAction extends CmsActionController
 
 			$em = $fileStorage->getEntityManager();
 
+			// checking for replace action
+			if (isset($_POST['file_id'])) {
+				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+				/* @var $node \Supra\FileStorage\Entity\File */
+				$fileToReplace = $repo->findOneById($_POST['file_id']);
+
+				$em->persist($fileToReplace);
+				
+				if ( ! empty($fileToReplace) && ($fileToReplace instanceof FileStorage\Entity\File)) {
+					try {
+						$fileStorage->replaceFile($fileToReplace, $file);
+					} catch (FileStorage\Exception\RuntimeException $exc) {
+						$this->setErrorMessage($exc->getMessage());
+						return;
+					} catch (FileStorage\Exception\UploadFilterException $exc) {
+						$this->setErrorMessage($exc->getMessage());
+						return;
+					} catch (\Exception $exc) {
+						\Log::error($exc->getMessage());
+						return;
+					}
+				}
+			
+				$em->flush();
+			}
+
 			$fileEntity = new \Supra\FileStorage\Entity\File();
 			$em->persist($fileEntity);
 
@@ -281,7 +308,7 @@ class MediaLibraryAction extends CmsActionController
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$folder = $repo->findOneById($folderId);
 
-				if( ! empty($folder)) {
+				if ( ! empty($folder)) {
 					$folder->addChild($fileEntity);
 				} else {
 					throw new MedialibraryException('Parent folder entity not found');
@@ -313,6 +340,62 @@ class MediaLibraryAction extends CmsActionController
 		} else {
 			//TODO: Separate messages to UI and to logger
 			$this->setErrorMessage($fileStorage->fileUploadErrorMessages[$_FILES['error']]);
+		}
+	}
+
+	public function downloadAction()
+	{
+		$fileStorage = FileStorage\FileStorage::getInstance();
+
+		if ( ! empty($_GET['id'])) {
+
+			$fileId = intval($_GET['id']);
+
+			$em = $fileStorage->getEntityManager();
+
+			// TODO: currently FileRepository is not assigned to the file abstraction
+			// FIXME: store the classname as constant somewhere?
+			/* @var $repo FileRepository */
+			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			/* @var $folder \Supra\FileStorage\Entity\File */
+			$file = $repo->findOneById($fileId);
+
+			if (empty($file) || ! ($file instanceof FileStorage\Entity\File)) {
+				echo '404';
+				// TODO: throw new NotFoundException
+			}
+
+			// The file cache must be unique if "timestamp" hash is returned
+			// TODO: Not modified
+			$timestamp = null;
+			if ( ! empty($timestamp)) {
+				header('Pragma: private');
+				header("Expires: " . date('r', strtotime('+1 year')));
+				header('Cache-Control: private');
+
+				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+					header("HTTP/1.1 304 Not Modified");
+					return;
+				}
+			} else {
+				header("Expires: 0");
+				header("Cache-Control: private, must-revalidate");
+			}
+
+			$content = $fileStorage->getFileContent($file);
+
+			$mimeType = $file->getMimeType();
+			$fileName = $file->getName();
+
+			if ( ! empty($mimeType)) {
+				header('Content-type: ' . $mimeType);
+			}
+
+			header('Content-Disposition: attachment; filename="' . $fileName . '"');
+			header("Content-Transfer-Encoding: binary");
+			header("Content-Length: " . strlen($content));
+
+			echo $content;
 		}
 	}
 

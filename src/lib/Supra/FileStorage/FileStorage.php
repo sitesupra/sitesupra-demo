@@ -49,7 +49,7 @@ class FileStorage
 	 * @var array
 	 */
 	private $folderUploadFilters = array();
-	
+
 	/**
 	 * $_FILES['error'] messages
 	 * TODO: separate messages to MediaLibrary UI and to Logger
@@ -226,9 +226,15 @@ class FileStorage
 		// get full dest path
 		$destination .= DIRECTORY_SEPARATOR . $file->getName();
 
-		$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
+		$isPublic = $file->isPublic();
 
-		if (!copy($sourceFilePath, $filePath)) {
+		if ($isPublic) {
+			$filePath = $this->getExternalPath() . DIRECTORY_SEPARATOR . $destination;
+		} else {
+			$filePath = $this->getInternalPath() . DIRECTORY_SEPARATOR . $destination;
+		}
+
+		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $destination . '"');
 		} else {
 			chmod($filePath, $this->fileAccessMode);
@@ -265,7 +271,6 @@ class FileStorage
 			}
 
 			$this->renameFileInFileSystem($file, $filename, $filePath);
-
 		} catch (Exception\RuntimeException $exception) {
 			$file->setName($oldFileName);
 			throw $exception;
@@ -321,7 +326,6 @@ class FileStorage
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($folder, $title, $internalPath);
 			$this->renameFolderInFileSystem($folder, $title, $externalPath);
-
 		} catch (Exception\RuntimeException $exception) {
 			$folder->setName($oldFolderName);
 			throw $exception;
@@ -357,7 +361,7 @@ class FileStorage
 		$fileNameHelper = new Helpers\FileNameValidationHelper();
 		$result = $fileNameHelper->validate($folderName);
 
-		if( ! $result) {
+		if ( ! $result) {
 			throw new Exception\UploadFilterException($fileNameHelper->getErrorMessage());
 		}
 
@@ -493,7 +497,7 @@ class FileStorage
 		$oldPath = $this->getInternalPath() . $filePath;
 		$newPath = $this->getExternalPath() . $filePath;
 
-		if (!rename($oldPath, $newPath)) {
+		if ( ! rename($oldPath, $newPath)) {
 			throw new Exception\RuntimeException('Failed to move file to the public storage');
 		}
 	}
@@ -507,8 +511,79 @@ class FileStorage
 		$oldPath = $this->getExternalPath() . $filePath;
 		$newPath = $this->getInternalPath() . $filePath;
 
-		if (!rename($oldPath, $newPath)) {
+		if ( ! rename($oldPath, $newPath)) {
 			throw new Exception\RuntimeException('Failed to move file to the private storage');
+		}
+	}
+
+	public function getFileContent(Entity\File $file)
+	{
+		if ($file->isPublic()) {
+			$filePath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		} else {
+			$filePath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		}
+
+		$fileContent = file_get_contents($filePath);
+
+		return $fileContent;
+	}
+
+	public function replaceFile(Entity\File $fileEntity, $file)
+	{
+
+		$oldFileEntity = $fileEntity;
+
+		$oldMimeType = $fileEntity->getMimeType();
+		$newMimeType = $file['type'];
+
+		$oldFileIsImage = $fileEntity->isMimeTypeImage($oldMimeType);
+		$newFileIsImage = $fileEntity->isMimeTypeImage($newMimeType);
+
+		if ($oldFileIsImage) {
+			if ( ! $newFileIsImage) {
+				throw new Exception\UploadFilterException('New file should be image too');
+			}
+		}
+
+		// setting new data
+		$fileEntity->setName($file['name']);
+		$fileEntity->setSize($file['size']);
+		$fileEntity->setMimeType($file['type']);
+
+		$this->storeFileData($fileEntity, $file['tmp_name']);
+
+		// TODO: change to versioning
+		$this->removeFile($oldFileEntity);
+	}
+
+	public function removeFile(Entity\File $file)
+	{
+		$storage = $file->isPublic();
+
+		if ($storage) {
+			$filePath = $this->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		} else {
+			$filePath = $this->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		}
+
+		$fileExists = file_exists($filePath);
+
+		if ($fileExists) {
+
+			$result = unlink($filePath);
+
+			if ($result) {
+				$em = $this->getEntityManager();
+				$dbResult = $em->remove($file);
+				if ( ! $dbResult) {
+					throw new Exception\RuntimeException('Failed to delete record from database');
+				}
+			} else {
+				throw new Exception\RuntimeException('Failed to delete file from file storage');
+			}
+		} else {
+			throw new Exception\RuntimeException('File doesn\'t exist in file storage');
 		}
 	}
 
