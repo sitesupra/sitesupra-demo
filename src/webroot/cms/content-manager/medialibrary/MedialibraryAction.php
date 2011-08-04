@@ -164,10 +164,10 @@ class MediaLibraryAction extends CmsActionController
 	public function saveAction()
 	{
 		if ( ! empty($_POST['id'])) {
-
-			// FIXME: should doctrine entity manager be as file stogare parameter?
+			
 			$fileStorage = FileStorage\FileStorage::getInstance();
 
+			// FIXME: should doctrine entity manager be as file stogare parameter?
 			$em = $fileStorage->getEntityManager();
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
@@ -423,9 +423,12 @@ class MediaLibraryAction extends CmsActionController
 		} else {
 			$type = self::TYPE_FILE;
 		}
-
+		
+		$fileStorage = FileStorage\FileStorage::getInstance();
+		
 		// getting full file path
-		$filePath = $node->getPath(DIRECTORY_SEPARATOR, true);
+		$externalPath = str_replace(SUPRA_WEBROOT_PATH,'',$fileStorage->getExternalPath());
+		$filePath = DIRECTORY_SEPARATOR . $externalPath . $node->getPath(DIRECTORY_SEPARATOR, true);
 
 		$output = null;
 

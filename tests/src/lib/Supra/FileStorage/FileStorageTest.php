@@ -177,6 +177,26 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$this->fail('On folder create Validation need to throw upload filter exception');
 	}
+	
+	
+	public function testCreateInvalidFolderWithFirstUnderscore()
+	{
+		$this->cleanUp();
+
+		try {
+			$result = $this->createFolder('_Folder');
+
+			$path = $result->getPath(DIRECTORY_SEPARATOR, true);
+
+			if ($path == '_Folder') {
+				$this->fail('Record should not exist in database');
+			}
+		} catch (Exception\UploadFilterException $e) {
+			return;
+		}
+
+		$this->fail('On folder create Validation need to throw upload filter exception');
+	}
 
 	public function testCreateFolderAndRenameIt()
 	{
