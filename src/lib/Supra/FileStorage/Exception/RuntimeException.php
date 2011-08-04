@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Exception;
 /**
  * RuntimeException
  */
-class RuntimeException extends \LogicException implements FileStorageException
+class RuntimeException extends \RuntimeException implements FileStorageException
 {
 
 }
