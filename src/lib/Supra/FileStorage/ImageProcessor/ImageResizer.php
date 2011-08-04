@@ -2,6 +2,8 @@
 
 namespace Supra\FileStorage\ImageProcessor;
 
+use Supra\FileStorage\Exception\ImageProcessorException;
+
 /**
  * Image resizer
  *
@@ -74,16 +76,16 @@ class ImageResizer extends ImageProcessor
 
 		// parameter check
 		if (empty($this->sourceFilename)) {
-			throw new \Exception('Source image is not set');
+			throw new ImageProcessorException('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new \Exception('Target (output) file is not set');
+			throw new ImageProcessorException('Target (output) file is not set');
 		}
 		if (empty($this->targetWidth) || ($this->targetWidth <= 0)) {
-			throw new \Exception('Target width is not set or is invalid');
+			throw new ImageProcessorException('Target width is not set or is invalid');
 		}
 		if (empty($this->targetHeight) || ($this->targetHeight <= 0)) {
-			throw new \Exception('Target height is not set or is invalid');
+			throw new ImageProcessorException('Target height is not set or is invalid');
 		}
 		
 		// get original image info
@@ -103,36 +105,9 @@ class ImageResizer extends ImageProcessor
 			// open source
 			$sourceImage = $this->createImageFromFile($this->sourceFilename);
 
-			// set default dimensions for image-to-image copy
-			$sourceLeft = 0;
-			$sourceTop = 0;
-			$sourceWidth = $imageInfo['width'];
-			$sourceHeight = $imageInfo['height'];
-			$destWidth = $this->targetWidth;
-			$destHeight = $this->targetHeight;
-			
-			// get ratios 
-			$wRatio = $imageInfo['width'] / $this->targetWidth;
-			$hRatio = $imageInfo['height'] / $this->targetHeight;
-			$maxRatio = max($wRatio, $hRatio);
-			$minRatio = min($wRatio, $hRatio);
-
-			if ($this->cropMode && ($minRatio >= 1)) {
-				// set source dimensions to center (with target aspect ratio)
-				$sourceHeight = $this->targetHeight * $minRatio;
-				$sourceTop = round(($imageInfo['height'] - $sourceHeight) / 2);
-				$sourceHeight = round($sourceHeight);
-
-				$sourceWidth = $this->targetWidth * $minRatio;
-				$sourceLeft = round(($imageInfo['width'] - $sourceWidth) / 2);
-				$sourceWidth = round($sourceWidth);
-				
-			} else {
-				// set destination dimension (with original aspect ratio)
-				$destWidth = round($imageInfo['width'] / $maxRatio);
-				$destHeight = round($imageInfo['height'] / $maxRatio);
-				
-			}
+			$dimensions = 
+					$this->calculateDimensions($imageInfo['width'], $imageInfo['height']);
+			extract($dimensions);
 			
 			// create image resource for new image
 			$resizedImage = imagecreatetruecolor($destWidth, $destHeight);
@@ -181,4 +156,59 @@ class ImageResizer extends ImageProcessor
 		$this->targetHeight = null;
 		$this->cropMode = false;
 	}
+
+	/**
+	 * Calculate all required dimensions and offsets
+	 *
+	 * @param int $originalWidth
+	 * @param int $originalHeight
+	 * @return array
+	 */
+	public function calculateDimensions($originalWidth, $originalHeight)
+	{
+		// check if target size is set and valid
+		if (empty($this->targetWidth) || ($this->targetWidth <= 0)) {
+			throw new ImageProcessorException('Target width is not set or is invalid');
+		}
+		if (empty($this->targetHeight) || ($this->targetHeight <= 0)) {
+			throw new ImageProcessorException('Target height is not set or is invalid');
+		}
+		
+		$dimensions = array();
+		
+		// set default dimensions for image-to-image copy
+		$dimensions['sourceLeft'] = 0;
+		$dimensions['sourceTop'] = 0;
+		$dimensions['sourceWidth'] = $originalWidth;
+		$dimensions['sourceHeight'] = $originalHeight;
+		$dimensions['destWidth'] = $this->targetWidth;
+		$dimensions['destHeight'] = $this->targetHeight;
+
+		// get ratios 
+		$wRatio = $originalWidth / $this->targetWidth;
+		$hRatio = $originalHeight / $this->targetHeight;
+		$maxRatio = max($wRatio, $hRatio);
+		$minRatio = min($wRatio, $hRatio);
+
+		if ($this->cropMode && ($minRatio >= 1)) {
+			// set source dimensions to center (with target aspect ratio)
+			$sourceHeight = $this->targetHeight * $minRatio;
+			$dimensions['sourceTop'] = 
+					round(($originalHeight - $sourceHeight) / 2);
+			$dimensions['sourceHeight'] = round($sourceHeight);
+
+			$sourceWidth = $this->targetWidth * $minRatio;
+			$dimensions['sourceLeft'] = 
+					round(($originalWidth - $sourceWidth) / 2);
+			$dimensions['sourceWidth'] = round($sourceWidth);
+
+		} else {
+			// set destination dimension (with original aspect ratio)
+			$dimensions['destWidth'] = round($originalWidth / $maxRatio);
+			$dimensions['destHeight'] = round($originalHeight / $maxRatio);
+		}
+
+		return $dimensions;
+	}
+
 }

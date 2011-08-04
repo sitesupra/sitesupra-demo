@@ -101,7 +101,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when source file not found
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Source image
 	 */
 	public function testProcessSourceNotFound() 
@@ -117,7 +117,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when output file is not set
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Target
 	 */
 	public function testProcessOutputNotSet() 

@@ -2,6 +2,8 @@
 
 namespace Supra\FileStorage\ImageProcessor;
 
+use Supra\FileStorage\Exception\ImageProcessorException;
+
 /**
  * Image rotator
  *
@@ -41,10 +43,10 @@ class ImageRotator extends ImageProcessor
 
 		// parameter check
 		if (empty($this->sourceFilename)) {
-			throw new \Exception('Source image is not set');
+			throw new ImageProcessorException('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new \Exception('Target (output) file is not set');
+			throw new ImageProcessorException('Target (output) file is not set');
 		}
 
 		if ($this->rotationCount != 0) {

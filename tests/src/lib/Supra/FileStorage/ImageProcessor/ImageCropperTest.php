@@ -141,7 +141,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when source file not found
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Source image
 	 */
 	public function testProcessSourceNotFound() 
@@ -160,7 +160,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when left position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Left offset
 	 */
 	public function testProcessLeftInvalid() 
@@ -179,7 +179,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when left position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Left offset
 	 */
 	public function testProcessLeftInvalid2() 
@@ -198,7 +198,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when right position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Right offset
 	 */
 	public function testProcessRightInvalid() 
@@ -217,7 +217,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when right position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Right offset
 	 */
 	public function testProcessRightInvalid2() 
@@ -236,7 +236,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when top position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Top offset
 	 */
 	public function testProcessTopInvalid() 
@@ -255,7 +255,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when top position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Top offset
 	 */
 	public function testProcessTopInvalid2() 
@@ -274,7 +274,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when bottom position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Bottom offset
 	 */
 	public function testProcessBottomInvalid() 
@@ -293,7 +293,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when bottom position is out of border
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Bottom offset
 	 */
 	public function testProcessBottomInvalid2() 
@@ -312,7 +312,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when crop width exceeds original
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop width
 	 */
 	public function testProcessWidthInvalid() 
@@ -331,7 +331,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when crop width + left position exceeds original
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop width
 	 */
 	public function testProcessWidthInvalid2() 
@@ -366,7 +366,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when crop height exceeds original
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop height
 	 */
 	public function testProcessHeightInvalid() 
@@ -385,7 +385,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when crop height + top position exceeds original
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop height 
 	 */
 	public function testProcessHeightInvalid2() 
@@ -404,7 +404,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when output file is not set
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Target
 	 */
 	public function testProcessOutputNotSet() 

@@ -2,6 +2,8 @@
 
 namespace Supra\FileStorage\ImageProcessor;
 
+use Supra\FileStorage\Exception\ImageProcessorException;
+
 /**
  * Abstract image processor class
  *
@@ -38,13 +40,13 @@ abstract class ImageProcessor
 	public function getImageInfo($filename)
 	{
 		if( ! file_exists($filename)|| ! is_readable($filename)) {
-			throw new \Exception('File ' . $filename . ' not found');
+			throw new ImageProcessorException('File ' . $filename . ' not found');
 		}
 		
 		$imageInfo = getimagesize($filename);
 
 		if (empty($imageInfo[0]) && empty($imageInfo[1])) {
-			throw new \Exception('Could not get image size information');
+			throw new ImageProcessorException('Could not get image size information');
 		} else {		
 			$imageInfo['height'] = &$imageInfo['1'];
 			$imageInfo['width'] = &$imageInfo['0'];
@@ -109,7 +111,7 @@ abstract class ImageProcessor
 			
 			$imageInfo = $this->getImageInfo($filename);
 			if (empty($imageInfo)) {
-				throw new \Exception('Could not retrieve image info');
+				throw new ImageProcessorException('Could not retrieve image info');
 			}
 			
 			switch ($imageInfo['mime']) {
@@ -118,7 +120,7 @@ abstract class ImageProcessor
 					if (imagetypes() & IMG_GIF) {
 						$image = imageCreateFromGIF($filename) ;
 					} else {
-						throw new \Exception('GIF images are not supported');
+						throw new ImageProcessorException('GIF images are not supported');
 					}
 					break;
 					
@@ -126,7 +128,7 @@ abstract class ImageProcessor
 					if (imagetypes() & IMG_JPG) {
 						$image = imageCreateFromJPEG($filename) ;
 					} else {
-						throw new \Exception('JPEG images are not supported');
+						throw new ImageProcessorException('JPEG images are not supported');
 					}
 					break;
 					
@@ -134,7 +136,7 @@ abstract class ImageProcessor
 					if (imagetypes() & IMG_PNG) {
 						$image = imageCreateFromPNG($filename) ;
 					} else {
-						throw new \Exception('PNG images are not supported');
+						throw new ImageProcessorException('PNG images are not supported');
 					}
 					break;
 					
@@ -142,12 +144,12 @@ abstract class ImageProcessor
 					if (imagetypes() & IMG_WBMP) {
 						$image = imageCreateFromWBMP($filename) ;
 					} else {
-						throw new \Exception('WBMP images are not supported');
+						throw new ImageProcessorException('WBMP images are not supported');
 					}
 					break;
 					
 				default:
-					throw new \Exception($imageInfo['mime'] . ' images are not supported');
+					throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
 					break;
         	}
 	    
@@ -166,7 +168,6 @@ abstract class ImageProcessor
 	 * @param type $filename
 	 * @param type $mimeType
 	 * @param type $jpegQuality
-	 * @return type 
 	 */
 	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100) 
 	{
@@ -175,7 +176,7 @@ abstract class ImageProcessor
 				if (imagetypes() & IMG_GIF) {
 					return imagegif($image, $filename);
 				} else {
-					throw new \Exception('GIF images are not supported');
+					throw new ImageProcessorException('GIF images are not supported');
 				}
 				break;
 
@@ -183,7 +184,7 @@ abstract class ImageProcessor
 				if (imagetypes() & IMG_JPG) {
 					return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
 				} else {
-					throw new \Exception('JPEG images are not supported');
+					throw new ImageProcessorException('JPEG images are not supported');
 				}
 				break;
 
@@ -191,7 +192,7 @@ abstract class ImageProcessor
 				if (imagetypes() & IMG_PNG) {
 					return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
 				} else {
-					throw new \Exception('PNG images are not supported');
+					throw new ImageProcessorException('PNG images are not supported');
 				}
 				break;
 
@@ -199,12 +200,12 @@ abstract class ImageProcessor
 				if (imagetypes() & IMG_WBMP) {
 					return imagewbmp($image, $filename);
 				} else {
-					throw new \Exception('WBMP images are not supported');
+					throw new ImageProcessorException('WBMP images are not supported');
 				}
 				break;
 
 			default:
-				throw new \Exception($this->originalImageInfo['mime'] . ' images are not supported');
+				throw new ImageProcessorException($this->originalImageInfo['mime'] . ' images are not supported');
 				break;
 		}	
 	}
@@ -240,7 +241,7 @@ abstract class ImageProcessor
 	public function setSourceFile($filename)
 	{
 		if ( ! file_exists($filename)) {
-			throw new \Exception('Source image does not exist');
+			throw new ImageProcessorException('Source image does not exist');
 		}
 		$this->sourceFilename = $filename;
 // TODO decide if such functionality is needed

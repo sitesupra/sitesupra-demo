@@ -105,7 +105,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when source file not found
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Source image
 	 */
 	public function testProcessSourceNotFound() 
@@ -122,7 +122,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when output file is not set
 	 * 
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Target
 	 */
 	public function testProcessOutputNotSet() 
@@ -138,7 +138,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when target size is invalid
 	 * 
-	 * @expectedException \Exception
+	 * @expectedException Supra\FileStorage\Exception\ImageProcessorException
 	 */
 	public function testProcessTargetInvalid() 
 	{
@@ -261,7 +261,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  not found
 	 */
 	public function testGetImageInfoNotFound() 
@@ -270,7 +270,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException         \Exception
+	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  size information
 	 */
 	public function testGetImageInfoNotImage() 
