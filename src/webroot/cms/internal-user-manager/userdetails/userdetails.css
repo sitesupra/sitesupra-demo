@@ -1,0 +1,50 @@
+.userdetails {
+	position: absolute;
+	bottom: 10px;
+}
+.userdetails form {
+	width: 300px;
+	margin: 80px auto 0;
+	position: relative;
+}
+
+.userdetails .info,
+.permissions .info {
+	position: absolute;
+	top: -50px;
+	left: -250px;
+}
+
+.userdetails .info em,
+.permissions .info em {
+	display: inline-block;
+	vertical-align: middle;
+	width: 32px;
+	height: 32px;
+	
+	border: 2px solid #eee;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 10px;
+}
+.userdetails .info img,
+.permissions .info img {
+	display: block;
+}
+.userdetails .info span,
+.permissions .info span {
+	display: inline-block;
+	vertical-align: middle;
+	padding-left: 10px;
+}
+.userdetails .info a,
+.permissions .info a {
+	text-decoration: none;
+	line-height: 18px;
+	cursor: default;
+}
+.userdetails .info b,
+.permissions .info b {
+	line-height: 18px;
+}

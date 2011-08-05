@@ -74,7 +74,7 @@ SU(function (Y) {
 		 * Currently selected group
 		 * @type {String}
 		 */
-		active_group: 'Root',
+		active_group: null,
 		
 		/**
 		 * Button list
@@ -92,7 +92,7 @@ SU(function (Y) {
 		 * List of previous actions IDs
 		 * Used to show previous action buttons when action is hidden
 		 */
-		history: ['Root'],
+		history: [],
 		
 		/**
 		 * Animation queue
@@ -149,6 +149,7 @@ SU(function (Y) {
 			
 			button_groups = this.get('buttons');
 			if (active_group && !(active_group in button_groups)) {
+				console.log(active_group, 'FAIL');
 				return this;
 			}
 			
@@ -171,7 +172,7 @@ SU(function (Y) {
 					
 					for(var i=0,ii=button_config.length; i<ii; i++) {
 						type = button_config[i].type || 'toggle';
-						if (type == 'toggle') {
+						if (type == 'toggle' || type == 'tab') {
 							action = Manager.getAction(button_config[i].action);
 							action.hide();
 						}
@@ -306,13 +307,13 @@ SU(function (Y) {
 			var action = SU.Manager.getAction(action_id);
 			var type = (config.type ? config.type : 'toggle');
 			
-			if (event.target.get('down') || type != 'toggle') {
+			if (event.target.get('down') || (type != 'toggle' && type != 'tab')) {
 				//Hide previous action
 				if (this.active_action !== null && this.active_action != action_id) {
 					var old_action = SU.Manager.getAction(this.active_action);
 					old_action.hide();
 				}
-				if (type == 'toggle') {
+				if (type == 'toggle' || type == 'tab') {
 					this.active_action = action_id;
 				} else {
 					this.active_action = null;
@@ -327,9 +328,16 @@ SU(function (Y) {
 				
 				Manager.executeAction(action_id);
 			} else {
-				//Hide action
-				action.hide();
-				if (this.active_action == action_id) this.active_action = null;
+				//Click on button which already is 'down'
+				
+				if (type == 'tab') {
+					//Restore 'down' state
+					event.target.set('down', true);
+				} else {
+					//Hide action
+					action.hide();
+					if (this.active_action == action_id) this.active_action = null;
+				}
 			}
 		},
 		
@@ -346,7 +354,13 @@ SU(function (Y) {
 				id,
 				type,
 				permissions,
-				attr_buttons = this.get('buttons') || {};
+				attr_buttons = this.get('buttons') || {},
+				empty = true;
+			
+			for(var group_id in this.groups) {
+				empty = false;
+				break;
+			}
 			
 			for(var group_id in button_groups) {
 				attr_buttons[group_id] = button_groups[group_id];
@@ -357,12 +371,21 @@ SU(function (Y) {
 				container.append(subcontainer);
 				this.groups[group_id] = subcontainer;
 				
+				if (empty) {
+					empty = false;
+					this.active_group = group_id;
+					this.history.push(group_id);
+				}
+						
 				//Create buttons
 				for(var i=0,ii=button_config.length; i<ii; i++) {
 					if (Y.Lang.isObject(button_config[i])) {
 						
 						id = button_config[i].id;
+						
 						type = button_config[i].type || 'toggle';
+						if (type == 'tab') type = 'toggle';
+						
 						permissions = button_config[i].permissions;
 						
 						if (permissions && !Supra.Authorization.isAllowed(permissions, true)) {
@@ -378,11 +401,15 @@ SU(function (Y) {
 						
 						if (type == 'toggle') {
 							action = Manager.getAction(button_config[i].action);
-							action.on('visibleChange', function (evt, button) {
+							action.on('visibleChange', function (evt, button, action_id) {
 								if (evt.newVal != evt.prevVal) {
 									button.set('down', evt.newVal);
+									
+									if (evt.newVal) {
+										this.active_action = action_id;
+									}
 								}
-							}, this, button);
+							}, this, button, button_config[i].action);
 						}
 					}
 				}

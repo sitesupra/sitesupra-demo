@@ -1,39 +1,29 @@
 //Invoke strict mode
-"use strict";
+'use strict';
 
-YUI.add("supra.footer", function (Y) {
+YUI.add('supra.footer', function (Y) {
 	
 	//Button configuration defaults
 	var BUTTON_DEFINITION = {
-		"id": null,
-		"srcNode": null,
-		"type": "push",
-		"label": "",
-		"icon": null,
-		"style": "mid",
-		"disabled": false
+		'id': null,
+		'srcNode': null,
+		'type': 'push',
+		'label': '',
+		'icon': null,
+		'style': 'mid',
+		'disabled': false
 	};
 	
 	var BUTTON_STYLES = {
-		"save": "mid-blue",
-		"ok": "mid-blue",
-		"cancel": "mid",
-		"yes": "mid-blue",
-		"no": "mid",
-		"apply": "mid-blue",
-		"done": "mid",
-		"delete": "mid-red"
-	};
-	
-	var BUTTON_LABELS = {
-		"save": "Save",
-		"ok": "Ok",
-		"cancel": "Cancel",
-		"yes": "Yes",
-		"no": "No",
-		"apply": "Apply",
-		"done": "Done",
-		"delete": "Delete"
+		'save': 'mid-blue',
+		'ok': 'mid-blue',
+		'cancel': 'mid',
+		'yes': 'mid-blue',
+		'no': 'mid',
+		'apply': 'mid-blue',
+		'done': 'mid',
+		'delete': 'mid-red',
+		'reset': 'mid'
 	};
 	
 	function bubbleEvent (event, event_name) {
@@ -54,7 +44,7 @@ YUI.add("supra.footer", function (Y) {
 		this.buttons_definition = {};
 	}
 	
-	Footer.NAME = "footer";
+	Footer.NAME = 'footer';
 	Footer.ATTRS = {
 		'buttons': {
 			value: null
@@ -62,8 +52,8 @@ YUI.add("supra.footer", function (Y) {
 		'autoDiscoverButtons': {
 			value: true
 		},
-		"style": {
-			value: "default"
+		'style': {
+			value: 'default'
 		}
 	};
 	
@@ -159,14 +149,14 @@ YUI.add("supra.footer", function (Y) {
 				
 				if (!id) continue;
 				
-				var disabled = button.getAttribute("disabled") ? true : false;
+				var disabled = button.getAttribute('disabled') ? true : false;
 				var label = button.test('input') ? button.get('value') : button.get('innerHTML');
 				
 				config[id] = {
-					"id": id,
-					"label": label,
-					"srcNode": button,
-					"disabled": disabled
+					'id': id,
+					'label': label,
+					'srcNode': button,
+					'disabled': disabled
 				};
 			}
 			
@@ -182,12 +172,18 @@ YUI.add("supra.footer", function (Y) {
 		 * @type {Object}
 		 */
 		normalizeButtonConfig: function (config) {
-			var style_definition = {};
+			var style_definition = {
+				'style': 'mid',
+				'label': ''
+			};
+			
 			if ('id' in config && config.id in BUTTON_STYLES) {
 				style_definition.style = BUTTON_STYLES[config.id];
 			}
-			if ('id' in config && config.id in BUTTON_LABELS) {
-				style_definition.label = BUTTON_LABELS[config.id];
+			
+			if ('id' in config) {
+				var label = Supra.Intl.get(['buttons', config.id]);
+				if (label) style_definition.label = label;
 			}
 			
 			//Convert arguments into

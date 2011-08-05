@@ -10,6 +10,16 @@
 .yui3-input {
 	padding: 0 5px 0 0;
 }
+	.yui3-input-hidden,
+	.yui3-input-string-hidden,
+	.yui3-input-select-hidden,
+	.yui3-input-select-list-hidden,
+	.yui3-input-path-hidden,
+	.yui3-input-checkbox-hidden,
+	.yui3-input-file-upload-hidden {
+		display: none;
+	}
+	
 	.yui3-input span {
 		line-height: 30px;
 		font-size: 14px;

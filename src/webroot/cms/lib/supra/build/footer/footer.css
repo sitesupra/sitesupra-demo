@@ -8,6 +8,10 @@
 		border-top: 1px solid #fff;
 	}
 	
+	.yui3-form .yui3-footer-content {
+		padding: 10px 0;
+	}
+	
 	.yui3-footer .left {
 		float: left;
 	}

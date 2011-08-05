@@ -61,7 +61,8 @@ Supra.useModules = [
 	'supra.io',						// + io, json
 	'supra.dom',
 	
-	'supra.authorization'
+	'supra.authorization',
+	'supra.template'
 ];
 
 
@@ -573,11 +574,41 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Template
+	 */
+	'supra.template': {
+		path: 'template/template.js',
+		requires: ['supra.template-handlebars', 'supra.template-block-if']
+	},
+	
+	'supra.template-handlebars': {
+		path: 'template/handlebars.js'
+	},
+	
+	'supra.template-block-if': {
+		path: 'template/handlebars-block-if.js'
+	},
+	
+	/**
 	 * Manager
 	 */
 	'supra.manager': {
 		path: 'manager/manager.js',
-		requires: ['supra.authorization', 'supra.manager-base', 'supra.manager-loader', 'supra.manager-loader-actions', 'supra.manager-action', 'supra.manager-action-base', 'supra.manager-action-plugin-manager', 'supra.manager-action-plugin-base', 'supra.manager-action-plugin-panel', 'supra.manager-action-plugin-form', 'supra.manager-action-plugin-footer', 'supra.manager-action-plugin-container']
+		requires: [
+			'supra.authorization',
+			'supra.manager-base',
+			'supra.manager-loader',
+			'supra.manager-loader-actions',
+			'supra.manager-action',
+			'supra.manager-action-base',
+			'supra.manager-action-plugin-manager',
+			'supra.manager-action-plugin-base',
+			'supra.manager-action-plugin-panel',
+			'supra.manager-action-plugin-form',
+			'supra.manager-action-plugin-footer',
+			'supra.manager-action-plugin-container',
+			'supra.manager-action-plugin-maincontent'
+		]
 	},
 	'supra.manager-base': {
 		path: 'manager/base.js',
@@ -620,6 +651,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.manager-action-plugin-container': {
 		path: 'manager/action/plugin-container.js',
+		requires: ['supra.manager-action-plugin-base']
+	},
+	'supra.manager-action-plugin-maincontent': {
+		path: 'manager/action/plugin-maincontent.js',
 		requires: ['supra.manager-action-plugin-base']
 	}
 	

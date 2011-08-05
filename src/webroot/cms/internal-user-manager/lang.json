@@ -1,0 +1,64 @@
+{
+	"status": true,
+	"data": {
+		"buttons": {
+			"done": "Done",
+			"yes": "Yes",
+			"no": "No",
+			"ok": "Ok"
+		},
+		
+		"userlist": {
+			"new": "New",
+			
+			"group_1": "Admins",
+			"group_1_rights": "All rights",
+			
+			"group_2": "Supervisors",
+			"group_2_rights": "Can publish",
+			
+			"group_3": "Contributors",
+			"group_3_rights": "Can add and edit"
+		},
+		
+		"userdetails": {
+			"title": "Details",
+			
+			"default_name": "User name",
+			
+			"group_1": "Admin",
+			"group_2": "Contributor",
+			"group_3": "Supervisor",
+			
+			"subtitle": "User details",
+			"label_name": "Name",
+			"label_email": "Email",
+			
+			"reset_password": "Reset password",
+			"delete_user": "Delete user",
+			
+			"delete_message": "Are you sure you want to delete selected user?",
+			"reset_message": "Are you sure you want to reset password for selected user?",
+			
+			"reset_success": "New password has been sent to {email}"
+		},
+		
+		"userpermissions": {
+			"title": "Permissions",
+			
+			"label_persmissions": "Permissions",
+			"label_some": "Some",
+			"label_all": "All",
+			"label_contribute": "Contribute",
+			"label_supervise": "Supervise",
+			
+			"type_none": "No ",
+			"type_some": "Some ",
+			"type_all": "All "
+		},
+		
+		"userstats": {
+			"title": "User stats"
+		}
+	}
+}

@@ -1,0 +1,60 @@
+.permissions {
+	position: absolute;
+	bottom: 10px;
+	padding-left: 150px;
+}
+.permissions .info {
+	left: 32px;
+	top: 32px;
+}
+
+.permissions .applications {
+	position: absolute;
+	width: 250px;
+	top: 130px;
+	left: 32px;
+	bottom: 0;
+	overflow: hidden;
+	overflow-y: auto;
+	
+	list-style: none;
+}
+.permissions .applications li {
+	padding: 5px 0 5px 20px;
+	background: url(images/allow.png) 5px 18px no-repeat;
+}
+.permissions .applications li.allow-0 {
+	background-image: url(images/deny.png);
+}
+
+.permissions .applications li img {
+	display: inline-block;
+	vertical-align: middle;
+}
+.permissions .applications li span {
+	display: none;
+	vertical-align: middle;
+	padding-left: 10px;
+}
+.permissions .applications li.allow-0 span.label-0,
+.permissions .applications li.allow-1 span.label-1,
+.permissions .applications li.allow-2 span.label-2 {
+	display: inline-block;
+}
+.permissions .applications li em {
+	display: inline-block;
+	padding-top: 5px;
+}
+
+
+.permissions .applications li:hover {
+	background-color: #f5f5f5;
+}
+.permissions .applications li.selected {
+	
+}
+
+/* Dial */
+.yui3-skin-supra .yui3-dial-ring {
+	
+}

@@ -15,7 +15,8 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'MediaLibrary': '/cms/content-manager',
 		'PageToolbar': '/cms/content-manager',
 		'PageButtons': '/cms/content-manager',
-		'LayoutContainers': '/cms/content-manager'
+		'LayoutContainers': '/cms/content-manager',
+		'Confirmation': '/cms/content-manager'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

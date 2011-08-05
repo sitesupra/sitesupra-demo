@@ -1,0 +1,77 @@
+{
+	"status": 1,
+	"data": [
+		{
+			"id": "content",
+			"icon": "/cms/lib/supra/img/apps/content",
+			"title": "Pages",
+			"permissions": [
+				{
+					"id": "allow",
+					"type": "Dial",
+					"label": "Permissions",
+					"sublabel": "pages",
+					"values": {"1": "None", "2": "Some", "0": "All"},
+					"default": {"0": "0", "1": "0", "3": "0"}
+				}
+			]
+		},
+		{
+			"id": "medialibrary",
+			"icon": "/cms/lib/supra/img/apps/content",
+			"title": "Media library",
+			"permissions": [
+				{
+					"id": "allow",
+					"type": "Dial",
+					"label": "Permissions",
+					"sublabel": "folders",
+					"values": {"1": "None", "2": "Some", "0": "All"},
+					"default": {"0": "0", "1": "0", "3": "0"}
+				}
+			]
+		},
+		{
+			"id": "publication",
+			"icon": "/cms/lib/supra/img/apps/content",
+			"title": "Publications",
+			"permissions": [
+				{
+					"id": "allow",
+					"type": "SelectList",
+					"label": "Permissions",
+					"values": {"2": "None", "0": "All"},
+					"default": {"0": "0", "1": "0", "3": "0"}
+				}
+			]
+		},
+		{
+			"id": "auditlog",
+			"icon": "/cms/lib/supra/img/apps/audit",
+			"title": "Audit log",
+			"permissions": [
+				{
+					"id": "allow",
+					"type": "SelectList",
+					"label": "Permissions",
+					"values": {"2": "None", "0": "All"},
+					"default": {"0": "0", "1": "0", "3": "0"}
+				}
+			]
+		},
+		{
+			"id": "internal-user-manager",
+			"icon": "/cms/lib/supra/img/apps/content",
+			"title": "Backoffice users",
+			"permissions": [
+				{
+					"id": "allow",
+					"type": "SelectList",
+					"label": "Permissions",
+					"values": {"2": "None", "0": "All"},
+					"default": {"0": "0", "1": "0", "3": "0"}
+				}
+			]
+		}
+	]
+}

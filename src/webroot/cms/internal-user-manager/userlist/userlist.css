@@ -1,0 +1,113 @@
+.userlist {
+	position: absolute;
+	bottom: 10px;
+}
+
+.userlist .user-add {
+	position: absolute;
+	display: block;
+	top: 50%;
+	left: 70px;
+	cursor: move;
+}
+.userlist .user-add em,
+.userlist-groups li em {
+	display: block;
+	
+	background: #fff;
+	border: 2px solid #eee;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 10px;
+}
+.userlist .user-add:hover em,
+.userlist-groups li:hover em {
+	border-color: #36c;
+}
+.userlist .user-add img {
+	display: block;
+}
+.userlist .user-add span {
+	display: block;
+	text-align: center;
+	padding: 5px 0 0;
+}
+
+.userlist-groups {
+	position: absolute;
+	left: 200px;
+	right: 0;
+	top: 100px;
+	bottom: 0;
+	border: 1px solid #eee;
+}
+.userlist-groups .userlist-group {
+	height: 100%;
+	width: 33%;
+	border-left: 1px solid #eee;
+	float: left;
+	position: relative;
+	padding: 2px 2px 2px 1px;
+	
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+.userlist-groups .userlist-group:first-child {
+	border-left: 0;
+	padding-left: 2px;
+}
+
+.userlist-groups ul {
+	list-style: none;
+	position: absolute;
+	padding: 2px;
+	left: 0;
+	top: 40px;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	overflow-y: auto;
+}
+.userlist-groups .userlist-group-target ul {
+	border: 2px solid #3B85D1 !important;
+	padding: 0;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+.userlist-groups li {
+	padding: 5px 10px;
+	cursor: pointer;
+}
+.userlist-groups li:hover {
+	background: #f5f5f5;
+}
+.userlist-groups li em,
+.userlist-groups li a {
+	display: inline-block;
+	vertical-align: middle;
+}
+.userlist-groups li a {
+	padding-left: 10px;
+	text-decoration: none;
+}
+
+.userlist-groups h2 {
+	text-align: center;
+	padding: 10px;
+}
+.userlist-groups h3 {
+	position: absolute;
+	color: #777;
+	text-align: center;
+	left: 0;
+	right: 0;
+	top: -70px;
+}
+
+.userlist-groups .userlist-proxy {
+	opacity: 0.5;
+	width: auto !important;
+}

@@ -21,8 +21,8 @@
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
 			//Set current manager path
-			Supra.Manager.Loader.setBasePath('/cms/content-manager/');
-			Supra.setWebsiteModulePath('/cms/content-manager/');
+			Supra.Manager.Loader.setBasePath('/cms/internal-user-manager');
+			Supra.setWebsiteModulePath('/cms/internal-user-manager');
 			
 			//Configuration / parameters
 			Supra.data.set({
@@ -39,32 +39,6 @@
 					'userid': 1,
 					'username': 'Chuck Noriss',
 					'avatar': null
-				},
-				
-				//Page which will be initially loaded
-				'page': {
-					'id': 2
-				},
-				
-				//Supra.HTMLEditor + plugins
-				'supra.htmleditor': {
-					'stylesheets': {
-						'skip_default': false
-					},
-					'plugins': {
-						'image': {
-							'size': '200x200'
-						}
-					}
-				},
-				
-				//Gallery manager
-				'gallerymanager': {
-					'properties': [
-						{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''},
-						{'id': 'description', 'type': 'String', 'label': 'Description', 'value': ''},
-						{'id': 'author', 'type': 'String', 'label': 'Author name', 'value': ''}
-					]
 				},
 				
 				//Languages
@@ -90,10 +64,10 @@
 				
 				//Application
 				'application': {
-					'id': 'content',
-					'path': '/cms/content-manager',
+					'id': 'internal-user-manager',
+					'path': '/cms/internal-user-manager',
 					'icon': '/cms/lib/supra/img/apps/content',
-					'title': 'Pages'
+					'title': 'Backoffice users'
 				},
 				
 				//Internationalization
@@ -102,25 +76,14 @@
 			});
 			
 			Supra.Authorization.setPermissions([
-				{'id': [],		 				'allow': true},
-				{'id': ['page'], 				'allow': true},
-				{'id': ['page', 'delete'], 		'allow': true},
-				{'id': ['page', 'create'], 		'allow': true},
-				{'id': ['page', 'order'],  		'allow': true},
-				{'id': ['page', 'edit'],  		'allow': true},
-				{'id': ['page', 'publish'], 	'allow': true},
-				{'id': ['block'],  				'allow': true},
-				{'id': ['block', 'delete'],  	'allow': true},
-				{'id': ['block', 'insert'],  	'allow': true},
-				{'id': ['block', 'order'],  	'allow': true},
-				{'id': ['block', 'edit'],  		'allow': true}
+				{'id': [],		 				'allow': true}
 			]);
 			
 			//Load internationalization data
 			Supra.Intl.loadAppData(Supra.data.get(['application', 'path']), function () {
 				
 				//Start loading actions
-				Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons', 'Page']);
+				Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons']);
 				
 				//Execute initial actions
 				Supra.Manager.executeAction('Header');

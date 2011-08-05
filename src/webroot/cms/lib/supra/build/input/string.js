@@ -116,6 +116,14 @@ YUI.add("supra.input-string", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
+			if (!this.get("useReplacement") && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+				this.set("useReplacement", true);
+				var labelNode = this.get("labelNode");
+				if (labelNode) {
+					labelNode.addClass('hidden');
+				}
+			}
+			
 			if (this.get("useReplacement")) {
 				var node = this.get("replacementNode");
 				var srcNode = this.get("srcNode");

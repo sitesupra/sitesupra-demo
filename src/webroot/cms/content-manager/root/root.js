@@ -65,7 +65,6 @@ Supra(function (Y) {
 	Supra.Manager.getAction('PageToolbar').set('buttons', DEFAULT_TOOLBAR);
 	Supra.Manager.getAction('PageButtons').set('buttons', DEFAULT_BUTTONS);
 	
-	
 	//Create Action class
 	new Action({
 		
@@ -139,6 +138,7 @@ Supra(function (Y) {
 			if (buttons.get('created')) {
 				buttons.setActiveAction(this.NAME);
 			}
+			
 			if (content.get('created')) { 
 				content.stopEditing();
 			}
