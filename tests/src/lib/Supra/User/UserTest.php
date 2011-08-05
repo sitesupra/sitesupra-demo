@@ -114,28 +114,28 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 	}
 
-	public function testDeleteUser()
-	{
-		$userProvider = User\UserProvider::getInstance();
-		/* @var $em Doctrine\ORM\EntityManager */
-		$em = $userProvider->getEntityManager();
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $userProvider->getRepository();
-
-		$user = $repo->findOneByName('Chuck');
-
-		if (empty($user)) {
-			$this->fail('Cant\'t find user with name: Chuck');
-		}
-
-		$em->remove($user);
-		$em->flush();
-
-		$result = $repo->findOneByName('Chuck');
-
-		if ( ! empty($result)) {
-			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
-		}
-	}
+//	public function testDeleteUser()
+//	{
+//		$userProvider = User\UserProvider::getInstance();
+//		/* @var $em Doctrine\ORM\EntityManager */
+//		$em = $userProvider->getEntityManager();
+//		/* @var $repo Doctrine\ORM\EntityRepository */
+//		$repo = $userProvider->getRepository();
+//
+//		$user = $repo->findOneByName('Chuck');
+//
+//		if (empty($user)) {
+//			$this->fail('Cant\'t find user with name: Chuck');
+//		}
+//
+//		$em->remove($user);
+//		$em->flush();
+//
+//		$result = $repo->findOneByName('Chuck');
+//
+//		if ( ! empty($result)) {
+//			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
+//		}
+//	}
 
 }

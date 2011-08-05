@@ -21,6 +21,9 @@ class UserAction extends InternalUserManagerActionController
 		$this->getResponse()->setResponseData($result);
 	}
 	
+	/**
+	 * Loads user information
+	 */
 	public function loadAction(){
 		
 		if(isset($_GET['user_id'])) {
@@ -54,6 +57,9 @@ class UserAction extends InternalUserManagerActionController
 		}		
 	}
 	
+	/**
+	 * Delete user action
+	 */
 	public function deleteAction(){
 		
 		if(isset($_GET['user_id'])) {
@@ -74,6 +80,46 @@ class UserAction extends InternalUserManagerActionController
 			
 			$em->remove($user);
 			$em->flush();
+			
+			$this->getResponse()->setResponseData(null);
+			
+		} else {
+			$this->setErrorMessage('User id is not set');
+		}		
+	}
+
+	/**
+	 * Password reset action
+	 */
+	public function resetAction(){
+		
+		if(isset($_GET['user_id'])) {
+			
+			$userId = $_GET['user_id'];
+			
+			$userProvider = UserProvider::getInstance();
+			$em = $userProvider->getEntityManager();
+			/* @var $repo Doctrine\ORM\EntityRepository */
+			$repo = $userProvider->getRepository();
+
+			$user = $repo->findOneById($userId);
+			
+			if(empty($user)) {
+				$this->setErrorMessage('Can\'t find user with such id');
+				return;
+			}
+			
+			// TODO: Change password to temporary
+			
+			// FIXME: Add mailer and real recovery link.
+			$userMail = $user->getEmail();
+			$subject = 'Password recovery';
+			$message = 'Message and you our recovery link will be here';
+			
+			$headers = 'From: admin@supra7.vig' . "\r\n" .
+					   'X-Mailer: PHP/' . phpversion();
+
+			mail($userMail, $subject, $message, $headers);
 			
 			$this->getResponse()->setResponseData(null);
 			
