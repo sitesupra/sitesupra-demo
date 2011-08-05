@@ -51,6 +51,10 @@ class UserProvider
 		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
 	}
 
+	/**
+	 * Returns repository
+	 * @return Doctrine\ORM\EntityRepository
+	 */
 	public function getRepository()
 	{
 		return $this->getEntityManager()->getRepository(self::USER_ENTITY);
