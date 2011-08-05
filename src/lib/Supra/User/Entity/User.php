@@ -5,9 +5,9 @@ namespace Supra\User\Entity;
 /**
  * User object
  * @Entity
- * @Table(name="user")
+ * @Table(name="`user`")
  */
-class User
+class User extends Abstraction\User
 {
 	
 	/**
@@ -17,12 +17,6 @@ class User
 	 * @var integer
 	 */
 	protected $id = null;
-	
-	/**
-	 * @Column(type="string", name="username", nullable=false)
-	 * @var string
-	 */
-	protected $username;
 	
 	/**
 	 * @Column(type="string", name="password", nullable=false)
@@ -37,24 +31,18 @@ class User
 	protected $email;
 	
 	/**
+	* @OneToOne(targetEntity="Group")
+	* @JoinColumn(name="group_id", referencedColumnName="id") 
+	 */
+	
+	protected $group;
+	
+	/**
 	 * @Column(type="datetime", name="last_login_at", nullable="false")
 	 * @var string
 	 */
 	
 	protected $lastLoginTime;
-	
-	/**
-	 * @Column(type="datetime", name="created_at")
-	 * @var string
-	 */
-	
-	protected $createdTime;
-	
-	/**
-	 * @Column(type="datetime", name="modified_at")
-	 * @var string
-	 */
-	protected $modifiedTime;
 	
 	/**
 	 * @Column(type="boolean", name="active")
@@ -76,24 +64,6 @@ class User
 	public function getId()
 	{
 		return $this->id;
-	}
-
-	/**
-	 * Returns username
-	 * @return string 
-	 */
-	public function getUsername()
-	{
-		return $this->username;
-	}
-
-	/**
-	 * Sets username
-	 * @param string $username 
-	 */
-	public function setUsername($username)
-	{
-		$this->username = $username;
 	}
 
 	/**

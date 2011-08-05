@@ -19,7 +19,8 @@ $config->setQueryCacheImpl($cache);
 // Metadata driver
 $entityPaths = array(
 	SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/'
+	SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
+	SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
 );
 $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 //$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
