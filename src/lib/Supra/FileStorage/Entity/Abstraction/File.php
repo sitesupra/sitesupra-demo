@@ -82,6 +82,19 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	 * @var string
 	 */
 	protected $fileName;
+	
+	/**
+	 * @Column(type="datetime", name="created_at")
+	 * @var string
+	 */
+	
+	protected $createdTime;
+	
+	/**
+	 * @Column(type="datetime", name="modified_at")
+	 * @var string
+	 */
+	protected $modifiedTime;
 
 	/**
 	 * Constructor
@@ -126,7 +139,44 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	{
 		return $this->level;
 	}
+	
+	/**
+	 * Returns creation time
+	 * @return string 
+	 */
+	public function getCreatedTime()
+	{
+		return $this->createdTime;
+	}
+	
+	/**
+	 * Sets creation time
+	 * @param \DateTime $createdTime 
+	 */
+	public function setCreatedTime(\DateTime $createdTime)
+	{
+		$this->createdTime = $createdTime;
+	}
 
+	/**
+	 * Returns last modification time
+	 * @return string
+	 */
+	public function getModifiedTime()
+	{
+		return $this->modifiedTime;
+	}
+
+	/**
+	 * Sets modification time
+	 * @param \DateTime $modifiedTime 
+	 */
+	public function setModifiedTime(\DateTime $modifiedTime)
+	{
+		$this->modifiedTime = $modifiedTime;
+	}
+
+	
 
 	/**
 	 * Set left value

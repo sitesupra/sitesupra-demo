@@ -116,9 +116,14 @@ class MediaLibraryAction extends CmsActionController
 
 			$dirName = $_POST['title'];
 
+			$timeNow = new \DateTime('now');
+
 			$em->persist($dir);
 			$dir->setName($dirName);
-
+			
+			$dir->setCreatedTime($timeNow);
+			$dir->setModifiedTime($timeNow);
+			
 			// Adding child folder if parent exists
 			if ( ! empty($_POST['parent'])) {
 
@@ -302,6 +307,10 @@ class MediaLibraryAction extends CmsActionController
 			$fileEntity->setName($file['name']);
 			$fileEntity->setSize($file['size']);
 			$fileEntity->setMimeType($file['type']);
+			
+			$timeNow = new \DateTime('now');
+			$fileEntity->setCreatedTime($timeNow);
+			$fileEntity->setModifiedTime($timeNow);
 
 			// adding file as folders child if parent folder is set
 			if ( ! empty($_POST['folder'])) {

@@ -37,6 +37,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);
 
+		$timeNow = new \DateTime('now');
+		
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
 		$file->setName($fileName);
@@ -45,7 +47,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
-
+		
+		$file->setCreatedTime($timeNow);
+		$file->setModifiedTime($timeNow);
+		
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -85,6 +90,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);
 
+		$timeNow = new \DateTime('now');
+		
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
 		$file->setName($fileName);
@@ -94,6 +101,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
 
+		$file->setCreatedTime($timeNow);
+		$file->setModifiedTime($timeNow);
+		
 		$filestorage = FileStorage\FileStorage::getInstance();
 
 		try {
@@ -251,7 +261,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$dir = new \Supra\FileStorage\Entity\Folder();
 		$filestorage = FileStorage\FileStorage::getInstance();
 
+		$timeNow = new \DateTime('now');
+		
 		$dir->setName($name);
+		$dir->setCreatedTime($timeNow);
+		$dir->setModifiedTime($timeNow);
 
 		self::getConnection()->persist($dir);
 		self::getConnection()->flush();
@@ -379,6 +393,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
 
+		$timeNow = new \DateTime('now');
+		
+		$file->setCreatedTime($timeNow);
+		$file->setModifiedTime($timeNow);
+				
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
@@ -401,10 +420,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$dirNames = array('one', 'two', 'three');
 		foreach ($dirNames as $dirName) {
 			$parentDir = $dir;
+			
+			$timeNow = new \DateTime('now');
+			
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
+			$dir->setCreatedTime($timeNow);
+			$dir->setModifiedTime($timeNow);
+			
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
+			
 			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
 				$parentDir->addChild($dir);
 				$filestorage->createFolder($parentDir->getPath(DIRECTORY_SEPARATOR, true), $dirName);
@@ -435,6 +461,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
+			
+			$timeNow = new \DateTime('now');
+		
+			$dir->setCreatedTime($timeNow);
+			$dir->setModifiedTime($timeNow);
+			
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
 			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
@@ -462,6 +494,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
 
+		
+		$timeNow = new \DateTime('now');
+
+		$file->setCreatedTime($timeNow);
+		$file->setModifiedTime($timeNow);
+			
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -497,6 +535,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
+			
+			$timeNow = new \DateTime('now');
+
+			$dir->setCreatedTime($timeNow);
+			$dir->setModifiedTime($timeNow);
+		
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
 			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
@@ -519,6 +563,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 				finfo_close($finfo);
 				$file->setMimeType($mimeType);
 
+				$timeNow = new \DateTime('now');
+
+				$file->setCreatedTime($timeNow);
+				$file->setModifiedTime($timeNow);
+				
 				$dir->addChild($file);
 
 				$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -635,7 +684,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
+		
+		$timeNow = new \DateTime('now');
 
+		$file->setCreatedTime($timeNow);
+		$file->setModifiedTime($timeNow);
+		
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');

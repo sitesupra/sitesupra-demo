@@ -293,6 +293,8 @@ class FileStorage
 			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $filename;
 			$result = rename($path, $newPath);
 			if ($result) {
+				$timeNow = new \DateTime('now');
+				$file->setModifiedTime($timeNow);
 				$file->setName($filename);
 			}
 		}
@@ -345,6 +347,10 @@ class FileStorage
 			$result = rename($path, $newPath);
 			if ($result) {
 				$folder->setName($title);
+
+				$timeNow = new \DateTime('now');
+
+				$folder->setModifiedTime($timeNow);
 			}
 		} else {
 			throw new Exception\RuntimeException($path . ' is not a folder');
@@ -455,18 +461,22 @@ class FileStorage
 	{
 
 		$filePath = $file->getPath(DIRECTORY_SEPARATOR, true);
-
+		
+		$timeNow = new \DateTime('now');
+				
 		if ($public) {
 			if ($file->isPublic()) {
 				\Log::info($file->getId() . ' ' . $file->getName() . ' is already public');
 			} else {
 				$this->moveFileToExternalStorage($filePath);
 				$file->setPublic(true);
+				$file->setModifiedTime($timeNow);
 			}
 		} else {
 			if ($file->isPublic()) {
 				$this->moveFileToInternalStorage($filePath);
 				$file->setPublic(false);
+				$file->setModifiedTime($timeNow);
 			} else {
 				\Log::info($file->getId() . '#' . $filePath . ' is already private');
 			}
@@ -552,6 +562,10 @@ class FileStorage
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 		
+		
+		$timeNow = new \DateTime('now');
+		$fileEntity->setModifiedTime($timeNow);
+				
 		$this->storeFileData($fileEntity, $file['tmp_name']);
 		
 		
