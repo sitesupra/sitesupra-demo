@@ -61,11 +61,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage->storeFileData($file, $uploadFile);
 
 		if ($file->isMimeTypeImage()) {
+			$origSize = $file->getImageSize('original');
+			$imageProcessor = new ImageResizer();
+			$imageInfo = $imageProcessor->getImageInfo($filestorage->getFilesystemPath($file));
+			$origSize->setWidth($imageInfo['width']);
+			$origSize->setHeight($imageInfo['height']);
+			$origSize->setName('');
 //			$filestorage->rotateImageLeft($file);
 //			$filestorage->rotateImageRight($file);
 //			$filestorage->rotateImage180($file);
 			$filestorage->createResizedImage($file, 100, 100, true);
-			$filestorage->createResizedImage($file, 100, 100, false);
+			$filestorage->createResizedImage($file, 200, 200, false);
 		}
 
 		$filestorage->cropImage($file, 100, 75, 150, 175);

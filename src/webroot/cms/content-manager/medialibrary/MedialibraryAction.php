@@ -4,6 +4,7 @@ namespace Supra\Cms\ContentManager\medialibrary;
 
 use Supra\Cms\ContentManager\CmsActionController;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
+use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;
 
 class MediaLibraryAction extends CmsActionController
@@ -211,6 +212,25 @@ class MediaLibraryAction extends CmsActionController
 			} else if ($file instanceof \Supra\FileStorage\Entity\File) {
 
 				try {
+
+					// image editing
+					if ($file->isMimeTypeImage()) {
+						if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
+							$rotationCount = - intval($_POST['rotate'] / 2);
+							$fileStorage->rotateImage($file, $rotationCount);
+						} else if (isset($_POST['crop']) && is_array($_POST['crop'])) {
+							$crop = $_POST['crop'];
+							if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
+								$left = intval($crop['left']);
+								$top = intval($crop['top']);
+								$width = intval($crop['width']);
+								$height = intval($crop['height']);
+								$fileStorage->cropImage($file, $left, $top, $width, $height);
+							}
+						}
+						
+					}
+
 					if (isset($_POST['title'])) {
 						// TODO: Localization?
 						$this->getResponse()->setResponseData(null);
@@ -233,6 +253,7 @@ class MediaLibraryAction extends CmsActionController
 					} else {
 						throw new MedialibraryException('File name isn\'t set');
 					}
+					
 				} catch (MedialibraryException $exc) {
 					$this->setErrorMessage($message);
 					return;
@@ -339,6 +360,17 @@ class MediaLibraryAction extends CmsActionController
 			// trying to upload file
 			try {
 				$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+				// additional jobs for images
+				if ($fileEntity->isMimeTypeImage()) {
+					// store original size
+					$origSize = $fileEntity->getImageSize('original');
+					$imageProcessor = new ImageProcessor\ImageResizer();
+					$imageInfo = $imageProcessor->getImageInfo($fileStorage->getFilesystemPath($fileEntity));
+					$origSize->setWidth($imageInfo['width']);
+					$origSize->setHeight($imageInfo['height']);
+					// create preview
+					$fileStorage->createResizedImage($fileEntity, 200, 200);
+				}
 			} catch (FileStorage\Exception\RuntimeException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
@@ -423,7 +455,7 @@ class MediaLibraryAction extends CmsActionController
 	private function imageAndFileOutput(&$node)
 	{
 		// checking for image MIME type
-		$isImage = $node->isMimeTypeImage($node->getMimeType());
+		$isImage = $node->isMimeTypeImage();
 
 		$type = null;
 
@@ -435,9 +467,7 @@ class MediaLibraryAction extends CmsActionController
 		
 		$fileStorage = FileStorage\FileStorage::getInstance();
 		
-		// getting full file path
-		$externalPath = str_replace(SUPRA_WEBROOT_PATH,'',$fileStorage->getExternalPath());
-		$filePath = DIRECTORY_SEPARATOR . $externalPath . $node->getPath(DIRECTORY_SEPARATOR, true);
+		$filePath = $fileStorage->getWebPath($node);
 
 		$output = null;
 
@@ -460,15 +490,23 @@ class MediaLibraryAction extends CmsActionController
 				'filename' => $node->getName(),
 				'description' => 'Hardcoded Description',
 				'size' => $node->getSize(),
-				'sizes' => Array(
-					'60x60' => Array('id' => '60x60', 'width' => 60, 'height' => 60, 'external_path' => $filePath),
-					'200x200' => Array('id' => '200x200', 'width' => 200, 'height' => 150, 'external_path' => $filePath),
-					'original' => Array('id' => 'original', 'width' => 600, 'height' => 450, 'external_path' => $filePath),
-				),
-				'60x60_url' => $filePath,
-				'200x200_url' => $filePath,
-				'original_url' => $filePath,
+				'sizes' => array()
 			);
+			
+			$sizes = $node->getImageSizeCollection();
+			if ( ! $sizes->isEmpty()) {
+				foreach ($sizes as $size) {
+					$sizeName = $size->getName();
+					$sizePath = $fileStorage->getWebPath($node, $sizeName);
+					$output['sizes'][$sizeName] = array(
+						'id' => $sizeName,
+						'width' => $size->getWidth(),
+						'height' => $size->getHeight(),
+						'external_path' => $sizePath
+					);
+					$output[$sizeName . '_url'] = $sizePath;
+				}
+			}
 		}
 
 		return $output;

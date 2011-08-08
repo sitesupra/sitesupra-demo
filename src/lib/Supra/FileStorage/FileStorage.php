@@ -224,7 +224,7 @@ class FileStorage
 			$filter->validateFile($file);
 		}
 
-		$filePath = $this->getFilePath($file);
+		$filePath = $this->getFilesystemPath($file);
 
 		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $filePath . '"');
@@ -243,7 +243,7 @@ class FileStorage
 		$oldExtension = $file->getExtension();
 		$oldFileName = $file->getName();
 
-		$filePath = $this->getFilePath($file);
+		$filePath = $this->getFilesystemPath($file);
 
 		$file->setName($filename);
 
@@ -554,7 +554,7 @@ class FileStorage
 		$size->setTargetWidth($targetWidth);
 		$size->setTargetHeight($targetHeight);
 		
-		$originalFilePath = $this->getFilePath($file, true);
+		$originalFilePath = $this->getFilesystemPath($file, true);
 		
 		// initiate resizer
 		$resizer = new ImageProcessor\ImageResizer;
@@ -568,7 +568,7 @@ class FileStorage
 		$size->setWidth($expectedSize['width']);
 		$size->setHeight($expectedSize['height']);
 
-		$resizedFileDir = $this->getFileDir($file)
+		$resizedFileDir = $this->getFilesystemDir($file)
 				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR 
 				. $size->getFolderName();
 
@@ -596,9 +596,9 @@ class FileStorage
 	 * @param integer $rotationCount
 	 * @param integer $quality
 	 */
-	private function rotateImage($file, $rotationCount, $quality = 95) 
+	public function rotateImage($file, $rotationCount, $quality = 95) 
 	{
-		$filename = $this->getFilePath($file);
+		$filename = $this->getFilesystemPath($file);
 		$rotator = new ImageProcessor\ImageRotator;
 		$rotator->setSourceFile($filename)
 				->setOutputFile($filename)
@@ -610,6 +610,19 @@ class FileStorage
 		if ( ! $sizes->isEmpty()) {
 			foreach ($sizes as $size) {
 				$sizeName = $size->getName();
+				
+				// FIXME what to do with original?
+				if ($sizeName == 'original') {
+					if (($rotationCount % 2) == 1) {
+						$tmp = $size->getWidth();
+						$size->setWidth($size->getHeight());
+						$size->setHeight($tmp);
+						$this->getEntityManager()->persist($size);
+						$this->getEntityManager()->flush();
+					}
+					continue;
+				}
+				
 				$filePath = $this->getImagePath($file, $sizeName);
 				unlink($filePath);
 				$this->createResizedImage($file, $size->getTargetWidth(), 
@@ -658,9 +671,9 @@ class FileStorage
 	 * @param integer $height
 	 * @param integer $quality 
 	 */
-	public function cropImage($file, $left, $top, $width, $height, $quality = 95) 
+	public function cropImage(Entity\File $file, $left, $top, $width, $height, $quality = 95) 
 	{
-		$filename = $this->getFilePath($file);
+		$filename = $this->getFilesystemPath($file);
 		$cropper = new ImageProcessor\ImageCropper();
 		$cropper->setSourceFile($filename)
 				->setOutputFile($filename)
@@ -670,12 +683,21 @@ class FileStorage
 				->setWidth($width)
 				->setHeight($height);
 		$cropper->process();
-		// TODO implement for resized versions
 
 		$sizes = $file->getImageSizeCollection();
 		if ( ! $sizes->isEmpty()) {
 			foreach ($sizes as $size) {
 				$sizeName = $size->getName();
+				
+				// FIXME what to do with original?
+				if ($sizeName == 'original') {
+					$size->setWidth($width);
+					$size->setHeight($height);
+					$this->getEntityManager()->persist($size);
+					$this->getEntityManager()->flush();
+					continue;
+				}
+				
 				$filePath = $this->getImagePath($file, $sizeName);
 				unlink($filePath);
 				$this->createResizedImage($file, $size->getTargetWidth(), 
@@ -690,7 +712,7 @@ class FileStorage
 	 * @param string $filename
 	 * @return string
 	 */
-	public function getMimeType($filename)
+	public function getMimeType(string $filename)
 	{
 		if ( ! file_exists($filename)) {
 			throw new Exception\RuntimeException('File does not exist');
@@ -703,10 +725,11 @@ class FileStorage
 
 	/**
 	 * Get full file path or its directory (with trailing slash)
-	 * @param Entity\File $file
+	 * @param Entity\Abstraction\File $file
 	 * @param boolean $dirOnly 
+	 * @return string
 	 */
-	public function getFilePath($file, $includeFilename = true)
+	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true)
 	{
 		if ( ! $file instanceof Entity\Abstraction\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
@@ -725,12 +748,12 @@ class FileStorage
 
 	/**
 	 * Get file directory (with trailing slash)
-	 * @param type $file
-	 * @return type 
+	 * @param Entity\Abstraction\File $file
+	 * @return string
 	 */
-	public function getFileDir($file)
+	public function getFilesystemDir(Entity\Abstraction\File $file)
 	{
-		return $this->getFilePath($file, false);
+		return $this->getFilesystemPath($file, false);
 	}
 
 	/**
@@ -738,9 +761,13 @@ class FileStorage
 	 * @param Entity\File $file
 	 * @param string $sizeName 
 	 */
-	public function getImagePath($file, $sizeName = null)
+	public function getImagePath(Entity\File $file, $sizeName = null)
 	{
-		$path = $this->getFileDir($file);
+		// FIXME what to do with original?
+		if ($sizeName == 'original') {
+			$sizeName = null;
+		}
+		$path = $this->getFilesystemDir($file);
 		$size = $file->getImageSize($sizeName);
 		if ($size instanceof Entity\ImageSize) {
 			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
@@ -753,13 +780,50 @@ class FileStorage
 	}
 
 	/**
+	 * Get web (external) path for file
+	 * @param Entity\File $file
+	 * @param type $sizeName
+	 * @return type 
+	 */
+	public function getWebPath(Entity\File $file, $sizeName = null)
+	{
+		if ( ! $file instanceof Entity\File) {
+			throw new Exception\RuntimeException('File or folder entity expected');
+		}
+
+		// FIXME what to do with original?
+		if ($sizeName == 'original') {
+			$sizeName = null;
+		}
+
+		if ($file->isPublic()) {
+			$path = '/'
+					. str_replace(SUPRA_WEBROOT_PATH, '', $this->getExternalPath());
+			$path .= $file->getPath('/', false) . '/';
+			
+			if ($file->isMimeTypeImage() || isset($sizeName)) {
+				$size = $file->findImageSize($sizeName);
+				if ($size instanceof Entity\ImageSize) {
+					$path .= self::RESERVED_DIR_SIZE . '/'
+							. $size->getFolderName() . '/';
+				}
+			}
+			
+			$path .= $file->getName();
+			return $path;
+		} else {
+			// TODO implement for private files
+		}
+	}
+
+	/**
 	 * Get file content
 	 * @param Entity\File $file
 	 * @return string
 	 */
 	public function getFileContent(Entity\File $file)
 	{
-		$filePath = $this->getFilePath($file);
+		$filePath = $this->getFilesystemPath($file);
 		$fileContent = file_get_contents($filePath);
 		return $fileContent;
 	}
@@ -792,8 +856,34 @@ class FileStorage
 		$fileEntity->setModifiedTime($timeNow);
 				
 		$this->storeFileData($fileEntity, $file['tmp_name']);
-		
-		
+
+		// additional jobs for images
+		if ($fileEntity->isMimeTypeImage()) {
+			// store original size
+			$origSize = $fileEntity->getImageSize('original');
+			$imageProcessor = new ImageProcessor\ImageResizer();
+			$imageInfo = $imageProcessor->getImageInfo($this->getFilesystemPath($fileEntity));
+			$origSize->setWidth($imageInfo['width']);
+			$origSize->setHeight($imageInfo['height']);
+			// reprocess sizes
+			$sizes = $fileEntity->getImageSizeCollection();
+			if ( ! $sizes->isEmpty()) {
+				foreach ($sizes as $size) {
+					$sizeName = $size->getName();
+
+					// FIXME what to do with original?
+					if ($sizeName == 'original') {
+						continue;
+					}
+
+					$filePath = $this->getImagePath($fileEntity, $sizeName);
+					unlink($filePath);
+					$this->createResizedImage($fileEntity, $size->getTargetWidth(), 
+							$size->getTargetHeight(), $size->getCropMode(), 
+							$size->getQuality(), true);
+				}
+			}
+		}
 	}
 
 	/**
@@ -802,7 +892,7 @@ class FileStorage
 	 */
 	public function removeFile(Entity\File $file)
 	{
-		$filePath = $this->getFilePath($file);
+		$filePath = $this->getFilesystemPath($file);
 
 		$fileExists = file_exists($filePath);
 		

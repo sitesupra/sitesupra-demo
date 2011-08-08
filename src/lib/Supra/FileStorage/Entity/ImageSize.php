@@ -7,7 +7,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * Image resized versions
  * @Entity
- * @Table(name="file_image_sizes")
+ * @Table(name="file_image_sizes", uniqueConstraints={@UniqueConstraint(name="master_id_name_idx", columns={"master_id", "name"})})
  */
 class ImageSize extends Abstraction\Entity {
 
@@ -39,7 +39,7 @@ class ImageSize extends Abstraction\Entity {
 	protected $height = 0;
 
 	/**
-	 * @Column(type="string", unique=true, nullable=false)
+	 * @Column(type="string", nullable=false)
 	 * @var string
 	 */
 	protected $name;
@@ -54,13 +54,13 @@ class ImageSize extends Abstraction\Entity {
 	 * @Column(name="target_width", type="integer", nullable=false)
 	 * @var integer
 	 */
-	protected $targetWidth;
+	protected $targetWidth = 0;
 
 	/**
 	 * @Column(name="target_height", type="integer", nullable=false)
 	 * @var integer
 	 */
-	protected $targetHeight;
+	protected $targetHeight = 0;
 
 	/**
 	 * @Column(name="crop_mode", type="boolean", nullable=false)
@@ -156,7 +156,6 @@ class ImageSize extends Abstraction\Entity {
 	{
 		if ( ! empty($sizeName)) {
 			$this->name = $sizeName;
-			$this->hasCustomName = true;
 		}
 	}
 
@@ -212,7 +211,7 @@ class ImageSize extends Abstraction\Entity {
 	public function setTargetWidth($width) 
 	{
 		$newTargetWidth = intval($width);
-		if ($newTargetWidth > 0) {
+		if ($newTargetWidth >= 0) {
 			$this->targetWidth = $newTargetWidth;
 		}	
 	}
@@ -233,7 +232,7 @@ class ImageSize extends Abstraction\Entity {
 	public function setTargetHeight($height)
 	{
 		$newTargetHeight = intval($height);
-		if ($newTargetHeight > 0) {
+		if ($newTargetHeight >= 0) {
 			$this->targetHeight = $newTargetHeight;
 		}	
 	}
