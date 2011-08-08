@@ -164,7 +164,7 @@ class ImageResizer extends ImageProcessor
 	 * @param int $originalHeight
 	 * @return array
 	 */
-	public function calculateDimensions($originalWidth, $originalHeight)
+	protected function calculateDimensions($originalWidth, $originalHeight)
 	{
 		// check if target size is set and valid
 		if (empty($this->targetWidth) || ($this->targetWidth <= 0)) {
@@ -206,6 +206,50 @@ class ImageResizer extends ImageProcessor
 			// set destination dimension (with original aspect ratio)
 			$dimensions['destWidth'] = round($originalWidth / $maxRatio);
 			$dimensions['destHeight'] = round($originalHeight / $maxRatio);
+		}
+
+		return $dimensions;
+	}
+
+	/**
+	 * Get expected dimensions of processed image
+	 * @return array
+	 */
+	public function getExpectedSize() {
+//		$imageInfo = $this->getImageInfo($this->sourceFilename);
+//		$dimensions = $this->calculateDimensions($imageInfo['width'], $imageInfo['height']);
+//		$return = array(
+//			'width' => $dimensions['destWidth'],
+//			'height' => $dimensions['destHeight']
+//		);
+//		return $return;
+		if (empty($this->sourceFilename)) {
+			throw new ImageProcessorException('Source image is not set');
+		}
+		if (empty($this->targetWidth) || ($this->targetWidth <= 0)) {
+			throw new ImageProcessorException('Target width is not set or is invalid');
+		}
+		if (empty($this->targetHeight) || ($this->targetHeight <= 0)) {
+			throw new ImageProcessorException('Target height is not set or is invalid');
+		}
+
+		$imageInfo = $this->getImageInfo($this->sourceFilename);
+
+		$wRatio = $imageInfo['width'] / $this->targetWidth;
+		$hRatio = $imageInfo['height'] / $this->targetHeight;
+		$maxRatio = max($wRatio, $hRatio);
+		$minRatio = min($wRatio, $hRatio);
+
+		$cropMode = ($this->cropMode && ($minRatio >= 1));
+
+		$dimensions = array(
+			'width' => $this->targetWidth,
+			'height' => $this->targetHeight
+		);
+		
+		if ( ! $cropMode) {
+			$dimensions['width'] = round($imageInfo['width'] / $maxRatio);
+			$dimensions['height'] = round($imageInfo['height'] / $maxRatio);
 		}
 
 		return $dimensions;

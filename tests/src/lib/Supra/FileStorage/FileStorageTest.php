@@ -5,6 +5,8 @@ namespace Supra\Tests\FileStorage;
 use Supra\Tests\TestCase;
 use Supra\FileStorage;
 use Supra\FileStorage\Exception;
+use Supra\FileStorage\Entity\ImageSize;
+use Supra\FileStorage\ImageProcessor\ImageResizer;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
@@ -37,16 +39,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);
 
+		$filestorage = FileStorage\FileStorage::getInstance();
+
 		$timeNow = new \DateTime('now');
 		
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
 		$file->setName($fileName);
 		$file->setSize($fileSize);
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mimeType = finfo_file($finfo, $uploadFile);
-		finfo_close($finfo);
-		$file->setMimeType($mimeType);
+		$file->setMimeType($filestorage->getMimeType($uploadFile));
 		
 		$file->setCreatedTime($timeNow);
 		$file->setModifiedTime($timeNow);
@@ -57,10 +58,18 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
 
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$filestorage->storeFileData($file, $uploadFile);
 
-		self::getConnection()->flush();
+		if ($file->isMimeTypeImage()) {
+//			$filestorage->rotateImageLeft($file);
+//			$filestorage->rotateImageRight($file);
+//			$filestorage->rotateImage180($file);
+			$filestorage->createResizedImage($file, 100, 100, true);
+			$filestorage->createResizedImage($file, 100, 100, false);
+		}
+
+		$filestorage->cropImage($file, 100, 75, 150, 175);
+		$filestorage->rotateImageLeft($file);
 
 //		// meta-data getter test
 //		\Log::debug(array(
@@ -651,6 +660,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	private function cleanUp($delete = false)
 	{
 		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\MetaData");
+		$query->execute();
+		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\ImageSize");
 		$query->execute();
 		$query = self::getConnection()->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
 		$query->execute();
