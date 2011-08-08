@@ -37,7 +37,7 @@ class MetaData extends Abstraction\Entity
 	protected $description;
 
 	/**
-	 * @ManyToOne(targetEntity="File", cascade={"persist", "remove"})
+	 * @ManyToOne(targetEntity="File", cascade={"persist"})
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */
