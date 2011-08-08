@@ -14,25 +14,28 @@
 		<!-- Application template -->
 		<script type="text/html" id="applicationsListItem">
 			{{#each this}}
-			<li class="allow-0">
+			<li class="allow-0" data-id="{{id}}">
 				<img src="{{icon}}_32x32.png" alt="" />
-				<span class="label-2"></span>
-				<span class="label-1">
-					{{#each permissions}}
-						{{#if sublabel}}
-							{#userpermissions.label_some#} {{sublabel}}
-						{{/if}}
-					{{/each}}
-				</span>
-				<span class="label-0">
-					{{#each permissions}}
-						{{#if sublabel}}
-							{#userpermissions.label_all#} {{sublabel}}
-						{{/if}}
-					{{/each}}
-				</span>
-				<br />
-				<em>{{title}}</em>
+				<em>
+					{{title}}
+					<span class="label-2"></span>
+					<span class="label-1">
+						<br />
+						{{#each permissions}}
+							{{#if sublabel}}
+								{#userpermissions.label_some#} {{sublabel}}
+							{{/if}}
+						{{/each}}
+					</span>
+					<span class="label-0">
+						<br />
+						{{#each permissions}}
+							{{#if sublabel}}
+								{#userpermissions.label_all#} {{sublabel}}
+							{{/if}}
+						{{/each}}
+					</span>
+				</em>
 			</li>
 			{{/each}}
 		</script>

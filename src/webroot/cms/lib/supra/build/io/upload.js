@@ -4,7 +4,7 @@
 /**
  * Handles file upload process
  */
-YUI.add('supra.medialibrary-upload-io', function (Y) {
+YUI.add('supra.io-upload', function (Y) {
 	
 	/*
 	 * http://hacks.mozilla.org/category/fileapi/:
@@ -90,6 +90,19 @@ YUI.add('supra.medialibrary-upload-io', function (Y) {
 		},
 		
 		/**
+		 * Abort file upload
+		 */
+		abort: function () {
+			if (this.xhr) {
+				this.fire('abort');
+				this.xhr.abort();
+				this.destroy();
+			} else {
+				this.destroy();
+			}
+		},
+		
+		/**
 		 * On complete
 		 * 
 		 * @param {Event} evt
@@ -143,7 +156,7 @@ YUI.add('supra.medialibrary-upload-io', function (Y) {
 		
 	});
 	
-	Supra.MediaLibraryList.UploadIO = UploaderIO;
+	Supra.IOUpload = UploaderIO;
 	
 	//Since this Widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

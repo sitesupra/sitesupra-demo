@@ -105,14 +105,21 @@ YUI.add('supra.intl', function (Y) {
 		 * Replace all occurances of {#...#} with internationalized strings
 		 * 
 		 * @param {String} template Template
+		 * @param {String} escape Escape type
 		 * @return Internationalized template
 		 * @type {String}
 		 */
-		replace: function (template /* Template */) {
+		replace: function (template /* Template */, escape /* Escape type*/) {
 			var self = this;
 			return template.replace(/{#([^#]+)#}/g, function (all, key) {
-				return self.get(key.split('.')) || '';
-			})
+				var ret = self.get(key.split('.')) || all;
+				
+				if (escape == 'json') { //Escape as JSON string without leading and trailing quotes
+					ret = Y.JSON.stringify(ret).replace(/^"|"$/g, '');
+				}
+				
+				return ret;
+			});
 		}
 	};
 	

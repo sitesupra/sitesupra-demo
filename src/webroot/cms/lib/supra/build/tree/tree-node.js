@@ -237,7 +237,13 @@ YUI.add('supra.tree-node', function(Y) {
 				for(var i=0, ii=data.children.length-1; i<=ii; i++) {
 					var isDragable = ('isDragable' in data.children[i] ? data.children[i].isDragable : true);
 					var isDropTarget = ('isDropTarget' in data.children[i] ? data.children[i].isDropTarget : true);
-					this.add({'data': data.children[i], 'label': data.children[i].title, 'icon': data.children[i].icon, 'isDropTarget': isDropTarget, 'isDragable': isDragable}, i);
+					this.add({
+						'data': data.children[i],
+						'label': data.children[i].title,
+						'icon': data.children[i].icon,
+						'isDropTarget': isDropTarget,
+						'isDragable': isDragable
+					}, i);
 				}
 				
 				if (i==ii) {

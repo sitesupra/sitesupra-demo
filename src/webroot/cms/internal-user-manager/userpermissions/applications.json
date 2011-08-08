@@ -9,10 +9,24 @@
 				{
 					"id": "allow",
 					"type": "Dial",
-					"label": "Permissions",
+					"label": "{#userpermissions.label_persmissions#}",
+					"values": [
+						{"id": "2", "title": "{#userpermissions.label_none#}"},
+						{"id": "1", "title": "{#userpermissions.label_some#}"},
+						{"id": "0", "title": "{#userpermissions.label_all#}"}
+					],
+					"value": "0",
+					
 					"sublabel": "pages",
-					"values": {"1": "None", "2": "Some", "0": "All"},
-					"default": {"0": "0", "1": "0", "3": "0"}
+					"subproperty": {
+						"id": "permissions",
+						"type": "SelectList",
+						"multiple": true,
+						"values": [
+							{"id": "contribute", "title": "{#userpermissions.label_contribute#}"},
+							{"id": "supervise", "title": "{#userpermissions.label_supervise#}"}
+						]
+					}
 				}
 			]
 		},
@@ -24,10 +38,14 @@
 				{
 					"id": "allow",
 					"type": "Dial",
-					"label": "Permissions",
-					"sublabel": "folders",
-					"values": {"1": "None", "2": "Some", "0": "All"},
-					"default": {"0": "0", "1": "0", "3": "0"}
+					"label": "{#userpermissions.label_persmissions#}",
+					"values": [
+						{"id": "2", "title": "{#userpermissions.label_none#}"},
+						{"id": "1", "title": "{#userpermissions.label_some#}"},
+						{"id": "0", "title": "{#userpermissions.label_all#}"}
+					],
+					"value": "0",
+					"sublabel": "folders"
 				}
 			]
 		},
@@ -39,9 +57,13 @@
 				{
 					"id": "allow",
 					"type": "SelectList",
-					"label": "Permissions",
-					"values": {"2": "None", "0": "All"},
-					"default": {"0": "0", "1": "0", "3": "0"}
+					"label": "{#userpermissions.label_persmissions#}",
+					"values": [
+						{"id": "2", "title": "{#userpermissions.label_none#}"},
+						{"id": "0", "title": "{#userpermissions.label_all#}"}
+					],
+					"value": "0",
+					"multiple": true
 				}
 			]
 		},
@@ -53,9 +75,12 @@
 				{
 					"id": "allow",
 					"type": "SelectList",
-					"label": "Permissions",
-					"values": {"2": "None", "0": "All"},
-					"default": {"0": "0", "1": "0", "3": "0"}
+					"label": "{#userpermissions.label_persmissions#}",
+					"values": [
+						{"id": "2", "title": "{#userpermissions.label_none#}"},
+						{"id": "0", "title": "{#userpermissions.label_all#}"}
+					],
+					"value": "0"
 				}
 			]
 		},
@@ -67,9 +92,12 @@
 				{
 					"id": "allow",
 					"type": "SelectList",
-					"label": "Permissions",
-					"values": {"2": "None", "0": "All"},
-					"default": {"0": "0", "1": "0", "3": "0"}
+					"label": "{#userpermissions.label_persmissions#}",
+					"values": [
+						{"id": "2", "title": "{#userpermissions.label_none#}"},
+						{"id": "0", "title": "{#userpermissions.label_all#}"}
+					],
+					"value": "0"
 				}
 			]
 		}

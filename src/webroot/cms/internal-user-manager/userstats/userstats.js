@@ -12,7 +12,7 @@ Supra(function (Y) {
 	
 	
 	//Create Action class
-	new Action(Action.PluginContainer, Action.PluginMainContent, {
+	new Action({
 		
 		/**
 		 * Unique action name
@@ -53,9 +53,11 @@ Supra(function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
-			
+			//Slide
 			this.show();
 			
+			var user = Manager.getAction('User');
+			user.slideshow.set('slide', this.NAME);
 		}
 	});
 	

@@ -11,6 +11,15 @@ YUI.add('supra.input-select-list', function (Y) {
 	Input.NAME = 'input-select-list';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
+		/**
+		 * Allow selecting multiple values
+		 */
+		'multiple': {
+			value: false
+		},
+		/**
+		 * Value/option list
+		 */
 		'values': {
 			value: []
 		}
@@ -73,6 +82,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			var values = this.get('values'),
 				value = this.get('value'),
+				multiple = this.get('multiple'),
 				has_value_match = false,
 				contentBox = this.get('contentBox'),
 				button,
@@ -115,9 +125,7 @@ YUI.add('supra.input-select-list', function (Y) {
 				button.render(contentBox);
 				
 				//On click update input value
-				button.on('click', function (event, id) {
-					this.set('value', id);
-				}, this, values[i].id);
+				button.on('click', this._onClick, this, values[i].id);
 			}
 			
 			if (!has_value_match) {
@@ -133,15 +141,48 @@ YUI.add('supra.input-select-list', function (Y) {
 			}
 		},
 		
+		_onClick: function (event, id) {
+			if (this.get('multiple')) {
+				this.set('value', this.get('value'));
+			} else {
+				this.set('value', id);
+			}
+		},
+		
 		_setValue: function (value) {
+			//Input value is not valid if 'multiple' attribute is true
 			this.get('inputNode').set('value', value);
 			
-			var buttons = this.buttons;
-			for(var i in this.buttons) {
-				this.buttons[i].set('down', i == value);
+			if (this.get('multiple') && Y.Lang.isArray(value)) {
+				//Update button states
+				for(var i in this.buttons) {
+					this.buttons[i].set('down', Y.Array.indexOf(value, i) != -1);
+				}
+			} else {
+				for(var i in this.buttons) {
+					this.buttons[i].set('down', i == value);
+				}
 			}
 			
+			
 			return value;
+		},
+		
+		_getValue: function () {
+			if (this.get('multiple')) {
+				var buttons = this.buttons,
+					value = [];
+				
+				for(var i in this.buttons) {
+					if (this.buttons[i].get('down')) {
+						value.push(i);
+					}
+				}
+				
+				return value;
+			} else {
+				return this.get('inputNode').get('value');
+			}
 		},
 		
 		_afterValueChange: function (evt) {

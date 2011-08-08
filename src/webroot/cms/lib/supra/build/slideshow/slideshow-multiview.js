@@ -63,7 +63,16 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 	
 	Slideshow.HTML_PARSER = {
 		'slides': function (srcNode) {
-			return srcNode.get('children');
+			var slides = srcNode.get('children');
+			
+			//Reverse slide order for correct animation
+			var parent = null;
+			slides.each(function () {
+				if (!parent) parent = this.ancestor();
+				parent.prepend(this);
+			});
+			
+			return slides;
 		},
 		'slide': function (srcNode) {
 			var children = srcNode.get('children'),

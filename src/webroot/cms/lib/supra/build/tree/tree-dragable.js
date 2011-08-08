@@ -10,9 +10,21 @@ YUI.add('supra.tree-dragable', function(Y) {
 	TreeDragable.NAME = 'tree-dragable';
 	
 	TreeDragable.ATTRS = {
+		/**
+		 * Default children class
+		 * @type {Function}
+		 */
 		'defaultChildType': {  
             value: Supra.TreeNodeDragable
-        }
+		},
+		
+		/**
+		 * Node to which all drag proxies should be added to
+		 * @type {Object}
+		 */
+		'dragProxyParent': {
+			value: null
+		}
 	};
 	
 	Y.extend(TreeDragable, Supra.Tree, {

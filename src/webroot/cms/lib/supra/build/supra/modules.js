@@ -111,6 +111,23 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'io/io.js',
 		requires: ['io', 'json']
 	},
+	'supra.io-upload': {
+		path: 'io/upload.js',
+		requires: [
+			'base',
+			'json'
+		]
+	},
+	
+	/**
+	 * File upload helper
+	 */
+	'supra.uploader': {
+		path: 'uploader/uploader.js',
+		requires: [
+			'supra.io-upload'
+		]
+	},
 	
 	/**
 	 * Event 'exist' plugin
@@ -223,15 +240,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.medialibrary-upload': {
 		path: 'medialibrary/upload.js',
 		requires: [
-			'supra.medialibrary-upload-io',
+			'supra.io-upload',
 			'plugin'
-		]
-	},
-	'supra.medialibrary-upload-io': {
-		path: 'medialibrary/upload-io.js',
-		requires: [
-			'base',
-			'json'
 		]
 	},
 	

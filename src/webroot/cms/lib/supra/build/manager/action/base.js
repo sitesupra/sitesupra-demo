@@ -275,15 +275,28 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * Returns data path
 		 * 
 		 * @param {String} filename Optional. Filename inside action
+		 * @param {Object} parameters Optional. Parameters
 		 * @return URI path to template
 		 * @type {String}
 		 */
-		getDataPath: function (filename) {
+		getDataPath: function (filename, parameters) {
+			var out = '';
+			
 			if (filename) { 
-				return this.getPath() + filename + Manager.Loader.EXTENSION_DATA;
+				out = this.getPath() + filename + Manager.Loader.EXTENSION_DATA;
 			} else {
-				return this.get('dataPath');
+				out = this.get('dataPath');
 			}
+			
+			
+			if (typeof parameters == 'object') {
+				parameters = Supra.io.serializeIntoString(parameters);
+				if (parameters) {
+					out += (out.indexOf('?') == -1 ? '?' : '&') + parameters;
+				}
+			}
+			
+			return out;
 		},
 		
 		/**

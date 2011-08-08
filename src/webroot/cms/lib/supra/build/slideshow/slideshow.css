@@ -53,3 +53,8 @@
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
+
+.yui3-slideshow-hidden,
+.yui3-slideshow-multiview-hidden {
+	display: none;
+}

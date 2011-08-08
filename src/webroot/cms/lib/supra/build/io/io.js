@@ -92,6 +92,11 @@ YUI().add("supra.io", function (Y) {
 		var data = null,
 			response = {'status': false, 'data': null};
 		
+		//Localization, unless in configuration skipIntl is set
+		if (responseText.indexOf('{#') !== -1 && (!cfg || !cfg.skipIntl)) {
+			responseText = Supra.Intl.replace(responseText, 'json');
+		}
+		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':

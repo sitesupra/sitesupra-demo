@@ -49,12 +49,15 @@
 			"label_persmissions": "Permissions",
 			"label_some": "Some",
 			"label_all": "All",
+			"label_none": "None",
 			"label_contribute": "Contribute",
 			"label_supervise": "Supervise",
 			
 			"type_none": "No ",
 			"type_some": "Some ",
-			"type_all": "All "
+			"type_all": "All ",
+			
+			"drop_here": "Drag and drop {sublabel} here"
 		},
 		
 		"userstats": {

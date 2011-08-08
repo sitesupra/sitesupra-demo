@@ -151,7 +151,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		 * @param {Object} e Event
 		 */
 		_afterMouseDown: function (e) {
-			this.get('treeNode').lockChildren();
+			var node = this.get('treeNode');
+			if (node) {
+				node.lockChildren();
+			}
 		},
 		
 		/**
@@ -162,6 +165,15 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		_dragStart: function (e) {
 			this._setStartPosition([ this.realXY[0] , this.nodeXY[1] + 6 ]);
 			this.get('dragNode').addClass('yui3-tree-node-proxy');
+			
+			var node = this.get('treeNode');
+			if (node) {
+				var tree = node.getTree();
+				var proxy_parent = tree.get('dragProxyParent');
+				if (proxy_parent) {
+					proxy_parent.append(this.get('dragNode'));
+				}
+			}
 		},
 		
 		/**
@@ -170,7 +182,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		 * @param {Object} e Event
 		 */
 		_dragExit: function (e) {
-			this.get('treeNode').setMarker(null);
+			var node = this.get('treeNode');
+			if (node) {
+				node.setMarker(null);
+			}
 		},
 		
 		/**
@@ -181,6 +196,9 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		_dragOver: function(e){
 			if (e.drag.get('node') != e.drop.get('node')) {
 				var self = this.get('treeNode');
+				var treeNode = e.drop.get('treeNode');
+				if (!treeNode || !self) return;
+				
 				var node = Y.Node.getDOMNode(e.drop.get('node'));
 				var place = 'inside';
 				var padding = 8;
@@ -189,7 +207,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				var dropRegion = e.drop.region;
 				var y = dropRegion.top;
 				
-				var is_root = e.drop.get('treeNode').isRoot();
+				var is_root = treeNode.isRoot();
 				
 				if (!is_root) {
 					if (dragMouse[1] < dropRegion.top + padding) {
@@ -201,7 +219,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				}
 				
 				if (node && node != self.marker_target || place != self.marker_position) {
-					self.drop_target = e.drop.get('treeNode');
+					self.drop_target = treeNode;
 					self.setMarker(node, place, y);
 				}
 			}
@@ -213,6 +231,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		 */
 		_dragEnd: function(e){
 			var self = this.get('treeNode');
+			if (!self) return;
 			
 			if (self.drop_target) {
 				var tree = self.getTree();

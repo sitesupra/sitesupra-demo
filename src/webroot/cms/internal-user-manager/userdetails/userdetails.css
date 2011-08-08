@@ -1,7 +1,17 @@
-.userdetails {
+.user {
 	position: absolute;
 	bottom: 10px;
 }
+.user .yui3-slideshow-slide-content {
+	width: 100%;
+	height: 100%;
+}
+
+.userdetails {
+	padding-left: 150px;
+	overflow: hidden;	/* clear margin */
+}
+
 .userdetails form {
 	width: 300px;
 	margin: 80px auto 0;
@@ -28,6 +38,13 @@
 	border-radius: 5px;
 	padding: 10px;
 }
+.userdetails .info em {
+	cursor: pointer;
+}
+.userdetails .info em:hover {
+	border-color: #36c;
+}
+
 .userdetails .info img,
 .permissions .info img {
 	display: block;

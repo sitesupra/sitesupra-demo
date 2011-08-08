@@ -7,7 +7,7 @@
 YUI.add('supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
-	var IO = Supra.MediaLibraryList.UploadIO,
+	var IO = Supra.IOUpload,
 		MediaLibraryList = Supra.MediaLibraryList;
 	
 	/**
@@ -411,4 +411,4 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.medialibrary-upload-io', 'plugin']});
+}, YUI.version, {'requires': ['supra.io-upload', 'plugin']});

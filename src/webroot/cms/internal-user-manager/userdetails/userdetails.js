@@ -12,7 +12,7 @@ Supra('supra.form', function (Y) {
 	
 	
 	//Create Action class
-	new Action(Action.PluginContainer, Action.PluginMainContent, Action.PluginForm, Action.PluginFooter, {
+	new Action(Action.PluginForm, Action.PluginFooter, {
 		
 		/**
 		 * Unique action name
@@ -36,14 +36,14 @@ Supra('supra.form', function (Y) {
 		
 		
 		
-		
-		
 		/**
 		 * Bind Actions together
 		 * 
 		 * @private
 		 */
 		render: function () {
+			
+			var user = Manager.getAction('User');
 			
 			//On 'Reset password' click show confirmation
 			this.footer.getButton('reset').on('click', function () {
@@ -55,7 +55,7 @@ Supra('supra.form', function (Y) {
 						{'id': 'no'}
 					]
 				});
-			}, Manager.getAction('User'));
+			}, user);
 			
 			//On 'Delete user' click show confirmation
 			this.footer.getButton('delete').on('click', function () {
@@ -67,7 +67,7 @@ Supra('supra.form', function (Y) {
 						{'id': 'no'}
 					]
 				});
-			}, Manager.getAction('User'));
+			}, user);
 			
 			//On form values change update data
 			this.form.on('change', this.onDataChange, this);
@@ -113,7 +113,7 @@ Supra('supra.form', function (Y) {
 		 * @param {Object} data User data
 		 * @private
 		 */
-		setData: function (data /* User data */) {
+		setUserData: function (data /* User data */) {
 			
 			this.updateUI(data);
 			
@@ -133,10 +133,14 @@ Supra('supra.form', function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
-			
-			this.setData(Manager.getAction('User').getData());
+			//Slide
 			this.show();
 			
+			var user = Manager.getAction('User');
+			user.slideshow.set('slide', this.NAME);
+			
+			//Update UI with user data
+			this.setUserData(Manager.getAction('User').getData());
 		}
 	});
 	

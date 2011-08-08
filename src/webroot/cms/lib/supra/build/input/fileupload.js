@@ -12,7 +12,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 	Fileupload.CLASS_NAME = Y.ClassNameManager.getClassName(Fileupload.NAME);
 	Fileupload.ATTRS = {
 		"multipleFiles": {
-			value: true
+			value: false
 		},
 		"buttonNode": {
 			value: null
@@ -28,7 +28,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 			]
 		},
 		"uploadUrl": {
-			value: "/cms/sample-manager/popup/upload.json"
+			value: null
 		},
 		"uploader": {
 			value: null

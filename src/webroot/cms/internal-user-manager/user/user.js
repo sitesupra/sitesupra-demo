@@ -4,7 +4,7 @@
 /**
  * Main manager action, initiates all other actions
  */
-Supra(function (Y) {
+Supra('supra.slideshow', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -20,27 +20,30 @@ Supra(function (Y) {
 			'name': '',
 			'email': '',
 			'avatar': null,
-			'group': 1
+			'group': 1,
+			'permissions': {}
 		},
 		'2': {
 			'user_id': null,
 			'name': '',
 			'email': '',
 			'avatar': null,
-			'group': 2
+			'group': 2,
+			'permissions': {}
 		},
 		'3': {
 			'user_id': null,
 			'name': '',
 			'email': '',
 			'avatar': null,
-			'group': 3
+			'group': 3,
+			'permissions': {}
 		}
 	};
 	
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginContainer, Action.PluginMainContent, {
 		
 		/**
 		 * Unique action name
@@ -56,11 +59,11 @@ Supra(function (Y) {
 		HAS_STYLESHEET: false,
 		
 		/**
-		 * Action doesn't have template
+		 * Load action template
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_TEMPLATE: false,
+		HAS_TEMPLATE: true,
 		
 		
 		
@@ -72,6 +75,13 @@ Supra(function (Y) {
 		 */
 		data: null,
 		
+		/**
+		 * Slideshow object
+		 * @type {Object}
+		 * @private
+		 */
+		slideshow: null,
+		
 		
 		
 		/**
@@ -80,6 +90,29 @@ Supra(function (Y) {
 		 * @private
 		 */
 		render: function () {
+			
+			//Create slideshow
+			this.slideshow = new Supra.Slideshow();
+			this.slideshow.render(this.one());
+			
+			var on_resize = Y.throttle(Y.bind(this.slideshow.syncUI, this.slideshow), 50);
+			Y.one(document).after('resize', on_resize);
+			
+			//Create slides
+			var slide = null, action = null;
+			
+			slide = this.slideshow.addSlide('UserDetails')
+			action = Manager.getAction('UserDetails');
+			action.setPlaceHolder(slide.one('div'));
+			this.slideshow.set('slide', 'UserDetails');
+			
+			slide = this.slideshow.addSlide('UserPermissions')
+			action = Manager.getAction('UserPermissions');
+			action.setPlaceHolder(slide.one('div'));
+			
+			slide = this.slideshow.addSlide('UserStats')
+			action = Manager.getAction('UserStats');
+			action.setPlaceHolder(slide.one('div'));
 			
 			//Set default buttons
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
@@ -114,6 +147,7 @@ Supra(function (Y) {
 				}
 			]);
 			
+			this.addChildAction('PermissionProperties');
 			this.addChildAction('UserDetails');
 			this.addChildAction('UserPermissions');
 			this.addChildAction('UserStats');
@@ -136,9 +170,7 @@ Supra(function (Y) {
 					'on': {'success': this.setData}
 				});
 			} else {
-				var data = NEW_USER_DATA[group_id];
-					data = Supra.mix({}, data, true);
-				
+				var data = Supra.mix({}, NEW_USER_DATA[group_id], true);
 				this.setData(data);
 			}
 		},
@@ -164,6 +196,10 @@ Supra(function (Y) {
 			this.fire('userChange', {'data': data});
 			
 			Manager.getAction('UserDetails').execute();
+			
+			if (Manager.getAction('UserPermissions').get('created')) {
+				Manager.getAction('UserPermissions')
+			}
 		},
 		
 		
@@ -196,7 +232,6 @@ Supra(function (Y) {
 		 */
 		resetPassword: function () {
 			var uri = this.getDataPath('reset');
-			console.log(uri);
 			Supra.io(uri, {
 				'data': {
 					'user_id': this.data.user_id
@@ -219,12 +254,31 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Save user data
+		 */
+		save: function () {
+			var data = this.data;
+			
+			//Cancel if 'name' is missing
+			if (data.name) {
+				var uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
+				
+				Supra.io(uri, {
+					'method': 'post',
+					'data': data
+				});
+			}
+		},
+		
+		/**
 		 * On hide set active action to UserList
 		 */
 		hide: function () {
 			if (this.get('visible')) {
 				this.set('visible', false);
 				Manager.getAction('UserList').execute();
+				
+				this.save();
 			}
 			
 			return this;
