@@ -216,7 +216,7 @@ class MediaLibraryAction extends CmsActionController
 					// image editing
 					if ($file->isMimeTypeImage()) {
 						if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
-							$rotationCount = - intval($_POST['rotate'] / 2);
+							$rotationCount = - intval($_POST['rotate'] / 90);
 							$fileStorage->rotateImage($file, $rotationCount);
 						} else if (isset($_POST['crop']) && is_array($_POST['crop'])) {
 							$crop = $_POST['crop'];

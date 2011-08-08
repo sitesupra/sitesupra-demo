@@ -768,7 +768,7 @@ class FileStorage
 			$sizeName = null;
 		}
 		$path = $this->getFilesystemDir($file);
-		$size = $file->getImageSize($sizeName);
+		$size = $file->findImageSize($sizeName);
 		if ($size instanceof Entity\ImageSize) {
 			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
 					. $size->getFolderName() . DIRECTORY_SEPARATOR
