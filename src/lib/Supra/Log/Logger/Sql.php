@@ -48,7 +48,8 @@ class Sql implements SQLLogger
 	{
 		$message = "Query\n{$this->sql}\n/* has been run";
 		if (count($this->params) > 0) {
-			$message .= " with parameters [" . implode(', ', $this->params) . "]";
+			//FIXME: DateTime objects raises exception
+//			$message .= " with parameters [" . implode(', ', $this->params) . "]";
 		}
 		
 		$executionMs = microtime(true) - $this->start;

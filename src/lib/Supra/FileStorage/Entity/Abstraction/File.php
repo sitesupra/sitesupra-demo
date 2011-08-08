@@ -142,7 +142,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	
 	/**
 	 * Returns creation time
-	 * @return string 
+	 * @return \DateTime
 	 */
 	public function getCreatedTime()
 	{
@@ -160,7 +160,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 
 	/**
 	 * Returns last modification time
-	 * @return string
+	 * @return \DateTime
 	 */
 	public function getModifiedTime()
 	{
