@@ -7,7 +7,7 @@ use Supra\Controller\Pages\Exception;
 /**
  * PageData class
  * @Entity
- * @Table(name="page_data")
+ * @Table(name="page_localization")
  * @HasLifecycleCallbacks
  */
 class PageData extends Abstraction\Data

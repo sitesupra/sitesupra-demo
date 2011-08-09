@@ -10,7 +10,7 @@ use Supra\Controller\Pages\Entity\BlockProperty;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
- * @Table(name="data")
+ * @Table(name="page_abstraction_localization")
  */
 abstract class Data extends Entity
 {
@@ -42,7 +42,7 @@ abstract class Data extends Entity
 	
 	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="Page", cascade={"persist", "remove"})
+	 * @ManyToOne(targetEntity="Page", cascade={"persist"})
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */
