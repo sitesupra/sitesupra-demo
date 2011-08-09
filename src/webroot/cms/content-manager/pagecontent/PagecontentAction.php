@@ -13,7 +13,7 @@ class PagecontentAction extends CmsActionController
 	/**
 	 * Insert block action
 	 */
-	public function insertblockAction()
+	public function pageinsertblockAction()
 	{
 		//FIXME: hardcoded now
 		$locale = $_GET['language'];

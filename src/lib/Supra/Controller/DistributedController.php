@@ -56,7 +56,7 @@ abstract class DistributedController extends ControllerAbstraction
 		\Log::sdebug('Class: ', $class);
 
 		if ( ! class_exists($class)) {
-			throw new NotFoundException();
+			throw new NotFoundException("Action '$baseAction' was not found");
 		}
 		
 		$actionController = new $class();
@@ -117,5 +117,5 @@ abstract class DistributedController extends ControllerAbstraction
 		}
 		return new Response\EmptyResponse();
 	}
-
+	
 }

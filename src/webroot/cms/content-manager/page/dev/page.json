@@ -32,7 +32,7 @@
 		
 		"active": true,
 		
-		"internal_html": <?php echo json_encode(file_get_contents('../sample-acme-page.html')); ?>,
+		"internal_html": <?php echo json_encode(file_get_contents('../../sample-acme-page.html')); ?>,
 		
 		"contents": [
 			{
