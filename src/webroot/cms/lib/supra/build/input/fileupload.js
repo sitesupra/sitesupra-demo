@@ -11,281 +11,343 @@ YUI.add("supra.input-file-upload", function (Y) {
 	Fileupload.NAME = "input-file-upload";
 	Fileupload.CLASS_NAME = Y.ClassNameManager.getClassName(Fileupload.NAME);
 	Fileupload.ATTRS = {
-		"multipleFiles": {
+		
+		/**
+		 * File upload request URI
+		 * @type {String}
+		 */
+		'requestUri': {
+			value: null
+		},
+		
+		/**
+		 * Allow selecting multiple files
+		 * @type {Boolean}
+		 */
+		'multiple': {
 			value: false
 		},
-		"buttonNode": {
+		
+		/**
+		 * Comma separated mime types which are allowed, eq. "image/*"
+		 * @type {String}
+		 */
+		'accept': {
+			value: false
+		},
+		
+		/**
+		 * File validation function
+		 * @type {Function}
+		 */
+		'validateFile': {
 			value: null
 		},
-		"progressNode": {
+		
+		/**
+		 * Additional data which will be added to the POST body
+		 * @type {Object}
+		 */
+		'data': {
 			value: null
 		},
-		"fileFilters": {
-			value: [
-				{'description': 'All files', 'extensions': '*.png;*.jpg;*.jpeg;*.gif;*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.swf'},
-				{'description': 'Images', 'extensions': '*.png;*.jpg;*.jpeg;*.gif'},
-				{'description': 'Documents', 'extensions': '*.pdf;*.doc;*.docx;*.xls;*.xlsx;*.swf'}
-			]
-		},
-		"uploadUrl": {
+		
+		/**
+		 * Button node
+		 * @type {Object}
+		 */
+		'buttonNode': {
 			value: null
 		},
-		"uploader": {
+		
+		/**
+		 * Button label
+		 * @type {String}
+		 */
+		'buttonLabel': {
 			value: null
 		},
-		"value": {
-			value: [],
-			setter: "_setValue",
-			getter: "_getValue"
+		
+		/**
+		 * Text node
+		 */
+		'textNode': {
+			value: null
+		},
+		
+		/**
+		 * Text for drag and drop
+		 */
+		'textDragDrop': {
+			value: 'or drag and drop file here'
+		},
+		
+		/**
+		 * Text for file count
+		 */
+		'textUploaded': {
+			value: '<a>{count} file(s)</a> uploaded'
 		}
 	};
 	
 	Fileupload.HTML_PARSER = {
-		"multipleFiles": function (srcNode) {
-			var input = this.get("inputNode"),
+		'multiple': function (srcNode) {
+			var input = this.get('inputNode'),
 				multiple = input.getAttribute('multiple');
 				
-			if (multiple == "false" || multiple == "1") {
+			if (multiple == 'false' || multiple == '0') {
 				multiple = false;
 			} else {
 				multiple = true;
 			}
 			
-			this.set('multipleFiles', multiple);
 			return multiple;
 		},
-		"buttonNode": function (srcNode) {
-			var input = this.get("inputNode"),
-				button = input.next();
-			if (!button || !button.test("button,input")) {
-				button = null;
+		
+		/**
+		 * Check for accept attribute
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New value
+		 * @private
+		 */
+		'accept': function (srcNode) {
+			var input = this.get('inputNode'),
+				accept = input.getAttribute('accept');
+			
+			return accept;
+		},
+		
+		/**
+		 * Upload request parameters
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New data
+		 * @private
+		 */
+		'data': function (srcNode) {
+			var input = this.get('inputNode'),
+				data = input.getAttribute('suData');
+				
+			if (data) {
+				return Y.QueryString.parse(data);
+			} else {
+				return data;
 			}
-			this.set("nodeButton", button);
-			return button;
+		},
+		
+		/**
+		 * File upload request URI
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New request uri
+		 * @private
+		 */
+		'requestUri': function (srcNode) {
+			var input = this.get('inputNode'),
+				uri = this.get('requestUri'),
+				attr = null;
+			
+			if (input && (attr = input.getAttribute('suRequestUri'))) {
+				return attr;
+			} else {
+				return uri;
+			}
+		},
+		
+		/**
+		 * Button label
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New button label
+		 * @private
+		 */
+		'buttonLabel': function (srcNode) {
+			var input = this.get('inputNode'),
+				label = this.get('buttonLabel');
+			
+			if (!label && input) {
+				label = input.getAttribute('value');
+			}
+			
+			return label;
+		},
+		
+		/**
+		 * Get or create button node
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New button node
+		 * @private
+		 */
+		'buttonNode': function (srcNode) {
+			var input = this.get('inputNode'),
+				button = input.next(),
+				selector = 'button,input[type="button"],input[type="submit"]',
+				label = null;
+			
+			if (button && button.test(selector)) {
+				//Set label
+				if (label = this.get('buttonLabel')) {
+					button.set(button.test('button') ? 'text' : 'value', label);
+				}
+				
+				return button;	
+			} else {
+				//Create button
+				label = this.get('buttonLabel') || this.get('inputNode').getAttribute('value');
+				button = Y.Node.create('<button type="button"></button>');
+				button.set('text', label);
+				input.insert(button, 'after');
+				
+				return button;
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Get or create text node
+		 * 
+		 * @param {Object} srcNode Source node
+		 * @return New text node
+		 * @private
+		 */
+		'textNode': function (srcNode) {
+			var input = this.get('inputNode'),
+				node = input.next(),
+				selector = 'em,b,i,strong,p,div',
+				label = null;
+			
+			if (!node.test(selector)) {
+				node = node.next();
+				
+				if (!node.test(selector)) {
+					//Create node
+					label = this.get('textDragDrop') || '';
+					node = Y.Node.create('<em class="yui3-input-file-upload-text"></em>');
+					node.insert(input.next(), 'after');
+				}
+			}
+			
+			if (label = this.get('textDragDrop')) {
+				node.set('text', label);
+			}
+			
+			if (node) {
+				node.addClass(Y.ClassNameManager.getClassName(Fileupload.NAME, 'text'));
+			}
+			
+			return node;
 		}
 	};
 	
 	Y.extend(Fileupload, Supra.Input.Proto, {
-		INPUT_TEMPLATE: '<input type="text" readonly="readonly" value="" />',
-		LABEL_TEMPLATE: '<button type="button"></button>',
+		INPUT_TEMPLATE: '<input type="file" value="' + SU.Intl.get(['buttons', 'browse']) + '" />',
+		LABEL_TEMPLATE: '<label></label>',
 		
-		files: {},
-		files_total: 0,
-		files_success: [],
-		files_error: [],
+		/**
+		 * Browse button
+		 * @type {Object}
+		 * @private
+		 */
+		button: null,
 		
+		/**
+		 * Text node
+		 * @type {Object}
+		 * @private
+		 */
+		text: null,
+		
+		/**
+		 * Uploader widget
+		 * @type {Object}
+		 * @private
+		 */
+		uploader: null,
+		
+		/**
+		 * File count
+		 * @type {Number}
+		 * @private
+		 */
+		uploading_count: 0,
+		
+		/**
+		 * File titles
+		 * @type {Array}
+		 * @private
+		 */
+		titles: [],
+		
+		/**
+		 * Tooltip
+		 * @see Supra.Tooltip
+		 * @type {Object}
+		 * @private
+		 */
+		tooltip: null,
+		
+		/**
+		 * Attach even listeners
+		 */
 		bindUI: function () {
-			var input = this.get('inputNode');
-			var label = this.get('labelNode');
+			Fileupload.superclass.bindUI.apply(this, arguments);
 			
-			input.on("focus", this._onFocus, this);
-			input.on("blur", this._onBlur, this);
-			label.on("focus", this._onFocus, this);
-			label.on("blur", this._onBlur, this);
+			this.uploader.on('file:upload', this.onFileUpload, this);
+			this.uploader.on('file:abort', this.onFileAbort, this);
+			this.uploader.on('file:complete', this.onFileUploadComplete, this);
+			
+			var text = this.get('textNode');
+			if (text) {
+				text.delegate('mouseenter', this.showTooltip, 'a', this);
+				text.delegate('mouseleave', this.hideTooltip, 'a', this);
+			}
 		},
 		
+		/**
+		 * Create required nodes
+		 */
 		renderUI: function () {
 			Fileupload.superclass.renderUI.apply(this, arguments);
 			
-			//Input is replaced with status message
-				var input = this.get('inputNode');
-				input.addClass('hidden')
-				
-				/* @TODO Replace progress node with Y.ProgressBar */
-				var node = this.get('progressNode');
-				if (!node) {
-					node = Y.Node.create('<input type="text" readonly="readonly" class="' + Y.ClassNameManager.getClassName(Fileupload.NAME, 'progress') + '" />')
-					input.insert(node, 'after');
-					this.set('progressNode', node);
-				}
-				
-			//Create button
-				var button = this.get('buttonNode');
-				if (!button) {
-					var button = Y.Node.create('<button type="button">Browse</button>');
-					this.set('buttonNode', button);
-				}
-				
-				node.insert(button, 'after');
-				
-				button = new Supra.Button({'srcNode': button});
-				button.render();
+			var button = this.get('buttonNode'),
+				input = this.get('inputNode');
 			
-			//Create button overlay, which will be used for flash
-				var overlay = Y.Node.create('<span class="' + Y.ClassNameManager.getClassName(Fileupload.NAME, 'overlay') + '"><span></span></span>');
-				button.get('boundingBox').insert(overlay, 'before');
+			//Move button node
+			if (button) {
+				input.insert(button, 'after');
+			}
 			
-			//Set up uploader
-				var uploader = new Y.Uploader({
-					'boundingBox': overlay.one('span'),
-					'swfURL': Y.config.base + 'uploader/assets/uploader.swf'
+			//Move text node
+			var text = this.get('textNode');
+			if (text) {
+				this.text = text;
+				(button || input).insert(text, 'after');
+			}
+			
+			//Create Browse button
+			if (button) {
+				this.button = new Supra.Button({
+					'srcNode': button
 				});
-				
-				//When "browse" is clicked remove previous files, otherwise they will
-				//be uploaded once more
-				uploader.on("click", this.clearUploaderFileList, this);
-				uploader.on("uploaderReady", this.setupUploader, this);
-				uploader.on("fileselect", this.onFileSelect, this);
-				uploader.on("uploadprogress", this.onProgress, this);
-				uploader.on("uploadcompletedata", this.onComplete, this);
-				uploader.on("uploaderror", this.onError, this);
-			
-				this.set('uploader', uploader);
-		},
-		
-		/**
-		 * Set uploader configuration
-		 * @private
-		 */
-		setupUploader: function () {
-			var uploader = this.get('uploader');
-			
-			//Allow uploading multiple files
-			uploader.set("multiFiles", this.get('multipleFiles'));
-			
-			var file_filters = this.get('fileFilters');
-			if (file_filters) {
-				uploader.set("fileFilters", file_filters);
-			}
-		},
-		
-		/**
-		 * Handle file selection
-		 * 
-		 * @param {Event} event
-		 * @private
-		 */
-		onFileSelect: function (event) {
-			var file_data = event.fileList,
-				count = 0,
-				id;	
-			
-			this.files = {};
-			this.files_success = [];
-			this.files_error = [];
-			
-			for (var key in file_data) {
-				id = file_data[key].id;
-				this.files[id] = {
-					'id': id,
-					'size': file_data[key].size,
-					'name': file_data[key].name,
-					'loaded': 0
-				};
-				count++;
+				this.button.render();
 			}
 			
-			this.files_total = count;
+			//Hide input, because button and text node is used instead
+			var input = this.get('inputNode');
+			input.hide();
 			
-			if (count > 0) {
-				this.get('progressNode').set('value', '0%');
-				this.startUpload();
-			}
-		},
-		
-		/**
-		 * Handle upload progress change
-		 * 
-		 * @param {Event} event
-		 * @private
-		 */
-		onProgress: function (event) {
-			var total = 0, loaded = 0;
-			this.files[event.id].loaded = event.bytesLoaded;
-			
-			for(var i in this.files) {
-				total += this.files[i].size;
-				loaded += this.files[i].loaded;
-			}
-			
-			var progress = Math.round(100 * loaded / total);
-			this.get('progressNode').set('value', progress + '%');
-		},
-		
-		/**
-		 * Handle file upload error event
-		 * 
-		 * @param {Object} event
-		 */
-		onError: function (event) {
-			this.files_error.push(this.files[event.id].name);
-			this.files_total--;
-			this.setCompleteMessage();
-		},
-		
-		/**
-		 * Handle file upload complete event
-		 * This is called for each file
-		 * 
-		 * @param {Event} event
-		 * @private
-		 */
-		onComplete: function (event) {
-			var data = event.data;
-			try {
-				//Data is in JSON format
-				data = Y.JSON.parse(data);
-				
-				//Add to file list
-				var value = this.get('value');
-				value.push(data.id);
-				this.set('value', value);
-			} catch (e) {}
-			
-			this.files_success.push(this.files[event.id].name);
-			this.files_total--;
-			this.setCompleteMessage();
-		},
-		
-		/**
-		 * Set message to complete
-		 */
-		setCompleteMessage: function () {
-			//If no more files left
-			if (!this.files_total) {
-				var msg = 'All files were sucessfully uploaded';
-				
-				if (this.files_error.length) {
-					msg = 'Couldn\'t upload "' + this.files_error.join('", "') + '"';
-				}
-				
-				this.get('progressNode').set('value', msg);
-			}
-		},
-		
-		/**
-		 * Remove all files from uploader
-		 * @private
-		 */
-		clearUploaderFileList: function () {
-			var uploader = this.get('uploader');
-			uploader.clearFileList();
-		},
-		
-		/**
-		 * Start selected file upload
-		 * @private
-		 */
-		startUpload: function () {
-			var params = {};
-			
-			//Add session ID to request parameters
-			var sid_name = Supra.data.get('sessionName', null),
-				sid_id = Supra.data.get('sessionId', null);
-			
-			if (sid_name && sid_id) {
-				params[sid_name] = sid_id;
-			}
-			
-			this.get('uploader').uploadAll(this.get('uploadUrl'), "GET", params);
-		},
-		
-		_onFocus: function () {
-			if (this.get('boundingBox').hasClass("yui3-input-focused")) return;
-			this.get('boundingBox').addClass("yui3-input-focused");
-		},
-		_onBlur: function () {
-			this.get('boundingBox').removeClass("yui3-input-focused");
+			//Uploader
+			this.uploader = new Supra.Uploader({
+				'requestUri': this.get('requestUri'),
+				'multiple': this.get('multiple'),
+				'data': this.get('data'),
+				'validateFile': this.get('validateFile'),
+				'clickTarget': this.get('buttonNode'),
+				'dragTarget': this.get('boundingBox')
+			});
 		},
 		
 		/**
@@ -311,8 +373,12 @@ YUI.add("supra.input-file-upload", function (Y) {
 				value = [];
 			}
 			
-			//Input "value" is a string of ids separated by comma
-			this.get("inputNode").set("value", value.join(','));
+			if (!value.length) {
+				var text = this.get('textNode');
+				if (text) {
+					text.set('text', this.get('textDragDrop') || '');
+				}
+			}
 			
 			this._original_value = value;
 			return value;
@@ -334,6 +400,113 @@ YUI.add("supra.input-file-upload", function (Y) {
 		},
 		
 		/**
+		 * On file upload start
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		onFileUpload: function (event) {
+			var multiple = this.get('multiple');
+			if (!multiple) {
+				if (this.button) this.button.set('disabled', true);
+				if (this.text) this.text.addClass('hidden');
+			}
+			
+			this.uploading_count++;
+			this.get('boundingBox').addClass(Y.ClassNameManager.getClassName(Fileupload.NAME, 'uploading'));
+		},
+		
+		/**
+		 * On file abort
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		onFileAbort: function (event) {
+			//Updates UI
+			this.uploading_count--;
+			if (!this.uploading_count) {
+				if (this.button) this.button.set('disabled', false);
+				if (this.text) this.text.removeClass('hidden');
+				this.get('boundingBox').removeClass(Y.ClassNameManager.getClassName(Fileupload.NAME, 'uploading'));
+			}
+		},
+		
+		/**
+		 * On file upload complete update value
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		onFileUploadComplete: function (event) {
+			if (event.data) {
+				//Update value
+				var value = this.get('value'),
+					multiple = this.get('multiple');
+				
+				if (multiple) {
+					value.push(event.data.id);
+					this.titles.push(event.data.title);
+				} else {
+					value = [event.data.id];
+					this.titles = [event.data.title];
+				}
+				
+				this.set('value', value);
+				
+				var text = this.get('textNode');
+				if (text) {
+					var lbl = Y.substitute(this.get('textUploaded') || '', {
+						'count': this.titles.length
+					});
+					text.set('innerHTML', lbl);
+				}
+			}
+			
+			//Updates UI
+			this.uploading_count--;
+			if (!this.uploading_count) {
+				if (this.button) this.button.set('disabled', false);
+				if (this.text) this.text.removeClass('hidden');
+				this.get('boundingBox').removeClass(Y.ClassNameManager.getClassName(Fileupload.NAME, 'uploading'));
+			}
+		},
+		
+		showTooltip: function () {
+			var text = this.get('textNode');
+			
+			if (!this.tooltip && text) {
+				this.tooltip = new Supra.Tooltip({
+					'alignTarget': text.one('a'),
+					'alignPosition': 'T',
+					'zIndex': 10
+				});
+				this.tooltip.render();
+				this.tooltip.get('contentBox').append('<p></p>');
+			}
+			
+			if (this.tooltip) {
+				var p = this.tooltip.get('contentBox').one('p'),
+					titles = this.titles,
+					titles_escaped = [];
+				
+				for(var i=0,ii=titles.length; i<ii; i++) titles_escaped.push(Y.Lang.escapeHTML(titles[i]));
+				p.set('innerHTML', titles_escaped.join('<br />'));
+				
+				this.tooltip.set('alignTarget', text.one('a'));
+				this.tooltip.set('alignPosition', 'T');
+				this.tooltip.show();
+				this.tooltip.syncUI();
+			}
+		},
+		
+		hideTooltip: function () {
+			if (this.tooltip) {
+				this.tooltip.hide();
+			}
+		},
+		
+		/**
 		 * Returns value as a string
 		 * 
 		 * @return Value
@@ -344,10 +517,10 @@ YUI.add("supra.input-file-upload", function (Y) {
 		}
 	});
 	
-	Supra.Input.Fileupload = Fileupload;
+	Supra.Input.FileUpload = Fileupload;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto", "uploader"]});
+}, YUI.version, {requires:["supra.input-proto", "supra.uploader", "supra.tooltip"]});

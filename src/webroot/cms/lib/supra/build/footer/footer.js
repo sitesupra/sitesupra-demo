@@ -23,7 +23,8 @@ YUI.add('supra.footer', function (Y) {
 		'apply': 'mid-blue',
 		'done': 'mid',
 		'delete': 'mid-red',
-		'reset': 'mid'
+		'reset': 'mid',
+		'error': 'mid-red'
 	};
 	
 	function bubbleEvent (event, event_name) {

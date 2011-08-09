@@ -46,7 +46,18 @@ YUI.add('supra.base', function (Y) {
 		 * @type {Object}
 		 */
 		closest: function (selector) {
-			return this.test(selector) ? this : this.ancestor(selector);
+			if (typeof selector == 'string') {
+				return this.test(selector) ? this : this.ancestor(selector);
+			} else {
+				var node = Y.one(selector),
+					self = this;
+				
+				while(self && !node.compareTo(self)) {
+					self = self.ancestor();
+				}
+				
+				return self;
+			}
 		}
 	};
 	

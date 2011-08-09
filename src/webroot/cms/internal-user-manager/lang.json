@@ -5,7 +5,9 @@
 			"done": "Done",
 			"yes": "Yes",
 			"no": "No",
-			"ok": "Ok"
+			"ok": "Ok",
+			"browse": "Browse",
+			"error": "Ok"
 		},
 		
 		"userlist": {
@@ -27,8 +29,8 @@
 			"default_name": "User name",
 			
 			"group_1": "Admin",
-			"group_2": "Contributor",
-			"group_3": "Supervisor",
+			"group_2": "Supervisor",
+			"group_3": "Contributor",
 			
 			"subtitle": "User details",
 			"label_name": "Name",
@@ -58,6 +60,11 @@
 			"type_all": "All ",
 			
 			"drop_here": "Drag and drop {sublabel} here"
+		},
+		
+		"useravatar": {
+			"drop_here": "Drag and drop your photo here",
+			"file_type_error": "Selected file is not an image!"
 		},
 		
 		"userstats": {

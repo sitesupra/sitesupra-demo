@@ -1,0 +1,16 @@
+<div class="useravatar">
+	
+	<ul>
+		<script type="text/html" id="avatarTemplate">
+			{{#each this}}
+			<li data-id="{{id}}">
+				<img src="{{sizes.60x60.external_path}}" alt="" />
+			</li>
+			{{/each}}
+			<li class="drop-target">
+				<em>{#useravatar.drop_here#}</em>
+			</li>
+		</script>
+	</ul>
+	
+</div>

@@ -72,6 +72,11 @@ Supra('supra.form', function (Y) {
 			//On form values change update data
 			this.form.on('change', this.onDataChange, this);
 			
+			//On avatar click open avatar list
+			this.one('div.info em').on('click', function (event) {
+				Manager.executeAction('UserAvatar');
+				event.halt();
+			});
 		},
 		
 		/**

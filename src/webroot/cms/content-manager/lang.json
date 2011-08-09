@@ -14,7 +14,9 @@
 			"delete": "Delete",
 			"apply": "Apply",
 			"replace": "Replace",
-			"rename": "Rename"
+			"rename": "Rename",
+			"browse": "Browse",
+			"error": "Ok"
 		},
 		
 		"page": {

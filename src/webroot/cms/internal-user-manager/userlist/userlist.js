@@ -17,7 +17,7 @@ Supra('website.userlist-dd', function (Y) {
 	var Action = Manager.Action;
 	
 	//Avatar preview size
-	var PREVIEW_SIZE = '32x32';
+	var PREVIEW_SIZE = '48x48';
 	
 	
 	//Create Action class

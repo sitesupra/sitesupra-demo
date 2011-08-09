@@ -107,11 +107,13 @@ YUI.add('supra.button', function (Y) {
 			return false;
 		},
 		label: function (srcNode) {
-			var label = this.get('nodeLabel');
+			var label = this.get('nodeLabel'),
+				text = null;
+			
 			if (label) {
-				return label.get('innerHTML');
+				text = label.get('innerHTML');
 			}
-			return this.get('label');
+			return text || this.get('label') || '&nbsp;';
         },
 		icon: function (srcNode) {
 			var node = srcNode.one('img');

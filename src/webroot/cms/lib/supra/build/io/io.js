@@ -209,13 +209,7 @@ YUI().add("supra.io", function (Y) {
 	Supra.io.serializeIntoString = function (obj) {
 		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var obj = Supra.io.serialize(obj);
-		var o = [];
-		
-		for(var i in obj) {
-			o[o.length] = i + '=' + obj[i];
-		}
-		
-		return o.join('&');
+		return Y.QueryString.stringify(obj);
 	};
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

@@ -184,11 +184,21 @@
 	}
 	
 	.yui3-input-file-upload .yui3-button {
-		margin-left: 5px;
 		vertical-align: middle;
 	}
-	.yui3-input-file-upload .yui3-button button {
-		width: 71px;
+	.yui3-input-file-upload .yui3-input-file-upload-text {
+		vertical-align: middle;
+		padding-left: 5px;
+		color: #777;
+		display: inline-block;
+		height: 32px;
+		line-height: 32px;
+	}
+	.yui3-input-file-upload .yui3-input-file-upload-text a {
+		display: inline-block;
+		height: 32px;
+		line-height: 32px;
+		text-decoration: none;
 	}
 	
 	.yui3-input-file-upload .yui3-input-file-upload-overlay,
@@ -216,6 +226,10 @@
 			padding: 0;
 			background: none;
 			border: 0;
+		}
+		.yui3-input-file-upload-uploading .yui3-button p {
+			background: url(/cms/lib/supra/img/ajax-loader-24.png) 50% 50% no-repeat;
+			color: transparent;
 		}
 
 /* Select */
@@ -278,7 +292,8 @@
 	.yui3-form-vertical .yui3-input-path label,
 	.yui3-form-vertical .yui3-input-select label,
 	.yui3-form-vertical .yui3-input-select-list label,
-	.yui3-form-vertical .yui3-input-text label {
+	.yui3-form-vertical .yui3-input-text label,
+	.yui3-form-vertical .yui3-input-file-upload label {
 		display: block;
 	}
 	.yui3-form-vertical .yui3-input-string input,

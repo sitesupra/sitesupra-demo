@@ -30,19 +30,6 @@ YUI.add('supra.tooltip', function (Y) {
 		},
 		
 		/**
-		 * Align target
-		 */
-		alignTarget: null,
-		
-		/**
-		 * Align position
-		 */
-		alignPosition: {
-			value: null,
-			setter: '_setAlignPosition'
-		},
-		
-		/**
 		 * Text message
 		 */
 		textMessage: {
@@ -60,39 +47,6 @@ YUI.add('supra.tooltip', function (Y) {
 	};
 	
 	Y.extend(Tooltip, Supra.Panel, {
-		/**
-		 * Set align position
-		 * 
-		 * @param {String} position Align position
-		 * @return New value
-		 * @type {String}
-		 * @private
-		 */
-		_setAlignPosition: function (position) {
-			switch(position) {
-				case 'L':
-					this.set('arrowPosition', ['L', 'C']);
-					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
-					this.set('arrowAlign', this.get('alignTarget'));
-					break;
-				case 'R':
-					this.set('arrowPosition', ['R', 'C']);
-					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.LC]});
-					this.set('arrowAlign', this.get('alignTarget'));
-					break;
-				case 'T':
-					this.set('arrowPosition', ['T', 'C']);
-					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.TC, Y.WidgetPositionAlign.BC]});
-					this.set('arrowAlign', this.get('alignTarget'));
-					break;
-				case 'B':
-					this.set('arrowPosition', ['B', 'C']);
-					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.BC, Y.WidgetPositionAlign.TC]});
-					this.set('arrowAlign', this.get('alignTarget'));
-					break;
-			}
-		},
-		
 		/**
 		 * Escape and set tooltip message
 		 * 

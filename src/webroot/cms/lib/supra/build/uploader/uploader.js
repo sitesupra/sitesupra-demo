@@ -28,6 +28,16 @@ YUI.add('supra.uploader', function (Y) {
 				value: null
 			},
 			
+			// Validate file before uploading
+			'validateFile': {
+				value: null
+			},
+			
+			// Start uploading when file is selected
+			'autoStart': {
+				value: true
+			},
+			
 			// Additional data which will be added to event
 			'eventData': {
 				value: null
@@ -45,19 +55,14 @@ YUI.add('supra.uploader', function (Y) {
 				setter: '_setClickTarget'
 			},
 			
-			// Validate file before uploading
-			'validateFile': {
-				value: null
-			},
-			
 			// Allow selecting multiple files
 			'multiple': {
 				value: false
 			},
 			
-			// Start uploading when file is selected
-			'autoStart': {
-				value: true
+			// File types which are accepted
+			'accept': {
+				value: null
 			}
 		};
 		
@@ -109,7 +114,8 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Create upload node
 			var multiple = this.get('multiple'),
-				input = Y.Node.create('<input class="offscreen" type="file" />');
+				accept = this.get('accept'),
+				input = Y.Node.create('<input class="offscreen" type="file" ' + (accept ? 'accept="' + accept + '"' : '') + ' />');
 			
 			Y.one('body').append(input);
 			input.on('change', this.onFileBrowse, this);
@@ -130,19 +136,28 @@ YUI.add('supra.uploader', function (Y) {
 			var click_target = this.get('clickTarget'),
 				drop_target = this.get('dropTarget');
 			
+			//On input click prevent propagation, because click opens file window
+			//which is not part of this document
+			this.input.on('click', function (event) { event.stopPropagation(); });
+			
 			if (click_target) {
 				this.listeners.push(click_target.on('click', this.openFileBrowser, this));
 			}
 			
 			if (drop_target) {
-				
+				//Add all subscribers to array for easy removal on destroy 
+				this.listeners.push(drop_target.on('dragenter', this.dragEnter, this));
+				this.listeners.push(drop_target.on('dragexit', this.dragExit, this));
+				this.listeners.push(drop_target.on('dragover', this.dragOver, this));
+				this.listeners.push(drop_target.ancestor().on('dragover', this.dragOver, this));
+				this.listeners.push(drop_target.on('drop', this.dragDrop, this));
 			}
 		},
 		
 		/**
 		 * Open file browsing window
 		 */
-		openFileBrowser: function () {
+		openFileBrowser: function (event) {
 			//Open file browse window
 			var input = this.input;
 			var node = Y.Node.getDOMNode(input);
@@ -154,6 +169,11 @@ YUI.add('supra.uploader', function (Y) {
 			}
 			
 			node.click();
+			
+			if (event) {
+				//Prevent default because file window is not part of this document
+				event.stopPropagation();
+			}
 		},
 		
 		/**
@@ -229,11 +249,31 @@ YUI.add('supra.uploader', function (Y) {
 		 * @type {String}
 		 */
 		addFile: function (file /* File */) {
-			var id = this.getFileId(file);
+			var id = this.getFileId(file),
+				accept = this.get('accept'),
+				reg = null;
 			
 			if (!(id in this.files)) {
+				
+				//Match file type against accept attribute
+				if (accept) {
+					accept = accept.split(',');
+					for(var i=0,ii=accept.length; i<ii; i++) {
+						 reg = accept[i].replace(/\*/g, '.*');
+						 reg = new RegExp('^' + Y.Lang.trim(reg) + '$', 'i');
+						 
+						 if (!file.type.match(reg)) {
+						 	this.fireEvent('file:validationerror', id);
+						 	return false;
+						 }
+					}
+				}
+				
 				var validate = this.get('validateFile');
-				if (validate && !validate(file, this)) return;
+				if (validate && !validate(file, this)) {
+					this.fireEvent('file:validationerror', id);
+					return false;
+				}
 				
 				this.files[id] = file;
 				
@@ -279,8 +319,8 @@ YUI.add('supra.uploader', function (Y) {
 					this.fireEvent('file:progress', id, event);
 				}, this);
 				
-				io.on('complete', function (event) {
-					//Upload abort event
+				io.on('load', function (event) {
+					//Upload complete event
 					this.fireEvent('file:complete', id, event);
 				}, this);
 				
@@ -315,6 +355,95 @@ YUI.add('supra.uploader', function (Y) {
 		fireEvent: function (event_name /* Event name */, id /* File ID */, data /* Additional data */) {
 			var event_data = this.get('eventData') || {};
 			this.fire(event_name, Supra.mix({'fileId': id}, event_data, data || {}, {'target': this}));
+		},
+		
+		/**
+		 * Handle drag enter event
+		 * 
+		 * @param {Event} evt Event
+		 * @private
+		 */
+		dragEnter: function (evt) {
+			evt.halt();
+		},
+		
+		/**
+		 * Handle drag exit event
+		 * 
+		 * @param {Event} evt Event
+		 * @private
+		 */
+		dragExit: function (evt) {
+			evt.halt();
+			
+			if (this.last_drop_target) {
+				this.last_drop_target.removeClass('yui3-html5-dd-target');
+				this.last_drop_target = null;
+			}
+		},
+		
+		/**
+		 * Handle drag over event
+		 * 
+		 * @param {Event} evt Event
+		 * @private
+		 */
+		dragOver: function (evt) {
+			evt.halt();
+			
+			var target = evt.target.closest(this.get('dropTarget'));
+			if (target) {
+				//If dragged on drop target then highlight it
+				if (this.last_drop_target) {
+					if (target.compareTo(this.last_drop_target)) {
+						//Nothing changed
+						return;
+					} else {
+						this.last_drop_target.removeClass('yui3-html5-dd-target');
+						this.last_drop_target = null;	
+					}
+				}
+				
+				target.addClass('yui3-html5-dd-target');
+				this.last_drop_target = target;
+			} else if (this.last_drop_target) {
+				this.last_drop_target.removeClass('yui3-html5-dd-target');
+				this.last_drop_target = null;
+			}
+			
+			if (target) {
+				//If on drop target then allow drop
+				evt._event.dataTransfer.dropEffect = 'copy';
+			} else {
+				//If outside drop target (parent node) disallow drop
+				evt._event.dataTransfer.dropEffect = 'none';
+			}
+		},
+		
+		/**
+		 * Handle drag drop event
+		 * 
+		 * @param {Event} evt Event
+		 * @private
+		 */
+		dragDrop: function (evt) {
+			evt.halt();
+			
+			if (this.last_drop_target) {
+				this.last_drop_target.removeClass('yui3-html5-dd-target');
+				this.last_drop_target = null;
+			}
+			
+			var files = evt._event.dataTransfer.files;
+			if (files.length) {
+				var i = 0,
+					ii = files.length;
+				
+				if (!this.get('multiple')) ii = 1;
+				for(; i<ii; i++) {
+					this.addFile(files[i]);
+				}
+			}
 		},
 		
 		/**

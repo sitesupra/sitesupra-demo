@@ -51,6 +51,7 @@
 Supra.useModules = [
 	'event',
 	'event-delegate',
+	'querystring',
 	'supra.event',
 	'supra.intl',
 	'supra.lang',
@@ -500,7 +501,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-file-upload': {
 		path: 'input/fileupload.js',
-		requires: ['supra.input-proto', 'uploader']
+		requires: ['supra.input-proto', 'supra.uploader', 'supra.tooltip']
 	},
 	'supra.input-select': {
 		path: 'input/select.js',

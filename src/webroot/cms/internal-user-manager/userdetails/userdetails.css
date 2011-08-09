@@ -29,14 +29,14 @@
 .permissions .info em {
 	display: inline-block;
 	vertical-align: middle;
-	width: 32px;
-	height: 32px;
+	width: 48px;
+	height: 48px;
 	
 	border: 2px solid #eee;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	padding: 10px;
+	padding: 2px;
 }
 .userdetails .info em {
 	cursor: pointer;
@@ -48,6 +48,9 @@
 .userdetails .info img,
 .permissions .info img {
 	display: block;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 .userdetails .info span,
 .permissions .info span {

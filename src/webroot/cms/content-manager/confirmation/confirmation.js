@@ -48,6 +48,27 @@ SU('supra.form', function (Y) {
 		 */
 		HAS_TEMPLATE: true,
 		
+		/**
+		 * On render bind listeners to prevent 'click' event propagation
+		 */
+		render: function () {
+			
+			var panel = this.panel;
+			
+			panel.get('boundingBox').on('click', this.stopPropagation);
+			
+			//When clicking on mask prevent propagation
+			panel.once('maskNodeChange', function (event) {
+				//Panel changed to use mask
+				if (event.newVal) {
+					event.newVal.on('click', this.stopPropagation);
+				}
+			}, this);
+		},
+		
+		stopPropagation: function (event) {
+			event.stopPropagation();
+		},
 		
 		/**
 		 * Render message

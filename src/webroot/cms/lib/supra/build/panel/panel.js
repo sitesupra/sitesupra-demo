@@ -60,11 +60,33 @@ YUI.add('supra.panel', function (Y) {
 		},
 		
 		/**
+		 * Align target
+		 */
+		alignTarget: {
+			value: null
+		},
+		
+		/**
+		 * Align position
+		 */
+		alignPosition: {
+			value: null,
+			setter: '_setAlignPosition'
+		},
+		
+		/**
 		 * Close button visibility
 		 */
 		closeVisible: {
 			value: false,
 			setter: '_setCloseVisible'
+		},
+		
+		/**
+		 * Automatically close when clicked outside
+		 */
+		autoClose: {
+			value: false
 		},
 		
 		/**
@@ -97,6 +119,13 @@ YUI.add('supra.panel', function (Y) {
 		 * @private
 		 */
 		_fade_anim: null,
+		
+		/**
+		 * Document click handler
+		 * @type {Object}
+		 * @private
+		 */
+		_on_click: null,
 		
 		/**
 		 * Arrow template
@@ -227,6 +256,39 @@ YUI.add('supra.panel', function (Y) {
 			}
 			
 			return pos;
+		},
+		
+		/**
+		 * Set align position
+		 * 
+		 * @param {String} position Align position
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
+		_setAlignPosition: function (position) {
+			switch(position) {
+				case 'L':
+					this.set('arrowPosition', ['L', 'C']);
+					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
+					this.set('arrowAlign', this.get('alignTarget'));
+					break;
+				case 'R':
+					this.set('arrowPosition', ['R', 'C']);
+					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.RC, Y.WidgetPositionAlign.LC]});
+					this.set('arrowAlign', this.get('alignTarget'));
+					break;
+				case 'T':
+					this.set('arrowPosition', ['T', 'C']);
+					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.TC, Y.WidgetPositionAlign.BC]});
+					this.set('arrowAlign', this.get('alignTarget'));
+					break;
+				case 'B':
+					this.set('arrowPosition', ['B', 'C']);
+					this.set('align', {'node': this.get('alignTarget'), 'points': [Y.WidgetPositionAlign.BC, Y.WidgetPositionAlign.TC]});
+					this.set('arrowAlign', this.get('alignTarget'));
+					break;
+			}
 		},
 		
 		/**
@@ -416,11 +478,18 @@ YUI.add('supra.panel', function (Y) {
 			//On visible change show/hide mask
 			this.on('visibleChange', function (evt) {
 				var maskNode = this.get('maskNode');
-				if (maskNode && evt.newVal != evt.prevVal) {
-					if (evt.newVal) {
-						maskNode.removeClass('hidden');
-					} else {
-						maskNode.addClass('hidden');
+				if (evt.newVal != evt.prevVal) {
+					if (maskNode) {
+						if (evt.newVal) {
+							maskNode.removeClass('hidden');
+						} else {
+							maskNode.addClass('hidden');
+						}
+					}
+					
+					if (!evt.newVal && this._on_click) {
+						this._on_click.detach();
+						this._on_click = null;
 					}
 				}
 			}, this);
@@ -461,6 +530,13 @@ YUI.add('supra.panel', function (Y) {
 			return this;
 		},
 		
+		_checkHide: function (event) {
+			var target = event.target.closest('div.yui3-panel');
+			if (this.get('autoClose') && (!target || !target.compareTo(this.get('boundingBox')))) {
+				this.hide();
+			}
+		},
+		
 		/**
 		 * Show panel
 		 */
@@ -470,6 +546,11 @@ YUI.add('supra.panel', function (Y) {
 			Panel.superclass.show.apply(this, arguments);
 			
 			this.syncUI();
+			
+			//Auto hide when clicked outside panel
+			if (this.get('autoClose')) {
+				this._on_click = Y.one(document).on('click', this._checkHide, this);
+			}
 			
 			return this;
 		},

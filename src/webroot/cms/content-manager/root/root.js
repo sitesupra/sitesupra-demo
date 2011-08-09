@@ -110,6 +110,8 @@ Supra(function (Y) {
 			this.on('render', function () {
 				SU.Manager.executeAction('Page', Supra.data.get('page', {'id': 0}));
 			});
+			
+			this.bindSiteMap();
 		},
 		
 		/**

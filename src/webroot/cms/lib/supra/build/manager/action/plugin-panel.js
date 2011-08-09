@@ -34,6 +34,7 @@ YUI.add('supra.manager-action-plugin-panel', function (Y) {
 			}
 			
 			//Propagate events to Action
+			//When panel is hidden/shown do the same for action and vice versa
 			var instances = this.instances;
 			for(var i in instances) {
 				this.host.bindAttributes(instances[i], {'visible': 'visible'});

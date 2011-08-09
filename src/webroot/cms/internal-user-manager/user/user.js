@@ -11,7 +11,7 @@ Supra('supra.slideshow', function (Y) {
 	var Action = Manager.Action;
 	
 	//Avatar preview size
-	var PREVIEW_SIZE = '32x32';
+	var PREVIEW_SIZE = '48x48';
 	
 	//New user default data
 	var NEW_USER_DATA = {
@@ -263,9 +263,19 @@ Supra('supra.slideshow', function (Y) {
 			if (data.name) {
 				var uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
 				
+				if (!data.avatar_id) {
+					data.avatar = '';
+					data.avatar_id = '';
+				}
+				
 				Supra.io(uri, {
 					'method': 'post',
-					'data': data
+					'data': data,
+					'on': {
+						'success': function () {
+							Manager.getAction('UserList').load();
+						}
+					}
 				});
 			}
 		},

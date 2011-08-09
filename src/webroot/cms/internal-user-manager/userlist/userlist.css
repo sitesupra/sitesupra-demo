@@ -19,7 +19,7 @@
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	padding: 10px;
+	padding: 2px;
 }
 .userlist .user-add:hover em,
 .userlist-groups li:hover em {
