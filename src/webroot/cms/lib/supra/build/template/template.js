@@ -79,4 +79,8 @@ YUI.add('supra.template', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['supra.template-handlebars', 'supra.template-block-if']});
+}, YUI.version, {requires: [
+	'supra.template-handlebars',
+	'supra.template-block-if',
+	'supra.template-helper-intl'
+]});

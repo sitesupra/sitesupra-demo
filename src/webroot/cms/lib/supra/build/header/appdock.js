@@ -241,7 +241,8 @@ YUI.add('supra.header.appdock', function(Y) {
 		renderApplications: function (data) {
 			var node_list = this.get('nodeDock').one('ul'),
 				node_item = null,
-				node_data = null;
+				node_data = null,
+				current = Supra.data.get(['application', 'id'], '');
 			
 			node_list.empty();
 			
@@ -253,6 +254,10 @@ YUI.add('supra.header.appdock', function(Y) {
 				};
 				
 				node_item = Y.Node.create(Y.substitute(TEMPLATE_ITEM, node_data));
+				
+				if (data[i].id == current) {
+					node_item.on('click', this.toggleAppDockBar, this);
+				}
 				
 				node_list.append(node_item);
 			}

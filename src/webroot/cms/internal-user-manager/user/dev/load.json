@@ -1,0 +1,34 @@
+{
+	"status": 1,
+	"data": {
+		"user_id": 1,
+		"name": "C. Noriss",
+		"email": "no-spam@chuck.noriss",
+		"avatar": "/cms/lib/supra/img/avatars/penguins_48x48.jpg",
+		"avatar_id": 1,
+		"group": 1,
+		
+		"permissions": {
+			"content": {
+				"allow": "1",
+				"items": [
+					{"id": 17, "value": ["contribute"]},
+					{"id": 20, "value": []},
+					{"id": 22, "value": ["contribute", "supervise"]}
+				]
+			},
+			"medialibrary": {
+				"allow": "0"
+			},
+			"publication": {
+				"allow": "0"
+			},
+			"auditlog": {
+				"allow": "2"
+			},
+			"internal-user-manager": {
+				"allow": "2"
+			}
+		}
+	}
+}

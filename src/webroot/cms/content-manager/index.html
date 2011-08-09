@@ -20,9 +20,11 @@
 	//<![CDATA[
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
+			var APP_PATH = '/cms/content-manager';
+			
 			//Set current manager path
-			Supra.Manager.Loader.setBasePath('/cms/content-manager/');
-			Supra.setWebsiteModulePath('/cms/content-manager/');
+			Supra.Manager.Loader.setBasePath(APP_PATH);
+			Supra.setWebsiteModulePath(APP_PATH);
 			
 			//Configuration / parameters
 			Supra.data.set({
@@ -91,7 +93,7 @@
 				//Application
 				'application': {
 					'id': 'content',
-					'path': '/cms/content-manager',
+					'path': APP_PATH,
 					'icon': '/cms/lib/supra/img/apps/content',
 					'title': 'Pages'
 				},

@@ -1,0 +1,21 @@
+{
+	"status": true,
+	"data": {
+		"buttons": {
+			"done": "Done",
+			"yes": "Yes",
+			"no": "No",
+			"ok": "Ok",
+			"browse": "Browse",
+			"error": "Ok"
+		},
+		
+		"list": {
+			"new": "New"
+		},
+		
+		"edit": {
+			"change": "Change"
+		}
+	}
+}

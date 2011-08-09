@@ -162,18 +162,18 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'foldersSelectable': true,
 				'filesSelectable': false,
 				'imagesSelectable': false,
-				'downloadURI': this.getDataPath('download') + '.php',
-				'viewURI': this.getDataPath('view') + '.php',
-				'listURI': this.getDataPath('list') + '.php',
-				'saveURI': this.getDataPath('save') + '.php',
-				'deleteURI': this.getDataPath('delete') + '.php',
-				'insertURI': this.getDataPath('insert') + '.php',
+				'downloadURI': this.getDataPath('download'),
+				'viewURI': this.getDataPath('view'),
+				'listURI': this.getDataPath('list'),
+				'saveURI': this.getDataPath('save'),
+				'deleteURI': this.getDataPath('delete'),
+				'insertURI': this.getDataPath('insert'),
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
 			
 			//Add file upload support
 			list.plug(Supra.MediaLibraryList.Upload, {
-				'requestUri': this.getDataPath('upload') + '.php',
+				'requestUri': this.getDataPath('upload'),
 				'dragContainer': new Y.Node(document.body)
 			});
 			

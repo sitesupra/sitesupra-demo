@@ -240,8 +240,8 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 						'srcNode': node.one('#linkToFileMediaList'),
 						'foldersSelectable': false,
 						'filesSelectable': true,
-						'listURI': medialibrary.getDataPath('list') + '.php',
-						'viewURI': medialibrary.getDataPath('view') + '.php',
+						'listURI': medialibrary.getDataPath('list'),
+						'viewURI': medialibrary.getDataPath('view'),
 						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
 					})).render(); 
 			}

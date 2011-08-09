@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add('website.userlist-dd', function (Y) {
+YUI.add('website.list-dd', function (Y) {
 	
 	/**
 	 * New page tree plugin allows adding new page using drag & drop
@@ -173,7 +173,7 @@ YUI.add('website.userlist-dd', function (Y) {
 		
 	});
 	
-	Supra.UserListDD = DDPlugin;
+	Supra.ListDD = DDPlugin;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

@@ -1,0 +1,29 @@
+<div class="list">
+	
+	<div class="list-add">
+		<em><img src="{#application.path#}/bannerlist/images/new.png" alt="" /></em>
+		<span>{#list.new#}</span>
+	</div>
+	
+	<div class="list-groups"></div>
+	
+	<!-- User template -->
+	<script type="text/html" id="listGroups">
+		{{#each this}}
+			<div class="list-group" data-group="{{group_id}}">
+				<h2>{{title}}</h2>
+				<ul>
+					{{#each children}}
+					<li data-id="{{banner_id}}" class="status-{{status}}">
+						<em><img src="{{external_path}}" alt="" /></em>
+						<a>{{title}}</a>
+						{{#if scheduled}}
+							<span class="scheduled">{{scheduled}}</span>
+						{{/if}}
+					</li>
+					{{/each}}
+				</ul>
+			</div>
+		{{/each}}
+	</script>
+</div>

@@ -589,7 +589,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.template': {
 		path: 'template/template.js',
-		requires: ['supra.template-handlebars', 'supra.template-block-if']
+		requires: [
+			'supra.template-handlebars',
+			'supra.template-block-if',
+			'supra.template-helper-intl'
+		]
 	},
 	
 	'supra.template-handlebars': {
@@ -598,6 +602,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 	
 	'supra.template-block-if': {
 		path: 'template/handlebars-block-if.js'
+	},
+	'supra.template-helper-intl': {
+		path: 'template/handlebars-helper-intl.js'
 	},
 	
 	/**

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<title>Content Manager v2</title>
+	
+	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
+	<script src="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.3.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
+	
+	<!-- Load all base CSS files at once -->
+	<link rel="stylesheet" type="text/css" href="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css&amp;/cms/lib/supra/build/supra/common.css" />
+	
+</head>
+<body class="yui3-skin-supra">
+	
+	<div class="cms-header" id="cmsHeader"></div>
+	<div class="cms-content" id="cmsContent"></div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		Supra('supra.manager', 'supra.authorization', function (Y) {
+			var APP_PATH = '/cms/banner-manager';
+			
+			//Set current manager path
+			Supra.Manager.Loader.setBasePath(APP_PATH);
+			Supra.setWebsiteModulePath(APP_PATH);
+			
+			//Configuration / parameters
+			Supra.data.set({
+				//Session (used in Ajax requests)
+				'sessionName': 'SID',
+				'sessionId': 'REPLACE_WITH_SESSION_ID_STRING',
+				
+				//Date & time formats
+				'dateFormat': 'dd.mm.yyyy',
+				'timeFormat': '24',
+				
+				//User data
+				'user': {
+					'userid': 1,
+					'username': 'Chuck Noriss',
+					'avatar': null
+				},
+				
+				//Languages
+				'locale': 'lv_LV',
+				
+				'contexts': [
+					{
+						'id': 'LV',
+						'title': 'Latvia',
+						'languages': [{'id': 'lv', 'title': 'Latvian'}, {'id': 'ru', 'title': 'Russian'}, {'id': 'en', 'title': 'English'}]
+					},
+					{
+						'id': 'RU',
+						'title': 'Russia',
+						'languages': [{'id': 'ru', 'title': 'Russian'}]
+					},
+					{
+						'id': 'GB',
+						'title': 'United Kingdom',
+						'languages': [{'id': 'en', 'title': 'English'}]
+					}
+				],
+				
+				//Application
+				'application': {
+					'id': 'banner-manager',
+					'path': APP_PATH,
+					'icon': '/cms/lib/supra/img/apps/banner',
+					'title': 'Banners'
+				},
+				
+				//Internationalization
+				'lang': 'en'
+			});
+			
+			
+			Supra.Authorization.setPermissions([
+				{'id': [],		 				'allow': true}
+			]);
+			
+			
+			//Load internationalization data
+			Supra.Intl.loadAppData(Supra.data.get(['application', 'path']), function () {
+				
+				//Start loading actions
+				Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons']);
+				
+				//Execute initial actions
+				Supra.Manager.executeAction('Header');
+				Supra.Manager.executeAction('Root');
+				
+			});
+		});
+		
+	//]]>
+	</script>
+
+</body>
+</html>

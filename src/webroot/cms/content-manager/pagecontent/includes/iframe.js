@@ -427,7 +427,7 @@ YUI.add('supra.page-iframe', function (Y) {
 		 * @param {Object} context
 		 */
 		getBlockInsertData: function (data, callback, context) {
-			var url = Manager.PageContent.getDataPath('insertblock') + '.php';
+			var url = Manager.PageContent.getDataPath('insertblock');
 			var page_info = Manager.Page.getPageData();
 			
 			data = Supra.mix({

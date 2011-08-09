@@ -20,9 +20,11 @@
 	//<![CDATA[
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
+			var APP_PATH = '/cms/internal-user-manager';
+			
 			//Set current manager path
-			Supra.Manager.Loader.setBasePath('/cms/internal-user-manager');
-			Supra.setWebsiteModulePath('/cms/internal-user-manager');
+			Supra.Manager.Loader.setBasePath(APP_PATH);
+			Supra.setWebsiteModulePath(APP_PATH);
 			
 			//Configuration / parameters
 			Supra.data.set({
@@ -70,8 +72,8 @@
 				//Application
 				'application': {
 					'id': 'internal-user-manager',
-					'path': '/cms/internal-user-manager',
-					'icon': '/cms/lib/supra/img/apps/content',
+					'path': APP_PATH,
+					'icon': '/cms/lib/supra/img/apps/internal-user',
 					'title': 'Backoffice users'
 				},
 				

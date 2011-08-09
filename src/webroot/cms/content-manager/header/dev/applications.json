@@ -1,0 +1,8 @@
+{
+	"status": 1,
+	"data": [
+		{"id": "content", "path": "/cms/content-manager", "icon": "/cms/lib/supra/img/apps/content", "title": "Pages"},
+		{"id": "internal-user-manager", "path": "/cms/internal-user-manager", "icon": "/cms/lib/supra/img/apps/internal-user", "title": "Backoffice users"},
+		{"id": "banner-manager", "path": "/cms/banner-manager", "icon": "/cms/lib/supra/img/apps/banner", "title": "Banners"}
+	]
+}

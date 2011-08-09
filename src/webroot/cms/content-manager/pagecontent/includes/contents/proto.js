@@ -313,12 +313,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * Process data and remove all unneeded before it's sent to server
 		 * Called before save
 		 * 
-		 * @param {String} id Data ID
 		 * @param {Object} data Data
 		 * @return Processed data
 		 * @type {Object}
 		 */
-		processData: function (id, data) {
+		processData: function (data) {
 			return data;
 		},
 		

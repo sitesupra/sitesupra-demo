@@ -98,8 +98,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			
 			var list = this.medialist = new Supra.MediaLibraryList({
 				//Use media library action data path
-				'listURI': medialibrary.getDataPath('list') + '.php',
-				'viewURI': medialibrary.getDataPath('view') + '.php',
+				'listURI': medialibrary.getDataPath('list'),
+				'viewURI': medialibrary.getDataPath('view'),
 				
 				//Display only images + folders
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
@@ -118,7 +118,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			
 			//Add HTML5 file upload support
 			list.plug(Supra.MediaLibraryList.Upload, {
-				'requestUri': medialibrary.getDataPath('upload') + '.php',
+				'requestUri': medialibrary.getDataPath('upload'),
 				'dragContainer': new Y.Node(document.body)
 			});
 			

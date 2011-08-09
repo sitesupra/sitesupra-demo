@@ -242,7 +242,7 @@ Supra(function (Y) {
 		 * @param {Object} context Callback function context
 		 */
 		createPage: function (data, callback, context) {
-			var uri = this.getDataPath('create') + '.php';
+			var uri = this.getDataPath('create');
 			
 			Supra.io(uri, {
 				'data': data,

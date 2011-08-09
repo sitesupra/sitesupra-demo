@@ -2,15 +2,15 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.userlist-dd', {
-	path: 'modules/userlist-dd.js',
+SU.addModule('website.list-dd', {
+	path: 'modules/list-dd.js',
 	requires: ['dd-delegate']
 });
 
 /**
  * Main manager action, initiates all other actions
  */
-Supra('website.userlist-dd', function (Y) {
+Supra('website.list-dd', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -93,7 +93,8 @@ Supra('website.userlist-dd', function (Y) {
 		 * @private
 		 */
 		fillUserList: function (data /* User list */, status /* Request response status */) {
-			var template = this.one('#userListItem').get('innerHTML'),
+			
+			var template = Supra.Template('userListItem'),
 				groups = {},
 				item = null;
 			
@@ -101,35 +102,18 @@ Supra('website.userlist-dd', function (Y) {
 				//Find all group nodes
 				this.all('.userlist-group ul').each(function () {
 					var group_id = this.ancestor().getAttribute('data-group');
-					
-					this.empty();
-					groups[group_id] = this;
+					groups[group_id] = this.empty();
 				});
 				
 				//Populate
-				for(var i=0,ii=data.length; i<ii; i++) {
-					data[i].avatar = data[i].avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
-					item = Y.Node.create(Y.substitute(template, data[i]));
-					groups[data[i].group].append(item);
-				}
+				Y.Array.each(data, function (data) {
+					data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
+					groups[data.group].append(template(data));
+				})
 			}
 			
 			//Hide loading icon
 			Y.one('body').removeClass('loading');
-		},
-		
-		/**
-		 * Render user
-		 */
-		renderUser: function (data /* User data */, target /* Target container */) {
-			var template = this.one('#userListItem').get('innerHTML'),
-				item = null;
-			
-			//Populate
-			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
-			item = Y.Node.create(Y.substitute(template, data));
-			
-			target.append(item);
 		},
 		
 		/**
@@ -139,7 +123,7 @@ Supra('website.userlist-dd', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
-			this.plug(Supra.UserListDD, {
+			this.plug(Supra.ListDD, {
 				'dropSelector': 'div.userlist-groups ul',
 				'dragContainerSelector': 'div.userlist-groups',
 				'dragSelector': 'li',
