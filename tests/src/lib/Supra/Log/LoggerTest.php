@@ -3,7 +3,7 @@
 namespace Supra\Tests\Log;
 
 use Supra\Tests\TestCase,
-		Supra\Log\Logger,
+		Supra\Log\Log,
 		Supra\Log\Writer;
 
 /**
@@ -23,7 +23,7 @@ class LoggerTest extends TestCase
 	public function setUp()
 	{
 		$this->initialTimezone = date_default_timezone_get();
-		Logger::setDefaultTimezone($this->initialTimezone);
+		Log::setDefaultTimezone($this->initialTimezone);
 	}
 
 	/**
@@ -39,10 +39,10 @@ class LoggerTest extends TestCase
 	 */
 	public function testGetInstance()
 	{
-		$instance1 = Logger::getInstance();
-		$instance2 = Logger::getInstance();
-		self::isInstanceOf('Supra\Log\Logger')->evaluate($instance1);
-		self::isInstanceOf('Supra\Log\Logger')->evaluate($instance2);
+		$instance1 = Log::getInstance();
+		$instance2 = Log::getInstance();
+		self::isInstanceOf('Supra\Log\Log')->evaluate($instance1);
+		self::isInstanceOf('Supra\Log\Log')->evaluate($instance2);
 		self::assertEquals($instance1, $instance2);
 	}
 
@@ -54,7 +54,7 @@ class LoggerTest extends TestCase
 	 */
 	public function testLevels($levelA, $levelB)
 	{
-		self::assertTrue(Logger::$levels[$levelA] < Logger::$levels[$levelB]);
+		self::assertTrue(Log::$levels[$levelA] < Log::$levels[$levelB]);
 	}
 
 	/**
@@ -64,10 +64,10 @@ class LoggerTest extends TestCase
 	public function levelTestProvider()
 	{
 		return array(
-			array(Logger::DEBUG, Logger::INFO),
-			array(Logger::INFO, Logger::WARN),
-			array(Logger::WARN, Logger::ERROR),
-			array(Logger::ERROR, Logger::FATAL)
+			array(Log::DEBUG, Log::INFO),
+			array(Log::INFO, Log::WARN),
+			array(Log::WARN, Log::ERROR),
+			array(Log::ERROR, Log::FATAL)
 		);
 	}
 
@@ -81,9 +81,9 @@ class LoggerTest extends TestCase
 	{
 		$time = time();
 		$format = 'Y-m-d H:i:s';
-		$timeStringA = Logger::getDateInDefaultTimezone($format, $time);
+		$timeStringA = Log::getDateInDefaultTimezone($format, $time);
 		date_default_timezone_set($timezone);
-		$timeStringB = Logger::getDateInDefaultTimezone($format, $time);
+		$timeStringB = Log::getDateInDefaultTimezone($format, $time);
 		self::assertEquals($timeStringA, $timeStringB);
 	}
 
@@ -103,7 +103,7 @@ class LoggerTest extends TestCase
 	{
 		$writerA = new Writer\Mock();
 		$writerB = new Writer\Mock();
-		Logger::getInstance()->addWriter('test', $writerA);
+		Log::getInstance()->addWriter('test', $writerA);
 	}
 	
 }

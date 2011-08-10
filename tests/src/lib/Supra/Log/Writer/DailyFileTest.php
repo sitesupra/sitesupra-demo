@@ -5,7 +5,7 @@ namespace Supra\Tests\Log\Writer;
 use Supra\Tests\TestCase;
 use Supra\Log\Writer\DailyFile;
 use Supra\Log\Event;
-use Supra\Log\Logger;
+use Supra\Log\Log;
 use Supra\Log\Formatter\Simple;
 
 /**
@@ -82,7 +82,7 @@ class DailyFileTest extends TestCase
 		));
 		$writer->setFormatter($formatter);
 
-		$event = new Event(array('message'), Logger::DEBUG, 'fileName', 1, 'loggerName');
+		$event = new Event(array('message'), Log::DEBUG, 'fileName', 1, 'loggerName');
 		$writer->write($event);
 
 		self::assertFileExists($this->getFileName());

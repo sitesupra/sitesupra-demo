@@ -5,9 +5,9 @@ namespace Supra\Response;
 use Supra\Http\Cookie;
 
 /**
- * Description of Http
+ * HTTP response object
  */
-class Http implements ResponseInterface
+class HttpResponse implements ResponseInterface
 {
 	protected static $gzOutputBufferingStarted = false;
 
@@ -178,12 +178,12 @@ class Http implements ResponseInterface
 
 	/**
 	 * Flush this response to the parent response
-	 * @param Http $response
+	 * @param ResponseInterface $response
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		if ( ! ($response instanceof Http)) {
-			throw new Exception\IncompatibleObject("The response object passed to Response\Http::flushToResponse() must be compatible with the source object");
+		if ( ! ($response instanceof HttpResponse)) {
+			throw new Exception\IncompatibleObject("The response object passed to Response\HttpResponse::flushToResponse() must be compatible with the source object");
 		}
 		
 		foreach ($this->headers as $name => $headers) {

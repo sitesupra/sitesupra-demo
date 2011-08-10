@@ -2,7 +2,7 @@
 
 namespace Supra\Ip;
 
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 /**
  * SiteSupra IP Range Manipulations
@@ -148,7 +148,7 @@ class Range
 				if ($this->strict) {
 					throw $e;
 				} else {
-					Logger::swarn($e->getMessage());
+					Log::swarn($e->getMessage());
 					unset($ranges[$i]);
 				}
 			}

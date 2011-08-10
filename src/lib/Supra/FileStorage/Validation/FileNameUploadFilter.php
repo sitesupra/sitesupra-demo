@@ -28,7 +28,7 @@ class FileNameUploadFilter implements FileValidationInterface, FolderValidationI
 		$result = $fileNameHelper->validate($name);
 		if( ! $result) {
 			$message = $fileNameHelper->getErrorMessage();
-			\Log::error($message);
+			\Log::info($message);
 			throw new Exception\UploadFilterException($message);
 		}
 

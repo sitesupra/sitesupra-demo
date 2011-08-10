@@ -116,11 +116,11 @@ class Controller extends ControllerAbstraction
 	/**
 	 * Generate response object
 	 * @param RequestInterface
-	 * @return Response\Http
+	 * @return ResponseHttpResponse
 	 */
 	public function createResponse(RequestInterface $request)
 	{
-		return new Response\Http();
+		return new Response\HttpResponse();
 	}
 
 	/**

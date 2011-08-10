@@ -2,13 +2,13 @@
 
 namespace Supra\Log\Logger;
 
-use Doctrine\DBAL\Logging\SQLLogger;
-use Supra\Log\Logger;
+use Doctrine\DBAL\Logging\SQLLogger as SQLLoggerInterface;
+use Supra\Log\Log;
 
 /**
  * Sql class
  */
-class Sql implements SQLLogger
+class SqlLogger implements SQLLoggerInterface
 {
 	/**
 	 * @var string
@@ -56,7 +56,7 @@ class Sql implements SQLLogger
 		$executionMs = round(1000000 * $executionMs);
 		$message .= ", execution time {$executionMs}ms*/";
 		
-		Logger::debug($message);
+		Log::debug($message);
 	}
 
 }

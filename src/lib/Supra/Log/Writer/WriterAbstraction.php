@@ -2,13 +2,10 @@
 
 namespace Supra\Log\Writer;
 
-require_once SUPRA_LIBRARY_PATH . 'Supra/Log/Event.php';
-require_once SUPRA_LIBRARY_PATH . 'Supra/Log/Formatter/Log4j.php';
-
 use Supra\Log\Filter;
 use Supra\Log\Formatter;
-use Supra\Log\Logger;
-use Supra\Log\Event;
+use Supra\Log\Log;
+use Supra\Log\LogEvent;
 
 /**
  * Abstract for log writer
@@ -62,7 +59,7 @@ abstract class WriterAbstraction implements WriterInterface
 	 * Default formatter class
 	 * @var string
 	 */
-	public static $defaultFormatter = 'Supra\Log\Formatter\Simple';
+	public static $defaultFormatter = 'Supra\Log\Formatter\SimpleFormatter';
 
 	/**
 	 * Default formatter parameters
@@ -164,7 +161,7 @@ abstract class WriterAbstraction implements WriterInterface
 		
 		try {
 			$level = strtoupper($method);
-			if ( ! isset(Logger::$levels[$level])) {
+			if ( ! isset(Log::$levels[$level])) {
 				throw new Exception('Method ' . get_class($this) . '::' . $method . '() is not defined');
 			}
 			
@@ -175,7 +172,7 @@ abstract class WriterAbstraction implements WriterInterface
 				$offset = 1;
 			}
 			
-			$params = Logger::getBacktraceInfo($offset);
+			$params = Log::getBacktraceInfo($offset);
 
 			// Generate logger name
 			$loggerName = null;
@@ -189,7 +186,7 @@ abstract class WriterAbstraction implements WriterInterface
 				$loggerName .= $arguments[2];
 			}
 
-			$event = new Event($arguments[0], $level, $params['file'], $params['line'], $loggerName, $params);
+			$event = new LogEvent($arguments[0], $level, $params['file'], $params['line'], $loggerName, $params);
 			$this->write($event);
 			
 		} catch (Exception $e) {
@@ -206,9 +203,9 @@ abstract class WriterAbstraction implements WriterInterface
 	
 	/**
 	 * Log event write method
-	 * @param Event $event
+	 * @param LogEvent $event
 	 */
-	public function write(Event $event)
+	public function write(LogEvent $event)
 	{
 		// filter acceptance test
 		$filters = $this->getFilters();

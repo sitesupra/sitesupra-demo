@@ -5,7 +5,7 @@ namespace Supra\Log\Formatter;
 /**
  * Log4j log formatter - formats the message in format similar to log4j
  */
-class Log4j extends Simple
+class Log4jFormatter extends SimpleFormatter
 {
 	
 	const FORMAT = '<log4j:event logger="%logger%" level="%level%" thread="%thread%" timestamp="%microtime%">

@@ -5,7 +5,7 @@ namespace Supra\Log\Writer;
 /**
  * Null log writer
  */
-class Null extends WriterAbstraction
+class NullWriter extends WriterAbstraction
 {
 	/**
 	 * Ignore the event

@@ -4,7 +4,7 @@ namespace Supra\Log\Writer;
 
 use Supra\Log\Formatter;
 use Supra\Log\Filter;
-use Supra\Log\Event;
+use Supra\Log\LogEvent;
 
 /**
  * Log writer interface
@@ -31,9 +31,9 @@ interface WriterInterface
 
 	/**
 	 * Log event write method
-	 * @param Event $event
+	 * @param LogEvent $event
 	 */
-	public function write(Event $event);
+	public function write(LogEvent $event);
 
 	/**
 	 * Set log formatter

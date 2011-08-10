@@ -32,7 +32,7 @@ $config->setProxyNamespace('Supra\\Proxy');
 $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger
-$sqlLogger = new \Supra\Log\Logger\Sql();
+$sqlLogger = new \Supra\Log\Logger\SqlLogger();
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(

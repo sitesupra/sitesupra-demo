@@ -32,7 +32,7 @@ class FileSizeUploadFilter implements FileValidationInterface
 		if ($file->getSize() > $this->maxSize) {
 			$message = 'File size is bigger than "'.$this->maxSize;
 
-			\Log::error($message);
+			\Log::info($message);
 			throw new Exception\UploadFilterException($message);
 			
 		}

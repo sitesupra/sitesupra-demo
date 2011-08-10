@@ -5,7 +5,7 @@ namespace Supra\Request;
 /**
  * CLI request object
  */
-class Cli implements RequestInterface
+class CliRequest implements RequestInterface
 {
 	/**
 	 * List of actions passed as the additional parameters

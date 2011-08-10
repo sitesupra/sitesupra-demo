@@ -2,12 +2,10 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Logger;
-
 /**
  * Stream log writer
  */
-class File extends Stream
+class FileWriter extends StreamWriter
 {
 	/**
 	 * Default configuration

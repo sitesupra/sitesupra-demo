@@ -2,14 +2,14 @@
 
 namespace Supra\Controller\Pages\Response\Block;
 
-use Supra\Response\Http;
+use Supra\Response\HttpResponse;
 use Supra\Editable\EditableInterface;
 use Supra\Controller\Pages\Entity;
 
 /**
  * Response for block
  */
-abstract class Response extends Http
+abstract class Response extends HttpResponse
 {
 	/**
 	 * @var Entity\Abstraction\Block

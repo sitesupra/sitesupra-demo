@@ -100,7 +100,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->cleanUp();
 
 		// file
-		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'fail.yaml';
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'fail.yml';
 
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);

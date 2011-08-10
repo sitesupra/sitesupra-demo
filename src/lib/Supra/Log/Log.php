@@ -26,11 +26,11 @@ use \DateTimeZone;
  * @method void serror(mixed $argument)
  * @method void sfatal(mixed $argument)
  */
-class Logger
+class Log
 {
 	/**
-	 * Logger singleton instance
-	 * @var Logger
+	 * Log singleton instance
+	 * @var Log
 	 */
 	protected static $instance;
 
@@ -103,7 +103,7 @@ class Logger
 	 * Default bootstrap logger
 	 * @var string
 	 */
-	private static $bootstrapLoggerClass = 'Supra\Log\Writer\System';
+	private static $bootstrapLoggerClass = 'Supra\Log\Writer\SystemWriter';
 
 	/**
 	 * Return static instance
@@ -200,26 +200,6 @@ class Logger
 			return array();
 		}
 
-	}
-
-	/**
-	 * Log writer factory
-	 *
-	 * @param array $configuration
-	 * @return Writer\WriterInterface
-	 */
-	static function logWriterFactory(array $configuration)
-	{
-		if (empty($configuration['Writer']['id'])) {
-			throw new Exception('Log writer id is empty');
-		}
-
-		// merge writer parameters in the first level of array
-		$configuration = $configuration['Writer'] + $configuration;
-
-		$instance = SupraPluginManager::factory($configuration['Writer']['id'], 'log.writer', $configuration);
-
-		return $instance;
 	}
 
 	/**

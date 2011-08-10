@@ -17,6 +17,6 @@ abstract class HttpAbstraction extends ControllerAbstraction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		return new Response\Http();
+		return new Response\HttpResponse();
 	}
 }

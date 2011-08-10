@@ -2,12 +2,12 @@
 
 namespace Supra\Log\Formatter;
 
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 /**
  * Simple log formatter - formats the message in custom format
  */
-class Simple implements FormatterInterface
+class SimpleFormatter implements FormatterInterface
 {
 	/**
 	 * Formatter parameters
@@ -50,7 +50,7 @@ class Simple implements FormatterInterface
 		
 		foreach ($this->parameters['variables'] as $variable) {
 			if ($variable == 'time') {
-				$time = Logger::getDateInDefaultTimezone($this->parameters['timeFormat'], $event['timestamp']);
+				$time = Log::getDateInDefaultTimezone($this->parameters['timeFormat'], $event['timestamp']);
 				$replaceWhat[] = '%' . $variable . '%';
 				$replaceWith[] = &$time;
 			}

@@ -3,7 +3,7 @@
 namespace Supra\Router;
 
 use Supra\Request\RequestInterface;
-use Supra\Request\Http;
+use Supra\Request\HttpRequest;
 use Supra\Uri\Path;
 
 /**
@@ -42,8 +42,8 @@ class Uri extends RouterAbstraction
 	 */
 	public function match(RequestInterface $request)
 	{
-		if ( ! ($request instanceof Http)) {
-			\Log::sdebug('Not the instance of Request\Http');
+		if ( ! ($request instanceof HttpRequest)) {
+			\Log::sdebug('Not the instance of Request\HttpRequest');
 			return false;
 		}
 

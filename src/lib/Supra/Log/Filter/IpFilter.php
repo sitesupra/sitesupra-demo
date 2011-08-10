@@ -2,14 +2,13 @@
 
 namespace Supra\Log\Filter;
 
-use Supra\Log\Event;
-use Supra\Log\Logger;
+use Supra\Log\LogEvent;
 use Supra\Ip\Range;
 
 /**
  * Log event filter by client IP address
  */
-class Ip implements FilterInterface
+class IpFilter implements FilterInterface
 {
 	/**
 	 * Filter default parameters
@@ -39,10 +38,10 @@ class Ip implements FilterInterface
 	
 	/**
 	 * Filter method
-	 * @param Event $event
+	 * @param LogEvent $event
 	 * @return boolean
 	 */
-	function accept(Event $event)
+	function accept(LogEvent $event)
 	{
 		if (empty($_SERVER['REMOTE_ADDR'])) {
 			return false;

@@ -5,13 +5,13 @@ namespace Supra\Log\Writer;
 /**
  * Log4j log writer
  */
-class Log4j extends Socket
+class Log4jWriter extends SocketWriter
 {
 	/**
 	 * Default formatter
 	 * @var string
 	 */
-	public static $defaultFormatter = 'Supra\Log\Formatter\Log4j';
+	public static $defaultFormatter = 'Supra\Log\Formatter\Log4jFormatter';
 
 	/**
 	 * Default formatter parameters

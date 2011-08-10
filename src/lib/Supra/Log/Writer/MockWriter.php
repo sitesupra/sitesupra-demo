@@ -5,7 +5,7 @@ namespace Supra\Log\Writer;
 /**
  * Mock log writer
  */
-class Mock extends WriterAbstraction
+class MockWriter extends WriterAbstraction
 {
 	/**
 	 * List of written logs

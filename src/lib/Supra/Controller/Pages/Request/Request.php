@@ -2,7 +2,7 @@
 
 namespace Supra\Controller\Pages\Request;
 
-use Supra\Request\Http;
+use Supra\Request\HttpRequest;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Set;
 /**
  * Page controller request
  */
-abstract class Request extends Http
+abstract class Request extends HttpRequest
 {
 	/**
 	 * @var string

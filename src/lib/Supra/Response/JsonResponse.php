@@ -5,7 +5,7 @@ namespace Supra\Response;
 /**
  * CMS specific JSON response
  */
-class JsonResponse extends Http
+class JsonResponse extends HttpResponse
 {
 	/**
 	 * Response data

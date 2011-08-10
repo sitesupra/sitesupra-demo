@@ -117,9 +117,9 @@ class FrontController
 		$request = null;
 		
 		if ( ! isset($_SERVER['SERVER_NAME'])) {
-			$request = new Request\Cli();
+			$request = new Request\CliRequest();
 		} else {
-			$request = new Request\Http();
+			$request = new Request\HttpRequest();
 		}
 		
 		return $request;

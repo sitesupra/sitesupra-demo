@@ -2,14 +2,11 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Logger;
-
 /**
  * System log writer
  */
-class System extends WriterAbstraction
+class SystemWriter extends WriterAbstraction
 {
-	
 	/**
 	 * Default configuration
 	 *

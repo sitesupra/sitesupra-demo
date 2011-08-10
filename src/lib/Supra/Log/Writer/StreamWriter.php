@@ -2,12 +2,10 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Logger;
-
 /**
  * Stream log writer
  */
-class Stream extends WriterAbstraction
+class StreamWriter extends WriterAbstraction
 {
 	/**
 	 * Stream resource

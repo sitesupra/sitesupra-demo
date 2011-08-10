@@ -14,7 +14,7 @@ class TextController extends BlockController
 	public function execute()
 	{
 		$response = $this->getResponse();
-		if ( ! ($response instanceof Response\Http)) {
+		if ( ! ($response instanceof Response\HttpResponse)) {
 			\Log::sdebug('Response is not an instance of Http response in block controller ' . __CLASS__);
 			return;
 		}
@@ -32,7 +32,7 @@ class TextController extends BlockController
 			$comment .= "Master " . $block->getPlaceHolder()->getMaster()->__toString() . ".\n";
 		}
 
-		/* @var $response Response\Http */
+		/* @var $response Response\HttpResponse */
 		$response->output('<div title="' . htmlspecialchars($comment) . '">');
 //		$response->output($this->getPropertyValue('html', 'defaultText'));
 		

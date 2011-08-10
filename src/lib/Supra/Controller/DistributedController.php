@@ -35,7 +35,7 @@ abstract class DistributedController extends ControllerAbstraction
 		//FIXME: make it work for CLI request as well
 		$request = $this->getRequest();
 		
-		if ( ! $request instanceof Request\Http) {
+		if ( ! $request instanceof Request\HttpRequest) {
 			throw new Exception("Not http requests are not supported yet");
 		}
 			
@@ -109,11 +109,11 @@ abstract class DistributedController extends ControllerAbstraction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		if ($request instanceof Request\Http) {
-			return new Response\Http();
+		if ($request instanceof Request\HttpRequest) {
+			return new Response\HttpResponse();
 		}
-		if ($request instanceof Request\Cli) {
-			return new Response\Cli();
+		if ($request instanceof Request\CliRequest) {
+			return new Response\CliResponse();
 		}
 		return new Response\EmptyResponse();
 	}

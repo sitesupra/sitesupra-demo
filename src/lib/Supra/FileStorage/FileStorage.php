@@ -712,7 +712,7 @@ class FileStorage
 	 * @param string $filename
 	 * @return string
 	 */
-	public function getMimeType(string $filename)
+	public function getMimeType($filename)
 	{
 		if ( ! file_exists($filename)) {
 			throw new Exception\RuntimeException('File does not exist');

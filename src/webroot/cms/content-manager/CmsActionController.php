@@ -9,6 +9,7 @@ use Supra\Request;
 /**
  * Description of CmsActionController
  * @method JsonResponse getResponse()
+ * @method Request\HttpRequest getRequest()
  */
 class CmsActionController extends SimpleController
 {

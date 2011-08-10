@@ -2,7 +2,7 @@
 
 namespace Supra\Event;
 
-use Supra\Log\Logger as Log;
+use Supra\Log\Log;
 
 /**
  * Event registry object

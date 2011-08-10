@@ -5,7 +5,7 @@ namespace Supra\Response;
 /**
  * Cli response object
  */
-class Cli implements ResponseInterface
+class CliResponse implements ResponseInterface
 {
 	/**
 	 * Prepare response

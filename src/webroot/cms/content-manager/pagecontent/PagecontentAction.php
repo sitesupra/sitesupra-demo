@@ -3,12 +3,12 @@
 namespace Supra\Cms\ContentManager\pagecontent;
 
 use Supra\Controller\SimpleController;
-use Supra\Cms\ContentManager\CmsActionController;
+use Supra\Cms\ContentManager\PageManagerController;
 
 /**
  * Controller for page content requests
  */
-class PagecontentAction extends CmsActionController
+class PagecontentAction extends PageManagerController
 {
 	/**
 	 * Insert block action

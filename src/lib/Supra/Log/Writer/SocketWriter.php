@@ -2,12 +2,12 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 /**
  * Socket log writer
  */
-class Socket extends WriterAbstraction
+class SocketWriter extends WriterAbstraction
 {
 	/**
 	 * Socket resource
@@ -53,7 +53,7 @@ class Socket extends WriterAbstraction
 		if (is_null($this->socket)) {
 			$this->socket = @fsockopen($this->parameters['host'], $this->parameters['port'], $errno, $errstr, $this->parameters['timeout']);
 			if ($errno) {
-				Logger::swarn(__CLASS__ . ': cannot open socket, error [' . $errno . '] ' . $errstr);
+				Log::swarn(__CLASS__ . ': cannot open socket, error [' . $errno . '] ' . $errstr);
 			}
 		}
 		return $this->socket;
@@ -68,7 +68,7 @@ class Socket extends WriterAbstraction
 		$socket = $this->getSocket();
 		if (is_resource($socket)) {
 			if (@fwrite($socket, $event['message'] . PHP_EOL) === false) {
-				Logger::swarn(__CLASS__ . ': cannot write in the socket');
+				Log::swarn(__CLASS__ . ': cannot write in the socket');
 			}
 		}
 	}

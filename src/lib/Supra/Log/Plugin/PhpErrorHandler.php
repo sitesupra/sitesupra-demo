@@ -2,7 +2,7 @@
 
 namespace Supra\Log\Plugin;
 
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 /**
  * PHP log handler
@@ -36,46 +36,46 @@ class PhpErrorHandler
 		//Map PHP error codes to error handler codes
 		switch($errno){
 			case E_ERROR:
-				Logger::perror($errstr);
+				Log::perror($errstr);
 				break;
 			case E_WARNING:
-				Logger::pwarn($errstr);
+				Log::pwarn($errstr);
 				break;
 			case E_PARSE:
-				Logger::pfatal($errstr);
+				Log::pfatal($errstr);
 				break;
 			case E_NOTICE:
-				Logger::pdebug($errstr);
+				Log::pdebug($errstr);
 				break;
 			case E_CORE_ERROR:
-				Logger::pfatal($errstr);
+				Log::pfatal($errstr);
 				break;
 			case E_CORE_WARNING:
-				Logger::pwarn($errstr);
+				Log::pwarn($errstr);
 				break;
 			case E_COMPILE_ERROR:
-				Logger::pfatal($errstr);
+				Log::pfatal($errstr);
 				break;
 			case E_COMPILE_WARNING:
-				Logger::pwarn($errstr);
+				Log::pwarn($errstr);
 				break;
 			case E_USER_ERROR:
-				Logger::perror($errstr);
+				Log::perror($errstr);
 				break;
 			case E_USER_WARNING:
-				Logger::pwarn($errstr);
+				Log::pwarn($errstr);
 				break;
 			case E_USER_NOTICE:
-				Logger::pinfo($errstr);
+				Log::pinfo($errstr);
 				break;
 			case E_STRICT:
-				Logger::pdebug($errstr);
+				Log::pdebug($errstr);
 				break;
 			case E_RECOVERABLE_ERROR:
-				Logger::perror($errstr);
+				Log::perror($errstr);
 				break;
 			default:
-				Logger::perror($errstr);
+				Log::perror($errstr);
 				break;
 		}
 	}

@@ -51,14 +51,14 @@ $loader->registerNamespace($symfonyNamespace);
 $loader->registerSystemAutoload();
 
 // Set the initial timezone to the logger
-Supra\Log\Logger::setDefaultTimezone(date_default_timezone_get());
+Supra\Log\Log::setDefaultTimezone(date_default_timezone_get());
 
 // Ask Supra to handle the PHP generated errors
 $phpErrorHandler = new Supra\Log\Plugin\PhpErrorHandler();
 $phpErrorHandler();
 
-// Alias Log to the Supra\Log\Logger
-class_alias('Supra\Log\Logger', 'Log');
+// Alias Log to the Supra\Log\Log
+class_alias('Supra\Log\Log', 'Log');
 
 // Set mb enciding to UTF-8
 mb_internal_encoding('UTF-8');

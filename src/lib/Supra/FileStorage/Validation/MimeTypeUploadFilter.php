@@ -14,7 +14,7 @@ class MimeTypeUploadFilter implements FileValidationInterface
 		$result = $this->checkList($file->getMimeType());
 		if( ! $result) {
 			$message = 'File mimetype "'.$file->getMimeType().'" is not allowed';
-			\Log::error($message);
+			\Log::info($message);
 			throw new Exception\UploadFilterException($message);
 			
 		}

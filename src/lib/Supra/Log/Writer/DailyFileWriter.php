@@ -2,10 +2,12 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\Log;
+
 /**
  * Daily file log writer
  */
-class DailyFile extends File
+class DailyFileWriter extends FileWriter
 {
 	/**
 	 * Default configuration
@@ -29,7 +31,7 @@ class DailyFile extends File
 
 		// date handling
 		if (strpos($url, '%date%') !== false) {
-			$date = Logger::getDateInDefaultTimezone($this->parameters['dateFormat']);
+			$date = Log::getDateInDefaultTimezone($this->parameters['dateFormat']);
 			$replaceWhat[] = '%date%';
 			$replaceWith[] = $date;
 		}

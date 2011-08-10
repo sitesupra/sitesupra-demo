@@ -28,7 +28,7 @@ class ExistingFileNameUploadFilter implements FileValidationInterface, FolderVal
 				$recordName = $record->getName();
 				if ($creatingFilename == $recordName) {
 					$message = $type . ' with such name already exists.';
-					\Log::error($message);
+					\Log::info($message);
 					throw new Exception\UploadFilterException($message);
 					
 				}

@@ -2,7 +2,7 @@
 
 namespace Supra\Log\Filter;
 
-use Supra\Log\Event;
+use Supra\Log\LogEvent;
 
 /**
  * Log event filter interface
@@ -21,6 +21,6 @@ interface FilterInterface
 	 * @param array $event
 	 * @return boolean
 	 */
-	function accept(Event $event);
+	function accept(LogEvent $event);
 	
 }

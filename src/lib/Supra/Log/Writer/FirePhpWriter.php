@@ -2,14 +2,14 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 require_once SUPRA_LIBRARY_PATH . 'FirePhp/FirePHP.class.php';
 
 /**
  * FirePHP log writer
  */
-class FirePhp extends WriterAbstraction
+class FirePhpWriter extends WriterAbstraction
 {
 	
 	/**
@@ -57,11 +57,11 @@ class FirePhp extends WriterAbstraction
 		$method = \FirePHP::LOG;
 		
 		switch ($event['level']) {
-			case Logger::DEBUG:	$method = \FirePHP::LOG; break;
-			case Logger::INFO:	$method = \FirePHP::INFO; break;
-			case Logger::WARN:	$method = \FirePHP::WARN; break;
-			case Logger::ERROR:	$method = \FirePHP::ERROR; break;
-			case Logger::FATAL:	$method = \FirePHP::ERROR; break;
+			case Log::DEBUG:	$method = \FirePHP::LOG; break;
+			case Log::INFO:		$method = \FirePHP::INFO; break;
+			case Log::WARN:		$method = \FirePHP::WARN; break;
+			case Log::ERROR:	$method = \FirePHP::ERROR; break;
+			case Log::FATAL:	$method = \FirePHP::ERROR; break;
 			default: 			$label = $event['level'];
 		}
 		

@@ -2,7 +2,7 @@
 
 namespace Supra\Controller\Pages\Response\PlaceHolder;
 
-use Supra\Response\Http;
+use Supra\Response\HttpResponse;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Editable\EditableAbstraction;
 use Supra\Controller\Pages\Entity\Abstraction\PlaceHolder;
@@ -10,7 +10,7 @@ use Supra\Controller\Pages\Entity\Abstraction\PlaceHolder;
 /**
  * Response for place holder
  */
-abstract class Response extends Http
+abstract class Response extends HttpResponse
 {
 	/**
 	 * @var PlaceHolder

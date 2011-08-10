@@ -4,15 +4,15 @@ namespace Supra\Locale\Storage;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
-use Supra\Response\Http as HttpResponse;
+use Supra\Response\HttpResponse;
 use Supra\Locale\Exception;
-use Supra\Http\Cookie as HttpCookie;
-use Supra\Log\Logger;
+use Supra\Http\Cookie;
+use Supra\Log\Log;
 
 /**
  * Stores the current locale in the cookie
  */
-class Cookie extends StorageAbstraction
+class CookieStorage extends StorageAbstraction
 {
 	/**
 	 * Cookie name for the current locale storage
@@ -37,7 +37,7 @@ class Cookie extends StorageAbstraction
 		$cookie = $this->createCookie($localeIdentifier);
 
 		if (empty($cookie)) {
-			Logger::swarn("Cookie not received from getCookie method in cookie locale storage");
+			Log::swarn("Cookie not received from getCookie method in cookie locale storage");
 			return false;
 		}
 
@@ -48,11 +48,11 @@ class Cookie extends StorageAbstraction
 	/**
 	 * Creates cookie object for storing the current locale
 	 * @param string $value
-	 * @return HttpCookie
+	 * @return Cookie
 	 */
 	protected function createCookie($value)
 	{
-		$cookie = new HttpCookie($name, $value);
+		$cookie = new Cookie($name, $value);
 		return $cookie;
 	}
 }

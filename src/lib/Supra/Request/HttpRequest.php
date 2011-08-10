@@ -3,12 +3,12 @@
 namespace Supra\Request;
 
 use Supra\Uri\Path;
-use Supra\Log\Logger;
+use Supra\Log\Log;
 
 /**
  * Http request object
  */
-class Http implements RequestInterface
+class HttpRequest implements RequestInterface
 {
 	/**
 	 * Server arguments
@@ -69,7 +69,7 @@ class Http implements RequestInterface
 		}
 
 		$this->requestUri = $_SERVER['SCRIPT_URL'];
-		Logger::sinfo('Request URI: ', $this->requestUri);
+		Log::sinfo('Request URI: ', $this->requestUri);
 
 		$path = new Path($this->requestUri);
 		$this->setPath($path);

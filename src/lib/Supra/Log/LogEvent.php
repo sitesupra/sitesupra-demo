@@ -5,7 +5,7 @@ namespace Supra\Log;
 /**
  * Supra log event object
  */
-class Event
+class LogEvent
 {
 	/**
 	 * Log data
@@ -142,8 +142,8 @@ class Event
 	function getLevelPriority()
 	{
 		if (is_null($this->levelPriority)) {
-			if (isset(Logger::$levels[$this->level])) {
-				$this->levelPriority = Logger::$levels[$this->level];
+			if (isset(Log::$levels[$this->level])) {
+				$this->levelPriority = Log::$levels[$this->level];
 			} else {
 				throw new Exception(__CLASS__ . ': level not recognized - ' . $this->level);
 			}
@@ -156,7 +156,7 @@ class Event
 	 */
 	private static function formatObject(&$obj)
 	{
-		return Logger::formatObject($obj);
+		return Log::formatObject($obj);
 	}
 	
 	/**

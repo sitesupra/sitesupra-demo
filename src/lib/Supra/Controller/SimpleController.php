@@ -66,11 +66,11 @@ abstract class SimpleController extends ControllerAbstraction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		if ($request instanceof Request\Http) {
-			return new Response\Http();
+		if ($request instanceof Request\HttpRequest) {
+			return new Response\HttpResponse();
 		}
-		if ($request instanceof Request\Cli) {
-			return new Response\Cli();
+		if ($request instanceof Request\CliRequest) {
+			return new Response\CliResponse();
 		}
 		return new Response\EmptyResponse();
 	}
