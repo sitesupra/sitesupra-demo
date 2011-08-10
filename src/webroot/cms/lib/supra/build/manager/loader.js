@@ -17,6 +17,18 @@ YUI.add('supra.manager-loader', function (Y) {
 		EXTENSION_DATA: '.json',
 		
 		/**
+		 * Path to static files
+		 * @type {String}
+		 */
+		static_path: null,
+		
+		/**
+		 * Path to dynamic files
+		 * @type {String}
+		 */
+		dynamic_path: null,
+		
+		/**
 		 * Path to current manager
 		 * @type {String}
 		 */
@@ -66,6 +78,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		
 		/**
 		 * Set manager base path
+		 * 
 		 * @param {Object} path
 		 */
 		setBasePath: function (path) {
@@ -75,9 +88,52 @@ YUI.add('supra.manager-loader', function (Y) {
 		
 		/**
 		 * Get manager base path
+		 * 
+		 * @return Path
+		 * @type {String}
 		 */
 		getBasePath: function () {
 			return this.base;
+		},
+		
+		/**
+		 * Set manager static file path
+		 * 
+		 * @param {String} path
+		 */
+		setStaticPath: function (path) {
+			//Remove trailing slash from folder
+			this.static_path = String(path).replace(/\/+$/, '');
+		},
+		
+		/**
+		 * Returns static file path
+		 * 
+		 * @return Path
+		 * @type {String}
+		 */
+		getStaticPath: function () {
+			return this.static_path;
+		},
+		
+		/**
+		 * Set manager dynamic file path
+		 * 
+		 * @param {String} path
+		 */
+		setDynamicPath: function (path) {
+			//Remove trailing slash from folder
+			this.dynamic_path = String(path).replace(/\/+$/, '');
+		},
+		
+		/**
+		 * Returns dynamic file path
+		 * 
+		 * @return Path
+		 * @type {String}
+		 */
+		getDynamicPath: function () {
+			return this.dynamic_path;
 		},
 		
 		/**
@@ -332,13 +388,14 @@ YUI.add('supra.manager-loader', function (Y) {
 			if (action_name in this.action_info_cache) return this.action_info_cache[action_name];
 			
 			var file = this.getActionFileFromName(action_name);
-			var folder = this.getActionFolder(action_name);
+			var folder_static = this.getActionFolder(action_name, false);
+			var folder_dynamic = this.getActionFolder(action_name, true);
 			var info = {
-				'folder': folder,
-				'path_data': folder + file + this.EXTENSION_DATA,
-				'path_script': folder + file + this.EXTENSION_SCRIPT,
-				'path_template': folder + file + this.EXTENSION_TEMPLATE,
-				'path_stylesheet': folder + file + this.EXTENSION_STYLE
+				'folder': folder_static,
+				'path_data': folder_dynamic + file + this.EXTENSION_DATA,
+				'path_script': folder_static + file + this.EXTENSION_SCRIPT,
+				'path_template': folder_static + file + this.EXTENSION_TEMPLATE,
+				'path_stylesheet': folder_static + file + this.EXTENSION_STYLE
 			};
 			
 			this.action_info_cache[action_name] = info;
@@ -354,7 +411,7 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * @type {String}
 		 * @private
 		 */
-		getActionFolder: function (action_name /* Action name */) {
+		getActionFolder: function (action_name /* Action name */, dynamic /* Return folder path */) {
 			if (!action_name) return null;
 			var base = '';
 			
@@ -368,7 +425,8 @@ YUI.add('supra.manager-loader', function (Y) {
 			var action_file = this.getActionFileFromName(action_name);
 			if (!action_file) return null;
 			
-			return base + '/' + action_file + '/';
+			var prefix = dynamic ? this.getDynamicPath() : this.getStaticPath();
+			return prefix + base + '/' + action_file + '/';
 		},
 		
 		/**

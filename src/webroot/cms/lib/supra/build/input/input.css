@@ -20,7 +20,7 @@
 		display: none;
 	}
 	
-	.yui3-input span {
+	.yui3-input span.replacement {
 		line-height: 30px;
 		font-size: 14px;
 		vertical-align: middle;
@@ -33,7 +33,7 @@
 		
 		cursor: pointer;
 	}
-	.yui3-input span:hover {
+	.yui3-input span.replacement:hover {
 		line-height: 28px;
 		padding: 0 4px;
 		border: 1px solid #999;
@@ -43,7 +43,7 @@
 		-webkit-border-radius: 4px;
 		border-radius: 4px;
 	}
-	.yui3-input-disabled span:hover {
+	.yui3-input-disabled span.replacement:hover {
 		/* Revert :hover style */
 		background: none;
 		border: 0;
@@ -96,8 +96,8 @@
 
 .yui3-input .input-label-replacement input,
 .yui3-input.input-label-replacement input,
-.yui3-input-focused.input-label-replacement span,
-.yui3-input-focused .input-label-replacement span {
+.yui3-input-focused.input-label-replacement span.replacement,
+.yui3-input-focused .input-label-replacement span.replacement {
 	display: none;
 }
 .yui3-input-focused.input-label-replacement input,
@@ -133,14 +133,14 @@
 	.yui3-input-path.input-label-replacement small {
 		padding: 0 2px 0 0;
 	}
-	.yui3-input-path-focused.input-label-replacement span,
-	.yui3-input-path-focused .input-label-replacement span {
+	.yui3-input-path-focused.input-label-replacement span.replacement,
+	.yui3-input-path-focused .input-label-replacement span.replacement {
 			display: inline-block;
 		}
 	.yui3-input.yui3-input-path input {
 		width: 50%;
 	}
-	.yui3-input-path.yui3-input-focused span:hover {
+	.yui3-input-path.yui3-input-focused span.replacement:hover {
 		border: 0;
 		background: none;
 		padding: 0 5px;
@@ -242,6 +242,20 @@
 		display: none;
 	}
 
+/* Slider */
+.yui3-input-slider .less,
+.yui3-input-slider .more {
+	display: inline-block;
+}
+.yui3-input-slider .less {
+	vertical-align: top;
+	padding: 2px 10px 0 5px;
+}
+.yui3-input-slider .more {
+	vertical-align: top;
+	padding: 2px 0 0 10px;
+}
+
 /**
  * Default form style
  */
@@ -258,10 +272,10 @@
 		width: 400px;
 	}
 	
-	.yui3-form-default .yui3-input span {
+	.yui3-form-default .yui3-input span.replacement {
 		min-width: 390px;
 	}
-		.yui3-form-default .yui3-input-path span {
+		.yui3-form-default .yui3-input-path span.replacement {
 			min-width: 0;
 		}
 		
@@ -293,7 +307,8 @@
 	.yui3-form-vertical .yui3-input-select label,
 	.yui3-form-vertical .yui3-input-select-list label,
 	.yui3-form-vertical .yui3-input-text label,
-	.yui3-form-vertical .yui3-input-file-upload label {
+	.yui3-form-vertical .yui3-input-file-upload label,
+	.yui3-form-vertical .yui3-input-slider label {
 		display: block;
 	}
 	.yui3-form-vertical .yui3-input-string input,

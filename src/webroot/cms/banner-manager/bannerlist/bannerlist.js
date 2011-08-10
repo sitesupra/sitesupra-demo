@@ -99,7 +99,7 @@ Supra('website.list-dd', function (Y) {
 		 * @private
 		 */
 		fillBannerList: function (data /* Banner list */, status /* Request response status */) {
-			if (data && (status === undefined || status)) {
+			if (status && data) {
 				//Save data, will be used if creating new banner
 				this.data = data;
 				

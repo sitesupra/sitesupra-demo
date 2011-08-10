@@ -673,5 +673,6 @@ YUI.add("supra.form", function (Y) {
 	"supra.input-checkbox",
 	"supra.input-file-upload",
 	"supra.input-select",
-	"supra.input-select-list"
+	"supra.input-select-list",
+	"supra.input-slider"
 ]});

@@ -35,4 +35,5 @@ build: 3167
 
 .yui3-slider-thumb {
     overflow: hidden;
+    cursor: move;
 }

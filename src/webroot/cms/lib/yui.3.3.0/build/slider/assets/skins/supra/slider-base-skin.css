@@ -23,7 +23,7 @@ build: 2676
 .yui3-slider-x .yui3-slider-thumb {
     height: 31px;
     width: 29px;
-	top: -4px;
+	top: -4px !important;
 }
 
 .yui3-slider-x .yui3-slider-rail-cap-left {

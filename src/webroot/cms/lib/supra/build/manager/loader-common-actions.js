@@ -10,13 +10,13 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 	 * without specifying path each time
 	 */
 	Supra.Manager.Loader.setActionBasePaths({
-		'Header': '/cms/content-manager',
-		'SiteMap': '/cms/content-manager',
-		'MediaLibrary': '/cms/content-manager',
-		'PageToolbar': '/cms/content-manager',
-		'PageButtons': '/cms/content-manager',
-		'LayoutContainers': '/cms/content-manager',
-		'Confirmation': '/cms/content-manager'
+		'Header': '/content-manager',
+		'SiteMap': '/content-manager',
+		'MediaLibrary': '/content-manager',
+		'PageToolbar': '/content-manager',
+		'PageButtons': '/content-manager',
+		'LayoutContainers': '/content-manager',
+		'Confirmation': '/content-manager'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

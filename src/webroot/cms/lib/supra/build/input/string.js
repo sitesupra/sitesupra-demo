@@ -136,7 +136,7 @@ YUI.add("supra.input-string", function (Y) {
 				}
 				
 				if (!node) {
-					node = Y.Node.create("<span></span>");
+					node = Y.Node.create("<span class=\"replacement\"></span>");
 					
 					if (srcNodeIsInput) {
 						srcNode.insert(node, 'before');

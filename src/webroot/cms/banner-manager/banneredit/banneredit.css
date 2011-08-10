@@ -1,4 +1,15 @@
 .banner {
 	position: absolute;
 	bottom: 10px;
+	border: 1px solid #eee;
+}
+.banner form {
+	width: 500px;
+	margin: 50px auto 0;
+}
+.banner form fieldset {
+	border-top: 1px solid #eee;
+}
+.banner form fieldset:first-child {
+	border-top: 0;
 }

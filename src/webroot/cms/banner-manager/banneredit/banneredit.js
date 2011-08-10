@@ -17,7 +17,7 @@ Supra(function (Y) {
 	};
 	
 	//Create Action class
-	new Action(Action.PluginContainer, Action.PluginMainContent, {
+	new Action(Action.PluginContainer, Action.PluginMainContent, Action.PluginForm, {
 		
 		/**
 		 * Unique action name
@@ -86,7 +86,7 @@ Supra(function (Y) {
 		 * @param {String} group_id Group ID
 		 */
 		setBanner: function (banner_id /* Banner ID */, group_id /* Group ID */) {
-			if (user_id) {
+			if (banner_id) {
 				Supra.io(this.getDataPath('load'), {
 					'data': {
 						'banner_id': banner_id

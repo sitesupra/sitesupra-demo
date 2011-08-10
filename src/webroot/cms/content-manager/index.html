@@ -22,11 +22,16 @@
 	//<![CDATA[
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
-			var APP_PATH = '/cms/content-manager';
+			var APP_PATH = '/content-manager',
+				STATIC_PATH = '/cms',
+				DYNAMIC_PATH = '/cms';
 			
-			//Set current manager path
+			//Set current manager paths
+			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
+			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
+			
 			Supra.Manager.Loader.setBasePath(APP_PATH);
-			Supra.setWebsiteModulePath(APP_PATH);
+			Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH);
 			
 			//Configuration / parameters
 			Supra.data.set({
@@ -95,7 +100,7 @@
 				//Application
 				'application': {
 					'id': 'content',
-					'path': APP_PATH,
+					'path': DYNAMIC_PATH + APP_PATH,
 					'icon': '/cms/lib/supra/img/apps/content',
 					'title': 'Pages'
 				},
