@@ -68,7 +68,11 @@ class CmsController extends DistributedController
 			}
 			
 			if (file_exists($path)) {
-				$this->response->output(file_get_contents($path));
+				ob_start();
+				require_once($path);
+				$output = ob_get_clean();
+				
+				$this->response->output($output);
 			} else {
 				throw $notFound;
 			}
