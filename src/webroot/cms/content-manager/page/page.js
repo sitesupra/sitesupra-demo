@@ -93,10 +93,16 @@ Supra(function (Y) {
 			
 			//Show PageToolbar and load EditorToolbar
 			pagetoolbar.execute();
-			pagetoolbar.once('execute', function () {
-				//Execute action, last argument 'true' is used to hide toolbar
+			if (pagetoolbar.get('created')) {
+				//Execute action, last argument 'true' is used to initialize but not show
 				Manager.executeAction('EditorToolbar', true);
-			});
+			} else {
+				pagetoolbar.once('execute', function () {
+					//Execute action, last argument 'true' is used to initialize but not show
+					Manager.executeAction('EditorToolbar', true);
+				});
+			}
+			
 		},
 		
 		/**
@@ -160,7 +166,7 @@ Supra(function (Y) {
 		 * Publish page
 		 */
 		publishPage: function () {
-			var uri = this.getDataPath('save') + '.php',
+			var uri = this.getDataPath('save'),
 				page_data = this.data;
 			
 			var post_data = {
