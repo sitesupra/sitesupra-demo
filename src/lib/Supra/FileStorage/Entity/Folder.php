@@ -4,11 +4,10 @@ namespace Supra\FileStorage\Entity;
 
 /**
  * Folder object
- * @Entity(repositoryClass="Supra\FileStorage\Repository\ForbiddenRepository")
+ * @Entity
  * @Table(name="folder")
  */
 class Folder extends Abstraction\File
 {
-
 
 }

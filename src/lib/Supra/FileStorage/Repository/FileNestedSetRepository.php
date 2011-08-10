@@ -14,7 +14,7 @@ use Supra\FileStorage\Exception;
 /**
  * FileRepository
  */
-class FileRepository extends EntityRepository implements RepositoryInterface
+class FileNestedSetRepository extends EntityRepository implements RepositoryInterface
 {
 	/**
 	 * @var DoctrineRepository

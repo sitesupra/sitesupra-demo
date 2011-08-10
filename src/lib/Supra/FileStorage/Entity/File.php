@@ -8,7 +8,7 @@ use Supra\NestedSet;
 
 /**
  * File object
- * @Entity(repositoryClass="Supra\FileStorage\Repository\ForbiddenRepository")
+ * @Entity
  * @Table(name="file")
  */
 class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface

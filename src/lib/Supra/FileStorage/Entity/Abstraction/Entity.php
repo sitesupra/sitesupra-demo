@@ -12,21 +12,11 @@ use Doctrine\ORM\EntityRepository;
  */
 abstract class Entity
 {
-
 	/**
 	 * Locks to pervent infinite loop calls
 	 * @var array
 	 */
 	private $locks = array();
-
-	/**
-	 * Set connection name used by file storage
-	 * @param string $connectionName
-	 */
-	public static function setConnectionName($connectionName = null)
-	{
-		self::$connnection = $connectionName;
-	}
 
 	/**
 	 * Get configured doctrine entity manager
@@ -100,42 +90,6 @@ abstract class Entity
 	{
 		$this->locks = array();
 	}
-
-//	/**
-//	 * Set the property value. Return true on success, false on equal parameter,
-//	 * exception when argument not valid or different value was already set
-//	 * @param mixed $property
-//	 * @param mixed $value
-//	 * @return bool
-//	 * @throws Exception when trying to rewrite the property
-//	 *	or invalid argument is passed
-//	 */
-//	protected function writeOnce(&$property, $value)
-//	{
-//		$sourceEntity = get_class($this);
-//		if (empty($value)) {
-//			$this->unlockAll();
-//			throw new Exception\RuntimeException("Second argument sent to method
-//					$sourceEntity::writeOnce() cannot be empty");
-//		}
-//		if ( ! is_object($value)) {
-//			$this->unlockAll();
-//			throw new Exception\RuntimeException("Second argument sent to method
-//					$sourceEntity::writeOnce() must be an object");
-//		}
-//		if ($property == $value) {
-//			return false;
-//		}
-//		if ( ! empty($property)) {
-//			$this->unlockAll();
-//			$targetEntity = get_class($value);
-//			throw new Exception\RuntimeException("The property $targetEntity is write-once,
-//					cannot rewrite with different value for $sourceEntity");
-//		}
-//		$property = $value;
-//
-//		return true;
-//	}
 
 	/**
 	 * Adds an element to collection preserving uniqueness of fields

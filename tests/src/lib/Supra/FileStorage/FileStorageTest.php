@@ -392,6 +392,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 	}
 
+	/**
+	 * @return \Supra\FileStorage\Entity\File
+	 */
 	private function createFile()
 	{
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
@@ -539,7 +542,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 	}
 
-		public function testCreateMultiLevelFolderWithFilesAndSetPrivate() {
+	public function testCreateMultiLevelFolderWithFilesAndSetPrivate() {
 		$this->cleanUp(true);
 
 		$filestorage = FileStorage\FileStorage::getInstance();
@@ -596,7 +599,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		self::getConnection()->flush();
 		/*@var $filestorage \Supra\FileStorage */
 		$em = $filestorage->getEntityManager();
-		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+		$repo = $em->getRepository('Supra\FileStorage\Entity\Folder');
 		$node = $repo->findOneByFileName('one');
 
 		$filestorage->setPrivate($node);
@@ -615,9 +618,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage->setPrivate($file);
 		self::getConnection()->flush();
 
-		$filePath = $filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$fileInternalPath = $filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$fileExternalPath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
-		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
+		self::assertFileExists($fileInternalPath, 'Created file doesn\'t exist in file storage');
+		
+		self::assertFileNotExists($fileExternalPath, 'Created file DOES exist in external path after making it private');
 	}
 
 	public function testCreateFileAndMoveItToPrivateThenBackToPublic()
@@ -648,18 +654,18 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		if (is_dir($dir)) {
 			$objects = scandir($dir);
+			
 			foreach ($objects as $object) {
-				if ($object != "." && $object != ".." && $object != ".svn") {
-					$dir = rtrim($dir, DIRECTORY_SEPARATOR);
-					if (filetype($dir . DIRECTORY_SEPARATOR . $object) == "dir") {
-						$this->removeFolders($dir . DIRECTORY_SEPARATOR . $object);
+				if ($object[0] != ".") {
+					$filename = $dir . DIRECTORY_SEPARATOR . $object;
+					if (is_dir($filename)) {
+						$this->removeFolders($filename);
+						rmdir($filename);
 					} else {
-						@unlink($dir . DIRECTORY_SEPARATOR . $object);
+						unlink($filename);
 					}
 				}
 			}
-			reset($objects);
-			@rmdir($dir);
 		}
 	}
 
@@ -675,6 +681,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		if (self::DELETE_FILES || $delete) {
 			$this->deleteFilesAndFolders();
 		}
+		
+		// Detach all entities
+		self::getConnection()->clear();
 	}
 	
 	public function testReplaceFile() {
@@ -739,6 +748,44 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$replacedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		
 		self::assertFileExists($replacedFilePath, 'JohnMclane.jpg should replace chuck.jpg. But it\'s obvious that nobody cant replace Chuck Norris');
+	}
+	
+	public function testFileRepository()
+	{
+		$this->cleanUp(true);
+		
+		$dir1 = $this->createFolder('one');
+		$file1 = $this->createFile();
+		$dir1->addChild($file1);
+		
+		$dir2 = $this->createFolder('two');
+		$file2 = $this->createFile();
+		$dir2->addChild($file2);
+		
+		$dir = $this->createFolder('three');
+		
+		self::getConnection()->flush();
+		
+		// Must be two files
+		$fileRepo = self::getConnection()->getRepository('Supra\FileStorage\Entity\File');
+		$files = $fileRepo->findAll();
+		self::assertEquals(2, count($files));
+		
+		// One parent folder
+		$file = $files[0];
+		$folders = $file->getAncestors();
+		
+		self::assertEquals(1, count($folders));
+		
+		// 3 folders
+		$folderRepo = self::getConnection()->getRepository('Supra\FileStorage\Entity\Folder');
+		$folders = $folderRepo->findAll();
+		self::assertEquals(3, count($folders));
+		
+		// 5 elements in total
+		$allRepo = self::getConnection()->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+		$all = $allRepo->findAll();
+		self::assertEquals(5, count($all));
 	}
 	
 	public function testCleanUp()
