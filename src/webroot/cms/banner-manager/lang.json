@@ -7,7 +7,9 @@
 			"no": "No",
 			"ok": "Ok",
 			"browse": "Browse",
-			"error": "Ok"
+			"error": "Ok",
+			"on": "On",
+			"off": "Off"
 		},
 		
 		"list": {
@@ -15,7 +17,26 @@
 		},
 		
 		"edit": {
-			"change": "Change"
+			"change": "Change",
+			
+			"target": "Target page",
+			"target_internal": "Internal",
+			"target_external": "External",
+			
+			"priority": "Show comparing to other banners",
+			"priority_less": "Less",
+			"priority_more": "More",
+			
+			"schedule": "Schedule",
+			
+			"status": "Active"
+		},
+		
+		"statistics": {
+			"title": "Banner stats",
+			"exposures": "Exposures",
+			"ctr": "CTR",
+			"average_ctr": "Average CTR on the site"
 		}
 	}
 }

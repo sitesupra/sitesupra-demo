@@ -85,7 +85,7 @@ Supra('website.list-dd', function (Y) {
 		 */
 		load: function () {
 			//Load data
-			Supra.io(this.getDataPath(), {
+			Supra.io(this.getDataPath('load'), {
 				'context': this,
 				'on': {'complete': this.fillBannerList}
 			});

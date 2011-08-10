@@ -198,7 +198,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				id = target.get('id'),
 				imageId = this.selected_image_id,
 				data = this.htmleditor.getData(imageId),
-				value = target.getValue();
+				value = (event.value !== undefined ? event.value : target.getValue());
 			
 			//Update image data
 			if (imageId) {

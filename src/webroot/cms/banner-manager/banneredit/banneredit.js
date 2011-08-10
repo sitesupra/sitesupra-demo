@@ -11,6 +11,10 @@ Supra(function (Y) {
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
+	var NEW_BANNER_DATA = {
+		'banner_id': null,
+		'group_id': null
+	};
 	
 	//Create Action class
 	new Action(Action.PluginContainer, Action.PluginMainContent, {
@@ -76,6 +80,34 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Set banner
+		 * 
+		 * @param {String} banner_id Banner ID
+		 * @param {String} group_id Group ID
+		 */
+		setBanner: function (banner_id /* Banner ID */, group_id /* Group ID */) {
+			if (user_id) {
+				Supra.io(this.getDataPath('load'), {
+					'data': {
+						'banner_id': banner_id
+					},
+					'context': this,
+					'on': {'success': this.setData}
+				});
+			} else {
+				var data = Supra.mix({}, NEW_BANNER_DATA, true);
+				this.setData(data);
+			}
+		},
+		
+		/**
+		 * Set banner data
+		 */
+		setData: function (data, status) {
+			//@TODO
+		},
+		
+		/**
 		 * Save banner data
 		 */
 		save: function () {
@@ -109,7 +141,7 @@ Supra(function (Y) {
 		/**
 		 * Execute action
 		 */
-		execute: function (user_id, group_id) {
+		execute: function (banner_id, group_id) {
 			//Change toolbar buttons
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons');
@@ -121,7 +153,7 @@ Supra(function (Y) {
 				buttons.setActiveAction(this.NAME);
 			}
 			
-			this.setUser(user_id, group_id);
+			this.setBanner(banner_id, group_id);
 			
 			this.show();
 		}

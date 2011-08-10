@@ -1,3 +1,40 @@
 <div class="banner">
 	
+	<!-- Satistics -->
+	<div class="stats">
+		<script type="text/html" id="bannerStats">
+			<h2>{#statistics.title#}</h2>
+			<div class="stats-field">
+				<span class="lbl">{#statistics.exposures#}</span> <span class="val">{{stats.exposures}}</span>
+				<span class="lbl">{#statistics.ctr#}</span> <span class="val">{{stats.ctr}}%</span>
+			</div>
+			<div class="stats-field">
+				<span class="lbl">{#statistics.average_ctr#}</span> <span class="val">{{stats.average_ctr}}%</span>
+			</div>
+		</script>
+	</div>
+	
+	<form class="yui3-form-vertical">
+		
+		<fieldset>
+			<label for="banner_target">{#edit.target#}</label>
+			<span class="target-title"><a></a></span>
+		</fieldset>
+		
+		<fieldset>
+			<label for="banner_priority">{#edit.priority#}</label>
+			<select name="priority" id="banner_priority" suType="Slider" suLabelLess="{#edit.priority_less#}" suLabelMore="{#edit.priority_more#}">
+				<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
+			</select>
+		</fieldset>
+		
+		<fieldset>
+			<label for="banner_status">{#edit.status#}</label>
+			<select name="status" id="banner_status" value="" suType="SelectList">
+				<option value="1">{#buttons.on#}</option>
+				<option value="0">{#buttons.off#}</option>
+			</select>
+		</fieldset>
+		
+	</form>
 </div>
