@@ -7,7 +7,7 @@ use Supra\Controller\Pages\Entity;
 /**
  * Controller containing common methods
  */
-class PageManagerController extends CmsActionController
+class PageManagerActionController extends CmsActionController
 {
 	protected function setRequestMethod()
 	{
