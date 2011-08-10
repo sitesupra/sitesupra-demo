@@ -38,6 +38,7 @@ class ArrayRepository extends RepositoryAbstraction
 	{
 		$node->setRepository($this);
 		parent::add($node);
+		$this->array[] = $node;
 	}
 
 	/**
@@ -50,7 +51,7 @@ class ArrayRepository extends RepositoryAbstraction
 		$node = new Node\ArrayNode();
 		$node->setTitle($title);
 		$this->add($node);
-		$this->array[] = $node;
+		
 		return $node;
 	}
 

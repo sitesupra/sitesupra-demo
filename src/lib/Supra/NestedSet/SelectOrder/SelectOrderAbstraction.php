@@ -71,6 +71,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 	 * @param string $method
 	 * @param array $arguments
 	 * @return SelectOrderAbstraction
+	 * @throws Exception\BadMethodCall
 	 */
 	public function __call($method, $arguments)
 	{
@@ -94,15 +95,16 @@ class SelectOrderAbstraction implements SelectOrderInterface
 			throw new Exception\BadMethodCall("Unknown method $method called for search order object, no field match found");
 		}
 
+		$direction = null;
+		
 		if ($methodRemainder != '') {
-			$direction = false;
 			foreach (self::$directions as $directionTest => $directionString) {
 				if (\strcasecmp($directionString, $methodRemainder) === 0) {
 					$direction = $directionTest;
 					break;
 				}
 			}
-			if ($direction === false) {
+			if (is_null($direction)) {
 				throw new Exception\BadMethodCall("Unknown method $method called for search order object, no relation match found");
 			}
 		} else {
@@ -119,6 +121,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 		}
 
 		$this->add($fieldFound, $direction);
+		
 		return $this;
 	}
 }

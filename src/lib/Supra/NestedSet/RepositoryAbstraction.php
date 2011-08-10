@@ -38,6 +38,7 @@ abstract class RepositoryAbstraction implements RepositoryInterface
 
 	/**
 	 * Get root nodes' array
+	 * @TODO doesn't take into account nodes from the doctrine repo array helper
 	 * @return array
 	 */
 	public function getRootNodes()
@@ -51,6 +52,7 @@ abstract class RepositoryAbstraction implements RepositoryInterface
 
 	/**
 	 * Output the dump of the whole node tree
+	 * @TODO doesn't take into account nodes from the doctrine repo array helper
 	 * @return string
 	 */
 	public function drawTree()
@@ -60,6 +62,7 @@ abstract class RepositoryAbstraction implements RepositoryInterface
 				->byLeftAscending();
 		$nodes = $this->search($searchCondition, $orderRule);
 		$output = Node\NodeAbstraction::output($nodes);
+		
 		return $output;
 	}
 

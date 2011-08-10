@@ -20,20 +20,14 @@ class DoctrineNode extends NodeAbstraction
 
 	/**
 	 * Pass the doctrine entity the nested set node belongs to
-	 * @param Entity $entity
+	 * @param NodeInterface $entity
 	 */
-	public function belongsTo(Entity $entity)
+	public function belongsTo(NodeInterface $node)
 	{
-		if ( ! ($entity instanceof NodeInterface)) {
-			throw new Exception\WrongInstance($entity, 'Node\NodeInterface');
-		}
+		parent::belongsTo($node);
 
-		$this->left = $entity->getLeftValue();
-		$this->right = $entity->getRightValue();
-		$this->level = $entity->getLevel();
-		$this->title = $entity->__toString();
-
-		$rep = $entity->getRepository();
+		//TODO: the node must implement some Doctrine node interface
+		$rep = $node->getRepository();
 		if ( ! ($rep instanceof RepositoryInterface)) {
 			throw new Exception\WrongInstance($rep, 'RepositoryInterface');
 		}
@@ -41,9 +35,9 @@ class DoctrineNode extends NodeAbstraction
 		$this->setRepository($nestedSetRepository);
 		
 		if ($this->right === null) {
-			$nestedSetRepository->add($entity);
+			$nestedSetRepository->add($node);
 		}
-		$nestedSetRepository->register($entity);
+		$nestedSetRepository->register($node);
 	}
 
 	/**

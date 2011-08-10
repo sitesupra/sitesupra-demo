@@ -18,25 +18,29 @@ class DoctrineNestedSet extends NestedSet
 	static function foodTree(EntityManager $em)
 	{
 		// Faster inserts
-		$sql = "INSERT INTO product (id, lft, rgt, lvl, title, price) VALUES
-				(1, 1, 18, 0, 'Food', null),
-				(2, 12, 17, 1, 'Meat', null),
-				(3, 2, 11, 1, 'Fruit', null),
-				(4, 15, 16, 2, 'Pork', null),
-				(5, 3, 6, 2, 'Red', null),
-				(6, 7, 10, 2, 'Yellow', null),
-				(7, 13, 14, 2, 'Beef', null),
-				(8, 4, 5, 3, 'Cherry', null),
-				(9, 8, 9, 3, 'Banana', null)";
+		$sql = "INSERT INTO product (id, lft, rgt, lvl, title, price, discr) VALUES
+				(1, 1, 18, 0, 'Food', null, 'product'),
+				(2, 12, 17, 1, 'Meat', null, 'product'),
+				(3, 2, 11, 1, 'Fruit', null, 'product'),
+				(4, 15, 16, 2, 'Pork', null, 'product'),
+				(5, 3, 6, 2, 'Red', null, 'product'),
+				(6, 7, 10, 2, 'Yellow', null, 'product'),
+				(7, 13, 14, 2, 'Beef', null, 'product'),
+				(8, 4, 5, 3, 'Cherry', null, 'product'),
+				(9, 8, 9, 3, 'Banana', null, 'product')";
 
 		$connection = $em->getConnection();
 		$statement = $connection->prepare($sql);
 		$statement->execute();
 		
 		// For postgresql
-		$sql = "SELECT setval('product_id_seq', MAX(id)) FROM product";
-		$statement = $connection->prepare($sql);
-		$statement->execute();
+		$platform = $connection->getDatabasePlatform()->getName();
+		
+		if ($platform == 'pgsql') {
+			$sql = "SELECT setval('product_id_seq', MAX(id)) FROM product";
+			$statement = $connection->prepare($sql);
+			$statement->execute();
+		}
 
 		/* @var $rep Model\ProductRepository */
 		$rep = $em->getRepository('Supra\Tests\NestedSet\Model\Product');

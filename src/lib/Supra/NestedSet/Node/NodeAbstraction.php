@@ -32,6 +32,12 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @var int
 	 */
 	protected $level;
+	
+	/**
+	 * True if cannot have children nodes
+	 * @var boolean
+	 */
+	protected $leafInterface = false;
 
 	/**
 	 * @var RepositoryAbstraction
@@ -43,6 +49,22 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	protected $title;
 
+	/**
+	 * Pass the original entity the nested set node belongs to
+	 * @param NodeInterface $node
+	 */
+	public function belongsTo(NodeInterface $node)
+	{
+		$this->left = $node->getLeftValue();
+		$this->right = $node->getRightValue();
+		$this->level = $node->getLevel();
+		$this->title = $node->__toString();
+		
+		if ($node instanceof NodeLeafInterface) {
+			$this->setLeafInterface(true);
+		}
+	}
+	
 	/**
 	 * @param string $title
 	 * @return NodeAbstraction
@@ -138,6 +160,24 @@ abstract class NodeAbstraction implements NodeInterface
 	{
 		$this->level = $level;
 		return $this;
+	}
+	
+	/**
+	 * Get if this node can have parents
+	 * @return boolean
+	 */
+	public function isLeafInterface()
+	{
+		return $this->leafInterface;
+	}
+	
+	/**
+	 * Set if this node should be leaf, no parents allowed
+	 * @param boolean $leafInterface
+	 */
+	public function setLeafInterface($leafInterface)
+	{
+		$this->leafInterface = $leafInterface;
 	}
 
 	/**
@@ -561,7 +601,23 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	private function validateAddingChildren(NodeInterface $parentNode)
 	{
+		$allow = true;
+		
+		/*
+		 * FIXME: These checks are not good, but we can receive NodeAbstraction
+		 * or other NodeInterface with magic __call as well..
+		 */
+		if ($parentNode instanceof NodeAbstraction) {
+			if ($parentNode->leafInterface) {
+				$allow = false;
+			}
+		}
+		
 		if ($parentNode instanceof NodeLeafInterface) {
+			$allow = false;
+		}
+		
+		if ( ! $allow) {
 			$parentDump = static::dump($parentNode);
 			throw new Exception\InvalidOperation("Children cannot added to the NodeLeafInterface object {$parentDump}");
 		}
