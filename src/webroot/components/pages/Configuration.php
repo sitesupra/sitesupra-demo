@@ -25,6 +25,6 @@ class Configuration implements ConfigurationInterface
 
 		// Bind to URL
 		$router = new Uri('/');
-		$frontController->route($router, '\\Project\\Pages\\Controller');
+		$frontController->route($router, '\\Project\\Pages\\PageController');
 	}
 }

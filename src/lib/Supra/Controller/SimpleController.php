@@ -53,7 +53,7 @@ abstract class SimpleController extends ControllerAbstraction
 		// TODO: do case sensitive method name search
 		if ( ! in_array($method, $methods)) {
 			$className = get_class($this);
-			throw new NotFoundException("Method '{$method}' doesn't exist for class '{$className}'");
+			throw new Exception\ResourceNotFoundException("Method '{$method}' doesn't exist for class '{$className}'");
 		}
 		
 		$this->$method();

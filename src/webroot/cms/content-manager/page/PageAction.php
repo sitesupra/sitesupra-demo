@@ -2,21 +2,20 @@
 
 namespace Supra\Cms\ContentManager\page;
 
-use Supra\Cms\ContentManager\CmsActionController;
+use Supra\Cms\ContentManager\PageManagerAction;
+use Supra\Controller\Pages\Request\PageRequestEdit;
 
 /**
  * 
  */
-class PageAction extends CmsActionController
+class PageAction extends PageManagerAction
 {
-
 	/**
 	 * @return string
 	 */
 	public function pageAction()
 	{
-		//TODO: Must get real controller, should be bound somehow
-		$controller = new \Project\Pages\Controller();
+		$controller = $this->getPageController();
 
 		//FIXME: hardcoded now
 		$locale = 'en';
@@ -24,14 +23,14 @@ class PageAction extends CmsActionController
 		$pageId = $_GET['page_id'];
 		
 		// Create special request
-		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
+		$request = new PageRequestEdit($locale, $media);
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
 
 		// Entity manager 
 		$em = $request->getDoctrineEntityManager();
-		$pageDao = $em->getRepository(\Supra\Controller\Pages\Request\Request::PAGE_ABSTRACT_ENTITY);
+		$pageDao = $em->getRepository(PageRequestEdit::PAGE_ABSTRACT_ENTITY);
 
 		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);

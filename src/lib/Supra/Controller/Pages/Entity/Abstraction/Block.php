@@ -9,7 +9,7 @@ use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Editable\EditableAbstraction;
-use Supra\Controller\Pages\Request\Request;
+use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Controller\Pages\Entity\TemplateBlock;
 
@@ -206,9 +206,9 @@ class Block extends Entity
 	/**
 	 * Prepares controller
 	 * @param BlockController $controller
-	 * @param Request $request
+	 * @param PageRequest $request
 	 */
-	public function prepareController(BlockController $controller, Request $request)
+	public function prepareController(BlockController $controller, PageRequest $request)
 	{
 		// Set properties for controller
 		$blockPropertySet = $request->getBlockPropertySet();

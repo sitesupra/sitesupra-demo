@@ -36,7 +36,7 @@ abstract class DistributedController extends ControllerAbstraction
 		$request = $this->getRequest();
 		
 		if ( ! $request instanceof Request\HttpRequest) {
-			throw new Exception("Not http requests are not supported yet");
+			throw new Exception\NotImplementedException("Not http requests are not supported yet");
 		}
 			
 		$action = $request->getActions(1);
@@ -56,13 +56,13 @@ abstract class DistributedController extends ControllerAbstraction
 		\Log::sdebug('Class: ', $class);
 
 		if ( ! class_exists($class)) {
-			throw new NotFoundException("Action '$baseAction' was not found");
+			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found");
 		}
 		
 		$actionController = new $class();
 		
 		if ( ! $actionController instanceof ControllerInterface) {
-			throw new Exception("Action $class must be instance of controller interface");
+			throw new Exception\RuntimeException("Action $class must be instance of controller interface");
 		}
 		
 		$response = $actionController->createResponse($request);

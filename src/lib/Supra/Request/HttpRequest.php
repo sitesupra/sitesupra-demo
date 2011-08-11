@@ -10,6 +10,13 @@ use Supra\Log\Log;
  */
 class HttpRequest implements RequestInterface
 {
+	// Request method constants
+	const METHOD_GET = 'GET';
+	const METHOD_POST = 'POST';
+	const METHOD_PUT = 'PUT';
+	const METHOD_DELETE = 'DELETE';
+	const METHOD_HEAD = 'HEAD';
+	
 	/**
 	 * Server arguments
 	 * @var array
@@ -259,8 +266,9 @@ class HttpRequest implements RequestInterface
 	public function isPost()
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		$isPost = $requestMethod == self::METHOD_POST;
 		
-		return $requestMethod == 'POST';
+		return $isPost;
 	}
 
 	/**
@@ -270,8 +278,9 @@ class HttpRequest implements RequestInterface
 	public function isGet()
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		$isGet = $requestMethod == self::METHOD_GET;
 		
-		return $requestMethod == 'GET';
+		return $isGet;
 	}
 
 	/**

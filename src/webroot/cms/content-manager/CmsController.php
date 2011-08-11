@@ -3,7 +3,8 @@
 namespace Supra\Cms\ContentManager;
 
 use Supra\Controller\DistributedController;
-use Supra\Controller\NotFoundException;
+use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\Log\Log;
 
 /**
  * Main CMS controller
@@ -48,9 +49,12 @@ class CmsController extends DistributedController
 		$actionList = $this->getRequest()
 				->getActions();
 		
+		$actionString = $this->getRequest()
+				->getActionString('/');
+		
 		try {
 			parent::execute();
-		} catch (NotFoundException $notFound) {
+		} catch (ResourceNotFoundException $notFound) {
 			
 			$fileName = array_pop($actionList);
 			$extension = strstr($fileName, '.');
@@ -68,6 +72,9 @@ class CmsController extends DistributedController
 			}
 			
 			if (file_exists($path)) {
+				
+				Log::warn("DEVELOPMENT: Will use static data file for action {$actionString} because of ResourceNotFoundException exception '{$notFound->getMessage()}'");
+				
 				ob_start();
 				require_once($path);
 				$output = ob_get_clean();

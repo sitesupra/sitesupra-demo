@@ -11,14 +11,15 @@ use Supra\Database\Doctrine;
 use Supra\Locale\Data as LocaleData;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query\Expr;
-use Supra\Controller\NotFoundException;
-use Supra\Controller\Pages\Request\HttpEditRequest;
-use Supra\Controller\Pages\Response\PlaceHolder as PlaceHolderResponse;
+use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Response\PlaceHolder;
 
 /**
  * Page controller
+ * @method PageRequest getRequest()
  */
-class Controller extends ControllerAbstraction
+class PageController extends ControllerAbstraction
 {
 	/**
 	 * List of block controllers
@@ -34,8 +35,8 @@ class Controller extends ControllerAbstraction
 	public function prepare(RequestInterface $request, ResponseInterface $response)
 	{
 		// Downcast to local request object
-		if ( ! $request instanceof namespace\Request\Request) {
-			$request = new namespace\Request\RequestView($request);
+		if ( ! $request instanceof namespace\Request\PageRequest) {
+			$request = new namespace\Request\PageRequestView($request);
 		}
 		
 		$em = $this->getDoctrineEntityManager();
@@ -45,16 +46,7 @@ class Controller extends ControllerAbstraction
 	}
 	
 	/**
-	 * Overriden to specify correct return class
-	 * @return \Supra\Controller\Pages\Request\Request
-	 */
-	public function getRequest()
-	{
-		return $this->request;
-	}
-
-	/**
-	 * @return \Doctrine\ORM\EntityManager
+	 * @return EntityManager
 	 */
 	protected function getDoctrineEntityManager()
 	{
@@ -177,16 +169,16 @@ class Controller extends ControllerAbstraction
 	 * Creates place holder response object
 	 * @param Entity\Abstraction\Page $page
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
-	 * @return PlaceHolderResponse\Response
+	 * @return PlaceHolder\PlaceHolderResponse
 	 */
 	public function createPlaceResponse(Entity\Abstraction\Page $page, Entity\Abstraction\PlaceHolder $placeHolder)
 	{
 		$response = null;
 		
-		if ($this->request instanceof namespace\Request\RequestEdit) {
-			$response = new PlaceHolderResponse\PlaceHolderResponseEdit();
+		if ($this->request instanceof namespace\Request\PageRequestEdit) {
+			$response = new PlaceHolder\PlaceHolderResponseEdit();
 		} else {
-			$response = new PlaceHolderResponse\PlaceHolderResponseView();
+			$response = new PlaceHolder\PlaceHolderResponseView();
 		}
 		
 		$response->setPlaceHolder($placeHolder);

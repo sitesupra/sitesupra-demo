@@ -9,6 +9,7 @@ use Supra\Editable\EditableAbstraction;
 use Supra\Editable\EditableInterface;
 use Supra\Controller\Pages\Request\HttpEditRequest;
 use Supra\Controller\Pages\Response\Block;
+use \Supra\Controller\Pages\Request\PageRequest;
 
 /**
  * Block controller abstraction
@@ -41,7 +42,7 @@ abstract class BlockController extends ControllerAbstraction
 
 	/**
 	 * Overriden to specify correct return class
-	 * @return \Supra\Controller\Pages\Request\Request
+	 * @return PageRequest
 	 */
 	public function getRequest()
 	{
@@ -73,7 +74,7 @@ abstract class BlockController extends ControllerAbstraction
 	{
 		$response = null;
 		
-		if ($request instanceof namespace\Request\RequestEdit) {
+		if ($request instanceof namespace\Request\PageRequestEdit) {
 			$response = new Block\BlockResponseEdit();
 		} else {
 			$response = new Block\BlockResponseView();

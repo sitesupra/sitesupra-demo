@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Set;
 /**
  * Page controller request
  */
-abstract class Request extends HttpRequest
+abstract class PageRequest extends HttpRequest
 {
 	/**
 	 * @var string

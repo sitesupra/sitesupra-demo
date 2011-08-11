@@ -7,7 +7,7 @@ use Supra\Controller\Pages;
 /**
  * Pages Controller
  */
-class Controller extends Pages\Controller
+class PageController extends Pages\PageController
 {
 	
 }

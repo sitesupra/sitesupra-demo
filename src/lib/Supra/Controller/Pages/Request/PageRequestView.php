@@ -4,13 +4,13 @@ namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\HttpRequest;
 use Supra\Locale\Data as LocaleData;
-use Supra\Controller\NotFoundException;
+use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\Abstraction\Page;
 
 /**
  * Page controller request object on view method
  */
-class RequestView extends Request
+class PageRequestView extends PageRequest
 {
 	/**
 	 * @param HttpRequest $request
@@ -73,7 +73,7 @@ class RequestView extends Request
 				$action = '/';
 			}
 
-			throw new NotFoundException("No page found by path '$action' in pages controller");
+			throw new ResourceNotFoundException("No page found by path '$action' in pages controller");
 		}
 
 		return $pageData;

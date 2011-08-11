@@ -2,13 +2,13 @@
 
 namespace Supra\Cms\ContentManager\medialibrary;
 
-use Supra\Cms\ContentManager\CmsActionController;
+use Supra\Cms\ContentManager\CmsAction;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;
 use Supra\ObjectRepository\ObjectRepository;
 
-class MediaLibraryAction extends CmsActionController
+class MediaLibraryAction extends CmsAction
 {
 
 	// types for MediaLibrary UI
@@ -402,7 +402,7 @@ class MediaLibraryAction extends CmsActionController
 
 			if (empty($file) || ! ($file instanceof FileStorage\Entity\File)) {
 				echo '404';
-				// TODO: throw new NotFoundException
+				// TODO: throw new Exception\ResourceNotFoundException
 			}
 
 			// The file cache must be unique if "timestamp" hash is returned

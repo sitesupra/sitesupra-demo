@@ -105,7 +105,8 @@ class FrontController
 				return $controller;
 			}
 		}
-		throw new NotFoundException('No controller has been found for the request');
+		
+		throw new Exception\ResourceNotFoundException('No controller has been found for the request');
 	}
 
 	/**

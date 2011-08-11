@@ -3,12 +3,14 @@
 namespace Supra\Cms\ContentManager\pagecontent;
 
 use Supra\Controller\SimpleController;
-use Supra\Cms\ContentManager\PageManagerActionController;
+use Supra\Cms\ContentManager\PageManagerAction;
+use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Controller\Pages\Request\PageRequest;
 
 /**
  * Controller for page content requests
  */
-class PagecontentAction extends PageManagerActionController
+class PagecontentAction extends PageManagerAction
 {
 	/**
 	 * Insert block action
@@ -23,7 +25,7 @@ class PagecontentAction extends PageManagerActionController
 		$placeHolderName = $_GET['placeholder_id'];
 		$blockType = $_GET['type'];
 		
-		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
+		$request = new PageRequestEdit($locale, $media);
 		
 		$em = \Supra\Database\Doctrine::getInstance()
 				->getEntityManager();
@@ -100,7 +102,7 @@ class PagecontentAction extends PageManagerActionController
 		
 		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
 		
-		$blockPropertyEntity = \Supra\Controller\Pages\Request\Request::BLOCK_PROPERTY_ENTITY;
+		$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
 		
 		$query = $em->createQuery("SELECT p FROM $blockPropertyEntity AS p
 				JOIN p.data AS d
@@ -125,8 +127,8 @@ class PagecontentAction extends PageManagerActionController
 			$blockProperty = $query->getSingleResult();
 		} catch (\Doctrine\ORM\NoResultException $noResults) {
 			
-			$dataEntity = \Supra\Controller\Pages\Request\Request::DATA_ENTITY;
-			$blockEntity = \Supra\Controller\Pages\Request\Request::BLOCK_ENTITY;
+			$dataEntity = PageRequest::DATA_ENTITY;
+			$blockEntity = PageRequest::BLOCK_ENTITY;
 			
 			$dataQuery = $em->createQuery("SELECT d FROM $dataEntity d
 					JOIN d.master AS m
@@ -168,7 +170,7 @@ class PagecontentAction extends PageManagerActionController
 		
 		$em = \Supra\Database\Doctrine::getInstance()
 				->getEntityManager();
-		$blockEntity = \Supra\Controller\Pages\Request\Request::BLOCK_ENTITY;
+		$blockEntity = PageRequest::BLOCK_ENTITY;
 		$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
 					WHERE b.id = ?0");
 		
@@ -201,7 +203,7 @@ class PagecontentAction extends PageManagerActionController
 		$locale = 'en';
 		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
 		
-//		$request = new \Supra\Controller\Pages\Request\RequestEdit($locale, $media);
+//		$request = new PageRequestEdit($locale, $media);
 		
 		$em = \Supra\Database\Doctrine::getInstance()
 				->getEntityManager();
