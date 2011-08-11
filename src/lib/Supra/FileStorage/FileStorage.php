@@ -6,6 +6,7 @@ use Supra\FileStorage\Validation;
 use Supra\FileStorage\Helpers;
 use Supra\FileStorage\Entity;
 use Supra\FileStorage\Exception;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * File storage
@@ -68,23 +69,21 @@ class FileStorage
 		'7' => 'Failed to write file to disk',
 		'8' => 'A PHP extension stopped the file upload',
 	);
+	
+	/**
+	 * Entity manager instance instance
+	 *
+	 * @var object
+	 */
+	private $entityManager;
 
 	/**
 	 * Protecting from new FileStorage
 	 * @return FileStorage
 	 */
-	private function __construct()
+	public function __construct()
 	{
-		
-	}
-
-	/**
-	 * Protecting from cloning
-	 * @return FileStorage
-	 */
-	private function __clone()
-	{
-		
+		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
 
 	/**
@@ -190,15 +189,6 @@ class FileStorage
 	public function addFolderUploadFilter($filter)
 	{
 		$this->folderUploadFilters[] = $filter;
-	}
-
-	/**
-	 * Get Doctrine entity manager
-	 * @return \Doctrine\ORM\EntityManager
-	 */
-	public function getEntityManager()
-	{
-		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
 	}
 
 	// TODO: deleteFile($fileObj)
@@ -584,8 +574,8 @@ class FileStorage
 		$resizer->setOutputFile($resizedFilePath);
 		$resizer->process();
 		
-		$this->getEntityManager()->persist($size);
-		$this->getEntityManager()->flush();
+		$this->entityManager->persist($size);
+		$this->entityManager->flush();
 
 		return $sizeName;
 	}
@@ -617,8 +607,8 @@ class FileStorage
 						$tmp = $size->getWidth();
 						$size->setWidth($size->getHeight());
 						$size->setHeight($tmp);
-						$this->getEntityManager()->persist($size);
-						$this->getEntityManager()->flush();
+						$this->entityManager->persist($size);
+						$this->entityManager->flush();
 					}
 					continue;
 				}
@@ -693,8 +683,8 @@ class FileStorage
 				if ($sizeName == 'original') {
 					$size->setWidth($width);
 					$size->setHeight($height);
-					$this->getEntityManager()->persist($size);
-					$this->getEntityManager()->flush();
+					$this->entityManager->persist($size);
+					$this->entityManager->flush();
 					continue;
 				}
 				

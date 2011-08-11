@@ -1,5 +1,7 @@
 <?php
 
+use Supra\ObjectRepository\ObjectRepository;
+
 $fileStorage = Supra\FileStorage\FileStorage::getInstance();
 
 // FIXME: should doctrine entity manager be as file stogare parameter?
@@ -23,3 +25,5 @@ $fileStorage->addFileUploadFilter($existingFileNameFilter);
 // folder filters
 $fileStorage->addFolderUploadFilter($fileNameFilter);
 $fileStorage->addFolderUploadFilter($existingFileNameFilter);
+
+ObjectRepository::setDefaultFileStorage($fileStorage);

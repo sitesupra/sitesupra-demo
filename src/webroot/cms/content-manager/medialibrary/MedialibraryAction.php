@@ -6,6 +6,7 @@ use Supra\Cms\ContentManager\CmsActionController;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;
+use Supra\ObjectRepository\ObjectRepository;
 
 class MediaLibraryAction extends CmsActionController
 {
@@ -21,7 +22,7 @@ class MediaLibraryAction extends CmsActionController
 	public function listAction()
 	{
 		$fileStorage = FileStorage\FileStorage::getInstance();
-		$em = $fileStorage->getEntityManager();
+		$em = ObjectRepository::getEntityManager($fileStorage);
 
 		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
@@ -81,7 +82,7 @@ class MediaLibraryAction extends CmsActionController
 			$id = $_GET['id'];
 
 			$fileStorage = FileStorage\FileStorage::getInstance();
-			$em = $fileStorage->getEntityManager();
+			$em = ObjectRepository::getEntityManager($fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -110,7 +111,7 @@ class MediaLibraryAction extends CmsActionController
 		if ( ! empty($_POST['title'])) {
 
 			$fileStorage = FileStorage\FileStorage::getInstance();
-			$em = $fileStorage->getEntityManager();
+			$em = ObjectRepository::getEntityManager($fileStorage);
 
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			// FIXME: should doctrine entity manager be as file stogare parameter?
@@ -169,7 +170,7 @@ class MediaLibraryAction extends CmsActionController
 			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$em = $fileStorage->getEntityManager();
+			$em = ObjectRepository::getEntityManager($fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -282,7 +283,7 @@ class MediaLibraryAction extends CmsActionController
 
 			$file = $_FILES['file'];
 
-			$em = $fileStorage->getEntityManager();
+			$em = ObjectRepository::getEntityManager($fileStorage);
 
 			// checking for replace action
 			if (isset($_POST['file_id'])) {
@@ -390,7 +391,7 @@ class MediaLibraryAction extends CmsActionController
 
 			$fileId = intval($_GET['id']);
 
-			$em = $fileStorage->getEntityManager();
+			$em = ObjectRepository::getEntityManager($fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
