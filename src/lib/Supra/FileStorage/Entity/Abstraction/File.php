@@ -150,12 +150,12 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 	
 	/**
-	 * Sets creation time
-	 * @param \DateTime $createdTime 
+	 * Sets creation time to now
+	 * @PrePersist
 	 */
-	public function setCreatedTime(\DateTime $createdTime)
+	public function setCreatedTime()
 	{
-		$this->createdTime = $createdTime;
+		$this->createdTime = new \DateTime('now');
 	}
 
 	/**
@@ -168,12 +168,13 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 
 	/**
-	 * Sets modification time
-	 * @param \DateTime $modifiedTime 
+	 * Sets modification time to now 
+	 * @PreUpdate
+	 * @PrePersist
 	 */
-	public function setModifiedTime(\DateTime $modifiedTime)
+	public function setModifiedTime()
 	{
-		$this->modifiedTime = $modifiedTime;
+		$this->modifiedTime = new \DateTime('now');
 	}
 
 	

@@ -853,10 +853,6 @@ class FileStorage
 		$fileEntity->setName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
-		
-		
-		$timeNow = new \DateTime('now');
-		$fileEntity->setModifiedTime($timeNow);
 				
 		$this->storeFileData($fileEntity, $file['tmp_name']);
 

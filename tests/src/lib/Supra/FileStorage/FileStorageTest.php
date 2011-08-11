@@ -40,17 +40,12 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		self::getConnection()->persist($file);
 
 		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$timeNow = new \DateTime('now');
 		
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
 		$file->setName($fileName);
 		$file->setSize($fileSize);
 		$file->setMimeType($filestorage->getMimeType($uploadFile));
-		
-		$file->setCreatedTime($timeNow);
-		$file->setModifiedTime($timeNow);
 		
 		$dir->addChild($file);
 
@@ -105,7 +100,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file = new \Supra\FileStorage\Entity\File();
 		self::getConnection()->persist($file);
 
-		$timeNow = new \DateTime('now');
 		
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
@@ -115,9 +109,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
-
-		$file->setCreatedTime($timeNow);
-		$file->setModifiedTime($timeNow);
 		
 		$filestorage = FileStorage\FileStorage::getInstance();
 
@@ -275,12 +266,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$dir = new \Supra\FileStorage\Entity\Folder();
 		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$timeNow = new \DateTime('now');
 		
 		$dir->setName($name);
-		$dir->setCreatedTime($timeNow);
-		$dir->setModifiedTime($timeNow);
 
 		self::getConnection()->persist($dir);
 		self::getConnection()->flush();
@@ -410,11 +397,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
-
-		$timeNow = new \DateTime('now');
-		
-		$file->setCreatedTime($timeNow);
-		$file->setModifiedTime($timeNow);
 				
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
 		$fileData->setMaster($file);
@@ -439,13 +421,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		foreach ($dirNames as $dirName) {
 			$parentDir = $dir;
 			
-			$timeNow = new \DateTime('now');
-			
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
-			$dir->setCreatedTime($timeNow);
-			$dir->setModifiedTime($timeNow);
-			
+	
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
 			
@@ -480,11 +458,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
 			
-			$timeNow = new \DateTime('now');
-		
-			$dir->setCreatedTime($timeNow);
-			$dir->setModifiedTime($timeNow);
-			
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
 			if ($parentDir instanceof \Supra\FileStorage\Entity\Folder) {
@@ -512,11 +485,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
 
-		
-		$timeNow = new \DateTime('now');
-
-		$file->setCreatedTime($timeNow);
-		$file->setModifiedTime($timeNow);
 			
 		$dir->addChild($file);
 
@@ -553,11 +521,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			$dir->setName($dirName);
-			
-			$timeNow = new \DateTime('now');
-
-			$dir->setCreatedTime($timeNow);
-			$dir->setModifiedTime($timeNow);
 		
 			self::getConnection()->persist($dir);
 			self::getConnection()->flush();
@@ -580,11 +543,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 				$mimeType = finfo_file($finfo, $uploadFile);
 				finfo_close($finfo);
 				$file->setMimeType($mimeType);
-
-				$timeNow = new \DateTime('now');
-
-				$file->setCreatedTime($timeNow);
-				$file->setModifiedTime($timeNow);
 				
 				$dir->addChild($file);
 
@@ -711,11 +669,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
 		
-		$timeNow = new \DateTime('now');
-
-		$file->setCreatedTime($timeNow);
-		$file->setModifiedTime($timeNow);
-		
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -746,6 +699,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$filestorage->replaceFile($file, $replaceFileInfo);	
 		
 		$replacedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		
+		self::getConnection()->flush();
 		
 		self::assertFileExists($replacedFilePath, 'JohnMclane.jpg should replace chuck.jpg. But it\'s obvious that nobody cant replace Chuck Norris');
 	}
