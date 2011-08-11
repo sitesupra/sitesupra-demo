@@ -10,7 +10,6 @@ use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Editable\EditableAbstraction;
 use Supra\Controller\Pages\Request\Request;
-use Supra\Controller\Pages\Response\Block\Response;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Controller\Pages\Entity\TemplateBlock;
 

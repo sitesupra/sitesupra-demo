@@ -9,7 +9,7 @@ use Supra\Controller\Pages\Entity;
 /**
  * Response for block in edit mode
  */
-class ResponseEdit extends Response
+class BlockResponseEdit extends BlockResponse
 {
 	/**
 	 * Editable filter action

@@ -108,7 +108,7 @@ class Controller extends ControllerAbstraction
 	 */
 	protected function getLayoutProcessor()
 	{
-		$processor = new Layout\Processor\Html();
+		$processor = new Layout\Processor\HtmlProcessor();
 		$processor->setLayoutDir(\SUPRA_PATH . 'template');
 		return $processor;
 	}
@@ -184,9 +184,9 @@ class Controller extends ControllerAbstraction
 		$response = null;
 		
 		if ($this->request instanceof namespace\Request\RequestEdit) {
-			$response = new PlaceHolderResponse\ResponseEdit();
+			$response = new PlaceHolderResponse\PlaceHolderResponseEdit();
 		} else {
-			$response = new PlaceHolderResponse\ResponseView();
+			$response = new PlaceHolderResponse\PlaceHolderResponseView();
 		}
 		
 		$response->setPlaceHolder($placeHolder);

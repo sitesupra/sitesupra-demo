@@ -7,7 +7,7 @@ use Supra\Editable\EditableAbstraction;
 /**
  * Response for place holder view mode
  */
-class ResponseView extends Response
+class PlaceHolderResponseView extends PlaceHolderResponse
 {
 	
 }

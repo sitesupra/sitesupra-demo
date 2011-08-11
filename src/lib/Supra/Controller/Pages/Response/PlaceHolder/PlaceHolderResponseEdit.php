@@ -8,7 +8,7 @@ use Supra\Editable\EditableAbstraction;
 /**
  * Response for place holder edit mode
  */
-class ResponseEdit extends Response
+class PlaceHolderResponseEdit extends PlaceHolderResponse
 {
 	/**
 	 * Flush the response to another response object

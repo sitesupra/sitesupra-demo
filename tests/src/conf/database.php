@@ -25,7 +25,7 @@ $config->setProxyDir(SUPRA_TESTS_LIBRARY_PATH . 'Supra/NestedSet/Model/Proxy');
 $config->setProxyNamespace('Supra\Tests\Proxy');
 
 // SQL logger
-$sqlLogger = new \Supra\Log\Logger\Sql();
+$sqlLogger = new \Supra\Log\Logger\SqlLogger();
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(

@@ -10,7 +10,7 @@ use Supra\Controller\Pages\Entity\Abstraction\PlaceHolder;
 /**
  * Response for place holder
  */
-abstract class Response extends HttpResponse
+abstract class PlaceHolderResponse extends HttpResponse
 {
 	/**
 	 * @var PlaceHolder

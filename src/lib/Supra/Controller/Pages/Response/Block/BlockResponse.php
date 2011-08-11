@@ -9,7 +9,7 @@ use Supra\Controller\Pages\Entity;
 /**
  * Response for block
  */
-abstract class Response extends HttpResponse
+abstract class BlockResponse extends HttpResponse
 {
 	/**
 	 * @var Entity\Abstraction\Block

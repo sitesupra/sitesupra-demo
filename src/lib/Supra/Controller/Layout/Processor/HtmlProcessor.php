@@ -4,11 +4,12 @@ namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface;
 use Supra\Controller\Pages\Entity\Layout;
+use Supra\Controller\Layout\Exception;
 
 /**
  * Simple layout processor
  */
-class Html implements ProcessorInterface
+class HtmlProcessor implements ProcessorInterface
 {
 	/**
 	 * Place holder function name
@@ -60,9 +61,9 @@ class Html implements ProcessorInterface
 
 		// Flush place holder responses into master response
 		$macroCallback = function($func, array $args) use (&$response, &$placeResponses) {
-			if ($func == Html::PLACE_HOLDER) {
+			if ($func == HtmlProcessor::PLACE_HOLDER) {
 				if ( ! \array_key_exists(0, $args) || $args[0] == '') {
-					throw new Exception("No placeholder name defined in the placeHolder macro in template ");
+					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
 				}
 
 				$place = $args[0];
@@ -76,8 +77,6 @@ class Html implements ProcessorInterface
 		};
 
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
-
-		//throw new \Exception("Not implemented yet");
 	}
 
 	/**
@@ -94,9 +93,9 @@ class Html implements ProcessorInterface
 
 		// Collect place holders
 		$macroCallback = function($func, array $args) use (&$places) {
-			if ($func == Html::PLACE_HOLDER) {
+			if ($func == HtmlProcessor::PLACE_HOLDER) {
 				if ( ! \array_key_exists(0, $args) || $args[0] == '') {
-					throw new Exception("No placeholder name defined in the placeHolder macro in template ");
+					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
 				}
 				$places[] = $args[0];
 			}
@@ -110,16 +109,16 @@ class Html implements ProcessorInterface
 	/**
 	 * @param string $layoutSrc
 	 * @return string
-	 * @throws Exception when file or security issue is raised
+	 * @throws Exception\RuntimeException when file or security issue is raised
 	 */
 	protected function getContent($layoutSrc)
 	{
 		$filename = $this->getLayoutDir() . \DIRECTORY_SEPARATOR . $layoutSrc;
 		if ( ! \is_file($filename)) {
-			throw new Exception("File '$layoutSrc' was not found");
+			throw new Exception\RuntimeException("File '$layoutSrc' was not found");
 		}
 		if ( ! \is_readable($filename)) {
-			throw new Exception("File '$layoutSrc' is not readable");
+			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");
 		}
 		
 		// security stuff
@@ -130,15 +129,15 @@ class Html implements ProcessorInterface
 
 	/**
 	 * @param string $filename
-	 * @throws Exception if security issue is found
+	 * @throws Exception\RuntimeException if security issue is found
 	 */
 	protected function securityCheck($filename)
 	{
 		if (preg_match('!(^|/|\\\\)\.\.($|/|\\\\)!', $filename)) {
-			throw new Exception("Security error for '$filename': Layout filename cannot contain '..' part");
+			throw new Exception\RuntimeException("Security error for '$filename': Layout filename cannot contain '..' part");
 		}
 		if (\filesize($filename) > self::FILE_SIZE_LIMIT) {
-			throw new Exception("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
+			throw new Exception\RuntimeException("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
 		}
 	}
 
@@ -156,6 +155,7 @@ class Html implements ProcessorInterface
 		$startLength = strlen($startDelimiter);
 		$endDelimiter = $this->getEndDelimiter();
 		$endLength = strlen($endDelimiter);
+		$pos = null;
 
 		do {
 			$pos = strpos($layoutContent, $startDelimiter);

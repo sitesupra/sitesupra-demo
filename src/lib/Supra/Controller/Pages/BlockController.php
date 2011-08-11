@@ -8,7 +8,7 @@ use Supra\Response;
 use Supra\Editable\EditableAbstraction;
 use Supra\Editable\EditableInterface;
 use Supra\Controller\Pages\Request\HttpEditRequest;
-use Supra\Controller\Pages\Response\Block as BlockResponse;
+use Supra\Controller\Pages\Response\Block;
 
 /**
  * Block controller abstraction
@@ -74,9 +74,9 @@ abstract class BlockController extends ControllerAbstraction
 		$response = null;
 		
 		if ($request instanceof namespace\Request\RequestEdit) {
-			$response = new BlockResponse\ResponseEdit();
+			$response = new Block\BlockResponseEdit();
 		} else {
-			$response = new BlockResponse\ResponseView();
+			$response = new Block\BlockResponseView();
 		}
 		
 		// Response object needs a block entity
@@ -207,7 +207,7 @@ abstract class BlockController extends ControllerAbstraction
 		
 		$response = $this->getResponse();
 		
-		if ( ! $response instanceof BlockResponse\Response) {
+		if ( ! $response instanceof Block\BlockResponse) {
 			throw new Exception\RuntimeException("Block controller response object must be instance of block response");
 		}
 		
