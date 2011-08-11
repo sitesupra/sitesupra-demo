@@ -97,7 +97,7 @@ YUI.add("supra.input-string", function (Y) {
 		},
 		
 		_onFocus: function () {
-			if (this.get('boundingBox').hasClass("yui3-input-focused")) return;
+			if (this.get('disabled') || this.get('boundingBox').hasClass("yui3-input-focused")) return;
 			
 			this.get('boundingBox').addClass("yui3-input-focused");
 			this.get("inputNode").focus();

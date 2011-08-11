@@ -52,19 +52,6 @@ YUI.add('supra.input-path', function (Y) {
 			return value;
 		},
 		
-		_onFocus: function () {
-			Input.superclass._onFocus.apply(this, arguments);
-			
-			/*
-			if (this.get('disabled')) return;
-			
-			var node = this.get('replacementNode');
-			if (node) {
-				node.set('innerHTML', '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>');
-				this.set('pathNode', node.one('small'));
-			}
-			*/
-		},
 		_onBlur: function () {
 			var input = this.get('inputNode');
 			this.set('value', input.get('value').replace(/[^a-z0-9\-\_]/gi, ''));

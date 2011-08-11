@@ -133,10 +133,6 @@
 	.yui3-input-path.input-label-replacement small {
 		padding: 0 2px 0 0;
 	}
-	.yui3-input-path-focused.input-label-replacement span.replacement,
-	.yui3-input-path-focused .input-label-replacement span.replacement {
-			display: inline-block;
-		}
 	.yui3-input.yui3-input-path input {
 		width: 50%;
 	}

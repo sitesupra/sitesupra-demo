@@ -172,7 +172,8 @@ YUI().add('website.sitemap-settings', function (Y) {
 				uri = this.host.getDataPath('save'),
 				post_data = {
 					'page_id': this.host.property_data.id,
-					'version_id': this.host.property_data.version
+					'version_id': this.host.property_data.version,
+					'locale': Manager.SiteMap.languagebar.get('locale')
 				};
 			
 			post_data[input_id] = input_value;
