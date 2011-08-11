@@ -797,8 +797,11 @@ class FileStorage
 		}
 
 		if ($file->isPublic()) {
-			$path = '/'
-					. str_replace(SUPRA_WEBROOT_PATH, '', $this->getExternalPath());
+			$path = '/';
+			// get file storage dir in webroot and fix backslash on windows
+			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), 
+					array('', '/'), $this->getExternalPath());
+			// get file dir
 			$path .= $file->getPath('/', false) . '/';
 			
 			if ($file->isMimeTypeImage() || isset($sizeName)) {
