@@ -71,7 +71,7 @@ class FileStorage
 	);
 	
 	/**
-	 * Entity manager instance instance
+	 * Entity manager instance
 	 *
 	 * @var object
 	 */
@@ -191,8 +191,6 @@ class FileStorage
 		$this->folderUploadFilters[] = $filter;
 	}
 
-	// TODO: deleteFile($fileObj)
-	// TODO: deleteFolder($fileObj) only empty folders
 	// TODO: LIST (children by folder id)
 	// TODO: getDoctrineRepository()
 	// TODO: getFile($fileId)
@@ -337,18 +335,19 @@ class FileStorage
 
 	/**
 	 * Creates new folder in all file storages
-	 * @param string $folderName
-	 * @return true or throws Exception\RuntimeException
+	 * @param string $destination
+	 * @param Entity\Folder $folder 
 	 */
-	public function createFolder($destination, $folderName = '')
-	{
-		$fileNameHelper = new Helpers\FileNameValidationHelper();
-		$result = $fileNameHelper->validate($folderName);
-
-		if ( ! $result) {
-			throw new Exception\UploadFilterException($fileNameHelper->getErrorMessage());
+	public function createFolder(Entity\Folder $folder)
+	{		
+		$destination = $folder->getPath(DIRECTORY_SEPARATOR, $getPathIncludeNode);
+		$folderName = $folder->getName();
+		
+		// validating folder before creation
+		foreach ($this->folderUploadFilters as $filter) {
+			$filter->validateFolder($folder);
 		}
-
+		
 		if (( ! empty($folderName)) && ( ! empty($destination))) {
 			$folderName = DIRECTORY_SEPARATOR . $folderName;
 		}
@@ -358,12 +357,6 @@ class FileStorage
 
 		$internalFolderResult = $this->createFolderInFileSystem($internalPath);
 		$externalFolderResult = $this->createFolderInFileSystem($externalPath);
-
-		if ($internalFolderResult && $externalFolderResult) {
-			return true;
-		} else {
-			throw new Exception\RuntimeException('Something went wrong while creating folder');
-		}
 	}
 
 	/**
@@ -375,7 +368,7 @@ class FileStorage
 	{
 		$externalPath = $this->getExternalPath();
 		$internalPath = $this->getInternalPath();
-
+		
 		if (($fullPath != $externalPath) && ($fullPath != $internalPath)) {
 			if ( ! is_dir($fullPath)) {
 				if (mkdir($fullPath, $this->folderAccessMode)) {
@@ -383,8 +376,6 @@ class FileStorage
 				} else {
 					throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
 				}
-			} else {
-				throw new Exception\RuntimeException('Folder with such name already exists');
 			}
 		} else {
 			return true;
@@ -715,11 +706,11 @@ class FileStorage
 
 	/**
 	 * Get full file path or its directory (with trailing slash)
-	 * @param Entity\Abstraction\File $file
+	 * @param Entity\File $file
 	 * @param boolean $dirOnly 
 	 * @return string
 	 */
-	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true)
+	public function getFilesystemPath(Entity\File $file, $includeFilename = true)
 	{
 		if ( ! $file instanceof Entity\Abstraction\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
@@ -738,10 +729,10 @@ class FileStorage
 
 	/**
 	 * Get file directory (with trailing slash)
-	 * @param Entity\Abstraction\File $file
+	 * @param Entity\File $file
 	 * @return string
 	 */
-	public function getFilesystemDir(Entity\Abstraction\File $file)
+	public function getFilesystemDir(Entity\File $file)
 	{
 		return $this->getFilesystemPath($file, false);
 	}
@@ -837,7 +828,7 @@ class FileStorage
 		}
 		
 		// TODO: change to versioning
-		$this->removeFile($fileEntity);
+		$this->removeFileInFileSystem($fileEntity);
 		
 		// setting new data
 		$fileEntity->setName($file['name']);
@@ -876,10 +867,10 @@ class FileStorage
 	}
 
 	/**
-	 * Remove file
+	 * Remove file in file system
 	 * @param Entity\File $file 
 	 */
-	public function removeFile(Entity\File $file)
+	private function removeFileInFileSystem(Entity\File $file)
 	{
 		$filePath = $this->getFilesystemPath($file);
 
@@ -899,5 +890,66 @@ class FileStorage
 			throw new Exception\RuntimeException('Failed to delete file from file storage');
 		}
 	}
+	
+	/**
+	 * Removes file or folder from database and system
+	 * @param Entity\Abstraction\File $entity 
+	 */
+	public function remove(Entity\Abstraction\File $entity)
+	{
+		if($entity instanceof Entity\Folder) {
+			
+			$descendants = $entity->getDescendants();
+			
+			if( ! empty($descendants)) {
+				throw new Exception\RuntimeException('You can remove only empty folders');
+			}
+			
+			$this->removeFolder($entity);
+			
+		} elseif($entity instanceof Entity\File){
+			$this->removeFile($entity);
+		} else {
+			throw new Exception\LogicException('Wrong exception passed');
+		}
+	}
+	
+	/**
+	 * Remove folder from database and file system
+	 * @param Entity\Folder $folder 
+	 */
+	private function removeFolder(Entity\Folder $folder)
+	{
+		$this->removeFolderInFileSystem($folder);
+		$this->entityManager->remove($folder);
+	}
+	
+	/**
+	 * Remove folder in file system
+	 * @param Entity\File $file 
+	 */
+	private function removeFolderInFileSystem(Entity\Folder $folder)
+	{
+		$folderPath = $folder->getPath(DIRECTORY_SEPARATOR, true);
+		
+		$folderExternalPath = $this->getExternalPath() . $folderPath;
+		$folderInternalPath = $this->getInternalPath() . $folderPath;
+		
+		// we ignoring if one of the folders does not exist
+		$resultInternal = @rmdir($folderInternalPath);
+		$resultExternal = @rmdir($folderExternalPath);
 
+	}
+	
+	/**
+	 * Remove file from database and file system
+	 * @param Entity\File $file 
+	 */
+	private function removeFile(Entity\File $file)
+	{
+		$this->removeFileInFileSystem($file);
+		
+		$this->entityManager->remove($file);
+
+	}
 }

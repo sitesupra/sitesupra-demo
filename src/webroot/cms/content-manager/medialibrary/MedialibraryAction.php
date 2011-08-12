@@ -120,7 +120,7 @@ class MediaLibraryAction extends CmsAction
 
 			$em->persist($dir);
 			$dir->setName($dirName);
-		
+
 			// Adding child folder if parent exists
 			if ( ! empty($_POST['parent'])) {
 
@@ -140,12 +140,9 @@ class MediaLibraryAction extends CmsAction
 				}
 			}
 
-			$destination = $dir->getPath(DIRECTORY_SEPARATOR, false);
-			$folderName = $dir->getName();
-
 			// trying to create folder
 			try {
-				$fileStorage->createFolder($destination, $folderName);
+				$fileStorage->createFolder($dir);
 			} catch (FileStorage\Exception\RuntimeException $exc) {
 				$this->setErrorMessage($exc->getMessage());
 				return;
@@ -166,7 +163,7 @@ class MediaLibraryAction extends CmsAction
 	public function saveAction()
 	{
 		if ( ! empty($_POST['id'])) {
-			
+
 			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			// FIXME: should doctrine entity manager be as file stogare parameter?
@@ -224,7 +221,6 @@ class MediaLibraryAction extends CmsAction
 								$fileStorage->cropImage($file, $left, $top, $width, $height);
 							}
 						}
-						
 					}
 
 					if (isset($_POST['title'])) {
@@ -249,7 +245,6 @@ class MediaLibraryAction extends CmsAction
 					} else {
 						throw new MedialibraryException('File name isn\'t set');
 					}
-					
 				} catch (MedialibraryException $exc) {
 					$this->setErrorMessage($message);
 					return;
@@ -266,9 +261,41 @@ class MediaLibraryAction extends CmsAction
 		}
 	}
 
+	/**
+	 * Deletes file or folder
+	 */
 	public function deleteAction()
 	{
-		1 + 1;
+
+		if ( ! empty($_POST['id'])) {
+			$recordId = $_POST['id'];
+			$fileStorage = FileStorage\FileStorage::getInstance();
+			$em = ObjectRepository::getEntityManager($fileStorage);
+			/* @var $repo FileRepository */
+			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			/* @var $node \Supra\FileStorage\Entity\File */
+			$record = $repo->findOneById($recordId);
+
+			if ( ! empty($record)) {
+
+				try {
+					// try to delete
+					$fileStorage->remove($record);
+				} catch (FileStorage\Exception\RuntimeException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					return;
+				} catch (FileStorage\Exception\LogicException $exc) {
+					$this->setErrorMessage($exc->getMessage());
+					return;
+				}
+
+				$em->flush();
+
+				$this->getResponse()->setResponseData(null);
+			} else {
+				$this->setErrorMessage('Cant find record with such id');
+			}
+		}
 	}
 
 	/**
@@ -290,11 +317,11 @@ class MediaLibraryAction extends CmsAction
 				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 				/* @var $node \Supra\FileStorage\Entity\File */
 				$fileToReplace = $repo->findOneById($_POST['file_id']);
-				
+
 				if ( ! empty($fileToReplace) && ($fileToReplace instanceof FileStorage\Entity\File)) {
-					
+
 					$em->persist($fileToReplace);
-					
+
 					try {
 						$fileStorage->replaceFile($fileToReplace, $file);
 					} catch (FileStorage\Exception\RuntimeException $exc) {
@@ -307,14 +334,14 @@ class MediaLibraryAction extends CmsAction
 						\Log::error($exc->getMessage());
 						return;
 					}
-					
+
 					$em->flush();
 				}
-							
+
 				$output = $this->imageAndFileOutput($fileToReplace);
 
 				$this->getResponse()->setResponseData($output);
-				
+
 				return;
 			}
 
@@ -456,9 +483,9 @@ class MediaLibraryAction extends CmsAction
 		} else {
 			$type = self::TYPE_FILE;
 		}
-		
+
 		$fileStorage = FileStorage\FileStorage::getInstance();
-		
+
 		$filePath = $fileStorage->getWebPath($node);
 
 		$output = null;
@@ -484,7 +511,7 @@ class MediaLibraryAction extends CmsAction
 				'size' => $node->getSize(),
 				'sizes' => array()
 			);
-			
+
 			$sizes = $node->getImageSizeCollection();
 			if ( ! $sizes->isEmpty()) {
 				foreach ($sizes as $size) {
