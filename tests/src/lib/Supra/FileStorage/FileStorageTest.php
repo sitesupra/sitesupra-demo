@@ -32,17 +32,26 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$em->flush();
 
+		$filestorage = FileStorage\FileStorage::getInstance();
+		
 		// file
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$file = new \Supra\FileStorage\Entity\File();
+		$mimeType = $filestorage->getMimeType($uploadFile);
+		
+		$file = null;
+		if ($filestorage->isMimeTypeImage($mimeType)) {
+			$file = new \Supra\FileStorage\Entity\Image;
+		} else {
+			$file = new \Supra\FileStorage\Entity\File();
+		}
 		$em->persist($file);
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
 		$file->setName($fileName);
 		$file->setSize($fileSize);
-		$file->setMimeType($filestorage->getMimeType($uploadFile));
+		$file->setMimeType($mimeType);
 
 		$dir->addChild($file);
 
@@ -52,13 +61,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$filestorage->storeFileData($file, $uploadFile);
 
-		if ($file->isMimeTypeImage()) {
-			$origSize = $file->getImageSize('original');
+		if ($file instanceof \Supra\FileStorage\Entity\Image) {
 			$imageProcessor = new ImageResizer();
 			$imageInfo = $imageProcessor->getImageInfo($filestorage->getFilesystemPath($file));
-			$origSize->setWidth($imageInfo['width']);
-			$origSize->setHeight($imageInfo['height']);
-			$origSize->setName('');
+			$file->setWidth($imageInfo['width']);
+			$file->setHeight($imageInfo['height']);
 //			$filestorage->rotateImageLeft($file);
 //			$filestorage->rotateImageRight($file);
 //			$filestorage->rotateImage180($file);
@@ -78,6 +85,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 //		$repo = self::getConnection()->getRepository("Supra\FileStorage\Entity\Folder");
 //		$roots = $repo->getRootNodes();
 //		1+1;
+//		$filestorage->setPrivate($file);
+//		$filestorage->setPublic($file);
 
 		$path = $file->getPath(DIRECTORY_SEPARATOR, true);
 		if ($path == 'one/chuck.jpg') {

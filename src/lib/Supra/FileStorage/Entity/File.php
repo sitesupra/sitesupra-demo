@@ -34,11 +34,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @var integer
 	 */
 	protected $public = true;
-	/**
-	 * @OneToMany(targetEntity="ImageSize", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
-	 * @var Collection
-	 */
-	protected $imageSizes;
 
 	public function __construct()
 	{
@@ -160,97 +155,24 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		}
 	}
 
-	public function isMimeTypeImage($mimetype = null)
-	{
-		if (empty($mimetype) && isset($this->mimeType)) {
-			$mimetype = $this->getMimeType();
-		}
-		
-		$image = strpos($mimetype, 'image/');
-
-		if ($image === 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
+	/**
+	 * Get public state
+	 *
+	 * @return boolean
+	 */
 	public function isPublic()
 	{
 		return $this->public;
 	}
 
+	/**
+	 * Set public state
+	 *
+	 * @param boolean $public 
+	 */
 	public function setPublic($public)
 	{
 		$this->public = $public;
-	}
-
-	/**
-	 * Set (add) image size
-	 *
-	 * @param ImageSize $size
-	 * @return boolean
-	 */
-	public function setImageSize($size)
-	{
-		if ($this->imageSizes->containsKey($size->getName())) {
-			return false;
-		} else {
-			$this->imageSizes->set($size->getName(), $size);
-			return true;
-		}
-	}
-
-	/**
-	 * Find image size data
-	 *
-	 * @param string $sizeName
- 	 * @return ImageSize
-	 */
-	public function findImageSize($sizeName)
-	{
-		if ($this->imageSizes->containsKey($sizeName)) {
-			return $this->imageSizes->get($sizeName);
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Find image size data or create new if not found
-	 *
-	 * @param string $sizeName
-	 * @return ImageSize
-	 */
-	public function getImageSize($sizeName)
-	{
-		$size = $this->findImageSize($sizeName);
-		if ( ! $size instanceof ImageSize) {
-			$size = new ImageSize($sizeName);
-			$size->setMaster($this);
-		}
-		return $size;
-	}
-
-	/**
-	 * Remove image size
-	 * 
-	 * @param type $title
-	 */
-	public function removeImageSize($sizeName)
-	{
-		$size = $this->getImageSize($sizeName);
-		$this->getConnection()->remove($sizeName);
-	}
-
-	/**
-	 * Get collection of all assigned sizes
-	 *
-	 * @return type 
-	 */
-	public function getImageSizeCollection()
-	{
-		return $this->imageSizes;
 	}
 
 }

@@ -9,7 +9,7 @@ use	Supra\NestedSet;
  * @Entity(repositoryClass="Supra\FileStorage\Repository\FileNestedSetRepository")
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"file" = "Supra\FileStorage\Entity\File", "folder" = "Supra\FileStorage\Entity\Folder"})
+ * @DiscriminatorMap({"file" = "Supra\FileStorage\Entity\File", "folder" = "Supra\FileStorage\Entity\Folder", "image" = "Supra\FileStorage\Entity\Image"})
  * @Table(name="file_abstraction", indexes={
  *		@index(name="file_abstraction_lft_idx", columns={"lft"}),
  *		@index(name="file_abstraction_rgt_idx", columns={"rgt"}),

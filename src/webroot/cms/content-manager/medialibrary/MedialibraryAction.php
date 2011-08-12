@@ -51,7 +51,7 @@ class MediaLibraryAction extends CmsAction
 				$item['type'] = self::TYPE_FOLDER;
 			} else if ($rootNode instanceof \Supra\FileStorage\Entity\File) {
 
-				$isImage = $rootNode->isMimeTypeImage($rootNode->getMimeType());
+				$isImage = $rootNode instanceof \Supra\FileStorage\Entity\Image;
 
 				if ($isImage) {
 					$item['type'] = self::TYPE_IMAGE;
@@ -207,7 +207,7 @@ class MediaLibraryAction extends CmsAction
 				try {
 
 					// image editing
-					if ($file->isMimeTypeImage()) {
+					if ($file instanceof \Supra\FileStorage\Entity\Image) {
 						if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
 							$rotationCount = - intval($_POST['rotate'] / 90);
 							$fileStorage->rotateImage($file, $rotationCount);
@@ -345,7 +345,12 @@ class MediaLibraryAction extends CmsAction
 				return;
 			}
 
-			$fileEntity = new \Supra\FileStorage\Entity\File();
+			$fileEntity = null;
+			if ($fileStorage->isMimeTypeImage($file['type'])) {
+				$fileEntity = new \Supra\FileStorage\Entity\Image();
+			} else {
+				$fileEntity = new \Supra\FileStorage\Entity\File();
+			}
 			$em->persist($fileEntity);
 
 			$fileEntity->setName($file['name']);
@@ -380,13 +385,12 @@ class MediaLibraryAction extends CmsAction
 			try {
 				$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 				// additional jobs for images
-				if ($fileEntity->isMimeTypeImage()) {
+				if ($fileEntity instanceof \Supra\FileStorage\Entity\Image) {
 					// store original size
-					$origSize = $fileEntity->getImageSize('original');
 					$imageProcessor = new ImageProcessor\ImageResizer();
 					$imageInfo = $imageProcessor->getImageInfo($fileStorage->getFilesystemPath($fileEntity));
-					$origSize->setWidth($imageInfo['width']);
-					$origSize->setHeight($imageInfo['height']);
+					$fileEntity->setWidth($imageInfo['width']);
+					$fileEntity->setHeight($imageInfo['height']);
 					// create preview
 					$fileStorage->createResizedImage($fileEntity, 200, 200);
 				}
@@ -474,7 +478,7 @@ class MediaLibraryAction extends CmsAction
 	private function imageAndFileOutput(&$node)
 	{
 		// checking for image MIME type
-		$isImage = $node->isMimeTypeImage();
+		$isImage = $node instanceof \Supra\FileStorage\Entity\Image;
 
 		$type = null;
 
@@ -484,7 +488,8 @@ class MediaLibraryAction extends CmsAction
 			$type = self::TYPE_FILE;
 		}
 
-		$fileStorage = FileStorage\FileStorage::getInstance();
+		/** @var $fileStorage \Supra\FileStorage\FileStorage */
+		$fileStorage = ObjectRepository::getFileStorage($this);
 
 		$filePath = $fileStorage->getWebPath($node);
 
@@ -526,6 +531,13 @@ class MediaLibraryAction extends CmsAction
 					$output[$sizeName . '_url'] = $sizePath;
 				}
 			}
+			$output['sizes']['original'] = array(
+				'id' => oroginal,
+				'width' => $node->getWidth(),
+				'height' => $node->getHeight(),
+				'external_path' => $filePath
+			);
+			$output['original_url'] = $filePath;
 		}
 
 		return $output;

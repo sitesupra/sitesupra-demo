@@ -7,7 +7,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * Image resized versions
  * @Entity
- * @Table(name="file_image_sizes", uniqueConstraints={@UniqueConstraint(name="master_id_name_idx", columns={"master_id", "name"})})
+ * @Table(name="image_sizes", uniqueConstraints={@UniqueConstraint(name="master_id_name_idx", columns={"master_id", "name"})})
  */
 class ImageSize extends Abstraction\Entity {
 
@@ -20,7 +20,7 @@ class ImageSize extends Abstraction\Entity {
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="File", cascade={"persist"})
+	 * @ManyToOne(targetEntity="Image", cascade={"persist"})
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */
@@ -179,11 +179,11 @@ class ImageSize extends Abstraction\Entity {
 	}
 
 	/**
-	 * Set master object (file)
-	 * @param File $master
+	 * Set master object (image)
+	 * @param Image $master
 	 * @return boolean
 	 */
-	public function setMaster(File $master)
+	public function setMaster(Image $master)
 	{
 		// TODO match/writeOnce
 		$attached = $master->setImageSize($this);
@@ -196,8 +196,8 @@ class ImageSize extends Abstraction\Entity {
 	}
 
 	/**
-	 * Get master object (file)
-	 * @return File
+	 * Get master object (image)
+	 * @return Image
 	 */
 	public function getMaster()
 	{
