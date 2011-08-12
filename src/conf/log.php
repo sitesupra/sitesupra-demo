@@ -3,7 +3,7 @@
 // Set custom bootstrap writer
 $writer = new Supra\Log\Writer\FileWriter();
 $writer->setName('Supra7');
-$writer->addFilter(new Supra\Log\Filter\LevelFilter(array('level' => Supra\Log\LogEvent::DEBUG)));
+$writer->addFilter(new Supra\Log\Filter\LevelFilter($ini['log']));
 
 Supra\ObjectRepository\ObjectRepository::setDefaultLogger($writer);
 

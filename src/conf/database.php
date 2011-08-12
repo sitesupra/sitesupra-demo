@@ -35,12 +35,7 @@ $config->setAutoGenerateProxyClasses(true);
 $sqlLogger = new \Supra\Log\Logger\SqlLogger();
 $config->setSQLLogger($sqlLogger);
 
-$connectionOptions = array(
-	'driver' => 'pdo_mysql',
-	'user' => 'root',
-	'password' => 'root',
-	'dbname' => 'supra7'
-);
+$connectionOptions = $ini['database'];
 
 // TODO: move to some other configuration
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
