@@ -1,0 +1,47 @@
+{
+	"status": true,
+	"data": {
+		"buttons": {
+			"yes": "Yes",
+			"no": "No",
+			"on": "On",
+			"off": "Off",
+			"done": "Done",
+			"back": "Back",
+			"close": "Close",
+			"save": "Save",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"apply": "Apply",
+			"replace": "Replace",
+			"rename": "Rename",
+			"browse": "Browse",
+			"error": "Ok"
+		},
+		
+		"medialibrary": {
+			"upload": "Upload",
+			"new_folder": "New folder",
+			"delete": "Delete",
+			"undo_history": "Undo history",
+			
+			"rotate_left": "Rotate left",
+			"rotate_right": "Rotate right",
+			"crop": "Crop",
+			
+			"sort_by": "Sort by:",
+			"sort_az": "A-Z",
+			"sort_date": "Date added",
+			
+			"folder_empty": "No files in this folder",
+			
+			"label_title": "Title",
+			"label_description": "Description",
+			"label_filename": "Filename",
+			
+			"localize": "Localize",
+			"download": "Download",
+			"edit": "Edit"
+		}
+	}
+}

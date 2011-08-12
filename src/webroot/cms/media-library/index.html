@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-	<title>Banners</title>
+	<title>Media Library</title>
 	
 	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
 	<script src="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.3.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
@@ -20,7 +20,7 @@
 	//<![CDATA[
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
-			var APP_PATH = '/banner-manager',
+			var APP_PATH = '/media-library',
 				STATIC_PATH = '/cms',
 				DYNAMIC_PATH = '/cms';
 			
@@ -71,10 +71,10 @@
 				
 				//Application
 				'application': {
-					'id': 'banner-manager',
+					'id': 'media-library',
 					'path': DYNAMIC_PATH + APP_PATH,
-					'icon': '/cms/lib/supra/img/apps/banner',
-					'title': 'Banners'
+					'icon': '/cms/lib/supra/img/apps/media_library',
+					'title': 'Media Library'
 				},
 				
 				//Internationalization
