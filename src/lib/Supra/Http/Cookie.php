@@ -115,7 +115,7 @@ class Cookie
 		if (\is_string($expire)) {
 			$expireParsed = \strtotime($expire);
 			if (empty($expire)) {
-				Log::swarn("Invalid expire string '$expire' provided as cookie expire time");
+				Log::warn("Invalid expire string '$expire' provided as cookie expire time");
 				return false;
 			}
 			$expire = $expireParsed;
@@ -125,7 +125,7 @@ class Cookie
 		}
 		if ( ! is_int($expire)) {
 			$expireType = \gettype($expire);
-			Log::swarn("Invalid expire type '{$expireType}' provided as cookie expire time");
+			Log::warn("Invalid expire type '{$expireType}' provided as cookie expire time");
 			return false;
 		}
 		$this->expire = $expire;

@@ -41,7 +41,7 @@ abstract class DistributedController extends ControllerAbstraction
 			
 		$action = $request->getActions(1);
 
-		\Log::sdebug('Action: ', $action);
+		\Log::debug('Action: ', $action);
 		$baseAction = static::$defaultAction;
 
 		if ( ! empty($action)) {
@@ -53,7 +53,7 @@ abstract class DistributedController extends ControllerAbstraction
 		$baseNamespace = $this->getBaseNamespace();
 		$class = $this->getClassName($baseNamespace, $baseAction);
 
-		\Log::sdebug('Class: ', $class);
+		\Log::debug('Class: ', $class);
 
 		if ( ! class_exists($class)) {
 			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found");

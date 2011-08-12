@@ -3,7 +3,8 @@
 namespace Supra\Log\Logger;
 
 use Doctrine\DBAL\Logging\SQLLogger as SQLLoggerInterface;
-use Supra\Log\Log;
+use Supra\Log\Writer\WriterAbstraction;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Sql class
@@ -29,7 +30,7 @@ class SqlLogger implements SQLLoggerInterface
 	 * @var float
 	 */
 	private $start;
-
+	
 	/**
 	 * {@inheritdoc}
 	 */
@@ -46,17 +47,33 @@ class SqlLogger implements SQLLoggerInterface
 	 */
 	public function stopQuery()
 	{
-		$message = "Query\n{$this->sql}\n/* has been run";
+		$subject = "Query\n{$this->sql}\n/* has been run";
 		if (count($this->params) > 0) {
 			//FIXME: DateTime objects raises exception
-//			$message .= " with parameters [" . implode(', ', $this->params) . "]";
+//			$subject .= " with parameters [" . implode(', ', $this->params) . "]";
 		}
 		
 		$executionMs = microtime(true) - $this->start;
 		$executionMs = round(1000000 * $executionMs);
-		$message .= ", execution time {$executionMs}ms*/";
+		$subject .= ", execution time {$executionMs}ms*/";
 		
-		Log::debug($message);
+		$log = ObjectRepository::getLogger($this);
+		
+		// Let's find first caller offset not inside the Doctrine package
+		$offset = 1;
+		$trace = debug_backtrace(false);
+		array_shift($trace);
+		
+		foreach ($trace as $traceElement) {
+			$class = $traceElement['class'];
+			if (strpos($class, 'Doctrine\\') !== 0) {
+				break;
+			}
+			$offset++;
+		}
+		
+		$log->increaseBacktraceOffset($offset);
+		$log->debug($subject);
 	}
 
 }

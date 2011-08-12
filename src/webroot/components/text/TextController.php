@@ -15,7 +15,7 @@ class TextController extends BlockController
 	{
 		$response = $this->getResponse();
 		if ( ! ($response instanceof Response\HttpResponse)) {
-			\Log::sdebug('Response is not an instance of Http response in block controller ' . __CLASS__);
+			\Log::debug('Response is not an instance of Http response in block controller ' . __CLASS__);
 			return;
 		}
 

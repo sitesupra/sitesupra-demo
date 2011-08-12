@@ -43,7 +43,7 @@ class Uri extends RouterAbstraction
 	public function match(RequestInterface $request)
 	{
 		if ( ! ($request instanceof HttpRequest)) {
-			\Log::sdebug('Not the instance of Request\HttpRequest');
+			\Log::debug('Not the instance of Request\HttpRequest');
 			return false;
 		}
 

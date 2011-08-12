@@ -2,14 +2,16 @@
 
 namespace Supra\Log\Formatter;
 
+use Supra\Log\LogEvent;
+
 /**
- * Log4j log formatter - formats the message in format similar to log4j
+ * Log4j log formatter - formats the log event in format similar to log4j
  */
 class Log4jFormatter extends SimpleFormatter
 {
 	
 	const FORMAT = '<log4j:event logger="%logger%" level="%level%" thread="%thread%" timestamp="%microtime%">
-<log4j:message><![CDATA[%message%]]></log4j:message>
+<log4j:message><![CDATA[%subject%]]></log4j:message>
 <log4j:locationInfo class="%class%" file="%file%" line="%line%" method="%method%" />
 </log4j:event>
 ';
@@ -24,11 +26,15 @@ class Log4jFormatter extends SimpleFormatter
 	
 	/**
 	 * Format function - escape character combination "]]>"
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	function format(array &$event)
+	function format(LogEvent $event)
 	{
-		$event['message'] = strtr($event['message'], array(']]>' => ']]' . ']]>' . '<![CDATA[' . '>'));
+		// Escape subject at first
+		$subject = $event->getSubject();
+		$subject = strtr($subject, array(']]>' => ']]' . ']]>' . '<![CDATA[' . '>'));
+		$event->setSubject($subject);
+		
 		parent::format($event);
 	}
 }

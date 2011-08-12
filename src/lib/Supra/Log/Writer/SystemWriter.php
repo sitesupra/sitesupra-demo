@@ -2,6 +2,8 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\LogEvent;
+
 /**
  * System log writer
  */
@@ -13,17 +15,17 @@ class SystemWriter extends WriterAbstraction
 	 * @var array
 	 */
 	public static $defaultFormatterParameters = array(
-		'format' => '%level% %logger% - %file%(%line%): %message%',
+		'format' => '%level% %logger% - %file%(%line%): %subject%',
 		'timeFormat' => 'Y-m-d H:i:s',
 	);
 	
 	/**
 	 * Write the event in the system log
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{
-		error_log($event['message']);
+		error_log($event->getMessage());
 	}
 	
 }

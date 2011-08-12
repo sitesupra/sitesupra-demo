@@ -75,7 +75,7 @@ class Registry
 			if ( ! empty($self->listeners[$identificator][$eventType])) {
 				foreach ($self->listeners[$identificator][$eventType] as $listener) {
 					if ( ! is_callable($listener)) {
-						Log::swarn("Listener for element $identificator event type $eventType is not callable: ", $listener);
+						Log::warn("Listener for element $identificator event type $eventType is not callable: ", $listener);
 					} else {
 						call_user_func($listener, $identificator, $eventType, $parameters);
 					}

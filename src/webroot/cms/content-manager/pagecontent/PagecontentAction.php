@@ -196,7 +196,7 @@ class PagecontentAction extends PageManagerAction
 		$blockPositionById = array_flip($blockOrder);
 		
 		if (count($blockOrder) != count($blockPositionById)) {
-			\Log::swarn("Block order array received contains duplicate block IDs: ", $blockOrder);
+			\Log::warn("Block order array received contains duplicate block IDs: ", $blockOrder);
 		}
 		
 		//TODO: hardcoded

@@ -2,7 +2,8 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Log;
+use Supra\Log\LogEvent;
+use Supra\Log\Exception;
 
 /**
  * Socket log writer
@@ -21,7 +22,7 @@ class SocketWriter extends WriterAbstraction
 	 */
 	public static $defaultParameters = array(
 		'host' => 'tcp://127.0.0.1',
-		'port' => 4446,
+		'port' => null,
 		'timeout' => 0.1,
 	);
 	
@@ -30,7 +31,7 @@ class SocketWriter extends WriterAbstraction
 	 */
 	function __destruct()
 	{
-		if (is_resource($this->socket)) {
+		if ( ! is_null($this->socket)) {
 			fclose($this->socket);
 		}
 	}
@@ -51,25 +52,37 @@ class SocketWriter extends WriterAbstraction
 	protected function getSocket()
 	{
 		if (is_null($this->socket)) {
+			
+			if (empty($this->parameters['host'])) {
+				throw Exception\RuntimeException::emptyConfiguration('socket host');
+			}
+			
+			if (empty($this->parameters['port'])) {
+				throw Exception\RuntimeException::emptyConfiguration('socket port');
+			}
+			
+			$errno = null;
+			$errstr = null;
 			$this->socket = @fsockopen($this->parameters['host'], $this->parameters['port'], $errno, $errstr, $this->parameters['timeout']);
-			if ($errno) {
-				Log::swarn(__CLASS__ . ': cannot open socket, error [' . $errno . '] ' . $errstr);
+			
+			if (empty($this->socket) || ! empty($errno)) {
+				throw new Exception\RuntimeException("Cannot open socket {$this->parameters['host']}:{$this->parameters['port']} for logging, error [' . $errno . '] ' . $errstr");
 			}
 		}
+		
 		return $this->socket;
 	}
 	
 	/**
 	 * Write the message
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{
 		$socket = $this->getSocket();
-		if (is_resource($socket)) {
-			if (@fwrite($socket, $event['message'] . PHP_EOL) === false) {
-				Log::swarn(__CLASS__ . ': cannot write in the socket');
-			}
+		
+		if (@fwrite($socket, $event->getMessage() . PHP_EOL) === false) {
+			throw new Exception\RuntimeException("Cannot write log into the socket {$this->parameters['host']}:{$this->parameters['port']}");
 		}
 	}
 }

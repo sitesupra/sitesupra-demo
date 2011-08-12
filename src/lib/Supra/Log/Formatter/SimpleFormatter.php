@@ -2,7 +2,7 @@
 
 namespace Supra\Log\Formatter;
 
-use Supra\Log\Log;
+use Supra\Log\LogEvent;
 
 /**
  * Simple log formatter - formats the message in custom format
@@ -20,7 +20,7 @@ class SimpleFormatter implements FormatterInterface
 	 * @var array
 	 */
 	protected static $defaultParameters = array(
-		'format' => '[%time%] %level% %logger% - %file%(%line%): %message%',
+		'format' => '[%time%] %level% %logger% - %file%(%line%): %subject%',
 		'timeFormat' => 'Y-m-d H:i:s',
 	);
 	
@@ -39,29 +39,30 @@ class SimpleFormatter implements FormatterInterface
 	
 	/**
 	 * Format function
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	function format(array &$event)
+	function format(LogEvent $event)
 	{
-		$message = $this->parameters['format'];
-		
-		// don't do anything if format doesn't change the message
-		if ($message == '%message%') return;
+		$eventData = $event->toArray();
+		$format = $this->parameters['format'];
+		$replaceWhat = array();
+		$replaceWith = array();
 		
 		foreach ($this->parameters['variables'] as $variable) {
+			// Special case for the time
 			if ($variable == 'time') {
-				$time = Log::getDateInDefaultTimezone($this->parameters['timeFormat'], $event['timestamp']);
+				$time = $event->formatTimestamp($this->parameters['timeFormat']);
 				$replaceWhat[] = '%' . $variable . '%';
 				$replaceWith[] = &$time;
 			}
-			if (array_key_exists($variable, $event)) {
+			if (array_key_exists($variable, $eventData)) {
 				$replaceWhat[] = '%' . $variable . '%';
-				$replaceWith[] = &$event[$variable];
+				$replaceWith[] = &$eventData[$variable];
 			}
 		}
 		
-		$event['message'] = str_replace($replaceWhat, $replaceWith, $message);
-		
+		$message = str_replace($replaceWhat, $replaceWith, $format);
+		$event->setMessage($message);
 	}
 	
 }

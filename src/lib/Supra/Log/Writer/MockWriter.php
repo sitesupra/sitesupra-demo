@@ -2,6 +2,8 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\LogEvent;
+
 /**
  * Mock log writer
  */
@@ -15,9 +17,9 @@ class MockWriter extends WriterAbstraction
 
 	/**
 	 * Store the event inside the property
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{
 		$this->events[] = $event;
 	}

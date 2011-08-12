@@ -2,7 +2,7 @@
 
 namespace Supra\Log\Writer;
 
-use Supra\Log\Log;
+use Supra\Log\LogEvent;
 
 require_once SUPRA_LIBRARY_PATH . 'FirePhp/FirePHP.class.php';
 
@@ -29,7 +29,7 @@ class FirePhpWriter extends WriterAbstraction
 	 * @var array
 	 */
 	public static $defaultFormatterParameters = array(
-		'format' => '%message%',
+		'format' => '%subject%',
 		'timeFormat' => 'Y-m-d H:i:s',
 	);
 
@@ -49,29 +49,28 @@ class FirePhpWriter extends WriterAbstraction
 	
 	/**
 	 * Write the event in the fire php instance
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{
 		$label = null;
 		$method = \FirePHP::LOG;
 		
-		switch ($event['level']) {
-			case Log::DEBUG:	$method = \FirePHP::LOG; break;
-			case Log::INFO:		$method = \FirePHP::INFO; break;
-			case Log::WARN:		$method = \FirePHP::WARN; break;
-			case Log::ERROR:	$method = \FirePHP::ERROR; break;
-			case Log::FATAL:	$method = \FirePHP::ERROR; break;
-			default: 			$label = $event['level'];
+		switch ($event->level) {
+			case LogEvent::DEBUG:	$method = \FirePHP::LOG; break;
+			case LogEvent::INFO:	$method = \FirePHP::INFO; break;
+			case LogEvent::WARN:	$method = \FirePHP::WARN; break;
+			case LogEvent::ERROR:	$method = \FirePHP::ERROR; break;
+			case LogEvent::FATAL:	$method = \FirePHP::ERROR; break;
+			default:				$label = $event->level;
 		}
 		
 		$options = array(
-			'File' => $event['file'],
-			'Line' => $event['line'],
+			'File' => $event->file,
+			'Line' => $event->line,
 		);
 
-		$this->fp->fb($event['message'], $label, $method, $options);
-		
+		$this->fp->fb($event->getMessage(), $label, $method, $options);
 	}
 	
 }

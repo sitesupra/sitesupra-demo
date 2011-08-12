@@ -155,7 +155,7 @@ abstract class ImageProcessor
 	    
 	    } catch(Exception $e) {
 	    	$error = $e->getMessage();
-	    	Log::sinfo('Image Loading Error: ' . $error);
+	    	Log::info('Image Loading Error: ' . $error);
 	    }
 		
 	    return $image;

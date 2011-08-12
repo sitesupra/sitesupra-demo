@@ -54,4 +54,8 @@ interface WriterInterface
 	 */
 	public function addFilter(Filter\FilterInterface $filter, $append = true);
 
+	/**
+	 * @param int $byOffset
+	 */
+	public function increaseBacktraceOffset($byOffset = 1);
 }

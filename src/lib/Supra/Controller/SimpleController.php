@@ -24,7 +24,7 @@ abstract class SimpleController extends ControllerAbstraction
 		$request = $this->getRequest();
 		$actions = $request->getActions(null);
 
-		\Log::sdebug('Actions: ', $actions);
+		\Log::debug('Actions: ', $actions);
 
 		if (empty($actions)) {
 			$actions = array(static::$defaultAction);
@@ -46,7 +46,7 @@ abstract class SimpleController extends ControllerAbstraction
 		$method = implode('', $actions) . 'Action';
 		$method = lcfirst($method);
 
-		\Log::sdebug('Method: ', $method);
+		\Log::debug('Method: ', $method);
 
 		$methods = get_class_methods($this);
 		

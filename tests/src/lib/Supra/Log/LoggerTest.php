@@ -2,9 +2,10 @@
 
 namespace Supra\Tests\Log;
 
-use Supra\Tests\TestCase,
-		Supra\Log\Log,
-		Supra\Log\Writer;
+use Supra\Tests\TestCase;
+use Supra\Log\Log;
+use Supra\Log\Writer;
+use Supra\Log\LogEvent;
 
 /**
  * Supra Logger test class
@@ -23,7 +24,7 @@ class LoggerTest extends TestCase
 	public function setUp()
 	{
 		$this->initialTimezone = date_default_timezone_get();
-		Log::setDefaultTimezone($this->initialTimezone);
+		LogEvent::setDefaultTimezone($this->initialTimezone);
 	}
 
 	/**
@@ -35,18 +36,6 @@ class LoggerTest extends TestCase
 	}
 
 	/**
-	 * Get log instance test
-	 */
-	public function testGetInstance()
-	{
-		$instance1 = Log::getInstance();
-		$instance2 = Log::getInstance();
-		self::isInstanceOf('Supra\Log\Log')->evaluate($instance1);
-		self::isInstanceOf('Supra\Log\Log')->evaluate($instance2);
-		self::assertEquals($instance1, $instance2);
-	}
-
-	/**
 	 * Test log level priorities
 	 * @dataProvider levelTestProvider
 	 * @param string $levelA
@@ -54,7 +43,7 @@ class LoggerTest extends TestCase
 	 */
 	public function testLevels($levelA, $levelB)
 	{
-		self::assertTrue(Log::$levels[$levelA] < Log::$levels[$levelB]);
+		self::assertTrue(LogEvent::$levels[$levelA] < LogEvent::$levels[$levelB]);
 	}
 
 	/**
@@ -64,10 +53,10 @@ class LoggerTest extends TestCase
 	public function levelTestProvider()
 	{
 		return array(
-			array(Log::DEBUG, Log::INFO),
-			array(Log::INFO, Log::WARN),
-			array(Log::WARN, Log::ERROR),
-			array(Log::ERROR, Log::FATAL)
+			array(LogEvent::DEBUG, LogEvent::INFO),
+			array(LogEvent::INFO, LogEvent::WARN),
+			array(LogEvent::WARN, LogEvent::ERROR),
+			array(LogEvent::ERROR, LogEvent::FATAL)
 		);
 	}
 
@@ -81,9 +70,9 @@ class LoggerTest extends TestCase
 	{
 		$time = time();
 		$format = 'Y-m-d H:i:s';
-		$timeStringA = Log::getDateInDefaultTimezone($format, $time);
+		$timeStringA = LogEvent::getDateInDefaultTimezone($format, $time);
 		date_default_timezone_set($timezone);
-		$timeStringB = Log::getDateInDefaultTimezone($format, $time);
+		$timeStringB = LogEvent::getDateInDefaultTimezone($format, $time);
 		self::assertEquals($timeStringA, $timeStringB);
 	}
 
@@ -98,12 +87,4 @@ class LoggerTest extends TestCase
 			array('Australia/Sydney')
 		);
 	}
-
-	public function testWriter()
-	{
-		$writerA = new Writer\Mock();
-		$writerB = new Writer\Mock();
-		Log::getInstance()->addWriter('test', $writerA);
-	}
-	
 }

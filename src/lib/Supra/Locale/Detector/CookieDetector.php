@@ -35,7 +35,7 @@ class CookieDetector extends DetectorAbstraction
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
 		if ( ! ($request instanceof HttpRequest)) {
-			\Log::swarn('Request must be instance of Http request object to use cookie locale detection');
+			\Log::warn('Request must be instance of Http request object to use cookie locale detection');
 			return;
 		}
 

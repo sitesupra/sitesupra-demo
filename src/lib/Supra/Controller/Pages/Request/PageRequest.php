@@ -335,7 +335,7 @@ abstract class PageRequest extends HttpRequest
 		
 		$em->flush();
 		
-		\Log::sdebug('Count of place holders found: ' . count($this->placeHolderSet));
+		\Log::debug('Count of place holders found: ' . count($this->placeHolderSet));
 		
 		return $this->placeHolderSet;
 	}
@@ -391,7 +391,7 @@ abstract class PageRequest extends HttpRequest
 		// Execute block query
 		$blocks = $qb->getQuery()->getResult();
 
-		\Log::sdebug("Block count found: " . count($blocks));
+		\Log::debug("Block count found: " . count($blocks));
 
 		/*
 		 * Collect locked blocks from not final placesholders
@@ -448,13 +448,13 @@ abstract class PageRequest extends HttpRequest
 				$master = $page;
 			}
 			
-			\Log::sdebug("Master node for {$block} is found - {$master}");
+			\Log::debug("Master node for {$block} is found - {$master}");
 			
 			// FIXME: n+1 problem
 			$data = $master->getData($this->locale);
 			
 			if (empty($data)) {
-				\Log::swarn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
+				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
 				$blockSet->removeInvalidBlock($block, "Page data for locale not found");
 				continue;
 			}
@@ -469,7 +469,7 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
-			\Log::sdebug("Have generated condition for properties fetch for block $block");
+			\Log::debug("Have generated condition for properties fetch for block $block");
 		}
 
 		// Stop if no propereties were found
@@ -482,7 +482,7 @@ abstract class PageRequest extends HttpRequest
 				->where($or);
 		$query = $qb->getQuery();
 		
-		\Log::sdebug("Running query {$qb->getDQL()} to find block properties");
+		\Log::debug("Running query {$qb->getDQL()} to find block properties");
 
 		$result = $query->getResult();
 		

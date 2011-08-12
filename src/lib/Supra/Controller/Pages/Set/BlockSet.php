@@ -19,7 +19,7 @@ class BlockSet extends AbstractSet
 		/* @var $testBlock Entity\Abstraction\Block */
 		foreach ($this as $index => $testBlock) {
 			if ($testBlock->equals($block)) {
-				\Log::swarn("Block {$block} removed as invalid with reason: {$reason}");
+				\Log::warn("Block {$block} removed as invalid with reason: {$reason}");
 				
 				$this->offsetUnset($index);
 			}

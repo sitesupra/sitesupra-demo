@@ -2,6 +2,8 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\LogEvent;
+
 /**
  * Null log writer
  */
@@ -9,8 +11,8 @@ class NullWriter extends WriterAbstraction
 {
 	/**
 	 * Ignore the event
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{}
 }

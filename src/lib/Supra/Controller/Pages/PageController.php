@@ -69,18 +69,18 @@ class PageController extends ControllerAbstraction
 		$places = $request->getPlaceHolderSet();
 
 		$this->findBlockControllers($request);
-		\Log::sdebug("Block controllers found for {$page}");
+		\Log::debug("Block controllers found for {$page}");
 		
 		$this->prepareBlockControllers($request);
-		\Log::sdebug("Blocks prepared for {$page}");
+		\Log::debug("Blocks prepared for {$page}");
 
 		$this->executeBlockControllers($request);
-		\Log::sdebug("Blocks executed for {$page}");
+		\Log::debug("Blocks executed for {$page}");
 
 		$placeResponses = $this->getPlaceResponses($request);
 
 		$this->processLayout($layout, $placeResponses);
-		\Log::sdebug("Layout {$layout} processed and output to response for {$page}");
+		\Log::debug("Layout {$layout} processed and output to response for {$page}");
 	}
 	
 	/**
@@ -250,7 +250,7 @@ class PageController extends ControllerAbstraction
 			try {
 				$return[$index] = $function($block, $blockController);
 			} catch (Exception\InvalidBlockException $e) {
-				\Log::swarn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
+				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);
 			}
 		}

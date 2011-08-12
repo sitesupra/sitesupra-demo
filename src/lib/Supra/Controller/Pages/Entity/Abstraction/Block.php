@@ -186,14 +186,14 @@ class Block extends Entity
 	{
 		$component = $this->getComponent();
 		if ( ! class_exists($component)) {
-			\Log::swarn("Block component $component was not found for block $this");
+			\Log::warn("Block component $component was not found for block $this");
 			
 			return null;
 		}
 
 		$blockController = new $component();
 		if ( ! ($blockController instanceof BlockController)) {
-			\Log::swarn("Block controller $component must be instance of BlockController in block $this");
+			\Log::warn("Block controller $component must be instance of BlockController in block $this");
 			
 			return null;
 		}

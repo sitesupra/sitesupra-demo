@@ -148,7 +148,7 @@ class Range
 				if ($this->strict) {
 					throw $e;
 				} else {
-					Log::swarn($e->getMessage());
+					Log::warn($e->getMessage());
 					unset($ranges[$i]);
 				}
 			}

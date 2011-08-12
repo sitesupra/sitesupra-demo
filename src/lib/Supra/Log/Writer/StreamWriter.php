@@ -2,6 +2,9 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\LogEvent;
+use Supra\Log\Exception;
+
 /**
  * Stream log writer
  */
@@ -49,7 +52,7 @@ class StreamWriter extends WriterAbstraction
 		if (is_null($this->stream)) {
 			
 			if (empty($this->parameters['url'])) {
-				throw new Exception(__CLASS__ . ': no stream url provided');
+				throw Exception\RuntimeException::emptyConfiguration('stream url');
 			}
 			$url = $this->parameters['url'];
 			
@@ -57,7 +60,7 @@ class StreamWriter extends WriterAbstraction
 			
 			$this->stream = @fopen($url, 'a');
 			if ($this->stream === false) {
-				throw new Exception(__CLASS__ . ': cannot open stream');
+				throw new Exception\RuntimeException("Cannot open log writer stream {$url}");
 			}
 		}
 		
@@ -76,13 +79,14 @@ class StreamWriter extends WriterAbstraction
 	
 	/**
 	 * Write the message
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	protected function _write($event)
+	protected function _write(LogEvent $event)
 	{
 		$stream = $this->getStream();
-		if ( ! is_resource($stream) || @fwrite($stream, $event['message'] . PHP_EOL) === false) {
-			throw new Exception(__CLASS__ . ': cannot write in the stream');
+		
+		if (@fwrite($stream, $event->getMessage() . PHP_EOL) === false) {
+			throw new Exception\RuntimeException('Cannot write log in the configured stream');
 		}
 	}
 	

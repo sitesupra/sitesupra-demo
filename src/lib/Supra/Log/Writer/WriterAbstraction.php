@@ -4,42 +4,55 @@ namespace Supra\Log\Writer;
 
 use Supra\Log\Filter;
 use Supra\Log\Formatter;
+use Supra\Log\Exception;
 use Supra\Log\Log;
 use Supra\Log\LogEvent;
 
 /**
  * Abstract for log writer
+ * @method void dump(mixed $argument)
+ * @method void debug(mixed $argument)
+ * @method void info(mixed $argument)
+ * @method void warn(mixed $argument)
+ * @method void error(mixed $argument)
+ * @method void fatal(mixed $argument)
  */
 abstract class WriterAbstraction implements WriterInterface
 {
+	/**
+	 * Internal backtrace length
+	 */
+	const BACKTRACE_OFFSET_START = 1;
 	
 	/**
 	 * Formatter instance
-	 *
 	 * @var Formatter\FormatterInterface
 	 */
 	protected $formatter;
 	
 	/**
 	 * Filter instance
-	 *
 	 * @var Filter\FilterInterface[]
 	 */
 	protected $filters = array();
 	
 	/**
 	 * Configuration
-	 *
 	 * @var array
 	 */
 	protected $parameters;
 	
 	/**
 	 * Logger name
-	 *
 	 * @var string
 	 */
 	protected $name;
+	
+	/**
+	 * Offset parameter for backtrace
+	 * @var int
+	 */
+	protected $backtraceOffset = self::BACKTRACE_OFFSET_START;
 	
 	/**
 	 * If the writer method is running now. Used to workaround recursions
@@ -147,58 +160,95 @@ abstract class WriterAbstraction implements WriterInterface
 	}
 	
 	/**
+	 * Function to be called after successfull or not successfull log write event
+	 */
+	protected function reset()
+	{
+		$this->backtraceOffset = self::BACKTRACE_OFFSET_START;
+		
+		// not writing anymore
+		$this->writing = false;
+	}
+	
+	/**
 	 * Magic call method for debug/info/etc
 	 * @param string $method
 	 * @param array $arguments
 	 */
-	function __call($method, $arguments)
+	public function __call($method, $arguments)
 	{
-		// recursive call, breaking
+		// recursive call, trying the bootstrap logger
 		if ($this->writing) {
+			$bootstrapLogger = Log::getBootstrapLogger();
+			
+			if ($bootstrapLogger != $this) {
+				$bootstrapLogger->increaseBacktraceOffset(2);
+				$bootstrapLogger->__call($method, $arguments);
+			}
 			return;
 		}
+		
 		$this->writing = true;
 		
 		try {
 			$level = strtoupper($method);
-			if ( ! isset(Log::$levels[$level])) {
-				throw new Exception('Method ' . get_class($this) . '::' . $method . '() is not defined');
+			
+			// Special case for dump function
+			if ($level == 'DUMP') {
+				$level = LogEvent::DEBUG;
+				ob_start();
+				foreach ($arguments as &$arg) {
+					var_dump($arg);
+				}
+				$arguments = array(ob_get_clean());
 			}
 			
-			$params = array();
-			if (isset($arguments[1])) {
-				$offset = $arguments[1] + 1;
-			} else {
-				$offset = 1;
+			if ( ! isset(LogEvent::$levels[$level])) {
+				/*
+				 * This exception will break out from the logger for sure 
+				 * because bootstrap logger will not have this level as well
+				 */
+				throw Exception\LogicException::badLogLevel($method);
 			}
 			
-			$params = Log::getBacktraceInfo($offset);
+			$params = LogEvent::getBacktraceInfo($this->backtraceOffset);
 
 			// Generate logger name
-			$loggerName = null;
-			if ($this->name != '') {
-				$loggerName = $this->name;
-			}
-			if (isset($arguments[2]) && $arguments[2] != '') {
-				if ($loggerName != '') {
-					$loggerName .= ' ';
-				}
-				$loggerName .= $arguments[2];
-			}
+			$loggerName = $this->name;
 
-			$event = new LogEvent($arguments[0], $level, $params['file'], $params['line'], $loggerName, $params);
+			$event = new LogEvent($arguments, $level, $params['file'], $params['line'], $loggerName, $params);
 			$this->write($event);
 			
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
+			$this->reset();
 			
-			// not writing anymore
-			$this->writing = false;
+			// Try bootstrap logger if the current fails
+			$bootstrapLogger = Log::getBootstrapLogger();
 			
-			throw $e;
+			if ($bootstrapLogger != $this) {
+				
+				// Log the exception
+				$bootstrapLogger->error($e);
+				
+				// Log the initial log event
+				$bootstrapLogger->increaseBacktraceOffset($this->backtraceOffset + 1);
+				$bootstrapLogger->__call($method, $arguments);
+			} else {
+				
+				// Bootstrap failed
+				throw $e;
+			}
 		}
 		
-		// not writing anymore
-		$this->writing = false;
+		$this->reset();
+	}
+	
+	/**
+	 * @param int $byOffset
+	 */
+	public function increaseBacktraceOffset($byOffset = 1)
+	{
+		$this->backtraceOffset += $byOffset;
 	}
 	
 	/**
@@ -217,16 +267,13 @@ abstract class WriterAbstraction implements WriterInterface
 		}
 		
 		// format the message
-		$event = $event->toArray();
 		$this->getFormatter()->format($event);
 		$this->_write($event);
-		
 	}
 	
 	/**
 	 * Write the message
-	 * @param array $event
+	 * @param LogEvent $event
 	 */
-	abstract protected function _write($event);
-	
+	abstract protected function _write(LogEvent $event);
 }

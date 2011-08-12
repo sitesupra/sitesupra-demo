@@ -6,14 +6,20 @@ namespace Supra\ObjectRepository;
  * Object repository
  *
  */
-class ObjectRepository {
+class ObjectRepository
+{
+	const DEFAULT_KEY = '!default';
 	
+	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterInterface';
+
 	/**
 	 * Object relation storage
 	 *
 	 * @var array
 	 */
-	protected static $objectBindings = array();
+	protected static $objectBindings = array(
+		self::DEFAULT_KEY => array(),
+	);
 
 	/**
 	 * Get object of specified interface assigned to caller class
@@ -29,7 +35,8 @@ class ObjectRepository {
 		} else if ( ! is_string($caller)) {
 			throw new \RuntimeException('Caller must be class instance or class name');
 		}
-		$objects = self::$objectBindings['!default'];
+		
+		$objects = self::$objectBindings[self::DEFAULT_KEY];
 		if (isset(self::$objectBindings[$caller])) {
 			$objects = array_merge($objects, self::$objectBindings[$caller]);
 		}
@@ -59,18 +66,26 @@ class ObjectRepository {
 	 */
 	public static function setDefaultObject($object)
 	{
-		self::addBinding('!default', $object);
+		self::addBinding(self::DEFAULT_KEY, $object);
 	}
 
 	/**
 	 * Get assigned logger
 	 *
 	 * @param string/object $caller
-	 * @return object
+	 * @return \Supra\Log\Writer\WriterInterface
 	 */
 	public static function getLogger($caller)
 	{
-		return self::getObject($caller, '!Logger');
+		$logger = self::getObject($caller, self::INTERFACE_LOGGER);
+
+		// Create bootstrap logger in case of missing logger
+		if (empty($logger)) {
+			$logger = \Supra\Log\Log::getBootstrapLogger();
+			self::setDefaultLogger($logger);
+		}
+
+		return $logger;
 	}
 
 	/**
@@ -79,8 +94,9 @@ class ObjectRepository {
 	 * @param string/object $caller
 	 * @param object $object 
 	 */
-	public static function setLogger($caller, $object) {
-		self::addBinding($caller, $object, '!Logger');
+	public static function setLogger($caller, $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_LOGGER);
 	}
 
 	/**
@@ -90,7 +106,7 @@ class ObjectRepository {
 	 */
 	public static function setDefaultLogger($object)
 	{
-		self::addBinding('!default', $object, '!Logger');
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOGGER);
 	}
 
 	/**
@@ -122,9 +138,8 @@ class ObjectRepository {
 	 */
 	public static function setDefaultEntityManager($object)
 	{
-		self::addBinding('!default', $object, '!EntityManager');
+		self::addBinding(self::DEFAULT_KEY, $object, '!EntityManager');
 	}
-
 
 	/**
 	 * Get assigned file storage
@@ -143,7 +158,8 @@ class ObjectRepository {
 	 * @param string/object $caller
 	 * @param object $object 
 	 */
-	public static function setFileStorage($caller, $object) {
+	public static function setFileStorage($caller, $object)
+	{
 		self::addBinding($caller, $object, '!FileStorage');
 	}
 
@@ -154,7 +170,7 @@ class ObjectRepository {
 	 */
 	public static function setDefaultFileStorage($object)
 	{
-		self::addBinding('!default', $object, '!FileStorage');
+		self::addBinding(self::DEFAULT_KEY, $object, '!FileStorage');
 	}
 
 	/**
@@ -177,8 +193,8 @@ class ObjectRepository {
 		if (is_null($interfaceClass)) {
 			$interfaceClass = get_class($object);
 		}
-		
+
 		self::$objectBindings[$caller][$interfaceClass] = $object;
-	}	
-	
+	}
+
 }

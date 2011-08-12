@@ -2,6 +2,8 @@
 
 namespace Supra\Log\Formatter;
 
+use Supra\Log\LogEvent;
+
 /**
  * Log event formatter interface
  */
@@ -18,6 +20,6 @@ interface FormatterInterface
 	 * Format method
 	 * @param array $event
 	 */
-	function format(array &$event);
+	function format(LogEvent $event);
 	
 }

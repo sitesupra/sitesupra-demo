@@ -57,24 +57,24 @@ class CliAction extends RouterAbstraction
     public function match(RequestInterface $request)
 	{
 		if ( ! ($request instanceof CliRequest)) {
-			\Log::sdebug('Not the instance of Request\CliRequest');
+			\Log::debug('Not the instance of Request\CliRequest');
 			return false;
 		}
 
 		$requestActions = $request->getActions(null);
 
 		if ($this->depth > count($requestActions)) {
-			\Log::sdebug('Router depth exceeds request action count, does not match for router ', $this->__toString());
+			\Log::debug('Router depth exceeds request action count, does not match for router ', $this->__toString());
 			return false;
 		}
 
 		foreach ($this->actions as $key => $action) {
 			if ($requestActions[$key] != $action) {
-				\Log::sdebug("Request did not match router because of difference in action #{$key} for router ", $this->__toString());
+				\Log::debug("Request did not match router because of difference in action #{$key} for router ", $this->__toString());
 				return false;
 			}
 		}
-		\Log::sdebug("Request match router ", $this->__toString());
+		\Log::debug("Request match router ", $this->__toString());
 		return true;
 	}
 

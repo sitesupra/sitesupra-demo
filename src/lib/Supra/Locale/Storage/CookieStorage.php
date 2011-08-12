@@ -29,7 +29,7 @@ class CookieStorage extends StorageAbstraction
 	public function store(RequestInterface $request, ResponseInterface $response, $localeIdentifier)
 	{
 		if ( ! ($response instanceof HttpResponse)) {
-			\Log::swarn("The response must be instance of Http response to use cookie storage");
+			\Log::warn("The response must be instance of Http response to use cookie storage");
 			return;
 			//throw new Exception("The response must be instance of Http response to use cookie storage");
 		}
@@ -37,7 +37,7 @@ class CookieStorage extends StorageAbstraction
 		$cookie = $this->createCookie($localeIdentifier);
 
 		if (empty($cookie)) {
-			Log::swarn("Cookie not received from getCookie method in cookie locale storage");
+			Log::warn("Cookie not received from getCookie method in cookie locale storage");
 			return false;
 		}
 

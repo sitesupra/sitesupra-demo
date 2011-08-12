@@ -8,6 +8,8 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Doctrine\ORM\EntityManager;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Log\Log;
 
 /**
  * Controller containing common methods
@@ -19,10 +21,21 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected $entityManager;
 	
+	/**
+	 * @var Log
+	 */
+	protected $log;
+	
+	/**
+	 * Assign entity manager, log
+	 */
 	public function __construct()
 	{
-		// TODO: replace with object repository
-		$this->entityManager = \Supra\Database\Doctrine::getInstance()->getEntityManager();
+		// Take entity manager of the page controller
+		$controller = $this->getPageController();
+		$this->entityManager = ObjectRepository::getEntityManager($controller);
+		
+		$this->log = ObjectRepository::getLogger($this);
 	}
 	
 	/**

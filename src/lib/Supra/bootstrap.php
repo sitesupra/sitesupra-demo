@@ -51,7 +51,7 @@ $loader->registerNamespace($symfonyNamespace);
 $loader->registerSystemAutoload();
 
 // Set the initial timezone to the logger
-Supra\Log\Log::setDefaultTimezone(date_default_timezone_get());
+Supra\Log\LogEvent::setDefaultTimezone(date_default_timezone_get());
 
 // Ask Supra to handle the PHP generated errors
 $phpErrorHandler = new Supra\Log\Plugin\PhpErrorHandler();

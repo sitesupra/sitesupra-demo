@@ -2,7 +2,6 @@
 
 namespace Supra\Log\Filter;
 
-use Supra\Log\Log;
 use Supra\Log\LogEvent;
 
 /**
@@ -15,7 +14,7 @@ class LevelFilter implements FilterInterface
 	 * @var array
 	 */
 	protected static $defaultParameters = array(
-		'level' => Log::DEBUG,
+		'level' => LogEvent::DEBUG,
 	);
 
 	/**
@@ -34,8 +33,8 @@ class LevelFilter implements FilterInterface
 		
 		$this->parameters['level'] = strtoupper($this->parameters['level']);
 		
-		if (isset(Log::$levels[$this->parameters['level']])) {
-			$this->parameters['levelPriority'] = Log::$levels[$this->parameters['level']];
+		if (isset(LogEvent::$levels[$this->parameters['level']])) {
+			$this->parameters['levelPriority'] = LogEvent::$levels[$this->parameters['level']];
 		} else {
 			$this->parameters['levelPriority'] = 0;
 		}

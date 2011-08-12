@@ -76,7 +76,7 @@ class HttpRequest implements RequestInterface
 		}
 
 		$this->requestUri = $_SERVER['SCRIPT_URL'];
-		Log::sinfo('Request URI: ', $this->requestUri);
+		Log::info('Request URI: ', $this->requestUri);
 
 		$path = new Path($this->requestUri);
 		$this->setPath($path);

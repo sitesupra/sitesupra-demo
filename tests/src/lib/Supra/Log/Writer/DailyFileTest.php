@@ -3,10 +3,10 @@
 namespace Supra\Tests\Log\Writer;
 
 use Supra\Tests\TestCase;
-use Supra\Log\Writer\DailyFile;
-use Supra\Log\Event;
+use Supra\Log\Writer\DailyFileWriter;
+use Supra\Log\LogEvent;
 use Supra\Log\Log;
-use Supra\Log\Formatter\Simple;
+use Supra\Log\Formatter\SimpleFormatter;
 
 /**
  * Daily file log writer test
@@ -74,15 +74,15 @@ class DailyFileTest extends TestCase
 	 */
 	function testWriting()
 	{
-		$writer = new DailyFile(self::$parameters);
+		$writer = new DailyFileWriter(self::$parameters);
 
-		$formatter = new Simple(array(
-			'format' => '[%time%] %level% %logger% - %file%(%line%): %message%',
+		$formatter = new SimpleFormatter(array(
+			'format' => '[%time%] %level% %logger% - %file%(%line%): %subject%',
 			'timeFormat' => '\D\A\T\E',
 		));
 		$writer->setFormatter($formatter);
 
-		$event = new Event(array('message'), Log::DEBUG, 'fileName', 1, 'loggerName');
+		$event = new LogEvent(array('message'), LogEvent::DEBUG, 'fileName', 1, 'loggerName');
 		$writer->write($event);
 
 		self::assertFileExists($this->getFileName());

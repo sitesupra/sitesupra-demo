@@ -2,7 +2,7 @@
 
 namespace Supra\Log\Plugin;
 
-use Supra\Log\Log;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * PHP log handler
@@ -32,50 +32,54 @@ class PhpErrorHandler
 		if ( ! ($errno & error_reporting())) {
 			return;
 		}
+		
+		$log = ObjectRepository::getLogger($this);
+		
+		$log->increaseBacktraceOffset();
 
 		//Map PHP error codes to error handler codes
 		switch($errno){
 			case E_ERROR:
-				Log::perror($errstr);
+				$log->error($errstr);
 				break;
 			case E_WARNING:
-				Log::pwarn($errstr);
+				$log->warn($errstr);
 				break;
 			case E_PARSE:
-				Log::pfatal($errstr);
+				$log->fatal($errstr);
 				break;
 			case E_NOTICE:
-				Log::pdebug($errstr);
+				$log->debug($errstr);
 				break;
 			case E_CORE_ERROR:
-				Log::pfatal($errstr);
+				$log->fatal($errstr);
 				break;
 			case E_CORE_WARNING:
-				Log::pwarn($errstr);
+				$log->warn($errstr);
 				break;
 			case E_COMPILE_ERROR:
-				Log::pfatal($errstr);
+				$log->fatal($errstr);
 				break;
 			case E_COMPILE_WARNING:
-				Log::pwarn($errstr);
+				$log->warn($errstr);
 				break;
 			case E_USER_ERROR:
-				Log::perror($errstr);
+				$log->error($errstr);
 				break;
 			case E_USER_WARNING:
-				Log::pwarn($errstr);
+				$log->warn($errstr);
 				break;
 			case E_USER_NOTICE:
-				Log::pinfo($errstr);
+				$log->info($errstr);
 				break;
 			case E_STRICT:
-				Log::pdebug($errstr);
+				$log->debug($errstr);
 				break;
 			case E_RECOVERABLE_ERROR:
-				Log::perror($errstr);
+				$log->error($errstr);
 				break;
 			default:
-				Log::perror($errstr);
+				$log->error($errstr);
 				break;
 		}
 	}
@@ -86,9 +90,9 @@ class PhpErrorHandler
 	 * TODO: when handling uncaught exception the debug_backtrace does not
 	 *		contain the file:line the exception was thrown.
 	 */
-	public function handleException($exception)
+	public function handleException(\Exception $exception)
 	{
 		$exceptionString = $exception->__toString();
-		self::handleError(E_ERROR, $exceptionString);
+		$this->handleError(E_ERROR, $exceptionString);
 	}
 }
