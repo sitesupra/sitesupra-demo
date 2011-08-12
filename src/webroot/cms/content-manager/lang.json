@@ -153,6 +153,8 @@
 			"new_folder": "New folder",
 			"delete": "Delete",
 			"undo_history": "Undo history",
+			"private": "Make private",
+			"public": "Make public",
 			
 			"rotate_left": "Rotate left",
 			"rotate_right": "Rotate right",

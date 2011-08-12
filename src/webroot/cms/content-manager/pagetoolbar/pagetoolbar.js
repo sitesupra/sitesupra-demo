@@ -354,6 +354,8 @@ SU(function (Y) {
 				id,
 				type,
 				permissions,
+				visible,
+				disabled,
 				attr_buttons = this.get('buttons') || {},
 				empty = true;
 			
@@ -383,6 +385,8 @@ SU(function (Y) {
 						
 						id = button_config[i].id;
 						
+						visible = 'visible' in button_config[i] ? button_config[i].visible : true;
+						disabled = button_config[i].disabled || false;
 						type = button_config[i].type || 'toggle';
 						if (type == 'tab') type = 'toggle';
 						
@@ -392,10 +396,12 @@ SU(function (Y) {
 							continue;
 						}
 						
-						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon});
+						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon, "visible": visible});
 						button.set('topbarButtonId', id);
 						button.render(subcontainer);
 						button.on('click', this.handleButtonClick, this);
+						
+						if (disabled) button.set('disabled', true);
 						
 						this.buttons[id] = button;
 						

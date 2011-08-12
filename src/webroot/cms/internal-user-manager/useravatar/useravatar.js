@@ -125,7 +125,7 @@ Supra('supra.panel', 'transition', function (Y) {
 			Supra.io(this.getDataPath(), function (data) {
 				
 				//Render template inside node
-				var html = Supra.Template('avatarTemplate', data);
+				var html = Supra.Template('avatarTemplate', {'avatars': data});
 				
 				this.data = data;
 				this.one('ul').empty();

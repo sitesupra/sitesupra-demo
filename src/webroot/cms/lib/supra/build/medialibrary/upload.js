@@ -329,14 +329,31 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * @private
 		 */
 		onFileComplete: function (evt) {
-			if (!evt.node) return;
-			
 			var host = this.get('host'),
+				data_object = host.get('dataObject'),
 				data = evt.data,
-				node = evt.node,
-				folder = evt.folder,
 				file_id = evt.file_id,
-				data_object = host.get('dataObject');
+				node = evt.node,
+				folder = evt.folder;
+			
+			if (file_id) {
+				//If request was replace then update data
+				var old_data = data_object.getData(file_id);
+				if (old_data) {
+					Supra.mix(old_data, data);
+				}
+			}
+			
+			if (!evt.node) {
+				//If request was for replace and image is till opened then
+				//reload image source
+				var item = this.get('host').getSelectedItem();
+				if (item && file_id == item.id) {
+					this.get('host').reloadImageSource(data);
+				}
+				
+				return;
+			}
 			
 			if (data) {
 				//Add file

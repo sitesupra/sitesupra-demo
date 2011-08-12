@@ -9,21 +9,21 @@
 	
 	<!-- User template -->
 	<script type="text/html" id="listGroups">
-		{{#each this}}
-			<div class="list-group" data-group="{{group_id}}">
-				<h2>{{title}}</h2>
+		{% for group in data %}
+			<div class="list-group" data-group="{{ group.group_id }}">
+				<h2>{{ group.title|escape }}</h2>
 				<ul>
-					{{#each children}}
-					<li data-id="{{banner_id}}" class="status-{{status}}">
-						<em><img src="{{external_path}}" alt="" /></em>
-						<a>{{title}}</a>
-						{{#if scheduled}}
-							<span class="scheduled">{{scheduled}}</span>
-						{{/if}}
+					{% for banner in group.children %}
+					<li data-id="{{ banner.banner_id }}" class="status-{{ banner.status }}">
+						<em><img src="{{ banner.external_path|escape }}" alt="" /></em>
+						<a>{{ banner.title|escape }}</a>
+						{% if banner.scheduled %}
+							<span class="scheduled">{{ banner.scheduled }}</span>
+						{% endif %}
 					</li>
-					{{/each}}
+					{% endfor %}
 				</ul>
 			</div>
-		{{/each}}
+		{% endfor %}
 	</script>
 </div>

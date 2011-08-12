@@ -36,6 +36,25 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
+	    },
+		{
+	        'id': 'mlprivate',
+			'title': SU.Intl.get(['medialibrary', 'private']),
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-private.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button',
+			'disabled': true
+	    },
+		{
+	        'id': 'mlpublic',
+			'title': SU.Intl.get(['medialibrary', 'public']),
+			'icon': '/cms/lib/supra/img/toolbar/icon-media-public.png',
+			'action': 'MediaLibrary',
+			'actionFunction': 'handleToolbarButton',
+			'type': 'button',
+			'visible': false,
+			'disabled': true
 	    }
 	];
 	
@@ -171,6 +190,9 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
 			
+			//On folder change show/hide private/public buttons
+			this.medialist.slideshow.on('slideChange', this.onItemChange, this);
+			
 			//Add file upload support
 			list.plug(Supra.MediaLibraryList.Upload, {
 				'requestUri': this.getDataPath('upload'),
@@ -298,6 +320,64 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				
 					this.medialist.imageeditor.command(button_id.replace('mlimage', ''));
 					break;
+				
+				case 'mlpublic':
+					
+					this.medialist.setPrivateState(null, false);
+					this.onItemChange();
+					break;
+					
+				case 'mlprivate':
+					
+					this.medialist.setPrivateState(null, true);
+					this.onItemChange();
+					break;
+			}
+		},
+		
+		/**
+		 * On item change show/hide public/private buttons
+		 */
+		onItemChange: function (evt) {
+			var id = null,
+				data = null,
+				buttons = Manager.getAction('PageToolbar').buttons;
+			
+			if (evt) {
+				id = evt.newVal.replace('slide_', '');
+				data = this.medialist.get('dataObject').getData(id);
+			} else {
+				data = this.medialist.getSelectedFolder();
+				id = data.id;
+			}
+			
+			if (data && Supra.MediaLibraryData.TYPE_FOLDER == data.type) {
+				if (data['private']) {
+					if (data.parent) {
+						if (this.medialist.get('dataObject').isFolderPrivate(data.parent)) {
+							//If parent is private, can't change folder state
+							//Disable buttons
+							buttons.mlprivate.set('disabled', true);
+							buttons.mlpublic.set('disabled', true);
+							return;
+						}
+					}
+					
+					//Show "Make public" button
+					buttons.mlprivate.set('visible', false);
+					buttons.mlpublic.set('visible', true);
+				} else {
+					//Show "Make private" button
+					buttons.mlprivate.set('visible', true);
+					buttons.mlpublic.set('visible', false);
+				}
+				
+				buttons.mlprivate.set('disabled', false);
+				buttons.mlpublic.set('disabled', false);
+			} else {
+				//Disable buttons
+				buttons.mlprivate.set('disabled', true);
+				buttons.mlpublic.set('disabled', true);
 			}
 		},
 		

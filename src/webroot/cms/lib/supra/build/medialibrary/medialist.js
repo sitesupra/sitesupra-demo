@@ -10,7 +10,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var Data = Supra.MediaLibraryData;
+	var Data = Supra.MediaLibraryData,
+		Template = Supra.Template;
 	
 	
 	/**
@@ -70,77 +71,77 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, file or folder loading template
 	 * @type {String}
 	 */
-	List.TEMPLATE_LOADING = '<div class="loading"></div>';
+	List.TEMPLATE_LOADING = Template.compile('<div class="loading">\'</div>');
 	
 	/**
 	 * Constant, empty folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_EMPTY = '<div class="empty" data-id="{id}">{#medialibrary.folder_empty#}</div>';
+	List.TEMPLATE_EMPTY = Template.compile('<div class="empty" data-id="{{ id }}">{{ "medialibrary.folder_empty"|intl }}</div>');
 	
 	/**
 	 * Constant, folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER = '<ul class="folder" data-id="{id}"></ul>';
+	List.TEMPLATE_FOLDER = Template.compile('<ul class="folder" data-id="{{ id }}"></ul>');
 	
 	/**
 	 * Constant, folder item template for folder
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_FOLDER = '\
-		<li class="type-folder" data-id="{id}">\
-			<a><img src="/cms/lib/supra/img/medialibrary/icon-folder.png" alt="" /></a>\
-			<span>{title_escaped}</span>\
-		</li>';
+	List.TEMPLATE_FOLDER_ITEM_FOLDER = Template.compile('\
+		<li class="type-folder {% if private %}type-folder-private{% endif %}" data-id="{{ id }}">\
+			<a></a>\
+			<span>{{ title|escape }}</span>\
+		</li>');
 	
 	/**
 	 * Constant, folder item template for file
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_FILE = '\
-		<li class="type-file" data-id="{id}">\
-			<a><img src="/cms/lib/supra/img/medialibrary/icon-file.png" alt="" /></a>\
-			<span>{title_escaped}</span>\
-		</li>';
+	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
+		<li class="type-file" data-id="{{ id }}">\
+			<a></a>\
+			<span>{{ title|escape }}</span>\
+		</li>');
 	
 	/**
 	 * Constant, folder item template for image
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_IMAGE = '\
-		<li class="type-image" data-id="{id}">\
-			<a><img src="/cms/lib/supra/img/medialibrary/icon-image.png" alt="" /></a>\
-			<span>{title_escaped}</span>\
-		</li>';
+	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
+		<li class="type-image" data-id="{{ id }}">\
+			<a></a>\
+			<span>{{title|escape }}</span>\
+		</li>');
 	
 	/**
 	 * Constant, folder item template for temporary file
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_TEMP = '<li class="type-temp" data-id="{id}"></li>';
+	List.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('<li class="type-temp" data-id="{{ id }}"></li>');
 	
 	/**
 	 * Constant, file template
 	 * @type {String}
 	 */
-	List.TEMPLATE_FILE = '\
+	List.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
 			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-file-large.png" alt="" /></div>\
-			<span>{title_escaped}</span>\
-			<span>{description_escaped}</span>\
-		</div>';
+			<span>{{ title|escape }}</span>\
+			<span>{{ description|escape }}</span>\
+		</div>');
 	
 	/**
 	 * Constant, image template
 	 * @type {String}
 	 */
-	List.TEMPLATE_IMAGE = '\
+	List.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
-			<div class="preview"><img src="{previewUrl}" alt="" /></div>\
-			<span>{title_escaped}</span>\
-			<span>{description_escaped}</span>\
-		</div>';
+			<div class="preview"><img src="{{ previewUrl }}" alt="" /></div>\
+			<span>{{ title|escape }}</span>\
+			<span>{{ description|escape }}</span>\
+		</div>');
 	
 	
 	
@@ -595,6 +596,73 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Set folder private state
+		 * Chainable
+		 * 
+		 * @param {Number} id Folder ID
+		 */
+		setPrivateState: function (id, force) {
+			var item = null,
+				data_object = this.get('dataObject');
+			
+			//Get item data
+			if (!id) {
+				var item = this.getSelectedFolder();
+				if (item) id = item.id;
+				if (!id) return this;
+			} else {
+				item = data_object.getData(id);
+				if (!item) return this;
+			}
+			
+			//If nothing changed then skip
+			force = Number(force);
+			if (force == item['private']) return this;
+			
+			//If parent is private, then folder is private and can't be changed to public
+			if (item.parent && data_object.isFolderPrivate(item.parent)) {
+				return this;
+			}
+			
+			//Update data
+			data_object.setFolderPrivate(id, force);
+			
+			//Update UI private state for this and all sub-folders
+			this.updatePrivateStateUI(id, force);
+		},
+		
+		/**
+		 * Update UI private state
+		 * Chainable
+		 * 
+		 * @param {Number} id Folder ID
+		 */
+		updatePrivateStateUI: function (id /* Folder ID */, state /* State */) {
+			var node = this.getItemNode(id);
+			if (!node) return this;
+			
+			if (state) {
+				node.addClass('type-folder-private');
+			} else {
+				node.removeClass('type-folder-private');
+			}
+			
+			//Update all children
+			var children = this.get('dataObject').getChildrenData(id);
+			for(var i=0,ii=children.length; i<ii; i++) {
+				//Update children data
+				children[i]['private'] = state;
+				
+				//Update children UI
+				if (children[i].type == Data.TYPE_FOLDER) {
+					this.updatePrivateStateUI(children[i].id, state);
+				}
+			}
+			
+			return this;
+		},
+		
+		/**
 		 * Load folder or file information
 		 * 
 		 * @param {Number} id File or folder ID
@@ -957,10 +1025,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}
 			}
 			
-			item_data.title_escaped = Y.Lang.escapeHTML(item_data.title);
-			item_data.description_escaped = Y.Lang.escapeHTML(item_data.description);
-			item_data.filename_escaped = Y.Lang.escapeHTML(item_data.filename);
-			
 			return item_data;
 		},
 		
@@ -974,9 +1038,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		renderTemplate: function (data /* Item data */, template /* Template */) {
-			var html = Y.substitute(template || '', this.getRenderData(data));
-				html = Supra.Intl.replace(html);
-			
+			var html = template ? template(this.getRenderData(data)) : '';
 			return Y.Node.create(html);
 		},
 		

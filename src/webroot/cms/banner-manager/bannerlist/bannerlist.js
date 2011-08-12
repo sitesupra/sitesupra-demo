@@ -104,7 +104,7 @@ Supra('website.list-dd', function (Y) {
 				this.data = data;
 				
 				//Fill template
-				var template = Supra.Template('listGroups', data);
+				var template = Supra.Template('listGroups', {'data': data});
 				this.one('div.list-groups').append(template);
 				
 				//Set width based on banner group count

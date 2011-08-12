@@ -10,7 +10,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	 * Shortcuts
 	 */
 	var Data = Supra.MediaLibraryData,
-		List = Supra.MediaLibraryList;
+		List = Supra.MediaLibraryList,
+		Template = Supra.Template;
 	
 	/**
 	 * Extended media list
@@ -28,58 +29,58 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	 * Constant, file template
 	 * @type {String}
 	 */
-	Extended.TEMPLATE_FILE = '\
+	Extended.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
 			<div class="preview">\
 				<img src="/cms/lib/supra/img/medialibrary/icon-file-large.png" alt="" />\
 			</div>\
-			<span class="inp-title" title="{#medialibrary.label_title#}">\
-				<input type="text" name="title" value="{title_escaped}" />\
+			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
+				<input type="text" name="title" value="{{ title|escape }}" />\
 			</span>\
-			<span class="inp-description" title="{#medialibrary.label_description#}">\
-				<input type="text" name="description" value="{description_escaped}" />\
+			<span class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
+				<input type="text" name="description" value="{{ description|escape }}" />\
 			</span>\
-			<div class="localize"><button type="button">{#medialibrary.localize#}</button></div>\
-			<span class="inp-filename" title="{#medialibrary.label_filename#}">\
-				<input type="text" name="filename" value="{filename_escaped}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
+			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
+			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">{#medialibrary.download#}</button></div>\
-			<div class="center"><button type="button">{#buttons.replace#}</button></div>\
-		</div>';
+			<div class="center"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
+			<div class="center"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
+		</div>');
 	
 	/**
 	 * Constant, image template
 	 * @type {String}
 	 */
-	Extended.TEMPLATE_IMAGE = '\
+	Extended.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
 			<div class="preview">\
-				<img src="{previewUrl}" alt="" />\
+				<img src="{{ previewUrl|escape }}" alt="" />\
 			</div>\
-			<span class="inp-title" title="{#medialibrary.label_title#}">\
-				<input type="text" name="title" value="{title_escaped}" />\
+			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
+				<input type="text" name="title" value="{{ title|escape }}" />\
 			</span>\
-			<span class="inp-description" title="{#medialibrary.label_description#}">\
-				<input type="text" name="description" value="{description_escaped}" />\
+			<span class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
+				<input type="text" name="description" value="{{ description|escape }}" />\
 			</span>\
-			<div class="localize"><button type="button">{#medialibrary.localize#}</button></div>\
-			<span class="inp-filename" title="{#medialibrary.label_filename#}">\
-				<input type="text" name="filename" value="{filename_escaped}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
+			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
+			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">{#medialibrary.download#}</button></div>\
-			<div class="center"><button type="button">{#buttons.replace#}</button></div>\
-			<div class="center"><button type="button" class="edit">{#medialibrary.edit#}</button></div>\
-		</div>';
+			<div class="center"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
+			<div class="center"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
+			<div class="center"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
+		</div>');
 	
 	/**
 	 * Constant, folder item template for temporary file
 	 * @type {String}
 	 */
-	Extended.TEMPLATE_FOLDER_ITEM_TEMP = '\
-		<li class="type-temp" data-id="{id}">\
-			<span class="title">{title_escaped}</span>\
+	Extended.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('\
+		<li class="type-temp" data-id="{{ id }}">\
+			<span class="title">{{ title|escape }}</span>\
 			<span class="progress"><em></em></span>\
-		</li>';
+		</li>');
 	
 	
 	Extended.ATTRS = {
@@ -160,14 +161,17 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			if (parent_data) {
+				var data_object = this.get('dataObject');
+				
 				//Don't have an ID for this item yet, using -1
 				var data = {
-					id: -1,
-					parent: parent_data.id,
-					type: Supra.MediaLibraryData.TYPE_FOLDER,
-					title: title || '',
-					children_count: 0,
-					children: []
+					'id': -1,
+					'parent': parent_data.id,
+					'type': Supra.MediaLibraryData.TYPE_FOLDER,
+					'title': title || '',
+					'children_count': 0,
+					'private': data_object.isFolderPrivate(parent_data.id),
+					'children': []
 				};
 				
 				//Add item to the folder list
@@ -436,6 +440,35 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			var item = this.getSelectedItem(); 
 			
 			this.upload.openBrowser(item.id);
+		},
+		
+		/**
+		 * Reload image source
+		 * 
+		 * @param {Object} data Image data
+		 * @private
+		 */
+		reloadImageSource: function (data) {
+			var item = this.getSelectedItem(),
+				img_node = null,
+				slide = null,
+				src = null;
+			
+			if (item) {
+				slide = this.slideshow.getSlide('slide_' + item.id);
+				if (slide) {
+					img_node = slide.one('div.preview img');
+					
+					if (img_node) {
+						var preview_size = this.get('previewSize');
+						
+						if (data.sizes && preview_size in data.sizes) {
+							src = data.sizes[preview_size].external_path;
+							img_node.setAttribute('src', src + '?r=' + (+new Date()));
+						}
+					}
+				}
+			}
 		},
 		
 		/**

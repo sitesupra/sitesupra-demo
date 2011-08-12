@@ -108,7 +108,7 @@ Supra(function (Y) {
 		renderApplications: function (data /* Application list */) {
 			
 			var container = this.one('ul');
-			var html = Supra.Template('applicationsListItem', data);
+			var html = Supra.Template('applicationsListItem', {'data': data});
 			
 			container.empty();
 			container.append(html);

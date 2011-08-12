@@ -13,31 +13,31 @@
 		
 		<!-- Application template -->
 		<script type="text/html" id="applicationsListItem">
-			{{#each this}}
-			<li class="allow-0" data-id="{{id}}">
-				<img src="{{icon}}_32x32.png" alt="" />
+			{% for item in data %}
+			<li class="allow-0" data-id="{{ item.id|escape }}">
+				<img src="{{ item.icon|escape }}_32x32.png" alt="" />
 				<em>
-					{{title}}
+					{{ item.title|escape }}
 					<span class="label-2"></span>
 					<span class="label-1">
 						<br />
-						{{#each permissions}}
-							{{#if sublabel}}
-								{#userpermissions.label_some#} {{sublabel}}
-							{{/if}}
-						{{/each}}
+						{% for permission in item.permissions %}
+							{% if permission.sublabel %}
+								{#userpermissions.label_some#} {{ permission.sublabel|escape }}
+							{% endif %}
+						{% endfor %}
 					</span>
 					<span class="label-0">
 						<br />
-						{{#each permissions}}
-							{{#if sublabel}}
-								{#userpermissions.label_all#} {{sublabel}}
-							{{/if}}
-						{{/each}}
+						{% for permission in item.permissions %}
+							{% if permission.sublabel %}
+								{#userpermissions.label_all#} {{ permission.sublabel|escape }}
+							{% endif %}
+						{% endfor %}
 					</span>
 				</em>
 			</li>
-			{{/each}}
+			{% endfor %}
 		</script>
 		
 	</ul>

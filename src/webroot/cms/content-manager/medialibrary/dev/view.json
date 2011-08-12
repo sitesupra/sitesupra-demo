@@ -17,36 +17,42 @@ $all_data = Array(
 		'title' => '',
 		'type' => 1,
 		'children' => Array(1,2),
+		'private' => false,
 	),
 	1 => Array(
 		'id' => 1,
 		'title' => 'Images',
 		'type' => 1,
 		'children' => Array(3, 4, 6),
+		'private' => true,
 	),
 	2 => Array(
 		'id' => 2,
 		'title' => 'Abstract',
 		'type' => 1,
 		'children' => Array(5, 8),
+		'private' => false,
 	),
 	3 => Array(
 		'id' => 3,
 		'title' => 'Illustrations',
 		'type' => 1,
 		'children' => Array(7, 9),
+		'private' => true,
 	),
 	9 => Array(
 		'id' => 9,
 		'title' => 'Summer',
 		'type' => 1,
 		'children' => Array(10),
+		'private' => true,
 	),
 	10 => Array(
 		'id' => 10,
 		'title' => 'June',
 		'type' => 1,
 		'children' => Array(),
+		'private' => false,
 	),
 	
 	6 => Array(

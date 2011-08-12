@@ -595,21 +595,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.template': {
 		path: 'template/template.js',
 		requires: [
-			'supra.template-handlebars',
-			'supra.template-block-if',
-			'supra.template-helper-intl'
+			'supra.template-compiler'
 		]
 	},
-	
-	'supra.template-handlebars': {
-		path: 'template/handlebars.js'
-	},
-	
-	'supra.template-block-if': {
-		path: 'template/handlebars-block-if.js'
-	},
-	'supra.template-helper-intl': {
-		path: 'template/handlebars-helper-intl.js'
+	'supra.template-compiler': {
+		path: 'template/template-compiler.js'
 	},
 	
 	/**

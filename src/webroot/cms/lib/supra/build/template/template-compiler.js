@@ -26,15 +26,17 @@ YUI.add('supra.template-compiler', function (Y) {
 			
 			Stack = [];
 			
-			//Data is saved in _d variable, output is in _p
+			//Data is saved in _d variable, output is in p
 			var body = 'var _c=Supra.TemplateCompiler,_d=data||{},t=null,_f=_c.filters,_fn=_c.functions,' 
 					 + 'p=\'';
 			
-			//Whitespaces are useless for HTML
+			//Remove tab and new line whitespaces
 			tpl = tpl.replace(REG_WHITESPACE, ' ');
 			
-			//Remove whitespaces before and after 
-			//tpl = tpl.replace(REG_TAG_WHITESPACE, '$1$2$3$4');
+			//Replace single quotes with new line which was previously removed
+			tpl = tpl.replace(REG_TEXT, function (all, start, text, end) {
+				return start + text.split('\'').join('\r') + end;
+			});
 			
 			//Strip CDATA
 			if (opt.stripCDATA) {
@@ -42,9 +44,12 @@ YUI.add('supra.template-compiler', function (Y) {
 			}
 			
 			//Parse variables, expressions, blocks
-			tpl = C.compileString(tpl);
+			tpl = this.compileString(tpl);
 			
-			//
+			//Restore quotes
+			tpl = tpl.split('\r').join('\\\'');
+			
+			//Finalize function body
 			body += tpl + '\';return p;';
 			
 			//Remove extra spaces
@@ -66,9 +71,9 @@ YUI.add('supra.template-compiler', function (Y) {
 		 * Compile part of the template
 		 */
 		'compileString': function (tpl) {
-			var compileVar = C.compileVar,
-				compileExpression = C.compileExpression,
-				compilerExpressions = C.compilerExpressions;
+			var compileVar = this.compileVar,
+				compileExpression = this.compileExpression,
+				compilerExpressions = this.compilerExpressions;
 			
 			//Strip comments
 			tpl = tpl.replace(REG_COMMENTS, '');
@@ -139,7 +144,11 @@ YUI.add('supra.template-compiler', function (Y) {
 		 * @private
 		 */
 		'compileExpression': function (identifier, expr, fn) {
-			if (typeof fn == 'function') return fn(expr);
+			if (typeof fn == 'function') {
+				//Convert " and " to " && ", " or " to " || "
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ');
+				return fn(expr);
+			}
 			return '';
 		},
 		
@@ -454,7 +463,7 @@ YUI.add('supra.template-compiler', function (Y) {
 			 * @type {String}
 			 */
 			'intl': function (ns) {
-				return Supra.Intl.get(ns);
+				return Supra.Intl.get(ns.split('.'));
 			}
 		},
 		
@@ -609,22 +618,32 @@ YUI.add('supra.template-compiler', function (Y) {
 		TAG_COMMENT_OPEN	= '{#',
 		TAG_COMMENT_CLOSE	= '#}',
 		
+		ESC_VAR_OPEN		= C.escapeRegEx(TAG_VAR_OPEN),
+		ESC_VAR_CLOSE		= C.escapeRegEx(TAG_VAR_CLOSE),
+		ESC_EXPR_OPEN 		= C.escapeRegEx(TAG_EXPR_OPEN),
+		ESC_EXPR_CLOSE 		= C.escapeRegEx(TAG_EXPR_CLOSE),
+		ESC_COMMENT_OPEN	= C.escapeRegEx(TAG_COMMENT_OPEN),
+		ESC_COMMENT_CLOSE	= C.escapeRegEx(TAG_COMMENT_CLOSE),
+		
 		REG_CDATA_OPEN		= /(\/\/|\/\*)?\s*<\!\[CDATA\[\s*(\*\/)?/,
 		REG_CDATA_CLOSE		= /(\/\/|\/\*)?\s*\]\]>\s*(\*\/)?/,
-		REG_COMMENTS		= new RegExp(C.escapeRegEx(TAG_COMMENT_OPEN) + '.*?' + C.escapeRegEx(TAG_COMMENT_CLOSE), 'g'),
+		REG_COMMENTS		= new RegExp(ESC_COMMENT_OPEN + '.*?' + ESC_COMMENT_CLOSE, 'g'),
 		
 		REG_ESCAPE			= new RegExp("[.*+?|()\\[\\]{}\\\\]", "g"), // .*+?|()[]{}\;
 		REG_FILTER_TITLE	= /^([a-z])|\s+([a-z])/g,
 		REG_WHITESPACE		= /[\r\n\t\s]+/g,
-		REG_TAG_WHITESPACE	= new RegExp('(' + C.escapeRegEx(TAG_VAR_OPEN) + ')\\s+|\\s+(' + C.escapeRegEx(TAG_VAR_CLOSE) + ')|(' + C.escapeRegEx(TAG_EXPR_OPEN) + ')\\s+|\\s+(' + C.escapeRegEx(TAG_EXPR_CLOSE) + ')', 'g'),
+		REG_TEXT			= new RegExp('(^|' + ESC_VAR_CLOSE + '|' + ESC_EXPR_CLOSE + ')(.*?)($|' + ESC_VAR_OPEN + '|' + ESC_EXPR_OPEN + ')', 'g'),
+		REG_TAG_WHITESPACE	= new RegExp('(' + ESC_VAR_OPEN + ')\\s+|\\s+(' + ESC_VAR_CLOSE + ')|(' + ESC_EXPR_OPEN + ')\\s+|\\s+(' + ESC_EXPR_CLOSE + ')', 'g'),
 		REG_STRIP_TAGS		= /<[^>]+>/g,
-		REG_VAR				= new RegExp(C.escapeRegEx(TAG_VAR_OPEN) + '(.*?)' + C.escapeRegEx(TAG_VAR_CLOSE), 'g'),
+		REG_VAR				= new RegExp(ESC_VAR_OPEN + '(.*?)' + ESC_VAR_CLOSE, 'g'),
 		REG_VAR_STRING		= /("[^"]*"|'[^']*')/g,
 		REG_VAR_DATA		= /(^|\s|\[|\()([a-z])/gi,
 		REG_VAR_FN			= /(^|\s|\[|\()([a-z0-9_]+\()/gi,
 		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]]+)\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
-		REG_EXPR			= new RegExp(C.escapeRegEx(TAG_EXPR_OPEN) + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + C.escapeRegEx(TAG_EXPR_CLOSE), 'g'),
+		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
 		
+		REG_AND				= /\s+and\s+/g,
+		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
 		
 		FN_IS_ARRAY			= function (arr) { return arr && arr instanceof Array; },

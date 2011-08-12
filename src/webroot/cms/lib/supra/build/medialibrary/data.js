@@ -8,7 +8,7 @@
 YUI.add('supra.medialibrary-data', function (Y) {
 	
 	//Properties which always will be loaded
-	var REQUIRED_PROPERTIES = ['id', 'type', 'title'];
+	var REQUIRED_PROPERTIES = ['id', 'type', 'title' ,'private'];
 	
 	/**
 	 * Media list
@@ -258,6 +258,43 @@ YUI.add('supra.medialibrary-data', function (Y) {
 						}
 					}
 				}
+			}
+			
+			return this;
+		},
+		
+		/**
+		 * Returns if folder is private
+		 * 
+		 * @param {Number} id Folder ID
+		 * @return True if folder is private, otherwise false
+		 * @type {Boolean}
+		 */
+		isFolderPrivate: function (id /* Folder ID */) {
+			var data = this.getData(id);
+			return Number(data && data.type == Data.TYPE_FOLDER && data['private']);
+		},
+		
+		/**
+		 * Set folder private/public
+		 * Chainable
+		 * 
+		 * @param {Number} id Folder ID
+		 * @param {Boolean} state Folder private state
+		 */
+		setFolderPrivate: function (id /* Folder ID */, state /* Private state */) {
+			
+			var data = this.getData(id),
+				state = Number(state);
+			
+			if (data.type == Data.TYPE_FOLDER && data['private'] != state) {
+				//Update local data
+				data['private'] = state;
+				
+				//Save
+				this.saveData(id, {
+					'private': state
+				});
 			}
 			
 			return this;

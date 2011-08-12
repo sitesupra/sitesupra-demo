@@ -30,7 +30,7 @@ YUI.add('supra.template', function (Y) {
 		
 		if (node) {
 			var source = node.get('innerHTML');
-			var template = Supra.Handlebars.compile(source);
+			var template = Supra.TemplateCompiler.compile(source);
 			
 			cache[id] = template;
 			return data ? template(data) : template;
@@ -56,7 +56,11 @@ YUI.add('supra.template', function (Y) {
 	Template.compile = function (html /* Source HTML */, id /* Template ID */) {
 		if (id && cache[id]) return cache[id];
 		
-		var template = Supra.Handlebars.compile(html);
+		var template = Supra.TemplateCompiler.compile(html, {
+			'stripCDATA': true,
+			'validate': false	//For performance reason disabled
+		});
+		
 		if (id) cache[id] = template;
 		
 		return template;
@@ -80,7 +84,5 @@ YUI.add('supra.template', function (Y) {
 	delete(this.fn); this.fn = function () {};
 	
 }, YUI.version, {requires: [
-	'supra.template-handlebars',
-	'supra.template-block-if',
-	'supra.template-helper-intl'
+	'supra.template-compiler'
 ]});

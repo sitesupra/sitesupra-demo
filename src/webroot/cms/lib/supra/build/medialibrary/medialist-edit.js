@@ -108,8 +108,9 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				};
 				
 				if (obj.id == -1) {
-					//For new item add also parent ID
+					//For new item add also parent ID and private status
 					post_data.parent = obj.data.parent;
+					post_data['private'] = obj.data['private'];
 				}
 				
 				this.get('dataObject').saveData(obj.id, post_data, function (data, id) {

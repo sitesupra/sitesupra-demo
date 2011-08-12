@@ -5,7 +5,7 @@
 	   "description":"",
 	   "file_web_path":null,
 	   "filename":"<?php echo $_FILES['file']['name']; ?>",
-	   "id":<?php echo rand(); ?>,
+	   "id":<?php echo (!empty($_POST['file_id']) ? $_POST['file_id'] : rand()); ?>,
 	   "sizes":{
 	      "200x200":{
 	         "external_path":"/cms/lib/supra/img/media/picture-1.jpg",
