@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 /**
  * Template place holder class
  * @Entity
- * @Table(name="layout_place_holder")
+ * @Table(name="su_layout_place_holder")
  */
 class LayoutPlaceHolder extends Abstraction\Entity
 {

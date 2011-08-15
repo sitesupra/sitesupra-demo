@@ -9,7 +9,7 @@ use Supra\Controller\Pages\Exception;
 /**
  * Layout class
  * @Entity
- * @Table(name="layout")
+ * @Table(name="su_layout")
  */
 class Layout extends Abstraction\Entity
 {

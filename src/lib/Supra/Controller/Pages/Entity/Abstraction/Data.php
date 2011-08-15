@@ -10,7 +10,7 @@ use Supra\Controller\Pages\Entity\BlockProperty;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
- * @Table(name="page_abstraction_localization")
+ * @Table(name="su_page_abstraction_localization")
  */
 abstract class Data extends Entity
 {

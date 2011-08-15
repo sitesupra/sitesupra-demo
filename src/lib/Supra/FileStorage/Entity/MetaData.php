@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * File localized metadata object
  * @Entity
- * @Table(name="file_localization")
+ * @Table(name="su_file_localization")
  */
 class MetaData extends Abstraction\Entity
 {

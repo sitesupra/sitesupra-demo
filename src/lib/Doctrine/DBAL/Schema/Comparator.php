@@ -208,7 +208,7 @@ class Comparator
 
         $fromFkeys = $table1->getForeignKeys();
         $toFkeys = $table2->getForeignKeys();
-
+		
         foreach ($fromFkeys AS $key1 => $constraint1) {
             foreach ($toFkeys AS $key2 => $constraint2) {
                 if($this->diffForeignKey($constraint1, $constraint2) === false) {
@@ -220,7 +220,7 @@ class Comparator
                         $changes++;
                         unset($fromFkeys[$key1]);
                         unset($toFkeys[$key2]);
-                    }
+					}
                 }
             }
         }
@@ -286,9 +286,9 @@ class Comparator
         if ($key1->onUpdate() != $key2->onUpdate()) {
             return true;
         }
-
+		
         if ($key1->onDelete() != $key2->onDelete()) {
-            return true;
+			return true;
         }
 
         return false;

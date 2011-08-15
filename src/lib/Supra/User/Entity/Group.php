@@ -5,7 +5,7 @@ namespace Supra\User\Entity;
 /**
  * Group object
  * @Entity
- * @Table(name="`group`") 
+ * @Table(name="su_group") 
  */
 class Group extends Abstraction\User
 {
