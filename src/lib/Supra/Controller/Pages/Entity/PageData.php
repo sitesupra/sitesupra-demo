@@ -97,6 +97,7 @@ class PageData extends Abstraction\Data
 	/**
 	 * TODO: Not sure whether it can be useful, doesn't run on inserts...
 	 * @PreUpdate
+	 * @PrePersist
 	 */
 	public function generatePath()
 	{

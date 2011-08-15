@@ -4,6 +4,8 @@ namespace Supra\Cms\ContentManager\page;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Controller\Pages\Entity;
+use Supra\Controller\Pages\Request\PageRequest;
 
 /**
  * 
@@ -19,7 +21,7 @@ class PageAction extends PageManagerAction
 
 		//FIXME: hardcoded now
 		$locale = 'en';
-		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
+		$media = Entity\Layout::MEDIA_SCREEN;
 		$pageId = $_GET['page_id'];
 		
 		// Create special request
@@ -32,7 +34,7 @@ class PageAction extends PageManagerAction
 		$em = $request->getDoctrineEntityManager();
 		$pageDao = $em->getRepository(PageRequestEdit::PAGE_ABSTRACT_ENTITY);
 
-		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
 		
 		//TODO: Page not found...
@@ -42,7 +44,7 @@ class PageAction extends PageManagerAction
 		
 		$this->setInitialPageId($pageId);
 		
-		/* @var $pageData \Supra\Controller\Pages\Entity\Abstraction\Data */
+		/* @var $pageData Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);
 		
 		//TODO: Page not found...
@@ -57,7 +59,7 @@ class PageAction extends PageManagerAction
 		$pathPrefix = null;
 		
 		//TODO: create some path for templates also
-		if ($pageData instanceof \Supra\Controller\Pages\Entity\PageData) {
+		if ($pageData instanceof Entity\PageData) {
 			$pathPart = $pageData->getPathPart();
 			
 			if ($page->hasParent()) {
@@ -100,7 +102,7 @@ class PageAction extends PageManagerAction
 		$blockSet = $request->getBlockSet();
 		$blockPropertySet = $request->getBlockPropertySet();
 		
-		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
+		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 			
 			$placeHolderData = array(
@@ -118,7 +120,7 @@ class PageAction extends PageManagerAction
 			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
 
 
-			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
+			/* @var $block Entity\Abstraction\Block */
 			foreach ($blockSubset as $block) {
 
 				$blockData = array(
@@ -131,7 +133,7 @@ class PageAction extends PageManagerAction
 
 				$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
 
-				/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
+				/* @var $blockProperty Entity\BlockProperty */
 				foreach ($blockPropertySubset as $blockProperty) {
 					if ($page->isBlockPropertyEditable($blockProperty)) {
 						$propertyData = array(
@@ -154,14 +156,95 @@ class PageAction extends PageManagerAction
 		$this->getResponse()->setResponseData($array);
 	}
 	
-	public function saveAction()
+	/**
+	 * Creates a new page
+	 * @TODO: create action for templates as well
+	 */
+	public function createAction()
 	{
-		1+1;
+		$this->isPostRequest();
+		
+		$parentId = $this->getRequestParameter('parent');
+		$parent = null;
+		$templateId = $this->getRequestParameter('template');
+		$locale = $this->getLocale();
+		
+		$page = new Entity\Page();
+		$pageData = new Entity\PageData($locale);
+		$pageData->setMaster($page);
+		
+		$templateDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_ENTITY);
+		$template = $templateDao->findOneById($templateId);
+		
+		if (empty($template)) {
+			$this->getResponse()->setErrorMessage("Template not specified or found");
+			
+			return;
+		}
+		
+		$page->setTemplate($template);
+		
+		if ($this->hasRequestParameter('path')) {
+			$pathPart = $this->getRequestParameter('path');
+			$pageData->setPathPart($pathPart);
+		}
+		
+		if ($this->hasRequestParameter('title')) {
+			$title = $this->getRequestParameter('title');
+			$pageData->setTitle($title);
+		}
+		
+		// Find parent page
+		if (isset($parentId)) {
+			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
+			$parent = $pageDao->findOneById($parentId);
+			
+			if (empty($parent)) {
+				$this->getResponse()->setErrorMessage("Parent page not specified or found");
+
+				return;
+			}
+			
+		}
+		
+		$this->entityManager->persist($page);
+		
+		// Set parent
+		if ( ! empty($parent)) {
+			$page->moveAsLastChildOf($parent);
+		}
+		
+		//TODO: try fixing maybe? Must be run to regenerate full path
+		$pageData->generatePath();
+		
+		$this->entityManager->flush();
+		
+		$data = array(
+			'id' => $page->getId(),
+			'title' => $pageData->getTitle(),
+			'template' => $template->getId(),
+			'parent' => $parentId,
+			'path' => $pageData->getPathPart(),
+			
+			//TODO: hardcoded or dummy loopback
+			'icon' => $this->getRequestParameter('icon'),
+			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
+		);
+		
+		$this->getResponse()
+				->setResponseData($data);
 	}
 	
-	public function deleteAction()
-	{
-		1+1;
-	}
+//	public function saveAction()
+//	{
+//		1+1;
+//	}
+//	
+//	public function deleteAction()
+//	{
+//		1+1;
+//	}
+	
+	
 	
 }
