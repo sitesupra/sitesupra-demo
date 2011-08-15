@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Exception;
 /**
  * ImageProcessorException
  */
-class ImageProcessorException extends \RuntimeException implements FileStorageException
+class ImageProcessorException extends RuntimeException
 {
 	
 }

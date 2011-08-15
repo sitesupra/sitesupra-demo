@@ -2,36 +2,32 @@
 
 namespace Supra\FileStorage\Validation;
 
+use Supra\FileStorage\Entity\Abstraction\File;
 use Supra\FileStorage\Exception;
 use Supra\FileStorage\Helpers;
 
 /**
  * File and folder name validation class. Check folder and file name on forbidden characters
  */
-class FileNameUploadFilter implements FileValidationInterface, FolderValidationInterface
+class FileNameUploadFilter extends FileFolderSharedValidation
 {
-
-	public function validateFile(\Supra\FileStorage\Entity\File $file)
+	/**
+	 * Validates filename for files and folders
+	 * @param File $file
+	 * @param string $typeName
+	 */
+	public function validate(File $file, $typeName)
 	{
-		
-		$this->validate($file->getName());
-	}
-
-	public function validateFolder(\Supra\FileStorage\Entity\Folder $folder)
-	{
-		$this->validate($folder->getName());
-	}
-	
-	private function validate($name)
-	{
+		$name = $file->getName();
 		$fileNameHelper = new Helpers\FileNameValidationHelper();
 		$result = $fileNameHelper->validate($name);
+		
 		if( ! $result) {
 			$message = $fileNameHelper->getErrorMessage();
 			\Log::info($message);
+			
 			throw new Exception\UploadFilterException($message);
 		}
-
 	}
 	
 }

@@ -1,9 +1,8 @@
 <?php
 
-namespace Supra\FileStorage\Validation;
-use Supra\FileStorage\Exception;
+namespace Supra\FileStorage\Helpers;
 
-abstract class BlackWhiteListCheck
+class BlackWhiteListCheck
 {
 	
 	const MODE_WHITELIST = 1;

@@ -2,9 +2,10 @@
 
 namespace Supra\FileStorage\Exception;
 
-class UploadFilterException extends \RuntimeException
+/**
+ * Thrown on upload filter exception
+ */
+class UploadFilterException extends RuntimeException
 {
 	
 }
-
-?>
