@@ -64,6 +64,9 @@ YUI.add('supra.manager-action', function (Y) {
 			if (action.get('stylesheetPath') === null) {
 				action.set('stylesheetPath', 'stylesheetPath' in object ? object.stylesheetPath : action_info.path_stylesheet);
 			}
+			if (action.get('dataFolder') === null) {
+				action.set('dataFolder', 'dataFolder' in object ? object.dataFolder : action_info.folder_data);
+			}
 			if (action.get('dataPath') === null) {
 				action.set('dataPath', 'dataPath' in object ? object.dataPath : action_info.path_data);
 			}

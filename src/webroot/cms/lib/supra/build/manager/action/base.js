@@ -90,6 +90,12 @@ YUI.add('supra.manager-action-base', function (Y) {
 		'dataPath': {
 			'value': null
 		},
+		/**
+		 * Action data folder
+		 */
+		'dataFolder': {
+			'value': null
+		},
 		
 		/**
 		 * Action srcNode
@@ -258,7 +264,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * @type {String}
 		 */
 		getTemplatePath: function () {
-			return this.get('templatePath');
+			return this.get('templatePath') || Manager.Loader.getActionInfo(this.NAME).path_template;
 		},
 		
 		/**
@@ -280,14 +286,14 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * @type {String}
 		 */
 		getDataPath: function (filename, parameters) {
-			var out = '';
+			var out = '', path = null;
 			
-			if (filename) { 
-				out = this.getPath() + filename + Manager.Loader.EXTENSION_DATA;
+			if (filename) {
+				path = this.get('dataFolder') || Manager.Loader.getActionInfo(this.NAME).folder_data;
+				out = path + filename + Manager.Loader.EXTENSION_DATA;
 			} else {
-				out = this.get('dataPath');
+				out = this.get('dataPath') || Manager.Loader.getActionInfo(this.NAME).path_data;
 			}
-			
 			
 			if (typeof parameters == 'object') {
 				parameters = Supra.io.serializeIntoString(parameters);
@@ -316,7 +322,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * @type {String}
 		 */
 		getStylesheetPath: function () {
-			return this.get('stylesheetPath');
+			return this.get('stylesheetPath') || Manager.Loader.getActionInfo(this.NAME).path_stylesheet;
 		},
 		
 		/**

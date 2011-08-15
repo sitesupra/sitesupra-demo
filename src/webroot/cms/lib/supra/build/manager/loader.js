@@ -392,6 +392,7 @@ YUI.add('supra.manager-loader', function (Y) {
 			var folder_dynamic = this.getActionFolder(action_name, true);
 			var info = {
 				'folder': folder_static,
+				'folder_data': folder_dynamic,
 				'path_data': folder_dynamic + file + this.EXTENSION_DATA,
 				'path_script': folder_static + file + this.EXTENSION_SCRIPT,
 				'path_template': folder_static + file + this.EXTENSION_TEMPLATE,
