@@ -10,12 +10,16 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Log;
+use Supra\Controller\Pages\Repository\PageRepository;
+use Supra\Http\Cookie;
 
 /**
  * Controller containing common methods
  */
 abstract class PageManagerAction extends CmsAction
 {
+	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
+	
 	/**
 	 * @var EntityManager
 	 */
@@ -116,5 +120,51 @@ abstract class PageManagerAction extends CmsAction
 		}
 		
 		return $pageData;
+	}
+	
+	/**
+	 * Get first page ID to show in the CMS
+	 * @return int
+	 */
+	protected function getInitialPageId()
+	{
+		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
+		$page = null;
+		
+		// Try cookie
+		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
+			$pageId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
+			$page = $pageDao->findOneById($pageId);
+		}
+		
+		// Root page otherwise
+		if (empty($page)) {
+			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
+			/* @var $pageDao PageRepository */
+			$pages = $pageDao->getRootNodes();
+			if (isset($pages[0])) {
+				$page = $pages[0];
+			}
+		}
+		
+		if (empty($page)) {
+			return null;
+		}
+		
+		$pageId = $page->getId();
+		
+		return $pageId;
+	}
+	
+	/**
+	 * Sets initial page ID to show in the CMS
+	 * @param int $pageId
+	 */
+	protected function setInitialPageId($pageId)
+	{
+		$cookie = new Cookie(self::INITIAL_PAGE_ID_COOKIE, $pageId);
+		$cookie->setExpire('+1 month');
+		
+		$this->getResponse()->setCookie($cookie);
 	}
 }

@@ -40,6 +40,8 @@ class PageAction extends PageManagerAction
 			return;
 		}
 		
+		$this->setInitialPageId($pageId);
+		
 		/* @var $pageData \Supra\Controller\Pages\Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);
 		
