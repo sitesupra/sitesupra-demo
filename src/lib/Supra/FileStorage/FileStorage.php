@@ -195,7 +195,6 @@ class FileStorage
 	// TODO: getDoctrineRepository()
 	// TODO: getFile($fileId)
 	// TODO: getFolder($fileId)
-	// TODO: getFileContents(File $file)
 	// TODO: getFileHandle(File $file)
 	// TODO: setDbConnection
 
@@ -426,57 +425,44 @@ class FileStorage
 	 */
 	private function setPublicForFile(Entity\File $file, $public)
 	{
-		// FIXME the code bellow REALLY NEEDS REFACTORING
-
-		$filePath = $file->getPath(DIRECTORY_SEPARATOR, true);
+		if ($public == $file->isPublic) {
+			$msg = $file->getId() . ' ' . $file->getName() . ' is already ';
+			$msg .= ($file->isPublic() ? 'public' : 'private');
+			\Log::info($msg);
+		}
 		
-		$timeNow = new \DateTime('now');
-				
-		if ($public) {
-			if ($file->isPublic()) {
-				\Log::info($file->getId() . ' ' . $file->getName() . ' is already public');
-			} else {
-				$this->moveFileToExternalStorage($filePath);
-				$file->setPublic(true);
-				$file->setModifiedTime($timeNow);
-				if ($file instanceof Entity\Image) {
-					$sizes = $file->getImageSizeCollection();
-					if ( ! $sizes->isEmpty()) {
-						$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
-									. DIRECTORY_SEPARATOR
-									. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
-						foreach ($sizes as $size) {
-							$filePath = $fileDir . DIRECTORY_SEPARATOR
-									. $size->getFolderName() . DIRECTORY_SEPARATOR
-									. $file->getName();
-							$this->moveFileToExternalStorage($filePath);
-						}
-					}
+		$fileList = array();
+
+		// prepare list of files to be moved
+		$fileList[] = $file->getPath(DIRECTORY_SEPARATOR, true);
+		if ($file instanceof Entity\Image) {
+			$sizes = $file->getImageSizeCollection();
+			if ( ! $sizes->isEmpty()) {
+				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
+							. DIRECTORY_SEPARATOR
+							. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
+				foreach ($sizes as $size) {
+					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
+							. $size->getFolderName() . DIRECTORY_SEPARATOR
+							. $file->getName();
 				}
-			}
-		} else {
-			if ($file->isPublic()) {
-				$this->moveFileToInternalStorage($filePath);
-				$file->setPublic(false);
-				$file->setModifiedTime($timeNow);
-				if ($file instanceof Entity\Image) {
-					$sizes = $file->getImageSizeCollection();
-					if ( ! $sizes->isEmpty()) {
-						$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
-									. DIRECTORY_SEPARATOR
-									. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
-						foreach ($sizes as $size) {
-							$filePath = $fileDir . DIRECTORY_SEPARATOR
-									. $size->getFolderName() . DIRECTORY_SEPARATOR
-									. $file->getName();
-							$this->moveFileToInternalStorage($filePath);
-						}
-					}
-				}
-			} else {
-				\Log::info($file->getId() . '#' . $filePath . ' is already private');
 			}
 		}
+		
+		if ($public) {
+			foreach ($fileList as $filePath) {
+				$this->moveFileToExternalStorage($filePath);
+			}
+			$file->setPublic(true);
+		} else {
+			foreach ($fileList as $filePath) {
+				$this->moveFileToInternalStorage($filePath);
+			}
+			$file->setPublic(false);
+		}
+		
+		$timeNow = new \DateTime('now');
+		$file->setModifiedTime($timeNow);
 	}
 
 	/**
@@ -826,11 +812,6 @@ class FileStorage
 	{
 		if ( ! $file instanceof Entity\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
-		}
-
-		// FIXME what to do with original?
-		if ($sizeName == 'original') {
-			$sizeName = null;
 		}
 
 		if ($file->isPublic()) {
