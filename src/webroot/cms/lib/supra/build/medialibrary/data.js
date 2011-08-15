@@ -396,13 +396,18 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
-						this.afterSaveData(id || 0, data);
-						if (Y.Lang.isFunction(callback)) {
-							if (context) {
-								callback.call(context, data, id || 0);
-							} else {
-								callback(data, id || 0);
+						if (status) {
+							this.afterSaveData(id || 0, data);
+							
+							if (Y.Lang.isFunction(callback)) {
+								if (context) {
+									callback.call(context, data, id || 0);
+								} else {
+									callback(data, id || 0);
+								}
 							}
+						} else if (id == -1) {
+							this.removeData(-1, true);
 						}
 					}
 				}
