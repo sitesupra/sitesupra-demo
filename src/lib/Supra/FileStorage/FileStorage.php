@@ -16,19 +16,11 @@ use Doctrine\ORM\EntityManager;
 class FileStorage
 {
 
-	const
-		RESERVED_DIR_SIZE = "_size",
-		RESERVED_DIR_VERSION = "_ver";
+	const RESERVED_DIR_SIZE = "_size";
+	const RESERVED_DIR_VERSION = "_ver";
 	
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
-	
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
-
-	/**
-	 * Object instance
-	 * @var object
-	 */
-	protected static $instance;
 
 	/**
 	 * File Storage internal path
@@ -160,19 +152,6 @@ class FileStorage
 	public function setFileAccessModeInFileSystem($fileAccessMode)
 	{
 		$this->fileAccessMode = $fileAccessMode;
-	}
-
-	/**
-	 * Returning only one instance of object
-	 *
-	 * @return FileStorage
-	 */
-	public static function getInstance()
-	{
-		if (is_null(self::$instance)) {
-			self::$instance = new FileStorage;
-		}
-		return self::$instance;
 	}
 
 	/**

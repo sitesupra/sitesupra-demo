@@ -22,7 +22,7 @@ class FileStorageTestLocal extends \PHPUnit_Extensions_OutputTestCase
 
 	private function deleteFilesAndFolders()
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
+		$filestorage = new FileStorage\FileStorage();
 		$this->removeFolders($filestorage->getExternalPath());
 		$this->removeFolders($filestorage->getInternalPath());
 	}

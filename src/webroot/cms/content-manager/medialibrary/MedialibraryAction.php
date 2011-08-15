@@ -10,19 +10,26 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class MediaLibraryAction extends CmsAction
 {
-
+	private $fileStorage;
+	
 	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
+	
+	public function execute()
+	{
+		$this->fileStorage = ObjectRepository::getFileStorage($this);
+		
+		parent::execute();
+	}
 
 	/**
 	 * Used for list folder item
 	 */
 	public function listAction()
 	{
-		$fileStorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($fileStorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
@@ -81,8 +88,7 @@ class MediaLibraryAction extends CmsAction
 		if ( ! empty($_GET['id'])) {
 			$id = $_GET['id'];
 
-			$fileStorage = FileStorage\FileStorage::getInstance();
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -110,8 +116,7 @@ class MediaLibraryAction extends CmsAction
 	{
 		if ( ! empty($_POST['title'])) {
 
-			$fileStorage = FileStorage\FileStorage::getInstance();
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 			$dir = new \Supra\FileStorage\Entity\Folder();
 			// FIXME: should doctrine entity manager be as file stogare parameter?
@@ -142,7 +147,7 @@ class MediaLibraryAction extends CmsAction
 
 			// trying to create folder
 			try {
-				$fileStorage->createFolder($dir);
+				$this->fileStorage->createFolder($dir);
 			} catch (FileStorage\Exception\FileStorageException $exception) {
 				$this->handleException($exception);
 				
@@ -163,10 +168,9 @@ class MediaLibraryAction extends CmsAction
 	{
 		if ( ! empty($_POST['id'])) {
 
-			$fileStorage = FileStorage\FileStorage::getInstance();
 
 			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -193,7 +197,7 @@ class MediaLibraryAction extends CmsAction
 				// trying to rename folder. Catching all FileStorage and Validation exceptions
 				// and passing them to MediaLibrary UI
 				try {
-					$fileStorage->renameFolder($file, $title);
+					$this->fileStorage->renameFolder($file, $title);
 				} catch (FileStorage\Exception\FileStorageException $exception) {
 					$this->handleException($exception);
 					
@@ -208,7 +212,7 @@ class MediaLibraryAction extends CmsAction
 					if ($file instanceof \Supra\FileStorage\Entity\Image) {
 						if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
 							$rotationCount = - intval($_POST['rotate'] / 90);
-							$fileStorage->rotateImage($file, $rotationCount);
+							$this->fileStorage->rotateImage($file, $rotationCount);
 						} else if (isset($_POST['crop']) && is_array($_POST['crop'])) {
 							$crop = $_POST['crop'];
 							if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
@@ -216,7 +220,7 @@ class MediaLibraryAction extends CmsAction
 								$top = intval($crop['top']);
 								$width = intval($crop['width']);
 								$height = intval($crop['height']);
-								$fileStorage->cropImage($file, $left, $top, $width, $height);
+								$this->fileStorage->cropImage($file, $left, $top, $width, $height);
 							}
 						}
 					}
@@ -232,7 +236,7 @@ class MediaLibraryAction extends CmsAction
 						// trying to rename file. Catching all FileStorage and Validation exceptions
 						// and passing them to MediaLibrary UI
 						try {
-							$fileStorage->renameFile($file, $filename);
+							$this->fileStorage->renameFile($file, $filename);
 						} catch (FileStorage\Exception\FileStorageException $exception) {
 							$this->handleException($exception);
 							return;
@@ -264,8 +268,7 @@ class MediaLibraryAction extends CmsAction
 
 		if ( ! empty($_POST['id'])) {
 			$recordId = $_POST['id'];
-			$fileStorage = FileStorage\FileStorage::getInstance();
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 			/* @var $repo FileRepository */
 			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 			/* @var $node \Supra\FileStorage\Entity\File */
@@ -275,7 +278,7 @@ class MediaLibraryAction extends CmsAction
 
 				try {
 					// try to delete
-					$fileStorage->remove($record);
+					$this->fileStorage->remove($record);
 				} catch (FileStorage\Exception\FileStorageException $exception) {
 					$this->handleException($exception);
 					return;
@@ -296,13 +299,12 @@ class MediaLibraryAction extends CmsAction
 	public function uploadAction()
 	{
 		// FIXME: should doctrine entity manager be as file stogare parameter?
-		$fileStorage = FileStorage\FileStorage::getInstance();
 
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
 
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 			// checking for replace action
 			if (isset($_POST['file_id'])) {
@@ -315,7 +317,7 @@ class MediaLibraryAction extends CmsAction
 					$em->persist($fileToReplace);
 
 					try {
-						$fileStorage->replaceFile($fileToReplace, $file);
+						$this->fileStorage->replaceFile($fileToReplace, $file);
 					} catch (FileStorage\Exception\FileStorageException $exception) {
 						$this->handleException($exception);
 						return;
@@ -335,7 +337,7 @@ class MediaLibraryAction extends CmsAction
 			}
 
 			$fileEntity = null;
-			if ($fileStorage->isMimeTypeImage($file['type'])) {
+			if ($this->fileStorage->isMimeTypeImage($file['type'])) {
 				$fileEntity = new \Supra\FileStorage\Entity\Image();
 			} else {
 				$fileEntity = new \Supra\FileStorage\Entity\File();
@@ -372,16 +374,16 @@ class MediaLibraryAction extends CmsAction
 
 			// trying to upload file
 			try {
-				$fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+				$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 				// additional jobs for images
 				if ($fileEntity instanceof \Supra\FileStorage\Entity\Image) {
 					// store original size
 					$imageProcessor = new ImageProcessor\ImageResizer();
-					$imageInfo = $imageProcessor->getImageInfo($fileStorage->getFilesystemPath($fileEntity));
+					$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($fileEntity));
 					$fileEntity->setWidth($imageInfo['width']);
 					$fileEntity->setHeight($imageInfo['height']);
 					// create preview
-					$fileStorage->createResizedImage($fileEntity, 200, 200);
+					$this->fileStorage->createResizedImage($fileEntity, 200, 200);
 				}
 			} catch (FileStorage\Exception\FileStorageException $exception) {
 				$this->handleException($exception);
@@ -396,19 +398,17 @@ class MediaLibraryAction extends CmsAction
 			$this->getResponse()->setResponseData($output);
 		} else {
 			//TODO: Separate messages to UI and to logger
-			$this->setErrorMessage($fileStorage->fileUploadErrorMessages[$_FILES['error']]);
+			$this->setErrorMessage($this->fileStorage->fileUploadErrorMessages[$_FILES['error']]);
 		}
 	}
 
 	public function downloadAction()
 	{
-		$fileStorage = FileStorage\FileStorage::getInstance();
-
 		if ( ! empty($_GET['id'])) {
 
 			$fileId = intval($_GET['id']);
 
-			$em = ObjectRepository::getEntityManager($fileStorage);
+			$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 			// TODO: currently FileRepository is not assigned to the file abstraction
 			// FIXME: store the classname as constant somewhere?
@@ -439,7 +439,7 @@ class MediaLibraryAction extends CmsAction
 				header("Cache-Control: private, must-revalidate");
 			}
 
-			$content = $fileStorage->getFileContent($file);
+			$content = $this->fileStorage->getFileContent($file);
 
 			$mimeType = $file->getMimeType();
 			$fileName = $file->getName();
@@ -474,10 +474,10 @@ class MediaLibraryAction extends CmsAction
 			$type = self::TYPE_FILE;
 		}
 
-		/** @var $fileStorage \Supra\FileStorage\FileStorage */
-		$fileStorage = ObjectRepository::getFileStorage($this);
+		/** @var $this->fileStorage \Supra\FileStorage\FileStorage */
+		$this->fileStorage = ObjectRepository::getFileStorage($this);
 
-		$filePath = $fileStorage->getWebPath($node);
+		$filePath = $this->fileStorage->getWebPath($node);
 
 		$output = null;
 
@@ -507,7 +507,7 @@ class MediaLibraryAction extends CmsAction
 			if ( ! $sizes->isEmpty()) {
 				foreach ($sizes as $size) {
 					$sizeName = $size->getName();
-					$sizePath = $fileStorage->getWebPath($node, $sizeName);
+					$sizePath = $this->fileStorage->getWebPath($node, $sizeName);
 					$output['sizes'][$sizeName] = array(
 						'id' => $sizeName,
 						'width' => $size->getWidth(),
