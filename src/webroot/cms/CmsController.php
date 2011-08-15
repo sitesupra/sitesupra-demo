@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager;
+namespace Supra\Cms;
 
 use Supra\Controller\DistributedController;
 use Supra\Controller\Exception\ResourceNotFoundException;
@@ -11,11 +11,13 @@ use Supra\Log\Log;
  */
 class CmsController extends DistributedController
 {
+	const ACTION_CLASS_SUFFIX = 'Controller';
+	
 	/**
-	 * Default action when no action is provided
+	 * Page manager is the default action
 	 * @var string
 	 */
-	protected static $defaultAction = 'root';
+	protected static $defaultAction = 'content-manager';
 	
 	/**
 	 * @return string
@@ -23,22 +25,6 @@ class CmsController extends DistributedController
 	public function getBaseNamespace()
 	{
 		return __NAMESPACE__;
-	}
-	
-	/**
-	 * @param string $namespace
-	 * @param string $action
-	 * @return string 
-	 */
-	protected function getClassName($namespace, $action)
-	{
-		// Normalize abc-DEF to class AbcDef so the request remains case insensitive
-		$normalAction = $this->normalizeUrl($action);
-		
-		$class = $namespace . '\\' . $action . '\\' . $normalAction 
-				. static::ACTION_CLASS_SUFFIX;
-		
-		return $class;
 	}
 	
 	/**

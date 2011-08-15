@@ -5,9 +5,8 @@ namespace Supra\Cms\InternalUserManager;
 use Supra\Controller\DistributedController;
 
 /**
- * Description of CmsController
  */
-class Controller extends DistributedController
+class InternalUserManagerController extends DistributedController
 {
 	/**
 	 * Default action when no action is provided
