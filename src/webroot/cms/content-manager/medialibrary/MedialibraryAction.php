@@ -143,13 +143,12 @@ class MediaLibraryAction extends CmsAction
 			// trying to create folder
 			try {
 				$fileStorage->createFolder($dir);
-			} catch (FileStorage\Exception\RuntimeException $exc) {
-				$this->setErrorMessage($exc->getMessage());
-				return;
-			} catch (FileStorage\Exception\UploadFilterException $exc) {
-				$this->setErrorMessage($exc->getMessage());
+			} catch (FileStorage\Exception\FileStorageException $exception) {
+				$this->handleException($exception);
+				
 				return;
 			}
+			
 			$em->flush();
 
 			$insertedId = $dir->getId();
@@ -195,13 +194,12 @@ class MediaLibraryAction extends CmsAction
 				// and passing them to MediaLibrary UI
 				try {
 					$fileStorage->renameFolder($file, $title);
-				} catch (FileStorage\Exception\RuntimeException $exc) {
-					$this->setErrorMessage($exc->getMessage());
-					return;
-				} catch (FileStorage\Exception\UploadFilterException $exc) {
-					$this->setErrorMessage($exc->getMessage());
+				} catch (FileStorage\Exception\FileStorageException $exception) {
+					$this->handleException($exception);
+					
 					return;
 				}
+				
 			} else if ($file instanceof \Supra\FileStorage\Entity\File) {
 
 				try {
@@ -235,11 +233,8 @@ class MediaLibraryAction extends CmsAction
 						// and passing them to MediaLibrary UI
 						try {
 							$fileStorage->renameFile($file, $filename);
-						} catch (FileStorage\Exception\RuntimeException $exc) {
-							$this->setErrorMessage($exc->getMessage());
-							return;
-						} catch (FileStorage\Exception\UploadFilterException $exc) {
-							$this->setErrorMessage($exc->getMessage());
+						} catch (FileStorage\Exception\FileStorageException $exception) {
+							$this->handleException($exception);
 							return;
 						}
 					} else {
@@ -281,11 +276,8 @@ class MediaLibraryAction extends CmsAction
 				try {
 					// try to delete
 					$fileStorage->remove($record);
-				} catch (FileStorage\Exception\RuntimeException $exc) {
-					$this->setErrorMessage($exc->getMessage());
-					return;
-				} catch (FileStorage\Exception\LogicException $exc) {
-					$this->setErrorMessage($exc->getMessage());
+				} catch (FileStorage\Exception\FileStorageException $exception) {
+					$this->handleException($exception);
 					return;
 				}
 
@@ -324,11 +316,8 @@ class MediaLibraryAction extends CmsAction
 
 					try {
 						$fileStorage->replaceFile($fileToReplace, $file);
-					} catch (FileStorage\Exception\RuntimeException $exc) {
-						$this->setErrorMessage($exc->getMessage());
-						return;
-					} catch (FileStorage\Exception\UploadFilterException $exc) {
-						$this->setErrorMessage($exc->getMessage());
+					} catch (FileStorage\Exception\FileStorageException $exception) {
+						$this->handleException($exception);
 						return;
 					} catch (\Exception $exc) {
 						\Log::error($exc->getMessage());
@@ -394,11 +383,8 @@ class MediaLibraryAction extends CmsAction
 					// create preview
 					$fileStorage->createResizedImage($fileEntity, 200, 200);
 				}
-			} catch (FileStorage\Exception\RuntimeException $exc) {
-				$this->setErrorMessage($exc->getMessage());
-				return;
-			} catch (FileStorage\Exception\UploadFilterException $exc) {
-				$this->setErrorMessage($exc->getMessage());
+			} catch (FileStorage\Exception\FileStorageException $exception) {
+				$this->handleException($exception);
 				return;
 			}
 
@@ -551,6 +537,26 @@ class MediaLibraryAction extends CmsAction
 	{
 		$this->getResponse()->setErrorMessage($message);
 		$this->getResponse()->setStatus(false);
+	}
+	
+	/**
+	 * Sets correct response error message
+	 * @param FileStorage\FileStorageException $exception
+	 */
+	private function handleException(FileStorage\FileStorageException $exception)
+	{
+		if ($exception instanceof FileStorage\Exception\LocalizedException) {
+			$messageKey = $exception->getMessageKey();
+
+			if ( ! empty($messageKey)) {
+				$messageKey = '{#' . $messageKey . '#}';
+				$this->setErrorMessage($messageKey);
+				
+				return;
+			}
+		}
+		
+		$this->setErrorMessage($exception->getMessage());
 	}
 
 }

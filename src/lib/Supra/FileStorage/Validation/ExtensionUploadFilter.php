@@ -8,6 +8,8 @@ use Supra\FileStorage\Helpers\BlackWhiteListCheck;
 
 class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidationInterface
 {
+	const EXCEPTION_MESSAGE_KEY = 'medialibrary.validation_error.not_allowed_extension';
+	
 	/**
 	 * Validates file extension
 	 * @param File $file 
@@ -20,7 +22,7 @@ class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidatio
 			$message = 'File extension "'.$file->getExtension().'" is not allowed';
 			\Log::info($message);
 			
-			throw new Exception\UploadFilterException($message);
+			throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 		}
 	}
 	

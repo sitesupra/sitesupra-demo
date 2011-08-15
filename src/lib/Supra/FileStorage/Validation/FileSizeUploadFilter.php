@@ -10,6 +10,8 @@ use Supra\FileStorage\Exception;
  */
 class FileSizeUploadFilter implements FileValidationInterface
 {
+	const EXCEPTION_MESSAGE_KEY = 'medialibrary.validation_error.file_size';
+	
 	/**
 	 * Maximum file upload size
 	 * @var integer $maxSize
@@ -37,7 +39,7 @@ class FileSizeUploadFilter implements FileValidationInterface
 			$message = 'File size is bigger than "' . $this->maxSize . '"';
 			\Log::info($message);
 			
-			throw new Exception\UploadFilterException($message);
+			throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 		}
 	}
 

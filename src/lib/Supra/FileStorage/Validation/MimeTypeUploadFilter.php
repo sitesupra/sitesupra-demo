@@ -7,6 +7,8 @@ use Supra\FileStorage\Exception;
 
 class MimeTypeUploadFilter implements FileValidationInterface
 {
+	const EXCEPTION_MESSAGE_KEY = 'medialibrary.validation_error.not_allowed_mime';
+	
 	/**
 	 * Validates file mimetype
 	 * @param File $file 
@@ -19,7 +21,7 @@ class MimeTypeUploadFilter implements FileValidationInterface
 			$message = 'File mimetype "'.$file->getMimeType().'" is not allowed';
 			\Log::info($message);
 			
-			throw new Exception\UploadFilterException($message);
+			throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 		}
 	}
 

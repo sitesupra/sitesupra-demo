@@ -11,6 +11,8 @@ use Supra\FileStorage\Helpers;
  */
 class FileNameUploadFilter extends FileFolderSharedValidation
 {
+	const EXCEPTION_MESSAGE_KEY = 'medialibrary.validation_error.invalid_name';
+	
 	/**
 	 * Validates filename for files and folders
 	 * @param File $file
@@ -26,7 +28,7 @@ class FileNameUploadFilter extends FileFolderSharedValidation
 			$message = $fileNameHelper->getErrorMessage();
 			\Log::info($message);
 			
-			throw new Exception\UploadFilterException($message);
+			throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 		}
 	}
 	

@@ -7,6 +7,7 @@ use Supra\FileStorage\Helpers;
 use Supra\FileStorage\Entity;
 use Supra\FileStorage\Exception;
 use Supra\ObjectRepository\ObjectRepository;
+use Doctrine\ORM\EntityManager;
 
 /**
  * File storage
@@ -18,6 +19,10 @@ class FileStorage
 	const
 		RESERVED_DIR_SIZE = "_size",
 		RESERVED_DIR_VERSION = "_ver";
+	
+	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
+	
+	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
 
 	/**
 	 * Object instance
@@ -72,8 +77,7 @@ class FileStorage
 	
 	/**
 	 * Entity manager instance
-	 *
-	 * @var Doctrine\ORM\EntityManager
+	 * @var EntityManager
 	 */
 	private $entityManager;
 
@@ -224,25 +228,29 @@ class FileStorage
 	 * Rename file in all file storages
 	 * @param Entity\File $file
 	 * @param string $filename new file name
+	 * @throws Exception\UploadFilterException on not valid change
 	 */
 	public function renameFile(Entity\File $file, $filename)
 	{
+		$newFile = clone($file);
+		$this->entityManager->detach($newFile);
+		$newFile->setName($filename);
+		
 		$oldExtension = $file->getExtension();
-		$newExtension = $this->getExtension($filename);
+		$newExtension = $newFile->getExtension();
 
 		if ($oldExtension != $newExtension) {
-			throw new Exception\UploadFilterException('You can\'t change file extension');
+			throw new Exception\UploadFilterException(self::VALIDATION_EXTENSION_RENAME_MESSAGE_KEY, 'You can\'t change file extension');
 		}
 
 		foreach ($this->fileUploadFilters as $filter) {
-			$filter->validateFile($file);
+			$filter->validateFile($newFile);
 		}
 
 		$this->renameFileInFileSystem($file, $filename);
-			
-		$timeNow = new \DateTime('now');
-		$file->setModifiedTime($timeNow);
-		$file->setName($filename);
+		
+		$this->entityManager->merge($newFile);
+		$this->entityManager->flush();
 	}
 
 	/**
@@ -292,22 +300,25 @@ class FileStorage
 	{
 		$internalPath = $this->getInternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = $this->getExternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
+		
+		$newFolder = clone($folder);
+		$this->entityManager->detach($newFolder);
+		$newFolder->setName($title);
 
 		// old folder name for rollback if validation fails
 		$oldFolderName = $folder->getName();
 
 		// validating folder before renaming
 		foreach ($this->folderUploadFilters as $filter) {
-			$filter->validateFolder($folder);
+			$filter->validateFolder($newFolder);
 		}
 
 		// rename folder in both file storages
 		$this->renameFolderInFileSystem($folder, $title, $internalPath);
 		$this->renameFolderInFileSystem($folder, $title, $externalPath);
 
-		$folder->setName($title);
-		$timeNow = new \DateTime('now');
-		$folder->setModifiedTime($timeNow);
+		$this->entityManager->merge($newFolder);
+		$this->entityManager->flush();
 	}
 
 	/**
@@ -855,11 +866,7 @@ class FileStorage
 		$newFileIsImage = $this->isMimeTypeImage($file['type']);
 
 		if ($oldFileIsImage !== $newFileIsImage) {
-			if ($newFileIsImage) {
-				throw new Exception\UploadFilterException('Can not replace non-image file with image');
-			} else {
-				throw new Exception\UploadFilterException('New file should be image too');
-			}
+			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
 		}
 		
 		// TODO: change to versioning

@@ -10,6 +10,8 @@ use Supra\FileStorage\Entity\Abstraction\File;
  */
 class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 {
+	const EXCEPTION_MESSAGE_KEY = 'medialibrary.validation_error.already_exists';
+	
 	/**
 	 * Shared validation function
 	 * @param File $file
@@ -23,10 +25,13 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 			if ( ! $record->equals($entity)) {
 				$recordName = $record->getName();
 				if ($creatingFilename == $recordName) {
-					$message = $typeName . ' with such name already exists.';
+					$message = $typeName . ' with this name already exists.';
 					\Log::info($message);
 					
-					throw new Exception\UploadFilterException($message);
+					$exception = new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
+					$exception->setMessageKey();
+					
+					throw $exception;
 				}
 			}
 		}
