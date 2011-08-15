@@ -457,7 +457,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
-						if (Y.Lang.isFunction(callback)) callback(data, id || 0);
+						if (Y.Lang.isFunction(callback) && status) callback(data, id || 0);
 					}
 				}
 			});
