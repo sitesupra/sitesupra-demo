@@ -40,6 +40,12 @@ abstract class PageRequest extends HttpRequest
 	 * @var string
 	 */
 	const TEMPLATE_ENTITY = 'Supra\Controller\Pages\Entity\Template';
+	
+	/**
+	 * Page data class name
+	 * @var string
+	 */
+	const TEMPLATE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\TemplateData';
 
 	/**
 	 * Block abstraction class name

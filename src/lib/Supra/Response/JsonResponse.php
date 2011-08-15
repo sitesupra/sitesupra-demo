@@ -44,6 +44,24 @@ class JsonResponse extends HttpResponse
 	{
 		$this->responseData = $data;
 	}
+	
+	/**
+	 * Allows pushing values to the response data array
+	 * @param mixed $data
+	 * @throws Exception\RuntimeException if response data is not an array
+	 */
+	public function appendResponseData($data)
+	{
+		if (is_null($this->responseData)) {
+			$this->responseData = array();
+		}
+		
+		if ( ! is_array($this->responseData)) {
+			throw new Exception\RuntimeException("Cannot append data to JsonResponse, data is not an array");
+		}
+		
+		$this->responseData[] = $data;
+	}
 
 	/**
 	 * Sets error message

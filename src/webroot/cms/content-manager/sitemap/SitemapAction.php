@@ -25,7 +25,7 @@ class SitemapAction extends PageManagerAction
 		
 		$entities = array(
 			PageRequest::PAGE_ENTITY,
-			PageRequest::TEMPLATE_ENTITY
+//			PageRequest::TEMPLATE_ENTITY
 		);
 		
 		$response = array();
@@ -39,6 +39,7 @@ class SitemapAction extends PageManagerAction
 
 			foreach ($rootNodes as $rootNode) {
 				$tree = $this->buildTreeArray($rootNode, $locale);
+				// TODO: hardcoded
 				$tree['icon'] = 'home';
 				
 				$response[] = $tree;
@@ -81,13 +82,12 @@ class SitemapAction extends PageManagerAction
 	{
 		$data = $page->getData($locale);
 		$pathPart = null;
-		$templateName = null;
+		$templateId = null;
 		
 		//TODO: need to know template ID as well
 		if ($page instanceof Entity\Page) {
-			$templateName = $page->getTemplate()
-					->getData($locale)
-					->getTitle();
+			$templateId = $page->getTemplate()
+					->getId();
 		}
 		
 		if ($data instanceof Entity\PageData) {
@@ -97,12 +97,15 @@ class SitemapAction extends PageManagerAction
 		$array = array(
 			'id' => $page->getId(),
 			'title' => $data->getTitle(),
-			'template' => $templateName,
+			'template' => $templateId,
 			'path' => $pathPart,
+			// TODO: hardcoded
 			'icon' => 'page',
+			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'
 		);
 		
 		if ($page->hasChildren()) {
+			// TODO: hardcoded
 			$array['icon'] = 'folder';
 			$array['children'] = array();
 			
