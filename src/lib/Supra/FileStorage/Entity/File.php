@@ -108,7 +108,7 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * Get meta-data for locale
 	 *
 	 * @param string $locale
-	 * @return \Supra\FileStorage\Entity\MetaData
+	 * @return MetaData
 	 */
 	public function getMetaData($locale = null)
 	{
@@ -132,7 +132,8 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	public function getTitle($locale = null)
 	{
 		$metaData = $this->getMetaData($locale);
-		if ($metaData instanceof \Supra\FileStorage\Entity\MetaData) {
+		
+		if ($metaData instanceof MetaData) {
 			return $metaData->getTitle();
 		} else {
 			return $this->getName();
@@ -148,7 +149,8 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	public function getDescription($locale = null)
 	{
 		$metaData = $this->getMetaData($locale);
-		if ($metaData instanceof \Supra\FileStorage\Entity\MetaData) {
+		
+		if ($metaData instanceof MetaData) {
 			return $metaData->getDescription();
 		} else {
 			return $this->getName();

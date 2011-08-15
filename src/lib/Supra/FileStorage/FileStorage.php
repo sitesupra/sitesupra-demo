@@ -156,20 +156,18 @@ class FileStorage
 
 	/**
 	 * Add file upload filter
-	 *
-	 * @param \Supra\Validation\FileValidationInterface $filter
+	 * @param Validation\FileValidationInterface $filter
 	 */
-	public function addFileUploadFilter($filter)
+	public function addFileUploadFilter(Validation\FileValidationInterface $filter)
 	{
 		$this->fileUploadFilters[] = $filter;
 	}
 
 	/**
 	 * Add folder upload filter
-	 *
-	 * @param \Supra\Validation\FolderValidationInterface $filter
+	 * @param Validation\FolderValidationInterface $filter
 	 */
-	public function addFolderUploadFilter($filter)
+	public function addFolderUploadFilter(Validation\FolderValidationInterface $filter)
 	{
 		$this->folderUploadFilters[] = $filter;
 	}
@@ -184,7 +182,7 @@ class FileStorage
 	/**
 	 * Store file data
 	 *
-	 * @param \Supra\FileStorage\Entity\File $file
+	 * @param Entity\File $file
 	 * @param string $source
 	 */
 	function storeFileData(Entity\File $file, $sourceFilePath)
