@@ -11,7 +11,8 @@ $fileStorage->setExternalPath('files');
 
 $extensionFilter = new Supra\FileStorage\Validation\ExtensionUploadFilter();
 $extensionFilter->setMode(Supra\FileStorage\Validation\ExtensionUploadFilter::MODE_WHITELIST);
-$extensionFilter->addItems(array('gif','png','jpg','jpeg'));
+$extensionFilter->addItems(
+		array('gif', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt'));
 
 $fileNameFilter = new Supra\FileStorage\Validation\FileNameUploadFilter();
 
