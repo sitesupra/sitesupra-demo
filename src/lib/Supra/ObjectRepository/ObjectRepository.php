@@ -36,16 +36,11 @@ class ObjectRepository
 			throw new \RuntimeException('Caller must be class instance or class name');
 		}
 		
-		$objects = self::$objectBindings[self::DEFAULT_KEY];
-		if (isset(self::$objectBindings[$caller])) {
-			$objects = array_merge($objects, self::$objectBindings[$caller]);
+		$object = self::findObject($caller, $interfaceName);
+		if (is_null($object)) {
+			$object = self::findObject(self::DEFAULT_KEY, $interfaceName);
 		}
-
-		if (isset($objects[$interfaceName])) {
-			return $objects[$interfaceName];
-		} else {
-			return null;
-		}
+		return $object;
 	}
 
 	/**
@@ -197,4 +192,27 @@ class ObjectRepository
 		self::$objectBindings[$caller][$interfaceClass] = $object;
 	}
 
+	/**
+	 * Find object
+	 *
+	 * @param string $callerClass
+	 * @param string $objectClass 
+	 */
+	protected static function findObject($callerClass, $objectClass)
+	{
+		if (empty($callerClass) || empty($objectClass)) {
+			return null;
+		}
+
+		if (isset(self::$objectBindings[$callerClass], self::$objectBindings[$callerClass][$objectClass])) {
+			return self::$objectBindings[$callerClass][$objectClass];
+			
+		} else if ($callerClass != self::DEFAULT_KEY) {
+			$seniorClass = mb_substr($callerClass, 0, mb_strrpos($callerClass, "\\"));
+			return self::findObject($seniorClass, $objectClass);
+			
+		} else {
+			return null;
+		}
+	}
 }

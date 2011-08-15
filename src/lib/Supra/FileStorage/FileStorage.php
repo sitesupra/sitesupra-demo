@@ -73,7 +73,7 @@ class FileStorage
 	/**
 	 * Entity manager instance
 	 *
-	 * @var object
+	 * @var Doctrine\ORM\EntityManager
 	 */
 	private $entityManager;
 
@@ -854,8 +854,12 @@ class FileStorage
 		$oldFileIsImage = $fileEntity instanceof Entity\Image;
 		$newFileIsImage = $this->isMimeTypeImage($file['type']);
 
-		if ($oldFileIsImage && ( ! $newFileIsImage)) {
-			throw new Exception\UploadFilterException('New file should be image too');
+		if ($oldFileIsImage !== $newFileIsImage) {
+			if ($newFileIsImage) {
+				throw new Exception\UploadFilterException('Can not replace non-image file with image');
+			} else {
+				throw new Exception\UploadFilterException('New file should be image too');
+			}
 		}
 		
 		// TODO: change to versioning
