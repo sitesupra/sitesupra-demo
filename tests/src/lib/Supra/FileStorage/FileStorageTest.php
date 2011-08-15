@@ -16,31 +16,37 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
  */
 class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 {
-
 	const DELETE_FILES = true;
+	
+	/**
+	 * @var FileStorage\FileStorage
+	 */
+	private $fileStorage;
+	
+	public function setUp()
+	{
+		$this->fileStorage = ObjectRepository::getFileStorage($this);
+	}
 
 	public function testUploadFileToInternal()
 	{
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
 		// directories
 
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir = $this->createFolder('one');
 
 		$em->flush();
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		
 		// file
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$mimeType = $filestorage->getMimeType($uploadFile);
+		$mimeType = $this->fileStorage->getMimeType($uploadFile);
 		
 		$file = null;
-		if ($filestorage->isMimeTypeImage($mimeType)) {
+		if ($this->fileStorage->isMimeTypeImage($mimeType)) {
 			$file = new \Supra\FileStorage\Entity\Image;
 		} else {
 			$file = new \Supra\FileStorage\Entity\File();
@@ -59,22 +65,22 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
 
-		$filestorage->storeFileData($file, $uploadFile);
+		$this->fileStorage->storeFileData($file, $uploadFile);
 
 		if ($file instanceof \Supra\FileStorage\Entity\Image) {
 			$imageProcessor = new ImageResizer();
-			$imageInfo = $imageProcessor->getImageInfo($filestorage->getFilesystemPath($file));
+			$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($file));
 			$file->setWidth($imageInfo['width']);
 			$file->setHeight($imageInfo['height']);
-//			$filestorage->rotateImageLeft($file);
-//			$filestorage->rotateImageRight($file);
-//			$filestorage->rotateImage180($file);
-			$filestorage->createResizedImage($file, 100, 100, true);
-			$filestorage->createResizedImage($file, 200, 200, false);
+//			$this->fileStorage->rotateImageLeft($file);
+//			$this->fileStorage->rotateImageRight($file);
+//			$this->fileStorage->rotateImage180($file);
+			$this->fileStorage->createResizedImage($file, 100, 100, true);
+			$this->fileStorage->createResizedImage($file, 200, 200, false);
 		}
 
-		$filestorage->cropImage($file, 100, 75, 150, 175);
-		$filestorage->rotateImageLeft($file);
+		$this->fileStorage->cropImage($file, 100, 75, 150, 175);
+		$this->fileStorage->rotateImageLeft($file);
 
 //		// meta-data getter test
 //		\Log::debug(array(
@@ -85,8 +91,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 //		$repo = self::getConnection()->getRepository("Supra\FileStorage\Entity\Folder");
 //		$roots = $repo->getRootNodes();
 //		1+1;
-//		$filestorage->setPrivate($file);
-//		$filestorage->setPublic($file);
+//		$this->fileStorage->setPrivate($file);
+//		$this->fileStorage->setPublic($file);
 
 		$path = $file->getPath(DIRECTORY_SEPARATOR, true);
 		if ($path == 'one/chuck.jpg') {
@@ -100,12 +106,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp();
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		// file
-		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'fail.yml';
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'fail.bat';
 
 		$file = new \Supra\FileStorage\Entity\File();
 
@@ -121,7 +125,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file->setMimeType($mimeType);
 
 		try {
-			$filestorage->storeFileData($file, $uploadFile);
+			$this->fileStorage->storeFileData($file, $uploadFile);
 		} catch (Exception\UploadFilterException $exc) {
 			return;
 		}
@@ -227,11 +231,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$dir = $this->createFolder('testFolder');
 
 		if ($dir instanceof \Supra\FileStorage\Entity\Folder) {
-			$filestorage = FileStorage\FileStorage::getInstance();
-			$filestorage->renameFolder($dir, 'folder');
+			$this->fileStorage->renameFolder($dir, 'folder');
 
-			$internalPath = is_dir($filestorage->getInternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
-			$externalPath = is_dir($filestorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
+			$internalPath = is_dir($this->fileStorage->getInternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
+			$externalPath = is_dir($this->fileStorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
 
 			if ($internalPath && $externalPath) {
 
@@ -255,7 +258,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$dir = $this->createFolder('testFolder');
 
 		if ($dir instanceof \Supra\FileStorage\Entity\Folder) {
-			$filestorage = FileStorage\FileStorage::getInstance();
 			try {
 				$result = $this->createFolder('Copy*Pase');
 			} catch (Exception\UploadFilterException $e) {
@@ -270,19 +272,18 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 
 		$dir = new \Supra\FileStorage\Entity\Folder();
-		$filestorage = FileStorage\FileStorage::getInstance();
 
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir->setName($name);
 
 		$em->persist($dir);
 		$em->flush();
 
-		$filestorage->createFolder($dir);
+		$this->fileStorage->createFolder($dir);
 
-		$internalPath = is_dir($filestorage->getInternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
-		$externalPath = is_dir($filestorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
+		$internalPath = is_dir($this->fileStorage->getInternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
+		$externalPath = is_dir($this->fileStorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
 
 		if ($internalPath && $externalPath) {
 			return $dir;
@@ -294,10 +295,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testCreateFile()
 	{
 		$this->cleanUp();
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$filePath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
 		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
 	}
@@ -305,7 +305,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testCreateExistentFile()
 	{
 		$this->cleanUp();
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
 		try {
@@ -320,16 +319,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testCreateFileAndRenameIt()
 	{
 		$this->cleanUp();
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$filePath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = file_exists($filePath);
 
 		if ($externalPath) {
 
-			$filestorage->renameFile($file, 'CHUUUUCK.jpg');
-			$renamedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+			$this->fileStorage->renameFile($file, 'CHUUUUCK.jpg');
+			$renamedFilePath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
 			self::assertFileExists($renamedFilePath, 'Renamed file should exist in file storage');
 		} else {
@@ -340,14 +338,13 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testCreateFileAndRenameItWrong()
 	{
 		$this->cleanUp();
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 
-		$externalPath = file_exists($filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
+		$externalPath = file_exists($this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true));
 
 		if ($externalPath) {
 			try {
-				$filestorage->renameFile($file, 'CHUU*UUCK.jpg');
+				$this->fileStorage->renameFile($file, 'CHUU*UUCK.jpg');
 			} catch (Exception\UploadFilterException $e) {
 				return;
 			}
@@ -359,18 +356,17 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testCreateFileAndRenameItRightButWithWrongExtension()
 	{
 		$this->cleanUp();
-		$filestorage = FileStorage\FileStorage::getInstance();
 		$file = $this->createFile();
 		$oldName = $file->getName();
 
-		$externalPath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$externalPath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPathResult = file_exists($externalPath);
 
 		$catched = false;
 
 		if ($externalPathResult) {
 			try {
-				$filestorage->renameFile($file, 'CHUUUCK.png');
+				$this->fileStorage->renameFile($file, 'CHUUUCK.png');
 			} catch (Exception\UploadFilterException $exc) {
 				$catched = true;
 			}
@@ -392,8 +388,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$file = new \Supra\FileStorage\Entity\File();
 		$em->persist($file);
@@ -412,7 +407,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$fileData->setTitle(basename($uploadFile));
 
 
-		$filestorage->storeFileData($file, $uploadFile);
+		$this->fileStorage->storeFileData($file, $uploadFile);
 
 		$em->flush();
 
@@ -423,9 +418,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir = null;
 		$dirNames = array('one', 'two', 'three');
@@ -443,11 +436,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 				$parentDir->addChild($dir);
 			}
 
-			$filestorage->createFolder($dir);
+			$this->fileStorage->createFolder($dir);
 		}
 
-		$internalPath = is_dir($filestorage->getInternalPath() . 'one/two/three');
-		$externalPath = is_dir($filestorage->getExternalPath() . 'one/two/three');
+		$internalPath = is_dir($this->fileStorage->getInternalPath() . 'one/two/three');
+		$externalPath = is_dir($this->fileStorage->getExternalPath() . 'one/two/three');
 
 		if ($internalPath && $externalPath) {
 			$this->assertTrue(true);
@@ -460,9 +453,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir = null;
 		$dirNames = array('one', 'two', 'three');
@@ -478,11 +469,11 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 				$parentDir->addChild($dir);
 			}
 
-			$filestorage->createFolder($dir);
+			$this->fileStorage->createFolder($dir);
 		}
 
-		$internalPath = is_dir($filestorage->getInternalPath() . 'one/two/three');
-		$externalPath = is_dir($filestorage->getExternalPath() . 'one/two/three');
+		$internalPath = is_dir($this->fileStorage->getInternalPath() . 'one/two/three');
+		$externalPath = is_dir($this->fileStorage->getExternalPath() . 'one/two/three');
 
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 		$em->flush();
@@ -505,10 +496,8 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$fileData->setMaster($file);
 		$fileData->setTitle(basename($uploadFile));
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-
 		try {
-			$filestorage->storeFileData($file, $uploadFile);
+			$this->fileStorage->storeFileData($file, $uploadFile);
 		} catch (\Exception $exc) {
 			$this->fail($exc->getMessage());
 			return;
@@ -519,7 +508,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		if ($internalPath && $externalPath) {
 			$path = $file->getPath(DIRECTORY_SEPARATOR, true);
 			$filePath = 'one/two/three/chuck.jpg';
-			$fileFullPath = $filestorage->getExternalPath() . $filePath;
+			$fileFullPath = $this->fileStorage->getExternalPath() . $filePath;
 			if ( ! ($path == $filePath) || ! file_exists($fileFullPath)) {
 				$this->fail('File path is wrong');
 			}
@@ -530,9 +519,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testRemoveDirectoryWithFile()
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 		$folder = $repo->findOneByFileName('three');
@@ -542,7 +529,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 
 		try {
-			$filestorage->remove($folder);
+			$this->fileStorage->remove($folder);
 		} catch (FileStorage\Exception\RuntimeException $exc) {
 			return;
 		}
@@ -552,9 +539,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testRemoveFile()
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 		$file = $repo->findOneByFileName('chuck.jpg');
@@ -563,9 +548,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->fail('File should exist from previous "testCreateMultiLevelFolderAndUploadFile" test');
 		}
 
-		$filePath = $filestorage->getFilesystemPath($file, true);
+		$filePath = $this->fileStorage->getFilesystemPath($file, true);
 
-		$filestorage->remove($file);
+		$this->fileStorage->remove($file);
 
 		$em->flush();
 
@@ -574,9 +559,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testRemoveDirectory()
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 		$folder = $repo->findOneByFileName('three');
@@ -587,10 +570,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$folderPath = $folder->getPath(DIRECTORY_SEPARATOR, true);
 
-		$folderExternalPath = $filestorage->getExternalPath() . $folderPath;
-		$folderInternalPath = $filestorage->getInternalPath() . $folderPath;
+		$folderExternalPath = $this->fileStorage->getExternalPath() . $folderPath;
+		$folderInternalPath = $this->fileStorage->getInternalPath() . $folderPath;
 
-		$filestorage->remove($folder);
+		$this->fileStorage->remove($folder);
 
 		if ((is_dir($folderInternalPath)) && (is_dir($folderExternalPath))) {
 			$this->fail('Folders should not exist in system');
@@ -603,9 +586,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir = null;
 		$dirNames = array('one', 'two', 'three');
@@ -621,7 +602,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 				$parentDir->addChild($dir);
 			}
 
-			$filestorage->createFolder($dir);
+			$this->fileStorage->createFolder($dir);
 
 			$em->flush();
 			$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
@@ -644,7 +625,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$fileData->setTitle(basename($uploadFile));
 
 			try {
-				$filestorage->storeFileData($file, $uploadFile);
+				$this->fileStorage->storeFileData($file, $uploadFile);
 			} catch (\Exception $exc) {
 				$this->fail($exc->getMessage());
 				return;
@@ -656,9 +637,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$repo = $em->getRepository('Supra\FileStorage\Entity\Folder');
 		$node = $repo->findOneByFileName('one');
 
-		$filestorage->setPrivate($node);
+		$this->fileStorage->setPrivate($node);
 		$em->flush();
-		$filePath = $filestorage->getInternalPath() . 'one/two/three/chuck.jpg';
+		$filePath = $this->fileStorage->getInternalPath() . 'one/two/three/chuck.jpg';
 
 		self::assertFileExists($filePath, 'File should exist in internal storage');
 	}
@@ -667,16 +648,15 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp();
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$file = $this->createFile();
 
-		$filestorage->setPrivate($file);
+		$this->fileStorage->setPrivate($file);
 		$em->flush();
 
-		$fileInternalPath = $filestorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
-		$fileExternalPath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$fileInternalPath = $this->fileStorage->getInternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$fileExternalPath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
 		self::assertFileExists($fileInternalPath, 'Created file doesn\'t exist in file storage');
 
@@ -687,27 +667,25 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp();
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$file = $this->createFile();
 
-		$filestorage->setPrivate($file);
+		$this->fileStorage->setPrivate($file);
 		$em->flush();
 
-		$filestorage->setPublic($file);
+		$this->fileStorage->setPublic($file);
 		$em->flush();
 
-		$filePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$filePath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
 		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
 	}
 
 	private function deleteFilesAndFolders()
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$this->removeFolders($filestorage->getExternalPath());
-		$this->removeFolders($filestorage->getInternalPath());
+		$this->removeFolders($this->fileStorage->getExternalPath());
+		$this->removeFolders($this->fileStorage->getInternalPath());
 	}
 
 	private function removeFolders($dir)
@@ -731,8 +709,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 	private function cleanUp($delete = false)
 	{
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$query = $em->createQuery("delete from Supra\FileStorage\Entity\MetaData");
 		$query->execute();
@@ -754,8 +731,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		// directories
 		$dir = $this->createFolder('one');
@@ -765,7 +741,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		// file
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
-		$file = new \Supra\FileStorage\Entity\File();
+		$file = new \Supra\FileStorage\Entity\Image();
 		$em->persist($file);
 
 		$fileName = baseName($uploadFile);
@@ -776,6 +752,10 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
+		
+		//FIXME: New file/image entity creation must be in some FileStorage method
+		$file->setWidth(1);
+		$file->setHeight(1);
 
 		$dir->addChild($file);
 
@@ -784,7 +764,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$fileData->setTitle(basename($uploadFile));
 
 
-		$filestorage->storeFileData($file, $uploadFile);
+		$this->fileStorage->storeFileData($file, $uploadFile);
 
 		$em->flush();
 
@@ -804,9 +784,9 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			'tmp_name' => $replaceFile,
 		);
 
-		$filestorage->replaceFile($file, $replaceFileInfo);
+		$this->fileStorage->replaceFile($file, $replaceFileInfo);
 
-		$replacedFilePath = $filestorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
+		$replacedFilePath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 
 		$em->flush();
 
@@ -817,8 +797,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp(true);
 
-		$filestorage = FileStorage\FileStorage::getInstance();
-		$em = ObjectRepository::getEntityManager($filestorage);
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$dir1 = $this->createFolder('one');
 		$file1 = $this->createFile();

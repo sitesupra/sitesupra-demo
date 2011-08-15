@@ -860,6 +860,7 @@ class FileStorage
 		return $fileContent;
 	}
 
+	//FIXME: pass required parameters as arguments not an array (tmp_name and name)
 	public function replaceFile(Entity\File $fileEntity, $file)
 	{
 		$oldFileIsImage = $fileEntity instanceof Entity\Image;
@@ -917,8 +918,8 @@ class FileStorage
 	public function remove(Entity\Abstraction\File $entity)
 	{
 		if($entity instanceof Entity\Folder) {
-			$descendants = $entity->getDescendants();
-			if( ! empty($descendants)) {
+			$hasChildren = $entity->hasChildren();
+			if ($hasChildren) {
 				throw new Exception\RuntimeException('You can remove only empty folders');
 			}
 			$this->removeFolder($entity);

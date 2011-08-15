@@ -2,7 +2,7 @@
 
 use Supra\ObjectRepository\ObjectRepository;
 
-$fileStorage = Supra\FileStorage\FileStorage::getInstance();
+$fileStorage = new Supra\FileStorage\FileStorage();
 
 // FIXME: should doctrine entity manager be as file stogare parameter?
 //$fileStorage->setDoctrineEntityManager(\Supra\Database\Doctrine::getInstance()->getEntityManager());
