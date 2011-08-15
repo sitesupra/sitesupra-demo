@@ -235,16 +235,22 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			var image_data = this.get('imageData');
 			this.get('dataObject').saveData(image_data.id, {
 				'rotate': (this.rotation % 360)
-			}, Y.bind(function () {
+			}, function (status) {
 				
-				//Update image
-				var timestamp = +new Date(),
-					src = image_data.sizes.original.external_path + '?r=' + timestamp;
-				
+				//Reset rotation
 				this.rotation = 0;
-				this.node.one('img').setAttribute('src', src);
 				
-			}, this));
+				if (status) {
+					//Update image
+					var timestamp = +new Date(),
+						src = image_data.sizes.original.external_path + '?r=' + timestamp;
+					
+					this.node.one('img').setAttribute('src', src);
+				}
+				
+				this.node.removeClass('loading');
+				
+			}, this);
 		},
 		
 		/**
@@ -258,15 +264,19 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			var image_data = this.get('imageData');
 			this.get('dataObject').saveData(image_data.id, {
 				'crop': this.crop
-			}, Y.bind(function () {
+			}, function (status) {
 				
-				//Update image
-				var timestamp = +new Date(),
-					src = image_data.sizes.original.external_path + '?r=' + timestamp;
+				if (status) {
+					//Update image
+					var timestamp = +new Date(),
+						src = image_data.sizes.original.external_path + '?r=' + timestamp;
+					
+					this.node.one('img').setAttribute('src', src);
+				}
 				
-				this.node.one('img').setAttribute('src', src);
+				this.node.removeClass('loading');
 				
-			}, this));
+			}, this);
 		},
 		
 		/**
@@ -358,6 +368,9 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				}, function () {
 					this.setStyle('display', 'none');
 				});
+				
+				//Reload image preview source
+				this.get('host').reloadImageSource(this.get('imageData'));
 			}
 			
 			//Update state

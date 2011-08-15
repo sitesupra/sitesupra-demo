@@ -625,7 +625,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			}
 			
 			//Update data
-			data_object.setFolderPrivate(id, force);
+			data_object.setFolderPrivate(id, force, Y.bind(function (status) {
+				if (!status) {
+					//Revert visual changes
+					this.updatePrivateStateUI(id, !force);
+					
+					//Revert toolbar button
+					var action = Supra.Manager.getAction('MediaLibrary');
+					if (action.get('created') && action.onItemChange) {
+						action.onItemChange();
+					}
+				}
+			}, this));
 			
 			//Update UI private state for this and all sub-folders
 			this.updatePrivateStateUI(id, force);

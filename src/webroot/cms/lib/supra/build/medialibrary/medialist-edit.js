@@ -97,9 +97,11 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 		handleRenameComplete: function (event /* Event */, obj /* Item data */) {
 			var value = obj.object.get('value'),
 				id = obj.id,
-				post_data = null;
+				post_data = null,
+				original_title;
 			
 			if (obj.data.title != value && value) {
+				original_title = obj.data.title;
 				obj.data.title = value;
 				obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(value));
 				
@@ -113,18 +115,24 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					post_data['private'] = obj.data['private'];
 				}
 				
-				this.get('dataObject').saveData(obj.id, post_data, function (data, id) {
+				this.get('dataObject').saveData(obj.id, post_data, function (status, data, id) {
 					if (id == -1) {
-						if (data) {
+						if (status && data) {
 							//Update node itemId
 							obj.node.setData('itemId', data);
 						} else {
-							//On failure remove temporary folder
+							//Remove data
 							this.get('dataObject').removeData(obj.id, true);
 							obj.node.remove();
 							
 							//Redraw parent
-							this.host.renderItem(obj.data.parent);
+							this.get('host').renderItem(obj.data.parent);
+						}
+					} else {
+						if (!status) {
+							//Revert title changes
+							obj.data.title = original_title;
+							obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(original_title));
 						}
 					}
 				}, this);
@@ -133,7 +141,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				obj.node.remove();
 				
 				//Redraw parent
-				this.host.renderItem(obj.data.parent);
+				this.get('host').renderItem(obj.data.parent);
 			}
 			
 			obj.node.removeClass('renaming');
@@ -153,23 +161,63 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			
 			if (value && value != data.data[name]) {
 				var data_object = this.get('dataObject'),
-					item_data = data_object.getData(data.data.id),
+					id = data.data.id,
+					item_data = data_object.getData(id),
+					original_value = data.data[name],
 					props = {};
 				
 				props[name] = item_data[name] = value;
 				
-				data_object.saveData(data.data.id, props);
+				data_object.saveData(id, props, Y.bind(function (status) {
+					if (!status) {
+						//Revert changes
+						this.revertItemPropertyChange(id, name, original_value);
+					}
+				}, this));
 				
 				//Update title in folder list
 				if (name == 'title') {
 					var host = this.get('host'),
-						parent_id = host.getItemData(data.data.id).parent,
-						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + data.data.id + '"]');
+						parent_id = host.getItemData(id).parent,
+						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
 					
-					li.one('span').set('innerHTML', Y.Lang.escapeHTML(value));
+					li.one('span').set('text', value);
 				}
 			} else if (!value) {
 				data.input.set('value', data.data[name]);
+			}
+		},
+		
+		/**
+		 * If save request fails revert changes
+		 * 
+		 * @param {String} id File or folder ID
+		 * @param {String} name Property name
+		 * @param {String} value Original property value
+		 * @private
+		 */
+		revertItemPropertyChange: function (id, name, value) {
+			var host = this.get('host'),
+				data_object = this.get('dataObject'),
+				item_data = data_object.getData(id),
+				props = {};
+			
+			//Revert data
+			item_data[name] = value;
+			
+			//Revert 'title' which is shown in item list
+			if (name == 'title') {
+				var host = this.get('host'),
+					parent_id = host.getItemData(id).parent,
+					li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
+				
+				li.one('span').set('text', value);
+			}
+			
+			//Revert input value
+			var widgets = host.getPropertyWidgets();
+			if (name in widgets) {
+				widgets[name].set('value', value);
 			}
 		}
 		

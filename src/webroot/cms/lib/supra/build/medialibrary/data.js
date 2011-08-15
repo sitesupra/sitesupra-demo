@@ -281,19 +281,31 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * 
 		 * @param {Number} id Folder ID
 		 * @param {Boolean} state Folder private state
+		 * @param {Fucntion} callback Callback function
 		 */
-		setFolderPrivate: function (id /* Folder ID */, state /* Private state */) {
+		setFolderPrivate: function (id /* Folder ID */, state /* Private state */, callback /* Callback function */) {
 			
 			var data = this.getData(id),
 				state = Number(state);
 			
 			if (data.type == Data.TYPE_FOLDER && data['private'] != state) {
+				var original_state = data['private'];
+				
 				//Update local data
 				data['private'] = state;
 				
 				//Save
 				this.saveData(id, {
 					'private': state
+				}, function (status, newdata) {
+					if (!status) {
+						//Revert changes
+						data['private'] = original_state;
+					}
+					
+					if (Y.Lang.isFunction(callback)) {
+						callback(status, newdata);
+					}
 				});
 			}
 			
@@ -377,7 +389,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * @param {Number} id File or folder ID
 		 * @param {Object} data Data
 		 * @param {Function} callback Callback function
-		 * @param {Object} context Callback context
+		 * @param {Object} context Callback context. Optional
 		 */
 		saveData: function (id /* File or folder ID */, data /* Data */, callback /* Callback function */, context /* Callback context */) {
 			var url = this.get('saveURI');
@@ -398,16 +410,17 @@ YUI.add('supra.medialibrary-data', function (Y) {
 					'complete': function (data, status) {
 						if (status) {
 							this.afterSaveData(id || 0, data);
-							
-							if (Y.Lang.isFunction(callback)) {
-								if (context) {
-									callback.call(context, data, id || 0);
-								} else {
-									callback(data, id || 0);
-								}
-							}
 						} else if (id == -1) {
 							this.removeData(-1, true);
+							data = null;
+						}
+						
+						if (Y.Lang.isFunction(callback)) {
+							if (context) {
+								callback.call(context, status, data, id || 0);
+							} else {
+								callback(status, data, id || 0);
+							}
 						}
 					}
 				}

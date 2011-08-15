@@ -119,10 +119,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		
 		/**
 		 * Image and file property inputs
-		 * @type {Array}
+		 * @type {Object}
 		 * @private
 		 */
-		property_widgets: [],
+		property_widgets: {},
 		
 		/**
 		 * Slider widget instance
@@ -482,12 +482,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				var node = event.node,
 					inp = this.property_widgets;
 				
-				if (inp.length) {
-					for(var i=0,ii=inp.length; i<ii; i++) {
-						inp[i].destroy();
-					}
-					inp = [];
+				for(var i in inp) {
+					inp[i].destroy();
 				}
+				inp = {};
 				
 				//Create buttons
 				var buttons = node.all('button'),
@@ -498,9 +496,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				btn_localize.render();
 				btn_download.render();
 				btn_replace.render();
-				inp.push(btn_localize);
-				inp.push(btn_download);
-				inp.push(btn_replace);
+				inp.btn_localize = btn_localize;
+				inp.btn_download = btn_download;
+				inp.btn_replace = btn_replace;
 				
 				btn_download.on('click', this.handleDownloadClick, this);
 				btn_replace.on('click', this.handleReplaceClick, this);
@@ -516,12 +514,21 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					var obj = new Supra.Input.String(props);
 					obj.render();
 					obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
-					inp.push(obj);
+					inp[item.get('name')] = obj;
 				}, this);
 				
 				//Save input instances to destroy them when re-rendered
 				this.property_widgets = inp;
 			}
+		},
+		
+		/**
+		 * Get file or image form property widgets
+		 * 
+		 * @return Property widgets
+		 */
+		getPropertyWidgets: function () {
+			return this.property_widgets;
 		}
 		
 	}, {});
