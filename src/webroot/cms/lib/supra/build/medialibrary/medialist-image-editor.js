@@ -258,15 +258,20 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				'context': this,
 				'method': 'post',
 				'on': {
-					'complete': function (status) {
+					'complete': function (data, status) {
 						
 						//Reset rotation
 						this.rotation = 0;
 						
 						if (status) {
+							//Update image data
+							var latest_data = this.get('host').get('dataObject').getData(image_data.id);
+							latest_data.sizes = data.sizes;
+							image_data.sizes = data.sizes;
+							
 							//Update image
 							var timestamp = +new Date(),
-								src = image_data.sizes.original.external_path + '?r=' + timestamp;
+								src = latest_data.sizes.original.external_path + '?r=' + timestamp;
 							
 							this.node.one('img').setAttribute('src', src);
 						}
@@ -297,12 +302,17 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				'context': this,
 				'method': 'post',
 				'on': {
-					'complete': function (status) {
+					'complete': function (data, status) {
 						
 						if (status) {
+							//Update image data
+							var latest_data = this.get('host').get('dataObject').getData(image_data.id);
+							latest_data.sizes = data.sizes;
+							image_data.sizes = data.sizes;
+							
 							//Update image
 							var timestamp = +new Date(),
-								src = image_data.sizes.original.external_path + '?r=' + timestamp;
+								src = latest_data.sizes.original.external_path + '?r=' + timestamp;
 							
 							this.node.one('img').setAttribute('src', src);
 						}
