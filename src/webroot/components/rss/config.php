@@ -11,5 +11,5 @@ $listenerFunction = function($className, $type, $parameters) {
 Supra\Event\Registry::listen('Project\\Rss\\Controller', 'index', $listenerFunction);
 
 // Bind to URL /rss
-$cssRouter = new Supra\Router\Uri('/rss');
+$cssRouter = new Supra\Router\UriRouter('/rss');
 $frontController->route($cssRouter, '\\Project\\Rss\\Controller');

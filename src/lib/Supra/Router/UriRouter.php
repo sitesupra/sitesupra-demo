@@ -9,7 +9,7 @@ use Supra\Uri\Path;
 /**
  * URI router
  */
-class Uri extends RouterAbstraction
+class UriRouter extends RouterAbstraction
 {
 	/**
 	 * Base priority value

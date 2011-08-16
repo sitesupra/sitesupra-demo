@@ -21,10 +21,10 @@ class FrontControllerTest extends TestCase
 	protected function setUp()
 	{
 		$this->frontController = new FrontController();
-		$this->root = new Router\Uri('/');
-		$this->q = new Router\Uri('/q');
-		$this->qwerty = new Router\Uri('/qwerty/');
-		$this->quertyAbc = new Router\Uri('qwerty/abc');
+		$this->root = new Router\UriRouter('/');
+		$this->q = new Router\UriRouter('/q');
+		$this->qwerty = new Router\UriRouter('/qwerty/');
+		$this->quertyAbc = new Router\UriRouter('qwerty/abc');
 	}
 
 	function testCompareRouters()

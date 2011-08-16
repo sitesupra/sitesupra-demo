@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\InternalUserManager\root;
+namespace Supra\Cms\InternalUserManager\Root;
 
 use Supra\Controller\SimpleController;
 

@@ -104,6 +104,19 @@ class NamespaceRecord
 		$classNamespace = substr($className, 0, $this->getLength());
 		return $classNamespace == $this->getNamespace();
 	}
+	
+	/**
+	 * Standard class-path mapping function
+	 * @param string $classPath
+	 * @return string
+	 */
+	public function convertToFilePath($classPath)
+	{
+		$filePath = str_replace('\\', \DIRECTORY_SEPARATOR, $classPath);
+		$filePath = $filePath . '.php';
+		
+		return $filePath;
+	}
 
 	/**
 	 * Search for class and return it's path if succeeds
@@ -117,16 +130,17 @@ class NamespaceRecord
 		}
 		$namespacePath = $this->getPath();
 		$classPath = substr($className, $this->getLength());
-		$classPath = str_replace('\\', \DIRECTORY_SEPARATOR, $classPath);
 
-		$classPath = $namespacePath . $classPath . '.php';
-		if ( ! file_exists($classPath)) {
+		$filePath = $this->convertToFilePath($classPath);
+		
+		$filePath = $namespacePath . $filePath;
+		if ( ! file_exists($filePath)) {
 			return null;
 			/*throw new Exception\ClassNotFound("Class ${className} should be contained inside"
 					. " the ${namespacePath} namespace but could not be found"
 					. " by path ${classPath}");*/
 		}
 
-		return $classPath;
+		return $filePath;
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager\pagesettings;
+namespace Supra\Cms\ContentManager\Pagesettings;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;

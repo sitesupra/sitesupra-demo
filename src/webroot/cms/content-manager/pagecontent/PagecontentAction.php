@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager\pagecontent;
+namespace Supra\Cms\ContentManager\Pagecontent;
 
 use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;

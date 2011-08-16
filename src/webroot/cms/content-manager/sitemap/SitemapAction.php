@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager\sitemap;
+namespace Supra\Cms\ContentManager\Sitemap;
 
 use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;

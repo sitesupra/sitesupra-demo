@@ -7,7 +7,7 @@ use Supra\Controller\ConfigurationInterface;
 use Supra\Controller\FrontController;
 use Supra\Loader\Registry;
 use Supra\Loader\NamespaceRecord;
-use Supra\Router\Uri;
+use Supra\Router\UriRouter;
 
 class Configuration implements ConfigurationInterface
 {
@@ -24,7 +24,7 @@ class Configuration implements ConfigurationInterface
 		$registry->registerNamespace($namespace);
 
 		// Bind to URL
-		$router = new Uri('/');
+		$router = new UriRouter('/');
 		$frontController->route($router, '\\Project\\Pages\\PageController');
 	}
 }

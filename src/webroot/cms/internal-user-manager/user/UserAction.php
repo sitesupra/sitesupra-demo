@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\InternalUserManager\user;
+namespace Supra\Cms\InternalUserManager\User;
 
 use Supra\Controller\SimpleController;
 use Supra\Cms\InternalUserManager\InternalUserManagerActionController;

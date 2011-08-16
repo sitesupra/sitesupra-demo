@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager\page;
+namespace Supra\Cms\ContentManager\Page;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
