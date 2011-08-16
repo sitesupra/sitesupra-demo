@@ -23,13 +23,6 @@
 		"scheduled_date": "18.08.2011",
 		"scheduled_time": "08:00",
 		
-		"version": {
-			"id": 222,
-			"title": "Draft (auto-saved)",
-			"author": "Admin",
-			"date": "21.05.2011"
-		},
-		
 		"active": true,
 		
 		"internal_html": <?php echo json_encode(file_get_contents('../../sample-acme-page.html')); ?>,

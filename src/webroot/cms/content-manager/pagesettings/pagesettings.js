@@ -11,6 +11,7 @@ SU.addModule('website.template-list-css', {
 	type: 'css'
 });
 
+/*
 SU.addModule('website.version-list', {
 	path: 'pagesettings/modules/version-list.js',
 	requires: ['widget', 'website.version-list-css']
@@ -19,9 +20,10 @@ SU.addModule('website.version-list-css', {
 	path: 'pagesettings/modules/version-list.css',
 	type: 'css'
 });
+*/
 
 
-SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calendar', 'supra.slideshow', function (Y) {
+SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.calendar', 'supra.slideshow', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager;
@@ -100,7 +102,9 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		 * Version list object
 		 * @type {Object}
 		 */
+		/*
 		version_list: null,
+		*/
 		
 		/**
 		 * Page data
@@ -219,6 +223,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		/**
 		 * When version slide is shown create widget, bind listeners
 		 */
+		/*
 		onSlideVersion: function (node) {
 			if (!this.version_list) {
 				this.version_list = new Supra.VersionList({
@@ -230,12 +235,12 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				
 				this.version_list.on('change', function (e) {
 					this.page_data.version = e.version;
-					
 					this.setFormValue('version', this.page_data);
 					this.slideshow.scrollBack();
 				}, this);
 			}
 		},
+		*/
 		
 		/**
 		 * Render all block list
@@ -355,8 +360,10 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				.render().on('click', function () { this.slideshow.set('slide', 'slideMeta'); }, this);
 			
 			//Version button
+			/*
 			(new Supra.Button({'srcNode': buttons.filter('.button-version').item(0), 'style': 'large'}))
 				.render().on('click', function () { this.slideshow.set('slide', 'slideVersion'); }, this);
+			*/
 			
 			//Template button
 			(new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'template'}))
@@ -401,7 +408,9 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			this.form.setValues(page_data, 'id');
 			
 			//Set version info
+			/*
 			this.setFormValue('version', page_data);
+			*/
 			
 			//Set template info
 			this.setFormValue('template', page_data);
@@ -416,16 +425,16 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 		setFormValue: function (key, page_data) {
 			switch(key) {
 				case 'template':
-					//Set version info
+					//Set template info
 					var node = this.one('.button-template small');
 					node.one('span').set('text', page_data.template.title);
 					node.one('img').set('src', page_data.template.img);
 					break;
-				case 'version':
+				/*case 'version':
 					var node = this.one('.button-version small');
 					node.one('b').set('text', page_data.version.title);
 					node.one('span').set('text', page_data.version.author + ', ' + page_data.version.date);
-					break;
+					break;*/
 				default:
 					var obj = {};
 					obj[key] = page_data[key];
@@ -445,18 +454,15 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 			delete(form_data.template);
 			delete(form_data.schedule_hours);
 			delete(form_data.schedule_minutes);
-			delete(form_data.version_id);
 			
 			Supra.mix(page_data, form_data);
 			
 			//Remove unneeded data for save request
 			var post_data = Supra.mix({}, page_data);
 			post_data.page_id = post_data.id;
-			post_data.version_id = post_data.version.id;
 			post_data.template = post_data.template.id;
 			
 			delete(post_data.id);
-			delete(post_data.version);
 			delete(post_data.path_prefix);
 			delete(post_data.internal_html);
 			delete(post_data.contents);
@@ -469,8 +475,7 @@ SU('website.template-list', 'website.version-list', 'supra.form', 'supra.calenda
 				'data': post_data,
 				'method': 'POST',
 				'on': {
-					'success': function (version) {
-						page_data.version = version;
+					'success': function () {
 						Manager.Page.setPageData(page_data);
 					}
 				}

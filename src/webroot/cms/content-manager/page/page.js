@@ -67,7 +67,7 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load data
-			this.loadPage(data ? data.id : '', data ? data.version : '');
+			this.loadPage(data ? data.id : '');
 			
 			//Load all other actions
 			Manager.executeAction('Blocks');
@@ -132,14 +132,13 @@ Supra(function (Y) {
 		 * @param {Number} page_id
 		 * @private
 		 */
-		loadPage: function (page_id, version_id) {
+		loadPage: function (page_id) {
 			this.loading = true;
 			this.data = null;
 			
 			Supra.io(this.getDataPath(), {
 				'data': {
-					'page_id': page_id || '',
-					'version_id': version_id || ''
+					'page_id': page_id || ''
 				},
 				'on': {
 					'complete': this.onLoadComplete
@@ -171,30 +170,14 @@ Supra(function (Y) {
 			
 			var post_data = {
 				'page_id': page_data.id,
-				'version_id': page_data.version.id,
 				'locale': Supra.data.get('locale'),
 				'action': 'publish'
 			};
 			
 			Supra.io(uri, {
 				'data': post_data,
-				'method': 'post',
-				'on': {
-					'success': this.onPublishComplete
-				}
+				'method': 'post'
 			}, this);
-		},
-		
-		/**
-		 * On save complete update page data
-		 * 
-		 * @param {Number} transaction Request transaction ID
-		 * @param {Object} data Response JSON data
-		 */
-		onPublishComplete: function (data, status) {
-			this.setPageData({
-				'version': data
-			});
 		},
 		
 		/**
@@ -203,21 +186,19 @@ Supra(function (Y) {
 		deleteCurrentPage: function (data, locale) {
 			var page_data = this.data,
 				page_id = page_data.id,
-				version_id = page_data.version.id,
 				locale = Supra.data.get('locale');
 			
-			this.deletePage(page_id, version_id, locale, this.onDeleteComplete, this);
+			this.deletePage(page_id, locale, this.onDeleteComplete, this);
 		},
 		
 		/**
 		 * Delete page
 		 */
-		deletePage: function (page_id, version_id, locale, callback, context) {
+		deletePage: function (page_id, locale, callback, context) {
 			var uri = this.getDataPath('delete');
 			
 			var post_data = {
 				'page_id': page_id,
-				'version_id': version_id,
 				'locale': locale,
 				'action': 'delete'
 			};

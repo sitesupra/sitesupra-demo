@@ -432,8 +432,6 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			data = Supra.mix({
 				'page_id': page_info.id,
-				'version_id': page_info.version.id,
-				
 				'locale': Supra.data.get('locale')
 			}, data);
 			
@@ -456,10 +454,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			var page_info = Manager.Page.getPageData();
 			var data = {
 				'page_id': page_info.id,
-				'version_id': page_info.version.id,
-				
 				'block_id': block.getId(),
-				
 				'locale': Supra.data.get('locale')
 			};
 			
@@ -484,7 +479,6 @@ YUI.add('supra.page-iframe', function (Y) {
 			var page_info = Manager.Page.getPageData();
 			var data = {
 				'page_id': page_info.id,
-				'version_id': page_info.version.id,
 				
 				'place_holder_id': block.getId(),
 				'order': order,
@@ -518,7 +512,6 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			var post_data = {
 				'page_id': page_data.id,
-				'version_id': page_data.version.id,
 				'block_id': block.getId(),
 				'locale': Supra.data.get('locale'),
 				'properties': save_values

@@ -172,7 +172,6 @@ YUI().add('website.sitemap-settings', function (Y) {
 				uri = this.host.getDataPath('save'),
 				post_data = {
 					'page_id': this.host.property_data.id,
-					'version_id': this.host.property_data.version,
 					'locale': Manager.SiteMap.languagebar.get('locale')
 				};
 			
@@ -192,9 +191,6 @@ YUI().add('website.sitemap-settings', function (Y) {
 							node_data[input_id] = input_value;
 							this.host.property_data[input_id] = input_value;
 						}
-						
-						//Update page version
-						this.host.property_data.version = data.id;
 					}
 				}
 			}, this);
@@ -227,10 +223,9 @@ YUI().add('website.sitemap-settings', function (Y) {
 		deletePageConfirm: function () {
 			//Send request to server
 			var page_id = this.host.property_data.id,
-				version_id = this.host.property_data.version,
 				locale = this.host.languagebar.get('locale');
 			
-			Manager.Page.deletePage(page_id, version_id, locale, function () {
+			Manager.Page.deletePage(page_id, locale, function () {
 				//Hide properties
 				this.panel.hide();
 				this.host.property_data = null;

@@ -120,7 +120,7 @@ Supra(function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
-				//evt.data is in format  {'id': 1, 'version': 2}
+				//evt.data is in format  {'id': 1}
 				Manager.getAction('Page').execute(evt.data);
 			}, this);
 		},

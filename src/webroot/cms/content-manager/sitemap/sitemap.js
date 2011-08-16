@@ -179,15 +179,13 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			//Change page
 			this.fire('page:select', {
 				'data': {
-					'id': evt.data.id,
-					'version': evt.data.version
+					'id': evt.data.id
 				}
 			});
 			
 			//Set selected in data
 			Supra.data.set('page', {
-				'id': evt.data.id,
-				'version': evt.data.version
+				'id': evt.data.id
 			});
 			
 			var target = this.flowmap.getNodeById(evt.data.id);
