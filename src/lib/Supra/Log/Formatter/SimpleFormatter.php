@@ -22,6 +22,7 @@ class SimpleFormatter implements FormatterInterface
 	protected static $defaultParameters = array(
 		'format' => '[%time%] %level% %logger% - %file%(%line%): %subject%',
 		'timeFormat' => 'Y-m-d H:i:s',
+		'newlineSuffix' => "\t",
 	);
 	
 	/**
@@ -43,6 +44,18 @@ class SimpleFormatter implements FormatterInterface
 	 */
 	function format(LogEvent $event)
 	{
+		// Adds space after newline inside the subject so log parser can recognize it
+		$nls = $this->parameters['newlineSuffix'];
+		
+		if ($nls != '') {
+			$replace = array("\r", "\n", "\r{$nls}\n{$nls}");
+			$replaceWith = array("\r{$nls}", "\n{$nls}", "\r\n{$nls}");
+			
+			$subject = $event->getSubject();
+			$subject = str_replace($replace, $replaceWith, $subject);
+			$event->setSubject($subject);
+		}
+		
 		$eventData = $event->toArray();
 		$format = $this->parameters['format'];
 		$replaceWhat = array();
