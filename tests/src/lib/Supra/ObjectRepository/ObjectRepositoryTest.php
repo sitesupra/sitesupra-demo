@@ -75,4 +75,16 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		self::assertEquals($f, $b);
 	}
 
+	/**
+	 * Test object class and interface name mismatch
+	 * 
+	 * @expectedException         \RuntimeException
+	 * @expectedExceptionMessage  instance
+	 */
+	public function testSetObjectInvalidInterfaceName()
+	{
+		$a = new ObjectRepositoryTest();
+		ObjectRepository::setObject('Supra', $a, 'Supra\FileStorage\FileStorage');
+	}
+
 }

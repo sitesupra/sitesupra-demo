@@ -8,9 +8,11 @@ namespace Supra\ObjectRepository;
  */
 class ObjectRepository
 {
-	const DEFAULT_KEY = '!default';
+	const DEFAULT_KEY = '';
 	
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterInterface';
+	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
+	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
 
 	/**
 	 * Object relation storage
@@ -37,9 +39,7 @@ class ObjectRepository
 		}
 		
 		$object = self::findObject($caller, $interfaceName);
-		if (is_null($object)) {
-			$object = self::findObject(self::DEFAULT_KEY, $interfaceName);
-		}
+
 		return $object;
 	}
 
@@ -48,20 +48,22 @@ class ObjectRepository
 	 *
 	 * @param object/string $caller
 	 * @param object $object 
+	 * @param string $interfaceName
 	 */
-	public static function setObject($caller, $object)
+	public static function setObject($caller, $object, $interfaceName)
 	{
-		self::addBinding($caller, $object);
+		self::addBinding($caller, $object, $interfaceName);
 	}
 
 	/**
 	 * Set default assigned object of its class
 	 *
 	 * @param type $object 
+	 * @param string $interfaceName
 	 */
-	public static function setDefaultObject($object)
+	public static function setDefaultObject($object, $interfaceName)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object);
+		self::addBinding(self::DEFAULT_KEY, $object, $interfaceName);
 	}
 
 	/**
@@ -112,7 +114,7 @@ class ObjectRepository
 	 */
 	public static function getEntityManager($caller)
 	{
-		return self::getObject($caller, '!EntityManager');
+		return self::getObject($caller, self::INTERFACE_ENTITY_MANAGER);
 	}
 
 	/**
@@ -123,7 +125,7 @@ class ObjectRepository
 	 */
 	public static function setEntityManager($caller, $object)
 	{
-		self::addBinding($caller, $object, '!EntityManager');
+		self::addBinding($caller, $object, self::INTERFACE_ENTITY_MANAGER);
 	}
 
 	/**
@@ -133,7 +135,7 @@ class ObjectRepository
 	 */
 	public static function setDefaultEntityManager($object)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object, '!EntityManager');
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_ENTITY_MANAGER);
 	}
 
 	/**
@@ -144,7 +146,7 @@ class ObjectRepository
 	 */
 	public static function getFileStorage($caller)
 	{
-		return self::getObject($caller, '!FileStorage');
+		return self::getObject($caller, self::INTERFACE_FILE_STORAGE);
 	}
 
 	/**
@@ -155,7 +157,7 @@ class ObjectRepository
 	 */
 	public static function setFileStorage($caller, $object)
 	{
-		self::addBinding($caller, $object, '!FileStorage');
+		self::addBinding($caller, $object, self::INTERFACE_FILE_STORAGE);
 	}
 
 	/**
@@ -165,7 +167,7 @@ class ObjectRepository
 	 */
 	public static function setDefaultFileStorage($object)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object, '!FileStorage');
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FILE_STORAGE);
 	}
 
 	/**
@@ -175,7 +177,7 @@ class ObjectRepository
 	 * @param object $object
 	 * @param string $interfaceClass 
 	 */
-	protected static function addBinding($caller, $object, $interfaceClass = null)
+	protected static function addBinding($caller, $object, $interfaceClass)
 	{
 		if (is_object($caller)) {
 			$caller = get_class($caller);
@@ -185,8 +187,8 @@ class ObjectRepository
 		if ( ! is_object($object)) {
 			throw new \RuntimeException('Object must be an object');
 		}
-		if (is_null($interfaceClass)) {
-			$interfaceClass = get_class($object);
+		if ( ! is_a($object, $interfaceClass)) {
+			throw new \RuntimeException('Object must be an instance of interface class or must extend it');
 		}
 
 		self::$objectBindings[$caller][$interfaceClass] = $object;
@@ -200,7 +202,7 @@ class ObjectRepository
 	 */
 	protected static function findObject($callerClass, $objectClass)
 	{
-		if (empty($callerClass) || empty($objectClass)) {
+		if (empty($objectClass)) {
 			return null;
 		}
 
