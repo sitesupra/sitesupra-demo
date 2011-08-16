@@ -22,10 +22,21 @@ abstract class DistributedController extends ControllerAbstraction
 	protected static $defaultAction = 'Index';
 	
 	/**
-	 * Must provide the base namespace
+	 * Must provide the base namespace, taken from the current class name
 	 * @return string
 	 */
-	abstract function getBaseNamespace();
+	public function getBaseNamespace()
+	{
+		$className = get_class($this);
+		$lastBackslash = strrpos($className, '\\');
+		$namespace = '';
+		
+		if ($lastBackslash !== false) {
+			$namespace = substr($className, 0, $lastBackslash);
+		}
+		
+		return $namespace;
+	}
 
 	/**
 	 * Executes the controller

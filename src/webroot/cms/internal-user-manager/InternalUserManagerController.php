@@ -15,19 +15,6 @@ class InternalUserManagerController extends DistributedController
 	protected static $defaultAction = 'root';
 	
 	/**
-	 * @var string
-	 */
-	protected static $extension = 'json';
-	
-	/**
-	 * @return string
-	 */
-	public function getBaseNamespace()
-	{
-		return __NAMESPACE__;
-	}
-	
-	/**
 	 * @param string $namespace
 	 * @param string $action
 	 * @return string 

@@ -20,15 +20,7 @@ class CmsController extends DistributedController
 	protected static $defaultAction = 'content-manager';
 	
 	/**
-	 * @return string
-	 */
-	public function getBaseNamespace()
-	{
-		return __NAMESPACE__;
-	}
-	
-	/**
-	 * Extended with DEV static files
+	 * @TODO: Extended with DEV static files, will be removed later
 	 */
 	public function execute()
 	{
