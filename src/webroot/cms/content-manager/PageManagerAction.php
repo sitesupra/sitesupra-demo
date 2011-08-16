@@ -128,6 +128,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function getInitialPageId()
 	{
+		$locale = $this->getLocale();
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		$page = null;
 		
@@ -135,6 +136,13 @@ abstract class PageManagerAction extends CmsAction
 		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
 			$pageId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
 			$page = $pageDao->findOneById($pageId);
+			
+			// Page localization must exist
+			$pageData = $page->getData($locale);
+			
+			if (empty($pageData)) {
+				$page = null;
+			}
 		}
 		
 		// Root page otherwise

@@ -15,10 +15,7 @@ class SitemapAction extends PageManagerAction
 	public function sitemapAction()
 	{
 		$pages = array();
-		$locale = $_GET['locale'];
-		
-		//TODO: hardcoded
-		$locale = 'en';
+		$locale = $this->getLocale();
 		
 		$em = \Supra\Database\Doctrine::getInstance()
 				->getEntityManager();
@@ -81,6 +78,11 @@ class SitemapAction extends PageManagerAction
 	private function buildTreeArray(Entity\Abstraction\Page $page, $locale)
 	{
 		$data = $page->getData($locale);
+		
+		if (empty($data)) {
+			return null;
+		}
+		
 		$pathPart = null;
 		$templateId = null;
 		
@@ -104,14 +106,21 @@ class SitemapAction extends PageManagerAction
 			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'
 		);
 		
-		if ($page->hasChildren()) {
+		$array['children'] = array();
+
+		foreach ($page->getChildren() as $child) {
+			$childArray = $this->buildTreeArray($child, $locale);
+
+			if ( ! empty($childArray)) {
+				$array['children'][] = $childArray;
+			}
+		}
+
+		if (count($array['children']) == 0) {
+			unset($array['children']);
+		} else {
 			// TODO: hardcoded
 			$array['icon'] = 'folder';
-			$array['children'] = array();
-			
-			foreach ($page->getChildren() as $child) {
-				$array['children'][] = $this->buildTreeArray($child, $locale);
-			}
 		}
 		
 		return $array;

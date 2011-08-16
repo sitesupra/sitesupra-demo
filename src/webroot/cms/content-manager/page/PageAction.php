@@ -37,8 +37,10 @@ class PageAction extends PageManagerAction
 		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
 		
-		//TODO: Page not found...
-		if (is_null($page)) {
+		if (empty($page)) {
+			$this->getResponse()
+					->setErrorMessage("Page does not exist");
+			
 			return;
 		}
 		
@@ -47,8 +49,10 @@ class PageAction extends PageManagerAction
 		/* @var $pageData Entity\Abstraction\Data */
 		$pageData = $page->getData($locale);
 		
-		//TODO: Page not found...
-		if (is_null($pageData)) {
+		if (empty($pageData)) {
+			$this->getResponse()
+					->setErrorMessage("Page does not exist");
+			
 			return;
 		}
 		
@@ -239,12 +243,55 @@ class PageAction extends PageManagerAction
 //	{
 //		1+1;
 //	}
-//	
-//	public function deleteAction()
-//	{
-//		1+1;
-//	}
 	
-	
+	/**
+	 * Called when page delete is requested
+	 * @TODO: for now the page is not removed, only it's localization
+	 */
+	public function deleteAction()
+	{
+		$this->isPostRequest();
+		
+		$pageId = $this->getRequestParameter('page_id');
+		$locale = $this->getLocale();
+		
+		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
+		/* @var $page Entity\Abstraction\Page */
+		$page = $pageDao->findOneById($pageId);
+		
+		if (empty($page)) {
+			$this->getResponse()
+					->setErrorMessage("Page doesn't exist already");
+			
+			return;
+		}
+		
+		// Check if there is no children
+		$children = $page->getChildren();
+		
+		foreach ($children as $child) {
+			/* @var $child Entity\Abstraction\Page */
+			$childData = $child->getData($locale);
+			
+			if ( ! empty($childData)) {
+				$this->getResponse()
+					->setErrorMessage("Cannot remove page with children");
+				
+				return;
+			}
+		}
+		
+		$pageData = $page->getData($locale);
+		
+		if (empty($pageData)) {
+			$this->getResponse()
+					->setErrorMessage("Page doesn't exist in language '$locale'");
+			
+			return;
+		}
+		
+		$this->entityManager->remove($pageData);
+		$this->entityManager->flush();
+	}
 	
 }
