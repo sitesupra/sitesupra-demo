@@ -37,6 +37,9 @@ class ObjectRepository
 		} else if ( ! is_string($caller)) {
 			throw new \RuntimeException('Caller must be class instance or class name');
 		}
+
+		$caller = trim($caller, "\\");
+		$interfaceClass = trim($interfaceClass, "\\");
 		
 		$object = self::findObject($caller, $interfaceName);
 
@@ -191,6 +194,9 @@ class ObjectRepository
 			throw new \RuntimeException('Object must be an instance of interface class or must extend it');
 		}
 
+		$caller = trim($caller, "\\");
+		$interfaceClass = trim($interfaceClass, "\\");
+
 		self::$objectBindings[$caller][$interfaceClass] = $object;
 	}
 
@@ -210,7 +216,11 @@ class ObjectRepository
 			return self::$objectBindings[$callerClass][$objectClass];
 			
 		} else if ($callerClass != self::DEFAULT_KEY) {
-			$seniorClass = mb_substr($callerClass, 0, mb_strrpos($callerClass, "\\"));
+			$backslashPos = strrpos($callerClass, "\\");
+			$seniorClass = self::DEFAULT_KEY;
+			if ($backslashPos !== false) {
+				$seniorClass = substr($callerClass, 0, $backslashPos);
+			}
 			return self::findObject($seniorClass, $objectClass);
 			
 		} else {
