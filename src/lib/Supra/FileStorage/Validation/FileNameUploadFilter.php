@@ -20,7 +20,7 @@ class FileNameUploadFilter extends FileFolderSharedValidation
 	 */
 	public function validate(File $file, $typeName)
 	{
-		$name = $file->getName();
+		$name = $file->getFileName();
 		$fileNameHelper = new Helpers\FileNameValidationHelper();
 		$result = $fileNameHelper->validate($name);
 		

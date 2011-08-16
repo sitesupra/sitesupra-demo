@@ -70,6 +70,7 @@ class JsonResponse extends HttpResponse
 	public function setErrorMessage($errorMessage)
 	{
 		$this->errorMessage = $errorMessage;
+		$this->status = 0;
 	}
 
 	/**

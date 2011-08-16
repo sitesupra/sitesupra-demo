@@ -98,8 +98,7 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 */
 	public function getExtension()
 	{
-		$fileinfo = pathinfo($this->getName());
-		$extension = $fileinfo['extension'];
+		$extension = pathinfo($this->fileName, PATHINFO_EXTENSION);
 
 		return $extension;
 	}
@@ -110,12 +109,8 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @param string $locale
 	 * @return MetaData
 	 */
-	public function getMetaData($locale = null)
+	public function getMetaData($locale)
 	{
-		if (empty($locale)) {
-			// FIXME replace with current locale
-			$locale = 'en';
-		}
 		if ($this->metaData->containsKey($locale)) {
 			return $this->metaData->get($locale);
 		} else {
@@ -129,14 +124,14 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @param string $locale
 	 * @return string
 	 */
-	public function getTitle($locale = null)
+	public function getTitle($locale)
 	{
 		$metaData = $this->getMetaData($locale);
 		
 		if ($metaData instanceof MetaData) {
 			return $metaData->getTitle();
 		} else {
-			return $this->getName();
+			return $this->getFileName();
 		}
 	}
 
@@ -146,14 +141,12 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @param string $locale
 	 * @return string
 	 */
-	public function getDescription($locale = null)
+	public function getDescription($locale)
 	{
 		$metaData = $this->getMetaData($locale);
 		
 		if ($metaData instanceof MetaData) {
 			return $metaData->getDescription();
-		} else {
-			return $this->getName();
 		}
 	}
 

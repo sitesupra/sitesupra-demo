@@ -211,7 +211,7 @@ class FileStorage
 	{
 		$newFile = clone($file);
 		$this->entityManager->detach($newFile);
-		$newFile->setName($filename);
+		$newFile->setFileName($filename);
 		
 		$oldExtension = $file->getExtension();
 		$newExtension = $newFile->getExtension();
@@ -280,10 +280,10 @@ class FileStorage
 		
 		$newFolder = clone($folder);
 		$this->entityManager->detach($newFolder);
-		$newFolder->setName($title);
+		$newFolder->setFileName($title);
 
 		// old folder name for rollback if validation fails
-		$oldFolderName = $folder->getName();
+		$oldFolderName = $folder->getFileName();
 
 		// validating folder before renaming
 		foreach ($this->folderUploadFilters as $filter) {
@@ -326,7 +326,7 @@ class FileStorage
 	public function createFolder(Entity\Folder $folder)
 	{		
 		$destination = $folder->getPath(DIRECTORY_SEPARATOR, false);
-		$folderName = $folder->getName();
+		$folderName = $folder->getFileName();
 		
 		// validating folder before creation
 		foreach ($this->folderUploadFilters as $filter) {
@@ -374,8 +374,7 @@ class FileStorage
 	 */
 	private function getExtension($filename)
 	{
-		$fileinfo = pathinfo($filename);
-		$extension = $fileinfo['extension'];
+		$extension = pathinfo($filename, PATHINFO_EXTENSION);
 
 		return $extension;
 	}
@@ -414,7 +413,7 @@ class FileStorage
 	private function setPublicForFile(Entity\File $file, $public)
 	{
 		if ($public == $file->isPublic) {
-			$msg = $file->getId() . ' ' . $file->getName() . ' is already ';
+			$msg = $file->getId() . ' ' . $file->getFileName() . ' is already ';
 			$msg .= ($file->isPublic() ? 'public' : 'private');
 			\Log::info($msg);
 		}
@@ -432,7 +431,7 @@ class FileStorage
 				foreach ($sizes as $size) {
 					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR
-							. $file->getName();
+							. $file->getFileName();
 				}
 			}
 		}
@@ -574,7 +573,7 @@ class FileStorage
 			}
 		}
 
-		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $file->getName();
+		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
 		$resizer->setOutputFile($resizedFilePath);
 		$resizer->process();
 		
@@ -752,7 +751,7 @@ class FileStorage
 		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
 		$path .= DIRECTORY_SEPARATOR;
 		if ($includeFilename) {
-			$path .= $file->getName();
+			$path .= $file->getFileName();
 		}
 		return $path;
 	}
@@ -783,9 +782,9 @@ class FileStorage
 		if ($size instanceof Entity\ImageSize) {
 			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
 					. $size->getFolderName() . DIRECTORY_SEPARATOR
-					. $file->getName();
+					. $file->getFileName();
 		} else {
-			$path .= $file->getName();
+			$path .= $file->getFileName();
 		}
 		return $path;
 	}
@@ -818,7 +817,7 @@ class FileStorage
 				}
 			}
 			
-			$path .= $file->getName();
+			$path .= $file->getFileName();
 			return $path;
 		} else {
 			// TODO implement for private files
@@ -851,7 +850,7 @@ class FileStorage
 		$this->removeFileInFileSystem($fileEntity);
 		
 		// setting new data
-		$fileEntity->setName($file['name']);
+		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 				

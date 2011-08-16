@@ -55,7 +55,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
-		$file->setName($fileName);
+		$file->setFileName($fileName);
 		$file->setSize($fileSize);
 		$file->setMimeType($mimeType);
 
@@ -117,7 +117,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
-		$file->setName($fileName);
+		$file->setFileName($fileName);
 		$file->setSize($fileSize);
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mimeType = finfo_file($finfo, $uploadFile);
@@ -275,7 +275,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
-		$dir->setName($name);
+		$dir->setFileName($name);
 
 		$em->persist($dir);
 		$em->flush();
@@ -357,7 +357,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp();
 		$file = $this->createFile();
-		$oldName = $file->getName();
+		$oldName = $file->getFileName();
 
 		$externalPath = $this->fileStorage->getExternalPath() . $file->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPathResult = file_exists($externalPath);
@@ -374,7 +374,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->fail('File should exist in file storage');
 		}
 
-		if (($file->getName() == $oldName) && $catched) {
+		if (($file->getFileName() == $oldName) && $catched) {
 			return;
 		} else {
 			$this->fail('File extension should be the same and rename should throw Exception\UploadFilterException');
@@ -395,7 +395,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
-		$file->setName($fileName);
+		$file->setFileName($fileName);
 		$file->setSize($fileSize);
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mimeType = finfo_file($finfo, $uploadFile);
@@ -427,7 +427,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 			$parentDir = $dir;
 
 			$dir = new \Supra\FileStorage\Entity\Folder();
-			$dir->setName($dirName);
+			$dir->setFileName($dirName);
 
 			$em->persist($dir);
 			$em->flush();
@@ -460,7 +460,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		foreach ($dirNames as $dirName) {
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
-			$dir->setName($dirName);
+			$dir->setFileName($dirName);
 
 			$em->persist($dir);
 			$em->flush();
@@ -482,7 +482,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
-		$file->setName($fileName);
+		$file->setFileName($fileName);
 		$file->setSize($fileSize);
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mimeType = finfo_file($finfo, $uploadFile);
@@ -593,7 +593,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		foreach ($dirNames as $dirName) {
 			$parentDir = $dir;
 			$dir = new \Supra\FileStorage\Entity\Folder();
-			$dir->setName($dirName);
+			$dir->setFileName($dirName);
 
 			$em->persist($dir);
 			$em->flush();
@@ -611,7 +611,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 			$fileName = baseName($uploadFile);
 			$fileSize = fileSize($uploadFile);
-			$file->setName($fileName);
+			$file->setFileName($fileName);
 			$file->setSize($fileSize);
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 			$mimeType = finfo_file($finfo, $uploadFile);
@@ -746,7 +746,7 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$fileName = baseName($uploadFile);
 		$fileSize = fileSize($uploadFile);
-		$file->setName($fileName);
+		$file->setFileName($fileName);
 		$file->setSize($fileSize);
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$mimeType = finfo_file($finfo, $uploadFile);

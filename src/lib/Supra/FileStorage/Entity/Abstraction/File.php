@@ -334,29 +334,19 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 		return $className;
 	}
 	
-	public function setName($fileName) 
+	public function setFileName($fileName) 
 	{
 		$this->fileName = $fileName;
 	}
 	
-	public function getName() 
+	public function getFileName() 
 	{
 		return $this->fileName;
 	}
 	
-	public function getTitle($locale = null) 
-	{
-		return $this->getName();
-	}
-	
-	public function getDescription($locale = null)
-	{
-		return $this->getName();
-	}
-	
 	public function __toString()
 	{
-		return $this->getName();
+		return $this->getFileName();
 	}
 
 }

@@ -74,15 +74,6 @@ abstract class PageManagerAction extends CmsAction
 	}
 	
 	/**
-	 * TODO: hardcoded now, maybe should reutrn locale object (!!!)
-	 * @return string
-	 */
-	protected function getLocale()
-	{
-		return 'en';
-	}
-	
-	/**
 	 * TODO: hardcoded now
 	 * @return string
 	 */

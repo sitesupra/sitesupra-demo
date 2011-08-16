@@ -19,19 +19,16 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 	public function validate(File $entity, $typeName)
 	{
 		$siblings = $entity->getSiblings();
-		$creatingFilename = $entity->getName();
+		$creatingFilename = $entity->getFileName();
 
 		foreach ($siblings as $record) {
 			if ( ! $record->equals($entity)) {
-				$recordName = $record->getName();
+				$recordName = $record->getFileName();
 				if ($creatingFilename == $recordName) {
 					$message = $typeName . ' with this name already exists.';
 					\Log::info($message);
 					
-					$exception = new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
-					$exception->setMessageKey();
-					
-					throw $exception;
+					throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 				}
 			}
 		}

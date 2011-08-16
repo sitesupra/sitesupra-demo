@@ -73,4 +73,13 @@ abstract class CmsAction extends SimpleController
 		
 		return $value;
 	}
+	
+	/**
+	 * TODO: hardcoded now, maybe should return locale object (!!!)
+	 * @return string
+	 */
+	protected function getLocale()
+	{
+		return 'en';
+	}
 }

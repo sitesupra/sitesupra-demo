@@ -39,7 +39,7 @@ class ObjectRepository
 		}
 
 		$caller = trim($caller, "\\");
-		$interfaceClass = trim($interfaceClass, "\\");
+		$interfaceName = trim($interfaceName, "\\");
 		
 		$object = self::findObject($caller, $interfaceName);
 
