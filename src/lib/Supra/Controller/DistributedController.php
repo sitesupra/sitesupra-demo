@@ -113,20 +113,4 @@ abstract class DistributedController extends ControllerAbstraction
 		return $class;
 	}
 
-	/**
-	 * Generate response object
-	 * @param Request\RequestInterface $request
-	 * @return Response\ResponseInterface
-	 */
-	public function createResponse(Request\RequestInterface $request)
-	{
-		if ($request instanceof Request\HttpRequest) {
-			return new Response\HttpResponse();
-		}
-		if ($request instanceof Request\CliRequest) {
-			return new Response\CliResponse();
-		}
-		return new Response\EmptyResponse();
-	}
-	
 }

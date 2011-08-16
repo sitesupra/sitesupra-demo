@@ -34,12 +34,6 @@ abstract class ControllerAbstraction implements ControllerInterface
 	}
 
 	/**
-	 * Execute controller
-	 */
-	public function execute()
-	{}
-
-	/**
 	 * Output the result
 	 */
 	public function output()
@@ -64,5 +58,21 @@ abstract class ControllerAbstraction implements ControllerInterface
 	public function getResponse()
 	{
 		return $this->response;
+	}
+	
+	/**
+	 * Generate response object
+	 * @param Request\RequestInterface $request
+	 * @return Response\ResponseInterface
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		if ($request instanceof Request\HttpRequest) {
+			return new Response\HttpResponse();
+		}
+		if ($request instanceof Request\CliRequest) {
+			return new Response\CliResponse();
+		}
+		return new Response\EmptyResponse();
 	}
 }

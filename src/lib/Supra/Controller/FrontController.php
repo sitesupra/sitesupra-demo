@@ -5,12 +5,15 @@ namespace Supra\Controller;
 use Supra\Request;
 use Supra\Response;
 use Supra\Router;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Front controller
  */
 class FrontController
 {
+	private $log;
+	
 	/**
 	 * Routing array
 	 * @var Router\RouterInterface[]
@@ -23,6 +26,14 @@ class FrontController
 	 */
 	protected $routersOrdered = true;
 
+	/**
+	 * Binds the log writer
+	 */
+	public function __construct()
+	{
+		$this->log = ObjectRepository::getLogger($this);
+	}
+	
 	/**
 	 * Routing rules
 	 * @param Route\RouterInterface $router
@@ -46,8 +57,9 @@ class FrontController
 	{
 		$aPriority = $a->getPriority();
 		$bPriority = $b->getPriority();
-		$diff = $aPriority - $bPriority;
-		return ( - $diff);
+		$diff = $bPriority - $aPriority;
+		
+		return $diff;
 	}
 
 	/**
@@ -69,11 +81,22 @@ class FrontController
 	public function execute()
 	{
 		$request = $this->getRequestObject();
-		$controller = $this->findController($request);
 		
-		$this->runController($controller, $request);
-		
-		$controller->output();
+		try {
+			$controller = $this->findController($request);
+
+			$this->runController($controller, $request);
+
+			$controller->output();
+		} catch (\Exception $exception) {
+
+			// Log the exception raised
+			$this->log->error($exception);
+			
+			$exceptionController = $this->findExceptionController($request, $exception);
+			$this->runController($exceptionController, $request);
+			$exceptionController->output();
+		}
 	}
 	
 	/**
@@ -107,6 +130,21 @@ class FrontController
 		}
 		
 		throw new Exception\ResourceNotFoundException('No controller has been found for the request');
+	}
+	
+	/**
+	 * Get controller to show exception details
+	 * @param Request\RequestInterface $request
+	 * @param \Exception $exception
+	 * @return ControllerInterface
+	 * @TODO: some routing and configuration possibilities will be needed, also setting this to empty controller for production
+	 */
+	public function findExceptionController(Request\RequestInterface $request, \Exception $exception)
+	{
+		$exceptionController = new ExceptionController();
+		$exceptionController->setException($exception);
+		
+		return $exceptionController;
 	}
 
 	/**

@@ -6,11 +6,10 @@ use Supra\Request;
 use Supra\Response;
 
 /**
- * Description of Empty
+ * Controller with no response and logics
  */
 class EmptyController extends ControllerAbstraction
 {
-
 	/**
 	 * Get response object
 	 * @param Request\RequestInterface $request
@@ -19,5 +18,13 @@ class EmptyController extends ControllerAbstraction
 	public function createResponse(Request\RequestInterface $request)
 	{
 		return new Response\EmptyResponse();
+	}
+	
+	/**
+	 * Empty execute method
+	 */
+	public function execute()
+	{
+		
 	}
 }
