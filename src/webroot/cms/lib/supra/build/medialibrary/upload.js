@@ -283,7 +283,12 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			var data = {'file_id': file_id},
 				event_data = null,
 				io = null,
-				uri = this.get('requestUri');
+				uri = this.get('requestUri'),
+				img_node = this.get('host').getImageNode();
+			
+			if (img_node) {
+				img_node.ancestor().addClass('loading');
+			}
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If only images are displayed, then only images can be uploaded. Same with files

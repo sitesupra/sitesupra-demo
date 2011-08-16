@@ -182,6 +182,23 @@
 	cursor: pointer;
 }
 
+.yui3-medialist div.image div.preview.loading {
+	min-height: 0;
+	height: auto;
+}
+.yui3-medialist div.image div.preview img {
+	opacity: 1;
+	-moz-transition: opacity 0.35s ease;
+	-webkit-transition: opacity 0.35s ease;
+	transition: opacity 0.35s ease;
+}
+.yui3-medialist div.image div.preview.loading img {
+	opacity: 0;
+	-moz-transition: opacity 0.15s ease;
+	-webkit-transition: opacity 0.15s ease;
+	transition: opacity 0.15s ease;
+}
+
 .yui3-medialist div.file .center,
 .yui3-medialist div.image .center {
 	text-align: center;

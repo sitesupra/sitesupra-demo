@@ -101,6 +101,21 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
+		 * Request URI for image rotate
+		 * @type {String}
+		 */
+		'imageRotateURI': {
+			value: null
+		},
+		/**
+		 * Request URI for image crop
+		 * @type {String}
+		 */
+		'imageCropURI': {
+			value: null
+		},
+		
+		/**
 		 * Templates
 		 */
 		'templateFile': {
@@ -252,7 +267,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			//Add plugin for editing images
 			this.plug(List.ImageEditor, {
-				'dataObject': this.get('dataObject')
+				'dataObject': this.get('dataObject'),
+				'rotateURI': this.get('imageRotateURI'),
+				'cropURI': this.get('imageCropURI')
 			});
 		},
 		
@@ -449,26 +466,41 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		reloadImageSource: function (data) {
-			var item = this.getSelectedItem(),
-				img_node = null,
-				slide = null,
+			var img_node = this.getImageNode(),
 				src = null;
+			
+			if (img_node) {
+				var preview_size = this.get('previewSize');
+				
+				if (data.sizes && preview_size in data.sizes) {
+					src = data.sizes[preview_size].external_path;
+					
+					img_node.ancestor().addClass('loading');
+					img_node.once('load', function () {
+						img_node.ancestor().removeClass('loading');
+					});
+					img_node.setAttribute('src', src + '?r=' + (+new Date()));
+				}
+			}
+		},
+		
+		/**
+		 * Returns image preview node
+		 * 
+		 * @private
+		 */
+		getImageNode: function () {
+			var item = this.getSelectedItem(),
+				slide = null;
 			
 			if (item) {
 				slide = this.slideshow.getSlide('slide_' + item.id);
 				if (slide) {
-					img_node = slide.one('div.preview img');
-					
-					if (img_node) {
-						var preview_size = this.get('previewSize');
-						
-						if (data.sizes && preview_size in data.sizes) {
-							src = data.sizes[preview_size].external_path;
-							img_node.setAttribute('src', src + '?r=' + (+new Date()));
-						}
-					}
+					return slide.one('div.preview img');
 				}
 			}
+			
+			return null;
 		},
 		
 		/**

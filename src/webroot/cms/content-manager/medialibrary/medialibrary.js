@@ -187,6 +187,8 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'saveURI': this.getDataPath('save'),
 				'deleteURI': this.getDataPath('delete'),
 				'insertURI': this.getDataPath('insert'),
+				'imageRotateURI': this.getDataPath('imagerotate'),
+				'imageCropURI': this.getDataPath('imagecrop'),
 				'slideshowClass': Supra.MediaLibrarySlideshow
 			})).render();
 			

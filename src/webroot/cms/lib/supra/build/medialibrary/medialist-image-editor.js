@@ -57,6 +57,21 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		},
 		
 		/**
+		 * Request URI for image rotate
+		 * @type {String}
+		 */
+		'rotateURI': {
+			value: null
+		},
+		/**
+		 * Request URI for image crop
+		 * @type {String}
+		 */
+		'cropURI': {
+			value: null
+		},
+		
+		/**
 		 * Editing mode
 		 * @type {String}
 		 */
@@ -232,25 +247,35 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			this.node.addClass('loading');
 			
 			//Save image data
-			var image_data = this.get('imageData');
-			this.get('dataObject').saveData(image_data.id, {
-				'rotate': (this.rotation % 360)
-			}, function (status) {
-				
-				//Reset rotation
-				this.rotation = 0;
-				
-				if (status) {
-					//Update image
-					var timestamp = +new Date(),
-						src = image_data.sizes.original.external_path + '?r=' + timestamp;
-					
-					this.node.one('img').setAttribute('src', src);
+			var image_data = this.get('imageData'),
+				uri = this.get('rotateURI');
+			
+			Supra.io(uri, {
+				'data': {
+					'id': image_data.id,
+					'rotate': (this.rotation % 360),
+				},
+				'context': this,
+				'method': 'post',
+				'on': {
+					'complete': function (status) {
+						
+						//Reset rotation
+						this.rotation = 0;
+						
+						if (status) {
+							//Update image
+							var timestamp = +new Date(),
+								src = image_data.sizes.original.external_path + '?r=' + timestamp;
+							
+							this.node.one('img').setAttribute('src', src);
+						}
+						
+						this.node.removeClass('loading');
+						
+					}
 				}
-				
-				this.node.removeClass('loading');
-				
-			}, this);
+			});
 		},
 		
 		/**
@@ -261,22 +286,32 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			this.set('mode', '');
 			
 			//Save image data
-			var image_data = this.get('imageData');
-			this.get('dataObject').saveData(image_data.id, {
-				'crop': this.crop
-			}, function (status) {
-				
-				if (status) {
-					//Update image
-					var timestamp = +new Date(),
-						src = image_data.sizes.original.external_path + '?r=' + timestamp;
-					
-					this.node.one('img').setAttribute('src', src);
+			var image_data = this.get('imageData'),
+				uri = this.get('cropURI');
+			
+			Supra.io(uri, {
+				'data': {
+					'id': image_data.id,
+					'crop': this.crop,
+				},
+				'context': this,
+				'method': 'post',
+				'on': {
+					'complete': function (status) {
+						
+						if (status) {
+							//Update image
+							var timestamp = +new Date(),
+								src = image_data.sizes.original.external_path + '?r=' + timestamp;
+							
+							this.node.one('img').setAttribute('src', src);
+						}
+						
+						this.node.removeClass('loading');
+						
+					}
 				}
-				
-				this.node.removeClass('loading');
-				
-			}, this);
+			});
 		},
 		
 		/**
