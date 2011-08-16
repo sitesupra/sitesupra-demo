@@ -466,8 +466,9 @@ class MediaLibraryAction extends CmsAction
 			}
 
 			$entityManager->flush();
-			$fileId = $file->getId();
-			$this->getResponse()->setResponseData($fileId);
+			
+			$fileData = $this->imageAndFileOutput($file);
+			$this->getResponse()->setResponseData($fileData);
 		}	
 	}
 
@@ -504,8 +505,9 @@ class MediaLibraryAction extends CmsAction
 			}
 
 			$entityManager->flush();
-			$fileId = $file->getId();
-			$this->getResponse()->setResponseData($fileId);
+
+			$fileData = $this->imageAndFileOutput($file);
+			$this->getResponse()->setResponseData($fileData);
 		}			
 	}
 
@@ -571,7 +573,7 @@ class MediaLibraryAction extends CmsAction
 				}
 			}
 			$output['sizes']['original'] = array(
-				'id' => oroginal,
+				'id' => 'original',
 				'width' => $node->getWidth(),
 				'height' => $node->getHeight(),
 				'external_path' => $filePath
