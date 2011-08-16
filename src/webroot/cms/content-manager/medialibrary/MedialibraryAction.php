@@ -208,23 +208,6 @@ class MediaLibraryAction extends CmsAction
 
 				try {
 
-					// image editing
-					if ($file instanceof \Supra\FileStorage\Entity\Image) {
-						if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
-							$rotationCount = - intval($_POST['rotate'] / 90);
-							$this->fileStorage->rotateImage($file, $rotationCount);
-						} else if (isset($_POST['crop']) && is_array($_POST['crop'])) {
-							$crop = $_POST['crop'];
-							if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
-								$left = intval($crop['left']);
-								$top = intval($crop['top']);
-								$width = intval($crop['width']);
-								$height = intval($crop['height']);
-								$this->fileStorage->cropImage($file, $left, $top, $width, $height);
-							}
-						}
-					}
-
 					if (isset($_POST['title'])) {
 						// TODO: Localization?
 						$this->getResponse()->setResponseData(null);
@@ -454,6 +437,76 @@ class MediaLibraryAction extends CmsAction
 
 			echo $content;
 		}
+	}
+
+	public function imagerotateAction()
+	{
+		if ( ! empty($_POST['id'])) {
+			$entityManager = ObjectRepository::getEntityManager($this->fileStorage);
+			$fileRepository = 
+					$entityManager->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			$file = $fileRepository->findOneById($_POST['id']);
+
+			if ($file instanceof \Supra\FileStorage\Entity\Image) {
+
+				try {
+					if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
+						$rotationCount = - intval($_POST['rotate'] / 90);
+						$this->fileStorage->rotateImage($file, $rotationCount);
+					}
+
+				} catch (\Supra\FileStorage\Exception\FileStorageException $e) {
+					$this->setErrorMessage('Image processing error: ' . $e->getMessage());
+					return;
+				}
+				
+			} else {
+				$this->setErrorMessage('Could not perform action on non-image file');
+				return;
+			}
+
+			$entityManager->flush();
+			$fileId = $file->getId();
+			$this->getResponse()->setResponseData($fileId);
+		}	
+	}
+
+	public function imagecropAction()
+	{
+		if ( ! empty($_POST['id'])) {
+			$entityManager = ObjectRepository::getEntityManager($this->fileStorage);
+			$fileRepository = 
+					$entityManager->getRepository('Supra\FileStorage\Entity\Abstraction\File');
+			$file = $fileRepository->findOneById($_POST['id']);
+
+			if ($file instanceof \Supra\FileStorage\Entity\Image) {
+
+				try {
+					if (isset($_POST['crop']) && is_array($_POST['crop'])) {
+						$crop = $_POST['crop'];
+						if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
+							$left = intval($crop['left']);
+							$top = intval($crop['top']);
+							$width = intval($crop['width']);
+							$height = intval($crop['height']);
+							$this->fileStorage->cropImage($file, $left, $top, $width, $height);
+						}
+					}
+
+				} catch (\Supra\FileStorage\Exception\FileStorageException $e) {
+					$this->setErrorMessage('Image processing error: ' . $e->getMessage());
+					return;
+				}
+				
+			} else {
+				$this->setErrorMessage('Could not perform action on non-image file');
+				return;
+			}
+
+			$entityManager->flush();
+			$fileId = $file->getId();
+			$this->getResponse()->setResponseData($fileId);
+		}			
 	}
 
 	/**
