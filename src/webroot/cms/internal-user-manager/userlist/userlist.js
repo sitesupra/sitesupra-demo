@@ -4,7 +4,7 @@
 //Add module definitions
 SU.addModule('website.list-dd', {
 	path: 'modules/list-dd.js',
-	requires: ['dd-delegate']
+	requires: ['dd', 'dd-delegate']
 });
 
 /**
