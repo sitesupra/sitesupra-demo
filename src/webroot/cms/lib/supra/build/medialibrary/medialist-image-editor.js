@@ -269,6 +269,8 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 							latest_data.sizes = data.sizes;
 							image_data.sizes = data.sizes;
 							
+							this.set('imageData', image_data);
+							
 							//Update image
 							var timestamp = +new Date(),
 								src = latest_data.sizes.original.external_path + '?r=' + timestamp;
@@ -316,6 +318,8 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 							var latest_data = this.get('host').get('dataObject').getData(image_data.id);
 							latest_data.sizes = data.sizes;
 							image_data.sizes = data.sizes;
+							
+							this.set('imageData', image_data);
 							
 							//Update image
 							var timestamp = +new Date(),
