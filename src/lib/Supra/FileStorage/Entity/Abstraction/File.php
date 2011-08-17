@@ -336,7 +336,8 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	
 	public function setFileName($fileName) 
 	{
-		$this->fileName = $fileName;
+		$result = preg_replace('/\s+/i', ' ', $fileName);
+		$this->fileName = trim($result);
 	}
 	
 	public function getFileName() 

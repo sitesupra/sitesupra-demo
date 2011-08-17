@@ -24,7 +24,7 @@ class FileNameValidationHelper
 
 	public function getErrorMessage()
 	{
-		return 'Name contains depricated characters '
+		return 'Name contains forbidden characters '
 				. implode(', ', $this->characterList)
 				. ' or starts with a dot or underscore.';
 	}
