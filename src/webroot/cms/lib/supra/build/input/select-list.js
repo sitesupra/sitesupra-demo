@@ -21,7 +21,8 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * Value/option list
 		 */
 		'values': {
-			value: []
+			value: [],
+			setter: '_setValues'
 		}
 	};
 	
@@ -50,12 +51,21 @@ YUI.add('supra.input-select-list', function (Y) {
 		INPUT_TEMPLATE: '<select class="hidden"></select>',
 		LABEL_TEMPLATE: '<label></label>',
 		
+		
 		/**
 		 * Button list
 		 * @type {Object}
 		 * @private
 		 */
 		buttons: {},
+		
+		/**
+		 * Buttons has been rendered
+		 * @type {Boolean}
+		 * @private
+		 */
+		buttons_rendered: false,
+		
 		
 		bindUI: function () {
 			var input = this.get('inputNode');
@@ -64,6 +74,19 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			//Handle value attribute change
 			this.on('valueChange', this._afterValueChange, this);
+		},
+		
+		renderUI: function () {
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			if (!this.buttons_rendered) {
+				this.renderButtons(this.get('values'));
+			}
+		},
+		
+		_setValues: function (values) {
+			this.renderButtons(values);
+			return values;
 		},
 		
 		_onFocus: function () {
@@ -76,22 +99,34 @@ YUI.add('supra.input-select-list', function (Y) {
 			this.get('boundingBox').removeClass('yui3-input-focused');
 		},
 		
-		renderUI: function () {
-			Input.superclass.renderUI.apply(this, arguments);
+		renderButtons: function (values) {
+			
+			//Remove old buttons
+			if (this.buttons) {
+				for(var i in this.buttons) {
+					this.buttons[i].destroy();
+				}
+			}
+			
 			this.buttons = {};
 			
-			var values = this.get('values'),
-				value = this.get('value'),
+			var value = this.get('value'),
 				multiple = this.get('multiple'),
 				has_value_match = false,
 				contentBox = this.get('contentBox'),
 				button,
 				input = Y.Node.getDOMNode(this.get('inputNode'));
 			
-			//No need to add options if they already exist
-			if (!input.options || input.options.length) {
+			if (this.buttons_rendered && input.options && input.options.length) {
+				//Remove old options
+				while(input.options.length) {
+					input.remove(input.options[0]);
+				}
+			} else {
+				//No need to remove options if this is initial render
 				input = null;
 			}
+			
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
@@ -139,6 +174,9 @@ YUI.add('supra.input-select-list', function (Y) {
 			if (value in this.buttons) {
 				this.buttons[value].set('down', true);
 			}
+			
+			//Buttons rendered
+			this.buttons_rendered = true;
 		},
 		
 		_onClick: function (event, id) {

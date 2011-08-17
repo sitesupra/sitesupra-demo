@@ -71,7 +71,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, file or folder loading template
 	 * @type {String}
 	 */
-	List.TEMPLATE_LOADING = Template.compile('<div class="loading">\'</div>');
+	List.TEMPLATE_LOADING = Template.compile('<div class="loading">&nbsp;</div>');
 	
 	/**
 	 * Constant, empty folder template
@@ -138,7 +138,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
-			<div class="preview"><img src="{{ previewUrl }}" alt="" /></div>\
+			<div class="preview"><img src="{{ previewUrl }}?r={{ Math.random() }}" alt="" /></div>\
 			<span>{{ title|escape }}</span>\
 			<span>{{ description|escape }}</span>\
 		</div>');

@@ -27,7 +27,7 @@ YUI.add('supra.template-compiler', function (Y) {
 			Stack = [];
 			
 			//Data is saved in _d variable, output is in p
-			var body = 'var _c=Supra.TemplateCompiler,_d=data||{},t=null,_f=_c.filters,_fn=_c.functions,' 
+			var body = 'var _c=Supra.TemplateCompiler,_d=Supra.mix({Math:Math,Date:Date,Y:Y,Supra:Supra},data||{}),t=null,_f=_c.filters,_fn=_c.functions,' 
 					 + 'p=\'';
 			
 			//Remove tab and new line whitespaces

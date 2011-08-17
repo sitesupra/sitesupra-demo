@@ -503,6 +503,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			this.disableImageObjectResizing();
 			htmleditor.on('enable', this.disableImageObjectResizing, this);
 			
+			//If image is rotated, croped or replaced in MediaLibrary update image source
+			Manager.getAction('MediaLibrary').on(['rotate', 'crop', 'replace'], this.updateImageSource, this);
+			
 			this.bindUIDnD(htmleditor);
 		},
 		
@@ -518,6 +521,46 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				'srcNode': srcNode,
 				'doc': doc
 			});
+		},
+		
+		/**
+		 * Update image src attribute
+		 * MediaLibrary must be initialized 
+		 */
+		updateImageSource: function (e) {
+			var image_id = (typeof e == 'object' ? e.file_id : e),
+				all_data = this.htmleditor.getAllData(),
+				item_data = null,
+				item_id = null,
+				data_object = null,
+				image_data = null;
+			
+			for(var i in all_data) {
+				if (all_data[i].type == this.NAME && all_data[i].image && all_data[i].image.id == image_id) {
+					item_id = i;
+					item_data = all_data[i];
+					break;
+				}
+			}
+			
+			if (item_data) {
+				data_object = Manager.getAction('MediaLibrary').medialist.get('dataObject');
+				image_data = data_object.getData(image_id);
+				
+				if (image_data) {
+					//Update image data
+					item_data.image = image_data;
+					
+					//Change source
+					var path = this.getImageURLBySize(image_data);
+					var container = htmleditor.get('srcNode');
+					var node = container.one('#' + item_id);
+					
+					if (node) {
+						node.setAttribute('src', path);
+					}
+				}
+			}
 		},
 		
 		/**

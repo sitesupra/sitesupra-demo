@@ -104,7 +104,10 @@ Supra(function (Y) {
 		 * Set banner data
 		 */
 		setData: function (data, status) {
+			this.data = data;
+			
 			//@TODO
+			
 		},
 		
 		/**
@@ -112,7 +115,6 @@ Supra(function (Y) {
 		 */
 		save: function () {
 			var data = this.data;
-			
 			var uri = data.banner_id ? this.getDataPath('save') : this.getDataPath('insert');
 			
 			Supra.io(uri, {
@@ -120,7 +122,7 @@ Supra(function (Y) {
 				'data': data,
 				'on': {
 					'success': function () {
-						Manager.getAction('UserList').load();
+						Manager.getAction('BannerList').load();
 					}
 				}
 			});

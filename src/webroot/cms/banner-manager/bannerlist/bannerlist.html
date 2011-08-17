@@ -1,28 +1,27 @@
 <div class="list">
 	
+	<div class="list-group-select"></div>
+	
 	<div class="list-add">
 		<em><img src="{#application.path#}/bannerlist/images/new.png" alt="" /></em>
 		<span>{#list.new#}</span>
 	</div>
 	
-	<div class="list-groups"></div>
+	<a class="next">Next</a>
+	<a class="prev">Prev</a>
+	
+	<div class="list-banners"></div>
 	
 	<!-- User template -->
-	<script type="text/html" id="listGroups">
-		{% for group in data %}
-			<div class="list-group" data-group="{{ group.group_id }}">
-				<h2>{{ group.title|escape }}</h2>
-				<ul>
-					{% for banner in group.children %}
-					<li data-id="{{ banner.banner_id }}" class="status-{{ banner.status }}">
-						<em><img src="{{ banner.external_path|escape }}" alt="" /></em>
-						<a>{{ banner.title|escape }}</a>
-						{% if banner.scheduled %}
-							<span class="scheduled">{{ banner.scheduled }}</span>
-						{% endif %}
-					</li>
-					{% endfor %}
-				</ul>
+	<script type="text/html" id="listBannersItem">
+		{% for banner in children %}
+			<div class="list-banner hidden" data-banner="{{ banner.banner_id|escape }}">
+				<div><img src="{{ banner.external_path|escape }}" alt="" /></div>
+				<br />
+				<a>{{ banner.title|escape }}</a>
+				{% if banner.scheduled %}
+					<span class="scheduled">{{ banner.scheduled }}</span>
+				{% endif %}
 			</div>
 		{% endfor %}
 	</script>

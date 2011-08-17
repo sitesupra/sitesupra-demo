@@ -168,4 +168,4 @@ YUI.add('website.list-dd', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['dd-delegate']});
+}, YUI.version, {requires: ['dd', 'dd-delegate']});

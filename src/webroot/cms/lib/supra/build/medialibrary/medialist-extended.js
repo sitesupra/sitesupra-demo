@@ -55,7 +55,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
 			<div class="preview">\
-				<img src="{{ previewUrl|escape }}" alt="" />\
+				<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
 			</div>\
 			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
 				<input type="text" name="title" value="{{ title|escape }}" />\

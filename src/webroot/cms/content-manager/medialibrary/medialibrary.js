@@ -195,6 +195,9 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			//On folder change show/hide private/public buttons
 			this.medialist.slideshow.on('slideChange', this.onItemChange, this);
 			
+			//Pass through events
+			this.bubbleEvents(this.medialist, ['replace', 'rotate', 'crop']);
+			
 			//Add file upload support
 			list.plug(Supra.MediaLibraryList.Upload, {
 				'requestUri': this.getDataPath('upload'),

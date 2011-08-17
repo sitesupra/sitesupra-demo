@@ -110,7 +110,7 @@ YUI().add('supra.htmleditor-data', function (Y) {
 		 * @type {Object}
 		 */
 		getData: function (node) {
-			if (typeof node == 'string') {
+			if (typeof node == 'string' || typeof node == 'number') {
 				var id = node;
 			} else {
 				node = new Y.Node(node);

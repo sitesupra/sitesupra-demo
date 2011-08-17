@@ -278,6 +278,8 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 						
 						this.node.removeClass('loading');
 						
+						//Fire event on media list
+						this.get('host').fire('rotate', {'file_id': image_data.id});
 					}
 				}
 			});
@@ -293,6 +295,11 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			//Save image data
 			var image_data = this.get('imageData'),
 				uri = this.get('cropURI');
+			
+			if (this.crop.left == 0 && this.crop.top == 0 && this.crop.width == this.width && this.crop.height == this.height) {
+				this.node.removeClass('loading');
+				return;
+			}
 			
 			Supra.io(uri, {
 				'data': {
@@ -315,6 +322,9 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 								src = latest_data.sizes.original.external_path + '?r=' + timestamp;
 							
 							this.node.one('img').setAttribute('src', src);
+							
+							//Fire event on media list
+							this.get('host').fire('crop', {'file_id': image_data.id});
 						}
 						
 						this.node.removeClass('loading');

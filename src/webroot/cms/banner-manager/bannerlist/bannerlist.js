@@ -4,7 +4,7 @@
 //Add module definitions
 SU.addModule('website.list-dd', {
 	path: 'modules/list-dd.js',
-	requires: ['dd-delegate']
+	requires: ['dd', 'dd-delegate']
 });
 
 /**
@@ -50,6 +50,27 @@ Supra('website.list-dd', function (Y) {
 		 */
 		data: null,
 		
+		/**
+		 * Banner data
+		 * @type {Array}
+		 * @private
+		 */
+		data_banners: null,
+		
+		/**
+		 * Group select widget
+		 * @type {Object}
+		 * @private
+		 */
+		select: null,
+		
+		/**
+		 * Current banner index
+		 * @type {Number}
+		 * @private
+		 */
+		banner_index: 0,
+		
 		
 		
 		/**
@@ -62,19 +83,39 @@ Supra('website.list-dd', function (Y) {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
+			//Create list group select
+			this.select = new Supra.Input.SelectList();
+			this.select.render(this.one('div.list-group-select'));
+			this.select.on('change', this.fillBannerList, this);
+			
 			//Load banners
 			this.load();
 			
+			this.one('a.next').on('mousedown', function (e) {
+				var index = Math.min(this.data_banners.length - 1, this.banner_index+1);
+				if (index != this.banner_index) {
+					this.positionBanners(index);
+				}
+				e.halt();
+			}, this);
+			this.one('a.prev').on('mousedown', function (e) {
+				var index = Math.max(0, this.banner_index-1);
+				if (index != this.banner_index) {
+					this.positionBanners(index);
+				}
+				e.halt();
+			}, this);
+			
 			//On banner click start editing
-			this.one('div.list-groups').delegate('click', function (e) {
-				var target = e.target.closest('li'),
-					item_id = target.getAttribute('data-id');
+			this.one('div.list-banners').delegate('click', function (e) {
+				var target = e.target.closest('.list-banner'),
+					item_id = target.getAttribute('data-banner');
 				
 				if (item_id) {
 					Supra.Manager.executeAction('BannerEdit', item_id);
 					this.hide();
 				}
-			}, 'li', this);
+			}, '.list-banner', this);
 			
 			//Bind drag and drop
 			this.bindDragAndDrop();
@@ -87,41 +128,106 @@ Supra('website.list-dd', function (Y) {
 			//Load data
 			Supra.io(this.getDataPath('load'), {
 				'context': this,
-				'on': {'complete': this.fillBannerList}
+				'on': {'complete': this.fillGroupList}
 			});
 		},
 		
 		/**
-		 * Populate banner list when it completes loading
+		 * Populate group list when loading completes
 		 * 
 		 * @param {Array} data Banner list
 		 * @param {Number} status Request response status
 		 * @private
 		 */
-		fillBannerList: function (data /* Banner list */, status /* Request response status */) {
+		fillGroupList: function (data /* Banner list */, status /* Request response status */) {
 			if (status && data) {
 				//Save data, will be used if creating new banner
 				this.data = data;
 				
-				//Fill template
-				var template = Supra.Template('listGroups', {'data': data});
-				this.one('div.list-groups').append(template);
+				//Set groups
+				var values = [],
+					i = 0,
+					ii = data.length;
 				
-				//Set width based on banner group count
-				var groups = this.all('div.list-groups div.list-group');
-				groups.setStyle('width', ~~(100 / data.length) + '%');
+				for(; i<ii; i++) values.push({'id': data[i].group_id, 'title': data[i].title});
+				this.select.set('values', values);
 				
-				//Remove old drop instances
-				this.dd.removeDrops();
+				//Banner hover
+				var container = this.one('div.list-banners');
 				
-				//Add new drop instances
-				groups.each(function (item) {
-					this.dd.addDrop(item.one('ul'));
-				}, this);
+				container.delegate('mouseenter', function () {
+					container.addClass('hover');
+				}, 'div.size0', this);
+				container.delegate('mouseleave', function () {
+					container.removeClass('hover');
+				}, 'div.size0', this);
+				
 			}
 			
 			//Hide loading icon
 			Y.one('body').removeClass('loading');
+		},
+		
+		/**
+		 * opulate banner list
+		 */
+		fillBannerList: function (event) {
+			var value = typeof event == 'object' ? event.value : event;
+			var group = null;
+			var container = this.one('div.list-banners');
+			var height = container.get('offsetHeight');
+			
+			for(var i=0,ii=this.data.length; i<ii; i++) {
+				if (this.data[i].group_id == value) {
+					group = this.data[i];
+					this.data_banners = group.children;
+					break;
+				}
+			}
+			
+			var template = Supra.Template('listBannersItem', group);
+			container.addClass('hidden');
+			
+			Y.later(150, this, function () {
+				container.set('innerHTML', template);
+				this.positionBanners(0, height);
+			});
+			
+		},
+		
+		positionBanners: function (index, height) {
+			
+			var container = this.one('div.list-banners'),
+				container_height = container.get('offsetHeight') || height,
+				banners = this.all('div.list-banners > div'),
+				banner = null,
+				i = 0,
+				len = banners.size(),
+				offset,
+				size,
+				classes = ['offset-3', 'offset-2', 'offset-1', 'offset0', 'offset1', 'offset2', 'offset3', 'size3', 'size2', 'size1', 'size0'],
+				k = 0,
+				top = 0,
+				clen = classes.length;
+			
+			for(; i<len; i++) {
+				banner = banners.item(i);
+				for(k=0; k<clen; k++) banner.removeClass(classes[k]);
+				
+				top = ~~((container_height - this.data_banners[i].height) / 2 - 30);
+				offset =  - (index - i);
+				size = Math.min(Math.abs(offset), 3);
+				banner.addClass('offset' + offset);
+				banner.addClass('size' + size);
+				banner.setStyle('top', top);
+			}
+			
+			banners.removeClass('hidden');
+			this.banner_index = index;
+			
+			Y.later(16, this, function () {
+				container.removeClass('hidden');
+			});
 		},
 		
 		/**
@@ -132,31 +238,29 @@ Supra('website.list-dd', function (Y) {
 		bindDragAndDrop: function () {
 			
 			this.plug(Supra.ListDD, {
-				'dragContainerSelector': 'div.list-groups',
+				'dragContainerSelector': 'div.list',
 				'proxyClass': 'list-proxy',
 				'targetClass': 'list-group-target'
 			});
 			
+			this.dd.addDrop(this.one('div.list-banners'));
+			
 			this.dd.addDrag(this.one('div.list-add'));
 			
-			this.dd.on('drop', this.onDrop, this);
+			this.dd.on('drop', this.addNewBanner, this);
+			
+			this.one('div.list-add').on('click', this.addNewBanner, this);
 		},
 		
 		/**
 		 * Add new banner on drop
 		 * 
-		 * @param {Event} e Event
 		 * @private
 		 */
-		onDrop: function (e /* Event */) {
-			var target = e.drop_node,
-				drag_id = e.drag_id,
-				drop_id = e.drop_id;
-			
-			if (!drag_id) {
-				Supra.Manager.executeAction('BannerEdit', null, drop_id);
-				this.hide();
-			}
+		addNewBanner: function (e /* Event */) {
+			var group_id = this.select.getValue();
+			Supra.Manager.executeAction('BannerEdit', null, group_id);
+			this.hide();
 		},
 		
 		/**

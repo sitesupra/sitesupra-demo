@@ -347,6 +347,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				if (old_data) {
 					Supra.mix(old_data, data);
 				}
+				
+				//Fire event on media list
+				this.get('host').fire('replace', {'file_id': file_id});
 			}
 			
 			if (!evt.node) {
