@@ -549,6 +549,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				if (image_data) {
 					//Update image data
+					image_data.path = data_object.getPath(image_id);
 					item_data.image = image_data;
 					
 					//Change source

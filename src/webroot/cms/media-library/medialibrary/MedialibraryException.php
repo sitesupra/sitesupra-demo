@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager\Medialibrary;
+namespace Supra\Cms\MediaLibrary\Medialibrary;
 
 class MedialibraryException extends \RuntimeException
 {
