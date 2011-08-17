@@ -56,7 +56,7 @@ Supra.useModules = [
 	'supra.intl',
 	'supra.lang',
 	'substitute',
-	'supra.datatype-date-parse',
+	'supra.datatype-date-reformat',	// + supra.datatype-date-parse
 	'supra.base',					// + base, node
 	'supra.panel',					// + supra.button, widget, overlay
 	'supra.io',						// + io, json
@@ -547,6 +547,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.datatype-date-parse': {
 		path: 'datatype/datatype-date-parse.js',
 		requires: ['datatype-date']
+	},
+	
+	'supra.datatype-date-reformat': {
+		path: 'datatype/datatype-date-reformat.js',
+		requires: ['supra.datatype-date-parse']
 	},
 	
 	'supra.calendar': {

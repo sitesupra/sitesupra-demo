@@ -4,6 +4,13 @@
 	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
 	<title>Banners</title>
 	
+	<!-- Fav icon -->
+	<link rel="icon" type="image/png" href="/favicon.png" /><!--[if lte IE 8]>
+	<link rel="shortcut icon" href="/favicon-simple.ico" type="image/vnd.microsoft.icon" />
+	<![endif]--><!--[if gt IE 8]>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
+	<![endif]-->
+	
 	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
 	<script src="/cms/lib/yui.3.3.0/combo/combo.php?/cms/lib/yui.3.3.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.3.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
 	
@@ -38,7 +45,7 @@
 				'sessionId': 'REPLACE_WITH_SESSION_ID_STRING',
 				
 				//Date & time formats
-				'dateFormat': 'dd.mm.yyyy',
+				'dateFormat': '%d.%m.%Y',
 				'timeFormat': '24',
 				
 				//User data

@@ -58,7 +58,6 @@
 	-webkit-transform: scale(1);
 	transform: scale(1);
 	z-index: 3;
-	cursor: pointer;
 }
 .list-banners .list-banner.size1 {
 	-moz-transform: scale(0.75);
@@ -117,6 +116,8 @@
 	-moz-box-shadow: 0 5px 15px rgba(0,0,0,.35);
 	-webkit-box-shadow: 0 5px 15px rgba(0,0,0,.35);
 	box-shadow: 0 5px 15px rgba(0,0,0,.35);
+	
+	cursor: pointer;
 }
 
 .list-banners.hover .list-banner.size0 div {
@@ -137,6 +138,9 @@
 .list-banners .list-banner.size0 a,
 .list-banners .list-banner.size0 span {
 	display: inline-block;
+}
+.list-banners .list-banner.size0 a {
+	cursor: pointer;
 }
 
 .list-banners .list-banner span.scheduled {

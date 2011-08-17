@@ -2,6 +2,8 @@
 	"status": true,
 	"data": {
 		"buttons": {
+			"back": "Back",
+			"close": "Close",
 			"done": "Done",
 			"yes": "Yes",
 			"no": "No",
@@ -22,12 +24,16 @@
 			"target": "Target page",
 			"target_internal": "Internal",
 			"target_external": "External",
+			"target_set": "Set",
 			
 			"priority": "Show comparing to other banners",
 			"priority_less": "Less",
 			"priority_more": "More",
 			
 			"schedule": "Schedule",
+			"schedule_set": "Set",
+			"schedule_from": "From ",
+			"schedule_to": " till ",
 			
 			"status": "Active"
 		},
@@ -37,6 +43,27 @@
 			"exposures": "Exposures",
 			"ctr": "CTR",
 			"average_ctr": "Average CTR on the site"
+		},
+		
+		"linkmanager": {
+			"title": "Target page",
+			"link_internal": "Internal",
+			"link_external": "External",
+			"link_address": "Link address",
+			"new_window": "Open link in new window",
+			"link_title": "Link title",
+			"open_library_app": "Open Library app",
+			"remove": "Remove link"
+		},
+		
+		"schedule_sidebar": {
+			"title": "Schedule",
+			
+			"from": "From",
+			"to": "To",
+			"select_today": "Select today",
+			"select_tomorrow": "Select tomorrow"
+			
 		}
 	}
 }

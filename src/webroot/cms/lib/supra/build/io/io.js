@@ -188,7 +188,10 @@ YUI().add("supra.io", function (Y) {
 			if (obj.hasOwnProperty(i)) {
 				name = (prefix ? prefix + '[' + encodeURIComponent(i) + ']' : encodeURIComponent(i));
 				
-				if (Y.Lang.isObject(obj[i]) || Y.Lang.isArray(obj[i])) {
+				if (Y.Lang.isDate(obj[i])) {
+					//Automatically format date to Y-m-d
+					o[name] = encodeURIComponent(Y.DataType.Date.reformat(obj[i], 'raw', 'internal'));
+				} else if (Y.Lang.isObject(obj[i]) || Y.Lang.isArray(obj[i])) {
 					Supra.mix(o, this.serialize(obj[i], name));
 				} else {
 					o[name] = encodeURIComponent(obj[i]);

@@ -107,15 +107,11 @@ Supra('website.list-dd', function (Y) {
 			}, this);
 			
 			//On banner click start editing
-			this.one('div.list-banners').delegate('click', function (e) {
-				var target = e.target.closest('.list-banner'),
-					item_id = target.getAttribute('data-banner');
-				
-				if (item_id) {
-					Supra.Manager.executeAction('BannerEdit', item_id);
-					this.hide();
-				}
-			}, '.list-banner', this);
+			this.one('div.list-banners').delegate('click', function () {
+				var item_id = this.data_banners[this.banner_index].banner_id;
+				Supra.Manager.executeAction('BannerEdit', item_id);
+				this.hide();
+			}, 'div.size0 > div, a', this);
 			
 			//Bind drag and drop
 			this.bindDragAndDrop();
@@ -125,6 +121,8 @@ Supra('website.list-dd', function (Y) {
 		 * Load banner list
 		 */
 		load: function () {
+			this.one('div.list-banners').set('innerHTML', '');
+			
 			//Load data
 			Supra.io(this.getDataPath('load'), {
 				'context': this,
@@ -157,11 +155,10 @@ Supra('website.list-dd', function (Y) {
 				
 				container.delegate('mouseenter', function () {
 					container.addClass('hover');
-				}, 'div.size0', this);
+				}, 'div.size0 > div', this);
 				container.delegate('mouseleave', function () {
 					container.removeClass('hover');
-				}, 'div.size0', this);
-				
+				}, 'div.size0 > div', this);
 			}
 			
 			//Hide loading icon

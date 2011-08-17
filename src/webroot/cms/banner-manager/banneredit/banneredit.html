@@ -1,11 +1,13 @@
-<div class="banner">
+<div class="banner"><div class="banner-inner">
+	
+	<div class="preview hidden"><img src="/cms/lib/supra/img/px.gif" alt="" /></div>
 	
 	<!-- Satistics -->
 	<div class="stats">
 		<script type="text/html" id="bannerStats">
-			<h2>{#statistics.title#}</h2>
+			<h3>{#statistics.title#}</h3>
 			<div class="stats-field">
-				<span class="lbl">{#statistics.exposures#}</span> <span class="val">{{ stats.exposures }}</span>
+				<span class="lbl">{#statistics.exposures#}</span> <span class="val">{{ stats.exposures }}</span><br />
 				<span class="lbl">{#statistics.ctr#}</span> <span class="val">{{ stats.ctr }}%</span>
 			</div>
 			<div class="stats-field">
@@ -16,26 +18,26 @@
 	
 	<form class="yui3-form-vertical">
 		
-		<fieldset>
+		<fieldset class="target input-group input-group-button">
 			<label for="banner_target">{#edit.target#}</label>
 			<input type="hidden" name="target" id="banner_target" />
-			<span class="target-title"><a>&nbsp;</a></span>
+			<button type="button">{#edit.target_set#}</button>
 		</fieldset>
 		
-		<fieldset>
+		<fieldset class="input-group">
 			<label for="banner_priority">{#edit.priority#}</label>
-			<select name="priority" id="banner_priority" suType="Slider" suLabelLess="{#edit.priority_less#}" suLabelMore="{#edit.priority_more#}">
+			<select name="priority" id="banner_priority" suType="Slider" suLength="200" suLabelLess="{#edit.priority_less#}" suLabelMore="{#edit.priority_more#}">
 				<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
 			</select>
 		</fieldset>
 		
-		<fieldset>
+		<fieldset class="schedule input-group input-group-button">
 			<label for="banner_schedule">{#edit.schedule#}</label>
-			<input type="hidden" name="schedule" id="button_schedule" value="" />
-			<button type="button">{#edit.schedule#}</button>
+			<input type="hidden" name="schedule" id="banner_schedule" />
+			<button type="button">{#edit.schedule_set#}</button>
 		</fieldset>
 		
-		<fieldset>
+		<fieldset class="input-group">
 			<label for="banner_status">{#edit.status#}</label>
 			<select name="status" id="banner_status" value="" suType="SelectList">
 				<option value="1">{#buttons.on#}</option>
@@ -44,4 +46,5 @@
 		</fieldset>
 		
 	</form>
-</div>
+	
+</div></div>

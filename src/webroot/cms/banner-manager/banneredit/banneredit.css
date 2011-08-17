@@ -1,15 +1,102 @@
 .banner {
 	position: absolute;
+	z-index: 5;
 	bottom: 10px;
+	background: #fff;
 	border: 1px solid #eee;
+	overflow: auto;
 }
+.banner.loading {
+	background: #fff url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+.banner.loading > div {
+	display: none;
+}
+.banner-inner {
+	position: relative;
+	overflow: hidden;
+	min-height: 100%;
+}
+
+.banner .preview {
+	text-align: center;
+	padding: 30px 0;
+	max-height: 200px;
+	overflow: hidden;
+}
+
+.banner .preview-vertical {
+	position: absolute;
+	right: 30px;
+	top: 0;
+	bottom: 30px;
+	max-width: 200px;
+	max-height: 2000px;
+}
+
+/**
+ * Stats
+ */
+.banner .stats {
+	float: left;
+	width: 30%;
+	padding: 30px 0 0 5%;
+}
+.banner .stats h3 {
+	color: #777;
+}
+.banner .stats-field {
+	padding: 20px 20px 0 0;
+	display: block;
+	font-size: 14px;
+	line-height: 20px;
+}
+.banner .stats-field span {
+	display: inline-block;
+}
+.banner .stats-field span.val {
+	font-weight: bold;
+}
+
+/**
+ * Form
+ */
 .banner form {
-	width: 500px;
-	margin: 50px auto 0;
+	width: 300px;
+	float: left;
+	margin: 20px 0 0;
 }
-.banner form fieldset {
+
+
+.banner .input-group {
+	position: relative;
+	margin: 0 -10px;
+	padding: 0 10px;
 	border-top: 1px solid #eee;
 }
-.banner form fieldset:first-child {
+.banner .input-group:first-child {
 	border-top: 0;
+}
+
+.banner .input-group-button {
+	padding: 10px;
+}
+.banner .input-group-button .yui3-button,
+.banner .input-group-button .yui3-button div {
+	display: block;
+}
+.banner .input-group-button .yui3-button button {
+	width: 100%;
+}
+
+
+
+.banner .target .yui3-input-hidden,
+.banner .schedule .yui3-input-hidden {
+	display: block;
+	margin: 0;
+}
+
+.banner .yui3-input-select-list .yui3-button p {
+	min-width: 50px;
 }

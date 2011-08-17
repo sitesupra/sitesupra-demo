@@ -4,24 +4,26 @@
 		"banner_id": "aaabbbcccddd",
 		"group_id": "3",
 		
-		"external_path": "/cms/lib/supra/img/temp/banners/1_600x100.jpg",
-		"width": 600,
-		"height": 100,
+		"image": {
+			"id": 4,
+			"path": [0, 1],
+			"external_path": "/cms/lib/supra/img/temp/banners/3_120x480.jpg",
+			"width": 120,
+			"height": 480
+		},
 		
 		"target": {
 			"type": "external",
-			"href": "",
-			"target": "_blank",
-			"title": ""
+			"page_id": null,
+			"title": "",
+			"href": "http://www.google.com"
 		},
 		
 		"priority": 5,
 		
 		"schedule": {
-			"date_from": "",
-			"time_from": "",
-			"date_to": "",
-			"time_to": ""
+			"from": "2011-08-20",
+			"to": "2011-10-20"
 		},
 		
 		"status": 1,

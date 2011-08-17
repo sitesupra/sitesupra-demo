@@ -109,6 +109,6 @@
 	};
 	
 	//Update YUI configuration on load
-	Supra.Y.config.dateFormat = Supra.data.date_format;
+	Supra.Y.config.dateFormat = Supra.data.dateFormat;
 	
 })();

@@ -1,0 +1,39 @@
+.yui3-right-container-schedule {
+	max-width: 460px;
+	width: 460px;
+}
+
+.schedule-sidebar .yui3-calendar {
+	margin: 10px 0 10px 10px;
+	width: 220px;
+	display: block;
+	float: left;
+}
+.schedule-sidebar h3 {
+	padding: 10px 0 0 10px;
+	width: 220px;
+	display: inline-block;
+	text-align: center;
+	color: #777;
+}
+.schedule-sidebar h3 + h3 {
+	padding-left: 0;
+}
+
+.schedule-sidebar .yui3-calendar + .yui3-calendar {
+	margin-left: 0;
+}
+.schedule-sidebar .calendar-from {
+	border-right: 0;
+	-moz-border-radius: 5px 0 0 5px;
+	-webkit-border-radius: 5px 0 0 5px;
+	border-radius: 5px 0 0 5px;
+	padding-right: 5px;
+}
+.schedule-sidebar .calendar-to {
+	border-left: 0;
+	-moz-border-radius: 0 5px 5px 0;
+	-webkit-border-radius: 0 5px 5px 0;
+	border-radius: 0 5px 5px 0;
+	padding-left: 5px;
+}
