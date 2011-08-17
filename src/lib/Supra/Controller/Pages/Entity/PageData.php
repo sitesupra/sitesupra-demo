@@ -7,7 +7,7 @@ use Supra\Controller\Pages\Exception;
 /**
  * PageData class
  * @Entity
- * @Table(name="su_page_localization")
+ * @Table
  * @HasLifecycleCallbacks
  */
 class PageData extends Abstraction\Data
@@ -16,7 +16,7 @@ class PageData extends Abstraction\Data
 	 * @Column(type="string")
 	 * @var string
 	 */
-	protected $path = '';
+	protected $path = null;
 
 	/**
 	 * @Column(type="string", name="path_part")
@@ -62,11 +62,14 @@ class PageData extends Abstraction\Data
 	/**
 	 * Sets path part of the page
 	 * @param string $pathPart
+	 * @TODO: added exception for experimental purposes
+	 * @throws Exception\PagePathException if trying to set path for the root page
 	 */
 	public function setPathPart($pathPart)
 	{
-		$this->pathPart = $pathPart;
-
+		// Remove all special characters
+		$pathPart = preg_replace('!\?/\\\\#!', '', $pathPart);
+		$pathPart = trim($pathPart);
 		$page = $this->getMaster();
 
 		if (empty($page)) {
@@ -74,14 +77,16 @@ class PageData extends Abstraction\Data
 		}
 
 		// Check if path part is not added to the root page
-		// TODO: maybe should make more elegant solution than level check?
-		$level = $page->getLevel();
-
-		if ($level == 0) {
-			\Log::debug("Cannot set path for the root page");
-			$this->setPath('');
-			return;
+		if ($page->isRoot() && $pathPart != '') {
+			throw new Exception\PagePathException("Root page cannot have path assigned");
 		}
+		
+		// Check if not trying to set empty path to not root page
+		if ( ! $page->isRoot() && $pathPart == '') {
+			throw new Exception\PagePathException("Path cannot be empty");
+		}
+		
+		$this->pathPart = $pathPart;
 		
 		$this->generatePath();
 	}
@@ -95,30 +100,55 @@ class PageData extends Abstraction\Data
 	}
 	
 	/**
-	 * TODO: Not sure whether it can be useful, doesn't run on inserts...
+	 * @TODO: must be run on inserts manually for now
+	 * @throws Exception\PagePathException on duplicates
 	 * @PreUpdate
-	 * @PrePersist
 	 */
 	public function generatePath()
 	{
-		$pathPart = urlencode($this->pathPart);
-
 		$page = $this->getMaster();
+		$pathPart = $this->pathPart;
 		
-		if ($page->hasParent()) {
-			$parentPage = $page->getParent();
-
-			$parentData = $parentPage->getData($this->getLocale());
-			if (empty($parentData)) {
-				throw new Exception\RuntimeException("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->getLocale()} required by page {$page->getId()}");
+		if ( ! $page->isRoot()) {
+			
+			// Leave path empty if path part is not set yet
+			if ($pathPart == '') {
+				return;
 			}
-			$path = $parentData->getPath();
-
-			$path .= '/' . $pathPart;
-
+			
+			$parentPage = $page->getParent();
+			
+			$path = $pathPart;
+			
+			// Root page has no path
+			if ( ! $parentPage->isRoot()) {
+				
+				$parentData = $parentPage->getData($this->locale);
+				
+				if (empty($parentData)) {
+					throw new Exception\RuntimeException("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->locale} required by page {$page->getId()}");
+				}
+				
+				$path = $parentData->getPath() . '/' . $pathPart;
+			}
+			
+			// Duplicate path validation
+			$criteria = array(
+				'locale' => $this->locale,
+				'path' => $path
+			);
+			
+			//TODO: getRepository usage again, should refactor
+			$duplicate = $this->getRepository()
+					->findOneBy($criteria);
+			
+			if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
+				throw new Exception\DuplicatePagePathException("Page with path $path already exists");
+			}
+			
 			$this->setPath($path);
 		} else {
-			$this->setPath(null);
+			$this->setPath('');
 		}
 	}
 

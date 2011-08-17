@@ -6,6 +6,7 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 
 /**
  * 
@@ -188,9 +189,9 @@ class PageAction extends PageManagerAction
 		
 		$page->setTemplate($template);
 		
+		$pathPart = '';
 		if ($this->hasRequestParameter('path')) {
 			$pathPart = $this->getRequestParameter('path');
-			$pageData->setPathPart($pathPart);
 		}
 		
 		if ($this->hasRequestParameter('title')) {
@@ -212,6 +213,7 @@ class PageAction extends PageManagerAction
 		}
 		
 		$this->entityManager->persist($page);
+		$this->entityManager->persist($pageData);
 		
 		// Set parent
 		if ( ! empty($parent)) {
@@ -219,24 +221,28 @@ class PageAction extends PageManagerAction
 		}
 		
 		//TODO: try fixing maybe? Must be run to regenerate full path
-		$pageData->generatePath();
+		$pathValid = false;
+		$i = 2;
+		$suffix = '';
+		
+		do {
+			try {
+				$pageData->setPathPart($pathPart . $suffix);
+				$pathValid = true;
+			} catch (DuplicatePagePathException $pathInvalid) {
+				$suffix = '-' . $i;
+				$i++;
+				
+				// Loop stopper
+				if ($i > 100) {
+					throw $pathInvalid;
+				}
+			}
+		} while ( ! $pathValid);
 		
 		$this->entityManager->flush();
 		
-		$data = array(
-			'id' => $page->getId(),
-			'title' => $pageData->getTitle(),
-			'template' => $template->getId(),
-			'parent' => $parentId,
-			'path' => $pageData->getPathPart(),
-			
-			//TODO: hardcoded or dummy loopback
-			'icon' => $this->getRequestParameter('icon'),
-			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
-		);
-		
-		$this->getResponse()
-				->setResponseData($data);
+		$this->outputPage($pageData);
 	}
 	
 //	public function saveAction()

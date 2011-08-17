@@ -6,6 +6,7 @@ use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Entity;
 
 /**
  * Controller for page content requests
@@ -20,7 +21,7 @@ class PagecontentAction extends PageManagerAction
 		//FIXME: hardcoded now
 		$locale = $_GET['language'];
 		$locale = 'en';
-		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
+		$media = Entity\Layout::MEDIA_SCREEN;
 		$pageId = $_GET['page_id'];
 		$placeHolderName = $_GET['placeholder_id'];
 		$blockType = $_GET['type'];
@@ -33,22 +34,22 @@ class PagecontentAction extends PageManagerAction
 		
 		$pageDao = $em->getRepository('Supra\Controller\Pages\Entity\Abstraction\Page');
 		
-		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
 		$data = $page->getData($locale);
 		$request->setRequestPageData($data);
 		
-		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
+		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPage()
 				->getPlaceHolders()
 				->get($placeHolderName);
 		
 		//TODO: create some factory
 		$block = null;
-		if ($page instanceof \Supra\Controller\Pages\Entity\Page) {
-			$block = new \Supra\Controller\Pages\Entity\PageBlock();
+		if ($page instanceof Entity\Page) {
+			$block = new Entity\PageBlock();
 		} else {
-			$block = new \Supra\Controller\Pages\Entity\TemplateBlock();
+			$block = new Entity\TemplateBlock();
 		}
 		
 		//TODO: some component name normalization
@@ -120,7 +121,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$query->setParameters($params);
 		
-		/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
+		/* @var $blockProperty Entity\BlockProperty */
 		$blockProperty = null;
 		
 		try {
@@ -147,7 +148,7 @@ class PagecontentAction extends PageManagerAction
 			$blockQuery->setParameters($params);
 			$block = $blockQuery->getSingleResult();
 			
-			$blockProperty = new \Supra\Controller\Pages\Entity\BlockProperty($name, $type);
+			$blockProperty = new Entity\BlockProperty($name, $type);
 			$em->persist($blockProperty);
 			$blockProperty->setData($data);
 			$blockProperty->setBlock($block);
@@ -201,7 +202,7 @@ class PagecontentAction extends PageManagerAction
 		
 		//TODO: hardcoded
 		$locale = 'en';
-		$media = \Supra\Controller\Pages\Entity\Layout::MEDIA_SCREEN;
+		$media = Entity\Layout::MEDIA_SCREEN;
 		
 //		$request = new PageRequestEdit($locale, $media);
 		
@@ -211,12 +212,12 @@ class PagecontentAction extends PageManagerAction
 		
 		$pageDao = $em->getRepository('Supra\Controller\Pages\Entity\Abstraction\Page');
 		
-		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
 		$data = $page->getData($locale);
 //		$request->setRequestPageData($data);
 		
-		/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
+		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $page->getPlaceHolders()
 				->offsetGet($placeHolderName);
 		
@@ -224,7 +225,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$maxPosition = max($blockPositionById);
 		
-		/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
+		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
 			$id = $block->getId();
 			

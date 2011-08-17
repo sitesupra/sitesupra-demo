@@ -246,7 +246,7 @@ abstract class Entity
 	public function equals(Entity $entity)
 	{
 		// Equals if matches
-		if ($entity == $this) {
+		if ($entity === $this) {
 			return true;
 		}
 

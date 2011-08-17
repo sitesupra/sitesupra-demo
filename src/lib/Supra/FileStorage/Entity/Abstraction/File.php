@@ -349,5 +349,13 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	{
 		return $this->getFileName();
 	}
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger()
+	{
+		
+	}
 
 }

@@ -344,4 +344,12 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeI
 	{
 		$this->price = $price;
 	}
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger()
+	{
+		
+	}
 }

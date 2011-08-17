@@ -167,4 +167,35 @@ abstract class PageManagerAction extends CmsAction
 		
 		$this->getResponse()->setCookie($cookie);
 	}
+	
+	/**
+	 * 
+	 * @param Entity\PageData $pageData
+	 */
+	protected function outputPage(Entity\PageData $pageData)
+	{
+		$page = $pageData->getPage();
+		$template = $page->getTemplate();
+		$parent = $page->getParent();
+		$parentId = null;
+		
+		if ( ! is_null($parent)) {
+			$parentId = $parent->getId();
+		}
+		
+		$data = array(
+			'id' => $page->getId(),
+			'title' => $pageData->getTitle(),
+			'template' => $template->getId(),
+			'parent' => $parentId,
+			'path' => $pageData->getPathPart(),
+			
+			//TODO: hardcoded
+			'icon' => 'page',
+			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
+		);
+		
+		$this->getResponse()
+				->setResponseData($data);
+	}
 }

@@ -846,5 +846,12 @@ abstract class NodeAbstraction implements NodeInterface
 		$dumpString = static::dump($this);
 		return $dumpString;
 	}
-
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger()
+	{
+		
+	}
 }

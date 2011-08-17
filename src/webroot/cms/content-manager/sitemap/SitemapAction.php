@@ -6,6 +6,7 @@ use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 
 /**
  * Sitemap
@@ -63,11 +64,21 @@ class SitemapAction extends PageManagerAction
 		if ($this->hasRequestParameter('path')) {
 			if ($pageData instanceof Entity\PageData) {
 				$pathPart = $this->getRequestParameter('path');
-				$pageData->setPathPart($pathPart);
+				
+				try {
+					$pageData->setPathPart($pathPart);
+				} catch (DuplicatePagePathException $uniqueException) {
+					$this->getResponse()
+							->setErrorMessage("Page with the same path already exists");
+					
+					// Clear the unit of work
+					$this->entityManager->clear();
+				}
 			}
 		}
 		
 		$this->entityManager->flush();
+		$this->outputPage($pageData);
 	}
 	
 	/**

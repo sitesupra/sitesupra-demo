@@ -66,5 +66,16 @@ class Page extends Abstraction\Page
 
 		return $pageSet;
 	}
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger()
+	{
+		foreach ($this->data as $data) {
+			/* @var $data PageData */
+			$data->generatePath();
+		}
+	}
 
 }

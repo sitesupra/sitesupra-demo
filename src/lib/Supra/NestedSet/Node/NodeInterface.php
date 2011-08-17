@@ -69,4 +69,9 @@ interface NodeInterface
 	 * @return NodeInterface
 	 */
 	public function moveLevel($diff);
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger();
 }

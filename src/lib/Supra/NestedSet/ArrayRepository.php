@@ -125,20 +125,36 @@ class ArrayRepository extends RepositoryAbstraction
 			$moveA = $pos - $left;
 			$moveB = $spaceUsed;
 		}
+		
+		// Will find the source node moved to trigger the tree move action for it
+		$sourceNode = null;
+		
 		foreach ($this->array as $item) {
-			if (self::isBetween($item->getLeftValue(), $left, $right)) {
+			/* @var $item Node\NodeInterface */
+			$itemLeft = $item->getLeftValue();
+			
+			if ($itemLeft == $left) {
+				$sourceNode = $item;
+			}
+			
+			if (self::isBetween($itemLeft, $left, $right)) {
 				$item->moveLeftValue($moveA);
 				$item->moveRightValue($moveA);
 				$item->moveLevel($levelDiff);
 				continue;
 			}
 
-			if (self::isBetween($item->getLeftValue(), $a, $b)) {
+			if (self::isBetween($itemLeft, $a, $b)) {
 				$item->moveLeftValue($moveB);
 			}
 			if (self::isBetween($item->getRightValue(), $a, $b)) {
 				$item->moveRightValue($moveB);
 			}
+		}
+
+		// This must exist always
+		if ( ! empty($sourceNode)) {
+			$sourceNode->treeChangeTrigger();
 		}
 	}
 

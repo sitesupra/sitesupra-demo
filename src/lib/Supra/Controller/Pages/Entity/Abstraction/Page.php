@@ -219,7 +219,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Set left value
 	 * @param int $left
-	 * @return Product
+	 * @return Page
 	 */
 	public function setLeftValue($left)
 	{
@@ -233,7 +233,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Set right value
 	 * @param int $right
-	 * @return Product
+	 * @return Page
 	 */
 	public function setRightValue($right)
 	{
@@ -247,7 +247,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Set depth level
 	 * @param int $level
-	 * @return Product
+	 * @return Page
 	 */
 	public function setLevel($level)
 	{
@@ -262,7 +262,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Move left value by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return Page
 	 */
 	public function moveLeftValue($diff)
 	{
@@ -276,7 +276,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Move right value by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return Page
 	 */
 	public function moveRightValue($diff)
 	{
@@ -290,7 +290,7 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * Move depth level by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return Page
 	 */
 	public function moveLevel($diff)
 	{
@@ -311,6 +311,14 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	{
 		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
 		$this->nestedSetNode->belongsTo($this);
+	}
+	
+	/**
+	 * Trigger on tree changes, called on move action
+	 */
+	public function treeChangeTrigger()
+	{
+		
 	}
 
 	/**

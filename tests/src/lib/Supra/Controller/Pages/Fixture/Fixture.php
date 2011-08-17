@@ -176,11 +176,13 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$template->addLayout('screen', $layout);
 
 		$templateData = new Entity\TemplateData('en');
+		$this->getEntityManager()->persist($templateData);
 		$templateData->setTemplate($template);
 		$templateData->setTitle('Root template');
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
+			$this->getEntityManager()->persist($templatePlaceHolder);
 			if ($name == 'header' || $name == 'footer') {
 				$templatePlaceHolder->setLocked();
 			}
@@ -188,6 +190,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($name == 'header') {
 				$block = new Entity\TemplateBlock();
+				$this->getEntityManager()->persist($block);
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
@@ -196,6 +199,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$this->headerTemplateBlock = $block;
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template Header');
@@ -203,23 +207,27 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($name == 'main') {
 				$block = new Entity\TemplateBlock();
+				$this->getEntityManager()->persist($block);
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template source');
 				
 //				// A locked block
 //				$block = new Entity\TemplateBlock();
+//				$this->getEntityManager()->persist($block);
 //				$block->setComponent('Project\Text\TextController');
 //				$block->setPlaceHolder($templatePlaceHolder);
 //				$block->setPosition(200);
 //				$block->setLocked(true);
 //
 //				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+//				$this->getEntityManager()->persist($blockProperty);
 //				$blockProperty->setBlock($block);
 //				$blockProperty->setData($template->getData('en'));
 //				$blockProperty->setValue('Template locked block');
@@ -227,12 +235,14 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($name == 'footer') {
 				$block = new Entity\TemplateBlock();
+				$this->getEntityManager()->persist($block);
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocked();
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
@@ -240,11 +250,13 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 			
 			if ($name == 'sidebar') {
 				$block = new Entity\TemplateBlock();
+				$this->getEntityManager()->persist($block);
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
@@ -256,23 +268,28 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$childTemplate = new Entity\Template();
 		
 		$childTemplateData = new Entity\TemplateData('en');
+		$this->getEntityManager()->persist($childTemplateData);
 		$childTemplateData->setTemplate($childTemplate);
 		$childTemplateData->setTitle('Child template');
 		
 		$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
+		$this->getEntityManager()->persist($templatePlaceHolder);
 		$templatePlaceHolder->setTemplate($childTemplate);
 		
 		$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
+		$this->getEntityManager()->persist($templatePlaceHolder);
 		$templatePlaceHolder->setTemplate($childTemplate);
 		
 		// A locked block
 		$block = new Entity\TemplateBlock();
+		$this->getEntityManager()->persist($block);
 		$block->setComponent('Project\Text\TextController');
 		$block->setPlaceHolder($templatePlaceHolder);
 		$block->setPosition(200);
 		$block->setLocked(true);
 
 		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+		$this->getEntityManager()->persist($blockProperty);
 		$blockProperty->setBlock($block);
 		$blockProperty->setData($childTemplateData);
 		$blockProperty->setValue('<h2>Template locked block</h2>');
@@ -287,6 +304,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	protected function createLayout()
 	{
 		$layout = new Entity\Layout();
+		$this->getEntityManager()->persist($layout);
 		$layout->setFile('root.html');
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
@@ -309,6 +327,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$this->getEntityManager()->flush();
 
 		$pageData = new Entity\PageData('en');
+		$this->getEntityManager()->persist($pageData);
 		$pageData->setTitle(self::$constants[$type]['title']);
 
 		$pageData->setPage($page);
@@ -320,19 +339,23 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($name == 'header') {
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($this->headerTemplateBlock);
 				$blockProperty->setData($page->getData('en'));
 				$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
 				
 				$placeHolder = new Entity\PagePlaceHolder('header');
+				$this->getEntityManager()->persist($placeHolder);
 				$placeHolder->setMaster($page);
 				
 				$block = new Entity\PageBlock();
+				$this->getEntityManager()->persist($block);
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
 				
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+				$this->getEntityManager()->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($pageData);
 				$blockProperty->setValue('this shouldn\'t be shown');
@@ -340,16 +363,19 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 
 			if ($name == 'main') {
 				$pagePlaceHolder = new Entity\PagePlaceHolder($name);
+				$this->getEntityManager()->persist($pagePlaceHolder);
 				$pagePlaceHolder->setPage($page);
 
 				foreach (\range(1, 2) as $i) {
 					$block = new Entity\PageBlock();
+					$this->getEntityManager()->persist($block);
 					$block->setComponent('Project\Text\TextController');
 					$block->setPlaceHolder($pagePlaceHolder);
 					// reverse order
 					$block->setPosition(100 * $i);
 
 					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->getEntityManager()->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setData($page->getData('en'));
 					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');

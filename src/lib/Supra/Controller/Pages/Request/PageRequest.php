@@ -322,6 +322,7 @@ abstract class PageRequest extends HttpRequest
 						
 						// Create new block
 						$block = Entity\Abstraction\Block::factoryClone($page, $block);
+						$em->persist($block);
 						$placeHolder->addBlock($block);
 						
 						$blockProperties = $block->getBlockProperties();
@@ -330,6 +331,7 @@ abstract class PageRequest extends HttpRequest
 						/* @var $blockProperty Entity\BlockProperty */
 						foreach ($blockProperties as $blockProperty) {
 							$blockProperty->setData($data);
+							$em->persist($blockProperty);
 						}
 					}
 				}

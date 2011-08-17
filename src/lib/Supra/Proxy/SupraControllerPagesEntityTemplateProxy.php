@@ -166,6 +166,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::createNestedSetNode();
     }
 
+    public function treeChangeTrigger()
+    {
+        $this->__load();
+        return parent::treeChangeTrigger();
+    }
+
     public function __call($method, $arguments)
     {
         $this->__load();
@@ -238,7 +244,7 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);
