@@ -14,7 +14,7 @@
 
 .yui3-page-settings .yui3-input-select-list .yui3-button p {
 	display: inline-block;
-	width: 50px;
+	min-width: 50px;
 }
 
 .yui3-page-settings h3 {

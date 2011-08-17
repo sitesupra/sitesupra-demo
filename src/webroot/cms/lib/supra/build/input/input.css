@@ -242,6 +242,11 @@
 .yui3-input-slider .less,
 .yui3-input-slider .more {
 	display: inline-block;
+	cursor: pointer;
+	
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 .yui3-input-slider .less {
 	vertical-align: top;

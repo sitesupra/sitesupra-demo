@@ -10,23 +10,24 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	 * Shortcuts
 	 */
 	var Data = Supra.MediaLibraryData,
-		List = Supra.MediaLibraryList;
+		List = Supra.MediaLibraryList,
+		Template = Supra.Template;
 		
 	/*
 	 * Constants
 	 */
 	var SLIDE_ID = 'imageEditor';
 	
-	var TEMPLATE = '<div class="yui3-imageeditor loading">\
+	var TEMPLATE = Template.compile('<div class="yui3-imageeditor loading">\
 						<span class="v-center"></span>\
 						<div class="yui3-imageeditor-content">\
 							<div class="overlay-t"></div><div class="overlay-b"></div><div class="overlay-l"></div><div class="overlay-r"></div>\
 							<div class="overlay-c">\
 								<span class="drag-lt"></span><span class="drag-rt"></span><span class="drag-lb"></span><span class="drag-rb"></span>\
 							</div>\
-							<img src="{external_path}" alt="" />\
+							<img src="{{ external_path }}?r={{ Math.random() }}" alt="" />\
 						</div>\
-					</div>';
+					</div>');
 	
 	/**
 	 * File upload
@@ -355,7 +356,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			
 			//Create container node
 			if (!this.node) {
-				this.node = Y.Node.create(Y.substitute(TEMPLATE, image_data.sizes.original));
+				this.node = Y.Node.create(TEMPLATE(image_data.sizes.original));
 				container_node.insert(this.node, 'after');
 				
 				//Set nodes
@@ -377,7 +378,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 			this.node.addClass('loading');
 			
 			//Set image 
-			this.node.one('img').setAttribute('src', image_data.sizes.original.external_path);
+			this.node.one('img').setAttribute('src', image_data.sizes.original.external_path + '?r=' + (+ new Date()));
 			
 			//Update node width to match full width of media library
 			this.node.setStyles({'display': 'block', 'width': width + 'px', 'left': width + 'px'});
@@ -630,4 +631,4 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['plugin', 'supra.medialibrary-image-editor-css', 'transition']});
+}, YUI.version, {'requires': ['plugin', 'supra.medialibrary-image-editor-css', 'transition', 'supra.template']});

@@ -146,7 +146,11 @@ YUI.add('supra.input-slider', function (Y) {
 			var labelLess = this.get('labelLess'),
 				labelMore = this.get('labelMore');
 			
-			if (labelLess) contentBox.append('<span class="less">' + labelLess + '</span>');
+			if (labelLess) {
+				var node = Y.Node.create('<span class="less">' + labelLess + '</span>');
+				contentBox.append(node);
+				node.on('click', this._setValueMinus, this);
+			}
 			
 			//Create slider
 			this.slider = new Y.Slider({
@@ -160,7 +164,11 @@ YUI.add('supra.input-slider', function (Y) {
 			this.slider.after('slideEnd', this.slider.syncUI, this.slider);
 			this.slider.render(contentBox);
 			
-			if (labelMore) contentBox.append('<span class="more">' + labelMore + '</span>');
+			if (labelMore) {
+				var node = Y.Node.create('<span class="more">' + labelMore + '</span>');
+				contentBox.append(node);
+				node.on('click', this._setValuePlus, this);
+			}
 			
 			//Set value
 			if (!has_value_match) {
@@ -170,6 +178,40 @@ YUI.add('supra.input-slider', function (Y) {
 				}
 			}
 			
+		},
+		
+		/**
+		 * Move to next value
+		 * 
+		 * @private
+		 */
+		_setValuePlus: function (e) {
+			if (this.slider) {
+				var index = this.slider.get('value'),
+					values = this.get('values');
+				
+				if (index < values.length - 1) {
+					this.set('value', values[index + 1].id);
+				}
+			}
+			if (e) e.halt();
+		},
+		
+		/**
+		 * Move to previous value
+		 * 
+		 * @private
+		 */
+		_setValueMinus: function (e) {
+			if (this.slider) {
+				var index = this.slider.get('value'),
+					values = this.get('values');
+				
+				if (index > 0) {
+					this.set('value', values[index - 1].id);
+				}
+			}
+			if (e) e.halt();
 		},
 		
 		_onChange: function (event) {
