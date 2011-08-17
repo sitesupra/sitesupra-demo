@@ -12,6 +12,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Log;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Http\Cookie;
+use Supra\Cms\CmsAction;
 
 /**
  * Controller containing common methods

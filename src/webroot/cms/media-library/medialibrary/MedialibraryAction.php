@@ -2,7 +2,7 @@
 
 namespace Supra\Cms\MediaLibrary\Medialibrary;
 
-use Supra\Cms\ContentManager\CmsAction;
+use Supra\Cms\CmsAction;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;

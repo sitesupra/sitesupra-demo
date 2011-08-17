@@ -2,21 +2,19 @@
 
 namespace Supra\Cms\MediaLibrary;
 
-use Supra\Controller\SimpleController;
+use Supra\Controller\DistributedController;
+use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\Log\Log;
 
 /**
  * Media library controller
  */
-class MediaLibraryController extends SimpleController
+class MediaLibraryController extends DistributedController
 {
 	/**
-	 * Main action
+	 * Default action when no action is provided
+	 * @var string
 	 */
-	public function indexAction()
-	{
-		$output = file_get_contents(__DIR__ . '/index.html');
-		
-		$this->getResponse()
-				->output($output);
-	}
+	protected static $defaultAction = 'root';
 }
+

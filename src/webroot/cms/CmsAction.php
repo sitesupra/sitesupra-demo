@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\ContentManager;
+namespace Supra\Cms;
 
 use Supra\Controller\SimpleController;
 use Supra\Response\JsonResponse;
