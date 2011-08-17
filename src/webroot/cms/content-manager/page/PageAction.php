@@ -14,17 +14,15 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 class PageAction extends PageManagerAction
 {
 	/**
-	 * @return string
+	 * Returns all page information required for load
 	 */
 	public function pageAction()
 	{
 		$controller = $this->getPageController();
+		$locale = $this->getLocale();
+		$media = $this->getMedia();
+		$pageId = $this->getRequestParameter('page_id');
 
-		//FIXME: hardcoded now
-		$locale = 'en';
-		$media = Entity\Layout::MEDIA_SCREEN;
-		$pageId = $_GET['page_id'];
-		
 		// Create special request
 		$request = new PageRequestEdit($locale, $media);
 
@@ -62,15 +60,32 @@ class PageAction extends PageManagerAction
 
 		$pathPart = null;
 		$pathPrefix = null;
+		$templateArray = array();
 		
 		//TODO: create some path for templates also
-		if ($pageData instanceof Entity\PageData) {
+		if ($page instanceof Entity\Page) {
+			
+			/* @var $pageData Entity\PageData */
 			$pathPart = $pageData->getPathPart();
 			
 			if ($page->hasParent()) {
 				$pathPrefix = $page->getParent()
 						->getPath();
 			}
+			
+			$template = $page->getTemplate();
+			$templateData = $template->getData($locale);
+			
+			if ( ! $templateData instanceof Entity\TemplateData) {
+				throw new Exception\RuntimeException("Template doesn't exist for page $page in locale $locale");
+			}
+			
+			$templateArray = array(
+				'id' => $template->getId(),
+				'title' => $templateData->getTitle(),
+				//TODO: hardcoded
+				'img' => '/cms/lib/supra/img/templates/template-1.png',
+			);
 		}
 		
 		$array = array(
@@ -78,26 +93,17 @@ class PageAction extends PageManagerAction
 			'title' => $pageData->getTitle(),
 			'path' => $pathPart,
 			'path_prefix' => $pathPrefix,
+			'template' => $templateArray,
+			
+			'internal_html' => $response->getOutput(),
+			'contents' => array(),
+			
+			//TODO: Hardcoded
 			'keywords' => 'web development, web design, nearshore development, e-commerce, visualization, 3D, web 2.0, PHP, LAMP, SiteSupra Platform, CMS, content management, web application, Web systems, IT solutions, usability improvements, system design, FMS, SFS, design conception, design solutions, intranet systems development, extranet systems development, flash development, hitask',
 			'description' => '',
-			'template' =>
-			array(
-				'id' => 'template_3',
-				'title' => 'Simple',
-				'img' => '/cms/supra/img/templates/template-3.png',
-			),
 			'scheduled_date' => '18.08.2011',
 			'scheduled_time' => '08:00',
-			'version' =>
-			array(
-				'id' => 222,
-				'title' => 'Draft (auto-saved)',
-				'author' => 'Admin',
-				'date' => '21.05.2011',
-			),
 			'active' => true,
-			'internal_html' => $response->getOutput(),
-			'contents' => array()
 		);
 		
 		$contents = array();
@@ -245,10 +251,13 @@ class PageAction extends PageManagerAction
 		$this->outputPage($pageData);
 	}
 	
-//	public function saveAction()
-//	{
-//		1+1;
-//	}
+	/**
+	 * Page save request, does nothing now
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+	}
 	
 	/**
 	 * Called when page delete is requested

@@ -37,7 +37,7 @@ abstract class CmsAction extends SimpleController
 	protected function isPostRequest()
 	{
 		if ( ! $this->getRequest()->isPost()) {
-			throw new Exception\ResourceNotFoundException("Post request method is required for the action");
+			throw new Exception\BadRequestException("Post request method is required for the action");
 		}
 		
 		$this->requestMethod = Request\HttpRequest::METHOD_POST;

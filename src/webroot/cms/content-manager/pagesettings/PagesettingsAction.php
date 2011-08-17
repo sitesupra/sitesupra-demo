@@ -18,6 +18,7 @@ class PagesettingsAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$pageData = $this->getPageData();
+		$locale = $this->getLocale();
 		
 		//TODO: create some simple objects for save post data with future validation implementation?
 		if ($this->hasRequestParameter('title')) {
@@ -25,10 +26,25 @@ class PagesettingsAction extends PageManagerAction
 			$pageData->setTitle($title);
 		}
 		
-		if ($pageData instanceof Entity\PageData && $this->hasRequestParameter('path')) {
-			$pathPart = $this->getRequestParameter('path');
-			$pageData->setPathPart($pathPart);
+		if ($pageData instanceof Entity\PageData) {
+		
+			if ($this->hasRequestParameter('path')) {
+				$pathPart = $this->getRequestParameter('path');
+				$pageData->setPathPart($pathPart);
+			}
+
+			if ($this->hasRequestParameter('template')) {
+				$templateId = $this->getRequestParameter('template');
+
+				/* @var $template Entity\Template */
+				$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+
+				$page = $pageData->getMaster();
+				$page->setTemplate($template);
+			}
 		}
+		
+		//TODO: schedule, active, description, keywords
 		
 		$this->entityManager->flush();
 	}

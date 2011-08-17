@@ -14,15 +14,23 @@ namespace Supra\Log;
 class Log
 {
 	/**
+	 * Bootstrap logger
+	 * @var Writer\SystemWriter 
+	 */
+	private static $bootstrapLogger;
+	
+	/**
 	 * Create logger for bootstrap
 	 * @return Writer\SystemWriter
 	 */
 	public static function getBootstrapLogger()
 	{
-		$logger = new Writer\SystemWriter();
-		$logger->setName('Bootstrap');
+		if (is_null(self::$bootstrapLogger)) {
+			self::$bootstrapLogger = new Writer\SystemWriter();
+			self::$bootstrapLogger->setName('Bootstrap');
+		}
 		
-		return $logger;
+		return self::$bootstrapLogger;
 	}
 	
 	/**
