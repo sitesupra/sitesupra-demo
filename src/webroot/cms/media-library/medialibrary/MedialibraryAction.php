@@ -2,7 +2,6 @@
 
 namespace Supra\Cms\MediaLibrary\Medialibrary;
 
-use Supra\Cms\CmsAction;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;
@@ -12,24 +11,10 @@ use Doctrine\ORM\EntityManager;
 use Supra\Response\HttpResponse;
 use Supra\Response\JsonResponse;
 use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
 
-class MediaLibraryAction extends CmsAction
+class MedialibraryAction extends MediaLibraryAbstractAction
 {
-	/**
-	 * @var FileStorage\FileStorage
-	 */
-	private $fileStorage;
-	
-	/**
-	 * @var EntityManager
-	 */
-	private $entityManager;
-	
-	/**
-	 * @var string
-	 */
-	private $downloadFileName;
-	
 	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
@@ -56,24 +41,10 @@ class MediaLibraryAction extends CmsAction
 	}
 	
 	/**
-	 * Binds file storage instance, entity manager
+	 * Specific exception handling
 	 */
 	public function execute()
 	{
-		$this->fileStorage = ObjectRepository::getFileStorage($this);
-		$this->entityManager = ObjectRepository::getEntityManager($this->fileStorage);
-
-		$request = $this->getRequest();
-		$actions = $request->getActions(1);
-		
-		// Special case for download action
-		if ($actions == array('download.json')) {
-			$path = $request->getPath();
-			$pathList = $path->getPathList();
-			$this->downloadFileName = array_pop($pathList);
-			$path->setPathList($pathList);
-		}
-		
 		// Handle exceptions
 		try {
 			
@@ -112,65 +83,6 @@ class MediaLibraryAction extends CmsAction
 		}
 	}
 	
-	/**
-	 * @return Entity\Abstraction\File
-	 */
-	private function getRequestedEntity($key, $className)
-	{
-		if ( ! $this->hasRequestParameter($key)) {
-			throw new MedialibraryException('File ID has not been sent');
-		}
-		
-		$id = $this->getRequestParameter($key);
-		$file = $this->entityManager->find($className, $id);
-		
-		if (is_null($file)) {
-			throw new MedialibraryException('Requested file does not exist anymore');
-		}
-		
-		return $file;
-	}
-	
-	/**
-	 * @return Entity\Abstraction\File
-	 */
-	private function getEntity($key = 'id')
-	{
-		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Abstraction\File');
-		
-		return $file;
-	}
-	
-	/**
-	 * @return Entity\File
-	 */
-	private function getFile($key = 'id')
-	{
-		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\File');
-		
-		return $file;
-	}
-	
-	/**
-	 * @return Entity\Folder
-	 */
-	private function getFolder($key = 'id')
-	{
-		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Folder');
-		
-		return $file;
-	}
-	
-	/**
-	 * @return Entity\Image
-	 */
-	private function getImage($key = 'id')
-	{
-		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Image');
-		
-		return $file;
-	}
-
 	/**
 	 * Used for list folder item
 	 */
@@ -421,51 +333,6 @@ class MediaLibraryAction extends CmsAction
 			
 			$this->getResponse()->setErrorMessage($message);
 		}
-	}
-
-	/**
-	 * Pass file contents to download
-	 */
-	public function downloadAction()
-	{
-		$this->response = new HttpResponse();
-		
-		$file = $this->getFile();
-
-		// The file cache must be unique if "timestamp" hash is returned
-		// TODO: Not modified
-		$timestamp = null;
-		if ( ! empty($timestamp)) {
-			header('Pragma: private');
-			header("Expires: " . date('r', strtotime('+1 year')));
-			header('Cache-Control: private');
-
-			if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-				header("HTTP/1.1 304 Not Modified");
-				return;
-			}
-		} else {
-			header("Expires: 0");
-			header("Cache-Control: private, must-revalidate");
-		}
-
-		$mimeType = $file->getMimeType();
-		$fileName = $file->getFileName();
-		
-		if ($fileName != $this->downloadFileName) {
-			throw new ResourceNotFoundException("Requested file name does not match file name on the server");
-		}
-		
-		$content = $this->fileStorage->getFileContent($file);
-
-		if ( ! empty($mimeType)) {
-			header('Content-type: ' . $mimeType);
-		}
-
-		header('Content-Disposition: attachment');
-		header("Content-Transfer-Encoding: binary");
-
-		$this->response->output($content);
 	}
 
 	/**

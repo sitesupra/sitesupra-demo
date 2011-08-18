@@ -745,14 +745,17 @@ class FileStorage
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
 		$path = $this->getInternalPath();
+		
 		if ($file->isPublic()) {
 			$path = $this->getExternalPath();
 		}
 		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
 		$path .= DIRECTORY_SEPARATOR;
+		
 		if ($includeFilename) {
 			$path .= $file->getFileName();
 		}
+		
 		return $path;
 	}
 
@@ -833,6 +836,7 @@ class FileStorage
 	{
 		$filePath = $this->getFilesystemPath($file);
 		$fileContent = file_get_contents($filePath);
+		
 		return $fileContent;
 	}
 
