@@ -98,12 +98,16 @@ SU('supra.calendar', function (Y) {
 				}
 			}, this);
 			
-			//Close button
+			//Buttons
 			var buttons = this.all('button');
 			
 			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'mid-blue'});
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
+			
+			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove').item(0), 'style': 'mid'});
+			this.button_remove.render();
+			this.button_remove.on('click', this.cancel, this);
 			
 			//Create calendars
 			this.calendarFrom = new Supra.Calendar({
@@ -145,18 +149,44 @@ SU('supra.calendar', function (Y) {
 		},
 		
 		/**
+		 * Close sidebar and reset values
+		 */
+		cancel: function () {
+			//Callback
+			if (Y.Lang.isFunction(this.callback)) {
+				var data = this.getData();
+				this.callback({
+					'from': '',
+					'to': ''
+				});
+			}
+			
+			//Clean up
+			this.callback = null;
+			this.data = null;
+			this.hide();
+		},
+		
+		/**
 		 * Set calendar data and update UI
 		 * 
 		 * @param {Object} data
 		 * @private
 		 */
 		setData: function (data) {
-			if (!data) data = {};
+			if (!data || !data.from) {
+				data = {
+					'from': new Date(),
+					'to': new Date()
+				};
+			}
+			
 			this.data = data;
 			
 			this.calendarFrom.set('date', data.from);
 			this.calendarFrom.set('displayDate', data.from);
 			
+			this.calendarTo.set('minDate', data.from);
 			this.calendarTo.set('date', data.to);
 			this.calendarTo.set('displayDate', data.to);
 		},

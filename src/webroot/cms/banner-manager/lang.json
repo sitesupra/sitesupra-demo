@@ -62,8 +62,9 @@
 			"from": "From",
 			"to": "To",
 			"select_today": "Select today",
-			"select_tomorrow": "Select tomorrow"
+			"select_tomorrow": "Select tomorrow",
 			
+			"remove": "Remove schedule"
 		}
 	}
 }

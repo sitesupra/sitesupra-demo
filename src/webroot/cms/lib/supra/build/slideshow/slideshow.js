@@ -234,6 +234,9 @@ YUI.add('supra.slideshow', function (Y) {
 				}
 				this.get('contentBox').set('scrollLeft', to);
 				
+				//Make sure it's in correct position
+				Y.later(16, this, this.syncUI);
+				
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {
 					callback(slideId);

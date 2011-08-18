@@ -3,6 +3,10 @@
 	width: 460px;
 }
 
+.yui3-right-container-schedule .button-remove {
+	float: right;
+}
+
 .schedule-sidebar .yui3-calendar {
 	margin: 10px 0 10px 10px;
 	width: 220px;
