@@ -275,7 +275,7 @@ Supra(function (Y) {
 					'on': {'success': this.setData}
 				});
 			} else {
-				var data = Supra.mix({}, NEW_BANNER_DATA, true);
+				var data = Supra.mix({}, NEW_BANNER_DATA, {'group_id': group_id}, true);
 				this.setData(data);
 			}
 		},

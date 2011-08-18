@@ -122,7 +122,7 @@ YUI.add('supra.input-select-list', function (Y) {
 				while(input.options.length) {
 					input.remove(input.options[0]);
 				}
-			} else {
+			} else if (!this.buttons_rendered) {
 				//No need to remove options if this is initial render
 				input = null;
 			}

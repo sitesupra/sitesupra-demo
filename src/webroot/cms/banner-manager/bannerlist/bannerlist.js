@@ -159,6 +159,8 @@ Supra('website.list-dd', function (Y) {
 				container.delegate('mouseleave', function () {
 					container.removeClass('hover');
 				}, 'div.size0 > div', this);
+				
+				this.fillBannerList(values[0].id);
 			}
 			
 			//Hide loading icon
