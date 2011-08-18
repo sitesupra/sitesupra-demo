@@ -31,10 +31,10 @@ class MetaData extends Abstraction\Entity
 	protected $title;
 
 	/**
-	 * @Column(type="string",nullable=true)
+	 * @Column(type="string")
 	 * @var string
 	 */
-	protected $description;
+	protected $description = '';
 
 	/**
 	 * @ManyToOne(targetEntity="File", cascade={"persist"})

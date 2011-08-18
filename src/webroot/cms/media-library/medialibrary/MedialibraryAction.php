@@ -366,11 +366,29 @@ class MediaLibraryAction extends CmsAction
 				$folder = $this->getFolder('folder');
 				$folder->addChild($fileEntity);
 			}
+			
+			// Could move to separate method, should be configurable
+			$humanName = $file['name'];
+			$extensionLength = strlen($fileEntity->getExtension());
+			
+			if ($extensionLength != 0) {
+				$extensionLength++;
+				$humanName = substr($humanName, 0, -$extensionLength);
+			}
+			
+			$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
+			
+			foreach ($humanNameSplit as &$humanNamePart) {
+				$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
+						. mb_substr($humanNamePart, 1);
+			}
+			
+			$humanName = implode(' ', $humanNameSplit);
 
 			// file metadata
 			$fileData = new Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($file['name']);
+			$fileData->setTitle($humanName);
 
 			// trying to upload file
 			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
