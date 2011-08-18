@@ -181,7 +181,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				'foldersSelectable': true,
 				'filesSelectable': false,
 				'imagesSelectable': false,
-				'downloadURI': this.getDataPath('download'),
+				'downloadURI': Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME) + '/' + ('download'),
 				'viewURI': this.getDataPath('view'),
 				'listURI': this.getDataPath('list'),
 				'saveURI': this.getDataPath('save'),

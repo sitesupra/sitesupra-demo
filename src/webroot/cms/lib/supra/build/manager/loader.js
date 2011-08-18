@@ -456,6 +456,17 @@ YUI.add('supra.manager-loader', function (Y) {
 		},
 		
 		/**
+		 * Returns external action base path
+		 *
+		 * @param {String} id Action name
+		 * @return Action base path
+		 * @type {String}
+		 */
+		getActionBasePath: function (action_name /* Action name */) {
+			return this.paths[action_name] || this.base;
+		},
+		
+		/**
 		 * Set multiple action base paths 
 		 * 
 		 * @param {Object} actions
