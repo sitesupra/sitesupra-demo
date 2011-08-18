@@ -44,15 +44,29 @@ abstract class CmsAction extends SimpleController
 	}
 	
 	/**
+	 * If the request parameter was sent
 	 * @param string $key
 	 * @return boolean
 	 */
 	protected function hasRequestParameter($key)
 	{
 		$value = $this->getRequestParameter($key);
-		$exists = ! is_null($value);
+		$exists = ($value != '');
 		
 		return $exists;
+	}
+	
+	/**
+	 * Tells if request value is empty (not sent or empty value)
+	 * @param string $key
+	 * @return boolean
+	 */
+	protected function emptyRequestParameter($key)
+	{
+		$value = $this->getRequestParameter($key);
+		$empty = empty($value);
+		
+		return $empty;
 	}
 	
 	/**

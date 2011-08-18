@@ -2,9 +2,12 @@
 
 namespace Supra\ObjectRepository;
 
+use Doctrine\ORM\EntityManager;
+use Supra\FileStorage\FileStorage;
+use Supra\Log\Writer\WriterInterface;
+
 /**
  * Object repository
- *
  */
 class ObjectRepository
 {
@@ -26,7 +29,7 @@ class ObjectRepository
 	/**
 	 * Get object of specified interface assigned to caller class
 	 *
-	 * @param object/string $callerClass
+	 * @param mixed $callerClass
 	 * @param string $interfaceName
 	 * @return object
 	 */
@@ -49,7 +52,7 @@ class ObjectRepository
 	/**
 	 * Assign object of its own class to caller class
 	 *
-	 * @param object/string $caller
+	 * @param mixed $caller
 	 * @param object $object 
 	 * @param string $interfaceName
 	 */
@@ -61,7 +64,7 @@ class ObjectRepository
 	/**
 	 * Set default assigned object of its class
 	 *
-	 * @param type $object 
+	 * @param mixed $object 
 	 * @param string $interfaceName
 	 */
 	public static function setDefaultObject($object, $interfaceName)
@@ -72,8 +75,8 @@ class ObjectRepository
 	/**
 	 * Get assigned logger
 	 *
-	 * @param string/object $caller
-	 * @return \Supra\Log\Writer\WriterInterface
+	 * @param mixed $caller
+	 * @return WriterInterface
 	 */
 	public static function getLogger($caller)
 	{
@@ -91,10 +94,10 @@ class ObjectRepository
 	/**
 	 * Assign logger instance to caller class
 	 *
-	 * @param string/object $caller
-	 * @param object $object 
+	 * @param mixed $caller
+	 * @param WriterInterface $object 
 	 */
-	public static function setLogger($caller, $object)
+	public static function setLogger($caller, WriterInterface $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_LOGGER);
 	}
@@ -102,9 +105,9 @@ class ObjectRepository
 	/**
 	 * Set default logger
 	 *
-	 * @param object $object 
+	 * @param WriterInterface $object 
 	 */
-	public static function setDefaultLogger($object)
+	public static function setDefaultLogger(WriterInterface $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOGGER);
 	}
@@ -112,8 +115,8 @@ class ObjectRepository
 	/**
 	 * Get entity manager assigned to caller class
 	 *
-	 * @param string/object $caller
-	 * @return object
+	 * @param mixed $caller
+	 * @return EntityManager
 	 */
 	public static function getEntityManager($caller)
 	{
@@ -123,10 +126,10 @@ class ObjectRepository
 	/**
 	 * Assign entity manager instance to caller class
 	 *
-	 * @param object/string $caller
-	 * @param object $object 
+	 * @param mixed $caller
+	 * @param EntityManager $object 
 	 */
-	public static function setEntityManager($caller, $object)
+	public static function setEntityManager($caller, EntityManager $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_ENTITY_MANAGER);
 	}
@@ -134,9 +137,9 @@ class ObjectRepository
 	/**
 	 * Set default entity manager
 	 *
-	 * @param type $object 
+	 * @param EntityManager $object 
 	 */
-	public static function setDefaultEntityManager($object)
+	public static function setDefaultEntityManager(EntityManager $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_ENTITY_MANAGER);
 	}
@@ -144,8 +147,8 @@ class ObjectRepository
 	/**
 	 * Get assigned file storage
 	 *
-	 * @param string/object $caller
-	 * @return object
+	 * @param mixed $caller
+	 * @return FileStorage
 	 */
 	public static function getFileStorage($caller)
 	{
@@ -155,10 +158,10 @@ class ObjectRepository
 	/**
 	 * Assign file storage instance to caller class
 	 *
-	 * @param string/object $caller
-	 * @param object $object 
+	 * @param mixed $caller
+	 * @param FileStorage $object 
 	 */
-	public static function setFileStorage($caller, $object)
+	public static function setFileStorage($caller, FileStorage $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_FILE_STORAGE);
 	}
@@ -166,9 +169,9 @@ class ObjectRepository
 	/**
 	 * Set default file storage
 	 *
-	 * @param object $object 
+	 * @param FileStorage $object 
 	 */
-	public static function setDefaultFileStorage($object)
+	public static function setDefaultFileStorage(FileStorage $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FILE_STORAGE);
 	}

@@ -43,7 +43,17 @@
 			
 			"localize": "Localize",
 			"download": "Download",
-			"edit": "Edit"
+			"edit": "Edit",
+			
+			"validation_error": {
+				"already_exists": "Element with this name already exists",
+				"not_allowed_extension": "File type is not allowed",
+				"invalid_name": "Name contains not allowed characers or starts with a dot or underscore",
+				"file_size": "File size exceeds the allowed limit",
+				"not_allowed_mime": "File type is not allowed",
+				"extension_rename": "File extension cannot be changed",
+				"image_to_file": "Image cannot be replaced with regular file and vice versa"
+			}
 		}
 	}
 }

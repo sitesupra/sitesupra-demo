@@ -8,6 +8,9 @@ use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity;
+use Doctrine\ORM\EntityManager;
+use Supra\Response\HttpResponse;
+use Supra\Response\JsonResponse;
 
 class MediaLibraryAction extends CmsAction
 {
@@ -15,6 +18,11 @@ class MediaLibraryAction extends CmsAction
 	 * @var FileStorage\FileStorage
 	 */
 	private $fileStorage;
+	
+	/**
+	 * @var EntityManager
+	 */
+	private $entityManager;
 	
 	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
@@ -42,13 +50,108 @@ class MediaLibraryAction extends CmsAction
 	}
 	
 	/**
-	 * Binds file storage instance
+	 * Binds file storage instance, entity manager
 	 */
 	public function execute()
 	{
 		$this->fileStorage = ObjectRepository::getFileStorage($this);
+		$this->entityManager = ObjectRepository::getEntityManager($this->fileStorage);
+	
+		// Handle exceptions
+		try {
+			
+			parent::execute();
+			
+		} catch (FileStorage\Exception\FileStorageException $exception) {
+			
+			$response = $this->getResponse();
+			if ( ! $response instanceof JsonResponse) {
+				throw $exception;
+			}
+			
+			// Catching all FileStorage exceptions and passing them to MediaLibrary UI
+			if ($exception instanceof FileStorage\Exception\LocalizedException) {
+				$messageKey = $exception->getMessageKey();
+
+				if ( ! empty($messageKey)) {
+					$messageKey = '{#' . $messageKey . '#}';
+					$response->setErrorMessage($messageKey);
+
+					return;
+				}
+			}
+
+			$response->setErrorMessage($exception->getMessage());
+		} catch (MedialibraryException $exception) {
+			
+			$response = $this->getResponse();
+			if ( ! $response instanceof JsonResponse) {
+				throw $exception;
+			}
+			
+			//TODO: Localize
+			$message = $exception->getMessage();
+			$response->setErrorMessage($message);
+		}
+	}
+	
+	/**
+	 * @return Entity\Abstraction\File
+	 */
+	private function getRequestedEntity($key, $className)
+	{
+		if ( ! $this->hasRequestParameter($key)) {
+			throw new MedialibraryException('File ID has not been sent');
+		}
 		
-		parent::execute();
+		$id = $this->getRequestParameter($key);
+		$file = $this->entityManager->find($className, $id);
+		
+		if (is_null($file)) {
+			throw new MedialibraryException('Requested file does not exist anymore');
+		}
+		
+		return $file;
+	}
+	
+	/**
+	 * @return Entity\Abstraction\File
+	 */
+	private function getEntity($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Abstraction\File');
+		
+		return $file;
+	}
+	
+	/**
+	 * @return Entity\File
+	 */
+	private function getFile($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\File');
+		
+		return $file;
+	}
+	
+	/**
+	 * @return Entity\Folder
+	 */
+	private function getFolder($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Folder');
+		
+		return $file;
+	}
+	
+	/**
+	 * @return Entity\Image
+	 */
+	private function getImage($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Image');
+		
+		return $file;
 	}
 
 	/**
@@ -56,25 +159,24 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function listAction()
 	{
-		$em = ObjectRepository::getEntityManager($this->fileStorage);
+		$rootNodes = array();
 
-		// TODO: currently FileRepository is not assigned to the file abstraction
 		// FIXME: store the classname as constant somewhere?
 		/* @var $repo FileRepository */
-		$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-		$rootNodes = $repo->getRootNodes();
+		$repo = $this->entityManager->getRepository('Supra\FileStorage\Entity\Abstraction\File');
 
 		$output = array();
 
 		// if parent dir is set then we set folder as rootNode
-		if ( ! empty($_GET['id'])) {
-			$id = $_GET['id'];
-			$node = $repo->findOneById($id);
+		if ( ! $this->emptyRequestParameter('id')) {
+			$node = $this->getFolder('id');
 			$rootNodes = $node->getChildren();
+		} else {
+			$rootNodes = $repo->getRootNodes();
 		}
 
 		foreach ($rootNodes as $rootNode) {
-
+			/* @var $rootNode Entity\Abstraction\File */
 			$item = array();
 
 			$item['id'] = $rootNode->getId();
@@ -98,28 +200,17 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function viewAction()
 	{
-		if ( ! empty($_GET['id'])) {
-			$id = $_GET['id'];
+		$node = $this->getFile();
 
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
+		$nodeOutput = $this->imageAndFileOutput($node);
+		$output = array($nodeOutput);
 
-			// TODO: currently FileRepository is not assigned to the file abstraction
-			// FIXME: store the classname as constant somewhere?
-			/* @var $repo FileRepository */
-			$repo = $em->getRepository('Supra\FileStorage\Entity\File');
-			/* @var $node Entity\File */
-			$node = $repo->findOneById($id);
+		$return = array(
+			'totalRecords' => count($output),
+			'records' => $output,
+		);
 
-			$nodeOutput = $this->imageAndFileOutput($node);
-			$output = array($nodeOutput);
-
-			$return = array(
-				'totalRecords' => count($output),
-				'records' => $output,
-			);
-
-			$this->getResponse()->setResponseData($return);
-		}
+		$this->getResponse()->setResponseData($return);
 	}
 
 	/**
@@ -127,51 +218,34 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function insertAction()
 	{
-		if ( ! empty($_POST['title'])) {
-
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
-
-			$dir = new Entity\Folder();
-			// FIXME: should doctrine entity manager be as file stogare parameter?
-
-			$dirName = $_POST['title'];
-
-			$em->persist($dir);
-			$dir->setFileName($dirName);
-
-			// Adding child folder if parent exists
-			if ( ! empty($_POST['parent'])) {
-
-				$folderId = $_POST['parent'];
-
-				// TODO: currently FileRepository is not assigned to the file abstraction
-				// FIXME: store the classname as constant somewhere?
-				/* @var $repo FileRepository */
-				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-				/* @var $node Entity\File */
-				$folder = $repo->findOneById($folderId);
-
-				if ( ! empty($folder)) {
-					$folder->addChild($dir);
-				} else {
-					throw new MedialibraryException('Parent folder entity not found');
-				}
-			}
-
-			// trying to create folder
-			try {
-				$this->fileStorage->createFolder($dir);
-			} catch (FileStorage\Exception\FileStorageException $exception) {
-				$this->handleException($exception);
-				
-				return;
-			}
+		$this->isPostRequest();
+		
+		if ( ! $this->hasRequestParameter('title')) {
+			$this->getResponse()
+					->setErrorMessage('Title was not sent');
 			
-			$em->flush();
-
-			$insertedId = $dir->getId();
-			$this->getResponse()->setResponseData($insertedId);
+			return;
 		}
+		
+		$dir = new Entity\Folder();
+		$this->entityManager->persist($dir);
+		
+		$dirName = $this->getRequestParameter('title');
+		$dir->setFileName($dirName);
+
+		// Adding child folder if parent exists
+		if ( ! $this->emptyRequestParameter('parent')) {
+			$folder = $this->getFolder('parent');
+			$folder->addChild($dir);
+		}
+
+		// trying to create folder
+		$this->fileStorage->createFolder($dir);
+
+		$this->entityManager->flush();
+
+		$insertedId = $dir->getId();
+		$this->getResponse()->setResponseData($insertedId);
 	}
 
 	/**
@@ -179,81 +253,43 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function saveAction()
 	{
-		if ( ! empty($_POST['id'])) {
+		$this->isPostRequest();
+		$title = $this->getRequestParameter('title');
+		$file = $this->getEntity();
 
+		// find out with what we are working now with file or folder
+		if ($file instanceof Entity\Folder) {
 
-			// FIXME: should doctrine entity manager be as file stogare parameter?
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
+			if ( ! $this->hasRequestParameter('title')) {
+				$this->getResponse()
+						->setErrorMessage('Title is no provided');
 
-			// TODO: currently FileRepository is not assigned to the file abstraction
-			// FIXME: store the classname as constant somewhere?
-			/* @var $repo FileRepository */
-			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-			/* @var $folder Entity\File */
-			$file = $repo->findOneById($_POST['id']);
+				return;
+			}
+			
+			// if is set folders new title we rename folder
+			$this->fileStorage->renameFolder($file, $title);
 
-			// find out with what we are working now with file or folder
-			if ($file instanceof Entity\Folder) {
+		} else if ($file instanceof Entity\File) {
 
-				// if is set folders new title we rename folder
-				try {
-					if (isset($_POST['title'])) {
-						$title = $_POST['title'];
-					} else {
-						throw new MedialibraryException('Folder title isn\'t set');
-					}
-				} catch (MedialibraryException $exc) {
-					$this->getResponse()->setErrorMessage($exc->getMessage());
-					return;
-				}
+			//TODO: localization (title)
 
-				// trying to rename folder. Catching all FileStorage and Validation exceptions
-				// and passing them to MediaLibrary UI
-				try {
-					$this->fileStorage->renameFolder($file, $title);
-				} catch (FileStorage\Exception\FileStorageException $exception) {
-					$this->handleException($exception);
-					
-					return;
-				}
-				
-			} else if ($file instanceof Entity\File) {
+			if ( ! $this->hasRequestParameter('filename')) {
+				$this->getResponse()
+						->setErrorMessage('No filename has been provided');
 
-				try {
-
-					if (isset($_POST['title'])) {
-						// TODO: Localization?
-						$this->getResponse()->setResponseData(null);
-						return;
-					} else if (isset($_POST['filename'])) {
-
-						$filename = $_POST['filename'];
-
-						// trying to rename file. Catching all FileStorage and Validation exceptions
-						// and passing them to MediaLibrary UI
-						try {
-							$this->fileStorage->renameFile($file, $filename);
-						} catch (FileStorage\Exception\FileStorageException $exception) {
-							$this->handleException($exception);
-							return;
-						}
-					} else {
-						throw new MedialibraryException('File name isn\'t set');
-					}
-				} catch (MedialibraryException $exc) {
-					$this->getResponse()->setErrorMessage($message);
-					return;
-				}
-			} else {
-				throw new MedialibraryException('Wrong entity passed');
+				return;
 			}
 
-			// flushing results to database
-			$em->flush();
+			$fileName = $this->getRequestParameter('filename');
 
-			$fileId = $file->getId();
-			$this->getResponse()->setResponseData($fileId);
+			// trying to rename file. Catching all FileStorage and Validation exceptions
+			// and passing them to MediaLibrary UI
+			$this->fileStorage->renameFile($file, $fileName);
 		}
+
+		$fileId = $file->getId();
+		$this->getResponse()->setResponseData($fileId);
 	}
 
 	/**
@@ -261,32 +297,15 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function deleteAction()
 	{
+		$this->isPostRequest();
+		$file = $this->getEntity();
 
-		if ( ! empty($_POST['id'])) {
-			$recordId = $_POST['id'];
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
-			/* @var $repo FileRepository */
-			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-			/* @var $node Entity\File */
-			$record = $repo->findOneById($recordId);
-
-			if ( ! empty($record)) {
-
-				try {
-					// try to delete
-					$this->fileStorage->remove($record);
-				} catch (FileStorage\Exception\FileStorageException $exception) {
-					$this->handleException($exception);
-					return;
-				}
-
-				$em->flush();
-
-				$this->getResponse()->setResponseData(null);
-			} else {
-				$this->getResponse()->setErrorMessage('Cant find record with such id');
-			}
+		if (is_null($file)) {
+			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
 		}
+
+		// try to delete
+		$this->fileStorage->remove($file);
 	}
 
 	/**
@@ -294,36 +313,17 @@ class MediaLibraryAction extends CmsAction
 	 */
 	public function uploadAction()
 	{
+		$this->isPostRequest();
+		
 		// FIXME: should doctrine entity manager be as file stogare parameter?
-
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
 
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
-
 			// checking for replace action
-			if (isset($_POST['file_id'])) {
-				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-				/* @var $node Entity\File */
-				$fileToReplace = $repo->findOneById($_POST['file_id']);
-
-				if ( ! empty($fileToReplace) && ($fileToReplace instanceof FileStorage\Entity\File)) {
-
-					$em->persist($fileToReplace);
-
-					try {
-						$this->fileStorage->replaceFile($fileToReplace, $file);
-					} catch (FileStorage\Exception\FileStorageException $exception) {
-						$this->handleException($exception);
-						return;
-					} catch (\Exception $exc) {
-						\Log::error($exc->getMessage());
-						return;
-					}
-
-					$em->flush();
-				}
+			if ($this->hasRequestParameter('file_id')) {
+				$fileToReplace = $this->getFile('file_id');
+				$this->fileStorage->replaceFile($fileToReplace, $file);
 
 				$output = $this->imageAndFileOutput($fileToReplace);
 
@@ -338,29 +338,16 @@ class MediaLibraryAction extends CmsAction
 			} else {
 				$fileEntity = new Entity\File();
 			}
-			$em->persist($fileEntity);
+			$this->entityManager->persist($fileEntity);
 
 			$fileEntity->setFileName($file['name']);
 			$fileEntity->setSize($file['size']);
 			$fileEntity->setMimeType($file['type']);
 
 			// adding file as folders child if parent folder is set
-			if ( ! empty($_POST['folder'])) {
-
-				$folderId = $_POST['folder'];
-
-				// TODO: currently FileRepository is not assigned to the file abstraction
-				// FIXME: store the classname as constant somewhere?
-				/* @var $repo FileRepository */
-				$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-				/* @var $node Entity\File */
-				$folder = $repo->findOneById($folderId);
-
-				if ( ! empty($folder)) {
-					$folder->addChild($fileEntity);
-				} else {
-					throw new MedialibraryException('Parent folder entity not found');
-				}
+			if ($this->hasRequestParameter('folder')) {
+				$folder = $this->getFolder('folder');
+				$folder->addChild($fileEntity);
 			}
 
 			// file metadata
@@ -369,159 +356,118 @@ class MediaLibraryAction extends CmsAction
 			$fileData->setTitle($file['name']);
 
 			// trying to upload file
-			try {
-				$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
-				// additional jobs for images
-				if ($fileEntity instanceof Entity\Image) {
-					// store original size
-					$imageProcessor = new ImageProcessor\ImageResizer();
-					$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($fileEntity));
-					$fileEntity->setWidth($imageInfo['width']);
-					$fileEntity->setHeight($imageInfo['height']);
-					// create preview
-					$this->fileStorage->createResizedImage($fileEntity, 200, 200);
-				}
-			} catch (FileStorage\Exception\FileStorageException $exception) {
-				$this->handleException($exception);
-				return;
+			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			
+			// additional jobs for images
+			if ($fileEntity instanceof Entity\Image) {
+				// store original size
+				$imageProcessor = new ImageProcessor\ImageResizer();
+				$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($fileEntity));
+				$fileEntity->setWidth($imageInfo['width']);
+				$fileEntity->setHeight($imageInfo['height']);
+				// create preview
+				$this->fileStorage->createResizedImage($fileEntity, 200, 200);
 			}
 
-			$em->flush();
+			$this->entityManager->flush();
 
 			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity);
 
 			$this->getResponse()->setResponseData($output);
 		} else {
+			
+			$message = 'Error uploading the file';
+			
 			//TODO: Separate messages to UI and to logger
-			$this->getResponse()->setErrorMessage($this->fileStorage->fileUploadErrorMessages[$_FILES['error']]);
+			if ( ! empty($_FILES['file']['error']) && isset($this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']])) {
+				$message = $this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']];
+			}
+			
+			$this->getResponse()->setErrorMessage($message);
 		}
 	}
 
+	/**
+	 * Pass file contents to download
+	 */
 	public function downloadAction()
 	{
-		if ( ! empty($_GET['id'])) {
+		$this->response = new HttpResponse();
+		
+		$file = $this->getFile();
 
-			$fileId = intval($_GET['id']);
+		// The file cache must be unique if "timestamp" hash is returned
+		// TODO: Not modified
+		$timestamp = null;
+		if ( ! empty($timestamp)) {
+			header('Pragma: private');
+			header("Expires: " . date('r', strtotime('+1 year')));
+			header('Cache-Control: private');
 
-			$em = ObjectRepository::getEntityManager($this->fileStorage);
-
-			// TODO: currently FileRepository is not assigned to the file abstraction
-			// FIXME: store the classname as constant somewhere?
-			/* @var $repo FileRepository */
-			$repo = $em->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-			/* @var $folder Entity\File */
-			$file = $repo->findOneById($fileId);
-
-			if (empty($file) || ! ($file instanceof FileStorage\Entity\File)) {
-				echo '404';
-				// TODO: throw new Exception\ResourceNotFoundException
+			if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+				header("HTTP/1.1 304 Not Modified");
+				return;
 			}
-
-			// The file cache must be unique if "timestamp" hash is returned
-			// TODO: Not modified
-			$timestamp = null;
-			if ( ! empty($timestamp)) {
-				header('Pragma: private');
-				header("Expires: " . date('r', strtotime('+1 year')));
-				header('Cache-Control: private');
-
-				if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-					header("HTTP/1.1 304 Not Modified");
-					return;
-				}
-			} else {
-				header("Expires: 0");
-				header("Cache-Control: private, must-revalidate");
-			}
-
-			$content = $this->fileStorage->getFileContent($file);
-
-			$mimeType = $file->getMimeType();
-			$fileName = $file->getFileName();
-
-			if ( ! empty($mimeType)) {
-				header('Content-type: ' . $mimeType);
-			}
-
-			header('Content-Disposition: attachment; filename="' . $fileName . '"');
-			header("Content-Transfer-Encoding: binary");
-			header("Content-Length: " . strlen($content));
-
-			echo $content;
+		} else {
+			header("Expires: 0");
+			header("Cache-Control: private, must-revalidate");
 		}
+
+		$content = $this->fileStorage->getFileContent($file);
+
+		$mimeType = $file->getMimeType();
+		$fileName = $file->getFileName();
+
+		if ( ! empty($mimeType)) {
+			header('Content-type: ' . $mimeType);
+		}
+
+		header('Content-Disposition: attachment; filename="' . $fileName . '"');
+		header("Content-Transfer-Encoding: binary");
+		header("Content-Length: " . strlen($content));
+
+		$this->response->output($content);
 	}
 
+	/**
+	 * Image rotate
+	 */
 	public function imagerotateAction()
 	{
-		if ( ! empty($_POST['id'])) {
-			$entityManager = ObjectRepository::getEntityManager($this->fileStorage);
-			$fileRepository = 
-					$entityManager->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-			$file = $fileRepository->findOneById($_POST['id']);
+		$this->isPostRequest();
+		$file = $this->getImage();
 
-			if ($file instanceof Entity\Image) {
+		if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
+			$rotationCount = - intval($_POST['rotate'] / 90);
+			$this->fileStorage->rotateImage($file, $rotationCount);
+		}
 
-				try {
-					if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
-						$rotationCount = - intval($_POST['rotate'] / 90);
-						$this->fileStorage->rotateImage($file, $rotationCount);
-					}
-
-				} catch (\Supra\FileStorage\Exception\FileStorageException $e) {
-					$this->getResponse()->setErrorMessage('Image processing error: ' . $e->getMessage());
-					return;
-				}
-				
-			} else {
-				$this->getResponse()->setErrorMessage('Could not perform action on non-image file');
-				return;
-			}
-
-			$entityManager->flush();
-			
-			$fileData = $this->imageAndFileOutput($file);
-			$this->getResponse()->setResponseData($fileData);
-		}	
+		$fileData = $this->imageAndFileOutput($file);
+		$this->getResponse()->setResponseData($fileData);
 	}
 
+	/**
+	 * Image crop
+	 */
 	public function imagecropAction()
 	{
-		if ( ! empty($_POST['id'])) {
-			$entityManager = ObjectRepository::getEntityManager($this->fileStorage);
-			$fileRepository = 
-					$entityManager->getRepository('Supra\FileStorage\Entity\Abstraction\File');
-			$file = $fileRepository->findOneById($_POST['id']);
+		$this->isPostRequest();
+		$file = $this->getImage('id');
 
-			if ($file instanceof Entity\Image) {
-
-				try {
-					if (isset($_POST['crop']) && is_array($_POST['crop'])) {
-						$crop = $_POST['crop'];
-						if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
-							$left = intval($crop['left']);
-							$top = intval($crop['top']);
-							$width = intval($crop['width']);
-							$height = intval($crop['height']);
-							$this->fileStorage->cropImage($file, $left, $top, $width, $height);
-						}
-					}
-
-				} catch (\Supra\FileStorage\Exception\FileStorageException $e) {
-					$this->getResponse()->setErrorMessage('Image processing error: ' . $e->getMessage());
-					return;
-				}
-				
-			} else {
-				$this->getResponse()->setErrorMessage('Could not perform action on non-image file');
-				return;
+		if (isset($_POST['crop']) && is_array($_POST['crop'])) {
+			$crop = $_POST['crop'];
+			if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
+				$left = intval($crop['left']);
+				$top = intval($crop['top']);
+				$width = intval($crop['width']);
+				$height = intval($crop['height']);
+				$this->fileStorage->cropImage($file, $left, $top, $width, $height);
 			}
+		}
 
-			$entityManager->flush();
-
-			$fileData = $this->imageAndFileOutput($file);
-			$this->getResponse()->setResponseData($fileData);
-		}			
+		$fileData = $this->imageAndFileOutput($file);
+		$this->getResponse()->setResponseData($fileData);
 	}
 
 	/**
@@ -575,26 +521,6 @@ class MediaLibraryAction extends CmsAction
 		}
 
 		return $output;
-	}
-
-	/**
-	 * Sets correct response error message
-	 * @param FileStorage\FileStorageException $exception
-	 */
-	private function handleException(FileStorage\FileStorageException $exception)
-	{
-		if ($exception instanceof FileStorage\Exception\LocalizedException) {
-			$messageKey = $exception->getMessageKey();
-
-			if ( ! empty($messageKey)) {
-				$messageKey = '{#' . $messageKey . '#}';
-				$this->getResponse()->setErrorMessage($messageKey);
-				
-				return;
-			}
-		}
-		
-		$this->getResponse()->setErrorMessage($exception->getMessage());
 	}
 
 }

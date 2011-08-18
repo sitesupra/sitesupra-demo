@@ -866,6 +866,8 @@ class FileStorage
 			// reprocess sizes
 			$this->recreateImageSizes($fileEntity);
 		}
+		
+		$this->entityManager->flush();
 	}
 
 	/**
@@ -893,7 +895,7 @@ class FileStorage
 	 */
 	public function remove(Entity\Abstraction\File $entity)
 	{
-		if($entity instanceof Entity\Folder) {
+		if ($entity instanceof Entity\Folder) {
 			$hasChildren = $entity->hasChildren();
 			if ($hasChildren) {
 				throw new Exception\RuntimeException('You can remove only empty folders');
@@ -904,7 +906,7 @@ class FileStorage
 			$this->removeFile($entity);
 			
 		} else {
-			throw new Exception\LogicException('Wrong exception passed');
+			throw new Exception\LogicException('Not recognized file type passed: ' . get_class($entity));
 		}
 	}
 	
@@ -916,6 +918,7 @@ class FileStorage
 	{
 		$this->removeFolderInFileSystem($folder);
 		$this->entityManager->remove($folder);
+		$this->entityManager->flush();
 	}
 	
 	/**
@@ -943,5 +946,6 @@ class FileStorage
 	{
 		$this->removeFileInFileSystem($file);
 		$this->entityManager->remove($file);
+		$this->entityManager->flush();
 	}
 }
