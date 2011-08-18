@@ -24,6 +24,10 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 		foreach ($siblings as $record) {
 			if ( ! $record->equals($entity)) {
 				$recordName = $record->getFileName();
+				
+				$creatingFilename = mb_strtolower($creatingFilename);
+				$recordName = mb_strtolower($recordName);
+
 				if ($creatingFilename == $recordName) {
 					$message = $typeName . ' with this name already exists.';
 					\Log::info($message);

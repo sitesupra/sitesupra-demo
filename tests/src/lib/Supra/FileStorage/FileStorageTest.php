@@ -167,6 +167,21 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->fail('Test overwrited folder. FileStorage\Exception\RuntimeException should be thrown');
 	}
 
+	public function testCreateExistentFolderWithDifferentCases()
+	{
+		$this->cleanUp(true);
+
+		$this->createFolder('testDir');
+
+		try {
+			$this->createFolder('TestDir');
+		} catch (Exception\UploadFilterException $e) {
+			return;
+		}
+
+		$this->fail('Test overwrited folder. FileStorage\Exception\RuntimeException should be thrown');
+	}
+	
 	public function testCreateInvalidFolderWithSymbol()
 	{
 		$this->cleanUp();
