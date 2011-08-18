@@ -178,34 +178,36 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				
 				post_data = {
 					//New parent ID
-					'parent': drop_id,
+					'parent_id': drop_id,
 					//Item ID before which drag item was inserted
-					'reference': '',
+					'reference_id': '',
 					//Dragged item ID
-					'page': drag_id
+					'page_id': drag_id,
+					
+					//Locale
+					'locale': this.languagebar.get('locale')
 				};
 			
 			if (position == 'before') {
 				var parent = target.get('parent');
 				parent = parent ? parent.get('data').id : 0;
 				
-				post_data.reference = drop_id;
-				post_data.parent = parent;
+				post_data.reference_id = drop_id;
+				post_data.parent_id = parent;
 			} else if (position == 'after') {
 				var parent = target.get('parent');
 				parent = parent ? parent.get('data').id : 0;
 				
 				var ref = target.next(); 
 				if (ref) {
-					post_data.reference = ref.get('data').id;
+					post_data.reference_id = ref.get('data').id;
 				}
 				
-				post_data.parent = parent;
+				post_data.parent_id = parent;
 			}
 			
 			//Send request
-			var uri = this.getDataPath('move'),
-				old;
+			var uri = this.getDataPath('move');
 			
 			Supra.io(uri, {
 				'data': post_data,
