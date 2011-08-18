@@ -130,6 +130,10 @@
 	right: 0;
 	bottom: 0;
 }
+.yui3-sidebar-content-scrollable {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
 
 /* Footer */
 .yui3-sidebar-footer {

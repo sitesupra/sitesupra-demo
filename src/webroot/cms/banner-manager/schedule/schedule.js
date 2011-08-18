@@ -85,14 +85,9 @@ SU('supra.calendar', function (Y) {
 		render: function () {
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					
-					var node = Manager.LayoutRightContainer.get('boundingBox')
-					
 					if (evt.newVal) {
-						node.addClass('yui3-right-container-schedule');
 						this.one().removeClass('hidden');
 					} else {
-						node.removeClass('yui3-right-container-schedule');
 						this.one().addClass('hidden');
 					}
 				}
@@ -105,7 +100,7 @@ SU('supra.calendar', function (Y) {
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
 			
-			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove').item(0), 'style': 'mid'});
+			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove-schedule').item(0), 'style': 'mid'});
 			this.button_remove.render();
 			this.button_remove.on('click', this.cancel, this);
 			
@@ -183,12 +178,18 @@ SU('supra.calendar', function (Y) {
 			
 			this.data = data;
 			
+			this.calendarFrom.set('noAnimations', true);
+			this.calendarTo.set('noAnimations', true);
+			
 			this.calendarFrom.set('date', data.from);
 			this.calendarFrom.set('displayDate', data.from);
 			
 			this.calendarTo.set('minDate', data.from);
 			this.calendarTo.set('date', data.to);
 			this.calendarTo.set('displayDate', data.to);
+			
+			this.calendarFrom.set('noAnimations', false);
+			this.calendarTo.set('noAnimations', false);
 		},
 		
 		getData: function () {

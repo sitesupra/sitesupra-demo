@@ -78,7 +78,14 @@ YUI.add("supra.calendar", function (Y) {
 		'maxDate': {
 			value: null,
 			setter: '_setMaxDate'
-		}
+		},
+		
+		/**
+		 * Don't use animations
+		 */
+		'noAnimations': {
+			value: false
+		},
 	};
 	
 	Calendar.HTML_PARSER = {
@@ -151,7 +158,7 @@ YUI.add("supra.calendar", function (Y) {
 			//Redraw when display date changes
 			this.after('displayDateChange', this.onDisplayDateChange, this);
 			
-			//Create animation
+			//Create animation 
 			this.anim = new Y.Anim({
 				node: bodyNode,
 			    duration: 0.1,
@@ -176,9 +183,18 @@ YUI.add("supra.calendar", function (Y) {
 		
 		onDisplayDateChange: function (e) {
 			if (e.prevVal.getFullYear() != e.newVal.getFullYear() || e.prevVal.getMonth() != e.newVal.getMonth()) {
-				this.animDir = e.newVal.getTime() > e.prevVal.getTime() ? -1 : 1;
-				this.anim.set('to', {opacity: 0, left: this.animDir * 16});
-				this.anim.run();
+				
+				if (!this.get('noAnimations')) {
+					this.animDir = e.newVal.getTime() > e.prevVal.getTime() ? -1 : 1;
+					this.anim.set('to', {opacity: 0, left: this.animDir * 16});
+					this.anim.run();
+				} else {
+					this.syncUI();
+					this.anim.get('node').setStyles({
+						'left': 0,
+						'opacity': 1
+					});
+				}
 			}
 		},
 		

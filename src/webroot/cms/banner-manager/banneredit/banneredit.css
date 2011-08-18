@@ -27,7 +27,7 @@
 
 .banner .preview-vertical {
 	position: absolute;
-	right: 30px;
+	left: 30px;
 	top: 0;
 	bottom: 30px;
 	max-width: 200px;
@@ -38,9 +38,10 @@
  * Stats
  */
 .banner .stats {
-	float: left;
-	width: 30%;
-	padding: 30px 0 0 5%;
+	width: 290px;
+	margin: 10px auto;
+	padding: 15px 15px 10px;
+	border-top: 1px solid #eee;
 }
 .banner .stats h3 {
 	color: #777;
@@ -61,12 +62,13 @@
 /**
  * Form
  */
-.banner form {
+.banner .yui3-form {
 	width: 300px;
-	float: left;
-	margin: 20px 0 0;
+	margin: 20px auto 0;
 }
-
+.banner form {
+	margin: 0;
+}
 
 .banner .input-group {
 	position: relative;
