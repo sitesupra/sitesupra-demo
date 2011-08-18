@@ -4,6 +4,7 @@ namespace Supra\Cms\MediaLibrary;
 
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Common MediaLibrary action
@@ -35,14 +36,14 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	protected function getRequestedEntity($key, $className)
 	{
 		if ( ! $this->hasRequestParameter($key)) {
-			throw new MedialibraryException('File ID has not been sent');
+			throw new CmsException('medialibrary.validation_error.file_id_not_provided');
 		}
 		
 		$id = $this->getRequestParameter($key);
 		$file = $this->entityManager->find($className, $id);
 		
 		if (is_null($file)) {
-			throw new MedialibraryException('Requested file does not exist anymore');
+			throw new CmsException('medialibrary.validation_error.file_not_exists');
 		}
 		
 		return $file;

@@ -175,6 +175,8 @@
 			"edit": "Edit",
 			
 			"validation_error": {
+				"file_id_not_provided": "File ID has not been provided",
+				"file_not_exists": "Requested file does not exist",
 				"already_exists": "Element with this name already exists",
 				"not_allowed_extension": "File type is not allowed",
 				"invalid_name": "Name contains not allowed characers or starts with a dot or underscore",

@@ -1,27 +1,21 @@
 <?php
 
-namespace Supra\FileStorage\Exception;
+namespace Supra\Cms\Exception;
 
 use Supra\Exception\LocalizedException;
 
 /**
- * Thrown on upload filter exception
+ * CMS localized exception
  */
-class UploadFilterException extends RuntimeException implements LocalizedException
+class CmsException extends \RuntimeException implements LocalizedException
 {
-	/**
-	 * CMS localization error message
-	 * @var string
-	 */
 	private $messageKey;
 	
 	/**
 	 * @param string $messageKey
-	 * @param string $message 
 	 */
-	public function __construct($messageKey, $message = null)
+	public function __construct($messageKey)
 	{
-		parent::__construct($message);
 		$this->setMessageKey($messageKey);
 	}
 	
@@ -32,7 +26,7 @@ class UploadFilterException extends RuntimeException implements LocalizedExcepti
 	{
 		return $this->messageKey;
 	}
-
+	
 	/**
 	 * @param string $messageKey
 	 */

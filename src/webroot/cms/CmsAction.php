@@ -6,6 +6,7 @@ use Supra\Controller\SimpleController;
 use Supra\Response\JsonResponse;
 use Supra\Request;
 use Supra\Controller\Exception;
+use Supra\Exception\LocalizedException;
 
 /**
  * Description of CmsAction
@@ -19,6 +20,35 @@ abstract class CmsAction extends SimpleController
 	 * @var string
 	 */
 	private $requestMethod;
+	
+	/**
+	 * Localized error handling
+	 */
+	public function execute()
+	{
+		// Handle localized exceptions
+		try {
+			parent::execute();
+		} catch (LocalizedException $exception) {
+			
+			// No support for not Json actions
+			$response = $this->getResponse();
+			if ( ! $response instanceof JsonResponse) {
+				throw $exception;
+			}
+			
+			//TODO: should use exception "message" at all?
+			$message = $exception->getMessage();
+			$messageKey = $exception->getMessageKey();
+			
+			if ( ! empty($messageKey)) {
+				$message = '{#' . $messageKey . '#}';
+				$response->setErrorMessage($messageKey);
+			}
+
+			$response->setErrorMessage($message);
+		}
+	}
 	
 	/**
 	 * @return JsonResponse

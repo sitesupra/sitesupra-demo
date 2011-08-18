@@ -12,6 +12,7 @@ use Supra\Response\HttpResponse;
 use Supra\Response\JsonResponse;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
+use Supra\Exception\LocalizedException;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -38,49 +39,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 		
 		return $type;
-	}
-	
-	/**
-	 * Specific exception handling
-	 */
-	public function execute()
-	{
-		// Handle exceptions
-		try {
-			
-			parent::execute();
-			
-		} catch (FileStorage\Exception\FileStorageException $exception) {
-			
-			$response = $this->getResponse();
-			if ( ! $response instanceof JsonResponse) {
-				throw $exception;
-			}
-			
-			// Catching all FileStorage exceptions and passing them to MediaLibrary UI
-			if ($exception instanceof FileStorage\Exception\LocalizedException) {
-				$messageKey = $exception->getMessageKey();
-
-				if ( ! empty($messageKey)) {
-					$messageKey = '{#' . $messageKey . '#}';
-					$response->setErrorMessage($messageKey);
-
-					return;
-				}
-			}
-
-			$response->setErrorMessage($exception->getMessage());
-		} catch (MedialibraryException $exception) {
-			
-			$response = $this->getResponse();
-			if ( ! $response instanceof JsonResponse) {
-				throw $exception;
-			}
-			
-			//TODO: Localize
-			$message = $exception->getMessage();
-			$response->setErrorMessage($message);
-		}
 	}
 	
 	/**
@@ -244,7 +202,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$this->isPostRequest();
 		
-		// FIXME: should doctrine entity manager be as file stogare parameter?
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
@@ -279,29 +236,35 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$folder->addChild($fileEntity);
 			}
 			
-			// Could move to separate method, should be configurable
 			$humanName = $file['name'];
-			$extensionLength = strlen($fileEntity->getExtension());
 			
-			if ($extensionLength != 0) {
-				$extensionLength++;
-				$humanName = substr($humanName, 0, -$extensionLength);
+			// Could move to separate method, should be configurable
+			{
+				// Remove extension part
+				$extensionLength = strlen($fileEntity->getExtension());
+
+				if ($extensionLength != 0) {
+					$extensionLength++;
+					$humanName = substr($humanName, 0, -$extensionLength);
+				}
+
+				// Replace dots, underscores, space characters with space
+				$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
+
+				foreach ($humanNameSplit as &$humanNamePart) {
+					$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
+							. mb_substr($humanNamePart, 1);
+				}
+
+				// Implode back
+				$humanName = implode(' ', $humanNameSplit);
 			}
-			
-			$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
-			
-			foreach ($humanNameSplit as &$humanNamePart) {
-				$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
-						. mb_substr($humanNamePart, 1);
-			}
-			
-			$humanName = implode(' ', $humanNameSplit);
 
 			// file metadata
 			$fileData = new Entity\MetaData('en');
 			$fileData->setMaster($fileEntity);
 			$fileData->setTitle($humanName);
-
+			
 			// trying to upload file
 			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 			

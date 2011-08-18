@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\FileStorage\Exception;
+namespace Supra\Exception;
 
 /**
  * CMS exception with localization feature
