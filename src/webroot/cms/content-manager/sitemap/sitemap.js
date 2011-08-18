@@ -148,6 +148,9 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			this.flowmap.plug(SU.Tree.ExpandHistoryPlugin);
 			
+			//Page move
+			this.flowmap.on('drop', this.onPageMove, this);
+			
 			//New page
 			var new_page_node = this.one('.new-page-button');
 			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
@@ -164,6 +167,57 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				this.flowmap.set('selectedNode', null);
 				this.flowmap.set('selectedNode', this.flowmap.getNodeById(page.id));
 			}, this);
+		},
+		
+		onPageMove: function (event) {
+			var position = event.position,
+				drag_id = event.drag.id,
+				drop_id = event.drop.id,
+				source = this.flowmap.getNodeById(drag_id),
+				target = this.flowmap.getNodeById(drop_id),
+				
+				post_data = {
+					//New parent ID
+					'parent': drop_id,
+					//Item ID before which drag item was inserted
+					'reference': '',
+					//Dragged item ID
+					'page': drag_id
+				};
+			
+			if (position == 'before') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				post_data.reference = drop_id;
+				post_data.parent = parent;
+			} else if (position == 'after') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				var ref = target.next(); 
+				if (ref) {
+					post_data.reference = ref.get('data').id;
+				}
+				
+				post_data.parent = parent;
+			}
+			
+			//Send request
+			var uri = this.getDataPath('move'),
+				old;
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'context': this,
+				'on': {
+					'failure': function () {
+						//Revert changes
+						this.flowmap.reload();
+					}
+				}
+			})
 		},
 		
 		/**

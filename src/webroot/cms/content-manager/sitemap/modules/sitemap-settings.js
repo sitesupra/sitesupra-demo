@@ -186,11 +186,12 @@ YUI().add('website.sitemap-settings', function (Y) {
 						if (input_id == 'title') {
 							treenode.get('boundingBox').one('label').set('text', input_value);
 							treenode.syncUISize();
-							
-							var node_data = treenode.get('data');
-							node_data[input_id] = input_value;
-							this.host.property_data[input_id] = input_value;
 						}
+						
+						//Save data changes
+						var node_data = treenode.get('data');
+						node_data[input_id] = input_value;
+						this.host.property_data[input_id] = input_value;
 					}
 				}
 			}, this);

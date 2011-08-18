@@ -216,7 +216,6 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 						'isDropTarget': is_drop_target,
 						'isDragable': is_dragable
 					}, index);
-					
 					//Update new parent UI
 					target.syncUI();
 				});
