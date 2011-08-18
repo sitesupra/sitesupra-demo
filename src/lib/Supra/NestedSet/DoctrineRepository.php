@@ -151,71 +151,74 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function move(Node\NodeInterface $node, $pos, $levelDiff)
 	{
-		if ( ! $node instanceof Node\DoctrineNode) {
-			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
-		}
+		$className = $this->className;
+		$arrayHelper = $this->arrayHelper;
 		
-		// Decision was to remove the fush operation
-		// because it's the only place where lvl, lft, rgt are being changed.
-		//
-		// flush before update
-		//$this->entityManager->flush();
+		// Transactional because need to rollback in case of trigger failure
+		$this->entityManager->transactional(function($entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper) {
+			
+			if ( ! $node instanceof Node\DoctrineNode) {
+				throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
+			}
 
-		$left = $node->getLeftValue();
-		$right = $node->getRightValue();
-		$spaceUsed = $right - $left + 1;
-		$moveA = null;
-		$moveB = null;
-		$a = null;
-		$b = null;
-		$min = null;
-		$max = null;
-		
-		if ($pos > $left) {
-			$a = $right + 1;
-			$b = $pos - 1;
-			$moveA = $pos - $left - $spaceUsed;
-			$moveB = - $spaceUsed;
-			$min = $left;
-			$max = $pos - 1;
-		} else {
-			$a = $pos;
-			$b = $left - 1;
-			$moveA = $pos - $left;
-			$moveB = $spaceUsed;
-			$min = $pos;
-			$max = $right;
-		}
+			// Decision was to remove the fush operation
+			// because it's the only place where lvl, lft, rgt are being changed.
+			//
+			// flush before update
+//			$entityManager->flush();
 
-		// Using SQL because DQL does not support such format
-		// Will fail with SQL server implementation without function IF(cond, yes, no)
-		// NB! It's important to set "lvl" as first for MySQL
-		$dql = "UPDATE {$this->className} e
-				SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
-					e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
-					e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
-				WHERE e.left BETWEEN {$min} AND {$max}
-					OR e.right BETWEEN {$min} AND {$max}";
+			$left = $node->getLeftValue();
+			$right = $node->getRightValue();
+			$spaceUsed = $right - $left + 1;
+			$moveA = null;
+			$moveB = null;
+			$a = null;
+			$b = null;
+			$min = null;
+			$max = null;
 
-		//TODO: trigger some stuff...
-		//$this->
-		
-		$query = $this->entityManager->createQuery($dql);
-		$result = $query->execute();
+			if ($pos > $left) {
+				$a = $right + 1;
+				$b = $pos - 1;
+				$moveA = $pos - $left - $spaceUsed;
+				$moveB = - $spaceUsed;
+				$min = $left;
+				$max = $pos - 1;
+			} else {
+				$a = $pos;
+				$b = $left - 1;
+				$moveA = $pos - $left;
+				$moveB = $spaceUsed;
+				$min = $pos;
+				$max = $right;
+			}
 
-//		$connection = $this->entityManager->getConnection();
-//		$statement = $connection->prepare($sql);
-//		$result = $statement->execute();
-//		
-//		// Throw the exception if the exceptions are not thrown by the statement
-//		if ( ! $result) {
-//			$errorInfo = $statement->errorInfo();
-//			$errorString = $errorInfo[2];
-//			throw new \PDOException($errorString);
-//		}
+			// Using SQL because DQL does not support such format
+			// Will fail with SQL server implementation without function IF(cond, yes, no)
+			// NB! It's important to set "lvl" as first for MySQL
+			$dql = "UPDATE {$className} e
+					SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
+						e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
+						e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
+					WHERE e.left BETWEEN {$min} AND {$max}
+						OR e.right BETWEEN {$min} AND {$max}";
 
-		$this->arrayHelper->move($node, $pos, $levelDiff);
-		
+			$query = $entityManager->createQuery($dql);
+			$result = $query->execute();
+
+//			$connection = $entityManager->getConnection();
+//			$statement = $connection->prepare($sql);
+//			$result = $statement->execute();
+//
+//			// Throw the exception if the exceptions are not thrown by the statement
+//			if ( ! $result) {
+//				$errorInfo = $statement->errorInfo();
+//				$errorString = $errorInfo[2];
+//				throw new \PDOException($errorString);
+//			}
+
+			$arrayHelper->move($node, $pos, $levelDiff);
+		});
 	}
 
 //	public function oldMove(Node\DoctrineNode $node, $pos, $levelDiff = 0)

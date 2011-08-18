@@ -116,7 +116,13 @@
 			"undo_history": "Undo history",
 			
 			"viewing_structure": "Viewing structure for:",
-			"delete": "Delete page"
+			"delete": "Delete page",
+			
+			"error": {
+				"page_not_found": "The page does not exist anymore",
+				"parent_page_not_found": "The parent page does not exist anymore",
+				"duplicate_path": "Page with the same path already exists"
+			}
 		},
 		
 		"insertblock": {

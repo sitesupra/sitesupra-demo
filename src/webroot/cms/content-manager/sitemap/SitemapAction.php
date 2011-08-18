@@ -7,6 +7,7 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Sitemap
@@ -72,7 +73,7 @@ class SitemapAction extends PageManagerAction
 					$pageData->setPathPart($pathPart);
 				} catch (DuplicatePagePathException $uniqueException) {
 					$this->getResponse()
-							->setErrorMessage("Page with the same path already exists");
+							->setErrorMessage("{#sitemap.error.duplicate_path#}");
 					
 					// Clear the unit of work
 					$this->entityManager->clear();
@@ -89,7 +90,36 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function moveAction()
 	{
+		$this->isPostRequest();
 		
+		$pageId = $this->getRequestParameter('page_id');
+		$parentId = $this->getRequestParameter('parent_id');
+		$referenceId = $this->getRequestParameter('reference_id');
+		
+		/* @var $page Entity\Abstraction\Page */
+		$page = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		/* @var $parent Entity\Abstraction\Page */
+		$parent = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $parentId);
+		/* @var $reference Entity\Abstraction\Page */
+		$reference = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $referenceId);
+		
+		if (is_null($page)) {
+			throw new CmsException('sitemap.error.page_not_found');
+		}
+		
+		try {
+			if (is_null($reference)) {
+				if (is_null($parent)) {
+					throw new CmsException('sitemap.error.parent_page_not_found');
+				}
+				$parent->addChild($page);
+			} else {
+				$page->moveAsPrevSiblingOf($reference);
+			}
+		} catch (DuplicatePagePathException $uniqueException) {
+			$this->getResponse()
+					->setErrorMessage("{#sitemap.error.duplicate_path#}");
+		}
 	}
 	
 	/**

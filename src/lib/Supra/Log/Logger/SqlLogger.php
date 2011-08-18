@@ -65,7 +65,10 @@ class SqlLogger implements SQLLoggerInterface
 		array_shift($trace);
 		
 		foreach ($trace as $traceElement) {
-			$class = $traceElement['class'];
+			$class = null;
+			if (isset($traceElement['class'])) {
+				$class = $traceElement['class'];
+			}
 			if (strpos($class, 'Doctrine\\') !== 0) {
 				break;
 			}

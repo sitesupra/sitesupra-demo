@@ -47,6 +47,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function listAction()
 	{
 		$rootNodes = array();
+		$locale = $this->getLocale();
 
 		// FIXME: store the classname as constant somewhere?
 		/* @var $repo FileRepository */
@@ -65,9 +66,16 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		foreach ($rootNodes as $rootNode) {
 			/* @var $rootNode Entity\Abstraction\File */
 			$item = array();
+			
+			$title = $rootNode->getFileName();
+			
+			if ($rootNode instanceof Entity\File) {
+				$title = $rootNode->getTitle($locale);
+			}
 
 			$item['id'] = $rootNode->getId();
-			$item['title'] = $rootNode->getFileName();
+			$item['title'] = $title;
+			$item['filename'] = $rootNode->getFileName();
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
 
@@ -143,6 +151,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->isPostRequest();
 		$title = $this->getRequestParameter('title');
 		$file = $this->getEntity();
+		$locale = $this->getLocale();
 
 		// find out with what we are working now with file or folder
 		if ($file instanceof Entity\Folder) {
@@ -159,20 +168,21 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		} else if ($file instanceof Entity\File) {
 
-			//TODO: localization (title)
+			if ($this->hasRequestParameter('filename')) {
+				$fileName = $this->getRequestParameter('filename');
 
-			if ( ! $this->hasRequestParameter('filename')) {
-				$this->getResponse()
-						->setErrorMessage('No filename has been provided');
-
-				return;
+				// trying to rename file. Catching all FileStorage and Validation exceptions
+				// and passing them to MediaLibrary UI
+				$this->fileStorage->renameFile($file, $fileName);
 			}
-
-			$fileName = $this->getRequestParameter('filename');
-
-			// trying to rename file. Catching all FileStorage and Validation exceptions
-			// and passing them to MediaLibrary UI
-			$this->fileStorage->renameFile($file, $fileName);
+			
+			if ($this->hasRequestParameter('title')) {
+				$title = $this->getRequestParameter('title');
+				$metaData = $file->getMetaData($locale);
+				$metaData->setTitle($title);
+				
+				$this->entityManager->flush();
+			}
 		}
 
 		$fileId = $file->getId();
