@@ -443,6 +443,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			//Add 'id' to the uri
 			uri += (uri.indexOf('?') !== -1 ? '&' : '?') + 'id=' + item.id;
 			
+			var pathnameEnd = uri.indexOf('?');
+			var filename = encodeURIComponent(item.filename);
+			uri = uri.substring(0, pathnameEnd) + '/' + filename + uri.substring(pathnameEnd);
+			
 			//Open in new tab
 			window.open(uri);
 		},

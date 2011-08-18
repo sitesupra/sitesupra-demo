@@ -13,6 +13,9 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
  */
 class SitemapAction extends PageManagerAction
 {
+	/**
+	 * Main method passing the sitemap tree
+	 */
 	public function sitemapAction()
 	{
 		$pages = array();
@@ -82,6 +85,15 @@ class SitemapAction extends PageManagerAction
 	}
 	
 	/**
+	 * Page move action
+	 */
+	public function moveAction()
+	{
+		
+	}
+	
+	/**
+	 * Helper method for the main sitemap action
 	 * @param Entity\Abstraction\Page $page
 	 * @param string $locale
 	 * @return array

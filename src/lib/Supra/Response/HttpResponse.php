@@ -32,7 +32,7 @@ class HttpResponse implements ResponseInterface
 
 		300 => 'Multiple Choices',
 		301 => 'Moved Permanently',
-		302 => 'Found',  // 1.1
+		302 => 'Found',
 		303 => 'See Other',
 		304 => 'Not Modified',
 		305 => 'Use Proxy',
@@ -66,6 +66,10 @@ class HttpResponse implements ResponseInterface
 		509 => 'Bandwidth Limit Exceeded'
 	);
 	
+	/**
+	 * Flag that output buffering has been started
+	 * @var boolean
+	 */
 	protected static $gzOutputBufferingStarted = false;
 
 	/**

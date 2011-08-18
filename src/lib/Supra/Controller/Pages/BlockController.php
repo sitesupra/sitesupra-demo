@@ -12,7 +12,8 @@ use Supra\Controller\Pages\Response\Block;
 use \Supra\Controller\Pages\Request\PageRequest;
 
 /**
- * Block controller abstraction
+ * Block controller abstraction\
+ * @method PageRequest getRequest()
  */
 abstract class BlockController extends ControllerAbstraction
 {
@@ -40,15 +41,6 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	abstract protected function getPropertyDefinition();
 
-	/**
-	 * Overriden to specify correct return class
-	 * @return PageRequest
-	 */
-	public function getRequest()
-	{
-		return parent::getRequest();
-	}
-	
 	/**
 	 * @return Entity\Abstraction\Page
 	 */

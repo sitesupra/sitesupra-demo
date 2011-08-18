@@ -11,6 +11,7 @@ use Supra\FileStorage\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Response\HttpResponse;
 use Supra\Response\JsonResponse;
+use Supra\Controller\Exception\ResourceNotFoundException;
 
 class MediaLibraryAction extends CmsAction
 {
@@ -23,6 +24,11 @@ class MediaLibraryAction extends CmsAction
 	 * @var EntityManager
 	 */
 	private $entityManager;
+	
+	/**
+	 * @var string
+	 */
+	private $downloadFileName;
 	
 	// types for MediaLibrary UI
 	const TYPE_FOLDER = 1;
@@ -56,7 +62,18 @@ class MediaLibraryAction extends CmsAction
 	{
 		$this->fileStorage = ObjectRepository::getFileStorage($this);
 		$this->entityManager = ObjectRepository::getEntityManager($this->fileStorage);
-	
+
+		$request = $this->getRequest();
+		$actions = $request->getActions(1);
+		
+		// Special case for download action
+		if ($actions == array('download.json')) {
+			$path = $request->getPath();
+			$pathList = $path->getPathList();
+			$this->downloadFileName = array_pop($pathList);
+			$path->setPathList($pathList);
+		}
+		
 		// Handle exceptions
 		try {
 			
@@ -321,7 +338,7 @@ class MediaLibraryAction extends CmsAction
 			$file = $_FILES['file'];
 
 			// checking for replace action
-			if ($this->hasRequestParameter('file_id')) {
+			if ( ! $this->emptyRequestParameter('file_id')) {
 				$fileToReplace = $this->getFile('file_id');
 				$this->fileStorage->replaceFile($fileToReplace, $file);
 
@@ -345,7 +362,7 @@ class MediaLibraryAction extends CmsAction
 			$fileEntity->setMimeType($file['type']);
 
 			// adding file as folders child if parent folder is set
-			if ($this->hasRequestParameter('folder')) {
+			if ( ! $this->emptyRequestParameter('folder')) {
 				$folder = $this->getFolder('folder');
 				$folder->addChild($fileEntity);
 			}
@@ -414,18 +431,21 @@ class MediaLibraryAction extends CmsAction
 			header("Cache-Control: private, must-revalidate");
 		}
 
-		$content = $this->fileStorage->getFileContent($file);
-
 		$mimeType = $file->getMimeType();
 		$fileName = $file->getFileName();
+		
+		if ($fileName != $this->downloadFileName) {
+			throw new ResourceNotFoundException("Requested file name does not match file name on the server");
+		}
+		
+		$content = $this->fileStorage->getFileContent($file);
 
 		if ( ! empty($mimeType)) {
 			header('Content-type: ' . $mimeType);
 		}
 
-		header('Content-Disposition: attachment; filename="' . $fileName . '"');
+		header('Content-Disposition: attachment');
 		header("Content-Transfer-Encoding: binary");
-		header("Content-Length: " . strlen($content));
 
 		$this->response->output($content);
 	}

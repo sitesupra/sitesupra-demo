@@ -80,7 +80,8 @@ abstract class DistributedController extends ControllerAbstraction
 		$actionController->prepare($request, $response);
 		$actionController->execute();
 		
-		$response->flushToResponse($this->getResponse());
+		// Not using $response because it might be rewritten
+		$actionController->getResponse()->flushToResponse($this->getResponse());
 	}
 	
 	/**

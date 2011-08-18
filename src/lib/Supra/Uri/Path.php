@@ -79,6 +79,14 @@ class Path
 	{
 		return $this->path;
 	}
+	
+	/**
+	 * @param array $pathList
+	 */
+	public function setPathList(array $pathList)
+	{
+		$this->path = $pathList;
+	}
 
 	/**
 	 * 

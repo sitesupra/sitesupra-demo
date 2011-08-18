@@ -46,7 +46,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 * Get request object
 	 * @return Request\RequestInterface
 	 */
-	public function getRequest()
+	final public function getRequest()
 	{
 		return $this->request;
 	}
@@ -55,7 +55,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 * Get response object
 	 * @return Response\ResponseInterface
 	 */
-	public function getResponse()
+	final public function getResponse()
 	{
 		return $this->response;
 	}
