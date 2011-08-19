@@ -22,9 +22,7 @@ class PageFixtureCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		require_once 'PHPUnit/Autoload.php';
-		
-		$fixture = new Fixture();
-		$fixture->testFixture();
+		$fixture = new FixtureHelper('');
+		$fixture->build();
 	}
 }
