@@ -24,7 +24,7 @@ class BlockProperty extends Entity
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data", inversedBy="blockProperties")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data")
 	 * @JoinColumn(name="data_id", referencedColumnName="id", nullable=false)
 	 * @var Data
 	 */

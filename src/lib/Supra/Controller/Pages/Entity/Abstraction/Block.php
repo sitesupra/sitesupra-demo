@@ -56,6 +56,13 @@ class Block extends Entity
 	 * @var PlaceHolder
 	 */
 	protected $placeHolder;
+	
+	/**
+	 * Left here just because cascade in remove
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}) 
+	 * @var Collection 
+	 */ 
+	protected $blockProperties; 
 
 	/**
 	 * This property is always false for page block
@@ -64,6 +71,11 @@ class Block extends Entity
 	 */
 	protected $locked = false;
 
+	public function __construct()
+	{
+		$this->blockProperties = new ArrayCollection();
+	}
+	
 	/**
 	 * Get locked value, always false for page blocks
 	 * @return boolean
