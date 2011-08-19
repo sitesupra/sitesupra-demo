@@ -65,7 +65,7 @@ class UserAction extends InternalUserManagerActionController
 	public function deleteAction()
 	{
 
-		if (isset($_GET['user_id'])) {
+			if (isset($_GET['user_id'])) {
 
 			$userId = $_GET['user_id'];
 
@@ -199,6 +199,8 @@ class UserAction extends InternalUserManagerActionController
 
 			if (empty($user)) {
 				$this->setErrorMessage('User with such id doesn\'t exists');
+
+				return;
 			}
 
 			$em->persist($user);
