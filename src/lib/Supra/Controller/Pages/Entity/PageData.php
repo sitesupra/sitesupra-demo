@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Exception;
+use DateTime;
 
 /**
  * PageData class
@@ -23,6 +24,30 @@ class PageData extends Abstraction\Data
 	 * @var string
 	 */
 	protected $pathPart = '';
+	
+	/**
+	 * @Column(type="string", name="meta_description")
+	 * @var string
+	 */
+	protected $metaDescription = '';
+	
+	/**
+	 * @Column(type="string", name="meta_keywords")
+	 * @var string
+	 */
+	protected $metaKeywords = '';
+	
+	/**
+	 * @Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $active = true;
+	
+	/**
+	 * @Column(type="datetime", nullable=true, name="schedule_time")
+	 * @var DateTime
+	 */
+	protected $scheduleTime;
 
 	/**
 	 * @return Page
@@ -151,5 +176,76 @@ class PageData extends Abstraction\Data
 			$this->setPath('');
 		}
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getMetaDescription()
+	{
+		return $this->metaDescription;
+	}
 
+	/**
+	 * @param string $metaDescription
+	 */
+	public function setMetaDescription($metaDescription)
+	{
+		$this->metaDescription = $metaDescription;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMetaKeywords()
+	{
+		return $this->metaKeywords;
+	}
+
+	/**
+	 * @param string $metaKeywords
+	 */
+	public function setMetaKeywords($metaKeywords)
+	{
+		$this->metaKeywords = $metaKeywords;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isActive()
+	{
+		return $this->active;
+	}
+
+	/**
+	 * @param boolean $active
+	 */
+	public function setActive($active)
+	{
+		$this->active = $active;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getScheduleTime()
+	{
+		return $this->scheduleTime;
+	}
+
+	/**
+	 * @param DateTime $scheduleTime
+	 */
+	public function setScheduleTime(DateTime $scheduleTime)
+	{
+		$this->scheduleTime = $scheduleTime;
+	}
+	
+	/**
+	 * Unsets the schedule
+	 */
+	public function unsetScheduleTime()
+	{
+		$this->scheduleTime = null;
+	}
 }

@@ -88,6 +88,15 @@ class PageAction extends PageManagerAction
 			);
 		}
 		
+		$scheduledDateTime = $pageData->getScheduleTime();
+		$scheduledDate = null;
+		$scheduledTime = null;
+		
+		if ( ! is_null($scheduledDateTime)) {
+			$scheduledDate = $scheduledDateTime->format('Y-m-d');
+			$scheduledTime = $scheduledDateTime->format('H:i');
+		}
+		
 		$array = array(
 			'id' => $page->getId(),
 			'title' => $pageData->getTitle(),
@@ -98,12 +107,13 @@ class PageAction extends PageManagerAction
 			'internal_html' => $response->getOutput(),
 			'contents' => array(),
 			
-			//TODO: Hardcoded
-			'keywords' => 'web development, web design, nearshore development, e-commerce, visualization, 3D, web 2.0, PHP, LAMP, SiteSupra Platform, CMS, content management, web application, Web systems, IT solutions, usability improvements, system design, FMS, SFS, design conception, design solutions, intranet systems development, extranet systems development, flash development, hitask',
-			'description' => '',
-			'scheduled_date' => '18.08.2011',
-			'scheduled_time' => '08:00',
-			'active' => true,
+			'keywords' => $pageData->getMetaKeywords(),
+			'description' => $pageData->getMetaDescription(),
+			'scheduled_date' => $scheduledDate,
+			'scheduled_time' => $scheduledTime,
+			
+			//TODO: check parents?
+			'active' => $pageData->isActive(),
 		);
 		
 		$contents = array();

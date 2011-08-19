@@ -28,7 +28,7 @@ class Page extends Abstraction\Page
 	 * @var Collection
 	 */
 	protected $placeHolders;
-
+	
 	/**
 	 * Set page template
 	 * @param Template $template

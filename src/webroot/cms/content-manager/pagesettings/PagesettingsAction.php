@@ -5,6 +5,8 @@ namespace Supra\Cms\ContentManager\Pagesettings;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
+use DateTime;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Page settings actions
@@ -44,7 +46,49 @@ class PagesettingsAction extends PageManagerAction
 			}
 		}
 		
-		//TODO: schedule, active, description, keywords
+		if ($this->hasRequestParameter('active')) {
+			$active = $this->getRequestParameter('active');
+			$pageData->setActive($active);
+		}
+		
+		if ($this->hasRequestParameter('description')) {
+			$metaDescription = $this->getRequestParameter('description');
+			$pageData->setMetaDescription($metaDescription);
+		}
+		
+		if ($this->hasRequestParameter('keywords')) {
+			$metaKeywords = $this->getRequestParameter('keywords');
+			$pageData->setMetaKeywords($metaKeywords);
+		}
+		
+		if ($this->hasRequestParameter('scheduled_date')) {
+			
+			$date = $this->getRequestParameter('scheduled_date');
+			$time = $this->getRequestParameter('scheduled_time');
+			
+			if (empty($date)) {
+				$pageData->unsetScheduleTime();
+			} else {
+				if (empty($time)) {
+					$time = '00:00';
+				}
+				
+				$dateTime = $date . $time;
+				
+				$scheduleTime = DateTime::createFromFormat('Y-m-dH:i', $dateTime);
+				
+				//TODO: Try other format, must remove when JS is fixed
+				if (empty($scheduleTime)) {
+					$scheduleTime = DateTime::createFromFormat('d.m.YH:i', $dateTime);
+				}
+				
+				if ($scheduleTime instanceof DateTime) {
+					$pageData->setScheduleTime($scheduleTime);
+				} else {
+					throw new CmsException(null, "Schedule time provided in unrecognized format");
+				}
+			}
+		}
 		
 		$this->entityManager->flush();
 	}

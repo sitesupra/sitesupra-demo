@@ -117,8 +117,7 @@ class SitemapAction extends PageManagerAction
 				$page->moveAsPrevSiblingOf($reference);
 			}
 		} catch (DuplicatePagePathException $uniqueException) {
-			$this->getResponse()
-					->setErrorMessage("{#sitemap.error.duplicate_path#}");
+			throw new CmsException('sitemap.error.duplicate_path');
 		}
 	}
 	
