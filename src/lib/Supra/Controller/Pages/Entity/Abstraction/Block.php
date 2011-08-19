@@ -43,6 +43,12 @@ class Block extends Entity
 	 * @var int
 	 */
 	protected $position;
+	
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $locale;
 
 	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
@@ -52,25 +58,11 @@ class Block extends Entity
 	protected $placeHolder;
 
 	/**
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"})
-	 * @var Collection
-	 */
-	protected $blockProperties;
-
-	/**
 	 * This property is always false for page block
 	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
 	protected $locked = false;
-
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		$this->blockProperties = new ArrayCollection();
-	}
 
 	/**
 	 * Get locked value, always false for page blocks
@@ -142,28 +134,23 @@ class Block extends Entity
 	{
 		$this->position = $position;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getLocale()
+	{
+		return $this->locale;
+	}
 
 	/**
-	 * @param BlockProperty $blockProperty
+	 * @param string $locale
 	 */
-	public function addBlockProperty(BlockProperty $blockProperty)
+	public function setLocale($locale)
 	{
-		if ($this->lock('blockProperties')) {
-			if ($this->addUnique($this->blockProperties, $blockProperty)) {
-				$blockProperty->setBlock($this);
-			}
-			$this->unlock('blockProperties');
-		}
+		$this->locale = $locale;
 	}
-	
-	/**
-	 * @return ArrayCollection
-	 */
-	public function getBlockProperties()
-	{
-		return $this->blockProperties;
-	}
-	
+
 	/**
 	 * Whether the block is inside one of place holder Ids provided
 	 * @param array $placeHolderIds
@@ -271,11 +258,7 @@ class Block extends Entity
 		
 		$block->setComponent($source->getComponent());
 		$block->setPosition($source->getPosition());
-		
-		foreach ($source->getBlockProperties() as $blockProperty) {
-			$blockProperty = clone($blockProperty);
-			$block->addBlockProperty($blockProperty);
-		}
+		$block->setLocale($source->getLocale());
 		
 		return $block;
 	}

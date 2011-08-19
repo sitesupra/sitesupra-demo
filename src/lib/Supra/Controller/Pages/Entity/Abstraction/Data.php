@@ -35,12 +35,6 @@ abstract class Data extends Entity
 	protected $title;
 
 	/**
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="data", cascade={"persist", "remove"})
-	 * @var Collection
-	 */
-	protected $blockProperties;
-	
-	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
 	 * @ManyToOne(targetEntity="Page", cascade={"persist"})
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
@@ -54,7 +48,6 @@ abstract class Data extends Entity
 	 */
 	public function __construct($locale)
 	{
-		$this->blockProperties = new ArrayCollection();
 		$this->setLocale($locale);
 	}
 
@@ -120,19 +113,5 @@ abstract class Data extends Entity
 	{
 		return $this->master;
 	}
-
-	/**
-	 * @param BlockProperty $blockProperty
-	 */
-	public function addBlockProperty(BlockProperty $blockProperty)
-	{
-		if ($this->lock('blockProperties')) {
-			if ($this->addUnique($this->blockProperties, $blockProperty)) {
-				$blockProperty->setData($this);
-			}
-			$this->unlock('blockProperties');
-		}
-	}
-
 
 }

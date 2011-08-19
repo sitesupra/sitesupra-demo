@@ -320,17 +320,38 @@ abstract class PageRequest extends HttpRequest
 							continue;
 						}
 						
+						$templateBlockId = $block->getId();
+						
 						// Create new block
 						$block = Entity\Abstraction\Block::factoryClone($page, $block);
 						$em->persist($block);
 						$placeHolder->addBlock($block);
 						
-						$blockProperties = $block->getBlockProperties();
+						$template = $parentPlaceHolder->getMaster();
+						$locale = $this->getLocale();
+						$templateData = $template->getData($locale);
+						
+						// Find the properties to copy from the template
+						$blockPropertyEntity = self::BLOCK_PROPERTY_ENTITY;
+						
+						$dql = "SELECT p FROM $blockPropertyEntity AS p
+							WHERE p.block = ?0 AND p.data = ?1";
+						
+						$query = $em->createQuery($dql);
+						$query->setParameters(array(
+							$templateBlockId,
+							$templateData->getId()
+						));
+						
+						$blockProperties = $query->getResult();
+						
 						$data = $this->getRequestPageData();
 						
 						/* @var $blockProperty Entity\BlockProperty */
 						foreach ($blockProperties as $blockProperty) {
+							$blockProperty = clone($blockProperty);
 							$blockProperty->setData($data);
+							$blockProperty->setBlock($block);
 							$em->persist($blockProperty);
 						}
 					}

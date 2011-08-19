@@ -153,6 +153,12 @@ class ClassMetadataInfo implements ClassMetadata
      */
     const TO_MANY = 12;
 
+	/**
+	 * Counter for generating unique temporary table names
+	 * @var int
+	 */
+	public $counter = 1;
+	
     /**
      * READ-ONLY: The name of the entity class.
      */
@@ -1272,7 +1278,7 @@ class ClassMetadataInfo implements ClassMetadata
     public function getTemporaryIdTableName()
     {
         // replace dots with underscores because PostgreSQL creates temporary tables in a special schema
-        return str_replace('.', '_', $this->table['name'] . '_id_tmp');
+        return str_replace('.', '_', $this->table['name'] . '_id_tmp_' . $this->counter++);
     }
 
     /**

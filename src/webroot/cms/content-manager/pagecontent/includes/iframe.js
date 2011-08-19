@@ -437,6 +437,7 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			Supra.io(url, {
 				'data': data,
+				'method': 'post',
 				'on': {
 					'success': callback
 				},

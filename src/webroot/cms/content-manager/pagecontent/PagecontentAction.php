@@ -7,6 +7,7 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Controller for page content requests
@@ -16,67 +17,55 @@ class PagecontentAction extends PageManagerAction
 	/**
 	 * Insert block action
 	 */
-	public function pageinsertblockAction()
+	public function insertblockAction()
 	{
-		//FIXME: hardcoded now
-		$locale = $_GET['language'];
-		$locale = 'en';
-		$media = Entity\Layout::MEDIA_SCREEN;
-		$pageId = $_GET['page_id'];
-		$placeHolderName = $_GET['placeholder_id'];
-		$blockType = $_GET['type'];
+		$this->isPostRequest();
 		
-		$request = new PageRequestEdit($locale, $media);
+		$locale = $this->getLocale();
+		$media = $this->getMedia();
+		$data = $this->getPageData();
+		$page = $data->getMaster();
+		$request = $this->getPageRequest();
 		
-		$em = \Supra\Database\Doctrine::getInstance()
-				->getEntityManager();
-		$request->setDoctrineEntityManager($em);
-		
-		$pageDao = $em->getRepository('Supra\Controller\Pages\Entity\Abstraction\Page');
-		
-		/* @var $page Entity\Abstraction\Page */
-		$page = $pageDao->findOneById($pageId);
-		$data = $page->getData($locale);
-		$request->setRequestPageData($data);
+		$placeHolderName = $this->getRequestParameter('placeholder_id');
+		$blockType = $this->getRequestParameter('type');
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPage()
 				->getPlaceHolders()
 				->get($placeHolderName);
 		
-		//TODO: create some factory
-		$block = null;
-		if ($page instanceof Entity\Page) {
-			$block = new Entity\PageBlock();
-		} else {
-			$block = new Entity\TemplateBlock();
-		}
+		// Generate block according the page type provided
+		$block = Entity\Abstraction\Block::factory($page);
 		
 		//TODO: some component name normalization
 		$component = str_replace('_', '\\', $blockType);
+		
 		$block->setComponent($component);
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
 		
-		$em->persist($block);
-		$em->flush();
+		$this->entityManager->persist($block);
+		$this->entityManager->flush();
 
 		$controller = $block->createController();
 		$block->prepareController($controller, $request);
 		$block->executeController($controller);
 		$response = $controller->getResponse();
 		
-		// TODO: create automatically
 		$array = array(
 			'id' => $block->getId(),
 			'type' => $blockType,
+			
+			//TODO: implement block locking inside the template
 			'locked' => false,
+			
+			// TODO: generate
 			'properties' => array(
 				'html' => array(
 					'html' => null,
 					'data' => array(),
 				),
-//				'visible' => true,
 			),
 			'html' => $response->getOutput(),
 		);
@@ -89,27 +78,28 @@ class PagecontentAction extends PageManagerAction
 	 */
 	public function saveAction()
 	{
-		$locale = $_POST['locale'];
-		$pageId = $_POST['page_id'];
-		$blockId = $_POST['block_id'];
+		$this->isPostRequest();
+		$locale = $this->getLocale();
+		$pageData = $this->getPageData();
 		
-		//TODO: Hardcoded
-		$locale = 'en';
+		$pageId = $this->getRequestParameter('page_id');
+		$blockId = $this->getRequestParameter('block_id');
+		
+		/* @var $blockEntity Entity\Abstraction\Block */
+		$blockEntity = $this->entityManager->find(PageRequest::BLOCK_ENTITY, $blockId);
 		
 		//TODO: Fix this
 		$name = 'html';
 		$type = 'Supra\Editable\Html';
 		$value = $_POST['properties']['html']['html'];
 		
-		$em = \Supra\Database\Doctrine::getInstance()->getEntityManager();
-		
+		// Property select in one DQL
 		$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
 		
-		$query = $em->createQuery("SELECT p FROM $blockPropertyEntity AS p
+		$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
 				JOIN p.data AS d
-				JOIN d.master AS m
 				JOIN p.block AS b
-			WHERE m.id = ?0 AND b.id = ?1 AND d.locale = ?2 AND p.name = ?3 AND p.type = ?4");
+			WHERE d.master = ?0 AND p.block = ?1 AND d.locale = ?2 AND p.name = ?3 AND p.type = ?4");
 		
 		$params = array(
 			$pageId,
@@ -128,35 +118,22 @@ class PagecontentAction extends PageManagerAction
 			$blockProperty = $query->getSingleResult();
 		} catch (\Doctrine\ORM\NoResultException $noResults) {
 			
-			$dataEntity = PageRequest::DATA_ENTITY;
 			$blockEntity = PageRequest::BLOCK_ENTITY;
+			$block = $this->entityManager->find($blockEntity, $blockId);
 			
-			$dataQuery = $em->createQuery("SELECT d FROM $dataEntity d
-					JOIN d.master AS m
-					WHERE m.id = ?0 AND d.locale = ?1");
-			
-			$params = array(
-				$pageId, $locale
-			);
-			$dataQuery->setParameters($params);
-			$data = $dataQuery->getSingleResult();
-			
-			$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
-					WHERE b.id = ?0");
-			
-			$params = array($blockId);
-			$blockQuery->setParameters($params);
-			$block = $blockQuery->getSingleResult();
+			if (empty($block)) {
+				throw new CmsException(null, "Block doesn't exist anymore");
+			}
 			
 			$blockProperty = new Entity\BlockProperty($name, $type);
-			$em->persist($blockProperty);
-			$blockProperty->setData($data);
+			$this->entityManager->persist($blockProperty);
+			$blockProperty->setData($pageData);
 			$blockProperty->setBlock($block);
 		}
 		
 		$blockProperty->setValue($value);
 		
-		$em->flush();
+		$this->entityManager->flush();
 		
 		// OK response
 		$this->getResponse()->setResponseData(true);
@@ -167,19 +144,19 @@ class PagecontentAction extends PageManagerAction
 	 */
 	public function deleteblockAction()
 	{
-		$blockId = $_POST['block_id'];
+		$this->isPostRequest();
 		
-		$em = \Supra\Database\Doctrine::getInstance()
-				->getEntityManager();
+		$blockId = $this->getRequestParameter('block_id');
+		
 		$blockEntity = PageRequest::BLOCK_ENTITY;
-		$blockQuery = $em->createQuery("SELECT b FROM $blockEntity b
+		$blockQuery = $this->entityManager->createQuery("SELECT b FROM $blockEntity b
 					WHERE b.id = ?0");
 		
 		$blockQuery->setParameters(array($blockId));
 		$block = $blockQuery->getSingleResult();
 		
-		$em->remove($block);
-		$em->flush();
+		$this->entityManager->remove($block);
+		$this->entityManager->flush();
 		
 		// OK response
 		$this->getResponse()->setResponseData(true);
@@ -190,27 +167,20 @@ class PagecontentAction extends PageManagerAction
 	 */
 	public function orderblocksAction()
 	{
-		$pageId = $_POST['page_id'];
-		$locale = $_POST['locale'];
-		$placeHolderName = $_POST['id'];
-		$blockOrder = $_POST['order'];
+		$this->isPostRequest();
+		
+		$pageId = $this->getRequestParameter('page_id');
+		$locale = $this->getLocale();
+		$media = $this->getMedia();
+		$placeHolderName = $this->getRequestParameter('place_holder_id');
+		$blockOrder = $this->getRequestParameter('order');
 		$blockPositionById = array_flip($blockOrder);
 		
 		if (count($blockOrder) != count($blockPositionById)) {
 			\Log::warn("Block order array received contains duplicate block IDs: ", $blockOrder);
 		}
 		
-		//TODO: hardcoded
-		$locale = 'en';
-		$media = Entity\Layout::MEDIA_SCREEN;
-		
-//		$request = new PageRequestEdit($locale, $media);
-		
-		$em = \Supra\Database\Doctrine::getInstance()
-				->getEntityManager();
-//		$request->setDoctrineEntityManager($em);
-		
-		$pageDao = $em->getRepository('Supra\Controller\Pages\Entity\Abstraction\Page');
+		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		
 		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
@@ -237,7 +207,7 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 		
-		$em->flush();
+		$this->entityManager->flush();
 		
 		$this->getResponse()->setResponseData(true);
 	}

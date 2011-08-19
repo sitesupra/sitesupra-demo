@@ -194,6 +194,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
+				$block->setLocale('en');
 
 				// used later in page
 				$this->headerTemplateBlock = $block;
@@ -211,6 +212,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
+				$block->setLocale('en');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->getEntityManager()->persist($blockProperty);
@@ -225,6 +227,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 //				$block->setPlaceHolder($templatePlaceHolder);
 //				$block->setPosition(200);
 //				$block->setLocked(true);
+//				$block->setLocale('en');
 //
 //				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 //				$this->getEntityManager()->persist($blockProperty);
@@ -239,6 +242,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
+				$block->setLocale('en');
 				$block->setLocked();
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
@@ -254,6 +258,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
+				$block->setLocale('en');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->getEntityManager()->persist($blockProperty);
@@ -286,6 +291,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$block->setComponent('Project\Text\TextController');
 		$block->setPlaceHolder($templatePlaceHolder);
 		$block->setPosition(200);
+		$block->setLocale('en');
 		$block->setLocked(true);
 
 		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
@@ -353,6 +359,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 				$block->setComponent('Project\Text\TextController');
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
+				$block->setLocale('en');
 				
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->getEntityManager()->persist($blockProperty);
@@ -373,6 +380,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 					$block->setPlaceHolder($pagePlaceHolder);
 					// reverse order
 					$block->setPosition(100 * $i);
+					$block->setLocale('en');
 
 					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 					$this->getEntityManager()->persist($blockProperty);

@@ -95,7 +95,6 @@ class BlockProperty extends Entity
 	{
 		if ($this->writeOnce($this->data, $data)) {
 			$this->checkScope($this->data);
-			$data->addBlockProperty($this);
 		}
 	}
 
@@ -114,7 +113,6 @@ class BlockProperty extends Entity
 	{
 		if ($this->writeOnce($this->block, $block)) {
 			$this->checkScope($this->block);
-			$block->addBlockProperty($this);
 		}
 	}
 	
