@@ -19,6 +19,7 @@ class TextController extends BlockController
 			return;
 		}
 
+		// DEV comment about the block
 		$block = $this->getBlock();
 		$comment = '';
 		if ( ! empty($block)) {

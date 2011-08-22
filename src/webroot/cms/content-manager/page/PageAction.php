@@ -61,6 +61,9 @@ class PageAction extends PageManagerAction
 		$pathPart = null;
 		$pathPrefix = null;
 		$templateArray = array();
+		$scheduledDateTime = null;
+		$scheduledDate = null;
+		$scheduledTime = null;
 		
 		//TODO: create some path for templates also
 		if ($page instanceof Entity\Page) {
@@ -86,11 +89,9 @@ class PageAction extends PageManagerAction
 				//TODO: hardcoded
 				'img' => '/cms/lib/supra/img/templates/template-1.png',
 			);
+			
+			$scheduledDateTime = $pageData->getScheduleTime();
 		}
-		
-		$scheduledDateTime = $pageData->getScheduleTime();
-		$scheduledDate = null;
-		$scheduledTime = null;
 		
 		if ( ! is_null($scheduledDateTime)) {
 			$scheduledDate = $scheduledDateTime->format('Y-m-d');

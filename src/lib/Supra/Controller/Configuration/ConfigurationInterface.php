@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller;
+namespace Supra\Controller\Configuration;
 
 /**
  * Controller configuration interface

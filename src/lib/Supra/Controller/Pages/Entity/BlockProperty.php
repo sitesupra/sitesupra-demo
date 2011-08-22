@@ -56,6 +56,8 @@ class BlockProperty extends Entity
 	 */
 	protected $value;
 	
+//	protected $propertyData;
+	
 	/**
 	 * @var EditableInterface
 	 */
