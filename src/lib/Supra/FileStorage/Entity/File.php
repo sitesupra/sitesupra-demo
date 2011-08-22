@@ -29,11 +29,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @var Collection
 	 */
 	protected $metaData;
-	/**
-	 * @Column(type="boolean", name="public")
-	 * @var integer
-	 */
-	protected $public = true;
 
 	public function __construct()
 	{
@@ -148,26 +143,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		if ($metaData instanceof MetaData) {
 			return $metaData->getDescription();
 		}
-	}
-
-	/**
-	 * Get public state
-	 *
-	 * @return boolean
-	 */
-	public function isPublic()
-	{
-		return $this->public;
-	}
-
-	/**
-	 * Set public state
-	 *
-	 * @param boolean $public 
-	 */
-	public function setPublic($public)
-	{
-		$this->public = $public;
 	}
 
 }

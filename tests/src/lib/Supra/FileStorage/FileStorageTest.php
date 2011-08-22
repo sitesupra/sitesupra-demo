@@ -59,6 +59,13 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$file->setSize($fileSize);
 		$file->setMimeType($mimeType);
 
+		if ($file instanceof \Supra\FileStorage\Entity\Image) {
+			$imageProcessor = new ImageResizer();
+			$imageInfo = $imageProcessor->getImageInfo($uploadFile);
+			$file->setWidth($imageInfo['width']);
+			$file->setHeight($imageInfo['height']);
+		}
+		
 		$dir->addChild($file);
 
 		$fileData = new \Supra\FileStorage\Entity\MetaData('en');
@@ -68,10 +75,6 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->fileStorage->storeFileData($file, $uploadFile);
 
 		if ($file instanceof \Supra\FileStorage\Entity\Image) {
-			$imageProcessor = new ImageResizer();
-			$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($file));
-			$file->setWidth($imageInfo['width']);
-			$file->setHeight($imageInfo['height']);
 //			$this->fileStorage->rotateImageLeft($file);
 //			$this->fileStorage->rotateImageRight($file);
 //			$this->fileStorage->rotateImage180($file);

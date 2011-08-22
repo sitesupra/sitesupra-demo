@@ -78,6 +78,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$item['filename'] = $rootNode->getFileName();
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
+			$item['private'] = ! $rootNode->isPublic();
 
 			$output[] = $item;
 		}
@@ -131,6 +132,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		// Adding child folder if parent exists
 		if ( ! $this->emptyRequestParameter('parent')) {
 			$folder = $this->getFolder('parent');
+			
+			// get parent folder private/public status
+			$publicStatus = $folder->isPublic();
+			$dir->setPublic($publicStatus);
+			
 			$folder->addChild($dir);
 		}
 
@@ -153,9 +159,26 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$file = $this->getEntity();
 		$locale = $this->getLocale();
 
+		// set private
+		if ($this->hasRequestParameter('private')) {
+			$private = $this->getRequestParameter('private');
+			
+			if($private == 0) {
+				$this->fileStorage->setPublic($file);
+			}
+
+			if($private == 1) {
+				$this->fileStorage->setPrivate($file);
+			}
+
+			$this->entityManager->flush();
+			$this->getResponse()->setResponseData(null);
+			return;
+		}
+		
 		// find out with what we are working now with file or folder
 		if ($file instanceof Entity\Folder) {
-
+			
 			if ( ! $this->hasRequestParameter('title')) {
 				$this->getResponse()
 						->setErrorMessage('Title is no provided');
@@ -282,6 +305,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			// adding file as folders child if parent folder is set
 			if ( ! $this->emptyRequestParameter('folder')) {
 				$folder = $this->getFolder('folder');
+				
+				// get parent folder private/public status
+				$publicStatus = $folder->isPublic();
+				$fileEntity->setPublic($publicStatus);
+				
 				$folder->addChild($fileEntity);
 			}
 			

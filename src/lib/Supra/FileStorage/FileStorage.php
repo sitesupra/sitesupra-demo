@@ -412,10 +412,11 @@ class FileStorage
 	 */
 	private function setPublicForFile(Entity\File $file, $public)
 	{
-		if ($public == $file->isPublic) {
+		if ($public == $file->isPublic()) {
 			$msg = $file->getId() . ' ' . $file->getFileName() . ' is already ';
 			$msg .= ($file->isPublic() ? 'public' : 'private');
 			\Log::info($msg);
+			return;
 		}
 		
 		$fileList = array();
@@ -448,8 +449,7 @@ class FileStorage
 			$file->setPublic(false);
 		}
 		
-		$timeNow = new \DateTime('now');
-		$file->setModifiedTime($timeNow);
+		$file->setModifiedTime();
 	}
 
 	/**
@@ -464,7 +464,12 @@ class FileStorage
 			if ($node instanceof Entity\File) {
 				$this->setPublicForFile($node, $public);
 			}
+			
+			if ($node instanceof Entity\Folder) {
+				$node->setPublic($public);
+			}
 		}
+		$folder->setPublic($public);
 	}
 
 	/**

@@ -65,7 +65,7 @@ class UserAction extends InternalUserManagerActionController
 	public function deleteAction()
 	{
 
-			if (isset($_GET['user_id'])) {
+		if (isset($_GET['user_id'])) {
 
 			$userId = $_GET['user_id'];
 

@@ -97,6 +97,12 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	protected $modifiedTime;
 
 	/**
+	 * @Column(type="boolean", name="public")
+	 * @var integer
+	 */
+	protected $public = true;
+	
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -356,6 +362,26 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	public function treeChangeTrigger()
 	{
 		
+	}
+	
+	/**
+	 * Get public state
+	 *
+	 * @return boolean
+	 */
+	public function isPublic()
+	{
+		return $this->public;
+	}
+
+	/**
+	 * Set public state
+	 *
+	 * @param boolean $public 
+	 */
+	public function setPublic($public)
+	{
+		$this->public = $public;
 	}
 
 }
