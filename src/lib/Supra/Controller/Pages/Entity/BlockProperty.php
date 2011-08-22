@@ -56,7 +56,12 @@ class BlockProperty extends Entity
 	 */
 	protected $value;
 	
-//	protected $propertyData;
+	/**
+	 * Serialized value additional data
+	 * @Column(type="text", name="value_data", nullable=true)
+	 * @var string
+	 */
+	protected $valueData;
 	
 	/**
 	 * @var EditableInterface
@@ -159,6 +164,30 @@ class BlockProperty extends Entity
 	public function setValue($value)
 	{
 		$this->value = $value;
+	}
+	
+	/**
+	 * Return value additional data, usually array
+	 * @return mixed
+	 */
+	public function getValueData()
+	{
+		$valueData = null;
+		
+		if (isset($this->valueData)) {
+			$valueData = unserialize($this->valueData);
+		}
+		
+		return $valueData;
+	}
+	
+	/**
+	 * Set value data, usually array
+	 * @param mixed $value
+	 */
+	public function setValueData($value)
+	{
+		$this->valueData = serialize($value);
 	}
 	
 	/**

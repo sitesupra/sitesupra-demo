@@ -27,13 +27,7 @@ class BlockResponseEdit extends BlockResponse
 		$blockId = $block->getId();
 		
 		// Normalize block name
-		//TODO: move to the block method
-		$blockName = $block->getComponent();
-		$blockName = trim($blockName, '\\');
-		$blockName = str_replace('\\', '_', $blockName);
-		
-		// TEMP
-//		$blockName = 'html';
+		$blockName = $block->getComponentName();
 		
 		$response->output('<div id="content_' . $blockName . '_' . $blockId
 				. '" class="yui3-page-content yui3-page-content-' . $blockName 
@@ -63,13 +57,7 @@ class BlockResponseEdit extends BlockResponse
 			$blockId = $block->getId();
 			
 			// Normalize block name
-			//TODO: move to the block method
-			$blockName = $block->getComponent();
-			$blockName = trim($blockName, '\\');
-			$blockName = str_replace('\\', '_', $blockName);
-			
-			// TEMP
-//			$blockName = 'html';
+			$blockName = $block->getComponentName();
 			
 			$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName 
 					. '" class="yui3-page-content-inline yui3-input-html-inline-content">';

@@ -38,10 +38,7 @@ class PagecontentAction extends PageManagerAction
 		// Generate block according the page type provided
 		$block = Entity\Abstraction\Block::factory($page);
 		
-		//TODO: some component name normalization
-		$component = str_replace('_', '\\', $blockType);
-		
-		$block->setComponent($component);
+		$block->setComponentName($blockType);
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
 		
@@ -92,6 +89,7 @@ class PagecontentAction extends PageManagerAction
 		$name = 'html';
 		$type = 'Supra\Editable\Html';
 		$value = $_POST['properties']['html']['html'];
+		$valueData = $_POST['properties']['html']['data'];
 		
 		// Property select in one DQL
 		$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
@@ -132,6 +130,7 @@ class PagecontentAction extends PageManagerAction
 		}
 		
 		$blockProperty->setValue($value);
+		$blockProperty->setValueData($valueData);
 		
 		$this->entityManager->flush();
 		

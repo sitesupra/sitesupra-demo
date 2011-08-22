@@ -32,11 +32,10 @@ class Block extends Entity
 	protected $id;
 
 	/**
-	 * @TODO: store with backslashes replaced with underscores (?)
-	 * @Column(type="string")
+	 * @Column(type="string", name="component")
 	 * @var string
 	 */
-	protected $component;
+	protected $componentClass;
 
 	/**
 	 * @Column(type="integer")
@@ -116,17 +115,39 @@ class Block extends Entity
 	/**
 	 * @return string
 	 */
-	public function getComponent()
+	public function getComponentClass()
 	{
-		return $this->component;
+		return $this->componentClass;
 	}
-
+	
 	/**
-	 * @param string $component
+	 * @param string $componentClass
 	 */
-	public function setComponent($component)
+	public function setComponentClass($componentClass)
 	{
-		$this->component = $component;
+		$this->componentClass = trim($componentClass, '\\');
+	}
+	
+	/**
+	 * Get component class name safe for HTML node ID generation
+	 * @return string
+	 */
+	public function getComponentName()
+	{
+		$componentName = $this->componentClass;
+		$componentName = str_replace('\\', '_', $componentName);
+		
+		return $componentName;
+	}
+	
+	/**
+	 * Set normalized component name, converted to classname
+	 * @param string $componentName
+	 */
+	public function setComponentName($componentName)
+	{
+		$componentClass = str_replace('_', '\\', $componentName);
+		$this->componentClass = $componentClass;
 	}
 
 	/**
@@ -183,7 +204,7 @@ class Block extends Entity
 	 */
 	public function createController()
 	{
-		$component = $this->getComponent();
+		$component = $this->getComponentClass();
 		if ( ! class_exists($component)) {
 			\Log::warn("Block component $component was not found for block $this");
 			
@@ -268,7 +289,7 @@ class Block extends Entity
 	{
 		$block = self::factory($base);
 		
-		$block->setComponent($source->getComponent());
+		$block->setComponentClass($source->getComponentClass());
 		$block->setPosition($source->getPosition());
 		$block->setLocale($source->getLocale());
 		

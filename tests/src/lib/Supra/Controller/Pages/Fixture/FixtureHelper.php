@@ -197,7 +197,7 @@ class FixtureHelper
 			if ($name == 'header') {
 				$block = new Entity\TemplateBlock();
 				$this->getEntityManager()->persist($block);
-				$block->setComponent('Project\Text\TextController');
+				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
@@ -215,7 +215,7 @@ class FixtureHelper
 			if ($name == 'main') {
 				$block = new Entity\TemplateBlock();
 				$this->getEntityManager()->persist($block);
-				$block->setComponent('Project\Text\TextController');
+				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
@@ -229,7 +229,7 @@ class FixtureHelper
 //				// A locked block
 //				$block = new Entity\TemplateBlock();
 //				$this->getEntityManager()->persist($block);
-//				$block->setComponent('Project\Text\TextController');
+//				$block->setComponentClass('Project\Text\TextController');
 //				$block->setPlaceHolder($templatePlaceHolder);
 //				$block->setPosition(200);
 //				$block->setLocked(true);
@@ -245,7 +245,7 @@ class FixtureHelper
 			if ($name == 'footer') {
 				$block = new Entity\TemplateBlock();
 				$this->getEntityManager()->persist($block);
-				$block->setComponent('Project\Text\TextController');
+				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
@@ -261,7 +261,7 @@ class FixtureHelper
 			if ($name == 'sidebar') {
 				$block = new Entity\TemplateBlock();
 				$this->getEntityManager()->persist($block);
-				$block->setComponent('Project\Text\TextController');
+				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
@@ -294,7 +294,7 @@ class FixtureHelper
 		// A locked block
 		$block = new Entity\TemplateBlock();
 		$this->getEntityManager()->persist($block);
-		$block->setComponent('Project\Text\TextController');
+		$block->setComponentClass('Project\Text\TextController');
 		$block->setPlaceHolder($templatePlaceHolder);
 		$block->setPosition(200);
 		$block->setLocale('en');
@@ -362,7 +362,7 @@ class FixtureHelper
 				
 				$block = new Entity\PageBlock();
 				$this->getEntityManager()->persist($block);
-				$block->setComponent('Project\Text\TextController');
+				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
 				$block->setLocale('en');
@@ -382,7 +382,7 @@ class FixtureHelper
 				foreach (\range(1, 2) as $i) {
 					$block = new Entity\PageBlock();
 					$this->getEntityManager()->persist($block);
-					$block->setComponent('Project\Text\TextController');
+					$block->setComponentClass('Project\Text\TextController');
 					$block->setPlaceHolder($pagePlaceHolder);
 					// reverse order
 					$block->setPosition(100 * $i);

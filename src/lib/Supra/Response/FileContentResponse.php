@@ -7,6 +7,7 @@ use Supra\Controller\Exception\ResourceNotFoundException;
 
 /**
  * Used to respond with file contents
+ * TODO: how to block any other content output if this response object is created?
  */
 class FileContentResponse extends HttpResponse
 {

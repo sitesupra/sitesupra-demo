@@ -153,8 +153,7 @@ class PageAction extends PageManagerAction
 
 				$blockData = array(
 					'id' => $block->getId(),
-					//TODO: move normalizing to somewhere else
-					'type' => trim(str_replace('\\', '_', $block->getComponent()), '_'),
+					'type' => $block->getComponentName(),
 					'locked' => ! $page->isBlockEditable($block),
 					'properties' => array(),
 				);
@@ -167,7 +166,7 @@ class PageAction extends PageManagerAction
 						$propertyData = array(
 							$blockProperty->getName() => array(
 								'html' => $blockProperty->getValue(),
-								'data' => array()
+								'data' => $blockProperty->getValueData()
 							),
 						);
 

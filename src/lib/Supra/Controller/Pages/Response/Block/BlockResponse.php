@@ -42,9 +42,42 @@ abstract class BlockResponse extends HttpResponse
 	 */
 	public function outputProperty(Entity\BlockProperty $property)
 	{
-		$data = $property->getValue();
+		$valueData = $property->getValueData();
 		$editable = $property->getEditable();
 		$filteredValue = $editable->getFilteredValue(static::EDITABLE_FILTER_ACTION);
+		
+		if ($editable instanceof \Supra\Editable\Html) {
+			
+			//TODO: dummy replace for links only for now, must move to some filters
+			$matches = array();
+			preg_match_all('/\{supra\.link id="(.*?)"\}(.*?)(\{\/supra\.link\})/', $filteredValue, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+			
+			$offset = 0;
+			$final = '';
+			
+			foreach ($matches as $match) {
+				
+				$offsetInit = $match[0][1];
+				$offsetEnd = $match[3][1] + strlen($match[3][0]);
+				
+				$id = $match[1][0];
+				$content = $match[2][0];
+				
+				$data = $valueData[$id];
+				
+				//TODO: $data must be used to generate the links
+				
+				$final .= substr($filteredValue, $offset, $offsetInit - $offset);
+				$final .= '<a href="#' . htmlspecialchars(serialize($data)) . '">' . $content . '</a>';
+				
+				$offset = $offsetEnd;
+			}
+			
+			$final .= substr($filteredValue, $offset);
+			
+			$filteredValue = $final;
+		}
+		
 		$this->output($filteredValue);
 		
 		return $filteredValue;
