@@ -6,12 +6,22 @@ use Supra\Request;
 use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Log\Writer\WriterInterface;
 
 /**
  * Front controller
  */
 class FrontController
 {
+	/**
+	 * Singleton instance
+	 * @var FrontController
+	 */
+	private static $instance;
+	
+	/**
+	 * @var WriterInterface
+	 */
 	private $log;
 	
 	/**
@@ -31,7 +41,25 @@ class FrontController
 	 */
 	public function __construct()
 	{
+		if (isset(self::$instance)) {
+			throw new Exception\RuntimeException("Front controller constructor has been run twice");
+		}
+		
 		$this->log = ObjectRepository::getLogger($this);
+		self::$instance = $this;
+	}
+	
+	/**
+	 * Singleton method
+	 * @return FrontController
+	 */
+	public static function getInstance()
+	{
+		if ( ! isset(self::$instance)) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
 	}
 	
 	/**

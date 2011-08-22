@@ -2,23 +2,19 @@
 
 namespace Supra\Cms;
 
-use Supra\Router\UriRouter;
-use Supra\Loader\Registry;
-
-// Load manually
+// Load loader manually and configure
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'CmsNamespaceRecord.php';
+$namespaceConfiguration = new \Supra\Loader\Configuration\NamespaceConfiguration();
+$namespaceConfiguration->class = 'Supra\Cms\CmsNamespaceRecord';
+$namespaceConfiguration->dir = __DIR__;
+$namespaceConfiguration->namespace = __NAMESPACE__;
 
-// Register namespace
-$namespace = new CmsNamespaceRecord('Supra\Cms', __DIR__);
-Registry::getInstance()->registerNamespace($namespace);
+// Bind to URL /dc
+$routerConfiguration = new \Supra\Router\Configuration\RouterConfiguration();
+$routerConfiguration->url = '/cms';
+$routerConfiguration->controller = 'Supra\Cms\CmsController';
 
-//// TODO: temporary solution for namespace autoloading for folders with "-"
-//$namespace = new Supra\Loader\NamespaceRecord('Supra\Cms\ContentManager', __DIR__ . '/content-manager');
-//Supra\Loader\Registry::getInstance()->registerNamespace($namespace);
-//$namespace = new Supra\Loader\NamespaceRecord('Supra\Cms\InternalUserManager', __DIR__ . '/internal-user-manager');
-//Supra\Loader\Registry::getInstance()->registerNamespace($namespace);
-//$namespace = new Supra\Loader\NamespaceRecord('Supra\Cms\MediaLibrary', __DIR__ . '/media-library');
-//Supra\Loader\Registry::getInstance()->registerNamespace($namespace);
-
-$router = new UriRouter('/cms');
-$frontController->route($router, 'Supra\Cms\CmsController');
+$controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfiguration();
+$controllerConfiguration->namespace = $namespaceConfiguration;
+$controllerConfiguration->router = $routerConfiguration;
+$controllerConfiguration->configure();

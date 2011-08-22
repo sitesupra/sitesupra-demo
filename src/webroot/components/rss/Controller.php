@@ -26,7 +26,7 @@ class Controller extends SimpleController
 		EventRegistry::fire(__CLASS__, 'index');
 		$this->getResponse()->output('Hello world!');
 		EventRegistry::fire($this, 'test');
-
+		
 	}
 
 	/**

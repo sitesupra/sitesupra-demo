@@ -211,6 +211,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function uploadAction()
 	{
 		$this->isPostRequest();
+		$locale = $this->getLocale();
 		
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
@@ -240,12 +241,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$fileEntity->setSize($file['size']);
 			$fileEntity->setMimeType($file['type']);
 
-			// adding file as folders child if parent folder is set
-			if ( ! $this->emptyRequestParameter('folder')) {
-				$folder = $this->getFolder('folder');
-				$folder->addChild($fileEntity);
-			}
-			
 			$humanName = $file['name'];
 			
 			// Could move to separate method, should be configurable
@@ -271,24 +266,33 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 
 			// file metadata
-			$fileData = new Entity\MetaData('en');
+			$fileData = new Entity\MetaData($locale);
 			$fileData->setMaster($fileEntity);
 			$fileData->setTitle($humanName);
-			
-			// trying to upload file
-			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 			
 			// additional jobs for images
 			if ($fileEntity instanceof Entity\Image) {
 				// store original size
 				$imageProcessor = new ImageProcessor\ImageResizer();
-				$imageInfo = $imageProcessor->getImageInfo($this->fileStorage->getFilesystemPath($fileEntity));
+				$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
 				$fileEntity->setWidth($imageInfo['width']);
 				$fileEntity->setHeight($imageInfo['height']);
+			}
+			
+			// adding file as folders child if parent folder is set
+			if ( ! $this->emptyRequestParameter('folder')) {
+				$folder = $this->getFolder('folder');
+				$folder->addChild($fileEntity);
+			}
+			
+			// trying to upload file
+			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			
+			if ($fileEntity instanceof Entity\Image) {
 				// create preview
 				$this->fileStorage->createResizedImage($fileEntity, 200, 200);
 			}
-
+			
 			$this->entityManager->flush();
 
 			// genrating output

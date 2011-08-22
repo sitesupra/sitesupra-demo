@@ -1,9 +1,18 @@
 <?php
 
+namespace Project\DistributedController;
+
 // Register namespace
-$rssNamespace = new Supra\Loader\NamespaceRecord('Project\DistributedController', __DIR__);
-Supra\Loader\Registry::getInstance()->registerNamespace($rssNamespace);
+$namespaceConfiguration = new \Supra\Loader\Configuration\NamespaceConfiguration();
+$namespaceConfiguration->dir = __DIR__;
+$namespaceConfiguration->namespace = __NAMESPACE__;
 
 // Bind to URL /dc
-$cssRouter = new Supra\Router\UriRouter('/dc');
-$frontController->route($cssRouter, 'Project\DistributedController\DistributedController');
+$routerConfiguration = new \Supra\Router\Configuration\RouterConfiguration();
+$routerConfiguration->url = '/dc';
+$routerConfiguration->controller = 'Project\DistributedController\DistributedController';
+
+$controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfiguration();
+$controllerConfiguration->namespace = $namespaceConfiguration;
+$controllerConfiguration->router = $routerConfiguration;
+$controllerConfiguration->configure();

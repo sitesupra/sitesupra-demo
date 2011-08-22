@@ -1,5 +1,12 @@
 <?php
 
+namespace Project\Text;
+
 // Register namespace
-$rssNamespace = new Supra\Loader\NamespaceRecord('Project\\Text', __DIR__);
-Supra\Loader\Registry::getInstance()->registerNamespace($rssNamespace);
+$namespaceConfiguration = new \Supra\Loader\Configuration\NamespaceConfiguration();
+$namespaceConfiguration->dir = __DIR__;
+$namespaceConfiguration->namespace = __NAMESPACE__;
+
+$controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfiguration();
+$controllerConfiguration->namespace = $namespaceConfiguration;
+$controllerConfiguration->configure();

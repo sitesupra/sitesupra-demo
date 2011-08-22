@@ -64,8 +64,11 @@ class PageAction extends PageManagerAction
 		$scheduledDateTime = null;
 		$scheduledDate = null;
 		$scheduledTime = null;
+		$metaKeywords = null;
+		$metaDescription = null;
+		$active = true;
 		
-		//TODO: create some path for templates also
+		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
 			
 			/* @var $pageData Entity\PageData */
@@ -91,6 +94,9 @@ class PageAction extends PageManagerAction
 			);
 			
 			$scheduledDateTime = $pageData->getScheduleTime();
+			$metaKeywords = $pageData->getMetaKeywords();
+			$metaDescription = $pageData->getMetaDescription();
+			$active = $pageData->isActive();
 		}
 		
 		if ( ! is_null($scheduledDateTime)) {
@@ -108,13 +114,13 @@ class PageAction extends PageManagerAction
 			'internal_html' => $response->getOutput(),
 			'contents' => array(),
 			
-			'keywords' => $pageData->getMetaKeywords(),
-			'description' => $pageData->getMetaDescription(),
+			'keywords' => $metaKeywords,
+			'description' => $metaDescription,
 			'scheduled_date' => $scheduledDate,
 			'scheduled_time' => $scheduledTime,
 			
 			//TODO: check parents?
-			'active' => $pageData->isActive(),
+			'active' => $active
 		);
 		
 		$contents = array();
