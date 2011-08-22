@@ -132,14 +132,4 @@ class JsonResponse extends HttpResponse
 		parent::flush();
 	}
 	
-	/**
-	 * @param ResponseInterface $response
-	 */
-	public function flushToResponse(ResponseInterface $response)
-	{
-		$this->generateOutput();
-		
-		parent::flushToResponse($response);
-	}
-
 }

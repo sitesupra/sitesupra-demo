@@ -67,7 +67,7 @@ class PagecontentAction extends PageManagerAction
 					'data' => array(),
 				),
 			),
-			'html' => $response->getOutput(),
+			'html' => $response->__toString(),
 		);
 		
 		$this->getResponse()->setResponseData($array);

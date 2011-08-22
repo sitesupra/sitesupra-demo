@@ -1,5 +1,7 @@
 <?php
 
+ini_set('zlib.output_compression', 'On');
+
 // Bootstrap supra
 require_once dirname(__DIR__) . '/lib/Supra/bootstrap.php';
 

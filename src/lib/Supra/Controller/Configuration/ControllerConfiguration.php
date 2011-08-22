@@ -10,7 +10,7 @@ use Supra\Router\Configuration\RouterConfiguration;
 /**
  * Controller base configuration
  */
-class ControllerConfiguration implements ConfigurationInterface
+class ControllerConfiguration implements ControllerConfigurationInterface
 {
 	/**
 	 * @var NamespaceConfiguration

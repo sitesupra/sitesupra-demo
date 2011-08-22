@@ -11,6 +11,12 @@ use Supra\Controller\Exception\ResourceNotFoundException;
 class FileContentResponse extends HttpResponse
 {
 	/**
+	 * File path
+	 * @var string
+	 */
+	private $filename;
+	
+	/**
 	 * @param HttpRequest $request
 	 * @param string $file
 	 */
@@ -19,6 +25,8 @@ class FileContentResponse extends HttpResponse
 		if ( ! is_file($file) || ! is_readable($file)) {
 			throw new ResourceNotFoundException("File '$file' does not exist or is not readable");
 		}
+		
+		$this->filename = $file;
 		
 		$ifModifiedSince = $request->getServerValue('HTTP_IF_MODIFIED_SINCE');
 		$ifNoneMatch = $request->getServerValue('HTTP_IF_NONE_MATCH');
@@ -29,15 +37,32 @@ class FileContentResponse extends HttpResponse
 		$eTag = md5($timestamp . $file);
 
 		if ($ifModifiedSince == $gmtMTime || $ifNoneMatch == $eTag) {
-			$this->setCode(304);
+			$this->setCode(self::STATUS_NOT_MODIFIED);
 
 			return;
 		}
 
 		$this->header('ETag', $eTag);
 		$this->header('Last-Modified', $gmtMTime);
-		
-		$this->output(file_get_contents($file));
 	}
-
+	
+	/**
+	 * Flushes file as a stream
+	 */
+	public function flush()
+	{
+		// Stop output buffering
+		ob_end_flush();
+		readfile($this->filename);
+		flush();
+	}
+	
+	/**
+	 * Reads file for output
+	 */
+	public function __toString()
+	{
+		echo file_get_contents($this->filename);
+	}
+	
 }

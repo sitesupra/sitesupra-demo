@@ -156,47 +156,47 @@ abstract class BlockController extends ControllerAbstraction
 		$propertyDefinitions = $this->getPropertyDefinition();
 		$editable = null;
 		
-		//FIXME: some of this functionality should be moved to getPropertyValue
-		if (isset($propertyDefinitions[$name])) {
-			$editable = $propertyDefinitions[$name];
-			
-			if ( ! $editable instanceof EditableInterface) {
-				throw new Exception\RuntimeException("Definition of property must be an instance of editable");
-			}
-			
-			$newProperty = false;
-			
-			if (empty($property)) {
-				$newProperty = true;
-			} else {
-				$propertyType = (string) $property->getType();
-				
-				if ( ! $editable instanceof $propertyType) {
-					$newProperty = true;
-				}
-			}
-			
-			/*
-			 * Must create new property here
-			 */
-			if ($newProperty) {
-				
-				$propertyType = get_class($editable);
-				
-				$property = new Entity\BlockProperty($name, $propertyType);
-				$property->setValue($default);
-				$property->setBlock($this->getBlock());
-				
-				// Must set some DATA object. Where to get this? And why data is set to property not block?
-				//FIXME: should do somehow easier than that
-				$property->setData($this->getRequest()->getRequestPageData());
-			}
-			
-			$content = $property->getValue();
-			$editable->setContent($content);
-		} else {
+		if ( ! isset($propertyDefinitions[$name])) {
 			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 		}
+		
+		//FIXME: some of this functionality should be moved to getPropertyValue
+		$editable = $propertyDefinitions[$name];
+
+		if ( ! $editable instanceof EditableInterface) {
+			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
+		}
+
+		$newProperty = false;
+
+		if (empty($property)) {
+			$newProperty = true;
+		} else {
+			$propertyType = (string) $property->getType();
+
+			if ( ! $editable instanceof $propertyType) {
+				$newProperty = true;
+			}
+		}
+
+		/*
+		 * Must create new property here
+		 */
+		if ($newProperty) {
+
+			$propertyType = get_class($editable);
+
+			$property = new Entity\BlockProperty($name, $propertyType);
+			$property->setValue($default);
+			$property->setBlock($this->getBlock());
+
+			// Must set some DATA object. Where to get this? And why data is set to property not block?
+			//FIXME: should do somehow easier than that
+			$property->setData($this->getRequest()->getRequestPageData());
+		}
+
+		$content = $property->getValue();
+		$editable->setContent($content);
 		
 		$response = $this->getResponse();
 		

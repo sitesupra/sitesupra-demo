@@ -14,6 +14,10 @@ class HttpResponse implements ResponseInterface
 	
 	const PROTOCOL = 'HTTP';
 	
+	const STATUS_OK = 200;
+	const STATUS_NO_CONTENT = 204;
+	const STATUS_NOT_MODIFIED = 304;
+	
 	/**
 	 * Messages for HTTP status codes
 	 * @var array
@@ -22,11 +26,11 @@ class HttpResponse implements ResponseInterface
 		100 => 'Continue',
 		101 => 'Switching Protocols',
 
-		200 => 'OK',
+		self::STATUS_OK => 'OK',
 		201 => 'Created',
 		202 => 'Accepted',
 		203 => 'Non-Authoritative Information',
-		204 => 'No Content',
+		self::STATUS_NO_CONTENT => 'No Content',
 		205 => 'Reset Content',
 		206 => 'Partial Content',
 
@@ -34,7 +38,7 @@ class HttpResponse implements ResponseInterface
 		301 => 'Moved Permanently',
 		302 => 'Found',
 		303 => 'See Other',
-		304 => 'Not Modified',
+		self::STATUS_NOT_MODIFIED => 'Not Modified',
 		305 => 'Use Proxy',
 		307 => 'Temporary Redirect',
 
@@ -67,10 +71,16 @@ class HttpResponse implements ResponseInterface
 	);
 	
 	/**
-	 * Flag that output buffering has been started
-	 * @var boolean
+	 * Status code
+	 * @var int
 	 */
-	protected static $gzOutputBufferingStarted = false;
+	protected $code = self::STATUS_OK;
+	
+	/**
+	 * Status code message
+	 * @var string
+	 */
+	protected $message;
 
 	/**
 	 * Server protocol
@@ -120,11 +130,7 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function prepare()
 	{
-		if ( ! self::$gzOutputBufferingStarted) {
-			ob_end_clean();
-			ob_start('ob_gzhandler');
-			self::$gzOutputBufferingStarted = true;
-		}
+		
 	}
 	
 	/**
@@ -139,12 +145,8 @@ class HttpResponse implements ResponseInterface
 			throw new Exception\RuntimeException("Code $code is not known to the HttpResponse class");
 		}
 		
-		$message = self::$messages[$code];
-		$statusHeader = self::PROTOCOL . '/' . $this->protocolVersion . ' ' 
-				. $code . ' ' . $message;
-		
-		// Empty key is reserved for the status
-		$this->header(self::STATUS_HEADER_NAME, $statusHeader);
+		$this->code = $code;
+		$this->message = self::$messages[$code];
 	}
 
 	/**
@@ -222,6 +224,25 @@ class HttpResponse implements ResponseInterface
 	{
 		return $this->redirect;
 	}
+	
+	/**
+	 * Returns if response might have content
+	 * @return boolean
+	 */
+	public function hasOutput()
+	{
+		$hasOutput = true;
+		
+		if ($this->isRedirect()) {
+			$hasOutput = false;
+		}
+		
+		if ($this->code == self::STATUS_NO_CONTENT || $this->code == self::STATUS_NOT_MODIFIED) {
+			$hasOutput = false;
+		}
+		
+		return $hasOutput;
+	}
 
 	/**
 	 * Add output to the buffer
@@ -244,7 +265,7 @@ class HttpResponse implements ResponseInterface
 	 * Get output string
 	 * @return string
 	 */
-	public function getOutput()
+	public function __toString()
 	{
 		return implode('', $this->output);
 	}
@@ -254,6 +275,15 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function flush()
 	{
+		// Don't send status header if is 200
+		if ($this->code != self::STATUS_OK) {
+
+			$statusHeader = self::PROTOCOL . '/' . $this->protocolVersion . ' ' 
+					. $this->code . ' ' . $this->message;
+
+			$this->header(self::STATUS_HEADER_NAME, $statusHeader);
+		}
+		
 		foreach ($this->headers as $name => $values) {
 			$this->sendHeader($name);
 		}
@@ -264,12 +294,18 @@ class HttpResponse implements ResponseInterface
 		}
 		$this->cookies = array();
 
-		if ( ! $this->isRedirect()) {
-			echo implode('', $this->output);
+		if ($this->hasOutput()) {
+			
+			foreach ($this->output as $output) {
+				if ($output instanceof HttpResponse) {
+					$output->flush();
+				} else {
+					echo $output;
+				}
+			}
 		}
-		$this->output = array();
 		
-		ob_end_flush();
+		$this->output = array();
 	}
 
 	/**
@@ -281,6 +317,12 @@ class HttpResponse implements ResponseInterface
 		if ( ! ($response instanceof HttpResponse)) {
 			throw new Exception\IncompatibleObject("The response object passed to Response\HttpResponse::flushToResponse() must be compatible with the source object");
 		}
+		
+		// Overwrites response code only if higher and resets (TODO: is it correct way to do?)
+		if ($this->code > $response->code) {
+			$response->setCode($this->code);
+		}
+		$this->code = self::STATUS_OK;
 		
 		foreach ($this->headers as $name => $headers) {
 			foreach ($headers as $headerData) {
@@ -294,8 +336,8 @@ class HttpResponse implements ResponseInterface
 		}
 		$this->cookies = array();
 
-		$response->output(implode('', $this->output));
-		$this->output = array();
+		// Send the whole response object to the output array
+		$response->output($this);
 	}
 
 	/**

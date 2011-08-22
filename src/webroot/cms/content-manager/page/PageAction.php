@@ -111,7 +111,7 @@ class PageAction extends PageManagerAction
 			'path_prefix' => $pathPrefix,
 			'template' => $templateArray,
 			
-			'internal_html' => $response->getOutput(),
+			'internal_html' => $response->__toString(),
 			'contents' => array(),
 			
 			'keywords' => $metaKeywords,

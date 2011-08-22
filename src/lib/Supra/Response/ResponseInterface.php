@@ -11,7 +11,7 @@ interface ResponseInterface
 	 * Prepares the response
 	 */
 	public function prepare();
-
+	
 	/**
 	 * Flush the response
 	 */

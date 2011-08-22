@@ -5,7 +5,7 @@ namespace Supra\Controller\Configuration;
 /**
  * Controller configuration interface
  */
-interface ConfigurationInterface
+interface ControllerConfigurationInterface
 {
 	public function configure();
 }
