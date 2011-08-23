@@ -47,6 +47,15 @@ abstract class CmsAction extends SimpleController
 			}
 
 			$response->setErrorMessage($message);
+		} catch (\Exception $e) {
+			// No support for not Json actions
+			$response = $this->getResponse();
+			if ( ! $response instanceof JsonResponse) {
+				throw $exception;
+			}
+			
+			//TODO: Remove later. Should not be shown to user
+			$response->setErrorMessage($e->getMessage());
 		}
 	}
 	

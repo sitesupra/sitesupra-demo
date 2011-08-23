@@ -4,7 +4,7 @@ namespace Supra\Cms\MediaLibrary\Medialibrary;
 
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
-use Supra\FileStorage;
+use Supra\FileStorage\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity;
 use Doctrine\ORM\EntityManager;
@@ -13,6 +13,7 @@ use Supra\Response\JsonResponse;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
 use Supra\Exception\LocalizedException;
+use Supra\Cms\Exception\CmsException;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -225,7 +226,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		// try to delete
-		$this->fileStorage->remove($file);
+		try {
+			$this->fileStorage->remove($file);
+		} catch (Exception\NotEmptyException $e) {
+			throw new CmsException('medialibrary.file_remove.can_not_delete_not_empty_directory', $e->getMessage());
+		}
+		
 	}
 
 	/**
@@ -429,7 +435,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			);
 			$output['original_url'] = $filePath;
 		}
-
+		
 		return $output;
 	}
 

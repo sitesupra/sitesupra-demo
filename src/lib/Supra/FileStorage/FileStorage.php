@@ -829,8 +829,25 @@ class FileStorage
 			
 			$path .= $file->getFileName();
 			return $path;
-		} else {
-			// TODO implement for private files
+		} else {	
+			
+			//TODO: hardcoded now
+			$path = '/cms/media-library/download/'.$file->getFileName();
+			
+			$query = array(
+				'inline' => 'inline',
+				'id' => $file->getId(),
+			);
+			
+			if (($file instanceof Entity\Image) || isset($sizeName)) {
+				$size = $file->findImageSize($sizeName);
+				if ($size instanceof Entity\ImageSize) {
+					$query['size'] = $size->getFolderName();
+				}
+			}
+			$queryOutput = http_build_query($query);
+			$output = $path . '?' . $queryOutput . '&';
+			return $output;
 		}
 	}
 

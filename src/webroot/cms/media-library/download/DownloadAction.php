@@ -6,6 +6,7 @@ use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Response;
 use Supra\Request;
+use Supra\FileStorage\FileStorage;
 
 /**
  * File download action
@@ -49,15 +50,30 @@ class DownloadAction extends MediaLibraryAbstractAction
 		if ($fileName !== $requestedFileName) {
 			throw new ResourceNotFoundException("Requested file name does not match file name on the server");
 		}
-		
-		$path = $this->fileStorage->getFilesystemPath($file);
+
+		if((! $file->isPublic()) && $this->hasRequestParameter('inline')) {
+			$size = $this->getRequestParameter('size');
+			$sizeDir = FileStorage::RESERVED_DIR_SIZE;
+			
+			// /home/dmitryp/work/supra7/src/files/lalala/dasdasdads/Screenshot-4.png
+			$fileDir = dirname($this->fileStorage->getFilesystemPath($file));
+			
+			$path = $fileDir . DIRECTORY_SEPARATOR . 
+						$sizeDir . DIRECTORY_SEPARATOR . 
+						$size . DIRECTORY_SEPARATOR . 
+						$file->getFileName();
+		} else {
+			$path = $this->fileStorage->getFilesystemPath($file);
+		}
 
 		if ( ! empty($mimeType)) {
 			$response->header('Content-type', $mimeType);
 		}
-
-		$response->header('Content-Disposition', 'attachment');
-		$response->header('Content-Transfer-Encoding', 'binary');
+		
+		if(! $this->hasRequestParameter('inline')) {
+			$response->header('Content-Disposition', 'attachment');
+			$response->header('Content-Transfer-Encoding', 'binary');
+		}
 		$response->header('Pragma', 'private');
 		$response->header('Cache-Control', 'private, must-revalidate');
 
