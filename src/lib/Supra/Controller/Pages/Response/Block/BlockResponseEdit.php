@@ -51,8 +51,8 @@ class BlockResponseEdit extends BlockResponse
 		//TODO: should be customizable somewhere
 		if ($property->getEditable() instanceof \Supra\Editable\Html) {
 			
-			// CMS shouldn't need parsed HTML
-			$filteredValue = $this->parseSupraMarkup($filteredValue, $valueData);
+			//TODO: CMS shouldn't need parsed HTML
+//			$filteredValue = $this->parseSupraMarkup($filteredValue, $valueData);
 			
 			$propertyName = $property->getName();
 			

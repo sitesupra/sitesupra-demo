@@ -200,6 +200,34 @@ class Path
 		$this->path = \array_slice($this->path, $pathDepth);
 		$this->setDepth(\count($this->path));
 	}
+	
+	/**
+	 * Get request base path with arbitrary offset
+	 * @param integer $offset
+	 * @return string
+	 */
+	public function getBasePath($offset = 0)
+	{
+		$basePathList = $this->basePathParts;
+		
+		if ($offset > 0) {
+			$basePathList = array_slice($basePathList, 0, -$offset);
+		}
+		
+		$parts = array();
+		
+		foreach ($basePathList as $path) {
+			$part = $path->__toString();
+			$part = trim($part, $this->separator);
+			if ($part != '') {
+				$parts[] = $part;
+			}
+		}
+		
+		$basePathString = implode($this->separator, $parts);
+		
+		return $basePathString;
+	}
 
 	/**
 	 * @return string

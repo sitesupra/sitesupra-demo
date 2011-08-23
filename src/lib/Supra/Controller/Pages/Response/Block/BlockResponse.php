@@ -154,7 +154,7 @@ abstract class BlockResponse extends HttpResponse
 	 * @param array $valueData
 	 * @return string 
 	 */
-	protected function parseSupraMarkup($value, $valueData)
+	protected function parseSupraMarkup($value, &$valueData)
 	{
 		//TODO: dummy replace for links, images only for now, must move to some filters, suppose like template engine extensions
 		$matches = array();
@@ -171,6 +171,8 @@ abstract class BlockResponse extends HttpResponse
 			$class = $match[1][0];
 			$id = $match[2][0];
 			$content = $match[4][0];
+			
+			$content = $this->parseSupraMarkup($content, $valueData);
 
 			$data = $valueData[$id];
 			$text = '';
