@@ -1,9 +1,11 @@
 <?php
 
-$userProvider = \Supra\User\UserProvider::getInstance();
+use Supra\ObjectRepository\ObjectRepository;
+
+$userProvider = new \Supra\User\UserProvider();
 
 $emailVailidation = new Supra\User\Validation\EmailValidation();
-$nameVailidation = new Supra\User\Validation\NameValidation();
 
 $userProvider->addValidationFilter($emailVailidation);
-$userProvider->addValidationFilter($nameVailidation);
+
+ObjectRepository::setDefaultUserProvider($userProvider);

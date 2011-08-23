@@ -6,6 +6,7 @@ use Supra\Tests\TestCase;
 use Supra\User;
 use Supra\User\Entity;
 use Supra\User\Exception;
+use Supra\ObjectRepository\ObjectRepository;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
@@ -15,12 +16,9 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 class UserTest extends \PHPUnit_Extensions_OutputTestCase
 {
 
-	const SALT = '2j*s@;0?0saASf1%^&1!';
-
 	private function cleanUp($delete = false)
 	{
-		$userProvider = User\UserProvider::getInstance();
-		$em = $userProvider->getEntityManager();
+		$em = ObjectRepository::getEntityManager($this);
 		$query = $em->createQuery("delete from Supra\User\Entity\Abstraction\User");
 		$query->execute();
 		$query = $em->createQuery("delete from Supra\User\Entity\User");
@@ -34,30 +32,24 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->cleanUp();
 
 		$user = new Entity\User();
-		$userProvider = User\UserProvider::getInstance();
-		$em = $userProvider->getEntityManager();
+		$em = ObjectRepository::getEntityManager($this);
 
 		/* @var $em Doctrine\ORM\EntityManager */
 		$em->persist($user);
 
-		$timeNow = new \DateTime('now');
-
 		$user->setName('Chuck');
-		$user->setPassword(md5('Norris' . self::SALT));
+		$user->setSalt();
+		$user->setPassword(sha1('Norris' . $user->getSalt()));
 		$user->setEmail('chuck@chucknorris.com');
-		$user->setCreatedTime($timeNow);
-		$user->setModifiedTime($timeNow);
-
 		$em->flush();
 	}
 
 	public function testModifyUser()
 	{
 
-		$userProvider = User\UserProvider::getInstance();
-		$em = $userProvider->getEntityManager();
+		$em = ObjectRepository::getEntityManager($this);
 		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $userProvider->getRepository();
+		$repo = $em->getRepository('Supra\User\Entity\User');
 
 		$user = $repo->findOneByName('Chuck');
 
@@ -67,10 +59,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$em->persist($user);
 
-		$timeNow = new \DateTime('now');
-
 		$user->setEmail('awesomechuck@chucknorris.com');
-		$user->setModifiedTime($timeNow);
 
 		$em->flush();
 
@@ -80,14 +69,14 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->fail('Cant\'t find user with name: Chuck');
 		}
 	}
-	
+
 	public function testModifyUserWithWrongEmail()
 	{
 
-		$userProvider = User\UserProvider::getInstance();
-		$em = $userProvider->getEntityManager();
+		$em = ObjectRepository::getEntityManager($this);
+		$userProvider = ObjectRepository::getUserProvider($this);
 		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $userProvider->getRepository();
+		$repo = $em->getRepository('Supra\User\Entity\User');
 
 		$user = $repo->findOneByName('Chuck');
 
@@ -97,11 +86,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$em->persist($user);
 
-		$timeNow = new \DateTime('now');
-
 		$user->setEmail('awesomechuckchucknorris.com');
-		$user->setModifiedTime($timeNow);
-		
+
 		try {
 			$userProvider->validate($user);
 		} catch (Exception\RuntimeException $exc) {
@@ -111,31 +97,69 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$em->flush();
 
 		$this->fail('Succeed to change email');
-		
 	}
 
-//	public function testDeleteUser()
-//	{
-//		$userProvider = User\UserProvider::getInstance();
-//		/* @var $em Doctrine\ORM\EntityManager */
-//		$em = $userProvider->getEntityManager();
-//		/* @var $repo Doctrine\ORM\EntityRepository */
-//		$repo = $userProvider->getRepository();
-//
-//		$user = $repo->findOneByName('Chuck');
-//
-//		if (empty($user)) {
-//			$this->fail('Cant\'t find user with name: Chuck');
-//		}
-//
-//		$em->remove($user);
-//		$em->flush();
-//
-//		$result = $repo->findOneByName('Chuck');
-//
-//		if ( ! empty($result)) {
-//			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
-//		}
-//	}
+	public function testDeleteUser()
+	{
+
+		/* @var $em Doctrine\ORM\EntityManager */
+		$em = ObjectRepository::getEntityManager($this);
+		/* @var $repo Doctrine\ORM\EntityRepository */
+		$repo = $em->getRepository('Supra\User\Entity\User');
+
+		$user = $repo->findOneByName('Chuck');
+
+		if (empty($user)) {
+			$this->fail('Cant\'t find user with name: Chuck');
+		}
+
+		$em->remove($user);
+		$em->flush();
+
+		$result = $repo->findOneByName('Chuck');
+
+		if ( ! empty($result)) {
+			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
+		}
+	}
+
+	public function testAddUserWithExistentEmail()
+	{
+		$this->cleanUp();
+
+		$user = new Entity\User();
+		$em = ObjectRepository::getEntityManager($this);
+		$userProvider = ObjectRepository::getUserProvider($this);
+
+		/* @var $em Doctrine\ORM\EntityManager */
+		$em->persist($user);
+
+		$user->setName('Chuck');
+		$user->setSalt();
+		$user->setPassword(sha1('Norris' . $user->getSalt()));
+		$user->setEmail('chuck@chucknorris.com');
+
+		$userProvider->validate($user);
+
+		$em->flush();
+
+		$user = new Entity\User();
+
+		/* @var $em Doctrine\ORM\EntityManager */
+		$em->persist($user);
+
+		$user->setName('Chuck');
+		$user->setSalt();
+		$user->setPassword(sha1('Norris' . $user->getSalt()));
+		$user->setEmail('chuck@chucknorris.com');
+
+		try {
+			$userProvider->validate($user);
+		} catch (Exception\RuntimeException $exc) {
+			return;
+		}
+
+		$this->fail('Test should catch Runtime exception because user with same email already exists.');
+	}
 
 }

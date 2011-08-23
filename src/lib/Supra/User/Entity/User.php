@@ -25,7 +25,7 @@ class User extends Abstraction\User
 	protected $password;
 	
 	/**
-	 * @Column(type="string", name="email", nullable=false)
+	 * @Column(type="string", name="email", nullable=false, unique=true)
 	 * @var string
 	 */
 	protected $email;
@@ -50,8 +50,12 @@ class User extends Abstraction\User
 	 */
 	protected $active = true;
 	
+	/**
+	 * @Column(type="string", name="salt", nullable=false)
+	 * @var string
+	 */
+	protected $salt;
 	
-
 	public function __construct()
 	{
 //		$this->createdTime = new \DateTime("now");
@@ -120,46 +124,6 @@ class User extends Abstraction\User
 		$this->lastLoginTime = $lastLoginTime;
 	}
 
-	/**
-	 * Returns user creation time
-	 * @return datetime
-	 */
-	public function getCreatedTime()
-	{
-		return $this->createdTime;
-	}
-
-	/**
-	 * Sets user creation time
-	 * @param \DateTime $createdTime 
-	 */
-	public function setCreatedTime(\DateTime $createdTime)
-	{
-		$this->createdTime = $createdTime;
-	}
-
-	/**
-	 * Returns user last modification time
-	 * @return type 
-	 */
-	public function getModifiedTime()
-	{
-		return $this->modifiedTime;
-	}
-
-	/**
-	 * sets user last modification time
-	 * @param \DateTime $modifiedTime 
-	 */
-	public function setModifiedTime(\DateTime $modifiedTime)
-	{
-		$this->modifiedTime = $modifiedTime;
-	}
-
-	/**
-	 * Returns user status
-	 * @return boolean
-	 */
 	public function isActive()
 	{
 		return $this->active;
@@ -172,6 +136,33 @@ class User extends Abstraction\User
 	public function setActive($active)
 	{
 		$this->active = $active;
+	}
+	
+	/**
+	 * Returns salt
+	 * @return string 
+	 */
+	public function getSalt()
+	{
+		return $this->salt;
+	}
+
+	/**
+	 * Sets salt
+	 */
+	public function setSalt()
+	{
+		$this->salt = uniqid();
+	}
+	
+	public function getGroup()
+	{
+		return $this->group;
+	}
+
+	public function setGroup($group)
+	{
+		$this->group = $group;
 	}
 
 

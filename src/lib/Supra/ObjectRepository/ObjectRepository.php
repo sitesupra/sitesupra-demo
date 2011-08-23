@@ -4,6 +4,7 @@ namespace Supra\ObjectRepository;
 
 use Doctrine\ORM\EntityManager;
 use Supra\FileStorage\FileStorage;
+use Supra\User\UserProvider;
 use Supra\Log\Writer\WriterInterface;
 
 /**
@@ -15,6 +16,7 @@ class ObjectRepository
 	
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterInterface';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
+	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
 
 	/**
@@ -229,5 +231,37 @@ class ObjectRepository
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Get assigned user provider
+	 *
+	 * @param mixed $caller
+	 * @return UserProvider
+	 */
+	public static function getUserProvider($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_USER_PROVIDER);
+	}
+
+	/**
+	 * Assign user provider instance to caller class
+	 *
+	 * @param mixed $caller
+	 * @param UserProvider $object 
+	 */
+	public static function setUserProvider($caller, UserProvider $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_USER_PROVIDER);
+	}
+	
+	/**
+	 * Set default user provider
+	 *
+	 * @param UserProvider $object 
+	 */
+	public static function setDefaultUserProvider(UserProvider $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_USER_PROVIDER);
 	}
 }

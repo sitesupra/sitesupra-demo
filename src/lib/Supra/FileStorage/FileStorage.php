@@ -35,12 +35,6 @@ class FileStorage
 	protected $externalPath = null;
 
 	/**
-	 * Default file storage internal/external
-	 * @var string
-	 */
-	protected $defaultStorage = 'external';
-
-	/**
 	 * Upload file filters array for processing
 	 * @var array
 	 */

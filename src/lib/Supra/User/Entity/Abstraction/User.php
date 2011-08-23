@@ -57,24 +57,41 @@ class User
 		$this->name = $name;
 	}
 
+	/**
+	 * Returns creation time
+	 * @return \DateTime
+	 */
 	public function getCreatedTime()
 	{
 		return $this->createdTime;
 	}
-
-	public function setCreatedTime($createdTime)
+	
+	/**
+	 * Sets creation time to now
+	 * @PrePersist
+	 */
+	public function setCreatedTime()
 	{
-		$this->createdTime = $createdTime;
+		$this->createdTime = new \DateTime('now');
 	}
 
+	/**
+	 * Returns last modification time
+	 * @return \DateTime
+	 */
 	public function getModifiedTime()
 	{
 		return $this->modifiedTime;
 	}
 
-	public function setModifiedTime($modifiedTime)
+	/**
+	 * Sets modification time to now 
+	 * @PreUpdate
+	 * @PrePersist
+	 */
+	public function setModifiedTime()
 	{
-		$this->modifiedTime = $modifiedTime;
+		$this->modifiedTime = new \DateTime('now');
 	}
 
 }

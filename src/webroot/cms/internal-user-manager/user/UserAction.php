@@ -3,7 +3,9 @@
 namespace Supra\Cms\InternalUserManager\User;
 
 use Supra\Controller\SimpleController;
-use Supra\Cms\InternalUserManager\InternalUserManagerActionController;
+use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
+use Supra\ObjectRepository\ObjectRepository;
+use Doctrine\ORM\EntityManager;
 use Supra\User\Exception;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
@@ -11,10 +13,8 @@ use Supra\User\UserProvider;
 /**
  * Sitemap
  */
-class UserAction extends InternalUserManagerActionController
+class UserAction extends InternalUserManagerAbstractAction
 {
-
-	const SALT = '2j*s@;0?0saASf1%^&1!';
 
 	public function userAction()
 	{
@@ -29,19 +29,19 @@ class UserAction extends InternalUserManagerActionController
 	public function loadAction()
 	{
 
-		if (isset($_GET['user_id'])) {
+		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		if ( ! $this->emptyRequestParameter('user_id')) {
 
-			$userId = $_GET['user_id'];
+			$userId = $this->getRequestParameter('user_id');
 
-			$userProvider = UserProvider::getInstance();
-			$em = $userProvider->getEntityManager();
 			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $userProvider->getRepository();
+			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
 
 			if (empty($user)) {
-				$this->setErrorMessage('Can\'t find user with such id');
+				$this->getResponse()
+						->setErrorMessage('Can\'t find user with such id');
 				return;
 			}
 
@@ -55,7 +55,8 @@ class UserAction extends InternalUserManagerActionController
 
 			$this->getResponse()->setResponseData($response);
 		} else {
-			$this->setErrorMessage('User id is not set');
+			$this->getResponse()
+					->setErrorMessage('User id is not set');
 		}
 	}
 
@@ -65,28 +66,27 @@ class UserAction extends InternalUserManagerActionController
 	public function deleteAction()
 	{
 
-		if (isset($_GET['user_id'])) {
+		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		if ( ! $this->emptyRequestParameter('user_id')) {
 
-			$userId = $_GET['user_id'];
-
-			$userProvider = UserProvider::getInstance();
-			$em = $userProvider->getEntityManager();
+			$userId = $this->getRequestParameter('user_id');
+			
 			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $userProvider->getRepository();
+			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');;
 
 			$user = $repo->findOneById($userId);
 
 			if (empty($user)) {
-				$this->setErrorMessage('Can\'t find user with such id');
+				$this->getResponse()->setErrorMessage('Can\'t find user with such id');
 				return;
 			}
 
-			$em->remove($user);
-			$em->flush();
+			$this->entityManager->remove($user);
+			$this->entityManager->flush();
 
 			$this->getResponse()->setResponseData(null);
 		} else {
-			$this->setErrorMessage('User id is not set');
+			$this->getResponse()->setErrorMessage('User id is not set');
 		}
 	}
 
@@ -95,20 +95,18 @@ class UserAction extends InternalUserManagerActionController
 	 */
 	public function resetAction()
 	{
+		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		if ( ! $this->emptyRequestParameter('user_id')) {
 
-		if (isset($_GET['user_id'])) {
+			$userId = $this->getRequestParameter('user_id');
 
-			$userId = $_GET['user_id'];
-
-			$userProvider = UserProvider::getInstance();
-			$em = $userProvider->getEntityManager();
 			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $userProvider->getRepository();
+			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
 
 			if (empty($user)) {
-				$this->setErrorMessage('Can\'t find user with such id');
+				$this->getResponse()->setErrorMessage('Can\'t find user with such id');
 				return;
 			}
 
@@ -125,44 +123,41 @@ class UserAction extends InternalUserManagerActionController
 
 			$this->getResponse()->setResponseData(null);
 		} else {
-			$this->setErrorMessage('User id is not set');
+			$this->getResponse()->setErrorMessage('User id is not set');
 		}
 	}
 
 	public function insertAction()
 	{
-		if (isset($_POST['email'], $_POST['name'], $_POST['group'])) {
+		$this->isPostRequest();
 
-			$email = $_POST['email'];
-			$name = $_POST['name'];
-			$group = $_POST['group'];
+		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "
+		if ( ! $this->emptyRequestParameter('email') &&
+				! $this->emptyRequestParameter('name') &&
+				! $this->emptyRequestParameter('group')) {
 
-			$userProvider = UserProvider::getInstance();
-
-			$em = $userProvider->getEntityManager();
+			$email = $this->getRequestParameter('email');
+			$name = $this->getRequestParameter('name');
+			$group = $this->getRequestParameter('group');
 
 			$user = new Entity\User();
 
-			$em->persist($user);
-
-			$timeNow = new \DateTime('now');
+			$this->entityManager->persist($user);
 
 			// TODO: add group and avatar
 			$user->setName($name);
-			$user->setPassword(md5($name . 'Norris' . self::SALT));
+			$user->setSalt();
+			$user->setPassword(sha1($name . $user->getSalt()));
 			$user->setEmail($email);
-			$user->setCreatedTime($timeNow);
-			$user->setModifiedTime($timeNow);
 
 			try {
-				$userProvider->validate($user);
+				$this->userProvider->validate($user);
 			} catch (Exception\RuntimeException $exc) {
-				$this->setErrorMessage($exc->getMessage());
+				$this->getResponse()->setErrorMessage($exc->getMessage());
 				return;
 			}
 
-
-			$em->flush();
+			$this->entityManager->flush();
 
 			$response = array(
 				'name' => $name,
@@ -174,53 +169,66 @@ class UserAction extends InternalUserManagerActionController
 
 			$this->getResponse()->setResponseData($response);
 		} else {
-			
+
 			//error message
 		}
 	}
 
 	public function saveAction()
 	{
+		$this->isPostRequest();
 
-		if (isset($_POST['user_id'])) {
+		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "
+		if ( ! $this->emptyRequestParameter('user_id') &&
+				! $this->emptyRequestParameter('email') &&
+				! $this->emptyRequestParameter('group') &&
+				! $this->emptyRequestParameter('name')) {
 
-			$email = $_POST['email'];
-			$name = $_POST['name'];
-			$group = $_POST['group'];
-			$userId = $_POST['user_id'];
+			$email = $this->getRequestParameter('email');
+			$name = $this->getRequestParameter('name');
+			$group = $this->getRequestParameter('group');
+			$userId = $this->getRequestParameter('user_id');
 
-			$userProvider = UserProvider::getInstance();
-
-			$em = $userProvider->getEntityManager();
 			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $userProvider->getRepository();
+			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
-
+			
+			// temporary solution when save action is triggered and there is no changes
+			if(($email == $user->getEmail()) &&	($name == $user->getName())){
+				
+				$response = array(
+					'name' => $name,
+					'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
+					'email' => $email,
+					'group' => 1,
+					'user_id' => $userId,
+				);
+				$this->getResponse()->setResponseData($response);
+				return;
+			}
+			
 			if (empty($user)) {
-				$this->setErrorMessage('User with such id doesn\'t exists');
+				$this->getResponse()->setErrorMessage('User with such id doesn\'t exists');
 
 				return;
 			}
 
-			$em->persist($user);
-
-			$timeNow = new \DateTime('now');
+			$this->entityManager->persist($user);
 
 			// TODO: add group and avatar
 			$user->setName($name);
 			$user->setEmail($email);
-			$user->setModifiedTime($timeNow);
 
 			try {
-				$userProvider->validate($user);
+				$this->userProvider->validate($user);
 			} catch (Exception\RuntimeException $exc) {
-				$this->setErrorMessage($exc->getMessage());
+				$this->getResponse()->setErrorMessage($exc->getMessage());
 				return;
 			}
 
 
-			$em->flush();
+			$this->entityManager->flush();
 
 			$response = array(
 				'name' => $name,
@@ -234,16 +242,6 @@ class UserAction extends InternalUserManagerActionController
 		} else {
 			// error message
 		}
-	}
-
-	/**
-	 * Sets error message to JsonResponse object
-	 * @param string $message error message
-	 */
-	private function setErrorMessage($message)
-	{
-		$this->getResponse()->setErrorMessage($message);
-		$this->getResponse()->setStatus(false);
 	}
 
 }

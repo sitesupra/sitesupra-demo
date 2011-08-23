@@ -3,24 +3,21 @@
 namespace Supra\Cms\InternalUserManager\Userlist;
 
 use Supra\Controller\SimpleController;
-use Supra\Cms\InternalUserManager\InternalUserManagerActionController;
-
+use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
+use Supra\ObjectRepository\ObjectRepository;
+use Doctrine\ORM\EntityManager;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
 
 /**
  * Sitemap
  */
-class UserlistAction extends InternalUserManagerActionController
+class UserlistAction extends InternalUserManagerAbstractAction
 {
 
 	public function userlistAction()
 	{
-		$userProvider = UserProvider::getInstance();
-		$em = $userProvider->getEntityManager();
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $userProvider->getRepository();
-
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 		$users = $repo->findAll();
 		
 		$result = array();

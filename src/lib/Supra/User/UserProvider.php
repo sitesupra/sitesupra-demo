@@ -3,64 +3,20 @@
 namespace Supra\User;
 
 use Supra\User\Entity;
+use Supra\ObjectRepository\ObjectRepository;
+use Doctrine\ORM\EntityManager;
 
 class UserProvider
 {
-
 	private $validationFilters = array();
-	
 	public $entityManager;
-	public $repository;
+
+	public function __construct()
+	{
+		$this->entityManager = ObjectRepository::getEntityManager($this);
+	}
 	
-	protected static $instance;
-	
-	const USER_ENTITY = '\Supra\User\Entity\User';
-	
-	
-	/**
-	 * Protecting from new UserProvider
-	 */
-	private function __construct()
-	{
-		
-	}
-
-	/**
-	 * Protecting from cloning
-	 */
-	private function __clone()
-	{
-		
-	}
-
-	/**
-	 * Returning only one instance of object
-	 *
-	 * @return UserProvider
-	 */
-	public static function getInstance()
-	{
-		if (is_null(self::$instance)) {
-			self::$instance = new UserProvider;
-		}
-		return self::$instance;
-	}
-
-	public function getEntityManager()
-	{
-		return \Supra\Database\Doctrine::getInstance()->getEntityManager();
-	}
-
-	/**
-	 * Returns repository
-	 * @return Doctrine\ORM\EntityRepository
-	 */
-	public function getRepository()
-	{
-		return $this->getEntityManager()->getRepository(self::USER_ENTITY);
-	}
-
-		public function addValidationFilter($validationFilter)
+	public function addValidationFilter($validationFilter)
 	{
 		$this->validationFilters[] = $validationFilter;
 	}
@@ -70,7 +26,6 @@ class UserProvider
 		foreach ($this->validationFilters as $filter) {
 			$filter->validateUser($user);
 		}
-		
 	}
 
 }
