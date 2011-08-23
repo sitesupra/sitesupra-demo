@@ -44,12 +44,15 @@ class BlockResponseEdit extends BlockResponse
 	 */
 	public function outputProperty(Entity\BlockProperty $property)
 	{
-		$data = $property->getValue();
+		$valueData = $property->getValueData();
 		$editable = $property->getEditable();
 		$filteredValue = $editable->getFilteredValue(static::EDITABLE_FILTER_ACTION);
 		
 		//TODO: should be customizable somewhere
 		if ($property->getEditable() instanceof \Supra\Editable\Html) {
+			
+			// CMS shouldn't need parsed HTML
+			$filteredValue = $this->parseSupraMarkup($filteredValue, $valueData);
 			
 			$propertyName = $property->getName();
 			

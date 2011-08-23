@@ -75,6 +75,14 @@ class FileStorage
 	{
 		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
+	
+	/**
+	 * @return EntityManager
+	 */
+	public function getDoctrineEntityManager()
+	{
+		return $this->entityManager;
+	}
 
 	/**
 	 * Folder access mode
