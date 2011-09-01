@@ -8,7 +8,16 @@ use Doctrine\ORM\EntityManager;
 
 class UserProvider
 {
+	/**
+	 * Validation filters
+	 * @var type 
+	 */
 	private $validationFilters = array();
+	
+	/**
+	 * Entity manager
+	 * @var type 
+	 */
 	public $entityManager;
 
 	public function __construct()

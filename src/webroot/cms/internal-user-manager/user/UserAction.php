@@ -70,9 +70,9 @@ class UserAction extends InternalUserManagerAbstractAction
 		if ( ! $this->emptyRequestParameter('user_id')) {
 
 			$userId = $this->getRequestParameter('user_id');
-			
+
 			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');;
+			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
 
@@ -102,7 +102,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			/* @var $repo Doctrine\ORM\EntityRepository */
 			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-
+			/* @var $user Entity\User */
 			$user = $repo->findOneById($userId);
 
 			if (empty($user)) {
@@ -110,11 +110,22 @@ class UserAction extends InternalUserManagerAbstractAction
 				return;
 			}
 
-			// TODO: Change password to temporary
-			// FIXME: Add mailer and real recovery link.
+			// TODO:  Add mailer
+			$expTime = time();
 			$userMail = $user->getEmail();
+			$hash = $this->generateHash($user, $expTime);
+
+			// TODO: Change hardcoded link
+			$url = 'http://supra7.vig/cms/internal-user-manager/restore';
+			$query = http_build_query(array(
+				'e' => $userMail,
+				't' => $expTime,
+				'h' => $hash,
+					));
+			$link = $url . '?' . $query;
+
 			$subject = 'Password recovery';
-			$message = 'Message and you our recovery link will be here';
+			$message = 'Go to ' . $link;
 
 			$headers = 'From: admin@supra7.vig' . "\r\n" .
 					'X-Mailer: PHP/' . phpversion();
@@ -193,10 +204,10 @@ class UserAction extends InternalUserManagerAbstractAction
 			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
-			
+
 			// temporary solution when save action is triggered and there is no changes
-			if(($email == $user->getEmail()) &&	($name == $user->getName())){
-				
+			if (($email == $user->getEmail()) && ($name == $user->getName())) {
+
 				$response = array(
 					'name' => $name,
 					'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
@@ -207,7 +218,7 @@ class UserAction extends InternalUserManagerAbstractAction
 				$this->getResponse()->setResponseData($response);
 				return;
 			}
-			
+
 			if (empty($user)) {
 				$this->getResponse()->setErrorMessage('User with such id doesn\'t exists');
 
@@ -244,4 +255,17 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 	}
 
+	/**
+	 * Generates hash for password recovery
+	 * @param Entity\User $user 
+	 */
+	private function generateHash(Entity\User $user, $expirationTime)
+	{
+		$salt = $user->getSalt();
+		$email = $user->getEmail();
+
+		$hash = sha1($expirationTime . $salt . $email);
+
+		return $hash;
+	}
 }
