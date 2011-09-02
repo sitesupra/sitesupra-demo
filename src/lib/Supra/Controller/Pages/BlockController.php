@@ -61,20 +61,11 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * Generate response object
 	 * @param Request\RequestInterface $request
-	 * @return Response\ResponseInterface
+	 * @return Response\TwigResponse
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		$response = null;
-		
-		if ($request instanceof PageRequestEdit) {
-			$response = new Block\BlockResponseEdit();
-		} else {
-			$response = new Block\BlockResponseView();
-		}
-		
-		// Response object needs a block entity
-		$response->setBlock($this->block);
+		$response = new Response\TwigResponse();
 		
 		return $response;
 	}

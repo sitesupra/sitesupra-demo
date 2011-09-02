@@ -210,7 +210,7 @@ class PageController extends ControllerAbstraction
 		}
 		
 		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController) 
-				use (&$placeResponses, &$page, $finalPlaceHolders) {
+				use (&$placeResponses, &$page, $finalPlaceHolders, $request) {
 			
 			$response = $blockController->getResponse();
 			
@@ -223,7 +223,25 @@ class PageController extends ControllerAbstraction
 				throw new Exception\LogicException("Logic problem – final place holder by name $placeName is not found");
 			}
 			
-			$response->flushToResponse($placeResponses[$placeName]);
+			$placeResponse = $placeResponses[$placeName];
+			
+			//TODO: move to separate method
+			if ($request instanceof Request\PageRequestEdit) {
+				$blockId = $block->getId();
+				$blockName = $block->getComponentName();
+
+				$prefixCountent = '<div id="content_' . $blockName . '_' . $blockId
+					. '" class="yui3-page-content yui3-page-content-' . $blockName 
+					. ' yui3-page-content-' . $blockName . '-' . $blockId . '">';
+				
+				$placeResponse->output($prefixCountent);
+			}
+			
+			$placeResponse->output($response);
+			
+			if ($request instanceof Request\PageRequestEdit) {
+				$placeResponse->output('</div>');
+			}
 		};
 
 		// Iterates through all blocks and collects placeholder responses
