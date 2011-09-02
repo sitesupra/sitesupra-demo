@@ -120,13 +120,18 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function findBlockControllers()
 	{
+		$request = $this->getRequest();
+		$page = $request->getPage();
+		
 		// function which adds controllers for the block
-		$controllerFactory = function(Entity\Abstraction\Block $block) {
+		$controllerFactory = function(Entity\Abstraction\Block $block) use ($page) {
 			$blockController = $block->createController();
 			
 			if (empty($blockController)) {
 				throw new Exception\InvalidBlockException('Block controller was not found');
 			}
+			
+			$blockController->setPage($page);
 			
 			return $blockController;
 		};

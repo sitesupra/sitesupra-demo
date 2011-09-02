@@ -7,20 +7,17 @@ namespace Supra\Editable;
  */
 abstract class EditableAbstraction implements EditableInterface
 {
-	// Action types for choosing the content filter
-	const ACTION_VIEW = 'view';
-	const ACTION_EDIT = 'edit';
-	const ACTION_PREVIEW = 'preview';
-	
 	/**
 	 * Default filter classes for content by action
 	 * @var array
 	 */
-	protected static $defaultFilters = array(
-		self::ACTION_VIEW => 'Supra\Editable\Filter\Raw',
-		self::ACTION_EDIT => 'Supra\Editable\Filter\Raw',
-		self::ACTION_PREVIEW => 'Supra\Editable\Filter\Raw'
-	);
+	protected static $defaultFilters = array();
+	
+	/**
+	 * Array of content filters
+	 * @var array
+	 */
+	protected $filters = array();
 	
 	/**
 	 * @return mixed
@@ -39,6 +36,23 @@ abstract class EditableAbstraction implements EditableInterface
 	public function __construct($label)
 	{
 		$this->setLabel($label);
+		$filterClass = null;
+		
+		// Fill in the default filters
+		foreach (static::$defaultFilters as $filterClass) {
+		
+			if ( ! class_exists($filterClass)) {
+				throw new Exception\FilterNotFound("Filter '{$filterClass}' was not found", $this);
+			}
+
+			$filter = new $filterClass();
+
+			if ( ! $filter instanceof Filter\FilterInterface) {
+				throw new Exception\FilterNotFound("Filter '{$filterClass}' does not implement the filter interface", $this);
+			}
+
+			$this->filters[] = $filter;
+		}
 	}
 	
 	/**
@@ -66,37 +80,12 @@ abstract class EditableAbstraction implements EditableInterface
 	}
 	
 	/**
-	 * Get filter object for the passed action
-	 * @param string $action
-	 * @return Filter\FilterInterface
-	 * @throws Exception\FilterNotFound
+	 * Adds filter for the editable content
+	 * @param Filter\FilterInterface $filter
 	 */
-	protected function getFilter($action)
+	public function addFilter(Filter\FilterInterface $filter)
 	{
-		$filterClass = null;
-		
-		// Try the extended default filter definition, Raw otherwise
-		if (isset(static::$defaultFilters[$action])) {
-			$filterClass = static::$defaultFilters[$action];
-		} elseif (isset(self::$defaultFilters[$action])) {
-			$filterClass = self::$defaultFilters[$action];
-		}
-		
-		if (empty($filterClass)) {
-			throw new Exception\FilterNotFound("Filter not defined", $this, $action);
-		}
-		
-		if ( ! class_exists($filterClass)) {
-			throw new Exception\FilterNotFound("Filter {$filterClass} was not found", $this, $action);
-		}
-		
-		$filter = new $filterClass();
-		
-		if ( ! $filter instanceof Filter\FilterInterface) {
-			throw new Exception\FilterNotFound("Filter {$filterClass} does not implement the filter interface", $this, $action);
-		}
-		
-		return $filter;
+		$this->filters[] = $filter;
 	}
 	
 	/**
@@ -104,12 +93,16 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @param string $action
 	 * @return string
 	 */
-	public function getFilteredValue($action = self::ACTION_VIEW)
+	public function getFilteredValue()
 	{
-		$filter = $this->getFilter($action);
-		$value = $filter->filter($this);
+		$content = $this->content;
 		
-		return $value;
+		// Filter the content
+		foreach ($this->filters as $filter) {
+			$content = $filter->filter($content);
+		}
+		
+		return $content;
 	}
 
 	/**

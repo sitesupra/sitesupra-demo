@@ -12,3 +12,4 @@ require_once SUPRA_CONF_PATH . 'objectrepository.php';
 require_once SUPRA_CONF_PATH . 'locale.php';
 require_once SUPRA_CONF_PATH . 'filestorage.php';
 require_once SUPRA_CONF_PATH . 'user.php';
+require_once SUPRA_CONF_PATH . 'template.php';

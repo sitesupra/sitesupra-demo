@@ -21,8 +21,7 @@ interface EditableInterface
 	
 	/**
 	 * Get filtered value for the editable content by action
-	 * @param string $action
 	 * @return string
 	 */
-	public function getFilteredValue($action);
+	public function getFilteredValue();
 }

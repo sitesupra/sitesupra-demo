@@ -12,12 +12,6 @@ use Supra\Controller\Pages\Entity;
 class BlockResponseEdit extends BlockResponse
 {
 	/**
-	 * Editable filter action
-	 * @var string
-	 */
-	const EDITABLE_FILTER_ACTION = EditableAbstraction::ACTION_EDIT;
-	
-	/**
 	 * Flush the response to another response object
 	 * @param ResponseInterface $response
 	 */
@@ -38,40 +32,4 @@ class BlockResponseEdit extends BlockResponse
 		$response->output('</div>');
 	}
 	
-	/**
-	 * @param Entity\BlockProperty $property
-	 * @return string
-	 */
-	public function outputProperty(Entity\BlockProperty $property)
-	{
-		$valueData = $property->getValueData();
-		$editable = $property->getEditable();
-		$filteredValue = $editable->getFilteredValue(static::EDITABLE_FILTER_ACTION);
-		
-		//TODO: should be customizable somewhere
-		if ($property->getEditable() instanceof \Supra\Editable\Html) {
-			
-			//TODO: CMS shouldn't need parsed HTML
-//			$filteredValue = $this->parseSupraMarkup($filteredValue, $valueData);
-			
-			$propertyName = $property->getName();
-			
-			$block = $property->getBlock();
-			$blockId = $block->getId();
-			
-			// Normalize block name
-			$blockName = $block->getComponentName();
-			
-			$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName 
-					. '" class="yui3-page-content-inline yui3-input-html-inline-content">';
-			$html .= $filteredValue;
-			$html .= '</div>';
-			
-			$filteredValue = $html;
-		}
-		
-		$this->output($filteredValue);
-		
-		return $filteredValue;
-	}
 }

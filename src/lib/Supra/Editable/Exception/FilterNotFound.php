@@ -13,12 +13,11 @@ class FilterNotFound extends RuntimeException implements EditableException
 	 * Generates the message automatically
 	 * @param string $message
 	 * @param EditableInterface $editable
-	 * @param string $action 
 	 */
-	public function __construct($message, EditableInterface $editable, $action)
+	public function __construct($message, EditableInterface $editable)
 	{
 		$class = get_class($editable);
-		$message = "{$message} for {$editable} action '{$action}'";
+		$message = "{$message} for {$editable}";
 		
 		parent::__construct($message);
 	}

@@ -10,15 +10,10 @@ class Html extends String
 	const EDITOR_NAME = 'html';
 	
 	/**
-	 * Default filter classes for content by action
+	 * No filtering for HTML
 	 * @var array
 	 */
-	protected static $defaultFilters = array(
-		self::ACTION_VIEW => 'Supra\Editable\Filter\Raw',
-		// TODO: currently doesn't do anything
-		self::ACTION_EDIT => 'Supra\Editable\Filter\EditableHtml',
-		self::ACTION_PREVIEW => 'Supra\Editable\Filter\Raw'
-	);
+	protected static $defaultFilters = array();
 
 	/**
 	 * Get JavaScript editor name

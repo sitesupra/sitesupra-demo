@@ -13,6 +13,7 @@ class TextController extends BlockController
 {
 	public function execute()
 	{
+		/* @var $response Response\TwigResponse */
 		$response = $this->getResponse();
 		if ( ! ($response instanceof Response\HttpResponse)) {
 			\Log::debug('Response is not an instance of Http response in block controller ' . __CLASS__);
@@ -32,18 +33,13 @@ class TextController extends BlockController
 			}
 			$comment .= "Master " . $block->getPlaceHolder()->getMaster()->__toString() . ".\n";
 		}
-
-		/* @var $response Response\HttpResponse */
-		$response->output('<div title="' . htmlspecialchars($comment) . '">');
-//		$response->output($this->getPropertyValue('html', 'defaultText'));
 		
-//		$response->output("<h2>HELLO</h2>");
+		$response->assign('title', $comment);
 		
-		$this->outputProperty('html', 'defaultText1');
+		$value = $this->getPropertyValue('html', 'defaultText1');
+		$response->assign('html', $value);
 		
-//		$response->output("<h2>BYE</h2>");
-		
-		$response->output('</div>');
+		$response->outputTemplate('webroot/components/text/index.html');
 	}
 	
 	/**
@@ -62,4 +58,6 @@ class TextController extends BlockController
 		
 		return $contents;
 	}
+	
+	
 }

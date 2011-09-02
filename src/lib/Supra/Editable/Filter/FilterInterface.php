@@ -11,8 +11,8 @@ interface FilterInterface
 {
 	/**
 	 * Filters the editable content's data
-	 * @params EditableInterface $editable
+	 * @params string $content
 	 * @return string
 	 */
-	public function filter(EditableInterface $editable);
+	public function filter($content);
 }

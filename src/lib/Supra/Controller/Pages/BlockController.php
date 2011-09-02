@@ -9,7 +9,8 @@ use Supra\Editable\EditableAbstraction;
 use Supra\Editable\EditableInterface;
 use Supra\Controller\Pages\Request\HttpEditRequest;
 use Supra\Controller\Pages\Response\Block;
-use \Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Request\PageRequestEdit;
 
 /**
  * Block controller abstraction\
@@ -66,7 +67,7 @@ abstract class BlockController extends ControllerAbstraction
 	{
 		$response = null;
 		
-		if ($request instanceof namespace\Request\PageRequestEdit) {
+		if ($request instanceof PageRequestEdit) {
 			$response = new Block\BlockResponseEdit();
 		} else {
 			$response = new Block\BlockResponseView();
@@ -91,66 +92,12 @@ abstract class BlockController extends ControllerAbstraction
 	 * @param mixed $default
 	 * @return Entity\BlockProperty
 	 */
-	public function getProperty($name)
-	{
-		if ($this->propertyExists($name)) {
-			return $this->properties[$name];
-		} else {
-			$blockName = get_class($this);
-			throw new Exception\RuntimeException("The property '{$name}' was not found for block '{$blockName}'");
-		}
-	}
-	
-	/**
-	 * Get property value, use default if not found
-	 * @param string $name
-	 * @param string $default
-	 * @return string
-	 */
-	public function getPropertyValue($name, $default = null)
-	{
-		$value = $default;
-		
-		if ($this->propertyExists($name)) {
-			$property = $this->getProperty($name);
-			$value = $property->getValue();
-		}
-		
-		return $value;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getProperties()
-	{
-		return $this->properties;
-	}
-
-	/**
-	 * @param string $name
-	 * @return boolean
-	 */
-	public function propertyExists($name)
-	{
-		return array_key_exists($name, $this->properties);
-	}
-	
-	/**
-	 * Get the content and output it to the response or return if no response 
-	 * object set
-	 * 
-	 * @TODO could move to block response object
-	 * 
-	 * @param string $name
-	 * @param string $default
-	 */
-	public function outputProperty($name, $default = null)
+	public function getProperty($name, $default)
 	{
 		$property = null;
 		
 		if ($this->propertyExists($name)) {
-			$property = $this->getProperty($name);
+			$property = $this->properties[$name];
 		}
 		
 		$propertyDefinitions = $this->getPropertyDefinition();
@@ -160,7 +107,6 @@ abstract class BlockController extends ControllerAbstraction
 			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 		}
 		
-		//FIXME: some of this functionality should be moved to getPropertyValue
 		$editable = $propertyDefinitions[$name];
 
 		if ( ! $editable instanceof EditableInterface) {
@@ -195,28 +141,85 @@ abstract class BlockController extends ControllerAbstraction
 			$property->setData($this->getRequest()->getRequestPageData());
 		}
 
+		//TODO: this is ugly content copying
 		$content = $property->getValue();
 		$editable->setContent($content);
-		
-		$response = $this->getResponse();
-		
-		if ( ! $response instanceof Block\BlockResponse) {
-			throw new Exception\RuntimeException("Block controller response object must be instance of block response");
-		}
-		
-		//TODO: Here must add filter which would add <DIV> for edit action
-		//TODO: Someone passes the actual request page here
-//		/* @var $page Entity\Abstraction\Page */
-//		if ($page->isBlockPropertyEditable($property)) {
-//			
-//			$
-//			
-//			$editable->addFilter();
-//		}
-		
 		$property->setEditable($editable);
+
+		$this->configureContentFilters($property, $editable);
 		
-		$response->outputProperty($property);
+		return $property;
+	}
+	
+	/**
+	 * Add additional filters for the property
+	 * @param Entity\BlockProperty $property
+	 * @param EditableInterface $editable
+	 */
+	protected function configureContentFilters(Entity\BlockProperty $property, EditableInterface $editable)
+	{
+		// Html content additional filters
+		if ($editable instanceof \Supra\Editable\Html) {
+			// Editable action
+			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+				$filter = new Filter\EditableHtml();
+				$filter->property = $property;
+				$editable->addFilter($filter);
+			// View
+			} else {
+				$filter = new Filter\ParsedHtmlFilter();
+				$filter->property = $property;
+				$editable->addFilter($filter);
+			}
+		}
+	}
+	
+	/**
+	 * Get property value, use default if not found
+	 * @param string $name
+	 * @param string $default
+	 * @return string
+	 */
+	public function getPropertyValue($name, $default = null)
+	{
+		$property = $this->getProperty($name, $default);
+		$editable = $property->getEditable();
+		$value = $editable->getFilteredValue();
+		
+		return $value;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getProperties()
+	{
+		return $this->properties;
+	}
+
+	/**
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function propertyExists($name)
+	{
+		return array_key_exists($name, $this->properties);
+	}
+	
+	/**
+	 * Get the content and output it to the response or return if no response 
+	 * object set
+	 * 
+	 * @TODO could move to block response object
+	 * 
+	 * @param string $name
+	 * @param string $default
+	 */
+	public function outputProperty($name, $default = null)
+	{
+		$value = $this->getPropertyValue($name, $default);
+		
+		$this->response->output($value);
 	}
 
 	/**

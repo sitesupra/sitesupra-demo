@@ -48,6 +48,10 @@ $loader->registerNamespace($doctrineNamespace);
 $symfonyNamespace = new Supra\Loader\NamespaceRecord('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
+// Twig autoloader, TODO: should write such supra7 autoloader
+require_once SUPRA_LIBRARY_PATH . 'Twig' . DIRECTORY_SEPARATOR . 'Autoloader.php';
+Twig_Autoloader::register();
+
 $loader->registerSystemAutoload();
 
 // Set the initial timezone to the logger

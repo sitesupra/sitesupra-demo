@@ -14,9 +14,7 @@ class String extends EditableAbstraction
 	 * @var array
 	 */
 	protected static $defaultFilters = array(
-		self::ACTION_VIEW => 'Supra\Editable\Filter\EscapeHtml',
-		self::ACTION_EDIT => 'Supra\Editable\Filter\EscapeHtml',
-		self::ACTION_PREVIEW => 'Supra\Editable\Filter\EscapeHtml'
+		'Supra\Editable\Filter\EscapeHtml',
 	);
 	
 	/**

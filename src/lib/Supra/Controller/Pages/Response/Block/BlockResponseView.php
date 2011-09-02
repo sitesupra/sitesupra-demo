@@ -10,9 +10,5 @@ use Supra\Editable\EditableAbstraction;
  */
 class BlockResponseView extends BlockResponse
 {
-	/**
-	 * Editable filter action
-	 * @var string
-	 */
-	const EDITABLE_FILTER_ACTION = EditableAbstraction::ACTION_VIEW;
+	
 }
