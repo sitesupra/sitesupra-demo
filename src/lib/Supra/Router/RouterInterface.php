@@ -15,12 +15,26 @@ interface RouterInterface
 	 * @param RequestInterface $request
 	 */
     public function match(RequestInterface $request);
+	
+	/**
+	 * Finalizes request and sets base path
+	 * @param RequestInterface $request
+	 */
+	public function finalizeRequest(RequestInterface $request);
 
 	/**
 	 * Get router priority
-	 * @return integer
+	 * 1) Base priority
+	 * 2) Local priority
+	 * 3) Priority differnce
+	 * @return array
 	 */
 	public function getPriority();
+	
+	/**
+	 * Sets priority difference
+	 */
+	public function setPriorityDiff($priorityDiff);
 
 	/**
 	 * Set controller to route

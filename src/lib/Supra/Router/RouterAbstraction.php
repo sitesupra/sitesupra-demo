@@ -3,12 +3,24 @@
 namespace Supra\Router;
 
 use Supra\Controller\ControllerInterface;
+use Supra\Request\RequestInterface;
+
 
 /**
  * Description of RouterAbstraction
  */
 abstract class RouterAbstraction implements RouterInterface
 {
+	/**
+	 * Controller execution priority levels
+	 */
+
+	const PRIORITY_VERY_LOW = 10;
+	const PRIORITY_LOW = 20;
+	const PRIORITY_MEDIUM = 30;
+	const PRIORITY_HIGH = 40;
+	const PRIORITY_TOP = 50;
+
 	/**
 	 * Default router parameters
 	 * @var array
@@ -32,6 +44,24 @@ abstract class RouterAbstraction implements RouterInterface
 	 * @var ControllerInterface
 	 */
 	protected $controller;
+	
+	protected $priorityDiff;
+	
+	/**
+	 * @return integer 
+	 */
+	public function getPriorityDiff()
+	{
+		return $this->priorityDiff;
+	}
+	
+	/**
+	 * @param integer $priorityDiff 
+	 */
+	public function setPriorityDiff($priorityDiff)
+	{
+		$this->priorityDiff = $priorityDiff;
+	}
 
 	/**
 	 * Set controller to route
@@ -95,4 +125,11 @@ abstract class RouterAbstraction implements RouterInterface
 		}
 		return $default;
 	}
+	
+	public function finalizeRequest(RequestInterface $request)
+	{
+		
+	}
+
+
 }

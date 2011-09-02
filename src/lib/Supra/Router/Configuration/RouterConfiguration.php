@@ -2,7 +2,8 @@
 
 namespace Supra\Router\Configuration;
 
-use Supra\Router\UriRouter;
+use Supra\Router\RouterInterface;
+use Supra\Router\RouterAbstraction;
 
 /**
  * RouterConfiguration
@@ -25,11 +26,18 @@ class RouterConfiguration
 	public $controller = 'Project\Pages\PageController';
 	
 	/**
-	 * @return UriRouter
+     * Default Controller execution priority
+     */
+
+	public $priority = RouterAbstraction::PRIORITY_MEDIUM;
+		
+	/**
+	 * @return RouterInterface
 	 */
 	public function configure()
 	{
 		$router = new $this->class($this->url);
+		$router->setPriorityDiff($this->priority);
 		
 		return $router;
 	}

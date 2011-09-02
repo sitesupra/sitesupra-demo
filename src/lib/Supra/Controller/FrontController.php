@@ -3,6 +3,7 @@
 namespace Supra\Controller;
 
 use Supra\Request;
+use Supra\Controller\Exception;
 use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
@@ -13,17 +14,18 @@ use Supra\Log\Writer\WriterInterface;
  */
 class FrontController
 {
+
 	/**
 	 * Singleton instance
 	 * @var FrontController
 	 */
 	private static $instance;
-	
+
 	/**
 	 * @var WriterInterface
 	 */
 	private $log;
-	
+
 	/**
 	 * Routing array
 	 * @var Router\RouterInterface[]
@@ -44,11 +46,11 @@ class FrontController
 		if (isset(self::$instance)) {
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
-		
+
 		$this->log = ObjectRepository::getLogger($this);
 		self::$instance = $this;
 	}
-	
+
 	/**
 	 * Singleton method
 	 * @return FrontController
@@ -58,10 +60,10 @@ class FrontController
 		if ( ! isset(self::$instance)) {
 			self::$instance = new self();
 		}
-		
+
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Routing rules
 	 * @param Route\RouterInterface $router
@@ -83,10 +85,16 @@ class FrontController
 	 */
 	protected function compareRouters(Router\RouterInterface $a, Router\RouterInterface $b)
 	{
+		$diff = 0;
 		$aPriority = $a->getPriority();
 		$bPriority = $b->getPriority();
-		$diff = $bPriority - $aPriority;
-		
+
+		if ($bPriority > $aPriority) {
+			$diff = 1;
+		} elseif ($bPriority < $aPriority) {
+			$diff = -1;
+		}
+
 		return $diff;
 	}
 
@@ -109,24 +117,35 @@ class FrontController
 	public function execute()
 	{
 		$request = $this->getRequestObject();
-		
+
 		try {
-			$controller = $this->findController($request);
+			$controllers = $this->findControllers($request);
 
-			$this->runController($controller, $request);
+			$break = false;
+			foreach ($controllers as $controller) {
 
-			$controller->output();
+				try {
+					$this->runController($controller, $request);
+				} catch (Exception\StopRequestException $exc) {
+					$break = true;
+				}
+				$controller->output();
+
+				if ($break) {
+					break;
+				}
+			}
 		} catch (\Exception $exception) {
 
 			// Log the exception raised
 			$this->log->error($exception);
-			
+
 			$exceptionController = $this->findExceptionController($request, $exception);
 			$this->runController($exceptionController, $request);
 			$exceptionController->output();
 		}
 	}
-	
+
 	/**
 	 * Runs controller
 	 * @param ControllerInterface $controller
@@ -145,21 +164,36 @@ class FrontController
 	 * @param Request\RequestInterface $request
 	 * @return ControllerInterface
 	 */
-	public function findController(Request\RequestInterface $request)
+	public function findControllers(Request\RequestInterface $request)
 	{
-		foreach ($this->getRouters() as $router) {
+		$routers = array();
+		$controllers = array();
+		$allRouters = $this->getRouters();
+		foreach ($allRouters as $router) {
 			/* @var $router Router\RouterAbstraction */
-			
 			if ($router->match($request)) {
 				$controller = $router->getController();
-				
-				return $controller;
+
+				$routers[] = $router;
+				$controllers[] = $controller;
+
+				if ( ! $controller instanceof PreFilterInterface) {
+					break;
+				}
 			}
 		}
-		
-		throw new Exception\ResourceNotFoundException('No controller has been found for the request');
+
+		foreach ($routers as $router) {
+			$router->finalizeRequest($request);
+		}
+
+		if (empty($controllers)) {
+			throw new Exception\ResourceNotFoundException('No controller has been found for the request');
+		}
+
+		return $controllers;
 	}
-	
+
 	/**
 	 * Get controller to show exception details
 	 * @param Request\RequestInterface $request
@@ -171,7 +205,7 @@ class FrontController
 	{
 		$exceptionController = new ExceptionController();
 		$exceptionController->setException($exception);
-		
+
 		return $exceptionController;
 	}
 
@@ -182,13 +216,13 @@ class FrontController
 	protected function getRequestObject()
 	{
 		$request = null;
-		
+
 		if ( ! isset($_SERVER['SERVER_NAME'])) {
 			$request = new Request\CliRequest();
 		} else {
 			$request = new Request\HttpRequest();
 		}
-		
+
 		return $request;
 	}
 
