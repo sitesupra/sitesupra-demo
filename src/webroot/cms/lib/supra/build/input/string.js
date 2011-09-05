@@ -58,7 +58,8 @@ YUI.add("supra.input-string", function (Y) {
 			}
 			
 			//Handle keydown
-			input.on("keydown", this._onKeyDown, this);
+			//input.on("keydown", this._onKeyDown, this);
+			input.on("keypress", this._onKeyDown, this);
 			
 			//Handle value attribute change
 			if (!this.get('srcNode').compareTo(input)) {

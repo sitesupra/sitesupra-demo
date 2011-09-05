@@ -133,6 +133,8 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 							//Revert title changes
 							obj.data.title = original_title;
 							obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(original_title));
+						} else {
+							this.get('host').reloadFolder(obj.id);
 						}
 					}
 				}, this);

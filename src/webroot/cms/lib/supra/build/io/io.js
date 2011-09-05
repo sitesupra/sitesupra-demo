@@ -194,7 +194,8 @@ YUI().add("supra.io", function (Y) {
 				} else if (Y.Lang.isObject(obj[i]) || Y.Lang.isArray(obj[i])) {
 					Supra.mix(o, this.serialize(obj[i], name));
 				} else {
-					o[name] = encodeURIComponent(obj[i]);
+					//Null or undefined shouldn't be sent to server-side, because they are received as strings
+					o[name] = encodeURIComponent(obj[i] === null || obj[i] === undefined ? '' : obj[i]);
 				}
 			}
 		}

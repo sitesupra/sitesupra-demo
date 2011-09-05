@@ -163,13 +163,41 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		addChild: function (position, target, callback, context) {
-			var drop_data = target.get('data');
-			var pagedata = SU.mix({}, TREENODE_DATA, {
-				'parent': (position == 'inside' ? drop_data.id : drop_data.parent),
-				'template': (position == 'inside' ? drop_data.template : target.get('parent').get('data').template)
-			});
+			var drop_data = target.get('data'),
+				pagedata = SU.mix({}, TREENODE_DATA, {
+					//New parent ID
+					'parent': drop_data.id,
+					//Item ID before which drag item was inserted
+					'reference': '',
+					//Page template (parent template)
+					'template': (position == 'inside' ? drop_data.template : target.get('parent').get('data').template),
+					//Locale
+					'locale': Supra.Manager.SiteMap.languagebar.get('locale')
+				});
+			
+			if (position == 'before') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				pagedata.reference = drop_data.id;
+				pagedata.parent = parent;
+			} else if (position == 'after') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				var ref = target.next(); 
+				if (ref) {
+					pagedata.reference = ref.get('data').id;
+				}
+				
+				pagedata.parent = parent;
+			}
+			
+			
 			
 			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
+			
+			console.log(pagedata);
 			
 			SU.Manager.Page.createPage(pagedata, function () {
 				this.onNewPageDataLoad.apply(this, arguments);

@@ -489,6 +489,37 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
+		 * Reload folder data
+		 *
+		 * @param {String} folder Folder ID
+		 */
+		reloadFolder: function (folder) {
+			//Reload file list
+			var data_object = this.get('dataObject'),
+				parent = data_object.getData(folder).parent,
+				children = data_object.getChildrenData(folder);
+			
+			for(var i=0,ii=children.length; i<ii; i++) {
+				data_object.removeData(children[i].id);
+			}
+			
+			//Remove children data
+			delete(data_object.dataIndexed[folder].children);
+			
+			//Remove slide
+			this.slideshow.removeSlide('slide_' + folder);
+			
+			//Load slide
+			var old_value = this.slideshow.get('noAnimations');
+			this.slideshow.set('noAnimations', true);
+			
+			this.open(parent);
+			this.open(folder, Y.bind(function () {
+				this.slideshow.set('noAnimations', old_value);
+			}, this));
+		},
+		
+		/**
 		 * Returns image preview node
 		 * 
 		 * @private

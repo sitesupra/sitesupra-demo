@@ -170,6 +170,9 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		},
 		
 		onPageMove: function (event) {
+			//New page also triggers this event, but drag.id is empty
+			if (!event.drag.id) return;
+			
 			var position = event.position,
 				drag_id = event.drag.id,
 				drop_id = event.drop.id,

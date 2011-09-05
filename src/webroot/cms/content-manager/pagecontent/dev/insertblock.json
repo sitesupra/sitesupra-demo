@@ -2,9 +2,9 @@
 	"status": 1,
 	"data": {
 		"id": <?php $id = rand(); echo $id; ?>,
-		"type": "<?php echo $_GET['type']; ?>",
+		"type": "<?php echo $_POST['type']; ?>",
 		"locked": false,
-		<?php if ($_GET['type'] == 'Project_Text_TextController') { ?>
+		<?php if ($_POST['type'] == 'Project_Text_TextController') { ?>
 		"properties": {
 			"html": {
 				"html": "Aaaaaaaaaaaaa",
@@ -12,7 +12,7 @@
 			}
 		},
 		"html": "<div id=\"content_Project_Text_TextController_<?php echo $id; ?>_html\" class=\"yui3-content-inline\">\n<h2>Lorem ipsum<\/h2>\n<p>Lorem ipsum<\/p><\/div>"
-		<?php } elseif ($_GET['type'] == 'gallery') { ?>
+		<?php } elseif ($_POST['type'] == 'gallery') { ?>
 		"properties": {
 			"visible": true,
 			"images": []
