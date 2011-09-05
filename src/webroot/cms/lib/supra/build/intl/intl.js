@@ -19,6 +19,26 @@ YUI.add('supra.intl', function (Y) {
 		 */
 		data: {},
 		
+		/**
+		 * Paths for which Intl data is loaded
+		 * @type {Object}
+		 * @private
+		 */
+		loaded: {},
+		
+		/**
+		 * List of Intl data which is being loaded
+		 * @type {Object}
+		 * @private
+		 */
+		loading: {},
+		
+		/**
+		 * Callbacks
+		 * @type {Object}
+		 * @private
+		 */
+		callbacks: {},
 		
 		
 		/**
@@ -29,7 +49,7 @@ YUI.add('supra.intl', function (Y) {
 		add: function (data /* Data */) {
 			
 			//Add to data
-			Supra.mix(this.data, data || {});
+			Supra.mix(this.data, data || {}, true);
 			
 			//Add to Y.Intl
 			for(var ns in data) {
@@ -38,14 +58,25 @@ YUI.add('supra.intl', function (Y) {
 		},
 		
 		/**
+		 * Returns true if internationalization data is already loaded
+		 * 
+		 * @param {String} app_path Application path
+		 * @return True if already loaded
+		 * @type {Boolean}
+		 */
+		isLoaded: function (app_path /* Application path */) {
+			return this.loaded[app_path];
+		},
+		
+		/**
 		 * Load internationalization data
 		 * 
+		 * @param {String} app_path Application path
 		 * @param {String} requestURI Request URI
 		 * @param {Function} callback Optional. Callback function
 		 * @param {Object} context Optional. Callback execution context
 		 */
-		load: function (requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
-			
+		load: function (app_path /* Application path*/, requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
 			Supra.io(requestURI, {
 				'data': {
 					'lang': Supra.data.get('lang', '')
@@ -53,10 +84,18 @@ YUI.add('supra.intl', function (Y) {
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
+						this.loading[app_path] = false;
+						this.loaded[app_path] = true;
+						
 						if (data) this.add(data);
-						if (Y.Lang.isFunction(callback)) {
-							context = context || window;
-							callback.call(context, data);
+						
+						//Execute callbacks
+						var callbacks = this.callbacks[app_path];
+						if (callbacks) {
+							delete(this.callbacks[app_path]);
+							for(var i=0,ii=callbacks.length; i<ii; i++) {
+								callbacks[i][0].call(callbacks[i][1], data);
+							}
 						}
 					}
 				}
@@ -72,8 +111,27 @@ YUI.add('supra.intl', function (Y) {
 		 * @param {Object} context Optional. Callback execution context
 		 */
 		loadAppData: function (app_path /* Application path */, callback /* Callback */, context /* Context */) {
+			if (this.loaded[app_path]) {
+				//Call callback
+				if (Y.Lang.isFunction(callback)) {
+					callback.call(context || window, this.data);
+				}
+				//Skip
+				return;
+			}
+			
+			//Add callback to the list
+			if (Y.Lang.isFunction(callback)) {
+				if (!this.callbacks[app_path]) this.callbacks[app_path] = [];
+				this.callbacks[app_path].push([callback, context || window]);
+			}
+			
+			//Already loading, skip
+			if (this.loading[app_path]) return;
+			this.loading[app_path] = true;
+			
 			var uri = app_path + '/' + this.FILENAME;
-			this.load(uri, callback ,context);
+			this.load(app_path, uri, callback ,context);
 		},
 		
 		/**

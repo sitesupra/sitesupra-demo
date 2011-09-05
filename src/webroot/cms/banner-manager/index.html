@@ -93,18 +93,13 @@
 				{'id': [],		 				'allow': true}
 			]);
 			
+			//Start loading actions
+			Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons']);
 			
-			//Load internationalization data
-			Supra.Intl.loadAppData(Supra.data.get(['application', 'path']), function () {
-				
-				//Start loading actions
-				Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons']);
-				
-				//Execute initial actions
-				Supra.Manager.executeAction('Header');
-				Supra.Manager.executeAction('Root');
-				
-			});
+			//Execute initial actions
+			Supra.Manager.executeAction('Header');
+			Supra.Manager.executeAction('Root');
+			
 		});
 		
 	//]]>

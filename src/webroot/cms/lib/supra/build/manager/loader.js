@@ -186,7 +186,19 @@ YUI.add('supra.manager-loader', function (Y) {
 		loadAction: function (action_name) {
 			if (this.isLoaded(action_name) || this.isLoading(action_name)) return false;
 			
+			//If internationalized data not loaded, wait till it is
+			var base = this.static_path + (this.paths[action_name] || this.getBasePath());
+			if (!Supra.Intl.isLoaded(base)) {
+				Supra.Intl.loadAppData(base, function () {
+					//Call loadAction again
+					this.loadAction(action_name);
+				}, this);
+				return;
+			}
+			
+			//
 			var info = this.getActionInfo(action_name);
+			
 			this.loading[action_name] = {
 				'script': true,
 				'style': false,
@@ -407,12 +419,12 @@ YUI.add('supra.manager-loader', function (Y) {
 		 * Returns action folder path
 		 * 
 		 * @param {String} action_name Action name
-		 * @param {String} base Optional, base path to use instead of default
+		 * @param {String} dynamic Return dynamic folder path instead of static
 		 * @return URL where action files can be found
 		 * @type {String}
 		 * @private
 		 */
-		getActionFolder: function (action_name /* Action name */, dynamic /* Return folder path */) {
+		getActionFolder: function (action_name /* Action name */, dynamic /* Return dynamic folder path */) {
 			if (!action_name) return null;
 			var base = '';
 			
