@@ -83,6 +83,15 @@ class HttpRequest implements RequestInterface
 	}
 
 	/**
+	 *
+	 * @return string 
+	 */
+	public function getRequestUri()
+	{
+		return $this->requestUri;
+	}
+
+	/**
 	 * Get action list
 	 * @param integer $limit
 	 * @return string[]

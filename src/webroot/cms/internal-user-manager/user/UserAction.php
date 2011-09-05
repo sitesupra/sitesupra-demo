@@ -155,10 +155,12 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$this->entityManager->persist($user);
 
-			// TODO: add group and avatar
+			// TODO: add group, avatar, password creation
 			$user->setName($name);
 			$user->setSalt();
-			$user->setPassword(sha1($name . $user->getSalt()));
+			$password = $this->userProvider
+							->generatePasswordHash($email, $user->getSalt());
+			$user->setPassword($password);
 			$user->setEmail($email);
 
 			try {

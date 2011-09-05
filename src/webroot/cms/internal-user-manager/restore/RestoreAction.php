@@ -9,6 +9,7 @@ use Supra\Request;
 use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
 use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Restore password
@@ -132,8 +133,11 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		
 		$user->setSalt();
 		$salt = $user->getSalt();
-	
-		$user->setPassword(sha1($password . $salt));
+		
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$hash = $userProvider->generatePasswordHash($password, $salt);
+		
+		$user->setPassword($hash);
 		$this->entityManager->flush();
 		
 		// TODO: redirect
