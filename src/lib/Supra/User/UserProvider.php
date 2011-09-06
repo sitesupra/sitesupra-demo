@@ -64,11 +64,13 @@ class UserProvider
 	public function authenticate($login, $password)
 	{		
 		$adapter = $this->getAuthAdapter();
-		$user = $adapter->findUser($login, $password);
+		
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		$user = $repo->findOneByEmail($login);
 		
 		$result = $adapter->authenticate($user, $password);
 		
-		if (! $result) {
+		if ( ! $result) {
 			return false;
 		}
 		

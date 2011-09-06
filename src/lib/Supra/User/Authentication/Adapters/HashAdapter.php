@@ -18,16 +18,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 */
 	public function findUser($login, $password)
 	{
-		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('Supra\User\Entity\User');
-		$user = $repo->findOneByEmail($login);
-
-		if ( ! $user) {
-			//throw new Exception('User not found');
-			return false;
-		}
 		
-		return $user;
 	}
 
 	/**
@@ -38,6 +29,10 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 */
 	public function authenticate(User $user, $password)
 	{
+		if (empty($user) || ( ! $user instanceof User)) {
+			return false;
+		}
+		
 		$salt = $user->getSalt();
 		$hash = $this->generatePasswordHash($password, $salt);
 		
