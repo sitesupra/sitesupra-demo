@@ -233,6 +233,13 @@ YUI().add('website.sitemap-settings', function (Y) {
 				
 				//Reload tree
 				this.host.flowmap.reload();
+				this.host.setLoading(true);
+				
+				//Reload recycle bin
+				var recycle = Manager.getAction('SiteMapRecycle');
+				if (recycle.get('visible')) {
+					recycle.load();
+				}
 			}, this);
 		}
 		
