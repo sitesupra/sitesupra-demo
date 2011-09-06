@@ -15,14 +15,6 @@
 }
 
 /**
- * Buttons
- */
-.yui3-mediasidebar .yui3-sidebar-buttons .button-close {
-	float: right;
-	margin-right: 0;
-}
-
-/**
  * Media List
  */
 .yui3-mediasidebar .yui3-medialist {
@@ -38,8 +30,6 @@
  */
 .yui3-mediasidebar .yui3-sidebar-footer {
 	height: 32px;
-	border-top: 1px solid #eee;
-	padding: 10px;
 	text-align: center;
 }
 

@@ -97,6 +97,13 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		input_type: null,
 		
+		/**
+		 * First execute request
+		 * @type {Boolean}
+		 * @private
+		 */
+		first_exec: false,
+		
 		
 		
 		/**
@@ -105,6 +112,11 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		initialize: function () {
 			//Add buttons to toolbar
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+				'id': 'recyclebin',
+				'title': SU.Intl.get(['sitemap', 'recycle_bin']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
+				'action': 'SiteMapRecycle'
+			}, {
 				'id': 'history',
 				'title': SU.Intl.get(['sitemap', 'undo_history']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
@@ -157,6 +169,11 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				this.flowmap.reload();
 				this.flowmap.newpage.setType(evt.value);
 				this.setLoading(true);
+				
+				var recycle = Manager.getAction('SiteMapRecycle');
+				if (recycle.get('visible')) {
+					recycle.load(evt.value);
+				}
 			}, this);
 		},
 		
@@ -227,6 +244,50 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			}
 		},
 		
+		/**
+		 * Returns drop position data
+		 * 
+		 * @param {Object} target Drop target
+		 * @param {String} drop_id Drop target ID
+		 * @param {String} drag_id Drag ID
+		 * @param {String} position Drop position
+		 * @return Drop data
+		 * @type {Object}
+		 */
+		getDropPositionData: function (target, drop_id, drag_id, position) {
+			var data = {
+				//New parent ID
+				'parent_id': drop_id,
+				//Item ID before which drag item was inserted
+				'reference_id': '',
+				//Dragged item ID
+				'page_id': drag_id,
+				
+				//Locale
+				'locale': this.languagebar.get('locale')
+			};
+			
+			if (position == 'before') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				data.reference_id = drop_id;
+				data.parent_id = parent;
+			} else if (position == 'after') {
+				var parent = target.get('parent');
+				parent = parent ? parent.get('data').id : 0;
+				
+				var ref = target.next(); 
+				if (ref) {
+					data.reference_id = ref.get('data').id;
+				}
+				
+				data.parent_id = parent;
+			}
+			
+			return data;
+		},
+		
 		onPageMove: function (event) {
 			//New page also triggers this event, but drag.id is empty
 			if (!event.drag.id) return;
@@ -236,36 +297,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				drop_id = event.drop.id,
 				source = this.flowmap.getNodeById(drag_id),
 				target = this.flowmap.getNodeById(drop_id),
-				
-				post_data = {
-					//New parent ID
-					'parent_id': drop_id,
-					//Item ID before which drag item was inserted
-					'reference_id': '',
-					//Dragged item ID
-					'page_id': drag_id,
-					
-					//Locale
-					'locale': this.languagebar.get('locale')
-				};
-			
-			if (position == 'before') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
-				
-				post_data.reference_id = drop_id;
-				post_data.parent_id = parent;
-			} else if (position == 'after') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
-				
-				var ref = target.next(); 
-				if (ref) {
-					post_data.reference_id = ref.get('data').id;
-				}
-				
-				post_data.parent_id = parent;
-			}
+				post_data = this.getDropPositionData(target, drop_id, drag_id, position);
 			
 			//Send request
 			var uri = this.getDataPath('move');
@@ -408,6 +440,32 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			//Page select event
 			this.flowmap.on('node-click', this.onTreeNodeClick, this);
+			
+			//Layout
+			var node = this.one(),
+				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				
+			//Content position sync with other actions
+			node.plug(SU.PluginLayout, {
+				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+			});
+			
+			//Top bar 
+			node.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			node.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+			node.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+		},
+		
+		/**
+		 * Returns tree instance
+		 *
+		 * @return Tree instance
+		 * @type {Object}
+		 */
+		getTree: function () {
+			return this.flowmap;
 		},
 		
 		hide: function () {
@@ -439,6 +497,12 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		execute: function () {
 			this.show();
+			
+			if (!this.first_exec) {
+				this.flowmap.reload();
+				this.setLoading(true);
+			}
+			this.first_exec = false;
 		}
 	});
 	

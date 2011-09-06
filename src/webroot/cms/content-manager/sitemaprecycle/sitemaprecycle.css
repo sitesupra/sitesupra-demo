@@ -1,0 +1,28 @@
+.recycle-list {
+	list-style: none;
+	font-size: 14px;
+}
+.recycle-list li {
+	background: url("/cms/lib/supra/img/tree/page.png") 7px 7px no-repeat;
+}
+.recycle-list li:hover {
+	background-color: #F5F5F5;
+}
+.recycle-list li label {
+	display: block;
+	padding: 5px 10px 5px 30px;
+	line-height: 20px;
+	cursor: move;
+}
+.recycle-list.loading {
+	background: url("/cms/lib/supra/img/ajax-loader.gif") 50% 50% no-repeat;
+	height: 100%;
+}
+.recycle-list.loading > li {
+	display: none;
+}
+
+.yui3-recycle .yui3-tree-node-proxy {
+	z-index: 10;
+	white-space: nowrap;
+}

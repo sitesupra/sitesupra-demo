@@ -1,0 +1,25 @@
+<div class="yui3-recycle yui3-sidebar">
+	
+	<!-- Header -->
+	<h2 class="yui3-sidebar-header">Recycle bin</h2>
+	
+	<!-- Buttons -->
+	<div class="yui3-sidebar-buttons">
+		<button type="button" class="button-close"><p>Close</p></button>
+	</div>
+	
+	<!-- Content -->
+	<div class="yui3-sidebar-content yui3-sidebar-content-scrollable">
+		
+		<ul class="recycle-list"></ul>
+		
+		<script type="text/html" id="recycleItemList">
+			{% for item in items %}
+			<li data-id="{{ item.id }}">
+				<label>{{ item.title }}</label>
+			</li>
+			{% endfor %}
+		</script>
+		
+	</div>
+</div>

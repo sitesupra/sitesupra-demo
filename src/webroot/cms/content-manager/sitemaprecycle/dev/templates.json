@@ -1,0 +1,8 @@
+{
+	"status": 1,
+	"data": [
+		{"id": 201, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "OMG, they killed Keny", "template": "template_3", "path": "killed", "icon": "cart", "published": false, "scheduled": true},
+		{"id": 202, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "YOU bastards!", "template": "template_3", "path": "keny", "icon": "cart", "published": false, "scheduled": true},
+		{"id": 202, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "No worries, he can be cloned from this template :)", "template": "template_3", "path": "keny", "icon": "cart", "published": false, "scheduled": true}
+	]
+}

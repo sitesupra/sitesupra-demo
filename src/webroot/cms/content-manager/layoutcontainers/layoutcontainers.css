@@ -121,6 +121,10 @@
 .yui3-sidebar-buttons .yui3-button {
 	margin: 10px 10px 0 0;
 }
+.yui3-left-container .yui3-sidebar-buttons .button-close {
+	float: right;
+	margin: 10px 0 0 10px;
+}
 
 /* Content */
 .yui3-sidebar-content {
@@ -141,4 +145,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
+	
+	border-top: 1px solid #eee;
+	padding: 10px;
 }

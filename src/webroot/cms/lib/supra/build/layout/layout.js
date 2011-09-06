@@ -141,6 +141,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 				node = host.get('boundingBox'),
 				style = {};
 			
+			if (!node && host.isInstanceOf('Node')) node = host;
 			if (!node) node = host.get('srcNode');
 			
 			if (node) {
