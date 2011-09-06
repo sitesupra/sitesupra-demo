@@ -20,7 +20,8 @@ class RestoreAction extends InternalUserManagerAbstractAction
 {
 
 	const MIN_PASSWORD_LENGTH = 4;
-		
+	
+	const LOGIN_PAGE = '/cms/login';
 	/**
 	 * Validates hash
 	 * @param type $expirationTime
@@ -140,8 +141,7 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		$user->setPassword($hash);
 		$this->entityManager->flush();
 		
-		// TODO: redirect
-		$this->getResponse()->output('Password changed');
+		$this->getResponse()->redirect(self::LOGIN_PAGE);
 				
 	}
 	

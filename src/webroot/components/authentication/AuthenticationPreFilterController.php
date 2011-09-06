@@ -22,8 +22,30 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	private $sessionName = 'SID';
 
 	const REDIRECT_TO = 'supra_redirect_to';
+	
+	/**
+	 * Session expiration time in seconds
+	 */
+	const SESSION_EXPIRATION_TIME = 900;
 
 	protected $userProvider;
+
+	/**
+	 * TODO: when you will be able to pass to $routerConfiguration->controller object instead of namespace
+	 * you will need to add setters and getters for public url list
+	 * 
+	 * Public url list in restricted area
+	 * @var array
+	 */
+	public $publicUrlList = array(
+		'/cms/internal-user-manager/restore',
+		'/cms/internal-user-manager/restore/changepassword',
+	);
+
+	public function getPublicUrlList()
+	{
+		return $this->publicUrlList;
+	}
 
 	public function __construct()
 	{
@@ -75,8 +97,14 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 		session_name($this->sessionName);
 		session_start();
 		
+		$isPublicUrl = $this->isPublicUrl($this->request->getRequestUri());
+
+		if ($isPublicUrl) {
+			return;
+		}
+
 		$post = $this->request->isPost();
-		
+
 		// if post request then check for login and password fields presence
 		if ($post) {
 
@@ -89,24 +117,25 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			$password = $this->request->getPostValue($passwordField);
 
 			if ( ! empty($login) && ! empty($password)) {
-				
-				$userProvider = ObjectRepository::getUserProvider($this);	
+
+				$userProvider = ObjectRepository::getUserProvider($this);
 				$user = $userProvider->authenticate($login, $password);
-				
+
 				if ( ! empty($user)) {
 					$uri = $this->getCmsPath();
 					
-					if ( ! empty($_COOKIE[self::REDIRECT_TO])) {
-						$uri = $_COOKIE[self::REDIRECT_TO];
+					$redirect_to = $this->request->getCookie(self::REDIRECT_TO);
+					if ( ! empty($redirect_to)) {
+						$uri = $redirect_to;
 					}
-					
+
 					$_SESSION['user'] = $user;
+					$_SESSION['expiration_time'] = time()+self::SESSION_EXPIRATION_TIME;
 					
 					$this->response->redirect($uri);
-					
+
 					$cookie = new Cookie(self::REDIRECT_TO, '');
 					$cookie->setExpire('-1 min');
-					
 				} else {
 					$loginPath = $this->getLoginPath();
 					$this->response->redirect($loginPath);
@@ -116,7 +145,17 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			}
 		}
 
-		$session = $_SESSION['user'];
+		$session = null;
+		
+		if( ! empty ($_SESSION['user'])) {
+			$time = time();
+			if($_SESSION['expiration_time'] > $time) {
+				$session = $_SESSION['user'];
+			} else {
+				unset ($_SESSION['user']);
+			}
+			
+		}
 
 		if (empty($session)) {
 
@@ -129,7 +168,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 				$cookie->setPath($this->getCmsPath());
 
 				// FIXME: Ugly
-				$domain = $_SERVER['HTTP_HOST'];
+				$domain = $this->request->getServerValue('HTTP_HOST');
 				$cookie->setDomain($domain);
 
 				$this->response->setCookie($cookie);
@@ -139,6 +178,14 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 				throw new Exception\StopRequestException();
 			}
 		}
+	}
+
+	private function isPublicUrl($publicUrl)
+	{
+		$publicUrlList = $this->getPublicUrlList();
+		$publicUrl = rtrim($publicUrl, '/');
+
+		return in_array($publicUrl, $publicUrlList);
 	}
 
 }

@@ -65,12 +65,17 @@ class UserAction extends InternalUserManagerAbstractAction
 	 */
 	public function deleteAction()
 	{
-
 		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
 		if ( ! $this->emptyRequestParameter('user_id')) {
 
 			$userId = $this->getRequestParameter('user_id');
-
+			$currentUser = $_SESSION['user'];
+			$currentUserId = $currentUser->getId();
+		
+			if ($currentUserId == $userId) {
+				$this->getResponse()->setErrorMessage('You can\'t delete current user account');
+				return;
+			}
 			/* @var $repo Doctrine\ORM\EntityRepository */
 			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
@@ -116,7 +121,8 @@ class UserAction extends InternalUserManagerAbstractAction
 			$hash = $this->generateHash($user, $expTime);
 
 			// TODO: Change hardcoded link
-			$url = 'http://supra7.vig/cms/internal-user-manager/restore';
+			$host = $this->request->getServerValue('HTTP_HOST');
+			$url = 'http://'. $host .'/cms/internal-user-manager/restore';
 			$query = http_build_query(array(
 				'e' => $userMail,
 				't' => $expTime,
@@ -159,7 +165,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			$user->setName($name);
 			$user->setSalt();
 			$password = $this->userProvider
-							->generatePasswordHash($email, $user->getSalt());
+							->generatePasswordHash('', $user->getSalt());
 			$user->setPassword($password);
 			$user->setEmail($email);
 
@@ -169,7 +175,30 @@ class UserAction extends InternalUserManagerAbstractAction
 				$this->getResponse()->setErrorMessage($exc->getMessage());
 				return;
 			}
+			
+			// TODO:  Add mailer
+			$expTime = time();
+			$userMail = $user->getEmail();
+			$hash = $this->generateHash($user, $expTime);
 
+			// TODO: Change hardcoded link
+			$host = $this->request->getServerValue('HTTP_HOST');
+			$url = 'http://'. $host .'/cms/internal-user-manager/restore';
+			$query = http_build_query(array(
+				'e' => $userMail,
+				't' => $expTime,
+				'h' => $hash,
+					));
+			$link = $url . '?' . $query;
+
+			$subject = 'Account created. Set your password';
+			$message = 'Your account is created. Go to ' . $link . ' to set your password.';
+
+			$headers = 'From: admin@supra7.vig' . "\r\n" .
+					'X-Mailer: PHP/' . phpversion();
+
+			mail($userMail, $subject, $message, $headers);
+			
 			$this->entityManager->flush();
 
 			$response = array(
