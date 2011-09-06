@@ -122,6 +122,11 @@
 			"pages": "Pages",
 			"templates": "Templates",
 			
+			"today": "Today",
+			"yesterday": "Yesterday",
+			"last_week": "Last 7 days",
+			"older": "Older",
+			
 			"error": {
 				"page_not_found": "The page does not exist anymore",
 				"parent_page_not_found": "The parent page does not exist anymore",

@@ -91,8 +91,18 @@ SU('anim', 'transition', function (Y) {
 		renderItems: function (data, status) {
 			var container = this.one('.recycle-list'),
 				treenodes = this.treenodes,
-				html = Supra.Template('recycleItemList', {'items': data}),
-				node = null;
+				html = null,
+				node = null,
+				last_title = '';
+			
+			//Set date titles
+			for(var i=0,ii=data.length; i<ii; i++) {
+				data[i].date_title = this.dateToTitle(data[i].date);
+				data[i].date_diff = (last_title != data[i].date_title);
+				last_title = data[i].date_title;
+			}
+			
+			html = Supra.Template('recycleItemList', {'items': data});
 			
 			container.set('innerHTML', html);
 			container.removeClass('loading');
@@ -103,9 +113,34 @@ SU('anim', 'transition', function (Y) {
 			this.treenodes = treenodes = [];
 			
 			for(var i=0,ii=data.length; i<ii; i++) {
-				node = container.one('li[data-id="' + data[i].id + '"]');
+				node = container.one('li[data-id="' + data[i].id + '"] label');
 				this.bindItem(node, data[i]);
 			}
+		},
+		
+		/**
+		 * Returns title from date
+		 * 
+		 * @param {String} date Date string or date object
+		 * @return Date title
+		 * @type {String}
+		 */
+		dateToTitle: function (date) {
+			var date = Y.DataType.Date.parse(date).getTime(),
+				diff = Math.ceil(((new Date()).getTime() - date) / 86400000),
+				title = '';
+			
+			if (diff <= 1) {
+				title = Supra.Intl.get(['sitemap', 'today']);
+			} else if (diff == 2) {
+				title = Supra.Intl.get(['sitemap', 'yesterday']);
+			} else if (diff <= 7) {
+				title = Supra.Intl.get(['sitemap', 'last_week']);
+			} else {
+				title = Supra.Intl.get(['sitemap', 'older']);
+			}
+			
+			return title;
 		},
 		
 		/**

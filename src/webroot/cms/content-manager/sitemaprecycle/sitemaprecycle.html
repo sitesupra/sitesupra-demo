@@ -16,6 +16,7 @@
 		<script type="text/html" id="recycleItemList">
 			{% for item in items %}
 			<li data-id="{{ item.id }}">
+				<h3 class="{% if !item.date_diff %}hidden{% endif %}">{{ item.date_title }}</h3>
 				<label>{{ item.title }}</label>
 			</li>
 			{% endfor %}
