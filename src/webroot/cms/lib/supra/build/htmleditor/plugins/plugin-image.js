@@ -601,14 +601,14 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		},
 		
 		/**
-		 * Process HTML and replace all nodes with macros {supra.image id="..."}
+		 * Process HTML and replace all nodes with supra tags {supra.image id="..."}
 		 * Called before HTML is saved
 		 * 
 		 * @param {String} html
 		 * @return Processed HTML
 		 * @type {HTML}
 		 */
-		processHTML: function (html) {
+		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
@@ -622,6 +622,33 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					return html;
 				}
 			});
+			return html;
+		},
+		
+		/**
+		 * Process HTML and replace all supra tags with nodes
+		 * Called before HTML is set
+		 * 
+		 * @param {String} html HTML
+		 * @param {Object} data Data
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		untagHTML: function (html, data) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME,
+				self = this;
+			
+			html = html.replace(/{supra\.image id="([^"]+)"}/ig, function (tag, id) {
+				if (!id || !data[id] || data[id].type != NAME) return '';
+				
+				var src = self.getImageURLBySize(data[id].image);
+				if (src) {
+					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
+					return '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Lang.escapeHTML(data[id].title) + '" alt="' + Y.Lang.escapeHTML(data[id].description) + '" />';
+				}
+			});
+			
 			return html;
 		},
 		

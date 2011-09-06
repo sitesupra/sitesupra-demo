@@ -268,14 +268,14 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		
 		
 		/**
-		 * Process HTML and replace all nodes with macros {supra.image id="..."}
+		 * Process HTML and replace all nodes with supra tags {supra.link id="..."}
 		 * Called before HTML is saved
 		 * 
 		 * @param {String} html
 		 * @return Processed HTML
 		 * @type {HTML}
 		 */
-		processHTML: function (html) {
+		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
@@ -293,6 +293,34 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			
 			//Closing tag
 			html = html.replace(/<\/a[^>]*>/g, '{/supra.' + NAME + '}');
+			
+			return html;
+		},
+		
+		/**
+		 * Process HTML and replace all supra tags with nodes
+		 * Called before HTML is set
+		 * 
+		 * @param {String} html HTML
+		 * @param {Object} data Data
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		untagHTML: function (html, data) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME,
+				self = this;
+			
+			//Opening tags
+			html = html.replace(/{supra\.link id="([^"]+)"}/ig, function (tag, id) {
+				if (!id || !data[id] || data[id].type != NAME) return '';
+				
+				var href = this.normalizeHref(data[id].href);
+				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Lang.escapeHTML(data[id].title || '') + '" href="' + href + '">';
+			});
+			
+			//Closing tags
+			html = html.replace(/{supra\.link}/g, '</a>');
 			
 			return html;
 		},

@@ -94,8 +94,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 		
 		_setValue: function (value) {
 			if (this.htmleditor) {
-				this.htmleditor.setHTML(value.html);
 				this.htmleditor.setAllData(value.data);
+				this.htmleditor.setHTML(value.html);
 			}
 			
 			return value;

@@ -103,8 +103,20 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			var event = {html: this.uncleanHTML(html)};
 			this.fire('setHTML', {}, event);
 			
+			//untagHTML
+			var html = event.html,
+				plugins = this.getAllPlugins(),
+				data = this.getAllData(true),
+				id = null;
+			
+			for(id in plugins) {
+				if (plugins[id].untagHTML) {
+					html = plugins[id].untagHTML(html, data);
+				}
+			}
+			
 			//Set HTML
-			this.get('srcNode').set('innerHTML', event.html);
+			this.get('srcNode').set('innerHTML', html);
 			this.restoreEditableStates();
 			
 			//Move cursor to the beginning of the content
@@ -145,8 +157,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				plugins = this.getAllPlugins();
 			
 			for(var id in plugins) {
-				if (plugins[id].processHTML) {
-					html = plugins[id].processHTML(html);
+				if (plugins[id].tagHTML) {
+					html = plugins[id].tagHTML(html);
 				}
 			}
 			

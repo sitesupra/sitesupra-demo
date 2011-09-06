@@ -15,11 +15,12 @@ YUI().add('supra.htmleditor-data', function (Y) {
 		/**
 		 * Returns all data
 		 * 
+		 * @param {Boolean} skip_rempove Skip expired data removal
 		 * @return Data
 		 * @type {Object}
 		 */
-		getAllData: function () {
-			this.removeExpiredData();
+		getAllData: function (skip_remove /* Skip expired data removal */) {
+			if (!skip_remove) this.removeExpiredData();
 			return this.data;
 		},
 		
