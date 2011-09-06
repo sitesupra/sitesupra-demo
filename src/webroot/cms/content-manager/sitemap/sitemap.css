@@ -44,11 +44,22 @@
 /**
  * Language bar
  */
-.yui3-sitemap .languages {
+.yui3-sitemap .languages,
+.yui3-sitemap .type {
 	border-bottom: 1px solid #eee;
 	padding: 3px 13px;
 	margin: 0 13px 5px;
 	text-align: center;
+}
+
+/**
+ * Type list
+ */
+.yui3-sitemap .type {
+	padding-bottom: 8px;
+}
+.yui3-sitemap .type .yui3-input label {
+	display: none;
 }
 
 /**
@@ -62,13 +73,21 @@
 	top: 50%;
 	margin-top: -32px;
 }
+.yui3-sitemap .new-page-button .icon-templates,
+.yui3-sitemap .new-page-button.type-templates .icon-sitemap {
+	display: none;
+}
+.yui3-sitemap .new-page-button.type-templates .icon-templates,
+.yui3-sitemap .new-page-button.type-sitemap .icon-sitemap {
+	display: block;
+}
 
 /**
  * Flowmap
  */
 .flowmap {
 	text-align: center;
-	padding-bottom: 80px;	/* Needed space for properties panel */
+	padding-bottom: 20px;	/* Needed space for properties panel */
 }
 .flowmap-node,
 .flowmap-node-inner,
@@ -129,6 +148,14 @@
 	box-shadow: 0 1px 3px rgba(0,0,0,.15);
 }
 
+/* Loading */
+.yui3-sitemap .loading {
+	background: url("/cms/lib/supra/img/ajax-loader.gif") 50% 50% no-repeat;
+}
+.yui3-sitemap .loading .yui3-tree {
+	display: none;
+}
+
 /* Root */
 .flowmap > .yui3-flowmap-item > .flowmap-node {
 	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
@@ -154,13 +181,13 @@
 }
 
 .flowmap-children .flowmap-node {
-	height: 152px;
+	height: 212px;
 	padding: 0 5px;
 }
 .flowmap-children .flowmap-children {
-	margin-top: 60px;
 	background: #fff;
 	text-align: left;
+	margin-bottom: 20px;
 }
 
 .yui3-tree-node-collapsed .flowmap-children,

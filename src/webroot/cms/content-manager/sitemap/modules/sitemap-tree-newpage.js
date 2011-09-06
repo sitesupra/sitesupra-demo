@@ -27,6 +27,9 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	NewPagePlugin.NS = 'newpage';
 	
 	NewPagePlugin.ATTRS = {
+		'dragNode': {
+			value: null
+		}
 	};
 	
 	// Extend Plugin.Base
@@ -44,6 +47,24 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 */
 		new_page_index: null,
 		
+		/**
+		 * New page type
+		 * @type {String}
+		 */
+		type: '',
+		
+		
+		setType: function (type) {
+			var node = this.get('dragNode');
+			
+			if (this.type != type) {
+				if (this.type) {
+					node.removeClass('type-' + this.type);
+				}
+				node.addClass('type-' + type);
+				this.type = type;
+			}
+		},
 		
 		createTreeNode: function (proxy, node) {
 			var data = SU.mix({}, TREENODE_DATA);
@@ -88,6 +109,9 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			dd.on('drag:end', this._dragEnd, this);
 			this.treenode = treenode;
+			
+			//Set default type
+			this.setType('sitemap');
 			
 			return treenode;
 		},
@@ -193,11 +217,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				pagedata.parent = parent;
 			}
 			
-			
-			
 			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
-			
-			console.log(pagedata);
 			
 			SU.Manager.Page.createPage(pagedata, function () {
 				this.onNewPageDataLoad.apply(this, arguments);

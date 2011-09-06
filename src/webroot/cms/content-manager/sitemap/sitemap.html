@@ -1,11 +1,21 @@
 <div class="yui3-sitemap">
 	<div class="yui3-sitemap-content">
 		
-		<img src="/cms/lib/supra/img/sitemap/new-page-icon.png" alt="" class="new-page-button" />
+		<span class="new-page-button">
+			<img src="/cms/lib/supra/img/sitemap/new-page-icon.png" alt="" class="icon-sitemap" />
+			<img src="/cms/lib/supra/img/sitemap/new-template-icon.png" alt="" class="icon-templates" />
+		</span>
 		
 		<div class="yui3-sitemap-scrollable">
 			
 			<div class="languages"></div>
+			
+			<div class="form type">
+				<select name="type">
+					<option value="sitemap">{#sitemap.pages#}</option>
+					<option value="templates">{#sitemap.templates#}</option>
+				</select>
+			</div>
 			
 			<div class="flowmap"></div>
 			

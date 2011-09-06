@@ -201,7 +201,7 @@ YUI.add('supra.tree', function(Y) {
 				if (!status) data = [];
 				
 				// Remove all nodes and data
-				for(var i=0, ii=this.size(); i<ii; i++) {
+				for(var i=this.size() - 1; i >= 0; i--) {
 					this.remove(i);
 				}
 				

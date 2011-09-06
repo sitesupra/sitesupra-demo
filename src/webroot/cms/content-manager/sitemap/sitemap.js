@@ -90,6 +90,12 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		animation: null,
 		
+		/**
+		 * Type inputs
+		 * @type {Object}
+		 * @private
+		 */
+		input_type: null,
 		
 		
 		
@@ -110,6 +116,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			Manager.getAction('PageContent').initDD();
 			
 			this.initializeLanguageBar();
+			this.initializeTypeInput();
 			this.initializeFlowMap();
 		},
 		
@@ -128,8 +135,28 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
+					this.flowmap.set('requestUri', this.getRequestUri(evt.newVal));
 					this.flowmap.reload();
+					this.setLoading(true);
 				}
+			}, this);
+		},
+		
+		/**
+		 * Create type selection list
+		 *
+		 * @private
+		 */
+		initializeTypeInput: function () {
+			this.input_type = new Supra.Input.SelectList({
+				'srcNode': this.one('select[name="type"]')
+			});
+			
+			this.input_type.on('change', function (evt) {
+				this.flowmap.set('requestUri', this.getRequestUri(null, evt.value));
+				this.flowmap.reload();
+				this.flowmap.newpage.setType(evt.value);
+				this.setLoading(true);
 			}, this);
 		},
 		
@@ -142,7 +169,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			//Create widget
 			this.flowmap = new SU.TreeDragable({
 				'srcNode': this.one('.flowmap'),
-				'requestUri': this.getDataPath() + '?locale=' + SU.data.get('locale'),
+				'requestUri': this.getRequestUri(),
 				'defaultChildType': Supra.FlowMapItem
 			});
 			
@@ -166,7 +193,38 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				var page = Supra.data.get('page', {'id': 0});
 				this.flowmap.set('selectedNode', null);
 				this.flowmap.set('selectedNode', this.flowmap.getNodeById(page.id));
+				
+				this.setLoading(false);
 			}, this);
+		},
+		
+		/**
+		 * Returns flowmap request URI
+		 * 
+		 * @param {String} locale Optional. Locale
+		 * @param {String} type Optional. Type
+		 * @private
+		 */
+		getRequestUri: function (locale, type) {
+			var locale = locale || SU.data.get('locale');
+			var type = type || this.input_type.getValue();
+			
+			return this.getDataPath(type) + '?locale=' + locale;
+		},
+		
+		/**
+		 * Set loading state
+		 *
+		 * @param {Boolean} state Loading state
+		 * @private
+		 */
+		setLoading: function (state) {
+			var node = this.one('div.yui3-sitemap-scrollable');
+			if (state) {
+				node.addClass('loading');
+			} else {
+				node.removeClass('loading');
+			}
 		},
 		
 		onPageMove: function (event) {
@@ -220,6 +278,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					'failure': function () {
 						//Revert changes
 						this.flowmap.reload();
+						this.setLoading(true);
 					}
 				}
 			})
@@ -340,6 +399,11 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		render: function () {
 			//Render language bar
 			this.languagebar.render(this.one('.languages'));
+			
+			//Render type input
+			this.input_type.render();
+			
+			//Render tree
 			this.flowmap.render();
 			
 			//Page select event

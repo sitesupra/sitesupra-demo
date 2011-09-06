@@ -1,0 +1,26 @@
+{
+	"status": 1,
+	"data": [
+		{"id": 52, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Home", "template": "template_1", "path": "", "icon": "home", "published": true, "scheduled": false, "children": [
+			{"id": 53, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "News", "template": "template_2", "path": "news", "icon": "news", "published": true, "scheduled": false},
+			{"id": 54, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "About us", "template": "template_2", "path": "section-1", "icon": "folder", "published": true, "scheduled": false, "children": [
+				{"id": 55, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "About our company", "template": "template_3", "path": "page-1", "icon": "page", "published": true, "scheduled": false},
+				{"id": 56, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Contacts", "template": "template_3", "path": "page-2", "icon": "page", "published": false, "scheduled": true, "children": [
+					{"id": 63, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Out offices world wide", "template": "template_1", "path": "office", "icon": "page", "published": true, "scheduled": false}
+				]}
+			]},
+			{"id": 57, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Catalogue", "template": "template_3", "path": "catalogue", "icon": "cart", "published": false, "scheduled": true},
+			{"id": 58, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Services", "template": "template_2", "path": "section-2", "icon": "folder", "published": true, "scheduled": false, "children": [
+				{"id": 69, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Testimonials", "template": "template_2", "path": "page-3", "icon": "page", "published": true, "scheduled": false}
+			]},
+			{"id": 60, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Products", "template": "template_2", "path": "section-3", "icon": "folder", "published": false, "scheduled": true, "children": [
+				{"id": 61, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Generic product", "template": "template_2", "path": "page-4", "icon": "page", "published": true, "scheduled": false}
+			]},
+			{"id": 62, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Feedback form", "template": "template_3", "path": "feedback", "icon": "feedback", "published": true, "scheduled": false}
+		]},
+		{"id": 63, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Misc", "template": "template_1", "path": "", "icon": "home", "published": true, "scheduled": false, "children": [
+			{"id": 64, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "News", "template": "template_2", "path": "news", "icon": "news", "published": true, "scheduled": false},
+			{"id": 65, "version": 1, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "About us", "template": "template_2", "path": "section-1", "icon": "folder", "published": true, "scheduled": false}
+		]}
+	]
+}

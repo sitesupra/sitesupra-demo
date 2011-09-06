@@ -118,6 +118,9 @@
 			"viewing_structure": "Viewing structure for:",
 			"delete": "Delete page",
 			
+			"pages": "Pages",
+			"templates": "Templates",
+			
 			"error": {
 				"page_not_found": "The page does not exist anymore",
 				"parent_page_not_found": "The parent page does not exist anymore",
