@@ -15,4 +15,5 @@ $cli->addCommands(array(
 	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand()
 ));
 
+$cli->setHelperSet($helperSet);
 $cli->run();

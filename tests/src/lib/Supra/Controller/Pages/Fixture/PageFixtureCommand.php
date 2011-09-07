@@ -22,7 +22,9 @@ class PageFixtureCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		$fixture = new FixtureHelper('');
+		$em = $this->getHelper('em')->getEntityManager();
+		
+		$fixture = new FixtureHelper($em);
 		$fixture->build();
 	}
 }
