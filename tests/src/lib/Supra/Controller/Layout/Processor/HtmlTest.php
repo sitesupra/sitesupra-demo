@@ -2,8 +2,8 @@
 
 namespace Supra\Tests\Controller\Layout\Processor;
 
-use Supra\Tests\Response\ResponseMock,
-		Supra\Controller\Layout\Processor\Html;
+use Supra\Tests\Response\ResponseMock;
+use Supra\Controller\Layout\Processor\HtmlProcessor;
 
 /**
  * Test class for Html.
@@ -12,7 +12,7 @@ use Supra\Tests\Response\ResponseMock,
 class HtmlTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var Html
+	 * @var HtmlProcessor
 	 */
 	protected $object;
 
@@ -21,7 +21,7 @@ class HtmlTest extends \PHPUnit_Framework_TestCase {
 	 * This method is called before a test is executed.
 	 */
 	protected function setUp() {
-		$this->object = new Html;
+		$this->object = new HtmlProcessor;
 	}
 
 	/**

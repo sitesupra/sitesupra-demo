@@ -20,7 +20,7 @@ class EmptyControllerTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testExecute()
 	{
 		$controller = new EmptyController();
-		$request = new Request\Cli();
+		$request = new Request\CliRequest();
 		$response = $controller->createResponse($request);
 		$controller->execute($request, $response);
 		
@@ -35,7 +35,7 @@ class EmptyControllerTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testGetResponseObject()
 	{
 		$controller = new EmptyController();
-		$request = new Request\Cli();
+		$request = new Request\CliRequest();
 		$response = $controller->createResponse($request);
 		self::isInstanceOf('Supra\Controller\Response\EmptyResponse')
 			->evaluate($response);

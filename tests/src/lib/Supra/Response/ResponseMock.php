@@ -2,12 +2,12 @@
 
 namespace Supra\Tests\Response;
 
-use Supra\Response\Http;
+use Supra\Response\HttpResponse;
 
 /**
  * 
  */
-class ResponseMock extends Http
+class ResponseMock extends HttpResponse
 {
 	public function flush()
 	{
