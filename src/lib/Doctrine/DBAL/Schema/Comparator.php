@@ -208,7 +208,7 @@ class Comparator
 
         $fromFkeys = $table1->getForeignKeys();
         $toFkeys = $table2->getForeignKeys();
-		
+
         foreach ($fromFkeys AS $key1 => $constraint1) {
             foreach ($toFkeys AS $key2 => $constraint2) {
                 if($this->diffForeignKey($constraint1, $constraint2) === false) {
@@ -220,7 +220,7 @@ class Comparator
                         $changes++;
                         unset($fromFkeys[$key1]);
                         unset($toFkeys[$key2]);
-					}
+                    }
                 }
             }
         }
@@ -286,9 +286,9 @@ class Comparator
         if ($key1->onUpdate() != $key2->onUpdate()) {
             return true;
         }
-		
+
         if ($key1->onDelete() != $key2->onDelete()) {
-			return true;
+            return true;
         }
 
         return false;
@@ -325,7 +325,10 @@ class Comparator
         }
 
         if ($column1->getType() instanceof \Doctrine\DBAL\Types\StringType) {
-            if ($column1->getLength() != $column2->getLength()) {
+            // check if value of length is set at all, default value assumed otherwise.
+            $length1 = $column1->getLength() ?: 255;
+            $length2 = $column2->getLength() ?: 255;
+            if ($length1 != $length2) {
                 $changedProperties[] = 'length';
             }
 
