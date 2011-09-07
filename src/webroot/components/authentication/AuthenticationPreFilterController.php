@@ -263,9 +263,10 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			}
 		} else {
 			$cmsPath = $this->getCmsPath();
+			$loginPath = $this->getLoginPath();
 			$uri = $this->request->getRequestUri();
 
-			if ($uri != $cmsPath) {
+			if ($uri == $loginPath) {
 				$this->response->redirect($cmsPath);
 			}
 		}
