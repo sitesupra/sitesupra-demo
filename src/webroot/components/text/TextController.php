@@ -39,7 +39,8 @@ class TextController extends BlockController
 		$value = $this->getPropertyValue('html', 'defaultText1');
 		$response->assign('html', $value);
 		
-		$response->outputTemplate('webroot/components/text/index.html');
+		//TODO: should make short somehow!
+		$response->outputTemplate('webroot/components/text/index.html.twig');
 	}
 	
 	/**
