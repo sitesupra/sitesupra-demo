@@ -30,8 +30,8 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 */
 	public function authenticate(User $user, $password)
 	{
-		if (empty($user) || ( ! $user instanceof User)) {
-			return false;
+		if ( ! $user instanceof User) {
+			throw new Exception\RuntimeException('User is not an instance of User entity');
 		}
 		
 		$salt = $user->getSalt();
@@ -40,8 +40,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 		$userPassword = $user->getPassword();
 		
 		if($hash != $userPassword) {
-//			throw new Exception('Wrong password entered');
-			return false;
+			throw new Exception\AuthenticationExeption('Wrong password entered');
 		}
 		
 		return true;
