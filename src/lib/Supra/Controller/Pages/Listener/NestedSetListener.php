@@ -1,0 +1,54 @@
+<?php
+
+namespace Supra\Controller\Pages\Listener;
+
+use Doctrine\ORM\UnitOfWork;
+use Doctrine\ORM\EntityManager;
+use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Node\DoctrineNode;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+
+/**
+ * Attaches nested set node to the tree element
+ */
+class NestedSetListener
+{
+	/**
+	 * @param LifecycleEventArgs $args 
+	 */
+	public function postLoad(LifecycleEventArgs $args)
+	{
+		$this->createNestedSetNode($args);
+	}
+
+	/**
+	 * @param LifecycleEventArgs $args
+	 */
+	public function prePersist(LifecycleEventArgs $args)
+	{
+		$this->createNestedSetNode($args);
+	}
+	
+	/**
+	 * Creates the Doctrine nested set node
+	 * @param EntityManager $em
+	 * @param object $entity
+	 */
+	private function createNestedSetNode(LifecycleEventArgs $args)
+	{
+		$entity = $args->getEntity();
+		
+		if ($entity instanceof NodeInterface) {
+			// Read entity data from the event arguments
+			$em = $args->getEntityManager();
+			
+			// Find the repository
+			$entityName = $entity->getNestedSetRepositoryClassName();
+			$repository = $em->getRepository($entityName);
+			
+			// Initialize the doctrine nested set node
+			$entity->nestedSetNode = new DoctrineNode($repository);
+			$entity->nestedSetNode->belongsTo($entity);
+		}
+	}
+}

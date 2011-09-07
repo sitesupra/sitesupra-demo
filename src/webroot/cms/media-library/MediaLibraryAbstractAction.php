@@ -26,6 +26,8 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	 */
 	public function __construct()
 	{
+		parent::__construct();
+		
 		$this->fileStorage = ObjectRepository::getFileStorage($this);
 		$this->entityManager = ObjectRepository::getEntityManager($this->fileStorage);
 	}

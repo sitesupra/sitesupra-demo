@@ -10,7 +10,10 @@ use Supra\Controller\Pages\Entity,
  */
 class FixtureHelper
 {
-	private $connectionName;
+	/**
+	 * @var \Doctrine\ORM\EntityManager
+	 */
+	private $entityManager;
 	
 	protected $headerTemplateBlock;
 
@@ -18,21 +21,11 @@ class FixtureHelper
 	
 	protected $template;
 	
-	public function __construct($connectionName)
+	public function __construct(\Doctrine\ORM\EntityManager $em)
 	{
-		$this->connectionName = $connectionName;
+		$this->entityManager = $em;
 	}
 	
-	/**
-	 * @return \Doctrine\ORM\EntityManager
-	 */
-	protected function getEntityManager()
-	{
-		$supraDatabase = Doctrine::getInstance();
-		$em = $supraDatabase->getEntityManager($this->connectionName);
-		return $em;
-	}
-
 	/**
 	 * Generates random text
 	 * @return string
@@ -119,7 +112,7 @@ class FixtureHelper
 
 	public function rebuild()
 	{
-		$em = $this->getEntityManager();
+		$em = $this->entityManager;
 		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($em);
 		$metaDatas = $em->getMetadataFactory()->getAllMetadata();
 
@@ -130,8 +123,6 @@ class FixtureHelper
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
-
-		Entity\Abstraction\Entity::setConnectionName($this->connectionName);
 	}
 
 	/**
@@ -140,7 +131,7 @@ class FixtureHelper
 	{
 		$this->rebuild();
 
-		$em = $this->getEntityManager();
+		$em = $this->entityManager;
 		
 		$this->template = $this->createTemplate();
 		
@@ -176,19 +167,19 @@ class FixtureHelper
 	protected function createTemplate()
 	{
 		$template = new Entity\Template();
-		$this->getEntityManager()->persist($template);
+		$this->entityManager->persist($template);
 
 		$layout = $this->createLayout();
 		$template->addLayout('screen', $layout);
 
 		$templateData = new Entity\TemplateData('en');
-		$this->getEntityManager()->persist($templateData);
+		$this->entityManager->persist($templateData);
 		$templateData->setTemplate($template);
 		$templateData->setTitle('Root template');
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
-			$this->getEntityManager()->persist($templatePlaceHolder);
+			$this->entityManager->persist($templatePlaceHolder);
 			if ($name == 'header' || $name == 'footer') {
 				$templatePlaceHolder->setLocked();
 			}
@@ -196,7 +187,7 @@ class FixtureHelper
 
 			if ($name == 'header') {
 				$block = new Entity\TemplateBlock();
-				$this->getEntityManager()->persist($block);
+				$this->entityManager->persist($block);
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
@@ -206,7 +197,7 @@ class FixtureHelper
 				$this->headerTemplateBlock = $block;
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template Header');
@@ -214,21 +205,21 @@ class FixtureHelper
 
 			if ($name == 'main') {
 				$block = new Entity\TemplateBlock();
-				$this->getEntityManager()->persist($block);
+				$this->entityManager->persist($block);
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Template source');
 				
 //				// A locked block
 //				$block = new Entity\TemplateBlock();
-//				$this->getEntityManager()->persist($block);
+//				$this->entityManager->persist($block);
 //				$block->setComponentClass('Project\Text\TextController');
 //				$block->setPlaceHolder($templatePlaceHolder);
 //				$block->setPosition(200);
@@ -236,7 +227,7 @@ class FixtureHelper
 //				$block->setLocale('en');
 //
 //				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-//				$this->getEntityManager()->persist($blockProperty);
+//				$this->entityManager->persist($blockProperty);
 //				$blockProperty->setBlock($block);
 //				$blockProperty->setData($template->getData('en'));
 //				$blockProperty->setValue('Template locked block');
@@ -244,7 +235,7 @@ class FixtureHelper
 
 			if ($name == 'footer') {
 				$block = new Entity\TemplateBlock();
-				$this->getEntityManager()->persist($block);
+				$this->entityManager->persist($block);
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
@@ -252,7 +243,7 @@ class FixtureHelper
 				$block->setLocked();
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
@@ -260,40 +251,40 @@ class FixtureHelper
 			
 			if ($name == 'sidebar') {
 				$block = new Entity\TemplateBlock();
-				$this->getEntityManager()->persist($block);
+				$this->entityManager->persist($block);
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
 				$block->setLocale('en');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($template->getData('en'));
 				$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
 			}
 		}
-		$this->getEntityManager()->persist($template);
-		$this->getEntityManager()->flush();
+		$this->entityManager->persist($template);
+		$this->entityManager->flush();
 		
 		$childTemplate = new Entity\Template();
 		
 		$childTemplateData = new Entity\TemplateData('en');
-		$this->getEntityManager()->persist($childTemplateData);
+		$this->entityManager->persist($childTemplateData);
 		$childTemplateData->setTemplate($childTemplate);
 		$childTemplateData->setTitle('Child template');
 		
 		$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
-		$this->getEntityManager()->persist($templatePlaceHolder);
+		$this->entityManager->persist($templatePlaceHolder);
 		$templatePlaceHolder->setTemplate($childTemplate);
 		
 		$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
-		$this->getEntityManager()->persist($templatePlaceHolder);
+		$this->entityManager->persist($templatePlaceHolder);
 		$templatePlaceHolder->setTemplate($childTemplate);
 		
 		// A locked block
 		$block = new Entity\TemplateBlock();
-		$this->getEntityManager()->persist($block);
+		$this->entityManager->persist($block);
 		$block->setComponentClass('Project\Text\TextController');
 		$block->setPlaceHolder($templatePlaceHolder);
 		$block->setPosition(200);
@@ -301,14 +292,14 @@ class FixtureHelper
 		$block->setLocked(true);
 
 		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-		$this->getEntityManager()->persist($blockProperty);
+		$this->entityManager->persist($blockProperty);
 		$blockProperty->setBlock($block);
 		$blockProperty->setData($childTemplateData);
 		$blockProperty->setValue('<h2>Template locked block</h2>');
 		
-		$this->getEntityManager()->persist($childTemplate);
+		$this->entityManager->persist($childTemplate);
 		$childTemplate->moveAsLastChildOf($template);
-		$this->getEntityManager()->flush();
+		$this->entityManager->flush();
 		
 		return $childTemplate;
 	}
@@ -316,7 +307,7 @@ class FixtureHelper
 	protected function createLayout()
 	{
 		$layout = new Entity\Layout();
-		$this->getEntityManager()->persist($layout);
+		$this->entityManager->persist($layout);
 		$layout->setFile('root.html');
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
@@ -329,46 +320,49 @@ class FixtureHelper
 	protected function createPage($type = 0, Entity\Page $parentNode = null, Entity\Template $template = null)
 	{
 		$page = new Entity\Page();
-		$this->getEntityManager()->persist($page);
+		$this->entityManager->persist($page);
 
 		$page->setTemplate($template);
 
 		if ( ! is_null($parentNode)) {
 			$parentNode->addChild($page);
 		}
-		$this->getEntityManager()->flush();
+		$this->entityManager->flush();
 
 		$pageData = new Entity\PageData('en');
-		$this->getEntityManager()->persist($pageData);
+		$this->entityManager->persist($pageData);
 		$pageData->setTitle(self::$constants[$type]['title']);
 
 		$pageData->setPage($page);
-		$pageData->setPathPart(self::$constants[$type]['pathPart']);
 
-		$this->getEntityManager()->flush();
+		$this->entityManager->flush();
+		
+		// Path is generated on updates ONLY!
+		$pageData->setPathPart(self::$constants[$type]['pathPart']);
+		$this->entityManager->flush();
 
 		foreach (array('header', 'main', 'footer') as $name) {
 
 			if ($name == 'header') {
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($this->headerTemplateBlock);
 				$blockProperty->setData($page->getData('en'));
 				$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
 				
 				$placeHolder = new Entity\PagePlaceHolder('header');
-				$this->getEntityManager()->persist($placeHolder);
+				$this->entityManager->persist($placeHolder);
 				$placeHolder->setMaster($page);
 				
 				$block = new Entity\PageBlock();
-				$this->getEntityManager()->persist($block);
+				$this->entityManager->persist($block);
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
 				$block->setLocale('en');
 				
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->getEntityManager()->persist($blockProperty);
+				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
 				$blockProperty->setData($pageData);
 				$blockProperty->setValue('this shouldn\'t be shown');
@@ -376,12 +370,12 @@ class FixtureHelper
 
 			if ($name == 'main') {
 				$pagePlaceHolder = new Entity\PagePlaceHolder($name);
-				$this->getEntityManager()->persist($pagePlaceHolder);
+				$this->entityManager->persist($pagePlaceHolder);
 				$pagePlaceHolder->setPage($page);
 
 				foreach (\range(1, 2) as $i) {
 					$block = new Entity\PageBlock();
-					$this->getEntityManager()->persist($block);
+					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Text\TextController');
 					$block->setPlaceHolder($pagePlaceHolder);
 					// reverse order
@@ -389,7 +383,7 @@ class FixtureHelper
 					$block->setLocale('en');
 
 					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-					$this->getEntityManager()->persist($blockProperty);
+					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setData($page->getData('en'));
 					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');

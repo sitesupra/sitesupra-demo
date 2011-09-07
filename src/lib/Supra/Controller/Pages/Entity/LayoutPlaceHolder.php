@@ -33,7 +33,7 @@ class LayoutPlaceHolder extends Abstraction\Entity
 	/**
 	 * @param string $name
 	 */
-	public function  __construct($name)
+	public function __construct($name)
 	{
 		$this->setName($name);
 	}

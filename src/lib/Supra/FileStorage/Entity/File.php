@@ -13,17 +13,18 @@ use Supra\NestedSet;
  */
 class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 {
-
 	/**
 	 * @Column(type="string", name="mime_type", nullable=false)
 	 * @var string
 	 */
 	protected $mimeType;
+	
 	/**
 	 * @Column(type="integer", name="file_size", nullable=false)
 	 * @var integer
 	 */
 	protected $fileSize;
+	
 	/**
 	 * @OneToMany(targetEntity="MetaData", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection

@@ -8,6 +8,11 @@ namespace Supra\Controller\Pages\Entity;
 class TemplateBlock extends Abstraction\Block
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'template';
+	
+	/**
 	 * Get locked value
 	 * @return boolean
 	 */

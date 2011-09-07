@@ -12,6 +12,11 @@ use Supra\Controller\Pages\Exception;
 class TemplateData extends Abstraction\Data
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'template';
+	
+	/**
 	 * @return Template
 	 */
 	public function getTemplate()

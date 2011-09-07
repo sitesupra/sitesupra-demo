@@ -39,9 +39,4 @@ $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFun
 
 $em = EntityManager::create($connectionOptions, $config);
 
-$connectionName = 'test';
-
-$supraDatabase = Doctrine::getInstance();
-$supraDatabase->setEntityManager($connectionName, $em);
-
-Pages\Entity\Abstraction\Entity::setConnectionName($connectionName);
+Supra\ObjectRepository\ObjectRepository::setEntityManager('Supra\Test', $em);

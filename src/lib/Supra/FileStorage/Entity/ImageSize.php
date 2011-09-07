@@ -20,7 +20,7 @@ class ImageSize extends Abstraction\Entity {
 	protected $id;
 
 	/**
-	 * @ManyToOne(targetEntity="Image", cascade={"persist"})
+	 * @ManyToOne(targetEntity="Image", cascade={"persist"}, inversedBy="imageSizes")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */

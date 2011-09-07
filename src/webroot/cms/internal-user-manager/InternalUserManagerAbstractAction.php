@@ -17,6 +17,8 @@ class InternalUserManagerAbstractAction extends CmsAction
 	
 	public function __construct()
 	{
+		parent::__construct();
+		
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 		$this->entityManager = ObjectRepository::getEntityManager($this->userProvider);
 	}

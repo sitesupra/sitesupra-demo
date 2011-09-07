@@ -14,6 +14,7 @@ use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Response\PlaceHolder;
+use \Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Page controller
@@ -50,7 +51,7 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function getDoctrineEntityManager()
 	{
-		$em = Doctrine::getInstance()->getEntityManager();
+		$em = ObjectRepository::getEntityManager($this);
 		
 		return $em;
 	}

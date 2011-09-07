@@ -162,7 +162,7 @@ class MultiTableUpdateExecutor extends AbstractSqlExecutor
         }
 
         // Drop temporary table
-//        $conn->executeUpdate($this->_dropTempTableSql);
+        $conn->executeUpdate($this->_dropTempTableSql);
 
         return $numUpdated;
     }

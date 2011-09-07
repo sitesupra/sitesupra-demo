@@ -16,6 +16,11 @@ use Supra\Controller\Pages\Set\PageSet;
 class Template extends Abstraction\Page
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'template';
+	
+	/**
 	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"}, indexBy="media")
 	 * @var Collection
 	 */
@@ -74,26 +79,6 @@ class Template extends Abstraction\Page
 		$templateLayout = new TemplateLayout($media);
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
-	}
-
-	/**
-	 * Removes layout of specific media
-	 * @param string $media
-	 * @return boolean
-	 */
-	public function removeLayout($media)
-	{
-		$templateLayouts = $this->getTemplateLayouts();
-		/* @var $templateLayout TemplateLayout */
-		$templateLayout = $templateLayouts->remove($media);
-		
-		if ( ! is_null($templateLayout)) {
-			self::getConnection()->remove($templateLayout);
-			
-			return true;
-		}
-		
-		return false;
 	}
 
 	/**

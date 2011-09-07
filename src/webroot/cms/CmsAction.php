@@ -7,6 +7,8 @@ use Supra\Response\JsonResponse;
 use Supra\Request;
 use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
+use Supra\Log\Writer\WriterInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Description of CmsAction
@@ -20,6 +22,19 @@ abstract class CmsAction extends SimpleController
 	 * @var string
 	 */
 	private $requestMethod;
+	
+	/**
+	 * @var WriterInterface
+	 */
+	private $log;
+	
+	/**
+	 * Assigns a log writer
+	 */
+	public function __construct()
+	{
+		$this->log = ObjectRepository::getLogger($this);
+	}
 	
 	/**
 	 * Localized error handling
@@ -56,6 +71,9 @@ abstract class CmsAction extends SimpleController
 			
 			//TODO: Remove later. Should not be shown to user
 			$response->setErrorMessage($e->getMessage());
+			
+			// Write the issue inside the log
+			$this->log->error($e);
 		}
 	}
 	

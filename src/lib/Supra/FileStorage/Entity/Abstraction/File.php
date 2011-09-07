@@ -49,7 +49,7 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	protected $nestedSetNode;
+	public $nestedSetNode;
 
 	/**
 	 * @Id
@@ -272,17 +272,6 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 
 	/**
-	 * Inernal method, called inside the Doctrine workflows only
-	 * @PrePersist
-	 * @PostLoad
-	 */
-	public function createNestedSetNode()
-	{
-		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
-		$this->nestedSetNode->belongsTo($this);
-	}
-
-	/**
 	 * Try the unknown method against the nested set node
 	 * @param string $method
 	 * @param array $arguments
@@ -330,11 +319,12 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 	
 	/**
-	 * Get class name to get the repository for
+	 * {@inheritdoc}
 	 * @return string
 	 */
-	protected function getRepositoryClassName()
+	public function getNestedSetRepositoryClassName()
 	{
+		// One nested set repository for folders, files, images
 		$className = __CLASS__;
 		
 		return $className;

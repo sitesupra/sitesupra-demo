@@ -7,6 +7,8 @@ use Supra\Database\Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Doctrine\ORM\EntityRepository;
+use Supra\Log\Writer\WriterInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Base entity class for Pages controller
@@ -14,11 +16,10 @@ use Doctrine\ORM\EntityRepository;
 abstract class Entity
 {
 	/**
-	 * Connection name
-	 * @var string
+	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
-	static private $connnection;
-
+	const DISCRIMINATOR = null;
+	
 	/**
 	 * Locks to pervent infinite loop calls
 	 * @var array
@@ -26,46 +27,13 @@ abstract class Entity
 	private $locks = array();
 
 	/**
-	 * Set connection name used by Pages controller
-	 * @param string $connectionName
+	 * Creates log writer instance
 	 */
-	public static function setConnectionName($connectionName = null)
+	protected function log()
 	{
-		self::$connnection = $connectionName;
+		return ObjectRepository::getLogger($this);
 	}
-
-	/**
-	 * Get configured doctrine entity manager
-	 * @return EntityManager
-	 */
-	public static function getConnection()
-	{
-		return Doctrine::getInstance()->getEntityManager(self::$connnection);
-	}
-
-	/**
-	 * Get class name to get the repository for
-	 * @return string
-	 */
-	protected function getRepositoryClassName()
-	{
-		$className = get_class($this);
-		
-		return $className;
-	}
-
-	/**
-	 * @return EntityRepository
-	 */
-	public function getRepository()
-	{
-		$em = self::getConnection();
-		$className = $this->getRepositoryClassName();
-		$rep = $em->getRepository($className);
-		
-		return $rep;
-	}
-
+	
 	/**
 	 * Id getter is mandatory
 	 * @return integer
@@ -214,14 +182,7 @@ abstract class Entity
 	 */
 	public function getDiscriminator()
 	{
-		$className = get_class($this);
-		$em = self::getConnection();
-		$metaData = $em->getClassMetadata($className);
-		$key = \array_search($className, $metaData->discriminatorMap);
-		if ($key !== false) {
-			return $key;
-		}
-		return null;
+		return static::DISCRIMINATOR;
 	}
 
 	/**

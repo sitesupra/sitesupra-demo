@@ -14,6 +14,11 @@ use DateTime;
 class PageData extends Abstraction\Data
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'page';
+	
+	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -67,9 +72,10 @@ class PageData extends Abstraction\Data
 
 	/**
 	 * Set page path
+	 * Should be called from the PagePathGenerator only!
 	 * @param string $path
 	 */
-	protected function setPath($path)
+	public function setPath($path)
 	{
 		$path = trim($path, '/');
 		$this->path = $path;
@@ -112,8 +118,6 @@ class PageData extends Abstraction\Data
 		}
 		
 		$this->pathPart = $pathPart;
-		
-		$this->generatePath();
 	}
 
 	/**
@@ -122,59 +126,6 @@ class PageData extends Abstraction\Data
 	public function getPathPart()
 	{
 		return $this->pathPart;
-	}
-	
-	/**
-	 * @TODO: must be run on inserts manually for now
-	 * @throws Exception\PagePathException on duplicates
-	 * @PreUpdate
-	 */
-	public function generatePath()
-	{
-		$page = $this->getMaster();
-		$pathPart = $this->pathPart;
-		
-		if ( ! $page->isRoot()) {
-			
-			// Leave path empty if path part is not set yet
-			if ($pathPart == '') {
-				return;
-			}
-			
-			$parentPage = $page->getParent();
-			
-			$path = $pathPart;
-			
-			// Root page has no path
-			if ( ! $parentPage->isRoot()) {
-				
-				$parentData = $parentPage->getData($this->locale);
-				
-				if (empty($parentData)) {
-					throw new Exception\RuntimeException("Parent page #{$parentPage->getId()} does not have the data for the locale {$this->locale} required by page {$page->getId()}");
-				}
-				
-				$path = $parentData->getPath() . '/' . $pathPart;
-			}
-			
-			// Duplicate path validation
-			$criteria = array(
-				'locale' => $this->locale,
-				'path' => $path
-			);
-			
-			//TODO: getRepository usage again, should refactor
-			$duplicate = $this->getRepository()
-					->findOneBy($criteria);
-			
-			if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
-				throw new Exception\DuplicatePagePathException("Page with path $path already exists");
-			}
-			
-			$this->setPath($path);
-		} else {
-			$this->setPath('');
-		}
 	}
 	
 	/**

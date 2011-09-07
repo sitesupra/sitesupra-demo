@@ -16,6 +16,11 @@ use Supra\Controller\Pages\Set\PageSet;
 class Page extends Abstraction\Page
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'page';
+	
+	/**
 	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=false)
 	 * @var Template
@@ -67,15 +72,4 @@ class Page extends Abstraction\Page
 		return $pageSet;
 	}
 	
-	/**
-	 * Trigger on tree changes, called on move action
-	 */
-	public function treeChangeTrigger()
-	{
-		foreach ($this->data as $data) {
-			/* @var $data PageData */
-			$data->generatePath();
-		}
-	}
-
 }

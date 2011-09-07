@@ -51,9 +51,10 @@ use Supra\NestedSet;
 abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 {
 	/**
+	 * Filled by NestedSetListener
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	protected $nestedSetNode;
+	public $nestedSetNode;
 	
 	/**
 	 * @Id
@@ -154,25 +155,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 			}
 			$this->unlock('data');
 		}
-	}
-
-	/**
-	 * @param string $locale
-	 * @return boolean
-	 */
-	public function removeData($locale)
-	{
-		$dataCollection = $this->getDataCollection();
-		/* @var $data Data */
-		$data = $dataCollection->remove($locale);
-		
-		if ( ! empty($data)) {
-			self::getConnection()->remove($data);
-			
-			return true;
-		}
-		
-		return false;
 	}
 
 	/**
@@ -303,24 +285,22 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	}
 
 	/**
-	 * Inernal method, called inside the Doctrine workflows only
-	 * @PrePersist
-	 * @PostLoad
-	 */
-	public function createNestedSetNode()
-	{
-		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
-		$this->nestedSetNode->belongsTo($this);
-	}
-	
-	/**
-	 * Trigger on tree changes, called on move action
+	 * {@inheritdoc}
 	 */
 	public function treeChangeTrigger()
 	{
 		
 	}
-
+	
+	/**
+	 * {@inheritdoc}
+	 * @return string
+	 */
+	public function getNestedSetRepositoryClassName()
+	{
+		return get_class($this);
+	}
+	
 	/**
 	 * Try the unknown method against the nested set node
 	 * @param string $method

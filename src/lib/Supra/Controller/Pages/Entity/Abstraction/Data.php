@@ -36,7 +36,7 @@ abstract class Data extends Entity
 
 	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="Page", cascade={"persist"})
+	 * @ManyToOne(targetEntity="Page", cascade={"persist"}, inversedBy="data")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */

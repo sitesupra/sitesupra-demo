@@ -7,5 +7,8 @@ namespace Supra\Controller\Pages\Entity;
  */
 class PageBlock extends Abstraction\Block
 {
-	
+	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'page';
 }

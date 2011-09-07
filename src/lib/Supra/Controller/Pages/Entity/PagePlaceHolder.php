@@ -9,6 +9,11 @@ namespace Supra\Controller\Pages\Entity;
 class PagePlaceHolder extends Abstraction\PlaceHolder
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'page';
+	
+	/**
 	 * @var integer
 	 */
 	protected $type = 1;

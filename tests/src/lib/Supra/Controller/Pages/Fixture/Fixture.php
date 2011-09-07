@@ -9,11 +9,11 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class Fixture extends \PHPUnit_Extensions_OutputTestCase
 {
-	const CONNECTION_NAME = '';
-
 	public function testFixture()
 	{
-		$helper = new FixtureHelper(static::CONNECTION_NAME);
+		// Find the default entity manager
+		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+		$helper = new FixtureHelper($em);
 		$helper->build();
 	}
 }

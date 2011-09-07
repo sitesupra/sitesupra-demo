@@ -7,6 +7,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\NestedSet\DoctrineRepository;
 use Supra\NestedSet\RepositoryInterface;
 use Supra\NestedSet\Exception;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Doctrine database nested set node object
@@ -14,10 +15,23 @@ use Supra\NestedSet\Exception;
 class DoctrineNode extends NodeAbstraction
 {
 	/**
+	 * @var RepositoryInterface
+	 */
+	private $sourceRepository;
+	
+	/**
 	 * @var DoctrineRepository
 	 */
 	protected $repository;
 
+	/**
+	 * @param RepositoryInterface $repository
+	 */
+	public function __construct(RepositoryInterface $repository)
+	{
+		$this->sourceRepository = $repository;
+	}
+	
 	/**
 	 * Pass the doctrine entity the nested set node belongs to
 	 * @param NodeInterface $entity
@@ -26,8 +40,7 @@ class DoctrineNode extends NodeAbstraction
 	{
 		parent::belongsTo($node);
 
-		//TODO: the node must implement some Doctrine node interface
-		$rep = $node->getRepository();
+		$rep = $this->sourceRepository;
 		if ( ! ($rep instanceof RepositoryInterface)) {
 			throw new Exception\WrongInstance($rep, 'RepositoryInterface');
 		}

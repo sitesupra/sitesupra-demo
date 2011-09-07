@@ -121,17 +121,6 @@ class Image extends File {
 	}
 
 	/**
-	 * Remove image size
-	 * 
-	 * @param type $title
-	 */
-	public function removeImageSize($sizeName)
-	{
-		$size = $this->getImageSize($sizeName);
-		$this->getConnection()->remove($sizeName);
-	}
-
-	/**
 	 * Get collection of all assigned sizes
 	 *
 	 * @return type 

@@ -625,10 +625,6 @@ class BasicEntityPersister
 
             // Complete bidirectional association, if necessary
             if ($targetEntity !== null && $isInverseSingleValued) {
-				
-				$a = $targetClass->reflFields;
-				$b = $assoc['inversedBy'];
-				
                 $targetClass->reflFields[$assoc['inversedBy']]->setValue($targetEntity, $sourceEntity);
             }
         } else {

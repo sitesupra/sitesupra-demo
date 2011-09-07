@@ -1,9 +1,14 @@
 <?php
 
-use Doctrine\ORM\EntityManager,
-		Doctrine\ORM\Configuration,
-		Supra\Database\Doctrine,
-		Doctrine\Common\Cache\ArrayCache;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Configuration;
+use Supra\Database\Doctrine;
+use Doctrine\Common\Cache\ArrayCache;
+use Supra\ObjectRepository\ObjectRepository;
+use Doctrine\ORM\Events;
+use Supra\Controller\Pages\Listener\PagePathGenerator;
+use Doctrine\Common\EventManager;
+use Supra\Controller\Pages\Listener\NestedSetListener;
 
 $config = new Configuration();
 
@@ -40,6 +45,18 @@ $connectionOptions = $ini['database'];
 // TODO: move to some other configuration
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
-$em = EntityManager::create($connectionOptions, $config);
+$eventManager = new EventManager();
+$eventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
+$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 
-Doctrine::getInstance()->setDefaultEntityManager($em);
+$em = EntityManager::create($connectionOptions, $config, $eventManager);
+
+ObjectRepository::setDefaultEntityManager($em);
+
+// Draft connection for the CMS
+$draftConnectionOptions = $ini['database'];
+$draftConnectionOptions['dbname'] = $draftConnectionOptions['dbname'] . '_draft';
+
+$em = EntityManager::create($draftConnectionOptions, $config, $eventManager);
+//TODO: enable when draft connection is implemeted
+//ObjectRepository::setEntityManager('Supra\Cms', $em);

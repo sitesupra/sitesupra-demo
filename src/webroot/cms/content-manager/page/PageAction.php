@@ -242,7 +242,6 @@ class PageAction extends PageManagerAction
 			$page->moveAsLastChildOf($parent);
 		}
 		
-		//TODO: try fixing maybe? Must be run to regenerate full path
 		$pathValid = false;
 		$i = 2;
 		$suffix = '';
@@ -250,6 +249,8 @@ class PageAction extends PageManagerAction
 		do {
 			try {
 				$pageData->setPathPart($pathPart . $suffix);
+				$this->entityManager->flush();
+				
 				$pathValid = true;
 			} catch (DuplicatePagePathException $pathInvalid) {
 				$suffix = '-' . $i;
@@ -261,8 +262,6 @@ class PageAction extends PageManagerAction
 				}
 			}
 		} while ( ! $pathValid);
-		
-		$this->entityManager->flush();
 		
 		$this->outputPage($pageData);
 	}

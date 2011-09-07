@@ -22,8 +22,7 @@ class SitemapAction extends PageManagerAction
 		$pages = array();
 		$locale = $this->getLocale();
 		
-		$em = \Supra\Database\Doctrine::getInstance()
-				->getEntityManager();
+		$em = $this->entityManager;
 		
 		$entities = array(
 			PageRequest::PAGE_ENTITY,

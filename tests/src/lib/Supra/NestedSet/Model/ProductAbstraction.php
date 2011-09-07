@@ -100,10 +100,10 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeI
 	}
 	
 	/**
-	 * Get class name to get the repository for
+	 * {@inheritdoc}
 	 * @return string
 	 */
-	protected function getRepositoryClassName()
+	public function getNestedSetRepositoryClassName()
 	{
 		// Fixed to the current classname
 		return __CLASS__;

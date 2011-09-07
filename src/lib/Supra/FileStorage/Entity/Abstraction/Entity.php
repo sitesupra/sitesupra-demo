@@ -17,39 +17,7 @@ abstract class Entity
 	 * @var array
 	 */
 	private $locks = array();
-
-	/**
-	 * Get configured doctrine entity manager
-	 * @return EntityManager
-	 */
-	public static function getConnection()
-	{
-		return Doctrine::getInstance()->getEntityManager(null);
-	}
 	
-	/**
-	 * Get class name to get the repository for
-	 * @return string
-	 */
-	protected function getRepositoryClassName()
-	{
-		$className = get_class($this);
-		
-		return $className;
-	}
-
-	/**
-	 * @return EntityRepository
-	 */
-	public function getRepository()
-	{
-		$em = self::getConnection();
-		$className = $this->getRepositoryClassName();
-		$rep = $em->getRepository($className);
-		
-		return $rep;
-	}
-
 	/**
 	 * Id getter is mandatory
 	 * @return integer
@@ -153,50 +121,6 @@ abstract class Entity
 	}
 
 	/**
-	 * Get discriminator key for the object (null if not found)
-	 * @return string
-	 */
-	public function getDiscriminator()
-	{
-		$className = get_class($this);
-		$em = self::getConnection();
-		$metaData = $em->getClassMetadata($className);
-		$key = \array_search($className, $metaData->discriminatorMap);
-		if ($key !== false) {
-			return $key;
-		}
-		return null;
-	}
-
-	/**
-	 * Check if discriminators match for objects.
-	 * If strict, they must be equal, if not strict, page object matches template object as well.
-	 * As example PageData object can have Page block properties assigned to template block object.
-	 * @param Entity $object
-	 * @param boolean $strict
-	 */
-	public function matchDiscriminator(Entity $object, $strict = true)
-	{
-		$discrA = $this->getDiscriminator();
-		$discrB = $object->getDiscriminator();
-
-		\Log::debug("Checking discr matching for $this and $object: $discrA and $discrB");
-
-		// TODO implement for file/folder discriminators
-//		if ($discrA == $discrB) {
-//			return;
-//		}
-//
-//		if ( ! $strict && ($discrA == 'page' && $discrB == 'template')) {
-//			return;
-//		}
-
-		$this->unlockAll();
-
-		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
-	}
-
-	/**
 	 * Object string value
 	 * @return string
 	 */
@@ -226,11 +150,6 @@ abstract class Entity
 
 		return $ids;
 	}
-
-//	public static function findBy($criteria = array())
-//	{
-//		// not implemented yet
-//	}
 
 	public static function getQueryBuilderResult(\Doctrine\ORM\QueryBuilder $queryBuilder)
 	{

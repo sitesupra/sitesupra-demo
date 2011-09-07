@@ -10,6 +10,11 @@ namespace Supra\Controller\Pages\Entity;
 class TemplateLayout extends Abstraction\Entity
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'template';
+	
+	/**
 	 * @Id
 	 * @Column(type="integer")
 	 * @GeneratedValue
@@ -41,7 +46,7 @@ class TemplateLayout extends Abstraction\Entity
 	 * Constructor
 	 * @param string $media
 	 */
-	public function  __construct($media)
+	public function __construct($media)
 	{
 		$this->setMedia($media);
 	}

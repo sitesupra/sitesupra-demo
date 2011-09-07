@@ -46,12 +46,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::addLayout($media, $layout);
     }
 
-    public function removeLayout($media)
-    {
-        $this->__load();
-        return parent::removeLayout($media);
-    }
-
     public function getLayout($media = 'screen')
     {
         $this->__load();
@@ -92,12 +86,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     {
         $this->__load();
         return parent::setData($data);
-    }
-
-    public function removeData($locale)
-    {
-        $this->__load();
-        return parent::removeData($locale);
     }
 
     public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
@@ -160,16 +148,16 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::moveLevel($diff);
     }
 
-    public function createNestedSetNode()
-    {
-        $this->__load();
-        return parent::createNestedSetNode();
-    }
-
     public function treeChangeTrigger()
     {
         $this->__load();
         return parent::treeChangeTrigger();
+    }
+
+    public function getNestedSetRepositoryClassName()
+    {
+        $this->__load();
+        return parent::getNestedSetRepositoryClassName();
     }
 
     public function __call($method, $arguments)
@@ -212,12 +200,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     {
         $this->__load();
         return parent::isPlaceHolderEditable($placeHolder);
-    }
-
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
     }
 
     public function getProperty($name)

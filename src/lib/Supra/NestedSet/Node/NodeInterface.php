@@ -74,4 +74,10 @@ interface NodeInterface
 	 * Trigger on tree changes, called on move action
 	 */
 	public function treeChangeTrigger();
+	
+	/**
+	 * Get class name to get the repository for the nested set
+	 * @return string
+	 */
+	public function getNestedSetRepositoryClassName();
 }

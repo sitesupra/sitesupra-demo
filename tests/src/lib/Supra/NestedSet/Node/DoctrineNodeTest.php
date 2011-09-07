@@ -38,8 +38,7 @@ class DoctrineNodeTest extends NodeTest
 	 */
 	protected function getConnection()
 	{
-		$supraDatabase = Doctrine::getInstance();
-		$em = $supraDatabase->getEntityManager('test');
+		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
 		return $em;
 	}
 

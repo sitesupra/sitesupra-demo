@@ -36,6 +36,8 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	public function __construct()
 	{
+		parent::__construct();
+		
 		// Take entity manager of the page controller
 		$controller = $this->getPageController();
 		$this->entityManager = ObjectRepository::getEntityManager($controller);

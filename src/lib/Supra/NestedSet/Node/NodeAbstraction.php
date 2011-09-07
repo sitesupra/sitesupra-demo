@@ -848,10 +848,19 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 	
 	/**
-	 * Trigger on tree changes, called on move action
+	 * {@inheritdoc}
 	 */
 	public function treeChangeTrigger()
 	{
 		
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @return string
+	 */
+	public function getNestedSetRepositoryClassName()
+	{
+		return get_class($this);
 	}
 }
