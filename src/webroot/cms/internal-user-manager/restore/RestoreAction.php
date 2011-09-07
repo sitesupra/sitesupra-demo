@@ -115,6 +115,8 @@ class RestoreAction extends InternalUserManagerAbstractAction
 			return;
 		}
 		
+		$salt = $user->resetSalt();
+		
 		$userProvider = ObjectRepository::getUserProvider($this);
 		
 		$authAdapter = $userProvider->getAuthAdapter();

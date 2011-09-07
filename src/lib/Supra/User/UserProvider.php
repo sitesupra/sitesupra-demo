@@ -24,8 +24,11 @@ class UserProvider
 	 * Authentication adapter
 	 * @var Authentication\AuthenticationAdapterInterface
 	 */
-	protected $authAdapter = null;
+	protected $authAdapter;
 	
+	/**
+	 * Binds entity manager
+	 */
 	public function __construct()
 	{
 		$this->entityManager = ObjectRepository::getEntityManager($this);
@@ -63,15 +66,15 @@ class UserProvider
 	 * Sets authentication adapter
 	 * @param Authentication\AuthenticationAdapterInterface $authAdapter 
 	 */
-	public function setAuthAdapter($authAdapter)
+	public function setAuthAdapter(Authentication\AuthenticationAdapterInterface $authAdapter)
 	{
 		$this->authAdapter = $authAdapter;
 	}
 
 	/**
-	 * Passes user to authentication adapter and returns
-     * false or User Object
+	 * Passes user to authentication adapter
 	 * @param string $login 
+	 * @return Entity\User
 	 */
 	public function authenticate($login, $password)
 	{		
@@ -80,10 +83,22 @@ class UserProvider
 		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 		$user = $repo->findOneByEmail($login);
 		
+		// Try finding the user from adapter
+		if (empty($user)) {
+			$user = $adapter->findUser($login, $password);
+			
+			if (empty($user)) {
+				return null;
+			}
+			
+			$this->entityManager->persist($user);
+			$this->entityManager->flush();
+		}
+		
 		$result = $adapter->authenticate($user, $password);
 		
 		if ( ! $result) {
-			return false;
+			return null;
 		}
 		
 		return $user;

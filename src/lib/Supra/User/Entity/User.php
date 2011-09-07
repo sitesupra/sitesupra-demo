@@ -148,11 +148,14 @@ class User extends Abstraction\User
 	}
 
 	/**
-	 * Sets salt
+	 * Resets salt and returns
+	 * @return string
 	 */
-	public function setSalt()
+	public function resetSalt()
 	{
 		$this->salt = uniqid();
+		
+		return $this->salt;
 	}
 	
 	public function getGroup()

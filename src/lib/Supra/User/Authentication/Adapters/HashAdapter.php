@@ -5,6 +5,7 @@ namespace Supra\User\Authentication\Adapters;
 use Supra\User\Authentication\AuthenticationAdapterInterface;
 use Supra\User\Entity\User;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Exception;
 
 class HashAdapter implements AuthenticationAdapterInterface
 {
@@ -55,7 +56,13 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 */
 	protected function generatePasswordHash($password, $salt)
 	{
-		return sha1($password . $salt); 
+		if (empty($salt)) {
+			throw new Exception\RuntimeException("User password salt is not permitted to be empty");
+		}
+		
+		$hash = sha1($password . $salt);
+		
+		return $hash;
 	}
 	
 	

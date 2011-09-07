@@ -50,7 +50,7 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeI
 	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	protected $nestedSetNode;
+	public $nestedSetNode;
 
 	/**
 	 * @Id
@@ -228,17 +228,6 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeI
 		return $this;
 	}
 
-	/**
-	 * Inernal method, called inside the Doctrine workflows only
-	 * @PrePersist
-	 * @PostLoad
-	 */
-	public function createDoctrineNestedSetNode()
-	{
-		$this->nestedSetNode = new NestedSet\Node\DoctrineNode();
-		$this->nestedSetNode->belongsTo($this);
-	}
-	
 	/**
 	 * Creates nested set array node
 	 */

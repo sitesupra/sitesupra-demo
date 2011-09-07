@@ -163,9 +163,9 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			// TODO: add group, avatar, password creation
 			$user->setName($name);
-			$user->setSalt();
+			$user->resetSalt();
 			$user->setEmail($email);
-
+			
 			try {
 				$this->userProvider->validate($user);
 			} catch (Exception\RuntimeException $exc) {

@@ -33,7 +33,6 @@ class User
 	 * @Column(type="datetime", name="created_at")
 	 * @var string
 	 */
-	
 	protected $createdTime;
 	
 	/**

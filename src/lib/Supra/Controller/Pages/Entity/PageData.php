@@ -9,7 +9,6 @@ use DateTime;
  * PageData class
  * @Entity
  * @Table
- * @HasLifecycleCallbacks
  */
 class PageData extends Abstraction\Data
 {
