@@ -125,10 +125,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			
 			if (evt.newVal == 'slideMain') {
 				//this.button_cancel.show();
-				this.button_back.hide();	
+				this.button_back.hide();
+				this.one('div.yui3-sidebar-buttons').addClass('yui3-hidden');
+				this.one('div.yui3-sidebar-content').removeClass('has-buttons');
 			} else {
 				//this.button_cancel.hide();
-				this.button_back.show();	
+				this.button_back.show();
+				this.one('div.yui3-sidebar-buttons').removeClass('yui3-hidden');
+				this.one('div.yui3-sidebar-content').addClass('has-buttons');
 			}
 			
 			//Call "onSlide..." callback function
@@ -309,6 +313,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			
 			Manager.executeAction('Confirmation', {
 				'message': Supra.Intl.get(['settings', 'delete_message']),
+				'useMask': true,
 				'buttons': [
 					{
 						'id': 'delete',
@@ -333,10 +338,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			
 			var buttons = this.all('button');
 			
-			//Apply button
-			(new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'mid-blue'}))
-				.render().on('click', this.saveSettingsChanges, this);
-				
 			//Close button
 			/*
 			this.button_cancel = new Supra.Button({'srcNode': buttons.filter('.button-cancel').item(0)});
@@ -495,6 +496,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
+			
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'done',
+				'context': this,
+				'callback': function () {
+					this.saveSettingsChanges();
+				}
+			}]);
+			
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
 					if (evt.newVal) {
@@ -515,6 +526,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
+			
+			//Hide buttons
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			//Hide action
 			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
 		},
@@ -523,6 +539,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 		 * Execute action
 		 */
 		execute: function () {
+			//Show buttons
+			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
+			//Show content
 			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
 			
 			if (!this.form) this.createForm();

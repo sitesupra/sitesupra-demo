@@ -60,40 +60,6 @@
 }
 
 /**
- * Properties form
- * Show scrollbar only on content; buttons and heading should be visible at all times
- */
-.yui3-form-properties .yui3-form-content {
-	margin: 0;
-	padding: 0 10px 10px;
-	top: 85px;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	position: absolute;
-	overflow-y: auto;
-}
-.yui3-form-properties h2 {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-}
-.yui3-form-properties .yui3-page-buttons {
-	position: absolute;
-	z-index: 2;
-	right: 0;
-	top: 9px;
-}
-.yui3-form-properties .yui3-form-buttons {
-	margin-bottom: 0;
-	left: 0;
-	top: 32px;
-	right: 0;
-	position: absolute;
-}
-
-/**
  * Sidebar
  */
 .yui3-sidebar-header {
@@ -113,12 +79,14 @@
 	left: 0;
 	top: 32px;
 	right: 0;
+	min-height: 42px;
 	position: absolute;
     border-bottom: 1px solid #EEEEEE;
     margin: 0;
     padding: 0 10px 10px;
 }
-.yui3-sidebar-buttons .yui3-button {
+.yui3-sidebar-buttons .yui3-button,
+.yui3-sidebar-footer .yui3-button {
 	margin: 10px 10px 0 0;
 }
 .yui3-left-container .yui3-sidebar-buttons .button-close {
@@ -129,12 +97,27 @@
 /* Content */
 .yui3-sidebar-content {
 	position: absolute;
-	top: 85px;
+	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 }
-.yui3-sidebar-content-scrollable {
+.yui3-sidebar-content.has-buttons {
+	top: 53px;
+}
+.yui3-sidebar-content.has-header {
+	top: 32px;
+}
+.yui3-sidebar-content.has-header.has-buttons {
+	top: 85px;
+}
+.yui3-sidebar-content.no-header.no-buttons {
+	top: 0;
+}
+.yui3-sidebar-content.has-footer {
+	bottom: 53px;
+}
+.yui3-sidebar-content.scrollable {
 	overflow-x: hidden;
 	overflow-y: auto;
 }
@@ -146,6 +129,10 @@
 	right: 0;
 	bottom: 0;
 	
+	min-height: 32px;
 	border-top: 1px solid #eee;
 	padding: 10px;
+}
+.yui3-sidebar-footer .yui3-button {
+	margin-top: 0;
 }

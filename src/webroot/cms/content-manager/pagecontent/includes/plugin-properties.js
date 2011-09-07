@@ -20,40 +20,103 @@ YUI.add('supra.page-content-properties', function (Y) {
 	new Action({
 		// Unique action name
 		NAME: 'PageContentSettings',
+		
 		// No need for template
 		HAS_TEMPLATE: false,
+		
 		// Load stylesheet
 		HAS_STYLESHEET: false,
+		
+		
+		
 		// Form instance
 		form: null,
+		
+		// Done button callback
+		callback: null,
+		
+		// Editor toolbar was visible
+		editor_toolbar_visible: false,
+		
+		// Set page button visibility
+		tooglePageButtons: function (visible) {
+			var buttons = SU.Manager.PageButtons.buttons[this.NAME];
+			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].set('visible', visible);
+		},
 		
 		// Render action container
 		render: function () {
 			var node = Y.Node.create('<div></div>');
 			this.getPlaceHolder().append(node);
 			this.set('srcNode', new Y.NodeList(node));
+			
+			//Create toolbar buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'done',
+				'context': this,
+				'callback': function () {
+					if (Y.Lang.isFunction(this.callback)) {
+						this.callback();
+					}
+				}
+			}]);
 		},
 		
 		// Hide
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
+			
+			//Hide buttons
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			//Hide action
 			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
 			
 			//Hide form
-			if (this.form) this.form.hide();
-			this.form = null;
+			if (this.form) {
+				if (this.editor_toolbar_visible) {
+					Manager.EditorToolbar.execute();
+				}
+				
+				this.form.hide();
+				this.form = null;
+				this.callback = null;
+				this.editor_toolbar_visible = false;
+			}
+			
 		},
 		
 		// Execute action
-		execute: function (form) {
+		execute: function (form, options) {
+			var options = options || {
+				'doneCallback': null,
+				'hideEditorToolbar': false
+			};
+			
+			//Show buttons
+			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
+			//Show action
 			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
 			
 			//Set form
 			if (form) {
 				if (this.form) this.form.hide();
 				this.form = form;
+				this.callback = options.doneCallback;
 				form.show();
+				
+				this.tooglePageButtons(!!options.doneCallback);
+				
+				if (options.hideEditorToolbar) {
+					this.editor_toolbar_visible = Manager.EditorToolbar.get('visible');
+					if (this.editor_toolbar_visible) {
+						Manager.EditorToolbar.hide();
+					}
+				}
 			}
 		}
 	});
@@ -171,25 +234,21 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			
 			//Buttons
-			var buttons = Y.Node.create('<div class="yui3-form-buttons"></div>');
-			form.get('contentBox').insert(buttons, 'before');
+			var footer = Y.Node.create('<div class="yui3-sidebar-footer"></div>');
 			
-			//Save button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
-				btn.render(buttons).on('click', this.savePropertyChanges, this);
-			
-			/*
-			//Cancel button
-			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
-				btn.render(buttons).on('click', this.cancelPropertyChanges, this);
-			*/
+			form.get('contentBox').addClass('yui3-sidebar-content')
+								  .addClass('scrollable')
+								  .addClass('has-header')
+								  .addClass('has-footer')
+								  .insert(footer, 'after');
 			
 			//Delete button
 			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
-				btn.render(buttons).on('click', this.deleteContent, this);
+				btn.render(footer).on('click', this.deleteContent, this);
 			
 			if (!Supra.Authorization.isAllowed(['block', 'delete'], true)) {
 				btn.hide();
+				form.get('contentBox') .removeClass('has-footer');
 			}
 			
 			//Don't show delete button if block or placeholder is locked
@@ -285,17 +344,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
-		 * CancelSave changes
-		 */
-		cancelPropertyChanges: function () {
-			this.setNonInlineValues(this._original_values);
-			this.get('host').fire('properties:cancel');
-			
-			this.set('normalChanged', false);
-			SU.Manager.PageContentSettings.hide();
-		},
-		
-		/**
 		 * On block save/cancel
 		 */
 		onBlockSaveCancel: function () {
@@ -311,7 +359,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'message': SU.Intl.get(['page', 'delete_block_confirmation']),
 				'useMask': true,
 				'buttons': [
-					{'id': 'yes', 'context': this, 'click': function () {
+					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {
 						var host = this.get('host');
 						var parent = host.get('parent');
 						
@@ -335,7 +383,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		showPropertiesForm: function () {
 			var form = this.get('form');
-			Manager.getAction('PageContentSettings').execute(form);
+			Manager.getAction('PageContentSettings').execute(form, {
+				'doneCallback': Y.bind(this.savePropertyChanges, this),
+				'hideEditorToolbar': true
+			});
 		},
 		
 		/**

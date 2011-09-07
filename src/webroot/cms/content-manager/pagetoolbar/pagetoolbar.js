@@ -149,7 +149,7 @@ SU(function (Y) {
 			
 			button_groups = this.get('buttons');
 			if (active_group && !(active_group in button_groups)) {
-				console.log(active_group, 'FAIL');
+				Y.error('PageToolbar missing group "' + active_group + '"');
 				return this;
 			}
 			

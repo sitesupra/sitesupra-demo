@@ -4,13 +4,12 @@
 	<h2 class="yui3-sidebar-header">{#settings.title#}</h2>
 	
 	<!-- Buttons -->
-	<div class="yui3-sidebar-buttons">
+	<div class="yui3-sidebar-buttons yui3-hidden">
 		<!-- <button type="button" class="button-cancel"><p>{#buttons.cancel#}</p></button> -->
 		<button type="button" class="button-back"><p>{#buttons.back#}</p></button>
-		<button type="button" class="button-save"><p>{#buttons.done#}</p></button>
 	</div>
 	
-	<div class="yui3-sidebar-content"><form class="yui3-form-vertical">
+	<div class="yui3-sidebar-content has-header"><form class="yui3-form-vertical">
 	
 		<!-- Slideshow -->
 		<div class="slideshow">
@@ -22,8 +21,6 @@
 				
 				<label for="path">{#settings.page_url#}</label>
 				<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\\-\\_]*$" />
-				
-				<button type="button" class="button-delete"><p>{#buttons.delete#}</p></button>
 				
 				<label for="active">{#settings.active#}</label>
 				<select name="active" id="active" value="" suType="SelectList">
@@ -64,6 +61,10 @@
 				
 				<div class="input-group input-group-button">
 					<button type="button" class="button-blocks"><p>{#settings.blocks#}</p></button>
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-delete"><p>{#buttons.delete#}</p></button>
 				</div>
 				
 			</div><div id="slideMeta" class="hidden">

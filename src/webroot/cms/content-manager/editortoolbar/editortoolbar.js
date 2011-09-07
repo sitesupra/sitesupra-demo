@@ -136,8 +136,6 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 * Hide
 		 */
 		hide: function () {
-			Action.Base.prototype.hide.apply(this, arguments);
-			
 			if (!this.get('created')) return;
 			
 			//Hide toolbar
@@ -146,10 +144,13 @@ SU('transition', 'supra.htmleditor', function (Y) {
 				'duration': 0.35,
 				'easing': 'ease-out',
 				'marginTop': '50px'
-			}, Y.bind(function () {
+			});
+			
+			Y.later(500, this, function () {
 				this.toolbar.set('visible', false);
 				Manager.getAction('LayoutTopContainer').fire('resize');
-			}, this));
+				Action.Base.prototype.hide.call(this);
+			});
 			
 			//Show button toolbar
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);

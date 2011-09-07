@@ -102,7 +102,7 @@ YUI.add('supra.template-compiler', function (Y) {
 		 * @private
 		 */
 		'compileVar': function (variable, output) {
-			var variable = variable.trim();
+			var _variable = variable = variable.trim();
 			
 			//Extract strings
 			var strings = variable.match(REG_VAR_STRING), len = strings ? strings.length : 0;
@@ -117,10 +117,20 @@ YUI.add('supra.template-compiler', function (Y) {
 			variable = variable.replace(REG_VAR_DATA, '$1_d.$2');
 			
 			//Fix filters, KEY|FILTER -> _f.FILTER(KEY)
-			if (variable.indexOf('|') != -1) {
+			var limit = 100;
+			while (limit && variable.indexOf('|') != -1) {
 				variable = variable.replace(REG_VAR_MODIFIERS, function (all, variable, filter, params_, params) {
 					return '_f.' + filter + '(' + variable + (params ? ',' + params : '') + ')';
 				});
+				
+				//Debug information
+				if (Options.validate) {
+					limit--;
+					if (!limit) {
+						throw new Error('Error_Syntax: can\'t parse filters in "' + _variable + '"');
+						break;
+					}
+				}
 			}
 			
 			//Restore strings
@@ -637,9 +647,9 @@ YUI.add('supra.template-compiler', function (Y) {
 		REG_STRIP_TAGS		= /<[^>]+>/g,
 		REG_VAR				= new RegExp(ESC_VAR_OPEN + '(.*?)' + ESC_VAR_CLOSE, 'g'),
 		REG_VAR_STRING		= /("[^"]*"|'[^']*')/g,
-		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\||\&)([a-z])/gi,
-		REG_VAR_FN			= /(^|\s|\[|\(|\!|\||\&)([a-z0-9_]+\()/gi,
-		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]]+)\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
+		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&)([a-z])/gi,
+		REG_VAR_FN			= /(^|\s|\[|\(|\!|\&)([a-z0-9_]+\()/gi,
+		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]\(\)]+)\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
 		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
 		
 		REG_AND				= /\s+and\s+/g,

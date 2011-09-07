@@ -24,6 +24,13 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		buttons: null,
 		
 		/**
+		 * Footer node
+		 * @type {Object}
+		 * @private
+		 */
+		footer: null,
+		
+		/**
 		 * Generate settings form
 		 */
 		createSettingsForm: function () {
@@ -43,7 +50,10 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
-				form.get('boundingBox').addClass('yui3-form-properties');
+				form.get('boundingBox').addClass('yui3-form-properties')
+									   .addClass('yui3-sidebar-content')
+									   .addClass('scrollable')
+									   .addClass('has-footer');
 				form.hide();
 			
 			//On style change update table
@@ -55,67 +65,58 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			var heading = Y.Node.create('<h2>' + Supra.Intl.get(['htmleditor', 'table_properties']) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
-			//Buttons
-			var buttons = Y.Node.create('<div class="yui3-form-buttons"></div>');
-			form.get('contentBox').insert(buttons, 'before');
+			//Insert row before, after, etc.
+			var button_list = {};
+			var node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
+			form.get('contentBox').append(node_group);
 			
-				//Save button
-				var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'});
-					btn.render(buttons).on('click', this.settingsFormApply, this);
-				
-				//Cancel button
-				var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'close']), 'style': 'mid'});
-					btn.render(buttons).on('click', this.settingsFormCancel, this);
-				
-				//Insert row before, after, etc.
-				var button_list = {};
-				var node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
-				form.get('contentBox').append(node_group);
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-before.png'});
-					btn.addClass('yui3-button-first');
-					btn.render(node_group).on('click', this.cmdRowBefore, this);
-					button_list.rowBefore = btn;
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_row']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-delete.png'});
-					btn.render(node_group).on('click', this.cmdRowDelete, this);
-					button_list.rowDelete = btn;
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-after.png'});
-					btn.addClass('yui3-button-last');
-					btn.render(node_group).on('click', this.cmdRowAfter, this);
-					button_list.rowAfter = btn;
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'marge_cells']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
-					btn.addClass('yui3-button-first');
-					btn.addClass('yui3-button-last');
-					btn.render(node_group).on('click', this.cmdMergeCells, this);
-					button_list.mergeCells = btn;
-				
-				node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
-				form.get('contentBox').append(node_group);
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-before.png'});
-					btn.addClass('yui3-button-first');
-					btn.render(node_group).on('click', this.cmdColBefore, this);
-					button_list.colBefore = btn;
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_col']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-delete.png'});
-					btn.render(node_group).on('click', this.cmdColDelete, this);
-					button_list.colDelete = btn;
-				
-				var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-after.png'});
-					btn.addClass('yui3-button-last');
-					btn.render(node_group).on('click', this.cmdColAfter, this);
-					button_list.colAfter = btn;
-				
-				form.get('contentBox').append('<br /><br />');
-				
-				//Delete button
-				var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
-					btn.render(form.get('contentBox'));
-					btn.addClass('yui3-button-delete');
-					btn.on('click', this.removeSelectedTable, this);
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-before.png'});
+				btn.addClass('yui3-button-first');
+				btn.render(node_group).on('click', this.cmdRowBefore, this);
+				button_list.rowBefore = btn;
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_row']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-delete.png'});
+				btn.render(node_group).on('click', this.cmdRowDelete, this);
+				button_list.rowDelete = btn;
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-after.png'});
+				btn.addClass('yui3-button-last');
+				btn.render(node_group).on('click', this.cmdRowAfter, this);
+				button_list.rowAfter = btn;
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'marge_cells']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
+				btn.addClass('yui3-button-first');
+				btn.addClass('yui3-button-last');
+				btn.render(node_group).on('click', this.cmdMergeCells, this);
+				button_list.mergeCells = btn;
+			
+			node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
+			form.get('contentBox').append(node_group);
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-before.png'});
+				btn.addClass('yui3-button-first');
+				btn.render(node_group).on('click', this.cmdColBefore, this);
+				button_list.colBefore = btn;
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_col']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-delete.png'});
+				btn.render(node_group).on('click', this.cmdColDelete, this);
+				button_list.colDelete = btn;
+			
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-after.png'});
+				btn.addClass('yui3-button-last');
+				btn.render(node_group).on('click', this.cmdColAfter, this);
+				button_list.colAfter = btn;
+			
+			//Footer
+			var footer = Y.Node.create('<div class="yui3-sidebar-footer hidden"></div>');
+			this.footer = footer;
+			form.get('boundingBox').insert(footer, 'after');
+			
+			//Delete button
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
+				btn.render(footer);
+				btn.addClass('yui3-button-delete');
+				btn.on('click', this.removeSelectedTable, this);
 			
 			this.buttons = button_list;
 			this.settings_form = form;
@@ -446,6 +447,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		hideSettingsForm: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
+				this.footer.addClass('hidden');
 			}
 		},
 		
@@ -467,26 +469,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				
 				//Property changed, update editor 'changed' state
 				this.htmleditor._changed();
-			}
-		},
-		
-		/**
-		 * Cancel settings changes
-		 */
-		settingsFormCancel: function () {
-			if (this.selected_table) {
-				
-				this.setProperty('style', this.original_data.style);
-				
-				this.selected_table.removeClass('yui3-table-selected');
-				this.selected_cell.removeClass('yui3-cell-selected');
-				
-				this.selected_table = null;
-				this.selected_cell = null;
-				this.original_data = null;
-				this.data = null;
-				
-				this.hideSettingsForm();
 			}
 		},
 		
@@ -527,7 +509,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * Show table settings bar
 		 */
 		showTableSettings: function (event) {
-			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm());
+			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm(), {
+				'doneCallback': Y.bind(this.settingsFormApply, this)
+			});
+			
+			this.footer.removeClass('hidden');
 			
 			this.selected_table = event.target.closest('table');
 			this.selected_cell = event.target.closest('td,th');

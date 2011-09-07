@@ -110,6 +110,13 @@
 	-webkit-border-radius: 0 0 4px 4px;
 }
 .yui3-editor-toolbar-text-hidden {
+	-moz-transition-property: top;
+	-moz-transition-duration: 0.5s;
+	-webkit-transition-property: top;
+	-webkit-transition-duration: 0.5s;
+	transition-property: top;
+	transition-duration: 0.5s;
+	
 	top: -50px;
 }
 

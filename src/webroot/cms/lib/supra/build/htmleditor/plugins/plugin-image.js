@@ -30,6 +30,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		drop: null,
 		
+		/**
+		 * Footer node
+		 * @type {Object}
+		 * @private
+		 */
+		footer: null,
 		
 		/**
 		 * Generate settings form
@@ -60,7 +66,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
-				form.get('boundingBox').addClass('yui3-form-properties');
+				form.get('boundingBox').addClass('yui3-form-properties')
+									   .addClass('yui3-sidebar-content')
+									   .addClass('scrollable')
+									   .addClass('has-footer');
 				form.hide();
 			
 			//On title, description, etc. change update image data
@@ -72,23 +81,21 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			var heading = Y.Node.create('<h2>' + Supra.Intl.get(['htmleditor', 'image_properties']) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
-			//Buttons
-			var buttons = Y.Node.create('<div class="yui3-form-buttons"></div>');
-			form.get('contentBox').insert(buttons, 'before');
-			
-			//Save button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'});
-				btn.render(buttons).on('click', this.settingsFormApply, this);
-			
-			//Cancel button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'close']), 'style': 'mid'});
-				btn.render(buttons).on('click', this.settingsFormCancel, this);
-			
+			//Footer
+			var footer = Y.Node.create('<div class="yui3-sidebar-footer hidden"></div>');
+			this.footer = footer;
+			form.get('boundingBox').insert(footer, 'after');
 			
 			//Add 'Delete' and 'Replace buttons'
+			//Delete button
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
+				btn.render(footer);
+				btn.addClass('yui3-button-delete');
+				btn.on('click', this.removeSelectedImage, this);
+			
 			//Replace button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'replace']), 'style': 'mid'});
-				btn.render(form.get('contentBox'));
+				btn.render(footer);
 				btn.addClass('yui3-button-edit');
 				btn.on('click', function () {
 					//Open Media library on 'Replace'
@@ -101,12 +108,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					}
 				}, this);
 			
-			//Delete button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
-				btn.render(form.get('contentBox'));
-				btn.addClass('yui3-button-delete');
-				btn.on('click', this.removeSelectedImage, this);
-			
 			this.settings_form = form;
 			return form;
 		},
@@ -117,6 +118,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		hideSettingsForm: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
+				this.footer.addClass('hidden');
 			}
 		},
 		
@@ -135,39 +137,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				//Property changed, update editor 'changed' state
 				this.htmleditor._changed();
-			}
-		},
-		
-		/**
-		 * Cancel settings changes
-		 */
-		settingsFormCancel: function () {
-			if (this.selected_image) {
-				
-				var imageId = this.selected_image_id,
-					oldData = this.htmleditor.getData(imageId),
-					data = this.original_data;
-				
-				//Restore old data
-				this.htmleditor.setData(imageId, data);
-				
-				//Apply original properties to image if changed
-				if (data.image.id != oldData.image.id) {
-					this.setImageProperty('image', data.image);
-				}
-				for(var i in data) {
-					if (typeof data[i] == 'string' && oldData[i] != data[i]) {
-						this.setImageProperty(i, data[i]);
-					}
-				}
-				
-				this.selected_image.removeClass('yui3-image-selected');
-				this.selected_image = null;
-				this.selected_image_id = null;
-				this.original_data = null;
-				
-				this.hideSettingsForm();
-				this.hideMediaSidebar();
 			}
 		},
 		
@@ -292,7 +261,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				return;
 			}
 			
-			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm());
+			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm(), {
+				'doneCallback': Y.bind(this.settingsFormApply, this)
+			});
+			
+			this.footer.removeClass('hidden');
 			
 			this.selected_image = event.target;
 			this.selected_image.addClass('yui3-image-selected');
