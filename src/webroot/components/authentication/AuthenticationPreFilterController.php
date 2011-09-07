@@ -15,12 +15,39 @@ use Supra\Http\Cookie;
 class AuthenticationPreFilterController extends Controller\ControllerAbstraction implements Controller\PreFilterInterface
 {
 
+	/**
+	 * Login page path
+	 * @var string
+	 */
 	private $loginPath = '/cms/login';
+	
+	/**
+	 * Cms page path
+	 * @var string
+	 */
 	private $cmsPath = '/cms';
+	
+	/**
+	 * Login field name on login page
+	 * @var string
+	 */
 	private $loginField = 'supra_login';
+	
+	/**
+	 * Password field name on login page
+	 * @var string
+	 */
 	private $passwordField = 'supra_password';
+	
+	/**
+	 * Session name
+	 * @var string
+	 */
 	private $sessionName = 'SID';
 
+	/**
+	 * "Redirect to" cookie name
+	 */
 	const REDIRECT_TO = 'supra_redirect_to';
 	
 	/**
@@ -28,6 +55,10 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	 */
 	const SESSION_EXPIRATION_TIME = 900;
 
+	/**
+	 * User Provider object instance
+	 * @var \Supra\User\UserProvider
+	 */
 	protected $userProvider;
 
 	/**
@@ -42,56 +73,95 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 		'/cms/internal-user-manager/restore/changepassword',
 	);
 
-	public function getPublicUrlList()
-	{
-		return $this->publicUrlList;
-	}
-
 	public function __construct()
 	{
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 	}
-
+	
+	/**
+	 * Public URL list
+	 * @return array
+	 */
+	public function getPublicUrlList()
+	{
+		return $this->publicUrlList;
+	}
+	
+	/**
+	 * Returns login field name
+	 * @return string
+	 */
 	public function getLoginField()
 	{
 		return $this->loginField;
 	}
-
+	
+	/**
+	 * Sets login field name
+	 * @param string $loginField 
+	 */
 	public function setLoginField($loginField)
 	{
 		$this->loginField = $loginField;
 	}
 
+	/**
+	 * Returns password field name
+	 * @return string 
+	 */
 	public function getPasswordField()
 	{
 		return $this->passwordField;
 	}
 
+	/**
+	 * Sets password field name
+	 * @param string $passwordField 
+	 */
 	public function setPasswordField($passwordField)
 	{
 		$this->passwordField = $passwordField;
 	}
-
+	
+	/**
+	 * Returns login page path
+	 * @return string 
+	 */
 	public function getLoginPath()
 	{
 		return $this->loginPath;
 	}
 
+	/**
+	 * Sets login page path
+	 * @param string $loginPath 
+	 */
 	public function setLoginPath($loginPath)
 	{
 		$this->loginPath = $loginPath;
 	}
 
+	/**
+	 * Returns cms page path
+	 * @return string 
+	 */
 	public function getCmsPath()
 	{
 		return $this->cmsPath;
 	}
 
+	/**
+	 * Sets cms page path
+	 * @param string $cmsPath 
+	 */
 	public function setCmsPath($cmsPath)
 	{
 		$this->cmsPath = $cmsPath;
 	}
 
+	/**
+	 * Main executable action
+	 */
 	public function execute()
 	{
 		session_name($this->sessionName);
@@ -117,14 +187,16 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			$password = $this->request->getPostValue($passwordField);
 
 			if ( ! empty($login) && ! empty($password)) {
-
-				$userProvider = ObjectRepository::getUserProvider($this);
-				$user = $userProvider->authenticate($login, $password);
-
+				
+				// Authenticating user
+				$user = $this->userProvider->authenticate($login, $password);
+				
 				if ( ! empty($user)) {
 					$uri = $this->getCmsPath();
 					
 					$redirect_to = $this->request->getCookie(self::REDIRECT_TO);
+					
+					// if is set "redirect to" then rewriting redirect uri to "redirect to" value
 					if ( ! empty($redirect_to)) {
 						$uri = $redirect_to;
 					}
@@ -133,10 +205,12 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 					$_SESSION['expiration_time'] = time()+self::SESSION_EXPIRATION_TIME;
 					
 					$this->response->redirect($uri);
-
+					
+					// Reseting "redirect to" cookie
 					$cookie = new Cookie(self::REDIRECT_TO, '');
 					$cookie->setExpire('-1 min');
 				} else {
+					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
 					$this->response->redirect($loginPath);
 
@@ -147,6 +221,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 		$session = null;
 		
+		// check for session presence and session expiration time
 		if( ! empty ($_SESSION['user'])) {
 			$time = time();
 			if($_SESSION['expiration_time'] > $time) {
@@ -157,6 +232,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			
 		}
 
+		// if session is empty we redirect user to login page
 		if (empty($session)) {
 
 			$loginPath = $this->getLoginPath();
@@ -169,7 +245,6 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 				// FIXME: Ugly
 				$domain = $this->request->getServerValue('HTTP_HOST');
-				$cookie->setDomain($domain);
 
 				$this->response->setCookie($cookie);
 
@@ -180,6 +255,11 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 		}
 	}
 
+	/**
+	 * Checks url for public access
+	 * @param string $publicUrl
+	 * @return boolean
+	 */
 	private function isPublicUrl($publicUrl)
 	{
 		$publicUrlList = $this->getPublicUrlList();

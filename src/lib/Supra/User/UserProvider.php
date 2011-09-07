@@ -20,6 +20,10 @@ class UserProvider
 	 */
 	public $entityManager;
 	
+	/**
+	 * Authentication adapter
+	 * @var Authentication\AuthenticationAdapterInterface
+	 */
 	protected $authAdapter = null;
 	
 	public function __construct()
@@ -28,7 +32,7 @@ class UserProvider
 	}
 	/**
 	 * Adds validation filter to array
-	 * @param type $validationFilter 
+	 * @param array $validationFilter 
 	 */
 	public function addValidationFilter($validationFilter)
 	{
@@ -46,11 +50,19 @@ class UserProvider
 		}
 	}
 	
+	/**
+	 * Returns authentication adapter object
+	 * @return Authentication\AuthenticationAdapterInterface
+	 */
 	public function getAuthAdapter()
 	{
 		return $this->authAdapter;
 	}
 
+	/**
+	 * Sets authentication adapter
+	 * @param Authentication\AuthenticationAdapterInterface $authAdapter 
+	 */
 	public function setAuthAdapter($authAdapter)
 	{
 		$this->authAdapter = $authAdapter;
@@ -75,17 +87,5 @@ class UserProvider
 		}
 		
 		return $user;
-	}
-	
-		
-	/**
-	 * Generates password for database
-	 * @param string $password
-	 * @param string $salt
-	 * @return string 
-	 */
-	public function generatePasswordHash($password, $salt)
-	{
-		return sha1($password . $salt); 
 	}
 }

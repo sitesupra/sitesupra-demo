@@ -53,14 +53,17 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 * @param type $salt
 	 * @return type 
 	 */
-	public function generatePasswordHash($password, $salt)
+	protected function generatePasswordHash($password, $salt)
 	{
 		return sha1($password . $salt); 
 	}
 	
-	public function changePassword($login, $password)
+	
+	public function changePassword(User $user, $password)
 	{
-		
+		$salt = $user->getSalt();
+		$passHash = $this->generatePasswordHash($password, $salt);
+		$user->setPassword($passHash);
 	}
 
 }

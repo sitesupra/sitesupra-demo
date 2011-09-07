@@ -19,6 +19,6 @@ interface AuthenticationAdapterInterface
 	/**
 	 * change password
 	 */
-	public function changePassword($login, $password);
+	public function changePassword(User $user, $password);
 
 }

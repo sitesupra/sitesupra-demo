@@ -19,9 +19,16 @@ use Supra\ObjectRepository\ObjectRepository;
 class RestoreAction extends InternalUserManagerAbstractAction
 {
 
+	/**
+	 * Minimum password length
+	 */
 	const MIN_PASSWORD_LENGTH = 4;
 	
+	/**
+	 * Login page path
+	 */
 	const LOGIN_PAGE = '/cms/login';
+	
 	/**
 	 * Validates hash
 	 * @param type $expirationTime
@@ -49,7 +56,6 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	{
 		/* @var $repo HttpResponse */
 		$response = $this->getResponse();
-		
 		if (($this->emptyRequestParameter('e')) || ($this->emptyRequestParameter('t')) || ($this->emptyRequestParameter('h'))) {
 			$response->output('Wrong parameters passed');
 			return;
@@ -58,19 +64,8 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		$email = $this->getRequestParameter('e');
 		$expirationTime = $this->getRequestParameter('t');
 		$hash = $this->getRequestParameter('h');
-
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		/* @var $user Entity\User */
-		$user = $repo->findOneByEmail($email);
-
-		if (empty($user)) {
-			$response->output('Can\'t find user with such email');
-			return;
-		}
-
-		$salt = $user->getSalt();
-		$result = $this->validateHash($expirationTime, $salt, $email, $hash);
+		
+		$result = $this->validateUser();
 
 		if ($result) {
 			//TODO: introduce some template engine
@@ -98,10 +93,8 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		
 		$password = $this->getRequestParameter('password');
 		$confirmPassword = $this->getRequestParameter('confirm_password');
-		$email = $this->getRequestParameter('email');
-		$expirationTime = $this->getRequestParameter('time');
-		$hash = $this->getRequestParameter('hash');
 
+		// Check password match
 		if($password != $confirmPassword) {
 			$this->getResponse()->output('Passwords does not match');
 			return;
@@ -109,36 +102,24 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		
 		$passwordLength = strlen($password);
 		
+		// check password lenght
 		if($passwordLength < self::MIN_PASSWORD_LENGTH) {
 			$this->getResponse()->output('Passwords length should be '. self::MIN_PASSWORD_LENGTH .' or more characters');
 			return;
 		}
 		
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		/* @var $user Entity\User */
-		$user = $repo->findOneByEmail($email);
-
-		if (empty($user)) {
-			$this->getResponse()->output('Can\'t find user with such email');
-			return;
-		}
+		$user = $this->validateUser();
 		
-		$cerrentSalt = $user->getSalt();
-		$result = $this->validateHash($expirationTime, $cerrentSalt, $email, $hash);
-		
-		if(! $result) {
+		if( ! $user) {
 			$this->getResponse()->output('Something went wrong. Try to request new link.');
 			return;
 		}
 		
-		$user->setSalt();
-		$salt = $user->getSalt();
-		
 		$userProvider = ObjectRepository::getUserProvider($this);
-		$hash = $userProvider->generatePasswordHash($password, $salt);
 		
-		$user->setPassword($hash);
+		$authAdapter = $userProvider->getAuthAdapter();
+		$authAdapter->changePassword($user, $password);
+		
 		$this->entityManager->flush();
 		
 		$this->getResponse()->redirect(self::LOGIN_PAGE);
@@ -189,5 +170,26 @@ class RestoreAction extends InternalUserManagerAbstractAction
 			//TODO: Remove later. Should not be shown to user
 			$response->output($e->getMessage());
 		}
+	}
+	
+	private function validateUser()
+	{	
+		$email = $this->getRequestParameter('e');
+		$expirationTime = $this->getRequestParameter('t');
+		$hash = $this->getRequestParameter('h');
+		
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		$user = $repo->findOneByEmail($email);
+
+		// find user
+		if (empty($user)) {
+			$this->getResponse()->output('Can\'t find user with such email');
+			return false;
+		}
+		
+		$currentSalt = $user->getSalt();
+		$result = $this->validateHash($expirationTime, $currentSalt, $email, $hash);
+		
+		return $user;
 	}
 }

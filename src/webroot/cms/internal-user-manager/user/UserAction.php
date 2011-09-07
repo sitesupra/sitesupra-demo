@@ -164,9 +164,6 @@ class UserAction extends InternalUserManagerAbstractAction
 			// TODO: add group, avatar, password creation
 			$user->setName($name);
 			$user->setSalt();
-			$password = $this->userProvider
-							->generatePasswordHash('', $user->getSalt());
-			$user->setPassword($password);
 			$user->setEmail($email);
 
 			try {

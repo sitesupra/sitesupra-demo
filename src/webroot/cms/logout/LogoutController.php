@@ -17,6 +17,11 @@ class LogoutController extends SimpleController
 	 */
 	protected static $defaultAction = 'index';
 	
+	/**
+	 * Login page path
+	 * @var string
+	 */
+	//TODO: Move configuration to Configuration object
 	private $loginPage = '/cms/login';
 	
 	public function getLoginPage()

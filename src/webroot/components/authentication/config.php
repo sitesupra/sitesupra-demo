@@ -7,7 +7,7 @@ $namespaceConfiguration = new \Supra\Loader\Configuration\NamespaceConfiguration
 $namespaceConfiguration->dir = __DIR__;
 $namespaceConfiguration->namespace = __NAMESPACE__;
 
-// Bind to URL /dc
+// Bind to URL /cms
 $routerConfiguration = new \Supra\Router\Configuration\RouterConfiguration();
 $routerConfiguration->url = '/cms';
 $routerConfiguration->priority = \Supra\Router\RouterAbstraction::PRIORITY_TOP;

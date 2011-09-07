@@ -19,7 +19,7 @@ class User extends Abstraction\User
 	protected $id = null;
 	
 	/**
-	 * @Column(type="string", name="password", nullable=false)
+	 * @Column(type="string", name="password", nullable=true)
 	 * @var string
 	 */
 	protected $password;
