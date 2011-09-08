@@ -8,6 +8,7 @@ use Supra\User\UserProvider;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
+use Supra\Log\Log;
 
 /**
  * Object repository
@@ -90,7 +91,7 @@ class ObjectRepository
 
 		// Create bootstrap logger in case of missing logger
 		if (empty($logger)) {
-			$logger = \Supra\Log\Log::getBootstrapLogger();
+			$logger = Log::getBootstrapLogger();
 			self::setDefaultLogger($logger);
 		}
 
@@ -186,7 +187,7 @@ class ObjectRepository
 	 * Get assigned session namespace
 	 *
 	 * @param mixed $caller
-	 * @return SessionNamespaceManager
+	 * @return SessionNamespace
 	 */
 	public static function getSessionNamespace($caller)
 	{

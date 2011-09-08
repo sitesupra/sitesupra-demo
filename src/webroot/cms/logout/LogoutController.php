@@ -36,8 +36,10 @@ class LogoutController extends SimpleController
 		
 		$loginPage = $this->getLoginPage();
 		
-		if(! empty($session->user)) {
-			unset($session->user);
+		$user = $session->getUser();
+		
+		if( ! empty($user)) {
+			$session->removeUser();
 		}
 		
 		$this->response->redirect($loginPage);

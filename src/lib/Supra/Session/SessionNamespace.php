@@ -12,22 +12,22 @@ class SessionNamespace
 	 * 
 	 * @var string
 	 */
-	private $__name;
+	protected $__name;
 	
 	/**
 	 * @var boolean
 	 */
-	private $__closed;
+	protected $__closed;
 
 	/** 
 	 * @var boolean
 	 */
-	private $__dirty;
+	protected $__dirty;
 	
 	/**
 	 * @var mixed
 	 */
-	private $__data;
+	protected $__data;
 	
 	/**
 	 * Construct and initialize.

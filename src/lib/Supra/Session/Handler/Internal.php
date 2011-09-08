@@ -5,11 +5,17 @@ namespace Supra\Session\Handler;
 class Internal extends HandlerAbstraction
 {
 	/**
+	 * Session expiration time in seconds
+	 */
+	const SESSION_EXPIRATION_TIME = 300;
+	
+	/**
 	 * Starts session.
 	 */
 	public function start() 
 	{
 		session_name($this->sessionName);
+		session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
 		
 		if( ! session_start()) {
 			

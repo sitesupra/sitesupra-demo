@@ -80,8 +80,7 @@ class UserProvider
 	{		
 		$adapter = $this->getAuthAdapter();
 		
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		$user = $repo->findOneByEmail($login);
+		$user = $this->findUserByLogin($login);
 		
 		// Try finding the user from adapter
 		if (empty($user)) {
@@ -98,6 +97,39 @@ class UserProvider
 		$result = $adapter->authenticate($user, $password);
 		
 		if ( ! $result) {
+			return null;
+		}
+		
+		return $user;
+	}
+	
+	/**
+	 * Find user by login
+	 * @param string $login
+	 * @return Entity\User 
+	 */
+	public function findUserByLogin($login)
+	{
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		$user = $repo->findOneByEmail($login);
+		
+		if(empty($user)) {
+			return null;
+		}
+		return $user;
+	}
+	
+	/**
+	 * Find user by id
+	 * @param string $id
+	 * @return Entity\User 
+	 */
+	public function findUserById($id)
+	{
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		$user = $repo->findOneById($id);
+		
+		if(empty($user)) {
 			return null;
 		}
 		

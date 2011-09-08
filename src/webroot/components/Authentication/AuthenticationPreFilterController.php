@@ -5,7 +5,6 @@ namespace Project\Authentication;
 use Supra\Controller;
 use Supra\Controller\Exception;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Http\Cookie;
 use Supra\Request;
 use Supra\Response;
 use Supra\User;
@@ -48,16 +47,6 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	private $session;
 
 	/**
-	 * "Redirect to" cookie name
-	 */
-	const REDIRECT_TO = 'supra_redirect_to';
-
-	/**
-	 * Session expiration time in seconds
-	 */
-	const SESSION_EXPIRATION_TIME = 900;
-
-	/**
 	 * User Provider object instance
 	 * @var \Supra\User\UserProvider
 	 */
@@ -77,8 +66,6 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 	public function __construct()
 	{
-		parent::__construct();
-		
 		$this->session = ObjectRepository::getSessionNamespace($this);
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 	}
@@ -171,6 +158,14 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	{
 		$isPublicUrl = $this->isPublicUrl($this->request->getRequestUri());
 
+		$requestedWith = $this->request->getServerValue('HTTP_X_REQUESTED_WITH');
+
+		$xmlHttpRequest = false;
+
+		if ($requestedWith == 'XMLHttpRequest') {
+			$xmlHttpRequest = true;
+		}
+
 		if ($isPublicUrl) {
 			return;
 		}
@@ -200,27 +195,32 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 
 				if ( ! empty($user)) {
-					$uri = $this->getCmsPath();
+					
+					$redirect_to = $this->request->getQueryValue('redirect_to');
+					
+					// returns redirect url or cms path
+					$uri = $this->validateRedirectUrl($redirect_to);
+					
+					$this->session->setUser($user);
 
-					$redirect_to = $this->request->getCookie(self::REDIRECT_TO);
-
-					// if is set "redirect to" then rewriting redirect uri to "redirect to" value
-					if ( ! empty($redirect_to)) {
-						$uri = $redirect_to;
+					if ($xmlHttpRequest) {
+						$this->response->setCode(200);
+					} else {
+						$this->response->redirect($uri);
 					}
-
-					$this->session->user = $user;
-					$this->session->expiration_time = time() + self::SESSION_EXPIRATION_TIME;
-
-					$this->response->redirect($uri);
-
-					// Reseting "redirect to" cookie
-					$cookie = new Cookie(self::REDIRECT_TO, '');
-					$cookie->setExpire('-1 min');
+					
+					return;
+					
 				} else {
 					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
-					$this->response->redirect($loginPath);
+
+					if ($xmlHttpRequest) {
+						$this->response->setCode(401);
+					} else {
+						$this->response->redirect($loginPath);
+					}
+
 					$this->session->login = $login;
 					$this->session->message = 'Incorrect login name or password';
 					throw new Exception\StopRequestException();
@@ -230,14 +230,10 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 		$sessionUser = null;
 
-		// check for session presence and session expiration time
-		if ( ! empty($this->session->user)) {
-			$time = time();
-			if ($this->session->expiration_time > $time) {
-				$sessionUser = $this->session->user;
-			} else {
-				unset($this->session->user);
-			}
+		// check for session presence
+		$user = $this->session->getUser();
+		if ( ! empty($user)) {
+			$sessionUser = $user;
 		}
 
 		// if session is empty we redirect user to login page
@@ -247,16 +243,13 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 			$uri = $this->request->getRequestUri();
 
 			if ($uri != $loginPath) {
-				$cookie = new Cookie(self::REDIRECT_TO, $uri);
-				$cookie->setExpire('+1 min');
-				$cookie->setPath($this->getCmsPath());
+				$this->session->redirect_to = $uri;
 
-				// FIXME: Ugly
-				$domain = $this->request->getServerValue('HTTP_HOST');
-
-				$this->response->setCookie($cookie);
-
-				$this->response->redirect($loginPath);
+				if ($xmlHttpRequest) {
+					$this->response->setCode(401);
+				} else {
+					$this->response->redirect($loginPath .'?redirect_to=' . urlencode($uri));
+				}
 
 				throw new Exception\StopRequestException();
 			}
@@ -301,4 +294,24 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 		return new Response\EmptyResponse();
 	}
 
+	/**
+	 * Validates redirect url, if url contain collen then will return cms path
+	 * @param string $redirect_to
+	 * @return string 
+	 */
+	private function validateRedirectUrl($redirect_to = null)
+	{
+		if(!  empty ($redirect_to)) {
+			$redirect_to = urldecode($redirect_to);
+			
+			//validate
+			$externalUrl = strpos(':', $redirect_to);
+			
+			if ($externalUrl === false) {
+				return $redirect_to;
+			}
+		}
+		
+		return $this->getCmsPath();
+	}
 }
