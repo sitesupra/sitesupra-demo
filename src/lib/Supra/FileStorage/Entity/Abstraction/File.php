@@ -44,12 +44,12 @@ use	Supra\NestedSet;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-class File extends Entity implements NestedSet\Node\NodeInterface
+class File extends Entity implements NestedSet\Node\EntityNodeInterface
 {
 	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	public $nestedSetNode;
+	protected $nestedSetNode;
 
 	/**
 	 * @Id
@@ -347,14 +347,6 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	}
 	
 	/**
-	 * Trigger on tree changes, called on move action
-	 */
-	public function treeChangeTrigger()
-	{
-		
-	}
-	
-	/**
 	 * Get public state
 	 *
 	 * @return boolean
@@ -373,5 +365,13 @@ class File extends Entity implements NestedSet\Node\NodeInterface
 	{
 		$this->public = $public;
 	}
-
+	
+	/**
+	 * {@inheritdoc}
+	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
+	 */
+	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
+	{
+		$this->nestedSetNode = $nestedSetNode;
+	}
 }

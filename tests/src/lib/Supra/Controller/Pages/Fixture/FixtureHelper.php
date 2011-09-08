@@ -322,14 +322,13 @@ class FixtureHelper
 		$page = new Entity\Page();
 		$this->entityManager->persist($page);
 
-		$page->setTemplate($template);
-
 		if ( ! is_null($parentNode)) {
 			$parentNode->addChild($page);
 		}
 		$this->entityManager->flush();
 
 		$pageData = new Entity\PageData('en');
+		$pageData->setTemplate($template);
 		$this->entityManager->persist($pageData);
 		$pageData->setTitle(self::$constants[$type]['title']);
 

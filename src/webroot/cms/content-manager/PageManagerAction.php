@@ -175,7 +175,7 @@ abstract class PageManagerAction extends CmsAction
 	protected function outputPage(Entity\PageData $pageData)
 	{
 		$page = $pageData->getPage();
-		$template = $page->getTemplate();
+		$template = $pageData->getTemplate();
 		$parent = $page->getParent();
 		$parentId = null;
 		

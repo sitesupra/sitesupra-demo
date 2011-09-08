@@ -45,12 +45,12 @@ use Supra\NestedSet;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeInterface
+abstract class ProductAbstraction extends Entity implements NestedSet\Node\EntityNodeInterface
 {
 	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	public $nestedSetNode;
+	protected $nestedSetNode;
 
 	/**
 	 * @Id
@@ -335,10 +335,11 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\NodeI
 	}
 	
 	/**
-	 * Trigger on tree changes, called on move action
+	 * {@inheritdoc}
+	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
 	 */
-	public function treeChangeTrigger()
+	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
 	{
-		
+		$this->nestedSetNode = $nestedSetNode;
 	}
 }

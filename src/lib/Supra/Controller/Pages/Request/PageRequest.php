@@ -206,7 +206,7 @@ abstract class PageRequest extends HttpRequest
 		}
 		
 		// Fetch page/template hierarchy list
-		$this->pageSet = $this->getPage()
+		$this->pageSet = $this->getRequestPageData()
 				->getTemplateHierarchy();
 		
 		return $this->pageSet;

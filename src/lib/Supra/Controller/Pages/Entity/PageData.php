@@ -18,6 +18,13 @@ class PageData extends Abstraction\Data
 	const DISCRIMINATOR = 'page';
 	
 	/**
+	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")
+	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
+	 * @var Template
+	 */
+	protected $template;
+	
+	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -67,6 +74,45 @@ class PageData extends Abstraction\Data
 	public function setPage(Page $page)
 	{
 		$this->setMaster($page);
+	}
+	
+	/**
+	 * Set page template
+	 * @param Template $template
+	 */
+	public function setTemplate(Template $template)
+	{
+		$this->template = $template;
+	}
+
+	/**
+	 * Get page template
+	 * @return Template
+	 */
+	public function getTemplate()
+	{
+		return $this->template;
+	}
+	
+	/**
+	 * Get page and it's template hierarchy starting with the root template
+	 * @return PageSet
+	 * @throws Exception\RuntimeException
+	 */
+	public function getTemplateHierarchy()
+	{
+		$template = $this->getTemplate();
+		$page = $this->getPage();
+
+		if (empty($template)) {
+			//TODO: 404 page or specific error?
+			throw new Exception\RuntimeException("No template assigned to the page {$page->getId()}");
+		}
+
+		$pageSet = $template->getTemplateHierarchy();
+		$pageSet[] = $page;
+
+		return $pageSet;
 	}
 
 	/**

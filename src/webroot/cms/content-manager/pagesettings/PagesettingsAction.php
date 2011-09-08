@@ -40,9 +40,7 @@ class PagesettingsAction extends PageManagerAction
 
 				/* @var $template Entity\Template */
 				$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
-
-				$page = $pageData->getMaster();
-				$page->setTemplate($template);
+				$pageData->setTemplate($template);
 			}
 		}
 		

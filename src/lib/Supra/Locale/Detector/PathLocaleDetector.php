@@ -8,7 +8,7 @@ use Supra\Response\ResponseInterface;
 /**
  * Path locale detector
  */
-class Path extends DetectorAbstraction
+class PathLocaleDetector extends DetectorAbstraction
 {
 	/**
 	 * Detects the current locale

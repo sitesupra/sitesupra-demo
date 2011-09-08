@@ -139,7 +139,7 @@ class SitemapAction extends PageManagerAction
 		
 		//TODO: need to know template ID as well
 		if ($page instanceof Entity\Page) {
-			$templateId = $page->getTemplate()
+			$templateId = $data->getTemplate()
 					->getId();
 		}
 		

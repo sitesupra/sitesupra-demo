@@ -847,20 +847,4 @@ abstract class NodeAbstraction implements NodeInterface
 		return $dumpString;
 	}
 	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function treeChangeTrigger()
-	{
-		
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 * @return string
-	 */
-	public function getNestedSetRepositoryClassName()
-	{
-		return get_class($this);
-	}
 }

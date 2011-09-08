@@ -156,12 +156,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::moveLevel($diff);
     }
 
-    public function treeChangeTrigger()
-    {
-        $this->__load();
-        return parent::treeChangeTrigger();
-    }
-
     public function getNestedSetRepositoryClassName()
     {
         $this->__load();
@@ -208,6 +202,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     {
         $this->__load();
         return parent::isPlaceHolderEditable($placeHolder);
+    }
+
+    public function setNestedSetNode(\Supra\NestedSet\Node\DoctrineNode $nestedSetNode)
+    {
+        $this->__load();
+        return parent::setNestedSetNode($nestedSetNode);
     }
 
     public function getProperty($name)

@@ -79,7 +79,7 @@ class PageAction extends PageManagerAction
 						->getPath();
 			}
 			
-			$template = $page->getTemplate();
+			$template = $pageData->getTemplate();
 			$templateData = $template->getData($locale);
 			
 			if ( ! $templateData instanceof Entity\TemplateData) {
@@ -209,7 +209,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 		
-		$page->setTemplate($template);
+		$pageData->setTemplate($template);
 		
 		$pathPart = '';
 		if ($this->hasRequestParameter('path')) {

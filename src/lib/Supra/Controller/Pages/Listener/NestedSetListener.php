@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
-use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\Node\EntityNodeInterface;
 use Supra\NestedSet\Node\DoctrineNode;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 
@@ -38,7 +38,7 @@ class NestedSetListener
 	{
 		$entity = $args->getEntity();
 		
-		if ($entity instanceof NodeInterface) {
+		if ($entity instanceof EntityNodeInterface) {
 			// Read entity data from the event arguments
 			$em = $args->getEntityManager();
 			
@@ -47,8 +47,9 @@ class NestedSetListener
 			$repository = $em->getRepository($entityName);
 			
 			// Initialize the doctrine nested set node
-			$entity->nestedSetNode = new DoctrineNode($repository);
-			$entity->nestedSetNode->belongsTo($entity);
+			$doctrineNode = new DoctrineNode($repository);
+			$entity->setNestedSetNode($doctrineNode);
+			$doctrineNode->belongsTo($entity);
 		}
 	}
 }

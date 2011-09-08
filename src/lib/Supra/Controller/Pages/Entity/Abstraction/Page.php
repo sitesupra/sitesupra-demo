@@ -48,13 +48,13 @@ use Supra\NestedSet;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class Page extends Entity implements NestedSet\Node\NodeInterface
+abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 {
 	/**
 	 * Filled by NestedSetListener
 	 * @var NestedSet\Node\DoctrineNode
 	 */
-	public $nestedSetNode;
+	protected $nestedSetNode;
 	
 	/**
 	 * @Id
@@ -286,14 +286,6 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 
 	/**
 	 * {@inheritdoc}
-	 */
-	public function treeChangeTrigger()
-	{
-		
-	}
-	
-	/**
-	 * {@inheritdoc}
 	 * @return string
 	 */
 	public function getNestedSetRepositoryClassName()
@@ -410,5 +402,14 @@ abstract class Page extends Entity implements NestedSet\Node\NodeInterface
 	 * @return PageSet
 	 */
 	abstract public function getTemplateHierarchy();
+	
+	/**
+	 * {@inheritdoc}
+	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
+	 */
+	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
+	{
+		$this->nestedSetNode = $nestedSetNode;
+	}
 	
 }
