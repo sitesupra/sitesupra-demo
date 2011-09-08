@@ -2,12 +2,12 @@
 
 namespace Supra\Cms;
 
-use Supra\Loader\NamespaceRecord;
+use Supra\Loader\Strategy\NamespaceLoaderStrategy;
 
 /**
- * Namespace record with added autoloader recognition
+ * Namespace loader strategy with added autoloader recognition
  */
-class CmsNamespaceRecord extends NamespaceRecord
+class CmsNamespaceLoaderStrategy extends NamespaceLoaderStrategy
 {
 	/**
 	 * Special class-path mapping function for CMS

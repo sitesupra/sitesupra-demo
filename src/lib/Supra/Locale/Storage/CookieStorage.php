@@ -52,7 +52,9 @@ class CookieStorage extends StorageAbstraction
 	 */
 	protected function createCookie($value)
 	{
+		$name = $this->cookieName;
 		$cookie = new Cookie($name, $value);
+		
 		return $cookie;
 	}
 }

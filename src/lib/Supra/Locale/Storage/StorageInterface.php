@@ -4,7 +4,7 @@ namespace Supra\Locale\Storage;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
-use Supra\Locale\Data;
+use Supra\Locale\Locale;
 
 /**
  * Interface for storages for current locale
@@ -21,7 +21,7 @@ interface StorageInterface
 
 	/**
 	 * Sets locale data provider
-	 * @param Data $data
+	 * @param Locale $locale
 	 */
-	public function setData(Data $data);
+	public function setLocale(Locale $locale);
 }

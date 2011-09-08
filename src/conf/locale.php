@@ -1,6 +1,6 @@
 <?php
 
-$locale = Supra\Locale\Data::getInstance();
+$locale = Supra\Locale\Locale::getInstance();
 $locale->add('en', array('title' => 'English'));
 
 $locale->setCurrent('en');

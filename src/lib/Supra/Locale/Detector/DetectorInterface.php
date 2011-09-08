@@ -4,7 +4,7 @@ namespace Supra\Locale\Detector;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
-use Supra\Locale\Data;
+use Supra\Locale\Locale;
 
 /**
  * Locale detector interface
@@ -13,9 +13,9 @@ interface DetectorInterface
 {
 	/**
 	 * Sets locale data provider
-	 * @param Data $data
+	 * @param Locale $locale
 	 */
-	public function setData(Data $data);
+	public function setLocale(Locale $locale);
 
 	/**
 	 * Detects the current locale

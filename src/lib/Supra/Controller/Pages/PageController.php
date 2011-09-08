@@ -8,7 +8,6 @@ use Supra\Response\ResponseInterface;
 use Supra\Request\RequestInterface;
 use Supra\Controller\Layout;
 use Supra\Database\Doctrine;
-use Supra\Locale\Data as LocaleData;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityManager;

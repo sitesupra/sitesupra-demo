@@ -2,32 +2,34 @@
 
 namespace Supra\Loader;
 
+use Supra\Loader\Strategy\LoaderStrategyInterface;
+
 /**
  * Loader registry class
  */
-class Registry
+class Loader
 {
 	/**
 	 * The singleton instance
-	 * @var Registry
+	 * @var Loader
 	 */
 	protected static $instance;
 
 	/**
 	 * List of registered namespace paths
-	 * @var NamespaceRecord
+	 * @var Strategy\NamespaceLoaderStrategy
 	 */
-	protected $registry = array();
+	protected $strategies = array();
 
 	/**
 	 * Whether the registry array is sorted by depth descending
 	 * @var boolean
 	 */
-	protected $registryOrdered = true;
+	protected $strategiesOrdered = true;
 
 	/**
 	 * Generate instance of the loader
-	 * @return Registry
+	 * @return Loader
 	 */
 	public static function getInstance()
 	{
@@ -40,12 +42,12 @@ class Registry
 
 	/**
 	 * Binds the namespace classses to be searched in the path specified
-	 * @param NamespaceRecord $namespaceRecord
+	 * @param LoaderStrategyInterface $strategy
 	 */
-	public function registerNamespace(NamespaceRecord $namespaceRecord)
+	public function registerNamespace(LoaderStrategyInterface $strategy)
 	{
-		$this->registry[] = $namespaceRecord;
-		$this->registryOrdered = false;
+		$this->strategies[] = $strategy;
+		$this->strategiesOrdered = false;
 	}
 
 	/**
@@ -54,18 +56,18 @@ class Registry
 	 */
 	public function registerRootNamespace($path)
 	{
-		$namespaceRecord = new NamespaceRecord('', $path);
-		$this->registerNamespace($namespaceRecord);
+		$strategy = new LoaderStrategyInterface('', $path);
+		$this->registerNamespace($strategy);
 	}
 
 	/**
 	 * Order registred namespaces by depth
 	 */
-	protected function orderRegistry()
+	protected function orderStrategies()
 	{
-		if ( ! $this->registryOrdered) {
+		if ( ! $this->strategiesOrdered) {
 
-			$orderFunction = function(NamespaceRecord $a, NamespaceRecord $b)
+			$orderFunction = function(LoaderStrategyInterface $a, LoaderStrategyInterface $b)
 			{
 				$aDepth = $a->getDepth();
 				$bDepth = $b->getDepth();
@@ -77,9 +79,9 @@ class Registry
 				return $aDepth < $bDepth ? 1 : -1;
 			};
 
-			usort($this->registry, $orderFunction);
+			usort($this->strategies, $orderFunction);
 
-			$this->registryOrdered = true;
+			$this->strategiesOrdered = true;
 		}
 	}
 
@@ -110,14 +112,15 @@ class Registry
 	 */
 	public function load($className)
 	{
-		$this->orderRegistry();
+		$this->orderStrategies();
 
 		$className = static::normalizeClassName($className);
 
-		foreach ($this->registry as $namespaceRecord) {
-			$classPath = $namespaceRecord->findClass($className);
+		foreach ($this->strategies as $strategy) {
+			$classPath = $strategy->findClass($className);
 			if ( ! is_null($classPath)) {
 				require_once $classPath;
+				
 				return true;
 			}
 		}

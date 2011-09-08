@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\HttpRequest;
-use Supra\Locale\Data as LocaleData;
+use Supra\Locale\Locale;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\Abstraction\Page;
 
@@ -23,7 +23,7 @@ class PageRequestView extends PageRequest
 		}
 		
 		//TODO: real locale detection missing
-		$locale = LocaleData::getInstance()->getCurrent();
+		$locale = Locale::getInstance()->getCurrent();
 		$this->setLocale($locale);
 	}
 	

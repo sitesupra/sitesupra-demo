@@ -2,7 +2,7 @@
 
 namespace Supra\Locale\Storage;
 
-use Supra\Locale\Data;
+use Supra\Locale\Locale;
 
 /**
  * Locale storage abstraction
@@ -11,16 +11,16 @@ abstract class StorageAbstraction implements StorageInterface
 {
 	/**
 	 * The locale data provider
-	 * @var Data
+	 * @var Locale
 	 */
-	protected $data;
+	protected $locale;
 
 	/**
 	 * Sets locale data provider
-	 * @param Data $data
+	 * @param Locale $locale
 	 */
-	public function setData(Data $data)
+	public function setLocale(Locale $locale)
 	{
-		$this->data = $data;
+		$this->locale = $locale;
 	}
 }

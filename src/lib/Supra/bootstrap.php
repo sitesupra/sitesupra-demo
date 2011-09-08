@@ -1,5 +1,8 @@
 <?php
 
+use Supra\Loader\Loader;
+use Supra\Loader\Strategy\NamespaceLoaderStrategy;
+
 // Base output buffering
 ob_start();
 
@@ -30,22 +33,23 @@ $loaderPath = SUPRA_LIBRARY_PATH
 		. 'Supra' . DIRECTORY_SEPARATOR
 		. 'Loader' . DIRECTORY_SEPARATOR;
 
-require_once $loaderPath . 'Registry.php';
-require_once $loaderPath . 'NamespaceRecord.php';
+require_once $loaderPath . 'Loader.php';
+require_once $loaderPath . 'Strategy/LoaderStrategyInterface.php';
+require_once $loaderPath . 'Strategy/NamespaceLoaderStrategy.php';
 
 // Initiate and set the root namespace directory to the loader
-$loader = Supra\Loader\Registry::getInstance();
+$loader = Loader::getInstance();
 
 // Set Supra namespace
-$supraNamespace = new Supra\Loader\NamespaceRecord('Supra', SUPRA_LIBRARY_PATH . 'Supra');
+$supraNamespace = new NamespaceLoaderStrategy('Supra', SUPRA_LIBRARY_PATH . 'Supra');
 $loader->registerNamespace($supraNamespace);
 
 // Set Doctrine namespace
-$doctrineNamespace = new Supra\Loader\NamespaceRecord('Doctrine', SUPRA_LIBRARY_PATH . 'Doctrine');
+$doctrineNamespace = new NamespaceLoaderStrategy('Doctrine', SUPRA_LIBRARY_PATH . 'Doctrine');
 $loader->registerNamespace($doctrineNamespace);
 
 // Set Symfony namespace
-$symfonyNamespace = new Supra\Loader\NamespaceRecord('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
+$symfonyNamespace = new NamespaceLoaderStrategy('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
 // Twig autoloader, TODO: should write such supra7 autoloader

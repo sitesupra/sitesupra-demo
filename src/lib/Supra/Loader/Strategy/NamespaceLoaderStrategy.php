@@ -1,13 +1,14 @@
 <?php
 
-namespace Supra\Loader;
+namespace Supra\Loader\Strategy;
 
+use Supra\Loader\Loader;
 use Supra\Loader\Exception;
 
 /**
- * Namespace record in the loader registry
+ * Strategy to find class according to the namespace
  */
-class NamespaceRecord
+class NamespaceLoaderStrategy implements LoaderStrategyInterface
 {
 	/**
 	 * @var string
@@ -47,7 +48,7 @@ class NamespaceRecord
 	 */
 	public function setNamespace($namespace)
 	{
-		$namespace = Registry::normalizeNamespaceName($namespace);
+		$namespace = Loader::normalizeNamespaceName($namespace);
 		$this->namespace = $namespace;
 	}
 
@@ -119,7 +120,7 @@ class NamespaceRecord
 	}
 
 	/**
-	 * Search for class and return it's path if succeeds
+	 * {@inheritdoc}
 	 * @param string $className
 	 * @return string
 	 */

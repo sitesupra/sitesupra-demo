@@ -3,8 +3,6 @@
 namespace Supra\Controller\Configuration;
 
 use Supra\Controller\FrontController;
-use Supra\Loader\Registry;
-use Supra\Loader\Configuration\NamespaceConfiguration;
 use Supra\Router\Configuration\RouterConfiguration;
 
 /**

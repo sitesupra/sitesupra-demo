@@ -8,12 +8,11 @@ use Supra\Response\ResponseInterface;
 /**
  * Localization
  */
-class Data
+class Locale
 {
-
 	/**
 	 * Instance
-	 * @var Data
+	 * @var Locale
 	 */
 	protected static $instance;
 
@@ -37,7 +36,7 @@ class Data
 
 	/**
 	 * Singleton pattern
-	 * @return Data
+	 * @return Locale
 	 */
 	public static function getInstance()
 	{

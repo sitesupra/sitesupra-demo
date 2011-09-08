@@ -2,14 +2,14 @@
 
 namespace Supra\Loader\Configuration;
 
-use Supra\Loader\NamespaceRecord;
+use Supra\Loader\Strategy\LoaderStrategyInterface;
 
 class NamespaceConfiguration
 {
 	/**
 	 * @var string
 	 */
-	public $class = 'Supra\Loader\NamespaceRecord';
+	public $class = 'Supra\Loader\Strategy\NamespaceLoaderStrategy';
 
 	/**
 	 * @var string
@@ -22,12 +22,12 @@ class NamespaceConfiguration
 	public $dir;
 	
 	/**
-	 * @return NamespaceRecord
+	 * @return LoaderStrategyInterface
 	 */
 	public function configure()
 	{
-		$namespaceRecord = new $this->class($this->namespace, $this->dir);
+		$strategy = new $this->class($this->namespace, $this->dir);
 		
-		return $namespaceRecord;
+		return $strategy;
 	}
 }
