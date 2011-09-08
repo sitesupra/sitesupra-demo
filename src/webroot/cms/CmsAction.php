@@ -7,7 +7,6 @@ use Supra\Response\JsonResponse;
 use Supra\Request;
 use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
-use Supra\Log\Writer\WriterInterface;
 use Supra\ObjectRepository\ObjectRepository;
 
 /**
@@ -22,19 +21,6 @@ abstract class CmsAction extends SimpleController
 	 * @var string
 	 */
 	private $requestMethod;
-	
-	/**
-	 * @var WriterInterface
-	 */
-	private $log;
-	
-	/**
-	 * Assigns a log writer
-	 */
-	public function __construct()
-	{
-		$this->log = ObjectRepository::getLogger($this);
-	}
 	
 	/**
 	 * Localized error handling

@@ -58,5 +58,4 @@ $draftConnectionOptions = $ini['database'];
 $draftConnectionOptions['dbname'] = $draftConnectionOptions['dbname'] . '_draft';
 
 $em = EntityManager::create($draftConnectionOptions, $config, $eventManager);
-//TODO: enable when draft connection is implemeted
 //ObjectRepository::setEntityManager('Supra\Cms', $em);

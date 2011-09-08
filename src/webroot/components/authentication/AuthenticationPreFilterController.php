@@ -77,6 +77,8 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 	public function __construct()
 	{
+		parent::__construct();
+		
 		$this->session = ObjectRepository::getSessionNamespace($this);
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 	}

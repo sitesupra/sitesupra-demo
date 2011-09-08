@@ -51,7 +51,7 @@ class CmsController extends DistributedController
 			
 			if (file_exists($path)) {
 				
-				Log::warn("DEVELOPMENT: Will use static data file for action {$actionString} because of ResourceNotFoundException exception '{$notFound->getMessage()}'");
+				$this->log->warn("DEVELOPMENT: Will use static data file for action {$actionString} because of ResourceNotFoundException exception '{$notFound->getMessage()}'");
 				
 				ob_start();
 				require_once($path);

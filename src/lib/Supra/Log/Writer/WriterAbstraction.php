@@ -17,7 +17,7 @@ use Supra\Log\LogEvent;
  * @method void error(mixed $argument)
  * @method void fatal(mixed $argument)
  */
-abstract class WriterAbstraction implements WriterInterface
+abstract class WriterAbstraction
 {
 	/**
 	 * Internal backtrace length

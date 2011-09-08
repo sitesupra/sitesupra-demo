@@ -14,7 +14,7 @@ use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Response\PlaceHolder;
-use \Supra\ObjectRepository\ObjectRepository;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Page controller
@@ -29,6 +29,21 @@ class PageController extends ControllerAbstraction
 	private $blockControllers = array();
 	
 	/**
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+	
+	/**
+	 * Binds entity manager
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		
+		$this->entityManager = ObjectRepository::getEntityManager($this);
+	}
+	
+	/**
 	 * Downcasts receives request object into 
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
@@ -40,20 +55,18 @@ class PageController extends ControllerAbstraction
 			$request = new namespace\Request\PageRequestView($request);
 		}
 		
-		$em = $this->getDoctrineEntityManager();
-		$request->setDoctrineEntityManager($em);
+		$request->setDoctrineEntityManager($this->entityManager);
 		
 		parent::prepare($request, $response);
 	}
 	
 	/**
-	 * @return EntityManager
+	 * Oberride the entity manager to be used by the controller
+	 * @param EntityManager $em
 	 */
-	protected function getDoctrineEntityManager()
+	public function setEntityManager(EntityManager $em)
 	{
-		$em = ObjectRepository::getEntityManager($this);
-		
-		return $em;
+		$this->entityManager = $em;
 	}
 
 	/**

@@ -12,7 +12,7 @@ openRecord: function (item_id) {
         //Call form or something...
         Supra.Manager.executeAction('RecordForm', item_id);
     }
-},
+}
 
 initialize: function () {
     //We have to wait until data is loaded to do something with history

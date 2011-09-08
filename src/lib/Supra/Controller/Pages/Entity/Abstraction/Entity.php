@@ -7,7 +7,6 @@ use Supra\Database\Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Doctrine\ORM\EntityRepository;
-use Supra\Log\Writer\WriterInterface;
 use Supra\ObjectRepository\ObjectRepository;
 
 /**

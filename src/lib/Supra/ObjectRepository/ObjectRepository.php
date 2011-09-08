@@ -5,7 +5,7 @@ namespace Supra\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Supra\FileStorage\FileStorage;
 use Supra\User\UserProvider;
-use Supra\Log\Writer\WriterInterface;
+use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
 
@@ -16,7 +16,7 @@ class ObjectRepository
 {
 	const DEFAULT_KEY = '';
 	
-	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterInterface';
+	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
@@ -82,7 +82,7 @@ class ObjectRepository
 	 * Get assigned logger
 	 *
 	 * @param mixed $caller
-	 * @return WriterInterface
+	 * @return WriterAbstraction
 	 */
 	public static function getLogger($caller)
 	{
@@ -101,9 +101,9 @@ class ObjectRepository
 	 * Assign logger instance to caller class
 	 *
 	 * @param mixed $caller
-	 * @param WriterInterface $object 
+	 * @param WriterAbstraction $object 
 	 */
-	public static function setLogger($caller, WriterInterface $object)
+	public static function setLogger($caller, WriterAbstraction $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_LOGGER);
 	}
@@ -111,9 +111,9 @@ class ObjectRepository
 	/**
 	 * Set default logger
 	 *
-	 * @param WriterInterface $object 
+	 * @param WriterAbstraction $object 
 	 */
-	public static function setDefaultLogger(WriterInterface $object)
+	public static function setDefaultLogger(WriterAbstraction $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOGGER);
 	}

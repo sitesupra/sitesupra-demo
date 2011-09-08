@@ -7,7 +7,7 @@ use Supra\Controller\Exception;
 use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Log\Writer\WriterInterface;
+use Supra\Log\Writer\WriterAbstraction;
 
 /**
  * Front controller
@@ -22,7 +22,7 @@ class FrontController
 	private static $instance;
 
 	/**
-	 * @var WriterInterface
+	 * @var WriterAbstraction
 	 */
 	private $log;
 

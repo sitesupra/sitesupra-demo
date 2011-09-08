@@ -6,7 +6,7 @@ use Supra\Editable\Filter\FilterInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Log\Writer\WriterInterface;
+use Supra\Log\Writer\WriterAbstraction;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -19,7 +19,7 @@ class ParsedHtmlFilter implements FilterInterface
 	public $property;
 	
 	/**
-	 * @var WriterInterface
+	 * @var WriterAbstraction
 	 */
 	private $log;
 	

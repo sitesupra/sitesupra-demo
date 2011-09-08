@@ -4,7 +4,6 @@ namespace Supra\Cms\InternalUserManager\User;
 
 use Supra\Controller\SimpleController;
 use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
-use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Supra\User\Exception;
 use Supra\User\Entity;

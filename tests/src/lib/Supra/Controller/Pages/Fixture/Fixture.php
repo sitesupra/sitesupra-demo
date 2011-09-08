@@ -12,7 +12,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 	public function testFixture()
 	{
 		// Find the default entity manager
-		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms');
 		$helper = new FixtureHelper($em);
 		$helper->build();
 	}

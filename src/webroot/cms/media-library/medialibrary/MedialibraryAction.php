@@ -5,7 +5,6 @@ namespace Supra\Cms\MediaLibrary\Medialibrary;
 use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage\Exception;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Response\HttpResponse;

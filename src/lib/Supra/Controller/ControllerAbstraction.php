@@ -4,12 +4,19 @@ namespace Supra\Controller;
 
 use Supra\Request;
 use Supra\Response;
+use Supra\Log\Writer\WriterAbstraction;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Controller abstraction class
  */
 abstract class ControllerAbstraction implements ControllerInterface
 {
+	/**
+	 * @var WriterAbstraction
+	 */
+	protected $log;
+	
 	/**
 	 * Request object
 	 * @var Request\RequestInterface
@@ -22,6 +29,14 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 */
 	protected $response;
 
+	/**
+	 * Binds the logger
+	 */
+	public function __construct()
+	{
+		$this->log = ObjectRepository::getLogger($this);
+	}
+	
 	/**
 	 * Prepares controller for execution
 	 * @param RequestInterface $request

@@ -32,6 +32,7 @@ class RootAction extends PageManagerAction
 		$output = file_get_contents(dirname(__DIR__) . '/index.html');
 		
 		$pageId = $this->getInitialPageId();
+		$pageId = json_encode($pageId);
 		
 		// TODO: simple regexps to add some dynamic content to the index.html and don't break the static version
 //		$output = preg_replace('/DYNAMIC_PATH = \'\/cms\';/', 'DYNAMIC_PATH = \'/admin\';', $output);

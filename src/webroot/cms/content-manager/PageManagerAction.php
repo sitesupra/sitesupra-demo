@@ -9,7 +9,6 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Log\Log;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Http\Cookie;
 use Supra\Cms\CmsAction;
@@ -27,22 +26,16 @@ abstract class PageManagerAction extends CmsAction
 	protected $entityManager;
 	
 	/**
-	 * @var Log
-	 */
-	protected $log;
-	
-	/**
-	 * Assign entity manager, log
+	 * Assign entity manager
 	 */
 	public function __construct()
 	{
 		parent::__construct();
 		
 		// Take entity manager of the page controller
-		$controller = $this->getPageController();
-		$this->entityManager = ObjectRepository::getEntityManager($controller);
-		
-		$this->log = ObjectRepository::getLogger($this);
+//		$controller = $this->getPageController();
+		// Will fetch connection for drafts
+		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
 	
 	/**
@@ -52,6 +45,9 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageController()
 	{
 		$controller = new \Project\Pages\PageController();
+		
+		// Override with the draft version connection
+		$controller->setEntityManager($this->entityManager);
 		
 		return $controller;
 	}
@@ -131,11 +127,13 @@ abstract class PageManagerAction extends CmsAction
 			$pageId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
 			$page = $pageDao->findOneById($pageId);
 			
-			// Page localization must exist
-			$pageData = $page->getData($locale);
-			
-			if (empty($pageData)) {
-				$page = null;
+			if ( ! empty($page)) {
+				// Page localization must exist
+				$pageData = $page->getData($locale);
+
+				if (empty($pageData)) {
+					$page = null;
+				}
 			}
 		}
 		
