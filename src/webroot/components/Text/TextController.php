@@ -40,7 +40,7 @@ class TextController extends BlockController
 		$response->assign('html', $value);
 		
 		//TODO: should make short somehow!
-		$response->outputTemplate('webroot/components/text/index.html.twig');
+		$response->outputTemplate('webroot/components/Text/index.html.twig');
 	}
 	
 	/**
@@ -59,6 +59,4 @@ class TextController extends BlockController
 		
 		return $contents;
 	}
-	
-	
 }

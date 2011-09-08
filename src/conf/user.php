@@ -1,16 +1,15 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
+use Project\AutoregisterAuthenticationAdapter\AutoregisterAuthenticationAdapter;
+use Supra\User\UserProvider;
+use Supra\User\Validation\EmailValidation;
 
-$userProvider = new \Supra\User\UserProvider();
+$userProvider = new UserProvider();
 
-$emailVailidation = new Supra\User\Validation\EmailValidation();
+$emailVailidation = new EmailValidation();
 $userProvider->addValidationFilter($emailVailidation);
-
-// For now it doesn't have components autoloader registered
-require_once SUPRA_COMPONENT_PATH . 'dummy-authentication-adapter/DummyAuthenticationAdapter.php';
-
-$authAdapter = new \Project\AuthenticationAdapter\DummyAuthenticationAdapter();
+$authAdapter = new AutoregisterAuthenticationAdapter();
 $userProvider->setAuthAdapter($authAdapter);
 
 ObjectRepository::setDefaultUserProvider($userProvider);

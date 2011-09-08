@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\AuthenticationAdapter;
+namespace Project\AutoregisterAuthenticationAdapter;
 
 use Supra\User\Authentication\Adapters\HashAdapter;
 use Supra\User\Entity\User;
@@ -8,7 +8,7 @@ use Supra\User\Entity\User;
 /**
  * Development authentication adapter automatically registering new users
  */
-class DummyAuthenticationAdapter extends HashAdapter
+class AutoregisterAuthenticationAdapter extends HashAdapter
 {
 	public function findUser($login, $password)
 	{

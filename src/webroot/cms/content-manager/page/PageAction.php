@@ -324,4 +324,14 @@ class PageAction extends PageManagerAction
 		$this->entityManager->flush();
 	}
 	
+	/**
+	 * Called on page publish
+	 */
+	public function publishAction()
+	{
+		$this->isPostRequest();
+		
+		$pageData = $this->getPageData();
+	}
+	
 }

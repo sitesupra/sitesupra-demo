@@ -13,11 +13,6 @@ use Supra\Router\Configuration\RouterConfiguration;
 class ControllerConfiguration implements ControllerConfigurationInterface
 {
 	/**
-	 * @var NamespaceConfiguration
-	 */
-	public $namespace;
-	
-	/**
 	 * @var RouterConfiguration
 	 */
 	public $router;
@@ -27,12 +22,6 @@ class ControllerConfiguration implements ControllerConfigurationInterface
 	 */
 	public function configure()
 	{
-		if (isset($this->namespace)) {
-			// Register namespace
-			$namespace = $this->namespace->configure();
-			Registry::getInstance()->registerNamespace($namespace);
-		}
-
 		// Bind to URL
 		if (isset($this->router)) {
 			$router = $this->router->configure();
