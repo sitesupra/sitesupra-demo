@@ -3,6 +3,7 @@
 namespace Supra\Cms\Logout;
 
 use Supra\Controller\SimpleController;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Log\Log;
 
@@ -31,10 +32,12 @@ class LogoutController extends SimpleController
 	
 	public function indexAction()
 	{
+		$session = ObjectRepository::getSessionNamespace($this);
+		
 		$loginPage = $this->getLoginPage();
 		
-		if(! empty($_SESSION['user'])) {
-			unset($_SESSION['user']);
+		if(! empty($session->user)) {
+			unset($session->user);
 		}
 		
 		$this->response->redirect($loginPage);

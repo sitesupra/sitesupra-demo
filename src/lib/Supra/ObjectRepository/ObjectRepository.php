@@ -6,6 +6,8 @@ use Doctrine\ORM\EntityManager;
 use Supra\FileStorage\FileStorage;
 use Supra\User\UserProvider;
 use Supra\Log\Writer\WriterInterface;
+use Supra\Session\SessionNamespace;
+use Supra\Session\SessionNamespaceManager;
 
 /**
  * Object repository
@@ -18,6 +20,8 @@ class ObjectRepository
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
+	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionNamespaceManager';		
+	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
 
 	/**
 	 * Object relation storage
@@ -176,6 +180,70 @@ class ObjectRepository
 	public static function setDefaultFileStorage(FileStorage $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FILE_STORAGE);
+	}
+
+	/**
+	 * Get assigned session namespace
+	 *
+	 * @param mixed $caller
+	 * @return SessionNamespaceManager
+	 */
+	public static function getSessionNamespace($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE);
+	}
+
+	/**
+	 * Assign session manager to caller class
+	 *
+	 * @param mixed $caller
+	 * @param SessionNamespace $object 
+	 */
+	public static function setSessionNamespace($caller, SessionNamespace $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_SESSION_NAMESPACE);
+	}
+
+	/**
+	 * Set default session manager
+	 *
+	 * @param SessionNamespace $object 
+	 */
+	public static function setDefaultSessionNamespace(SessionNamespace $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SESSION_NAMESPACE);
+	}
+
+	/**
+	 * Get assigned session namespace
+	 *
+	 * @param mixed $caller
+	 * @return SessionNamespaceManager
+	 */
+	public static function getSessionNamespaceManager($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
+	}
+
+	/**
+	 * Assign session manager to caller class
+	 *
+	 * @param mixed $caller
+	 * @param SessionNamespaceManager $object 
+	 */
+	public static function setSessionNamespaceManager($caller, SessionNamespaceManager $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
+	}
+
+	/**
+	 * Set default session manager
+	 *
+	 * @param SessionNamespaceManager $object 
+	 */
+	public static function setDefaultSessionNamespaceManager(SessionNamespaceManager $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}
 
 	/**

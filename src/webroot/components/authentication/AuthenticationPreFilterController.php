@@ -43,10 +43,9 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	private $passwordField = 'supra_password';
 
 	/**
-	 * Session name
-	 * @var string
+	 * @var Session\SessionNamespace
 	 */
-	private $sessionName = 'SID';
+	private $session;
 
 	/**
 	 * "Redirect to" cookie name
@@ -78,6 +77,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 	public function __construct()
 	{
+		$this->session = ObjectRepository::getSessionNamespace($this);
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 	}
 
@@ -167,9 +167,6 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	 */
 	public function execute()
 	{
-		session_name($this->sessionName);
-		session_start();
-
 		$isPublicUrl = $this->isPublicUrl($this->request->getRequestUri());
 
 		if ($isPublicUrl) {
@@ -210,8 +207,8 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 						$uri = $redirect_to;
 					}
 
-					$_SESSION['user'] = $user;
-					$_SESSION['expiration_time'] = time() + self::SESSION_EXPIRATION_TIME;
+					$this->session->user = $user;
+					$this->session->expiration_time = time() + self::SESSION_EXPIRATION_TIME;
 
 					$this->response->redirect($uri);
 
@@ -222,27 +219,27 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
 					$this->response->redirect($loginPath);
-					$_SESSION['login'] = $login;
-					$_SESSION['message'] = 'Incorrect login name or password';
+					$this->session->login = $login;
+					$this->session->message = 'Incorrect login name or password';
 					throw new Exception\StopRequestException();
 				}
 			}
 		}
 
-		$session = null;
+		$sessionUser = null;
 
 		// check for session presence and session expiration time
-		if ( ! empty($_SESSION['user'])) {
+		if ( ! empty($this->session->user)) {
 			$time = time();
-			if ($_SESSION['expiration_time'] > $time) {
-				$session = $_SESSION['user'];
+			if ($this->session->expiration_time > $time) {
+				$sessionUser = $this->session->user;
 			} else {
-				unset($_SESSION['user']);
+				unset($this->session->user);
 			}
 		}
 
 		// if session is empty we redirect user to login page
-		if (empty($session)) {
+		if (empty($sessionUser)) {
 
 			$loginPath = $this->getLoginPath();
 			$uri = $this->request->getRequestUri();

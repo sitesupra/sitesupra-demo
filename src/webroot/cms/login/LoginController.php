@@ -4,6 +4,7 @@ namespace Supra\Cms\Login;
 
 use Supra\Controller\SimpleController;
 use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Log;
 use Supra\Request;
 use Supra\Response;
@@ -20,14 +21,16 @@ class LoginController extends SimpleController
 	
 	public function indexAction()
 	{	
-		if(!empty($_SESSION['login'])) {
-			$this->getResponse()->assign('email', $_SESSION['login']);
-			unset($_SESSION['login']);
+		$session = ObjectRepository::getSessionNamespace($this);
+		
+		if(!empty($session->login)) {
+			$this->getResponse()->assign('email', $session->login);
+			unset($session->login);
 		}
 		
-		if(!empty($_SESSION['message'])) {
-			$this->getResponse()->assign('message', $_SESSION['message']);
-			unset($_SESSION['message']);
+		if(!empty($session->message)) {
+			$this->getResponse()->assign('message', $session->message);
+			unset($session->message);
 		}
 		
 		//TODO: should make short somehow!
