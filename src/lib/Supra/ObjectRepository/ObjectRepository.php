@@ -281,24 +281,25 @@ class ObjectRepository
 	 */
 	protected static function findObject($callerClass, $objectClass)
 	{
-		if (empty($objectClass)) {
-			return null;
-		}
-
-		if (isset(self::$objectBindings[$callerClass], self::$objectBindings[$callerClass][$objectClass])) {
-			return self::$objectBindings[$callerClass][$objectClass];
+		while ( ! isset(self::$objectBindings[$callerClass][$objectClass])) {
 			
-		} else if ($callerClass != self::DEFAULT_KEY) {
+			// Event the default instance does not exist
+			if ($callerClass == self::DEFAULT_KEY) {
+				return null;
+			}
+			
+			// Try parent namespace
 			$backslashPos = strrpos($callerClass, "\\");
 			$seniorClass = self::DEFAULT_KEY;
+			
 			if ($backslashPos !== false) {
 				$seniorClass = substr($callerClass, 0, $backslashPos);
 			}
-			return self::findObject($seniorClass, $objectClass);
 			
-		} else {
-			return null;
+			$callerClass = $seniorClass;
 		}
+		
+		return self::$objectBindings[$callerClass][$objectClass];
 	}
 	
 	/**
