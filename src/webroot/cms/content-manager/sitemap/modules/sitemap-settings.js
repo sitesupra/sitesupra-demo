@@ -169,7 +169,9 @@ YUI().add('website.sitemap-settings', function (Y) {
 			var input = event.target,
 				input_id = input.get('id'),
 				input_value = input.get('saveValue'),
-				uri = this.host.getDataPath('save'),
+				type = this.host.getType(),
+				target = null,
+				target_fn = null,
 				post_data = {
 					'page_id': this.host.property_data.id,
 					'locale': Manager.SiteMap.languagebar.get('locale')
@@ -177,23 +179,28 @@ YUI().add('website.sitemap-settings', function (Y) {
 			
 			post_data[input_id] = input_value;
 			
-			Supra.io(uri, {
-				'data': post_data,
-				'method': 'post',
-				'on': {
-					'success': function (data) {
-						var treenode = this.host.flowmap.getNodeById(post_data.page_id);
-						if (input_id == 'title') {
-							treenode.get('boundingBox').one('label').set('text', input_value);
-							treenode.syncUISize();
-						}
-						
-						//Save data changes
-						var node_data = treenode.get('data');
-						node_data[input_id] = input_value;
-						this.host.property_data[input_id] = input_value;
-					}
+			if (type == 'templates') {
+				target = Manager.getAction('Template');
+				target_fn = 'updateTemplate';
+			} else {
+				target = Manager.getAction('Page');
+				target_fn = 'updatePage';
+			}
+			
+			//Call Page.updatePage or Template.updateTempalte
+			target[target_fn](post_data, function (data) {
+				
+				var treenode = this.host.flowmap.getNodeById(post_data.page_id);
+				if (input_id == 'title') {
+					treenode.get('boundingBox').one('label').set('text', input_value);
+					treenode.syncUISize();
 				}
+				
+				//Save data changes
+				var node_data = treenode.get('data');
+				node_data[input_id] = input_value;
+				this.host.property_data[input_id] = input_value;
+				
 			}, this);
 		},
 		
@@ -224,9 +231,20 @@ YUI().add('website.sitemap-settings', function (Y) {
 		deletePageConfirm: function () {
 			//Send request to server
 			var page_id = this.host.property_data.id,
-				locale = this.host.languagebar.get('locale');
+				locale = this.host.languagebar.get('locale'),
+				type = this.host.getType(),
+				target = null,
+				target_fn = null;
 			
-			Manager.Page.deletePage(page_id, locale, function () {
+			if (type == 'templates') {
+				target = Manager.getAction('Template');
+				target_fn = 'deleteTemplate';
+			} else {
+				target = Manager.getAction('Page');
+				target_fn = 'deletePage';
+			}
+			
+			target[target_fn](page_id, locale, function () {
 				//Hide properties
 				this.panel.hide();
 				this.host.property_data = null;

@@ -21,6 +21,7 @@ YUI().add("supra.io", function (Y) {
 			'type': 'json',
 			'data': null,
 			'sync': false,
+			'context': null,
 			'on': {
 				'success': fn_success,
 				'failure': null,
@@ -32,8 +33,15 @@ YUI().add("supra.io", function (Y) {
 			cfg_default.context = context;
 		}
 		
+		//Save context and remove from config to avoid traversing them
+		context = cfg.context || cfg_default.context;
+		cfg.context = cfg_default.context = null;
+		
 		//Use cfg_default and Y.mix to make sure properties for cfg exist
 		cfg = Y.mix(cfg, cfg_default, false, null, 0, true);
+		
+		//Restore context
+		cfg.context = cfg_default.context = context;
 		
 		//Success and failure methods are overwritten, save references to originals
 		cfg.on._success = cfg.on.success;

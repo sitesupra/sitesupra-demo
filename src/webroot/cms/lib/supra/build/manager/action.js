@@ -29,7 +29,7 @@ YUI.add('supra.manager-action', function (Y) {
 		
 		/*
 		 * Get action info
-			 */
+		 */
 			var name = object.NAME;
 			var action = Manager.getAction(name);
 			var action_info = Manager.Loader.getActionInfo(name);

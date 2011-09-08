@@ -170,11 +170,24 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				this.flowmap.newpage.setType(evt.value);
 				this.setLoading(true);
 				
+				//Trigger event on Action
+				this.fire('typeChange', {'value': evt.value});
+				
 				var recycle = Manager.getAction('SiteMapRecycle');
 				if (recycle.get('visible')) {
 					recycle.load(evt.value);
 				}
 			}, this);
+		},
+		
+		/**
+		 * Returns sitemap type (page or template)
+		 *
+		 * @return Sitemap type
+		 * @type {String}
+		 */
+		getType: function () {
+			return this.input_type.getValue();
 		},
 		
 		/**

@@ -109,6 +109,7 @@ Supra(function (Y) {
 			//Load page after execute
 			this.on('render', function () {
 				SU.Manager.executeAction('Page', Supra.data.get('page', {'id': 0}));
+				SU.Manager.executeAction('Template');
 			});
 			
 			this.bindSiteMap();

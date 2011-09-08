@@ -193,6 +193,11 @@ Supra(function (Y) {
 		
 		/**
 		 * Delete page
+		 *
+		 * @param {Number} page_id Page ID
+		 * @param {String} locale Current locale
+		 * @param {Function} callback Callback function, optional
+		 * @param {Object} context Callback function context, optional
 		 */
 		deletePage: function (page_id, locale, callback, context) {
 			var uri = this.getDataPath('delete');
@@ -206,6 +211,7 @@ Supra(function (Y) {
 			Supra.io(uri, {
 				'data': post_data,
 				'method': 'post',
+				'context': context,
 				'on': {'success': callback}
 			}, context);
 		},
@@ -230,6 +236,26 @@ Supra(function (Y) {
 		 */
 		createPage: function (data, callback, context) {
 			var uri = this.getDataPath('create');
+			
+			Supra.io(uri, {
+				'data': data,
+				'method': 'post',
+				'context': context,
+				'on': {
+					'success': callback
+				}
+			});
+		},
+		
+		/**
+		 * Update page data and returns new page data to callback
+		 * 
+		 * @param {Object} data Page data
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback function context
+		 */
+		updatePage: function (data, callback, context) {
+			var uri = this.getDataPath('save');
 			
 			Supra.io(uri, {
 				'data': data,
