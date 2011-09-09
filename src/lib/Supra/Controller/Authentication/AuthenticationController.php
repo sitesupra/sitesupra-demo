@@ -1,0 +1,336 @@
+<?php
+
+namespace Supra\Controller\Authentication;
+
+use Supra\Controller\ControllerAbstraction;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller;
+use Supra\Controller\Exception;
+use Supra\Request;
+use Supra\Response;
+use Supra\User;
+
+/**
+ * Authentication controller
+ */
+abstract class AuthenticationController extends ControllerAbstraction implements Controller\PreFilterInterface
+{
+
+	/**
+	 * Login page path
+	 * @var string
+	 */
+	protected $loginPath = '/login';
+
+	/**
+	 * Cms page path
+	 * @var string
+	 */
+	protected $cmsPath = '/cms';
+
+	/**
+	 * Login field name on login page
+	 * @var string
+	 */
+	protected $loginField = 'login';
+
+	/**
+	 * Password field name on login page
+	 * @var string
+	 */
+	protected $passwordField = 'password';
+
+	/**
+	 * @var Session\SessionNamespace
+	 */
+	protected $session;
+
+	/**
+	 * User Provider object instance
+	 * @var \Supra\User\UserProvider
+	 */
+	protected $userProvider;
+
+	/**
+	 * Public url list in restricted area
+	 * @var array
+	 */
+	public $publicUrlList = array();
+
+	public function __construct()
+	{
+		$this->session = ObjectRepository::getSessionNamespace($this);
+		$this->userProvider = ObjectRepository::getUserProvider($this);
+	}
+
+	/**
+	 * Public URL list
+	 * @return array
+	 */
+	public function getPublicUrlList()
+	{
+		return $this->publicUrlList;
+	}
+
+	/**
+	 * Returns login field name
+	 * @return string
+	 */
+	public function getLoginField()
+	{
+		return $this->loginField;
+	}
+
+	/**
+	 * Sets login field name
+	 * @param string $loginField 
+	 */
+	public function setLoginField($loginField)
+	{
+		$this->loginField = $loginField;
+	}
+
+	/**
+	 * Returns password field name
+	 * @return string 
+	 */
+	public function getPasswordField()
+	{
+		return $this->passwordField;
+	}
+
+	/**
+	 * Sets password field name
+	 * @param string $passwordField 
+	 */
+	public function setPasswordField($passwordField)
+	{
+		$this->passwordField = $passwordField;
+	}
+
+	/**
+	 * Returns login page path
+	 * @return string 
+	 */
+	public function getLoginPath()
+	{
+		return $this->loginPath;
+	}
+
+	/**
+	 * Sets login page path
+	 * @param string $loginPath 
+	 */
+	public function setLoginPath($loginPath)
+	{
+		$this->loginPath = $loginPath;
+	}
+
+	/**
+	 * Returns cms page path
+	 * @return string 
+	 */
+	public function getCmsPath()
+	{
+		return $this->cmsPath;
+	}
+
+	/**
+	 * Sets cms page path
+	 * @param string $cmsPath 
+	 */
+	public function setCmsPath($cmsPath)
+	{
+		$this->cmsPath = $cmsPath;
+	}
+
+	/**
+	 * Main executable action
+	 */
+	public function execute()
+	{
+		$request = $this->getRequest();
+		$isPublicUrl = $this->isPublicUrl($request->getRequestUri());
+
+		// Allow accessign public URL
+		if ($isPublicUrl) {
+			return;
+		}
+
+		$xmlHttpRequest = false;
+		$requestedWith = $this->getRequest()->getServerValue('HTTP_X_REQUESTED_WITH');
+
+		if ($requestedWith == 'XMLHttpRequest') {
+			$xmlHttpRequest = true;
+		}
+
+		$post = $this->getRequest()->isPost();
+
+		// if post request then check for login and password fields presence
+		if ($post) {
+
+			// login and password fields name
+			$loginField = $this->getLoginField();
+			$passwordField = $this->getPasswordField();
+
+			// login and password
+			$login = $this->getRequest()->getPostValue($loginField);
+			$password = $this->getRequest()->getPostValue($passwordField);
+
+			if ( ! empty($login) && ! empty($password)) {
+
+				// Authenticating user
+				$user = null;
+				try {
+					$user = $this->userProvider->authenticate($login, $password);
+				} catch (User\Exception\AuthenticationExeption $exc) {
+					
+				}
+
+
+				if ( ! empty($user)) {
+
+					$uri = $this->getSuccessRedirectUrl();
+
+					$this->session->setUser($user);
+
+					if ( ! empty($session->login)) {
+						unset($session->login);
+					}
+
+					if ($xmlHttpRequest) {
+						$this->response->setCode(200);
+					} else {
+						$this->response->redirect($uri);
+					}
+
+					throw new Exception\StopRequestException("Login success");
+				} else {
+					// if authentication failed, we redirect user to login page
+					$loginPath = $this->getLoginPath();
+					$message = 'Incorrect login name or password';
+
+					$redirectTo = $this->getRequest()->getQueryValue('redirect_to');
+					
+					if ( ! empty($redirectTo)) {
+						$loginPath = $loginPath . '?redirect_to=' . urlencode($redirectTo);
+					}
+
+					if ($xmlHttpRequest) {
+						$this->response->setCode(401);
+						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
+					} else {
+
+						$this->response->redirect($loginPath);
+						$this->session->login = $login;
+						$this->session->message = $message;
+					}
+
+					throw new Exception\StopRequestException("Login failure");
+				}
+			}
+		}
+
+		$sessionUser = null;
+
+		// check for session presence
+		$user = $this->session->getUser();
+		if ( ! empty($user)) {
+			$sessionUser = $user;
+		}
+
+		// if session is empty we redirect user to login page
+		if (empty($sessionUser)) {
+
+			$loginPath = $this->getLoginPath();
+			$uri = $this->getRequest()->getRequestUri();
+
+			if ($uri != $loginPath) {
+				$this->session->redirect_to = $uri;
+
+				if ($xmlHttpRequest) {
+					$this->response->setCode(401);
+				} else {
+					$this->response->redirect($loginPath . '?redirect_to=' . urlencode($uri));
+				}
+
+				throw new Exception\StopRequestException("User not authenticated");
+			}
+		} else {
+			$loginPath = $this->getLoginPath();
+			$uri = $this->getRequest()->getRequestUri();
+
+			// Redirect from login form if the session is active
+			if ($uri == $loginPath) {
+				$uri = $this->getSuccessRedirectUrl();
+				$this->response->redirect($uri);
+
+				throw new Exception\StopRequestException("Session is already active");
+			}
+		}
+	}
+
+	/**
+	 * Checks url for public access
+	 * @param string $publicUrl
+	 * @return boolean
+	 */
+	private function isPublicUrl($publicUrl)
+	{
+		$publicUrlList = $this->getPublicUrlList();
+		$publicUrl = rtrim($publicUrl, '/');
+
+		return in_array($publicUrl, $publicUrlList);
+	}
+
+	/**
+	 * Generate response object
+	 * @param Request\RequestInterface $request
+	 * @return Response\ResponseInterface
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		if ($request instanceof Request\HttpRequest) {
+			return new Response\TwigResponse();
+		}
+		if ($request instanceof Request\CliRequest) {
+			return new Response\CliResponse();
+		}
+
+		return new Response\EmptyResponse();
+	}
+
+	/**
+	 * Validates redirect url, if url contain collen then will return cms path
+	 * @param string $redirectTo
+	 * @return string 
+	 */
+	private function validateRedirectUrl($redirectTo = null)
+	{
+		if ( ! empty($redirectTo)) {
+			//validate
+			$externalUrl = strpos($redirectTo, ':');
+
+			if ($externalUrl === false) {
+				return $redirectTo;
+			}
+		}
+
+		return $this->getCmsPath();
+	}
+
+	/**
+	 * Returns redirect url or cms path
+	 * @return string
+	 */
+	protected function getSuccessRedirectUrl()
+	{
+		$redirectTo = $this->getRequest()->getQueryValue('redirect_to');
+
+		// returns redirect url or cms path
+		$uri = $this->validateRedirectUrl($redirectTo);
+
+		return $uri;
+	}
+
+}

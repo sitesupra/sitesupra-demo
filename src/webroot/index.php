@@ -15,6 +15,7 @@ require_once SUPRA_COMPONENT_PATH . 'Pages/config.php';
 require_once SUPRA_COMPONENT_PATH . 'Text/config.php';
 require_once SUPRA_COMPONENT_PATH . 'DistributedController/config.php';
 require_once SUPRA_COMPONENT_PATH . 'Authentication/config.php';
+require_once SUPRA_COMPONENT_PATH . 'Authenticate/config.php';
 require_once SUPRA_WEBROOT_PATH . 'cms/config.php';
 
 $frontController->execute();

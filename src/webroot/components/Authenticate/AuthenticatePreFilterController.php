@@ -1,6 +1,5 @@
 <?php
-
-namespace Project\Authentication;
+namespace Project\Authenticate;
 
 use Supra\Controller\Authentication;
 /**
@@ -8,11 +7,11 @@ use Supra\Controller\Authentication;
  *
  * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
-class AuthenticationPreFilterController extends Authentication\AuthenticationController
+class AuthenticatePreFilterController extends Authentication\AuthenticationController
 {
 	public function __construct()
 	{
-		$this->setLoginPath('/cms/login');
+		$this->setLoginPath('/authenticate/login');
 		$this->setCmsPath('/cms');
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
