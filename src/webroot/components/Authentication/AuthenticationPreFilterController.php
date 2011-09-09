@@ -158,16 +158,16 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	{
 		$isPublicUrl = $this->isPublicUrl($this->request->getRequestUri());
 
-		$requestedWith = $this->request->getServerValue('HTTP_X_REQUESTED_WITH');
-
+		// Allow accessign public URL
+		if ($isPublicUrl) {
+			return;
+		}
+		
 		$xmlHttpRequest = false;
+		$requestedWith = $this->request->getServerValue('HTTP_X_REQUESTED_WITH');
 
 		if ($requestedWith == 'XMLHttpRequest') {
 			$xmlHttpRequest = true;
-		}
-
-		if ($isPublicUrl) {
-			return;
 		}
 
 		$post = $this->request->isPost();
@@ -196,10 +196,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 				if ( ! empty($user)) {
 					
-					$redirect_to = $this->request->getQueryValue('redirect_to');
-					
-					// returns redirect url or cms path
-					$uri = $this->validateRedirectUrl($redirect_to);
+					$uri = $this->getSuccessRedirectUrl();
 					
 					$this->session->setUser($user);
 
@@ -209,7 +206,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 						$this->response->redirect($uri);
 					}
 					
-					throw new Exception\StopRequestException();
+					throw new Exception\StopRequestException("Login success");
 					
 				} else {
 					// if authentication failed, we redirect user to login page
@@ -225,7 +222,7 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 						$this->session->message = $message;
 					}
 
-					throw new Exception\StopRequestException();
+					throw new Exception\StopRequestException("Login failure");
 				}
 			}
 		}
@@ -253,15 +250,18 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 					$this->response->redirect($loginPath .'?redirect_to=' . urlencode($uri));
 				}
 
-				throw new Exception\StopRequestException();
+				throw new Exception\StopRequestException("User not authenticated");
 			}
 		} else {
-			$cmsPath = $this->getCmsPath();
 			$loginPath = $this->getLoginPath();
 			$uri = $this->request->getRequestUri();
 
+			// Redirect from login form if the session is active
 			if ($uri == $loginPath) {
-				$this->response->redirect($cmsPath);
+				$uri = $this->getSuccessRedirectUrl();
+				$this->response->redirect($uri);
+				
+				throw new Exception\StopRequestException("Session is already active");
 			}
 		}
 	}
@@ -315,5 +315,19 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 		}
 		
 		return $this->getCmsPath();
+	}
+	
+	/**
+	 * Returns redirect url or cms path
+	 * @return string
+	 */
+	protected function getSuccessRedirectUrl()
+	{
+		$redirect_to = $this->request->getQueryValue('redirect_to');
+
+		// returns redirect url or cms path
+		$uri = $this->validateRedirectUrl($redirect_to);
+		
+		return $uri;
 	}
 }
