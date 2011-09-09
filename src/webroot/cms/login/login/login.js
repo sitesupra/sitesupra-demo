@@ -62,8 +62,20 @@ SU('supra.form', 'cookie', function (Y) {
 			var uri = Loader.getDynamicPath() + Loader.getActionBasePath('Login');
 			var data = this.form.getValues('name', true);
 			
-			if (!Y.Lang.trim(data.supra_login) || !Y.Lang.trim(data.supra_password)) {
+			data.supra_login = Y.Lang.trim(data.supra_login);
+			data.supra_password = Y.Lang.trim(data.supra_password);
+			
+			if (!data.supra_login || !data.supra_password) {
+				//Show error message
 				this.setErrorMessage(Supra.Intl.get(['login', 'error']));
+				
+				//Focus input
+				if (!data.supra_login) {
+					this.form.getInput('supra_login').focus();
+				} else if (!data.supra_password) {
+					this.form.getInput('supra_password').focus();
+				}
+				
 				return;
 			}
 			
@@ -138,9 +150,12 @@ SU('supra.form', 'cookie', function (Y) {
 			this.footer.getButton('done').set('loading', false);
 			this.form.set('disabled', false);
 			
-			//Empty form
-			if (!response) {
-				this.form.resetValues();
+			//Reset password field value and focus input
+			this.form.getInput('supra_password').resetValue();
+			if (!this.form.getInput('supra_login').getValue()) {
+				this.form.getInput('supra_login').focus();
+			} else {
+				this.form.getInput('supra_password').focus();
 			}
 		}
 		
