@@ -209,20 +209,22 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 						$this->response->redirect($uri);
 					}
 					
-					return;
+					throw new Exception\StopRequestException();
 					
 				} else {
 					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
+					$message = 'Incorrect login name or password';
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(401);
+						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
 					} else {
 						$this->response->redirect($loginPath);
+						$this->session->login = $login;
+						$this->session->message = $message;
 					}
 
-					$this->session->login = $login;
-					$this->session->message = 'Incorrect login name or password';
 					throw new Exception\StopRequestException();
 				}
 			}
