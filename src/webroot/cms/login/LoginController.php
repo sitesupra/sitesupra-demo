@@ -25,7 +25,6 @@ class LoginController extends SimpleController
 		
 		if(!empty($session->login)) {
 			$this->getResponse()->assign('email', $session->login);
-			unset($session->login);
 		}
 		
 		if(!empty($session->message)) {

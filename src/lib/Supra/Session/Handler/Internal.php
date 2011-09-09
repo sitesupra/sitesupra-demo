@@ -7,7 +7,7 @@ class Internal extends HandlerAbstraction
 	/**
 	 * Session expiration time in seconds
 	 */
-	const SESSION_EXPIRATION_TIME = 300;
+	const SESSION_EXPIRATION_TIME = 0;
 	
 	/**
 	 * Starts session.

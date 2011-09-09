@@ -200,14 +200,17 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 					
 					$this->session->setUser($user);
 
+					if ( ! empty($session->login)) {
+						unset($session->login);
+					}
+
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
 					} else {
 						$this->response->redirect($uri);
 					}
-					
+
 					throw new Exception\StopRequestException("Login success");
-					
 				} else {
 					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
@@ -247,11 +250,13 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 				if ($xmlHttpRequest) {
 					$this->response->setCode(401);
 				} else {
-					$this->response->redirect($loginPath .'?redirect_to=' . urlencode($uri));
+					$this->response->redirect($loginPath . '?redirectTo=' . urlencode($uri));
 				}
 
 				throw new Exception\StopRequestException("User not authenticated");
 			}
+			
+			
 		} else {
 			$loginPath = $this->getLoginPath();
 			$uri = $this->request->getRequestUri();
@@ -298,22 +303,20 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 
 	/**
 	 * Validates redirect url, if url contain collen then will return cms path
-	 * @param string $redirect_to
+	 * @param string $redirectTo
 	 * @return string 
 	 */
-	private function validateRedirectUrl($redirect_to = null)
+	private function validateRedirectUrl($redirectTo = null)
 	{
-		if(!  empty ($redirect_to)) {
-			$redirect_to = urldecode($redirect_to);
-			
+		if ( ! empty($redirectTo)) {
 			//validate
-			$externalUrl = strpos(':', $redirect_to);
-			
+			$externalUrl = strpos($redirectTo, ':');
+
 			if ($externalUrl === false) {
-				return $redirect_to;
+				return $redirectTo;
 			}
 		}
-		
+
 		return $this->getCmsPath();
 	}
 	
@@ -323,10 +326,10 @@ class AuthenticationPreFilterController extends Controller\ControllerAbstraction
 	 */
 	protected function getSuccessRedirectUrl()
 	{
-		$redirect_to = $this->request->getQueryValue('redirect_to');
+		$redirectTo = $this->request->getQueryValue('redirectTo');
 
 		// returns redirect url or cms path
-		$uri = $this->validateRedirectUrl($redirect_to);
+		$uri = $this->validateRedirectUrl($redirectTo);
 		
 		return $uri;
 	}
