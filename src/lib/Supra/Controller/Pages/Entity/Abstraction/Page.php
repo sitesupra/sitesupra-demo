@@ -398,12 +398,6 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	}
 	
 	/**
-	 * Loads array of page/template template hierarchy
-	 * @return PageSet
-	 */
-	abstract public function getTemplateHierarchy();
-	
-	/**
 	 * {@inheritdoc}
 	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
 	 */
