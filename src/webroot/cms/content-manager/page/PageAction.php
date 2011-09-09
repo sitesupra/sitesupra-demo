@@ -7,6 +7,8 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\Entity\Image;
 
 /**
  * 
@@ -163,14 +165,19 @@ class PageAction extends PageManagerAction
 				/* @var $blockProperty Entity\BlockProperty */
 				foreach ($blockPropertySubset as $blockProperty) {
 					if ($page->isBlockPropertyEditable($blockProperty)) {
+						
+						$propertyName = $blockProperty->getName();
+						$propertyValue = $blockProperty->getValue();
+						$propertyValueData = $blockProperty->getValueData();
+						
+						$propertyValueData = $this->fillPropertyData($propertyValueData);
+						
 						$propertyData = array(
-							$blockProperty->getName() => array(
-								'html' => $blockProperty->getValue(),
-								'data' => $blockProperty->getValueData()
-							),
+							'html' => $propertyValue,
+							'data' => $propertyValueData
 						);
 
-						$blockData['properties'][] = $propertyData;
+						$blockData['properties'][$propertyName] = $propertyData;
 					}
 				}
 
@@ -332,6 +339,45 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 		
 		$pageData = $this->getPageData();
+	}
+	
+	/**
+	 * FIXME: it's not the best place to imlement this additional image/link data loading
+	 * @param array $data
+	 * @return array
+	 */
+	protected function fillPropertyData(array $data = null)
+	{
+		if (empty($data)) {
+			return $data;
+		}
+
+		foreach ($data as &$dataItem) {
+			switch ($dataItem['type']) {
+				
+				// Read the additional file info from the file storage
+				case 'image':
+					$locale = $this->getLocale();
+					$imageId = $dataItem['image'];
+					$fs = ObjectRepository::getFileStorage($this);
+					$em = $fs->getDoctrineEntityManager();
+					$image = $em->find('Supra\FileStorage\Entity\Abstraction\File', $imageId);
+					
+					if ($image instanceof Image) {
+						$info = $fs->getFileInfo($image, $locale);
+						$dataItem['image'] = $info;
+					}
+					
+					break;
+				
+				//TODO: implement this
+				case 'link':
+					
+					break;
+			}
+		}
+		
+		return $data;
 	}
 	
 }
