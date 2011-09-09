@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\Image;
+use Supra\FileStorage\Entity\File;
 
 /**
  * 
@@ -361,7 +362,7 @@ class PageAction extends PageManagerAction
 					$imageId = $dataItem['image'];
 					$fs = ObjectRepository::getFileStorage($this);
 					$em = $fs->getDoctrineEntityManager();
-					$image = $em->find('Supra\FileStorage\Entity\Abstraction\File', $imageId);
+					$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
 					
 					if ($image instanceof Image) {
 						$info = $fs->getFileInfo($image, $locale);
@@ -370,8 +371,22 @@ class PageAction extends PageManagerAction
 					
 					break;
 				
-				//TODO: implement this
+				// Need to get file path for links to the file
 				case 'link':
+					
+					if ($dataItem['resource'] == 'file') {
+						
+						$locale = $this->getLocale();
+						$fileId = $dataItem['file_id'];
+						$fs = ObjectRepository::getFileStorage($this);
+						$em = $fs->getDoctrineEntityManager();
+						$file = $em->find('Supra\FileStorage\Entity\File', $fileId);
+						
+						if ($file instanceof File) {
+							$fileInfo = $fs->getFileInfo($file, $locale);
+							$dataItem['file_path'] = $fileInfo['path'];
+						}
+					}
 					
 					break;
 			}

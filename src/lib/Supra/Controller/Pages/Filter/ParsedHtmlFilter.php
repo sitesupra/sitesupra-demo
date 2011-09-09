@@ -126,8 +126,7 @@ class ParsedHtmlFilter implements FilterInterface
 		$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
 
 		if (empty($image)) {
-			//TODO: remove
-			$text = '..image not found..';
+			$this->log->warn("Image #{$imageId} has not been found");
 		} else {
 			//TODO: add other attributes as align, size, etc
 			$src = $fs->getWebPath($image);

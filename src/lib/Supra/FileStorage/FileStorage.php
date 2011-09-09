@@ -1008,7 +1008,18 @@ class FileStorage
 				}
 			}
 		}
+		
+		// Generate folder ID path
+		$parents = $file->getAncestors(0, false);
+		$parents = array_reverse($parents);
+		$path = array(0);
+		
+		foreach ($parents as $parent) {
+			array_push($path, $parent->getId());
+		}
 
+		$info['path'] = $path;
+		 
 		return $info;
 	}
 }

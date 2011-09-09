@@ -349,7 +349,7 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 
 	/**
-	 * Get array of ancestor nodes
+	 * Get array of ancestor nodes starting the deepest element
 	 * @param int $levelLimit
 	 * @param boolean $includeNode
 	 * @return array
