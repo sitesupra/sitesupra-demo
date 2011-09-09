@@ -7,7 +7,12 @@ namespace Supra\FileStorage\Entity;
  * @Entity
  * @Table(name="image")
  */
-class Image extends File {
+class Image extends File
+{
+	/**
+	 * {@inheritdoc}
+	 */
+	const TYPE_ID = 2;
 	
 	/**
 	 * @Column(type="integer", nullable=false)
@@ -130,4 +135,33 @@ class Image extends File {
 		return $this->imageSizes;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 * @param string $locale
+	 * @return array
+	 */
+	public function getInfo($locale)
+	{
+		$info = parent::getInfo($locale);
+		
+		$info['sizes'] = array();
+		$sizes = $this->getImageSizeCollection();
+
+		foreach ($sizes as $size) {
+			$sizeName = $size->getName();
+			$info['sizes'][$sizeName] = array(
+				'id' => $sizeName,
+				'width' => $size->getWidth(),
+				'height' => $size->getHeight(),
+			);
+		}
+
+		$info['sizes']['original'] = array(
+			'id' => 'original',
+			'width' => $this->getWidth(),
+			'height' => $this->getHeight(),
+		);
+		
+		return $info;
+	}
 }

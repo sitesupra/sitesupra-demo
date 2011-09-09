@@ -9,5 +9,8 @@ namespace Supra\FileStorage\Entity;
  */
 class Folder extends Abstraction\File
 {
-
+	/**
+	 * {@inheritdoc}
+	 */
+	const TYPE_ID = 1;
 }

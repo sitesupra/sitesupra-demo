@@ -14,6 +14,11 @@ use Supra\NestedSet;
 class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const TYPE_ID = 3;
+	
+	/**
 	 * @Column(type="string", name="mime_type", nullable=false)
 	 * @var string
 	 */
@@ -33,7 +38,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 
 	public function __construct()
 	{
-		parent::__construct();
 		$this->metaData = new ArrayCollection();
 		$this->imageSizes = new ArrayCollection();
 	}
@@ -144,6 +148,24 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		if ($metaData instanceof MetaData) {
 			return $metaData->getDescription();
 		}
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param string $locale
+	 * @return array
+	 */
+	public function getInfo($locale)
+	{
+		$info = parent::getInfo($locale);
+		
+		$info = $info + array(
+			'title' => $this->getTitle($locale),
+			'description' => $this->getDescription($locale),
+			'size' => $this->getSize()
+		);
+		
+		return $info;
 	}
 
 }

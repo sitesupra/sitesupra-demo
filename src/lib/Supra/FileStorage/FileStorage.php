@@ -976,4 +976,39 @@ class FileStorage
 		$this->entityManager->remove($file);
 		$this->entityManager->flush();
 	}
+	
+	/**
+	 * Loads item info array
+	 * @param Entity\Abstraction\File $file
+	 * @param type $locale
+	 * @return type 
+	 */
+	public function getFileInfo(Entity\Abstraction\File $file, $locale)
+	{
+		$info = $file->getInfo($locale);
+		
+		if ($file instanceof Entity\File) {
+			$filePath = $this->getWebPath($file);
+			$info['file_web_path'] = $filePath;
+		
+			if ($file instanceof Entity\Image) {
+
+				foreach ($info['sizes'] as $sizeName => &$size) {
+
+					$sizePath = null;
+
+					// TODO: original size is also as size, such skipping is ugly
+					if ($sizeName == 'original') {
+						$sizePath = $filePath;
+					} else {
+						$sizePath = $this->getWebPath($file, $sizeName);
+					}
+
+					$size['external_path'] = $sizePath;
+				}
+			}
+		}
+
+		return $info;
+	}
 }

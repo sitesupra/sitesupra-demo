@@ -47,6 +47,11 @@ use	Supra\NestedSet;
 class File extends Entity implements NestedSet\Node\EntityNodeInterface
 {
 	/**
+	 * Integer object type ID
+	 */
+	const TYPE_ID = 0;
+	
+	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
 	protected $nestedSetNode;
@@ -102,14 +107,6 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 */
 	protected $public = true;
 	
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-
-	}
-
 	/**
 	 * Get page id
 	 * @return integer
@@ -373,5 +370,21 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
 	{
 		$this->nestedSetNode = $nestedSetNode;
+	}
+	
+	/**
+	 * Loads item info array
+	 * @param string $locale
+	 * @return array
+	 */
+	public function getInfo($locale)
+	{
+		$info = array(
+			'id' => $this->getId(),
+			'filename' => $this->getFileName(),
+			'type' => static::TYPE_ID
+		);
+		
+		return $info;
 	}
 }

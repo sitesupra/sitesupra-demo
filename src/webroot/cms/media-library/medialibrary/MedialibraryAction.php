@@ -386,56 +386,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	}
 
 	/**
-	 * Pretty hardcoded output right now
-	 * @param Entity\File $node
-	 * @return array $output response
+	 * File info array
+	 * @param Entity\File $file
+	 * @return array
 	 */
-	private function imageAndFileOutput(Entity\File $node)
+	private function imageAndFileOutput(Entity\File $file)
 	{
 		$locale = $this->getLocale();
-		$filePath = $this->fileStorage->getWebPath($node);
-
-		$output = null;
-
-		$output = array(
-			'id' => $node->getId(),
-			'filename' => $node->getFileName(),
-			'title' => $node->getTitle($locale),
-			'description' => $node->getDescription($locale),
-			'file_web_path' => $filePath,
-			'type' => self::TYPE_FILE,
-			'size' => $node->getSize(),
-		);
-
-		// More data for images
-		if ($node instanceof Entity\Image) {
-			$output['type'] = self::TYPE_IMAGE;
-			$output['sizes'] = array();
-
-			$sizes = $node->getImageSizeCollection();
-			
-			foreach ($sizes as $size) {
-				$sizeName = $size->getName();
-				$sizePath = $this->fileStorage->getWebPath($node, $sizeName);
-				$output['sizes'][$sizeName] = array(
-					'id' => $sizeName,
-					'width' => $size->getWidth(),
-					'height' => $size->getHeight(),
-					'external_path' => $sizePath
-				);
-				$output[$sizeName . '_url'] = $sizePath;
-			}
-			
-			$output['sizes']['original'] = array(
-				'id' => 'original',
-				'width' => $node->getWidth(),
-				'height' => $node->getHeight(),
-				'external_path' => $filePath
-			);
-			$output['original_url'] = $filePath;
-		}
+		$output = $this->fileStorage->getFileInfo($file, $locale);
 		
 		return $output;
 	}
-
 }
