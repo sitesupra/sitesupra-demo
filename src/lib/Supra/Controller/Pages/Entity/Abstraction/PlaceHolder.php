@@ -13,7 +13,7 @@ use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplatePlaceHolder", "page" = "Supra\Controller\Pages\Entity\PagePlaceHolder"})
- * @Table(name="su_place_holder")
+ * @Table(name="place_holder")
  */
 class PlaceHolder extends Entity
 {

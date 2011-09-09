@@ -7,7 +7,7 @@ namespace Supra\User\Entity\Abstraction;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"user" = "Supra\User\Entity\User", "group" = "Supra\User\Entity\Group"})
- * @Table(name="su_user_abstraction", indexes={
+ * @Table(name="user_abstraction", indexes={
  *		@index(name="user_abstraction_name_idx", columns={"name"})
  * })
  * @HasLifecycleCallbacks

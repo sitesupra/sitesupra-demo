@@ -14,7 +14,7 @@ use Supra\NestedSet;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\Template", "page" = "Supra\Controller\Pages\Entity\Page"})
- * @Table(name="su_page_abstraction", indexes={
+ * @Table(name="page_abstraction", indexes={
  *		@index(name="page_abstraction_lft_idx", columns={"lft"}),
  *		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
  *		@index(name="page_abstraction_lvl_idx", columns={"lvl"})

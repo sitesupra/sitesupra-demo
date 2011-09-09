@@ -5,7 +5,7 @@ namespace Supra\User\Entity;
 /**
  * User object
  * @Entity
- * @Table(name="su_user")
+ * @Table(name="user")
  */
 class User extends Abstraction\User
 {

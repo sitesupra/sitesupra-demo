@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * Folder object
  * @Entity
- * @Table(name="su_folder")
+ * @Table(name="folder")
  */
 class Folder extends Abstraction\File
 {

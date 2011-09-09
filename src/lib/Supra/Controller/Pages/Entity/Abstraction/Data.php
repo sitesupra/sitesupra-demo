@@ -10,7 +10,7 @@ use Supra\Controller\Pages\Entity\BlockProperty;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
- * @Table(name="su_page_localization", uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
+ * @Table(name="page_localization", uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
 abstract class Data extends Entity
 {

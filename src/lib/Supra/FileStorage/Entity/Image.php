@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * Image object
  * @Entity
- * @Table(name="su_image")
+ * @Table(name="image")
  */
 class Image extends File {
 	

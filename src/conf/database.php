@@ -8,7 +8,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Doctrine\Common\EventManager;
-use Supra\Controller\Pages\Listener\NestedSetListener;
+use Supra\NestedSet\Listener\NestedSetListener;
+use Supra\Controller\Pages\Listener\PageVersioningTableSwitcher;
 
 $config = new Configuration();
 
@@ -48,6 +49,7 @@ $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFun
 $eventManager = new EventManager();
 $eventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
 $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new PageVersioningTableSwitcher());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 

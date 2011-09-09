@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 /**
  * Page controller template-layout class
  * @Entity
- * @Table(name="su_template_layout")
+ * @Table(name="template_layout")
  */
 class TemplateLayout extends Abstraction\Entity
 {

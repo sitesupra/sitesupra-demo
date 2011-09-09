@@ -9,7 +9,7 @@ use Supra\NestedSet;
 /**
  * File object
  * @Entity
- * @Table(name="su_file")
+ * @Table(name="file")
  */
 class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 {

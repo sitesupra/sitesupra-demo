@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Listener;
+namespace Supra\NestedSet\Listener;
 
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;

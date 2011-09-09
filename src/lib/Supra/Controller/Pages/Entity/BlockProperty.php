@@ -11,7 +11,7 @@ use Supra\Editable\EditableInterface;
 /**
  * Block property class.
  * @Entity
- * @Table(name="su_block_property")
+ * @Table(name="block_property")
  */
 class BlockProperty extends Entity
 {
