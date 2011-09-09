@@ -165,7 +165,7 @@ Supra(function (Y) {
 		 * Publish page
 		 */
 		publishPage: function () {
-			var uri = this.getDataPath('save'),
+			var uri = this.getDataPath('publish'),
 				page_data = this.data;
 			
 			var post_data = {
