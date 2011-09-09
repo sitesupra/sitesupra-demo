@@ -3,6 +3,7 @@
 namespace Supra\Response;
 
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Loader\Loader;
 
 /**
  * Response based on Twig template parser
@@ -18,7 +19,18 @@ class TwigResponse extends HttpResponse
 	 * Root directory for templates
 	 * @var string
 	 */
-	protected $templateDir;
+	protected $templatePath;
+	
+	/**
+	 * Can set context classname or object to search for the templates there
+	 * @param mixed $context
+	 */
+	public function __construct($context = null)
+	{
+		if ( ! is_null($context)) {
+			$this->setTemplatePathByContext($context);
+		}
+	}
 	
 	/**
 	 * Output the template
@@ -26,7 +38,7 @@ class TwigResponse extends HttpResponse
 	 */
 	public function outputTemplate($templateName)
 	{
-		$templateName = $this->templateDir . DIRECTORY_SEPARATOR . $templateName;
+		$templateName = $this->templatePath . DIRECTORY_SEPARATOR . $templateName;
 		
 		$twig = ObjectRepository::getObject($this, 'Twig_Environment');
 		$template = $twig->loadTemplate($templateName);
@@ -46,21 +58,46 @@ class TwigResponse extends HttpResponse
 	}
 
 	/**
-	 * Set template dir, will make it relative to supra path for Twig usage
-	 * @param string $templateDir
-	 * @throws Exception\RuntimeException if template dir is outside the supra path
+	 * Set template path, will make it relative to supra path for Twig usage
+	 * @param string $templatePath
+	 * @throws Exception\RuntimeException if template path is outside the supra path
 	 */
-	public function setTemplateDir($templateDir)
+	public function setTemplatePath($templatePath)
 	{
 		$supraPath = realpath(SUPRA_PATH);
-		$templateDir = realpath($templateDir);
+		$templatePath = realpath($templatePath);
 		
-		if (strpos($templateDir, $supraPath) !== 0) {
+		if (strpos($templatePath, $supraPath) !== 0) {
 			throw new Exception\RuntimeException("Template directory outside supra path is not allowed");
 		}
 		
-		$relativePath = substr($templateDir, strlen($supraPath));
+		$relativePath = substr($templatePath, strlen($supraPath));
 		
-		$this->templateDir = $relativePath;
+		$this->templatePath = $relativePath;
+	}
+	
+	/**
+	 * Sets base template directory by context class path
+	 * @param mixed $context
+	 * @throws Exception\InvalidArgumentException on invalid context received
+	 */
+	public function setTemplatePathByContext($context)
+	{
+		if (is_object($context)) {
+			$context = get_class($context);
+		}
+		
+		if ( ! is_string($context)) {
+			throw new Exception\InvalidArgumentException("Caller must be object or string");
+		}
+		
+		$classPath = Loader::getInstance()->findClassPath($context);
+		
+		if (empty($classPath)) {
+			throw new Exception\InvalidArgumentException("Caller class '$context' path was not found by autoloader");
+		}
+		
+		$classPath = dirname($classPath);
+		$this->setTemplatePath($classPath);
 	}
 }
