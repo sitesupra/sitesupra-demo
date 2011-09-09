@@ -32,57 +32,56 @@ SU('supra.form', 'cookie', function (Y) {
 		
 		/**
 		 * Set configuration/properties
+		 * 
+		 * @private
 		 */
 		initialize: function () {
-			this.panel.set('zIndex', 1000);
-			
+			//Use mask and update zIndex only if login form is shown inline
 			if (!this.isLoginManager()) {
+				this.panel.set('zIndex', 1000);
 				this.panel.set('useMask', true);
 			}
 		},
 		
-		isLoginManager: function () {
-			return (Supra.data.get(['application', 'id']) == 'login');
-		},
-		
 		/**
 		 * Bind listeners, etc.
+		 * 
+		 * @private
 		 */
 		render: function () {
-			this.footer.getButton('done').on('click', this.form.submit, this.form);
-			this.form.on('submit', this.submit, this);
+			this.loginform.on('submit', this.submit, this);
 			
 			Y.one('body').removeClass('loading');
 		},
 		
 		/**
+		 * Returns true if current manager is 'login'
+		 *
+		 * @return True if manager is 'login'
+		 * @type {Boolean}
+		 * @private
+		 */
+		isLoginManager: function () {
+			return (Supra.data.get(['application', 'id']) == 'login');
+		},
+		
+		/**
 		 * Submit form
+		 * 
+		 * @private
 		 */
 		submit: function () {
 			var uri = Loader.getDynamicPath() + Loader.getActionBasePath('Login');
-			var data = this.form.getValues('name', true);
+			var data = this.loginform.getValues('name', true);
 			
-			data.supra_login = Y.Lang.trim(data.supra_login);
-			data.supra_password = Y.Lang.trim(data.supra_password);
-			
-			if (!data.supra_login || !data.supra_password) {
-				//Show error message
-				this.setErrorMessage(Supra.Intl.get(['login', 'error']));
-				
-				//Focus input
-				if (!data.supra_login) {
-					this.form.getInput('supra_login').focus();
-				} else if (!data.supra_password) {
-					this.form.getInput('supra_password').focus();
-				}
-				
-				return;
-			}
+			//@TODO Replace with actual form validation
+			if (!this.validate(data)) return;
 			
 			//Disable button and form
-			this.form.set('disabled', true);
+			this.loginform.set('disabled', true);
 			this.footer.getButton('done').set('loading', true);
 			
+			//Send request manually, because of unusual response types
 			Supra.io(uri, {
 				'data': data,
 				'method': 'post',
@@ -93,7 +92,40 @@ SU('supra.form', 'cookie', function (Y) {
 		},
 		
 		/**
+		 * Validate form
+		 *
+		 * @param {Object} data Form data
+		 * @return True on success, false if data didn't passed validation
+		 * @type {Boolean}
+		 * @private
+		 */
+		validate: function (data) {
+			data.supra_login = Y.Lang.trim(data.supra_login);
+			data.supra_password = Y.Lang.trim(data.supra_password);
+			
+			if (!data.supra_login || !data.supra_password) {
+				//Show error message
+				this.setErrorMessage(Supra.Intl.get(['login', 'error']));
+				
+				//Focus input
+				if (!data.supra_login) {
+					this.loginform.getInput('supra_login').focus();
+				} else if (!data.supra_password) {
+					this.loginform.getInput('supra_password').focus();
+				}
+				
+				return false;
+			}
+			
+			return true;
+		},
+		
+		/**
 		 * Handle successful login
+		 * In login manager reload page, server-side will redirect to correct page
+		 * In inline mode update session ID and re-run all requests which failed
+		 * 
+		 * @private
 		 */
 		onLoginSuccess: function () {
 			if (this.isLoginManager()) {
@@ -108,7 +140,7 @@ SU('supra.form', 'cookie', function (Y) {
 				
 				//Enable button and form
 				this.footer.getButton('done').set('loading', false);
-				this.form.set('disabled', false);
+				this.loginform.set('disabled', false);
 				
 				//Hide form
 				this.hide();
@@ -122,6 +154,7 @@ SU('supra.form', 'cookie', function (Y) {
 		 * Show or hide error message
 		 *
 		 * @param {String} mesasge
+		 * @private
 		 */
 		setErrorMessage: function (message) {
 			if (message) {
@@ -130,8 +163,8 @@ SU('supra.form', 'cookie', function (Y) {
 				this.one('div.error-message').addClass('hidden');
 			}
 			
-			this.form.getInput('supra_password').set('error', !!message);
-			this.form.getInput('supra_login').set('error', !!message);
+			this.loginform.getInput('supra_password').set('error', !!message);
+			this.loginform.getInput('supra_login').set('error', !!message);
 		},
 		
 		/**
@@ -148,14 +181,14 @@ SU('supra.form', 'cookie', function (Y) {
 			
 			//Enable button and form
 			this.footer.getButton('done').set('loading', false);
-			this.form.set('disabled', false);
+			this.loginform.set('disabled', false);
 			
 			//Reset password field value and focus input
-			this.form.getInput('supra_password').resetValue();
-			if (!this.form.getInput('supra_login').getValue()) {
-				this.form.getInput('supra_login').focus();
+			this.loginform.getInput('supra_password').resetValue();
+			if (!this.loginform.getInput('supra_login').getValue()) {
+				this.loginform.getInput('supra_login').focus();
 			} else {
-				this.form.getInput('supra_password').focus();
+				this.loginform.getInput('supra_password').focus();
 			}
 		}
 		

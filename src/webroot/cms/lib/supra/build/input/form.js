@@ -271,7 +271,10 @@ YUI.add("supra.form", function (Y) {
 			
 			//On submit call "save"
 			this.get('srcNode').on('submit', function (event) {
-				event.halt();
+				//Use ajax
+				event.preventDefault();
+				
+				//Save form
 				this.save();
 			}, this);
 		},
@@ -644,22 +647,11 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
-		 * Alias for save
-		 */
-		submit: function (event) {
-			if (this.get('disabled')) return;
-			if (event && event.halt) event.halt();
-			this.save();
-		},
-		
-		/**
 		 * Validate and execute save request if url is set and user is authorized to save data
 		 */
 		save: function () {
-			this.fire('submit');
-			
 			var url = this.get('urlSave');
-			if (!url) return;
+			if (this.get('disabled') || !url) return;
 			
 			//@TODO
 		},

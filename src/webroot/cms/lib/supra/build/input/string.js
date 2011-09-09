@@ -78,7 +78,10 @@ YUI.add("supra.input-string", function (Y) {
 			}
 			
 			if (key == this.KEY_RETURN) {
-				input.blur();
+				if (this.get("replacementNode")) {
+					//If using replacement node then show it
+					input.blur();
+				}
 			} else if (key == this.KEY_ESCAPE) {
 				input.set('value', this._original_value);
 				input.blur();

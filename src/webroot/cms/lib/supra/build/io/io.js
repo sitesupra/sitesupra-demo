@@ -12,12 +12,16 @@ YUI().add("supra.io", function (Y) {
 			fn_success = function () {};
 		
 		//Clone args object to make sure it's unchanged
-		var args = [url, Supra.mix({}, cfg), context];
-		if (args[1].on) {
-			args[1].on = {
-				'success': args[1].on.success,
-				'failure': args[1].on.failure,
-				'complete': args[1].on.complete
+		var args = [url, cfg, context];
+		if (args[1] && !SU.Y.Lang.isFunction(args[1])) {
+			//Only if cfg is not callback function
+			args[1] = Supra.mix({}, args[1]);
+			if (args[1].on) {
+				args[1].on = {
+					'success': args[1].on.success,
+					'failure': args[1].on.failure,
+					'complete': args[1].on.complete
+				}
 			}
 		}
 		

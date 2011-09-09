@@ -102,7 +102,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 * @type {Boolean}
 		 * @private
 		 */
-		first_exec: false,
+		first_exec: true,
 		
 		
 		
