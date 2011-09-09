@@ -104,6 +104,28 @@ class Loader
 	{
 		return '\\' . ltrim($class, '\\');
 	}
+	
+	/**
+	 * Find class path by its name
+	 * @param string $className
+	 * @return string
+	 */
+	public function findClassPath($className)
+	{
+		$this->orderStrategies();
+
+		$className = static::normalizeClassName($className);
+
+		foreach ($this->strategies as $strategy) {
+			$classPath = $strategy->findClass($className);
+			
+			if ( ! is_null($classPath)) {
+				return $classPath;
+			}
+		}
+		
+		return null;
+	}
 
 	/**
 	 * Try loading class by it's name
@@ -115,14 +137,12 @@ class Loader
 		$this->orderStrategies();
 
 		$className = static::normalizeClassName($className);
+		$classPath = $this->findClassPath($className);
 
-		foreach ($this->strategies as $strategy) {
-			$classPath = $strategy->findClass($className);
-			if ( ! is_null($classPath)) {
-				require_once $classPath;
-				
-				return true;
-			}
+		if ( ! is_null($classPath)) {
+			require_once $classPath;
+
+			return true;
 		}
 
 		return false;

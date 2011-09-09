@@ -13,12 +13,8 @@ class TextController extends BlockController
 {
 	public function execute()
 	{
-		/* @var $response Response\TwigResponse */
 		$response = $this->getResponse();
-		if ( ! ($response instanceof Response\HttpResponse)) {
-			\Log::debug('Response is not an instance of Http response in block controller ' . __CLASS__);
-			return;
-		}
+		/* @var $response Response\TwigResponse */
 
 		// DEV comment about the block
 		$block = $this->getBlock();
@@ -39,8 +35,8 @@ class TextController extends BlockController
 		$value = $this->getPropertyValue('html', 'defaultText1');
 		$response->assign('html', $value);
 		
-		//TODO: should make short somehow!
-		$response->outputTemplate('webroot/components/Text/index.html.twig');
+		// Local file name can be used
+		$response->outputTemplate('index.html.twig');
 	}
 	
 	/**

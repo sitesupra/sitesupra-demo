@@ -11,6 +11,7 @@ use Supra\Controller\Pages\Request\HttpEditRequest;
 use Supra\Controller\Pages\Response\Block;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Loader\Loader;
 
 /**
  * Block controller abstraction\
@@ -65,7 +66,13 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
+		// Need to find the folder of the class
+		$className = get_class($this);
+		$classPath = Loader::getInstance()->findClassPath($className);
+		$classDir = dirname($classPath);
+		
 		$response = new Response\TwigResponse();
+		$response->setTemplateDir($classDir);
 		
 		return $response;
 	}
