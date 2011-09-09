@@ -3,12 +3,16 @@
 namespace Supra\Controller\Pages\Filter;
 
 use Supra\Editable\Filter\FilterInterface;
+use Supra\Controller\Pages\Entity\BlockProperty;
 
 /**
  * Filters the value to enable Html editing for CMS
  */
-class EditableHtml implements FilterInterface
+class EditableHtml extends ParsedHtmlFilter
 {
+	/**
+	 * @var BlockProperty
+	 */
 	public $property;
 	
 	/**
@@ -18,6 +22,10 @@ class EditableHtml implements FilterInterface
 	 */
 	public function filter($content)
 	{
+		$value = $this->property->getValue();
+		$valueData = $this->property->getValueData();
+		$content = $this->parseSupraMarkup($value, $valueData);
+		
 		$propertyName = $this->property->getName();
 			
 		$block = $this->property->getBlock();
