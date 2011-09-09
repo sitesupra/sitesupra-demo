@@ -21,7 +21,7 @@ class PlaceHolderResponseEdit extends PlaceHolderResponse
 		$placeHolderName = $placeHolder->getName();
 		
 		$response->output('<div id="content_list_' . $placeHolderName 
-				. '" class="yui3-page-content yui3-page-content-list yui3-page-content-list-' 
+				. '" class="yui3-content yui3-content-list yui3-content-list-' 
 				. $placeHolderName . '">');
 		
 		parent::flushToResponse($response);

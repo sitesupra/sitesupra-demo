@@ -244,8 +244,8 @@ class PageController extends ControllerAbstraction
 				$blockName = $block->getComponentName();
 
 				$prefixCountent = '<div id="content_' . $blockName . '_' . $blockId
-					. '" class="yui3-page-content yui3-page-content-' . $blockName 
-					. ' yui3-page-content-' . $blockName . '-' . $blockId . '">';
+					. '" class="yui3-content yui3-content-' . $blockName 
+					. ' yui3-content-' . $blockName . '-' . $blockId . '">';
 				
 				$placeResponse->output($prefixCountent);
 			}
