@@ -7,6 +7,7 @@ YUI().add("supra.io", function (Y) {
 	
 	Supra.io = function (url, cfg, context) {
 		var cfg = cfg || {},
+			args = arguments,
 			fn = null,
 			io = null,
 			fn_success = function () {};
@@ -67,20 +68,46 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		//Set callbacks
-		cfg.on.success = function (transaction, response, args) {
+		cfg.on.success = function (transaction, response) {
+
 			var response = Supra.io.parseResponse(url, cfg, response.responseText);
 			return Supra.io.handleResponse(cfg, response);
+
 		};
 		
-		cfg.on.failure = function (transaction, response, args) {
-			
-			Y.log('Request to "' + url + '" failed', 'error');
-			
-			return Supra.io.handleResponse(cfg, {
-				'success': false,
-				'data': null,
-				'error_message': ERROR_INVALID_RESPONSE
-			});
+		cfg.on.failure = function (transaction, response) {
+
+			if (response.status == 401) {
+				//Authentication error, session expired
+				Y.log('Session expired', 'info');
+				
+				var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
+				
+				//If there is authentication message then this was login request
+				//which shouldn't be queued
+				if (!pre_filter_message) {
+					Supra.io.loginRequestQueue.add(args);
+				}
+				
+				return Supra.io.handleResponse(cfg, {
+					'status': response.status,
+					'success': false,
+					'data': null,
+					'error_message': pre_filter_message
+				});
+				
+			} else {
+				//Invalid response
+				Y.log('Request to "' + url + '" failed', 'error');
+				
+				return Supra.io.handleResponse(cfg, {
+					'status': 0,
+					'success': false,
+					'data': null,
+					'error_message': ERROR_INVALID_RESPONSE
+				});
+				
+			}
 		};
 		
 		io = Y.io(url, cfg);
@@ -136,6 +163,16 @@ YUI().add("supra.io", function (Y) {
 	 * @private
 	 */
 	Supra.io.handleResponse = function (cfg, response) {
+		//Show login form
+		if (response.status == 401) {
+			
+			if (Supra.Manager) {
+				Supra.Manager.executeAction('Login', response);
+			}
+			
+			return;
+		}
+		
 		//Show error message
 		if (response.error_message) {
 			SU.Manager.executeAction('Confirmation', {
@@ -227,6 +264,34 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		return o.join('&');
+	};
+	
+	/**
+	 * Queue of requests which resulted in 401 responses
+	 */
+	Supra.io.loginRequestQueue = {
+		'queue': [],
+		
+		/**
+		 * Add request to the queue
+		 * 
+		 * @param {Array} args Request arguments
+		 */
+		'add': function (args) {
+			this.queue.push(args);
+		},
+		
+		/**
+		 * Execute all requests from queue
+		 */
+		'run': function () {
+			var queue = this.queue;
+			this.queue = [];
+			
+			for(var i=0,ii=queue.length; i<ii; i++) {
+				Supra.io.apply(Supra.io, queue[i]);
+			}
+		}
 	};
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

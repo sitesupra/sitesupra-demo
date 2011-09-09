@@ -43,6 +43,10 @@ YUI.add('supra.input-proto', function (Y) {
 		},
 		'id': {
 			value: null
+		},
+		'error': {
+			value: false,
+			setter: '_setError'
 		}
 	};
 	
@@ -111,22 +115,6 @@ YUI.add('supra.input-proto', function (Y) {
 			input.on('blur', this.blur, this);
 			
 			return r;
-		},
-		
-		/**
-		 * Show error message
-		 * 
-		 * @param {String} message
-		 */
-		showError: function (message) {
-			
-		},
-		
-		/**
-		 * Hide error message
-		 */
-		hideError: function () {
-			
 		},
 		
 		renderUI: function () {
@@ -198,6 +186,42 @@ YUI.add('supra.input-proto', function (Y) {
 		toggleClass: function (c) {
 			this.get('boundingBox').toggleClass(c);
 			return this;
+		},
+		
+		/**
+		 * Show error message
+		 * 
+		 * @param {String} message
+		 */
+		showError: function (message) {
+			
+		},
+		
+		/**
+		 * Hide error message
+		 */
+		hideError: function () {
+			
+		},
+		
+		/**
+		 * Error setter
+		 * Show error message if 'error' is string or just highlight if true
+		 * If false, 0 or empty string, then hide error
+		 *
+		 * @param {String} error Error message
+		 */
+		_setError: function (error) {
+			if (error) {
+				this.get('boundingBox').addClass('yui3-input-error');
+			} else {
+				this.get('boundingBox').removeClass('yui3-input-error');
+			}
+			if (typeof error == 'string' && error) {
+				this.showError(error);
+			} else {
+				this.hideError();
+			}
 		},
 		
 		_setDisabled: function (value) {

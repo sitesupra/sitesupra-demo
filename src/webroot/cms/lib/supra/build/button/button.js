@@ -35,6 +35,10 @@ YUI.add('supra.button', function (Y) {
 			value: false,
 			setter: '_setDisabled'
 		},
+		loading: {
+			value: false,
+			setter: '_setLoading'
+		},
 		down: {
 			value: false,
 			setter: '_setDown'
@@ -215,6 +219,21 @@ YUI.add('supra.button', function (Y) {
 			if (btn) {
 				btn.set('disabled', disabled);
 			}
+		},
+		
+		_setLoading: function (loading) {
+			var box = this.get('boundingBox');
+			
+			if (box) {
+				if (loading) {
+					box.addClass('yui3-button-loading');
+				} else {
+					box.removeClass('yui3-button-loading');
+				}
+			}
+			
+			this.set('disabled', loading);
+			return loading;
 		},
 		
 		_setStyle: function (new_style) {

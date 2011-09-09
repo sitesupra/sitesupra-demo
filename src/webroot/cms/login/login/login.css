@@ -1,0 +1,16 @@
+.body-login {
+	background: #f0f0f0;
+}
+.body-login .yui3-panel {
+}
+
+.login-form {
+	width: 350px;
+}
+.login-form .footer a {
+	display: inline-block;
+	vertical-align: top;
+	margin: 3px 0 0 20px;
+	height: 25px;
+	overflow: hidden;
+}

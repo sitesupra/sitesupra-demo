@@ -52,6 +52,10 @@ YUI.add("supra.form", function (Y) {
 		},
 		"style": {
 			value: ""
+		},
+		"disabled": {
+			value: false,
+			setter: "_setDisabled"
 		}
 	};
 	Form.HTML_PARSER = {
@@ -263,6 +267,12 @@ YUI.add("supra.form", function (Y) {
 				} else {
 					this.get('boundingBox').addClass('hidden');
 				}
+			}, this);
+			
+			//On submit call "save"
+			this.get('srcNode').on('submit', function (event) {
+				event.halt();
+				this.save();
 			}, this);
 		},
 		
@@ -634,9 +644,23 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
+		 * Alias for save
+		 */
+		submit: function (event) {
+			if (this.get('disabled')) return;
+			if (event && event.halt) event.halt();
+			this.save();
+		},
+		
+		/**
 		 * Validate and execute save request if url is set and user is authorized to save data
 		 */
 		save: function () {
+			this.fire('submit');
+			
+			var url = this.get('urlSave');
+			if (!url) return;
+			
 			//@TODO
 		},
 		
@@ -652,6 +676,13 @@ YUI.add("supra.form", function (Y) {
 		 */
 		'delete': function () {
 			//@TODO
+		},
+		
+		_setDisabled: function (disabled) {
+			var inputs = this.getInputs();
+			for(var id in inputs) inputs[id].set('disabled', disabled);
+			
+			return disabled;
 		}
 		
 	});

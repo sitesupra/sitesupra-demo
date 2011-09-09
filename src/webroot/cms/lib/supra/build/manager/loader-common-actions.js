@@ -17,7 +17,8 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'LayoutContainers': '/content-manager',
-		'Confirmation': '/content-manager'
+		'Confirmation': '/content-manager',
+		'Login': '/login'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

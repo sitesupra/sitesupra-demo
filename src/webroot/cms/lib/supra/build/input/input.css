@@ -326,3 +326,23 @@
 		line-height: 1em;
 		vertical-align: middle;
 	}
+
+/**
+ * Error message
+ */
+.yui3-form .error-message {
+	background: #FFC8C8;
+	border: 1px solid #c00;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	color: #c00;
+	margin: 10px 5px 10px 0;
+	padding: 7px 4px;
+	text-align: center;
+}
+.yui3-input-string.yui3-input-error input,
+.yui3-input-path.yui3-input-error input,
+.yui3-input-text.yui3-input-error textarea {
+	border-color: #c00;
+}

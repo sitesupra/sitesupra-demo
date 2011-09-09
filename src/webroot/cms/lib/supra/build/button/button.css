@@ -390,3 +390,10 @@ button::-moz-focus-inner {
 .yui3-button-group-list {
 	margin: 0 0 10px;
 }
+
+/* Button loading state */
+.yui3-button.yui3-button-loading p {
+	color: transparent !important;
+	text-shadow: none !important;
+	background: url(/cms/lib/supra/img/ajax-loader-24.png) 50% 50% no-repeat;
+}
