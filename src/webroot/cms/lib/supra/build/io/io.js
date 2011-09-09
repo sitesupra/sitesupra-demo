@@ -7,10 +7,19 @@ YUI().add("supra.io", function (Y) {
 	
 	Supra.io = function (url, cfg, context) {
 		var cfg = cfg || {},
-			args = arguments,
 			fn = null,
 			io = null,
 			fn_success = function () {};
+		
+		//Clone args object to make sure it's unchanged
+		var args = [url, Supra.mix({}, cfg), context];
+		if (args[1].on) {
+			args[1].on = {
+				'success': args[1].on.success,
+				'failure': args[1].on.failure,
+				'complete': args[1].on.complete
+			}
+		}
 		
 		//Second parameter is allowed to be callback function
 		if (Y.Lang.isFunction(cfg)) {

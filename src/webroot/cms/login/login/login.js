@@ -51,6 +51,8 @@ SU('supra.form', 'cookie', function (Y) {
 		render: function () {
 			this.footer.getButton('done').on('click', this.form.submit, this.form);
 			this.form.on('submit', this.submit, this);
+			
+			Y.one('body').removeClass('loading');
 		},
 		
 		/**
@@ -98,6 +100,9 @@ SU('supra.form', 'cookie', function (Y) {
 				
 				//Hide form
 				this.hide();
+				
+				//Execute requests which were queued
+				Supra.io.loginRequestQueue.run();
 			}
 		},
 		
