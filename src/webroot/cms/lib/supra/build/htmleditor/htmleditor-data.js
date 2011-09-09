@@ -74,6 +74,10 @@ YUI().add('supra.htmleditor-data', function (Y) {
 				}
 			}
 			
+			if (!Y.Lang.isObject(data)) {
+				data = {};
+			}
+			
 			this.data = data;
 		},
 		
