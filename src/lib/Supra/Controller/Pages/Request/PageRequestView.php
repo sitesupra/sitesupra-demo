@@ -3,7 +3,8 @@
 namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\HttpRequest;
-use Supra\Locale\Locale;
+//use Supra\Locale\Locale;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\Abstraction\Page;
 
@@ -22,9 +23,9 @@ class PageRequestView extends PageRequest
 			$this->$field = $value;
 		}
 		
-		//TODO: real locale detection missing
-		$locale = Locale::getInstance()->getCurrent();
-		$this->setLocale($locale);
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$localeId = $localeManager->getCurrent()->getId();
+		$this->setLocale($localeId);
 	}
 	
 	/**

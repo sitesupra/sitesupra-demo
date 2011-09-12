@@ -40,6 +40,8 @@ class ParsedHtmlFilter implements FilterInterface
 	private function parseSupraLink($content, $data)
 	{
 		$url = null;
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$localeId = $localeManager->getCurrent()->getId();
 
 		switch ($data['resource']) {
 			case 'page':
@@ -54,7 +56,7 @@ class ParsedHtmlFilter implements FilterInterface
 
 				$params = array(
 					//TODO: hardcoded
-					0 => 'en',
+					0 => $localeId,
 					1 => $pageId,
 				);
 

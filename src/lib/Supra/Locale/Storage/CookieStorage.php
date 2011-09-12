@@ -24,21 +24,19 @@ class CookieStorage extends StorageAbstraction
 	 * Store the detected locale
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
-	 * @param string $localeIdentifier
+	 * @param string $localeId
 	 */
-	public function store(RequestInterface $request, ResponseInterface $response, $localeIdentifier)
+	public function store(RequestInterface $request, ResponseInterface $response, $localeId)
 	{
 		if ( ! ($response instanceof HttpResponse)) {
-			\Log::warn("The response must be instance of Http response to use cookie storage");
-			return;
+			Log::warn("The response must be instance of Http response to use cookie storage");
 			//throw new Exception("The response must be instance of Http response to use cookie storage");
 		}
 		
-		$cookie = $this->createCookie($localeIdentifier);
+		$cookie = $this->createCookie($localeId);
 
 		if (empty($cookie)) {
-			Log::warn("Cookie not received from getCookie method in cookie locale storage");
-			return false;
+			Log::warn("Cookie not received from createCookie method in cookie locale storage");
 		}
 
 		/* @var $response HttpResponse */

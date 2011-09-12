@@ -4,6 +4,11 @@ namespace Supra\Locale\Detector;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
+use Supra\Request\HttpRequest;
+use Supra\Locale\Exception;
+use Supra\Http\Cookie;
+use Supra\Log\Log;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Path locale detector
@@ -18,6 +23,26 @@ class PathLocaleDetector extends DetectorAbstraction
 	 */
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
-		//TODO: do functionality
+		/* @var $request HttpRequest */
+		if ( ! ($request instanceof HttpRequest)) {
+			Log::warn('Request must be instance of Http request object to use path locale detection');
+			return;
+		}
+		
+		$localeManager = ObjectRepository::getLocaleManager($this);
+	
+		$path = $request->getPath();
+		$list = $path->getPathList();
+		
+		if (!empty($list) && !empty($list[0])) {
+			$localeId = $list[0];
+			
+			if ($localeManager->exists($localeId, false)) {
+				$path->setBasePath(new \Supra\Uri\Path($localeId));
+				return $localeId;
+			}
+		}
+		
+		return null;
 	}
 }

@@ -9,6 +9,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
 use Supra\Log\Log;
+use Supra\Locale\Locale;
 
 /**
  * Object repository
@@ -23,6 +24,7 @@ class ObjectRepository
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
 	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionNamespaceManager';		
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
+	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
 
 	/**
 	 * Object relation storage
@@ -333,5 +335,37 @@ class ObjectRepository
 	public static function setDefaultUserProvider(UserProvider $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_USER_PROVIDER);
+	}
+	
+	/**
+	 * Get assigned locale manager
+	 *
+	 * @param mixed $caller
+	 * @return LocaleManager
+	 */
+	public static function getLocaleManager($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_LOCALE_MANAGER);
+	}
+
+	/**
+	 * Assign locale manager instance to caller class
+	 *
+	 * @param mixed $caller
+	 * @param LocaleManager $object 
+	 */
+	public static function setLocaleManager($caller, LocaleManager $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_LOCALE_MANAGER);
+	}
+	
+	/**
+	 * Set default locale manager
+	 *
+	 * @param LocaleManager $object 
+	 */
+	public static function setDefaultLocaleManager(LocaleManager $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOCALE_MANAGER);
 	}
 }
