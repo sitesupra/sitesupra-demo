@@ -235,7 +235,7 @@ button::-moz-focus-inner {
 	.yui3-button-mid-green button { background-position: 0 -896px; }
 	
 	.yui3-button-mid-green.yui3-button-focused,
-	.yui3-button-mid-green.yui3-button-mouse-hover { background-position: 100% -1064px; }
+	.yui3-button-mid-green.yui3-button-mouse-hover { background-position: 100% -1024px; }
 	.yui3-button-mid-green.yui3-button-focused div,
 	.yui3-button-mid-green.yui3-button-mouse-hover div { background-position: 0 -960px; }
 	.yui3-button-mid-green.yui3-button-focused button,

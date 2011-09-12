@@ -8,7 +8,7 @@ Supra(function (Y) {
 	var Action = Manager.Action;
 	
 	//Need to copy only some functions from Page action
-	var DEFINTION = Manager.getAction('Page');
+	var DEFINITION = Manager.getAction('Page');
 	
 	//Create Action class
 	new Action({
@@ -27,7 +27,7 @@ Supra(function (Y) {
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		deleteTemplate: DEFINTION.deletePage,
+		deleteTemplate: DEFINITION.deletePage,
 		
 		/**
 		 * Create new template and returns page data to callback
@@ -36,7 +36,7 @@ Supra(function (Y) {
 		 * @param {Function} callback Callback function
 		 * @param {Object} context Callback function context
 		 */
-		createTemplate: DEFINTION.createPage,
+		createTemplate: DEFINITION.createPage,
 		
 		/**
 		 * Update template data and returns new template data to callback
@@ -45,7 +45,66 @@ Supra(function (Y) {
 		 * @param {Function} callback Callback function
 		 * @param {Object} context Callback function context
 		 */
-		updateTemplate: DEFINTION.updatePage
+		updateTemplate: DEFINITION.updatePage,
+		
+		
+		
+		/**
+		 * Unlock template, same is automatically done in publish
+		 */
+		unlockTemplate: DEFINITION.unlockPage,
+		
+		/**
+		 * Lock page, if page is already locked show message
+		 */
+		lockTemplate: DEFINITION.lockPage,
+		
+		/**
+		 * On template lock request success start editing,
+		 * on failure show message
+		 *
+		 * @param {Object} data Response data
+		 * @param {Boolean} status Response status
+		 */
+		lockResponse: DEFINITION.lockResponse,
+		
+		/**
+		 * Publish template
+		 */
+		publishTemplate: DEFINITION.publishPage,
+		
+		
+		/**
+		 * Returns template data if template is loaded, otherwise null
+		 * 
+		 * @return Template data
+		 * @type {Object}
+		 */
+		getPageData: DEFINITION.getPageData,
+		
+		/**
+		 * Returns true if currently edited page is not template
+		 *
+		 * @return True if editing page not template
+		 * @type {Boolean}
+		 */
+		isPage: DEFINITION.isPage,
+		
+		/**
+		 * Returns true if currently edited page is template
+		 *
+		 * @return True if editing template
+		 * @type {Boolean}
+		 */
+		isTemplate: DEFINITION.isTemplate,
+		
+		/**
+		 * Returns 'page' is currently editing page or 'template' if editing template
+		 *
+		 * @return 'page' if editing page, otherwise 'template'
+		 * @type {String}
+		 */
+		getType: DEFINITION.getType
 	});
 	
 });

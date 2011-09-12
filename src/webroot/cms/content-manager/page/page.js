@@ -138,7 +138,8 @@ Supra(function (Y) {
 			
 			Supra.io(this.getDataPath(), {
 				'data': {
-					'page_id': page_id || ''
+					'page_id': page_id || '',
+					'locale': Supra.data.get('locale')
 				},
 				'on': {
 					'complete': this.onLoadComplete
@@ -166,7 +167,7 @@ Supra(function (Y) {
 		 */
 		publishPage: function () {
 			var uri = this.getDataPath('publish'),
-				page_data = this.data;
+				page_data = this.getPageData();
 			
 			var post_data = {
 				'page_id': page_data.id,
@@ -177,7 +178,115 @@ Supra(function (Y) {
 			Supra.io(uri, {
 				'data': post_data,
 				'method': 'post'
+			});
+		},
+		
+		/**
+		 * Unlock page, same is automatically done in publish
+		 */
+		unlockPage: function () {
+			var uri = this.getDataPath('unlock'),
+				page_data = this.getPageData();
+			
+			var post_data = {
+				'page_id': page_data.id,
+				'locale': Supra.data.get('locale')
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post'
+			});
+		},
+		
+		/**
+		 * Lock page, if page is already locked show message
+		 *
+		 * @param {Boolean} force Force lock
+		 */
+		lockPage: function (force) {
+			var uri = this.getDataPath('lock'),
+				page_data = this.getPageData(),
+				buttons = Manager.PageButtons.buttons.Root;
+			
+			//Set loading style on button
+			buttons[0].set('loading', true);
+			
+			//Send data
+			var post_data = {
+				'page_id': page_data.id,
+				'locale': Supra.data.get('locale'),
+				'force': (force ? 1 : 0)
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'context': this,
+				'on': {
+					'success': this.lockResponse
+				}
 			}, this);
+		},
+		
+		/**
+		 * On page lock request success start editing,
+		 * on failure show message
+		 *
+		 * @param {Object} data Response data
+		 * @param {Boolean} status Response status
+		 */
+		lockResponse: function (data /* Response data */, status /* Response status */) {
+			//Unset loading style
+			var buttons = Manager.PageButtons.buttons.Root;
+			buttons[0].set('loading', false);
+			
+			//Handle response
+			if (status && data === true || data === 1) {
+				
+				//Success
+				Manager.PageContent.startEditing();
+				
+			} else {
+				
+				//Compile message template and change date and time format
+				var template = Supra.Intl.get([this.getType(), 'locked_message']);
+				template = Supra.Template.compile(template);
+				
+				data.datetime = Y.DataType.Date.reformat(data.datetime, '%Y-%m-%d %H:%M:%S', Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormatShort'));
+				
+				//"Unlock" may not be visible
+				var buttons = [];
+				if (data.allow_unlock) {
+					//Some users may not have permissions to unlock page
+					//or may have lower level access than user who locked it
+					buttons = [{
+						'id': 'unlock',
+						'label': Supra.Intl.get([this.getType(), 'unlock']),
+						'click': function () {
+							if (this.isPage()) {
+								this.lockPage(true);
+							} else {
+								this.lockTemplate(true);
+							}
+						},
+						'context': this,
+						'style': 'mid-green'
+					}];
+				}
+				
+				//
+				Manager.executeAction('Confirmation', {
+					'message': template(data),
+					'useMask': true,
+					'buttons': buttons.concat([
+						{
+							'id': 'cancel',
+							'label': Supra.Intl.get(['buttons', 'cancel'])
+						}
+					])
+				});
+			}
 		},
 		
 		/**
@@ -274,7 +383,7 @@ Supra(function (Y) {
 		 * @type {Object}
 		 */
 		getPageData: function () {
-			return this.data;
+			return Manager.Page.data;
 		},
 		
 		/**
@@ -293,9 +402,43 @@ Supra(function (Y) {
 			
 			if ('template' in changes) {
 				/* @TODO */
+			} else if ('layout' in changes) {
+				/* @TODO */
 			}
 			
 			Supra.mix(this.data, page_data);
+		},
+		
+		/**
+		 * Returns true if currently edited page is not template
+		 *
+		 * @return True if editing page not template
+		 * @type {Boolean}
+		 */
+		isPage: function () {
+			var data = Manager.Page.data;
+			return !!(!data || data.type == 'page');
+		},
+		
+		/**
+		 * Returns true if currently edited page is template
+		 *
+		 * @return True if editing template
+		 * @type {Boolean}
+		 */
+		isTemplate: function () {
+			return !this.isPage();
+		},
+		
+		/**
+		 * Returns 'page' is currently editing page or 'template' if editing template
+		 *
+		 * @return 'page' if editing page, otherwise 'template'
+		 * @type {String}
+		 */
+		getType: function () {
+			var data = Manager.Page.data;
+			return data ? data.type : 'page';
 		}
 	});
 	

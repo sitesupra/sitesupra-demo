@@ -3,7 +3,7 @@
 	"data": {
 		"id": 111,
 		
-		"type": "template",
+		"type": "page",
 		
 		"title": "<?php
 			$titles = Array('Catalogue', 'News', 'Services', 'Products');

@@ -346,7 +346,11 @@ SU('dd-drag', function (Y) {
 				buttons.push({
 					'id': 'publish',
 					'callback': function () {
-						Manager.Page.publishPage();
+						if (Manager.Page.isPage()) {
+							Manager.Page.publishPage();
+						} else {
+							Manager.Template.publishTemplate();
+						}
 						Manager.Root.execute();
 					}
 				});
@@ -355,6 +359,11 @@ SU('dd-drag', function (Y) {
 			buttons.push({
 				'id': 'close',
 				'callback': function () {
+					if (Manager.Page.isPage()) {
+						Manager.Page.unlockPage();
+					} else {
+						Manager.Template.unlockTemplate();
+					}
 					Manager.Root.execute();
 				}
 			});

@@ -56,7 +56,11 @@ Supra(function (Y) {
 			{
 				'id': 'edit',
 				'callback': function () {
-					Manager.PageContent.startEditing();
+					if (Manager.Page.isPage()) {
+						Manager.Page.lockPage();
+					} else {
+						Manager.Template.lockTemplate();
+					}
 				}
 			}
 		]

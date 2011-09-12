@@ -17,6 +17,8 @@ var LANG = Y.Lang,
  *
  * @method parse
  * @param data {String | Number} Data to convert
+ * @param from {String} Optional. From format, possible values: 'internal', 'raw', 'FORMAT'
+ * @param to {String} Optional. To format, possible formats: 'internal', 'raw', 'FORMAT'
  * @return {Date} A Date, or null.
  */
 Dt.reformat = function(data, from, to) {

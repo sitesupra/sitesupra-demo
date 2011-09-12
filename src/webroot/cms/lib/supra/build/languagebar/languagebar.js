@@ -20,8 +20,8 @@ YUI.add("supra.languagebar", function (Y) {
 							</li>';
 	
 	var TEMPLATE_LANGUAGE = '<li>\
-								<a data-locale="{language}_{context}">\
-									<img src="/cms/lib/supra/img/flags/16x11/{language}.png" alt="" />\
+								<a data-locale="{language}">\
+									<img src="/cms/lib/supra/img/flags/16x11/{icon}.png" alt="" />\
 									<span>{title}</span>\
 								</a>\
 							 </li>';
@@ -131,7 +131,7 @@ YUI.add("supra.languagebar", function (Y) {
 					html_langs.push(Y.substitute(TEMPLATE_LANGUAGE, {
 						'title': langs[k].title,
 						'language': langs[k].id,
-						'context': contexts[i].id
+						'icon': this.splitLocale(langs[k].id)[1],
 					}));
 				}
 				
@@ -216,11 +216,8 @@ YUI.add("supra.languagebar", function (Y) {
 		 * @param {Object} locale
 		 */
 		getLanguageByLocale: function (locale) {
-			var item = this.splitLocale(locale);
-			if (item) {
-				var langs = this.getContextByLocale(locale);
-				return langs ? this._find(langs.languages, item[1]) : null;
-			}
+			var langs = this.getContextByLocale(locale);
+			return langs ? this._find(langs.languages, locale) : null;
 			return null;
 		},
 		
@@ -236,6 +233,7 @@ YUI.add("supra.languagebar", function (Y) {
 		_setLocale: function (locale) {
 			var oldVal = this.get('locale'),
 				lang = this.getLanguageByLocale(locale),
+				icon = this.splitLocale(locale)[1],
 				node = null;
 			
 			if (lang) {
@@ -243,7 +241,7 @@ YUI.add("supra.languagebar", function (Y) {
 				if (node) node.set('text', lang.title);
 				
 				node = this.get('srcNode').one('img');
-				if (node) node.set('src', '/cms/lib/supra/img/flags/16x11/' + lang.id + '.png');
+				if (node) node.set('src', '/cms/lib/supra/img/flags/16x11/' + icon + '.png');
 				
 				return locale;
 			}

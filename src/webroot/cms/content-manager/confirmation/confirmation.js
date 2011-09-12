@@ -17,6 +17,7 @@ SU('supra.form', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',
+		'escape': true,
 		'useMask': true,
 		'buttons': []
 	};
@@ -82,8 +83,11 @@ SU('supra.form', function (Y) {
 				//Replace all constants with internationalized strings
 				message = Supra.Intl.replace(message);
 			}
+			if (config.escape) {
+				message = Y.Lang.escapeHTML(message);
+			}
 			
-			this.one('p').set('innerHTML', Y.Lang.escapeHTML(message));
+			this.one('p').set('innerHTML', message);
 		},
 		
 		/**
@@ -114,7 +118,7 @@ SU('supra.form', function (Y) {
 		},
 		
 		execute: function (config) {
-			this.config = SU.mix({}, DEFAULT_CONFIG || {}, config);
+			this.config = SU.mix({}, DEFAULT_CONFIG, config || {});
 			
 			this.renderMessage(config);
 			this.renderButtons(this.config);

@@ -4,3 +4,11 @@
 	
 	font-size: 14px;
 }
+.supra-confirmation-message em,
+.supra-confirmation-message i {
+	font-style: italic;
+}
+.supra-confirmation-message strong,
+.supra-confirmation-message b {
+	font-weight: bold;
+}

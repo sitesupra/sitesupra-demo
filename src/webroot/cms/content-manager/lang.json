@@ -27,7 +27,15 @@
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
 			
 			"click_to_edit": "Click to edit",
-			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move"
+			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
+			
+			"locked_message": "Page was locked by <b>{{ username }}</b> on <b>{{ datetime }}</b>",
+			"unlock": "Unlock"
+		},
+		
+		"template": {
+			"locked_message": "Template was locked by <b>{{ username }}</b> on <b>{{ datetime }}</b>",
+			"unlock": "Unlock"
 		},
 		
 		"htmleditor": {
