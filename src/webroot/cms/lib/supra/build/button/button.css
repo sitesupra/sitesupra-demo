@@ -122,7 +122,8 @@ button::-moz-focus-inner {
 .yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
 	background-image: url(/cms/lib/supra/build/button/button-mid.png);
 }
-	.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
+	.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button,
+	.yui3-button-mid, .yui3-button-group, .yui3-button-mid-blue, .yui3-button-mid-red, .yui3-button-mid-green {
 		height: 32px;
 		overflow: hidden;
 	}

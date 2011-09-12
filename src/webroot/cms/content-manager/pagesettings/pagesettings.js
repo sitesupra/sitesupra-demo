@@ -126,12 +126,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			if (evt.newVal == 'slideMain') {
 				//this.button_cancel.show();
 				this.button_back.hide();
-				this.one('div.yui3-sidebar-buttons').addClass('yui3-hidden');
+				this.one('div.yui3-sidebar-buttons').addClass('hidden');
 				this.one('div.yui3-sidebar-content').removeClass('has-buttons');
 			} else {
 				//this.button_cancel.hide();
 				this.button_back.show();
-				this.one('div.yui3-sidebar-buttons').removeClass('yui3-hidden');
+				this.one('div.yui3-sidebar-buttons').removeClass('hidden');
 				this.one('div.yui3-sidebar-content').addClass('has-buttons');
 			}
 			
@@ -463,6 +463,19 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			post_data.page_id = post_data.id;
 			post_data.template = post_data.template.id;
 			
+			if (this.getType() == 'page') {	//Page
+				
+			} else { //Template
+				//Remove template, path, meta, status
+				delete(post_data.template);
+				delete(post_data.path);
+				delete(post_data.path_prefix);
+				delete(post_data.description);
+				delete(post_data.keywords);
+				delete(post_data.active);
+			}
+			
+			delete(post_data.type);
 			delete(post_data.id);
 			delete(post_data.path_prefix);
 			delete(post_data.internal_html);
@@ -471,7 +484,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			post_data.locale = Supra.data.get('locale');
 			
 			//Save data
-			var url = this.getDataPath('save');
+			var url = this.getDataPath(this.getType() + '-save');
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'POST',
@@ -522,6 +535,57 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 		},
 		
 		/**
+		 * Returns type
+		 *
+		 * @return Type 'page' or 'template'
+		 * @type {String}
+		 */
+		getType: function () {
+			return this.page_data.type;
+		},
+		
+		/**
+		 * Update page/template UI, show/hide fields for template
+		 */
+		updateTypeUI: function () {
+			var type = this.getType(),
+				form = this.form,
+				inputs = [
+					['template', form.getInput('path')],
+					['template', form.getInput('active')],
+					
+					['template', '.button-meta'],
+					['template', form.getInput('description')],
+					['template', form.getInput('keywords')],
+					
+					['template', '.button-template'],
+					['template', form.getInput('template[id]')],
+					['template', form.getInput('template[img]')],
+					['template', form.getInput('template[title]')],
+					
+					['page', form.getInput('layout')]
+				];
+			
+			for(var i=inputs.length - 1; i>=0; i--) {
+				if (typeof inputs[i][1] == 'string') {
+					if (inputs[i][0] == type) {
+						this.one(inputs[i][1]).ancestor().addClass('hidden');
+					} else {
+						this.one(inputs[i][1]).ancestor().removeClass('hidden');
+					}
+				} else {
+					if (inputs[i][0] == type) {
+						inputs[i][1].hide();
+						inputs[i][1].set('disabled', true);
+					} else {
+						inputs[i][1].set('disabled', false);
+						inputs[i][1].show();
+					}
+				}
+			}
+		},
+		
+		/**
 		 * Hide action
 		 */
 		hide: function () {
@@ -549,6 +613,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			if (!this.form) this.createForm();
 			this.page_data = Supra.mix({}, Manager.Page.getPageData());
 			this.setFormValues();
+			this.updateTypeUI();
 			
 			this.slideshow.set('noAnimation', true);
 			this.slideshow.scrollBack();

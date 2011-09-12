@@ -2,6 +2,9 @@
 	"status": 1,
 	"data": {
 		"id": 111,
+		
+		"type": "template",
+		
 		"title": "<?php
 			$titles = Array('Catalogue', 'News', 'Services', 'Products');
 			shuffle($titles);

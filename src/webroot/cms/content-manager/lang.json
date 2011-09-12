@@ -82,6 +82,8 @@
 			"page_title": "Page title",
 			"page_url": "Page URL",
 			
+			"page_layout": "Layout",
+			
 			"active": "Active",
 			
 			"meta": "Meta",

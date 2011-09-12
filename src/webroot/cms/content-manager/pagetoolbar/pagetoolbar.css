@@ -27,6 +27,9 @@
 	padding: 0;
 	vertical-align: top;
 }
+.yui3-editor-toolbar-main .yui3-button {
+	height: 50px;
+}
 .yui3-editor-toolbar-main .yui3-button button {
 	text-align: center;
 	height: 50px;
@@ -132,4 +135,6 @@
 	-moz-box-shadow: 0 1px 0 rgba(255,255,255,.4);
 	-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.4);
 	box-shadow: 0 1px 0 rgba(255,255,255,.4);
+	
+	vertical-align: middle;
 }

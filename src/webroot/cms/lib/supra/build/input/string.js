@@ -67,8 +67,16 @@ YUI.add("supra.input-string", function (Y) {
 			}
 		},
 		
+		/**
+		 * Handle keypress event:
+		 * FF - charCode is for characters, keyCode is for non output keys
+		 * Opera - which is for characters, keyCode is for all keys
+		 * Chrome, Safari, IE9 - charCode and keyCode is for characters, but non output keys doesn't trigger keyPress
+		 *
+		 * @param {Event} e Event
+		 */
 		_onKeyDown: function (e) {
-			var key = e.which || e.charCode || e.keyCode,
+			var key = Y.UA.opera ? e._event.which : e._event.charCode,
 				input = this.get('inputNode'),
 				mask = this.get('valueMask');
 			
@@ -86,7 +94,7 @@ YUI.add("supra.input-string", function (Y) {
 				input.set('value', this._original_value);
 				input.blur();
 				this.fire("reset");
-			} else if (mask && (key >= 42 || key == 32) && key != 46) {
+			} else if (mask && key) {  //(key >= 42 || key == 32) && key != 46) {
 				//46 - "Delete"
 				//Validate against mask
 				var str = String.fromCharCode(key),

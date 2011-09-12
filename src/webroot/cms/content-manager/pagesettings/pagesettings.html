@@ -4,7 +4,7 @@
 	<h2 class="yui3-sidebar-header">{#settings.title#}</h2>
 	
 	<!-- Buttons -->
-	<div class="yui3-sidebar-buttons yui3-hidden">
+	<div class="yui3-sidebar-buttons hidden">
 		<!-- <button type="button" class="button-cancel"><p>{#buttons.cancel#}</p></button> -->
 		<button type="button" class="button-back"><p>{#buttons.back#}</p></button>
 	</div>
@@ -20,7 +20,10 @@
 				<input type="text" name="title" id="title" value="" />
 				
 				<label for="path">{#settings.page_url#}</label>
-				<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\\-\\_]*$" />
+				<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\-\_]*$" />
+				
+				<label for="layout">{#settings.page_layout#}</label>
+				<input type="text" name="layout" id="layout" value="" suValueMask="^[0-9a-zA-Z\-\_\.\/\\]*$" />
 				
 				<label for="active">{#settings.active#}</label>
 				<select name="active" id="active" value="" suType="SelectList">
