@@ -13,7 +13,7 @@ class AuthenticationPreFilterController extends Authentication\AuthenticationCon
 	public function __construct()
 	{
 		$this->setLoginPath('/cms/login');
-		$this->setCmsPath('/cms');
+		$this->setBasePath('/cms');
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
 		

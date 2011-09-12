@@ -23,10 +23,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	protected $loginPath = '/login';
 
 	/**
-	 * Cms page path
+	 * Base path
 	 * @var string
 	 */
-	protected $cmsPath = '/cms';
+	protected $basePath = '/';
 
 	/**
 	 * Login field name on login page
@@ -127,21 +127,21 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	}
 
 	/**
-	 * Returns cms page path
+	 * Returns base path
 	 * @return string 
 	 */
-	public function getCmsPath()
+	public function getBasePath()
 	{
-		return $this->cmsPath;
+		return $this->basePath;
 	}
 
 	/**
-	 * Sets cms page path
-	 * @param string $cmsPath 
+	 * Sets base path
+	 * @param string $basePath 
 	 */
-	public function setCmsPath($cmsPath)
+	public function setBasePath($basePath)
 	{
-		$this->cmsPath = $cmsPath;
+		$this->basePath = $basePath;
 	}
 
 	/**
@@ -246,7 +246,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			$uri = $this->getRequest()->getRequestUri();
 
 			if ($uri != $loginPath) {
-				$this->session->redirect_to = $uri;
 
 				if ($xmlHttpRequest) {
 					$this->response->setCode(401);
@@ -316,7 +315,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			}
 		}
 
-		return $this->getCmsPath();
+		return $this->getBasePath();
 	}
 
 	/**

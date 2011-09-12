@@ -30,13 +30,13 @@ $sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager(__NAMESP
 
 $authenticationSessionNamespace = null;
 
-if( ! $sessionNamespaceManager->sessionNamespaceIsRegistered('AuthenticationNamespace')) {
+if( ! $sessionNamespaceManager->sessionNamespaceIsRegistered('AuthenticateNamespace')) {
 	
-	$authenticationSessionNamespace = new AuthenticationSessionNamespace('AuthenticationNamespace');
+	$authenticationSessionNamespace = new AuthenticateSessionNamespace('AuthenticateNamespace');
 	$sessionNamespaceManager->registerSessionNamespace($authenticationSessionNamespace);
 }
 else {
-	$authenticationSessionNamespace = $sessionNamespaceManager->getSessionNamespace('AuthenticationNamespace');
+	$authenticationSessionNamespace = $sessionNamespaceManager->getSessionNamespace('AuthenticateNamespace');
 }
 
 ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);
