@@ -176,6 +176,7 @@ class PageController extends ControllerAbstraction
 	{
 		// function which adds controllers for the block
 		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) {
+			$blockController->prepareTwigHelper();
 			$blockController->execute();
 		};
 		

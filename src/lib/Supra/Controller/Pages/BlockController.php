@@ -13,7 +13,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 
 /**
- * Block controller abstraction\
+ * Block controller abstraction
  * @method PageRequest getRequest()
  */
 abstract class BlockController extends ControllerAbstraction
@@ -68,6 +68,20 @@ abstract class BlockController extends ControllerAbstraction
 		$response = new Response\TwigResponse($this);
 		
 		return $response;
+	}
+	
+	/**
+	 * Assigns supra helper to the twig as global helper
+	 */
+	public function prepareTwigHelper()
+	{
+		$response = $this->getResponse();
+		
+		if ($response instanceof Response\TwigResponse) {
+			$twig = $response->getTwigEnvironment();
+			$helper = new Helper\TwigHelper($this);
+			$twig->addGlobal('supra', $helper);
+		}
 	}
 
 	/**

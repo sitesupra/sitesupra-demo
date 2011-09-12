@@ -4,6 +4,7 @@ namespace Supra\Response;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
+use Twig_Environment;
 
 /**
  * Response based on Twig template parser
@@ -22,6 +23,11 @@ class TwigResponse extends HttpResponse
 	protected $templatePath;
 	
 	/**
+	 * @var Twig_Environment
+	 */
+	protected $twigEnvironment;
+	
+	/**
 	 * Can set context classname or object to search for the templates there
 	 * @param mixed $context
 	 */
@@ -30,8 +36,18 @@ class TwigResponse extends HttpResponse
 		if ( ! is_null($context)) {
 			$this->setTemplatePathByContext($context);
 		}
+		
+		$this->twigEnvironment = ObjectRepository::getObject($this, 'Twig_Environment');
 	}
 	
+	/**
+	 * @return Twig_Environment
+	 */
+	public function getTwigEnvironment()
+	{
+		return $this->twigEnvironment;
+	}
+
 	/**
 	 * Output the template
 	 * @param string $templateName
@@ -40,8 +56,7 @@ class TwigResponse extends HttpResponse
 	{
 		$templateName = $this->templatePath . DIRECTORY_SEPARATOR . $templateName;
 		
-		$twig = ObjectRepository::getObject($this, 'Twig_Environment');
-		$template = $twig->loadTemplate($templateName);
+		$template = $this->twigEnvironment->loadTemplate($templateName);
 		$content = $template->render($this->templateVariables);
 		
 		$this->output($content);

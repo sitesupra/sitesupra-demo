@@ -32,10 +32,7 @@ class TextController extends BlockController
 		
 		$response->assign('title', $comment);
 		
-		$value = $this->getPropertyValue('html', 'defaultText1');
-		$response->assign('html', $value);
-		
-		// Local file name can be used
+		// Local file is used
 		$response->outputTemplate('index.html.twig');
 	}
 	
