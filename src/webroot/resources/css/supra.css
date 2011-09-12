@@ -142,3 +142,28 @@ big {
 	padding: 3px 5px;
 	border: 1px solid #CCC;
 }
+
+/* Image and Gallery */
+.text img,
+.text .gallery {
+	float: right;
+	margin: 0 0 9px 18px;
+}
+.text img.align-left,
+.text .gallery.align-left {
+	float: left;
+	margin: 0 18px 9px 0;
+}
+.text img.align-middle,
+.text .gallery.align-middle {
+	float: none;
+	margin: 0 18px 9px;
+}
+
+.text img.border,
+.text .gallery.border {
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-ms-border-radius: 5px;
+}

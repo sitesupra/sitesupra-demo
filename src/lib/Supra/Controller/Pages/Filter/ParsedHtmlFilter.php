@@ -130,7 +130,24 @@ class ParsedHtmlFilter implements FilterInterface
 		} else {
 			//TODO: add other attributes as align, size, etc
 			$src = $fs->getWebPath($image);
-			$text = '<img src="' . htmlspecialchars($src) . '" />';
+			$text = '<img src="' . htmlspecialchars($src) . '"';
+			
+			$classNames = array();
+			
+			if ( ! empty($data['align'])) {
+				$classNames[] = 'align-' . $data['align'];
+			}
+			
+			if ( ! empty($data['style'])) {
+				$classNames[] = $data['style'];
+			}
+			
+			if ( ! empty($classNames)) {
+				$classValue = implode(' ', $classNames);
+				$text .= ' class="' . htmlspecialchars($classValue) . '"';
+			}
+			
+			$text .= ' />';
 		}
 		
 		return $text;
