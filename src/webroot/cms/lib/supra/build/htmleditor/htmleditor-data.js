@@ -155,7 +155,7 @@ YUI().add('supra.htmleditor-data', function (Y) {
 				srcNode = this.get('srcNode');
 			
 			while(srcNode.one('#' + id)) {
-				id = this.dataNodeUID++;
+				id = 'su' + this.dataNodeUID++;
 			}
 			
 			return id;
