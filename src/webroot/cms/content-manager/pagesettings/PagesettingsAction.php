@@ -115,5 +115,5 @@ class PagesettingsAction extends PageManagerAction
 			$this->getResponse()->appendResponseData($templateArray);
 		}
 	}
-
+	
 }

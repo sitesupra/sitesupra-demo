@@ -107,16 +107,28 @@ class PageAction extends PageManagerAction
 			$scheduledTime = $scheduledDateTime->format('H:i');
 		}
 		
+		$type = 'page';
+		
+		if($page instanceof Entity\Template) {
+			$type = 'template';
+
+			$layout = null;
+			if ($page->isRoot()){
+				$layout = $page->getLayout(Entity\Layout::MEDIA_SCREEN)
+						->getFile();
+			}
+		}
+		
 		$array = array(
 			'id' => $page->getId(),
 			'title' => $pageData->getTitle(),
 			'path' => $pathPart,
 			'path_prefix' => $pathPrefix,
 			'template' => $templateArray,
-			
+			'type' => $type,
 			'internal_html' => $response->__toString(),
 			'contents' => array(),
-			
+			'layout' => $layout,
 			'keywords' => $metaKeywords,
 			'description' => $metaDescription,
 			'scheduled_date' => $scheduledDate,
