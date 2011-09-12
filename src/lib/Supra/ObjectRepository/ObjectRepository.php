@@ -9,7 +9,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
 use Supra\Log\Log;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleManager;
 
 /**
  * Object repository
