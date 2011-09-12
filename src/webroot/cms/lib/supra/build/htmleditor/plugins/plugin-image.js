@@ -464,7 +464,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			//When media library is hidden show settings form if image is selected
 			mediasidebar.on('hide', function () {
 				if (this.selected_image) {
-					Manager.executeAction('PageContentSettings', this.settings_form);
+					this.footer.removeClass('hidden');
+					Manager.executeAction('PageContentSettings', this.settings_form, {
+						'doneCallback': Y.bind(this.settingsFormApply, this)
+					});
 				}
 			}, this);
 			

@@ -72,6 +72,9 @@ YUI.add("supra.input-inline-html", function (Y) {
 		
 		_getValue: function (value) {
 			if (this.htmleditor) {
+				//Remove data which is not bound to anything
+				this.htmleditor.removeExpiredData();
+				
 				return {
 					'html': this.htmleditor.getHTML(),
 					'data': this.htmleditor.getAllData()

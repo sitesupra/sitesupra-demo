@@ -106,7 +106,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			//untagHTML
 			var html = event.html,
 				plugins = this.getAllPlugins(),
-				data = this.getAllData(true),
+				data = this.getAllData(),
 				id = null;
 			
 			for(id in plugins) {
