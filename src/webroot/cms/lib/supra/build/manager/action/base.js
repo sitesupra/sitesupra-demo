@@ -54,6 +54,13 @@ YUI.add('supra.manager-action-base', function (Y) {
 		},
 		
 		/**
+		 * Manager has been executed at least once
+		 */
+		'executed': {
+			'value': false
+		},
+		
+		/**
 		 * Action has stylesheet or not
 		 */
 		'hasStylesheet': {
@@ -724,6 +731,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 				Manager.executeAction.apply(Manager, args);
 			} else {
 				this.fire('execute', args);
+				this.set('executed', true);
 			}
 		},
 		

@@ -1,4 +1,4 @@
-.list {
+.main-list {
 	position: absolute;
 	bottom: 10px;
 }
@@ -150,14 +150,14 @@
 	line-height: 18px;
 }
 
-.list a.next {
+.main-list a.next {
 	display: block;
 	position: absolute;
 	z-index: 4;
 	right: 50px;
 	top: 50%;
 }
-.list a.prev {
+.main-list a.prev {
 	display: block;
 	position: absolute;
 	z-index: 4;
@@ -168,7 +168,7 @@
 
 
 /* New item icon */
-.list .list-add {
+.main-list .list-add {
 	position: absolute;
 	z-index: 5;
 	display: block;
@@ -176,7 +176,7 @@
 	left: 70px;
 	cursor: move;
 }
-.list .list-add em {
+.main-list .list-add em {
 	display: block;
 	width: 48px;
 	height: 48px;
@@ -189,13 +189,13 @@
 	border-radius: 5px;
 	padding: 2px;
 }
-.list .list-add:hover em {
+.main-list .list-add:hover em {
 	border-color: #36c;
 }
-.list .list-add img {
+.main-list .list-add img {
 	display: block;
 }
-.list .list-add span {
+.main-list .list-add span {
 	display: block;
 	text-align: center;
 	padding: 5px 0 0;

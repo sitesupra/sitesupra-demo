@@ -70,8 +70,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * 
 		 * @private
 		 */
-		initialize: function () {
-		},
+		initialize: function () {},
 		
 		/**
 		 * Render widgets
@@ -172,9 +171,12 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				//Show media library
 				Manager.executeAction('MediaLibrary');
 				
-				Manager.getAction('MediaLibrary').on('hide', function () {
+				Manager.getAction('MediaLibrary').once('hide', function () {
 					//Enable upload back
 					this.medialist.upload.set('disabled', false);
+					
+					//Reload data
+					this.medialist.reload();
 				}, this);
 			}, this);
 		},
@@ -223,6 +225,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			this.options = options || {};
 			
 			//Scroll to folder / item
+			this.medialist.reset();
 			this.medialist.set('noAnimations', true);
 			this.medialist.open(this.options.item || 0);
 			this.medialist.set('noAnimations', false);

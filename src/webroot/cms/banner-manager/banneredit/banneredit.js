@@ -219,9 +219,6 @@ Supra(function (Y) {
 					
 					//Add image ID
 					item.push(this.data.image.id);
-					
-					//Remove root folder ID
-					item.shift();
 				}
 				
 				action.execute({

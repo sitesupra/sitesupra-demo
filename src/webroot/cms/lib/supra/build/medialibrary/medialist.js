@@ -888,6 +888,53 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Reload all media library data
+		 */
+		reload: function () {
+			//Reset data
+			var history = this.reset();
+			
+			//Start loading data
+			if (!history || !history.length) {
+				history = [this.get('rootFolderId')];
+			}
+			
+			this.slideshow.set('noAnimations', true);
+			this.openPath(history, Y.bind(function () {
+				this.slideshow.set('noAnimations', false);
+			}, this));
+		},
+		
+		/**
+		 * Reset all data
+		 *
+		 * @return History path
+		 * @private
+		 */
+		reset: function () {
+			var data_object = this.get('dataObject'),
+				slideshow = this.slideshow,
+				slides = slideshow.slides,
+				history = null;
+			
+			history = Y.Array.map(slideshow.history, function (id) {
+				return parseInt(id.replace('slide_', ''), 10);
+			});
+			
+			//Reset data
+			data_object.destroy();
+			
+			//Reset slideshow
+			slideshow.history = [];
+			slideshow.set('slide', null);
+			for(var id in slides) {
+				slideshow.removeSlide(id);
+			}
+			
+			return history;
+		},
+		
+		/**
 		 * Returns item node
 		 * @param {Number} id File or folder ID
 		 */

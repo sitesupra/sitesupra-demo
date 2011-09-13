@@ -237,7 +237,7 @@ Supra('website.list-dd', function (Y) {
 		bindDragAndDrop: function () {
 			
 			this.plug(Supra.ListDD, {
-				'dragContainerSelector': 'div.list',
+				'dragContainerSelector': 'div.main-list',
 				'proxyClass': 'list-proxy',
 				'targetClass': 'list-group-target'
 			});

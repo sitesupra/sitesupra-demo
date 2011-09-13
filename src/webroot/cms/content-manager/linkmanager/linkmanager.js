@@ -92,22 +92,26 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			
 			this.slideshow.render();
 			this.slideshow.on('slideChange', function (evt) {
-				var fn = 'on' + evt.newVal.substr(0,1).toUpperCase() + evt.newVal.substr(1);
-				if (fn in this) {
-					var node = this.slideshow.getSlide(evt.newVal);
-					this[fn](node);
-				}
+				
 			}, this);
 			this.slideshow.after('slideChange', function (evt) {
-				var heading = this.one('h2.yui3-sidebar-header span');
-				
-				if (this.slideshow.history.length <= 1) {
-					this.button_back.hide();
-					heading.hide();
-				} else {
-					this.button_back.show();
-					heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
-					heading.show();
+				if (evt.newVal != evt.prevVal) {
+					var heading = this.one('h2.yui3-sidebar-header span');
+					
+					if (this.slideshow.history.length <= 1) {
+						this.button_back.hide();
+						heading.hide();
+					} else {
+						this.button_back.show();
+						heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
+						heading.show();
+					}
+					
+					var fn = 'on' + evt.newVal.substr(0,1).toUpperCase() + evt.newVal.substr(1);
+					if (fn in this) {
+						var node = this.slideshow.getSlide(evt.newVal);
+						this[fn](node);
+					}
 				}
 			}, this);
 			
@@ -231,7 +235,11 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 					var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
 					btn.on('click', function () {
 						Manager.executeAction('MediaLibrary');
-					});
+						Manager.getAction('MediaLibrary').once('hide', function () {
+							//Reload data
+							this.medialist.reload();
+						}, this);
+					}, this);
 					btn.render();
 					
 				//Create list widget
@@ -243,7 +251,9 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 						'listURI': medialibrary.getDataPath('list'),
 						'viewURI': medialibrary.getDataPath('view'),
 						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
-					})).render(); 
+					})).render();
+			} else {
+				this.medialist.reload();
 			}
 		},
 		
