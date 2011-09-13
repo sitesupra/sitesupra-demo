@@ -48,6 +48,13 @@ abstract class CmsAction extends SimpleController
 			}
 
 			$response->setErrorMessage($message);
+			
+		/*
+		 * Resource not found exceptions should be thrown to CmsController 
+		 * for static json file execution, for DEVELOPEMENT only!
+		 */
+		} catch (Exception\ResourceNotFoundException $e) {
+			throw $e;
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();

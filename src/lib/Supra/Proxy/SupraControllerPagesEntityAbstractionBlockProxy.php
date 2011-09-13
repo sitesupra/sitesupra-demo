@@ -20,6 +20,14 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
+
+            if (method_exists($this, "__wakeup")) {
+                // call this after __isInitialized__to avoid infinite recursion
+                // but before loading to emulate what ClassMetadata::newInstance()
+                // provides.
+                $this->__wakeup();
+            }
+
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
@@ -52,16 +60,28 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::getId();
     }
 
-    public function getComponent()
+    public function getComponentClass()
     {
         $this->__load();
-        return parent::getComponent();
+        return parent::getComponentClass();
     }
 
-    public function setComponent($component)
+    public function setComponentClass($componentClass)
     {
         $this->__load();
-        return parent::setComponent($component);
+        return parent::setComponentClass($componentClass);
+    }
+
+    public function getComponentName()
+    {
+        $this->__load();
+        return parent::getComponentName();
+    }
+
+    public function setComponentName($componentName)
+    {
+        $this->__load();
+        return parent::setComponentName($componentName);
     }
 
     public function getPosition()
@@ -76,10 +96,16 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::setPosition($position);
     }
 
-    public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
+    public function getLocale()
     {
         $this->__load();
-        return parent::addBlockProperty($blockProperty);
+        return parent::getLocale();
+    }
+
+    public function setLocale($locale)
+    {
+        $this->__load();
+        return parent::setLocale($locale);
     }
 
     public function inPlaceHolder(array $placeHolderIds)
@@ -94,7 +120,7 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::createController();
     }
 
-    public function prepareController(\Supra\Controller\Pages\BlockController $controller, \Supra\Controller\Pages\Request\Request $request)
+    public function prepareController(\Supra\Controller\Pages\BlockController $controller, \Supra\Controller\Pages\Request\PageRequest $request)
     {
         $this->__load();
         return parent::prepareController($controller, $request);
@@ -104,12 +130,6 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
     {
         $this->__load();
         return parent::executeController($controller);
-    }
-
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
     }
 
     public function getProperty($name)
@@ -136,7 +156,7 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);
@@ -145,7 +165,7 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'component', 'position', 'placeHolder', 'blockProperties', 'locked');
+        return array('__isInitialized__', 'id', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked');
     }
 
     public function __clone()

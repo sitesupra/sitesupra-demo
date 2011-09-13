@@ -20,6 +20,14 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
+
+            if (method_exists($this, "__wakeup")) {
+                // call this after __isInitialized__to avoid infinite recursion
+                // but before loading to emulate what ClassMetadata::newInstance()
+                // provides.
+                $this->__wakeup();
+            }
+
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
@@ -64,16 +72,10 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getMaster();
     }
 
-    public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
+    public function getTemplateHierarchy()
     {
         $this->__load();
-        return parent::addBlockProperty($blockProperty);
-    }
-
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
+        return parent::getTemplateHierarchy();
     }
 
     public function getProperty($name)
@@ -100,7 +102,7 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);
@@ -109,7 +111,7 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'master');
+        return array('__isInitialized__', 'id', 'locale', 'title', 'master');
     }
 
     public function __clone()

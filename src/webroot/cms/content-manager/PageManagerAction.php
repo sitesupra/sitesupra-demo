@@ -258,25 +258,93 @@ abstract class PageManagerAction extends CmsAction
 		}
 		
 		$pageData = $this->getPageData();
-		$pageId = $pageData->getMaster()->getId();
 		
-//		$page = $pageData->getMaster();
-//		$draftEm->detach($page);
-//		$page = $publicEm->merge($page);
+		$copyContent = function() use ($pageData, $publicEm, $draftEm) {
 		
-//		$draftEm->detach($pageData);
-		$pageData = $publicEm->merge($pageData);
-//		$pageData->getMaster()->getId();
+			$pageId = $pageData->getMaster()->getId();
+			$locale = $pageData->getLocale();
+			$pageDataId = $pageData->getId();
+
+			$draftPage = $pageData->getMaster();
+
+			$draftEm->detach($pageData);
+			$pageData = $publicEm->merge($pageData);
+
+			/* @var $publicPage Entity\Abstraction\Page */
+			$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+			$pageData->setMaster($publicPage);
+			$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+
+			// Delete all block properties by 'data' and 'block'
+			{
+				$dql = "SELECT p FROM $blockPropertyEntity p
+						JOIN p.block b
+						JOIN b.placeHolder ph
+						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
+
+				$query = $publicEm->createQuery($dql);
+				$query->execute(array($locale, $pageId, $pageDataId));
+				$properties = $query->getResult();
+
+				foreach ($properties as $property) {
+					$publicEm->remove($property);
+				}
+			}
+
+			// Delete all blocks
+			{
+				$blockEntity = PageRequest::BLOCK_ENTITY;
+
+				$dql = "SELECT b FROM $blockEntity b
+						JOIN b.placeHolder ph
+						WHERE b.locale = ?0 AND ph.master = ?1";
+
+				$query = $publicEm->createQuery($dql);
+				$query->execute(array($locale, $pageId));
+				$blocks = $query->getResult();
+
+				foreach ($blocks as $block) {
+					$publicEm->remove($block);
+				}
+			}
+
+			$publicEm->flush();
+
+			/* @var $pageData Entity\Abstraction\Data */
+			$draftPlaceHolders = $draftPage->getPlaceHolders();
+			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+			foreach ($draftPlaceHolders as $placeHolder) {
+				$draftEm->detach($placeHolder);
+				$publicEm->merge($placeHolder);
+
+				$blocks = $placeHolder->getBlocks();
+
+				/* @var $block Entity\Abstraction\Block */
+				foreach ($blocks as $block) {
+					$draftEm->detach($block);
+					$publicEm->merge($block);
+				}
+			}
+
+			{
+				$dql = "SELECT p FROM $blockPropertyEntity p
+						JOIN p.block b
+						JOIN b.placeHolder ph
+						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
+
+				$query = $draftEm->createQuery($dql);
+				$query->execute(array($locale, $pageId, $pageDataId));
+				$properties = $query->getResult();
+
+				foreach ($properties as $property) {
+					$publicEm->merge($property);
+				}
+			}
+
+			$publicEm->flush();
+		}
 		
-		/* @var $page Entity\Abstraction\Page */
-		$page = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		$pageData->setMaster($page);
-		$pageData->setTitle('test');
 		
-//		$publicEm->persist($pageData);
-//		$publicEm->persist($page);
-		
-		$publicEm->flush();
 	}
 
 }

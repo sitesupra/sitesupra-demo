@@ -11,15 +11,21 @@ use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
 use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
+use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
 
 $config = new Configuration();
 
 // Doctrine cache (array cache for development)
 $cache = new ArrayCache();
+
+// Memcache cache configuration sample
 //$cache = new \Doctrine\Common\Cache\MemcacheCache();
 //$memcache = new \Memcache();
 //$memcache->addserver('127.0.0.1');
 //$cache->setMemcache($memcache);
+
+//NB! Must have different namespace for draft connection
+$cache->setNamespace('public');
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
 
@@ -47,21 +53,30 @@ $connectionOptions = $ini['database'];
 // TODO: move to some other configuration
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
-$eventManager = new EventManager();
-$eventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
-$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TableSuffixPrepender());
+$commonEventManager = new EventManager();
+$commonEventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
+$commonEventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+$commonEventManager->addEventListener(array(Events::loadClassMetadata), new TableSuffixPrepender());
+
+$eventManager = clone($commonEventManager);
+$eventManager->addEventListener(array(Events::loadClassMetadata), new PublicVersionedTableIdChange());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->_mode = 'public';
 
 ObjectRepository::setDefaultEntityManager($em);
 
-$draftEventManager = clone($eventManager);
+$config = clone($config);
+$cache = clone($cache);
+$cache->setNamespace('draft');
+$config->setMetadataCacheImpl($cache);
+$config->setQueryCacheImpl($cache);
 
 // Draft connection for the CMS
-$draftEventManager->addEventListener(array(Events::loadClassMetadata), new TableDraftPrefixAppender());
+$eventManager = clone($commonEventManager);
+$eventManager->addEventListener(array(Events::loadClassMetadata), new TableDraftPrefixAppender());
 
-$em = EntityManager::create($connectionOptions, $config, $draftEventManager);
+$em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->_mode = 'draft';
 
-//FIXME: publish doesn't work right yet...
-//ObjectRepository::setEntityManager('Supra\Cms', $em);
+ObjectRepository::setEntityManager('Supra\Cms', $em);
