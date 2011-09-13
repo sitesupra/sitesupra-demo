@@ -342,9 +342,9 @@ abstract class PageManagerAction extends CmsAction
 			}
 
 			$publicEm->flush();
-		}
+		};
 		
-		
+		$publicEm->transactional($copyContent);
 	}
 
 }
