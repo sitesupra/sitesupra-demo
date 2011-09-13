@@ -65,7 +65,8 @@
 /**
  * New page icon
  */
-.yui3-sitemap .new-page-button {
+.yui3-sitemap .new-page-button,
+.yui3-sitemap .new-template-button {
 	display: block;
 	cursor: move;
 	position: absolute;
@@ -73,10 +74,16 @@
 	top: 50%;
 	margin-top: -32px;
 }
+.yui3-sitemap .new-template-button {
+	cursor: pointer;
+	margin-top: 52px;
+}
+.yui3-sitemap .new-template-button .icon-templates,
 .yui3-sitemap .new-page-button .icon-templates,
 .yui3-sitemap .new-page-button.type-templates .icon-sitemap {
 	display: none;
 }
+.yui3-sitemap .new-template-button.type-templates .icon-templates,
 .yui3-sitemap .new-page-button.type-templates .icon-templates,
 .yui3-sitemap .new-page-button.type-sitemap .icon-sitemap {
 	display: block;
@@ -158,10 +165,13 @@
 
 /* Root */
 .flowmap > .yui3-flowmap-item > .flowmap-node {
-	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
 	width: auto;
 	padding: 0 5px 20px;
 }
+.flowmap > .yui3-flowmap-item.has-children > .flowmap-node {
+	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
+}
+
 
 /* Children */
 .flowmap-children .yui3-flowmap-item {
@@ -178,6 +188,9 @@
 }
 .flowmap-children .yui3-flowmap-item:last-child {
 	background-position: 50% -480px;
+}
+.flowmap-children .yui3-flowmap-item:first-child:last-child {
+	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 0 no-repeat;
 }
 
 .flowmap-children .flowmap-node {
@@ -338,6 +351,9 @@
 	padding: 5px 280px 5px 0;
 	cursor: pointer;
 	overflow: hidden;
+}
+.sitemap-settings .yui3-input-template-hidden {
+	display: none;
 }
 .sitemap-settings .yui3-input-template div {
 	width: 124px;

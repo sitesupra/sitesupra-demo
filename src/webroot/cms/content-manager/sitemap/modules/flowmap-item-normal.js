@@ -43,7 +43,9 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			FlowMapItemNormal.superclass.bindUI.apply(this, arguments);
 			
 			var node_edit = this.get('boundingBox').one('span.edit');
-			node_edit.on('click', this.edit, this);
+			if (node_edit) {
+				node_edit.on('click', this.edit, this);
+			}
 			
 			this.before('addChild', this.syncUISize, this);
 			this.before('removeChild', this.syncUISize, this);
@@ -135,8 +137,11 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			//Root node has bottom padding
 			if (is_root) {
 				height -= 30;
-				left = x + ITEM_PADDING / 2;
-				width += ITEM_PADDING;
+				
+				if (position == 'inside') {
+					left = x + ITEM_PADDING / 2;
+					width += ITEM_PADDING;
+				}
 			}
 			
 			//Update style

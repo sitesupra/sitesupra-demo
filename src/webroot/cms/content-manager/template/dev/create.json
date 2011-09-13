@@ -4,9 +4,8 @@
 		"id": <?php echo rand(); ?>,
 		"icon": "<?php echo $_POST['icon']; ?>",
 		"title": "<?php echo $_POST['title']; ?>",
-		"template": "<?php echo $_POST['template']; ?>",
 		"parent": <?php echo $_POST['parent']; ?>,
-		"path": "<?php echo $_POST['path']; ?>",
+		"layout": "<?php echo $_POST['layout']; ?>",
 		"published": false,
 		"scheduled": false,
 		"preview": "/cms/lib/supra/img/sitemap/preview/blank.jpg"

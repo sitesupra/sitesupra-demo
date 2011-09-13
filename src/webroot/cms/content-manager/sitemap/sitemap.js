@@ -210,12 +210,16 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			//New page
 			var new_page_node = this.one('.new-page-button');
+			var new_template_node = this.one('.new-template-button');
+			
 			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
 				this.flowmap.plug(SU.Tree.NewPagePlugin, {
-					'dragNode': new_page_node
+					'dragNode': new_page_node,
+					'clickNode': new_template_node
 				});
 			} else {
 				new_page_node.addClass('hidden');
+				new_template_node.addClass('hidden');
 			}
 			
 			//When tree is rendered set selected page

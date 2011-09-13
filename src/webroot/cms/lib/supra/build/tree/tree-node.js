@@ -175,6 +175,9 @@ YUI.add('supra.tree-node', function(Y) {
 		bindUI: function () {
 			//Handle click
 			this.get('boundingBox').one('div').on('click', function (evt) {
+				//If event was prevented then don't do anything
+				if (evt.prevented) return;
+				
 				var event_name = 'node-click';
 				if (evt.target.get('tagName') == 'A') {
 					event_name = 'newpage-click';

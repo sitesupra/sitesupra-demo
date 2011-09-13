@@ -76,34 +76,35 @@ YUI.add("supra.input-string", function (Y) {
 		 * @param {Event} e Event
 		 */
 		_onKeyDown: function (e) {
-			var key = Y.UA.opera ? e._event.which : e._event.charCode,
+			var charCode = Y.UA.opera ? e._event.which : e._event.charCode,
+				keyCode = e._event.keyCode || e._event.which || e._event.charCode,
 				input = this.get('inputNode'),
 				mask = this.get('valueMask');
 			
-			if (key >= 186 && key <= 222) {
+			if (charCode >= 186 && charCode <= 222) {
 				//Normalize to match fromCharCode with charCodeAt
-				key = key - 144;
+				charCode = charCode - 144;
 			}
 			
-			if (key == this.KEY_RETURN) {
+			if (keyCode == this.KEY_RETURN) {
 				if (this.get("replacementNode")) {
 					//If using replacement node then show it
 					input.blur();
 				}
-			} else if (key == this.KEY_ESCAPE) {
+			} else if (keyCode == this.KEY_ESCAPE) {
 				input.set('value', this._original_value);
 				input.blur();
 				this.fire("reset");
-			} else if (mask && key) {  //(key >= 42 || key == 32) && key != 46) {
+			} else if (mask && charCode) {
 				//46 - "Delete"
 				//Validate against mask
-				var str = String.fromCharCode(key),
+				var str = String.fromCharCode(charCode),
 					inputNode = Y.Node.getDOMNode(input),
 					value = inputNode.value;
 				
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
-				if (e.ctrlKey && key == 118) return;
+				if (e.ctrlKey && charCode == 118) return;
 				if (!mask.test(value)) return e.halt();
 			}
 		},

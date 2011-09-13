@@ -62,6 +62,9 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 			
 			if (this.isRoot()) {
 				level = 1;
+				
+				//Root level templates can't be dragable
+				this.set('isDragable', false);
 			} else if (this.get('parent').isRoot()) {
 				level = 2;
 				this.set('defaultChildType', Supra.FlowMapItemNormal);
@@ -71,8 +74,41 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 			
 			Supra.FlowMapItem.superclass.renderUI.apply(this, arguments);
 			
+			//Update style
+			this.onChildChange();
+				
 			//Preview
 			this.setPreview(this.get('preview') || data.preview || '');
+		},
+		
+		/**
+		 * Attach event listeners
+		 */
+		bindUI: function () {
+			//Make sure user clicked inside flowmap node, not on bounding box
+			this.get('boundingBox').one('div').on('click', function (evt) {
+				if (evt.target.closest('.flowmap-node-inner')) {
+					if (this.getTree().fire('node-click', {node: this, data: this.get('data')})) {
+						//If event wasn't stopped then set this node as selected
+						this.set('isSelected', true);
+					}
+				}
+				evt.halt();
+			}, this);
+			
+			FlowMapItem.superclass.bindUI.apply(this, arguments);
+			
+			//On children add remove update style
+			this.after('addChild', this.onChildChange, this);
+			this.after('removeChild', this.onChildChange, this);
+		},
+		
+		onChildChange: function () {
+			if (this.size()) {
+				this.get('boundingBox').addClass('has-children');
+			} else {
+				this.get('boundingBox').removeClass('has-children');
+			}
 		},
 		
 		/**

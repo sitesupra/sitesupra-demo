@@ -5,7 +5,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	
 	var Manager = Supra.Manager;
 	
-	var TREENODE_DATA = {
+	var TREENODE_PAGE_DATA = {
 		'title': 'New page',
 		'template': '',
 		'icon': 'page',
@@ -15,6 +15,14 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		'scheduled': false
 	};
 	
+	var TREENODE_TEMPLATE_DATA = {
+		'title': 'New template',
+		'layout': '',
+		'icon': 'page',
+		'parent': null,
+		'published': false,
+		'scheduled': false
+	};
 	
 	/**
 	 * New page tree plugin allows adding new page using drag & drop
@@ -29,6 +37,9 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	
 	NewPagePlugin.ATTRS = {
 		'dragNode': {
+			value: null
+		},
+		'clickNode': {
 			value: null
 		}
 	};
@@ -56,19 +67,23 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		
 		
 		setType: function (type) {
-			var node = this.get('dragNode');
+			var dragNode = this.get('dragNode'),
+				clickNode = this.get('clickNode');
 			
 			if (this.type != type) {
 				if (this.type) {
-					node.removeClass('type-' + this.type);
+					dragNode.removeClass('type-' + this.type);
+					clickNode.removeClass('type-' + this.type);
 				}
-				node.addClass('type-' + type);
+				dragNode.addClass('type-' + type);
+				clickNode.addClass('type-' + type);
 				this.type = type;
 			}
 		},
 		
 		createTreeNode: function (proxy, node) {
-			var data = SU.mix({}, TREENODE_DATA);
+			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA;
+			var data = SU.mix({}, default_data);
 			var treenode = new SU.FlowMapItemNormal({
 				'data': data,
 				'label': data.title,
@@ -124,6 +139,8 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			var host = config.host;
 			var node = config.dragNode;
 			var treenode = this.createTreeNode(true, node);
+			
+			config.clickNode.on('click', this.createNewNode, this);
 		},
 		
 		/**
@@ -136,7 +153,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			if (self.drop_target) {
 				var target = self.drop_target
-				var drag_data = TREENODE_DATA;
+				var drag_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA;
 				var drop_data = target.get('data');
 				var position = self.marker_position;
 				
@@ -157,29 +174,48 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			e.preventDefault();
 		},
 		
+		createNewNode: function () {
+			this.addChild('before', this.get('host').item(0));
+		},
+		
 		onNewPageDataLoad: function (data) {
-			var page_data = SU.mix({}, TREENODE_DATA, data),
+			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
+				page_data = SU.mix({}, default_data, data),
 				parent_node = this.get('host').getNodeById(page_data.parent),
-				parent_data = parent_node.get('data');
+				parent_data = parent_node ? parent_node.get('data') : null;
 			
-			//Add to parent
-			if (!parent_data.children) parent_data.children = [];
-			parent_data.children.push(page_data);
-			
-			//Set into data
-			var data_indexed = this.get('host').getIndexedData();
-			data_indexed[page_data.id] = page_data;
-			
-			
-			//Expand parent
-			parent_node.expand();
-			
-			//Create node
-			parent_node.add({
-				'label': page_data.title,
-				'icon': page_data.icon,
-				'data': page_data
-			}, this.new_page_index);
+			if (parent_node && parent_data) {
+				//Add to parent
+				if (!parent_data.children) parent_data.children = [];
+				parent_data.children.push(page_data);
+				
+				//Set into data
+				var data_indexed = this.get('host').getIndexedData();
+				data_indexed[page_data.id] = page_data;
+				
+				//Expand parent
+				parent_node.expand();
+				
+				//Create node
+				parent_node.add({
+					'label': page_data.title,
+					'icon': page_data.icon,
+					'data': page_data
+				}, this.new_page_index);
+			} else {
+				//Add to tree (Root)
+				
+				//Set into data
+				var data = this.get('host').getData();
+				data.push(page_data);
+				
+				//Create node
+				this.get('host').add({
+					'label': page_data.title,
+					'icon': page_data.icon,
+					'data': page_data
+				}, this.new_page_index);
+			}
 			
 			//Open editor
 			Y.later(150, this, function () {
@@ -188,27 +224,36 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		addChild: function (position, target, callback, context) {
-			var drop_data = target.get('data'),
-				pagedata = SU.mix({}, TREENODE_DATA, {
+			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
+				drop_data = target.get('data'),
+				parent_data = target.get('parent') ? target.get('parent').get('data') : null,
+				pagedata = SU.mix({}, default_data, {
 					//New parent ID
-					'parent': drop_data.id,
+					'parent': drop_data ? drop_data.id : 0,
 					//Item ID before which drag item was inserted
 					'reference': '',
-					//Page template (parent template)
-					'template': (position == 'inside' ? drop_data.template : target.get('parent').get('data').template),
 					//Locale
 					'locale': Manager.SiteMap.languagebar.get('locale')
 				});
 			
+			if (this.type != 'templates') {
+				//Page template (parent template)
+				pagedata.template = (position == 'inside' ? drop_data.template : (parent_data ? parent_data.template : ''));
+			}
+			
 			if (position == 'before') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
+				var parent = target.get('parent'),
+					parent_data = parent ? parent.get('data') : null;
+				
+				parent = parent_data ? parent_data.id : 0;
 				
 				pagedata.reference = drop_data.id;
 				pagedata.parent = parent;
 			} else if (position == 'after') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
+				var parent = target.get('parent'),
+					parent_data = parent ? parent.get('data') : null;
+				
+				parent = parent_data ? parent_data.id : 0;
 				
 				var ref = target.next(); 
 				if (ref) {
@@ -220,7 +265,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
 			
-			var type = Manager.SiteMap.getType(),
+			var type = this.type,
 				target = null,
 				target_fn = null;
 			

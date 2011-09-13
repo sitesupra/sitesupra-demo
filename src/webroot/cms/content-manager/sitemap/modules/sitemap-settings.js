@@ -106,30 +106,46 @@ YUI().add('website.sitemap-settings', function (Y) {
 		setPropertyValues: function (data) {
 			this.host.property_data = data;
 			
-			var all_data = this.host.flowmap.getIndexedData(),
-				item = all_data[data.parent],
-				fullpath = [];
+			var flowmap = this.host.flowmap,
+				type = this.host.getType(),
+				node = flowmap.getNodeById(data.id),
+				all_data = flowmap.getIndexedData(),
+				path_input = this.form.getInput('path'),
+				template_input = this.form.getInput('template');
 			
-			while(item) {
-				fullpath.push(item.path);
-				item = all_data[item.parent];
-			}
-			
-			var path = fullpath.reverse().join('/');
-				path = path && path != '/' ? path + '/' : '/';
-			
-			if (!data.path) {
+			if (type != 'templates' && node && node.isRoot()) {
 				//Root page
 				this.button_delete.set('disabled', true);
+				path_input.set('disabled', true);
 			} else {
+				//Template or not a root page
 				this.button_delete.set('disabled', false);
+				path_input.set('disabled', false);
 			}
 			
-			var path_input = this.form.getInput('path');
 			this.form.setValues(data, 'id');
 			
-			path_input.set('path', path);
-			path_input.set('disabled', !data.path);
+			if (type == 'templates') {
+				path_input.hide();
+				template_input.hide();
+			} else {
+				var item = all_data[data.parent],
+					fullpath = [],
+					path = '';
+				
+				while(item) {
+					fullpath.push(item.path);
+					item = all_data[item.parent];
+				}
+				
+				path = fullpath.reverse().join('/');
+				path = path && path != '/' ? path + '/' : '/';
+				
+				path_input.show();
+				path_input.set('path', path);
+				
+				template_input.show();
+			}
 		},
 		
 		/**
@@ -187,7 +203,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				target_fn = 'updatePage';
 			}
 			
-			//Call Page.updatePage or Template.updateTempalte
+			//Call Page.updatePage or Template.updateTempalate
 			target[target_fn](post_data, function (data) {
 				
 				var treenode = this.host.flowmap.getNodeById(post_data.page_id);
