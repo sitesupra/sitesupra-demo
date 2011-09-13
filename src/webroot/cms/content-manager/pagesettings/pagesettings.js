@@ -484,7 +484,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 			post_data.locale = Supra.data.get('locale');
 			
 			//Save data
-			var url = this.getDataPath(this.getType() + '-save');
+			var url = this.getDataPath('save');
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'POST',
@@ -561,9 +561,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 					['template', '.button-template'],
 					['template', form.getInput('template[id]')],
 					['template', form.getInput('template[img]')],
-					['template', form.getInput('template[title]')],
-					
-					['page', form.getInput('layout')]
+					['template', form.getInput('template[title]')]
 				];
 			
 			for(var i=inputs.length - 1; i>=0; i--) {
@@ -582,6 +580,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 						inputs[i][1].show();
 					}
 				}
+			}
+			
+			if (type != 'template' || !this.page_data.root) {
+				form.getInput('layout').hide();
+				form.getInput('layout').set('disabled', true);
+			} else {
+				form.getInput('layout').show();
+				form.getInput('layout').set('disabled', false);
 			}
 		},
 		
