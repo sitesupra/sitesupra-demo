@@ -320,7 +320,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			});
 			
 			//Closing tags
-			html = html.replace(/{supra\.link}/g, '</a>');
+			html = html.replace(/{\/supra\.link}/g, '</a>');
 			
 			return html;
 		},

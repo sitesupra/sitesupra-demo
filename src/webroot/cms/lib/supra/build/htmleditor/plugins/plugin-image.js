@@ -588,12 +588,16 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
-			html = html.replace(/<img [^>]*id="([^"]+)"[^>]*>/ig, function (html, id) {
+			html = html.replace(/(<a[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/a[^>]*>)?/ig, function (html, link_open, id, link_close) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
-					return '{supra.' + NAME + ' id="' + id + '"}';
+					if (data.style == 'lightbox') {
+						return '{supra.' + NAME + ' id="' + id + '"}';
+					} else {
+						return link_open + '{supra.' + NAME + ' id="' + id + '"}' + link_close;
+					}
 				} else {
 					return html;
 				}
@@ -621,7 +625,14 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
-					return '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Lang.escapeHTML(data[id].title) + '" alt="' + Y.Lang.escapeHTML(data[id].description) + '" />';
+					var html = '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Lang.escapeHTML(data[id].title) + '" alt="' + Y.Lang.escapeHTML(data[id].description) + '" />';
+					
+					if (data.type == 'lightbox') {
+						//For lightbox add link around image
+						return '<a class="lightbox" href="' + this.getImageURLBySize(data.image, 'original') + '" rel="lightbox"></a>' + html + '</a>';
+					}
+					
+					return html;
 				}
 			});
 			

@@ -275,9 +275,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-data',
 			'supra.htmleditor-toolbar',
 			
-			'supra.htmleditor-plugin-link',
-			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-image',
+			'supra.htmleditor-plugin-gallery',
+			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
