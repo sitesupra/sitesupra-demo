@@ -1,6 +1,13 @@
 <?php
 
-$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+$namespace = '';
+
+if ($_SERVER['argv'][1] == 'draft') {
+	array_splice($_SERVER['argv'], 1, 1);
+	$namespace = 'Supra\Cms';
+}
+
+$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($namespace);
 //$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms');
 
 $helpers = array(
