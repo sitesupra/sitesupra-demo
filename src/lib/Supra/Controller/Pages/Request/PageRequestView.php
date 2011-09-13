@@ -3,7 +3,6 @@
 namespace Supra\Controller\Pages\Request;
 
 use Supra\Request\HttpRequest;
-//use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\Abstraction\Page;

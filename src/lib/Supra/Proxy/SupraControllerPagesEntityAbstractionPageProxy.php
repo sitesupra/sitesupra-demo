@@ -20,6 +20,14 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
+
+            if (method_exists($this, "__wakeup")) {
+                // call this after __isInitialized__to avoid infinite recursion
+                // but before loading to emulate what ClassMetadata::newInstance()
+                // provides.
+                $this->__wakeup();
+            }
+
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
@@ -56,12 +64,6 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
     {
         $this->__load();
         return parent::setData($data);
-    }
-
-    public function removeData($locale)
-    {
-        $this->__load();
-        return parent::removeData($locale);
     }
 
     public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
@@ -124,10 +126,10 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::moveLevel($diff);
     }
 
-    public function createNestedSetNode()
+    public function getNestedSetRepositoryClassName()
     {
         $this->__load();
-        return parent::createNestedSetNode();
+        return parent::getNestedSetRepositoryClassName();
     }
 
     public function __call($method, $arguments)
@@ -172,16 +174,10 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::isPlaceHolderEditable($placeHolder);
     }
 
-    public function getTemplateHierarchy()
+    public function setNestedSetNode(\Supra\NestedSet\Node\DoctrineNode $nestedSetNode)
     {
         $this->__load();
-        return parent::getTemplateHierarchy();
-    }
-
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
+        return parent::setNestedSetNode($nestedSetNode);
     }
 
     public function getProperty($name)
@@ -208,7 +204,7 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);
@@ -217,7 +213,7 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'placeHolders', 'left', 'right', 'level');
+        return array('__isInitialized__', 'id', 'data', 'placeHolders', 'left', 'right', 'level');
     }
 
     public function __clone()

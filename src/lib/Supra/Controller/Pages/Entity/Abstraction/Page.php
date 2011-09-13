@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Set\PageSet;
 use Supra\NestedSet;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Page abstraction
@@ -290,7 +291,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	 */
 	public function getNestedSetRepositoryClassName()
 	{
-		return get_class($this);
+		throw new Exception\LogicException("Method getNestedSetRepositoryClassName shouldn't be called from abstract");
 	}
 	
 	/**

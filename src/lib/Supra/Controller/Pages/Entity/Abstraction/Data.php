@@ -36,7 +36,7 @@ abstract class Data extends Entity
 
 	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="Page", cascade={"persist"}, inversedBy="data")
+	 * @ManyToOne(targetEntity="Page", cascade={"persist"}, inversedBy="data", fetch="EAGER")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var Page
 	 */
@@ -99,10 +99,10 @@ abstract class Data extends Entity
 	{
 		$this->matchDiscriminator($master);
 		
-		if ($this->writeOnce($this->master, $master)) {
+//		if ($this->writeOnce($this->master, $master)) {
 			$this->master = $master;
 			$master->setData($this);
-		}
+//		}
 	}
 	
 	/**

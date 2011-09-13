@@ -12,6 +12,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Http\Cookie;
 use Supra\Cms\CmsAction;
+use Supra\NestedSet\Node\DoctrineNode;
 
 /**
  * Controller containing common methods
@@ -234,6 +235,48 @@ abstract class PageManagerAction extends CmsAction
 		);
 
 		return $data;
+	}
+	
+	/**
+	 * Called on page/template publish
+	 */
+	protected function publish()
+	{
+		// Must be executed with POST method
+		$this->isPostRequest();
+		
+		// Search for draft and public entity managers
+		$draftEm = $this->entityManager;
+		
+		$controller = $this->getPageController();
+		$publicEm = ObjectRepository::getEntityManager($controller);
+		
+		// Don't do anything if connections are identic
+		if ($draftEm === $publicEm) {
+			$this->log->debug("Publish doesn't do anything because CMS and public database connections are identical");
+			return;
+		}
+		
+		$pageData = $this->getPageData();
+		$pageId = $pageData->getMaster()->getId();
+		
+//		$page = $pageData->getMaster();
+//		$draftEm->detach($page);
+//		$page = $publicEm->merge($page);
+		
+//		$draftEm->detach($pageData);
+		$pageData = $publicEm->merge($pageData);
+//		$pageData->getMaster()->getId();
+		
+		/* @var $page Entity\Abstraction\Page */
+		$page = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		$pageData->setMaster($page);
+		$pageData->setTitle('test');
+		
+//		$publicEm->persist($pageData);
+//		$publicEm->persist($page);
+		
+		$publicEm->flush();
 	}
 
 }

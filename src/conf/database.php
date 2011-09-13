@@ -9,7 +9,8 @@ use Doctrine\ORM\Events;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Controller\Pages\Listener\PageVersioningTableSwitcher;
+use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
+use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
 
 $config = new Configuration();
 
@@ -49,15 +50,18 @@ $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFun
 $eventManager = new EventManager();
 $eventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
 $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new PageVersioningTableSwitcher());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new TableSuffixPrepender());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 
 ObjectRepository::setDefaultEntityManager($em);
 
-// Draft connection for the CMS
-$draftConnectionOptions = $ini['database'];
-$draftConnectionOptions['dbname'] = $draftConnectionOptions['dbname'] . '_draft';
+$draftEventManager = clone($eventManager);
 
-$em = EntityManager::create($draftConnectionOptions, $config, $eventManager);
+// Draft connection for the CMS
+$draftEventManager->addEventListener(array(Events::loadClassMetadata), new TableDraftPrefixAppender());
+
+$em = EntityManager::create($connectionOptions, $config, $draftEventManager);
+
+//FIXME: publish doesn't work right yet...
 //ObjectRepository::setEntityManager('Supra\Cms', $em);

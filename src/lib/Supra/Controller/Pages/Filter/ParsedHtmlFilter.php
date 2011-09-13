@@ -55,7 +55,6 @@ class ParsedHtmlFilter implements FilterInterface
 						WHERE d.locale = ?0 AND d.master = ?1");
 
 				$params = array(
-					//TODO: hardcoded
 					0 => $localeId,
 					1 => $pageId,
 				);

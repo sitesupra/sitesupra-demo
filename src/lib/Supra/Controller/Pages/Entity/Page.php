@@ -27,4 +27,13 @@ class Page extends Abstraction\Page
 	 */
 	protected $placeHolders;
 	
+	/**
+	 * {@inheritdoc}
+	 * @return string
+	 */
+	public function getNestedSetRepositoryClassName()
+	{
+		return __CLASS__;
+	}
+	
 }

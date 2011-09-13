@@ -77,5 +77,13 @@ class TemplateAction extends PageManagerAction
 	{
 		
 	}
-
+	
+	/**
+	 * Called on template publish
+	 */
+	public function publishAction()
+	{
+		$this->publish();
+	}
+	
 }

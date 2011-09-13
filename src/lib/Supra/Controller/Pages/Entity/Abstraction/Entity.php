@@ -131,9 +131,9 @@ abstract class Entity
 			$getter = 'get' . $uniqueField;
 			$indexBy = $newItem->$getter();
 			
-			if ($collection->offsetExists($indexBy)) {
-				throw new Exception\LogicException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
-			}
+//			if ($collection->offsetExists($indexBy)) {
+//				throw new Exception\LogicException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
+//			}
 			
 			$collection->set($indexBy, $newItem);
 		}

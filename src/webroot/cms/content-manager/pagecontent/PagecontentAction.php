@@ -42,7 +42,7 @@ class PagecontentAction extends PageManagerAction
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
 		$block->setLocale($locale);
-
+		
 		$this->entityManager->persist($block);
 		$this->entityManager->flush();
 

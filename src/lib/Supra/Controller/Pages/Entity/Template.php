@@ -113,4 +113,13 @@ class Template extends Abstraction\Page
 		return $pageSet;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 * @return string
+	 */
+	public function getNestedSetRepositoryClassName()
+	{
+		return __CLASS__;
+	}
+	
 }

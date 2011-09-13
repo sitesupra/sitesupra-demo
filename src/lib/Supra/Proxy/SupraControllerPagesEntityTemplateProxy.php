@@ -66,6 +66,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::getTemplateHierarchy();
     }
 
+    public function getNestedSetRepositoryClassName()
+    {
+        $this->__load();
+        return parent::getNestedSetRepositoryClassName();
+    }
+
     public function getId()
     {
         $this->__load();
@@ -154,12 +160,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     {
         $this->__load();
         return parent::moveLevel($diff);
-    }
-
-    public function getNestedSetRepositoryClassName()
-    {
-        $this->__load();
-        return parent::getNestedSetRepositoryClassName();
     }
 
     public function __call($method, $arguments)

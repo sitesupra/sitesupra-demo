@@ -40,6 +40,9 @@ class SqlLogger implements SQLLoggerInterface
 		$this->params = $params;
 		$this->types = $types;
 		$this->start = microtime(true);
+		
+		// Enable when some query fails with an exception
+//		ObjectRepository::getLogger($this)->debug($this);
 	}
 
 	/**
