@@ -352,9 +352,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
-		$this->isPostRequest();
-		
-		$pageData = $this->getPageData();
+		$this->publish();
 	}
 
 	/**
