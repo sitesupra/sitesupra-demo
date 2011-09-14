@@ -120,7 +120,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function getInitialPageId()
 	{
-		$locale = $this->getLocale();
+		$locale = $this->getLocale()->getId();
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		$page = null;
 

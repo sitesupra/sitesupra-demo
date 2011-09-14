@@ -26,7 +26,7 @@ $localeManager->add($locale);
 $locale = new Locale\Locale();
 $locale->setId('ru');
 $locale->setTitle('Russian');
-$locale->setCountry('Latvia');
+$locale->setCountry('Russia');
 $localeManager->add($locale);
 
 

@@ -21,7 +21,7 @@ class PagesettingsAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$pageData = $this->getPageData();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
 		if ($this->hasRequestParameter('title')) {
@@ -97,10 +97,10 @@ class PagesettingsAction extends PageManagerAction
 	 */
 	public function templatesAction()
 	{
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		$templateDataDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_DATA_ENTITY);
-		$templateDataList = $templateDataDao->findByLocale($locale);
+		$templateDataList = $templateDataDao->findByLocale($localeId);
 
 		/* @var $templateData Entity\TemplateData */
 		foreach ($templateDataList as $templateData) {

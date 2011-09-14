@@ -64,7 +64,7 @@ class LocaleManager
 	 * @return Locale
 	 * @throws Exception if such locale is not defined
 	 */
-	public function getData($localeIdentifier)
+	public function getLocale($localeIdentifier)
 	{
 		$this->exists($localeIdentifier, true);
 
@@ -124,6 +124,27 @@ class LocaleManager
 	public function getAllLocales()
 	{
 		return $this->locales;
+	}
+	
+	/**
+	 * Return formatted array of available locales data, grouped by country
+	 * @return array
+	 */
+	public function getLocalesCountryArray()
+	{
+		$array = array();
+		
+		foreach ($this->locales as $locale) {
+			$country = $locale->getCountry();
+			
+			$array[$country][] = array(
+				//'id' => $locale->getId(),
+				'id' => $locale->getId() . '_' . $country, //temp context support
+				'title' => $locale->getTitle(),
+			);
+		}
+		
+		return $array;
 	}
 	
 	/**

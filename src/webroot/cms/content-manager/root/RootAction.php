@@ -13,31 +13,36 @@ use Supra\Response;
 class RootAction extends PageManagerAction
 {
 	/**
-	 * @param Request\RequestInterface $request
-	 * @return Response\ResponseInterface 
-	 */
-	public function createResponse(Request\RequestInterface $request)
-	{
-		$response = SimpleController::createResponse($request);
-		
-		return $response;
-	}
-	
-	/**
 	 * Method returning manager initial HTML
 	 */
 	public function indexAction()
 	{
-		//TODO: introduce some template engine
-		$output = file_get_contents(dirname(__DIR__) . '/index.html');
-		
 		$pageId = $this->getInitialPageId();
-		$pageId = json_encode($pageId);
+		$localeId = $this->getLocale()->getId();
 		
-		// TODO: simple regexps to add some dynamic content to the index.html and don't break the static version
-//		$output = preg_replace('/DYNAMIC_PATH = \'\/cms\';/', 'DYNAMIC_PATH = \'/admin\';', $output);
-		$output = preg_replace('/\'id\': 2/', "'id': $pageId", $output);
+		$localeManager = \Supra\ObjectRepository\ObjectRepository::getLocaleManager($this);
+		$localesList = $localeManager->getLocalesCountryArray();
 		
-		$this->getResponse()->output($output);
+		$response = $this->getResponse();
+		/* @var $response TwigResponse */
+		
+		$response->assign('localesList', $localesList);
+		//$response->assign('currentLocale', $localeId);
+		$response->assign('currentLocale', 'en_Latvia');
+		
+		$response->assign('pageId', $pageId);
+		
+		$this->getResponse()->outputTemplate('webroot/cms/content-manager/root/index.html.twig');
 	}
+	
+	/**
+	 * Generate response object
+	 * @param Request\RequestInterface $request
+	 * @return Response\ResponseInterface
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		return new Response\TwigResponse();
+	}
+	
 }

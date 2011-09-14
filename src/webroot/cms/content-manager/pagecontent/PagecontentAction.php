@@ -21,7 +21,7 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 		$data = $this->getPageData();
 		$page = $data->getMaster();
@@ -42,7 +42,7 @@ class PagecontentAction extends PageManagerAction
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
 		$block->setLocale($locale);
-		
+
 		$this->entityManager->persist($block);
 		$this->entityManager->flush();
 
@@ -77,7 +77,7 @@ class PagecontentAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageData();
 		
 		$pageId = $this->getRequestParameter('page_id');
@@ -103,7 +103,7 @@ class PagecontentAction extends PageManagerAction
 		$params = array(
 			$pageId,
 			$blockId,
-			$locale,
+			$localeId,
 			$name,
 			$type
 		);
@@ -170,7 +170,7 @@ class PagecontentAction extends PageManagerAction
 		$this->isPostRequest();
 		
 		$pageId = $this->getRequestParameter('page_id');
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 		$placeHolderName = $this->getRequestParameter('place_holder_id');
 		$blockOrder = $this->getRequestParameter('order');
@@ -184,7 +184,7 @@ class PagecontentAction extends PageManagerAction
 		
 		/* @var $page Entity\Abstraction\Page */
 		$page = $pageDao->findOneById($pageId);
-		$data = $page->getData($locale);
+		$data = $page->getData($localeId);
 //		$request->setRequestPageData($data);
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */

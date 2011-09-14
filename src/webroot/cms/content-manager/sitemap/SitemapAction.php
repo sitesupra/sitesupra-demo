@@ -171,7 +171,7 @@ class SitemapAction extends PageManagerAction
 	protected function getData($entity)
 	{
 		$pages = array();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		$em = $this->entityManager;
 
@@ -183,7 +183,7 @@ class SitemapAction extends PageManagerAction
 		$rootNodes = $pageRepository->getRootNodes();
 
 		foreach ($rootNodes as $rootNode) {
-			$tree = $this->buildTreeArray($rootNode, $locale);
+			$tree = $this->buildTreeArray($rootNode, $localeId);
 			// TODO: hardcoded
 			$tree['icon'] = 'home';
 

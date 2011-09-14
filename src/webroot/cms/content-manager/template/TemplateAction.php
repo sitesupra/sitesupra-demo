@@ -23,7 +23,7 @@ class TemplateAction extends PageManagerAction
 		$this->isPostRequest();
 
 		$parentId = $this->getRequestParameter('parent');
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
 		$templateData = new Entity\TemplateData($locale);

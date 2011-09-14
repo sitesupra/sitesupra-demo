@@ -47,7 +47,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function listAction()
 	{
 		$rootNodes = array();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		// FIXME: store the classname as constant somewhere?
 		/* @var $repo FileRepository */
@@ -70,7 +70,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$title = $rootNode->getFileName();
 			
 			if ($rootNode instanceof Entity\File) {
-				$title = $rootNode->getTitle($locale);
+				$title = $rootNode->getTitle($localeId);
 			}
 
 			$item['id'] = $rootNode->getId();
@@ -157,7 +157,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->isPostRequest();
 		$title = $this->getRequestParameter('title');
 		$file = $this->getEntity();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		// set private
 		if ($this->hasRequestParameter('private')) {
@@ -201,7 +201,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			
 			if ($this->hasRequestParameter('title')) {
 				$title = $this->getRequestParameter('title');
-				$metaData = $file->getMetaData($locale);
+				$metaData = $file->getMetaData($localeId);
 				$metaData->setTitle($title);
 				
 				$this->entityManager->flush();
@@ -239,7 +239,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function uploadAction()
 	{
 		$this->isPostRequest();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
@@ -294,7 +294,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 
 			// file metadata
-			$fileData = new Entity\MetaData($locale);
+			$fileData = new Entity\MetaData($localeId);
 			$fileData->setMaster($fileEntity);
 			$fileData->setTitle($humanName);
 			
@@ -392,8 +392,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	 */
 	private function imageAndFileOutput(Entity\File $file)
 	{
-		$locale = $this->getLocale();
-		$output = $this->fileStorage->getFileInfo($file, $locale);
+		$localeId = $this->getLocale()->getId();
+		$output = $this->fileStorage->getFileInfo($file, $localeId);
 		
 		return $output;
 	}

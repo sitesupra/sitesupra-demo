@@ -23,12 +23,12 @@ class PageAction extends PageManagerAction
 	public function pageAction()
 	{
 		$controller = $this->getPageController();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 		$pageId = $this->getRequestParameter('page_id');
 
 		// Create special request
-		$request = new PageRequestEdit($locale, $media);
+		$request = new PageRequestEdit($localeId, $media);
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
@@ -50,7 +50,7 @@ class PageAction extends PageManagerAction
 		$this->setInitialPageId($pageId);
 
 		/* @var $pageData Entity\Abstraction\Data */
-		$pageData = $page->getData($locale);
+		$pageData = $page->getData($localeId);
 
 		if (empty($pageData)) {
 			$this->getResponse()
@@ -84,10 +84,10 @@ class PageAction extends PageManagerAction
 			}
 
 			$template = $pageData->getTemplate();
-			$templateData = $template->getData($locale);
+			$templateData = $template->getData($localeId);
 
 			if ( ! $templateData instanceof Entity\TemplateData) {
-				throw new Exception\RuntimeException("Template doesn't exist for page $page in locale $locale");
+				throw new Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
 			}
 
 			$templateArray = array(
@@ -218,10 +218,10 @@ class PageAction extends PageManagerAction
 		$parentId = $this->getRequestParameter('parent');
 		$parent = null;
 		$templateId = $this->getRequestParameter('template');
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		$page = new Entity\Page();
-		$pageData = new Entity\PageData($locale);
+		$pageData = new Entity\PageData($localeId);
 		$pageData->setMaster($page);
 
 		$templateDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_ENTITY);
@@ -306,7 +306,7 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 
 		$pageId = $this->getRequestParameter('page_id');
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		/* @var $page Entity\Abstraction\Page */
@@ -324,7 +324,7 @@ class PageAction extends PageManagerAction
 
 		foreach ($children as $child) {
 			/* @var $child Entity\Abstraction\Page */
-			$childData = $child->getData($locale);
+			$childData = $child->getData($localeId);
 
 			if ( ! empty($childData)) {
 				$this->getResponse()
@@ -334,11 +334,11 @@ class PageAction extends PageManagerAction
 			}
 		}
 
-		$pageData = $page->getData($locale);
+		$pageData = $page->getData($localeId);
 
 		if (empty($pageData)) {
 			$this->getResponse()
-					->setErrorMessage("Page doesn't exist in language '$locale'");
+					->setErrorMessage("Page doesn't exist in language '$localeId'");
 
 			return;
 		}
@@ -352,7 +352,9 @@ class PageAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
-		$this->publish();
+		$this->isPostRequest();
+		
+		$pageData = $this->getPageData();
 	}
 
 	/**
@@ -371,14 +373,14 @@ class PageAction extends PageManagerAction
 
 				// Read the additional file info from the file storage
 				case 'image':
-					$locale = $this->getLocale();
+					$localeId = $this->getLocale()->getId();
 					$imageId = $dataItem['image'];
 					$fs = ObjectRepository::getFileStorage($this);
 					$em = $fs->getDoctrineEntityManager();
 					$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
 
 					if ($image instanceof Image) {
-						$info = $fs->getFileInfo($image, $locale);
+						$info = $fs->getFileInfo($image, $localeId);
 						$dataItem['image'] = $info;
 					}
 
@@ -389,14 +391,14 @@ class PageAction extends PageManagerAction
 
 					if ($dataItem['resource'] == 'file') {
 
-						$locale = $this->getLocale();
+						$localeId = $this->getLocale()->getId();
 						$fileId = $dataItem['file_id'];
 						$fs = ObjectRepository::getFileStorage($this);
 						$em = $fs->getDoctrineEntityManager();
 						$file = $em->find('Supra\FileStorage\Entity\File', $fileId);
 
 						if ($file instanceof File) {
-							$fileInfo = $fs->getFileInfo($file, $locale);
+							$fileInfo = $fs->getFileInfo($file, $localeId);
 							$dataItem['file_path'] = $fileInfo['path'];
 						}
 					}
