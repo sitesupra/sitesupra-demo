@@ -40,7 +40,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
 	 */
-	abstract protected function getPropertyDefinition();
+	abstract public function getPropertyDefinition();
 
 	/**
 	 * @return Entity\Abstraction\Page

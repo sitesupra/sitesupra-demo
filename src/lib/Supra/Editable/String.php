@@ -7,7 +7,10 @@ namespace Supra\Editable;
  */
 class String extends EditableAbstraction
 {
-	const EDITOR_NAME = 'string';
+	const EDITOR_TYPE = 'String';
+	const EDITOR_INLINE_EDITABLE = true;
+	
+	private $defaultValue = '';
 	
 	/**
 	 * Default filter classes for content by action
@@ -17,12 +20,40 @@ class String extends EditableAbstraction
 		'Supra\Editable\Filter\EscapeHtml',
 	);
 	
+	
 	/**
-	 * Get JavaScript editor name
+	 * Return editor type
 	 * @return string
 	 */
-	public function getEditorName()
+	public function getEditorType()
 	{
-		return self::EDITOR_NAME;
+		return self::EDITOR_TYPE;
 	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @return boolean
+	 */
+	public function isInlineEditable()
+	{
+		return self::EDITOR_INLINE_EDITABLE;
+	}
+	
+	/**
+	 * @return mixed 
+	 */
+	public function getDefaultValue()
+	{
+		return $this->defaultValue;
+	}
+
+	/**
+	 * @param mixed $value 
+	 */
+	public function setDefaultValue($value)
+	{
+		$this->defaultValue = $value;
+	}
+
+
 }

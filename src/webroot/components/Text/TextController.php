@@ -40,11 +40,12 @@ class TextController extends BlockController
 	 * Loads property definition array
 	 * @return array
 	 */
-	protected function getPropertyDefinition()
+	public function getPropertyDefinition()
 	{
 		$contents = array();
 		
 		$html = new \Supra\Editable\Html("The Main Content");
+		$html->setDefaultValue(array('html' => '', 'data' => array()));
 		$contents['html'] = $html;
 		
 //		$html = new \Supra\Editable\Html("The Secondary Content");

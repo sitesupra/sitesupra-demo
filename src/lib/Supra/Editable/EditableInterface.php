@@ -14,6 +14,39 @@ interface EditableInterface
 	public function getContent();
 	
 	/**
+	 * @param string $label
+	 */
+	public function setLabel($label);
+	
+	/**
+	 * @return string
+	 */
+	public function getLabel();
+	
+	/**
+	 * @return mixed
+	 */
+	public function getDefaultValue();
+	
+	/**
+	 * @param mixed $value
+	 */
+	public function setDefaultValue($value);
+	
+	
+	/**
+	 * Get JavaScript editor type
+	 * @return string
+	 */
+	public function getEditorType();
+	
+	/**
+	 * Whether editable can be edited inline
+	 * @return boolean
+	 */
+	public function isInlineEditable();
+	
+	/**
 	 * Sets content data
 	 * @param mixed $content
 	 */

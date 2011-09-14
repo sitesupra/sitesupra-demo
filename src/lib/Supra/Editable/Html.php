@@ -7,7 +7,8 @@ namespace Supra\Editable;
  */
 class Html extends String
 {
-	const EDITOR_NAME = 'html';
+	const EDITOR_TYPE = 'InlineHTML';
+	const EDITOR_INLINE_EDITABLE = true;
 	
 	/**
 	 * No filtering for HTML
@@ -15,12 +16,23 @@ class Html extends String
 	 */
 	protected static $defaultFilters = array();
 
+	
 	/**
-	 * Get JavaScript editor name
+	 * Return editor type
 	 * @return string
 	 */
-	public function getEditorName()
+	public function getEditorType()
 	{
-		return self::EDITOR_NAME;
+		return self::EDITOR_TYPE;
 	}
+	
+	/**
+	 * Editor allows to edit inline?
+	 * @return boolean
+	 */
+	public function isInlineEditable()
+	{
+		return self::EDITOR_INLINE_EDITABLE;
+	}
+
 }

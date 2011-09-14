@@ -7,18 +7,19 @@ namespace Supra\Editable;
  */
 abstract class EditableAbstraction implements EditableInterface
 {
+
 	/**
 	 * Default filter classes for content by action
 	 * @var array
 	 */
 	protected static $defaultFilters = array();
-	
+
 	/**
 	 * Array of content filters
 	 * @var array
 	 */
 	protected $filters = array();
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -29,7 +30,7 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @var string
 	 */
 	protected $label;
-	
+
 	/**
 	 * @param string $label
 	 */
@@ -37,10 +38,10 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->setLabel($label);
 		$filterClass = null;
-		
+
 		// Fill in the default filters
 		foreach (static::$defaultFilters as $filterClass) {
-		
+
 			if ( ! class_exists($filterClass)) {
 				throw new Exception\FilterNotFound("Filter '{$filterClass}' was not found", $this);
 			}
@@ -54,13 +55,7 @@ abstract class EditableAbstraction implements EditableInterface
 			$this->filters[] = $filter;
 		}
 	}
-	
-	/**
-	 * Get JavaScript editor name
-	 * @return string
-	 */
-	abstract public function getEditorName();
-	
+
 	/**
 	 * Loads content data
 	 * @return mixed
@@ -69,7 +64,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		return $this->content;
 	}
-	
+
 	/**
 	 * Sets content data
 	 * @param mixed $content
@@ -78,7 +73,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->content = $content;
 	}
-	
+
 	/**
 	 * Adds filter for the editable content
 	 * @param Filter\FilterInterface $filter
@@ -87,7 +82,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->filters[] = $filter;
 	}
-	
+
 	/**
 	 * Get filtered value for the editable content by action
 	 * @param string $action
@@ -96,19 +91,19 @@ abstract class EditableAbstraction implements EditableInterface
 	public function getFilteredValue()
 	{
 		$content = $this->content;
-		
+
 		// Filter the content
 		foreach ($this->filters as $filter) {
 			$content = $filter->filter($content);
 		}
-		
+
 		return $content;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getLabel() 
+	public function getLabel()
 	{
 		return $this->label;
 	}
