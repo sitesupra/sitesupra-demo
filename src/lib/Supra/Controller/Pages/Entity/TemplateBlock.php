@@ -13,6 +13,14 @@ class TemplateBlock extends Abstraction\Block
 	const DISCRIMINATOR = 'template';
 	
 	/**
+	 * Used when block must be created on public scheme triggered by page publish.
+	 * Objects with temporary flag are ignored when page is generated.
+	 * @Column(name="temporary", type="boolean")
+	 * @var boolean
+	 */
+	protected $temporary = false;
+	
+	/**
 	 * Get locked value
 	 * @return boolean
 	 */
