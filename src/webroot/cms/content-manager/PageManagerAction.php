@@ -60,10 +60,10 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageRequest()
 	{
 		$controller = $this->getPageController();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 
-		$request = new PageRequestEdit($locale, $media);
+		$request = new PageRequestEdit($localeId, $media);
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
@@ -90,7 +90,7 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageData()
 	{
 		$pageId = $this->getRequestParameter('page_id');
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		if (empty($pageId)) {
 			throw new ResourceNotFoundException("Page ID not provided");
@@ -105,10 +105,10 @@ abstract class PageManagerAction extends CmsAction
 			throw new ResourceNotFoundException("Page by ID {$pageId} not found");
 		}
 
-		$pageData = $page->getData($locale);
+		$pageData = $page->getData($localeId);
 
 		if (empty($pageData)) {
-			throw new ResourceNotFoundException("Page data for page {$pageId} locale {$locale} not found");
+			throw new ResourceNotFoundException("Page data for page {$pageId} locale {$localeId} not found");
 		}
 
 		return $pageData;
@@ -120,7 +120,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function getInitialPageId()
 	{
-		$locale = $this->getLocale()->getId();
+		$localeId = $this->getLocale()->getId();
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		$page = null;
 
@@ -131,7 +131,7 @@ abstract class PageManagerAction extends CmsAction
 
 			if ( ! empty($page)) {
 				// Page localization must exist
-				$pageData = $page->getData($locale);
+				$pageData = $page->getData($localeId);
 
 				if (empty($pageData)) {
 					$page = null;
@@ -262,7 +262,7 @@ abstract class PageManagerAction extends CmsAction
 		$copyContent = function() use ($pageData, $publicEm, $draftEm) {
 		
 			$pageId = $pageData->getMaster()->getId();
-			$locale = $pageData->getLocale();
+			$localeId = $pageData->getLocale()->getId();
 			$pageDataId = $pageData->getId();
 
 			$draftPage = $pageData->getMaster();
@@ -283,7 +283,7 @@ abstract class PageManagerAction extends CmsAction
 						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
 
 				$query = $publicEm->createQuery($dql);
-				$query->execute(array($locale, $pageId, $pageDataId));
+				$query->execute(array($localeId, $pageId, $pageDataId));
 				$properties = $query->getResult();
 
 				foreach ($properties as $property) {
@@ -300,7 +300,7 @@ abstract class PageManagerAction extends CmsAction
 						WHERE b.locale = ?0 AND ph.master = ?1";
 
 				$query = $publicEm->createQuery($dql);
-				$query->execute(array($locale, $pageId));
+				$query->execute(array($localeId, $pageId));
 				$blocks = $query->getResult();
 
 				foreach ($blocks as $block) {
@@ -333,7 +333,7 @@ abstract class PageManagerAction extends CmsAction
 						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
 
 				$query = $draftEm->createQuery($dql);
-				$query->execute(array($locale, $pageId, $pageDataId));
+				$query->execute(array($localeId, $pageId, $pageDataId));
 				$properties = $query->getResult();
 
 				foreach ($properties as $property) {
