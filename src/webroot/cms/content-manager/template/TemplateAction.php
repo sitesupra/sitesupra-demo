@@ -26,7 +26,7 @@ class TemplateAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
-		$templateData = new Entity\TemplateData($locale);
+		$templateData = new Entity\TemplateData($localeId);
 
 		$this->entityManager->persist($template);
 		$this->entityManager->persist($templateData);
@@ -88,7 +88,7 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$pageData = $this->getPageData();
-		$locale = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
 		if ($this->hasRequestParameter('title')) {
