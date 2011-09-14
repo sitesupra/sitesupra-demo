@@ -7,12 +7,15 @@ $configFile = __DIR__ . '/cli-config.php';
 
 require_once $configFile;
 
-$cli = new \Symfony\Component\Console\Application('Supra Command Line Interface', '7.0.0');
+$cli = \Supra\Console\Application::getInstance();
 $cli->setCatchExceptions(true);
 //$cli->setHelperSet($helperSet);
 
 $cli->addCommands(array(
-	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand()
+	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand(),
+	new \Supra\Database\Console\SchemaUpdateCommand(),
+	new \Supra\Database\Console\SchemaCreateCommand(),
+	new \Supra\Database\Console\SchemaDropCommand()
 ));
 
 $cli->setHelperSet($helperSet);
