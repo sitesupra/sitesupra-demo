@@ -2,9 +2,8 @@
 
 namespace Supra\Tests\Controller\Pages\Fixture;
 
-use Supra\Controller\Pages\Entity;
-use Supra\Database\Doctrine;
 use Doctrine\ORM\Events;
+use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
@@ -23,7 +22,7 @@ class Fixture extends \PHPUnit_Extensions_OutputTestCase
 		$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
 		
 		foreach ($listeners as $listener) {
-			if ($listener instanceof \Supra\Controller\Pages\Listener\PublicVersionedTableIdChange) {
+			if ($listener instanceof PublicVersionedTableIdChange) {
 				$listeners = $em->getEventManager()->removeEventListener(Events::loadClassMetadata, $listener);
 			}
 		}
