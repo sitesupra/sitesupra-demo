@@ -40,25 +40,44 @@ class TemplateAction extends PageManagerAction
 
 		// Find parent page
 		$parent = null;
-		if (isset($parentId)) {
+		
+		if ( ! empty($parentId)) {
 			$templateRepo = $this->entityManager->getRepository(PageRequest::TEMPLATE_ENTITY);
 			$parent = $templateRepo->findOneById($parentId);
-
-			if (empty($parentId)) {
-				$this->getResponse()->setErrorMessage("Template not specified or found");
-
-				return;
+		} else {
+			//TODO: receive from ui
+			$file = 'root.html';
+			
+			// Search for this layout
+			$layoutRepo = $this->entityManager->getRepository('Supra\Controller\Pages\Entity\Layout');
+			$layout = $layoutRepo->findOneByFile($file);
+			
+			if (is_null($layout)) {
+				//TODO: try finding such layout, find all placeholders, create layout and placeholder records in db
+				// Raises exception for now
+				throw new \RuntimeException("Layout not found");
 			}
+			
+			$template->addLayout(Entity\Layout::MEDIA_SCREEN, $layout);
+//			
+//			$layout = new Entity\Layout();
+//			$this->entityManager->persist($layout);
+//			$layout->setFile('root.html');
+//
+//			foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
+//				$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
+//				$layoutPlaceHolder->setLayout($layout);
+//			}
 		}
-		$this->entityManager->flush();
 		
+		$this->entityManager->flush();
+
 		// Set parent
 		if ( ! empty($parent)) {
 			$template->moveAsLastChildOf($parent);
+			$this->entityManager->flush();
 		}
-		
-		$this->entityManager->flush();
-		
+
 		$this->outputPage($templateData);
 	}
 
@@ -67,7 +86,17 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function saveAction()
 	{
-		
+		$this->isPostRequest();
+		$pageData = $this->getPageData();
+		$locale = $this->getLocale();
+
+		//TODO: create some simple objects for save post data with future validation implementation?
+		if ($this->hasRequestParameter('title')) {
+			$title = $this->getRequestParameter('title');
+			$pageData->setTitle($title);
+		}
+
+		$this->entityManager->flush();
 	}
 
 	/**
@@ -77,7 +106,7 @@ class TemplateAction extends PageManagerAction
 	{
 		
 	}
-	
+
 	/**
 	 * Called on template publish
 	 */
@@ -85,5 +114,5 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->publish();
 	}
-	
+
 }
