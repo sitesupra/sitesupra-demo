@@ -324,7 +324,12 @@ abstract class PageRequest extends HttpRequest
 						
 						// Create new block
 						$block = Entity\Abstraction\Block::factoryClone($page, $block);
-						$em->persist($block);
+						
+						// Persist only for draft connection with ID generation
+						if ($this instanceof PageRequestEdit) {
+							$em->persist($block);
+						}
+						
 						$placeHolder->addBlock($block);
 						
 						$template = $parentPlaceHolder->getMaster();
@@ -352,17 +357,28 @@ abstract class PageRequest extends HttpRequest
 							$blockProperty = clone($blockProperty);
 							$blockProperty->setData($data);
 							$blockProperty->setBlock($block);
-							$em->persist($blockProperty);
+							
+							// Persist only for draft connection with ID generation
+							if ($this instanceof PageRequestEdit) {
+								$em->persist($blockProperty);
+							}
 						}
 					}
 				}
 				
-				$em->persist($placeHolder);
+				// Persist only for draft connection with ID generation
+				if ($this instanceof PageRequestEdit) {
+					$em->persist($placeHolder);
+				}
+				
 				$this->placeHolderSet->append($placeHolder);
 			}
 		}
 		
-		$em->flush();
+		// Flush only for draft connection with ID generation
+		if ($this instanceof PageRequestEdit) {
+			$em->flush();
+		}
 		
 		\Log::debug('Count of place holders found: ' . count($this->placeHolderSet));
 		
