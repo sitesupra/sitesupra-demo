@@ -144,6 +144,7 @@ abstract class CmsAction extends SimpleController
 	 */
 	protected function getLocale()
 	{
+		$locale = null;
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		
 		$request = $this->request;

@@ -16,7 +16,6 @@ use Supra\FileStorage\Entity\File;
  */
 class PageAction extends PageManagerAction
 {
-
 	/**
 	 * Returns all page information required for load
 	 */

@@ -32,6 +32,33 @@ class SqlLogger implements SQLLoggerInterface
 	private $start;
 	
 	/**
+	 * @param string $subject
+	 */
+	private function log($subject)
+	{
+		$log = ObjectRepository::getLogger($this);
+		
+		// Let's find first caller offset not inside the Doctrine package
+		$offset = 1;
+		$trace = debug_backtrace(false);
+		array_shift($trace);
+		
+		foreach ($trace as $traceElement) {
+			$class = null;
+			if (isset($traceElement['class'])) {
+				$class = $traceElement['class'];
+			}
+			if ($class != __CLASS__ && strpos($class, 'Doctrine\\') !== 0) {
+				break;
+			}
+			$offset++;
+		}
+		
+		$log->increaseBacktraceOffset($offset);
+		$log->debug($subject);
+	}
+	
+	/**
 	 * {@inheritdoc}
 	 */
 	public function startQuery($sql, array $params = null, array $types = null)
@@ -42,7 +69,7 @@ class SqlLogger implements SQLLoggerInterface
 		$this->start = microtime(true);
 		
 		// Enable when some query fails with an exception
-//		ObjectRepository::getLogger($this)->debug($this);
+//		$this->log($this);
 	}
 
 	/**
@@ -60,26 +87,7 @@ class SqlLogger implements SQLLoggerInterface
 		$executionMs = round(1000000 * $executionMs);
 		$subject .= ", execution time {$executionMs}ms*/";
 		
-		$log = ObjectRepository::getLogger($this);
-		
-		// Let's find first caller offset not inside the Doctrine package
-		$offset = 1;
-		$trace = debug_backtrace(false);
-		array_shift($trace);
-		
-		foreach ($trace as $traceElement) {
-			$class = null;
-			if (isset($traceElement['class'])) {
-				$class = $traceElement['class'];
-			}
-			if (strpos($class, 'Doctrine\\') !== 0) {
-				break;
-			}
-			$offset++;
-		}
-		
-		$log->increaseBacktraceOffset($offset);
-		$log->debug($subject);
+		$this->log($subject);
 	}
 
 }

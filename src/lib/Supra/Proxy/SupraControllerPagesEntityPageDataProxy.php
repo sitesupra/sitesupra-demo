@@ -20,6 +20,14 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
+
+            if (method_exists($this, "__wakeup")) {
+                // call this after __isInitialized__to avoid infinite recursion
+                // but before loading to emulate what ClassMetadata::newInstance()
+                // provides.
+                $this->__wakeup();
+            }
+
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
@@ -40,6 +48,30 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::setPage($page);
     }
 
+    public function setTemplate(\Supra\Controller\Pages\Entity\Template $template)
+    {
+        $this->__load();
+        return parent::setTemplate($template);
+    }
+
+    public function getTemplate()
+    {
+        $this->__load();
+        return parent::getTemplate();
+    }
+
+    public function getTemplateHierarchy()
+    {
+        $this->__load();
+        return parent::getTemplateHierarchy();
+    }
+
+    public function setPath($path)
+    {
+        $this->__load();
+        return parent::setPath($path);
+    }
+
     public function getPath()
     {
         $this->__load();
@@ -58,10 +90,58 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::getPathPart();
     }
 
-    public function generatePath()
+    public function getMetaDescription()
     {
         $this->__load();
-        return parent::generatePath();
+        return parent::getMetaDescription();
+    }
+
+    public function setMetaDescription($metaDescription)
+    {
+        $this->__load();
+        return parent::setMetaDescription($metaDescription);
+    }
+
+    public function getMetaKeywords()
+    {
+        $this->__load();
+        return parent::getMetaKeywords();
+    }
+
+    public function setMetaKeywords($metaKeywords)
+    {
+        $this->__load();
+        return parent::setMetaKeywords($metaKeywords);
+    }
+
+    public function isActive()
+    {
+        $this->__load();
+        return parent::isActive();
+    }
+
+    public function setActive($active)
+    {
+        $this->__load();
+        return parent::setActive($active);
+    }
+
+    public function getScheduleTime()
+    {
+        $this->__load();
+        return parent::getScheduleTime();
+    }
+
+    public function setScheduleTime(\DateTime $scheduleTime)
+    {
+        $this->__load();
+        return parent::setScheduleTime($scheduleTime);
+    }
+
+    public function unsetScheduleTime()
+    {
+        $this->__load();
+        return parent::unsetScheduleTime();
     }
 
     public function getId()
@@ -100,18 +180,6 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::getMaster();
     }
 
-    public function addBlockProperty(\Supra\Controller\Pages\Entity\BlockProperty $blockProperty)
-    {
-        $this->__load();
-        return parent::addBlockProperty($blockProperty);
-    }
-
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
-    }
-
     public function getProperty($name)
     {
         $this->__load();
@@ -136,7 +204,7 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);
@@ -145,7 +213,7 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'blockProperties', 'master', 'path', 'pathPart');
+        return array('__isInitialized__', 'id', 'locale', 'title', 'master', 'template', 'path', 'pathPart', 'metaDescription', 'metaKeywords', 'active', 'scheduleTime');
     }
 
     public function __clone()

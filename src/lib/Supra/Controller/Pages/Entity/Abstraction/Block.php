@@ -21,7 +21,7 @@ use Supra\Controller\Pages\Entity\TemplateBlock;
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateBlock", "page" = "Supra\Controller\Pages\Entity\PageBlock"})
  * @Table(name="block")
  */
-class Block extends Entity
+abstract class Block extends Entity
 {
 	/**
 	 * @Id

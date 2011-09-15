@@ -132,7 +132,7 @@ abstract class Entity
 			$indexBy = $newItem->$getter();
 			
 			if ($collection->offsetExists($indexBy)) {
-				throw new Exception\LogicException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
+				throw new Exception\RuntimeException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
 			}
 			
 			$collection->set($indexBy, $newItem);

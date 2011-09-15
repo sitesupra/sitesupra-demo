@@ -223,6 +223,8 @@ class FrontController
 			$request = new Request\HttpRequest();
 		}
 
+		$request->readEnvironment();
+		
 		return $request;
 	}
 

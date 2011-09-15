@@ -8,6 +8,11 @@ namespace Supra\Request;
 interface RequestInterface
 {
 	/**
+	 * Triggers request detail reading from the envoronment
+	 */
+	public function readEnvironment();
+	
+	/**
 	 * Get request parameter
 	 * @param string $key
 	 * @param string $default

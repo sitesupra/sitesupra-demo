@@ -20,6 +20,14 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
     {
         if (!$this->__isInitialized__ && $this->_entityPersister) {
             $this->__isInitialized__ = true;
+
+            if (method_exists($this, "__wakeup")) {
+                // call this after __isInitialized__to avoid infinite recursion
+                // but before loading to emulate what ClassMetadata::newInstance()
+                // provides.
+                $this->__wakeup();
+            }
+
             if ($this->_entityPersister->load($this->_identifier, $this) === null) {
                 throw new \Doctrine\ORM\EntityNotFoundException();
             }
@@ -94,12 +102,6 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         return parent::getMaxBlockPosition();
     }
 
-    public function getRepository()
-    {
-        $this->__load();
-        return parent::getRepository();
-    }
-
     public function getProperty($name)
     {
         $this->__load();
@@ -124,7 +126,7 @@ class SupraControllerPagesEntityTemplatePlaceHolderProxy extends \Supra\Controll
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity)
+    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
     {
         $this->__load();
         return parent::equals($entity);

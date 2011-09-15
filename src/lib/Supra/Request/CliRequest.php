@@ -20,15 +20,15 @@ class CliRequest implements RequestInterface
 	protected $parameters = array();
 
 	/**
-	 * Constructor
+	 * {@inheritdoc}
 	 */
-	public function __construct()
+	public function readEnvironment()
 	{
 		//TODO: parse parameters
 		global $argv;
 		$this->setActions(array_slice($argv, 1));
 	}
-
+	
 	/**
 	 * Get action list
 	 * @param integer $limit
@@ -76,5 +76,5 @@ class CliRequest implements RequestInterface
 	{
 		return implode($glue, $this->getActions());
 	}
-
+	
 }

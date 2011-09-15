@@ -13,6 +13,8 @@ use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Http\Cookie;
 use Supra\Cms\CmsAction;
 use Supra\NestedSet\Node\DoctrineNode;
+use Doctrine\ORM\Query;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 /**
  * Controller containing common methods
@@ -258,93 +260,235 @@ abstract class PageManagerAction extends CmsAction
 		}
 		
 		$pageData = $this->getPageData();
+		$self = $this;
 		
-		$copyContent = function() use ($pageData, $publicEm, $draftEm) {
+		$copyContent = function() use ($pageData, $publicEm, $draftEm, $self) {
 		
 			$pageId = $pageData->getMaster()->getId();
-			$localeId = $pageData->getLocale()->getId();
+			$localeId = $pageData->getLocale();
 			$pageDataId = $pageData->getId();
 
 			$draftPage = $pageData->getMaster();
 
-			$draftEm->detach($pageData);
 			$pageData = $publicEm->merge($pageData);
-
+			
 			/* @var $publicPage Entity\Abstraction\Page */
 			$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 			$pageData->setMaster($publicPage);
-			$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
-
-			// Delete all block properties by 'data' and 'block'
-			{
-				$dql = "SELECT p FROM $blockPropertyEntity p
-						JOIN p.block b
-						JOIN b.placeHolder ph
-						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
-
-				$query = $publicEm->createQuery($dql);
-				$query->execute(array($localeId, $pageId, $pageDataId));
-				$properties = $query->getResult();
-
-				foreach ($properties as $property) {
-					$publicEm->remove($property);
+			
+			// 1. Get all blocks to be copied
+			$draftBlocks = $self->getBlocksInPage($draftEm, $pageData);
+			
+			// 2. Get all blocks existing in public
+			$existentBlocks = $self->getBlocksInPage($publicEm, $pageData);
+			
+			// 3. Remove blocks in 2, not in 1, remove all referencing block properties first
+			$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
+			$existentBlockIdList = Entity\Abstraction\Entity::collectIds($existentBlocks);
+			$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);
+			
+			if ( ! empty($removedBlockIdList)) {
+				$self->removeBlocks($publicEm, $removedBlockIdList);
+			}
+			
+			// 4.1. Merge all placeholders, don't delete missing, let's keep them
+			foreach ($draftBlocks as $block) {
+				$placeholder = $block->getPlaceHolder();
+				$publicEm->merge($placeholder);
+			}
+			
+			// 4.2. Merge all blocks in 1
+			foreach ($draftBlocks as $block) {
+				$publicEm->merge($block);
+			}
+			
+			// 5. Get properties to be copied (of a. self and b. template)
+			$draftProperties = $self->getBlockPropertiesInPage($draftEm, $pageData);
+			
+			// 6. Property merge moved down to 10.
+			
+			// 7. For properties 5b get block, placeholder IDs, check their existance in public, get not existant
+			/* @var $property Entity\BlockProperty */
+			$missingBlockIdList = array();
+			$blockIdList = array();
+			
+			foreach ($draftProperties as $property) {
+				$blockId = $property->getBlock()->getId();
+				
+				// The problematic case when block is part of parent templates
+				if ( ! in_array($blockId, $draftBlockIdList)) {
+					$blockIdList[$blockId] = $blockId;
 				}
 			}
-
-			// Delete all blocks
-			{
+			
+			if ( ! empty($blockIdList)) {
 				$blockEntity = PageRequest::BLOCK_ENTITY;
 
-				$dql = "SELECT b FROM $blockEntity b
-						JOIN b.placeHolder ph
-						WHERE b.locale = ?0 AND ph.master = ?1";
+				$qb = $publicEm->createQueryBuilder();
+				$qb->from($blockEntity, 'b')
+						->select('b.id')
+						->where($qb->expr()->in('b', $blockIdList));
 
-				$query = $publicEm->createQuery($dql);
-				$query->execute(array($localeId, $pageId));
-				$blocks = $query->getResult();
-
-				foreach ($blocks as $block) {
-					$publicEm->remove($block);
-				}
+				$query = $qb->getQuery();
+				$existentBlockIdList = $query->getResult(ColumnHydrator::HYDRATOR_ID);
+				
+				$missingBlockIdList = array_diff($blockIdList, $existentBlockIdList);
 			}
-
-			$publicEm->flush();
-
-			/* @var $pageData Entity\Abstraction\Data */
-			$draftPlaceHolders = $draftPage->getPlaceHolders();
+			
+			// 8. Merge missing place holders from 7 (reset $locked property)
+			$draftPlaceHolderIdList = $self->getPlaceHolderIdList($draftEm, $missingBlockIdList);
+			$publicPlaceHolderIdList = $self->loadEntitiesByIdList($publicEm, PageRequest::PLACE_HOLDER_ENTITY, $draftPlaceHolderIdList, 'e.id', ColumnHydrator::HYDRATOR_ID);
+			$missingPlaceHolderIdList = array_diff($draftPlaceHolderIdList, $publicPlaceHolderIdList);
+			
+			$missingPlaceHolders = $self->loadEntitiesByIdList($draftEm, PageRequest::PLACE_HOLDER_ENTITY, $missingPlaceHolderIdList);
+			
 			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
-			foreach ($draftPlaceHolders as $placeHolder) {
-				$draftEm->detach($placeHolder);
-				$publicEm->merge($placeHolder);
-
-				$blocks = $placeHolder->getBlocks();
-
-				/* @var $block Entity\Abstraction\Block */
-				foreach ($blocks as $block) {
-					$draftEm->detach($block);
-					$publicEm->merge($block);
+			foreach ($missingPlaceHolders as $placeHolder) {
+				$placeHolder = $publicEm->merge($placeHolder);
+				
+				// Reset locked property
+				if ($placeHolder instanceof Entity\TemplatePlaceHolder) {
+					$placeHolder->setLocked(false);
 				}
 			}
-
-			{
-				$dql = "SELECT p FROM $blockPropertyEntity p
-						JOIN p.block b
-						JOIN b.placeHolder ph
-						WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
-
-				$query = $draftEm->createQuery($dql);
-				$query->execute(array($localeId, $pageId, $pageDataId));
-				$properties = $query->getResult();
-
-				foreach ($properties as $property) {
-					$publicEm->merge($property);
-				}
+			
+			// 9. Merge missing blocks (add $temporary property)
+			$missingBlocks = $self->loadEntitiesByIdList($draftEm, PageRequest::TEMPLATE_BLOCK_ENTITY, $missingBlockIdList);
+			
+			/* @var $block Entity\TemplateBlock */
+			foreach ($missingBlocks as $block) {
+				$block = $publicEm->merge($block);
+				$block->setTemporary(true);
+			}
+			
+			// 10. Merge all properties 5a (trying all properties)
+			foreach ($draftProperties as $property) {
+				$publicEm->merge($property);
 			}
 
 			$publicEm->flush();
 		};
 		
 		$publicEm->transactional($copyContent);
+	}
+	
+	/**
+	 * @param EntityManager $em
+	 * @param Entity\Abstraction\Data $data
+	 * @return array 
+	 */
+	public function getBlocksInPage(EntityManager $em, Entity\Abstraction\Data $data)
+	{
+		$masterId = $data->getMaster()->getId();
+		$locale = $data->getLocale();
+		$blockEntity = PageRequest::BLOCK_ENTITY;
+		
+		$dql = "SELECT b FROM $blockEntity b 
+				JOIN b.placeHolder p
+				WHERE p.master = ?0 AND b.locale = ?1";
+		
+		$blocks = $em->createQuery($dql)
+				->setParameters(array($masterId, $locale))
+				->getResult();
+		
+		return $blocks;
+	}
+	
+	/**
+	 * Removes blocks with all properties by ID
+	 * @param EntityManager $em
+	 * @param array $blockIdList
+	 */
+	public function removeBlocks(EntityManager $em, array $blockIdList)
+	{
+		if (empty($blockIdList)) {
+			return;
+		}
+		
+		$blockPropetyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+		$blockEntity = PageRequest::BLOCK_ENTITY;
+		
+		$qb = $em->createQueryBuilder();
+		$qb->delete($blockPropetyEntity, 'p')
+				->where($qb->expr()->in('p.block', $blockIdList))
+				->getQuery()
+				->execute();
+		
+		$qb = $em->createQueryBuilder();
+		$qb->delete($blockEntity, 'b')
+				->where($qb->expr()->in('b', $blockIdList))
+				->getQuery()
+				->execute();
+	}
+	
+	/**
+	 * @param EntityManager $em
+	 * @param Entity\Abstraction\Data $data
+	 * @return array
+	 */
+	public function getBlockPropertiesInPage(EntityManager $em, Entity\Abstraction\Data $data)
+	{
+		$dataId = $data->getId();
+		$masterId = $data->getMaster()->getId();
+		$locale = $data->getLocale();
+		$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+		
+		$dql = "SELECT p FROM $blockPropertyEntity p
+				JOIN p.block b
+				JOIN b.placeHolder ph
+				WHERE b.locale = ?0 AND (ph.master = ?1 OR p.data = ?2)";
+
+		$properties = $em->createQuery($dql)
+				->setParameters(array($locale, $masterId, $dataId))
+				->getResult();
+		
+		return $properties;
+	}
+	
+	/**
+	 * Load place holder ID list from block ID list
+	 * @param EntityManager $em
+	 * @param array $blockIdList
+	 * @return array
+	 */
+	public function getPlaceHolderIdList(EntityManager $em, array $blockIdList)
+	{
+		if (empty($blockIdList)) {
+			return array();
+		}
+		
+		$qb = $em->createQueryBuilder();
+		$qb->from(PageRequest::BLOCK_ENTITY, 'b')
+				->join('b.placeHolder', 'p')
+				->select('DISTINCT p.id')
+				->where($qb->expr()->in('b', $blockIdList));
+		$query = $qb->getQuery();
+		$placeHolderIdList = $query->getResult(ColumnHydrator::HYDRATOR_ID);
+		
+		return $placeHolderIdList;
+	}
+	
+	/**
+	 * Loads entities by ID list
+	 * @param EntityManager $em
+	 * @param string $entity
+	 * @param array $idList 
+	 * @return array
+	 */
+	public function loadEntitiesByIdList(EntityManager $em, $entity, array $idList, $select = 'e', $hydrationMode = Query::HYDRATE_OBJECT)
+	{
+		if (empty($idList)) {
+			return array();
+		}
+		
+		$qb = $em->createQueryBuilder();
+		$qb->from($entity, 'e')
+				->select($select)
+				->where($qb->expr()->in('e', $idList));
+		$query = $qb->getQuery();
+		$list = $query->getResult($hydrationMode);
+		
+		return $list;
 	}
 
 }

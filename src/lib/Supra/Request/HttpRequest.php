@@ -54,9 +54,9 @@ class HttpRequest implements RequestInterface
 	protected $path;
 
 	/**
-	 * Constructor
+	 * {@inheritdoc}
 	 */
-	public function __construct()
+	public function readEnvironment()
 	{
 		if (isset($_SERVER)) {
 			$this->setServer($_SERVER);

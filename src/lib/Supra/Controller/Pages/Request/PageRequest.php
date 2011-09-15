@@ -54,6 +54,12 @@ abstract class PageRequest extends HttpRequest
 	const BLOCK_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Block';
 
 	/**
+	 * Template block class name
+	 * @var string
+	 */
+	const TEMPLATE_BLOCK_ENTITY = 'Supra\Controller\Pages\Entity\TemplateBlock';
+
+	/**
 	 * Block abstraction class name
 	 * @var string
 	 */
@@ -118,8 +124,6 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->locale = $locale;
 		$this->media = $media;
-		
-		parent::__construct();
 	}
 	
 	/**
@@ -437,6 +441,15 @@ abstract class PageRequest extends HttpRequest
 		$blocks = $qb->getQuery()->getResult();
 
 		\Log::debug("Block count found: " . count($blocks));
+		
+		// Skip temporary blocks for VIEW mode
+		foreach ($blocks as $blockKey => $block) {
+			if ($block instanceof Entity\TemplateBlock) {
+				if ($block->getTemporary()) {
+					unset($blocks[$blockKey]);
+				}
+			}
+		}
 
 		/*
 		 * Collect locked blocks from not final placesholders

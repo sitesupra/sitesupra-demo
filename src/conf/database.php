@@ -12,6 +12,7 @@ use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
 use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
 use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 $config = new Configuration();
 
@@ -62,6 +63,7 @@ $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new PublicVersionedTableIdChange());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 $em->_mode = 'public';
 
 ObjectRepository::setDefaultEntityManager($em);
@@ -77,6 +79,7 @@ $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new TableDraftPrefixAppender());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 $em->_mode = 'draft';
 
 ObjectRepository::setEntityManager('Supra\Cms', $em);

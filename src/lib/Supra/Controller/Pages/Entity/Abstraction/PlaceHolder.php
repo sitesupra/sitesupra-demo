@@ -15,7 +15,7 @@ use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplatePlaceHolder", "page" = "Supra\Controller\Pages\Entity\PagePlaceHolder"})
  * @Table(name="place_holder")
  */
-class PlaceHolder extends Entity
+abstract class PlaceHolder extends Entity
 {
 	/**
 	 * @Id

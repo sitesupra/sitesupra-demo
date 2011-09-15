@@ -37,4 +37,21 @@ class TemplateBlock extends Abstraction\Block
 	{
 		$this->locked = $locked;
 	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getTemporary()
+	{
+		return $this->temporary;
+	}
+
+	/**
+	 * @param boolean $temporary 
+	 */
+	public function setTemporary($temporary)
+	{
+		$this->temporary = $temporary;
+	}
+
 }
