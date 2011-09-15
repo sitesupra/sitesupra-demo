@@ -49,7 +49,7 @@ class PlaceHolderSet extends AbstractSet
 			$placeHolderName = $placeHolder->getName();
 			
 			// Add to final in cases when it's the page place or locked one
-			if ($placeHolder->getLocked() || $placeHolder->getMaster() == $this->page) {
+			if ($placeHolder->getLocked() || $placeHolder->getMaster()->equals($this->page)) {
 				
 				// Ignore if already set locked place with higher hierarchy level
 				if ($this->finalPlaceHolderSet->offsetExists($placeHolderName)) {

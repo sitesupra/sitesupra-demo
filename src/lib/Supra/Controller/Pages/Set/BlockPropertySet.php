@@ -28,4 +28,24 @@ class BlockPropertySet extends AbstractSet
 		
 		return $blockPropertySet;
 	}
+	
+	/**
+	 * Get distinct block ID list
+	 * @return array
+	 */
+	public function getBlockIdList()
+	{
+		$blockIdList = array();
+		
+		foreach ($this as $property) {
+			$blockId = $property->getBlock()->getId();
+
+			// The problematic case when block is part of parent templates
+			$blockIdList[$blockId] = $blockId;
+		}
+		
+		$blockIdList = array_values($blockIdList);
+		
+		return $blockIdList;
+	}
 }

@@ -2,8 +2,11 @@
 
 namespace Supra\Tests\Controller\Pages\Fixture;
 
-use Supra\Controller\Pages\Entity,
-		Supra\Database\Doctrine;
+use Supra\Controller\Pages\Entity;
+use Supra\Database\Doctrine;
+use Supra\Log\Writer\WriterAbstraction;
+use Doctrine\ORM\EntityManager;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Simple fixture creation class
@@ -11,9 +14,14 @@ use Supra\Controller\Pages\Entity,
 class FixtureHelper
 {
 	/**
-	 * @var \Doctrine\ORM\EntityManager
+	 * @var EntityManager
 	 */
 	private $entityManager;
+	
+	/**
+	 * @var WriterAbstraction
+	 */
+	private $log;
 	
 	protected $headerTemplateBlock;
 
@@ -23,6 +31,7 @@ class FixtureHelper
 	
 	public function __construct(\Doctrine\ORM\EntityManager $em)
 	{
+		$this->log = ObjectRepository::getLogger($this);
 		$this->entityManager = $em;
 	}
 	
@@ -147,6 +156,22 @@ class FixtureHelper
 		$page2 = $this->createPage(2, $page, $this->template);
 		$em->persist($page2);
 		$em->flush();
+		
+		$publicEm = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+
+		foreach (array($this->template->getParent(), $this->template, $rootPage, $page, $page2) as $pageToPublish) {
+			
+			$this->log->debug("Publishing object $pageToPublish");
+			
+			$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en', Entity\Layout::MEDIA_SCREEN);
+			$request->blockFlushing();
+			$request->setDoctrineEntityManager($em);
+			$request->setRequestPageData($pageToPublish->getData('en'));
+			$request->publish($publicEm);
+			
+			$em->clear();
+			$publicEm->clear();
+		}
 	}
 
 	protected static $constants = array(
