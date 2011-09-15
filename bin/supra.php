@@ -14,7 +14,6 @@ $cli->setCatchExceptions(true);
 $cli->addCommands(array(
 	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand(),
 	new \Supra\Database\Console\SchemaUpdateCommand(),
-	new \Supra\Database\Console\SchemaCreateCommand(),
 	new \Supra\Database\Console\SchemaDropCommand()
 ));
 
