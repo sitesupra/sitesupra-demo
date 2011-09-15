@@ -163,10 +163,12 @@ YUI.add('supra.tree-node', function(Y) {
 				var parent_data = data[data[child_data.id].parent];	//Old parent data
 				
 				//Remove data from old parent
-				for(var i=0,ii=parent_data.children.length; i<ii; i++) {
-					if (parent_data.children[i].id == child_data.id) {
-						parent_data.children.splice(i,1);
-						break;
+				if (parent_data && parent_data.children) {
+					for(var i=0,ii=parent_data.children.length; i<ii; i++) {
+						if (parent_data.children[i].id == child_data.id) {
+							parent_data.children.splice(i,1);
+							break;
+						}
 					}
 				}
 			}

@@ -3,9 +3,6 @@
 
 YUI().add('website.sitemap-settings', function (Y) {
 	
-	//Locale
-	var LOCALE_DELETE_PAGE = 'Are you sure you want to delete selected page?';
-	
 	//Shortcut
 	var Manager = SU.Manager,
 		Action = Manager.Action;
@@ -26,6 +23,8 @@ YUI().add('website.sitemap-settings', function (Y) {
 		initialized: false,
 		
 		initialize: function () {},
+		
+		button_delete: null,
 		
 		initializeWidgets: function () {
 			if (this.initialized) return;
@@ -55,13 +54,23 @@ YUI().add('website.sitemap-settings', function (Y) {
 			this.panel.on('visibleChange', function (event) {
 				if (event.newVal) {
 					if (evt) evt.detach();
-					evt = Y.one(document).on('click', fn, this);
+					evt = Y.one(document).on('click', fn, this.panel);
 				} else if (evt) {
 					evt.detach();
+					this.onPropertyPanelHide();
 				}
-			});
+			}, this);
 			
 			this.addWidget(this.panel);
+			
+			//When host action is hidden also hide panel
+			this.host.on('visibleChange', function (event) {
+				if (!event.newVal && event.newVal != event.prevVal) {
+					if (this.panel.get('visible')) {
+						this.panel.hide();
+					}
+				}
+			}, this);
 			
 			//On tree node toggle hide panel
 			this.host.flowmap.on('toggle', this.panel.hide, this.panel);
@@ -73,6 +82,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				'autoDiscoverInputs': true,
 				'inputs': [
 					{'id': 'title', 'type': 'String', 'useReplacement': true},
+					{'id': 'layout', 'type': 'String', 'useReplacement': true},
 					{'id': 'path', 'type': 'Path', 'useReplacement': true}
 				]
 			});
@@ -111,7 +121,8 @@ YUI().add('website.sitemap-settings', function (Y) {
 				node = flowmap.getNodeById(data.id),
 				all_data = flowmap.getIndexedData(),
 				path_input = this.form.getInput('path'),
-				template_input = this.form.getInput('template');
+				template_input = this.form.getInput('template'),
+				layout_input = this.form.getInput('layout');
 			
 			if (type != 'templates' && node && node.isRoot()) {
 				//Root page
@@ -126,9 +137,21 @@ YUI().add('website.sitemap-settings', function (Y) {
 			this.form.setValues(data, 'id');
 			
 			if (type == 'templates') {
+				//Update delete button label
+				this.button_delete.set('label', Supra.Intl.get(['sitemap', 'delete_template']));
+				
 				path_input.hide();
 				template_input.hide();
+				
+				if (node && node.isRoot()) {
+					layout_input.show();
+				} else {
+					layout_input.hide();
+				}
 			} else {
+				//Update delete button label
+				this.button_delete.set('label', Supra.Intl.get(['sitemap', 'delete_page']));
+				
 				var item = all_data[data.parent],
 					fullpath = [],
 					path = '';
@@ -145,6 +168,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				path_input.set('path', path);
 				
 				template_input.show();
+				layout_input.hide();
 			}
 		},
 		
@@ -179,9 +203,51 @@ YUI().add('website.sitemap-settings', function (Y) {
 		},
 		
 		/**
+		 * On property panel hide save all values if item is temporary
+		 */
+		onPropertyPanelHide: function () {
+			if (this.host.property_data && this.host.property_data.temporary) {
+				//Only root template can be temporary
+				var old_data = this.host.property_data,
+					old_id = old_data.id,
+					data = this.form.getValues('name', true);
+				
+				data = {
+					'layout': data.layout,
+					'title': data.title,
+					'icon': old_data.icon,
+					'parent': old_data.parent,
+					'published': old_data.published,
+					'scheduled': old_data.scheduled
+				};
+				
+				Manager.getAction('Template').createTemplate(data, function (data, status) {
+					var treenode = this.host.flowmap.getNodeById(old_id);
+					var node_data = treenode.get('data');
+					
+					data.temporary = false;
+					Supra.mix(old_data, data);
+					Supra.mix(node_data, data);
+					
+					var data_indexed = this.host.flowmap.getIndexedData();
+					delete(data_indexed[old_id]);
+					data_indexed[data.id] = data;
+					
+					//Unset data
+					this.host.property_data = null;
+				}, this);
+			}
+		},
+		
+		/**
 		 * On page property change save value
 		 */
 		onPagePropertyChange: function (event) {
+			//If page is temporary then there is no real ID this page
+			if (this.host.property_data.temporary) {
+				return;
+			}
+			
 			var input = event.target,
 				input_id = input.get('id'),
 				input_value = input.get('saveValue'),
@@ -228,8 +294,14 @@ YUI().add('website.sitemap-settings', function (Y) {
 		deletePage: function () {
 			if (!this.host.property_data) return;
 			
+			if (this.host.getType() == 'templates') {
+				var message_id = 'message_delete_template';
+			} else {
+				var message_id = 'message_delete_page';
+			}
+			
 			Manager.executeAction('Confirmation', {
-				'message': LOCALE_DELETE_PAGE,
+				'message': Supra.Intl.get(['sitemap', message_id]),
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': 'Yes', 'click': this.deletePageConfirm, 'context': this},

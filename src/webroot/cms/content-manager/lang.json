@@ -128,7 +128,11 @@
 			"recycle_bin": "Recycle bin",
 			
 			"viewing_structure": "Viewing structure for:",
-			"delete": "Delete page",
+			
+			"delete_page": "Delete page",
+			"delete_template": "Delete template",
+			"message_delete_page": "Are you sure you want to delete selected page?",
+			"message_delete_template": "Are you sure you want to delete selected template?",
 			
 			"pages": "Pages",
 			"templates": "Templates",

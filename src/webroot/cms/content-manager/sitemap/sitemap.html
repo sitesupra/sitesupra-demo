@@ -31,10 +31,11 @@
 			<form>
 				<input type="text" name="title" />
 				<input type="text" name="path" suValueMask="^[a-zA-Z0-9\-\_]*$" suType="Path" />
+				<input type="text" name="layout" suValueMask="^[a-zA-Z0-9\-\_\.\/\\]*$" />
 				<input type="hidden" name="template" suType="Template" />
 				
 				<div class="center">
-					<button type="button">{#sitemap.delete#}</button>
+					<button type="button">{#sitemap.delete_page#}</button>
 				</div>
 				
 			</form>

@@ -7,6 +7,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	
 	var TREENODE_PAGE_DATA = {
 		'title': 'New page',
+		'preview': '/cms/lib/supra/img/sitemap/preview/blank.jpg',
 		'template': '',
 		'icon': 'page',
 		'path': 'new-page',
@@ -17,6 +18,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	
 	var TREENODE_TEMPLATE_DATA = {
 		'title': 'New template',
+		'preview': '/cms/lib/supra/img/sitemap/preview/blank.jpg',
 		'layout': '',
 		'icon': 'page',
 		'parent': null,
@@ -175,10 +177,14 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		createNewNode: function () {
-			this.addChild('before', this.get('host').item(0));
+			var position = 'after',
+				size = this.get('host').size(),
+				target = size ? this.get('host').item(size - 1) : null;
+			
+			this.addChild(position, target);
 		},
 		
-		onNewPageDataLoad: function (data) {
+		addChildNodeFromData: function (data) {
 			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
 				page_data = SU.mix({}, default_data, data),
 				parent_node = this.get('host').getNodeById(page_data.parent),
@@ -220,6 +226,59 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			//Open editor
 			Y.later(150, this, function () {
 				this.get('host').getNodeById(page_data.id).edit(null, true);
+			});
+		},
+		
+		addChildNodeTemporary: function (data) {
+			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
+				page_data = SU.mix({}, default_data, data),
+				parent_node = this.get('host').getNodeById(page_data.parent),
+				parent_data = parent_node ? parent_node.get('data') : null,
+				temp_id = Supra.Y.guid();
+			
+			//Set temporary ID
+			page_data.id = temp_id;
+			page_data.temporary = true;
+			
+			if (parent_node && parent_data) {
+				//Add to parent
+				if (!parent_data.children) parent_data.children = [];
+				parent_data.children.push(page_data);
+				
+				//Set into data
+				var data_indexed = this.get('host').getIndexedData();
+				data_indexed[page_data.id] = page_data;
+				
+				//Expand parent
+				parent_node.expand();
+				
+				//Create node
+				parent_node.add({
+					'label': page_data.title,
+					'icon': page_data.icon,
+					'data': page_data
+				}, this.new_page_index);
+			} else {
+				//Add to tree (Root)
+				
+				//Set into data
+				var data = this.get('host').getData();
+				data.push(page_data);
+				
+				//Create node
+				this.get('host').add({
+					'label': page_data.title,
+					'icon': page_data.icon,
+					'data': page_data
+				}, this.new_page_index);
+			}
+			
+			//Open editor
+			Y.later(150, this, function () {
+				this.get('host').getNodeById(page_data.id).edit(null, true);
+				
+				//Root template is added to the bottom, scroll to it
+				Manager.SiteMap.one('.yui3-sitemap-scrollable').set('scrollTop', 10000);
 			});
 		},
 		
@@ -265,22 +324,26 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
 			
-			var type = this.type,
-				target = null,
-				target_fn = null;
-			
-			if (type == 'templates') {
-				target = Manager.getAction('Template');
-				target_fn = 'createTemplate';
+			if (this.type == 'templates' && !pagedata.parent) {
+				//Create temporary node, template will be created after layout value is set
+				this.addChildNodeTemporary(pagedata);
+				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
 			} else {
-				target = Manager.getAction('Page');
-				target_fn = 'createPage';
+				//Create page
+				if (this.type == 'templates') {
+					var call_obj = Manager.getAction('Template'),
+						call_fn = 'createTemplate';
+				} else {
+					var call_obj = Manager.getAction('Page'),
+						call_fn = 'createPage';
+				}
+				 
+				call_obj[call_fn](pagedata, function () {
+					this.addChildNodeFromData.apply(this, arguments);
+					if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
+				}, this);
 			}
 			
-			target[target_fn](pagedata, function () {
-				this.onNewPageDataLoad.apply(this, arguments);
-				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
-			}, this);
 		}
 		
 	});
