@@ -205,19 +205,15 @@ YUI.add("supra.languagebar", function (Y) {
 		 * Returns language by locale
 		 * @param {Object} locale
 		 */
-		getContextByLocale: function (locale) {
-			var item = this.splitLocale(locale),
-				contexts = this.get('contexts');
-			return (item ? this._find(contexts, item[0]) : null);
-		},
-		
-		/**
-		 * Returns language by locale
-		 * @param {Object} locale
-		 */
 		getLanguageByLocale: function (locale) {
-			var langs = this.getContextByLocale(locale);
-			return langs ? this._find(langs.languages, locale) : null;
+			var contexts = this.get('contexts'),
+			lang = null;
+			
+			for(var i=0,ii=contexts.length; i<ii; i++) {
+				lang = this._find(contexts[i].languages, locale);
+				if (lang) return lang;
+			}
+			
 			return null;
 		},
 		
