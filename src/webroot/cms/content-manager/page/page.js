@@ -156,12 +156,17 @@ Supra(function (Y) {
 		onLoadComplete: function (data, status) {
 			this.loading = false;
 			
+			//Edit button
+			var button_edit = Supra.Manager.PageButtons.groups.Root;
+			
 			if (status) {
 				this.data = data;
 				this.fire('loaded', {'data': data});
+				button_edit.show();
 			} else {
 				//Remove loading style
 				Y.one('body').removeClass('loading');
+				button_edit.hide();
 			}
 		},
 		
