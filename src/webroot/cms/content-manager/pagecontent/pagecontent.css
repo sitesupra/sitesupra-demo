@@ -12,7 +12,8 @@
 	-moz-box-sizing: border-box;		/* FF */
 	-ms-box-sizing: border-box;			/* IE8 */
 }
-.yui3-page-iframe iframe {
+.yui3-page-iframe iframe,
+.yui3-page-iframe-temp iframe {
 	border: 0;
 	background: #fff;
 }

@@ -159,6 +159,9 @@ Supra(function (Y) {
 			if (status) {
 				this.data = data;
 				this.fire('loaded', {'data': data});
+			} else {
+				//Remove loading style
+				Y.one('body').removeClass('loading');
 			}
 		},
 		
