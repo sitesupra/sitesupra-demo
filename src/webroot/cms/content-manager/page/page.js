@@ -224,7 +224,7 @@ Supra(function (Y) {
 				'method': 'post',
 				'context': this,
 				'on': {
-					'success': this.lockResponse
+					'complete': this.lockResponse
 				}
 			}, this);
 		},
@@ -247,7 +247,7 @@ Supra(function (Y) {
 				//Success
 				Manager.PageContent.startEditing();
 				
-			} else {
+			} else if (status && data) {
 				
 				//Compile message template and change date and time format
 				var template = Supra.Intl.get([this.getType(), 'locked_message']);

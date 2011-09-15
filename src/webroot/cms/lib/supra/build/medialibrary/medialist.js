@@ -409,21 +409,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, 'div.file div.preview img');
 				content.delegate('click', function (e) {
 					
-					//@TODO Need better solution!?
-					
+					//On file click update selected state
 					this.file_selected = !this.file_selected;
 					if (this.file_selected) {
 						e.target.ancestor().addClass('selected');
-						
-						//Trigger event 
 						this.fire('select', {'data': this.getSelectedItem()});
 					} else {
 						e.target.ancestor().removeClass('selected');
+						this.fire('deselect');
 					}
+					
 				}, 'div.file div.preview img', this);
 				
 				this.slideshow.on('slideChange', function () {
-					this.file_selected = false;
+					if (this.file_selected) {
+						this.file_selected = false;
+						this.fire('deselect');
+					}
 				}, this);
 			}
 			
@@ -586,10 +588,16 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					var item_data = this.getItemData(item_id);
 					if (item_data.type == Data.TYPE_FILE) {
 						this.file_selected = true;
+						this.fire('select', {'data': item_data});
 					} else if (item_data.type == Data.TYPE_IMAGE) {
 						this.image_selected = true;
+						this.fire('select', {'data': item_data});
 					}
-					this.slideshow.getSlide(slide_id).one('.preview').addClass('selected');
+					
+					var preview = this.slideshow.getSlide(slide_id).one('.preview');
+					if (preview) {
+						preview.addClass('selected');
+					}
 				}
 			}
 			return this;

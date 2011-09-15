@@ -174,6 +174,7 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			}
 			
 			this.slideshow.scrollBack();
+			this.updateButtonUI();
 		},
 		
 		/**
@@ -207,9 +208,13 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 						slideshow.set('slide', slide);
 					}, this);
 					
+					//On href change update button label
+					this.form.getInput('href').on('change', this.updateButtonUI, this);
+					
 					//When layout position/size changes update slide position
 					Manager.LayoutLeftContainer.layout.on('sync', this.link_slideshow.syncUI, this.link_slideshow);
-				
+					
+					this.link_slideshow.on('slideChange', this.updateButtonUI, this);
 				//Create tree
 					//Use sitemap data
 					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data;
@@ -221,7 +226,12 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 					});
 					this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 					this.tree.render();
+					
+					//On node change update button label
+					this.tree.after('selectedNodeChange', this.updateButtonUI, this);
 			}
+			
+			this.updateButtonUI();
 		},
 		
 		/**
@@ -252,6 +262,10 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 						'viewURI': medialibrary.getDataPath('view'),
 						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
 					})).render();
+					
+					//On file select change button to "Insert"
+					list.on('select', this.updateButtonUI, this);
+					list.on('deselect', this.updateButtonUI, this);
 			} else {
 				this.medialist.reload();
 			}
@@ -419,6 +433,38 @@ SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', fun
 			 }
 			 
 			 return list.length > 1 ? list.reverse().join('/') + '/' : '/';
+		},
+		
+		/**
+		 * Set button label to "Insert" or "Close"
+		 */
+		updateButtonUI: function () {
+			var label = 'close';
+			
+			switch(this.slideshow.get('slide')) {
+				case 'linkToPage':
+					switch(this.link_slideshow.get('slide')) {
+						case 'linkManagerInternal':
+							//Tree tab
+							if (this.tree.get('selectedNode')) {
+								label = 'insert';
+							}
+							break;
+						case 'linkManagerExternal':
+							//External href input tab
+							if (Y.Lang.trim(this.form.getInput('href').get('value'))) {
+								label = 'insert';
+							}
+							break;
+					}
+					break;
+				case 'linkToFile':
+					//Media library tab
+					if (this.medialist.file_selected) label = 'insert';
+					break;
+			}
+			
+			this.button_close.set('label', Supra.Intl.get(['buttons', label]));
 		},
 		
 		/**

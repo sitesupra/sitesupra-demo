@@ -16,7 +16,8 @@
 			"replace": "Replace",
 			"rename": "Rename",
 			"browse": "Browse",
-			"error": "Ok"
+			"error": "Ok",
+			"insert": "Insert"
 		},
 		
 		"page": {
