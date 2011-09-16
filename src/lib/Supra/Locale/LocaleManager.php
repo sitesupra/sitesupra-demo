@@ -138,9 +138,9 @@ class LocaleManager
 			$country = $locale->getCountry();
 			
 			$array[$country][] = array(
-				//'id' => $locale->getId(),
-				'id' => $locale->getId() . '_' . $country, //temp context support
+				'id' => $locale->getId(),
 				'title' => $locale->getTitle(),
+				'flag' => $locale->getProperty('flag'),
 			);
 		}
 		

@@ -24,6 +24,12 @@ class Locale
 	 * @var string
 	 */
 	protected $country;
+	
+	/**
+	 * Locale properties
+	 * @var array
+	 */
+	protected $properties;
 
 	/**
 	 * Return locale ID
@@ -77,6 +83,27 @@ class Locale
 	public function setCountry($country)
 	{
 		$this->country = $country;
+	}
+	
+	/**
+	 * Sets property
+	 * @param string $name
+	 * @param mixed $value 
+	 */
+	public function addProperty($name, $value)
+	{
+		$this->properties[$name] = $value;
+	}
+	
+	/**
+	 * Returns propery
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getProperty($name) {
+		if (isset($this->properties[$name])) {
+			return $this->properties[$name];
+		}
 	}
 
 }

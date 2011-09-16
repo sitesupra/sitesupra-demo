@@ -27,8 +27,7 @@ class RootAction extends PageManagerAction
 		/* @var $response TwigResponse */
 		
 		$response->assign('localesList', $localesList);
-		//$response->assign('currentLocale', $localeId);
-		$response->assign('currentLocale', 'en_Latvia');
+		$response->assign('currentLocale', $localeId);
 		
 		$response->assign('pageId', $pageId);
 		

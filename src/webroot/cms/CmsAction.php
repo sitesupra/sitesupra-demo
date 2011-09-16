@@ -8,6 +8,7 @@ use Supra\Request;
 use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Entity\User;
 
 /**
  * Description of CmsAction
@@ -21,6 +22,20 @@ abstract class CmsAction extends SimpleController
 	 * @var string
 	 */
 	private $requestMethod;
+	
+	/**
+	 * Current (authorized) user
+	 * @var User
+	 */
+	private $user;
+	
+	/**
+	 * Assign current user
+	 */
+	public function __construct() {
+		$session = ObjectRepository::getSessionNamespace($this);
+		$this->user = $session->getUser();
+	}
 	
 	/**
 	 * Localized error handling
@@ -66,7 +81,7 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage($e->getMessage());
 			
 			// Write the issue inside the log
-			$this->log->error($e);
+			//$this->log->error($e);
 		}
 	}
 	
@@ -155,7 +170,6 @@ abstract class CmsAction extends SimpleController
 			$requestedLocaleId = $this->request->getParameter('locale');
 		}
 		
-		$requestedLocaleId = substr($requestedLocaleId, 0, strpos($requestedLocaleId, '_')); // temp workaround to remove context
 		if (!empty($requestedLocaleId)) {
 			$localeManager = \Supra\ObjectRepository\ObjectRepository::getLocaleManager($this);
 			try {
@@ -169,6 +183,20 @@ abstract class CmsAction extends SimpleController
 		}
 		
 		return $locale;
+	}
+	
+	/** 
+	 * Returns object of current user
+	 * @return User
+	 * @throws LogicException if there is no current user
+	 */
+	protected function getUser()
+	{
+		if (!($this->user instanceof User)) {
+			throw new Exception\LogicException("User is not logged in");
+		}
+		
+		return $this->user;
 	}
 	
 }

@@ -163,10 +163,10 @@ class FixtureHelper
 			
 			$this->log->debug("Publishing object $pageToPublish");
 			
-			$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en', Entity\Layout::MEDIA_SCREEN);
+			$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en_LV', Entity\Layout::MEDIA_SCREEN);
 			$request->blockFlushing();
 			$request->setDoctrineEntityManager($em);
-			$request->setRequestPageData($pageToPublish->getData('en'));
+			$request->setRequestPageData($pageToPublish->getData('en_LV'));
 			$request->publish($publicEm);
 			
 			$em->clear();
@@ -197,7 +197,7 @@ class FixtureHelper
 		$layout = $this->createLayout();
 		$template->addLayout('screen', $layout);
 
-		$templateData = new Entity\TemplateData('en');
+		$templateData = new Entity\TemplateData('en_LV');
 		$this->entityManager->persist($templateData);
 		$templateData->setTemplate($template);
 		$templateData->setTitle('Root template');
@@ -216,7 +216,7 @@ class FixtureHelper
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
-				$block->setLocale('en');
+				$block->setLocale('en_LV');
 
 				// used later in page
 				$this->headerTemplateBlock = $block;
@@ -224,7 +224,7 @@ class FixtureHelper
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setData($template->getData('en_LV'));
 				$blockProperty->setValue('Template Header');
 			}
 
@@ -234,12 +234,12 @@ class FixtureHelper
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
-				$block->setLocale('en');
+				$block->setLocale('en_LV');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setData($template->getData('en_LV'));
 				$blockProperty->setValue('Template source');
 				
 //				// A locked block
@@ -249,12 +249,12 @@ class FixtureHelper
 //				$block->setPlaceHolder($templatePlaceHolder);
 //				$block->setPosition(200);
 //				$block->setLocked(true);
-//				$block->setLocale('en');
+//				$block->setLocale('en_LV');
 //
 //				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 //				$this->entityManager->persist($blockProperty);
 //				$blockProperty->setBlock($block);
-//				$blockProperty->setData($template->getData('en'));
+//				$blockProperty->setData($template->getData('en_LV'));
 //				$blockProperty->setValue('Template locked block');
 			}
 
@@ -264,13 +264,13 @@ class FixtureHelper
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
-				$block->setLocale('en');
+				$block->setLocale('en_LV');
 				$block->setLocked();
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setData($template->getData('en_LV'));
 				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
 			}
 			
@@ -280,12 +280,12 @@ class FixtureHelper
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($templatePlaceHolder);
 				$block->setPosition(100);
-				$block->setLocale('en');
+				$block->setLocale('en_LV');
 
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en'));
+				$blockProperty->setData($template->getData('en_LV'));
 				$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
 			}
 		}
@@ -294,7 +294,7 @@ class FixtureHelper
 		
 		$childTemplate = new Entity\Template();
 		
-		$childTemplateData = new Entity\TemplateData('en');
+		$childTemplateData = new Entity\TemplateData('en_LV');
 		$this->entityManager->persist($childTemplateData);
 		$childTemplateData->setTemplate($childTemplate);
 		$childTemplateData->setTitle('Child template');
@@ -313,7 +313,7 @@ class FixtureHelper
 		$block->setComponentClass('Project\Text\TextController');
 		$block->setPlaceHolder($templatePlaceHolder);
 		$block->setPosition(200);
-		$block->setLocale('en');
+		$block->setLocale('en_LV');
 		$block->setLocked(true);
 
 		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
@@ -352,7 +352,7 @@ class FixtureHelper
 		}
 		$this->entityManager->flush();
 
-		$pageData = new Entity\PageData('en');
+		$pageData = new Entity\PageData('en_LV');
 		$pageData->setTemplate($template);
 		$this->entityManager->persist($pageData);
 		$pageData->setTitle(self::$constants[$type]['title']);
@@ -371,7 +371,7 @@ class FixtureHelper
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setBlock($this->headerTemplateBlock);
-				$blockProperty->setData($page->getData('en'));
+				$blockProperty->setData($page->getData('en_LV'));
 				$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
 				
 				$placeHolder = new Entity\PagePlaceHolder('header');
@@ -383,7 +383,7 @@ class FixtureHelper
 				$block->setComponentClass('Project\Text\TextController');
 				$block->setPlaceHolder($placeHolder);
 				$block->setPosition(0);
-				$block->setLocale('en');
+				$block->setLocale('en_LV');
 				
 				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 				$this->entityManager->persist($blockProperty);
@@ -404,12 +404,12 @@ class FixtureHelper
 					$block->setPlaceHolder($pagePlaceHolder);
 					// reverse order
 					$block->setPosition(100 * $i);
-					$block->setLocale('en');
+					$block->setLocale('en_LV');
 
 					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($page->getData('en'));
+					$blockProperty->setData($page->getData('en_LV'));
 					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');
 				}
 			}
