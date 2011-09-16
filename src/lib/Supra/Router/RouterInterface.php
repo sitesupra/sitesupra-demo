@@ -17,7 +17,8 @@ interface RouterInterface
     public function match(RequestInterface $request);
 	
 	/**
-	 * Finalizes request and sets base path
+	 * Finalizes request and sets base path.
+	 * Method is NOT called for prefilters.
 	 * @param RequestInterface $request
 	 */
 	public function finalizeRequest(RequestInterface $request);
@@ -42,6 +43,12 @@ interface RouterInterface
 	 */
 	public function setControllerClass($controllerClass);
 
+	/**
+	 * Initialize routed controller
+	 * @return ControllerInterface
+	 */
+	public function initializeController();
+	
 	/**
 	 * Get routed controller
 	 * @return ControllerInterface

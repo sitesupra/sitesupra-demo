@@ -20,7 +20,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * Login page path
 	 * @var string
 	 */
-	protected $loginPath = '/login';
+	protected $loginPath = 'login';
 
 	/**
 	 * Base path
@@ -114,7 +114,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function getLoginPath()
 	{
-		return $this->loginPath;
+		return trim($this->loginPath, '/');
 	}
 
 	/**
@@ -132,7 +132,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function getBasePath()
 	{
-		return $this->basePath;
+		return '/' . trim($this->basePath, '/');
 	}
 
 	/**
@@ -187,7 +187,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					
 				}
 
-
 				if ( ! empty($user)) {
 
 					$uri = $this->getSuccessRedirectUrl();
@@ -221,7 +220,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
 					} else {
 
-						$this->response->redirect($loginPath);
+						$this->response->redirect('/' . $loginPath);
 						$this->session->login = $login;
 						$this->session->message = $message;
 					}
@@ -243,21 +242,22 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		if (empty($sessionUser)) {
 
 			$loginPath = $this->getLoginPath();
-			$uri = $this->getRequest()->getRequestUri();
+			$uri = $this->getRequest()->getActionString();
 
 			if ($uri != $loginPath) {
 
 				if ($xmlHttpRequest) {
 					$this->response->setCode(401);
 				} else {
-					$this->response->redirect($loginPath . '?redirect_to=' . urlencode($uri));
+					$fullUri = $this->getRequest()->getRequestUri();
+					$this->response->redirect('/' . $loginPath . '?redirect_to=' . urlencode($fullUri));
 				}
 
 				throw new Exception\StopRequestException("User not authenticated");
 			}
 		} else {
 			$loginPath = $this->getLoginPath();
-			$uri = $this->getRequest()->getRequestUri();
+			$uri = $this->getRequest()->getActionString();
 
 			// Redirect from login form if the session is active
 			if ($uri == $loginPath) {
@@ -311,6 +311,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			$externalUrl = strpos($redirectTo, ':');
 
 			if ($externalUrl === false) {
+				$redirectTo = '/' . trim($redirectTo, '/');
+				
 				return $redirectTo;
 			}
 		}

@@ -142,7 +142,7 @@ YUI.add("supra.languagebar", function (Y) {
 					html_langs.push(TEMPLATE_LANGUAGE({
 						'title': langs[k].title,
 						'language': langs[k].id,
-						'icon': this.splitLocale(langs[k].id)[1],
+						'icon': this.splitLocale(langs[k].id)[1]
 					}));
 				}
 				
@@ -291,7 +291,7 @@ YUI.add("supra.languagebar", function (Y) {
 				}
 			}
 			return null;
-		},
+		}
 	});
 	
 	Supra.LanguageBar = LanguageBar;

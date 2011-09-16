@@ -11,8 +11,8 @@ class AuthenticatePreFilterController extends Authentication\AuthenticationContr
 {
 	public function __construct()
 	{
-		$this->setLoginPath('/authenticate/login');
-		$this->setBasePath('/authenticate');
+		$this->setLoginPath('authenticate/login');
+		$this->setBasePath('authenticate');
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
 		

@@ -24,21 +24,6 @@ class TopPriorityRouter extends RouterAbstraction
 	protected static $basePriority = 1000;
 	
 	/**
-	 * URI of the router what binds it to controller
-	 * @var Path
-	 */
-	protected $path;
-
-	/**
-	 * Router constructor
-	 * @param string $uri
-	 * @param array $params
-	 */
-	public function __construct()
-	{
-	}
-
-	/**
 	 * Whether the router matches the request.
 	 * Additionally move used URI part to the base URI property.
 	 * @param RequestInterface $request
@@ -51,21 +36,13 @@ class TopPriorityRouter extends RouterAbstraction
 	}
 	
 	/**
-	 * Finalizes request and sets base path
-	 * @param RequestInterface $request
-	 */
-	public function finalizeRequest(RequestInterface $request)
-	{
-		// empty
-	}
-
-	/**
-	 * Get router priority
+	 * {@inheritdoc}
 	 * @return array
 	 */
 	public function getPriority()
 	{
-		$priority = array(static::$basePriority, 0, 0);
+		$priority = array(static::$basePriority, 0, $this->priorityDiff);
+		
 		return $priority;
 	}
 
@@ -75,6 +52,6 @@ class TopPriorityRouter extends RouterAbstraction
 	 */
 	public function __toString()
 	{
-		return __CLASS__ . ':' . $this->path->__toString();
+		return __CLASS__;
 	}
 }

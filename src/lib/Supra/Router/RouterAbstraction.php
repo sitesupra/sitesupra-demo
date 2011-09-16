@@ -45,6 +45,10 @@ abstract class RouterAbstraction implements RouterInterface
 	 */
 	protected $controller;
 	
+	/**
+	 * Controlls order for routers with equal base and router calculated priority
+	 * @var integer
+	 */
 	protected $priorityDiff;
 	
 	/**
@@ -76,21 +80,38 @@ abstract class RouterAbstraction implements RouterInterface
 	}
 
 	/**
-	 * Get routed controller
+	 * {@inheritdoc}
+	 * @return ControllerInterface
+	 */
+	public function initializeController()
+	{
+		if ( ! is_null($this->controller)) {
+			throw new Exception\RuntimeException("Controller is already initialized");
+		}
+		
+		if ( ! class_exists($this->controllerClass)) {
+			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
+		}
+		
+		$this->controller = new $this->controllerClass;
+		
+		if ( ! ($this->controller instanceof ControllerInterface)) {
+			throw new Exception\RuntimeException("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
+		}
+		
+		return $this->controller;
+	}
+	
+	/**
+	 * {@inheritdoc}
 	 * @return ControllerInterface
 	 */
 	public function getController()
 	{
-		if ( ! is_null($this->controller)) {
-			return $this->controller;
+		if (empty($this->controller)) {
+			throw new Exception\RuntimeException("Controller not initialized");
 		}
-		if ( ! class_exists($this->controllerClass)) {
-			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
-		}
-		$this->controller = new $this->controllerClass;
-		if ( ! ($this->controller instanceof ControllerInterface)) {
-			throw new Exception\RuntimeException("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
-		}
+		
 		return $this->controller;
 	}
 
@@ -123,13 +144,17 @@ abstract class RouterAbstraction implements RouterInterface
 		if (array_key_exists($key, $this->parameters)) {
 			return $this->parameters[$key];
 		}
+		
 		return $default;
 	}
 	
+	/**
+	 * {@inheritdoc}
+	 * @param RequestInterface $request
+	 */
 	public function finalizeRequest(RequestInterface $request)
 	{
 		
 	}
-
 
 }

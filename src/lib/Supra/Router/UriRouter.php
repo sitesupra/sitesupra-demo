@@ -65,7 +65,7 @@ class UriRouter extends RouterAbstraction
 	}
 	
 	/**
-	 * Finalizes request and sets base path
+	 * {@inheritdoc}
 	 * @param RequestInterface $request
 	 */
 	public function finalizeRequest(RequestInterface $request)

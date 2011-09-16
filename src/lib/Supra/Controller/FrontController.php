@@ -119,22 +119,7 @@ class FrontController
 		$request = $this->getRequestObject();
 
 		try {
-			$controllers = $this->findControllers($request);
-
-			$break = false;
-			foreach ($controllers as $controller) {
-
-				try {
-					$this->runController($controller, $request);
-				} catch (Exception\StopRequestException $exc) {
-					$break = true;
-				}
-				$controller->output();
-
-				if ($break) {
-					break;
-				}
-			}
+			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
 
 			// Log the exception raised
@@ -162,36 +147,43 @@ class FrontController
 	/**
 	 * Find matching controller by the request
 	 * @param Request\RequestInterface $request
-	 * @return ControllerInterface
 	 */
-	public function findControllers(Request\RequestInterface $request)
+	public function findMatchingRouters(Request\RequestInterface $request)
 	{
-		$routers = array();
-		$controllers = array();
 		$allRouters = $this->getRouters();
+		$controllerFound = false;
+		
 		foreach ($allRouters as $router) {
 			/* @var $router Router\RouterAbstraction */
 			if ($router->match($request)) {
-				$controller = $router->getController();
-
-				$routers[] = $router;
-				$controllers[] = $controller;
+				$controller = $router->initializeController();
 
 				if ( ! $controller instanceof PreFilterInterface) {
+					$router->finalizeRequest($request);
+				}
+				
+				try {
+					$this->runController($controller, $request);
+				} catch (Exception\StopRequestException $exc) {
+					$controllerFound = true;
+				}
+				
+				// Stop on matching not prefilter controller
+				if ( ! $controller instanceof PreFilterInterface) {
+					$controllerFound = true;
+				}
+				
+				$controller->output();
+				
+				if ($controllerFound) {
 					break;
 				}
 			}
 		}
 
-		foreach ($routers as $router) {
-			$router->finalizeRequest($request);
-		}
-
-		if (empty($controllers)) {
+		if ( ! $controllerFound) {
 			throw new Exception\ResourceNotFoundException('No controller has been found for the request');
 		}
-
-		return $controllers;
 	}
 
 	/**
