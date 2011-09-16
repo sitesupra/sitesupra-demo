@@ -63,7 +63,11 @@ SU('dd-drag', function (Y) {
 		 */
 		dependancies_loaded: false,
 		
-		
+		/**
+		 * Start editing when content is loaded
+		 * @type {Boolean}
+		 */
+		edit_on_ready: false,
 		
 		
 		/**
@@ -161,8 +165,14 @@ SU('dd-drag', function (Y) {
 		 * On editing start change toolbar
 		 */
 		startEditing: function () {
+			if (!this.iframeObj) {
+				this.edit_on_ready = true;
+				return;
+			}
+			
 			if (!this.editing) {
 				this.editing = true;
+				this.edit_on_ready = false;
 				Manager.getAction('PageToolbar').setActiveAction('Page');
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 				
@@ -236,6 +246,13 @@ SU('dd-drag', function (Y) {
 				}, this);
 				
 				this.fire('iframeReady');
+				
+				//If editing was called before content was ready, then call it now
+				if (this.edit_on_ready) {
+					this.iframeObj.after('ready', function () {
+						this.startEditing();
+					}, this);
+				}
 			} else {
 				this.iframeObj.set('contentData', page_data.contents);
 				this.iframeObj.setHTML(page_data.internal_html);

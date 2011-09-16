@@ -7,7 +7,7 @@
 	right: 0;
 	top: 0;
 	height: 50px;
-	width: 350px;
+	width: 450px;
 	overflow: hidden;
 }
 .yui3-page-buttons .yui3-button,
@@ -18,6 +18,7 @@
 .yui3-page-buttons .yui3-button {
 	background-position: 100% -66px;
 	margin-right: 10px;
+	vertical-align: middle;
 }
 .yui3-page-buttons .yui3-button div {
 	background-position: 0 0;
@@ -124,13 +125,28 @@
 }
 
 
-
 .yui3-page-buttons .yui3-page-buttons-group {
 	white-space: nowrap;
 	position: absolute;
 	right: 0;
 	padding-top: 9px;
 	top: -50px; /* Node is animated inside view */
+}
+
+/**
+ * Disabled styles
+ */
+.yui3-page-buttons .yui3-button-disabled.yui3-button-mid p {
+	color: #ccc;
+}
+.yui3-page-buttons .yui3-button-disabled.yui3-button-mid-blue p {
+	color: #BCCAD8;
+}
+.yui3-page-buttons .yui3-button-disabled.yui3-button-mid-red p {
+	color: #9F4B4D;
+}
+.yui3-page-buttons .yui3-button-disabled.yui3-button-mid-green p {
+	color: #3FA43F;
 }
 
 /**
@@ -145,4 +161,15 @@
 }
 .yui3-editor-toolbar-group:first-child {
 	top: 0;
+}
+
+/**
+ * Message
+ */
+.yui3-page-butons-message {
+	display: inline-block;
+	margin: 0 10px 0 0;
+	color: #fff;
+	line-height: 32px;
+	vertical-align: middle;
 }

@@ -60,13 +60,12 @@ Supra(function (Y) {
 		lockTemplate: DEFINITION.lockPage,
 		
 		/**
-		 * On template lock request success start editing,
-		 * on failure show message
+		 * On template lock request success start editing
 		 *
 		 * @param {Object} data Response data
 		 * @param {Boolean} status Response status
 		 */
-		lockResponse: DEFINITION.lockResponse,
+		onLockResponse: DEFINITION.onLockResponse,
 		
 		/**
 		 * Publish template

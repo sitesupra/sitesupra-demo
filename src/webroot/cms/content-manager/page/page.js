@@ -157,19 +157,67 @@ Supra(function (Y) {
 			this.loading = false;
 			
 			//Edit button
-			var button_edit = Supra.Manager.PageButtons.groups.Root;
+			var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
+				button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
+				message_unlock = button_unlock.get('boundingBox').previous('p');
 			
 			if (status) {
 				this.data = data;
 				this.fire('loaded', {'data': data});
 				
-				//
-				var username = Supra.data.get(['user', 'name']);
-				if (data.locked && data.locked.username != username) {
+				//Check lock status
+				var username = Supra.data.get(['user', 'login']);
+				if (data.lock && data.lock.username != username) {
+					//Page locked by someone else
+					
+					button_edit.hide();
+					button_unlock.show();
+					button_unlock.set('disabled', !data.lock.allow_unlock);
+					
+					//Show message "Locked by ... on ..."
+					if (!message_unlock) {
+						message_unlock = Y.Node.create('<p class="yui3-page-butons-message"></p>');
+						button_unlock.get('boundingBox').insert(message_unlock, 'before');
+					}
+					
+					var template = Supra.Intl.get([this.getType(), 'locked_message']),
+						lock_data = Supra.mix({}, data.lock, {
+							'datetime': Y.DataType.Date.reformat(data.lock.datetime, '%Y-%m-%d %H:%M:%S', Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormatShort'))
+						});
+					
+					template = Supra.Template.compile(template);
+					message_unlock.set('innerHTML', template(lock_data));
+					
+				} else if (data.lock) {
+					//Page locked by user, switch to editing
+					
 					button_edit.show();
+					button_unlock.hide();
+					if (message_unlock) message_unlock.remove();
+					
+					//On first page load page content may not exist yet
+					var content_action = Manager.getAction('PageContent');
+					if (content_action.get('executed')) {
+						content_action.startEditing();
+					} else {
+						content_action.after('execute', function () {
+							content_action.startEditing();
+						});
+					}
+					
 				} else {
+					//Page not locked, show "Edit page" button
+					
 					button_edit.show();
+					button_unlock.hide();
+					if (message_unlock) message_unlock.remove();
+					
 				}
+				
+				//Update edit button label to "Edit page" or "Edit template"
+				var label = Supra.Intl.get([this.getType(), 'edit']);
+				button_edit.set('label', label);
+				
 			} else {
 				//Remove loading style
 				Y.one('body').removeClass('loading');
@@ -199,27 +247,45 @@ Supra(function (Y) {
 		/**
 		 * Unlock page, same is automatically done in publish
 		 */
-		unlockPage: function () {
+		unlockPage: function (force) {
 			var uri = this.getDataPath('unlock'),
-				page_data = this.getPageData();
+				page_data = this.getPageData(),
+				button_unlock = Supra.Manager.PageButtons.buttons.Root[1];
 			
 			var post_data = {
 				'page_id': page_data.id,
-				'locale': Supra.data.get('locale')
+				'locale': Supra.data.get('locale'),
+				'force': (force ? 1 : 0)
 			};
+			
+			button_unlock.set('loading', true);
 			
 			Supra.io(uri, {
 				'data': post_data,
-				'method': 'post'
+				'method': 'post',
+				'context': this,
+				'on': {
+					'success': function (data, status) {
+						//Show edit and hide unlock buttons
+						var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
+							button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
+							message_unlock = button_unlock.get('boundingBox').previous('p');
+						
+						button_edit.show();
+						button_unlock.hide();
+						button_unlock.set('loading', false);
+						if (message_unlock) message_unlock.remove();
+					}
+				}
 			});
 		},
 		
 		/**
-		 * Lock page, if page is already locked show message
+		 * Lock page
 		 *
 		 * @param {Boolean} force Force lock
 		 */
-		lockPage: function (force) {
+		lockPage: function () {
 			var uri = this.getDataPath('lock'),
 				page_data = this.getPageData(),
 				buttons = Manager.PageButtons.buttons.Root;
@@ -230,8 +296,7 @@ Supra(function (Y) {
 			//Send data
 			var post_data = {
 				'page_id': page_data.id,
-				'locale': Supra.data.get('locale'),
-				'force': (force ? 1 : 0)
+				'locale': Supra.data.get('locale')
 			};
 			
 			Supra.io(uri, {
@@ -239,7 +304,7 @@ Supra(function (Y) {
 				'method': 'post',
 				'context': this,
 				'on': {
-					'complete': this.lockResponse
+					'complete': this.onLockResponse
 				}
 			}, this);
 		},
@@ -251,56 +316,14 @@ Supra(function (Y) {
 		 * @param {Object} data Response data
 		 * @param {Boolean} status Response status
 		 */
-		lockResponse: function (data /* Response data */, status /* Response status */) {
+		onLockResponse: function (data /* Response data */, status /* Response status */) {
 			//Unset loading style
 			var buttons = Manager.PageButtons.buttons.Root;
 			buttons[0].set('loading', false);
 			
-			//Handle response
-			if (status && data === true || data === 1) {
-				
+			if (status) {
 				//Success
 				Manager.PageContent.startEditing();
-				
-			} else if (status && data) {
-				
-				//Compile message template and change date and time format
-				var template = Supra.Intl.get([this.getType(), 'locked_message']);
-				template = Supra.Template.compile(template);
-				
-				data.datetime = Y.DataType.Date.reformat(data.datetime, '%Y-%m-%d %H:%M:%S', Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormatShort'));
-				
-				//"Unlock" may not be visible
-				var buttons = [];
-				if (data.allow_unlock) {
-					//Some users may not have permissions to unlock page
-					//or may have lower level access than user who locked it
-					buttons = [{
-						'id': 'unlock',
-						'label': Supra.Intl.get([this.getType(), 'unlock']),
-						'click': function () {
-							if (this.isPage()) {
-								this.lockPage(true);
-							} else {
-								this.lockTemplate(true);
-							}
-						},
-						'context': this,
-						'style': 'mid-green'
-					}];
-				}
-				
-				//
-				Manager.executeAction('Confirmation', {
-					'message': template(data),
-					'useMask': true,
-					'buttons': buttons.concat([
-						{
-							'id': 'cancel',
-							'label': Supra.Intl.get(['buttons', 'cancel'])
-						}
-					])
-				});
 			}
 		},
 		

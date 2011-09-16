@@ -62,6 +62,14 @@ Supra(function (Y) {
 						Manager.Template.lockTemplate();
 					}
 				}
+			},
+			{
+				'id': 'unlock',
+				'visible': false,
+				'callback': function () {
+					//Force page unlock
+					Manager.Page.unlockPage(true);
+				}
 			}
 		]
 	};
