@@ -166,8 +166,8 @@ Supra(function (Y) {
 				this.fire('loaded', {'data': data});
 				
 				//Check lock status
-				var username = Supra.data.get(['user', 'login']);
-				if (data.lock && data.lock.username != username) {
+				var userlogin = Supra.data.get(['user', 'login']);
+				if (data.lock && data.lock.userlogin != userlogin) {
 					//Page locked by someone else
 					
 					button_edit.hide();
