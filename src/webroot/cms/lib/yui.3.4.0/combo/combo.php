@@ -13,6 +13,7 @@ if (!sizeOf($files)) {
     exit;
 }
 
+$css = strpos($files[0], '.css') !== false ? true : false;
 $cache = false;
 $pre = '../../../../';
 $tag = '';
@@ -41,11 +42,20 @@ function getCache($sha1) {
 }
 
 function writeFiles($files, $sha1) {
-    global $pre, $tag, $build, $apc, $cache, $version;
+    global $pre, $tag, $build, $apc, $cache, $version, $css;
+    $outFile = '';
     $out = '';
     foreach ($files as $k => $file) {
         if (@is_file($pre.$file)) {
-            $out .= @file_get_contents($pre.$file)."\n";
+            $outFile = @file_get_contents($pre.$file);
+			
+			if ($css) {
+				//Add path for images which are in same folder as CSS file
+				$dir = dirname($file);
+				$outFile = preg_replace("/url\(([^\/]*)\)/", "url($dir/$1)", $outFile);
+			}
+			
+			$out .= $outFile . "\n";
         }
     }
     $out = str_replace('@VERSION@', $version, $out);

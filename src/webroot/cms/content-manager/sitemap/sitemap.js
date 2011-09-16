@@ -20,7 +20,7 @@ SU.addModule('website.input-template', {
 });
 SU.addModule('website.sitemap-settings', {
 	path: 'sitemap/modules/sitemap-settings.js',
-	requires: ['supra.panel', 'supra.form', 'website.input-template']
+	requires: ['supra.panel', 'supra.input', 'website.input-template']
 });
 
 SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {

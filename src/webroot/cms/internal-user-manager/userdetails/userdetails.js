@@ -4,7 +4,7 @@
 /**
  * Main manager action, initiates all other actions
  */
-Supra('supra.form', function (Y) {
+Supra('supra.input', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;

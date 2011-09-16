@@ -10,7 +10,7 @@
 	width: 100%;
 	height: 100%;
 	min-height: 200px;
-	background: url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+	background: url(../../supra/img/ajax-loader.gif) 50% 50% no-repeat;
 }
 
 /**
@@ -79,16 +79,16 @@
 }
 
 .yui3-medialist ul.folder > li.type-folder > a {
-	background: url(/cms/lib/supra/img/medialibrary/icon-folder.png) 0 0 no-repeat;
+	background: url(../../supra/img/medialibrary/icon-folder.png) 0 0 no-repeat;
 }
 .yui3-medialist ul.folder > li.type-folder-private > a {
-	background: url(/cms/lib/supra/img/medialibrary/icon-folder-private.png) 0 0 no-repeat;
+	background: url(../../supra/img/medialibrary/icon-folder-private.png) 0 0 no-repeat;
 }
 .yui3-medialist ul.folder > li.type-file > a {
-	background: url(/cms/lib/supra/img/medialibrary/icon-file.png) 0 0 no-repeat;
+	background: url(../../supra/img/medialibrary/icon-file.png) 0 0 no-repeat;
 }
 .yui3-medialist ul.folder > li.type-image > a {
-	background: url(/cms/lib/supra/img/medialibrary/icon-image.png) 0 0 no-repeat;
+	background: url(../../supra/img/medialibrary/icon-image.png) 0 0 no-repeat;
 }
 
 
@@ -120,7 +120,7 @@
 	float: left;
 	width: 50%;
 	height: 25px;
-	background: url(/cms/lib/supra/img/medialibrary/upload-progress.png) 0 0 repeat;
+	background: url(../../supra/img/medialibrary/upload-progress.png) 0 0 repeat;
 	
 	-moz-animation-duration: 7s;
 	-webkit-animation-duration: 7s;

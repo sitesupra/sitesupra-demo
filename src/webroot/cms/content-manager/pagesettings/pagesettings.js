@@ -23,7 +23,7 @@ SU.addModule('website.version-list-css', {
 */
 
 
-SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.calendar', 'supra.slideshow', function (Y) {
+SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager;

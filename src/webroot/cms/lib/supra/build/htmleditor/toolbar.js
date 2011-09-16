@@ -286,4 +286,4 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	Supra.HTMLEditorToolbar = HTMLEditorToolbar;
 	
 	
-}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button', 'supra.editor-toolbar-css']});
+}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button']});

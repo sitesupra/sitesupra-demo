@@ -1137,4 +1137,4 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['widget', 'supra.slideshow', 'supra.medialibrary-data', 'supra.medialibrary-list-css']});
+}, YUI.version, {'requires': ['widget', 'supra.slideshow', 'supra.medialibrary-data']});

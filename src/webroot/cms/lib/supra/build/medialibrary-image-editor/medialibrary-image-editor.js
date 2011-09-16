@@ -631,4 +631,4 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['plugin', 'supra.medialibrary-image-editor-css', 'transition', 'supra.template']});
+}, YUI.version, {'requires': ['plugin', 'transition', 'supra.template']});

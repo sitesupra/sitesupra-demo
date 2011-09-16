@@ -153,11 +153,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.button': {
 		path: 'button/button.js',
-		requires: ['supra.button-css']
-	},
-	'supra.button-css': {
-		path: 'button/button.css',
-		type: 'css'
+		requires: ['node-focusmanager', 'widget', 'widget-child'],
+		skinnable: true
 	},
 	
 	/**
@@ -166,16 +163,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.medialibrary': {
 		path: 'medialibrary/medialibrary.js',
 		requires: [
-			'supra.medialibrary-base',
 			'supra.medialibrary-list'
-		]
-	},
-	
-	'supra.medialibrary-base': {
-		path: 'medialibrary/base.js',
-		requires: [
-			'widget'
-		]
+		],
+		skinnable: true
 	},
 	
 	'supra.medialibrary-data': {
@@ -191,8 +181,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: [
 			'widget',
 			'supra.slideshow',
-			'supra.medialibrary-data',
-			'supra.medialibrary-list-css'
+			'supra.medialibrary-data'
 		]
 	},
 	
@@ -200,24 +189,19 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'medialibrary/medialist-extended.js',
 		requires: [
 			'slider',
-			'supra.form',
-			'supra.medialibrary-list',
+			'supra.input',
+			'supra.medialibrary',
 			'supra.slideshow-multiview',
 			'supra.medialibrary-list-edit',
 			'supra.medialibrary-image-editor'
 		]
 	},
 	
-	'supra.medialibrary-list-css' :{
-		path: 'medialibrary/medialist.css',
-		type: 'css'
-	},
-	
 	'supra.medialibrary-list-dd': {
 		path: 'medialibrary/medialist-dd.js',
 		requires: [
 			'plugin',
-			'supra.medialibrary-list'
+			'supra.medialibrary'
 		]
 	},
 	
@@ -228,19 +212,6 @@ Supra.YUI_BASE.groups.supra.modules = {
 		]
 	},
 	
-	'supra.medialibrary-image-editor': {
-		path: 'medialibrary/medialist-image-editor.js',
-		requires: [
-			'plugin',
-			'transition',
-			'supra.medialibrary-image-editor-css'
-		]
-	},
-	'supra.medialibrary-image-editor-css': {
-		path: 'medialibrary/medialist-image-editor.css',
-		type: 'css'
-	},
-	
 	'supra.medialibrary-upload': {
 		path: 'medialibrary/upload.js',
 		requires: [
@@ -249,22 +220,18 @@ Supra.YUI_BASE.groups.supra.modules = {
 		]
 	},
 	
+	'supra.medialibrary-image-editor': {
+		path: 'medialibrary-image-editor/medialibrary-image-editor.js',
+		requires: [
+			'plugin',
+			'transition'
+		],
+		skinnable: true
+	},
+	
 	/**
 	 * Editor widget
 	 */
-	'supra.editor': {
-		path: 'editor/editor.js',
-		requires: ['supra.editor-toolbar']
-	},
-	'supra.editor-toolbar': {
-		path: 'editor/toolbar.js',
-		requires: ['widget', 'supra.panel', 'supra.button', 'supra.tabs', 'supra.editor-toolbar-css']
-	},
-	'supra.editor-toolbar-css': {
-		path: 'editor/toolbar.css',
-		type: 'css'
-	},
-	
 	'supra.htmleditor': {
 		path: 'htmleditor/htmleditor.js',
 		requires: [
@@ -288,7 +255,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-style',
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph'
-		]
+		],
+		skinnable: true
 	},
 		'supra.htmleditor-base': {
 			path: 'htmleditor/htmleditor-base.js'
@@ -323,11 +291,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-toolbar': {
 			path: 'htmleditor/toolbar.js',
-			requires: ['supra.panel', 'supra.button', 'supra.htmleditor-toolbar-css']
-		},
-		'supra.htmleditor-toolbar-css': {
-			path: 'htmleditor/toolbar.css',
-			type: 'css'
+			requires: ['supra.panel', 'supra.button']
 		},
 		
 		/* Plugins */
@@ -377,15 +341,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.header': {
 		path: 'header/header.js',
-		requires: ['supra.header.appdock', 'supra.header-css']
+		requires: ['supra.header.appdock'],
+		skinnable: true
 	},
 	'supra.header.appdock': {
 		path: 'header/appdock.js',
 		requires: ['supra.tooltip']
-	},
-	'supra.header-css': {
-		path: 'header/header.css',
-		type: 'css'
 	},
 	
 	/**
@@ -393,7 +354,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.datatable': {
 		path: 'datatable/datatable.js',
-		requires: ['widget', 'datasource', 'dataschema', 'supra.datatable-css', 'datatype', 'querystring', 'supra.datatable-row', 'supra.datatable-checkboxes']
+		requires: ['widget', 'datasource', 'dataschema', 'datatype', 'querystring', 'supra.datatable-row', 'supra.datatable-checkboxes'],
+		skinnable: true
 	},
 	'supra.datatable-row': {
 		path: 'datatable/datatable-row.js'
@@ -402,21 +364,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datatable/plugin-checkboxes.js',
 		requires: ['supra.datatable']
 	},
-	'supra.datatable-css': {
-		path: 'datatable/datatable.css',
-		type: 'css'
-	},
 	
 	/**
 	 * Panel
 	 */
 	'supra.panel': {
 		path: 'panel/panel.js',
-		requires: ['overlay', 'supra.button', 'supra.panel-css']
-	},
-	'supra.panel-css': {
-		path: 'panel/panel.css',
-		type: 'css'
+		requires: ['overlay', 'supra.button'],
+		skinnable: true
 	},
 	'supra.tooltip': {
 		path: 'panel/tooltip.js',
@@ -428,15 +383,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.slideshow': {
 		path: 'slideshow/slideshow.js',
-		requires: ['widget', 'anim', 'supra.slideshow-css']
+		requires: ['widget', 'anim'],
+		skinnable: true
 	},
 	'supra.slideshow-multiview': {
 		path: 'slideshow/slideshow-multiview.js',
-		requires: ['widget', 'anim', 'supra.slideshow-css']
-	},
-	'supra.slideshow-css': {
-		path: 'slideshow/slideshow.css',
-		type: 'css'
+		requires: ['supra.slideshow']
 	},
 	
 	/**
@@ -444,11 +396,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.footer': {
 		path: 'footer/footer.js',
-		requires: ['supra.footer-css']
-	},
-	'supra.footer-css': {
-		path: 'footer/footer.css',
-		type: 'css'
+		skinnable: true
 	},
 	
 	/**
@@ -456,7 +404,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.tree': {
 		path: 'tree/tree.js',
-		requires: ['supra.tree-css', 'supra.tree-node', 'supra.tree-plugin-expand-history', 'widget', 'widget-parent']
+		requires: ['supra.tree-node', 'supra.tree-plugin-expand-history', 'widget', 'widget-parent'],
+		skinnable: true
 	},
 	'supra.tree-dragable': {
 		path: 'tree/tree-dragable.js',
@@ -474,17 +423,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'tree/plugin-expand-history.js',
 		requires: ['plugin', 'cookie', 'supra.tree']
 	},
-	'supra.tree-css': {
-		path: 'tree/tree.css',
-		type: 'css'
-	},
 	
 	/**
 	 * Input widgets
 	 */
 	'supra.input-proto': {
 		path: 'input/proto.js',
-		requires: ['widget', 'supra.input-css']
+		requires: ['widget']
 	},
 	'supra.input-hidden': {
 		path: 'input/hidden.js',
@@ -522,6 +467,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.form': {
 		path: 'input/form.js',
 		requires: [
+			'widget',
 			'supra.input-proto',
 			'supra.input-hidden',
 			'supra.input-string',
@@ -531,11 +477,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select',
 			'supra.input-select-list',
 			'supra.input-slider'
-		]
+		],
 	},
-	'supra.input-css': {
-		path: 'input/input.css',
-		type: 'css'
+	'supra.input': {
+		path: 'input/input.js',
+		requires: ['supra.form'],
+		skinnable: true
 	},
 	
 	//In-line HTML editor
@@ -559,11 +506,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	
 	'supra.calendar': {
 		path: 'calendar/calendar.js',
-		requires: ['widget', 'anim', 'datatype-date', 'supra.calendar-css']
-	},
-	'supra.calendar-css': {
-		path: 'calendar/calendar.css',
-		type: 'css'
+		requires: ['widget', 'anim', 'datatype-date'],
+		skinnable: true
 	},
 	
 	/**
@@ -571,11 +515,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.tabs': {
 		path: 'tabs/tabs.js',
-		requires: ['widget', 'supra.tabs-css']
-	},
-	'supra.tabs-css': {
-		path: 'tabs/tabs.css',
-		type: 'css'
+		requires: ['widget'],
+		skinnable: true
 	},
 	
 	/**
@@ -583,11 +524,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.languagebar': {
 		path: 'languagebar/languagebar.js',
-		requires: ['supra.tooltip', 'supra.languagebar-css']
-	},
-	'supra.languagebar-css': {
-		path: 'languagebar/languagebar.css',
-		type: 'css'
+		requires: ['supra.tooltip'],
+		skinnable: true
 	},
 	
 	/**
@@ -664,7 +602,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.manager-action-plugin-form': {
 		path: 'manager/action/plugin-form.js',
-		requires: ['supra.manager-action-plugin-base', 'supra.form']
+		requires: ['supra.manager-action-plugin-base', 'supra.input']
 	},
 	'supra.manager-action-plugin-footer': {
 		path: 'manager/action/plugin-footer.js',

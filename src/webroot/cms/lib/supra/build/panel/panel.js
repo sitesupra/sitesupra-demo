@@ -650,4 +650,4 @@ YUI.add('supra.panel', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['overlay', 'supra.button', 'supra.panel-css']});
+}, YUI.version, {requires: ['overlay', 'supra.button']});

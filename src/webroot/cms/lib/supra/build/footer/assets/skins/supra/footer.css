@@ -1,0 +1,31 @@
+.yui3-footer {
+	border-top: 1px solid #e0e0e0;
+}
+	.yui3-footer-content {
+		overflow: hidden;
+		min-height: 1px;
+		padding: 10px;
+		border-top: 1px solid #fff;
+	}
+	
+	.yui3-form .yui3-footer-content {
+		padding: 10px 0;
+	}
+	
+	.yui3-footer .left {
+		float: left;
+	}
+	.yui3-footer .right {
+		float: right;
+	}
+	
+	.yui3-footer .yui3-button {
+		margin-left: 10px;
+	}
+	.yui3-footer .yui3-button:first-child {
+		margin-left: 0;
+	}
+
+.yui3-footer-hidden {
+	display: none;
+}

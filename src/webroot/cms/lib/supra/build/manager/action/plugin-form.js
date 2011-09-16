@@ -58,4 +58,4 @@ YUI.add('supra.manager-action-plugin-form', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['supra.manager-action-plugin-base', 'supra.form']});
+}, YUI.version, {requires: ['supra.manager-action-plugin-base', 'supra.input']});

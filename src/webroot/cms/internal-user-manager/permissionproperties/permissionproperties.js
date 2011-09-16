@@ -13,13 +13,13 @@ SU.addModule('website.tree-node-permissions', {
 });
 SU.addModule('website.permission-list', {
 	path: 'modules/permission-list.js',
-	requires: ['dd', 'supra.form']
+	requires: ['dd', 'supra.input']
 });
 
 /**
  * Main manager action, initiates all other actions
  */
-Supra('supra.form', 'supra.tree-dragable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
+Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;

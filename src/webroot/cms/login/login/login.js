@@ -1,4 +1,4 @@
-SU('supra.form', 'cookie', function (Y) {
+SU('supra.input', 'cookie', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,

@@ -44,7 +44,7 @@ button::-moz-focus-inner {
 .yui3-button-small, .yui3-button-small-blue, .yui3-button-small-red,
 .yui3-button-small div, .yui3-button-small-blue div, .yui3-button-small-red div,
 .yui3-button-small button, .yui3-button-small-blue button, .yui3-button-small-red button {
-	background-image: url(/cms/lib/supra/build/button/button-small.gif);
+	background-image: url(button-small.gif);
 }
 	.yui3-button-small button, .yui3-button-small-blue button, .yui3-button-small-red button {
 		height: 20px;
@@ -120,7 +120,7 @@ button::-moz-focus-inner {
 .yui3-button-mid, .yui3-button-group, .yui3-button-mid-blue, .yui3-button-mid-red, .yui3-button-mid-green,
 .yui3-button-mid div, .yui3-button-group div, .yui3-button-mid-blue div, .yui3-button-mid-red div, .yui3-button-mid-green div,
 .yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button {
-	background-image: url(/cms/lib/supra/build/button/button-mid.png);
+	background-image: url(button-mid.png);
 }
 	.yui3-button-mid button, .yui3-button-group button, .yui3-button-mid-blue button, .yui3-button-mid-red button, .yui3-button-mid-green button,
 	.yui3-button-mid, .yui3-button-group, .yui3-button-mid-blue, .yui3-button-mid-red, .yui3-button-mid-green {
@@ -169,7 +169,7 @@ button::-moz-focus-inner {
 	
 	/* Gray middle sized button group */
 	.yui3-button-group, .yui3-button-group div, .yui3-button-group button {
-		background: url(/cms/lib/supra/build/button/button-tb.png) 0 0 no-repeat;
+		background: url(button-tb.png) 0 0 no-repeat;
 	}
 	.yui3-button-group { background-position: 100% -64px; }
 	.yui3-button-group div { background-position: 0 0; padding: 0 4px; }
@@ -258,7 +258,7 @@ button::-moz-focus-inner {
 .yui3-button-mid-large,
 .yui3-button-mid-large div,
 .yui3-button-mid-large button {
-	background-image: url(/cms/lib/supra/build/button/button-mid-large.png);
+	background-image: url(button-mid-large.png);
 }
 	.yui3-button-mid-large button {
 		height: 41px;
@@ -289,7 +289,7 @@ button::-moz-focus-inner {
 .yui3-button-large,
 .yui3-button-large div,
 .yui3-button-large button {
-	background-image: url(/cms/lib/supra/build/button/button-large.png);
+	background-image: url(button-large.png);
 }
 	.yui3-button-large button {
 		height: 50px;
@@ -359,7 +359,7 @@ button::-moz-focus-inner {
 	height: 19px;
 	display: block;
 	overflow: hidden;
-	background: url(/cms/lib/supra/img/panel/button-close.png) 0 0 no-repeat;
+	background: url(../../supra/img/panel/button-close.png) 0 0 no-repeat;
 	position: absolute;
 	right: 4px;
 	top: 4px;
@@ -396,5 +396,5 @@ button::-moz-focus-inner {
 .yui3-button.yui3-button-loading p {
 	color: transparent !important;
 	text-shadow: none !important;
-	background: url(/cms/lib/supra/img/ajax-loader-24.png) 50% 50% no-repeat;
+	background: url(../../supra/img/ajax-loader-24.png) 50% 50% no-repeat;
 }

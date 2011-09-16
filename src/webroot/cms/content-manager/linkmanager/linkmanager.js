@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.form', 'supra.slideshow', 'supra.tree', 'supra.medialibrary-list', function (Y) {
+SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,

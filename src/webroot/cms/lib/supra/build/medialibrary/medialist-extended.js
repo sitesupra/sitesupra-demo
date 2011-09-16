@@ -609,7 +609,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	
 }, YUI.version, {'requires': [
 	'slider',
-	'supra.form',
+	'supra.input',
 	'supra.medialibrary-list',
 	'supra.slideshow-multiview',
 	'supra.medialibrary-list-edit',

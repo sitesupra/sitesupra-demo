@@ -91,7 +91,11 @@ if (typeof Supra === "undefined") {
 	    root:		"/cms/lib/yui." + YUI.version + "/build/",
 		base:		"/cms/lib/yui." + YUI.version + "/build/",
 	    comboBase:	"/cms/lib/yui." + YUI.version + "/combo/combo.php?",
-	    filter:		"min",	//min, debug, raw
+	    filter:		{
+				        //Remove supra. from module paths
+				        'searchExp': "supra\\.([^/]*?)(-min)?(\\.js|\\.css)?",
+				        'replaceStr': "$1$3"
+			        },
 		
 		//Default skin
 		skin: {
@@ -107,7 +111,10 @@ if (typeof Supra === "undefined") {
 				base: "/cms/lib/supra/build/",
 				//Use YUI file combo
 				comboBase: "/cms/lib/yui." + YUI.version + "/combo/combo.php?",
-				filter: "raw",
+				filter: {
+			        'searchExp': "supra\\.(.*)(-min)?\\.(js|css)",
+			        'replaceStr': "$1.$3"
+		        },
 				modules: {}	//@see modules.js
 			},
 			website: {

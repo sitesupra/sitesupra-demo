@@ -459,4 +459,4 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'anim', 'supra.slideshow-css']});
+}, YUI.version, {requires:['supra.slideshow']});

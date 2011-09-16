@@ -1,0 +1,122 @@
+.yui3-calendar-content {
+	border: 1px solid #ccc;
+	padding: 7px 10px 10px;
+	
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	
+	overflow: hidden;
+}
+
+.yui3-calendar-nav {
+	position: relative;
+	text-align: center;
+	padding-bottom: 7px;
+}
+
+/* == Arrows */
+.yui3-calendar-prev,
+.yui3-calendar-next {
+	position: absolute;
+	top: 3px;
+	width: 18px;
+	height: 20px;
+	background: url(../../supra/img/calendar/arrows.png) 50% 0 no-repeat;
+}
+.yui3-calendar-prev {
+	left: 1%;
+}
+.yui3-calendar-prev:hover {
+	background-position: 50% -20px;
+}
+.yui3-calendar-prev:active {
+	background-position: 50% -40px;
+}
+.yui3-calendar-next {
+	right: 1%;
+	background-position: 50% -60px;
+}
+.yui3-calendar-next:hover {
+	background-position: 50% -80px;
+}
+.yui3-calendar-next:active {
+	background-position: 50% -100px;
+}
+
+/* == Calendar */
+.yui3-calendar-body {
+	position: relative;
+}
+.yui3-calendar-body table {
+	width: 100%;
+	border-collapse: separate;
+	font-size: 12px;
+}
+
+.yui3-calendar-body table thead th {
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	width: 14.28%;
+	
+	color: #999;
+	line-height: 22px;
+	text-align: center;
+}
+
+.yui3-calendar-body table tbody td {
+	border-left: 1px solid #eee;
+	border-top: 1px solid #eee;
+	width: 14.28%;
+	
+	line-height: 22px;
+	text-align: center;
+	cursor: pointer;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+.yui3-calendar-body table thead th:first-child,
+.yui3-calendar-body table tbody td:first-child {
+	border-left: 0;
+}
+.yui3-calendar-body table tbody tr:first-child td {
+	border-top: 1px solid #ddd;
+}
+
+.yui3-calendar-body table tbody td.out {
+	color: #999;
+}
+
+.yui3-calendar-body table tbody td:hover,
+.yui3-calendar-body table tbody td.selected {
+	background: #BAD2E6 url(../../supra/img/calendar/background.png) 0 -22px repeat-x;
+	color: #000;
+}
+.yui3-calendar-body table tbody td.selected {
+	background-position: 0 0;
+	
+	-moz-box-shadow: 0 0 1px #2C5577 inset, 0 2px 0 #EBF3FE inset;
+	-webkit-box-shadow: 0 0 1px #2C5577 inset, 0 2px 0 #EBF3FE inset;
+	box-shadow: 0 0 1px #2C5577 inset, 0 2px 0 #EBF3FE inset;
+}
+.yui3-calendar-body table tbody td.disabled,
+.yui3-calendar-body table tbody td.disabled:hover {
+	background: none;
+	color: #999;
+	cursor: default;
+	text-shadow: none;
+	
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+/* == Date list */
+.yui3-calendar-dates {
+	padding: 5px 5px 0;
+}
+.yui3-calendar-dates a {
+	display: inline-block;
+	width: 50%;
+	padding: 5px 0;
+	text-align: center;
+}

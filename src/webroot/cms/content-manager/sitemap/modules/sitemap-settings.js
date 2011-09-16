@@ -358,4 +358,4 @@ YUI().add('website.sitemap-settings', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['supra.panel', 'supra.form', 'website.input-template']});
+}, YUI.version, {requires: ['supra.panel', 'supra.input', 'website.input-template']});

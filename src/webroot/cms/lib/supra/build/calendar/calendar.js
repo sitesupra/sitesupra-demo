@@ -506,4 +506,4 @@ YUI.add("supra.calendar", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["widget", "anim", "datatype-date", "supra.calendar-css"]});
+}, YUI.version, {requires:["widget", "anim", "datatype-date"]});

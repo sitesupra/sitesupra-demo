@@ -1,0 +1,52 @@
+/*
+ * Constants
+ * 
+ * Colors
+ *   background - #fff
+ *   border - #ccc
+ */
+
+.datatable {
+	display: none;
+}
+.yui3-datatable .datatable {
+	display: block;
+}
+	.yui3-datatable table {
+		width: 100%;
+		background: #fff;
+		border-collapse: separate;
+	}
+
+.yui3-datatable-content {
+	border: 1px solid #ccc;
+}
+	.yui3-datatable-content th {
+		background: #EDF5FF;
+		border-left: 1px solid #CBCBCB;
+		border-bottom: 1px solid #CBCBCB;
+		padding: 5px 10px;
+		background: url(row-th.gif) 0 0 repeat-x;
+	}
+	.yui3-datatable-content th:first-child {
+		border-left: 0;
+	}
+	
+	.yui3-datatable-content td {
+		border-left: 1px solid #CBCBCB;
+		padding: 5px 10px;
+	}
+	.yui3-datatable-content td:first-child {
+		border-left: 0;
+	}
+	
+	tr.yui3-datatable-odd {
+		background: #EDF5FF;
+	}
+
+/**
+ * Checkbox
+ */
+.yui3-datatable .yui3-datatable-checkbox {
+	vertical-align: middle;
+}
