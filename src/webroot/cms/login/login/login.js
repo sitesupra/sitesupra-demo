@@ -183,6 +183,16 @@ SU('supra.form', 'cookie', function (Y) {
 			this.footer.getButton('done').set('loading', false);
 			this.loginform.set('disabled', false);
 			
+			//Disable login field if needed
+			if (Supra.data.get(['application', 'id']) != 'login') {
+				//If opened from another manager (session expired) the disable login input
+				var login = Supra.data.get(['user', 'login']),
+					input = this.loginform.getInput('supra_login');
+				
+				input.set('value', login)
+					 .set('disabled', true);
+			}
+			
 			//Reset password field value and focus input
 			this.loginform.getInput('supra_password').resetValue();
 			if (!this.loginform.getInput('supra_login').getValue()) {

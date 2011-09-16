@@ -93,6 +93,11 @@
 	.yui3-input.yui3-input-focused select {
 		border-color: #36c;
 	}
+	
+	.yui3-input-disabled input:hover,
+	.yui3-input-disabled select:hover {
+		border-color: #999;
+	}
 
 .yui3-input .input-label-replacement input,
 .yui3-input.input-label-replacement input,
