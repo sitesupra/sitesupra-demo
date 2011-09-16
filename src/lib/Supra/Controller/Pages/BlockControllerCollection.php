@@ -11,25 +11,21 @@ use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 /**
- * 
+ * Singleton storing all block configuration
  */
 class BlockControllerCollection
 {
-
 	/**
-	 *
 	 * @var array 
 	 */
 	protected $configuration = array();
 	
 	/**
-	 *
 	 * @var BlockControllerCollection 
 	 */
 	protected static $instance;
 
 	/**
-	 *
 	 * @return BlockControllerCollection 
 	 */
 	public static function getInstance()
@@ -41,7 +37,6 @@ class BlockControllerCollection
 	}
 
 	/**
-	 *
 	 * @return array 
 	 */
 	public function getConfigurationList()
@@ -50,33 +45,32 @@ class BlockControllerCollection
 	}
 	
 	/**
-	 *
-	 * @param string $controllerClass
+	 * @param string $blockId
 	 * @return BlockControllerConfiguration 
 	 */
-	public function getConfiguration($controllerClass)
+	public function getConfiguration($blockId)
 	{
-		return $this->configuration[$className];
+		return $this->configuration[$blockId];
 	}
 
 	/**
-	 *
 	 * @param BlockControllerConfiguration $configuration 
 	 */
 	public function addConfiguration(BlockControllerConfiguration $configuration)
 	{
-		$className = $configuration->controllerClass;
-		$this->configuration[$className] = $configuration;
-		
+		$blockId = $configuration->id;
+		$this->configuration[$blockId] = $configuration;
 	}
 	
 	/**
-	 *
 	 * @param string $controllerClass
 	 * @return BlockController 
 	 */
-	public function getBlockController($controllerClass)
+	public function getBlockController($blockId)
 	{
+		$configuration = $this->getConfiguration($blockId);
+		$controllerClass = $configuration->controllerClass;
+		
 		if ( ! class_exists($controllerClass)) {
 			throw new Exception\RuntimeException('Class does not exist');
 		}

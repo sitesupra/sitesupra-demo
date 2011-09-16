@@ -6,7 +6,6 @@ $blockConfiguration = new \Supra\Controller\Pages\Configuration\BlockControllerC
 $blockConfiguration->controllerClass = 'Project\Text\TextController';
 $blockConfiguration->title = 'Text';
 $blockConfiguration->description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
-$blockConfiguration->classname = 'Editable';
-$blockConfiguration->icon = 'icon.png';
+$blockConfiguration->cmsClassname = 'Editable';
 
 $blockConfiguration->configure();

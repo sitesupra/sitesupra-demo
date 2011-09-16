@@ -6,23 +6,27 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\BlockControllerCollection;
 use Supra\Request;
 use Supra\Response;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 class BlocksAction extends PageManagerAction
 {
-
+	/**
+	 * Collects block definition information
+	 */
 	public function blocksAction()
 	{
-		$bc = BlockControllerCollection::getInstance();
-		$configurationList = $bc->getConfigurationList();
+		$blockCollection = BlockControllerCollection::getInstance();
+		$configurationList = $blockCollection->getConfigurationList();
 		
 		$response = array();
 		
-		foreach ($configurationList as $conf) {
+		/* @var $conf BlockControllerConfiguration */
+		foreach ($configurationList as $blockId => $conf) {
 			
-			$obj = new $conf->controllerClass;
-			$propertyDefinition = $obj->getPropertyDefinition();
+			$controller = $blockCollection->getBlockController($blockId);
+			$propertyDefinition = $controller->getPropertyDefinition();
 			
-			$properties = null;
+			$properties = array();
 			
 			foreach ($propertyDefinition as $key => $property) {
 				$properties[] = array(
@@ -34,17 +38,16 @@ class BlocksAction extends PageManagerAction
 				);
 			}
 			
-			
 			$response[] = array(
 				'id' => $conf->id,
+				//TODO: hardcoded
+				'group' => "Site features",
 				'title' => $conf->title,
 				'description' => $conf->description,
-				'icon' => $conf->getIconWebPath(),
-				'classname' => $conf->classname,
+				'icon' => $conf->iconWebPath,
+				'classname' => $conf->cmsClassname,
 				'properties' => $properties,
 			);
-					
-			
 		}
 		
 		$this->getResponse()->setResponseData($response);
