@@ -4,7 +4,7 @@
 YUI().add("supra.lang", function (Y) {
 	
 	//If already defined, then exit
-	if (Y.Lang.escapeHTML) return;
+	if (Y.Lang.toArray) return;
 	
 	//Shortcuts
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -12,16 +12,6 @@ YUI().add("supra.lang", function (Y) {
 	var DOCUMENT = document.constructor;
 	
 	
-	/**
-	 * Escape html entities
-	 * 
-	 * @param {String} html HTML
-	 * @return Escaped html
-	 * @type {String}
-	 */
-	Y.Lang.escapeHTML = function (html) {
-		return String(html || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-	};
 	
 	/**
 	 * Convert Object into Array

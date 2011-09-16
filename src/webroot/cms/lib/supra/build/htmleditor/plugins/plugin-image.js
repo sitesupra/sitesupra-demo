@@ -352,7 +352,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<img id="' + uid + '" src="' + src + '" title="' + Y.Lang.escapeHTML(data.title) + '" alt="' + Y.Lang.escapeHTML(data.description) + '" />');
+					htmleditor.replaceSelection('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" />');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -381,7 +381,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				src = this.getImageURLBySize(image_data),
 				img = null;
 			
-			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Lang.escapeHTML(image_data.title) + '" alt="' + Y.Lang.escapeHTML(image_data.description) + '" />');
+			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
@@ -551,7 +551,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			//Only if dropped from gallery
 			if (image_id.match(/^\d+$/) && e.drop) {
-				e.halt();
+				if (e.halt) e.halt();
 				this.dropImage(e.drop, image_id);
 			}
 		},
@@ -625,7 +625,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
-					var html = '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Lang.escapeHTML(data[id].title) + '" alt="' + Y.Lang.escapeHTML(data[id].description) + '" />';
+					var html = '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
 					
 					if (data.type == 'lightbox') {
 						//For lightbox add link around image

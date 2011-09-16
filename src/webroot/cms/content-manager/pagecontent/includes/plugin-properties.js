@@ -229,7 +229,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			
 			//Form heading
-			var heading = Y.Node.create('<h2>' + Y.Lang.escapeHTML(block.title) + ' ' + SU.Intl.get(['page', 'block_properties']) + '</h2>');
+			var heading = Y.Node.create('<h2>' + Y.Escape.html(block.title) + ' ' + SU.Intl.get(['page', 'block_properties']) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
 			

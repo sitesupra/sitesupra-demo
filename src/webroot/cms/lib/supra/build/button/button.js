@@ -333,7 +333,9 @@ YUI.add('supra.button', function (Y) {
 			}
 		},
 		
-		_onClick: function () {
+		_onClick: function (evt) {
+			if (this.get('disabled')) evt.halt();
+			
 			if (this.get('type') == 'toggle') {
 				var down = !this.get('down');
 				this.set('down', down);

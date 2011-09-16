@@ -49,9 +49,13 @@
  * @type {Array}
  */
 Supra.useModules = [
+	'base',
+	'node', 'node-focusmanager',
+	'widget', 'widget-child',
 	'event',
-	'event-delegate',
 	'querystring',
+	'escape',
+	
 	'supra.event',
 	'supra.intl',
 	'supra.lang',
@@ -61,7 +65,6 @@ Supra.useModules = [
 	'supra.panel',					// + supra.button, widget, overlay
 	'supra.io',						// + io, json
 	'supra.dom',
-	
 	'supra.authorization',
 	'supra.template'
 ];

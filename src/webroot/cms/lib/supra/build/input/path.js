@@ -46,7 +46,7 @@ YUI.add('supra.input-path', function (Y) {
 			
 			if (node) {
 				this.set('pathNode', node);
-				node.set('innerHTML', Y.Lang.escapeHTML(value));
+				node.set('innerHTML', Y.Escape.html(value));
 			}
 			
 			return value;
@@ -70,7 +70,7 @@ YUI.add('supra.input-path', function (Y) {
 			var node = this.get('replacementNode');
 			
 			if (node) {
-				node.set('innerHTML', '<small>' + this.get('path') + '</small>' + Y.Lang.escapeHTML(value) || '&nbsp;');
+				node.set('innerHTML', '<small>' + this.get('path') + '</small>' + Y.Escape.html(value) || '&nbsp;');
 				this.set('pathNode', node.one('small'));
 			}
 			
@@ -84,7 +84,7 @@ YUI.add('supra.input-path', function (Y) {
 			//Replacement text
 			var replacement_node = this.get('replacementNode');
 			if (replacement_node) {
-				replacement_node.set('innerHTML', '<small>' + Y.Lang.escapeHTML(this.get('path')) + '</small>' + Y.Lang.escapeHTML(this.get('value')));
+				replacement_node.set('innerHTML', '<small>' + Y.Escape.html(this.get('path')) + '</small>' + Y.Escape.html(this.get('value')));
 			}
 			
 			//Path text

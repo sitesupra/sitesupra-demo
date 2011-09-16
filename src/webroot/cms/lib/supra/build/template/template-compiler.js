@@ -163,17 +163,6 @@ YUI.add('supra.template-compiler', function (Y) {
 		},
 		
 		/**
-		 * Escape string for use in regular expression
-		 * 
-		 * @param {String} str String
-		 * @return Escape string
-		 * @type {String}
-		 */
-		'escapeRegEx': function (str) {
-			return String(str).replace(REG_ESCAPE, '\\$&');
-		},
-		
-		/**
 		 * Generates variable name
 		 * 
 		 * @return Variable name
@@ -628,12 +617,12 @@ YUI.add('supra.template-compiler', function (Y) {
 		TAG_COMMENT_OPEN	= '{#',
 		TAG_COMMENT_CLOSE	= '#}',
 		
-		ESC_VAR_OPEN		= C.escapeRegEx(TAG_VAR_OPEN),
-		ESC_VAR_CLOSE		= C.escapeRegEx(TAG_VAR_CLOSE),
-		ESC_EXPR_OPEN 		= C.escapeRegEx(TAG_EXPR_OPEN),
-		ESC_EXPR_CLOSE 		= C.escapeRegEx(TAG_EXPR_CLOSE),
-		ESC_COMMENT_OPEN	= C.escapeRegEx(TAG_COMMENT_OPEN),
-		ESC_COMMENT_CLOSE	= C.escapeRegEx(TAG_COMMENT_CLOSE),
+		ESC_VAR_OPEN		= Y.Escape.regex(TAG_VAR_OPEN),
+		ESC_VAR_CLOSE		= Y.Escape.regex(TAG_VAR_CLOSE),
+		ESC_EXPR_OPEN 		= Y.Escape.regex(TAG_EXPR_OPEN),
+		ESC_EXPR_CLOSE 		= Y.Escape.regex(TAG_EXPR_CLOSE),
+		ESC_COMMENT_OPEN	= Y.Escape.regex(TAG_COMMENT_OPEN),
+		ESC_COMMENT_CLOSE	= Y.Escape.regex(TAG_COMMENT_CLOSE),
 		
 		REG_CDATA_OPEN		= /(\/\/|\/\*)?\s*<\!\[CDATA\[\s*(\*\/)?/,
 		REG_CDATA_CLOSE		= /(\/\/|\/\*)?\s*\]\]>\s*(\*\/)?/,

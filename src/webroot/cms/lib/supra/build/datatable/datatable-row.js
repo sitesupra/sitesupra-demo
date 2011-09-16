@@ -12,7 +12,7 @@ YUI.add('supra.datatable-row', function (Y) {
 	}
 	
 	var isfunc = Y.Lang.isFunction;
-	var escape = Y.Lang.escapeHTML;
+	var escape = Y.Escape.html;
 	
 	DataTableRow.prototype = {
 		/* DataTable instance */

@@ -120,9 +120,9 @@ YUI.add("website.version-list", function (Y) {
 				version = versions[i];
 				
 				item = Y.Node.create('<li class="clearfix version-' + version.type + '">\
-										<h5>' + Y.Lang.escapeHTML(version.title) + '</h5>\
-										<p>' + Y.Lang.escapeHTML(version.description) + '</p>\
-										<small>' + SU.Intl.get(['settings', 'last_change']) + ' ' + Y.Lang.escapeHTML(version.author) + ', ' + Y.Lang.escapeHTML(version.date) + '</small>\
+										<h5>' + Y.Escape.html(version.title) + '</h5>\
+										<p>' + Y.Escape.html(version.description) + '</p>\
+										<small>' + SU.Intl.get(['settings', 'last_change']) + ' ' + Y.Escape.html(version.author) + ', ' + Y.Escape.html(version.date) + '</small>\
 										<div class="version-item-buttons"></div>\
 									  </li>');
 				

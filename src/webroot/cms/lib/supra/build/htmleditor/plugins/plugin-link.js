@@ -70,7 +70,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
 					href = this.normalizeHref(data.href),
-					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Lang.escapeHTML(data.title || '') + '" href="' + href + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -316,7 +316,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
 				var href = this.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Lang.escapeHTML(data[id].title || '') + '" href="' + href + '">';
+				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
 			});
 			
 			//Closing tags

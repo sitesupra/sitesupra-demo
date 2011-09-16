@@ -73,7 +73,8 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			
 			var string = new Supra.Input.String({
 				'srcNode': input,
-				'value': data.title
+				'value': data.title,
+				'blurOnReturn': true
 			});
 			string.render();
 			Y.Node.getDOMNode(input).focus();
@@ -103,7 +104,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			if (obj.data.title != value && value) {
 				original_title = obj.data.title;
 				obj.data.title = value;
-				obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(value));
+				obj.node.one('span').set('innerHTML', Y.Escape.html(value));
 				
 				post_data = {
 					'title': value
@@ -132,7 +133,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 						if (!status) {
 							//Revert title changes
 							obj.data.title = original_title;
-							obj.node.one('span').set('innerHTML', Y.Lang.escapeHTML(original_title));
+							obj.node.one('span').set('innerHTML', Y.Escape.html(original_title));
 						} else {
 							this.get('host').reloadFolder(obj.id);
 						}

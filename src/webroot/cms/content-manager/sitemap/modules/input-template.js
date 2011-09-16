@@ -73,7 +73,7 @@ YUI.add("website.input-template", function (Y) {
 			
 			node_list.empty();
 			for(var i=0,ii=data.length; i<ii; i++) {
-				node_item = Y.Node.create('<li data-template="' + data[i].id + '" class="clearfix ' + (data[i].id == value ? 'selected' : '') + '"><div><img src="' + data[i].img + '" alt="" /></div><p>' + Y.Lang.escapeHTML(data[i].title) + '</p></li>');
+				node_item = Y.Node.create('<li data-template="' + data[i].id + '" class="clearfix ' + (data[i].id == value ? 'selected' : '') + '"><div><img src="' + data[i].img + '" alt="" /></div><p>' + Y.Escape.html(data[i].title) + '</p></li>');
 				node_item.setData('templateId', data[i].id);
 				node_list.append(node_item);
 			}
@@ -205,7 +205,7 @@ YUI.add("website.input-template", function (Y) {
 					node = Y.Node.create("<span></span>");
 					this.get("boundingBox").prepend(node);
 				}
-				node.set("innerHTML", Y.Lang.escapeHTML(this.get("value")));
+				node.set("innerHTML", Y.Escape.html(this.get("value")));
 				this.set("replacementNode", node);
 			}
 			

@@ -199,7 +199,7 @@ SU('dd-drag', function (Y) {
 		 * @private
 		 */
 		ready: function () {
-			var page_data = SU.Manager.Page.getPageData();
+			var page_data = Manager.Page.getPageData();
 			
 			//Wait till page data and dependancies are loaded
 			if (!page_data || !this.dependancies_loaded) return;
@@ -226,7 +226,7 @@ SU('dd-drag', function (Y) {
 				}, this);
 				
 				//Media library handle file insert
-				var mediasidebar = SU.Manager.getAction('MediaSidebar');
+				var mediasidebar = Manager.getAction('MediaSidebar');
 				mediasidebar.on('insert', function (event) {
 					var content = this.getActiveContent();
 					if (content && 'editor' in content) {
@@ -291,6 +291,7 @@ SU('dd-drag', function (Y) {
 	        }, this);
 			
 	        dd.on('drag:end', function(e) {
+				e.preventDefault();
 				
 				var x = e.pageX, y = e.pageY;
 				var r = Y.DOM._getRegion(y, x+1, y+1, x);
@@ -308,12 +309,14 @@ SU('dd-drag', function (Y) {
 					
 					if (!ret) {
 						//Event was stopped == successful drop
-						SU.Manager.PageInsertBlock.hide();
+						//delay to allow draged item to reset it's position if needed
+						Y.later(15, this, function () {
+							Manager.PageInsertBlock.hide();
+						});
 					}
 				}
 				
 				this.fire('dragend');
-				e.preventDefault();
 				
 				//Because of Editor toolbar, container top position changes and 
 				//drag node is not moved back into correct position

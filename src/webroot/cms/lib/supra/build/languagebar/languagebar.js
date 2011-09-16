@@ -1,6 +1,11 @@
 YUI.add("supra.languagebar", function (Y) {
 	
 	/*
+	 * Shortcuts
+	 */
+	var Template = Supra.Template;
+	
+	/*
 	 * Regular expression to match language and context in locale string
 	 */
 	var REGEX_MATCH_LOCALE = /^([a-z]+)_([a-z]+)$/i;
@@ -9,22 +14,28 @@ YUI.add("supra.languagebar", function (Y) {
 	 * Templates
 	 */
 	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">\
-			  					<span class="label"></span> <a><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>\
-			  				</div>';
+								<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>\
+							</div>';
 	
-	var TEMPLATE_LIST = '<ul class="contexts">{contexts}</ul>';
+	var TEMPLATE_LIST = Template.compile('\
+			<ul class="contexts">{{ contexts }}</ul>\
+		');
 	
-	var TEMPLATE_CONTEXT = '<li>\
-								<div class="context-title">{title}</div>\
-								<ul class="langs">{languages}</ul>\
-							</li>';
+	var TEMPLATE_CONTEXT = Template.compile('\
+			<li>\
+				<div class="context-title">{{ title|escape }}</div>\
+				<ul class="langs">{{ languages }}</ul>\
+			</li>\
+		');
 	
-	var TEMPLATE_LANGUAGE = '<li>\
-								<a data-locale="{language}">\
-									<img src="/cms/lib/supra/img/flags/16x11/{icon}.png" alt="" />\
-									<span>{title}</span>\
-								</a>\
-							 </li>';
+	var TEMPLATE_LANGUAGE = Template.compile('\
+			<li>\
+				<a data-locale="{{ language|escape }}">\
+					<img src="/cms/lib/supra/img/flags/16x11/{{ icon }}.png" alt="" />\
+					<span>{{ title|escape }}</span>\
+				</a>\
+			 </li>\
+		');
 	
 	/**
 	 * Class for handling content languages
@@ -128,20 +139,20 @@ YUI.add("supra.languagebar", function (Y) {
 				
 				//Create language items
 				for(var k=0,kk=langs.length; k<kk; k++) {
-					html_langs.push(Y.substitute(TEMPLATE_LANGUAGE, {
+					html_langs.push(TEMPLATE_LANGUAGE({
 						'title': langs[k].title,
 						'language': langs[k].id,
 						'icon': this.splitLocale(langs[k].id)[1],
 					}));
 				}
 				
-				html_contexts.push(Y.substitute(TEMPLATE_CONTEXT, {
+				html_contexts.push(TEMPLATE_CONTEXT({
 					'title': contexts[i].title,
 					'languages': html_langs.join('')
 				}));
 			}
 			
-			html = Y.substitute(TEMPLATE_LIST, {
+			html = TEMPLATE_LIST({
 				'contexts': html_contexts.join('')
 			});
 			

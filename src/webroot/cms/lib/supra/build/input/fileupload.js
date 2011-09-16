@@ -490,7 +490,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 					titles = this.titles,
 					titles_escaped = [];
 				
-				for(var i=0,ii=titles.length; i<ii; i++) titles_escaped.push(Y.Lang.escapeHTML(titles[i]));
+				for(var i=0,ii=titles.length; i<ii; i++) titles_escaped.push(Y.Escape.html(titles[i]));
 				p.set('innerHTML', titles_escaped.join('<br />'));
 				
 				this.tooltip.set('alignTarget', text.one('a'));

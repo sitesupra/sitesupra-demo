@@ -90,7 +90,7 @@ YUI.add("website.template-list", function (Y) {
 			for(var i=0,ii=templates.length; i<ii; i++) {
 				template = templates[i];
 				
-				item = Y.Node.create('<li class="clearfix ' + (selected == template.id ? 'selected' : '') + '"><div><img src="' + template.img + '" alt="" /></div><p>' + Y.Lang.escapeHTML(template.title) + '</p></li>');
+				item = Y.Node.create('<li class="clearfix ' + (selected == template.id ? 'selected' : '') + '"><div><img src="' + template.img + '" alt="" /></div><p>' + Y.Escape.html(template.title) + '</p></li>');
 				item.setData('template_id', template.id);
 				
 				content.append(item);

@@ -1,36 +1,39 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add("supra.input-string", function (Y) {
+YUI.add('supra.input-string', function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
 	
-	Input.NAME = "input-string";
+	Input.NAME = 'input-string';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		"replacementNode": {
+		'replacementNode': {
 			value: null
 		},
-		"useReplacement": {
+		'useReplacement': {
 			value: false
 		},
-		"valueMask": {
+		'valueMask': {
 			value: null
+		},
+		'blurOnReturn': {
+			value: false
 		}
 	};
 	
 	Input.HTML_PARSER = {
-		"useReplacement": function (srcNode) {
-			var use_replacement = srcNode.hasClass("input-label-replacement");
-			this.set("useReplacement", use_replacement);
+		'useReplacement': function (srcNode) {
+			var use_replacement = srcNode.hasClass('input-label-replacement');
+			this.set('useReplacement', use_replacement);
 			return use_replacement;
 		},
-		"replacementNode": function (srcNode) {
-			if (srcNode.hasClass("input-label-replacement")) {
-				return srcNode.one("span");
+		'replacementNode': function (srcNode) {
+			if (srcNode.hasClass('input-label-replacement')) {
+				return srcNode.one('span');
 			}
 			return null;
 		}
@@ -48,18 +51,18 @@ YUI.add("supra.input-string", function (Y) {
 			
 			var input = this.get('inputNode');
 			
-			input.on("focus", this._onFocus, this);
-			input.on("blur", this._onBlur, this);
+			input.on('focus', this._onFocus, this);
+			input.on('blur', this._onBlur, this);
 			
 			//Clicking on replacement node triggers focuses
-			var node = this.get("replacementNode");
+			var node = this.get('replacementNode');
 			if (node) {
-				node.on("click", this._onFocus, this);
+				node.on('click', this._onFocus, this);
 			}
 			
 			//Handle keydown
-			//input.on("keydown", this._onKeyDown, this);
-			input.on("keypress", this._onKeyDown, this);
+			//input.on('keydown', this._onKeyDown, this);
+			input.on('keypress', this._onKeyDown, this);
 			
 			//Handle value attribute change
 			if (!this.get('srcNode').compareTo(input)) {
@@ -87,16 +90,16 @@ YUI.add("supra.input-string", function (Y) {
 			}
 			
 			if (keyCode == this.KEY_RETURN) {
-				if (this.get("replacementNode")) {
+				if (this.get('replacementNode') || this.get('blurOnReturn')) {
 					//If using replacement node then show it
 					input.blur();
 				}
 			} else if (keyCode == this.KEY_ESCAPE) {
 				input.set('value', this._original_value);
 				input.blur();
-				this.fire("reset");
+				this.fire('reset');
 			} else if (mask && charCode) {
-				//46 - "Delete"
+				//46 - 'Delete'
 				//Validate against mask
 				var str = String.fromCharCode(charCode),
 					inputNode = Y.Node.getDOMNode(input),
@@ -110,17 +113,17 @@ YUI.add("supra.input-string", function (Y) {
 		},
 		
 		_onFocus: function () {
-			if (this.get('disabled') || this.get('boundingBox').hasClass("yui3-input-focused")) return;
+			if (this.get('disabled') || this.get('boundingBox').hasClass('yui3-input-focused')) return;
 			
-			this.get('boundingBox').addClass("yui3-input-focused");
-			this.get("inputNode").focus();
+			this.get('boundingBox').addClass('yui3-input-focused');
+			this.get('inputNode').focus();
 		},
 		_onBlur: function () {
-			this.get('boundingBox').removeClass("yui3-input-focused");
+			this.get('boundingBox').removeClass('yui3-input-focused');
 			
-			var node = this.get("replacementNode");
+			var node = this.get('replacementNode');
 			if (node) {
-				node.set("innerHTML", Y.Lang.escapeHTML(this.get('value')) || '&nbsp;');
+				node.set('innerHTML', Y.Escape.html(this.get('value')) || '&nbsp;');
 			}
 			
 			this._original_value = this.get('value');
@@ -129,27 +132,27 @@ YUI.add("supra.input-string", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			if (!this.get("useReplacement") && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
-				this.set("useReplacement", true);
-				var labelNode = this.get("labelNode");
+			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+				this.set('useReplacement', true);
+				var labelNode = this.get('labelNode');
 				if (labelNode) {
 					labelNode.addClass('hidden');
 				}
 			}
 			
-			if (this.get("useReplacement")) {
-				var node = this.get("replacementNode");
-				var srcNode = this.get("srcNode");
-				var srcNodeIsInput = srcNode.test("input,select,textarea");
+			if (this.get('useReplacement')) {
+				var node = this.get('replacementNode');
+				var srcNode = this.get('srcNode');
+				var srcNodeIsInput = srcNode.test('input,select,textarea');
 				
 				if (!srcNodeIsInput) {
-					srcNode.addClass("input-label-replacement");
+					srcNode.addClass('input-label-replacement');
 				} else {
-					this.get('boundingBox').addClass("input-label-replacement");
+					this.get('boundingBox').addClass('input-label-replacement');
 				}
 				
 				if (!node) {
-					node = Y.Node.create("<span class=\"replacement\"></span>");
+					node = Y.Node.create('<span class="replacement"></span>');
 					
 					if (srcNodeIsInput) {
 						srcNode.insert(node, 'before');
@@ -159,10 +162,10 @@ YUI.add("supra.input-string", function (Y) {
 						if (input) srcNode.append(input);
 					}
 					
-					this.set("replacementNode", node);
+					this.set('replacementNode', node);
 				}
 				
-				node.set("innerHTML", Y.Lang.escapeHTML(this.get("value")) || '&nbsp;');
+				node.set('innerHTML', Y.Escape.html(this.get('value')) || '&nbsp;');
 				
 				//If there is no label text then hide it
 				var labelNode = this.get('labelNode');
@@ -181,10 +184,10 @@ YUI.add("supra.input-string", function (Y) {
 		},
 		
 		_setValue: function (value) {
-			this.get("inputNode").set("value", value);
-			var node = this.get("replacementNode");
+			this.get('inputNode').set('value', value);
+			var node = this.get('replacementNode');
 			if (node) {
-				node.set("innerHTML", Y.Lang.escapeHTML(value) || '&nbsp;');
+				node.set('innerHTML', Y.Escape.html(value) || '&nbsp;');
 			}
 			
 			this._original_value = value;
@@ -205,4 +208,4 @@ YUI.add("supra.input-string", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto"]});
+}, YUI.version, {requires:['supra.input-proto']});

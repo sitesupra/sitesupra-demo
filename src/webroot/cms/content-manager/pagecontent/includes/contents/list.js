@@ -203,7 +203,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			if (!this.drag_region) {
 				//Find drag region and index
-				var id = drag.getData('contentId');
+				var id = drag.getDOMNode()._contentId;
 				
 				for (var i=0,ii=regions.length; i<ii; i++) {
 					if (regions[i].id == id) {
@@ -306,7 +306,9 @@ YUI.add('supra.page-content-list', function (Y) {
 				var node = this.children[id].getNode(),
 					overlay = this.children[id].overlay;
 				
-				overlay.setData('contentId', id);
+				//setData and getData doesn't work for some reason
+				//couldn't pinpoint where it breaks, bug?
+				overlay.getDOMNode()._contentId = id;
 				
 				return {
 					'id': id,

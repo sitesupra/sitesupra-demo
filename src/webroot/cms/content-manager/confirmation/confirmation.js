@@ -84,7 +84,7 @@ SU('supra.form', function (Y) {
 				message = Supra.Intl.replace(message);
 			}
 			if (config.escape) {
-				message = Y.Lang.escapeHTML(message);
+				message = Y.Escape.html(message);
 			}
 			
 			this.one('p').set('innerHTML', message);

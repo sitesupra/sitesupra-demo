@@ -44,13 +44,15 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
 			var container = this.properties.get('form').get('contentBox');
+			var buttons = Y.Node.create('<div class="yui3-buttons"></div>');
+				container.append(buttons);
 			
 			//Manage image button
 			var button = new Supra.Button({
 				'label': SU.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
-			button.render(container);
+			button.render(buttons);
 			button.on('click', this.openGalleryManager, this);
 			
 			//Add image button
@@ -58,7 +60,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'label': SU.Intl.get(['htmleditor', 'add_images'])
 			});
 			
-			button.render(container);
+			button.render(buttons);
 			button.on('click', this.openMediaLibrary, this);
 			
 			//Add image drag and drop support
@@ -144,6 +146,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			Manager.executeAction('MediaSidebar', {
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
+				}, this),
+				'onclose': Y.bind(function () {
+					this.properties.showPropertiesForm();
 				}, this)
 			});
 			
@@ -151,13 +156,15 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		
 		/**
 		 * Hide settings form
+		 * 
 		 * @private
 		 */
 		hideSettingsForm: function () {
-			if (this.settings_form && this.settings_form.get('visible')) {
+			var form = this.properties.get('form');
+			if (form && form.get('visible')) {
 				Manager.PageContentSettings.hide();
 			}
-		},
+		},	
 		
 		/**
 		 * Add image to the gallery

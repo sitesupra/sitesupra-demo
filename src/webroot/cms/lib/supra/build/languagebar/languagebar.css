@@ -13,6 +13,9 @@
 	vertical-align: middle;
 	display: inline-block;
 }
+.yui3-languagebar a.selected img {
+	vertical-align: baseline;
+}
 
 .yui3-languagebar .label {
 	color: #999;

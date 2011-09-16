@@ -1029,7 +1029,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					}
 					
 					slide.setData('itemId', id);
-					slide.empty().append(node);
+					
+					if (!append) slide.empty();
+					slide.append(node);
 					
 					this.fire('itemRender', {'node': node, 'data': data, 'type': Data.TYPE_FOLDER});
 				}

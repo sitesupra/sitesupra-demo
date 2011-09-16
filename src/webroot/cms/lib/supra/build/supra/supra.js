@@ -77,7 +77,7 @@ if (typeof Supra === "undefined") {
 		Y.use.apply(Y,args);
 	};
 	
-	/* Make YUI instance accessible from Supra namespace */
+	/* Make YUI instance accessible from Supra namespace, single instance for App */
 	Supra.Y = Y;
 	
 	/**
@@ -108,7 +108,7 @@ if (typeof Supra === "undefined") {
 				//Use YUI file combo
 				comboBase: "/cms/lib/yui." + YUI.version + "/combo/combo.php?",
 				filter: "raw",
-				modules: null	//@see modules.js
+				modules: {}	//@see modules.js
 			},
 			website: {
 				//Website specific modules

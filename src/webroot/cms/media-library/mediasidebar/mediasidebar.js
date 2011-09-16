@@ -135,6 +135,9 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				if (Y.Lang.isFunction(this.options.onselect)) {
 					this.options.onselect({'image': e.data});
 				}
+				if (Y.Lang.isFunction(this.options.onclose)) {
+					this.options.onclose();
+				}
 			}, this);
 		},
 		
@@ -153,7 +156,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			
 			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
 			this.button_close.render();
-			this.button_close.on('click', this.hide, this);
+			this.button_close.on('click', this.close, this);
 		},
 		
 		/**
@@ -215,6 +218,17 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
 			this.medialist.upload.set('disabled', true);
+		},
+		
+		/**
+		 * Hide media sidebar and trigger close event
+		 */
+		close: function () {
+			this.hide();
+			
+			if (Y.Lang.isFunction(this.options.onclose)) {
+				this.options.onclose();
+			}
 		},
 		
 		/**

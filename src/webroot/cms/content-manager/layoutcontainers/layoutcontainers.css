@@ -74,7 +74,7 @@
 	right: 0;
 }
 
-/* Buttons */
+/* Header buttons */
 .yui3-sidebar-buttons {
 	left: 0;
 	top: 32px;
@@ -86,12 +86,18 @@
     padding: 0 10px 10px;
 }
 .yui3-sidebar-buttons .yui3-button,
-.yui3-sidebar-footer .yui3-button {
+.yui3-sidebar-footer .yui3-button,
+.yui3-sidebar-content .yui3-buttons .yui3-button {
 	margin: 10px 10px 0 0;
 }
 .yui3-left-container .yui3-sidebar-buttons .button-close {
 	float: right;
 	margin: 10px 0 0 10px;
+}
+
+/* Simple button list */
+.yui3-sidebar-content .yui3-buttons {
+	margin: 0 0 10px;
 }
 
 /* Content */

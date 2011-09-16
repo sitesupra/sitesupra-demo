@@ -79,7 +79,7 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 							for (var k in group_blocks) {
 								//Get block data from Blocks action
 								var block = block_action.getBlock(group_blocks[k]);
-								var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Lang.escapeHTML(block.description) + '" /><label>' + Y.Lang.escapeHTML(block.title) + '</label></li>');
+								var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Escape.html(block.description) + '" /><label>' + Y.Escape.html(block.title) + '</label></li>');
 								content.append(node);
 								
 								this.data[block.id] = block;

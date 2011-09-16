@@ -143,7 +143,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					cont.append(node);
 					break;
 				case 'dropdown':
-					title = Y.Lang.escapeHTML(Supra.Intl.get(['htmleditor', data.id]));
+					title = Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
 					label = Y.Node.create('<label class="yui3-toolbar-label">' + title + ':</label>');
 					node = Y.Node.create('<select></select>');
 					cont.append(label);
@@ -152,7 +152,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					break;
 				case 'button':
 				default:
-					title = Y.Lang.escapeHTML(Supra.Intl.get(['htmleditor', data.id]));
+					title = Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
 					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
 					node.render(cont);
 					

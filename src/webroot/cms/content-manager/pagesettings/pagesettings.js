@@ -156,7 +156,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 				var calendar = this.calendar = new Supra.Calendar({
 					'srcNode': node.one('.calendar'),
 					'date': date,
-					'minDate': new Date(),
 					'dates': DEFAULT_DATES
 				});
 				calendar.render();
@@ -265,7 +264,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.form', 'supra.cal
 					block_type = block.getType();
 					block_definition = Manager.Blocks.getBlock(block_type);
 					
-					item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Lang.escapeHTML(block_definition.title) + '</p></li>');
+					item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Escape.html(block_definition.title) + '</p></li>');
 					item.setData('content_id', id);
 					
 					container.append(item);

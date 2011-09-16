@@ -47,6 +47,12 @@ YUI.add('supra.tooltip', function (Y) {
 	};
 	
 	Y.extend(Tooltip, Supra.Panel, {
+		
+		/**
+		 * Message node
+		 */
+		node_message: null,
+		
 		/**
 		 * Escape and set tooltip message
 		 * 
@@ -56,7 +62,7 @@ YUI.add('supra.tooltip', function (Y) {
 		 * @private
 		 */
 		_setTextMessage: function (message) {
-			this.set('htmlMessage', Y.Lang.escapeHTML(message));
+			this.set('htmlMessage', Y.Escape.html(message || ''));
 			return message;
 		},
 		
@@ -70,12 +76,19 @@ YUI.add('supra.tooltip', function (Y) {
 		 */
 		_setHTMLMessage: function (message) {
 			if (message) {
-				var node = this.get('boundingBox').one('P');
+				var node = this.node_message;
 				if (!node) {
-					node = Y.Node.create('<p></p>');
+					node = this.node_message = Y.Node.create('<p></p>');
 					this.get('boundingBox').append(node);
+				} else {
+					node.removeClass('hidden');
 				}
 				node.set('innerHTML', message);
+			} else {
+				var node = this.get('boundingBox').one('P');
+				if (this.node_message) {
+					this.node_message.addClass('hidden');
+				}
 			}
 			return message;
 		},

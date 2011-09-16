@@ -256,7 +256,7 @@ YUI.add('supra.input-proto', function (Y) {
 		
 		_setLabel: function (lbl) {
 			var node = this.get('labelNode');
-			if (node) node.set('innerHTML', Y.Lang.escapeHTML(lbl));
+			if (node) node.set('innerHTML', Y.Escape.html(lbl));
 			
 			return lbl;
 		},

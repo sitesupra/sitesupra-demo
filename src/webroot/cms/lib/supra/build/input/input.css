@@ -132,6 +132,7 @@
 	}
 	.yui3-input-path.input-label-replacement small {
 		padding: 0 2px 0 0;
+		vertical-align: baseline;
 	}
 	.yui3-input.yui3-input-path input {
 		width: 50%;
