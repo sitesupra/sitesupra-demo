@@ -76,7 +76,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @var WriterAbstraction
 	 */
-	private $log;
+	protected $log;
 	
 	/**
 	 * Whether to allow flusing internally
