@@ -121,30 +121,9 @@ class LocaleManager
 	 * Returns array of defined locales
 	 * @return array 
 	 */
-	public function getAllLocales()
+	public function getLocales()
 	{
 		return $this->locales;
-	}
-	
-	/**
-	 * Return formatted array of available locales data, grouped by country
-	 * @return array
-	 */
-	public function getLocalesCountryArray()
-	{
-		$array = array();
-		
-		foreach ($this->locales as $locale) {
-			$country = $locale->getCountry();
-			
-			$array[$country][] = array(
-				'id' => $locale->getId(),
-				'title' => $locale->getTitle(),
-				'flag' => $locale->getProperty('flag'),
-			);
-		}
-		
-		return $array;
 	}
 	
 	/**

@@ -1,10 +1,15 @@
 <?php
 
-namespace Project\Authenticate;
+namespace Supra\Controller\Authentication;
 
-use Supra\Controller\Authentication\AuthenticationSessionNamespace;
+use Supra\Session\SessionNamespace;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Entity\User;
 
-class AuthenticateSessionNamespace extends AuthenticationSessionNamespace
+/**
+ * Session namespace for authentication result
+ */
+abstract class AuthenticationSessionNamespace extends SessionNamespace
 {
 	/**
 	 * Returns user from session
@@ -41,5 +46,4 @@ class AuthenticateSessionNamespace extends AuthenticationSessionNamespace
 	{
 		$this->__data['userId'] = null; 
 	}
-	
 }

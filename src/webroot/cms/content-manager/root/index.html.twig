@@ -87,24 +87,7 @@
 				//Languages
 				'locale': '{{ currentLocale }}',
 				
-				'contexts': [
-					{% for country, locales in localesList %} 
-					{
-						'title': '{{ country }}',
-						'languages': [
-							{% for locale in locales %}
-								{
-									'id': '{{ locale.id }}', 
-									'title': '{{ locale.title }}',
-									{% if locale.flag %}
-									'flag': '{{ locale.flag }}',
-									{% endif %}
-								},
-							{% endfor %}
-						]
-					},
-					{% endfor %} 
-				],
+				'contexts': {{ localesList|json_encode|raw }},
 				
 				//Application
 				'application': {

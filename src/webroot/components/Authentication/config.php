@@ -17,8 +17,7 @@ $controllerConfiguration->configure();
 $sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager(__NAMESPACE__);
 
 $authenticationSessionNamespace = $sessionNamespaceManager
-		->getOrCreateSessionNamespace('AuthenticationNamespace', 'Project\Authentication\AuthenticationSessionNamespace');
+		->getOrCreateSessionNamespace('Cms', 'Project\Authentication\CmsSessionNamespace');
 
 ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);
-ObjectRepository::setSessionNamespace('Supra\Cms\Login', $authenticationSessionNamespace);
-ObjectRepository::setSessionNamespace('Supra\Cms\Logout', $authenticationSessionNamespace);
+ObjectRepository::setSessionNamespace('Supra\Cms', $authenticationSessionNamespace);

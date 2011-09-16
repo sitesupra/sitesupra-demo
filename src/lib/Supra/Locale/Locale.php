@@ -100,7 +100,8 @@ class Locale
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function getProperty($name) {
+	public function getProperty($name)
+	{
 		if (isset($this->properties[$name])) {
 			return $this->properties[$name];
 		}

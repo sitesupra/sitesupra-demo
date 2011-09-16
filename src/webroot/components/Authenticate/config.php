@@ -29,6 +29,6 @@ $controllerConfiguration->configure();
 $sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager(__NAMESPACE__);
 
 $authenticationSessionNamespace = $sessionNamespaceManager
-	->getOrCreateSessionNamespace('AuthenticationNamespace', 'Project\Authentication\AuthenticationSessionNamespace');
+	->getOrCreateSessionNamespace('Test', 'Project\Authenticate\AuthenticateSessionNamespace');
 
 ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);
