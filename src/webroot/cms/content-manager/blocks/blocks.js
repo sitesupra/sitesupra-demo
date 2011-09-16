@@ -64,6 +64,16 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Returns all block data
+		 * 
+		 * @return All data
+		 * @type {Object}
+		 */
+		getAllBlocks: function () {
+			return this.data;
+		},
+		
+		/**
 		 * Returns block by Id
 		 * 
 		 * @param {String} id Block ID

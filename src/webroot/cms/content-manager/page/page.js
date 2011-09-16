@@ -162,7 +162,14 @@ Supra(function (Y) {
 			if (status) {
 				this.data = data;
 				this.fire('loaded', {'data': data});
-				button_edit.show();
+				
+				//
+				var username = Supra.data.get(['user', 'name']);
+				if (data.locked && data.locked.username != username) {
+					button_edit.show();
+				} else {
+					button_edit.show();
+				}
 			} else {
 				//Remove loading style
 				Y.one('body').removeClass('loading');

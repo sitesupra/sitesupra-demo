@@ -55,51 +55,46 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 */
 		loadBlocks: function () {
 			if (this.data) return;
-			this.getPlaceHolder().addClass('loading');
+			this.data = {};
 			
-			var url = this.getDataPath();
+			var data_all = Manager.getAction('Blocks').getAllBlocks(),
+				data_grouped = {};
 			
-			Supra.io(url, {
-				'on': {
-					'success': function (data) {
-						
-						this.data = {};
-						var block_action = Manager.getAction('Blocks');
-						
-						//Create tabs
-						for(var i in data) {
-							var group = data[i];
-							var group_blocks = group.blocks;
-							
-							var content = this.tabs.addTab({"id": group.id, "title": group.title});
-								content.append('<div class="block-list"><ul></ul></div>');
-								content = content.one('ul');
-							
-							//Create block items
-							for (var k in group_blocks) {
-								//Get block data from Blocks action
-								var block = block_action.getBlock(group_blocks[k]);
-								var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Escape.html(block.description) + '" /><label>' + Y.Escape.html(block.title) + '</label></li>');
-								content.append(node);
-								
-								this.data[block.id] = block;
-								this.data[block.id].node = node;
-							}
-							
-							content.append('<li class="clear"><!-- --></li>');
-						}
-						
-						//Remove loading
-						this.getPlaceHolder().removeClass('loading');
-						
-						//Drag&drop
-						this.setupDD();
-						
-						//Fire resize event
-						this.fire('resize');
-					}
+			//Grouped by 'group'
+			for(var key in data_all) {
+				if (!data_grouped[data_all[key].group]) {
+					data_grouped[data_all[key].group] = {};
 				}
-			}, this);
+				data_grouped[data_all[key].group][key] = data_all[key];
+			}
+			
+			//Create tabs
+			for(var i in data_grouped) {
+				var group_blocks = data_grouped[i];
+				
+				var content = this.tabs.addTab({"id": Y.guid(), "title": i});
+					content.append('<div class="block-list"><ul></ul></div>');
+					content = content.one('ul');
+				
+				//Create block items
+				for (var k in group_blocks) {
+					//Get block data from Blocks action
+					var block = group_blocks[k];
+					var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Escape.html(block.description) + '" /><label>' + Y.Escape.html(block.title) + '</label></li>');
+					content.append(node);
+					
+					this.data[block.id] = block;
+					this.data[block.id].node = node;
+				}
+				
+				content.append('<li class="clear"><!-- --></li>');
+			}
+			
+			//Drag&drop
+			this.setupDD();
+			
+			//Fire resize event
+			this.fire('resize');
 		},
 		
 		/**

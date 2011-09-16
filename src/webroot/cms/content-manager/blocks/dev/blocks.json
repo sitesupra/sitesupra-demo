@@ -4,6 +4,7 @@
 		{
 			"id": "Project_Text_TextController",
 			"title": "Text",
+			"group": "Site Features",
 			"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 			"icon": "/cms/lib/supra/img/blocks/text.png",
 			"classname": "Editable",
@@ -13,7 +14,8 @@
 		},
 		{
 			"id": "html",
-			"title": "Text",
+			"title": "Double Text",
+			"group": "Site Features",
 			"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 			"icon": "/cms/lib/supra/img/blocks/text.png",
 			"classname": "Editable",
@@ -26,6 +28,7 @@
 		{
 			"id": "sample",
 			"title": "Sample",
+			"group": "Site Features",
 			"description": "Sample block",
 			"icon": "/cms/lib/supra/img/blocks/sample.png",
 			"classname": "Editable",
@@ -37,6 +40,7 @@
 		{
 			"id": "gallery",
 			"title": "Gallery",
+			"group": "Extra features",
 			"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 			"icon": "/cms/lib/supra/img/blocks/gallery.png",
 			"classname": "Gallery",
@@ -52,6 +56,7 @@
 		{
 			"id": "feedback",
 			"title": "Feedback",
+			"group": "Extra features",
 			"description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut nisl urna, sagittis eget dictum at, blandit at mi.",
 			"icon": "/cms/lib/supra/img/blocks/feedback.png",
 			"classname": "Editable",
