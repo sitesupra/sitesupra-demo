@@ -81,7 +81,7 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage($e->getMessage());
 			
 			// Write the issue inside the log
-			//$this->log->error($e);
+			$this->log->error($e);
 		}
 	}
 	
