@@ -218,7 +218,6 @@ YUI.add("supra.languagebar", function (Y) {
 		_setLocale: function (locale) {
 			var oldVal = this.get('locale'),
 				lang = this.getLanguageByLocale(locale),
-				icon = this.splitLocale(locale)[1],
 				node = null;
 			
 			if (lang) {
@@ -226,7 +225,7 @@ YUI.add("supra.languagebar", function (Y) {
 				if (node) node.set('text', lang.title);
 				
 				node = this.get('srcNode').one('img');
-				if (node) node.set('src', '/cms/lib/supra/img/flags/16x11/' + icon + '.png');
+				if (node) node.set('src', '/cms/lib/supra/img/flags/16x11/' + lang.flag + '.png');
 				
 				return locale;
 			}
