@@ -6,6 +6,7 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Doctrine\ORM\Query;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Request object for edit mode requests
@@ -47,6 +48,10 @@ class PageRequestEdit extends PageRequest
 		 */
 		/* @var $publicPage Entity\Abstraction\Page */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		
+		if (empty($publicPage)) {
+			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
+		}
 
 		$pageData = $publicEm->merge($pageData);
 		$pageData->setMaster($publicPage);
@@ -71,6 +76,12 @@ class PageRequestEdit extends PageRequest
 			$placeholder = $block->getPlaceHolder();
 			$publicEm->merge($placeholder);
 		}
+		
+		/*
+		 * For some reason in some cases Doctrine couldn't insert block because 
+		 * placeholder wasn't yet created
+		 */
+		$publicEm->flush();
 
 		// 5. Merge all blocks in 1
 		foreach ($draftBlocks as $block) {

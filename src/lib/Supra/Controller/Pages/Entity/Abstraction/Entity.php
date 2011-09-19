@@ -96,7 +96,7 @@ abstract class Entity
 			throw new Exception\RuntimeException("Second argument sent to method 
 					$sourceEntity::writeOnce() must be an object");
 		}
-		if ($property == $value) {
+		if ($property === $value) {
 			return false;
 		}
 		if ( ! empty($property)) {

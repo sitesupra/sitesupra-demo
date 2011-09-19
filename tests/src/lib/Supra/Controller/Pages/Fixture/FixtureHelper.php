@@ -23,16 +23,21 @@ class FixtureHelper
 	 */
 	private $log;
 	
-	protected $headerTemplateBlock;
+	protected $headerTemplateBlocks = array();
 
 	protected $rootPage;
 	
 	protected $template;
 	
+	private $locales = array();
+	
 	public function __construct(\Doctrine\ORM\EntityManager $em)
 	{
 		$this->log = ObjectRepository::getLogger($this);
 		$this->entityManager = $em;
+		
+		$this->locales = ObjectRepository::getLocaleManager($this)
+				->getLocales();
 	}
 	
 	/**
@@ -171,19 +176,47 @@ class FixtureHelper
 		
 		$em->beginTransaction();
 		$publicEm->beginTransaction();
+		
+		$pageIdList = array($this->template->getParent()->getId(), 
+			$this->template->getId(), 
+			$rootPage->getId(), 
+			$page->getId(),
+			$page2->getId());
 
 		try {
-			foreach (array($this->template->getParent(), $this->template, $rootPage, $page, $page2) as $pageToPublish) {
+			foreach ($pageIdList as $pageId) {
 
 				$em->clear();
 				$publicEm->clear();
-				$this->log->debug("Publishing object $pageToPublish");
+				
+				$pageToPublish = $em->find(\Supra\Controller\Pages\Request\PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+				
+				/* @var $locale \Supra\Locale\Locale */
+				foreach ($this->locales as $locale) {
+					$localeId = $locale->getId();
 
-				$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en_LV', Entity\Layout::MEDIA_SCREEN);
-				$request->blockFlushing();
-				$request->setDoctrineEntityManager($em);
-				$request->setRequestPageData($pageToPublish->getData('en_LV'));
-				$request->publish($publicEm);
+//					$em->clear();
+//					$publicEm->clear();
+					
+					$this->log->debug("Publishing object $pageToPublish");
+
+					$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
+					$request->setDoctrineEntityManager($em);
+					$request->setRequestPageData($pageToPublish->getData($localeId));
+					
+					// Will create missing placeholders and flush
+					$request->getPlaceHolderSet();
+					
+					// Don't allow missing place holders to be created automatically
+					$request->blockFlushing();
+					
+					try {
+						$request->publish($publicEm);
+					} catch (\Exception $e) {
+						$this->log->error("Failed to publish page {$pageToPublish} in language {$localeId}");
+						throw $e;
+					}
+				}
 
 			}
 		} catch (\Exception $e) {
@@ -220,130 +253,158 @@ class FixtureHelper
 		$layout = $this->createLayout();
 		$template->addLayout('screen', $layout);
 
-		$templateData = new Entity\TemplateData('en_LV');
-		$this->entityManager->persist($templateData);
-		$templateData->setTemplate($template);
-		$templateData->setTitle('Root template');
+		/* @var $locale \Supra\Locale\Locale */
+		foreach ($this->locales as $locale) {
+			$localeId = $locale->getId();
+		
+			$templateData = new Entity\TemplateData($localeId);
+			$this->entityManager->persist($templateData);
+			$templateData->setTemplate($template);
+			$templateData->setTitle('Root template');
 
-		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
-			$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
-			$this->entityManager->persist($templatePlaceHolder);
-			if ($name == 'header' || $name == 'footer') {
-				$templatePlaceHolder->setLocked();
-			}
-			$templatePlaceHolder->setTemplate($template);
+			foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 
-			if ($name == 'header') {
-				$block = new Entity\TemplateBlock();
-				$this->entityManager->persist($block);
-				$block->setComponentClass('Project\Text\TextController');
-				$block->setPlaceHolder($templatePlaceHolder);
-				$block->setPosition(100);
-				$block->setLocale('en_LV');
+				$templatePlaceHolder = $template->getPlaceHolders()
+						->get($name);
 
-				// used later in page
-				$this->headerTemplateBlock = $block;
+				if (empty($templatePlaceHolder)) {
+					$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
+					$this->entityManager->persist($templatePlaceHolder);
+					if ($name == 'header' || $name == 'footer') {
+						$templatePlaceHolder->setLocked();
+					}
+					$templatePlaceHolder->setTemplate($template);
+				}
 
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en_LV'));
-				$blockProperty->setValue('Template Header');
-			}
+				if ($name == 'header') {
+					$block = new Entity\TemplateBlock();
+					$this->entityManager->persist($block);
+					$block->setComponentClass('Project\Text\TextController');
+					$block->setPlaceHolder($templatePlaceHolder);
+					$block->setPosition(100);
+					$block->setLocale($localeId);
 
-			if ($name == 'main') {
-				$block = new Entity\TemplateBlock();
-				$this->entityManager->persist($block);
-				$block->setComponentClass('Project\Text\TextController');
-				$block->setPlaceHolder($templatePlaceHolder);
-				$block->setPosition(100);
-				$block->setLocale('en_LV');
+					// used later in page
+					$this->headerTemplateBlocks[$localeId] = $block;
 
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en_LV'));
-				$blockProperty->setValue('Template source');
-				
-//				// A locked block
-//				$block = new Entity\TemplateBlock();
-//				$this->entityManager->persist($block);
-//				$block->setComponentClass('Project\Text\TextController');
-//				$block->setPlaceHolder($templatePlaceHolder);
-//				$block->setPosition(200);
-//				$block->setLocked(true);
-//				$block->setLocale('en_LV');
-//
-//				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-//				$this->entityManager->persist($blockProperty);
-//				$blockProperty->setBlock($block);
-//				$blockProperty->setData($template->getData('en_LV'));
-//				$blockProperty->setValue('Template locked block');
-			}
+					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->entityManager->persist($blockProperty);
+					$blockProperty->setBlock($block);
+					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setValue('Template Header');
+				}
 
-			if ($name == 'footer') {
-				$block = new Entity\TemplateBlock();
-				$this->entityManager->persist($block);
-				$block->setComponentClass('Project\Text\TextController');
-				$block->setPlaceHolder($templatePlaceHolder);
-				$block->setPosition(100);
-				$block->setLocale('en_LV');
-				$block->setLocked();
+				if ($name == 'main') {
+					$block = new Entity\TemplateBlock();
+					$this->entityManager->persist($block);
+					$block->setComponentClass('Project\Text\TextController');
+					$block->setPlaceHolder($templatePlaceHolder);
+					$block->setPosition(100);
+					$block->setLocale($localeId);
 
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en_LV'));
-				$blockProperty->setValue('Bye <strong>World</strong>!<br />');
-			}
-			
-			if ($name == 'sidebar') {
-				$block = new Entity\TemplateBlock();
-				$this->entityManager->persist($block);
-				$block->setComponentClass('Project\Text\TextController');
-				$block->setPlaceHolder($templatePlaceHolder);
-				$block->setPosition(100);
-				$block->setLocale('en_LV');
+					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->entityManager->persist($blockProperty);
+					$blockProperty->setBlock($block);
+					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setValue('Template source');
 
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($template->getData('en_LV'));
-				$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
+	//				// A locked block
+	//				$block = new Entity\TemplateBlock();
+	//				$this->entityManager->persist($block);
+	//				$block->setComponentClass('Project\Text\TextController');
+	//				$block->setPlaceHolder($templatePlaceHolder);
+	//				$block->setPosition(200);
+	//				$block->setLocked(true);
+	//				$block->setLocale($localeId);
+	//
+	//				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+	//				$this->entityManager->persist($blockProperty);
+	//				$blockProperty->setBlock($block);
+	//				$blockProperty->setData($template->getData($localeId));
+	//				$blockProperty->setValue('Template locked block');
+				}
+
+				if ($name == 'footer') {
+					$block = new Entity\TemplateBlock();
+					$this->entityManager->persist($block);
+					$block->setComponentClass('Project\Text\TextController');
+					$block->setPlaceHolder($templatePlaceHolder);
+					$block->setPosition(100);
+					$block->setLocale($localeId);
+					$block->setLocked();
+
+					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->entityManager->persist($blockProperty);
+					$blockProperty->setBlock($block);
+					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setValue('Bye <strong>World</strong>!<br />');
+				}
+
+				if ($name == 'sidebar') {
+					$block = new Entity\TemplateBlock();
+					$this->entityManager->persist($block);
+					$block->setComponentClass('Project\Text\TextController');
+					$block->setPlaceHolder($templatePlaceHolder);
+					$block->setPosition(100);
+					$block->setLocale($localeId);
+
+					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->entityManager->persist($blockProperty);
+					$blockProperty->setBlock($block);
+					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setValue('<h2>Sidebar</h2><p>' . $this->randomText() . '</p>');
+				}
 			}
 		}
+		
 		$this->entityManager->persist($template);
 		$this->entityManager->flush();
-		
-		$childTemplate = new Entity\Template();
-		
-		$childTemplateData = new Entity\TemplateData('en_LV');
-		$this->entityManager->persist($childTemplateData);
-		$childTemplateData->setTemplate($childTemplate);
-		$childTemplateData->setTitle('Child template');
-		
-		$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
-		$this->entityManager->persist($templatePlaceHolder);
-		$templatePlaceHolder->setTemplate($childTemplate);
-		
-		$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
-		$this->entityManager->persist($templatePlaceHolder);
-		$templatePlaceHolder->setTemplate($childTemplate);
-		
-		// A locked block
-		$block = new Entity\TemplateBlock();
-		$this->entityManager->persist($block);
-		$block->setComponentClass('Project\Text\TextController');
-		$block->setPlaceHolder($templatePlaceHolder);
-		$block->setPosition(200);
-		$block->setLocale('en_LV');
-		$block->setLocked(true);
 
-		$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-		$this->entityManager->persist($blockProperty);
-		$blockProperty->setBlock($block);
-		$blockProperty->setData($childTemplateData);
-		$blockProperty->setValue('<h2>Template locked block</h2>');
+		$childTemplate = new Entity\Template();
+
+		/* @var $locale \Supra\Locale\Locale */
+		foreach ($this->locales as $locale) {
+			$localeId = $locale->getId();
+			
+			$childTemplateData = new Entity\TemplateData($localeId);
+			$this->entityManager->persist($childTemplateData);
+			$childTemplateData->setTemplate($childTemplate);
+			$childTemplateData->setTitle('Child template');
+
+			
+			$templatePlaceHolder = $childTemplate->getPlaceHolders()
+					->get('sidebar');
+
+			if (empty($templatePlaceHolder)) {
+				$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
+				$this->entityManager->persist($templatePlaceHolder);
+				$templatePlaceHolder->setTemplate($childTemplate);
+			}
+
+			$templatePlaceHolder = $childTemplate->getPlaceHolders()
+					->get('main');
+
+			if (empty($templatePlaceHolder)) {
+				$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
+				$this->entityManager->persist($templatePlaceHolder);
+				$templatePlaceHolder->setTemplate($childTemplate);
+			}
+
+			// A locked block
+			$block = new Entity\TemplateBlock();
+			$this->entityManager->persist($block);
+			$block->setComponentClass('Project\Text\TextController');
+			$block->setPlaceHolder($templatePlaceHolder);
+			$block->setPosition(200);
+			$block->setLocale($localeId);
+			$block->setLocked(true);
+
+			$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+			$this->entityManager->persist($blockProperty);
+			$blockProperty->setBlock($block);
+			$blockProperty->setData($childTemplateData);
+			$blockProperty->setValue('<h2>Template locked block</h2>');
+		}
 		
 		$this->entityManager->persist($childTemplate);
 		$childTemplate->moveAsLastChildOf($template);
@@ -375,68 +436,84 @@ class FixtureHelper
 		}
 		$this->entityManager->flush();
 
-		$pageData = new Entity\PageData('en_LV');
-		$pageData->setTemplate($template);
-		$this->entityManager->persist($pageData);
-		$pageData->setTitle(self::$constants[$type]['title']);
-
-		$pageData->setPage($page);
-
-		$this->entityManager->flush();
+		/* @var $locale \Supra\Locale\Locale */
+		foreach ($this->locales as $locale) {
+			$localeId = $locale->getId();
 		
-		// Path is generated on updates ONLY!
-		$pageData->setPathPart(self::$constants[$type]['pathPart']);
-		$this->entityManager->flush();
+			$pageData = new Entity\PageData($localeId);
+			$pageData->setTemplate($template);
+			$this->entityManager->persist($pageData);
+			$pageData->setTitle(self::$constants[$type]['title']);
 
-		foreach (array('header', 'main', 'footer') as $name) {
+			$pageData->setPage($page);
 
-			if ($name == 'header') {
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($this->headerTemplateBlock);
-				$blockProperty->setData($page->getData('en_LV'));
-				$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
-				
-				$placeHolder = new Entity\PagePlaceHolder('header');
-				$this->entityManager->persist($placeHolder);
-				$placeHolder->setMaster($page);
-				
-				$block = new Entity\PageBlock();
-				$this->entityManager->persist($block);
-				$block->setComponentClass('Project\Text\TextController');
-				$block->setPlaceHolder($placeHolder);
-				$block->setPosition(0);
-				$block->setLocale('en_LV');
-				
-				$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setBlock($block);
-				$blockProperty->setData($pageData);
-				$blockProperty->setValue('this shouldn\'t be shown');
-			}
+			$this->entityManager->flush();
 
-			if ($name == 'main') {
-				$pagePlaceHolder = new Entity\PagePlaceHolder($name);
-				$this->entityManager->persist($pagePlaceHolder);
-				$pagePlaceHolder->setPage($page);
+			// Path is generated on updates ONLY!
+			$pageData->setPathPart(self::$constants[$type]['pathPart']);
+			$this->entityManager->flush();
 
-				foreach (\range(1, 2) as $i) {
+			foreach (array('header', 'main', 'footer') as $name) {
+
+				if ($name == 'header') {
+					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+					$this->entityManager->persist($blockProperty);
+					$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
+					$blockProperty->setData($page->getData($localeId));
+					$blockProperty->setValue('<h1>Hello SiteSupra in page /' . $pageData->getPath() . '</h1>');
+
+					$placeHolder = $page->getPlaceHolders()
+							->get($name);
+					
+					if (empty($placeHolder)) {
+						$placeHolder = new Entity\PagePlaceHolder($name);
+						$this->entityManager->persist($placeHolder);
+						$placeHolder->setMaster($page);
+					}
+
 					$block = new Entity\PageBlock();
 					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Text\TextController');
-					$block->setPlaceHolder($pagePlaceHolder);
-					// reverse order
-					$block->setPosition(100 * $i);
-					$block->setLocale('en_LV');
+					$block->setPlaceHolder($placeHolder);
+					$block->setPosition(0);
+					$block->setLocale($localeId);
 
 					$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($page->getData('en_LV'));
-					$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');
+					$blockProperty->setData($pageData);
+					$blockProperty->setValue('this shouldn\'t be shown');
 				}
-			}
 
+				if ($name == 'main') {
+					
+					$placeHolder = $page->getPlaceHolders()
+							->get($name);
+					
+					if (empty($placeHolder)) {
+						$pagePlaceHolder = new Entity\PagePlaceHolder($name);
+						$this->entityManager->persist($pagePlaceHolder);
+						$pagePlaceHolder->setPage($page);
+					}
+
+					foreach (\range(1, 2) as $i) {
+						$block = new Entity\PageBlock();
+						$this->entityManager->persist($block);
+						$block->setComponentClass('Project\Text\TextController');
+						$block->setPlaceHolder($pagePlaceHolder);
+						// reverse order
+						$block->setPosition(100 * $i);
+						$block->setLocale($localeId);
+
+						$blockProperty = new Entity\BlockProperty('html', 'Supra\Editable\Html');
+						$this->entityManager->persist($blockProperty);
+						$blockProperty->setBlock($block);
+						$blockProperty->setData($page->getData($localeId));
+						$blockProperty->setValue('<h2>Section Nr ' . $i . '</h2><p>' . $this->randomText() . '</p>');
+					}
+				}
+
+			}
 		}
 
 		return $page;

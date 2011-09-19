@@ -436,10 +436,11 @@ abstract class PageRequest extends HttpRequest
 				->orderBy('b.position', 'ASC');
 		
 		$expr = $qb->expr();
+		$or = $expr->orX();
 
 		// final placeholder blocks
 		if ( ! empty($finalPlaceHolderIds)) {
-			$qb->orWhere($expr->in('ph.id', $finalPlaceHolderIds));
+			$or->add($expr->in('ph.id', $finalPlaceHolderIds));
 		}
 		
 		// locked block condition
@@ -448,11 +449,19 @@ abstract class PageRequest extends HttpRequest
 					$expr->in('ph.id', $parentPlaceHolderIds),
 					'b.locked = TRUE'
 			);
-			$qb->orWhere($lockedBlocksCondition);
+			$or->add($lockedBlocksCondition);
 		}
 		
+		$and = $expr->andX();
+		$and->add($or);
+		$and->add('b.locale = ?0');
+		
+		$qb->where($and);
+		
 		// Execute block query
-		$blocks = $qb->getQuery()->getResult();
+		$query = $qb->getQuery();
+		$query->execute(array($this->getLocale()));
+		$blocks = $query->getResult();
 
 		\Log::debug("Block count found: " . count($blocks));
 		
