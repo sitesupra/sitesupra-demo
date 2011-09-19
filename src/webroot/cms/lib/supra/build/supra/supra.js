@@ -111,10 +111,6 @@ if (typeof Supra === "undefined") {
 				base: "/cms/lib/supra/build/",
 				//Use YUI file combo
 				comboBase: "/cms/lib/yui." + YUI.version + "/combo/combo.php?",
-				filter: {
-			        'searchExp': "supra\\.(.*)(-min)?\\.(js|css)",
-			        'replaceStr': "$1.$3"
-		        },
 				modules: {}	//@see modules.js
 			},
 			website: {

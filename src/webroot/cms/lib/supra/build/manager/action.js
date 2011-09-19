@@ -123,10 +123,6 @@ YUI.add('supra.manager-action', function (Y) {
 			for(var i=0,ii=dependancies.length; i<ii; i++) {
 				if (!Manager.Loader.isLoaded(dependancies[i])) {
 					load_list.push(dependancies[i]);
-					
-					if (!Manager.Loader.isLoading(dependancies[i])) {
-						Manager.Loader.loadAction(dependancies[i]);
-					}
 				}
 			}
 			

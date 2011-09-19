@@ -177,37 +177,54 @@ YUI.add('supra.manager-loader', function (Y) {
 		},
 		
 		/**
-		 * Load action
-		 * 
-		 * @param {String} action_name
-		 * @return True if action started loading, false if it is already loading or loaded
+		 * Load actions
+		 *
+		 * @param {Array} action_names Array of action names
+		 * @return True if any action stated loading, false if all actions already loading or loading
 		 * @type {Boolean}
 		 */
-		loadAction: function (action_name) {
-			if (this.isLoaded(action_name) || this.isLoading(action_name)) return false;
+		loadActions: function (action_names) {
+			var load_list = [],
+				paths = [],
+				info = null;
+			
+			for(var i=0,ii=action_names.length; i<ii; i++) {
+				if (!this.isLoaded(action_names[i]) && !this.isLoading(action_names[i])) {
+					load_list.push(action_names[i]);
+				}
+			}
+			
+			//All action already loaded or loading?
+			if (!load_list.length) return false;
 			
 			//If internationalized data not loaded, wait till it is
-			var base = this.static_path + (this.paths[action_name] || this.getBasePath());
+			var base = this.static_path + (this.paths[load_list[0]] || this.getBasePath());
 			if (!Supra.Intl.isLoaded(base)) {
 				Supra.Intl.loadAppData(base, function () {
 					//Call loadAction again
-					this.loadAction(action_name);
+					this.loadActions(action_names);
 				}, this);
 				return;
 			}
 			
 			//
-			var info = this.getActionInfo(action_name);
+			for(i=0,ii=load_list.length; i<ii; i++) {
+				//
+				info = this.getActionInfo(load_list[i]);
+				paths.push(info.path_script);
+				
+				this.loading[load_list[i]] = {
+					'script': true,
+					'style': false,
+					'template': false,
+					'dependancies': false
+				};
+			}
 			
-			this.loading[action_name] = {
-				'script': true,
-				'style': false,
-				'template': false,
-				'dependancies': false
-			};
+			var path = Supra.YUI_BASE.groups.website.comboBase + paths.join('&');
 			
 			//Get SCRIPT
-			Y.Get.script(info.path_script, {
+			Y.Get.script(path, {
 				onSuccess: function (o) {
 					//Script is loaded, but template and stylesheet is not
 					//rest is handled by Supra.Managet.Action
@@ -217,10 +234,22 @@ YUI.add('supra.manager-loader', function (Y) {
 					'defer': 'defer'	//For browsers that doesn't support async
 				},
 				context: this,
-				data: action_name
+				data: load_list
 			});
 			
 			return true;
+		},
+		
+		/**
+		 * Load action
+		 * 
+		 * @param {String} action_name
+		 * @return True if action started loading, false if it is already loading or loaded
+		 * @type {Boolean}
+		 */
+		loadAction: function (action_name) {
+			if (this.isLoaded(action_name) || this.isLoading(action_name)) return false;
+			return this.loadActions([action_name]);
 		},
 		
 		/**

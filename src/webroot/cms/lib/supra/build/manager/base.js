@@ -87,9 +87,7 @@ YUI.add('supra.manager-base', function (Y) {
 		 * @type {Boolean}
 		 */
 		loadActions: function (action_names) {
-			for(var i=0,ii=action_names.length; i<ii; i++) {
-				Supra.Manager.Loader.loadAction(action_names[i]);
-			}
+			return Supra.Manager.Loader.loadActions(action_names);
 		},
 
 		/**
