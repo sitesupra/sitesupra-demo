@@ -27,7 +27,11 @@ YUI.add("supra.languagebar", function (Y) {
 			'			{% for lang in context.languages %}' +
 			'				<li>' +
 			'					<a data-locale="{{ lang.id|escape }}">' +
-			'						<img src="/cms/lib/supra/img/flags/16x11/{{ lang.flag }}.png" alt="" />' +
+			'						{% if lang.flag %}' +
+			'							<img src="/cms/lib/supra/img/flags/16x11/{{ lang.flag }}.png" alt="" />' +
+			'						{% else %}' +
+			'							<img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" />' +
+			'						{% endif %}' +
 			'						<span>{{ lang.title|escape }}</span>' +
 			'					</a>' +
 			'				</li>' +
