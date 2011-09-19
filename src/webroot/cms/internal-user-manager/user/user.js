@@ -218,6 +218,7 @@ Supra('supra.slideshow', function (Y) {
 				'context': this,
 				'on': {
 					'success': function () {
+						this.data = {};
 						this.hide();
 						Manager.getAction('UserList').load();
 					}
