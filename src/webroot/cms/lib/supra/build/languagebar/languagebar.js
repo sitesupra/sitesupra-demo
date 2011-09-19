@@ -17,25 +17,26 @@ YUI.add("supra.languagebar", function (Y) {
 								<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>\
 							</div>';
 	
-	var TEMPLATE_LIST = Template.compile('\
-			<ul class="contexts">{{ contexts }}</ul>\
-		');
-	
-	var TEMPLATE_CONTEXT = Template.compile('\
-			<li>\
-				<div class="context-title">{{ title|escape }}</div>\
-				<ul class="langs">{{ languages }}</ul>\
-			</li>\
-		');
-	
-	var TEMPLATE_LANGUAGE = Template.compile('\
-			<li>\
-				<a data-locale="{{ language|escape }}">\
-					<img src="/cms/lib/supra/img/flags/16x11/{{ icon }}.png" alt="" />\
-					<span>{{ title|escape }}</span>\
-				</a>\
-			 </li>\
-		');
+	/* Language list template */
+	var TEMPLATE = Template.compile(
+			'<ul class="contexts">' +
+			'	{% for context in contexts %}' +
+			'	<li>' +
+			'		<div class="context-title">{{ context.title|escape }}</div>' +
+			'		<ul class="langs">' +
+			'			{% for lang in context.languages %}' +
+			'				<li>' +
+			'					<a data-locale="{{ lang.id|escape }}">' +
+			'						<img src="/cms/lib/supra/img/flags/16x11/{{ lang.flag }}.png" alt="" />' +
+			'						<span>{{ lang.title|escape }}</span>' +
+			'					</a>' +
+			'				</li>' +
+			'			{% endfor %}' +
+			'		</ul>' +
+			'	</li>' +
+			'	{% endfor %}' +
+			'</ul>'
+		);
 	
 	/**
 	 * Class for handling content languages
@@ -127,36 +128,9 @@ YUI.add("supra.languagebar", function (Y) {
 		 * @private
 		 */
 		renderUIList: function () {
-			var contexts = this.get('contexts'),
-				langs = null,
-				html_contexts = [],
-				html_langs = [],
-				html = null;
-			
-			for(var i=0,ii=contexts.length; i<ii; i++) {
-				langs = contexts[i].languages;
-				html_langs = [];
-				
-				//Create language items
-				for(var k=0,kk=langs.length; k<kk; k++) {
-					html_langs.push(TEMPLATE_LANGUAGE({
-						'title': langs[k].title,
-						'language': langs[k].id,
-						'icon': this.splitLocale(langs[k].id)[1]
-					}));
-				}
-				
-				html_contexts.push(TEMPLATE_CONTEXT({
-					'title': contexts[i].title,
-					'languages': html_langs.join('')
-				}));
-			}
-			
-			html = TEMPLATE_LIST({
-				'contexts': html_contexts.join('')
-			});
-			
-			return Y.Node.create(html);
+			return Y.Node.create(TEMPLATE({
+				'contexts': this.get('contexts')
+			}));
 		},
 		
 		/**
