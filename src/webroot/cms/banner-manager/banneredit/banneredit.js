@@ -145,7 +145,7 @@ Supra(function (Y) {
 			this.form.getInput('schedule').on('valueChange', this.updateScheduleUI, this);
 			
 			//When link manager and schedule manager closes unset button down state
-			Supra.Manager.getAction('LinkManager').on('visibleChange', function (e) {
+			Supra.Manager.getAction('PageLinkManager').on('visibleChange', function (e) {
 				this.button_target.set('down', e.newVal);
 			}, this);
 			
@@ -162,7 +162,7 @@ Supra(function (Y) {
 		openLinkManager: function () {
 			var value = this.form.getInput('target').getValue();
 			var callback = Y.bind(this.onLinkChange, this);
-			Supra.Manager.executeAction('LinkManager', value, callback);
+			Supra.Manager.executeAction('PageLinkManager', value, callback);
 			
 			this.button_target.set('down', true);
 		},

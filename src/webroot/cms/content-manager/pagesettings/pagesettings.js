@@ -93,6 +93,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		button_back: null,
 		
 		/**
+		 * Redirect button
+		 * @type {Object}
+		 */
+		button_redirect: null,
+		
+		/**
 		 * Template list object
 		 * @type {Object}
 		 */
@@ -303,6 +309,36 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
+		 * Open link manager for redirect
+		 */
+		openLinkManager: function () {
+			var value = this.form.getInput('redirect').getValue();
+			var callback = Y.bind(this.onLinkManagerClose, this);
+			Supra.Manager.executeAction('PageLinkManager', value, callback);
+		},
+		
+		/**
+		 * Update input value on change
+		 *
+		 * @param {Object} data
+		 */
+		onLinkManagerClose: function (data) {
+			this.form.getInput('redirect').setValue(data);
+			this.execute(true);
+		},
+		
+		/**
+		 * Update button label
+		 *
+		 * @param {Object} e Page data or event
+		 */
+		updateRedirectUI: function (e) {
+			var data = (e && 'newVal' in e ? e.newVal : e);
+			var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
+			this.button_redirect.set('label', title);
+		},
+		
+		/**
 		 * Delete page
 		 */
 		deletePage: function () {
@@ -373,6 +409,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			(new Supra.Button({'srcNode': buttons.filter('.button-schedule').item(0)}))
 				.render().on('click', function () { this.slideshow.set('slide', 'slideSchedule'); }, this);
 			
+			//Redirect button
+			this.button_redirect = (new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)}));
+			this.button_redirect
+				.render().on('click', function () { this.openLinkManager(); }, this);
+			
 			//Blocks button
 			(new Supra.Button({'srcNode': buttons.filter('.button-blocks').item(0)}))
 				.render().on('click', function () { this.slideshow.set('slide', 'slideBlocks'); }, this);
@@ -395,6 +436,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				var inputs = form.getInputs();
 				for(var id in inputs) inputs[id].set('disabled', true);
 			}
+			
+			//On redirect value change update button UI
+			this.form.getInput('redirect').on('valueChange', this.updateRedirectUI, this);
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
@@ -560,7 +604,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					['template', '.button-template'],
 					['template', form.getInput('template[id]')],
 					['template', form.getInput('template[img]')],
-					['template', form.getInput('template[title]')]
+					['template', form.getInput('template[title]')],
+					
+					['template', '.button-redirect']
 				];
 			
 			for(var i=inputs.length - 1; i>=0; i--) {
@@ -581,6 +627,22 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				}
 			}
 			
+			//Update labels
+			var label_header = '',
+				label_title = '';
+			
+			if (type != 'template') {
+				label_header = SU.Intl.get(['settings', 'title_page']);
+				label_title = SU.Intl.get(['settings', 'page_title']);
+			} else {
+				label_header = SU.Intl.get(['settings', 'title_template']);
+				label_title = SU.Intl.get(['settings', 'page_title_template']);
+			}
+			
+			this.one('h2.yui3-sidebar-header').set('text', label_header);
+			form.getInput('title').set('label', label_title);
+			
+			//Layout input
 			if (type != 'template' || !this.page_data.root) {
 				form.getInput('layout').hide();
 				form.getInput('layout').set('disabled', true);
@@ -607,7 +669,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		/**
 		 * Execute action
 		 */
-		execute: function () {
+		execute: function (dont_update_data) {
 			//Show buttons
 			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
@@ -616,9 +678,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
 			
 			if (!this.form) this.createForm();
-			this.page_data = Supra.mix({}, Manager.Page.getPageData());
-			this.setFormValues();
-			this.updateTypeUI();
+			if (dont_update_data !== true) {
+				this.page_data = Supra.mix({}, Manager.Page.getPageData());
+				this.setFormValues();
+				this.updateTypeUI();
+				this.updateRedirectUI(this.page_data.redirect);
+			}
 			
 			this.slideshow.set('noAnimation', true);
 			this.slideshow.scrollBack();

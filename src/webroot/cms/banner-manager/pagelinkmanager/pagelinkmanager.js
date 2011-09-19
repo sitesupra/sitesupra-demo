@@ -9,7 +9,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		Loader = Manager.Loader;
 	
 	//Add as right bar child
-	Manager.getAction('LayoutLeftContainer').addChildAction('LinkManager');
+	Manager.getAction('LayoutLeftContainer').addChildAction('PageLinkManager');
 	
 	//Create Action class
 	new Action({
@@ -18,7 +18,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * Unique action name
 		 * @type {String}
 		 */
-		NAME: 'LinkManager',
+		NAME: 'PageLinkManager',
 		
 		/**
 		 * Load stylesheet
@@ -148,7 +148,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		setData: function (data) {
 			data = SU.mix({
-				'type': '',
+				'type': 'internal',
 				'title': '',
 				'href': '',
 				'page_id': null

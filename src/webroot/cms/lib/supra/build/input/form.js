@@ -407,17 +407,21 @@ YUI.add("supra.form", function (Y) {
 		unserializeObject: function (obj, skip_decode) {
 			var out = {},
 				m,
-				name;
+				name,
+				is_string;
 			
 			for(var id in obj) {
+				//If value is not string, then no need to decode
+				is_string = typeof obj[id] == 'string';
+				
 				if (String(id).indexOf('[') != -1) {
 					if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
-						name = skip_decode ? m[1] : decodeURIComponent(String(m[1]));
+						name = skip_decode || !is_string ? m[1] : decodeURIComponent(String(m[1]));
 						if (!(name in out)) out[name] = {};
 						this.unserializeItem(m[2] + m[3], obj[id], out[name], skip_decode);
 					}
 				} else {
-					out[id] = skip_decode ? obj[id] : decodeURIComponent(obj[id]);
+					out[id] = skip_decode || !is_string ? obj[id] : decodeURIComponent(obj[id]);
 				}
 			}
 			

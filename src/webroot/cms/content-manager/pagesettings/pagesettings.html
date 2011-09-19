@@ -1,7 +1,7 @@
 <div class="yui3-page-settings">
 	
 	<!-- Form header -->
-	<h2 class="yui3-sidebar-header">{#settings.title#}</h2>
+	<h2 class="yui3-sidebar-header">{#settings.title_page#}</h2>
 	
 	<!-- Buttons -->
 	<div class="yui3-sidebar-buttons hidden">
@@ -60,6 +60,11 @@
 				
 				<div class="input-group input-group-button">
 					<button type="button" class="button-schedule"><p>{#settings.schedule#}</p></button>
+				</div>
+				
+				<div class="input-group input-group-button">
+					<button type="button" class="button-redirect"><p>{#settings.redirect#}</p></button>
+					<input type="hidden" name="redirect" />
 				</div>
 				
 				<div class="input-group input-group-button">
