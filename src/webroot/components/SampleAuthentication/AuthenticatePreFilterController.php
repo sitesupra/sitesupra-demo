@@ -1,7 +1,9 @@
 <?php
-namespace Project\Authenticate;
+
+namespace Project\SampleAuthentication;
 
 use Supra\Controller\Authentication;
+
 /**
  * Authentication PreFilter
  *
@@ -11,12 +13,11 @@ class AuthenticatePreFilterController extends Authentication\AuthenticationContr
 {
 	public function __construct()
 	{
-		$this->setLoginPath('authenticate/login');
-		$this->setBasePath('authenticate');
+		$this->setLoginPath(namespace\CONTROLLER_URL . '/login');
+		$this->setBasePath(namespace\CONTROLLER_URL);
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
 		
 		parent::__construct();
 	}
-	
 }

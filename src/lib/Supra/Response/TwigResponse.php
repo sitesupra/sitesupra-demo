@@ -54,12 +54,24 @@ class TwigResponse extends HttpResponse
 	 */
 	public function outputTemplate($templateName)
 	{
-		$templateName = $this->templatePath . DIRECTORY_SEPARATOR . $templateName;
+		$oldLoader = $this->twigEnvironment->getLoader();
+		$e = null;
 		
-		$template = $this->twigEnvironment->loadTemplate($templateName);
-		$content = $template->render($this->templateVariables);
+		$loader = new \Twig_Loader_Filesystem(SUPRA_PATH . $this->templatePath);
+		$this->twigEnvironment->setLoader($loader);
 		
-		$this->output($content);
+		try {
+			$template = $this->twigEnvironment->loadTemplate($templateName);
+			$content = $template->render($this->templateVariables);
+
+			$this->output($content);
+		} catch (\Exception $e) {}
+		
+		$this->twigEnvironment->setLoader($oldLoader);
+		
+		if ( ! empty($e)) {
+			throw $e;
+		}
 	}
 	
 	/**

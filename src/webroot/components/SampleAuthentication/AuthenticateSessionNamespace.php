@@ -1,8 +1,10 @@
 <?php
 
-namespace Project\Authenticate;
+namespace Project\SampleAuthentication;
 
 use Supra\Controller\Authentication\AuthenticationSessionNamespace;
+use Supra\User\Entity\User;
+use Supra\ObjectRepository\ObjectRepository;
 
 class AuthenticateSessionNamespace extends AuthenticationSessionNamespace
 {

@@ -23,10 +23,8 @@ class SessionNamespaceManager
 	public function __construct($handler) 
 	{
 		$this->handler = $handler;
-		
 		$this->handler->start();
-		
-		$this->sessionData =& $this->handler->getSessionData();
+		$this->sessionData = &$this->handler->getSessionData();
 	}
 	
 	/**
@@ -35,7 +33,7 @@ class SessionNamespaceManager
 	 * @param string $sessionNamespaceClass
 	 * @return SessionNamespace
 	 */
-	function getDefaultSessionNamespace($sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
+	public function getDefaultSessionNamespace($sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
 	{
 		return $this->getOrCreateSessionNamespace(self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass);
 	}
@@ -47,10 +45,10 @@ class SessionNamespaceManager
 	 * @param string $sessionNamespaceClass
 	 * @return SessionNamespace
 	 */
-	function getOrCreateSessionNamespace($name = self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
+	public function getOrCreateSessionNamespace($name = self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
 	{
-		if(!isset($this->sessionData[$name])) {
-
+		if ( ! isset($this->sessionData[$name]) || ! $this->sessionData[$name] instanceof SessionNamespace) {
+			
 			$sessionNamespace = new $sessionNamespaceClass($name);
 			$this->registerSessionNamespace($sessionNamespace);
 		}
@@ -65,16 +63,10 @@ class SessionNamespaceManager
 	 * @param string $name
 	 * @param SessionNamespace $session 
 	 */
-	function registerSessionNamespace(SessionNamespace $sessionNamespace) 
+	public function registerSessionNamespace(SessionNamespace $sessionNamespace) 
 	{
 		$name = $sessionNamespace->getName();
-		
-		if( !isset($this->sessionData[$name]) ) {
-			$this->sessionData[$name] = $sessionNamespace;
-		}
-		else {
-			throw new Exception\SessionNamespaceAlreadyExists();
-		}
+		$this->sessionData[$name] = $sessionNamespace;
 	}
 	 
 	/**
@@ -83,9 +75,9 @@ class SessionNamespaceManager
 	 * @param string $name
 	 * @return SessionNamespace
 	 */
-	function getSessionNamespace($name) 
+	public function getSessionNamespace($name) 
 	{
-		if(!isset($this->sessionData[$name])) {
+		if ( ! isset($this->sessionData[$name])) {
 			throw new Exception\SessionNamespaceNotFound();
 		}
 		
@@ -98,7 +90,7 @@ class SessionNamespaceManager
 	 * @param string $name
 	 * @return boolean
 	 */
-	function sessionNamespaceIsRegistered($name) 
+	public function sessionNamespaceIsRegistered($name) 
 	{
 		return isset($this->sessionData[$name]);
 	}	
@@ -106,11 +98,11 @@ class SessionNamespaceManager
 	/**
 	 * Closes all namespaces and session itself.
 	 */
-	function close() 
+	public function close() 
 	{
-		foreach($this->sessionData as $sessionNamespace) {
+		foreach ($this->sessionData as $sessionNamespace) {
 			
-			if($sessionNamespace instanceof SessionNamespace) {
+			if ($sessionNamespace instanceof SessionNamespace) {
 				$sessionNamespace->close();	
 			}
 		}
@@ -120,11 +112,11 @@ class SessionNamespaceManager
 	/**
 	 * Clears all namespaces.
 	 */
-	function clear() 
+	public function clear() 
 	{
-		foreach($this->sessionNamespaces as $sessionNamespace) {
+		foreach ($this->sessionNamespaces as $sessionNamespace) {
 
-			if($sessionNamespace instanceof SessionNamespace) {
+			if ($sessionNamespace instanceof SessionNamespace) {
 				$sessionNamespace->clear();
 			}
 		}
