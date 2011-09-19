@@ -156,6 +156,9 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 				'left': this.last_handle_x + 'px',
 				'top': this.last_handle_y + 'px'
 			});
+			
+			//Update 'image' plugin form values
+			this.throttleUpdateImagePluginUI();
 		},
 		
 		dragEnd: function () {
@@ -168,16 +171,38 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 			
 			//Save changes
 			if (this.img_w != this.last_image_w) {
+				//Update data
 				var data = this.htmleditor.getData(this.target_node);
-				data.size = [this.last_image_w, this.last_image_h];
+				data.size_width = this.last_image_w;
+				data.size_height = this.last_image_h;
 				this.htmleditor.setData(this.target_node, data);
 				
 				//Property changed, update editor 'changed' state
 				this.htmleditor._changed();
+				
+				//Update 'image' plugin form values
+				this.updateImagePluginUI();
 			}
 			
 			this.hideResizeHandleDelayed();
 		},
+		
+		/**
+		 * Update width and height input values in image settings form
+		 */
+		updateImagePluginUI: function () {
+			var plugin = this.htmleditor.getPlugin('image'),
+				form = plugin.settings_form;
+			
+			if (form.get('visible')) {
+				plugin.silent = true;
+				form.getInput('size_width').set('value', this.last_image_w);
+				form.getInput('size_height').set('value', this.last_image_h);
+				plugin.silent = false;
+			}
+		},
+		
+		throttleUpdateImagePluginUI: null,
 		
 		/**
 		 * Initialize plugin for editor,
@@ -187,6 +212,8 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
+			
+			this.throttleUpdateImagePluginUI = Y.throttle(Y.bind(this.updateImagePluginUI, this), 60);
 			
 			// On mouse over/out show/hide handle node
 			var container = htmleditor.get('srcNode'),

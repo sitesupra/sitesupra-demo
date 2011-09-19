@@ -66,6 +66,8 @@
 			"image_title": "Image title",
 			"image_description": "Alt title",
 			"image_alignment": "Alignment",
+			"image_width": "Width",
+			"image_height": "Height",
 			"alignment_left": "Left",
 			"alignment_center": "Center",
 			"alignment_right": "Right",

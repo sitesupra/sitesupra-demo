@@ -59,7 +59,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 						{'id': '', 'title': Supra.Intl.get(['htmleditor', 'style_normal']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-normal.png'},
 						{'id': 'border', 'title': Supra.Intl.get(['htmleditor', 'style_border']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-border.png'},
 						{'id': 'lightbox', 'title': Supra.Intl.get(['htmleditor', 'style_lightbox']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-lightbox.png'}
-					]}
+					]},
+					{'id': 'size_width', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_width']), 'value': '', 'valueMask': /^\d+$/},
+					{'id': 'size_height', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_height']), 'value': '', 'valueMask': /^\d+$/}
 				],
 				'style': 'vertical'
 			};
@@ -195,6 +197,42 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				image.setAttribute('align', value);
 				image.removeClass('align-left').removeClass('align-right').removeClass('align-middle');
 				if (value) image.addClass('align-' + value);
+			} else if (id == 'size_width') {
+				
+				value = parseInt(value) || 0;
+				var data = this.htmleditor.getData(this.selected_image_id),
+					size = this.getImageDataBySize(data.image),
+					ratio = size.width / size.height,
+					height = value ? Math.round(value / ratio) : size.height,
+					width = value || size.width;
+				
+				data.size_height = height;
+				image.setAttribute('width', width);
+				image.setAttribute('height', height);
+				
+				this.silent = true;
+				this.settings_form.getInput('size_height').set('value', height);
+				this.settings_form.getInput('size_width').set('value', width);
+				this.silent = false;
+				
+			} else if (id == 'size_height') {
+				
+				value = parseInt(value) || 0;
+				var data = this.htmleditor.getData(this.selected_image_id),
+					size = this.getImageDataBySize(data.image),
+					ratio = size.width / size.height,
+					width = value ? Math.round(value * ratio) : size.width,
+					height = value || size.height;
+				
+				data.size_width = width;
+				image.setAttribute('width', width);
+				image.setAttribute('height', height);
+				
+				this.silent = true;
+				this.settings_form.getInput('size_height').set('value', height);
+				this.settings_form.getInput('size_width').set('value', width);
+				this.silent = false;
+				
 			} else if (id == 'style') {
 				image.removeClass('border').removeClass('lightbox');
 				if (value) image.addClass(value);
@@ -419,6 +457,22 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		},
 		
 		/**
+		 * Returns image size data
+		 * 
+		 * @param {Object} data
+		 * @param {String} size
+		 */
+		getImageDataBySize: function (data, size) {
+			var size = size ? size : this.configuration.size;
+			
+			if (size in data.sizes) {
+				return data.sizes[size];
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Disable image resizing using handles, FF
 		 */
 		disableImageObjectResizing: function () {
@@ -624,7 +678,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
-					var style = (data[id].size ? 'width="' + data[id].size[0] + 'px" height="' + data[id].size[1] + '"' : '');
+					var style = (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + 'px" height="' + data[id].size_height + '"' : '');
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
 					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
 					

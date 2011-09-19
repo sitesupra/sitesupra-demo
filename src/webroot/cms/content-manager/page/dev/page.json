@@ -53,6 +53,8 @@
 										"description": "Short description",
 										"style": "border",
 										"title": "Koala",
+										"size_width": 200,
+										"size_height": 150,
 										"image": {
 											"path": [0, 1],
 											"sizes": {
