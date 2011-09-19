@@ -624,8 +624,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
+					var style = (data[id].size ? 'width="' + data[id].size[0] + 'px" height="' + data[id].size[1] + '"' : '');
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
-					var html = '<img id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
+					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
 					
 					if (data.type == 'lightbox') {
 						//For lightbox add link around image

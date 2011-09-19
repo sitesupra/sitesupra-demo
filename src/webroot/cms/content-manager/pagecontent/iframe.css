@@ -239,6 +239,27 @@
 }
 
 /**
+ * = Image resize handle
+ */
+.yui3-image-resize-handle {
+	display: none;
+	position: absolute;
+	width: 37px;
+	height: 37px;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle.png) 0 0 repeat;
+	cursor: move;
+	cursor: se-resize;
+	z-index: 10001;
+	margin: -15px 0 0 -19px;
+}
+.yui3-image-resize-handle:hover {
+	background-position: 0 -37px;
+}
+.yui3-image-resize-handle:active {
+	background-position: 0 -74px;
+}
+
+/**
  * = Controls
  */
 .yui3-controls {

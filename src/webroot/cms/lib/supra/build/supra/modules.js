@@ -246,6 +246,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-toolbar',
 			
 			'supra.htmleditor-plugin-image',
+			'supra.htmleditor-plugin-image-resize',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
@@ -305,6 +306,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-image': {
 			path: 'htmleditor/plugins/plugin-image.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-image-resize': {
+			path: 'htmleditor/plugins/plugin-image-resize.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-table': {
