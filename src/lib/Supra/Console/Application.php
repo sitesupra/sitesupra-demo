@@ -3,7 +3,9 @@
 namespace Supra\Console;
 
 use Supra\Version;
+use Supra\ObjectRepository\ObjectRepository;
 use Symfony\Component\Console\Application as SymfonyConsoleApplication;
+use Supra\Component\Console\Cron\Period\AbstractPeriod;
 
 /**
  * Application
@@ -39,6 +41,19 @@ class Application extends SymfonyConsoleApplication
 			self::$instance = new Application();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Add cron job
+	 * 
+	 * @param string $input
+	 * @param AbstractPeriod $period
+	 */
+	public function addCronJob($input, AbstractPeriod $period)
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		$repo = $em->getRepository('Supra\Console\Cron\Entity\CronJob');
+		$repo->addJob($input, $period);
 	}
 	
 }
