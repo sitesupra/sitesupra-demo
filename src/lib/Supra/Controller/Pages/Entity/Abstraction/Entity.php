@@ -193,6 +193,10 @@ abstract class Entity
 	 */
 	public function matchDiscriminator(Entity $object, $strict = true)
 	{
+		if ( ! $object instanceof Entity) {
+			throw new Exception\LogicException("Entity not passed to the matchDiscriminator method");
+		}
+		
 		$discrA = $this->getDiscriminator();
 		$discrB = $object->getDiscriminator();
 

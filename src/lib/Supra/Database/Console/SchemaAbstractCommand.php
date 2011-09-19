@@ -28,7 +28,7 @@ abstract class SchemaAbstractCommand extends Command
 		parent::__construct($name);
 
 		$this->entityManagers = array(
-			'public' => ObjectRepository::getEntityManager('Supra'),
+			'public' => ObjectRepository::getEntityManager(''),
 			'draft' => ObjectRepository::getEntityManager('Supra\Cms')
 		);
 	}

@@ -38,11 +38,17 @@ class PageRequestEdit extends PageRequest
 		$pageDataId = $pageData->getId();
 
 		$draftPage = $pageData->getMaster();
-
-		$pageData = $publicEm->merge($pageData);
-
+		
+		/*
+		 * NB!
+		 * This is important to load the public page first before merging the 
+		 * data into the public scheme because doctrine will create abstract not
+		 * usable proxy class for it otherwise
+		 */
 		/* @var $publicPage Entity\Abstraction\Page */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+
+		$pageData = $publicEm->merge($pageData);
 		$pageData->setMaster($publicPage);
 
 		// 1. Get all blocks to be copied

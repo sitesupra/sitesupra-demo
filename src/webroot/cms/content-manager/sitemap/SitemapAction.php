@@ -38,39 +38,6 @@ class SitemapAction extends PageManagerAction
 	}
 
 	/**
-	 * Called when save is performed inside the sitemap
-	 */
-	public function saveAction()
-	{
-		$this->isPostRequest();
-		$pageData = $this->getPageData();
-
-		if ($this->hasRequestParameter('title')) {
-			$title = $this->getRequestParameter('title');
-			$pageData->setTitle($title);
-		}
-
-		if ($this->hasRequestParameter('path')) {
-			if ($pageData instanceof Entity\PageData) {
-				$pathPart = $this->getRequestParameter('path');
-
-				try {
-					$pageData->setPathPart($pathPart);
-				} catch (DuplicatePagePathException $uniqueException) {
-					$this->getResponse()
-							->setErrorMessage("{#sitemap.error.duplicate_path#}");
-
-					// Clear the unit of work
-					$this->entityManager->clear();
-				}
-			}
-		}
-
-		$this->entityManager->flush();
-		$this->outputPage($pageData);
-	}
-
-	/**
 	 * Page move action
 	 */
 	public function moveAction()

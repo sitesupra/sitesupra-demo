@@ -138,40 +138,63 @@ class FixtureHelper
 	 */
 	public function build()
 	{
-		$this->rebuild();
+//		$this->rebuild();
+		$rootPage = $page = $page2 = null;
 
 		$em = $this->entityManager;
+		$em->beginTransaction();
 		
-		$this->template = $this->createTemplate();
-		
-		$rootPage = $this->createPage(0, null, $this->template->getParent());
-		$em->persist($rootPage);
-		$em->flush();
-		$this->rootPage = $rootPage;
+		try {
+			$this->template = $this->createTemplate();
 
-		$page = $this->createPage(1, $rootPage, $this->template);
-		$em->persist($page);
-		$em->flush();
+			$rootPage = $this->createPage(0, null, $this->template->getParent());
+			$em->persist($rootPage);
+			$em->flush();
+			$this->rootPage = $rootPage;
 
-		$page2 = $this->createPage(2, $page, $this->template);
-		$em->persist($page2);
-		$em->flush();
-		
-		$publicEm = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+			$page = $this->createPage(1, $rootPage, $this->template);
+			$em->persist($page);
+			$em->flush();
 
-		foreach (array($this->template->getParent(), $this->template, $rootPage, $page, $page2) as $pageToPublish) {
+			$page2 = $this->createPage(2, $page, $this->template);
+			$em->persist($page2);
+			$em->flush();
+		} catch (\Exception $e) {
+			$em->rollback();
 			
-			$this->log->debug("Publishing object $pageToPublish");
-			
-			$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en_LV', Entity\Layout::MEDIA_SCREEN);
-			$request->blockFlushing();
-			$request->setDoctrineEntityManager($em);
-			$request->setRequestPageData($pageToPublish->getData('en_LV'));
-			$request->publish($publicEm);
-			
-			$em->clear();
-			$publicEm->clear();
+			throw $e;
 		}
+		
+		$em->commit();
+		
+		$publicEm = ObjectRepository::getEntityManager('');
+		
+		$em->beginTransaction();
+		$publicEm->beginTransaction();
+
+		try {
+			foreach (array($this->template->getParent(), $this->template, $rootPage, $page, $page2) as $pageToPublish) {
+
+				$em->clear();
+				$publicEm->clear();
+				$this->log->debug("Publishing object $pageToPublish");
+
+				$request = new \Supra\Controller\Pages\Request\PageRequestEdit('en_LV', Entity\Layout::MEDIA_SCREEN);
+				$request->blockFlushing();
+				$request->setDoctrineEntityManager($em);
+				$request->setRequestPageData($pageToPublish->getData('en_LV'));
+				$request->publish($publicEm);
+
+			}
+		} catch (\Exception $e) {
+			$em->rollback();
+			$publicEm->rollback();
+			
+			throw $e;
+		}
+		
+		$em->commit();
+		$publicEm->commit();
 	}
 
 	protected static $constants = array(

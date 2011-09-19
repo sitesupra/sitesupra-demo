@@ -82,7 +82,7 @@ class TemplateAction extends PageManagerAction
 	}
 
 	/**
-	 * 
+	 * Settings save action
 	 */
 	public function saveAction()
 	{
@@ -99,13 +99,13 @@ class TemplateAction extends PageManagerAction
 		$this->entityManager->flush();
 	}
 
-	/**
-	 * 
-	 */
-	public function deleteAction()
-	{
-		
-	}
+//	/**
+//	 * Not implemented
+//	 */
+//	public function deleteAction()
+//	{
+//		
+//	}
 
 	/**
 	 * Called on template publish

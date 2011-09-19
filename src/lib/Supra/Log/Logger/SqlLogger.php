@@ -68,8 +68,11 @@ class SqlLogger implements SQLLoggerInterface
 		$this->types = $types;
 		$this->start = microtime(true);
 		
-		// Enable when some query fails with an exception
-//		$this->log($this);
+		// Enable when you need to know the parameters
+//		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n");
+		
+		$subject = "Query\n{$this->sql}\n/*";
+		$this->log($subject);
 	}
 
 	/**
@@ -77,6 +80,9 @@ class SqlLogger implements SQLLoggerInterface
 	 */
 	public function stopQuery()
 	{
+		// Enable if you need to know the execution time
+		return;
+		
 		$subject = "Query\n{$this->sql}\n/* has been run";
 		if (count($this->params) > 0) {
 			//FIXME: DateTime objects raises exception
