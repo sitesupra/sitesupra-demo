@@ -87,6 +87,12 @@ Supra(function (Y) {
 		NAME: 'Root',
 		
 		/**
+		 * Dependancies
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['Page', 'Template', 'PageToolbar', 'PageButtons', 'PageContent'],
+		
+		/**
 		 * Action doesn't have stylesheet
 		 * @type {Boolean}
 		 * @private

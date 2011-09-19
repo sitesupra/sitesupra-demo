@@ -131,7 +131,18 @@
 			]);
 				
 			//Start loading actions
-			Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons', 'Page']);
+			Supra.Manager.loadActions([
+				'Header',
+				'Root',
+				'LayoutContainers',
+				'PageToolbar',
+				'PageButtons',
+				'Page',
+				'Template',
+				'PageContent',
+				'Blocks',
+				'EditorToolbar'
+			]);
 			
 			//Execute initial actions
 			Supra.Manager.executeAction('Header');
