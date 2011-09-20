@@ -19,15 +19,6 @@ class Layout extends Abstraction\Entity
 	const MEDIA_SCREEN = 'screen';
 	
 	/**
-	 * Layout ID
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
 	 * Layout template file
 	 * @Column(type="string")
 	 * @var string
@@ -45,16 +36,8 @@ class Layout extends Abstraction\Entity
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->placeHolders = new ArrayCollection();
-	}
-
-	/**
-	 * Get id
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

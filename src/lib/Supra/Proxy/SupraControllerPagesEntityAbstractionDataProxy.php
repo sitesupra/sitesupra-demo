@@ -36,12 +36,6 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getLocale()
     {
         $this->__load();
@@ -78,6 +72,12 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getTemplateHierarchy();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -111,7 +111,7 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'master');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'id');
     }
 
     public function __clone()

@@ -16,14 +16,6 @@ use Supra\Editable\EditableInterface;
 class BlockProperty extends Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data")
 	 * @JoinColumn(name="data_id", referencedColumnName="id", nullable=false)
 	 * @var Data
@@ -75,16 +67,9 @@ class BlockProperty extends Entity
 	 */
 	public function __construct($name, $type)
 	{
+		parent::__construct();
 		$this->name = $name;
 		$this->type = $type;
-	}
-
-	/**
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**
@@ -229,7 +214,7 @@ class BlockProperty extends Entity
 	public function __clone()
 	{
 		if ( ! empty($this->id)) {
-			$this->id = null;
+			$this->regenerateId();
 			$this->block = null;
 			$this->data = null;
 		}

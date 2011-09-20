@@ -24,14 +24,6 @@ use Supra\Controller\Pages\Entity\TemplateBlock;
 abstract class Block extends Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
 	 * @Column(type="string", name="component")
 	 * @var string
 	 */
@@ -70,8 +62,12 @@ abstract class Block extends Entity
 	 */
 	protected $locked = false;
 
+	/**
+	 * Create block properties collection
+	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->blockProperties = new ArrayCollection();
 	}
 	
@@ -102,14 +98,6 @@ abstract class Block extends Entity
 		if ($this->writeOnce($this->placeHolder, $placeHolder)) {
 			$this->placeHolder->addBlock($this);
 		}
-	}
-
-	/**
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

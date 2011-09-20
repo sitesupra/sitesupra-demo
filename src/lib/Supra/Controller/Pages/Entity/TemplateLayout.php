@@ -13,14 +13,6 @@ class TemplateLayout extends Abstraction\Entity
 	 * {@inheritdoc}
 	 */
 	const DISCRIMINATOR = 'template';
-	
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
 
 	/**
 	 * @Column(type="string")
@@ -48,15 +40,8 @@ class TemplateLayout extends Abstraction\Entity
 	 */
 	public function __construct($media)
 	{
+		parent::__construct();
 		$this->setMedia($media);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

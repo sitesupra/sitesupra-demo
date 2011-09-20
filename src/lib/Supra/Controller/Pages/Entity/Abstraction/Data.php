@@ -15,14 +15,6 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 abstract class Data extends Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -48,15 +40,8 @@ abstract class Data extends Entity
 	 */
 	public function __construct($locale)
 	{
+		parent::__construct();
 		$this->setLocale($locale);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

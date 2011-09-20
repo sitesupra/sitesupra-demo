@@ -18,14 +18,6 @@ use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
 abstract class PlaceHolder extends Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var int
-	 */
-	protected $id;
-
-	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
 	 *		column for distinguishing the place holder type,
 	 *		0: template; 1: page
@@ -61,17 +53,9 @@ abstract class PlaceHolder extends Entity
 	 */
 	public function __construct($name)
 	{
+		parent::__construct();
 		$this->setName($name);
 		$this->blocks = new ArrayCollection();
-	}
-
-	/**
-	 * Get Id
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

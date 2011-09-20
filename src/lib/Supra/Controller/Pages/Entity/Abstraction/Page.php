@@ -58,14 +58,6 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	protected $nestedSetNode;
 	
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;
-
-	/**
 	 * @OneToMany(targetEntity="Data", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
@@ -101,17 +93,9 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->placeHolders = new ArrayCollection();
 		$this->data = new ArrayCollection();
-	}
-
-	/**
-	 * Get page id
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

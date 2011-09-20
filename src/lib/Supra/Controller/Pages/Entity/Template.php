@@ -38,8 +38,8 @@ class Template extends Abstraction\Page
 	 */
 	public function __construct()
 	{
-		$this->templateLayouts = new ArrayCollection();
 		parent::__construct();
+		$this->templateLayouts = new ArrayCollection();
 	}
 
 	/**

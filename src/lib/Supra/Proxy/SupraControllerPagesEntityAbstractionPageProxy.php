@@ -36,12 +36,6 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getPlaceHolders()
     {
         $this->__load();
@@ -180,6 +174,12 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::setNestedSetNode($nestedSetNode);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -213,7 +213,7 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'data', 'placeHolders', 'left', 'right', 'level');
+        return array('__isInitialized__', 'data', 'placeHolders', 'left', 'right', 'level', 'id');
     }
 
     public function __clone()

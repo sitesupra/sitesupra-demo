@@ -16,13 +16,14 @@ class PublicVersionedTableIdChange extends VersionedTableMetadataListener
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
-		$classMetadata = $eventArgs->getClassMetadata();
-		$className = $classMetadata->name;
-		
-		if (in_array($className, static::$versionedEntities)) {
-			$idField = $classMetadata->fieldMappings['id'];
-			$classMetadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
-			$classMetadata->setIdGenerator(new AssignedGenerator());
-		}
+		//TODO: this can be removed because is generated using sha1 now
+//		$classMetadata = $eventArgs->getClassMetadata();
+//		$className = $classMetadata->name;
+//		
+//		if (in_array($className, static::$versionedEntities)) {
+//			$idField = $classMetadata->fieldMappings['id'];
+//			$classMetadata->setIdGeneratorType(ClassMetadata::GENERATOR_TYPE_NONE);
+//			$classMetadata->setIdGenerator(new AssignedGenerator());
+//		}
 	}
 }

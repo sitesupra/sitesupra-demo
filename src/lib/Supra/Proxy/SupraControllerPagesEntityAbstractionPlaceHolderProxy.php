@@ -36,12 +36,6 @@ class SupraControllerPagesEntityAbstractionPlaceHolderProxy extends \Supra\Contr
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getName()
     {
         $this->__load();
@@ -84,6 +78,12 @@ class SupraControllerPagesEntityAbstractionPlaceHolderProxy extends \Supra\Contr
         return parent::getMaxBlockPosition();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -117,7 +117,7 @@ class SupraControllerPagesEntityAbstractionPlaceHolderProxy extends \Supra\Contr
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'type', 'name', 'blocks', 'master');
+        return array('__isInitialized__', 'type', 'name', 'blocks', 'master', 'id');
     }
 
     public function __clone()

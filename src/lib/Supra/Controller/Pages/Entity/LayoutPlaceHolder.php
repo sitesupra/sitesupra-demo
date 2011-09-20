@@ -10,14 +10,6 @@ namespace Supra\Controller\Pages\Entity;
 class LayoutPlaceHolder extends Abstraction\Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-
-	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
@@ -35,15 +27,8 @@ class LayoutPlaceHolder extends Abstraction\Entity
 	 */
 	public function __construct($name)
 	{
+		parent::__construct();
 		$this->setName($name);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

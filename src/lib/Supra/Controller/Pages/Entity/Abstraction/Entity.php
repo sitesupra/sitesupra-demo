@@ -11,9 +11,17 @@ use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Base entity class for Pages controller
+ * @MappedSuperclass
  */
 abstract class Entity
 {
+	/**
+	 * @Id
+	 * @Column(type="string", length="40")
+	 * @var string
+	 */
+	protected $id;
+	
 	/**
 	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
@@ -24,6 +32,19 @@ abstract class Entity
 	 * @var array
 	 */
 	private $locks = array();
+	
+	/**
+	 * Allocates ID
+	 */
+	public function __construct()
+	{
+		$this->regenerateId();
+	}
+	
+	protected function regenerateId()
+	{
+		$this->id = sha1(uniqid(get_class($this), true));
+	}
 
 	/**
 	 * Creates log writer instance
@@ -34,10 +55,13 @@ abstract class Entity
 	}
 	
 	/**
-	 * Id getter is mandatory
+	 * Identification getter
 	 * @return integer
 	 */
-	abstract public function getId();
+	public function getId()
+	{
+		return $this->id;
+	}
 
 	/**
 	 * Lock to prevent infinite loops

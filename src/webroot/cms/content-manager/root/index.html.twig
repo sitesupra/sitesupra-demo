@@ -60,7 +60,7 @@
 				
 				//Page which will be initially loaded
 				'page': {
-					'id': {{ pageId }}
+					'id': {{ pageId | json_encode | raw }}
 				},
 				
 				//Supra.HTMLEditor + plugins

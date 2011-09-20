@@ -72,12 +72,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::getNestedSetRepositoryClassName();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getPlaceHolders()
     {
         $this->__load();
@@ -210,6 +204,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::setNestedSetNode($nestedSetNode);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -243,7 +243,7 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'data', 'placeHolders', 'left', 'right', 'level', 'templateLayouts');
+        return array('__isInitialized__', 'data', 'placeHolders', 'left', 'right', 'level', 'id', 'templateLayouts');
     }
 
     public function __clone()

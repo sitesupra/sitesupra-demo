@@ -25,5 +25,9 @@ abstract class VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\TemplateBlock',
 		
 		'Supra\Controller\Pages\Entity\BlockProperty',
+		
+		'Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract',
+		'Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement',
+		'Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement',
 	);
 }
