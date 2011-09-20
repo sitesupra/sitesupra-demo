@@ -316,6 +316,14 @@ class PageAction extends PageManagerAction
 				}
 			}
 		}
+		
+		if ($this->hasRequestParameter('template')) {
+			$templateId = $this->getRequestParameter('template');
+
+			/* @var $template Entity\Template */
+			$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+			$pageData->setTemplate($template);
+		}
 
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
