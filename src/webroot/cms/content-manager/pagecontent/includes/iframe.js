@@ -8,7 +8,8 @@ YUI.add('supra.page-iframe', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
-		Action = Manager.PageContent;
+		Action = Manager.PageContent,
+		Root = Manager.getAction('Root');
 	
 	/*
 	 * Iframe
@@ -197,8 +198,15 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			this._preventFromLeaving(body);
 			
+			//Get all stylesheet links
+			var links = [],
+				elements = Y.Node(doc).all('link[rel="stylesheet"]');
+			
+			for(var i=0,ii=elements.size(); i<ii; i++) {
+				links.push(Y.Node.getDOMNode(elements.item(i)));
+			}
+			
 			//Add stylesheets to iframe
-			var links = [];
 			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
 				var app_path = Supra.data.get(['application', 'path']);
 				links.push(this.addStyleSheet(app_path + "/pagecontent/iframe.css"));
@@ -310,6 +318,39 @@ YUI.add('supra.page-iframe', function (Y) {
 	Y.extend(PageContents, Y.Base, {
 		contentBlocks: {},
 		
+		/**
+		 * On URI change to /22/edit unset active content
+		 *
+		 * @param {Object} req Routing request
+		 */
+		routeMain: function (req) {
+			if (this.get('activeContent')) {
+				this.set('activeContent', null);
+			}
+			
+			if (req && req.next) req.next();
+		},
+		
+		/**
+		 * On URI change to /22/edit/111 set active content
+		 *
+		 * @param {Object} req Routing request
+		 */
+		routeBlock: function (req) {
+			var block_id = req.params.block_id;
+			var block_old = this.get('activeContent');
+			var block_new = block_id ? this.getChildBlockById(block_id) : null;
+			
+			if (block_old && block_old.get('data').id != block_id) {
+				this.set('activeContent', block_new);
+			} else if (!block_old && block_new) {
+				this.set('activeContent', block_new);
+			}
+			
+			if (req && req.next) req.next();
+		},
+		
+		
 		bindUI: function () {
 			
 			//Set 'editing' attribute after content changes
@@ -317,12 +358,40 @@ YUI.add('supra.page-iframe', function (Y) {
 				if (evt.newVal !== evt.prevVal) {
 					if (evt.prevVal && evt.prevVal.get('editing')) {
 						evt.prevVal.set('editing', false);
+						
+						//Route to /22/edit
+						if (!evt.newVal || !evt.newVal.get('editable')) {
+							Root.save('/' + Manager.Page.getPageData().id + '/edit');
+						}
 					}
 					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
 						evt.newVal.set('editing', true);
+						
+						//Route to /22/edit/111
+						Root.save('/' + Manager.Page.getPageData().id + '/edit/' + evt.newVal.get('data').id);
 					}
 				}
 			});
+			
+			//Routing
+			Root.route('/:page_id/edit', Y.bind(this.routeMain, this));
+			Root.route('/:page_id/edit/:block_id', Y.bind(this.routeBlock, this));
+			
+			//Restore state
+			this.get('iframe').on('ready', function () {
+				var m = null;
+				if (m = Root.getPath().match(/^\/\d+\/edit\/([^\/]+)$/)) {
+					var block = this.getChildBlockById(m[1]);
+					if (block) {
+						//Need delay to make sure editing state is correctly set
+						//needed only if settings immediately after load
+						Y.later(1, this, function () {
+							this.set('activeContent', block);
+						});
+					}
+				}
+			}, this);
+			
 			
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
@@ -567,6 +636,27 @@ YUI.add('supra.page-iframe', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * Returns child block by ID
+		 *
+		 * @param {String} block_id Block ID
+		 * @return Child block
+		 * @type {Object}
+		 */
+		getChildBlockById: function (block_id) {
+			var blocks = this.contentBlocks,
+				block = null;
+			
+			if (block_id in blocks) return blocks[block_id];
+			
+			for(var i in blocks) {
+				block = blocks[i].getChildBlockById(block_id);
+				if (block) return block;
+			}
+			
+			return null;
 		},
 		
 		beforeDestroy: function () {

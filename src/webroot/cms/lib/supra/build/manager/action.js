@@ -3,7 +3,8 @@
 
 YUI.add('supra.manager-action', function (Y) {
 	
-	var Manager = Supra.Manager;
+	var Manager = Supra.Manager,
+		Loader = Manager.Loader;
 	
 	/**
 	 * Create new action
@@ -32,7 +33,12 @@ YUI.add('supra.manager-action', function (Y) {
 		 */
 			var name = object.NAME;
 			var action = Manager.getAction(name);
-			var action_info = Manager.Loader.getActionInfo(name);
+			var action_info = Loader.getActionInfo(name);
+		
+		/*
+		 * Set router root path
+		 */
+			action.root = Loader.getStaticPath() + Loader.getActionBasePath(name);
 		
 		/*
 		 * Change placeholder if it's defined in Action
@@ -104,8 +110,8 @@ YUI.add('supra.manager-action', function (Y) {
 				}, action);
 				
 				//Set loaded state
-				delete(Manager.Loader.loading[name]);
-				Manager.Loader.loaded[name] = true;
+				delete(Loader.loading[name]);
+				Loader.loaded[name] = true;
 				
 				//Run queued execute requests
 				Manager.runExecutionQueue();
@@ -121,7 +127,7 @@ YUI.add('supra.manager-action', function (Y) {
 				load_list = [];
 			
 			for(var i=0,ii=dependancies.length; i<ii; i++) {
-				if (!Manager.Loader.isLoaded(dependancies[i])) {
+				if (!Loader.isLoaded(dependancies[i])) {
 					load_list.push(dependancies[i]);
 				}
 			}
@@ -129,9 +135,9 @@ YUI.add('supra.manager-action', function (Y) {
 			if (load_list.length) {
 				Manager.loadActions(load_list);
 				
-				if (!(name in Manager.Loader.dependancies)) Manager.Loader.dependancies[name] = [];
-				Manager.Loader.dependancies[name] = load_list;
-				Manager.Loader.loading[name].dependancies = true;
+				if (!(name in Loader.dependancies)) Loader.dependancies[name] = [];
+				Loader.dependancies[name] = load_list;
+				Loader.loading[name].dependancies = true;
 			}
 		}
 		
@@ -139,7 +145,7 @@ YUI.add('supra.manager-action', function (Y) {
 		 * Action script is loaded,
 		 * load template and stylesheet if needed
 		 */
-		Manager.Loader.loadExtras(name);
+		Loader.loadExtras(name);
 		
 		return action;
 	};

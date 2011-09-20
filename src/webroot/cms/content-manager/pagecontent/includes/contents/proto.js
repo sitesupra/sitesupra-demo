@@ -308,6 +308,27 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return block;
 		},
 		
+		/**
+		 * Returns child block by ID
+		 *
+		 * @param {String} block_id Block ID
+		 * @return Child block
+		 * @type {Object}
+		 */
+		getChildBlockById: function (block_id) {
+			var blocks = this.children,
+				block = null;
+			
+			if (block_id in blocks) return blocks[block_id];
+			
+			for(var i in blocks) {
+				block = blocks[i].getChildBlockById(block_id);
+				if (block) return block;
+			}
+			
+			return null;
+		},
+		
 		
 		/**
 		 * Process data and remove all unneeded before it's sent to server

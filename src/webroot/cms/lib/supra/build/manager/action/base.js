@@ -126,7 +126,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		}
 	};
 	
-	Y.extend(ActionBase, Y.Base, {
+	Y.extend(ActionBase, Y.Controller, {
 		/**
 		 * Action name
 		 * @type {String}
@@ -168,6 +168,19 @@ YUI.add('supra.manager-action-base', function (Y) {
 		 * @type {Object}
 		 */
 		children: {},
+		
+		
+		
+		/**
+		 * Overwrite routing save to make sure paths are not written twice
+		 *
+		 * @param {String} path Path
+		 */
+		save: function (path) {
+			if (this.getPath() != path) {
+				return Y.Controller.prototype.save.apply(this, arguments);
+			}
+		},
 		
 		/**
 		 * Add children action
@@ -348,7 +361,7 @@ YUI.add('supra.manager-action-base', function (Y) {
          * @return URI path to action
          * @type {String}
 		 */
-		getPath: function () {
+		getActionPath: function () {
 			var path = this.get('actionPath');
 			if (!path) {
 				path = SU.Manager.Loader.getActionInfo(this.NAME).folder;

@@ -1,7 +1,7 @@
 {
 	"status": 1,
 	"data": {
-		"id": 111,
+		"id": <?php echo (!empty($_GET['page_id']) ? $_GET['page_id'] : 1); ?>,
 		
 		"type": "page",
 		

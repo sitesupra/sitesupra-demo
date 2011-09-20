@@ -212,7 +212,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			if (!this.template_list) {
 				this.template_list = new Supra.TemplateList({
 					'srcNode': node.one('ul.template-list'),
-					'requestUri': this.getPath() + 'templates' + Loader.EXTENSION_DATA,
+					'requestUri': this.getActionPath() + 'templates' + Loader.EXTENSION_DATA,
 					'template': this.page_data.template.id
 				});
 				
@@ -237,7 +237,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			if (!this.version_list) {
 				this.version_list = new Supra.VersionList({
 					'srcNode': node.one('div.version-list'),
-					'requestUri': this.getPath() + 'versions' + Loader.EXTENSION_DATA
+					'requestUri': this.getActionPath() + 'versions' + Loader.EXTENSION_DATA
 				});
 				
 				this.version_list.render();

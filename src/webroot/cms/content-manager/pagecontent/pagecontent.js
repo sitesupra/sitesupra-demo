@@ -17,8 +17,9 @@ SU('dd-drag', function (Y) {
 	];
 
 	//Shortcut
-	var Manager = SU.Manager;
-	var Action = Manager.Action;
+	var Manager = SU.Manager,
+		Action = Manager.Action,
+		Root = Manager.getAction('Root');
 	
 	//Create Action class
 	new Action({
@@ -76,8 +77,12 @@ SU('dd-drag', function (Y) {
 		 */
 		initialize: function () {
 			var incl = includes,
-				path = this.getPath(),
+				path = this.getActionPath(),
 				args = [];
+			
+			//Y.Controller route
+			Root.route('/:page_id', Y.bind(this.onStopEditingRoute, this));
+			Root.route('/:page_id/edit', Y.bind(this.onStartEditingRoute, this));
 			
 			//Change path	
 			for(var id in incl) {
@@ -165,12 +170,23 @@ SU('dd-drag', function (Y) {
 		 * On editing start change toolbar
 		 */
 		startEditing: function () {
-			if (!this.iframeObj) {
-				this.edit_on_ready = true;
-				return;
-			}
-			
 			if (!this.editing) {
+				var uri = '/' + Manager.Page.getPageData().id + '/edit';
+				
+				if (Root.getPath().indexOf(uri) === 0) {
+					this.onStartEditingRoute();
+				} else {
+					Root.save(uri);
+				}
+			}
+		},
+		onStartEditingRoute: function (req) {
+			if (!this.editing) {
+				if (!this.iframeObj) {
+					this.edit_on_ready = true;
+					return;
+				}
+				
 				this.editing = true;
 				this.edit_on_ready = false;
 				Manager.getAction('PageToolbar').setActiveAction('Page');
@@ -179,6 +195,8 @@ SU('dd-drag', function (Y) {
 				//Enable highlights
 				this.getContentContainer().set('highlight', false);
 			}
+			
+			if (req) req.next();
 		},
 		
 		/**
@@ -186,12 +204,24 @@ SU('dd-drag', function (Y) {
 		 */
 		stopEditing: function () {
 			if (this.editing) {
+				//Route only if on /12/edit page
+				if (this.getPath().match(/^\/\d+\/edit$/)) {
+					Root.save('/' + Manager.Page.getPageData().id);
+				} else {
+					this.onStopEditingRoute();
+				}
+			}
+		},
+		onStopEditingRoute: function (req) {
+			if (this.editing) {
 				this.editing = false;
 				Manager.PageContent.getIframe().contents.set('activeContent', null);
 				
 				//Disable highlights
 				this.getContentContainer().set('highlight', true);
 			}
+			
+			if (req) req.next();
 		},
 		
 		/**
@@ -247,10 +277,11 @@ SU('dd-drag', function (Y) {
 				
 				this.fire('iframeReady');
 				
-				//If editing was called before content was ready, then call it now
-				if (this.edit_on_ready) {
+				//If editing was called before content was ready or there is a route path
+				//then call it now
+				if (this.edit_on_ready || this.getPath().match(/\/\d+\/edit/)) {
 					this.iframeObj.after('ready', function () {
-						this.startEditing();
+						this.onStartEditingRoute();
 					}, this);
 				}
 			} else {

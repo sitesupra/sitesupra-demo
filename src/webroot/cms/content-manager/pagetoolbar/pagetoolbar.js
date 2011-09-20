@@ -320,13 +320,19 @@ SU(function (Y) {
 				}
 				
 				if (config.actionFunction) {
-					//If actionFunction is specified then call it
-					action.once('execute', function () {
+					if (action.get('executed')) {
+						//Call function
 						action[config.actionFunction](config.id);
-					});
+					} else {
+						//Call after action is executed
+						action.once('execute', function () {
+							action[config.actionFunction](config.id);
+						});
+						action.execute();
+					}
+				} else {
+					action.execute();
 				}
-				
-				Manager.executeAction(action_id);
 			} else {
 				//Click on button which already is 'down'
 				

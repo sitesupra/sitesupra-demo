@@ -20,7 +20,8 @@ Supra(function (Y) {
 				'id': 'sitemap',
 				'title': SU.Intl.get(['sitemap', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-sitemap.png',
-				'action': 'SiteMap',
+				'action': 'Root',
+				'actionFunction': 'routeSiteMapSave',
 				'type': 'button'	/* Default is 'toggle' */
 			}
 		],
@@ -106,6 +107,61 @@ Supra(function (Y) {
 		 */
 		HAS_TEMPLATE: false,
 		
+		
+		
+		/**
+		 * Y.Controller routers
+		 */
+		initialize: function () {
+			//Routes
+			this.route('/', 'routePage');
+			this.route('/sitemap', 'routeSitemap');
+			this.route(/^\/(\d+)$/, 'routePage');
+		},
+		
+		/**
+		 * Load page
+		 */
+		routePage: function (req) {
+			//Close sitemap if needed
+			if (Manager.getAction('SiteMap').get('visible')) {
+				Manager.getAction('SiteMap').hide();
+			} else {
+				this.execute();
+			}
+			
+			//Load page
+			var page_id = req.params['1'],
+				page_data = Manager.Page.getPageData();
+			
+			if (page_id && page_id != page_data.id) {
+				//Open page; evt.data is in format  {'id': 1}
+				Manager.getAction('Page').execute({'id': page_id});
+			}
+			
+			//Make sure other routes are also executed
+			req.next();
+		},
+		/**
+		 * Open sitemap
+		 */
+		routeSitemap: function (req) {
+			Supra.Manager.executeAction('SiteMap');
+			
+			//Make sure other routes are also executed
+			req.next();
+		},
+		
+		/**
+		 * Change route to sitemap
+		 */
+		routeSiteMapSave: function () {
+			this.save('/sitemap');
+		},
+		
+		
+		
+		
 		/**
 		 * Bind Actions together
 		 */
@@ -126,8 +182,21 @@ Supra(function (Y) {
 			
 			//Load page after execute
 			this.on('render', function () {
-				SU.Manager.executeAction('Page', Supra.data.get('page', {'id': 0}));
+				//Search in path "/:page_id"
+				var page_id = this.getPath().match(/\/(\d+)/);
+				if (page_id) {
+					page_id = {'id': page_id[1]};
+				} else {
+					page_id = Supra.data.get('page', {'id': 0});
+				}
+				 
+				SU.Manager.executeAction('Page', page_id);
 				SU.Manager.executeAction('Template');
+				
+				//Search /sitemap in path
+				if (this.getPath() == '/sitemap') {
+					SU.Manager.executeAction('SiteMap');
+				}
 			});
 			
 			this.bindSiteMap();
@@ -139,8 +208,8 @@ Supra(function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
-				//evt.data is in format  {'id': 1}
-				Manager.getAction('Page').execute(evt.data);
+				//Change path
+				this.save('/' + evt.data.id);
 			}, this);
 		},
 		

@@ -103,7 +103,7 @@ Supra(function (Y) {
 				{
 					'id': 'change',
 					'title': SU.Intl.get(['edit', 'change']),
-					'icon': this.getPath() + 'images/icon-change.png',
+					'icon': this.getActionPath() + 'images/icon-change.png',
 					'action': 'BannerEdit',
 					'actionFunction': 'showMediaSidebar',
 					'type': 'button'

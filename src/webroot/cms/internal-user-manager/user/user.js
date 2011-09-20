@@ -119,21 +119,21 @@ Supra('supra.slideshow', function (Y) {
 				{
 					'id': 'details',
 					'title': SU.Intl.get(['userdetails', 'title']),
-					'icon': this.getPath() + 'images/icon-details.png',
+					'icon': this.getActionPath() + 'images/icon-details.png',
 					'action': 'UserDetails',
 					'type': 'tab'	//like 'toggle', only it can't be unset by clicking again
 				},
 				{
 					'id': 'permissions',
 					'title': SU.Intl.get(['userpermissions', 'title']),
-					'icon': this.getPath() + 'images/icon-permissions.png',
+					'icon': this.getActionPath() + 'images/icon-permissions.png',
 					'action': 'UserPermissions',
 					'type': 'tab'
 				},
 				{
 					'id': 'stats',
 					'title': SU.Intl.get(['userstats', 'title']),
-					'icon': this.getPath() + 'images/icon-stats.png',
+					'icon': this.getActionPath() + 'images/icon-stats.png',
 					'action': 'UserStats',
 					'type': 'tab'
 				}
