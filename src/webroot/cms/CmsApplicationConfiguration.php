@@ -36,32 +36,42 @@ class CmsApplicationConfiguration {
 	}
 
 	/**
-	 * Get application configuration collection as array
+	 * Get all application configuration collection as an array of objects
 	 *
 	 * @return array
 	 */
-	public function toArray() 
+	public function getArray() 
 	{
 		return array_values($this->collection);
 	}
 
 	/**
-	 * Add configuration
+	 * Add one application configuration
 	 *
-	 * @param string $id
-	 * @param string $title
-	 * @param string $appPath
-	 * @param string $iconPath 
+	 * @param ApplicationConfiguration $appConfig
 	 */
-	public function addConfiguration($id, $title, $appPath, $iconPath = null) 
+	public function addConfiguration($appConfig) 
 	{
-		$item = array(
-			'id' => $id,
-			'title' => $title,
-			'path' => $appPath,
-			'icon' => $iconPath
-		);
-		$this->collection[$id] = $item;
+		if (( ! $appConfig instanceof ApplicationConfiguration)
+			|| empty($appConfig->id)
+		) {
+			throw new \RuntimeException('Invalid CMS application configuration');
+		}
+		$id = $appConfig->id;
+		$this->collection[$id] = $appConfig;
+	}
+
+	/**
+	 * Get one application configuration
+	 *
+	 * @param string $appId
+	 * @return ApplicationConfiguration
+	 */
+	public function getConfiguration($appId) 
+	{
+		if (isset($this->collection[$appId])) {
+			return $this->collection[$appId];
+		}
 	}
 	
 }

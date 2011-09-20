@@ -54,21 +54,19 @@ class TemplateAction extends PageManagerAction
 			$layout = $layoutRepo->findOneByFile($file);
 			
 			if (is_null($layout)) {
-				//TODO: try finding such layout, find all placeholders, create layout and placeholder records in db
-				// Raises exception for now
-				throw new \RuntimeException("Layout not found");
+				//TODO:  CmsException?
+				$layout = new \Supra\Controller\Pages\Entity\Layout();
+				$this->entityManager->persist($layout);
+				$layout->setFile($file);
+				$processor = $this->getLayoutProcessor();
+				$places = $processor->getPlaces($file);
+				foreach ($places as $name) {
+					$placeHolder = new \Supra\Controller\Pages\Entity\LayoutPlaceHolder($name);
+					$placeHolder->setLayout($layout);
+				}
 			}
 			
 			$template->addLayout(Entity\Layout::MEDIA_SCREEN, $layout);
-//			
-//			$layout = new Entity\Layout();
-//			$this->entityManager->persist($layout);
-//			$layout->setFile('root.html');
-//
-//			foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
-//				$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
-//				$layoutPlaceHolder->setLayout($layout);
-//			}
 		}
 		
 		$this->entityManager->flush();
@@ -118,6 +116,16 @@ class TemplateAction extends PageManagerAction
 	public function publishAction()
 	{
 		$this->publish();
+	}
+
+	/**
+	 * @return Supra\Controller\Layout\Processor\ProcessorInterface
+	 */
+	protected function getLayoutProcessor()
+	{
+		$processor = new \Supra\Controller\Layout\Processor\HtmlProcessor();
+		$processor->setLayoutDir(\SUPRA_PATH . 'template');
+		return $processor;
 	}
 
 }
