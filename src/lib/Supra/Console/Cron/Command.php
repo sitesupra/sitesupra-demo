@@ -38,8 +38,9 @@ class Command extends SymfonyCommand
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
 
-		// TODO: last master cron execution time storage
-		$lastTime = new \DateTime('-15 min');
+		$masterCronJob = $this->getMasterCronEntity();
+
+		$lastTime = $masterCronJob->getLastExecutionTime();
 		$thisTime = new \DateTime();
 
 		$em = ObjectRepository::getEntityManager($this);
@@ -49,6 +50,10 @@ class Command extends SymfonyCommand
 		$cli = Application::getInstance();
 
 		foreach ($jobs as $job) {
+			if ($job->getCommandInput == $this->getName()) {
+				continue;
+			}
+			
 			$jobStatus = $job->getStatus();
 			switch ($jobStatus) {
 				case CronJob::STATUS_NEW:
@@ -86,7 +91,25 @@ class Command extends SymfonyCommand
 			}
 			$em->flush();
 		}
+
+		$masterCronJob->setLastExecutionTime($thisTime);
+		$em->flush();
 		
+	}
+
+	protected function getMasterCronEntity()
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		$repo = $em->getRepository('Supra\Console\Cron\Entity\CronJob');
+		$entity = $repo->findOneByCommandInput($this->getName());
+		if ( ! $entity instanceof CronJob) {
+			$entity = new CronJob();
+			$em->persist($entity);
+			$entity->setCommandInput($this->getName());
+			$entity->setLastExecutionTime(new \DateTime('yesterday'));
+			$entity->setStatus(CronJob::STATUS_MASTER);
+		}
+		return $entity;
 	}
 	
 }

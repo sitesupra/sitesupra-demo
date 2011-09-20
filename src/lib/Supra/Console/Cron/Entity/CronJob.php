@@ -6,7 +6,7 @@ namespace Supra\Console\Cron\Entity;
  * Cron job entity
  *
  * @Entity(repositoryClass="Supra\Console\Cron\Repository\CronJobRepository")
- * @Table(name="su_cron_job")
+ * @Table(name="su_cron_job",indexes={@index(name="next_execution_time_idx", columns={"next_execution_time"})})
  */
 class CronJob {
 
@@ -14,7 +14,8 @@ class CronJob {
 		STATUS_OK = 0,
 		STATUS_NEW = 1,
 		STATUS_LOCKED = 2,
-		STATUS_FAILED = 3;
+		STATUS_FAILED = 3,
+		STATUS_MASTER = 10;
 
 	/**
 	 * @Id
@@ -31,7 +32,7 @@ class CronJob {
 	protected $commandInput;
 
 	/**
-	 * @Column(name="period_class",type="string",nullable=false)
+	 * @Column(name="period_class",type="string",nullable=true)
 	 * @var string 
 	 */
 	protected $periodClass;
