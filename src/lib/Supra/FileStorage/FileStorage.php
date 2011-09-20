@@ -520,6 +520,7 @@ class FileStorage
 	 * @param boolean $cropped 
 	 * @param integer $quality
 	 * @param boolean $force
+	 * @return string
 	 */
 	public function createResizedImage(Entity\Image $file, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
 	{

@@ -130,7 +130,11 @@ class ParsedHtmlFilter implements FilterInterface
 			$this->log->warn("Image #{$imageId} has not been found");
 		} else {
 			//TODO: add other attributes as align, size, etc
-			$src = $fs->getWebPath($image);
+			$sizeName = null;
+			if ( ! empty($data['size_name'])) {
+				$sizeName = $data['size_name'];
+			}
+			$src = $fs->getWebPath($image, $sizeName);
 			$text = '<img src="' . htmlspecialchars($src) . '"';
 			
 			$classNames = array();
@@ -141,6 +145,23 @@ class ParsedHtmlFilter implements FilterInterface
 			
 			if ( ! empty($data['style'])) {
 				$classNames[] = $data['style'];
+			}
+
+			if ( ! empty($data['size_width']) 
+				&& is_numeric($data['size_width'])
+			) {
+				$text .= ' width="' . $data['size_width'] . '"';
+			}
+
+			if ( ! empty($data['size_height'])
+				&& is_numeric($data['size_height'])
+			) {
+				$text .= ' height="' . $data['size_height'] . '"';
+			}
+
+			if ( ! empty($data['title'])) {
+				$text .= ' title="' . $data['title'] . '"';
+				$text .= ' alt="' . $data['title'] . '"';
 			}
 			
 			if ( ! empty($classNames)) {

@@ -130,6 +130,23 @@ class PagecontentAction extends PageManagerAction
 			$blockProperty->setBlock($block);
 		}
 		
+		// FIXME move outside (probably to doctrine listener)
+		$fileStorage = 
+				\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+		foreach ($valueData as &$valueDataItem) {
+			if ($valueDataItem['type'] == 'image') {
+				$image = $this->entityManager->find(
+						'Supra\FileStorage\Entity\Image', $valueDataItem['image']);
+				
+				if ($image instanceof \Supra\FileStorage\Entity\Image) {
+					$sizeName = $fileStorage->createResizedImage($image, 
+							$valueDataItem['size_width'], 
+							$valueDataItem['size_height']);
+					$valueDataItem['size_name'] = $sizeName;
+				}
+			}
+		}
+		
 		$blockProperty->setValue($value);
 		$blockProperty->setValueData($valueData);
 		
