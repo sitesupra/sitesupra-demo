@@ -58,6 +58,7 @@ class CronJobRepository extends \Doctrine\ORM\EntityRepository
 				->setParameter('end', $endTime)
 				;
 		$result = $qb->getQuery()->getResult();
+		
 		return $result;
 	}
 	
