@@ -35,6 +35,8 @@ abstract class CmsAction extends SimpleController
 	 */
 	public function __construct()
 	{
+		parent::__construct();
+		
 		$session = ObjectRepository::getSessionNamespace($this);
 		
 		if ( ! $session instanceof AuthenticationSessionNamespace) {
