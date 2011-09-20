@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Request;
 use Supra\Request\HttpRequest;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
-use Supra\Controller\Pages\Entity\Abstraction\Page;
+use Supra\Controller\Pages\Entity;
 
 /**
  * Page controller request object on view method
@@ -28,8 +28,8 @@ class PageRequestView extends PageRequest
 	}
 	
 	/**
-	 * Overriden with page detection
-	 * @return Page
+	 * Overriden with page detection from URL
+	 * @return Entity\Abstraction\Data
 	 */
 	public function getRequestPageData()
 	{
@@ -45,7 +45,8 @@ class PageRequestView extends PageRequest
 	}
 	
 	/**
-	 * @return Page
+	 * @return Entity\Abstraction\Data
+	 * @throws ResourceNotFoundException if page not found or is inactive
 	 */
 	protected function detectRequestPageData()
 	{
@@ -62,7 +63,7 @@ class PageRequestView extends PageRequest
 
 		//TODO: think about "enable path params" feature
 
-		/* @var $page Entity\PageData */
+		/* @var $pageData Entity\PageData */
 		$pageData = $er->findOneBy($searchCriteria);
 
 		if (empty($pageData)) {
@@ -74,6 +75,10 @@ class PageRequestView extends PageRequest
 			}
 
 			throw new ResourceNotFoundException("No page found by path '$action' in pages controller");
+		}
+		
+		if ( ! $pageData->isActive()) {
+			throw new ResourceNotFoundException("Page found by path '$action' in pages controller but is inactive");
 		}
 
 		return $pageData;
