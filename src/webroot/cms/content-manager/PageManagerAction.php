@@ -21,13 +21,17 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
  */
 abstract class PageManagerAction extends CmsAction
 {
-
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 
 	/**
 	 * @var EntityManager
 	 */
 	protected $entityManager;
+	
+	/**
+	 * @var Entity\Abstraction\Data
+	 */
+	protected $pageData;
 
 	/**
 	 * Assign entity manager
@@ -91,29 +95,29 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function getPageData()
 	{
+		if (isset($this->pageData)) {
+			return $this->pageData;
+		}
+		
 		$pageId = $this->getRequestParameter('page_id');
 		$localeId = $this->getLocale()->getId();
 
 		if (empty($pageId)) {
 			throw new ResourceNotFoundException("Page ID not provided");
 		}
+		
+		$dataEntity = PageRequest::DATA_ENTITY;
+		$dql = "SELECT d FROM $dataEntity d WHERE d.master = ?0 AND d.locale = ?1";
+		$query = $this->entityManager->createQuery($dql);
+		$query->execute(array($pageId, $localeId));
 
-		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
-
-		/* @var $page \Supra\Controller\Pages\Entity\Abstraction\Page */
-		$page = $pageDao->findOneById($pageId);
-
-		if (empty($page)) {
-			throw new ResourceNotFoundException("Page by ID {$pageId} not found");
+		try {
+			$this->pageData = $query->getSingleResult();
+			
+			return $this->pageData;
+		} catch (\Doctrine\ORM\NoResultException $notFound) {
+			throw new ResourceNotFoundException("Page data for page {$pageId} locale {$localeId} not found", null, $notFound);
 		}
-
-		$pageData = $page->getData($localeId);
-
-		if (empty($pageData)) {
-			throw new ResourceNotFoundException("Page data for page {$pageId} locale {$localeId} not found");
-		}
-
-		return $pageData;
 	}
 
 	/**
@@ -240,26 +244,16 @@ abstract class PageManagerAction extends CmsAction
 	}
 	
 	/**
-	 * Called on page/template publish
+	 * Will publish page currently inside pageData property or found by page_id
+	 * and locale query parameters
 	 */
 	protected function publish()
 	{
 		// Must be executed with POST method
 		$this->isPostRequest();
 		
-//		// Search for draft and public entity managers
-//		$draftEm = $this->entityManager;
-		
 		$controller = $this->getPageController();
 		$publicEm = ObjectRepository::getEntityManager($controller);
-		
-//		// Don't do anything if connections are identic
-//		if ($draftEm === $publicEm) {
-//			$this->log->debug("Publish doesn't do anything because CMS and public database connections are identical");
-//			return;
-//		}
-//		
-//		$pageData = $this->getPageData();
 		
 		$pageRequest = $this->getPageRequest();
 		

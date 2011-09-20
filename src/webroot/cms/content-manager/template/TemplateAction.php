@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
+use Supra\Controller\Pages\Request\PageRequestEdit;
 
 /**
  * Sitemap
@@ -77,6 +78,10 @@ class TemplateAction extends PageManagerAction
 			$template->moveAsLastChildOf($parent);
 			$this->entityManager->flush();
 		}
+		
+		// Decision in #2695 to publish the template right after creating it
+		$this->pageData = $templateData;
+		$this->publish();
 
 		$this->outputPage($templateData);
 	}

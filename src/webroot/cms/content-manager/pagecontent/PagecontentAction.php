@@ -80,7 +80,7 @@ class PagecontentAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageData();
 		
-		$pageId = $this->getRequestParameter('page_id');
+		$pageId = $pageData->getMaster()->getId();
 		$blockId = $this->getRequestParameter('block_id');
 		
 		/* @var $blockEntity Entity\Abstraction\Block */
