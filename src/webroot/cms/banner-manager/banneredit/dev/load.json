@@ -13,7 +13,7 @@
 		},
 		
 		"target": {
-			"type": "external",
+			"resource": "link",
 			"page_id": null,
 			"title": "",
 			"href": "http://www.google.com"

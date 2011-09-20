@@ -24,7 +24,7 @@ Supra(function (Y) {
 		},
 		
 		'target': {
-			'type': 'internal',
+			'resource': 'internal',
 			'page_id': null,
 			'title': '',
 			'href': ''

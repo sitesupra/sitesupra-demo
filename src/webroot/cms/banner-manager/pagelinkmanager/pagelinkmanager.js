@@ -148,7 +148,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		setData: function (data) {
 			data = SU.mix({
-				'type': 'internal',
+				'resource': 'page',
 				'title': '',
 				'href': '',
 				'page_id': null
@@ -160,10 +160,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			this.data = data;
 			
 			this.link_slideshow.set('noAnimations', true);
-			this.form.getInput('linkManagerType').set('value', data.type);
+			this.form.getInput('linkManagerType').set('value', (data.resource == 'page' ? 'internal' : 'external'));
 			this.link_slideshow.set('noAnimations', false);
 			
-			if (data.type == 'internal' && data.page_id) {
+			if (data.resource == 'page' && data.page_id) {
 				var node = this.tree.getNodeById(data.page_id);
 				if (!node) {
 					this.tree.once('render:complete', function () {
@@ -204,7 +204,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				}
 				
 				return {
-					'type': 'internal',
+					'resource': 'page',
 					'page_id': page_id,
 					'href': page_path,
 					'title': page_title
@@ -212,7 +212,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			} else {
 				//Link to external resource
 				return {
-					'type': 'external',
+					'resource': 'link',
 					'href': data.href,
 					'title': data.href
 				};
