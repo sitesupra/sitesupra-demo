@@ -1,13 +1,16 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
-			
-$sessionHandler = new Supra\Session\Handler\PhpSessionHandler();
 
 require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
 
-$sessionNamespaceManager = new Supra\Session\SessionNamespaceManager($sessionHandler);
-ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
+$sessionNamespaceManagerConfiguration = new \Supra\Session\Configuration\SessionNamespaceManagerConfiguration();
+$sessionNamespaceManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
+$sessionNamespaceManagerConfiguration->isDefault = true;
+$sessionNamespaceManagerConfiguration->configure();
 
-$defaultNamespace = $sessionNamespaceManager->getDefaultSessionNamespace();
-ObjectRepository::setDefaultSessionNamespace($defaultNamespace);
+$defaultSessionNamespaceConfiguration = new \Supra\Session\Configuration\SessionNamespaceConfiguration();
+$defaultSessionNamespaceConfiguration->managerNamespace = '';
+$defaultSessionNamespaceConfiguration->isDefault = true;
+$defaultSessionNamespaceConfiguration->class = false;
+$defaultSessionNamespaceConfiguration->configure();

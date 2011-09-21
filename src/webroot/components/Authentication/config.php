@@ -14,10 +14,10 @@ $controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfigu
 $controllerConfiguration->router = $routerConfiguration;
 $controllerConfiguration->configure();
 
-$sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager(__NAMESPACE__);
-
-$authenticationSessionNamespace = $sessionNamespaceManager
-		->getOrCreateSessionNamespace('Cms', 'Project\Authentication\AuthenticationSessionNamespace');
-
-ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);
-ObjectRepository::setSessionNamespace('Supra\Cms', $authenticationSessionNamespace);
+$authenticationSessionNamespaceConfiguration = new \Supra\Session\Configuration\SessionNamespaceConfiguration();
+$authenticationSessionNamespaceConfiguration->managerNamespace = __NAMESPACE__;
+$authenticationSessionNamespaceConfiguration->name = 'Cms';
+$authenticationSessionNamespaceConfiguration->class = 'Project\Authentication\AuthenticationSessionNamespace';
+$authenticationSessionNamespaceConfiguration->addNamespace(__NAMESPACE__);
+$authenticationSessionNamespaceConfiguration->addNamespace('Supra\Cms');
+$authenticationSessionNamespaceConfiguration->configure();

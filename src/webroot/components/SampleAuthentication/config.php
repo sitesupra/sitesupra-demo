@@ -28,9 +28,10 @@ $controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfigu
 $controllerConfiguration->router = $routerConfiguration;
 $controllerConfiguration->configure();
 
-$sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager(__NAMESPACE__);
-
-$authenticationSessionNamespace = $sessionNamespaceManager
-	->getOrCreateSessionNamespace('Test', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
-
-ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);
+$sessionNamespaceConfiguration = new \Supra\Session\Configuration\SessionNamespaceConfiguration();
+$sessionNamespaceConfiguration->managerNamespace = __NAMESPACE__;
+$sessionNamespaceConfiguration->manager = $sessionNamespaceManager;
+$sessionNamespaceConfiguration->class = 'Project\SampleAuthentication\AuthenticateSessionNamespace';
+$sessionNamespaceConfiguration->name = 'Test';
+$sessionNamespaceConfiguration->addNamespace(__NAMESPACE__);
+$sessionNamespaceConfiguration->configure();
