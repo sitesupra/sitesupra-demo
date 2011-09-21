@@ -8,12 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Database\Entity as DatabaseEntity;
 
 /**
  * Base entity class for Pages controller
  * @MappedSuperclass
  */
-abstract class Entity
+abstract class Entity extends DatabaseEntity
 {
 	/**
 	 * @Id
@@ -246,68 +247,5 @@ abstract class Entity
 		$this->unlockAll();
 		
 		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
-	}
-
-	/**
-	 * Object string value
-	 * @return string
-	 */
-	public function __toString()
-	{
-		$id = $this->getId();
-		if ( ! empty($id)) {
-			return get_class($this) . '#' . $id;
-		}
-
-		//TODO: could include all property values if no ID
-		return get_class($this) . '#unstored';
-	}
-
-	/**
-	 * Collects Id array from entity collection
-	 * @param array|Collection|\Traversable $entities
-	 * @return array
-	 */
-	public static function collectIds($entities)
-	{
-		$ids = array();
-		
-		foreach ($entities as $entity) {
-			$ids[] = $entity->getId();
-		}
-		
-		return $ids;
-	}
-
-	public static function findBy($criteria = array())
-	{
-		// not implemented yet
-	}
-
-	public static function getQueryBuilderResult(\Doctrine\ORM\QueryBuilder $queryBuilder)
-	{
-		$query = $queryBuilder->getQuery();
-		return $query->getResult();
-	}
-	
-	/**
-	 * Are the both entity records equal in means of database record
-	 * @param Entity $entity
-	 * @return boolean
-	 */
-	public function equals(Entity $entity = null)
-	{
-		// Equals if matches
-		if ($entity === $this) {
-			return true;
-		}
-		
-		$id = $this->getId();
-		
-		if ( ! empty($id) && $entity->getId() == $id) {
-			return true;
-		}
-		
-		return false;
 	}
 }

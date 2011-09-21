@@ -2,8 +2,9 @@
 
 namespace Supra\FileStorage\Entity\Abstraction;
 
-use	Supra\NestedSet;
-
+use Supra\NestedSet;
+use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\User\Entity\Abstraction\User;
 /**
  * File abstraction
  * @Entity(repositoryClass="Supra\FileStorage\Repository\FileNestedSetRepository")
@@ -11,9 +12,9 @@ use	Supra\NestedSet;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"file" = "Supra\FileStorage\Entity\File", "folder" = "Supra\FileStorage\Entity\Folder", "image" = "Supra\FileStorage\Entity\Image"})
  * @Table(name="file_abstraction", indexes={
- *		@index(name="file_abstraction_lft_idx", columns={"lft"}),
- *		@index(name="file_abstraction_rgt_idx", columns={"rgt"}),
- *		@index(name="file_abstraction_lvl_idx", columns={"lvl"})
+ * 		@index(name="file_abstraction_lft_idx", columns={"lft"}),
+ * 		@index(name="file_abstraction_rgt_idx", columns={"rgt"}),
+ * 		@index(name="file_abstraction_lvl_idx", columns={"lvl"})
  * })
  * @HasLifecycleCallbacks
  * @method int getNumberChildren()
@@ -44,13 +45,12 @@ use	Supra\NestedSet;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-class File extends Entity implements NestedSet\Node\EntityNodeInterface
-{
+class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface {
 	/**
 	 * Integer object type ID
 	 */
 	const TYPE_ID = 0;
-	
+
 	/**
 	 * @var NestedSet\Node\DoctrineNode
 	 */
@@ -87,14 +87,14 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var string
 	 */
 	protected $fileName;
-	
+
 	/**
 	 * @Column(type="datetime", name="created_at")
 	 * @var string
 	 */
 	
 	protected $createdTime;
-	
+
 	/**
 	 * @Column(type="datetime", name="modified_at")
 	 * @var string
@@ -106,7 +106,7 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var integer
 	 */
 	protected $public = true;
-	
+
 	/**
 	 * Get page id
 	 * @return integer
@@ -142,7 +142,7 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->level;
 	}
-	
+
 	/**
 	 * Returns creation time
 	 * @return \DateTime
@@ -151,7 +151,7 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->createdTime;
 	}
-	
+
 	/**
 	 * Sets creation time to now
 	 * @PrePersist
@@ -314,7 +314,7 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 			$this->nestedSetNode = null;
 		}
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @return string
@@ -323,26 +323,26 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		// One nested set repository for folders, files, images
 		$className = __CLASS__;
-		
+
 		return $className;
 	}
-	
+
 	public function setFileName($fileName) 
 	{
 		$result = preg_replace('/\s+/i', ' ', $fileName);
 		$this->fileName = trim($result);
 	}
-	
+
 	public function getFileName() 
 	{
 		return $this->fileName;
 	}
-	
+
 	public function __toString()
 	{
 		return $this->getFileName();
 	}
-	
+
 	/**
 	 * Get public state
 	 *
@@ -362,7 +362,7 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		$this->public = $public;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
@@ -371,20 +371,56 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		$this->nestedSetNode = $nestedSetNode;
 	}
-	
+
 	/**
 	 * Loads item info array
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getInfo($locale)
-	{
+	public function getInfo($locale) {
 		$info = array(
-			'id' => $this->getId(),
-			'filename' => $this->getFileName(),
-			'type' => static::TYPE_ID
+				'id' => $this->getId(),
+				'filename' => $this->getFileName(),
+				'type' => static::TYPE_ID
 		);
-		
+
 		return $info;
 	}
+
+	public function authorize(User $user, $permissionType) 
+  {
+		return true;
+	}
+
+	/**
+	 * @return array of AuthorizeAction
+	 */
+	public function getPermissionTypes() 
+	{
+		return array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationId() 
+	{
+		return $this->getId();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationClass() 
+	{
+		return __CLASS__;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getAuthorizationAncestors($includeSelf = true) 
+	{
+		return $this->getAncestors(0, $includeSelf);
+	}	
 }

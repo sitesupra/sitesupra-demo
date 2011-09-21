@@ -8,6 +8,10 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Set\PageSet;
 use Supra\NestedSet;
 use Supra\Controller\Pages\Exception;
+use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\Authorization\AuthorizedAction;
+use Symfony\Component\Security\Acl\Permission\MaskBuilder;
+use Supra\User\Entity\Abstraction\User;
 
 /**
  * Page abstraction
@@ -49,8 +53,11 @@ use Supra\Controller\Pages\Exception;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
+abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
 {
+	const ACTION_EDIT_PAGE = 'edit_page';
+	const ACTION_PUBLISH_PAGE = 'publish_page';
+	
 	/**
 	 * Filled by NestedSetListener
 	 * @var NestedSet\Node\DoctrineNode
@@ -87,6 +94,12 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var integer
 	 */
 	protected $level;
+	
+	/**
+	 * Cache for getAuthorizedActions()
+	 * @var array
+	 */
+	protected $authorizedActions;
 
 	/**
 	 * Constructor
@@ -391,4 +404,43 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 		$this->nestedSetNode = $nestedSetNode;
 	}
 	
+	public function authorize(User $user, $permissionType) 
+	{
+		return true;
+	}
+	
+	/**
+	 * @return array of AuthorizedAction
+	 */
+	public function getPermissionTypes() 
+	{
+		return array(
+				self::ACTION_EDIT_PAGE => new PermissionType(self::ACTION_EDIT_PAGE, MaskBuilder::MASK_EDIT),
+				self::ACTION_PUBLISH_PAGE => new PermissionType(self::ACTION_PUBLISH_PAGE, MaskBuilder::MASK_OWNER << 1)
+		);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationId() 
+	{
+		return $this->getId();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationClass() 
+	{
+		return __CLASS__;
+	}	
+	
+	/**
+	 * @return array
+	 */
+	public function getAuthorizationAncestors($includeSelf = true) 
+	{
+		return $this->getAncestors(0, $includeSelf);
+	}
 }

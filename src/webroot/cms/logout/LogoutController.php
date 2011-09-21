@@ -38,7 +38,7 @@ class LogoutController extends SimpleController
 		
 		$user = $session->getUser();
 		
-		if( ! empty($user)) {
+		if ( ! empty($user)) {
 			$session->removeUser();
 		}
 		

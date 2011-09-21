@@ -78,7 +78,7 @@ abstract class HandlerAbstraction
 	 */
 	public function &getSessionData() 
 	{
-		if($this->sessionStatus != self::SESSION_STARTED) {
+		if ($this->sessionStatus != self::SESSION_STARTED) {
 			$this->start();
 		}
 		

@@ -10,6 +10,7 @@ use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
 use Supra\Controller\Authentication\AuthenticationSessionNamespace;
+use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 /**
  * Description of CmsAction
@@ -208,4 +209,15 @@ abstract class CmsAction extends SimpleController
 		return $this->user;
 	}
 	
+	protected function checkActionPermission($object, $permissionTypeName)
+	{
+		$ap = ObjectRepository::getAuthorizationProvider($this);
+
+		if($ap->isPermissionGranted($this->getUser(), $object, $permissionTypeName)) {
+			return true;
+		}
+		else {
+			throw new EntityAccessDeniedException($this->getUser(), $object, $permissionTypeName);
+		}		
+	}
 }

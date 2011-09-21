@@ -11,6 +11,7 @@ class AllTests
 	{
 		$suite = new TestSuite();
 
+		$suite->addTest(Authorization\AllTests::suite());			
 		$suite->addTest(Controller\AllTests::suite());
 		$suite->addTest(Ip\AllTests::suite());
 		$suite->addTest(Log\AllTests::suite());

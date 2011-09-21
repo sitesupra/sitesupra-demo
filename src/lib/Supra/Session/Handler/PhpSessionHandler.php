@@ -2,7 +2,7 @@
 
 namespace Supra\Session\Handler;
 
-class Internal extends HandlerAbstraction
+class PhpSessionHandler extends HandlerAbstraction
 {
 	/**
 	 * Session expiration time in seconds
@@ -17,7 +17,7 @@ class Internal extends HandlerAbstraction
 		session_name($this->sessionName);
 		session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
 		
-		if( ! session_start()) {
+		if ( ! session_start()) {
 			
 			$this->status = self::SESSION_COULD_NOT_START;
 			throw new Exception\CouldNotStartSession();

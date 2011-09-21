@@ -10,7 +10,7 @@ use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
 use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
-
+use Supra\Authorization\AuthorizationProvider;
 /**
  * Object repository
  */
@@ -25,6 +25,7 @@ class ObjectRepository
 	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionNamespaceManager';		
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
 	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
+	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
 
 	/**
 	 * Object relation storage
@@ -368,4 +369,37 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOCALE_MANAGER);
 	}
+	
+	
+	/**
+	 * Get assigned locale manager
+	 *
+	 * @param mixed $caller
+	 * @return AuthorizationProvider
+	 */
+	public static function getAuthorizationProvider($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_AUTHORIZATION_PROVIDER);
+	}
+
+	/**
+	 * Assign locale manager instance to caller class
+	 *
+	 * @param mixed $caller
+	 * @param AuthorizationProvider $object 
+	 */
+	public static function setAuthorizationProvider($caller, AuthorizationProvider $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
+	}
+	
+	/**
+	 * Set default locale manager
+	 *
+	 * @param AuthorizationProvider $object 
+	 */
+	public static function setDefaultAuthorizationProvider(AuthorizationProvider $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
+	}	
 }

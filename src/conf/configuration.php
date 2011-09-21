@@ -14,3 +14,4 @@ require_once SUPRA_CONF_PATH . 'filestorage.php';
 require_once SUPRA_CONF_PATH . 'user.php';
 require_once SUPRA_CONF_PATH . 'template.php';
 require_once SUPRA_CONF_PATH . 'session.php';
+require_once SUPRA_CONF_PATH . 'authorization.php';

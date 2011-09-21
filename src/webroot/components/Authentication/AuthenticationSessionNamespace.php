@@ -2,9 +2,9 @@
 
 namespace Project\Authentication;
 
-use Supra\Controller\Authentication\AuthenticationSessionNamespace;
+use Supra\Controller\Authentication\AuthenticationSessionNamespace as SupraAuthenticationSessionNamespace;
 
-class CmsSessionNamespace extends AuthenticationSessionNamespace
+class AuthenticationSessionNamespace extends SupraAuthenticationSessionNamespace
 {
 	
 }

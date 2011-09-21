@@ -4,6 +4,8 @@ namespace Supra\Controller;
 
 use Supra\Request;
 use Supra\Response;
+use Supra\Authorization\AuthorizedControllerInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Simple HTTP controller based on subcontrollers
@@ -76,9 +78,7 @@ abstract class DistributedController extends ControllerAbstraction
 			throw new Exception\RuntimeException("Action $class must be instance of controller interface");
 		}
 		
-		$response = $actionController->createResponse($request);
-		$actionController->prepare($request, $response);
-		$actionController->execute();
+		FrontController::getInstance()->runController($actionController, $request);
 		
 		// Not using $response because it might be rewritten
 		$actionController->getResponse()->flushToResponse($this->getResponse());

@@ -36,4 +36,4 @@ class Page extends Abstraction\Page
 		return __CLASS__;
 	}
 	
-}
+}	

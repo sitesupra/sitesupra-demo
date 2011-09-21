@@ -8,6 +8,8 @@ use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
+use Supra\Authorization\AuthorizedControllerInterface;
+use Supra\Authorization\Exception\ControllerAccessDeniedException;
 
 /**
  * Front controller
@@ -141,7 +143,22 @@ class FrontController
 		$response = $controller->createResponse($request);
 		$response->prepare();
 		$controller->prepare($request, $response);
-		$controller->execute();
+		
+		if ($controller instanceof AuthorizedControllerInterface) {
+			
+			$ap = ObjectRepository::getAuthorizationProvider($controller);
+			$user = ObjectRepository::getSessionNamespace($controller)->getUser();
+			
+			if($ap->isControllerAccessGranted($user, $controller)) {
+				$controller->execute();
+			}
+			else {
+				throw new ControllerAccessDeniedException($user, $controller);
+			}
+		}
+		else {
+			$controller->execute();
+		}
 	}
 
 	/**

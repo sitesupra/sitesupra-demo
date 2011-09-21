@@ -4,6 +4,8 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Entity\BlockProperty;
+use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\User\Entity\Abstraction\User;
 
 /**
  * @Entity
@@ -12,8 +14,14 @@ use Supra\Controller\Pages\Entity\BlockProperty;
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
  * @Table(name="page_localization", uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
-abstract class Data extends Entity
+abstract class Data extends Entity implements AuthorizedEntityInterface
 {
+	const ACTION_EDIT_PAGE_NAME = 'edit_page';
+	const ACTION_EDIT_PAGE_MASK = 4; // ==> MaskBuilder::MASK_EDIT 
+	
+	const ACTION_PUBLISH_PAGE_NAME = 'publish_page';
+	const ACTION_PUBLISH_PAGE_MASK = 256; // ==> MaskBuilder.MASK_OWNER >> 1
+	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -105,4 +113,39 @@ abstract class Data extends Entity
 	 * @throws Exception\RuntimeException
 	 */
 	abstract public function getTemplateHierarchy();
+	
+	
+	public function authorize(User $user, $permissionType) 
+	{
+		return true;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationId() 
+	{
+		return $this->getId();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationClass() 
+	{
+		return __CLASS__;
+	}	
+	
+	public function getAuthorizationAncestors($includingSelf = true) 
+	{
+		return $this->getAncestors(0, $includeSelf);
+	}
+	
+	public function getPermissionTypes() 
+	{
+		return array(
+			self::ACTION_EDIT_PAGE_NAME => new PermissionType(self::ACTION_EDIT_PAGE_NAME, self::ACTION_EDIT_PAGE_MASK),
+			self::ACTION_PUBLISH_PAGE_NAME => new PermissionType(self::ACTION_PUBLISH_PAGE_NAME, self::ACTION_PUBLISH_PAGE_MASK)
+		);
+	}	
 }

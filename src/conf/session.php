@@ -2,7 +2,7 @@
 
 use Supra\ObjectRepository\ObjectRepository;
 			
-$sessionHandler = new Supra\Session\Handler\Internal();
+$sessionHandler = new Supra\Session\Handler\PhpSessionHandler();
 
 require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
 

@@ -82,7 +82,7 @@ class SessionNamespace
 	 */
 	public function __set($key, $value) 
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 		
@@ -99,7 +99,7 @@ class SessionNamespace
 	 */
 	public function __get($key)
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 		
@@ -113,7 +113,7 @@ class SessionNamespace
 	 */
 	public function __unset($key) 
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 		
@@ -130,7 +130,7 @@ class SessionNamespace
 	 */
 	public function __isset($key) 
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 
@@ -151,7 +151,7 @@ class SessionNamespace
 	 */
 	public function clear() 
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 		
@@ -167,7 +167,7 @@ class SessionNamespace
 	 */
 	public function close()
 	{
-		if($this->__closed) {
+		if ($this->__closed) {
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 

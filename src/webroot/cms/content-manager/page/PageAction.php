@@ -10,6 +10,8 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
+use Supra\User\Entity\Abstraction\User;
+use Project\Authentication\AuthenticateSessionNamespace;
 
 /**
  * 
@@ -384,6 +386,8 @@ class PageAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
+		$this->checkAccess($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE);
+		
 		$this->publish();
 	}
 
