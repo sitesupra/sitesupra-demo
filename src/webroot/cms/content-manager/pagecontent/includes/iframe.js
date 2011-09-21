@@ -361,26 +361,30 @@ YUI.add('supra.page-iframe', function (Y) {
 						
 						//Route to /22/edit
 						if (!evt.newVal || !evt.newVal.get('editable')) {
-							Root.save('/' + Manager.Page.getPageData().id + '/edit');
+							var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
+							Root.save(uri);
 						}
 					}
 					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
 						evt.newVal.set('editing', true);
 						
 						//Route to /22/edit/111
-						Root.save('/' + Manager.Page.getPageData().id + '/edit/' + evt.newVal.get('data').id);
+						var uri = Root.ROUTE_PAGE_CONT.replace(':page_id', Manager.Page.getPageData().id)
+													  .replace(':block_id', evt.newVal.get('data').id);
+						
+						Root.save(uri);
 					}
 				}
 			});
 			
 			//Routing
-			Root.route('/:page_id/edit', Y.bind(this.routeMain, this));
-			Root.route('/:page_id/edit/:block_id', Y.bind(this.routeBlock, this));
+			Root.route(Root.ROUTE_PAGE_EDIT, Y.bind(this.routeMain, this));
+			Root.route(Root.ROUTE_PAGE_CONT, Y.bind(this.routeBlock, this));
 			
 			//Restore state
 			this.get('iframe').on('ready', function () {
 				var m = null;
-				if (m = Root.getPath().match(/^\/\d+\/edit\/([^\/]+)$/)) {
+				if (m = Root.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
 					var block = this.getChildBlockById(m[1]);
 					if (block) {
 						//Need delay to make sure editing state is correctly set

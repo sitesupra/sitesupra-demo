@@ -108,6 +108,15 @@ Supra(function (Y) {
 		HAS_TEMPLATE: false,
 		
 		
+		ROUTE_SITEMAP:		'/h/sitemap',
+		ROUTE_PAGE:			'/h/page/:page_id',
+		ROUTE_PAGE_EDIT:	'/h/page/:page_id/edit',
+		ROUTE_PAGE_CONT:	'/h/page/:page_id/edit/:block_id',
+		
+		ROUTE_PAGE_R: 		/^\/h\/page\/([^\/]+)$/,
+		ROUTE_PAGE_EDIT_R: 	/^\/h\/page\/([^\/]+)\/edit$/,
+		ROUTE_PAGE_CONT_R: 	/^\/h\/page\/([^\/]+)\/edit\/([^\/]+)$/,
+		
 		
 		/**
 		 * Y.Controller routers
@@ -115,8 +124,8 @@ Supra(function (Y) {
 		initialize: function () {
 			//Routes
 			this.route('/', 'routePage');
-			this.route('/sitemap', 'routeSitemap');
-			this.route(/^\/(\d+)$/, 'routePage');
+			this.route(this.ROUTE_SITEMAP, 'routeSitemap');
+			this.route(this.ROUTE_PAGE, 'routePage');
 		},
 		
 		/**
@@ -131,7 +140,7 @@ Supra(function (Y) {
 			}
 			
 			//Load page
-			var page_id = req.params['1'],
+			var page_id = req.params.page_id,
 				page_data = Manager.Page.getPageData();
 			
 			if (page_id && page_id != page_data.id) {
@@ -156,7 +165,7 @@ Supra(function (Y) {
 		 * Change route to sitemap
 		 */
 		routeSiteMapSave: function () {
-			this.save('/sitemap');
+			this.save(this.ROUTE_SITEMAP);
 		},
 		
 		
@@ -182,8 +191,8 @@ Supra(function (Y) {
 			
 			//Load page after execute
 			this.on('render', function () {
-				//Search in path "/:page_id"
-				var page_id = this.getPath().match(/\/(\d+)/);
+				//Search in path "/r/page/:page_id"
+				var page_id = this.getPath().match(this.ROUTE_PAGE_R);
 				if (page_id) {
 					page_id = {'id': page_id[1]};
 				} else {
@@ -193,8 +202,8 @@ Supra(function (Y) {
 				SU.Manager.executeAction('Page', page_id);
 				SU.Manager.executeAction('Template');
 				
-				//Search /sitemap in path
-				if (this.getPath() == '/sitemap') {
+				//Search /h/sitemap in path
+				if (this.getPath() == this.ROUTE_SITEMAP) {
 					SU.Manager.executeAction('SiteMap');
 				}
 			});
@@ -209,7 +218,7 @@ Supra(function (Y) {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
 				//Change path
-				this.save('/' + evt.data.id);
+				this.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
 			}, this);
 		},
 		

@@ -81,8 +81,8 @@ SU('dd-drag', function (Y) {
 				args = [];
 			
 			//Y.Controller route
-			Root.route('/:page_id', Y.bind(this.onStopEditingRoute, this));
-			Root.route('/:page_id/edit', Y.bind(this.onStartEditingRoute, this));
+			Root.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
+			Root.route(Root.ROUTE_PAGE_EDIT,	Y.bind(this.onStartEditingRoute, this));
 			
 			//Change path	
 			for(var id in incl) {
@@ -171,11 +171,13 @@ SU('dd-drag', function (Y) {
 		 */
 		startEditing: function () {
 			if (!this.editing) {
-				var uri = '/' + Manager.Page.getPageData().id + '/edit';
+				var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
 				
 				if (Root.getPath().indexOf(uri) === 0) {
+					//If already target URI, then start editing
 					this.onStartEditingRoute();
 				} else {
+					//Navigate to target URI
 					Root.save(uri);
 				}
 			}
@@ -205,8 +207,9 @@ SU('dd-drag', function (Y) {
 		stopEditing: function () {
 			if (this.editing) {
 				//Route only if on /12/edit page
-				if (this.getPath().match(/^\/\d+\/edit$/)) {
-					Root.save('/' + Manager.Page.getPageData().id);
+				if (this.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
+					var uri = Root.ROUTE_PAGE.replace(':page_id', Manager.Page.getPageData().id);
+					Root.save(uri);
 				} else {
 					this.onStopEditingRoute();
 				}
@@ -279,7 +282,7 @@ SU('dd-drag', function (Y) {
 				
 				//If editing was called before content was ready or there is a route path
 				//then call it now
-				if (this.edit_on_ready || this.getPath().match(/\/\d+\/edit/)) {
+				if (this.edit_on_ready || this.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
 					this.iframeObj.after('ready', function () {
 						this.onStartEditingRoute();
 					}, this);
