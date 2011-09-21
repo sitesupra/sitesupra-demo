@@ -386,7 +386,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
-		$this->checkAccess($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE);
+		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE);
 		
 		$this->publish();
 	}
