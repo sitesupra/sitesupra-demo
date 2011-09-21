@@ -7,6 +7,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\Controller\Pages\Entity\Abstraction\Data;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Editable\EditableInterface;
+use Doctrine\Common\Collections;
 
 /**
  * Block property class.
@@ -56,6 +57,13 @@ class BlockProperty extends Entity
 	protected $valueData;
 	
 	/**
+	 * Value additional data about links, images
+	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"})
+	 * @var Collections\Collection
+	 */
+	protected $metadata;
+	
+	/**
 	 * @var EditableInterface
 	 */
 	protected $editable;
@@ -70,6 +78,7 @@ class BlockProperty extends Entity
 		parent::__construct();
 		$this->name = $name;
 		$this->type = $type;
+		$this->resetMetadata();
 	}
 
 	/**
@@ -88,6 +97,30 @@ class BlockProperty extends Entity
 		if ($this->writeOnce($this->data, $data)) {
 			$this->checkScope($this->data);
 		}
+	}
+
+	/**
+	 * @return Collections\Collection
+	 */
+	public function getMetadata()
+	{
+		return $this->metadata;
+	}
+	
+	/**
+	 * Resets metadata collection to empty collection
+	 */
+	public function resetMetadata()
+	{
+		$this->metadata = new Collections\ArrayCollection();
+	}
+	
+	/**
+	 * @param ReferencedElement\ReferencedElementAbstract $metadata
+	 */
+	public function addMetadata(ReferencedElement\ReferencedElementAbstract $metadata)
+	{
+		$this->metadata->add($metadata);
 	}
 
 	/**
@@ -157,13 +190,25 @@ class BlockProperty extends Entity
 	 */
 	public function getValueData()
 	{
-		$valueData = null;
+		$metadataCollection = $this->getMetadata();
 		
-		if (isset($this->valueData)) {
-			$valueData = unserialize($this->valueData);
+		//FIXME: Temporary before switching to referenced elements completely
+		$valueData = array();
+		
+		/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+		foreach ($metadataCollection as $metadata) {
+			$valueData[$metadata->getName()] = $metadata->getReferencedElement()->toArray();
 		}
 		
 		return $valueData;
+		
+//		$valueData = null;
+//		
+//		if (isset($this->valueData)) {
+//			$valueData = unserialize($this->valueData);
+//		}
+//		
+//		return $valueData;
 	}
 	
 	/**

@@ -130,6 +130,7 @@ class PagecontentAction extends PageManagerAction
 			$blockProperty->setBlock($block);
 		}
 		
+		// Image resizer
 		// FIXME move outside (probably to doctrine listener)
 		$fileStorage = 
 				\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
@@ -147,8 +148,25 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 		
+		// Remove all old references
+		$metadataCollection = $blockProperty->getMetadata();
+		foreach ($metadataCollection as $metadata) {
+			$this->entityManager->remove($metadata);
+		}
+		
+		$blockProperty->resetMetadata();
+
+		// Set new refeneced elements
 		$blockProperty->setValue($value);
-		$blockProperty->setValueData($valueData);
+		
+		foreach ($valueData as $elementName => &$elementData) {
+			$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData, $this);
+			
+			$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
+			$blockProperty->addMetadata($blockPropertyMetadata);
+		}
+		
+//		$blockProperty->setValueData($valueData);
 		
 		$this->entityManager->flush();
 		
