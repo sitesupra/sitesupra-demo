@@ -15,16 +15,27 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
  */
 class UserTest extends \PHPUnit_Extensions_OutputTestCase
 {
-
+	const TEST_USER_NAME = 'Chuck123';
+	
+	/**
+	 * @var User\UserProvider
+	 */
+	private $userProvider;
+	
+	protected function setUp()
+	{
+		$this->userProvider = ObjectRepository::getUserProvider($this);
+	}
+	
 	private function cleanUp($delete = false)
 	{
 		$em = ObjectRepository::getEntityManager($this);
-		$query = $em->createQuery("delete from Supra\User\Entity\Abstraction\User");
-		$query->execute();
-		$query = $em->createQuery("delete from Supra\User\Entity\User");
-		$query->execute();
-		$query = $em->createQuery("delete from Supra\User\Entity\Group");
-		$query->execute();
+		
+		// Removes test users
+		$query = $em->createQuery("delete from Supra\User\Entity\User u where u.name = ?0");
+		$query->execute(array(self::TEST_USER_NAME));
+//		$query = $em->createQuery("delete from Supra\User\Entity\Group");
+//		$query->execute();
 	}
 
 	public function testCreateUser()
@@ -37,10 +48,12 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $em Doctrine\ORM\EntityManager */
 		$em->persist($user);
 
-		$user->setName('Chuck');
-		$user->setSalt();
-		$user->setPassword(sha1('Norris' . $user->getSalt()));
+		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail('chuck@chucknorris.com');
+		
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user, 'Norris');
+		
 		$em->flush();
 	}
 
@@ -51,15 +64,16 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $repo Doctrine\ORM\EntityRepository */
 		$repo = $em->getRepository('Supra\User\Entity\User');
 
-		$user = $repo->findOneByName('Chuck');
+		$user = $repo->findOneByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
 		}
 
-		$em->persist($user);
-
 		$user->setEmail('awesomechuck@chucknorris.com');
+		
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user);
 
 		$em->flush();
 
@@ -78,7 +92,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $repo Doctrine\ORM\EntityRepository */
 		$repo = $em->getRepository('Supra\User\Entity\User');
 
-		$user = $repo->findOneByName('Chuck');
+		$user = $repo->findOneByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
@@ -88,12 +102,15 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$user->setEmail('awesomechuckchucknorris.com');
 
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user);
+		
 		try {
 			$userProvider->validate($user);
 		} catch (Exception\RuntimeException $exc) {
 			return;
 		}
-
+		
 		$em->flush();
 
 		$this->fail('Succeed to change email');
@@ -107,7 +124,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $repo Doctrine\ORM\EntityRepository */
 		$repo = $em->getRepository('Supra\User\Entity\User');
 
-		$user = $repo->findOneByName('Chuck');
+		$user = $repo->findOneByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
@@ -116,7 +133,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$em->remove($user);
 		$em->flush();
 
-		$result = $repo->findOneByName('Chuck');
+		$result = $repo->findOneByName(self::TEST_USER_NAME);
 
 		if ( ! empty($result)) {
 			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
@@ -134,10 +151,11 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $em Doctrine\ORM\EntityManager */
 		$em->persist($user);
 
-		$user->setName('Chuck');
-		$user->setSalt();
-		$user->setPassword(sha1('Norris' . $user->getSalt()));
+		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail('chuck@chucknorris.com');
+		
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user, 'Norris');
 
 		$userProvider->validate($user);
 
@@ -148,10 +166,11 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $em Doctrine\ORM\EntityManager */
 		$em->persist($user);
 
-		$user->setName('Chuck');
-		$user->setSalt();
-		$user->setPassword(sha1('Norris' . $user->getSalt()));
+		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail('chuck@chucknorris.com');
+		
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user, 'Norris');
 
 		try {
 			$userProvider->validate($user);
@@ -160,6 +179,20 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 
 		$this->fail('Test should catch Runtime exception because user with same email already exists.');
+	}
+	
+	public function testSaltReset()
+	{
+		$user = new Entity\User();
+		$salt1 = $user->getSalt();
+		
+		self::assertNotEmpty($salt1);
+		
+		$salt2 = $user->resetSalt();
+		
+		self::assertNotEmpty($salt2);
+		
+		self::assertNotEquals($salt2, $salt1);
 	}
 
 }

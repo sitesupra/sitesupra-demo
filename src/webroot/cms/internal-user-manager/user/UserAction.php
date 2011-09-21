@@ -160,17 +160,20 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$this->entityManager->persist($user);
 
-			// TODO: add group, avatar, password creation
+			// TODO: add group, avatar
 			$user->setName($name);
-			$user->resetSalt();
 			$user->setEmail($email);
 			
 			try {
 				$this->userProvider->validate($user);
 			} catch (Exception\RuntimeException $exc) {
+				//FIXME: don't pass original message!
 				$this->getResponse()->setErrorMessage($exc->getMessage());
 				return;
 			}
+			
+			$authAdapter = $this->userProvider->getAuthAdapter();
+			$authAdapter->credentialChange($user);
 			
 			// TODO:  Add mailer
 			$expTime = time();
@@ -184,7 +187,7 @@ class UserAction extends InternalUserManagerAbstractAction
 				'e' => $userMail,
 				't' => $expTime,
 				'h' => $hash,
-					));
+			));
 			$link = $url . '?' . $query;
 
 			$subject = 'Account created. Set your password';
@@ -265,6 +268,8 @@ class UserAction extends InternalUserManagerAbstractAction
 				return;
 			}
 
+			$authAdapter = $this->userProvider->getAuthAdapter();
+			$authAdapter->credentialChange($user);
 
 			$this->entityManager->flush();
 

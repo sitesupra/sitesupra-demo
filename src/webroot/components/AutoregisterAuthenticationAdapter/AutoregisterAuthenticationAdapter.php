@@ -13,11 +13,10 @@ class AutoregisterAuthenticationAdapter extends HashAdapter
 	public function findUser($login, $password)
 	{
 		$user = new User();
-		$salt = $user->resetSalt();
-		$user->setEmail($login);
 		$user->setName($login);
-		$passwordHash = $this->generatePasswordHash($password, $salt);
-		$user->setPassword($passwordHash);
+		$user->setEmail($login);
+		
+		$this->credentialChange($user, $password);
 		
 		return $user;
 	}

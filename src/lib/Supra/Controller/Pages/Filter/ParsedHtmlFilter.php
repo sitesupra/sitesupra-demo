@@ -7,6 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Log\Writer\WriterAbstraction;
+use Supra\Controller\Pages\Entity;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -49,7 +50,7 @@ class ParsedHtmlFilter implements FilterInterface
 
 				$em = ObjectRepository::getEntityManager($this);
 
-				$pageDataEntity = PageRequest::PAGE_DATA_ENTITY;
+				$pageDataEntity = Entity\PageData::__CLASSNAME__();
 
 				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
 						WHERE d.locale = ?0 AND d.master = ?1");

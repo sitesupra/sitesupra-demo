@@ -4,13 +4,13 @@ namespace Supra\User\Authentication\Adapters;
 
 use Supra\User\Authentication\AuthenticationAdapterInterface;
 use Supra\User\Entity\User;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Exception;
 
+/**
+ * Adapter with email as login and password sha1 hash validation
+ */
 class HashAdapter implements AuthenticationAdapterInterface
 {
-
-
 	/**
 	 * Finds user in database
 	 * @param type $login
@@ -64,12 +64,26 @@ class HashAdapter implements AuthenticationAdapterInterface
 		return $hash;
 	}
 	
-	
-	public function changePassword(User $user, $password)
+	/**
+	 * {@inheritdoc}
+	 * @param User $user
+	 * @param string $password
+	 */
+	public function credentialChange(User $user, $password = null)
 	{
-		$salt = $user->getSalt();
-		$passHash = $this->generatePasswordHash($password, $salt);
-		$user->setPassword($passHash);
+		// Email is login for this 
+		$user->setLogin($user->getEmail());
+		
+		if ( ! is_null($password)) {
+			
+			if (empty($password)) {
+				throw new Exception\PasswordPolicyException("Empty password is not allowed");
+			}
+			
+			$salt = $user->getSalt();
+			$passHash = $this->generatePasswordHash($password, $salt);
+			$user->setPassword($passHash);
+		}
 	}
 
 }

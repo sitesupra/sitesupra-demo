@@ -34,6 +34,15 @@ abstract class Entity
 	private $locks = array();
 	
 	/**
+	 * Loads full name of the class
+	 * TODO: Decide is it smart
+	 */
+	public static function __CLASSNAME__()
+	{
+		return get_called_class();
+	}
+	
+	/**
 	 * Allocates ID
 	 */
 	public function __construct()

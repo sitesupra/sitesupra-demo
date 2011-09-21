@@ -10,13 +10,13 @@ class UserProvider
 {
 	/**
 	 * Validation filters
-	 * @var type 
+	 * @var array 
 	 */
 	private $validationFilters = array();
 	
 	/**
 	 * Entity manager
-	 * @var type 
+	 * @var EntityManager 
 	 */
 	public $entityManager;
 	
@@ -33,6 +33,24 @@ class UserProvider
 	{
 		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
+
+	/**
+	 * Override the entity manager
+	 * @param EntityManager $entityManager 
+	 */
+	public function setEntityManager(EntityManager $entityManager)
+	{
+		$this->entityManager = $entityManager;
+	}
+
+	/**
+	 * @return EntityManager
+	 */
+	public function getEntityManager()
+	{
+		return $this->entityManager;
+	}
+
 	/**
 	 * Adds validation filter to array
 	 * @param array $validationFilter 
@@ -111,7 +129,7 @@ class UserProvider
 	public function findUserByLogin($login)
 	{
 		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		$user = $repo->findOneByEmail($login);
+		$user = $repo->findOneByLogin($login);
 		
 		if(empty($user)) {
 			return null;

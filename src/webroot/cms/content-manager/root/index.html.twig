@@ -12,7 +12,7 @@
 	<![endif]-->
 	
 	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
-	<script src="/cms/lib/yui.3.4.0/combo/combo.php?/cms/lib/yui.3.4.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.4.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
+	<script src="/cms/lib/yui.3.4.0/combo/combo.php?/cms/lib/yui.3.4.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.4.0/build/loader/loader.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
 	
 	<!-- Load all base CSS files at once -->
 	<link rel="stylesheet" type="text/css" href="/cms/lib/yui.3.4.0/combo/combo.php?/cms/lib/yui.3.4.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css&amp;/cms/lib/supra/build/supra/common.css" />
@@ -53,8 +53,8 @@
 				
 				//User data
 				'user': {
-					'userid': 1,
-					'username': 'Chuck Noriss',
+					'name': {{ user.name | json_encode | raw }},
+					'login': {{ user.email | json_encode | raw }},
 					'avatar': null
 				},
 				
@@ -85,9 +85,9 @@
 				},
 				
 				//Languages
-				'locale': '{{ currentLocale }}',
+				'locale': {{ currentLocale | json_encode | raw }},
 				
-				'contexts': {{ localesList|json_encode|raw }},
+				'contexts': {{ localesList | json_encode | raw }},
 				
 				//Application
 				'application': {
@@ -118,7 +118,18 @@
 			]);
 				
 			//Start loading actions
-			Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers', 'PageToolbar', 'PageButtons', 'Page']);
+			Supra.Manager.loadActions([
+				'Header',
+				'Root',
+				'LayoutContainers',
+				'PageToolbar',
+				'PageButtons',
+				'Page',
+				'Template',
+				'PageContent',
+				'Blocks',
+				'EditorToolbar'
+			]);
 			
 			//Execute initial actions
 			Supra.Manager.executeAction('Header');

@@ -6,6 +6,8 @@ use Supra\Cms\CmsAction;
 use Supra\User\Entity;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
+use Supra\User\UserProvider;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Internal user manager action controller
@@ -13,8 +15,19 @@ use Supra\Cms\Exception\CmsException;
  */
 class InternalUserManagerAbstractAction extends CmsAction
 {
+	/**
+	 * @var UserProvider
+	 */
+	protected $userProvider;
+	
+	/**
+	 * @var EntityManager
+	 */
 	protected $entityManager;
 	
+	/**
+	 * Bind objects
+	 */
 	public function __construct()
 	{
 		parent::__construct();

@@ -9,7 +9,6 @@ namespace Supra\User\Entity;
  */
 class User extends Abstraction\User
 {
-	
 	/**
 	 * @Id
 	 * @Column(type="integer")
@@ -25,6 +24,12 @@ class User extends Abstraction\User
 	protected $password;
 	
 	/**
+	 * @Column(type="string", name="login", nullable=false, unique=true)
+	 * @var string
+	 */
+	protected $login;
+	
+	/**
 	 * @Column(type="string", name="email", nullable=false, unique=true)
 	 * @var string
 	 */
@@ -34,31 +39,32 @@ class User extends Abstraction\User
 	* @OneToOne(targetEntity="Group")
 	* @JoinColumn(name="group_id", referencedColumnName="id") 
 	 */
-	
 	protected $group;
 	
 	/**
 	 * @Column(type="datetime", name="last_login_at", nullable="false")
-	 * @var string
+	 * @var \DateTime
 	 */
-	
 	protected $lastLoginTime;
 	
 	/**
 	 * @Column(type="boolean", name="active")
-	 * @var string
+	 * @var boolean
 	 */
 	protected $active = true;
 	
 	/**
-	 * @Column(type="string", name="salt", nullable=false)
+	 * @Column(type="string", name="salt", nullable=false, length="23")
 	 * @var string
 	 */
 	protected $salt;
 	
+	/**
+	 * Generates random salt for new users
+	 */
 	public function __construct()
 	{
-//		$this->createdTime = new \DateTime("now");
+		$this->resetSalt();
 	}
 	
 	/**
@@ -87,6 +93,22 @@ class User extends Abstraction\User
 	{
 		$this->password = $password;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getLogin()
+	{
+		return $this->login;
+	}
+
+	/**
+	 * @param string $login 
+	 */
+	public function setLogin($login)
+	{
+		$this->login = $login;
+	}
 
 	/**
 	 * Returns user email 
@@ -108,7 +130,7 @@ class User extends Abstraction\User
 
 	/**
 	 * Returns user last logged in time 
-	 * @return datetime 
+	 * @return \DateTime 
 	 */
 	public function getLastLoginTime()
 	{
@@ -124,6 +146,10 @@ class User extends Abstraction\User
 		$this->lastLoginTime = $lastLoginTime;
 	}
 
+	/**
+	 * Get if the user is active
+	 * @return boolean
+	 */
 	public function isActive()
 	{
 		return $this->active;
@@ -153,20 +179,25 @@ class User extends Abstraction\User
 	 */
 	public function resetSalt()
 	{
-		$this->salt = uniqid();
+		$this->salt = uniqid('', true);
 		
 		return $this->salt;
 	}
 	
+	/**
+	 * @return string
+	 */
 	public function getGroup()
 	{
 		return $this->group;
 	}
 
+	/**
+	 * @param string $group
+	 */
 	public function setGroup($group)
 	{
 		$this->group = $group;
 	}
-
 
 }

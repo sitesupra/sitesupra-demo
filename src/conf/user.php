@@ -8,6 +8,7 @@ use Supra\User\Validation\EmailValidation;
 $userProvider = new UserProvider();
 
 $emailVailidation = new EmailValidation();
+$emailVailidation->setEntityManager($userProvider->getEntityManager());
 $userProvider->addValidationFilter($emailVailidation);
 $authAdapter = new AutoregisterAuthenticationAdapter();
 $userProvider->setAuthAdapter($authAdapter);

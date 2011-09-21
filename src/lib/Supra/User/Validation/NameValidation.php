@@ -4,14 +4,19 @@ namespace Supra\User\Validation;
 
 use Supra\User;
 use Supra\User\Exception;
+use Supra\User\Entity\User;
 
 /**
- * User Email validation
+ * User name validation
  */
 class NameValidation implements UserValidationInterface
 {
-
-	public function validateUser(\Supra\User\Entity\User $user)
+	/**
+	 * {@inheritdoc}
+	 * @param User $user
+	 * @throws Exception\RuntimeException
+	 */
+	public function validateUser(User $user)
 	{
 		$name = $user->getName();
 		$pattern = '/[^a-z0-9\_]/';

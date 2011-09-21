@@ -1,11 +1,8 @@
 <?php
 
-// Supra starting
-require_once __DIR__ . '/phpunit-bootstrap.php';
+$helperSet = null;
 
-$configFile = __DIR__ . '/cli-config.php';
-
-require_once $configFile;
+require_once __DIR__ . '/cli-config.php';
 
 $cli = \Supra\Console\Application::getInstance();
 $cli->setCatchExceptions(true);

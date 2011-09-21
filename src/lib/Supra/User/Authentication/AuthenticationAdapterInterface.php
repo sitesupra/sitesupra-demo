@@ -4,21 +4,29 @@ namespace Supra\User\Authentication;
 
 use Supra\User\Entity\User;
 
+/**
+ * Authentication adapter interface
+ */
 interface AuthenticationAdapterInterface
 {
 	/**
-	 * Authenticate user
+	 * Authenticate the user
+	 * @param User $user
+	 * @param string $password
 	 */
 	public function authenticate(User $user, $password);
 	
 	/**
-	 * Find user 
+	 * Try searching for the user if adapter implements this
+	 * @param string $login
+	 * @param string $password
 	 */
 	public function findUser($login, $password);
 	
 	/**
-	 * change password
+	 * Called on credential change (password, login)
+	 * @param User $user
+	 * @param string $password
 	 */
-	public function changePassword(User $user, $password);
-
+	public function credentialChange(User $user, $password = null);
 }

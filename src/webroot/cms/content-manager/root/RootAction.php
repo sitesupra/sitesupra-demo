@@ -19,16 +19,24 @@ class RootAction extends PageManagerAction
 	 */
 	public function indexAction()
 	{
-		$pageId = $this->getInitialPageId();
-		$localeId = $this->getLocale()->getId();
-		
 		$response = $this->getResponse();
 		/* @var $response TwigResponse */
 		
-		$response->assign('localesList', $this->createLocaleArray());
-		$response->assign('currentLocale', $localeId);
-		
+		// Last opened page
+		$pageId = $this->getInitialPageId();
 		$response->assign('pageId', $pageId);
+		
+		// Current locale ID
+		$localeId = $this->getLocale()->getId();
+		$response->assign('currentLocale', $localeId);
+
+		// Locale array
+		$localeList = $this->createLocaleArray();
+		$response->assign('localesList', $localeList);
+		
+		// Currently signed in user
+		$user = $this->getUser();
+		$response->assign('user', $user);
 		
 		$this->getResponse()->outputTemplate('webroot/cms/content-manager/root/index.html.twig');
 	}

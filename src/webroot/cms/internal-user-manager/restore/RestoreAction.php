@@ -4,21 +4,22 @@ namespace Supra\Cms\InternalUserManager\Restore;
 
 use Supra\Cms\CmsAction;
 use Supra\Controller\SimpleController;
-use Supra\Response\HttpResponse;
+use Supra\Response\TwigResponse;
 use Supra\Request;
 use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
 use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Entity\User;
 
 /**
  * Restore password
  *
+ * @method TwigResponse getResponse()
  * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
 class RestoreAction extends InternalUserManagerAbstractAction
 {
-
 	/**
 	 * Minimum password length
 	 */
@@ -28,6 +29,18 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	 * Login page path
 	 */
 	const LOGIN_PAGE = '/cms/login';
+	
+	/**
+	 * Overwriting JsonResponse to TwigResponse
+	 * @param Request\RequestInterface $request
+	 * @return TwigResponse 
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		$response = new TwigResponse($this);
+
+		return $response;
+	}
 	
 	/**
 	 * Validates hash
@@ -65,17 +78,15 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		$expirationTime = $this->getRequestParameter('t');
 		$hash = $this->getRequestParameter('h');
 		
-		$result = $this->validateUser();
+		$user = $this->validateUser();
 
-		if ($result) {
-			//TODO: introduce some template engine
-			$output = file_get_contents(__DIR__ . '/form.html');
+		if ($user instanceof User) {
 			
-			$output = str_replace('{{email}}', $email, $output);
-			$output = str_replace('{{time}}', $expirationTime, $output);
-			$output = str_replace('{{hash}}', $hash, $output);
+			$response->assign('email', $email);
+			$response->assign('time', $expirationTime);
+			$response->assign('hash', $hash);
 			
-			$response->output($output);
+			$response->outputTemplate('form.html.twig');
 			return;
 		} else {
 			$response->output('Wrong link. Try to request a new one');
@@ -96,7 +107,7 @@ class RestoreAction extends InternalUserManagerAbstractAction
 
 		// Check password match
 		if($password != $confirmPassword) {
-			$this->getResponse()->output('Passwords does not match');
+			$this->getResponse()->output('Passwords do not match');
 			return;
 		}
 		
@@ -110,7 +121,7 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		
 		$user = $this->validateUser();
 		
-		if( ! $user) {
+		if (is_null($user)) {
 			$this->getResponse()->output('Something went wrong. Try to request new link.');
 			return;
 		}
@@ -120,24 +131,12 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		$userProvider = ObjectRepository::getUserProvider($this);
 		
 		$authAdapter = $userProvider->getAuthAdapter();
-		$authAdapter->changePassword($user, $password);
+		$authAdapter->credentialChange($user, $password);
 		
 		$this->entityManager->flush();
 		
 		$this->getResponse()->redirect(self::LOGIN_PAGE);
 				
-	}
-	
-	/**
-	 * Overwriting JsonResponse to HttpResponse
-	 * @param Request\RequestInterface $request
-	 * @return HttpResponse 
-	 */
-	public function createResponse(Request\RequestInterface $request)
-	{
-		$response = new HttpResponse();
-
-		return $response;
 	}
 	
 	public function execute()
@@ -174,6 +173,9 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		}
 	}
 	
+	/**
+	 * @return User
+	 */
 	private function validateUser()
 	{	
 		$email = $this->getRequestParameter('e');
@@ -181,16 +183,20 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		$hash = $this->getRequestParameter('h');
 		
 		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		//TODO: should it search by email or login?
 		$user = $repo->findOneByEmail($email);
 
 		// find user
 		if (empty($user)) {
-			$this->getResponse()->output('Can\'t find user with such email');
-			return false;
+			return null;
 		}
 		
 		$currentSalt = $user->getSalt();
 		$result = $this->validateHash($expirationTime, $currentSalt, $email, $hash);
+		
+		if ( ! $result) {
+			return null;
+		}
 		
 		return $user;
 	}
