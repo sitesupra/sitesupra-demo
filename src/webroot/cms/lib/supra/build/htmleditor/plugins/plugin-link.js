@@ -315,7 +315,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			html = html.replace(/{supra\.link id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
-				var href = this.normalizeHref(data[id].href);
+				var href = self.normalizeHref(data[id].href);
 				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
 			});
 			
