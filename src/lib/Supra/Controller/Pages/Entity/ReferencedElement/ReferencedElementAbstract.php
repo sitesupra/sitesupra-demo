@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
-use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Exception;
 
 /**
  * @Entity
@@ -17,21 +17,10 @@ use Supra\ObjectRepository\ObjectRepository;
 abstract class ReferencedElementAbstract extends Entity
 {
 	/**
-	 * Temporary function while migrating from serialized block property metadata
+	 * Convert object to array
 	 * @return array
 	 */
-	public function toArray()
-	{
-		$array = get_object_vars($this);
-		foreach ($array as $key => $element) {
-			if ($element instanceof Entity) {
-				$array[$key . '_id'] = $element->getId();
-				unset($array[$key]);
-			}
-		}
-		
-		return $array;
-	}
+	abstract public function toArray();
 	
 	/**
 	 * @FIXME: should move to CMS
@@ -44,36 +33,22 @@ abstract class ReferencedElementAbstract extends Entity
 		switch ($array['type']) {
 			case 'link':
 				$element = new LinkReferencedElement();
-				$element->setResource($array['resource']);
-				$element->setTitle($array['title']);
-				
-				switch ($array['resource']) {
-					case 'page':
-						$element->setPageId($array['page_id']);
-						break;
-					case 'file':
-						$element->setFileId($array['file_id']);
-						break;
-					case 'link':
-						$element->setHref($array['href']);
-						break;
-					default:
-						throw new \Supra\Controller\Pages\Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
-				}
+				$element->fillArray($array);
 				break;
 			case 'image':
 				$element = new ImageReferencedElement();
-				$element->setAlign($array['align']);
-				$element->setStyle($array['style']);
-				$element->setWidth($array['size_width']);
-				$element->setHeight($array['size_height']);
-				$element->setAlternativeText($array['title']);
-				$element->setImageId($array['image']);
+				$element->fillArray($array);
 				break;
 			default:
-				throw new \Supra\Controller\Pages\Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
+				throw new Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
 		}
 		
 		return $element;
 	}
+	
+	/**
+	 * Set properties from array
+	 * @param array $array
+	 */
+	abstract protected function fillArray(array $array);
 }

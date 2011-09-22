@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Controller\Pages\Entity;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -35,18 +36,18 @@ class ParsedHtmlFilter implements FilterInterface
 	/**
 	 * Parse supra.link
 	 * @param string $content
-	 * @param array $data
+	 * @param Entity\ReferencedElement\LinkReferencedElement $link
 	 * @return string
 	 */
-	private function parseSupraLink($content, $data)
+	private function parseSupraLink($content, Entity\ReferencedElement\LinkReferencedElement $link)
 	{
 		$url = null;
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeId = $localeManager->getCurrent()->getId();
 
-		switch ($data['resource']) {
+		switch ($link->getResource()) {
 			case 'page':
-				$pageId = $data['page_id'];
+				$pageId = $link->getPageId();
 
 				$em = ObjectRepository::getEntityManager($this);
 
@@ -73,7 +74,7 @@ class ParsedHtmlFilter implements FilterInterface
 				break;
 			case 'file':
 
-				$fileId = $data['file_id'];
+				$fileId = $link->getFileId();
 				$fs = ObjectRepository::getFileStorage($this);
 				$em = $fs->getDoctrineEntityManager();
 				$file = $em->find('Supra\FileStorage\Entity\File', $fileId);
@@ -84,45 +85,45 @@ class ParsedHtmlFilter implements FilterInterface
 
 				break;
 			case 'link':
-				$url = $data['href'];
+				$url = $link->getHref();
 				break;
 
 			default:
-				$this->log->warn("Unrecognized resource for supra html markup link tag, data: ", $data);
+				$this->log->warn("Unrecognized resource for supra html markup link tag, data: ", $link);
 		}
 
-		$target = $data['target'];
-		$title = $data['title'];
+		$target = $link->getTarget();
+		$title = $link->getTitle();
 
 		$attributes = array(
-			'target' => $target,
-			'title' => $title,
+			'target' => $link->getTarget(),
+			'title' => $link->getTitle(),
 			'href' => $url
 		);
 
-		$text = '<a ';
+		$tag = new \Supra\Html\HtmlTag('a', $content);
 
 		foreach ($attributes as $attributeName => $attributeValue) {
 			if ($attributeValue != '') {
-				$text .= ' ' . $attributeName . '="' . htmlspecialchars($attributeValue) . '"';
+				$tag->setAttribure($attributeName, $attributeValue);
 			}
 		}
-
-		$text .= '>' . $content . '</a>';
 		
+		$text = $tag->toHtml();
+
 		return $text;
 	}
 	
 	/**
 	 * Parse supra.image
 	 * @param string $content
-	 * @param array $data
+	 * @param Entity\ReferencedElement\ImageReferencedElement $imageData
 	 * @return string
 	 */
-	private function parseSupraImage($content, $data)
+	private function parseSupraImage($content, Entity\ReferencedElement\ImageReferencedElement $imageData)
 	{
-		$text = null;
-		$imageId = $data['image'];
+		$html = null;
+		$imageId = $imageData->getImageId();
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
 		$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
@@ -131,49 +132,42 @@ class ParsedHtmlFilter implements FilterInterface
 			$this->log->warn("Image #{$imageId} has not been found");
 		} else {
 			//TODO: add other attributes as align, size, etc
-			$sizeName = null;
-			if ( ! empty($data['size_name'])) {
-				$sizeName = $data['size_name'];
-			}
+			$sizeName = $imageData->getSizeName();
 			$src = $fs->getWebPath($image, $sizeName);
-			$text = '<img src="' . htmlspecialchars($src) . '"';
+			
+			$tag = new \Supra\Html\HtmlTag('img');
+			$tag->setAttribure('src', $src);
 			
 			$classNames = array();
 			
-			if ( ! empty($data['align'])) {
-				$classNames[] = 'align-' . $data['align'];
+			$align = $imageData->getAlign();
+			if ( ! empty($align)) {
+				$tag->addClass('align-' . $align);
 			}
 			
-			if ( ! empty($data['style'])) {
-				$classNames[] = $data['style'];
+			$tag->addClass($imageData->getStyle());
+			
+			$width = $imageData->getWidth();
+			if ( ! empty($width)) {
+				$tag->setAttribure('width', $width);
 			}
 
-			if ( ! empty($data['size_width']) 
-				&& is_numeric($data['size_width'])
-			) {
-				$text .= ' width="' . $data['size_width'] . '"';
-			}
-
-			if ( ! empty($data['size_height'])
-				&& is_numeric($data['size_height'])
-			) {
-				$text .= ' height="' . $data['size_height'] . '"';
-			}
-
-			if ( ! empty($data['title'])) {
-				$text .= ' title="' . $data['title'] . '"';
-				$text .= ' alt="' . $data['title'] . '"';
+			$height = $imageData->getHeight();
+			if ( ! empty($height)) {
+				$tag->setAttribure('height', $height);
 			}
 			
-			if ( ! empty($classNames)) {
-				$classValue = implode(' ', $classNames);
-				$text .= ' class="' . htmlspecialchars($classValue) . '"';
+			//FIXME: now it applies for both – alt and title
+			$title = $imageData->getAlternativeText();
+			if ( ! empty($title)) {
+				$tag->setAttribure('title', $title);
+				$tag->setAttribure('alt', $title);
 			}
 			
-			$text .= ' />';
+			$html = $tag->toHtml();
 		}
 		
-		return $text;
+		return $html;
 	}
 	
 	/**
@@ -182,9 +176,10 @@ class ParsedHtmlFilter implements FilterInterface
 	 * @param array $valueData
 	 * @return string 
 	 */
-	protected function parseSupraMarkup($value, &$valueData)
+	protected function parseSupraMarkup($value, Collection $metadata)
 	{
 		//TODO: dummy replace for links, images only for now, must move to some filters, suppose like template engine extensions
+		//Also this doesn't allow nested tags, but there cannot be link inside the link so it's not a problem now.
 		$matches = array();
 		preg_match_all('/\{supra\.([^\s]+) id="(.*?)"\}((.*?)(\{\/supra\.\1\}))?/', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
@@ -200,20 +195,30 @@ class ParsedHtmlFilter implements FilterInterface
 			$id = $match[2][0];
 			$content = $match[4][0];
 			
-			$content = $this->parseSupraMarkup($content, $valueData);
+			// Case of image inside the link
+			$content = $this->parseSupraMarkup($content, $metadata);
 
-			$data = $valueData[$id];
+			$referencedElement = $metadata->get($id)
+					->getReferencedElement();
 			$text = '';
 
 			switch ($class) {
 				case 'link':
-					$text = $this->parseSupraLink($content, $data);
+					if ($referencedElement instanceof Entity\ReferencedElement\LinkReferencedElement) {
+						$text = $this->parseSupraLink($content, $referencedElement);
+					} else {
+						$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
+					}
 					break;
 				case 'image':
-					$text = $this->parseSupraImage($content, $data);
+					if ($referencedElement instanceof Entity\ReferencedElement\ImageReferencedElement) {
+						$text = $this->parseSupraImage($content, $referencedElement);
+					} else {
+						$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
+					}
 					break;
 				default:
-					$this->log->warn("Unrecognized supra html markup tag $class with data ", $data);
+					$this->log->warn("Unrecognized supra html markup tag {$class}-{$id} with data ", $referencedElement);
 			}
 
 			$result .= substr($value, $offset, $offsetInit - $offset);
@@ -234,9 +239,9 @@ class ParsedHtmlFilter implements FilterInterface
 	public function filter($content)
 	{
 		$value = $this->property->getValue();
-		$valueData = $this->property->getValueData();
+		$metadata = $this->property->getMetadata();
 		
-		$filteredValue = $this->parseSupraMarkup($value, $valueData);
+		$filteredValue = $this->parseSupraMarkup($value, $metadata);
 		
 		return $filteredValue;
 	}

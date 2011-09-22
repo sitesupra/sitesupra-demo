@@ -10,8 +10,6 @@ use Supra\FileStorage\Entity\File;
  */
 class LinkReferencedElement extends ReferencedElementAbstract
 {
-	protected $type = 'link';
-	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -28,6 +26,12 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @Column(type="string", nullable="true")
 	 * @var string
 	 */
+	protected $target;
+	
+	/**
+	 * @Column(type="string", nullable="true")
+	 * @var string
+	 */
 	protected $title;
 	
 	/**
@@ -36,7 +40,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @Column(type="string", nullable="true")
 	 * @var string
 	 */
-	protected $page_id;
+	protected $pageId;
 	
 	/**
 	 * File ID to keep link data without existant real file.
@@ -44,7 +48,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @Column(type="string", nullable="true")
 	 * @var string
 	 */
-	protected $file_id;
+	protected $fileId;
 	
 	/**
 	 * @return string
@@ -77,6 +81,22 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->href = $href;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getTarget()
+	{
+		return $this->target;
+	}
+
+	/**
+	 * @param string $target
+	 */
+	public function setTarget($target)
+	{
+		$this->target = $target;
+	}
 
 	/**
 	 * @return string
@@ -99,7 +119,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getPageId()
 	{
-		return $this->page_id;
+		return $this->pageId;
 	}
 
 	/**
@@ -107,7 +127,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setPageId($pageId)
 	{
-		$this->page_id = $pageId;
+		$this->pageId = $pageId;
 	}
 
 	/**
@@ -115,7 +135,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getFileId()
 	{
-		return $this->file_id;
+		return $this->fileId;
 	}
 
 	/**
@@ -123,7 +143,39 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setFileId($fileId)
 	{
-		$this->file_id = $fileId;
+		$this->fileId = $fileId;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$array = array(
+			'resource' => $this->resource,
+			'title' => $this->title,
+			'target' => $this->target,
+			'page_id' => $this->pageId,
+			'file_id' => $this->fileId,
+			'href' => $this->href,
+		);
+		
+		return $array;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param array $array
+	 */
+	protected function fillArray(array $array)
+	{
+		$this->resource = $array['resource'];
+		$this->title = $array['title'];
+		$this->target = $array['target'];
+		$this->pageId = $array['page_id'];
+		$this->fileId = $array['file_id'];
+		$this->href = $array['href'];
 	}
 
 }

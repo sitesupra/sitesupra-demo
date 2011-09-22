@@ -58,7 +58,7 @@ class BlockProperty extends Entity
 	
 	/**
 	 * Value additional data about links, images
-	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, fetch="EAGER")
+	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, fetch="EAGER", indexBy="name")
 	 * @var Collections\Collection
 	 */
 	protected $metadata;
@@ -196,8 +196,9 @@ class BlockProperty extends Entity
 		$valueData = array();
 		
 		/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-		foreach ($metadataCollection as $metadata) {
-			$valueData[$metadata->getName()] = $metadata->getReferencedElement()->toArray();
+		foreach ($metadataCollection as $name => $metadata) {
+			$valueData[$name] = $metadata->getReferencedElement()
+					->toArray();
 		}
 		
 		return $valueData;

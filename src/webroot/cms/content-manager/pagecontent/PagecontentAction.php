@@ -160,7 +160,7 @@ class PagecontentAction extends PageManagerAction
 		$blockProperty->setValue($value);
 		
 		foreach ($valueData as $elementName => &$elementData) {
-			$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData, $this);
+			$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 			
 			$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
 			$blockProperty->addMetadata($blockPropertyMetadata);

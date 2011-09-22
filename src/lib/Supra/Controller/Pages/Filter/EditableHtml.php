@@ -23,18 +23,9 @@ class EditableHtml extends ParsedHtmlFilter
 	public function filter($content)
 	{
 		$value = $this->property->getValue();
+		$metadata = $this->property->getMetadata();
 		
-		$metadataCollection = $this->property->getMetadata();
-		
-		//FIXME: Temporary before switching to referenced elements completely
-		$valueData = array();
-		
-		/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-		foreach ($metadataCollection as $metadata) {
-			$valueData[$metadata->getName()] = $metadata->getReferencedElement()->toArray();
-		}
-		
-		$content = $this->parseSupraMarkup($value, $valueData);
+		$content = $this->parseSupraMarkup($value, $metadata);
 		
 		$propertyName = $this->property->getName();
 			

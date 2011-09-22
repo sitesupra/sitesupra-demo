@@ -9,15 +9,13 @@ use Supra\FileStorage\Entity\Image;
  */
 class ImageReferencedElement extends ReferencedElementAbstract
 {
-	protected $type = 'image';
-	
 	/**
 	 * Image ID to keep link data without existant real image.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
 	 * @Column(type="string", nullable="true")
 	 * @var string
 	 */
-	protected $image;
+	protected $imageId;
 	
 	/**
 	 * @Column(type="string", nullable="true")
@@ -54,7 +52,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getImageId()
 	{
-		return $this->image;
+		return $this->imageId;
 	}
 
 	/**
@@ -62,7 +60,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setImageId($imageId)
 	{
-		$this->image = $imageId;
+		$this->imageId = $imageId;
 	}
 
 	/**
@@ -143,6 +141,39 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	public function setAlternativeText($alternativeText)
 	{
 		$this->alternativeText = $alternativeText;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function toArray()
+	{
+		$array = array(
+			'type' => 'image',
+			'image' => $this->imageId,
+			'align' => $this->align,
+			'style' => $this->style,
+			'size_width' => $this->width,
+			'size_height' => $this->height,
+			'title' => $this->alternativeText,
+		);
+		
+		return $array;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param array $array
+	 */
+	protected function fillArray(array $array)
+	{
+		$this->imageId = $array['image'];
+		$this->align = $array['align'];
+		$this->style = $array['style'];
+		$this->width = $array['size_width'];
+		$this->height = $array['size_height'];
+		$this->alternativeText = $array['title'];
 	}
 
 }
