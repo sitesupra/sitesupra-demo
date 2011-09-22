@@ -10,8 +10,10 @@ use Supra\FileStorage\Entity\Image;
 class ImageReferencedElement extends ReferencedElementAbstract
 {
 	/**
-	 * @ManyToOne(targetEntity="Supra\FileStorage\Entity\Image")
-	 * @var Image
+	 * Image ID to keep link data without existant real image.
+	 * SQL naming for CMS usage, should be fixed (FIXME).
+	 * @Column(type="string", nullable="true")
+	 * @var string
 	 */
 	protected $image;
 	
@@ -46,19 +48,19 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $alternativeText;
 	
 	/**
-	 * @return Image
+	 * @return string
 	 */
-	public function getImage()
+	public function getImageId()
 	{
 		return $this->image;
 	}
 
 	/**
-	 * @param Image $image
+	 * @param string $imageId
 	 */
-	public function setImage(Image $image)
+	public function setImageId($imageId)
 	{
-		$this->image = $image;
+		$this->image = $imageId;
 	}
 
 	/**

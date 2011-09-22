@@ -17,7 +17,7 @@ class CmsController extends DistributedController
 	 * Page manager is the default action
 	 * @var string
 	 */
-	protected static $defaultAction = 'content-manager';
+	protected $defaultAction = 'content-manager';
 	
 	/**
 	 * @TODO: Extended with DEV static files, will be removed later

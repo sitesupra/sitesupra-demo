@@ -58,7 +58,7 @@ class BlockProperty extends Entity
 	
 	/**
 	 * Value additional data about links, images
-	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"})
+	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, fetch="EAGER")
 	 * @var Collections\Collection
 	 */
 	protected $metadata;

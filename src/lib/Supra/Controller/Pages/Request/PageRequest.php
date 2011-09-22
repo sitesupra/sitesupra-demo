@@ -518,7 +518,7 @@ abstract class PageRequest extends HttpRequest
 		
 		$page = $this->getPage();
 
-		// Loop generates condition for 
+		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
 			$master = null;
 			

@@ -36,12 +36,6 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getData()
     {
         $this->__load();
@@ -52,6 +46,24 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
     {
         $this->__load();
         return parent::setData($data);
+    }
+
+    public function getMetadata()
+    {
+        $this->__load();
+        return parent::getMetadata();
+    }
+
+    public function resetMetadata()
+    {
+        $this->__load();
+        return parent::resetMetadata();
+    }
+
+    public function addMetadata(\Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract $metadata)
+    {
+        $this->__load();
+        return parent::addMetadata($metadata);
     }
 
     public function getBlock()
@@ -120,6 +132,12 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
         return parent::setEditable($editable);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -153,7 +171,7 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'data', 'block', 'type', 'name', 'value', 'valueData');
+        return array('__isInitialized__', 'data', 'block', 'type', 'name', 'value', 'valueData', 'metadata', 'id');
     }
 
     public function __clone()

@@ -29,16 +29,20 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	protected $title;
 	
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Page")
-	 * @var Page
+	 * Page ID to keep link data without existant real page.
+	 * SQL naming for CMS usage, should be fixed (FIXME).
+	 * @Column(type="string", nullable="true")
+	 * @var string
 	 */
-	protected $page;
+	protected $page_id;
 	
 	/**
-	 * @ManyToOne(targetEntity="Supra\FileStorage\Entity\File")
-	 * @var File
+	 * File ID to keep link data without existant real file.
+	 * SQL naming for CMS usage, should be fixed (FIXME).
+	 * @Column(type="string", nullable="true")
+	 * @var string
 	 */
-	protected $file;
+	protected $file_id;
 	
 	/**
 	 * @return string
@@ -89,35 +93,35 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @return Page
+	 * @return string
 	 */
-	public function getPage()
+	public function getPageId()
 	{
-		return $this->page;
+		return $this->page_id;
 	}
 
 	/**
-	 * @param Page $page
+	 * @param string $pageId
 	 */
-	public function setPage(Page $page)
+	public function setPageId($pageId)
 	{
-		$this->page = $page;
+		$this->page_id = $pageId;
 	}
 
 	/**
-	 * @return File
+	 * @return string
 	 */
-	public function getFile()
+	public function getFileId()
 	{
-		return $this->file;
+		return $this->file_id;
 	}
 
 	/**
-	 * @param File $file
+	 * @param string $fileId
 	 */
-	public function setFile(File $file)
+	public function setFileId($fileId)
 	{
-		$this->file = $file;
+		$this->file_id = $fileId;
 	}
 
 }

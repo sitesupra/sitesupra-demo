@@ -14,7 +14,13 @@ abstract class SimpleController extends ControllerAbstraction
 	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'index';
+	protected $defaultAction = 'index';
+	
+	/**
+	 * Action to use if no appropriate action is found
+	 * @var string
+	 */
+	protected $notFoundAction = null;
 
 	/**
 	 * Executes the controller
@@ -43,8 +49,7 @@ abstract class SimpleController extends ControllerAbstraction
 			unset($action);
 		}
 
-		$method = implode('', $actions) . 'Action';
-		$method = lcfirst($method);
+		$method = $this->getMethodName($actions);
 
 		\Log::debug('Method: ', $method);
 
@@ -52,11 +57,32 @@ abstract class SimpleController extends ControllerAbstraction
 		
 		// TODO: do case sensitive method name search
 		if ( ! in_array($method, $methods)) {
+			
+			// If not found action set, call it by passing all original actions
+			if ( ! empty($this->notFoundAction)) {
+				$notFoundMethod = $this->getMethodName($this->notFoundAction);
+				
+				if (in_array($notFoundMethod, $methods)) {
+					$this->$notFoundMethod($actions);
+					
+					return;
+				}
+			}
+			
 			$className = get_class($this);
 			throw new Exception\ResourceNotFoundException("Method '{$method}' doesn't exist for class '{$className}'");
 		}
 		
 		$this->$method();
+	}
+	
+	private function getMethodName($actions)
+	{
+		$actions = (array) $actions;
+		$method = implode('', $actions) . 'Action';
+		$method = lcfirst($method);
+		
+		return $method;
 	}
 
 	/**

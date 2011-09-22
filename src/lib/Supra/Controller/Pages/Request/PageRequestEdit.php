@@ -32,13 +32,13 @@ class PageRequestEdit extends PageRequest
 			return;
 		}
 		
-		$pageData = $this->getRequestPageData();
+		$draftData = $this->getRequestPageData();
 		
-		$pageId = $pageData->getMaster()->getId();
-		$localeId = $pageData->getLocale();
-		$pageDataId = $pageData->getId();
+		$pageId = $draftData->getMaster()->getId();
+		$localeId = $draftData->getLocale();
+//		$pageDataId = $draftData->getId();
 
-		$draftPage = $pageData->getMaster();
+		$draftPage = $draftData->getMaster();
 		
 		/*
 		 * NB!
@@ -53,14 +53,14 @@ class PageRequestEdit extends PageRequest
 			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
 		}
 
-		$pageData = $publicEm->merge($pageData);
-		$pageData->setMaster($publicPage);
+		$publicData = $publicEm->merge($draftData);
+		$publicData->setMaster($publicPage);
 
 		// 1. Get all blocks to be copied
-		$draftBlocks = $this->getBlocksInPage($draftEm, $pageData);
+		$draftBlocks = $this->getBlocksInPage($draftEm, $publicData);
 
 		// 2. Get all blocks existing in public
-		$existentBlocks = $this->getBlocksInPage($publicEm, $pageData);
+		$existentBlocks = $this->getBlocksInPage($publicEm, $publicData);
 
 		// 3. Remove blocks in 2, not in 1, remove all referencing block properties first
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
@@ -89,7 +89,8 @@ class PageRequestEdit extends PageRequest
 		}
 
 		// 6. Get properties to be copied (of a. self and b. template)
-		$draftProperties = $this->getBlockPropertySet();
+		$draftProperties = $this->getBlockPropertySet()
+				->getPageProperties($draftData);
 
 		// 7. For properties 5b get block, placeholder IDs, check their existance in public, get not existant
 		$missingBlockIdList = array();
@@ -138,7 +139,15 @@ class PageRequestEdit extends PageRequest
 			$block->setTemporary(true);
 		}
 
-		// 10. Merge all properties from 5
+		// 10. Clear all property metadata on the public going to be merged
+		//TODO: remove reference elements as well!
+		$propertyIdList = $draftProperties->collectIds();
+		$qb = $publicEm->createQueryBuilder();
+		$qb->delete(Entity\BlockPropertyMetadata::__CLASSNAME__(), 'r')
+				->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+				->getQuery()->execute();
+		
+		// 11. Merge all properties from 5
 		foreach ($draftProperties as $property) {
 			$publicEm->merge($property);
 		}

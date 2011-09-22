@@ -22,7 +22,15 @@ abstract class ReferencedElementAbstract extends Entity
 	 */
 	public function toArray()
 	{
-		return get_object_vars($this);
+		$array = get_object_vars($this);
+		foreach ($array as $key => $element) {
+			if ($element instanceof Entity) {
+				$array[$key . '_id'] = $element->getId();
+				unset($array[$key]);
+			}
+		}
+		
+		return $array;
 	}
 	
 	/**
@@ -41,12 +49,10 @@ abstract class ReferencedElementAbstract extends Entity
 				
 				switch ($array['resource']) {
 					case 'page':
-						$element->setPage(ObjectRepository::getEntityManager($caller)
-								->find('Supra\Controller\Pages\Entity\Page', $array['page_id']));
+						$element->setPageId($array['page_id']);
 						break;
 					case 'file':
-						$element->setFile(ObjectRepository::getEntityManager($caller)
-								->find('Supra\FileStorage\Entity\File', $array['file_id']));
+						$element->setFileId($array['file_id']);
 						break;
 					case 'link':
 						$element->setHref($array['href']);
@@ -62,8 +68,7 @@ abstract class ReferencedElementAbstract extends Entity
 				$element->setWidth($array['size_width']);
 				$element->setHeight($array['size_height']);
 				$element->setAlternativeText($array['title']);
-				$element->setImage(ObjectRepository::getEntityManager($caller)
-						->find('Supra\FileStorage\Entity\Image', $array['image']));
+				$element->setImageId($array['image']);
 				break;
 			default:
 				throw new \Supra\Controller\Pages\Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));

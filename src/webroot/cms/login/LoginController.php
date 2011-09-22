@@ -19,7 +19,7 @@ class LoginController extends SimpleController
 	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'index';
+	protected $defaultAction = 'index';
 
 	public function indexAction()
 	{

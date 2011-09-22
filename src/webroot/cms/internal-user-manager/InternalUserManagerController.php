@@ -16,10 +16,11 @@ use Symfony\Component\Security\Acl\Permission\MaskBuilder;
  */
 class InternalUserManagerController extends DistributedController implements AuthorizedControllerInterface
 {
-	 /** Default action when no action is provided
+	/** 
+	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'root';
+	protected $defaultAction = 'root';
 	
 	public function getPermissionTypes() 
 	{

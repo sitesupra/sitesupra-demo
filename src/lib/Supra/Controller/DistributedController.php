@@ -21,7 +21,7 @@ abstract class DistributedController extends ControllerAbstraction
 	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'Index';
+	protected $defaultAction = 'Index';
 	
 	/**
 	 * Must provide the base namespace, taken from the current class name
@@ -55,7 +55,7 @@ abstract class DistributedController extends ControllerAbstraction
 		$action = $request->getActions(1);
 
 		\Log::debug('Action: ', $action);
-		$baseAction = static::$defaultAction;
+		$baseAction = $this->defaultAction;
 
 		if ( ! empty($action)) {
 			$baseAction = $action[0];

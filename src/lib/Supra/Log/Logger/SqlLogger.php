@@ -69,10 +69,10 @@ class SqlLogger implements SQLLoggerInterface
 		$this->start = microtime(true);
 		
 		// Enable when you need to know the parameters, will fail for DateTime objects
-//		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n");
+		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n");
 		
-		$subject = "Query\n{$this->sql}\n";
-		$this->log($subject);
+//		$subject = "Query\n{$this->sql}\n";
+//		$this->log($subject);
 	}
 
 	/**

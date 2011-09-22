@@ -16,7 +16,7 @@ class LogoutController extends SimpleController
 	 * Default action when no action is provided
 	 * @var string
 	 */
-	protected static $defaultAction = 'index';
+	protected $defaultAction = 'index';
 	
 	/**
 	 * Login page path
