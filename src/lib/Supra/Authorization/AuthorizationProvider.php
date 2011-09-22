@@ -57,7 +57,7 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), $object->getAuthorizationClass());
 		}
 		else {
-			throw new Exception('Do not know how to get object identity from ' . get_class($object));
+			throw new \RuntimeException('Do not know how to get object identity from ' . get_class($object));
 		}
 		
 		return $objectIdentity;
@@ -96,11 +96,11 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 
 			$userSecurityIdentity = $this->getUserSecurityIdentity($user);
 			
-			if (
-				$permission == PermissionStatus::ALLOW && 
-				$this->getPermissionStatus($user, $object, $permissionType) == PermissionStatus::DENY
-			) {
+			if ( $permission == PermissionStatus::ALLOW) { 
+				
+				if( $this->getPermissionStatus($user, $object, $permissionType) == PermissionStatus::DENY ) {
 					$acl->insertObjectAce($userSecurityIdentity, $permissionType->getMask());
+				}
 			}
 			else if ($permission == PermissionStatus::DENY) {
 				
@@ -116,13 +116,13 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			}
 			else {
 				
-				throw new Exception('Bad permission value! use constants from AuthorizationPermission class!');
+				throw new \RuntimeException('Bad permission value! use constants from AuthorizationPermission class!');
 			}
 			
 			$this->aclProvider->updateAcl($acl);
 		}
 		else {
-			throw Exception('Could not create ACL for this authorizationIdentity');
+			throw \RuntimeException('Could not create ACL for this authorizationIdentity');
 		}
 	}
 
@@ -309,7 +309,7 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			return $object->getPermissionTypes();
 		}
 		else {
-			throw new Exception('Do not know how to get permission types from ' . get_class($object));
+			throw new \RuntimeException('Do not know how to get permission types from ' . get_class($object));
 		}		
 	}
 	
@@ -366,8 +366,7 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			return $permissionTypes[$permissionTypeName];
 		}
 		else {
-			throw new Exception('Object does not have permission named ' . $permissionTypeName);
+			throw new \RuntimeException('Object does not have permission named ' . $permissionTypeName);
 		}
 	}
-	
 }

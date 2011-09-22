@@ -32,12 +32,12 @@ class Fixture extends \PHPUnit_Framework_TestCase
 	
 	function setUp() 
 	{
-		$this->em = ObjectRepository::getEntityManager($this);
+		$this->em = ObjectRepository::getEntityManager('');
 		
-		$this->up = ObjectRepository::getUserProvider($this);
+		$this->up = ObjectRepository::getUserProvider('');
 
 		$this->ap = new AuthorizationProvider(
-			ObjectRepository::getEntityManager($this),
+			ObjectRepository::getEntityManager(''),
 			array(
 				'class_table_name'         => 'acl_classes',
 				'entry_table_name'         => 'acl_entries',
@@ -54,18 +54,34 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
 
 		$authenticationSessionNamespace = $sessionNamespaceManager
-			->getOrCreateSessionNamespace('Cms', 'Project\Authenticate\AuthenticateSessionNamespace');
+			->getOrCreateSessionNamespace('Cms', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
 
 		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
 	}
 	
 	function testFixture()
 	{
-		$adminUser = $this->up->findUserByLogin('admin');
-						
+		$adminUserName = 'admin';
+		
+		$adminUser = $this->up->findUserByLogin($adminUserName);
+		
+		if( empty($adminUser)) {
+			
+			$name = $adminUserName;
+
+			$adminUser = new \Supra\User\Entity\User();
+			$this->em->persist($adminUser);
+
+			$adminUser->setName($adminUserName);
+			$adminUser->resetSalt();
+			$adminUser->setEmail($adminUserName . '@' . $adminUserName . '.com');
+
+			$this->up->getAuthAdapter()->credentialChange($adminUser, $adminUserName);
+			$this->em->flush();		
+		}
+		
 		$controller = new \Supra\Cms\InternalUserManager\InternalUserManagerController();
 		
 		$this->ap->grantControllerAllAccessPermission($adminUser, $controller);
-		
 	}
 }
