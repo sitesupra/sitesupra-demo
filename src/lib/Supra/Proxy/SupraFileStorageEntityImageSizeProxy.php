@@ -144,22 +144,16 @@ class SupraFileStorageEntityImageSizeProxy extends \Supra\FileStorage\Entity\Ima
         return parent::getCropMode();
     }
 
-    public function getProperty($name)
+    public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
-        return parent::getProperty($name);
+        return parent::equals($entity);
     }
 
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
-    }
-
-    public function equals(\Supra\FileStorage\Entity\Abstraction\Entity $entity)
-    {
-        $this->__load();
-        return parent::equals($entity);
     }
 
 

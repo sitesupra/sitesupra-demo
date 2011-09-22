@@ -174,6 +174,36 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::setNestedSetNode($nestedSetNode);
     }
 
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
+    {
+        $this->__load();
+        return parent::authorize($user, $permissionType);
+    }
+
+    public function getPermissionTypes()
+    {
+        $this->__load();
+        return parent::getPermissionTypes();
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors($includeSelf = true)
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors($includeSelf);
+    }
+
     public function getId()
     {
         $this->__load();
@@ -198,16 +228,16 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
-    }
-
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
-    {
-        $this->__load();
-        return parent::equals($entity);
     }
 
 

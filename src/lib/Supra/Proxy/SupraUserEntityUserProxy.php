@@ -54,6 +54,18 @@ class SupraUserEntityUserProxy extends \Supra\User\Entity\User implements \Doctr
         return parent::setPassword($password);
     }
 
+    public function getLogin()
+    {
+        $this->__load();
+        return parent::getLogin();
+    }
+
+    public function setLogin($login)
+    {
+        $this->__load();
+        return parent::setLogin($login);
+    }
+
     public function getEmail()
     {
         $this->__load();
@@ -153,7 +165,7 @@ class SupraUserEntityUserProxy extends \Supra\User\Entity\User implements \Doctr
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'createdTime', 'modifiedTime', 'password', 'email', 'group', 'lastLoginTime', 'active', 'salt');
+        return array('__isInitialized__', 'id', 'name', 'createdTime', 'modifiedTime', 'password', 'login', 'email', 'group', 'lastLoginTime', 'active', 'salt');
     }
 
     public function __clone()

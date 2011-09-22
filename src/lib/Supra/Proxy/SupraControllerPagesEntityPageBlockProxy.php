@@ -54,12 +54,6 @@ class SupraControllerPagesEntityPageBlockProxy extends \Supra\Controller\Pages\E
         return parent::setPlaceHolder($placeHolder);
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getComponentClass()
     {
         $this->__load();
@@ -132,6 +126,12 @@ class SupraControllerPagesEntityPageBlockProxy extends \Supra\Controller\Pages\E
         return parent::executeController($controller);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -150,22 +150,22 @@ class SupraControllerPagesEntityPageBlockProxy extends \Supra\Controller\Pages\E
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
-    {
-        $this->__load();
-        return parent::equals($entity);
-    }
-
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked');
+        return array('__isInitialized__', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked', 'id');
     }
 
     public function __clone()

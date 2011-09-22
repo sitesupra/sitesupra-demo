@@ -144,12 +144,6 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::unsetScheduleTime();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getLocale()
     {
         $this->__load();
@@ -180,6 +174,42 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::getMaster();
     }
 
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
+    {
+        $this->__load();
+        return parent::authorize($user, $permissionType);
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors($includingSelf = true)
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors($includingSelf);
+    }
+
+    public function getPermissionTypes()
+    {
+        $this->__load();
+        return parent::getPermissionTypes();
+    }
+
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -198,22 +228,22 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
-    {
-        $this->__load();
-        return parent::equals($entity);
-    }
-
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'master', 'template', 'path', 'pathPart', 'metaDescription', 'metaKeywords', 'active', 'scheduleTime');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'id', 'template', 'path', 'pathPart', 'metaDescription', 'metaKeywords', 'active', 'scheduleTime');
     }
 
     public function __clone()

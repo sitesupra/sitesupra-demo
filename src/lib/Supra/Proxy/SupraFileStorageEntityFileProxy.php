@@ -240,13 +240,37 @@ class SupraFileStorageEntityFileProxy extends \Supra\FileStorage\Entity\File imp
         return parent::setNestedSetNode($nestedSetNode);
     }
 
-    public function getProperty($name)
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
     {
         $this->__load();
-        return parent::getProperty($name);
+        return parent::authorize($user, $permissionType);
     }
 
-    public function equals(\Supra\FileStorage\Entity\Abstraction\Entity $entity)
+    public function getPermissionTypes()
+    {
+        $this->__load();
+        return parent::getPermissionTypes();
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors($includeSelf = true)
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors($includeSelf);
+    }
+
+    public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
         return parent::equals($entity);

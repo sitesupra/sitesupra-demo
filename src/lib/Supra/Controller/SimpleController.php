@@ -33,7 +33,7 @@ abstract class SimpleController extends ControllerAbstraction
 		\Log::debug('Actions: ', $actions);
 
 		if (empty($actions)) {
-			$actions = array(static::$defaultAction);
+			$actions = array($this->defaultAction);
 		} else {
 			
 			// Normalize name

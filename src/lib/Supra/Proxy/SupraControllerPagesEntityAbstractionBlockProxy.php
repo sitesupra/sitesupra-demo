@@ -150,16 +150,16 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
-    }
-
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
-    {
-        $this->__load();
-        return parent::equals($entity);
     }
 
 

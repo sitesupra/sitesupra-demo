@@ -36,12 +36,6 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function setFile($file)
     {
         $this->__load();
@@ -78,6 +72,12 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
         return parent::getContent();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function getProperty($name)
     {
         $this->__load();
@@ -96,22 +96,22 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
     public function __toString()
     {
         $this->__load();
         return parent::__toString();
     }
 
-    public function equals(\Supra\Controller\Pages\Entity\Abstraction\Entity $entity = NULL)
-    {
-        $this->__load();
-        return parent::equals($entity);
-    }
-
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'file', 'placeHolders');
+        return array('__isInitialized__', 'file', 'placeHolders', 'id');
     }
 
     public function __clone()
