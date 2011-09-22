@@ -56,6 +56,9 @@ $loader->registerNamespace($symfonyNamespace);
 require_once SUPRA_LIBRARY_PATH . 'Twig' . DIRECTORY_SEPARATOR . 'Autoloader.php';
 Twig_Autoloader::register();
 
+// Swift autoloader, FIXME
+require_once SUPRA_LIBRARY_PATH . 'Swift' . DIRECTORY_SEPARATOR . 'swift_required.php';
+
 $loader->registerSystemAutoload();
 
 // Set the initial timezone to the logger

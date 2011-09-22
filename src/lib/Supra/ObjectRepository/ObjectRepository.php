@@ -10,7 +10,9 @@ use Supra\Session\SessionNamespace;
 use Supra\Session\SessionNamespaceManager;
 use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
+use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
+
 /**
  * Object repository
  */
@@ -25,6 +27,7 @@ class ObjectRepository
 	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionNamespaceManager';		
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
 	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
+	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
 	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
 
 	/**
@@ -369,7 +372,38 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_LOCALE_MANAGER);
 	}
-	
+
+	/**
+	 * Assign mailer instance to caller class
+	 *
+	 * @param mixed $caller
+	 * @param Mailer $object
+	 */
+	public static function setMailer($caller, Mailer $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_MAILER);
+	}
+
+	/**
+	 * Set default mailer
+	 *
+	 * @param Mailer $object 
+	 */
+	public static function setDefaultMailer(Mailer $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MAILER);
+	}
+
+	/**
+	 * Get assigned mailer
+	 *
+	 * @param mixed $caller
+	 * @return Mailer
+	 */
+	public static function getMailer($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_MAILER);
+	}
 	
 	/**
 	 * Get assigned locale manager
@@ -402,4 +436,5 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
 	}	
+	
 }

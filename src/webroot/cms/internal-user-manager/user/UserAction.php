@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManager;
 use Supra\User\Exception;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Mailer\Message\TwigMessage;
 
 /**
  * Sitemap
@@ -127,15 +129,19 @@ class UserAction extends InternalUserManagerAbstractAction
 				't' => $expTime,
 				'h' => $hash,
 					));
-			$link = $url . '?' . $query;
 
-			$subject = 'Password recovery';
-			$message = 'Go to ' . $link;
+			$mailVars = array(
+				'link' => $url . '?' . $query
+			);
 
-			$headers = 'From: admin@supra7.vig' . "\r\n" .
-					'X-Mailer: PHP/' . phpversion();
-
-			mail($userMail, $subject, $message, $headers);
+			$mailer = ObjectRepository::getMailer($this);
+			$message = new TwigMessage();
+			// FIXME: from address should not be hardcoded here etc.
+			$message->setSubject('Password recovery')
+					->setFrom('admin@supra7.vig')
+					->setTo($userMail)
+					->setBody('resetpassword.twig', $mailVars);
+			$mailer->send($message);
 
 			$this->getResponse()->setResponseData(null);
 		} else {
@@ -188,15 +194,19 @@ class UserAction extends InternalUserManagerAbstractAction
 				't' => $expTime,
 				'h' => $hash,
 			));
-			$link = $url . '?' . $query;
 
-			$subject = 'Account created. Set your password';
-			$message = 'Your account is created. Go to ' . $link . ' to set your password.';
+			$mailVars = array(
+				'link' => $url . '?' . $query
+			);
 
-			$headers = 'From: admin@supra7.vig' . "\r\n" .
-					'X-Mailer: PHP/' . phpversion();
-
-			mail($userMail, $subject, $message, $headers);
+			$mailer = ObjectRepository::getMailer($this);
+			$message = new TwigMessage();
+			// FIXME: from address should not be hardcoded here etc.
+			$message->setSubject('Account created. Set your password')
+					->setFrom('admin@supra7.vig')
+					->setTo($userMail)
+					->setBody('createpassword.twig', $mailVars);
+			$mailer->send($message);
 			
 			$this->entityManager->flush();
 
