@@ -159,7 +159,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 */
 		normalizeHref: function (href) {
 			var domain = document.location.protocol + '//' + document.location.host;
-			return href.replace(domain, '') || '/';
+			return String(href || '').replace(domain, '') || '/';
 		},
 		
 		/**
