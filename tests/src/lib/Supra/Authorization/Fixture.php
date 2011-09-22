@@ -32,12 +32,12 @@ class Fixture extends \PHPUnit_Framework_TestCase
 	
 	function setUp() 
 	{
-		$this->em = ObjectRepository::getEntityManager('');
+		$this->em = ObjectRepository::getEntityManager('Supra\Tests');
 		
-		$this->up = ObjectRepository::getUserProvider('');
+		$this->up = ObjectRepository::getUserProvider('Supra\Tests');
 
 		$this->ap = new AuthorizationProvider(
-			ObjectRepository::getEntityManager(''),
+			$this->em,
 			array(
 				'class_table_name'         => 'acl_classes',
 				'entry_table_name'         => 'acl_entries',
@@ -54,7 +54,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
 
 		$authenticationSessionNamespace = $sessionNamespaceManager
-			->getOrCreateSessionNamespace('Cms', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
+			->getOrCreateSessionNamespace('Supra\Tests', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
 
 		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
 	}
@@ -67,8 +67,6 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		
 		if( empty($adminUser)) {
 			
-			$name = $adminUserName;
-
 			$adminUser = new \Supra\User\Entity\User();
 			$this->em->persist($adminUser);
 
@@ -81,7 +79,9 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		}
 		
 		$controller = new \Supra\Cms\InternalUserManager\InternalUserManagerController();
-		
 		$this->ap->grantControllerAllAccessPermission($adminUser, $controller);
+		
+		//$controller = new \Supra\Cms\ContentManager\ContentManagerController();
+		//$this->ap->grantControllerAllAccessPermission($adminUser, $controller);
 	}
 }
