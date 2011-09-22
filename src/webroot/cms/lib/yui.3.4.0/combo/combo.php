@@ -56,7 +56,7 @@ function getEtag($files)
 	$times[] = filemtime(__FILE__);
 	foreach ($files as $k => $file) {
 		if (@is_file($pre.$file)) {
-			$times[] = filemtime($file);
+			$times[] = filemtime($pre.$file);
 		}
 	}
 	return md5(implode(',', $times));
