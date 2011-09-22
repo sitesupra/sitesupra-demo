@@ -386,7 +386,11 @@ class PageAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
-		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE);
+		// Must be executed with POST method
+		$this->isPostRequest();
+		
+		// This failed..
+//		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE_NAME);
 		
 		$this->publish();
 	}

@@ -18,6 +18,14 @@ $cache = false;
 $pre = '../../../../';
 $tag = '';
 $version = '3.4.0';
+
+$eTag = getEtag($files);
+header('ETag: ' . $eTag);
+if ($eTag === $_SERVER['HTTP_IF_NONE_MATCH']) {
+	header('HTTP/1.0 304 Not Modified');
+	die();
+}
+
 $out = $cache ? getCache($sha1) : '';
 
 if (!$out) {
@@ -39,6 +47,19 @@ function getCache($sha1) {
         }
     }
     return $out;
+}
+
+function getEtag($files)
+{
+	global $pre;
+	$times = array();
+	$times[] = filemtime(__FILE__);
+	foreach ($files as $k => $file) {
+		if (@is_file($pre.$file)) {
+			$times[] = filemtime($file);
+		}
+	}
+	return md5(implode(',', $times));
 }
 
 function writeFiles($files, $sha1) {
@@ -78,11 +99,8 @@ if (strpos($files[0], '.css') !== false) {
 	header('Content-Type: application/x-javascript');
 }
 
-header('Cache-Control: max-age=315360000');
-header('Expires: '.date('r', time() + (60 * 60 * 24 * 365 * 10)));
-header('Age: 0');
+//header('Cache-Control: max-age=315360000');
+//header('Expires: '.date('r', time() + (60 * 60 * 24 * 365 * 10)));
+//header('Age: 0');
 echo($out);
 exit;
-
-?>
-

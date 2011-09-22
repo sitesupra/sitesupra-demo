@@ -9,6 +9,8 @@ use Supra\FileStorage\Entity\Image;
  */
 class ImageReferencedElement extends ReferencedElementAbstract
 {
+	protected $type = 'image';
+	
 	/**
 	 * Image ID to keep link data without existant real image.
 	 * SQL naming for CMS usage, should be fixed (FIXME).

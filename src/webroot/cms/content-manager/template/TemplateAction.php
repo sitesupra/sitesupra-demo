@@ -115,6 +115,9 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
+		// Must be executed with POST method
+		$this->isPostRequest();
+		
 		$this->publish();
 	}
 

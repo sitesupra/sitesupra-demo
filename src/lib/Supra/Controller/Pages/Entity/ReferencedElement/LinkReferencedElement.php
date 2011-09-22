@@ -10,6 +10,8 @@ use Supra\FileStorage\Entity\File;
  */
 class LinkReferencedElement extends ReferencedElementAbstract
 {
+	protected $type = 'link';
+	
 	/**
 	 * @Column(type="string")
 	 * @var string

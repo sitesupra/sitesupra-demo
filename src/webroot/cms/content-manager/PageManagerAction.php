@@ -249,9 +249,6 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function publish()
 	{
-		// Must be executed with POST method
-		$this->isPostRequest();
-		
 		$controller = $this->getPageController();
 		$publicEm = ObjectRepository::getEntityManager($controller);
 		
