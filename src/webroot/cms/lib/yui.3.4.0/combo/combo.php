@@ -21,7 +21,7 @@ $version = '3.4.0';
 
 $eTag = getEtag($files);
 header('ETag: ' . $eTag);
-if ($eTag === $_SERVER['HTTP_IF_NONE_MATCH']) {
+if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $eTag === $_SERVER['HTTP_IF_NONE_MATCH']) {
 	header('HTTP/1.0 304 Not Modified');
 	die();
 }
