@@ -144,12 +144,6 @@ class SupraFileStorageEntityImageProxy extends \Supra\FileStorage\Entity\Image i
         return parent::getDescription($locale);
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getLeftValue()
     {
         $this->__load();
@@ -318,16 +312,28 @@ class SupraFileStorageEntityImageProxy extends \Supra\FileStorage\Entity\Image i
         return parent::getAuthorizationAncestors($includeSelf);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
         return parent::equals($entity);
     }
 
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'left', 'right', 'level', 'fileName', 'createdTime', 'modifiedTime', 'public', 'mimeType', 'fileSize', 'metaData', 'width', 'height', 'imageSizes');
+        return array('__isInitialized__', 'left', 'right', 'level', 'fileName', 'createdTime', 'modifiedTime', 'public', 'id', 'mimeType', 'fileSize', 'metaData', 'width', 'height', 'imageSizes');
     }
 
     public function __clone()

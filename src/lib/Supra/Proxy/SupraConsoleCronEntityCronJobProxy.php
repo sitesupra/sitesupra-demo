@@ -36,12 +36,6 @@ class SupraConsoleCronEntityCronJobProxy extends \Supra\Console\Cron\Entity\Cron
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function setCommandInput($commandInput)
     {
         $this->__load();
@@ -114,10 +108,34 @@ class SupraConsoleCronEntityCronJobProxy extends \Supra\Console\Cron\Entity\Cron
         return parent::getStatus();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
+    public function __toString()
+    {
+        $this->__load();
+        return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'commandInput', 'periodClass', 'periodParameter', 'lastExecutionTime', 'nextExecutionTime', 'status');
+        return array('__isInitialized__', 'commandInput', 'periodClass', 'periodParameter', 'lastExecutionTime', 'nextExecutionTime', 'status', 'id');
     }
 
     public function __clone()

@@ -54,7 +54,7 @@ class PageRequestView extends PageRequest
 		$action = trim($action, '/');
 
 		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository(Entity\PageData::__CLASSNAME__());
+		$er = $em->getRepository(Entity\PageData::CN());
 
 		$searchCriteria = array(
 			'locale' => $this->getLocale(),

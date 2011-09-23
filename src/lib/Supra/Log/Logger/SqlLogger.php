@@ -68,6 +68,13 @@ class SqlLogger implements SQLLoggerInterface
 		$this->types = $types;
 		$this->start = microtime(true);
 		
+		foreach ($this->params as $key => &$param) {
+			if ($param instanceof \DateTime) {
+				$this->params[$key] = $param->format('c');
+			}
+		}
+		unset($param);
+		
 		// Enable when you need to know the parameters, will fail for DateTime objects
 		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n");
 		

@@ -6,12 +6,12 @@ use Doctrine\ORM\EntityManager;
 use Supra\Database\Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityRepository;
-use Supra\Database\Entity as DatabaseEntity;
+use Supra\Database;
 
 /**
  * Base entity class for file storage
  */
-abstract class Entity extends DatabaseEntity
+abstract class Entity extends Database\Entity
 {
 	
 }

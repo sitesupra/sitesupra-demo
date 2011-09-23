@@ -36,12 +36,6 @@ class SupraUserEntityUserProxy extends \Supra\User\Entity\User implements \Doctr
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getPassword()
     {
         $this->__load();
@@ -162,10 +156,34 @@ class SupraUserEntityUserProxy extends \Supra\User\Entity\User implements \Doctr
         return parent::setModifiedTime();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
+    public function __toString()
+    {
+        $this->__load();
+        return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'createdTime', 'modifiedTime', 'password', 'login', 'email', 'group', 'lastLoginTime', 'active', 'salt');
+        return array('__isInitialized__', 'name', 'createdTime', 'modifiedTime', 'id', 'password', 'login', 'email', 'group', 'lastLoginTime', 'active', 'salt');
     }
 
     public function __clone()

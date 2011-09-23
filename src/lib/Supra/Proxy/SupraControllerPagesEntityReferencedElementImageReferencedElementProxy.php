@@ -72,6 +72,18 @@ class SupraControllerPagesEntityReferencedElementImageReferencedElementProxy ext
         return parent::setStyle($style);
     }
 
+    public function getSizeName()
+    {
+        $this->__load();
+        return parent::getSizeName();
+    }
+
+    public function setSizeName($sizeName)
+    {
+        $this->__load();
+        return parent::setSizeName($sizeName);
+    }
+
     public function getWidth()
     {
         $this->__load();
@@ -114,18 +126,6 @@ class SupraControllerPagesEntityReferencedElementImageReferencedElementProxy ext
         return parent::toArray();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getProperty($name)
-    {
-        $this->__load();
-        return parent::getProperty($name);
-    }
-
     public function getDiscriminator()
     {
         $this->__load();
@@ -136,6 +136,12 @@ class SupraControllerPagesEntityReferencedElementImageReferencedElementProxy ext
     {
         $this->__load();
         return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
     }
 
     public function equals(\Supra\Database\Entity $entity)
@@ -150,10 +156,16 @@ class SupraControllerPagesEntityReferencedElementImageReferencedElementProxy ext
         return parent::__toString();
     }
 
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'image', 'align', 'style', 'width', 'height', 'alternativeText');
+        return array('__isInitialized__', 'id', 'imageId', 'align', 'style', 'sizeName', 'width', 'height', 'alternativeText');
     }
 
     public function __clone()

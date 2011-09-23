@@ -45,7 +45,8 @@ use Supra\User\Entity\Abstraction\User;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface {
+abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
+{
 	/**
 	 * Integer object type ID
 	 */
@@ -55,14 +56,6 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface, Authori
 	 * @var NestedSet\Node\DoctrineNode
 	 */
 	protected $nestedSetNode;
-
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;
 
 	/**
 	 * @Column(type="integer", name="lft", nullable=true)
@@ -106,15 +99,6 @@ class File extends Entity implements NestedSet\Node\EntityNodeInterface, Authori
 	 * @var integer
 	 */
 	protected $public = true;
-
-	/**
-	 * Get page id
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
 
 	/**
 	 * Get left value

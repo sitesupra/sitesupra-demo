@@ -54,18 +54,6 @@ class SupraControllerPagesEntityBlockPropertyMetadataProxy extends \Supra\Contro
         return parent::getReferencedElement();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getProperty($name)
-    {
-        $this->__load();
-        return parent::getProperty($name);
-    }
-
     public function getDiscriminator()
     {
         $this->__load();
@@ -78,6 +66,12 @@ class SupraControllerPagesEntityBlockPropertyMetadataProxy extends \Supra\Contro
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -88,6 +82,12 @@ class SupraControllerPagesEntityBlockPropertyMetadataProxy extends \Supra\Contro
     {
         $this->__load();
         return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
     }
 
 

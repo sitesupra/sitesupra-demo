@@ -10,14 +10,6 @@ namespace Supra\User\Entity;
 class User extends Abstraction\User
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;
-	
-	/**
 	 * @Column(type="string", name="password", nullable=true)
 	 * @var string
 	 */
@@ -64,18 +56,10 @@ class User extends Abstraction\User
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->resetSalt();
 	}
 	
-	/**
-	 * Returns user id 
-	 * @return integer 
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
-
 	/**
 	 * Returns user password
 	 * @return type 

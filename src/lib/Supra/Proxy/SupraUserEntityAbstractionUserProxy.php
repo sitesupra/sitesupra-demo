@@ -36,12 +36,6 @@ class SupraUserEntityAbstractionUserProxy extends \Supra\User\Entity\Abstraction
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getName()
     {
         $this->__load();
@@ -78,10 +72,34 @@ class SupraUserEntityAbstractionUserProxy extends \Supra\User\Entity\Abstraction
         return parent::setModifiedTime();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
+    public function equals(\Supra\Database\Entity $entity)
+    {
+        $this->__load();
+        return parent::equals($entity);
+    }
+
+    public function __toString()
+    {
+        $this->__load();
+        return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'name', 'createdTime', 'modifiedTime');
+        return array('__isInitialized__', 'name', 'createdTime', 'modifiedTime', 'id');
     }
 
     public function __clone()

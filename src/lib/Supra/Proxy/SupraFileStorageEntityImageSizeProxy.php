@@ -36,12 +36,6 @@ class SupraFileStorageEntityImageSizeProxy extends \Supra\FileStorage\Entity\Ima
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function setWidth($width)
     {
         $this->__load();
@@ -144,6 +138,12 @@ class SupraFileStorageEntityImageSizeProxy extends \Supra\FileStorage\Entity\Ima
         return parent::getCropMode();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -156,10 +156,16 @@ class SupraFileStorageEntityImageSizeProxy extends \Supra\FileStorage\Entity\Ima
         return parent::__toString();
     }
 
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'master', 'width', 'height', 'name', 'quality', 'targetWidth', 'targetHeight', 'cropMode');
+        return array('__isInitialized__', 'master', 'width', 'height', 'name', 'quality', 'targetWidth', 'targetHeight', 'cropMode', 'id');
     }
 
     public function __clone()

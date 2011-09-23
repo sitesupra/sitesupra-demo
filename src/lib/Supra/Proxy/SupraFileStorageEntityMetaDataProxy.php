@@ -36,12 +36,6 @@ class SupraFileStorageEntityMetaDataProxy extends \Supra\FileStorage\Entity\Meta
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getLocale()
     {
         $this->__load();
@@ -84,6 +78,12 @@ class SupraFileStorageEntityMetaDataProxy extends \Supra\FileStorage\Entity\Meta
         return parent::getMaster();
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -96,10 +96,16 @@ class SupraFileStorageEntityMetaDataProxy extends \Supra\FileStorage\Entity\Meta
         return parent::__toString();
     }
 
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'locale', 'title', 'description', 'master');
+        return array('__isInitialized__', 'locale', 'title', 'description', 'master', 'id');
     }
 
     public function __clone()

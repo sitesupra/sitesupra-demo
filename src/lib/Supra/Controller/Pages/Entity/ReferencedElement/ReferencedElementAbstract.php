@@ -26,19 +26,22 @@ abstract class ReferencedElementAbstract extends Entity
 	 * @FIXME: should move to CMS
 	 * @param array $array
 	 */
-	public static function fromArray(array $array, $caller)
+	public static function fromArray(array $array)
 	{
 		$element = null;
 		
 		switch ($array['type']) {
-			case 'link':
+			
+			case LinkReferencedElement::TYPE_ID:
 				$element = new LinkReferencedElement();
 				$element->fillArray($array);
 				break;
-			case 'image':
+			
+			case ImageReferencedElement::TYPE_ID:
 				$element = new ImageReferencedElement();
 				$element->fillArray($array);
 				break;
+			
 			default:
 				throw new Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
 		}

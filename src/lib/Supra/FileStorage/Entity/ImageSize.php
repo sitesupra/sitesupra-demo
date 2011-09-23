@@ -9,15 +9,8 @@ namespace Supra\FileStorage\Entity;
  * @Entity
  * @Table(name="image_size", uniqueConstraints={@UniqueConstraint(name="master_id_name_idx", columns={"master_id", "name"})})
  */
-class ImageSize extends Abstraction\Entity {
-
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
+class ImageSize extends Abstraction\Entity
+{
 
 	/**
 	 * @ManyToOne(targetEntity="Image", cascade={"persist"}, inversedBy="imageSizes")
@@ -75,17 +68,10 @@ class ImageSize extends Abstraction\Entity {
 	 */
 	public function __construct($sizeName = null)
 	{
+		parent::__construct();
 		if ( ! empty($sizeName)) {
 			$this->setName($sizeName);
 		}
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
 	}
 
 	/**

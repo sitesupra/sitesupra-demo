@@ -134,10 +134,14 @@ class PagecontentAction extends PageManagerAction
 		// FIXME move outside (probably to doctrine listener)
 		$fileStorage = 
 				\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+		
 		foreach ($valueData as &$valueDataItem) {
+			
 			if ($valueDataItem['type'] == 'image') {
-				$image = $this->entityManager->find(
-						'Supra\FileStorage\Entity\Image', $valueDataItem['image']);
+				
+				$image = $fileStorage->getDoctrineEntityManager()->find(
+						\Supra\FileStorage\Entity\Image::CN(), 
+						$valueDataItem['image']);
 				
 				if ($image instanceof \Supra\FileStorage\Entity\Image) {
 					$sizeName = $fileStorage->createResizedImage($image, 
@@ -147,6 +151,7 @@ class PagecontentAction extends PageManagerAction
 				}
 			}
 		}
+		unset($valueDataItem);
 		
 		// Remove all old references
 		$metadataCollection = $blockProperty->getMetadata();
@@ -154,6 +159,7 @@ class PagecontentAction extends PageManagerAction
 			$this->entityManager->remove($metadata);
 		}
 		
+		// Empty the metadata
 		$blockProperty->resetMetadata();
 
 		// Set new refeneced elements
@@ -165,8 +171,6 @@ class PagecontentAction extends PageManagerAction
 			$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
 			$blockProperty->addMetadata($blockPropertyMetadata);
 		}
-		
-//		$blockProperty->setValueData($valueData);
 		
 		$this->entityManager->flush();
 		

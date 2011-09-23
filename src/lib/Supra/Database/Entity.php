@@ -2,8 +2,20 @@
 
 namespace Supra\Database;
 
+use Doctrine\Common\Collections\Collection;
+
+/**
+ * @MappedSuperclass
+ */
 abstract class Entity 
 {
+	/**
+	 * @Id
+	 * @Column(type="string", length="40")
+	 * @var string
+	 */
+	protected $id;
+	
 	/**
 	 * Locks to pervent infinite loop calls
 	 * @var array
@@ -11,10 +23,38 @@ abstract class Entity
 	private $locks = array();
 	
 	/**
-	 * Id getter is mandatory
+	 * Loads full name of the class
+	 * TODO: Decide is it smart
+	 */
+	public static function CN()
+	{
+		return get_called_class();
+	}
+	
+	/**
+	 * Allocates ID
+	 */
+	public function __construct()
+	{
+		$this->regenerateId();
+	}
+	
+	/**
+	 * Id generation strategy
+	 */
+	protected function regenerateId()
+	{
+		$this->id = sha1(uniqid(get_class($this), true));
+	}
+	
+	/**
+	 * Identification getter
 	 * @return integer
 	 */
-	abstract public function getId();
+	public function getId()
+	{
+		return $this->id;
+	}
 
 	/**
 	 * Lock to prevent infinite loops
@@ -23,10 +63,11 @@ abstract class Entity
 	 */
 	protected function lock($name)
 	{
-		if ( ! \array_key_exists($name, $this->locks)) {
+		if ( ! array_key_exists($name, $this->locks)) {
 			$this->locks[$name] = true;
 			return true;
 		}
+		
 		return false;
 	}
 	/**
@@ -36,10 +77,11 @@ abstract class Entity
 	 */
 	protected function unlock($name)
 	{
-		if ( ! \array_key_exists($name, $this->locks)) {
+		if ( ! array_key_exists($name, $this->locks)) {
 			return false;
 		}
 		unset($this->locks[$name]);
+		
 		return true;
 	}
 
@@ -117,15 +159,54 @@ abstract class Entity
 		
 		return $ids;
 	}
-
-	public static function findBy($criteria = array())
+	
+	/**
+	 * Adds an element to collection preserving uniqueness of fields
+	 * @param Collection $collection
+	 * @param Entity $newItem
+	 * @param string $uniqueField
+	 * @return boolean true if added, false if already the same instance has been added
+	 * @throws Exception\RuntimeException if element with the same unique field values exists
+	 */
+	protected function addUnique(Collection $collection, Entity $newItem, $uniqueField = null)
 	{
-		// not implemented yet
+		if ($collection->contains($newItem)) {
+			return false;
+		}
+		
+		if (is_null($uniqueField)) {
+			$collection->add($newItem);
+		} else {
+			$indexBy = $newItem->getProperty($uniqueField);
+			
+			if ($collection->offsetExists($indexBy)) {
+				throw new Exception\RuntimeException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
+			}
+			
+			$collection->set($indexBy, $newItem);
+		}
+		
+		return true;
 	}
 
-	public static function getQueryBuilderResult(\Doctrine\ORM\QueryBuilder $queryBuilder)
+	/**
+	 * Get property of an object by name
+	 * @param string $name
+	 * @return mixed
+	 * @throws Exception\RuntimeException if property getter method is not found
+	 */
+	public function getProperty($name)
 	{
-		$query = $queryBuilder->getQuery();
-		return $query->getResult();
-	}	
+		$method = 'get' . ucfirst($name);
+		
+		if ( ! method_exists($this, $method)) {
+			$this->unlockAll();
+			$class = get_class($this);
+			throw new Exception\RuntimeException("Could not found getter function for object
+					$class property $name");
+		}
+		$value = $this->$method();
+		
+		return $value;
+	}
 }

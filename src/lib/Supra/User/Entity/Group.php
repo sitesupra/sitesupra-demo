@@ -10,22 +10,4 @@ namespace Supra\User\Entity;
 class Group extends Abstraction\User
 {
 	
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;		
-	
-	/**
-	 * Returns group id 
-	 * @return integer 
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
-
-
 }

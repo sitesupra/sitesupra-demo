@@ -66,18 +66,6 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
         return parent::getTemplate();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getProperty($name)
-    {
-        $this->__load();
-        return parent::getProperty($name);
-    }
-
     public function getDiscriminator()
     {
         $this->__load();
@@ -90,6 +78,12 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -100,6 +94,12 @@ class SupraControllerPagesEntityTemplateLayoutProxy extends \Supra\Controller\Pa
     {
         $this->__load();
         return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
     }
 
 

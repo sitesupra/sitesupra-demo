@@ -204,18 +204,6 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getAuthorizationAncestors($includeSelf);
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getProperty($name)
-    {
-        $this->__load();
-        return parent::getProperty($name);
-    }
-
     public function getDiscriminator()
     {
         $this->__load();
@@ -228,6 +216,12 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -238,6 +232,12 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
     {
         $this->__load();
         return parent::__toString();
+    }
+
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
     }
 
 

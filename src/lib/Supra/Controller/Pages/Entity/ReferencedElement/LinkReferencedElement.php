@@ -10,6 +10,8 @@ use Supra\FileStorage\Entity\File;
  */
 class LinkReferencedElement extends ReferencedElementAbstract
 {
+	const TYPE_ID = 'link';
+	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -153,6 +155,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	public function toArray()
 	{
 		$array = array(
+			'type' => self::TYPE_ID,
 			'resource' => $this->resource,
 			'title' => $this->title,
 			'target' => $this->target,

@@ -650,7 +650,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					if (data.style == 'lightbox') {
 						return '{supra.' + NAME + ' id="' + id + '"}';
 					} else {
-						return link_open + '{supra.' + NAME + ' id="' + id + '"}' + link_close;
+						return (link_open || '') + '{supra.' + NAME + ' id="' + id + '"}' + (link_close || '');
 					}
 				} else {
 					return html;

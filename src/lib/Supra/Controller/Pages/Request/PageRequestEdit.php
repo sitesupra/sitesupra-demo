@@ -143,7 +143,7 @@ class PageRequestEdit extends PageRequest
 		//TODO: remove reference elements as well!
 		$propertyIdList = $draftProperties->collectIds();
 		$qb = $publicEm->createQueryBuilder();
-		$qb->delete(Entity\BlockPropertyMetadata::__CLASSNAME__(), 'r')
+		$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
 				->where($qb->expr()->in('r.blockProperty', $propertyIdList))
 				->getQuery()->execute();
 		

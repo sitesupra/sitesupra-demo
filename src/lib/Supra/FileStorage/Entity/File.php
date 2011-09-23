@@ -38,6 +38,7 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 
 	public function __construct()
 	{
+		parent::__construct();
 		$this->metaData = new ArrayCollection();
 		$this->imageSizes = new ArrayCollection();
 	}

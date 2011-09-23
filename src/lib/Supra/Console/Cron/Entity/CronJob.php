@@ -2,13 +2,16 @@
 
 namespace Supra\Console\Cron\Entity;
 
+use Supra\Database\Entity;
+
 /**
  * Cron job entity
  *
  * @Entity(repositoryClass="Supra\Console\Cron\Repository\CronJobRepository")
  * @Table(name="su_cron_job",indexes={@index(name="next_execution_time_idx", columns={"next_execution_time"})})
  */
-class CronJob {
+class CronJob extends Entity
+{
 
 	const
 		STATUS_OK = 0,
@@ -16,14 +19,6 @@ class CronJob {
 		STATUS_LOCKED = 2,
 		STATUS_FAILED = 3,
 		STATUS_MASTER = 10;
-
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
 
 	/**
 	 * @Column(name="command_input",type="string",nullable=true)
@@ -60,15 +55,6 @@ class CronJob {
 	 * @var integer
 	 */
 	protected $status = self::STATUS_NEW;
-
-	/**
-	 * Get Id (primary key)
-	 * 
-	 * @return integer
-	 */
-	public function getId() {
-		return $this->id;
-	}
 
 	/**
 	 * Set command input string

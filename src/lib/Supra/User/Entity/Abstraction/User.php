@@ -2,6 +2,8 @@
 
 namespace Supra\User\Entity\Abstraction;
 
+use Supra\Database\Entity;
+
 /**
  * @Entity
  * @InheritanceType("JOINED")
@@ -12,17 +14,8 @@ namespace Supra\User\Entity\Abstraction;
  * })
  * @HasLifecycleCallbacks
  */
-class User
+abstract class User extends Entity
 {
-	
-	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id = null;
-	
 	/**
 	 * @Column(type="string", name="name", nullable=false)
 	 * @var string
@@ -41,11 +34,6 @@ class User
 	 */
 	protected $modifiedTime;
 	
-	public function getId()
-	{
-		return $this->id;
-	}
-
 	/**
 	 * @return string
 	 */

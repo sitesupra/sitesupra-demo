@@ -60,6 +60,18 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
         return parent::setHref($href);
     }
 
+    public function getTarget()
+    {
+        $this->__load();
+        return parent::getTarget();
+    }
+
+    public function setTarget($target)
+    {
+        $this->__load();
+        return parent::setTarget($target);
+    }
+
     public function getTitle()
     {
         $this->__load();
@@ -102,18 +114,6 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
         return parent::toArray();
     }
 
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
-    public function getProperty($name)
-    {
-        $this->__load();
-        return parent::getProperty($name);
-    }
-
     public function getDiscriminator()
     {
         $this->__load();
@@ -124,6 +124,12 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
     {
         $this->__load();
         return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
     }
 
     public function equals(\Supra\Database\Entity $entity)
@@ -138,10 +144,16 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
         return parent::__toString();
     }
 
+    public function getProperty($name)
+    {
+        $this->__load();
+        return parent::getProperty($name);
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'resource', 'href', 'title', 'page_id', 'file_id');
+        return array('__isInitialized__', 'id', 'resource', 'href', 'target', 'title', 'pageId', 'fileId');
     }
 
     public function __clone()

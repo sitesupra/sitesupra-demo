@@ -8,54 +8,19 @@ use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Database\Entity as DatabaseEntity;
+use Supra\Database;
 
 /**
  * Base entity class for Pages controller
  * @MappedSuperclass
  */
-abstract class Entity extends DatabaseEntity
+abstract class Entity extends Database\Entity
 {
-	/**
-	 * @Id
-	 * @Column(type="string", length="40")
-	 * @var string
-	 */
-	protected $id;
-	
 	/**
 	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
 	const DISCRIMINATOR = null;
 	
-	/**
-	 * Locks to pervent infinite loop calls
-	 * @var array
-	 */
-	private $locks = array();
-	
-	/**
-	 * Loads full name of the class
-	 * TODO: Decide is it smart
-	 */
-	public static function __CLASSNAME__()
-	{
-		return get_called_class();
-	}
-	
-	/**
-	 * Allocates ID
-	 */
-	public function __construct()
-	{
-		$this->regenerateId();
-	}
-	
-	protected function regenerateId()
-	{
-		$this->id = sha1(uniqid(get_class($this), true));
-	}
-
 	/**
 	 * Creates log writer instance
 	 */
@@ -64,50 +29,6 @@ abstract class Entity extends DatabaseEntity
 		return ObjectRepository::getLogger($this);
 	}
 	
-	/**
-	 * Identification getter
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
-
-	/**
-	 * Lock to prevent infinite loops
-	 * @param string $name
-	 * @return boolean
-	 */
-	protected function lock($name)
-	{
-		if ( ! \array_key_exists($name, $this->locks)) {
-			$this->locks[$name] = true;
-			return true;
-		}
-		return false;
-	}
-	/**
-	 * Unlock locked parameter
-	 * @param string $name
-	 * @return boolean
-	 */
-	protected function unlock($name)
-	{
-		if ( ! \array_key_exists($name, $this->locks)) {
-			return false;
-		}
-		unset($this->locks[$name]);
-		return true;
-	}
-
-	/**
-	 * Unlocks all locks, must be run before throwing exception
-	 */
-	protected function unlockAll()
-	{
-		$this->locks = array();
-	}
-
 	/**
 	 * Set the property value. Return true on success, false on equal parameter,
 	 * exception when argument not valid or different value was already set
@@ -142,71 +63,6 @@ abstract class Entity extends DatabaseEntity
 		$property = $value;
 		
 		return true;
-	}
-
-	/**
-	 * Adds an element to collection preserving uniqueness of fields
-	 * @param Collection $collection
-	 * @param Entity $newItem
-	 * @param string $uniqueField
-	 * @return boolean true if added, false if already the same instance has been added
-	 * @throws Exception\RuntimeException if element with the same unique field values exists
-	 */
-	protected function addUnique(Collection $collection, $newItem, $uniqueField = null)
-	{
-		if ($collection->contains($newItem)) {
-			return false;
-		}
-		
-		if (is_null($uniqueField)) {
-			$collection->add($newItem);
-		} else {
-			//FIXME: ugly
-			$getter = 'get' . $uniqueField;
-			$indexBy = $newItem->$getter();
-			
-			if ($collection->offsetExists($indexBy)) {
-				throw new Exception\RuntimeException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
-			}
-			
-			$collection->set($indexBy, $newItem);
-		}
-		
-		return true;
-	}
-
-	/**
-	 * Get property of an object by name
-	 * @param string $name
-	 * @return mixed
-	 * @throws Exception\RuntimeException if property getter method is not found
-	 */
-	public function getProperty($name)
-	{
-		$method = 'get' . \ucfirst($name);
-		if ( ! \method_exists($this, $method)) {
-			$this->unlockAll();
-			$class = \get_class($this);
-			throw new Exception\RuntimeException("Could not found getter function for object
-					$class property $name");
-		}
-		$value = $this->$method();
-		return $value;
-	}
-
-	/**
-	 * Asserts that the object is instance of class
-	 * @param Entity $instance
-	 * @param string $class
-	 * @param string $method
-	 * @throws Exception\RuntimeException if the instance check fails
-	 */
-	protected function isInstanceOf(Entity $instance, $class, $method)
-	{
-		if ( ! ($instance instanceof $class)) {
-			$this->unlockAll();
-			throw new Exception\RuntimeException("Object can accept instance of $class in method $method");
-		}
 	}
 
 	/**

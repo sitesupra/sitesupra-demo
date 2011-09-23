@@ -51,7 +51,7 @@ class ParsedHtmlFilter implements FilterInterface
 
 				$em = ObjectRepository::getEntityManager($this);
 
-				$pageDataEntity = Entity\PageData::__CLASSNAME__();
+				$pageDataEntity = Entity\PageData::CN();
 
 				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
 						WHERE d.locale = ?0 AND d.master = ?1");
