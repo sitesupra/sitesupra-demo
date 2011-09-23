@@ -37,7 +37,12 @@
 		"template": {
 			"edit": "Edit template",
 			"locked_message": "Template was locked by {{ username }} on {{ datetime }}",
-			"unlock": "Unlock"
+			"unlock": "Unlock",
+			"error": {
+				"layout_not_found": "Layout file not found",
+				"layout_error": "Internal error occurred while processing layout",
+				"create_internal_error": "Internal error occurred while creating template"
+			}
 		},
 		
 		"htmleditor": {

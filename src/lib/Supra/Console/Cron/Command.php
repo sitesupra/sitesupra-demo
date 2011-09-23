@@ -76,12 +76,12 @@ class Command extends SymfonyCommand
 					}
 					$job->setLastExecutionTime($thisTime);
 					
+					$this->updateJobNextExecutionTime($job);
+					break;
+					
 				case CronJob::STATUS_FAILED:
 					
-					$periodClass = $job->getPeriodClass();
-					$period = new $periodClass($job->getPeriodParameter());
-					$nextTime = $period->getNext();
-					$job->setNextExecutionTime($nextTime);
+					$this->updateJobNextExecutionTime($job);
 					break;
 				
 				case CronJob::STATUS_LOCKED:
@@ -97,6 +97,11 @@ class Command extends SymfonyCommand
 		
 	}
 
+	/**
+	 * Get master cron job entity (creates new if not found)
+	 *
+	 * @return CronJob 
+	 */
 	protected function getMasterCronEntity()
 	{
 		$em = ObjectRepository::getEntityManager($this);
@@ -113,6 +118,19 @@ class Command extends SymfonyCommand
 		}
 		
 		return $entity;
+	}
+	
+	/**
+	 * Update job's next execution time
+	 *
+	 * @param CronJob $job 
+	 */
+	protected function updateJobNextExecutionTime(CronJob $job)
+	{
+		$periodClass = $job->getPeriodClass();
+		$period = new $periodClass($job->getPeriodParameter());
+		$nextTime = $period->getNext();
+		$job->setNextExecutionTime($nextTime);
 	}
 	
 }

@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Controller\Layout\Exception as LayoutException;
 
 /**
  * Sitemap
@@ -54,15 +55,22 @@ class TemplateAction extends PageManagerAction
 			$layout = $layoutRepo->findOneByFile($file);
 			
 			if (is_null($layout)) {
-				//TODO:  CmsException?
 				$layout = new \Supra\Controller\Pages\Entity\Layout();
 				$this->entityManager->persist($layout);
 				$layout->setFile($file);
 				$processor = $this->getLayoutProcessor();
-				$places = $processor->getPlaces($file);
-				foreach ($places as $name) {
-					$placeHolder = new \Supra\Controller\Pages\Entity\LayoutPlaceHolder($name);
-					$placeHolder->setLayout($layout);
+				try {
+					$places = $processor->getPlaces($file);
+					foreach ($places as $name) {
+						$placeHolder = new \Supra\Controller\Pages\Entity\LayoutPlaceHolder($name);
+						$placeHolder->setLayout($layout);
+					}
+				} catch (LayoutException\LayoutNotFoundException $e) {
+					throw new CmsException('template.error.layout_not_found');
+				} catch (LayoutException\RuntimeException $e) {
+					throw new CmsException('template.error.layout_error');
+				} catch (\Exception $e) {
+					throw new CmsException('template.error.create_internal_error');
 				}
 			}
 			
@@ -127,6 +135,7 @@ class TemplateAction extends PageManagerAction
 	protected function getLayoutProcessor()
 	{
 		$processor = new \Supra\Controller\Layout\Processor\HtmlProcessor();
+		// FIXME: hardcode
 		$processor->setLayoutDir(\SUPRA_PATH . 'template');
 		return $processor;
 	}

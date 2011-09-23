@@ -116,7 +116,6 @@ class UserAction extends InternalUserManagerAbstractAction
 				return;
 			}
 
-			// TODO:  Add mailer
 			$expTime = time();
 			$userMail = $user->getEmail();
 			$hash = $this->generateHash($user, $expTime);
@@ -181,7 +180,6 @@ class UserAction extends InternalUserManagerAbstractAction
 			$authAdapter = $this->userProvider->getAuthAdapter();
 			$authAdapter->credentialChange($user);
 			
-			// TODO:  Add mailer
 			$expTime = time();
 			$userMail = $user->getEmail();
 			$hash = $this->generateHash($user, $expTime);

@@ -115,7 +115,7 @@ class HtmlProcessor implements ProcessorInterface
 	{
 		$filename = $this->getLayoutDir() . \DIRECTORY_SEPARATOR . $layoutSrc;
 		if ( ! \is_file($filename)) {
-			throw new Exception\RuntimeException("File '$layoutSrc' was not found");
+			throw new Exception\LayoutNotFoundException("File '$layoutSrc' was not found");
 		}
 		if ( ! \is_readable($filename)) {
 			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");

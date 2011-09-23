@@ -26,6 +26,12 @@ class TwigMessage extends SimpleMessage
 	 */
 	public function __construct($contentType = null, $charset = null)
 	{
+		// default template path
+		$this->templatePath = 'lib' . DIRECTORY_SEPARATOR
+				. 'Supra' . DIRECTORY_SEPARATOR
+				. 'Mailer' . DIRECTORY_SEPARATOR
+				. 'template' . DIRECTORY_SEPARATOR;
+		
 		$this->twigEnvironment = ObjectRepository::getObject($this, 'Twig_Environment');
 		parent::__construct($contentType, $charset);
 	}
@@ -48,10 +54,7 @@ class TwigMessage extends SimpleMessage
 		$oldLoader = $this->twigEnvironment->getLoader();
 		$e = null;
 		
-		$templatePath = SUPRA_LIBRARY_PATH . 'Supra' . DIRECTORY_SEPARATOR
-				. 'Mailer' . DIRECTORY_SEPARATOR
-				. 'template' . DIRECTORY_SEPARATOR;
-		$loader = new \Twig_Loader_Filesystem($templatePath);
+		$loader = new \Twig_Loader_Filesystem(SUPRA_PATH . $this->templatePath);
 		$this->twigEnvironment->setLoader($loader);
 
 		if ( ! is_array($vars)) {
@@ -70,6 +73,26 @@ class TwigMessage extends SimpleMessage
 		if ( ! empty($e)) {
 			throw $e;
 		}			
+	}
+	
+	/**
+	 * Set template path, will make it relative to supra path for Twig usage
+	 * 
+	 * @param string $templatePath
+	 * @throws Exception\RuntimeException if template path is outside the supra path
+	 */
+	public function setTemplatePath($templatePath)
+	{
+		$supraPath = realpath(SUPRA_PATH);
+		$templatePath = realpath($templatePath);
+		
+		if (strpos($templatePath, $supraPath) !== 0) {
+			throw new Exception\RuntimeException("Template directory outside supra path is not allowed");
+		}
+		
+		$relativePath = substr($templatePath, strlen($supraPath));
+		
+		$this->templatePath = $relativePath;
 	}
 	
 }
