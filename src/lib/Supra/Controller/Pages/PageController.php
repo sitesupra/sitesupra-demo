@@ -18,6 +18,7 @@ use Supra\ObjectRepository\ObjectRepository;
 /**
  * Page controller
  * @method PageRequest getRequest()
+ * @method Response\HttpResponse getResponse()
  */
 class PageController extends ControllerAbstraction
 {
@@ -74,7 +75,24 @@ class PageController extends ControllerAbstraction
 	public function execute()
 	{
 		$request = $this->getRequest();
+
+		// Check redirect for public calls
+		if ($request instanceof Request\PageRequestView) {
+			
+			$redirect = $request->getPageData()
+					->getRedirect();
+
+			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
+				//TODO: any validation? skipping? loop check?
+				$location = $redirect->getUrl($this);
+				$this->getResponse()
+						->redirect($location);
+
+				return;
+			}
+		}
 		
+		// Continue processing
 		$blocks = $request->getBlockSet();
 		$layout = $request->getLayout();
 		$page = $request->getPage();

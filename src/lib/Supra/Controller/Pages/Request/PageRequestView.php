@@ -31,14 +31,14 @@ class PageRequestView extends PageRequest
 	 * Overriden with page detection from URL
 	 * @return Entity\Abstraction\Data
 	 */
-	public function getRequestPageData()
+	public function getPageData()
 	{
-		$data = parent::getRequestPageData();
+		$data = parent::getPageData();
 		
 		if (empty($data)) {
 			$data = $this->detectRequestPageData();
 			
-			$this->setRequestPageData($data);
+			$this->setPageData($data);
 		}
 
 		return $data;
@@ -80,7 +80,7 @@ class PageRequestView extends PageRequest
 		if ( ! $pageData->isActive()) {
 			throw new ResourceNotFoundException("Page found by path '$action' in pages controller but is inactive");
 		}
-
+		
 		return $pageData;
 	}
 }

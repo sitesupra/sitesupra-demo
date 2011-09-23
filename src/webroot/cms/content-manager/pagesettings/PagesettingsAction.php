@@ -87,6 +87,29 @@ class PagesettingsAction extends PageManagerAction
 					}
 				}
 			}
+			
+			$redirect = $this->getRequestParameter('redirect');
+		
+			if ( ! is_null($redirect)) {
+
+				// Delete current link object
+				$currentRedirect = $pageData->getRedirect();
+
+				if ( ! empty($currentRedirect)) {
+					$this->entityManager->remove($currentRedirect);
+				}
+
+				// Set new link, JS should send empty value if link must be removed
+				if (empty($redirect)) {
+					$pageData->setRedirect(null);
+				} else {
+					$link = new Entity\ReferencedElement\LinkReferencedElement();
+					$link->fillArray($redirect);
+					$this->entityManager->persist($link);
+
+					$pageData->setRedirect($link);
+				}
+			}
 		}
 
 		$this->entityManager->flush();

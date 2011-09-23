@@ -102,7 +102,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @var Entity\Abstraction\Data
 	 */
-	private $requestPageData;
+	private $pageData;
 	
 	/**
 	 * @var Set\PageSet
@@ -143,17 +143,17 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @return Entity\Abstraction\Data
 	 */
-	public function getRequestPageData()
+	public function getPageData()
 	{
-		return $this->requestPageData;
+		return $this->pageData;
 	}
 	
 	/**
-	 * @param Entity\Abstraction\Data $requestPageData
+	 * @param Entity\Abstraction\Data $pageData
 	 */
-	public function setRequestPageData(Entity\Abstraction\Data $requestPageData)
+	public function setPageData(Entity\Abstraction\Data $pageData)
 	{
-		$this->requestPageData = $requestPageData;
+		$this->pageData = $pageData;
 	}
 	
 	/**
@@ -210,7 +210,7 @@ abstract class PageRequest extends HttpRequest
 	 */
 	public function getPage()
 	{
-		return $this->getRequestPageData()
+		return $this->getPageData()
 				->getMaster();
 	}
 
@@ -224,7 +224,7 @@ abstract class PageRequest extends HttpRequest
 		}
 		
 		// Fetch page/template hierarchy list
-		$this->pageSet = $this->getRequestPageData()
+		$this->pageSet = $this->getPageData()
 				->getTemplateHierarchy();
 		
 		return $this->pageSet;
@@ -368,7 +368,7 @@ abstract class PageRequest extends HttpRequest
 						
 						$blockProperties = $query->getResult();
 						
-						$data = $this->getRequestPageData();
+						$data = $this->getPageData();
 						
 						/* @var $blockProperty Entity\BlockProperty */
 						foreach ($blockProperties as $blockProperty) {

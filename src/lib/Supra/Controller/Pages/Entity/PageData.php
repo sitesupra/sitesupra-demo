@@ -59,6 +59,14 @@ class PageData extends Abstraction\Data
 	 * @var DateTime
 	 */
 	protected $scheduleTime;
+	
+	/**
+	 * NB! Eager load is because "publish" action includes Doctrine merge action 
+	 * which will fail if object isn't initialized.
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"}, fetch="EAGER")
+	 * @var ReferencedElement\LinkReferencedElement
+	 */
+	protected $redirect;
 
 	/**
 	 * @return Page
@@ -244,4 +252,21 @@ class PageData extends Abstraction\Data
 	{
 		$this->scheduleTime = null;
 	}
+	
+	/**
+	 * @return ReferencedElement\LinkReferencedElement
+	 */
+	public function getRedirect()
+	{
+		return $this->redirect;
+	}
+
+	/**
+	 * @param ReferencedElement\LinkReferencedElement $redirect
+	 */
+	public function setRedirect(ReferencedElement\LinkReferencedElement $redirect = null)
+	{
+		$this->redirect = $redirect;
+	}
+
 }

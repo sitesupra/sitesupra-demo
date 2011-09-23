@@ -7,9 +7,6 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\FileStorage\Entity\Image;
-use Supra\FileStorage\Entity\File;
 use Supra\User\Entity\Abstraction\User;
 use Project\Authentication\AuthenticateSessionNamespace;
 
@@ -60,7 +57,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 
-		$request->setRequestPageData($pageData);
+		$request->setPageData($pageData);
 		$controller->execute($request);
 
 		$pathPart = null;
@@ -72,6 +69,7 @@ class PageAction extends PageManagerAction
 		$metaKeywords = null;
 		$metaDescription = null;
 		$active = true;
+		$redirect = null;
 
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
@@ -99,27 +97,25 @@ class PageAction extends PageManagerAction
 			);
 
 			$scheduledDateTime = $pageData->getScheduleTime();
+			$redirectLink = $pageData->getRedirect();
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
 			$active = $pageData->isActive();
+			
+			if ( ! is_null($redirectLink)) {
+				$redirect = $this->convertReferencedElementToArray($redirectLink);
+			}
 		}
 
 		if ( ! is_null($scheduledDateTime)) {
 			$scheduledDate = $scheduledDateTime->format('Y-m-d');
 			$scheduledTime = $scheduledDateTime->format('H:i');
 		}
-
+		
 		$type = 'page';
 
 		if ($page instanceof Entity\Template) {
 			$type = 'template';
-			$layout = null;
-			$root = false;
-			if ($page->isRoot()) {
-				$layout = $page->getLayout(Entity\Layout::MEDIA_SCREEN)
-						->getFile();
-				$root = true;
-			}
 		}
 
 		$array = array(
@@ -135,11 +131,18 @@ class PageAction extends PageManagerAction
 			'description' => $metaDescription,
 			'scheduled_date' => $scheduledDate,
 			'scheduled_time' => $scheduledTime,
-			//TODO: check parents?
+			'redirect' => $redirect,
 			'active' => $active
 		);
 		
 		if ($page instanceof Entity\Template) {
+			$layout = null;
+			$root = false;
+			if ($page->isRoot()) {
+				$layout = $page->getLayout(Entity\Layout::MEDIA_SCREEN)
+						->getFile();
+				$root = true;
+			}
 			$array['layout'] = $layout;
 			$array['root'] = $root;
 		}
@@ -186,13 +189,18 @@ class PageAction extends PageManagerAction
 
 						$propertyName = $blockProperty->getName();
 						$propertyValue = $blockProperty->getValue();
-						$propertyValueData = $blockProperty->getValueData();
+						$metadataCollection = $blockProperty->getMetadata();
+						$data = array();
 
-						$propertyValueData = $this->fillPropertyData($propertyValueData);
-
+						/* @var $metadata Entity\BlockPropertyMetadata */
+						foreach ($metadataCollection as $name => $metadata) {
+							$referencedElement = $metadata->getReferencedElement();
+							$data[$name] = $this->convertReferencedElementToArray($referencedElement);
+						}
+						
 						$propertyData = array(
 							'html' => $propertyValue,
-							'data' => $propertyValueData
+							'data' => $data
 						);
 
 						$blockData['properties'][$propertyName] = $propertyData;
@@ -326,7 +334,7 @@ class PageAction extends PageManagerAction
 			$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
 			$pageData->setTemplate($template);
 		}
-
+		
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 	}
@@ -393,59 +401,6 @@ class PageAction extends PageManagerAction
 //		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE_NAME);
 		
 		$this->publish();
-	}
-
-	/**
-	 * FIXME: it's not the best place to imlement this additional image/link data loading
-	 * @param array $data
-	 * @return array
-	 */
-	protected function fillPropertyData(array $data = null)
-	{
-		if (empty($data)) {
-			return $data;
-		}
-
-		foreach ($data as &$dataItem) {
-			switch ($dataItem['type']) {
-
-				// Read the additional file info from the file storage
-				case 'image':
-					$localeId = $this->getLocale()->getId();
-					$imageId = $dataItem['image'];
-					$fs = ObjectRepository::getFileStorage($this);
-					$em = $fs->getDoctrineEntityManager();
-					$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
-
-					if ($image instanceof Image) {
-						$info = $fs->getFileInfo($image, $localeId);
-						$dataItem['image'] = $info;
-					}
-
-					break;
-
-				// Need to get file path for links to the file
-				case 'link':
-
-					if ($dataItem['resource'] == 'file') {
-
-						$localeId = $this->getLocale()->getId();
-						$fileId = $dataItem['file_id'];
-						$fs = ObjectRepository::getFileStorage($this);
-						$em = $fs->getDoctrineEntityManager();
-						$file = $em->find('Supra\FileStorage\Entity\File', $fileId);
-
-						if ($file instanceof File) {
-							$fileInfo = $fs->getFileInfo($file, $localeId);
-							$dataItem['file_path'] = $fileInfo['path'];
-						}
-					}
-
-					break;
-			}
-		}
-
-		return $data;
 	}
 
 }

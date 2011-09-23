@@ -143,7 +143,7 @@ abstract class BlockController extends ControllerAbstraction
 
 			// Must set some DATA object. Where to get this? And why data is set to property not block?
 			//FIXME: should do somehow easier than that
-			$property->setData($this->getRequest()->getRequestPageData());
+			$property->setData($this->getRequest()->getPageData());
 		}
 
 		//TODO: this is ugly content copying

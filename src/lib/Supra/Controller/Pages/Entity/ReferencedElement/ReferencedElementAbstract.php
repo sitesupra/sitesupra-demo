@@ -53,5 +53,5 @@ abstract class ReferencedElementAbstract extends Entity
 	 * Set properties from array
 	 * @param array $array
 	 */
-	abstract protected function fillArray(array $array);
+	abstract public function fillArray(array $array);
 }

@@ -15,6 +15,9 @@ use Supra\Cms\CmsAction;
 use Supra\NestedSet\Node\DoctrineNode;
 use Doctrine\ORM\Query;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
+use Supra\Controller\Pages\Entity\ReferencedElement;
+use Supra\FileStorage\Entity\Image;
+use Supra\FileStorage\Entity\File;
 
 /**
  * Controller containing common methods
@@ -75,7 +78,7 @@ abstract class PageManagerAction extends CmsAction
 		$controller->prepare($request, $response);
 
 		$requestPageData = $this->getPageData();
-		$request->setRequestPageData($requestPageData);
+		$request->setPageData($requestPageData);
 
 		return $request;
 	}
@@ -259,6 +262,44 @@ abstract class PageManagerAction extends CmsAction
 		};
 		
 		$publicEm->transactional($copyContent);
+	}
+	
+	/**
+	 * Converts referenced element to JS array
+	 * @param ReferencedElement\ReferencedElementAbstract $element
+	 * @return array
+	 */
+	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element)
+	{
+		$data = $element->toArray();
+		$localeId = $this->getLocale()->getId();
+		$fs = ObjectRepository::getFileStorage($this);
+		$em = $fs->getDoctrineEntityManager();
+		
+		if ($element instanceof ReferencedElement\LinkReferencedElement) {
+			
+			if ($element->getResource() == 'file') {
+
+				$fileId = $element->getFileId();
+				$file = $em->find(File::CN(), $fileId);
+
+				if ($file instanceof File) {
+					$fileInfo = $fs->getFileInfo($file, $localeId);
+					$data['file_path'] = $fileInfo['path'];
+				}
+			}
+		} elseif ($element instanceof ReferencedElement\ImageReferencedElement) {
+			
+			$imageId = $element->getImageId();
+			$image = $em->find(Image::CN(), $imageId);
+
+			if ($image instanceof Image) {
+				$info = $fs->getFileInfo($image, $localeId);
+				$data['image'] = $info;
+			}
+		}
+		
+		return $data;
 	}
 	
 }

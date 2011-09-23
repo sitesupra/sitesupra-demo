@@ -114,12 +114,6 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
         return parent::getValueData();
     }
 
-    public function setValueData($value)
-    {
-        $this->__load();
-        return parent::setValueData($value);
-    }
-
     public function getEditable()
     {
         $this->__load();
@@ -171,7 +165,7 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'data', 'block', 'type', 'name', 'value', 'valueData', 'metadata', 'id');
+        return array('__isInitialized__', 'data', 'block', 'type', 'name', 'value', 'metadata', 'id');
     }
 
     public function __clone()

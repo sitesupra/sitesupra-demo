@@ -36,7 +36,7 @@ $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 $config->setMetadataDriverImpl($driverImpl);
 
 // Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy');
+$config->setProxyDir(SUPRA_TESTS_LIBRARY_PATH . 'Supra/Proxy');
 $config->setProxyNamespace('Supra\\Proxy');
 $config->setAutoGenerateProxyClasses(true);
 

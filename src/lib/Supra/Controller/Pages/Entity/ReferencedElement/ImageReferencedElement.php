@@ -191,7 +191,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 * {@inheritdoc}
 	 * @param array $array
 	 */
-	protected function fillArray(array $array)
+	public function fillArray(array $array)
 	{
 		$this->imageId = $array['image'];
 		$this->align = $array['align'];

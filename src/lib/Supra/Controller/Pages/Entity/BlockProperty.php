@@ -50,13 +50,6 @@ class BlockProperty extends Entity
 	protected $value;
 	
 	/**
-	 * Serialized value additional data
-	 * @Column(type="text", name="value_data", nullable=true)
-	 * @var string
-	 */
-	protected $valueData;
-	
-	/**
 	 * Value additional data about links, images
 	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, fetch="EAGER", indexBy="name")
 	 * @var Collections\Collection
@@ -202,23 +195,6 @@ class BlockProperty extends Entity
 		}
 		
 		return $valueData;
-		
-//		$valueData = null;
-//		
-//		if (isset($this->valueData)) {
-//			$valueData = unserialize($this->valueData);
-//		}
-//		
-//		return $valueData;
-	}
-	
-	/**
-	 * Set value data, usually array
-	 * @param mixed $value
-	 */
-	public function setValueData($value)
-	{
-		$this->valueData = serialize($value);
 	}
 	
 	/**

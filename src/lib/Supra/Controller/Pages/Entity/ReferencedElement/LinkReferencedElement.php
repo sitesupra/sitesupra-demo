@@ -2,8 +2,9 @@
 
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
-use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity\PageData;
 use Supra\FileStorage\Entity\File;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * @Entity
@@ -171,7 +172,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * {@inheritdoc}
 	 * @param array $array
 	 */
-	protected function fillArray(array $array)
+	public function fillArray(array $array)
 	{
 		$this->resource = $array['resource'];
 		$this->title = $array['title'];
@@ -179,6 +180,68 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->pageId = $array['page_id'];
 		$this->fileId = $array['file_id'];
 		$this->href = $array['href'];
+	}
+	
+	/**
+	 * Get URL of the link using $context for ObjectRepository calls
+	 * @param mixed $context
+	 * @param string $localeId
+	 */
+	public function getUrl($context)
+	{
+		$url = null;
+		$localeManager = ObjectRepository::getLocaleManager($context);
+		$localeId = $localeManager->getCurrent()->getId();
+		
+		switch ($this->getResource()) {
+			
+			case 'page':
+				$pageId = $this->getPageId();
+
+				$em = ObjectRepository::getEntityManager($context);
+
+				$pageDataEntity = PageData::CN();
+
+				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
+						WHERE d.locale = ?0 AND d.master = ?1");
+
+				$params = array(
+					0 => $localeId,
+					1 => $pageId,
+				);
+
+				$query->execute($params);
+
+				try {
+					/* @var $page PageData */
+					$pageData = $query->getSingleResult();
+					$url = '/' . $pageData->getPath();
+				} catch (\Doctrine\ORM\NoResultException $noResults) {
+					//ignore
+				}
+				break;
+			
+			case 'file':
+				$fileId = $this->getFileId();
+				$fs = ObjectRepository::getFileStorage($context);
+				$em = $fs->getDoctrineEntityManager();
+				$file = $em->find(File::CN(), $fileId);
+
+				if ($file instanceof File) {
+					$url = $fs->getWebPath($file);
+				}
+
+				break;
+				
+			case 'link':
+				$url = $this->getHref();
+				break;
+
+			default:
+				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");
+		}
+		
+		return $url;
 	}
 
 }

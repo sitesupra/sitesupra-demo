@@ -144,6 +144,18 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
         return parent::unsetScheduleTime();
     }
 
+    public function getRedirect()
+    {
+        $this->__load();
+        return parent::getRedirect();
+    }
+
+    public function setRedirect(\Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement $redirect = NULL)
+    {
+        $this->__load();
+        return parent::setRedirect($redirect);
+    }
+
     public function getLocale()
     {
         $this->__load();
@@ -243,7 +255,7 @@ class SupraControllerPagesEntityPageDataProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'locale', 'title', 'master', 'id', 'template', 'path', 'pathPart', 'metaDescription', 'metaKeywords', 'active', 'scheduleTime');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'id', 'template', 'path', 'pathPart', 'metaDescription', 'metaKeywords', 'active', 'scheduleTime', 'redirect');
     }
 
     public function __clone()

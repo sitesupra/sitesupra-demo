@@ -126,6 +126,12 @@ class SupraControllerPagesEntityReferencedElementImageReferencedElementProxy ext
         return parent::toArray();
     }
 
+    public function fillArray(array $array)
+    {
+        $this->__load();
+        return parent::fillArray($array);
+    }
+
     public function getDiscriminator()
     {
         $this->__load();

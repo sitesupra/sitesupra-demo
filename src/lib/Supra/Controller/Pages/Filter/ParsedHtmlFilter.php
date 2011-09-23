@@ -41,57 +41,7 @@ class ParsedHtmlFilter implements FilterInterface
 	 */
 	private function parseSupraLink($content, Entity\ReferencedElement\LinkReferencedElement $link)
 	{
-		$url = null;
-		$localeManager = ObjectRepository::getLocaleManager($this);
-		$localeId = $localeManager->getCurrent()->getId();
-
-		switch ($link->getResource()) {
-			case 'page':
-				$pageId = $link->getPageId();
-
-				$em = ObjectRepository::getEntityManager($this);
-
-				$pageDataEntity = Entity\PageData::CN();
-
-				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
-						WHERE d.locale = ?0 AND d.master = ?1");
-
-				$params = array(
-					0 => $localeId,
-					1 => $pageId,
-				);
-
-				$query->execute($params);
-
-				try {
-					/* @var $page Entity\PageData */
-					$pageData = $query->getSingleResult();
-					$url = '/' . $pageData->getPath();
-				} catch (\Doctrine\ORM\NoResultException $noResults) {
-					//ignore
-				}
-
-				break;
-			case 'file':
-
-				$fileId = $link->getFileId();
-				$fs = ObjectRepository::getFileStorage($this);
-				$em = $fs->getDoctrineEntityManager();
-				$file = $em->find('Supra\FileStorage\Entity\File', $fileId);
-
-				if ($file instanceof \Supra\FileStorage\Entity\File) {
-					$url = $fs->getWebPath($file);
-				}
-
-				break;
-			case 'link':
-				$url = $link->getHref();
-				break;
-
-			default:
-				$this->log->warn("Unrecognized resource for supra html markup link tag, data: ", $link);
-		}
-
+		$url = $link->getUrl($this);
 		$target = $link->getTarget();
 		$title = $link->getTitle();
 

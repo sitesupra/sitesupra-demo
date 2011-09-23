@@ -32,7 +32,7 @@ class PageRequestEdit extends PageRequest
 			return;
 		}
 		
-		$draftData = $this->getRequestPageData();
+		$draftData = $this->getPageData();
 		
 		$pageId = $draftData->getMaster()->getId();
 		$localeId = $draftData->getLocale();
@@ -49,12 +49,29 @@ class PageRequestEdit extends PageRequest
 		/* @var $publicPage Entity\Abstraction\Page */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 		
+		// Something went very wrong
 		if (empty($publicPage)) {
 			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
 		}
+		
+		// Remove the old redirect link referenced element
+		$publicData = $publicPage->getData($localeId);
+		$oldRedirect = $newRedirect = null;
+		
+		if ($publicData instanceof Entity\PageData) {
+			$oldRedirect = $publicData->getRedirect();
+		}
+		
+		// FIXME: this just registers link referenced element proxy class inside the metadata or else merge fails..
+		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 
+		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
+		
+		if ($publicData instanceof Entity\PageData) {
+			$newRedirect = $publicData->getRedirect();
+		}
 
 		// 1. Get all blocks to be copied
 		$draftBlocks = $this->getBlocksInPage($draftEm, $publicData);
@@ -150,6 +167,13 @@ class PageRequestEdit extends PageRequest
 		// 11. Merge all properties from 5
 		foreach ($draftProperties as $property) {
 			$publicEm->merge($property);
+		}
+		
+		// 12. Remove old redirect if exists and doesn't match with new one
+		if ( ! is_null($oldRedirect)) {
+			if (is_null($newRedirect) || ! $oldRedirect->equals($newRedirect)) {
+				$publicEm->remove($oldRedirect);
+			}
 		}
 
 		$publicEm->flush();

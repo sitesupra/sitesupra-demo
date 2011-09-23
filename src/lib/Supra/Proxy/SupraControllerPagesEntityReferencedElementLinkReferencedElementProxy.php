@@ -114,6 +114,18 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
         return parent::toArray();
     }
 
+    public function fillArray(array $array)
+    {
+        $this->__load();
+        return parent::fillArray($array);
+    }
+
+    public function getUrl($context)
+    {
+        $this->__load();
+        return parent::getUrl($context);
+    }
+
     public function getDiscriminator()
     {
         $this->__load();
