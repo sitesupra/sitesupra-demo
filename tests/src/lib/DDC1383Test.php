@@ -4,7 +4,7 @@ namespace Supra\Tests;
 
 use Doctrine\ORM\UnitOfWork;
 
-class DDC1392Test extends \PHPUnit_Framework_TestCase
+class DDC1383Test extends \PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
@@ -15,117 +15,85 @@ class DDC1392Test extends \PHPUnit_Framework_TestCase
 		
         try {
             $this->_schemaTool->createSchema(array(
-                $this->_em->getClassMetadata(__NAMESPACE__ . '\DDC1392File'),
-                $this->_em->getClassMetadata(__NAMESPACE__ . '\DDC1392Picture'),
+                $this->_em->getClassMetadata(__NAMESPACE__ . '\DDC1383AbstractEntity'),
+                $this->_em->getClassMetadata(__NAMESPACE__ . '\DDC1383Entity'),
             ));
         } catch(\Exception $ignored) {}
     }
 
     public function testFailingCase()
     {
-		// Remove all data so we can count in the end
-		$this->_em->createQuery("DELETE FROM " . __NAMESPACE__ . '\DDC1392Picture')->execute();
-		$this->_em->createQuery("DELETE FROM " . __NAMESPACE__ . '\DDC1392File')->execute();
+		$parent = new DDC1383Entity();
+		$child = new DDC1383Entity();
 		
-        $file = new DDC1392File;
-
-        $picture = new DDC1392Picture;
-        $picture->setFile($file);
-
-        $em = $this->_em;
-        $em->persist($picture);
-        $em->flush();
-        $em->clear();
-
-        $fileId = $file->getFileId();
-        $pictureId = $picture->getPictureId();
-        
-        $this->assertTrue($fileId > 0);
-
-        $picture = $em->find(__NAMESPACE__ . '\DDC1392Picture', $pictureId);
-        $this->assertEquals(UnitOfWork::STATE_MANAGED, $em->getUnitOfWork()->getEntityState($picture->getFile()), "Lazy Proxy should be marked MANAGED.");
+		$child->setReference($parent);
 		
-		$file = $picture->getFile();
+		$this->_em->persist($parent);
+		$this->_em->persist($child);
 		
-		// With this activated there will be no problem
-//		$file->__load();
+		$id = $child->getId();
 		
-		$picture->setFile(null);
+		$this->_em->flush();
+		$this->_em->clear();
 		
-		$em->clear();
-
-        $em->merge($file);
+		// Try merging the parent entity
+		$child = $this->_em->merge($child);
+		$parent = $child->getReference();
 		
-        $em->flush();
+		// Parent is not instance of the abstract class
+		self::assertTrue($parent instanceof DDC1383AbstractEntity,
+				"Entity class is " . get_class($parent) . ', "DDC1383AbstractEntity" was expected');
 		
-		$q = $this->_em->createQuery("SELECT COUNT(e) FROM " . __NAMESPACE__ . '\DDC1392File e');
-		$result = $q->getSingleScalarResult();
-		
-		self::assertEquals(1, $result);
+		// Parent is NOT instance of entity
+		self::assertTrue($parent instanceof DDC1383Entity,
+				"Entity class is " . get_class($parent) . ', "DDC1383Entity" was expected');
     }
 }
 
 /**
  * @Entity
+ * @InheritanceType("JOINED")
+ * @DiscriminatorColumn(name="discr", type="integer")
+ * @DiscriminatorMap({1 = "DDC1383Entity"})
  */
-class DDC1392Picture
+abstract class DDC1383AbstractEntity
 {
-    /**
-     * @Column(name="picture_id", type="integer")
-     * @Id @GeneratedValue
-     */
-    private $pictureId;
+	/**
+	 * @Id
+	 * @Column(type="integer")
+	 * @GeneratedValue
+	 */
+	protected $id;
+	
+	public function getId()
+	{
+		return $this->id;
+	}
 
-    /**
-     * @ManyToOne(targetEntity="DDC1392File", cascade={"persist", "remove"})
-     * @JoinColumns({
-     *   @JoinColumn(name="file_id", referencedColumnName="file_id")
-     * })
-     */
-    private $file;
-
-    /**
-     * Get pictureId
-     */
-    public function getPictureId()
-    {
-        return $this->pictureId;
-    }
-
-    /**
-     * Set file
-     */
-    public function setFile($value = null)
-    {
-        $this->file = $value;
-    }
-
-    /**
-     * Get file
-     */
-    public function getFile()
-    {
-        return $this->file;
-    }
+	public function setId($id)
+	{
+		$this->id = $id;
+	}
 }
+
 
 /**
  * @Entity
  */
-class DDC1392File
+class DDC1383Entity extends DDC1383AbstractEntity
 {
-    /**
-     * @Column(name="file_id", type="integer")
-     * @Id
-     * @GeneratedValue(strategy="AUTO")
-     */
-    public $fileId;
+	/**
+	 * @ManyToOne(targetEntity="DDC1383AbstractEntity")
+	 */
+	protected $reference;
+	
+	public function getReference()
+	{
+		return $this->reference;
+	}
 
-    /**
-     * Get fileId
-     */
-    public function getFileId()
-    {
-        return $this->fileId;
-    }
+	public function setReference(DDC1383AbstractEntity $reference)
+	{
+		$this->reference = $reference;
+	}
 }

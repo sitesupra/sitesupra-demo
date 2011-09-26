@@ -37,8 +37,14 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	function setUp() 
 	{
 		$this->em = ObjectRepository::getEntityManager($this);
+		
+		// ACL model creation
+		try {
+			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/mysql.sql'));
+		} catch (\Exception $e) {}
+		
 		$this->em->beginTransaction();
-		$this->em->beginTransaction();
+//		$this->em->beginTransaction();
 		
 		$this->up = ObjectRepository::getUserProvider($this);
 
@@ -60,7 +66,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
 
 		$authenticationSessionNamespace = $sessionNamespaceManager
-			->getOrCreateSessionNamespace('Cms', 'Project\Authentication\AuthenticationSessionNamespace');
+			->getOrCreateSessionNamespace('Tests', 'Supra\Tests\Authentication\AuthenticationSessionNamespace');
 
 		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
 	}
@@ -76,7 +82,6 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$em->persist($user);
 
 		$user->setName($name);
-		$user->resetSalt();
 		$user->setEmail($name . '@' . $name . '.com');
 		
 		ObjectRepository::getUserProvider($this)
@@ -93,7 +98,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	function tearDown() 
 	{
 		$this->em->rollback();
-		$this->em->rollback();
+//		$this->em->rollback();
 	}
 	
 	function testControllerGrantAccessPermission() 

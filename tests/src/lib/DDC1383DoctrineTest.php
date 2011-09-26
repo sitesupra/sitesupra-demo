@@ -1,17 +1,15 @@
 <?php
 
-namespace Supra\Tests;
-
+namespace Doctrine\Tests\ORM\Functional\Ticket;
 use Doctrine\ORM\UnitOfWork;
 
-class DDC1383Test extends \PHPUnit_Framework_TestCase
+require_once __DIR__ . '/../../../TestInit.php';
+
+class DDC1383Test extends \Doctrine\Tests\OrmFunctionalTestCase
 {
     protected function setUp()
     {
         parent::setUp();
-		
-		$this->_em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
-		$this->_schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->_em);
 		
         try {
             $this->_schemaTool->createSchema(array(
@@ -75,7 +73,6 @@ abstract class DDC1383AbstractEntity
 		$this->id = $id;
 	}
 }
-
 
 /**
  * @Entity
