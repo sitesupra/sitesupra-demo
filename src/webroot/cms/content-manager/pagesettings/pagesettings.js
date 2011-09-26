@@ -508,7 +508,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			if (this.getType() == 'page') {	//Page
 				
 				//If there is no redirect URL, then send empty value
-				if (!post_data.redirect.href && !post_data.redirect.page_id) {
+				if (!post_data.redirect || (!post_data.redirect.href && !post_data.redirect.page_id)) {
 					post_data.redirect = '';
 				}
 				

@@ -10,8 +10,6 @@ class String extends EditableAbstraction
 	const EDITOR_TYPE = 'String';
 	const EDITOR_INLINE_EDITABLE = true;
 	
-	private $defaultValue = '';
-	
 	/**
 	 * Default filter classes for content by action
 	 * @var array
@@ -19,7 +17,6 @@ class String extends EditableAbstraction
 	protected static $defaultFilters = array(
 		'Supra\Editable\Filter\EscapeHtml',
 	);
-	
 	
 	/**
 	 * Return editor type
@@ -39,21 +36,4 @@ class String extends EditableAbstraction
 		return self::EDITOR_INLINE_EDITABLE;
 	}
 	
-	/**
-	 * @return mixed 
-	 */
-	public function getDefaultValue()
-	{
-		return $this->defaultValue;
-	}
-
-	/**
-	 * @param mixed $value 
-	 */
-	public function setDefaultValue($value)
-	{
-		$this->defaultValue = $value;
-	}
-
-
 }

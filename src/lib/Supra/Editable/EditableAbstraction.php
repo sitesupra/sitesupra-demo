@@ -7,7 +7,6 @@ namespace Supra\Editable;
  */
 abstract class EditableAbstraction implements EditableInterface
 {
-
 	/**
 	 * Default filter classes for content by action
 	 * @var array
@@ -30,6 +29,12 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @var string
 	 */
 	protected $label;
+	
+	/**
+	 * Default value
+	 * @var mixed
+	 */
+	protected $defaultValue = '';
 
 	/**
 	 * @param string $label
@@ -114,6 +119,22 @@ abstract class EditableAbstraction implements EditableInterface
 	public function setLabel($label)
 	{
 		$this->label = $label;
+	}
+	
+	/**
+	 * @return mixed 
+	 */
+	public function getDefaultValue()
+	{
+		return $this->defaultValue;
+	}
+
+	/**
+	 * @param mixed $value 
+	 */
+	public function setDefaultValue($value)
+	{
+		$this->defaultValue = $value;
 	}
 
 }

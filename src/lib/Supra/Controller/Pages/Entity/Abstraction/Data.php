@@ -154,7 +154,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	
 	public function getAuthorizationAncestors($includingSelf = true) 
 	{
-		return $this->getAncestors(0, $includeSelf);
+		return $this->getAncestors(0, $includingSelf);
 	}
 	
 	public function getPermissionTypes() 

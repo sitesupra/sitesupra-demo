@@ -29,9 +29,9 @@ class TwigHelper
 	 * @param string $name
 	 * @return string
 	 */
-	public function property($name, $default = null)
+	public function property($name)
 	{
-		$value = $this->blockController->getPropertyValue($name, $default);
+		$value = $this->blockController->getPropertyValue($name);
 		
 		// Marks content safe
 		$valueObject = new Twig_Markup($value);

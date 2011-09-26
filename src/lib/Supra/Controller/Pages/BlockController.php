@@ -94,10 +94,9 @@ abstract class BlockController extends ControllerAbstraction
 
 	/**
 	 * @param string $name
-	 * @param mixed $default
 	 * @return Entity\BlockProperty
 	 */
-	public function getProperty($name, $default)
+	public function getProperty($name)
 	{
 		$property = null;
 		
@@ -138,7 +137,7 @@ abstract class BlockController extends ControllerAbstraction
 			$propertyType = get_class($editable);
 
 			$property = new Entity\BlockProperty($name, $propertyType);
-			$property->setValue($default);
+			$property->setValue($editable->getDefaultValue());
 			$property->setBlock($this->getBlock());
 
 			// Must set some DATA object. Where to get this? And why data is set to property not block?
@@ -182,12 +181,11 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * Get property value, use default if not found
 	 * @param string $name
-	 * @param string $default
 	 * @return string
 	 */
-	public function getPropertyValue($name, $default = null)
+	public function getPropertyValue($name)
 	{
-		$property = $this->getProperty($name, $default);
+		$property = $this->getProperty($name);
 		$editable = $property->getEditable();
 		$value = $editable->getFilteredValue();
 		
@@ -218,12 +216,10 @@ abstract class BlockController extends ControllerAbstraction
 	 * @TODO could move to block response object
 	 * 
 	 * @param string $name
-	 * @param string $default
 	 */
-	public function outputProperty($name, $default = null)
+	public function outputProperty($name)
 	{
-		$value = $this->getPropertyValue($name, $default);
-		
+		$value = $this->getPropertyValue($name);
 		$this->response->output($value);
 	}
 

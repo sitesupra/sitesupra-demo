@@ -44,12 +44,13 @@ class TextController extends BlockController
 	{
 		$contents = array();
 		
-		$html = new \Supra\Editable\Html("The Main Content");
-		$html->setDefaultValue(array('html' => '', 'data' => array()));
-		$contents['html'] = $html;
+		$html = new \Supra\Editable\String("Title");
+		$html->setDefaultValue('Paragraph default title');
+		$contents['title'] = $html;
 		
-//		$html = new \Supra\Editable\Html("The Secondary Content");
-//		$contents['html2'] = $html;
+		$html = new \Supra\Editable\Html("Content");
+		$contents['content'] = $html;
+		
 		
 		return $contents;
 	}

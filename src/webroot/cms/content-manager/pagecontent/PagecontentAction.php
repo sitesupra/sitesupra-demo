@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;
+use Supra\Controller\Pages\BlockControllerCollection;
 
 /**
  * Controller for page content requests
@@ -50,13 +51,16 @@ class PagecontentAction extends PageManagerAction
 		$block->prepareController($controller, $request);
 		$block->executeController($controller);
 		$response = $controller->getResponse();
+		$locked = false;
+		
+		if ($block instanceof Entity\TemplateBlock) {
+			$locked = $block->getLocked();
+		}
 		
 		$array = array(
 			'id' => $block->getId(),
 			'type' => $blockType,
-			
-			//TODO: implement block locking inside the template
-			'locked' => false,
+			'locked' => $locked,
 			
 			// TODO: generate
 			'properties' => array(
@@ -86,90 +90,120 @@ class PagecontentAction extends PageManagerAction
 		/* @var $blockEntity Entity\Abstraction\Block */
 		$blockEntity = $this->entityManager->find(PageRequest::BLOCK_ENTITY, $blockId);
 		
-		//TODO: Fix this
-		$name = 'html';
-		$type = 'Supra\Editable\Html';
-		$value = $_POST['properties']['html']['html'];
-		$valueData = $_POST['properties']['html']['data'];
+		// We need block controller to receive block property definition
+		$blockName = $blockEntity->getComponentName();
+		$blockCollection = BlockControllerCollection::getInstance();
+		$blockController = $blockCollection->getBlockController($blockName);
+		$propertyDefinitionList = $blockController->getPropertyDefinition();
 		
-		// Property select in one DQL
-		$blockPropertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+		// Load received property values and data from the POST
+		$properties = $this->getRequestParameter('properties');
 		
-		$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
-				JOIN p.data AS d
-				JOIN p.block AS b
-			WHERE d.master = ?0 AND p.block = ?1 AND d.locale = ?2 AND p.name = ?3 AND p.type = ?4");
-		
-		$params = array(
-			$pageId,
-			$blockId,
-			$localeId,
-			$name,
-			$type
-		);
-		
-		$query->setParameters($params);
-		
-		/* @var $blockProperty Entity\BlockProperty */
-		$blockProperty = null;
-		
-		try {
-			$blockProperty = $query->getSingleResult();
-		} catch (\Doctrine\ORM\NoResultException $noResults) {
+		foreach ($properties as $propertyName => $propertyPost) {
 			
-			$blockEntity = PageRequest::BLOCK_ENTITY;
-			$block = $this->entityManager->find($blockEntity, $blockId);
-			
-			if (empty($block)) {
-				throw new CmsException(null, "Block doesn't exist anymore");
+			if ( ! isset($propertyDefinitionList[$propertyName])) {
+				throw new CmsException(null, "Property $propertyName not defined for block $blockName");
 			}
 			
-			$blockProperty = new Entity\BlockProperty($name, $type);
-			$this->entityManager->persist($blockProperty);
-			$blockProperty->setData($pageData);
-			$blockProperty->setBlock($block);
-		}
-		
-		// Image resizer
-		// FIXME move outside (probably to doctrine listener)
-		$fileStorage = 
-				\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
-		
-		foreach ($valueData as &$valueDataItem) {
+			$propertyDefinition = $propertyDefinitionList[$propertyName];
 			
-			if ($valueDataItem['type'] == 'image') {
-				
-				$image = $fileStorage->getDoctrineEntityManager()->find(
-						\Supra\FileStorage\Entity\Image::CN(), 
-						$valueDataItem['image']);
-				
-				if ($image instanceof \Supra\FileStorage\Entity\Image) {
-					$sizeName = $fileStorage->createResizedImage($image, 
-							$valueDataItem['size_width'], 
-							$valueDataItem['size_height']);
-					$valueDataItem['size_name'] = $sizeName;
-				}
+			if ( ! $propertyDefinition instanceof \Supra\Editable\EditableInterface) {
+				throw new CmsException(null, "Property $propertyName definition must implement EditableInterface");
 			}
-		}
-		unset($valueDataItem);
-		
-		// Remove all old references
-		$metadataCollection = $blockProperty->getMetadata();
-		foreach ($metadataCollection as $metadata) {
-			$this->entityManager->remove($metadata);
-		}
-		
-		// Empty the metadata
-		$blockProperty->resetMetadata();
+			
+			$name = $propertyName;
+			$type = get_class($propertyDefinition);
+			$value = $propertyPost['html'];
+			$valueData = array();
+			if (isset($propertyPost['data'])) {
+				$valueData = $propertyPost['data'];
+			}
 
-		// Set new refeneced elements
-		$blockProperty->setValue($value);
-		
-		foreach ($valueData as $elementName => &$elementData) {
-			$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
-			
-			$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
-			$blockProperty->addMetadata($blockPropertyMetadata);
+			// Property select in one DQL
+			$blockPropertyEntity = Entity\BlockProperty::CN();
+
+			$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
+					JOIN p.data AS d
+					JOIN p.block AS b
+				WHERE d.master = ?0 
+					AND p.block = ?1 
+					AND d.locale = ?2 
+					AND p.name = ?3
+					AND p.type = ?4");
+
+			$params = array(
+				$pageId,
+				$blockId,
+				$localeId,
+				$name,
+				$type
+			);
+
+			$query->setParameters($params);
+
+			/* @var $blockProperty Entity\BlockProperty */
+			$blockProperty = null;
+
+			try {
+				$blockProperty = $query->getSingleResult();
+			} catch (\Doctrine\ORM\NoResultException $noResults) {
+
+				$blockEntity = PageRequest::BLOCK_ENTITY;
+				$block = $this->entityManager->find($blockEntity, $blockId);
+
+				if (empty($block)) {
+					throw new CmsException(null, "Block doesn't exist anymore");
+				}
+
+				$blockProperty = new Entity\BlockProperty($name, $type);
+				$this->entityManager->persist($blockProperty);
+				$blockProperty->setData($pageData);
+				$blockProperty->setBlock($block);
+			}
+
+			// Image resizer
+			// FIXME move outside (probably to doctrine listener)
+			{
+				$fileStorage = 
+						\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+
+				foreach ($valueData as &$valueDataItem) {
+
+					if ($valueDataItem['type'] == 'image') {
+
+						$image = $fileStorage->getDoctrineEntityManager()->find(
+								\Supra\FileStorage\Entity\Image::CN(), 
+								$valueDataItem['image']);
+
+						if ($image instanceof \Supra\FileStorage\Entity\Image) {
+							$sizeName = $fileStorage->createResizedImage($image, 
+									$valueDataItem['size_width'], 
+									$valueDataItem['size_height']);
+							$valueDataItem['size_name'] = $sizeName;
+						}
+					}
+				}
+				unset($valueDataItem);
+			}
+
+			// Remove all old references
+			$metadataCollection = $blockProperty->getMetadata();
+			foreach ($metadataCollection as $metadata) {
+				$this->entityManager->remove($metadata);
+			}
+
+			// Empty the metadata
+			$blockProperty->resetMetadata();
+
+			// Set new refeneced elements
+			$blockProperty->setValue($value);
+
+			foreach ($valueData as $elementName => &$elementData) {
+				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
+
+				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
+				$blockProperty->addMetadata($blockPropertyMetadata);
+			}
 		}
 		
 		$this->entityManager->flush();
