@@ -7,6 +7,7 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Authorization\PermissionType;
+use Supra\Controller\Pages\Entity\LockData;
 
 /**
  * @Entity
@@ -42,6 +43,20 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	 * @var AbstractPage
 	 */
 	protected $master;
+	
+	/**
+	 * Object's lock
+	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
+	 * @var LockData
+	 */
+	protected $lock;
+	
+	/**
+	 * Left here just because cascade in remove
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="data", cascade={"persist", "remove"}, fetch="LAZY") 
+	 * @var Collection 
+	 */ 
+	protected $blockProperties; 
 
 	/**
 	 * Construct
@@ -148,5 +163,25 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 			self::ACTION_EDIT_PAGE_NAME => new PermissionType(self::ACTION_EDIT_PAGE_NAME, self::ACTION_EDIT_PAGE_MASK),
 			self::ACTION_PUBLISH_PAGE_NAME => new PermissionType(self::ACTION_PUBLISH_PAGE_NAME, self::ACTION_PUBLISH_PAGE_MASK)
 		);
-	}	
+	}
+	
+	/**
+	 * Returns page lock object
+	 * @return LockData
+	 */
+	public function getLock()
+	{
+		return $this->lock;
+	}
+	
+	/**
+	 * Sets page lock object
+	 * @param LockData $lock 
+	 */
+	public function setLock($lock)
+	{
+		$this->lock = $lock;
+	}
+	
+	
 }

@@ -302,4 +302,188 @@ abstract class PageManagerAction extends CmsAction
 		return $data;
 	}
 	
+	protected function delete()
+	{
+		$this->isPostRequest();
+	
+		$pageId = $this->getRequestParameter('page_id');
+		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
+		$publicEm = ObjectRepository::getEntityManager('');
+		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
+		
+		$pageRequest = $this->getPageRequest();
+		
+		// If entity is a page, then get it template
+		// and create they copies for _trash scheme
+		$draftPage = $draftEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		if ($draftPage instanceof Entity\Page) {
+			$draftPageCollection = $draftPage->getDataCollection();
+			foreach ($draftPageCollection as $pageLocalization) {
+				$draftTpl = $pageLocalization->getTemplate();
+				$draftTplId = $draftTpl->getId();
+				$tpl = $publicEm->find(PageRequest::TEMPLATE_ENTITY, $draftTplId);
+				$trashEm->merge($tpl);
+			}
+			$draftEm->flush();
+		}
+
+		// We should delete published version also (if any)
+		$publicEm = ObjectRepository::getEntityManager('');
+		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		if ($publicPage instanceof Entity\Abstraction\Page) {
+			$publicPageCollection = $publicPage->getDataCollection();
+			foreach ($publicPageCollection as $pageLocalization) {
+				$publicEm->remove($pageLocalization);
+			}
+			$placeholders = $publicPage->getPlaceHolders();
+			foreach($placeholders as $placeholder){
+				$publicEm->remove($placeholder);
+			}
+			$publicEm->flush();
+		}
+		
+		$pageRequest->moveBetweenManagers($draftEm, $trashEm, $pageId);
+		$this->getResponse()
+				->setResponseData(true);
+	}
+	
+	/**
+	 * Will move all page data and page itself from trash into draft tables
+	 */
+	protected function restore()
+	{
+		$this->isPostRequest();
+		
+		$pageId = $this->getRequestParameter('page_id');
+		$publicEm = ObjectRepository::getEntityManager('');
+		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
+		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
+		
+		// Override Cms entity manager to handle trash pages
+		$this->entityManager = $trashEm;
+		$pageRequest = $this->getPageRequest();
+		
+		$trashPage = $trashEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		if ($trashPage instanceof Entity\Page) {
+
+			$trashPageCollection = $trashPage->getDataCollection();
+			foreach($trashPageCollection as $pageLocalization) {
+				$templateId = $pageLocalization->getTemplate()->getId();
+				
+				$tpl = $publicEm->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+				if ( ! ($tpl instanceof Entity\Template)) {
+					throw new \Supra\Controller\Pages\Exception\RuntimeException('It is impossible to restore page as it template was deleted');
+				}
+			}
+			
+			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageId);
+		}
+		else {
+			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageId, true);
+		}
+
+		// Restore default entity manager
+		$this->entityManager = ObjectRepository::getEntityManager($this);
+		
+		// TODO: move action
+	}
+	
+	
+	/**
+	 * Checks, weither the page is locked by current user or not,
+	 * will throw an exception if no, and update lock modified time if yes
+	 * @throws CmsException if page is locked by another user
+	 */
+	protected function checkLock()
+	{
+		$this->isPostRequest();
+		
+		$userId = $this->getUser()->getId();
+		$pageData = $this->getPageData();
+		
+		$pageLock = $pageData->getLock();
+		
+		if ($pageLock instanceof Entity\LockData) {
+			if (($pageLock->getUser() != $userId)) {
+				throw new CmsException('page.error.page_locked', 'Page is locked by another user');
+			} else {
+				$pageLock->setModifiedTime(new \DateTime('now'));
+				$this->entityManager->flush();
+			}
+		} 
+	}
+	
+	/**
+	 * Removes page lock if exists
+	 */
+	protected function unlockPage()
+	{
+		$this->isPostRequest();
+		
+		$userId = $this->getUser()->getId();
+		$pageData = $this->getPageData();
+		
+		$pageLock = $pageData->getLock();
+		
+		if ($pageLock instanceof Entity\LockData) {
+			$this->entityManager->remove($pageLock);
+			$pageData->setLock(null);
+
+			$this->entityManager->flush();
+		}
+	}
+	
+	/**
+	 * Sets page lock, if no lock is found, or if "force"-locking is used;
+	 * will output current lock data if page locked by another user and 
+	 * force action is not allowed or not provided
+	 */
+	protected function lockPage()
+	{
+		$this->isPostRequest();
+		
+		$userId = $this->getUser()->getId();
+		$pageData = $this->getPageData();
+		
+		$allowForced = true; // TODO: hardcoded, should be based on current User rights/auth
+		$force = (bool)$this->getRequestParameter('force');
+		
+		try {
+			$this->checkLock();
+		} catch (\Exception $e) {
+			if ( ! $force ||  ! $allowForced) {
+				
+				$pageLock = $pageData->getLock();
+				$lockedBy = $pageLock->getUser();
+				
+				$userProvider = \Supra\ObjectRepository\ObjectRepository::getUserProvider($this);
+				$lockOwner = $userProvider->findUserById($lockedBy);
+				
+				if (!($lockOwner instanceof User)) {
+					throw new \Supra\Controller\Pages\Exception\RuntimeException('Failed to load user-data for lock owner');
+				}
+
+				$response = array(
+					'username' => $lockOwner->getName(),
+					'datetime' => $pageLock->getCreatedTime()->format('c'),
+					'allow_unlock' => $allowForced,
+				);
+				
+				$this->getResponse()
+						->setResponseData($response);
+				return;
+				
+			}
+		}
+		
+		$pageLock = new Entity\LockData;
+		$this->entityManager->persist($pageLock);
+		
+		$pageLock->setUser($userId);
+		$pageData->setLock($pageLock);
+		$this->entityManager->flush();
+	
+		$this->getResponse()->setResponseData(true);
+	}
+	
 }

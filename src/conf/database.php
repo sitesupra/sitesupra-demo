@@ -10,8 +10,11 @@ use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
+use Supra\Controller\Pages\Listener\TableTrashPrefixAppender;
 use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
 use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
+use Supra\Controller\Pages\Listener\TrashTableIdChange;
+use Supra\Controller\Pages\Listener\VersionedTableLockIdRemover;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 $config = new Configuration();
@@ -62,6 +65,7 @@ $commonEventManager->addEventListener(array(Events::loadClassMetadata), new Tabl
 
 $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new PublicVersionedTableIdChange());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new VersionedTableLockIdRemover());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
@@ -84,3 +88,22 @@ $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new
 $em->_mode = 'draft';
 
 ObjectRepository::setEntityManager('Supra\Cms', $em);
+
+/* Deleted pages entity manager */
+$config = clone($config);
+$cache = clone($cache);
+$cache->setNamespace('trash');
+$config->setMetadataCacheImpl($cache);
+$config->setQueryCacheImpl($cache);
+
+// Deleted connection for the CMS
+$eventManager = clone($commonEventManager);
+$eventManager->addEventListener(array(Events::loadClassMetadata), new TableTrashPrefixAppender());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new TrashTableIdChange());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new VersionedTableLockIdRemover());
+
+$em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->_mode = 'trash';
+
+ObjectRepository::setEntityManager('Supra\Cms\Abstraction\Trash', $em);

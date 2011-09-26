@@ -7,6 +7,7 @@ use Doctrine\ORM\Query;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Request object for edit mode requests
@@ -281,5 +282,114 @@ class PageRequestEdit extends PageRequest
 	public function blockFlushing()
 	{
 		$this->allowFlushing = false;
+	}
+	
+	private function getPagePropertySet (EntityManager $em, Entity\Abstraction\Data $data)
+	{
+		$pageDataId = $data->getId();
+		$locale = $data->getLocale();
+		$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+		
+		$dql = "SELECT p FROM $propertyEntity p 
+				WHERE p.data = ?0";
+		
+		$properties = $em->createQuery($dql)
+				->setParameters(array($pageDataId))
+				->getResult();
+		
+		return $properties;
+	}
+	
+	/**
+	 * Moves page abstract entity between specified entity managers
+	 * by creating a copy of page in destination manager 
+	 * and removes it in source manages.
+	 * Will return instance of copied page
+	 * 
+	 * @param EntityManager $sourceEm
+	 * @param EntityManager $destEm
+	 * @param integer $pageId
+	 * @param boolean $forceSave
+	 * @return type 
+	 */
+	public function moveBetweenManagers(EntityManager $sourceEm, EntityManager $destEm, $pageId, $forceSave = false)
+	{
+		$sourcePage = $sourceEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		if ( ! ($sourcePage instanceof Entity\Abstraction\AbstractPage)) {
+			throw new Exception\RuntimeException('Specified page was not found in source repository');
+		}
+		
+		/* 
+		 * Remove pathGenerator 
+		 * for destination entity manager 
+		 */
+		$listeners = $destEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
+		foreach ($listeners as $listener) {
+			if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
+				$listeners = $destEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
+			}
+		}
+		
+		$sourceEm->getConnection()
+				->beginTransaction();
+		$destEm->getConnection()
+				->beginTransaction();
+		
+		try {
+			$destPage = $destEm->merge($sourcePage);
+			$destEm->flush();
+			
+			$pageCollection = $sourcePage->getDataCollection();
+			foreach ($pageCollection as $pageLocalization) {
+				
+				// is needed for getBlocksInPage
+				$this->setLocale($pageLocalization->getLocale());
+	
+				// merge page localization
+				$destPageLocalization = $destEm->merge($pageLocalization);
+				// merge blocks
+				$blocks = $this->getBlocksInPage($sourceEm, $pageLocalization);
+				foreach ($blocks as $block) {
+					$placeholder = $block->getPlaceHolder();
+					$destEm->merge($placeholder);
+					$destEm->merge($block);
+					//$sourceEm->remove($block);
+				}
+				// merge block properties
+				$blockIdList = Entity\Abstraction\Entity::collectIds($blocks);
+				$properties = $this->getPagePropertySet($sourceEm, $pageLocalization);
+				foreach ($properties as $property) {
+					if (in_array($property->getBlock()->getId(), $blockIdList)) {
+						$destEm->merge($property);
+					}
+					$sourceEm->remove($property);
+				}
+				
+				$sourceEm->remove($pageLocalization);
+			}
+					
+			$placeholders = $sourcePage->getPlaceHolders();
+			foreach($placeholders as $placeholder) {
+				$destEm->merge($placeholder);
+				$sourceEm->remove($placeholder);
+			}
+			
+			$destEm->flush();
+			$sourceEm->flush();
+			
+			$destEm->getConnection()->commit();
+			$sourceEm->getConnection()->commit();
+			
+			return $destPage;
+			
+		} catch (\Exception $e) {
+			
+			$destEm->getConnection()
+					->rollBack();
+			$sourceEm->getConnection()
+					->rollBack();
+			
+			throw $e;
+        }
 	}
 }

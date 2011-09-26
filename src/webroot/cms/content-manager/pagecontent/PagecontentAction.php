@@ -207,6 +207,7 @@ class PagecontentAction extends PageManagerAction
 	public function orderblocksAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		
 		$pageId = $this->getRequestParameter('page_id');
 		$localeId = $this->getLocale()->getId();

@@ -29,7 +29,9 @@ abstract class SchemaAbstractCommand extends Command
 
 		$this->entityManagers = array(
 			'public' => ObjectRepository::getEntityManager(''),
-			'draft' => ObjectRepository::getEntityManager('Supra\Cms')
+			'draft' => ObjectRepository::getEntityManager('Supra\Cms'),
+			'trash' => ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash'),
+			//'history' => ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History'),
 		);
 	}
 }

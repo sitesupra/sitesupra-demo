@@ -31,7 +31,11 @@
 			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
 			
 			"locked_message": "Page was locked by {{ username }} on {{ datetime }}",
-			"unlock": "Unlock"
+			"unlock": "Unlock",
+			
+			"error": {
+				"page_locked": "Page is locked by another user"
+			}
 		},
 		
 		"template": {

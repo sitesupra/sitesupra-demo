@@ -117,7 +117,7 @@ class PageAction extends PageManagerAction
 		if ($page instanceof Entity\Template) {
 			$type = 'template';
 		}
-
+		
 		$array = array(
 			'id' => $page->getId(),
 			'title' => $pageData->getTitle(),
@@ -132,7 +132,7 @@ class PageAction extends PageManagerAction
 			'scheduled_date' => $scheduledDate,
 			'scheduled_time' => $scheduledTime,
 			'redirect' => $redirect,
-			'active' => $active
+			'active' => $active,
 		);
 		
 		if ($page instanceof Entity\Template) {
@@ -212,7 +212,7 @@ class PageAction extends PageManagerAction
 
 			$array['contents'][] = $placeHolderData;
 		}
-
+	
 		$this->getResponse()->setResponseData($array);
 	}
 
@@ -341,7 +341,6 @@ class PageAction extends PageManagerAction
 
 	/**
 	 * Called when page delete is requested
-	 * @TODO: for now the page is not removed, only it's localization
 	 */
 	public function deleteAction()
 	{
@@ -375,18 +374,8 @@ class PageAction extends PageManagerAction
 				return;
 			}
 		}
-
-		$pageData = $page->getData($localeId);
-
-		if (empty($pageData)) {
-			$this->getResponse()
-					->setErrorMessage("Page doesn't exist in language '$localeId'");
-
-			return;
-		}
-
-		$this->entityManager->remove($pageData);
-		$this->entityManager->flush();
+		
+		$this->delete();
 	}
 
 	/**
@@ -400,7 +389,31 @@ class PageAction extends PageManagerAction
 		// This failed..
 //		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE_NAME);
 		
+		$this->checkLock();
 		$this->publish();
+		$this->unlockPage();
+	}
+	
+	/**
+	 * Called on page locking action
+	 */
+	public function lockAction()
+	{
+		$this->lockPage();	
+	}
+	
+	/** 
+	 * Called on page unlock action
+	 */
+	public function unlockAction()
+	{
+		try {
+			$this->checkLock();
+		} catch (\Exception $e) {
+			$this->getResponse()->setResponseData(true);
+			return;
+		}
+		$this->unlockPage();
 	}
 
 }

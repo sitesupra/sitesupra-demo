@@ -110,13 +110,55 @@ class TemplateAction extends PageManagerAction
 		$this->entityManager->flush();
 	}
 
-//	/**
-//	 * Not implemented
-//	 */
-//	public function deleteAction()
-//	{
-//		
-//	}
+	public function deleteAction()
+	{
+		$this->isPostRequest();
+
+		$pageId = $this->getRequestParameter('page_id');
+		$localeId = $this->getLocale()->getId();
+
+		$page = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		if (empty($page)) {
+			$this->getResponse()
+					->setErrorMessage("Template doesn't exist already");
+
+			return;
+		}
+		
+		// Check if there is no children
+		$children = $page->getChildren();
+
+		foreach ($children as $child) {
+			/* @var $child Entity\Abstraction\Page */
+			$childData = $child->getData($localeId);
+
+			if ( ! empty($childData)) {
+				$this->getResponse()
+						->setErrorMessage("Cannot remove template with children");
+
+				return;
+			}
+		}
+		
+		// TODO: remove from controller
+		// TODO: or loop through array of pages (founded by findAll in PAGE_DATA_ENTITY repo)
+		// and compare getTemplate()->getId();
+		$pageDataEntity = PageRequest::PAGE_DATA_ENTITY;
+		$dql = "SELECT COUNT(p.id) FROM $pageDataEntity p 
+				WHERE p.template = ?0";
+		
+		$count = $this->entityManager->createQuery($dql)
+				->setParameters(array($pageId))
+					->getSingleScalarResult();
+		
+		if ( (int) $count > 0) {
+			$this->getResponse()
+						->setErrorMessage("Cannot remove template as there are pages using it");
+				return;
+		}
+		
+		$this->delete();
+	}
 
 	/**
 	 * Called on template publish
@@ -126,7 +168,31 @@ class TemplateAction extends PageManagerAction
 		// Must be executed with POST method
 		$this->isPostRequest();
 		
+		$this->checkLock();
 		$this->publish();
+		$this->unlockPage();
+	}
+	
+	/**
+	 * Called on template lock action
+	 */
+	public function lockAction()
+	{
+		$this->lockPage();	
+	}
+	
+	/** 
+	 * Called on template unlock action
+	 */
+	public function unlockAction()
+	{
+		try {
+			$this->checkLock();
+		} catch (\Exception $e) {
+			$this->getResponse()->setResponseData(true);
+			return;
+		}
+		$this->unlockPage();
 	}
 
 	/**

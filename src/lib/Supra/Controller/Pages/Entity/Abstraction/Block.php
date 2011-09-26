@@ -52,7 +52,7 @@ abstract class Block extends Entity
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}) 
 	 * @var Collection 
 	 */ 
-	protected $blockProperties; 
+	protected $blockProperties;
 
 	/**
 	 * This property is always false for page block

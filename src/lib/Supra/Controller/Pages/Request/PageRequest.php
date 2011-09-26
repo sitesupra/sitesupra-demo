@@ -117,17 +117,17 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @var Set\PlaceHolderSet
 	 */
-	private $placeHolderSet;
+	protected $placeHolderSet;
 	
 	/**
 	 * @var Set\BlockSet
 	 */
-	private $blockSet;
+	protected $blockSet;
 	
 	/**
 	 * @var BlockPropertySet
 	 */
-	private $blockPropertySet;
+	protected $blockPropertySet;
 	
 	/**
 	 * @param string $locale
