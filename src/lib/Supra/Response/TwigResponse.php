@@ -57,7 +57,7 @@ class TwigResponse extends HttpResponse
 		$oldLoader = $this->twigEnvironment->getLoader();
 		$e = null;
 		
-		$loader = new \Twig_Loader_Filesystem(SUPRA_PATH . $this->templatePath);
+		$loader = new \Twig_Loader_Filesystem(SUPRA_PATH . DIRECTORY_SEPARATOR . $this->templatePath);
 		$this->twigEnvironment->setLoader($loader);
 		
 		try {
@@ -91,7 +91,7 @@ class TwigResponse extends HttpResponse
 	 */
 	public function setTemplatePath($templatePath)
 	{
-		$supraPath = realpath(SUPRA_PATH);
+		$supraPath = realpath(SUPRA_PATH) . DIRECTORY_SEPARATOR;
 		$templatePath = realpath($templatePath);
 		
 		if (strpos($templatePath, $supraPath) !== 0) {
@@ -99,7 +99,6 @@ class TwigResponse extends HttpResponse
 		}
 		
 		$relativePath = substr($templatePath, strlen($supraPath));
-		
 		$this->templatePath = $relativePath;
 	}
 	

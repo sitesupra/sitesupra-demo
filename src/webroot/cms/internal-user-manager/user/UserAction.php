@@ -135,6 +135,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$mailer = ObjectRepository::getMailer($this);
 			$message = new TwigMessage();
+			$message->setTemplatePath(__DIR__ . '/mail');
 			// FIXME: from address should not be hardcoded here etc.
 			$message->setSubject('Password recovery')
 					->setFrom('admin@supra7.vig')
@@ -199,6 +200,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$mailer = ObjectRepository::getMailer($this);
 			$message = new TwigMessage();
+			$message->setTemplatePath(__DIR__ . '/mail');
 			// FIXME: from address should not be hardcoded here etc.
 			$message->setSubject('Account created. Set your password')
 					->setFrom('admin@supra7.vig')
