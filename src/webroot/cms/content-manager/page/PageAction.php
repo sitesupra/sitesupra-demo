@@ -8,7 +8,7 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\User\Entity\Abstraction\User;
-use Project\Authentication\AuthenticateSessionNamespace;
+use Supra\Editable;
 
 /**
  * 
@@ -198,10 +198,14 @@ class PageAction extends PageManagerAction
 							$data[$name] = $this->convertReferencedElementToArray($referencedElement);
 						}
 						
-						$propertyData = array(
-							'html' => $propertyValue,
-							'data' => $data
-						);
+						$propertyData = $propertyValue;
+						
+						if ($blockProperty->getEditable() instanceof Editable\Html) {
+							$propertyData = array(
+								'html' => $propertyValue,
+								'data' => $data
+							);
+						}
 
 						$blockData['properties'][$propertyName] = $propertyData;
 					}

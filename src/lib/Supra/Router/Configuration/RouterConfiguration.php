@@ -23,7 +23,7 @@ class RouterConfiguration
 	/**
 	 * @var string
 	 */
-	public $controller = 'Project\Pages\PageController';
+	public $controller;
 	
 	/**
      * Default Controller execution priority

@@ -18,7 +18,8 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\ReferencedElement;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
-use Supra\Cms\Exception\CmsException;
+use Supra\Cms\Exception\ObjectLockedException;
+use Supra\User\Entity\User;
 
 /**
  * Controller containing common methods
@@ -393,7 +394,7 @@ abstract class PageManagerAction extends CmsAction
 	/**
 	 * Checks, weither the page is locked by current user or not,
 	 * will throw an exception if no, and update lock modified time if yes
-	 * @throws CmsException if page is locked by another user
+	 * @throws ObjectLockedException if page is locked by another user
 	 */
 	protected function checkLock()
 	{
@@ -405,8 +406,8 @@ abstract class PageManagerAction extends CmsAction
 		$pageLock = $pageData->getLock();
 		
 		if ($pageLock instanceof Entity\LockData) {
-			if (($pageLock->getUser() != $userId)) {
-				throw new CmsException('page.error.page_locked', 'Page is locked by another user');
+			if (($pageLock->getUserId() != $userId)) {
+				throw new ObjectLockedException('page.error.page_locked', 'Page is locked by another user');
 			} else {
 				$pageLock->setModifiedTime(new \DateTime('now'));
 				$this->entityManager->flush();
@@ -451,21 +452,24 @@ abstract class PageManagerAction extends CmsAction
 		
 		try {
 			$this->checkLock();
-		} catch (\Exception $e) {
+		} catch (ObjectLockedException $e) {
 			if ( ! $force ||  ! $allowForced) {
 				
 				$pageLock = $pageData->getLock();
-				$lockedBy = $pageLock->getUser();
+				$lockedBy = $pageLock->getUserId();
 				
-				$userProvider = \Supra\ObjectRepository\ObjectRepository::getUserProvider($this);
+				$userProvider = ObjectRepository::getUserProvider($this);
 				$lockOwner = $userProvider->findUserById($lockedBy);
 				
-				if (!($lockOwner instanceof User)) {
-					throw new \Supra\Controller\Pages\Exception\RuntimeException('Failed to load user-data for lock owner');
+				// If not found will show use ID
+				$userName = '#' . $lockedBy;
+				
+				if ($lockOwner instanceof User) {
+					$userName = $lockOwner->getName();
 				}
 
 				$response = array(
-					'username' => $lockOwner->getName(),
+					'username' => $userName,
 					'datetime' => $pageLock->getCreatedTime()->format('c'),
 					'allow_unlock' => $allowForced,
 				);
@@ -473,14 +477,13 @@ abstract class PageManagerAction extends CmsAction
 				$this->getResponse()
 						->setResponseData($response);
 				return;
-				
 			}
 		}
 		
-		$pageLock = new Entity\LockData;
+		$pageLock = new Entity\LockData();
 		$this->entityManager->persist($pageLock);
 		
-		$pageLock->setUser($userId);
+		$pageLock->setUserId($userId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
 	

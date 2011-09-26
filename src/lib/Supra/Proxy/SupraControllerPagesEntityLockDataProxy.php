@@ -66,16 +66,16 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
         return parent::setModifiedTime();
     }
 
-    public function getUser()
+    public function getUserId()
     {
         $this->__load();
-        return parent::getUser();
+        return parent::getUserId();
     }
 
-    public function setUser($user)
+    public function setUserId($userId)
     {
         $this->__load();
-        return parent::setUser($user);
+        return parent::setUserId($userId);
     }
 
     public function getDiscriminator()
@@ -111,7 +111,7 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'created', 'modified', 'user');
+        return array('__isInitialized__', 'id', 'created', 'modified', 'userId');
     }
 
     public function __clone()

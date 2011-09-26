@@ -113,10 +113,17 @@ class PagecontentAction extends PageManagerAction
 			
 			$name = $propertyName;
 			$type = get_class($propertyDefinition);
-			$value = $propertyPost['html'];
+			$value = null;
 			$valueData = array();
-			if (isset($propertyPost['data'])) {
-				$valueData = $propertyPost['data'];
+			
+			// Specific result for HTML
+			if ($propertyDefinition instanceof \Supra\Editable\Html) {
+				$value = $propertyPost['html'];
+				if (isset($propertyPost['data'])) {
+					$valueData = $propertyPost['data'];
+				}
+			} else {
+				$value = $propertyPost;
 			}
 
 			// Property select in one DQL

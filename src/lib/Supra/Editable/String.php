@@ -8,7 +8,7 @@ namespace Supra\Editable;
 class String extends EditableAbstraction
 {
 	const EDITOR_TYPE = 'String';
-	const EDITOR_INLINE_EDITABLE = true;
+	const EDITOR_INLINE_EDITABLE = false;
 	
 	/**
 	 * Default filter classes for content by action

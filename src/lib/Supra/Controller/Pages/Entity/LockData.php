@@ -2,7 +2,6 @@
 
 namespace Supra\Controller\Pages\Entity;
 
-
 /**
  * Lock data class.
  * @Entity
@@ -32,10 +31,10 @@ class LockData extends Abstraction\Entity
 	protected $modified;
 	
 	/**
-	 * @Column(type="integer")
-	 * @var integer
+	 * @Column(type="string")
+	 * @var string
 	 */
-	protected $user;
+	protected $userId;
 	
 	/**
 	 * Returns lock ID
@@ -85,20 +84,20 @@ class LockData extends Abstraction\Entity
 	
 	/**
 	 * Returns ID of user created the lock
-	 * @return integer
+	 * @return string
 	 */
-	public function getUser()
+	public function getUserId()
 	{
-		return $this->user;
+		return $this->userId;
 	}
 	
 	/**
 	 * Sets ID of user who's locking page
-	 * @param integer $user 
+	 * @param string $userId
 	 */
-	public function setUser($user)
+	public function setUserId($userId)
 	{
-		$this->user = $user;
+		$this->userId = $userId;
 	}
 
 }
