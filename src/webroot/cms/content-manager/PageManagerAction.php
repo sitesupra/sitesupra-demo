@@ -18,6 +18,7 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\ReferencedElement;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Controller containing common methods
