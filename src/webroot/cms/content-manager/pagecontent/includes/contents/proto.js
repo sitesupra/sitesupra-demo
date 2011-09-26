@@ -522,7 +522,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		_setEditing: function (value) {
-			if (value == this.get('editing')) return !!value;
+			if (value == (this.get('editing') || false)) return !!value;
 			
 			if (value) {
 				if (this.overlay) this.overlay.addClass(CLASSNAME_EDITING);

@@ -136,7 +136,7 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 * Hide
 		 */
 		hide: function () {
-			if (!this.get('created')) return;
+			if (!this.get('created') || !this.toolbar.get('visible')) return;
 			
 			//Hide toolbar
 			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
