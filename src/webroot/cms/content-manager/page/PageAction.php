@@ -35,7 +35,7 @@ class PageAction extends PageManagerAction
 		$em = $request->getDoctrineEntityManager();
 		$pageDao = $em->getRepository(PageRequestEdit::PAGE_ABSTRACT_ENTITY);
 
-		/* @var $page Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\AbstractPage */
 		$page = $pageDao->findOneById($pageId);
 
 		if (empty($page)) {
@@ -351,7 +351,7 @@ class PageAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
-		/* @var $page Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\AbstractPage */
 		$page = $pageDao->findOneById($pageId);
 
 		if (empty($page)) {
@@ -365,7 +365,7 @@ class PageAction extends PageManagerAction
 		$children = $page->getChildren();
 
 		foreach ($children as $child) {
-			/* @var $child Entity\Abstraction\Page */
+			/* @var $child Entity\Abstraction\AbstractPage */
 			$childData = $child->getData($localeId);
 
 			if ( ! empty($childData)) {

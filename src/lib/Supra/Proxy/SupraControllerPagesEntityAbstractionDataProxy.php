@@ -54,7 +54,7 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getTitle();
     }
 
-    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\Page $master)
+    public function setMaster(\Supra\Controller\Pages\Entity\Abstraction\AbstractPage $master)
     {
         $this->__load();
         return parent::setMaster($master);

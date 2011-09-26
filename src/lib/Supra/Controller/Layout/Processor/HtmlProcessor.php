@@ -81,7 +81,7 @@ class HtmlProcessor implements ProcessorInterface
 
 	/**
 	 * Return list of place names inside the layout
-	 * @param string $layout
+	 * @param string $layoutSrc
 	 * @return array
 	 */
 	public function getPlaces($layoutSrc)
@@ -92,10 +92,10 @@ class HtmlProcessor implements ProcessorInterface
 		$cdataCallback = function($cdata) {};
 
 		// Collect place holders
-		$macroCallback = function($func, array $args) use (&$places) {
+		$macroCallback = function($func, array $args) use (&$places, $layoutSrc) {
 			if ($func == HtmlProcessor::PLACE_HOLDER) {
 				if ( ! \array_key_exists(0, $args) || $args[0] == '') {
-					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
+					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
 				}
 				$places[] = $args[0];
 			}

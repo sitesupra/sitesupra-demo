@@ -18,7 +18,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @var string
 	 */
-	const PAGE_ABSTRACT_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Page';
+	const PAGE_ABSTRACT_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\AbstractPage';
 	/**
 	 * Page class name
 	 * @var string
@@ -206,7 +206,7 @@ abstract class PageRequest extends HttpRequest
 	
 	/**
 	 * Helper method to get requested page entity
-	 * @return Entity\Abstraction\Page 
+	 * @return Entity\Abstraction\AbstractPage 
 	 */
 	public function getPage()
 	{

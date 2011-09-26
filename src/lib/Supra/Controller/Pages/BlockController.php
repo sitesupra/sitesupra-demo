@@ -31,7 +31,7 @@ abstract class BlockController extends ControllerAbstraction
 	
 	/**
 	 * Current request page
-	 * @var Entity\Abstraction\Page
+	 * @var Entity\Abstraction\AbstractPage
 	 */
 	protected $page;
 	
@@ -43,7 +43,7 @@ abstract class BlockController extends ControllerAbstraction
 	abstract public function getPropertyDefinition();
 
 	/**
-	 * @return Entity\Abstraction\Page
+	 * @return Entity\Abstraction\AbstractPage
 	 */
 	public function getPage()
 	{
@@ -51,9 +51,9 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param Entity\Abstraction\Page $page
+	 * @param Entity\Abstraction\AbstractPage $page
 	 */
-	public function setPage(Entity\Abstraction\Page $page)
+	public function setPage(Entity\Abstraction\AbstractPage $page)
 	{
 		$this->page = $page;
 	}

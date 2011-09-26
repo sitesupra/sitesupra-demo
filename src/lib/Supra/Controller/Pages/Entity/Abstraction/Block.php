@@ -19,7 +19,6 @@ use Supra\Controller\Pages\Entity\TemplateBlock;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateBlock", "page" = "Supra\Controller\Pages\Entity\PageBlock"})
- * @Table(name="block")
  */
 abstract class Block extends Entity
 {

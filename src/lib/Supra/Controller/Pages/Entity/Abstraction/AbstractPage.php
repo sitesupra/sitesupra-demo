@@ -19,7 +19,7 @@ use Supra\User\Entity\Abstraction\User;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\Template", "page" = "Supra\Controller\Pages\Entity\Page"})
- * @Table(name="page_abstraction", indexes={
+ * @Table(indexes={
  *		@index(name="page_abstraction_lft_idx", columns={"lft"}),
  *		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
  *		@index(name="page_abstraction_lvl_idx", columns={"lvl"})
@@ -53,7 +53,7 @@ use Supra\User\Entity\Abstraction\User;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
+abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
 {
 	const ACTION_EDIT_PAGE = 'edit_page';
 	const ACTION_PUBLISH_PAGE = 'publish_page';
@@ -199,7 +199,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Set left value
 	 * @param int $left
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function setLeftValue($left)
 	{
@@ -213,7 +213,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Set right value
 	 * @param int $right
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function setRightValue($right)
 	{
@@ -227,7 +227,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Set depth level
 	 * @param int $level
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function setLevel($level)
 	{
@@ -242,7 +242,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Move left value by the difference
 	 * @param int $diff
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function moveLeftValue($diff)
 	{
@@ -256,7 +256,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Move right value by the difference
 	 * @param int $diff
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function moveRightValue($diff)
 	{
@@ -270,7 +270,7 @@ abstract class Page extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Move depth level by the difference
 	 * @param int $diff
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function moveLevel($diff)
 	{

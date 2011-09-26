@@ -221,7 +221,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
 		
-		/* @var $page Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\AbstractPage */
 		$page = $pageDao->findOneById($pageId);
 		$data = $page->getData($localeId);
 //		$request->setRequestPageData($data);

@@ -202,7 +202,7 @@ class FixtureHelper
 
 					$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
 					$request->setDoctrineEntityManager($em);
-					$request->setRequestPageData($pageToPublish->getData($localeId));
+					$request->setPageData($pageToPublish->getData($localeId));
 					
 					// Will create missing placeholders and flush
 					$request->getPlaceHolderSet();

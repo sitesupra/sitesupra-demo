@@ -66,10 +66,10 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::setData($data);
     }
 
-    public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeholder)
     {
         $this->__load();
-        return parent::addPlaceHolder($placeHolder);
+        return parent::addPlaceHolder($placeholder);
     }
 
     public function getLeftValue()
@@ -162,10 +162,10 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::isBlockManageable($block);
     }
 
-    public function isPlaceHolderEditable(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    public function isPlaceHolderEditable(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeholder)
     {
         $this->__load();
-        return parent::isPlaceHolderEditable($placeHolder);
+        return parent::isPlaceHolderEditable($placeholder);
     }
 
     public function setNestedSetNode(\Supra\NestedSet\Node\DoctrineNode $nestedSetNode)
@@ -243,7 +243,7 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'data', 'placeHolders', 'left', 'right', 'level', 'id');
+        return array('__isInitialized__', 'data', 'placeholders', 'left', 'right', 'level', 'id');
     }
 
     public function __clone()

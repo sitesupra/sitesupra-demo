@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Set;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Template;
-use Supra\Controller\Pages\Entity\Abstraction\Page;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 
 /**
  * Set containing 
@@ -21,7 +21,7 @@ class PageSet extends AbstractSet
 	}
 	
 	/**
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function getFinalPage()
 	{

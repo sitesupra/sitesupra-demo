@@ -8,7 +8,6 @@ use DateTime;
 /**
  * PageData class
  * @Entity
- * @Table
  */
 class PageData extends Abstraction\Data
 {

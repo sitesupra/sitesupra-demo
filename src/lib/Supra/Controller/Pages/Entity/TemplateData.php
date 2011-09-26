@@ -7,7 +7,6 @@ use Supra\Controller\Pages\Exception;
 /**
  * TemplateData class
  * @Entity
- * @Table
  */
 class TemplateData extends Abstraction\Data
 {

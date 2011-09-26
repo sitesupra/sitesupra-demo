@@ -54,10 +54,10 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
         return parent::getPlaceHolders();
     }
 
-    public function addPlaceHolder(\Supra\Controller\Pages\Entity\LayoutPlaceHolder $placeHolder)
+    public function addPlaceHolder(\Supra\Controller\Pages\Entity\LayoutPlaceHolder $placeholder)
     {
         $this->__load();
-        return parent::addPlaceHolder($placeHolder);
+        return parent::addPlaceHolder($placeholder);
     }
 
     public function getPlaceHolderNames()
@@ -111,7 +111,7 @@ class SupraControllerPagesEntityLayoutProxy extends \Supra\Controller\Pages\Enti
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'file', 'placeHolders', 'id');
+        return array('__isInitialized__', 'file', 'placeholders', 'id');
     }
 
     public function __clone()

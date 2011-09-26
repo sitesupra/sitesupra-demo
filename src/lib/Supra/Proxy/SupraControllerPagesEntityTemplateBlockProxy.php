@@ -66,10 +66,10 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         return parent::getPlaceHolder();
     }
 
-    public function setPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
+    public function setPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeholder)
     {
         $this->__load();
-        return parent::setPlaceHolder($placeHolder);
+        return parent::setPlaceHolder($placeholder);
     }
 
     public function getComponentClass()
@@ -120,10 +120,10 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         return parent::setLocale($locale);
     }
 
-    public function inPlaceHolder(array $placeHolderIds)
+    public function inPlaceHolder(array $placeholderIds)
     {
         $this->__load();
-        return parent::inPlaceHolder($placeHolderIds);
+        return parent::inPlaceHolder($placeholderIds);
     }
 
     public function createController()
@@ -183,7 +183,7 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked', 'id', 'temporary');
+        return array('__isInitialized__', 'componentClass', 'position', 'locale', 'placeholder', 'blockProperties', 'locked', 'id', 'temporary');
     }
 
     public function __clone()

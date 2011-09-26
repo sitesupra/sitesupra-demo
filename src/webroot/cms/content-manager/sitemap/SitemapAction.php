@@ -48,11 +48,11 @@ class SitemapAction extends PageManagerAction
 		$parentId = $this->getRequestParameter('parent_id');
 		$referenceId = $this->getRequestParameter('reference_id');
 
-		/* @var $page Entity\Abstraction\Page */
+		/* @var $page Entity\Abstraction\AbstractPage */
 		$page = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		/* @var $parent Entity\Abstraction\Page */
+		/* @var $parent Entity\Abstraction\AbstractPage */
 		$parent = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $parentId);
-		/* @var $reference Entity\Abstraction\Page */
+		/* @var $reference Entity\Abstraction\AbstractPage */
 		$reference = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $referenceId);
 
 		if (is_null($page)) {
@@ -75,11 +75,11 @@ class SitemapAction extends PageManagerAction
 
 	/**
 	 * Helper method for the main sitemap action
-	 * @param Entity\Abstraction\Page $page
+	 * @param Entity\Abstraction\AbstractPage $page
 	 * @param string $locale
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\Page $page, $locale)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale)
 	{
 		$data = $page->getData($locale);
 

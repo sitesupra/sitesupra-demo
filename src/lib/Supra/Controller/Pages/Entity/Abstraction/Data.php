@@ -13,7 +13,7 @@ use Supra\Authorization\PermissionType;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
- * @Table(name="page_localization", uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
+ * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
 abstract class Data extends Entity implements AuthorizedEntityInterface
 {
@@ -37,9 +37,9 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 
 	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="Page", cascade={"persist"}, inversedBy="data", fetch="EAGER")
+	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="data", fetch="EAGER")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
-	 * @var Page
+	 * @var AbstractPage
 	 */
 	protected $master;
 
@@ -87,9 +87,9 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 
 	/**
 	 * Set master object (page/template)
-	 * @param Page $master
+	 * @param AbstractPage $master
 	 */
-	public function setMaster(Page $master)
+	public function setMaster(AbstractPage $master)
 	{
 		$this->matchDiscriminator($master);
 		
@@ -101,7 +101,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	
 	/**
 	 * Get master object (page/template)
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function getMaster()
 	{

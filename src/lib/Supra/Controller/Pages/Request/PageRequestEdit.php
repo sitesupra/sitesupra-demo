@@ -46,7 +46,7 @@ class PageRequestEdit extends PageRequest
 		 * data into the public scheme because doctrine will create abstract not
 		 * usable proxy class for it otherwise
 		 */
-		/* @var $publicPage Entity\Abstraction\Page */
+		/* @var $publicPage Entity\Abstraction\AbstractPage */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 		
 		// Something went very wrong
@@ -90,8 +90,8 @@ class PageRequestEdit extends PageRequest
 
 		// 4. Merge all placeholders, don't delete not used, let's keep them
 		foreach ($draftBlocks as $block) {
-			$placeholder = $block->getPlaceHolder();
-			$publicEm->merge($placeholder);
+			$placeHolder = $block->getPlaceHolder();
+			$publicEm->merge($placeHolder);
 		}
 		
 		/*

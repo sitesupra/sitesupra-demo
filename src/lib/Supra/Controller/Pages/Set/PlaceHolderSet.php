@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Exception;
 class PlaceHolderSet extends AbstractSet
 {
 	/**
-	 * @var Entity\Abstraction\Page
+	 * @var Entity\Abstraction\AbstractPage
 	 */
 	private $page;
 	
@@ -26,9 +26,9 @@ class PlaceHolderSet extends AbstractSet
 	private $parentPlaceHolderSet;
 
 	/**
-	 * @param Entity\Abstraction\Page $page
+	 * @param Entity\Abstraction\AbstractPage $page
 	 */
-	public function __construct(Entity\Abstraction\Page $page = null)
+	public function __construct(Entity\Abstraction\AbstractPage $page = null)
 	{
 		$this->page = $page;
 		
@@ -68,8 +68,8 @@ class PlaceHolderSet extends AbstractSet
 	}
 	
 	/**
-	 * The list of final (locked or belongs to the final master) placeholders.
-	 * The block list will be taken from these placeholders.
+	 * The list of final (locked or belongs to the final master) placeHolders.
+	 * The block list will be taken from these placeHolders.
 	 * @return PlaceHolderSet
 	 */
 	public function getFinalPlaceHolders()
@@ -78,8 +78,8 @@ class PlaceHolderSet extends AbstractSet
 	}
 	
 	/**
-	 * The list of placeholders which are parents of final placeholders.
-	 * The locked blocks will be searched within these placeholders.
+	 * The list of placeHolders which are parents of final placeHolders.
+	 * The locked blocks will be searched within these placeHolders.
 	 * @return PlaceHolderSet
 	 */
 	public function getParentPlaceHolders()

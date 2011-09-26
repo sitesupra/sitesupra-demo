@@ -12,7 +12,6 @@ use Doctrine\Common\Collections;
 /**
  * Block property class.
  * @Entity
- * @Table(name="block_property")
  */
 class BlockProperty extends Entity
 {

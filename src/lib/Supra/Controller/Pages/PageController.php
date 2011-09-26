@@ -204,11 +204,11 @@ class PageController extends ControllerAbstraction
 	
 	/**
 	 * Creates place holder response object
-	 * @param Entity\Abstraction\Page $page
+	 * @param Entity\Abstraction\AbstractPage $page
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
 	 * @return PlaceHolder\PlaceHolderResponse
 	 */
-	public function createPlaceResponse(Entity\Abstraction\Page $page, Entity\Abstraction\PlaceHolder $placeHolder)
+	public function createPlaceResponse(Entity\Abstraction\AbstractPage $page, Entity\Abstraction\PlaceHolder $placeHolder)
 	{
 		$response = null;
 		

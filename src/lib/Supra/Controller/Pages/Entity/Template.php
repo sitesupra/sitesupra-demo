@@ -10,10 +10,9 @@ use Supra\Controller\Pages\Set\PageSet;
 /**
  * Page controller template class
  * @Entity(repositoryClass="Supra\Controller\Pages\Repository\TemplateRepository")
- * @Table(name="template")
  * @method TemplateData getData(string $locale)
  */
-class Template extends Abstraction\Page
+class Template extends Abstraction\AbstractPage
 {
 	/**
 	 * {@inheritdoc}

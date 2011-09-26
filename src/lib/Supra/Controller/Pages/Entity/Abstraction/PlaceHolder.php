@@ -13,7 +13,6 @@ use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplatePlaceHolder", "page" = "Supra\Controller\Pages\Entity\PagePlaceHolder"})
- * @Table(name="place_holder")
  */
 abstract class PlaceHolder extends Entity
 {
@@ -41,9 +40,9 @@ abstract class PlaceHolder extends Entity
 	protected $blocks;
 
 	/**
-	 * @ManyToOne(targetEntity="Page", inversedBy="placeHolders")
+	 * @ManyToOne(targetEntity="AbstractPage", inversedBy="placeHolders")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=false)
-	 * @var Page
+	 * @var AbstractPage
 	 */
 	protected $master;
 
@@ -111,9 +110,9 @@ abstract class PlaceHolder extends Entity
 	
 	/**
 	 * Set master page/template
-	 * @param Page $page
+	 * @param AbstractPage $page
 	 */
-	public function setMaster(Page $master)
+	public function setMaster(AbstractPage $master)
 	{
 		$this->matchDiscriminator($master);
 		if ($this->writeOnce($this->master, $master)) {
@@ -122,7 +121,7 @@ abstract class PlaceHolder extends Entity
 	}
 
 	/**
-	 * @return Page
+	 * @return AbstractPage
 	 */
 	public function getMaster()
 	{
