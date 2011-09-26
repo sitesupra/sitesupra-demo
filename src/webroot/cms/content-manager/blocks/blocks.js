@@ -38,8 +38,16 @@ SU(function (Y) {
 		
 		/**
 		 * Block data
+		 * @type {Object}
 		 */
 		data: {},
+		
+		/**
+		 * Callback function
+		 * @type {Function}
+		 */
+		callback: null,
+		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
@@ -57,6 +65,11 @@ SU(function (Y) {
 						for(var i=0,ii=data.length; i<ii; i++) {
 							var block = data[i];
 							this.data[block.id] = block;
+						}
+						
+						if (Y.Lang.isFunction(this.callback)) {
+							this.callback(this.data);
+							this.callback = null;
 						}
 					}
 				}
@@ -82,6 +95,15 @@ SU(function (Y) {
 		 */
 		getBlock: function (id) {
 			return (id in this.data ? this.data[id] : null);
+		},
+		
+		/**
+		 * Execute
+		 *
+		 * @param {Function} callback Callback function
+		 */
+		execute: function (callback) {
+			this.callback = callback;
 		}
 	});
 	

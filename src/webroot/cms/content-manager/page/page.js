@@ -69,12 +69,18 @@ Supra(function (Y) {
 			//Load data
 			this.loadPage(data ? data.id : '');
 			
-			//Load all other actions
-			Manager.executeAction('Blocks');
-			Manager.executeAction('LayoutContainers', this.onLayoutReady, this);
+			//Wait till blocks and layouts are done
+			var queue = 0,
+				self = this;
 			
-			//Show all actions
-			Manager.getAction('PageContent').show();
+			var wait_queue = function () {
+				queue++;
+				return function () { queue--; if (!queue) self.onLayoutReady(); };
+			};
+			
+			//Load all other actions
+			Manager.executeAction('Blocks', wait_queue());
+			Manager.executeAction('LayoutContainers', wait_queue());
 		},
 		
 		/**
@@ -84,9 +90,11 @@ Supra(function (Y) {
 			var pagecontent = Manager.getAction('PageContent'),
 				pagetoolbar = Manager.getAction('PageToolbar');
 			
-			
 			Manager.executeAction('PageButtons');
 			Manager.executeAction('PageContent');
+			
+			//Show all actions
+			Manager.getAction('PageContent').show();
 			
 			//When content is ready bind to layout changes
 			pagecontent.on('iframeReady', this.onIframeReady, this);
