@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization\Exception;
 
-class AccessDeniedException extends \RuntimeException 
+class AccessDeniedException extends RuntimeException
 {
 	private $user;
 	private $object;

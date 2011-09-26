@@ -96,7 +96,7 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 
 			$userSecurityIdentity = $this->getUserSecurityIdentity($user);
 			
-			if ( $permission == PermissionStatus::ALLOW) { 
+			if ($permission == PermissionStatus::ALLOW) { 
 				
 				if( $this->getPermissionStatus($user, $object, $permissionType) == PermissionStatus::DENY ) {
 					$acl->insertObjectAce($userSecurityIdentity, $permissionType->getMask());
@@ -116,13 +116,13 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			}
 			else {
 				
-				throw new \RuntimeException('Bad permission value! use constants from AuthorizationPermission class!');
+				throw new Exception\RuntimeException('Bad permission value! use constants from AuthorizationPermission class!');
 			}
 			
 			$this->aclProvider->updateAcl($acl);
 		}
 		else {
-			throw \RuntimeException('Could not create ACL for this authorizationIdentity');
+			throw Exception\RuntimeException('Could not create ACL for this authorizationIdentity');
 		}
 	}
 
@@ -309,7 +309,7 @@ class AuthorizationProvider implements AuthorizationProviderInterface
 			return $object->getPermissionTypes();
 		}
 		else {
-			throw new \RuntimeException('Do not know how to get permission types from ' . get_class($object));
+			throw new Exception\RuntimeException('Do not know how to get permission types from ' . get_class($object));
 		}		
 	}
 	

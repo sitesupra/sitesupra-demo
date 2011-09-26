@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization\Exception;
 
-class ControllerAccessDeniedException extends AccessDeniedException 
+class ControllerAccessDeniedException extends AccessDeniedException
 {
 	public function __construct($user, $controller) 
 	{

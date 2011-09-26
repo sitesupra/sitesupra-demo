@@ -2,17 +2,15 @@
 
 namespace Supra\Authorization;
 
-use Symfony\Component\Security\Acl\Permission\MaskBuilder;
-
 class PermissionType 
 {
 	/**
-	 * @var String;
+	 * @var string
 	 */
 	private $name;
 	
 	/**
-	 * @var Integer
+	 * @var integer
 	 */
 	private $mask;
 	
