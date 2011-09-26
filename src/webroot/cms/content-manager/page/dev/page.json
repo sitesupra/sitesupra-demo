@@ -25,6 +25,13 @@
 			"img": "/cms/lib/supra/img/templates/template-3.png"
 		},
 		
+		"redirect": {
+			"resource": "link",
+			"page_id": null,
+			"title": "http://www.google.com",
+			"href": "http://www.google.com"
+		},
+		
 		"scheduled_date": "2011-08-18",
 		"scheduled_time": "08:00",
 		

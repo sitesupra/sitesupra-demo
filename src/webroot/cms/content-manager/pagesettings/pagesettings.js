@@ -324,18 +324,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		onLinkManagerClose: function (data) {
 			this.form.getInput('redirect').setValue(data);
+			this.setFormValue('redirect', {'redirect': data});
 			this.execute(true);
-		},
-		
-		/**
-		 * Update button label
-		 *
-		 * @param {Object} e Page data or event
-		 */
-		updateRedirectUI: function (e) {
-			var data = (e && 'newVal' in e ? e.newVal : e);
-			var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
-			this.button_redirect.set('label', title);
 		},
 		
 		/**
@@ -437,9 +427,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				for(var id in inputs) inputs[id].set('disabled', true);
 			}
 			
-			//On redirect value change update button UI
-			this.form.getInput('redirect').on('valueChange', this.updateRedirectUI, this);
-			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
 		},
@@ -456,8 +443,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.setFormValue('version', page_data);
 			*/
 			
+			//Set redirect value
+			this.form.getInput('redirect').setValue(page_data.redirect);
+			
 			//Set template info
 			this.setFormValue('template', page_data);
+			
+			//Set redirect info
+			this.setFormValue('redirect', page_data);
 		},
 		
 		/**
@@ -473,6 +466,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					var node = this.one('.button-template small');
 					node.one('span').set('text', page_data.template.title);
 					node.one('img').set('src', page_data.template.img);
+					break;
+				case 'redirect':
+					//Update button label
+					var data = page_data.redirect;
+					var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
+					this.button_redirect.set('label', title);
 					break;
 				/*case 'version':
 					var node = this.one('.button-version small');
@@ -507,6 +506,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			post_data.template = post_data.template.id;
 			
 			if (this.getType() == 'page') {	//Page
+				
+				//If there is no redirect URL, then send empty value
+				if (!post_data.redirect.href && !post_data.redirect.page_id) {
+					post_data.redirect = '';
+				}
 				
 			} else { //Template
 				//Remove template, path, meta, status
@@ -683,7 +687,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				this.page_data = Supra.mix({}, Manager.Page.getPageData());
 				this.setFormValues();
 				this.updateTypeUI();
-				this.updateRedirectUI(this.page_data.redirect);
 			}
 			
 			this.slideshow.set('noAnimation', true);
