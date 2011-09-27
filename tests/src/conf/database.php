@@ -6,12 +6,10 @@ use Supra\Database\Doctrine;
 use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
-use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
-use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
-use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
+use Supra\Database\Doctrine\Listener\TableNameGenerator;
+use Supra\Controller\Pages\Listener;
 
 $config = new Configuration();
 
@@ -55,9 +53,10 @@ $connectionOptions = array(
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 $eventManager = new EventManager();
-$eventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
+$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TableSuffixPrepender());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\ImageSizeCreatorListener());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 

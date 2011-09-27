@@ -6,16 +6,11 @@ use Supra\Database\Doctrine;
 use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
-use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Controller\Pages\Listener\TableDraftPrefixAppender;
-use Supra\Controller\Pages\Listener\TableTrashPrefixAppender;
-use Supra\Database\Doctrine\Listener\TableSuffixPrepender;
-use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
-use Supra\Controller\Pages\Listener\TrashTableIdChange;
-use Supra\Controller\Pages\Listener\VersionedTableLockIdRemover;
+use Supra\Database\Doctrine\Listener\TableNameGenerator;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
+use Supra\Controller\Pages\Listener;
 
 $config = new Configuration();
 
@@ -59,13 +54,12 @@ $connectionOptions = $ini['database'];
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 $commonEventManager = new EventManager();
-$commonEventManager->addEventListener(array(Events::onFlush), new PagePathGenerator());
+$commonEventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 $commonEventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
-$commonEventManager->addEventListener(array(Events::loadClassMetadata), new TableSuffixPrepender());
+$commonEventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 
 $eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new PublicVersionedTableIdChange());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new VersionedTableLockIdRemover());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
@@ -81,7 +75,8 @@ $config->setQueryCacheImpl($cache);
 
 // Draft connection for the CMS
 $eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TableDraftPrefixAppender());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
+$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
@@ -98,9 +93,9 @@ $config->setQueryCacheImpl($cache);
 
 // Deleted connection for the CMS
 $eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TableTrashPrefixAppender());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TrashTableIdChange());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new VersionedTableLockIdRemover());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashTableIdChange());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));

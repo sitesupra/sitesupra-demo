@@ -7,7 +7,7 @@ use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 /**
  * Adds supra suffix for the supra entity tables automatically
  */
-class TableSuffixPrepender
+class TableNameGenerator
 {
 	const SUPRA_SUFFIX = 'su_';
 	

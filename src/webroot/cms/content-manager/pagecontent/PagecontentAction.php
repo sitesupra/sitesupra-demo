@@ -116,7 +116,7 @@ class PagecontentAction extends PageManagerAction
 			$value = null;
 			$valueData = array();
 			
-			// Specific result for HTML
+			// Specific result received from CMS for HTML
 			if ($propertyDefinition instanceof \Supra\Editable\Html) {
 				$value = $propertyPost['html'];
 				if (isset($propertyPost['data'])) {
@@ -166,31 +166,6 @@ class PagecontentAction extends PageManagerAction
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setData($pageData);
 				$blockProperty->setBlock($block);
-			}
-
-			// Image resizer
-			// FIXME move outside (probably to doctrine listener)
-			{
-				$fileStorage = 
-						\Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
-
-				foreach ($valueData as &$valueDataItem) {
-
-					if ($valueDataItem['type'] == 'image') {
-
-						$image = $fileStorage->getDoctrineEntityManager()->find(
-								\Supra\FileStorage\Entity\Image::CN(), 
-								$valueDataItem['image']);
-
-						if ($image instanceof \Supra\FileStorage\Entity\Image) {
-							$sizeName = $fileStorage->createResizedImage($image, 
-									$valueDataItem['size_width'], 
-									$valueDataItem['size_height']);
-							$valueDataItem['size_name'] = $sizeName;
-						}
-					}
-				}
-				unset($valueDataItem);
 			}
 
 			// Remove all old references
