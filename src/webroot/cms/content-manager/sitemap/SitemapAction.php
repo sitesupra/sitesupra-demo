@@ -44,21 +44,10 @@ class SitemapAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$pageId = $this->getRequestParameter('page_id');
-		$parentId = $this->getRequestParameter('parent_id');
-		$referenceId = $this->getRequestParameter('reference_id');
-
-		/* @var $page Entity\Abstraction\AbstractPage */
-		$page = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		/* @var $parent Entity\Abstraction\AbstractPage */
-		$parent = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $parentId);
-		/* @var $reference Entity\Abstraction\AbstractPage */
-		$reference = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $referenceId);
-
-		if (is_null($page)) {
-			throw new CmsException('sitemap.error.page_not_found');
-		}
-
+		$page = $this->getPageData()->getMaster();
+		$parent = $this->getPageByRequestKey('parent_id');
+		$reference = $this->getPageByRequestKey('reference_id');
+		
 		try {
 			if (is_null($reference)) {
 				if (is_null($parent)) {
@@ -101,7 +90,7 @@ class SitemapAction extends PageManagerAction
 		}
 
 		$array = array(
-			'id' => $page->getId(),
+			'id' => $data->getId(),
 			'title' => $data->getTitle(),
 			'template' => $templateId,
 			'path' => $pathPart,

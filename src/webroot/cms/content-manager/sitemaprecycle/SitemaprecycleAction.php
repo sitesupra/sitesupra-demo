@@ -18,7 +18,7 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function sitemapAction()
 	{
-		$response = $this->getData(PageRequest::PAGE_ENTITY);
+		$response = $this->getData(Entity\PageData::CN());
 		
 		$this->getResponse()
 				->setResponseData($response);
@@ -26,7 +26,7 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function templatesAction()
 	{
-		$response = $this->getData(PageRequest::TEMPLATE_ENTITY);
+		$response = $this->getData(Entity\TemplateData::CN());
 		
 		$this->getResponse()
 				->setResponseData($response);
@@ -45,56 +45,41 @@ class SitemaprecycleAction extends PageManagerAction
 		
 		$em = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
 		$response = array();
+		$localeId = $this->getLocale()->getId();
 
-		$pageRepository = $em->getRepository($entity);
-		/* @var $pageRepository \Supra\Controller\Pages\Repository\PageRepository */
-		$pages = $pageRepository->findAll();
+		$pageLocalizationRepository = $em->getRepository($entity);
+		$pageLocalizations = $pageLocalizationRepository->findByLocale($localeId);
 
-		foreach ($pages as $page) {
-			$dataCollection = $page->getDataCollection();
+		foreach ($pageLocalizations as $pageLocalization) {
 
-			$pageInfo = array(); $pageLocales = array();
+			$pageInfo = array();
 			$pathPart = null;
 			$templateId = null;
 			
-			foreach ($dataCollection as $pageLocalization) {
-				if ( ! empty($pageLocales)) {
-					$pageLocales[] = $pageLocalization->getLocale();
-					
-					continue;
-				}
-			
-				if ($pageLocalization instanceof Entity\PageData) {
-					$pathPart = $pageLocalization->getPathPart();
-				}
-			
-				if ($page instanceof Entity\Page) {
-					$templateId = $pageLocalization->getTemplate()
-						->getId();
-				}
+			if ($pageLocalization instanceof Entity\PageData) {
+				$pathPart = $pageLocalization->getPathPart();
+			}
 
-				$pageInfo = array(
-					'id'		=> $page->getId(),
-					'title'		=> $pageLocalization->getTitle(),
-					'template'	=> $templateId,
-					'path'		=> $pathPart,
-					// TODO: hardcoded	
-					'published' => false,
-					'scheduled' => true,
-					'date'		=> '2011-09-06',
-					'version'	=> 1,
-					'icon'		=> 'page',	
-					'preview'	=> '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
-				);
-				
-				$pageLocales[] = $pageLocalization->getLocale();
+			if ($pageLocalization instanceof Entity\PageData) {
+				$templateId = $pageLocalization->getTemplate()
+					->getId();
 			}
+
+			$pageInfo = array(
+				'id'		=> $pageLocalization->getId(),
+				'title'		=> $pageLocalization->getTitle(),
+				'template'	=> $templateId,
+				'path'		=> $pathPart,
+				// TODO: hardcoded	
+				'published' => false,
+				'scheduled' => true,
+				'date'		=> '2011-09-06',
+				'version'	=> 1,
+				'icon'		=> 'page',
+				'preview'	=> '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
+			);
 			
-			// tmp | display locales
-			if ( ! empty($pageInfo)) {
-				$pageInfo['title'] = $pageInfo['title'] . '(' . implode(' | ', $pageLocales) . ')';
-				$response[] = $pageInfo;
-			}
+			$response[] = $pageInfo;
 		}
 			
 		return $response;

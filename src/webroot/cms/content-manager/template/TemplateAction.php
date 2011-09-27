@@ -114,36 +114,23 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$pageId = $this->getRequestParameter('page_id');
-		$localeId = $this->getLocale()->getId();
+		$page = $this->getPageData()->getMaster();
+		$pageId = $page->getId();
 
-		$page = $this->entityManager->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		if (empty($page)) {
+		// Check if there is no children
+		$hasChildren = $page->hasChildren();
+
+		if ($hasChildren) {
 			$this->getResponse()
-					->setErrorMessage("Template doesn't exist already");
+					->setErrorMessage("Cannot remove template with children");
 
 			return;
-		}
-		
-		// Check if there is no children
-		$children = $page->getChildren();
-
-		foreach ($children as $child) {
-			/* @var $child Entity\Abstraction\Page */
-			$childData = $child->getData($localeId);
-
-			if ( ! empty($childData)) {
-				$this->getResponse()
-						->setErrorMessage("Cannot remove template with children");
-
-				return;
-			}
 		}
 		
 		// TODO: remove from controller
 		// TODO: or loop through array of pages (founded by findAll in PAGE_DATA_ENTITY repo)
 		// and compare getTemplate()->getId();
-		$pageDataEntity = PageRequest::PAGE_DATA_ENTITY;
+		$pageDataEntity = Entity\PageData::CN();
 		$dql = "SELECT COUNT(p.id) FROM $pageDataEntity p 
 				WHERE p.template = ?0";
 		
@@ -151,12 +138,12 @@ class TemplateAction extends PageManagerAction
 				->setParameters(array($pageId))
 					->getSingleScalarResult();
 		
-		if ( (int) $count > 0) {
+		if ((int) $count > 0) {
 			$this->getResponse()
-						->setErrorMessage("Cannot remove template as there are pages using it");
-				return;
+					->setErrorMessage("Cannot remove template as there are pages using it");
+			return;
 		}
-		
+
 		$this->delete();
 	}
 

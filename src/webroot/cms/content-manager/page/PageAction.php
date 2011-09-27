@@ -23,7 +23,8 @@ class PageAction extends PageManagerAction
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-		$pageId = $this->getRequestParameter('page_id');
+		$pageData = $this->getPageData();
+		$pageId = $pageData->getId();
 
 		// Create special request
 		$request = new PageRequestEdit($localeId, $media);
@@ -35,8 +36,7 @@ class PageAction extends PageManagerAction
 		$em = $request->getDoctrineEntityManager();
 		$pageDao = $em->getRepository(PageRequestEdit::PAGE_ABSTRACT_ENTITY);
 
-		/* @var $page Entity\Abstraction\AbstractPage */
-		$page = $pageDao->findOneById($pageId);
+		$page = $pageData->getMaster();
 
 		if (empty($page)) {
 			$this->getResponse()
@@ -119,7 +119,7 @@ class PageAction extends PageManagerAction
 		}
 		
 		$array = array(
-			'id' => $page->getId(),
+			'id' => $pageData->getId(),
 			'title' => $pageData->getTitle(),
 			'path' => $pathPart,
 			'path_prefix' => $pathPrefix,
@@ -228,17 +228,15 @@ class PageAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$parentId = $this->getRequestParameter('parent');
-		$parent = null;
 		$templateId = $this->getRequestParameter('template');
+		$parent = $this->getPageByRequestKey('parent');
 		$localeId = $this->getLocale()->getId();
 
 		$page = new Entity\Page();
 		$pageData = new Entity\PageData($localeId);
 		$pageData->setMaster($page);
 
-		$templateDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_ENTITY);
-		$template = $templateDao->findOneById($templateId);
+		$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
 
 		if (empty($template)) {
 			$this->getResponse()->setErrorMessage("Template not specified or found");
@@ -256,18 +254,6 @@ class PageAction extends PageManagerAction
 		if ($this->hasRequestParameter('title')) {
 			$title = $this->getRequestParameter('title');
 			$pageData->setTitle($title);
-		}
-
-		// Find parent page
-		if (isset($parentId)) {
-			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
-			$parent = $pageDao->findOneById($parentId);
-
-			if (empty($parent)) {
-				$this->getResponse()->setErrorMessage("Parent page not specified or found");
-
-				return;
-			}
 		}
 
 		$this->entityManager->persist($page);
@@ -350,12 +336,7 @@ class PageAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$pageId = $this->getRequestParameter('page_id');
-		$localeId = $this->getLocale()->getId();
-
-		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
-		/* @var $page Entity\Abstraction\AbstractPage */
-		$page = $pageDao->findOneById($pageId);
+		$page = $this->getPageData()->getMaster();
 
 		if (empty($page)) {
 			$this->getResponse()
@@ -365,18 +346,13 @@ class PageAction extends PageManagerAction
 		}
 
 		// Check if there is no children
-		$children = $page->getChildren();
+		$hasChildren = $page->hasChildren();
 
-		foreach ($children as $child) {
-			/* @var $child Entity\Abstraction\AbstractPage */
-			$childData = $child->getData($localeId);
+		if ($hasChildren) {
+			$this->getResponse()
+					->setErrorMessage("Cannot remove page with children");
 
-			if ( ! empty($childData)) {
-				$this->getResponse()
-						->setErrorMessage("Cannot remove page with children");
-
-				return;
-			}
+			return;
 		}
 		
 		$this->delete();

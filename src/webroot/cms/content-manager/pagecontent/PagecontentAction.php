@@ -250,9 +250,6 @@ class PagecontentAction extends PageManagerAction
 		$this->isPostRequest();
 		$this->checkLock();
 		
-		$pageId = $this->getRequestParameter('page_id');
-		$localeId = $this->getLocale()->getId();
-		$media = $this->getMedia();
 		$placeHolderName = $this->getRequestParameter('place_holder_id');
 		$blockOrder = $this->getRequestParameter('order');
 		$blockPositionById = array_flip($blockOrder);
@@ -261,28 +258,26 @@ class PagecontentAction extends PageManagerAction
 			\Log::warn("Block order array received contains duplicate block IDs: ", $blockOrder);
 		}
 		
-		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
+		$pageRequest = $this->getPageRequest();
 		
-		/* @var $page Entity\Abstraction\AbstractPage */
-		$page = $pageDao->findOneById($pageId);
-		$data = $page->getData($localeId);
-//		$request->setRequestPageData($data);
+		$data = $this->getPageData();
+		$page = $data->getMaster();
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $page->getPlaceHolders()
 				->offsetGet($placeHolderName);
 		
-		$blocks = $placeHolder->getBlocks();
+		$blocks = $pageRequest->getBlockSet()
+				->getPlaceHolderBlockSet($placeHolder);
 		
 		$maxPosition = max($blockPositionById);
 		
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
 			$id = $block->getId();
-			
+
 			if ( ! array_key_exists($id, $blockPositionById)) {
-				$maxPosition++;
-				$block->setPosition($maxPosition);
+				$this->log->warn("Block $id not received in block order action for $page");
 			} else {
 				$block->setPosition($blockPositionById[$id]);
 			}

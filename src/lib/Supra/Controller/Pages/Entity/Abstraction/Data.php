@@ -124,6 +124,29 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	}
 	
 	/**
+	 * Loads localization item parent
+	 * @return Data
+	 */
+	public function getParent()
+	{
+		$master = $this->getMaster();
+		
+		if (empty($master)) {
+			return null;
+		}
+		
+		$parent = $master->getParent();
+		
+		if (empty($parent)) {
+			return null;
+		}
+		
+		$parentData = $parent->getData($this->locale);
+		
+		return $parentData;
+	}
+	
+	/**
 	 * Get page and it's template hierarchy starting with the root template
 	 * @return PageSet
 	 * @throws Exception\RuntimeException

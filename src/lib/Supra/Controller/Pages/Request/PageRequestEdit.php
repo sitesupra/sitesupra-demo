@@ -308,16 +308,19 @@ class PageRequestEdit extends PageRequest
 	 * 
 	 * @param EntityManager $sourceEm
 	 * @param EntityManager $destEm
-	 * @param integer $pageId
+	 * @param integer $pageDataId
 	 * @param boolean $forceSave
 	 * @return type 
 	 */
-	public function moveBetweenManagers(EntityManager $sourceEm, EntityManager $destEm, $pageId, $forceSave = false)
+	public function moveBetweenManagers(EntityManager $sourceEm, EntityManager $destEm, $pageDataId, $forceSave = false)
 	{
-		$sourcePage = $sourceEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		if ( ! ($sourcePage instanceof Entity\Abstraction\AbstractPage)) {
+		$sourcePageLocalization = $sourceEm->find(Entity\Abstraction\Data::CN(), $pageDataId);
+		
+		if ( ! ($sourcePageLocalization instanceof Entity\Abstraction\Data)) {
 			throw new Exception\RuntimeException('Specified page was not found in source repository');
 		}
+		
+		$sourcePage = $sourcePageLocalization->getMaster();
 		
 		/* 
 		 * Remove pathGenerator 

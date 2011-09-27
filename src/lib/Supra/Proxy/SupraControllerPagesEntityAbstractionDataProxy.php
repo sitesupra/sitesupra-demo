@@ -66,6 +66,12 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getMaster();
     }
 
+    public function getParent()
+    {
+        $this->__load();
+        return parent::getParent();
+    }
+
     public function getTemplateHierarchy()
     {
         $this->__load();
@@ -153,7 +159,7 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'lock', 'blockProperties', 'id');
     }
 
     public function __clone()

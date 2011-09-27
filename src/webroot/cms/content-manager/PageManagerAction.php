@@ -20,6 +20,7 @@ use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Controller containing common methods
@@ -104,25 +105,40 @@ abstract class PageManagerAction extends CmsAction
 			return $this->pageData;
 		}
 		
-		$pageId = $this->getRequestParameter('page_id');
-		$localeId = $this->getLocale()->getId();
+		$this->pageData = $this->getPageDataByRequestKey('page_id');
 
-		if (empty($pageId)) {
-			throw new ResourceNotFoundException("Page ID not provided");
+		if (empty($this->pageData)) {
+			$pageId = $this->getRequestParameter('page_id');
+			throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
 		}
 		
-		$dataEntity = PageRequest::DATA_ENTITY;
-		$dql = "SELECT d FROM $dataEntity d WHERE d.master = ?0 AND d.locale = ?1";
-		$query = $this->entityManager->createQuery($dql);
-		$query->execute(array($pageId, $localeId));
-
-		try {
-			$this->pageData = $query->getSingleResult();
-			
-			return $this->pageData;
-		} catch (\Doctrine\ORM\NoResultException $notFound) {
-			throw new ResourceNotFoundException("Page data for page {$pageId} locale {$localeId} not found", null, $notFound);
+		return $this->pageData;
+	}
+	
+	protected function getPageByRequestKey($key)
+	{
+		$data = $this->getPageDataByRequestKey($key);
+		
+		if (empty($data)) {
+			return null;
 		}
+		
+		$page = $data->getMaster();
+		
+		return $page;
+	}
+	
+	protected function getPageDataByRequestKey($key)
+	{
+		$pageId = $this->getRequestParameter($key);
+
+		if (empty($pageId)) {
+			return null;
+		}
+		
+		$data = $this->entityManager->find(Entity\Abstraction\Data::CN(), $pageId);
+
+		return $data;
 	}
 
 	/**
@@ -164,7 +180,13 @@ abstract class PageManagerAction extends CmsAction
 			return null;
 		}
 
-		$pageId = $page->getId();
+		$data = $page->getData($localeId);
+		
+		if (empty($data)) {
+			return null;
+		}
+		
+		$pageId = $data->getId();
 
 		return $pageId;
 	}
@@ -202,18 +224,17 @@ abstract class PageManagerAction extends CmsAction
 
 	private function prepareTemplateData(Entity\TemplateData $templateData)
 	{
-
 		$template = $templateData->getTemplate();
-		$parent = $template->getParent();
-		$parentId = null;
+		$parentData = $templateData->getParent();
+		$parentDataId = null;
 
-		if ( ! is_null($parent)) {
-			$parentId = $parent->getId();
+		if ( ! is_null($parentData)) {
+			$parentDataId = $parentData->getId();
 		}
 
 		$data = array(
-			'id' => $template->getId(),
-			'parent' => $parentId,
+			'id' => $templateData->getId(),
+			'parent' => $parentDataId,
 			//TODO: hardcoded
 			'icon' => 'page',
 			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
@@ -224,21 +245,20 @@ abstract class PageManagerAction extends CmsAction
 
 	private function preparePageData(Entity\PageData $pageData)
 	{
-
 		$page = $pageData->getPage();
 		$template = $pageData->getTemplate();
-		$parent = $page->getParent();
-		$parentId = null;
+		$parentData = $pageData->getParent();
+		$parentDataId = null;
 
-		if ( ! is_null($parent)) {
-			$parentId = $parent->getId();
+		if ( ! is_null($parentData)) {
+			$parentDataId = $parentData->getId();
 		}
 
 		$data = array(
-			'id' => $page->getId(),
+			'id' => $pageData->getId(),
 			'title' => $pageData->getTitle(),
 			'template' => $template->getId(),
-			'parent' => $parentId,
+			'parent' => $parentDataId,
 			'path' => $pageData->getPathPart(),
 			//TODO: hardcoded
 			'icon' => 'page',
@@ -308,7 +328,8 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$this->isPostRequest();
 	
-		$pageId = $this->getRequestParameter('page_id');
+		$draftPage = $this->getPageData()->getMaster();
+		$pageId = $draftPage->getId();
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		$publicEm = ObjectRepository::getEntityManager('');
 		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
@@ -318,6 +339,7 @@ abstract class PageManagerAction extends CmsAction
 		// If entity is a page, then get it template
 		// and create they copies for _trash scheme
 		$draftPage = $draftEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		
 		if ($draftPage instanceof Entity\Page) {
 			$draftPageCollection = $draftPage->getDataCollection();
 			foreach ($draftPageCollection as $pageLocalization) {
@@ -356,7 +378,7 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$this->isPostRequest();
 		
-		$pageId = $this->getRequestParameter('page_id');
+		$pageDataId = $this->getRequestParameter('page_id');
 		$publicEm = ObjectRepository::getEntityManager('');
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
@@ -365,23 +387,30 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager = $trashEm;
 		$pageRequest = $this->getPageRequest();
 		
-		$trashPage = $trashEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		$trashPageData = $trashEm->find(Entity\Abstraction\Data::CN(), $pageDataId);
+		
+		if ( ! $trashPageData instanceof Entity\Abstraction\Data) {
+			throw new CmsException(null, "Page wasn't found in the recycle bin anymore");
+		}
+		
+		$trashPage = $trashPageData->getMaster();
+		
 		if ($trashPage instanceof Entity\Page) {
 
 			$trashPageCollection = $trashPage->getDataCollection();
 			foreach($trashPageCollection as $pageLocalization) {
 				$templateId = $pageLocalization->getTemplate()->getId();
 				
-				$tpl = $publicEm->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+				$tpl = $publicEm->find(Entity\Template::CN(), $templateId);
 				if ( ! ($tpl instanceof Entity\Template)) {
-					throw new \Supra\Controller\Pages\Exception\RuntimeException('It is impossible to restore page as it template was deleted');
+					throw new CmsException(null, 'It is impossible to restore page as its template was deleted');
 				}
 			}
 			
-			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageId);
+			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageDataId);
 		}
 		else {
-			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageId, true);
+			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageDataId, true);
 		}
 
 		// Restore default entity manager
