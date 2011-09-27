@@ -190,6 +190,7 @@ class FixtureHelper
 				$publicEm->clear();
 				
 				$pageToPublish = $em->find(\Supra\Controller\Pages\Request\PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+				/* @var $pageToPublish Entity\Abstraction\AbstractPage */
 				
 				/* @var $locale \Supra\Locale\Locale */
 				foreach ($this->locales as $locale) {
@@ -202,7 +203,7 @@ class FixtureHelper
 
 					$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
 					$request->setDoctrineEntityManager($em);
-					$request->setPageData($pageToPublish->getData($localeId));
+					$request->setPageLocalization($pageToPublish->getLocalization($localeId));
 					
 					// Will create missing placeholders and flush
 					$request->getPlaceHolderSet();
@@ -257,7 +258,7 @@ class FixtureHelper
 		foreach ($this->locales as $locale) {
 			$localeId = $locale->getId();
 		
-			$templateData = new Entity\TemplateData($localeId);
+			$templateData = new Entity\TemplateLocalization($localeId);
 			$this->entityManager->persist($templateData);
 			$templateData->setTemplate($template);
 			$templateData->setTitle('Root template');
@@ -290,7 +291,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setLocalization($template->getLocalization($localeId));
 					$blockProperty->setValue('Template Header');
 				}
 
@@ -305,7 +306,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setLocalization($template->getLocalization($localeId));
 					$blockProperty->setValue('Template source');
 
 	//				// A locked block
@@ -320,7 +321,7 @@ class FixtureHelper
 	//				$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 	//				$this->entityManager->persist($blockProperty);
 	//				$blockProperty->setBlock($block);
-	//				$blockProperty->setData($template->getData($localeId));
+	//				$blockProperty->setLocalization($template->getLocalization($localeId));
 	//				$blockProperty->setValue('Template locked block');
 				}
 
@@ -336,7 +337,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setLocalization($template->getLocalization($localeId));
 					$blockProperty->setValue('Bye <strong>World</strong>!<br />');
 				}
 
@@ -351,7 +352,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($template->getData($localeId));
+					$blockProperty->setLocalization($template->getLocalization($localeId));
 					$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
 				}
 			}
@@ -366,10 +367,10 @@ class FixtureHelper
 		foreach ($this->locales as $locale) {
 			$localeId = $locale->getId();
 			
-			$childTemplateData = new Entity\TemplateData($localeId);
-			$this->entityManager->persist($childTemplateData);
-			$childTemplateData->setTemplate($childTemplate);
-			$childTemplateData->setTitle('Child template');
+			$childTemplateLocalization = new Entity\TemplateLocalization($localeId);
+			$this->entityManager->persist($childTemplateLocalization);
+			$childTemplateLocalization->setTemplate($childTemplate);
+			$childTemplateLocalization->setTitle('Child template');
 
 			
 			$templatePlaceHolder = $childTemplate->getPlaceHolders()
@@ -402,7 +403,7 @@ class FixtureHelper
 			$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 			$this->entityManager->persist($blockProperty);
 			$blockProperty->setBlock($block);
-			$blockProperty->setData($childTemplateData);
+			$blockProperty->setLocalization($childTemplateLocalization);
 			$blockProperty->setValue('<em>Template locked block</em>');
 		}
 		
@@ -440,7 +441,7 @@ class FixtureHelper
 		foreach ($this->locales as $locale) {
 			$localeId = $locale->getId();
 		
-			$pageData = new Entity\PageData($localeId);
+			$pageData = new Entity\PageLocalization($localeId);
 			$pageData->setTemplate($template);
 			$this->entityManager->persist($pageData);
 			$pageData->setTitle(self::$constants[$type]['title']);
@@ -459,7 +460,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
-					$blockProperty->setData($page->getData($localeId));
+					$blockProperty->setLocalization($page->getLocalization($localeId));
 					$blockProperty->setValue('Hello SiteSupra in page /' . $pageData->getPath() . '');
 
 					$placeHolder = $page->getPlaceHolders()
@@ -481,7 +482,7 @@ class FixtureHelper
 					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
-					$blockProperty->setData($pageData);
+					$blockProperty->setLocalization($pageData);
 					$blockProperty->setValue('this shouldn\'t be shown');
 				}
 
@@ -508,7 +509,7 @@ class FixtureHelper
 						$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 						$this->entityManager->persist($blockProperty);
 						$blockProperty->setBlock($block);
-						$blockProperty->setData($page->getData($localeId));
+						$blockProperty->setLocalization($page->getLocalization($localeId));
 						$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
 					}
 				}

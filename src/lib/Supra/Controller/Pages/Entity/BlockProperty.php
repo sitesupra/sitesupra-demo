@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Entity\Abstraction\Data;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Editable\EditableInterface;
 use Doctrine\Common\Collections;
@@ -16,11 +16,11 @@ use Doctrine\Common\Collections;
 class BlockProperty extends Entity
 {
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Data")
-	 * @JoinColumn(name="data_id", referencedColumnName="id", nullable=false)
-	 * @var Data
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Localization", inversedBy="blockProperties")
+	 * @JoinColumn(nullable=false)
+	 * @var Localization
 	 */
-	protected $data;
+	protected $localization;
 
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties", cascade={"persist"})
@@ -74,20 +74,20 @@ class BlockProperty extends Entity
 	}
 
 	/**
-	 * @return Data
+	 * @return Localization
 	 */
-	public function getData()
+	public function getLocalization()
 	{
-		return $this->data;
+		return $this->localization;
 	}
 
 	/**
-	 * @param Data $data
+	 * @param Localization $data
 	 */
-	public function setData(Data $data)
+	public function setLocalization(Localization $data)
 	{
-		if ($this->writeOnce($this->data, $data)) {
-			$this->checkScope($this->data);
+		if ($this->writeOnce($this->localization, $data)) {
+			$this->checkScope($this->localization);
 		}
 	}
 
@@ -177,26 +177,6 @@ class BlockProperty extends Entity
 	}
 	
 	/**
-	 * Return value additional data, usually array
-	 * @return mixed
-	 */
-	public function getValueData()
-	{
-		$metadataCollection = $this->getMetadata();
-		
-		//FIXME: Temporary before switching to referenced elements completely
-		$valueData = array();
-		
-		/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-		foreach ($metadataCollection as $name => $metadata) {
-			$valueData[$name] = $metadata->getReferencedElement()
-					->toArray();
-		}
-		
-		return $valueData;
-	}
-	
-	/**
 	 * @return EditableInterface
 	 */
 	public function getEditable()
@@ -218,10 +198,10 @@ class BlockProperty extends Entity
 	 */
 	private function checkScope(Entity &$object)
 	{
-		if ( ! empty($this->data) && ! empty($this->block)) {
+		if ( ! empty($this->localization) && ! empty($this->block)) {
 			try {
 				// do not-strict match (allows page data with template block)
-				$this->data->matchDiscriminator($this->block, false);
+				$this->localization->matchDiscriminator($this->block, false);
 			} catch (Exception\PagesControllerException $e) {
 				$object = null;
 				throw $e;
@@ -237,7 +217,7 @@ class BlockProperty extends Entity
 		if ( ! empty($this->id)) {
 			$this->regenerateId();
 			$this->block = null;
-			$this->data = null;
+			$this->localization = null;
 		}
 	}
 

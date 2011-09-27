@@ -5,10 +5,11 @@ namespace Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Exception;
 
 /**
- * TemplateData class
+ * TemplateLocalization class
  * @Entity
+ * @method TemplateLocalization getParent()
  */
-class TemplateData extends Abstraction\Data
+class TemplateLocalization extends Abstraction\Localization
 {
 	/**
 	 * {@inheritdoc}

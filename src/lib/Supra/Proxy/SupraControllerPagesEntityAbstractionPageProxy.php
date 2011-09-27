@@ -42,19 +42,19 @@ class SupraControllerPagesEntityAbstractionPageProxy extends \Supra\Controller\P
         return parent::getPlaceHolders();
     }
 
-    public function getDataCollection()
+    public function getLocalizations()
     {
         $this->__load();
         return parent::getDataCollection();
     }
 
-    public function getData($locale)
+    public function getLocalization($locale)
     {
         $this->__load();
         return parent::getData($locale);
     }
 
-    public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
+    public function setLocalization(\Supra\Controller\Pages\Entity\Abstraction\Localization $data)
     {
         $this->__load();
         return parent::setData($data);

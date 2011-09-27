@@ -15,7 +15,7 @@ class BlockPropertyMetadata extends Abstraction\Entity
 	protected $name;
 	
 	/**
-	 * @ManyToOne(targetEntity="BlockProperty")
+	 * @ManyToOne(targetEntity="BlockProperty", inversedBy="metadata")
 	 * @var BlockProperty
 	 */
 	protected $blockProperty;

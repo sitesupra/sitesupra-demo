@@ -23,7 +23,7 @@ class PageAction extends PageManagerAction
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		$pageId = $pageData->getId();
 
 		// Create special request
@@ -47,8 +47,8 @@ class PageAction extends PageManagerAction
 
 		$this->setInitialPageId($pageId);
 
-		/* @var $pageData Entity\Abstraction\Data */
-		$pageData = $page->getData($localeId);
+		/* @var $pageData Entity\Abstraction\Localization */
+		$pageData = $page->getLocalization($localeId);
 
 		if (empty($pageData)) {
 			$this->getResponse()
@@ -57,7 +57,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 
-		$request->setPageData($pageData);
+		$request->setPageLocalization($pageData);
 		$controller->execute($request);
 
 		$pathPart = null;
@@ -74,7 +74,7 @@ class PageAction extends PageManagerAction
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
 
-			/* @var $pageData Entity\PageData */
+			/* @var $pageData Entity\PageLocalization */
 			$pathPart = $pageData->getPathPart();
 
 			if ($page->hasParent()) {
@@ -83,9 +83,9 @@ class PageAction extends PageManagerAction
 			}
 
 			$template = $pageData->getTemplate();
-			$templateData = $template->getData($localeId);
+			$templateData = $template->getLocalization($localeId);
 
-			if ( ! $templateData instanceof Entity\TemplateData) {
+			if ( ! $templateData instanceof Entity\TemplateLocalization) {
 				throw new Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
 			}
 
@@ -233,7 +233,7 @@ class PageAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$page = new Entity\Page();
-		$pageData = new Entity\PageData($localeId);
+		$pageData = new Entity\PageLocalization($localeId);
 		$pageData->setMaster($page);
 
 		$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
@@ -294,7 +294,7 @@ class PageAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 
 		if ($this->hasRequestParameter('title')) {
 			$title = $this->getRequestParameter('title');
@@ -302,7 +302,7 @@ class PageAction extends PageManagerAction
 		}
 
 		if ($this->hasRequestParameter('path')) {
-			if ($pageData instanceof Entity\PageData) {
+			if ($pageData instanceof Entity\PageLocalization) {
 				$pathPart = $this->getRequestParameter('path');
 
 				try {
@@ -336,7 +336,7 @@ class PageAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$page = $this->getPageData()->getMaster();
+		$page = $this->getPageLocalization()->getMaster();
 
 		if (empty($page)) {
 			$this->getResponse()
@@ -367,7 +367,7 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 		
 		// This failed..
-//		$this->checkActionPermission($this->getPageData(), Entity\Abstraction\Data::ACTION_PUBLISH_PAGE_NAME);
+//		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Localization::ACTION_PUBLISH_PAGE_NAME);
 		
 		$this->checkLock();
 		$this->publish();

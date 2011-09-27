@@ -23,8 +23,8 @@ class RootAction extends PageManagerAction
 		/* @var $response TwigResponse */
 		
 		// Last opened page
-		$pageId = $this->getInitialPageId();
-		$response->assign('pageId', $pageId);
+		$pageLocalizationId = $this->getInitialPageLocalizationId();
+		$response->assign('pageLocalizationId', $pageLocalizationId);
 		
 		// Current locale ID
 		$localeId = $this->getLocale()->getId();

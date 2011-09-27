@@ -6,10 +6,11 @@ use Supra\Controller\Pages\Exception;
 use DateTime;
 
 /**
- * PageData class
+ * PageLocalization class
  * @Entity
+ * @method PageLocalization getParent()
  */
-class PageData extends Abstraction\Data
+class PageLocalization extends Abstraction\Localization
 {
 	/**
 	 * {@inheritdoc}

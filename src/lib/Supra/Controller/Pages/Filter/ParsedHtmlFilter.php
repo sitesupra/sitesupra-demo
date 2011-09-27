@@ -123,7 +123,7 @@ class ParsedHtmlFilter implements FilterInterface
 	/**
 	 * Replace image/link supra tags with real elements
 	 * @param string $value
-	 * @param array $valueData
+	 * @param Collection $metadata
 	 * @return string 
 	 */
 	protected function parseSupraMarkup($value, Collection $metadata)

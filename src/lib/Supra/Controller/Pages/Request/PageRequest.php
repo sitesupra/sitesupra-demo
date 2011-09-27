@@ -29,13 +29,13 @@ abstract class PageRequest extends HttpRequest
 	 * Data abstraction class name
 	 * @var string
 	 */
-	const DATA_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Data';
+	const DATA_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Localization';
 	
 	/**
 	 * Page data class name
 	 * @var string
 	 */
-	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageData';
+	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageLocalization';
 	
 	/**
 	 * Template class name
@@ -47,7 +47,7 @@ abstract class PageRequest extends HttpRequest
 	 * Page data class name
 	 * @var string
 	 */
-	const TEMPLATE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\TemplateData';
+	const TEMPLATE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\TemplateLocalization';
 
 	/**
 	 * Block abstraction class name
@@ -100,7 +100,7 @@ abstract class PageRequest extends HttpRequest
 	private $media = Entity\Layout::MEDIA_SCREEN;
 	
 	/**
-	 * @var Entity\Abstraction\Data
+	 * @var Entity\Abstraction\Localization
 	 */
 	private $pageData;
 	
@@ -141,17 +141,17 @@ abstract class PageRequest extends HttpRequest
 	}
 	
 	/**
-	 * @return Entity\Abstraction\Data
+	 * @return Entity\Abstraction\Localization
 	 */
-	public function getPageData()
+	public function getPageLocalization()
 	{
 		return $this->pageData;
 	}
 	
 	/**
-	 * @param Entity\Abstraction\Data $pageData
+	 * @param Entity\Abstraction\Localization $pageData
 	 */
-	public function setPageData(Entity\Abstraction\Data $pageData)
+	public function setPageLocalization(Entity\Abstraction\Localization $pageData)
 	{
 		$this->pageData = $pageData;
 	}
@@ -210,7 +210,7 @@ abstract class PageRequest extends HttpRequest
 	 */
 	public function getPage()
 	{
-		return $this->getPageData()
+		return $this->getPageLocalization()
 				->getMaster();
 	}
 
@@ -224,7 +224,7 @@ abstract class PageRequest extends HttpRequest
 		}
 		
 		// Fetch page/template hierarchy list
-		$this->pageSet = $this->getPageData()
+		$this->pageSet = $this->getPageLocalization()
 				->getTemplateHierarchy();
 		
 		return $this->pageSet;
@@ -352,13 +352,13 @@ abstract class PageRequest extends HttpRequest
 						
 						$template = $parentPlaceHolder->getMaster();
 						$locale = $this->getLocale();
-						$templateData = $template->getData($locale);
+						$templateData = $template->getLocalization($locale);
 						
 						// Find the properties to copy from the template
 						$blockPropertyEntity = self::BLOCK_PROPERTY_ENTITY;
 						
 						$dql = "SELECT p FROM $blockPropertyEntity AS p
-							WHERE p.block = ?0 AND p.data = ?1";
+							WHERE p.block = ?0 AND p.localization = ?1";
 						
 						$query = $em->createQuery($dql);
 						$query->setParameters(array(
@@ -368,12 +368,12 @@ abstract class PageRequest extends HttpRequest
 						
 						$blockProperties = $query->getResult();
 						
-						$data = $this->getPageData();
+						$data = $this->getPageLocalization();
 						
 						/* @var $blockProperty Entity\BlockProperty */
 						foreach ($blockProperties as $blockProperty) {
 							$blockProperty = clone($blockProperty);
-							$blockProperty->setData($data);
+							$blockProperty->setLocalization($data);
 							$blockProperty->setBlock($block);
 							
 							// Persist only for draft connection with ID generation
@@ -532,7 +532,7 @@ abstract class PageRequest extends HttpRequest
 			\Log::debug("Master node for {$block} is found - {$master}");
 			
 			// FIXME: n+1 problem
-			$data = $master->getData($this->locale);
+			$data = $master->getLocalization($this->locale);
 			
 			if (empty($data)) {
 				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
@@ -546,7 +546,7 @@ abstract class PageRequest extends HttpRequest
 			$and = $expr->andX();
 			$and->add($expr->eq('bp.block', '?' . (++$cnt)));
 			$qb->setParameter($cnt, $blockId);
-			$and->add($expr->eq('bp.data', '?' . (++$cnt)));
+			$and->add($expr->eq('bp.localization', '?' . (++$cnt)));
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);

@@ -84,6 +84,12 @@ class SupraControllerPagesEntityTemplateLocalizationProxy extends \Supra\Control
         return parent::getMaster();
     }
 
+    public function getParent()
+    {
+        $this->__load();
+        return parent::getParent();
+    }
+
     public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
     {
         $this->__load();
@@ -112,6 +118,18 @@ class SupraControllerPagesEntityTemplateLocalizationProxy extends \Supra\Control
     {
         $this->__load();
         return parent::getPermissionTypes();
+    }
+
+    public function getLock()
+    {
+        $this->__load();
+        return parent::getLock();
+    }
+
+    public function setLock($lock)
+    {
+        $this->__load();
+        return parent::setLock($lock);
     }
 
     public function getDiscriminator()
@@ -153,7 +171,7 @@ class SupraControllerPagesEntityTemplateLocalizationProxy extends \Supra\Control
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'locale', 'title', 'master', 'id');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id');
     }
 
     public function __clone()

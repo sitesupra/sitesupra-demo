@@ -48,22 +48,22 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
         return parent::getPlaceHolders();
     }
 
-    public function getDataCollection()
+    public function getLocalizations()
     {
         $this->__load();
-        return parent::getDataCollection();
+        return parent::getLocalizations();
     }
 
-    public function getData($locale)
+    public function getLocalization($locale)
     {
         $this->__load();
-        return parent::getData($locale);
+        return parent::getLocalization($locale);
     }
 
-    public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
+    public function setLocalization(\Supra\Controller\Pages\Entity\Abstraction\Localization $data)
     {
         $this->__load();
-        return parent::setData($data);
+        return parent::setLocalization($data);
     }
 
     public function addPlaceHolder(\Supra\Controller\Pages\Entity\Abstraction\PlaceHolder $placeHolder)
@@ -243,7 +243,7 @@ class SupraControllerPagesEntityPageProxy extends \Supra\Controller\Pages\Entity
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'data', 'placeHolders', 'left', 'right', 'level', 'id');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id');
     }
 
     public function __clone()

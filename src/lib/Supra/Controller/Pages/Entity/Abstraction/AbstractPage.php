@@ -65,10 +65,10 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	protected $nestedSetNode;
 	
 	/**
-	 * @OneToMany(targetEntity="Data", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
+	 * @OneToMany(targetEntity="Localization", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
 	 * @var Collection
 	 */
-	protected $data;
+	protected $localizations;
 
 	/**
 	 * Object's place holders
@@ -108,7 +108,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	{
 		parent::__construct();
 		$this->placeHolders = new ArrayCollection();
-		$this->data = new ArrayCollection();
+		$this->localizations = new ArrayCollection();
 	}
 
 	/**
@@ -122,19 +122,19 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	/**
 	 * @return Collection
 	 */
-	public function getDataCollection()
+	public function getLocalizations()
 	{
-		return $this->data;
+		return $this->localizations;
 	}
 
 	/**
 	 * Get data item by locale
 	 * @param string $locale
-	 * @return Data
+	 * @return Localization
 	 */
-	public function getData($locale)
+	public function getLocalization($locale)
 	{
-		$dataCollection = $this->getDataCollection();
+		$dataCollection = $this->getLocalizations();
 		$data = $dataCollection->get($locale);
 		
 		return $data;
@@ -142,16 +142,16 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 
 	/**
 	 * @param string $locale
-	 * @param Data $data
+	 * @param Localization $data
 	 */
-	public function setData(Data $data)
+	public function setLocalization(Localization $data)
 	{
-		if ($this->lock('data')) {
+		if ($this->lock('localizations')) {
 			$this->matchDiscriminator($data);
-			if ($this->addUnique($this->data, $data, 'locale')) {
+			if ($this->addUnique($this->localizations, $data, 'locale')) {
 				$data->setMaster($this);
 			}
-			$this->unlock('data');
+			$this->unlock('localizations');
 		}
 	}
 
@@ -340,7 +340,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	
 	public function isBlockPropertyEditable(BlockProperty $blockProperty)
 	{
-		$page = $blockProperty->getData()
+		$page = $blockProperty->getLocalization()
 				->getMaster();
 		
 		$editable = $page->equals($this);

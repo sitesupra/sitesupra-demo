@@ -24,7 +24,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-		$data = $this->getPageData();
+		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
 		$request = $this->getPageRequest();
 		
@@ -82,7 +82,7 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$localeId = $this->getLocale()->getId();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		
 		$pageId = $pageData->getMaster()->getId();
 		$blockId = $this->getRequestParameter('block_id');
@@ -130,7 +130,7 @@ class PagecontentAction extends PageManagerAction
 			$blockPropertyEntity = Entity\BlockProperty::CN();
 
 			$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
-					JOIN p.data AS d
+					JOIN p.localization AS d
 					JOIN p.block AS b
 				WHERE d.master = ?0 
 					AND p.block = ?1 
@@ -164,7 +164,7 @@ class PagecontentAction extends PageManagerAction
 
 				$blockProperty = new Entity\BlockProperty($name, $type);
 				$this->entityManager->persist($blockProperty);
-				$blockProperty->setData($pageData);
+				$blockProperty->setLocalization($pageData);
 				$blockProperty->setBlock($block);
 			}
 
@@ -235,7 +235,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$pageRequest = $this->getPageRequest();
 		
-		$data = $this->getPageData();
+		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */

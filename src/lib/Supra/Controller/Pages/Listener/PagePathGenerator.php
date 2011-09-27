@@ -2,12 +2,13 @@
 
 namespace Supra\Controller\Pages\Listener;
 
-use Supra\Controller\Pages\Entity\PageData;
+use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\Page;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 
 /**
  * Creates the page path and checks it's uniqueness
@@ -24,12 +25,12 @@ class PagePathGenerator
 
 		// Page path is not set from inserts, updates only
 		foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
-			if ($entity instanceof PageData) {
+			if ($entity instanceof PageLocalization) {
 				$this->generatePath($em, $unitOfWork, $entity);
 			}
 
 			if ($entity instanceof Page) {
-				$dataCollection = $entity->getDataCollection();
+				$dataCollection = $entity->getLocalizations();
 
 				foreach ($dataCollection as $dataEntity) {
 					$this->generatePath($em, $unitOfWork, $dataEntity);
@@ -42,9 +43,9 @@ class PagePathGenerator
 	 * Generates new full path and validates its uniqueness
 	 * @param EntityManager $em
 	 * @param UnitOfWork $unitOfWork
-	 * @param PageData $pageData
+	 * @param PageLocalization $pageData
 	 */
-	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, PageData $pageData)
+	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, PageLocalization $pageData)
 	{
 		$page = $pageData->getMaster();
 		$pathPart = $pageData->getPathPart();
@@ -60,21 +61,20 @@ class PagePathGenerator
 				return;
 			}
 			
-			$parentPage = $page->getParent();
+			$parentPageData = $pageData->getParent();
 			
-			$path = $pathPart;
+			if (empty($parentPageData)) {
+				throw new Exception\RuntimeException("Parent page localization is not found for the locale {$locale} required by page {$page->getId()}");
+			}
+			
+			$pathPrefix = $parentPageData->getPath();
 			
 			// Root page has no path
-			if ( ! $parentPage->isRoot()) {
-				
-				$parentData = $parentPage->getData($locale);
-				
-				if (empty($parentData)) {
-					throw new Exception\RuntimeException("Parent page #{$parentPage->getId()} does not have the data for the locale {$locale} required by page {$page->getId()}");
-				}
-				
-				$path = $parentData->getPath() . '/' . $pathPart;
+			if ($pathPrefix != '') {
+				$pathPrefix = $pathPrefix . '/';
 			}
+			
+			$path = $pathPrefix . $pathPart;
 			
 			$oldPath = $pageData->getPath();
 			

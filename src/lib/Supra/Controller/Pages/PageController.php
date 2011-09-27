@@ -79,7 +79,7 @@ class PageController extends ControllerAbstraction
 		// Check redirect for public calls
 		if ($request instanceof Request\PageRequestView) {
 			
-			$redirect = $request->getPageData()
+			$redirect = $request->getPageLocalization()
 					->getRedirect();
 
 			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {

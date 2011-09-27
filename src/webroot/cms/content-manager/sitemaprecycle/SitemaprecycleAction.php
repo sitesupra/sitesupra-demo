@@ -18,7 +18,7 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function sitemapAction()
 	{
-		$response = $this->getData(Entity\PageData::CN());
+		$response = $this->loadSitemapTree(Entity\PageLocalization::CN());
 		
 		$this->getResponse()
 				->setResponseData($response);
@@ -26,7 +26,7 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function templatesAction()
 	{
-		$response = $this->getData(Entity\TemplateData::CN());
+		$response = $this->loadSitemapTree(Entity\TemplateLocalization::CN());
 		
 		$this->getResponse()
 				->setResponseData($response);
@@ -39,7 +39,7 @@ class SitemaprecycleAction extends PageManagerAction
 	}
 	
 	
-	protected function getData($entity)
+	protected function loadSitemapTree($entity)
 	{
 		$pages = array();
 		
@@ -56,11 +56,11 @@ class SitemaprecycleAction extends PageManagerAction
 			$pathPart = null;
 			$templateId = null;
 			
-			if ($pageLocalization instanceof Entity\PageData) {
+			if ($pageLocalization instanceof Entity\PageLocalization) {
 				$pathPart = $pageLocalization->getPathPart();
 			}
 
-			if ($pageLocalization instanceof Entity\PageData) {
+			if ($pageLocalization instanceof Entity\PageLocalization) {
 				$templateId = $pageLocalization->getTemplate()
 					->getId();
 			}

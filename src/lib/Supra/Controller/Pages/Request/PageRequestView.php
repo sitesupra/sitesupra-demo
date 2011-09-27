@@ -29,32 +29,32 @@ class PageRequestView extends PageRequest
 	
 	/**
 	 * Overriden with page detection from URL
-	 * @return Entity\Abstraction\Data
+	 * @return Entity\Abstraction\Localization
 	 */
-	public function getPageData()
+	public function getPageLocalization()
 	{
-		$data = parent::getPageData();
+		$data = parent::getPageLocalization();
 		
 		if (empty($data)) {
-			$data = $this->detectRequestPageData();
+			$data = $this->detectRequestPageLocalization();
 			
-			$this->setPageData($data);
+			$this->setPageLocalization($data);
 		}
 
 		return $data;
 	}
 	
 	/**
-	 * @return Entity\Abstraction\Data
+	 * @return Entity\Abstraction\Localization
 	 * @throws ResourceNotFoundException if page not found or is inactive
 	 */
-	protected function detectRequestPageData()
+	protected function detectRequestPageLocalization()
 	{
 		$action = $this->getActionString();
 		$action = trim($action, '/');
 
 		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository(Entity\PageData::CN());
+		$er = $em->getRepository(Entity\PageLocalization::CN());
 
 		$searchCriteria = array(
 			'locale' => $this->getLocale(),
@@ -63,7 +63,7 @@ class PageRequestView extends PageRequest
 
 		//TODO: think about "enable path params" feature
 
-		/* @var $pageData Entity\PageData */
+		/* @var $pageData Entity\PageLocalization */
 		$pageData = $er->findOneBy($searchCriteria);
 
 		if (empty($pageData)) {

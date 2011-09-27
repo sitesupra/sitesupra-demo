@@ -12,9 +12,9 @@ abstract class VersionedTableMetadataListener
 	 * @var array
 	 */
 	protected static $versionedEntities = array(
-		'Supra\Controller\Pages\Entity\Abstraction\Data',
-		'Supra\Controller\Pages\Entity\PageData',
-		'Supra\Controller\Pages\Entity\TemplateData',
+		'Supra\Controller\Pages\Entity\Abstraction\Localization',
+		'Supra\Controller\Pages\Entity\PageLocalization',
+		'Supra\Controller\Pages\Entity\TemplateLocalization',
 		
 		'Supra\Controller\Pages\Entity\Abstraction\PlaceHolder',
 		'Supra\Controller\Pages\Entity\PagePlaceHolder',

@@ -2,7 +2,7 @@
 
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
-use Supra\Controller\Pages\Entity\PageData;
+use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 
@@ -200,7 +200,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 				$em = ObjectRepository::getEntityManager($context);
 
-				$pageDataEntity = PageData::CN();
+				$pageDataEntity = PageLocalization::CN();
 
 				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
 						WHERE d.locale = ?0 AND d.master = ?1");
@@ -213,7 +213,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				$query->execute($params);
 
 				try {
-					/* @var $page PageData */
+					/* @var $page PageLocalization */
 					$pageData = $query->getSingleResult();
 					$url = '/' . $pageData->getPath();
 				} catch (\Doctrine\ORM\NoResultException $noResults) {

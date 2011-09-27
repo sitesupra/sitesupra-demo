@@ -35,7 +35,7 @@ abstract class PageManagerAction extends CmsAction
 	protected $entityManager;
 	
 	/**
-	 * @var Entity\Abstraction\Data
+	 * @var Entity\Abstraction\Localization
 	 */
 	protected $pageData;
 
@@ -80,8 +80,8 @@ abstract class PageManagerAction extends CmsAction
 
 		$controller->prepare($request, $response);
 
-		$requestPageData = $this->getPageData();
-		$request->setPageData($requestPageData);
+		$requestPageLocalization = $this->getPageLocalization();
+		$request->setPageLocalization($requestPageLocalization);
 
 		return $request;
 	}
@@ -96,16 +96,16 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
-	 * @return Entity\Abstraction\Data
+	 * @return Entity\Abstraction\Localization
 	 * @throws ResourceNotFoundException
 	 */
-	protected function getPageData()
+	protected function getPageLocalization()
 	{
 		if (isset($this->pageData)) {
 			return $this->pageData;
 		}
 		
-		$this->pageData = $this->getPageDataByRequestKey('page_id');
+		$this->pageData = $this->getPageLocalizationByRequestKey('page_id');
 
 		if (empty($this->pageData)) {
 			$pageId = $this->getRequestParameter('page_id');
@@ -117,7 +117,7 @@ abstract class PageManagerAction extends CmsAction
 	
 	protected function getPageByRequestKey($key)
 	{
-		$data = $this->getPageDataByRequestKey($key);
+		$data = $this->getPageLocalizationByRequestKey($key);
 		
 		if (empty($data)) {
 			return null;
@@ -128,7 +128,7 @@ abstract class PageManagerAction extends CmsAction
 		return $page;
 	}
 	
-	protected function getPageDataByRequestKey($key)
+	protected function getPageLocalizationByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
 
@@ -136,59 +136,49 @@ abstract class PageManagerAction extends CmsAction
 			return null;
 		}
 		
-		$data = $this->entityManager->find(Entity\Abstraction\Data::CN(), $pageId);
+		$data = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageId);
 
 		return $data;
 	}
 
 	/**
-	 * Get first page ID to show in the CMS
+	 * Get first page localization ID to show in the CMS
 	 * @return int
 	 */
-	protected function getInitialPageId()
+	protected function getInitialPageLocalizationId()
 	{
 		$localeId = $this->getLocale()->getId();
-		$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ABSTRACT_ENTITY);
-		$page = null;
+		$localization = null;
 
 		// Try cookie
 		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
-			$pageId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
-			$page = $pageDao->findOneById($pageId);
-
-			if ( ! empty($page)) {
-				// Page localization must exist
-				$pageData = $page->getData($localeId);
-
-				if (empty($pageData)) {
-					$page = null;
-				}
-			}
+			$pageLocalizationId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
+			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageLocalizationId);
 		}
 
 		// Root page otherwise
-		if (empty($page)) {
+		if (empty($localization)) {
+			$page = null;
 			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
 			/* @var $pageDao PageRepository */
 			$pages = $pageDao->getRootNodes();
+			
 			if (isset($pages[0])) {
 				$page = $pages[0];
 			}
+			
+			if ($page instanceof Entity\Abstraction\AbstractPage) {
+				$localization = $page->getLocalization($localeId);
+			}
 		}
 
-		if (empty($page)) {
-			return null;
-		}
-
-		$data = $page->getData($localeId);
-		
-		if (empty($data)) {
+		if (empty($localization)) {
 			return null;
 		}
 		
-		$pageId = $data->getId();
+		$pageLocalizationId = $localization->getId();
 
-		return $pageId;
+		return $pageLocalizationId;
 	}
 
 	/**
@@ -205,24 +195,24 @@ abstract class PageManagerAction extends CmsAction
 
 	/**
 	 * 
-	 * @param Entity\Abstraction\Data $pageData
+	 * @param Entity\Abstraction\Localization $pageData
 	 */
-	protected function outputPage(Entity\Abstraction\Data $pageData)
+	protected function outputPage(Entity\Abstraction\Localization $pageData)
 	{
 		$data = null;
 
-		if ($pageData instanceof Entity\TemplateData) {
-			$data = $this->prepareTemplateData($pageData);
+		if ($pageData instanceof Entity\TemplateLocalization) {
+			$data = $this->prepareTemplateLocalization($pageData);
 		}
 
-		if ($pageData instanceof Entity\PageData) {
-			$data = $this->preparePageData($pageData);
+		if ($pageData instanceof Entity\PageLocalization) {
+			$data = $this->preparePageLocalization($pageData);
 		}
 
 		$this->getResponse()->setResponseData($data);
 	}
 
-	private function prepareTemplateData(Entity\TemplateData $templateData)
+	private function prepareTemplateLocalization(Entity\TemplateLocalization $templateData)
 	{
 		$template = $templateData->getTemplate();
 		$parentData = $templateData->getParent();
@@ -243,7 +233,7 @@ abstract class PageManagerAction extends CmsAction
 		return $data;
 	}
 
-	private function preparePageData(Entity\PageData $pageData)
+	private function preparePageLocalization(Entity\PageLocalization $pageData)
 	{
 		$page = $pageData->getPage();
 		$template = $pageData->getTemplate();
@@ -328,7 +318,7 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$this->isPostRequest();
 	
-		$draftPage = $this->getPageData()->getMaster();
+		$draftPage = $this->getPageLocalization()->getMaster();
 		$pageId = $draftPage->getId();
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		$publicEm = ObjectRepository::getEntityManager('');
@@ -341,7 +331,7 @@ abstract class PageManagerAction extends CmsAction
 		$draftPage = $draftEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 		
 		if ($draftPage instanceof Entity\Page) {
-			$draftPageCollection = $draftPage->getDataCollection();
+			$draftPageCollection = $draftPage->getLocalizations();
 			foreach ($draftPageCollection as $pageLocalization) {
 				$draftTpl = $pageLocalization->getTemplate();
 				$draftTplId = $draftTpl->getId();
@@ -355,7 +345,7 @@ abstract class PageManagerAction extends CmsAction
 		$publicEm = ObjectRepository::getEntityManager('');
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 		if ($publicPage instanceof Entity\Abstraction\Page) {
-			$publicPageCollection = $publicPage->getDataCollection();
+			$publicPageCollection = $publicPage->getLocalizations();
 			foreach ($publicPageCollection as $pageLocalization) {
 				$publicEm->remove($pageLocalization);
 			}
@@ -387,17 +377,17 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager = $trashEm;
 		$pageRequest = $this->getPageRequest();
 		
-		$trashPageData = $trashEm->find(Entity\Abstraction\Data::CN(), $pageDataId);
+		$trashPageLocalization = $trashEm->find(Entity\Abstraction\Localization::CN(), $pageDataId);
 		
-		if ( ! $trashPageData instanceof Entity\Abstraction\Data) {
+		if ( ! $trashPageLocalization instanceof Entity\Abstraction\Localization) {
 			throw new CmsException(null, "Page wasn't found in the recycle bin anymore");
 		}
 		
-		$trashPage = $trashPageData->getMaster();
+		$trashPage = $trashPageLocalization->getMaster();
 		
 		if ($trashPage instanceof Entity\Page) {
 
-			$trashPageCollection = $trashPage->getDataCollection();
+			$trashPageCollection = $trashPage->getLocalizations();
 			foreach($trashPageCollection as $pageLocalization) {
 				$templateId = $pageLocalization->getTemplate()->getId();
 				
@@ -430,7 +420,7 @@ abstract class PageManagerAction extends CmsAction
 		$this->isPostRequest();
 		
 		$userId = $this->getUser()->getId();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		
 		$pageLock = $pageData->getLock();
 		
@@ -452,7 +442,7 @@ abstract class PageManagerAction extends CmsAction
 		$this->isPostRequest();
 		
 		$userId = $this->getUser()->getId();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		
 		$pageLock = $pageData->getLock();
 		
@@ -474,7 +464,7 @@ abstract class PageManagerAction extends CmsAction
 		$this->isPostRequest();
 		
 		$userId = $this->getUser()->getId();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		
 		$allowForced = true; // TODO: hardcoded, should be based on current User rights/auth
 		$force = (bool)$this->getRequestParameter('force');

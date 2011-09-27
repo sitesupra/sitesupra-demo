@@ -52,15 +52,15 @@ class BlockPropertySet extends AbstractSet
 	/**
 	 * Gets only properties referencing to the current page, properties from the
 	 * locked parent template blocks are ignored
-	 * @param Entity\Abstraction\Data $data
+	 * @param Entity\Abstraction\Localization $data
 	 */
-	public function getPageProperties(Entity\Abstraction\Data $data)
+	public function getPageProperties(Entity\Abstraction\Localization $data)
 	{
 		$blockPropertySet = new BlockPropertySet();
 		
 		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($this as $blockProperty) {
-			if ($blockProperty->getData()->equals($data)) {
+			if ($blockProperty->getLocalization()->equals($data)) {
 				$blockPropertyName = $blockProperty->getName();
 				$blockPropertySet->append($blockProperty);
 			}

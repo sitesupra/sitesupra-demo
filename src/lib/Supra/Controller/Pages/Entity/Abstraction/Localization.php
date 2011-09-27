@@ -13,10 +13,10 @@ use Supra\Controller\Pages\Entity\LockData;
  * @Entity
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateData", "page" = "Supra\Controller\Pages\Entity\PageData"})
+ * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateLocalization", "page" = "Supra\Controller\Pages\Entity\PageLocalization"})
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
-abstract class Data extends Entity implements AuthorizedEntityInterface
+abstract class Localization extends Entity implements AuthorizedEntityInterface
 {
 	const ACTION_EDIT_PAGE_NAME = 'edit_page';
 	const ACTION_EDIT_PAGE_MASK = 4; // ==> MaskBuilder::MASK_EDIT 
@@ -38,7 +38,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 
 	/**
 	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="data", fetch="EAGER")
+	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="localizations", fetch="EAGER")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var AbstractPage
 	 */
@@ -53,7 +53,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	
 	/**
 	 * Left here just because cascade in remove
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="data", cascade={"persist", "remove"}, fetch="LAZY") 
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY") 
 	 * @var Collection 
 	 */ 
 	protected $blockProperties; 
@@ -110,7 +110,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 		
 //		if ($this->writeOnce($this->master, $master)) {
 			$this->master = $master;
-			$master->setData($this);
+			$master->setLocalization($this);
 //		}
 	}
 	
@@ -125,7 +125,7 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 	
 	/**
 	 * Loads localization item parent
-	 * @return Data
+	 * @return Localization
 	 */
 	public function getParent()
 	{
@@ -140,8 +140,9 @@ abstract class Data extends Entity implements AuthorizedEntityInterface
 		if (empty($parent)) {
 			return null;
 		}
-		
-		$parentData = $parent->getData($this->locale);
+
+		/* @var $parent AbstractPage */
+		$parentData = $parent->getLocalization($this->locale);
 		
 		return $parentData;
 	}

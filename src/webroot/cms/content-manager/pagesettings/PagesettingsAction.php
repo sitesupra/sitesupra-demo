@@ -20,7 +20,7 @@ class PagesettingsAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
@@ -29,7 +29,7 @@ class PagesettingsAction extends PageManagerAction
 			$pageData->setTitle($title);
 		}
 
-		if ($pageData instanceof Entity\PageData) {
+		if ($pageData instanceof Entity\PageLocalization) {
 
 			if ($this->hasRequestParameter('path')) {
 				$pathPart = $this->getRequestParameter('path');
@@ -125,7 +125,7 @@ class PagesettingsAction extends PageManagerAction
 		$templateDataDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_DATA_ENTITY);
 		$templateDataList = $templateDataDao->findByLocale($localeId);
 
-		/* @var $templateData Entity\TemplateData */
+		/* @var $templateData Entity\TemplateLocalization */
 		foreach ($templateDataList as $templateData) {
 
 			$templateArray = array(

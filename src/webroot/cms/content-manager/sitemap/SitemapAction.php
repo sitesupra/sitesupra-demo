@@ -20,7 +20,7 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function sitemapAction()
 	{
-		$response = $this->getData(PageRequest::PAGE_ENTITY);
+		$response = $this->loadSitemapTree(PageRequest::PAGE_ENTITY);
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -31,7 +31,7 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function templatesAction()
 	{
-		$response = $this->getData(PageRequest::TEMPLATE_ENTITY);
+		$response = $this->loadSitemapTree(PageRequest::TEMPLATE_ENTITY);
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -44,7 +44,7 @@ class SitemapAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$page = $this->getPageData()->getMaster();
+		$page = $this->getPageLocalization()->getMaster();
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 		
@@ -70,7 +70,7 @@ class SitemapAction extends PageManagerAction
 	 */
 	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale)
 	{
-		$data = $page->getData($locale);
+		$data = $page->getLocalization($locale);
 
 		if (empty($data)) {
 			return null;
@@ -85,7 +85,7 @@ class SitemapAction extends PageManagerAction
 					->getId();
 		}
 
-		if ($data instanceof Entity\PageData) {
+		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
 		}
 
@@ -119,12 +119,12 @@ class SitemapAction extends PageManagerAction
 		return $array;
 	}
 	
-		/**
+	/**
 	 * Returns Template or Page data
 	 * @param string $entity
 	 * @return array
 	 */
-	protected function getData($entity)
+	protected function loadSitemapTree($entity)
 	{
 		$pages = array();
 		$localeId = $this->getLocale()->getId();

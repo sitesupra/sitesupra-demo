@@ -36,16 +36,16 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
     }
     
     
-    public function getData()
+    public function getLocalization()
     {
         $this->__load();
-        return parent::getData();
+        return parent::getLocalization();
     }
 
-    public function setData(\Supra\Controller\Pages\Entity\Abstraction\Data $data)
+    public function setLocalization(\Supra\Controller\Pages\Entity\Abstraction\Localization $data)
     {
         $this->__load();
-        return parent::setData($data);
+        return parent::setLocalization($data);
     }
 
     public function getMetadata()
@@ -108,12 +108,6 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
         return parent::setValue($value);
     }
 
-    public function getValueData()
-    {
-        $this->__load();
-        return parent::getValueData();
-    }
-
     public function getEditable()
     {
         $this->__load();
@@ -165,7 +159,7 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'data', 'block', 'type', 'name', 'value', 'metadata', 'id');
+        return array('__isInitialized__', 'localization', 'block', 'type', 'name', 'value', 'metadata', 'id');
     }
 
     public function __clone()

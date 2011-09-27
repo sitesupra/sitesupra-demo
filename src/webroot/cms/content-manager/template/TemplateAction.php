@@ -28,7 +28,7 @@ class TemplateAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
-		$templateData = new Entity\TemplateData($localeId);
+		$templateData = new Entity\TemplateLocalization($localeId);
 
 		$this->entityManager->persist($template);
 		$this->entityManager->persist($templateData);
@@ -98,7 +98,7 @@ class TemplateAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$pageData = $this->getPageData();
+		$pageData = $this->getPageLocalization();
 		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
@@ -114,7 +114,7 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$page = $this->getPageData()->getMaster();
+		$page = $this->getPageLocalization()->getMaster();
 		$pageId = $page->getId();
 
 		// Check if there is no children
@@ -130,7 +130,7 @@ class TemplateAction extends PageManagerAction
 		// TODO: remove from controller
 		// TODO: or loop through array of pages (founded by findAll in PAGE_DATA_ENTITY repo)
 		// and compare getTemplate()->getId();
-		$pageDataEntity = Entity\PageData::CN();
+		$pageDataEntity = Entity\PageLocalization::CN();
 		$dql = "SELECT COUNT(p.id) FROM $pageDataEntity p 
 				WHERE p.template = ?0";
 		

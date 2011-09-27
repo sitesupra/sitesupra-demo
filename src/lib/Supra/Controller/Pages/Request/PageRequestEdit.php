@@ -33,7 +33,7 @@ class PageRequestEdit extends PageRequest
 			return;
 		}
 		
-		$draftData = $this->getPageData();
+		$draftData = $this->getPageLocalization();
 		
 		$pageId = $draftData->getMaster()->getId();
 		$localeId = $draftData->getLocale();
@@ -56,10 +56,10 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		// Remove the old redirect link referenced element
-		$publicData = $publicPage->getData($localeId);
+		$publicData = $publicPage->getLocalization($localeId);
 		$oldRedirect = $newRedirect = null;
 		
-		if ($publicData instanceof Entity\PageData) {
+		if ($publicData instanceof Entity\PageLocalization) {
 			$oldRedirect = $publicData->getRedirect();
 		}
 		
@@ -70,7 +70,7 @@ class PageRequestEdit extends PageRequest
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
 		
-		if ($publicData instanceof Entity\PageData) {
+		if ($publicData instanceof Entity\PageLocalization) {
 			$newRedirect = $publicData->getRedirect();
 		}
 
@@ -183,10 +183,10 @@ class PageRequestEdit extends PageRequest
 	/**
 	 * Loads blocks from the current page
 	 * @param EntityManager $em
-	 * @param Entity\Abstraction\Data $data
+	 * @param Entity\Abstraction\Localization $data
 	 * @return array 
 	 */
-	private function getBlocksInPage(EntityManager $em, Entity\Abstraction\Data $data)
+	private function getBlocksInPage(EntityManager $em, Entity\Abstraction\Localization $data)
 	{
 		$masterId = $data->getMaster()->getId();
 		$locale = $data->getLocale();
@@ -284,14 +284,14 @@ class PageRequestEdit extends PageRequest
 		$this->allowFlushing = false;
 	}
 	
-	private function getPagePropertySet (EntityManager $em, Entity\Abstraction\Data $data)
+	private function getPagePropertySet (EntityManager $em, Entity\Abstraction\Localization $data)
 	{
 		$pageDataId = $data->getId();
 		$locale = $data->getLocale();
 		$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
 		
 		$dql = "SELECT p FROM $propertyEntity p 
-				WHERE p.data = ?0";
+				WHERE p.localization = ?0";
 		
 		$properties = $em->createQuery($dql)
 				->setParameters(array($pageDataId))
@@ -314,9 +314,9 @@ class PageRequestEdit extends PageRequest
 	 */
 	public function moveBetweenManagers(EntityManager $sourceEm, EntityManager $destEm, $pageDataId, $forceSave = false)
 	{
-		$sourcePageLocalization = $sourceEm->find(Entity\Abstraction\Data::CN(), $pageDataId);
+		$sourcePageLocalization = $sourceEm->find(Entity\Abstraction\Localization::CN(), $pageDataId);
 		
-		if ( ! ($sourcePageLocalization instanceof Entity\Abstraction\Data)) {
+		if ( ! ($sourcePageLocalization instanceof Entity\Abstraction\Localization)) {
 			throw new Exception\RuntimeException('Specified page was not found in source repository');
 		}
 		
@@ -342,7 +342,7 @@ class PageRequestEdit extends PageRequest
 			$destPage = $destEm->merge($sourcePage);
 			$destEm->flush();
 			
-			$pageCollection = $sourcePage->getDataCollection();
+			$pageCollection = $sourcePage->getLocalizations();
 			foreach ($pageCollection as $pageLocalization) {
 				
 				// is needed for getBlocksInPage
