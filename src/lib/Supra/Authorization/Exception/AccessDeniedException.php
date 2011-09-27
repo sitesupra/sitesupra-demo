@@ -6,13 +6,13 @@ class AccessDeniedException extends RuntimeException
 {
 	private $user;
 	private $object;
-	private $permissionTypeName;
+	private $permissionName;
 	
-	public function __construct($user, $object, $permissionTypeName) 
+	public function __construct($user, $object, $permissionName) 
 	{
 		$this->user = $user;
 		$this->object = $object;
-		$this->permissionTypeName = $permissionTypeName;
+		$this->permissionName = $permissionName;
 	}
 	
 	public function getUser() 
@@ -25,9 +25,9 @@ class AccessDeniedException extends RuntimeException
 		return $this->object;
 	}
 	
-	public function getPermissionTypeName() 
+	public function getPermissionName() 
 	{
-		return $this->permissionTypeName;
+		return $this->permissionName;
 	}
 }
 

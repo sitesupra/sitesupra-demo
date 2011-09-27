@@ -7,16 +7,11 @@ use Supra\User\Entity\Abstraction\User;
 interface AuthorizedEntityInterface
 {
 	/**
-	 * @return array
-	 */
-	public function getPermissionTypes();
-
-	/**
 	 * @param User $user
-	 * @param string $permissionType
+	 * @param string $permission
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permissionType);
+	public function authorize(User $user, $permission);
 	
 	/**
 	 * @return string
@@ -32,6 +27,6 @@ interface AuthorizedEntityInterface
 	 * @param boolean $includeSelf
 	 * @return array
 	 */
-	public function getAuthorizationAncestors($includeSelf = true);
+	public function getAuthorizationAncestors();
 	
 }

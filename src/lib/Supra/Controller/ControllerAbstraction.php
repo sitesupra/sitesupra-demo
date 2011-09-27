@@ -90,4 +90,9 @@ abstract class ControllerAbstraction implements ControllerInterface
 		}
 		return new Response\EmptyResponse();
 	}
+	
+	public static function __CLASS()  
+	{
+		return get_called_class();
+	}
 }

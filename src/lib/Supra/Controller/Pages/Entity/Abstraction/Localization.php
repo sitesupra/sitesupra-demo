@@ -181,14 +181,6 @@ abstract class Localization extends Entity implements AuthorizedEntityInterface
 		return $this->getAncestors(0, $includingSelf);
 	}
 	
-	public function getPermissionTypes() 
-	{
-		return array(
-			self::ACTION_EDIT_PAGE_NAME => new PermissionType(self::ACTION_EDIT_PAGE_NAME, self::ACTION_EDIT_PAGE_MASK),
-			self::ACTION_PUBLISH_PAGE_NAME => new PermissionType(self::ACTION_PUBLISH_PAGE_NAME, self::ACTION_PUBLISH_PAGE_MASK)
-		);
-	}
-	
 	/**
 	 * Returns page lock object
 	 * @return LockData

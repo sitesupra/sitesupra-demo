@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Authorization;
+namespace Supra\Authorization\Permission;
 
 class PermissionStatus
 {

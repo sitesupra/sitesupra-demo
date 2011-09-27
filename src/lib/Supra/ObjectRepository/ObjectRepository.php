@@ -12,6 +12,7 @@ use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
 use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
+use Supra\Cms\ApplicationConfiguration;
 
 /**
  * Object repository
@@ -29,6 +30,7 @@ class ObjectRepository
 	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
 	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
 	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
+	const INTERFACE_APPLICATION_CONFIGURATION = 'Supra\Cms\ApplicationConfiguration';
 
 	/**
 	 * Object relation storage
@@ -406,7 +408,7 @@ class ObjectRepository
 	}
 	
 	/**
-	 * Get assigned locale manager
+	 * Get assigned authorization provider.
 	 *
 	 * @param mixed $caller
 	 * @return AuthorizationProvider
@@ -417,7 +419,7 @@ class ObjectRepository
 	}
 
 	/**
-	 * Assign locale manager instance to caller class
+	 * Assign autorization provider to class.
 	 *
 	 * @param mixed $caller
 	 * @param AuthorizationProvider $object 
@@ -428,7 +430,7 @@ class ObjectRepository
 	}
 	
 	/**
-	 * Set default locale manager
+	 * Set default authorization provider.
 	 *
 	 * @param AuthorizationProvider $object 
 	 */
@@ -437,4 +439,36 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
 	}	
 	
+		/**
+	 * Get assigned application configuration.
+	 *
+	 * @param mixed $caller
+	 * @return ApplicationConfiguration
+	 */
+	public static function getApplicationConfiguration($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_APPLICATION_CONFIGURATION);
+	}
+
+	/**
+	 * Assign application configuration to namespace
+	 *
+	 * @param mixed $caller
+	 * @param AuthorizationProvider $object 
+	 */
+	public static function setApplicationConfiguration($caller, ApplicationConfiguration $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
+	}
+	
+	/**
+	 * Set application configuration.
+	 *
+	 * @param AuthorizationProvider $object 
+	 */
+	public static function setDefaultApplicationConfiguration(ApplicationConfiguration $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
+	}	
+
 }

@@ -5,6 +5,8 @@ namespace Supra\Cms\ContentManager;
 use Supra\Controller\DistributedController;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Log\Log;
+use Supra\Authorization\AuthorizedControllerInterface;
+use Supra\User\Entity\Abstraction\User;
 
 /**
  * Main CMS controller

@@ -102,12 +102,6 @@ class SupraControllerPagesEntityAbstractionLocalizationProxy extends \Supra\Cont
         return parent::getAuthorizationAncestors($includingSelf);
     }
 
-    public function getPermissionTypes()
-    {
-        $this->__load();
-        return parent::getPermissionTypes();
-    }
-
     public function getLock()
     {
         $this->__load();

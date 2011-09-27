@@ -14,23 +14,10 @@ class DummyAuthorizedController extends EmptyController implements AuthorizedCon
 {
 	function getAuthorizationId() 
 	{
-		return 42;
-	}
-	
-	function getAuthorizationClass()
-	{
 		return __CLASS__;
 	}
 	
-	function getPermissionTypes() 
-	{
-		return array(
-				new \Supra\Authorization\ControllerAllAccessPermission(),
-				new \Supra\Authorization\ControllerSomeAccessPermission()
-			);
-	}
-	
-	function authorize(User $user, $permissionType = null) 
+	function authorize(User $user, $permission = null) 
 	{
 		return true;
 	}

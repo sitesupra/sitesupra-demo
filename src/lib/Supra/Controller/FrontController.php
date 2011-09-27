@@ -9,7 +9,8 @@ use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Authorization\AuthorizedControllerInterface;
-use Supra\Authorization\Exception\ControllerAccessDeniedException;
+use Supra\Authorization\Exception\ApplicationAccessDeniedException;
+use Supra\Cms\ApplicationConfiguration;
 
 /**
  * Front controller
@@ -143,17 +144,20 @@ class FrontController
 		$response = $controller->createResponse($request);
 		$response->prepare();
 		$controller->prepare($request, $response);
+
+		$appConfig = ObjectRepository::getApplicationConfiguration($controller);
 		
-		if ($controller instanceof AuthorizedControllerInterface) {
+		if ( $appConfig instanceof ApplicationConfiguration) {
 			
 			$ap = ObjectRepository::getAuthorizationProvider($controller);
+			
 			$user = ObjectRepository::getSessionNamespace($controller)->getUser();
 			
-			if($ap->isControllerAccessGranted($user, $controller)) {
+			if ($ap->isApplicationAnyAccessGranted($user, $appConfig)) {
 				$controller->execute();
 			}
 			else {
-				throw new ControllerAccessDeniedException($user, $controller);
+				throw new ApplicationAccessDeniedException($user, $appConfig);
 			}
 		}
 		else {

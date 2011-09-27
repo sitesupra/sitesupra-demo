@@ -6,6 +6,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Authorization\AuthorizationPermission;
 
+use Supra\Cms\CmsApplicationConfiguration;
+
 require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
 
 /**
@@ -70,18 +72,26 @@ class Fixture extends \PHPUnit_Framework_TestCase
 			$adminUser = new \Supra\User\Entity\User();
 			$this->em->persist($adminUser);
 
+			$adminUser->setLogin($adminUserName);
 			$adminUser->setName($adminUserName);
 			$adminUser->resetSalt();
-			$adminUser->setEmail($adminUserName . '@' . $adminUserName . '.com');
+			$adminUser->setEmail($adminUserName);
 
 			$this->up->getAuthAdapter()->credentialChange($adminUser, $adminUserName);
 			$this->em->flush();		
 		}
 		
-		$controller = new \Supra\Cms\InternalUserManager\InternalUserManagerController();
-		$this->ap->grantControllerAllAccessPermission($adminUser, $controller);
+		require_once SUPRA_WEBROOT_PATH . 'cms/config.php';
 		
-		//$controller = new \Supra\Cms\ContentManager\ContentManagerController();
-		//$this->ap->grantControllerAllAccessPermission($adminUser, $controller);
+		foreach(CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
+			
+			if($appConfig->id == 'media-library') {
+				$this->ap->grantApplicationExecuteAccessPermission($adminUser, $appConfig);
+			}
+			else {
+				$this->ap->grantApplicationAllAccessPermission($adminUser, $appConfig);
+			}
+				
+		}
 	}
 }

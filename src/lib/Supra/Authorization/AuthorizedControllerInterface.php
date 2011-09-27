@@ -12,18 +12,7 @@ interface AuthorizedControllerInterface
 	public function getAuthorizationId();
 
 	/**
-	 * @return string
-	 */
-	public function getAuthorizationClass();
-	
-	/**
-	 * @return array
-	 */
-	public function getPermissionTypes();
-
-	/**
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permissionType);
-	
+	public function authorize(User $user, $permission);
 }

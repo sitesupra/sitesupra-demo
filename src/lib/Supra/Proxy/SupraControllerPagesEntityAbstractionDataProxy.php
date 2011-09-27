@@ -78,10 +78,10 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getTemplateHierarchy();
     }
 
-    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission)
     {
         $this->__load();
-        return parent::authorize($user, $permissionType);
+        return parent::authorize($user, $permission);
     }
 
     public function getAuthorizationId()
@@ -96,16 +96,16 @@ class SupraControllerPagesEntityAbstractionDataProxy extends \Supra\Controller\P
         return parent::getAuthorizationClass();
     }
 
-    public function getAuthorizationAncestors($includingSelf = true)
+    public function getAuthorizationAncestors()
     {
         $this->__load();
-        return parent::getAuthorizationAncestors($includingSelf);
+        return parent::getAuthorizationAncestors();
     }
 
-    public function getPermissionTypes()
+    public function getPermissions()
     {
         $this->__load();
-        return parent::getPermissionTypes();
+        return parent::getPermissions();
     }
 
     public function getLock()

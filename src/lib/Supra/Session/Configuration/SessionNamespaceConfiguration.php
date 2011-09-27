@@ -45,18 +45,18 @@ class SessionNamespaceConfiguration
 	{
 		$sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager($this->managerNamespace);
 		
-		if($this->class === false) {
+		if ($this->class === false) {
 			$sessionNamespace = $sessionNamespaceManager->getDefaultSessionNamespace();
 		}
 		else {
 			$sessionNamespace = $sessionNamespaceManager->getOrCreateSessionNamespace($this->name, $this->class);
 		}
 		
-		foreach($this->namespaces as $namespace) {
+		foreach ($this->namespaces as $namespace) {
 			ObjectRepository::setSessionNamespace($namespace, $sessionNamespace);
 		}
 		
-		if($this->isDefault) {
+		if ($this->isDefault) {
 			ObjectRepository::setDefaultSessionNamespace($sessionNamespace);
 		}
 	}

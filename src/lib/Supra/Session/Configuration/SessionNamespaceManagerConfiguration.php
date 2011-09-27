@@ -41,11 +41,11 @@ class SessionNamespaceManagerConfiguration
 		$handler = new $this->handlerClass();
 		$sessionNamespaceManager = new SessionNamespaceManager($handler);
 		
-		foreach($this->namespaces as $namespace) {
+		foreach ($this->namespaces as $namespace) {
 			ObjectRepository::setSessionNamespace($namespace, $sessionNamespaceManager);
 		}
 		
-		if($this->isDefault) {
+		if ($this->isDefault) {
 			ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
 		}
 	}

@@ -209,15 +209,15 @@ abstract class CmsAction extends SimpleController
 		return $this->user;
 	}
 	
-	protected function checkActionPermission($object, $permissionTypeName)
+	protected function checkActionPermission($object, $permissionName)
 	{
 		$ap = ObjectRepository::getAuthorizationProvider($this);
 
-		if($ap->isPermissionGranted($this->getUser(), $object, $permissionTypeName)) {
+		if($ap->isPermissionGranted($this->getUser(), $object, $permissionName)) {
 			return true;
 		}
 		else {
-			throw new EntityAccessDeniedException($this->getUser(), $object, $permissionTypeName);
+			throw new EntityAccessDeniedException($this->getUser(), $object, $permissionName);
 		}		
 	}
 }

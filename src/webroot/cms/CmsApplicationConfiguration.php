@@ -40,9 +40,14 @@ class CmsApplicationConfiguration {
 	 *
 	 * @return array
 	 */
-	public function getArray() 
+	public function getArray($indexById = false) 
 	{
-		return array_values($this->collection);
+		if ($indexById == false) {
+			return array_values($this->collection);
+		}
+		else {
+			return $this->collection;
+		}
 	}
 
 	/**

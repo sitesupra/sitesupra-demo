@@ -404,7 +404,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 		$this->nestedSetNode = $nestedSetNode;
 	}
 	
-	public function authorize(User $user, $permissionType) 
+	public function authorize(User $user, $permission) 
 	{
 		return true;
 	}
@@ -412,11 +412,11 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	/**
 	 * @return array of AuthorizedAction
 	 */
-	public function getPermissionTypes() 
+	public function getPermissions() 
 	{
 		return array(
-				self::ACTION_EDIT_PAGE => new PermissionType(self::ACTION_EDIT_PAGE, MaskBuilder::MASK_EDIT),
-				self::ACTION_PUBLISH_PAGE => new PermissionType(self::ACTION_PUBLISH_PAGE, MaskBuilder::MASK_OWNER << 1)
+				self::ACTION_EDIT_PAGE => new Permission(self::ACTION_EDIT_PAGE, MaskBuilder::MASK_EDIT),
+				self::ACTION_PUBLISH_PAGE => new Permission(self::ACTION_PUBLISH_PAGE, MaskBuilder::MASK_OWNER << 1)
 		);
 	}
 	
@@ -439,8 +439,8 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	/**
 	 * @return array
 	 */
-	public function getAuthorizationAncestors($includeSelf = true) 
+	public function getAuthorizationAncestors() 
 	{
-		return $this->getAncestors(0, $includeSelf);
+		return $this->getAncestors(0, false);
 	}
 }

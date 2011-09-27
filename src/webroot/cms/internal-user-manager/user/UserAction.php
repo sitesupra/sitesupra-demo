@@ -8,15 +8,28 @@ use Doctrine\ORM\EntityManager;
 use Supra\User\Exception;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
+use Supra\User\Entity\Abstraction\User;
+use Supra\Cms\CmsApplicationConfiguration;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Mailer\Message\TwigMessage;
-
+use Supra\Authorization\AuthorizationProvider;
+use Supra\Authorization\AuthorizedControllerInterface;
+use Supra\Cms\ApplicationConfiguration;
+use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 /**
  * Sitemap
  */
 class UserAction extends InternalUserManagerAbstractAction
 {
-
+	/**
+	 * @var AuthorizationProvider
+	 */
+	private $authorizationProvider;
+	
+	function __construct() {
+		parent::__construct();
+		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider($this);
+	}
+	
 	public function userAction()
 	{
 		$result = array();
@@ -30,7 +43,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function loadAction()
 	{
 
-		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ( ! $this->emptyRequestParameter('user_id')) {
 
 			$userId = $this->getRequestParameter('user_id');
@@ -39,11 +52,27 @@ class UserAction extends InternalUserManagerAbstractAction
 			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
 
 			$user = $repo->findOneById($userId);
+			/* @var $user User */
 
 			if (empty($user)) {
 				$this->getResponse()
 						->setErrorMessage('Can\'t find user with such id');
 				return;
+			}
+			
+			$config = CmsApplicationConfiguration::getInstance();
+			$appConfigs = $config->getArray();
+			foreach ($appConfigs as $appConfig) {
+				
+				$permission = array("allow" => "0");
+				
+					if ( ! $this->getApplicationAccess($user, $appConfig)) {
+					$permission = array("allow" => "2");
+				}
+				
+				if ($permission) {
+					$permissions[$appConfig->id] = $permission;
+				}
 			}
 
 			$response = array(
@@ -51,13 +80,28 @@ class UserAction extends InternalUserManagerAbstractAction
 				'name' => $user->getName(),
 				'email' => $user->getEmail(),
 				'avatar' => null,
-				'group' => 1
+				'group' => 1,
+				'permissions' => $permissions
 			);
 
 			$this->getResponse()->setResponseData($response);
-		} else {
-			$this->getResponse()
-					->setErrorMessage('User id is not set');
+		} 
+		else {
+			$this->getResponse()->setErrorMessage('User id is not set');
+		}
+	}
+	
+	/**
+	 * @param ApplicationConfiguration $applicationConfiguration
+	 * @return integer
+	 */
+	function getApplicationAccess($user, ApplicationConfiguration $applicationConfiguration)
+	{
+		if ($applicationConfiguration->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
+			return $this->authorizationProvider->isApplicationAdminAccessGranted($user, $applicationConfiguration);
+		}
+		else {
+			return true;
 		}
 	}
 
@@ -66,7 +110,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	 */
 	public function deleteAction()
 	{
-		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ( ! $this->emptyRequestParameter('user_id')) {
 
 			$userId = $this->getRequestParameter('user_id');
@@ -101,7 +145,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	 */
 	public function resetAction()
 	{
-		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "		
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ( ! $this->emptyRequestParameter('user_id')) {
 
 			$userId = $this->getRequestParameter('user_id');
@@ -153,7 +197,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 
-		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if ( ! $this->emptyRequestParameter('email') &&
 				! $this->emptyRequestParameter('name') &&
 				! $this->emptyRequestParameter('group')) {
@@ -229,7 +273,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 
-		// TODO: Add validation class to have ability check like " if(empty($validation['errors'])){} "
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if ( ! $this->emptyRequestParameter('user_id') &&
 				! $this->emptyRequestParameter('email') &&
 				! $this->emptyRequestParameter('group') &&

@@ -3,6 +3,8 @@
 namespace Supra\Cms\BannerManager;
 
 use Supra\Controller\SimpleController;
+use Supra\Authorization\AuthorizedControllerInterface;
+use Supra\User\Entity\Abstraction\User;
 
 /**
  * Banner Manager controller
@@ -18,5 +20,5 @@ class BannerManagerController extends SimpleController
 		
 		$this->getResponse()
 				->output($output);
-	}
+	}	
 }

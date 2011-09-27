@@ -14,35 +14,11 @@ use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 
 /**
  */
-class InternalUserManagerController extends DistributedController implements AuthorizedControllerInterface
+class InternalUserManagerController extends DistributedController
 {
 	/** 
 	 * Default action when no action is provided
 	 * @var string
 	 */
 	protected $defaultAction = 'root';
-	
-	public function getPermissionTypes() 
-	{
-		return array(
-				new \Supra\Authorization\ControllerAllAccessPermission(),
-				new \Supra\Authorization\ControllerSomeAccessPermission(),
-				);
-	}
-	
-	public function getAuthorizationId() 
-	{
-		return 42;
-	}
-	
-	public function getAuthorizationClass() 
-	{
-		return __CLASS__;
-	}
-	
-	public function authorize(User $user, $permissionType)
-	{
-		return true;
-	}
 }
-	

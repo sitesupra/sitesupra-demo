@@ -30,7 +30,6 @@ $controllerConfiguration->configure();
 
 $sessionNamespaceConfiguration = new \Supra\Session\Configuration\SessionNamespaceConfiguration();
 $sessionNamespaceConfiguration->managerNamespace = __NAMESPACE__;
-$sessionNamespaceConfiguration->manager = $sessionNamespaceManager;
 $sessionNamespaceConfiguration->class = 'Project\SampleAuthentication\AuthenticateSessionNamespace';
 $sessionNamespaceConfiguration->name = 'Test';
 $sessionNamespaceConfiguration->addNamespace(__NAMESPACE__);

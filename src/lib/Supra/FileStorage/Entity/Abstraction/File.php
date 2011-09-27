@@ -371,7 +371,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		return $info;
 	}
 
-	public function authorize(User $user, $permissionType) 
+	public function authorize(User $user, $permission) 
   {
 		return true;
 	}
@@ -379,7 +379,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * @return array of AuthorizeAction
 	 */
-	public function getPermissionTypes() 
+	public function getPermissions() 
 	{
 		return array();
 	}
@@ -403,8 +403,8 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * @return array
 	 */
-	public function getAuthorizationAncestors($includeSelf = true) 
+	public function getAuthorizationAncestors() 
 	{
-		return $this->getAncestors(0, $includeSelf);
+		return $this->getAncestors(0, false);
 	}	
 }
