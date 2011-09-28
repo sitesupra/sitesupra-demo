@@ -408,6 +408,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			(new Supra.Button({'srcNode': buttons.filter('.button-blocks').item(0)}))
 				.render().on('click', function () { this.slideshow.set('slide', 'slideBlocks'); }, this);
 			
+			//Advanced settings button
+			(new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)}))
+				.render().on('click', function () { this.slideshow.set('slide', 'slideAdvanced'); }, this);
+				
 			//Slideshow
 			var slideshow = this.slideshow = new Supra.Slideshow({
 				'srcNode': this.one('div.slideshow')

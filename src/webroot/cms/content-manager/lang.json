@@ -135,6 +135,12 @@
 			"blocks": "View blocks on page",
 			"blocks_title": "Blocks on the page",
 			
+			"advanced": "Advanced settings",
+			"advanced_title": "Advanced settings",
+			
+			"advanced_global": "Global",
+			"advanced_local": "Local",
+			
 			"delete_message": "Are you sure you want to delete selected page?"
 		},
 		

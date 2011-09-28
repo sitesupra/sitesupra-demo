@@ -72,6 +72,10 @@
 				</div>
 				
 				<div class="input-group input-group-button">
+					<button type="button" class="button-advanced"><p>{#settings.advanced#}</p></button>
+				</div>
+				
+				<div class="input-group input-group-button">
 					<button type="button" class="button-delete"><p>{#buttons.delete#}</p></button>
 				</div>
 				
@@ -122,6 +126,16 @@
 				<h3>{#settings.blocks_title#}</h3>
 				<ul class="block-list"></ul>
 				<div class="clear"><!-- --></div>
+			
+			</div><div id="slideAdvanced" class="hidden">
+			
+				<h3>{#settings.advanced_title#}</h3>
+				
+				<label for="global" class="hidden"></label>
+				<select name="global" id="global" value="" suType="SelectList">
+					<option value="1">{#settings.advanced_global#}</option>
+					<option value="0">{#settings.advanced_local#}</option>
+				</select>
 			
 			</div>
 			
