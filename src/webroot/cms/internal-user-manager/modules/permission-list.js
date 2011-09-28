@@ -3,6 +3,11 @@
 
 YUI.add('website.permission-list', function (Y) {
 	
+	
+	var Manager = Supra.Manager;
+	
+	
+	
 	function PermissionList (config) {
 		PermissionList.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -143,7 +148,7 @@ YUI.add('website.permission-list', function (Y) {
 		 * 
 		 * @param {String} node_id Tree node ID
 		 */
-		addPermissionException: function (node_id, values) {
+		addPermissionException: function (node_id, values, silent) {
 			var tree = this.get('tree'),
 				tree_node = tree.getNodeById(node_id),
 				data = tree_node.get('data'),
@@ -160,7 +165,8 @@ YUI.add('website.permission-list', function (Y) {
 			
 			//Add property
 			var node = Y.Node.create('<div class="' + Y.ClassNameManager.getClassName(PermissionList.NAME, 'item') + '"></div>'),
-				subproperty = this.get('subproperty');
+				subproperty = this.get('subproperty'),
+				value = '';
 			
 			if (subproperty) {
 				subproperty = Supra.mix({}, subproperty, {
@@ -172,13 +178,23 @@ YUI.add('website.permission-list', function (Y) {
 				this.data[i].render(node);
 				
 				if (values) {
+					value = values;
 					this.data[i].set('value', values);
 				}
+				
+				//When property changes fire event on this
+				Manager.PermissionProperties.bubbleEvents.call(this, this.data[i], ['change']);
+				
 			} else {
-				this.data[i] = '1';
+				value = this.data[i] = '1';
 			}
 			
 			this.get('labelNode').insert(node, 'before');
+			
+			//Execute event
+			if (!silent) {
+				this.fire('change');
+			}
 		},
 		
 		/**
@@ -208,7 +224,7 @@ YUI.add('website.permission-list', function (Y) {
 			this.resetValue();
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
-				this.addPermissionException(values[i].id, values[i].value);
+				this.addPermissionException(values[i].id, values[i].value, true);
 			}
 		},
 		

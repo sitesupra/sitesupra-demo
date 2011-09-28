@@ -135,6 +135,49 @@ Supra('supra.input', function (Y) {
 		},
 		
 		/**
+		 * Try creating new user
+		 */
+		createNewUser: function () {
+			/* @TODO Add correct validation */
+			
+			var data = Manager.getAction('User').getData(),
+				error = false,
+				input_name = this.form.getInput('name'),
+				input_email = this.form.getInput('email');
+			
+			if (!data.name) {
+				input_name.set('error', true);
+				error = true;
+			} else {
+				input_name.set('error', false);
+			}
+			
+			if (!data.email) {
+				input_email.set('error', true);
+				error = true;
+			} else {
+				input_email.set('error', false);
+			}
+			
+			if (!error) {
+				Manager.User.save(Y.bind(function (data, status) {
+					if (status) {
+						//Mix data into cache
+						var user_data = Manager.getAction('User').getData();
+						Supra.mix(user_data, data);
+						
+						//Update UI
+						this.updateUI(data);
+						
+						//Open permission tab
+						Manager.executeAction('UserPermissions');
+						Manager.PageToolbar.buttons.details.set('down', false);
+					}
+				}, this));
+			}
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {

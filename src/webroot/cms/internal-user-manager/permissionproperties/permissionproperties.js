@@ -157,7 +157,6 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			
 			this.form.getInput('allow').on('change', this.onAllowChange, this);
 			
-			
 			//Create or update permission list
 			if (!this.list) {
 				this.list = new Supra.PermissionList({
@@ -166,6 +165,11 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 					'tree': null	//Tree is not created yet
 				});
 				this.list.render(this.one('.properties'));
+				
+				//On new item add save it
+				this.list.on('change', function () {
+					this.sendAllowChange(this.form.getInput('allow').getValue());
+				}, this);
 			} else {
 				this.list.set('sublabel', sublabel);
 				this.list.set('subproperty', subproperty);
@@ -237,11 +241,31 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			
 			if (!event.list) {
 				//Save properties only if not first change (when setting initial values)
-				this.saveProperties('change');
+				this.saveProperties();
+				
+				//Send property change
+				this.sendAllowChange(event.value);
 			}
 		},
 		
-		saveProperties: function (debug) {
+		sendAllowChange: function (value) {
+			var user = Manager.User.getData();
+			
+			var post = {
+				'user_id': user.user_id,
+				'property': 'allow',
+				'value': value,
+				'list': this.list.getValue()
+			};
+			
+			//Save value change
+			Supra.io(this.getDataPath('save'), {
+				'data': post,
+				'method': 'post'
+			});
+		},
+		
+		saveProperties: function () {
 			var user = Manager.getAction('User').getData(),
 				values = this.form.getValues('id'),
 				items = this.list.getValue();
@@ -256,7 +280,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				this.set('visible', false);
 				this.slideshow.hide();
 				
-				this.saveProperties('hide');
+				this.saveProperties();
 			}
 		},
 		
@@ -267,7 +291,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			
 			if (this.get('visible') && this.form) {
 				//Save properties before changing application
-				this.saveProperties('execute');
+				this.saveProperties();
 			}
 			
 			this.slideshow.show();

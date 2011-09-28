@@ -1,4 +1,6 @@
 {
 	"status": 1,
-	"data": null
+	"data": {
+		"user_id": 12345
+	}
 }

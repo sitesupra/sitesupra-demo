@@ -195,6 +195,18 @@ Supra(function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
+			//If new user validate form
+			if (!Manager.User.getData().user_id) {
+				//
+				Manager.UserDetails.createNewUser();
+				Manager.UserDetails.execute();
+				
+				//Unset 'down' state
+				Manager.PageToolbar.buttons.permissions.set('down', false)
+				
+				return;
+			}
+			
 			//Slide
 			this.show();
 			

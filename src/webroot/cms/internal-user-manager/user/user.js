@@ -161,7 +161,12 @@ Supra('supra.slideshow', function (Y) {
 		 * @param {String} group_id Group ID
 		 */
 		setUser: function (user_id /* User ID */, group_id /* Group ID */) {
+			var buttons = Supra.Manager.PageToolbar.buttons;
+			
 			if (user_id) {
+				//Enable stats button
+				buttons.stats.set('disabled', false);
+				
 				Supra.io(this.getDataPath('load'), {
 					'data': {
 						'user_id': user_id
@@ -170,6 +175,9 @@ Supra('supra.slideshow', function (Y) {
 					'on': {'success': this.setData}
 				});
 			} else {
+				//There are no stats for new user
+				buttons.stats.set('disabled', true);
+				
 				var data = Supra.mix({}, NEW_USER_DATA[group_id], true);
 				this.setData(data);
 			}
@@ -257,8 +265,8 @@ Supra('supra.slideshow', function (Y) {
 		/**
 		 * Save user data
 		 */
-		save: function () {
-			var data = this.data;
+		save: function (callback) {
+			var data = Supra.mix({}, this.data);
 			
 			//Cancel if 'name' is missing
 			if (data.name) {
@@ -273,6 +281,9 @@ Supra('supra.slideshow', function (Y) {
 					'method': 'post',
 					'data': data,
 					'on': {
+						'complete': function (data, status) {
+							if (Y.Lang.isFunction(callback)) callback(data, status);
+						},
 						'success': function () {
 							Manager.getAction('UserList').load();
 						}
