@@ -253,6 +253,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			
 			var post = {
 				'user_id': user.user_id,
+				'application_id': this.application.id,
 				'property': 'allow',
 				'value': value,
 				'list': this.list.getValue()
