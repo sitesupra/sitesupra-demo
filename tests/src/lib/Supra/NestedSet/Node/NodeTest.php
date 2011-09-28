@@ -6,6 +6,7 @@ use Supra\NestedSet\Node\ArrayNode;
 use Supra\NestedSet\RepositoryAbstraction;
 use PHPUnit_Framework_TestCase;
 use Supra\Tests\NestedSet\Model;
+use Supra\NestedSet\Exception\InvalidOperation;
 
 /**
  * Description of NodeTest
@@ -32,12 +33,24 @@ abstract class NodeTest extends PHPUnit_Framework_TestCase
 	 */
 	protected $yellow;
 	
+	/**
+	 * @var ArrayNode
+	 */
+	protected $meat;
+	
+	/**
+	 * @var ArrayNode
+	 */
+	protected $fruit;
+	
 	protected function setUp()
 	{
 		$rep = $this->repository;
 		$this->food = $rep->byTitle('Food');
 		$this->beef = $rep->byTitle('Beef');
 		$this->yellow = $rep->byTitle('Yellow');
+		$this->meat = $rep->byTitle('Meat');
+		$this->fruit = $rep->byTitle('Fruit');
 	}
 	
 	/**
@@ -491,4 +504,48 @@ DOC
 	}
 	
 	abstract protected function persist(Model\Product $product);
+	
+	public function testNotAllowedMoveError()
+	{
+		$e = null;
+		try {
+			// Could raise exception
+			$this->meat->moveAsNextSiblingOf($this->fruit);
+		} catch (InvalidOperation $e) {}
+		
+		// Should not change structure
+		$this->testDrawTree();
+	}
+	
+	public function testNotAllowedMoveError2()
+	{
+		$e = null;
+		try {
+			// Could raise exception
+			$this->meat->moveAsLastChildOf($this->food);
+		} catch (InvalidOperation $e) {}
+		
+		// Should not change structure
+		$this->testDrawTree();
+	}
+	
+	public function testDrawTree()
+	{
+		$output = $this->repository->drawTree();
+		
+		$expected = <<<DOC
+(1; 18) 0 Food
+  (2; 11) 1 Fruit
+    (3; 6) 2 Red
+      (4; 5) 3 Cherry
+    (7; 10) 2 Yellow
+      (8; 9) 3 Banana
+  (12; 17) 1 Meat
+    (13; 14) 2 Beef
+    (15; 16) 2 Pork
+
+DOC;
+		
+		self::assertEquals($expected, $output);
+	}
 }

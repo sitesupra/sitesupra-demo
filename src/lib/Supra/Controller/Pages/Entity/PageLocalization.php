@@ -162,12 +162,12 @@ class PageLocalization extends Abstraction\Localization
 
 		// Check if path part is not added to the root page
 		if ($page->isRoot() && $pathPart != '') {
-			throw new Exception\PagePathException("Root page cannot have path assigned");
+			throw new Exception\PagePathException("Root page cannot have path assigned", $this);
 		}
 		
 		// Check if not trying to set empty path to not root page
 		if ( ! $page->isRoot() && $pathPart == '') {
-			throw new Exception\PagePathException("Path cannot be empty");
+			throw new Exception\PagePathException("Path cannot be empty", $this);
 		}
 		
 		$this->pathPart = $pathPart;

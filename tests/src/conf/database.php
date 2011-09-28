@@ -10,6 +10,7 @@ use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Database\Doctrine\Listener\TableNameGenerator;
 use Supra\Controller\Pages\Listener;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 $config = new Configuration();
 
@@ -56,8 +57,10 @@ $eventManager = new EventManager();
 $eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 $eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\ImageSizeCreatorListener());
+$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_sha1', 'sha1');
+$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 
 ObjectRepository::setEntityManager('Supra\Tests', $em);

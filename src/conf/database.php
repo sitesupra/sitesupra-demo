@@ -12,6 +12,8 @@ use Supra\Database\Doctrine\Listener\TableNameGenerator;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
 
+\Doctrine\DBAL\Types\Type::addType('sha1', 'Supra\Database\Doctrine\Type\Sha1HashType');
+
 $config = new Configuration();
 
 // Doctrine cache (array cache for development)
@@ -63,6 +65,7 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\V
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_sha1', 'sha1');
 $em->_mode = 'public';
 
 ObjectRepository::setDefaultEntityManager($em);
@@ -80,6 +83,7 @@ $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCr
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_sha1', 'sha1');
 $em->_mode = 'draft';
 
 ObjectRepository::setEntityManager('Supra\Cms', $em);
@@ -99,6 +103,7 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\V
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_sha1', 'sha1');
 $em->_mode = 'trash';
 
 ObjectRepository::setEntityManager('Supra\Cms\Abstraction\Trash', $em);

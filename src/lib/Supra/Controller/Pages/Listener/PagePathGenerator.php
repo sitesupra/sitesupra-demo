@@ -89,7 +89,7 @@ class PagePathGenerator
 				$duplicate = $repo->findOneBy($criteria);
 
 				if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
-					throw new Exception\DuplicatePagePathException("Page with path $path already exists");
+					throw new Exception\DuplicatePagePathException("Page with path $path already exists", $pageData);
 				}
 				
 				// Validation passed, set the new path
@@ -99,19 +99,21 @@ class PagePathGenerator
 				
 				// Update all children paths
 				$params = array(
-					$path,
-					$oldPath,
+					0 => $path,
+					1 => $oldPath,
+					2 => $locale
 				);
 
 				// Upadate the current page
 				$dql = "UPDATE {$className} d
 					SET d.path = ?0
-					WHERE d.path = ?1";
+					WHERE d.path = ?1
+					AND d.locale = ?2";
 				$query = $em->createQuery($dql);
 				$query->execute($params);
 				
 				// Update children pages
-				$params[] = $oldPathPattern;
+				$params[2] = $oldPathPattern;
 				$dql = "UPDATE {$className} d
 					SET d.path = CONCAT(?0, SUBSTRING(d.path, LENGTH(?1) + 1))
 					WHERE d.path LIKE ?2";

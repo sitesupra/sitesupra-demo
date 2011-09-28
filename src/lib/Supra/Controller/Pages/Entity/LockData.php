@@ -31,7 +31,7 @@ class LockData extends Abstraction\Entity
 	protected $modified;
 	
 	/**
-	 * @Column(type="string")
+	 * @Column(type="sha1")
 	 * @var string
 	 */
 	protected $userId;

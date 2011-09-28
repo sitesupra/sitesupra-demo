@@ -7,6 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\FileStorage;
 use Supra\FileStorage\Entity\Image;
 use Supra\Log\Writer\WriterAbstraction;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 
 /**
  * Creates image size when ImageReferencedElement is created in db

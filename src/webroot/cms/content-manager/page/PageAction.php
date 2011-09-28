@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Editable;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * 
@@ -308,11 +309,14 @@ class PageAction extends PageManagerAction
 				try {
 					$pageData->setPathPart($pathPart);
 				} catch (DuplicatePagePathException $uniqueException) {
-					$this->getResponse()
-							->setErrorMessage("{#sitemap.error.duplicate_path#}");
-
+					
 					// Clear the unit of work
 					$this->entityManager->clear();
+					
+					$locale = $uniqueException->getPageLocalization()->getLocale();
+					
+					// TODO: should pass locale parameter to exception text somehow
+					throw new CmsException('sitemap.error.duplicate_path', "Page with such path already exists in locale $locale");
 				}
 			}
 		}

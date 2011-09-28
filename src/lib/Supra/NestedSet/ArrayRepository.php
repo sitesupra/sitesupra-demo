@@ -111,36 +111,69 @@ class ArrayRepository extends RepositoryAbstraction
 	 */
 	public function move(Node\NodeInterface $node, $pos, $levelDiff)
 	{
+		// Current node's interval
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
+		
+		// How big is the node
 		$spaceUsed = $right - $left + 1;
+		
+		// Tells for how much index the node will be moved
+		$moveA = 0;
+		
+		// Tells for how much index the nodes between the node's current and 
+		// future position will be moved
+		$moveB = 0;
+		
+		// Tells the interval for indeces to be moved which are not inside the 
+		// node interval (usually $a <= $b)
+		$a = $b = 0;
+		
+		// Move to the right
 		if ($pos > $left) {
 			$a = $right + 1;
 			$b = $pos - 1;
 			$moveA = $pos - $left - $spaceUsed;
 			$moveB = - $spaceUsed;
+			
+		// Move to the left
 		} else {
-			$a = $left - 1;
-			$b = $pos;
+			$a = $pos;
+			$b = $left - 1;
 			$moveA = $pos - $left;
 			$moveB = $spaceUsed;
+		}
+		
+		// There is nothing to move
+		if ($moveA == 0 && $levelDiff == 0) {
+			return;
 		}
 		
 		foreach ($this->array as $item) {
 			/* @var $item Node\NodeInterface */
 			$itemLeft = $item->getLeftValue();
+			$itemRight = $item->getRightValue();
 			
+			// Children of the page being moved
 			if (self::isBetween($itemLeft, $left, $right)) {
+				
+				if ( ! self::isBetween($itemRight, $left, $right)) {
+					throw new Exception\InvalidStructure("Node $item left index is between $node index but the right isn't");
+				}
+				
 				$item->moveLeftValue($moveA);
 				$item->moveRightValue($moveA);
 				$item->moveLevel($levelDiff);
 				continue;
 			}
 
+			// Left index matches the interval
 			if (self::isBetween($itemLeft, $a, $b)) {
 				$item->moveLeftValue($moveB);
 			}
-			if (self::isBetween($item->getRightValue(), $a, $b)) {
+			
+			// Right index matches the interval
+			if (self::isBetween($itemRight, $a, $b)) {
 				$item->moveRightValue($moveB);
 			}
 		}
@@ -155,11 +188,7 @@ class ArrayRepository extends RepositoryAbstraction
 	 */
 	private static function isBetween($a, $b, $c)
 	{
-		if ($b <= $c) {
-			return $b <= $a && $a <= $c;
-		} else {
-			return $b >= $a && $a >= $c;
-		}
+		return $b <= $a && $a <= $c;
 	}
 
 	/**

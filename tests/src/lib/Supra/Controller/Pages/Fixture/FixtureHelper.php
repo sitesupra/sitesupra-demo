@@ -138,11 +138,32 @@ class FixtureHelper
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
 	}
+	
+	public function deletePages()
+	{
+		$publicEm = ObjectRepository::getEntityManager('');
+		$draftEm = $this->entityManager;
+		
+		$draftEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
+	}
 
 	/**
 	 */
 	public function build()
 	{
+		$this->deletePages();
+		
 //		$this->rebuild();
 		$rootPage = $page = $page2 = null;
 

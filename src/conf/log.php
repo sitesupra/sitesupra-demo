@@ -1,26 +1,31 @@
 <?php
 
-$chainWriter = new Supra\Log\Writer\ChainWriter();
+use Supra\Log\LogEvent;
+use Supra\Log\Writer;
+use Supra\Log\Filter;
+use Supra\ObjectRepository\ObjectRepository;
 
-// Set custom bootstrap writer
-$writer = new Supra\Log\Writer\FileWriter();
-$writer->setName('Supra7');
-$writer->addFilter(new Supra\Log\Filter\LevelFilter($ini['log']));
+/*
+ * Default log
+ */
+$defaultWriter = new Writer\FileWriter();
+$defaultWriter->setName('Supra7');
+$defaultWriter->addFilter(new Filter\LevelFilter($ini['log']));
 
-$chainWriter->addWriter($writer);
+Supra\ObjectRepository\ObjectRepository::setDefaultLogger($defaultWriter);
 
-$ini['log']['level'] = 'debug';
-$writer = new Supra\Log\Writer\FileWriter(array('file' => 'debug.log'));
-$writer->setName('Supra7 DEBUG');
-$writer->addFilter(new Supra\Log\Filter\LevelFilter($ini['log']));
+/*
+ * SQL statement logger
+ */
+$chainWriter = new Writer\ChainWriter();
+$chainWriter->addWriter($defaultWriter);
 
-$chainWriter->addWriter($writer);
+$sqlWriter = new Writer\FileWriter(array('file' => 'sql.log'));
+$sqlWriter->setName('SQL');
 
-// Configure FirePhp log writer only for local IP addresses
-//$ipFilter = new Supra\Log\Filter\IpFilter(array('range' => '127.*,10.*'));
-//$firePhp = new Supra\Log\Writer\FirePhpWriter();
-//$firePhp->addFilter($ipFilter);
-////$firePhp->addFilter(new Supra\Log\Filter\Level(array('level' => \Log::WARN)));
-//$firePhp->setName('Supra7');
+// Info level filter skips SELECT statements
+$sqlWriter->addFilter(new Filter\LevelFilter(array('level' => LogEvent::INFO)));
 
-Supra\ObjectRepository\ObjectRepository::setDefaultLogger($chainWriter);
+$chainWriter->addWriter($sqlWriter);
+
+ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $chainWriter);

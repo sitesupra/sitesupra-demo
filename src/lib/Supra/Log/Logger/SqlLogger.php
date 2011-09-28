@@ -5,6 +5,7 @@ namespace Supra\Log\Logger;
 use Doctrine\DBAL\Logging\SQLLogger as SQLLoggerInterface;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Log\LogEvent;
 
 /**
  * Sql class
@@ -34,7 +35,7 @@ class SqlLogger implements SQLLoggerInterface
 	/**
 	 * @param string $subject
 	 */
-	private function log($subject)
+	private function log($subject, $level = LogEvent::DEBUG)
 	{
 		$log = ObjectRepository::getLogger($this);
 		
@@ -55,7 +56,7 @@ class SqlLogger implements SQLLoggerInterface
 		}
 		
 		$log->increaseBacktraceOffset($offset);
-		$log->debug($subject);
+		$log->__call($level, array($subject));
 	}
 	
 	/**
@@ -68,6 +69,7 @@ class SqlLogger implements SQLLoggerInterface
 		$this->types = $types;
 		$this->start = microtime(true);
 		
+		// Fix DateTime object logging
 		foreach ($this->params as $key => &$param) {
 			if ($param instanceof \DateTime) {
 				$this->params[$key] = $param->format('c');
@@ -75,11 +77,13 @@ class SqlLogger implements SQLLoggerInterface
 		}
 		unset($param);
 		
-		// Enable when you need to know the parameters, will fail for DateTime objects
-		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n");
+		$level = $this->getLogLevel();
+		
+		// Enable when you need to know the parameters
+		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n", $level);
 		
 //		$subject = "Query\n{$this->sql}\n";
-//		$this->log($subject);
+//		$this->log($subject, $level);
 	}
 
 	/**
@@ -100,7 +104,21 @@ class SqlLogger implements SQLLoggerInterface
 		$executionMs = round(1000000 * $executionMs);
 		$subject .= ", execution time {$executionMs}ms*/";
 		
-		$this->log($subject);
+		$level = $this->getLogLevel();
+		
+		$this->log($subject, $level);
 	}
-
+	
+	/**
+	 * @return string
+	 */
+	protected function getLogLevel()
+	{
+		// Log selects with DEBUG level, other with INFO
+		if (strpos($this->sql, 'SELECT ') !== 0) {
+			return LogEvent::INFO;
+		}
+		
+		return LogEvent::DEBUG;
+	}
 }

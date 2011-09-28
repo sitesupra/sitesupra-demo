@@ -17,8 +17,17 @@ class DoctrineNestedSet extends NestedSet
 	 */
 	static function foodTree(EntityManager $em)
 	{
+		$connection = $em->getConnection();
+		
+		$metadata = $em->getClassMetadata('Supra\Tests\NestedSet\Model\ProductAbstraction');
+		$tableName = $metadata->table['name'];
+		
+		$sql = "DELETE FROM $tableName";
+		$statement = $connection->prepare($sql);
+		$statement->execute();
+		
 		// Faster inserts
-		$sql = "INSERT INTO product (id, lft, rgt, lvl, title, price, discr) VALUES
+		$sql = "INSERT INTO $tableName (id, lft, rgt, lvl, title, price, discr) VALUES
 				(1, 1, 18, 0, 'Food', null, 'product'),
 				(2, 12, 17, 1, 'Meat', null, 'product'),
 				(3, 2, 11, 1, 'Fruit', null, 'product'),
@@ -29,7 +38,6 @@ class DoctrineNestedSet extends NestedSet
 				(8, 4, 5, 3, 'Cherry', null, 'product'),
 				(9, 8, 9, 3, 'Banana', null, 'product')";
 
-		$connection = $em->getConnection();
 		$statement = $connection->prepare($sql);
 		$statement->execute();
 		

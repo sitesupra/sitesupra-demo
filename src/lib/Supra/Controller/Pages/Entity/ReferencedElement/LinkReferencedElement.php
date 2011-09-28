@@ -40,7 +40,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	/**
 	 * Page ID to keep link data without existant real page.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="sha1", nullable="true")
 	 * @var string
 	 */
 	protected $pageId;
@@ -48,7 +48,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	/**
 	 * File ID to keep link data without existant real file.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="sha1", nullable="true")
 	 * @var string
 	 */
 	protected $fileId;

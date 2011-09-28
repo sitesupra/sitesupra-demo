@@ -110,12 +110,16 @@ class DoctrineNodeTest extends NodeTest
 		$this->food->free();
 		$this->beef->free();
 		$this->yellow->free();
+		$this->meat->free();
+		$this->fruit->free();
 
 		$this->repository->free();
 		unset($this->repository);
 		unset($this->food);
 		unset($this->beef);
 		unset($this->yellow);
+		unset($this->meat);
+		unset($this->fruit);
 
 		$this->entityManager->clear();
 		unset($this->entityManager);

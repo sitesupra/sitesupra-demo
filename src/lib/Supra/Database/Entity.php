@@ -11,7 +11,7 @@ abstract class Entity
 {
 	/**
 	 * @Id
-	 * @Column(type="string", length="40")
+	 * @Column(type="sha1")
 	 * @var string
 	 */
 	protected $id;
