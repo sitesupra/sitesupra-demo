@@ -1,6 +1,9 @@
 .yui3-languagebar {
 	font-size: 14px;
 }
+.yui3-languagebar-hidden {
+	display: none;
+}
 
 .yui3-languagebar a,
 .yui3-languagebar span {

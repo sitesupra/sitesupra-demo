@@ -19,7 +19,7 @@ SU.addModule('website.permission-list', {
 /**
  * Main manager action, initiates all other actions
  */
-Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
+Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -91,6 +91,21 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 		tree: null,
 		
 		/**
+		 * Tree is localized
+		 * @type {Boolean}
+		 * @private
+		 */
+		localized: false,
+		
+		/**
+		 * LanguageBar instance
+		 * @see Supra.LanguageBar
+		 * @type {Object}
+		 * @private
+		 */
+		languagebar: null,
+		
+		/**
 		 * Application for which tree is rendered
 		 * @type {String}
 		 * @private
@@ -134,6 +149,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				sublabel = '',
 				subproperty = null;
 			
+			this.localized = false;
 			if (this.form) this.form.destroy();
 			
 			for(; i<ii; i++) {
@@ -144,6 +160,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				}
 				if (properties[i].subproperty) {
 					subproperty = properties[i].subproperty;
+					this.localized = subproperty.localized;
 				}
 			}
 			
@@ -162,21 +179,31 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				this.list = new Supra.PermissionList({
 					'sublabel': sublabel,
 					'subproperty': subproperty,
-					'tree': null	//Tree is not created yet
+					'localized': this.localized,
+					'tree': null,			//Tree is not created yet
+					'languagebar': null		//Neither is LanguageBar
 				});
 				this.list.render(this.one('.properties'));
 				
 				//On new item add save it
 				this.list.on('change', function (evt) {
-					this.sendAllowChange(this.form.getInput('allow').getValue(), evt.id);
+					this.sendAllowChange(this.form.getInput('allow').getValue(), evt.id, evt.locale);
 				}, this);
 			} else {
 				this.list.set('sublabel', sublabel);
 				this.list.set('subproperty', subproperty);
+				this.list.set('localized', this.localized);
 				this.list.resetValue();
 			}
 			
-			//
+			if (this.languagebar) {
+				if (this.localized) {
+					this.languagebar.show();
+				} else {
+					this.languagebar.hide();
+				}
+			}
+			
 			this.onAllowChange({'value': values.allow, 'list': values}); 
 		},
 		
@@ -194,7 +221,8 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			}
 			
 			//To request URI add application ID
-			var uri = this.getDataPath('datalist', {'application_id': this.application.id});
+			var locale = (this.languagebar ? this.languagebar.get('locale') : '');
+			var uri = this.getDataPath('datalist', {'application_id': this.application.id, 'locale': locale});
 			
 			//Create or reload tree
 			if (!this.tree) {
@@ -211,6 +239,8 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				tree.render(container.one('div'));
 				this.tree = tree;
 				this.list.set('tree', tree);
+				
+				this.renderLanguageBar(container.one('div.languages'));
 			} else {
 				this.tree.set('requestUri', uri);
 				this.tree.reload();
@@ -224,6 +254,51 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 					this.list.setValue(list.items);
 				}
 			}, this);
+		},
+		
+		/**
+		 * Reload tree data
+		 */
+		reloadTree: function () {
+			//To request URI add application ID
+			var uri = this.getDataPath('datalist', {'application_id': this.application.id, 'locale': this.languagebar.get('locale')});
+			
+			this.tree.set('requestUri', uri);
+			this.tree.reload();
+		},
+		
+		/**
+		 * Create language bar
+		 * 
+		 * @private
+		 */
+		renderLanguageBar: function (container) {
+			//All language content
+			var all = [{
+				'title': '',
+				'languages': [{'id': '', 'flag': 'px', 'title': 'All languages'}]
+			}];
+			
+			//Create language bar
+			this.languagebar = new SU.LanguageBar({
+				'locale': SU.data.get('locale'),
+				'contexts': all.concat(SU.data.get('contexts')),
+				'localeLabel': SU.Intl.get(['userpermissions', 'permissions_for'])
+			});
+			
+			this.languagebar.after('localeChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					this.reloadTree();
+				}
+			}, this);
+			
+			this.languagebar.render(container);
+			
+			this.list.set('languagebar', this.languagebar);
+			
+			if (!this.localized) {
+				this.languagebar.hide();
+			}
 		},
 		
 		/**
@@ -244,11 +319,11 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				this.saveProperties();
 				
 				//Send property change
-				this.sendAllowChange(event.value);
+				this.sendAllowChange(event.value, null, event.locale);
 			}
 		},
 		
-		sendAllowChange: function (value, id) {
+		sendAllowChange: function (value, id, locale) {
 			var user = Manager.User.getData();
 			var list = this.list.getValue();
 			
@@ -256,6 +331,7 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				'user_id': user.user_id,
 				'application_id': this.application.id,
 				'property': 'allow',
+				'locale': locale,
 				'value': value
 			};
 			

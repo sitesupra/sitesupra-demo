@@ -25,6 +25,11 @@ YUI.add('website.permission-list', function (Y) {
 		},
 		
 		/**
+		 * Tree is localized
+		 */
+		'localized': false,
+		
+		/**
 		 * Sublabel text
 		 * @type {String}
 		 */
@@ -144,15 +149,47 @@ YUI.add('website.permission-list', function (Y) {
 		},
 		
 		/**
+		 * Returns language information from locale
+		 *
+		 * @param {String} locale
+		 * @return Language information
+		 * @type {Object}
+		 */
+		getLanguageByLocale: function (locale) {
+			var data = Supra.data.get('contexts'),
+				langs = null;
+			
+			for(var i=0,ii=data.length; i<ii; i++) {
+				langs = data[i].languages;
+				for(var k=0, kk=langs.length; k<kk; k++) {
+					if (langs[k].id == locale) return langs[k];
+				}
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Add permission exception
 		 * 
 		 * @param {String} node_id Tree node ID
 		 */
-		addPermissionException: function (node_id, values, silent) {
+		addPermissionException: function (node_id, values, item_locale, existing) {
 			var tree = this.get('tree'),
 				tree_node = tree.getNodeById(node_id),
 				data = tree_node.get('data'),
-				value = null;
+				value = null,
+				
+				localized = this.get('localized'),
+				locale = '',
+				lang = null,
+				flag = '<img src="/cms/lib/supra/img/flags/16x11/px.png" alt="" />';
+			
+			if (localized) {
+				locale = existing ? item_locale : this.get('languagebar').get('locale'),
+				lang = locale ? this.getLanguageByLocale(locale) : null,
+				flag = '<img src="/cms/lib/supra/img/flags/16x11/' + (lang ? lang.flag : 'blank') + '.png" alt="" />';
+			}
 			
 			//Check if it's not already in the list
 			for(var i=0,ii=this.data.length; i<ii; i++) {
@@ -170,7 +207,7 @@ YUI.add('website.permission-list', function (Y) {
 			
 			if (subproperty) {
 				subproperty = Supra.mix({}, subproperty, {
-					'label': data.title || '',
+					'label': flag + ' ' + (data.title || ''),
 					'id': data.id
 				});
 				
@@ -184,7 +221,7 @@ YUI.add('website.permission-list', function (Y) {
 				
 				//When property changes fire event on this
 				this.data[i].on('change', function () {
-					this.fire('change', {'subtype': 'change', 'id': data.id})
+					this.fire('change', {'subtype': 'change', 'id': data.id, 'locale': locale});
 				}, this);
 				
 			} else {
@@ -194,8 +231,8 @@ YUI.add('website.permission-list', function (Y) {
 			this.get('labelNode').insert(node, 'before');
 			
 			//Execute event
-			if (!silent) {
-				this.fire('change', {'subtype': 'add', 'id': data.id});
+			if (!existing) {
+				this.fire('change', {'subtype': 'add', 'id': data.id, 'locale': locale});
 			}
 		},
 		
@@ -226,7 +263,7 @@ YUI.add('website.permission-list', function (Y) {
 			this.resetValue();
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
-				this.addPermissionException(values[i].id, values[i].value, true);
+				this.addPermissionException(values[i].id, values[i].value, values[i].locale, true);
 			}
 		},
 		

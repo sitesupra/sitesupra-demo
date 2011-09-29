@@ -12,9 +12,9 @@
 			"content": {
 				"allow": "1",
 				"items": [
-					{"id": 17, "value": ["contribute"]},
-					{"id": 20, "value": []},
-					{"id": 22, "value": ["contribute", "supervise"]}
+					{"id": 17, "locale": "lv_LV", "value": ["contribute"]},
+					{"id": 20, "locale": "", "value": []},
+					{"id": 22, "locale": "", "value": ["contribute", "supervise"]}
 				]
 			},
 			"medialibrary": {

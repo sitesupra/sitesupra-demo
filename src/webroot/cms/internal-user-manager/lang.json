@@ -59,6 +59,9 @@
 			"type_some": "Some ",
 			"type_all": "All ",
 			
+			"permissions_for": "Permissions for ",
+			"permissions_all": "all languages",
+			
 			"drop_here": "Drag and drop {sublabel} here"
 		},
 		

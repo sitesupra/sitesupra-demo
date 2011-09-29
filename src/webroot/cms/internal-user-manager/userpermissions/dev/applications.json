@@ -21,6 +21,7 @@
 					"subproperty": {
 						"id": "permissions",
 						"type": "SelectList",
+						"localized": true,
 						"multiple": true,
 						"values": [
 							{"id": "contribute", "title": "{#userpermissions.label_contribute#}"},
@@ -38,6 +39,7 @@
 				{
 					"id": "allow",
 					"type": "Dial",
+					"localized": false,
 					"label": "{#userpermissions.label_persmissions#}",
 					"values": [
 						{"id": "2", "title": "{#userpermissions.label_none#}"},
