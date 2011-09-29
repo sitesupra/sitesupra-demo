@@ -338,7 +338,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			//Send only changed item
 			if (id) {
 				for(var i=0,ii=list.length; i<ii; i++) {
-					if (list[i].id == id) {
+					if (list[i] == id || list[i].id == id) {
 						post.list = list[i];
 					}
 				}

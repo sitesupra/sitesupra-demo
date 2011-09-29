@@ -225,7 +225,8 @@ YUI.add('website.permission-list', function (Y) {
 				}, this);
 				
 			} else {
-				value = this.data[i] = '1';
+				node.set('innerHTML', '<p>' + Y.Escape.html(data.title) + '</p>');
+				value = this.data[i] = data.id;
 			}
 			
 			this.get('labelNode').insert(node, 'before');

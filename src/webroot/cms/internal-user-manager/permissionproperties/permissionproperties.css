@@ -49,6 +49,11 @@
 .yui3-permission-list-item {
 	margin: 10px 0;
 }
+.yui3-permission-list-item p {
+	padding: 0 10px;
+	color: #777;
+	font-size: 14px;
+}
 .yui3-permission-list .yui3-input-select-list label {
 	display: inline-block;
 	width: 195px;
