@@ -8,6 +8,20 @@ namespace Supra\Uri;
 class Path
 {
 	/**
+	 * Limiting the path length to the IE limit
+	 * TODO: implement the check internally
+	 */
+	const MAX_LENGTH = 2083;
+	
+	/**
+	 * Specifies the output format
+	 */
+	const FORMAT_NO_DELIMITERS = 0;
+	const FORMAT_LEFT_DELIMITER = 1;
+	const FORMAT_RIGHT_DELIMITER = 2;
+	const FORMAT_BOTH_DELIMITERS = 3;
+	
+	/**
 	 * @var string
 	 */
 	protected $separator = '/';
@@ -56,20 +70,49 @@ class Path
 	public function setPath($path)
 	{
 		$path = trim($path, $this->separator);
+		
 		if ($path == '') {
 			$this->path = array();
 		} else {
 			$this->path = explode($this->separator, $path);
 		}
-		$this->setDepth(\count($this->path));
+		
+		$this->setDepth(count($this->path));
 	}
 
 	/**
+	 * @param integer $format
 	 * @return string
 	 */
-	public function getPath()
+	public function getPath($format = self::FORMAT_NO_DELIMITERS)
 	{
-		return implode($this->separator, $this->path);
+		$string = implode($this->separator, $this->path);
+		$string = self::format($string, $format, $this->separator);
+		
+		return $string;
+	}
+	
+	/**
+	 * Formats the path string according to the mode
+	 * @param string $string
+	 * @param integer $format
+	 */
+	public static function format($string, $format, $separator = '/')
+	{
+		if ($format == self::FORMAT_NO_DELIMITERS) {
+			$string = trim($string, $separator);
+		} else {
+
+			if ($format & self::FORMAT_LEFT_DELIMITER) {
+				$string = $separator . ltrim($string, $separator);
+			}
+
+			if ($format & self::FORMAT_RIGHT_DELIMITER) {
+				$string = rtrim($string, $separator) . $separator;
+			}
+		}
+		
+		return $string;
 	}
 
 	/**
@@ -89,14 +132,15 @@ class Path
 	}
 
 	/**
-	 * 
+	 * @param integer $format
+	 * @return string
 	 */
-	public function getFullPath()
+	public function getFullPath($format = self::FORMAT_NO_DELIMITERS)
 	{
 		$parts = array();
 		foreach ($this->basePathParts as $path) {
 			$part = $path->getFullPath();
-			$part = trim($part, $this->separator);
+			
 			if ($part != '') {
 				$parts[] = $part;
 			}
@@ -106,11 +150,8 @@ class Path
 			$parts[] = $part;
 		}
 		$string = implode($this->separator, $parts);
-		if ($string == '') {
-			return $this->separator;
-		} else {
-			$string = $this->separator . $string;
-		}
+		$string = self::format($string, $format, $this->separator);
+		
 		return $string;
 	}
 
@@ -174,9 +215,9 @@ class Path
 		}
 		
 		if ($this->caseSensitive) {
-			$result = (\strcmp($probe, $pathString) == 0);
+			$result = (strcmp($probe, $pathString) == 0);
 		} else {
-			$result = (\strcasecmp($probe, $pathString) == 0);
+			$result = (strcasecmp($probe, $pathString) == 0);
 		}
 
 		return $result;
@@ -197,16 +238,17 @@ class Path
 
 		// Remove the base path part
 		$pathDepth = $path->getDepth();
-		$this->path = \array_slice($this->path, $pathDepth);
-		$this->setDepth(\count($this->path));
+		$this->path = array_slice($this->path, $pathDepth);
+		$this->setDepth(count($this->path));
 	}
 	
 	/**
 	 * Get request base path with arbitrary offset
 	 * @param integer $offset
+	 * @param integer $format
 	 * @return string
 	 */
-	public function getBasePath($offset = 0)
+	public function getBasePath($offset = 0, $format = self::FORMAT_NO_DELIMITERS)
 	{
 		$basePathList = $this->basePathParts;
 		
@@ -214,17 +256,13 @@ class Path
 			$basePathList = array_slice($basePathList, 0, -$offset);
 		}
 		
-		$parts = array();
+		$parts = new Path('', $this->separator);
 		
 		foreach ($basePathList as $path) {
-			$part = $path->__toString();
-			$part = trim($part, $this->separator);
-			if ($part != '') {
-				$parts[] = $part;
-			}
+			$parts->append($path);
 		}
 		
-		$basePathString = implode($this->separator, $parts);
+		$basePathString = $parts->getFullPath($format);
 		
 		return $basePathString;
 	}
@@ -273,5 +311,50 @@ class Path
 			$string = $this->separator . $string;
 		}
 		return $string;
+	}
+	
+	/**
+	 * @param Path $path
+	 * @return boolean
+	 */
+	public function equals(Path $path = null)
+	{
+		if (is_null($path)) {
+			return false;
+		}
+		
+		$thisString = $this->getFullPath();
+		$pathString = $path->getFullPath();
+		$result = null;
+		
+		if ($this->caseSensitive) {
+			$result = (strcmp($thisString, $pathString) === 0);
+		} else {
+			$result = (strcasecmp($thisString, $pathString) === 0);
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * @param Path $path
+	 * @return Path
+	 */
+	public function append(Path $path)
+	{
+		$this->path = array_merge($this->path, $path->basePathParts, $path->path);
+		
+		return $this;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isEmpty()
+	{
+		$pathString = $this->getFullPath();
+		$empty = ($pathString === '');
+		
+		return $empty;
 	}
 }

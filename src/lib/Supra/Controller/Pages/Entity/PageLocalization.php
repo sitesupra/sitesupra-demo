@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Exception;
 use DateTime;
+use Supra\Uri\Path;
 
 /**
  * PageLocalization class
@@ -25,8 +26,9 @@ class PageLocalization extends Abstraction\Localization
 	protected $template;
 	
 	/**
-	 * @Column(type="string")
-	 * @var string
+	 * Limitation because of MySQL unique constraint 1k byte limit
+	 * @Column(type="path", length="255")
+	 * @var Path
 	 */
 	protected $path = null;
 
@@ -126,17 +128,16 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * Set page path
 	 * Should be called from the PagePathGenerator only!
-	 * @param string $path
+	 * @param Path $path
 	 */
-	public function setPath($path)
+	public function setPath(Path $path)
 	{
-		$path = trim($path, '/');
 		$this->path = $path;
 	}
 
 	/**
 	 * Get page path
-	 * @return string
+	 * @return Path
 	 */
 	public function getPath()
 	{

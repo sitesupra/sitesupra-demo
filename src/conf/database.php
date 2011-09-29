@@ -12,8 +12,11 @@ use Supra\Database\Doctrine\Listener\TableNameGenerator;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
+use Supra\Database\Doctrine\Type\Sha1HashType;
+use Supra\Database\Doctrine\Type\PathType;
 
-Type::addType('sha1', 'Supra\Database\Doctrine\Type\Sha1HashType');
+Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
+Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 
 $config = new Configuration();
 
@@ -53,6 +56,11 @@ $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = $ini['database'];
 
+// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
+$connectionOptions['driverOptions'] = array(
+	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+);
+
 // TODO: move to some other configuration
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
@@ -61,16 +69,23 @@ $commonEventManager->addEventListener(array(Events::onFlush), new Listener\PageP
 $commonEventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 $commonEventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 
+/*
+ * PUBLIC
+ */
 $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType('sha1'));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 $em->_mode = 'public';
 
 ObjectRepository::setDefaultEntityManager($em);
 
+/*
+ * DRAFT
+ */
 $config = clone($config);
 $cache = clone($cache);
 $cache->setNamespace('draft');
@@ -84,12 +99,15 @@ $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCr
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType('sha1'));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 $em->_mode = 'draft';
 
 ObjectRepository::setEntityManager('Supra\Cms', $em);
 
-/* Trash entity manager */
+/*
+ * TRASH
+ */
 $config = clone($config);
 $cache = clone($cache);
 $cache->setNamespace('trash');
@@ -104,12 +122,15 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\V
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType('sha1'));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 $em->_mode = 'trash';
 
 ObjectRepository::setEntityManager('Supra\Cms\Abstraction\Trash', $em);
 
-/* History entity manager */
+/*
+ * HISTORY
+ */
 $config = clone($config);
 $cache = clone($cache);
 $cache->setNamespace('history');

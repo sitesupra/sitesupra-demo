@@ -10,13 +10,15 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class Sha1HashType extends Type
 {
+	const NAME = 'sha1';
+	
 	/**
 	 * {@inheritdoc}
 	 * @return string
 	 */
 	public function getName()
 	{
-		return 'sha1';
+		return self::NAME;
 	}
 
 	/**

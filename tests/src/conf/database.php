@@ -11,6 +11,9 @@ use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Database\Doctrine\Listener\TableNameGenerator;
 use Supra\Controller\Pages\Listener;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
+use Doctrine\DBAL\Types\Type;
+use Supra\Database\Doctrine\Type\Sha1HashType;
+use Supra\Database\Doctrine\Type\PathType;
 
 $config = new Configuration();
 
@@ -47,7 +50,13 @@ $connectionOptions = array(
 	'driver' => 'pdo_mysql',
 	'user' => 'root',
 	'password' => 'root',
-	'dbname' => 'supra7test'
+	'dbname' => 'supra7test',
+	'charset' => 'UTF-8'
+);
+
+// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
+$connectionOptions['driverOptions'] = array(
+	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
 );
 
 // TODO: move to some other configuration
@@ -60,7 +69,9 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameG
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
-$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_sha1', 'sha1');
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
+$em->_mode = 'test';
 
 ObjectRepository::setEntityManager('Supra\Tests', $em);

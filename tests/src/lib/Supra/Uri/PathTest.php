@@ -72,13 +72,16 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 */
 	public function testGetFullPath() {
+		$this->object->setPath('/');
+		self::assertEquals('', $this->object->getFullPath());
+		
 		$this->object->setPath('a/b/c');
-		self::assertEquals('/a/b/c', $this->object->getFullPath());
+		self::assertEquals('a/b/c', $this->object->getFullPath());
 
 		$path = new Path('/a/b');
 		$this->object->setPath('a/b/c');
 		$this->object->setBasePath($path);
-		self::assertEquals('/a/b/c', $this->object->getFullPath());
+		self::assertEquals('a/b/c', $this->object->getFullPath());
 
 		$success = true;
 		try {
@@ -131,10 +134,17 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 	 * @todo Implement testStartsWith().
 	 */
 	public function testStartsWith() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
+		
+		$root = new Path('');
+		$abc = new Path('abc');
+		$abcDef = new Path('abc/def');
+		$abcd = new Path('abcd');
+		
+		self::assertTrue($abc->startsWith($root));
+		self::assertTrue($abcDef->startsWith($root));
+		self::assertTrue($abcDef->startsWith($abc));
+		self::assertFalse($abcDef->startsWith($abcd));
+		self::assertFalse($abcd->startsWith($abc));
 	}
 
 	/**
@@ -165,6 +175,28 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		$path = new Path('c');
 		$this->object->setBasePath($path);
 		self::assertEquals('/[a/b]/[c]/d/e', $this->object->__toString());
+	}
+	
+	public function testFormat()
+	{
+		self::assertEquals('a/b/c', Path::format('/a/b/c', Path::FORMAT_NO_DELIMITERS));
+		self::assertEquals('a#b#c#', Path::format('a#b#c', Path::FORMAT_RIGHT_DELIMITER, '#'));
+		self::assertEquals('#a#b#c', Path::format('a#b#c', Path::FORMAT_LEFT_DELIMITER, '#'));
+		self::assertEquals('', Path::format('/', Path::FORMAT_NO_DELIMITERS));
+		self::assertEquals('/', Path::format('', Path::FORMAT_BOTH_DELIMITERS));
+		self::assertEquals('/', Path::format('', Path::FORMAT_RIGHT_DELIMITER));
+		self::assertEquals('/', Path::format('/', Path::FORMAT_RIGHT_DELIMITER));
+		self::assertEquals('/xxx/', Path::format('/xxx/', Path::FORMAT_BOTH_DELIMITERS));
+	}
+	
+	public function testGetBasePath()
+	{
+		$path = new Path('a/b/c');
+		self::assertEquals('', $path->getBasePath());
+		$path->setBasePath(new Path('a'));
+		self::assertEquals('a', $path->getBasePath());
+		$path->setBasePath(new Path('b'));
+		self::assertEquals('a/b', $path->getBasePath());
 	}
 
 }

@@ -45,6 +45,11 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		
 		$this->em = ObjectRepository::getEntityManager($this->caller);
 		$this->up = ObjectRepository::getUserProvider($this->caller);
+		
+		// ACL model creation
+		try {
+			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/mysql.sql'));
+		} catch (\Exception $e) {}
 
 		$this->ap = new AuthorizationProvider(
 			$this->em,

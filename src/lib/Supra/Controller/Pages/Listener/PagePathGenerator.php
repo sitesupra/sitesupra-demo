@@ -8,6 +8,7 @@ use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
+use Supra\Uri\Path;
 
 /**
  * Creates the page path and checks it's uniqueness
@@ -53,6 +54,9 @@ class PagePathGenerator
 		$repo = $em->getRepository($className);
 		$metaData = $em->getClassMetadata($className);
 		
+		$pathPart = new Path($pathPart);
+		$newPath = new Path('');
+		
 		if ( ! $page->isRoot()) {
 			
 			$parentPage = $page->getParent();
@@ -68,11 +72,11 @@ class PagePathGenerator
 				}
 				
 				$pathBasePart = $application->generatePath($pageData);
-				$pathPart = \Supra\Uri\Path::concat($pathBasePart, $pathPart);
+				$pathPart = $pathBasePart->append($pathPart);
 			}
 			
 			// Leave path empty if path part is not set yet
-			if ($pathPart == '') {
+			if ($pathPart->isEmpty()) {
 				return;
 			}
 			
@@ -82,58 +86,66 @@ class PagePathGenerator
 				throw new Exception\RuntimeException("Parent page localization is not found for the locale {$locale} required by page {$page->getId()}");
 			}
 			
-			$pathPrefix = $parentPageData->getPath();
-			$path = \Supra\Uri\Path::concat($pathPrefix, $pathPart);
+			$parentPath = $parentPageData->getPath();
+			$newPath->append($parentPath);
+			$newPath->append($pathPart);
 			
 			$oldPath = $pageData->getPath();
 			
-			if ($path != $oldPath) {
+			if ( ! $newPath->equals($oldPath)) {
 			
+				$newPathString = $newPath->getFullPath();
+				
 				// Duplicate path validation
 				$criteria = array(
 					'locale' => $locale,
-					'path' => $path
+					'path' => $newPathString
 				);
 
 				$duplicate = $repo->findOneBy($criteria);
 
 				if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
-					throw new Exception\DuplicatePagePathException("Page with path $path already exists", $pageData);
+					throw new Exception\DuplicatePagePathException("Page with path $newPathString already exists", $pageData);
 				}
 				
 				// Validation passed, set the new path
-				$pageData->setPath($path);
+				$pageData->setPath($newPath);
 				
-				$oldPathPattern = str_replace(array('_', '%'), array('\\_', '\\%'), $oldPath) . '/%';
+				// Run updates only if path was set before
+				if ($oldPath !== null) {
 				
-				// Update all children paths
-				$params = array(
-					0 => $path,
-					1 => $oldPath,
-					2 => $locale
-				);
+					$oldPathString = $oldPath->getFullPath();
+					$oldPathPattern = str_replace(array('_', '%'), array('\\_', '\\%'), $oldPathString) . '/%';
 
-				// Upadate the current page
-				$dql = "UPDATE {$className} d
-					SET d.path = ?0
-					WHERE d.path = ?1
-					AND d.locale = ?2";
-				$query = $em->createQuery($dql);
-				$query->execute($params);
-				
-				// Update children pages
-				$params[2] = $oldPathPattern;
-				$dql = "UPDATE {$className} d
-					SET d.path = CONCAT(?0, SUBSTRING(d.path, LENGTH(?1) + 1))
-					WHERE d.path LIKE ?2";
-				$query = $em->createQuery($dql);
-				$query->execute($params);
+					// Update all children paths
+					$params = array(
+						0 => $newPathString,
+						1 => $oldPathString,
+						2 => $locale
+					);
+
+					// Upadate the current page
+					$dql = "UPDATE {$className} d
+						SET d.path = ?0
+						WHERE d.path = ?1
+						AND d.locale = ?2";
+					$query = $em->createQuery($dql);
+					$query->execute($params);
+
+					// Update children pages
+					$params[2] = $oldPathPattern;
+					$dql = "UPDATE {$className} d
+						SET d.path = CONCAT(?0, SUBSTRING(d.path, LENGTH(?1) + 1))
+						WHERE d.path LIKE ?2";
+					$query = $em->createQuery($dql);
+					$query->execute($params);
+				}
 
 				// Add the path to the changeset
 				$unitOfWork->recomputeSingleEntityChangeSet($metaData, $pageData);
 			}
 		} else {
-			$pageData->setPath('');
+			$pageData->setPath($newPath);
 		}
 	}
 

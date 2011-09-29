@@ -256,7 +256,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				'length': container.get('offsetWidth') - 16,	//16px margin
 				'value': 1000,	//At the end
 				'max': 1000,	//for better precision
-				'thumbUrl': Y.config.base + '/slider/assets/skins/supra/thumb-x.png'
+				'thumbUrl': Y.config.base + '/slider-base/assets/skins/supra/thumb-x.png'
 			});
 			slider.render(container);
 			
