@@ -40,8 +40,6 @@ class YamlParser extends AbstractParser
 			$object = new $className();
 			foreach ($properties as $propertyName => $propertyValue) {
 				$possibleSetterName = 'set' . ucfirst($propertyName);
-//				$log = ObjectRepository::getLogger($this);
-//				$log::write(array($possibleSetterName));
 				if (\property_exists($className, $propertyName)) {
 					$object->$propertyName = 
 							$this->processItem($propertyValue);
