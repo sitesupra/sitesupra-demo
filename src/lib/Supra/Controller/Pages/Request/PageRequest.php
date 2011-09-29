@@ -104,6 +104,11 @@ abstract class PageRequest extends HttpRequest
 	 */
 	private $pageData;
 	
+	/** 
+	 * @var User
+	 */
+	private $user;
+	
 	/**
 	 * @var Set\PageSet
 	 */
@@ -170,6 +175,22 @@ abstract class PageRequest extends HttpRequest
 	public function getDoctrineEntityManager()
 	{
 		return $this->doctrineEntityManager;
+	}
+	
+	/**
+	 * @param User $user 
+	 */
+	public function setUser($user)
+	{
+		$this->user = $user;
+	}
+	
+	/**
+	 * @return User
+	 */
+	public function getUser()
+	{
+		return $this->user;
 	}
 	
 	/**

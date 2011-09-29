@@ -26,7 +26,6 @@ class VersionedTableLockIdRemover
 		$classMetadata = $eventArgs->getClassMetadata();
 		$className = $classMetadata->name;
 		
-		
 		if (in_array($className, static::$versionedEntities)) {
 			unset($classMetadata->associationMappings['lock']);
 			unset($classMetadata->reflFields['lock']);

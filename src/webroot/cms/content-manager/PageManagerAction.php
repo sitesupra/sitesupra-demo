@@ -74,6 +74,7 @@ abstract class PageManagerAction extends CmsAction
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
+		$user = $this->getUser();
 
 		$request = new PageRequestEdit($localeId, $media);
 		$response = $controller->createResponse($request);
@@ -82,6 +83,7 @@ abstract class PageManagerAction extends CmsAction
 
 		$requestPageLocalization = $this->getPageLocalization();
 		$request->setPageLocalization($requestPageLocalization);
+		$request->setUser($user);
 
 		return $request;
 	}
@@ -344,7 +346,7 @@ abstract class PageManagerAction extends CmsAction
 		// We should delete published version also (if any)
 		$publicEm = ObjectRepository::getEntityManager('');
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		if ($publicPage instanceof Entity\Abstraction\Page) {
+		if ($publicPage instanceof Entity\Abstraction\AbstractPage) {
 			$publicPageCollection = $publicPage->getLocalizations();
 			foreach ($publicPageCollection as $pageLocalization) {
 				$publicEm->remove($pageLocalization);
@@ -356,7 +358,8 @@ abstract class PageManagerAction extends CmsAction
 			$publicEm->flush();
 		}
 		
-		$pageRequest->moveBetweenManagers($draftEm, $trashEm, $pageId);
+		$pageLocalizationId = $this->getPageLocalization()->getId();
+		$pageRequest->moveBetweenManagers($draftEm, $trashEm, $pageLocalizationId);
 		$this->getResponse()
 				->setResponseData(true);
 	}
@@ -368,7 +371,8 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$this->isPostRequest();
 		
-		$pageDataId = $this->getRequestParameter('page_id');
+		//$pageDataId = $this->getRequestParameter('page_id');
+		$pageDataId = $this->getPageLocalization()->getId();
 		$publicEm = ObjectRepository::getEntityManager('');
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');

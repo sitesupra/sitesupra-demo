@@ -21,6 +21,13 @@ abstract class Entity extends Database\Entity
 	 */
 	const DISCRIMINATOR = null;
 	
+	/** 
+	 * Is used as additional ID for _history scheme
+	 * NB! Must be not null, or merge between EM's will fail
+	 * @var RevisionData
+	 */
+	protected $revision = '';
+	
 	/**
 	 * Creates log writer instance
 	 */
@@ -104,4 +111,23 @@ abstract class Entity extends Database\Entity
 		
 		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
 	}
+		
+	/**
+	 * Is used for _history handling
+	 * @param RevisionData $revisionData 
+	 */
+	public function setRevisionId ($revisionId) {
+		$this->revision = $revisionId;
+	}
+	public function getRevisionId () {
+		return $this->revision;
+	}
+	/*
+	public function setRevisionData ($revisionData) {
+		$this->revision = $revisionData;
+	}
+	public function getRevisionData () {
+		return $this->revision;
+	}
+	 */
 }

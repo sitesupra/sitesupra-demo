@@ -89,7 +89,7 @@ $em->_mode = 'draft';
 
 ObjectRepository::setEntityManager('Supra\Cms', $em);
 
-/* Deleted pages entity manager */
+/* Trash entity manager */
 $config = clone($config);
 $cache = clone($cache);
 $cache->setNamespace('trash');
@@ -108,3 +108,21 @@ $em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::get
 $em->_mode = 'trash';
 
 ObjectRepository::setEntityManager('Supra\Cms\Abstraction\Trash', $em);
+
+/* History entity manager */
+$config = clone($config);
+$cache = clone($cache);
+$cache->setNamespace('history');
+$config->setMetadataCacheImpl($cache);
+$config->setQueryCacheImpl($cache);
+
+// History connection for the CMS
+$eventManager = clone($commonEventManager);
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemeModifier());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
+
+$em = EntityManager::create($connectionOptions, $config, $eventManager);
+$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->_mode = 'history';
+
+ObjectRepository::setEntityManager('Supra\Cms\Abstraction\History', $em);

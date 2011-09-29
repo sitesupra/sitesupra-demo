@@ -31,7 +31,7 @@ abstract class SchemaAbstractCommand extends Command
 			'public' => ObjectRepository::getEntityManager(''),
 			'draft' => ObjectRepository::getEntityManager('Supra\Cms'),
 			'trash' => ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash'),
-			//'history' => ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History'),
+			'history' => ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History'),
 		);
 	}
 }

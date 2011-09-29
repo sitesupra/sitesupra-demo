@@ -87,7 +87,7 @@ class PageAction extends PageManagerAction
 			$templateData = $template->getLocalization($localeId);
 
 			if ( ! $templateData instanceof Entity\TemplateLocalization) {
-				throw new Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
+				throw new \Supra\Controller\Pages\Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
 			}
 
 			$templateArray = array(

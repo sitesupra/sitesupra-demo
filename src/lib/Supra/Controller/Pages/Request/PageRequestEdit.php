@@ -58,7 +58,54 @@ class PageRequestEdit extends PageRequest
 		// Remove the old redirect link referenced element
 		$publicData = $publicPage->getLocalization($localeId);
 		$oldRedirect = $newRedirect = null;
+
+		// If there are something published, then copy it to _history
+		if ($publicData instanceof Entity\Abstraction\Localization) {
+			$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 		
+			// TODO: remove PagePathGenerator listener from commons and remove this code (also in page delete/restore methods)
+			$listeners = $historyEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
+			foreach ($listeners as $listener) {
+				if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
+					$listeners = $historyEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
+				}
+			}
+			
+			$revisionData = new Entity\RevisionData();
+			
+			$userName = $this->getUser()
+					->getName();
+			$revisionData->setUser($userName);
+			$historyEm->persist($revisionData);
+			
+			$revisionId = $revisionData->getId();
+			$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionId));
+
+			$historyPage = $historyEm->merge($publicPage);
+			
+			// FIXME: this just registers link referenced element proxy class inside the metadata or else merge fails..
+			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+			$historyData = $historyEm->merge($publicData);
+			
+			$publicPlaceholders = $publicPage->getPlaceHolders();
+			foreach ($publicPlaceholders as $placeholder) {
+				$historyEm->merge($placeholder);
+			}
+			
+			$publicBlocks = $this->getBlocksInPage($publicEm, $publicData);
+			foreach($publicBlocks as $block) {
+				$historyEm->merge($block);
+			}
+			
+			$publicProperties = $this->getBlockPropertySet()
+				->getPageProperties($publicData);
+			foreach ($publicProperties as $property) {
+				$historyEm->merge($property);
+			}
+			
+			$historyEm->flush();
+		}
+			
 		if ($publicData instanceof Entity\PageLocalization) {
 			$oldRedirect = $publicData->getRedirect();
 		}
@@ -369,6 +416,7 @@ class PageRequestEdit extends PageRequest
 						$destEm->merge($property);
 					}
 					$sourceEm->remove($property);
+					$sourceEm->flush();
 				}
 				
 				$sourceEm->remove($pageLocalization);
@@ -380,12 +428,17 @@ class PageRequestEdit extends PageRequest
 				$sourceEm->remove($placeholder);
 			}
 			
-			$destEm->flush();
 			$sourceEm->flush();
+			$destEm->flush();
+
+			if ( ! $forceSave) {
+				$sourceEm->remove($sourcePage);
+				$sourceEm->flush();
+			}
 			
 			$destEm->getConnection()->commit();
 			$sourceEm->getConnection()->commit();
-			
+		
 			return $destPage;
 			
 		} catch (\Exception $e) {
