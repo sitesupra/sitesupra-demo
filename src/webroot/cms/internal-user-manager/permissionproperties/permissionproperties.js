@@ -172,7 +172,15 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			this.form.render(container);
 			this.form.setValues(values, 'id');
 			
-			this.form.getInput('allow').on('change', this.onAllowChange, this);
+			var inputs = this.form.getInputs(),
+				fn;
+			for(i in inputs) {
+				fn = this.onInputChange;
+				if (i == 'allow') fn = this.onAllowChange;
+				
+				inputs[i].on('change', fn, this);
+			}
+			
 			
 			//Create or update permission list
 			if (!this.list) {
@@ -187,7 +195,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 				
 				//On new item add save it
 				this.list.on('change', function (evt) {
-					this.sendAllowChange(this.form.getInput('allow').getValue(), evt.id, evt.locale);
+					this.sendValueChange('allow', this.form.getInput('allow').getValue(), evt.id, evt.locale);
 				}, this);
 			} else {
 				this.list.set('sublabel', sublabel);
@@ -319,24 +327,30 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 				this.saveProperties();
 				
 				//Send property change
-				this.sendAllowChange(event.value, null, event.locale);
+				this.sendValueChange('allow', event.value, null, event.locale);
 			}
 		},
 		
-		sendAllowChange: function (value, id, locale) {
+		/**
+		 * On 'Permissions' change show/hide tree
+		 */
+		onInputChange: function (event) {
+			this.sendValueChange(event.target.get('id'), event.value);
+		},
+		
+		sendValueChange: function (name, value, id, locale) {
 			var user = Manager.User.getData();
-			var list = this.list.getValue();
-			
 			var post = {
 				'user_id': user.user_id,
 				'application_id': this.application.id,
-				'property': 'allow',
+				'property': name,
 				'locale': locale,
 				'value': value
 			};
 			
 			//Send only changed item
 			if (id) {
+				var list = this.list.getValue();
 				for(var i=0,ii=list.length; i<ii; i++) {
 					if (list[i] == id || list[i].id == id) {
 						post.list = list[i];
