@@ -183,7 +183,9 @@ YUI.add('website.permission-list', function (Y) {
 				}
 				
 				//When property changes fire event on this
-				Manager.PermissionProperties.bubbleEvents.call(this, this.data[i], ['change']);
+				this.data[i].on('change', function () {
+					this.fire('change', {'subtype': 'change', 'id': data.id})
+				}, this);
 				
 			} else {
 				value = this.data[i] = '1';
@@ -193,7 +195,7 @@ YUI.add('website.permission-list', function (Y) {
 			
 			//Execute event
 			if (!silent) {
-				this.fire('change');
+				this.fire('change', {'subtype': 'add', 'id': data.id});
 			}
 		},
 		

@@ -167,8 +167,8 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 				this.list.render(this.one('.properties'));
 				
 				//On new item add save it
-				this.list.on('change', function () {
-					this.sendAllowChange(this.form.getInput('allow').getValue());
+				this.list.on('change', function (evt) {
+					this.sendAllowChange(this.form.getInput('allow').getValue(), evt.id);
 				}, this);
 			} else {
 				this.list.set('sublabel', sublabel);
@@ -248,16 +248,25 @@ Supra('supra.input', 'supra.tree-dragable', 'website.tree-node-permissions', 'we
 			}
 		},
 		
-		sendAllowChange: function (value) {
+		sendAllowChange: function (value, id) {
 			var user = Manager.User.getData();
+			var list = this.list.getValue();
 			
 			var post = {
 				'user_id': user.user_id,
 				'application_id': this.application.id,
 				'property': 'allow',
-				'value': value,
-				'list': this.list.getValue()
+				'value': value
 			};
+			
+			//Send only changed item
+			if (id) {
+				for(var i=0,ii=list.length; i<ii; i++) {
+					if (list[i].id == id) {
+						post.list = list[i];
+					}
+				}
+			}
 			
 			//Save value change
 			Supra.io(this.getDataPath('save'), {
