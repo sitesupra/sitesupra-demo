@@ -1,0 +1,5 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\Text\TextController
+    title: Text
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    cmsClassname: Editable
