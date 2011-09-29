@@ -112,9 +112,9 @@
 				<div class="calendar"></div>
 				<div class="time">
 					<label>{#settings.time#}</label>
-					<input type="text" name="schedule_hours" value="" suValueMask="^[0-9]*$" maxlength="2" />
+					<input type="text" name="schedule_hours" value="" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
 					<span>/</span>
-					<input type="text" name="schedule_minutes" value="" suValueMask="^[0-9]*$" maxlength="2" />
+					<input type="text" name="schedule_minutes" value="" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
 					
 					<br />
 					
@@ -136,6 +136,27 @@
 					<option value="1">{#settings.advanced_global#}</option>
 					<option value="0">{#settings.advanced_local#}</option>
 				</select>
+				
+				<p class="label">
+					{#settings.advanced_create#}
+					<span id="slideAdvancedCreated"></span>
+					<a id="slideAdvancedChange" href="#change">{#settings.advanced_change#}</a>
+				</p>
+			
+			</div><div id="slideCreated" class="hidden">
+			
+				<h3>{#settings.created_title#}</h3>
+				<div class="calendar"></div>
+				<div class="time">
+					<label>{#settings.time#}</label>
+					<input type="text" name="created_hours" value="" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
+					<span>/</span>
+					<input type="text" name="created_minutes" value="" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
+					
+					<br />
+					
+					<button type="button"><p>{#buttons.apply#}</p></button>
+				</div>
 			
 			</div>
 			

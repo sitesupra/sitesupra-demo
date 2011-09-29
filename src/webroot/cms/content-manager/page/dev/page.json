@@ -33,7 +33,10 @@
 		},
 		
 		"scheduled_date": "2011-08-18",
-		"scheduled_time": "08:00",
+		"scheduled_time": "08:00:00",
+		
+		"created_date": "2011-08-18",
+		"created_time": "08:00:00",
 		
 		"active": true,
 		

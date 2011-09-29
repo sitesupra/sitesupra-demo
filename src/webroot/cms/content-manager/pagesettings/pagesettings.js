@@ -33,11 +33,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 	//Calendar dates
 	var DEFAULT_DATES = [
 		{
-			'date': Y.DataType.Date.format(new Date(), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'date': Y.DataType.Date.reformat(new Date(), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['settings', 'select_today'])
 		},
 		{
-			'date': Y.DataType.Date.format(new Date(+new Date() + 86400000), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'date': Y.DataType.Date.reformat(new Date(+new Date() + 86400000), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['settings', 'select_tomorrow'])
 		}
 	];
@@ -118,7 +118,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		page_data: {},
 		
-		
+		/**
+		 * Slides which onSlide... function has been called
+		 */
+		called: {},
 		
 		
 		/**
@@ -146,7 +149,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				fn = slide_id ? 'on' + (slide_id.substr(0,1).toUpperCase() + slide_id.substr(1)) : null;
 			
 			if (fn && fn in this) {
-				this[fn](new_item);
+				this[fn](new_item, !!(fn in this.called));
+				this.called[fn] = true;
 			}
 		},
 		
@@ -157,9 +161,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			var date = this.page_data.scheduled_date;
 			
 			//Create calendar if it doesn't exist
-			if (!this.calendar) {
+			if (!this.calendar_schedule) {
 				//Create calendar
-				var calendar = this.calendar = new Supra.Calendar({
+				var calendar = this.calendar_schedule = new Supra.Calendar({
 					'srcNode': node.one('.calendar'),
 					'date': date,
 					'dates': DEFAULT_DATES
@@ -172,12 +176,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				btn.on('click', this.onSlideScheduleApply, this);
 			} else {
 				//Set date
-				this.calendar.set('date', date);
-				this.calendar.set('displayDate', date);
+				this.calendar_schedule.set('date', date);
+				this.calendar_schedule.set('displayDate', date);
 			}
 			
 			//Set time
-			var time = Y.DataType.Date.parse(this.page_data.scheduled_time, {format: '%H:%M'}),
+			var time = Y.DataType.Date.reformat(this.page_data.scheduled_time, 'in_time', 'raw'),
 				hours = (time ? time.getHours() : 0),
 				minutes = (time ? time.getMinutes() : 0);
 			
@@ -190,7 +194,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		onSlideScheduleApply: function () {
 			//Save date
-			this.page_data.scheduled_date = Y.DataType.Date.format(this.calendar.get('date'));
+			this.page_data.scheduled_date = Y.DataType.Date.reformat(this.calendar_schedule.get('date'), 'out_date', 'in_date');
 			
 			//Save time
 			var inp_h = this.form.getInput('schedule_hours'),
@@ -199,8 +203,64 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			
 			date.setHours(parseInt(inp_h.getValue(), 10) || 0);
 			date.setMinutes(parseInt(inp_m.getValue(), 10) || 0);
+			date.setSeconds(0);
 			
-			this.page_data.scheduled_time = Y.DataType.Date.format(date, {format: '%H:%M'});
+			this.page_data.scheduled_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
+			this.slideshow.scrollBack();
+		},
+		
+		/**
+		 * When created slide is shown create widget, bind listeners
+		 */
+		onSlideCreated: function (node) {
+			var date = this.page_data.created_date;
+			
+			//Create calendar if it doesn't exist
+			if (!this.calendar_created) {
+				//Create calendar
+				var calendar = this.calendar_created = new Supra.Calendar({
+					'srcNode': node.one('.calendar'),
+					'date': date,
+					'dates': DEFAULT_DATES
+				});
+				calendar.render();
+				
+				//Create apply button
+				var btn = new Supra.Button({srcNode: node.one('button')});
+				btn.render();
+				btn.on('click', this.onSlideCreatedApply, this);
+			} else {
+				//Set date
+				this.calendar_created.set('date', date);
+				this.calendar_created.set('displayDate', date);
+			}
+			
+			//Set time
+			var time = Y.DataType.Date.reformat(this.page_data.created_time, 'in_time', 'raw'),
+				hours = (time ? time.getHours() : 0),
+				minutes = (time ? time.getMinutes() : 0);
+			
+			this.form.getInput('created_hours').set('value', hours < 10 ? '0' + hours : hours);
+			this.form.getInput('created_minutes').set('value', minutes < 10 ? '0' + minutes : minutes);
+		},
+		
+		/**
+		 * On "slideCreated" slide Apply button click save calendar values
+		 */
+		onSlideCreatedApply: function () {
+			//Save date
+			this.page_data.created_date = Y.DataType.Date.reformat(this.calendar_created.get('date'), 'out_date', 'in_date');
+			
+			//Save time
+			var inp_h = this.form.getInput('created_hours'),
+				inp_m = this.form.getInput('created_minutes'),
+				date = new Date();
+			
+			date.setHours(parseInt(inp_h.getValue(), 10) || 0);
+			date.setMinutes(parseInt(inp_m.getValue(), 10) || 0);
+			date.setSeconds(0);
+			
+			this.page_data.created_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
 			this.slideshow.scrollBack();
 		},
 		
@@ -306,6 +366,19 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					blocks[content_id].properties.showPropertiesForm();
 				}
 			}, this);
+		},
+		
+		onSlideAdvanced: function (node, init) {
+			//Update label
+			var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
+			this.one('#slideAdvancedCreated').set('text', date || Supra.Intl.get(['settings', 'advanced_unknown']));
+			
+			//
+			if (init) {
+				this.one('#slideAdvancedChange').on('click', function () {
+					this.slideshow.set('slide', 'slideCreated');
+				}, this);
+			}
 		},
 		
 		/**
@@ -501,6 +574,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			delete(form_data.template);
 			delete(form_data.schedule_hours);
 			delete(form_data.schedule_minutes);
+			delete(form_data.created_hours);
+			delete(form_data.created_minutes);
 			
 			Supra.mix(page_data, form_data);
 			

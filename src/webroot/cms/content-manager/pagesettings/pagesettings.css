@@ -98,33 +98,41 @@
 /*
  * Schedule
  */
-.yui3-page-settings #slideSchedule h3 {
+.yui3-page-settings #slideSchedule h3,
+.yui3-page-settings #slideCreated h3 {
 	padding-bottom: 10px;
 }
-.yui3-page-settings #slideSchedule .time {
+.yui3-page-settings #slideSchedule .time,
+.yui3-page-settings #slideCreated .time {
 	text-align: center;
 }
-.yui3-page-settings #slideSchedule label {
+.yui3-page-settings #slideSchedule label,
+.yui3-page-settings #slideCreated label {
 	display: block;
 	padding: 10px;
 }
-.yui3-page-settings #slideSchedule .yui3-input-string {
+.yui3-page-settings #slideSchedule .yui3-input-string,
+.yui3-page-settings #slideCreated .yui3-input-string {
 	width: 30px;
 	display: inline-block;
 	vertical-align: middle;
 	padding: 0;
 	margin: 0;
 }
-.yui3-page-settings #slideSchedule span {
+.yui3-page-settings #slideSchedule span,
+.yui3-page-settings #slideCreated span {
 	vertical-align: middle;
 }
-.yui3-page-settings #slideSchedule .yui3-input-string input {
+.yui3-page-settings #slideSchedule .yui3-input-string input,
+.yui3-page-settings #slideCreated .yui3-input-string input {
 	text-align: center;
 }
-.yui3-page-settings #slideSchedule .yui3-input-string label {
+.yui3-page-settings #slideSchedule .yui3-input-string label,
+.yui3-page-settings #slideCreated .yui3-input-string label {
 	display: none;
 }
 
-.yui3-page-settings #slideSchedule .yui3-button {
+.yui3-page-settings #slideSchedule .yui3-button,
+.yui3-page-settings #slideCreated .yui3-button {
 	margin-top: 10px;
 }

@@ -248,7 +248,7 @@ YUI().add("supra.io", function (Y) {
 				
 				if (Y.Lang.isDate(obj[i])) {
 					//Automatically format date to Y-m-d
-					o[name] = encodeURIComponent(Y.DataType.Date.reformat(obj[i], 'raw', 'internal'));
+					o[name] = encodeURIComponent(Y.DataType.Date.reformat(obj[i], 'raw', 'in_datetime'));
 				} else if (Y.Lang.isObject(obj[i]) || Y.Lang.isArray(obj[i])) {
 					Supra.mix(o, this.serialize(obj[i], name));
 				} else {

@@ -141,6 +141,12 @@
 			"advanced_global": "Global",
 			"advanced_local": "Local",
 			
+			"advanced_create": "Page created on ",
+			"advanced_unknown": "not set",
+			"advanced_change": "Change",
+			
+			"created_title": "Page created on",
+			
 			"delete_message": "Are you sure you want to delete selected page?"
 		},
 		

@@ -190,7 +190,7 @@ Supra(function (Y) {
 					
 					var template = Supra.Intl.get([this.getType(), 'locked_message']),
 						lock_data = Supra.mix({}, data.lock, {
-							'datetime': Y.DataType.Date.reformat(data.lock.datetime, '%Y-%m-%d %H:%M:%S', Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormatShort'))
+							'datetime': Y.DataType.Date.reformat(data.lock.datetime, 'in_datetime', 'out_datetime_short')
 						});
 					
 					template = Supra.Template.compile(template);

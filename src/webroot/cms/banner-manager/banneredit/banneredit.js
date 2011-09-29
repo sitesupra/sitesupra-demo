@@ -198,8 +198,8 @@ Supra(function (Y) {
 		 */
 		onScheduleChange: function (data) {
 			var internal_dates = {
-				'from': data.from ? Y.DataType.Date.reformat(data.from, null, 'internal') : null,
-				'to': data.to ? Y.DataType.Date.reformat(data.to, null, 'internal') : null
+				'from': data.from ? Y.DataType.Date.reformat(data.from, 'out_date', 'in_date') : null,
+				'to': data.to ? Y.DataType.Date.reformat(data.to, 'out_date', 'in_date') : null
 			};
 			this.form.getInput('schedule').setValue(internal_dates);
 		},
@@ -351,8 +351,8 @@ Supra(function (Y) {
 			
 			if (data.from && data.to) {
 				//Change from output format to internal
-				from = Y.DataType.Date.reformat(data.from, 'internal', null);
-				to = Y.DataType.Date.reformat(data.to, 'internal', null);
+				from = Y.DataType.Date.reformat(data.from, 'in_date', 'out_date');
+				to = Y.DataType.Date.reformat(data.to, 'in_date', 'out_date');
 				
 				title = SU.Intl.get(['edit', 'schedule_from']) + from + SU.Intl.get(['edit', 'schedule_to']) + to;
 			} else {

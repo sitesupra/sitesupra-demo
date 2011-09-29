@@ -14,39 +14,59 @@ var LANG = Y.Lang,
 
 /**
  * Converts data to type Date.
+ * Supported formats: 'raw', 'FORMAT', 'in_date', 'in_time', 'in_time_short', 'in_datetime', 'out_date', 'out_time', 'out_time_short', 'out_datetime', 'out_datetime_short'
  *
  * @method parse
  * @param data {String | Number} Data to convert
- * @param from {String} Optional. From format, possible values: 'internal', 'raw', 'FORMAT'
- * @param to {String} Optional. To format, possible formats: 'internal', 'raw', 'FORMAT'
+ * @param from {String} Optional. From format, default is out_format
+ * @param to {String} Optional. To format, default is out_format
  * @return {Date} A Date, or null.
  */
 Dt.reformat = function(data, from, to) {
     var date = null;
     
-    if (from == 'internal') {
-    	date = Dt.parse(data, {'format': '%Y-%m-%d'});
-    } else if (from == 'raw') {
+    if (from == 'raw') {
     	date = Y.Lang.isDate(data) ? data : null;
-    } else if (from) {
-    	date = Dt.parse(data, {'format': from});
     } else {
-    	date = Dt.parse(data, {'format': Y.config.dateFormat}); 
+    	date = Dt.parse(data, {'format': Dt.stringToFormat(from || 'out_date')});
     }
     
     if (date) {
-    	if (to == 'internal') {
-    		return Dt.format(date, {'format': '%Y-%m-%d'});
-    	} else if (to == 'raw') {
+    	if (to == 'raw') {
     		return date;
-    	} else if (to) {
-    		return Dt.format(date, {'format': to});
     	} else {
-    		return Dt.format(date, {'format': Y.config.dateFormat});
+    		return Dt.format(date, {'format': Dt.stringToFormat(to || 'out_date')});
     	}
     }
     
     return null;
+};
+
+Dt.stringToFormat = function (str) {
+	switch(str) {
+		case 'in_date':
+			return '%Y-%m-%d';
+		case 'in_time':
+			return '%H:%M:%S';
+		case 'in_time_short':
+			return '%H:%M';
+		case 'in_datetime':
+			return '%Y-%m-%d %H:%M:%S';
+		case 'in_datetime_short':
+			return '%Y-%m-%d %H:%M';
+		case 'out_date':
+			return Supra.data.get('dateFormat');
+		case 'out_time':
+			return Supra.data.get('timeFormat');
+		case 'out_time_short':
+			return Supra.data.get('timeFormatShort');
+		case 'out_datetime':
+			return Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormat');
+		case 'out_datetime_short':
+			return Supra.data.get('dateFormat') + ' ' + Supra.data.get('timeFormatShort');
+		default:
+			return str;
+	}
 };
 
 

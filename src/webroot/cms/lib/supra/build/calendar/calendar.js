@@ -6,9 +6,6 @@ YUI.add("supra.calendar", function (Y) {
 	var getClass = Y.ClassNameManager.getClassName,
 		YDate = Y.DataType.Date;
 	
-	//Internal date format
-	var DATE_FORMAT = '%Y-%m-%d';
-	
 	/**
 	 * Calendar class 
 	 * 
@@ -22,10 +19,7 @@ YUI.add("supra.calendar", function (Y) {
 	
 	Calendar.NAME = "calendar";
 	
-	Calendar.INTERNAL_DATE_FORMAT = DATE_FORMAT;
-	
 	Calendar.ATTRS = {
-		'dateFormat': Supra.data.get('dateFormat'),
 		'firstWeekDay': Supra.data.get('dateFirstWeekDay'),
 		
 		'headerTitle': '',
@@ -263,7 +257,7 @@ YUI.add("supra.calendar", function (Y) {
 					classname += ' out';
 				}
 				
-				rowHTML.push('<td data-date="' + YDate.format(curDate, {format: DATE_FORMAT}) + '"' + (classname ? ' class="' + classname + '"' : '') + '>' + curDate.getDate() + '</td>');
+				rowHTML.push('<td data-date="' + YDate.reformat(curDate, 'raw', 'in_date') + '"' + (classname ? ' class="' + classname + '"' : '') + '>' + curDate.getDate() + '</td>');
 				
 				k++;
 				if (k == 7) {
@@ -294,7 +288,7 @@ YUI.add("supra.calendar", function (Y) {
 		syncUISelected: function () {
 			var bodyNode = this.get('bodyNode'),
 				nodeSelected = bodyNode.one('.selected'),
-				date = YDate.format(this.get('rawDate'), {format: DATE_FORMAT});
+				date = YDate.reformat(this.get('rawDate'), 'raw', 'in_date');
 			
 			//Unmark old element
 			if (nodeSelected) nodeSelected.removeClass('selected')
@@ -338,7 +332,7 @@ YUI.add("supra.calendar", function (Y) {
 			if (target.hasClass('disabled')) return;
 			
 			var attr = target.getAttribute('data-date'),
-				date = YDate.parse(attr, {format: DATE_FORMAT});
+				date = YDate.reformat(attr, 'in_date', 'raw');
 			
 			this.set('date', date);
 		},
@@ -351,11 +345,10 @@ YUI.add("supra.calendar", function (Y) {
 		 * @type {Date}
 		 */
 		_setDate: function (date) {
-			var format = this.get('dateFormat'),
-				minDate = this.get('minDate'),
+			var minDate = this.get('minDate'),
 				maxDate = this.get('maxDate');
 			
-			date = date ? YDate.parse(date, {'format': format}) : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
 			date = date || this.get('rawDate') || new Date();
 			
 			if (minDate && date.getTime() < minDate.getTime()) {
@@ -377,8 +370,7 @@ YUI.add("supra.calendar", function (Y) {
 		 * @type {String}
 		 */
 		_getDate: function (date) {
-			var format = this.get('dateFormat');
-			return YDate.format(date, {'format': format});
+			return YDate.reformat(date, 'raw', 'out_date');
 		},
 		
 		/**
@@ -390,9 +382,7 @@ YUI.add("supra.calendar", function (Y) {
 		 * @private
 		 */
 		_setDisplayDate: function (date) {
-			var format = this.get('dateFormat');
-			
-			date = date ? YDate.parse(date, {'format': format}) : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
 			date = date || this.get('displayDate') || new Date();
 			
 			return date;
@@ -407,10 +397,9 @@ YUI.add("supra.calendar", function (Y) {
 		 * @private
 		 */
 		_setMinDate: function (minDate) {
-			var format = this.get('dateFormat'),
-				date = this.get('rawDate') || new Date();
+			var date = this.get('rawDate') || new Date();
 			
-			minDate = minDate ? YDate.parse(minDate, {'format': format}) : null;
+			minDate = minDate ? YDate.reformat(minDate, 'out_date', 'raw') : null;
 			if (minDate && date.getTime() < minDate.getTime()) {
 				this.set('date', new Date(minDate));
 			}
@@ -426,10 +415,9 @@ YUI.add("supra.calendar", function (Y) {
 		 * @private
 		 */
 		_setMaxDate: function (maxDate) {
-			var format = this.get('dateFormat'),
-				date = this.get('rawDate') || new Date();
+			var date = this.get('rawDate') || new Date();
 			
-			maxDate = maxDate ? YDate.parse(maxDate, {'format': format}) : null;
+			maxDate = maxDate ? YDate.reformat(maxDate, 'out_date', 'raw') : null;
 			if (maxDate && date.getTime() < maxDate.getTime()) {
 				this.set('date', new Date(maxDate));
 			}
@@ -471,7 +459,7 @@ YUI.add("supra.calendar", function (Y) {
 				
 				var date = '';
 				for(var i=0,ii=dates.length; i<ii; i++) {
-					date = YDate.reformat(dates[i].date, null, DATE_FORMAT);
+					date = YDate.reformat(dates[i].date, 'in_date', 'in_date');
 					datesNode.append(Y.Node.create('<a data-date="' + date + '">' + dates[i].title + '</a>'));
 				}
 				
@@ -491,7 +479,7 @@ YUI.add("supra.calendar", function (Y) {
 			var target = e.target;
 			var date = target.getAttribute('data-date');
 			
-			date = YDate.parse(date, {'format': DATE_FORMAT});
+			date = YDate.reformat(date, 'in_date', 'raw');
 			
 			this.set('date', date);
 			this.set('displayDate', date);
