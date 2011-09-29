@@ -1,0 +1,19 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: auth-sample
+        controller: Project\SampleAuthentication\AuthenticateController
+
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: auth-sample
+        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+        controller: Project\SampleAuthentication\AuthenticatePreFilterController
+
+- Supra\Session\Configuration\SessionNamespaceConfiguration:
+    managerNamespace: Project\SampleAuthentication
+    class: Project\SampleAuthentication\AuthenticateSessionNamespace
+    name: Test
+    namespaces:
+        - Project\SampleAuthentication

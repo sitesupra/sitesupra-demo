@@ -20,7 +20,7 @@ class SessionNamespaceConfiguration
 	/**
 	 * @var array
 	 */
-	private $namespaces = array();
+	public $namespaces = array();
 	
 	/**
 	 * @var string

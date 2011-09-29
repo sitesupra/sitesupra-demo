@@ -2,14 +2,6 @@
 
 namespace Project\Rss;
 
-$routerConfiguration = new \Supra\Router\Configuration\RouterConfiguration();
-$routerConfiguration->url = '/rss';
-$routerConfiguration->controller = 'Project\Rss\Controller';
-
-$controllerConfiguration = new \Supra\Controller\Configuration\ControllerConfiguration();
-$controllerConfiguration->router = $routerConfiguration;
-$controllerConfiguration->configure();
-
 // Event test
 //TODO: make this somehow configurable
 $listenerFunction = function($className, $type, $parameters) {

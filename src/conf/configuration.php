@@ -16,3 +16,14 @@ require_once SUPRA_CONF_PATH . 'template.php';
 require_once SUPRA_CONF_PATH . 'session.php';
 require_once SUPRA_CONF_PATH . 'mailer.php';
 require_once SUPRA_CONF_PATH . 'authorization.php';
+
+$parser = new Supra\Configuration\Parser\YamlParser();
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Authentication/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');
+$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Locale/config.yml');
+

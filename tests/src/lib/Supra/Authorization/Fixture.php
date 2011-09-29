@@ -88,7 +88,8 @@ class Fixture extends \PHPUnit_Framework_TestCase
 			$this->em->flush();		
 		}
 		
-		require_once SUPRA_WEBROOT_PATH . 'cms/config.php';
+		$parser = new \Supra\Configuration\Parser\YamlParser();
+		$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 		
 		foreach(CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
 			

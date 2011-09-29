@@ -72,7 +72,8 @@ class FixtureHelper
 				->getLocales();
 		
 		// Manually load CMS config
-		require_once SUPRA_WEBROOT_PATH . 'cms/config.php';
+		$parser = new \Supra\Configuration\Parser\YamlParser();
+		$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 	}
 	
 	/**

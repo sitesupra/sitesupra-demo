@@ -1,0 +1,41 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /cms
+        controller: Supra\Cms\CmsController
+
+- Supra\Cms\ApplicationConfiguration:
+    id: content
+    title: Pages
+    icon: /cms/lib/supra/img/apps/content
+    path: /cms/content-manager
+    authorizationAccessPolicyClass: Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\ContentManager
+  
+- Supra\Cms\ApplicationConfiguration:
+    id: internal-user-manager
+    title: Backoffice users
+    path: /cms/internal-user-manager
+    icon: /cms/lib/supra/img/apps/internal-user
+    applicationNamespace: Supra\Cms\InternalUserManager
+    authorizationAccessPolicyClass: Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy
+
+- Supra\Cms\ApplicationConfiguration:
+    id: banner-manager
+    title: Banners
+    path: /cms/banner-manager
+    icon: /cms/lib/supra/img/apps/banner
+    applicationNamespace: Supra\Cms\BannerManager
+    authorizationAccessPolicyClass: Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy
+
+- Supra\Cms\ApplicationConfiguration:
+    id: media-library
+    title: Media Library
+    path: /cms/media-library
+    icon: /cms/lib/supra/img/apps/media_library
+    applicationNamespace: Supra\Cms\MediaLibrary
+    authorizationAccessPolicyClass: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
+
+- Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
+    id: news
+    className: Supra\Controller\Pages\News\NewsApplication

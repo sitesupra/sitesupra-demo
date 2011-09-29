@@ -1,0 +1,14 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /cms
+        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+        controller: Project\Authentication\AuthenticationPreFilterController
+        
+- Supra\Session\Configuration\SessionNamespaceConfiguration:
+    managerNamespace: Project\Authentication
+    name: Cms
+    class: Project\Authentication\AuthenticationSessionNamespace
+    namespaces: 
+      - Project\Authentication
+      - Supra\Cms
