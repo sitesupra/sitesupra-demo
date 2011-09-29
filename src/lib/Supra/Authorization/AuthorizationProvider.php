@@ -64,7 +64,7 @@ class AuthorizationProvider
 	function __construct(EntityManager $entityManager = null, $options = array()) 
 	{
 		if (empty($entityManager)) {
-			$entityManager = ObjectRepository::getEntityManager(__NAMESPACE__);
+			$entityManager = ObjectRepository::getEntityManager($this);
 		}
 		
 		$permissionGrantingStrategy = new PermissionGrantingStrategy();

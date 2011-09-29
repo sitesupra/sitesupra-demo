@@ -31,6 +31,38 @@ class FixtureHelper
 	
 	private $locales = array();
 	
+	protected static $constants = array(
+		0 => array(
+			'title' => 'Home',
+			'pathPart' => '',
+		),
+		1 => array(
+			'title' => 'About',
+			'pathPart' => 'about',
+		),
+		2 => array(
+			'title' => 'Contacts',
+			'pathPart' => 'contacts',
+		),
+		3 => array(
+			'title' => 'News',
+			'pathPart' => 'news',
+		),
+		4 => array(
+			'title' => 'News application',
+			'pathPart' => 'app',
+			'applicationId' => 'news'
+		),
+		5 => array(
+			'title' => 'Subscribe',
+			'pathPart' => 'subscribe',
+		),
+		6 => array(
+			'title' => 'First Publication',
+			'pathPart' => 'first',
+		),
+	);
+	
 	public function __construct(\Doctrine\ORM\EntityManager $em)
 	{
 		$this->log = ObjectRepository::getLogger($this);
@@ -38,6 +70,9 @@ class FixtureHelper
 		
 		$this->locales = ObjectRepository::getLocaleManager($this)
 				->getLocales();
+		
+		// Manually load CMS config
+		require_once SUPRA_WEBROOT_PATH . 'cms/config.php';
 	}
 	
 	/**
@@ -174,17 +209,19 @@ class FixtureHelper
 			$this->template = $this->createTemplate();
 
 			$rootPage = $this->createPage(0, null, $this->template->getParent());
-			$em->persist($rootPage);
-			$em->flush();
 			$this->rootPage = $rootPage;
 
 			$page = $this->createPage(1, $rootPage, $this->template);
-			$em->persist($page);
-			$em->flush();
 
 			$page2 = $this->createPage(2, $page, $this->template);
-			$em->persist($page2);
-			$em->flush();
+			
+			$news = $this->createPage(3, $rootPage, $this->template);
+			
+			$newsApp = $this->createPage(4, $news, $this->template);
+			
+			$subscribe = $this->createPage(5, $news, $this->template);
+			
+			$publication = $this->createPage(6, $newsApp, $this->template);
 		} catch (\Exception $e) {
 			$em->rollback();
 			
@@ -251,21 +288,6 @@ class FixtureHelper
 		$em->commit();
 		$publicEm->commit();
 	}
-
-	protected static $constants = array(
-		0 => array(
-			'title' => 'Home',
-			'pathPart' => '',
-		),
-		1 => array(
-			'title' => 'About',
-			'pathPart' => 'about',
-		),
-		2 => array(
-			'title' => 'Contacts',
-			'pathPart' => 'contacts',
-		),
-	);
 
 	protected function createTemplate()
 	{
@@ -450,8 +472,17 @@ class FixtureHelper
 
 	protected function createPage($type = 0, Entity\Page $parentNode = null, Entity\Template $template = null)
 	{
-		$page = new Entity\Page();
-		$this->entityManager->persist($page);
+		$pageDefinition = self::$constants[$type];
+		$page = null;
+		
+		if (empty($pageDefinition['applicationId'])) {
+			$page = new Entity\Page();
+			$this->entityManager->persist($page);
+		} else {
+			$page = new Entity\ApplicationPage();
+			$page->setApplicationId($pageDefinition['applicationId']);
+			$this->entityManager->persist($page);
+		}
 
 		if ( ! is_null($parentNode)) {
 			$parentNode->addChild($page);
@@ -465,14 +496,14 @@ class FixtureHelper
 			$pageData = new Entity\PageLocalization($localeId);
 			$pageData->setTemplate($template);
 			$this->entityManager->persist($pageData);
-			$pageData->setTitle(self::$constants[$type]['title']);
+			$pageData->setTitle($pageDefinition['title']);
 
 			$pageData->setPage($page);
 
 			$this->entityManager->flush();
 
 			// Path is generated on updates ONLY!
-			$pageData->setPathPart(self::$constants[$type]['pathPart']);
+			$pageData->setPathPart($pageDefinition['pathPart']);
 			$this->entityManager->flush();
 
 			foreach (array('header', 'main', 'footer') as $name) {
@@ -482,7 +513,7 @@ class FixtureHelper
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
 					$blockProperty->setLocalization($page->getLocalization($localeId));
-					$blockProperty->setValue('Hello SiteSupra in page /' . $pageData->getPath() . '');
+					$blockProperty->setValue($pageDefinition['title']);
 
 					$placeHolder = $page->getPlaceHolders()
 							->get($name);
@@ -537,6 +568,8 @@ class FixtureHelper
 
 			}
 		}
+		
+		$this->entityManager->flush();
 
 		return $page;
 	}

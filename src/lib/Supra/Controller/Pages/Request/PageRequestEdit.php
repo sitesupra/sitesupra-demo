@@ -160,10 +160,13 @@ class PageRequestEdit extends PageRequest
 		// 10. Clear all property metadata on the public going to be merged
 		//TODO: remove reference elements as well!
 		$propertyIdList = $draftProperties->collectIds();
-		$qb = $publicEm->createQueryBuilder();
-		$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
-				->where($qb->expr()->in('r.blockProperty', $propertyIdList))
-				->getQuery()->execute();
+		
+		if ( ! empty($propertyIdList)) {
+			$qb = $publicEm->createQueryBuilder();
+			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
+					->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+					->getQuery()->execute();
+		}
 		
 		// 11. Merge all properties from 5
 		foreach ($draftProperties as $property) {

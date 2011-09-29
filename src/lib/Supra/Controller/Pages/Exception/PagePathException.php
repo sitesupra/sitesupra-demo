@@ -20,6 +20,7 @@ class PagePathException extends RuntimeException
 	 */
 	public function __construct($message, PageLocalization $pageLocalization)
 	{
+		parent::__construct($message);
 		$this->pageLocalization = $pageLocalization;
 	}
 

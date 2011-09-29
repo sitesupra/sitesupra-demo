@@ -2,13 +2,12 @@
 
 namespace Supra\Controller\Pages\Listener;
 
-use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
-use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Application\PageApplicationCollection;
 
 /**
  * Creates the page path and checks it's uniqueness
@@ -25,11 +24,11 @@ class PagePathGenerator
 
 		// Page path is not set from inserts, updates only
 		foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
-			if ($entity instanceof PageLocalization) {
+			if ($entity instanceof Entity\PageLocalization) {
 				$this->generatePath($em, $unitOfWork, $entity);
 			}
 
-			if ($entity instanceof Page) {
+			if ($entity instanceof Entity\Page) {
 				$dataCollection = $entity->getLocalizations();
 
 				foreach ($dataCollection as $dataEntity) {
@@ -43,9 +42,9 @@ class PagePathGenerator
 	 * Generates new full path and validates its uniqueness
 	 * @param EntityManager $em
 	 * @param UnitOfWork $unitOfWork
-	 * @param PageLocalization $pageData
+	 * @param Entity\PageLocalization $pageData
 	 */
-	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, PageLocalization $pageData)
+	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, Entity\PageLocalization $pageData)
 	{
 		$page = $pageData->getMaster();
 		$pathPart = $pageData->getPathPart();
@@ -56,25 +55,35 @@ class PagePathGenerator
 		
 		if ( ! $page->isRoot()) {
 			
+			$parentPage = $page->getParent();
+			
+			if ($parentPage instanceof Entity\ApplicationPage) {
+				$applicationId = $parentPage->getApplicationId();
+				
+				$application = PageApplicationCollection::getInstance()
+						->createApplication($applicationId);
+				
+				if (empty($application)) {
+					throw new Exception\PagePathException("Application '$applicationId' is not found", $pageData);
+				}
+				
+				$pathBasePart = $application->generatePath($pageData);
+				$pathPart = \Supra\Uri\Path::concat($pathBasePart, $pathPart);
+			}
+			
 			// Leave path empty if path part is not set yet
 			if ($pathPart == '') {
 				return;
 			}
 			
-			$parentPageData = $pageData->getParent();
+			$parentPageData = $parentPage->getLocalization($locale);
 			
 			if (empty($parentPageData)) {
 				throw new Exception\RuntimeException("Parent page localization is not found for the locale {$locale} required by page {$page->getId()}");
 			}
 			
 			$pathPrefix = $parentPageData->getPath();
-			
-			// Root page has no path
-			if ($pathPrefix != '') {
-				$pathPrefix = $pathPrefix . '/';
-			}
-			
-			$path = $pathPrefix . $pathPart;
+			$path = \Supra\Uri\Path::concat($pathPrefix, $pathPart);
 			
 			$oldPath = $pageData->getPath();
 			

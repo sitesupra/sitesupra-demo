@@ -11,14 +11,6 @@ namespace Supra\Controller\Pages\Entity;
 class LockData extends Abstraction\Entity
 {
 	/**
-	 * @Id
-	 * @Column(type="integer")
-	 * @GeneratedValue
-	 * @var integer
-	 */
-	protected $id;
-	
-	/**
 	 * @Column(type="datetime", nullable=true, name="created_at")
 	 * @var DateTime
 	 */
@@ -35,15 +27,6 @@ class LockData extends Abstraction\Entity
 	 * @var string
 	 */
 	protected $userId;
-	
-	/**
-	 * Returns lock ID
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
 	
 	/**
 	 * Returns creation time

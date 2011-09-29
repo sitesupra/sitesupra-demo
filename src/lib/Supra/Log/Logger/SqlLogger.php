@@ -80,7 +80,9 @@ class SqlLogger implements SQLLoggerInterface
 		$level = $this->getLogLevel();
 		
 		// Enable when you need to know the parameters
-		$this->log($this->sql . "\n(" . implode('; ', $this->params) . ")\n", $level);
+		$this->log($this->sql . "\n"
+				. ($this->params ? "(" . implode('; ', $this->params) . ")\n" : ""), 
+				$level);
 		
 //		$subject = "Query\n{$this->sql}\n";
 //		$this->log($subject, $level);

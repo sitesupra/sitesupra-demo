@@ -18,7 +18,11 @@ use Supra\User\Entity\Abstraction\User;
  * @Entity
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\Template", "page" = "Supra\Controller\Pages\Entity\Page"})
+ * @DiscriminatorMap({
+ *		"template" = "Supra\Controller\Pages\Entity\Template", 
+ *		"page" = "Supra\Controller\Pages\Entity\Page",
+ *		"application" = "Supra\Controller\Pages\Entity\ApplicationPage"
+ * })
  * @Table(indexes={
  *		@index(name="page_abstraction_lft_idx", columns={"lft"}),
  *		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
@@ -26,32 +30,32 @@ use Supra\User\Entity\Abstraction\User;
  * })
  * @HasLifecycleCallbacks
  * @method int getNumberChildren()
- * @method NestedSet\Node\NodeAbstraction addChild(NestedSet\Node\NodeInterface $child)
+ * @method AbstractPage addChild(AbstractPage $child)
  * @method void delete()
  * @method boolean hasNextSibling()
  * @method boolean hasPrevSibling()
  * @method int getNumberDescendants()
  * @method boolean hasParent()
- * @method NestedSet\Node\NodeAbstraction getParent()
+ * @method AbstractPage getParent()
  * @method string getPath(string $separator, boolean $includeNode)
  * @method array getAncestors(int $levelLimit, boolean $includeNode)
  * @method array getDescendants(int $levelLimit, boolean $includeNode)
- * @method NestedSet\Node\NodeAbstraction getFirstChild()
- * @method NestedSet\Node\NodeAbstraction getLastChild()
- * @method NestedSet\Node\NodeAbstraction getNextSibling()
- * @method NestedSet\Node\NodeAbstraction getPrevSibling()
+ * @method AbstractPage getFirstChild()
+ * @method AbstractPage getLastChild()
+ * @method AbstractPage getNextSibling()
+ * @method AbstractPage getPrevSibling()
  * @method array getChildren()
  * @method array getSiblings(boolean $includeNode)
  * @method boolean hasChildren()
- * @method NestedSet\Node\NodeAbstraction moveAsNextSiblingOf(NestedSet\Node\NodeInterface $afterNode)
- * @method NestedSet\Node\NodeAbstraction moveAsPrevSiblingOf(NestedSet\Node\NodeInterface $beforeNode)
- * @method NestedSet\Node\NodeAbstraction moveAsFirstChildOf(NestedSet\Node\NodeInterface $parentNode)
- * @method NestedSet\Node\NodeAbstraction moveAsLastChildOf(NestedSet\Node\NodeInterface $parentNode)
+ * @method AbstractPage moveAsNextSiblingOf(AbstractPage $afterNode)
+ * @method AbstractPage moveAsPrevSiblingOf(AbstractPage $beforeNode)
+ * @method AbstractPage moveAsFirstChildOf(AbstractPage $parentNode)
+ * @method AbstractPage moveAsLastChildOf(AbstractPage $parentNode)
  * @method boolean isLeaf()
  * @method boolean isRoot()
- * @method boolean isAncestorOf(NestedSet\Node\NodeInterface $node)
- * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
- * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
+ * @method boolean isAncestorOf(AbstractPage $node)
+ * @method boolean isDescendantOf(AbstractPage $node)
+ * @method boolean isEqualTo(AbstractPage $node)
  */
 abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
 {

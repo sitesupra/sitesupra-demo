@@ -36,12 +36,6 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
     }
     
     
-    public function getId()
-    {
-        $this->__load();
-        return parent::getId();
-    }
-
     public function getCreatedTime()
     {
         $this->__load();
@@ -90,6 +84,12 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function getId()
+    {
+        $this->__load();
+        return parent::getId();
+    }
+
     public function equals(\Supra\Database\Entity $entity)
     {
         $this->__load();
@@ -111,7 +111,7 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'created', 'modified', 'userId');
+        return array('__isInitialized__', 'created', 'modified', 'userId', 'id');
     }
 
     public function __clone()

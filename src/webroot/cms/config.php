@@ -55,3 +55,9 @@ $mediaLibraryManagerConfiguration->icon = '/cms/lib/supra/img/apps/media_library
 $mediaLibraryManagerConfiguration->applicationNamespace = '\Supra\Cms\MediaLibrary';
 $mediaLibraryManagerConfiguration->authorizationAccessPolicyClass = '\Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy';
 $mediaLibraryManagerConfiguration->configure();
+
+
+$newsApplicationConfiguration = new \Supra\Controller\Pages\Configuration\PageApplicationConfiguration();
+$newsApplicationConfiguration->id = 'news';
+$newsApplicationConfiguration->className = 'Supra\Controller\Pages\News\NewsApplication';
+$newsApplicationConfiguration->configure();

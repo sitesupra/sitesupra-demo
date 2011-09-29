@@ -228,6 +228,29 @@ class Path
 		
 		return $basePathString;
 	}
+	
+	/**
+	 * Helper function to concat 2 string paths
+	 * TODO: change everything with Path objects
+	 * @param string $path
+	 * @param string $withPath
+	 * @param string $separator
+	 * @return string
+	 */
+	public static function concat($path, $withPath, $separator = '/')
+	{
+		$path = rtrim($path, $separator);
+		$withPath = ltrim($withPath, $separator);
+		$fullPath = null;
+		
+		if ($path == '' || $withPath == '') {
+			$fullPath = $path . $withPath;
+		} else {
+			$fullPath = $path . $separator . $withPath;
+		}
+		
+		return $fullPath;
+	}
 
 	/**
 	 * @return string

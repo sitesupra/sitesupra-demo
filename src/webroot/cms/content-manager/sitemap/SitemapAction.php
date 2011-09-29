@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
+use Supra\Controller\Pages\Application\PageApplicationCollection;
 
 /**
  * Sitemap
@@ -78,6 +79,7 @@ class SitemapAction extends PageManagerAction
 
 		$pathPart = null;
 		$templateId = null;
+		$basePath = '';
 
 		//TODO: need to know template ID as well
 		if ($page instanceof Entity\Page) {
@@ -87,13 +89,39 @@ class SitemapAction extends PageManagerAction
 
 		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
+			
+			if ( ! $page->isRoot()) {
+				$parentPage = $page->getParent();
+				$parentLocalization = $parentPage->getLocalization($locale);
+				
+				if ( ! $parentLocalization instanceof Entity\PageLocalization) {
+					throw new CmsException(null, "Parent page has no localization in the selected language");
+				}
+				
+				$basePath = $parentLocalization->getPath();
+				
+				if ($parentPage instanceof Entity\ApplicationPage) {
+					$applicationId = $parentPage->getApplicationId();
+					$application = PageApplicationCollection::getInstance()
+							->createApplication($applicationId);
+					
+					if (empty($application)) {
+						throw new CmsException(null, "Application '$applicationId' was not found");
+					}
+					
+					$pageBasePath = $application->generatePath($data);
+					$basePath = \Supra\Uri\Path::concat($basePath, $pageBasePath);
+				}
+			}
 		}
-
+		
 		$array = array(
 			'id' => $data->getId(),
 			'title' => $data->getTitle(),
 			'template' => $templateId,
 			'path' => $pathPart,
+			'basePath' => $basePath,
+			
 			// TODO: hardcoded
 			'icon' => 'page',
 			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'

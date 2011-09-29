@@ -27,16 +27,24 @@ class Fixture extends \PHPUnit_Framework_TestCase
 	private $ap;
 	
 	/**
-	 *
 	 * @var \Supra\User\UserProvider;
 	 */
 	private $up;
 	
-	function setUp() 
+	/**
+	 * Caller argument which is used for ObjectRepository calls
+	 * @var mixed
+	 */
+	public $caller;
+	
+	function setUp()
 	{
-		$this->em = ObjectRepository::getEntityManager('Supra\Tests');
+		if (is_null($this->caller)) {
+			$this->caller = $this;
+		}
 		
-		$this->up = ObjectRepository::getUserProvider('Supra\Tests');
+		$this->em = ObjectRepository::getEntityManager($this->caller);
+		$this->up = ObjectRepository::getUserProvider($this->caller);
 
 		$this->ap = new AuthorizationProvider(
 			$this->em,
@@ -48,17 +56,17 @@ class Fixture extends \PHPUnit_Framework_TestCase
 				'sid_table_name'           => 'acl_security_identities',
 			)
 		);
-		ObjectRepository::setDefaultAuthorizationProvider($this->ap);
-		
-		$sessionHandler = new \Supra\Session\Handler\PhpSessionHandler();
-
-		$sessionNamespaceManager = new \Supra\Session\SessionNamespaceManager($sessionHandler);
-		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
-
-		$authenticationSessionNamespace = $sessionNamespaceManager
-			->getOrCreateSessionNamespace('Supra\Tests', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
-
-		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
+//		ObjectRepository::setDefaultAuthorizationProvider($this->ap);
+//		
+//		$sessionHandler = new \Supra\Session\Handler\PhpSessionHandler();
+//
+//		$sessionNamespaceManager = new \Supra\Session\SessionNamespaceManager($sessionHandler);
+//		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
+//
+//		$authenticationSessionNamespace = $sessionNamespaceManager
+//			->getOrCreateSessionNamespace('Supra\Tests', 'Project\SampleAuthentication\AuthenticateSessionNamespace');
+//
+//		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
 	}
 	
 	function testFixture()
@@ -74,7 +82,6 @@ class Fixture extends \PHPUnit_Framework_TestCase
 
 			$adminUser->setLogin($adminUserName);
 			$adminUser->setName($adminUserName);
-			$adminUser->resetSalt();
 			$adminUser->setEmail($adminUserName);
 
 			$this->up->getAuthAdapter()->credentialChange($adminUser, $adminUserName);

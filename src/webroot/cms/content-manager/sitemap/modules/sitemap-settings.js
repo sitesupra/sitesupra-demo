@@ -119,7 +119,6 @@ YUI().add('website.sitemap-settings', function (Y) {
 			var flowmap = this.host.flowmap,
 				type = this.host.getType(),
 				node = flowmap.getNodeById(data.id),
-				all_data = flowmap.getIndexedData(),
 				path_input = this.form.getInput('path'),
 				template_input = this.form.getInput('template'),
 				layout_input = this.form.getInput('layout');
@@ -151,18 +150,11 @@ YUI().add('website.sitemap-settings', function (Y) {
 			} else {
 				//Update delete button label
 				this.button_delete.set('label', Supra.Intl.get(['sitemap', 'delete_page']));
-				
-				var item = all_data[data.parent],
-					fullpath = [],
-					path = '';
-				
-				while(item) {
-					fullpath.push(item.path);
-					item = all_data[item.parent];
+
+				var path = data.basePath.trim('/') + '/';
+				if (path != '/') {
+					path = '/' + path;
 				}
-				
-				path = fullpath.reverse().join('/');
-				path = path && path != '/' ? path + '/' : '/';
 				
 				path_input.show();
 				path_input.set('path', path);

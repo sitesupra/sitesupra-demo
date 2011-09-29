@@ -4,12 +4,12 @@ namespace Supra\Authorization;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\ControllerAbstraction;
+
 class AuthorizedNamespace
 {
 	/**
-	 * @var String
+	 * @var string
 	 */
-	
 	private $namespace;
 	
 	public function __construct($namespaceOrController) 
