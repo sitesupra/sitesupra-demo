@@ -5,7 +5,7 @@ YUI.add('supra.page-content-list', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
-		Action = Manager.PageContent;
+		PageContent = Manager.PageContent;
 	
 	//CSS classes
 	var CLASSNAME_REORDER = Y.ClassNameManager.getClassName('content', 'reorder'),		//yui3-content-reorder
@@ -25,7 +25,7 @@ YUI.add('supra.page-content-list', function (Y) {
 	ContentList.CLASS_NAME = Y.ClassNameManager.getClassName(ContentList.NAME);
 	ContentList.ATTRS = {};
 	
-	Y.extend(ContentList, Action.Proto, {
+	Y.extend(ContentList, PageContent.Proto, {
 		drag_delegate: null,
 		drag_selector: null,
 		dragable_regions: null,
@@ -105,7 +105,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			this.drag_selector = selector;
 			
 			//DD must be initialized for iframe
-			Action.initDD(this.get('doc'));
+			PageContent.initDD(this.get('doc'));
 			
 			var del = this.drag_delegate = new Y.DD.Delegate({
 				container: cont,
@@ -134,7 +134,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			del.on('drag:drag', Y.throttle(Y.bind(this.onDragDrag, this), 50));
 			
 			//Restore document
-			Action.initDD(document);
+			PageContent.initDD(document);
 		},
 		
 		onDragStart: function (e) {
@@ -336,7 +336,7 @@ YUI.add('supra.page-content-list', function (Y) {
 		}
 	});
 	
-	Action.List = ContentList;
+	PageContent.List = ContentList;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

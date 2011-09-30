@@ -270,7 +270,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var host_properties = {
 				'doc': host.get('doc'),
 				'win': host.get('win'),
-				'toolbar': SU.Manager.EditorToolbar.getToolbar()
+				'toolbar': Supra.Manager.EditorToolbar.getToolbar()
 			};
 			
 			for(var i=0, ii=properties.length; i<ii; i++) {
@@ -299,6 +299,59 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			this.set('form', form);
+		},
+		
+		/**
+		 * Destroy property and recreate it
+		 *
+		 * @param {String} id Property ID
+		 * @param {Object} value New value
+		 */
+		resetProperty: function (id, value) {
+			var form = this.get('form'),
+				properties = this.get('properties'),
+				i = 0,
+				ii = properties.length,
+				inputs = form.getInputs(),
+				
+				host = this.get('host'),
+				host_node = host.getNode(),
+				
+				property = null,
+				config = {};
+			
+			for(; i<ii; i++) {
+				if (properties[i].id == id) {
+					property = properties[i];
+					break;
+				}
+			}
+			
+			if (property && id in inputs) {
+				//Get input config
+				config = Supra.mix({
+					'doc': host.get('doc'),
+					'win': host.get('win'),
+					'toolbar': Supra.Manager.EditorToolbar.getToolbar(),
+					'srcNode': host_node.one('#' + host_node.getAttribute('id') + '_' + property.id)
+				}, property, {
+					'value': value ? value : property.value
+				});
+				
+				//Destroy old input
+				inputs[id].destroy();
+				
+				//Create new input 
+				inputs[id] = form.factoryField(config);
+				inputs[id].render();
+				
+				//Restore value
+				inputs[id].set('value', value);
+				
+				return inputs[id];
+			}
+			
+			return null;
 		},
 		
 		/**
@@ -341,6 +394,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			this.set('normalChanged', false);
 			SU.Manager.PageContentSettings.hide();
+			
+			//Property which affects inline content may have
+			//changed, need to reload block content 
+			this.get('host').reloadContentHTML();
 		},
 		
 		/**

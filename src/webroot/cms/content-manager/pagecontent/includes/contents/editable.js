@@ -5,7 +5,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
-		Action = Manager.PageContent;
+		Page = Manager.Page,
+		PageContent = Manager.PageContent;
 	
 	//CSS classes
 	var CLASSNAME_INLINE_EDITABLE = Y.ClassNameManager.getClassName('content', 'inline', 'editable');	//yui3-content-inline-editable
@@ -33,7 +34,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		}
 	};
 	
-	Y.extend(ContentEditable, Action.Proto, {
+	Y.extend(ContentEditable, PageContent.Proto, {
 		
 		/**
 		 * Inline inputs
@@ -193,7 +194,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 			
 			//Add properties plugin (creates form)
-			this.plug(Action.PluginProperties, {
+			this.plug(PageContent.PluginProperties, {
 				'data': this.get('data'),
 				//If there are inline HTML properties, then settings form is opened using toolbar buttons
 				'showOnEdit': has_html_properties ? false: true
@@ -304,7 +305,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 						
 						//If there is no inline node, then show error
 						if (!inline_node) {
-							Y.error('Block "' + this.getId() + '" (' + this.getType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
+							Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
 							continue;
 						}
 						
@@ -345,6 +346,86 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 		
 		/**
+		 * Reload content HTML
+		 * Load html from server
+		 */
+		reloadContentHTML: function () {
+			var uri = PageContent.getDataPath('contenthtml'),
+				data = null;
+			
+			data = {
+				'page_id': Page.getPageData().id,
+				'block_id': this.getId(),
+				'locale': Supra.data.get('locale'),
+				'properties': this.properties.getSaveValues()
+			};
+			
+			Supra.io(uri, {
+				'method': 'post',
+				'data': data,
+				'context': this,
+				'on': {
+					'success': this._reloadContentSetHTML
+				}
+			})
+		},
+		
+		/**
+		 * Update content HTML
+		 * Since inline inputs has references need to destroy and
+		 * recreate all inline inputs preserving current values
+		 * 
+		 * @param {Object} data Request response data
+		 * @private
+		 */
+		_reloadContentSetHTML: function (data) {
+			if (data && data.internal_html) {
+				//Get values
+				var inline_inputs = this.inline_inputs,
+					html_inputs = this.html_inputs,
+					values = {},
+					active_inline_property = this.get('active_inline_property');
+				
+				for(var i in inline_inputs) {
+					values[i] = inline_inputs[i].get('value');
+				}
+				
+				//Unset active inline property
+				if (active_inline_property) {
+					this.set('active_inline_property', null);
+				}
+				
+				//Replace HTML
+				this.getNode().set('innerHTML', data.internal_html);
+				
+				//Recreate inline inputs
+				var properties_handler = this.properties,
+					input = null;
+				
+				for(var i in inline_inputs) {
+					input = properties_handler.resetProperty(i, values[i]);
+					
+					//Update inline input list
+					inline_inputs[i] = input;
+					
+					//Update HTML input list
+					if (i in html_inputs) {
+						html_inputs[i] = input;
+					}
+				}
+				
+				//Restore current active inline property
+				if (active_inline_property) {
+					this.set('active_inline_property', active_inline_property);
+				}
+				
+				//Update overlay position
+				//Use timeout to make sure everything is styled before doing sync
+				setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			}
+		},
+		
+		/**
 		 * Changed getter
 		 */
 		_getChanged: function () {
@@ -368,7 +449,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 	});
 	
-	Action.Editable = ContentEditable;
+	PageContent.Editable = ContentEditable;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

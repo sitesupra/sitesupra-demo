@@ -108,7 +108,9 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			//On input change update value
 			input.on('change', function (event) {
-				this.set('value', input.get('value'));
+				if (!input.test('input[type="checkbox"],input[type="radio"]')) {
+					this.set('value', input.get('value'));
+				}
 			}, this);
 			
 			//On input element blur, blur Input

@@ -194,7 +194,7 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 			var plugin = this.htmleditor.getPlugin('image'),
 				form = plugin.settings_form;
 			
-			if (form.get('visible')) {
+			if (form && form.get('visible')) {
 				plugin.silent = true;
 				form.getInput('size_width').set('value', this.last_image_w);
 				form.getInput('size_height').set('value', this.last_image_h);
@@ -246,7 +246,7 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 			//Remove events
 			var events = this.events;
 			for(var i=0,ii=events.length; i<ii; i++) {
-				events.detach();
+				events[i].detach();
 			}
 			
 			this.events = [];

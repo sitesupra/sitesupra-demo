@@ -14,7 +14,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	 * Shortcuts
 	 */
 	var Manager = SU.Manager,
-		Action = Manager.PageContent;
+		PageContent = Manager.PageContent;
 	
 	
 	/**
@@ -27,7 +27,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	ContentGallery.NAME = 'page-content-gallery';
 	ContentGallery.CLASS_NAME = Y.ClassNameManager.getClassName(ContentGallery.NAME);
 	
-	Y.extend(ContentGallery, Action.Editable, {
+	Y.extend(ContentGallery, PageContent.Editable, {
 		
 		/**
 		 * Data drag and drop object, PluginDropTarget instance
@@ -215,7 +215,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		
 	});
 	
-	Action.Gallery = ContentGallery;
+	PageContent.Gallery = ContentGallery;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

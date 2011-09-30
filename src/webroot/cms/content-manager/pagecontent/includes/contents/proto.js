@@ -5,7 +5,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,
-		Action = Manager.PageContent,
+		PageContent = Manager.PageContent,
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
 	//Templates
@@ -289,8 +289,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var properties = Manager.Blocks.getBlock(type);
 			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
 			
-			if (classname in Action) {
-				var block = this.children[data.id] = new Action[classname](SU.mix(attrs || {}, {
+			if (classname in PageContent) {
+				var block = this.children[data.id] = new PageContent[classname](SU.mix(attrs || {}, {
 					'doc': doc,
 					'win': win,
 					'body': body,
@@ -613,7 +613,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 	});
 	
-	Action.Proto = ContentProto;
+	PageContent.Proto = ContentProto;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

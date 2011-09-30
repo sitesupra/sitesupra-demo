@@ -34,6 +34,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		
+		events: [],
+		
 		syncUI: function () {
 			
 		},
@@ -41,18 +43,30 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		bindUI: function () {
 			var doc = new Y.Node(this.get('doc'));
 			
-			this.get('srcNode').on('keyup', this._handleKeyUp, this);
-			this.get('srcNode').on('keypress', this._handleKeyPress, this);
-			this.get('srcNode').on('mousedown', this._handleNodeMouseDown, this);
-			this.get('srcNode').on('mouseup', this._handleNodeChange, this);
+			this.events.push(
+				this.get('srcNode').on('keyup', this._handleKeyUp, this)
+			);
+			this.events.push(
+				this.get('srcNode').on('keypress', this._handleKeyPress, this)
+			);
+			this.events.push(
+				this.get('srcNode').on('mousedown', this._handleNodeMouseDown, this)
+			);
+			this.events.push(
+				this.get('srcNode').on('mouseup', this._handleNodeChange, this)
+			);
 			
-			doc.on('click', this._handleNodeChange, this);
+			this.events.push(
+				doc.on('click', this._handleNodeChange, this)
+			);
 			
 			var toolbar = this.get('toolbar');
 			if (toolbar) {
-				toolbar.on('command', Y.bind(function (event) {
-					this.exec(event.command);
-				}, this));
+				this.events.push(
+					toolbar.on('command', Y.bind(function (event) {
+						this.exec(event.command);
+					}, this))
+				);
 			}
 		},
 		
@@ -81,9 +95,13 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		/**
 		 * Destroy editor
 		 */
-		destroy: function () {
+		destructor: function () {
+			//Remove event listeners
+			var events = this.events;
+			for(var i=0,ii=events.length; i<ii; i++) events[i].detach();
+			this.events = [];
+			
 			this.destroyPlugins();
-			HTMLEditor.superclass.call(this);
 		},
 		
 		/**

@@ -44,6 +44,12 @@ YUI.add("supra.input-checkbox", function (Y) {
 			
 			this._original_value = value;
 			return value;
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 		
 	});

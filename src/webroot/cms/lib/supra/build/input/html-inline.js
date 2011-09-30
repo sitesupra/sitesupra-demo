@@ -102,6 +102,15 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Clean up
+		 */
+		destructor: function () {
+			this.htmleditor.detach('change');
+			this.htmleditor.destroy();
+			this.htmleditor = null;
 		}
 		
 	});

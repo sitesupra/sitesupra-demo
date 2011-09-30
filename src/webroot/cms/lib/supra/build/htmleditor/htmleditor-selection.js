@@ -53,7 +53,6 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 			
 			if (win.getSelection) {
 				//Standard compatible browsers
-				
 				var sel = win.getSelection();
 				var range = sel.rangeCount ? sel.getRangeAt(0) : doc.createRange();
 				
