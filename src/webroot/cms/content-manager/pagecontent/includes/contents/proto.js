@@ -338,7 +338,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {Object}
 		 */
 		getAllChildren: function (target) {
-			var blocks = obj || {},
+			var blocks = target || {},
 				children = this.children;
 			
 			for(var child_id in children) {

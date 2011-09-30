@@ -62,7 +62,7 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 		 * Show resize handle
 		 */
 		showResizeHandle: function (e) {
-			if (this.resizing) return;
+			if (this.resizing || this.htmleditor.get('disabled')) return;
 			
 			var target = e.target;
 			if (target && target.test('img') && !target.hasClass('gallery')) {

@@ -44,6 +44,12 @@ Supra(function (Y) {
 				'title': SU.Intl.get(['settings', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
 				'action': 'PageSettings'
+			},
+			{
+				'id': 'blocksview',
+				'title': SU.Intl.get(['blocks', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-blocks.png',
+				'action': 'BlocksView'
 			}
 		]
 	};

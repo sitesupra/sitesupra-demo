@@ -401,17 +401,35 @@ YUI.add('supra.iframe-contents', function (Y) {
 		},
 		
 		/**
-		 * Returns all children blocks
+		 * Returns children blocks
 		 *
 		 * @return Children blocks
 		 * @type {Object}
 		 */
-		getAllChildren: function () {
-			var blocks = obj || {},
+		getChildren: function () {
+			var blocks = {},
 				children = this.children;
 			
 			for(var child_id in children) {
 				blocks[child_id] = children[child_id];
+			}
+			
+			return blocks;
+		},
+		
+		/**
+		 * Returns all children blocks
+		 *
+		 * @return All children blocks
+		 * @type {Object}
+		 */
+		getAllChildren: function () {
+			var blocks = {},
+				children = this.children;
+			
+			for(var child_id in children) {
+				blocks[child_id] = children[child_id];
+				children[child_id].getAllChildren(blocks);
 			}
 			
 			return blocks;

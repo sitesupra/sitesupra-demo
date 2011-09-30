@@ -132,9 +132,6 @@
 			"redirect": "Set redirect",
 			"redirect_to": "Redirect to: ",
 			
-			"blocks": "View blocks on page",
-			"blocks_title": "Blocks on the page",
-			
 			"advanced": "Advanced settings",
 			"advanced_title": "Advanced settings",
 			
@@ -192,6 +189,11 @@
 			
 			"restore": "Restore",
 			"restore_message": "Are you sure?"
+		},
+		
+		"blocks": {
+			"title": "Blocks on the page",
+			"button": "Page blocks"
 		},
 		
 		"gallerymanager": {

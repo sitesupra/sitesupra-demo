@@ -12,7 +12,7 @@ SU(function (Y) {
 	Manager.getAction('LayoutRightContainer').addChildAction('PageHistory');
 	
 	//Create Action class
-	new Action({
+	new Action(Supra.Manager.Action.PluginContainer, {
 		
 		/**
 		 * Unique action name
@@ -127,7 +127,9 @@ SU(function (Y) {
 			Supra.io(this.getDataPath('restore'), {
 				'method': 'post',
 				'data': {
-					'version_id': version_id
+					'page_id': Manager.Page.getPageData().id,
+					'version_id': version_id,
+					'locale': Supra.data.get('locale')
 				},
 				'context': this,
 				'on': {

@@ -311,63 +311,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		*/
 		
-		/**
-		 * Render all block list
-		 */
-		onSlideBlocks: function () {
-			var blocks = Manager.PageContent.getContent().getAllChildren(),
-				block = null,
-				block_type = null,
-				block_definition = null,
-				container = this.one('ul.block-list'),
-				item = null;
-			
-			container.all('li').remove();
-			
-			for(var id in blocks) {
-				//If not locked and is not list
-				if (!blocks[id].isLocked() && !blocks[id].isInstanceOf('page-content-list')) {
-					block = blocks[id];
-					block_definition = block.getBlockInfo();
-					
-					item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Escape.html(block_definition.title) + '</p></li>');
-					item.setData('content_id', id);
-					
-					container.append(item);
-				}
-			}
-			
-			var li = container.all('li');
-			li.on('mouseenter', function (evt) {
-				var target = evt.target.closest('LI'),
-					content_id = target.getData('content_id');
-					
-				blocks[content_id].set('highlightOverlay', true);
-			});
-			li.on('mouseleave', function (evt) {
-				var target = evt.target.closest('LI'),
-					content_id = target.getData('content_id');
-				
-				blocks[content_id].set('highlightOverlay', false);
-			});
-			li.on('click', function (evt) {
-				this.hide();
-				
-				var target = evt.target.closest('LI'),
-					content_id = target.getData('content_id'),
-					contents = null;
-				
-				//Start editing content
-				contents = Manager.PageContent.getContent();
-				contents.set('activeChild', blocks[content_id]);
-				
-				//Show properties form
-				if (blocks[content_id].properties) {
-					blocks[content_id].properties.showPropertiesForm();
-				}
-			}, this);
-		},
-		
 		onSlideAdvanced: function (node, init) {
 			//Update label
 			var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
@@ -476,10 +419,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.button_redirect = (new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)}));
 			this.button_redirect
 				.render().on('click', function () { this.openLinkManager(); }, this);
-			
-			//Blocks button
-			(new Supra.Button({'srcNode': buttons.filter('.button-blocks').item(0)}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideBlocks'); }, this);
 			
 			//Advanced settings button
 			(new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)}))
