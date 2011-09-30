@@ -4,9 +4,14 @@ namespace Supra\Cms\MediaLibrary;
 
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
 
-class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayAccessPolicy {
-	
-	function __construct() {
-		parent::__construct('pages', array('file_edit', 'file_upload', 'file_delete'));
+use Supra\FileStorage\Entity\Abstraction\File;
+
+
+class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayAccessPolicy 
+{
+
+	function __construct() 
+	{
+		parent::__construct('files', File::CN());
 	}
 }

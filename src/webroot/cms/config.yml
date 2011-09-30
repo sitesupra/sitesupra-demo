@@ -18,7 +18,7 @@
     path: /cms/internal-user-manager
     icon: /cms/lib/supra/img/apps/internal-user
     applicationNamespace: Supra\Cms\InternalUserManager
-    authorizationAccessPolicyClass: Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy
+    authorizationAccessPolicyClass: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
 
 - Supra\Cms\ApplicationConfiguration:
     id: banner-manager
@@ -26,7 +26,7 @@
     path: /cms/banner-manager
     icon: /cms/lib/supra/img/apps/banner
     applicationNamespace: Supra\Cms\BannerManager
-    authorizationAccessPolicyClass: Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy
+    authorizationAccessPolicyClass: Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy
 
 - Supra\Cms\ApplicationConfiguration:
     id: media-library

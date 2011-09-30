@@ -52,8 +52,12 @@
 			"label_some": "Some",
 			"label_all": "All",
 			"label_none": "None",
-			"label_contribute": "Contribute",
-			"label_supervise": "Supervise",
+			
+			"label_edit_page": "Edit",
+			"label_publish_page": "Publish",
+			
+			"label_file_upload": "Upload",
+			"label_file_delete": "Delete",
 			
 			"type_none": "No ",
 			"type_some": "Some ",

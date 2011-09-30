@@ -212,8 +212,11 @@ abstract class CmsAction extends SimpleController
 	protected function checkActionPermission($object, $permissionName)
 	{
 		$ap = ObjectRepository::getAuthorizationProvider($this);
-
-		if($ap->isPermissionGranted($this->getUser(), $object, $permissionName)) {
+		$appConfig = ObjectRepository::getApplicationConfiguration($this);
+		
+		if(	$ap->isApplicationAllAccessGranted($this->getUser(), $appConfig) ||
+				$ap->isPermissionGranted($this->getUser(), $object, $permissionName)
+		) {
 			return true;
 		}
 		else {

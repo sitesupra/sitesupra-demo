@@ -8,10 +8,6 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Set\PageSet;
 use Supra\NestedSet;
 use Supra\Controller\Pages\Exception;
-use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\Authorization\AuthorizedAction;
-use Symfony\Component\Security\Acl\Permission\MaskBuilder;
-use Supra\User\Entity\Abstraction\User;
 
 /**
  * Page abstraction
@@ -57,11 +53,8 @@ use Supra\User\Entity\Abstraction\User;
  * @method boolean isDescendantOf(AbstractPage $node)
  * @method boolean isEqualTo(AbstractPage $node)
  */
-abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
+abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface
 {
-	const ACTION_EDIT_PAGE = 'edit_page';
-	const ACTION_PUBLISH_PAGE = 'publish_page';
-	
 	/**
 	 * Filled by NestedSetListener
 	 * @var NestedSet\Node\DoctrineNode
@@ -406,45 +399,5 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
 	{
 		$this->nestedSetNode = $nestedSetNode;
-	}
-	
-	public function authorize(User $user, $permission) 
-	{
-		return true;
-	}
-	
-	/**
-	 * @return array of AuthorizedAction
-	 */
-	public function getPermissions() 
-	{
-		return array(
-				self::ACTION_EDIT_PAGE => new Permission(self::ACTION_EDIT_PAGE, MaskBuilder::MASK_EDIT),
-				self::ACTION_PUBLISH_PAGE => new Permission(self::ACTION_PUBLISH_PAGE, MaskBuilder::MASK_OWNER << 1)
-		);
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getAuthorizationId() 
-	{
-		return $this->getId();
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getAuthorizationClass() 
-	{
-		return __CLASS__;
-	}	
-	
-	/**
-	 * @return array
-	 */
-	public function getAuthorizationAncestors() 
-	{
-		return $this->getAncestors(0, false);
 	}
 }

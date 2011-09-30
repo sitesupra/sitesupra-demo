@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Editable;
 use Supra\Cms\Exception\CmsException;
+use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 /**
  * 
@@ -369,9 +370,17 @@ class PageAction extends PageManagerAction
 	{
 		// Must be executed with POST method
 		$this->isPostRequest();
+
+		$page = $this->getPageLocalization()->getMaster();
 		
-		// This failed..
-//		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Localization::ACTION_PUBLISH_PAGE_NAME);
+		try {
+			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_PUBLISH_PAGE);		
+		}
+		catch(EntityAccessDeniedException $e) {
+			
+			$this->getResponse()->setErrorMessage('PUBLISH IS VERBOTEN FOR YOU HERE!');
+			return;
+		}
 		
 		$this->checkLock();
 		$this->publish();
@@ -383,6 +392,18 @@ class PageAction extends PageManagerAction
 	 */
 	public function lockAction()
 	{
+		$this->isPostRequest(); // wth?
+		
+		$page = $this->getPageLocalization()->getMaster();
+		try {
+			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_EDIT_PAGE);		
+		}
+		catch(EntityAccessDeniedException $e) {
+			
+			$this->getResponse()->setErrorMessage('EDIT IS VERBOTEN FOR YOU HERE!');
+			return;
+		}
+		
 		$this->lockPage();	
 	}
 	

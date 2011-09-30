@@ -9,9 +9,10 @@ interface AuthorizedEntityInterface
 	/**
 	 * @param User $user
 	 * @param string $permission
+	 * @param Boolean $grant
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permission);
+	public function authorize(User $user, $permission, $grant);
 	
 	/**
 	 * @return string
@@ -28,5 +29,9 @@ interface AuthorizedEntityInterface
 	 * @return array
 	 */
 	public function getAuthorizationAncestors();
-	
+
+	/**
+	 * @param AuthorizedProvider $ap
+	 */
+	public static function registerPermissions(AuthorizationProvider $ap);
 }

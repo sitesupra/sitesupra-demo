@@ -3,11 +3,14 @@
 namespace Supra\Authorization\AccessPolicy;
 
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Entity\Abstraction\User;
 
-class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPolicyAbstraction
+abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPolicyAbstraction
 {
 	function __construct() 
 	{
+		parent::__construct();
+		
 		$this->permission = array(
 			"id" => self::PERMISSION_NAME,
 			"type" => "SelectList",
@@ -20,9 +23,26 @@ class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPolicyAbstra
 		);
 	}
 	
-	public function isVisibleForUser(User $user) 
+	function setAccessPermission(User $user, $value) 
 	{
-		$ap = ObjectRepository::getAuthorizationProvider($this->applicationConfiguration->applicationNamespace);
-		return $ap->isControllerAnyAccessGranted($user, $this->applicationConfiguration->applicationNamespace);
+		if($value == "0") {
+			$this->ap->revokeApplicationExecutePermission($user, $this->getAppConfig());
+			$this->ap->grantApplicationAllAccessPermission($user, $this->getAppConfig());
+		}
+		else {
+			$this->ap->revokeApplicationAllAccessPermission($user, $this->getAppConfig());
+			$this->ap->grantApplicationExecuteAccessPermission($user, $this->getAppConfig());
+		}
+	}
+	
+	function getAccessPermission(User $user) 
+	{
+		$result = "2";
+		
+		if($this->ap->isApplicationAllAccessGranted($user, $this->getAppConfig())) {
+			$result = "0";
+		}
+		
+		return $result;
 	}
 }

@@ -48,7 +48,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
 		
 		// ACL model creation
 		try {
-			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/mysql.sql'));
+			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
 		} catch (\Exception $e) {}
 
 		$this->ap = new AuthorizationProvider(
@@ -93,18 +93,11 @@ class Fixture extends \PHPUnit_Framework_TestCase
 			$this->em->flush();		
 		}
 		
-		$parser = new \Supra\Configuration\Parser\YamlParser();
-		$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
+		//$parser = new \Supra\Configuration\Parser\YamlParser();
+		//$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 		
 		foreach(CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
-			
-			if($appConfig->id == 'media-library') {
-				$this->ap->grantApplicationExecuteAccessPermission($adminUser, $appConfig);
-			}
-			else {
-				$this->ap->grantApplicationAllAccessPermission($adminUser, $appConfig);
-			}
-				
+			$this->ap->grantApplicationAllAccessPermission($adminUser, $appConfig);
 		}
 	}
 }

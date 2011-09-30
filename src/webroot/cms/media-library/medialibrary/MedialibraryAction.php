@@ -13,6 +13,7 @@ use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
 use Supra\Exception\LocalizedException;
 use Supra\Cms\Exception\CmsException;
+use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -220,6 +221,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
+		try {
+			$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
+		}
+		catch(EntityAccessDeniedException $e) {
+			
+			$this->getResponse()->setErrorMessage('DELETE IS VERBOTEN FOR YOU HERE!');
+			return;
+		}
+
 		if (is_null($file)) {
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
 		}
@@ -239,6 +249,25 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function uploadAction()
 	{
 		$this->isPostRequest();
+		
+		try {
+			
+			if ( ! $this->emptyRequestParameter('folder')) {
+				$folder = $this->getFolder('folder');
+			}
+			else {
+				$this->getResponse()->setErrorMessage('MUST HAVE A FOLDER!');
+				return;
+			}
+
+			$this->checkActionPermission($folder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
+		}
+		catch(EntityAccessDeniedException $e) {
+			
+			$this->getResponse()->setErrorMessage('UPLOAD IS VERBOTEN FOR YOU HERE!');
+			return;
+		}
+		
 		$localeId = $this->getLocale()->getId();
 		
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {

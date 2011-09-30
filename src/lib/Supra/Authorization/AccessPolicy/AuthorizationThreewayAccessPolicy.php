@@ -2,14 +2,36 @@
 
 namespace Supra\Authorization\AccessPolicy;
 
-class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPolicyAbstraction
+use Supra\User\Entity\Abstraction\User;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Authorization\Permission\PermissionStatus;
+
+abstract class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPolicyAbstraction
 {
-	function __construct($sublabel, $subPermissionNames) 
+	/**
+	 * @var string
+	 */
+	private $subpropertyClass;
+	
+	/**
+	 * @var array
+	 */
+	private $subpropertyPermissionNames;
+	
+	function __construct($subpropertyLabel, $subpropertyClass) 
 	{
+		parent::__construct();
+		
+		$subpropertyClass::registerPermissions($this->ap);
+		
+		$this->subpropertyPermissionNames = array_keys($this->ap->getPermissionsForClass($subpropertyClass));
+		
 		$subpropertyValues = array();
-		foreach ($subPermissionNames as $name) {
+		foreach ($this->subpropertyPermissionNames as $name) {
 			$subpropertyValues[] = array('id' => $name, 'title' => "{#userpermissions.label_" . $name . "#}");
 		}
+		
+		$this->subpropertyClass = $subpropertyClass;
 		
 		$this->permission = array(
 			"id" => self::PERMISSION_NAME,
@@ -21,7 +43,7 @@ class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPolicyAbstrac
 				array("id" => "0", "title" => "{#userpermissions.label_all#}")
 			),
 			"value" => "0",
-			"sublabel" => $sublabel,
+			"sublabel" => $subpropertyLabel,
 			"subproperty" => array(
 				"id" => "permissions",
 				"type" => "SelectList",
@@ -29,5 +51,72 @@ class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPolicyAbstrac
 				"values" => $subpropertyValues
 			)
 		);
+	}
+	
+	function getAccessPermission(User $user) 
+	{
+		$result = "2";
+		
+		if($this->ap->isApplicationAllAccessGranted($user, $this->getAppConfig())) {
+			$result = "0";
+		}
+		else if($this->ap->isApplicationSomeAccessGranted($user, $this->getAppConfig())) {
+			$result = "1";
+		}
+		
+		return $result;
+	}
+	
+	function setAccessPermission(User $user, $value) 
+	{
+		if($value == "0") {
+			$this->ap->grantApplicationAllAccessPermission($user, $this->getAppConfig());
+		}
+		else if($value == "1") {
+			$this->ap->grantApplicationSomeAccessPermission($user, $this->getAppConfig());
+		}
+		else {
+			$this->ap->grantApplicationExecuteAccessPermission($user, $this->getAppConfig());
+		}
+	}	
+		
+	public function getItemPermissions(User $user)
+	{
+		$permissionsForClass = $this->ap->getEffectivePermissionStatusesByObjectClass($user, $this->subpropertyClass);
+	
+		$result = array();
+		foreach($permissionsForClass as $itemId => $permissionsStatus) {
+			
+			$values = array();
+			foreach($permissionsStatus as $permissionName => $permissionStatus) {
+				
+				if($permissionStatus == PermissionStatus::ALLOW) {
+					$values[] = $permissionName;
+				}
+			}
+			
+			if( ! empty($values)) {
+				$result[] = array('id' => $itemId, 'value' => $values);
+			}
+		}
+		
+		return $result;
+	}
+	
+	public function setItemPermissions(User $user, $itemId, $setPermissionNames) 
+	{
+		$oid = $this->ap->createObjectIdentity($itemId, $this->subpropertyClass);
+		
+		foreach($this->subpropertyPermissionNames as $permissionName) {
+			
+			if(in_array($permissionName, $setPermissionNames)) {
+				$permissionStatus = PermissionStatus::ALLOW;
+			}
+			else {
+				$permissionStatus = PermissionStatus::DENY;
+			}
+
+			$this->ap->setPermsission($user, $oid, $permissionName, $permissionStatus);
+		}
 	}
 }

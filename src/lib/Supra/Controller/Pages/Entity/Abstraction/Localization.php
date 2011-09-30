@@ -16,14 +16,8 @@ use Supra\Controller\Pages\Entity\LockData;
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateLocalization", "page" = "Supra\Controller\Pages\Entity\PageLocalization"})
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
-abstract class Localization extends Entity implements AuthorizedEntityInterface
+abstract class Localization extends Entity
 {
-	const ACTION_EDIT_PAGE_NAME = 'edit_page';
-	const ACTION_EDIT_PAGE_MASK = 4; // ==> MaskBuilder::MASK_EDIT 
-	
-	const ACTION_PUBLISH_PAGE_NAME = 'publish_page';
-	const ACTION_PUBLISH_PAGE_MASK = 256; // ==> MaskBuilder.MASK_OWNER >> 1
-	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -154,33 +148,6 @@ abstract class Localization extends Entity implements AuthorizedEntityInterface
 	 */
 	abstract public function getTemplateHierarchy();
 	
-	
-	public function authorize(User $user, $permissionType) 
-	{
-		return true;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getAuthorizationId() 
-	{
-		return $this->getId();
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getAuthorizationClass() 
-	{
-		return __CLASS__;
-	}	
-	
-	public function getAuthorizationAncestors($includingSelf = true) 
-	{
-		return $this->getAncestors(0, $includingSelf);
-	}
-	
 	/**
 	 * Returns page lock object
 	 * @return LockData
@@ -198,6 +165,4 @@ abstract class Localization extends Entity implements AuthorizedEntityInterface
 	{
 		$this->lock = $lock;
 	}
-	
-	
 }

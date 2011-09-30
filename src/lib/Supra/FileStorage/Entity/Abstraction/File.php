@@ -4,7 +4,9 @@ namespace Supra\FileStorage\Entity\Abstraction;
 
 use Supra\NestedSet;
 use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\Authorization\Permission\Permission;
 use Supra\User\Entity\Abstraction\User;
+use Supra\Authorization\AuthorizationProvider;
 /**
  * File abstraction
  * @Entity(repositoryClass="Supra\FileStorage\Repository\FileNestedSetRepository")
@@ -47,6 +49,11 @@ use Supra\User\Entity\Abstraction\User;
  */
 abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
 {
+	const PERMISSION_UPLOAD_NAME = 'file_upload';
+	const PERMISSION_UPLOAD_MASK = 256;
+	const PERMISSION_DELETE_NAME = 'file_delete';
+	const PERMISSION_DELETE_MASK = 512;
+	
 	/**
 	 * Integer object type ID
 	 */
@@ -371,17 +378,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		return $info;
 	}
 
-	public function authorize(User $user, $permission) 
-  {
-		return true;
-	}
-
 	/**
-	 * @return array of AuthorizeAction
+	 * @param User $user
+	 * @param Permission $permission
+	 * @param boolean $grant
+	 * @return boolean
 	 */
-	public function getPermissions() 
-	{
-		return array();
+	public function authorize(User $user, $permission, $grant) 
+  {
+		return $grant;
 	}
 
 	/**
@@ -407,4 +412,11 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->getAncestors(0, false);
 	}	
+	
+	public static function registerPermissions(AuthorizationProvider $ap) 
+	{
+		$ap->registerGenericEntityPermission(self::PERMISSION_DELETE_NAME, self::PERMISSION_DELETE_MASK, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_UPLOAD_NAME, self::PERMISSION_UPLOAD_MASK, __CLASS__);
+	}
+	
 }

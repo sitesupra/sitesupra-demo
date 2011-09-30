@@ -9,13 +9,22 @@ use Supra\Controller\Pages\Exception;
 use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Database;
+use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\User\Entity\Abstraction\User;
+use Supra\Authorization\Permission\Permission;
+use Supra\Authorization\AuthorizationProvider;
 
 /**
  * Base entity class for Pages controller
  * @MappedSuperclass
  */
-abstract class Entity extends Database\Entity
+abstract class Entity extends Database\Entity implements AuthorizedEntityInterface
 {
+	const PERMISSION_EDIT_PAGE = 'edit_page';
+	const PERMISSION_PUBLISH_PAGE = 'publish_page';
+	const PERMISSION_EDIT_MASK = 256;
+	const PERMISSION_PUBLISH_MASK = 512;
+	
 	/**
 	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
@@ -110,6 +119,47 @@ abstract class Entity extends Database\Entity
 		$this->unlockAll();
 		
 		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
+	}
+	
+	/**
+	 *
+	 * @param User $user
+	 * @param Permission $permission
+	 * @return boolean
+	 */
+	public function authorize(User $user, $permission, $grant) 
+	{
+		return $grant;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationId() 
+	{
+		return $this->getId();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAuthorizationClass() 
+	{
+		return __CLASS__;
+	}	
+	
+	/**
+	 * @return array
+	 */
+	public function getAuthorizationAncestors() 
+	{
+		return $this->getAncestors(0, false);
+	}
+	
+	public static function registerPermissions(AuthorizationProvider $ap) 
+	{
+		$ap->registerGenericEntityPermission(self::PERMISSION_EDIT_PAGE, self::PERMISSION_EDIT_MASK, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_PAGE, self::PERMISSION_PUBLISH_MASK, __CLASS__);
 	}
 		
 	/**

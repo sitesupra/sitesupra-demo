@@ -15,6 +15,7 @@ use Supra\Authorization\AuthorizationProvider;
 use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
+use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
 /**
  * Sitemap
  */
@@ -63,16 +64,19 @@ class UserAction extends InternalUserManagerAbstractAction
 			$config = CmsApplicationConfiguration::getInstance();
 			$appConfigs = $config->getArray();
 			foreach ($appConfigs as $appConfig) {
+				/* @var $appConfig ApplicationConfiguration  */
 				
-				$permission = array("allow" => "0");
+				$permission = array();
 				
-					if ( ! $this->getApplicationAccess($user, $appConfig)) {
-					$permission = array("allow" => "2");
+				$permission["allow"] = $appConfig->authorizationAccessPolicy->getAccessPermission($user);
+
+				if($appConfig->authorizationAccessPolicy instanceof AuthorizationThreewayAccessPolicy) {
+					
+					$permission["items"] = $appConfig->authorizationAccessPolicy->getItemPermissions($user);
 				}
+						
+				$permissions[$appConfig->id] = $permission;
 				
-				if ($permission) {
-					$permissions[$appConfig->id] = $permission;
-				}
 			}
 
 			$response = array(
@@ -98,10 +102,10 @@ class UserAction extends InternalUserManagerAbstractAction
 	function getApplicationAccess($user, ApplicationConfiguration $applicationConfiguration)
 	{
 		if ($applicationConfiguration->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
-			return $this->authorizationProvider->isApplicationAdminAccessGranted($user, $applicationConfiguration);
+			return $this->authorizationProvider->getAccessPermission($user);
 		}
 		else {
-			return true;
+			return "0";
 		}
 	}
 
