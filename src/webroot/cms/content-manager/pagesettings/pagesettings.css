@@ -27,6 +27,9 @@
 	padding: 10px 15px 10px 10px;
 	border-top: 1px solid #eee;
 }
+.yui3-page-settings .input-group p.label {
+	padding: 0;
+}
 .yui3-page-settings .input-group-button .yui3-button,
 .yui3-page-settings .input-group-button .yui3-button div {
 	display: block;

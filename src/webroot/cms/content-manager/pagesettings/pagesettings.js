@@ -315,13 +315,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//Update label
 			var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
 			this.one('#slideAdvancedCreated').set('text', date || Supra.Intl.get(['settings', 'advanced_unknown']));
-			
-			//
-			if (init) {
-				this.one('#slideAdvancedChange').on('click', function () {
-					this.slideshow.set('slide', 'slideCreated');
-				}, this);
-			}
 		},
 		
 		/**
@@ -423,6 +416,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//Advanced settings button
 			(new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)}))
 				.render().on('click', function () { this.slideshow.set('slide', 'slideAdvanced'); }, this);
+				
+			//Created settings button
+			(new Supra.Button({'srcNode': buttons.filter('.button-created').item(0)}))
+				.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
 				
 			//Slideshow
 			var slideshow = this.slideshow = new Supra.Slideshow({
