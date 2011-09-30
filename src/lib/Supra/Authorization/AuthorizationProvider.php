@@ -59,7 +59,7 @@ class AuthorizationProvider
 	 * @param EntityManager $entityManager
 	 * @param array $options 
 	 */
-	function __construct(EntityManager $entityManager = null, $options = array()) 
+	function __construct(EntityManager $entityManager = null) 
 	{
 		if (empty($entityManager)) {
 			$entityManager = ObjectRepository::getEntityManager($this);
@@ -67,7 +67,18 @@ class AuthorizationProvider
 		
 		$permissionGrantingStrategy = new PermissionGrantingStrategy();
 		
-		$this->aclProvider= new AclProvider($entityManager->getConnection(), $permissionGrantingStrategy, $options);		
+		$tables = array(
+			'class_table_name'         => 'acl_classes',
+			'entry_table_name'         => 'acl_entries',
+			'oid_table_name'           => 'acl_object_identities',
+			'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
+			'sid_table_name'           => 'acl_security_identities',
+		);
+		
+		$this->aclProvider= new AclProvider(
+						$entityManager->getConnection(), 
+						$permissionGrantingStrategy, 
+						$tables);		
 		
 		$this->log = ObjectRepository::getLogger($this);
 		

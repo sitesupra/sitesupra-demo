@@ -10,6 +10,7 @@ $cli->setCatchExceptions(true);
 
 $cli->addCommands(array(
 	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand(),
+	new \Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand(),
 	new \Supra\Database\Console\SchemaUpdateCommand(),
 	new \Supra\Database\Console\SchemaDropCommand(),
 	new \Supra\Console\Cron\Command()
