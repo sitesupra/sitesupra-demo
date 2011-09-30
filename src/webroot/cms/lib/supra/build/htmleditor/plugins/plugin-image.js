@@ -379,12 +379,16 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					this.settings_form.getInput('description').setValue(data.description);
 				} else {
 					//Find image by size and set initial image properties
-					var src = this.getImageURLBySize(data);
+					var size_data = this.getImageDataBySize(data),
+						src = size_data.external_path;
+					
 					var data = Supra.mix({}, defaultProps, {
 						'type': this.NAME,
 						'title': data.title,
 						'description': data.description,
-						'image': data	//Original image data
+						'image': data,	//Original image data
+						'size_width': size_data.width,
+						'size_height': size_data.height
 					});
 					
 					//Generate unique ID for image element, to which data will be attached
@@ -416,7 +420,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 			
 			var uid = htmleditor.generateDataUID(),
-				src = this.getImageURLBySize(image_data),
+				size_data = this.getImageDataBySize(image_data),
+				src = size_data.external_path,
 				img = null;
 			
 			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" />');
@@ -433,7 +438,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				'type': this.NAME,
 				'title': image_data.title,
 				'description': image_data.description,
-				'image': image_data	//Original image data
+				'image': image_data,	//Original image data
+				'size_width': size_data.width,
+				'size_height': size_data.height
 			});
 			
 			//Save into HTML editor data about image
