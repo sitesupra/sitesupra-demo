@@ -298,22 +298,21 @@ YUI.add('supra.page-content-editable', function (Y) {
 						this.html_inputs[id] = inputs[id];
 						this.html_inputs_count++;
 						
-						inline_node = node.one('#' + this.getNodeId() + '_' + properties[i].id);
-						
 						//Bind command to editor instead of toolbar, because toolbar is shared between editors
 						inputs[id].getEditor().addCommand('settings', Y.bind(this.onSettingsCommand, this));
-						
-						//If there is no inline node, then show error
-						if (!inline_node) {
-							Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
-							continue;
-						}
-						
-						//When clicking on node enable corresponding editor
-						inline_node.on('mousedown', function (event, id) {
-							this.set('active_inline_property', id);
-						}, this, id);
 					}
+					
+					//If there is no inline node, then throw error
+					inline_node = node.one('#' + this.getNodeId() + '_' + properties[i].id);
+					if (!inline_node) {
+						Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
+						continue;
+					}
+					
+					//When clicking on node enable corresponding editor
+					inline_node.on('mousedown', function (event, id) {
+						this.set('active_inline_property', id);
+					}, this, id);
 				}
 			}
 		},
@@ -382,7 +381,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 			if (data && data.internal_html) {
 				//Get values
 				var inline_inputs = this.inline_inputs,
-					html_inputs = this.html_inputs,
 					values = {},
 					active_inline_property = this.get('active_inline_property');
 				
@@ -404,15 +402,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 				
 				for(var i in inline_inputs) {
 					input = properties_handler.resetProperty(i, values[i]);
-					
-					//Update inline input list
-					inline_inputs[i] = input;
-					
-					//Update HTML input list
-					if (i in html_inputs) {
-						html_inputs[i] = input;
-					}
 				}
+				
+				//Update inline input list
+				this.findInlineInputs();
 				
 				//Restore current active inline property
 				if (active_inline_property) {
