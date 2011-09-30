@@ -184,8 +184,8 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		self::assertEquals('#a#b#c', Path::format('a#b#c', Path::FORMAT_LEFT_DELIMITER, '#'));
 		self::assertEquals('', Path::format('/', Path::FORMAT_NO_DELIMITERS));
 		self::assertEquals('/', Path::format('', Path::FORMAT_BOTH_DELIMITERS));
-		self::assertEquals('/', Path::format('', Path::FORMAT_RIGHT_DELIMITER));
-		self::assertEquals('/', Path::format('/', Path::FORMAT_RIGHT_DELIMITER));
+		self::assertEquals('', Path::format('', Path::FORMAT_RIGHT_DELIMITER));
+		self::assertEquals('', Path::format('/', Path::FORMAT_RIGHT_DELIMITER));
 		self::assertEquals('/xxx/', Path::format('/xxx/', Path::FORMAT_BOTH_DELIMITERS));
 	}
 	
@@ -197,6 +197,21 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		self::assertEquals('a', $path->getBasePath());
 		$path->setBasePath(new Path('b'));
 		self::assertEquals('a/b', $path->getBasePath());
+	}
+	
+	public function testSetPathList()
+	{
+		$this->object->setPathList(array());
+		self::assertEquals(0, $this->object->getDepth());
+		
+		$this->object->setPathList(array('', ''));
+		self::assertEquals(0, $this->object->getDepth());
+		
+		$this->object->setPathList(array('a', '', 'b'));
+		self::assertEquals(2, $this->object->getDepth());
+		
+		$this->object->setPathList(array('a', '0', 'b'));
+		self::assertEquals(3, $this->object->getDepth());
 	}
 
 }

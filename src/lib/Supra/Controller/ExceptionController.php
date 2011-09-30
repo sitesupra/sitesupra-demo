@@ -45,10 +45,13 @@ class ExceptionController extends ControllerAbstraction
 			
 			if ($this->exception instanceof namespace\Exception\ResourceNotFoundException) {
 				$response->setCode(404);
+				$response->output("404 PAGE NOT FOUND\n\n");
 			} else if ($this->exception instanceof AccessDeniedException) {
 				$response->setCode(403);
+				$response->output("403 FORBIDDEN\n\n");
 			} else {
 				$response->setCode(500);
+				$response->output("500 INTERNAL SERVER ERROR\n\n");
 			}
 		}
 		

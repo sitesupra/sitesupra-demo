@@ -167,10 +167,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				
 				path = fullpath.reverse().join('/');
 				path = path && path != '/' ? path + '/' : '/';
-				
-				if (data.basePath != '') {
-					path = path + data.basePath + '/';
-				}
+				path = path + data.basePath;
 
 				path_input.show();
 				path_input.set('path', path);

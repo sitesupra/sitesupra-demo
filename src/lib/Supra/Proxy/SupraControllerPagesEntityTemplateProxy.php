@@ -246,6 +246,18 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function setRevisionId($revisionId)
+    {
+        $this->__load();
+        return parent::setRevisionId($revisionId);
+    }
+
+    public function getRevisionId()
+    {
+        $this->__load();
+        return parent::getRevisionId();
+    }
+
     public function getId()
     {
         $this->__load();

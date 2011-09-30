@@ -70,14 +70,13 @@ class Path
 	public function setPath($path)
 	{
 		$path = trim($path, $this->separator);
+		$pathList = array();
 		
-		if ($path == '') {
-			$this->path = array();
-		} else {
-			$this->path = explode($this->separator, $path);
+		if ($path !== '') {
+			$pathList = explode($this->separator, $path);
 		}
 		
-		$this->setDepth(count($this->path));
+		$this->setPathList($pathList);
 	}
 
 	/**
@@ -99,17 +98,24 @@ class Path
 	 */
 	public static function format($string, $format, $separator = '/')
 	{
-		if ($format == self::FORMAT_NO_DELIMITERS) {
-			$string = trim($string, $separator);
-		} else {
-
-			if ($format & self::FORMAT_LEFT_DELIMITER) {
-				$string = $separator . ltrim($string, $separator);
+		// Trim
+		$string = trim($string, $separator);
+		
+		// Empty path case
+		if ($string === '') {
+			if ($format == self::FORMAT_BOTH_DELIMITERS) {
+				return $separator;
+			} else {
+				return $string;
 			}
-
-			if ($format & self::FORMAT_RIGHT_DELIMITER) {
-				$string = rtrim($string, $separator) . $separator;
-			}
+		}
+		
+		// Add delimiters
+		if ($format & self::FORMAT_LEFT_DELIMITER) {
+			$string = $separator . $string;
+		}
+		if ($format & self::FORMAT_RIGHT_DELIMITER) {
+			$string = $string . $separator;
 		}
 		
 		return $string;
@@ -128,7 +134,15 @@ class Path
 	 */
 	public function setPathList(array $pathList)
 	{
+		// Remove empty elements
+		foreach ($pathList as $pathIndex => $pathValue) {
+			if ($pathValue === '') {
+				unset($pathList[$pathIndex]);
+			}
+		}
+		
 		$this->path = $pathList;
+		$this->setDepth(count($this->path));
 	}
 
 	/**
@@ -238,8 +252,9 @@ class Path
 
 		// Remove the base path part
 		$pathDepth = $path->getDepth();
-		$this->path = array_slice($this->path, $pathDepth);
-		$this->setDepth(count($this->path));
+		
+		$pathList = array_slice($this->path, $pathDepth);
+		$this->setPathList($pathList);
 	}
 	
 	/**
@@ -342,7 +357,8 @@ class Path
 	 */
 	public function append(Path $path)
 	{
-		$this->path = array_merge($this->path, $path->basePathParts, $path->path);
+		$pathList = array_merge($this->path, $path->basePathParts, $path->path);
+		$this->setPathList($pathList);
 		
 		return $this;
 	}

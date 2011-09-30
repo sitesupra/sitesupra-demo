@@ -236,12 +236,10 @@ class FixtureHelper
 		$em->beginTransaction();
 		$publicEm->beginTransaction();
 		
-		$pageIdList = array($this->template->getParent()->getId(), 
-			$this->template->getId(), 
-			$rootPage->getId(), 
-			$page->getId(),
-			$page2->getId());
-
+		// Strange enough this script doesn't care about publishing order much
+		$pageIdList = $em->createQuery("SELECT p.id FROM " . Entity\Abstraction\AbstractPage::CN() . " p ORDER BY p.left ASC")
+				->getResult(Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
+		
 		try {
 			foreach ($pageIdList as $pageId) {
 

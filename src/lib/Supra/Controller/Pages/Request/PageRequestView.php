@@ -50,15 +50,14 @@ class PageRequestView extends PageRequest
 	 */
 	protected function detectRequestPageLocalization()
 	{
-		$action = $this->getActionString();
-		$action = trim($action, '/');
+		$path = $this->getPath();
 
 		$em = $this->getDoctrineEntityManager();
 		$er = $em->getRepository(Entity\PageLocalization::CN());
 
 		$searchCriteria = array(
 			'locale' => $this->getLocale(),
-			'path' => $action,
+			'path' => $path->getPath(),
 		);
 
 		//TODO: think about "enable path params" feature
@@ -69,16 +68,11 @@ class PageRequestView extends PageRequest
 		if (empty($pageData)) {
 			//TODO: 404 page
 
-			// for better exception message presentation
-			if(empty($action)) {
-				$action = '/';
-			}
-
-			throw new ResourceNotFoundException("No page found by path '$action' in pages controller");
+			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
 		}
 		
 		if ( ! $pageData->isActive()) {
-			throw new ResourceNotFoundException("Page found by path '$action' in pages controller but is inactive");
+			throw new ResourceNotFoundException("Page found by path '$path' in pages controller but is inactive");
 		}
 		
 		return $pageData;

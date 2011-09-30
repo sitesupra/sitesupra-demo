@@ -119,7 +119,7 @@ class SitemapAction extends PageManagerAction
 			'template' => $templateId,
 			'path' => $pathPart,
 			// Additional base path received from application
-			'basePath' => $applicationBasePath->getFullPath(),
+			'basePath' => $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER),
 			
 			// TODO: hardcoded
 			'icon' => 'page',
