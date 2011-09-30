@@ -13,7 +13,8 @@ SU('dd-drag', function (Y) {
 		'{pagecontent}includes/contents/gallery.js',
 		'{pagecontent}includes/plugin-properties.js',
 		'{pagecontent}includes/plugin-droptarget.js',
-		'{pagecontent}includes/iframe.js'
+		'{pagecontent}includes/iframe.js',
+		'{pagecontent}includes/contents.js'
 	];
 
 	//Shortcut
@@ -72,6 +73,15 @@ SU('dd-drag', function (Y) {
 		
 		
 		/**
+		 * IframeHandler class instance
+		 * Handles all interactions with iframe
+		 * @type {Object}
+		 */
+		iframe_handler: null,
+		
+		
+		
+		/**
 		 * Initialize
 		 * @private
 		 */
@@ -93,7 +103,7 @@ SU('dd-drag', function (Y) {
 			Y.Get.script(args, {
 				'onSuccess': function () {
 					//Create classes
-					SU('supra.page-iframe', 'supra.plugin-layout', Y.bind(function () {
+					SU('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
 						this.dependancies_loaded = true;
 						this.ready();
 					}, this));
@@ -119,51 +129,13 @@ SU('dd-drag', function (Y) {
 		},
 		
 		/**
-		 * Returns PageIframe content object
-		 * 
-		 * @return Iframe object
-		 * @type {Object}
-		 */
-		getIframe: function () {
-			return this.iframeObj;
-		},
-		
-		/**
 		 * Returns iframe contents object
 		 * 
 		 * @return IframeContents object
 		 * @type {Object}
 		 */
-		getContentContainer: function () {
-			return this.getIframe().contents;
-		},
-		
-		/**
-		 * Returns all non-list content blocks
-		 */
-		getContentBlocks: function (container, ret) {
-			if (!container) container = this.getContentContainer().contentBlocks;
-			if (!ret) var ret = {};
-			
-			for(var id in container) {
-				if (!container[id].isInstanceOf('page-content-list')) {
-					ret[id] = container[id];
-				} else if (container[id].children) {
-					this.getContentBlocks(container[id].children, ret);
-				}
-			}
-			
-			return ret;
-		},
-		
-		/**
-		 * Returns active content object
-		 * 
-		 * @return Active content, Action.Proto instance
-		 * @type {Object}
-		 */
-		getActiveContent: function () {
-			return this.iframeObj.contents.get('activeContent');
+		getContent: function () {
+			return this.iframe_handler.getContent();
 		},
 		
 		/**
@@ -184,7 +156,7 @@ SU('dd-drag', function (Y) {
 		},
 		onStartEditingRoute: function (req) {
 			if (!this.editing) {
-				if (!this.iframeObj) {
+				if (!this.iframe_handler) {
 					this.edit_on_ready = true;
 					return;
 				}
@@ -195,7 +167,7 @@ SU('dd-drag', function (Y) {
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 				
 				//Enable highlights
-				this.getContentContainer().set('highlight', false);
+				this.getContent().set('highlight', false);
 			}
 			
 			if (req) req.next();
@@ -218,10 +190,10 @@ SU('dd-drag', function (Y) {
 		onStopEditingRoute: function (req) {
 			if (this.editing) {
 				this.editing = false;
-				Manager.PageContent.getIframe().contents.set('activeContent', null);
+				Manager.PageContent.iframe_handler.getContent().set('activeChild', null);
 				
 				//Disable highlights
-				this.getContentContainer().set('highlight', true);
+				this.getContent().set('highlight', true);
 			}
 			
 			if (req) req.next();
@@ -247,31 +219,31 @@ SU('dd-drag', function (Y) {
 			//Wait till page data and dependancies are loaded
 			if (!page_data || !this.dependancies_loaded) return;
 			
-			if (!this.iframeObj) {
-				this.iframeObj = new this.Iframe({
+			if (!this.iframe_handler) {
+				this.iframe_handler = new this.IframeHandler({
 					'srcNode': this.one(),
 					'html': page_data.internal_html,
 					'contentData': page_data.contents
 				});
 				
 				//Render iframe
-				this.iframeObj.render();
+				this.iframe_handler.render();
 				
-				this.iframeObj.on('activeContentChange', function (evt) {
-					this.fire('activeContentChange', evt);
+				this.iframe_handler.on('activeChildChange', function (evt) {
+					this.fire('activeChildChange', evt);
 				}, this);
 				
 				//Show iframe when action is shown / hidden
 				this.on('visibleChange', function (evt) {
 					if (evt.newVal != evt.prevVal) {
-						this.iframeObj.set('visible', evt.newVal);
+						this.iframe_handler.set('visible', evt.newVal);
 					}
 				}, this);
 				
 				//Media library handle file insert
 				var mediasidebar = Manager.getAction('MediaSidebar');
 				mediasidebar.on('insert', function (event) {
-					var content = this.getActiveContent();
+					var content = this.getContent().get('activeChild');
 					if (content && 'editor' in content) {
 						var data = event.image;
 						content.editor.exec('insertimage', data);
@@ -283,13 +255,13 @@ SU('dd-drag', function (Y) {
 				//If editing was called before content was ready or there is a route path
 				//then call it now
 				if (this.edit_on_ready || this.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
-					this.iframeObj.after('ready', function () {
+					this.iframe_handler.after('ready', function () {
 						this.onStartEditingRoute();
 					}, this);
 				}
 			} else {
-				this.iframeObj.set('contentData', page_data.contents);
-				this.iframeObj.setHTML(page_data.internal_html);
+				this.iframe_handler.set('contentData', page_data.contents);
+				this.iframe_handler.setHTML(page_data.internal_html);
 			}
 		},
 		
@@ -338,7 +310,7 @@ SU('dd-drag', function (Y) {
 				});
 				
 				//Show overlay, otherwise it's not possible to drag over iframe
-				this.iframeObj.set('overlayVisible', true);
+				this.iframe_handler.set('overlayVisible', true);
 	        }, this);
 			
 	        dd.on('drag:end', function(e) {
@@ -346,7 +318,7 @@ SU('dd-drag', function (Y) {
 				
 				var x = e.pageX, y = e.pageY;
 				var r = Y.DOM._getRegion(y, x+1, y+1, x);
-				var target = this.iframeObj.get('srcNode');
+				var target = this.iframe_handler.get('srcNode');
 				
 				if (target.inRegion(r)) {
 					var xy = target.getXY();
@@ -374,7 +346,7 @@ SU('dd-drag', function (Y) {
 				item.node.setStyles({'left': 'auto', 'top': 'auto'});
 				
 				//Hide overlay to allow interacting with content
-				this.iframeObj.set('overlayVisible', false);
+				this.iframe_handler.set('overlayVisible', false);
 	        }, this);
 		},
 		
@@ -384,13 +356,13 @@ SU('dd-drag', function (Y) {
 		 */
 		render: function () {
 			this.on('dragstart', function (e) {
-				this.getContentContainer().fire('block:dragstart', e);
+				this.getContent().fire('block:dragstart', e);
 			}, this);
 			this.on('dragend', function () {
-				this.getContentContainer().set('highlight', false);
+				this.getContent().set('highlight', false);
 			}, this);
 			this.on('dragend:hit', function (e) {
-				return this.getContentContainer().fire('block:dragend', e);
+				return this.getContent().fire('block:dragend', e);
 			}, this);
 			
 			//Add toolbar buttons
@@ -432,9 +404,9 @@ SU('dd-drag', function (Y) {
 		 * @type {Boolean}
 		 */
 		hasUnsavedChanges: function () {
-			var blocks = this.getContentBlocks();
-			for(var id in blocks) {
-				if (blocks[id].get('changed')) return true;
+			var children = this.getContent().getAllChildren();
+			for(var child_id in children) {
+				if (children[child_id].get('changed')) return true;
 			}
 			return false;
 		},

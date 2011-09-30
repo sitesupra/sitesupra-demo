@@ -352,7 +352,20 @@ YUI.add('supra.page-content-editable', function (Y) {
 				return this.properties.get('normalChanged') || this.properties.get('inlineChanged');
 			}
 			return false;
-		}
+		},
+		
+		/**
+		 * Destructor
+		 * 
+		 * @private
+		 */
+		beforeDestroy: function () {
+			delete(this.inline_inputs);
+			delete(this.active_inline_input);
+			delete(this.html_inputs);
+			
+			ContentEditable.superclass.beforeDestroy.apply(this, arguments);
+		},
 	});
 	
 	Action.Editable = ContentEditable;

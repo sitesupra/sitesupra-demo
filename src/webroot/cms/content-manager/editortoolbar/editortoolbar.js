@@ -120,13 +120,13 @@ SU('transition', 'supra.htmleditor', function (Y) {
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
 				'callback': Y.bind(function () {
-					var active_content = Manager.PageContent.getActiveContent();
+					var active_content = Manager.PageContent.getContent().get('activeChild');
 						active_content.fire('block:save');
 				}, this)
 			}/*, {
 				'id': 'close',
 				'callback': Y.bind(function () {
-					var active_content = Manager.PageContent.getActiveContent();
+					var active_content = Manager.PageContent.getContent().get('activeChild');
 						active_content.fire('block:cancel');
 				}, this)
 			}*/]);

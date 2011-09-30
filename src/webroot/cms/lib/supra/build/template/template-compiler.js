@@ -463,6 +463,30 @@ YUI.add('supra.template-compiler', function (Y) {
 			 */
 			'intl': function (ns) {
 				return Supra.Intl.get(ns.split('.'));
+			},
+			
+			/**
+			 * Y.DataType.Date.reformat
+			 * Returns formated date
+			 * 
+			 * @param {String} date Date
+			 * @return Formated date
+			 * @type {String}
+			 */
+			'date': function (date) {
+				return Y.DataType.Date.reformat(date, 'in_date', 'out_date');
+			},
+			'datetime': function (date) {
+				return Y.DataType.Date.reformat(date, 'in_datetime', 'out_datetime');
+			},
+			'datetime_short': function (date) {
+				return Y.DataType.Date.reformat(date, 'in_datetime_short', 'out_datetime_short');
+			},
+			'time': function (date) {
+				return Y.DataType.Date.reformat(date, 'in_time', 'out_time');
+			},
+			'time_short': function (date) {
+				return Y.DataType.Date.reformat(date, 'in_time_short', 'time_short');
 			}
 		},
 		

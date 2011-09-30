@@ -122,16 +122,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		overlay: null,
 		
 		
-		/**
-		 * Returns block type
-		 * 
-		 * @return Block type
-		 * @type {String}
-		 */
-		getType: function () {
-			var data = this.get('data');
-			return (data ? data.type : null);
-		},
 		
 		/**
 		 * Returns block instance ID (content ID)
@@ -145,23 +135,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Returns block title
-		 * 
-		 * @return Block title
-		 * @type {String}
-		 */
-		getTitle: function () {
-			return this.getBlock().title;
-		},
-		
-		/**
 		 * Returns container node ID which is inside content
 		 * 
 		 * @return Container node ID
 		 * @type {String}
 		 */
 		getNodeId: function () {
-			var id = 'content_' + this.getType() + '_' + this.getId();
+			var id = 'content_' + this.getBlockType() + '_' + this.getId();
 			return id;
 		},
 		
@@ -179,12 +159,33 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Returns block type
+		 * 
+		 * @return Block type
+		 * @type {String}
+		 */
+		getBlockType: function () {
+			var data = this.get('data');
+			return (data ? data.type : null);
+		},
+		
+		/**
+		 * Returns block title
+		 * 
+		 * @return Block title
+		 * @type {String}
+		 */
+		getBlockTitle: function () {
+			return this.getBlockInfo().title;
+		},
+		
+		/**
 		 * Returns block information
 		 * 
 		 * @return Block information
 		 * @type {Object}
 		 */
-		getBlock: function () {
+		getBlockInfo: function () {
 			var data = this.get('data');
 			return data && data.type ? Manager.Blocks.getBlock(data.type) : null;
 		},
@@ -196,7 +197,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {Object}
 		 */
 		getProperties: function () {
-			var block = this.getBlock();
+			var block = this.getBlockInfo();
 			return block ? block.properties : null;
 		},
 		
@@ -315,18 +316,36 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @return Child block
 		 * @type {Object}
 		 */
-		getChildBlockById: function (block_id) {
+		getChildById: function (block_id) {
 			var blocks = this.children,
 				block = null;
 			
 			if (block_id in blocks) return blocks[block_id];
 			
 			for(var i in blocks) {
-				block = blocks[i].getChildBlockById(block_id);
+				block = blocks[i].getChildById(block_id);
 				if (block) return block;
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Returns all children blocks
+		 *
+		 * @param {Object} target Optional. Target object to add children to
+		 * @return Children blocks
+		 * @type {Object}
+		 */
+		getAllChildren: function (target) {
+			var blocks = obj || {},
+				children = this.children;
+			
+			for(var child_id in children) {
+				blocks[child_id] = children[child_id];
+			}
+			
+			return blocks;
 		},
 		
 		
@@ -363,24 +382,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 		bindUI: function () {
 			if (this.get('editable') && this.overlay) {
 				this.overlay.on('click', function() {
-					this.get('super').set('activeContent', this);
+					this.get('super').set('activeChild', this);
 				}, this);
 				
 				//Handle block save / cancel
 				this.on('block:save', function () {
 					// Unset active content
-					if (this.get('super').get('activeContent') === this) {
-						this.get('super').set('activeContent', null);
+					if (this.get('super').get('activeChild') === this) {
+						this.get('super').set('activeChild', null);
 					}
 				});
 				this.on('block:cancel', function () {
 					// Unset active content
 					this.unresolved_changes = false;
-					if (this.get('super').get('activeContent') === this) {
-						this.get('super').set('activeContent', null);
+					if (this.get('super').get('activeChild') === this) {
+						this.get('super').set('activeChild', null);
 					}
 				});
 			}
+			
+			this.before('destroy', this.beforeDestroy, this);
 		},
 		
 		/**
@@ -453,9 +474,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * 
 		 * @private
 		 */
-		destructor: function () {
+		beforeDestroy: function () {
 			if (this.get('editing')) {
-				this.get('super').set('activeContent', null);
+				this.get('super').set('activeChild', null);
 			}
 			
 			var children = this.children;
@@ -466,11 +487,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			if (this.overlay) {
 				this.overlay.remove();
-			}
-			
-			var node = this.getNode();
-			if (node) {
-				node.remove();
 			}
 		},
 		
@@ -573,7 +589,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		_setHighlight: function (value) {
 			if (value) {
-				this.getNode().addClass('yui3-highlight-' + this.getType());
+				this.getNode().addClass('yui3-highlight-' + this.getBlockType());
 				if (this.get('editing')) {
 					this.set('editing', false);
 				}
@@ -581,7 +597,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					this.set('highlightOverlay', false);
 				}
 			} else {
-				this.getNode().removeClass('yui3-highlight-' + this.getType());
+				this.getNode().removeClass('yui3-highlight-' + this.getBlockType());
 			}
 			
 			return !!value;

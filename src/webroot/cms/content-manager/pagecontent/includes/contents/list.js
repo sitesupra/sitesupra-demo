@@ -51,7 +51,7 @@ YUI.add('supra.page-content-list', function (Y) {
 					if (this.children[id].get('editable') && this.children[id].get('dragable')) {
 						overlay = this.children[id].overlay;
 						if (overlay.compareTo(target)) {
-							this.get('super').set('activeContent', this.children[id]);
+							this.get('super').set('activeChild', this.children[id]);
 							break;
 						}
 					}
@@ -90,7 +90,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			});
 			
 			//When new item is created focus on it
-			this.get('super').set('activeContent', block);
+			this.get('super').set('activeChild', block);
 		},
 		
 		/**
@@ -319,8 +319,13 @@ YUI.add('supra.page-content-list', function (Y) {
 			}
 		},
 		
-		destructor: function () {
-			ContentList.superclass.destructor.apply(this, arguments);
+		/**
+		 * Destructor
+		 * 
+		 * @private
+		 */
+		beforeDestroy: function () {
+			ContentList.superclass.beforeDestroy.apply(this, arguments);
 			
 			if (this.drag_delegate) {
 				this.drag_delegate.destroy();

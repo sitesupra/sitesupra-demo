@@ -170,7 +170,8 @@ YUI.add('supra.intl', function (Y) {
 		replace: function (template /* Template */, escape /* Escape type*/) {
 			var self = this;
 			return template.replace(/{#([^#]+)#}/g, function (all, key) {
-				var ret = self.get(key.split('.')) || all;
+				var key = Y.Lang.trim(key),
+					ret = self.get(key.split('.')) || all;
 				
 				if (escape == 'json') { //Escape as JSON string without leading and trailing quotes
 					ret = Y.JSON.stringify(ret).replace(/^"|"$/g, '');

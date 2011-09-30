@@ -1,0 +1,28 @@
+<div class="yui3-page-history">
+	
+	<!-- Form header -->
+	<h2 class="yui3-sidebar-header">{# history.title #}</h2>
+	
+	<!-- Buttons -->
+	<div class="yui3-sidebar-buttons hidden">
+		<button type="button" class="button-back"><p>{# buttons.back #}</p></button>
+	</div>
+	
+	<div class="yui3-sidebar-content scrollable has-header loading">
+	
+		<ul class="history-list loading"></ul>
+		
+		<script type="text/html" id="pageHistoryListItem">
+			{% for item in items %}
+			<li data-id="{{ item.version_id|e }}">
+				<span>
+					{# history.by #} {{ item.author_fullname|e }}
+					<span>{# history.on #} {{ item.date|datetime_short }}</span>
+				</span>
+			</li>
+			{% endfor %}
+		</script>
+	
+	</div>
+	
+</div>

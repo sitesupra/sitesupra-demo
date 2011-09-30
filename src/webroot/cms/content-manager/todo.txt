@@ -1,4 +1,0 @@
-Add:
-
-	Start loading action after 0ms timeout and use one request for all actions instead
-	of 1 request per action

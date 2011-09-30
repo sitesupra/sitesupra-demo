@@ -4,7 +4,7 @@
 /*
  * SU.Manager.PageContent.Iframe
  */
-YUI.add('supra.page-iframe', function (Y) {
+YUI.add('supra.iframe-handler', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
@@ -14,14 +14,14 @@ YUI.add('supra.page-iframe', function (Y) {
 	/*
 	 * Iframe
 	 */
-	function PageIframe (config) {
-		PageIframe.superclass.constructor.apply(this, arguments);
+	function IframeHandler (config) {
+		IframeHandler.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
 	
-	PageIframe.NAME = 'page-iframe';
-	PageIframe.CLASS_NAME = Y.ClassNameManager.getClassName(PageIframe.NAME);
-	PageIframe.ATTRS = {
+	IframeHandler.NAME = 'page-iframe';
+	IframeHandler.CLASS_NAME = Y.ClassNameManager.getClassName(IframeHandler.NAME);
+	IframeHandler.ATTRS = {
 		/**
 		 * Iframe element
 		 */
@@ -62,7 +62,7 @@ YUI.add('supra.page-iframe', function (Y) {
 		}
 	};
 	
-	PageIframe.HTML_PARSER = {
+	IframeHandler.HTML_PARSER = {
 		'nodeIframe': function (srcNode) {
 			var iframe = srcNode.one('iframe');
 			this.set('nodeIframe', iframe);
@@ -70,7 +70,7 @@ YUI.add('supra.page-iframe', function (Y) {
 		}
 	};
 	
-	Y.extend(PageIframe, Y.Widget, {
+	Y.extend(IframeHandler, Y.Widget, {
 		
 		/**
 		 * Iframe overlay, used for D&D to allow dragging over iframe
@@ -78,28 +78,168 @@ YUI.add('supra.page-iframe', function (Y) {
 		 */
 		overlay: null,
 		
+		/**
+		 * Add script to the page content
+		 *
+		 * @param {String} src SRC attribute value
+		 * @return Newly created script element
+		 * @type {HTMLElement}
+		 */
 		addScript: function (src) {
 			var doc = this.get('doc');
 			var script = doc.createElement('script');
 				script.type = "text/javascript";
 				script.href = src;
 			
-			doc.getElementsByTagName('HEAD')[0].appendChild(script); 
+			doc.getElementsByTagName('HEAD')[0].appendChild(script);
+			return script; 
 		},
 		
+		/**
+		 * Add stylesheet link to the page content
+		 *
+		 * @param {String} href HREF attribute value
+		 * @return Newly created link element or null if link elements already exists
+		 * @type {HTMLElement}
+		 */
 		addStyleSheet: function (href) {
+			//If link already exists then don't add it
+			if (Y.Node(this.get('doc')).one('link[href="' + href + '"]')) {
+				return null;
+			}
+			
 			var doc = this.get('doc');
 			var link = doc.createElement('link');
 				link.rel = "stylesheet";
 				link.type = "text/css";
 				link.href = href;
-				
+			
 			doc.getElementsByTagName('HEAD')[0].appendChild(link);
 			return link;
 		},
 		
+		
+		/**
+		 * Create contents object
+		 */
+		createContent: function () {
+			//Add contents
+			var body = new Y.Node(this.get('doc').body);
+			
+			if (this.contents) this.contents.destroy();
+			this.contents = new Action.IframeContents({'iframe': this, 'doc': this.get('doc'), 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
+			this.contents.render();
+			
+			//Disable editing
+			this.contents.set('highlight', true);
+			
+			this.contents.on('activeChildChange', function (event) {
+				if (event.newVal) {
+					Action.startEditing();
+				}
+			});
+			this.contents.after('activeChildChange', function (event) {
+				this.fire('activeChildChange', {newVal: event.newVal, prevVal: event.prevVal});
+			}, this);
+			
+			//Trigger ready event
+			this.fire('ready', {'iframe': this, 'body': body});
+		},
+		
+		/**
+		 * Destroy contents object
+		 */
+		destroyContent: function () {
+			if (this.contents) {
+				this.contents.destroy();
+				this.contents = null;
+			}
+			
+			var doc = this.get('doc');
+			if (doc) {
+				//Remove all listeners
+				Y.one(doc).purge();
+			}
+		},
+		
+		/**
+		 * Returns content object
+		 *
+		 * @return Content object instance
+		 * @type {Object}
+		 */
+		getContent: function () {
+			return this.contents;
+		},
+		
+		/**
+		 * On HTML attribute change update iframe content and page content blocks
+		 * 
+		 * @param {String} html
+		 * @param {Boolean} preview_only Set only HTML, but it shouldn't be editable
+		 * @return HTML
+		 * @type {String}
+		 * @private
+		 */
+		setHTML: function (html, preview_only) {
+			//Set attribute
+			this.set('html', html);
+			
+			//Clean up
+			this.destroyContent();
+			
+			//Save document & window instances
+			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var doc = win.document;
+			this.set('win', win);
+			this.set('doc', doc);
+			
+			//Change iframe HTML
+			doc.open();
+			doc.writeln(html);
+			doc.close();
+			
+			//Small delay before continue
+			Y.later(50, this, function () {
+				this._afterSetHTML(preview_only);
+			});
+			
+			return html;
+		},
+		
+		/**
+		 * Show preview of the version
+		 *
+		 * @param {String} version_id
+		 */
+		showVersionPreview: function (version_id, callback, context) {
+			var url = Manager.Page.getDataPath('version-preview');
+			Supra.io(url, {
+				'data': {
+					'page_id': Manager.Page.getPageData().id,
+					'version_id': version_id,
+					'locale': Supra.data.get('locale')
+				},
+				'context': this,
+				'on': {
+					'success': function (data, status) {
+						if (data) {
+							this.setHTML(data.internal_html, true);
+						}
+						
+						if (Y.Lang.isFunction(callback)) {
+							callback.call(context || window, data);
+						}
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Render UI
+		 */
 		renderUI: function () {
-			PageIframe.superclass.renderUI.apply(this, arguments);
+			IframeHandler.superclass.renderUI.apply(this, arguments);
 
 			var cont = this.get('contentBox');
 			var iframe = this.get('nodeIframe');
@@ -127,34 +267,29 @@ YUI.add('supra.page-iframe', function (Y) {
 		},
 		
 		/**
-		 * Prevent user from leaving page by disabling links 
-		 * and inputs, which will prevent from submit
+		 * Prevent user from leaving page by preventing 
+		 * default link and form behaviour
 		 * 
 		 * @private
 		 */
-		_preventFromLeaving: function (body) {
-			//Prevent from leaving page 
-			var links = body.all('a');
-			
-			for(var i=0,ii=links.size(); i<ii; i++) {
-				var link = links.item(i);
-				link.removeAttribute('onclick');
-			}
+		_handleContentElementBehaviour: function (body) {
+			//Links
 			Y.delegate('click', function (e) {
 				e.preventDefault();
 			}, body, 'a');
 			
-			var inputs = body.all('input,button,select,textarea');
-			
-			for(var i=0,ii=inputs.size(); i<ii; i++) {
-				inputs.item(i).set('disabled', true);
-			}
+			//Forms
+			Y.delegate('submit', function (e) {
+				e.preventDefault();
+			}, body, 'form');
 		},
 		
 		/**
 		 * Wait till stylesheets are loaded
+		 * 
+		 * @private
 		 */
-		_onStylesheetLoad: function (links, body) {
+		_onStylesheetLoad: function (links) {
 			var fn = Y.bind(function () {
 				var loaded = true;
 				for(var i=0,ii=links.length; i<ii; i++) {
@@ -165,26 +300,7 @@ YUI.add('supra.page-iframe', function (Y) {
 				}
 				
 				if (loaded) {
-					//Add contents
-					if (this.contents) this.contents.destroy();
-					this.contents = new PageContents({'iframe': this, 'doc': this.get('doc'), 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
-					this.contents.render();
-					
-					//Disable editing
-					this.contents.set('highlight', true);
-					
-					this.contents.on('activeContentChange', function (event) {
-						if (event.newVal) {
-							Action.startEditing();
-						}
-					});
-					this.contents.after('activeContentChange', function (event) {
-						this.fire('activeContentChange', {newVal: event.newVal, prevVal: event.prevVal});
-					}, this);
-					
-					//Trigger ready event
-					this.fire('ready', {'iframe': this, 'body': body});
-			
+					this.createContent();
 				} else {
 					setTimeout(fn, 50);
 				}
@@ -192,15 +308,22 @@ YUI.add('supra.page-iframe', function (Y) {
 			setTimeout(fn, 50);
 		},
 		
-		_afterSetHTML: function () {
+		/**
+		 * Get all existing stylesheets, add new ones and wait till they are loaded
+		 * 
+		 * @private
+		 */
+		_afterSetHTML: function (preview_only) {
 			var doc = this.get('doc'),
 				body = new Y.Node(doc.body);
 			
-			this._preventFromLeaving(body);
+			this._handleContentElementBehaviour(body);
 			
 			//Get all stylesheet links
 			var links = [],
-				elements = Y.Node(doc).all('link[rel="stylesheet"]');
+				elements = Y.Node(doc).all('link[rel="stylesheet"]'),
+				app_path = null,
+				link = null;
 			
 			for(var i=0,ii=elements.size(); i<ii; i++) {
 				links.push(Y.Node.getDOMNode(elements.item(i)));
@@ -208,487 +331,31 @@ YUI.add('supra.page-iframe', function (Y) {
 			
 			//Add stylesheets to iframe
 			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				var app_path = Supra.data.get(['application', 'path']);
-				links.push(this.addStyleSheet(app_path + "/pagecontent/iframe.css"));
+				app_path = Supra.data.get(['application', 'path']);
+				link = this.addStyleSheet(app_path + "/pagecontent/iframe.css");
+				if (link) {
+					links.push(link);
+				}
 			}
 			
-			//Reset DD
-			Action.resetDD(doc);
-			
-			//When stylesheets are loaded initialize PageContents
-			this._onStylesheetLoad(links, body);
-		},
-		
-		/**
-		 * On HTML attribute change update iframe content and page content blocks
-		 * 
-		 * @param {String} html
-		 * @return HTML
-		 * @type {String}
-		 * @private
-		 */
-		setHTML: function (html) {
-			//Set attribute
-			this.set('html', html);
-			
-			//Clean up
-			this._unsetHTML();
-			
-			//Save document & window instances
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
-			var doc = win.document;
-			this.set('win', win);
-			this.set('doc', doc);
-			
-			//Change iframe HTML
-			doc.open();
-			doc.writeln(html);
-			doc.close();
-			
-			//Small delay before continue
-			Y.later(50, this, this._afterSetHTML);
-			
-			return html;
-		},
-		
-		/**
-		 * Clean up before HTML change
-		 * 
-		 * @private
-		 */
-		_unsetHTML: function () {
-			if (this.contents) {
-				this.contents.destroy();
-				this.contents = null;
-			}
-			
-			var doc = this.get('doc');
-			if (doc) {
-				Y.one(doc).purge();
+			//In preview mode there is no drag and drop and no editing
+			if (!preview_only) {
+				//Reset DD
+				Action.resetDD(doc);
+				
+				//When stylesheets are loaded initialize IframeContents
+				this._onStylesheetLoad(links, body);
 			}
 		}
 		
 	});
 	
-	Action.Iframe = PageIframe;
+	Manager.PageContent.IframeHandler = IframeHandler;
 	
 	
-	
-	/*
-	 * Editable content
-	 */
-	function PageContents (config) {
-		PageContents.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-	}
-	
-	PageContents.NAME = 'page-iframe-contents';
-	PageContents.CLASS_NAME = Y.ClassNameManager.getClassName(PageContents.NAME);
-	PageContents.ATTRS = {
-		'iframe': {
-			value: null
-		},
-		'win': {
-			value: null,
-		},
-		'doc': {
-			value: null,
-		},
-		'body': {
-			value: null
-		},
-		'contentData': {
-			value: null
-		},
-		'disabled': {
-			value: false
-		},
-		'activeContent': {
-			value: null
-		},
-		/*
-		 * Highlight list nodes
-		 */
-		'highlight': {
-			value: false,
-			setter: '_setHighlight'
-		}
-	};
-	
-	Y.extend(PageContents, Y.Base, {
-		contentBlocks: {},
-		
-		/**
-		 * On URI change to /22/edit unset active content
-		 *
-		 * @param {Object} req Routing request
-		 */
-		routeMain: function (req) {
-			if (this.get('activeContent')) {
-				this.set('activeContent', null);
-			}
-			
-			if (req && req.next) req.next();
-		},
-		
-		/**
-		 * On URI change to /22/edit/111 set active content
-		 *
-		 * @param {Object} req Routing request
-		 */
-		routeBlock: function (req) {
-			var block_id = req.params.block_id;
-			var block_old = this.get('activeContent');
-			var block_new = block_id ? this.getChildBlockById(block_id) : null;
-			
-			if (block_old && block_old.get('data').id != block_id) {
-				this.set('activeContent', block_new);
-			} else if (!block_old && block_new) {
-				this.set('activeContent', block_new);
-			}
-			
-			if (req && req.next) req.next();
-		},
-		
-		
-		bindUI: function () {
-			
-			//Set 'editing' attribute after content changes
-			this.after('activeContentChange', function (evt) {
-				if (evt.newVal !== evt.prevVal) {
-					if (evt.prevVal && evt.prevVal.get('editing')) {
-						evt.prevVal.set('editing', false);
-						
-						//Route to /22/edit
-						if (!evt.newVal || !evt.newVal.get('editable')) {
-							var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
-							Root.save(uri);
-						}
-					}
-					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
-						evt.newVal.set('editing', true);
-						
-						//Route to /22/edit/111
-						var uri = Root.ROUTE_PAGE_CONT.replace(':page_id', Manager.Page.getPageData().id)
-													  .replace(':block_id', evt.newVal.get('data').id);
-						
-						Root.save(uri);
-					}
-				}
-			});
-			
-			//Routing
-			Root.route(Root.ROUTE_PAGE_EDIT, Y.bind(this.routeMain, this));
-			Root.route(Root.ROUTE_PAGE_CONT, Y.bind(this.routeBlock, this));
-			
-			//Restore state
-			this.get('iframe').on('ready', function () {
-				var m = null;
-				if (m = Root.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
-					var block = this.getChildBlockById(m[1]);
-					if (block) {
-						//Need delay to make sure editing state is correctly set
-						//needed only if settings immediately after load
-						Y.later(1, this, function () {
-							this.set('activeContent', block);
-						});
-					}
-				}
-			}, this);
-			
-			
-			//Bind block D&D
-			this.on('block:dragend', function (e) {
-				if (e.block) {
-					var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]);
-					for(var i in this.contentBlocks) {
-						var node = this.contentBlocks[i].getNode(),
-							intersect = node.intersect(region);
-						
-						if (intersect.inRegion && this.contentBlocks[i].isChildTypeAllowed(e.block.id)) {
-							return this.contentBlocks[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block});
-						}
-					}
-				}
-			}, this);
-			
-			this.on('block:dragstart', function (e) {
-				//Only if dragging block
-				if (e.block) {
-					this.set('highlight', true);
-					var type = e.block.id;
-					
-					for(var i in this.contentBlocks) {
-						if (this.contentBlocks[i].isChildTypeAllowed(type)) {
-							this.contentBlocks[i].set('highlight', true);
-						}
-					}
-				}
-			}, this);
-			
-			this.once('destroy', this.beforeDestroy, this);
-			
-			//Fix context
-			var win = this.get('iframe').get('win');
-			this.onResize = Y.throttle(Y.bind(this.onResize, this), 50);
-			Y.on('resize', this.onResize, win);
-		},
-		
-		/**
-		 * On resize sync overlay position
-		 */
-		onResize: function () {
-			for(var i in this.contentBlocks) {
-				this.contentBlocks[i].syncOverlayPosition();
-			}
-		},
-		
-		/**
-		 * Create children
-		 * 
-		 * @param {Object} data
-		 * @private
-		 */
-		createChildren: function (data) {
-			var data = data || this.get('contentData');
-			if (data) {
-				var body = this.get('body');
-				var doc = this.get('doc');
-				var win = this.get('win');
-				
-				for(var i=0,ii=data.length; i<ii; i++) {
-					
-					var type = data[i].type;
-					var properties = Manager.Blocks.getBlock(type);
-					var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
-					
-					if (classname in Action) {
-						var block = this.contentBlocks[data[i].id] = new Action[classname]({
-							'doc': doc,
-							'win': win,
-							'body': body,
-							'data': data[i],
-							'parent': null,
-							'super': this,
-							'dragable': !data[i].locked,
-							'editable': !data[i].locked
-						});
-						block.render();
-					} else {
-						Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
-					}
-					
-				}
-			}
-		},
-		
-		renderUI: function () {
-			this.createChildren();
-			this.get('body').addClass('yui3-editable');
-		},
-		
-		render: function () {
-			this.renderUI();
-			this.bindUI();
-		},
-		
-		/**
-		 * Loads and returns block data
-		 * 
-		 * @param {Object} data Block information
-		 * @param {Function} callback Callback function
-		 * @param {Object} context
-		 */
-		getBlockInsertData: function (data, callback, context) {
-			var url = Manager.PageContent.getDataPath('insertblock');
-			var page_info = Manager.Page.getPageData();
-			
-			data = Supra.mix({
-				'page_id': page_info.id,
-				'locale': Supra.data.get('locale')
-			}, data);
-			
-			Supra.io(url, {
-				'data': data,
-				'method': 'post',
-				'on': {
-					'success': callback
-				},
-				'context': context
-			});
-		},
-		
-		/**
-		 * Send block delete request
-		 * 
-		 * @param {Object} block
-		 */
-		sendBlockDelete: function (block, callback, context) {
-			var url = Manager.PageContent.getDataPath('deleteblock');
-			var page_info = Manager.Page.getPageData();
-			var data = {
-				'page_id': page_info.id,
-				'block_id': block.getId(),
-				'locale': Supra.data.get('locale')
-			};
-			
-			Supra.io(url, {
-				'data': data,
-				'method': 'post',
-				'on': {
-					'success': callback
-				},
-				'context': context
-			});
-		},
-		
-		/**
-		 * Save block order request
-		 * 
-		 * @param {Object} block
-		 * @param {Object} order
-		 */
-		sendBlockOrder: function (block, order) {
-			var url = Manager.PageContent.getDataPath('orderblocks');
-			var page_info = Manager.Page.getPageData();
-			var data = {
-				'page_id': page_info.id,
-				
-				'place_holder_id': block.getId(),
-				'order': order,
-				
-				'locale': Supra.data.get('locale')
-			};
-			
-			Supra.io(url, {
-				'data': data,
-				'method': 'post'
-			});
-		},
-		
-		/**
-		 * Save block properties
-		 * 
-		 * @param {Object} block Block
-		 * @param {Function} callback Callback function
-		 * @param {Object} context Callback context
-		 */
-		sendBlockProperties: function (block, callback, context) {
-			var url = Manager.PageContent.getDataPath('save'),
-				page_data = Manager.Page.getPageData(),
-				values = block.properties.getValues();
-			
-			//Some inputs (like InlineHTML) needs data to be processed before saving it
-			var save_values = block.properties.getSaveValues();
-			
-			//Allow block to modify data before saving it
-			save_values = block.processData(save_values);
-			
-			var post_data = {
-				'page_id': page_data.id,
-				'block_id': block.getId(),
-				'locale': Supra.data.get('locale'),
-				'properties': save_values
-			};
-			
-			Supra.io(url, {
-				'data': post_data,
-				'method': 'post',
-				'on': {'success': callback}
-			}, context);
-		},
-		
-		/**
-		 * Remove child Supra.Manager.PageContent.Proto object
-		 * 
-		 * @param {Object} child
-		 */
-		removeChild: function (child) {
-			for(var i in this.contentBlocks) {
-				if (this.contentBlocks[i] === child) {
-					
-					//Send request
-					this.sendBlockDelete(child, function () {
-						delete(this.contentBlocks[i]);
-						child.destroy();
-					}, this);
-				}
-			}
-		},
-		
-		/**
-		 * highlight attribute setter
-		 * 
-		 * @param {Boolean} value If true highlight will be shown
-		 * @private
-		 */
-		_setHighlight: function (value) {
-			if (value) {
-				this.set('disabled', true);
-				this.get('body').removeClass('yui3-editable');
-				this.get('body').addClass('yui3-highlight');
-				
-				this.set('activeContent', null);
-			} else {
-				this.set('disabled', false);
-				this.get('body').addClass('yui3-editable');
-				this.get('body').removeClass('yui3-highlight');
-				
-				for (var i in this.contentBlocks) {
-					this.contentBlocks[i].set('highlight', false);
-				}
-			}
-			
-			return !!value;
-		},
-		
-		/**
-		 * Returns child block by ID
-		 *
-		 * @param {String} block_id Block ID
-		 * @return Child block
-		 * @type {Object}
-		 */
-		getChildBlockById: function (block_id) {
-			var blocks = this.contentBlocks,
-				block = null;
-			
-			if (block_id in blocks) return blocks[block_id];
-			
-			for(var i in blocks) {
-				block = blocks[i].getChildBlockById(block_id);
-				if (block) return block;
-			}
-			
-			return null;
-		},
-		
-		beforeDestroy: function () {
-			//Destroy children
-			var child = null,
-				blocks = this.contentBlocks;
-			
-			for(var i in blocks) {
-				child = blocks[i];
-				delete(blocks[i]);
-				child.destroy();
-			}
-			
-			//Unsubscribe resize
-			var win = this.get('iframe').get('win');
-			Y.unsubscribe('resize', this.onResize, win);
-		}
-	});
-	
-	Action.IframeContents = PageContents;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:[
-	'widget',
-	'supra.page-content-list',
-	'supra.page-content-editable',
-	'supra.page-content-gallery'
-]});
+}, YUI.version, {'requires': ['widget']});

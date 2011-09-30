@@ -1,0 +1,52 @@
+.history-list {
+	list-style: none;
+	font-size: 14px;
+	padding: 1px;
+}
+.history-list li h3 {
+	padding: 5px;
+	color: #999;
+}
+.history-list li > span {
+	display: block;
+	padding: 5px 10px 5px 30px;
+	line-height: 20px;
+	cursor: pointer;
+	background: url("/cms/lib/supra/img/tree/page.png") 7px 50% no-repeat;
+}
+.history-list li span > button,
+.history-list li span .yui3-button {
+	display: none;
+}
+.history-list li span .yui3-button {
+	float: right;
+}
+.history-list li span .yui3-button button {
+	vertical-align: top;
+}
+
+.history-list li.loading span {
+	background: url("/cms/lib/supra/img/ajax-loader-24.png") 7px 50% no-repeat;
+}
+.history-list li > span:hover {
+	background-color: #F5F5F5;
+}
+.history-list li.active > span {
+	background-color: #CDECFF;
+}
+.history-list li.active span > span {
+	display: none;
+}
+
+.history-list li.active span > button,
+.history-list li.active span .yui3-button {
+	display: inline-block;
+}
+
+.history-list.loading {
+	background: url("/cms/lib/supra/img/ajax-loader.gif") 50% 50% no-repeat;
+	height: 100%;
+}
+.history-list.loading > li {
+	display: none;
+}

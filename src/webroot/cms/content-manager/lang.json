@@ -184,7 +184,14 @@
 		},
 		
 		"history": {
-			"button": "History"
+			"button": "History",
+			
+			"title": "Page history",
+			"by": "By",
+			"on": "on",
+			
+			"restore": "Restore",
+			"restore_message": "Are you sure?"
 		},
 		
 		"gallerymanager": {

@@ -118,20 +118,20 @@ Supra(function (Y) {
 		 */
 		onIframeReady: function () {
 			var pagecontent = Manager.getAction('PageContent'),
-				iframeObj = pagecontent.iframeObj,
+				iframe_handler = pagecontent.iframe_handler,
 				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
 				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
 				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
 				
 			//iFrame position sync with other actions
-			iframeObj.plug(SU.PluginLayout, {
+			iframe_handler.plug(SU.PluginLayout, {
 				'offset': [10, 10, 10, 10]	//Default offset from page viewport
 			});
 			
 			//Top bar 
-			iframeObj.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			iframeObj.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			iframeObj.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+			iframe_handler.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			iframe_handler.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+			iframe_handler.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 		},
 		
 		/**

@@ -315,7 +315,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Render all block list
 		 */
 		onSlideBlocks: function () {
-			var blocks = Manager.PageContent.getContentBlocks(),
+			var blocks = Manager.PageContent.getContent().getAllChildren(),
 				block = null,
 				block_type = null,
 				block_definition = null,
@@ -325,10 +325,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			container.all('li').remove();
 			
 			for(var id in blocks) {
-				if (!blocks[id].isLocked()) {
+				//If not locked and is not list
+				if (!blocks[id].isLocked() && !blocks[id].isInstanceOf('page-content-list')) {
 					block = blocks[id];
-					block_type = block.getType();
-					block_definition = Manager.Blocks.getBlock(block_type);
+					block_definition = block.getBlockInfo();
 					
 					item = Y.Node.create('<li class="clearfix"><div><img src="' + block_definition.icon + '" alt="" /></div><p>' + Y.Escape.html(block_definition.title) + '</p></li>');
 					item.setData('content_id', id);
@@ -358,8 +358,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					contents = null;
 				
 				//Start editing content
-				contents = Manager.PageContent.getContentContainer();
-				contents.set('activeContent', blocks[content_id]);
+				contents = Manager.PageContent.getContent();
+				contents.set('activeChild', blocks[content_id]);
 				
 				//Show properties form
 				if (blocks[content_id].properties) {
