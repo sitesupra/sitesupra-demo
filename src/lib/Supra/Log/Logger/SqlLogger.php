@@ -117,7 +117,8 @@ class SqlLogger implements SQLLoggerInterface
 	protected function getLogLevel()
 	{
 		// Log selects with DEBUG level, other with INFO
-		if (strpos($this->sql, 'SELECT ') !== 0) {
+		$sql = ltrim($this->sql);
+		if (stripos($sql, 'SELECT') !== 0) {
 			return LogEvent::INFO;
 		}
 		

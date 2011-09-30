@@ -204,16 +204,22 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::setNestedSetNode($nestedSetNode);
     }
 
-    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission)
+    public function getDiscriminator()
     {
         $this->__load();
-        return parent::authorize($user, $permission);
+        return parent::getDiscriminator();
     }
 
-    public function getPermissions()
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
         $this->__load();
-        return parent::getPermissions();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
     }
 
     public function getAuthorizationId()
@@ -232,18 +238,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
     {
         $this->__load();
         return parent::getAuthorizationAncestors();
-    }
-
-    public function getDiscriminator()
-    {
-        $this->__load();
-        return parent::getDiscriminator();
-    }
-
-    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
-    {
-        $this->__load();
-        return parent::matchDiscriminator($object, $strict);
     }
 
     public function setRevisionId($revisionId)

@@ -15,6 +15,16 @@ if ($_SERVER['argv'][1] == 'test') {
 	$namespace = 'Supra\Tests';
 }
 
+if ($_SERVER['argv'][1] == 'trash') {
+	array_splice($_SERVER['argv'], 1, 1);
+	$namespace = 'Supra\Cms\Abstraction\Trash';
+}
+
+if ($_SERVER['argv'][1] == 'history') {
+	array_splice($_SERVER['argv'], 1, 1);
+	$namespace = 'Supra\Cms\Abstraction\History';
+}
+
 $em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($namespace);
 //$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms');
 

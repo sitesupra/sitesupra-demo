@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Supra\Database\Doctrine\Type\Sha1HashType;
 
 class HistorySchemeModifier extends VersionedTableMetadataListener
 {
@@ -37,8 +38,7 @@ class HistorySchemeModifier extends VersionedTableMetadataListener
 			unset($classMetadata->associationMappings['template']);
 			$classMetadata->mapField(array(
 				'fieldName' => 'template',
-				'type' => 'string',
-				'length' => 40,
+				'type' => Sha1HashType::NAME,
 				'columnName' => 'template_id',
 			));
 		}	
@@ -50,8 +50,7 @@ class HistorySchemeModifier extends VersionedTableMetadataListener
 			unset($classMetadata->associationMappings['block']);
 			$classMetadata->mapField(array(
 				'fieldName' => 'block',
-				'type' => 'string',
-				'length' => 40,
+				'type' => Sha1HashType::NAME,
 				'columnName' => 'block_id',
 			));
 		}	
@@ -65,8 +64,7 @@ class HistorySchemeModifier extends VersionedTableMetadataListener
 				$classMetadata->mapField(array(
 					'id' => true,
 					'fieldName' => 'revision',
-					'type' => 'string',
-					'length' => 40,
+					'type' => Sha1HashType::NAME,
 					'columnName' => 'revision_id',
 				));
 			} else {

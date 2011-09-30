@@ -156,6 +156,42 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors()
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors();
+    }
+
+    public function setRevisionId($revisionId)
+    {
+        $this->__load();
+        return parent::setRevisionId($revisionId);
+    }
+
+    public function getRevisionId()
+    {
+        $this->__load();
+        return parent::getRevisionId();
+    }
+
     public function getId()
     {
         $this->__load();
@@ -183,7 +219,7 @@ class SupraControllerPagesEntityTemplateBlockProxy extends \Supra\Controller\Pag
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked', 'id', 'temporary');
+        return array('__isInitialized__', 'componentClass', 'position', 'locale', 'placeHolder', 'blockProperties', 'locked', 'id', 'revision', 'temporary');
     }
 
     public function __clone()

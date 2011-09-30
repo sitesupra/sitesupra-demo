@@ -35,9 +35,15 @@ class PageRequestEdit extends PageRequest
 		
 		$draftData = $this->getPageLocalization();
 		
+		// Set creation time if empty
+		if ($draftData instanceof Entity\PageLocalization) {
+			if ($draftData->getCreationTime() === null) {
+				$draftData->setCreationTime();
+			}
+		}
+		
 		$pageId = $draftData->getMaster()->getId();
 		$localeId = $draftData->getLocale();
-//		$pageDataId = $draftData->getId();
 
 		$draftPage = $draftData->getMaster();
 		
@@ -227,6 +233,7 @@ class PageRequestEdit extends PageRequest
 			}
 		}
 
+		$draftEm->flush();
 		$publicEm->flush();
 	}
 	

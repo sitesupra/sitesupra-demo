@@ -174,16 +174,22 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::setNestedSetNode($nestedSetNode);
     }
 
-    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission)
+    public function getDiscriminator()
     {
         $this->__load();
-        return parent::authorize($user, $permission);
+        return parent::getDiscriminator();
     }
 
-    public function getPermissions()
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
     {
         $this->__load();
-        return parent::getPermissions();
+        return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
     }
 
     public function getAuthorizationId()
@@ -202,18 +208,6 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
     {
         $this->__load();
         return parent::getAuthorizationAncestors();
-    }
-
-    public function getDiscriminator()
-    {
-        $this->__load();
-        return parent::getDiscriminator();
-    }
-
-    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
-    {
-        $this->__load();
-        return parent::matchDiscriminator($object, $strict);
     }
 
     public function setRevisionId($revisionId)
@@ -255,7 +249,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id', 'revision');
     }
 
     public function __clone()

@@ -78,30 +78,6 @@ class SupraControllerPagesEntityAbstractionLocalizationProxy extends \Supra\Cont
         return parent::getTemplateHierarchy();
     }
 
-    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permissionType)
-    {
-        $this->__load();
-        return parent::authorize($user, $permissionType);
-    }
-
-    public function getAuthorizationId()
-    {
-        $this->__load();
-        return parent::getAuthorizationId();
-    }
-
-    public function getAuthorizationClass()
-    {
-        $this->__load();
-        return parent::getAuthorizationClass();
-    }
-
-    public function getAuthorizationAncestors($includingSelf = true)
-    {
-        $this->__load();
-        return parent::getAuthorizationAncestors($includingSelf);
-    }
-
     public function getLock()
     {
         $this->__load();
@@ -124,6 +100,30 @@ class SupraControllerPagesEntityAbstractionLocalizationProxy extends \Supra\Cont
     {
         $this->__load();
         return parent::matchDiscriminator($object, $strict);
+    }
+
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors()
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors();
     }
 
     public function setRevisionId($revisionId)
@@ -165,7 +165,7 @@ class SupraControllerPagesEntityAbstractionLocalizationProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id', 'revision');
     }
 
     public function __clone()

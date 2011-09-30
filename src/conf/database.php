@@ -144,6 +144,8 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\V
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 $em->_mode = 'history';
 
 ObjectRepository::setEntityManager('Supra\Cms\Abstraction\History', $em);

@@ -42,7 +42,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		
 		// ACL model creation
 		try {
-			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/mysql.sql'));
+			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
 		} catch (\Exception $e) {}
 		
 		$this->em->beginTransaction();

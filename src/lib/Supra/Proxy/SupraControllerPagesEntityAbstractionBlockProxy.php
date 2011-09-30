@@ -138,6 +138,30 @@ class SupraControllerPagesEntityAbstractionBlockProxy extends \Supra\Controller\
         return parent::matchDiscriminator($object, $strict);
     }
 
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors()
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors();
+    }
+
     public function setRevisionId($revisionId)
     {
         $this->__load();

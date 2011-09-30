@@ -65,13 +65,14 @@ class PageAction extends PageManagerAction
 		$pathPart = null;
 		$pathPrefix = null;
 		$templateArray = array();
-		$scheduledDateTime = null;
 		$scheduledDate = null;
 		$scheduledTime = null;
 		$metaKeywords = null;
 		$metaDescription = null;
 		$active = true;
 		$redirect = null;
+		$createdDate = null;
+		$createdTime = null;
 
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
@@ -99,6 +100,7 @@ class PageAction extends PageManagerAction
 			);
 
 			$scheduledDateTime = $pageData->getScheduleTime();
+			$createdDateTime = $pageData->getCreationTime();
 			$redirectLink = $pageData->getRedirect();
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
@@ -107,13 +109,18 @@ class PageAction extends PageManagerAction
 			if ( ! is_null($redirectLink)) {
 				$redirect = $this->convertReferencedElementToArray($redirectLink);
 			}
+			
+			if ( ! is_null($scheduledDateTime)) {
+				$scheduledDate = $scheduledDateTime->format('Y-m-d');
+				$scheduledTime = $scheduledDateTime->format('H:i:s');
+			}
+			
+			if ( ! is_null($createdDateTime)) {
+				$createdDate = $createdDateTime->format('Y-m-d');
+				$createdTime = $createdDateTime->format('H:i:s');
+			}
 		}
 
-		if ( ! is_null($scheduledDateTime)) {
-			$scheduledDate = $scheduledDateTime->format('Y-m-d');
-			$scheduledTime = $scheduledDateTime->format('H:i');
-		}
-		
 		$type = 'page';
 
 		if ($page instanceof Entity\Template) {
@@ -135,6 +142,8 @@ class PageAction extends PageManagerAction
 			'scheduled_time' => $scheduledTime,
 			'redirect' => $redirect,
 			'active' => $active,
+			'created_date' => $createdDate,
+			'created_time' => $createdTime,
 		);
 		
 		if ($page instanceof Entity\Template) {

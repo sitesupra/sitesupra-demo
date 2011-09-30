@@ -69,6 +69,12 @@ class PageLocalization extends Abstraction\Localization
 	 * @var ReferencedElement\LinkReferencedElement
 	 */
 	protected $redirect;
+	
+	/**
+	 * @Column(type="datetime", nullable="true")
+	 * @var DateTime
+	 */
+	protected $creationTime;
 
 	/**
 	 * @return Page
@@ -268,6 +274,27 @@ class PageLocalization extends Abstraction\Localization
 	public function setRedirect(ReferencedElement\LinkReferencedElement $redirect = null)
 	{
 		$this->redirect = $redirect;
+	}
+
+	/**
+	 * @return DateTime
+	 */
+	public function getCreationTime()
+	{
+		return $this->creationTime;
+	}
+		
+	/**
+	 * Sets creation time
+	 * @param DateTime $creationTime
+	 */
+	public function setCreationTime(DateTime $creationTime = null)
+	{
+		if (is_null($creationTime)) {
+			$creationTime = new DateTime();
+		}
+		
+		$this->creationTime = $creationTime;
 	}
 
 }

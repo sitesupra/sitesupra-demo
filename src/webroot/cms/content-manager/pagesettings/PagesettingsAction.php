@@ -71,14 +71,9 @@ class PagesettingsAction extends PageManagerAction
 						$time = '00:00';
 					}
 
-					$dateTime = $date . $time;
+					$dateTime = "{$date}T{$time}";
 
-					$scheduleTime = DateTime::createFromFormat('Y-m-dH:i', $dateTime);
-
-					//TODO: Try other format, must remove when JS is fixed
-					if (empty($scheduleTime)) {
-						$scheduleTime = DateTime::createFromFormat('d.m.YH:i', $dateTime);
-					}
+					$scheduleTime = new DateTime($dateTime);
 
 					if ($scheduleTime instanceof DateTime) {
 						$pageData->setScheduleTime($scheduleTime);
@@ -86,6 +81,26 @@ class PagesettingsAction extends PageManagerAction
 						throw new CmsException(null, "Schedule time provided in unrecognized format");
 					}
 				}
+			}
+			
+			if ($this->hasRequestParameter('created_date')) {
+
+				$date = $this->getRequestParameter('created_date');
+				$time = $this->getRequestParameter('created_time');
+
+				// Set manually only if both elements are received
+				if ( ! empty($date) && ! empty($time)) {
+					$dateTime = "{$date}T{$time}";
+
+					$creationTime = new DateTime($dateTime);
+
+					if ($creationTime instanceof DateTime) {
+						$pageData->setCreationTime($creationTime);
+					} else {
+						throw new CmsException(null, "Creation time provided in unrecognized format");
+					}
+				}
+
 			}
 			
 			$redirect = $this->getRequestParameter('redirect');
