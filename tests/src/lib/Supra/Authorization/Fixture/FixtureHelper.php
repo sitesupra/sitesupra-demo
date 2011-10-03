@@ -38,20 +38,7 @@ class FixtureHelper
 	{
 		$this->em = ObjectRepository::getEntityManager($this->namespace);
 		$this->up = ObjectRepository::getUserProvider($this->namespace);
-		
-		
-		// User model drop/create
-		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
-
-		$metaDatas = $this->em->getMetadataFactory()->getAllMetadata();
-		$classFilter = function(\Doctrine\ORM\Mapping\ClassMetadata $classMetadata) {
-			return (strpos($classMetadata->namespace, 'Supra\User\Entity') === 0);
-		};
-		$metaDatas = \array_filter($metaDatas, $classFilter);
-		
-		$schemaTool->updateSchema($metaDatas);
-		
-		
+	
 		// ACL model drop/create
 		try {
 			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
