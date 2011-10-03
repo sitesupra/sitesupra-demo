@@ -87,20 +87,27 @@ abstract class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPoli
 		$result = array();
 		foreach($permissionsForClass as $itemId => $permissionsStatus) {
 			
-			$values = array();
+			$permissions = array();
 			foreach($permissionsStatus as $permissionName => $permissionStatus) {
 				
 				if($permissionStatus == PermissionStatus::ALLOW) {
-					$values[] = $permissionName;
+					$permissions[] = $permissionName;
 				}
 			}
 			
-			if( ! empty($values)) {
-				$result[] = array('id' => $itemId, 'value' => $values);
+			if( ! empty($permissions)) {
+				$result[] = $this->getItemPermission($user, $itemId, $permissions);
 			}
 		}
 		
+		\Log::debug('HAVE PERMISSIONS FOR ITEMS: ', array_keys($permissionsForClass));
+		
 		return $result;
+	}
+	
+	protected function getItemPermission(User $user, $itemId, $permissions) 
+	{
+		return array('id' => $itemId, 'value' => $permissions);
 	}
 	
 	public function setItemPermissions(User $user, $itemId, $setPermissionNames) 

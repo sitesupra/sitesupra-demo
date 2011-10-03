@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Entity as PageEntity;
 use Supra\FileStorage\Entity as FileEntity;
 use Supra\Cms\CmsApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
+use Supra\Locale\LocaleManager;
 
 class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 {
@@ -35,7 +36,8 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 	private function getContentTreeData() {
 		
 		$pages = array();
-		$localeId = $this->getLocale()->getId();
+		
+		$localeId = $this->getRequest()->getQueryValue('locale');
 
 		$em = ObjectRepository::getEntityManager($this);
 
@@ -50,6 +52,7 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 			$tree = $this->buildContentTreeArray($rootNode, $localeId);
 			// TODO: hardcoded
 			$tree['icon'] = 'home';
+			$tree['title'] = '[' . $localeId . '] Home';
 
 			$response[] = $tree;
 		}
@@ -58,25 +61,42 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 		
 	}
 	
-	private function buildContentTreeArray($page, $locale)
+	private function buildContentTreeArray(PageEntity\Page $page, $localeId)
 	{
-		$data = $page->getLocalization($locale)->getMaster();
+		$itemId = null;
+		
+		if( empty($localeId)) {
+			
+			$itemId = $page->getId();
+			
+			$lm = ObjectRepository::getLocaleManager($this);
+			$localization = $page->getLocalization($lm->getCurrent()->getId());
+			
+			if (empty($localization)) {
+				$allLocalizations = $page->getLocalizations();
+				$localization = $allLocalizations->first();
+			}
+		}
+		else {
+		
+			$localization = $page->getLocalization($localeId);
 
-		if (empty($data)) {
+			if (empty($localization)) {
+				return;
+			}
+			
+			$itemId = $localization->getId();
+		}
+
+		if (empty($localization)) {
 			return null;
 		}
 
-		$pathPart = null;
-		$templateId = null;
-
-		if ($data instanceof PageEntity\PageLocalization) {
-			$pathPart = $data->getPathPart();
-		}
-
+		\Log::debug('TREE HAS ITEM: ', $itemId);
+		
 		$array = array(
-			'id' => $data->getId(),
-			'title' => $page->getLocalization($locale)->getTitle(),
-			'path' => $pathPart,
+			'id' => $itemId,
+			'title' => '[' . $localeId . '] ' . $localization->getTitle(),
 			// TODO: hardcoded
 			'icon' => 'page',
 			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'
@@ -86,7 +106,7 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 
 		foreach ($page->getChildren() as $child) {
 			
-			$childArray = $this->buildContentTreeArray($child, $locale);
+			$childArray = $this->buildContentTreeArray($child, $localeId);
 
 			if ( ! empty($childArray)) {
 				$array['children'][] = $childArray;
