@@ -3,6 +3,7 @@
 namespace Supra\Loader;
 
 use Supra\Loader\Strategy\LoaderStrategyInterface;
+use Supra\Loader\Exception;
 
 /**
  * Loader registry class
@@ -164,5 +165,34 @@ class Loader
 	public function registerSystemAutoload()
 	{
 		spl_autoload_register(array($this, 'autoload'));
+	}
+
+	/**
+	 * Get instance of $className that extends or implements $interface
+	 *
+	 * @param string $className
+	 * @param string $interface 
+	 * @return object
+	 * @throws Supra\Loader\Exception\ClassMismatchException
+	 * @throws Supra\Loader\Exception\InterfaceNotFound
+	 * @throws Supra\Loader\Exception\ClassNotFound
+	 */
+	public static function getClassInstance($className, $interface = null) 
+	{
+		if ( ! \class_exists($className)) {
+			throw new Exception\ClassNotFound($className);
+		}
+		
+		$object = new $className();
+		if ( ! \is_null($interface) && \is_string($interface)) {
+			if ( ! \class_exists($interface) && ! \interface_exists($interface)) {
+				throw new Exception\InterfaceNotFound($className);
+			}
+			if ( ! $object instanceof $interface) {
+				throw new Exception\ClassMismatch($className, $interface);
+			}	
+		}
+
+		return $object;
 	}
 }

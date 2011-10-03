@@ -9,6 +9,7 @@ namespace Supra\Controller\Pages;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Loader\Loader;
 
 /**
  * Singleton storing all block configuration
@@ -75,12 +76,8 @@ class BlockControllerCollection
 			throw new Exception\RuntimeException('Class does not exist');
 		}
 		
-		$controller = new $controllerClass;
+		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
 		
-		if ( ! $controller instanceof BlockController) {
-			throw new Exception\RuntimeException('Controller is not instance of BlockController');
-		}
-
 		return $controller;
 	}
 }

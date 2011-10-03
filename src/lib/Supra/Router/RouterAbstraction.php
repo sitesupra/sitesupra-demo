@@ -4,6 +4,7 @@ namespace Supra\Router;
 
 use Supra\Controller\ControllerInterface;
 use Supra\Request\RequestInterface;
+use Supra\Loader\Loader;
 
 
 /**
@@ -93,11 +94,7 @@ abstract class RouterAbstraction implements RouterInterface
 			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
 		}
 		
-		$this->controller = new $this->controllerClass;
-		
-		if ( ! ($this->controller instanceof ControllerInterface)) {
-			throw new Exception\RuntimeException("Controller class {$this->controllerClass} does not implement Supra\Controller\ControllerInterface");
-		}
+		$this->controller = Loader::getClassInstance($this->controllerClass, 'Supra\Controller\ControllerInterface');
 		
 		return $this->controller;
 	}

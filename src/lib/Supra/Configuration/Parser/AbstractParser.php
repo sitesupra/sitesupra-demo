@@ -10,6 +10,14 @@ use Supra\Configuration\Exception;
  */
 abstract class AbstractParser implements ParserInterface
 {
+
+	/**
+	 * Filename
+	 *
+	 * @var string
+	 */
+	protected $filename = '';
+	
 	/**
 	 * Parse config from file
 	 *
@@ -22,7 +30,23 @@ abstract class AbstractParser implements ParserInterface
 					'Configuration file ' . $filename . 
 					' does not exist or is not readable');
 		}
-		$this->parse($filename);
+		$this->filename = $filename;
+		$contents = \file_get_contents($filename);
+		$this->parse($contents);
+		$this->filename = '';
+	}
+
+	/**
+	 * Log warn
+	 *
+	 * @param string $message 
+	 */
+	protected function logWarn($message)
+	{
+		if ( ! empty($this->filename)) {
+			$message = $message . ' (file: '. $this->filename . ')';
+		}
+		\Log::warn($message);
 	}
 	
 }

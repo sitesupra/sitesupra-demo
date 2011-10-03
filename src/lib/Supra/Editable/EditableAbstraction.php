@@ -2,6 +2,8 @@
 
 namespace Supra\Editable;
 
+use Supra\Loader;
+
 /**
  * Abstract class for editable content classes
  */
@@ -47,17 +49,13 @@ abstract class EditableAbstraction implements EditableInterface
 		// Fill in the default filters
 		foreach (static::$defaultFilters as $filterClass) {
 
-			if ( ! class_exists($filterClass)) {
-				throw new Exception\FilterNotFound("Filter '{$filterClass}' was not found", $this);
+			try {
+				$filter = Loader\Loader::getClassInstance($filterClass, 'Supra\Editable\Filter\FilterInterface');
+				$this->filters[] = $filter;
+			} catch (Loader\Exception\LoaderException $e) {
+				throw new Exception\FilterNotFound($e->getMessage(), $this);
 			}
 
-			$filter = new $filterClass();
-
-			if ( ! $filter instanceof Filter\FilterInterface) {
-				throw new Exception\FilterNotFound("Filter '{$filterClass}' does not implement the filter interface", $this);
-			}
-
-			$this->filters[] = $filter;
 		}
 	}
 

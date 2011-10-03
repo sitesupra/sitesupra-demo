@@ -6,6 +6,7 @@ use Supra\Request;
 use Supra\Response;
 use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Loader\Loader;
 
 /**
  * Simple HTTP controller based on subcontrollers
@@ -72,11 +73,7 @@ abstract class DistributedController extends ControllerAbstraction
 			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found (class '$class')");
 		}
 		
-		$actionController = new $class();
-		
-		if ( ! $actionController instanceof ControllerInterface) {
-			throw new Exception\RuntimeException("Action $class must be instance of controller interface");
-		}
+		$actionController = Loader::getClassInstance($class, 'Supra\Controller\ControllerInterface');
 		
 		FrontController::getInstance()->runController($actionController, $request);
 		

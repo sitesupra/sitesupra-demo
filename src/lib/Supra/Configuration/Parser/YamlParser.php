@@ -4,6 +4,7 @@ namespace Supra\Configuration\Parser;
 
 use Symfony\Component\Yaml\Yaml;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Loader;
 
 /**
  * YAML configuration parser
@@ -35,9 +36,9 @@ class YamlParser extends AbstractParser
 	 */
 	protected function processObject($className, $properties)
 	{
-		if (\class_exists($className)) {
-
-			$object = new $className();
+		try {
+			
+			$object = Loader\Loader::getClassInstance($className);
 			foreach ($properties as $propertyName => $propertyValue) {
 				$possibleSetterName = 'set' . ucfirst($propertyName);
 				if (\property_exists($className, $propertyName)) {
@@ -45,7 +46,7 @@ class YamlParser extends AbstractParser
 							$this->processItem($propertyValue);
 				} else if (\method_exists($object, $possibleSetterName)) {
 					$reflection = new \ReflectionClass($object);
-					$methodParams = $reflection->getMethod($propertyName)->getParameters();
+					$methodParams = $reflection->getMethod($possibleSetterName)->getParameters();
 					if (count($methodParams) == 1) {
 						$propertyValue = $this->processItem($propertyValue);
 						$object->$propertyName($propertyValue);
@@ -57,6 +58,8 @@ class YamlParser extends AbstractParser
 			}
 			return $object;
 			
+		} catch (Loader\Exception\LoaderException $e) {
+			$this->logWarn($e->getMessage());
 		}
 	}
 
@@ -68,23 +71,28 @@ class YamlParser extends AbstractParser
 	 */
 	protected function processItem($item) {
 		$return = $item;
+
 		if (\is_array($item) && (\count($item) == 1)) {
 			$value = \end($item);
 			$key = \key($item);
+			
 			if (($key == 'const') && \defined($value)) {
 				$return = \constant($value);
-			} else {
+			} else if (\is_string($key)) {
 				// try to setup config object
 				$object = $this->processObject($key, $value);
 				if (\is_object($object)) {
 					$return = $object;
 				}
 			}
-		} if (\is_array($item)) {
-			foreach ($item as &$subitem) {
+		} 
+		
+		if (\is_array($return)) {
+			foreach ($return as &$subitem) {
 				$subitem = $this->processItem($subitem);
 			}
 		}
+		
 		return $return;
 	}
 	

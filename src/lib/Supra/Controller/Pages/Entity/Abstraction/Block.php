@@ -12,6 +12,7 @@ use Supra\Editable\EditableAbstraction;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Controller\Pages\Entity\TemplateBlock;
+use Supra\Loader;
 
 /**
  * Block database entity abstraction
@@ -198,16 +199,16 @@ abstract class Block extends Entity
 			return null;
 		}
 
-		$blockController = new $component();
-		if ( ! ($blockController instanceof BlockController)) {
+		try {
+			$blockController = Loader\Loader::getClassInstance($component, 'Supra\Controller\Pages\BlockController');
+			$blockController->setBlock($this);
+
+			return $blockController;
+		} catch (Loader\Exception\ClassMismatch $e) {
 			\Log::warn("Block controller $component must be instance of BlockController in block $this");
 			
 			return null;
 		}
-
-		$blockController->setBlock($this);
-
-		return $blockController;
 	}
 	
 	/**

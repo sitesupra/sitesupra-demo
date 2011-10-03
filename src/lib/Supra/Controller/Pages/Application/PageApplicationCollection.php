@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Application;
 
 use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
+use Supra\Loader\Loader;
 
 /**
  * Collection of page applications
@@ -66,7 +67,7 @@ class PageApplicationCollection
 			$configuration = $this->getConfiguration($id);
 			
 			if ($configuration instanceof PageApplicationConfiguration) {
-				$this->loadedApplications[$id] = new $configuration->className;
+				$this->loadedApplications[$id] = Loader::getClassInstance($configuration->className);
 			}
 		}
 		
