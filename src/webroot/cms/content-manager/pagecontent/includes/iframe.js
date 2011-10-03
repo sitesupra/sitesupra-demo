@@ -138,6 +138,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					Action.startEditing();
 				}
 			});
+			
 			this.contents.after('activeChildChange', function (event) {
 				this.fire('activeChildChange', {newVal: event.newVal, prevVal: event.prevVal});
 			}, this);

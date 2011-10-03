@@ -248,7 +248,11 @@ Supra(function (Y) {
 			
 			Supra.io(uri, {
 				'data': post_data,
-				'method': 'post'
+				'method': 'post',
+				'context': this,
+				'on': {
+					'success': this.onUnlockPage
+				}
 			});
 		},
 		
@@ -273,19 +277,29 @@ Supra(function (Y) {
 				'method': 'post',
 				'context': this,
 				'on': {
-					'success': function (data, status) {
-						//Show edit and hide unlock buttons
-						var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
-							button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
-							message_unlock = button_unlock.get('boundingBox').previous('p');
-						
-						button_edit.show();
-						button_unlock.hide();
-						button_unlock.set('loading', false);
-						if (message_unlock) message_unlock.remove();
-					}
+					'success': this.onUnlockPage
 				}
 			});
+		},
+		
+		/**
+		 * Handle successful unlock
+		 */
+		onUnlockPage: function () {
+			//Show edit and hide unlock buttons
+			var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
+				button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
+				message_unlock = button_unlock.get('boundingBox').previous('p');
+			
+			button_edit.show();
+			button_unlock.hide();
+			button_unlock.set('loading', false);
+			if (message_unlock) message_unlock.remove();
+			
+			//Remove lock information from page
+			if (Manager.Page.data.lock) {
+				delete(Manager.Page.data.lock);
+			}
 		},
 		
 		/**
@@ -293,7 +307,7 @@ Supra(function (Y) {
 		 *
 		 * @param {Boolean} force Force lock
 		 */
-		lockPage: function () {
+		lockPage: function (force) {
 			var uri = this.getDataPath('lock'),
 				page_data = this.getPageData(),
 				buttons = Manager.PageButtons.buttons.Root;
@@ -304,7 +318,8 @@ Supra(function (Y) {
 			//Send data
 			var post_data = {
 				'page_id': page_data.id,
-				'locale': Supra.data.get('locale')
+				'locale': Supra.data.get('locale'),
+				'force': (force ? 1 : 0)
 			};
 			
 			Supra.io(uri, {
@@ -329,9 +344,55 @@ Supra(function (Y) {
 			var buttons = Manager.PageButtons.buttons.Root;
 			buttons[0].set('loading', false);
 			
-			if (status) {
+			//Handle response
+			if (status && data === true || data === 1) {
+				
+				Manager.Page.data.lock = {
+					'userlogin': Supra.data.get(['user', 'login'])
+				};
+				
 				//Success
 				Manager.PageContent.startEditing();
+				
+			} else if (status && data) {
+				
+				//Compile message template and change date and time format
+				var template = Supra.Intl.get([this.getType(), 'locked_message']);
+				template = Supra.Template.compile(template);
+				
+				data.datetime = Y.DataType.Date.reformat(data.datetime, 'in_datetime', 'out_datetime_short');
+				
+				//"Unlock" may not be visible
+				var buttons = [];
+				if (data.allow_unlock) {
+					//Some users may not have permissions to unlock page
+					//or may have lower level access than user who locked it
+					buttons = [{
+						'id': 'unlock',
+						'label': Supra.Intl.get([this.getType(), 'unlock']),
+						'click': function () {
+							if (this.isPage()) {
+								this.lockPage(true);
+							} else {
+								this.lockTemplate(true);
+							}
+						},
+						'context': this,
+						'style': 'mid-green'
+					}];
+				}
+				
+				//
+				Manager.executeAction('Confirmation', {
+					'message': template(data),
+					'useMask': true,
+					'buttons': buttons.concat([
+						{
+							'id': 'cancel',
+							'label': Supra.Intl.get(['buttons', 'cancel'])
+						}
+					])
+				});
 			}
 		},
 		

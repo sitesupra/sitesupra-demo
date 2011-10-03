@@ -156,18 +156,33 @@ SU('dd-drag', function (Y) {
 		},
 		onStartEditingRoute: function (req) {
 			if (!this.editing) {
-				if (!this.iframe_handler) {
-					this.edit_on_ready = true;
-					return;
+				var page = Manager.getAction('Page'),
+					data = page.data;
+				
+				//Check lock status
+				var userlogin = Supra.data.get(['user', 'login']);
+				if (data && data.lock && data.lock.userlogin == userlogin) {
+					
+					//Start editing
+					if (!this.iframe_handler) {
+						this.edit_on_ready = true;
+						return;
+					}
+					
+					this.editing = true;
+					this.edit_on_ready = false;
+					Manager.getAction('PageToolbar').setActiveAction('Page');
+					Manager.getAction('PageButtons').setActiveAction(this.NAME);
+					
+					//Enable highlights
+					this.getContent().set('highlight', false);
+					
+				} else {
+					
+					//Page lock information is not known, unlock page
+					page.lockPage();
+					
 				}
-				
-				this.editing = true;
-				this.edit_on_ready = false;
-				Manager.getAction('PageToolbar').setActiveAction('Page');
-				Manager.getAction('PageButtons').setActiveAction(this.NAME);
-				
-				//Enable highlights
-				this.getContent().set('highlight', false);
 			}
 			
 			if (req) req.next();
