@@ -251,9 +251,19 @@ Supra(function (Y) {
 				'method': 'post',
 				'context': this,
 				'on': {
-					'success': this.onUnlockPage
+					'success': this.onPublishPage
 				}
 			});
+		},
+		
+		/**
+		 * On page publish reload page data
+		 */
+		onPublishPage: function () {
+			this.onUnlockPage();
+			
+			//Reload page data
+			this.loadPage(this.data.id);
 		},
 		
 		/**

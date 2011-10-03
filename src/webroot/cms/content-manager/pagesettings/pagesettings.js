@@ -236,9 +236,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			}
 			
 			//Set time
-			var time = Y.DataType.Date.reformat(this.page_data.created_time, 'in_time', 'raw'),
-				hours = (time ? time.getHours() : 0),
-				minutes = (time ? time.getMinutes() : 0);
+			if (this.page_data.created_time) {
+				var time = Y.DataType.Date.reformat(this.page_data.created_time, 'in_time', 'raw'),
+					hours = (time ? time.getHours() : 0),
+					minutes = (time ? time.getMinutes() : 0);
+			} else {
+				var hours = 0,
+					minutes = 0;
+			}
 			
 			this.form.getInput('created_hours').set('value', hours < 10 ? '0' + hours : hours);
 			this.form.getInput('created_minutes').set('value', minutes < 10 ? '0' + minutes : minutes);
@@ -312,9 +317,15 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		*/
 		
 		onSlideAdvanced: function (node, init) {
-			//Update label
-			var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
-			this.one('#slideAdvancedCreated').set('text', date || Supra.Intl.get(['settings', 'advanced_unknown']));
+			//Update button label
+			var node = this.one('div.button-created p');
+			
+			if (this.page_data.created_date) {
+				var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
+				node.set('text', Supra.Intl.get(['settings', 'advanced_create']) + date);
+			} else {
+				node.set('text', Supra.Intl.get(['settings', 'advanced_unknown']));
+			}
 		},
 		
 		/**

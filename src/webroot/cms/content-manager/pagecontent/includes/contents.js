@@ -99,7 +99,11 @@ YUI.add('supra.iframe-contents', function (Y) {
 						//Route to /22/edit
 						if (!evt.newVal || !evt.newVal.get('editable')) {
 							var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
-							Root.save(uri);
+							
+							//Change path only if /page/.../edit is opened
+							if (document.location.pathname.indexOf(uri) != -1) {
+								Root.save(uri);
+							}
 						}
 					}
 					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
