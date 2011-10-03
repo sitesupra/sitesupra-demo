@@ -6,6 +6,7 @@ use Supra\Controller\Pages\Entity;
 
 /**
  * Set of page blocks
+ * @method Entity\Abstraction\Block findById($id)
  */
 class BlockSet extends AbstractSet
 {

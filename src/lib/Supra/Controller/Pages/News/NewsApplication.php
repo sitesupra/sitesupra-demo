@@ -19,12 +19,25 @@ class NewsApplication implements PageApplicationInterface
 	 */
 	public function generatePath(Entity\PageLocalization $pageLocalization)
 	{
-		//TODO: replace with real creation time
-		$creationTime = new DateTime();
-//		$path = $pageLocalization->getPathPart();
+		$creationTime = $pageLocalization->getCreationTime();
+
+		// Shouldn't we set some other path for not published publications?
+		if ( ! $creationTime instanceof DateTime) {
+			$creationTime = new DateTime();
+		}
+		
 		$pathString = $creationTime->format('Y/m/d');
 		$path = new Path($pathString);
 		
 		return $path;
+	}
+
+	/**
+	 * News application hasn't path
+	 * @return boolean
+	 */
+	public function hasPath()
+	{
+		return false;
 	}
 }

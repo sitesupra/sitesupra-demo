@@ -258,6 +258,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		}
 		return $this;
 	}
+	
+	/**
+	 * Nested node title
+	 * @return string
+	 */
+	public function getNodeTitle()
+	{
+		return $this->__toString();
+	}
 
 	/**
 	 * Try the unknown method against the nested set node

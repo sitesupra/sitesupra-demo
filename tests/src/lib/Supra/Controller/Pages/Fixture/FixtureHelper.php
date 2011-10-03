@@ -50,7 +50,7 @@ class FixtureHelper
 		),
 		4 => array(
 			'title' => 'News application',
-			'pathPart' => 'app',
+			'pathPart' => '',
 			'applicationId' => 'news'
 		),
 		5 => array(

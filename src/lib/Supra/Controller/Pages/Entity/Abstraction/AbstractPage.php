@@ -278,7 +278,16 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 		}
 		return $this;
 	}
-
+	
+	/**
+	 * Nested node title
+	 * @return string
+	 */
+	public function getNodeTitle()
+	{
+		return $this->__toString();
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 * @return string

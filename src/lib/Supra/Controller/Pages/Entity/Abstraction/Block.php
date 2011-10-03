@@ -194,7 +194,7 @@ abstract class Block extends Entity
 	{
 		$component = $this->getComponentClass();
 		if ( ! class_exists($component)) {
-			\Log::warn("Block component $component was not found for block $this");
+			$this->log()->warn("Block component $component was not found for block $this");
 			
 			return null;
 		}
@@ -205,7 +205,7 @@ abstract class Block extends Entity
 
 			return $blockController;
 		} catch (Loader\Exception\ClassMismatch $e) {
-			\Log::warn("Block controller $component must be instance of BlockController in block $this");
+			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
 			
 			return null;
 		}
@@ -228,6 +228,8 @@ abstract class Block extends Entity
 		
 		// Prepare
 		$controller->prepare($request, $response);
+		
+		$controller->prepareTwigHelper();
 	}
 	
 	/**

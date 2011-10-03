@@ -243,7 +243,7 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\Entit
 	 */
 	public function __toString()
 	{
-		$result = $this->getTitle();
+		$result = $this->getNodeTitle();
 		return $result;
 	}
 
@@ -310,6 +310,26 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\Entit
 	 * @return Product
 	 */
 	public function setTitle($title)
+	{
+		$this->title = $title;
+		return $this;
+	}
+	
+	/**
+	 * Alias of getTitle()
+	 * @return string
+	 */
+	public function getNodeTitle()
+	{
+		return $this->title;
+	}
+
+	/**
+	 * Alias of setTitle()
+	 * @param string $title
+	 * @return Product
+	 */
+	public function setNodeTitle($title)
 	{
 		$this->title = $title;
 		return $this;

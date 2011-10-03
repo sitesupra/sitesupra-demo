@@ -48,105 +48,203 @@ class PagePathGenerator
 	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, Entity\PageLocalization $pageData)
 	{
 		$page = $pageData->getMaster();
-		$pathPart = $pageData->getPathPart();
+		$pathPartString = $pageData->getPathPart();
 		$locale = $pageData->getLocale();
 		$className = get_class($pageData);
-		$repo = $em->getRepository($className);
 		$metaData = $em->getClassMetadata($className);
 		
-		$pathPart = new Path($pathPart);
-		$newPath = new Path('');
+		$oldPath = $pageData->getPath();
 		
 		if ( ! $page->isRoot()) {
 			
-			$parentPage = $page->getParent();
+			// Currently it may allow setting empty path to any page
+			$hasPath = ($pathPartString != '');
 			
-			if ($parentPage instanceof Entity\ApplicationPage) {
-				$applicationId = $parentPage->getApplicationId();
-				
-				$application = PageApplicationCollection::getInstance()
-						->createApplication($applicationId);
-				
-				if (empty($application)) {
-					throw new Exception\PagePathException("Application '$applicationId' is not found", $pageData);
-				}
-				
-				$pathBasePart = $application->generatePath($pageData);
-				$pathPart = $pathBasePart->append($pathPart);
+			$newPath = null;
+			$newParentPath = $this->findPageBasePath($pageData);
+			
+			// Generate new path if page has it's own path
+			if ($hasPath) {
+				$newPath = new Path('');
+				$newPath->append($newParentPath);
+				$pathPart = new Path($pathPartString);
+				$newPath->append($pathPart);
 			}
 			
-			// Leave path empty if path part is not set yet
-			if ($pathPart->isEmpty()) {
-				return;
-			}
+			$oldParentPath = $pageData->getParentPath();
+			$anyPathChanged = false;
 			
-			$parentPageData = $parentPage->getLocalization($locale);
-			
-			if (empty($parentPageData)) {
-				throw new Exception\RuntimeException("Parent page localization is not found for the locale {$locale} required by page {$page->getId()}");
-			}
-			
-			$parentPath = $parentPageData->getPath();
-			$newPath->append($parentPath);
-			$newPath->append($pathPart);
-			
-			$oldPath = $pageData->getPath();
-			
-			if ( ! $newPath->equals($oldPath)) {
-			
-				$newPathString = $newPath->getFullPath();
-				
-				// Duplicate path validation
-				$criteria = array(
-					'locale' => $locale,
-					'path' => $newPathString
-				);
+			// Old and new parent paths shouldn't differ in fact..
+			if ( ! Path::compare($oldPath, $newPath) || ! Path::compare($oldParentPath, $newParentPath)) {
 
-				$duplicate = $repo->findOneBy($criteria);
-
-				if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
-					throw new Exception\DuplicatePagePathException("Page with path $newPathString already exists", $pageData);
+				// Check duplicates only if path is not null
+				if ( ! is_null($newPath)) {
+					$this->checkForDuplicates($em, $pageData, $newPath);
 				}
-				
+
 				// Validation passed, set the new path
 				$pageData->setPath($newPath);
+				$pageData->setParentPath($newParentPath);
+				
+				// Will use path or parent path, whatever is not empty
+				$oldBasePath = $oldPath ? $oldPath : $oldParentPath;
+				$newBasePath = $newPath ? $newPath : $newParentPath;
 				
 				// Run updates only if path was set before
-				if ($oldPath !== null) {
-				
-					$oldPathString = $oldPath->getFullPath();
-					$oldPathPattern = str_replace(array('_', '%'), array('\\_', '\\%'), $oldPathString) . '/%';
-
-					// Update all children paths
-					$params = array(
-						0 => $newPathString,
-						1 => $oldPathString,
-						2 => $locale
-					);
-
-					// Upadate the current page
-					$dql = "UPDATE {$className} d
-						SET d.path = ?0
-						WHERE d.path = ?1
-						AND d.locale = ?2";
-					$query = $em->createQuery($dql);
-					$query->execute($params);
-
-					// Update children pages
-					$params[2] = $oldPathPattern;
-					$dql = "UPDATE {$className} d
-						SET d.path = CONCAT(?0, SUBSTRING(d.path, LENGTH(?1) + 1))
-						WHERE d.path LIKE ?2";
-					$query = $em->createQuery($dql);
-					$query->execute($params);
+				if ($oldBasePath !== null) {
+					$this->updateDependantPages($em, $pageData, $oldBasePath, $newBasePath);
 				}
 
-				// Add the path to the changeset
-				$unitOfWork->recomputeSingleEntityChangeSet($metaData, $pageData);
+				/*
+				 * Add the path changes to the changeset, must call different 
+				 * methods depending on is the entity inside the unit of work
+				 * changeset
+				 */
+				if ($unitOfWork->getEntityChangeSet($pageData)) {
+					$unitOfWork->recomputeSingleEntityChangeSet($metaData, $pageData);
+				} else {
+					$unitOfWork->computeChangeSet($metaData, $pageData);
+				}
 			}
 		} else {
-			$pageData->setPath($newPath);
+			$newPath = new Path('');
+			
+			// Root page
+			if ( ! $newPath->equals($oldPath)) {
+				$pageData->setPath($newPath);
+				$pageData->setParentPath($newPath);
+			}
 		}
 	}
+	
+	/**
+	 * Throws exception if page duplicate is found
+	 * @param EntityManager $em
+	 * @param Entity\PageLocalization $pageData
+	 * @param Path $newPath
+	 */
+	protected function checkForDuplicates(EntityManager $em, Entity\PageLocalization $pageData, Path $newPath)
+	{
+		$page = $pageData->getMaster();
+		$locale = $pageData->getLocale();
+		$className = get_class($pageData);
+		$repo = $em->getRepository($className);
+		
+		$newPathString = $newPath->getFullPath();
 
+		// Duplicate path validation
+		$criteria = array(
+			'locale' => $locale,
+			'path' => $newPathString
+		);
+
+		$duplicate = $repo->findOneBy($criteria);
+
+		if ( ! is_null($duplicate) && ! $page->equals($duplicate)) {
+			throw new Exception\DuplicatePagePathException("Page with path $newPathString already exists", $pageData);
+		}
+	}
+	
+	/**
+	 * Runs database updates when page path changes on child pages
+	 * @param EntityManager $em
+	 * @param Entity\PageLocalization $pageData
+	 * @param Path $oldBasePath
+	 * @param Path $newBasePath 
+	 */
+	protected function updateDependantPages(EntityManager $em, Entity\PageLocalization $pageData, Path $oldBasePath, Path $newBasePath)
+	{
+		$page = $pageData->getMaster();
+		$locale = $pageData->getLocale();
+		$className = get_class($pageData);
+		$masterClassName = get_class($page);
+		
+		$newPathString = $newBasePath->getFullPath();
+		$oldPathString = $oldBasePath->getFullPath();
+		$oldPathPattern = str_replace(array('_', '%'), array('\\_', '\\%'), $oldPathString) . '/%';
+
+		// For limiting only child pages by structure NOT path
+		$left = $page->getLeftValue();
+		$right = $page->getRightValue();
+		
+		$params = array(
+			0 => $newPathString,
+			1 => $oldPathString,
+			2 => $locale,
+			3 => $oldPathPattern,
+			4 => $left,
+			5 => $right,
+		);
+		
+		// Update children pages and self, path field
+		$dql = "UPDATE {$className} d
+			SET d.path = CONCAT(?0, SUBSTRING(d.path, LENGTH(?1) + 1))
+			WHERE
+				(d.path = ?1 OR d.path LIKE ?3)
+				AND d.locale = ?2
+				AND d.master IN 
+					(SELECT m FROM {$masterClassName} m WHERE m.left >= ?4 AND m.right <= ?5)";
+		
+		$query = $em->createQuery($dql);
+		$query->execute($params);
+		
+		// Update children pages, parent path field
+		$dql = "UPDATE {$className} d
+			SET d.parentPath = CONCAT(?0, SUBSTRING(d.parentPath, LENGTH(?1) + 1))
+			WHERE 
+				(d.parentPath = ?1 OR d.parentPath LIKE ?3)
+				AND d.locale = ?2
+				AND d.master IN 
+					(SELECT m FROM {$masterClassName} m WHERE m.left > ?4 AND m.right < ?5)";
+		
+		$query = $em->createQuery($dql);
+		$query->execute($params);
+	}
+
+	/**
+	 * Loads page base path
+	 * @param Entity\PageLocalization $pageData
+	 * @return Path
+	 */
+	protected function findPageBasePath(Entity\PageLocalization $pageData)
+	{
+		$page = $pageData->getMaster();
+		$locale = $pageData->getLocale();
+		
+		$parentPage = $page->getParent();
+		$parentHasPath = true;
+		$parentPageData = $parentPage->getLocalization($locale);
+		
+		// Unexpected issue
+		if (empty($parentPageData)) {
+			throw new Exception\RuntimeException("Parent page localization is not found for the locale {$locale} required by page {$page->getId()}");
+		}
+		
+		// Get parent path
+		$newParentPath = $parentPageData->getPath();
+		if (is_null($newParentPath)) {
+			$newParentPath = $parentPageData->getParentPath();
+		}
+		
+		// Forget the reference by cloning
+		$newParentPath = clone($newParentPath);
+
+		// Page application feature to generate base path for pages
+		if ($parentPage instanceof Entity\ApplicationPage) {
+			$applicationId = $parentPage->getApplicationId();
+
+			$application = PageApplicationCollection::getInstance()
+					->createApplication($applicationId);
+
+			if (empty($application)) {
+				throw new Exception\PagePathException("Application '$applicationId' is not found", $pageData);
+			}
+
+			$pathBasePart = $application->generatePath($pageData);
+			$newParentPath->append($pathBasePart);
+		}
+
+		return $newParentPath;
+	}
+	
 }

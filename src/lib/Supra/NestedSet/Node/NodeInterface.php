@@ -64,10 +64,15 @@ interface NodeInterface
 	public function moveRightValue($diff);
 
 	/**
-	 * Inclrease level value
+	 * Increase level value
 	 * @param int $diff
 	 * @return NodeInterface
 	 */
 	public function moveLevel($diff);
 	
+	/**
+	 * Nested node title
+	 * @return string
+	 */
+	public function getNodeTitle();
 }

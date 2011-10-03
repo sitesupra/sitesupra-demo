@@ -27,10 +27,17 @@ class PageLocalization extends Abstraction\Localization
 	
 	/**
 	 * Limitation because of MySQL unique constraint 1k byte limit
-	 * @Column(type="path", length="255")
+	 * @Column(type="path", length="255", nullable="true")
 	 * @var Path
 	 */
 	protected $path = null;
+	
+	/**
+	 * Used when current page has no path (e.g. news application)
+	 * @Column(type="path", length="255")
+	 * @var Path
+	 */
+	protected $parentPath = null;
 
 	/**
 	 * @Column(type="string", name="path_part")
@@ -136,7 +143,7 @@ class PageLocalization extends Abstraction\Localization
 	 * Should be called from the PagePathGenerator only!
 	 * @param Path $path
 	 */
-	public function setPath(Path $path)
+	public function setPath(Path $path = null)
 	{
 		$this->path = $path;
 	}
@@ -172,10 +179,12 @@ class PageLocalization extends Abstraction\Localization
 			throw new Exception\PagePathException("Root page cannot have path assigned", $this);
 		}
 		
-		// Check if not trying to set empty path to not root page
-		if ( ! $page->isRoot() && $pathPart == '') {
-			throw new Exception\PagePathException("Path cannot be empty", $this);
-		}
+		// Now with news application it's possible...
+		// FIXME: maybe should allow for applications only?
+//		// Check if not trying to set empty path to not root page
+//		if ( ! $page->isRoot() && $pathPart == '') {
+//			throw new Exception\PagePathException("Path cannot be empty", $this);
+//		}
 		
 		$this->pathPart = $pathPart;
 	}
@@ -187,7 +196,23 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->pathPart;
 	}
-	
+
+	/**
+	 * @return Path
+	 */
+	public function getParentPath()
+	{
+		return $this->parentPath;
+	}
+
+	/**
+	 * @param Path $parentPath
+	 */
+	public function setParentPath(Path $parentPath)
+	{
+		$this->parentPath = $parentPath;
+	}
+
 	/**
 	 * @return string
 	 */

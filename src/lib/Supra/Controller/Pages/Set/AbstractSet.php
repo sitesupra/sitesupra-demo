@@ -59,5 +59,20 @@ abstract class AbstractSet extends ArrayObject
 		
 		return $this[$lastIndex];
 	}
+	
+	/**
+	 * @param string $id
+	 * @return Entity
+	 */
+	public function findById($id)
+	{
+		foreach ($this as $entity) {
+			if ($entity->getId() === $id) {
+				return $entity;
+			}
+		}
+		
+		return null;
+	}
 
 }

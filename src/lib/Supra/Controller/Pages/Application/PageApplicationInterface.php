@@ -17,4 +17,10 @@ interface PageApplicationInterface
 	 * @return Path
 	 */
 	public function generatePath(Entity\PageLocalization $pageLocalization);
+	
+	/**
+	 * Whether the application page has it's own path
+	 * @return boolean
+	 */
+	public function hasPath();
 }

@@ -62,6 +62,10 @@ class PathType extends StringType
 	 */
 	public function convertToPHPValue($value, AbstractPlatform $platform)
 	{
+		if (is_null($value)) {
+			return null;
+		}
+		
 		$path = new Path($value);
 		
 		return $path;

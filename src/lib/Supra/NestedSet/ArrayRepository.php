@@ -49,7 +49,7 @@ class ArrayRepository extends RepositoryAbstraction
 	public function createNode($title = null)
 	{
 		$node = new Node\ArrayNode();
-		$node->setTitle($title);
+		$node->setNodeTitle($title);
 		$this->add($node);
 		
 		return $node;
@@ -262,7 +262,7 @@ class ArrayRepository extends RepositoryAbstraction
 	public function byTitle($title)
 	{
 		$filter = function(Node\NodeInterface $node) use ($title) {
-			if ($node->getTitle() == $title) {
+			if ($node->getNodeTitle() == $title) {
 				return true;
 			}
 			return false;

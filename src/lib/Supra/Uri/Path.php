@@ -353,6 +353,28 @@ class Path
 	
 	/**
 	 * @param Path $path
+	 * @param Path $withPath
+	 */
+	public static function compare(Path $path = null, Path $withPath = null)
+	{
+		// Doesn't equal by default
+		$equals = false;
+		
+		if ( ! is_null($path)) {
+			// Send to equals() function if $path not null
+			$equals = $path->equals($withPath);
+		} else {
+			// Equals if both are null
+			if (is_null($withPath)) {
+				$equals = true;
+			}
+		}
+		
+		return $equals;
+	}
+	
+	/**
+	 * @param Path $path
 	 * @return Path
 	 */
 	public function append(Path $path)

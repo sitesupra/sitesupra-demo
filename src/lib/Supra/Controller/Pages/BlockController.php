@@ -41,6 +41,21 @@ abstract class BlockController extends ControllerAbstraction
 	 * @return array
 	 */
 	abstract public function getPropertyDefinition();
+	
+	/**
+	 * Prepares controller for execution
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
+	 */
+	public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
+	{
+		parent::prepare($request, $response);
+		
+		if ($request instanceof PageRequest) {
+			$page = $request->getPage();
+			$this->setPage($page);
+		}
+	}
 
 	/**
 	 * @return Entity\Abstraction\AbstractPage

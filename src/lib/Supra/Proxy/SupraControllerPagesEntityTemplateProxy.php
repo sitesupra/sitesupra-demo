@@ -156,6 +156,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::moveLevel($diff);
     }
 
+    public function getNodeTitle()
+    {
+        $this->__load();
+        return parent::getNodeTitle();
+    }
+
     public function __call($method, $arguments)
     {
         $this->__load();

@@ -9,6 +9,10 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\BlockControllerCollection;
+use Supra\Response\HttpResponse;
+use Supra\Controller\FrontController;
+use Supra\Controller\Pages\Filter\EditableHtml;
+use Supra\Editable;
 
 /**
  * Controller for page content requests
@@ -190,6 +194,8 @@ class PagecontentAction extends PageManagerAction
 		
 		$this->entityManager->flush();
 		
+		$block->prepareController($blockController, $request);
+		
 		// OK response
 		$this->getResponse()->setResponseData(true);
 	}
@@ -261,5 +267,64 @@ class PagecontentAction extends PageManagerAction
 		$this->entityManager->flush();
 		
 		$this->getResponse()->setResponseData(true);
+	}
+	
+	/**
+	 * Responds with block inner HTML content
+	 */
+	public function contenthtmlAction()
+	{
+		//TODO: filter out inline editable properties
+		$this->saveAction();
+		
+		return;
+		
+		$this->isPostRequest();
+		$blockId = $this->getRequestParameter('block_id');
+		$properties = $this->getRequestParameter('properties');
+		
+		$request = $this->getPageRequest();
+		$blocks = $request->getBlockSet();
+		$block = $blocks->findById($blockId);
+		
+		if (is_null($block)) {
+			throw new CmsException(null, "Block doesn't exist anymore");
+		}
+		
+		$propertySet = $request->getBlockPropertySet()
+				->getBlockPropertySet($block);
+		
+		$blockController = $block->createController();
+		$block->prepareController($blockController, $request);
+		
+		foreach ($properties as $name => $value) {
+			
+			$property = $blockController->getProperty($name);
+			
+			if ( ! $property instanceof Entity\BlockProperty) {
+				throw new CmsException(null, "Property $name doesn't exist for the block");
+			}
+
+			$this->entityManager->detach($property);
+			$editable = $property->getEditable();
+
+			/*
+			 * TODO: how to pass metadata here? Currently it's fixed by 
+			 * letting setting only not inline editable contents.
+			 */
+			if ( ! $editable->isInlineEditable()) {
+				$property->setValue($value);
+			}
+		}
+		
+		$blockController->prepareTwigHelper();
+		$block->executeController($blockController);
+		
+		$response = $blockController->getResponse();
+		/* @var $response HttpResponse */
+		$outputString = $response->getOutputString();
+		
+		$this->getResponse()->setResponseData(
+				array('internal_html' => $outputString));
 	}
 }

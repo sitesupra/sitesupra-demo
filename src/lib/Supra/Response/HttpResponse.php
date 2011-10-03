@@ -260,9 +260,18 @@ class HttpResponse implements ResponseInterface
 	{
 		$this->output = array();
 	}
+	
+	/**
+	 * Get output as string
+	 * @return string
+	 */
+	public function getOutputString()
+	{
+		return $this->__toString();
+	}
 
 	/**
-	 * Get output string
+	 * Get output as string
 	 * @return string
 	 */
 	public function __toString()

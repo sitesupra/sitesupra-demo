@@ -57,17 +57,17 @@ abstract class NodeTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testSetTitle()
 	{
-		$this->food->setTitle('Yam-yam');
-		self::assertEquals('Yam-yam', $this->food->getTitle());
+		$this->food->setNodeTitle('Yam-yam');
+		self::assertEquals('Yam-yam', $this->food->getNodeTitle());
 	}
 
 	/**
 	 */
 	public function testGetTitle()
 	{
-		self::assertEquals('Food', $this->food->getTitle());
-		self::assertEquals('Beef', $this->beef->getTitle());
-		self::assertEquals('Yellow', $this->yellow->getTitle());
+		self::assertEquals('Food', $this->food->getNodeTitle());
+		self::assertEquals('Beef', $this->beef->getNodeTitle());
+		self::assertEquals('Yellow', $this->yellow->getNodeTitle());
 	}
 	
 	/**
@@ -135,8 +135,8 @@ DOC
 		self::assertEquals(1, count($this->yellow->getAncestors(1)));
 
 		$nodes = $this->yellow->getAncestors();
-		self::assertEquals('Fruit', $nodes[0]->getTitle());
-		self::assertEquals('Food', $nodes[1]->getTitle());
+		self::assertEquals('Fruit', $nodes[0]->getNodeTitle());
+		self::assertEquals('Food', $nodes[1]->getNodeTitle());
 	}
 
 	/**
@@ -149,10 +149,10 @@ DOC
 		self::assertEquals(3, count($this->food->getDescendants(1, true)));
 
 		$nodes = $this->yellow->getDescendants();
-		self::assertEquals('Banana', $nodes[0]->getTitle());
+		self::assertEquals('Banana', $nodes[0]->getNodeTitle());
 		$nodes = $this->yellow->getDescendants(0, true);
-		self::assertEquals('Yellow', $nodes[0]->getTitle());
-		self::assertEquals('Banana', $nodes[1]->getTitle());
+		self::assertEquals('Yellow', $nodes[0]->getNodeTitle());
+		self::assertEquals('Banana', $nodes[1]->getNodeTitle());
 	}
 
 	/**
@@ -161,11 +161,11 @@ DOC
 	{
 		$child = $this->food->getFirstChild();
 		self::assertNotNull($child);
-		self::assertEquals('Fruit', $child->getTitle());
+		self::assertEquals('Fruit', $child->getNodeTitle());
 
 		$child = $this->yellow->getFirstChild();
 		self::assertNotNull($child);
-		self::assertEquals('Banana', $child->getTitle());
+		self::assertEquals('Banana', $child->getNodeTitle());
 		
 		$child = $this->beef->getFirstChild();
 		self::assertEquals(null, $child);
@@ -177,11 +177,11 @@ DOC
 	{
 		$child = $this->food->getLastChild();
 		self::assertNotNull($child);
-		self::assertEquals('Meat', $child->getTitle());
+		self::assertEquals('Meat', $child->getNodeTitle());
 
 		$child = $this->yellow->getLastChild();
 		self::assertNotNull($child);
-		self::assertEquals('Banana', $child->getTitle());
+		self::assertEquals('Banana', $child->getNodeTitle());
 
 		$child = $this->beef->getLastChild();
 		self::assertEquals(null, $child);
@@ -211,7 +211,7 @@ DOC
 	{
 		self::assertEquals(null, $this->food->getNextSibling());
 		self::assertNotNull($this->beef->getNextSibling());
-		self::assertEquals('Pork', $this->beef->getNextSibling()->getTitle());
+		self::assertEquals('Pork', $this->beef->getNextSibling()->getNodeTitle());
 		self::assertEquals(null, $this->yellow->getNextSibling());
 	}
 
@@ -222,7 +222,7 @@ DOC
 		self::assertEquals(null, $this->food->getPrevSibling());
 		self::assertEquals(null, $this->beef->getPrevSibling());
 		self::assertNotNull($this->yellow->getPrevSibling());
-		self::assertEquals('Red', $this->yellow->getPrevSibling()->getTitle());
+		self::assertEquals('Red', $this->yellow->getPrevSibling()->getNodeTitle());
 	}
 
 	/**
@@ -258,9 +258,9 @@ DOC
 	{
 		self::assertEquals(null, $this->food->getParent());
 		self::assertNotNull($this->beef->getParent());
-		self::assertEquals('Meat', $this->beef->getParent()->getTitle());
+		self::assertEquals('Meat', $this->beef->getParent()->getNodeTitle());
 		self::assertNotNull($this->yellow->getParent());
-		self::assertEquals('Fruit', $this->yellow->getParent()->getTitle());
+		self::assertEquals('Fruit', $this->yellow->getParent()->getNodeTitle());
 	}
 
 	/**
@@ -278,12 +278,12 @@ DOC
 	{
 		$children = $this->food->getChildren();
 		self::assertEquals(2, count($children));
-		self::assertEquals('Fruit', $children[0]->getTitle());
-		self::assertEquals('Meat', $children[1]->getTitle());
+		self::assertEquals('Fruit', $children[0]->getNodeTitle());
+		self::assertEquals('Meat', $children[1]->getNodeTitle());
 		
 		$children = $this->yellow->getChildren();
 		self::assertEquals(1, count($children));
-		self::assertEquals('Banana', $children[0]->getTitle());
+		self::assertEquals('Banana', $children[0]->getNodeTitle());
 		
 		$children = $this->beef->getChildren();
 		self::assertEquals(0, count($children));
@@ -295,28 +295,28 @@ DOC
 	{
 		$siblings = $this->food->getSiblings();
 		self::assertEquals(1, count($siblings));
-		self::assertEquals('Food', $siblings[0]->getTitle());
+		self::assertEquals('Food', $siblings[0]->getNodeTitle());
 		
 		$siblings = $this->food->getSiblings(false);
 		self::assertEquals(0, count($siblings));
 
 		$siblings = $this->yellow->getSiblings();
 		self::assertEquals(2, count($siblings));
-		self::assertEquals('Red', $siblings[0]->getTitle());
-		self::assertEquals('Yellow', $siblings[1]->getTitle());
+		self::assertEquals('Red', $siblings[0]->getNodeTitle());
+		self::assertEquals('Yellow', $siblings[1]->getNodeTitle());
 		
 		$siblings = $this->yellow->getSiblings(false);
 		self::assertEquals(1, count($siblings));
-		self::assertEquals('Red', $siblings[0]->getTitle());
+		self::assertEquals('Red', $siblings[0]->getNodeTitle());
 
 		$siblings = $this->beef->getSiblings();
 		self::assertEquals(2, count($siblings));
-		self::assertEquals('Beef', $siblings[0]->getTitle());
-		self::assertEquals('Pork', $siblings[1]->getTitle());
+		self::assertEquals('Beef', $siblings[0]->getNodeTitle());
+		self::assertEquals('Pork', $siblings[1]->getNodeTitle());
 
 		$siblings = $this->beef->getSiblings(false);
 		self::assertEquals(1, count($siblings));
-		self::assertEquals('Pork', $siblings[0]->getTitle());
+		self::assertEquals('Pork', $siblings[0]->getNodeTitle());
 
 	}
 

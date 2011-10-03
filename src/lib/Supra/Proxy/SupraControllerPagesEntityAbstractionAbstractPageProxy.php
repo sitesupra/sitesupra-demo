@@ -120,6 +120,12 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::moveLevel($diff);
     }
 
+    public function getNodeTitle()
+    {
+        $this->__load();
+        return parent::getNodeTitle();
+    }
+
     public function getNestedSetRepositoryClassName()
     {
         $this->__load();
@@ -249,7 +255,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id', 'revision');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id');
     }
 
     public function __clone()

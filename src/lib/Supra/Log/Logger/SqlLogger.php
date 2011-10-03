@@ -74,6 +74,12 @@ class SqlLogger implements SQLLoggerInterface
 			if ($param instanceof \DateTime) {
 				$this->params[$key] = $param->format('c');
 			}
+			if ($param instanceof \Supra\Uri\Path) {
+				$this->params[$key] = $param->getFullPath();
+			}
+			if (is_null($param)) {
+				$param = 'NULL';
+			}
 		}
 		unset($param);
 		

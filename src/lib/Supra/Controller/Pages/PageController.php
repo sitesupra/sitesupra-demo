@@ -162,7 +162,7 @@ class PageController extends ControllerAbstraction
 				throw new Exception\InvalidBlockException('Block controller was not found');
 			}
 			
-			$blockController->setPage($page);
+//			$blockController->setPage($page);
 			
 			return $blockController;
 		};
@@ -194,6 +194,7 @@ class PageController extends ControllerAbstraction
 	{
 		// function which adds controllers for the block
 		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) {
+			// It is important to prepare the twig helper for each block controller right before execution
 			$blockController->prepareTwigHelper();
 			$blockController->execute();
 		};

@@ -69,7 +69,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @param string $title
 	 * @return NodeAbstraction
 	 */
-	public function setTitle($title)
+	public function setNodeTitle($title)
 	{
 		$this->title = $title;
 		return $this;
@@ -78,7 +78,7 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * @return string
 	 */
-	public function getTitle()
+	public function getNodeTitle()
 	{
 		return $this->title;
 	}
@@ -809,7 +809,7 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function __toString()
 	{
-		return $this->getTitle();
+		return $this->getNodeTitle();
 	}
 
 	/**
@@ -819,11 +819,11 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public static function dump(NodeInterface $node)
 	{
-		$prefix = \str_repeat(static::DUMP_PREFIX, $node->getLevel());
+		$prefix = str_repeat(static::DUMP_PREFIX, $node->getLevel());
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
 		$level = $node->getLevel();
-		$title = $node->getTitle();
+		$title = $node->getNodeTitle();
 		$dumpData = array(
 			static::DUMP_PREFIX_POS => $prefix,
 			static::DUMP_LEFT_POS => $left,

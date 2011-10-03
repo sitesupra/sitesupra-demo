@@ -80,13 +80,25 @@ class SitemapAction extends PageManagerAction
 
 		$pathPart = null;
 		$templateId = null;
+//		$hasPath = true;
 		$applicationBasePath = new Path('');
 
-		//TODO: need to know template ID as well
 		if ($page instanceof Entity\Page) {
 			$templateId = $data->getTemplate()
 					->getId();
 		}
+		
+//		if ($page instanceof Entity\ApplicationPage) {
+//			$applicationId = $page->getApplicationId();
+//			$application = PageApplicationCollection::getInstance()
+//							->createApplication($applicationId);
+//			
+//			if (empty($application)) {
+//				throw new CmsException(null, "Application '$applicationId' was not found");
+//			}
+//			
+//			$hasPath = $application->hasPath();
+//		}
 
 		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
@@ -117,6 +129,8 @@ class SitemapAction extends PageManagerAction
 			'id' => $data->getId(),
 			'title' => $data->getTitle(),
 			'template' => $templateId,
+			
+			// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 			'path' => $pathPart,
 			// Additional base path received from application
 			'basePath' => $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER),
