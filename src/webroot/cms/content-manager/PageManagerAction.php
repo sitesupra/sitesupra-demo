@@ -418,7 +418,7 @@ abstract class PageManagerAction extends CmsAction
 	 * will throw an exception if no, and update lock modified time if yes
 	 * @throws ObjectLockedException if page is locked by another user
 	 */
-	protected function checkLock()
+	protected function checkLock($createLockOnMiss = true)
 	{
 		$this->isPostRequest();
 		
@@ -434,7 +434,10 @@ abstract class PageManagerAction extends CmsAction
 				$pageLock->setModifiedTime(new \DateTime('now'));
 				$this->entityManager->flush();
 			}
-		} 
+		} elseif ($createLockOnMiss) {
+			// Creates lock if doesn't exist
+			$this->createLock($pageData, $userId);
+		}
 	}
 	
 	/**
@@ -502,14 +505,24 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 		
+		$this->createLock($pageData, $userId);
+	
+		$this->getResponse()->setResponseData(true);
+	}
+
+	/**
+	 * Creates the lock inside the database
+	 * @param Entity\Abstraction\Localization $pageData
+	 * @param string $userId
+	 */
+	protected function createLock(Entity\Abstraction\Localization $pageData, $userId)
+	{
 		$pageLock = new Entity\LockData();
 		$this->entityManager->persist($pageLock);
 		
 		$pageLock->setUserId($userId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
-	
-		$this->getResponse()->setResponseData(true);
 	}
 	
 }

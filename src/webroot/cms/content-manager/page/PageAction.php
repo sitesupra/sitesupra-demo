@@ -305,7 +305,7 @@ class PageAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$this->checkLock();
+		$this->checkLock(false);
 		$pageData = $this->getPageLocalization();
 
 		if ($this->hasRequestParameter('title')) {
