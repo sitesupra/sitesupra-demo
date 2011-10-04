@@ -305,6 +305,7 @@ class PageAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		$pageData = $this->getPageLocalization();
 
 		if ($this->hasRequestParameter('title')) {
@@ -401,7 +402,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function lockAction()
 	{
-		$this->isPostRequest(); // wth?
+		$this->isPostRequest();
 		
 		$page = $this->getPageLocalization()->getMaster();
 		try {

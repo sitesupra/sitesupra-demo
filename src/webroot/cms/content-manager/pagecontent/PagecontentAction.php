@@ -25,6 +25,7 @@ class PagecontentAction extends PageManagerAction
 	public function insertblockAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
@@ -85,6 +86,7 @@ class PagecontentAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageLocalization();
 		$request = $this->getPageRequest();
@@ -211,6 +213,7 @@ class PagecontentAction extends PageManagerAction
 	public function deleteblockAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		
 		$blockId = $this->getRequestParameter('block_id');
 		

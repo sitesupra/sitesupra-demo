@@ -20,6 +20,7 @@ class PagesettingsAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		$pageData = $this->getPageLocalization();
 		$localeId = $this->getLocale()->getId();
 
