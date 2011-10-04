@@ -149,7 +149,7 @@ Supra(function (Y) {
 			var page_id = req.params.page_id,
 				page_data = Manager.Page.getPageData();
 			
-			if (page_id && page_id != page_data.id) {
+			if (page_id && ( ! page_data || page_id != page_data.id)) {
 				//Open page; evt.data is in format  {'id': 1}
 				Manager.getAction('Page').execute({'id': page_id});
 			}

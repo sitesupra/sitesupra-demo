@@ -145,9 +145,9 @@ abstract class PageManagerAction extends CmsAction
 
 	/**
 	 * Get first page localization ID to show in the CMS
-	 * @return int
+	 * @return Entity\Abstraction\Localization
 	 */
-	protected function getInitialPageLocalizationId()
+	protected function getInitialPageLocalization()
 	{
 		$localeId = $this->getLocale()->getId();
 		$localization = null;
@@ -178,19 +178,18 @@ abstract class PageManagerAction extends CmsAction
 			return null;
 		}
 		
-		$pageLocalizationId = $localization->getId();
-
-		return $pageLocalizationId;
+		return $localization;
 	}
 
 	/**
 	 * Sets initial page ID to show in the CMS
-	 * @param int $pageId
+	 * @param string $pageId
 	 */
 	protected function setInitialPageId($pageId)
 	{
 		$cookie = new Cookie(self::INITIAL_PAGE_ID_COOKIE, $pageId);
 		$cookie->setExpire('+1 month');
+		$_COOKIE[self::INITIAL_PAGE_ID_COOKIE] = $pageId;
 
 		$this->getResponse()->setCookie($cookie);
 	}

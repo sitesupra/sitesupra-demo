@@ -19,16 +19,25 @@ class RootAction extends PageManagerAction
 	 */
 	public function indexAction()
 	{
+		$request = $this->getRequest();
 		$response = $this->getResponse();
 		/* @var $response TwigResponse */
-		
-		// Last opened page
-		$pageLocalizationId = $this->getInitialPageLocalizationId();
-		$response->assign('pageLocalizationId', $pageLocalizationId);
 		
 		// Current locale ID
 		$localeId = $this->getLocale()->getId();
 		$response->assign('currentLocale', $localeId);
+		
+		// Last opened page, overrides current detected locale if found
+		$pageLocalization = $this->getInitialPageLocalization();
+		
+		if ( ! is_null($pageLocalization)) {
+			$pageLocalizationId = $pageLocalization->getId();
+			$locale = $pageLocalization->getLocale();
+			$response->assign('pageLocalizationId', $pageLocalizationId);
+			$response->assign('currentLocale', $locale);
+		} else {
+			$response->assign('pageLocalizationId', null);
+		}
 
 		// Locale array
 		$localeList = $this->createLocaleArray();
