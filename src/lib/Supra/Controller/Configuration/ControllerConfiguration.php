@@ -4,11 +4,12 @@ namespace Supra\Controller\Configuration;
 
 use Supra\Controller\FrontController;
 use Supra\Router\Configuration\RouterConfiguration;
+use Supra\Configuration\ConfigurationInterface;
 
 /**
  * Controller base configuration
  */
-class ControllerConfiguration implements ControllerConfigurationInterface
+class ControllerConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var RouterConfiguration

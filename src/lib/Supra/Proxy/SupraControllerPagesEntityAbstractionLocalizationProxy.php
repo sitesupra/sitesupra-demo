@@ -165,7 +165,7 @@ class SupraControllerPagesEntityAbstractionLocalizationProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id');
+        return array('__isInitialized__', 'locale', 'title', 'master', 'blockProperties', 'id', 'revision');
     }
 
     public function __clone()

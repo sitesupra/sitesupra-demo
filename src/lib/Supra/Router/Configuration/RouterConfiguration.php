@@ -4,11 +4,12 @@ namespace Supra\Router\Configuration;
 
 use Supra\Router\RouterInterface;
 use Supra\Router\RouterAbstraction;
+use Supra\Configuration\ConfigurationInterface;
 
 /**
  * RouterConfiguration
  */
-class RouterConfiguration
+class RouterConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var string

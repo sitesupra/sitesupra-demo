@@ -11,6 +11,7 @@ use Supra\User\Entity\Abstraction\User;
 use Supra\Editable;
 use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
+use Supra\Cms\Exception\ObjectLockedException;
 
 /**
  * 
@@ -424,7 +425,7 @@ class PageAction extends PageManagerAction
 	{
 		try {
 			$this->checkLock();
-		} catch (\Exception $e) {
+		} catch (ObjectLockedException $e) {
 			$this->getResponse()->setResponseData(true);
 			return;
 		}

@@ -67,7 +67,9 @@ class PageApplicationCollection
 			$configuration = $this->getConfiguration($id);
 			
 			if ($configuration instanceof PageApplicationConfiguration) {
-				$this->loadedApplications[$id] = Loader::getClassInstance($configuration->className);
+				$this->loadedApplications[$id] = Loader::getClassInstance(
+						$configuration->className, 
+						'Supra\Controller\Pages\Application\PageApplicationInterface');
 			}
 		}
 		

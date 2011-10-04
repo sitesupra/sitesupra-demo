@@ -153,7 +153,7 @@ class SupraControllerPagesEntityAbstractionPlaceHolderProxy extends \Supra\Contr
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'type', 'name', 'blocks', 'master', 'id');
+        return array('__isInitialized__', 'type', 'name', 'blocks', 'master', 'id', 'revision');
     }
 
     public function __clone()

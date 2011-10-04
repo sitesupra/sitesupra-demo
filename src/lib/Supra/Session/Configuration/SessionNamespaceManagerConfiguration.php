@@ -5,8 +5,9 @@ namespace Supra\Session\Configuration;
 use Supra\Session\SessionNamespaceManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
+use Supra\Configuration\ConfigurationInterface;
 
-class SessionNamespaceManagerConfiguration 
+class SessionNamespaceManagerConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var string
@@ -39,7 +40,9 @@ class SessionNamespaceManagerConfiguration
 
 	public function configure()
 	{
-		$handler = Loader::getClassInstance($this->handlerClass);
+		$handler = Loader::getClassInstance($this->handlerClass, 
+				'Supra\Session\Handler\HandlerAbstraction');
+		
 		$sessionNamespaceManager = new SessionNamespaceManager($handler);
 		
 		foreach ($this->namespaces as $namespace) {

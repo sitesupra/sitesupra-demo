@@ -3,7 +3,6 @@
 namespace Supra\Loader;
 
 use Supra\Loader\Strategy\LoaderStrategyInterface;
-use Supra\Loader\Exception;
 
 /**
  * Loader registry class
@@ -173,19 +172,19 @@ class Loader
 	 * @param string $className
 	 * @param string $interface 
 	 * @return object
-	 * @throws Supra\Loader\Exception\ClassMismatchException
-	 * @throws Supra\Loader\Exception\InterfaceNotFound
-	 * @throws Supra\Loader\Exception\ClassNotFound
+	 * @throws Exception\ClassMismatchException
+	 * @throws Exception\InterfaceNotFound
+	 * @throws Exception\ClassNotFound
 	 */
 	public static function getClassInstance($className, $interface = null) 
 	{
-		if ( ! \class_exists($className)) {
+		if ( ! class_exists($className)) {
 			throw new Exception\ClassNotFound($className);
 		}
 		
 		$object = new $className();
-		if ( ! \is_null($interface) && \is_string($interface)) {
-			if ( ! \class_exists($interface) && ! \interface_exists($interface)) {
+		if ( ! is_null($interface) && is_string($interface)) {
+			if ( ! class_exists($interface) && ! interface_exists($interface)) {
 				throw new Exception\InterfaceNotFound($className);
 			}
 			if ( ! $object instanceof $interface) {

@@ -3,11 +3,12 @@
 namespace Supra\Controller\Pages\Configuration;
 
 use Supra\Controller\Pages\Application\PageApplicationCollection;
+use Supra\Configuration\ConfigurationInterface;
 
 /**
  * Configuration for page applications, works as 
  */
-class PageApplicationConfiguration
+class PageApplicationConfiguration implements ConfigurationInterface
 {
 	public $id;
 	

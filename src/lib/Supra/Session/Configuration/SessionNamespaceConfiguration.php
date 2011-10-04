@@ -4,8 +4,9 @@ namespace Supra\Session\Configuration;;
 
 use Supra\Session\SessionNamespaceManager;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Configuration\ConfigurationInterface;
 
-class SessionNamespaceConfiguration 
+class SessionNamespaceConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var string

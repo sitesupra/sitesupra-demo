@@ -3,8 +3,9 @@
 namespace Supra\Loader\Configuration;
 
 use Supra\Loader\Strategy\LoaderStrategyInterface;
+use Supra\Configuration\ConfigurationInterface;
 
-class NamespaceConfiguration
+class NamespaceConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var string
