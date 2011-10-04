@@ -87,17 +87,21 @@ class PagecontentAction extends PageManagerAction
 		$this->isPostRequest();
 		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageLocalization();
+		$request = $this->getPageRequest();
 		
 		$pageId = $pageData->getMaster()->getId();
 		$blockId = $this->getRequestParameter('block_id');
 		
-		/* @var $blockEntity Entity\Abstraction\Block */
-		$blockEntity = $this->entityManager->find(PageRequest::BLOCK_ENTITY, $blockId);
+		/* @var $block Entity\Abstraction\Block */
+		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
 		
-		// We need block controller to receive block property definition
-		$blockName = $blockEntity->getComponentName();
-		$blockCollection = BlockControllerCollection::getInstance();
-		$blockController = $blockCollection->getBlockController($blockName);
+		if (empty($block)) {
+			throw new CmsException(null, "Block doesn't exist anymore");
+		}
+		
+		// Receive block property definition
+		$blockController = $block->createController();
+		$block->prepareController($blockController, $request);
 		$propertyDefinitionList = $blockController->getPropertyDefinition();
 		
 		// Load received property values and data from the POST
@@ -106,7 +110,7 @@ class PagecontentAction extends PageManagerAction
 		foreach ($properties as $propertyName => $propertyPost) {
 			
 			if ( ! isset($propertyDefinitionList[$propertyName])) {
-				throw new CmsException(null, "Property $propertyName not defined for block $blockName");
+				throw new CmsException(null, "Property $propertyName not defined for block $block");
 			}
 			
 			$propertyDefinition = $propertyDefinitionList[$propertyName];
@@ -159,13 +163,6 @@ class PagecontentAction extends PageManagerAction
 				$blockProperty = $query->getSingleResult();
 			} catch (\Doctrine\ORM\NoResultException $noResults) {
 
-				$blockEntity = PageRequest::BLOCK_ENTITY;
-				$block = $this->entityManager->find($blockEntity, $blockId);
-
-				if (empty($block)) {
-					throw new CmsException(null, "Block doesn't exist anymore");
-				}
-
 				$blockProperty = new Entity\BlockProperty($name, $type);
 				$this->entityManager->persist($blockProperty);
 				$blockProperty->setLocalization($pageData);
@@ -196,8 +193,16 @@ class PagecontentAction extends PageManagerAction
 		
 		$block->prepareController($blockController, $request);
 		
-		// OK response
-		$this->getResponse()->setResponseData(true);
+		$blockController->prepareTwigHelper();
+		$block->executeController($blockController);
+		
+		$response = $blockController->getResponse();
+		/* @var $response HttpResponse */
+		$outputString = $response->getOutputString();
+		
+		// Block HTML in response
+		$this->getResponse()->setResponseData(
+				array('internal_html' => $outputString));
 	}
 	
 	/**
@@ -276,55 +281,55 @@ class PagecontentAction extends PageManagerAction
 	{
 		//TODO: filter out inline editable properties
 		$this->saveAction();
-		
-		return;
-		
-		$this->isPostRequest();
-		$blockId = $this->getRequestParameter('block_id');
-		$properties = $this->getRequestParameter('properties');
-		
-		$request = $this->getPageRequest();
-		$blocks = $request->getBlockSet();
-		$block = $blocks->findById($blockId);
-		
-		if (is_null($block)) {
-			throw new CmsException(null, "Block doesn't exist anymore");
-		}
-		
-		$propertySet = $request->getBlockPropertySet()
-				->getBlockPropertySet($block);
-		
-		$blockController = $block->createController();
-		$block->prepareController($blockController, $request);
-		
-		foreach ($properties as $name => $value) {
-			
-			$property = $blockController->getProperty($name);
-			
-			if ( ! $property instanceof Entity\BlockProperty) {
-				throw new CmsException(null, "Property $name doesn't exist for the block");
-			}
-
-			$this->entityManager->detach($property);
-			$editable = $property->getEditable();
-
-			/*
-			 * TODO: how to pass metadata here? Currently it's fixed by 
-			 * letting setting only not inline editable contents.
-			 */
-			if ( ! $editable->isInlineEditable()) {
-				$property->setValue($value);
-			}
-		}
-		
-		$blockController->prepareTwigHelper();
-		$block->executeController($blockController);
-		
-		$response = $blockController->getResponse();
-		/* @var $response HttpResponse */
-		$outputString = $response->getOutputString();
-		
-		$this->getResponse()->setResponseData(
-				array('internal_html' => $outputString));
+//		
+//		return;
+//		
+//		$this->isPostRequest();
+//		$blockId = $this->getRequestParameter('block_id');
+//		$properties = $this->getRequestParameter('properties');
+//		
+//		$request = $this->getPageRequest();
+//		$blocks = $request->getBlockSet();
+//		$block = $blocks->findById($blockId);
+//		
+//		if (is_null($block)) {
+//			throw new CmsException(null, "Block doesn't exist anymore");
+//		}
+//		
+//		$propertySet = $request->getBlockPropertySet()
+//				->getBlockPropertySet($block);
+//		
+//		$blockController = $block->createController();
+//		$block->prepareController($blockController, $request);
+//		
+//		foreach ($properties as $name => $value) {
+//			
+//			$property = $blockController->getProperty($name);
+//			
+//			if ( ! $property instanceof Entity\BlockProperty) {
+//				throw new CmsException(null, "Property $name doesn't exist for the block");
+//			}
+//
+//			$this->entityManager->detach($property);
+//			$editable = $property->getEditable();
+//
+//			/*
+//			 * TODO: how to pass metadata here? Currently it's fixed by 
+//			 * letting setting only not inline editable contents.
+//			 */
+//			if ( ! $editable->isInlineEditable()) {
+//				$property->setValue($value);
+//			}
+//		}
+//		
+//		$blockController->prepareTwigHelper();
+//		$block->executeController($blockController);
+//		
+//		$response = $blockController->getResponse();
+//		/* @var $response HttpResponse */
+//		$outputString = $response->getOutputString();
+//		
+//		$this->getResponse()->setResponseData(
+//				array('internal_html' => $outputString));
 	}
 }
