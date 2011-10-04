@@ -16,6 +16,8 @@ use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
+use Supra\Mailer\Message\TwigMessage;
+
 /**
  * Sitemap
  */
