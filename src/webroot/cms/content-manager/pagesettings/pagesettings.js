@@ -181,9 +181,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			}
 			
 			//Set time
-			var time = Y.DataType.Date.reformat(this.page_data.scheduled_time, 'in_time', 'raw'),
-				hours = (time ? time.getHours() : 0),
-				minutes = (time ? time.getMinutes() : 0);
+			if (this.page_data.scheduled_time) {
+				var time = Y.DataType.Date.reformat(this.page_data.scheduled_time, 'in_time', 'raw'),
+					hours = (time ? time.getHours() : 0),
+					minutes = (time ? time.getMinutes() : 0);
+			} else {
+				var hours = 0,
+					minutes = 0;
+			}
 			
 			this.form.getInput('schedule_hours').set('value', hours < 10 ? '0' + hours : hours);
 			this.form.getInput('schedule_minutes').set('value', minutes < 10 ? '0' + minutes : minutes);
