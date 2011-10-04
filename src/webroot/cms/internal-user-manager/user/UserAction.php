@@ -210,15 +210,20 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$email = $this->getRequestParameter('email');
 			$name = $this->getRequestParameter('name');
-			$group = $this->getRequestParameter('group');
+			$groupNumber = $this->getRequestParameter('group');
+
+			$em = $this->userProvider->getEntityManager();
 
 			$user = new Entity\User();
-
-			$this->entityManager->persist($user);
+			$em->persist($user);
 
 			// TODO: add group, avatar
 			$user->setName($name);
 			$user->setEmail($email);
+			
+			$dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
+			$group = $this->userProvider->findGroupByName(array_search($groupNumber, $dummyGroupMap));
+			$user->setGroup($group);
 			
 			try {
 				$this->userProvider->validate($user);
@@ -258,18 +263,19 @@ class UserAction extends InternalUserManagerAbstractAction
 					->setBody('createpassword.twig', $mailVars);
 			$mailer->send($message);
 			
-			$this->entityManager->flush();
+			$em->flush();
 
 			$response = array(
 				'name' => $name,
 				'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
 				'email' => $email,
-				'group' => 1,
+				'group' => $groupNumber,
 				'user_id' => $user->getId(),
 			);
 
 			$this->getResponse()->setResponseData($response);
-		} else {
+		} 
+		else {
 
 			//error message
 		}

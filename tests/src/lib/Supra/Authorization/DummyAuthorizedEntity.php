@@ -9,6 +9,8 @@ use Supra\Authorization\Permission\Permission;
 
 use Supra\User\Entity\Abstraction\User;
 
+use Supra\Authorization\AuthorizationProvider;
+
 class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterface
 {
 	const PERMISSION_EDIT_NAME = 'dummy_edit';
@@ -32,15 +34,13 @@ class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterfa
 		return __CLASS__;
 	}
 	
-	function getPermissions() 
+	static function registerPermissions(AuthorizationProvider $ap)
 	{
-		return array(
-			$this->getEditPermission(),
-			$this->getDeletePermission()	
-		);
+		$ap->registerGenericEntityPermission(self::PERMISSION_EDIT_NAME, self::PERMISSION_EDIT_MASK, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_NAME, self::PERMISSION_PUBLISH_MASK, __CLASS__);		
 	}
 	
-	function authorize(User $user, $permission) 
+	function authorize(User $user, $permission, $grant) 
 	{
 		return true;
 	}

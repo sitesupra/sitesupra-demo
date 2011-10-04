@@ -21,6 +21,8 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		
 		$result = array();
 		
+		$dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
+		
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
 			
@@ -28,7 +30,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 				'id' => $user->getId(),
 				'avatar' => null,
 				'name' => $user->getName(),
-				'group' => 1
+				'group' => $dummyGroupMap[$user->getGroup()->getName()]
 			);
 			
 		}

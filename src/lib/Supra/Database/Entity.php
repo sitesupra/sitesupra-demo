@@ -44,7 +44,7 @@ abstract class Entity
 	 */
 	protected function regenerateId()
 	{
-		$this->id = sha1(uniqid(get_class($this), true));
+		$this->id = self::generateId(get_class($this));
 	}
 	
 	/**
@@ -208,5 +208,10 @@ abstract class Entity
 		$value = $this->$method();
 		
 		return $value;
+	}
+	
+	public static function generateId($className) 
+	{
+		return sha1(uniqid($className, true));
 	}
 }

@@ -121,6 +121,18 @@ class UserProvider
 		return $user;
 	}
 	
+	private function findById($class, $id)
+	{
+		$repo = $this->entityManager->getRepository($class);
+		$user = $repo->findOneById($id);
+		
+		if (empty($user)) {
+			return null;
+		}
+		
+		return $user;
+	}
+	
 	/**
 	 * Find user by login
 	 * @param string $login
@@ -128,10 +140,10 @@ class UserProvider
 	 */
 	public function findUserByLogin($login)
 	{
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
+		$repo = $this->entityManager->getRepository(Entity\User::CN());
 		$user = $repo->findOneByLogin($login);
 		
-		if(empty($user)) {
+		if (empty($user)) {
 			return null;
 		}
 		return $user;
@@ -144,13 +156,32 @@ class UserProvider
 	 */
 	public function findUserById($id)
 	{
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		$user = $repo->findOneById($id);
+		return $this->findById(Entity\User::CN(), $id);	
+	}
+	
+	/**
+	 * Find group by name
+	 * @param string $name
+	 * @return Entity\Group 
+	 */
+	public function findGroupByName($name) 
+	{
+		$repo = $this->entityManager->getRepository(Entity\Group::CN());
+		$group = $repo->findOneByName($name);
 		
-		if(empty($user)) {
+		if (empty($group)) {
 			return null;
 		}
-		
-		return $user;
+		return $group;
+	}
+	
+	/**
+	 * Find group by id
+	 * @param type $id
+	 * @return Entity\Group
+	 */
+	public function findGroupById($id) 
+	{
+		return $this->findById(Entity\Group::CN(), $id);
 	}
 }

@@ -187,7 +187,7 @@ YUI.add('website.permission-list', function (Y) {
 				locale = data.locale;
 				existing = true;
 			} else {
-				data = tree.getNodeById(node_id).get('data');
+				data = tree.getNodeById(data).get('data');
 				locale = this.get('languagebar').get('locale');
 			}
 			

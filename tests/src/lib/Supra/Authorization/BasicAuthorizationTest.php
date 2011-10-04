@@ -10,6 +10,7 @@ use Supra\Cms\ApplicationConfiguration;
 
 use Supra\NestedSet\ArrayRepository;
 use Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy;
+use Supra\Database\Entity as DatabaseEntity;
 
 require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
 
@@ -29,9 +30,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	 */
 	private $ap;
 	
-	
 	/**
-	 *
 	 * @var \Supra\User\UserProvider;
 	 */
 	private $up;
@@ -46,7 +45,6 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		} catch (\Exception $e) {}
 		
 		$this->em->beginTransaction();
-//		$this->em->beginTransaction();
 		
 		$this->up = ObjectRepository::getUserProvider($this);
 
@@ -100,10 +98,9 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	function tearDown() 
 	{
 		$this->em->rollback();
-//		$this->em->rollback();
 	}
 	
-	function testApplicationGrantAccessPermission() 
+	function __testApplicationGrantAccessPermission() 
 	{
 		$appConfig = new \Supra\Cms\ApplicationConfiguration();
 		$appConfig->id = 'dummy';
@@ -111,8 +108,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$appConfig->path = '/cms/dummy';
 		$appConfig->icon = '/cms/lib/supra/img/apps/dummy';
 		$appConfig->applicationNamespace = 'Supra\Tests\DummyApplication';
-		$appConfig->authorizationAccessPolicyClass = '\Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy';
-		$appConfig->authorizationAccessPolicy = new AuthorizationAllOrNoneAccessPolicy();
+		$appConfig->authorizationAccessPolicyClass = 'Supra\Tests\Authorization\DummyAuthorizationAccessPolicy';
 		$appConfig->configure();
 		
 		$user1 = $this->makeNewUser();
@@ -166,18 +162,6 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 			$rep->add($nodes[$nodeName]);
 		}
 		
-		$this->ap->registerGenericEntityPermission(
-				DummyAuthorizedEntity::PERMISSION_EDIT_NAME, 
-				DummyAuthorizedEntity::PERMISSION_EDIT_MASK, 
-				DummyAuthorizedEntity::__CLASS()
-		);
-		
-		$this->ap->registerGenericEntityPermission(
-				DummyAuthorizedEntity::PERMISSION_PUBLISH_NAME, 
-				DummyAuthorizedEntity::PERMISSION_PUBLISH_MASK, 
-				DummyAuthorizedEntity::__CLASS()
-		);
-		
 		$nodes['meat']->addChild($nodes['pork']);
 		$nodes['meat']->addChild($nodes['beef']);
 		$nodes['meat']->addChild($nodes['fish']);
@@ -192,6 +176,8 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$nodes['red']->addChild($nodes['cherry']);
 		$nodes['red']->addChild($nodes['tomato']);
 		
+		DummyAuthorizedEntity::registerPermissions($this->ap);
+		
 		$this->ap->setPermsission($user1, $nodes['fruit'], DummyAuthorizedEntity::PERMISSION_EDIT_NAME, PermissionStatus::ALLOW);
 		
 		self::assertEquals($this->ap->isPermissionGranted($user1, $nodes['fruit'], DummyAuthorizedEntity::PERMISSION_EDIT_NAME), true);
@@ -201,5 +187,37 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 
 		self::assertEquals($this->ap->isPermissionGranted($user1, $nodes['tuna'], DummyAuthorizedEntity::PERMISSION_EDIT_NAME), true);
 		self::assertEquals($this->ap->isPermissionGranted($user1, $nodes['meat'], DummyAuthorizedEntity::PERMISSION_EDIT_NAME), false);
+	}
+	
+	/**
+	 * This test checks if object identity key in ace entry table is correct. 
+	 * This checks that our modifications to Symfony's AclProvider class - removal of 
+	 * casts of id's to integers - are functioning propperly, and id's written to db have 
+	 * correct lenght.
+	 */
+	function testPatch() 
+	{
+		$appConfig = new \Supra\Cms\ApplicationConfiguration();
+		$appConfig->id = 'dummy';
+		$appConfig->title = 'Dummy';
+		$appConfig->path = '/cms/dummy';
+		$appConfig->icon = '/cms/lib/supra/img/apps/dummy';
+		$appConfig->applicationNamespace = 'Supra\Tests\DummyApplication';
+		$appConfig->authorizationAccessPolicyClass = 'Supra\Tests\Authorization\DummyAuthorizationAccessPolicy';
+		$appConfig->configure();
+
+		$user1 = $this->makeNewUser();
+		
+		$this->ap->grantApplicationAllAccessPermission($user1, $appConfig);
+		
+		$connection = $this->em->getConnection();
+		
+		$res = $connection->query('SELECT * FROM ' . AuthorizationProvider::ACL_ENTRY_TABLE_NAME);
+		$row = $res->fetch();
+		
+		// argument does not really matress, as we need this for lenght check.
+		$dummyIdString = DatabaseEntity::generateId(__FUNCTION__); 
+		
+		self::assertEquals(strlen($row['object_identity_id']), strlen($dummyIdString));
 	}
 }

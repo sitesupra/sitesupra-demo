@@ -28,7 +28,7 @@ class User extends Abstraction\User
 	protected $email;
 	
 	/**
-	* @OneToOne(targetEntity="Group")
+	* @ManyToOne(targetEntity="Group")
 	* @JoinColumn(name="group_id", referencedColumnName="id") 
 	 */
 	protected $group;
@@ -169,7 +169,7 @@ class User extends Abstraction\User
 	}
 	
 	/**
-	 * @return string
+	 * @return Entity\Group
 	 */
 	public function getGroup()
 	{
@@ -177,7 +177,7 @@ class User extends Abstraction\User
 	}
 
 	/**
-	 * @param string $group
+	 * @param Entity\Group $group
 	 */
 	public function setGroup($group)
 	{

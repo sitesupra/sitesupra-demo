@@ -9,6 +9,8 @@ use Symfony\Component\Security\Acl\Domain\PermissionGrantingStrategy;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Exception\AclNotFoundException;
 use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\User as RealUser;
+use Supra\User\Entity\Group as RealGroup;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\Permission\PermissionStatus;
 use Supra\Authorization\Permission\Application\ApplicationAllAccessPermission;
@@ -28,6 +30,9 @@ class AuthorizationProvider
 	const AUTHORIZED_CONTROLLER_INTERFACE = 'Supra\\Authorization\\AuthorizedControllerInterface'; // you probably should not change this.
 	const AUTHORIZED_ENTITY_INTERFACE = 'Supra\\Authorization\\AuthorizedEntityInterface'; // you probably should not change this.
 	const APPLICATION_CONFIGURATION_CLASS = 'Supra\\Cms\\ApplicationConfiguration'; // you probably should not change this.
+	
+	
+	const ACL_ENTRY_TABLE_NAME = 'acl_entries';
 	
 	/**
 	 * @var AclProvider
@@ -69,7 +74,7 @@ class AuthorizationProvider
 		
 		$tables = array(
 			'class_table_name'         => 'acl_classes',
-			'entry_table_name'         => 'acl_entries',
+			'entry_table_name'         => self::ACL_ENTRY_TABLE_NAME,
 			'oid_table_name'           => 'acl_object_identities',
 			'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
 			'sid_table_name'           => 'acl_security_identities',
@@ -279,7 +284,12 @@ class AuthorizationProvider
 	 */
 	private function getUserSecurityIdentity(User $user) 
 	{
-		return new UserSecurityIdentity($user->getId(), get_class($user));
+		if($user instanceof RealUser) {
+			return new UserSecurityIdentity($user->getId(), RealUser::CN());
+		}
+		else if ($user instanceof RealGroup) {
+			return new UserSecurityIdentity($user->getId(), RealGroup::CN());
+		}
 	}
 	
 	/**
@@ -309,11 +319,12 @@ class AuthorizationProvider
 			
 			if ($permissionStatus == PermissionStatus::ALLOW) { 
 				
-				$currentPermissionStatus = $this->getPermissionStatus($user, $object, $permissionName);
+				$currentPermissionStatus = $this->getPermissionStatus($user, $object, $permissionName, true);
 				
 				// if there was not any pervious permission, add ALLOW entry to list
 				if ($currentPermissionStatus == PermissionStatus::DENY) {
-					$acl->insertObjectAce($userSecurityIdentity, $permission->getMask());
+					$aces = $acl->getObjectAces();
+					$acl->insertObjectAce($userSecurityIdentity, $permission->getMask(), count($aces));
 				}
 				
 				$this->aclProvider->updateAcl($acl);
@@ -363,6 +374,7 @@ class AuthorizationProvider
 		$acl = $this->getObjectAclForUserSecurityIdentity($userSecurityIdentity, $object);
 
 		$result = PermissionStatus::DENY;
+		
 		if ( !empty($acl)) {
 		
 			$permission = $this->getPermission($permissionName, $object);
@@ -371,6 +383,11 @@ class AuthorizationProvider
 
 			foreach ($aces as $ace) {
 
+				//\Log::debug('ACE MASK: ', $ace->getMask());
+				//\Log::debug('ACE SID:  ', $ace->getSecurityIdentity());
+				//\Log::debug('P MASK:   ', $permission->getMask());
+				//\Log::debug('SID:      ', $userSecurityIdentity);
+			
 				if ($ace instanceof \Symfony\Component\Security\Acl\Domain\Entry) {
 
 					if (
@@ -399,7 +416,8 @@ class AuthorizationProvider
 		$acl = null;
 		
 		try {
-			$acl = $this->aclProvider->findAcl($objectIdentity, array($userSecurityIdentity));
+			$acls = $this->aclProvider->findAcls(array($objectIdentity), array($userSecurityIdentity));
+			$acl = $acls->offsetGet($objectIdentity);
 		}
 		catch (AclNotFoundException $e) { 
 			// do nothing.
@@ -418,7 +436,8 @@ class AuthorizationProvider
 	 */
 	function isPermissionGranted(User $user, 
 						$object, 
-						$permissionName)
+						$permissionName,
+						$groupCheck = true)
 	{
 		if ($object instanceof AuthorizedEntityInterface) {
 			
@@ -433,8 +452,16 @@ class AuthorizationProvider
 			}
 		}
 		else {
-			return $this->getPermissionStatus($user, $object, $permissionName) == PermissionStatus::ALLOW;
+			
+			if($this->getPermissionStatus($user, $object, $permissionName) == PermissionStatus::ALLOW) {
+				return true;
+			}
 		}
+		
+		if($groupCheck && $user instanceof RealUser) {
+			\Log::debug('=========================== VIA GROUP ========================');
+			return $this->isPermissionGranted($user->getGroup(), $object, $permissionName);
+		}					
 		
 		return false;
 	}
@@ -529,10 +556,8 @@ class AuthorizationProvider
 	 */
 	public function isApplicationAllAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
 	{
-		$permissionStatus = $this->getPermissionStatus($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME);
+		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME);
 		
-		$result = $permissionStatus == PermissionStatus::ALLOW;
-
 		$this->log->debug('Checking for appliaction access "ALL" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
 		
 		return $result;
@@ -546,10 +571,8 @@ class AuthorizationProvider
 	 */
 	public function isApplicationSomeAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
 	{
-		$permissionStatus = $this->getPermissionStatus($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME);
+		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME);
 		
-		$result = $permissionStatus == PermissionStatus::ALLOW;
-
 		$this->log->debug('Checking for appliaction access "SOME" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
 		
 		return $result;
@@ -563,10 +586,8 @@ class AuthorizationProvider
 	 */
 	public function isApplicationExecuteAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
 	{
-		$permissionStatus = $this->getPermissionStatus($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME);
+		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME);
 		
-		$result = $permissionStatus == PermissionStatus::ALLOW;
-
 		$this->log->debug('Checking for appliaction access "EXECUTE" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
 		
 		return $result;
@@ -646,6 +667,8 @@ class AuthorizationProvider
 		
 		$acls = $this->aclProvider->findAcls($classOids);
 		
+		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
+		
 		/* keys will be oid ids*/
 		$results = array();
 		
@@ -664,7 +687,12 @@ class AuthorizationProvider
 				if($acl instanceof Acl) {
 
 					$aces = $acl->getObjectAces();
+					
 					foreach($aces as $ace) {
+						
+						if($ace->getSecurityIdentity() != $userSecurityIdentity) {
+							continue;
+						}
 
 						$permission = $this->getPermissionForClassAndMask($class, $ace->getMask());
 						
