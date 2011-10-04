@@ -289,7 +289,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			
 			//Create language bar
 			this.languagebar = new SU.LanguageBar({
-				'locale': SU.data.get('locale'),
+				'locale': '',
 				'contexts': all.concat(SU.data.get('contexts')),
 				'localeLabel': SU.Intl.get(['userpermissions', 'permissions_for'])
 			});

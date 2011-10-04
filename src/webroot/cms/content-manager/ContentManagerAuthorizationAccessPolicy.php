@@ -53,7 +53,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAcces
 			// ... otherwise, if this is some master page, fetch current or first page localization 
 			// and get title from that
 			
-			$localization = $page->getLocalization($lm->getCurrent()->getId());
+			$localization = $page->getLocalization($this->lm->getCurrent()->getId());
 			
 			if (empty($localization)) {
 				$localization = $page->getLocalizations()->first();

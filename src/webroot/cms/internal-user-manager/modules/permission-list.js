@@ -174,21 +174,28 @@ YUI.add('website.permission-list', function (Y) {
 		 * 
 		 * @param {String} node_id Tree node ID
 		 */
-		addPermissionException: function (node_id, values, item_locale, existing) {
+		addPermissionException: function (data) {
 			var tree = this.get('tree'),
-				tree_node = tree.getNodeById(node_id),
-				data = tree_node.get('data'),
-				value = null,
-				
+				values = null,
 				localized = this.get('localized'),
 				locale = '',
-				lang = null,
-				flag = '<img src="/cms/lib/supra/img/flags/16x11/px.png" alt="" />';
+				flag = '<img src="/cms/lib/supra/img/flags/16x11/px.png" alt="" />',
+				existing = false;
+			
+			if (typeof data == 'object') {
+				values = data.value;
+				locale = data.locale;
+				existing = true;
+			} else {
+				data = tree.getNodeById(node_id).get('data');
+				locale = this.get('languagebar').get('locale');
+			}
 			
 			if (localized) {
-				locale = existing ? item_locale : this.get('languagebar').get('locale'),
-				lang = locale ? this.getLanguageByLocale(locale) : null,
+				var lang = locale ? this.getLanguageByLocale(locale) : null,
 				flag = '<img src="/cms/lib/supra/img/flags/16x11/' + (lang ? lang.flag : 'blank') + '.png" alt="" />';
+			} else {
+				locale = '';
 			}
 			
 			//Check if it's not already in the list
@@ -202,8 +209,7 @@ YUI.add('website.permission-list', function (Y) {
 			
 			//Add property
 			var node = Y.Node.create('<div class="' + Y.ClassNameManager.getClassName(PermissionList.NAME, 'item') + '"></div>'),
-				subproperty = this.get('subproperty'),
-				value = '';
+				subproperty = this.get('subproperty');
 			
 			if (subproperty) {
 				subproperty = Supra.mix({}, subproperty, {
@@ -215,7 +221,6 @@ YUI.add('website.permission-list', function (Y) {
 				this.data[i].render(node);
 				
 				if (values) {
-					value = values;
 					this.data[i].set('value', values);
 				}
 				
@@ -226,7 +231,6 @@ YUI.add('website.permission-list', function (Y) {
 				
 			} else {
 				node.set('innerHTML', '<p>' + Y.Escape.html(data.title) + '</p>');
-				value = this.data[i] = data.id;
 			}
 			
 			this.get('labelNode').insert(node, 'before');
@@ -264,7 +268,7 @@ YUI.add('website.permission-list', function (Y) {
 			this.resetValue();
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
-				this.addPermissionException(values[i].id, values[i].value, values[i].locale, true);
+				this.addPermissionException(values[i]);
 			}
 		},
 		
