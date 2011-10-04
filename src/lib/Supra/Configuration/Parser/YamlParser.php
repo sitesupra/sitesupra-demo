@@ -38,24 +38,31 @@ class YamlParser extends AbstractParser
 	{
 		try {
 			
-			$object = Loader\Loader::getClassInstance($className);
+			/* @var $object \Supra\Configuration\ConfigurationInterface */
+			$object = Loader\Loader::getClassInstance($className, 'Supra\Configuration\ConfigurationInterface');
+			
 			foreach ($properties as $propertyName => $propertyValue) {
-				$possibleSetterName = 'set' . ucfirst($propertyName);
-				if (\property_exists($className, $propertyName)) {
+				// For now ignoring the setter function matching
+//				$possibleSetterName = 'set' . ucfirst($propertyName);
+				
+				if (property_exists($className, $propertyName)) {
 					$object->$propertyName = 
 							$this->processItem($propertyValue);
-				} else if (\method_exists($object, $possibleSetterName)) {
-					$reflection = new \ReflectionClass($object);
-					$methodParams = $reflection->getMethod($possibleSetterName)->getParameters();
-					if (count($methodParams) == 1) {
-						$propertyValue = $this->processItem($propertyValue);
-						$object->$propertyName($propertyValue);
-					}
+//				} else if (method_exists($object, $possibleSetterName)) {
+//					$reflection = new \ReflectionClass($object);
+//					$methodParams = $reflection->getMethod($possibleSetterName)->getParameters();
+//					
+//					if (count($methodParams) == 1) {
+//						$propertyValue = $this->processItem($propertyValue);
+//						$object->$propertyName($propertyValue);
+//					}
+				} else {
+					$this->log->warn("Property $propertyName doesn't exist for configuration object $className");
 				}
 			}
-			if (\method_exists($object, 'configure')) {
-				$object->configure();
-			}
+			
+			$object->configure();
+			
 			return $object;
 			
 		} catch (Loader\Exception\LoaderException $e) {
@@ -69,25 +76,26 @@ class YamlParser extends AbstractParser
 	 * @param mixed $item
 	 * @return mixed
 	 */
-	protected function processItem($item) {
+	protected function processItem($item)
+	{
 		$return = $item;
 
-		if (\is_array($item) && (\count($item) == 1)) {
-			$value = \end($item);
-			$key = \key($item);
+		if (is_array($item) && (count($item) == 1)) {
+			$value = end($item);
+			$key = key($item);
 			
-			if (($key == 'const') && \defined($value)) {
-				$return = \constant($value);
-			} else if (\is_string($key)) {
+			if (($key == 'const') && defined($value)) {
+				$return = constant($value);
+			} else if (is_string($key)) {
 				// try to setup config object
 				$object = $this->processObject($key, $value);
-				if (\is_object($object)) {
+				if (is_object($object)) {
 					$return = $object;
 				}
 			}
 		} 
 		
-		if (\is_array($return)) {
+		if (is_array($return)) {
 			foreach ($return as &$subitem) {
 				$subitem = $this->processItem($subitem);
 			}
