@@ -26,6 +26,11 @@ class InternalUserManagerAbstractAction extends CmsAction
 	protected $entityManager;
 	
 	/**
+	 * @var array
+	 */
+	protected $dummyGroupMap;
+	
+	/**
 	 * Bind objects
 	 */
 	public function __construct()
@@ -34,6 +39,8 @@ class InternalUserManagerAbstractAction extends CmsAction
 		
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 		$this->entityManager = ObjectRepository::getEntityManager($this->userProvider);
+		
+		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
 	}
 	
 	protected function getRequestedEntity($key, $className)

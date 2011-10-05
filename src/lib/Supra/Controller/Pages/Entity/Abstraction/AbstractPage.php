@@ -93,12 +93,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	protected $level;
 	
 	/**
-	 * Cache for getAuthorizedActions()
-	 * @var array
-	 */
-	protected $authorizedActions;
-
-	/**
 	 * Constructor
 	 */
 	public function __construct()

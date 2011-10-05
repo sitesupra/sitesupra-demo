@@ -12,7 +12,6 @@ use Supra\User\Entity\Abstraction\User;
 use Supra\Cms\CmsApplicationConfiguration;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AuthorizationProvider;
-use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
@@ -29,7 +28,9 @@ class UserAction extends InternalUserManagerAbstractAction
 	private $authorizationProvider;
 	
 	function __construct() {
+		
 		parent::__construct();
+		
 		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider($this);
 	}
 	
@@ -51,11 +52,8 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$userId = $this->getRequestParameter('user_id');
 
-			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-
-			$user = $repo->findOneById($userId);
 			/* @var $user User */
+			$user = $this->userProvider->findUserById($userId);
 
 			if (empty($user)) {
 				$this->getResponse()
@@ -96,20 +94,6 @@ class UserAction extends InternalUserManagerAbstractAction
 			$this->getResponse()->setErrorMessage('User id is not set');
 		}
 	}
-	
-	/**
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return integer
-	 */
-	function getApplicationAccess($user, ApplicationConfiguration $applicationConfiguration)
-	{
-		if ($applicationConfiguration->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
-			return $this->authorizationProvider->getAccessPermission($user);
-		}
-		else {
-			return "0";
-		}
-	}
 
 	/**
 	 * Delete user action
@@ -117,33 +101,34 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function deleteAction()
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
-		if ( ! $this->emptyRequestParameter('user_id')) {
-
-			$userId = $this->getRequestParameter('user_id');
-			$currentUser = $_SESSION['user'];
-			$currentUserId = $currentUser->getId();
-		
-			if ($currentUserId == $userId) {
-				$this->getResponse()->setErrorMessage('You can\'t delete current user account');
-				return;
-			}
-			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-
-			$user = $repo->findOneById($userId);
-
-			if (empty($user)) {
-				$this->getResponse()->setErrorMessage('Can\'t find user with such id');
-				return;
-			}
-
-			$this->entityManager->remove($user);
-			$this->entityManager->flush();
-
-			$this->getResponse()->setResponseData(null);
-		} else {
+		if ( $this->emptyRequestParameter('user_id')) {
+			
 			$this->getResponse()->setErrorMessage('User id is not set');
+			return;
 		}
+		
+		$userId = $this->getRequestParameter('user_id');
+		
+		$session = ObjectRepository::getSessionNamespace($this);
+		$currentUser = $session->getUser();
+		$currentUserId = $currentUser->getId();
+
+		if ($currentUserId == $userId) {
+			$this->getResponse()->setErrorMessage('You can\'t delete current user account');
+			return;
+		}
+		
+		$user = $this->userProvider->findUserById($userId);
+
+		if (empty($user)) {
+			$this->getResponse()->setErrorMessage('Can\'t find user with such id');
+			return;
+		}
+
+		$this->userProvider->getEntityManager()->remove($user);
+		$this->userProvider->getEntityManager()->flush();
+
+		$this->getResponse()->setResponseData(null);
 	}
 
 	/**
@@ -153,50 +138,50 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ( ! $this->emptyRequestParameter('user_id')) {
-
-			$userId = $this->getRequestParameter('user_id');
-
-			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-			/* @var $user Entity\User */
-			$user = $repo->findOneById($userId);
-
-			if (empty($user)) {
-				$this->getResponse()->setErrorMessage('Can\'t find user with such id');
-				return;
-			}
-
-			$expTime = time();
-			$userMail = $user->getEmail();
-			$hash = $this->generateHash($user, $expTime);
-
-			// TODO: Change hardcoded link
-			$host = $this->request->getServerValue('HTTP_HOST');
-			$url = 'http://'. $host .'/cms/internal-user-manager/restore';
-			$query = http_build_query(array(
-				'e' => $userMail,
-				't' => $expTime,
-				'h' => $hash,
-					));
-
-			$mailVars = array(
-				'link' => $url . '?' . $query
-			);
-
-			$mailer = ObjectRepository::getMailer($this);
-			$message = new TwigMessage();
-			$message->setTemplatePath(__DIR__ . '/mail');
-			// FIXME: from address should not be hardcoded here etc.
-			$message->setSubject('Password recovery')
-					->setFrom('admin@supra7.vig')
-					->setTo($userMail)
-					->setBody('resetpassword.twig', $mailVars);
-			$mailer->send($message);
-
-			$this->getResponse()->setResponseData(null);
-		} else {
+			
 			$this->getResponse()->setErrorMessage('User id is not set');
+			return;
 		}
+
+		$userId = $this->getRequestParameter('user_id');
+
+		/* @var $user Entity\User */
+		$user = $this->userProvider->findUserById($userId);
+
+		if (empty($user)) {
+			
+			$this->getResponse()->setErrorMessage('Can\'t find user with such id');
+			return;
+		}
+
+		$expTime = time();
+		$userMail = $user->getEmail();
+		$hash = $this->generateHash($user, $expTime);
+
+		// TODO: Change hardcoded link
+		$host = $this->request->getServerValue('HTTP_HOST');
+		$url = 'http://'. $host .'/cms/internal-user-manager/restore';
+		$query = http_build_query(array(
+			'e' => $userMail,
+			't' => $expTime,
+			'h' => $hash,
+				));
+
+		$mailVars = array(
+			'link' => $url . '?' . $query
+		);
+
+		$mailer = ObjectRepository::getMailer($this);
+		$message = new TwigMessage();
+		$message->setTemplatePath(__DIR__ . '/mail');
+		// FIXME: from address should not be hardcoded here etc.
+		$message->setSubject('Password recovery')
+				->setFrom('admin@supra7.vig')
+				->setTo($userMail)
+				->setBody('resetpassword.twig', $mailVars);
+		$mailer->send($message);
+
+		$this->getResponse()->setResponseData(null);
 	}
 
 	public function insertAction()
@@ -210,7 +195,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$email = $this->getRequestParameter('email');
 			$name = $this->getRequestParameter('name');
-			$groupNumber = $this->getRequestParameter('group');
+			$dummyGroupId = $this->getRequestParameter('group');
 
 			$em = $this->userProvider->getEntityManager();
 
@@ -221,8 +206,8 @@ class UserAction extends InternalUserManagerAbstractAction
 			$user->setName($name);
 			$user->setEmail($email);
 			
-			$dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
-			$group = $this->userProvider->findGroupByName(array_search($groupNumber, $dummyGroupMap));
+			$groupName = array_search($dummyGroupId, $this->dummyGroupMap);
+			$group = $this->userProvider->findGroupByName($groupName);
 			$user->setGroup($group);
 			
 			try {
@@ -296,10 +281,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			$group = $this->getRequestParameter('group');
 			$userId = $this->getRequestParameter('user_id');
 
-			/* @var $repo Doctrine\ORM\EntityRepository */
-			$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-
-			$user = $repo->findOneById($userId);
+			$user = $this->userProvider->findUserById($userId);
 
 			// temporary solution when save action is triggered and there is no changes
 			if (($email == $user->getEmail()) && ($name == $user->getName())) {
