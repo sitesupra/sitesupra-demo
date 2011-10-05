@@ -26,9 +26,23 @@ class UserlistAction extends InternalUserManagerAbstractAction
 	
 	public function userlistAction()
 	{
-		$users = $this->userRepository->findAll();
-		
 		$result = array();
+
+		$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+		$groups = $groupRepository->findAll();
+		
+		/* @var $group Entity\Group */
+		foreach($groups as $group) {
+			
+			$result[] = array(
+				'id' => $group->getId(),
+				'avatar' => null,
+				'name' =>  '[[[' . $group->getName() . ']]]',
+				'group' => $this->dummyGroupMap[$group->getName()]
+			);
+		}
+		
+		$users = $this->userRepository->findAll();
 		
 		/* @var $user Entity\User */
 		foreach ($users as $user) {

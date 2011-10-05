@@ -56,9 +56,15 @@ class UserAction extends InternalUserManagerAbstractAction
 			$user = $this->userProvider->findUserById($userId);
 
 			if (empty($user)) {
-				$this->getResponse()
-						->setErrorMessage('Can\'t find user with such id');
-				return;
+				
+				$user = $this->userProvider->findGroupById($userId);
+				
+				if (empty($user)) {
+				
+					$this->getResponse()
+							->setErrorMessage('Can\'t find user with such id');
+					return;
+				}
 			}
 			
 			$config = CmsApplicationConfiguration::getInstance();
@@ -82,11 +88,18 @@ class UserAction extends InternalUserManagerAbstractAction
 			$response = array(
 				'user_id' => $user->getId(),
 				'name' => $user->getName(),
-				'email' => $user->getEmail(),
 				'avatar' => null,
-				'group' => 1,
 				'permissions' => $permissions
 			);
+			
+			if ($user instanceof Entity\User) {
+				$response['email'] = $user->getEmail();
+				$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
+			}
+			else {
+				$response['email'] = 'N/A';
+				$response['group'] = $this->dummyGroupMap[$user->getName()];
+			}
 
 			$this->getResponse()->setResponseData($response);
 		} 
@@ -281,29 +294,39 @@ class UserAction extends InternalUserManagerAbstractAction
 			$group = $this->getRequestParameter('group');
 			$userId = $this->getRequestParameter('user_id');
 
+			
+			// try to find as user ...
 			$user = $this->userProvider->findUserById($userId);
 
-			// temporary solution when save action is triggered and there is no changes
-			if (($email == $user->getEmail()) && ($name == $user->getName())) {
-
-				$response = array(
-					'name' => $name,
-					'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
-					'email' => $email,
-					'group' => 1,
-					'user_id' => $userId,
-				);
-				$this->getResponse()->setResponseData($response);
-				return;
-			}
-
 			if (empty($user)) {
-				$this->getResponse()->setErrorMessage('User with such id doesn\'t exists');
-
-				return;
+				
+				// ... if user is not found, try finding group
+				
+				$user = $this->userProvider->findGroupById($userId);
+				
+				// ... if nothing is found, bail out.
+				if (empty($user)) {
+					
+					$this->getResponse()->setErrorMessage('User with such id doesn\'t exist');
+					return;
+				}
 			}
 
-			$this->entityManager->persist($user);
+			// temporary solution when save action is triggered and there are no changes
+			if (
+					($user instanceof Entity\User) && (
+						($email == $user->getEmail()) && 
+						($name == $user->getName())
+					) ||
+					($user instanceof Entity\Group)
+			) {
+
+				$response = $this->getUserResponseArray($user);		
+				
+				$this->getResponse()->setResponseData($response);
+				
+				return;
+			}
 
 			// TODO: add group and avatar
 			$user->setName($name);
@@ -311,8 +334,10 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			try {
 				$this->userProvider->validate($user);
-			} catch (Exception\RuntimeException $exc) {
-				$this->getResponse()->setErrorMessage($exc->getMessage());
+			} 
+			catch (Exception\RuntimeException $e) {
+				
+				$this->getResponse()->setErrorMessage($e->getMessage());
 				return;
 			}
 
@@ -321,20 +346,42 @@ class UserAction extends InternalUserManagerAbstractAction
 
 			$this->entityManager->flush();
 
-			$response = array(
-				'name' => $name,
-				'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
-				'email' => $email,
-				'group' => 1,
-				'user_id' => $userId,
-			);
+			$response = $this->getUserResponseArray($user);
 
 			$this->getResponse()->setResponseData($response);
-		} else {
+		} 
+		else {
 			// error message
 		}
 	}
 
+	/**
+	 * Returns array for response 
+	 * @param User $user
+	 * @return array
+	 */
+	private function getUserResponseArray(User $user) 
+	{
+		$response = array(
+			'name' => $user->getName(),
+			'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
+			'user_id' => $user->getId()
+		);
+
+		if ($user instanceof Entity\User) {
+
+			$response['email'] = $user->getEmail();
+			$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
+		}
+		else {
+
+			$response['email'] = 'N/A';
+			$response['group'] = $this->dummyGroupMap[$user->getName()];
+		}
+
+		return $response;
+	}
+	
 	/**
 	 * Generates hash for password recovery
 	 * @param Entity\User $user 

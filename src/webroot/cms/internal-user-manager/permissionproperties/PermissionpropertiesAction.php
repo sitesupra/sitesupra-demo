@@ -10,6 +10,8 @@ use Supra\FileStorage\Entity as FileEntity;
 use Supra\Cms\CmsApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayAccessPolicy;
 use Supra\Locale\LocaleManager;
+use Supra\Cms\ApplicationConfiguration;
+use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigurationException;
 
 class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 {
@@ -178,28 +180,48 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 	
 	public function saveAction() 
 	{
+		/* $internalUserManagerAppConfig ApplicationConfiguration */
+		$internalUserManagerAppConfig = ObjectRepository::getApplicationConfiguration($this);
+		
 		$cmsAppConfigs = CmsApplicationConfiguration::getInstance();
+
+		/* $appConfig ApplicationConfiguration */
 		$appConfig = $cmsAppConfigs->getConfiguration($this->getRequest()->getPostValue('application_id'));
 		
-		$up = ObjectRepository::getUserProvider($this);
-		$user = $up->findUserById($this->getRequest()->getPostValue('user_id'));
+		// disallow application access permissions for this (Internal User Manager) 
+		// application. This is a safeguard.
+		if($appConfig->id == $internalUserManagerAppConfig->id) {
+			throw new AuthorizationConfigurationException('Application access permission modification for Internal User Manager is forbiden.');
+		}
 		
-		if($this->getRequest()->getPostValue('list')) {
+		$user = $this->userProvider->findUserById($this->getRequest()->getPostValue('user_id'));
+		
+		// if admin added / removed / clicked in permission exceptions list, 
+		// process that, ignore "allow" property
+		if( 
+				( ! is_null($this->getRequest()->getPostValue('list'))) &&
+				($appConfig->authorizationAccessPolicy instanceof AuthorizationThreewayAccessPolicy)
+		){
 			
 			$itemUpdate = $this->getRequest()->getPostValue('list');
 			
 			$itemId = $itemUpdate['id'];
-			
-			if($appConfig->authorizationAccessPolicy instanceof AuthorizationThreewayAccessPolicy) {
-				$appConfig->authorizationAccessPolicy->setItemPermissions($user, $itemId, $itemUpdate['value']);
-			}
+			$itemPermissions = $itemUpdate['value'];
+
+			$appConfig->authorizationAccessPolicy->setItemPermissions($user, $itemId, $itemPermissions);
 		}
 		else if($this->getRequest()->getPostValue('property') == 'allow') {
+			
+			// .. or if admin changed application access permission, do that.
 		
 			$appConfig->authorizationAccessPolicy->setAccessPermission(
 					$user, 
 					$this->getRequest()->getPostValue('value')
 			);
+		}
+		else { 
+			// ... bail on everything else
+			throw new AuthorizationConfigurationException('Do not know what to do with property "' . $this->getRequest()->getPostValue('property') . '"');
 		}
 	}
 }
