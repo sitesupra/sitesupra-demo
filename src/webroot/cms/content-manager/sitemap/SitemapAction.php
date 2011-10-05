@@ -75,7 +75,14 @@ class SitemapAction extends PageManagerAction
 		$data = $page->getLocalization($locale);
 
 		if (empty($data)) {
-			return null;
+			// try to get any localization if page is global
+			if ($page->isGlobal()) {
+				// hoping that there is at least one page data instance (naive)
+				$data = $page->getLocalizations()->first();
+			} else {
+
+				return null;
+			}
 		}
 
 		$pathPart = null;

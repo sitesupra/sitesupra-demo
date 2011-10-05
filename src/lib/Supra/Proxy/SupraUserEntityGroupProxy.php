@@ -36,6 +36,12 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
     }
     
     
+    public function getUsers()
+    {
+        $this->__load();
+        return parent::getUsers();
+    }
+
     public function getName()
     {
         $this->__load();

@@ -174,6 +174,30 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::setNestedSetNode($nestedSetNode);
     }
 
+    public function setGlobal($global)
+    {
+        $this->__load();
+        return parent::setGlobal($global);
+    }
+
+    public function getGlobal()
+    {
+        $this->__load();
+        return parent::getGlobal();
+    }
+
+    public function isGlobal()
+    {
+        $this->__load();
+        return parent::isGlobal();
+    }
+
+    public function isLocal()
+    {
+        $this->__load();
+        return parent::isLocal();
+    }
+
     public function getDiscriminator()
     {
         $this->__load();

@@ -109,11 +109,29 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
+	 *
+	 * @return Entity\Abstraction\AbstractPage
+	 */
+	protected function getPage()
+	{
+		$page = null;
+		
+		if (isset($this->pageData)) {
+			$page = $this->pageData->getMaster();
+		} else {
+			$page = $this->getPageByRequestKey('page_id');
+		}
+		
+		return $page;
+	}
+
+	/**
 	 * @return Entity\Abstraction\Localization
 	 * @throws ResourceNotFoundException
 	 */
 	protected function getPageLocalization()
 	{
+		// FIXME: using requested locale would make more common sense with global/local switch
 		if (isset($this->pageData)) {
 			return $this->pageData;
 		}
@@ -131,7 +149,7 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageByRequestKey($key)
 	{
 		$data = $this->getPageLocalizationByRequestKey($key);
-		
+
 		if (empty($data)) {
 			return null;
 		}

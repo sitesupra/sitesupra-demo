@@ -21,8 +21,19 @@ class PagesettingsAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		$pageData = $this->getPageLocalization();
+		$page = $this->getPage();
 		$localeId = $this->getLocale()->getId();
+		$pageData = $page->getLocalization($localeId);
+
+		if (empty($pageData)) {
+			$pageData = new Entity\PageLocalization($localeId);
+			$pageData->setMaster($page);
+		}
+
+		if ($this->hasRequestParameter('global')) {
+			$global = $this->getRequestParameter('global');
+			$page->setGlobal($global);
+		}
 
 		//TODO: create some simple objects for save post data with future validation implementation?
 		if ($this->hasRequestParameter('title')) {

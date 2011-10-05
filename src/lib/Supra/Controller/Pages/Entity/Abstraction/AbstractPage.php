@@ -94,6 +94,12 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	protected $level;
 	
 	/**
+	 * @Column(type="boolean", name="global", nullable=true)
+	 * @var boolean
+	 */
+	protected $global = false;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -394,5 +400,42 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
 	{
 		$this->nestedSetNode = $nestedSetNode;
+	}
+
+	/**
+	 * Set global
+	 * @param boolean $global 
+	 */
+	public function setGlobal($global)
+	{
+		$this->global = (bool)$global;
+		
+	}
+
+	/**
+	 * Get global
+	 * @return boolean
+	 */
+	public function getGlobal()
+	{
+		return $this->global;
+	}
+
+	/**
+	 * Is global
+	 * @return boolean
+	 */
+	public function isGlobal()
+	{
+		return $this->global;
+	}
+
+	/**
+	 * Is local (not global)
+	 * @return boolean
+	 */
+	public function isLocal()
+	{
+		return ! $this->global;
 	}
 }

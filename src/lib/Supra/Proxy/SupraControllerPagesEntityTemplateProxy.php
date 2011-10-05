@@ -210,6 +210,30 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::setNestedSetNode($nestedSetNode);
     }
 
+    public function setGlobal($global)
+    {
+        $this->__load();
+        return parent::setGlobal($global);
+    }
+
+    public function getGlobal()
+    {
+        $this->__load();
+        return parent::getGlobal();
+    }
+
+    public function isGlobal()
+    {
+        $this->__load();
+        return parent::isGlobal();
+    }
+
+    public function isLocal()
+    {
+        $this->__load();
+        return parent::isLocal();
+    }
+
     public function getDiscriminator()
     {
         $this->__load();
@@ -285,7 +309,7 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id', 'templateLayouts');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id', 'templateLayouts');
     }
 
     public function __clone()

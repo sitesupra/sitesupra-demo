@@ -172,9 +172,9 @@ class Loader
 	 * @param string $className
 	 * @param string $interface 
 	 * @return object
-	 * @throws Exception\ClassMismatchException
-	 * @throws Exception\InterfaceNotFound
-	 * @throws Exception\ClassNotFound
+	 * @throws Supra\Loader\Exception\ClassMismatch
+	 * @throws Supra\Loader\Exception\InterfaceNotFound
+	 * @throws Supra\Loader\Exception\ClassNotFound
 	 */
 	public static function getClassInstance($className, $interface = null) 
 	{

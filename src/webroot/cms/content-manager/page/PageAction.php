@@ -53,6 +53,11 @@ class PageAction extends PageManagerAction
 		/* @var $pageData Entity\Abstraction\Localization */
 		$pageData = $page->getLocalization($localeId);
 
+		// FIXME: temporary solution
+		if (empty($pageData) && $page->isGlobal()) {
+			$pageData = $page->getLocalizations()->first();
+		}
+
 		if (empty($pageData)) {
 			$this->getResponse()
 					->setErrorMessage("Page does not exist");
@@ -145,6 +150,7 @@ class PageAction extends PageManagerAction
 			'active' => $active,
 			'created_date' => $createdDate,
 			'created_time' => $createdTime,
+			'global' => $page->getGlobal()
 		);
 		
 		if ($page instanceof Entity\Template) {
