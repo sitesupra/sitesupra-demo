@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Exception;
 use DateTime;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\Entity\Page;
 
 /**
  * PageLocalization class
@@ -321,5 +322,29 @@ class PageLocalization extends Abstraction\Localization
 		
 		$this->creationTime = $creationTime;
 	}
+	
+	/**
+	 * @return array
+	 */
+	protected function getAuthizationAncestorsDirect()
+	{
+		// This is overriden because page localizations themselves are not nested set element, so
+		// we take master page, fetch all of its ancestors and then fetch page localizations from those.
+		$ancestors = array();
+		
+		$master = $this->getMaster();
+		$masterAncestors = $master->getAncestors();
 
+		foreach($masterAncestors as $masterAncestor) {
+			/* @var $masterAncestor Page */
+			
+			$ancestorLocalization = $masterAncestor->getLocalization($this->locale);
+			
+			if( ! empty($ancestorLocalization)) {
+				$ancestors[] = $masterAncestor->getLocalization($this->locale);
+			}
+		}
+		
+		return $ancestors;
+	}
 }

@@ -389,8 +389,14 @@ class PageAction extends PageManagerAction
 		}
 		catch(EntityAccessDeniedException $e) {
 			
-			$this->getResponse()->setErrorMessage('PUBLISH IS VERBOTEN FOR YOU HERE!');
-			return;
+			try {
+				$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_PUBLISH_PAGE);		
+			}
+			catch(EntityAccessDeniedException $e) {
+				
+				$this->getResponse()->setErrorMessage('PUBLISH IS VERBOTEN FOR YOU HERE!');
+				return;
+			}
 		}
 		
 		$this->checkLock();
@@ -404,15 +410,22 @@ class PageAction extends PageManagerAction
 	public function lockAction()
 	{
 		$this->isPostRequest();
-		
+
 		$page = $this->getPageLocalization()->getMaster();
+		
 		try {
 			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_EDIT_PAGE);		
 		}
 		catch(EntityAccessDeniedException $e) {
-			
-			$this->getResponse()->setErrorMessage('EDIT IS VERBOTEN FOR YOU HERE!');
-			return;
+
+			try {
+				$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_EDIT_PAGE);		
+			}
+			catch(EntityAccessDeniedException $e) {
+				
+				$this->getResponse()->setErrorMessage('EDIT IS VERBOTEN FOR YOU HERE!');
+				return;
+			}
 		}
 		
 		$this->lockPage();	

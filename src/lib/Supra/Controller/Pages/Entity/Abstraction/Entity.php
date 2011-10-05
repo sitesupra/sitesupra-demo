@@ -153,6 +153,16 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 */
 	public function getAuthorizationAncestors() 
 	{
+		if ($this->_authorizationAncestorsCache) {
+			return $this->_authorizationAncestorsCache;
+		}
+				
+		$this->_authorizationAncestorsCache = $this->getAuthizationAncestorsDirect();
+		
+		return $this->_authorizationAncestorsCache;
+	}
+	
+	protected function getAuthizationAncestorsDirect() {
 		return $this->getAncestors(0, false);
 	}
 	

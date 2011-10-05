@@ -459,7 +459,7 @@ class AuthorizationProvider
 		}
 		
 		if($groupCheck && $user instanceof RealUser) {
-			\Log::debug('=========================== VIA GROUP ========================');
+			//\Log::debug('=========================== VIA GROUP ========================');
 			return $this->isPermissionGranted($user->getGroup(), $object, $permissionName);
 		}					
 		
