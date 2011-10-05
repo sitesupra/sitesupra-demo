@@ -79,8 +79,13 @@ class PageRequestEdit extends PageRequest
 			
 			$revisionData = new Entity\RevisionData();
 			
-			$userName = $this->getUser()
-					->getName();
+			$user = $this->getUser();
+			$userName = null;
+			
+			if ( ! is_null($user)) {
+				$userName = $user->getName();
+			}
+			
 			$revisionData->setUser($userName);
 			$historyEm->persist($revisionData);
 			

@@ -12,6 +12,12 @@ use Doctrine\ORM\QueryBuilder;
 class DoctrineSearchCondition extends SearchConditionAbstraction
 {
 	/**
+	 * Additional condition
+	 * @var string
+	 */
+	private $additionalCondition;
+	
+	/**
 	 * Adds search filter to the query builder passed.
 	 * NB! The alias of the main table must be "e".
 	 * @param QueryBuilder $qb
@@ -34,6 +40,7 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 					throw new Exception\InvalidArgument("Field $field is not recognized");
 			}
 
+			$where = null;
 			$field = "e.$field";
 
 			$relation = $condition[ArraySearchCondition::RELATION_POS];
@@ -64,7 +71,19 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 			$qb->andWhere($where);
 			
 		}
+		
+		if ( ! empty($this->additionalCondition)) {
+			$qb->andWhere($this->additionalCondition);
+		}
 
 		return $qb;
+	}
+	
+	/**
+	 * @param string $additionalCondition
+	 */
+	public function setAdditionalCondition($additionalCondition)
+	{
+		$this->additionalCondition = $additionalCondition;
 	}
 }

@@ -21,7 +21,7 @@ class WrongInstance extends \LogicException implements NestedSetException
 	 */
 	public function __construct($receivedObject, $expected, $code = null, $previous = null)
 	{
-		$received = \get_class($receivedObject);
+		$received = get_class($receivedObject);
 		$message = sprintf(static::MESSAGE_FORMAT, $expected, $received);
 		parent::__construct($message, $code, $previous);
 	}

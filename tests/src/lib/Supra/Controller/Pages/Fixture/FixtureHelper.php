@@ -45,13 +45,14 @@ class FixtureHelper
 			'pathPart' => 'contacts',
 		),
 		3 => array(
-			'title' => 'News',
+			'title' => 'News application',
 			'pathPart' => 'news',
+			'applicationId' => 'news'
 		),
 		4 => array(
-			'title' => 'News application',
+			'title' => 'Pages',
 			'pathPart' => '',
-			'applicationId' => 'news'
+			'group' => true
 		),
 		5 => array(
 			'title' => 'Subscribe',
@@ -216,13 +217,14 @@ class FixtureHelper
 
 			$page2 = $this->createPage(2, $page, $this->template);
 			
-			$news = $this->createPage(3, $rootPage, $this->template);
-			
-			$newsApp = $this->createPage(4, $news, $this->template);
-			
-			$subscribe = $this->createPage(5, $news, $this->template);
+			$newsApp = $this->createPage(3, $rootPage, $this->template);
 			
 			$publication = $this->createPage(6, $newsApp, $this->template);
+			
+			$newsPages = $this->createPage(4, $newsApp, $this->template);
+			
+			$subscribe = $this->createPage(5, $newsPages, $this->template);
+			
 		} catch (\Exception $e) {
 			$em->rollback();
 			
@@ -257,8 +259,13 @@ class FixtureHelper
 //					$publicEm->clear();
 					
 					$this->log->debug("Publishing object $pageToPublish");
-
-					$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
+					$request = null;
+					
+					if ($pageToPublish instanceof Entity\GroupPage) {
+						$request = new \Supra\Controller\Pages\Request\GroupPageRequest($localeId, Entity\Layout::MEDIA_SCREEN);
+					} else {
+						$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
+					}
 					$request->setDoctrineEntityManager($em);
 					$request->setPageLocalization($pageToPublish->getLocalization($localeId));
 					
@@ -469,17 +476,26 @@ class FixtureHelper
 		return $layout;
 	}
 
-	protected function createPage($type = 0, Entity\Page $parentNode = null, Entity\Template $template = null)
+	protected function createPage($type = 0, Entity\Abstraction\AbstractPage $parentNode = null, Entity\Template $template = null)
 	{
 		$pageDefinition = self::$constants[$type];
 		$page = null;
 		
-		if (empty($pageDefinition['applicationId'])) {
-			$page = new Entity\Page();
-			$this->entityManager->persist($page);
-		} else {
+		// Application
+		if ( ! empty($pageDefinition['applicationId'])) {
 			$page = new Entity\ApplicationPage();
 			$page->setApplicationId($pageDefinition['applicationId']);
+			$this->entityManager->persist($page);
+			
+		// Group
+		} elseif ( ! empty($pageDefinition['group'])) {
+			$page = new Entity\GroupPage();
+			$page->setTitle($pageDefinition['title']);
+			$this->entityManager->persist($page);
+			
+		// Standard page
+		} else {
+			$page = new Entity\Page();
 			$this->entityManager->persist($page);
 		}
 
@@ -488,83 +504,86 @@ class FixtureHelper
 		}
 		$this->entityManager->flush();
 
-		/* @var $locale \Supra\Locale\Locale */
-		foreach ($this->locales as $locale) {
-			$localeId = $locale->getId();
-		
-			$pageData = new Entity\PageLocalization($localeId);
-			$pageData->setTemplate($template);
-			$this->entityManager->persist($pageData);
-			$pageData->setTitle($pageDefinition['title']);
+		// No localization for group page
+		if ( ! $page instanceof Entity\GroupPage) {
+			/* @var $locale \Supra\Locale\Locale */
+			foreach ($this->locales as $locale) {
+				$localeId = $locale->getId();
 
-			$pageData->setPage($page);
+				$pageData = new Entity\PageLocalization($localeId);
+				$pageData->setTemplate($template);
+				$this->entityManager->persist($pageData);
+				$pageData->setTitle($pageDefinition['title']);
 
-			$this->entityManager->flush();
+				$pageData->setPage($page);
 
-			// Path is generated on updates ONLY!
-			$pageData->setPathPart($pageDefinition['pathPart']);
-			$this->entityManager->flush();
+				$this->entityManager->flush();
 
-			foreach (array('header', 'main', 'footer') as $name) {
+				// Path is generated on updates ONLY!
+				$pageData->setPathPart($pageDefinition['pathPart']);
+				$this->entityManager->flush();
 
-				if ($name == 'header') {
-					$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
-					$this->entityManager->persist($blockProperty);
-					$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
-					$blockProperty->setLocalization($page->getLocalization($localeId));
-					$blockProperty->setValue($pageDefinition['title']);
+				foreach (array('header', 'main', 'footer') as $name) {
 
-					$placeHolder = $page->getPlaceHolders()
-							->get($name);
-					
-					if (empty($placeHolder)) {
-						$placeHolder = new Entity\PagePlaceHolder($name);
-						$this->entityManager->persist($placeHolder);
-						$placeHolder->setMaster($page);
-					}
+					if ($name == 'header') {
+						$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
+						$this->entityManager->persist($blockProperty);
+						$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
+						$blockProperty->setLocalization($page->getLocalization($localeId));
+						$blockProperty->setValue($pageDefinition['title']);
 
-					$block = new Entity\PageBlock();
-					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
-					$block->setPlaceHolder($placeHolder);
-					$block->setPosition(0);
-					$block->setLocale($localeId);
+						$placeHolder = $page->getPlaceHolders()
+								->get($name);
 
-					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
-					$this->entityManager->persist($blockProperty);
-					$blockProperty->setBlock($block);
-					$blockProperty->setLocalization($pageData);
-					$blockProperty->setValue('this shouldn\'t be shown');
-				}
+						if (empty($placeHolder)) {
+							$placeHolder = new Entity\PagePlaceHolder($name);
+							$this->entityManager->persist($placeHolder);
+							$placeHolder->setMaster($page);
+						}
 
-				if ($name == 'main') {
-					
-					$placeHolder = $page->getPlaceHolders()
-							->get($name);
-					
-					if (empty($placeHolder)) {
-						$pagePlaceHolder = new Entity\PagePlaceHolder($name);
-						$this->entityManager->persist($pagePlaceHolder);
-						$pagePlaceHolder->setPage($page);
-					}
-
-					foreach (\range(1, 2) as $i) {
 						$block = new Entity\PageBlock();
 						$this->entityManager->persist($block);
 						$block->setComponentClass('Project\Text\TextController');
-						$block->setPlaceHolder($pagePlaceHolder);
-						// reverse order
-						$block->setPosition(100 * $i);
+						$block->setPlaceHolder($placeHolder);
+						$block->setPosition(0);
 						$block->setLocale($localeId);
 
 						$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 						$this->entityManager->persist($blockProperty);
 						$blockProperty->setBlock($block);
-						$blockProperty->setLocalization($page->getLocalization($localeId));
-						$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
+						$blockProperty->setLocalization($pageData);
+						$blockProperty->setValue('this shouldn\'t be shown');
 					}
-				}
 
+					if ($name == 'main') {
+
+						$placeHolder = $page->getPlaceHolders()
+								->get($name);
+
+						if (empty($placeHolder)) {
+							$pagePlaceHolder = new Entity\PagePlaceHolder($name);
+							$this->entityManager->persist($pagePlaceHolder);
+							$pagePlaceHolder->setPage($page);
+						}
+
+						foreach (\range(1, 2) as $i) {
+							$block = new Entity\PageBlock();
+							$this->entityManager->persist($block);
+							$block->setComponentClass('Project\Text\TextController');
+							$block->setPlaceHolder($pagePlaceHolder);
+							// reverse order
+							$block->setPosition(100 * $i);
+							$block->setLocale($localeId);
+
+							$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+							$this->entityManager->persist($blockProperty);
+							$blockProperty->setBlock($block);
+							$blockProperty->setLocalization($page->getLocalization($localeId));
+							$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
+						}
+					}
+
+				}
 			}
 		}
 		

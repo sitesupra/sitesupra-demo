@@ -11,13 +11,14 @@ use Supra\Controller\Pages\Exception;
 
 /**
  * Page abstraction
- * @Entity
+ * @Entity(repositoryClass="Supra\Controller\Pages\Repository\PageRepository")
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
  *		"template" = "Supra\Controller\Pages\Entity\Template", 
  *		"page" = "Supra\Controller\Pages\Entity\Page",
- *		"application" = "Supra\Controller\Pages\Entity\ApplicationPage"
+ *		"application" = "Supra\Controller\Pages\Entity\ApplicationPage",
+ *		"group" = "Supra\Controller\Pages\Entity\GroupPage"
  * })
  * @Table(indexes={
  *		@index(name="page_abstraction_lft_idx", columns={"lft"}),
@@ -283,15 +284,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	}
 	
 	/**
-	 * {@inheritdoc}
-	 * @return string
-	 */
-	public function getNestedSetRepositoryClassName()
-	{
-		throw new Exception\LogicException("Method getNestedSetRepositoryClassName shouldn't be called from abstract");
-	}
-	
-	/**
 	 * Try the unknown method against the nested set node
 	 * @param string $method
 	 * @param array $arguments
@@ -300,15 +292,15 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	public function __call($method, $arguments)
 	{
 		$node = $this->nestedSetNode;
-		if (\is_null($this->nestedSetNode)) {
+		if (is_null($this->nestedSetNode)) {
 			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
 		}
 
-		if ( ! \method_exists($node, $method)) {
+		if ( ! method_exists($node, $method)) {
 			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
-		$result = \call_user_func_array($callable, $arguments);
+		$result = call_user_func_array($callable, $arguments);
 
 		// Compare the result with $node and return $this on match to keep method chaining
 		if ($result === $node) {

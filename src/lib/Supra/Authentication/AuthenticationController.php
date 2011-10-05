@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Authentication;
+namespace Supra\Authentication;
 
 use Supra\Controller\ControllerAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
@@ -175,9 +175,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 			// login and password
 			$login = $this->getRequest()->getPostValue($loginField);
-			$password = $this->getRequest()->getPostValue($passwordField);
+			$plainPassword = $this->getRequest()->getPostValue($passwordField);
+			$password = new AuthenticationPassword($plainPassword);
 
-			if ( ! empty($login) && ! empty($password)) {
+			if ( ! empty($login) && ! $password->isEmpty()) {
 
 				// Authenticating user
 				$user = null;

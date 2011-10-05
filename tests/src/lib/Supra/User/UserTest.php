@@ -22,9 +22,16 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 	 */
 	private $userProvider;
 	
+	/**
+	 * @var \Supra\Authentication\AuthenticationPassword 
+	 */
+	private $password;
+	
 	protected function setUp()
 	{
 		$this->userProvider = ObjectRepository::getUserProvider($this);
+		$plainPassword = 'Norris';
+		$this->password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 	}
 	
 	private function cleanUp($delete = false)
@@ -52,7 +59,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setEmail('chuck@chucknorris.com');
 		
 		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, 'Norris');
+				->credentialChange($user, $this->password);
 		
 		$em->flush();
 	}
@@ -155,7 +162,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setEmail('chuck@chucknorris.com');
 		
 		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, 'Norris');
+				->credentialChange($user, $this->password);
 
 		$userProvider->validate($user);
 
@@ -170,7 +177,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setEmail('chuck@chucknorris.com');
 		
 		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, 'Norris');
+				->credentialChange($user, $this->password);
 
 		try {
 			$userProvider->validate($user);

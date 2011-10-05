@@ -83,10 +83,12 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 
 		$user->setName($name);
 		$user->setEmail($name . '@' . $name . '.com');
+		$plainPassword = 'Norris';
+		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 		
 		ObjectRepository::getUserProvider($this)
 						->getAuthAdapter()
-						->credentialChange($user, 'Noris');
+						->credentialChange($user, $password);
 
 		$em->flush();		
 		

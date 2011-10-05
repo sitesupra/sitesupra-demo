@@ -32,7 +32,7 @@ class Page extends Abstraction\AbstractPage
 	 */
 	public function getNestedSetRepositoryClassName()
 	{
-		return __CLASS__;
+		return Abstraction\AbstractPage::CN();
 	}
 	
 }	

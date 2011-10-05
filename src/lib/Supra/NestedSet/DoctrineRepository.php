@@ -43,6 +43,12 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @var int
 	 */
 	protected $max = 0;
+	
+	/**
+	 * Additional condition for all queries
+	 * @var string
+	 */
+	private $additionalCondition;
 
 	/**
 	 * Constructor
@@ -92,9 +98,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	protected function getMax()
 	{
 		$dql = "SELECT MAX(e.right) FROM {$this->className} e";
+		$dql .= $this->getAdditionalCondition('WHERE');
 		$query = $this->entityManager
 				->createQuery($dql);
-		$max = (int)$query->getSingleScalarResult();
+		$max = (int) $query->getSingleScalarResult();
 
 		// Maybe array helper stores even bigger value.
 		// In reality it won't happen because items are flushed on DQL run.
@@ -113,7 +120,7 @@ class DoctrineRepository extends RepositoryAbstraction
 //			$dql = "UPDATE {$this->className} e
 //					SET e.{$field} = e.{$field} + ?2
 //					WHERE e.{$field} >= ?1";
-//
+//			$dql .= $this->getAdditionalCondition('AND');
 //			$query = $this->entityManager->createQuery($dql);
 //			$query->execute(array(1 => $offset, 2 => $size));
 //		}
@@ -135,6 +142,8 @@ class DoctrineRepository extends RepositoryAbstraction
 			$dql = "UPDATE {$this->className} e
 					SET e.{$field} = e.{$field} - {$size}
 					WHERE e.{$field} >= {$offset}";
+			
+			$dql .= $this->getAdditionalCondition('AND');
 
 			$query = $this->entityManager->createQuery($dql);
 			$query->execute();
@@ -153,9 +162,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$className = $this->className;
 		$arrayHelper = $this->arrayHelper;
+		$self = $this;
 		
 		// Transactional because need to rollback in case of trigger failure
-		$this->entityManager->transactional(function($entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper) {
+		$this->entityManager->transactional(function($entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper, $self) {
 			
 			if ( ! $node instanceof Node\DoctrineNode) {
 				throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
@@ -200,9 +210,11 @@ class DoctrineRepository extends RepositoryAbstraction
 					SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
 						e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
 						e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
-					WHERE e.left BETWEEN {$min} AND {$max}
-						OR e.right BETWEEN {$min} AND {$max}";
-
+					WHERE (e.left BETWEEN {$min} AND {$max}
+						OR e.right BETWEEN {$min} AND {$max})";
+			
+			$dql .= $self->getAdditionalCondition('AND');
+			
 			$query = $entityManager->createQuery($dql);
 			$result = $query->execute();
 
@@ -235,6 +247,8 @@ class DoctrineRepository extends RepositoryAbstraction
 //					e.right = e.right + {$diff},
 //					e.level = e.level + {$levelDiff}
 //				WHERE e.left >= {$left} AND e.right <= {$right}";
+//		
+//		$dql .= $this->getAdditionalCondition('AND');
 //
 //		$query = $this->entityManager->createQuery($dql);
 //		$query->execute();
@@ -244,16 +258,22 @@ class DoctrineRepository extends RepositoryAbstraction
 
 	/**
 	 * Deletes the nested set part under the node including the node
-	 * @param Node\DoctrineNode $node
+	 * @param Node\NodeInterface $node
 	 */
-	public function delete(Node\DoctrineNode $node)
+	public function delete(Node\NodeInterface $node)
 	{
+		if ( ! $node instanceof Node\DoctrineNode) {
+			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
+		}
+		
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
 
 		$dql = "DELETE FROM {$this->className} e
 				WHERE e.left >= {$left} AND e.right <= {$right}";
 
+		$dql .= $this->getAdditionalCondition('AND');
+		
 		$query = $this->entityManager->createQuery($dql);
 		$query->execute();
 		
@@ -281,7 +301,7 @@ class DoctrineRepository extends RepositoryAbstraction
 		}
 		$qb = $filter->getSearchDQL($qb);
 
-		if ( ! \is_null($order)) {
+		if ( ! is_null($order)) {
 			if ( ! ($order instanceof SelectOrder\DoctrineSelectOrder)) {
 				throw new Exception\WrongInstance($order, 'SelectOrder\DoctrineSelectOrder');
 			}
@@ -290,6 +310,7 @@ class DoctrineRepository extends RepositoryAbstraction
 
 		$result = $qb->getQuery()
 				->getResult();
+		
 		return $result;
 	}
 
@@ -300,6 +321,8 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function createSearchCondition()
 	{
 		$searchCondition = new SearchCondition\DoctrineSearchCondition();
+		$searchCondition->setAdditionalCondition($this->getAdditionalCondition());
+		
 		return $searchCondition;
 	}
 
@@ -345,4 +368,33 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->classMetadata = null;
 		$this->entityManager = null;
 	}
+	
+	/**
+	 * Return additional condition with prefix if not empty
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function getAdditionalCondition($prefix = '')
+	{
+		$condition = $this->additionalCondition;
+		
+		if ( ! empty($condition)) {
+			$condition = ' ' . $prefix . ' ' . $condition;
+		}
+		
+		return $condition;
+	}
+
+	/**
+	 * Sets additional condition, puts in braces
+	 * @param string $additionalCondition
+	 */
+	public function setAdditionalCondition($additionalCondition)
+	{
+		if ( ! empty($additionalCondition)) {
+			$additionalCondition = '(' . $additionalCondition . ')';
+		}
+		$this->additionalCondition = $additionalCondition;
+	}
+
 }

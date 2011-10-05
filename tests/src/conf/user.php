@@ -1,7 +1,7 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\User\Authentication\Adapters\HashAdapter;
+use Supra\Authentication\Adapter\HashAdapter;
 use Supra\User\UserProvider;
 use Supra\User\Validation\EmailValidation;
 

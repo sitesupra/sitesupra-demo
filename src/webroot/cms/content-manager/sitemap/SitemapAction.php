@@ -107,7 +107,7 @@ class SitemapAction extends PageManagerAction
 				$parentPage = $page->getParent();
 				$parentLocalization = $parentPage->getLocalization($locale);
 				
-				if ( ! $parentLocalization instanceof Entity\PageLocalization) {
+				if (is_null($parentLocalization)) {
 					throw new CmsException(null, "Parent page has no localization in the selected language");
 				}
 				

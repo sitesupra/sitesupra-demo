@@ -96,7 +96,11 @@ abstract class AuthorizationThreewayAccessPolicy extends AuthorizationAccessPoli
 			}
 			
 			if( ! empty($permissions)) {
-				$result[] = $this->getItemPermission($user, $itemId, $permissions);
+				$itemPermission = $this->getItemPermission($user, $itemId, $permissions);
+				
+				if ( ! empty($itemPermission)) {
+					$result[] = $itemPermission;
+				}
 			}
 		}
 		

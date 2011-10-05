@@ -11,6 +11,7 @@ use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
+use Supra\Authentication\AuthenticationPassword;
 
 /**
  * Restore password
@@ -102,16 +103,17 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 		
-		$password = $this->getRequestParameter('password');
+		$plainPassword = $this->getRequestParameter('password');
 		$confirmPassword = $this->getRequestParameter('confirm_password');
 
 		// Check password match
-		if($password != $confirmPassword) {
+		if($plainPassword != $confirmPassword) {
 			$this->getResponse()->output('Passwords do not match');
 			return;
 		}
 		
-		$passwordLength = strlen($password);
+		$passwordLength = strlen($plainPassword);
+		$password = new AuthenticationPassword($plainPassword);
 		
 		// check password lenght
 		if($passwordLength < self::MIN_PASSWORD_LENGTH) {

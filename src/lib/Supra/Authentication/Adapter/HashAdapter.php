@@ -1,10 +1,10 @@
 <?php
 
-namespace Supra\User\Authentication\Adapters;
+namespace Supra\Authentication\Adapter;
 
-use Supra\User\Authentication\AuthenticationAdapterInterface;
 use Supra\User\Entity\User;
 use Supra\User\Exception;
+use Supra\Authentication\AuthenticationPassword;
 
 /**
  * Adapter with email as login and password sha1 hash validation
@@ -13,11 +13,11 @@ class HashAdapter implements AuthenticationAdapterInterface
 {
 	/**
 	 * Finds user in database
-	 * @param type $login
-	 * @param type $password
+	 * @param string $login
+	 * @param AuthenticationPassword $password
 	 * @return User 
 	 */
-	public function findUser($login, $password)
+	public function findUser($login, AuthenticationPassword $password)
 	{
 		
 	}
@@ -25,10 +25,10 @@ class HashAdapter implements AuthenticationAdapterInterface
 	/**
 	 * Authenticates user
 	 * @param User $user
-	 * @param string $password
+	 * @param AuthenticationPassword $password
 	 * @return boolean 
 	 */
-	public function authenticate(User $user, $password)
+	public function authenticate(User $user, AuthenticationPassword $password)
 	{
 		if ( ! $user instanceof User) {
 			throw new Exception\RuntimeException('User is not an instance of User entity');
@@ -49,17 +49,17 @@ class HashAdapter implements AuthenticationAdapterInterface
 		
 	/**
 	 * Generates password for database
-	 * @param type $password
-	 * @param type $salt
-	 * @return type 
+	 * @param AuthenticationPassword $password
+	 * @param string $salt
+	 * @return string
 	 */
-	protected function generatePasswordHash($password, $salt)
+	protected function generatePasswordHash(AuthenticationPassword $password, $salt)
 	{
 		if (empty($salt)) {
 			throw new Exception\RuntimeException("User password salt is not permitted to be empty");
 		}
 		
-		$hash = sha1($password . $salt);
+		$hash = sha1((string) $password . $salt);
 		
 		return $hash;
 	}
@@ -67,16 +67,16 @@ class HashAdapter implements AuthenticationAdapterInterface
 	/**
 	 * {@inheritdoc}
 	 * @param User $user
-	 * @param string $password
+	 * @param AuthenticationPassword $password
 	 */
-	public function credentialChange(User $user, $password = null)
+	public function credentialChange(User $user, AuthenticationPassword $password = null)
 	{
 		// Email is login for this 
 		$user->setLogin($user->getEmail());
 		
 		if ( ! is_null($password)) {
 			
-			if (empty($password)) {
+			if ($password->isEmpty()) {
 				throw new Exception\PasswordPolicyException("Empty password is not allowed");
 			}
 			

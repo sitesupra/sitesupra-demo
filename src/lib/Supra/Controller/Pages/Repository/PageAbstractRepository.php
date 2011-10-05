@@ -11,7 +11,7 @@ use BadMethodCallException;
 use Supra\Controller\Pages\Entity\Page;
 
 /**
- * Description of PageAbstractRepository
+ * Abstract page repository
  */
 abstract class PageAbstractRepository extends EntityRepository implements RepositoryInterface
 {
@@ -36,17 +36,6 @@ abstract class PageAbstractRepository extends EntityRepository implements Reposi
 	public function getNestedSetRepository()
 	{
 		return $this->nestedSetRepository;
-	}
-
-	/**
-	 * Search the product by title
-	 * @param string $title
-	 * @return Product
-	 */
-	public function byTitle($title)
-	{
-		$record = $this->findOneByTitle($title);
-		return $record;
 	}
 
 	/**

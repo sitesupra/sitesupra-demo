@@ -5,6 +5,8 @@ namespace Supra\User;
 use Supra\User\Entity;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
+use Supra\Authentication\Adapter;
+use Supra\Authentication\AuthenticationPassword;
 
 class UserProvider
 {
@@ -22,7 +24,7 @@ class UserProvider
 	
 	/**
 	 * Authentication adapter
-	 * @var Authentication\AuthenticationAdapterInterface
+	 * @var Adapter\AuthenticationAdapterInterface
 	 */
 	protected $authAdapter;
 	
@@ -73,7 +75,7 @@ class UserProvider
 	
 	/**
 	 * Returns authentication adapter object
-	 * @return Authentication\AuthenticationAdapterInterface
+	 * @return Adapter\AuthenticationAdapterInterface
 	 */
 	public function getAuthAdapter()
 	{
@@ -82,9 +84,9 @@ class UserProvider
 
 	/**
 	 * Sets authentication adapter
-	 * @param Authentication\AuthenticationAdapterInterface $authAdapter 
+	 * @param Adapter\AuthenticationAdapterInterface $authAdapter 
 	 */
-	public function setAuthAdapter(Authentication\AuthenticationAdapterInterface $authAdapter)
+	public function setAuthAdapter(Adapter\AuthenticationAdapterInterface $authAdapter)
 	{
 		$this->authAdapter = $authAdapter;
 	}
@@ -92,9 +94,10 @@ class UserProvider
 	/**
 	 * Passes user to authentication adapter
 	 * @param string $login 
+	 * @param AuthenticationPassword $password
 	 * @return Entity\User
 	 */
-	public function authenticate($login, $password)
+	public function authenticate($login, AuthenticationPassword $password)
 	{		
 		$adapter = $this->getAuthAdapter();
 		

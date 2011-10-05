@@ -18,6 +18,8 @@ class TableTrashPrefixAppender extends VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\Abstraction\AbstractPage',
 		'Supra\Controller\Pages\Entity\Page',
 		'Supra\Controller\Pages\Entity\Template',
+		'Supra\Controller\Pages\Entity\ApplicationPage',
+		'Supra\Controller\Pages\Entity\GroupPage',
 		'Supra\Controller\Pages\Entity\TemplateLayout',
 	);
 	

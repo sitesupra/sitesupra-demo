@@ -4,7 +4,6 @@ namespace Supra\Cms\ContentManager\Pagecontent;
 
 use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
-use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;

@@ -90,4 +90,17 @@ abstract class RepositoryAbstraction implements RepositoryInterface
 	 * @param int $levelDiff
 	 */
 	abstract public function move(NodeInterface $node, $pos, $levelDiff);
+	
+	/**
+	 * Remove unused space in the nested set intervals
+	 * @param int $offset
+	 * @param int $size
+	 */
+	abstract public function truncate($offset, $size);
+	
+	/**
+	 * Deletes the nested set part under the node including the node
+	 * @param Node\NodeInterface $node
+	 */
+	abstract public function delete(Node\NodeInterface $node);
 }

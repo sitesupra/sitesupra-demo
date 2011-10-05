@@ -63,8 +63,10 @@ class FixtureHelper
 			$user->setLogin($userName);
 			$user->setName($userName);
 			$user->setEmail($userName);
+			$plainPassword = $userName;
+			$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 
-			$this->up->getAuthAdapter()->credentialChange($user, $userName);
+			$this->up->getAuthAdapter()->credentialChange($user, $password);
 			$em->flush();		
 		}
 		

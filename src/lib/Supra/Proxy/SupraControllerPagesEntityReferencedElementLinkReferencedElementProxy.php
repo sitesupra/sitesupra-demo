@@ -201,7 +201,7 @@ class SupraControllerPagesEntityReferencedElementLinkReferencedElementProxy exte
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'id', 'revision', 'resource', 'href', 'target', 'title', 'pageId', 'fileId');
+        return array('__isInitialized__', 'id', 'resource', 'href', 'target', 'title', 'pageId', 'fileId');
     }
 
     public function __clone()

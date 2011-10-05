@@ -30,7 +30,7 @@ class PageAction extends PageManagerAction
 		$pageId = $pageData->getId();
 
 		// Create special request
-		$request = new PageRequestEdit($localeId, $media);
+		$request = $this->getPageRequest();
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);

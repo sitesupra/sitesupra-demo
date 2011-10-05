@@ -8,7 +8,6 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
-use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Layout\Exception as LayoutException;
 
 /**

@@ -9,7 +9,7 @@ use Supra\Controller\Exception;
 use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
-use Supra\Controller\Authentication\AuthenticationSessionNamespace;
+use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 /**

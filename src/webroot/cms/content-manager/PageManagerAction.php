@@ -21,6 +21,7 @@ use Supra\FileStorage\Entity\File;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
+use Supra\Controller\Pages\Request\GroupPageRequest;
 
 /**
  * Controller containing common methods
@@ -38,6 +39,11 @@ abstract class PageManagerAction extends CmsAction
 	 * @var Entity\Abstraction\Localization
 	 */
 	protected $pageData;
+	
+	/**
+	 * @var PageController
+	 */
+	private $pageController;
 
 	/**
 	 * Assign entity manager
@@ -46,8 +52,6 @@ abstract class PageManagerAction extends CmsAction
 	{
 		parent::__construct();
 
-		// Take entity manager of the page controller
-//		$controller = $this->getPageController();
 		// Will fetch connection for drafts
 		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
@@ -58,12 +62,14 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function getPageController()
 	{
-		$controller = new \Project\Pages\PageController();
+		if (is_null($this->pageController)) {
+			$this->pageController = new \Project\Pages\PageController();
 
-		// Override with the draft version connection
-		$controller->setEntityManager($this->entityManager);
+			// Override with the draft version connection
+			$this->pageController->setEntityManager($this->entityManager);
+		}
 		
-		return $controller;
+		return $this->pageController;
 	}
 
 	/**
@@ -75,13 +81,18 @@ abstract class PageManagerAction extends CmsAction
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 		$user = $this->getUser();
+		$requestPageLocalization = $this->getPageLocalization();
+		$request = null;
 
-		$request = new PageRequestEdit($localeId, $media);
+		if ($requestPageLocalization instanceof Entity\GroupPage) {
+			$request = new GroupPageRequest($localeId, $media);
+		} else {
+			$request = new PageRequestEdit($localeId, $media);
+		}
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
 
-		$requestPageLocalization = $this->getPageLocalization();
 		$request->setPageLocalization($requestPageLocalization);
 		$request->setUser($user);
 

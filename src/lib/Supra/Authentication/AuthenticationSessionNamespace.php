@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Authentication;
+namespace Supra\Authentication;
 
 use Supra\Session\SessionNamespace;
 use Supra\ObjectRepository\ObjectRepository;

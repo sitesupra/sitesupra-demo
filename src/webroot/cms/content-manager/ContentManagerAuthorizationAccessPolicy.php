@@ -8,7 +8,8 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
 use Supra\User\Entity\Abstraction\User;
 
-class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAccessPolicy {
+class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAccessPolicy
+{
 	
 	private $pr;
 	private $lr;
@@ -38,7 +39,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAcces
 		}
 		
 		$locale = '';
-		
+		$title = '';
 		
 		if($page instanceof Entity\PageLocalization) {
 			
@@ -48,11 +49,10 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAcces
 			$locale = $page->getLocale();
 			$title = $page->getTitle();
 		}
-		else { 
+		elseif ($page instanceof Entity\Page) { 
 			
 			// ... otherwise, if this is some master page, fetch current or first page localization 
 			// and get title from that
-			
 			$localization = $page->getLocalization($this->lm->getCurrent()->getId());
 			
 			if (empty($localization)) {
@@ -60,6 +60,8 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayAcces
 			}
 			
 			$title = $localization->getTitle();
+		} else {
+			$title = 'Deleted object #' . $itemId;
 		}
 		
 		$itemPermission = parent::getItemPermission($user, $itemId, $permissions);

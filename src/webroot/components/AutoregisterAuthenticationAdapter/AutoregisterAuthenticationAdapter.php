@@ -2,15 +2,22 @@
 
 namespace Project\AutoregisterAuthenticationAdapter;
 
-use Supra\User\Authentication\Adapters\HashAdapter;
+use Supra\Authentication\Adapter\HashAdapter;
 use Supra\User\Entity\User;
+use Supra\Authentication\AuthenticationPassword;
 
 /**
  * Development authentication adapter automatically registering new users
  */
 class AutoregisterAuthenticationAdapter extends HashAdapter
 {
-	public function findUser($login, $password)
+	/**
+	 * Creates new user using credentials entered in the login form
+	 * @param string $login
+	 * @param AuthenticationPassword $password
+	 * @return User
+	 */
+	public function findUser($login, AuthenticationPassword $password)
 	{
 		$user = new User();
 		$user->setName($login);

@@ -124,7 +124,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				template_input = this.form.getInput('template'),
 				layout_input = this.form.getInput('layout');
 			
-			if ((type != 'templates' && node && node.isRoot()) || data.path == '') {
+			if ((type != 'templates' && node && node.isRoot()) || ! data.path) {
 				//Root page or application page without a path
 				this.button_delete.set('disabled', true);
 				path_input.set('disabled', true);
@@ -158,7 +158,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 					
 				while(item) {
 					// Skip empty path
-					if (item.path != '') {
+					if (item.path) {
 						fullpath.push(item.path);
 					}
 					item = all_data[item.parent];

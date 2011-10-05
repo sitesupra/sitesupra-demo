@@ -2,7 +2,7 @@
 
 namespace Project\Authentication;
 
-use Supra\Controller\Authentication;
+use Supra\Authentication;
 /**
  * Authentication PreFilter
  *
