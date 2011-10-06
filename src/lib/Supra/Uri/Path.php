@@ -50,7 +50,7 @@ class Path
 	 * @param string $path
 	 * @param string $separator
 	 */
-	public function __construct($path, $separator = '/')
+	public function __construct($path = '', $separator = '/')
 	{
 		$this->setSeparator($separator);
 		$this->setPath($path);
@@ -381,6 +381,18 @@ class Path
 	{
 		$pathList = array_merge($this->path, $path->basePathParts, $path->path);
 		$this->setPathList($pathList);
+		
+		return $this;
+	}
+	
+	/**
+	 * @param string $pathString
+	 * @return Path
+	 */
+	public function appendString($pathString)
+	{
+		$path = new Path($pathString);
+		$this->append($path);
 		
 		return $this;
 	}

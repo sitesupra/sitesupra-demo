@@ -16,24 +16,34 @@ use Supra\Uri\Path;
 class PagePathGenerator
 {
 	/**
+	 * @var EntityManager
+	 */
+	private $em;
+	
+	/**
+	 * @var UnitOfWork
+	 */
+	private $unitOfWork;
+	
+	/**
 	 * @param OnFlushEventArgs $eventArgs
 	 */
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
-		$em = $eventArgs->getEntityManager();
-		$unitOfWork = $em->getUnitOfWork();
+		$this->em = $eventArgs->getEntityManager();
+		$this->unitOfWork = $this->em->getUnitOfWork();
 
 		// Page path is not set from inserts, updates only
-		foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
+		foreach ($this->unitOfWork->getScheduledEntityUpdates() as $entity) {
 			if ($entity instanceof Entity\PageLocalization) {
-				$this->generatePath($em, $unitOfWork, $entity);
+				$this->generatePath($entity);
 			}
 
 			if ($entity instanceof Entity\Page) {
 				$dataCollection = $entity->getLocalizations();
 
 				foreach ($dataCollection as $dataEntity) {
-					$this->generatePath($em, $unitOfWork, $dataEntity);
+					$this->generatePath($dataEntity);
 				}
 			}
 		}
@@ -41,17 +51,15 @@ class PagePathGenerator
 	
 	/**
 	 * Generates new full path and validates its uniqueness
-	 * @param EntityManager $em
-	 * @param UnitOfWork $unitOfWork
 	 * @param Entity\PageLocalization $pageData
 	 */
-	private function generatePath(EntityManager $em, UnitOfWork $unitOfWork, Entity\PageLocalization $pageData)
+	private function generatePath( Entity\PageLocalization $pageData)
 	{
 		$page = $pageData->getMaster();
 		$pathPartString = $pageData->getPathPart();
 		$locale = $pageData->getLocale();
 		$className = get_class($pageData);
-		$metaData = $em->getClassMetadata($className);
+		$metaData = $this->em->getClassMetadata($className);
 		
 		$oldPath = $pageData->getPath();
 		
@@ -79,7 +87,7 @@ class PagePathGenerator
 
 				// Check duplicates only if path is not null
 				if ( ! is_null($newPath)) {
-					$this->checkForDuplicates($em, $pageData, $newPath);
+					$this->checkForDuplicates($pageData, $newPath);
 				}
 
 				// Validation passed, set the new path
@@ -92,7 +100,7 @@ class PagePathGenerator
 				
 				// Run updates only if path was set before
 				if ($oldBasePath !== null) {
-					$this->updateDependantPages($em, $pageData, $oldBasePath, $newBasePath);
+					$this->updateDependantPages($pageData, $oldBasePath, $newBasePath);
 				}
 
 				/*
@@ -100,10 +108,10 @@ class PagePathGenerator
 				 * methods depending on is the entity inside the unit of work
 				 * changeset
 				 */
-				if ($unitOfWork->getEntityChangeSet($pageData)) {
-					$unitOfWork->recomputeSingleEntityChangeSet($metaData, $pageData);
+				if ($this->unitOfWork->getEntityChangeSet($pageData)) {
+					$this->unitOfWork->recomputeSingleEntityChangeSet($metaData, $pageData);
 				} else {
-					$unitOfWork->computeChangeSet($metaData, $pageData);
+					$this->unitOfWork->computeChangeSet($metaData, $pageData);
 				}
 			}
 		} else {
@@ -119,16 +127,15 @@ class PagePathGenerator
 	
 	/**
 	 * Throws exception if page duplicate is found
-	 * @param EntityManager $em
 	 * @param Entity\PageLocalization $pageData
 	 * @param Path $newPath
 	 */
-	protected function checkForDuplicates(EntityManager $em, Entity\PageLocalization $pageData, Path $newPath)
+	protected function checkForDuplicates(Entity\PageLocalization $pageData, Path $newPath)
 	{
 		$page = $pageData->getMaster();
 		$locale = $pageData->getLocale();
 		$className = get_class($pageData);
-		$repo = $em->getRepository($className);
+		$repo = $this->em->getRepository($className);
 		
 		$newPathString = $newPath->getFullPath();
 
@@ -147,12 +154,11 @@ class PagePathGenerator
 	
 	/**
 	 * Runs database updates when page path changes on child pages
-	 * @param EntityManager $em
 	 * @param Entity\PageLocalization $pageData
 	 * @param Path $oldBasePath
 	 * @param Path $newBasePath 
 	 */
-	protected function updateDependantPages(EntityManager $em, Entity\PageLocalization $pageData, Path $oldBasePath, Path $newBasePath)
+	protected function updateDependantPages(Entity\PageLocalization $pageData, Path $oldBasePath, Path $newBasePath)
 	{
 		$page = $pageData->getMaster();
 		$locale = $pageData->getLocale();
@@ -185,7 +191,7 @@ class PagePathGenerator
 				AND d.master IN 
 					(SELECT m FROM {$masterClassName} m WHERE m.left >= ?4 AND m.right <= ?5)";
 		
-		$query = $em->createQuery($dql);
+		$query = $this->em->createQuery($dql);
 		$query->execute($params);
 		
 		// Update children pages, parent path field
@@ -197,7 +203,7 @@ class PagePathGenerator
 				AND d.master IN 
 					(SELECT m FROM {$masterClassName} m WHERE m.left > ?4 AND m.right < ?5)";
 		
-		$query = $em->createQuery($dql);
+		$query = $this->em->createQuery($dql);
 		$query->execute($params);
 	}
 
@@ -234,7 +240,7 @@ class PagePathGenerator
 			$applicationId = $parentPage->getApplicationId();
 
 			$application = PageApplicationCollection::getInstance()
-					->createApplication($applicationId);
+					->createApplication($parentPageData, $this->em);
 
 			if (empty($application)) {
 				throw new Exception\PagePathException("Application '$applicationId' is not found", $pageData);

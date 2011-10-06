@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Set\PageSet;
+use Supra\Controller\Pages\Exception;
 
 /**
  * NOT persisting group localization object
@@ -18,8 +19,7 @@ class GroupLocalization extends Abstraction\Localization
 	
 	public function getTemplateHierarchy()
 	{
-		return new PageSet(array($this));
-//		throw new \Supra\Controller\Pages\Exception\RuntimeException("Template hierarchy cannot be called for a group page");
+		throw new Exception\RuntimeException("Template hierarchy cannot be called for a group page");
 	}
 	
 	public function getPathPart()

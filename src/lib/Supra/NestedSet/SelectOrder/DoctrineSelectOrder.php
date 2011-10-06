@@ -15,31 +15,31 @@ class DoctrineSelectOrder extends SelectOrderAbstraction
 	 * Add order rules to the query builder
 	 * NB! The alias of the main table must be "e".
 	 * @param QueryBuilder $qb
-	 * @return QueryBuilder
 	 * @throws Exception\InvalidArgument
 	 */
-	public function getOrderDQL(QueryBuilder $qb)
+	public function applyToQueryBuilder(QueryBuilder $qb, $parameterOffset = 0)
 	{
 		$orderRules = $this->orderRules;
 		foreach ($orderRules as $orderRule) {
-			$field = $orderRule[ArraySelectOrder::FIELD_POS];
+			$field = $orderRule[self::FIELD_POS];
 			switch ($field) {
-				case SelectOrderAbstraction::LEFT_FIELD:
-				case SelectOrderAbstraction::RIGHT_FIELD:
-				case SelectOrderAbstraction::LEVEL_FIELD:
+				case self::LEFT_FIELD:
+				case self::RIGHT_FIELD:
+				case self::LEVEL_FIELD:
 					break;
 				default:
 					throw new Exception\InvalidArgument("Field $field is not recognized");
 			}
 
 			$field = "e.$field";
+			$directionSQL = null;;
 
-			$direction = $orderRule[ArraySelectOrder::DIRECTION_POS];
+			$direction = $orderRule[self::DIRECTION_POS];
 			switch ($direction) {
-				case SelectOrderAbstraction::DIRECTION_ASCENDING:
+				case self::DIRECTION_ASCENDING:
 					$directionSQL = 'ASC';
 					break;
-				case SelectOrderAbstraction::DIRECTION_DESCENDING:
+				case self::DIRECTION_DESCENDING:
 					$directionSQL = 'DESC';
 					break;
 				default:
@@ -48,6 +48,6 @@ class DoctrineSelectOrder extends SelectOrderAbstraction
 			$qb->addOrderBy($field, $directionSQL);
 		}
 		
-		return $qb;
+		return $parameterOffset;
 	}
 }

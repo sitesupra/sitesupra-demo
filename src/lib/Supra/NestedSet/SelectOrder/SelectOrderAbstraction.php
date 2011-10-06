@@ -18,16 +18,6 @@ use Supra\NestedSet\Exception;
  */
 class SelectOrderAbstraction implements SelectOrderInterface
 {
-	const FIELD_POS = 0;
-	const DIRECTION_POS = 1;
-
-	const LEFT_FIELD = 'left';
-	const RIGHT_FIELD = 'right';
-	const LEVEL_FIELD = 'level';
-
-	const DIRECTION_ASCENDING = 1;
-	const DIRECTION_DESCENDING = -1;
-
 	/**
 	 * Possible sort fields
 	 * @var array
@@ -85,7 +75,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 
 		$fieldFound = false;
 		foreach (self::$fields as $field) {
-			if (\stripos($methodRemainder, $field) === 0) {
+			if (stripos($methodRemainder, $field) === 0) {
 				$methodRemainder = substr($methodRemainder, strlen($field));
 				$fieldFound = $field;
 				break;
@@ -99,7 +89,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 		
 		if ($methodRemainder != '') {
 			foreach (self::$directions as $directionTest => $directionString) {
-				if (\strcasecmp($directionString, $methodRemainder) === 0) {
+				if (strcasecmp($directionString, $methodRemainder) === 0) {
 					$direction = $directionTest;
 					break;
 				}

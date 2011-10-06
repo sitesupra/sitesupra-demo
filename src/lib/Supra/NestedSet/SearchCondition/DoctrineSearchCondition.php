@@ -21,20 +21,19 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 	 * Adds search filter to the query builder passed.
 	 * NB! The alias of the main table must be "e".
 	 * @param QueryBuilder $qb
-	 * @return QueryBuilder
 	 * @throws Exception\InvalidArgument on invalid parameters
 	 */
-	function getSearchDQL(QueryBuilder $qb)
+	function applyToQueryBuilder(QueryBuilder $qb, $parameterOffset = 0)
 	{
 		$expr = $qb->expr();
 
 		$conditions = $this->conditions;
 		foreach ($conditions as $condition) {
-			$field = $condition[ArraySearchCondition::FIELD_POS];
+			$field = $condition[self::FIELD_POS];
 			switch ($field) {
-				case SearchConditionAbstraction::LEFT_FIELD:
-				case SearchConditionAbstraction::RIGHT_FIELD:
-				case SearchConditionAbstraction::LEVEL_FIELD:
+				case self::LEFT_FIELD:
+				case self::RIGHT_FIELD:
+				case self::LEVEL_FIELD:
 					break;
 				default:
 					throw new Exception\InvalidArgument("Field $field is not recognized");
@@ -42,41 +41,45 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 
 			$where = null;
 			$field = "e.$field";
+			$parameterIndex = $parameterOffset;
+			$parameterOffset++;
 
-			$relation = $condition[ArraySearchCondition::RELATION_POS];
-			$value = $condition[ArraySearchCondition::VALUE_POS];
+			$relation = $condition[self::RELATION_POS];
+			$value = $condition[self::VALUE_POS];
+			$valueExpr = '?' . $parameterIndex;
+			
 			switch ($relation) {
-				case SearchConditionAbstraction::RELATION_EQUALS:
-					$where = $expr->eq($field, $value);
+				case self::RELATION_EQUALS:
+					$where = $expr->eq($field, $valueExpr);
 					break;
-				case SearchConditionAbstraction::RELATION_LESS_OR_EQUALS:
-					$where = $expr->lte($field, $value);
+				case self::RELATION_LESS_OR_EQUALS:
+					$where = $expr->lte($field, $valueExpr);
 					break;
-				case SearchConditionAbstraction::RELATION_MORE_OR_EQUALS:
-					$where = $expr->gte($field, $value);
+				case self::RELATION_MORE_OR_EQUALS:
+					$where = $expr->gte($field, $valueExpr);
 					break;
-				case SearchConditionAbstraction::RELATION_LESS:
-					$where = $expr->lt($field, $value);
+				case self::RELATION_LESS:
+					$where = $expr->lt($field, $valueExpr);
 					break;
-				case SearchConditionAbstraction::RELATION_MORE:
-					$where = $expr->gt($field, $value);
+				case self::RELATION_MORE:
+					$where = $expr->gt($field, $valueExpr);
 					break;
-				case SearchConditionAbstraction::RELATION_NOT_EQUALS:
-					$where = $expr->neq($field, $value);
+				case self::RELATION_NOT_EQUALS:
+					$where = $expr->neq($field, $valueExpr);
 					break;
 				default:
 					throw new Exception\InvalidArgument("Relation $relation is not recognized");
 			}
 
-			$qb->andWhere($where);
-			
+			$qb->andWhere($where)
+					->setParameter($parameterIndex, $value);
 		}
 		
 		if ( ! empty($this->additionalCondition)) {
 			$qb->andWhere($this->additionalCondition);
 		}
-
-		return $qb;
+		
+		return $parameterOffset;
 	}
 	
 	/**

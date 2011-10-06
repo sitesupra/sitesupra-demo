@@ -92,12 +92,12 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 
 	/**
 	 * Check if discriminators match for objects.
-	 * If strict, they must be equal, if not strict, page object matches template object as well.
-	 * As example PageLocalization object can have Page block properties assigned to template block object.
+	 * They must be equal, with exceptions:
+	 *		* PageLocalization object can have Page block properties assigned to template block object
+	 *		* Application objects can be bound to Page objects except case with AbstractPage <-> Localization reference
 	 * @param Entity $object
-	 * @param boolean $strict
 	 */
-	public function matchDiscriminator(Entity $object, $strict = true)
+	public function matchDiscriminator(Entity $object)
 	{
 		if ( ! $object instanceof Entity) {
 			throw new Exception\LogicException("Entity not passed to the matchDiscriminator method");
@@ -106,16 +106,27 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		$discrA = $this->getDiscriminator();
 		$discrB = $object->getDiscriminator();
 
-		\Log::debug("Checking discr matching for $this and $object: $discrA and $discrB");
+		$this->log()->debug("Checking discr matching for $this and $object: $discrA and $discrB");
 
 		if ($discrA == $discrB) {
 			return;
 		}
-
-		if ( ! $strict && ($discrA == 'page' && $discrB == 'template')) {
+		
+		// Allow binding page elements to application elements (except AbstractPage <-> Localization)
+		if ($discrA != 'template' && $discrB != 'template') {
+			if ( ! ($this instanceof AbstractPage && $object instanceof Localization)) {
+				return;
+			}
+		}
+		
+		/*
+		 * Allow template elements being bound to the page elements in case of
+		 * block property set to page localization and template block
+		 */
+		if ($this instanceof \Supra\Controller\Pages\Entity\PageLocalization && $object instanceof \Supra\Controller\Pages\Entity\TemplateBlock) {
 			return;
 		}
-
+		
 		$this->unlockAll();
 		
 		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");

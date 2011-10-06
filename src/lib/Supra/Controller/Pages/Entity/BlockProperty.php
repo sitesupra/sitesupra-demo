@@ -201,7 +201,7 @@ class BlockProperty extends Entity
 		if ( ! empty($this->localization) && ! empty($this->block)) {
 			try {
 				// do not-strict match (allows page data with template block)
-				$this->localization->matchDiscriminator($this->block, false);
+				$this->localization->matchDiscriminator($this->block);
 			} catch (Exception\PagesControllerException $e) {
 				$object = null;
 				throw $e;

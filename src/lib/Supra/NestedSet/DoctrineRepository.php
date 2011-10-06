@@ -5,7 +5,6 @@ namespace Supra\NestedSet;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\QueryBuilder;
-use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Node\NodeInterface;
 
 /**
@@ -49,6 +48,12 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @var string
 	 */
 	private $additionalCondition;
+	
+	/**
+	 * Query parameter offset
+	 * @var int
+	 */
+	private $parameterOffset = 0;
 
 	/**
 	 * Constructor
@@ -90,7 +95,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$this->className = $className;
 	}
-	
+
+	/**
+	 * Return the current parameter index and increase it
+	 * @return int
+	 */
+	public function increaseParameterOffset()
+	{
+		return $this->parameterOffset++;
+	}
+
 	/**
 	 * Get maximal interval value used by nodes
 	 * @return int
@@ -288,6 +302,23 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function search(SearchCondition\SearchConditionInterface $filter, SelectOrder\SelectOrderInterface $order = null)
 	{
+		$qb = $this->createSearchQueryBuilder($filter, $order);
+
+		$result = $qb->getQuery()
+				->getResult();
+		
+		return $result;
+	}
+	
+	/**
+	 * @param SearchCondition\SearchConditionInterface $filter
+	 * @param SelectOrder\SelectOrderInterface $order
+	 * @return QueryBuilder
+	 */
+	public function createSearchQueryBuilder(SearchCondition\SearchConditionInterface $filter = null, SelectOrder\SelectOrderInterface $order = null)
+	{
+		$this->parameterOffset = 0;
+		
 		$em = $this->getEntityManager();
 		$className = $this->className;
 		$alias = 'e';
@@ -296,22 +327,17 @@ class DoctrineRepository extends RepositoryAbstraction
 		$qb->select($alias)
 				->from($className, $alias);
 
-		if ( ! ($filter instanceof SearchCondition\DoctrineSearchCondition)) {
-			throw new Exception\WrongInstance($filter, 'SearchCondition\DoctrineSearchCondition');
+		if (is_null($filter)) {
+			$filter = $this->createSearchCondition();
 		}
-		$qb = $filter->getSearchDQL($qb);
+		
+		$this->parameterOffset = $filter->applyToQueryBuilder($qb, $this->parameterOffset);
 
 		if ( ! is_null($order)) {
-			if ( ! ($order instanceof SelectOrder\DoctrineSelectOrder)) {
-				throw new Exception\WrongInstance($order, 'SelectOrder\DoctrineSelectOrder');
-			}
-			$qb = $order->getOrderDQL($qb);
+			$this->parameterOffset = $order->applyToQueryBuilder($qb, $this->parameterOffset);
 		}
-
-		$result = $qb->getQuery()
-				->getResult();
 		
-		return $result;
+		return $qb;
 	}
 
 	/**
@@ -333,6 +359,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function createSelectOrderRule()
 	{
 		$SelectOrder = new SelectOrder\DoctrineSelectOrder();
+		
 		return $SelectOrder;
 	}
 

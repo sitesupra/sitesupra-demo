@@ -204,10 +204,10 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::getDiscriminator();
     }
 
-    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object)
     {
         $this->__load();
-        return parent::matchDiscriminator($object, $strict);
+        return parent::matchDiscriminator($object);
     }
 
     public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
@@ -279,7 +279,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'id');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id');
     }
 
     public function __clone()

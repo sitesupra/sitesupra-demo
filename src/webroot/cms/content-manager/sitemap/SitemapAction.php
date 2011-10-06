@@ -121,7 +121,7 @@ class SitemapAction extends PageManagerAction
 				if ($parentPage instanceof Entity\ApplicationPage) {
 					$applicationId = $parentPage->getApplicationId();
 					$application = PageApplicationCollection::getInstance()
-							->createApplication($applicationId);
+							->createApplication($parentLocalization, $this->entityManager);
 					
 					if (empty($application)) {
 						throw new CmsException(null, "Application '$applicationId' was not found");

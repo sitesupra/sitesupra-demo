@@ -505,7 +505,11 @@ class FixtureHelper
 			foreach ($this->locales as $locale) {
 				$localeId = $locale->getId();
 
-				$pageData = new Entity\PageLocalization($localeId);
+				if ($page instanceof Entity\ApplicationPage) {
+					$pageData = new Entity\ApplicationLocalization($localeId);
+				} else {
+					$pageData = new Entity\PageLocalization($localeId);
+				}
 				$pageData->setTemplate($template);
 				$this->entityManager->persist($pageData);
 				$pageData->setTitle($pageDefinition['title']);

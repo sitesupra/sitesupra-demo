@@ -24,6 +24,21 @@ namespace Supra\NestedSet\SearchCondition;
  */
 interface SearchConditionInterface
 {
+	const FIELD_POS = 0;
+	const RELATION_POS = 1;
+	const VALUE_POS = 2;
+
+	const LEFT_FIELD = 'left';
+	const RIGHT_FIELD = 'right';
+	const LEVEL_FIELD = 'level';
+
+	const RELATION_EQUALS = '==';
+	const RELATION_LESS = '<';
+	const RELATION_MORE = '>';
+	const RELATION_LESS_OR_EQUALS = '<=';
+	const RELATION_MORE_OR_EQUALS = '>=';
+	const RELATION_NOT_EQUALS = '!=';
+	
 	/**
 	 * Add a condition to the collection
 	 * @param string $field

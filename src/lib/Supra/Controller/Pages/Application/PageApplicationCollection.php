@@ -4,6 +4,10 @@ namespace Supra\Controller\Pages\Application;
 
 use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
 use Supra\Loader\Loader;
+use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\Entity\ApplicationPage;
+use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Collection of page applications
@@ -58,18 +62,35 @@ class PageApplicationCollection
 	}
 	
 	/**
-	 * @param string $id
+	 * @param PageLocalization $pageLocalization
+	 * @param EntityManager $em
 	 * @return PageApplicationInterface
 	 */
-	public function createApplication($id)
+	public function createApplication(PageLocalization $pageLocalization, EntityManager $em)
 	{
+		$applicationPage = $pageLocalization->getMaster();
+		
+		if ( ! $applicationPage instanceof ApplicationPage) {
+			throw new Exception\RuntimeException("Method createApplication accepts only application page localization objects");
+		}
+		
+		$id = $applicationPage->getApplicationId();
+		
 		if ( ! isset($this->loadedApplications[$id])) {
 			$configuration = $this->getConfiguration($id);
 			
 			if ($configuration instanceof PageApplicationConfiguration) {
-				$this->loadedApplications[$id] = Loader::getClassInstance(
+				
+				$application = Loader::getClassInstance(
 						$configuration->className, 
 						'Supra\Controller\Pages\Application\PageApplicationInterface');
+				
+				/* @var $application PageApplicationInterface */
+				
+				$application->setEntityManager($em);
+				$application->setApplicationLocalization($pageLocalization);
+				
+				$this->loadedApplications[$id] = $application;
 			}
 		}
 		

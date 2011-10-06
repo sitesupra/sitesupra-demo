@@ -72,6 +72,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function setNodeTitle($title)
 	{
 		$this->title = $title;
+		
 		return $this;
 	}
 
@@ -91,6 +92,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function setRepository(RepositoryAbstraction $repository)
 	{
 		$this->repository = $repository;
+		
 		return $this;
 	}
 
@@ -137,6 +139,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function setLeftValue($left)
 	{
 		$this->left = $left;
+		
 		return $this;
 	}
 
@@ -148,6 +151,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function setRightValue($right)
 	{
 		$this->right = $right;
+		
 		return $this;
 	}
 
@@ -247,7 +251,6 @@ abstract class NodeAbstraction implements NodeInterface
 
 		// Free the unused space
 		$this->repository->truncate($left, $spaceUsed);
-		return null;
 	}
 
 	/**
@@ -258,7 +261,9 @@ abstract class NodeAbstraction implements NodeInterface
 	public function hasNextSibling()
 	{
 		$nextSibling = $this->getNextSibling();
-		return ( ! \is_null($nextSibling));
+		$hasNext = ( ! is_null($nextSibling));
+		
+		return $hasNext;
 	}
 
 	/**
@@ -269,7 +274,9 @@ abstract class NodeAbstraction implements NodeInterface
 	public function hasPrevSibling()
 	{
 		$prevSibling = $this->getPrevSibling();
-		return ( ! \is_null($prevSibling));
+		$hasPrev = ( ! is_null($prevSibling));
+		
+		return $hasPrev;
 	}
 
 	/**
@@ -280,7 +287,9 @@ abstract class NodeAbstraction implements NodeInterface
 	public function getNumberChildren()
 	{
 		$children = $this->getChildren();
-		return count($children);
+		$count = count($children);
+		
+		return $count;
 	}
 
 	/**
@@ -292,11 +301,13 @@ abstract class NodeAbstraction implements NodeInterface
 	{
 		$intervalSize = $this->getIntervalSize();
 		$intervalSize = $intervalSize - 1;
+		
 		if ($intervalSize % 2 != 0) {
 			$dump = static::dump($this);
 			throw new Exception\InvalidStructure("The size of node {$dump} must be odd number, even number received");
 		}
-		$descendantCount = $intervalSize / 2;
+		$descendantCount = (int) ($intervalSize / 2);
+		
 		return $descendantCount;
 	}
 
@@ -308,6 +319,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function hasParent()
 	{
 		$hasParent = ( ! $this->isRoot());
+		
 		return $hasParent;
 	}
 
@@ -327,6 +339,7 @@ abstract class NodeAbstraction implements NodeInterface
 			throw new Exception\InvalidStructure("Parent node was not found for {$dump} but must exist");
 		}
 		$parent = $parents[0];
+		
 		return $parent;
 	}
 
@@ -418,6 +431,7 @@ abstract class NodeAbstraction implements NodeInterface
 				->byLeftAscending();
 
 		$descendants = $this->repository->search($searchCondition, $orderRule);
+		
 		return $descendants;
 	}
 
@@ -443,6 +457,7 @@ abstract class NodeAbstraction implements NodeInterface
 			throw new Exception\InvalidStructure("Could not find the first child of {$dump} but it must exist");
 		}
 		$firstChild = $firstChild[0];
+		
 		return $firstChild;
 	}
 
@@ -468,6 +483,7 @@ abstract class NodeAbstraction implements NodeInterface
 			throw new Exception\InvalidStructure("Could not find the last child of {$dump} but it must exist");
 		}
 		$lastChild = $lastChild[0];
+		
 		return $lastChild;
 	}
 
@@ -487,6 +503,7 @@ abstract class NodeAbstraction implements NodeInterface
 			return null;
 		}
 		$nextSibling = $nextSibling[0];
+		
 		return $nextSibling;
 	}
 
@@ -509,6 +526,7 @@ abstract class NodeAbstraction implements NodeInterface
 			return null;
 		}
 		$prevSibling = $prevSibling[0];
+		
 		return $prevSibling;
 	}
 
@@ -533,7 +551,7 @@ abstract class NodeAbstraction implements NodeInterface
 		$parent = $this->getParent();
 		$siblings = null;
 		
-		if ( ! \is_null($parent)) {
+		if ( ! is_null($parent)) {
 			$siblings = $parent->getChildren();
 		} else {
 			$siblings = $this->repository->getRootNodes();
@@ -561,6 +579,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function hasChildren()
 	{
 		$hasChildren = ($this->getIntervalSize() > 1);
+		
 		return $hasChildren;
 	}
 
@@ -665,6 +684,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function isLeaf()
 	{
 		$isLeaf = ( ! $this->hasChildren());
+		
 		return $isLeaf;
 	}
 
@@ -676,6 +696,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function isRoot()
 	{
 		$isRoot = ($this->getLevel() == 0);
+		
 		return $isRoot;
 	}
 
@@ -692,6 +713,7 @@ abstract class NodeAbstraction implements NodeInterface
 			
 			return true;
 		}
+		
 		return false;
 	}
 
@@ -704,6 +726,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function isDescendantOf(NodeInterface $node)
 	{
 		$isAncestor = $node->isAncestorOf($this);
+		
 		return $isAncestor;
 	}
 
@@ -716,6 +739,7 @@ abstract class NodeAbstraction implements NodeInterface
 	public function isEqualTo(NodeInterface $node)
 	{
 		$isEqual = ($this->getLeftValue() == $node->getLeftValue());
+		
 		return $isEqual;
 	}
 
@@ -800,6 +824,7 @@ abstract class NodeAbstraction implements NodeInterface
 			
 			$prevNode = $item;
 		}
+		
 		return $tree;
 	}
 
@@ -833,6 +858,7 @@ abstract class NodeAbstraction implements NodeInterface
 		);
 		ksort($dumpData);
 		$dumpString = vsprintf(static::DUMP_FORMAT, $dumpData);
+		
 		return $dumpString;
 	}
 
@@ -844,6 +870,7 @@ abstract class NodeAbstraction implements NodeInterface
 	{
 		// Use late static binding
 		$dumpString = static::dump($this);
+		
 		return $dumpString;
 	}
 	

@@ -2,8 +2,6 @@
 
 namespace Supra\NestedSet\Node;
 
-//TODO: remove page entity requirement
-use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\NestedSet\DoctrineRepository;
 use Supra\NestedSet\RepositoryInterface;
 use Supra\NestedSet\Exception;
@@ -99,9 +97,9 @@ class DoctrineNode extends NodeAbstraction
 	/**
 	 * Prepare object to be processed by garbage collector by removing it's
 	 * instance from the Doctrine Repository Array Helper object
-	 * @param Entity $entity
+	 * @param EntityNodeInterface $entity
 	 */
-	public function free(Entity $entity)
+	public function free(EntityNodeInterface $entity)
 	{
 		$this->repository->free($entity);
 		$this->repository = null;

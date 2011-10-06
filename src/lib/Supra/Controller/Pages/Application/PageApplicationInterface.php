@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Application;
 
 use Supra\Controller\Pages\Entity;
 use Supra\Uri\Path;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Interface for page applications
@@ -23,4 +24,15 @@ interface PageApplicationInterface
 	 * @return boolean
 	 */
 	public function hasPath();
+	
+	/**
+	 * @param EntityManager $em
+	 */
+	public function setEntityManager(EntityManager $em);
+	
+	/**
+	 * @param Entity\ApplicationLocalization $applicationLocalization
+	 */
+	public function setApplicationLocalization(Entity\ApplicationLocalization $applicationLocalization);
+
 }

@@ -40,7 +40,7 @@ class SqlLogger implements SQLLoggerInterface
 		$log = ObjectRepository::getLogger($this);
 		
 		// Let's find first caller offset not inside the Doctrine package
-		$offset = 1;
+		$offset = 0;
 		$trace = debug_backtrace(false);
 		array_shift($trace);
 		

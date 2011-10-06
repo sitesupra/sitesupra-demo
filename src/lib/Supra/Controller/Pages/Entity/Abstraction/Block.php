@@ -253,13 +253,15 @@ abstract class Block extends Entity
 		$block = null;
 		
 		switch ($discriminator) {
-			case 'page':
-				$block = new PageBlock();
-				break;
-			
 			case 'template':
 				$block = new TemplateBlock();
 				break;
+			
+			case 'page':
+			case 'application':
+				$block = new PageBlock();
+				break;
+			
 			
 			default:
 				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");

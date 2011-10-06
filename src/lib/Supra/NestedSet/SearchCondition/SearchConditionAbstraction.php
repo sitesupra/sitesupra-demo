@@ -26,21 +26,6 @@ use Supra\NestedSet\Exception;
  */
 class SearchConditionAbstraction implements SearchConditionInterface
 {
-	const FIELD_POS = 0;
-	const RELATION_POS = 1;
-	const VALUE_POS = 2;
-
-	const LEFT_FIELD = 'left';
-	const RIGHT_FIELD = 'right';
-	const LEVEL_FIELD = 'level';
-
-	const RELATION_EQUALS = '==';
-	const RELATION_LESS = '<';
-	const RELATION_MORE = '>';
-	const RELATION_LESS_OR_EQUALS = '<=';
-	const RELATION_MORE_OR_EQUALS = '>=';
-	const RELATION_NOT_EQUALS = '!=';
-
 	/**
 	 * Possible fields for search conditions
 	 * @var array
@@ -96,7 +81,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		$fieldFound = false;
 		$methodRemainder = $method;
 		foreach (self::$fields as $field) {
-			if (\stripos($method, $field) === 0) {
+			if (stripos($method, $field) === 0) {
 				$methodRemainder = substr($method, strlen($field));
 				$fieldFound = $field;
 				break;
@@ -108,7 +93,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		
 		$relationFound = false;
 		foreach (self::$relationMethods as $relationTest => $relationString) {
-			if (\strcasecmp($relationString, $methodRemainder) === 0) {
+			if (strcasecmp($relationString, $methodRemainder) === 0) {
 				$relationFound = $relationTest;
 				break;
 			}
@@ -120,7 +105,7 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		if ( ! isset($arguments[0])) {
 			throw new Exception\InvalidArgument("No value passed to method $method");
 		}
-		if (  ! \is_int($arguments[0])) {
+		if (  ! is_int($arguments[0])) {
 			throw new Exception\InvalidArgument("Not integer value passed to method $method");
 		}
 		$value = (int)$arguments[0];

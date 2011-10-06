@@ -13,7 +13,11 @@ use Supra\Controller\Pages\Entity\LockData;
  * @Entity
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateLocalization", "page" = "Supra\Controller\Pages\Entity\PageLocalization"})
+ * @DiscriminatorMap({
+ *		"page" = "Supra\Controller\Pages\Entity\PageLocalization",
+ *		"template" = "Supra\Controller\Pages\Entity\TemplateLocalization",
+ *		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization"
+ * })
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
 abstract class Localization extends Entity

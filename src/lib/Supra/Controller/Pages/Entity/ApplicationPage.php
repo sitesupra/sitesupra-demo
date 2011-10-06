@@ -9,6 +9,11 @@ namespace Supra\Controller\Pages\Entity;
 class ApplicationPage extends Page
 {
 	/**
+	 * {@inheritdoc}
+	 */
+	const DISCRIMINATOR = 'application';
+	
+	/**
 	 * @Column(type="string")
 	 * @var string
 	 */

@@ -16,6 +16,16 @@ namespace Supra\NestedSet\SelectOrder;
  */
 interface SelectOrderInterface
 {
+	const FIELD_POS = 0;
+	const DIRECTION_POS = 1;
+
+	const LEFT_FIELD = 'left';
+	const RIGHT_FIELD = 'right';
+	const LEVEL_FIELD = 'level';
+
+	const DIRECTION_ASCENDING = 1;
+	const DIRECTION_DESCENDING = -1;
+	
 	/**
 	 * Add sorting rule
 	 * @param string $field

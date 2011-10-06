@@ -78,10 +78,10 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
         return parent::getDiscriminator();
     }
 
-    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object, $strict = true)
+    public function matchDiscriminator(\Supra\Controller\Pages\Entity\Abstraction\Entity $object)
     {
         $this->__load();
-        return parent::matchDiscriminator($object, $strict);
+        return parent::matchDiscriminator($object);
     }
 
     public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
