@@ -259,15 +259,10 @@ class FixtureHelper
 //					$publicEm->clear();
 					
 					$this->log->debug("Publishing object $pageToPublish");
-					$request = null;
 					
-					if ($pageToPublish instanceof Entity\GroupPage) {
-						$request = new \Supra\Controller\Pages\Request\GroupPageRequest($localeId, Entity\Layout::MEDIA_SCREEN);
-					} else {
-						$request = new \Supra\Controller\Pages\Request\PageRequestEdit($localeId, Entity\Layout::MEDIA_SCREEN);
-					}
+					$localization = $pageToPublish->getLocalization($localeId);
+					$request = \Supra\Controller\Pages\Request\PageRequestEdit::factory($localization);
 					$request->setDoctrineEntityManager($em);
-					$request->setPageLocalization($pageToPublish->getLocalization($localeId));
 					
 					// Will create missing placeholders and flush
 					$request->getPlaceHolderSet();

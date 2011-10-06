@@ -35,7 +35,7 @@
     icon: /cms/lib/supra/img/apps/media_library
     applicationNamespace: Supra\Cms\MediaLibrary
     authorizationAccessPolicyClass: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
-
+    
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news
     className: Supra\Controller\Pages\News\NewsApplication

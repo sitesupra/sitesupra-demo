@@ -21,7 +21,6 @@ use Supra\FileStorage\Entity\File;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
-use Supra\Controller\Pages\Request\GroupPageRequest;
 
 /**
  * Controller containing common methods
@@ -78,22 +77,15 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageRequest()
 	{
 		$controller = $this->getPageController();
-		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 		$user = $this->getUser();
 		$requestPageLocalization = $this->getPageLocalization();
-		$request = null;
 
-		if ($requestPageLocalization instanceof Entity\GroupPage) {
-			$request = new GroupPageRequest($localeId, $media);
-		} else {
-			$request = new PageRequestEdit($localeId, $media);
-		}
+		$request = PageRequestEdit::factory($requestPageLocalization, $media);
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
 
-		$request->setPageLocalization($requestPageLocalization);
 		$request->setUser($user);
 
 		return $request;

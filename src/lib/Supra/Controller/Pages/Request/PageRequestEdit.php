@@ -21,6 +21,28 @@ class PageRequestEdit extends PageRequest
 	protected $allowFlushing = true;
 	
 	/**
+	 * Factory method for page request edit mode
+	 * @param Entity\Abstraction\Localization $localization
+	 * @param string $media
+	 * @return PageRequestEdit
+	 */
+	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\Layout::MEDIA_SCREEN)
+	{
+		$locale = $localization->getLocale();
+		$instance = null;
+		
+		if ($localization instanceof Entity\GroupLocalization) {
+			$instance = new GroupPageRequest($locale, $media);
+		} else {
+			$instance = new PageRequestEdit($locale, $media);
+		}
+		
+		$instance->setPageLocalization($localization);
+		
+		return $instance;
+	}
+	
+	/**
 	 * @param EntityManager $publicEm
 	 */
 	public function publish(EntityManager $publicEm)

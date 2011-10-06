@@ -2,6 +2,9 @@
 
 namespace Supra\Controller\Pages\Request;
 
+use \Supra\Controller\Pages\Set;
+use Doctrine\ORM\EntityManager;
+
 /**
  * Special request for groups
  */
@@ -24,17 +27,17 @@ class GroupPageRequest extends PageRequestEdit
 	
 	public function getBlockPropertySet()
 	{
-		return new \Supra\Controller\Pages\Set\BlockPropertySet();
+		return new Set\BlockPropertySet();
 	}
 
 	public function getBlockSet()
 	{
-		return new \Supra\Controller\Pages\Set\BlockSet();
+		return new Set\BlockSet();
 	}
 
 	public function getPlaceHolderSet()
 	{
-		return new \Supra\Controller\Pages\Set\PlaceHolderSet();
+		return new Set\PlaceHolderSet();
 	}
 
 	public function getRootTemplate()

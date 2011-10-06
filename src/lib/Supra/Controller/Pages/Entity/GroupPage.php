@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * So called "Virtual Folder"
  * @Entity
@@ -18,6 +20,7 @@ class GroupPage extends Abstraction\AbstractPage
 	/**
 	 * Creates fake localization
 	 * @param string $locale
+	 * @return GroupLocalization
 	 */
 	public function getLocalization($locale)
 	{
@@ -27,11 +30,11 @@ class GroupPage extends Abstraction\AbstractPage
 	}
 
 	/**
-	 * @return \Doctrine\Common\Collections\ArrayCollection
+	 * @return ArrayCollection
 	 */
 	public function getLocalizations()
 	{
-		$emptyCollection = new \Doctrine\Common\Collections\ArrayCollection();
+		$emptyCollection = new ArrayCollection();
 		
 		return $emptyCollection;
 	}
