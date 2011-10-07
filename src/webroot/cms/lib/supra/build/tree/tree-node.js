@@ -211,7 +211,6 @@ YUI.add('supra.tree-node', function(Y) {
 			this.on('addChild', this.onAddChild, this);
 			
 			this.on('removeChild', this.onRemoveChild, this);
-			
 		},
 		
 		renderUI: function () {
@@ -239,21 +238,25 @@ YUI.add('supra.tree-node', function(Y) {
 			
 			//Children
 			if (data && 'children' in data) {
-				for(var i=0, ii=data.children.length-1; i<=ii; i++) {
-					var isDragable = ('isDragable' in data.children[i] ? data.children[i].isDragable : true);
-					var isDropTarget = ('isDropTarget' in data.children[i] ? data.children[i].isDropTarget : true);
-					this.add({
-						'data': data.children[i],
-						'label': data.children[i].title,
-						'icon': data.children[i].icon,
-						'isDropTarget': isDropTarget,
-						'isDragable': isDragable
-					}, i);
-				}
-				
-				if (i==ii) {
-					this.syncUI();
-				}
+				this.addChildren(data.children);
+			}
+		},
+		
+		addChildren: function (children) {
+			for(var i=0, ii=children.length-1; i<=ii; i++) {
+				var isDragable = ('isDragable' in children[i] ? children[i].isDragable : true);
+				var isDropTarget = ('isDropTarget' in children[i] ? children[i].isDropTarget : true);
+				this.add({
+					'data': children[i],
+					'label': children[i].title,
+					'icon': children[i].icon,
+					'isDropTarget': isDropTarget,
+					'isDragable': isDragable
+				}, i);
+			}
+			
+			if (i==ii) {
+				this.syncUI();
 			}
 		},
 		

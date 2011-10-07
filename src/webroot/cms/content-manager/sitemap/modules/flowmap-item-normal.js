@@ -22,7 +22,8 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			  					<div><span class="toggle hidden"></span><span class="img"><img src="/cms/lib/supra/img/tree/none.png" /></span> <label></label> <span class="edit hidden"></div>\
 			  				</div>\
 			  				<ul class="tree-children">\
-			  				</ul>',
+			  				</ul>\
+			  				<a class="show-all hidden">' + SU.Intl.get(['sitemap', 'show_all_pages']) + '</a>',
 		
 		/**
 		 * Root element type
@@ -30,6 +31,22 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		 * @private
 		 */
 		ROOT_TYPE: FlowMapItemNormal,
+		
+		/**
+		 * Create and add the nodes which the widget needs
+		 * 
+		 * @private
+		 */
+		renderUI: function () {
+			Supra.FlowMapItemNormal.superclass.renderUI.apply(this, arguments);
+			
+			//"Show all" link
+			if (this.get('data').collapsed) {
+				var node = this.get('boundingBox').one('a.show-all');
+				node.removeClass('hidden');
+				node.on('click', this.onShowAllClick, this);
+			}
+		},
 		
 		/**
 		 * Attach event listeners
@@ -40,6 +57,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 				this.set('isDropTarget', false);
 			}
 			
+			//Parent
 			FlowMapItemNormal.superclass.bindUI.apply(this, arguments);
 			
 			var node_edit = this.get('boundingBox').one('span.edit');
@@ -51,10 +69,25 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			this.before('removeChild', this.syncUISize, this);
 		},
 		
+		/*
+		 * On "Show all click" hide link, update "collapsed" state and
+		 * load sub-pages
+		 */
+		onShowAllClick: function (evt) {
+			//Update data
+			this.get('data').collapsed = false;
+			
+			//Hide link
+			evt.target.addClass('hidden');
+			
+			//Load sub-pages
+			Supra.Manager.SiteMap.showAllPages(this.get('data').id);
+			
+			evt.halt();
+		},
+		
 		syncUI: function () {
 			FlowMapItemNormal.superclass.syncUI.apply(this, arguments);
-			
-			
 		},
 		
 		/**
@@ -338,6 +371,44 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 					self.drop_target = treenode;
 					self.setMarker(node, place, y, x, is_root);
 				}
+			}
+		},
+		
+		/**
+		 * Remove all child pages which doesn't have property is_hidden_page
+		 */
+		'removeNonHiddenChildren': function () {
+			var tree = this.getTree(),
+				data = this.get('data'),
+				data_indexed = tree.getIndexedData(),
+				children = data.children,
+				new_list = [],
+				remove_list = [];
+			
+			function traverse (item) {
+				for(var i=item.size()-1; i>=0; i--) {
+					var child = item.item(i);
+					remove_list.push(child.get('data').id);
+					traverse(child);
+				}
+			}
+			
+			//Remove children elements
+			for(var i=this.size()-1; i>=0; i--) {
+				var child = this.item(i);
+				if (!child.get('data').is_hidden_page) {
+					//Collect children IDs
+					remove_list.push(child.get('data').id);
+					traverse(child);
+					
+					//Remove item
+					this.remove(i);
+				}
+			}
+			
+			//Remove all children data
+			for(var i=0,ii=remove_list.length; i<ii; i++) {
+				delete(data_indexed[remove_list[i]]);
 			}
 		}
 	});

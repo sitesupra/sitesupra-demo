@@ -1,22 +1,133 @@
+<?php if (empty($_GET['root'])) { ?>
 {
 	"status": 1,
 	"data": [
-		{"id": 12, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Home", "template": "template_1", "path": "", "icon": "home", "published": true, "scheduled": false, "children": [
-			{"id": 13, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "News", "template": "template_2", "path": "news", "icon": "news", "published": true, "scheduled": false},
-			{"id": 14, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "About us", "template": "template_2", "path": "section-1", "icon": "folder", "published": true, "scheduled": false, "children": [
-				{"id": 15, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "About our company", "template": "template_3", "path": "page-1", "icon": "page", "published": true, "scheduled": false},
-				{"id": 16, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Contacts", "template": "template_3", "path": "page-2", "icon": "page", "published": false, "scheduled": true, "children": [
-					{"id": 23, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Out offices world wide", "template": "template_1", "path": "office", "icon": "page", "published": true, "scheduled": false}
+		{"id": 12, 				"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Home", 					"template": "template_1", "path": "", 			"icon": "home", 	"published": true, 	"scheduled": false, "children": [
+			{"id": 14, 			"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "About us", 				"template": "template_2", "path": "section-1", 	"icon": "folder", 	"published": true, 	"scheduled": false, "children": [
+				{"id": 15, 		"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "About our company", 		"template": "template_3", "path": "page-1", 	"icon": "page", 	"published": true, 	"scheduled": false},
+				{"id": 16, 		"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Contacts", 				"template": "template_3", "path": "page-2", 	"icon": "page", 	"published": false, "scheduled": true, "children": [
+					{"id": 23, 	"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Out offices world wide", 	"template": "template_1", "path": "office", 	"icon": "page", 	"published": true, 	"scheduled": false}
 				]}
 			]},
-			{"id": 17, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Catalogue", "template": "template_3", "path": "catalogue", "icon": "cart", "published": false, "scheduled": true},
-			{"id": 18, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Services", "template": "template_2", "path": "section-2", "icon": "folder", "published": true, "scheduled": false, "children": [
-				{"id": 19, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Testimonials", "template": "template_2", "path": "page-3", "icon": "page", "published": true, "scheduled": false}
+			{"id": 18, 			"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Services", 				"template": "template_2", "path": "section-2", 	"icon": "folder", 	"published": true, 	"scheduled": false, "children": [
+				{"id": 19, 		"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Testimonials", 			"template": "template_2", "path": "page-3", 	"icon": "page", 	"published": true, 	"scheduled": false}
 			]},
-			{"id": 20, "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Products", "template": "template_2", "path": "section-3", "icon": "folder", "published": false, "scheduled": true, "children": [
-				{"id": 21, "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Generic product", "template": "template_2", "path": "page-4", "icon": "page", "published": true, "scheduled": false}
+			{"id": 20, 			"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Products", 				"template": "template_2", "path": "section-3", 	"icon": "folder", 	"published": false,	"scheduled": true, "children": [
+				{"id": 21, 		"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg", "title": "Generic product", 			"template": "template_2", "path": "page-4", 	"icon": "page", 	"published": true, 	"scheduled": false}
 			]},
-			{"id": 22, "preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg", "title": "Feedback form", "template": "template_3", "path": "feedback", "icon": "feedback", "published": true, "scheduled": false}
+			{
+				"id": 17,
+				"has_hidden_pages": false,
+				"preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg",
+				"title": "Catalogue",
+				"icon": "cart",
+				"published": false,
+				"scheduled": true,
+				
+				"type": "page",
+				"template": "template_3",
+				"path": "catalogue"
+			},
+			{
+				"id": 22,
+				"has_hidden_pages": false,
+				"preview": "/cms/lib/supra/img/sitemap/preview/group.jpg",
+				"title": "Virtual folder",
+				"icon": "group",
+				"published": true,
+				"scheduled": false,
+				
+				"type": "group"
+			},
+			{
+				"id": 13,
+				"has_hidden_pages": true,
+				"preview": "/cms/lib/supra/img/sitemap/preview/page-2.jpg",
+				"title": "News",
+				"icon": "news",
+				"published": true,
+				"scheduled": false,
+				
+				"type": "application",
+				"template": "template_2",
+				"path": "news",
+				"application_id": "news",
+				"collapsed": true,
+				"children": [
+					{"id": 27, 	"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Out offices world wide", 	"template": "template_1", "path": "office", 	"icon": "page", 	"published": true, 	"scheduled": false}
+				]
+			}
 		]}
 	]
 }
+<?php } else if (empty($_GET['expand'])) { /* Hidden pages */ ?>
+{
+	"status": 1,
+	"data": [
+		{
+			"id": 23,
+			"has_hidden_pages": false,
+			"preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg",
+			"title": "Hidden page - 1",
+			"icon": "page",
+			"published": false,
+			"scheduled": true,
+			
+			"type": "page",
+			"template": "template_3",
+			"path": "hidden-1"
+		},
+		{
+			"id": 24,
+			"has_hidden_pages": false,
+			"preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg",
+			"title": "Hidden page - 2",
+			"icon": "page",
+			"published": false,
+			"scheduled": true,
+			
+			"type": "page",
+			"template": "template_3",
+			"path": "hidden-2"
+		}
+	]
+}
+<?php } else { /* Application expand request */?>
+{
+	"status": 1,
+	"data": [
+		{
+			"id": 25,
+			"has_hidden_pages": false,
+			"preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg",
+			"title": "Application page 1",
+			"icon": "page",
+			"published": false,
+			"scheduled": true,
+			
+			"type": "page",
+			"template": "template_3",
+			"path": "hidden-1",
+			
+			"isDragable": false,
+			"isDropTarget": false
+		},
+		{
+			"id": 26,
+			"has_hidden_pages": false,
+			"preview": "/cms/lib/supra/img/sitemap/preview/page-1.jpg",
+			"title": "Application page 2",
+			"icon": "page",
+			"published": false,
+			"scheduled": true,
+			
+			"type": "page",
+			"template": "template_3",
+			"path": "hidden-2",
+			
+			"isDragable": false,
+			"isDropTarget": false
+		}
+	]
+}
+<?php } ?>

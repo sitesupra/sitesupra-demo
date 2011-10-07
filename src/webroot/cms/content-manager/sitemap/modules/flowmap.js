@@ -43,7 +43,7 @@ YUI().add('website.sitemap-flowmap', function (Y) {
 	Y.extend(FlowMap, Supra.Tree);
 	
 	
-	Action.FlowMap = Y.Base.create('flowmap', FlowMap, [Supra.Tree], {
+	Action.FlowMap = Y.Base.create('flowmap', FlowMap, [], {
 		
 	}, {
 		

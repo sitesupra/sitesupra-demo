@@ -49,7 +49,8 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 								</div>\
 								<span class="toggle hidden"></span>\
 			  				</div>\
-			  				<ul class="flowmap-children"></ul>',
+			  				<ul class="flowmap-children"></ul>\
+			  				<a class="show-all hidden">' + SU.Intl.get(['sitemap', 'show_all_pages']) + '</a>',
 		
 		/**
 		 * Create and add the nodes which the widget needs
@@ -74,6 +75,11 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 			
 			Supra.FlowMapItem.superclass.renderUI.apply(this, arguments);
 			
+			//Add type class
+			if (data.type) {
+				this.get('boundingBox').one('.flowmap-node-inner').addClass('type-' + data.type);
+			}
+			
 			//Update style
 			this.onChildChange();
 				
@@ -86,21 +92,31 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 		 */
 		bindUI: function () {
 			//Make sure user clicked inside flowmap node, not on bounding box
-			this.get('boundingBox').one('div').on('click', function (evt) {
-				if (evt.target.closest('.flowmap-node-inner')) {
-					if (this.getTree().fire('node-click', {node: this, data: this.get('data')})) {
-						//If event wasn't stopped then set this node as selected
-						this.set('isSelected', true);
-					}
-				}
-				evt.halt();
-			}, this);
+			this.get('boundingBox').one('div').on('click', this.onNodeClick, this);
 			
 			FlowMapItem.superclass.bindUI.apply(this, arguments);
 			
 			//On children add remove update style
 			this.after('addChild', this.onChildChange, this);
 			this.after('removeChild', this.onChildChange, this);
+		},
+		
+		/**
+		 * Handle node click
+		 * 
+		 * @private
+		 */
+		onNodeClick: function (evt) {
+			if (evt.target.closest('.flowmap-node-inner')) {
+				var data = this.get('data'),
+					clickable = data.type != 'group';
+				
+				if (clickable && this.getTree().fire('node-click', {'node': this, 'data': data})) {
+					//If event wasn't stopped then set this node as selected
+					this.set('isSelected', true);
+				}
+			}
+			evt.halt();
 		},
 		
 		onChildChange: function () {

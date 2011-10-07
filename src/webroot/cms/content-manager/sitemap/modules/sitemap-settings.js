@@ -42,6 +42,21 @@ YUI().add('website.sitemap-settings', function (Y) {
 		button_duplicate: null,
 		
 		/**
+		 * Show hidden pages element, Y.Node instance
+		 * @type {Object}
+		 * @private
+		 */
+		node_hidden_pages: null,
+		
+		/**
+		 * Selected page data
+		 * @type {Object}
+		 * @private
+		 */
+		data: null,
+		
+		
+		/**
 		 * @constructor
 		 */
 		initialize: function () {},
@@ -113,6 +128,22 @@ YUI().add('website.sitemap-settings', function (Y) {
 			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
 				btn.hide();
 			}
+			
+			//Hidden pages link
+			this.node_hidden_pages = contbox.one('p.hidden-pages');
+			this.node_hidden_pages.one('a').on('click', this.onShowHiddenPages, this);
+			
+		},
+		
+		/**
+		 * Handle "Show hidden pages" link click
+		 * 
+		 * @param {Event} e Event
+		 * @private
+		 */
+		onShowHiddenPages: function (e) {
+			this.host.showHiddenPages(this.data.id);
+			this.panel.hide();
 		},
 		
 		/**
@@ -123,6 +154,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 		 */
 		showPropertyPanel: function (target, data, newpage) {
 			this.initializeWidgets();
+			this.data = data;
 			
 			//Position panel
 			this.panel.set('align', {'node': target, 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
@@ -130,10 +162,12 @@ YUI().add('website.sitemap-settings', function (Y) {
 			//Position arrow
 			if (target) {
 				var type = this.host.getType(),
-					node = this.host.flowmap.getNodeById(data.id);
+					node = this.host.flowmap.getNodeById(data.id),
+					is_group = (data.type == 'group'),
+					is_root = !!(node && node.isRoot());
 				
-				if ((type != 'templates' && node && node.isRoot()) || !data.path) {
-					//Root page or application page without a path
+				if (type != 'templates' && is_root) {
+					//Root page
 					this.button_delete.set('disabled', true);
 					this.button_duplicate.set('disabled', true);
 				} else {
@@ -148,6 +182,12 @@ YUI().add('website.sitemap-settings', function (Y) {
 				} else {
 					this.button_delete.set('label', Supra.Intl.get(['sitemap', 'delete_page']));
 					this.button_duplicate.set('label', Supra.Intl.get(['sitemap', 'duplicate_page']));
+				}
+				
+				if (data.has_hidden_pages) {
+					this.node_hidden_pages.removeClass('hidden');
+				} else {
+					this.node_hidden_pages.addClass('hidden');
 				}
 				
 				this.panel.show();

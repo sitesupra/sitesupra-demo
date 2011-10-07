@@ -111,6 +111,10 @@
 .flowmap-node-inner * {
 	cursor: pointer;
 }
+.flowmap-node-inner.type-group,
+.flowmap-node-inner.type-group * {
+	cursor: default;
+}
 
 .flowmap-node-inner:hover {
 	-moz-border-radius: 5px;
@@ -155,6 +159,14 @@
 	-moz-box-shadow: 0 1px 3px rgba(0,0,0,.15);
 	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,.15);
 	box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+/* Show all */
+.flowmap-children .yui3-flowmap-item > .show-all {
+	display: block;
+	float: left;
+	margin: -15px 0 0 50px;
+	position: relative;
 }
 
 /* Loading */
@@ -295,6 +307,9 @@
 	border-color: #CDECFF;
 	border-style: solid;
 }
+.loading .template-drop {
+	display: none;
+}
 
 /* Edit */
 .tree-node span.edit,
@@ -304,6 +319,7 @@
 	height: 16px;
 	margin-left: 3px;
 	vertical-align: middle;
+	cursor: pointer !important;
 }
 .tree-node span.edit.hidden,
 .flowmap-node span.edit {
@@ -340,20 +356,22 @@
 /**
  * Panel
  */
-.sitemap-settings,
-.sitemap-new-page {
-	width: 450px;
+.sitemap-settings .middle {
+	padding: 10px 0 7px 10px;
 }
-
-/* Page settings */
-.sitemap-settings .center {
-	padding: 10px 10px 7px;
-}
-.sitemap-settings .center .yui3-button {
+.sitemap-settings .middle .yui3-button {
 	margin-right: 10px;
+}
+.sitemap-settings p.hidden-pages {
+	font-size: 14px;
+	white-space: nowrap;
+	padding: 0 10px 10px;
 }
 
 /* New page form */
+.sitemap-new-page {
+	width: 450px;
+}
 .sitemap-new-page form {
 	margin: 10px 10px 0;
 }

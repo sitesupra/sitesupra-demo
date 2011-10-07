@@ -167,6 +167,9 @@
 			"duplicate_page": "Duplicate",
 			"duplicate_template": "Duplicate",
 			
+			"show_hidden_pages": "Show hidden pages",
+			"show_all_pages": "Show all",
+			
 			"pages": "Pages",
 			"templates": "Templates",
 			

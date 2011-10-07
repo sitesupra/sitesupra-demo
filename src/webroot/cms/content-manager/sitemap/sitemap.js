@@ -244,6 +244,77 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		},
 		
 		/**
+		 * Load and show hidden pages
+		 * 
+		 * @param {String} page_id Page ID
+		 */
+		showHiddenPages: function (page_id) {
+			var uri = this.getRequestUri();
+			Supra.io(uri, {
+				'data': {
+					'root': page_id
+				},
+				'context': this,
+				'on': {
+					'success': function (data) {
+						for(var i=0,ii=data.length; i<ii; i++) {
+							data[i].is_hidden_page = true;
+						}
+						this.flowmap.getNodeById(page_id).get('data').has_hidden_pages = false;
+						this.addPagesToTree(page_id, data);
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Load and show all pages (except hidden)
+		 * 
+		 * @param {String} page_id Page ID
+		 */
+		showAllPages: function (page_id) {
+			var uri = this.getRequestUri();
+			Supra.io(uri, {
+				'data': {
+					'root': page_id,
+					'expand': true
+				},
+				'context': this,
+				'on': {
+					'success': function (data) {
+						this.flowmap.getNodeById(page_id).removeNonHiddenChildren();
+						this.addPagesToTree(page_id, data);
+					}
+				}
+			})
+		},
+		
+		/**
+		 * Add pages to the tree
+		 * 
+		 * @param {String} page_id
+		 * @param {Array} Children data
+		 */
+		addPagesToTree: function (page_id, data) {
+			var node = this.flowmap.getNodeById(page_id),
+				node_data = node.get('data'),
+				indexed_data = this.flowmap.getIndexedData();
+			
+			//Update data with 'parent' property
+			for(var i=0,ii=data.length; i<ii; i++) {
+				data[i].parent = page_id;
+				indexed_data[data[i].id] = data[i];
+			}
+			
+			//Add children data to the node data
+			node_data.children = node_data.children || [];
+			node_data.children = node_data.children.concat(data);
+			
+			//Add to tree
+			node.addChildren(data);
+		},
+		
+		/**
 		 * Returns flowmap request URI
 		 * 
 		 * @param {String} locale Optional. Locale
