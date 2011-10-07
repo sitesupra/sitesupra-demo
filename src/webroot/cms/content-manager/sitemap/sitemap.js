@@ -181,6 +181,14 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				if (recycle.get('visible')) {
 					recycle.load(evt.value);
 				}
+				
+				//Template drop target
+				var new_root_template = this.one('div.template-drop');
+				if (evt.value == 'templates' && Supra.Authorization.isAllowed(['page', 'create'], true)) {
+					new_root_template.removeClass('hidden');
+				} else {
+					new_root_template.addClass('hidden');
+				}
 			}, this);
 		},
 		
@@ -213,17 +221,16 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.flowmap.on('drop', this.onPageMove, this);
 			
 			//New page
-			var new_page_node = this.one('.new-page-button');
-			var new_template_node = this.one('.new-template-button');
+			var new_page_node = this.one('.new-page-button'),
+				new_template_drop = this.one('div.template-drop');
 			
 			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
 				this.flowmap.plug(SU.Tree.NewPagePlugin, {
 					'dragNode': new_page_node,
-					'clickNode': new_template_node
+					'newItemDropNode': new_template_drop
 				});
 			} else {
 				new_page_node.addClass('hidden');
-				new_template_node.addClass('hidden');
 			}
 			
 			//When tree is rendered set selected page

@@ -65,8 +65,7 @@
 /**
  * New page icon
  */
-.yui3-sitemap .new-page-button,
-.yui3-sitemap .new-template-button {
+.yui3-sitemap .new-page-button {
 	display: block;
 	cursor: move;
 	position: absolute;
@@ -74,16 +73,10 @@
 	top: 50%;
 	margin-top: -32px;
 }
-.yui3-sitemap .new-template-button {
-	cursor: pointer;
-	margin-top: 52px;
-}
-.yui3-sitemap .new-template-button .icon-templates,
 .yui3-sitemap .new-page-button .icon-templates,
 .yui3-sitemap .new-page-button.type-templates .icon-sitemap {
 	display: none;
 }
-.yui3-sitemap .new-template-button.type-templates .icon-templates,
 .yui3-sitemap .new-page-button.type-templates .icon-templates,
 .yui3-sitemap .new-page-button.type-sitemap .icon-sitemap {
 	display: block;
@@ -282,6 +275,25 @@
 .flowmap-children .yui3-tree-node-selected div,
 .flowmap-children .yui3-tree-node-selected.isdragable:hover div {
 	background: #CDECFF;
+}
+
+/* Root template drop target */
+.template-drop {
+	margin: 0 20px 0 80px;
+	padding: 0 80px 20px 0;
+}
+.template-drop div {
+	border: 2px dashed #eee;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	padding: 20px;
+	font-size: 14px;
+	text-align: center;
+}
+.template-drop.yui3-dd-drop-over div {
+	border-color: #CDECFF;
+	border-style: solid;
 }
 
 /* Edit */

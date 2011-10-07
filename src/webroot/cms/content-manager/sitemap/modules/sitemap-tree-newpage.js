@@ -41,7 +41,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		'dragNode': {
 			value: null
 		},
-		'clickNode': {
+		'newItemDropNode': {
 			value: null
 		}
 	};
@@ -69,20 +69,20 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		
 		
 		setType: function (type) {
-			var dragNode = this.get('dragNode'),
-				clickNode = this.get('clickNode');
+			var dragNode = this.get('dragNode');
 			
 			if (this.type != type) {
 				if (this.type) {
 					dragNode.removeClass('type-' + this.type);
-					clickNode.removeClass('type-' + this.type);
 				}
 				dragNode.addClass('type-' + type);
-				clickNode.addClass('type-' + type);
 				this.type = type;
 			}
 		},
 		
+		/**
+		 * Create new item node
+		 */
 		createTreeNode: function (proxy, node) {
 			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA;
 			var data = SU.mix({}, default_data);
@@ -100,7 +100,8 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			var dd = this.dd = new Y.DD.Drag({
 				'node': node ? node : treenode.get('boundingBox').one('div.tree-node'),
 				'dragMode': 'point',
-				'target': false
+				'target': false,
+				'groups': ['default', 'new']
 			}).plug(Y.Plugin.DDProxy, {
 				moveOnEnd: false,			// Don't move original node at the end of drag
 				cloneNode: true
@@ -138,11 +139,24 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 * Constructor
 		 */
 		initializer: function (config) {
-			var host = config.host;
 			var node = config.dragNode;
 			var treenode = this.createTreeNode(true, node);
 			
-			config.clickNode.on('click', this.createNewNode, this);
+			//"Drop here to create a new master template" drop target
+			var dd = new Y.DD.Drop({
+				'node': config.newItemDropNode,
+				'groups': ['new']
+			});
+			
+			dd.on('drop:hit', function (e) {
+				var tree_node = e.drag.get('treeNode'),
+					data = tree_node.get('data');
+				
+				if (!data.id) {
+					//If new item then create new template
+					this.createNewNode();
+				}
+			}, this);
 		},
 		
 		/**
@@ -154,10 +168,10 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				tree = this.get('host');
 			
 			if (self.drop_target) {
-				var target = self.drop_target
-				var drag_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA;
-				var drop_data = target.get('data');
-				var position = self.marker_position;
+				var target = self.drop_target,
+					drag_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
+					drop_data = target.get('data'),
+					position = self.marker_position;
 				
 				//Fire drop event
 				var event = tree.fire('drop', {'drag': drag_data, 'drop': drop_data, 'position': position});
@@ -273,12 +287,15 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				}, this.new_page_index);
 			}
 			
-			//Open editor
-			Y.later(150, this, function () {
-				this.get('host').getNodeById(page_data.id).editNewPage(null, true);
-				
+			//Scroll
+			Y.later(50, this, function () {
 				//Root template is added to the bottom, scroll to it
 				Manager.SiteMap.one('.yui3-sitemap-scrollable').set('scrollTop', 10000);
+				
+				//Open editor
+				Y.later(50, this, function () {
+					this.get('host').getNodeById(page_data.id).editNewPage(null, true);
+				});
 			});
 		},
 		
@@ -332,25 +349,6 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				//Create temporary node, page will be created after layout value is set
 				this.addChildNodeTemporary(pagedata);
 				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
-			} else {
-				//Create page
-				/*
-				if (this.type == 'templates') {
-					var call_obj = Manager.getAction('Template'),
-						call_fn = 'createTemplate';
-				} else {
-					var call_obj = Manager.getAction('Page'),
-						call_fn = 'createPage';
-				}
-				
-				call_obj[call_fn](pagedata, function () {
-					this.addChildNodeFromData.apply(this, arguments);
-					if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
-				}, this);
-				
-				this.addChildNodeFromData(pagedata);
-				if (Y.Lang.isFunction(callback)) callback.apply(pagedata);
-				*/
 			}
 			
 		}
