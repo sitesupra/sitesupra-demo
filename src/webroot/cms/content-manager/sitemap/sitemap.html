@@ -16,8 +16,8 @@
 			
 			<div class="form type">
 				<select name="type">
-					<option value="sitemap">{#sitemap.pages#}</option>
-					<option value="templates">{#sitemap.templates#}</option>
+					<option value="sitemap">{# sitemap.pages #}</option>
+					<option value="templates">{# sitemap.templates #}</option>
 				</select>
 			</div>
 			
@@ -25,8 +25,16 @@
 			
 		</div>
 		
-		
 		<div class="sitemap-settings hidden">
+			
+			<div class="center">
+				<button type="button">{# sitemap.duplicate_page #}</button>
+				<button type="button">{# sitemap.delete_page #}</button>
+			</div>
+			
+		</div>
+		
+		<div class="sitemap-new-page hidden">
 			
 			<form>
 				<input type="text" name="title" />
@@ -34,8 +42,9 @@
 				<input type="text" name="layout" suValueMask="^[a-zA-Z0-9\-\_\.\/\\]*$" />
 				<input type="hidden" name="template" suType="Template" />
 				
-				<div class="center">
-					<button type="button">{#sitemap.delete_page#}</button>
+				<div class="middle">
+					<button type="button">{# sitemap.create #}</button>
+					<a class="cancel">{# sitemap.cancel #}</a>
 				</div>
 				
 			</form>

@@ -155,10 +155,17 @@
 			
 			"viewing_structure": "Viewing structure for:",
 			
-			"delete_page": "Delete page",
-			"delete_template": "Delete template",
+			"create_page": "Create",
+			"create_template": "Create",
+			"cancel": "Cancel",
+			
+			"delete_page": "Delete",
+			"delete_template": "Delete",
 			"message_delete_page": "Are you sure you want to delete selected page?",
 			"message_delete_template": "Are you sure you want to delete selected template?",
+			
+			"duplicate_page": "Duplicate",
+			"duplicate_template": "Duplicate",
 			
 			"pages": "Pages",
 			"templates": "Templates",

@@ -22,15 +22,19 @@ SU.addModule('website.sitemap-settings', {
 	path: 'sitemap/modules/sitemap-settings.js',
 	requires: ['supra.panel', 'supra.input', 'website.input-template']
 });
+SU.addModule('website.sitemap-new-page', {
+	path: 'sitemap/modules/sitemap-new-page.js',
+	requires: ['supra.panel', 'supra.input', 'website.input-template']
+});
 
-SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-settings', function (Y) {
+SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-new-page', 'website.sitemap-settings', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class
-	new Action(Manager.Action.PluginContainer, Manager.Action.PluginSitemapSettings, {
+	new Action(Manager.Action.PluginContainer, Manager.Action.PluginSitemapSettings, Manager.Action.PluginSitemapNewPage, {
 		
 		/**
 		 * Unique action name

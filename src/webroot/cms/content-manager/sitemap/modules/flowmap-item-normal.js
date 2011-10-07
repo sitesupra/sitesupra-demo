@@ -51,6 +51,12 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			this.before('removeChild', this.syncUISize, this);
 		},
 		
+		syncUI: function () {
+			FlowMapItemNormal.superclass.syncUI.apply(this, arguments);
+			
+			
+		},
+		
 		/**
 		 * Resize FlowMapItem when items are added or removed
 		 * 
@@ -90,6 +96,21 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			
 			var plugin = SU.Manager.SiteMap.plugins.getPlugin('PluginSitemapSettings');
 				plugin.showPropertyPanel(node, data, newpage);
+			
+			return false;
+		},
+		
+		/**
+		 * Start editing new page
+		 */
+		editNewPage: function (event, newpage) {
+			if (event) event.halt();
+			
+			var data = this.get('data'),
+				node = this.get('boundingBox').one('.tree-node, .flowmap-node-inner');
+			
+			var plugin = SU.Manager.SiteMap.plugins.getPlugin('PluginSitemapNewPage');
+				plugin.showNewPagePanel(node, data, newpage);
 			
 			return false;
 		},

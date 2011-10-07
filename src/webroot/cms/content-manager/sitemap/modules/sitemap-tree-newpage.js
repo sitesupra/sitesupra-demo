@@ -275,7 +275,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			//Open editor
 			Y.later(150, this, function () {
-				this.get('host').getNodeById(page_data.id).edit(null, true);
+				this.get('host').getNodeById(page_data.id).editNewPage(null, true);
 				
 				//Root template is added to the bottom, scroll to it
 				Manager.SiteMap.one('.yui3-sitemap-scrollable').set('scrollTop', 10000);
@@ -328,8 +328,13 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				//Create temporary node, template will be created after layout value is set
 				this.addChildNodeTemporary(pagedata);
 				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
+			} else if (!pagedata.id) {
+				//Create temporary node, page will be created after layout value is set
+				this.addChildNodeTemporary(pagedata);
+				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
 			} else {
 				//Create page
+				/*
 				if (this.type == 'templates') {
 					var call_obj = Manager.getAction('Template'),
 						call_fn = 'createTemplate';
@@ -337,11 +342,15 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 					var call_obj = Manager.getAction('Page'),
 						call_fn = 'createPage';
 				}
-				 
+				
 				call_obj[call_fn](pagedata, function () {
 					this.addChildNodeFromData.apply(this, arguments);
 					if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
 				}, this);
+				
+				this.addChildNodeFromData(pagedata);
+				if (Y.Lang.isFunction(callback)) callback.apply(pagedata);
+				*/
 			}
 			
 		}
