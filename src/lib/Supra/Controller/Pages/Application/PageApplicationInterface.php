@@ -11,6 +11,9 @@ use Doctrine\ORM\EntityManager;
  */
 interface PageApplicationInterface
 {
+	const SITEMAP_VIEW_COLLAPSED = 'collapsed';
+	const SITEMAP_VIEW_EXPANDED = 'expanded';
+	
 	/**
 	 * Renerates the base path for page localization.
 	 * Must NOT start and end with "/"
@@ -35,4 +38,26 @@ interface PageApplicationInterface
 	 */
 	public function setApplicationLocalization(Entity\ApplicationLocalization $applicationLocalization);
 
+	/**
+	 * @param boolean $show
+	 */
+	public function showInactivePages($show);
+	
+	/**
+	 * Returns set having SITEMAP_VIEW_COLLAPSED and/or SITEMAP_VIEW_EXPANDED
+	 * @return array
+	 */
+	public function getAvailableSitemapViewModes();
+	
+	/**
+	 * Load collapsed sitemap view, return null if collapsing is not implemented
+	 * @return array
+	 */
+	public function collapsedSitemapView();
+	
+	/**
+	 * Load expanded sitemap view, can contain grouping
+	 * @return array
+	 */
+	public function expandedSitemapView();
 }

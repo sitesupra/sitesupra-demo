@@ -83,6 +83,20 @@ class PageLocalization extends Abstraction\Localization
 	 * @var DateTime
 	 */
 	protected $creationTime;
+	
+	/**
+	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
+	 * @Column(type="smallint", nullable="true")
+	 * @var int
+	 */
+	protected $creationYear;
+	
+	/**
+	 * See $creationYear doc
+	 * @Column(type="smallint", nullable="true")
+	 * @var int
+	 */
+	protected $creationMonth;
 
 	/**
 	 * @return Page
@@ -321,6 +335,8 @@ class PageLocalization extends Abstraction\Localization
 		}
 		
 		$this->creationTime = $creationTime;
+		$this->creationYear = $creationTime->format('Y');
+		$this->creationMonth = $creationTime->format('n');
 	}
 	
 	/**

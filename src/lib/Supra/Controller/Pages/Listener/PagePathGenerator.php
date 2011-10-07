@@ -242,6 +242,8 @@ class PagePathGenerator
 			$application = PageApplicationCollection::getInstance()
 					->createApplication($parentPageData, $this->em);
 
+			$application->showInactivePages(true);
+			
 			if (empty($application)) {
 				throw new Exception\PagePathException("Application '$applicationId' is not found", $pageData);
 			}

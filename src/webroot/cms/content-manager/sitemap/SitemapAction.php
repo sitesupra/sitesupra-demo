@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\Application\PageApplicationInterface;
 
 /**
  * Sitemap
@@ -87,7 +88,6 @@ class SitemapAction extends PageManagerAction
 
 		$pathPart = null;
 		$templateId = null;
-//		$hasPath = true;
 		$applicationBasePath = new Path('');
 
 		if ($page instanceof Entity\Page) {
@@ -95,18 +95,6 @@ class SitemapAction extends PageManagerAction
 					->getId();
 		}
 		
-//		if ($page instanceof Entity\ApplicationPage) {
-//			$applicationId = $page->getApplicationId();
-//			$application = PageApplicationCollection::getInstance()
-//							->createApplication($applicationId);
-//			
-//			if (empty($application)) {
-//				throw new CmsException(null, "Application '$applicationId' was not found");
-//			}
-//			
-//			$hasPath = $application->hasPath();
-//		}
-
 		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
 			
@@ -122,6 +110,8 @@ class SitemapAction extends PageManagerAction
 					$applicationId = $parentPage->getApplicationId();
 					$application = PageApplicationCollection::getInstance()
 							->createApplication($parentLocalization, $this->entityManager);
+					
+					$application->showInactivePages(true);
 					
 					if (empty($application)) {
 						throw new CmsException(null, "Application '$applicationId' was not found");
@@ -149,7 +139,40 @@ class SitemapAction extends PageManagerAction
 
 		$array['children'] = array();
 
-		foreach ($page->getChildren() as $child) {
+		$children = array();
+		
+		if ($page instanceof Entity\ApplicationPage) {
+			$application = PageApplicationCollection::getInstance()
+					->createApplication($data, $this->entityManager);
+
+			$application->showInactivePages(true);
+			
+			$modes = $application->getAvailableSitemapViewModes();
+			
+			if (in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes)) {
+				//TODO: children could be a grouped array
+				$children = $application->collapsedSitemapView();
+			}
+			
+			// Send sitemap that expanded view is available
+			if (in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes)) {
+				$array['collapsed'] = true;
+			}
+			
+			//TODO: pass to client if there are any hidden pages
+			
+		} else {
+			$children = $page->getChildren();
+		}
+		
+		foreach ($children as $child) {
+			
+			// Application responds with localization objects..
+			//FIXME: fix inconsistency
+			if ($child instanceof Entity\Abstraction\Localization) {
+				$child = $child->getMaster();
+			}
+			
 			$childArray = $this->buildTreeArray($child, $locale);
 
 			if ( ! empty($childArray)) {
