@@ -88,7 +88,7 @@ class DoctrineNode extends NodeAbstraction
 		$qb->select('COUNT(e.id)')
 				->from($className, 'e');
 
-		$search->getSearchDQL($qb);
+		$search->applyToQueryBuilder($qb);
 
 		$count = $qb->getQuery()->getSingleScalarResult();
 		return $count;
