@@ -106,7 +106,6 @@ class PageAction extends PageManagerAction
 			);
 
 			$scheduledDateTime = $pageData->getScheduleTime();
-			$createdDateTime = $pageData->getCreationTime();
 			$redirectLink = $pageData->getRedirect();
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
@@ -121,7 +120,8 @@ class PageAction extends PageManagerAction
 				$scheduledTime = $scheduledDateTime->format('H:i:s');
 			}
 			
-			if ( ! is_null($createdDateTime)) {
+			if ($pageData->isPublishTimeSet()) {
+				$createdDateTime = $pageData->getCreationTime();
 				$createdDate = $createdDateTime->format('Y-m-d');
 				$createdTime = $createdDateTime->format('H:i:s');
 			}

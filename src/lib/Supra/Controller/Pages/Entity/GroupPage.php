@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * So called "Virtual Folder"
  * @Entity
  */
-class GroupPage extends Abstraction\AbstractPage
+class GroupPage extends Page
 {
 	/**
 	 * Not localized group title

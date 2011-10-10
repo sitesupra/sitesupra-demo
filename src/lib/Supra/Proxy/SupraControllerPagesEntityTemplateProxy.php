@@ -309,7 +309,7 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id', 'templateLayouts');
+        return array('__isInitialized__', 'localizations', 'left', 'right', 'level', 'global', 'id', 'templateLayouts', 'placeHolders');
     }
 
     public function __clone()

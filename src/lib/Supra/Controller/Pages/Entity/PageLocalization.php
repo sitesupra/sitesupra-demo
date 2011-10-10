@@ -79,25 +79,44 @@ class PageLocalization extends Abstraction\Localization
 	protected $redirect;
 	
 	/**
-	 * @Column(type="datetime", nullable="true")
+	 * @Column(type="datetime")
 	 * @var DateTime
 	 */
 	protected $creationTime;
 	
 	/**
 	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
-	 * @Column(type="smallint", nullable="true")
+	 * @Column(type="smallint")
 	 * @var int
 	 */
 	protected $creationYear;
 	
 	/**
 	 * See $creationYear doc
-	 * @Column(type="smallint", nullable="true")
+	 * @Column(type="smallint")
 	 * @var int
 	 */
 	protected $creationMonth;
+	
+	/**
+	 * Used to reset the creation time on first publish or creation time set
+	 * @Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $publishTimeSet = false;
 
+	/**
+	 * Additionally set creation time
+	 * @param string $locale
+	 */
+	public function __construct($locale)
+	{
+		parent::__construct($locale);
+		
+		$this->setCreationTime();
+		$this->publishTimeSet = false;
+	}
+	
 	/**
 	 * @return Page
 	 */
@@ -337,8 +356,18 @@ class PageLocalization extends Abstraction\Localization
 		$this->creationTime = $creationTime;
 		$this->creationYear = $creationTime->format('Y');
 		$this->creationMonth = $creationTime->format('n');
+		$this->publishTimeSet = true;
 	}
-	
+
+	/**
+	 * Return if the creation time is already set for publishing
+	 * @return boolean
+	 */
+	public function isPublishTimeSet()
+	{
+		return $this->publishTimeSet;
+	}
+		
 	/**
 	 * @return array
 	 */

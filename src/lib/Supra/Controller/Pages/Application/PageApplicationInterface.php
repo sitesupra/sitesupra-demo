@@ -60,4 +60,16 @@ interface PageApplicationInterface
 	 * @return array
 	 */
 	public function expandedSitemapView();
+	
+	/**
+	 * Tells if the application node has hidden system pages (group page)
+	 * @return boolean
+	 */
+	public function hasHiddenPages();
+	
+	/**
+	 * Load hidden pages (usually array of GroupPage objects)
+	 * @return array
+	 */
+	public function getHiddenPages();
 }

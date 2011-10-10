@@ -23,7 +23,7 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function sitemapAction()
 	{
-		$response = $this->loadSitemapTree(PageRequest::PAGE_ENTITY);
+		$response = $this->loadSitemapTree(Entity\Page::CN());
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -71,7 +71,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false)
 	{
 		$data = $page->getLocalization($locale);
 
@@ -85,15 +85,177 @@ class SitemapAction extends PageManagerAction
 				return null;
 			}
 		}
+		
+		$array = array();
 
-		$pathPart = null;
-		$templateId = null;
-		$applicationBasePath = new Path('');
+		if ( ! $skipRoot) {
+			$array = $this->loadNodeMainData($data);
+		}
 
-		if ($page instanceof Entity\Page) {
+		$childrenArray = array();
+		$children = null;
+		
+		if ($page instanceof Entity\ApplicationPage) {
+			$application = PageApplicationCollection::getInstance()
+					->createApplication($data, $this->entityManager);
+
+			$application->showInactivePages(true);
+			
+			$modes = $application->getAvailableSitemapViewModes();
+			
+			$collapsedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes);
+			$expandedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes);
+
+			$forceExpand = $this->hasRequestParameter('expand');
+			$hasRootId = $this->hasRequestParameter('root');
+			$showHidden = ($hasRootId && ! $forceExpand);
+			
+			if ($showHidden) {
+				$children = $application->getHiddenPages();
+			} elseif ($forceExpand && $expandedMode) {
+				$children = $application->expandedSitemapView();
+			} elseif ($collapsedMode) {
+				//TODO: children could be a grouped array
+				$children = $application->collapsedSitemapView();
+				
+				// Send sitemap that expanded view is available for the root node
+				if ($expandedMode) {
+					$array['collapsed'] = true;
+				}
+			} elseif ($expandedMode) {
+				$children = $application->expandedSitemapView();
+			} else {
+				$children = array();
+			}
+			
+			$array['has_hidden_pages'] = $application->hasHiddenPages();
+			
+			//TODO: pass to client if there are any hidden pages
+			
+		} else {
+			$children = $page->getChildren();
+		}
+		
+		foreach ($children as $child) {
+			
+			// Application responds with localization objects..
+			//FIXME: fix inconsistency
+			if ($child instanceof Entity\Abstraction\Localization) {
+				$child = $child->getMaster();
+			}
+			
+			$childArray = $this->buildTreeArray($child, $locale);
+
+			if ( ! empty($childArray)) {
+				$childrenArray[] = $childArray;
+			}
+		}
+		
+		if ( ! $skipRoot) {
+			if (count($childrenArray) > 0) {
+				$array['children'] = $childrenArray;
+				
+				// TODO: hardcoded
+				$array['icon'] = 'folder';
+			}
+		} else {
+			$array = $childrenArray;
+		}
+
+		return $array;
+	}
+	
+	/**
+	 * Returns Template or Page data
+	 * @param string $entity
+	 * @return array
+	 */
+	protected function loadSitemapTree($entity)
+	{
+		$pages = array();
+		$localeId = $this->getLocale()->getId();
+
+		$em = $this->entityManager;
+
+		$response = array();
+
+		$pageRepository = $em->getRepository($entity);
+		/* @var $pageRepository \Supra\Controller\Pages\Repository\PageRepository */
+		
+		$rootNodes = array();
+		$skipRoot = false;
+		
+		if ($this->hasRequestParameter('root')) {
+			$rootId = $this->getRequestParameter('root');
+			$rootNodeLocalization = $em->find(Entity\PageLocalization::CN(), $rootId);
+			
+			if (is_null($rootNodeLocalization)) {
+				$this->log->warn("Root node $rootId not found in sitemap action");
+				
+				return array();
+			}
+			
+			$rootNode = $rootNodeLocalization->getMaster();
+			$skipRoot = true;
+			
+			$response = $this->buildTreeArray($rootNode, $localeId, true);
+			
+		} else {
+			$rootNodes = $pageRepository->getRootNodes();
+			
+			foreach ($rootNodes as $rootNode) {
+				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot);
+				// TODO: hardcoded
+				$tree['icon'] = 'home';
+
+				$response[] = $tree;
+			}
+		}
+
+		return $response;
+	}
+	
+	/**
+	 * Loads main node data array
+	 * @param Entity\Abstraction\Localization $data
+	 * @return array
+	 */
+	private function loadNodeMainData(Entity\Abstraction\Localization $data)
+	{
+		$page = $data->getMaster();
+		$locale = $data->getLocale();
+		
+		// Main data
+		$array = array(
+			'id' => $data->getId(),
+			'title' => $data->getTitle(),
+			
+			// TODO: hardcoded
+			'icon' => 'page',
+			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
+		);
+		
+		// Template ID
+		if ($data instanceof Entity\PageLocalization) {
 			$templateId = $data->getTemplate()
 					->getId();
+			
+			$array['template'] = $templateId;
 		}
+		
+		// Node type
+		$type = 'page';
+		if ($data instanceof Entity\GroupLocalization) {
+			$type = 'group';
+		} elseif ($page instanceof Entity\ApplicationPage) {
+			$type = 'application';
+			$array['application_id'] = $page->getApplicationId();
+		}
+		$array['type'] = $type;
+		
+		// Path data
+		$pathPart = null;
+		$applicationBasePath = new Path('');
 		
 		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
@@ -122,101 +284,11 @@ class SitemapAction extends PageManagerAction
 			}
 		}
 		
-		$array = array(
-			'id' => $data->getId(),
-			'title' => $data->getTitle(),
-			'template' => $templateId,
-			
-			// TODO: maybe should send "null" when path is not allowed? Must fix JS then
-			'path' => $pathPart,
-			// Additional base path received from application
-			'basePath' => $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER),
-			
-			// TODO: hardcoded
-			'icon' => 'page',
-			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'
-		);
-
-		$array['children'] = array();
-
-		$children = array();
+		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
+		$array['path'] = $pathPart;
+		// Additional base path received from application
+		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
 		
-		if ($page instanceof Entity\ApplicationPage) {
-			$application = PageApplicationCollection::getInstance()
-					->createApplication($data, $this->entityManager);
-
-			$application->showInactivePages(true);
-			
-			$modes = $application->getAvailableSitemapViewModes();
-			
-			if (in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes)) {
-				//TODO: children could be a grouped array
-				$children = $application->collapsedSitemapView();
-			}
-			
-			// Send sitemap that expanded view is available
-			if (in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes)) {
-				$array['collapsed'] = true;
-			}
-			
-			//TODO: pass to client if there are any hidden pages
-			
-		} else {
-			$children = $page->getChildren();
-		}
-		
-		foreach ($children as $child) {
-			
-			// Application responds with localization objects..
-			//FIXME: fix inconsistency
-			if ($child instanceof Entity\Abstraction\Localization) {
-				$child = $child->getMaster();
-			}
-			
-			$childArray = $this->buildTreeArray($child, $locale);
-
-			if ( ! empty($childArray)) {
-				$array['children'][] = $childArray;
-			}
-		}
-
-		if (count($array['children']) == 0) {
-			unset($array['children']);
-		} else {
-			// TODO: hardcoded
-			$array['icon'] = 'folder';
-		}
-
 		return $array;
-	}
-	
-	/**
-	 * Returns Template or Page data
-	 * @param string $entity
-	 * @return array
-	 */
-	protected function loadSitemapTree($entity)
-	{
-		$pages = array();
-		$localeId = $this->getLocale()->getId();
-
-		$em = $this->entityManager;
-
-		$response = array();
-
-		$pageRepository = $em->getRepository($entity);
-
-		/* @var $pageRepository \Supra\Controller\Pages\Repository\PageRepository */
-		$rootNodes = $pageRepository->getRootNodes();
-
-		foreach ($rootNodes as $rootNode) {
-			$tree = $this->buildTreeArray($rootNode, $localeId);
-			// TODO: hardcoded
-			$tree['icon'] = 'home';
-
-			$response[] = $tree;
-		}
-		
-		return $response;
 	}
 }

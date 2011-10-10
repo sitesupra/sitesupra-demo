@@ -59,7 +59,7 @@ class PageRequestEdit extends PageRequest
 		
 		// Set creation time if empty
 		if ($draftData instanceof Entity\PageLocalization) {
-			if ($draftData->getCreationTime() === null) {
+			if ( ! $draftData->isPublishTimeSet()) {
 				$draftData->setCreationTime();
 			}
 		}

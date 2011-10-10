@@ -81,11 +81,6 @@ class NewsApplication implements PageApplicationInterface
 	{
 		$creationTime = $pageLocalization->getCreationTime();
 
-		// Shouldn't we set some other path for not published publications?
-		if ( ! $creationTime instanceof DateTime) {
-			$creationTime = new DateTime();
-		}
-		
 		$pathString = $creationTime->format('Y/m/d');
 		$path = new Path($pathString);
 		
@@ -106,7 +101,7 @@ class NewsApplication implements PageApplicationInterface
 	 */
 	public function getNestedSetRepository()
 	{
-		$pageRep = $this->em->getRepository(Entity\Page::CN());
+		$pageRep = $this->em->getRepository(Entity\Abstraction\AbstractPage::CN());
 		/* @var $pageRep PageRepository */
 		
 		$nestedSet = $pageRep->getNestedSetRepository();
@@ -128,16 +123,14 @@ class NewsApplication implements PageApplicationInterface
 	}
 	
 	/**
-	 * Creates generic query builder
 	 * @return QueryBuilder
 	 */
-	public function createQueryBuilder()
+	public function createChildrenQueryBuilder()
 	{
 		$page = $this->applicationLocalization->getMaster();
 		$lft = $page->getLeftValue();
 		$rgt = $page->getRightValue();
 		$lvl = $page->getLevel();
-		$locale = $this->applicationLocalization->getLocale();
 		
 		$nestedSet = $this->getNestedSetRepository();
 		
@@ -152,6 +145,19 @@ class NewsApplication implements PageApplicationInterface
 		$qb = $nestedSet->createSearchQueryBuilder($filter);
 		/* @var $qb \Doctrine\ORM\QueryBuilder */
 		
+		return $qb;
+	}
+	
+	/**
+	 * Creates generic query builder
+	 * @return QueryBuilder
+	 */
+	public function createNewsQueryBuilder()
+	{
+		$locale = $this->applicationLocalization->getLocale();
+		
+		$qb = $this->createChildrenQueryBuilder();
+		
 		$parameterOffset = $this->getNextParameterKey();
 		
 		// Add localization inside FROM
@@ -164,7 +170,7 @@ class NewsApplication implements PageApplicationInterface
 		if ( ! $this->showInactivePages) {
 			$qb->andWhere('l.active = true');
 		}
-				
+		
 		// Will select localization by default
 		$qb->select('l');
 				
@@ -174,18 +180,32 @@ class NewsApplication implements PageApplicationInterface
 	/**
 	 * @return QueryBuilder
 	 */
+	public function createHiddenQueryBuilder()
+	{
+		$qb = $this->createChildrenQueryBuilder();
+		$groupEntity = Entity\GroupPage::CN();
+		
+		// Add localization inside FROM
+		$qb->andWhere("e INSTANCE OF $groupEntity");
+		
+		$qb->select('e');
+				
+		return $qb;
+	}
+	
+	/**
+	 * @return QueryBuilder
+	 */
 	public function createCountQueryBuilder($groupBy = null)
 	{
-		$qb = $this->createQueryBuilder();
+		$qb = $this->createNewsQueryBuilder();
 		
-		// Ignore not published items without creation time
-		$qb->andWhere('l.creationTime IS NOT NULL');
 		$qb->select('COUNT(e.id) AS total');
 		
 		if ( ! empty($groupBy)) {
 			$qb->addSelect($groupBy)
 					->groupBy($groupBy)
-					->orderBy($groupBy);
+					->orderBy($groupBy, 'ASC');
 		}
 		
 		return $qb;
@@ -234,7 +254,7 @@ class NewsApplication implements PageApplicationInterface
 	 */
 	public function findByTime(DateTime $startTime = null, DateTime $endTime = null)
 	{
-		$qb = $this->createQueryBuilder();
+		$qb = $this->createNewsQueryBuilder();
 		
 		if ( ! is_null($startTime)) {
 			$nextKey = $this->getNextParameterKey();
@@ -247,6 +267,8 @@ class NewsApplication implements PageApplicationInterface
 			$qb->andWhere("l.creationTime < ?{$nextKey}")
 					->setParameter($nextKey, $endTime, Type::DATETIME);
 		}
+		
+		$qb->orderBy("l.creationTime", "DESC");
 		
 		$data = $qb->getQuery()->getResult();
 		
@@ -290,9 +312,13 @@ class NewsApplication implements PageApplicationInterface
 		return $data;
 	}
 	
+	/**
+	 * Get total news count
+	 * @return int
+	 */
 	protected function getNewsCount()
 	{
-		$count = $this->createQueryBuilder()
+		$count = $this->createNewsQueryBuilder()
 				->select('COUNT(l.id)')
 				->getQuery()
 				->getSingleScalarResult();
@@ -300,6 +326,10 @@ class NewsApplication implements PageApplicationInterface
 		return $count;
 	}
 	
+	/**
+	 * Whether should limit the news count inside the CMS sitemap initially
+	 * @return boolean
+	 */
 	protected function limitCollapsed()
 	{
 		$limit = $this->collapsedLimit;
@@ -313,7 +343,8 @@ class NewsApplication implements PageApplicationInterface
 	}
 
 	/**
-	 * 
+	 * {@inheritdoc}
+	 * @return array
 	 */
 	public function getAvailableSitemapViewModes()
 	{
@@ -327,12 +358,13 @@ class NewsApplication implements PageApplicationInterface
 	}
 	
 	/**
+	 * {@inheritdoc}
 	 * @return array
 	 */
 	public function collapsedSitemapView()
 	{
-		$qb = $this->createQueryBuilder()
-				->orderBy('l.creationTime DESC');
+		$qb = $this->createNewsQueryBuilder()
+				->orderBy('l.creationTime', 'DESC');
 		$query = $qb->getQuery();
 		
 		if ($this->limitCollapsed()) {
@@ -345,14 +377,15 @@ class NewsApplication implements PageApplicationInterface
 	}
 	
 	/**
+	 * {@inheritdoc}
 	 * @return array
 	 */
 	public function expandedSitemapView()
 	{
 		$groupedData = array();
 		
-		$qb = $this->createQueryBuilder();
-		$qb->orderBy('l.creationTime DESC');
+		$qb = $this->createNewsQueryBuilder();
+		$qb->orderBy('l.creationTime', 'DESC');
 		
 		$data = $qb->getQuery()->getResult();
 		
@@ -365,11 +398,6 @@ class NewsApplication implements PageApplicationInterface
 		foreach ($data as $localization)
 		{
 			$creationTime = $localization->getCreationTime();
-			
-			if (is_null($creationTime)) {
-				$creationTime = new DateTime();
-			}
-			
 			$year = $creationTime->format('Y');
 			
 			$groupName = null;
@@ -385,5 +413,28 @@ class NewsApplication implements PageApplicationInterface
 		
 		return $data;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 * @return boolean
+	 */
+	public function hasHiddenPages()
+	{
+		$hiddenPages = $this->getHiddenPages();
+		$hasHiddenPages = ( ! empty($hiddenPages));
+		
+		return $hasHiddenPages;
+	}
 	
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function getHiddenPages()
+	{
+		$qb = $this->createHiddenQueryBuilder();
+		$groups = $qb->getQuery()->getResult();
+		
+		return $groups;
+	}
 }

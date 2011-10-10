@@ -70,7 +70,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 
 	/**
 	 * Object's place holders
-	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
