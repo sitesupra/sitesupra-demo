@@ -134,6 +134,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.initializeLanguageBar();
 			this.initializeTypeInput();
 			this.initializeFlowMap();
+			this.initializeApplicationList();
 		},
 		
 		/**
@@ -221,12 +222,12 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.flowmap.on('drop', this.onPageMove, this);
 			
 			//New page
-			var new_page_node = this.one('.new-page-button'),
+			var new_page_list_node = this.one('.additional'),
 				new_template_drop = this.one('div.template-drop');
 			
 			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
 				this.flowmap.plug(SU.Tree.NewPagePlugin, {
-					'dragNode': new_page_node,
+					'dragNode': new_page_list_node,
 					'newItemDropNode': new_template_drop
 				});
 			} else {
@@ -241,6 +242,36 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				
 				this.setLoading(false);
 			}, this);
+		},
+		
+		/**
+		 * New item application list
+		 */
+		initializeApplicationList: function () {
+			Supra.io(this.getDataPath('applications'), {
+				'context': this,
+				'on': {
+					'success': this.renderApplicationList
+				}
+			});
+		},
+		
+		/**
+		 * Render application list
+		 */
+		renderApplicationList: function (data) {
+			var target = this.one('div.new-item div.additional'),
+				tpl = Supra.Template('additionalNewItems'),
+				i = 0,
+				ii = data.length,
+				node = null;
+			
+			for(; i<ii; i++) {
+				node = Y.Node.create(tpl(data[i]));
+				target.append(node);
+				
+				this.flowmap.newpage.createProxyTreeNode(node, {'type': 'application', 'application_id': data[i].id});
+			}
 		},
 		
 		/**

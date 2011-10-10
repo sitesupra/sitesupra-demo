@@ -1,10 +1,27 @@
 <div class="yui3-sitemap">
 	<div class="yui3-sitemap-content">
 		
-		<span class="new-page-button">
-			<img src="/cms/lib/supra/img/sitemap/new-page-icon.png" alt="" class="icon-sitemap" />
-			<img src="/cms/lib/supra/img/sitemap/new-template-icon.png" alt="" class="icon-templates" />
-		</span>
+		<div class="new-item">
+		
+			<p>{# sitemap.drag_and_drop #}</p>
+			
+			<div class="additional">
+				<span data-type="page">
+					<img src="/cms/lib/supra/img/sitemap/new-page-icon.png" alt="" class="icon-sitemap" />
+					<img src="/cms/lib/supra/img/sitemap/new-template-icon.png" alt="" class="icon-templates" />
+				</span>
+				<span data-type="group">
+					<img src="/cms/lib/supra/img/sitemap/new-group.png" alt="{# sitemap.app_group #}" class="icon-sitemap" />
+				</span>
+			</div>
+			
+			<!-- Application item template -->
+			<script type="text/html" id="additionalNewItems">
+				<span data-type="application" data-id="{{ id|e }}"><img src="{{ icon|e }}" alt="{{ titlee }}" class="icon-sitemap" /></span>
+			</script>
+			
+		</div>
+		
 		
 		<div class="yui3-sitemap-scrollable">
 			

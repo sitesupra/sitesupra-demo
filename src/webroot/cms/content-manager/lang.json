@@ -170,8 +170,12 @@
 			"show_hidden_pages": "Show hidden pages",
 			"show_all_pages": "Show all",
 			
+			"drag_and_drop": "Drag and drop page on desired location",
 			"pages": "Pages",
 			"templates": "Templates",
+			
+			"app_group": "Virtual folder",
+			"app_news": "News",
 			
 			"today": "Today",
 			"yesterday": "Yesterday",

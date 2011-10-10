@@ -10,7 +10,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 	
 	
 	/**
-	 * Page settings form
+	 * New page settings form
 	 */
 	function Plugin () {
 		Plugin.superclass.constructor.apply(this, arguments);
@@ -186,27 +186,33 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				//Update create button label
 				this.button_create.set('label', Supra.Intl.get(['sitemap', 'create_page']));
 				
-				var item = all_data[data.parent],
-					fullpath = [],
-					path = '';
-					
-				while(item) {
-					// Skip empty path
-					if (item.path) {
-						fullpath.push(item.path);
+				if (data.type != 'group') {
+					var item = all_data[data.parent],
+						fullpath = [],
+						path = '';
+						
+					while(item) {
+						// Skip empty path
+						if (item.path) {
+							fullpath.push(item.path);
+						}
+						item = all_data[item.parent];
 					}
-					item = all_data[item.parent];
+					fullpath.push('');
+					
+					path = fullpath.reverse().join('/');
+					path = path && path != '/' ? path + '/' : '/';
+					path = path + (data.basePath || '');
+	
+					path_input.show();
+					path_input.set('path', path);
+					
+					template_input.show();
+				} else {
+					path_input.hide();
+					template_input.hide();
 				}
-				fullpath.push('');
 				
-				path = fullpath.reverse().join('/');
-				path = path && path != '/' ? path + '/' : '/';
-				path = path + (data.basePath || '');
-
-				path_input.show();
-				path_input.set('path', path);
-				
-				template_input.show();
 				layout_input.hide();
 			}
 		},
@@ -249,7 +255,8 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				old_id = old_data.id,
 				data = this.form.getValues('name', true),
 				postdata = null,
-				type = this.host.getType();
+				type = this.host.getType(),
+				page_type = old_data.type;
 			
 			postdata = {
 				'locale': Manager.SiteMap.languagebar.get('locale'),
@@ -257,7 +264,8 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				'icon': old_data.icon,
 				'parent': old_data.parent,
 				'published': old_data.published,
-				'scheduled': old_data.scheduled
+				'scheduled': old_data.scheduled,
+				'type': old_data.type
 			};
 			
 			if (type == 'templates') {
@@ -266,8 +274,14 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				target = Manager.getAction('Template');
 				target_fn = 'createTemplate';
 			} else {
-				postdata.template = data.template;
-				postdata.path = data.path;
+				if (page_type != 'group') {
+					postdata.template = data.template;
+					postdata.path = data.path;
+					
+					if (page_type == 'application') {
+						postdata.application_id = old_data.application_id;
+					}
+				}
 				
 				target = Manager.getAction('Page');
 				target_fn = 'createPage';
@@ -279,7 +293,13 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				this.button_create.set('loading', false);
 				
 				var treenode = this.host.flowmap.getNodeById(old_id);
+				var all_data = this.host.flowmap.getIndexedData();
 				var node_data = treenode.get('data');
+				var children = data.children;
+				
+				if (children) {
+					delete(data.children);
+				}
 				
 				data.temporary = false;
 				Supra.mix(old_data, data);
@@ -299,6 +319,30 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				
 				//Hide panel
 				this.panel.hide();
+				
+				//Add children
+				if (children) {
+					var index = 0;
+					
+					for(var i=0,ii=children.length; i<ii; i++) {
+						children[i].parent = data.id;
+						all_data[children[i].id] = children[i];
+						
+						/*
+						treenode.add({
+							'data': children[i],
+							'label': children[i].title,
+							'icon': children[i].icon,
+							'isDropTarget': children[i].isDropTarget,
+							'isDragable': children[i].isDragable
+						}, index);
+						
+						index++;
+						*/
+					}
+					
+					treenode.addChildren(children);
+				}
 			}, this);
 		}
 		

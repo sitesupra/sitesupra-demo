@@ -65,20 +65,29 @@
 /**
  * New page icon
  */
-.yui3-sitemap .new-page-button {
-	display: block;
-	cursor: move;
+.yui3-sitemap .new-item {
 	position: absolute;
-	left: 14px;
+	z-index: 10;
+	left: 15px;
 	top: 50%;
-	margin-top: -32px;
+	margin-top: -100px;
+	width: 60px;
 }
-.yui3-sitemap .new-page-button .icon-templates,
-.yui3-sitemap .new-page-button.type-templates .icon-sitemap {
+.yui3-sitemap .new-item p {
+	font-size: 10px;
+	padding: 0 0 15px;
+}
+
+.yui3-sitemap .additional img {
+	cursor: pointer;
+}
+
+.yui3-sitemap .additional .icon-templates,
+.yui3-sitemap .additional.type-templates .icon-sitemap {
 	display: none;
 }
-.yui3-sitemap .new-page-button.type-templates .icon-templates,
-.yui3-sitemap .new-page-button.type-sitemap .icon-sitemap {
+.yui3-sitemap .additional.type-templates .icon-templates,
+.yui3-sitemap .additional.type-sitemap .icon-sitemap {
 	display: block;
 }
 
@@ -167,6 +176,9 @@
 	float: left;
 	margin: -15px 0 0 50px;
 	position: relative;
+}
+.flowmap-children .yui3-tree-node-collapsed > .show-all {
+	display: none;
 }
 
 /* Loading */

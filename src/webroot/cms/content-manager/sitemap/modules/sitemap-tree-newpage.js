@@ -5,6 +5,17 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 	
 	var Manager = Supra.Manager;
 	
+	var TREENODE_TEMPLATE_DATA = {
+		'title': 'New template',
+		'preview': '/cms/lib/supra/img/sitemap/preview/blank.jpg',
+		'layout': '',
+		'icon': 'page',
+		'parent': null,
+		'published': false,
+		'scheduled': false,
+		'type': 'page'
+	};
+	
 	var TREENODE_PAGE_DATA = {
 		'title': 'New page',
 		'preview': '/cms/lib/supra/img/sitemap/preview/blank.jpg',
@@ -13,18 +24,20 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		'path': 'new-page',
 		'parent': null,
 		'published': false,
-		'scheduled': false
+		'scheduled': false,
+		'type': 'page'
 	};
 	
-	var TREENODE_TEMPLATE_DATA = {
-		'title': 'New template',
-		'preview': '/cms/lib/supra/img/sitemap/preview/blank.jpg',
-		'layout': '',
-		'icon': 'page',
-		'parent': null,
-		'published': false,
-		'scheduled': false
-	};
+	var TREENODE_PAGE_GROUP_DATA = Supra.mix({}, TREENODE_PAGE_DATA, {
+		'type': 'group',
+		'icon': 'group'
+	});
+	
+	var TREENODE_PAGE_APP_DATA = Supra.mix({}, TREENODE_PAGE_DATA, {
+		'type': 'application',
+		'application_id': '',
+		'collapsed': false
+	});
 	
 	/**
 	 * New page tree plugin allows adding new page using drag & drop
@@ -53,7 +66,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 * Tree node instance
 		 * @type {Object}
 		 */
-		treenode: null,
+		treenodes: [],
 		
 		/**
 		 * New page index in tree
@@ -67,7 +80,11 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 */
 		type: '',
 		
-		
+		/**
+		 * Set current list type
+		 * 
+		 * @param {String} type List type, "templates" or "sitemap"
+		 */
 		setType: function (type) {
 			var dragNode = this.get('dragNode');
 			
@@ -81,11 +98,40 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		/**
-		 * Create new item node
+		 * Returns default item data based on current list type ("templates" or "sitemap")
+		 * and on node type
+		 * 
+		 * @param {String} type Node type, "page" or "group" or "application"
+		 * @return Default data
+		 * @type {Object}
+		 * @private
 		 */
-		createTreeNode: function (proxy, node) {
-			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA;
-			var data = SU.mix({}, default_data);
+		getDefaultData: function (type) {
+			if (this.type == 'templates') {
+				return TREENODE_TEMPLATE_DATA;
+			} else {
+				if (type == 'group') {
+					return TREENODE_PAGE_GROUP_DATA;
+				} else if (type == 'application') {
+					return TREENODE_PAGE_APP_DATA;
+				} else {
+					return TREENODE_PAGE_DATA;
+				}
+			}
+		},
+		
+		/**
+		 * Create new item node
+		 * 
+		 * @param {Object} node Node which will be dragable
+		 * @param {Object} data Dragable item data
+		 * @return Tree node
+		 * @type {Object}
+		 * @private
+		 */
+		createProxyTreeNode: function (node, data) {
+			var default_data = this.getDefaultData(data.type);
+			var data = SU.mix({}, default_data, data);
 			var treenode = new SU.FlowMapItemNormal({
 				'data': data,
 				'label': data.title,
@@ -97,7 +143,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			treenode._tree = this.get('host');
 			
-			var dd = this.dd = new Y.DD.Drag({
+			var dd = new Y.DD.Drag({
 				'node': node ? node : treenode.get('boundingBox').one('div.tree-node'),
 				'dragMode': 'point',
 				'target': false,
@@ -127,7 +173,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			dd.on('drag:over', treenode._dragOver);
 			
 			dd.on('drag:end', this._dragEnd, this);
-			this.treenode = treenode;
+			this.treenodes.push(treenode);
 			
 			//Set default type
 			this.setType('sitemap');
@@ -137,10 +183,25 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		
 		/**
 		 * Constructor
+		 * Make all items dragable
+		 * 
+		 * @constructor
+		 * @param {Object} config Plugin configuration
+		 * @private
 		 */
 		initializer: function (config) {
-			var node = config.dragNode;
-			var treenode = this.createTreeNode(true, node);
+			this.treenodes = [];
+			
+			var nodes = config.dragNode.get('children'),
+				node = null,
+				type = null,
+				treenode = null;
+			
+			for(var i=0, ii=nodes.size(); i<ii; i++) {
+				node = nodes.item(i);
+				type = node.getAttribute('data-type');
+				treenode = this.createProxyTreeNode(node, {'type': type});
+			}
 			
 			//"Drop here to create a new master template" drop target
 			var dd = new Y.DD.Drop({
@@ -160,16 +221,18 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		/**
+		 * On drag end add item to the tree
 		 * 
-		 * @param {Object} e
+		 * @param {Event} e Event
+		 * @private
 		 */
 		_dragEnd: function(e){
-			var self = this.treenode,
+			var self = e.target.get('treeNode'),
 				tree = this.get('host');
 			
 			if (self.drop_target) {
 				var target = self.drop_target,
-					drag_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
+					drag_data = self.get('data'),
 					drop_data = target.get('data'),
 					position = self.marker_position;
 				
@@ -177,7 +240,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				var event = tree.fire('drop', {'drag': drag_data, 'drop': drop_data, 'position': position});
 				
 				//If event was not prevented, then create node
-				if (event) this.addChild(position, target);
+				if (event) this.addChild(position, target, drag_data);
 			}
 			
 			//Hide marker and cleanup data
@@ -299,18 +362,27 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			});
 		},
 		
-		addChild: function (position, target, callback, context) {
-			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
-				drop_data = target.get('data'),
-				parent_data = target.get('parent') ? target.get('parent').get('data') : null,
-				pagedata = SU.mix({}, default_data, {
-					//New parent ID
-					'parent': drop_data ? drop_data.id : 0,
-					//Item ID before which drag item was inserted
-					'reference': '',
-					//Locale
-					'locale': Manager.SiteMap.languagebar.get('locale')
-				});
+		addChild: function (position, target, drag_data, callback, context) {
+			var drop_data = target.get('data'),
+				parent_data = target.get('parent') ? target.get('parent').get('data') : null;
+			
+			if (typeof drag_data == 'function') {
+				context = callback;
+				callback = drag_data;
+				drag_data = null;
+			}
+			if (!drag_data) {
+				drag_data = this.getDefaultData({'type': 'page'});
+			}
+			
+			var pagedata = SU.mix({}, drag_data, {
+				//New parent ID
+				'parent': drop_data ? drop_data.id : 0,
+				//Item ID before which drag item was inserted
+				'reference': '',
+				//Locale
+				'locale': Manager.SiteMap.languagebar.get('locale')
+			});
 			
 			if (this.type != 'templates') {
 				//Page template (parent template)

@@ -93,7 +93,6 @@ YUI.add('supra.tree-node', function(Y) {
 			//Prevent default implementation, it is buggy!?
 			event.preventDefault();
 			
-			var data = this.getTree().getIndexedData();			//all tree data
 			var index = event.index;							//new index
 			
 			var child = event.child;							//TreeNode instance

@@ -1,0 +1,10 @@
+{
+	"status": true,
+	"data": [
+		{
+			"id": "news",
+			"title": "News",
+			"icon": "/cms/lib/supra/img/sitemap/new-news-app.png"
+		}
+	]
+}
