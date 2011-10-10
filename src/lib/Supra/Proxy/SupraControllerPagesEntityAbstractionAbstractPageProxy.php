@@ -279,7 +279,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'left', 'right', 'level', 'global', 'id', 'revision');
+        return array('__isInitialized__', 'localizations', 'left', 'right', 'level', 'global', 'id');
     }
 
     public function __clone()

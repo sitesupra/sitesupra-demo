@@ -6,7 +6,7 @@ use Supra\Controller\Pages\Set\PageSet;
 use Supra\Controller\Pages\Exception;
 
 /**
- * NOT persisting group localization object
+ * @Entity
  */
 class GroupLocalization extends Abstraction\Localization
 {

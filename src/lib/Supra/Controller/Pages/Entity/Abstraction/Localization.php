@@ -16,7 +16,8 @@ use Supra\Controller\Pages\Entity\LockData;
  * @DiscriminatorMap({
  *		"page" = "Supra\Controller\Pages\Entity\PageLocalization",
  *		"template" = "Supra\Controller\Pages\Entity\TemplateLocalization",
- *		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization"
+ *		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization",
+ *		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
  * })
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */

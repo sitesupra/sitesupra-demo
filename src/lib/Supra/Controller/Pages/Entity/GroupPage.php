@@ -24,21 +24,37 @@ class GroupPage extends Page
 	 */
 	public function getLocalization($locale)
 	{
-		$fakeLocalization = new GroupLocalization($locale, $this);
+		$localization = null;
 		
-		return $fakeLocalization;
-	}
-
-	/**
-	 * @return ArrayCollection
-	 */
-	public function getLocalizations()
-	{
-		$emptyCollection = new ArrayCollection();
+		if ($this->localizations->offsetExists($locale)) {
+			$localization = $this->localizations->offsetGet[$locale];
+		} else {
+			// Create fake localization
+			$localization = new GroupLocalization($locale, $this);
+		}
 		
-		return $emptyCollection;
+		return $localization;
 	}
 	
+	/**
+	 * Force localization persisting
+	 * @param GroupLocalization $localization
+	 */
+	public function persistLocalization(GroupLocalization $localization)
+	{
+		$this->setLocalization($localization);
+	}
+
+//	/**
+//	 * @return ArrayCollection
+//	 */
+//	public function getLocalizations()
+//	{
+//		$emptyCollection = new ArrayCollection();
+//		
+//		return $emptyCollection;
+//	}
+//	
 	/**
 	 * @return string
 	 */
