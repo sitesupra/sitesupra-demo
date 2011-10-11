@@ -74,10 +74,11 @@ class PageApplicationCollection
 			throw new Exception\RuntimeException("Method createApplication accepts only application page localization objects");
 		}
 		
-		$id = $applicationPage->getApplicationId();
+		$applicationId = $applicationPage->getApplicationId();
+		$cacheId = spl_object_hash($pageLocalization) . spl_object_hash($em);
 		
-		if ( ! isset($this->loadedApplications[$id])) {
-			$configuration = $this->getConfiguration($id);
+		if ( ! isset($this->loadedApplications[$cacheId])) {
+			$configuration = $this->getConfiguration($applicationId);
 			
 			if ($configuration instanceof PageApplicationConfiguration) {
 				
@@ -90,10 +91,10 @@ class PageApplicationCollection
 				$application->setEntityManager($em);
 				$application->setApplicationLocalization($pageLocalization);
 				
-				$this->loadedApplications[$id] = $application;
+				$this->loadedApplications[$cacheId] = $application;
 			}
 		}
 		
-		return $this->loadedApplications[$id];
+		return $this->loadedApplications[$cacheId];
 	}
 }

@@ -134,8 +134,7 @@ class PagePathGenerator
 	{
 		$page = $pageData->getMaster();
 		$locale = $pageData->getLocale();
-		$className = get_class($pageData);
-		$repo = $this->em->getRepository($className);
+		$repo = $this->em->getRepository(Entity\PageLocalization::CN());
 		
 		$newPathString = $newPath->getFullPath();
 
