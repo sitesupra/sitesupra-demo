@@ -17,7 +17,7 @@ class Page extends Abstraction\AbstractPage
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'page';
+	const DISCRIMINATOR = self::PAGE_DISCR;
 	
 	/**
 	 * Page place holders

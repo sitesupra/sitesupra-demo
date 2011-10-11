@@ -11,7 +11,7 @@ class PagePlaceHolder extends Abstraction\PlaceHolder
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'page';
+	const DISCRIMINATOR = self::PAGE_DISCR;
 	
 	/**
 	 * @var integer

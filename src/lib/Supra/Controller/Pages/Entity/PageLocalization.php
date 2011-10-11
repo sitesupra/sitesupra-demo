@@ -17,7 +17,7 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'page';
+	const DISCRIMINATOR = self::PAGE_DISCR;
 	
 	/**
 	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")

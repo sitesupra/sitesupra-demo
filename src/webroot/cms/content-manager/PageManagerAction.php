@@ -21,6 +21,8 @@ use Supra\FileStorage\Entity\File;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
+use Supra\Uri\Path;
+use Supra\Controller\Pages\Application\PageApplicationCollection;
 
 /**
  * Controller containing common methods
@@ -223,61 +225,96 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$data = null;
 
-		if ($pageData instanceof Entity\TemplateLocalization) {
-			$data = $this->prepareTemplateLocalization($pageData);
+		$data = $this->loadNodeMainData($pageData);
+		
+		// Add missing parent page data ID
+		$parentData = $pageData->getParent();
+		$parentDataId = null;
+		
+		if ( ! is_null($parentData)) {
+			$parentDataId = $parentData->getId();
 		}
-
-		if ($pageData instanceof Entity\PageLocalization) {
-			$data = $this->preparePageLocalization($pageData);
-		}
-
+		
+		$data['parent'] = $parentDataId;
+		
 		$this->getResponse()->setResponseData($data);
 	}
 
-	private function prepareTemplateLocalization(Entity\TemplateLocalization $templateData)
+	/**
+	 * Loads main node data array
+	 * @param Entity\Abstraction\Localization $data
+	 * @return array
+	 */
+	protected function loadNodeMainData(Entity\Abstraction\Localization $data)
 	{
-		$template = $templateData->getTemplate();
-		$parentData = $templateData->getParent();
-		$parentDataId = null;
-
-		if ( ! is_null($parentData)) {
-			$parentDataId = $parentData->getId();
-		}
-
-		$data = array(
-			'id' => $templateData->getId(),
-			'parent' => $parentDataId,
-			//TODO: hardcoded
+		$page = $data->getMaster();
+		$locale = $data->getLocale();
+		
+		// Main data
+		$array = array(
+			'id' => $data->getId(),
+			'title' => $data->getTitle(),
+			
+			// TODO: hardcoded
 			'icon' => 'page',
-			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
+			'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
 		);
-
-		return $data;
-	}
-
-	private function preparePageLocalization(Entity\PageLocalization $pageData)
-	{
-		$page = $pageData->getPage();
-		$template = $pageData->getTemplate();
-		$parentData = $pageData->getParent();
-		$parentDataId = null;
-
-		if ( ! is_null($parentData)) {
-			$parentDataId = $parentData->getId();
+		
+		// Template ID
+		if ($data instanceof Entity\PageLocalization) {
+			$templateId = $data->getTemplate()
+					->getId();
+			
+			$array['template'] = $templateId;
 		}
-
-		$data = array(
-			'id' => $pageData->getId(),
-			'title' => $pageData->getTitle(),
-			'template' => $template->getId(),
-			'parent' => $parentDataId,
-			'path' => $pageData->getPathPart(),
-			//TODO: hardcoded
-			'icon' => 'page',
-			'preview' => '/cms/lib/supra/img/sitemap/preview/blank.jpg'
-		);
-
-		return $data;
+		
+		// Node type
+		$type = Entity\Abstraction\Entity::PAGE_DISCR;
+		if ($data instanceof Entity\GroupLocalization) {
+			$type = Entity\Abstraction\Entity::GROUP_DISCR;
+		} elseif ($page instanceof Entity\ApplicationPage) {
+			$type = Entity\Abstraction\Entity::APPLICATION_DISCR;
+			$array['application_id'] = $page->getApplicationId();
+		}
+		$array['type'] = $type;
+		
+		// Path data
+		$pathPart = null;
+		$applicationBasePath = new Path('');
+		
+		if ($data instanceof Entity\PageLocalization) {
+			$pathPart = $data->getPathPart();
+			
+			if ( ! $page->isRoot()) {
+				$parentPage = $page->getParent();
+				$parentLocalization = $parentPage->getLocalization($locale);
+				
+				if (is_null($parentLocalization)) {
+					throw new CmsException(null, "Parent page has no localization in the selected language");
+				}
+				
+				if ($parentPage instanceof Entity\ApplicationPage) {
+					$applicationId = $parentPage->getApplicationId();
+					$application = PageApplicationCollection::getInstance()
+							->createApplication($parentLocalization, $this->entityManager);
+					
+					$application->showInactivePages(true);
+					
+					if (empty($application)) {
+						throw new CmsException(null, "Application '$applicationId' was not found");
+					}
+					
+					$applicationBasePath = $application->generatePath($data);
+				}
+			}
+		}
+		
+		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
+		$array['path'] = $pathPart;
+		// Additional base path received from application
+		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
+		
+		return $array;
 	}
 	
 	/**

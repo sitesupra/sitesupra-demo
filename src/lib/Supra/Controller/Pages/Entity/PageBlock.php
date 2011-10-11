@@ -10,5 +10,5 @@ class PageBlock extends Abstraction\Block
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'page';
+	const DISCRIMINATOR = self::PAGE_DISCR;
 }

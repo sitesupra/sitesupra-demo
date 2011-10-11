@@ -25,6 +25,11 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	const PERMISSION_EDIT_MASK = 256;
 	const PERMISSION_PUBLISH_MASK = 512;
 	
+	const PAGE_DISCR = 'page';
+	const GROUP_DISCR = 'group';
+	const APPLICATION_DISCR = 'application';
+	const TEMPLATE_DISCR = 'template';
+	
 	/**
 	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
@@ -113,7 +118,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		}
 		
 		// Allow binding page elements to application elements (except AbstractPage <-> Localization)
-		if ($discrA != 'template' && $discrB != 'template') {
+		if ($discrA != self::TEMPLATE_DISCR && $discrB != self::TEMPLATE_DISCR) {
 			if ( ! ($this instanceof AbstractPage && $object instanceof Localization)) {
 				return;
 			}

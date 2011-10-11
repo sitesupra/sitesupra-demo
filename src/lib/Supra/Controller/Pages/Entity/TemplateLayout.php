@@ -11,7 +11,7 @@ class TemplateLayout extends Abstraction\Entity
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'template';
+	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
 	/**
 	 * @Column(type="string")

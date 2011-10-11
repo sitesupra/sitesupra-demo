@@ -13,6 +13,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 {
 	const TYPE_ID = 'link';
 	
+	const RESOURCE_PAGE = 'page';
+	const RESOURCE_FILE = 'file';
+	const RESOURCE_LINK = 'link';
+	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -195,7 +199,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		
 		switch ($this->getResource()) {
 			
-			case 'page':
+			case self::RESOURCE_PAGE:
 				$pageId = $this->getPageId();
 
 				$em = ObjectRepository::getEntityManager($context);
@@ -221,7 +225,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				}
 				break;
 			
-			case 'file':
+			case self::RESOURCE_FILE:
 				$fileId = $this->getFileId();
 				$fs = ObjectRepository::getFileStorage($context);
 				$em = $fs->getDoctrineEntityManager();
@@ -233,7 +237,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 				break;
 				
-			case 'link':
+			case self::RESOURCE_LINK:
 				$url = $this->getHref();
 				break;
 

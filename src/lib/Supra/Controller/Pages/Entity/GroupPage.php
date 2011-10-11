@@ -10,6 +10,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class GroupPage extends Page
 {
+	const DISCRIMINATOR = self::GROUP_DISCR;
+	
 	/**
 	 * Not localized group title
 	 * @Column(type="string")
@@ -24,12 +26,10 @@ class GroupPage extends Page
 	 */
 	public function getLocalization($locale)
 	{
-		$localization = null;
+		$localization = parent::getLocalization($locale);
 		
-		if ($this->localizations->offsetExists($locale)) {
-			$localization = $this->localizations->offsetGet[$locale];
-		} else {
-			// Create fake localization
+		// Create fake localization if not persisted
+		if (is_null($localization)) {
 			$localization = new GroupLocalization($locale, $this);
 		}
 		

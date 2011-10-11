@@ -14,7 +14,7 @@ class TemplateLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'template';
+	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
 	/**
 	 * @return Template

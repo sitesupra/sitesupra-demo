@@ -10,7 +10,7 @@ class TemplateBlock extends Abstraction\Block
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'template';
+	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
 	/**
 	 * Used when block must be created on public scheme triggered by page publish.

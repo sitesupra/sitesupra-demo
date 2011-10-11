@@ -11,7 +11,7 @@ class ApplicationPage extends Page
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'application';
+	const DISCRIMINATOR = self::APPLICATION_DISCR;
 	
 	/**
 	 * @Column(type="string")

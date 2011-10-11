@@ -156,12 +156,12 @@ abstract class PlaceHolder extends Entity
 		$placeHolder = null;
 		
 		switch ($discriminator) {
-			case 'template':
+			case self::TEMPLATE_DISCR:
 				$placeHolder = new TemplatePlaceHolder($name);
 				break;
 			
-			case 'page':
-			case 'application':
+			case self::PAGE_DISCR:
+			case self::APPLICATION_DISCR:
 				$placeHolder = new PagePlaceHolder($name);
 				break;
 			

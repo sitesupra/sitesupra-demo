@@ -246,62 +246,88 @@ class PageAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
+		$type = $this->getRequestParameter('type');
 		$templateId = $this->getRequestParameter('template');
 		$parent = $this->getPageByRequestKey('parent');
 		$localeId = $this->getLocale()->getId();
 
-		$page = new Entity\Page();
-		$pageData = new Entity\PageLocalization($localeId);
-		$pageData->setMaster($page);
-
-		$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
-
-		if (empty($template)) {
-			$this->getResponse()->setErrorMessage("Template not specified or found");
-
-			return;
+		$page = null;
+		$pageData = null;
+		$pathPart = null;
+		
+		// Page types
+		if ($type == Entity\Abstraction\Entity::GROUP_DISCR) {
+			$page = new Entity\GroupPage();
+			$pageData = $page->getLocalization($localeId);
+		} elseif ($type == Entity\Abstraction\Entity::APPLICATION_DISCR) {
+			$page = new Entity\ApplicationPage();
+			$pageData = new Entity\ApplicationLocalization($localeId);
+			$pageData->setMaster($page);
+			
+			$applicationId = $this->getRequestParameter('application_id');
+			$page->setApplicationId($applicationId);
+		} else {
+			$page = new Entity\Page();
+			$pageData = new Entity\PageLocalization($localeId);
+			$pageData->setMaster($page);
 		}
+		
+		$this->entityManager->persist($page);
 
-		$pageData->setTemplate($template);
+		// Template ID
+		if ($pageData instanceof Entity\PageLocalization) {
+			$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
 
-		$pathPart = '';
-		if ($this->hasRequestParameter('path')) {
-			$pathPart = $this->getRequestParameter('path');
+			if (empty($template)) {
+				$this->getResponse()->setErrorMessage("Template not specified or found");
+
+				return;
+			}
+
+			$pageData->setTemplate($template);
+
+			$pathPart = '';
+			if ($this->hasRequestParameter('path')) {
+				$pathPart = $this->getRequestParameter('path');
+			}
+
 		}
-
+		
 		if ($this->hasRequestParameter('title')) {
 			$title = $this->getRequestParameter('title');
 			$pageData->setTitle($title);
 		}
-
-		$this->entityManager->persist($page);
 		$this->entityManager->persist($pageData);
 
-		// Set parent
+		// Set parent node
 		if ( ! empty($parent)) {
 			$page->moveAsLastChildOf($parent);
 		}
 
-		$pathValid = false;
-		$i = 2;
-		$suffix = '';
+		// Generate unused path
+		//TODO: generate before "create" action
+		if ($pageData instanceof Entity\PageLocalization) {
+			$pathValid = false;
+			$i = 2;
+			$suffix = '';
 
-		do {
-			try {
-				$pageData->setPathPart($pathPart . $suffix);
-				$this->entityManager->flush();
+			do {
+				try {
+					$pageData->setPathPart($pathPart . $suffix);
+					$this->entityManager->flush();
 
-				$pathValid = true;
-			} catch (DuplicatePagePathException $pathInvalid) {
-				$suffix = '-' . $i;
-				$i ++;
+					$pathValid = true;
+				} catch (DuplicatePagePathException $pathInvalid) {
+					$suffix = '-' . $i;
+					$i ++;
 
-				// Loop stopper
-				if ($i > 100) {
-					throw $pathInvalid;
+					// Loop stopper
+					if ($i > 100) {
+						throw $pathInvalid;
+					}
 				}
-			}
-		} while ( ! $pathValid);
+			} while ( ! $pathValid);
+		}
 
 		$this->outputPage($pageData);
 	}

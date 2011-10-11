@@ -153,14 +153,14 @@ class ParsedHtmlFilter implements FilterInterface
 			$text = '';
 
 			switch ($class) {
-				case 'link':
+				case Entity\ReferencedElement\LinkReferencedElement::TYPE_ID:
 					if ($referencedElement instanceof Entity\ReferencedElement\LinkReferencedElement) {
 						$text = $this->parseSupraLink($content, $referencedElement);
 					} else {
 						$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
 					}
 					break;
-				case 'image':
+				case Entity\ReferencedElement\ImageReferencedElement::TYPE_ID:
 					if ($referencedElement instanceof Entity\ReferencedElement\ImageReferencedElement) {
 						$text = $this->parseSupraImage($content, $referencedElement);
 					} else {

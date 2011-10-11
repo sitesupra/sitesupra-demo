@@ -17,7 +17,7 @@ class Template extends Abstraction\AbstractPage
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'template';
+	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
 	/**
 	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"}, indexBy="media")

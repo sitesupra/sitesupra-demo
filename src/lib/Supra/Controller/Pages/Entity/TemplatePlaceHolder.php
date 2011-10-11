@@ -11,7 +11,7 @@ class TemplatePlaceHolder extends Abstraction\PlaceHolder
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'template';
+	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
 	/**
 	 * @var integer

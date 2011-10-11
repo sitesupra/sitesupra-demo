@@ -10,10 +10,12 @@ use Supra\Controller\Pages\Exception;
  */
 class GroupLocalization extends Abstraction\Localization
 {
+	const DISCRIMINATOR = self::GROUP_DISCR;
+	
 	public function __construct($locale, GroupPage $groupPage)
 	{
 		parent::__construct($locale);
-		$this->setTitle($groupPage->getTitle());
+		$this->title = $groupPage->getTitle();
 		$this->master = $groupPage;
 	}
 	
@@ -47,5 +49,16 @@ class GroupLocalization extends Abstraction\Localization
 		}
 		
 		return $path;
+	}
+	
+	/**
+	 * Update the title for master as well
+	 * @param string $title
+	 */
+	public function setTitle($title)
+	{
+		parent::setTitle($title);
+		
+		$this->master->setTitle($title);
 	}
 }

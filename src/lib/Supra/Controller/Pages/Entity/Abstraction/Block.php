@@ -253,12 +253,12 @@ abstract class Block extends Entity
 		$block = null;
 		
 		switch ($discriminator) {
-			case 'template':
+			case self::TEMPLATE_DISCR:
 				$block = new TemplateBlock();
 				break;
 			
-			case 'page':
-			case 'application':
+			case self::PAGE_DISCR:
+			case self::APPLICATION_DISCR:
 				$block = new PageBlock();
 				break;
 			

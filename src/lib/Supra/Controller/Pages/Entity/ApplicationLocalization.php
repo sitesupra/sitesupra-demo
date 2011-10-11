@@ -11,5 +11,5 @@ class ApplicationLocalization extends PageLocalization
 	/**
 	 * {@inheritdoc}
 	 */
-	const DISCRIMINATOR = 'application';
+	const DISCRIMINATOR = self::APPLICATION_DISCR;
 }
