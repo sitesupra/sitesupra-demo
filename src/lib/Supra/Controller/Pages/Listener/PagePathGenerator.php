@@ -43,7 +43,10 @@ class PagePathGenerator
 				$dataCollection = $entity->getLocalizations();
 
 				foreach ($dataCollection as $dataEntity) {
-					$this->generatePath($dataEntity);
+					// Skip group localization objects
+					if ($dataEntity instanceof Entity\PageLocalization) {
+						$this->generatePath($dataEntity);
+					}
 				}
 			}
 		}

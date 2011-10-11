@@ -59,8 +59,8 @@ class FixtureHelper
 			'pathPart' => 'subscribe',
 		),
 		6 => array(
-			'title' => 'First Publication',
-			'pathPart' => 'first',
+			'title' => '%s Publication',
+			'pathPart' => 'publication-%d',
 		),
 	);
 	
@@ -219,7 +219,17 @@ class FixtureHelper
 			
 			$newsApp = $this->createPage(3, $rootPage, $this->template);
 			
-			$publication = $this->createPage(6, $newsApp, $this->template);
+			$creationTime = new \DateTime();
+			for ($i = 20; $i > 0; $i--) {
+				$length = count(self::$constants);
+				$template = self::$constants[6];
+				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));
+				$creationTime->modify('-' . rand(0, 30000) . ' minutes');
+				$template['creation_time'] = clone($creationTime);
+				$template['pathPart'] = sprintf($template['pathPart'], $i);
+				self::$constants[$length] = $template;
+				$publication = $this->createPage($length, $newsApp, $this->template);
+			}
 			
 			$newsPages = $this->createPage(4, $newsApp, $this->template);
 			
@@ -504,6 +514,7 @@ class FixtureHelper
 			/* @var $locale \Supra\Locale\Locale */
 			foreach ($this->locales as $locale) {
 				$localeId = $locale->getId();
+				$pageData = null;
 
 				if ($page instanceof Entity\ApplicationPage) {
 					$pageData = new Entity\ApplicationLocalization($localeId);
@@ -521,6 +532,10 @@ class FixtureHelper
 				// Path is generated on updates ONLY!
 				$pageData->setPathPart($pageDefinition['pathPart']);
 				$this->entityManager->flush();
+				
+				if (isset($pageDefinition['creation_time'])) {
+					$pageData->setCreationTime($pageDefinition['creation_time']);
+				}
 
 				foreach (array('header', 'main', 'footer') as $name) {
 

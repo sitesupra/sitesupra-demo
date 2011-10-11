@@ -60,7 +60,7 @@ class SupraControllerPagesEntityBlockPropertyProxy extends \Supra\Controller\Pag
         return parent::resetMetadata();
     }
 
-    public function addMetadata(\Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract $metadata)
+    public function addMetadata(\Supra\Controller\Pages\Entity\BlockPropertyMetadata $metadata)
     {
         $this->__load();
         return parent::addMetadata($metadata);

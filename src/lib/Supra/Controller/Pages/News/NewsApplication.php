@@ -387,15 +387,13 @@ class NewsApplication implements PageApplicationInterface
 		$qb = $this->createNewsQueryBuilder();
 		$qb->orderBy('l.creationTime', 'DESC');
 		
-		$data = $qb->getQuery()->getResult();
+		$news = $qb->getQuery()->getResult();
+		$data = array();
 		
-		return $data;
-		
-		// TODO: activate next block when sitemap will work as expected
 		$currentYear = date('Y');
 		
 		/* @var $localization Entity\PageLocalization */
-		foreach ($data as $localization)
+		foreach ($news as $localization)
 		{
 			$creationTime = $localization->getCreationTime();
 			$year = $creationTime->format('Y');

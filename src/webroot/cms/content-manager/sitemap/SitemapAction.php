@@ -92,7 +92,6 @@ class SitemapAction extends PageManagerAction
 			$array = $this->loadNodeMainData($data);
 		}
 
-		$childrenArray = array();
 		$children = null;
 		
 		if ($page instanceof Entity\ApplicationPage) {
@@ -132,37 +131,66 @@ class SitemapAction extends PageManagerAction
 			
 			//TODO: pass to client if there are any hidden pages
 			
+		} elseif ($page instanceof Entity\TemporaryGroupPage) {
+			$children = $page->getChildren();
 		} else {
 			$children = $page->getChildren();
 		}
 		
-		foreach ($children as $child) {
-			
-			// Application responds with localization objects..
-			//FIXME: fix inconsistency
-			if ($child instanceof Entity\Abstraction\Localization) {
-				$child = $child->getMaster();
-			}
-			
-			$childArray = $this->buildTreeArray($child, $locale);
-
-			if ( ! empty($childArray)) {
-				$childrenArray[] = $childArray;
-			}
-		}
+		$childrenArray = $this->convertPagesToArray($children, $locale);
 		
 		if ( ! $skipRoot) {
 			if (count($childrenArray) > 0) {
 				$array['children'] = $childrenArray;
 				
 				// TODO: hardcoded
-				$array['icon'] = 'folder';
+				if ($array['icon'] == 'page') {
+					$array['icon'] = 'folder';
+				}
 			}
 		} else {
 			$array = $childrenArray;
 		}
 
 		return $array;
+	}
+	
+	/**
+	 * @param array $children
+	 * @param strng $locale
+	 * @return array
+	 */
+	private function convertPagesToArray(array $children, $locale)
+	{
+		$childrenArray = array();
+		
+		foreach ($children as $name => $child) {
+			
+			if (is_array($child)) {
+				$group = new Entity\TemporaryGroupPage();
+				$group->setTitle($name);
+				$group->setChildren($child);
+				
+				$groupArray = $this->buildTreeArray($group, $locale);
+				
+				$childrenArray[] = $groupArray;
+			} else {
+			
+				// Application responds with localization objects..
+				//FIXME: fix inconsistency
+				if ($child instanceof Entity\Abstraction\Localization) {
+					$child = $child->getMaster();
+				}
+
+				$childArray = $this->buildTreeArray($child, $locale);
+
+				if ( ! empty($childArray)) {
+					$childrenArray[] = $childArray;
+				}
+			}
+		}
+		
+		return $childrenArray;
 	}
 	
 	/**
@@ -205,9 +233,6 @@ class SitemapAction extends PageManagerAction
 			
 			foreach ($rootNodes as $rootNode) {
 				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot);
-				// TODO: hardcoded
-				$tree['icon'] = 'home';
-
 				$response[] = $tree;
 			}
 		}

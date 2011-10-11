@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Entity\ReferencedElement;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Uri\Path;
 
 /**
  * @Entity
@@ -42,7 +43,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	protected $title;
 	
 	/**
-	 * Page ID to keep link data without existant real page.
+	 * Page localization ID to keep link data without existant real page.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
 	 * @Column(type="sha1", nullable="true")
 	 * @var string
@@ -204,22 +205,17 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 				$em = ObjectRepository::getEntityManager($context);
 
-				$pageDataEntity = PageLocalization::CN();
-
-				$query = $em->createQuery("SELECT d FROM $pageDataEntity d
-						WHERE d.locale = ?0 AND d.master = ?1");
-
-				$params = array(
-					0 => $localeId,
-					1 => $pageId,
-				);
-
-				$query->execute($params);
+				$pageData = $em->find(PageLocalization::CN(), $pageId);
 
 				try {
-					/* @var $page PageLocalization */
-					$pageData = $query->getSingleResult();
-					$url = '/' . $pageData->getPath();
+					/* @var $pageData PageLocalization */
+					if ( ! is_null($pageData)) {
+						$path = $pageData->getPath();
+						
+						if ( ! is_null($path)) {
+							$url = $path->getPath(Path::FORMAT_LEFT_DELIMITER);
+						}
+					}
 				} catch (\Doctrine\ORM\NoResultException $noResults) {
 					//ignore
 				}

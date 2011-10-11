@@ -148,33 +148,39 @@ class ParsedHtmlFilter implements FilterInterface
 			// Case of image inside the link
 			$content = $this->parseSupraMarkup($content, $metadata);
 
-			$referencedElement = $metadata->get($id)
-					->getReferencedElement();
-			$text = '';
+			$metadataItem = $metadata->get($id);
+			
+			if (is_null($metadataItem)) {
+				//WARN
+			} else {
+			
+				$referencedElement = $metadataItem->getReferencedElement();
+				$text = '';
 
-			switch ($class) {
-				case Entity\ReferencedElement\LinkReferencedElement::TYPE_ID:
-					if ($referencedElement instanceof Entity\ReferencedElement\LinkReferencedElement) {
-						$text = $this->parseSupraLink($content, $referencedElement);
-					} else {
-						$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
-					}
-					break;
-				case Entity\ReferencedElement\ImageReferencedElement::TYPE_ID:
-					if ($referencedElement instanceof Entity\ReferencedElement\ImageReferencedElement) {
-						$text = $this->parseSupraImage($content, $referencedElement);
-					} else {
-						$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
-					}
-					break;
-				default:
-					$this->log->warn("Unrecognized supra html markup tag {$class}-{$id} with data ", $referencedElement);
+				switch ($class) {
+					case Entity\ReferencedElement\LinkReferencedElement::TYPE_ID:
+						if ($referencedElement instanceof Entity\ReferencedElement\LinkReferencedElement) {
+							$text = $this->parseSupraLink($content, $referencedElement);
+						} else {
+							$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
+						}
+						break;
+					case Entity\ReferencedElement\ImageReferencedElement::TYPE_ID:
+						if ($referencedElement instanceof Entity\ReferencedElement\ImageReferencedElement) {
+							$text = $this->parseSupraImage($content, $referencedElement);
+						} else {
+							$this->log->warn("Referenced element {$class}-{$id} not found for {$this->property}");
+						}
+						break;
+					default:
+						$this->log->warn("Unrecognized supra html markup tag {$class}-{$id} with data ", $referencedElement);
+				}
+
+				$result .= substr($value, $offset, $offsetInit - $offset);
+				$result .= $text;
+
+				$offset = $offsetEnd;
 			}
-
-			$result .= substr($value, $offset, $offsetInit - $offset);
-			$result .= $text;
-
-			$offset = $offsetEnd;
 		}
 
 		$result .= substr($value, $offset);

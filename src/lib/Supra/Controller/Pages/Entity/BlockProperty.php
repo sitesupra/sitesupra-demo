@@ -108,9 +108,9 @@ class BlockProperty extends Entity
 	}
 	
 	/**
-	 * @param ReferencedElement\ReferencedElementAbstract $metadata
+	 * @param BlockPropertyMetadata $metadata
 	 */
-	public function addMetadata(ReferencedElement\ReferencedElementAbstract $metadata)
+	public function addMetadata(BlockPropertyMetadata $metadata)
 	{
 		$this->metadata->add($metadata);
 	}
