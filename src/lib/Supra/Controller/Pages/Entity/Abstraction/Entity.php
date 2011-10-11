@@ -35,12 +35,15 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 */
 	const DISCRIMINATOR = null;
 	
-	/** 
-	 * Is used as additional ID for _history scheme
-	 * NB! Must be not null, or merge between EM's will fail
+	/**
+	 * @History:Id 
+	 * @History:ManyToOne(targetEntity="Supra\Controller\Pages\Entity\RevisionData", inversedBy="revision", cascade={"persist"}, fetch="EAGER")
+	 * @History:JoinColumn(name="revision_id", referencedColumnName="id", nullable=false)
+	 * @History:SkipForeignKey
+	 * @History:InheritOnCreate
 	 * @var RevisionData
 	 */
-	protected $revision = '';
+	protected $revision;
 	
 	/**
 	 * Creates log writer instance
@@ -192,18 +195,18 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 * Is used for _history handling
 	 * @param RevisionData $revisionData 
 	 */
+	/*
 	public function setRevisionId ($revisionId) {
 		$this->revision = $revisionId;
 	}
 	public function getRevisionId () {
 		return $this->revision;
 	}
-	/*
+	*/	
 	public function setRevisionData ($revisionData) {
-		$this->revision = $revisionData;
+		$this->revision = $revisionData->getId();
 	}
 	public function getRevisionData () {
 		return $this->revision;
 	}
-	 */
 }

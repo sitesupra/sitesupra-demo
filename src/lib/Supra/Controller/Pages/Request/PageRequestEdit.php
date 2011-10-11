@@ -89,50 +89,64 @@ class PageRequestEdit extends PageRequest
 
 		// If there are something published, then copy it to _history
 		if ($publicData instanceof Entity\Abstraction\Localization) {
+
 			$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 		
-			// TODO: remove PagePathGenerator listener from commons and remove this code (also in page delete/restore methods)
+			// TODO: remove listeners in config file, instead of removing them here
 			$listeners = $historyEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
 			foreach ($listeners as $listener) {
 				if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
 					$listeners = $historyEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
 				}
 			}
-			
-			$revisionData = new Entity\RevisionData();
-			
-			$user = $this->getUser();
-			$userName = null;
-			
-			if ( ! is_null($user)) {
-				$userName = $user->getName();
+			$listeners = $historyEm->getEventManager()->getListeners(\Doctrine\ORM\Events::prePersist);
+			foreach ($listeners as $listener) {
+				if ($listener instanceof \Supra\NestedSet\Listener\NestedSetListener) {
+					$listeners = $historyEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::prePersist, $listener);
+				}
 			}
 			
-			$revisionData->setUser($userName);
-			$historyEm->persist($revisionData);
+			$revisionData = new Entity\RevisionData();
+			$userId = $this->getUser()->getId();			
+			$revisionData->setUser($userId);
 			
-			$revisionId = $revisionData->getId();
-			$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionId));
+			$historyEm->persist($revisionData);
+			$historyEm->flush();
 
+			/**
+			 * Listener will fill entities with provided revision data
+			 * Is used to assign revision_id for _history entities
+			 */
+			$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionData));
+			
+			
+			// FIXME: without setting revision data to public entity,
+			// History EM will merge entities only by ID, 
+			// even if we add it inside prePersist event listener
+			$publicPage->setRevisionData($revisionData);
 			$historyPage = $historyEm->merge($publicPage);
 			
 			// FIXME: this just registers link referenced element proxy class inside the metadata or else merge fails..
 			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+			$publicData->setRevisionData($revisionData);
 			$historyData = $historyEm->merge($publicData);
 			
 			$publicPlaceholders = $publicPage->getPlaceHolders();
 			foreach ($publicPlaceholders as $placeholder) {
+				$placeholder->setRevisionData($revisionData);
 				$historyEm->merge($placeholder);
 			}
 			
 			$publicBlocks = $this->getBlocksInPage($publicEm, $publicData);
 			foreach($publicBlocks as $block) {
+				$block->setRevisionData($revisionData);
 				$historyEm->merge($block);
 			}
 			
 			$publicProperties = $this->getBlockPropertySet()
 				->getPageProperties($publicData);
 			foreach ($publicProperties as $property) {
+				$property->setRevisionData($revisionData);
 				$historyEm->merge($property);
 			}
 			

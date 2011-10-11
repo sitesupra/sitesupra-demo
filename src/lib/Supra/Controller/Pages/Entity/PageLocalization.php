@@ -20,8 +20,9 @@ class PageLocalization extends Abstraction\Localization
 	const DISCRIMINATOR = self::PAGE_DISCR;
 	
 	/**
-	 * @ManyToOne(targetEntity="Template", cascade={"persist"}, fetch="EAGER")
+	 * @ManyToOne(targetEntity="Template", fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
+	 * @History:SkipForeignKey
 	 * @var Template
 	 */
 	protected $template;

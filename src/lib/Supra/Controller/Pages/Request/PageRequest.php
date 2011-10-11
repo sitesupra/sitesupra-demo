@@ -74,6 +74,12 @@ abstract class PageRequest extends HttpRequest
 	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\BlockProperty';
 	
 	/**
+	 * Revision data class name
+	 * @var string
+	 */
+	const REVISION_DATA_ENTITY = 'Supra\Controller\Pages\Entity\RevisionData';
+	
+	/**
 	 * @var WriterAbstraction
 	 */
 	protected $log;

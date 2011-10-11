@@ -100,6 +100,7 @@ $config->setProxyNamespace('Supra\\Proxy\\Draft');
 $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
+//$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemeModifier());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
@@ -151,7 +152,7 @@ $config->setProxyNamespace('Supra\\Proxy\\History');
 
 // History connection for the CMS
 $eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemeModifier());
+$eventManager->addEventListener(array(Events::loadClassMetadata, Events::prePersist, Events::postLoad), new Listener\HistorySchemeModifier());
 $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);

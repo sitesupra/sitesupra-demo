@@ -20,10 +20,10 @@ class RevisionData extends Abstraction\Entity
 	protected $created;
 	
 	/**
-	 * @Column(type="string", name="user_id")
+	 * @Column(type="sha1")
 	 * @var string
 	 */
-	protected $userId;
+	protected $user;
 	
 	/**
 	 * Returns revision author
@@ -31,16 +31,16 @@ class RevisionData extends Abstraction\Entity
 	 */
 	public function getUser()
 	{
-		return $this->userId;
+		return $this->user;
 	}
 	
 	/**
 	 * Sets revision author
-	 * @param string $userId 
+	 * @param string $user 
 	 */
-	public function setUser($userId)
+	public function setUser($user)
 	{
-		$this->userId = $userId;
+		$this->user = $user;
 	}
 	
 	/**

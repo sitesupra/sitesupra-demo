@@ -476,5 +476,62 @@ class PageAction extends PageManagerAction
 		}
 		$this->unlockPage();
 	}
+	
+	public function versionPreviewAction() {
+		
+		$localizationId = $this->getRequestParameter('page_id');
+		$revisionId = $this->getRequestParameter('version_id');
+		
+		$historyEm = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+
+		/*
+		 * Load page localization by id + revision
+		 */
+		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
+				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
+		
+		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
+			$this->getResponse()
+					->setErrorMessage('Page does not exist');
+			return;
+		}
+		
+		/*
+		 * Assign template from draft repository
+		 */
+		$templateId = $pageLocalization->getTemplate();
+		$tpl = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+		$pageLocalization->setTemplate($tpl);
+
+
+		/*
+		 * Load page internal content
+		 */
+		$controller = $this->getPageController();
+		$localeId = $this->getLocale()->getId();
+		$media = $this->getMedia();
+		
+		$request = new PageRequestEdit($localeId, $media);
+		$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
+		$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionData));
+		
+		$request->setDoctrineEntityManager($historyEm);
+		$response = $controller->createResponse($request);
+		$controller->prepare($request, $response);
+		$request->setDoctrineEntityManager($historyEm);
+
+		$request->setPageLocalization($pageLocalization);
+		$request->blockFlushing();
+		$controller->execute($request);
+
+		// Output
+		$return = array(
+			'internal_html' => $response->__toString()
+		);
+		
+		$this->getResponse()
+				->setResponseData($return);
+	}
+	
 
 }

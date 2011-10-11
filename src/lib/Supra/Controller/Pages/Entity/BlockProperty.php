@@ -25,6 +25,7 @@ class BlockProperty extends Entity
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties", cascade={"persist"})
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
+	 * @History:SkipForeignKey
 	 * @var Block
 	 */
 	protected $block;
