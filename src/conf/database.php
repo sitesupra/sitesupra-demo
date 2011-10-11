@@ -46,8 +46,8 @@ $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 $config->setMetadataDriverImpl($driverImpl);
 
 // Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy');
-$config->setProxyNamespace('Supra\\Proxy');
+$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/PublicSchema');
+$config->setProxyNamespace('Supra\\Proxy\\PublicSchema');
 $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger
@@ -92,6 +92,10 @@ $cache->setNamespace('draft');
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
 
+// Proxy configuration
+$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/Draft');
+$config->setProxyNamespace('Supra\\Proxy\\Draft');
+
 // Draft connection for the CMS
 $eventManager = clone($commonEventManager);
 $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
@@ -113,6 +117,10 @@ $cache = clone($cache);
 $cache->setNamespace('trash');
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
+
+// Proxy configuration
+$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/Trash');
+$config->setProxyNamespace('Supra\\Proxy\\Trash');
 
 // Deleted connection for the CMS
 $eventManager = clone($commonEventManager);
@@ -136,6 +144,10 @@ $cache = clone($cache);
 $cache->setNamespace('history');
 $config->setMetadataCacheImpl($cache);
 $config->setQueryCacheImpl($cache);
+
+// Proxy configuration
+$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/History');
+$config->setProxyNamespace('Supra\\Proxy\\History');
 
 // History connection for the CMS
 $eventManager = clone($commonEventManager);
