@@ -125,18 +125,6 @@ class UserProvider
 		return $user;
 	}
 
-	private function findById($class, $id)
-	{
-		$repo = $this->entityManager->getRepository($class);
-		$user = $repo->findOneById($id);
-
-		if (empty($user)) {
-			return null;
-		}
-
-		return $user;
-	}
-
 	/**
 	 * Find user by login
 	 * @param string $login
@@ -160,7 +148,7 @@ class UserProvider
 	 */
 	public function findUserById($id)
 	{
-		return $this->findById(Entity\User::CN(), $id);
+		return $this->entityManager->find(Entity\User::CN(), $id);
 	}
 
 	/**
@@ -186,7 +174,17 @@ class UserProvider
 	 */
 	public function findGroupById($id)
 	{
-		return $this->findById(Entity\Group::CN(), $id);
+		return $this->entityManager->find(Entity\Group::CN(), $id);
+	}
+	
+	/**
+	 * Find user/group by ID
+	 * @param string $id
+	 * @return Entity\Abstraction\User
+	 */
+	public function findById($id)
+	{
+		return $this->entityManager->find(Entity\Abstraction\User::CN(), $id);
 	}
 
 	public function findAllUsers()

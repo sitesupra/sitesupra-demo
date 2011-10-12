@@ -36,10 +36,22 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
     }
     
     
-    public function getUsers()
+    public function isSuper()
     {
         $this->__load();
-        return parent::getUsers();
+        return parent::isSuper();
+    }
+
+    public function setIsSuper($isSuper)
+    {
+        $this->__load();
+        return parent::setIsSuper($isSuper);
+    }
+
+    public function getGroup()
+    {
+        $this->__load();
+        return parent::getGroup();
     }
 
     public function getName()
@@ -78,6 +90,30 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
         return parent::setModifiedTime();
     }
 
+    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    {
+        $this->__load();
+        return parent::authorize($user, $permission, $grant);
+    }
+
+    public function getAuthorizationId()
+    {
+        $this->__load();
+        return parent::getAuthorizationId();
+    }
+
+    public function getAuthorizationClass()
+    {
+        $this->__load();
+        return parent::getAuthorizationClass();
+    }
+
+    public function getAuthorizationAncestors()
+    {
+        $this->__load();
+        return parent::getAuthorizationAncestors();
+    }
+
     public function getId()
     {
         $this->__load();
@@ -105,7 +141,7 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'name', 'createdTime', 'modifiedTime', 'id');
+        return array('__isInitialized__', 'name', 'createdTime', 'modifiedTime', 'id', 'isSuper');
     }
 
     public function __clone()

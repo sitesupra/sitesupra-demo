@@ -275,21 +275,14 @@ class UserAction extends InternalUserManagerAbstractAction
 			$userId = $this->getRequestParameter('user_id');
 
 
-			// try to find as user ...
-			$user = $this->userProvider->findUserById($userId);
+			// try to find as user/group ...
+			$user = $this->userProvider->findById($userId);
 
+			// ... if not found, bail out.
 			if (empty($user)) {
 
-				// ... if user is not found, try finding group
-
-				$user = $this->userProvider->findGroupById($userId);
-
-				// ... if nothing is found, bail out.
-				if (empty($user)) {
-
-					$this->getResponse()->setErrorMessage('User with such id doesn\'t exist');
-					return;
-				}
+				$this->getResponse()->setErrorMessage('User with such id doesn\'t exist');
+				return;
 			}
 
 			if ($user->getId() != $this->getUser()->getId()) {
