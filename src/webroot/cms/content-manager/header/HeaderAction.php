@@ -45,7 +45,7 @@ class HeaderAction extends PageManagerAction
 	function applicationIsVisible($user, ApplicationConfiguration $appConfig)
 	{
 		if ( $appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
-			return $this->authorizationProvider->isApplicationAdminAccessGranted($user, $appConfig);
+			return $appConfig->authorizationAccessPolicy->isApplicationAdminAccessGranted($user);
 		}
 		else {
 			return true;

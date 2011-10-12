@@ -7,6 +7,8 @@ use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Authorization\AuthorizationProvider;
+use Supra\FileStorage\Entity\SlashFolder;
+
 /**
  * File abstraction
  * @Entity(repositoryClass="Supra\FileStorage\Repository\FileNestedSetRepository")
@@ -419,7 +421,12 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 */
 	public function getAuthorizationAncestors() 
 	{
-		return $this->getAncestors(0, false);
+		$ancestors = $this->getAncestors(0, false);
+		
+		// Append synthetic "slash" folder to the beginng of ancestors list.
+		$ancestors[] = new SlashFolder();
+		
+		return $ancestors;
 	}	
 	
 	public static function registerPermissions(AuthorizationProvider $ap) 

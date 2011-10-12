@@ -3,6 +3,8 @@
 namespace Supra\User\Entity\Abstraction;
 
 use Supra\Database\Entity;
+use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\Authorization\AuthorizationProvider;
 
 /**
  * @Entity
@@ -14,8 +16,11 @@ use Supra\Database\Entity;
  * })
  * @HasLifecycleCallbacks
  */
-abstract class User extends Entity
+abstract class User extends Entity implements AuthorizedEntityInterface
 {
+	const PERMISSION_MODIFY_USER_NAME = 'modify_user';
+	const PERMISSION_MODIFY_USER_MASK = 256;
+	
 	/**
 	 * @Column(type="string", name="name", nullable=false)
 	 * @var string
@@ -87,4 +92,39 @@ abstract class User extends Entity
 		$this->modifiedTime = new \DateTime('now');
 	}
 
+	/**
+	 * Returns whener the user/group has SUPER privileges.
+	 * @return boolean
+	 */
+	abstract function isSuper();
+	
+	public function authorize(User $user, $permission, $grant) 
+	{
+		return true;
+	}
+	
+	public function getAuthorizationId() 
+	{
+		return $this->getId();
+	}
+	
+	public function getAuthorizationClass() 
+	{
+		$className = \Supra\User\Entity\Abstraction\User::CN();
+		return $className;
+	}
+	
+	public function getAuthorizationAncestors() 
+	{
+		return array();
+	}
+
+	public static function registerPermissions(AuthorizationProvider $ap) 
+	{
+		$ap->registerGenericEntityPermission(
+				self::PERMISSION_MODIFY_USER_NAME, 
+				self::PERMISSION_MODIFY_USER_MASK, 
+				\Supra\User\Entity\Abstraction\User::CN()
+		);
+	}	
 }

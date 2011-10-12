@@ -67,13 +67,20 @@ class ApplicationConfiguration implements ConfigurationInterface
 	 */
 	public function configure()
 	{
-		if ( ! class_exists($this->authorizationAccessPolicyClass)) {
+		if (!class_exists($this->authorizationAccessPolicyClass)) {
 			throw new \RuntimeException('Invalid CMS application configuration, bad/nx authorization access policy class ' . $this->authorizationAccessPolicyClass);
 		}
 
-		$this->authorizationAccessPolicy = new $this->authorizationAccessPolicyClass();
+		$ap = ObjectRepository::getAuthorizationProvider($this->applicationNamespace);
 
-		array_unshift($this->permissions, $this->authorizationAccessPolicy->getPermissionForInternalUserManager());
+		$this->authorizationAccessPolicy = new $this->authorizationAccessPolicyClass();
+		$this->authorizationAccessPolicy->setAuthorizationProvider($ap);
+		$this->authorizationAccessPolicy->setAppConfig($this);
+		$this->authorizationAccessPolicy->configure();
+
+		array_unshift(
+				$this->permissions, $this->authorizationAccessPolicy->getPermissionForInternalUserManager()
+		);
 
 		$config = CmsApplicationConfiguration::getInstance();
 		$config->addConfiguration($this);

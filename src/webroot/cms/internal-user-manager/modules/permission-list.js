@@ -212,8 +212,14 @@ YUI.add('website.permission-list', function (Y) {
 				subproperty = this.get('subproperty');
 			
 			if (subproperty) {
+				
+				var title = data.title;
+				if(! title) {
+					title = tree.getNodeById(data.id).get('data').title;
+				}
+				
 				subproperty = Supra.mix({}, subproperty, {
-					'label': flag + ' ' + (data.title || ''),
+					'label': flag + ' ' + (title || ''),
 					'id': data.id
 				});
 				

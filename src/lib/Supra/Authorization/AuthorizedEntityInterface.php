@@ -4,6 +4,10 @@ namespace Supra\Authorization;
 
 use Supra\User\Entity\Abstraction\User;
 
+/**
+ * Interface must be implemented if class instances are to be 
+ * used as objects in ACL.
+ */
 interface AuthorizedEntityInterface
 {
 	/**

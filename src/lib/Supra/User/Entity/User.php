@@ -183,5 +183,17 @@ class User extends Abstraction\User
 	{
 		$this->group = $group;
 	}
-
+	
+   /**
+   * {@inheritDoc}
+   */
+	public function isSuper() 
+	{
+		if( ! is_null($this->getGroup())) {
+			return $this->getGroup()->isSuper();
+		}
+		else {
+			return false;
+		}
+	}
 }

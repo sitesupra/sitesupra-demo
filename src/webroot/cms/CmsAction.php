@@ -80,6 +80,8 @@ abstract class CmsAction extends SimpleController
 		 */
 		} catch (Exception\ResourceNotFoundException $e) {
 			throw $e;
+		} catch (EntityAccessDeniedException $e) {
+			throw $e;
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
@@ -209,18 +211,25 @@ abstract class CmsAction extends SimpleController
 		return $this->user;
 	}
 	
+	/**
+	 *
+	 * @param mixed $object
+	 * @param string $permissionName
+	 * @return boolean
+	 * @throws EntityAccessDeniedException
+	 */
 	protected function checkActionPermission($object, $permissionName)
 	{
 		$ap = ObjectRepository::getAuthorizationProvider($this);
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
 		
-		if(	$ap->isApplicationAllAccessGranted($this->getUser(), $appConfig) ||
-				$ap->isPermissionGranted($this->getUser(), $object, $permissionName)
+		if(	$appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($this->user) ||
+				$ap->isPermissionGranted($this->user, $object, $permissionName)
 		) {
 			return true;
 		}
 		else {
-			throw new EntityAccessDeniedException($this->getUser(), $object, $permissionName);
+			throw new EntityAccessDeniedException($this->user, $object, $permissionName);
 		}		
 	}
 }

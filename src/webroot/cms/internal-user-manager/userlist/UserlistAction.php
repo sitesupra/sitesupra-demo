@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManager;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
 use Doctrine\ORM\EntityRepository;
+use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigurationException;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Sitemap
@@ -65,17 +67,33 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		
 		$userId = $this->getRequest()->getPostValue('user_id');
 		$newGroupDummyId = $this->getRequest()->getPostValue('group');
+		$newGroupName = array_search($newGroupDummyId, $this->dummyGroupMap);
 		
 		/* @var $user Entity\User */
 		$user = $this->userRepository->find($userId);
 		
+		if (empty($user)) {
+			$this->getResponse()->setErrorMessage('User not found or is not a user but a group.');
+			return;
+		}
+		
+		if ($user->isSuper() && $user->getId() == $this->getUser()->getId()) {
+			$this->getResponse()->setErrorMessage('You can not move Yourself out of SUPER group!');
+			return;
+		}
+		
 		/* @var $groupRepository EntityRepository */
 		$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
-		
-		$newGroupName = array_search($newGroupDummyId, $this->dummyGroupMap);
 		$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
 		
-		$user->setGroup($newGroup);
+		if($user->getGroup()->getId() != $newGroup->getId()) {
+			
+			$ap = ObjectRepository::getAuthorizationProvider($this);
+			
+			$ap->unsetAllUserPermissions($user);
+			
+			$user->setGroup($newGroup);	
+		}
 		
 		$this->entityManager->flush();
 	}

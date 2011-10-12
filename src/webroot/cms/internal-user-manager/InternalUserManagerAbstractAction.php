@@ -8,6 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\User\UserProvider;
 use Doctrine\ORM\EntityManager;
+use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 /**
  * Internal user manager action controller
@@ -62,7 +63,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 	/**
 	 * @return Entity\Abstraction\User
 	 */
-	protected function getEntity($key = 'id')
+	protected function getEntityFromRequestKey($key = 'id')
 	{
 		$user = $this->getRequestedEntity($key, 'Supra\User\Entity\Abstraction\User');
 		
@@ -72,7 +73,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 	/**
 	 * @return Entity\User
 	 */
-	protected function getUser($key = 'id')
+	protected function getUserFromRequestKey($key = 'id')
 	{
 		$user = $this->getRequestedEntity($key, 'Supra\User\Entity\User');
 		
@@ -82,10 +83,39 @@ class InternalUserManagerAbstractAction extends CmsAction
 	/**
 	 * @return Entity\Group
 	 */
-	protected function getGroup($key = 'id')
+	protected function getGroupFromRequestKey($key = 'id')
 	{
 		$group = $this->getRequestedEntity($key, 'Supra\User\Entity\Group');
 		
 		return $group;
+	}
+	
+	public function execute()
+	{
+		try {
+			parent::execute();
+		}
+		catch(EntityAccessDeniedException $e) {
+			$this->getResponse()->setErrorMessage('VERBOTEN!');
+		}
+	}
+	
+	protected function getUserOrGroupFromRequestKey($key)
+	{
+		$user = null;
+
+		try {
+			$user = $this->getUserFromRequestKey($key);
+		}
+		catch (CmsException $e) {
+
+			$user = $this->getGroupFromRequestKey($key);
+
+			if (empty($user)) {
+				throw new CmsException('Can\'t find user or group with requested id.');
+			}
+		}
+
+		return $user;
 	}
 }

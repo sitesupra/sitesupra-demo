@@ -11,6 +11,8 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Authorization\Exception\ApplicationAccessDeniedException;
 use Supra\Cms\ApplicationConfiguration;
+use Supra\Authentication\AuthenticationSessionNamespace;
+use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 
 /**
  * Front controller
@@ -60,7 +62,7 @@ class FrontController
 	 */
 	public static function getInstance()
 	{
-		if ( ! isset(self::$instance)) {
+		if (!isset(self::$instance)) {
 			self::$instance = new self();
 		}
 
@@ -94,7 +96,8 @@ class FrontController
 
 		if ($bPriority > $aPriority) {
 			$diff = 1;
-		} elseif ($bPriority < $aPriority) {
+		}
+		elseif ($bPriority < $aPriority) {
 			$diff = -1;
 		}
 
@@ -107,7 +110,7 @@ class FrontController
 	 */
 	protected function getRouters()
 	{
-		if ( ! $this->routersOrdered) {
+		if (!$this->routersOrdered) {
 			usort($this->routers, array($this, 'compareRouters'));
 			$this->routersOrdered = true;
 		}
@@ -123,7 +126,8 @@ class FrontController
 
 		try {
 			$this->findMatchingRouters($request);
-		} catch (\Exception $exception) {
+		}
+		catch (\Exception $exception) {
 
 			// Log the exception raised
 			$this->log->error($exception);
@@ -146,18 +150,27 @@ class FrontController
 		$controller->prepare($request, $response);
 
 		$appConfig = ObjectRepository::getApplicationConfiguration($controller);
-		
-		if ( $appConfig instanceof ApplicationConfiguration) {
-			
-			$ap = ObjectRepository::getAuthorizationProvider($controller);
-			
-			$user = ObjectRepository::getSessionNamespace($controller)->getUser();
-			
-			if ($ap->isApplicationAnyAccessGranted($user, $appConfig)) {
-				$controller->execute();
+
+		if (
+				$appConfig instanceof ApplicationConfiguration &&
+				$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
+		) {
+
+			$authenticationNamespace = ObjectRepository::getSessionNamespace($controller);
+
+			if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
+
+				$user = $authenticationNamespace->getUser();
+
+				if ($appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
+					$controller->execute();
+				}
+				else {
+					throw new ApplicationAccessDeniedException($user, $appConfig);
+				}
 			}
 			else {
-				throw new ApplicationAccessDeniedException($user, $appConfig);
+				throw new Exception\RuntimeException('Could not get authentication session namespace.');
 			}
 		}
 		else {
@@ -173,36 +186,37 @@ class FrontController
 	{
 		$allRouters = $this->getRouters();
 		$controllerFound = false;
-		
+
 		foreach ($allRouters as $router) {
 			/* @var $router Router\RouterAbstraction */
 			if ($router->match($request)) {
 				$controller = $router->initializeController();
 
-				if ( ! $controller instanceof PreFilterInterface) {
+				if (!$controller instanceof PreFilterInterface) {
 					$router->finalizeRequest($request);
 				}
-				
+
 				try {
 					$this->runController($controller, $request);
-				} catch (Exception\StopRequestException $exc) {
+				}
+				catch (Exception\StopRequestException $exc) {
 					$controllerFound = true;
 				}
-				
+
 				// Stop on matching not prefilter controller
-				if ( ! $controller instanceof PreFilterInterface) {
+				if (!$controller instanceof PreFilterInterface) {
 					$controllerFound = true;
 				}
-				
+
 				$controller->output();
-				
+
 				if ($controllerFound) {
 					break;
 				}
 			}
 		}
 
-		if ( ! $controllerFound) {
+		if (!$controllerFound) {
 			throw new Exception\ResourceNotFoundException('No controller has been found for the request');
 		}
 	}
@@ -230,14 +244,15 @@ class FrontController
 	{
 		$request = null;
 
-		if ( ! isset($_SERVER['SERVER_NAME'])) {
+		if (!isset($_SERVER['SERVER_NAME'])) {
 			$request = new Request\CliRequest();
-		} else {
+		}
+		else {
 			$request = new Request\HttpRequest();
 		}
 
 		$request->readEnvironment();
-		
+
 		return $request;
 	}
 

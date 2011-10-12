@@ -20,81 +20,82 @@ use Supra\Authorization\Permission\Controller\ControllerExecutePermission;
 use Supra\NestedSet\Node\NodeInterface;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Log\Log;
+use Symfony\Component\Security\Acl\Domain\Entry as Ace;
 
 /**
  * Implements authorization provider used to check user permissions agains various 
  * objects (applications, controllers, entities)
  */
-class AuthorizationProvider 
+class AuthorizationProvider
 {
 	const AUTHORIZED_CONTROLLER_INTERFACE = 'Supra\\Authorization\\AuthorizedControllerInterface'; // you probably should not change this.
 	const AUTHORIZED_ENTITY_INTERFACE = 'Supra\\Authorization\\AuthorizedEntityInterface'; // you probably should not change this.
 	const APPLICATION_CONFIGURATION_CLASS = 'Supra\\Cms\\ApplicationConfiguration'; // you probably should not change this.
-	
-	
+
 	const ACL_ENTRY_TABLE_NAME = 'acl_entries';
-	
+
 	/**
 	 * @var AclProvider
 	 */
 	protected $aclProvider;
-	
+
 	/**
 	 * @var array
 	 */
 	private $permissionsByName = array();
-	
+
 	/**
 	 * @var array
 	 */
 	private $permissionsByClassAndName = array();
-	
+
 	/**
 	 * @var array
 	 */
 	private $permissionsByClassAndMask = array();
-	
+
 	/**
 	 * @var Log
 	 */
 	private $log;
-	
+
 	/**
 	 * Constructs AuthorizationProvider.
 	 * @param EntityManager $entityManager
 	 * @param array $options 
 	 */
-	function __construct(EntityManager $entityManager = null) 
+	function __construct(EntityManager $entityManager = null)
 	{
 		if (empty($entityManager)) {
 			$entityManager = ObjectRepository::getEntityManager($this);
 		}
-		
+
 		$permissionGrantingStrategy = new PermissionGrantingStrategy();
-		
+
 		$tables = array(
-			'class_table_name'         => 'acl_classes',
-			'entry_table_name'         => self::ACL_ENTRY_TABLE_NAME,
-			'oid_table_name'           => 'acl_object_identities',
-			'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
-			'sid_table_name'           => 'acl_security_identities',
+				'class_table_name' => 'acl_classes',
+				'entry_table_name' => self::ACL_ENTRY_TABLE_NAME,
+				'oid_table_name' => 'acl_object_identities',
+				'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
+				'sid_table_name' => 'acl_security_identities',
 		);
-		
-		$this->aclProvider= new AclProvider(
-						$entityManager->getConnection(), 
-						$permissionGrantingStrategy, 
-						$tables);		
-		
+
+		$this->aclProvider = new AclProvider(
+						$entityManager->getConnection(),
+						$permissionGrantingStrategy,
+						$tables);
+
 		$this->log = ObjectRepository::getLogger($this);
-		
+
 		$this->registerPermission(new ApplicationExecuteAccessPermission());
 		$this->registerPermission(new ApplicationAllAccessPermission());
 		$this->registerPermission(new ApplicationSomeAccessPermission());
 
 		$this->registerPermission(new ControllerExecutePermission());
 	}
-	
+
 	/* TODO: Check for overlapping masks in same class/sublclass tree */
+
 	/**
 	 * Registers permission type and does some validity checks.
 	 * @param Permission $permission 
@@ -104,127 +105,129 @@ class AuthorizationProvider
 		$name = $permission->getName();
 		$class = $permission->getClass();
 		$mask = $permission->getMask();
-		
-		if( isset($this->permissionsByName[$name])) {
-			
+
+		if (isset($this->permissionsByName[$name])) {
+
 			$existingPermission = $this->permissionsByName[$name];
 			/* @var $existingPermission Permission */
-			
-			if( $existingPermission->getClass() != $class ||
+
+			if ($existingPermission->getClass() != $class ||
 					$existingPermission->getMask() != $mask
 			) {
-				throw new Exception\ConfigurationException('Permission type named "' . $name . '" is already registered');					
+				throw new Exception\ConfigurationException('Permission type named "' . $name . '" is already registered');
 			}
 			else {
 				return;
 			}
-		}			
+		}
 
-		if ( 
+		if (
 				! empty($this->permissionsByClassAndMask[$class]) &&
 				! empty($this->permissionsByClassAndMask[$class][$mask])
 		) {
 			throw new Exception\ConfigurationException(
-					'Permission type with mask "' . $mask . '" '.
+					'Permission type with mask "' . $mask . '" ' .
 					'is already registered for class "' . $class . '" ' .
 					'with name "' . $this->permissionsByClassAndMask[$class][$mask]->getName() . '"'
 			);
-		}			
-			
+		}
+
 		$this->permissionsByName[$name] = $permission;
 
-		if ( empty($this->permissionsByClassAndName[$class])) {
+		if (empty($this->permissionsByClassAndName[$class])) {
 			$this->permissionsByClassAndName[$class] = array();
 		}
 
 		$this->permissionsByClassAndName[$class][$name] = $permission;
 
-		if ( empty($this->permissionsByClassAndMask[$class])) {
+		if (empty($this->permissionsByClassAndMask[$class])) {
 			$this->permissionsByClassAndMask[$class] = array();
 		}
 
 		$this->permissionsByClassAndMask[$class][$mask] = $permission;
 	}
-	
+
 	/**
 	 * @param string $id
 	 * @param string $class
 	 * @return ObjectIdentity 
 	 */
-	public function createObjectIdentity($id, $class) 
+	public function createObjectIdentity($id, $class)
 	{
 		return new ObjectIdentity($id, $class);
 	}
-	
- 	/**
+
+	/**
 	 * Registers generic authorized entity permission type.
 	 * @param string $name
 	 * @param integer $mask
 	 * @param string $class 
 	 */
-	public function registerGenericEntityPermission($name, $mask, $class) 
+	public function registerGenericEntityPermission($name, $mask, $class)
 	{
 		$permission = new Permission\Entity\EntitiyAccessPermission($name, $mask, $class);
 		$this->registerPermission($permission);
 	}
-	
+
 	/**
 	 * Returns permission type object. Optionally checks whether the object class has permission type defined.
 	 * @param string $permissionName
 	 * @param mixed $objectToCheck
 	 * @return Permission
 	 */
-	private function getPermission($permissionName, $objectToCheck = null) 
+	private function getPermission($permissionName, $objectToCheck = null)
 	{
 		if ( ! isset($this->permissionsByName[$permissionName])) {
 			throw new Exception\ConfigurationException('Permission type named "' . $permissionName . '" is not registered');
 		}
 		else {
-			
+
 			if ( ! empty($objectToCheck)) {
-				
-				if( $objectToCheck instanceof ObjectIdentity) {
+
+				$permissionsForObject = null;
+
+				if ($objectToCheck instanceof ObjectIdentity) {
 					$permissionsForObject = $this->getPermissionsForClass($objectToCheck->getType());
 				}
 				else {
 					$permissionsForObject = $this->getPermissionsForObject($objectToCheck);
 				}
-				
-				if ( !isset($permissionsForObject[$permissionName])) {
-					
-					throw new Exception\ConfigurationException('Class/superclass tree for ' . get_class($objectToCheck) . 
+
+				if ( ! isset($permissionsForObject[$permissionName])) {
+
+					throw new Exception\ConfigurationException('Class/superclass tree for ' . get_class($objectToCheck) .
 							' does not have a permission named "' . $permissionName . '"'
 					);
 				}
 			}
-			
+
 			return $this->permissionsByName[$permissionName];
 		}
 	}
-	
+
 	/**
 	 * Returns array of permission type names reigistered for object.
 	 * @param Object $object
 	 * @return array of Permission
 	 */
-	private function getPermissionsForObject($object) 
+	private function getPermissionsForObject($object)
 	{
 		return $this->getPermissionsForClass($this->getObjectIdentity($object)->getType());
 	}
-	
+
 	/**
 	 * Returns array of permission types registered for class name
 	 * @param string $className class name
 	 * @return array of Permission
 	 */
-	public function getPermissionsForClass($className) 
+	public function getPermissionsForClass($className)
 	{
 		$result = array();
-		
+
 		if ( ! empty($this->permissionsByClassAndName[$className])) {
 			$result = $this->permissionsByClassAndName[$className];
 		}
-		
+
 		return $result;
 	}
 
@@ -234,20 +237,20 @@ class AuthorizationProvider
 	 * @param Integer $mask
 	 * @return Permission
 	 */
-	public function getPermissionForClassAndMask($class, $mask) 
+	public function getPermissionForClassAndMask($class, $mask)
 	{
 		$result = false;
-		
-		if(
-			! empty($this->permissionsByClassAndMask[$class]) &&
-			! empty($this->permissionsByClassAndMask[$class][$mask])
+
+		if (
+				! empty($this->permissionsByClassAndMask[$class]) &&
+				! empty($this->permissionsByClassAndMask[$class][$mask])
 		) {
 			$result = $this->permissionsByClassAndMask[$class][$mask];
 		}
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Constructs and returns ObjectIdentity object for given object. Throws exception if object does not implement AuthorizedEntityInterface of AuthorizedController interface.
 	 * @param $object
@@ -256,42 +259,56 @@ class AuthorizationProvider
 	private function getObjectIdentity($object)
 	{
 		$objectIdentity = null;
-		
+
 		if ($object instanceof ObjectIdentity) {
 			$objectIdentity = $object;
 		}
 		else if ($object instanceof AuthorizedEntityInterface) {
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), $object->getAuthorizationClass());
 		}
-		else if ($object instanceof AuthorizedControllerInterface ) {
+		else if ($object instanceof AuthorizedControllerInterface) {
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), self::AUTHORIZED_CONTROLLER_INTERFACE);
 		}
-		else if ($object instanceof ApplicationConfiguration )
-		{
+		else if ($object instanceof ApplicationConfiguration) {
 			$objectIdentity = new ObjectIdentity($object->applicationNamespace, self::APPLICATION_CONFIGURATION_CLASS);
 		}
 		else {
 			throw new Exception\ConfigurationException('Do not know how to get object identity from ' . get_class($object));
 		}
-		
+
 		return $objectIdentity;
 	}
-	
+
 	/**
 	 * Constructs and returns user security identity object.
 	 * @param User $user 
 	 * @return UserSecurityIdentity
 	 */
-	private function getUserSecurityIdentity(User $user) 
+	private function getUserSecurityIdentity(User $user)
 	{
-		if($user instanceof RealUser) {
-			return new UserSecurityIdentity($user->getId(), RealUser::CN());
-		}
-		else if ($user instanceof RealGroup) {
-			return new UserSecurityIdentity($user->getId(), RealGroup::CN());
-		}
+		return new UserSecurityIdentity($user->getId(), User::CN());
 	}
-	
+
+	/**
+	 * Returns array of Aces with matching security identity.
+	 * @param UserSecurityIdentity $securityIdentity
+	 * @param Acl $acl
+	 * @return array
+	 */
+	private function getAcesForSecurityIdentity(UserSecurityIdentity $securityIdentity, Acl $acl)
+	{
+		$result = array();
+		/* @var $ace Ace */
+		foreach ($acl->getObjectAces() as $key => $ace) {
+
+			if ($ace->getSecurityIdentity() == $securityIdentity) {
+				$result[$key] = $ace;
+			}
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Sets permission to $permissionStatus for $user for $object to $permissionName
 	 * @param User $user
@@ -299,62 +316,98 @@ class AuthorizationProvider
 	 * @param String $permissionName
 	 * @param Integer $permissionStatus Shoud use constant from AuthorizationPermission class
 	 */
-	public function setPermsission(User $user, 
-						$object, 
-						$permissionName, 
-						$permissionStatus) 
+	public function setPermsissionStatus(User $user, $object, $permissionName, $newPermissionStatus)
 	{
+		$currentPermissionStatus = $this->getPermissionStatus($user, $object, $permissionName);
+
 		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
-			
+
+		/* $acl Acl */
 		$acl = $this->getObjectAclForUserSecurityIdentity($userSecurityIdentity, $object);
 
 		if (empty($acl)) {
 			$objectIdentity = $this->getObjectIdentity($object);
 			$acl = $this->aclProvider->createAcl($objectIdentity);
 		}
-		
+
+		if (empty($acl)) {
+			throw new Exception\RuntimeException('Could not create/ ACL for this object');
+		}
+
 		$permission = $this->getPermission($permissionName, $object);
-		
-		if ($acl instanceof Acl) {
-			
-			if ($permissionStatus == PermissionStatus::ALLOW) { 
-				
-				$currentPermissionStatus = $this->getPermissionStatus($user, $object, $permissionName, true);
-				
-				// if there was not any pervious permission, add ALLOW entry to list
-				if ($currentPermissionStatus == PermissionStatus::DENY) {
-					$aces = $acl->getObjectAces();
-					$acl->insertObjectAce($userSecurityIdentity, $permission->getMask(), count($aces));
-				}
-				
-				$this->aclProvider->updateAcl($acl);
-				
-				$permission->granted($user, $object);
+
+		$aces = $this->getAcesForSecurityIdentity($userSecurityIdentity, $acl);
+		$newAceIndex = count($acl->getObjectAces());
+
+		if ($newPermissionStatus == PermissionStatus::ALLOW) {
+
+			// If status is not changed, do nothing.
+			if ($currentPermissionStatus == PermissionStatus::ALLOW) {
+				return;
 			}
-			else if ($permissionStatus == PermissionStatus::DENY) {
-				
-				$aces = $acl->getObjectAces();
-				
+
+			// If current status is DENY, we have to find and remove that entry.
+			if ($currentPermissionStatus == PermissionStatus::DENY) {
+				/* @var $ace AclEntry */
 				foreach ($aces as $index => $ace) {
-					
-					if ($ace->getMask() == $permission->getMask() && ($ace->getSecurityIdentity() == $userSecurityIdentity)) {
+
+					if ($ace->getMask() == $permission->getDenyMask()) {
+						$acl->deleteObjectAce($index);
+						$newAceIndex = $index;
+						break;
+					}
+				}
+			}
+
+			$acl->insertObjectAce($userSecurityIdentity, $permission->getAllowMask(), $newAceIndex);
+		}
+		else if ($newPermissionStatus == PermissionStatus::DENY) {
+
+			// If status is not changed, do nothing.
+			if ($currentPermissionStatus == PermissionStatus::DENY) {
+				return;
+			}
+
+			if ($currentPermissionStatus == PermissionStatus::ALLOW) {
+
+				/* @var $ace AclEntry */
+				foreach ($aces as $index => $ace) {
+
+					if ($ace->getMask() == $permission->getAllowMask()) {
+						$acl->deleteObjectAce($index);
+						$newAceIndex = $index;
+						break;
+					}
+				}
+			}
+
+			$acl->insertObjectAce($userSecurityIdentity, $permission->getDenyMask(), $newAceIndex);
+		}
+		else if ($newPermissionStatus == PermissionStatus::NONE) {
+
+			// If current permission status is not NONE, there is Ace 
+			// entry (ALLOW or DENY) which has to be removed.
+			if ($currentPermissionStatus != PermissionStatus::NONE) {
+
+				foreach ($aces as $index => $ace) {
+
+					if (
+							$ace->getMask() == $permission->getDenyMask() ||
+							$ace->getMask() == $permission->getAllowMask()
+					) {
+
 						$acl->deleteObjectAce($index);
 						break;
 					}
 				}
-
-				$this->aclProvider->updateAcl($acl);
-				
-				$permission->revoked($user, $object);
-			}
-			else {
-				throw new Exception\ConfigurationException('Bad permission value! use constants from AuthorizationPermission class!');
 			}
 		}
 		else {
-			throw new Exception\RuntimeException('Could not create ACL for this authorizationIdentity');
+			throw new Exception\ConfigurationException('Bad permission status value! use constants from AuthorizationPermission class!');
 		}
-		
+
+		$this->aclProvider->updateAcl($acl);
+
 		///$this->log->debug('AAAAAAAAAA Set ' . $permissionName . ' to ' . $permissionStatus . ' for ' . $object);
 	}
 
@@ -365,347 +418,227 @@ class AuthorizationProvider
 	 * @param String $permissionName
 	 * @return integer
 	 */
-	public function getPermissionStatus(User $user, 
-						$object, 
-						$permissionName)
+	public function getPermissionStatus(User $user, $object, $permissionName)
 	{
 		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
-		
+
 		$acl = $this->getObjectAclForUserSecurityIdentity($userSecurityIdentity, $object);
 
-		$result = PermissionStatus::DENY;
-		
-		if ( !empty($acl)) {
-		
+		$result = PermissionStatus::NONE;
+
+		if ( ! empty($acl)) {
+
 			$permission = $this->getPermission($permissionName, $object);
 
 			$aces = $acl->getObjectAces();
 
+			//\Log::debug('P ALLOW MASK: ', $permission->getAllowMask());
+			//\Log::debug('P DENY MASK : ', $permission->getDenyMask());
+
 			foreach ($aces as $ace) {
 
-				//\Log::debug('ACE MASK: ', $ace->getMask());
-				//\Log::debug('ACE SID:  ', $ace->getSecurityIdentity());
-				//\Log::debug('P MASK:   ', $permission->getMask());
-				//\Log::debug('SID:      ', $userSecurityIdentity);
-			
-				if ($ace instanceof \Symfony\Component\Security\Acl\Domain\Entry) {
+				//\Log::debug('ACE MASK:     ', $ace->getMask());
+				//\Log::debug('ACE SID:      ', $ace->getSecurityIdentity());
+				//\Log::debug('SID:          ', $userSecurityIdentity);
 
-					if (
-								$permission->getMask() == $ace->getMask() 
-								&& $ace->getSecurityIdentity() == $userSecurityIdentity
-					) {
+				if (
+						($ace instanceof \Symfony\Component\Security\Acl\Domain\Entry) &&
+						($ace->getSecurityIdentity() == $userSecurityIdentity)
+				) {
+
+					if ($ace->getMask() == $permission->getAllowMask()) {
+
 						$result = PermissionStatus::ALLOW;
+						break;
+					}
+					else if ($ace->getMask() == $permission->getDenyMask()) {
+
+						$result = PermissionStatus::DENY;
+						break;
 					}
 				}
 			}
 		}
 
 		//$this->log->debug('AAAAAAAAAA Get ' . $permissionName . ' status for ' . $user->getName() . ' to ' . $this->getObjectIdentity($object) . ' => ' . $result);
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Returns ACL for given object and user identity.
 	 * @param mixed $object
 	 * @return Acl
 	 */
-	private function getObjectAclForUserSecurityIdentity(UserSecurityIdentity $userSecurityIdentity, $object) 
+	private function getObjectAclForUserSecurityIdentity(UserSecurityIdentity $userSecurityIdentity, $object)
 	{
 		$objectIdentity = $this->getObjectIdentity($object);
 		$acl = null;
-		
+
 		try {
-			$acls = $this->aclProvider->findAcls(array($objectIdentity), array($userSecurityIdentity));
+			$acls = $this->aclProvider->findAcls(array($objectIdentity));
 			$acl = $acls->offsetGet($objectIdentity);
 		}
-		catch (AclNotFoundException $e) { 
+		catch (AclNotFoundException $e) {
 			// do nothing.
 		}
-		
+
 		return $acl;
 	}
-	
+
 	/**
 	 * Returns whether the permission $permissionName is granted to user $user for object $object, 
 	 * taking into account parent ACLs.
 	 * @param User $user
 	 * @param Object $objectIdentity
 	 * @param String $permissionName
+	 * @param boolean $checkGroup
 	 * @return boolean
 	 */
-	function isPermissionGranted(User $user, 
-						$object, 
-						$permissionName,
-						$groupCheck = true)
+	function isPermissionGranted(User $user, $object, $permissionName, $checkGroup = true)
 	{
+		if ($user->isSuper()) { // ... this is dirty.
+			return true;
+		}
+
 		if ($object instanceof AuthorizedEntityInterface) {
-			
+
 			$ancestorsAndObject = $object->getAuthorizationAncestors();
 			array_unshift($ancestorsAndObject, $object);
-			
+
 			foreach ($ancestorsAndObject as $o) {
-				
-				if($this->getPermissionStatus($user, $o, $permissionName) == PermissionStatus::ALLOW) {
+
+				$permissionStatus = $this->getPermissionStatus($user, $o, $permissionName);
+
+				if ($permissionStatus == PermissionStatus::ALLOW) {
 					return true;
+				}
+				else if ($permissionStatus == PermissionStatus::DENY) {
+					return false;
 				}
 			}
 		}
 		else {
-			
-			if($this->getPermissionStatus($user, $object, $permissionName) == PermissionStatus::ALLOW) {
+			$permissionStatus = $this->getPermissionStatus($user, $object, $permissionName);
+
+			if ($permissionStatus == PermissionStatus::ALLOW) {
 				return true;
 			}
+			else if ($permissionStatus == PermissionStatus::DENY) {
+				return false;
+			}
 		}
-		
-		if($groupCheck && $user instanceof RealUser) {
-			//\Log::debug('=========================== VIA GROUP ========================');
+
+		if (
+				$checkGroup &&
+				$user instanceof RealUser &&
+				( ! is_null($user->getGroup()))
+		) {
 			return $this->isPermissionGranted($user->getGroup(), $object, $permissionName);
-		}					
-		
+		}
+
 		return false;
 	}
-	
-	/**
-	 * Sets "ALL"  access for given user to controller, revokes "SOME" and "EXECUTE" if granted.
-	 * @param User $user
- 	 * @param ApplicationConfiguration $applicationConfiguration
-	 */
-	public function grantApplicationAllAccessPermission(User $user, ApplicationConfiguration $applicationConfiguration)
-	{
-		$this->log->debug('Granting application access "ALL" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());		
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME, PermissionStatus::DENY);
-		$this->setPermsission($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME, PermissionStatus::DENY);
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME, PermissionStatus::ALLOW);
-	}
-	
-	/**
-	 * Grants "EXECUTE" access for given user to controler, revokes "ALL" and "SOME" access if granted.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean 
-	 */
-	public function grantApplicationExecuteAccessPermission(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		$this->log->debug('Granting application access "EXECUTE" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());		
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME, PermissionStatus::DENY);
-		$this->setPermsission($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME, PermissionStatus::DENY);
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME, PermissionStatus::ALLOW);
-	}	
 
-	/**
-	 * Grants "SOME" access for givben user to controller. Revokes "ALL" and "EXECUTE" access if granted.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 */
-	public function grantApplicationSomeAccessPermission(User $user, ApplicationConfiguration $applicationConfiguration)
-	{
-		$this->log->debug('Granting application access "SOME" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());		
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME, PermissionStatus::DENY);
-		$this->setPermsission($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME, PermissionStatus::DENY);
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME, PermissionStatus::ALLOW);
-	}	
-		
-	/** 
-	 * Revokes "ALL" access for given user to controller.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 */
-	public function revokeApplicationAllAccessPermission(User $user, ApplicationConfiguration $applicationConfiguration)
-	{
-		$this->log->debug('Revoking application access "ALL" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());		
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME, PermissionStatus::DENY);
-	}
-	
-	/** 
-	 * Revokes "SOME" access for given user to controller.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 */
-	public function revokeApplicationSomeAccessPermission(User $user, ApplicationConfiguration $applicationConfiguration)
-	{
-		$this->log->debug('Revoking appliaction access "SOME" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());		
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME, PermissionStatus::DENY);
-	}	
-	
-	/**
-	 * Revokes "Execute" access for given user to controller.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 */
-	public function revokeApplicationExecutePermission(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		$this->log->debug('Revoking application access "EXECUTE" to ' . $applicationConfiguration->id . ' for user ' . $user->getName());
-		
-		$this->setPermsission($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME, PermissionStatus::DENY);
-	}
-	
-	/**
-	 * Returns true if user has "ALL" access to controler, false otherwise.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean
-	 */
-	public function isApplicationAllAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationAllAccessPermission::NAME);
-		
-		$this->log->debug('Checking for appliaction access "ALL" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
-		
-		return $result;
-	}
-
-	/** 
-	 * Returns true if user has "SOME" access to controler, false otherwise.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean
-	 */
-	public function isApplicationSomeAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationSomeAccessPermission::NAME);
-		
-		$this->log->debug('Checking for appliaction access "SOME" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
-		
-		return $result;
-	}
-	
-	/**
-	 * Returns true if user has controler access "Execute" granted, false otherwise.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean
-	 */
-	public function isApplicationExecuteAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		$result = $this->isPermissionGranted($user, $applicationConfiguration, ApplicationExecuteAccessPermission::NAME);
-		
-		$this->log->debug('Checking for appliaction access "EXECUTE" to ' . $applicationConfiguration->id . ' for user ' . $user->getName() . ' => ' . ($result ? 'ALLOW' : 'DENY'));		
-		
-		return $result;
-	}
-	
-	/**
-	 * Returns true if user has any access granted (EXECUTE, SOME, ALL), false otherwise.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean
-	 */
-	public function isApplicationAnyAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		return	$this->isApplicationAllAccessGranted($user, $applicationConfiguration) || 
-						$this->isApplicationSomeAccessGranted($user, $applicationConfiguration) || 
-						$this->isApplicationExecuteAccessGranted($user, $applicationConfiguration);
-	}
-	
-	/**
-	 * Returns true if user has admin access granted (SOME, ALL), false otherwise.
-	 * @param User $user
-	 * @param ApplicationConfiguration $applicationConfiguration
-	 * @return boolean
-	 */
-	public function isApplicationAdminAccessGranted(User $user, ApplicationConfiguration $applicationConfiguration) 
-	{
-		return 	$this->isApplicationAllAccessGranted($user, $applicationConfiguration) ||	
-						$this->isApplicationSomeAccessGranted($user, $applicationConfiguration);
-	}
-	
-	
-	/**
-	 * Grants controller execute permission to user.
-	 * @param User $user
-	 * @param AuthorizedControllerInterface $controller 
-	 */
-	public function grantControllerExecutePermission(User $user, AuthorizedControllerInterface $controller) 
-	{
-		$this->setPermsission($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::ALLOW);		
-	}
-	
-	/**
-	 * Revokes controller execution permission from user.
-	 * @param User $user
-	 * @param AuthorizedControllerInterface $controller 
-	 */
-	public function revokeControllerExecutePermission(User $user, AuthorizedControllerInterface $controller) 
-	{
-		$this->setPermsission($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::DENY);		
-	}
-	
-	/**
-	 * Returns true if user is permitted to execute controller.
-	 * @param User $user
-	 * @param AuthorizedControllerInterface $controller
-	 * @return boolean
-	 */
-	public function isControllerExecuteGranted(User $user, AuthorizedControllerInterface $controller) 
-	{
-		$permissionGranted = $this->isPermissionGranted($user, $controller, ControllerExecutePermission::NAME);
-		
-		return (
-						$permissionGranted &&
-						$controller->authorize($user, $this->getPermission(ControllerExecutePermission::NAME))
-				);
-	}
-	
 	/**
 	 * Returns array of permission names as keys and true/false as values for all permission types registered for given class.
 	 * @param User $user
 	 * @param Object $object
 	 * @return array
 	 */
-	public function getEffectivePermissionStatusesByObjectClass(User $user, $class) 
+	public function getEffectivePermissionStatusesByObjectClass(User $user, $class)
 	{
 		$classOids = $this->aclProvider->getOidsByClass($class);
-		
+
 		$acls = $this->aclProvider->findAcls($classOids);
-		
+
 		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
-		
-		/* keys will be oid ids*/
+
+		/* keys will be oid ids */
 		$results = array();
-		
+
 		$permissionNamesForClass = array_keys($this->getPermissionsForClass($class));
-		
-		$defaultDenyAllRow = array_fill_keys($permissionNamesForClass, PermissionStatus::DENY);
- 
-		foreach($acls as $oid) {
-			
+
+		$defaultDenyAllRow = array_fill_keys($permissionNamesForClass, PermissionStatus::NONE);
+
+		foreach ($acls as $oid) {
+
 			$resultRow = $defaultDenyAllRow;
-			
-			if($oid instanceof ObjectIdentity) {
-				
+
+			if ($oid instanceof ObjectIdentity) {
+
 				$acl = $acls->offsetGet($oid);
 
-				if($acl instanceof Acl) {
+				if ($acl instanceof Acl) {
 
 					$aces = $acl->getObjectAces();
-					
-					foreach($aces as $ace) {
-						
-						if($ace->getSecurityIdentity() != $userSecurityIdentity) {
+
+					foreach ($aces as $ace) {
+
+						if ($ace->getSecurityIdentity() != $userSecurityIdentity) {
 							continue;
 						}
 
-						$permission = $this->getPermissionForClassAndMask($class, $ace->getMask());
-						
-						if($permission) {
-							$resultRow[$permission->getName()] = PermissionStatus::ALLOW;
+						$permission = $this->getPermissionForClassAndMask($class, $ace->getMask() & (Permission\Permission::ALLOW_MASK - 1));
+
+						if ($permission) {
+							if ($permission->getAllowMask() == $ace->getMask()) {
+								$resultRow[$permission->getName()] = PermissionStatus::ALLOW;
+							}
+							else if ($permission->getDenyMask() == $ace->getMask()) {
+								$resultRow[$permission->getName()] = PermissionStatus::DENY;
+							}
 						}
 					}
 				}
 			}
-			
+
 			$results[$oid->getIdentifier()] = $resultRow;
 		}
-		
+
 		return $results;
-	}	
+	}
+
+	/**
+	 * Grants controller execute permission to user.
+	 * @param User $user
+	 * @param AuthorizedControllerInterface $controller 
+	 */
+	public function grantControllerExecutePermission(User $user, AuthorizedControllerInterface $controller)
+	{
+		$this->setPermsissionStatus($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::ALLOW);
+	}
+
+	/**
+	 * Revokes controller execution permission from user.
+	 * @param User $user
+	 * @param AuthorizedControllerInterface $controller 
+	 */
+	public function revokeControllerExecutePermission(User $user, AuthorizedControllerInterface $controller)
+	{
+		$this->setPermsissionStatus($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::DENY);
+	}
+
+	/**
+	 * Returns true if user is permitted to execute controller.
+	 * @param User $user
+	 * @param AuthorizedControllerInterface $controller
+	 * @return boolean
+	 */
+	public function isControllerExecuteGranted(User $user, AuthorizedControllerInterface $controller)
+	{
+		$permissionGranted = $this->isPermissionGranted($user, $controller, ControllerExecutePermission::NAME);
+
+		return (
+				$permissionGranted &&
+				$controller->authorize($user, $this->getPermission(ControllerExecutePermission::NAME))
+				);
+	}
+
+	public function unsetAllUserPermissions(User $user)
+	{
+		$sid = $this->getUserSecurityIdentity($user);
+		$this->aclProvider->removeSidAces($sid);
+	}
+
 }

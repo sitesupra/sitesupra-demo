@@ -7,10 +7,12 @@ use Supra\User\Entity\Abstraction\User;
 use Supra\Authorization\Exception\AuthorizationConfigurationException;
 
 /**
- * Base class for permission.
+ * Base class for permission type.
  */
 class Permission 
 {
+	const ALLOW_MASK = 0x800000; // do not change this, bro.
+	
 	/**
 	 * @var String
 	 */
@@ -28,7 +30,8 @@ class Permission
 	private $class;
 	
 	/**
-	 *
+	 * Creates permission type definition. Checks whether the $class 
+	 * actually implements any of supported authorization identities.
 	 * @param String $name
 	 * @param String $mask
 	 * @param String $class 
@@ -37,6 +40,8 @@ class Permission
 	{
 		$this->name = $name;
 		$this->mask = $mask;
+		
+		$className = $class; 
 		
 		$ref = new \ReflectionClass($class);
 		if (
@@ -55,25 +60,57 @@ class Permission
 		}
 		
 		if($ref->isSubclassOf(AuthorizationProvider::APPLICATION_CONFIGURATION_CLASS)) {
-			$class = AuthorizationProvider::APPLICATION_CONFIGURATION_CLASS;
+			$className = AuthorizationProvider::APPLICATION_CONFIGURATION_CLASS;
 		}
 		else if ($ref->implementsInterface(AuthorizationProvider::AUTHORIZED_ENTITY_INTERFACE)) {
-			$class = $class::getAuthorizationClass();
+			$className = $class::getAuthorizationClass();
 		}
 		
-		$this->class = $class;
+		$this->class = $className;
 	}
 	
+	/**
+	 * Returns name of permission type.
+	 * @return string
+	 */
 	public function getName() 
 	{
 		return $this->name;
 	}
 	
+	/**
+	 * Returns mask for this permission type. You probably 
+	 * should not use this, see getAllowMask() and getDenyMask() instead.
+	 * @return integer
+	 */
 	public function getMask() 
 	{
 		return $this->mask;
 	}
 	
+	/**
+	 * Returns "ALLOW" status mask for permission type.
+	 * @return integer
+	 */
+	public function getAllowMask() 
+	{
+		//\Log::debug('ALLOW MASK: ', sprintf('%X | %X => %X', $this->mask, self::ALLOW_MASK, $this->mask | self::ALLOW_MASK));
+		return $this->mask | self::ALLOW_MASK;
+	}
+	
+	/**
+	 * Returns "DENY" status mask for permission type.
+	 * @return integer
+	 */
+	public function getDenyMask() 
+	{
+		return $this->mask;
+	}
+	
+	/**
+	 * Returns class name for instances of which this permission type can be used.
+	 * @return string
+	 */
 	public function getClass() 
 	{
 		return $this->class;
@@ -81,7 +118,7 @@ class Permission
 	
 	/**
 	 * This is being called by authorization provider when permission of this type 
-	 * has been granted.
+	 * has been granted (set to ALLOW).
 	 * @param User $user
 	 * @param mixed $object
 	 */
@@ -92,7 +129,7 @@ class Permission
 	
 	/**
 	 * This is being called by authorization provider when permission of this type 
-	 * has been revoked.
+	 * has been revoked (set to DENY).
 	 * @param User $user
 	 * @param mixed $object 
 	 */
@@ -100,5 +137,16 @@ class Permission
 	{
 		
 	}
+	
+	/**
+	 * This is being called by authorization provider when permission of this type 
+	 * has been removed from acl (set to NONE).
+	 * @param User $user
+	 * @param mixed $object 
+	 */
+	public function removed(User $user, $object)
+	{
+		
+	}	
 }
 

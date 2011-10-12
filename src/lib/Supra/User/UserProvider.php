@@ -10,24 +10,25 @@ use Supra\Authentication\AuthenticationPassword;
 
 class UserProvider
 {
+
 	/**
 	 * Validation filters
 	 * @var array 
 	 */
 	private $validationFilters = array();
-	
+
 	/**
 	 * Entity manager
 	 * @var EntityManager 
 	 */
 	public $entityManager;
-	
+
 	/**
 	 * Authentication adapter
 	 * @var Adapter\AuthenticationAdapterInterface
 	 */
 	protected $authAdapter;
-	
+
 	/**
 	 * Binds entity manager
 	 */
@@ -61,7 +62,7 @@ class UserProvider
 	{
 		$this->validationFilters[] = $validationFilter;
 	}
-	
+
 	/**
 	 * Validates user with all filters
 	 * @param Entity\User $user 
@@ -72,7 +73,7 @@ class UserProvider
 			$filter->validateUser($user);
 		}
 	}
-	
+
 	/**
 	 * Returns authentication adapter object
 	 * @return Adapter\AuthenticationAdapterInterface
@@ -98,44 +99,44 @@ class UserProvider
 	 * @return Entity\User
 	 */
 	public function authenticate($login, AuthenticationPassword $password)
-	{		
+	{
 		$adapter = $this->getAuthAdapter();
-		
+
 		$user = $this->findUserByLogin($login);
-		
+
 		// Try finding the user from adapter
 		if (empty($user)) {
 			$user = $adapter->findUser($login, $password);
-			
+
 			if (empty($user)) {
 				return null;
 			}
-			
+
 			$this->entityManager->persist($user);
 			$this->entityManager->flush();
 		}
-		
+
 		$result = $adapter->authenticate($user, $password);
-		
+
 		if ( ! $result) {
 			return null;
 		}
-		
+
 		return $user;
 	}
-	
+
 	private function findById($class, $id)
 	{
 		$repo = $this->entityManager->getRepository($class);
 		$user = $repo->findOneById($id);
-		
+
 		if (empty($user)) {
 			return null;
 		}
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * Find user by login
 	 * @param string $login
@@ -145,13 +146,13 @@ class UserProvider
 	{
 		$repo = $this->entityManager->getRepository(Entity\User::CN());
 		$user = $repo->findOneByLogin($login);
-		
+
 		if (empty($user)) {
 			return null;
 		}
 		return $user;
 	}
-	
+
 	/**
 	 * Find user by id
 	 * @param string $id
@@ -159,32 +160,56 @@ class UserProvider
 	 */
 	public function findUserById($id)
 	{
-		return $this->findById(Entity\User::CN(), $id);	
+		return $this->findById(Entity\User::CN(), $id);
 	}
-	
+
 	/**
 	 * Find group by name
 	 * @param string $name
 	 * @return Entity\Group 
 	 */
-	public function findGroupByName($name) 
+	public function findGroupByName($name)
 	{
 		$repo = $this->entityManager->getRepository(Entity\Group::CN());
 		$group = $repo->findOneByName($name);
-		
+
 		if (empty($group)) {
 			return null;
 		}
 		return $group;
 	}
-	
+
 	/**
 	 * Find group by id
 	 * @param type $id
 	 * @return Entity\Group
 	 */
-	public function findGroupById($id) 
+	public function findGroupById($id)
 	{
 		return $this->findById(Entity\Group::CN(), $id);
 	}
+
+	public function findAllUsers()
+	{
+		$repo = $this->entityManager->getRepository(Entity\User::CN());
+		$users = $repo->findAll();
+
+		return $users;
+	}
+
+	public function findAllGrups()
+	{
+		$repo = $this->entityManager->getRepository(Entity\Group::CN());
+		$groups = $repo->findAll();
+
+		return $groups;
+	}
+
+	public function getAllUsersInGroup(Entity\Group $group)
+	{
+		$repo = $this->entityManager->getRepository(Entity\User::CN());
+		$users = $repo->findBy(array('group' => $group->getId()));
+		return $users;
+	}
+
 }
