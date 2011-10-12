@@ -69,7 +69,9 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	protected $localizations;
 
 	/**
-	 * Object's place holders
+	 * Object's place holders. Doctrine requires this to be defined because
+	 * owning side references to this class with inversedBy parameter
+	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;

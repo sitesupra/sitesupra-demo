@@ -234,16 +234,16 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::getAuthorizationAncestors();
     }
 
-    public function setRevisionId($revisionId)
+    public function setRevisionData($revisionData)
     {
         $this->__load();
-        return parent::setRevisionId($revisionId);
+        return parent::setRevisionData($revisionData);
     }
 
-    public function getRevisionId()
+    public function getRevisionData()
     {
         $this->__load();
-        return parent::getRevisionId();
+        return parent::getRevisionData();
     }
 
     public function getId()
@@ -279,7 +279,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'left', 'right', 'level', 'global', 'id', 'revision');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id', 'revision');
     }
 
     public function __clone()

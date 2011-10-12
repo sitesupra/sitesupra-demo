@@ -8,6 +8,7 @@ use Supra\Database\Doctrine\Type\Sha1HashType;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Supra\Controller\Pages\Annotation;
+use Supra\Controller\Pages\Entity;
 
 class HistorySchemaModifier extends VersionedTableMetadataListener
 {
@@ -39,7 +40,7 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
         $reader->setIgnoreNotImportedAnnotations(true);
         $reader->setAnnotationNamespaceAlias(self::ANNOTATION_NS, 'History');
 		
-		AnnotationRegistry::registerFile(__DIR__ . '/../Annotation/HistoryAnnotation.php');
+		AnnotationRegistry::registerFile(SUPRA_LIBRARY_PATH . '/Supra/Controller/Pages/Annotation/HistoryAnnotation.php');
 		
 	    $class = $metadata->getReflectionClass();
         //$annotations = $reader->getClassAnnotations($class);
@@ -130,7 +131,7 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 		 * Removing unique constraint
 		 * TODO: should process this from annotation, now simply hardcoded
 		 */
-		if ($className == 'Supra\Controller\Pages\Entity\Abstraction\Localization') {
+		if ($className == Entity\Abstraction\Localization::CN()) {
 			unset($metadata->table['uniqueConstraints']['locale_path_idx']);
 		}
 		

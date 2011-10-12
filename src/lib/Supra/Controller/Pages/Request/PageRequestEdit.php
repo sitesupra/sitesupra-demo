@@ -92,20 +92,6 @@ class PageRequestEdit extends PageRequest
 
 			$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 		
-			// TODO: remove listeners in config file, instead of removing them here
-			$listeners = $historyEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
-			foreach ($listeners as $listener) {
-				if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
-					$listeners = $historyEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
-				}
-			}
-			$listeners = $historyEm->getEventManager()->getListeners(\Doctrine\ORM\Events::prePersist);
-			foreach ($listeners as $listener) {
-				if ($listener instanceof \Supra\NestedSet\Listener\NestedSetListener) {
-					$listeners = $historyEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::prePersist, $listener);
-				}
-			}
-			
 			$revisionData = new Entity\RevisionData();
 			$userId = $this->getUser()->getId();			
 			$revisionData->setUser($userId);
