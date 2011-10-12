@@ -181,6 +181,8 @@ class FixtureHelper
 		$publicEm = ObjectRepository::getEntityManager('');
 		$draftEm = $this->entityManager;
 		
+		$draftEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
@@ -224,7 +226,7 @@ class FixtureHelper
 				$length = count(self::$constants);
 				$template = self::$constants[6];
 				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));
-				$creationTime->modify('-' . rand(0, 30000) . ' minutes');
+				$creationTime->modify('-' . rand(0, 100000) . ' minutes');
 				$template['creation_time'] = clone($creationTime);
 				$template['pathPart'] = sprintf($template['pathPart'], $i);
 				self::$constants[$length] = $template;

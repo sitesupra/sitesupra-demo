@@ -256,7 +256,9 @@ abstract class PageManagerAction extends CmsAction
 			'title' => $data->getTitle(),
 			
 			// TODO: hardcoded
-			'icon' => $data instanceof Entity\GroupLocalization ? 'group' : ($page->getLevel() === 0 ? 'home' : 'page'),
+			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' : 
+							($data instanceof Entity\GroupLocalization ? 'group' : 
+									($page->getLevel() === 0 ? 'home' : 'page')),
 			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
 		);
 		
