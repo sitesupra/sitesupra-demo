@@ -18,147 +18,95 @@ use Supra\Database\Doctrine\Type\PathType;
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 
-$config = new Configuration();
-
-// Doctrine cache (array cache for development)
-$cache = new ArrayCache();
-
-// Memcache cache configuration sample
-//$cache = new \Doctrine\Common\Cache\MemcacheCache();
-//$memcache = new \Memcache();
-//$memcache->addserver('127.0.0.1');
-//$cache->setMemcache($memcache);
-
-//NB! Must have different namespace for draft connection
-$cache->setNamespace('public');
-$config->setMetadataCacheImpl($cache);
-$config->setQueryCacheImpl($cache);
-
-// Metadata driver
-$entityPaths = array(
-	SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
-);
-$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
-//$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
-$config->setMetadataDriverImpl($driverImpl);
-
-// Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/PublicSchema');
-$config->setProxyNamespace('Supra\\Proxy\\PublicSchema');
-$config->setAutoGenerateProxyClasses(true);
-
-// SQL logger
-$sqlLogger = new \Supra\Log\Logger\SqlLogger();
-$config->setSQLLogger($sqlLogger);
-
-$connectionOptions = $ini['database'];
-
-// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
-$connectionOptions['driverOptions'] = array(
-	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+// TODO: use configuration classes maybe?
+$managerNames = array(
+	'PublicSchema' => '',
+	'Draft' => 'Supra\Cms',
+	'Trash' => 'Supra\Cms\Abstraction\Trash',
+	'History' => 'Supra\Cms\Abstraction\History',
 );
 
-// TODO: move to some other configuration
-$config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
+foreach ($managerNames as $managerName => $namespace) {
+	$config = new Configuration();
 
-$commonEventManager = new EventManager();
-$commonEventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-$commonEventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
-$commonEventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
+	// Doctrine cache (array cache for development)
+	$cache = new ArrayCache();
 
-/*
- * PUBLIC
- */
-$eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
+	// Memcache cache configuration sample
+	//$cache = new \Doctrine\Common\Cache\MemcacheCache();
+	//$memcache = new \Memcache();
+	//$memcache->addserver('127.0.0.1');
+	//$cache->setMemcache($memcache);
 
-$em = EntityManager::create($connectionOptions, $config, $eventManager);
-$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
-$em->_mode = 'public';
+	//NB! Must have different namespace for draft connection
+	$cache->setNamespace($managerName);
+	$config->setMetadataCacheImpl($cache);
+	$config->setQueryCacheImpl($cache);
 
-ObjectRepository::setDefaultEntityManager($em);
+	// Metadata driver
+	$entityPaths = array(
+		SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
+	);
+	$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
+	//$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
+	$config->setMetadataDriverImpl($driverImpl);
 
-/*
- * DRAFT
- */
-$config = clone($config);
-$cache = clone($cache);
-$cache->setNamespace('draft');
-$config->setMetadataCacheImpl($cache);
-$config->setQueryCacheImpl($cache);
+	// Proxy configuration
+	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/' . $managerName);
+	$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
+	$config->setAutoGenerateProxyClasses(true);
 
-// Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/Draft');
-$config->setProxyNamespace('Supra\\Proxy\\Draft');
+	// SQL logger
+	$sqlLogger = new \Supra\Log\Logger\SqlLogger();
+	$config->setSQLLogger($sqlLogger);
 
-// Draft connection for the CMS
-$eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
-$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
-//$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemeModifier());
+	$connectionOptions = $ini['database'];
 
-$em = EntityManager::create($connectionOptions, $config, $eventManager);
-$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
-$em->_mode = 'draft';
+	// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
+	$connectionOptions['driverOptions'] = array(
+		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+	);
 
-ObjectRepository::setEntityManager('Supra\Cms', $em);
+	// TODO: move to some other configuration
+	$config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
-/*
- * TRASH
- */
-$config = clone($config);
-$cache = clone($cache);
-$cache->setNamespace('trash');
-$config->setMetadataCacheImpl($cache);
-$config->setQueryCacheImpl($cache);
+	$eventManager = new EventManager();
+	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
+	
+	switch ($managerName) {
+		case 'PublicSchema':
+			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
+			break;
+		
+		case 'Draft':
+			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
+			$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
+			break;
+		
+		case 'Trash':
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashTableIdChange());
+			break;
+		
+		case 'History':
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
+			$eventManager->addEventListener(array(Events::loadClassMetadata, Events::prePersist, Events::postLoad), new Listener\HistorySchemaModifier());
+			break;
+	}
 
-// Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/Trash');
-$config->setProxyNamespace('Supra\\Proxy\\Trash');
+	$em = EntityManager::create($connectionOptions, $config, $eventManager);
+	$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
+	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
+	$em->_mode = $managerName;
 
-// Deleted connection for the CMS
-$eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashTableIdChange());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-
-$em = EntityManager::create($connectionOptions, $config, $eventManager);
-$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
-$em->_mode = 'trash';
-
-ObjectRepository::setEntityManager('Supra\Cms\Abstraction\Trash', $em);
-
-/*
- * HISTORY
- */
-$config = clone($config);
-$cache = clone($cache);
-$cache->setNamespace('history');
-$config->setMetadataCacheImpl($cache);
-$config->setQueryCacheImpl($cache);
-
-// Proxy configuration
-$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/History');
-$config->setProxyNamespace('Supra\\Proxy\\History');
-
-// History connection for the CMS
-$eventManager = clone($commonEventManager);
-$eventManager->addEventListener(array(Events::loadClassMetadata, Events::prePersist, Events::postLoad), new Listener\HistorySchemeModifier());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-
-$em = EntityManager::create($connectionOptions, $config, $eventManager);
-$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
-$em->_mode = 'history';
-
-ObjectRepository::setEntityManager('Supra\Cms\Abstraction\History', $em);
+	ObjectRepository::setEntityManager($namespace, $em);
+}

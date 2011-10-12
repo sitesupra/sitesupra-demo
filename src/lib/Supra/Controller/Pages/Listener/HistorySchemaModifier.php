@@ -9,7 +9,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Supra\Controller\Pages\Annotation;
 
-class HistorySchemeModifier extends VersionedTableMetadataListener
+class HistorySchemaModifier extends VersionedTableMetadataListener
 {
 	const TABLE_PREFIX = '_history';
 	const ANNOTATION_NS = 'Supra\Controller\Pages\Annotation\\';
