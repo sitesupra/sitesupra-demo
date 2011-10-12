@@ -247,7 +247,7 @@ class UserAction extends InternalUserManagerAbstractAction
 					'name' => $name,
 					'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
 					'email' => $email,
-					'group' => $groupNumber,
+					'group' => $dummyGroupId,
 					'user_id' => $user->getId(),
 			);
 
@@ -286,14 +286,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			}
 
 			if ($user->getId() != $this->getUser()->getId()) {
-
-				try {
-					$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
-				}
-				catch (EntityAccessDeniedException $e) {
-					$this->getResponse()->setErrorMessage('VERBOTEN!');
-					return;
-				}
+				$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
 			}
 
 			// temporary solution when save action is triggered and there are no changes

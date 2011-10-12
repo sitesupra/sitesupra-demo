@@ -49,6 +49,13 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
 			
+			if( is_null($user->getGroup())) {
+				
+				\Log::debug('USER HAS NO GROUP: ', $user);
+				
+				continue;
+			}
+			
 			$result[] = array(
 				'id' => $user->getId(),
 				'avatar' => null,
