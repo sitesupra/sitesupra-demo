@@ -252,15 +252,16 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		
 		try {
 			
+			$uploadCheckFolder = null;
+			
 			if ( ! $this->emptyRequestParameter('folder')) {
-				$folder = $this->getFolder('folder');
+				$uploadCheckFolder = $this->getFolder('folder');
 			}
 			else {
-				$this->getResponse()->setErrorMessage('MUST HAVE A FOLDER!');
-				return;
+				$uploadCheckFolder = new Entity\SlashFolder();
 			}
 
-			$this->checkActionPermission($folder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
+			$this->checkActionPermission($uploadCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
 		}
 		catch(EntityAccessDeniedException $e) {
 			
@@ -337,7 +338,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			// adding file as folders child if parent folder is set
-			if ( ! $this->emptyRequestParameter('folder')) {
+			if ( ! $this->emptyRequestParameter('folder')) {	
+
 				$folder = $this->getFolder('folder');
 				
 				// get parent folder private/public status

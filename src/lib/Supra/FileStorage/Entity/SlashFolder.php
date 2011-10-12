@@ -17,4 +17,9 @@ final class SlashFolder extends Folder
 		$this->id = self::DUMMY_ROOT_ID;
 		$this->fileName = self::DUMMY_ROOT_NAME;
 	}
+	
+	public function getAuthorizationAncestors() {
+		
+		return array();
+	}
 }
