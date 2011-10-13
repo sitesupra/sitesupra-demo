@@ -2,7 +2,7 @@
 
 namespace Supra\Session\Configuration;;
 
-use Supra\Session\SessionNamespaceManager;
+use Supra\Session\SessionManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\ConfigurationInterface;
 
@@ -44,13 +44,14 @@ class SessionNamespaceConfiguration implements ConfigurationInterface
 
 	public function configure()
 	{
-		$sessionNamespaceManager = ObjectRepository::getSessionNamespaceManager($this->managerNamespace);
+		$sessionManager = ObjectRepository::getSessionManager($this->managerNamespace);
+		$sessionNamespace = null;
 		
 		if ($this->class === false) {
-			$sessionNamespace = $sessionNamespaceManager->getDefaultSessionNamespace();
+			$sessionNamespace = $sessionManager->getDefaultSessionNamespace();
 		}
 		else {
-			$sessionNamespace = $sessionNamespaceManager->getOrCreateSessionNamespace($this->name, $this->class);
+			$sessionNamespace = $sessionManager->getOrCreateSessionNamespace($this->name, $this->class);
 		}
 		
 		foreach ($this->namespaces as $namespace) {

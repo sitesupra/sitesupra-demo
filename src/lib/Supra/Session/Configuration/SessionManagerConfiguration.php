@@ -2,12 +2,12 @@
 
 namespace Supra\Session\Configuration;
 
-use Supra\Session\SessionNamespaceManager;
+use Supra\Session\SessionManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
 use Supra\Configuration\ConfigurationInterface;
 
-class SessionNamespaceManagerConfiguration implements ConfigurationInterface
+class SessionManagerConfiguration implements ConfigurationInterface
 {
 	/**
 	 * @var string
@@ -43,14 +43,14 @@ class SessionNamespaceManagerConfiguration implements ConfigurationInterface
 		$handler = Loader::getClassInstance($this->handlerClass, 
 				'Supra\Session\Handler\HandlerAbstraction');
 		
-		$sessionNamespaceManager = new SessionNamespaceManager($handler);
+		$sessionManager = new SessionManager($handler);
 		
 		foreach ($this->namespaces as $namespace) {
-			ObjectRepository::setSessionNamespace($namespace, $sessionNamespaceManager);
+			ObjectRepository::setSessionManager($namespace, $sessionManager);
 		}
 		
 		if ($this->isDefault) {
-			ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
+			ObjectRepository::setDefaultSessionManager($sessionManager);
 		}
 	}
 }

@@ -62,10 +62,10 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		
 		$sessionHandler = new \Supra\Session\Handler\PhpSessionHandler();
 
-		$sessionNamespaceManager = new \Supra\Session\SessionNamespaceManager($sessionHandler);
-		ObjectRepository::setDefaultSessionNamespaceManager($sessionNamespaceManager);
+		$sessionManager = new \Supra\Session\SessionManager($sessionHandler);
+		ObjectRepository::setDefaultSessionManager($sessionManager);
 
-		$authenticationSessionNamespace = $sessionNamespaceManager
+		$authenticationSessionNamespace = $sessionManager
 			->getOrCreateSessionNamespace('Tests', 'Supra\Tests\Authentication\AuthenticationSessionNamespace');
 
 		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	

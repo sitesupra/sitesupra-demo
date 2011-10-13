@@ -7,7 +7,7 @@ use Supra\FileStorage\FileStorage;
 use Supra\User\UserProvider;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
-use Supra\Session\SessionNamespaceManager;
+use Supra\Session\SessionManager;
 use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
 use Supra\Mailer\Mailer;
@@ -25,7 +25,7 @@ class ObjectRepository
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
-	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionNamespaceManager';		
+	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionManager';		
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
 	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
 	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
@@ -227,9 +227,9 @@ class ObjectRepository
 	 * Get assigned session namespace
 	 *
 	 * @param mixed $caller
-	 * @return SessionNamespaceManager
+	 * @return SessionManager
 	 */
-	public static function getSessionNamespaceManager($caller)
+	public static function getSessionManager($caller)
 	{
 		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}
@@ -238,9 +238,9 @@ class ObjectRepository
 	 * Assign session manager to caller class
 	 *
 	 * @param mixed $caller
-	 * @param SessionNamespaceManager $object 
+	 * @param SessionManager $object 
 	 */
-	public static function setSessionNamespaceManager($caller, SessionNamespaceManager $object)
+	public static function setSessionManager($caller, SessionManager $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}
@@ -248,9 +248,9 @@ class ObjectRepository
 	/**
 	 * Set default session manager
 	 *
-	 * @param SessionNamespaceManager $object 
+	 * @param SessionManager $object 
 	 */
-	public static function setDefaultSessionNamespaceManager(SessionNamespaceManager $object)
+	public static function setDefaultSessionManager(SessionManager $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}

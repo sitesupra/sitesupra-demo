@@ -2,7 +2,7 @@
 
 namespace Supra\Session;
 
-class SessionNamespaceManager
+class SessionManager
 {
 	const DEFAULT_NAMESPACE_CLASS = 'Supra\Session\SessionNamespace';
 	const DEFAULT_NAMESPACE_NAME = 'defaultNamespace';

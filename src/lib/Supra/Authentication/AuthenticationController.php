@@ -44,6 +44,11 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @var AuthenticationSessionNamespace
 	 */
 	protected $session;
+	
+	/**
+	 * @var \Supra\Session\SessionManager
+	 */
+	protected $sessionManager;
 
 	/**
 	 * User Provider object instance
@@ -63,6 +68,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	public function __construct()
 	{
 		$this->session = ObjectRepository::getSessionNamespace($this);
+		$this->sessionManager = ObjectRepository::getSessionManager($this);
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 		
 		if ( ! $this->session instanceof AuthenticationSessionNamespace) {
@@ -201,8 +207,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$this->session->setUser($user);
 
-					if ( ! empty($session->login)) {
-						unset($session->login);
+					if ( ! empty($this->session->login)) {
+						unset($this->session->login);
 					}
 
 					if ($xmlHttpRequest) {
