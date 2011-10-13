@@ -5,7 +5,7 @@ namespace Supra\Authentication;
 use Supra\Controller\ControllerAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller;
-use Supra\Controller\StopRequestException;
+use Supra\Controller\Exception\StopRequestException;
 use Supra\Request;
 use Supra\Response;
 use Supra\User;
