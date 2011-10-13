@@ -81,18 +81,18 @@ abstract class CmsAction extends SimpleController
 		} catch (Exception\ResourceNotFoundException $e) {
 			throw $e;
 		} catch (EntityAccessDeniedException $e) {
-			
+				
+			// No support for not Json actions
 			$response = $this->getResponse();
-			
 			if ( ! $response instanceof JsonResponse) {
 				throw $e;
 			}
 			
-			//TODO: Remove later. Should not be shown to user
-			$response->setErrorMessage('403: ' . $e->getMessage());
+			$response->setCode(403);
+			$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 			
-			// Write the issue inside the log
 			$this->log->warn($e);
+			
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();

@@ -29,10 +29,12 @@ $config->setQueryCacheImpl($cache);
 
 // Metadata driver
 $entityPaths = array(
-	SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
-	SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
-	SUPRA_TESTS_LIBRARY_PATH . 'Supra/NestedSet/Model',
+		SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
+		SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',
+		SUPRA_TESTS_LIBRARY_PATH . 'Supra/NestedSet/Model',
+		SUPRA_TESTS_LIBRARY_PATH . 'Supra/Search/Entity',
 );
 $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 //$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
@@ -45,10 +47,11 @@ $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger
 $sqlLogger = new \Supra\Log\Logger\SqlLogger();
+$sqlLogger = null;
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(
-	'driver' => 'pdo_mysql',
+		'driver' => 'pdo_mysql',
 	'user' => 'root',
 	'password' => 'root',
 	'dbname' => 'supra7test',
@@ -57,7 +60,7 @@ $connectionOptions = array(
 
 // TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
 $connectionOptions['driverOptions'] = array(
-	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
 );
 
 // TODO: move to some other configuration
@@ -69,6 +72,8 @@ $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new
 $eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 $eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
+$eventManager->addEventListener(array(Events::loadClassMetadata), new Supra\Tests\Search\DiscriminatorAppender());
+
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));

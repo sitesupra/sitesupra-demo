@@ -14,10 +14,10 @@ use Supra\Authorization\AuthorizationProvider;
 class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterface
 {
 	const PERMISSION_EDIT_NAME = 'dummy_edit';
-	const PERMISSION_EDIT_MASK = 512;
+	const PERMISSION_MASK_EDIT_PAGE = 512;
 	
 	const PERMISSION_PUBLISH_NAME = 'dummy_publish';
-	const PERMISSION_PUBLISH_MASK = 1024;
+	const PERMISSION_MASK_PUBLISH_PAGE = 1024;
 	
 	public function __construct($title) 
 	{
@@ -36,8 +36,8 @@ class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterfa
 	
 	static function registerPermissions(AuthorizationProvider $ap)
 	{
-		$ap->registerGenericEntityPermission(self::PERMISSION_EDIT_NAME, self::PERMISSION_EDIT_MASK, __CLASS__);
-		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_NAME, self::PERMISSION_PUBLISH_MASK, __CLASS__);		
+		$ap->registerGenericEntityPermission(self::PERMISSION_EDIT_NAME, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_NAME, self::PERMISSION_MASK_PUBLISH_PAGE, __CLASS__);		
 	}
 	
 	function authorize(User $user, $permission, $grant) 

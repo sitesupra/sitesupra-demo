@@ -170,7 +170,7 @@ class FixtureHelper
 			$this->ap->setPermsissionStatus(
 					$contribUser->getGroup(), 
 					$rootNode,
-					PageEntity\Abstraction\Entity::PERMISSION_EDIT_PAGE,
+					PageEntity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE,
 					PermissionStatus::ALLOW
 			);
 			

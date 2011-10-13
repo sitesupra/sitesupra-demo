@@ -13,6 +13,7 @@ use Supra\Locale\LocaleManager;
 use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
+use Supra\Search\IndexerQueue;
 
 /**
  * Object repository
@@ -31,7 +32,8 @@ class ObjectRepository
 	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
 	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
 	const INTERFACE_APPLICATION_CONFIGURATION = 'Supra\Cms\ApplicationConfiguration';
-
+	const INTERFACE_INDEXER_QUEUE = 'Supra\Search\IndexerQueue';
+	
 	/**
 	 * Object relation storage
 	 *
@@ -439,7 +441,7 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
 	}	
 	
-		/**
+ /**
 	 * Get assigned application configuration.
 	 *
 	 * @param mixed $caller
@@ -469,6 +471,38 @@ class ObjectRepository
 	public static function setDefaultApplicationConfiguration(ApplicationConfiguration $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
+	}	
+
+	/**
+	 * Get assigned indexer queue.
+	 *
+	 * @param mixed $caller
+	 * @return IndexerQueue
+	 */
+	public static function getIndexerQueue($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_INDEXER_QUEUE);
+	}
+
+	/**
+	 * Assign indexer queue to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param IndexerQueue $object 
+	 */
+	public static function setIndexerQueue($caller, IndexerQueue $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_INDEXER_QUEUE);
+	}
+	
+	/**
+	 * Set default indexer queue.
+	 *
+	 * @param IndexerQueue $object 
+	 */
+	public static function setDefaultIndexerQueue(IndexerQueue $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INDEXER_QUEUE);
 	}	
 
 }

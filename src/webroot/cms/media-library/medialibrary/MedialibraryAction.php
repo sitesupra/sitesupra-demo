@@ -221,14 +221,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
-		try {
-			$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
-		}
-		catch(EntityAccessDeniedException $e) {
-			
-			$this->getResponse()->setErrorMessage('DELETE IS VERBOTEN FOR YOU HERE!');
-			return;
-		}
+		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
 
 		if (is_null($file)) {
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
@@ -250,24 +243,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$this->isPostRequest();
 		
-		try {
-			
-			$uploadCheckFolder = null;
-			
-			if ( ! $this->emptyRequestParameter('folder')) {
-				$uploadCheckFolder = $this->getFolder('folder');
-			}
-			else {
-				$uploadCheckFolder = new Entity\SlashFolder();
-			}
+		$uploadPermissionCheckFolder = null;
 
-			$this->checkActionPermission($uploadCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
+		if ( ! $this->emptyRequestParameter('folder')) {
+			$uploadPermissionCheckFolder = $this->getFolder('folder');
 		}
-		catch(EntityAccessDeniedException $e) {
-			
-			$this->getResponse()->setErrorMessage('UPLOAD IS VERBOTEN FOR YOU HERE!');
-			return;
+		else {
+			$uploadPermissionCheckFolder = new Entity\SlashFolder();
 		}
+		$this->checkActionPermission($uploadPermissionCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
 		
 		$localeId = $this->getLocale()->getId();
 		

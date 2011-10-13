@@ -21,7 +21,7 @@ Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
-	'PublicSchema' => '',
+		'PublicSchema' => '',
 	'Draft' => 'Supra\Cms',
 	'Trash' => 'Supra\Cms\Abstraction\Trash',
 	'History' => 'Supra\Cms\Abstraction\History',
@@ -46,10 +46,11 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	// Metadata driver
 	$entityPaths = array(
-		SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
-		SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
-		SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
-		SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
+			SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
+			SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
+			SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
+			SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
+			SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',
 	);
 	$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 	//$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');
@@ -68,7 +69,7 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
 	$connectionOptions['driverOptions'] = array(
-		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+			PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
 	);
 
 	// TODO: move to some other configuration
@@ -84,20 +85,20 @@ foreach ($managerNames as $managerName => $namespace) {
 			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			break;
-		
+
 		case 'Draft':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 			break;
-		
+
 		case 'Trash':
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashTableIdChange());
 			break;
-		
+
 		case 'History':
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			$eventManager->addEventListener(array(Events::loadClassMetadata, Events::prePersist, Events::postLoad), new Listener\HistorySchemaModifier());

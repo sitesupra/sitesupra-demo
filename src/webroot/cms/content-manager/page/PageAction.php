@@ -99,10 +99,10 @@ class PageAction extends PageManagerAction
 			}
 
 			$templateArray = array(
-				'id' => $template->getId(),
-				'title' => $templateData->getTitle(),
-				//TODO: hardcoded
-				'img' => '/cms/lib/supra/img/templates/template-1.png',
+					'id' => $template->getId(),
+					'title' => $templateData->getTitle(),
+					//TODO: hardcoded
+					'img' => '/cms/lib/supra/img/templates/template-1.png',
 			);
 
 			$scheduledDateTime = $pageData->getScheduleTime();
@@ -110,16 +110,16 @@ class PageAction extends PageManagerAction
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
 			$active = $pageData->isActive();
-			
+
 			if ( ! is_null($redirectLink)) {
 				$redirect = $this->convertReferencedElementToArray($redirectLink);
 			}
-			
+
 			if ( ! is_null($scheduledDateTime)) {
 				$scheduledDate = $scheduledDateTime->format('Y-m-d');
 				$scheduledTime = $scheduledDateTime->format('H:i:s');
 			}
-			
+
 			if ($pageData->isPublishTimeSet()) {
 				$createdDateTime = $pageData->getCreationTime();
 				$createdDate = $createdDateTime->format('Y-m-d');
@@ -132,27 +132,27 @@ class PageAction extends PageManagerAction
 		if ($page instanceof Entity\Template) {
 			$type = 'template';
 		}
-		
+
 		$array = array(
-			'id' => $pageData->getId(),
-			'title' => $pageData->getTitle(),
-			'path' => $pathPart,
-			'path_prefix' => $pathPrefix,
-			'template' => $templateArray,
-			'type' => $type,
-			'internal_html' => $response->__toString(),
-			'contents' => array(),
-			'keywords' => $metaKeywords,
-			'description' => $metaDescription,
-			'scheduled_date' => $scheduledDate,
-			'scheduled_time' => $scheduledTime,
-			'redirect' => $redirect,
-			'active' => $active,
-			'created_date' => $createdDate,
-			'created_time' => $createdTime,
-			'global' => $page->getGlobal()
+				'id' => $pageData->getId(),
+				'title' => $pageData->getTitle(),
+				'path' => $pathPart,
+				'path_prefix' => $pathPrefix,
+				'template' => $templateArray,
+				'type' => $type,
+				'internal_html' => $response->__toString(),
+				'contents' => array(),
+				'keywords' => $metaKeywords,
+				'description' => $metaDescription,
+				'scheduled_date' => $scheduledDate,
+				'scheduled_time' => $scheduledTime,
+				'redirect' => $redirect,
+				'active' => $active,
+				'created_date' => $createdDate,
+				'created_time' => $createdTime,
+				'global' => $page->getGlobal()
 		);
-		
+
 		if ($page instanceof Entity\Template) {
 			$layout = null;
 			$root = false;
@@ -176,14 +176,14 @@ class PageAction extends PageManagerAction
 		foreach ($placeHolderSet as $placeHolder) {
 
 			$placeHolderData = array(
-				'id' => $placeHolder->getName(),
-				'type' => 'list',
-				'locked' => ! $page->isPlaceHolderEditable($placeHolder),
-				//TODO: not specified now
-				'allow' => array(
-					0 => 'Project_Text_TextController',
-				),
-				'contents' => array()
+					'id' => $placeHolder->getName(),
+					'type' => 'list',
+					'locked' => ! $page->isPlaceHolderEditable($placeHolder),
+					//TODO: not specified now
+					'allow' => array(
+							0 => 'Project_Text_TextController',
+					),
+					'contents' => array()
 			);
 
 			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
@@ -193,10 +193,10 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$blockData = array(
-					'id' => $block->getId(),
-					'type' => $block->getComponentName(),
-					'locked' => ! $page->isBlockEditable($block),
-					'properties' => array(),
+						'id' => $block->getId(),
+						'type' => $block->getComponentName(),
+						'locked' => ! $page->isBlockEditable($block),
+						'properties' => array(),
 				);
 
 				$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
@@ -215,13 +215,13 @@ class PageAction extends PageManagerAction
 							$referencedElement = $metadata->getReferencedElement();
 							$data[$name] = $this->convertReferencedElementToArray($referencedElement);
 						}
-						
+
 						$propertyData = $propertyValue;
-						
+
 						if ($blockProperty->getEditable() instanceof Editable\Html) {
 							$propertyData = array(
-								'html' => $propertyValue,
-								'data' => $data
+									'html' => $propertyValue,
+									'data' => $data
 							);
 						}
 
@@ -234,7 +234,7 @@ class PageAction extends PageManagerAction
 
 			$array['contents'][] = $placeHolderData;
 		}
-	
+
 		$this->getResponse()->setResponseData($array);
 	}
 
@@ -251,27 +251,31 @@ class PageAction extends PageManagerAction
 		$parent = $this->getPageByRequestKey('parent');
 		$localeId = $this->getLocale()->getId();
 
+		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+
 		$page = null;
 		$pageData = null;
 		$pathPart = null;
-		
+
 		// Page types
 		if ($type == Entity\Abstraction\Entity::GROUP_DISCR) {
 			$page = new Entity\GroupPage();
 			$pageData = $page->getLocalization($localeId);
-		} elseif ($type == Entity\Abstraction\Entity::APPLICATION_DISCR) {
+		}
+		elseif ($type == Entity\Abstraction\Entity::APPLICATION_DISCR) {
 			$page = new Entity\ApplicationPage();
 			$pageData = new Entity\ApplicationLocalization($localeId);
 			$pageData->setMaster($page);
-			
+
 			$applicationId = $this->getRequestParameter('application_id');
 			$page->setApplicationId($applicationId);
-		} else {
+		}
+		else {
 			$page = new Entity\Page();
 			$pageData = new Entity\PageLocalization($localeId);
 			$pageData->setMaster($page);
 		}
-		
+
 		$this->entityManager->persist($page);
 
 		// Template ID
@@ -290,9 +294,8 @@ class PageAction extends PageManagerAction
 			if ($this->hasRequestParameter('path')) {
 				$pathPart = $this->getRequestParameter('path');
 			}
-
 		}
-		
+
 		if ($this->hasRequestParameter('title')) {
 			$title = $this->getRequestParameter('title');
 			$pageData->setTitle($title);
@@ -317,7 +320,8 @@ class PageAction extends PageManagerAction
 					$this->entityManager->flush();
 
 					$pathValid = true;
-				} catch (DuplicatePagePathException $pathInvalid) {
+				}
+				catch (DuplicatePagePathException $pathInvalid) {
 					$suffix = '-' . $i;
 					$i ++;
 
@@ -326,7 +330,8 @@ class PageAction extends PageManagerAction
 						throw $pathInvalid;
 					}
 				}
-			} while ( ! $pathValid);
+			}
+			while ( ! $pathValid);
 		}
 
 		$this->outputPage($pageData);
@@ -341,6 +346,8 @@ class PageAction extends PageManagerAction
 		$this->checkLock(false);
 		$pageData = $this->getPageLocalization();
 
+		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+
 		if ($this->hasRequestParameter('title')) {
 			$title = $this->getRequestParameter('title');
 			$pageData->setTitle($title);
@@ -352,19 +359,20 @@ class PageAction extends PageManagerAction
 
 				try {
 					$pageData->setPathPart($pathPart);
-				} catch (DuplicatePagePathException $uniqueException) {
-					
+				}
+				catch (DuplicatePagePathException $uniqueException) {
+
 					// Clear the unit of work
 					$this->entityManager->clear();
-					
+
 					$locale = $uniqueException->getPageLocalization()->getLocale();
-					
+
 					// TODO: should pass locale parameter to exception text somehow
 					throw new CmsException('sitemap.error.duplicate_path', "Page with such path already exists in locale $locale");
 				}
 			}
 		}
-		
+
 		if ($this->hasRequestParameter('template')) {
 			$templateId = $this->getRequestParameter('template');
 
@@ -372,7 +380,7 @@ class PageAction extends PageManagerAction
 			$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
 			$pageData->setTemplate($template);
 		}
-		
+
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 	}
@@ -385,6 +393,8 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 
 		$page = $this->getPageLocalization()->getMaster();
+
+		$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
 		if (empty($page)) {
 			$this->getResponse()
@@ -402,7 +412,7 @@ class PageAction extends PageManagerAction
 
 			return;
 		}
-		
+
 		$this->delete();
 	}
 
@@ -415,27 +425,14 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 
 		$page = $this->getPageLocalization()->getMaster();
-		
-		try {
-			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_PUBLISH_PAGE);		
-		}
-		catch(EntityAccessDeniedException $e) {
-			
-			try {
-				$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_PUBLISH_PAGE);		
-			}
-			catch(EntityAccessDeniedException $e) {
-				
-				$this->getResponse()->setErrorMessage('PUBLISH IS VERBOTEN FOR YOU HERE!');
-				return;
-			}
-		}
-		
+
+		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
+
 		$this->checkLock();
 		$this->publish();
 		$this->unlockPage();
 	}
-	
+
 	/**
 	 * Called on page locking action
 	 */
@@ -444,44 +441,33 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 
 		$page = $this->getPageLocalization()->getMaster();
-		
-		try {
-			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_EDIT_PAGE);		
-		}
-		catch(EntityAccessDeniedException $e) {
 
-			try {
-				$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_EDIT_PAGE);		
-			}
-			catch(EntityAccessDeniedException $e) {
-				
-				$this->getResponse()->setErrorMessage('EDIT IS VERBOTEN FOR YOU HERE!');
-				return;
-			}
-		}
-		
-		$this->lockPage();	
+		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+
+		$this->lockPage();
 	}
-	
-	/** 
+
+	/**
 	 * Called on page unlock action
 	 */
 	public function unlockAction()
 	{
 		try {
 			$this->checkLock();
-		} catch (ObjectLockedException $e) {
+		}
+		catch (ObjectLockedException $e) {
 			$this->getResponse()->setResponseData(true);
 			return;
 		}
 		$this->unlockPage();
 	}
-	
-	public function versionPreviewAction() {
-		
+
+	public function versionPreviewAction()
+	{
+
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
-		
+
 		$historyEm = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 
 		/*
@@ -489,13 +475,13 @@ class PageAction extends PageManagerAction
 		 */
 		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
 				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
-		
+
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
 			$this->getResponse()
 					->setErrorMessage('Page does not exist');
 			return;
 		}
-		
+
 		/*
 		 * Assign template from draft repository
 		 */
@@ -510,11 +496,11 @@ class PageAction extends PageManagerAction
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-		
+
 		$request = new PageRequestEdit($localeId, $media);
 		$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
 		$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionData));
-		
+
 		$request->setDoctrineEntityManager($historyEm);
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
@@ -526,12 +512,11 @@ class PageAction extends PageManagerAction
 
 		// Output
 		$return = array(
-			'internal_html' => $response->__toString()
+				'internal_html' => $response->__toString()
 		);
-		
+
 		$this->getResponse()
 				->setResponseData($return);
 	}
-	
 
 }

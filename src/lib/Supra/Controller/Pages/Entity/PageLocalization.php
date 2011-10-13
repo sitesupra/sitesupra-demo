@@ -384,10 +384,12 @@ class PageLocalization extends Abstraction\Localization
 		foreach($masterAncestors as $masterAncestor) {
 			/* @var $masterAncestor Page */
 			
+			$ancestors[] = $masterAncestor;
+			
 			$ancestorLocalization = $masterAncestor->getLocalization($this->locale);
 			
 			if( ! empty($ancestorLocalization)) {
-				$ancestors[] = $masterAncestor->getLocalization($this->locale);
+				$ancestors[] = $ancestorLocalization;
 			}
 		}
 		

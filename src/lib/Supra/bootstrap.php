@@ -58,8 +58,13 @@ Twig_Autoloader::register();
 
 // Swift autoloader, FIXME
 require_once SUPRA_LIBRARY_PATH . 'Swift' . DIRECTORY_SEPARATOR . 'swift_required.php';
-
 $loader->registerSystemAutoload();
+
+
+// Solarium autoloader, TODO: should write such supra7 autoloader
+require_once SUPRA_LIBRARY_PATH . 'Solarium' . DIRECTORY_SEPARATOR . 'Autoloader.php';
+Solarium_Autoloader::register();
+
 
 // Set the initial timezone to the logger
 Supra\Log\LogEvent::setDefaultTimezone(date_default_timezone_get());

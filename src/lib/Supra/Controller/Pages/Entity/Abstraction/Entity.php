@@ -20,10 +20,11 @@ use Supra\Authorization\AuthorizationProvider;
  */
 abstract class Entity extends Database\Entity implements AuthorizedEntityInterface
 {
-	const PERMISSION_EDIT_PAGE = 'edit_page';
-	const PERMISSION_PUBLISH_PAGE = 'publish_page';
-	const PERMISSION_EDIT_MASK = 256;
-	const PERMISSION_PUBLISH_MASK = 512;
+	const PERMISSION_NAME_EDIT_PAGE = 'edit_page';
+	const PERMISSION_MASK_EDIT_PAGE = 256;
+	
+	const PERMISSION_NAME_SUPERVISE_PAGE = 'publish_page';
+	const PERMISSION_MASK_PUBLISH_PAGE = 512;
 	
 	const PAGE_DISCR = 'page';
 	const GROUP_DISCR = 'group';
@@ -187,8 +188,8 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	
 	public static function registerPermissions(AuthorizationProvider $ap) 
 	{
-		$ap->registerGenericEntityPermission(self::PERMISSION_EDIT_PAGE, self::PERMISSION_EDIT_MASK, __CLASS__);
-		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_PAGE, self::PERMISSION_PUBLISH_MASK, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_EDIT_PAGE, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_PUBLISH_PAGE, __CLASS__);
 	}
 		
 	/**
