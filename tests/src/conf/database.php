@@ -14,6 +14,7 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\Sha1HashType;
 use Supra\Database\Doctrine\Type\PathType;
+use Supra\Database\Doctrine\Listener\TimestampableListener;
 
 $config = new Configuration();
 
@@ -67,6 +68,7 @@ $eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGen
 $eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 $eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
+$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));

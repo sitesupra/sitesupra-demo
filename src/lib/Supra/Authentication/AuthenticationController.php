@@ -5,7 +5,7 @@ namespace Supra\Authentication;
 use Supra\Controller\ControllerAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller;
-use Supra\Controller\Exception;
+use Supra\Controller\StopRequestException;
 use Supra\Request;
 use Supra\Response;
 use Supra\User;
@@ -41,13 +41,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	protected $passwordField = 'password';
 
 	/**
-	 * @var Session\SessionNamespace
+	 * @var AuthenticationSessionNamespace
 	 */
 	protected $session;
 
 	/**
 	 * User Provider object instance
-	 * @var \Supra\User\UserProvider
+	 * @var User\UserProvider
 	 */
 	protected $userProvider;
 
@@ -57,10 +57,17 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public $publicUrlList = array();
 
+	/**
+	 * Binds user provider and session
+	 */
 	public function __construct()
 	{
 		$this->session = ObjectRepository::getSessionNamespace($this);
 		$this->userProvider = ObjectRepository::getUserProvider($this);
+		
+		if ( ! $this->session instanceof AuthenticationSessionNamespace) {
+			throw new Exception\RuntimeException("Authentication session namespace is required for authentication prefilter");
+		}
 	}
 
 	/**
@@ -184,8 +191,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				$user = null;
 				try {
 					$user = $this->userProvider->authenticate($login, $password);
-				} catch (User\Exception\AuthenticationExeption $exc) {
-					
+				} catch (Exception\AuthenticationFailure $exc) {
+					//TODO: pass the failure message somehow
 				}
 
 				if ( ! empty($user)) {
@@ -204,7 +211,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$this->response->redirect($uri);
 					}
 
-					throw new Exception\StopRequestException("Login success");
+					throw new StopRequestException("Login success");
 				} else {
 					// if authentication failed, we redirect user to login page
 					$loginPath = $this->getLoginPath();
@@ -226,7 +233,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$this->session->message = $message;
 					}
 
-					throw new Exception\StopRequestException("Login failure");
+					throw new StopRequestException("Login failure");
 				}
 			}
 		}
@@ -254,7 +261,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$this->response->redirect('/' . $loginPath . '?redirect_to=' . urlencode($fullUri));
 				}
 
-				throw new Exception\StopRequestException("User not authenticated");
+				throw new StopRequestException("User not authenticated");
 			}
 		} else {
 			$loginPath = $this->getLoginPath();
@@ -265,7 +272,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				$uri = $this->getSuccessRedirectUrl();
 				$this->response->redirect($uri);
 
-				throw new Exception\StopRequestException("Session is already active");
+				throw new StopRequestException("Session is already active");
 			}
 		}
 	}

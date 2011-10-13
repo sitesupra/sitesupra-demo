@@ -36,28 +36,28 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
     }
     
     
-    public function getCreatedTime()
+    public function getCreationTime()
     {
         $this->__load();
-        return parent::getCreatedTime();
+        return parent::getCreationTime();
     }
 
-    public function setCreatedTime()
+    public function setCreationTime(\DateTime $time = NULL)
     {
         $this->__load();
-        return parent::setCreatedTime();
+        return parent::setCreationTime($time);
     }
 
-    public function getModifiedTime()
+    public function getModificationTime()
     {
         $this->__load();
-        return parent::getModifiedTime();
+        return parent::getModificationTime();
     }
 
-    public function setModifiedTime()
+    public function setModificationTime(\DateTime $time = NULL)
     {
         $this->__load();
-        return parent::setModifiedTime();
+        return parent::setModificationTime($time);
     }
 
     public function getUserId()
@@ -147,7 +147,7 @@ class SupraControllerPagesEntityLockDataProxy extends \Supra\Controller\Pages\En
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'created', 'modified', 'userId', 'id');
+        return array('__isInitialized__', 'creationTime', 'modificationTime', 'userId', 'id');
     }
 
     public function __clone()

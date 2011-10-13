@@ -8,24 +8,24 @@ class AccessDeniedException extends RuntimeException
 	private $object;
 	private $permissionName;
 	
-	public function __construct($user, $object, $permissionName) 
+	public function __construct($user, $object, $permissionName)
 	{
 		$this->user = $user;
 		$this->object = $object;
 		$this->permissionName = $permissionName;
 	}
 	
-	public function getUser() 
+	public function getUser()
 	{
 		return $this->user;
 	}
 	
-	public function getObject() 
+	public function getObject()
 	{
 		return $this->object;
 	}
 	
-	public function getPermissionName() 
+	public function getPermissionName()
 	{
 		return $this->permissionName;
 	}

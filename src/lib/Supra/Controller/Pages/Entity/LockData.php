@@ -2,25 +2,27 @@
 
 namespace Supra\Controller\Pages\Entity;
 
+use DateTime;
+use Supra\Database\Doctrine\Listener\Timestampable;
+
 /**
  * Lock data class.
  * @Entity
  * @Table(name="lock_data")
- * @HasLifecycleCallbacks
  */
-class LockData extends Abstraction\Entity
+class LockData extends Abstraction\Entity implements Timestampable
 {
 	/**
-	 * @Column(type="datetime", nullable=true, name="created_at")
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
-	protected $created;
+	protected $creationTime;
 	
 	/**
-	 * @Column(type="datetime", nullable=true, name="modified_at")
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
-	protected $modified;
+	protected $modificationTime;
 	
 	/**
 	 * @Column(type="sha1")
@@ -30,39 +32,44 @@ class LockData extends Abstraction\Entity
 	
 	/**
 	 * Returns creation time
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getCreatedTime()
+	public function getCreationTime()
 	{
-		return $this->created;
+		return $this->creationTime;
 	}
 	
 	/**
-	 * Sets creation time to now
-	 * @PrePersist
+	 * Sets creation time
+	 * @param DateTime $time
 	 */
-	public function setCreatedTime()
+	public function setCreationTime(DateTime $time = null)
 	{
-		$this->created = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->creationTime = $time;
 	}
 
 	/**
 	 * Returns last modification time
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getModifiedTime()
+	public function getModificationTime()
 	{
-		return $this->modified;
+		return $this->modificationTime;
 	}
 
 	/**
-	 * Sets modification time to now 
-	 * @PreUpdate
-	 * @PrePersist
+	 * Sets modification time
+	 * @param DateTime $time
 	 */
-	public function setModifiedTime()
+	public function setModificationTime(DateTime $time = null)
 	{
-		$this->modified = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->modificationTime = $time;
 	}
 	
 	/**

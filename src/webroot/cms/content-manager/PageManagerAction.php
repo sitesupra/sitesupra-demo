@@ -491,7 +491,7 @@ abstract class PageManagerAction extends CmsAction
 			if (($pageLock->getUserId() != $userId)) {
 				throw new ObjectLockedException('page.error.page_locked', 'Page is locked by another user');
 			} else {
-				$pageLock->setModifiedTime(new \DateTime('now'));
+				$pageLock->setModificationTime(new \DateTime('now'));
 				$this->entityManager->flush();
 			}
 		} elseif ($createLockOnMiss) {
@@ -536,7 +536,7 @@ abstract class PageManagerAction extends CmsAction
 		$force = (bool)$this->getRequestParameter('force');
 		
 		try {
-			$this->checkLock();
+			$this->checkLock(false);
 		} catch (ObjectLockedException $e) {
 			if ( ! $force ||  ! $allowForced) {
 				
@@ -555,7 +555,7 @@ abstract class PageManagerAction extends CmsAction
 
 				$response = array(
 					'username' => $userName,
-					'datetime' => $pageLock->getCreatedTime()->format('c'),
+					'datetime' => $pageLock->getCreationTime()->format('c'),
 					'allow_unlock' => $allowForced,
 				);
 				

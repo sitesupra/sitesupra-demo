@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Exception;
+namespace Supra\Authentication\Exception;
 
 /**
  * Thrown on password policy issues

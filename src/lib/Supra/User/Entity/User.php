@@ -46,10 +46,17 @@ class User extends Abstraction\User
 	protected $active = true;
 	
 	/**
-	 * @Column(type="string", name="salt", nullable=false, length="23")
+	 * @Column(type="string", nullable=false, length="23")
 	 * @var string
 	 */
 	protected $salt;
+	
+	/**
+	 * Stores active session ID
+	 * @Column(type="string", nullable="true")
+	 * @var string
+	 */
+	protected $sessionId;
 	
 	/**
 	 * Generates random salt for new users
@@ -163,6 +170,7 @@ class User extends Abstraction\User
 	 */
 	public function resetSalt()
 	{
+		// Generates 23 character salt
 		$this->salt = uniqid('', true);
 		
 		return $this->salt;

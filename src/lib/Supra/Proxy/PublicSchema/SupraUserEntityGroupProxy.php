@@ -66,28 +66,28 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
         return parent::setName($name);
     }
 
-    public function getCreatedTime()
+    public function getCreationTime()
     {
         $this->__load();
-        return parent::getCreatedTime();
+        return parent::getCreationTime();
     }
 
-    public function setCreatedTime()
+    public function setCreationTime(\DateTime $time = NULL)
     {
         $this->__load();
-        return parent::setCreatedTime();
+        return parent::setCreationTime($time);
     }
 
-    public function getModifiedTime()
+    public function getModificationTime()
     {
         $this->__load();
-        return parent::getModifiedTime();
+        return parent::getModificationTime();
     }
 
-    public function setModifiedTime()
+    public function setModificationTime(\DateTime $time = NULL)
     {
         $this->__load();
-        return parent::setModifiedTime();
+        return parent::setModificationTime($time);
     }
 
     public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
@@ -141,7 +141,7 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'name', 'createdTime', 'modifiedTime', 'id', 'isSuper');
+        return array('__isInitialized__', 'name', 'creationTime', 'modificationTime', 'id', 'isSuper');
     }
 
     public function __clone()

@@ -5,6 +5,8 @@ namespace Supra\User\Entity\Abstraction;
 use Supra\Database\Entity;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\AuthorizationProvider;
+use Supra\Database\Doctrine\Listener\Timestampable;
+use DateTime;
 
 /**
  * @Entity
@@ -16,28 +18,28 @@ use Supra\Authorization\AuthorizationProvider;
  * })
  * @HasLifecycleCallbacks
  */
-abstract class User extends Entity implements AuthorizedEntityInterface
+abstract class User extends Entity implements AuthorizedEntityInterface, Timestampable
 {
 	const PERMISSION_MODIFY_USER_NAME = 'modify_user';
 	const PERMISSION_MODIFY_USER_MASK = 256;
 	
 	/**
-	 * @Column(type="string", name="name", nullable=false)
+	 * @Column(type="string", nullable=false)
 	 * @var string
 	 */
 	protected $name;
 	
 	/**
-	 * @Column(type="datetime", name="created_at")
-	 * @var string
+	 * @Column(type="datetime")
+	 * @var DateTime
 	 */
-	protected $createdTime;
+	protected $creationTime;
 	
 	/**
-	 * @Column(type="datetime", name="modified_at")
-	 * @var string
+	 * @Column(type="datetime")
+	 * @var DateTime
 	 */
-	protected $modifiedTime;
+	protected $modificationTime;
 	
 	/**
 	 * @return string
@@ -57,39 +59,44 @@ abstract class User extends Entity implements AuthorizedEntityInterface
 
 	/**
 	 * Returns creation time
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getCreatedTime()
+	public function getCreationTime()
 	{
-		return $this->createdTime;
+		return $this->creationTime;
 	}
 	
 	/**
-	 * Sets creation time to now
-	 * @PrePersist
+	 * Sets creation time
+	 * @param DateTime $time
 	 */
-	public function setCreatedTime()
+	public function setCreationTime(DateTime $time = null)
 	{
-		$this->createdTime = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->creationTime = $time;
 	}
 
 	/**
 	 * Returns last modification time
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getModifiedTime()
+	public function getModificationTime()
 	{
-		return $this->modifiedTime;
+		return $this->modificationTime;
 	}
 
 	/**
-	 * Sets modification time to now 
-	 * @PreUpdate
-	 * @PrePersist
+	 * Sets modification time to now
+	 * @param DateTime $time
 	 */
-	public function setModifiedTime()
+	public function setModificationTime(DateTime $time = null)
 	{
-		$this->modifiedTime = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->modificationTime = $time;
 	}
 
 	/**
@@ -110,7 +117,8 @@ abstract class User extends Entity implements AuthorizedEntityInterface
 	
 	public function getAuthorizationClass() 
 	{
-		$className = \Supra\User\Entity\Abstraction\User::CN();
+		$className = self::CN();
+		
 		return $className;
 	}
 	
@@ -124,7 +132,7 @@ abstract class User extends Entity implements AuthorizedEntityInterface
 		$ap->registerGenericEntityPermission(
 				self::PERMISSION_MODIFY_USER_NAME, 
 				self::PERMISSION_MODIFY_USER_MASK, 
-				\Supra\User\Entity\Abstraction\User::CN()
+				self::CN()
 		);
 	}	
 }

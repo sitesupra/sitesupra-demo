@@ -14,6 +14,7 @@ interface AuthenticationAdapterInterface
 	 * Authenticate the user
 	 * @param User $user
 	 * @param AuthenticationPassword $password
+	 * @throws Exception\AuthenticationFailure on failures
 	 */
 	public function authenticate(User $user, AuthenticationPassword $password);
 	

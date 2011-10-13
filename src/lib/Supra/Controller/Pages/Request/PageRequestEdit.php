@@ -368,7 +368,7 @@ class PageRequestEdit extends PageRequest
 		$this->allowFlushing = false;
 	}
 	
-	private function getPagePropertySet (EntityManager $em, Entity\Abstraction\Localization $data)
+	private function getPagePropertySet(EntityManager $em, Entity\Abstraction\Localization $data)
 	{
 		$pageDataId = $data->getId();
 		$locale = $data->getLocale();

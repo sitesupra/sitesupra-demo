@@ -3,7 +3,7 @@
 namespace Supra\Authentication\Adapter;
 
 use Supra\User\Entity\User;
-use Supra\User\Exception;
+use Supra\Authentication\Exception;
 use Supra\Authentication\AuthenticationPassword;
 
 /**
@@ -26,25 +26,18 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 * Authenticates user
 	 * @param User $user
 	 * @param AuthenticationPassword $password
-	 * @return boolean 
+	 * @throws Exception\AuthenticationFailure on failures
 	 */
 	public function authenticate(User $user, AuthenticationPassword $password)
 	{
-		if ( ! $user instanceof User) {
-			throw new Exception\RuntimeException('User is not an instance of User entity');
-		}
-		
 		$salt = $user->getSalt();
 		$hash = $this->generatePasswordHash($password, $salt);
 		
 		$userPassword = $user->getPassword();
 		
 		if($hash != $userPassword) {
-			throw new Exception\AuthenticationExeption('Wrong password entered');
+			throw new Exception\WrongPasswordException();
 		}
-		
-		return true;
-		
 	}
 		
 	/**

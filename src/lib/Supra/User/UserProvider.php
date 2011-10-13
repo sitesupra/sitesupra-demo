@@ -7,6 +7,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Supra\Authentication\Adapter;
 use Supra\Authentication\AuthenticationPassword;
+use Supra\Authentication\Exception\UserNotFoundException;
+use Supra\Authentication\Exception\AuthenticationFailure;
 
 class UserProvider
 {
@@ -97,6 +99,7 @@ class UserProvider
 	 * @param string $login 
 	 * @param AuthenticationPassword $password
 	 * @return Entity\User
+	 * @throws AuthenticationFailure
 	 */
 	public function authenticate($login, AuthenticationPassword $password)
 	{
@@ -109,18 +112,14 @@ class UserProvider
 			$user = $adapter->findUser($login, $password);
 
 			if (empty($user)) {
-				return null;
+				throw new UserNotFoundException();
 			}
 
 			$this->entityManager->persist($user);
 			$this->entityManager->flush();
 		}
 
-		$result = $adapter->authenticate($user, $password);
-
-		if ( ! $result) {
-			return null;
-		}
+		$adapter->authenticate($user, $password);
 
 		return $user;
 	}

@@ -48,25 +48,25 @@ class SupraUserEntityAbstractionUserProxy extends \Supra\User\Entity\Abstraction
         return parent::setName($name);
     }
 
-    public function getCreatedTime()
+    public function getCreationTime()
     {
         $this->__load();
         return parent::getCreatedTime();
     }
 
-    public function setCreatedTime()
+    public function setCreationTime()
     {
         $this->__load();
         return parent::setCreatedTime();
     }
 
-    public function getModifiedTime()
+    public function getModificationTime()
     {
         $this->__load();
         return parent::getModifiedTime();
     }
 
-    public function setModifiedTime()
+    public function setModificationTime()
     {
         $this->__load();
         return parent::setModifiedTime();

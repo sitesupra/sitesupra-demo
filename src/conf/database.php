@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\Sha1HashType;
 use Supra\Database\Doctrine\Type\PathType;
+use Supra\Database\Doctrine\Listener\TimestampableListener;
 
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
@@ -75,6 +76,7 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	$eventManager = new EventManager();
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
+	$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
 	
 	switch ($managerName) {
 		case 'PublicSchema':
