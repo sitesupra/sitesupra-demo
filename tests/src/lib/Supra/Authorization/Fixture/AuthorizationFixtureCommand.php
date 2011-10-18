@@ -25,7 +25,7 @@ class AuthorizationFixtureCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		$fixture = new FixtureHelper('Supra\Cms');
+		$fixture = new FixtureHelper('Supra\Cms\CmsController');
 		$fixture->build();
 		
 		$output->writeln("Fixtures finished successfully");
