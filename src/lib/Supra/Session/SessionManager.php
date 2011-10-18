@@ -2,6 +2,9 @@
 
 namespace Supra\Session;
 
+use Supra\Loader\Loader;
+use Supra\Authentication\AuthenticationSessionNamespace;
+
 class SessionManager
 {
 	const DEFAULT_NAMESPACE_CLASS = 'Supra\Session\SessionNamespace';
@@ -28,6 +31,25 @@ class SessionManager
 	}
 	
 	/**
+	 * Shortcut for loading session namespace by interface
+	 * @param string $spaceClass
+	 * @return SessionNamespace
+	 */
+	public function getSpace($spaceClass)
+	{
+		return $this->getOrCreateSessionNamespace($spaceClass, $spaceClass);
+	}
+	
+	/**
+	 * Shortcut to get authentication namespace
+	 * @return AuthenticationSessionNamespace
+	 */
+	public function getAuthenticationSpace()
+	{
+		return $this->getSpace('Supra\Authentication\AuthenticationSessionNamespace');
+	}
+	
+	/**
 	 * Creates default session namespace.
 	 * 
 	 * @param string $sessionNamespaceClass
@@ -49,7 +71,10 @@ class SessionManager
 	{
 		if ( ! isset($this->sessionData[$name]) || ! $this->sessionData[$name] instanceof SessionNamespace) {
 			
-			$sessionNamespace = new $sessionNamespaceClass($name);
+			$sessionNamespace = Loader::getClassInstance($sessionNamespaceClass, 'Supra\Session\SessionNamespace');
+			/* @var $sessionNamespace SessionNamespace */
+			
+			$sessionNamespace->setName($name);
 			$this->registerSessionNamespace($sessionNamespace);
 		}
 		
@@ -60,7 +85,6 @@ class SessionManager
 	 * Maps name to a session (thus creating the magical namespace). Throws 
 	 * SessionNamespaceAlreadyExists on duplicate by name.
 	 * 
-	 * @param string $name
 	 * @param SessionNamespace $session 
 	 */
 	public function registerSessionNamespace(SessionNamespace $sessionNamespace) 

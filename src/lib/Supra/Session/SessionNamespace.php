@@ -34,14 +34,19 @@ class SessionNamespace
 	 * 
 	 * @param string $name
 	 */
-	function __construct($name) 
+	function __construct($name = null) 
 	{
 		$this->__dirty = false;
-		
 		$this->__data = array();
-		
 		$this->__closed = false;
-
+		$this->__name = $name;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setName($name)
+	{
 		$this->__name = $name;
 	}
 	

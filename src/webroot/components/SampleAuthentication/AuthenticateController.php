@@ -30,7 +30,8 @@ class AuthenticateController extends SimpleController
 
 	public function loginAction()
 	{
-		$session = ObjectRepository::getSessionNamespace($this);
+		$session = ObjectRepository::getSessionManager($this)
+				->getAuthenticationSpace();
 
 		if ( ! empty($session->login)) {
 			$this->getResponse()->assign('email', $session->login);
@@ -47,7 +48,9 @@ class AuthenticateController extends SimpleController
 
 	public function logoutAction()
 	{
-		$session = ObjectRepository::getSessionNamespace($this);
+		$session = ObjectRepository::getSessionManager($this)
+				->getAuthenticationSpace();
+		
 		$user = $session->getUser();
 
 		if ( ! empty($user)) {

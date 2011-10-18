@@ -12,7 +12,7 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	/**
 	 * @var string
 	 */
-	public $handlerClass;
+	public $handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
 	
 	/**
 	 * @var string
@@ -22,7 +22,7 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	/**
 	 * @var array
 	 */
-	private $namespaces = array();
+	public $namespaces = array();
 	
 	/**
 	 * @var boolean

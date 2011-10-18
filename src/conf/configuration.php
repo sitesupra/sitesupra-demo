@@ -23,7 +23,11 @@ $parser->parseFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Authentication/config.yml');
+
+// Experimental: should be good if would be able to define extra PHP configuration as well
+require_once SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.php';
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');
+
 $parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Locale/config.yml');
 

@@ -9,13 +9,13 @@ use Supra\Controller\Exception\StopRequestException;
 use Supra\Request;
 use Supra\Response;
 use Supra\User;
+use Supra\Uri\Path;
 
 /**
  * Authentication controller
  */
 abstract class AuthenticationController extends ControllerAbstraction implements Controller\PreFilterInterface
 {
-
 	/**
 	 * Login page path
 	 * @var string
@@ -41,40 +41,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	protected $passwordField = 'password';
 
 	/**
-	 * @var AuthenticationSessionNamespace
-	 */
-	protected $session;
-	
-	/**
-	 * @var \Supra\Session\SessionManager
-	 */
-	protected $sessionManager;
-
-	/**
-	 * User Provider object instance
-	 * @var User\UserProvider
-	 */
-	protected $userProvider;
-
-	/**
 	 * Public url list in restricted area
 	 * @var array
 	 */
 	public $publicUrlList = array();
-
-	/**
-	 * Binds user provider and session
-	 */
-	public function __construct()
-	{
-		$this->session = ObjectRepository::getSessionNamespace($this);
-		$this->sessionManager = ObjectRepository::getSessionManager($this);
-		$this->userProvider = ObjectRepository::getUserProvider($this);
-		
-		if ( ! $this->session instanceof AuthenticationSessionNamespace) {
-			throw new Exception\RuntimeException("Authentication session namespace is required for authentication prefilter");
-		}
-	}
 
 	/**
 	 * Public URL list
@@ -162,6 +132,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function execute()
 	{
+		$sessionManager = ObjectRepository::getSessionManager($this);
+		$session = $sessionManager->getAuthenticationSpace();
+		/* @var $session Supra\Authentication\AuthenticationSessionNamespace */
+		
+		// Unset the session data
+		unset($session->login, $session->message);
+		
 		$request = $this->getRequest();
 		$isPublicUrl = $this->isPublicUrl($request->getRequestUri());
 
@@ -191,12 +168,23 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			$plainPassword = $this->getRequest()->getPostValue($passwordField);
 			$password = new AuthenticationPassword($plainPassword);
 
-			if ( ! empty($login) && ! $password->isEmpty()) {
-
+			if ( ! empty($login)) {
+				
 				// Authenticating user
 				$user = null;
 				try {
-					$user = $this->userProvider->authenticate($login, $password);
+					
+					// TODO: Maybe should be moved to some password policy guide with password expire features?
+					if ($password->isEmpty()) {
+						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
+					}
+					
+					$userProvider = ObjectRepository::getUserProvider($this);
+					$user = $userProvider->authenticate($login, $password);
+					
+					// TODO: user provider should have session storage instead
+//					$userProvider->startSession();
+					
 				} catch (Exception\AuthenticationFailure $exc) {
 					//TODO: pass the failure message somehow
 				}
@@ -205,11 +193,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$uri = $this->getSuccessRedirectUrl();
 
-					$this->session->setUser($user);
-
-					if ( ! empty($this->session->login)) {
-						unset($this->session->login);
-					}
+					$session->setUser($user);
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
@@ -219,38 +203,35 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					throw new StopRequestException("Login success");
 				} else {
-					// if authentication failed, we redirect user to login page
-					$loginPath = $this->getLoginPath();
 					$message = 'Incorrect login name or password';
-
-					$redirectTo = $this->getRequest()->getQueryValue('redirect_to');
-					
-					if ( ! empty($redirectTo)) {
-						$loginPath = $loginPath . '?redirect_to=' . urlencode($redirectTo);
-					}
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(401);
 						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
 					} else {
 
-						$this->response->redirect('/' . $loginPath);
-						$this->session->login = $login;
-						$this->session->message = $message;
+						$session->login = $login;
+						$session->message = $message;
+						
+						$request = $this->request;
+						
+						/* @var $request Request\HttpRequest */
+						
+						// if authentication failed, we redirect user to login page
+						$loginPath = $this->getLoginPath();
+						$path = new Path($loginPath);
+						$request->setPath($path);
+						
+						return;
 					}
-
+					
 					throw new StopRequestException("Login failure");
 				}
 			}
 		}
 
-		$sessionUser = null;
-
 		// check for session presence
-		$user = $this->session->getUser();
-		if ( ! empty($user)) {
-			$sessionUser = $user;
-		}
+		$sessionUser = $session->getUser();
 
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {

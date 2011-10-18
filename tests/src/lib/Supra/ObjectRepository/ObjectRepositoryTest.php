@@ -86,5 +86,102 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		$a = new ObjectRepositoryTest();
 		ObjectRepository::setObject('Supra', $a, 'Supra\FileStorage\FileStorage');
 	}
-
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testWrongInterfaceException()
+	{
+		$object = new \stdClass();
+		ObjectRepository::setEntityManager($this, $object);
+	}
+	
+	public function testControllerContext()
+	{
+		ObjectRepository::resetControllerContext();
+		
+		ObjectRepository::beginControllerContext('a');
+		ObjectRepository::beginControllerContext('b');
+		ObjectRepository::beginControllerContext('c');
+		ObjectRepository::endControllerContext('c');
+		ObjectRepository::endControllerContext('b');
+		ObjectRepository::endControllerContext('a');
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\LogicException
+	 */
+	public function testControllerContextEndFail()
+	{
+		ObjectRepository::resetControllerContext();
+		
+		ObjectRepository::beginControllerContext('a');
+		ObjectRepository::beginControllerContext('b');
+		ObjectRepository::beginControllerContext('c');
+		ObjectRepository::endControllerContext('a');
+	}
+	
+	public function testFoundByController()
+	{
+		ObjectRepository::resetControllerContext();
+		
+		$a = new \stdClass();
+		$b = new \stdClass();
+		$c = new \stdClass();
+		
+		ObjectRepository::setDefaultObject($a, 'stdClass');
+		ObjectRepository::setObject('My\Namespace', $b, 'stdClass');
+		ObjectRepository::setObject('My\Namespace\Controller', $c, 'stdClass');
+		
+		self::assertEquals($a, ObjectRepository::getObject($this, 'stdClass'));
+		self::assertEquals($b, ObjectRepository::getObject('My\Namespace', 'stdClass'));
+		self::assertEquals($c, ObjectRepository::getObject('My\Namespace\Controller', 'stdClass'));
+		
+		ObjectRepository::beginControllerContext('My\Namespace\Controller');
+		
+		self::assertEquals($a, ObjectRepository::getObject($this, 'stdClass'));
+		self::assertEquals($a, ObjectRepository::getObject('My\Namespace', 'stdClass'));
+		self::assertEquals($a, ObjectRepository::getObject('My\Namespace\Controller', 'stdClass'));
+		
+		ObjectRepository::endControllerContext('My\Namespace\Controller');
+		
+		self::assertEquals($a, ObjectRepository::getObject($this, 'stdClass'));
+		self::assertEquals($b, ObjectRepository::getObject('My\Namespace', 'stdClass'));
+		self::assertEquals($c, ObjectRepository::getObject('My\Namespace\Controller', 'stdClass'));
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testBadCallerPassed()
+	{
+		ObjectRepository::getApplicationConfiguration(-1);
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\ObjectRepositoryException
+	 */
+	public function testAddBindingNotObject()
+	{
+		ObjectRepository::setDefaultLocaleManager(false);
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\ObjectRepositoryException
+	 */
+	public function testAddBindingWrongCallerType()
+	{
+		ObjectRepository::setApplicationConfiguration(-1, new \Supra\Cms\ApplicationConfiguration());
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\ObjectRepositoryException
+	 */
+	public function testEmptyControllerStackEndException()
+	{
+		ObjectRepository::resetControllerContext();
+		
+		ObjectRepository::endControllerContext('fail');
+	}
+	
 }

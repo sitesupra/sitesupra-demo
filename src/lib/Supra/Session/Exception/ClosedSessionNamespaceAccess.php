@@ -2,7 +2,7 @@
 
 namespace Supra\Session\Exception;
 
-class ClosedSessionNamespaceAccess extends \RuntimeException 
+class ClosedSessionNamespaceAccess extends RuntimeException 
 {
 	
 }

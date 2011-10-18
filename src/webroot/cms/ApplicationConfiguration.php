@@ -5,6 +5,7 @@ namespace Supra\Cms;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Configuration\ConfigurationInterface;
+use Supra\Loader\Loader;
 
 /**
  * ApplicationConfiguration
@@ -67,13 +68,10 @@ class ApplicationConfiguration implements ConfigurationInterface
 	 */
 	public function configure()
 	{
-		if (!class_exists($this->authorizationAccessPolicyClass)) {
-			throw new \RuntimeException('Invalid CMS application configuration, bad/nx authorization access policy class ' . $this->authorizationAccessPolicyClass);
-		}
-
 		$ap = ObjectRepository::getAuthorizationProvider($this->applicationNamespace);
 
-		$this->authorizationAccessPolicy = new $this->authorizationAccessPolicyClass();
+		$this->authorizationAccessPolicy = Loader::getClassInstance($this->authorizationAccessPolicyClass, 
+				'Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction');
 		$this->authorizationAccessPolicy->setAuthorizationProvider($ap);
 		$this->authorizationAccessPolicy->setAppConfig($this);
 		$this->authorizationAccessPolicy->configure();

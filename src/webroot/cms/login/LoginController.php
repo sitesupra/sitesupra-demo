@@ -23,7 +23,8 @@ class LoginController extends SimpleController
 
 	public function indexAction()
 	{
-		$session = ObjectRepository::getSessionNamespace($this);
+		$session = ObjectRepository::getSessionManager($this)
+				->getAuthenticationSpace();
 
 		if ( ! empty($session->login)) {
 			$this->getResponse()->assign('email', $session->login);

@@ -13,6 +13,7 @@ use Supra\Authorization\Exception\ApplicationAccessDeniedException;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
+use Supra\Loader\Loader;
 
 /**
  * Front controller
@@ -132,50 +133,103 @@ class FrontController
 			// Log the exception raised
 			$this->log->error($exception);
 
-			$exceptionController = $this->findExceptionController($request, $exception);
-			$this->runController($exceptionController, $request);
+			//TODO: should be configurable somehow
+			$exceptionControllerClass = 'Supra\Controller\ExceptionController';
+			
+			$exceptionController = $this->initializeController($exceptionControllerClass, $request);
+			/* @var $exceptionController Supra\Controller\ExceptionController */
+			$exceptionController->setException($exception);
+			$this->runControllerInner($exceptionController, $request);
 			$exceptionController->output();
+		}
+	}
+	
+	/**
+	 * Create controller instance
+	 * @param string $controllerClass
+	 * @param Request\RequestInterface $request
+	 * @return ControllerInterface
+	 */
+	private function initializeController($controllerClass, Request\RequestInterface $request)
+	{
+		ObjectRepository::beginControllerContext($controllerClass);
+		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
+		
+		return $controller;
+	}
+	
+	/**
+	 * Run controller
+	 * @param ControllerInterface $controller
+	 * @param Request\RequestInterface $request
+	 * @param Router\RouterInterface $router
+	 */
+	private function runControllerInner(ControllerInterface $controller, Request\RequestInterface $request, Router\RouterInterface $router = null)
+	{
+		if ( ! is_null($router) && ! $controller instanceof PreFilterInterface) {
+			$router->finalizeRequest($request);
+		}
+		
+		$controllerClass = get_class($controller);
+		
+		try {
+		
+			$response = $controller->createResponse($request);
+			$response->prepare();
+			$controller->prepare($request, $response);
+
+			$appConfig = ObjectRepository::getApplicationConfiguration($controller);
+
+			if (
+					$appConfig instanceof ApplicationConfiguration &&
+					$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
+			) {
+
+				$authenticationNamespace = ObjectRepository::getSessionManager($controller)
+						->getAuthenticationSpace();
+
+				if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
+
+					$user = $authenticationNamespace->getUser();
+
+					if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
+						$controller->execute();
+					}
+					else {
+						throw new ApplicationAccessDeniedException($user, $appConfig);
+					}
+				}
+				else {
+					throw new Exception\RuntimeException('Could not get authentication session namespace.');
+				}
+			}
+			else {
+				$controller->execute();
+			}
+		} catch (\Exception $uncaughtException) {
+			
+		}
+		
+		ObjectRepository::endControllerContext($controllerClass);
+		
+		if ( ! empty($uncaughtException)) {
+			throw $uncaughtException;
 		}
 	}
 
 	/**
 	 * Runs controller
-	 * @param ControllerInterface $controller
+	 * @param string $controllerClass
 	 * @param Request\RequestInterface $request
+	 * @param Router\RouterInterface $router
+	 * @return ControllerInterface
 	 */
-	public function runController(ControllerInterface $controller, Request\RequestInterface $request)
+	public function runController($controllerClass, Request\RequestInterface $request)
 	{
-		$response = $controller->createResponse($request);
-		$response->prepare();
-		$controller->prepare($request, $response);
-
-		$appConfig = ObjectRepository::getApplicationConfiguration($controller);
-
-		if (
-				$appConfig instanceof ApplicationConfiguration &&
-				$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
-		) {
-
-			$authenticationNamespace = ObjectRepository::getSessionNamespace($controller);
-
-			if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
-
-				$user = $authenticationNamespace->getUser();
-
-				if ($appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
-					$controller->execute();
-				}
-				else {
-					throw new ApplicationAccessDeniedException($user, $appConfig);
-				}
-			}
-			else {
-				throw new Exception\RuntimeException('Could not get authentication session namespace.');
-			}
-		}
-		else {
-			$controller->execute();
-		}
+		$controller = $this->initializeController($controllerClass, $request);
+		$this->runControllerInner($controller, $request);
+		
+		return $controller;
 	}
 
 	/**
@@ -186,37 +240,38 @@ class FrontController
 	{
 		$allRouters = $this->getRouters();
 		$controllerFound = false;
+		$stopRequest = false;
 
 		foreach ($allRouters as $router) {
 			/* @var $router Router\RouterAbstraction */
 			if ($router->match($request)) {
-				$controller = $router->initializeController();
-
-				if (!$controller instanceof PreFilterInterface) {
-					$router->finalizeRequest($request);
-				}
+				
+				$controllerClass = $router->getControllerClass();
+				$controller = $this->initializeController($controllerClass, $request);
 
 				try {
-					$this->runController($controller, $request);
-				}
-				catch (Exception\StopRequestException $exc) {
-					$controllerFound = true;
+					$this->runControllerInner($controller, $request, $router);
+					
+					
+				} catch (Exception\StopRequestException $exc) {
+					$stopRequest = true;
 				}
 
 				// Stop on matching not prefilter controller
-				if (!$controller instanceof PreFilterInterface) {
-					$controllerFound = true;
+				if ( ! $controller instanceof PreFilterInterface) {
+					$stopRequest = true;
 				}
 
 				$controller->output();
 
-				if ($controllerFound) {
+				if ($stopRequest) {
+					$controllerFound = true;
 					break;
 				}
 			}
 		}
 
-		if (!$controllerFound) {
+		if ( ! $controllerFound) {
 			throw new Exception\ResourceNotFoundException('No controller has been found for the request');
 		}
 	}

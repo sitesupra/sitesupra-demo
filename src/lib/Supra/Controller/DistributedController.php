@@ -73,9 +73,7 @@ abstract class DistributedController extends ControllerAbstraction
 			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found (class '$class')");
 		}
 		
-		$actionController = Loader::getClassInstance($class, 'Supra\Controller\ControllerInterface');
-		
-		FrontController::getInstance()->runController($actionController, $request);
+		$actionController = FrontController::getInstance()->runController($class, $request);
 		
 		// Not using $response because it might be rewritten
 		$actionController->getResponse()->flushToResponse($this->getResponse());

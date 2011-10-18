@@ -2,6 +2,8 @@
 
 namespace Supra\Session\Handler;
 
+use Supra\Session\Exception;
+
 abstract class HandlerAbstraction 
 {
 	const DEFAULT_SESSION_NAME = 'SID';
@@ -16,6 +18,8 @@ abstract class HandlerAbstraction
 	protected $sessionStatus;
 	
 	protected $sessionName;
+	
+	protected $sessionId;
 	
 	protected $sessionData;
 	
@@ -83,5 +87,40 @@ abstract class HandlerAbstraction
 		}
 		
 		return $this->sessionData;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSessionId()
+	{
+		return $this->sessionId;
+	}
+
+	/**
+	 * Change session ID by restarting session
+	 * @param string $sessionId
+	 */
+	public function changeSessionId($sessionId)
+	{
+		// Need to restart session to send new ID to the client
+		$this->clear();
+		$this->close();
+		
+		$this->setSessionId($sessionId);
+		
+		$this->start();
+	}
+	
+	/**
+	 * @param string $sessionId
+	 */
+	public function setSessionId($sessionId)
+	{
+		if ($this->sessionStatus == self::SESSION_STARTED) {
+			throw new Exception\SessionStarted("Cannot set session ID when session is started");
+		}
+		
+		$this->sessionId = $sessionId;
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace Supra\Session\Exception;
 
-class SessionNamespaceNotFound extends \RuntimeException 
+class SessionNamespaceNotFound extends RuntimeException 
 {
 	
 }

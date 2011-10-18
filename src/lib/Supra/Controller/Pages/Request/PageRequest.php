@@ -547,6 +547,8 @@ abstract class PageRequest extends HttpRequest
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
+			/* @var $block Entity\Abstraction\Block */
+			
 			$master = null;
 			
 			if ($block->getLocked()) {

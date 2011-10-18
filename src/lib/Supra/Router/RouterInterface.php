@@ -43,17 +43,17 @@ interface RouterInterface
 	 */
 	public function setControllerClass($controllerClass);
 
-	/**
-	 * Initialize routed controller
-	 * @return ControllerInterface
-	 */
-	public function initializeController();
-	
-	/**
-	 * Get routed controller
-	 * @return ControllerInterface
-	 */
-	public function getController();
+//	/**
+//	 * Initialize routed controller
+//	 * @return ControllerInterface
+//	 */
+//	public function initializeController();
+//	
+//	/**
+//	 * Get routed controller
+//	 * @return ControllerInterface
+//	 */
+//	public function getController();
 
 	/**
 	 * Set parameters

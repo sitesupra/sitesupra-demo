@@ -94,7 +94,8 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$userId = $this->getRequestParameter('user_id');
 
-		$session = ObjectRepository::getSessionNamespace($this);
+		$session = ObjectRepository::getSessionManager($this)
+				->getAuthenticationSpace();
 		$currentUser = $session->getUser();
 		$currentUserId = $currentUser->getId();
 
@@ -112,8 +113,10 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
 
-		$this->userProvider->getEntityManager()->remove($user);
-		$this->userProvider->getEntityManager()->flush();
+		$entityManager = ObjectRepository::getEntityManager($this->userProvider);
+		
+		$entityManager->remove($user);
+		$entityManager->flush();
 
 		$this->getResponse()->setResponseData(null);
 	}

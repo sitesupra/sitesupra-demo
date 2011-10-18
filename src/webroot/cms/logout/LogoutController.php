@@ -32,7 +32,8 @@ class LogoutController extends SimpleController
 	
 	public function indexAction()
 	{
-		$session = ObjectRepository::getSessionNamespace($this);
+		$session = ObjectRepository::getSessionManager($this)
+				->getAuthenticationSpace();
 		
 		$loginPage = $this->getLoginPage();
 		

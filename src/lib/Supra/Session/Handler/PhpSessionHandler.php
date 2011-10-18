@@ -2,6 +2,8 @@
 
 namespace Supra\Session\Handler;
 
+use Supra\Session\Exception;
+
 class PhpSessionHandler extends HandlerAbstraction
 {
 	/**
@@ -17,8 +19,12 @@ class PhpSessionHandler extends HandlerAbstraction
 		session_name($this->sessionName);
 		session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
 		
+		// Set session ID if set
+		if ( ! empty($this->sessionId)) {
+			session_id($this->sessionId);
+		}
+		
 		if ( ! session_start()) {
-			
 			$this->status = self::SESSION_COULD_NOT_START;
 			throw new Exception\CouldNotStartSession();
 		}
@@ -34,15 +40,5 @@ class PhpSessionHandler extends HandlerAbstraction
 		session_write_close();
 		
 		parent::close();
-	}
-	
-	/**
-	 * Clears all session data.
-	 */
-	public function clear() {
-		
-		$this->sessionData = array();
-		
-		parent::clear();
 	}
 }

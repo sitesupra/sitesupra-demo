@@ -37,14 +37,6 @@ abstract class CmsAction extends SimpleController
 	public function __construct()
 	{
 		parent::__construct();
-		
-		$session = ObjectRepository::getSessionNamespace($this);
-		
-		if ( ! $session instanceof AuthenticationSessionNamespace) {
-			throw new \LogicException("CMS session must be instance of AuthenticationSessionNamespace");
-		}
-		
-		$this->user = $session->getUser();
 	}
 	
 	/**
@@ -215,8 +207,16 @@ abstract class CmsAction extends SimpleController
 	 */
 	protected function getUser()
 	{
-		if ( ! $this->user instanceof User) {
-			throw new Exception\LogicException("User is not logged in");
+		if (is_null($this->user)) {
+			$session = ObjectRepository::getSessionManager($this)
+					->getSpace('Supra\Authentication\AuthenticationSessionNamespace');
+			/* @var $session AuthenticationSessionNamespace */
+			
+			$this->user = $session->getUser();
+
+			if ( ! $this->user instanceof User) {
+				throw new Exception\LogicException("User is not logged in");
+			}
 		}
 		
 		return $this->user;
@@ -231,16 +231,18 @@ abstract class CmsAction extends SimpleController
 	 */
 	protected function checkActionPermission($object, $permissionName)
 	{
+		$user = $this->getUser();
+		
 		$ap = ObjectRepository::getAuthorizationProvider($this);
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
 		
-		if(	$appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($this->user) ||
-				$ap->isPermissionGranted($this->user, $object, $permissionName)
+		if ($appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($user) ||
+				$ap->isPermissionGranted($user, $object, $permissionName)
 		) {
 			return true;
 		}
 		else {
-			throw new EntityAccessDeniedException($this->user, $object, $permissionName);
+			throw new EntityAccessDeniedException($user, $object, $permissionName);
 		}		
 	}
 }

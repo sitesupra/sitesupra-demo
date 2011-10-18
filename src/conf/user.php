@@ -7,10 +7,17 @@ use Supra\User\Validation\EmailValidation;
 
 $userProvider = new UserProvider();
 
-$emailVailidation = new EmailValidation();
-$emailVailidation->setEntityManager($userProvider->getEntityManager());
-$userProvider->addValidationFilter($emailVailidation);
-$authAdapter = new AutoregisterAuthenticationAdapter();
-$userProvider->setAuthAdapter($authAdapter);
+$userProvider->addValidationFilter(new EmailValidation());
+$userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
 
-ObjectRepository::setDefaultUserProvider($userProvider);
+// This is provider for CMS
+//ObjectRepository::setUserProvider('Supra\Cms', $userProvider);
+
+// Experimental: added extra rules for controllers
+ObjectRepository::setUserProvider('Supra\Cms\CmsController', $userProvider);
+ObjectRepository::setUserProvider('Project\Authentication\AuthenticationPreFilterController', $userProvider);
+ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
+ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);
+
+////TODO: remove this line when it's fixed
+//ObjectRepository::setDefaultUserProvider($userProvider);

@@ -9,10 +9,7 @@ $userProvider = new UserProvider();
 $entityManager = ObjectRepository::getEntityManager('Supra\Tests');
 $userProvider->setEntityManager($entityManager);
 
-$emailVailidation = new EmailValidation();
-$emailVailidation->setEntityManager($entityManager);
-$userProvider->addValidationFilter($emailVailidation);
-$authAdapter = new HashAdapter();
-$userProvider->setAuthAdapter($authAdapter);
+$userProvider->addValidationFilter(new EmailValidation());
+$userProvider->setAuthAdapter(new HashAdapter());
 
 ObjectRepository::setUserProvider('Supra\Tests', $userProvider);

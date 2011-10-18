@@ -12,7 +12,6 @@ use Supra\Authentication\Exception\AuthenticationFailure;
 
 class UserProvider
 {
-
 	/**
 	 * Validation filters
 	 * @var array 
@@ -32,33 +31,16 @@ class UserProvider
 	protected $authAdapter;
 
 	/**
-	 * Binds entity manager
-	 */
-	public function __construct()
-	{
-		$this->entityManager = ObjectRepository::getEntityManager($this);
-	}
-
-	/**
-	 * Override the entity manager
-	 * @param EntityManager $entityManager 
-	 */
-	public function setEntityManager(EntityManager $entityManager)
-	{
-		$this->entityManager = $entityManager;
-	}
-
-	/**
 	 * @return EntityManager
 	 */
 	public function getEntityManager()
 	{
-		return $this->entityManager;
+		return ObjectRepository::getEntityManager($this);
 	}
 
 	/**
 	 * Adds validation filter to array
-	 * @param array $validationFilter 
+	 * @param Validation\UserValidationInterface $validationFilter 
 	 */
 	public function addValidationFilter($validationFilter)
 	{
@@ -72,6 +54,7 @@ class UserProvider
 	public function validate(Entity\User $user)
 	{
 		foreach ($this->validationFilters as $filter) {
+			/* @var $filter Validation\UserValidationInterface */
 			$filter->validateUser($user);
 		}
 	}
@@ -115,8 +98,9 @@ class UserProvider
 				throw new UserNotFoundException();
 			}
 
-			$this->entityManager->persist($user);
-			$this->entityManager->flush();
+			$entityManager = $this->getEntityManager();
+			$entityManager->persist($user);
+			$entityManager->flush();
 		}
 
 		$adapter->authenticate($user, $password);
@@ -131,7 +115,8 @@ class UserProvider
 	 */
 	public function findUserByLogin($login)
 	{
-		$repo = $this->entityManager->getRepository(Entity\User::CN());
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
 		$user = $repo->findOneByLogin($login);
 
 		if (empty($user)) {
@@ -147,7 +132,9 @@ class UserProvider
 	 */
 	public function findUserById($id)
 	{
-		return $this->entityManager->find(Entity\User::CN(), $id);
+		$entityManager = $this->getEntityManager();
+		
+		return $entityManager->find(Entity\User::CN(), $id);
 	}
 
 	/**
@@ -157,23 +144,23 @@ class UserProvider
 	 */
 	public function findGroupByName($name)
 	{
-		$repo = $this->entityManager->getRepository(Entity\Group::CN());
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\Group::CN());
 		$group = $repo->findOneByName($name);
 
-		if (empty($group)) {
-			return null;
-		}
 		return $group;
 	}
 
 	/**
 	 * Find group by id
-	 * @param type $id
+	 * @param string $id
 	 * @return Entity\Group
 	 */
 	public function findGroupById($id)
 	{
-		return $this->entityManager->find(Entity\Group::CN(), $id);
+		$entityManager = $this->getEntityManager();
+		
+		return $entityManager->find(Entity\Group::CN(), $id);
 	}
 	
 	/**
@@ -183,29 +170,45 @@ class UserProvider
 	 */
 	public function findById($id)
 	{
-		return $this->entityManager->find(Entity\Abstraction\User::CN(), $id);
+		$entityManager = $this->getEntityManager();
+		
+		return $entityManager->find(Entity\Abstraction\User::CN(), $id);
 	}
 
+	/**
+	 * @return array
+	 */
 	public function findAllUsers()
 	{
-		$repo = $this->entityManager->getRepository(Entity\User::CN());
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
 		$users = $repo->findAll();
 
 		return $users;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function findAllGrups()
 	{
-		$repo = $this->entityManager->getRepository(Entity\Group::CN());
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\Group::CN());
 		$groups = $repo->findAll();
 
 		return $groups;
 	}
 
+	/**
+	 * @param Entity\Group $group
+	 * @return array
+	 */
 	public function getAllUsersInGroup(Entity\Group $group)
 	{
-		$repo = $this->entityManager->getRepository(Entity\User::CN());
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
 		$users = $repo->findBy(array('group' => $group->getId()));
+		
 		return $users;
 	}
 

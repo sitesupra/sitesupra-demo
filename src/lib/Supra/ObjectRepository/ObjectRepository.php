@@ -42,26 +42,112 @@ class ObjectRepository
 	protected static $objectBindings = array(
 		self::DEFAULT_KEY => array(),
 	);
+	
+	/**
+	 * Called controller stack (id list, last added controller first)
+	 * @var array
+	 */
+	protected static $controllerStack = array();
+
+	/**
+	 * Marks beginning of the controller context,
+	 * adds the controller ID to the call stack
+	 * @param string $controllerId
+	 */
+	public static function beginControllerContext($controllerId)
+	{
+		array_unshift(self::$controllerStack, $controllerId);
+	}
+	
+	/**
+	 * Marks the end of the controller execution
+	 * @param string $expectedControllerId
+	 * @throws Exception\LogicException
+	 */
+	public static function endControllerContext($expectedControllerId)
+	{
+		$actualControllerId = array_shift(self::$controllerStack);
+		
+		if ($actualControllerId != $expectedControllerId) {
+			
+			$expectationString = null;
+			
+			if (empty($actualControllerId)) {
+				$expectationString = "No controller";
+			} else {
+				$expectationString = "Controller '$actualControllerId'";
+			}
+			
+			throw new Exception\LogicException("$expectationString was expected to be ended, but '$expectedControllerId' was passed");
+		}
+	}
+	
+	/**
+	 * Shouldn't be called. Used by tests.
+	 */
+	public function resetControllerContext()
+	{
+		self::$controllerStack = array();
+	}
+	
+	/**
+	 * Normalizes caller, object is converted to the class name string
+	 * @param mixed $caller
+	 * @return string
+	 */
+	private static function normalizeCallerArgument($caller)
+	{
+		if (is_object($caller)) {
+			$caller = get_class($caller);
+		} elseif ( ! is_string($caller)) {
+			throw new Exception\RuntimeException('Caller must be class instance or class name');
+		} else {
+			$caller = trim($caller, '\\');
+		}
+		
+		return $caller;
+	}
+	
+	/**
+	 * Normalizes interface name argument
+	 * @param string $interface
+	 * @return string
+	 */
+	private static function normalizeInterfaceArgument($interface)
+	{
+		if ( ! is_string($interface)) {
+			throw new Exception\RuntimeException('Interface argument must be a string');
+		}
+		
+		$interface = trim($interface, '\\');
+		
+		return $interface;
+	}
 
 	/**
 	 * Get object of specified interface assigned to caller class
 	 *
 	 * @param mixed $callerClass
-	 * @param string $interfaceName
+	 * @param string $interface
 	 * @return object
+	 * @throws Exception\RuntimeException
 	 */
-	public static function getObject($caller, $interfaceName)
+	public static function getObject($caller, $interface)
 	{
-		if (is_object($caller)) {
-			$caller = get_class($caller);
-		} else if ( ! is_string($caller)) {
-			throw new \RuntimeException('Caller must be class instance or class name');
-		}
-
-		$caller = trim($caller, "\\");
-		$interfaceName = trim($interfaceName, "\\");
+		$interface = self::normalizeInterfaceArgument($interface);
 		
-		$object = self::findObject($caller, $interfaceName);
+		// 1. Try matching any controller from the execution list
+		foreach (self::$controllerStack as $controllerId) {
+			$object = self::findObject($controllerId, $interface);
+			
+			if ( ! is_null($object)) {
+				return $object;
+			}
+		}
+		
+		// 2. If not found, try matching nearest defined object by caller
+		$caller = self::normalizeCallerArgument($caller);
+		$object = self::findNearestObject($caller, $interface);
 
 		return $object;
 	}
@@ -71,24 +157,24 @@ class ObjectRepository
 	 *
 	 * @param mixed $caller
 	 * @param object $object 
-	 * @param string $interfaceName
+	 * @param string $interface
 	 */
-	public static function setObject($caller, $object, $interfaceName)
+	public static function setObject($caller, $object, $interface)
 	{
-		self::addBinding($caller, $object, $interfaceName);
+		self::addBinding($caller, $object, $interface);
 	}
-
+	
 	/**
 	 * Set default assigned object of its class
 	 *
 	 * @param mixed $object 
-	 * @param string $interfaceName
+	 * @param string $interface
 	 */
-	public static function setDefaultObject($object, $interfaceName)
+	public static function setDefaultObject($object, $interface)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object, $interfaceName);
+		self::addBinding(self::DEFAULT_KEY, $object, $interface);
 	}
-
+	
 	/**
 	 * Get assigned logger
 	 *
@@ -262,55 +348,72 @@ class ObjectRepository
 	 *
 	 * @param string $callerClass
 	 * @param object $object
-	 * @param string $interfaceClass 
+	 * @param string $interface 
+	 * @throws Exception\RuntimeException
 	 */
-	protected static function addBinding($caller, $object, $interfaceClass)
+	protected static function addBinding($caller, $object, $interface)
 	{
-		if (is_object($caller)) {
-			$caller = get_class($caller);
-		} else if ( ! is_string($caller)) {
-			throw new \RuntimeException('Caller must be class instance or class name');
-		}
+		$caller = self::normalizeCallerArgument($caller);
+		$interface = self::normalizeInterfaceArgument($interface);
+		
 		if ( ! is_object($object)) {
-			throw new \RuntimeException('Object must be an object');
+			throw new Exception\RuntimeException('Object argument must be an object');
 		}
-		if ( ! is_a($object, $interfaceClass)) {
-			throw new \RuntimeException('Object must be an instance of interface class or must extend it');
+		
+		if ( ! is_a($object, $interface)) {
+			throw new Exception\RuntimeException('Object must be an instance of interface class or must extend it');
 		}
 
-		$caller = trim($caller, "\\");
-		$interfaceClass = trim($interfaceClass, "\\");
-
-		self::$objectBindings[$caller][$interfaceClass] = $object;
+		self::$objectBindings[$caller][$interface] = $object;
+	}
+	
+	/**
+	 * Find object by exact namespace/classname
+	 * @param string $namespace
+	 * @param string $objectClass
+	 * @return object
+	 */
+	private static function findObject($namespace, $objectClass)
+	{
+		if (isset(self::$objectBindings[$namespace][$objectClass])) {
+			return self::$objectBindings[$namespace][$objectClass];
+		}
 	}
 
 	/**
-	 * Find object
-	 *
-	 * @param string $callerClass
+	 * Find object by namespace or it's parent namespaces
+	 * @param string $namespace
 	 * @param string $objectClass 
 	 */
-	protected static function findObject($callerClass, $objectClass)
+	private static function findNearestObject($namespace, $objectClass)
 	{
-		while ( ! isset(self::$objectBindings[$callerClass][$objectClass])) {
-			
-			// Event the default instance does not exist
-			if ($callerClass == self::DEFAULT_KEY) {
-				return null;
-			}
-			
-			// Try parent namespace
-			$backslashPos = strrpos($callerClass, "\\");
-			$seniorClass = self::DEFAULT_KEY;
-			
-			if ($backslashPos !== false) {
-				$seniorClass = substr($callerClass, 0, $backslashPos);
-			}
-			
-			$callerClass = $seniorClass;
+		$object = null;
+		
+		do {
+			$object = self::findObject($namespace, $objectClass);
+			$namespace = self::getParentNamespace($namespace);
+		} while (is_null($object) && ! is_null($namespace));
+		
+		return $object;
+	}
+	
+	private static function getParentNamespace($namespace)
+	{
+		if ($namespace === self::DEFAULT_KEY) {
+			return null;
 		}
 		
-		return self::$objectBindings[$callerClass][$objectClass];
+		// Try parent namespace
+		$backslashPos = strrpos($namespace, "\\");
+		$seniorClass = null;
+
+		if ($backslashPos !== false) {
+			$seniorClass = substr($namespace, 0, $backslashPos);
+		} else {
+			$seniorClass = self::DEFAULT_KEY;
+		}
+
+		return $seniorClass;
 	}
 	
 	/**

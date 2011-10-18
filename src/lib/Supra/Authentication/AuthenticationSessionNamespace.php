@@ -9,7 +9,7 @@ use Supra\User\Entity\User;
 /**
  * Session namespace for authentication result
  */
-abstract class AuthenticationSessionNamespace extends SessionNamespace
+class AuthenticationSessionNamespace extends SessionNamespace
 {
 	const USER_ID_KEY = 'userId';
 

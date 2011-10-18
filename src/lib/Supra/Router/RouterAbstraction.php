@@ -79,38 +79,46 @@ abstract class RouterAbstraction implements RouterInterface
 		}
 		$this->controllerClass = $controllerClass;
 	}
-
-	/**
-	 * {@inheritdoc}
-	 * @return ControllerInterface
-	 */
-	public function initializeController()
-	{
-		if ( ! is_null($this->controller)) {
-			throw new Exception\RuntimeException("Controller is already initialized");
-		}
-		
-		if ( ! class_exists($this->controllerClass)) {
-			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
-		}
-		
-		$this->controller = Loader::getClassInstance($this->controllerClass, 'Supra\Controller\ControllerInterface');
-		
-		return $this->controller;
-	}
 	
 	/**
-	 * {@inheritdoc}
-	 * @return ControllerInterface
+	 * @return string
 	 */
-	public function getController()
+	public function getControllerClass()
 	{
-		if (empty($this->controller)) {
-			throw new Exception\RuntimeException("Controller not initialized");
-		}
-		
-		return $this->controller;
+		return $this->controllerClass;
 	}
+
+//	/**
+//	 * {@inheritdoc}
+//	 * @return ControllerInterface
+//	 */
+//	public function initializeController()
+//	{
+//		if ( ! is_null($this->controller)) {
+//			throw new Exception\RuntimeException("Controller is already initialized");
+//		}
+//		
+//		if ( ! class_exists($this->controllerClass)) {
+//			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
+//		}
+//		
+//		$this->controller = Loader::getClassInstance($this->controllerClass, 'Supra\Controller\ControllerInterface');
+//		
+//		return $this->controller;
+//	}
+//	
+//	/**
+//	 * {@inheritdoc}
+//	 * @return ControllerInterface
+//	 */
+//	public function getController()
+//	{
+//		if (empty($this->controller)) {
+//			throw new Exception\RuntimeException("Controller not initialized");
+//		}
+//		
+//		return $this->controller;
+//	}
 
 	/**
 	 * Set parameters

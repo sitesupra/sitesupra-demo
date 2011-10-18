@@ -2,7 +2,7 @@
 
 namespace Supra\Session\Exception;
 
-class CouldNotStartSession extends \RuntimeException 
+class CouldNotStartSession extends RuntimeException 
 {
 	
 }

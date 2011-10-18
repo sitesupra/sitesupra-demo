@@ -52,7 +52,8 @@ class Application extends SymfonyConsoleApplication
 	public function addCronJob($input, AbstractPeriod $period)
 	{
 		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('Supra\Console\Cron\Entity\CronJob');
+		$repo = $em->getRepository(Cron\Entity\CronJob::CN());
+		/* @var $repo CronJobRepository */
 		$repo->addJob($input, $period);
 	}
 	
