@@ -43,11 +43,14 @@ class TemplateAction extends PageManagerAction
 		$parent = null;
 		
 		if ( ! empty($parentId)) {
-			$parent = $this->entityManager->find(Entity\TemplateLocalization::CN(), $parentId);
+			$parentLocalization = $this->entityManager->find(Entity\TemplateLocalization::CN(), $parentId);
+			/* @var $parentLocalization Entity\TemplateLocalization */
 			
-			if (is_null($parent)) {
+			if (is_null($parentLocalization)) {
 				throw new CmsException(null, "Could not found template parent by ID $parentId");
 			}
+			
+			$parent = $parentLocalization->getMaster();
 		} else {
 			//TODO: receive from ui
 			$file = 'root.html';
