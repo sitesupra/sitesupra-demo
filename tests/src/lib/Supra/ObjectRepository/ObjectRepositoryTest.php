@@ -93,7 +93,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 	public function testWrongInterfaceException()
 	{
 		$object = new \stdClass();
-		ObjectRepository::setEntityManager($this, $object);
+		@ObjectRepository::setEntityManager($this, $object);
 	}
 	
 	public function testControllerContext()
@@ -163,7 +163,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAddBindingNotObject()
 	{
-		ObjectRepository::setDefaultLocaleManager(false);
+		@ObjectRepository::setDefaultLocaleManager(false);
 	}
 	
 	/**

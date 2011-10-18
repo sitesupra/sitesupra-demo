@@ -145,6 +145,19 @@ class ObjectRepository
 			}
 		}
 		
+		
+		// Experimental: try loading "nearest" objects.
+		// Case when object received from repository is requesting other objects.
+		// This code will request other objects from the same place the parent object is requested.
+//		foreach (self::$objectBindings as $namespace => $objects) {
+//			foreach ($objects as $interface => $object) {
+//				if ($object === $caller) {
+//					$caller = $namespace;
+//					break;
+//				}
+//			}
+//		}
+		
 		// 2. If not found, try matching nearest defined object by caller
 		$caller = self::normalizeCallerArgument($caller);
 		$object = self::findNearestObject($caller, $interface);
@@ -277,38 +290,6 @@ class ObjectRepository
 	public static function setDefaultFileStorage(FileStorage $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FILE_STORAGE);
-	}
-
-	/**
-	 * Get assigned session namespace
-	 *
-	 * @param mixed $caller
-	 * @return SessionNamespace
-	 */
-	public static function getSessionNamespace($caller)
-	{
-		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE);
-	}
-
-	/**
-	 * Assign session manager to caller class
-	 *
-	 * @param mixed $caller
-	 * @param SessionNamespace $object 
-	 */
-	public static function setSessionNamespace($caller, SessionNamespace $object)
-	{
-		self::addBinding($caller, $object, self::INTERFACE_SESSION_NAMESPACE);
-	}
-
-	/**
-	 * Set default session manager
-	 *
-	 * @param SessionNamespace $object 
-	 */
-	public static function setDefaultSessionNamespace(SessionNamespace $object)
-	{
-		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SESSION_NAMESPACE);
 	}
 
 	/**

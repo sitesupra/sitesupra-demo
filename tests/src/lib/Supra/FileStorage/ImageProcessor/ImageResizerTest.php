@@ -57,7 +57,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown() 
 	{
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -205,7 +205,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 					$this->AssertLessThan($case['h'], $size[1]);
 				}
 			}
-			unlink($this->outputPath);
+			@unlink($this->outputPath);
 		}
 
 		/* crop center */ 
@@ -227,18 +227,9 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 				$this->AssertLessThanOrEqual($case['w'], $size[0]);
 				$this->AssertLessThanOrEqual($case['h'], $size[1]);
 			}
-			unlink($this->outputPath);
+			@unlink($this->outputPath);
 		}
 		
-	}
-
-	/**
-	 * Test resize
-	 */
-	public function testResize() 
-	{
-		// Method resize() is alternate id for process()
-		$this->markTestSkipped('See testProcess()');
 	}
 
 	/**
@@ -254,7 +245,7 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	public function testGetImageInfo() 
 	{
 		$info = $this->object->getImageInfo($this->imagePath);
-		$this->assertType('array', $info);
+		$this->assertInternalType('array', $info);
 		$this->assertArrayHasKey('mime', $info);
 		$this->assertArrayHasKey('width', $info);
 		$this->assertArrayHasKey('height', $info);

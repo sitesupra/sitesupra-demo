@@ -142,13 +142,6 @@ class DoctrineNodeTest extends NodeTest
 
 	/**
 	 */
-	public function testSetRepository()
-	{
-		throw new \PHPUnit_Framework_IncompleteTestError("Not implemented");
-	}
-
-	/**
-	 */
 	public function testAddChild()
 	{
 		\Log::debug($this->repository->drawTree());

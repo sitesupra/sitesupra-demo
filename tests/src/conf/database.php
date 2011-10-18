@@ -51,11 +51,11 @@ $sqlLogger = null;
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = array(
-		'driver' => 'pdo_mysql',
+	'driver' => 'pdo_mysql',
 	'user' => 'root',
 	'password' => 'root',
 	'dbname' => 'supra7test',
-	'charset' => 'UTF-8'
+	'charset' => 'utf8'
 );
 
 // TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6

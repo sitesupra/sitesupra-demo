@@ -17,6 +17,11 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 {
 	const TEST_USER_NAME = 'Chuck123';
 	
+	private static $testEmails = array(
+		'chuck@chucknorris.com',
+		'awesomechuck@chucknorris.com',
+	);
+	
 	/**
 	 * @var User\UserProvider
 	 */
@@ -34,15 +39,30 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 	}
 	
-	private function cleanUp($delete = false)
+//	private function cleanUp()
+//	{
+//		$em = ObjectRepository::getEntityManager($this);
+//		
+//		$query = $em->createQuery("delete from Supra\User\Entity\User");
+//		$query->execute();
+//		$query = $em->createQuery("delete from Supra\User\Entity\Group");
+//		$query->execute();
+//		$query = $em->createQuery("delete from Supra\User\Entity\Abstraction\User");
+//
+//		$query->execute();
+//	}
+	
+	private function cleanUp()
 	{
 		$em = ObjectRepository::getEntityManager($this);
 		
 		// Removes test users
-		$query = $em->createQuery("delete from Supra\User\Entity\User u where u.name = ?0");
-		$query->execute(array(self::TEST_USER_NAME));
-//		$query = $em->createQuery("delete from Supra\User\Entity\Group");
-//		$query->execute();
+		$query = $em->createQuery("delete from Supra\User\Entity\User u where u.login IN (?0, ?1)");
+		$query->execute(self::$testEmails);
+		
+		$users = $em->getRepository(Entity\User::CN())->findAll();
+		
+		$em->clear();
 	}
 
 	public function testCreateUser()
@@ -66,7 +86,9 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testModifyUser()
 	{
-
+		$this->cleanUp();
+		$this->testCreateUser();
+		
 		$em = ObjectRepository::getEntityManager($this);
 		/* @var $repo Doctrine\ORM\EntityRepository */
 		$repo = $em->getRepository('Supra\User\Entity\User');
@@ -105,7 +127,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 			$this->fail('Cant\'t find user with name: Chuck');
 		}
 
-		$em->persist($user);
+//		$em->persist($user);
 
 		$user->setEmail('awesomechuckchucknorris.com');
 

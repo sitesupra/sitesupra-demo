@@ -57,7 +57,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown() 
 	{
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -462,7 +462,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 			$size = getimagesize($this->outputPath);
 			$this->assertEquals($case['w'], $size[0]);
 			$this->assertEquals($case['h'], $size[1]);
-			unlink($this->outputPath);
+			@unlink($this->outputPath);
 		}
 
 		
@@ -505,17 +505,8 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 			$expectedH = ($case['b'] < 0 ? $this->imageHeight + $case['b'] - 1 : $case['b']) - $case['t'] + 1;
 			$this->assertEquals($expectedW, $size[0]);
 			$this->assertEquals($expectedH, $size[1]);
-			unlink($this->outputPath);
+			@unlink($this->outputPath);
 		}
-	}
-
-	/**
-	 * Test crop
-	 */
-	public function testCrop() 
-	{
-		// Method crop() is alternate id for process()
-		$this->markTestSkipped('See testProcess()');
 	}
 
 	/**

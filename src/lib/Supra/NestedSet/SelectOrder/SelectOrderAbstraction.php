@@ -67,7 +67,7 @@ class SelectOrderAbstraction implements SelectOrderInterface
 	{
 		$methodRemainder = $method;
 
-		if (\stripos($method, 'by') === 0) {
+		if (stripos($method, 'by') === 0) {
 			$methodRemainder = substr($method, 2);
 		} else {
 			throw new Exception\BadMethodCall("Unknown method $method called for search order object");

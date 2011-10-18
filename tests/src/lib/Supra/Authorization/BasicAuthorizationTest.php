@@ -64,11 +64,6 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 
 		$sessionManager = new \Supra\Session\SessionManager($sessionHandler);
 		ObjectRepository::setDefaultSessionManager($sessionManager);
-
-		$authenticationSessionNamespace = $sessionManager
-			->getOrCreateSessionNamespace('Tests', 'Supra\Tests\Authentication\AuthenticationSessionNamespace');
-
-		ObjectRepository::setSessionNamespace(__NAMESPACE__, $authenticationSessionNamespace);	
 	}
 	
 	function makeNewUser() 
@@ -210,7 +205,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 
 		$user1 = $this->makeNewUser();
 		
-		$this->ap->grantApplicationAllAccessPermission($user1, $appConfig);
+		$appConfig->authorizationAccessPolicy->grantApplicationAllAccessPermission($user1);
 		
 		$connection = $this->em->getConnection();
 		

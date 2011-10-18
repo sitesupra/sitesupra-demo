@@ -20,17 +20,17 @@ class ArraySelectOrder extends SelectOrderAbstraction
 		$orderRules = $this->orderRules;
 		$orderClosure = function (NodeInterface $nodeA, NodeInterface $nodeB) use (&$orderRules) {
 			foreach ($orderRules as $orderRule) {
-				$field = $orderRule[self::FIELD_POS];
+				$field = $orderRule[SelectOrderInterface::FIELD_POS];
 				switch ($field) {
-					case self::LEFT_FIELD:
+					case SelectOrderInterface::LEFT_FIELD:
 						$valueA = $nodeA->getLeftValue();
 						$valueB = $nodeB->getLeftValue();
 						break;
-					case self::RIGHT_FIELD:
+					case SelectOrderInterface::RIGHT_FIELD:
 						$valueA = $nodeA->getRightValue();
 						$valueB = $nodeB->getRightValue();
 						break;
-					case self::LEVEL_FIELD:
+					case SelectOrderInterface::LEVEL_FIELD:
 						$valueA = $nodeA->getLevel();
 						$valueB = $nodeB->getLevel();
 						break;
@@ -43,11 +43,11 @@ class ArraySelectOrder extends SelectOrderAbstraction
 					continue;
 				}
 
-				$direction = $orderRule[self::DIRECTION_POS];
+				$direction = $orderRule[SelectOrderInterface::DIRECTION_POS];
 				switch ($direction) {
-					case self::DIRECTION_ASCENDING:
+					case SelectOrderInterface::DIRECTION_ASCENDING:
 						break;
-					case self::DIRECTION_DESCENDING:
+					case SelectOrderInterface::DIRECTION_DESCENDING:
 						$diff = ( - $diff);
 						break;
 					default:

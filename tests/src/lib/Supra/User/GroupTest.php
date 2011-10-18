@@ -44,8 +44,8 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$timeNow = new \DateTime('now');
 
 		$group->setName('Super Heroes');
-		$group->setCreatedTime($timeNow);
-		$group->setModifiedTime($timeNow);
+		$group->setCreationTime($timeNow);
+		$group->setModificationTime($timeNow);
 
 		$em->flush();
 	}
@@ -64,8 +64,8 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$em->persist($group);
 
 		$group->setName('group111');
-		$group->setCreatedTime($timeNow);
-		$group->setModifiedTime($timeNow);
+		$group->setCreationTime($timeNow);
+		$group->setModificationTime($timeNow);
 		$em->flush();
 
 		foreach (array('user1', 'user2', 'user444') as $userName) {

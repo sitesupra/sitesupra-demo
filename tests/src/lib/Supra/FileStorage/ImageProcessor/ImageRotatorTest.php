@@ -57,7 +57,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown() 
 	{
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 		$size = getimagesize($this->outputPath);
 		$this->assertEquals($this->imageWidth, $size[0]);
 		$this->assertEquals($this->imageHeight, $size[1]);
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 
 		$this->object->reset();
 		$this->object->setSourceFile($this->imagePath)
@@ -95,7 +95,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 		$size = getimagesize($this->outputPath);
 		$this->assertEquals($this->imageHeight, $size[0]);
 		$this->assertEquals($this->imageWidth, $size[1]);
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -142,7 +142,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 		$size = getimagesize($this->outputPath);
 		$this->assertEquals($this->imageHeight, $size[0]);
 		$this->assertEquals($this->imageWidth, $size[1]);
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -158,7 +158,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 		$size = getimagesize($this->outputPath);
 		$this->assertEquals($this->imageHeight, $size[0]);
 		$this->assertEquals($this->imageWidth, $size[1]);
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**
@@ -174,7 +174,7 @@ class ImageRotatorTest extends \PHPUnit_Framework_TestCase
 		$size = getimagesize($this->outputPath);
 		$this->assertEquals($this->imageWidth, $size[0]);
 		$this->assertEquals($this->imageHeight, $size[1]);
-		unlink($this->outputPath);
+		@unlink($this->outputPath);
 	}
 
 	/**

@@ -61,7 +61,7 @@ class DDC1392Test extends \PHPUnit_Framework_TestCase
 		$q = $this->_em->createQuery("SELECT COUNT(e) FROM " . __NAMESPACE__ . '\DDC1392File e');
 		$result = $q->getSingleScalarResult();
 		
-		self::assertEquals(1, $result);
+		self::assertEquals(1, $result, "Will be fixed in Doctrine ORM 2.1.2 release");
     }
 }
 

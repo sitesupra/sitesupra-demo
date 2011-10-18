@@ -111,26 +111,6 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @todo Implement testSetCaseSensitive().
-	 */
-	public function testSetCaseSensitive() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
-
-	/**
-	 * @todo Implement testGetSeparator().
-	 */
-	public function testGetSeparator() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
-
-	/**
 	 * @todo Implement testStartsWith().
 	 */
 	public function testStartsWith() {
@@ -145,16 +125,6 @@ class PathTest extends \PHPUnit_Framework_TestCase {
 		self::assertTrue($abcDef->startsWith($abc));
 		self::assertFalse($abcDef->startsWith($abcd));
 		self::assertFalse($abcd->startsWith($abc));
-	}
-
-	/**
-	 * @todo Implement testSetBasePath().
-	 */
-	public function testSetBasePath() {
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
 	}
 
 	/**
