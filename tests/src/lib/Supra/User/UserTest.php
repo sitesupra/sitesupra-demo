@@ -192,7 +192,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$user = new Entity\User();
 
-		$this->em->persist($user);
+//		$this->em->persist($user);
 
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
