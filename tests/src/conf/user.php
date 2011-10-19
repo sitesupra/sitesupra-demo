@@ -9,9 +9,9 @@ $userProvider = new UserProvider();
 $userProvider->addValidationFilter(new EmailValidation());
 $userProvider->setAuthAdapter(new HashAdapter());
 
+// Assign user provider for tests namespace
 ObjectRepository::setUserProvider('Supra\Tests', $userProvider);
 
+// Assigns Tests database connection for this particular user provider instance
 $testEntityManager = ObjectRepository::getEntityManager('Supra\Tests');
-
-//TODO: Should somehow assign Tests database connection for this user provider instance
-//ObjectRepository::setEntityManager($userProvider, $testEntityManager);
+ObjectRepository::setEntityManager($userProvider, $testEntityManager);

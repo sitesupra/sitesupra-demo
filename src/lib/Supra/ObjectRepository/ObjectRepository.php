@@ -22,6 +22,12 @@ class ObjectRepository
 {
 	const DEFAULT_KEY = '';
 	
+	/**
+	 * Used when binding the object to controller
+	 * TODO: just an idea, not realized because of multiple methods which should be implemented
+	 */
+	const CONTROLLER_PREFIX = 'CONTROLLER/';
+	
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
@@ -39,10 +45,14 @@ class ObjectRepository
 	 *
 	 * @var array
 	 */
-	protected static $objectBindings = array(
-		self::DEFAULT_KEY => array(),
-	);
+	protected static $objectBindings = array();
 	
+	/**
+	 * Forced caller hierarchy
+	 * @var array
+	 */
+	protected static $callerHierarchy = array();
+
 	/**
 	 * Called controller stack (id list, last added controller first)
 	 * @var array
@@ -98,7 +108,9 @@ class ObjectRepository
 	private static function normalizeCallerArgument($caller)
 	{
 		if (is_object($caller)) {
-			$caller = get_class($caller);
+			$callerClass = get_class($caller);
+			$callerHash = spl_object_hash($caller);
+			$caller = $callerClass . '\\' . $callerHash;
 		} elseif ( ! is_string($caller)) {
 			throw new Exception\RuntimeException('Caller must be class instance or class name');
 		} else {
@@ -123,6 +135,118 @@ class ObjectRepository
 		
 		return $interface;
 	}
+	
+	/**
+	 * Internal relation setter
+	 *
+	 * @param string $callerClass
+	 * @param object $object
+	 * @param string $interface 
+	 * @throws Exception\RuntimeException
+	 */
+	protected static function addBinding($caller, $object, $interface)
+	{
+		$caller = self::normalizeCallerArgument($caller);
+		$interface = self::normalizeInterfaceArgument($interface);
+		
+		if ( ! is_object($object)) {
+			throw new Exception\RuntimeException('Object argument must be an object');
+		}
+		
+		if ( ! is_a($object, $interface)) {
+			throw new Exception\RuntimeException('Object must be an instance of interface class or must extend it');
+		}
+
+		self::$objectBindings[$interface][$caller] = $object;
+	}
+	
+	/**
+	 * Find object by exact namespace/classname
+	 * @param string $caller
+	 * @param string $interface
+	 * @return object
+	 */
+	private static function findObject($caller, $interface)
+	{
+		if (isset(self::$objectBindings[$interface][$caller])) {
+			return self::$objectBindings[$interface][$caller];
+		}
+	}
+
+	/**
+	 * Find object by namespace or it's parent namespaces
+	 * @param string $caller
+	 * @param string $interface 
+	 */
+	private static function findNearestObject($caller, $interface)
+	{
+		$object = null;
+		$visited = array();
+		
+		do {
+			$object = self::findObject($caller, $interface);
+			$caller = self::getParentCaller($caller, $visited);
+		} while (is_null($object) && ! is_null($caller));
+		
+		return $object;
+	}
+	
+	/**
+	 * Force caller object hierarchy
+	 * @param mixed $child
+	 * @param mixed $parent
+	 * @param boolean $overwrite
+	 */
+	public static function setCallerParent($child, $parent, $overwrite = false)
+	{
+		// Shortcut variable
+		$ch = &self::$callerHierarchy;
+		
+		$child = self::normalizeCallerArgument($child);
+		$parent = self::normalizeCallerArgument($parent);
+		
+		if (( ! $overwrite) && isset($ch[$child]) && ($ch[$child] !== $parent)) {
+			throw new Exception\RuntimeException("Caller $child parent already declared");
+		}
+		
+		$ch[$child] = $parent;
+	}
+	
+	/**
+	 * Loads parent caller name for the current caller
+	 * @param string $caller
+	 * @param array $visited
+	 * @return string
+	 * @throws Exception\RuntimeException if infinite cycle defined in the hierarchy definition
+	 */
+	private static function getParentCaller($caller, array &$visited)
+	{
+		if ($caller === self::DEFAULT_KEY) {
+			return null;
+		}
+		
+		// Try parent namespace
+		$backslashPos = strrpos($caller, "\\");
+		$parentCaller = null;
+
+		if (isset(self::$callerHierarchy[$caller])) {
+			
+			// Visited nodes are checked and registered only here, 
+			// other strategies are safe
+			if (in_array($caller, $visited)) {
+				throw new Exception\RuntimeException("Loop detected in caller hierarchy");
+			}
+			$visited[] = $caller;
+			
+			$parentCaller = self::$callerHierarchy[$caller];
+		} elseif ($backslashPos !== false) {
+			$parentCaller = substr($caller, 0, $backslashPos);
+		} else {
+			$parentCaller = self::DEFAULT_KEY;
+		}
+
+		return $parentCaller;
+	}
 
 	/**
 	 * Get object of specified interface assigned to caller class
@@ -138,25 +262,15 @@ class ObjectRepository
 		
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
-			$object = self::findObject($controllerId, $interface);
+			$controllerCaller = $controllerId;
+			// See CONTROLLER_PREFIX constant comment
+//			$controllerCaller = self::CONTROLLER_PREFIX . $controllerId;
+			$object = self::findObject($controllerCaller, $interface);
 			
 			if ( ! is_null($object)) {
 				return $object;
 			}
 		}
-		
-		
-		// Experimental: try loading "nearest" objects.
-		// Case when object received from repository is requesting other objects.
-		// This code will request other objects from the same place the parent object is requested.
-//		foreach (self::$objectBindings as $namespace => $objects) {
-//			foreach ($objects as $interface => $object) {
-//				if ($object === $caller) {
-//					$caller = $namespace;
-//					break;
-//				}
-//			}
-//		}
 		
 		// 2. If not found, try matching nearest defined object by caller
 		$caller = self::normalizeCallerArgument($caller);
@@ -221,7 +335,7 @@ class ObjectRepository
 	/**
 	 * Set default logger
 	 *
-	 * @param WriterAbstraction $object 
+	 * @param WriterAbstraction $object
 	 */
 	public static function setDefaultLogger(WriterAbstraction $object)
 	{
@@ -324,79 +438,6 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}
 
-	/**
-	 * Internal relation setter
-	 *
-	 * @param string $callerClass
-	 * @param object $object
-	 * @param string $interface 
-	 * @throws Exception\RuntimeException
-	 */
-	protected static function addBinding($caller, $object, $interface)
-	{
-		$caller = self::normalizeCallerArgument($caller);
-		$interface = self::normalizeInterfaceArgument($interface);
-		
-		if ( ! is_object($object)) {
-			throw new Exception\RuntimeException('Object argument must be an object');
-		}
-		
-		if ( ! is_a($object, $interface)) {
-			throw new Exception\RuntimeException('Object must be an instance of interface class or must extend it');
-		}
-
-		self::$objectBindings[$caller][$interface] = $object;
-	}
-	
-	/**
-	 * Find object by exact namespace/classname
-	 * @param string $namespace
-	 * @param string $objectClass
-	 * @return object
-	 */
-	private static function findObject($namespace, $objectClass)
-	{
-		if (isset(self::$objectBindings[$namespace][$objectClass])) {
-			return self::$objectBindings[$namespace][$objectClass];
-		}
-	}
-
-	/**
-	 * Find object by namespace or it's parent namespaces
-	 * @param string $namespace
-	 * @param string $objectClass 
-	 */
-	private static function findNearestObject($namespace, $objectClass)
-	{
-		$object = null;
-		
-		do {
-			$object = self::findObject($namespace, $objectClass);
-			$namespace = self::getParentNamespace($namespace);
-		} while (is_null($object) && ! is_null($namespace));
-		
-		return $object;
-	}
-	
-	private static function getParentNamespace($namespace)
-	{
-		if ($namespace === self::DEFAULT_KEY) {
-			return null;
-		}
-		
-		// Try parent namespace
-		$backslashPos = strrpos($namespace, "\\");
-		$seniorClass = null;
-
-		if ($backslashPos !== false) {
-			$seniorClass = substr($namespace, 0, $backslashPos);
-		} else {
-			$seniorClass = self::DEFAULT_KEY;
-		}
-
-		return $seniorClass;
-	}
-	
 	/**
 	 * Get assigned user provider
 	 *
@@ -587,6 +628,6 @@ class ObjectRepository
 	public static function setDefaultIndexerQueue(IndexerQueue $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INDEXER_QUEUE);
-	}	
-
+	}
+	
 }

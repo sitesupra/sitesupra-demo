@@ -15,15 +15,34 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
  */
 class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 {
+	/**
+	 * @var User\UserProvider
+	 */
+	private $userProvider;
+	
+	/**
+	 * @var \Doctrine\ORM\EntityManager
+	 */
+	private $em;
+	
+	protected function setUp()
+	{
+		parent::setUp();
+		
+		$this->userProvider = ObjectRepository::getUserProvider($this);
+		$this->em = $this->userProvider->getEntityManager();
+		
+		self::assertEquals('test', $this->em->_mode);
+	}
+	
 	private function cleanUp($delete = false)
 	{
-		$userProvider = ObjectRepository::getUserProvider($this);
-		$em = $userProvider->getEntityManager();
-		$query = $em->createQuery("delete from Supra\User\Entity\User");
+		
+		$query = $this->em->createQuery("delete from Supra\User\Entity\User");
 		$query->execute();
-		$query = $em->createQuery("delete from Supra\User\Entity\Group");
+		$query = $this->em->createQuery("delete from Supra\User\Entity\Group");
 		$query->execute();
-		$query = $em->createQuery("delete from Supra\User\Entity\Abstraction\User");
+		$query = $this->em->createQuery("delete from Supra\User\Entity\Abstraction\User");
 
 		$query->execute();
 	}
@@ -33,47 +52,38 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->cleanUp();
 
 		$group = new Entity\Group();
-		$userProvider = ObjectRepository::getUserProvider($this);
-		$em = $userProvider->getEntityManager();
 
-		/* @var $em Doctrine\ORM\EntityManager */
-		$em->persist($group);
+		$this->em->persist($group);
 
 		$group->setName('Super Heroes');
 
-		$em->flush();
+		$this->em->flush();
 	}
 
 	public function testGetGroupUsers()
 	{
 		$this->cleanUp();
 
-		/* @var $userProvider User\UserProvider */
-		$userProvider = ObjectRepository::getUserProvider($this);
-
-		/* @var $em Doctrine\ORM\EntityManager */
-		$em = $userProvider->getEntityManager();
-
 		$group = new Entity\Group();
-		$em->persist($group);
+		$this->em->persist($group);
 
 		$group->setName('group111');
-		$em->flush();
+		$this->em->flush();
 
 		foreach (array('user1', 'user2', 'user444') as $userName) {
 
 			$user = new Entity\User();
-			$em->persist($user);
+			$this->em->persist($user);
 
 			$user->setName($userName);
 			$user->setLogin($userName);
 			$user->setEmail($userName);
 			$user->setGroup($group);
-			$em->flush();
+			$this->em->flush();
 		}
 
-		$group2 = $userProvider->findGroupByName('group111');
-		$group2Users = $userProvider->getAllUsersInGroup($group2);
+		$group2 = $this->userProvider->findGroupByName('group111');
+		$group2Users = $this->userProvider->getAllUsersInGroup($group2);
 
 		self::assertEquals(count($group2Users), 3);
 	}

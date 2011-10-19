@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Test\ObjectRepository;
+namespace Supra\Tests\ObjectRepository;
 
-use Supra\ObjectRepository\ObjectRepository;
+use Supra\Tests\ObjectRepository\Mockup\ObjectRepository;
 
 /**
  * Test class for ObjectRepository.
@@ -16,7 +16,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
-		
+		ObjectRepository::saveCurrentState();
 	}
 
 	/**
@@ -25,7 +25,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown()
 	{
-		
+		ObjectRepository::restoreCurrentState();
 	}
 
 	/**
@@ -64,13 +64,13 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		
 		// Better match already set, skip
 		$g = new ObjectRepositoryTest();
-		ObjectRepository::setObject('Supra\Test', $g, 'PHPUnit_Framework_TestCase');
+		ObjectRepository::setObject('Supra\Tests', $g, 'PHPUnit_Framework_TestCase');
 		$b = ObjectRepository::getObject($this, 'PHPUnit_Framework_TestCase');
 		self::assertEquals($f, $b);
 		
 		// Shouldn't find by master class if set by extended class
 		$h = new ObjectRepositoryTest();
-		ObjectRepository::setObject('Supra\Test', $h, 'Supra\Test\ObjectRepository\ObjectRepositoryTest');
+		ObjectRepository::setObject('Supra\Tests', $h, 'Supra\Tests\ObjectRepository\ObjectRepositoryTest');
 		$b = ObjectRepository::getObject($this, 'PHPUnit_Framework_TestCase');
 		self::assertEquals($f, $b);
 	}
@@ -184,4 +184,122 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::endControllerContext('fail');
 	}
 	
+	public function testCallerHierarchy()
+	{
+		$obj = new \stdClass();
+		
+		ObjectRepository::setObject('yyy', $obj, 'stdClass');
+		self::assertNull(ObjectRepository::getObject('xxx', 'stdClass'));
+		
+		ObjectRepository::setCallerParent('xxx', 'yyy');
+		ObjectRepository::setCallerParent('xxx', 'yyy');
+		ObjectRepository::setCallerParent('xxx', 'yyy\\subclass', true);
+		
+		self::assertEquals($obj, ObjectRepository::getObject('xxx', 'stdClass'));
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testCallerHierarchyLoopFailure()
+	{
+		ObjectRepository::setCallerParent('xxx', 'yyy\\zzz');
+		ObjectRepository::setCallerParent('yyy', 'xxx\\aaa');
+		
+		ObjectRepository::getObject('xxx', 'stdClass');
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testCallerHierarchyDuplicateCallerParent()
+	{
+		ObjectRepository::setCallerParent('xxx', 'yyy\\zzz');
+		ObjectRepository::setCallerParent('xxx', 'vvv\\aaa');
+	}
+	
+	/**
+	 * Made for full code coverage
+	 */
+	public function testAllSettersAndGetters()
+	{
+		$caller = $this;
+		$object = null;
+		
+		ObjectRepository::setApplicationConfiguration($caller, $object = new \Supra\Cms\ApplicationConfiguration());
+		self::assertEquals($object, ObjectRepository::getApplicationConfiguration($caller));
+		self::assertNotEquals($object, ObjectRepository::getApplicationConfiguration('xxx'));
+		ObjectRepository::setDefaultApplicationConfiguration($object = new \Supra\Cms\ApplicationConfiguration());
+		self::assertEquals($object, ObjectRepository::getApplicationConfiguration('xxx'));
+		
+		ObjectRepository::setAuthorizationProvider($caller, $object = new \Supra\Authorization\AuthorizationProvider());
+		self::assertEquals($object, ObjectRepository::getAuthorizationProvider($caller));
+		self::assertNotEquals($object, ObjectRepository::getAuthorizationProvider('xxx'));
+		ObjectRepository::setDefaultAuthorizationProvider($object = new \Supra\Authorization\AuthorizationProvider());
+		self::assertEquals($object, ObjectRepository::getAuthorizationProvider('xxx'));
+		
+//		ObjectRepository::setEntityManager($caller, new \Doctrine\ORM\EntityManager());
+		ObjectRepository::setFileStorage($caller, $object = new \Supra\FileStorage\FileStorage());
+		self::assertEquals($object, ObjectRepository::getFileStorage($caller));
+		self::assertNotEquals($object, ObjectRepository::getFileStorage('xxx'));
+		ObjectRepository::setDefaultFileStorage($object = new \Supra\FileStorage\FileStorage());
+		self::assertEquals($object, ObjectRepository::getFileStorage('xxx'));
+		
+		ObjectRepository::setIndexerQueue($caller, $object = new \Supra\Controller\Pages\PageIndexerQueue(\Supra\Controller\Pages\Entity\PageLocalization::CN()));
+		self::assertEquals($object, ObjectRepository::getIndexerQueue($caller));
+		self::assertNotEquals($object, ObjectRepository::getIndexerQueue('xxx'));
+		ObjectRepository::setDefaultIndexerQueue($object = new \Supra\Controller\Pages\PageIndexerQueue(\Supra\Controller\Pages\Entity\PageLocalization::CN()));
+		self::assertEquals($object, ObjectRepository::getIndexerQueue('xxx'));
+		
+		ObjectRepository::setLocaleManager($caller, $object = new \Supra\Locale\LocaleManager());
+		self::assertEquals($object, ObjectRepository::getLocaleManager($caller));
+		self::assertNotEquals($object, ObjectRepository::getLocaleManager('xxx'));
+		ObjectRepository::setDefaultLocaleManager($object = new \Supra\Locale\LocaleManager());
+		self::assertEquals($object, ObjectRepository::getLocaleManager('xxx'));
+		
+		ObjectRepository::setLogger($caller, $object = new \Supra\Log\Writer\FileWriter());
+		self::assertEquals($object, ObjectRepository::getLogger($caller));
+		self::assertNotEquals($object, ObjectRepository::getLogger('xxx'));
+		ObjectRepository::setDefaultLogger($object = new \Supra\Log\Writer\FileWriter());
+		self::assertEquals($object, ObjectRepository::getLogger('xxx'));
+		
+		ObjectRepository::setMailer($caller, $object = new \Supra\Mailer\Mailer());
+		self::assertEquals($object, ObjectRepository::getMailer($caller));
+		self::assertNotEquals($object, ObjectRepository::getMailer('xxx'));
+		ObjectRepository::setDefaultMailer($object = new \Supra\Mailer\Mailer());
+		self::assertEquals($object, ObjectRepository::getMailer('xxx'));
+		
+		ObjectRepository::setUserProvider($caller, $object = new \Supra\User\UserProvider());
+		self::assertEquals($object, ObjectRepository::getUserProvider($caller));
+		self::assertNotEquals($object, ObjectRepository::getUserProvider('xxx'));
+		ObjectRepository::setDefaultUserProvider($object = new \Supra\User\UserProvider());
+		self::assertEquals($object, ObjectRepository::getUserProvider('xxx'));
+		
+		ObjectRepository::setSessionManager($caller, $object = new \Supra\Session\SessionManager(new \Supra\Session\Handler\PhpSessionHandler()));
+		self::assertEquals($object, ObjectRepository::getSessionManager($caller));
+		self::assertNotEquals($object, ObjectRepository::getSessionManager('xxx'));
+		ObjectRepository::setDefaultSessionManager($object = new \Supra\Session\SessionManager(new \Supra\Session\Handler\PhpSessionHandler()));
+		self::assertEquals($object, ObjectRepository::getSessionManager('xxx'));
+		
+		
+		// Check bootstrap logger
+		ObjectRepository::removeObject(ObjectRepository::DEFAULT_KEY, ObjectRepository::INTERFACE_LOGGER);
+		
+		$bootstrapLog = ObjectRepository::getLogger('');
+		self::assertEquals(\Log::getBootstrapLogger(), $bootstrapLog);
+		$bootstrapLog->debug("Works");
+		
+		$em = ObjectRepository::getEntityManager($this);
+		ObjectRepository::setDefaultEntityManager($em);
+		ObjectRepository::setEntityManager($randCaller = uniqid(), $em);
+		self::assertEquals($em, ObjectRepository::getEntityManager($randCaller));
+	}
+	
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testWrongInterface()
+	{
+		ObjectRepository::setDefaultObject(new self(), -1);
+	}
 }

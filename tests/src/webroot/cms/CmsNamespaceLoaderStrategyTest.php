@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Test\Cms;
+namespace Supra\Tests\Cms;
 
 use Supra\Cms\CmsNamespaceLoaderStrategy;
 

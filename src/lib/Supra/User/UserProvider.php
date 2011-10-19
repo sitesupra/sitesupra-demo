@@ -44,6 +44,7 @@ class UserProvider
 	 */
 	public function addValidationFilter($validationFilter)
 	{
+		ObjectRepository::setCallerParent($validationFilter, $this);
 		$this->validationFilters[] = $validationFilter;
 	}
 
