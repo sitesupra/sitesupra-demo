@@ -46,7 +46,7 @@ class DDC1383Test extends \PHPUnit_Framework_TestCase
 		
 		// Parent is NOT instance of entity
 		self::assertTrue($parent instanceof DDC1383Entity,
-				"Entity class is " . get_class($parent) . ', "DDC1383Entity" was expected');
+				"WILL BE FIXED IN DOCTRINE ORM 2.1.3. Entity class is " . get_class($parent) . ', "DDC1383Entity" was expected');
     }
 }
 

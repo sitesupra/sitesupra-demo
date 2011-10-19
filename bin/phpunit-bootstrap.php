@@ -25,3 +25,5 @@ $bootstrap = function() {
 
 $bootstrap();
 unset($bootstrap);
+
+\Supra\Tests\ObjectRepository\Mockup\ObjectRepository::saveCurrentState();
