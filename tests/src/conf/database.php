@@ -50,13 +50,7 @@ $sqlLogger = new \Supra\Log\Logger\SqlLogger();
 $sqlLogger = null;
 $config->setSQLLogger($sqlLogger);
 
-$connectionOptions = array(
-	'driver' => 'pdo_mysql',
-	'user' => 'root',
-	'password' => 'root',
-	'dbname' => 'supra7test',
-	'charset' => 'utf8'
-);
+$connectionOptions = $ini['database'];
 
 // TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
 $connectionOptions['driverOptions'] = array(

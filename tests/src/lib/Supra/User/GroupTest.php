@@ -15,8 +15,6 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
  */
 class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 {
-	const SALT = '2j*s@;0?0saASf1%^&1!';
-
 	private function cleanUp($delete = false)
 	{
 		$userProvider = ObjectRepository::getUserProvider($this);
@@ -41,11 +39,7 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		/* @var $em Doctrine\ORM\EntityManager */
 		$em->persist($group);
 
-		$timeNow = new \DateTime('now');
-
 		$group->setName('Super Heroes');
-		$group->setCreationTime($timeNow);
-		$group->setModificationTime($timeNow);
 
 		$em->flush();
 	}
@@ -64,8 +58,6 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$em->persist($group);
 
 		$group->setName('group111');
-		$group->setCreationTime($timeNow);
-		$group->setModificationTime($timeNow);
 		$em->flush();
 
 		foreach (array('user1', 'user2', 'user444') as $userName) {

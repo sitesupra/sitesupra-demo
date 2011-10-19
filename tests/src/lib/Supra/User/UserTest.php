@@ -60,8 +60,6 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$query = $em->createQuery("delete from Supra\User\Entity\User u where u.login IN (?0, ?1)");
 		$query->execute(self::$testEmails);
 		
-		$users = $em->getRepository(Entity\User::CN())->findAll();
-		
 		$em->clear();
 	}
 

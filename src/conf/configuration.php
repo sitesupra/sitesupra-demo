@@ -2,8 +2,7 @@
 
 error_reporting(E_ALL | E_NOTICE);
 
-// TODO: make something else
-//$ini = parse_ini_file(SUPRA_CONF_PATH . 'supra.autobuild.ini', true);
+// TODO: should be read by some component, available by all project
 $ini = parse_ini_file(SUPRA_CONF_PATH . 'supra.ini', true);
 
 require_once SUPRA_CONF_PATH . 'loader.php';
