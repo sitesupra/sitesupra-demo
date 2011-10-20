@@ -10,6 +10,7 @@ use Supra\Request;
 use Supra\Response;
 use Supra\User;
 use Supra\Uri\Path;
+use Supra\Session\SessionNamespace;
 
 /**
  * Authentication controller
@@ -133,8 +134,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	public function execute()
 	{
 		$sessionManager = ObjectRepository::getSessionManager($this);
-		$session = $sessionManager->getAuthenticationSpace();
-		/* @var $session Supra\Authentication\AuthenticationSessionNamespace */
+		$session = $sessionManager->getDefaultSessionNamespace();
+		/* @var $session SessionNamespace */
 		
 		// Unset the session data
 		unset($session->login, $session->message);
@@ -155,6 +156,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 
 		$post = $this->getRequest()->isPost();
+		$userProvider = ObjectRepository::getUserProvider($this);
 
 		// if post request then check for login and password fields presence
 		if ($post) {
@@ -172,6 +174,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				
 				// Authenticating user
 				$user = null;
+				
 				try {
 					
 					// TODO: Maybe should be moved to some password policy guide with password expire features?
@@ -179,7 +182,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
 					}
 					
-					$userProvider = ObjectRepository::getUserProvider($this);
 					$user = $userProvider->authenticate($login, $password);
 					
 					// TODO: user provider should have session storage instead
@@ -193,7 +195,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$uri = $this->getSuccessRedirectUrl();
 
-					$session->setUser($user);
+					$userProvider->signIn($user);
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
@@ -231,7 +233,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 
 		// check for session presence
-		$sessionUser = $session->getUser();
+		$sessionUser = $userProvider->getSignedInUser();
 
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {

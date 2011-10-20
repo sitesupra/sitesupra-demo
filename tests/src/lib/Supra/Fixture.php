@@ -27,7 +27,7 @@ class Fixture extends TestCase
 		$this->passResult($fixture, $result);
 		
 		// Authorization fixtures
-		$fixture = new Authorization\Fixture();
+		$fixture = new Authorization\Fixture\Fixture();
 		$fixture->caller = '';
 		$fixture->setName('testFixture');
 		$result = $fixture->run();

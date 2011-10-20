@@ -2,7 +2,9 @@
 
 namespace Supra\Controller\Pages\Listener;
 
+use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 
 class HistoryRevision
 {
@@ -25,7 +27,7 @@ class HistoryRevision
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityInsertions() AS $entity) {
-            if ($entity instanceof \Supra\Controller\Pages\Entity\BlockPropertyMetadata) {
+            if ($entity instanceof Entity\BlockPropertyMetadata) {
 				// Reverting back modifications between blockProperty + blockPropertyMetadata
 				// or DB insert query will contain properties in incorrect orded
 				$metadata = $em->getClassMetadata($entity::CN());

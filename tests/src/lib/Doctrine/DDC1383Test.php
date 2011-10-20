@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Tests;
+namespace Supra\Tests\Doctrine;
 
 use Doctrine\ORM\UnitOfWork;
 
@@ -8,6 +8,10 @@ class DDC1383Test extends \PHPUnit_Framework_TestCase
 {
     protected function setUp()
     {
+		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.3', 'lt')) {
+			self::markTestSkipped("Is not working in Doctrine ORM 2.1.2");
+		}
+		
         parent::setUp();
 		
 		$this->_em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Tests;
+namespace Supra\Tests\Doctrine;
 
 use Doctrine\ORM\UnitOfWork;
 

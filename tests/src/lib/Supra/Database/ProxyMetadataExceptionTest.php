@@ -25,6 +25,10 @@ class ProxyMetadataExceptionTest extends \PHPUnit_Framework_TestCase
 	
 	public function testNotLoaded()
 	{
+		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.3', 'lt')) {
+			self::markTestSkipped("Is not working in Doctrine ORM 2.1.2");
+		}
+		
 		// Unsets metadata
 		$this->em->getMetadataFactory()->setMetadataFor($this->proxyName, null);
 		

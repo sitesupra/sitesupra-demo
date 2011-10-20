@@ -9,6 +9,7 @@ use Supra\Authentication\Adapter;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
 use Supra\Authentication\Exception\AuthenticationFailure;
+use Supra\Authentication\AuthenticationSessionNamespace;
 
 class UserProvider
 {
@@ -36,6 +37,17 @@ class UserProvider
 	public function getEntityManager()
 	{
 		return ObjectRepository::getEntityManager($this);
+	}
+	
+	/**
+	 * @return AuthenticationSessionNamespace
+	 */
+	public function getSessionSpace()
+	{
+		$manager = ObjectRepository::getSessionManager($this);
+		$session = $manager->getAuthenticationSpace();
+		
+		return $session;
 	}
 
 	/**
@@ -106,6 +118,39 @@ class UserProvider
 
 		$adapter->authenticate($user, $password);
 
+		return $user;
+	}
+	
+	/**
+	 * Saves the user in the session storage
+	 * @param Entity\User $user
+	 */
+	public function signIn(Entity\User $user)
+	{
+		//TODO: generate UserSession, reset session ID
+		
+		$session = $this->getSessionSpace();
+		$session->setUser($user);
+	}
+	
+	/**
+	 * Removes the user from the session storage
+	 */
+	public function signOut()
+	{
+		$session = $this->getSessionSpace();
+		$session->removeUser();
+	}
+	
+	/**
+	 *
+	 * @return Entity\User
+	 */
+	public function getSignedInUser()
+	{
+		$session = $this->getSessionSpace();
+		$user = $session->getUser();
+		
 		return $user;
 	}
 

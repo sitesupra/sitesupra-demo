@@ -44,20 +44,16 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
 		} catch (\Exception $e) {}
 		
-		$this->em->beginTransaction();
-		
 		$this->up = ObjectRepository::getUserProvider($this);
+		
+		// Begin "both" (maybe) connections
+		$this->em->beginTransaction();
+		$this->up->getEntityManager()->beginTransaction();
 
-		$this->ap = new AuthorizationProvider(
-			ObjectRepository::getEntityManager($this),
-			array(
-				'class_table_name'         => 'acl_classes',
-				'entry_table_name'         => 'acl_entries',
-				'oid_table_name'           => 'acl_object_identities',
-				'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
-				'sid_table_name'           => 'acl_security_identities',
-			)
-		);
+		$this->ap = new AuthorizationProvider();
+		
+		// Make the provider fetch the correct db connection
+		ObjectRepository::setEntityManager($this->ap, $this->em);
 		ObjectRepository::setDefaultAuthorizationProvider($this->ap);
 		
 		$sessionHandler = new \Supra\Session\Handler\PhpSessionHandler();
@@ -70,22 +66,18 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	{
 		$name = 'test_' . rand(0, 999999999);
 		
-		$em = ObjectRepository::getEntityManager($this);
-		/* @var $em Doctrine\ORM\EntityManager */
-		
 		$user = new \Supra\User\Entity\User();
-		$em->persist($user);
+		$this->up->getEntityManager()->persist($user);
 
 		$user->setName($name);
 		$user->setEmail($name . '@' . $name . '.com');
 		$plainPassword = 'Norris';
 		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 		
-		ObjectRepository::getUserProvider($this)
-						->getAuthAdapter()
-						->credentialChange($user, $password);
+		$this->up->getAuthAdapter()
+				->credentialChange($user, $password);
 
-		$em->flush();		
+		$this->up->getEntityManager()->flush();		
 		
 		\Log::debug('Made test user: ' . $name);
 		
@@ -94,6 +86,9 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	
 	function tearDown() 
 	{
+		$this->up->getEntityManager()->rollback();
+	
+		// Rollback second EM as well if connections differs, second rollback otherwise
 		$this->em->rollback();
 	}
 	
