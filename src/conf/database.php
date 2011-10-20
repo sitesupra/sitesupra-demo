@@ -21,7 +21,7 @@ Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
-		'PublicSchema' => '',
+	'PublicSchema' => '',
 	'Draft' => 'Supra\Cms',
 	'Trash' => 'Supra\Cms\Abstraction\Trash',
 	'History' => 'Supra\Cms\Abstraction\History',
@@ -112,4 +112,9 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);
+	
+	// Experimental: sets entity manager by ID
+	if ($managerName == 'Draft') {
+		ObjectRepository::setEntityManager('#cms', $em);
+	}
 }

@@ -2,7 +2,6 @@
 
 namespace Supra\Authorization\AccessPolicy;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Request\RequestInterface;
 use Supra\Request\HttpRequest;

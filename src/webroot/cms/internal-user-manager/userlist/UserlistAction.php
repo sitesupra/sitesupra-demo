@@ -10,6 +10,7 @@ use Supra\User\UserProvider;
 use Doctrine\ORM\EntityRepository;
 use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigurationException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * Sitemap
@@ -49,9 +50,9 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
 			
-			if( is_null($user->getGroup())) {
+			if (is_null($user->getGroup())) {
 				
-				\Log::debug('USER HAS NO GROUP: ', $user);
+				$this->log->debug('User has no group: ', $user);
 				
 				continue;
 			}
@@ -68,37 +69,37 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		$this->getResponse()->setResponseData($result);
 	}
 	
+	/**
+	 * User update action
+	 */
 	public function updateAction() 
 	{
 		$this->isPostRequest();
 		
-		$userId = $this->getRequest()->getPostValue('user_id');
-		$newGroupDummyId = $this->getRequest()->getPostValue('group');
+		$userId = $this->getRequestParameter('user_id');
+		$newGroupDummyId = $this->getRequestParameter('group');
 		$newGroupName = array_search($newGroupDummyId, $this->dummyGroupMap);
 		
 		/* @var $user Entity\User */
 		$user = $this->userRepository->find($userId);
 		
 		if (empty($user)) {
-			$this->getResponse()->setErrorMessage('User not found or is not a user but a group.');
-			return;
+			throw new CmsException(null, 'Requested user was not found');
 		}
 		
 		if ($user->isSuper() && $user->getId() == $this->getUser()->getId()) {
-			$this->getResponse()->setErrorMessage('You can not move Yourself out of SUPER group!');
-			return;
+			throw new CmsException(null, 'You cannot change group for yourself');
 		}
 		
 		/* @var $groupRepository EntityRepository */
 		$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
 		$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
 		
+		// On user group change all user individual permissions are unset
+		//TODO: ask confirmation from the action caller for this
 		if($user->getGroup()->getId() != $newGroup->getId()) {
-			
 			$ap = ObjectRepository::getAuthorizationProvider($this);
-			
 			$ap->unsetAllUserPermissions($user);
-			
 			$user->setGroup($newGroup);	
 		}
 		

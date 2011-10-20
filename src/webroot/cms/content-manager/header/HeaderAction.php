@@ -13,12 +13,9 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 
 class HeaderAction extends PageManagerAction
 {
-	var $authorizationProvider;
-	
-	function __construct() {
-		
+	public function __construct()
+	{
 		parent::__construct();
-		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider($this);
 	}
 	
 	public function applicationsAction()
@@ -42,9 +39,9 @@ class HeaderAction extends PageManagerAction
 	 * @param type $applicationConfiguration
 	 * @return integer
 	 */
-	function applicationIsVisible($user, ApplicationConfiguration $appConfig)
+	private function applicationIsVisible($user, ApplicationConfiguration $appConfig)
 	{
-		if ( $appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
+		if ($appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
 			return $appConfig->authorizationAccessPolicy->isApplicationAdminAccessGranted($user);
 		}
 		else {

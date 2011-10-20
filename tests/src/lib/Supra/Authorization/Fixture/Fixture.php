@@ -12,7 +12,7 @@ class Fixture extends \PHPUnit_Framework_TestCase
 {
 	function testFixture()
 	{
-		$fixture = new FixtureHelper('Supra\Cms');
+		$fixture = new FixtureHelper('Supra\Cms\CmsController');
 		$fixture->build();
 	}
 }

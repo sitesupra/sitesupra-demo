@@ -37,7 +37,7 @@ class AuthorizationProvider
 	/**
 	 * @var AclProvider
 	 */
-	protected $aclProvider;
+	private $aclProvider;
 
 	/**
 	 * @var array
@@ -60,38 +60,43 @@ class AuthorizationProvider
 	private $log;
 
 	/**
-	 * Constructs AuthorizationProvider.
-	 * @param EntityManager $entityManager
-	 * @param array $options 
+	 * Constructs AuthorizationProvider
 	 */
-	function __construct(EntityManager $entityManager = null)
+	public function __construct()
 	{
-		if (empty($entityManager)) {
-			$entityManager = ObjectRepository::getEntityManager($this);
-		}
-
-		$permissionGrantingStrategy = new PermissionGrantingStrategy();
-
-		$tables = array(
-				'class_table_name' => 'acl_classes',
-				'entry_table_name' => self::ACL_ENTRY_TABLE_NAME,
-				'oid_table_name' => 'acl_object_identities',
-				'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
-				'sid_table_name' => 'acl_security_identities',
-		);
-
-		$this->aclProvider = new AclProvider(
-						$entityManager->getConnection(),
-						$permissionGrantingStrategy,
-						$tables);
-
 		$this->log = ObjectRepository::getLogger($this);
 
 		$this->registerPermission(new ApplicationExecuteAccessPermission());
 		$this->registerPermission(new ApplicationAllAccessPermission());
 		$this->registerPermission(new ApplicationSomeAccessPermission());
-
 		$this->registerPermission(new ControllerExecutePermission());
+	}
+	
+	/**
+	 * @return AclProvider
+	 */
+	protected function getAclProvider()
+	{
+		if (is_null($this->aclProvider)) {
+			$entityManager = ObjectRepository::getEntityManager($this);
+
+			$permissionGrantingStrategy = new PermissionGrantingStrategy();
+
+			$tables = array(
+					'class_table_name' => 'acl_classes',
+					'entry_table_name' => self::ACL_ENTRY_TABLE_NAME,
+					'oid_table_name' => 'acl_object_identities',
+					'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
+					'sid_table_name' => 'acl_security_identities',
+			);
+
+			$this->aclProvider = new AclProvider(
+							$entityManager->getConnection(),
+							$permissionGrantingStrategy,
+							$tables);
+		}
+		
+		return $this->aclProvider;
 	}
 
 	/* TODO: Check for overlapping masks in same class/sublclass tree */
@@ -327,7 +332,7 @@ class AuthorizationProvider
 
 		if (empty($acl)) {
 			$objectIdentity = $this->getObjectIdentity($object);
-			$acl = $this->aclProvider->createAcl($objectIdentity);
+			$acl = $this->getAclProvider()->createAcl($objectIdentity);
 		}
 
 		if (empty($acl)) {
@@ -406,7 +411,7 @@ class AuthorizationProvider
 			throw new Exception\ConfigurationException('Bad permission status value! use constants from AuthorizationPermission class!');
 		}
 
-		$this->aclProvider->updateAcl($acl);
+		$this->getAclProvider()->updateAcl($acl);
 
 		///$this->log->debug('AAAAAAAAAA Set ' . $permissionName . ' to ' . $permissionStatus . ' for ' . $object);
 	}
@@ -476,7 +481,7 @@ class AuthorizationProvider
 		$acl = null;
 
 		try {
-			$acls = $this->aclProvider->findAcls(array($objectIdentity));
+			$acls = $this->getAclProvider()->findAcls(array($objectIdentity));
 			$acl = $acls->offsetGet($objectIdentity);
 		}
 		catch (AclNotFoundException $e) {
@@ -548,9 +553,9 @@ class AuthorizationProvider
 	 */
 	public function getEffectivePermissionStatusesByObjectClass(User $user, $class)
 	{
-		$classOids = $this->aclProvider->getOidsByClass($class);
+		$classOids = $this->getAclProvider()->getOidsByClass($class);
 
-		$acls = $this->aclProvider->findAcls($classOids);
+		$acls = $this->getAclProvider()->findAcls($classOids);
 
 		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
 
@@ -635,10 +640,14 @@ class AuthorizationProvider
 				);
 	}
 
+	/**
+	 * Removes all user's individual permissions
+	 * @param User $user
+	 */
 	public function unsetAllUserPermissions(User $user)
 	{
 		$sid = $this->getUserSecurityIdentity($user);
-		$this->aclProvider->removeSidAces($sid);
+		$this->getAclProvider()->removeSidAces($sid);
 	}
 
 }

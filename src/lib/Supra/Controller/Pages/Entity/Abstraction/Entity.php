@@ -23,8 +23,8 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	const PERMISSION_NAME_EDIT_PAGE = 'edit_page';
 	const PERMISSION_MASK_EDIT_PAGE = 256;
 	
-	const PERMISSION_NAME_SUPERVISE_PAGE = 'publish_page';
-	const PERMISSION_MASK_PUBLISH_PAGE = 512;
+	const PERMISSION_NAME_SUPERVISE_PAGE = 'supervise_page';
+	const PERMISSION_MASK_SUPERVISE_PAGE = 512;
 	
 	const PAGE_DISCR = 'page';
 	const GROUP_DISCR = 'group';
@@ -189,7 +189,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	public static function registerPermissions(AuthorizationProvider $ap) 
 	{
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_EDIT_PAGE, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
-		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_PUBLISH_PAGE, __CLASS__);
+		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_SUPERVISE_PAGE, __CLASS__);
 	}
 		
 	/**

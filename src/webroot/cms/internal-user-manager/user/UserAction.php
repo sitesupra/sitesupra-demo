@@ -25,18 +25,9 @@ use Supra\Cms\Exception\CmsException;
  */
 class UserAction extends InternalUserManagerAbstractAction
 {
-
-	/**
-	 * @var AuthorizationProvider
-	 */
-	private $authorizationProvider;
-
 	function __construct()
 	{
-
 		parent::__construct();
-
-		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider($this);
 	}
 
 	public function userAction()

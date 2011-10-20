@@ -29,7 +29,7 @@ class User extends Abstraction\User
 	
 	/**
 	* @ManyToOne(targetEntity="Group")
-	* @JoinColumn(name="group_id", referencedColumnName="id") 
+	* @JoinColumn(name="group_id", referencedColumnName="id")
 	 */
 	protected $group;
 	

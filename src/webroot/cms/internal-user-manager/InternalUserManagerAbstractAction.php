@@ -40,8 +40,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 		parent::__construct();
 
 		$this->userProvider = ObjectRepository::getUserProvider($this);
-		$this->entityManager = ObjectRepository::getEntityManager($this->userProvider);
+		$this->entityManager = $this->userProvider->getEntityManager();
 
+		//TODO: implement normal group loader and IDs
 		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
 	}
 

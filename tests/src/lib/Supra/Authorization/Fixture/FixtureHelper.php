@@ -56,13 +56,19 @@ class FixtureHelper
 		$this->ap = ObjectRepository::getAuthorizationProvider($this->namespace);
 	}
 
-	function makeUser($userName, RealGroup $group = null)
+	/**
+	 * Creates user
+	 * @param string $userName
+	 * @param RealGroup $group
+	 * @return RealUser
+	 */
+	public function makeUser($userName, RealGroup $group = null)
 	{
 		/* @var $user RealUser */
 		$user = $this->up->findUserByLogin($userName);
 
 		$em = $this->up->getEntityManager();
-
+		
 		if (empty($user)) {
 
 			$user = new RealUser();
@@ -87,7 +93,12 @@ class FixtureHelper
 		return $user;
 	}
 
-	function makeGroup($groupName)
+	/**
+	 * Creates new group
+	 * @param string $groupName
+	 * @return RealGroup
+	 */
+	public function makeGroup($groupName)
 	{
 		$group = $this->up->findGroupByName($groupName);
 		$em = $this->up->getEntityManager();
@@ -103,7 +114,10 @@ class FixtureHelper
 		return $group;
 	}
 
-	function build()
+	/**
+	 * Runs fixtures
+	 */
+	public function build()
 	{
 		$adminUserName = 'admin';
 		$superUserName = 'super';

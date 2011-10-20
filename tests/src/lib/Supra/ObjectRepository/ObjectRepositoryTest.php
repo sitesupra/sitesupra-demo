@@ -25,6 +25,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown()
 	{
+		// Initial state is saved in phpunit bootstrap file
 		ObjectRepository::restoreCurrentState();
 	}
 

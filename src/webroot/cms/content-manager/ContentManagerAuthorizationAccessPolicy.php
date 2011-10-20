@@ -15,31 +15,6 @@ use Supra\Authorization\Exception\RuntimeException as AuthorizationRuntimeExcept
 
 class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
-
-	/**
-	 * Page repository.
-	 * @var EntityRepository
-	 */
-	private $pr;
-
-	/**
-	 * Page localization repository.
-	 * @var EntityRepository 
-	 */
-	private $lr;
-
-	/**
-	 * Locale manager.
-	 * @var LocaleManager
-	 */
-	private $lm;
-
-	/**
-	 * Entity manager.
-	 * @var EntityManager
-	 */
-	private $em;
-
 	function __construct()
 	{
 		parent::__construct('pages', PageEntity\Abstraction\Entity::CN());
@@ -49,13 +24,6 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 	{
 		parent::configure();
 
-		$this->lm = ObjectRepository::getLocaleManager($this);
-
-		$this->em = ObjectRepository::getEntityManager($this);
-
-		$this->pr = $this->em->getRepository(PageEntity\Abstraction\AbstractPage::CN());
-		$this->lr = $this->em->getRepository(PageEntity\Abstraction\Localization::CN());
-
 		$this->permission['subproperty']['localized'] = true;
 	}
 
@@ -64,11 +32,12 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		if (empty($allowed)) {
 			return array();
 		}
-
-		$page = $this->pr->find($itemId);
+		
+		$em = ObjectRepository::getEntityManager($this);
+		$page = $em->find(PageEntity\Abstraction\AbstractPage::CN(), $itemId);
 
 		if (empty($page)) {
-			$page = $this->lr->find($itemId);
+			$page = $em->find(PageEntity\Abstraction\Localization::CN(), $itemId);
 		}
 
 		$locale = '';
@@ -94,9 +63,11 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		}
 		else if ($page instanceof PageEntity\Page) {
 
+			$localeManager = ObjectRepository::getLocaleManager($this);
+			
 			// Otherwise, if this is some master page, fetch current or first page localization 
 			// and get title from that.
-			$localization = $page->getLocalization($this->lm->getCurrent()->getId());
+			$localization = $page->getLocalization($localeManager->getCurrent()->getId());
 
 			if (empty($localization)) {
 				$localization = $page->getLocalizations()->first();
@@ -127,7 +98,9 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		/* @var $request HttpRequest */
 		$localeId = $request->getQueryValue('locale');
 
-		$rootNodes = $this->pr->getRootNodes();
+		$em = ObjectRepository::getEntityManager($this);
+		$pageRepo = $em->getRepository(PageEntity\Abstraction\AbstractPage::CN());
+		$rootNodes = $pageRepo->getRootNodes();
 
 		foreach ($rootNodes as $rootNode) {
 
@@ -144,7 +117,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			$entityTree[] = $tree;
 		}
 
-		$this->em->flush(); // !!!
+		$em->flush(); // !!!
 
 		return $entityTree;
 	}
@@ -177,7 +150,8 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			if ($localization instanceof PageEntity\GroupLocalization) {
 				//\Log::debug('PERSISTING GROUP LOCALIZATION FOR ' . $page->getTitle() . ' FOR ' . $locale);
 				$page->persistLocalization($localization);
-				$this->em->persist($localization);
+				$em = ObjectRepository::getEntityManager($this);
+				$em->persist($localization);
 			}
 
 			$itemId = $localization->getId();

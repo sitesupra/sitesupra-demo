@@ -75,6 +75,8 @@ class ApplicationConfiguration implements ConfigurationInterface
 		$this->authorizationAccessPolicy->setAuthorizationProvider($ap);
 		$this->authorizationAccessPolicy->setAppConfig($this);
 		$this->authorizationAccessPolicy->configure();
+		
+		ObjectRepository::setCallerParent($this->authorizationAccessPolicy, $this->applicationNamespace);
 
 		array_unshift(
 				$this->permissions, $this->authorizationAccessPolicy->getPermissionForInternalUserManager()
