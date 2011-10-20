@@ -4,6 +4,7 @@ namespace Supra\Cms\ContentManager\Page;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Controller\Pages\Request\HistoryPageRequestView;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
@@ -12,6 +13,7 @@ use Supra\Editable;
 use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Cms\Exception\ObjectLockedException;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * 
@@ -464,57 +466,37 @@ class PageAction extends PageManagerAction
 
 	public function versionPreviewAction()
 	{
-
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
+		
+		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 
-		$historyEm = \Supra\ObjectRepository\ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
-
-		/*
-		 * Load page localization by id + revision
-		 */
 		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
 				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
-
+		
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
-			$this->getResponse()
-					->setErrorMessage('Page does not exist');
-			return;
+			throw new CmsException(null, 'Page version not found');
 		}
 
-		/*
-		 * Assign template from draft repository
-		 */
-		$templateId = $pageLocalization->getTemplate();
-		$tpl = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
-		$pageLocalization->setTemplate($tpl);
-
-
-		/*
-		 * Load page internal content
-		 */
 		$controller = $this->getPageController();
+
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-
-		$request = new PageRequestEdit($localeId, $media);
-		$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
-		$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionData));
-
-		$request->setDoctrineEntityManager($historyEm);
+		
+		$request = new HistoryPageRequestView($localeId, $media);
+		$request->setPageLocalization($pageLocalization);
+		$request->setRevision($pageLocalization->getRevisionData());
+		
 		$response = $controller->createResponse($request);
+
 		$controller->prepare($request, $response);
 		$request->setDoctrineEntityManager($historyEm);
-
-		$request->setPageLocalization($pageLocalization);
-		$request->blockFlushing();
 		$controller->execute($request);
 
-		// Output
 		$return = array(
-				'internal_html' => $response->__toString()
+			'internal_html' => $response->__toString()
 		);
-
+		
 		$this->getResponse()
 				->setResponseData($return);
 	}

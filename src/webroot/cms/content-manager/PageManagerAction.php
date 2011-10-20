@@ -23,6 +23,7 @@ use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
+use Supra\Controller\Pages\Request\HistoryPageRequestView;
 
 /**
  * Controller containing common methods
@@ -472,6 +473,37 @@ abstract class PageManagerAction extends CmsAction
 		// TODO: move action
 	}
 	
+	protected function restoreHistoryVersion()
+	{
+		$this->isPostRequest();
+		
+		$revisionId = $this->getRequestParameter('version_id');
+		$localizationId = $this->getRequestParameter('page_id');
+		
+		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		
+		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
+				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
+		
+		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
+			throw new CmsException(null, 'Page version not found');
+		}
+
+		$localeId = $this->getLocale()->getId();
+		$media = $this->getMedia();
+		
+		$request = new HistoryPageRequestView($localeId, $media);
+		$request->setDoctrineEntityManager($historyEm);
+		$request->setPageLocalization($pageLocalization);
+		$request->setRevision($pageLocalization->getRevisionData());
+		
+		$draftEm = $this->entityManager;
+		$restorePage = function() use ($request, $draftEm) {
+			$request->restore($draftEm);
+		};
+
+		$draftEm->transactional($restorePage);
+	}
 	
 	/**
 	 * Checks, weither the page is locked by current user or not,

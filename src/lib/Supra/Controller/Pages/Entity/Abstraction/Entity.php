@@ -38,13 +38,12 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	
 	/**
 	 * @History:Id 
-	 * @History:ManyToOne(targetEntity="Supra\Controller\Pages\Entity\RevisionData", inversedBy="revision", cascade={"persist"}, fetch="EAGER")
-	 * @History:JoinColumn(name="revision_id", referencedColumnName="id", nullable=false)
-	 * @History:SkipForeignKey
+	 * @History:Column(type="sha1")
 	 * @History:InheritOnCreate
 	 * @var RevisionData
 	 */
-	protected $revision;
+	// NB! Must be not null, or merging between different entity managers will fail
+	protected $revision = '';
 	
 	/**
 	 * Creates log writer instance

@@ -14,10 +14,14 @@ use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\Sha1HashType;
 use Supra\Database\Doctrine\Type\PathType;
+use Supra\Database\Doctrine\Type\TemplateType;
+use Supra\Database\Doctrine\Type\BlockType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
 
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
+Type::addType(TemplateType::NAME, 'Supra\Database\Doctrine\Type\TemplateType');
+Type::addType(BlockType::NAME, 'Supra\Database\Doctrine\Type\BlockType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
@@ -57,8 +61,11 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config->setMetadataDriverImpl($driverImpl);
 
 	// Proxy configuration
-	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/' . $managerName);
-	$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
+	//$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/' . $managerName);
+	//$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
+	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/');
+	$config->setProxyNamespace('Supra\\Proxy');
+	
 	$config->setAutoGenerateProxyClasses(true);
 
 	// SQL logger
@@ -100,8 +107,9 @@ foreach ($managerNames as $managerName => $namespace) {
 			break;
 
 		case 'History':
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-			$eventManager->addEventListener(array(Events::loadClassMetadata, Events::prePersist, Events::postLoad), new Listener\HistorySchemaModifier());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemaModifier());
 			break;
 	}
 

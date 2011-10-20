@@ -25,7 +25,7 @@ class BlockProperty extends Entity
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties", cascade={"persist"})
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
-	 * @History:SkipForeignKey
+	 * @History:SkipForeignKey(type="block")
 	 * @var Block
 	 */
 	protected $block;
@@ -115,7 +115,7 @@ class BlockProperty extends Entity
 	{
 		$this->metadata->add($metadata);
 	}
-
+	
 	/**
 	 * @return Block
 	 */
@@ -129,9 +129,10 @@ class BlockProperty extends Entity
 	 */
 	public function setBlock(Block $block)
 	{
-		if ($this->writeOnce($this->block, $block)) {
+		$this->block = $block;
+		//if ($this->writeOnce($this->block, $block)) {
 			$this->checkScope($this->block);
-		}
+		//}
 	}
 	
 	/**

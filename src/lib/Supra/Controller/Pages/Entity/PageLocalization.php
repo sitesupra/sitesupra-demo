@@ -22,7 +22,7 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * @ManyToOne(targetEntity="Template", fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
-	 * @History:SkipForeignKey
+	 * @History:SkipForeignKey(type="template")
 	 * @var Template
 	 */
 	protected $template;

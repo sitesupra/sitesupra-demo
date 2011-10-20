@@ -12,36 +12,37 @@ class PagehistoryAction extends PageManagerAction
 {
 	public function loadAction()
 	{
-		$response = $this->getData();
+		$response = $this->getVersionArray();
 		
-		// TODO: sort by date
 		$this->getResponse()
 				->setResponseData($response);
 	}
 	
 	public function restoreAction()
 	{
+		$this->restoreHistoryVersion();
+		
 		$this->getResponse()
-				->setErrorMessage('Not implemented yet');
+				->setResponseData(true);
 	}
 	
-	protected function getData()
+	private function getVersionArray()
 	{
 		$response = array();
 	
 		$pageId = $this->getRequestParameter('page_id');
 		
-		$draftEm = ObjectRepository::getEntityManager($this);
-		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
-	
-		$historyLocalizations = $historyEm->getRepository(PageRequest::DATA_ENTITY)
+		// History connection
+		$em = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		$localizations = $em->getRepository(PageRequest::DATA_ENTITY)
 				->findBy(array('id' => $pageId));
 		
-		foreach ($historyLocalizations as $historyLocalization) {
-			$revisionData = $historyLocalization->getRevisionData();
+		foreach ($localizations as $localization) {
+			$revisionData = $localization->getRevisionData();
 
+			// in case if revision data contains id instead of object
 			if ( ! ($revisionData instanceof Entity\RevisionData)) {
-				$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionData);
+				$revisionData = $em->find(PageRequest::REVISION_DATA_ENTITY, $revisionData);
 				if (! ($revisionData instanceof Entity\RevisionData)) {
 					throw new \Supra\Controller\Pages\Exception\RuntimeException('Failed to load revision data');
 				}
@@ -50,7 +51,8 @@ class PagehistoryAction extends PageManagerAction
 			$userId = $revisionData->getUser();
 			$userProvider = ObjectRepository::getUserProvider($this);
 		
-			$userName = '';
+			// If not found will show use ID
+			$userName = '#' . $userId;
 			$user = $userProvider->findUserById($userId);
 			if ($user instanceof \Supra\User\Entity\User) {
 				$userName = $user->getName();
@@ -61,10 +63,14 @@ class PagehistoryAction extends PageManagerAction
 				'date' => $revisionData->getCreatedTime()->format('c'),
 				'author_fullname' => $userName,
 			);
-
-			$response[] = $pageInfo;
+			
+			// unix timestamp with milliseconds is used as array key for sorting purposes
+			$timestamp = $revisionData->getCreatedTime()->format('Uu');
+			$response[$timestamp] = $pageInfo;
 		}
-
+		
+		// sort array desc
+		krsort($response);
 		return $response;
 	}
 	

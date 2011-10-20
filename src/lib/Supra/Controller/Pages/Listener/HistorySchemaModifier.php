@@ -4,18 +4,18 @@ namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Database\Doctrine\Type\Sha1HashType;
+use Supra\Database\Doctrine\Type;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Supra\Controller\Pages\Annotation;
 use Supra\Controller\Pages\Entity;
+use Doctrine\ORM\Mapping\MappingException;
 
 class HistorySchemaModifier extends VersionedTableMetadataListener
 {
 	const TABLE_PREFIX = '_history';
 	const ANNOTATION_NS = 'Supra\Controller\Pages\Annotation\\';
 	
-	private $mappingStorage = array();
 	private $isOnCreateCall = false;
 	
 	protected static $versionedEntities = array(
@@ -24,6 +24,7 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\Template',
 		'Supra\Controller\Pages\Entity\ApplicationPage',
 		'Supra\Controller\Pages\Entity\GroupPage',
+		'Supra\Controller\Pages\Entity\TemplateLayout',
 	);
 			
 	/**
@@ -33,7 +34,6 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 	{
 		$versionedEntities = array_merge(self::$versionedEntities, parent::$versionedEntities);
 		$metadata = $eventArgs->getClassMetadata();
-		$em = $eventArgs->getEntityManager();
 		$className = $metadata->name;
 			
         $reader = new AnnotationReader;
@@ -43,7 +43,6 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 		AnnotationRegistry::registerFile(SUPRA_LIBRARY_PATH . '/Supra/Controller/Pages/Annotation/HistoryAnnotation.php');
 		
 	    $class = $metadata->getReflectionClass();
-        //$annotations = $reader->getClassAnnotations($class);
 		
 		$properties = $class->getProperties();
 		foreach($properties as $property) {
@@ -58,9 +57,50 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 					}
 					if (isset($metadata->fieldMappings[$propertyName]['inherited'])) {
 						unset($metadata->fieldMappings[$propertyName]['inherited']);
-
 					}
 				}
+				
+				if ($annotation instanceof Annotation\Column) {
+					
+					if ( ! in_array($className, $versionedEntities)
+							|| $metadata->isMappedSuperclass 
+							&& ! $property->isPrivate() 
+							|| $metadata->isInheritedField($property->name)
+							|| $metadata->isInheritedAssociation($property->name)) {
+						continue;
+					}
+					
+					$mapping['fieldName'] = $propertyName;
+					
+					if ($annotation->type == null) {
+						throw MappingException::propertyTypeIsRequired($className, $property->getName());
+					}
+
+					$mapping['type'] = $annotation->type;
+					$mapping['length'] = $annotation->length;
+					$mapping['precision'] = $annotation->precision;
+					$mapping['scale'] = $annotation->scale;
+					$mapping['nullable'] = $annotation->nullable;
+					$mapping['unique'] = $annotation->unique;
+					if ($annotation->options) {
+						$mapping['options'] = $annotation->options;
+					}
+
+					if (isset($annotation->name)) {
+						$mapping['columnName'] = $annotation->name;
+					}
+
+					if (isset($annotation->columnDefinition)) {
+						$mapping['columnDefinition'] = $annotation->columnDefinition;
+					}
+
+					$idAnnotation = $reader->getPropertyAnnotation($property, 'Supra\Controller\Pages\Annotation\Id');
+					if ($idAnnotation instanceof Annotation\Id) {
+						$mapping['id'] = true;
+					}
+					$metadata->mapField($mapping);
+				}
+				
 				
 				if ($annotation instanceof Annotation\ManyToOne) {
 					
@@ -105,25 +145,20 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 					}
 				}
 				
-				// $propertyName == 'revision' is workaround for revision field
-				// as it is impossible to properly add mapped as OneToOne/ManyToMany & etc. field inside tables as primary key
-				// TODO: this "hack" should be fixed, or defined as another annotation 
-				if ($annotation instanceof Annotation\SkipForeignKey && ($this->isOnCreateCall) || $propertyName == 'revision') {
+				if ($annotation instanceof Annotation\SkipForeignKey
+						|| ($annotation instanceof Annotation\SkipForeignKeyOnCreate && ($this->isOnCreateCall))) {
 
 					if (isset($metadata->associationMappings[$propertyName])) {
-						
 						$joinColumn = array_shift($metadata->associationMappings[$propertyName]['joinColumns']);
-						
-						$this->mappingStorage[$propertyName] = $metadata->associationMappings[$propertyName];
 						unset($metadata->associationMappings[$propertyName]);
 						
 						$metadata->mapField(array(
 							'fieldName' => $propertyName,
-							'type' => Sha1HashType::NAME,
+							'type' => !is_null($annotation->type) ? $annotation->type : $joinColumn['type'],
 							'columnName' => $joinColumn['name'],
 						));
 					}
-				}
+				}		
 			}
 		}
 
@@ -135,84 +170,19 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
 			unset($metadata->table['uniqueConstraints']['locale_path_idx']);
 		}
 		
+		// This hack will allow us to fetch block property metadata using id+revision column
+		if ($className == Entity\BlockPropertyMetadata::CN()) {
+			if (isset($metadata->associationMappings['blockProperty'])) {
+				$metadata->associationMappings['blockProperty']['targetToSourceKeyColumns']['revision'] = 'revision';
+			}
+		}
+		
 		/**
 		 * Add table prefixes
 		 */
 		$name = &$metadata->table['name'];
 		if (in_array($className, $versionedEntities) && strpos($name, static::TABLE_PREFIX) === false) {
 			$name = $name . static::TABLE_PREFIX;
-		}
-	}
-	
-	/**
-	 * @param LifecycleEventArgs $eventArgs 
-	 */
-	public function prePersist(LifecycleEventArgs $eventArgs) 
-	{
-		return;
-		$entity = $eventArgs->getEntity();
-		$metadata = $eventArgs->getEntityManager()->getClassMetadata($entity::CN());
-		
-		$reader = new AnnotationReader;
-        $reader->setIgnoreNotImportedAnnotations(true);
-        $reader->setAnnotationNamespaceAlias(self::ANNOTATION_NS, 'History');
-		
-	    $class = $metadata->getReflectionClass();
-		
-		$properties = $class->getProperties();
-		foreach($properties as $property) {
-			
-			$propertyName = $property->getName();
-			$propertyAnnotations = $reader->getPropertyAnnotations($property);
-			foreach($propertyAnnotations as $annotation) {
-				/**
-				 * Return back 
-				 */
-				if ($annotation instanceof Annotation\InheritOnCreate) {
-					if (isset ($metadata->associationMappings[$propertyName])) {
-						$metadata->associationMappings[$propertyName]['inherited'] = $metadata->rootEntityName;
-					}
-					else if (isset ($metadata->fieldMappings[$propertyName])) {
-						$metadata->fieldMappings[$propertyName]['inherited'] = $metadata->rootEntityName;
-					}
-				}
-				
-			}
-		}
-	}
-	
-	public function postLoad(LifecycleEventArgs $eventArgs)
-	{
-		return;
-		$entity = $eventArgs->getEntity();
-		$metadata = $eventArgs->getEntityManager()->getClassMetadata($entity::CN());
-		
-		
-		if ($entity instanceof \Supra\Controller\Pages\Entity\PageLocalization) {
-			1+1;
-		}
-		
-		$reader = new AnnotationReader;
-        $reader->setIgnoreNotImportedAnnotations(true);
-        $reader->setAnnotationNamespaceAlias(self::ANNOTATION_NS, 'History');
-		
-	    $class = $metadata->getReflectionClass();
-		
-		$properties = $class->getProperties();
-		foreach($properties as $property) {
-			
-			$propertyName = $property->getName();
-			$propertyAnnotations = $reader->getPropertyAnnotations($property);
-			foreach($propertyAnnotations as $annotation) {
-				if ($annotation instanceof Annotation\SkipForeignKey) {
-					
-					if ($propertyName == 'template') {
-						//$tpl1 = $property->getValue();
-						$tpl2 = $entity->getTemplate();
-					}
-					
-				}
-			}
 		}
 	}
 	

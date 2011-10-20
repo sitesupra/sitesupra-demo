@@ -7,7 +7,12 @@ use Doctrine\Common\Annotations\Annotation;
 /** @Annotation */
 class Id {}
 /** @Annotation */
-class SkipForeignKey {} 
+class SkipForeignKey extends Annotation {
+	public $type;
+} 
+class SkipForeignKeyOnCreate extends Annotation {
+	public $type;
+} 
 /** @Annotation */
 class SkipPrefix {} 
 /** @Annotation */

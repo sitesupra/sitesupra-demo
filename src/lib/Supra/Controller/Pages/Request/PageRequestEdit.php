@@ -8,6 +8,8 @@ use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Listener\HistoryRevision;
+use Doctrine\ORM\Events;
 
 /**
  * Request object for edit mode requests
@@ -77,75 +79,32 @@ class PageRequestEdit extends PageRequest
 		 */
 		/* @var $publicPage Entity\Abstraction\AbstractPage */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		
+				
 		// Something went very wrong
 		if (empty($publicPage)) {
 			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
 		}
 		
+		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+
 		// Remove the old redirect link referenced element
 		$publicData = $publicPage->getLocalization($localeId);
 		$oldRedirect = $newRedirect = null;
 
-		// If there are something published, then copy it to _history
+		// If there are something published, then store published data into history
 		if ($publicData instanceof Entity\Abstraction\Localization) {
-
-			$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
-		
-			$revisionData = new Entity\RevisionData();
-			$userId = $this->getUser()->getId();			
-			$revisionData->setUser($userId);
+			$this->storeHistoredVersion($publicData, $publicEm);
 			
-			$historyEm->persist($revisionData);
-			$historyEm->flush();
-
-			/**
-			 * Listener will fill entities with provided revision data
-			 * Is used to assign revision_id for _history entities
-			 */
-			$historyEm->getEventManager()->addEventListener(\Doctrine\ORM\Events::prePersist, new \Supra\Controller\Pages\Listener\HistoryRevision($revisionData));
-			
-			
-			// FIXME: without setting revision data to public entity,
-			// History EM will merge entities only by ID, 
-			// even if we add it inside prePersist event listener
-			$publicPage->setRevisionData($revisionData);
-			$historyPage = $historyEm->merge($publicPage);
-			
-			// FIXME: this just registers link referenced element proxy class inside the metadata or else merge fails..
-			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-			$publicData->setRevisionData($revisionData);
-			$historyData = $historyEm->merge($publicData);
-			
-			$publicPlaceholders = $publicPage->getPlaceHolders();
-			foreach ($publicPlaceholders as $placeholder) {
-				$placeholder->setRevisionData($revisionData);
-				$historyEm->merge($placeholder);
-			}
-			
-			$publicBlocks = $this->getBlocksInPage($publicEm, $publicData);
-			foreach($publicBlocks as $block) {
-				$block->setRevisionData($revisionData);
-				$historyEm->merge($block);
-			}
-			
-			$publicProperties = $this->getBlockPropertySet()
-				->getPageProperties($publicData);
-			foreach ($publicProperties as $property) {
-				$property->setRevisionData($revisionData);
-				$historyEm->merge($property);
-			}
-			
-			$historyEm->flush();
+			// Restore some variables defaults, that could be changed by history saving method
+			$this->resetSets();		
+			$this->setPageLocalization($draftData);
+			$this->setDoctrineEntityManager($draftEm);
 		}
 			
 		if ($publicData instanceof Entity\PageLocalization) {
 			$oldRedirect = $publicData->getRedirect();
 		}
 		
-		// FIXME: this just registers link referenced element proxy class inside the metadata or else merge fails..
-		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
@@ -246,6 +205,11 @@ class PageRequestEdit extends PageRequest
 			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
 					->where($qb->expr()->in('r.blockProperty', $propertyIdList))
 					->getQuery()->execute();
+			
+			// Force to clear UoW, or #11 step will fail, 
+			// as properties are still marked as existing inside EM
+			$publicEm->flush();
+			$publicEm->getUnitOfWork()->clear();
 		}
 		
 		// 11. Merge all properties from 5
@@ -485,4 +449,82 @@ class PageRequestEdit extends PageRequest
 			throw $e;
         }
 	}
+	
+	/**
+	 * Creates copy of published page version inside history schema
+	 * @param Entity\Abstraction\Localization $publicData 
+	 */
+	private function storeHistoredVersion($publicData, $publicEm)
+	{
+		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		$connection = $historyEm->getConnection();
+		
+		$connection->beginTransaction();
+		try {
+			
+			// Revision info
+			$revisionData = new Entity\RevisionData();
+			
+			$userId = $this->getUser()
+					->getId();			
+			$revisionData->setUser($userId);
+
+			$historyEm->persist($revisionData);
+			$historyEm->flush();
+			
+			/**
+			 * Add new listener that will fill any entity with provided revision data
+			 * Is used to assign revision_id for _history entities
+			 */
+			$historyEm->getEventManager()
+					->addEventListener(array(Events::prePersist, Events::onFlush), new HistoryRevision($revisionData));
+
+			$publicPage = $publicData->getMaster();
+			$historyPage = $historyEm->merge($publicPage);
+
+			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+			
+			$historyData = $historyEm->merge($publicData);
+			$historyData->setMaster($historyPage);
+
+			$publicPlaceholders = $publicPage->getPlaceHolders();
+			foreach ($publicPlaceholders as $placeholder) {
+				$historyEm->merge($placeholder);
+			}
+
+			$publicBlocks = $this->getBlocksInPage($publicEm, $publicData);
+			foreach($publicBlocks as $block) {
+				$historyEm->merge($block);
+			}
+			
+			$this->setPageLocalization($publicData);
+			$this->setDoctrineEntityManager($publicEm);
+			$publicProperties = $this->getBlockPropertySet()
+				->getPageProperties($publicData);
+
+			foreach ($publicProperties as $property) {
+				$historyEm->merge($property);
+			}
+
+			// if page is a root template, we will copy it's layout
+			if ($publicPage instanceof Entity\Template 
+					&& ! $publicPage->hasParent()) {
+
+				$publicLayouts = $publicPage->getTemplateLayouts();
+				foreach ($publicLayouts as $layout) {
+					$historyEm->merge($layout);
+				}
+			}
+
+			$historyEm->flush();
+
+		} catch (\Exception $e) {
+			
+			$connection->rollBack();
+			throw $e;
+		}
+		
+		$connection->commit();
+	}
+	
 }
