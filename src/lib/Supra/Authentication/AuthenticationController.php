@@ -157,6 +157,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 		$post = $this->getRequest()->isPost();
 		$userProvider = ObjectRepository::getUserProvider($this);
+		
+		$loginPath = $this->getLoginPath();
+		$uri = $this->getRequest()->getActionString();
 
 		// if post request then check for login and password fields presence
 		if ($post) {
@@ -220,7 +223,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						/* @var $request Request\HttpRequest */
 						
 						// if authentication failed, we redirect user to login page
-						$loginPath = $this->getLoginPath();
 						$path = new Path($loginPath);
 						$request->setPath($path);
 						
@@ -238,9 +240,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {
 
-			$loginPath = $this->getLoginPath();
-			$uri = $this->getRequest()->getActionString();
-
 			if ($uri != $loginPath) {
 
 				if ($xmlHttpRequest) {
@@ -253,9 +252,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				throw new StopRequestException("User not authenticated");
 			}
 		} else {
-			$loginPath = $this->getLoginPath();
-			$uri = $this->getRequest()->getActionString();
-
+			
 			// Redirect from login form if the session is active
 			if ($uri == $loginPath) {
 				$uri = $this->getSuccessRedirectUrl();

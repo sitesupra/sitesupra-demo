@@ -138,9 +138,17 @@ class UserProvider
 	 */
 	public function signIn(Entity\User $user)
 	{
+		$entityManager = $this->getEntityManager();
+		
+		// Remove all active sessions of the user
+		//TODO: should be configurable if do it and should check the access times
+		$userSessionEntity = Entity\UserSession::CN();
+		$query = $entityManager->createQuery(
+				"DELETE FROM $userSessionEntity s WHERE s.user = ?0");
+		$query->execute(array($user->getId()));
+		
 		$sessionEntity = new Entity\UserSession();
 		$sessionEntity->setUser($user);
-		$entityManager = $this->getEntityManager();
 		$entityManager->persist($sessionEntity);
 		$sessionId = $sessionEntity->getId();
 		
@@ -173,13 +181,31 @@ class UserProvider
 	}
 	
 	/**
-	 *
+	 * TODO: throw exception on failure
 	 * @return Entity\User
 	 */
 	public function getSignedInUser()
 	{
+		$sessionManager = $this->getSessionManager();
 		$session = $this->getSessionSpace();
 		$user = $session->getUser();
+		
+		$sessionId = $sessionManager->getHandler()->getSessionId();
+		
+		$entityManager = $this->getEntityManager();
+		$userSession = $entityManager->find(Entity\UserSession::CN(), $sessionId);
+		
+		if ( ! $userSession instanceof Entity\UserSession) {
+			return null;
+		}
+		
+		if ($userSession->getUser() !== $user) {
+			return null;
+		}
+		
+		// Update the last access time
+		$userSession->setModificationTime();
+		$entityManager->flush();
 		
 		return $user;
 	}
