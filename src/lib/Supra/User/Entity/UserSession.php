@@ -23,6 +23,12 @@ class UserSession extends Entity implements Timestampable
 	 * @var DateTime
 	 */
 	protected $lastActivityTime;
+	
+	/**
+	 * @ManyToOne(targetEntity="User", cascade={"delete"})
+	 * @var User
+	 */
+	protected $user;
 
 	/**
 	 * @return DateTime
@@ -60,5 +66,21 @@ class UserSession extends Entity implements Timestampable
 			$time = new DateTime;
 		}
 		$this->lastActivityTime = $time;
+	}
+
+	/**
+	 * @return User
+	 */
+	public function getUser()
+	{
+		return $this->user;
+	}
+
+	/**
+	 * @param User $user
+	 */
+	public function setUser(User $user)
+	{
+		$this->user = $user;
 	}
 }

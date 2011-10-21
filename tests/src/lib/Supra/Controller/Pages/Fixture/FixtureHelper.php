@@ -222,7 +222,7 @@ class FixtureHelper
 			$newsApp = $this->createPage(3, $rootPage, $this->template);
 			
 			$creationTime = new \DateTime();
-			for ($i = 20; $i > 0; $i--) {
+			for ($i = 10; $i > 0; $i--) {
 				$length = count(self::$constants);
 				$template = self::$constants[6];
 				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));

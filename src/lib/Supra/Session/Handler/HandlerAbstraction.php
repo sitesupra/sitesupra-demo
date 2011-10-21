@@ -4,6 +4,9 @@ namespace Supra\Session\Handler;
 
 use Supra\Session\Exception;
 
+/**
+ * Abstract session handler class
+ */
 abstract class HandlerAbstraction 
 {
 	const DEFAULT_SESSION_NAME = 'SID';
@@ -14,21 +17,38 @@ abstract class HandlerAbstraction
 	const SESSION_COULD_NOT_START = 1003;
 	const SESSION_COULD_NOT_CLOSE = 1004;	
 	
-	protected $persistOnClose;
-	protected $sessionStatus;
+	protected $persistOnClose = true;
 	
-	protected $sessionName;
+	/**
+	 * Session current status
+	 * @var int
+	 */
+	protected $sessionStatus = self::SESSION_NOT_STARTED;
 	
+	/**
+	 * Session ID
+	 * @var string
+	 */
 	protected $sessionId;
 	
+	/**
+	 * Session name
+	 * @var string
+	 */
+	protected $sessionName;
+	
+	/**
+	 * Session data
+	 * @var array
+	 */
 	protected $sessionData;
 	
+	/**
+	 * @param string $sessionName
+	 */
 	public function __construct($sessionName = self::DEFAULT_SESSION_NAME) 
 	{
 		$this->sessionName = $sessionName;
-		
-		$this->persistOnClose = true;
-		$this->sessionStatus = self::SESSION_NOT_STARTED;
 	}
 	
 	/**
@@ -38,7 +58,7 @@ abstract class HandlerAbstraction
 	public function start() 
 	{
 		$this->sessionStatus = self::SESSION_STARTED;
-		$this->sessionData =& $_SESSION;
+		$this->sessionData = & $_SESSION;
 	}
 	
 	/**
@@ -60,11 +80,11 @@ abstract class HandlerAbstraction
 	}
 	
 	/**
-	 * @param boolean $yes_or_no 
+	 * @param boolean $persistOnClose 
 	 */
-	public function persistOnClose($yes_or_no) 
+	public function persistOnClose($persistOnClose) 
 	{
-		$this->persistOnClose = $yes_or_no;
+		$this->persistOnClose = $persistOnClose;
 	}
 	
 	/**
@@ -97,21 +117,6 @@ abstract class HandlerAbstraction
 		return $this->sessionId;
 	}
 
-	/**
-	 * Change session ID by restarting session
-	 * @param string $sessionId
-	 */
-	public function changeSessionId($sessionId)
-	{
-		// Need to restart session to send new ID to the client
-		$this->clear();
-		$this->close();
-		
-		$this->setSessionId($sessionId);
-		
-		$this->start();
-	}
-	
 	/**
 	 * @param string $sessionId
 	 */

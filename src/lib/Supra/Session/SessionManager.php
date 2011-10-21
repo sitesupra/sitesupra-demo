@@ -16,20 +16,57 @@ class SessionManager
 	private $handler;
 	
 	/**
+	 * Session array
 	 * @var mixed
 	 */
-	private $sessionData;
+	private $sessionData = array();
 	
 	/**
 	 * @param HandlerAbstraction $handler
 	 */
-	public function __construct($handler) 
+	public function __construct(Handler\HandlerAbstraction $handler)
+	{
+		$this->setHandler($handler);
+		$this->start();
+	}
+
+	/**
+	 * @return Handler\HandlerAbstraction
+	 */
+	public function getHandler()
+	{
+		return $this->handler;
+	}
+
+	/**
+	 * @param Handler\HandlerAbstraction $handler
+	 */
+	public function setHandler(Handler\HandlerAbstraction $handler)
 	{
 		$this->handler = $handler;
+	}
+	
+	/**
+	 * Starts the session
+	 */
+	public function start()
+	{
 		$this->handler->start();
 		$this->sessionData = &$this->handler->getSessionData();
 	}
 	
+	/**
+	 * Changes the session ID inside the handler and reassigns the session data
+	 * @param string $sessionId
+	 */
+	public function changeSessionId($sessionId)
+	{
+		$this->clear();
+		$this->close();
+		$this->handler->setSessionId($sessionId);
+		$this->start();
+	}
+		
 	/**
 	 * Shortcut for loading session namespace by interface
 	 * @param string $spaceClass
@@ -138,7 +175,7 @@ class SessionManager
 	 */
 	public function clear() 
 	{
-		foreach ($this->sessionNamespaces as $sessionNamespace) {
+		foreach ($this->sessionData as $sessionNamespace) {
 
 			if ($sessionNamespace instanceof SessionNamespace) {
 				$sessionNamespace->clear();

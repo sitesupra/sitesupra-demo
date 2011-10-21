@@ -29,6 +29,8 @@ class PhpSessionHandler extends HandlerAbstraction
 			throw new Exception\CouldNotStartSession();
 		}
 		
+		$this->sessionId = session_id();
+		
 		parent::start();
 	}
 	

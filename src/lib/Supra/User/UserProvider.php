@@ -10,6 +10,7 @@ use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
 use Supra\Authentication\Exception\AuthenticationFailure;
 use Supra\Authentication\AuthenticationSessionNamespace;
+use Supra\Session\SessionManager;
 
 class UserProvider
 {
@@ -40,12 +41,22 @@ class UserProvider
 	}
 	
 	/**
+	 * @return SessionManager
+	 */
+	public function getSessionManager()
+	{
+		$manager = ObjectRepository::getSessionManager($this);
+		
+		return $manager;
+	}
+	
+	/**
 	 * @return AuthenticationSessionNamespace
 	 */
 	public function getSessionSpace()
 	{
-		$manager = ObjectRepository::getSessionManager($this);
-		$session = $manager->getAuthenticationSpace();
+		$session = $this->getSessionManager()
+				->getAuthenticationSpace();
 		
 		return $session;
 	}
@@ -127,10 +138,19 @@ class UserProvider
 	 */
 	public function signIn(Entity\User $user)
 	{
-		//TODO: generate UserSession, reset session ID
+		$sessionEntity = new Entity\UserSession();
+		$sessionEntity->setUser($user);
+		$entityManager = $this->getEntityManager();
+		$entityManager->persist($sessionEntity);
+		$sessionId = $sessionEntity->getId();
+		
+		$sessionManager = $this->getSessionManager();
+		$sessionManager->changeSessionId($sessionId);
 		
 		$session = $this->getSessionSpace();
 		$session->setUser($user);
+		
+		$entityManager->flush();
 	}
 	
 	/**
@@ -138,6 +158,16 @@ class UserProvider
 	 */
 	public function signOut()
 	{
+		$sessionManager = $this->getSessionManager();
+		$sessionId = $sessionManager->getHandler()->getSessionId();
+		$entityManager = $this->getEntityManager();
+		$sessionEntity = $entityManager->find(Entity\UserSession::CN(), $sessionId);
+		
+		if ($sessionEntity instanceof Entity\UserSession) {
+			$entityManager->remove($sessionEntity);
+			$entityManager->flush();
+		}
+		
 		$session = $this->getSessionSpace();
 		$session->removeUser();
 	}

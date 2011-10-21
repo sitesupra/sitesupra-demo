@@ -30,19 +30,15 @@ class LogoutController extends SimpleController
 		return $this->loginPage;
 	}
 	
+	/**
+	 * Signs out the user
+	 */
 	public function indexAction()
 	{
-		$session = ObjectRepository::getSessionManager($this)
-				->getAuthenticationSpace();
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProvider->signOut();
 		
 		$loginPage = $this->getLoginPage();
-		
-		$user = $session->getUser();
-		
-		if ( ! empty($user)) {
-			$session->removeUser();
-		}
-		
 		$this->response->redirect($loginPage);
 	}
 }
