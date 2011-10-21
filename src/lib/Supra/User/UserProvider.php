@@ -138,6 +138,8 @@ class UserProvider
 	 */
 	public function signIn(Entity\User $user)
 	{
+		\Supra\Event\EventManager::fire($this, 'preSignIn', $parameters);
+		
 		$entityManager = $this->getEntityManager();
 		
 		// Remove all active sessions of the user

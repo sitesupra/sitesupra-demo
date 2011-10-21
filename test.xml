@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" namespace="Supra\Tests\ObjectRepository" fullPackage="Supra.Tests.ObjectRepository" tests="15" assertions="58" failures="0" errors="0" time="0.100893">
+    <testcase name="testSetDefaultObject" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="34" assertions="7" time="0.029550"/>
+    <testcase name="testSetObjectInvalidInterfaceName" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="85" assertions="2" time="0.001457"/>
+    <testcase name="testWrongInterfaceException" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="94" assertions="1" time="0.000612"/>
+    <testcase name="testControllerContext" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="100" assertions="0" time="0.000669"/>
+    <testcase name="testControllerContextEndFail" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="115" assertions="1" time="0.000856"/>
+    <testcase name="testFoundByController" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="125" assertions="9" time="0.001150"/>
+    <testcase name="testBadCallerPassed" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="157" assertions="1" time="0.000601"/>
+    <testcase name="testAddBindingNotObject" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="165" assertions="1" time="0.000607"/>
+    <testcase name="testAddBindingWrongCallerType" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="173" assertions="1" time="0.000595"/>
+    <testcase name="testEmptyControllerStackEndException" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="181" assertions="1" time="0.000575"/>
+    <testcase name="testCallerHierarchy" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="188" assertions="2" time="0.003408"/>
+    <testcase name="testCallerHierarchyLoopFailure" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="205" assertions="1" time="0.000702"/>
+    <testcase name="testCallerHierarchyDuplicateCallerParent" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="216" assertions="1" time="0.000590"/>
+    <testcase name="testAllSettersAndGetters" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="225" assertions="29" time="0.058889"/>
+    <testcase name="testWrongInterface" class="Supra\Tests\ObjectRepository\ObjectRepositoryTest" file="/home/aigars/work/git.supra7/tests/src/lib/Supra/ObjectRepository/ObjectRepositoryTest.php" line="302" assertions="1" time="0.000631"/>
+  </testsuite>
+</testsuites>

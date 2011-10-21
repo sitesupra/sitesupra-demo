@@ -19,14 +19,15 @@ class Controller extends SimpleController
 		$instanceListenerFunction = function() {
 			Log::info('RSS controller instance listener succeeded');
 		};
-		EventRegistry::listen($this, 'test', $instanceListenerFunction);
 		
-		// test calling listener by instance and by classname
-		EventRegistry::fire($this, 'index');
-		EventRegistry::fire(__CLASS__, 'index');
+		$eventManager = \Supra\ObjectRepository\ObjectRepository::getEventManager($this);
+		
+		$eventManager->listen('test', $instanceListenerFunction);
+		
+		// test calling listener
+		$eventManager->fire('index');
 		$this->getResponse()->output('Hello world!');
-		EventRegistry::fire($this, 'test');
-		
+		$eventManager->fire('test');
 	}
 
 	/**

@@ -2,9 +2,16 @@
 
 namespace Project\Rss;
 
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Event\EventManager;
+
 // Event test
 //TODO: make this somehow configurable
-$listenerFunction = function($className, $type, $parameters) {
-	\Log::info("Event $type for class $className has been fired with parameters ", $parameters);
+$listenerFunction = function(\Supra\Event\EventArgs $eventArgs) {
+	\Log::warn("Event has been fired with parameters ", $eventArgs);
 };
-\Supra\Event\Registry::listen('Project\Rss\Controller', 'index', $listenerFunction);
+
+$eventManager = new EventManager();
+$eventManager->listen('index', $listenerFunction);
+
+ObjectRepository::setEventManager('Project\Rss\Controller', $eventManager);

@@ -14,6 +14,7 @@ use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Search\IndexerQueue;
+use Supra\Event\EventManager;
 
 /**
  * Object repository
@@ -39,6 +40,7 @@ class ObjectRepository
 	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
 	const INTERFACE_APPLICATION_CONFIGURATION = 'Supra\Cms\ApplicationConfiguration';
 	const INTERFACE_INDEXER_QUEUE = 'Supra\Search\IndexerQueue';
+	const INTERFACE_EVENT_MANAGER = 'Supra\Event\EventManager';
 	
 	/**
 	 * Object relation storage
@@ -628,6 +630,38 @@ class ObjectRepository
 	public static function setDefaultIndexerQueue(IndexerQueue $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INDEXER_QUEUE);
+	}
+	
+	/**
+	 * Get assigned event manager.
+	 *
+	 * @param mixed $caller
+	 * @return EventManager
+	 */
+	public static function getEventManager($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_EVENT_MANAGER);
+	}
+
+	/**
+	 * Assign event manager to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param EventManager $object 
+	 */
+	public static function setEventManager($caller, EventManager $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_EVENT_MANAGER);
+	}
+	
+	/**
+	 * Set default event manager.
+	 *
+	 * @param EventManager $object 
+	 */
+	public static function setDefaultEventManager(EventManager $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_EVENT_MANAGER);
 	}
 	
 }
