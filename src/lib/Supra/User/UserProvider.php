@@ -138,7 +138,8 @@ class UserProvider
 	 */
 	public function signIn(Entity\User $user)
 	{
-		\Supra\Event\EventManager::fire($this, 'preSignIn', $parameters);
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire('preSignIn');
 		
 		$entityManager = $this->getEntityManager();
 		
@@ -161,6 +162,8 @@ class UserProvider
 		$session->setUser($user);
 		
 		$entityManager->flush();
+		
+		$eventManager->fire('postSignIn');
 	}
 	
 	/**
@@ -168,6 +171,9 @@ class UserProvider
 	 */
 	public function signOut()
 	{
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire('preSignOut');
+		
 		$sessionManager = $this->getSessionManager();
 		$sessionId = $sessionManager->getHandler()->getSessionId();
 		$entityManager = $this->getEntityManager();
@@ -180,6 +186,8 @@ class UserProvider
 		
 		$session = $this->getSessionSpace();
 		$session->removeUser();
+		
+		$eventManager->fire('postSignOut');
 	}
 	
 	/**

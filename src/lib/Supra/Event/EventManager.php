@@ -10,11 +10,29 @@ use Supra\Log\Log;
 class EventManager
 {
 	/**
+	 * Shared empty arguments class
+	 * @var EventArgs
+	 */
+	private static $emptyInstance;
+	
+	/**
 	 * Listeners
 	 * @var array
 	 */
 	protected $listeners = array();
-
+	
+	/**
+	 * @return EventManager
+	 */
+	public static function getEmptyInstance()
+	{
+		if (is_null(self::$emptyInstance)) {
+			self::$emptyInstance = new self();
+		}
+		
+		return self::$emptyInstance;
+	}
+	
 	/**
 	 * Add listener
 	 * @param string|array $eventType

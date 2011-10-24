@@ -7,6 +7,6 @@ use Supra\ObjectRepository\ObjectRepository;
 $userProvider = ObjectRepository::getUserProvider('#cms');
 
 $manager = new EventManager();
-$manager->listen($element, $eventTypes, $callBack);
+//$manager->listen($eventTypes, $callBack);
 
-ObjectRepository::setEntityManager($userProvider, $manager);
+ObjectRepository::setEventManager($userProvider, $manager);

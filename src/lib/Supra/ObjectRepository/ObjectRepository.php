@@ -640,7 +640,13 @@ class ObjectRepository
 	 */
 	public static function getEventManager($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_EVENT_MANAGER);
+		$eventManager = self::getObject($caller, self::INTERFACE_EVENT_MANAGER);
+		
+		if (is_null($eventManager)) {
+			$eventManager = EventManager::getEmptyInstance();
+		}
+		
+		return $eventManager;
 	}
 
 	/**
