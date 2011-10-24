@@ -376,101 +376,104 @@ abstract class PageManagerAction extends CmsAction
 		return $data;
 	}
 	
+	/**
+	 * Move page at trash 
+	 */
 	protected function delete()
 	{
-		$this->isPostRequest();
-	
-		$draftPage = $this->getPageLocalization()->getMaster();
-		$pageId = $draftPage->getId();
-		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
-		$publicEm = ObjectRepository::getEntityManager('');
-		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
+		$page = $this->getPageLocalization()
+				->getMaster();
+		
+		$pageId = $page->getId();
+		
+		if ($page instanceof Entity\Template) {
+	        $localizationEntity = Entity\PageLocalization::CN();
+	        $dql = "SELECT COUNT(p.id) FROM $localizationEntity p
+	                WHERE p.template = ?0";
+	        $count = $this->entityManager->createQuery($dql)
+	                ->setParameters(array($pageId))
+	                    ->getSingleScalarResult();
+	       
+	        if ((int) $count > 0) {
+	            throw new CmsException(null, "Cannot remove template as there are pages using it");
+			}
+		}
 		
 		$pageRequest = $this->getPageRequest();
+		$pageRequest->delete();
 		
-		// If entity is a page, then get it template
-		// and create they copies for _trash scheme
-		$draftPage = $draftEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		
-		if ($draftPage instanceof Entity\Page) {
-			$draftPageCollection = $draftPage->getLocalizations();
-			foreach ($draftPageCollection as $pageLocalization) {
-				$draftTpl = $pageLocalization->getTemplate();
-				$draftTplId = $draftTpl->getId();
-				$tpl = $publicEm->find(PageRequest::TEMPLATE_ENTITY, $draftTplId);
-				$trashEm->merge($tpl);
-			}
-			$draftEm->flush();
-		}
-
-		// We should delete published version also (if any)
-		$publicEm = ObjectRepository::getEntityManager('');
-		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
-		if ($publicPage instanceof Entity\Abstraction\AbstractPage) {
-			$publicPageCollection = $publicPage->getLocalizations();
-			foreach ($publicPageCollection as $pageLocalization) {
-				$publicEm->remove($pageLocalization);
-			}
-			$placeholders = $publicPage->getPlaceHolders();
-			foreach($placeholders as $placeholder){
-				$publicEm->remove($placeholder);
-			}
-			$publicEm->flush();
-		}
-		
-		$pageLocalizationId = $this->getPageLocalization()->getId();
-		$pageRequest->moveBetweenManagers($draftEm, $trashEm, $pageLocalizationId);
 		$this->getResponse()
 				->setResponseData(true);
+		
 	}
 	
 	/**
-	 * Will move all page data and page itself from trash into draft tables
+	 * Restore page from trash schema
 	 */
-	protected function restore()
+	protected function restoreTrashVersion()
 	{
 		$this->isPostRequest();
 		
-		//$pageDataId = $this->getRequestParameter('page_id');
-		$pageDataId = $this->getPageLocalization()->getId();
-		$publicEm = ObjectRepository::getEntityManager('');
-		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
-		$trashEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
-		
-		// Override Cms entity manager to handle trash pages
+		$trashEm = ObjectRepository::getEntityManager('#trash');
 		$this->entityManager = $trashEm;
-		$pageRequest = $this->getPageRequest();
 		
-		$trashPageLocalization = $trashEm->find(Entity\Abstraction\Localization::CN(), $pageDataId);
+		$localization = $this->getPageLocalization();
 		
-		if ( ! $trashPageLocalization instanceof Entity\Abstraction\Localization) {
-			throw new CmsException(null, "Page wasn't found in the recycle bin anymore");
-		}
+		$draftEm = ObjectRepository::getEntityManager('#cms');
 		
-		$trashPage = $trashPageLocalization->getMaster();
-		
-		if ($trashPage instanceof Entity\Page) {
-
-			$trashPageCollection = $trashPage->getLocalizations();
-			foreach($trashPageCollection as $pageLocalization) {
-				$templateId = $pageLocalization->getTemplate()->getId();
+		$page = $localization->getMaster();
+		if ($page instanceof Entity\Page) {
+			
+			$localizations = $page->getLocalizations();
+			foreach($localizations as $pageLocalization) {
 				
-				$tpl = $publicEm->find(Entity\Template::CN(), $templateId);
-				if ( ! ($tpl instanceof Entity\Template)) {
-					throw new CmsException(null, 'It is impossible to restore page as its template was deleted');
+				$template = $pageLocalization->getTemplate();
+				if ($template instanceof Entity\Template) {
+					$template = $template->getId();
+				}
+				
+				$template = $draftEm->find(Entity\Template::CN(), $template);
+				if ( ! ($template instanceof Entity\Template)) {
+					$localeName = $this->getLocale()
+							->getId();
+					throw new CmsException(null, "It is impossible to restore page as its \"{$localeName}\" version template was deleted");
 				}
 			}
+		} else if ($page instanceof Entity\Template) {
 			
-			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageDataId);
+			$parentId = $this->getRequestParameter('parent_id');
+			$referenceId = $this->getRequestParameter('reference_id');
+			
+			if ( ! $page->hasParent()
+					&& ( ! empty($parentId) || ! empty($referenceId))) {
+				
+				throw new CmsException(null, "It is impossible to restore root template as a child");
+			}
+			
 		}
-		else {
-			$page = $pageRequest->moveBetweenManagers($trashEm, $draftEm, $pageDataId, true);
-		}
-
-		// Restore default entity manager
-		$this->entityManager = ObjectRepository::getEntityManager($this);
 		
-		// TODO: move action
+		$pageRequest = $this->getPageRequest();
+		$page = $pageRequest->restore();
+		
+		// Reverting back cms entity manager
+		$this->entityManager = $draftEm;
+		
+		$parent = $this->getPageByRequestKey('parent_id');
+		$reference = $this->getPageByRequestKey('reference_id');
+		try {
+			if (is_null($reference)) {
+				if (is_null($parent)) {
+					throw new CmsException('sitemap.error.parent_page_not_found');
+				}
+				$parent->addChild($page);
+			} else {
+				$page->moveAsPrevSiblingOf($reference);
+			}
+		} catch (DuplicatePagePathException $uniqueException) {
+			throw new CmsException('sitemap.error.duplicate_path');
+		}
+		
+		$this->getResponse()->setResponseData(true);
 	}
 	
 	protected function restoreHistoryVersion()

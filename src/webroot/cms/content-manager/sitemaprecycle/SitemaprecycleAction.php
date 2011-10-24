@@ -35,16 +35,16 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function restoreAction()
 	{
-		$this->restore();
+		$this->restoreTrashVersion();
 	}
-	
 	
 	protected function loadSitemapTree($entity)
 	{
 		$pages = array();
-		
-		$em = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\Trash');
 		$response = array();
+		
+		$em = ObjectRepository::getEntityManager('#trash');
+		
 		$localeId = $this->getLocale()->getId();
 
 		$pageLocalizationRepository = $em->getRepository($entity);
@@ -61,8 +61,11 @@ class SitemaprecycleAction extends PageManagerAction
 			}
 
 			if ($pageLocalization instanceof Entity\PageLocalization) {
-				$templateId = $pageLocalization->getTemplate()
-					->getId();
+				$template = $pageLocalization->getTemplate();
+				
+				if ($template instanceof Entity\Template) {
+					$templateId = $template->getId();
+				}
 			}
 
 			$pageInfo = array(

@@ -394,25 +394,13 @@ class PageAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$page = $this->getPageLocalization()->getMaster();
-
+		$page = $this->getPageLocalization()
+				->getMaster();
+		
 		$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
-		if (empty($page)) {
-			$this->getResponse()
-					->setErrorMessage("Page doesn't exist already");
-
-			return;
-		}
-
-		// Check if there is no children
-		$hasChildren = $page->hasChildren();
-
-		if ($hasChildren) {
-			$this->getResponse()
-					->setErrorMessage("Cannot remove page with children");
-
-			return;
+		if ($page->hasChildren()) {
+			throw new CmsException(null, "Cannot remove page with childrens");
 		}
 
 		$this->delete();

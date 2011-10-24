@@ -16,6 +16,8 @@ class SkipForeignKeyOnCreate extends Annotation {
 /** @Annotation */
 class SkipPrefix {} 
 /** @Annotation */
+class SkipColumn {} 
+/** @Annotation */
 class InheritOnCreate {} 
 /** @Annotation */
 class ManyToOne extends Annotation {

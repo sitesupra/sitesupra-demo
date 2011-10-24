@@ -120,34 +120,11 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 
-		$page = $this->getPageLocalization()->getMaster();
-		$pageId = $page->getId();
-
-		// Check if there is no children
-		$hasChildren = $page->hasChildren();
-
-		if ($hasChildren) {
-			$this->getResponse()
-					->setErrorMessage("Cannot remove template with children");
-
-			return;
-		}
+		$page = $this->getPageLocalization()
+				->getMaster();
 		
-		// TODO: remove from controller
-		// TODO: or loop through array of pages (founded by findAll in PAGE_DATA_ENTITY repo)
-		// and compare getTemplate()->getId();
-		$pageDataEntity = Entity\PageLocalization::CN();
-		$dql = "SELECT COUNT(p.id) FROM $pageDataEntity p 
-				WHERE p.template = ?0";
-		
-		$count = $this->entityManager->createQuery($dql)
-				->setParameters(array($pageId))
-					->getSingleScalarResult();
-		
-		if ((int) $count > 0) {
-			$this->getResponse()
-					->setErrorMessage("Cannot remove template as there are pages using it");
-			return;
+		if ($page->hasChildren()) {
+			throw new CmsException(null, "Cannot remove template with childrens");
 		}
 
 		$this->delete();

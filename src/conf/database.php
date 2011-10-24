@@ -101,9 +101,9 @@ foreach ($managerNames as $managerName => $namespace) {
 			break;
 
 		case 'Trash':
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashTableIdChange());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashSchemaModifier());
 			break;
 
 		case 'History':
@@ -122,7 +122,14 @@ foreach ($managerNames as $managerName => $namespace) {
 	ObjectRepository::setEntityManager($namespace, $em);
 	
 	// Experimental: sets entity manager by ID
-	if ($managerName == 'Draft') {
-		ObjectRepository::setEntityManager('#cms', $em);
+	switch ($managerName) {
+		case 'Draft':
+			ObjectRepository::setEntityManager('#cms', $em); break;
+		case 'Trash':
+			ObjectRepository::setEntityManager('#trash', $em); break;
+		case 'History':
+			ObjectRepository::setEntityManager('#history', $em); break;
+		case 'PublicSchema':
+			ObjectRepository::setEntityManager('#public', $em); break;
 	}
 }

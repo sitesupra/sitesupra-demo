@@ -40,7 +40,7 @@ class HistorySchemaModifier extends VersionedTableMetadataListener
         $reader->setIgnoreNotImportedAnnotations(true);
         $reader->setAnnotationNamespaceAlias(self::ANNOTATION_NS, 'History');
 		
-		AnnotationRegistry::registerFile(SUPRA_LIBRARY_PATH . '/Supra/Controller/Pages/Annotation/HistoryAnnotation.php');
+		AnnotationRegistry::registerFile(SUPRA_LIBRARY_PATH . '/Supra/Controller/Pages/Annotation/Annotation.php');
 		
 	    $class = $metadata->getReflectionClass();
 		

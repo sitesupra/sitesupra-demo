@@ -287,11 +287,6 @@ class HistoryPageRequestView extends PageRequest
 					$blockObj = $draftEm->find(static::BLOCK_ENTITY, array('id' => $block));
 					if ( ! ($blockObj instanceof Entity\Abstraction\Block)) {
 						
-						/**
-						 * When nothing were found in draft, it means, that block
-						 * was deleted from page, need to ignore
-						 * this property. 
-						 */
 						//throw new \Exception('Block not found');
 						unset($result[$key]);
 					}
