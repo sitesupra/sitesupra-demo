@@ -168,12 +168,6 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::__call($method, $arguments);
     }
 
-    public function removeTrigger()
-    {
-        $this->__load();
-        return parent::removeTrigger();
-    }
-
     public function free()
     {
         $this->__load();

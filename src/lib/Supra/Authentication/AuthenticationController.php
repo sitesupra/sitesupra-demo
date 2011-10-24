@@ -187,48 +187,49 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					
 					$user = $userProvider->authenticate($login, $password);
 					
-					// TODO: user provider should have session storage instead
-//					$userProvider->startSession();
-					
-				} catch (Exception\AuthenticationFailure $exc) {
-					//TODO: pass the failure message somehow
-				}
-
-				if ( ! empty($user)) {
-
-					$uri = $this->getSuccessRedirectUrl();
-
 					$userProvider->signIn($user);
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
 					} else {
-						$this->response->redirect($uri);
+						$successUri = $this->getSuccessRedirectUrl();
+						$this->response->redirect($successUri);
 					}
-
+					
 					throw new StopRequestException("Login success");
-				} else {
+					
+				} catch (Exception\AuthenticationFailure $exc) {
+					//TODO: pass the failure message somehow
+					
+					// Login not successfull
 					$message = 'Incorrect login name or password';
+					
+					//TODO: i18n
+					if ($exc instanceof Exception\ExistingSessionLimitation) {
+						$message = $exc->getMessage();
+					}
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(401);
 						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
+						
 					} else {
 
 						$session->login = $login;
 						$session->message = $message;
-						
+
 						$request = $this->request;
-						
+
 						/* @var $request Request\HttpRequest */
-						
+
 						// if authentication failed, we redirect user to login page
 						$path = new Path($loginPath);
 						$request->setPath($path);
-						
+
+						// Continue the request with login request path
 						return;
 					}
-					
+
 					throw new StopRequestException("Login failure");
 				}
 			}

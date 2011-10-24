@@ -62,7 +62,7 @@ $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFun
 
 $eventManager = new EventManager();
 $eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
 $eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 $eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());

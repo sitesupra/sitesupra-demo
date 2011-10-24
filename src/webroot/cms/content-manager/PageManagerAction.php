@@ -141,30 +141,73 @@ abstract class PageManagerAction extends CmsAction
 		return $this->pageData;
 	}
 	
-	protected function getPageByRequestKey($key)
+	/**
+	 * Try selecting abstract page by request parameter
+	 * @param string $key
+	 * @return Entity\Abstraction\AbstractPage
+	 */
+	private function searchPageByRequestKey($key)
 	{
-		$data = $this->getPageLocalizationByRequestKey($key);
-
-		if (empty($data)) {
-			return null;
-		}
-		
-		$page = $data->getMaster();
+		$pageId = $this->getRequestParameter($key);
+		$page = $this->entityManager->find(
+				Entity\Abstraction\AbstractPage::CN(), $pageId);
 		
 		return $page;
 	}
 	
-	protected function getPageLocalizationByRequestKey($key)
+	/**
+	 * Try selecting page localization by request parameter
+	 * @param string $key
+	 * @return Entity\Abstraction\Localization
+	 */
+	private function searchLocalizationByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
-
-		if (empty($pageId)) {
-			return null;
+		$localization = $this->entityManager->find(
+				Entity\Abstraction\Localization::CN(), $pageId);
+		
+		return $localization;
+	}
+	
+	/**
+	 * Try loading page by searching for received page/localization ID
+	 * @param string $key
+	 * @return Entity\Abstraction\AbstractPage
+	 */
+	protected function getPageByRequestKey($key)
+	{
+		$page = $this->searchPageByRequestKey($key);
+		
+		if (is_null($page)) {
+			$localization = $this->searchLocalizationByRequestKey($key);
+			
+			if ( ! is_null($localization)) {
+				$page = $localization->getMaster();
+			}
 		}
 		
-		$data = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageId);
-
-		return $data;
+		return $page;
+	}
+	
+	/**
+	 * Try loading localization by searching for received page/localization ID
+	 * @param string $key
+	 * @return Entity\Abstraction\Localization
+	 */
+	protected function getPageLocalizationByRequestKey($key)
+	{
+		$localization = $this->searchLocalizationByRequestKey($key);
+		
+		if (is_null($localization)) {
+			$page = $this->searchPageByRequestKey($key);
+			
+			if ( ! is_null($page)) {
+				$locale = $this->getLocale();
+				$localization = $page->getLocalization($locale);
+			}
+		}
+		
+		return $localization;
 	}
 
 	/**

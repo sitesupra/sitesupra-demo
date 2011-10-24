@@ -12,9 +12,16 @@ class GroupLocalization extends Abstraction\Localization
 {
 	const DISCRIMINATOR = self::GROUP_DISCR;
 	
+	/**
+	 * Creates new group localization object, sets ID equal to master ID, will
+	 * regenerate if persisted
+	 * @param string $locale
+	 * @param GroupPage $groupPage
+	 */
 	public function __construct($locale, GroupPage $groupPage)
 	{
 		parent::__construct($locale);
+		$this->id = $groupPage->getId();
 		$this->title = $groupPage->getTitle();
 		$this->master = $groupPage;
 	}

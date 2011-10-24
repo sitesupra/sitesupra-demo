@@ -42,6 +42,8 @@ class GroupPage extends Page
 	 */
 	public function persistLocalization(GroupLocalization $localization)
 	{
+		// Reset ID because for not persisted object it is equal with master ID
+		$localization->regenerateId();
 		$this->setLocalization($localization);
 	}
 

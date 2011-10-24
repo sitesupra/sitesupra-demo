@@ -147,7 +147,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 				return;
 			}
 
-			if ($localization instanceof PageEntity\GroupLocalization) {
+			if ($page instanceof PageEntity\GroupPage) {
 				//\Log::debug('PERSISTING GROUP LOCALIZATION FOR ' . $page->getTitle() . ' FOR ' . $locale);
 				$page->persistLocalization($localization);
 				$em = ObjectRepository::getEntityManager($this);

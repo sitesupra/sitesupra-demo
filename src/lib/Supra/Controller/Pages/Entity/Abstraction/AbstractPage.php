@@ -25,7 +25,6 @@ use Supra\Controller\Pages\Exception;
  *		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
  *		@index(name="page_abstraction_lvl_idx", columns={"lvl"})
  * })
- * @HasLifecycleCallbacks
  * @method int getNumberChildren()
  * @method AbstractPage addChild(AbstractPage $child)
  * @method void delete()
@@ -317,14 +316,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 		return $result;
 	}
 	
-	/**
-	 * @PreRemove
-	 */
-	public function removeTrigger()
-	{
-		$this->delete();
-	}
-
 	/**
 	 * Free the node unsetting the pointers to other objects.
 	 * MUST clear entity manager after doing this!

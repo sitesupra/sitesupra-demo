@@ -132,12 +132,6 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
         return parent::__call($method, $arguments);
     }
 
-    public function removeTrigger()
-    {
-        $this->__load();
-        return parent::removeTrigger();
-    }
-
     public function free()
     {
         $this->__load();
@@ -279,7 +273,7 @@ class SupraControllerPagesEntityAbstractionAbstractPageProxy extends \Supra\Cont
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id', 'revision');
+        return array('__isInitialized__', 'localizations', 'placeHolders', 'left', 'right', 'level', 'global', 'id');
     }
 
     public function __clone()

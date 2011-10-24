@@ -89,25 +89,25 @@ foreach ($managerNames as $managerName => $namespace) {
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			break;
 
 		case 'Draft':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 			break;
 
 		case 'Trash':
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+//			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashSchemaModifier());
 			break;
 
 		case 'History':
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad), new NestedSetListener());
+			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemaModifier());
 			break;

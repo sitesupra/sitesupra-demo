@@ -30,6 +30,18 @@ class NestedSetListener
 	}
 	
 	/**
+	 * @param LifecycleEventArgs $args
+	 */
+	public function preRemove(LifecycleEventArgs $args)
+	{
+		$entity = $args->getEntity();
+		
+		if ($entity instanceof EntityNodeInterface) {
+			$entity->delete();
+		}
+	}
+	
+	/**
 	 * Creates the Doctrine nested set node
 	 * @param EntityManager $em
 	 * @param object $entity

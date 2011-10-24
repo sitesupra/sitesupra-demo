@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Exception;
  * Revision data class
  * @Entity
  * @HasLifecycleCallbacks
+ * @TODO: change to Timestampable behavior
  */
 class RevisionData extends Abstraction\Entity
 {
