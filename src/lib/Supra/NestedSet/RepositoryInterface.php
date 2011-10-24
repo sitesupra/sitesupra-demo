@@ -7,6 +7,7 @@ use Supra\NestedSet\Exception;
 use Supra\NestedSet\DoctrineRepository;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
+use Supra\NestedSet\RepositoryAbstraction;
 
 /**
  * The nested set and Doctrine entity repositories must implement this interface

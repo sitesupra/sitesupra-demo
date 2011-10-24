@@ -43,6 +43,8 @@ class DoctrineNode extends NodeAbstraction
 			throw new Exception\WrongInstance($rep, 'RepositoryInterface');
 		}
 		$nestedSetRepository = $rep->getNestedSetRepository();
+		/* @var $nestedSetRepository DoctrineRepository */
+		
 		$this->setRepository($nestedSetRepository);
 		
 		if ($this->right === null) {

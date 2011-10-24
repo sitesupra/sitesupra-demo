@@ -15,6 +15,14 @@ use Supra\Session\SessionManager;
 class UserProvider
 {
 	/**
+	 * Event names
+	 */
+	const EVENT_PRE_SIGN_IN = 'preSignIn';
+	const EVENT_POST_SIGN_IN = 'postSignIn';
+	const EVENT_PRE_SIGN_OUT = 'preSignOut';
+	const EVENT_POST_SIGN_OUT = 'postSignOut';
+	
+	/**
 	 * Validation filters
 	 * @var array 
 	 */
@@ -138,32 +146,34 @@ class UserProvider
 	 */
 	public function signIn(Entity\User $user)
 	{
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire('preSignIn');
-		
 		$entityManager = $this->getEntityManager();
 		
-		// Remove all active sessions of the user
-		//TODO: should be configurable if do it and should check the access times
-		$userSessionEntity = Entity\UserSession::CN();
-		$query = $entityManager->createQuery(
-				"DELETE FROM $userSessionEntity s WHERE s.user = ?0");
-		$query->execute(array($user->getId()));
+		// Trigger pre sign in listener
+		$eventArgs = new Event\UserEventArgs();
+		$eventArgs->entityManager = $entityManager;
+		$eventArgs->user = $user;
 		
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(self::EVENT_PRE_SIGN_IN, $eventArgs);
+		
+		// Create session record
 		$sessionEntity = new Entity\UserSession();
 		$sessionEntity->setUser($user);
 		$entityManager->persist($sessionEntity);
 		$sessionId = $sessionEntity->getId();
 		
+		// Set entity generated session ID
 		$sessionManager = $this->getSessionManager();
 		$sessionManager->changeSessionId($sessionId);
 		
+		// Store user inside session storage
 		$session = $this->getSessionSpace();
 		$session->setUser($user);
 		
 		$entityManager->flush();
 		
-		$eventManager->fire('postSignIn');
+		// Trigger post sign in listener
+		$eventManager->fire(self::EVENT_POST_SIGN_IN, $eventArgs);
 	}
 	
 	/**
@@ -171,12 +181,24 @@ class UserProvider
 	 */
 	public function signOut()
 	{
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire('preSignOut');
+		$entityManager = $this->getEntityManager();
+		$session = $this->getSessionSpace();
+		$user = $session->getUser();
 		
+		// Remove the user from the session storage
+		$session->removeUser();
+		
+		// Trigger pre sign out listeners
+		$eventArgs = new Event\UserEventArgs();
+		$eventArgs->entityManager = $entityManager;
+		$eventArgs->user = $user;
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(self::EVENT_PRE_SIGN_OUT, $eventArgs);
+		
+		// Find and remove user session from the database
 		$sessionManager = $this->getSessionManager();
 		$sessionId = $sessionManager->getHandler()->getSessionId();
-		$entityManager = $this->getEntityManager();
 		$sessionEntity = $entityManager->find(Entity\UserSession::CN(), $sessionId);
 		
 		if ($sessionEntity instanceof Entity\UserSession) {
@@ -184,10 +206,8 @@ class UserProvider
 			$entityManager->flush();
 		}
 		
-		$session = $this->getSessionSpace();
-		$session->removeUser();
-		
-		$eventManager->fire('postSignOut');
+		// Trigger post sign out listeners
+		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);
 	}
 	
 	/**

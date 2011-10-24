@@ -41,6 +41,11 @@ class EventManager
 	 */
 	public function listen($eventTypes, $listener)
 	{
+		// Do nothing for empty instance
+		if ($this === self::$emptyInstance) {
+			return;
+		}
+		
 		$eventTypes = (array) $eventTypes;
 		
 		foreach ($eventTypes as $eventType) {
@@ -63,6 +68,11 @@ class EventManager
 	 */
 	public function fire($eventType, EventArgs $eventArgs = null)
 	{
+		// Do nothing for empty instance
+		if ($this === self::$emptyInstance) {
+			return;
+		}
+		
 		// Will pass empty object on absence
 		if (is_null($eventArgs)) {
 			$eventArgs = EventArgs::getEmptyInstance();
