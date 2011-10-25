@@ -30,3 +30,4 @@ $parser->parseFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');
 
 $parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Locale/config.yml');
+
