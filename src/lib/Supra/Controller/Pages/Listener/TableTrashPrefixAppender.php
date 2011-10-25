@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Annotation;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\Mapping\MappingException;
 
-class TrashSchemaModifier extends VersionedTableMetadataListener
+class TableTrashPrefixAppender extends VersionedTableMetadataListener
 {
 	const TABLE_PREFIX = '_trash';
 	const ANNOTATION_NS = 'Supra\Controller\Pages\Annotation\\';
@@ -33,41 +33,6 @@ class TrashSchemaModifier extends VersionedTableMetadataListener
 		$versionedEntities = array_merge(self::$versionedEntities, parent::$versionedEntities);
 		$metadata = $eventArgs->getClassMetadata();
 		$className = $metadata->name;
-			
-        $reader = new AnnotationReader;
-        $reader->setIgnoreNotImportedAnnotations(true);
-        $reader->setAnnotationNamespaceAlias(self::ANNOTATION_NS, 'Trash');
-		
-		AnnotationRegistry::registerFile(SUPRA_LIBRARY_PATH . '/Supra/Controller/Pages/Annotation/Annotation.php');
-		
-	    $class = $metadata->getReflectionClass();
-		
-		$properties = $class->getProperties();
-		foreach($properties as $property) {
-			
-			$propertyName = $property->getName();
-			$propertyAnnotations = $reader->getPropertyAnnotations($property);
-			foreach($propertyAnnotations as $annotation) {
-				
-				if ($annotation instanceof Annotation\SkipForeignKey) {
-
-					if (isset($metadata->associationMappings[$propertyName])) {
-						$joinColumn = array_shift($metadata->associationMappings[$propertyName]['joinColumns']);
-						unset($metadata->associationMappings[$propertyName]);
-
-						$metadata->mapField(array(
-							'fieldName' => $propertyName,
-							'type' => !is_null($annotation->type) ? $annotation->type : $joinColumn['type'],
-							'columnName' => $joinColumn['name'],
-						));
-					}
-				}
-			}
-		}
-
-		if ($className == Entity\Abstraction\Localization::CN()) {
-			unset($metadata->table['uniqueConstraints']['locale_path_idx']);
-		}
 		
 		$name = &$metadata->table['name'];
 		if (in_array($className, $versionedEntities) && strpos($name, static::TABLE_PREFIX) === false) {

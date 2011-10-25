@@ -541,7 +541,9 @@ abstract class PageManagerAction extends CmsAction
 		$request = new HistoryPageRequestView($localeId, $media);
 		$request->setDoctrineEntityManager($historyEm);
 		$request->setPageLocalization($pageLocalization);
-		$request->setRevision($pageLocalization->getRevisionData());
+		
+		$revisionId = $pageLocalization->getRevisionId();
+		$request->setRevision($revisionId);
 		
 		$draftEm = $this->entityManager;
 		$restorePage = function() use ($request, $draftEm) {

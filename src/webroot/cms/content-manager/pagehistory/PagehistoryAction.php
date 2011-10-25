@@ -6,6 +6,7 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Cms\Exception\CmsException;
 
 
 class PagehistoryAction extends PageManagerAction
@@ -38,14 +39,11 @@ class PagehistoryAction extends PageManagerAction
 				->findBy(array('id' => $pageId));
 		
 		foreach ($localizations as $localization) {
-			$revisionData = $localization->getRevisionData();
-
-			// in case if revision data contains id instead of object
-			if ( ! ($revisionData instanceof Entity\RevisionData)) {
-				$revisionData = $em->find(PageRequest::REVISION_DATA_ENTITY, $revisionData);
-				if (! ($revisionData instanceof Entity\RevisionData)) {
-					throw new \Supra\Controller\Pages\Exception\RuntimeException('Failed to load revision data');
-				}
+			
+			$revisionId = $localization->getRevisionId();
+			$revisionData = $em->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
+			if (! ($revisionData instanceof Entity\RevisionData)) {
+				throw new CmsException(null, 'Failed to load revision data');
 			}
 
 			$userId = $revisionData->getUser();

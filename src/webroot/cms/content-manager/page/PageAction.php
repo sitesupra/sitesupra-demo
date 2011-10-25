@@ -473,7 +473,9 @@ class PageAction extends PageManagerAction
 		
 		$request = new HistoryPageRequestView($localeId, $media);
 		$request->setPageLocalization($pageLocalization);
-		$request->setRevision($pageLocalization->getRevisionData());
+		
+		$revisionId = $pageLocalization->getRevisionId();
+		$request->setRevision($revisionId);
 		
 		$response = $controller->createResponse($request);
 

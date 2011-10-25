@@ -6,6 +6,8 @@ use \Symfony\Component\Console\Input\InputOption;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Output\OutputInterface;
 use \Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Events;
+use Supra\Controller\Pages\Listener\VersionedAnnotationListener;
 
 /**
  * Schema update command
@@ -48,6 +50,19 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$output->writeln('Updating database schema...');
 
 			foreach ($this->entityManagers as $em) {
+				
+				if ($em->_mode == 'History') {
+					$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
+					foreach ($listeners as $listener) {
+						if ($listener instanceof VersionedAnnotationListener) {
+							$listeners = $em->getEventManager()->removeEventListener(Events::loadClassMetadata, $listener);
+						}
+					}
+					$listener = new VersionedAnnotationListener();
+					$listener->setAsCreateCall();
+					$em->getEventManager()->addEventListener(array(Events::loadClassMetadata), $listener);
+				}
+				
 				$output->write($em->_mode);
 				$metadatas = $em->getMetadataFactory()->getAllMetadata();
 				$schemaTool = new SchemaTool($em);
@@ -58,6 +73,16 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 				} else {
 					$output->writeln("\t - nothing to update");
 				}
+				
+				if ($em->_mode == 'History') {
+					$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
+					foreach ($listeners as $listener) {
+						if ($listener instanceof VersionedAnnotationListener && $listener->isOnCreateMode()) {
+							$listeners = $em->getEventManager()->removeEventListener(Events::loadClassMetadata, $listener);
+						}
+					}
+				}
+				
 			}
 
 			$output->writeln('Database schema updated successfully!');

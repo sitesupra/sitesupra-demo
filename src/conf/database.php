@@ -86,11 +86,12 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 	$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
 	
+	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedAnnotationListener());
+	
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
 			break;
 
 		case 'Draft':
@@ -101,15 +102,12 @@ foreach ($managerNames as $managerName => $namespace) {
 			break;
 
 		case 'Trash':
-//			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TrashSchemaModifier());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
 			break;
 
 		case 'History':
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedTableLockIdRemover());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\HistorySchemaModifier());
+			$eventManager->addEventListener(array(Events::loadClassMetadata, Events::onFlush), new Listener\HistorySchemaModifier());
+			$eventManager->addEventListener(array(Events::prePersist), new Listener\HistoryRevisionListener());
 			break;
 	}
 

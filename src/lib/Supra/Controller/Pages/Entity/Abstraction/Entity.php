@@ -42,7 +42,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 * @History:InheritOnCreate
 	 * @var RevisionData
 	 */
-	// NB! Must be not null, or merging between different entity managers will fail
+	// NB! Must be not null, see doctrine ClassMetadata::getIdentifierValues
 	protected $revision = '';
 	
 	/**
@@ -181,7 +181,8 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		return $this->_authorizationAncestorsCache;
 	}
 	
-	protected function getAuthizationAncestorsDirect() {
+	protected function getAuthizationAncestorsDirect()
+	{
 		return $this->getAncestors(0, false);
 	}
 	
@@ -190,23 +191,21 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_EDIT_PAGE, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_SUPERVISE_PAGE, __CLASS__);
 	}
-		
+	
 	/**
-	 * Is used for _history handling
-	 * @param RevisionData $revisionData 
+	 * @param string $revisionId 
 	 */
-	/*
-	public function setRevisionId ($revisionId) {
+	public function setRevisionId ($revisionId)
+	{
 		$this->revision = $revisionId;
 	}
-	public function getRevisionId () {
+	
+	/**
+	 * @return string
+	 */
+	public function getRevisionId ()
+	{
 		return $this->revision;
 	}
-	*/	
-	public function setRevisionData ($revisionData) {
-		$this->revision = $revisionData->getId();
-	}
-	public function getRevisionData () {
-		return $this->revision;
-	}
+
 }

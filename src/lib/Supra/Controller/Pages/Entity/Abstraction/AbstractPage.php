@@ -430,4 +430,14 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	{
 		return ! $this->global;
 	}
+	
+	/**
+	 * Checks, weither page is root (level == 0) or not 
+	 * @return boolean
+	 */
+	public function isRoot()
+	{
+		$isRoot = ($this->getLevel() == 0);
+		return $isRoot;
+	}
 }

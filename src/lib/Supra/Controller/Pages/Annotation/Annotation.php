@@ -5,40 +5,22 @@ namespace Supra\Controller\Pages\Annotation;
 use Doctrine\Common\Annotations\Annotation;
 
 /** @Annotation */
-class Id {}
-/** @Annotation */
 class SkipForeignKey extends Annotation {
 	public $type;
-} 
+}
+/** @Annotation */
 class SkipForeignKeyOnCreate extends Annotation {
 	public $type;
 } 
 /** @Annotation */
-class SkipPrefix {} 
-/** @Annotation */
-class SkipColumn {} 
+class SkipUniqueConstraints {} 
 /** @Annotation */
 class InheritOnCreate {} 
+
 /** @Annotation */
-class ManyToOne extends Annotation {
-    public $targetEntity;
-    public $cascade;
-    public $fetch = 'LAZY';
-    public $inversedBy;
-}
+class Id {}
 /** @Annotation */
-class JoinColumn extends Annotation {
-    public $name;
-    public $fieldName;
-    public $referencedColumnName = 'id';
-    public $unique = false;
-    public $nullable = true;
-    public $onDelete;
-    public $onUpdate;
-    public $columnDefinition;
-}
-/** @Annotation */
-final class Column extends Annotation {
+class Column extends Annotation {
     public $type = 'string';
     public $length;
     public $precision = 0;
@@ -48,4 +30,13 @@ final class Column extends Annotation {
     public $name;
     public $options = array();
     public $columnDefinition;
+}
+/** @Annotation */
+class OneToOne extends Annotation {
+    public $targetEntity;
+    public $mappedBy;
+    public $inversedBy;
+    public $cascade;
+    public $fetch = 'LAZY';
+    public $orphanRemoval = false;
 }

@@ -45,7 +45,7 @@ abstract class Localization extends Entity
 	
 	/**
 	 * Object's lock
-	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
+	 * @Draft:OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
 	 * @var LockData
 	 */
 	protected $lock;

@@ -343,27 +343,31 @@ class PageRequestEdit extends PageRequest
 			// Revision info
 			$revisionData = new Entity\RevisionData();
 			
-			$userId = $this->getUser()
-					->getId();			
+			$user = $this->getUser();
+			// FIXME: workaround for fixtures
+			$userId = 'fixture-has-no-user';
+			if ($user instanceof \Supra\User\Entity\User) {
+				$userId = $user->getId();
+			}
 			$revisionData->setUser($userId);
 
 			$historyEm->persist($revisionData);
 			$historyEm->flush();
 			
-			/**
-			 * Prepare new listener that will fill any entity with provided revision data
-			 * Is used to assign revision_id for _history entities
-			 */
-			$historyEm->getEventManager()
-					->addEventListener(array(Events::prePersist, Events::onFlush), new HistoryRevisionListener($revisionData));
-
+			$revisionDataId = $revisionData->getId();
+			
 			$pageLocalization = $this->getPageLocalization();
 			$page = $pageLocalization->getMaster();
 			
+			// History revision listener will get revision id from entity 
+			// ($historyPage will inherit it from $page)
+			// when first persist operation will be performed
+			$page->setRevisionId($revisionDataId);
 			$historyPage = $historyEm->merge($page);
 
 			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 			
+			$pageLocalization->setRevisionId($revisionDataId);
 			$historyPageLocalization = $historyEm->merge($pageLocalization);
 			$historyPageLocalization->setMaster($historyPage);
 
@@ -386,7 +390,7 @@ class PageRequestEdit extends PageRequest
 
 			// if page is a root template, we will copy it's layout
 			if ($page instanceof Entity\Template 
-					&& ! $page->hasParent()) {
+					&& $page->isRoot()) {
 
 				$layouts = $page->getTemplateLayouts();
 				foreach ($layouts as $layout) {
@@ -503,7 +507,7 @@ class PageRequestEdit extends PageRequest
 				$draftEm->remove($localization);
 			}
 			
-			if ($page instanceof Entity\Template && ! $page->hasParent()) {
+			if ($page instanceof Entity\Template && $page->isRoot()) {
 				$templateLayouts = $page->getTemplateLayouts();
 				foreach ($templateLayouts as $templateLayout) {
 					$trashEm->merge($templateLayout);
@@ -611,7 +615,7 @@ class PageRequestEdit extends PageRequest
 				}
 			}
 			
-			if ($page instanceof Entity\Template && ! $page->hasParent()) {
+			if ($page instanceof Entity\Template && $page->isRoot()) {
 				$templateLayouts = $page->getTemplateLayouts();
 				foreach ($templateLayouts as $templateLayout) {
 					//ATTENTION: We will not restore template layouts, as, currently, 

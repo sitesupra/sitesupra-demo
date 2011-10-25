@@ -28,7 +28,7 @@ class PageIndexerQueueItem extends IndexerQueueItem
 	public function __construct(PageLocalization $pageLocalization)
 	{
 		$this->pageId = $pageLocalization->getId();
-		$this->revision = $pageLocalization->getRevisionData()->getId();
+		$this->revision = $pageLocalization->getRevisionId();
 	}
 
 	public function getData()

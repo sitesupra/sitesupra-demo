@@ -40,15 +40,15 @@ class HistoryPageRequestView extends PageRequest
 		
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		if ($page instanceof Entity\Template) {
-			if ($page->hasParent()) {
-			$localizationId = $this->getPageLocalization()->getId();
-			$draftEm->getUnitOfWork()->clear();
-			$localization = $draftEm->find(static::TEMPLATE_DATA_ENTITY, $localizationId);
-			
-			$pageSetIds = $localization->getTemplateHierarchy()->collectIds();
-			$layout = $localization->getTemplateHierarchy()
-										->getRootTemplate()
-										->getLayout();
+			if ( ! $page->isRoot()) {
+				$localizationId = $this->getPageLocalization()->getId();
+				$draftEm->getUnitOfWork()->clear();
+				$localization = $draftEm->find(static::TEMPLATE_DATA_ENTITY, $localizationId);
+
+				$pageSetIds = $localization->getTemplateHierarchy()->collectIds();
+				$layout = $localization->getTemplateHierarchy()
+											->getRootTemplate()
+											->getLayout();
 			} else {
 				$pageSetIds = array($page->getId());
 				$layout = $page->getLayout();
@@ -426,7 +426,7 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		if ($page instanceof Entity\Template 
-				&& ! $page->hasParent()) {
+				&& $page->isRoot()) {
 				
 			$layouts = $page->getTemplateLayouts();
 			foreach ($layouts as $layout) {
