@@ -216,6 +216,8 @@ class HistoryPageRequestView extends PageRequest
 		$cnt = 0;
 		$blockSet = $this->getBlockSet();
 		$page = $this->getPage();
+		
+		$blockSetIds = Entity\Abstraction\Entity::collectIds($blockSet);
 
 		foreach ($blockSet as $block) {
 			$master = null;
@@ -380,38 +382,47 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		// block properties
-		$properties = $this->getBlockPropertySet()
-			->getPageProperties($pageLocalization);
-		foreach ($properties as $property) {
+		$trashProperties = $this->getBlockPropertySet()
+				->getPageProperties($pageLocalization);
+		foreach ($trashProperties as $property) {
 			$destinationEm->merge($property);
 		}
-		$mergedPropertyIds = Entity\Abstraction\Entity::collectIds($properties);
 		
-		// Clear property metadata if property was removed
-		$existingProperties = $this->getPageBlockProperties($destinationEm);
-		$existingPropertyIds = Entity\Abstraction\Entity::collectIds($existingProperties);
-		$removedPropertyIds = array_diff($existingPropertyIds, $mergedPropertyIds);
+		// Collect history block property IDs
+		$trashPropertyIds = Entity\Abstraction\Entity::collectIds($trashProperties);
+		
+		// Collect draft block property IDs
+		$draftProperties = $this->getPageBlockProperties($destinationEm);
+		$draftPropertyIds = Entity\Abstraction\Entity::collectIds($draftProperties);
+
+		// Calculate removed properties
+		$removedPropertyIds = array_diff($draftPropertyIds, $trashPropertyIds);
+		// ...delete their metadata
 		if ( ! empty($removedPropertyIds)) {
 			$qb = $destinationEm->createQueryBuilder();
 			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
 					->where($qb->expr()->in('r.blockProperty', $removedPropertyIds))
 					->getQuery()->execute();
 		}
-
-		$propertiesToRemove = array_diff($existingProperties, $mergedProperties);
-		foreach($existingProperties as $property) {
-			if (in_array($property->getId(), $removedPropertyIds)) {
-				$destinationEm->remove($property);
-			}
+		
+		// ...and properties itself
+		if ( ! empty($removedPropertyIds)) {
+			$qb = $destinationEm->createQueryBuilder();
+			$qb->delete(Entity\BlockProperty::CN(), 'bp')
+					->where($qb->expr()->in('bp.id', $removedPropertyIds))
+					->getQuery()->execute();
 		}
 		
+		// Find un-used blocks and remove them from draft
 		$existingBlockIds = Entity\Abstraction\Entity::collectIds($existingBlocks);
 		$blocksIds = Entity\Abstraction\Entity::collectIds($blocks);
 		$blocksToRemove = array_diff($existingBlockIds, $blocksIds);
-		foreach($existingBlocks as $block) {
-			if (in_array($block->getId(), $blocksToRemove)) {
-				$destinationEm->remove($block);
-			}
+		
+		if ( ! empty($blocksToRemove)) {
+			$qb = $destinationEm->createQueryBuilder();
+			$qb->delete(Entity\Abstraction\Block::CN(), 'b')
+					->where($qb->expr()->in('b.id', $blocksToRemove))
+					->getQuery()->execute();
 		}
 		
 		if ($page instanceof Entity\Template 

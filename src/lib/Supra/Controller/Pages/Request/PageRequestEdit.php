@@ -91,16 +91,6 @@ class PageRequestEdit extends PageRequest
 		$publicData = $publicPage->getLocalization($localeId);
 		$oldRedirect = $newRedirect = null;
 
-		// If there are something published, then store published data into history
-		if ($publicData instanceof Entity\Abstraction\Localization) {
-			$this->storeHistoredVersion($publicData, $publicEm);
-			
-			// Restore some variables defaults, that could be changed by history saving method
-			$this->resetSets();		
-			$this->setPageLocalization($draftData);
-			$this->setDoctrineEntityManager($draftEm);
-		}
-			
 		if ($publicData instanceof Entity\PageLocalization) {
 			$oldRedirect = $publicData->getRedirect();
 		}
@@ -226,6 +216,9 @@ class PageRequestEdit extends PageRequest
 
 		$draftEm->flush();
 		$publicEm->flush();
+		
+		// Store page version
+		$this->storeHistoredVersion();
 	}
 	
 	/**
@@ -336,8 +329,11 @@ class PageRequestEdit extends PageRequest
 	 * Creates copy of published page version inside history schema
 	 * @param Entity\Abstraction\Localization $publicData 
 	 */
-	private function storeHistoredVersion($publicData, $publicEm)
+	private function storeHistoredVersion()
 	{
+		
+		$draftEm = $this->getDoctrineEntityManager();
+		
 		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
 		$connection = $historyEm->getConnection();
 		
@@ -355,45 +351,45 @@ class PageRequestEdit extends PageRequest
 			$historyEm->flush();
 			
 			/**
-			 * Add new listener that will fill any entity with provided revision data
+			 * Prepare new listener that will fill any entity with provided revision data
 			 * Is used to assign revision_id for _history entities
 			 */
 			$historyEm->getEventManager()
 					->addEventListener(array(Events::prePersist, Events::onFlush), new HistoryRevisionListener($revisionData));
 
-			$publicPage = $publicData->getMaster();
-			$historyPage = $historyEm->merge($publicPage);
+			$pageLocalization = $this->getPageLocalization();
+			$page = $pageLocalization->getMaster();
+			
+			$historyPage = $historyEm->merge($page);
 
 			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 			
-			$historyData = $historyEm->merge($publicData);
-			$historyData->setMaster($historyPage);
+			$historyPageLocalization = $historyEm->merge($pageLocalization);
+			$historyPageLocalization->setMaster($historyPage);
 
-			$publicPlaceholders = $publicPage->getPlaceHolders();
-			foreach ($publicPlaceholders as $placeholder) {
-				$historyEm->merge($placeholder);
+			$placeHolders = $page->getPlaceHolders();
+			foreach ($placeHolders as $placeHolder) {
+				$historyEm->merge($placeHolder);
 			}
 
-			$publicBlocks = $this->getBlocksInPage($publicEm, $publicData);
-			foreach($publicBlocks as $block) {
+			$blocks = $this->getBlocksInPage($draftEm, $pageLocalization);
+			foreach($blocks as $block) {
 				$historyEm->merge($block);
 			}
 			
-			$this->setPageLocalization($publicData);
-			$this->setDoctrineEntityManager($publicEm);
-			$publicProperties = $this->getBlockPropertySet()
-				->getPageProperties($publicData);
+			$properties = $this->getBlockPropertySet()
+				->getPageProperties($pageLocalization);
 
-			foreach ($publicProperties as $property) {
+			foreach ($properties as $property) {
 				$historyEm->merge($property);
 			}
 
 			// if page is a root template, we will copy it's layout
-			if ($publicPage instanceof Entity\Template 
-					&& ! $publicPage->hasParent()) {
+			if ($page instanceof Entity\Template 
+					&& ! $page->hasParent()) {
 
-				$publicLayouts = $publicPage->getTemplateLayouts();
-				foreach ($publicLayouts as $layout) {
+				$layouts = $page->getTemplateLayouts();
+				foreach ($layouts as $layout) {
 					$historyEm->merge($layout);
 				}
 			}
@@ -677,7 +673,6 @@ class PageRequestEdit extends PageRequest
 		
 		return $properties;
 	}
-	
 	
 	/**
 	 * 
