@@ -2,7 +2,7 @@
 
 namespace Supra\Tests\NestedSet\Node;
 
-use Supra\NestedSet\Node\ArrayNode;
+use Supra\NestedSet\Node\NodeAbstraction;
 use Supra\NestedSet\RepositoryAbstraction;
 use PHPUnit_Framework_TestCase;
 use Supra\Tests\NestedSet\Model;
@@ -19,29 +19,31 @@ abstract class NodeTest extends PHPUnit_Framework_TestCase
 	protected $repository;
 	
 	/**
-	 * @var ArrayNode
+	 * @var Model\Product
 	 */
 	protected $food;
 
 	/**
-	 * @var ArrayNode
+	 * @var Model\Product
 	 */
 	protected $beef;
 
 	/**
-	 * @var ArrayNode
+	 * @var Model\Product
 	 */
 	protected $yellow;
 	
 	/**
-	 * @var ArrayNode
+	 * @var Model\Product
 	 */
 	protected $meat;
 	
 	/**
-	 * @var ArrayNode
+	 * @var Model\Product
 	 */
 	protected $fruit;
+	
+	abstract protected function delete($node);
 	
 	protected function setUp()
 	{
@@ -92,7 +94,7 @@ abstract class NodeTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testDelete()
 	{
-		$this->yellow->delete();
+		$this->delete($this->yellow);
 
 		$output = $this->repository->drawTree();
 		self::assertEquals(<<<DOC
@@ -107,7 +109,7 @@ abstract class NodeTest extends PHPUnit_Framework_TestCase
 DOC
 				, $output);
 
-		$this->beef->delete();
+		$this->delete($this->beef);
 		$output = $this->repository->drawTree();
 		self::assertEquals(<<<DOC
 (1; 12) 0 Food
@@ -120,7 +122,7 @@ DOC
 DOC
 				, $output);
 		
-		$this->food->delete();
+		$this->delete($this->food);
 		$output = $this->repository->drawTree();
 		self::assertEquals('', $output);
 	}

@@ -48,6 +48,12 @@ abstract class NodeAbstraction implements NodeInterface
 	 * @var string
 	 */
 	protected $title;
+	
+	/**
+	 * Makes sure the delete trigger isn't called twice
+	 * @var boolean
+	 */
+	private $deleted = false;
 
 	/**
 	 * Pass the original entity the nested set node belongs to
@@ -245,6 +251,11 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function delete()
 	{
+		if ($this->deleted) {
+			return;
+		}
+		$this->deleted = true;
+		
 		$left = $this->getLeftValue();
 		$spaceUsed = $this->getIntervalSize() + 1;
 		$this->repository->delete($this);
@@ -798,7 +809,14 @@ abstract class NodeAbstraction implements NodeInterface
 		$prevNode = null;
 		$array = array();
 		foreach ($nodes as $item) {
-			$array[$item->getLeftValue()] = $item;
+			
+			$leftValue = $item->getLeftValue();
+			
+			if (isset($array[$leftValue])) {
+				throw new Exception\InvalidStructure("Two nodes with equal left value '$leftValue' are found");
+			}
+			
+			$array[$leftValue] = $item;
 		}
 		ksort($array);
 		

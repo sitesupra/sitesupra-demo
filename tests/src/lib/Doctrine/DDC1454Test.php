@@ -23,6 +23,10 @@ class DDC1454Test extends \PHPUnit_Framework_TestCase
 
     public function testFailingCase()
     {
+		if ( ! version_compare(\Doctrine\ORM\Version::VERSION, '2.1.2', '>')) {
+			self::markTestSkipped("This is a known bug in ORM 2.1.2");
+		}
+		
 		$pic = new DDC1454Picture();
 		$this->_em->getUnitOfWork()->getEntityState($pic);
 	}

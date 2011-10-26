@@ -24,6 +24,11 @@ class ArrayNodeTest extends NodeTest
 		
 		parent::setUp();
 	}
+	
+	protected function delete($node)
+	{
+		$node->delete();
+	}
 
 	/**
 	 */

@@ -41,6 +41,12 @@ class DoctrineNodeTest extends NodeTest
 		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
 		return $em;
 	}
+	
+	protected function delete($node)
+	{
+		$this->getConnection()->remove($node);
+		$this->getConnection()->flush();
+	}
 
 	/**
 	 * Rebuilds database schema
