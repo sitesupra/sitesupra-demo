@@ -2,7 +2,6 @@
 
 namespace Supra\User\Validation;
 
-use Supra\User;
 use Supra\User\Exception;
 use Supra\User\Entity\User;
 

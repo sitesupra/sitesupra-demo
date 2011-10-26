@@ -10,4 +10,10 @@
 		</testsuite>
 	</testsuites>
 
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">../src/lib/Supra</directory>
+		</whitelist>
+	</filter>
+
 </phpunit>
