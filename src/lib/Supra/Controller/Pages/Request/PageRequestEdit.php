@@ -339,6 +339,8 @@ class PageRequestEdit extends PageRequest
 		
 		$connection->beginTransaction();
 		try {
+			$historyEm->getUnitOfWork()
+					->clear();
 			
 			// Revision info
 			$revisionData = new Entity\RevisionData();
@@ -364,12 +366,14 @@ class PageRequestEdit extends PageRequest
 			// when first persist operation will be performed
 			$page->setRevisionId($revisionDataId);
 			$historyPage = $historyEm->merge($page);
-
+			
 			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 			
 			$pageLocalization->setRevisionId($revisionDataId);
 			$historyPageLocalization = $historyEm->merge($pageLocalization);
 			$historyPageLocalization->setMaster($historyPage);
+			
+			$historyPageLocalization;
 
 			$placeHolders = $page->getPlaceHolders();
 			foreach ($placeHolders as $placeHolder) {
