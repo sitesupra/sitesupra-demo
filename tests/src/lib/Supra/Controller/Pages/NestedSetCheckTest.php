@@ -9,15 +9,15 @@ class NestedSetCheckTest extends \PHPUnit_Framework_TestCase
 {
 	public function testPublicStructure()
 	{
-		$this->testStructure('');
+		$this->_testStructure('');
 	}
 	
 	public function testTestStructure()
 	{
-		$this->testStructure($this);
+		$this->_testStructure($this);
 	}
 	
-	private function testStructure($scope)
+	private function _testStructure($scope)
 	{
 		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($scope);
 		$conn = $em->getConnection();
