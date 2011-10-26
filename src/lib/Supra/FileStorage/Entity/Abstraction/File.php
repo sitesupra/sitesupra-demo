@@ -279,15 +279,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function __call($method, $arguments)
 	{
 		$node = $this->nestedSetNode;
-		if (\is_null($this->nestedSetNode)) {
+		if (is_null($this->nestedSetNode)) {
 			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized. Try persisting object first.");
 		}
 
-		if ( ! \method_exists($node, $method)) {
+		if ( ! method_exists($node, $method)) {
 			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
-		$result = \call_user_func_array($callable, $arguments);
+		$result = call_user_func_array($callable, $arguments);
 
 		// Compare the result with $node and return $this on match to keep method chaining
 		if ($result === $node) {

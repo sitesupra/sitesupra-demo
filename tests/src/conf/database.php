@@ -8,7 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Database\Doctrine\Listener\TableNameGenerator;
+use Supra\Tests\Database\TableNameGenerator;
 use Supra\Controller\Pages\Listener;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Doctrine\DBAL\Types\Type;
@@ -47,7 +47,6 @@ $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger
 $sqlLogger = new \Supra\Log\Logger\SqlLogger();
-$sqlLogger = null;
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = $ini['database'];

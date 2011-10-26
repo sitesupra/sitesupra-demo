@@ -27,6 +27,25 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->fileStorage = ObjectRepository::getFileStorage($this);
 	}
+	
+	public function testNestedSet()
+	{
+		$rand = rand();
+		
+		$fileA = $this->createFile($rand);
+		
+		$lft = $fileA->getLeftValue();
+		$rgt = $fileA->getRightValue();
+		$lvl = $fileA->getLevel();
+		
+		$this->fileStorage->remove($fileA);
+		
+		$fileA = $this->createFile($rand);
+		
+		self::assertEquals($lft, $fileA->getLeftValue());
+		self::assertEquals($rgt, $fileA->getRightValue());
+		self::assertEquals($lvl, $fileA->getLevel());
+	}
 
 	public function testUploadFileToInternal()
 	{
@@ -402,16 +421,16 @@ class FileStorageTest extends \PHPUnit_Extensions_OutputTestCase
 	/**
 	 * @return \Supra\FileStorage\Entity\File
 	 */
-	private function createFile()
+	private function createFile($nameSuffix = '')
 	{
-		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
+		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . "chuck.jpg";
 
 		$em = ObjectRepository::getEntityManager($this->fileStorage);
 
 		$file = new \Supra\FileStorage\Entity\File();
 		$em->persist($file);
 
-		$fileName = baseName($uploadFile);
+		$fileName = str_replace('.', $nameSuffix . '.', baseName($uploadFile));
 		$fileSize = fileSize($uploadFile);
 		$file->setFileName($fileName);
 		$file->setSize($fileSize);

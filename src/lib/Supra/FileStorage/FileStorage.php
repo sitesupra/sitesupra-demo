@@ -62,26 +62,11 @@ class FileStorage
 	);
 	
 	/**
-	 * Entity manager instance
-	 * @var EntityManager
-	 */
-	private $entityManager;
-
-	/**
-	 * Protecting from new FileStorage
-	 * @return FileStorage
-	 */
-	public function __construct()
-	{
-		$this->entityManager = ObjectRepository::getEntityManager($this);
-	}
-	
-	/**
 	 * @return EntityManager
 	 */
 	public function getDoctrineEntityManager()
 	{
-		return $this->entityManager;
+		return ObjectRepository::getEntityManager($this);
 	}
 
 	/**
@@ -211,8 +196,10 @@ class FileStorage
 	 */
 	public function renameFile(Entity\File $file, $filename)
 	{
+		$entityManager = $this->getDoctrineEntityManager();
+		
 		$newFile = clone($file);
-		$this->entityManager->detach($newFile);
+		$entityManager->detach($newFile);
 		$newFile->setFileName($filename);
 		
 		$oldExtension = $file->getExtension();
@@ -228,8 +215,8 @@ class FileStorage
 
 		$this->renameFileInFileSystem($file, $filename);
 		
-		$this->entityManager->merge($newFile);
-		$this->entityManager->flush();
+		$entityManager->merge($newFile);
+		$entityManager->flush();
 	}
 
 	/**
@@ -277,11 +264,13 @@ class FileStorage
 	 */
 	public function renameFolder(Entity\Folder $folder, $title)
 	{
+		$entityManager = $this->getDoctrineEntityManager();
+		
 		$internalPath = $this->getInternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
 		$externalPath = $this->getExternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
 		
 		$newFolder = clone($folder);
-		$this->entityManager->detach($newFolder);
+		$entityManager->detach($newFolder);
 		$newFolder->setFileName($title);
 
 		// old folder name for rollback if validation fails
@@ -296,8 +285,8 @@ class FileStorage
 		$this->renameFolderInFileSystem($folder, $title, $internalPath);
 		$this->renameFolderInFileSystem($folder, $title, $externalPath);
 
-		$this->entityManager->merge($newFolder);
-		$this->entityManager->flush();
+		$entityManager->merge($newFolder);
+		$entityManager->flush();
 	}
 
 	/**
@@ -585,8 +574,10 @@ class FileStorage
 		$resizer->setOutputFile($resizedFilePath);
 		$resizer->process();
 		
-		$this->entityManager->persist($size);
-		$this->entityManager->flush();
+		$entityManager = $this->getDoctrineEntityManager();
+		
+		$entityManager->persist($size);
+		$entityManager->flush();
 
 		return $sizeName;
 	}
@@ -638,8 +629,10 @@ class FileStorage
 			$tmp = $file->getWidth();
 			$file->setWidth($file->getHeight());
 			$file->setHeight($tmp);
-			$this->entityManager->persist($file);
-			$this->entityManager->flush();
+			
+			$entityManager = $this->getDoctrineEntityManager();
+			$entityManager->persist($file);
+			$entityManager->flush();
 		}
 
 		$this->recreateImageSizes($file);
@@ -703,8 +696,10 @@ class FileStorage
 
 		$file->setWidth($width);
 		$file->setHeight($height);
-		$this->entityManager->persist($file);
-		$this->entityManager->flush();
+		
+		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->persist($file);
+		$entityManager->flush();
 
 		$this->recreateImageSizes($file);
 	}
@@ -896,7 +891,8 @@ class FileStorage
 			$this->recreateImageSizes($fileEntity);
 		}
 		
-		$this->entityManager->flush();
+		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->flush();
 	}
 
 	/**
@@ -946,8 +942,10 @@ class FileStorage
 	private function removeFolder(Entity\Folder $folder)
 	{
 		$this->removeFolderInFileSystem($folder);
-		$this->entityManager->remove($folder);
-		$this->entityManager->flush();
+		
+		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->remove($folder);
+		$entityManager->flush();
 	}
 	
 	/**
@@ -974,8 +972,10 @@ class FileStorage
 	private function removeFile(Entity\File $file)
 	{
 		$this->removeFileInFileSystem($file);
-		$this->entityManager->remove($file);
-		$this->entityManager->flush();
+		
+		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->remove($file);
+		$entityManager->flush();
 	}
 	
 	/**

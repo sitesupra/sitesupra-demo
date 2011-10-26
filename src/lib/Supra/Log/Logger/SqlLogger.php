@@ -52,6 +52,9 @@ class SqlLogger implements SQLLoggerInterface
 			if ($class != __CLASS__ && strpos($class, 'Doctrine\\') !== 0) {
 				break;
 			}
+			
+//			$log->debug("$class:{$traceElement['line']}");
+			
 			$offset++;
 		}
 		

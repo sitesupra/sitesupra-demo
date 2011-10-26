@@ -283,8 +283,10 @@ class DoctrineRepository extends RepositoryAbstraction
 		$left = $node->getLeftValue();
 		$right = $node->getRightValue();
 
+		// Deletes only children here because there could be associations that 
+		// doesn't allow deletion, then only leafs could be erased
 		$dql = "DELETE FROM {$this->className} e
-				WHERE e.left >= {$left} AND e.right <= {$right}";
+				WHERE e.left > {$left} AND e.right < {$right}";
 
 		$dql .= $this->getAdditionalCondition('AND');
 		

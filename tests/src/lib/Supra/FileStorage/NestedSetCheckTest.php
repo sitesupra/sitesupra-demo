@@ -7,9 +7,19 @@ namespace Supra\Tests\FileStorage;
  */
 class NestedSetCheckTest extends \PHPUnit_Framework_TestCase
 {
-	public function testStructure()
+	public function testPublicStructure()
 	{
-		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('');
+		$this->testStructure('');
+	}
+	
+	public function testTestStructure()
+	{
+		$this->testStructure($this);
+	}
+	
+	private function testStructure($scope)
+	{
+		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($scope);
 		$conn = $em->getConnection();
 		
 		// Left index always less than right
