@@ -372,8 +372,6 @@ class PageRequestEdit extends PageRequest
 			$pageLocalization->setRevisionId($revisionDataId);
 			$historyPageLocalization = $historyEm->merge($pageLocalization);
 			$historyPageLocalization->setMaster($historyPage);
-			
-			$historyPageLocalization;
 
 			$placeHolders = $page->getPlaceHolders();
 			foreach ($placeHolders as $placeHolder) {
