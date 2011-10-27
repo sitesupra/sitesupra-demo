@@ -7,7 +7,7 @@ use Supra\Editable\EditableInterface;
 /**
  * Exception on filter not defined or found issues
  */
-class FilterNotFound extends RuntimeException implements EditableException
+class FilterNotFound extends RuntimeException
 {
 	/**
 	 * Generates the message automatically
