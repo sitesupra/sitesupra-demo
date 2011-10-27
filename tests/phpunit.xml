@@ -13,6 +13,10 @@
 	<filter>
 		<whitelist addUncoveredFilesFromWhitelist="true">
 			<directory suffix=".php">../src/lib/Supra</directory>
+			<exclude>
+				<directory>../src/lib/Supra/Proxy</directory>
+				<directory suffix="Interface.php">../src/lib/Supra</directory>
+			</exclude>
 		</whitelist>
 	</filter>
 

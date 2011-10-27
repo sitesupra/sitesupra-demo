@@ -37,7 +37,6 @@ class EventManager
 	 * Add listener
 	 * @param string|array $eventType
 	 * @param callback|object|\Closure $listener
-	 * @throws Exception if arguments are invalid
 	 */
 	public function listen($eventTypes, $listener)
 	{
@@ -99,7 +98,6 @@ class EventManager
 	/**
 	 * Remove listeners for object or class, specific event type or everything
 	 * @param array|string $eventTypes
-	 * @throws Exception if arguments are invalid
 	 */
 	public function removeListeners($eventTypes = null)
 	{
@@ -120,28 +118,38 @@ class EventManager
 	
 	/**
 	 * Removes specific listener. 
+	 * @param string|array $eventType
 	 * @param callback|object|\Closure $listener
-	 * @return boolean false if listener not found, true if removed
+	 * @return boolean true if listener found for all event types specified
 	 */
-	public function removeListener($eventType, $listener)
+	public function removeListener($eventTypes, $listener)
 	{
-		// No subscription to this event type at all, skip
-		if (empty($this->listeners[$eventType])) {
-			return false;
-		}
+		$eventTypes = (array) $eventTypes;
+		$removed = true;
 		
-		// Do the search in the reverse order, will remove last added listener
-		// if the same listener is added multiple times
-		$keys = array_reverse(array_keys($this->listeners[$eventType]));
+		foreach ($eventTypes as $eventType) {
 		
-		foreach ($keys as $key) {
-			if ($this->listeners[$eventType][$key] === $listener) {
-				unset($this->listeners[$eventType][$key]);
-				
-				return true;
+			// No subscription to this event type at all, skip
+			if (empty($this->listeners[$eventType])) {
+				$removed = false;
+				continue;
 			}
+
+			// Do the search in the reverse order, will remove last added
+			// listener if the same listener is added multiple times
+			$keys = array_reverse(array_keys($this->listeners[$eventType]));
+
+			foreach ($keys as $key) {
+				if ($this->listeners[$eventType][$key] === $listener) {
+					unset($this->listeners[$eventType][$key]);
+					
+					continue 2;
+				}
+			}
+			
+			$removed = false;
 		}
 		
-		return false;
+		return $removed;
 	}
 }

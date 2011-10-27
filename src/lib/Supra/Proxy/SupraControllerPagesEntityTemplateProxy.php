@@ -228,6 +228,12 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::isLocal();
     }
 
+    public function isRoot()
+    {
+        $this->__load();
+        return parent::isRoot();
+    }
+
     public function getDiscriminator()
     {
         $this->__load();
@@ -264,16 +270,16 @@ class SupraControllerPagesEntityTemplateProxy extends \Supra\Controller\Pages\En
         return parent::getAuthorizationAncestors();
     }
 
-    public function setRevisionData($revisionData)
+    public function setRevisionId($revisionId)
     {
         $this->__load();
-        return parent::setRevisionData($revisionData);
+        return parent::setRevisionId($revisionId);
     }
 
-    public function getRevisionData()
+    public function getRevisionId()
     {
         $this->__load();
-        return parent::getRevisionData();
+        return parent::getRevisionId();
     }
 
     public function getId()

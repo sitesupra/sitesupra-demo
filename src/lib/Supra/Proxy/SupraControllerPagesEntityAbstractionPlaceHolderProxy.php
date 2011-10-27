@@ -114,16 +114,16 @@ class SupraControllerPagesEntityAbstractionPlaceHolderProxy extends \Supra\Contr
         return parent::getAuthorizationAncestors();
     }
 
-    public function setRevisionData($revisionData)
+    public function setRevisionId($revisionId)
     {
         $this->__load();
-        return parent::setRevisionData($revisionData);
+        return parent::setRevisionId($revisionId);
     }
 
-    public function getRevisionData()
+    public function getRevisionId()
     {
         $this->__load();
-        return parent::getRevisionData();
+        return parent::getRevisionId();
     }
 
     public function getId()
