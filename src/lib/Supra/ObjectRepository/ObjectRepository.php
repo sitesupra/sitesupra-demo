@@ -60,6 +60,15 @@ class ObjectRepository
 	 * @var array
 	 */
 	protected static $controllerStack = array();
+	
+	/**
+	 * Variable for checking if the added binding wouldn't change any previous 
+	 * repository requests. Can be disabled by setting to null. This also stores
+	 * the 5 debug backtrace steps for developer.
+	 * FIXME: Should be disabled on production for  performance reasons.
+	 * @var array
+	 */
+	protected static $lateBindingCheckCache = array();
 
 	/**
 	 * Marks beginning of the controller context,
@@ -126,6 +135,7 @@ class ObjectRepository
 	 * Normalizes interface name argument
 	 * @param string $interface
 	 * @return string
+	 * @throws Exception\RuntimeException if argument invalid
 	 */
 	private static function normalizeInterfaceArgument($interface)
 	{
@@ -136,6 +146,86 @@ class ObjectRepository
 		$interface = trim($interface, '\\');
 		
 		return $interface;
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected static function generateLateBindingCheckTrace()
+	{
+		$debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$resultArray = array();
+		$i = 1;
+		
+		foreach ($debugBacktrace as $trace) {
+			
+			$trace = (array) $trace + array(
+				'class' => null,
+				'type' => null,
+				'function' => null,
+				'line' => null,
+				'file' => null,
+			);
+			
+			if ($trace['class'] == __CLASS__) {
+				continue;
+			}
+			
+			$resultArray[] = "#$i: {$trace['class']}{$trace['type']}{$trace['function']}() in {$trace['file']}:{$trace['line']}";
+			if ($i++ > 5) {
+				break;
+			}
+		}
+		
+		$resultString = implode("\n", $resultArray);
+
+		return $resultString;
+	}
+	
+	/**
+	 * @see self::$lateBindingCheckCache
+	 * @param string $caller
+	 * @param string $interface
+	 */
+	protected static function checkLateBinding($caller, $interface = null)
+	{
+		if (empty(static::$lateBindingCheckCache)) {
+			return;
+		}
+		
+		$interfaces = null;
+		
+		if (is_null($interface)) {
+			$interfaces = array_keys(static::$lateBindingCheckCache);
+		} else {
+			$interfaces = (array) $interface;
+		}
+		
+		foreach ($interfaces as $interface) {
+		
+			if ( ! isset(static::$lateBindingCheckCache[$interface])) {
+				continue;
+			}
+			
+			// Ignore the logger
+			if ($interface == self::INTERFACE_LOGGER) {
+				continue;
+			}
+			
+			foreach (static::$lateBindingCheckCache[$interface] as $callerTest => $getterTrace) {
+
+				if (self::isParentCaller($callerTest, $caller)) {
+					self::getLogger(__CLASS__)
+							->warn("Object repository binding of '$interface' was already requested for '$callerTest' before, '$caller' binding changed now.\n"
+									. "HINT: Switch debugging on to see more information on this issue.");
+					self::getLogger(__CLASS__)
+							->debug("Got by trace:\n", $getterTrace);
+					self::getLogger(__CLASS__)
+							->debug("Checked by trace:\n", self::generateLateBindingCheckTrace());
+					break;
+				}
+			}
+		}
 	}
 	
 	/**
@@ -151,6 +241,8 @@ class ObjectRepository
 		$caller = self::normalizeCallerArgument($caller);
 		$interface = self::normalizeInterfaceArgument($interface);
 		
+		self::checkLateBinding($caller, $interface);
+	
 		if ( ! is_object($object)) {
 			throw new Exception\RuntimeException('Object argument must be an object');
 		}
@@ -160,6 +252,29 @@ class ObjectRepository
 		}
 
 		self::$objectBindings[$interface][$caller] = $object;
+	}
+	
+	/**
+	 * Checks if caller is the child of the parent caller
+	 * @param mixed $child
+	 * @param mixed $parent
+	 * @return boolean
+	 */
+	public static function isParentCaller($child, $parent)
+	{
+		$child = self::normalizeCallerArgument($child);
+		$parent = self::normalizeCallerArgument($parent);
+		
+		while ( ! is_null($child)) {
+			if ($child === $parent) {
+				return true;
+			}
+			
+			$visited = array();
+			$child = self::getParentCaller($child, $visited);
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -206,6 +321,8 @@ class ObjectRepository
 		
 		$child = self::normalizeCallerArgument($child);
 		$parent = self::normalizeCallerArgument($parent);
+		
+		self::checkLateBinding($child);
 		
 		if (( ! $overwrite) && isset($ch[$child]) && ($ch[$child] !== $parent)) {
 			throw new Exception\RuntimeException("Caller $child parent already declared");
@@ -265,7 +382,7 @@ class ObjectRepository
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
 			$controllerCaller = $controllerId;
-			// See CONTROLLER_PREFIX constant comment
+			// @see self::CONTROLLER_PREFIX
 //			$controllerCaller = self::CONTROLLER_PREFIX . $controllerId;
 			$object = self::findObject($controllerCaller, $interface);
 			
@@ -276,6 +393,13 @@ class ObjectRepository
 		
 		// 2. If not found, try matching nearest defined object by caller
 		$caller = self::normalizeCallerArgument($caller);
+		
+		// @see self::$lateBindingCheckCache
+		if (isset(static::$lateBindingCheckCache)) {
+			static::$lateBindingCheckCache[$interface][$caller] = 
+					self::generateLateBindingCheckTrace();
+		}
+		
 		$object = self::findNearestObject($caller, $interface);
 
 		return $object;
@@ -317,7 +441,6 @@ class ObjectRepository
 		// Create bootstrap logger in case of missing logger
 		if (empty($logger)) {
 			$logger = Log::getBootstrapLogger();
-			self::setDefaultLogger($logger);
 		}
 
 		return $logger;

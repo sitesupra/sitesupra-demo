@@ -41,7 +41,8 @@ class ParsedHtmlFilter implements FilterInterface
 	 */
 	private function parseSupraLink($content, Entity\ReferencedElement\LinkReferencedElement $link)
 	{
-		$url = $link->getUrl($this);
+		ObjectRepository::setCallerParent($link, $this);
+		$url = $link->getUrl();
 		$target = $link->getTarget();
 		$title = $link->getTitle();
 

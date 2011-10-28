@@ -68,9 +68,8 @@ abstract class PageManagerAction extends CmsAction
 	{
 		if (is_null($this->pageController)) {
 			$this->pageController = new \Project\Pages\PageController();
-
 			// Override with the draft version connection
-			$this->pageController->setEntityManager($this->entityManager);
+			ObjectRepository::setCallerParent($this->pageController, $this);
 		}
 
 		return $this->pageController;

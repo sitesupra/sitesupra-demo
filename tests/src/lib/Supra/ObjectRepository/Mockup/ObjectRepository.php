@@ -18,7 +18,8 @@ class ObjectRepository extends \Supra\ObjectRepository\ObjectRepository
 	{
 		list(self::$callerHierarchy,
 			self::$controllerStack,
-			self::$objectBindings) = self::$state;
+			self::$objectBindings,
+			self::$lateBindingCheckCache) = self::$state;
 	}
 	
 	public function removeObject($caller, $interface)
@@ -31,7 +32,13 @@ class ObjectRepository extends \Supra\ObjectRepository\ObjectRepository
 		return array(
 			self::$callerHierarchy,
 			self::$controllerStack,
-			self::$objectBindings
+			self::$objectBindings,
+			self::$lateBindingCheckCache
 		);
+	}
+	
+	public static function disableLateBindingCheck()
+	{
+		self::$lateBindingCheckCache = null;
 	}
 }

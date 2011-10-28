@@ -29,18 +29,12 @@ class PageController extends ControllerAbstraction
 	private $blockControllers = array();
 	
 	/**
-	 * @var EntityManager
-	 */
-	protected $entityManager;
-	
-	/**
 	 * Binds entity manager
 	 */
 	public function __construct()
 	{
 		parent::__construct();
 		
-		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
 	
 	/**
@@ -55,20 +49,19 @@ class PageController extends ControllerAbstraction
 			$request = new namespace\Request\PageRequestView($request);
 		}
 		
-		$request->setDoctrineEntityManager($this->entityManager);
+		$request->setDoctrineEntityManager($this->getEntityManager());
 		
 		parent::prepare($request, $response);
 	}
 	
 	/**
-	 * Oberride the entity manager to be used by the controller
-	 * @param EntityManager $em
+	 * @return EntityManager
 	 */
-	public function setEntityManager(EntityManager $em)
+	public function getEntityManager()
 	{
-		$this->entityManager = $em;
+		return ObjectRepository::getEntityManager($this);
 	}
-
+	
 	/**
 	 * Execute controller
 	 */
@@ -84,6 +77,9 @@ class PageController extends ControllerAbstraction
 
 			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
 				//TODO: any validation? skipping? loop check?
+				
+				ObjectRepository::setCallerParent($redirect, $this);
+				
 				$location = $redirect->getUrl($this);
 				$this->getResponse()
 						->redirect($location);

@@ -27,7 +27,6 @@ class SessionManager
 	public function __construct(Handler\HandlerAbstraction $handler)
 	{
 		$this->setHandler($handler);
-		$this->start();
 	}
 
 	/**
@@ -56,6 +55,18 @@ class SessionManager
 	}
 	
 	/**
+	 * Starts the session if not started
+	 */
+	public function startIfStopped()
+	{
+		$status = $this->handler->getSessionStatus();
+		
+		if ($status != Handler\HandlerAbstraction::SESSION_STARTED) {
+			$this->start();
+		}
+	}
+	
+	/**
 	 * Changes the session ID inside the handler and reassigns the session data
 	 * @param string $sessionId
 	 */
@@ -74,7 +85,7 @@ class SessionManager
 	 */
 	public function getSpace($spaceClass)
 	{
-		return $this->getOrCreateSessionNamespace($spaceClass, $spaceClass);
+		return $this->getSessionNamespace($spaceClass, $spaceClass);
 	}
 	
 	/**
@@ -94,7 +105,7 @@ class SessionManager
 	 */
 	public function getDefaultSessionNamespace($sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
 	{
-		return $this->getOrCreateSessionNamespace(self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass);
+		return $this->getSessionNamespace(self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass);
 	}
 	
 	/**
@@ -104,8 +115,10 @@ class SessionManager
 	 * @param string $sessionNamespaceClass
 	 * @return SessionNamespace
 	 */
-	public function getOrCreateSessionNamespace($name = self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
+	public function getSessionNamespace($name = self::DEFAULT_NAMESPACE_NAME, $sessionNamespaceClass = self::DEFAULT_NAMESPACE_CLASS) 
 	{
+		$this->startIfStopped();
+		
 		if ( ! isset($this->sessionData[$name]) || ! $this->sessionData[$name] instanceof SessionNamespace) {
 			
 			$sessionNamespace = Loader::getClassInstance($sessionNamespaceClass, 'Supra\Session\SessionNamespace');
@@ -115,7 +128,7 @@ class SessionManager
 			$this->registerSessionNamespace($sessionNamespace);
 		}
 		
-		return $this->getSessionNamespace($name);
+		return $this->getExistingSessionNamespace($name);
 	}
 					
 	/**
@@ -126,6 +139,8 @@ class SessionManager
 	 */
 	public function registerSessionNamespace(SessionNamespace $sessionNamespace) 
 	{
+		$this->startIfStopped();
+		
 		$name = $sessionNamespace->getName();
 		$this->sessionData[$name] = $sessionNamespace;
 	}
@@ -136,8 +151,10 @@ class SessionManager
 	 * @param string $name
 	 * @return SessionNamespace
 	 */
-	public function getSessionNamespace($name) 
+	protected function getExistingSessionNamespace($name) 
 	{
+		$this->startIfStopped();
+		
 		if ( ! isset($this->sessionData[$name])) {
 			throw new Exception\SessionNamespaceNotFound();
 		}
@@ -153,6 +170,8 @@ class SessionManager
 	 */
 	public function sessionNamespaceIsRegistered($name) 
 	{
+		$this->startIfStopped();
+		
 		return isset($this->sessionData[$name]);
 	}	
 	
@@ -175,6 +194,8 @@ class SessionManager
 	 */
 	public function clear() 
 	{
+		$this->startIfStopped();
+		
 		foreach ($this->sessionData as $sessionNamespace) {
 
 			if ($sessionNamespace instanceof SessionNamespace) {

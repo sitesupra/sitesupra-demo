@@ -188,14 +188,13 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
-	 * Get URL of the link using $context for ObjectRepository calls
-	 * @param mixed $context
-	 * @param string $localeId
+	 * Get URL of the link
+	 * @return string
 	 */
-	public function getUrl($context)
+	public function getUrl()
 	{
 		$url = null;
-		$localeManager = ObjectRepository::getLocaleManager($context);
+		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeId = $localeManager->getCurrent()->getId();
 		
 		switch ($this->getResource()) {
@@ -203,7 +202,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			case self::RESOURCE_PAGE:
 				$pageId = $this->getPageId();
 
-				$em = ObjectRepository::getEntityManager($context);
+				$em = ObjectRepository::getEntityManager($this);
 
 				$pageData = $em->find(PageLocalization::CN(), $pageId);
 
@@ -223,7 +222,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			
 			case self::RESOURCE_FILE:
 				$fileId = $this->getFileId();
-				$fs = ObjectRepository::getFileStorage($context);
+				$fs = ObjectRepository::getFileStorage($this);
 				$em = $fs->getDoctrineEntityManager();
 				$file = $em->find(File::CN(), $fileId);
 
