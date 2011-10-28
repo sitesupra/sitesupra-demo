@@ -6,6 +6,9 @@ use Supra\Controller\Pages\Exception;
 use DateTime;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
+use Supra\Search\IndexedDocument;
+use Supra\Controller\Pages\Request\PageRequestView;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * PageLocalization class
@@ -18,7 +21,7 @@ class PageLocalization extends Abstraction\Localization
 	 * {@inheritdoc}
 	 */
 	const DISCRIMINATOR = self::PAGE_DISCR;
-	
+
 	/**
 	 * @ManyToOne(targetEntity="Template", fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
@@ -27,14 +30,14 @@ class PageLocalization extends Abstraction\Localization
 	 * @var Template
 	 */
 	protected $template;
-	
+
 	/**
 	 * Limitation because of MySQL unique constraint 1k byte limit
 	 * @Column(type="path", length="255", nullable="true")
 	 * @var Path
 	 */
 	protected $path = null;
-	
+
 	/**
 	 * Used when current page has no path (e.g. news application)
 	 * @Column(type="path", length="255")
@@ -47,31 +50,31 @@ class PageLocalization extends Abstraction\Localization
 	 * @var string
 	 */
 	protected $pathPart = '';
-	
+
 	/**
 	 * @Column(type="string", name="meta_description")
 	 * @var string
 	 */
 	protected $metaDescription = '';
-	
+
 	/**
 	 * @Column(type="string", name="meta_keywords")
 	 * @var string
 	 */
 	protected $metaKeywords = '';
-	
+
 	/**
 	 * @Column(type="boolean")
 	 * @var boolean
 	 */
 	protected $active = true;
-	
+
 	/**
 	 * @Column(type="datetime", nullable=true, name="schedule_time")
 	 * @var DateTime
 	 */
 	protected $scheduleTime;
-	
+
 	/**
 	 * NB! Eager load is because "publish" action includes Doctrine merge action 
 	 * which will fail if object isn't initialized.
@@ -79,27 +82,27 @@ class PageLocalization extends Abstraction\Localization
 	 * @var ReferencedElement\LinkReferencedElement
 	 */
 	protected $redirect;
-	
+
 	/**
 	 * @Column(type="datetime")
 	 * @var DateTime
 	 */
 	protected $creationTime;
-	
+
 	/**
 	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
 	 * @Column(type="smallint")
 	 * @var int
 	 */
 	protected $creationYear;
-	
+
 	/**
 	 * See $creationYear doc
 	 * @Column(type="smallint")
 	 * @var int
 	 */
 	protected $creationMonth;
-	
+
 	/**
 	 * Used to reset the creation time on first publish or creation time set
 	 * @Column(type="boolean")
@@ -114,11 +117,11 @@ class PageLocalization extends Abstraction\Localization
 	public function __construct($locale)
 	{
 		parent::__construct($locale);
-		
+
 		$this->setCreationTime();
 		$this->publishTimeSet = false;
 	}
-	
+
 	/**
 	 * @return Page
 	 */
@@ -126,7 +129,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->getMaster();
 	}
-	
+
 	/**
 	 * @param Page $page
 	 */
@@ -134,7 +137,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->setMaster($page);
 	}
-	
+
 	/**
 	 * Set page template
 	 * @param Template $template
@@ -152,7 +155,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->template;
 	}
-	
+
 	/**
 	 * Get page and it's template hierarchy starting with the root template
 	 * @return PageSet
@@ -214,14 +217,14 @@ class PageLocalization extends Abstraction\Localization
 		if ($page->isRoot() && $pathPart != '') {
 			throw new Exception\PagePathException("Root page cannot have path assigned", $this);
 		}
-		
+
 		// Now with news application it's possible...
 		// FIXME: maybe should allow for applications only?
 //		// Check if not trying to set empty path to not root page
 //		if ( ! $page->isRoot() && $pathPart == '') {
 //			throw new Exception\PagePathException("Path cannot be empty", $this);
 //		}
-		
+
 		$this->pathPart = $pathPart;
 	}
 
@@ -312,7 +315,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->scheduleTime = $scheduleTime;
 	}
-	
+
 	/**
 	 * Unsets the schedule
 	 */
@@ -320,7 +323,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->scheduleTime = null;
 	}
-	
+
 	/**
 	 * @return ReferencedElement\LinkReferencedElement
 	 */
@@ -344,7 +347,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->creationTime;
 	}
-		
+
 	/**
 	 * Sets creation time
 	 * @param DateTime $creationTime
@@ -354,7 +357,7 @@ class PageLocalization extends Abstraction\Localization
 		if (is_null($creationTime)) {
 			$creationTime = new DateTime();
 		}
-		
+
 		$this->creationTime = $creationTime;
 		$this->creationYear = $creationTime->format('Y');
 		$this->creationMonth = $creationTime->format('n');
@@ -369,7 +372,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->publishTimeSet;
 	}
-		
+
 	/**
 	 * @return array
 	 */
@@ -378,22 +381,23 @@ class PageLocalization extends Abstraction\Localization
 		// This is overriden because page localizations themselves are not nested set element, so
 		// we take master page, fetch all of its ancestors and then fetch page localizations from those.
 		$ancestors = array();
-		
+
 		$master = $this->getMaster();
 		$masterAncestors = $master->getAncestors();
 
-		foreach($masterAncestors as $masterAncestor) {
+		foreach ($masterAncestors as $masterAncestor) {
 			/* @var $masterAncestor Page */
-			
+
 			$ancestors[] = $masterAncestor;
-			
+
 			$ancestorLocalization = $masterAncestor->getLocalization($this->locale);
-			
-			if( ! empty($ancestorLocalization)) {
+
+			if ( ! empty($ancestorLocalization)) {
 				$ancestors[] = $ancestorLocalization;
 			}
 		}
-		
+
 		return $ancestors;
 	}
+
 }

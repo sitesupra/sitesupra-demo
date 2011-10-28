@@ -382,7 +382,7 @@ class PageAction extends PageManagerAction
 			$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
 			$pageData->setTemplate($template);
 		}
-
+		
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 	}
@@ -414,12 +414,11 @@ class PageAction extends PageManagerAction
 		// Must be executed with POST method
 		$this->isPostRequest();
 
-		$page = $this->getPageLocalization()->getMaster();
-
 		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
 		$this->checkLock();
 		$this->publish();
+		
 		$this->unlockPage();
 	}
 
@@ -429,8 +428,6 @@ class PageAction extends PageManagerAction
 	public function lockAction()
 	{
 		$this->isPostRequest();
-
-		$page = $this->getPageLocalization()->getMaster();
 
 		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 

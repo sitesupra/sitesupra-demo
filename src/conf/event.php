@@ -4,12 +4,23 @@ namespace Supra\Event;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\UserProvider;
+use Supra\Cms\CmsPageLocalizationIndexerQueueListener;
 use Supra\Cms\CmsUserSingleSessionListener;
+use Supra\Cms\CmsController;
+
+$eventManager = new EventManager();
 
 $userProvider = ObjectRepository::getUserProvider('#cms');
 
-$manager = new EventManager();
-$listener = new CmsUserSingleSessionListener();
-$manager->listen(UserProvider::EVENT_PRE_SIGN_IN, $listener);
+$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
+$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
 
-ObjectRepository::setEventManager($userProvider, $manager);
+ObjectRepository::setEventManager($userProvider, $eventManager);
+
+
+$eventManager = new EventManager();
+
+$listener = new CmsPageLocalizationIndexerQueueListener();
+$eventManager->listen(CmsController::EVENT_POST_PAGE_PUBLISH, $listener);
+
+ObjectRepository::setEventManager('Supra\Cms\ContentManager', $eventManager);

@@ -16,23 +16,6 @@ class DummyIndexerQueue extends IndexerQueue
 
 	/**
 	 * @param DummyItem $dummyItem 
-	 * @param integer $priority
-	 * @return DummyIndexerQueueItem
-	 */
-	public function add(DummyItem $dummyItem, $priority)
-	{
-		$indexerQueueItem = new DummyIndexerQueueItem();
-		
-		$indexerQueueItem->setDummyItem($dummyItem);
-		$indexerQueueItem->setPriority($priority);
-		
-		parent::store($indexerQueueItem);
-
-		return $indexerQueueItem;
-	}
-
-	/**
-	 * @param DummyItem $dummyItem 
 	 * @return DummyIndexerQueueItem
 	 */
 	public function getIndexerQueueItem($dummyItem)
@@ -53,5 +36,24 @@ class DummyIndexerQueue extends IndexerQueue
 
 		return $indexerQueueItem;
 	}
+	
+	/**
+	 *
+	 * @param DummyItem $object
+	 * @param integer $status
+	 * @return DummyIndexerQueueItem
+	 */
+	public function getOneByObjectAndStatus($object, $status) 
+	{
+		$criteria = array(
+				'dummyId' => $object->id,
+				'dummyRevision' => $object->revision,
+				'status' => $status
+		);
 
+		$queueItem = $this->repository->findOneBy($criteria);
+
+		return $queueItem;
+		
+	}
 }

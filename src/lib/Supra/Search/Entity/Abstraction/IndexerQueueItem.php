@@ -6,12 +6,14 @@ use Supra\Search\IndexerService;
 use DateTime;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\Search\IndexerQueueItemStatus;
+use Supra\Search\Exception\IndexerRuntimeException;
+use Supra\Search\IndexedDocument;
 
 /**
  * @Entity
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"page" = "Supra\Controller\Pages\Entity\PageIndexerQueueItem"})
+ * @DiscriminatorMap({"pageLocalization" = "Supra\Controller\Pages\Entity\PageLocalizationIndexerQueueItem"})
  */
 abstract class IndexerQueueItem extends Entity implements Timestampable
 {
@@ -41,14 +43,14 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	 */
 	protected $priority;
 
-	function __construct() 
+	function __construct()
 	{
 		parent::__construct();
-		
+
 		$this->priority = self::DEFAULT_PRIORITY;
 		$this->status = IndexerQueueItemStatus::FRESH;
 	}
-	
+
 	/**
 	 * Returns priority of queue item.
 	 * @return integer
@@ -57,7 +59,7 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	{
 		return $this->priority;
 	}
-	
+
 	/**
 	 * Sets priority for queue item.
 	 * @param integer $priority 
@@ -66,7 +68,7 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	{
 		$this->priority = $priority;
 	}
-	
+
 	/**
 	 * Returns creation time.
 	 * @return DateTime
@@ -75,7 +77,7 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	{
 		return $this->creationTime;
 	}
-	
+
 	/**
 	 * Sets creation time.
 	 * @param DateTime $time
@@ -107,7 +109,29 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 			$time = new DateTime();
 		}
 		$this->modificationTime = $time;
-	}	
+	}
 
-	abstract public function getData();
+	/**
+	 * Sets status of this indexer queue item. Use constants from IndexerQueueItemStatus class.
+	 * @param integer $newStatus 
+	 */
+	public function setStatus($newStatus)
+	{
+		$this->status = IndexerQueueItemStatus::validate($newStatus);
+	}
+
+	/**
+	 * Returns status of this queue item.
+	 * @return integer
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * Returns document to be added to Solr.
+	 * @return IndexedDocument
+	 */
+	abstract public function getIndexedDocuments();
 }

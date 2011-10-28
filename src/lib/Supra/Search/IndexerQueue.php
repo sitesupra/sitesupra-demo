@@ -37,15 +37,63 @@ abstract class IndexerQueue
 		$this->em->persist($item);
 		$this->em->flush();
 	}
-	
+
 	public function getStatus()
 	{
-		$dql = "SELECT count(iq.id) AS itemCount FROM " . $this->itemClass . " iq";
-		$itemCount = $this->em->createQuery($dql)->getScalarResult();
+		$dqb = $this->em->createQueryBuilder();
 
-		\Log::debug('GET STATUS: ', $itemCount);
+		$dqb->select('iq.status as itemStatus', 'count(iq.id) AS itemCount')
+				->from($this->itemClass, 'iq')
+				->groupBy('iq.status');
 
-		return array();
+		$queryResult = $dqb->getQuery()->getScalarResult();
+
+		// Fill result array with 0 for all known statuses.
+		$result = array_fill_keys(IndexerQueueItemStatus::getKnownStatuses(), 0);
+
+		foreach ($queryResult as $status) {
+			$result[$status['itemStatus']] = intval($status['itemCount']);
+		}
+
+		return $result;
+	}
+
+	public function getItemCountForStatus($status)
+	{
+		$dql = 'SELECT count(iq.id) AS itemCount FROM ' . $this->itemClass . ' iq WHERE iq.status = ' . $status;
+		$queryResult = $this->em->createQuery($dql)->getOneOrNullResult();
+
+		$itemCount = intval($queryResult['itemCount']);
+
+		return $itemCount;
+	}
+
+	/**
+	 * Retrieves first item sorting by priority (ascending) and create time (descending).
+	 * @param integer $status
+	 * @param boolean $lock
+	 * @return IndexerQueueItem
+	 */
+	private function getNextItemForStatus($status, $lock = false)
+	{
+		$status = IndexerQueueItemStatus::validate($status);
+
+		$dqb = $this->em->createQueryBuilder();
+
+		$dqb->select('iq')
+				->from($this->itemClass, 'iq')
+				->where($dqb->expr()->eq('iq.status', $status))
+				->orderBy('iq.priority', 'DESC')
+				->orderBy('iq.creationTime', 'ASC')
+				->setMaxResults(1);
+
+		//if ($lock) {
+		//	$dqb->forUpdate(true);
+		//}
+
+		$result = $dqb->getQuery()->getOneOrNullResult();
+
+		return $result;
 	}
 
 	/**
@@ -54,9 +102,42 @@ abstract class IndexerQueue
 	 */
 	public function getNextItemForIndexing()
 	{
-		
+		$queueItem = $this->getNextItemForStatus(IndexerQueueItemStatus::FRESH, true);
+
+		if ( ! empty($queueItem)) {
+
+			$queueItem->setStatus(IndexerQueueItemStatus::PROCESSING);
+			$this->store($queueItem);
+		}
+
+		return $queueItem;
 	}
 	
-	abstract function getIndexerQueueItem($object);
+	/**
+	 * Adds $object to queue. If this $object already is 
+	 * in queue and is not yet indexed, existing item will be removed, 
+	 * e.i - no two fresh queue items for same $object.
+	 * @param type $object
+	 * @param type $priority 
+	 */
+	public function add($object, $priority = IndexerQueueItem::DEFAULT_PRIORITY)
+	{
+		$queueItem = $this->getOneByObjectAndStatus($object, IndexerQueueItemStatus::FRESH);
 
+		if ( ! empty($queueItem)) {
+
+			$this->em->remove($queueItem);
+			$this->em->flush();
+		}
+
+		/* @var $newQueueItem IndexerQueueItem */
+		$newQueueItem = new $this->itemClass($object);
+		$newQueueItem->setPriority($priority);
+		
+		$this->store($newQueueItem);
+		
+		return $newQueueItem;
+	}
+
+	abstract function getOneByObjectAndStatus($object, $status);
 }

@@ -14,8 +14,6 @@ class DiscriminatorAppender
 	{
 		$classMetadata = $eventArgs->getClassMetadata();
 		
-		\Log::debug('Z: ', $classMetadata->name);
-		
 		if ($classMetadata->name == 'Supra\Tests\Search\Entity\DummyIndexerQueueItem') {
 	
 			$em = $eventArgs->getEntityManager();

@@ -16,6 +16,7 @@ require_once SUPRA_CONF_PATH . 'session.php';
 require_once SUPRA_CONF_PATH . 'mailer.php';
 require_once SUPRA_CONF_PATH . 'authorization.php';
 require_once SUPRA_CONF_PATH . 'event.php';
+require_once SUPRA_CONF_PATH . 'search.php';
 
 $parser = new Supra\Configuration\Parser\YamlParser();
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');

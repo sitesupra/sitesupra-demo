@@ -24,6 +24,8 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestView;
+use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Cms\CmsController;
 
 /**
  * Controller containing common methods
@@ -36,12 +38,12 @@ abstract class PageManagerAction extends CmsAction
 	 * @var EntityManager
 	 */
 	protected $entityManager;
-	
+
 	/**
 	 * @var Entity\Abstraction\Localization
 	 */
 	protected $pageData;
-	
+
 	/**
 	 * @var PageController
 	 */
@@ -70,7 +72,7 @@ abstract class PageManagerAction extends CmsAction
 			// Override with the draft version connection
 			$this->pageController->setEntityManager($this->entityManager);
 		}
-		
+
 		return $this->pageController;
 	}
 
@@ -110,13 +112,14 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPage()
 	{
 		$page = null;
-		
+
 		if (isset($this->pageData)) {
 			$page = $this->pageData->getMaster();
-		} else {
+		}
+		else {
 			$page = $this->getPageByRequestKey('page_id');
 		}
-		
+
 		return $page;
 	}
 
@@ -130,17 +133,17 @@ abstract class PageManagerAction extends CmsAction
 		if (isset($this->pageData)) {
 			return $this->pageData;
 		}
-		
+
 		$this->pageData = $this->getPageLocalizationByRequestKey('page_id');
 
 		if (empty($this->pageData)) {
 			$pageId = $this->getRequestParameter('page_id');
 			throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
 		}
-		
+
 		return $this->pageData;
 	}
-	
+
 	/**
 	 * Try selecting abstract page by request parameter
 	 * @param string $key
@@ -151,10 +154,10 @@ abstract class PageManagerAction extends CmsAction
 		$pageId = $this->getRequestParameter($key);
 		$page = $this->entityManager->find(
 				Entity\Abstraction\AbstractPage::CN(), $pageId);
-		
+
 		return $page;
 	}
-	
+
 	/**
 	 * Try selecting page localization by request parameter
 	 * @param string $key
@@ -165,10 +168,10 @@ abstract class PageManagerAction extends CmsAction
 		$pageId = $this->getRequestParameter($key);
 		$localization = $this->entityManager->find(
 				Entity\Abstraction\Localization::CN(), $pageId);
-		
+
 		return $localization;
 	}
-	
+
 	/**
 	 * Try loading page by searching for received page/localization ID
 	 * @param string $key
@@ -177,18 +180,18 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageByRequestKey($key)
 	{
 		$page = $this->searchPageByRequestKey($key);
-		
+
 		if (is_null($page)) {
 			$localization = $this->searchLocalizationByRequestKey($key);
-			
+
 			if ( ! is_null($localization)) {
 				$page = $localization->getMaster();
 			}
 		}
-		
+
 		return $page;
 	}
-	
+
 	/**
 	 * Try loading localization by searching for received page/localization ID
 	 * @param string $key
@@ -197,16 +200,16 @@ abstract class PageManagerAction extends CmsAction
 	protected function getPageLocalizationByRequestKey($key)
 	{
 		$localization = $this->searchLocalizationByRequestKey($key);
-		
+
 		if (is_null($localization)) {
 			$page = $this->searchPageByRequestKey($key);
-			
+
 			if ( ! is_null($page)) {
 				$locale = $this->getLocale();
 				$localization = $page->getLocalization($locale);
 			}
 		}
-		
+
 		return $localization;
 	}
 
@@ -231,11 +234,11 @@ abstract class PageManagerAction extends CmsAction
 			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
 			/* @var $pageDao PageRepository */
 			$pages = $pageDao->getRootNodes();
-			
+
 			if (isset($pages[0])) {
 				$page = $pages[0];
 			}
-			
+
 			if ($page instanceof Entity\Abstraction\AbstractPage) {
 				$localization = $page->getLocalization($localeId);
 			}
@@ -244,7 +247,7 @@ abstract class PageManagerAction extends CmsAction
 		if (empty($localization)) {
 			return null;
 		}
-		
+
 		return $localization;
 	}
 
@@ -270,17 +273,17 @@ abstract class PageManagerAction extends CmsAction
 		$data = null;
 
 		$data = $this->loadNodeMainData($pageData);
-		
+
 		// Add missing parent page data ID
 		$parentData = $pageData->getParent();
 		$parentDataId = null;
-		
+
 		if ( ! is_null($parentData)) {
 			$parentDataId = $parentData->getId();
 		}
-		
+
 		$data['parent'] = $parentDataId;
-		
+
 		$this->getResponse()->setResponseData($data);
 	}
 
@@ -293,76 +296,76 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$page = $data->getMaster();
 		$locale = $data->getLocale();
-		
+
 		// Main data
 		$array = array(
-			'id' => $data->getId(),
-			'title' => $data->getTitle(),
-			
-			// TODO: hardcoded
-			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' : 
-							($data instanceof Entity\GroupLocalization ? 'group' : 
-									($page->getLevel() === 0 ? 'home' : 'page')),
-			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
+				'id' => $data->getId(),
+				'title' => $data->getTitle(),
+				// TODO: hardcoded
+				'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
+						($data instanceof Entity\GroupLocalization ? 'group' :
+								($page->getLevel() === 0 ? 'home' : 'page')),
+				'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
 		);
-		
+
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {
 			$templateId = $data->getTemplate()
 					->getId();
-			
+
 			$array['template'] = $templateId;
 		}
-		
+
 		// Node type
 		$type = Entity\Abstraction\Entity::PAGE_DISCR;
 		if ($data instanceof Entity\GroupLocalization) {
 			$type = Entity\Abstraction\Entity::GROUP_DISCR;
-		} elseif ($page instanceof Entity\ApplicationPage) {
+		}
+		elseif ($page instanceof Entity\ApplicationPage) {
 			$type = Entity\Abstraction\Entity::APPLICATION_DISCR;
 			$array['application_id'] = $page->getApplicationId();
 		}
 		$array['type'] = $type;
-		
+
 		// Path data
 		$pathPart = null;
 		$applicationBasePath = new Path('');
-		
+
 		if ($data instanceof Entity\PageLocalization) {
 			$pathPart = $data->getPathPart();
-			
+
 			if ( ! $page->isRoot()) {
 				$parentPage = $page->getParent();
 				$parentLocalization = $parentPage->getLocalization($locale);
-				
+
 				if (is_null($parentLocalization)) {
 					throw new CmsException(null, "Parent page has no localization in the selected language");
 				}
-				
+
 				if ($parentPage instanceof Entity\ApplicationPage) {
 					$applicationId = $parentPage->getApplicationId();
 					$application = PageApplicationCollection::getInstance()
 							->createApplication($parentLocalization, $this->entityManager);
-					
+
 					$application->showInactivePages(true);
-					
+
 					if (empty($application)) {
 						throw new CmsException(null, "Application '$applicationId' was not found");
 					}
-					
+
 					$applicationBasePath = $application->generatePath($data);
 				}
 			}
 		}
-		
+
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 		$array['path'] = $pathPart;
 		// Additional base path received from application
 		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
-		
+
 		return $array;
 	}
-	
+
 	/**
 	 * Will publish page currently inside pageData property or found by page_id
 	 * and locale query parameters
@@ -371,16 +374,25 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$controller = $this->getPageController();
 		$publicEm = ObjectRepository::getEntityManager($controller);
-		
+
+
 		$pageRequest = $this->getPageRequest();
-		
+
 		$copyContent = function() use ($pageRequest, $publicEm) {
-			$pageRequest->publish($publicEm);
-		};
-		
+					$pageRequest->publish($publicEm);
+				};
+
 		$publicEm->transactional($copyContent);
+
+		// If all went well, fire the post-publish event for published page localization.
+		$eventArgs = new PagePublishEventArgs();
+		$eventArgs->user = $this->getUser();
+		$eventArgs->pageLocalization = $this->getPageLocalization();
+
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
 	}
-	
+
 	/**
 	 * Converts referenced element to JS array
 	 * @param ReferencedElement\ReferencedElementAbstract $element
@@ -392,9 +404,9 @@ abstract class PageManagerAction extends CmsAction
 		$localeId = $this->getLocale()->getId();
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
-		
+
 		if ($element instanceof ReferencedElement\LinkReferencedElement) {
-			
+
 			if ($element->getResource() == 'file') {
 
 				$fileId = $element->getFileId();
@@ -405,8 +417,9 @@ abstract class PageManagerAction extends CmsAction
 					$data['file_path'] = $fileInfo['path'];
 				}
 			}
-		} elseif ($element instanceof ReferencedElement\ImageReferencedElement) {
-			
+		}
+		elseif ($element instanceof ReferencedElement\ImageReferencedElement) {
+
 			$imageId = $element->getImageId();
 			$image = $em->find(Image::CN(), $imageId);
 
@@ -415,10 +428,10 @@ abstract class PageManagerAction extends CmsAction
 				$data['image'] = $info;
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * Move page at trash 
 	 */
@@ -426,55 +439,54 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$page = $this->getPageLocalization()
 				->getMaster();
-		
+
 		$pageId = $page->getId();
-		
+
 		if ($page instanceof Entity\Template) {
-	        $localizationEntity = Entity\PageLocalization::CN();
-	        $dql = "SELECT COUNT(p.id) FROM $localizationEntity p
+			$localizationEntity = Entity\PageLocalization::CN();
+			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
 	                WHERE p.template = ?0";
-	        $count = $this->entityManager->createQuery($dql)
-	                ->setParameters(array($pageId))
-	                    ->getSingleScalarResult();
-	       
-	        if ((int) $count > 0) {
-	            throw new CmsException(null, "Cannot remove template as there are pages using it");
+			$count = $this->entityManager->createQuery($dql)
+					->setParameters(array($pageId))
+					->getSingleScalarResult();
+
+			if ((int) $count > 0) {
+				throw new CmsException(null, "Cannot remove template as there are pages using it");
 			}
 		}
-		
+
 		$pageRequest = $this->getPageRequest();
 		$pageRequest->delete();
-		
+
 		$this->getResponse()
 				->setResponseData(true);
-		
 	}
-	
+
 	/**
 	 * Restore page from trash schema
 	 */
 	protected function restoreTrashVersion()
 	{
 		$this->isPostRequest();
-		
+
 		$trashEm = ObjectRepository::getEntityManager('#trash');
 		$this->entityManager = $trashEm;
-		
+
 		$localization = $this->getPageLocalization();
-		
+
 		$draftEm = ObjectRepository::getEntityManager('#cms');
-		
+
 		$page = $localization->getMaster();
 		if ($page instanceof Entity\Page) {
-			
+
 			$localizations = $page->getLocalizations();
-			foreach($localizations as $pageLocalization) {
-				
+			foreach ($localizations as $pageLocalization) {
+
 				$template = $pageLocalization->getTemplate();
 				if ($template instanceof Entity\Template) {
 					$template = $template->getId();
 				}
-				
+
 				$template = $draftEm->find(Entity\Template::CN(), $template);
 				if ( ! ($template instanceof Entity\Template)) {
 					$localeName = $this->getLocale()
@@ -482,25 +494,25 @@ abstract class PageManagerAction extends CmsAction
 					throw new CmsException(null, "It is impossible to restore page as its \"{$localeName}\" version template was deleted");
 				}
 			}
-		} else if ($page instanceof Entity\Template) {
-			
+		}
+		else if ($page instanceof Entity\Template) {
+
 			$parentId = $this->getRequestParameter('parent_id');
 			$referenceId = $this->getRequestParameter('reference_id');
-			
+
 			if ( ! $page->hasParent()
 					&& ( ! empty($parentId) || ! empty($referenceId))) {
-				
+
 				throw new CmsException(null, "It is impossible to restore root template as a child");
 			}
-			
 		}
-		
+
 		$pageRequest = $this->getPageRequest();
 		$page = $pageRequest->restore();
-		
+
 		// Reverting back cms entity manager
 		$this->entityManager = $draftEm;
-		
+
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 		try {
@@ -509,50 +521,52 @@ abstract class PageManagerAction extends CmsAction
 					throw new CmsException('sitemap.error.parent_page_not_found');
 				}
 				$parent->addChild($page);
-			} else {
+			}
+			else {
 				$page->moveAsPrevSiblingOf($reference);
 			}
-		} catch (DuplicatePagePathException $uniqueException) {
+		}
+		catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
-		
+
 		$this->getResponse()->setResponseData(true);
 	}
-	
+
 	protected function restoreHistoryVersion()
 	{
 		$this->isPostRequest();
-		
+
 		$revisionId = $this->getRequestParameter('version_id');
 		$localizationId = $this->getRequestParameter('page_id');
-		
+
 		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
-		
+
 		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
 				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
-		
+
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}
 
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
-		
+
 		$request = new HistoryPageRequestView($localeId, $media);
 		$request->setDoctrineEntityManager($historyEm);
 		$request->setPageLocalization($pageLocalization);
-		
+
 		$revisionId = $pageLocalization->getRevisionId();
 		$request->setRevision($revisionId);
-		
+
 		$draftEm = $this->entityManager;
 		$restorePage = function() use ($request, $draftEm) {
-			$request->restore($draftEm);
-		};
+					$request->restore($draftEm);
+				};
 
 		$draftEm->transactional($restorePage);
 	}
-	
+
 	/**
 	 * Checks, weither the page is locked by current user or not,
 	 * will throw an exception if no, and update lock modified time if yes
@@ -561,37 +575,39 @@ abstract class PageManagerAction extends CmsAction
 	protected function checkLock($createLockOnMiss = true)
 	{
 		$this->isPostRequest();
-		
+
 		$userId = $this->getUser()->getId();
 		$pageData = $this->getPageLocalization();
-		
+
 		$pageLock = $pageData->getLock();
-		
+
 		if ($pageLock instanceof Entity\LockData) {
 			if (($pageLock->getUserId() != $userId)) {
 				throw new ObjectLockedException('page.error.page_locked', 'Page is locked by another user');
-			} else {
+			}
+			else {
 				$pageLock->setModificationTime(new \DateTime('now'));
 				$this->entityManager->flush();
 			}
-		} elseif ($createLockOnMiss) {
+		}
+		elseif ($createLockOnMiss) {
 			// Creates lock if doesn't exist
 			$this->createLock($pageData, $userId);
 		}
 	}
-	
+
 	/**
 	 * Removes page lock if exists
 	 */
 	protected function unlockPage()
 	{
 		$this->isPostRequest();
-		
+
 		$userId = $this->getUser()->getId();
 		$pageData = $this->getPageLocalization();
-		
+
 		$pageLock = $pageData->getLock();
-		
+
 		if ($pageLock instanceof Entity\LockData) {
 			$this->entityManager->remove($pageLock);
 			$pageData->setLock(null);
@@ -599,7 +615,7 @@ abstract class PageManagerAction extends CmsAction
 			$this->entityManager->flush();
 		}
 	}
-	
+
 	/**
 	 * Sets page lock, if no lock is found, or if "force"-locking is used;
 	 * will output current lock data if page locked by another user and 
@@ -608,45 +624,46 @@ abstract class PageManagerAction extends CmsAction
 	protected function lockPage()
 	{
 		$this->isPostRequest();
-		
+
 		$userId = $this->getUser()->getId();
 		$pageData = $this->getPageLocalization();
-		
+
 		$allowForced = true; // TODO: hardcoded, should be based on current User rights/auth
-		$force = (bool)$this->getRequestParameter('force');
-		
+		$force = (bool) $this->getRequestParameter('force');
+
 		try {
 			$this->checkLock(false);
-		} catch (ObjectLockedException $e) {
-			if ( ! $force ||  ! $allowForced) {
-				
+		}
+		catch (ObjectLockedException $e) {
+			if ( ! $force || ! $allowForced) {
+
 				$pageLock = $pageData->getLock();
 				$lockedBy = $pageLock->getUserId();
-				
+
 				$userProvider = ObjectRepository::getUserProvider($this);
 				$lockOwner = $userProvider->findUserById($lockedBy);
-				
+
 				// If not found will show use ID
 				$userName = '#' . $lockedBy;
-				
+
 				if ($lockOwner instanceof User) {
 					$userName = $lockOwner->getName();
 				}
 
 				$response = array(
-					'username' => $userName,
-					'datetime' => $pageLock->getCreationTime()->format('c'),
-					'allow_unlock' => $allowForced,
+						'username' => $userName,
+						'datetime' => $pageLock->getCreationTime()->format('c'),
+						'allow_unlock' => $allowForced,
 				);
-				
+
 				$this->getResponse()
 						->setResponseData($response);
 				return;
 			}
 		}
-		
+
 		$this->createLock($pageData, $userId);
-	
+
 		$this->getResponse()->setResponseData(true);
 	}
 
@@ -659,10 +676,10 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$pageLock = new Entity\LockData();
 		$this->entityManager->persist($pageLock);
-		
+
 		$pageLock->setUserId($userId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
 	}
-	
+
 }
