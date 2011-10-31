@@ -5,7 +5,7 @@ require_once __DIR__ . '/phpunit-bootstrap.php';
 
 $namespace = '';
 
-if ( ! empty($_SERVR['argv'][1])) {
+if ( ! empty($_SERVER['argv'][1])) {
 
 	if ($_SERVER['argv'][1] == 'draft') {
 		array_splice($_SERVER['argv'], 1, 1);

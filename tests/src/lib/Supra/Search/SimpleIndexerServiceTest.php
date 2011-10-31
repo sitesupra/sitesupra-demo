@@ -24,6 +24,12 @@ class SimpleIndexerServiceTest extends SearchTestAbstraction
 
 		$client = $this->indexerService->getSolariumClient();
 
+		try {
+			$client->ping($client->createPing());
+		} catch (\Solarium_Client_HttpException $e) {
+			self::markTestSkipped("Solr server ping failed with exception {$e->__toString()}");
+		}
+		
 		$update = $client->createUpdate();
 
 		$query = 'systemId:' . $this->indexerService->getSystemId();

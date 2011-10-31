@@ -255,10 +255,10 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultFileStorage($object = new \Supra\FileStorage\FileStorage());
 		self::assertIdentical($object, ObjectRepository::getFileStorage('xxx'));
 
-		ObjectRepository::setIndexerQueue($caller, $object = new \Supra\Controller\Pages\PageIndexerQueue(\Supra\Controller\Pages\Entity\PageLocalization::CN()));
+		ObjectRepository::setIndexerQueue($caller, $object = new \Supra\Controller\Pages\PageLocalizationIndexerQueue());
 		self::assertIdentical($object, ObjectRepository::getIndexerQueue($caller));
 		self::assertNotEquals($object, ObjectRepository::getIndexerQueue('xxx'));
-		ObjectRepository::setDefaultIndexerQueue($object = new \Supra\Controller\Pages\PageIndexerQueue(\Supra\Controller\Pages\Entity\PageLocalization::CN()));
+		ObjectRepository::setDefaultIndexerQueue($object = new \Supra\Controller\Pages\PageLocalizationIndexerQueue());
 		self::assertIdentical($object, ObjectRepository::getIndexerQueue('xxx'));
 
 		ObjectRepository::setLocaleManager($caller, $object = new \Supra\Locale\LocaleManager());
