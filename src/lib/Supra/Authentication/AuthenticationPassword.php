@@ -16,12 +16,9 @@ class AuthenticationPassword
 	/**
 	 * @param string $plainPassword
 	 */
-	public function __construct(&$plainPassword)
+	public function __construct($plainPassword)
 	{
 		$this->password = (string) $plainPassword;
-		
-		// Unset the password from the variable
-		$plainPassword = null;
 	}
 	
 	/**

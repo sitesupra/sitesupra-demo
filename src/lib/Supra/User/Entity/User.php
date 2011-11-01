@@ -78,7 +78,7 @@ class User extends Abstraction\User
 	
 	/**
 	 * Sets user password
-	 * @param type $password 
+	 * @param string $password 
 	 */
 	public function setPassword($password)
 	{
