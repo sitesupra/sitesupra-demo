@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Markup;
 
+use Supra\Loader\Loader;
+
 class Tokenizer
 {
 
@@ -81,9 +83,10 @@ class Tokenizer
 		preg_match($regexp, $elementString, $match);
 
 		if (empty($match[1])) {
-
+			return null;
 			throw new Exception\RuntimeException('Could not extract signature from "' . $elementString . '"');
 		}
+		
 		return $match[1];
 	}
 
@@ -94,57 +97,62 @@ class Tokenizer
 	{
 		$splitterRegexp = '@(\{/?(?:' . $this->getSignaturesRegexp() . ').*?/?\})@ims';
 
-		$elementsRaw = preg_split($splitterRegexp, $this->source, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		$elementsRaw = preg_split($splitterRegexp, $this->source, -1, 
+				PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
 		/* @var $element Abstraction\ElementAbstraction */
 		$this->elements = array();
 
 		foreach ($elementsRaw as $rawElement) {
-
+			
 			$element = true;
+			$signature = null;
 
+			// If this is SupraMarkup element, extract signature from raw element, ...
 			if ($rawElement[0]{0} == '{') {
-
-				// If this is SupraMarkup element, extract signature from raw element, ...
 				$signature = $this->extractSignature($rawElement[0]);
+			}
 
-				if ( ! empty($signature)) {
+			if ( ! empty($signature)) {
 
-				 // create element from signature, ...
-					$element = new $this->markupElements[$signature]();
-					
-					/* @var $element Abstraction\ElementAbstraction */
+			 // create element from signature, ...
+				$elementClass = $this->markupElements[$signature];
+				$element = Loader::getClassInstance($elementClass, 
+						Abstraction\SupraMarkupElement::CN());
 
-					if ($rawElement[0]{strlen($rawElement[0]) - 2} == '/') {
-						// ... and if this is a standalone markup element - like {trololo.trololo /}, 
-						// create and initialize it.
+				/* @var $element Abstraction\ElementAbstraction */
 
-						$element->setSource($rawElement[0]);
-						$element->parseSource();
-					}
-					else if ($rawElement[0]{1} == '/') {
-						// ... or if this this element is a closing part of a block, 
-						// i.e. - begins with a slash, treat created element as block 
-						// constructor and get block end element from it.
+				if ($rawElement[0]{strlen($rawElement[0]) - 2} == '/') {
+					// ... and if this is a standalone markup element - like {trololo.trololo /}, 
+					// create and initialize it.
 
+					$element->setSource($rawElement[0]);
+					$element->parseSource();
+				}
+				else if ($rawElement[0]{1} == '/') {
+					// ... or if this this element is a closing part of a block, 
+					// i.e. - begins with a slash, treat created element as block 
+					// constructor and get block end element from it.
+
+					if($element instanceof Abstraction\SupraMarkupBlockConstructor) {
 						/* @var $element Abstraction\SupraMarkupBlockConstructor */
 						$element = $element->makeEnd();
 					}
-					else {
-						// ... otherwise this looks like an opening part of a block. We check if 
-						// instace of this element is subclass of SupraMarkupBlockConstructor, then proceed to 
-						// fetch coresponding block start element. Otherwise use element already created. This is because 
-						// there might be some errornous SupraMarkup cases when, for exampl {supra.image ...} does not 
-						// have a slash in the end.
+				}
+				else {
+					// ... otherwise this looks like an opening part of a block. We check if 
+					// instace of this element is subclass of SupraMarkupBlockConstructor, then proceed to 
+					// fetch coresponding block start element. Otherwise use element already created. This is because 
+					// there might be some errornous SupraMarkup cases when, for exampl {supra.image ...} does not 
+					// have a slash in the end.
 
-						if($element instanceof Abstraction\SupraMarkupBlockConstructor) {
-							/* @var $element Abstraction\SupraMarkupBlockConstructor */
-							$element = $element->makeStart();
-						}
-
-						$element->setSource($rawElement[0]);
-						$element->parseSource();
+					if($element instanceof Abstraction\SupraMarkupBlockConstructor) {
+						/* @var $element Abstraction\SupraMarkupBlockConstructor */
+						$element = $element->makeStart();
 					}
+
+					$element->setSource($rawElement[0]);
+					$element->parseSource();
 				}
 			}
 			else {

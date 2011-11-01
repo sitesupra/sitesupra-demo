@@ -44,23 +44,33 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 		$t->tokenize();
 	}
 	
-//	function testImage()
-//	{
-//		$t = new Tokenizer('Empty{supra.image id="su7"}link');
-//		$t->tokenize();
-//		
-//		$elements = $t->getElements();
-//		
+	function testFailingImage()
+	{
+		$t = new Tokenizer('Empty{supra.image id="su7"}{/supra.image}link');
+		$t->tokenize();
+		
+		$elements = $t->getElements();
+		
 //		self::assertEquals(3, count($elements));
-//	}
-//	
-//	function testEmptyLink()
-//	{
-//		$t = new Tokenizer('Empty{supra.link id="su7"}link');
-//		$t->tokenize();
-//		
-//		$elements = $t->getElements();
-//		
-//		self::assertEquals(3, count($elements));
-//	}
+	}
+	
+	function testImage()
+	{
+		$t = new Tokenizer('Empty{supra.image id="su7"}link');
+		$t->tokenize();
+		
+		$elements = $t->getElements();
+		
+		self::assertEquals(3, count($elements));
+	}
+	
+	function testEmptyLink()
+	{
+		$t = new Tokenizer('Empty{supra.link id="su7"}link{/supra.link}');
+		$t->tokenize();
+		
+		$elements = $t->getElements();
+		
+		self::assertEquals(4, count($elements));
+	}
 }
