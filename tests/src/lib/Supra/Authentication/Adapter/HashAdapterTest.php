@@ -35,8 +35,6 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers {className}::{origMethodName}
-	 * @todo Implement testFindUser().
 	 */
 	public function testFindUser()
 	{
@@ -75,8 +73,6 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @covers {className}::{origMethodName}
-	 * @todo Implement testCredentialChange().
 	 */
 	public function testCredentialChange()
 	{
