@@ -440,7 +440,7 @@ class FileStorage
 			$file->setPublic(false);
 		}
 		
-		$file->setModifiedTime();
+		$file->setModificationTime();
 	}
 
 	/**

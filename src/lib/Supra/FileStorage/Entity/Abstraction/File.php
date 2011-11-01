@@ -8,6 +8,7 @@ use Supra\Authorization\Permission\Permission;
 use Supra\User\Entity\Abstraction\User;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
+use Supra\Database\Doctrine\Listener\Timestampable;
 
 /**
  * File abstraction
@@ -20,7 +21,6 @@ use Supra\FileStorage\Entity\SlashFolder;
  * 		@index(name="file_abstraction_rgt_idx", columns={"rgt"}),
  * 		@index(name="file_abstraction_lvl_idx", columns={"lvl"})
  * })
- * @HasLifecycleCallbacks
  * @method int getNumberChildren()
  * @method NestedSet\Node\NodeAbstraction addChild(NestedSet\Node\NodeInterface $child)
  * @method void delete()
@@ -49,7 +49,8 @@ use Supra\FileStorage\Entity\SlashFolder;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface
+abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, 
+		AuthorizedEntityInterface, Timestampable
 {
 	const PERMISSION_UPLOAD_NAME = 'file_upload';
 	const PERMISSION_UPLOAD_MASK = 256;
@@ -92,16 +93,16 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 
 	/**
 	 * @Column(type="datetime", name="created_at")
-	 * @var string
+	 * @var \DateTime
 	 */
 	
-	protected $createdTime;
+	protected $creationTime;
 
 	/**
 	 * @Column(type="datetime", name="modified_at")
-	 * @var string
+	 * @var \DateTime
 	 */
-	protected $modifiedTime;
+	protected $modificationTime;
 
 	/**
 	 * @Column(type="boolean", name="public")
@@ -140,40 +141,43 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * Returns creation time
 	 * @return \DateTime
 	 */
-	public function getCreatedTime()
+	public function getCreationTime()
 	{
-		return $this->createdTime;
+		return $this->creationTime;
 	}
 
 	/**
-	 * Sets creation time to now
-	 * @PrePersist
+	 * Sets creation time
+	 * @param \DateTime $time
 	 */
-	public function setCreatedTime()
+	public function setCreationTime(\DateTime $time = null)
 	{
-		$this->createdTime = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new \DateTime('now');
+		}
+		$this->creationTime = $time;
 	}
 
 	/**
 	 * Returns last modification time
 	 * @return \DateTime
 	 */
-	public function getModifiedTime()
+	public function getModificationTime()
 	{
-		return $this->modifiedTime;
+		return $this->modificationTime;
 	}
 
 	/**
-	 * Sets modification time to now 
-	 * @PreUpdate
-	 * @PrePersist
+	 * Sets modification time
+	 * @param \DateTime $time
 	 */
-	public function setModifiedTime()
+	public function setModificationTime(\DateTime $time = null)
 	{
-		$this->modifiedTime = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new \DateTime('now');
+		}
+		$this->modificationTime = $time;
 	}
-
-	
 
 	/**
 	 * Set left value
@@ -295,14 +299,6 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @PostRemove
-	 */
-	public function removeTrigger()
-	{
-		$this->delete();
 	}
 
 	/**
