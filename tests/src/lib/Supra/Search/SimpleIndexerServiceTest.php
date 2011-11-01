@@ -35,7 +35,12 @@ class SimpleIndexerServiceTest extends SearchTestAbstraction
 		$query = 'systemId:' . $this->indexerService->getSystemId();
 		$update->addDeleteQuery($query);
 		$update->addCommit();
-		$client->update($update);
+		
+		try {
+			$client->update($update);
+		} catch (\Solarium_Client_HttpException $e) {
+			self::markTestSkipped("Solr server update failed with exception {$e->__toString()}");
+		}
 	}
 
 	function makeIndexerQueueItem($id, $revision, $text)

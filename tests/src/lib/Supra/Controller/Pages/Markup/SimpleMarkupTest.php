@@ -23,7 +23,9 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 		
 		$t->tokenize();
 		
-		foreach($t->getElements() as $element) {
+		$elements = $t->getElements();
+		
+		foreach($elements as $element) {
 			/* @var $element ElementAbstraction */
 			
 			if($element instanceof SupraMarkupElement) {
@@ -33,5 +35,32 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 				\Log::debug('CONTENT ', $element->getContent());
 			}
 		}
+		
 	}
+	
+	function testSystemBraceUsage()
+	{
+		$t = new Tokenizer('{');
+		$t->tokenize();
+	}
+	
+//	function testImage()
+//	{
+//		$t = new Tokenizer('Empty{supra.image id="su7"}link');
+//		$t->tokenize();
+//		
+//		$elements = $t->getElements();
+//		
+//		self::assertEquals(3, count($elements));
+//	}
+//	
+//	function testEmptyLink()
+//	{
+//		$t = new Tokenizer('Empty{supra.link id="su7"}link');
+//		$t->tokenize();
+//		
+//		$elements = $t->getElements();
+//		
+//		self::assertEquals(3, count($elements));
+//	}
 }
