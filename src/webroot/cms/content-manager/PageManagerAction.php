@@ -26,6 +26,7 @@ use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestView;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Supra\Cms\CmsController;
+use Supra\Loader\Loader;
 
 /**
  * Controller containing common methods
@@ -34,6 +35,8 @@ abstract class PageManagerAction extends CmsAction
 {
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 
+	const PAGE_CONTROLLER_CLASS = 'Supra\Controller\Pages\PageController';
+	
 	/**
 	 * @var EntityManager
 	 */
@@ -59,16 +62,37 @@ abstract class PageManagerAction extends CmsAction
 		// Will fetch connection for drafts
 		$this->entityManager = ObjectRepository::getEntityManager($this);
 	}
-
+	
 	/**
 	 * TODO: must return configurable controller instance (use repository?)
+	 * @return string
+	 */
+	private function getPageControllerClass()
+	{
+		return 'Project\Pages\PageController';
+	}
+	
+	/**
+	 * Get public entity manager
+	 * @return EntityManager
+	 */
+	protected function getPublicEntityManager()
+	{
+		return ObjectRepository::getEntityManager($this->getPageControllerClass());
+	}
+
+	/**
+	 * Get page controller instance
 	 * @return PageController
 	 */
 	protected function getPageController()
 	{
 		if (is_null($this->pageController)) {
-			$this->pageController = new \Project\Pages\PageController();
-			// Override with the draft version connection
+			$controllerClass = $this->getPageControllerClass();
+			$this->pageController = Loader::getClassInstance($controllerClass, 
+					self::PAGE_CONTROLLER_CLASS);
+			
+			// Override to use the draft repository objects
 			ObjectRepository::setCallerParent($this->pageController, $this);
 		}
 
@@ -372,8 +396,7 @@ abstract class PageManagerAction extends CmsAction
 	protected function publish()
 	{
 		$controller = $this->getPageController();
-		$publicEm = ObjectRepository::getEntityManager($controller);
-
+		$publicEm = $this->getPublicEntityManager();
 
 		$pageRequest = $this->getPageRequest();
 

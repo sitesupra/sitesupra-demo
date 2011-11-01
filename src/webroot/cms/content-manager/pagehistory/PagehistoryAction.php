@@ -30,6 +30,7 @@ class PagehistoryAction extends PageManagerAction
 	private function getVersionArray()
 	{
 		$response = array();
+		$timestamps = array();
 	
 		$pageId = $this->getRequestParameter('page_id');
 		
@@ -55,20 +56,24 @@ class PagehistoryAction extends PageManagerAction
 			if ($user instanceof \Supra\User\Entity\User) {
 				$userName = $user->getName();
 			}
-
+			
 			$pageInfo = array(
 				'version_id' => $revisionData->getId(),
-				'date' => $revisionData->getCreatedTime()->format('c'),
+				'date' => $revisionData->getCreationTime()->format('c'),
 				'author_fullname' => $userName,
 			);
 			
 			// unix timestamp with milliseconds is used as array key for sorting purposes
-			$timestamp = $revisionData->getCreatedTime()->format('Uu');
-			$response[$timestamp] = $pageInfo;
+			// though milliseconds are not stored in db..
+			$timestamp = $revisionData->getCreationTime()->format('Uu');
+			$timestamps[] = $timestamp;
+			$response[] = $pageInfo;
 		}
 		
 		// sort array desc
-		krsort($response);
+		array_multisort($timestamps, $response);
+		$response = array_reverse($response);
+		
 		return $response;
 	}
 	

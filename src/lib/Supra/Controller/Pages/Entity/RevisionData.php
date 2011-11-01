@@ -5,20 +5,20 @@ namespace Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
+use Supra\Database\Doctrine\Listener\Timestampable;
+use DateTime;
 
 /**
  * Revision data class
  * @Entity
- * @HasLifecycleCallbacks
- * @TODO: change to Timestampable behavior
  */
-class RevisionData extends Abstraction\Entity
+class RevisionData extends Abstraction\Entity implements Timestampable
 {
 	/**
 	 * @Column(type="datetime", nullable=true, name="created_at")
 	 * @var DateTime
 	 */
-	protected $created;
+	protected $creationTime;
 	
 	/**
 	 * @Column(type="sha1")
@@ -46,19 +46,40 @@ class RevisionData extends Abstraction\Entity
 	
 	/**
 	 * Returns creation time
-	 * @return \DateTime
+	 * @return DateTime
 	 */
-	public function getCreatedTime()
+	public function getCreationTime()
 	{
-		return $this->created;
+		return $this->creationTime;
 	}
 	
 	/**
-	 * Sets creation time to now
-	 * @PrePersist
+	 * Sets creation time
+	 * @param DateTime $time
 	 */
-	public function setCreatedTime()
+	public function setCreationTime(DateTime $time = null)
 	{
-		$this->created = new \DateTime('now');
+		if (is_null($time)) {
+			$time = new DateTime('now');
+		}
+		$this->creationTime = $time;
+	}
+	
+	/**
+	 * Doesn't store modification time
+	 * @return DateTime
+	 */
+	public function getModificationTime()
+	{
+		return null;
+	}
+
+	/**
+	 * Doesn't store modification time
+	 * @param DateTime $time
+	 */
+	public function setModificationTime(DateTime $time = null)
+	{
+		
 	}
 }
