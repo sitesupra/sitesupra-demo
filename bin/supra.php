@@ -15,7 +15,8 @@ $cli->addCommands(array(
 	new \Supra\Database\Console\SchemaDropCommand(),
 	new \Supra\Console\Cron\Command(),
 	new \Supra\Search\Command\RunIndexerCommand(),
-	new \Supra\Search\Command\WipeCommand()
+	new \Supra\Search\Command\WipeCommand(),
+	new \Supra\Search\Command\WipeQueuesCommand()
 ));
 
 //$cli->addCronJob('su:schema:update', 

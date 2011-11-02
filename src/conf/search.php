@@ -1,9 +1,8 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
+use \Solarium_Client;
 
-use Supra\Controller\Pages\PageLocalizationIndexerQueue;
+$solariumClient = new Solarium_Client(array('adapteroptions' => $ini['solarium']));
 
-$pageLocalizationIndexerQueue = new PageLocalizationIndexerQueue();
-
-ObjectRepository::setIndexerQueue('Supra\Controller\Pages', $pageLocalizationIndexerQueue);
+ObjectRepository::setDefaultSolariumClient($solariumClient);

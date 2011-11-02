@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityRepository;
 
+
 abstract class IndexerQueue
 {
 
@@ -137,6 +138,12 @@ abstract class IndexerQueue
 		$this->store($newQueueItem);
 		
 		return $newQueueItem;
+	}
+	
+	public function removeAll() 
+	{
+		$query = $this->em->createQuery('DELETE FROM ' . IndexerQueueItem::CN());
+		$query->execute();
 	}
 
 	abstract function getOneByObjectAndStatus($object, $status);

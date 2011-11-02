@@ -5,6 +5,8 @@ namespace Supra\Search\Command;
 use Symfony\Component\Console;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\IndexerService;
+use Supra\Controller\Pages\PageLocalizationIndexerQueue;
+
 
 /**
  * AuthorizationFixtureCommand
@@ -26,7 +28,7 @@ class RunIndexerCommand extends Console\Command\Command
 	{
 		$indexerService = new IndexerService();
 
-		$pageLocalizationIndexerQueue = ObjectRepository::getIndexerQueue('Supra\Controller\Pages');
+		$pageLocalizationIndexerQueue = new PageLocalizationIndexerQueue();
 		
 		$output->writeln('Pages: Have ' . $pageLocalizationIndexerQueue->getItemCountForStatus(\Supra\Search\IndexerQueueItemStatus::FRESH) . ' in queue.');
 		

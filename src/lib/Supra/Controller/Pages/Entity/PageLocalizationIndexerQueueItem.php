@@ -68,7 +68,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	{
 		$result = array();
 
-		$em = ObjectRepository::getEntityManager($this);
+		$em = ObjectRepository::getEntityManager($this->schemaName);
 		$pr = $em->getRepository(PageLocalization::CN());
 
 		/* @var $pageLocalization PageLocalization */

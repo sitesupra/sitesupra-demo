@@ -13,8 +13,8 @@ use Supra\Locale\LocaleManager;
 use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
-use Supra\Search\IndexerQueue;
 use Supra\Event\EventManager;
+use \Solarium_Client;
 
 /**
  * Object repository
@@ -39,7 +39,7 @@ class ObjectRepository
 	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
 	const INTERFACE_AUTHORIZATION_PROVIDER = 'Supra\Authorization\AuthorizationProvider';
 	const INTERFACE_APPLICATION_CONFIGURATION = 'Supra\Cms\ApplicationConfiguration';
-	const INTERFACE_INDEXER_QUEUE = 'Supra\Search\IndexerQueue';
+	const INTERFACE_SOLARIUM_CLIENT = '\Solarium_Client';
 	const INTERFACE_EVENT_MANAGER = 'Supra\Event\EventManager';
 	
 	/**
@@ -724,35 +724,33 @@ class ObjectRepository
 	}	
 
 	/**
-	 * Get assigned indexer queue.
+	 * Get Solarium client assigned for caller.
 	 *
 	 * @param mixed $caller
-	 * @return IndexerQueue
+	 * @return Solarium_Client
 	 */
-	public static function getIndexerQueue($caller)
+	public static function getSolariumClient($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_INDEXER_QUEUE);
+		return self::getObject($caller, self::INTERFACE_SOLARIUM_CLIENT);
 	}
 
 	/**
-	 * Assign indexer queue to namespace.
-	 *
+	 * Assign Solarium client to namespace.
 	 * @param mixed $caller
-	 * @param IndexerQueue $object 
+	 * @param Solarium_Client $object 
 	 */
-	public static function setIndexerQueue($caller, IndexerQueue $object)
+	public static function setSolariumClient($caller, Solarium_Client $object)
 	{
-		self::addBinding($caller, $object, self::INTERFACE_INDEXER_QUEUE);
+		self::addBinding($caller, $object, self::INTERFACE_SOLARIUM_CLIENT);
 	}
 	
 	/**
-	 * Set default indexer queue.
-	 *
-	 * @param IndexerQueue $object 
+	 * Set default Solarium client.
+	 * @param Solarium_Client $object 
 	 */
-	public static function setDefaultIndexerQueue(IndexerQueue $object)
+	public static function setDefaultSolariumClient(Solarium_Client $object)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INDEXER_QUEUE);
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SOLARIUM_CLIENT);
 	}
 	
 	/**
