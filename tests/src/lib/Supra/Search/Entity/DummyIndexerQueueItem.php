@@ -49,7 +49,7 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 		$document = new IndexedDocument();
 		
 		$document->uniqueId = $this->actualObject->id . '-' . $this->actualObject->revision;
-		$document->class = 'Dummyyyyyyyyyyyy';
+		$document->class = DummyItem::CN();
 		
 		$document->revisionId = $this->actualObject->revision;
 		

@@ -22,6 +22,13 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 class PageController extends ControllerAbstraction
 {
+	const SCHEMA_CMS = '#cms';
+	const SCHEMA_TRASH = '#trash';
+	const SCHEMA_HISTORY = '#history';
+	const SCHEMA_PUBLIC = '#public';
+	
+	static $knownSchemaNames = array(self::SCHEMA_CMS, self::SCHEMA_HISTORY, self::SCHEMA_PUBLIC, self::SCHEMA_TRASH);
+	
 	/**
 	 * List of block controllers
 	 * @var array

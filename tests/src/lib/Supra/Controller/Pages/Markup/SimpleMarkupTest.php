@@ -2,7 +2,7 @@
 
 namespace Supra\Tests\Controller\Pages\Markup;
 
-use Supra\Controller\Pages\Markup\Tokenizer;
+use Supra\Controller\Pages\Markup\DefaultTokenizer;
 use Supra\Controller\Pages\Markup\Abstraction\SupraMarkupElement;
 use Supra\Controller\Pages\Markup\Abstraction\ElementAbstraction;
 use Supra\Controller\Pages\Markup\HtmlElement;
@@ -19,7 +19,7 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 
 	function testSplitter()
 	{
-		$t = new Tokenizer($this->source);
+		$t = new DefaultTokenizer($this->source);
 		
 		$t->tokenize();
 		
@@ -40,23 +40,23 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 	
 	function testSystemBraceUsage()
 	{
-		$t = new Tokenizer('{');
+		$t = new DefaultTokenizer('{');
 		$t->tokenize();
 	}
 	
 	function testFailingImage()
 	{
-		$t = new Tokenizer('Empty{supra.image id="su7"}{/supra.image}link');
+		$t = new DefaultTokenizer('Empty{supra.image id="su7"}{/supra.image}link');
 		$t->tokenize();
 		
 		$elements = $t->getElements();
 		
-//		self::assertEquals(3, count($elements));
+		self::assertEquals(3, count($elements));
 	}
 	
 	function testImage()
 	{
-		$t = new Tokenizer('Empty{supra.image id="su7"}link');
+		$t = new DefaultTokenizer('Empty{supra.image id="su7"}link');
 		$t->tokenize();
 		
 		$elements = $t->getElements();
@@ -66,7 +66,7 @@ class BasicMarkiupTest extends \PHPUnit_Framework_TestCase
 	
 	function testEmptyLink()
 	{
-		$t = new Tokenizer('Empty{supra.link id="su7"}link{/supra.link}');
+		$t = new DefaultTokenizer('Empty{supra.link id="su7"}link{/supra.link}');
 		$t->tokenize();
 		
 		$elements = $t->getElements();

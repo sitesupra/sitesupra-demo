@@ -15,5 +15,10 @@ class DummyItem
 		$this->revision = $revision;
 		$this->text = $text;
 	}
-	
+
+	static public function CN()
+	{
+		return get_called_class();
+	}
+
 }

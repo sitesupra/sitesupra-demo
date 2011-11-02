@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Markup;
 
 use Supra\Loader\Loader;
 
-class Tokenizer
+abstract class TokenizerAbstraction
 {
 
 	/**
@@ -20,21 +20,16 @@ class Tokenizer
 	/**
 	 * @var array of Abstraction/ElementAbstraction
 	 */
-	protected $elements;
+	protected $elements = array();
 
 	/**
 	 * @var array of string
 	 */
-	protected $markupElements;
+	protected $markupElements = array();
 
 	function __construct($source)
 	{
-		$this->markupElements = array(
-				SupraMarkupImage::SIGNATURE => SupraMarkupImage::CN(),
-				SupraMarkupLinkConstructor::SIGNATURE => SupraMarkupLinkConstructor::CN()
-		);
 		$this->truncateInvalidBlocks = true;
-
 		$this->source = $source;
 	}
 
@@ -84,7 +79,7 @@ class Tokenizer
 
 		if (empty($match[1])) {
 			return null;
-			throw new Exception\RuntimeException('Could not extract signature from "' . $elementString . '"');
+			//throw new Exception\RuntimeException('Could not extract signature from "' . $elementString . '"');
 		}
 		
 		return $match[1];
@@ -105,38 +100,50 @@ class Tokenizer
 
 		foreach ($elementsRaw as $rawElement) {
 			
+			$elementSource = $rawElement[0];
+			
+			$firstCharOfElementSource = $elementSource{0};
+			$secondCharOfElementSource = strlen($elementSource) > 1 ? $elementSource{1} : null;
+			$preLastCharOfElementSource = strlen($elementSource) > 2 ? $elementSource{strlen($elementSource) - 2} : null;
+			
 			$element = true;
 			$signature = null;
 
-			// If this is SupraMarkup element, extract signature from raw element, ...
-			if ($rawElement[0]{0} == '{') {
-				$signature = $this->extractSignature($rawElement[0]);
+			// If this is SupraMarkup element, try to extract signature from raw element, ...
+			if ($firstCharOfElementSource == '{') {
+				$signature = $this->extractSignature($elementSource);
 			}
 
 			if ( ! empty($signature)) {
 
 			 // create element from signature, ...
-				$elementClass = $this->markupElements[$signature];
-				$element = Loader::getClassInstance($elementClass, 
-						Abstraction\SupraMarkupElement::CN());
+				$elementClassName = $this->markupElements[$signature];
+				
+				$element = Loader::getClassInstance(
+						$elementClassName, 
+						Abstraction\SupraMarkupElement::CN()
+				);
 
 				/* @var $element Abstraction\ElementAbstraction */
 
-				if ($rawElement[0]{strlen($rawElement[0]) - 2} == '/') {
+				if ($preLastCharOfElementSource == '/') {
 					// ... and if this is a standalone markup element - like {trololo.trololo /}, 
 					// create and initialize it.
 
-					$element->setSource($rawElement[0]);
+					$element->setSource($elementSource);
 					$element->parseSource();
 				}
-				else if ($rawElement[0]{1} == '/') {
+				else if ($secondCharOfElementSource == '/') {
 					// ... or if this this element is a closing part of a block, 
-					// i.e. - begins with a slash, treat created element as block 
-					// constructor and get block end element from it.
+					// i.e. - begins with a slash, check if class of instace we 
+					// created earlier actually is block constructor. If it is so,
+					// treat created element as block constructor and get block 
+					// end element from it. Otherwise do nothing, skip this element.
 
 					if($element instanceof Abstraction\SupraMarkupBlockConstructor) {
 						/* @var $element Abstraction\SupraMarkupBlockConstructor */
 						$element = $element->makeEnd();
+						$this->elements[] = $element;
 					}
 				}
 				else {
@@ -151,18 +158,20 @@ class Tokenizer
 						$element = $element->makeStart();
 					}
 
-					$element->setSource($rawElement[0]);
+					$element->setSource($elementSource);
 					$element->parseSource();
+					
+					$this->elements[] = $element;
 				}
 			}
 			else {
 				// If is just a piece of content (HTML), just create element and set it's content.
 
 				$element = new HtmlElement();
-				$element->setContent($rawElement[0]);
+				$element->setContent($elementSource);
+				
+				$this->elements[] = $element;
 			}
-
-			$this->elements[] = $element;
 		}
 	}
 
@@ -192,7 +201,7 @@ class Tokenizer
 						( ! empty($end) && $end->getSignature() == $element->getSignature() ) ||
 						$this->truncateInvalidBlocks == false
 				) {
-
+					
 					$end->setStart($element);
 					$element->setEnd($end);
 

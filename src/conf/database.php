@@ -17,6 +17,7 @@ use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Type\TemplateType;
 use Supra\Database\Doctrine\Type\BlockType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
+use Supra\Controller\Pages\PageController;
 
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
@@ -25,10 +26,10 @@ Type::addType(BlockType::NAME, 'Supra\Database\Doctrine\Type\BlockType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
-	'PublicSchema' => '',
-	'Draft' => 'Supra\Cms',
-	'Trash' => 'Supra\Cms\Abstraction\Trash',
-	'History' => 'Supra\Cms\Abstraction\History',
+		'PublicSchema' => '',
+		'Draft' => 'Supra\Cms',
+		'Trash' => 'Supra\Cms\Abstraction\Trash',
+		'History' => 'Supra\Cms\Abstraction\History',
 );
 
 foreach ($managerNames as $managerName => $namespace) {
@@ -42,7 +43,6 @@ foreach ($managerNames as $managerName => $namespace) {
 	//$memcache = new \Memcache();
 	//$memcache->addserver('127.0.0.1');
 	//$cache->setMemcache($memcache);
-
 	//NB! Must have different namespace for draft connection
 	$cache->setNamespace($managerName);
 	$config->setMetadataCacheImpl($cache);
@@ -65,7 +65,7 @@ foreach ($managerNames as $managerName => $namespace) {
 	//$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
 	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/');
 	$config->setProxyNamespace('Supra\\Proxy');
-	
+
 	$config->setAutoGenerateProxyClasses(true);
 
 	// SQL logger
@@ -85,9 +85,9 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager = new EventManager();
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 	$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
-	
+
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedAnnotationListener());
-	
+
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
@@ -118,16 +118,24 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);
-	
+
 	// Experimental: sets entity manager by ID
 	switch ($managerName) {
+		
 		case 'Draft':
-			ObjectRepository::setEntityManager('#cms', $em); break;
+			ObjectRepository::setEntityManager(PageController::SCHEMA_CMS, $em);
+			break;
+
 		case 'Trash':
-			ObjectRepository::setEntityManager('#trash', $em); break;
+			ObjectRepository::setEntityManager(PageController::SCHEMA_TRASH, $em);
+			break;
+
 		case 'History':
-			ObjectRepository::setEntityManager('#history', $em); break;
+			ObjectRepository::setEntityManager(PageController::SCHEMA_HISTORY, $em);
+			break;
+
 		case 'PublicSchema':
-			ObjectRepository::setEntityManager('#public', $em); break;
+			ObjectRepository::setEntityManager(PageController::SCHEMA_PUBLIC, $em);
+			break;
 	}
 }

@@ -12,6 +12,8 @@ use Supra\Controller\Pages\Entity\TemplateBlock;
 use Supra\Controller\Pages\Markup;
 use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
+use Supra\Controller\Pages\PageController;
+use Supra\Search\Exception\IndexerRuntimeException;
 
 /**
  * @Entity
@@ -43,7 +45,20 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$this->pageLocalizationId = $pageLocalization->getId();
 		$this->revisionId = $pageLocalization->getRevisionId();
-		$this->schemaName = 'draft';
+		$this->schemaName = PageController::SCHEMA_CMS;
+	}
+
+	/**
+	 * Sets schema name to be used for this queue item.
+	 * @param string $schemaName 
+	 */
+	public function setSchemaName($schemaName)
+	{
+		if ( ! in_array($schemaName, PageController::$knownSchemaNames)) {
+			throw new IndexerRuntimeException('Unknown schema name "' . $schemaName . '". Use constants from PageControler.');
+		}
+
+		$this->schemaName = $schemaName;
 	}
 
 	/**
@@ -95,19 +110,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			if ( ! $blockProperty->getBlock() instanceof TemplateBlock) {
 
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
-
-				//$pageContents[] = '[' . get_class($blockProperty->getBlock());
-				//$pageContents[] = $indexedDocument->formatText($blockProperty->getValue());
 				$pageContents[] = $indexedDocument->formatText($blockContents);
-				//$pageContents[] = ']';
 			}
 		}
 
-		$pageContents = join(' ', $pageContents);
-
-		//$pageContents = preg_replace('@\{/?supra\..*?\}@ims', ' ', $pageContents);
-
-		$indexedDocument->text = $pageContents;
+		$indexedDocument->text = join(' ', $pageContents);
 		$indexedDocument->__set('text_' . $pageLocalization->getLocale(), $indexedDocument->text);
 
 		$result[] = $indexedDocument;
@@ -117,7 +124,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 	public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
 	{
-		$tokenizer = new Markup\Tokenizer($blockProperty->getValue());
+		$tokenizer = new Markup\DefaultTokenizer($blockProperty->getValue());
 
 		$tokenizer->tokenize();
 
@@ -133,9 +140,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 				/* @var $metadataItem Supra\Controller\Pages\Entity\BlockPropertyMetadata */
 				$metadataItem = $metadata[$element->getId()];
-				
+
 				$image = $metadataItem->getReferencedElement();
-				
+
 				if ($image instanceof ImageReferencedElement) {
 
 					$result[] = '[[[IMAGE ';
@@ -146,14 +153,14 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
-				
+
 				$metadata = $blockProperty->getMetadata();
 
 				/* @var $metadataItem Supra\Controller\Pages\Entity\BlockPropertyMetadata */
 				$metadataItem = $metadata[$element->getId()];
-				
+
 				$link = $metadataItem->getReferencedElement();
-				
+
 				if ($link instanceof LinkReferencedElement) {
 
 					$result[] = '[[[LINK ';
@@ -161,9 +168,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 					$result[] = '===';
 					$result[] = $link->getTitle();
 					$result[] = '===';
-					
-					$result[] = $link->getHref() ?: $link->getPageId(); 
-					
+
+					$result[] = $link->getHref() ? : $link->getPageId();
+
 					$result[] = ']]]';
 				}
 			}
