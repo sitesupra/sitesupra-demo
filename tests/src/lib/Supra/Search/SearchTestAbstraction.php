@@ -37,7 +37,6 @@ abstract class SearchTestAbstraction extends \PHPUnit_Framework_TestCase
 		$schemaTool->updateSchema($metaDatas, true);
 
 		$this->iq = new DummyIndexerQueue();
-		ObjectRepository::setDefaultIndexerQueue($this->iq);
 	}
 
 }

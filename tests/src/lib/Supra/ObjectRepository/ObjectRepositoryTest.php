@@ -249,11 +249,11 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultFileStorage($object = new \Supra\FileStorage\FileStorage());
 		self::assertSame($object, ObjectRepository::getFileStorage('xxx'));
 
-		ObjectRepository::setIndexerQueue($caller, $object = new \Supra\Controller\Pages\PageLocalizationIndexerQueue());
-		self::assertSame($object, ObjectRepository::getIndexerQueue($caller));
-		self::assertNotEquals($object, ObjectRepository::getIndexerQueue('xxx'));
-		ObjectRepository::setDefaultIndexerQueue($object = new \Supra\Controller\Pages\PageLocalizationIndexerQueue());
-		self::assertSame($object, ObjectRepository::getIndexerQueue('xxx'));
+		ObjectRepository::setSolariumClient($caller, $object = new \Solarium_Client());
+		self::assertSame($object, ObjectRepository::getSolariumClient($caller));
+		self::assertNotEquals($object, ObjectRepository::getSolariumClient('xxx'));
+		ObjectRepository::setDefaultSolariumClient($object = new \Solarium_Client());
+		self::assertSame($object, ObjectRepository::getSolariumClient('xxx'));
 
 		ObjectRepository::setLocaleManager($caller, $object = new \Supra\Locale\LocaleManager());
 		self::assertSame($object, ObjectRepository::getLocaleManager($caller));
