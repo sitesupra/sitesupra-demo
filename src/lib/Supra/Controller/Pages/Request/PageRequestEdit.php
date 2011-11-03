@@ -235,10 +235,10 @@ class PageRequestEdit extends PageRequest
 		
 		$dql = "SELECT b FROM $blockEntity b 
 				JOIN b.placeHolder ph
-				WHERE ph.localization = ?0 AND b.locale = ?1";
+				WHERE ph.localization = ?0";
 		
 		$blocks = $em->createQuery($dql)
-				->setParameters(array($localizationId, $locale))
+				->setParameters(array($localizationId))
 				->getResult();
 		
 		return $blocks;
@@ -687,15 +687,14 @@ class PageRequestEdit extends PageRequest
 	private function getPlaceHolders($em)
 	{
 		$placeHolderEntity = Entity\Abstraction\PlaceHolder::CN();
-		$masterId = $this->getPageLocalization()
-				->getMaster()->getId();
+		$localizationId = $this->getPageLocalization()
+				->getId();
 
 		$dql = "SELECT ph FROM $placeHolderEntity ph 
-				JOIN ph.localization pl
-				WHERE pl.master = ?0";
+				WHERE ph.localization = ?0";
 		
 		$placeHolders = $em->createQuery($dql)
-				->setParameters(array($masterId))
+				->setParameters(array($localizationId))
 				->getResult();
 		
 		return $placeHolders;

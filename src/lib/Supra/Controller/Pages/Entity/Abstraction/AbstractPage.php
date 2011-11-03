@@ -67,14 +67,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	 */
 	protected $localizations;
 
-//	/**
-//	 * Object's place holders. Doctrine requires this to be defined because
-//	 * owning side references to this class with inversedBy parameter
-//	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
-//	 * @var Collection
-//	 */
-//	protected $placeHolders;
-
 	/**
 	 * @Column(type="integer", name="lft", nullable=true)
 	 * @var integer
@@ -105,19 +97,8 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	public function __construct()
 	{
 		parent::__construct();
-//		$this->placeHolders = new ArrayCollection();
 		$this->localizations = new ArrayCollection();
 	}
-
-//	/**
-//	 * @return Collection
-//	 */
-//	public function getPlaceHolders()
-//	{
-//		throw new \Exception('RM');
-//		
-//		return $this->placeHolders;
-//	}
 
 	/**
 	 * @return Collection
@@ -154,22 +135,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 			$this->unlock('localizations');
 		}
 	}
-
-//	/**
-//	 * Adds placeholder
-//	 * @param PlaceHolder $placeHolder
-//	 */
-//	public function addPlaceHolder(PlaceHolder $placeHolder)
-//	{
-//		throw new \Exception('RM');
-//		
-//		if ($this->lock('placeHolder')) {
-//			if ($this->addUnique($this->placeHolders, $placeHolder, 'name')) {
-//				$placeHolder->setMaster($this);
-//			}
-//			$this->unlock('placeHolder');
-//		}
-//	}
 
 	/**
 	 * Get left value

@@ -139,11 +139,11 @@ class PagecontentAction extends PageManagerAction
 			$blockPropertyEntity = Entity\BlockProperty::CN();
 
 			$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
-					JOIN p.localization AS d
+					JOIN p.localization AS l
 					JOIN p.block AS b
-				WHERE d.master = ?0 
+				WHERE l.master = ?0 
 					AND p.block = ?1 
-					AND d.locale = ?2 
+					AND l.locale = ?2 
 					AND p.name = ?3
 					AND p.type = ?4");
 

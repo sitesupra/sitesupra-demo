@@ -310,6 +310,7 @@ abstract class PageRequest extends HttpRequest
 		
 		$page = $this->getPage();
 		$localization = $this->getPageLocalization();
+		$localeId = $localization->getLocale();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		
 		$pageSetIds = $this->getPageSetIds();
@@ -332,6 +333,8 @@ abstract class PageRequest extends HttpRequest
 				->join('pl.master', 'p')
 				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
 				->andWhere($qb->expr()->in('p.id', $pageSetIds))
+				->andWhere('pl.locale = ?0')
+				->setParameter(0, $localeId)
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
 				->addOrderBy('p.level', 'ASC');
@@ -351,65 +354,21 @@ abstract class PageRequest extends HttpRequest
 		
 		foreach ($layoutPlaceHolderNames as $name) {
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
-				$placeHolder = Entity\Abstraction\PlaceHolder::factory($page, $name);
-				$placeHolder->setMaster($localization);
 				
-				// Copy unlocked blocks from the parent template
-				$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
+				// Check if page doesn't have it already set locally
+				$placeHolder = null;
+				$knownPlaceHolders = $localization->getPlaceHolders();
 				
-				if ( ! is_null($parentPlaceHolder)) {
-					$blocks = $parentPlaceHolder->getBlocks();
+				if ($knownPlaceHolders->offsetExists($name)) {
+					$placeHolder = $knownPlaceHolders->offsetGet($name);
+				}
+				
+				if (empty($placeHolder)) {
+					// Copy unlocked blocks from the parent template
+					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
 					
-					/* @var $block Entity\Abstraction\Block */
-					foreach ($blocks as $block) {
-						
-						if ($block->getLocked()) {
-							continue;
-						}
-						
-						$templateBlockId = $block->getId();
-						
-						// Create new block
-						$block = Entity\Abstraction\Block::factoryClone($page, $block);
-						
-						// Persist only for draft connection with ID generation
-						if ($this instanceof PageRequestEdit) {
-							$em->persist($block);
-						}
-						
-						$placeHolder->addBlock($block);
-						
-						$templateData = $parentPlaceHolder->getMaster();
-						$locale = $this->getLocale();
-						
-						// Find the properties to copy from the template
-						$blockPropertyEntity = self::BLOCK_PROPERTY_ENTITY;
-						
-						$dql = "SELECT p FROM $blockPropertyEntity AS p
-							WHERE p.block = ?0 AND p.localization = ?1";
-						
-						$query = $em->createQuery($dql);
-						$query->setParameters(array(
-							$templateBlockId,
-							$templateData->getId()
-						));
-						
-						$blockProperties = $query->getResult();
-						
-						$data = $this->getPageLocalization();
-						
-						/* @var $blockProperty Entity\BlockProperty */
-						foreach ($blockProperties as $blockProperty) {
-							$blockProperty = clone($blockProperty);
-							$blockProperty->setLocalization($data);
-							$blockProperty->setBlock($block);
-							
-							// Persist only for draft connection with ID generation
-							if ($this instanceof PageRequestEdit) {
-								$em->persist($blockProperty);
-							}
-						}
-					}
+					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
+					$placeHolder->setMaster($localization);
 				}
 				
 				// Persist only for draft connection with ID generation
@@ -480,15 +439,11 @@ abstract class PageRequest extends HttpRequest
 			$or->add($lockedBlocksCondition);
 		}
 		
-		$and = $expr->andX();
-		$and->add($or);
-		$and->add('b.locale = ?0');
-		
-		$qb->where($and);
+		$qb->where($or);
 		
 		// Execute block query
 		$query = $qb->getQuery();
-		$query->execute(array($this->getLocale()));
+		$query->execute();
 		$blocks = $query->getResult();
 
 		\Log::debug("Block count found: " . count($blocks));

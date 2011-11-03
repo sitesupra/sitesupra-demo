@@ -38,6 +38,7 @@ class HistoryPageRequestView extends PageRequest
 		$page = $this->getPage();
 		$localization = $this->getPageLocalization();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
+		$localeId = $localization->getLocale();
 		
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
 		$pageSetIds = null;
@@ -80,9 +81,11 @@ class HistoryPageRequestView extends PageRequest
 				->join('pl.master', 'p')
 				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
 				->andWhere($qb->expr()->in('p.id', $pageSetIds))
+				->andWhere('pl.locale = ?0')
+				->setParameter(0, $localeId)
 				->andWhere($qb->expr()->eq('ph.type', '0'))
 				->addOrderBy('p.level', 'ASC');
-
+		
 		$query = $qb->getQuery();
 		$draftPlaceHolderArray = $query->getResult();
 
@@ -133,7 +136,7 @@ class HistoryPageRequestView extends PageRequest
 				->from(static::BLOCK_ENTITY, 'b')
 				->join('b.placeHolder', 'ph')
 				->where($qb->expr()->in('ph.id', $finalPlaceHolderIds))
-				//->andWhere('b.locale = ?0 AND b.revision = ?1')
+				//->andWhere('b.revision = ?1')
 				->andWhere('b.revision = ?0')
 				->orderBy('b.position', 'ASC');
 
@@ -168,10 +171,10 @@ class HistoryPageRequestView extends PageRequest
 		$and->add($or);
 
 		$qb->where($and);
-		$qb->andWhere('ph.type = 0 AND b.locale = ?0');
+		$qb->andWhere('ph.type = 0');
 		
 		$query = $qb->getQuery();
-		$query->execute(array($this->getLocale()));
+		$query->execute();
 		$draftBlocks = $query->getResult();
 		
 		$missingBlocks = array_diff($draftBlocks, $blocks);
@@ -464,15 +467,14 @@ class HistoryPageRequestView extends PageRequest
 	private function getBlocksInPage($em)
 	{
 		$localizationId = $this->getPageLocalization()->getId();
-		$locale = $this->getLocale();
 		$blockEntity = PageRequest::BLOCK_ENTITY;
 		
 		$dql = "SELECT b FROM $blockEntity b 
 				JOIN b.placeHolder ph
-				WHERE ph.localization = ?0 AND b.locale = ?1";
+				WHERE ph.localization = ?0";
 		
 		$blocks = $em->createQuery($dql)
-				->setParameters(array($localizationId, $locale))
+				->setParameters(array($localizationId))
 				->getResult();
 		
 		return $blocks;

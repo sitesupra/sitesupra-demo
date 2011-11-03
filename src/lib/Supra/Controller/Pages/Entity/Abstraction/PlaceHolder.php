@@ -146,13 +146,14 @@ abstract class PlaceHolder extends Entity
 	
 	/**
 	 * Creates new instance based on the discriminator of source entity
-	 * @param Entity $base 
+	 * @param Localization $localization
 	 * @param string $name
+	 * @param PlaceHolder $source
 	 * @return PlaceHolder
 	 */
-	public static function factory(Entity $base, $name)
+	public static function factory(Localization $localization, $name, PlaceHolder $source = null)
 	{
-		$discriminator = $base->getDiscriminator();
+		$discriminator = $localization->getDiscriminator();
 		$placeHolder = null;
 		
 		switch ($discriminator) {
@@ -166,9 +167,73 @@ abstract class PlaceHolder extends Entity
 				break;
 			
 			default:
-				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");
+				throw new Exception\LogicException("Not recognized discriminator value for entity {$localization}");
 		}
-		
+
+		if ( ! is_null($source)) {
+			$blocks = $source->getBlocks();
+
+			/* @var $block Block */
+			foreach ($blocks as $block) {
+
+				// Don't clone locked blocks
+				if ($block->getLocked()) {
+					continue;
+				}
+
+				// Create new block
+				$block = Block::factoryClone($localization, $block);
+				$placeHolder->addBlock($block);
+
+				// Should persist by cascade
+//				// Persist only for draft connection with ID generation
+//				if ($this instanceof PageRequestEdit) {
+//					$em->persist($block);
+//				}
+
+				// Not used anymore
+//				$templateBlockId = $block->getId();
+//				$templateData = $source->getMaster();
+//				$locale = $this->getLocale();
+//
+//				// Find the properties to copy from the template
+//				$blockPropertyEntity = \Supra\Controller\Pages\Entity\BlockProperty::CN();
+//				
+//				$dql = "SELECT p FROM $blockPropertyEntity AS p
+//								WHERE p.block = ?0 AND p.localization = ?1";
+//
+//				$query = $em->createQuery($dql);
+//				$query->setParameters(array(
+//					$templateBlockId,
+//					$templateData->getId()
+//				));
+//
+//				$blockProperties = $query->getResult();
+//
+//				$localization = $this->getPageLocalization();
+				
+				// Block properties are loaded from the block and filtered manually now
+				$blockProperties = $block->getBlockProperties();
+
+				/* @var $blockProperty Entity\BlockProperty */
+				foreach ($blockProperties as $blockProperty) {
+					
+					// We are interested only in the properties belonging to the current localization
+					if ($blockProperty->getLocalization()->equals($localization)) {
+						$blockProperty = clone($blockProperty);
+						$blockProperty->setLocalization($localization);
+						$blockProperty->setBlock($block);
+					}
+
+					// Should persist by cascade
+//					// Persist only for draft connection with ID generation
+//					if ($this instanceof PageRequestEdit) {
+//						$em->persist($blockProperty);
+//					}
+				}
+			}
+		}
+
 		return $placeHolder;
 	}
 

@@ -36,12 +36,6 @@ abstract class Block extends Entity
 	protected $position;
 	
 	/**
-	 * @Column(type="string")
-	 * @var string
-	 */
-	protected $locale;
-
-	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
 	 * @JoinColumn(name="place_holder_id", referencedColumnName="id")
 	 * @var PlaceHolder
@@ -155,21 +149,13 @@ abstract class Block extends Entity
 	{
 		$this->position = $position;
 	}
-	
-	/**
-	 * @return string
-	 */
-	public function getLocale()
-	{
-		return $this->locale;
-	}
 
 	/**
-	 * @param string $locale
+	 * @return Collection
 	 */
-	public function setLocale($locale)
+	public function getBlockProperties()
 	{
-		$this->locale = $locale;
+		return $this->blockProperties;
 	}
 
 	/**
@@ -283,9 +269,20 @@ abstract class Block extends Entity
 		
 		$block->setComponentClass($source->getComponentClass());
 		$block->setPosition($source->getPosition());
-		$block->setLocale($source->getLocale());
 		
 		return $block;
+	}
+	
+	/**
+	 * Doctrine safe clone method with cloning of children
+	 */
+	public function __clone()
+	{
+		if ( ! empty($this->id)) {
+			$this->regenerateId();
+			$this->blockProperties = new ArrayCollection();
+			$this->placeHolder = null;
+		}
 	}
 
 }

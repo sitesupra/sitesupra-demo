@@ -26,13 +26,13 @@ class PlaceHolderSet extends AbstractSet
 	private $parentPlaceHolderSet;
 
 	/**
-	 * @param Entity\Abstraction\Localization $page
+	 * @param Entity\Abstraction\Localization $localization
 	 */
-	public function __construct(Entity\Abstraction\Localization $page = null)
+	public function __construct(Entity\Abstraction\Localization $localization = null)
 	{
-		$this->localization = $page;
+		$this->localization = $localization;
 		
-		if (isset($page)) {
+		if (isset($localization)) {
 			$this->finalPlaceHolderSet = new PlaceHolderSet();
 			$this->parentPlaceHolderSet = new PlaceHolderSet();
 		}
