@@ -40,11 +40,11 @@ abstract class PlaceHolder extends Entity
 	protected $blocks;
 
 	/**
-	 * @ManyToOne(targetEntity="AbstractPage", inversedBy="placeHolders")
-	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=false)
-	 * @var AbstractPage
+	 * @ManyToOne(targetEntity="Localization", inversedBy="placeHolders")
+	 * @JoinColumn(name="localization_id", referencedColumnName="id", nullable=false)
+	 * @var Localization
 	 */
-	protected $master;
+	protected $localization;
 
 	/**
 	 * Constructor
@@ -109,23 +109,23 @@ abstract class PlaceHolder extends Entity
 	}
 	
 	/**
-	 * Set master page/template
-	 * @param AbstractPage $page
+	 * Set master localization
+	 * @param Localization $localization
 	 */
-	public function setMaster(AbstractPage $master)
+	public function setMaster(Localization $localization)
 	{
-		$this->matchDiscriminator($master);
-		if ($this->writeOnce($this->master, $master)) {
-			$this->master->addPlaceHolder($this);
+		$this->matchDiscriminator($localization);
+		if ($this->writeOnce($this->localization, $localization)) {
+			$this->localization->addPlaceHolder($this);
 		}
 	}
 
 	/**
-	 * @return AbstractPage
+	 * @return Localization
 	 */
 	public function getMaster()
 	{
-		return $this->master;
+		return $this->localization;
 	}
 	
 	/**

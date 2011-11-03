@@ -309,7 +309,8 @@ abstract class PageRequest extends HttpRequest
 		}
 		
 		$page = $this->getPage();
-		$this->placeHolderSet = new Set\PlaceHolderSet($page);
+		$localization = $this->getPageLocalization();
+		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		
 		$pageSetIds = $this->getPageSetIds();
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
@@ -327,12 +328,13 @@ abstract class PageRequest extends HttpRequest
 
 		$qb->select('ph')
 				->from(static::PLACE_HOLDER_ENTITY, 'ph')
-				->join('ph.master', 'm')
+				->join('ph.localization', 'pl')
+				->join('pl.master', 'p')
 				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
-				->andWhere($qb->expr()->in('m.id', $pageSetIds))
+				->andWhere($qb->expr()->in('p.id', $pageSetIds))
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
-				->addOrderBy('m.level', 'ASC');
+				->addOrderBy('p.level', 'ASC');
 		
 		$query = $qb->getQuery();
 		$placeHolderArray = $query->getResult();
@@ -350,7 +352,7 @@ abstract class PageRequest extends HttpRequest
 		foreach ($layoutPlaceHolderNames as $name) {
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
 				$placeHolder = Entity\Abstraction\PlaceHolder::factory($page, $name);
-				$placeHolder->setMaster($page);
+				$placeHolder->setMaster($localization);
 				
 				// Copy unlocked blocks from the parent template
 				$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
@@ -377,9 +379,8 @@ abstract class PageRequest extends HttpRequest
 						
 						$placeHolder->addBlock($block);
 						
-						$template = $parentPlaceHolder->getMaster();
+						$templateData = $parentPlaceHolder->getMaster();
 						$locale = $this->getLocale();
-						$templateData = $template->getLocalization($locale);
 						
 						// Find the properties to copy from the template
 						$blockPropertyEntity = self::BLOCK_PROPERTY_ENTITY;
@@ -553,6 +554,7 @@ abstract class PageRequest extends HttpRequest
 			
 			if ($block->getLocked()) {
 				$master = $block->getPlaceHolder()
+						->getMaster()
 						->getMaster();
 			} else {
 				$master = $page;

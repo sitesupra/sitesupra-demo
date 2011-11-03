@@ -24,23 +24,23 @@ class TemplatePlaceHolder extends Abstraction\PlaceHolder
 	 */
 	protected $locked = false;
 
-	/**
-	 * Set template
-	 * @param Template $template
-	 */
-	public function setTemplate(Template $template)
-	{
-		$this->setMaster($template);
-	}
+//	/**
+//	 * Set template
+//	 * @param Template $template
+//	 */
+//	public function setTemplate(Template $template)
+//	{
+//		$this->setMaster($template);
+//	}
 
-	/**
-	 * Get template
-	 * @return Template
-	 */
-	public function getTemplate()
-	{
-		return $this->getMaster();
-	}
+//	/**
+//	 * Get template
+//	 * @return Template
+//	 */
+//	public function getTemplate()
+//	{
+//		return $this->getMaster();
+//	}
 
 	/**
 	 * Set locked value

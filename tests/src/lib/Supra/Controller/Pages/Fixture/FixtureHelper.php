@@ -81,82 +81,119 @@ class FixtureHelper
 	 * Generates random text
 	 * @return string
 	 */
-	protected function randomText()
+	protected function randomText($localeId, $offset = null, $limit = null)
 	{
-		$possibilities = array(
-			0 => array(1 => 1, 2 => 1),
-			1 => array(1 => 0.3, 2 => 1),
-			2 => array(1 => 1, 2 => 0.5),
-		);
-
-		$prevType = 0;
-		$txt = '';
-		$letters = rand(100, 2000);
-		$pow = 1;
-		for ($i = 0; $i < $letters; null) {
-			$chr = \chr(rand(97, 122));
-			//\Log::debug("Have chosen $chr");
-			if (\in_array($chr, array('e', 'y', 'u', 'i', 'o', 'a'))) {
-				$type = 1;
-			} else {
-				$type = 2;
+		$paragraphs = array();
+		
+		$files = glob(__DIR__ . '/texts/' . $localeId . '/*.txt');
+		$filename = $files[array_rand($files)];
+		
+		if ( ! empty($filename)) {
+			$content = trim(file_get_contents($filename));
+			
+			if ( ! empty($content)) {
+				$paragraphs = preg_split("/[\r\n]+/", $content);
 			}
-			//\Log::debug("Type is $type");
+		}
+		
+		if (empty($paragraphs)) {
+		
+			$possibilities = array(
+				0 => array(1 => 1, 2 => 1),
+				1 => array(1 => 0.3, 2 => 1),
+				2 => array(1 => 1, 2 => 0.5),
+			);
 
-			$possibility = $possibilities[$prevType][$type];
-			if ($possibility != 1) {
-				if ($possibility == 0) {
-					continue;
+			$prevType = 0;
+			$txt = '';
+			$letters = rand(100, 2000);
+			$pow = 1;
+			for ($i = 0; $i < $letters; null) {
+				$chr = \chr(rand(97, 122));
+				//\Log::debug("Have chosen $chr");
+				if (\in_array($chr, array('e', 'y', 'u', 'i', 'o', 'a'))) {
+					$type = 1;
+				} else {
+					$type = 2;
 				}
-				$possibility = pow($possibility, $pow);
-				//\Log::debug("Possibility is $possibility");
-				$rand = \rand(0, 100) / 100;
-				if ($rand > $possibility) {
-					//\Log::debug("Skipping because of no luck");
-					continue;
+				//\Log::debug("Type is $type");
+
+				$possibility = $possibilities[$prevType][$type];
+				if ($possibility != 1) {
+					if ($possibility == 0) {
+						continue;
+					}
+					$possibility = pow($possibility, $pow);
+					//\Log::debug("Possibility is $possibility");
+					$rand = \rand(0, 100) / 100;
+					if ($rand > $possibility) {
+						//\Log::debug("Skipping because of no luck");
+						continue;
+					}
 				}
+
+				$txt .= $chr;
+				if ($type == $prevType) {
+					$pow++;
+					//\Log::debug("Increasing power to $pow");
+				} else {
+					$pow = 1;
+					//\Log::debug("Resetting power");
+				}
+				$prevType = $type;
+				$i++;
 			}
 
-			$txt .= $chr;
-			if ($type == $prevType) {
-				$pow++;
-				//\Log::debug("Increasing power to $pow");
-			} else {
-				$pow = 1;
-				//\Log::debug("Resetting power");
+			$list = array();
+			while (strlen($txt) > 10) {
+				$length = rand(5, 10);
+				$list[] = substr($txt, 0, $length);
+				$txt = substr($txt, $length);
 			}
-			$prevType = $type;
-			$i++;
-		}
-
-		$list = array();
-		while (strlen($txt) > 10) {
-			$length = rand(5, 10);
-			$list[] = substr($txt, 0, $length);
-			$txt = substr($txt, $length);
-		}
-		if ( ! empty($txt)) {
-			$list[] = $txt;
-		}
-
-		$s = array();
-		while (count($list) > 0) {
-			$length = rand(4, 10);
-			$length = min($length, count($list));
-			$s[] = \array_splice($list, 0, $length);
-		}
-
-		$txt = '<p>';
-		foreach ($s as $sentence) {
-			$sentence = implode(' ', $sentence);
-			$sentence .= '. ';
-			if (rand(0, 5) == 1) {
-				$sentence .= '</p><p>';
+			if ( ! empty($txt)) {
+				$list[] = $txt;
 			}
-			$sentence = \ucfirst($sentence);
-			$txt .= $sentence;
+
+			$s = array();
+			while (count($list) > 0) {
+				$length = rand(4, 10);
+				$length = min($length, count($list));
+				$s[] = \array_splice($list, 0, $length);
+			}
+
+			if (isset($limit)) {
+
+			}
+
+			$paragraph = '';
+			$paragraphs[] = &$paragraph;
+
+			foreach ($s as $sentence) {
+				$sentence = implode(' ', $sentence);
+				$sentence .= '. ';
+				if (rand(0, 5) == 1) {
+					unset($paragraph);
+					$paragraph = '';
+					$paragraphs[] = &$paragraph;
+				}
+				$sentence = \ucfirst($sentence);
+				$paragraph .= $sentence;
+			}
+			
+			unset($paragraph);
 		}
-		$txt .= '</p>';
+		
+		if ( ! is_null($offset)) {
+			$paragraphs = array_slice($paragraphs, $offset, $limit);
+		}
+
+		if (count($paragraphs) > 1) {
+			$txt = '<p>'
+					. implode("</p>\n\n<p>", $paragraphs)
+					. '</p>';
+		} else {
+			$txt = implode('', $paragraphs);
+		}
 
 		return $txt;
 	}
@@ -187,12 +224,12 @@ class FixtureHelper
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
+		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
-		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
-		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 	}
@@ -222,7 +259,10 @@ class FixtureHelper
 			$newsApp = $this->createPage(3, $rootPage, $this->template);
 			
 			$creationTime = new \DateTime();
-			for ($i = 10; $i > 0; $i--) {
+			
+			$publicationCount = 2;
+			
+			for ($publicationCount = 2; $i > 0; $i--) {
 				$length = count(self::$constants);
 				$template = self::$constants[6];
 				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));
@@ -250,12 +290,17 @@ class FixtureHelper
 		$em->beginTransaction();
 		$publicEm->beginTransaction();
 		
-		// Strange enough this script doesn't care about publishing order much
-		$pageIdList = $em->createQuery("SELECT p.id FROM " . Entity\Abstraction\AbstractPage::CN() . " p ORDER BY p.left ASC")
+		// Templates go firsto
+		$templateIdList = $em->createQuery("SELECT p.id FROM " . Entity\Template::CN() . " p ORDER BY p.left ASC")
 				->getResult(Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
 		
+		$pageIdList = $em->createQuery("SELECT p.id FROM " . Entity\Page::CN() . " p ORDER BY p.left ASC")
+				->getResult(Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
+		
+		$idList = array_merge($templateIdList, $pageIdList);
+		
 		try {
-			foreach ($pageIdList as $pageId) {
+			foreach ($idList as $pageId) {
 
 				$em->clear();
 				$publicEm->clear();
@@ -321,7 +366,7 @@ class FixtureHelper
 
 			foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 
-				$templatePlaceHolder = $template->getPlaceHolders()
+				$templatePlaceHolder = $templateData->getPlaceHolders()
 						->get($name);
 
 				if (empty($templatePlaceHolder)) {
@@ -330,7 +375,7 @@ class FixtureHelper
 					if ($name == 'header' || $name == 'footer') {
 						$templatePlaceHolder->setLocked();
 					}
-					$templatePlaceHolder->setTemplate($template);
+					$templatePlaceHolder->setMaster($templateData);
 				}
 
 				if ($name == 'header') {
@@ -409,7 +454,7 @@ class FixtureHelper
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setLocalization($template->getLocalization($localeId));
-					$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
+					$blockProperty->setValue($this->randomText($localeId, 0, 2));
 				}
 			}
 		}
@@ -429,22 +474,22 @@ class FixtureHelper
 			$childTemplateLocalization->setTitle('Child template');
 
 			
-			$templatePlaceHolder = $childTemplate->getPlaceHolders()
+			$templatePlaceHolder = $childTemplateLocalization->getPlaceHolders()
 					->get('sidebar');
 
 			if (empty($templatePlaceHolder)) {
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
 				$this->entityManager->persist($templatePlaceHolder);
-				$templatePlaceHolder->setTemplate($childTemplate);
+				$templatePlaceHolder->setMaster($childTemplateLocalization);
 			}
 
-			$templatePlaceHolder = $childTemplate->getPlaceHolders()
+			$templatePlaceHolder = $childTemplateLocalization->getPlaceHolders()
 					->get('main');
 
 			if (empty($templatePlaceHolder)) {
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
 				$this->entityManager->persist($templatePlaceHolder);
-				$templatePlaceHolder->setTemplate($childTemplate);
+				$templatePlaceHolder->setMaster($childTemplateLocalization);
 			}
 
 			// A locked block
@@ -545,16 +590,16 @@ class FixtureHelper
 						$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
 						$this->entityManager->persist($blockProperty);
 						$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
-						$blockProperty->setLocalization($page->getLocalization($localeId));
+						$blockProperty->setLocalization($pageData);
 						$blockProperty->setValue($pageDefinition['title']);
 
-						$placeHolder = $page->getPlaceHolders()
+						$placeHolder = $pageData->getPlaceHolders()
 								->get($name);
 
 						if (empty($placeHolder)) {
 							$placeHolder = new Entity\PagePlaceHolder($name);
 							$this->entityManager->persist($placeHolder);
-							$placeHolder->setMaster($page);
+							$placeHolder->setMaster($pageData);
 						}
 
 						$block = new Entity\PageBlock();
@@ -573,13 +618,13 @@ class FixtureHelper
 
 					if ($name == 'main') {
 
-						$placeHolder = $page->getPlaceHolders()
+						$placeHolder = $pageData->getPlaceHolders()
 								->get($name);
 
 						if (empty($placeHolder)) {
 							$pagePlaceHolder = new Entity\PagePlaceHolder($name);
 							$this->entityManager->persist($pagePlaceHolder);
-							$pagePlaceHolder->setPage($page);
+							$pagePlaceHolder->setMaster($pageData);
 						}
 
 						foreach (\range(1, 2) as $i) {
@@ -591,11 +636,17 @@ class FixtureHelper
 							$block->setPosition(100 * $i);
 							$block->setLocale($localeId);
 
+							$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
+							$this->entityManager->persist($blockProperty);
+							$blockProperty->setBlock($block);
+							$blockProperty->setLocalization($pageData);
+							$blockProperty->setValue($this->randomText($localeId, 0, 1));
+							
 							$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
 							$this->entityManager->persist($blockProperty);
 							$blockProperty->setBlock($block);
-							$blockProperty->setLocalization($page->getLocalization($localeId));
-							$blockProperty->setValue('<p>' . $this->randomText() . '</p>');
+							$blockProperty->setLocalization($pageData);
+							$blockProperty->setValue($this->randomText($localeId, 1));
 						}
 					}
 

@@ -18,22 +18,22 @@ class PagePlaceHolder extends Abstraction\PlaceHolder
 	 */
 	protected $type = 1;
 
-	/**
-	 * Set page
-	 * @param Page $page
-	 */
-	public function setPage(Page $page)
-	{
-		$this->setMaster($page);
-	}
+//	/**
+//	 * Set page
+//	 * @param Page $page
+//	 */
+//	public function setPage(Page $page)
+//	{
+//		$this->setMaster($page);
+//	}
 
-	/**
-	 * Get page
-	 * @return Page
-	 */
-	public function getPage()
-	{
-		return $this->getMaster();
-	}
+//	/**
+//	 * Get page
+//	 * @return Page
+//	 */
+//	public function getPage()
+//	{
+//		return $this->getMaster();
+//	}
 
 }

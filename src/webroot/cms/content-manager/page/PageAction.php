@@ -180,7 +180,7 @@ class PageAction extends PageManagerAction
 			$placeHolderData = array(
 					'id' => $placeHolder->getName(),
 					'type' => 'list',
-					'locked' => ! $page->isPlaceHolderEditable($placeHolder),
+					'locked' => ! $pageData->isPlaceHolderEditable($placeHolder),
 					//TODO: not specified now
 					'allow' => array(
 							0 => 'Project_Text_TextController',
@@ -197,7 +197,7 @@ class PageAction extends PageManagerAction
 				$blockData = array(
 						'id' => $block->getId(),
 						'type' => $block->getComponentName(),
-						'locked' => ! $page->isBlockEditable($block),
+						'locked' => ! $pageData->isBlockEditable($block),
 						'properties' => array(),
 				);
 

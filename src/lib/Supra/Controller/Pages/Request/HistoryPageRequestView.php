@@ -36,10 +36,16 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		$page = $this->getPage();
-		$this->placeHolderSet = new Set\PlaceHolderSet($page);
+		$localization = $this->getPageLocalization();
+		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		
 		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
+		$pageSetIds = null;
+		
 		if ($page instanceof Entity\Template) {
+			
+			$layout = null;
+			
 			if ( ! $page->isRoot()) {
 				$localizationId = $this->getPageLocalization()->getId();
 				$draftEm->getUnitOfWork()->clear();
@@ -70,11 +76,12 @@ class HistoryPageRequestView extends PageRequest
 		$qb = $draftEm->createQueryBuilder();
 		$qb->select('ph')
 				->from(static::PLACE_HOLDER_ENTITY, 'ph')
-				->join('ph.master', 'm')
+				->join('ph.localization', 'pl')
+				->join('pl.master', 'p')
 				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
-				->andWhere($qb->expr()->in('m.id', $pageSetIds))
+				->andWhere($qb->expr()->in('p.id', $pageSetIds))
 				->andWhere($qb->expr()->eq('ph.type', '0'))
-				->addOrderBy('m.level', 'ASC');
+				->addOrderBy('p.level', 'ASC');
 
 		$query = $qb->getQuery();
 		$draftPlaceHolderArray = $query->getResult();
@@ -84,7 +91,8 @@ class HistoryPageRequestView extends PageRequest
 		}
 
 		// Current page placeholders
-		$pagePlaceholders = $page->getPlaceHolders();
+		$pagePlaceholders = $localization->getPlaceHolders();
+		
 		foreach($pagePlaceholders as $placeHolder) {
 			$this->placeHolderSet->append($placeHolder);
 		}
@@ -171,7 +179,9 @@ class HistoryPageRequestView extends PageRequest
 		
 			$page = $this->getPage();
 			foreach($missingBlocks as $key => $block) {
-				$master = $block->getPlaceHolder()->getMaster();
+				/* @var $block Entity\Abstraction\Block */
+				
+				$master = $block->getPlaceHolder()->getMaster()->getMaster();
 				if ($page->equals($master)) {
 					unset($missingBlocks[$key]);
 				}
@@ -220,10 +230,13 @@ class HistoryPageRequestView extends PageRequest
 		$blockSetIds = Entity\Abstraction\Entity::collectIds($blockSet);
 
 		foreach ($blockSet as $block) {
+			/* @var $block Entity\Abstraction\Block */
+			
 			$master = null;
 			
 			if ($block->getLocked()) {
 				$master = $block->getPlaceHolder()
+						->getMaster()
 						->getMaster();
 			} else {
 				$master = $page;
@@ -303,10 +316,13 @@ class HistoryPageRequestView extends PageRequest
 
 		$cnt = 0;
 		foreach ($blockSet as $block) {
+			/* @var $block Entity\Abstraction\Block */
+			
 			$master = null;
 
 			if ($block->getLocked()) {
 				$master = $block->getPlaceHolder()
+						->getMaster()
 						->getMaster();
 			} else {
 				$master = $page;
@@ -369,7 +385,7 @@ class HistoryPageRequestView extends PageRequest
 		$destLocalization = $destinationEm->merge($pageLocalization);
 		
 		// place holders
-		$placeHolders = $page->getPlaceHolders();
+		$placeHolders = $pageLocalization->getPlaceHolders();
 		foreach ($placeHolders as $placeHolder) {
 			$destinationEm->merge($placeHolder);
 		}
@@ -447,16 +463,16 @@ class HistoryPageRequestView extends PageRequest
 	
 	private function getBlocksInPage($em)
 	{
-		$pageId = $this->getPage()->getId();
+		$localizationId = $this->getPageLocalization()->getId();
 		$locale = $this->getLocale();
 		$blockEntity = PageRequest::BLOCK_ENTITY;
 		
 		$dql = "SELECT b FROM $blockEntity b 
-				JOIN b.placeHolder p
-				WHERE p.master = ?0 AND b.locale = ?1";
+				JOIN b.placeHolder ph
+				WHERE ph.localization = ?0 AND b.locale = ?1";
 		
 		$blocks = $em->createQuery($dql)
-				->setParameters(array($pageId, $locale))
+				->setParameters(array($localizationId, $locale))
 				->getResult();
 		
 		return $blocks;

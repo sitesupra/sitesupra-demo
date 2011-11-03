@@ -55,7 +55,15 @@ abstract class Localization extends Entity
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY") 
 	 * @var Collection 
 	 */ 
-	protected $blockProperties; 
+	protected $blockProperties;
+	
+	/**
+	 * Object's place holders. Doctrine requires this to be defined because
+	 * owning side references to this class with inversedBy parameter
+	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
+	 * @var Collection
+	 */
+	protected $placeHolders;
 
 	/**
 	 * Construct
@@ -65,6 +73,29 @@ abstract class Localization extends Entity
 	{
 		parent::__construct();
 		$this->setLocale($locale);
+		$this->placeHolders = new ArrayCollection();
+	}
+	
+	/**
+	 * @return Collection
+	 */
+	public function getPlaceHolders()
+	{
+		return $this->placeHolders;
+	}
+	
+	/**
+	 * Adds placeholder
+	 * @param PlaceHolder $placeHolder
+	 */
+	public function addPlaceHolder(PlaceHolder $placeHolder)
+	{
+		if ($this->lock('placeHolders')) {
+			if ($this->addUnique($this->placeHolders, $placeHolder, 'name')) {
+				$placeHolder->setMaster($this);
+			}
+			$this->unlock('placeHolders');
+		}
 	}
 
 	/**
@@ -169,5 +200,68 @@ abstract class Localization extends Entity
 	public function setLock($lock)
 	{
 		$this->lock = $lock;
+	}
+	
+	/**
+	 * @param Block $block
+	 * @return boolean
+	 */
+	private function containsBlock(Block $block)
+	{
+		$localization = $block->getPlaceHolder()
+				->getMaster();
+		
+		$contains = $localization->equals($this);
+		
+		return $contains;
+	}
+	
+	/**
+	 * @param Block $block
+	 * @return boolean
+	 */
+	public function isBlockEditable(Block $block)
+	{
+		// Contents are editable if block belongs to the page
+		if ($this->containsBlock($block)) {
+			return true;
+		}
+		
+		// Also if it's not locked
+		if ( ! $block->getLocked()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param Block $block
+	 * @return boolean
+	 */
+	public function isBlockManageable(Block $block)
+	{
+		// Contents are editable if block belongs to the page
+		if ($this->containsBlock($block)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param PlaceHolder $placeHolder
+	 * @return boolean
+	 */
+	public function isPlaceHolderEditable(PlaceHolder $placeHolder)
+	{
+		// Place holder can be ediable if it belongs to the page
+		$localization = $placeHolder->getMaster();
+		
+		if ($localization->equals($this)) {
+			return true;
+		}
+		
+		return false;
 	}
 }

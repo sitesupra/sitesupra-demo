@@ -36,7 +36,7 @@ class PagecontentAction extends PageManagerAction
 		$blockType = $this->getRequestParameter('type');
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
-		$placeHolder = $request->getPage()
+		$placeHolder = $request->getPageLocalization()
 				->getPlaceHolders()
 				->get($placeHolderName);
 		
@@ -252,7 +252,7 @@ class PagecontentAction extends PageManagerAction
 		$page = $data->getMaster();
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
-		$placeHolder = $page->getPlaceHolders()
+		$placeHolder = $data->getPlaceHolders()
 				->offsetGet($placeHolderName);
 		
 		$blocks = $pageRequest->getBlockSet()

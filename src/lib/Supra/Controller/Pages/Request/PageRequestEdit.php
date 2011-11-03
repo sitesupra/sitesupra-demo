@@ -224,21 +224,21 @@ class PageRequestEdit extends PageRequest
 	/**
 	 * Loads blocks from the current page
 	 * @param EntityManager $em
-	 * @param Entity\Abstraction\Localization $data
+	 * @param Entity\Abstraction\Localization $localization
 	 * @return array 
 	 */
-	private function getBlocksInPage(EntityManager $em, Entity\Abstraction\Localization $data)
+	private function getBlocksInPage(EntityManager $em, Entity\Abstraction\Localization $localization)
 	{
-		$masterId = $data->getMaster()->getId();
-		$locale = $data->getLocale();
+		$localizationId = $localization->getId();
+		$locale = $localization->getLocale();
 		$blockEntity = PageRequest::BLOCK_ENTITY;
 		
 		$dql = "SELECT b FROM $blockEntity b 
-				JOIN b.placeHolder p
-				WHERE p.master = ?0 AND b.locale = ?1";
+				JOIN b.placeHolder ph
+				WHERE ph.localization = ?0 AND b.locale = ?1";
 		
 		$blocks = $em->createQuery($dql)
-				->setParameters(array($masterId, $locale))
+				->setParameters(array($localizationId, $locale))
 				->getResult();
 		
 		return $blocks;
@@ -373,7 +373,7 @@ class PageRequestEdit extends PageRequest
 			$historyPageLocalization = $historyEm->merge($pageLocalization);
 			$historyPageLocalization->setMaster($historyPage);
 
-			$placeHolders = $page->getPlaceHolders();
+			$placeHolders = $pageLocalization->getPlaceHolders();
 			foreach ($placeHolders as $placeHolder) {
 				$historyEm->merge($placeHolder);
 			}
@@ -481,12 +481,12 @@ class PageRequestEdit extends PageRequest
 		
 		try{
 			
-			$page = $this->getPageLocalization()
-					->getMaster();
+			$pageLocalization = $this->getPageLocalization();
+			$page = $pageLocalization->getMaster();
 			
 			$trashEm->merge($page);
 
-			$placeHolders = $page->getPlaceHolders();
+			$placeHolders = $pageLocalization->getPlaceHolders();
 			foreach($placeHolders as $placeHolder) {
 				$trashEm->merge($placeHolder);
 				$draftEm->remove($placeHolder);
@@ -565,7 +565,6 @@ class PageRequestEdit extends PageRequest
 					->getNestedSetRepository()
 					->add($draftPage);
 
-			//$placeHolders = $page->getPlaceHolders();
 			$placeHolders = $this->getPlaceHolders($trashEm);
 			foreach($placeHolders as $placeHolder) {
 				$draftEm->merge($placeHolder);
@@ -692,7 +691,8 @@ class PageRequestEdit extends PageRequest
 				->getMaster()->getId();
 
 		$dql = "SELECT ph FROM $placeHolderEntity ph 
-				WHERE ph.master = ?0";
+				JOIN ph.localization pl
+				WHERE pl.master = ?0";
 		
 		$placeHolders = $em->createQuery($dql)
 				->setParameters(array($masterId))

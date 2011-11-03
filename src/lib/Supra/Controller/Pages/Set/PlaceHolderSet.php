@@ -11,9 +11,9 @@ use Supra\Controller\Pages\Exception;
 class PlaceHolderSet extends AbstractSet
 {
 	/**
-	 * @var Entity\Abstraction\AbstractPage
+	 * @var Entity\Abstraction\Localization
 	 */
-	private $page;
+	private $localization;
 	
 	/**
 	 * @var PlaceHolderSet 
@@ -26,11 +26,11 @@ class PlaceHolderSet extends AbstractSet
 	private $parentPlaceHolderSet;
 
 	/**
-	 * @param Entity\Abstraction\AbstractPage $page
+	 * @param Entity\Abstraction\Localization $page
 	 */
-	public function __construct(Entity\Abstraction\AbstractPage $page = null)
+	public function __construct(Entity\Abstraction\Localization $page = null)
 	{
-		$this->page = $page;
+		$this->localization = $page;
 		
 		if (isset($page)) {
 			$this->finalPlaceHolderSet = new PlaceHolderSet();
@@ -42,14 +42,14 @@ class PlaceHolderSet extends AbstractSet
 	 * Use only append to fill this object, must start with top elements
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
 	 */
-	public function append($placeHolder)
+	public function append(Entity\Abstraction\PlaceHolder $placeHolder)
 	{
-		if (isset($this->page)) {
+		if (isset($this->localization)) {
 			
 			$placeHolderName = $placeHolder->getName();
 			
 			// Add to final in cases when it's the page place or locked one
-			if ($placeHolder->getLocked() || $placeHolder->getMaster()->equals($this->page)) {
+			if ($placeHolder->getLocked() || $placeHolder->getMaster()->equals($this->localization)) {
 				
 				// Ignore if already set locked place with higher hierarchy level
 				if ($this->finalPlaceHolderSet->offsetExists($placeHolderName)) {
@@ -90,7 +90,7 @@ class PlaceHolderSet extends AbstractSet
 	/**
 	 * Loads the last place holder in the set by the name provided
 	 * @param string $name
-	 * @return Entity\Abstraction\PlaceHolder | null
+	 * @return Entity\Abstraction\PlaceHolder
 	 */
 	public function getLastByName($name)
 	{

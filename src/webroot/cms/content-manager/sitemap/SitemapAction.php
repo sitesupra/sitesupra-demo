@@ -217,6 +217,8 @@ class SitemapAction extends PageManagerAction
 			$rootId = $this->getRequestParameter('root');
 			$rootNodeLocalization = $em->find(Entity\PageLocalization::CN(), $rootId);
 			
+			/* @var $rootNodeLocalization Entity\PageLocalization */
+			
 			if (is_null($rootNodeLocalization)) {
 				$this->log->warn("Root node $rootId not found in sitemap action");
 				
