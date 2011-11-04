@@ -10,10 +10,12 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Supra\Controller\Pages\Annotation;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\ORM\Events;
 
-class VersionedAnnotationListener extends VersionedTableMetadataListener
+class VersionedAnnotationListener extends VersionedTableMetadataListener implements \Doctrine\Common\EventSubscriber
 {
 	const ANNOTATION_NS = 'Supra\Controller\Pages\Annotation\\';
+	const schemaUpdateEvent = 'schemaUpdateEvent';
 	
 	/**
 	 * @var boolean
@@ -171,9 +173,12 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener
 		$this->isOnCreateCall = $createCall;
 	}
 	
-	public function isOnCreateMode() 
+	public function getSubscribedEvents()
 	{
-		return $this->isOnCreateCall;
+		return array(
+			Events::loadClassMetadata,
+			self::schemaUpdateEvent,
+		);
 	}
 
 }

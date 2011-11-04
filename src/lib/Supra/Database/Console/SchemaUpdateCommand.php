@@ -56,16 +56,6 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
-			// For history schema must switch to "createCall" mode
-			if ($entityManagerName == 'History') {
-				$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
-				foreach ($listeners as $listener) {
-					if ($listener instanceof VersionedAnnotationListener) {
-						$listener->setAsCreateCall();
-					}
-				}
-			}
-
 			$output->write($entityManagerName);
 			$metadatas = $em->getMetadataFactory()->getAllMetadata();
 			$schemaTool = new SchemaTool($em);
@@ -88,15 +78,6 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 				}
 			} else {
 				$output->writeln("\t - up to date");
-			}
-
-			if ($entityManagerName == 'History') {
-				$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
-				foreach ($listeners as $listener) {
-					if ($listener instanceof VersionedAnnotationListener) {
-						$listener->setAsCreateCall(false);
-					}
-				}
 			}
 
 		}

@@ -53,7 +53,7 @@ use Supra\Controller\Pages\Exception;
  * @method boolean isDescendantOf(AbstractPage $node)
  * @method boolean isEqualTo(AbstractPage $node)
  */
-abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface
+abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuditedEntity
 {
 	/**
 	 * Filled by NestedSetListener

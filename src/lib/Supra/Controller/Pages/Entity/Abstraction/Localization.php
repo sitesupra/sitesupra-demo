@@ -21,7 +21,7 @@ use Supra\Controller\Pages\Entity\LockData;
  * })
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
-abstract class Localization extends Entity
+abstract class Localization extends Entity implements AuditedEntity
 {
 	/**
 	 * @Column(type="string")

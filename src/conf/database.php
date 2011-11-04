@@ -26,10 +26,12 @@ Type::addType(BlockType::NAME, 'Supra\Database\Doctrine\Type\BlockType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
-		'PublicSchema' => '',
-		'Draft' => 'Supra\Cms',
-		'Trash' => 'Supra\Cms\Abstraction\Trash',
-		'History' => 'Supra\Cms\Abstraction\History',
+	'PublicSchema' => '',
+	'Draft' => 'Supra\Cms',
+	//'Trash' => 'Supra\Cms\Abstraction\Trash',
+	//'History' => 'Supra\Cms\Abstraction\History',
+	// EXPERIMENTAL
+	'Audit' => 'Supra\Cms\Abstraction\Audit',
 );
 
 foreach ($managerNames as $managerName => $namespace) {
@@ -86,8 +88,11 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
 	$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
 
-	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\VersionedAnnotationListener());
+	$eventManager->addEventSubscriber(new Listener\VersionedAnnotationListener());
+	$eventManager->addEventSubscriber(new Listener\CreateSchemaListener());
 
+	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
+		
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
@@ -97,17 +102,33 @@ foreach ($managerNames as $managerName => $namespace) {
 		case 'Draft':
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
 			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
 			$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
+			
+			// NB! ORDER DOES MATTERS!
+			// Revision id must be filled before entity goes to audit listener
+			// Manage entity revision values
+			$eventManager->addEventSubscriber(new Listener\EntityRevisionListener());
+			// Audit entity changes in Draft schema
+			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
+			
+			//$eventManager->addEventSubscriber(new Listener\DraftVersionListener());
 			break;
-
+/*
 		case 'Trash':
 			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
 			break;
 
 		case 'History':
 			$eventManager->addEventListener(array(Events::loadClassMetadata, Events::onFlush), new Listener\HistorySchemaModifier());
-			$eventManager->addEventListener(array(Events::prePersist), new Listener\HistoryRevisionListener());
+			$eventManager->addEventSubscriber(new Listener\HistoryRevisionListener());
+			break;
+ */
+		// EXPERIMENTAL
+		case 'Audit':
+			$eventManager->addEventSubscriber(new Listener\AuditManagerListener());
+			// TODO: should assign this to PublicSchema instead?
+			$eventManager->addEventSubscriber(new Listener\AuditCreateSchemaListener());
 			break;
 	}
 
@@ -128,16 +149,15 @@ foreach ($managerNames as $managerName => $namespace) {
 			ObjectRepository::setEntityManager(PageController::SCHEMA_CMS, $em);
 			break;
 
-		case 'Trash':
-			ObjectRepository::setEntityManager(PageController::SCHEMA_TRASH, $em);
-			break;
-
-		case 'History':
-			ObjectRepository::setEntityManager(PageController::SCHEMA_HISTORY, $em);
-			break;
-
+//		case 'Trash':
+//			ObjectRepository::setEntityManager('#trash', $em); break;
+//		case 'History':
+//			ObjectRepository::setEntityManager('#history', $em); break;
 		case 'PublicSchema':
 			ObjectRepository::setEntityManager(PageController::SCHEMA_PUBLIC, $em);
 			break;
+		// EXPERIMENTAL
+		case 'Audit':
+			ObjectRepository::setEntityManager('#audit', $em); break;
 	}
 }

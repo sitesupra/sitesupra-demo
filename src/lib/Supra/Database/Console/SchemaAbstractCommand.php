@@ -29,10 +29,12 @@ abstract class SchemaAbstractCommand extends Command
 		parent::__construct($name);
 		
 		$this->entityManagers = array(
-			'Public' => ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC),
-			'Draft' => ObjectRepository::getEntityManager(PageController::SCHEMA_CMS),
-			'Trash' => ObjectRepository::getEntityManager(PageController::SCHEMA_TRASH),
-			'History' => ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY),
+			'Public' => ObjectRepository::getEntityManager('#public'),
+			'Draft' => ObjectRepository::getEntityManager('#cms'),
+			//'trash' => ObjectRepository::getEntityManager('#trash'),
+			//'history' => ObjectRepository::getEntityManager('#history'),
+			// EXPERIMENTAL
+			'Audit' => ObjectRepository::getEntityManager('#audit'),
 		);
 	}
 }

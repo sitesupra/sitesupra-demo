@@ -238,7 +238,7 @@ class PageRequestEdit extends PageRequest
 		$publicEm->flush();
 		
 		// Store page version
-		$this->storeHistoredVersion();
+		//$this->storeHistoredVersion();
 	}
 	
 	/**
@@ -381,15 +381,14 @@ class PageRequestEdit extends PageRequest
 			$pageLocalization = $this->getPageLocalization();
 			$page = $pageLocalization->getMaster();
 			
-			// History revision listener will get revision id from entity 
-			// ($historyPage will inherit it from $page)
-			// when first persist operation will be performed
-			$page->setRevisionId($revisionDataId);
+			// Fire an custom event with revision id passed to listener
+			$historyEm->getEventManager()
+					->dispatchEvent(HistoryRevisionListener::historyPreSave, array('revisionId' => $revisionDataId));
+			
 			$historyPage = $historyEm->merge($page);
 			
 			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 			
-			$pageLocalization->setRevisionId($revisionDataId);
 			$historyPageLocalization = $historyEm->merge($pageLocalization);
 			$historyPageLocalization->setMaster($historyPage);
 

@@ -705,4 +705,13 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager->flush();
 	}
 
+	protected function firePageEditEvent()
+	{
+		$pageLocalization = $this->getPageLocalization();
+		
+		$this->entityManager
+				->getEventManager()
+				->dispatchEvent(DraftVersionListener::pageEditEvent, array('localization' => $pageLocalization));
+	}
+	
 }

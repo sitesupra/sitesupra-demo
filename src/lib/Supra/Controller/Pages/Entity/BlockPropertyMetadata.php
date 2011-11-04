@@ -2,11 +2,14 @@
 
 namespace Supra\Controller\Pages\Entity;
 
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+
 /**
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends Abstraction\Entity
+class BlockPropertyMetadata extends Entity implements AuditedEntity
 {
 	/**
 	 * @Column(type="string")

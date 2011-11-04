@@ -47,7 +47,9 @@ class PagecontentAction extends PageManagerAction
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
 		$block->setLocale($localeId);
-
+		
+		$this->firePageEditEvent();
+		
 		$this->entityManager->persist($block);
 		$this->entityManager->flush();
 
@@ -190,6 +192,8 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 		
+		$this->firePageEditEvent();
+		
 		$this->entityManager->flush();
 		
 		$block->prepareController($blockController, $request);
@@ -222,6 +226,8 @@ class PagecontentAction extends PageManagerAction
 		
 		$blockQuery->setParameters(array($blockId));
 		$block = $blockQuery->getSingleResult();
+		
+		$this->firePageEditEvent();
 		
 		$this->entityManager->remove($block);
 		$this->entityManager->flush();
@@ -270,6 +276,8 @@ class PagecontentAction extends PageManagerAction
 				$block->setPosition($blockPositionById[$id]);
 			}
 		}
+		
+		$this->firePageEditEvent();
 		
 		$this->entityManager->flush();
 		

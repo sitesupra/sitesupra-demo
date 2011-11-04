@@ -37,13 +37,9 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	const DISCRIMINATOR = null;
 	
 	/**
-	 * @History:Id 
-	 * @History:Column(type="sha1")
-	 * @History:InheritOnCreate
-	 * @var RevisionData
+	 * @var string
 	 */
-	// NB! Must be not null, see doctrine ClassMetadata::getIdentifierValues
-	protected $revision = '';
+	protected $revision;
 	
 	/**
 	 * Creates log writer instance
