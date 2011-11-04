@@ -115,6 +115,8 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
+	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(TemplateType::NAME));
+	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(BlockType::NAME));
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);

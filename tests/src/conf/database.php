@@ -15,6 +15,8 @@ use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\Sha1HashType;
 use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
+use Supra\Database\Doctrine\Type\TemplateType;
+use Supra\Database\Doctrine\Type\BlockType;
 
 $config = new Configuration();
 
@@ -72,6 +74,8 @@ $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 $em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
 $em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(TemplateType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(BlockType::NAME));
 $em->_mode = 'test';
 
 ObjectRepository::setEntityManager('Supra\Tests', $em);

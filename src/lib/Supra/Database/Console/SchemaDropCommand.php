@@ -47,8 +47,8 @@ class SchemaDropCommand extends SchemaAbstractCommand
 		if ($force) {
 			$output->writeln('Dropping database schema...');
 
-			foreach ($this->entityManagers as $em) {
-				$output->write($em->_mode);
+			foreach ($this->entityManagers as $entityManagerName => $em) {
+				$output->write($entityManagerName);
 				$metadatas = $em->getMetadataFactory()->getAllMetadata();
 				$schemaTool = new SchemaTool($em);
 				$sqls = $schemaTool->getDropSchemaSQL($metadatas);

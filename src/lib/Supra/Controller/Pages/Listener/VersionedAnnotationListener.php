@@ -32,8 +32,6 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\TemplateLayout',
 	);
 	
-	private $skipUniqueConstraints = array();
-		
 	/**
 	 * @param LoadClassMetadataEventArgs $eventArgs
 	 */
@@ -168,9 +166,9 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener
 		}
 	}
 	
-	public function setAsCreateCall()
+	public function setAsCreateCall($createCall = true)
 	{
-		$this->isOnCreateCall = true;
+		$this->isOnCreateCall = $createCall;
 	}
 	
 	public function isOnCreateMode() 

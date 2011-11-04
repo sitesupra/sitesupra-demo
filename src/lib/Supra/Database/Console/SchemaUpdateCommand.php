@@ -30,6 +30,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 						'force', null, InputOption::VALUE_NONE,
 						'Causes the generated SQL statements to be physically executed against your database.'
 					),
+					new InputOption(
+						'dump-sql', null, InputOption::VALUE_NONE,
+						'Causes the generated SQL statements to be output.'
+					),
 				));
 	}
 
@@ -45,50 +49,69 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		$output->writeln('');
 		
         $force = (true === $input->getOption('force'));
+        $dumpSql = (true === $input->getOption('dump-sql'));
+		$updateRequired = false;
 		
-		if ($force) {
-			$output->writeln('Updating database schema...');
+		$output->writeln('Updating database schema...');
 
-			foreach ($this->entityManagers as $em) {
-				
-				if ($em->_mode == 'History') {
-					$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
-					foreach ($listeners as $listener) {
-						if ($listener instanceof VersionedAnnotationListener) {
-							$listeners = $em->getEventManager()->removeEventListener(Events::loadClassMetadata, $listener);
-						}
-					}
-					$listener = new VersionedAnnotationListener();
-					$listener->setAsCreateCall();
-					$em->getEventManager()->addEventListener(array(Events::loadClassMetadata), $listener);
-				}
-				
-				$output->write($em->_mode);
-				$metadatas = $em->getMetadataFactory()->getAllMetadata();
-				$schemaTool = new SchemaTool($em);
-				$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
-				if (! empty($sqls)) {
-					$schemaTool->updateSchema($metadatas, true);
-					$output->writeln("\t - " . count($sqls) . ' queries');
-				} else {
-					$output->writeln("\t - nothing to update");
-				}
-				
-				if ($em->_mode == 'History') {
-					$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
-					foreach ($listeners as $listener) {
-						if ($listener instanceof VersionedAnnotationListener && $listener->isOnCreateMode()) {
-							$listeners = $em->getEventManager()->removeEventListener(Events::loadClassMetadata, $listener);
-						}
+		foreach ($this->entityManagers as $entityManagerName => $em) {
+
+			// For history schema must switch to "createCall" mode
+			if ($entityManagerName == 'History') {
+				$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
+				foreach ($listeners as $listener) {
+					if ($listener instanceof VersionedAnnotationListener) {
+						$listener->setAsCreateCall();
 					}
 				}
-				
 			}
 
+			$output->write($entityManagerName);
+			$metadatas = $em->getMetadataFactory()->getAllMetadata();
+			$schemaTool = new SchemaTool($em);
+			$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
+
+			if ( ! empty($sqls)) {
+				$updateRequired = true;
+				$output->writeln("\t - " . count($sqls) . ' queries');
+				
+				if ($force) {
+					$schemaTool->updateSchema($metadatas, true);
+				}
+				
+				if ($dumpSql) {
+					$output->writeln('');
+					foreach ($sqls as $sql) {
+						$output->writeln("\t" . $sql);
+					}
+					$output->writeln('');
+				}
+			} else {
+				$output->writeln("\t - up to date");
+			}
+
+			if ($entityManagerName == 'History') {
+				$listeners = $em->getEventManager()->getListeners(Events::loadClassMetadata);
+				foreach ($listeners as $listener) {
+					if ($listener instanceof VersionedAnnotationListener) {
+						$listener->setAsCreateCall(false);
+					}
+				}
+			}
+
+		}
+		
+
+		if ($force) {
 			$output->writeln('Database schema updated successfully!');
-		} else {
-            $output->writeln('Please run the operation by passing one of the following options:');
-            $output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
+		}
+
+		if ($updateRequired && ! $force && ! $dumpSql) {
+			$output->writeln('');
+			$output->writeln('Schema is not up to date.');
+			$output->writeln('Please run the operation by passing one of the following options:');
+			$output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
+			$output->writeln(sprintf('    <info>%s --dump-sql</info> to show the commands', $this->getName()));
 		}
 	}
 	

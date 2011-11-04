@@ -2,8 +2,9 @@
 
 namespace Supra\Database\Console;
 
-use \Symfony\Component\Console\Command\Command;
-use \Supra\ObjectRepository\ObjectRepository;
+use Symfony\Component\Console\Command\Command;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\PageController;
 
 /**
  * SchemaAbstractCommand
@@ -28,10 +29,10 @@ abstract class SchemaAbstractCommand extends Command
 		parent::__construct($name);
 		
 		$this->entityManagers = array(
-			'public' => ObjectRepository::getEntityManager('#public'),
-			'draft' => ObjectRepository::getEntityManager('#cms'),
-			'trash' => ObjectRepository::getEntityManager('#trash'),
-			'history' => ObjectRepository::getEntityManager('#history'),
+			'Public' => ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC),
+			'Draft' => ObjectRepository::getEntityManager(PageController::SCHEMA_CMS),
+			'Trash' => ObjectRepository::getEntityManager(PageController::SCHEMA_TRASH),
+			'History' => ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY),
 		);
 	}
 }
