@@ -79,3 +79,4 @@ $em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::get
 $em->_mode = 'test';
 
 ObjectRepository::setEntityManager('Supra\Tests', $em);
+ObjectRepository::setEntityManager('#tests', $em);

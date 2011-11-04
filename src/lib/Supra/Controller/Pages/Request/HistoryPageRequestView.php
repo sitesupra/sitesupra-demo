@@ -377,7 +377,11 @@ class HistoryPageRequestView extends PageRequest
 		return $this->blockPropertySet;
 	}
 	
-	public function restore($destinationEm)
+	/**
+	 * Does the history version restoration
+	 * @param EntityManager $destinationEm
+	 */
+	public function restore(EntityManager $destinationEm)
 	{
 		$em = $this->getDoctrineEntityManager();
 		$page = $this->getPage();
@@ -401,21 +405,21 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		// block properties
-		$trashProperties = $this->getBlockPropertySet()
+		$historyProperties = $this->getBlockPropertySet()
 				->getPageProperties($pageLocalization);
-		foreach ($trashProperties as $property) {
+		foreach ($historyProperties as $property) {
 			$destinationEm->merge($property);
 		}
 		
 		// Collect history block property IDs
-		$trashPropertyIds = Entity\Abstraction\Entity::collectIds($trashProperties);
+		$historyPropertyIds = Entity\Abstraction\Entity::collectIds($historyProperties);
 		
 		// Collect draft block property IDs
 		$draftProperties = $this->getPageBlockProperties($destinationEm);
 		$draftPropertyIds = Entity\Abstraction\Entity::collectIds($draftProperties);
 
 		// Calculate removed properties
-		$removedPropertyIds = array_diff($draftPropertyIds, $trashPropertyIds);
+		$removedPropertyIds = array_diff($draftPropertyIds, $historyPropertyIds);
 		// ...delete their metadata
 		if ( ! empty($removedPropertyIds)) {
 			$qb = $destinationEm->createQueryBuilder();
@@ -464,7 +468,7 @@ class HistoryPageRequestView extends PageRequest
 		$em->flush();
 	}
 	
-	private function getBlocksInPage($em)
+	private function getBlocksInPage(EntityManager $em)
 	{
 		$localizationId = $this->getPageLocalization()->getId();
 		$blockEntity = PageRequest::BLOCK_ENTITY;
@@ -480,7 +484,7 @@ class HistoryPageRequestView extends PageRequest
 		return $blocks;
 	}
 	
-	private function getPageBlockProperties($em)
+	private function getPageBlockProperties(EntityManager $em)
 	{
 		$localizationId = $this->getPageLocalization()->getId();
 		$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;

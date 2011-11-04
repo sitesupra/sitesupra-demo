@@ -14,6 +14,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\PageController;
 
 /**
  * 
@@ -454,7 +455,7 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 		
-		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
 
 		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
 				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));

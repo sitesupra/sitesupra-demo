@@ -7,7 +7,8 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
-
+use Supra\Controller\Pages\PageController;
+use Supra\User\Entity\User;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -19,14 +20,22 @@ class PagehistoryAction extends PageManagerAction
 				->setResponseData($response);
 	}
 	
+	/**
+	 * Restores the page to the selected history state
+	 */
 	public function restoreAction()
 	{
+		$this->isPostRequest();
+		
 		$this->restoreHistoryVersion();
 		
 		$this->getResponse()
 				->setResponseData(true);
 	}
 	
+	/**
+	 * @return array
+	 */
 	private function getVersionArray()
 	{
 		$response = array();
@@ -35,15 +44,16 @@ class PagehistoryAction extends PageManagerAction
 		$pageId = $this->getRequestParameter('page_id');
 		
 		// History connection
-		$em = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
-		$localizations = $em->getRepository(PageRequest::DATA_ENTITY)
+		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
+		$localizationRevisions = $historyEm->getRepository(Entity\Abstraction\Localization::CN())
 				->findBy(array('id' => $pageId));
 		
-		foreach ($localizations as $localization) {
+		foreach ($localizationRevisions as $localization) {
 			
 			$revisionId = $localization->getRevisionId();
-			$revisionData = $em->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
-			if (! ($revisionData instanceof Entity\RevisionData)) {
+			$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
+			
+			if ( ! $revisionData instanceof Entity\RevisionData) {
 				throw new CmsException(null, 'Failed to load revision data');
 			}
 
@@ -53,7 +63,7 @@ class PagehistoryAction extends PageManagerAction
 			// If not found will show use ID
 			$userName = '#' . $userId;
 			$user = $userProvider->findUserById($userId);
-			if ($user instanceof \Supra\User\Entity\User) {
+			if ($user instanceof User) {
 				$userName = $user->getName();
 			}
 			

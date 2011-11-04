@@ -555,18 +555,19 @@ abstract class PageManagerAction extends CmsAction
 		$this->getResponse()->setResponseData(true);
 	}
 
+	/**
+	 * Restores history version of the page
+	 */
 	protected function restoreHistoryVersion()
 	{
-		$this->isPostRequest();
-
 		$revisionId = $this->getRequestParameter('version_id');
 		$localizationId = $this->getRequestParameter('page_id');
 
-		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
 
-		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
-				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
-
+		$pageLocalization = $historyEm->find(Entity\Abstraction\Localization::CN(), 
+				array('id' => $localizationId, 'revision' => $revisionId));
+		
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}

@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Listener\HistoryRevisionListener;
 use Doctrine\ORM\Events;
+use Supra\Controller\Pages\PageController;
 
 /**
  * Request object for edit mode requests
@@ -138,6 +139,25 @@ class PageRequestEdit extends PageRequest
 		// 6. Get properties to be copied (of a. self and b. template)
 		$draftProperties = $this->getBlockPropertySet()
 				->getPageProperties($draftData);
+		
+		$draftPropertyIds = $draftProperties->collectIds();
+		
+		$existentProperties = $this->getPageBlockProperties($publicEm, $publicData);
+		$existentPropertyIds = Entity\Abstraction\Entity::collectIds($existentProperties);
+		
+		// 6.1 Remove all page block properties from public schema not existant in draft
+		$removedPropertyIdList = array_diff($existentPropertyIds, $draftPropertyIds);
+		
+		if ( ! empty($removedPropertyIdList)) {
+			foreach ($existentProperties as $existentProperty) {
+				/* @var $existentProperty Entity\BlockProperty */
+				$id = $existentProperty->getId();
+				
+				if (in_array($id, $removedPropertyIdList, true)) {
+					$publicEm->remove($existentProperty);
+				}
+			}
+		}
 		
 		// 7. For properties 5b get block, placeholder IDs, check their existance in public, get not existant
 		$missingBlockIdList = array();
@@ -334,7 +354,7 @@ class PageRequestEdit extends PageRequest
 		
 		$draftEm = $this->getDoctrineEntityManager();
 		
-		$historyEm = ObjectRepository::getEntityManager('Supra\Cms\Abstraction\History');
+		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
 		$connection = $historyEm->getConnection();
 		
 		$connection->beginTransaction();
