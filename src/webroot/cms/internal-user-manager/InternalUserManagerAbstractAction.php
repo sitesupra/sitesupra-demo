@@ -9,6 +9,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\User\UserProvider;
 use Doctrine\ORM\EntityManager;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
+use Supra\Mailer\Message\TwigMessage;
 
 /**
  * Internal user manager action controller
@@ -109,6 +110,65 @@ class InternalUserManagerAbstractAction extends CmsAction
 		}
 
 		return $user;
+	}
+	
+	/**
+	 * Sends password change link
+	 * @param Entity\User $user
+	 */
+	protected function sendPasswordChangeLink(Entity\User $user)
+	{
+		$time = time();
+		$userMail = $user->getEmail();
+		$hash = $this->generatePasswordRecoveryHash($user, $time);
+
+		// TODO: Change hardcoded link
+		$host = $this->request->getServerValue('HTTP_HOST');
+		$url = 'http://' . $host . '/cms/restore';
+		$query = http_build_query(array(
+				'e' => $userMail,
+				't' => $time,
+				'h' => $hash,
+				));
+
+		$mailVars = array(
+				'link' => $url . '?' . $query
+		);
+
+		$mailer = ObjectRepository::getMailer($this);
+		$message = new TwigMessage();
+		
+		// FIXME: relative path
+		$message->setTemplatePath(__DIR__ . '/mail-template');
+		
+		// FIXME: from address should not be hardcoded here etc.
+		$message->setSubject('Password recovery')
+				->setFrom('admin@supra7.vig')
+				->setTo($userMail)
+				->setBody('resetpassword.twig', $mailVars);
+		$mailer->send($message);
+	}
+	
+	/**
+	 * Generates hash for password recovery
+	 * @param Entity\User $user 
+	 * @return string
+	 */
+	protected function generatePasswordRecoveryHash(Entity\User $user, $time)
+	{
+		$salt = $user->getSalt();
+		$email = $user->getEmail();
+		
+		$hashParts = array(
+			$email,
+			$time,
+			$salt
+		);
+
+		$hash = md5(implode(' ', $hashParts));
+		$hash = substr($hash, 0, 8);
+
+		return $hash;
 	}
 
 }

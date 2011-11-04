@@ -4,6 +4,12 @@
         url: /cms
         controller: Supra\Cms\CmsController
 
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /cms/restore
+        controller: Supra\Cms\InternalUserManager\Restore\RestoreController
+
 - Supra\Cms\ApplicationConfiguration:
     id: content
     title: Pages
@@ -17,7 +23,8 @@
     title: Backoffice users
     path: /cms/internal-user-manager
     icon: /cms/lib/supra/img/apps/internal-user
-    applicationNamespace: Supra\Cms\InternalUserManager
+    # Assigned to controller because inside this namespace is password restore controller
+    applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
     authorizationAccessPolicyClass: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
 
 - Supra\Cms\ApplicationConfiguration:

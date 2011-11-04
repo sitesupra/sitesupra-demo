@@ -12,14 +12,15 @@ use Supra\Exception\LocalizedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationPassword;
+use Supra\Uri\Path;
 
 /**
- * Restore password
+ * Restore password controller
  *
  * @method TwigResponse getResponse()
  * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
-class RestoreAction extends InternalUserManagerAbstractAction
+class RestoreController extends InternalUserManagerAbstractAction
 {
 	/**
 	 * Minimum password length
@@ -44,39 +45,39 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	}
 	
 	/**
-	 * Validates hash
-	 * @param type $expirationTime
-	 * @param type $salt
-	 * @param type $email
-	 * @param type $hash
-	 * @return boolean
+	 * @return string
 	 */
-	private function validateHash($expirationTime, $salt, $email, $hash)
+	protected function getBasePath()
 	{
-		$generatedHash = sha1($expirationTime . $salt . $email);
-
-		if ($generatedHash == $hash) {
-			return true;
-		}
-
-		return false;
+		$request = $this->getRequest();
+		
+		$basePath = $request->getPath()
+					->getBasePath(0, Path::FORMAT_BOTH_DELIMITERS);
+		
+		return $basePath;
 	}
-
+	
 	/**
 	 * Restore index action which make check and then renders form
-	 * @return type 
 	 */
 	public function indexAction()
 	{
-		/* @var $repo HttpResponse */
+		$request = $this->getRequest();
+		/* @var $request Request\HttpRequest */
 		$response = $this->getResponse();
+		
+		$basePath = $this->getBasePath();
+		$response->assign('basePath', $basePath);
+		
 		if (($this->emptyRequestParameter('e')) || ($this->emptyRequestParameter('t')) || ($this->emptyRequestParameter('h'))) {
-			$response->output('Wrong parameters passed');
+			
+			
+			$response->redirect($basePath . 'request');
 			return;
 		}
 		
 		$email = $this->getRequestParameter('e');
-		$expirationTime = $this->getRequestParameter('t');
+		$time = $this->getRequestParameter('t');
 		$hash = $this->getRequestParameter('h');
 		
 		$user = $this->validateUser();
@@ -84,7 +85,7 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		if ($user instanceof User) {
 			
 			$response->assign('email', $email);
-			$response->assign('time', $expirationTime);
+			$response->assign('time', $time);
 			$response->assign('hash', $hash);
 			
 			$response->outputTemplate('form.html.twig');
@@ -94,7 +95,48 @@ class RestoreAction extends InternalUserManagerAbstractAction
 			return;
 		}
 	}
+	
+	/**
+	 * User requests new password
+	 */
+	public function requestAction()
+	{
+		$request = $this->getRequest();
+		$response = $this->getResponse();
+		$email = '';
+		$errorMessage = '';
+		
+		if ($request->isPost()) {
+			$email = $request->getPostValue('email');
+			
+			if (empty($email)) {
+				$errorMessage = 'No email address passed';
+				
+			} elseif ( ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				$errorMessage = 'Email address not valid';
+			
+			} else {
 
+				$user = $this->getRequestedUser($email);
+				
+				if ( ! $user instanceof User) {
+					$errorMessage = 'User with such email address is not found';
+				} else {
+
+					$this->sendPasswordChangeLink($user);
+					
+					$response->outputTemplate('request.success.html.twig');
+					return;
+				}
+			}
+		}
+		
+		$response->assign('email', $email);
+		$response->assign('errorMessage', $errorMessage);
+		
+		$response->outputTemplate('request.html.twig');
+	}
+	
 	/**
 	 * Actual change password action
 	 * @return type 
@@ -103,42 +145,61 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 		
+		$response = $this->getResponse();
+		
+		// Assign parameters back to template
+		$email = $this->getRequestParameter('e');
+		$time = $this->getRequestParameter('t');
+		$hash = $this->getRequestParameter('h');
+		
+		$response->assign('email', $email);
+		$response->assign('time', $time);
+		$response->assign('hash', $hash);
+		
 		$plainPassword = $this->getRequestParameter('password');
 		$confirmPassword = $this->getRequestParameter('confirm_password');
 
 		// Check password match
-		if($plainPassword != $confirmPassword) {
-			$this->getResponse()->output('Passwords do not match');
+		if($plainPassword !== $confirmPassword) {
+			$response->assign('errorMessage', 'Passwords do not match');
+			$response->outputTemplate('form.html.twig');
+			
 			return;
 		}
+		
+		// Don't need anymore
+		unset($confirmPassword);
 		
 		$passwordLength = strlen($plainPassword);
 		$password = new AuthenticationPassword($plainPassword);
 		
+		// TODO: password policy should be configurable for user provider
 		// check password lenght
 		if($passwordLength < self::MIN_PASSWORD_LENGTH) {
-			$this->getResponse()->output('Passwords length should be '. self::MIN_PASSWORD_LENGTH .' or more characters');
+			$response->assign('errorMessage', 'Passwords length should be '. self::MIN_PASSWORD_LENGTH .' or more characters');
+			$response->outputTemplate('form.html.twig');
+			
 			return;
 		}
 		
 		$user = $this->validateUser();
 		
 		if (is_null($user)) {
-			$this->getResponse()->output('Something went wrong. Try to request new link.');
+			$response->output('errorMessage', 'Something went wrong. Try to request new link.');
+			
 			return;
 		}
 		
 		$salt = $user->resetSalt();
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
-		
 		$authAdapter = $userProvider->getAuthAdapter();
+		
 		$authAdapter->credentialChange($user, $password);
 		
 		$this->entityManager->flush();
 		
-		$this->getResponse()->redirect(self::LOGIN_PAGE);
-				
+		$response->redirect(self::LOGIN_PAGE);
 	}
 	
 	public function execute()
@@ -181,12 +242,8 @@ class RestoreAction extends InternalUserManagerAbstractAction
 	private function validateUser()
 	{	
 		$email = $this->getRequestParameter('e');
-		$expirationTime = $this->getRequestParameter('t');
-		$hash = $this->getRequestParameter('h');
 		
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\User');
-		//TODO: should it search by email or login?
-		$user = $repo->findOneByEmail($email);
+		$user = $this->getRequestedUser($email);
 
 		// find user
 		if (empty($user)) {
@@ -194,12 +251,51 @@ class RestoreAction extends InternalUserManagerAbstractAction
 		}
 		
 		$currentSalt = $user->getSalt();
-		$result = $this->validateHash($expirationTime, $currentSalt, $email, $hash);
+		$time = $this->getRequestParameter('t');
+		$hash = $this->getRequestParameter('h');
+		
+		$result = $this->validateHash($user, $time, $hash);
 		
 		if ( ! $result) {
 			return null;
 		}
 		
 		return $user;
+	}
+	
+	/**
+	 * @param string $email
+	 * @return User
+	 */
+	private function getRequestedUser($email)
+	{
+		$repo = $this->entityManager->getRepository(User::CN());
+		//TODO: should it search by email or login?
+		$user = $repo->findOneByEmail($email);
+		
+		return $user;
+	}
+	
+	/**
+	 * Validates hash
+	 * @param string User $user
+	 * @param string $time
+	 * @param string $hash
+	 * @return boolean
+	 */
+	private function validateHash(User $user, $time, $hash)
+	{
+		// Request valid 24h
+		if (strtotime('+1 day', $time) < time()) {
+			return false;
+		}
+		
+		$generatedHash = $this->generatePasswordRecoveryHash($user, $time);
+
+		if ($generatedHash === $hash) {
+			return true;
+		}
+
+		return false;
 	}
 }

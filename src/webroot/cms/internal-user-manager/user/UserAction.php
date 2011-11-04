@@ -15,9 +15,9 @@ use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
-use Supra\Mailer\Message\TwigMessage;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\User\Entity\Group as RealGroup;
+use Supra\User\Entity\User as RealUser;
 use Supra\Cms\Exception\CmsException;
 
 /**
@@ -136,37 +136,14 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 
 		$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+		
+		$this->sendPasswordChangeLink($user);
 
-		$expTime = time();
-		$userMail = $user->getEmail();
-		$hash = $this->generateHash($user, $expTime);
-
-		// TODO: Change hardcoded link
-		$host = $this->request->getServerValue('HTTP_HOST');
-		$url = 'http://' . $host . '/cms/internal-user-manager/restore';
-		$query = http_build_query(array(
-				'e' => $userMail,
-				't' => $expTime,
-				'h' => $hash,
-				));
-
-		$mailVars = array(
-				'link' => $url . '?' . $query
-		);
-
-		$mailer = ObjectRepository::getMailer($this);
-		$message = new TwigMessage();
-		$message->setTemplatePath(__DIR__ . '/mail');
-		// FIXME: from address should not be hardcoded here etc.
-		$message->setSubject('Password recovery')
-				->setFrom('admin@supra7.vig')
-				->setTo($userMail)
-				->setBody('resetpassword.twig', $mailVars);
-		$mailer->send($message);
+		
 
 		$this->getResponse()->setResponseData(null);
 	}
-
+	
 	public function insertAction()
 	{
 		$this->isPostRequest();
@@ -208,42 +185,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			$authAdapter = $this->userProvider->getAuthAdapter();
 			$authAdapter->credentialChange($user);
 
-			$expTime = time();
-			$userMail = $user->getEmail();
-			$hash = $this->generateHash($user, $expTime);
-
-			// TODO: Change hardcoded link
-			$host = $this->request->getServerValue('HTTP_HOST');
-			$url = 'http://' . $host . '/cms/internal-user-manager/restore';
-			$query = http_build_query(array(
-					'e' => $userMail,
-					't' => $expTime,
-					'h' => $hash,
-					));
-
-			$mailVars = array(
-					'link' => $url . '?' . $query
-			);
-
-			$mailer = ObjectRepository::getMailer($this);
-			$message = new TwigMessage();
-			$message->setTemplatePath(__DIR__ . '/mail');
-			// FIXME: from address should not be hardcoded here etc.
-			$message->setSubject('Account created. Set your password')
-					->setFrom('admin@supra7.vig')
-					->setTo($userMail)
-					->setBody('createpassword.twig', $mailVars);
-			$mailer->send($message);
-
-			$em->flush();
-
-			$response = array(
-					'name' => $name,
-					'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
-					'email' => $email,
-					'group' => $dummyGroupId,
-					'user_id' => $user->getId(),
-			);
+			$this->sendPasswordChangeLink($user);
 
 			$this->getResponse()->setResponseData($response);
 		}
@@ -351,20 +293,6 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Generates hash for password recovery
-	 * @param Entity\User $user 
-	 */
-	private function generateHash(Entity\User $user, $expirationTime)
-	{
-		$salt = $user->getSalt();
-		$email = $user->getEmail();
-
-		$hash = sha1($expirationTime . $salt . $email);
-
-		return $hash;
 	}
 
 }

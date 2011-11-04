@@ -17,6 +17,10 @@ class AuthenticationPreFilterController extends Authentication\AuthenticationCon
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
 		
+		$this->publicUrlList = array(
+			'cms/internal-user-manager/restore'
+		);
+		
 		parent::__construct();
 	}
 	

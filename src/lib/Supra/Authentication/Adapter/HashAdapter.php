@@ -12,6 +12,18 @@ use Supra\Authentication\AuthenticationPassword;
 class HashAdapter implements AuthenticationAdapterInterface
 {
 	/**
+	 * Hashing method used
+	 * @var string
+	 */
+	private $algorithm = 'sha1';
+	
+	/**
+	 * Whether to use binary hash value
+	 * @var boolean
+	 */
+	private $rawOutput = false;
+	
+	/**
 	 * Finds user in database
 	 * @param string $login
 	 * @param AuthenticationPassword $password
@@ -52,7 +64,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 			throw new Exception\RuntimeException("User password salt is not permitted to be empty");
 		}
 		
-		$hash = sha1((string) $password . $salt);
+		$hash = hash_hmac($this->algorithm, (string) $password, $salt, $this->rawOutput);
 		
 		return $hash;
 	}
@@ -64,7 +76,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 	 */
 	public function credentialChange(User $user, AuthenticationPassword $password = null)
 	{
-		// Email is login for this 
+		// Email is login for this adapter
 		$user->setLogin($user->getEmail());
 		
 		if ( ! is_null($password)) {
@@ -73,7 +85,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 				throw new Exception\PasswordPolicyException("Empty password is not allowed");
 			}
 			
-			$salt = $user->getSalt();
+			$salt = $user->resetSalt();
 			$passHash = $this->generatePasswordHash($password, $salt);
 			$user->setPassword($passHash);
 		}

@@ -76,7 +76,7 @@ class FixtureHelper
 
 			$user->setLogin($userName);
 			$user->setName($userName);
-			$user->setEmail($userName);
+			$user->setEmail($userName . '@supra7.vig');
 			$plainPassword = $userName;
 			$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 
