@@ -91,10 +91,11 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 		// Password hash should be 40 characters
 		self::assertEquals(40, strlen($password1));
 		
+		// Credential change resets salt now automatically
 		$this->object->credentialChange($user, $password);
 		
 		$password2 = $user->getPassword();
-		self::assertEquals($password1, $password2);
+		self::assertNotEquals($password1, $password2);
 		
 		$newPassword = new \Supra\Authentication\AuthenticationPassword('admin1234');
 		$this->object->credentialChange($user, $newPassword);
