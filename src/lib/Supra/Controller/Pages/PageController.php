@@ -26,8 +26,9 @@ class PageController extends ControllerAbstraction
 	const SCHEMA_TRASH = '#trash';
 	const SCHEMA_HISTORY = '#history';
 	const SCHEMA_PUBLIC = '#public';
+	const SCHEMA_AUDIT = '#audit';
 	
-	static $knownSchemaNames = array(self::SCHEMA_CMS, self::SCHEMA_HISTORY, self::SCHEMA_PUBLIC, self::SCHEMA_TRASH);
+	public static $knownSchemaNames = array(self::SCHEMA_CMS, self::SCHEMA_HISTORY, self::SCHEMA_PUBLIC, self::SCHEMA_TRASH);
 	
 	/**
 	 * List of block controllers

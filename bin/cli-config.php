@@ -6,38 +6,49 @@ use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 
+// This loads test connection as well
+require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
+
 $namespace = '';
 
 if ( ! empty($_SERVER['argv'][1])) {
-
-	// This is the default
-	if ($_SERVER['argv'][1] == 'public') {
-		array_splice($_SERVER['argv'], 1, 1);
-		$namespace = PageController::SCHEMA_PUBLIC;
+	
+	$match = true;
+	
+	switch ($_SERVER['argv'][1]) {
+		case 'public':
+			$namespace = PageController::SCHEMA_PUBLIC;
+			break;
+		
+		case 'draft':
+		case 'cms':
+			$namespace = PageController::SCHEMA_CMS;
+			break;
+		
+		case 'test':
+		case 'tests':
+			require_once __DIR__ . '/../tests/bootstrap.php';
+			$namespace = '#tests';
+			break;
+		
+		case 'trash':
+			$namespace = PageController::SCHEMA_TRASH;
+			break;
+		
+		case 'history':
+			$namespace = PageController::SCHEMA_HISTORY;
+			break;
+		
+		case 'audit':
+			$namespace = PageController::SCHEMA_AUDIT;
+			break;
+		
+		default:
+			$match = false;
 	}
 	
-	if ($_SERVER['argv'][1] == 'draft') {
+	if ($match) {
 		array_splice($_SERVER['argv'], 1, 1);
-		$namespace = PageController::SCHEMA_CMS;
-	}
-
-	if ($_SERVER['argv'][1] == 'test' || $_SERVER['argv'][1] == 'tests') {
-		
-		// Load test connection as well
-		require_once __DIR__ . '/phpunit-bootstrap.php';
-		
-		array_splice($_SERVER['argv'], 1, 1);
-		$namespace = '#tests';
-	}
-
-	if ($_SERVER['argv'][1] == 'trash') {
-		array_splice($_SERVER['argv'], 1, 1);
-		$namespace = PageController::SCHEMA_TRASH;
-	}
-
-	if ($_SERVER['argv'][1] == 'history') {
-		array_splice($_SERVER['argv'], 1, 1);
-		$namespace = PageController::SCHEMA_HISTORY;
 	}
 }
 

@@ -103,6 +103,10 @@ while (true) {
 
 	$argArray = explode(' ', $arg, 2);
 	$command = $argArray[0];
+	
+	if ($command == '') {
+		continue;
+	}
 
 	$found = false;
 	$possibilities = array();
@@ -144,7 +148,7 @@ while (true) {
 		}
 	} else {
 		echo "Executing...\n";
-		echo shell_exec('php "' . __DIR__ . DIRECTORY_SEPARATOR . 'doctrine.php" ' . $arg);
+		echo shell_exec('php "' . dirname(__DIR__) . DIRECTORY_SEPARATOR . 'doctrine.php" ' . $arg);
 		echo "\n";
 	}
 }
