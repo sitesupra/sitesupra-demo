@@ -7,7 +7,8 @@ use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 
 // This loads test connection as well
-require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
+//require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
+require_once __DIR__ . '/../tests/bootstrap.php';
 
 $namespace = '';
 
@@ -27,7 +28,6 @@ if ( ! empty($_SERVER['argv'][1])) {
 		
 		case 'test':
 		case 'tests':
-			require_once __DIR__ . '/../tests/bootstrap.php';
 			$namespace = '#tests';
 			break;
 		
