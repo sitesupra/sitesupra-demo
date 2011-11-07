@@ -7,54 +7,40 @@ use \Solarium_Exception;
 use \Solarium_Document_ReadWrite;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
+use Request\SearchRequestAbstraction;
 
-abstract class SearchService
+class SearchService
 {
+
 	/**
 	 * @var \Solarium_Client;
 	 */
-	private $solariumClient;
-
-	/**
-	 * System ID to be used for this project.
-	 * @var string
-	 */
-	private $systemId;
+	protected $solariumClient;
 
 	function __construct()
 	{
 		$this->solariumClient = ObjectRepository::getSolariumClient($this);
 
-		//$pingQuery = $this->solariumClient->createPing();
-		//$this->solariumClient->ping($pingQuery);
+		$this->systemId = 'someSystemId';
 	}
 
-	public function search($criteria) 
+	/**
+	 * @param Request\SearchRequestInterface $request
+	 * @return Solarium_Result_Select
+	 */
+	public function processRequest($request)
 	{
-		// get a select query instance
-		$query = $this->solariumClient->createSelect();
+		$selectQuery = $this->solariumClient->createSelect();
 
-		// set a query (all prices starting from 12)
-		$query->setQuery('price:[12 TO *]');
+		$request->addSimpleFilter('systemId', $this->systemId);
+		
+		$request->applyParametersToSelectQuery($selectQuery);
+		
+		\Log::debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
 
-		// set start and rows param (comparable to SQL limit) using fluent interface
-		$query->setStart(2)->setRows(20);
+		$result = $this->solariumClient->select($selectQuery);
 
-		// set fields to fetch (this overrides the default setting 'all fields')
-		$query->setFields(array('id','name','price'));
-
-		// sort the results by price ascending
-		$query->addSort('price', Solarium_Query_Select::SORT_ASC);
-
-		// this executes the query and returns the result
-		$resultset = $this->solariumClient->select($query);
-
-		// display the total number of documents found by solr
-		echo 'NumFound: '.$resultset->getNumFound();
-
-		// show documents using the resultset iterator
-		foreach ($resultset as $document) {		
-			\Log::debug('DDD: ', $document);
-		}
+		return $result;
 	}
+
 }

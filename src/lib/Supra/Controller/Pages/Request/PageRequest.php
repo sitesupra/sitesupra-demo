@@ -24,25 +24,25 @@ abstract class PageRequest extends HttpRequest
 	 * @var string
 	 */
 	const PAGE_ENTITY = 'Supra\Controller\Pages\Entity\Page';
-	
+
 	/**
 	 * Data abstraction class name
 	 * @var string
 	 */
 	const DATA_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Localization';
-	
+
 	/**
 	 * Page data class name
 	 * @var string
 	 */
 	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageLocalization';
-	
+
 	/**
 	 * Template class name
 	 * @var string
 	 */
 	const TEMPLATE_ENTITY = 'Supra\Controller\Pages\Entity\Template';
-	
+
 	/**
 	 * Page data class name
 	 * @var string
@@ -72,49 +72,49 @@ abstract class PageRequest extends HttpRequest
 	 * @var string
 	 */
 	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\BlockProperty';
-	
+
 	/**
 	 * Revision data class name
 	 * @var string
 	 */
 	const REVISION_DATA_ENTITY = 'Supra\Controller\Pages\Entity\RevisionData';
-	
+
 	/**
 	 * @var WriterAbstraction
 	 */
 	protected $log;
-	
+
 	/**
 	 * Whether to allow flusing internally
 	 * @var boolean
 	 */
 	protected $allowFlushing = false;
-	
+
 	/**
 	 * @var \Doctrine\ORM\EntityManager
 	 */
 	private $doctrineEntityManager;
-	
+
 	/**
 	 * @var string
 	 */
 	private $locale;
-	
+
 	/**
 	 * @var string
 	 */
 	private $media = Entity\Layout::MEDIA_SCREEN;
-	
+
 	/**
 	 * @var Entity\Abstraction\Localization
 	 */
 	private $pageData;
-	
-	/** 
+
+	/**
 	 * @var User
 	 */
 	private $user;
-	
+
 	/**
 	 * @var Set\PageSet
 	 */
@@ -124,22 +124,22 @@ abstract class PageRequest extends HttpRequest
 	 * @var Entity\Layout
 	 */
 	private $layout;
-	
+
 	/**
 	 * @var Set\PlaceHolderSet
 	 */
 	protected $placeHolderSet;
-	
+
 	/**
 	 * @var Set\BlockSet
 	 */
 	protected $blockSet;
-	
+
 	/**
 	 * @var BlockPropertySet
 	 */
 	protected $blockPropertySet;
-	
+
 	/**
 	 * @param string $locale
 	 * @param string $media 
@@ -150,7 +150,7 @@ abstract class PageRequest extends HttpRequest
 		$this->media = $media;
 		$this->log = ObjectRepository::getLogger($this);
 	}
-	
+
 	/**
 	 * @return Entity\Abstraction\Localization
 	 */
@@ -158,7 +158,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		return $this->pageData;
 	}
-	
+
 	/**
 	 * @param Entity\Abstraction\Localization $pageData
 	 */
@@ -166,7 +166,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->pageData = $pageData;
 	}
-	
+
 	/**
 	 * @param \Doctrine\ORM\EntityManager $em
 	 */
@@ -182,7 +182,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		return $this->doctrineEntityManager;
 	}
-	
+
 	/**
 	 * @param User $user 
 	 */
@@ -190,7 +190,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->user = $user;
 	}
-	
+
 	/**
 	 * @return User
 	 */
@@ -198,7 +198,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		return $this->user;
 	}
-	
+
 	/**
 	 * @param string $locale
 	 */
@@ -206,7 +206,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->locale = $locale;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -214,7 +214,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		return $this->locale;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -230,7 +230,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->media = $media;
 	}
-	
+
 	/**
 	 * Helper method to get requested page entity
 	 * @return Entity\Abstraction\AbstractPage 
@@ -238,7 +238,7 @@ abstract class PageRequest extends HttpRequest
 	public function getPage()
 	{
 		return $this->getPageLocalization()
-				->getMaster();
+						->getMaster();
 	}
 
 	/**
@@ -249,32 +249,32 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->pageSet)) {
 			return $this->pageSet;
 		}
-		
+
 		// Fetch page/template hierarchy list
 		$this->pageSet = $this->getPageLocalization()
 				->getTemplateHierarchy();
-		
+
 		return $this->pageSet;
 	}
-	
+
 	/**
 	 * @return array
 	 */
 	public function getPageSetIds()
 	{
 		return $this->getPageSet()
-				->collectIds();
+						->collectIds();
 	}
-	
+
 	/**
 	 * @return Entity\Template
 	 */
 	public function getRootTemplate()
 	{
 		return $this->getPageSet()
-				->getRootTemplate();
+						->getRootTemplate();
 	}
-	
+
 	/**
 	 * @return Entity\Layout
 	 */
@@ -283,22 +283,22 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->layout)) {
 			return $this->layout;
 		}
-		
+
 		$this->layout = $this->getRootTemplate()
 				->getLayout($this->media);
-		
+
 		return $this->layout;
 	}
-	
+
 	/**
 	 * @return array
 	 */
 	public function getLayoutPlaceHolderNames()
 	{
 		return $this->getLayout()
-				->getPlaceHolderNames();
+						->getPlaceHolderNames();
 	}
-	
+
 	/**
 	 * @return Set\PlaceHolderSet
 	 */
@@ -307,23 +307,23 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->placeHolderSet)) {
 			return $this->placeHolderSet;
 		}
-		
+
 		$page = $this->getPage();
 		$localization = $this->getPageLocalization();
 		$localeId = $localization->getLocale();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
-		
+
 		$pageSetIds = $this->getPageSetIds();
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
-		
+
 		$em = $this->getDoctrineEntityManager();
-		
+
 		// Nothing to search for
 		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {
-			
+
 			return $this->placeHolderSet;
 		}
-		
+
 		// Find template place holders
 		$qb = $em->createQueryBuilder();
 
@@ -338,27 +338,28 @@ abstract class PageRequest extends HttpRequest
 				// templates first (type: 0-templates, 1-pages)
 				->orderBy('ph.type', 'ASC')
 				->addOrderBy('p.level', 'ASC');
-		
+
 		$query = $qb->getQuery();
 		$placeHolderArray = $query->getResult();
-		
+
 		foreach ($placeHolderArray as $placeHolder) {
 			/* @var $place PlaceHolder */
 			$this->placeHolderSet->append($placeHolder);
 		}
-		
+
 		// Create missing place holders automatically
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
-		
+
 		foreach ($layoutPlaceHolderNames as $name) {
-			if ( ! $finalPlaceHolders->offsetExists($name)) {
-				
+			if ( ! $finalPlaceHolders->offsetExists($name) && ! $page->getPlaceHolders()->offsetExists($name)) {
+
+
 				// Check if page doesn't have it already set locally
 				$placeHolder = null;
 				$knownPlaceHolders = $localization->getPlaceHolders();
-				
+
 				if ($knownPlaceHolders->offsetExists($name)) {
 					$placeHolder = $knownPlaceHolders->offsetGet($name);
 				}
@@ -366,30 +367,30 @@ abstract class PageRequest extends HttpRequest
 				if (empty($placeHolder)) {
 					// Copy unlocked blocks from the parent template
 					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
-					
+
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
 				}
-				
+
 				// Persist only for draft connection with ID generation
 				if ($this instanceof PageRequestEdit) {
 					$em->persist($placeHolder);
 				}
-				
+
 				$this->placeHolderSet->append($placeHolder);
 			}
 		}
-		
+
 		// Flush only for draft connection with ID generation
 		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
 			$em->flush();
 		}
-		
+
 		\Log::debug('Count of place holders found: ' . count($this->placeHolderSet));
-		
+
 		return $this->placeHolderSet;
 	}
-	
+
 	/**
 	 * @return Set\BlockSet
 	 */
@@ -398,15 +399,15 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->blockSet)) {
 			return $this->blockSet;
 		}
-		
+
 		$em = $this->getDoctrineEntityManager();
 		$this->blockSet = new Set\BlockSet();
-		
+
 		$placeHolderSet = $this->getPlaceHolderSet();
 
 		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
 				->collectIds();
-		
+
 		$parentPlaceHolderIds = $placeHolderSet->getParentPlaceHolders()
 				->collectIds();
 
@@ -421,7 +422,7 @@ abstract class PageRequest extends HttpRequest
 				->from(static::BLOCK_ENTITY, 'b')
 				->join('b.placeHolder', 'ph')
 				->orderBy('b.position', 'ASC');
-		
+
 		$expr = $qb->expr();
 		$or = $expr->orX();
 
@@ -429,25 +430,24 @@ abstract class PageRequest extends HttpRequest
 		if ( ! empty($finalPlaceHolderIds)) {
 			$or->add($expr->in('ph.id', $finalPlaceHolderIds));
 		}
-		
+
 		// locked block condition
 		if ( ! empty($parentPlaceHolderIds)) {
 			$lockedBlocksCondition = $expr->andX(
-					$expr->in('ph.id', $parentPlaceHolderIds),
-					'b.locked = TRUE'
+					$expr->in('ph.id', $parentPlaceHolderIds), 'b.locked = TRUE'
 			);
 			$or->add($lockedBlocksCondition);
 		}
-		
+
 		$qb->where($or);
-		
+
 		// Execute block query
 		$query = $qb->getQuery();
 		$query->execute();
 		$blocks = $query->getResult();
 
 		\Log::debug("Block count found: " . count($blocks));
-		
+
 		// Skip temporary blocks for VIEW mode
 		foreach ($blocks as $blockKey => $block) {
 			if ($block instanceof Entity\TemplateBlock) {
@@ -475,10 +475,10 @@ abstract class PageRequest extends HttpRequest
 				$this->blockSet[] = $block;
 			}
 		}
-		
+
 		return $this->blockSet;
 	}
-	
+
 	/**
 	 * @return Set\BlockPropertySet
 	 */
@@ -487,9 +487,9 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->blockPropertySet)) {
 			return $this->blockPropertySet;
 		}
-		
+
 		$this->blockPropertySet = new Set\BlockPropertySet();
-		
+
 		$em = $this->getDoctrineEntityManager();
 		$qb = $em->createQueryBuilder();
 		$expr = $qb->expr();
@@ -498,28 +498,29 @@ abstract class PageRequest extends HttpRequest
 		$cnt = 0;
 
 		$blockSet = $this->getBlockSet();
-		
+
 		$page = $this->getPage();
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
 			/* @var $block Entity\Abstraction\Block */
-			
+
 			$master = null;
-			
+
 			if ($block->getLocked()) {
 				$master = $block->getPlaceHolder()
 						->getMaster()
 						->getMaster();
-			} else {
+			}
+			else {
 				$master = $page;
 			}
-			
+
 			\Log::debug("Master node for {$block} is found - {$master}");
-			
+
 			// FIXME: n+1 problem
 			$data = $master->getLocalization($this->locale);
-			
+
 			if (empty($data)) {
 				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
 				$blockSet->removeInvalidBlock($block, "Page data for locale not found");
@@ -530,9 +531,9 @@ abstract class PageRequest extends HttpRequest
 			$dataId = $data->getId();
 
 			$and = $expr->andX();
-			$and->add($expr->eq('bp.block', '?' . (++$cnt)));
+			$and->add($expr->eq('bp.block', '?' . ( ++ $cnt)));
 			$qb->setParameter($cnt, $blockId);
-			$and->add($expr->eq('bp.localization', '?' . (++$cnt)));
+			$and->add($expr->eq('bp.localization', '?' . ( ++ $cnt)));
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
@@ -548,16 +549,16 @@ abstract class PageRequest extends HttpRequest
 				->from(static::BLOCK_PROPERTY_ENTITY, 'bp')
 				->where($or);
 		$query = $qb->getQuery();
-		
+
 		\Log::debug("Running query {$qb->getDQL()} to find block properties");
 
 		$result = $query->getResult();
-		
+
 		$this->blockPropertySet->exchangeArray($result);
-		
+
 		return $this->blockPropertySet;
 	}
-	
+
 	/**
 	 * In case if we are forced to fetch layout from another schema
 	 * this method will allow us to override layout with our one
@@ -566,8 +567,8 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->layout = $layout;
 	}
-	
-	/** 
+
+	/**
 	 * Clear properties
 	 */
 	public function resetSets()
@@ -577,5 +578,5 @@ abstract class PageRequest extends HttpRequest
 		$this->placeHolderSet = null;
 		$this->blockPropertySet = null;
 	}
-	
+
 }

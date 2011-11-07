@@ -6,6 +6,7 @@ use \Solarium_Client;
 use \Solarium_Exception;
 use \Solarium_Document_ReadWrite;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
+use Supra\ObjectRepository\ObjectRepository;
 
 class IndexerService
 {
@@ -23,20 +24,12 @@ class IndexerService
 
 	function __construct()
 	{
-		$this->systemId = 'someSystemId';
-
-		$config = array(
-				'adapteroptions' => array(
-						'host' => '127.0.0.1',
-						'port' => 8080,
-						'path' => '/solr',
-				)
-		);
-
-		$this->solariumClient = new Solarium_Client($config);
+		$this->solariumClient = ObjectRepository::getSolariumClient($this);
 
 		//$pingQuery = $this->solariumClient->createPing();
 		//$this->solariumClient->ping($pingQuery);
+		
+		$this->systemId = 'someSystemId';
 	}
 
 	public function getSystemId()
