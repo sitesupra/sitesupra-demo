@@ -353,7 +353,7 @@ abstract class PageRequest extends HttpRequest
 		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
 
 		foreach ($layoutPlaceHolderNames as $name) {
-			if ( ! $finalPlaceHolders->offsetExists($name) && ! $page->getPlaceHolders()->offsetExists($name)) {
+			if ( ! $finalPlaceHolders->offsetExists($name)) {
 
 
 				// Check if page doesn't have it already set locally

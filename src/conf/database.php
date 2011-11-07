@@ -158,6 +158,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			break;
 		// EXPERIMENTAL
 		case 'Audit':
-			ObjectRepository::setEntityManager('#audit', $em); break;
+			ObjectRepository::setEntityManager(PageController::SCHEMA_AUDIT, $em);
+			break;
 	}
 }
