@@ -15,6 +15,7 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 /**
  * Block controller abstraction
  * @method PageRequest getRequest()
+ * @method Response\TwigResponse getResponse()
  */
 abstract class BlockController extends ControllerAbstraction
 {

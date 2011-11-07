@@ -149,7 +149,7 @@ abstract class Block extends Entity implements AuditedEntity
 	{
 		$this->position = $position;
 	}
-
+	
 	/**
 	 * @return Collection
 	 */

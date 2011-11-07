@@ -709,9 +709,10 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$pageLocalization = $this->getPageLocalization();
 		
-		$this->entityManager
-				->getEventManager()
-				->dispatchEvent(DraftVersionListener::pageEditEvent, array('localization' => $pageLocalization));
+		//TODO: I guess the revision number, audit should be done here
+//		$this->entityManager
+//				->getEventManager()
+//				->dispatchEvent(DraftVersionListener::pageEditEvent, array('localization' => $pageLocalization));
 	}
 	
 }

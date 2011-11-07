@@ -211,13 +211,16 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		isChildTypeAllowed: function (type) {
 			var data = this.get('data');
-			if ('allow' in data && !this.isLocked()) {
+			if (this.isLocked()) {
+				return false;
+			}
+			if ('allow' in data) {
 				for(var i=0, ii=data.allow.length; i<ii; i++) {
 					if (data.allow[i] == type) {
 						return true;
 					}
 				}
-			} else if (!data.allow) {
+			} else {
 				return true;
 			}
 			return false;

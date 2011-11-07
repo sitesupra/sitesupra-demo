@@ -183,9 +183,9 @@ class PageAction extends PageManagerAction
 					'type' => 'list',
 					'locked' => ! $pageData->isPlaceHolderEditable($placeHolder),
 					//TODO: not specified now
-					'allow' => array(
-							0 => 'Project_Text_TextController',
-					),
+//					'allow' => array(
+//							0 => 'Project_Text_TextController',
+//					),
 					'contents' => array()
 			);
 

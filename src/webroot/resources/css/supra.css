@@ -167,3 +167,16 @@ big {
 	-webkit-border-radius: 5px;
 	-ms-border-radius: 5px;
 }
+.language-selector {
+	text-align: right;
+}
+.language-selector a {
+	text-decoration: none;
+}
+.language-selector a.active {
+	font-weight: bold;
+	color: black;
+}
+#header .language-selector {
+	margin-top: -20px;
+}

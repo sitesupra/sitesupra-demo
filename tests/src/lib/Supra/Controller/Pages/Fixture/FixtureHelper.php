@@ -381,9 +381,15 @@ class FixtureHelper
 				if ($name == 'header') {
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
+					$block->setComponentClass('Project\Languages\LanguageSelectorBlock');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
+					
+					$block = new Entity\TemplateBlock();
+					$this->entityManager->persist($block);
+					$block->setComponentClass('Project\Text\TextController');
+					$block->setPlaceHolder($templatePlaceHolder);
+					$block->setPosition(200);
 
 					// used later in page
 					$this->headerTemplateBlocks[$localeId] = $block;
