@@ -6,7 +6,7 @@ use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityRepository;
-
+use Doctrine\ORM\Query;
 
 abstract class IndexerQueue
 {
@@ -39,15 +39,25 @@ abstract class IndexerQueue
 		$this->em->flush();
 	}
 
+	/**
+	 * @param QueryBuilder $dqb 
+	 */
+	protected function buildStatusQuery($dqb)
+	{
+		$dqb->select('iq.status as itemStatus', 'count(iq.id) AS itemCount')
+				->from($this->itemClass, 'iq')
+				->groupBy('iq.status');
+	}
+
 	public function getStatus()
 	{
 		$dqb = $this->em->createQueryBuilder();
 
-		$dqb->select('iq.status as itemStatus', 'count(iq.id) AS itemCount')
-				->from($this->itemClass, 'iq')
-				->groupBy('iq.status');
+		$this->buildStatusQuery($dqb);
+		
+		$query = $dqb->getQuery();
 
-		$queryResult = $dqb->getQuery()->getScalarResult();
+		$queryResult = $query->getScalarResult();
 
 		// Fill result array with 0 for all known statuses.
 		$result = array_fill_keys(IndexerQueueItemStatus::getKnownStatuses(), 0);
@@ -58,15 +68,44 @@ abstract class IndexerQueue
 
 		return $result;
 	}
+	
+	/**
+	 * @param QueryBuilder $dqb 
+	 */
+	protected function buildItemCountForStatusQuery($dqb)
+	{
+		$dqb->select('count(iq.id) as itemCount')
+				->from($this->itemClass, 'iq')
+				->where($dqb->expr()->eq('iq.status', ':status'));
+	}
 
 	public function getItemCountForStatus($status)
 	{
-		$dql = 'SELECT count(iq.id) AS itemCount FROM ' . $this->itemClass . ' iq WHERE iq.status = ' . $status;
-		$queryResult = $this->em->createQuery($dql)->getOneOrNullResult();
+		$dqb = $this->em->createQueryBuilder();
+
+		$this->buildItemCountForStatusQuery($dqb);
+
+		$dqb->setParameter('status', $status);
+
+		$queryResult = $dqb->getQuery()->getOneOrNullResult();
 
 		$itemCount = intval($queryResult['itemCount']);
 
 		return $itemCount;
+	}
+
+	/**
+	 *
+	 * @param QueryBuil $dqb 
+	 */
+	protected function buildNextItemForStatusQuery($dqb)
+	{
+		$dqb->select('iq')
+				->from($this->itemClass, 'iq')
+				->where($dqb->expr()->eq('iq.status', ':status'))
+				->orderBy('iq.priority', 'DESC')
+				->orderBy('iq.creationTime', 'ASC')
+				->setMaxResults(1);
 	}
 
 	/**
@@ -81,16 +120,9 @@ abstract class IndexerQueue
 
 		$dqb = $this->em->createQueryBuilder();
 
-		$dqb->select('iq')
-				->from($this->itemClass, 'iq')
-				->where($dqb->expr()->eq('iq.status', $status))
-				->orderBy('iq.priority', 'DESC')
-				->orderBy('iq.creationTime', 'ASC')
-				->setMaxResults(1);
+		$this->buildNextItemForStatusQuery($dqb);
 
-		//if ($lock) {
-		//	$dqb->forUpdate(true);
-		//}
+		$dqb->setParameter('status', $status);
 
 		$result = $dqb->getQuery()->getOneOrNullResult();
 
@@ -113,7 +145,7 @@ abstract class IndexerQueue
 
 		return $queueItem;
 	}
-	
+
 	/**
 	 * Adds $object to queue. If this $object already is 
 	 * in queue and is not yet indexed, existing item will be removed, 
@@ -123,27 +155,39 @@ abstract class IndexerQueue
 	 */
 	public function add($object, $priority = IndexerQueueItem::DEFAULT_PRIORITY)
 	{
-		$queueItem = $this->getOneByObjectAndStatus($object, IndexerQueueItemStatus::FRESH);
+		$existingQueueItem = $this->getOneByObjectAndStatus($object, IndexerQueueItemStatus::FRESH);
 
-		if ( ! empty($queueItem)) {
+		if ( ! empty($existingQueueItem)) {
 
-			$this->em->remove($queueItem);
+			$this->em->remove($existingQueueItem);
 			$this->em->flush();
 		}
 
 		/* @var $newQueueItem IndexerQueueItem */
 		$newQueueItem = new $this->itemClass($object);
 		$newQueueItem->setPriority($priority);
-		
+
 		$this->store($newQueueItem);
-		
+
 		return $newQueueItem;
 	}
-	
-	public function removeAll() 
+
+	/**
+	 * @param QueryBuilder $dqb 
+	 */
+	protected function buildRemoveAllQuery($dqb)
 	{
-		$query = $this->em->createQuery('DELETE FROM ' . IndexerQueueItem::CN());
-		$query->execute();
+		$dqb->delete()
+					->from($this->itemClass, 'iq');
+	}
+
+	public function removeAll()
+	{
+		$dqb = $this->em->createQueryBuilder();
+		
+		$this->buildRemoveAllQuery($dqb);
+
+		$dqb->getQuery()->execute();
 	}
 
 	abstract function getOneByObjectAndStatus($object, $status);

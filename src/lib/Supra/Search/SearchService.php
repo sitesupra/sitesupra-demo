@@ -33,14 +33,16 @@ class SearchService
 		$selectQuery = $this->solariumClient->createSelect();
 
 		$request->addSimpleFilter('systemId', $this->systemId);
-		
+
 		$request->applyParametersToSelectQuery($selectQuery);
-		
+
 		\Log::debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
 
-		$result = $this->solariumClient->select($selectQuery);
+		$selectResults = $this->solariumClient->select($selectQuery);
 
-		return $result;
+		$requestResults = $request->processResults($selectResults);
+
+		return $requestResults;
 	}
 
 }

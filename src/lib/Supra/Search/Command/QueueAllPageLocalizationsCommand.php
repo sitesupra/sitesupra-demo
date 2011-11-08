@@ -3,7 +3,7 @@
 namespace Supra\Search\Command;
 
 use Symfony\Component\Console;
-use Supra\Controller\Pages\PageLocalizationIndexerQueue;
+use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
@@ -28,13 +28,17 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		foreach(PageController::$knownSchemaNames as $schemaName) {
-			
-			$output->writeln('Pages: schema name:' . $schemaName);
+		foreach (PageController::$knownSchemaNames as $schemaName) {
+
+			$output->write('Search: Pages: Reading from schema "' . $schemaName . '" - ');
 			
 			$count = $this->addPageLocalizations($schemaName);
-			$output->writeln('Pages: Added ' . intval($count) . ' to indexer queue from schema "' . $schemaName . '".');
+
+			$output->writeln('added ' . intval($count) . ' page localizations to indexer queue.');
 		}
+
+		$output->writeln('Search: Pages: Done adding pages to indexer queue.');
+		$output->writeln('');
 	}
 
 	/**
@@ -51,12 +55,12 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 
 		$pageLocalizations = $repo->findAll();
 
-		$indexerQueue = new PageLocalizationIndexerQueue();
+		$indexerQueue = new PageLocalizationIndexerQueue($schemaName);
 
 		foreach ($pageLocalizations as $pageLocalization) {
-			$indexerQueue->add($pageLocalization, IndexerQueueItem::DEFAULT_PRIORITY, $schemaName);
+			$indexerQueue->add($pageLocalization);
 		}
-		
+
 		return count($pageLocalizations);
 	}
 

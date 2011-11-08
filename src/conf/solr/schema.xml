@@ -93,26 +93,28 @@
 		<field name="pageLocalizationId" type="string" indexed="false" stored="true" required="false" />
 		<field name="locale" type="string" indexed="true" stored="true" required="false" /> 
 		<field name="pageId" type="string" indexed="true" stored="true" required="false" /> 
-		<field name="text" type="text_general" indexed="true" stored="true" required="false" /> 
-		<field name="title" type="text_general" indexed="true" stored="true" required="false" /> 
+		<field name="text_general" type="text_general" indexed="true" stored="true" required="false" /> 
+		<field name="title_general" type="text_general" indexed="true" stored="true" required="false" /> 
 		<field name="createTime" type="date" indexed="true" stored="true" required="false" />
 		<field name="modifyTime" type="date" indexed="true" stored="true" required="false" />
-		<field name="text_lv_LV" type="text_lv" indexed="true" stored="true" required="false" />
-		<field name="text_en_LV" type="text_en" indexed="true" stored="true" required="false" />	 
-		<field name="text_ru_RU" type="text_ru" indexed="true" stored="true" required="false" />	 		
-		<field name="title_lv_LV" type="text_lv" indexed="true" stored="true" required="false" />
-		<field name="title_en_LV" type="text_en" indexed="true" stored="true" required="false" />	 
-		<field name="title_ru_RU" type="text_ru" indexed="true" stored="true" required="false" />	 		
+		<field name="text_lv" type="text_lv" indexed="true" stored="true" required="false" />
+		<field name="text_en" type="text_en" indexed="true" stored="true" required="false" />	 
+		<field name="text_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
+		<field name="title_lv" type="text_lv" indexed="true" stored="true" required="false" />
+		<field name="title_en" type="text_en" indexed="true" stored="true" required="false" />	 
+		<field name="title_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
 		<field name="author" type="string" indexed="true" stored="true" required="false" />
 		<field name="keywords" type="string" indexed="true" stored="true" required="false" />
 		<field name="description" type="string" indexed="true" stored="true" required="false" />
+		<field name="pageWebPath" type="string" indexed="true" stored="true" required="false" />
+		<field name="ancestors" type="string" indexed="true" stored="true" required="false" />		
 	</fields>
 
  	<uniqueKey>uniqueId</uniqueKey>
 
 	<defaultSearchField>text</defaultSearchField>
 
- <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 	<solrQueryParser defaultOperator="OR"/>
 
 </schema>

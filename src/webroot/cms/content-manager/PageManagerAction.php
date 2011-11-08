@@ -489,6 +489,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function restoreTrashVersion()
 	{
+		/*
 		$this->isPostRequest();
 
 		$trashEm = ObjectRepository::getEntityManager('#trash');
@@ -496,7 +497,7 @@ abstract class PageManagerAction extends CmsAction
 
 		$localization = $this->getPageLocalization();
 
-		$draftEm = ObjectRepository::getEntityManager('#cms');
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 
 		$page = $localization->getMaster();
 		if ($page instanceof Entity\Page) {
@@ -553,6 +554,7 @@ abstract class PageManagerAction extends CmsAction
 		}
 
 		$this->getResponse()->setResponseData(true);
+		*/
 	}
 
 	/**
@@ -707,7 +709,7 @@ abstract class PageManagerAction extends CmsAction
 
 	protected function firePageEditEvent()
 	{
-		$pageLocalization = $this->getPageLocalization();
+		//$pageLocalization = $this->getPageLocalization();
 		
 		//TODO: I guess the revision number, audit should be done here
 //		$this->entityManager

@@ -22,6 +22,7 @@ $parser = new Supra\Configuration\Parser\YamlParser();
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
+$parser->parseFile(SUPRA_COMPONENT_PATH . 'Search/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
 $parser->parseFile(SUPRA_COMPONENT_PATH . 'Authentication/config.yml');
 

@@ -35,6 +35,7 @@ class WipeCommand extends Console\Command\Command
 		$update->addCommit();
 		$client->update($update);	
 		
-		$output->writeln('Indexes for systemId "' . $indexerService->getSystemId() . '" wiped.');
+		$output->writeln('Search: Indexes for systemId "' . $indexerService->getSystemId() . '" wiped.');
+		$output->writeln('');
 	}
 }

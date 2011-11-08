@@ -45,7 +45,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$this->pageLocalizationId = $pageLocalization->getId();
 		$this->revisionId = $pageLocalization->getRevisionId();
-		$this->schemaName = PageController::SCHEMA_CMS;
+		$this->schemaName = PageController::SCHEMA_DRAFT;
 	}
 
 	/**
@@ -73,6 +73,12 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		/* @var $pageLocalization PageLocalization */
 		$pageLocalization = $pr->find($this->pageLocalizationId);
+		
+		$lm = ObjectRepository::getLocaleManager($this);
+		
+		$locale = $lm->getLocale($pageLocalization->getLocale());
+		
+		$languageCode = $locale->getProperty("language");
 
 		$indexedDocument = new IndexedDocument();
 
@@ -83,13 +89,15 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->pageId = $pageLocalization->getMaster()->getId();
 		$indexedDocument->pageLocalizationId = $pageLocalization->getId();
-		$indexedDocument->locale = $pageLocalization->getLocale();
+		$indexedDocument->localeId = $locale->getId();
 
-		$indexedDocument->title = $indexedDocument->formatText($pageLocalization->getTitle());
-		$indexedDocument->__set('title_' . $pageLocalization->getLocale(), $indexedDocument->title);
+		$indexedDocument->title_general = $indexedDocument->formatText($pageLocalization->getTitle());
+		$indexedDocument->__set('title_' . $languageCode, $indexedDocument->title_general);
 
 		$indexedDocument->keywords = $pageLocalization->getMetaKeywords();
 		$indexedDocument->description = $pageLocalization->getMetaDescription();
+		
+		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
 
@@ -113,9 +121,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}
 		}
-
-		$indexedDocument->text = join(' ', $pageContents);
-		$indexedDocument->__set('text_' . $pageLocalization->getLocale(), $indexedDocument->text);
+		
+		$indexedDocument->text_general = join(' ', $pageContents);
+		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
 		$result[] = $indexedDocument;
 

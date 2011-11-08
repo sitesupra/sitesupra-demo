@@ -5,7 +5,9 @@ namespace Supra\Search\Command;
 use Symfony\Component\Console;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\IndexerService;
-use Supra\Controller\Pages\PageLocalizationIndexerQueue;
+use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
+use Supra\Controller\Pages\PageController;
+use \Supra\Search\IndexerQueueItemStatus;
 
 
 /**
@@ -28,12 +30,18 @@ class RunIndexerCommand extends Console\Command\Command
 	{
 		$indexerService = new IndexerService();
 
-		$pageLocalizationIndexerQueue = new PageLocalizationIndexerQueue();
+		foreach(PageController::$knownSchemaNames as $schemaName) {
+			
+			$pageLocalizationIndexerQueue = new PageLocalizationIndexerQueue($schemaName);
 		
-		$output->writeln('Pages: Have ' . $pageLocalizationIndexerQueue->getItemCountForStatus(\Supra\Search\IndexerQueueItemStatus::FRESH) . ' in queue.');
+			$output->write('Search: Pages: Indexing ' . $pageLocalizationIndexerQueue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) . ' items from queue for schema "' . $schemaName . '" - ');
 		
-		$indexerService->processQueue($pageLocalizationIndexerQueue);
+			$indexerService->processQueue($pageLocalizationIndexerQueue);
+			
+			$output->writeln('done.');
+		}
 		
-		$output->writeln('Pages: Indexing done.');
+		$output->writeln('Search: Pages: Indexing done.');
+		$output->writeln('');
 	}
 }

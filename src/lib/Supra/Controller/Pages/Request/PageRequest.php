@@ -363,7 +363,7 @@ abstract class PageRequest extends HttpRequest
 				if ($knownPlaceHolders->offsetExists($name)) {
 					$placeHolder = $knownPlaceHolders->offsetGet($name);
 				}
-				
+
 				if (empty($placeHolder)) {
 					// Copy unlocked blocks from the parent template
 					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);

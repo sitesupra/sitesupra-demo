@@ -39,7 +39,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	/**
 	 * @var string
 	 */
-	protected $revision;
+	protected $revision = '';
 	
 	/**
 	 * Creates log writer instance

@@ -28,7 +28,8 @@ class IndexedDocument extends Solarium_Document_ReadWrite
 	 */
 	public function formatText($text)
 	{
-		return str_replace("\xA0", ' ', html_entity_decode(strip_tags($text)));
+		//return str_replace("\xA0", ' ', html_entity_decode(strip_tags($text)));
+		return strip_tags($text);
 	}
 
 	/**

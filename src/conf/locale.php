@@ -15,6 +15,7 @@ $locale->setId('en_LV');
 $locale->setTitle('English');
 $locale->setCountry('Latvia');
 $locale->addProperty('flag', 'gb');
+$locale->addProperty('language', 'en'); // as per ISO 639-1
 $localeManager->add($locale);
 
 /* Latvian | Latvia */
@@ -23,6 +24,7 @@ $locale->setId('lv_LV');
 $locale->setTitle('Latvian');
 $locale->setCountry('Latvia');
 $locale->addProperty('flag', 'lv');
+$locale->addProperty('language', 'lv'); // as per ISO 639-1
 $localeManager->add($locale);
 
 /* Russian | Russia */
@@ -31,6 +33,7 @@ $locale->setId('ru_RU');
 $locale->setTitle('Russian');
 $locale->setCountry('Russia');
 $locale->addProperty('flag', 'ru');
+$locale->addProperty('language', 'ru'); // as per ISO 639-1
 $localeManager->add($locale);
 
 $localeManager->setCurrent('en_LV');

@@ -1,0 +1,20 @@
+
+<div title="{{ title }}" class="search">
+	
+	<hr />
+
+	<form method="GET" action="/{{ resultUrl|raw }}">
+		<input type="text" name="q" value="{{ q }}"/>
+		<input type="submit" name="search" />
+	</form>
+	
+	<hr />
+	
+  {% for searchResult in searchResults %}
+	<h2><a href="{{ searchResult["localeId"] }}{{ searchResult["pageWebPath"] }}">{{ searchResult["title"] }}</a></h2>
+	<p>... {{ searchResult["hilight"]|raw }} ...</p>
+  {% endfor %}
+
+	<hr />
+
+</div>

@@ -93,11 +93,11 @@ class IndexerService
 			$queue->store($queueItem);
 		}
 		
-		foreach($indexedQueueItems as $indexedQueueItem) {
-			
-			$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);
-			$queue->store($indexedQueueItem);
-		}
+		//foreach($indexedQueueItems as $indexedQueueItem) {
+		//	
+		//	$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);
+		//	$queue->store($indexedQueueItem);
+		//}
 	}
 
 	public function getSolariumClient()
