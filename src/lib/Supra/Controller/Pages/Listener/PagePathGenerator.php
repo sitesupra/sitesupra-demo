@@ -9,11 +9,13 @@ use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Events;
 
 /**
  * Creates the page path and checks it's uniqueness
  */
-class PagePathGenerator
+class PagePathGenerator implements EventSubscriber
 {
 	/**
 	 * @var EntityManager
@@ -24,6 +26,15 @@ class PagePathGenerator
 	 * @var UnitOfWork
 	 */
 	private $unitOfWork;
+	
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function getSubscribedEvents()
+	{
+		return array(Events::onFlush);
+	}
 	
 	/**
 	 * @param OnFlushEventArgs $eventArgs

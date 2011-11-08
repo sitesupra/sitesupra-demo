@@ -8,7 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Tests\Database\TableNameGenerator;
+use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Controller\Pages\Listener;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Doctrine\DBAL\Types\Type;
@@ -62,9 +62,9 @@ $connectionOptions['driverOptions'] = array(
 $config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 $eventManager = new EventManager();
-$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
+$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
+$eventManager->addEventSubscriber(new NestedSetListener());
+$eventManager->addEventSubscriber(new TableNamePrefixer('test_'));
 $eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
 $eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
 $eventManager->addEventListener(array(Events::loadClassMetadata), new Supra\Tests\Search\DiscriminatorAppender());

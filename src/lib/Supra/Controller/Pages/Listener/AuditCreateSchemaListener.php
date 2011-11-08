@@ -8,16 +8,19 @@ use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
-
+use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Events;
 
 class AuditCreateSchemaListener implements EventSubscriber
 {
+	const AUDIT_SUFFIX = '_audit';
+	
 	private $config;
 	
 	public function __construct()
 	{
 		$this->config = array(
-			'audit_suffix' => '_audit',
+			'audit_suffix' => self::AUDIT_SUFFIX,
 		);
 	}
 
@@ -25,7 +28,8 @@ class AuditCreateSchemaListener implements EventSubscriber
 	{
 		return array(
 			ToolEvents::postGenerateSchemaTable,
-			ToolEvents::postGenerateSchema,
+//			ToolEvents::postGenerateSchema,
+			Events::loadClassMetadata
 		);
 	}
 
@@ -33,13 +37,16 @@ class AuditCreateSchemaListener implements EventSubscriber
 	{
 		$metadata = $eventArgs->getClassMetadata();
 		$class = new ReflectionClass($metadata->name);
+		$schema = $eventArgs->getSchema();
+		$entityTable = $eventArgs->getClassTable();
+		$tableName = $entityTable->getName();
 		
 		if ($class->implementsInterface(AuditedEntity::INTERFACE_NAME)) {
-			$schema = $eventArgs->getSchema();
-			$entityTable = $eventArgs->getClassTable();
-			$revisionTable = $schema->createTable(
-				$entityTable->getName().$this->config['audit_suffix']
-			);
+			
+			// Recreate the table inside the schema
+			$schema->dropTable($tableName);
+			$revisionTable = $schema->createTable($tableName);
+			
 			foreach ($entityTable->getColumns() AS $column) {
 				/* @var $column Column */
 				
@@ -62,6 +69,10 @@ class AuditCreateSchemaListener implements EventSubscriber
 			
 			$pkColumns[] = 'revision';
 			$revisionTable->setPrimaryKey($pkColumns);
+			
+		// Don't need any other tables in the audit schema
+		} else {
+			$schema->dropTable($tableName);
 		}
 	}
 
@@ -79,5 +90,21 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$revisionsTable->setPrimaryKey(array('id'));
 	
 		 */
+	}
+	
+	/**
+	 * Will add the _audit suffix
+	 * @param LoadClassMetadataEventArgs $eventArgs
+	 */
+	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
+	{
+		$classMetadata = $eventArgs->getClassMetadata();
+		$className = $classMetadata->name;
+		$name = &$classMetadata->table['name'];
+		$class = new ReflectionClass($className);
+		
+		if ($class->implementsInterface(AuditedEntity::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
+			$name = $name . self::AUDIT_SUFFIX;
+		}
 	}
 }

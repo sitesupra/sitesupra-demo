@@ -11,8 +11,9 @@ use Supra\Controller\Pages\Annotation;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\Events;
+use Doctrine\Common\EventSubscriber;
 
-class VersionedAnnotationListener extends VersionedTableMetadataListener implements \Doctrine\Common\EventSubscriber
+class VersionedAnnotationListener extends VersionedTableMetadataListener implements EventSubscriber
 {
 	const ANNOTATION_NS = 'Supra\Controller\Pages\Annotation\\';
 	const schemaUpdateEvent = 'schemaUpdateEvent';
@@ -33,6 +34,14 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener impleme
 		'Supra\Controller\Pages\Entity\GroupPage',
 		'Supra\Controller\Pages\Entity\TemplateLayout',
 	);
+	
+	public function getSubscribedEvents()
+	{
+		return array(
+			Events::loadClassMetadata,
+			self::schemaUpdateEvent,
+		);
+	}
 	
 	/**
 	 * @param LoadClassMetadataEventArgs $eventArgs
@@ -173,12 +182,4 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener impleme
 		$this->isOnCreateCall = $createCall;
 	}
 	
-	public function getSubscribedEvents()
-	{
-		return array(
-			Events::loadClassMetadata,
-			self::schemaUpdateEvent,
-		);
-	}
-
 }

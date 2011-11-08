@@ -7,5 +7,5 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
  */
 interface AuditedEntity
 {	
-	const INTERFACE_NAME = 'Supra\Controller\Pages\Entity\Abstraction\AuditedEntity';
+	const INTERFACE_NAME = __CLASS__;
 }

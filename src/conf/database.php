@@ -8,7 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Database\Doctrine\Listener\TableNameGenerator;
+use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
@@ -85,8 +85,8 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');
 
 	$eventManager = new EventManager();
-	$eventManager->addEventListener(array(Events::loadClassMetadata), new TableNameGenerator());
-	$eventManager->addEventListener(array(Events::onFlush, Events::prePersist), new TimestampableListener());
+	$eventManager->addEventSubscriber(new TableNamePrefixer('su_'));
+	$eventManager->addEventSubscriber(new TimestampableListener());
 
 	$eventManager->addEventSubscriber(new Listener\VersionedAnnotationListener());
 	$eventManager->addEventSubscriber(new Listener\CreateSchemaListener());
@@ -95,17 +95,17 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	switch ($managerName) {
 		case 'PublicSchema':
-			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
+			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
+			$eventManager->addEventSubscriber(new NestedSetListener());
 			break;
 
 		case 'Draft':
-			$eventManager->addEventListener(array(Events::onFlush), new Listener\PagePathGenerator());
-			$eventManager->addEventListener(array(Events::prePersist, Events::postLoad, Events::preRemove), new NestedSetListener());
-			$eventManager->addEventListener(array(Events::onFlush), new Listener\ImageSizeCreatorListener());
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableDraftPrefixAppender());
-
-			// NB! ORDER DOES MATRESS!
+			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
+			$eventManager->addEventSubscriber(new NestedSetListener());
+			$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
+			$eventManager->addEventSubscriber(new Listener\TableDraftSuffixAppender());
+			
+			// NB! ORDER DOES MATTER!
 			// Revision id must be filled before entity goes to audit listener
 			// Manage entity revision values
 			$eventManager->addEventSubscriber(new Listener\EntityRevisionListener());

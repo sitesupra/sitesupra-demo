@@ -5,12 +5,23 @@ namespace Supra\Database\Doctrine\Listener;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use DateTime;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Events;
 
 /**
  * Timestampable listener
  */
-class TimestampableListener
+class TimestampableListener implements EventSubscriber
 {
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function getSubscribedEvents()
+	{
+		return array(Events::onFlush, Events::prePersist);
+	}
+	
 	/**
 	 * Sets modification time on updates
 	 * @param OnFlushEventArgs $eventArgs

@@ -8,11 +8,13 @@ use Supra\FileStorage\FileStorage;
 use Supra\FileStorage\Entity\Image;
 use Supra\Log\Writer\WriterAbstraction;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Events;
 
 /**
  * Creates image size when ImageReferencedElement is created in db
  */
-class ImageSizeCreatorListener
+class ImageSizeCreatorListener implements EventSubscriber
 {
 	/**
 	 * @var WriterAbstraction
@@ -24,6 +26,15 @@ class ImageSizeCreatorListener
 	 */
 	private $fileStorage;
 
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function getSubscribedEvents()
+	{
+		return array(Events::onFlush);
+	}
+	
 	/**
 	 * Bind logger
 	 */

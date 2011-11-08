@@ -7,7 +7,9 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Supra\Controller\Pages\Exception\LogicException;
 
-
+/**
+ * Makes sure no manual changes are performed
+ */
 class AuditManagerListener implements EventSubscriber
 {
 

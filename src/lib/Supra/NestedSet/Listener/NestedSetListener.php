@@ -7,12 +7,23 @@ use Doctrine\ORM\EntityManager;
 use Supra\NestedSet\Node\EntityNodeInterface;
 use Supra\NestedSet\Node\DoctrineNode;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Events;
 
 /**
  * Attaches nested set node to the tree element
  */
-class NestedSetListener
+class NestedSetListener implements EventSubscriber
 {
+	/**
+	 * {@inheritdoc}
+	 * @return array
+	 */
+	public function getSubscribedEvents()
+	{
+		return array(Events::prePersist, Events::postLoad, Events::preRemove);
+	}
+	
 	/**
 	 * @param LifecycleEventArgs $args 
 	 */

@@ -12,7 +12,8 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Supra\ObjectRepository\ObjectRepository;
-
+use Supra\Controller\Pages\PageController;
+use Doctrine\Common\EventArgs;
 
 class EntityAuditListener implements EventSubscriber
 {
@@ -46,11 +47,6 @@ class EntityAuditListener implements EventSubscriber
 	private $auditEm;
 
 	/**
-	 * @var array
-	 */
-	private $insertRevisionSQL = array();
-
-	/**
 	 * @var Doctrine\ORM\UnitOfWork
 	 */
 	private $uow;
@@ -64,56 +60,99 @@ class EntityAuditListener implements EventSubscriber
 			Events::postPersist,
 		);
 	}
-
-	public function postPersist(LifecycleEventArgs $eventArgs)
+	
+	/**
+	 * Prepares local environment
+	 * @param EventArgs $eventArgs
+	 */
+	private function prepareEnvironment(EventArgs $eventArgs)
 	{
-		$entity = $eventArgs->getEntity();
-		if ( ! ($entity instanceof AuditedEntity)) {
-			return;
+		// Using Audit-EM provided class metadatas, we can escape fields
+		// that were mapped for another schemas (for example - `lock_id` in Draft)
+		$this->auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		
+		if ($eventArgs instanceof LifecycleEventArgs) {
+			$this->em = $eventArgs->getEntityManager();
+		} elseif ($eventArgs instanceof OnFlushEventArgs) {
+			$this->em = $eventArgs->getEntityManager();
+		} else {
+			throw new \LogicException("Unknown event args received");
 		}
 		
-		$class = $this->auditEm->getClassMetadata($entity::CN());
+		$this->uow = $this->em->getUnitOfWork();
+		$this->conn = $this->em->getConnection();
+		$this->platform = $this->conn->getDatabasePlatform();
+	}
+	
+	public function postPersist(LifecycleEventArgs $eventArgs)
+	{
+		$this->prepareEnvironment($eventArgs);
+		$entity = $eventArgs->getEntity();
 		
-		$this->saveRevisionEntityData($class, $this->uow->getOriginalEntityData($entity), self::REVISION_TYPE_INSERT);
+		$this->insertAuditRecord($entity, self::REVISION_TYPE_INSERT);
 	}
 
 	public function postUpdate(LifecycleEventArgs $eventArgs)
 	{
+		$this->prepareEnvironment($eventArgs);
 		$entity = $eventArgs->getEntity();
-		if ( ! ($entity instanceof AuditedEntity)) {
-			return;
-		}
 		
-		$class = $this->auditEm->getClassMetadata($entity::CN());
-
-		//$originalData = $this->uow->getOriginalEntityData($entity);
-		$changeSet = $this->uow->getEntityChangeSet($entity);
+		$this->insertAuditRecord($entity, self::REVISION_TYPE_UPDATE);
 		
-		$entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
-		$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_UPDATE);
+//		if ( ! ($entity instanceof AuditedEntity)) {
+//			return;
+//		}
+//		
+//		$class = $this->auditEm->getClassMetadata($entity::CN());
+//
+//		//$originalData = $this->uow->getOriginalEntityData($entity);
+//		$changeSet = $this->uow->getEntityChangeSet($entity);
+//		
+//		$originalEntityData = $this->uow->getOriginalEntityData($entity);
+//		$entityIdentifier = $this->uow->getEntityIdentifier($entity);
+//		
+//		$entityData = array_merge($originalEntityData, $entityIdentifier);
+//		$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_UPDATE);
 	}
 
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
-		$this->em = $eventArgs->getEntityManager();
-		$this->conn = $this->em->getConnection();
-		$this->uow = $this->em->getUnitOfWork();
-		$this->platform = $this->conn->getDatabasePlatform();
-
-		// Using Audit-EM provided class metadatas, we can escape fields
-		// that were mapped for another schemas (for example - `lock_id` in Draft)
-		$this->auditEm = ObjectRepository::getEntityManager('#audit');
+		$this->prepareEnvironment($eventArgs);
 
 		foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
-			if ( ! ($entity instanceof AuditedEntity)) {
-				return;
-			}
 			
-			$class = $this->auditEm->getClassMetadata($entity::CN());
+			$this->insertAuditRecord($entity, self::REVISION_TYPE_DELETE);
 			
-			$entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
-			$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_DELETE);
+//			if ( ! ($entity instanceof AuditedEntity)) {
+//				return;
+//			}
+//			
+//			$class = $this->auditEm->getClassMetadata($entity::CN());
+//			
+//			$originalEntityData = $this->uow->getOriginalEntityData($entity);
+//			$entityIdentifier = $this->uow->getEntityIdentifier($entity);
+//			
+//			$entityData = array_merge($originalEntityData, $entityIdentifier);
+//			$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_DELETE);
 		}
+	}
+	
+	private function insertAuditRecord($entity, $revisionType)
+	{
+		if ( ! $entity instanceof AuditedEntity) {
+			return;
+		}
+		
+		$class = $this->auditEm->getClassMetadata(get_class($entity));
+		
+		//TODO: fetch current data
+		$originalEntityData = $this->uow->getOriginalEntityData($entity);
+//		$entityIdentifier = $this->uow->getEntityIdentifier($entity);
+//		$entityData = array_merge($originalEntityData);
+		
+//		$entityData = $this->uow->get
+		
+		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType);
 	}
 
 	private function getRevisionId()
@@ -135,56 +174,18 @@ class EntityAuditListener implements EventSubscriber
 	
 	/**
 	 * @param ClassMetadata $class
+	 * @param array $fieldNames
 	 * @return string 
 	 */
-	private function getInsertRevisionSQL($class)
+	private function getInsertRevisionSQL(ClassMetadata $class, array $fieldNames)
 	{
-		if (!isset($this->insertRevisionSQL[$class->name])) {
+		$tableName = $class->table['name'];
 
-			// FIXME: removing draft prefix from audit table names, as they, actually, not draft
-			$tableName = str_replace('_draft', '', $class->table['name']) . '_audit';
-			
-			//$sql = "INSERT INTO " . $tableName . " (" .	'revision, revision_type';
-			
-			$sql = "INSERT INTO " . $tableName . " (" .	'revision_type';
-			
-			$columnCount = 0;
-			
-			
-			if ($class->isInheritedField('revision')) {
-				$sql .= ', revision';
-				$columnCount++;
-			}
-			
-			
-			foreach ($class->fieldNames AS $field) {
-				
-				if (isset($class->fieldMappings[$field]['inherited'])
-						&& ! $class->isIdentifier($field)) {
-					continue;
-				}
+		$sql = 'INSERT INTO ' . $tableName
+				. ' (' . implode(', ', $fieldNames) . ')'
+				. ' VALUES (:' . implode(', :', $fieldNames) . ')';
 
-				$columnCount++;
-				$sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
-			}
-			foreach ($class->associationMappings AS $assoc) {
-				if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-					foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-						$sql .= ', ' . $sourceCol;
-						$columnCount++;
-					}
-				}
-			}
-			if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE) {
-				$sql .= ', ' . $class->discriminatorColumn['name'];
-				$columnCount++;
-			}
-			
-			//$sql .= ") VALUES (" . implode(", ", array_fill(0, $columnCount+2, '?')) . ")";
-			$sql .= ") VALUES (" . implode(", ", array_fill(0, $columnCount+1, '?')) . ")";
-			$this->insertRevisionSQL[$class->name] = $sql;
-		}
-		return $this->insertRevisionSQL[$class->name];
+		return $sql;
 	}
 
 	/**
@@ -192,56 +193,71 @@ class EntityAuditListener implements EventSubscriber
 	 * @param array $entityData
 	 * @param string $revType
 	 */
-	private function saveRevisionEntityData($class, $entityData, $revType)
+	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revType)
 	{
 		//$params = array($this->getRevisionId(), $revType);
 		//$types = array(\PDO::PARAM_STR, \PDO::PARAM_INT);
 		
+		$names = array('revision_type');
 		$params = array($revType);
 		$types = array(\PDO::PARAM_INT);
 		
 		if ($class->isInheritedField('revision')) {
+			$names[] = 'revision';
 			$params[] = $this->getRevisionId();
 			$types[] = \PDO::PARAM_STR;
 		}
 		
 		foreach ($class->fieldNames AS $field) {
 			
-			if (isset($class->fieldMappings[$field]['inherited'])
+			if ($class->isInheritedField($field)
 					&& ! $class->isIdentifier($field)) {
 				continue;
 			}
 			
+			$names[] = $field;
 			$params[] = $entityData[$field];
 			$types[] = $class->fieldMappings[$field]['type'];
 		}
+		
 		foreach ($class->associationMappings AS $field => $assoc) {
-			if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+			if ($class->isSingleValuedAssociation($field) && $assoc['isOwningSide']) {
 				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
+				// Has value
 				if ($entityData[$field] !== null) {
-					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
-				}
+					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]); // Or simply $entityData[$field]->getId()
 
-				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-				foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-					if ($entityData[$field] === null) {
+					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+						$names[] = $sourceColumn;
+						$params[] = $relatedId[$targetClass->getFieldName($targetColumn)];
+						$types[] = $targetClass->getTypeOfColumn($targetColumn);
+					}
+				
+				// Null
+				} else {
+					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+						$names[] = $sourceColumn;
 						$params[] = null;
 						$types[] = \PDO::PARAM_STR;
-					} else {
-						$params[] = $relatedId[$targetClass->fieldNames[$targetColumn]];
-						$types[] = $targetClass->getTypeOfColumn($targetColumn);
 					}
 				}
 			}
 		}
+		
+		// Discriminator
 		if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE) {
+			$names[] = $class->discriminatorColumn['name'];
 			$params[] = $class->discriminatorValue;
 			$types[] = $class->discriminatorColumn['type'];
 		}
 		
-		$this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
+		$insertRevisionSql = $this->getInsertRevisionSQL($class, $names);
+		
+		$namedParams = array_combine($names, $params);
+		$namedTypes = array_combine($names, $types);
+		
+		$this->conn->executeUpdate($insertRevisionSql, $namedParams, $namedTypes);
 	}
 	
 	public function pagePublishEvent()

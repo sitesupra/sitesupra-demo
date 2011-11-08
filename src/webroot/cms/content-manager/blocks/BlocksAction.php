@@ -24,7 +24,7 @@ class BlocksAction extends PageManagerAction
 		foreach ($configurationList as $blockId => $conf) {
 			
 			$controller = $blockCollection->getBlockController($blockId);
-			$propertyDefinition = $controller->getPropertyDefinition();
+			$propertyDefinition = (array) $controller->getPropertyDefinition();
 			
 			$properties = array();
 			
