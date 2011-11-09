@@ -71,7 +71,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 
 		if ( ! empty($this->locale)) {
 
-			$this->addSimpleFilter('locale', $this->locale->getId());
+			$this->addSimpleFilter('localeId', $this->locale->getId());
 
 			$languageCode = $this->locale->getProperty("language");
 		}
