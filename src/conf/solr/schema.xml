@@ -6,7 +6,7 @@
 		<fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 		<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
 		<fieldtype name="binary" class="solr.BinaryField"/>
-
+		
 		<fieldType name="int" class="solr.TrieIntField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
 		<fieldType name="float" class="solr.TrieFloatField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
 		<fieldType name="long" class="solr.TrieLongField" precisionStep="8" omitNorms="true" positionIncrementGap="0"/>
@@ -91,7 +91,7 @@
 		<field name="revisionId" type="string" indexed="true" stored="true" required="false" />	 		
 		<field name="schemaName" type="string" indexed="true" stored="true" required="false" />
 		<field name="pageLocalizationId" type="string" indexed="false" stored="true" required="false" />
-		<field name="locale" type="string" indexed="true" stored="true" required="false" /> 
+		<field name="localeId" type="string" indexed="true" stored="true" required="false" /> 
 		<field name="pageId" type="string" indexed="true" stored="true" required="false" /> 
 		<field name="text_general" type="text_general" indexed="true" stored="true" required="false" /> 
 		<field name="title_general" type="text_general" indexed="true" stored="true" required="false" /> 
@@ -107,14 +107,14 @@
 		<field name="keywords" type="string" indexed="true" stored="true" required="false" />
 		<field name="description" type="string" indexed="true" stored="true" required="false" />
 		<field name="pageWebPath" type="string" indexed="true" stored="true" required="false" />
-		<field name="ancestors" type="string" indexed="true" stored="true" required="false" />		
+		<field name="ancestorIds" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	</fields>
 
  	<uniqueKey>uniqueId</uniqueKey>
 
-	<defaultSearchField>text</defaultSearchField>
+	<defaultSearchField>text_general</defaultSearchField>
 
-	<!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+ <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 	<solrQueryParser defaultOperator="OR"/>
 
 </schema>

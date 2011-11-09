@@ -99,8 +99,18 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
+		$ancestors = $pageLocalization->getAuthorizationAncestors();
+		$ancestorIds = array();
+		foreach($ancestors as $ancestor) {
+			/* @var $ancestor Page */
+			
+			$ancestorIds[] = $ancestor->getId();
+		}
+	
+		$indexedDocument->ancestorIds = $ancestorIds;
+		
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
-
+		
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
 		$pageRequestView->setLocale($pageLocalization->getLocale());
 		$pageRequestView->setPageLocalization($pageLocalization);
