@@ -13,70 +13,71 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 class FixtureHelper
 {
+
 	/**
 	 * @var EntityManager
 	 */
 	private $entityManager;
-	
+
 	/**
 	 * @var WriterAbstraction
 	 */
 	private $log;
-	
 	protected $headerTemplateBlocks = array();
-
 	protected $rootPage;
-	
 	protected $template;
-	
 	private $locales = array();
-	
 	protected static $constants = array(
-		0 => array(
-			'title' => 'Home',
-			'pathPart' => '',
-		),
-		1 => array(
-			'title' => 'About',
-			'pathPart' => 'about',
-		),
-		2 => array(
-			'title' => 'Contacts',
-			'pathPart' => 'contacts',
-		),
-		3 => array(
-			'title' => 'News application',
-			'pathPart' => 'news',
-			'applicationId' => 'news'
-		),
-		4 => array(
-			'title' => 'Pages',
-			'pathPart' => '',
-			'group' => true
-		),
-		5 => array(
-			'title' => 'Subscribe',
-			'pathPart' => 'subscribe',
-		),
-		6 => array(
-			'title' => '%s Publication',
-			'pathPart' => 'publication-%d',
-		),
+			0 => array(
+					'title' => 'Home',
+					'pathPart' => '',
+			),
+			1 => array(
+					'title' => 'About',
+					'pathPart' => 'about',
+			),
+			2 => array(
+					'title' => 'Contacts',
+					'pathPart' => 'contacts',
+			),
+			3 => array(
+					'title' => 'News application',
+					'pathPart' => 'news',
+					'applicationId' => 'news'
+			),
+			4 => array(
+					'title' => 'Pages',
+					'pathPart' => '',
+					'group' => true
+			),
+			5 => array(
+					'title' => 'Subscribe',
+					'pathPart' => 'subscribe',
+			),
+			6 => array(
+					'title' => '%s Publication',
+					'pathPart' => 'publication-%d',
+			),
+			7 => array(
+					'title' => 'Search',
+					'pathPart' => 'search',
+					'search' => true
+			)
 	);
-	
+
 	public function __construct(\Doctrine\ORM\EntityManager $em)
 	{
 		$this->log = ObjectRepository::getLogger($this);
 		$this->entityManager = $em;
-		
+
 		$this->locales = ObjectRepository::getLocaleManager($this)
 				->getLocales();
-		
+
 		// Manually load CMS config
 		$parser = new \Supra\Configuration\Parser\YamlParser();
 		$parser->parseFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
 	}
-	
+
 	/**
 	 * Generates random text
 	 * @return string
@@ -84,24 +85,24 @@ class FixtureHelper
 	protected function randomText($localeId, $offset = null, $limit = null)
 	{
 		$paragraphs = array();
-		
+
 		$files = glob(__DIR__ . '/texts/' . $localeId . '/*.txt');
 		$filename = $files[array_rand($files)];
-		
+
 		if ( ! empty($filename)) {
 			$content = trim(file_get_contents($filename));
-			
+
 			if ( ! empty($content)) {
 				$paragraphs = preg_split("/[\r\n]+/", $content);
 			}
 		}
-		
+
 		if (empty($paragraphs)) {
-		
+
 			$possibilities = array(
-				0 => array(1 => 1, 2 => 1),
-				1 => array(1 => 0.3, 2 => 1),
-				2 => array(1 => 1, 2 => 0.5),
+					0 => array(1 => 1, 2 => 1),
+					1 => array(1 => 0.3, 2 => 1),
+					2 => array(1 => 1, 2 => 0.5),
 			);
 
 			$prevType = 0;
@@ -113,7 +114,8 @@ class FixtureHelper
 				//\Log::debug("Have chosen $chr");
 				if (\in_array($chr, array('e', 'y', 'u', 'i', 'o', 'a'))) {
 					$type = 1;
-				} else {
+				}
+				else {
 					$type = 2;
 				}
 				//\Log::debug("Type is $type");
@@ -134,14 +136,15 @@ class FixtureHelper
 
 				$txt .= $chr;
 				if ($type == $prevType) {
-					$pow++;
+					$pow ++;
 					//\Log::debug("Increasing power to $pow");
-				} else {
+				}
+				else {
 					$pow = 1;
 					//\Log::debug("Resetting power");
 				}
 				$prevType = $type;
-				$i++;
+				$i ++;
 			}
 
 			$list = array();
@@ -162,7 +165,7 @@ class FixtureHelper
 			}
 
 			if (isset($limit)) {
-
+				
 			}
 
 			$paragraph = '';
@@ -179,10 +182,10 @@ class FixtureHelper
 				$sentence = \ucfirst($sentence);
 				$paragraph .= $sentence;
 			}
-			
+
 			unset($paragraph);
 		}
-		
+
 		if ( ! is_null($offset)) {
 			$paragraphs = array_slice($paragraphs, $offset, $limit);
 		}
@@ -191,7 +194,8 @@ class FixtureHelper
 			$txt = '<p>'
 					. implode("</p>\n\n<p>", $paragraphs)
 					. '</p>';
-		} else {
+		}
+		else {
 			$txt = implode('', $paragraphs);
 		}
 
@@ -205,19 +209,19 @@ class FixtureHelper
 		$metaDatas = $em->getMetadataFactory()->getAllMetadata();
 
 		$classFilter = function(\Doctrine\ORM\Mapping\ClassMetadata $classMetadata) {
-			return (strpos($classMetadata->namespace, 'Supra\Controller\Pages\Entity') === 0);
-		};
+					return (strpos($classMetadata->namespace, 'Supra\Controller\Pages\Entity') === 0);
+				};
 		$metaDatas = \array_filter($metaDatas, $classFilter);
 
 		$schemaTool->dropSchema($metaDatas);
 		$schemaTool->createSchema($metaDatas);
 	}
-	
+
 	public function deletePages()
 	{
 		$publicEm = ObjectRepository::getEntityManager('');
 		$draftEm = $this->entityManager;
-		
+
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
@@ -239,13 +243,13 @@ class FixtureHelper
 	public function build()
 	{
 		$this->deletePages();
-		
+
 //		$this->rebuild();
 		$rootPage = $page = $page2 = null;
 
 		$em = $this->entityManager;
 		$em->beginTransaction();
-		
+
 		try {
 			$this->template = $this->createTemplate();
 
@@ -255,14 +259,14 @@ class FixtureHelper
 			$page = $this->createPage(1, $rootPage, $this->template);
 
 			$page2 = $this->createPage(2, $page, $this->template);
-			
+
 			$newsApp = $this->createPage(3, $rootPage, $this->template);
-			
+
 			$creationTime = new \DateTime();
-			
+
 			$publicationCount = 5;
-			
-			for ($i = $publicationCount; $i > 0; $i--) {
+
+			for ($i = $publicationCount; $i > 0; $i -- ) {
 				$length = count(self::$constants);
 				$template = self::$constants[6];
 				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));
@@ -272,77 +276,80 @@ class FixtureHelper
 				self::$constants[$length] = $template;
 				$publication = $this->createPage($length, $newsApp, $this->template);
 			}
-			
+
 			$newsPages = $this->createPage(4, $newsApp, $this->template);
-			
+
 			$subscribe = $this->createPage(5, $newsPages, $this->template);
-			
-		} catch (\Exception $e) {
+
+			$search = $this->createPage(7, $rootPage, $this->template);
+		}
+		catch (\Exception $e) {
 			$em->rollback();
-			
+
 			throw $e;
 		}
-		
+
 		$em->commit();
-		
+
 		$publicEm = ObjectRepository::getEntityManager('');
-		
+
 		$em->beginTransaction();
 		$publicEm->beginTransaction();
-		
+
 		// Templates go firsto
 		$templateIdList = $em->createQuery("SELECT p.id FROM " . Entity\Template::CN() . " p ORDER BY p.left ASC")
 				->getResult(Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
-		
+
 		$pageIdList = $em->createQuery("SELECT p.id FROM " . Entity\Page::CN() . " p ORDER BY p.left ASC")
 				->getResult(Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
-		
+
 		$idList = array_merge($templateIdList, $pageIdList);
-		
+
 		try {
 			foreach ($idList as $pageId) {
 
 				$em->clear();
 				$publicEm->clear();
-				
+
 				$pageToPublish = $em->find(\Supra\Controller\Pages\Request\PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
 				/* @var $pageToPublish Entity\Abstraction\AbstractPage */
-				
+
 				/* @var $locale \Supra\Locale\Locale */
 				foreach ($this->locales as $locale) {
 					$localeId = $locale->getId();
 
 //					$em->clear();
 //					$publicEm->clear();
-					
+
 					$this->log->debug("Publishing object $pageToPublish");
-					
+
 					$localization = $pageToPublish->getLocalization($localeId);
 					$request = \Supra\Controller\Pages\Request\PageRequestEdit::factory($localization);
 					$request->setDoctrineEntityManager($em);
-					
+
 					// Will create missing placeholders and flush
 					$request->getPlaceHolderSet();
-					
+
 					// Don't allow missing place holders to be created automatically
 					$request->blockFlushing();
-					
+
 					try {
 						$request->publish($publicEm);
-					} catch (\Exception $e) {
+					}
+					catch (\Exception $e) {
 						$this->log->error("Failed to publish page {$pageToPublish} in language {$localeId}");
 						throw $e;
 					}
 				}
-
 			}
-		} catch (\Exception $e) {
+		}
+		catch (\Exception $e) {
 			$em->rollback();
 			$publicEm->rollback();
-			
+
 			throw $e;
 		}
-		
+
 		$em->commit();
 		$publicEm->commit();
 	}
@@ -358,7 +365,7 @@ class FixtureHelper
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
 			$localeId = $locale->getId();
-		
+
 			$templateData = new Entity\TemplateLocalization($localeId);
 			$this->entityManager->persist($templateData);
 			$templateData->setTemplate($template);
@@ -384,7 +391,7 @@ class FixtureHelper
 					$block->setComponentClass('Project\Languages\LanguageSelectorBlock');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
-					
+
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Text\TextController');
@@ -414,19 +421,19 @@ class FixtureHelper
 					$blockProperty->setLocalization($template->getLocalization($localeId));
 					$blockProperty->setValue('Template source');
 
-	//				// A locked block
-	//				$block = new Entity\TemplateBlock();
-	//				$this->entityManager->persist($block);
-	//				$block->setComponentClass('Project\Text\TextController');
-	//				$block->setPlaceHolder($templatePlaceHolder);
-	//				$block->setPosition(200);
-	//				$block->setLocked(true);
-	//
+					//				// A locked block
+					//				$block = new Entity\TemplateBlock();
+					//				$this->entityManager->persist($block);
+					//				$block->setComponentClass('Project\Text\TextController');
+					//				$block->setPlaceHolder($templatePlaceHolder);
+					//				$block->setPosition(200);
+					//				$block->setLocked(true);
+					//
 	//				$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
-	//				$this->entityManager->persist($blockProperty);
-	//				$blockProperty->setBlock($block);
-	//				$blockProperty->setLocalization($template->getLocalization($localeId));
-	//				$blockProperty->setValue('Template locked block');
+					//				$this->entityManager->persist($blockProperty);
+					//				$blockProperty->setBlock($block);
+					//				$blockProperty->setLocalization($template->getLocalization($localeId));
+					//				$blockProperty->setValue('Template locked block');
 				}
 
 				if ($name == 'footer') {
@@ -459,7 +466,7 @@ class FixtureHelper
 				}
 			}
 		}
-		
+
 		$this->entityManager->persist($template);
 		$this->entityManager->flush();
 
@@ -468,13 +475,13 @@ class FixtureHelper
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
 			$localeId = $locale->getId();
-			
+
 			$childTemplateLocalization = new Entity\TemplateLocalization($localeId);
 			$this->entityManager->persist($childTemplateLocalization);
 			$childTemplateLocalization->setTemplate($childTemplate);
 			$childTemplateLocalization->setTitle('Child template');
 
-			
+
 			$templatePlaceHolder = $childTemplateLocalization->getPlaceHolders()
 					->get('sidebar');
 
@@ -507,11 +514,11 @@ class FixtureHelper
 			$blockProperty->setLocalization($childTemplateLocalization);
 			$blockProperty->setValue('<em>Template locked block</em>');
 		}
-		
+
 		$this->entityManager->persist($childTemplate);
 		$childTemplate->moveAsLastChildOf($template);
 		$this->entityManager->flush();
-		
+
 		return $childTemplate;
 	}
 
@@ -532,21 +539,23 @@ class FixtureHelper
 	{
 		$pageDefinition = self::$constants[$type];
 		$page = null;
-		
+
 		// Application
 		if ( ! empty($pageDefinition['applicationId'])) {
 			$page = new Entity\ApplicationPage();
 			$page->setApplicationId($pageDefinition['applicationId']);
 			$this->entityManager->persist($page);
-			
-		// Group
-		} elseif ( ! empty($pageDefinition['group'])) {
+
+			// Group
+		}
+		elseif ( ! empty($pageDefinition['group'])) {
 			$page = new Entity\GroupPage();
 			$page->setTitle($pageDefinition['title']);
 			$this->entityManager->persist($page);
-			
-		// Standard page
-		} else {
+
+			// Standard page
+		}
+		else {
 			$page = new Entity\Page();
 			$this->entityManager->persist($page);
 		}
@@ -565,7 +574,8 @@ class FixtureHelper
 
 				if ($page instanceof Entity\ApplicationPage) {
 					$pageData = new Entity\ApplicationLocalization($localeId);
-				} else {
+				}
+				else {
 					$pageData = new Entity\PageLocalization($localeId);
 				}
 				$pageData->setTemplate($template);
@@ -579,7 +589,7 @@ class FixtureHelper
 				// Path is generated on updates ONLY!
 				$pageData->setPathPart($pageDefinition['pathPart']);
 				$this->entityManager->flush();
-				
+
 				if (isset($pageDefinition['creation_time'])) {
 					$pageData->setCreationTime($pageDefinition['creation_time']);
 				}
@@ -592,7 +602,7 @@ class FixtureHelper
 						$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
 						$blockProperty->setLocalization($pageData);
 						$blockProperty->setValue($pageDefinition['title'] . ' [' . $localeId . ']');
-						
+
 						$placeHolder = $pageData->getPlaceHolders()
 								->get($name);
 
@@ -626,34 +636,44 @@ class FixtureHelper
 							$placeHolder->setMaster($pageData);
 						}
 
-						foreach (range(1, 2) as $i) {
-							$block = new Entity\PageBlock();
-							$this->entityManager->persist($block);
-							$block->setComponentClass('Project\Text\TextController');
-							$block->setPlaceHolder($placeHolder);
-							// reverse order
-							$block->setPosition(100 * $i);
-
-							$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
-							$this->entityManager->persist($blockProperty);
-							$blockProperty->setBlock($block);
-							$blockProperty->setLocalization($pageData);
-							$blockProperty->setValue($this->randomText($localeId, 0, 1));
+						if ($pageDefinition['search']) {
 							
-							$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
-							$this->entityManager->persist($blockProperty);
-							$blockProperty->setBlock($block);
-							$blockProperty->setLocalization($pageData);
-							$blockProperty->setValue($this->randomText($localeId, 1));
+								$block = new Entity\PageBlock();
+								$this->entityManager->persist($block);
+								$block->setComponentClass('Project\Search\SearchController');
+								$block->setPlaceHolder($placeHolder);
+								$block->setPosition(100);
+						}
+						else {
+							foreach (range(1, 2) as $i) {
+								$block = new Entity\PageBlock();
+								$this->entityManager->persist($block);
+								$block->setComponentClass('Project\Text\TextController');
+								$block->setPlaceHolder($placeHolder);
+								// reverse order
+								$block->setPosition(100 * $i);
+
+								$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
+								$this->entityManager->persist($blockProperty);
+								$blockProperty->setBlock($block);
+								$blockProperty->setLocalization($pageData);
+								$blockProperty->setValue($this->randomText($localeId, 0, 1));
+
+								$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+								$this->entityManager->persist($blockProperty);
+								$blockProperty->setBlock($block);
+								$blockProperty->setLocalization($pageData);
+								$blockProperty->setValue($this->randomText($localeId, 1));
+							}
 						}
 					}
-
 				}
 			}
 		}
-		
+
 		$this->entityManager->flush();
 
 		return $page;
 	}
+
 }
