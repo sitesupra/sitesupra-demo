@@ -16,7 +16,17 @@ class SchemaCheckingHttpAdapter extends Solarium_Client_Adapter_Http
 		
 		$solrSchemaMd5 = md5_file($schemaUrl);
 		
-		$localSchemaMd5 = md5_file(SUPRA_CONF_PATH . '/solr/schema.xml');
+		if($solrSchemaMd5 === FALSE) {
+			throw new Exception\RuntimeException('Failed to fetch schema from Solr. URL: ' . $schemaUrl);
+		}
+	
+		$localSchemaFilename = SUPRA_CONF_PATH . '/solr/schema.xml';
+		
+		$localSchemaMd5 = md5_file($localSchemaFilename);
+
+		if($localSchemaMd5 === FALSE) {
+			throw new Exception\RuntimeException('Failed to fetch local Solr schema. Path: ' . $localSchemaFilename);
+		}
 		
 		if( $solrSchemaMd5 != $localSchemaMd5 )
 		{
