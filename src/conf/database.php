@@ -28,9 +28,6 @@ Type::addType(BlockType::NAME, 'Supra\Database\Doctrine\Type\BlockType');
 $managerNames = array(
 		'PublicSchema' => '',
 		'Draft' => 'Supra\Cms',
-		//'Trash' => 'Supra\Cms\Abstraction\Trash',
-		//'History' => 'Supra\Cms\Abstraction\History',
-		// EXPERIMENTAL
 		'Audit' => 'Supra\Cms\Abstraction\Audit',
 );
 
@@ -110,23 +107,10 @@ foreach ($managerNames as $managerName => $namespace) {
 			// Manage entity revision values
 			$eventManager->addEventSubscriber(new Listener\EntityRevisionListener());
 			// Audit entity changes in Draft schema
-			//$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
-			//$eventManager->addEventSubscriber(new Listener\DraftVersionListener());
+			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
-		/*
-		  case 'Trash':
-		  $eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\TableTrashPrefixAppender());
-		  break;
-
-		  case 'History':
-		  $eventManager->addEventListener(array(Events::loadClassMetadata, Events::onFlush), new Listener\HistorySchemaModifier());
-		  $eventManager->addEventSubscriber(new Listener\HistoryRevisionListener());
-		  break;
-		 */
-		// EXPERIMENTAL
 		case 'Audit':
 			$eventManager->addEventSubscriber(new Listener\AuditManagerListener());
-			// TODO: should assign this to PublicSchema instead?
 			$eventManager->addEventSubscriber(new Listener\AuditCreateSchemaListener());
 			break;
 	}
@@ -143,19 +127,12 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	// Experimental: sets entity manager by ID
 	switch ($managerName) {
-
 		case 'Draft':
 			ObjectRepository::setEntityManager(PageController::SCHEMA_DRAFT, $em);
 			break;
-
-//		case 'Trash':
-//			ObjectRepository::setEntityManager('#trash', $em); break;
-//		case 'History':
-//			ObjectRepository::setEntityManager('#history', $em); break;
 		case 'PublicSchema':
 			ObjectRepository::setEntityManager(PageController::SCHEMA_PUBLIC, $em);
 			break;
-		// EXPERIMENTAL
 		case 'Audit':
 			ObjectRepository::setEntityManager(PageController::SCHEMA_AUDIT, $em);
 			break;

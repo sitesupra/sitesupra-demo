@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventArgs;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 
 class EntityAuditListener implements EventSubscriber
 {
@@ -97,6 +98,16 @@ class EntityAuditListener implements EventSubscriber
 		$this->prepareEnvironment($eventArgs);
 		$entity = $eventArgs->getEntity();
 		
+		if ($entity instanceof Localization) {
+			$changeSet = $this->em
+					->getUnitOfWork()
+						->getEntityChangeSet($entity);
+			
+			if (isset($changeSet['lock'])) {
+				return;
+			}
+		}
+		
 		$this->insertAuditRecord($entity, self::REVISION_TYPE_UPDATE);
 	}
 
@@ -123,20 +134,8 @@ class EntityAuditListener implements EventSubscriber
 		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType);
 	}
 
-	private function getRevisionId()
+	private function _getRevisionId()
 	{
-		// Audited entities will receive their IDs from actual entities by, ex: getRevisionId();
-		// But actuall entites will receive their ids when they will be persisted/updated
-		// On persist: assign an revision id
-		// On update: rewrite! current revision id, but item with old revision id will be stored here, in audit log
-		// YEAH!
-		
-		// Need to test: Is it long, to find all revisions and show, for example, histored version of single page
-		// Need to think about - how to make page `histored` copy
-		//		- create, here, in listener, custom event (ex: pagePublishEvent), that will store page items with single revision IDs
-		// Need to think about - how to create deleted version of page? like custom publish event and mark inside revision data, that it was page delete event?
-		
-		// As we are not creating any new revision id, we are not required to create something inside revision data table
 		return 'dummy-' . md5(uniqid('sha', true));
 	}
 	
@@ -163,23 +162,23 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revType)
 	{
-		//$params = array($this->getRevisionId(), $revType);
-		//$types = array(\PDO::PARAM_STR, \PDO::PARAM_INT);
-		
 		$names = array('revision_type');
 		$params = array($revType);
 		$types = array(\PDO::PARAM_INT);
 		
-		if ($class->isInheritedField('revision')) {
+		if ( ! isset($entityData['revision'])) {
+		//if ($class->isInheritedField('revision')) {
 			$names[] = 'revision';
-			$params[] = $this->getRevisionId();
+			$params[] = $this->_getRevisionId();
 			$types[] = \PDO::PARAM_STR;
 		}
 		
 		foreach ($class->fieldNames as $colmnName => $field) {
 			
 			if ($class->isInheritedField($field)
-					&& ! $class->isIdentifier($field)) {
+					&& $class->inheritanceType != ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE
+					&& ! $class->isIdentifier($field)
+					&& $field != 'revision') {
 				continue;
 			}
 			
