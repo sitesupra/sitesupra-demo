@@ -98,21 +98,6 @@ class EntityAuditListener implements EventSubscriber
 		$entity = $eventArgs->getEntity();
 		
 		$this->insertAuditRecord($entity, self::REVISION_TYPE_UPDATE);
-		
-//		if ( ! ($entity instanceof AuditedEntity)) {
-//			return;
-//		}
-//		
-//		$class = $this->auditEm->getClassMetadata($entity::CN());
-//
-//		//$originalData = $this->uow->getOriginalEntityData($entity);
-//		$changeSet = $this->uow->getEntityChangeSet($entity);
-//		
-//		$originalEntityData = $this->uow->getOriginalEntityData($entity);
-//		$entityIdentifier = $this->uow->getEntityIdentifier($entity);
-//		
-//		$entityData = array_merge($originalEntityData, $entityIdentifier);
-//		$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_UPDATE);
 	}
 
 	public function onFlush(OnFlushEventArgs $eventArgs)
@@ -120,20 +105,7 @@ class EntityAuditListener implements EventSubscriber
 		$this->prepareEnvironment($eventArgs);
 
 		foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
-			
 			$this->insertAuditRecord($entity, self::REVISION_TYPE_DELETE);
-			
-//			if ( ! ($entity instanceof AuditedEntity)) {
-//				return;
-//			}
-//			
-//			$class = $this->auditEm->getClassMetadata($entity::CN());
-//			
-//			$originalEntityData = $this->uow->getOriginalEntityData($entity);
-//			$entityIdentifier = $this->uow->getEntityIdentifier($entity);
-//			
-//			$entityData = array_merge($originalEntityData, $entityIdentifier);
-//			$this->saveRevisionEntityData($class, $entityData, self::REVISION_TYPE_DELETE);
 		}
 	}
 	
@@ -147,10 +119,6 @@ class EntityAuditListener implements EventSubscriber
 		
 		//TODO: fetch current data
 		$originalEntityData = $this->uow->getOriginalEntityData($entity);
-//		$entityIdentifier = $this->uow->getEntityIdentifier($entity);
-//		$entityData = array_merge($originalEntityData);
-		
-//		$entityData = $this->uow->get
 		
 		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType);
 	}
@@ -208,14 +176,14 @@ class EntityAuditListener implements EventSubscriber
 			$types[] = \PDO::PARAM_STR;
 		}
 		
-		foreach ($class->fieldNames AS $field) {
+		foreach ($class->fieldNames as $colmnName => $field) {
 			
 			if ($class->isInheritedField($field)
 					&& ! $class->isIdentifier($field)) {
 				continue;
 			}
 			
-			$names[] = $field;
+			$names[] = $colmnName;
 			$params[] = $entityData[$field];
 			$types[] = $class->fieldMappings[$field]['type'];
 		}
