@@ -4,9 +4,8 @@ namespace Supra\Configuration\Exception;
 
 /**
  * FileNotFoundException
- *
  */
-class FileNotFoundException extends \RuntimeException implements ParserException
+class FileNotFoundException extends RuntimeException
 {
 	
 }

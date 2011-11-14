@@ -9,16 +9,10 @@ namespace Supra\Configuration\Parser;
 interface ParserInterface 
 {
 	/**
-	 * Parse data
-	 * 
-	 * @param string $input
-	 */
-	public function parse($input);
-
-	/**
 	 * Parse data from file
 	 * 
 	 * @param string $filename
+	 * @return array
 	 */
 	public function parseFile($filename);
 }

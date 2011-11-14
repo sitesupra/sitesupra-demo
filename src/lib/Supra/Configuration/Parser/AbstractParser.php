@@ -18,13 +18,6 @@ abstract class AbstractParser implements ParserInterface
 	protected $log;
 	
 	/**
-	 * Filename
-	 *
-	 * @var string
-	 */
-	protected $filename = '';
-	
-	/**
 	 * Bind log writer
 	 */
 	public function __construct()
@@ -36,6 +29,7 @@ abstract class AbstractParser implements ParserInterface
 	 * Parse config from file
 	 *
 	 * @param string $filename 
+	 * @return array
 	 */
 	public function parseFile($filename)
 	{
@@ -44,23 +38,14 @@ abstract class AbstractParser implements ParserInterface
 					'Configuration file ' . $filename . 
 					' does not exist or is not readable');
 		}
-		$this->filename = $filename;
-		$contents = file_get_contents($filename);
-		$this->parse($contents);
-		$this->filename = '';
-	}
-
-	/**
-	 * Log warn
-	 *
-	 * @param string $message 
-	 */
-	protected function logWarn($message)
-	{
-		if ( ! empty($this->filename)) {
-			$message = $message . ' (file: '. $this->filename . ')';
-		}
-		$this->log->warn($message);
+		
+		$contents = $this->parse($filename);
+		
+		return $contents;
 	}
 	
+	/**
+	 * @param string $filename
+	 */
+	abstract protected function parse($filename);
 }

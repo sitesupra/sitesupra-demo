@@ -10,7 +10,11 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 $defaultWriter = new Writer\FileWriter();
 $defaultWriter->setName('Supra7');
-$defaultWriter->addFilter(new Filter\LevelFilter($ini['log']));
+
+$ini = ObjectRepository::getIniConfigurationLoader('');
+$logParams = $ini->getSection('log');
+
+$defaultWriter->addFilter(new Filter\LevelFilter($logParams));
 
 Supra\ObjectRepository\ObjectRepository::setDefaultLogger($defaultWriter);
 

@@ -14,7 +14,8 @@ use Supra\Mailer\Mailer;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Event\EventManager;
-use \Solarium_Client;
+use Solarium_Client;
+use Supra\Configuration\Loader\IniConfigurationLoader;
 
 /**
  * Object repository
@@ -41,6 +42,7 @@ class ObjectRepository
 	const INTERFACE_APPLICATION_CONFIGURATION = 'Supra\Cms\ApplicationConfiguration';
 	const INTERFACE_SOLARIUM_CLIENT = '\Solarium_Client';
 	const INTERFACE_EVENT_MANAGER = 'Supra\Event\EventManager';
+	const INTERFACE_INI_CONFIGURATION = 'Supra\Configuration\Loader\IniConfigurationLoader';
 	
 	/**
 	 * Object relation storage
@@ -789,6 +791,40 @@ class ObjectRepository
 	public static function setDefaultEventManager(EventManager $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_EVENT_MANAGER);
+	}
+	
+	/**
+	 * Get assigned ini configuration loader.
+	 *
+	 * @param mixed $caller
+	 * @return IniConfigurationLoader
+	 */
+	public static function getIniConfigurationLoader($caller)
+	{
+		$iniConfigurationLoader = self::getObject($caller, self::INTERFACE_INI_CONFIGURATION);
+		
+		return $iniConfigurationLoader;
+	}
+
+	/**
+	 * Assign ini configuration loader to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param IniConfigurationLoader $object 
+	 */
+	public static function setIniConfigurationLoader($caller, IniConfigurationLoader $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_INI_CONFIGURATION);
+	}
+	
+	/**
+	 * Set default ini configuration loader.
+	 *
+	 * @param IniConfigurationLoader $object 
+	 */
+	public static function setDefaultIniConfigurationLoader(IniConfigurationLoader $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INI_CONFIGURATION);
 	}
 	
 }

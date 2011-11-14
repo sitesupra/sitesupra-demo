@@ -71,7 +71,8 @@ foreach ($managerNames as $managerName => $namespace) {
 	$sqlLogger = new \Supra\Log\Logger\SqlLogger();
 	$config->setSQLLogger($sqlLogger);
 
-	$connectionOptions = $ini['database'];
+	$ini = ObjectRepository::getIniConfigurationLoader('');
+	$connectionOptions = $ini->getSection('database');
 
 	// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
 	$connectionOptions['driverOptions'] = array(
