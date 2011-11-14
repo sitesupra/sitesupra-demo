@@ -9,6 +9,7 @@ use Supra\Search\SearchService;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Uri\Path;
 
 /**
  * Simple text block
@@ -19,42 +20,21 @@ class SearchController extends BlockController
 	public function execute()
 	{
 		$request = $this->getRequest();
-
 		$searchResults = array();
-
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
+		$q = $request->getQueryValue('q');
 
-		if ( ! is_null($request->getQueryValue('q'))) {
-
-			$q = $request->getQueryValue('q');
-
+		if ( ! is_null($q)) {
 			$response->assign('q', $q);
-
 			$searchResults = $this->doSearch($q);
 		}
-
-
-		// DEV comment about the block
-		$block = $this->getBlock();
-		$comment = '';
-		if ( ! empty($block)) {
-			$comment .= "Block $block.\n";
-			if ($block->getLocked()) {
-				$comment .= "Block is locked.\n";
-			}
-			if ($block->getPlaceHolder()->getLocked()) {
-				$comment .= "Place holder is locked.\n";
-			}
-			$comment .= "Master " . $block->getPlaceHolder()->getMaster()->__toString() . ".\n";
-		}
-
-		$response->assign('title', $comment);
 
 		$path = $request->getPath();
 		
 		if( ! empty($path)) {
-			$response->assign('resultUrl', $request->getPath()->getFullPath());
+			$resultUrl = $path->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+			$response->assign('resultUrl', $resultUrl);
 		}
 
 		$response->assign('searchResults', $searchResults);

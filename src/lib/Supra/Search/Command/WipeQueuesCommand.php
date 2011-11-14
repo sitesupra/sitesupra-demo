@@ -4,7 +4,7 @@ namespace Supra\Search\Command;
 
 use Symfony\Component\Console;
 use Supra\ObjectRepository\ObjectRepository;
-use \Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
+use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
 
 /**

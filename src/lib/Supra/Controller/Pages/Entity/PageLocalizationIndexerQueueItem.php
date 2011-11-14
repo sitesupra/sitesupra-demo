@@ -20,7 +20,8 @@ use Supra\Search\Exception\IndexerRuntimeException;
  */
 class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 {
-
+	const DISCRIMITATOR_VALUE = 'pageLocalization';
+	
 	/**
 	 * @Column(type="sha1")
 	 * @var string
@@ -67,9 +68,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function getIndexedDocuments()
 	{
 		$result = array();
+		$class = PageLocalization::CN();
 
 		$em = ObjectRepository::getEntityManager($this->schemaName);
-		$pr = $em->getRepository(PageLocalization::CN());
+		$pr = $em->getRepository($class);
 
 		/* @var $pageLocalization PageLocalization */
 		$pageLocalization = $pr->find($this->pageLocalizationId);
@@ -80,12 +82,12 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		
 		$languageCode = $locale->getProperty("language");
 
-		$indexedDocument = new IndexedDocument();
+		$id = implode('-', array($this->pageLocalizationId, $this->schemaName, $this->revisionId));
+		
+		$indexedDocument = new IndexedDocument($class, $id);
 
-		$indexedDocument->uniqueId = join('-', array($this->pageLocalizationId, $this->schemaName, $this->revisionId));
 		$indexedDocument->schemaName = $this->schemaName;
 		$indexedDocument->revisionId = $this->revisionId;
-		$indexedDocument->class = PageLocalization::CN();
 
 		$indexedDocument->pageId = $pageLocalization->getMaster()->getId();
 		$indexedDocument->pageLocalizationId = $pageLocalization->getId();
@@ -123,9 +125,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$pageContents = array();
 
 		foreach ($blockPropertySet as $blockProperty) {
-			/* @var $block BlockProperty */
+			/* @var $blockProperty BlockProperty */
 
-			if ( ! $blockProperty->getBlock() instanceof TemplateBlock) {
+			if ( ! $blockProperty->getLocalization() instanceof TemplateLocalization) {
 
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
 				$pageContents[] = $indexedDocument->formatText($blockContents);
@@ -163,11 +165,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 				if ($image instanceof ImageReferencedElement) {
 
-					$result[] = '[[[IMAGE ';
-					$result[] = $metadataItem->getName();
-					$result[] = '===';
+//					$result[] = '[[[IMAGE ';
+//					$result[] = $metadataItem->getName();
+//					$result[] = '===';
 					$result[] = $image->getAlternativeText();
-					$result[] = ']]]';
+//					$result[] = ']]]';
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
@@ -181,20 +183,20 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 				if ($link instanceof LinkReferencedElement) {
 
-					$result[] = '[[[LINK ';
-					$result[] = $metadataItem->getName();
-					$result[] = '===';
+//					$result[] = '[[[LINK ';
+//					$result[] = $metadataItem->getName();
+//					$result[] = '===';
 					$result[] = $link->getTitle();
-					$result[] = '===';
-
-					$result[] = $link->getHref() ? : $link->getPageId();
-
-					$result[] = ']]]';
+//					$result[] = '===';
+//
+//					$result[] = $link->getHref() ? : $link->getPageId();
+//
+//					$result[] = ']]]';
 				}
 			}
 		}
 
-		return join(' ', $result);
+		return implode(' ', $result);
 	}
 
 }

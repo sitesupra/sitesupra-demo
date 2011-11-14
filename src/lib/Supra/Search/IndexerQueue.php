@@ -42,7 +42,7 @@ abstract class IndexerQueue
 	/**
 	 * @param QueryBuilder $dqb 
 	 */
-	protected function buildStatusQuery($dqb)
+	protected function buildStatusQuery(QueryBuilder $dqb)
 	{
 		$dqb->select('iq.status as itemStatus', 'count(iq.id) AS itemCount')
 				->from($this->itemClass, 'iq')

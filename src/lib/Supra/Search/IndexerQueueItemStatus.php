@@ -20,7 +20,7 @@ class IndexerQueueItemStatus
 	 * @throws IndexerRuntimeException
 	 * @return integer
 	 */
-	static function validate($status)
+	public static function validate($status)
 	{
 		if ( ! in_array($status, self::$knownStatuses)) {
 			throw new IndexerRuntimeException('Unkown indexer queue item status value. Use constants from IndexerQueueItemStatus.');
@@ -33,7 +33,7 @@ class IndexerQueueItemStatus
 	 * Returns arll known stauses.
 	 * @return array
 	 */
-	static function getKnownStatuses()
+	public static function getKnownStatuses()
 	{
 		return self::$knownStatuses;
 	}

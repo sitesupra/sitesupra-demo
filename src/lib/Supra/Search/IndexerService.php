@@ -53,7 +53,9 @@ class IndexerService
 				/* @var $document IndexedDocument */
 
 				$document->systemId = $this->getSystemId();
-				$document->uniqueId = $document->systemId . '-' . $document->uniqueId;
+				$document->uniqueId = $document->systemId . '-'
+						. $document->class . '-'
+						. $document->getLocalId();
 				
 				$document->validate();
 
@@ -81,14 +83,14 @@ class IndexerService
 	 */
 	public function processQueue(IndexerQueue $queue)
 	{
-		$indexedQueueItems = array();
+//		$indexedQueueItems = array();
 		
 		while ($queue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) !== 0) {
 
 			$queueItem = $queue->getNextItemForIndexing();
 
 			$this->processItem($queueItem);
-			$indexedQueueItems[] = $queueItem;
+//			$indexedQueueItems[] = $queueItem;
 
 			$queue->store($queueItem);
 		}

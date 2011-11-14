@@ -6,9 +6,29 @@ use \Solarium_Document_ReadWrite;
 
 class IndexedDocument extends Solarium_Document_ReadWrite
 {
-	function __construct()
+	/**
+	 * Object's local ID
+	 * @var string
+	 */
+	private $localId;
+	
+	/**
+	 * Must provide document's class and local ID
+	 * @param string $class
+	 * @param string $localId
+	 */
+	public function __construct($class, $localId)
 	{
-		//$this->__set('uniqueId', sha1(uniqid()));
+		$this->setField('class', $class);
+		$this->localId = $localId;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getLocalId()
+	{
+		return $this->localId;
 	}
 
 	/**

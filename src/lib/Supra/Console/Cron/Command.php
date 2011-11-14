@@ -2,25 +2,23 @@
 
 namespace Supra\Console\Cron;
 
-use \Supra\ObjectRepository\ObjectRepository;
-use \Symfony\Component\Console\Command\Command as SymfonyCommand;
-use \Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Output\OutputInterface;
-use \Symfony\Component\Console\Input\StringInput;
-use \Symfony\Component\Console\Output\NullOutput;
-use \Supra\Console\Cron\Entity\CronJob;
-use \Supra\Console\Application;
+use Supra\ObjectRepository\ObjectRepository;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Supra\Console\Cron\Entity\CronJob;
+use Supra\Console\Application;
 
 /**
  * Master cron command
- *
  */
 class Command extends SymfonyCommand
 {
 	
 	/**
 	 * Configure
-	 * 
 	 */
 	protected function configure() 
 	{
@@ -44,13 +42,16 @@ class Command extends SymfonyCommand
 		$thisTime = new \DateTime();
 
 		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('Supra\Console\Cron\Entity\CronJob');
+		$repo = $em->getRepository(CronJob::CN());
+		/* @var $repo Repository\CronJobRepository */
 		$jobs = $repo->findScheduled($lastTime, $thisTime);
 
 		$cli = Application::getInstance();
 
 		foreach ($jobs as $job) {
-			if ($job->getCommandInput == $this->getName()) {
+			/* @var $job CronJob */
+			
+			if ($job->getCommandInput() == $this->getName()) {
 				continue;
 			}
 			
@@ -105,8 +106,10 @@ class Command extends SymfonyCommand
 	protected function getMasterCronEntity()
 	{
 		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('Supra\Console\Cron\Entity\CronJob');
+		$repo = $em->getRepository(CronJob::CN());
+		/* @var $repo Repository\CronJobRepository */
 		$entity = $repo->findOneByCommandInput($this->getName());
+		
 		if ( ! $entity instanceof CronJob) {
 			$entity = new CronJob();
 			$em->persist($entity);

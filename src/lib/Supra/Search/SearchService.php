@@ -2,25 +2,30 @@
 
 namespace Supra\Search;
 
-use \Solarium_Client;
-use \Solarium_Exception;
-use \Solarium_Document_ReadWrite;
+use Solarium_Client;
+use Solarium_Exception;
+use Solarium_Document_ReadWrite;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
 use Request\SearchRequestAbstraction;
+use Supra\Log\Writer\WriterAbstraction;
 
 class SearchService
 {
-
 	/**
-	 * @var \Solarium_Client;
+	 * @var WriterAbstraction
+	 */
+	private $log;
+	
+	/**
+	 * @var Solarium_Client;
 	 */
 	protected $solariumClient;
 
 	function __construct()
 	{
 		$this->solariumClient = ObjectRepository::getSolariumClient($this);
-
+		$this->log = ObjectRepository::getLogger($this);
 		$this->systemId = 'someSystemId';
 	}
 
@@ -36,7 +41,7 @@ class SearchService
 
 		$request->applyParametersToSelectQuery($selectQuery);
 
-		\Log::debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
+		$this->log->debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
 
 		$selectResults = $this->solariumClient->select($selectQuery);
 
