@@ -27,7 +27,7 @@ class Template extends Abstraction\AbstractPage
 
 	/**
 	 * Template place holders
-	 * @OneToMany(targetEntity="TemplatePlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
+	 * @OneToMany(targetEntity="TemplatePlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;

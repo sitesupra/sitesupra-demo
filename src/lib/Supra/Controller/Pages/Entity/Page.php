@@ -21,7 +21,7 @@ class Page extends Abstraction\AbstractPage
 	
 	/**
 	 * Page place holders
-	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="master", cascade={"persist", "remove"}, indexBy="name")
+	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
