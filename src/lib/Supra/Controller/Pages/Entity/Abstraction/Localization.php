@@ -5,7 +5,6 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\User\Entity\Abstraction\User;
 use Supra\Authorization\PermissionType;
 use Supra\Controller\Pages\Entity\LockData;
 

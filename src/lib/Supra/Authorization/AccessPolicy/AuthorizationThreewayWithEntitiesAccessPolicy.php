@@ -8,9 +8,9 @@ use Supra\Request\RequestInterface;
 use Supra\Request\HttpRequest;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AuthorizationProvider;
-use Supra\User\Entity\Abstraction\User;
-use Supra\User\Entity\Group as RealGroup;
-use Supra\User\Entity\User as RealUser;
+use Supra\User\Entity\AbstractUser;
+use Supra\User\Entity\Group;
+use Supra\User\Entity\User;
 use Supra\Authorization\Permission\Permission;
 
 /**
@@ -70,7 +70,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		);
 	}
 
-	public function updateAccessPolicy(User $user, RequestInterface $request)
+	public function updateAccessPolicy(AbstractUser $user, RequestInterface $request)
 	{
 		$updateData = null;
 
@@ -99,7 +99,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	public function getAccessPolicy(User $user)
+	public function getAccessPolicy(AbstractUser $user)
 	{
 		$result = parent::getAccessPolicy($user);
 
@@ -108,11 +108,11 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		return $result;
 	}
 
-	protected function getAllEntityPermissionStatuses(User $user)
+	protected function getAllEntityPermissionStatuses(AbstractUser $user)
 	{
 		$allEntityPermissionStatusesFromGroup = array();
 
-		if ( ! ($user instanceof RealGroup)) {
+		if ( ! ($user instanceof Group)) {
 			$allEntityPermissionStatusesFromGroup = $this->getAllEntityPermissionStatuses($user->getGroup());
 		}
 
@@ -153,10 +153,10 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 	/**
 	 * Return array with item permissions for authorized entities for this application for client side.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return array
 	 */
-	public function getAllEntityPermissionsArray(User $user)
+	public function getAllEntityPermissionsArray(AbstractUser $user)
 	{
 		$result = array();
 
@@ -190,13 +190,13 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 	/**
 	 * Returns entity permission array to be sent to client side.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param string $entityId
 	 * @param array $grantedPermissionNames
 	 * @param array $forbidenPermissionNames
 	 * @return array 
 	 */
-	protected function getEntityPermissionArray(User $user, $entityId, $allowedPermissionNames, $deniedPermissionNames)
+	protected function getEntityPermissionArray(AbstractUser $user, $entityId, $allowedPermissionNames, $deniedPermissionNames)
 	{
 		$result = array();
 
@@ -209,21 +209,21 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 	/**
 	 * Sets authorized entity permission
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param string $entityId
 	 * @param array $setPermissionNames 
 	 */
-	public function setEntityPermissions(User $user, $entityId, $setPermissionNames)
+	public function setEntityPermissions(AbstractUser $user, $entityId, $setPermissionNames)
 	{
-		if ($user instanceof RealUser) {
+		if ($user instanceof User) {
 			return $this->setEntityPermissionsForUser($user, $entityId, $setPermissionNames);
 		}
-		else if ($user instanceof RealGroup) {
+		else if ($user instanceof Group) {
 			return $this->setEntityPermissionsForGroup($user, $entityId, $setPermissionNames);
 		}
 	}
 
-	private function setEntityPermissionsForUser(RealUser $user, $entityId, $setPermissionNames)
+	private function setEntityPermissionsForUser(User $user, $entityId, $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -271,7 +271,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	private function setEntityPermissionsForGroup(RealGroup $group, $entityId, $setPermissionNames)
+	private function setEntityPermissionsForGroup(Group $group, $entityId, $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -301,7 +301,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 				// was revoked for user.
 
 				foreach ($users as $user) {
-					/* @var $user RealUser */
+					/* @var $user User */
 					$currentStatus = $this->ap->getPermissionStatus($user, $oid, $permissionName);
 
 					if ($currentStatus == PermissionStatus::DENY) {

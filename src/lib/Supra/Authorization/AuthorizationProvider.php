@@ -8,9 +8,8 @@ use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
 use Symfony\Component\Security\Acl\Domain\PermissionGrantingStrategy;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Exception\AclNotFoundException;
-use Supra\User\Entity\Abstraction\User;
-use Supra\User\Entity\User as RealUser;
-use Supra\User\Entity\Group as RealGroup;
+use Supra\User\Entity\AbstractUser;
+use Supra\User\Entity\User;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\Permission\PermissionStatus;
 use Supra\Authorization\Permission\Application\ApplicationAllAccessPermission;
@@ -286,12 +285,12 @@ class AuthorizationProvider
 
 	/**
 	 * Constructs and returns user security identity object.
-	 * @param User $user 
+	 * @param AbstractUser $user 
 	 * @return UserSecurityIdentity
 	 */
-	private function getUserSecurityIdentity(User $user)
+	private function getUserSecurityIdentity(AbstractUser $user)
 	{
-		return new UserSecurityIdentity($user->getId(), User::CN());
+		return new UserSecurityIdentity($user->getId(), AbstractUser::CN());
 	}
 
 	/**
@@ -316,12 +315,12 @@ class AuthorizationProvider
 
 	/**
 	 * Sets permission to $permissionStatus for $user for $object to $permissionName
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Object $object
 	 * @param String $permissionName
 	 * @param Integer $permissionStatus Shoud use constant from AuthorizationPermission class
 	 */
-	public function setPermsissionStatus(User $user, $object, $permissionName, $newPermissionStatus)
+	public function setPermsissionStatus(AbstractUser $user, $object, $permissionName, $newPermissionStatus)
 	{
 		$currentPermissionStatus = $this->getPermissionStatus($user, $object, $permissionName);
 
@@ -418,12 +417,12 @@ class AuthorizationProvider
 
 	/**
 	 * Returns permission status for $user to $objct on $permissionName.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Object $object
 	 * @param String $permissionName
 	 * @return integer
 	 */
-	public function getPermissionStatus(User $user, $object, $permissionName)
+	public function getPermissionStatus(AbstractUser $user, $object, $permissionName)
 	{
 		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
 
@@ -494,13 +493,13 @@ class AuthorizationProvider
 	/**
 	 * Returns whether the permission $permissionName is granted to user $user for object $object, 
 	 * taking into account parent ACLs.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Object $objectIdentity
 	 * @param String $permissionName
 	 * @param boolean $checkGroup
 	 * @return boolean
 	 */
-	function isPermissionGranted(User $user, $object, $permissionName, $checkGroup = true)
+	function isPermissionGranted(AbstractUser $user, $object, $permissionName, $checkGroup = true)
 	{
 		if ($user->isSuper()) { // ... this is dirty.
 			return true;
@@ -536,7 +535,7 @@ class AuthorizationProvider
 
 		if (
 				$checkGroup &&
-				$user instanceof RealUser &&
+				$user instanceof User &&
 				( ! is_null($user->getGroup()))
 		) {
 			return $this->isPermissionGranted($user->getGroup(), $object, $permissionName);
@@ -547,11 +546,11 @@ class AuthorizationProvider
 
 	/**
 	 * Returns array of permission names as keys and true/false as values for all permission types registered for given class.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Object $object
 	 * @return array
 	 */
-	public function getEffectivePermissionStatusesByObjectClass(User $user, $class)
+	public function getEffectivePermissionStatusesByObjectClass(AbstractUser $user, $class)
 	{
 		$classOids = $this->getAclProvider()->getOidsByClass($class);
 
@@ -606,31 +605,31 @@ class AuthorizationProvider
 
 	/**
 	 * Grants controller execute permission to user.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param AuthorizedControllerInterface $controller 
 	 */
-	public function grantControllerExecutePermission(User $user, AuthorizedControllerInterface $controller)
+	public function grantControllerExecutePermission(AbstractUser $user, AuthorizedControllerInterface $controller)
 	{
 		$this->setPermsissionStatus($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::ALLOW);
 	}
 
 	/**
 	 * Revokes controller execution permission from user.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param AuthorizedControllerInterface $controller 
 	 */
-	public function revokeControllerExecutePermission(User $user, AuthorizedControllerInterface $controller)
+	public function revokeControllerExecutePermission(AbstractUser $user, AuthorizedControllerInterface $controller)
 	{
 		$this->setPermsissionStatus($user, $controller, ControllerExecutePermission::NAME, PermissionStatus::DENY);
 	}
 
 	/**
 	 * Returns true if user is permitted to execute controller.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param AuthorizedControllerInterface $controller
 	 * @return boolean
 	 */
-	public function isControllerExecuteGranted(User $user, AuthorizedControllerInterface $controller)
+	public function isControllerExecuteGranted(AbstractUser $user, AuthorizedControllerInterface $controller)
 	{
 		$permissionGranted = $this->isPermissionGranted($user, $controller, ControllerExecutePermission::NAME);
 
@@ -642,9 +641,9 @@ class AuthorizationProvider
 
 	/**
 	 * Removes all user's individual permissions
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function unsetAllUserPermissions(User $user)
+	public function unsetAllUserPermissions(AbstractUser $user)
 	{
 		$sid = $this->getUserSecurityIdentity($user);
 		$this->getAclProvider()->removeSidAces($sid);

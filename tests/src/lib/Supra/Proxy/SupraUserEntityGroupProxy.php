@@ -90,7 +90,7 @@ class SupraUserEntityGroupProxy extends \Supra\User\Entity\Group implements \Doc
         return parent::setModificationTime($time);
     }
 
-    public function authorize(\Supra\User\Entity\Abstraction\User $user, $permission, $grant)
+    public function authorize(\Supra\User\Entity\AbstractUser $user, $permission, $grant)
     {
         $this->__load();
         return parent::authorize($user, $permission, $grant);

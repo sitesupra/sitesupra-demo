@@ -6,7 +6,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPoli
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity as PageEntity;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Doctrine\ORM\EntityRepository;
 use Supra\Locale\LocaleManager;
 use Supra\Request\RequestInterface;
@@ -27,7 +27,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		$this->permission['subproperty']['localized'] = true;
 	}
 
-	protected function getEntityPermissionArray(User $user, $itemId, $allowed, $denied)
+	protected function getEntityPermissionArray(AbstractUser $user, $itemId, $allowed, $denied)
 	{
 		if (empty($allowed)) {
 			return array();
@@ -195,7 +195,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		return $array;
 	}
 
-	protected function getApplicationAccessValue(User $user)
+	protected function getApplicationAccessValue(AbstractUser $user)
 	{
 		return parent::getApplicationAccessValue($user);
 	}

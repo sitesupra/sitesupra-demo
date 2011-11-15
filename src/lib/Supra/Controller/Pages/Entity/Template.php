@@ -26,13 +26,6 @@ class Template extends Abstraction\AbstractPage
 	protected $templateLayouts;
 
 	/**
-	 * Template place holders
-	 * @OneToMany(targetEntity="TemplatePlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
-	 * @var Collection
-	 */
-	protected $placeHolders;
-
-	/**
 	 * Constructor
 	 */
 	public function __construct()

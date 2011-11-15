@@ -25,7 +25,7 @@ class UserSession extends Entity implements Timestampable
 	protected $lastActivityTime;
 	
 	/**
-	 * @ManyToOne(targetEntity="User", cascade={"delete"})
+	 * @ManyToOne(targetEntity="User", inversedBy="userSessions")
 	 * @var User
 	 */
 	protected $user;

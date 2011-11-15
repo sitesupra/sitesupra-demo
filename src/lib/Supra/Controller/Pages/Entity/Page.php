@@ -20,13 +20,6 @@ class Page extends Abstraction\AbstractPage
 	const DISCRIMINATOR = self::PAGE_DISCR;
 	
 	/**
-	 * Page place holders
-	 * @OneToMany(targetEntity="PagePlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
-	 * @var Collection
-	 */
-	protected $placeHolders;
-	
-	/**
 	 * {@inheritdoc}
 	 * @return string
 	 */

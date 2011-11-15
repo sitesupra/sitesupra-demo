@@ -3,7 +3,7 @@
 namespace Supra\Authorization\Permission;
 
 use Supra\Authorization\AuthorizationProvider;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\Exception\AuthorizationConfigurationException;
 
 /**
@@ -119,10 +119,10 @@ class Permission
 	/**
 	 * This is being called by authorization provider when permission of this type 
 	 * has been granted (set to ALLOW).
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param mixed $object
 	 */
-	public function granted(User $user, $object) 
+	public function granted(AbstractUser $user, $object) 
 	{
 		
 	}
@@ -130,10 +130,10 @@ class Permission
 	/**
 	 * This is being called by authorization provider when permission of this type 
 	 * has been revoked (set to DENY).
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param mixed $object 
 	 */
-	public function revoked(User $user, $object)
+	public function revoked(AbstractUser $user, $object)
 	{
 		
 	}
@@ -141,10 +141,10 @@ class Permission
 	/**
 	 * This is being called by authorization provider when permission of this type 
 	 * has been removed from acl (set to NONE).
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param mixed $object 
 	 */
-	public function removed(User $user, $object)
+	public function removed(AbstractUser $user, $object)
 	{
 		
 	}	

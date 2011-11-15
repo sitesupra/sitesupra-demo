@@ -51,7 +51,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 //		$query->execute();
 //		$query = $this->em->createQuery("delete from Supra\User\Entity\Group");
 //		$query->execute();
-//		$query = $this->em->createQuery("delete from Supra\User\Entity\Abstraction\User");
+//		$query = $this->em->createQuery("delete from Supra\User\Entity\AbstractUser");
 //
 //		$query->execute();
 //	}

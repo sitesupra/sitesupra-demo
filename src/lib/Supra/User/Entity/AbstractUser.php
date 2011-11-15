@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity\Abstraction;
+namespace Supra\User\Entity;
 
 use Supra\Database\Entity;
 use Supra\Authorization\AuthorizedEntityInterface;
@@ -12,13 +12,13 @@ use DateTime;
  * @Entity
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"user" = "Supra\User\Entity\User", "group" = "Supra\User\Entity\Group"})
+ * @DiscriminatorMap({"user" = "User", "group" = "Group"})
  * @Table(name="user_abstraction", indexes={
  *		@index(name="user_abstraction_name_idx", columns={"name"})
  * })
  * @HasLifecycleCallbacks
  */
-abstract class User extends Entity implements AuthorizedEntityInterface, Timestampable
+abstract class AbstractUser extends Entity implements AuthorizedEntityInterface, Timestampable
 {
 	const PERMISSION_MODIFY_USER_NAME = 'modify_user';
 	const PERMISSION_MODIFY_USER_MASK = 256;
@@ -105,7 +105,7 @@ abstract class User extends Entity implements AuthorizedEntityInterface, Timesta
 	 */
 	abstract function isSuper();
 	
-	public function authorize(User $user, $permission, $grant) 
+	public function authorize(AbstractUser $user, $permission, $grant) 
 	{
 		return true;
 	}

@@ -64,11 +64,11 @@ class InternalUserManagerAbstractAction extends CmsAction
 	}
 
 	/**
-	 * @return Entity\Abstraction\User
+	 * @return Entity\AbstractUser
 	 */
 	protected function getEntityFromRequestKey($key = 'id')
 	{
-		$user = $this->getRequestedEntity($key, 'Supra\User\Entity\Abstraction\User');
+		$user = $this->getRequestedEntity($key, Entity\AbstractUser::CN());
 
 		return $user;
 	}
@@ -78,7 +78,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 	 */
 	protected function getUserFromRequestKey($key = 'id')
 	{
-		$user = $this->getRequestedEntity($key, 'Supra\User\Entity\User');
+		$user = $this->getRequestedEntity($key, Entity\User::CN());
 
 		return $user;
 	}
@@ -88,7 +88,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 	 */
 	protected function getGroupFromRequestKey($key = 'id')
 	{
-		$group = $this->getRequestedEntity($key, 'Supra\User\Entity\Group');
+		$group = $this->getRequestedEntity($key, Entity\Group::CN());
 
 		return $group;
 	}

@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Supra\Cms\MediaLibrary;
 
@@ -6,7 +6,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPoli
 use Supra\FileStorage\Entity as FileEntity;
 use Supra\Request\RequestInterface;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 
 class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
@@ -73,7 +73,12 @@ class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEnt
 		return $array;
 	}
 	
-	protected function getAllEntityPermissionStatuses(User $user) 
+	/**
+	 * {@inheritdoc}
+	 * @param AbstractUser $user
+	 * @return array
+	 */
+	protected function getAllEntityPermissionStatuses(AbstractUser $user) 
 	{
 		return parent::getAllEntityPermissionStatuses($user);
 	}

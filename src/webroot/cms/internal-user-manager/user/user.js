@@ -220,6 +220,7 @@ Supra('supra.slideshow', function (Y) {
 			var uri = this.getDataPath('delete');
 			
 			Supra.io(uri, {
+				'method': 'post',
 				'data': {
 					'user_id': this.data.user_id
 				},
@@ -242,6 +243,7 @@ Supra('supra.slideshow', function (Y) {
 		resetPassword: function () {
 			var uri = this.getDataPath('reset');
 			Supra.io(uri, {
+				'method': 'post',
 				'data': {
 					'user_id': this.data.user_id
 				},

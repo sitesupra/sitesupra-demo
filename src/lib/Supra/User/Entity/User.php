@@ -2,12 +2,14 @@
 
 namespace Supra\User\Entity;
 
+use Doctrine\Common\Collections\Collection;
+
 /**
  * User object
  * @Entity
  * @Table(name="user")
  */
-class User extends Abstraction\User
+class User extends AbstractUser
 {
 	/**
 	 * @Column(type="string", name="password", nullable=true)
@@ -52,11 +54,11 @@ class User extends Abstraction\User
 	protected $salt;
 	
 	/**
-	 * Stores active session ID
-	 * @Column(type="string", nullable="true")
-	 * @var string
+	 * Added only to cascade removal
+	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
+	 * @var Collection
 	 */
-	protected $sessionId;
+	protected $userSessions;
 	
 	/**
 	 * Generates random salt for new users

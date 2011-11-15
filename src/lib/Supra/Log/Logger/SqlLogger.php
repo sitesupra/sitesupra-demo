@@ -83,12 +83,15 @@ class SqlLogger implements SQLLoggerInterface
 			if (is_null($param)) {
 				$param = 'NULL';
 			}
+			if (is_array($param)) {
+				$param = 'ARRAY[' . implode('; ', $param) . ']';
+			}
 			
 			$length = mb_strlen($param);
 			
-			if ($length > 60) {
+			if ($length > 70) {
 				$size = ($length - 50) . " chars";
-				$param = mb_substr($param, 0, 50) . "...<+$size>";
+				$param = mb_substr($param, 0, 50) . "...<$size>..." . mb_substr($param, $length - 10);
 			}
 		}
 		unset($param);

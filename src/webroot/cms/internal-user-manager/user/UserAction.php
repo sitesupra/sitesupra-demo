@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\User\Exception;
 use Supra\User\Entity;
 use Supra\User\UserProvider;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Cms\CmsApplicationConfiguration;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AuthorizationProvider;
@@ -16,8 +16,7 @@ use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
-use Supra\User\Entity\Group as RealGroup;
-use Supra\User\Entity\User as RealUser;
+use Supra\User\Entity\Group;
 use Supra\Cms\Exception\CmsException;
 
 /**
@@ -47,11 +46,11 @@ class UserAction extends InternalUserManagerAbstractAction
 			$this->getResponse()->setErrorMessage('User id is not set');
 		}
 
-		/* @var $user User */
+		/* @var $user AbstractUser */
 		$user = $this->getUserOrGroupFromRequestKey('user_id');
 
 		if ($user->getId() != $this->getUser()->getId()) {
-			$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 		}
 
 		$config = CmsApplicationConfiguration::getInstance();
@@ -76,6 +75,8 @@ class UserAction extends InternalUserManagerAbstractAction
 	 */
 	public function deleteAction()
 	{
+		$this->isPostRequest();
+		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ($this->emptyRequestParameter('user_id')) {
 
@@ -85,9 +86,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$userId = $this->getRequestParameter('user_id');
 
-		$session = ObjectRepository::getSessionManager($this)
-				->getAuthenticationSpace();
-		$currentUser = $session->getUser();
+		$currentUser = $this->getUser();
 		$currentUserId = $currentUser->getId();
 
 		if ($currentUserId == $userId) {
@@ -102,7 +101,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			return;
 		}
 
-		$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
 		$entityManager = ObjectRepository::getEntityManager($this->userProvider);
 		
@@ -117,8 +116,10 @@ class UserAction extends InternalUserManagerAbstractAction
 	 */
 	public function resetAction()
 	{
+		$this->isPostRequest();
+		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
-		if ( ! $this->emptyRequestParameter('user_id')) {
+		if ($this->emptyRequestParameter('user_id')) {
 
 			$this->getResponse()->setErrorMessage('User id is not set');
 			return;
@@ -135,7 +136,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			return;
 		}
 
-		$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 		
 		$this->sendPasswordChangeLink($user);
 
@@ -162,7 +163,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			$groupName = array_search($dummyGroupId, $this->dummyGroupMap);
 			$group = $this->userProvider->findGroupByName($groupName);
 
-			$this->checkActionPermission($group, RealGroup::PERMISSION_MODIFY_USER_NAME);
+			$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
 
 			$user = new Entity\User();
 			$em->persist($user);
@@ -222,7 +223,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			}
 
 			if ($user->getId() != $this->getUser()->getId()) {
-				$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+				$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 			}
 
 			// temporary solution when save action is triggered and there are no changes
@@ -270,10 +271,10 @@ class UserAction extends InternalUserManagerAbstractAction
 
 	/**
 	 * Returns array for response 
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return array
 	 */
-	private function getUserResponseArray(User $user)
+	private function getUserResponseArray(AbstractUser $user)
 	{
 		$response = array(
 				'name' => $user->getName(),

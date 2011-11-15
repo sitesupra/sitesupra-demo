@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Database;
 use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\Permission\Permission;
 use Supra\Authorization\AuthorizationProvider;
 
@@ -138,11 +138,11 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	
 	/**
 	 *
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Permission $permission
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permission, $grant) 
+	public function authorize(AbstractUser $user, $permission, $grant) 
 	{
 		return $grant;
 	}

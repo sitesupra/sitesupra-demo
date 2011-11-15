@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization\AccessPolicy;
 
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Request\RequestInterface;
 use Supra\Request\HttpRequest;
 use Supra\Authorization\Exception;
@@ -29,10 +29,10 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 
 	/**
 	 * Retreives current application access value for use in client side.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return string
 	 */
-	protected function getApplicationAccessValue(User $user)
+	protected function getApplicationAccessValue(AbstractUser $user)
 	{
 		$applicationAccessValue = self::APPLICATION_ACCESS_NONE_VALUE;
 
@@ -46,10 +46,10 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 	/**
 	 * Sets application access for user depending on value that has been 
 	 * received from client side.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param string $applicationAccessValue 
 	 */
-	protected function setApplicationAccessValue(User $user, $applicationAccessValue)
+	protected function setApplicationAccessValue(AbstractUser $user, $applicationAccessValue)
 	{
 		switch ($applicationAccessValue) {
 
@@ -66,10 +66,10 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 
 	/**
 	 * Is called by Internal User Manager when user modifies some permissions.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param RequestInterface $request 
 	 */
-	public function updateAccessPolicy(User $user, RequestInterface $request)
+	public function updateAccessPolicy(AbstractUser $user, RequestInterface $request)
 	{
 		if ($request instanceof HttpRequest) {
 
@@ -88,10 +88,10 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 
 	/**
 	 * Is called from Internal User Manager when loading data for some user for this application.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return array
 	 */
-	public function getAccessPolicy(User $user)
+	public function getAccessPolicy(AbstractUser $user)
 	{
 		$result = array(
 				self::APPLICATION_ACCESS_ID => $this->getApplicationAccessValue($user)

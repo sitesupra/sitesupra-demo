@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Entity\Abstraction;
 use Supra\NestedSet;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
 use Supra\Database\Doctrine\Listener\Timestampable;
@@ -386,12 +386,12 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	}
 
 	/**
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param Permission $permission
 	 * @param boolean $grant
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permission, $grant) 
+	public function authorize(AbstractUser $user, $permission, $grant) 
   {
 		return $grant;
 	}

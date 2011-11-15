@@ -3,9 +3,7 @@
 namespace Supra\User\Entity;
 
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\User\Entity\User as RealUser;
 use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\User\Entity\Abstraction\User as AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 
 /**
@@ -13,7 +11,7 @@ use Supra\Authorization\AuthorizationProvider;
  * @Entity
  * @Table(name="group") 
  */
-class Group extends Abstraction\User implements AuthorizedEntityInterface
+class Group extends AbstractUser implements AuthorizedEntityInterface
 {
 
 	/**
@@ -33,7 +31,7 @@ class Group extends Abstraction\User implements AuthorizedEntityInterface
 
 	/**
 	 * Sets groups SUPER privilege status
-	 * @param boolean $isSuper 
+	 * @param boolean $isSuper
 	 */
 	public function setIsSuper($isSuper)
 	{
@@ -43,7 +41,7 @@ class Group extends Abstraction\User implements AuthorizedEntityInterface
 
 	/**
 	 * Returns itself.
-	 * @return Group 
+	 * @return Group
 	 */
 	public function getGroup()
 	{

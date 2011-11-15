@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization\AccessPolicy;
 
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\ObjectRepository\ObjectRepository;
@@ -83,15 +83,15 @@ abstract class AuthorizationAccessPolicyAbstraction
 		return $this->permission;
 	}
 
-	abstract public function getAccessPolicy(User $user);
+	abstract public function getAccessPolicy(AbstractUser $user);
 	
-	abstract public function updateAccessPolicy(User $user, RequestInterface $updateRequest);
+	abstract public function updateAccessPolicy(AbstractUser $user, RequestInterface $updateRequest);
 	
 	/**
 	 * Sets "ALL"  access for given user to application. Revokes "SOME" and "EXECUTE" if granted.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function grantApplicationAllAccessPermission(User $user)
+	public function grantApplicationAllAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Granting application access "ALL" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -103,9 +103,9 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Grants "SOME" access for given user to application. Revokes "ALL" and "EXECUTE" access if granted.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function grantApplicationSomeAccessPermission(User $user)
+	public function grantApplicationSomeAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Granting application access "SOME" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -117,10 +117,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 	
 	/**
 	 * Grants "EXECUTE" access for given user to application. Revokes "ALL" and "SOME" access if granted.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean 
 	 */
-	public function grantApplicationExecuteAccessPermission(User $user)
+	public function grantApplicationExecuteAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Granting application access "EXECUTE" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -132,9 +132,9 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Revokes "ALL" access for given user to application.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function revokeApplicationAllAccessPermission(User $user)
+	public function revokeApplicationAllAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Revoking application access "ALL" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -143,9 +143,9 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Revokes "SOME" access for given user to application.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function revokeApplicationSomeAccessPermission(User $user)
+	public function revokeApplicationSomeAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Revoking appliaction access "SOME" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -154,9 +154,9 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Revokes "Execute" access for given user to application.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 */
-	public function revokeApplicationExecuteAccessPermission(User $user)
+	public function revokeApplicationExecuteAccessPermission(AbstractUser $user)
 	{
 		$this->log->debug('Revoking application access "EXECUTE" to ' . $this->appConfig->id . ' for user ' . $user->getName());
 
@@ -165,10 +165,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Returns true if user has "ALL" access to application, false otherwise.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean
 	 */
-	public function isApplicationAllAccessGranted(User $user)
+	public function isApplicationAllAccessGranted(AbstractUser $user)
 	{
 		$result = $this->ap->isPermissionGranted($user, $this->appConfig, ApplicationAllAccessPermission::NAME);
 
@@ -179,10 +179,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Returns true if user has "SOME" access to application, false otherwise.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean
 	 */
-	public function isApplicationSomeAccessGranted(User $user)
+	public function isApplicationSomeAccessGranted(AbstractUser $user)
 	{
 		$result = $this->ap->isPermissionGranted($user, $this->appConfig, ApplicationSomeAccessPermission::NAME);
 
@@ -193,10 +193,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Returns true if user has application access "EXECUTE" granted, false otherwise.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean
 	 */
-	public function isApplicationExecuteAccessGranted(User $user)
+	public function isApplicationExecuteAccessGranted(AbstractUser $user)
 	{
 		$result = $this->ap->isPermissionGranted($user, $this->appConfig, ApplicationExecuteAccessPermission::NAME);
 
@@ -207,10 +207,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Returns true if user has any access granted ("EXECUTE", "SOME", "ALL"), false otherwise.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean
 	 */
-	public function isApplicationAnyAccessGranted(User $user)
+	public function isApplicationAnyAccessGranted(AbstractUser $user)
 	{
 		return $this->isApplicationAllAccessGranted($user, $this->appConfig) ||
 				$this->isApplicationSomeAccessGranted($user, $this->appConfig) ||
@@ -219,10 +219,10 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	/**
 	 * Returns true if user has admin access granted (SOME, ALL), false otherwise.
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @return boolean
 	 */
-	public function isApplicationAdminAccessGranted(User $user)
+	public function isApplicationAdminAccessGranted(AbstractUser $user)
 	{
 		return $this->isApplicationAllAccessGranted($user, $this->appConfig) ||
 				$this->isApplicationSomeAccessGranted($user, $this->appConfig);

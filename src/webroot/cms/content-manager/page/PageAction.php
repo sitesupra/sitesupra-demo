@@ -8,7 +8,6 @@ use Supra\Controller\Pages\Request\HistoryPageRequestView;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
-use Supra\User\Entity\Abstraction\User;
 use Supra\Editable;
 use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;

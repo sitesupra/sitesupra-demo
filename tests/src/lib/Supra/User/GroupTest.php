@@ -38,11 +38,11 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 	private function cleanUp($delete = false)
 	{
 		
-		$query = $this->em->createQuery("delete from Supra\User\Entity\User");
+		$query = $this->em->createQuery("delete from " . Entity\User::CN());
 		$query->execute();
-		$query = $this->em->createQuery("delete from Supra\User\Entity\Group");
+		$query = $this->em->createQuery("delete from " . Entity\Group::CN());
 		$query->execute();
-		$query = $this->em->createQuery("delete from Supra\User\Entity\Abstraction\User");
+		$query = $this->em->createQuery("delete from " . Entity\AbstractUser::CN());
 
 		$query->execute();
 	}

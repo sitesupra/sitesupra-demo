@@ -11,8 +11,7 @@ use Supra\Cms\CmsApplicationConfiguration;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Locale\LocaleManager;
 use Supra\Cms\ApplicationConfiguration;
-use Supra\User\Entity\Group as RealGroup;
-use Supra\User\Entity\User as RealUser;
+use Supra\User\Entity\Group;
 use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigurationException;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 
@@ -49,7 +48,7 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 		$user = $this->getUserOrGroupFromRequestKey('user_id');
 
 		// Check if current user is allowed to do anything with permissions for selected user/group
-		$this->checkActionPermission($user->getGroup(), RealGroup::PERMISSION_MODIFY_USER_NAME);
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
 		if ($appConfig instanceof ApplicationConfiguration) {
 			$appConfig->authorizationAccessPolicy->updateAccessPolicy($user, $this->getRequest());

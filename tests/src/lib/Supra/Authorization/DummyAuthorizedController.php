@@ -3,12 +3,11 @@
 namespace Supra\Tests\Authorization;
 
 use Supra\Authorization\AuthorizedControllerInterface;
-use \Supra\Authorization\AuthorizedAction;
-use \Supra\Controller\EmptyController;
-use \Symfony\Component\Security\Acl\Permission\MaskBuilder;
-use \Supra\Authorization\AuthorizedControlerExecuteAction;
-
-use \Supra\User\Entity\Abstraction\User;
+use Supra\Authorization\AuthorizedAction;
+use Supra\Controller\EmptyController;
+use Symfony\Component\Security\Acl\Permission\MaskBuilder;
+use Supra\Authorization\AuthorizedControlerExecuteAction;
+use Supra\User\Entity\AbstractUser;
 
 class DummyAuthorizedController extends EmptyController implements AuthorizedControllerInterface
 {
@@ -17,10 +16,8 @@ class DummyAuthorizedController extends EmptyController implements AuthorizedCon
 		return __CLASS__;
 	}
 	
-	function authorize(User $user, $permission = null) 
+	function authorize(AbstractUser $user, $permission = null) 
 	{
 		return true;
 	}
 }
-
-

@@ -298,13 +298,13 @@ class UserProvider
 	/**
 	 * Find user/group by ID
 	 * @param string $id
-	 * @return Entity\Abstraction\User
+	 * @return Entity\AbstractUser
 	 */
 	public function findById($id)
 	{
 		$entityManager = $this->getEntityManager();
 		
-		return $entityManager->find(Entity\Abstraction\User::CN(), $id);
+		return $entityManager->find(Entity\AbstractUser::CN(), $id);
 	}
 
 	/**

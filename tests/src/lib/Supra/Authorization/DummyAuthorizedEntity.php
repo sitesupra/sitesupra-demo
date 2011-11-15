@@ -3,12 +3,9 @@
 namespace Supra\Tests\Authorization;
 
 use Supra\NestedSet\Node\ArrayNode;
-
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
-
-use Supra\User\Entity\Abstraction\User;
-
+use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 
 class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterface
@@ -40,7 +37,7 @@ class DummyAuthorizedEntity extends ArrayNode implements AuthorizedEntityInterfa
 		$ap->registerGenericEntityPermission(self::PERMISSION_PUBLISH_NAME, self::PERMISSION_MASK_PUBLISH_PAGE, __CLASS__);		
 	}
 	
-	function authorize(User $user, $permission, $grant) 
+	function authorize(AbstractUser $user, $permission, $grant) 
 	{
 		return true;
 	}

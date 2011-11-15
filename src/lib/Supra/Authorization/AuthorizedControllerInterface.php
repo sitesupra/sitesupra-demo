@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization;
 
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 
 interface AuthorizedControllerInterface
 {
@@ -14,5 +14,5 @@ interface AuthorizedControllerInterface
 	/**
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permission);
+	public function authorize(AbstractUser $user, $permission);
 }

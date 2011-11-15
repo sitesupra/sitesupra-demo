@@ -7,9 +7,8 @@ use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\CmsApplicationConfiguration;
 use Supra\Authorization\Permission\PermissionStatus;
 use Supra\Cms\ApplicationConfiguration;
-use Supra\User\Entity\Abstraction\User;
-use Supra\User\Entity\User as RealUser;
-use Supra\User\Entity\Group as RealGroup;
+use Supra\User\Entity\User;
+use Supra\User\Entity\Group;
 use Supra\FileStorage\Entity as FileEntity;
 use Supra\Controller\Pages\Entity as PageEntity;
 use Doctrine\ORM\EntityRepository;
@@ -59,19 +58,19 @@ class FixtureHelper
 	/**
 	 * Creates user
 	 * @param string $userName
-	 * @param RealGroup $group
-	 * @return RealUser
+	 * @param Group $group
+	 * @return User
 	 */
-	public function makeUser($userName, RealGroup $group = null)
+	public function makeUser($userName, Group $group = null)
 	{
-		/* @var $user RealUser */
+		/* @var $user User */
 		$user = $this->up->findUserByLogin($userName);
 
 		$em = $this->up->getEntityManager();
 		
 		if (empty($user)) {
 
-			$user = new RealUser();
+			$user = new User();
 			$em->persist($user);
 
 			$user->setLogin($userName);
@@ -96,7 +95,7 @@ class FixtureHelper
 	/**
 	 * Creates new group
 	 * @param string $groupName
-	 * @return RealGroup
+	 * @return Group
 	 */
 	public function makeGroup($groupName)
 	{
@@ -105,7 +104,7 @@ class FixtureHelper
 
 		if (empty($group)) {
 
-			$group = new \Supra\User\Entity\Group();
+			$group = new Group();
 			$em->persist($group);
 			$group->setName($groupName);
 			$em->flush();

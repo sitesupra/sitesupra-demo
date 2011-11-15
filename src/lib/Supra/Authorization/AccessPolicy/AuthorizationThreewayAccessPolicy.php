@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization\AccessPolicy;
 
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 
 /**
  * Implements access policy with 3 states - "EXECUTE", "SOME", "ALL"
@@ -31,7 +31,7 @@ class AuthorizationThreewayAccessPolicy extends AuthorizationAllOrNoneAccessPoli
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function getApplicationAccessValue(User $user)
+	protected function getApplicationAccessValue(AbstractUser $user)
 	{
 		$applicationAccessValue = parent::getApplicationAccessValue($user);
 
@@ -48,7 +48,7 @@ class AuthorizationThreewayAccessPolicy extends AuthorizationAllOrNoneAccessPoli
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function setApplicationAccessValue(User $user, $applicationAccessValue)
+	protected function setApplicationAccessValue(AbstractUser $user, $applicationAccessValue)
 	{
 		if ($applicationAccessValue == self::APPLICATION_ACCESS_SOME_VALUE) {
 			$this->grantApplicationSomeAccessPermission($user);

@@ -2,7 +2,7 @@
 
 namespace Supra\Authorization;
 
-use Supra\User\Entity\Abstraction\User;
+use Supra\User\Entity\AbstractUser;
 
 /**
  * Interface must be implemented if class instances are to be 
@@ -11,12 +11,12 @@ use Supra\User\Entity\Abstraction\User;
 interface AuthorizedEntityInterface
 {
 	/**
-	 * @param User $user
+	 * @param AbstractUser $user
 	 * @param string $permission
 	 * @param Boolean $grant
 	 * @return boolean
 	 */
-	public function authorize(User $user, $permission, $grant);
+	public function authorize(AbstractUser $user, $permission, $grant);
 	
 	/**
 	 * @return string
