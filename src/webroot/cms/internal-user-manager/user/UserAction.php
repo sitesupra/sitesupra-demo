@@ -240,7 +240,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		$response = array(
 				'name' => $user->getName(),
-				'avatar' => '/cms/lib/supra/img/avatar-default-32x32.png',
+				'avatar' => '/cms/lib/supra/img/avatar-default-48x48.png',
 				'user_id' => $user->getId()
 		);
 

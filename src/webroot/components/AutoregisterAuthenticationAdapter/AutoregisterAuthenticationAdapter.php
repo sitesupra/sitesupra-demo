@@ -5,6 +5,7 @@ namespace Project\AutoregisterAuthenticationAdapter;
 use Supra\Authentication\Adapter\HashAdapter;
 use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationPassword;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Development authentication adapter automatically registering new users
@@ -39,8 +40,15 @@ class AutoregisterAuthenticationAdapter extends HashAdapter
 		
 		parent::credentialChange($user, $password);
 		
+		// Don't let it change the login after email change
 		if ( ! empty($login)) {
 			$user->setLogin($login);
+			
+			// Flush again if login was changed...
+			$userProvider = ObjectRepository::getUserProvider($this);
+			$userProvider->getEntityManager()
+					->flush();
 		}
+		
 	}
 }

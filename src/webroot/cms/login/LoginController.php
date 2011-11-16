@@ -11,6 +11,7 @@ use Supra\Response;
 
 /**
  * Login controller
+ * @method Response\TwigResponse getResponse()
  */
 class LoginController extends SimpleController
 {
@@ -25,19 +26,23 @@ class LoginController extends SimpleController
 	{
 		$session = ObjectRepository::getSessionManager($this)
 				->getAuthenticationSpace();
+		$response = $this->getResponse();
 
 		if ( ! empty($session->login)) {
-			$this->getResponse()->assign('email', $session->login);
+			$response->assign('email', $session->login);
 			unset($session->login);
 		}
 
 		if ( ! empty($session->message)) {
-			$this->getResponse()->assign('message', $session->message);
+			$response->assign('message', $session->message);
 			unset($session->message);
 		}
 
 		//TODO: should make short somehow!
-		$this->getResponse()->outputTemplate('webroot/cms/login/index.html.twig');
+		$response->outputTemplate('index.html.twig');
+		
+		// Could fix the problem with login page cache
+		$response->forbidCache();
 	}
 
 	/**
@@ -47,14 +52,11 @@ class LoginController extends SimpleController
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		if ($request instanceof Request\HttpRequest) {
-			return new Response\TwigResponse();
+		if ( ! $request instanceof Request\HttpRequest) {
+			throw new \Supra\Request\Exception\InvalidRequest("Only HTTP requests are allowed");
 		}
-		if ($request instanceof Request\CliRequest) {
-			return new Response\CliResponse();
-		}
-
-		return new Response\EmptyResponse();
+		
+		return new Response\TwigResponse($this);
 	}
 
 }

@@ -130,7 +130,7 @@ SU('supra.input', 'cookie', function (Y) {
 		onLoginSuccess: function () {
 			if (this.isLoginManager()) {
 				//Reload page, server will take care of the rest
-				document.location.reload();
+				document.location.search += ((document.location.search == '') ? '?' : '&') + 'success=' + (new Date()).valueOf();
 			} else {
 				var key = Supra.data.get('sessionName'),	//Cookie key
 					value = Y.Cookie.get(key);				//Session ID

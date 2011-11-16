@@ -366,4 +366,16 @@ class HttpResponse implements ResponseInterface
 	{
 		$cookie->send();
 	}
+	
+	/**
+	 * Helper method to increase the odds noone will cache the response
+	 */
+	public function forbidCache()
+	{
+		$this->header("Expires", gmdate("r", 0));
+		$this->header("Last-Modified", gmdate("r"));
+		$this->header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+		$this->header("Cache-Control", "post-check=0, pre-check=0", false);
+		$this->header("Pragma", "no-cache");
+	}
 }
