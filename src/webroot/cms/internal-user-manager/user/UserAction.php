@@ -145,128 +145,90 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->getResponse()->setResponseData(null);
 	}
 	
+	/**
+	 * Insert action
+	 */
 	public function insertAction()
 	{
 		$this->isPostRequest();
 
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
-		if ( ! $this->emptyRequestParameter('email') &&
-				! $this->emptyRequestParameter('name') &&
-				! $this->emptyRequestParameter('group')) {
+		$email = $this->getRequestParameter('email');
+		$name = $this->getRequestParameter('name');
+		$dummyGroupId = $this->getRequestParameter('group');
 
-			$email = $this->getRequestParameter('email');
-			$name = $this->getRequestParameter('name');
-			$dummyGroupId = $this->getRequestParameter('group');
+		$em = $this->userProvider->getEntityManager();
 
-			$em = $this->userProvider->getEntityManager();
+		$groupName = array_search($dummyGroupId, $this->dummyGroupMap);
+		$group = $this->userProvider->findGroupByName($groupName);
 
-			$groupName = array_search($dummyGroupId, $this->dummyGroupMap);
-			$group = $this->userProvider->findGroupByName($groupName);
+		$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
 
-			$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
+		$user = new Entity\User();
+		$em->persist($user);
 
-			$user = new Entity\User();
-			$em->persist($user);
+		// TODO: add group, avatar
+		$user->setName($name);
+		$user->setEmail($email);
 
-			// TODO: add group, avatar
-			$user->setName($name);
-			$user->setEmail($email);
+		$user->setGroup($group);
 
-			$user->setGroup($group);
-
-			try {
-				$this->userProvider->validate($user);
-			}
-			catch (Exception\RuntimeException $exc) {
-				//FIXME: don't pass original message!
-				$this->getResponse()->setErrorMessage($exc->getMessage());
-				return;
-			}
-
-			$authAdapter = $this->userProvider->getAuthAdapter();
-			$authAdapter->credentialChange($user);
-
-			$this->sendPasswordChangeLink($user);
-
-			$this->getResponse()->setResponseData($response);
+		try {
+			$this->userProvider->validate($user);
 		}
-		else {
-
-			//error message
+		catch (Exception\RuntimeException $exc) {
+			//FIXME: don't pass original message!
+			throw new CmsException(null, "Not valid input: {$exc->getMessage()}");
 		}
+
+		$authAdapter = $this->userProvider->getAuthAdapter();
+		$authAdapter->credentialChange($user);
+
+		$this->sendPasswordChangeLink($user);
 	}
 
+	/**
+	 * User save
+	 */
 	public function saveAction()
 	{
 		$this->isPostRequest();
 
+		// try to find as user/group ...
+		$user = $this->getEntityFromRequestKey('user_id');
+		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
-		if ( ! $this->emptyRequestParameter('user_id') &&
-				! $this->emptyRequestParameter('email') &&
-				! $this->emptyRequestParameter('group') &&
-				! $this->emptyRequestParameter('name')) {
+		$email = $this->getRequestParameter('email');
+		$name = $this->getRequestParameter('name');
 
-			$email = $this->getRequestParameter('email');
-			$name = $this->getRequestParameter('name');
-			$group = $this->getRequestParameter('group');
-			$userId = $this->getRequestParameter('user_id');
+		if ($user->getId() != $this->getUser()->getId()) {
+			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+		}
 
-
-			// try to find as user/group ...
-			$user = $this->userProvider->findById($userId);
-
-			// ... if not found, bail out.
-			if (empty($user)) {
-
-				$this->getResponse()->setErrorMessage('User with such id doesn\'t exist');
-				return;
-			}
-
-			if ($user->getId() != $this->getUser()->getId()) {
-				$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
-			}
-
-			// temporary solution when save action is triggered and there are no changes
-			if (
-					($user instanceof Entity\User) && (
-					($email == $user->getEmail()) &&
-					($name == $user->getName())
-					) ||
-					($user instanceof Entity\Group)
-			) {
-
-				$response = $this->getUserResponseArray($user);
-
-				$this->getResponse()->setResponseData($response);
-
-				return;
-			}
-
-			// TODO: add group and avatar
-			$user->setName($name);
-			$user->setEmail($email);
-
-			try {
-				$this->userProvider->validate($user);
-			}
-			catch (Exception\RuntimeException $e) {
-
-				$this->getResponse()->setErrorMessage($e->getMessage());
-				return;
-			}
-
-			$authAdapter = $this->userProvider->getAuthAdapter();
-			$authAdapter->credentialChange($user);
-
-			$this->entityManager->flush();
-
+		//TODO: temporary solution for groups, don't save anything
+		if ( ! $user instanceof Entity\User) {
 			$response = $this->getUserResponseArray($user);
-
 			$this->getResponse()->setResponseData($response);
+
+			return;
 		}
-		else {
-			// error message
+
+		// TODO: add group and avatar
+		$user->setName($name);
+		$user->setEmail($email);
+
+		try {
+			$this->userProvider->validate($user);
 		}
+		catch (Exception\RuntimeException $e) {
+			throw new CmsException(null, "Not valid input: {$e->getMessage()}");
+		}
+
+		$authAdapter = $this->userProvider->getAuthAdapter();
+		$authAdapter->credentialChange($user);
+
+		$response = $this->getUserResponseArray($user);
+		$this->getResponse()->setResponseData($response);
 	}
 
 	/**

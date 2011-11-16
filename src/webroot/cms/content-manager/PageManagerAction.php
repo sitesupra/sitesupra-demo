@@ -409,7 +409,7 @@ abstract class PageManagerAction extends CmsAction
 		// If all went well, fire the post-publish event for published page localization.
 		$eventArgs = new PagePublishEventArgs();
 		$eventArgs->user = $this->getUser();
-		$eventArgs->pageLocalization = $this->getPageLocalization();
+		$eventArgs->localization = $this->getPageLocalization();
 
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);

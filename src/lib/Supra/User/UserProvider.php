@@ -106,6 +106,7 @@ class UserProvider
 	 */
 	public function setAuthAdapter(Adapter\AuthenticationAdapterInterface $authAdapter)
 	{
+		ObjectRepository::setCallerParent($authAdapter, $this);
 		$this->authAdapter = $authAdapter;
 	}
 

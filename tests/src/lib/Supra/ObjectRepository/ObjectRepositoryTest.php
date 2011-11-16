@@ -323,5 +323,23 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		self::assertTrue(ObjectRepository::isParentCaller($this, 'A'));
 		self::assertFalse(ObjectRepository::isParentCaller(__CLASS__, 'A'));
 	}
+	
+	public function testSelfCaller()
+	{
+		$interface = 'stdClass';
+		$ns = 'yyy';
+		$expected = new $interface();
+
+		ObjectRepository::setObject($ns, $expected, $interface);
+		$actual = ObjectRepository::getObject($ns, $interface);
+		self::assertSame($expected, $actual);
+		
+		$actual = ObjectRepository::getObject($expected, $interface);
+		self::assertSame($expected, $actual);
+		
+		ObjectRepository::setCallerParent('zzz', $expected);
+		$actual = ObjectRepository::getObject('zzz', $interface);
+		self::assertSame($expected, $actual);
+	}
 
 }

@@ -47,20 +47,25 @@ class InternalUserManagerAbstractAction extends CmsAction
 		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
 	}
 
-	protected function getRequestedEntity($key, $className)
+	/**
+	 * @param string $key
+	 * @param string $className
+	 * @return Entity\AbstractUser
+	 */
+	private function getRequestedEntity($key, $className)
 	{
 		if ( ! $this->hasRequestParameter($key)) {
 			throw new CmsException('internalusermanager.validation_error.user_id_not_provided');
 		}
 
 		$id = $this->getRequestParameter($key);
-		$user = $this->entityManager->find($className, $id);
+		$entity = $this->userProvider->findById($id);
 
-		if (is_null($user)) {
+		if ( ! $entity instanceof $className) {
 			throw new CmsException('internalusermanager.validation_error.user_not_exists');
 		}
 
-		return $user;
+		return $entity;
 	}
 
 	/**
@@ -68,9 +73,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 	 */
 	protected function getEntityFromRequestKey($key = 'id')
 	{
-		$user = $this->getRequestedEntity($key, Entity\AbstractUser::CN());
+		$entity = $this->getRequestedEntity($key, Entity\AbstractUser::CN());
 
-		return $user;
+		return $entity;
 	}
 
 	/**

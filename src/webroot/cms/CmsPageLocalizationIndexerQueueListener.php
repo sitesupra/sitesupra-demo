@@ -7,15 +7,23 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageLocalizationIndexerQueueItem;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
+use Supra\Controller\Pages\Entity\PageLocalization;
 
 class CmsPageLocalizationIndexerQueueListener
 {
-
+	/**
+	 * Will add published pages into search indexer queue
+	 * @param PagePublishEventArgs $eventArgs
+	 */
 	public function postPagePublish(PagePublishEventArgs $eventArgs)
 	{
-		$indexerQueue = new PageLocalizationIndexerQueue(PageController::SCHEMA_PUBLIC);
+		$localization = $eventArgs->localization;
 		
-		$indexerQueue->add($eventArgs->pageLocalization);
+		// Index only pages, not templates
+		if ($localization instanceof PageLocalization) {
+			$indexerQueue = new PageLocalizationIndexerQueue(PageController::SCHEMA_PUBLIC);
+			$indexerQueue->add($eventArgs->localization);
+		}
 	}
 
 }

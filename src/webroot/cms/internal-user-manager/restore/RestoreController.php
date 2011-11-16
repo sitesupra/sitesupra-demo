@@ -197,8 +197,6 @@ class RestoreController extends InternalUserManagerAbstractAction
 		
 		$authAdapter->credentialChange($user, $password);
 		
-		$this->entityManager->flush();
-		
 		$response->redirect(self::LOGIN_PAGE);
 	}
 	

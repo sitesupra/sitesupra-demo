@@ -5,6 +5,7 @@ namespace Supra\Authentication\Adapter;
 use Supra\User\Entity\User;
 use Supra\Authentication\Exception;
 use Supra\Authentication\AuthenticationPassword;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Adapter with email as login and password sha1 hash validation
@@ -89,6 +90,11 @@ class HashAdapter implements AuthenticationAdapterInterface
 			$passHash = $this->generatePasswordHash($password, $salt);
 			$user->setPassword($passHash);
 		}
+		
+		// Flush automatically
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProvider->getEntityManager()
+				->flush();
 	}
 
 }

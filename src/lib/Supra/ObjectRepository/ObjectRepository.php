@@ -242,6 +242,7 @@ class ObjectRepository
 	{
 		$caller = self::normalizeCallerArgument($caller);
 		$interface = self::normalizeInterfaceArgument($interface);
+		$selfCaller = self::normalizeCallerArgument($object);
 		
 		self::checkLateBinding($caller, $interface);
 	
@@ -254,6 +255,9 @@ class ObjectRepository
 		}
 
 		self::$objectBindings[$interface][$caller] = $object;
+		
+		// Bind self if called from self or it's children
+		self::$objectBindings[$interface][$selfCaller] = $object;
 	}
 	
 	/**

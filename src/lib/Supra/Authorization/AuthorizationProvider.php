@@ -125,10 +125,7 @@ class AuthorizationProvider
 			}
 		}
 
-		if (
-				! empty($this->permissionsByClassAndMask[$class]) &&
-				! empty($this->permissionsByClassAndMask[$class][$mask])
-		) {
+		if ( ! empty($this->permissionsByClassAndMask[$class][$mask])) {
 			throw new Exception\ConfigurationException(
 					'Permission type with mask "' . $mask . '" ' .
 					'is already registered for class "' . $class . '" ' .
@@ -245,10 +242,7 @@ class AuthorizationProvider
 	{
 		$result = false;
 
-		if (
-				! empty($this->permissionsByClassAndMask[$class]) &&
-				! empty($this->permissionsByClassAndMask[$class][$mask])
-		) {
+		if ( ! empty($this->permissionsByClassAndMask[$class][$mask])) {
 			$result = $this->permissionsByClassAndMask[$class][$mask];
 		}
 
