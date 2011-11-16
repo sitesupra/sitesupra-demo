@@ -15,6 +15,7 @@ YUI.add('supra.header.appdock', function(Y) {
 	//Templates
 	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" /><span>{title}</span>';
 	var TEMPLATE_ITEM = '<li><a href="{path}"><img src="{icon}" alt="" /><span>{title}</span></a></li>';
+	var TEMPLATE_ITEM_LOGOUT = '<li class="logout"><a href="{path}"><div></div><span>{title}</span></a></li>';
 	
 	//Shortcuts
 	var getClassName = Y.ClassNameManager.getClassName;
@@ -261,6 +262,16 @@ YUI.add('supra.header.appdock', function(Y) {
 				
 				node_list.append(node_item);
 			}
+			
+			node_data = {
+				'path': Supra.Manager.Loader.getDynamicPath() + '/logout/',
+				//TODO: localize
+				'title': 'Logout'
+			};
+			
+			node_item = Y.Node.create(Y.substitute(TEMPLATE_ITEM_LOGOUT, node_data));
+			node_item.addClass('logout');
+			node_list.append(node_item);
 		}
 		
 	});

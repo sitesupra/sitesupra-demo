@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityRepository;
 use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigurationException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
+use Supra\Cms\InternalUserManager\ApplicationConfiguration;
 
 /**
  * Sitemap
@@ -31,18 +32,24 @@ class UserlistAction extends InternalUserManagerAbstractAction
 	{
 		$result = array();
 
-		$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
-		$groups = $groupRepository->findAll();
+		$appConfig = ObjectRepository::getApplicationConfiguration($this);
 		
-		/* @var $group Entity\Group */
-		foreach($groups as $group) {
-			
-			$result[] = array(
-				'id' => $group->getId(),
-				'avatar' => null,
-				'name' =>  '[[[' . $group->getName() . ']]]',
-				'group' => $this->dummyGroupMap[$group->getName()]
-			);
+		if ($appConfig instanceof ApplicationConfiguration) {
+			if ($appConfig->allowGroupEditing) {
+				$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+				$groups = $groupRepository->findAll();
+
+				/* @var $group Entity\Group */
+				foreach($groups as $group) {
+
+					$result[] = array(
+						'id' => $group->getId(),
+						'avatar' => null,
+						'name' =>  '[' . $group->getName() . ']',
+						'group' => $this->dummyGroupMap[$group->getName()]
+					);
+				}
+			}
 		}
 		
 		$users = $this->userRepository->findAll();
@@ -59,7 +66,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 			$result[] = array(
 				'id' => $user->getId(),
-				'avatar' => null,
+				'avatar' => $user->getAvatar(),
 				'name' => $user->getName(),
 				'group' => $this->dummyGroupMap[$user->getGroup()->getName()]
 			);

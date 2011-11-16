@@ -697,7 +697,7 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
 	}	
 	
- /**
+	/**
 	 * Get assigned application configuration.
 	 *
 	 * @param mixed $caller

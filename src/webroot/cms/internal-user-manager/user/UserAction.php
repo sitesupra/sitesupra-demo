@@ -198,8 +198,6 @@ class UserAction extends InternalUserManagerAbstractAction
 		$user = $this->getEntityFromRequestKey('user_id');
 		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
-		$email = $this->getRequestParameter('email');
-		$name = $this->getRequestParameter('name');
 
 		if ($user->getId() != $this->getUser()->getId()) {
 			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
@@ -213,9 +211,20 @@ class UserAction extends InternalUserManagerAbstractAction
 			return;
 		}
 
-		// TODO: add group and avatar
-		$user->setName($name);
-		$user->setEmail($email);
+		if ($this->hasRequestParameter('name')) {
+			$name = $this->getRequestParameter('name');
+			$user->setName($name);
+		}
+		
+		if ($this->hasRequestParameter('email')) {
+			$email = $this->getRequestParameter('email');
+			$user->setEmail($email);
+		}
+		
+		if ($this->hasRequestParameter('avatar')) {
+			$avatar = $this->getRequestParameter('avatar');
+			$user->setAvatar($avatar);
+		}
 
 		try {
 			$this->userProvider->validate($user);
@@ -239,20 +248,22 @@ class UserAction extends InternalUserManagerAbstractAction
 	private function getUserResponseArray(AbstractUser $user)
 	{
 		$response = array(
-				'name' => $user->getName(),
-				'avatar' => '/cms/lib/supra/img/avatar-default-48x48.png',
-				'user_id' => $user->getId()
+			'user_id' => $user->getId(),
+			'name' => $user->getName()
 		);
 
 		if ($user instanceof Entity\User) {
-
 			$response['email'] = $user->getEmail();
 			$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
+			$response['avatar'] = $user->getAvatar();
 		}
 		else {
-
 			$response['email'] = 'N/A';
 			$response['group'] = $this->dummyGroupMap[$user->getName()];
+		}
+		
+		if (empty($response['avatar'])) {
+			$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
 		}
 
 		return $response;

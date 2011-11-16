@@ -30,6 +30,13 @@ class User extends AbstractUser
 	protected $email;
 	
 	/**
+	 * TODO: temporary solution
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $avatar;
+	
+	/**
 	* @ManyToOne(targetEntity="Group")
 	* @JoinColumn(name="group_id", referencedColumnName="id")
 	 */
@@ -120,7 +127,23 @@ class User extends AbstractUser
 	{
 		$this->email = $email;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAvatar()
+	{
+		return $this->avatar;
+	}
 
+	/**
+	 * @param string $avatar
+	 */
+	public function setAvatar($avatar)
+	{
+		$this->avatar = $avatar;
+	}
+	
 	/**
 	 * Returns user last logged in time 
 	 * @return \DateTime 

@@ -14,15 +14,17 @@
     id: content
     title: Pages
     icon: /cms/lib/supra/img/apps/content
-    path: /cms/content-manager
+    path: /cms/content-manager/
     authorizationAccessPolicyClass: Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\ContentManager
   
-- Supra\Cms\ApplicationConfiguration:
+- Supra\Cms\InternalUserManager\ApplicationConfiguration:
     id: internal-user-manager
     title: Backoffice users
-    path: /cms/internal-user-manager
+    path: /cms/internal-user-manager/
     icon: /cms/lib/supra/img/apps/internal-user
+    # For development only
+    allowGroupEditing: true
     # Assigned to controller because inside this namespace is password restore controller
     applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
     authorizationAccessPolicyClass: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
@@ -30,7 +32,7 @@
 - Supra\Cms\ApplicationConfiguration:
     id: banner-manager
     title: Banners
-    path: /cms/banner-manager
+    path: /cms/banner-manager/
     icon: /cms/lib/supra/img/apps/banner
     applicationNamespace: Supra\Cms\BannerManager
     authorizationAccessPolicyClass: Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy
@@ -38,7 +40,7 @@
 - Supra\Cms\ApplicationConfiguration:
     id: media-library
     title: Media Library
-    path: /cms/media-library
+    path: /cms/media-library/
     icon: /cms/lib/supra/img/apps/media_library
     applicationNamespace: Supra\Cms\MediaLibrary
     authorizationAccessPolicyClass: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy

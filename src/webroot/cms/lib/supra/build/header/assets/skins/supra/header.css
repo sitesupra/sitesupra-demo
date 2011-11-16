@@ -92,6 +92,24 @@
 	text-decoration: underline;
 }
 
+/* Logout action */
+.yui3-app-dock li.logout {
+	clear: both;
+}
+.yui3-app-dock li.logout div {
+	display: inline-block;
+	background-image: url(/cms/lib/supra/img/icon-logout.png);
+	background-repeat: no-repeat;
+	margin: 0px 5px -4px 0px;
+	height: 16px;
+	width: 16px;
+}
+.yui3-app-dock li.logout:hover div {
+	background-position: 0px -32px;
+}
+.yui3-app-dock li.logout span {
+	display: inline;
+}
 
 /* FadeIn / FadeOut animation */
 .yui3-app-dock {
