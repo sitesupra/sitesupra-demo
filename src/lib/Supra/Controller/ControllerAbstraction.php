@@ -16,7 +16,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 	 * @var WriterAbstraction
 	 */
 	protected $log;
-	
+
 	/**
 	 * Request object
 	 * @var Request\RequestInterface
@@ -36,7 +36,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 	{
 		$this->log = ObjectRepository::getLogger($this);
 	}
-	
+
 	/**
 	 * Prepares controller for execution
 	 * @param RequestInterface $request
@@ -74,7 +74,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 	{
 		return $this->response;
 	}
-	
+
 	/**
 	 * Generate response object
 	 * @param Request\RequestInterface $request
@@ -90,8 +90,8 @@ abstract class ControllerAbstraction implements ControllerInterface
 		}
 		return new Response\EmptyResponse();
 	}
-	
-	public static function __CLASS()  
+
+	public static function CN()
 	{
 		return get_called_class();
 	}

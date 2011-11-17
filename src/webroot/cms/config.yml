@@ -10,6 +10,12 @@
         url: /cms/restore
         controller: Supra\Cms\InternalUserManager\Restore\RestoreController
 
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /dummy-pay
+        controller: Project\Payment\DummyPay\RequestController
+
 - Supra\Cms\ApplicationConfiguration:
     id: content
     title: Pages

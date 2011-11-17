@@ -16,6 +16,7 @@ use Supra\Cms\ApplicationConfiguration;
 use Supra\Event\EventManager;
 use Solarium_Client;
 use Supra\Configuration\Loader\IniConfigurationLoader;
+use Supra\Payment\Provider\PaymentProviderCollection;
 
 /**
  * Object repository
@@ -43,6 +44,7 @@ class ObjectRepository
 	const INTERFACE_SOLARIUM_CLIENT = '\Solarium_Client';
 	const INTERFACE_EVENT_MANAGER = 'Supra\Event\EventManager';
 	const INTERFACE_INI_CONFIGURATION = 'Supra\Configuration\Loader\IniConfigurationLoader';
+	const INTERFACE_PAYMENT_PROVIDER_COLLECTION = 'Supra\Payment\Provider\PaymentProviderCollection';
 	
 	/**
 	 * Object relation storage
@@ -830,5 +832,39 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INI_CONFIGURATION);
 	}
+
 	
+	/**
+	 * Get assigned payment provider collection.
+	 *
+	 * @param mixed $caller
+	 * @return PaymentProviderCollection
+	 */
+	public static function getPaymentProviderCollection($caller)
+	{
+		$paymentProviderCollection = self::getObject($caller, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
+		
+		return $paymentProviderCollection;
+	}
+
+	/**
+	 * Assign payment provider collection to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param PaymentProviderCollection $object 
+	 */
+	public static function setPaymentProviderCollection($caller, PaymentProviderCollection $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
+	}
+	
+	/**
+	 * Set default payment provider collection.
+	 *
+	 * @param PaymentProviderCollection $object 
+	 */
+	public static function setDefaultPaymentProviderCollection(PaymentProviderCollection $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
+	}	
 }
