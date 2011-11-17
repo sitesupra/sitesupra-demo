@@ -142,10 +142,12 @@ abstract class PageRequest extends HttpRequest
 
 	/**
 	 * @param string $locale
-	 * @param string $media 
+	 * @param string $media
 	 */
 	public function __construct($locale, $media = Entity\Layout::MEDIA_SCREEN)
 	{
+		parent::__construct();
+		
 		$this->locale = $locale;
 		$this->media = $media;
 		$this->log = ObjectRepository::getLogger($this);

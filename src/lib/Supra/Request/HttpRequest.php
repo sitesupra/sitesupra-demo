@@ -25,15 +25,15 @@ class HttpRequest implements RequestInterface
 
 	/**
 	 * GET parameters
-	 * @var array
+	 * @var RequestData
 	 */
-	protected $query = array();
+	protected $query;
 
 	/**
-	 * POST array
-	 * @var array
+	 * POST data
+	 * @var RequestData
 	 */
-	protected $post = array();
+	protected $post;
 
 	/**
 	 * Cookies received from the client
@@ -52,6 +52,15 @@ class HttpRequest implements RequestInterface
 	 * @var Path
 	 */
 	protected $path;
+	
+	/**
+	 * Set empty POST/GET
+	 */
+	public function __construct()
+	{
+		$this->post = new RequestData();
+		$this->query = new RequestData();
+	}
 
 	/**
 	 * {@inheritdoc}
@@ -157,7 +166,7 @@ class HttpRequest implements RequestInterface
 	 */
 	public function setQuery($query)
 	{
-		$this->query = $query;
+		$this->query = new RequestData($query);
 	}
 
 	/**
@@ -171,17 +180,17 @@ class HttpRequest implements RequestInterface
 
 	/**
 	 * Get GET data value
-	 * @param string $key
+	 * @param string $index
 	 * @param string $default
 	 * @return string
 	 */
-	public function getQueryValue($key, $default = null)
+	public function getQueryValue($index, $default = null)
 	{
-		if ( ! array_key_exists($key, $this->query)) {
+		if ( ! $this->query->offsetExists($index)) {
 			return $default;
 		}
 		
-		return $this->query[$key];
+		return $this->query[$index];
 	}
 
 	/**
@@ -190,7 +199,7 @@ class HttpRequest implements RequestInterface
 	 */
 	public function setPost($post)
 	{
-		$this->post = $post;
+		$this->post = new RequestData($post);
 	}
 
 	/**
@@ -204,17 +213,17 @@ class HttpRequest implements RequestInterface
 
 	/**
 	 * Get POST data value
-	 * @param string $key
+	 * @param string $index
 	 * @param string $default
 	 * @return string
 	 */
-	public function getPostValue($key, $default = null)
+	public function getPostValue($index, $default = null)
 	{
-		if ( ! array_key_exists($key, $this->post)) {
+		if ( ! $this->post->offsetExists($index)) {
 			return $default;
 		}
 		
-		return $this->post[$key];
+		return $this->post[$index];
 	}
 
 	/**
