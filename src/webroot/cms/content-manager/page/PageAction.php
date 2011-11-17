@@ -454,9 +454,9 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 		
-		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
+		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 
-		$pageLocalization = $historyEm->getRepository(PageRequest::DATA_ENTITY)
+		$pageLocalization = $em->getRepository(PageRequest::DATA_ENTITY)
 				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
 		
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
@@ -477,7 +477,7 @@ class PageAction extends PageManagerAction
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
-		$request->setDoctrineEntityManager($historyEm);
+		$request->setDoctrineEntityManager($em);
 		$controller->execute($request);
 
 		$return = array(

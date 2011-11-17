@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Entity\RevisionData;
 
 /**
  * Sitemap
@@ -35,7 +36,7 @@ class SitemaprecycleAction extends PageManagerAction
 	
 	public function restoreAction()
 	{
-		$this->restoreTrashVersion();
+		$this->restorePageVersion();
 	}
 	
 	protected function loadSitemapTree($entity)
@@ -43,13 +44,26 @@ class SitemaprecycleAction extends PageManagerAction
 		$pages = array();
 		$response = array();
 		
-		$em = ObjectRepository::getEntityManager('#trash');
-		
 		$localeId = $this->getLocale()->getId();
 
-		$pageLocalizationRepository = $em->getRepository($entity);
-		$pageLocalizations = $pageLocalizationRepository->findByLocale($localeId);
+		$auditEm = ObjectRepository::getEntityManager('#audit');
+		
+		$trashRevisions = $auditEm->getRepository(RevisionData::CN())
+				->findByType(RevisionData::TYPE_TRASH);
+		
+		// collecting ids
+		foreach($trashRevisions as $revision) {
+			$revisionIds[] = $revision->getId();
+		}
 
+		$searchCriteria = array(
+			'locale' => $localeId,
+			'revision' => $revisionIds
+		);
+		
+		$pageLocalizationRepository = $auditEm->getRepository($entity);
+		$pageLocalizations = $pageLocalizationRepository->findBy($searchCriteria);
+		
 		foreach ($pageLocalizations as $pageLocalization) {
 
 			$pageInfo = array();

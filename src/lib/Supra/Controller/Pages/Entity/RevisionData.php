@@ -14,6 +14,11 @@ use DateTime;
  */
 class RevisionData extends Abstraction\Entity implements Timestampable
 {
+	
+	const TYPE_HISTORY = 1;
+	
+	const TYPE_TRASH = 2;
+	
 	/**
 	 * @Column(type="datetime", nullable=true, name="created_at")
 	 * @var DateTime
@@ -25,6 +30,18 @@ class RevisionData extends Abstraction\Entity implements Timestampable
 	 * @var string
 	 */
 	protected $user;
+	
+	/**
+	 * @Column(type="integer")
+	 * @var integer
+	 */
+	protected $type;
+	
+	/**
+	 * @Column(type="sha1")
+	 * @var string
+	 */
+	protected $localization;
 	
 	/**
 	 * Returns revision author
@@ -81,5 +98,31 @@ class RevisionData extends Abstraction\Entity implements Timestampable
 	public function setModificationTime(DateTime $time = null)
 	{
 		
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+	
+	/**
+	 * @param integer $type 
+	 */
+	public function setType($type)
+	{
+		$this->type = $type;
+	}
+	
+	public function getLocalizationId()
+	{
+		return $this->localization;
+	}
+	
+	public function setLocalizationId($localizationId)
+	{
+		$this->localization = $localizationId;
 	}
 }

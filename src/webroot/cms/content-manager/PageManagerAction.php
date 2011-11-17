@@ -27,6 +27,8 @@ use Supra\Controller\Pages\Request\HistoryPageRequestView;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Supra\Cms\CmsController;
 use Supra\Loader\Loader;
+use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Listener\EntityAuditListener;
 
 /**
  * Controller containing common methods
@@ -484,33 +486,35 @@ abstract class PageManagerAction extends CmsAction
 				->setResponseData(true);
 	}
 
-	/**
-	 * Restore page from trash schema
-	 */
-	protected function restoreTrashVersion()
+	protected function restorePageVersion()
 	{
-		/*
 		$this->isPostRequest();
+	
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		
+		$localizationId = $this->getRequestParameter('page_id');
+		
+		$pageRevisionData = $auditEm->getRepository(RevisionData::CN())
+				->findOneBy(array('type' => RevisionData::TYPE_TRASH, 'localization' => $localizationId));
 
-		$trashEm = ObjectRepository::getEntityManager('#trash');
-		$this->entityManager = $trashEm;
-
-		$localization = $this->getPageLocalization();
-
-		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-
-		$page = $localization->getMaster();
+		$revisionId = $pageRevisionData->getId();
+		
+		$pageLocalization = $auditEm->getRepository(Entity\Abstraction\Localization::CN())
+				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
+		
+		$page = $pageLocalization->getMaster();
 		if ($page instanceof Entity\Page) {
 
 			$localizations = $page->getLocalizations();
 			foreach ($localizations as $pageLocalization) {
 
 				$template = $pageLocalization->getTemplate();
-				if ($template instanceof Entity\Template) {
-					$template = $template->getId();
-				}
+				
+				//if ($template instanceof Entity\Template) {
+				//	$template = $template->getId();
+				//}
 
-				$template = $draftEm->find(Entity\Template::CN(), $template);
+				//$template = $this->entityManager->find(Entity\Template::CN(), $template);
 				if ( ! ($template instanceof Entity\Template)) {
 					$localeName = $this->getLocale()
 							->getId();
@@ -529,12 +533,25 @@ abstract class PageManagerAction extends CmsAction
 				throw new CmsException(null, "It is impossible to restore root template as a child");
 			}
 		}
+		
+		$localeId = $this->getLocale()->getId();
+		$media = $this->getMedia();
 
-		$pageRequest = $this->getPageRequest();
-		$page = $pageRequest->restore();
+		$request = new HistoryPageRequestView($localeId, $media);
+		$request->setDoctrineEntityManager($auditEm);
+		$request->setPageLocalization($pageLocalization);
 
-		// Reverting back cms entity manager
-		$this->entityManager = $draftEm;
+		$request->setRevision($revisionId);
+
+		$restorePage = function() use ($request) {
+				$page = $request->restorePage();
+			};
+
+		$this->entityManager
+				->transactional($restorePage);
+
+		$page = $this->entityManager
+				->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
 
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
@@ -553,21 +570,22 @@ abstract class PageManagerAction extends CmsAction
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
 
-		$this->getResponse()->setResponseData(true);
-		*/
+		$this->getResponse()
+				->setResponseData(true);
+
 	}
 
 	/**
 	 * Restores history version of the page
 	 */
-	protected function restoreHistoryVersion()
+	protected function restoreLocalizationVersion()
 	{
 		$revisionId = $this->getRequestParameter('version_id');
 		$localizationId = $this->getRequestParameter('page_id');
 
-		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
-
-		$pageLocalization = $historyEm->find(Entity\Abstraction\Localization::CN(), 
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		
+		$pageLocalization = $auditEm->find(Entity\Abstraction\Localization::CN(),
 				array('id' => $localizationId, 'revision' => $revisionId));
 		
 		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
@@ -578,18 +596,19 @@ abstract class PageManagerAction extends CmsAction
 		$media = $this->getMedia();
 
 		$request = new HistoryPageRequestView($localeId, $media);
-		$request->setDoctrineEntityManager($historyEm);
+		$request->setDoctrineEntityManager($auditEm);
 		$request->setPageLocalization($pageLocalization);
 
 		$revisionId = $pageLocalization->getRevisionId();
 		$request->setRevision($revisionId);
 
-		$draftEm = $this->entityManager;
-		$restorePage = function() use ($request, $draftEm) {
-					$request->restore($draftEm);
+		$restorePage = function() use ($request) {
+					$request->restoreLocalization();
 				};
 
-		$draftEm->transactional($restorePage);
+		$this->entityManager
+				->transactional($restorePage);
+		
 	}
 
 	/**

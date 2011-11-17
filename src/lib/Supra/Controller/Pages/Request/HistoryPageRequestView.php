@@ -10,6 +10,11 @@ use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 
 use Supra\Controller\Pages\Set;
+use Supra\Controller\Pages\Listener\EntityAuditListener;
+use Supra\Controller\Pages\PageController;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Controller\Pages\Entity\RevisionData;
 
 /**
  * Request object for history mode requests
@@ -378,51 +383,53 @@ class HistoryPageRequestView extends PageRequest
 	}
 	
 	/**
-	 * Does the history version restoration
-	 * @param EntityManager $destinationEm
+	 * Does the history localization version restoration
 	 */
-	public function restore(EntityManager $destinationEm)
+	public function restoreLocalization()
 	{
-		$em = $this->getDoctrineEntityManager();
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$draftEm->getEventManager()
+				->dispatchEvent(EntityAuditListener::pagePreRestoreEvent);
+		
 		$page = $this->getPage();
 		
-		$destPage = $destinationEm->merge($page);
+		$destPage = $draftEm->merge($page);
 		
 		$pageLocalization = $this->getPageLocalization();
-		$destLocalization = $destinationEm->merge($pageLocalization);
+		$destLocalization = $draftEm->merge($pageLocalization);
 		
 		// place holders
 		$placeHolders = $pageLocalization->getPlaceHolders();
 		foreach ($placeHolders as $placeHolder) {
-			$destinationEm->merge($placeHolder);
+			$draftEm->merge($placeHolder);
 		}
 		
 		// blocks
-		$existingBlocks = $this->getBlocksInPage($destinationEm, $destLocalization);
+		$existingBlocks = $this->getBlocksInPage($draftEm, $destLocalization);
 		$blocks = $this->getBlockSet();
 		foreach($blocks as $block) {
-			$destinationEm->merge($block);
+			$draftEm->merge($block);
 		}
 		
 		// block properties
 		$historyProperties = $this->getBlockPropertySet()
 				->getPageProperties($pageLocalization);
 		foreach ($historyProperties as $property) {
-			$destinationEm->merge($property);
+			$draftEm->merge($property);
 		}
 		
 		// Collect history block property IDs
 		$historyPropertyIds = Entity\Abstraction\Entity::collectIds($historyProperties);
 		
 		// Collect draft block property IDs
-		$draftProperties = $this->getPageBlockProperties($destinationEm);
+		$draftProperties = $this->getPageBlockProperties($draftEm);
 		$draftPropertyIds = Entity\Abstraction\Entity::collectIds($draftProperties);
 
 		// Calculate removed properties
 		$removedPropertyIds = array_diff($draftPropertyIds, $historyPropertyIds);
 		// ...delete their metadata
 		if ( ! empty($removedPropertyIds)) {
-			$qb = $destinationEm->createQueryBuilder();
+			$qb = $draftEm->createQueryBuilder();
 			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
 					->where($qb->expr()->in('r.blockProperty', $removedPropertyIds))
 					->getQuery()->execute();
@@ -430,7 +437,7 @@ class HistoryPageRequestView extends PageRequest
 		
 		// ...and properties itself
 		if ( ! empty($removedPropertyIds)) {
-			$qb = $destinationEm->createQueryBuilder();
+			$qb = $draftEm->createQueryBuilder();
 			$qb->delete(Entity\BlockProperty::CN(), 'bp')
 					->where($qb->expr()->in('bp.id', $removedPropertyIds))
 					->getQuery()->execute();
@@ -442,7 +449,7 @@ class HistoryPageRequestView extends PageRequest
 		$blocksToRemove = array_diff($existingBlockIds, $blocksIds);
 		
 		if ( ! empty($blocksToRemove)) {
-			$qb = $destinationEm->createQueryBuilder();
+			$qb = $draftEm->createQueryBuilder();
 			$qb->delete(Entity\Abstraction\Block::CN(), 'b')
 					->where($qb->expr()->in('b.id', $blocksToRemove))
 					->getQuery()->execute();
@@ -453,19 +460,100 @@ class HistoryPageRequestView extends PageRequest
 				
 			$layouts = $page->getTemplateLayouts();
 			foreach ($layouts as $layout) {
-				$destinationEm->merge($layout);
+				$draftEm->merge($layout);
 			}
 		}
 		
-		$listeners = $destinationEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
+		$listeners = $draftEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
 		foreach ($listeners as $listener) {
 			if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
-				$listeners = $destinationEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
+				$listeners = $draftEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
 			}
 		}
 		
-		$destinationEm->flush();
-		$em->flush();
+		$draftEm->flush();
+
+		$draftEm->getEventManager()
+				->dispatchEvent(EntityAuditListener::pagePostRestoreEvent);
+	
+	}
+	
+	/**
+	 * Does the full trash page version restoration (incl. available localizations)
+	 */
+	public function restorePage()
+	{
+ 		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+
+		$draftEventManager = $draftEm->getEventManager();
+		$draftEventManager->dispatchEvent(EntityAuditListener::pagePreRestoreEvent);
+		
+		$page = $this->getPageLocalization()
+				->getMaster();
+			
+		$pageId = $page->getId();
+
+		$auditEm->getUnitOfWork()->clear();
+		
+		$page = $auditEm->getRepository(AbstractPage::CN())
+				->findOneBy(array('id' => $pageId, 'revision' => $this->revision));
+
+		$draftPage = $draftEm->merge($page);
+
+		$draftEm->getRepository(AbstractPage::CN())
+				->getNestedSetRepository()
+				->add($draftPage);
+
+		$auditEm->getUnitOfWork()->clear();
+
+		$pageLocalizations = $auditEm->getRepository(Localization::CN())
+				->findBy(array('master' => $pageId, 'revision' => $this->revision));
+
+		foreach($pageLocalizations as $localization) {
+
+			$draftEm->merge($localization);
+			$this->setPageLocalization($localization);
+
+			$placeHolders = $localization->getPlaceHolders();
+			foreach($placeHolders as $placeHolder) {
+				$draftEm->merge($placeHolder);
+			}
+			$draftEm->flush();
+
+			$blocks = $this->getBlocksInPageR($auditEm);
+			foreach($blocks as $block) {
+				$draftEm->merge($block);
+			}
+			//$draftEm->flush();
+
+			$properties = $this->getPageBlockPropertiesR($auditEm);
+			foreach ($properties as $property) {
+				$draftEm->merge($property);
+			}
+		}
+
+		if ($page instanceof Entity\Template && $page->isRoot()) {
+
+			$templateLayouts = $page->getTemplateLayouts();
+			foreach ($templateLayouts as $templateLayout) {
+				//ATTENTION: We will not restore template layouts, as, currently, 
+				//it is impossible to restore template as root template
+				//$draftEm->merge($templateLayout);
+				//$trashEm->remove($templateLayout);
+			}
+		}
+
+		// TODO: remove audit records also
+		$revisionData = $draftEm->find(RevisionData::CN(), $this->revision);
+		$draftEm->remove($revisionData);
+		$draftEm->flush();
+
+		$draftEventManager->dispatchEvent(EntityAuditListener::pagePostRestoreEvent);
+		
+		$auditEm->getUnitOfWork()->clear();
+		
+		return $draftPage;
 	}
 	
 	private function getBlocksInPage(EntityManager $em)
@@ -497,6 +585,38 @@ class HistoryPageRequestView extends PageRequest
 				->getResult();
 		
 		return $properties;
+	}
+	
+	
+	private function getPageBlockPropertiesR(EntityManager $em)
+	{
+		$localizationId = $this->getPageLocalization()->getId();
+		$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+		
+		$dql = "SELECT bp FROM $propertyEntity bp 
+				WHERE bp.localization = ?0 and bp.revision = ?1";
+		
+		$properties = $em->createQuery($dql)
+				->setParameters(array($localizationId, $this->revision))
+				->getResult();
+		
+		return $properties;
+	}
+	
+	private function getBlocksInPageR(EntityManager $em)
+	{
+		$localizationId = $this->getPageLocalization()->getId();
+		$blockEntity = PageRequest::BLOCK_ENTITY;
+		
+		$dql = "SELECT b FROM $blockEntity b 
+				JOIN b.placeHolder ph
+				WHERE ph.localization = ?0 and ph.revision = ?1";
+		
+		$blocks = $em->createQuery($dql)
+				->setParameters(array($localizationId, $this->revision))
+				->getResult();
+		
+		return $blocks;
 	}
 		
 }

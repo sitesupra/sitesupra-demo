@@ -15,6 +15,9 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity;
+use Supra\Controller\Pages\Entity\RevisionData;
 
 class EntityAuditListener implements EventSubscriber
 {
@@ -25,7 +28,15 @@ class EntityAuditListener implements EventSubscriber
 	
 	const REVISION_TYPE_DELETE = 3;
 	
+	// is this is needed?
 	const REVISION_TYPE_COPY = 4;
+	
+	const pagePublishEvent = 'pagePublishEvent';
+	const pagePreDeleteEvent = 'pagePreDeleteEvent';
+	const pagePostDeleteEvent = 'pagePostDeleteEvent';
+	
+	const pagePreRestoreEvent = 'pagePreRestoreEvent';
+	const pagePostRestoreEvent = 'pagePostRestoreEvent';
 	
 	/**
 	 * @var Doctrine\DBAL\Connection
@@ -51,14 +62,33 @@ class EntityAuditListener implements EventSubscriber
 	 * @var Doctrine\ORM\UnitOfWork
 	 */
 	private $uow;
+	
+	/**
+	 * @var string
+	 */
+	private $staticRevisionId;
+	
+	private $_pageDeleteState = false;
+	private $_pageRestoreState = false;
 
-
+	/**
+	 *
+	 * @return array
+	 */
 	public function getSubscribedEvents()
 	{
 		return array(
 			Events::onFlush,
 			Events::postUpdate,
 			Events::postPersist,
+			
+			self::pagePublishEvent,
+			
+			self::pagePreDeleteEvent,
+			self::pagePostDeleteEvent,
+			
+			self::pagePreRestoreEvent,
+			self::pagePostRestoreEvent,
 		);
 	}
 	
@@ -85,16 +115,33 @@ class EntityAuditListener implements EventSubscriber
 		$this->platform = $this->conn->getDatabasePlatform();
 	}
 	
+	/**
+	 *
+	 * @param LifecycleEventArgs $eventArgs 
+	 */
 	public function postPersist(LifecycleEventArgs $eventArgs)
 	{
+		if ( ! $this->checkStates()) {
+			return;
+		}
+		
 		$this->prepareEnvironment($eventArgs);
+				
 		$entity = $eventArgs->getEntity();
 		
 		$this->insertAuditRecord($entity, self::REVISION_TYPE_INSERT);
 	}
 
+	/**
+	 *
+	 * @param LifecycleEventArgs $eventArgs
+	 */
 	public function postUpdate(LifecycleEventArgs $eventArgs)
 	{
+		if ( ! $this->checkStates()) {
+			return;
+		}
+		
 		$this->prepareEnvironment($eventArgs);
 		$entity = $eventArgs->getEntity();
 		
@@ -110,16 +157,38 @@ class EntityAuditListener implements EventSubscriber
 		
 		$this->insertAuditRecord($entity, self::REVISION_TYPE_UPDATE);
 	}
-
+	
+	/**
+	 *
+	 * @param OnFlushEventArgs $eventArgs 
+	 */
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
+		if ( ! $this->checkStates()) {
+			return;
+		}
+		
 		$this->prepareEnvironment($eventArgs);
 
+		$visitedIds = array();
 		foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
-			$this->insertAuditRecord($entity, self::REVISION_TYPE_DELETE);
+			if ( ! in_array($entity->getId(), $visitedIds)) {
+				
+				$revisionType = self::REVISION_TYPE_DELETE;
+				if ($this->_pageDeleteState) {
+					$revisionType = self::REVISION_TYPE_COPY;
+				}
+				
+				$this->insertAuditRecord($entity, $revisionType);
+				$visitedIds[] = $entity->getId();
+			}
 		}
 	}
 	
+	/**
+	 * @param Entity $entity
+	 * @param integer $revisionType
+	 */
 	private function insertAuditRecord($entity, $revisionType)
 	{
 		if ( ! $entity instanceof AuditedEntity) {
@@ -128,15 +197,20 @@ class EntityAuditListener implements EventSubscriber
 		
 		$class = $this->auditEm->getClassMetadata(get_class($entity));
 		
-		//TODO: fetch current data
 		$originalEntityData = $this->uow->getOriginalEntityData($entity);
 		
 		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType);
 	}
 
+	/**
+	 * @return string
+	 */
 	private function _getRevisionId()
 	{
-		return 'dummy-' . md5(uniqid('sha', true));
+		if (isset($this->staticRevisionId)) {
+			return $this->staticRevisionId;
+		}
+		return md5(uniqid());
 	}
 	
 	/**
@@ -166,13 +240,26 @@ class EntityAuditListener implements EventSubscriber
 		$params = array($revType);
 		$types = array(\PDO::PARAM_INT);
 		
-		if ( ! isset($entityData['revision'])) {
-		//if ($class->isInheritedField('revision')) {
+		if ((isset($this->staticRevisionId) && isset($class->fieldNames['revision']))
+				|| $revType == self::REVISION_TYPE_DELETE) {
+			unset($entityData['revision']);
+			unset($class->fieldNames['revision']);
+		}
+		
+		if ( ! isset($class->fieldNames['revision'])) {
 			$names[] = 'revision';
 			$params[] = $this->_getRevisionId();
 			$types[] = \PDO::PARAM_STR;
 		}
 		
+		if ($class->name != $class->rootEntityName 
+				&& $class->inheritanceType != ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE) {
+			
+			$rootClass = $this->auditEm->getClassMetadata($class->rootEntityName);
+			$rootClass->discriminatorValue = $class->discriminatorValue;
+			$this->saveRevisionEntityData($rootClass, $entityData, $revType);
+		}
+
 		foreach ($class->fieldNames as $colmnName => $field) {
 			
 			if ($class->isInheritedField($field)
@@ -213,7 +300,9 @@ class EntityAuditListener implements EventSubscriber
 		}
 		
 		// Discriminator
-		if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE) {
+		if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE
+				|| ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_JOINED 
+					&& $class->name == $class->rootEntityName)) {
 			$names[] = $class->discriminatorColumn['name'];
 			$params[] = $class->discriminatorValue;
 			$types[] = $class->discriminatorColumn['type'];
@@ -227,12 +316,119 @@ class EntityAuditListener implements EventSubscriber
 		$this->conn->executeUpdate($insertRevisionSql, $namedParams, $namedTypes);
 	}
 	
-	public function pagePublishEvent()
+	/**
+	 * @param array $eventArgs 
+	 */
+	public function pagePublishEvent($eventArgs) 
 	{
-		// This event will be fired on page publish action
-		// save page copy to audit with one revision id
-		// this is necessary, to fast-find of page `histored` copy
-		// and revision type = copy
-	} 
+		// db::beginTransaction
+		$localizationId = $eventArgs['localizationId'];
+		$userId = $eventArgs['userId'];
+		
+		$revisionData = new RevisionData();
+		$revisionData->setUser($userId);
+		$revisionData->setType(RevisionData::TYPE_HISTORY);
+		$revisionData->setLocalizationId($localizationId);
+		
+		$this->em->persist($revisionData);
+		
+		$this->staticRevisionId = $revisionData->getId();
+		
+		// page single localization
+		$localization = $this->em->find(Localization::CN(), $localizationId);
+		$this->insertAuditRecord($localization, self::REVISION_TYPE_COPY);
+		
+		// page localization redirect
+		if ($localization instanceof Entity\PageLocalization) {
+			$redirect = $localization->getRedirect();
+			if ( ! is_null($redirect)) {
+				$this->insertAuditRecord($redirect, self::REVISION_TYPE_COPY);
+			}
+		}
+		
+		// page itself
+		$page = $localization->getMaster();
+		$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
+		
+		// page placeholders
+		$placeHolders = $localization->getPlaceHolders();
+		foreach ($placeHolders as $placeHolder) {
+			$this->insertAuditRecord($placeHolder, self::REVISION_TYPE_COPY);
+		}
+		
+		// page blocks
+		foreach($eventArgs['blocks'] as $blockId) {
+			$block = $this->em->find(\Supra\Controller\Pages\Entity\Abstraction\Block::CN(), $blockId);
+			$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
+		}
+		
+		// block properties
+		foreach($eventArgs['blockProperties'] as $propertyId) {
+			$property = $this->em->find(\Supra\Controller\Pages\Entity\BlockProperty::CN(), $propertyId);
+			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
+			
+			$metadata = $property->getMetadata();
+			foreach($metadata as $metadataItem) {
+				$referencedElement = $metadataItem->getReferencedElement();
+				$this->insertAuditRecord($referencedElement, self::REVISION_TYPE_COPY);
+				$this->insertAuditRecord($metadataItem, self::REVISION_TYPE_COPY);
+			}
+		}
+		
+		// block property metadata
+		foreach($eventArgs['blockPropertyMetadatas'] as $metadataId) {
+			$propertyMetadata = $this->em->find(\Supra\Controller\Pages\Entity\BlockPropertyMetadata::CN(), $metadataId);
+			$this->insertAuditRecord($propertyMetadata, self::REVISION_TYPE_COPY);
+		}
+		
+		// to persist revision data
+		$this->em->flush();
+		
+	}
 	
+	/**
+	 * Prepare Audit listener for draft page delete event
+	 */
+	public function pagePreDeleteEvent($eventArgs) 
+	{
+		$this->_pageDeleteState = true;
+		$localizationId = $eventArgs['localizationId'];
+		
+		$revisionData = new RevisionData();
+		$revisionData->setUser('fix-me-i-have-no-user');
+		$revisionData->setType(RevisionData::TYPE_TRASH);
+		$revisionData->setLocalizationId($localizationId);
+		
+		$em = ObjectRepository::getEntityManager('#cms');
+		$em->persist($revisionData);
+		$em->flush();
+		
+		$this->staticRevisionId = $revisionData->getId();
+		
+	}
+	
+	public function pagePostDeleteEvent() 
+	{
+		$this->_pageDeleteState = false;
+		$this->staticRevisionId = null;
+	}
+	
+	public function pagePreRestoreEvent() 
+	{
+		$this->_pageRestoreState = true;
+	}
+	
+	public function pagePostRestoreEvent() 
+	{
+		$this->_pageRestoreState = false;
+	}
+	
+	private function checkStates()
+	{
+		if ($this->_pageRestoreState) {
+			return false;
+		}
+		return true;
+	}
+
 }

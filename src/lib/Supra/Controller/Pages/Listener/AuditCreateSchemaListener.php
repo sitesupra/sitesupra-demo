@@ -28,7 +28,6 @@ class AuditCreateSchemaListener implements EventSubscriber
 	{
 		return array(
 			ToolEvents::postGenerateSchemaTable,
-//			ToolEvents::postGenerateSchema,
 			Events::loadClassMetadata
 		);
 	}
@@ -76,22 +75,6 @@ class AuditCreateSchemaListener implements EventSubscriber
 		}
 	}
 
-	public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
-	{
-		return;
-		/*
-		$schema = $eventArgs->getSchema();
-		$revisionsTable = $schema->createTable($this->config['revision_table_name']);
-		$revisionsTable->addColumn('id', 'integer', array(
-			'autoincrement' => true,
-		));
-		$revisionsTable->addColumn('timestamp', 'datetime');
-		$revisionsTable->addColumn('username', 'string');
-		$revisionsTable->setPrimaryKey(array('id'));
-	
-		 */
-	}
-	
 	/**
 	 * Will add the _audit suffix
 	 * @param LoadClassMetadataEventArgs $eventArgs

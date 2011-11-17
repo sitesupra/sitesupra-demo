@@ -9,6 +9,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\PageController;
 use Supra\User\Entity\User;
+use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -27,8 +29,7 @@ class PagehistoryAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		
-		$this->restoreHistoryVersion();
-		
+		$this->restoreLocalizationVersion();
 		$this->getResponse()
 				->setResponseData(true);
 	}
@@ -41,23 +42,14 @@ class PagehistoryAction extends PageManagerAction
 		$response = array();
 		$timestamps = array();
 	
-		$pageId = $this->getRequestParameter('page_id');
+		$localizationId = $this->getRequestParameter('page_id');
+	
+		$historyRevisions = $this->entityManager->getRepository(RevisionData::CN())
+			->findBy(array('type' => RevisionData::TYPE_HISTORY, 'localization' => $localizationId));
 		
-		// History connection
-		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
-		$localizationRevisions = $historyEm->getRepository(Entity\Abstraction\Localization::CN())
-				->findBy(array('id' => $pageId));
-		
-		foreach ($localizationRevisions as $localization) {
+		foreach ($historyRevisions as $revision) {
 			
-			$revisionId = $localization->getRevisionId();
-			$revisionData = $historyEm->find(PageRequest::REVISION_DATA_ENTITY, $revisionId);
-			
-			if ( ! $revisionData instanceof Entity\RevisionData) {
-				throw new CmsException(null, 'Failed to load revision data');
-			}
-
-			$userId = $revisionData->getUser();
+			$userId = $revision->getUser();
 			$userProvider = ObjectRepository::getUserProvider($this);
 		
 			// If not found will show use ID
@@ -68,14 +60,12 @@ class PagehistoryAction extends PageManagerAction
 			}
 			
 			$pageInfo = array(
-				'version_id' => $revisionData->getId(),
-				'date' => $revisionData->getCreationTime()->format('c'),
+				'version_id' => $revision->getId(),
+				'date' => $revision->getCreationTime()->format('c'),
 				'author_fullname' => $userName,
 			);
 			
-			// unix timestamp with milliseconds is used as array key for sorting purposes
-			// though milliseconds are not stored in db..
-			$timestamp = $revisionData->getCreationTime()->format('Uu');
+			$timestamp = $revision->getCreationTime()->format('U');
 			$timestamps[] = $timestamp;
 			$response[] = $pageInfo;
 		}

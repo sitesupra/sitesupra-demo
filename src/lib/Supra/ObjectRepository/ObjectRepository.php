@@ -157,7 +157,8 @@ class ObjectRepository
 	 */
 	protected static function generateLateBindingCheckTrace()
 	{
-		$debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		//$debugBacktrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$debugBacktrace = debug_backtrace(); // php v5.3.6 and higher
 		$resultArray = array();
 		$i = 1;
 		

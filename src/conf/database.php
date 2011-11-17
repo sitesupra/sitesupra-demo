@@ -87,7 +87,6 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager->addEventSubscriber(new TimestampableListener());
 
 	$eventManager->addEventSubscriber(new Listener\VersionedAnnotationListener());
-	$eventManager->addEventSubscriber(new Listener\CreateSchemaListener());
 
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
 
@@ -111,6 +110,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
 		case 'Audit':
+			$eventManager->addEventSubscriber(new NestedSetListener());
 			$eventManager->addEventSubscriber(new Listener\AuditManagerListener());
 			$eventManager->addEventSubscriber(new Listener\AuditCreateSchemaListener());
 			break;

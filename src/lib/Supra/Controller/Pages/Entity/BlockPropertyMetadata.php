@@ -25,7 +25,6 @@ class BlockPropertyMetadata extends Entity implements AuditedEntity
 	
 	/**
 	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract", cascade={"all"})
-	 * @History:SkipForeignKeyOnCreate(type="sha1")
 	 * @var ReferencedElement\ReferencedElementAbstract
 	 */
 	protected $referencedElement;

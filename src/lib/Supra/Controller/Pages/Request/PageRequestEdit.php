@@ -11,6 +11,10 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Listener\HistoryRevisionListener;
 use Doctrine\ORM\Events;
 use Supra\Controller\Pages\PageController;
+use Supra\Controller\Pages\Listener\EntityAuditListener;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\User\Entity\User;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 
 /**
  * Request object for edit mode requests
@@ -238,7 +242,21 @@ class PageRequestEdit extends PageRequest
 		$publicEm->flush();
 		
 		// Store page version
-		//$this->storeHistoredVersion();
+		$userId = 'fixme-fixture-have-no-user';
+		$user = $this->getUser();
+		if ($user instanceof User) {
+			$userId = $user->getId();
+		}
+		
+		$auditData = array(
+			'localizationId' => $draftData->getId(),
+			'userId' => $userId,
+			'blocks' => $draftBlockIdList,
+			'blockProperties' => $draftPropertyIds,
+		);
+		
+		$draftEm->getEventManager()
+				->dispatchEvent(EntityAuditListener::pagePublishEvent, $auditData);
 	}
 	
 	/**
@@ -345,91 +363,6 @@ class PageRequestEdit extends PageRequest
 		$this->allowFlushing = false;
 	}
 	
-	/**
-	 * Creates copy of published page version inside history schema
-	 * @param Entity\Abstraction\Localization $publicData 
-	 */
-	private function storeHistoredVersion()
-	{
-		
-		$draftEm = $this->getDoctrineEntityManager();
-		
-		$historyEm = ObjectRepository::getEntityManager(PageController::SCHEMA_HISTORY);
-		$connection = $historyEm->getConnection();
-		
-		$connection->beginTransaction();
-		try {
-			$historyEm->getUnitOfWork()
-					->clear();
-			
-			// Revision info
-			$revisionData = new Entity\RevisionData();
-			
-			$user = $this->getUser();
-			// FIXME: workaround for fixtures
-			$userId = 'fixture-has-no-user';
-			if ($user instanceof \Supra\User\Entity\User) {
-				$userId = $user->getId();
-			}
-			$revisionData->setUser($userId);
-
-			$historyEm->persist($revisionData);
-			$historyEm->flush();
-			
-			$revisionDataId = $revisionData->getId();
-			
-			$pageLocalization = $this->getPageLocalization();
-			$page = $pageLocalization->getMaster();
-			
-			// Fire an custom event with revision id passed to listener
-			$historyEm->getEventManager()
-					->dispatchEvent(HistoryRevisionListener::historyPreSave, array('revisionId' => $revisionDataId));
-			
-			$historyPage = $historyEm->merge($page);
-			
-			$proxy = $historyEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-			
-			$historyPageLocalization = $historyEm->merge($pageLocalization);
-			$historyPageLocalization->setMaster($historyPage);
-
-			$placeHolders = $pageLocalization->getPlaceHolders();
-			foreach ($placeHolders as $placeHolder) {
-				$historyEm->merge($placeHolder);
-			}
-
-			$blocks = $this->getBlocksInPage($draftEm, $pageLocalization);
-			foreach($blocks as $block) {
-				$historyEm->merge($block);
-			}
-			
-			$properties = $this->getBlockPropertySet()
-				->getPageProperties($pageLocalization);
-
-			foreach ($properties as $property) {
-				$historyEm->merge($property);
-			}
-
-			// if page is a root template, we will copy it's layout
-			if ($page instanceof Entity\Template 
-					&& $page->isRoot()) {
-
-				$layouts = $page->getTemplateLayouts();
-				foreach ($layouts as $layout) {
-					$historyEm->merge($layout);
-				}
-			}
-
-			$historyEm->flush();
-
-		} catch (\Exception $e) {
-			
-			$connection->rollBack();
-			throw $e;
-		}
-		
-		$connection->commit();
-	}
-	
 	/** 
 	 * Deletes all page published localizations from public schema
 	 */
@@ -444,7 +377,7 @@ class PageRequestEdit extends PageRequest
 			$page = $this->getPageLocalization()
 					->getMaster();
 			
-			$page = $publicEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
+			$page = $publicEm->find(AbstractPage::CN(), $page->getId());
 			
 			$localizationSet = $page->getLocalizations();
 			
@@ -490,192 +423,35 @@ class PageRequestEdit extends PageRequest
 		// Remove any published version first
 		$this->unPublish();
 		
-		$draftEm = ObjectRepository::getEntityManager('#cms');
-		$trashEm = ObjectRepository::getEntityManager('#trash');
-
-		$draftEm->getConnection()
-				->beginTransaction();
-		$trashEm->getConnection()
-				->beginTransaction();
+		$em = $this->getDoctrineEntityManager();
+		$connection = $em->getConnection();
+		$eventManager = $em->getEventManager();
 		
-		try{
-			
-			$pageLocalization = $this->getPageLocalization();
-			$page = $pageLocalization->getMaster();
-			
-			$trashEm->merge($page);
-
-			$placeHolders = $pageLocalization->getPlaceHolders();
-			foreach($placeHolders as $placeHolder) {
-				$trashEm->merge($placeHolder);
-				$draftEm->remove($placeHolder);
-			}
-
-			$localizationSet = $page->getLocalizations();
-			foreach($localizationSet as $localization) {
-				$trashEm->merge($localization);
-			
-				$blocks = $this->getBlocksInPage($draftEm, $localization);
-				foreach($blocks as $block) {
-					$trashEm->merge($block);
-				}
-
-				$properties = $this->getPageBlockProperties($draftEm, $localization);
-				foreach ($properties as $property) {
-					$trashEm->merge($property);
-				}
-
-				$draftEm->remove($localization);
-			}
-			
-			if ($page instanceof Entity\Template && $page->isRoot()) {
-				$templateLayouts = $page->getTemplateLayouts();
-				foreach ($templateLayouts as $templateLayout) {
-					$trashEm->merge($templateLayout);
-					$draftEm->remove($templateLayout);
-				}
-			}
-			
-			$trashEm->flush();
-			$draftEm->flush();
-			
-			$draftEm->getUnitOfWork()->clear();
-			$page = $draftEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
-			$draftEm->remove($page);
-			$draftEm->flush();
-
-		} catch (\Exception $e) {
-			
-			$trashEm->getConnection()->rollBack();
-			$draftEm->getConnection()->rollBack();
-			
-			throw $e;
-		}
-		
-		$trashEm->getConnection()->commit();
-		$draftEm->getConnection()->commit();
-		
-	}
+		$pageLocalization = $this->getPageLocalization();
+		$pageLocalizationId = $pageLocalization->getId();
 	
-	/**
-	 * Restores page and it localizations from trash
-	 */
-	public function restore()
-	{
+		// prepare audit listener for page delete
+		$eventManager->dispatchEvent(EntityAuditListener::pagePreDeleteEvent, array('localizationId' => $pageLocalizationId));
 		
-		$draftEm = ObjectRepository::getEntityManager('#cms');
-		$trashEm = ObjectRepository::getEntityManager('#trash');
-
-		$draftEm->getConnection()
-				->beginTransaction();
-		$trashEm->getConnection()
-				->beginTransaction();
-		
+		$connection->beginTransaction();
 		try{
 			
-			$page = $this->getPageLocalization()
-					->getMaster();
+			$pageId = $pageLocalization->getMaster()
+					->getId();
 			
-			$page = $trashEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
+			$page = $em->find(AbstractPage::CN(), $pageId);
+			$em->remove($page);
+			$em->flush();
 			
-			$draftPage = $draftEm->merge($page);
-			
-			$draftEm->getRepository(Entity\Abstraction\AbstractPage::CN())
-					->getNestedSetRepository()
-					->add($draftPage);
-
-			$placeHolders = $this->getPlaceHolders($trashEm);
-			foreach($placeHolders as $placeHolder) {
-				$draftEm->merge($placeHolder);
-				//$trashEm->remove($placeHolder);
-			}
-
-			$localizationSet = $page->getLocalizations();
-			foreach($localizationSet as $localization) {
-				$draftEm->merge($localization);
-			
-				$blocks = $this->getBlocksInPage($trashEm, $localization);
-				foreach($blocks as $block) {
-					$draftEm->merge($block);
-					//$trashEm->remove($block);
-				}
-
-				$properties = $this->getPageBlockProperties($trashEm, $localization);
-				foreach ($properties as $property) {
-					$block = $property->getBlock();
-					if ( ! ($block instanceof Entity\Abstraction\Block)) {
-						$blockObj = $trashEm->find(Entity\Abstraction\Block::CN(), $block);
-						
-						if ( ! ($blockObj instanceof Entity\Abstraction\Block)) {
-							$blockObj = $draftEm->find(Entity\Abstraction\Block::CN(), $block);
-							
-							if ( ! ($blockObj instanceof Entity\Abstraction\Block)) {
-								// skip properties without existing blocks
-								// this may happen when property is inherited from
-								// template block and this block was removed 
-								continue;
-							}
-						}
-
-						$property->setBlock($blockObj);
-					}
-					
-					$draftEm->merge($property);
-					//$trashEm->remove($property);
-				}
-
-				$trashEm->remove($localization);
-				
-				$blocksToRemove = Entity\Abstraction\Entity::collectIds($blocks);
-				if ( ! empty($blocksToRemove)) {
-					$qb = $trashEm->createQueryBuilder();
-					$qb->delete(Entity\Abstraction\Block::CN(), 'b')
-							->where($qb->expr()->in('b.id', $blocksToRemove))
-							->getQuery()->execute();
-				}
-			}
-			
-			if ($page instanceof Entity\Template && $page->isRoot()) {
-				$templateLayouts = $page->getTemplateLayouts();
-				foreach ($templateLayouts as $templateLayout) {
-					//ATTENTION: We will not restore template layouts, as, currently, 
-					//it is impossible to restore template as root template
-					//$draftEm->merge($templateLayout);
-					$trashEm->remove($templateLayout);
-				}
-			}
-			
-			$draftEm->flush();
-			
-			$placeHoldersToRemove = Entity\Abstraction\Entity::collectIds($placeHolders);
-				if ( ! empty($placeHoldersToRemove)) {
-				$qb = $trashEm->createQueryBuilder();
-				$qb->delete(Entity\Abstraction\PlaceHolder::CN(), 'ph')
-						->where($qb->expr()->in('ph.id', $placeHoldersToRemove))
-						->getQuery()->execute();
-			}
-					
-			// need to flush before cleaning UoW
-			$trashEm->flush();
-			
-			$trashEm->getUnitOfWork()->clear();
-			$page = $trashEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
-			$trashEm->remove($page);
-			$trashEm->flush();
-
 		} catch (\Exception $e) {
-			
-			$trashEm->getConnection()->rollBack();
-			$draftEm->getConnection()->rollBack();
-			
+			$connection->rollBack();
 			throw $e;
 		}
+
+		$connection->commit();
 		
-		$trashEm->getConnection()->commit();
-		$draftEm->getConnection()->commit();
-		
-		return $draftPage;
-			
+		// reset audit listener state
+		$eventManager->dispatchEvent(EntityAuditListener::pagePostDeleteEvent);
 	}
 	
 	/**
