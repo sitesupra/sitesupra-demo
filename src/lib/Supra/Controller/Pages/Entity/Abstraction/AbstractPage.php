@@ -89,7 +89,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	 * @Column(type="boolean", name="global", nullable=true)
 	 * @var boolean
 	 */
-	protected $global = false;
+	protected $global = true;
 
 	/**
 	 * Constructor
