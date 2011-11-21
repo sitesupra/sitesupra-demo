@@ -12,7 +12,7 @@ use DateTime;
  * Revision data class
  * @Entity
  */
-class RevisionData extends Abstraction\Entity implements Timestampable
+class PageRevisionData extends Abstraction\Entity implements Timestampable
 {
 	
 	const TYPE_HISTORY = 1;
@@ -38,10 +38,12 @@ class RevisionData extends Abstraction\Entity implements Timestampable
 	protected $type;
 	
 	/**
+	 * Contains page or page localization ID
+	 * 
 	 * @Column(type="sha1")
 	 * @var string
 	 */
-	protected $localization;
+	protected $reference;
 	
 	/**
 	 * Returns revision author
@@ -116,13 +118,19 @@ class RevisionData extends Abstraction\Entity implements Timestampable
 		$this->type = $type;
 	}
 	
-	public function getLocalizationId()
+	/**
+	 * @return string
+	 */
+	public function getReferenceId()
 	{
-		return $this->localization;
+		return $this->reference;
 	}
 	
-	public function setLocalizationId($localizationId)
+	/**
+	 * @param string $referenceId 
+	 */
+	public function setReferenceId($referenceId)
 	{
-		$this->localization = $localizationId;
+		$this->reference = $referenceId;
 	}
 }

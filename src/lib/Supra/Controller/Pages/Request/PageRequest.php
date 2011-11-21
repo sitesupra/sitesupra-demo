@@ -77,7 +77,7 @@ abstract class PageRequest extends HttpRequest
 	 * Revision data class name
 	 * @var string
 	 */
-	const REVISION_DATA_ENTITY = 'Supra\Controller\Pages\Entity\RevisionData';
+	const REVISION_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageRevisionData';
 
 	/**
 	 * @var WriterAbstraction

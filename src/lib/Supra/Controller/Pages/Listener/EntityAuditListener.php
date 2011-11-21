@@ -17,7 +17,9 @@ use Doctrine\Common\EventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 
 class EntityAuditListener implements EventSubscriber
 {
@@ -319,16 +321,15 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * @param array $eventArgs 
 	 */
-	public function pagePublishEvent($eventArgs) 
+	public function pagePublishEvent(PagePublishEventArgs $eventArgs) 
 	{
-		// db::beginTransaction
-		$localizationId = $eventArgs['localizationId'];
-		$userId = $eventArgs['userId'];
+		$localizationId = $eventArgs->getLocalizationId();
+		$userId = $eventArgs->getUserId();
 		
-		$revisionData = new RevisionData();
+		$revisionData = new PageRevisionData();
 		$revisionData->setUser($userId);
-		$revisionData->setType(RevisionData::TYPE_HISTORY);
-		$revisionData->setLocalizationId($localizationId);
+		$revisionData->setType(PageRevisionData::TYPE_HISTORY);
+		$revisionData->setReferenceId($localizationId);
 		
 		$this->em->persist($revisionData);
 		
@@ -357,13 +358,15 @@ class EntityAuditListener implements EventSubscriber
 		}
 		
 		// page blocks
-		foreach($eventArgs['blocks'] as $blockId) {
+		$blockIdCollection = $eventArgs->getBlockIdCollection();
+		foreach($blockIdCollection as $blockId) {
 			$block = $this->em->find(\Supra\Controller\Pages\Entity\Abstraction\Block::CN(), $blockId);
 			$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
 		}
 		
 		// block properties
-		foreach($eventArgs['blockProperties'] as $propertyId) {
+		$blockPropertyIdCollection = $eventArgs->getBlockPropertyIdCollection();
+		foreach($blockPropertyIdCollection as $propertyId) {
 			$property = $this->em->find(\Supra\Controller\Pages\Entity\BlockProperty::CN(), $propertyId);
 			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
 			
@@ -375,12 +378,6 @@ class EntityAuditListener implements EventSubscriber
 			}
 		}
 		
-		// block property metadata
-		foreach($eventArgs['blockPropertyMetadatas'] as $metadataId) {
-			$propertyMetadata = $this->em->find(\Supra\Controller\Pages\Entity\BlockPropertyMetadata::CN(), $metadataId);
-			$this->insertAuditRecord($propertyMetadata, self::REVISION_TYPE_COPY);
-		}
-		
 		// to persist revision data
 		$this->em->flush();
 		
@@ -389,15 +386,15 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * Prepare Audit listener for draft page delete event
 	 */
-	public function pagePreDeleteEvent($eventArgs) 
+	public function pagePreDeleteEvent(PageDeleteEventArgs $eventArgs) 
 	{
 		$this->_pageDeleteState = true;
-		$localizationId = $eventArgs['localizationId'];
+		$pageId = $eventArgs->getPageId();
 		
-		$revisionData = new RevisionData();
+		$revisionData = new PageRevisionData();
 		$revisionData->setUser('fix-me-i-have-no-user');
-		$revisionData->setType(RevisionData::TYPE_TRASH);
-		$revisionData->setLocalizationId($localizationId);
+		$revisionData->setType(PageRevisionData::TYPE_TRASH);
+		$revisionData->setReferenceId($pageId);
 		
 		$em = ObjectRepository::getEntityManager('#cms');
 		$em->persist($revisionData);

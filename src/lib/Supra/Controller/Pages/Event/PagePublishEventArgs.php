@@ -2,19 +2,69 @@
 
 namespace Supra\Controller\Pages\Event;
 
-use Supra\Event\EventArgs;
+use Doctrine\Common\EventArgs;
 use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 
 class PagePublishEventArgs extends EventArgs
 {
 	/**
-	 * @var User
+	 * @var string
 	 */
-	public $user;
+	protected $user;
 
 	/**
-	 * @var Localization
+	 * @var string
 	 */
-	public $localization;
+	protected $localization;
+	
+	/**
+	 * @var array
+	 */
+	protected $blockIdCollection = array();
+	
+	/**
+	 * @var array
+	 */
+	protected $blockPropertyIdCollection = array();
+	
+	
+	public function setUserId($userId)
+	{
+		$this->user = $userId;
+	}
+	public function setLocalizationId($localizationId)
+	{
+		$this->localization = $localizationId;
+	}
+	
+	public function setBlockIdCollection($blockIdCollection)
+	{
+		$this->blockIdCollection = $blockIdCollection;
+	}
+	
+	public function setBlockPropertyIdCollection($blockPropertyIdCollection)
+	{
+		$this->blockPropertyIdCollection = $blockPropertyIdCollection;
+	}
+	
+	public function getBlockIdCollection()
+	{
+		return $this->blockIdCollection;
+	}
+	
+	public function getBlockPropertyIdCollection()
+	{
+		return $this->blockPropertyIdCollection;
+	}
+	
+	public function getUserId()
+	{
+		return $this->user;
+	}
+	
+	public function getLocalizationId()
+	{
+		return $this->localization;
+	}
 }

@@ -9,7 +9,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\PageController;
 use Supra\User\Entity\User;
-use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 
 class PagehistoryAction extends PageManagerAction
@@ -44,8 +44,8 @@ class PagehistoryAction extends PageManagerAction
 	
 		$localizationId = $this->getRequestParameter('page_id');
 	
-		$historyRevisions = $this->entityManager->getRepository(RevisionData::CN())
-			->findBy(array('type' => RevisionData::TYPE_HISTORY, 'localization' => $localizationId));
+		$historyRevisions = $this->entityManager->getRepository(PageRevisionData::CN())
+			->findBy(array('type' => PageRevisionData::TYPE_HISTORY, 'reference' => $localizationId));
 		
 		foreach ($historyRevisions as $revision) {
 			

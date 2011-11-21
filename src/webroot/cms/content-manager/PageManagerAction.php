@@ -27,8 +27,10 @@ use Supra\Controller\Pages\Request\HistoryPageRequestView;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Supra\Cms\CmsController;
 use Supra\Loader\Loader;
-use Supra\Controller\Pages\Entity\RevisionData;
 use Supra\Controller\Pages\Listener\EntityAuditListener;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 
 /**
  * Controller containing common methods
@@ -409,12 +411,12 @@ abstract class PageManagerAction extends CmsAction
 		$publicEm->transactional($copyContent);
 
 		// If all went well, fire the post-publish event for published page localization.
-		$eventArgs = new PagePublishEventArgs();
-		$eventArgs->user = $this->getUser();
-		$eventArgs->localization = $this->getPageLocalization();
+		//$eventArgs = new PagePublishEventArgs();
+		//$eventArgs->user = $this->getUser();
+		//$eventArgs->localization = $this->getPageLocalization();
 
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+		//$eventManager = ObjectRepository::getEventManager($this);
+		//$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
 	}
 
 	/**
@@ -494,15 +496,25 @@ abstract class PageManagerAction extends CmsAction
 		
 		$localizationId = $this->getRequestParameter('page_id');
 		
-		$pageRevisionData = $auditEm->getRepository(RevisionData::CN())
-				->findOneBy(array('type' => RevisionData::TYPE_TRASH, 'localization' => $localizationId));
+		// we need to know page id instead of single localization id
+		$pageLocalization = $auditEm->getRepository(Localization::CN())
+				->findOneBy(array('id' => $localizationId));
+		$pageId = $pageLocalization->getMaster()
+				->getId();
+		
+		// get revision by type and removed page id
+		$pageRevisionData = $auditEm->getRepository(PageRevisionData::CN())
+				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'reference' => $pageId));
 
+		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
+			throw new CmsException(null, 'Page revision data not found');
+		}
+		
 		$revisionId = $pageRevisionData->getId();
 		
-		$pageLocalization = $auditEm->getRepository(Entity\Abstraction\Localization::CN())
-				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
+		$page = $auditEm->getRepository(AbstractPage::CN())
+				->findOneBy(array('id' => $pageId, 'revision' => $revisionId));
 		
-		$page = $pageLocalization->getMaster();
 		if ($page instanceof Entity\Page) {
 
 			$localizations = $page->getLocalizations();

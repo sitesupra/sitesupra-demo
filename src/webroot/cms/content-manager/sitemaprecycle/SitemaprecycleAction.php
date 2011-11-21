@@ -9,7 +9,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Entity\PageRevisionData;
 
 /**
  * Sitemap
@@ -48,8 +48,8 @@ class SitemaprecycleAction extends PageManagerAction
 
 		$auditEm = ObjectRepository::getEntityManager('#audit');
 		
-		$trashRevisions = $auditEm->getRepository(RevisionData::CN())
-				->findByType(RevisionData::TYPE_TRASH);
+		$trashRevisions = $auditEm->getRepository(PageRevisionData::CN())
+				->findByType(PageRevisionData::TYPE_TRASH);
 		
 		// collecting ids
 		foreach($trashRevisions as $revision) {

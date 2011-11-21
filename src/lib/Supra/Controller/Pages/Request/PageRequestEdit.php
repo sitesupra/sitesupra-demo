@@ -15,6 +15,8 @@ use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 
 /**
  * Request object for edit mode requests
@@ -248,15 +250,14 @@ class PageRequestEdit extends PageRequest
 			$userId = $user->getId();
 		}
 		
-		$auditData = array(
-			'localizationId' => $draftData->getId(),
-			'userId' => $userId,
-			'blocks' => $draftBlockIdList,
-			'blockProperties' => $draftPropertyIds,
-		);
+		$pagePublishEventArgs = new PagePublishEventArgs();
+		$pagePublishEventArgs->setLocalizationId($draftData->getId());
+		$pagePublishEventArgs->setUserId($userId);
+		$pagePublishEventArgs->setBlockIdCollection($draftBlockIdList);
+		$pagePublishEventArgs->setBlockPropertyIdCollection($draftPropertyIds);
 		
 		$draftEm->getEventManager()
-				->dispatchEvent(EntityAuditListener::pagePublishEvent, $auditData);
+				->dispatchEvent(EntityAuditListener::pagePublishEvent, $pagePublishEventArgs);
 	}
 	
 	/**
@@ -428,10 +429,13 @@ class PageRequestEdit extends PageRequest
 		$eventManager = $em->getEventManager();
 		
 		$pageLocalization = $this->getPageLocalization();
-		$pageLocalizationId = $pageLocalization->getId();
+		$pageId = $pageLocalization->getMaster()
+				->getId();
 	
 		// prepare audit listener for page delete
-		$eventManager->dispatchEvent(EntityAuditListener::pagePreDeleteEvent, array('localizationId' => $pageLocalizationId));
+		$pageDeleteEventArgs = new PageDeleteEventArgs();
+		$pageDeleteEventArgs->setPageId($pageId);
+		$eventManager->dispatchEvent(EntityAuditListener::pagePreDeleteEvent, $pageDeleteEventArgs);
 		
 		$connection->beginTransaction();
 		try{

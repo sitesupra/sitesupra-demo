@@ -8,7 +8,6 @@ use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Supra\Controller\Pages\Entity\RevisionData;
 use ReflectionClass;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
@@ -72,17 +71,6 @@ class EntityRevisionListener implements EventSubscriber
 	private function _getRevisionId()
 	{
 		return sha1(uniqid());
-		$revisionData = new RevisionData();
-		// FIXME: assign real user
-		// possible solution:
-		//		- create custom event, fire it somwhere in page manager controller,
-		//		  pass user id and store it here, in private property
-		$revisionData->setUser('i-have-no-user-fix-me');
-		
-		$this->em->persist($revisionData);
-		$revisionId = $revisionData->getId();
-		
-		return $revisionId;
 	}
 	
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)

@@ -14,7 +14,7 @@ use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
-use Supra\Controller\Pages\Entity\RevisionData;
+use Supra\Controller\Pages\Entity\PageRevisionData;
 
 /**
  * Request object for history mode requests
@@ -28,10 +28,42 @@ class HistoryPageRequestView extends PageRequest
 	protected $revision;
 	
 	/**
+	 * @var array
+	 */
+	protected $pageLocalizations;
+	
+	/**
 	 * @param string $revision 
 	 */
 	public function setRevision($revision) {
 		$this->revision = $revision;
+	}
+	
+	public function getPageDraftLocalizations()
+	{
+		if (isset($this->pageLocalizations)) {
+			return $this->pageLocalizations;
+		}
+		
+		$pageId = $this->getPage()
+				->getId();
+		
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$this->pageLocalizations = $draftEm->getRepository(Localization::CN())
+				->findBy(array('master' => $pageId));
+		
+		return $this->pageLocalizations;
+	}
+	
+	public function getDraftLocalization($localeId)
+	{
+		$pageLocalizations = $this->getPageDraftLocalizations();
+		foreach ($pageLocalizations as $pageLocalization) {
+			/* @var $pageLocalization Localization */ 
+			if ($pageLocalization->getLocale() == $localeId) {
+				return $pageLocalization;
+			}
+		}
 	}
 
 	public function getPlaceHolderSet()
@@ -522,7 +554,7 @@ class HistoryPageRequestView extends PageRequest
 		}
 
 		// TODO: remove audit records also
-		$revisionData = $draftEm->find(RevisionData::CN(), $this->revision);
+		$revisionData = $draftEm->find(PageRevisionData::CN(), $this->revision);
 		$draftEm->remove($revisionData);
 		$draftEm->flush();
 
