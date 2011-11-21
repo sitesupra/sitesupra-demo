@@ -522,11 +522,6 @@ abstract class PageManagerAction extends CmsAction
 
 				$template = $pageLocalization->getTemplate();
 				
-				//if ($template instanceof Entity\Template) {
-				//	$template = $template->getId();
-				//}
-
-				//$template = $this->entityManager->find(Entity\Template::CN(), $template);
 				if ( ! ($template instanceof Entity\Template)) {
 					$localeName = $this->getLocale()
 							->getId();
@@ -736,16 +731,6 @@ abstract class PageManagerAction extends CmsAction
 		$pageLock->setUserId($userId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
-	}
-
-	protected function firePageEditEvent()
-	{
-		//$pageLocalization = $this->getPageLocalization();
-		
-		//TODO: I guess the revision number, audit should be done here
-//		$this->entityManager
-//				->getEventManager()
-//				->dispatchEvent(DraftVersionListener::pageEditEvent, array('localization' => $pageLocalization));
 	}
 	
 }
