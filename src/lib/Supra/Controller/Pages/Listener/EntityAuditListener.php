@@ -7,7 +7,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -28,7 +28,7 @@ class EntityAuditListener implements EventSubscriber
 	
 	const REVISION_TYPE_DELETE = 3;
 	
-	// is this is needed?
+	// possibly not needed
 	const REVISION_TYPE_COPY = 4;
 	
 	const pagePublishEvent = 'pagePublishEvent';
@@ -121,7 +121,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function postPersist(LifecycleEventArgs $eventArgs)
 	{
-		if ( ! $this->checkStates()) {
+		if ($this->_pageRestoreState) {
 			return;
 		}
 		
@@ -138,7 +138,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function postUpdate(LifecycleEventArgs $eventArgs)
 	{
-		if ( ! $this->checkStates()) {
+		if ($this->_pageRestoreState) {
 			return;
 		}
 		
@@ -164,7 +164,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
-		if ( ! $this->checkStates()) {
+		if ($this->_pageRestoreState) {
 			return;
 		}
 		
@@ -191,7 +191,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	private function insertAuditRecord($entity, $revisionType)
 	{
-		if ( ! $entity instanceof AuditedEntity) {
+		if ( ! $entity instanceof AuditedEntityInterface) {
 			return;
 		}
 		
@@ -421,14 +421,6 @@ class EntityAuditListener implements EventSubscriber
 	public function pagePostRestoreEvent() 
 	{
 		$this->_pageRestoreState = false;
-	}
-	
-	private function checkStates()
-	{
-		if ($this->_pageRestoreState) {
-			return false;
-		}
-		return true;
 	}
 
 }

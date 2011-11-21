@@ -3,13 +3,13 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 
 /**
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends Entity implements AuditedEntity
+class BlockPropertyMetadata extends Entity implements AuditedEntityInterface
 {
 	/**
 	 * @Column(type="string")

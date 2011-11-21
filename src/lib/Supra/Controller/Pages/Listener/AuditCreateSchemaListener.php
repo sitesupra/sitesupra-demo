@@ -7,23 +7,17 @@ use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 
 class AuditCreateSchemaListener implements EventSubscriber
 {
 	const AUDIT_SUFFIX = '_audit';
+	const REVISION_COLUMN_NAME = 'revision';
+	const REVISION_TYPE_COLUMN_NAME = 'revision_type';
 	
-	private $config;
 	
-	public function __construct()
-	{
-		$this->config = array(
-			'audit_suffix' => self::AUDIT_SUFFIX,
-		);
-	}
-
 	public function getSubscribedEvents()
 	{
 		return array(
@@ -40,17 +34,16 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$entityTable = $eventArgs->getClassTable();
 		$tableName = $entityTable->getName();
 		
-		if ($class->implementsInterface(AuditedEntity::INTERFACE_NAME)) {
+		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
 			
 			// Recreate the table inside the schema
 			$schema->dropTable($tableName);
 			$revisionTable = $schema->createTable($tableName);
 			
 			foreach ($entityTable->getColumns() AS $column) {
-				/* @var $column Column */
 				
-				// FIXME: ugly... or not?
-				if ($column->getName() == 'revision') {
+				/* @var $column Column */
+				if ($column->getName() == self::REVISION_COLUMN_NAME) {
 					continue;
 				}
 				
@@ -60,13 +53,13 @@ class AuditCreateSchemaListener implements EventSubscriber
 				));
 			}
 			
-			$revisionTable->addColumn('revision', 'string', array('length' => 40));
-			$revisionTable->addColumn('revision_type', 'smallint', array('length' => 1));
+			$revisionTable->addColumn(self::REVISION_COLUMN_NAME, 'string', array('length' => 40));
+			$revisionTable->addColumn(self::REVISION_TYPE_COLUMN_NAME, 'smallint', array('length' => 1));
 			
 			$pkColumns = $entityTable->getPrimaryKey()
 					->getColumns();
 			
-			$pkColumns[] = 'revision';
+			$pkColumns[] = self::REVISION_COLUMN_NAME;
 			$revisionTable->setPrimaryKey($pkColumns);
 			
 		// Don't need any other tables in the audit schema
@@ -86,7 +79,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$name = &$classMetadata->table['name'];
 		$class = new ReflectionClass($className);
 		
-		if ($class->implementsInterface(AuditedEntity::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
+		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
 			$name = $name . self::AUDIT_SUFFIX;
 		}
 	}

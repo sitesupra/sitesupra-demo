@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -90,7 +90,7 @@ class EntityRevisionListener implements EventSubscriber
 		$metadata = $eventArgs->getClassMetadata();
 		$class = new ReflectionClass($metadata->name);
 		
-		if ($class->implementsInterface(AuditedEntity::INTERFACE_NAME)) {
+		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
 			if ( ! $metadata->hasField('revision')) {
 				$metadata->mapField(array(
 					'fieldName' => 'revision',

@@ -2,13 +2,13 @@
 
 namespace Supra\Controller\Pages\Entity;
 
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 
 /**
  * Page controller template-layout class
  * @Entity
  */
-class TemplateLayout extends Abstraction\Entity implements AuditedEntity
+class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterface
 {
 	/**
 	 * {@inheritdoc}

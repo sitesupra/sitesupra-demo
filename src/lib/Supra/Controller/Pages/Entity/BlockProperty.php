@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Editable\EditableInterface;
@@ -14,7 +14,7 @@ use Doctrine\Common\Collections;
  * Block property class.
  * @Entity
  */
-class BlockProperty extends Entity implements AuditedEntity
+class BlockProperty extends Entity implements AuditedEntityInterface
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Localization", inversedBy="blockProperties")

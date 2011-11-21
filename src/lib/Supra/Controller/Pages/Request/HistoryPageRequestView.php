@@ -134,7 +134,6 @@ class HistoryPageRequestView extends PageRequest
 			return $this->blockSet;
 		}
 		
-		// History schema
 		// locale isn't used as it is enough to use only revision id
 		$qb = $em->createQueryBuilder();
 		$qb->select('b')
@@ -146,7 +145,6 @@ class HistoryPageRequestView extends PageRequest
 				->orderBy('b.position', 'ASC');
 
 		$query = $qb->getQuery();
-		//$query->execute(array($this->getLocale(), $this->revision));
 		$query->execute(array($this->revision));
 		$blocks = $query->getResult();
 		
@@ -282,41 +280,6 @@ class HistoryPageRequestView extends PageRequest
 		$query = $qb->getQuery();
 		$query->execute(array('revision' => $this->revision));
 		$result = $query->getResult();
-		
-		/**
-		 * If properties were loaded from _history schema, then they `block`
-		 * property will contain id string (see DB Type Block) instead of Block object
-		 * we must manually fill it with object from repository.
-		 * TODO: is there is possible to assign proxy instead of object, to provide lazy loading?
-		 */
-		foreach($result as $key => $blockProperty) {
-			$block = $blockProperty->getBlock();
-		
-			/**
-			 * If block is not an object, 
-			 * then we will try to load it from history schema
-			 */
-			if ( ! ($block instanceof Entity\Abstraction\Block)) {
-				
-				$blockObj = $em->find(static::BLOCK_ENTITY, array('id' => $block, 'revision' => $this->revision));
-				
-				/**
-				 * If nothing were found inside `_history` schema, 
-				 * then this property is inherited from template block, and we should search
-				 * for them inside _draft tables
-				 */
-				if ( ! ($blockObj instanceof Entity\Abstraction\Block)) {
-					
-					$blockObj = $draftEm->find(static::BLOCK_ENTITY, array('id' => $block));
-					if ( ! ($blockObj instanceof Entity\Abstraction\Block)) {
-						
-						//throw new \Exception('Block not found');
-						unset($result[$key]);
-					}
-				}
-				$blockProperty->setBlock($blockObj);
-			}
-		}
 		
 		$qb = $draftEm->createQueryBuilder();
 		$expr = $qb->expr();
@@ -520,14 +483,30 @@ class HistoryPageRequestView extends PageRequest
 				$draftEm->merge($placeHolder);
 			}
 			$draftEm->flush();
+			
+			$localizationId = $localization->getId();
 
-			$blocks = $this->getBlocksInPageR($auditEm);
-			foreach($blocks as $block) {
+			// page blocks from audit
+			$blockEntity = PageRequest::BLOCK_ENTITY;
+			$dql = "SELECT b FROM $blockEntity b 
+					JOIN b.placeHolder ph
+					WHERE ph.localization = ?0 and b.revision = ?1";
+			$blocks = $auditEm->createQuery($dql)
+					->setParameters(array($localizationId, $this->revision))
+					->getResult();
+			
+			foreach ($blocks as $block) {
 				$draftEm->merge($block);
 			}
-			//$draftEm->flush();
 
-			$properties = $this->getPageBlockPropertiesR($auditEm);
+			// block properties from audit
+			$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+			$dql = "SELECT bp FROM $propertyEntity bp 
+					WHERE bp.localization = ?0 and bp.revision = ?1";
+			$properties = $auditEm->createQuery($dql)
+				->setParameters(array($localizationId, $this->revision))
+				->getResult();
+			
 			foreach ($properties as $property) {
 				$draftEm->merge($property);
 			}
@@ -537,8 +516,6 @@ class HistoryPageRequestView extends PageRequest
 
 			$templateLayouts = $page->getTemplateLayouts();
 			foreach ($templateLayouts as $templateLayout) {
-				//ATTENTION: We will not restore template layouts, as, currently, 
-				//it is impossible to restore template as root template
 				//$draftEm->merge($templateLayout);
 				//$trashEm->remove($templateLayout);
 			}
@@ -585,38 +562,6 @@ class HistoryPageRequestView extends PageRequest
 				->getResult();
 		
 		return $properties;
-	}
-	
-	
-	private function getPageBlockPropertiesR(EntityManager $em)
-	{
-		$localizationId = $this->getPageLocalization()->getId();
-		$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
-		
-		$dql = "SELECT bp FROM $propertyEntity bp 
-				WHERE bp.localization = ?0 and bp.revision = ?1";
-		
-		$properties = $em->createQuery($dql)
-				->setParameters(array($localizationId, $this->revision))
-				->getResult();
-		
-		return $properties;
-	}
-	
-	private function getBlocksInPageR(EntityManager $em)
-	{
-		$localizationId = $this->getPageLocalization()->getId();
-		$blockEntity = PageRequest::BLOCK_ENTITY;
-		
-		$dql = "SELECT b FROM $blockEntity b 
-				JOIN b.placeHolder ph
-				WHERE ph.localization = ?0 and ph.revision = ?1";
-		
-		$blocks = $em->createQuery($dql)
-				->setParameters(array($localizationId, $this->revision))
-				->getResult();
-		
-		return $blocks;
 	}
 		
 }

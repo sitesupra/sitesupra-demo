@@ -21,7 +21,7 @@ use Supra\Loader;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateBlock", "page" = "Supra\Controller\Pages\Entity\PageBlock"})
  */
-abstract class Block extends Entity implements AuditedEntity
+abstract class Block extends Entity implements AuditedEntityInterface
 {
 	/**
 	 * @Column(type="string", name="component")

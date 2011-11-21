@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
+use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Controller\Pages\Exception;
 
 /**
@@ -15,7 +15,7 @@ use Supra\Controller\Pages\Exception;
  *		"image" = "ImageReferencedElement"
  * })
  */
-abstract class ReferencedElementAbstract extends Entity implements AuditedEntity
+abstract class ReferencedElementAbstract extends Entity implements AuditedEntityInterface
 {
 	/**
 	 * Convert object to array
