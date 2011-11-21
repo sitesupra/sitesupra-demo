@@ -31,7 +31,7 @@ class User extends AbstractUser
 	
 	/**
 	 * TODO: temporary solution
-	 * @Column(type="string")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $avatar;

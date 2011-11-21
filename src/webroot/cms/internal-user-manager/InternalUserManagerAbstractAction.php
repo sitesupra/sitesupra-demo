@@ -54,11 +54,13 @@ class InternalUserManagerAbstractAction extends CmsAction
 	 */
 	private function getRequestedEntity($key, $className)
 	{
-		if ( ! $this->hasRequestParameter($key)) {
+		$input = $this->getRequestInput();
+		
+		if ($input->isEmpty($key)) {
 			throw new CmsException('internalusermanager.validation_error.user_id_not_provided');
 		}
 
-		$id = $this->getRequestParameter($key);
+		$id = $input->get($key);
 		$entity = $this->userProvider->findById($id);
 
 		if ( ! $entity instanceof $className) {

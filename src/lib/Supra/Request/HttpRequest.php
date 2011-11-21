@@ -171,7 +171,7 @@ class HttpRequest implements RequestInterface
 
 	/**
 	 * Get GET data array
-	 * @return array
+	 * @return RequestData
 	 */
 	public function getQuery()
 	{
@@ -204,11 +204,11 @@ class HttpRequest implements RequestInterface
 
 	/**
 	 * Get POST data array
-	 * @return array
+	 * @return RequestData
 	 */
 	public function getPost()
 	{
-		$this->post;
+		return $this->post;
 	}
 
 	/**

@@ -76,15 +76,16 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function deleteAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
-		if ($this->emptyRequestParameter('user_id')) {
+		if ($input->isEmpty('user_id')) {
 
 			$this->getResponse()->setErrorMessage('User id is not set');
 			return;
 		}
 
-		$userId = $this->getRequestParameter('user_id');
+		$userId = $input->get('user_id');
 
 		$currentUser = $this->getUser();
 		$currentUserId = $currentUser->getId();
@@ -117,15 +118,16 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function resetAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
-		if ($this->emptyRequestParameter('user_id')) {
+		if ($input->isEmpty('user_id')) {
 
 			$this->getResponse()->setErrorMessage('User id is not set');
 			return;
 		}
 
-		$userId = $this->getRequestParameter('user_id');
+		$userId = $input->get('user_id');
 
 		/* @var $user Entity\User */
 		$user = $this->userProvider->findUserById($userId);
@@ -140,8 +142,6 @@ class UserAction extends InternalUserManagerAbstractAction
 		
 		$this->sendPasswordChangeLink($user);
 
-		
-
 		$this->getResponse()->setResponseData(null);
 	}
 	
@@ -151,11 +151,12 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function insertAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
-		$email = $this->getRequestParameter('email');
-		$name = $this->getRequestParameter('name');
-		$dummyGroupId = $this->getRequestParameter('group');
+		$email = $input->getValid('email', 'email');
+		$name = $input->get('name');
+		$dummyGroupId = $input->get('group');
 
 		$em = $this->userProvider->getEntityManager();
 
@@ -193,6 +194,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 
 		// try to find as user/group ...
 		$user = $this->getEntityFromRequestKey('user_id');
@@ -211,18 +213,18 @@ class UserAction extends InternalUserManagerAbstractAction
 			return;
 		}
 
-		if ($this->hasRequestParameter('name')) {
-			$name = $this->getRequestParameter('name');
+		if ($input->has('name')) {
+			$name = $input->get('name');
 			$user->setName($name);
 		}
 		
-		if ($this->hasRequestParameter('email')) {
-			$email = $this->getRequestParameter('email');
+		if ($input->has('email')) {
+			$email = $input->getValid('email', 'email');
 			$user->setEmail($email);
 		}
 		
-		if ($this->hasRequestParameter('avatar')) {
-			$avatar = $this->getRequestParameter('avatar');
+		if ($input->has('avatar')) {
+			$avatar = $input->get('avatar');
 			$user->setAvatar($avatar);
 		}
 
