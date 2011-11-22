@@ -7,6 +7,8 @@ use Supra\Configuration\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
+use Supra\Configuration\ConfigurationInterfaceParserCallback;
+use Supra\Configuration\ConfigurationInterface;
 
 /**
  * Component configuration loader
@@ -97,6 +99,10 @@ class ComponentConfigurationLoader
 			
 			/* @var $object \Supra\Configuration\ConfigurationInterface */
 			$object = Loader\Loader::getClassInstance($className, 'Supra\Configuration\ConfigurationInterface');
+
+			if ($object instanceof ConfigurationInterfaceParserCallback) {
+				$object->setLoader($this);
+			}
 			
 			foreach ($properties as $propertyName => $propertyValue) {
 				// For now ignoring the setter function matching
@@ -161,6 +167,16 @@ class ComponentConfigurationLoader
 		}
 		
 		return $return;
+	}
+
+	/**
+	 * Get last loaded file path
+	 *
+	 * @return string
+	 */
+	public function getFilePath()
+	{
+		return $this->configurationFile;
 	}
 	
 }

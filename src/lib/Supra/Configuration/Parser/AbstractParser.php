@@ -16,6 +16,11 @@ abstract class AbstractParser implements ParserInterface
 	 * @var WriterAbstraction
 	 */
 	protected $log;
+
+	/**
+	 * @var string
+	 */
+	protected $filename;
 	
 	/**
 	 * Bind log writer
@@ -38,8 +43,12 @@ abstract class AbstractParser implements ParserInterface
 					'Configuration file ' . $filename . 
 					' does not exist or is not readable');
 		}
+
+		$this->filename = $filename;
 		
 		$contents = $this->parse($filename);
+		
+		$this->filename = null;
 		
 		return $contents;
 	}
