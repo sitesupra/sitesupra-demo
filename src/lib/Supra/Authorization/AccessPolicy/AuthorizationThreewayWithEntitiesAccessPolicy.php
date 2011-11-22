@@ -4,14 +4,13 @@ namespace Supra\Authorization\AccessPolicy;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\Permission\PermissionStatus;
-use Supra\Request\RequestInterface;
-use Supra\Request\HttpRequest;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\User\Entity\AbstractUser;
 use Supra\User\Entity\Group;
 use Supra\User\Entity\User;
 use Supra\Authorization\Permission\Permission;
+use Supra\Validator\FilteredInput;
 
 /**
  * Class provides abstraction for access policies for managers with authorized entities (Pages, Files).
@@ -70,32 +69,27 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		);
 	}
 
-	public function updateAccessPolicy(AbstractUser $user, RequestInterface $request)
+	public function updateAccessPolicy(AbstractUser $user, FilteredInput $input)
 	{
-		$updateData = null;
-
-		if ($request instanceof HttpRequest) {
-			$updateData = $request->getPostValue(self::ENTITIES_LIST_ID);
-		}
-		else {
-			throw new Exception\RuntimeException('Do not known how to handle non-HttpRequests');
-		}
-
 		// If we have data for entity (Page, File) update, update that ...
-		if ( ! empty($updateData)) {
+		if ($input->hasChild(self::ENTITIES_LIST_ID)) {
+		
+			$updateData = $input->getChild(self::ENTITIES_LIST_ID);
 
-			$entityId = $updateData[self::ENTITY_ID];
+			$entityId = $updateData->get(self::ENTITY_ID);
 
-			$setPermissionNames = array();
-			if ( ! empty($updateData[self::SET_PERMISSION_ID])) {
-				$setPermissionNames = $updateData[self::SET_PERMISSION_ID];
+			$setPermissionNames = null;
+			if ($updateData->hasChild(self::SET_PERMISSION_ID)) {
+				$setPermissionNames = $updateData->getChild(self::SET_PERMISSION_ID);
+			} else {
+				$setPermissionNames = new FilteredInput();
 			}
 
 			$this->setEntityPermissions($user, $entityId, $setPermissionNames);
 		}
 		else {
 			// ... otherwise this update is for application access, update that.
-			parent::updateAccessPolicy($user, $request);
+			parent::updateAccessPolicy($user, $input);
 		}
 	}
 
@@ -211,9 +205,9 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	 * Sets authorized entity permission
 	 * @param AbstractUser $user
 	 * @param string $entityId
-	 * @param array $setPermissionNames 
+	 * @param FilteredInput $setPermissionNames 
 	 */
-	public function setEntityPermissions(AbstractUser $user, $entityId, $setPermissionNames)
+	public function setEntityPermissions(AbstractUser $user, $entityId, FilteredInput $setPermissionNames)
 	{
 		if ($user instanceof User) {
 			return $this->setEntityPermissionsForUser($user, $entityId, $setPermissionNames);
@@ -223,7 +217,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	private function setEntityPermissionsForUser(User $user, $entityId, $setPermissionNames)
+	private function setEntityPermissionsForUser(User $user, $entityId, FilteredInput $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -239,7 +233,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 			$currentPermissionStatusInGroup = $this->ap->getPermissionStatus($user->getGroup(), $oid, $permissionName);
 
 			// If permission is marked as "set" for this authorized entity ...
-			if (in_array($permissionName, $setPermissionNames)) {
+			if ($setPermissionNames->contains($permissionName)) {
 
 				// ... and group of user does not have anything for this entitiy ...
 				if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
@@ -271,7 +265,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	private function setEntityPermissionsForGroup(Group $group, $entityId, $setPermissionNames)
+	private function setEntityPermissionsForGroup(Group $group, $entityId, FilteredInput $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -286,7 +280,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		foreach ($this->subpropertyPermissionNames as $permissionName) {
 
 			// If permission is marked as "set" for this authorized entity ...
-			if (in_array($permissionName, $setPermissionNames)) {
+			if ($setPermissionNames->contains($permissionName)) {
 
 				// ... set ALLOW.
 				$this->ap->setPermsissionStatus($group, $oid, $permissionName, PermissionStatus::ALLOW);
@@ -313,5 +307,5 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	abstract public function getEntityTree(RequestInterface $request);
+	abstract public function getEntityTree(FilteredInput $input);
 }

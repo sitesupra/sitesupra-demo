@@ -4,9 +4,9 @@ namespace Supra\Cms\MediaLibrary;
 
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\FileStorage\Entity as FileEntity;
-use Supra\Request\RequestInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\AbstractUser;
+use Supra\Validator\FilteredInput;
 
 class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
@@ -16,7 +16,7 @@ class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEnt
 		parent::__construct('files', FileEntity\Abstraction\File::CN());
 	}
 
-	public function getEntityTree(RequestInterface $request) 
+	public function getEntityTree(FilteredInput $input) 
 	{
 		$em = ObjectRepository::getEntityManager($this);
 		

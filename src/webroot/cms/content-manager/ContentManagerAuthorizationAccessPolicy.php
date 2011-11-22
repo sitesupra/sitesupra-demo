@@ -4,14 +4,12 @@ namespace Supra\Cms\ContentManager;
 
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity as PageEntity;
 use Supra\User\Entity\AbstractUser;
 use Doctrine\ORM\EntityRepository;
 use Supra\Locale\LocaleManager;
-use Supra\Request\RequestInterface;
-use Supra\Request\HttpRequest;
 use Supra\Authorization\Exception\RuntimeException as AuthorizationRuntimeException;
+use Supra\Validator\FilteredInput;
 
 class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
@@ -87,16 +85,11 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		return $itemPermission;
 	}
 
-	public function getEntityTree(RequestInterface $request)
+	public function getEntityTree(FilteredInput $input)
 	{
-		if ( ! ($request instanceof HttpRequest)) {
-			throw new AuthorizationRuntimeException('Do not know what to do with non-HTTP request.');
-		}
-
 		$entityTree = array();
 
-		/* @var $request HttpRequest */
-		$localeId = $request->getQueryValue('locale');
+		$localeId = $input->get('locale');
 
 		$em = ObjectRepository::getEntityManager($this);
 		$pageRepo = $em->getRepository(PageEntity\Abstraction\AbstractPage::CN());

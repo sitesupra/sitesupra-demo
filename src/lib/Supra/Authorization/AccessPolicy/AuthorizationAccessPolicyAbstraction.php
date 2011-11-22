@@ -9,10 +9,9 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\Permission\Application\ApplicationAllAccessPermission;
 use Supra\Authorization\Permission\Application\ApplicationSomeAccessPermission;
 use Supra\Authorization\Permission\Application\ApplicationExecuteAccessPermission;
-use Supra\Request\HttpRequest;
-use Supra\Request\RequestInterface;
 use Supra\Log\Log;
 use Supra\Authorization\Permission\PermissionStatus;
+use Supra\Validator\FilteredInput;
 
 abstract class AuthorizationAccessPolicyAbstraction
 {
@@ -85,7 +84,7 @@ abstract class AuthorizationAccessPolicyAbstraction
 
 	abstract public function getAccessPolicy(AbstractUser $user);
 	
-	abstract public function updateAccessPolicy(AbstractUser $user, RequestInterface $updateRequest);
+	abstract public function updateAccessPolicy(AbstractUser $user, FilteredInput $input);
 	
 	/**
 	 * Sets "ALL"  access for given user to application. Revokes "SOME" and "EXECUTE" if granted.

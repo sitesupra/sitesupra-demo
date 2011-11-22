@@ -39,6 +39,13 @@ class FilteredInputTest extends \PHPUnit_Framework_TestCase
 			'data' => array(
 				'prop1' => 5
 			),
+			'contains' => array(
+				'a',
+				'b',
+				'a',
+				'c',
+				'd',
+			),
 		);
 		
 		$this->object = new FilteredInput($this->post);
@@ -126,6 +133,25 @@ class FilteredInputTest extends \PHPUnit_Framework_TestCase
 	public function testIsNotInteger()
 	{
 		$this->object->getValid('string', 'integer');
+	}
+	
+	public function testContains()
+	{
+		$input = $this->object->getChild('contains');
+		
+		self::assertEquals('a', $input->getNext());
+		self::assertEquals('b', $input->getNext());
+		self::assertEquals('a', $input->getNext());
+		
+		self::assertTrue($input->contains('a'));
+		
+		self::assertEquals('c', $input->getNext());
+		
+		self::assertFalse($input->contains('A'));
+		
+		self::assertEquals('d', $input->getNext());
+		
+		self::assertFalse($input->valid());
 	}
 
 }

@@ -57,6 +57,38 @@ class FilteredInput extends \ArrayIterator
 	}
 	
 	/**
+	 * Whether such value exists in the array
+	 * @param string $value
+	 * @param boolean $strict
+	 * @return boolean
+	 */
+	public function contains($value, $strict = false)
+	{
+		$key = $this->key();
+		$this->rewind();
+		$found = false;
+		
+		while ($this->valid()) {
+			
+			// Skip arrays
+			if ($this->hasChild($this->key())) {
+				continue;
+			}
+			
+			$checkValue = $this->getNext();
+			
+			if ($checkValue === $value || ( ! $strict && $checkValue == $value)) {
+				$found = true;
+				break;
+			}
+		}
+		
+		$this->seek($key);
+		
+		return $found;
+	}
+	
+	/**
 	 * Load scalar value
 	 * @param mixed $index
 	 * @param string $default
@@ -97,7 +129,8 @@ class FilteredInput extends \ArrayIterator
 	}
 	
 	/**
-	 * Loads next value in scalar value input and advances the iterator pointer
+	 * Loads next value in scalar value input and advances the iterator pointer.
+	 * NB! Will raise exception if array is found.
 	 * @return string
 	 * @throws \OutOfBoundsException
 	 */
@@ -116,7 +149,8 @@ class FilteredInput extends \ArrayIterator
 	}
 	
 	/**
-	 * Loads next child input and advances the iterator pointer
+	 * Loads next child input and advances the iterator pointer.
+	 * NB! Will raise exception if scalar value is found.
 	 * @return FilteredInput
 	 * @throws \OutOfBoundsException
 	 */
@@ -127,7 +161,7 @@ class FilteredInput extends \ArrayIterator
 		}
 		
 		$key = $this->key();
-		$value = $this->getArray($key);
+		$value = $this->getChild($key);
 		
 		$this->next();
 		
@@ -136,7 +170,7 @@ class FilteredInput extends \ArrayIterator
 	
 	/**
 	 * Whether the value in the index is empty
-	 * NB! "0" is not treated as empty as for empty() PHP function
+	 * NB! "0" and empty array are not treated as empty as for empty() PHP function
 	 * @param string $index
 	 * @return boolean
 	 */

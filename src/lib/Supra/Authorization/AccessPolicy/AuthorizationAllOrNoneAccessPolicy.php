@@ -3,9 +3,8 @@
 namespace Supra\Authorization\AccessPolicy;
 
 use Supra\User\Entity\AbstractUser;
-use Supra\Request\RequestInterface;
-use Supra\Request\HttpRequest;
 use Supra\Authorization\Exception;
+use Supra\Validator\FilteredInput;
 
 /**
  * Implements access policy with 2 states - "EXECUTE" and "ALL".
@@ -67,23 +66,17 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 	/**
 	 * Is called by Internal User Manager when user modifies some permissions.
 	 * @param AbstractUser $user
-	 * @param RequestInterface $request 
+	 * @param FilteredInput $input
 	 */
-	public function updateAccessPolicy(AbstractUser $user, RequestInterface $request)
+	public function updateAccessPolicy(AbstractUser $user, FilteredInput $input)
 	{
-		if ($request instanceof HttpRequest) {
+		$propertyToUpdate = $input->get(self::PROPERTY_NAME);
 
-			$propertyToUpdate = $request->getPostValue(self::PROPERTY_NAME);
-
-			if ($propertyToUpdate != self::APPLICATION_ACCESS_ID) {
-				throw new Exception\RuntimeException('Do not known how to update access policy property "' . $propertyToUpdate . '".');
-			}
-
-			$this->setApplicationAccessValue($user, $request->getPostValue(self::VALUE_NAME));
+		if ($propertyToUpdate != self::APPLICATION_ACCESS_ID) {
+			throw new Exception\RuntimeException('Do not known how to update access policy property "' . $propertyToUpdate . '".');
 		}
-		else {
-			throw new Exception\RuntimeException('Do not known how to handle non-HttpRequests');
-		}
+
+		$this->setApplicationAccessValue($user, $input->get(self::VALUE_NAME));
 	}
 
 	/**

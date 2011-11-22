@@ -21,16 +21,17 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 	public function datalistAction()
 	{
 		$response = array();
+		$input = $this->getRequestInput();
 		$cmsAppConfigs = CmsApplicationConfiguration::getInstance();
 
-		$applicationId = $this->getRequest()->getQueryValue('application_id');
+		$applicationId = $input->get('application_id');
 
 		/* $appConfig ApplicationConfiguration */
 		$appConfig = $cmsAppConfigs->getConfiguration($applicationId);
+		$accessPolicy = $appConfig->authorizationAccessPolicy;
 
-		if ($appConfig->authorizationAccessPolicy instanceof AuthorizationThreewayWithEntitiesAccessPolicy) {
-
-			$response = $appConfig->authorizationAccessPolicy->getEntityTree($this->request);
+		if ($accessPolicy instanceof AuthorizationThreewayWithEntitiesAccessPolicy) {
+			$response = $accessPolicy->getEntityTree($input);
 		}
 
 		$this->getResponse()->setResponseData($response);
@@ -39,11 +40,12 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		
 		$cmsAppConfigs = CmsApplicationConfiguration::getInstance();
 
 		/* $appConfig ApplicationConfiguration */
-		$appConfig = $cmsAppConfigs->getConfiguration($this->getRequest()->getPostValue('application_id'));
+		$appConfig = $cmsAppConfigs->getConfiguration($input->get('application_id'));
 
 		$user = $this->getUserOrGroupFromRequestKey('user_id');
 
@@ -51,7 +53,7 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
 		if ($appConfig instanceof ApplicationConfiguration) {
-			$appConfig->authorizationAccessPolicy->updateAccessPolicy($user, $this->getRequest());
+			$appConfig->authorizationAccessPolicy->updateAccessPolicy($user, $input);
 		}
 	}
 
