@@ -34,9 +34,8 @@ $chainWriter->addWriter($sqlWriter);
 
 ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $chainWriter);
 
-/*
- * Audit log
- */
-$auditWriter = new Writer\AuditLogWriter(array('file' => 'audit.log'));
-ObjectRepository::setDefaultAuditLogger($auditWriter);
-
+///*
+// * Audit log
+// */
+//$auditWriter = new Writer\AuditLogWriter(array('file' => 'audit.log'));
+//ObjectRepository::setDefaultAuditLogger($auditWriter);
