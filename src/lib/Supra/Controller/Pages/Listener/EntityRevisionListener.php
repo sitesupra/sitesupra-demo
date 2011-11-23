@@ -155,7 +155,7 @@ class EntityRevisionListener implements EventSubscriber
 		$this->uow->recomputeSingleEntityChangeSet($class, $entity);
 				
 		if ($nestedCall) {
-			// schedule parent entities to update, otherwise we will not be audited
+			// schedule parent entities to update, otherwise they will not be audited by audit listener
 			$this->uow->scheduleForUpdate($entity);
 		}
 		
