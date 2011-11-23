@@ -4,12 +4,13 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
+use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 
 /**
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends Entity implements AuditedEntityInterface
+class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
 	/**
 	 * @Column(type="string")
@@ -65,6 +66,11 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface
 	public function getReferencedElement()
 	{
 		return $this->referencedElement;
+	}
+	
+	public function getOwner()
+	{
+		return $this->blockProperty;
 	}
 
 }

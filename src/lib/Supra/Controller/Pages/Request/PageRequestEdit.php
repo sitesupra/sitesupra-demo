@@ -17,6 +17,7 @@ use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Supra\Controller\Pages\Event\PageDeleteEventArgs;
+use Supra\Controller\Pages\Event\AuditEvents;
 
 /**
  * Request object for edit mode requests
@@ -257,7 +258,7 @@ class PageRequestEdit extends PageRequest
 		$pagePublishEventArgs->setBlockPropertyIdCollection($draftPropertyIds);
 		
 		$draftEm->getEventManager()
-				->dispatchEvent(EntityAuditListener::pagePublishEvent, $pagePublishEventArgs);
+				->dispatchEvent(AuditEvents::pagePublishEvent, $pagePublishEventArgs);
 	}
 	
 	/**
@@ -435,7 +436,7 @@ class PageRequestEdit extends PageRequest
 		// prepare audit listener for page delete
 		$pageDeleteEventArgs = new PageDeleteEventArgs();
 		$pageDeleteEventArgs->setPageId($pageId);
-		$eventManager->dispatchEvent(EntityAuditListener::pagePreDeleteEvent, $pageDeleteEventArgs);
+		$eventManager->dispatchEvent(AuditEvents::pagePreDeleteEvent, $pageDeleteEventArgs);
 		
 		$connection->beginTransaction();
 		try{
@@ -455,7 +456,7 @@ class PageRequestEdit extends PageRequest
 		$connection->commit();
 		
 		// reset audit listener state
-		$eventManager->dispatchEvent(EntityAuditListener::pagePostDeleteEvent);
+		$eventManager->dispatchEvent(AuditEvents::pagePostDeleteEvent);
 	}
 	
 	/**

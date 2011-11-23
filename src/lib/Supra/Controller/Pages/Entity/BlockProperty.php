@@ -9,12 +9,13 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Editable\EditableInterface;
 use Doctrine\Common\Collections;
+use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 
 /**
  * Block property class.
  * @Entity
  */
-class BlockProperty extends Entity implements AuditedEntityInterface
+class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Localization", inversedBy="blockProperties")
@@ -223,6 +224,11 @@ class BlockProperty extends Entity implements AuditedEntityInterface
 			$this->block = null;
 			$this->localization = null;
 		}
+	}
+	
+	public function getOwner()
+	{
+		return $this->block;
 	}
 
 }

@@ -14,7 +14,7 @@ use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplatePlaceHolder", "page" = "Supra\Controller\Pages\Entity\PagePlaceHolder"})
  */
-abstract class PlaceHolder extends Entity implements AuditedEntityInterface
+abstract class PlaceHolder extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
 	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
@@ -235,6 +235,11 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface
 		}
 
 		return $placeHolder;
+	}
+	
+	public function getOwner() 
+	{
+		return $this->localization;
 	}
 
 }

@@ -21,8 +21,6 @@ use Supra\Controller\Pages\PageController;
 
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
-Type::addType(TemplateType::NAME, 'Supra\Database\Doctrine\Type\TemplateType');
-Type::addType(BlockType::NAME, 'Supra\Database\Doctrine\Type\BlockType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
@@ -120,8 +118,6 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
-	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(TemplateType::NAME));
-	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(BlockType::NAME));
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);

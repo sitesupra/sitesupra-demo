@@ -21,7 +21,7 @@ use Supra\Loader;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Controller\Pages\Entity\TemplateBlock", "page" = "Supra\Controller\Pages\Entity\PageBlock"})
  */
-abstract class Block extends Entity implements AuditedEntityInterface
+abstract class Block extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
 	/**
 	 * @Column(type="string", name="component")
@@ -283,6 +283,11 @@ abstract class Block extends Entity implements AuditedEntityInterface
 			$this->blockProperties = new ArrayCollection();
 			$this->placeHolder = null;
 		}
+	}
+	
+	public function getOwner() 
+	{
+		return $this->placeHolder;
 	}
 
 }
