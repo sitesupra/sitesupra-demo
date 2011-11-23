@@ -31,7 +31,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	/**
 	 * @var string
 	 */
-	protected$subpropertyLabel;
+	protected $subpropertyLabel;
 
 	/**
 	 * @var array

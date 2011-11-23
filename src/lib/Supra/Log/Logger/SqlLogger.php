@@ -68,7 +68,7 @@ class SqlLogger implements SQLLoggerInterface
 	public function startQuery($sql, array $params = null, array $types = null)
 	{
 		$this->sql = $sql;
-		$this->params = $params;
+		$this->params = (array) $params;
 		$this->types = $types;
 		$this->start = microtime(true);
 		

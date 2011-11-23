@@ -75,7 +75,7 @@ class FrontController
 	 * @param Route\RouterInterface $router
 	 * @param string $controllerClass
 	 */
-	function route(Router\RouterInterface $router, $controllerClass)
+	public function route(Router\RouterInterface $router, $controllerClass)
 	{
 		$router->setControllerClass($controllerClass);
 		$this->routers[] = $router;

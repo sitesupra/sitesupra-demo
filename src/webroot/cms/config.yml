@@ -17,39 +17,44 @@
         controller: Project\Payment\DummyPay\RequestController
 
 - Supra\Cms\ApplicationConfiguration:
-    id: content
+    id: Supra\Cms\ContentManager
     title: Pages
     icon: /cms/lib/supra/img/apps/content
     path: /cms/content-manager/
-    authorizationAccessPolicyClass: Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy
-    applicationNamespace: Supra\Cms\ContentManager
+    authorizationAccessPolicy:
+      Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
+#       @TODO: Could assign this value from application configuration "id" parameter somehow
+        applicationNamespace: Supra\Cms\ContentManager
   
 - Supra\Cms\InternalUserManager\ApplicationConfiguration:
-    id: internal-user-manager
+#   Assigned to controller because inside this namespace is password restore controller
+    id: Supra\Cms\InternalUserManager\InternalUserManagerController
     title: Backoffice users
     path: /cms/internal-user-manager/
     icon: /cms/lib/supra/img/apps/internal-user
-    # For development only
+#   For development only
     allowGroupEditing: true
-    # Assigned to controller because inside this namespace is password restore controller
-    applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
-    authorizationAccessPolicyClass: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
+    authorizationAccessPolicy:
+      Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
 
 - Supra\Cms\ApplicationConfiguration:
-    id: banner-manager
+    id: Supra\Cms\BannerManager
     title: Banners
     path: /cms/banner-manager/
     icon: /cms/lib/supra/img/apps/banner
-    applicationNamespace: Supra\Cms\BannerManager
-    authorizationAccessPolicyClass: Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy
+    authorizationAccessPolicy:
+      Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\BannerManager
 
 - Supra\Cms\ApplicationConfiguration:
-    id: media-library
+    id: Supra\Cms\MediaLibrary
     title: Media Library
     path: /cms/media-library/
     icon: /cms/lib/supra/img/apps/media_library
-    applicationNamespace: Supra\Cms\MediaLibrary
-    authorizationAccessPolicyClass: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
+    authorizationAccessPolicy:
+      Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\MediaLibrary
     
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news

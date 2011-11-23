@@ -268,7 +268,7 @@ class AuthorizationProvider
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), self::AUTHORIZED_CONTROLLER_INTERFACE);
 		}
 		else if ($object instanceof ApplicationConfiguration) {
-			$objectIdentity = new ObjectIdentity($object->applicationNamespace, self::APPLICATION_CONFIGURATION_CLASS);
+			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), self::APPLICATION_CONFIGURATION_CLASS);
 		}
 		else {
 			throw new Exception\ConfigurationException('Do not know how to get object identity from ' . get_class($object));

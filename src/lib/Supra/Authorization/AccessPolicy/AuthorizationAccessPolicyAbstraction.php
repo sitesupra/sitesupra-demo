@@ -9,16 +9,23 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\Permission\Application\ApplicationAllAccessPermission;
 use Supra\Authorization\Permission\Application\ApplicationSomeAccessPermission;
 use Supra\Authorization\Permission\Application\ApplicationExecuteAccessPermission;
-use Supra\Log\Log;
+use Supra\Log\Writer\WriterAbstraction;
 use Supra\Authorization\Permission\PermissionStatus;
 use Supra\Validator\FilteredInput;
+use Supra\Configuration\ConfigurationInterface;
 
-abstract class AuthorizationAccessPolicyAbstraction
+abstract class AuthorizationAccessPolicyAbstraction implements ConfigurationInterface
 {
 	const APPLICATION_ACCESS_ID = 'allow';
 	const PROPERTY_NAME = 'property';
 	const VALUE_NAME = 'value';
 
+	/**
+	 * Application namespace
+	 * @var string
+	 */
+	public $applicationNamespace;
+	
 	/**
 	 * @var AuthorizationProvider
 	 */
@@ -36,13 +43,16 @@ abstract class AuthorizationAccessPolicyAbstraction
 	
 	/**
 	 * Logger
-	 * @var Log;
+	 * @var WriterAbstraction
 	 */
 	protected $log;
 	
+	/**
+	 * Constructor
+	 */
 	public function __construct() 
 	{
-		$this->log = ObjectRepository::getLogger($this);
+		
 	}
 	
 	/**
@@ -52,17 +62,21 @@ abstract class AuthorizationAccessPolicyAbstraction
 	 */
 	public function configure() 
 	{
+		ObjectRepository::setCallerParent($this, $this->applicationNamespace);
+		$this->ap = ObjectRepository::getAuthorizationProvider($this);
+		$this->log = ObjectRepository::getLogger($this);
+		
 		$this->permission = array(
 			"id" => self::APPLICATION_ACCESS_ID,
 			"label" => "{#userpermissions.label_persmissions#}",
 			"value" => "0"
-		);	
+		);
 	}
 
 	/**
 	 * Sets authorization provider to be used with this authorization access policy.
 	 * @param AuthorizationProvider $ap 
-	   */						
+	 */
 	public function setAuthorizationProvider(AuthorizationProvider $ap)
 	{
 		$this->ap = $ap;

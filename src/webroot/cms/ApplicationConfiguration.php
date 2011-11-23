@@ -43,49 +43,30 @@ class ApplicationConfiguration implements ConfigurationInterface
 	public $path;
 
 	/**
-	 * 
-	 * @var array
-	 */
-	public $permissions = array();
-
-	/**
 	 * @var AuthorizationAccessPolicyAbstraction
 	 */
 	public $authorizationAccessPolicy;
-
-	/**
-	 * @var String
-	 */
-	public $authorizationAccessPolicyClass;
-
-	/**
-	 * @var string
-	 */
-	public $applicationNamespace;
 
 	/**
 	 * Configure
 	 */
 	public function configure()
 	{
-		$ap = ObjectRepository::getAuthorizationProvider($this->applicationNamespace);
-
-		$this->authorizationAccessPolicy = Loader::getClassInstance($this->authorizationAccessPolicyClass, 
-				'Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction');
-		$this->authorizationAccessPolicy->setAuthorizationProvider($ap);
 		$this->authorizationAccessPolicy->setAppConfig($this);
-		$this->authorizationAccessPolicy->configure();
-		
-		ObjectRepository::setCallerParent($this->authorizationAccessPolicy, $this->applicationNamespace);
-
-		array_unshift(
-				$this->permissions, $this->authorizationAccessPolicy->getPermissionForInternalUserManager()
-		);
 
 		$config = CmsApplicationConfiguration::getInstance();
 		$config->addConfiguration($this);
 
-		ObjectRepository::setApplicationConfiguration($this->applicationNamespace, $this);
+		ObjectRepository::setApplicationConfiguration($this->id, $this);
+	}
+	
+	/**
+	 * To keep authorization component interface
+	 * @return string
+	 */
+	public function getAuthorizationId()
+	{
+		return $this->id;
 	}
 
 }

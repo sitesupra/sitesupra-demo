@@ -10,6 +10,8 @@ use Supra\Controller\ControllerInterface;
  */
 interface RouterInterface
 {
+	const CN = __CLASS__;
+	
 	/**
 	 * Whether the router matches the request
 	 * @param RequestInterface $request

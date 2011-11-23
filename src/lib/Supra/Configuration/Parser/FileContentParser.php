@@ -23,5 +23,5 @@ abstract class FileContentParser extends AbstractParser
 	 * @param string $contents
 	 * @return array
 	 */
-	abstract function parseContents($contents);
+	abstract public function parseContents($contents);
 }

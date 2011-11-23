@@ -13,7 +13,7 @@ use Supra\Validator\FilteredInput;
 
 class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct('pages', PageEntity\Abstraction\Entity::CN());
 	}

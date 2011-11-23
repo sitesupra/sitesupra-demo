@@ -15,7 +15,6 @@ abstract class RouterAbstraction implements RouterInterface
 	/**
 	 * Controller execution priority levels
 	 */
-
 	const PRIORITY_VERY_LOW = 10;
 	const PRIORITY_LOW = 20;
 	const PRIORITY_MEDIUM = 30;

@@ -31,10 +31,14 @@ class UriRouterTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
-		$this->root = new Router\UriRouter('/');
-		$this->q = new Router\UriRouter('/q');
-		$this->qwerty = new Router\UriRouter('/qwerty/');
-		$this->quertyAbc = new Router\UriRouter('qwerty/abc');
+		$this->root = new Router\UriRouter();
+		$this->root->setPath('/');
+		$this->q = new Router\UriRouter();
+		$this->q->setPath('/q');
+		$this->qwerty = new Router\UriRouter();
+		$this->qwerty->setPath('/qwerty/');
+		$this->quertyAbc = new Router\UriRouter();
+		$this->quertyAbc->setPath('qwerty/abc');
 	}
 
 	function testCompareRouters()

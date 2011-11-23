@@ -17,7 +17,7 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 	public function configure()
 	{
 		parent::configure();
-
+		
 		$this->permission['type'] = 'SelectList';
 
 		$this->permission['values'] = array(
@@ -87,7 +87,7 @@ abstract class AuthorizationAllOrNoneAccessPolicy extends AuthorizationAccessPol
 	public function getAccessPolicy(AbstractUser $user)
 	{
 		$result = array(
-				self::APPLICATION_ACCESS_ID => $this->getApplicationAccessValue($user)
+			self::APPLICATION_ACCESS_ID => $this->getApplicationAccessValue($user)
 		);
 
 		return $result;

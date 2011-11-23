@@ -31,15 +31,25 @@ class UriRouter extends RouterAbstraction
 
 	/**
 	 * Router constructor
-	 * @param string $uri
-	 * @param array $params
 	 */
-	public function __construct($uri, array $params = array())
+	public function __construct()
 	{
-		$this->path = new Path($uri);
-		$this->setParameters($params);
+		$this->path = new Path();
 	}
-
+	
+	/**
+	 * Sets the path
+	 * @param mixed $path
+	 */
+	public function setPath($path)
+	{
+		if ($path instanceof Path) {
+			$this->path = $path;
+		} else {
+			$this->path = new Path($path);
+		}
+	}
+	
 	/**
 	 * Whether the router matches the request.
 	 * Additionally move used URI part to the base URI property.
