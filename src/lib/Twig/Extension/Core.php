@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('ENT_SUBSTITUTE')) {
+    define('ENT_SUBSTITUTE', 8);
+}
+
 /*
  * This file is part of Twig.
  *
@@ -129,6 +133,9 @@ class Twig_Extension_Core extends Twig_Extension
                 '+'   => array('precedence' => 50, 'class' => 'Twig_Node_Expression_Unary_Pos'),
             ),
             array(
+                'b-and'  => array('precedence' => 5, 'class' => 'Twig_Node_Expression_Binary_BitwiseAnd', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
+                'b-xor'  => array('precedence' => 5, 'class' => 'Twig_Node_Expression_Binary_BitwiseXor', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
+                'b-or'   => array('precedence' => 5, 'class' => 'Twig_Node_Expression_Binary_BitwiseOr', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
                 'or'     => array('precedence' => 10, 'class' => 'Twig_Node_Expression_Binary_Or', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
                 'and'    => array('precedence' => 15, 'class' => 'Twig_Node_Expression_Binary_And', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
                 '=='     => array('precedence' => 20, 'class' => 'Twig_Node_Expression_Binary_Equal', 'associativity' => Twig_ExpressionParser::OPERATOR_LEFT),
@@ -214,7 +221,7 @@ function twig_cycle($values, $i)
  */
 function twig_date_format_filter($date, $format = 'F j, Y H:i', $timezone = null)
 {
-    if (!$date instanceof DateTime) {
+    if (!$date instanceof DateTime && !$date instanceof DateInterval) {
         if (ctype_digit((string) $date)) {
             $date = new DateTime('@'.$date);
             $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
@@ -419,7 +426,7 @@ function twig_reverse_filter($array)
 
 /**
  * Sorts an array.
- * 
+ *
  * @param array $array An array
  */
 function twig_sort_filter($array)
@@ -463,14 +470,15 @@ function twig_strtr($pattern, $replacements)
 /**
  * Escapes a string.
  *
- * @param Twig_Environment $env     A Twig_Environment instance
- * @param string           $string  The value to be escaped
- * @param string           $type    The escaping strategy
- * @param string           $charset The charset
+ * @param Twig_Environment $env        A Twig_Environment instance
+ * @param string           $string     The value to be escaped
+ * @param string           $type       The escaping strategy
+ * @param string           $charset    The charset
+ * @param Boolean          $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
  */
-function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $charset = null)
+function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $charset = null, $autoescape = false)
 {
-    if (is_object($string) && $string instanceof Twig_Markup) {
+    if ($autoescape && is_object($string) && $string instanceof Twig_Markup) {
         return $string;
     }
 
@@ -501,7 +509,7 @@ function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $cha
             return $string;
 
         case 'html':
-            return htmlspecialchars($string, ENT_QUOTES, $charset);
+            return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, $charset);
 
         default:
             throw new Twig_Error_Runtime(sprintf('Invalid escape type "%s".', $type));
@@ -699,7 +707,7 @@ function twig_ensure_traversable($seq)
  * <pre>
  * {% if foo.attribute is sameas(false) %}
  *    the foo attribute really is the ``false`` PHP value
- * {% endif %} 
+ * {% endif %}
  * </pre>
  *
  * @param mixed $value A PHP variable
@@ -832,5 +840,8 @@ function twig_test_defined($name, $context)
  */
 function twig_test_empty($value)
 {
+    if ($value instanceof Countable) {
+        return 0 == count($value);
+    }
     return false === $value || (empty($value) && '0' != $value);
 }

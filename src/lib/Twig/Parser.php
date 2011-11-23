@@ -140,6 +140,10 @@ class Twig_Parser implements Twig_ParserInterface
 
                     $subparser = $this->handlers->getTokenParser($token->getValue());
                     if (null === $subparser) {
+                        if (null !== $test) {
+                            throw new Twig_Error_Syntax(sprintf('Unexpected tag name "%s" (expecting closing tag for the "%s" tag defined near line %s)', $token->getValue(), $test[0]->getTag(), $lineno), $token->getLine(), $this->stream->getFilename());
+                        }
+
                         throw new Twig_Error_Syntax(sprintf('Unknown tag name "%s"', $token->getValue()), $token->getLine(), $this->stream->getFilename());
                     }
 
@@ -230,6 +234,11 @@ class Twig_Parser implements Twig_ParserInterface
         $this->traits[] = $trait;
     }
 
+    public function hasTraits()
+    {
+        return count($this->traits) > 0;
+    }
+
     public function addImportedFunction($alias, $name, Twig_Node_Expression $node)
     {
         $this->importedFunctions[0][$alias] = array('name' => $name, 'node' => $node);
@@ -242,6 +251,11 @@ class Twig_Parser implements Twig_ParserInterface
                 return $functions[$alias];
             }
         }
+    }
+
+    public function isMainScope()
+    {
+        return 1 === count($this->importedFunctions);
     }
 
     public function pushLocalScope()
@@ -302,11 +316,16 @@ class Twig_Parser implements Twig_ParserInterface
             ||
             (!$node instanceof Twig_Node_Text && !$node instanceof Twig_Node_BlockReference && $node instanceof Twig_NodeOutputInterface)
         ) {
-            throw new Twig_Error_Syntax(sprintf('A template that extends another one cannot have a body (%s).', $node), $node->getLine(), $this->stream->getFilename());
+            throw new Twig_Error_Syntax('A template that extends another one cannot have a body.', $node->getLine(), $this->stream->getFilename());
+        }
+
+        // bypass "set" nodes as they "capture" the output
+        if ($node instanceof Twig_Node_Set) {
+            return $node;
         }
 
         if ($node instanceof Twig_NodeOutputInterface) {
-            return null;
+            return;
         }
 
         foreach ($node as $k => $n) {
