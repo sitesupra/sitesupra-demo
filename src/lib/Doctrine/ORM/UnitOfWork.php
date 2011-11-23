@@ -1476,7 +1476,7 @@ class UnitOfWork implements PropertyChangedListener
                                 $relatedId = $targetClass->getIdentifierValues($other);
 
                                 if ($targetClass->subClasses) {
-                                    $entity = $this->em->find($targetClass->name, $relatedId);
+                                    $_entity = $this->em->find($targetClass->name, $relatedId);
                                 } else {
                                     $proxy = $this->em->getProxyFactory()->getProxy($assoc2['targetEntity'], $relatedId);
                                     $prop->setValue($managedCopy, $proxy);
