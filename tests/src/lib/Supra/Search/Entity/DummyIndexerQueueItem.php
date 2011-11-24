@@ -46,14 +46,14 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 	 */
 	public function getIndexedDocuments()
 	{
-		$document = new IndexedDocument();
+		$document = new IndexedDocument(DummyItem::CN(), $this->actualObject->id . '-' . $this->actualObject->revision);
 		
 		$document->uniqueId = $this->actualObject->id . '-' . $this->actualObject->revision;
 		$document->class = DummyItem::CN();
 		
 		$document->revisionId = $this->actualObject->revision;
 		
-		$document->text = $this->actualObject->text;
+		$document->text_general = $this->actualObject->text;
 		
 		return array($document);
 	}

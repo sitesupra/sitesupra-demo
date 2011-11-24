@@ -55,7 +55,7 @@ class SimpleIndexerServiceTest extends SearchTestAbstraction
 	{
 		$countBefore = $this->indexerService->getDocumentCount();
 
-		self::assertEquals($countBefore, 0);
+		self::assertEquals(0, $countBefore);
 
 		$this->indexerService->processItem($this->makeIndexerQueueItem(123, 1, 'ZZZ zz zz desa 123'));
 		$this->indexerService->processItem($this->makeIndexerQueueItem(123, 2, 'ZZZ zz zz zupa 123'));
@@ -66,7 +66,7 @@ class SimpleIndexerServiceTest extends SearchTestAbstraction
 
 		$countAfter = $this->indexerService->getDocumentCount();
 
-		self::assertEquals($countAfter, 5);
+		self::assertEquals(5, $countAfter);
 	}
 
 }

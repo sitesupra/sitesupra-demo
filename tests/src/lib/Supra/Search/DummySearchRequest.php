@@ -36,6 +36,10 @@ class DummySearchRequest extends EntitySearchRequestAbstraction
 
 		$selectQuery->setQuery($this->text);
 	}
-
+	
+	public function processResults(Solarium_Result_Select $selectResults)
+	{
+		return array();
+	}
 }
 
