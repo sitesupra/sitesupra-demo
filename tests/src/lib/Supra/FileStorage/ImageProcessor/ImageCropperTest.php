@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\FileStorage\ImageProcessor;
+namespace Supra\Tests\FileStorage\ImageProcessor;
 
-require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/FileStorage/ImageProcessor/ImageCropper.php';
+use Supra\FileStorage\ImageProcessor\ImageCropper;
 
 /**
  * Test class for ImageCropper.

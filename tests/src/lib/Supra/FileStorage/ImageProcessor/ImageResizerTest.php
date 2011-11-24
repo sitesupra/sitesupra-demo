@@ -1,6 +1,8 @@
 <?php
 
-namespace Supra\FileStorage\ImageProcessor;
+namespace Supra\Tests\FileStorage\ImageProcessor;
+
+use Supra\FileStorage\ImageProcessor\ImageResizer;
 
 require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/FileStorage/ImageProcessor/ImageResizer.php';
 

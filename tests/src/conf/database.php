@@ -44,7 +44,7 @@ $config->setMetadataDriverImpl($driverImpl);
 
 // Proxy configuration
 $config->setProxyDir(SUPRA_TESTS_LIBRARY_PATH . 'Supra/Proxy');
-$config->setProxyNamespace('Supra\\Proxy');
+$config->setProxyNamespace('Supra\Tests\Proxy');
 $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger

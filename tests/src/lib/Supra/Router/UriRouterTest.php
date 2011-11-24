@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Router;
+namespace Supra\Tests\Router;
 
 use Supra\Tests\TestCase,
 		Supra\Controller\FrontController,

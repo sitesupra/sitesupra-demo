@@ -1,6 +1,8 @@
 <?php
 
-namespace Supra\Authentication\Adapter;
+namespace Supra\Tests\Authentication\Adapter;
+
+use Supra\Tests\ObjectRepository\Mockup\ObjectRepository;
 
 require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/Authentication/Adapter/HashAdapter.php';
 
@@ -23,6 +25,7 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	protected function setUp()
 	{
 		$this->object = new HashAdapter;
+		ObjectRepository::setCallerParent($this->object, $this);
 	}
 
 	/**
@@ -31,7 +34,7 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown()
 	{
-		
+		ObjectRepository::restoreCurrentState();
 	}
 
 	/**
