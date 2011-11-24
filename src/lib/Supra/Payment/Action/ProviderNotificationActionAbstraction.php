@@ -2,7 +2,7 @@
 
 namespace Supra\Payment\Action;
 
-class ProviderNotificationActionAbstraction extends ActionAbstraction
+abstract class ProviderNotificationActionAbstraction extends ActionAbstraction
 {
 
 }
