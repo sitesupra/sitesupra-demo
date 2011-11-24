@@ -236,6 +236,7 @@ class EntityAuditListener implements EventSubscriber
 		$params = array($revisionType);
 		$types = array(\PDO::PARAM_INT);
 		
+		$classFields = $class->fieldNames;
 		// two special cases for revision id:
 		//   - if we are creating full COPY of page (publish/trash), 
 		//	   then we should use single revision id for all auditing entities
@@ -247,7 +248,7 @@ class EntityAuditListener implements EventSubscriber
 			$params[] = $this->_getRevisionId();
 			$types[] = \PDO::PARAM_STR;
 			
-			unset($class->fieldNames[AuditCreateSchemaListener::REVISION_COLUMN_NAME]);
+			unset($classFields[AuditCreateSchemaListener::REVISION_COLUMN_NAME]);
 		}
 		
 		// recursively store parent also if entity is defined as not single-inherited
@@ -259,7 +260,7 @@ class EntityAuditListener implements EventSubscriber
 			$this->saveRevisionEntityData($rootClass, $entityData, $revisionType);
 		}
 
-		foreach ($class->fieldNames as $columnName => $field) {
+		foreach ($classFields as $columnName => $field) {
 
 			if ($class->inheritanceType != ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE 
 					&&	$class->isInheritedField($field)
