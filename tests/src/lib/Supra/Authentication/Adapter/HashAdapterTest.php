@@ -3,6 +3,7 @@
 namespace Supra\Tests\Authentication\Adapter;
 
 use Supra\Tests\ObjectRepository\Mockup\ObjectRepository;
+use Supra\Authentication\Adapter\HashAdapter;
 
 require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/Authentication/Adapter/HashAdapter.php';
 
