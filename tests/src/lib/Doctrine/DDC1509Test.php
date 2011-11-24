@@ -24,10 +24,9 @@ class DDC1509Test extends \PHPUnit_Framework_TestCase
 
     public function testFailingCase()
     {
-		// This is too serious to leave unnoticed
-//		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.4', 'lt')) {
-//			self::markTestSkipped("Is not working in Doctrine ORM 2.1.3");
-//		}
+		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.4', 'lt')) {
+			self::markTestSkipped("Is not working in Doctrine ORM 2.1.3");
+		}
 		
 		// Remove all data so we can count in the end
 		$this->_em->createQuery("DELETE FROM " . __NAMESPACE__ . '\DDC1509Picture')->execute();
