@@ -18,7 +18,7 @@ class IntegerType extends AbstractType
 	{
 		$tokens = null;
 		
-		if ( ! preg_match('/^((\-|\+)?)0*(\d+)$/', $value, $tokens)) {
+		if ( ! preg_match('/^(\-|\+)?0*(\d+)$/', $value, $tokens)) {
 			throw new Exception\ValidationFailure("Doesn't consist of digits");
 		}
 		
@@ -35,11 +35,11 @@ class IntegerType extends AbstractType
 			
 		} elseif ($length == $maxLength) {
 			
-			if ($absolute > $max) {
+			if (strcmp($absolute, $max) > 0) {
 				$tooBig = true;
 			}
 			
-			if ($sign == '+' && $absolute == $max) {
+			if ($sign == '+' && strcmp($absolute, $max) === 0) {
 				$tooBig = true;
 			}
 		}
