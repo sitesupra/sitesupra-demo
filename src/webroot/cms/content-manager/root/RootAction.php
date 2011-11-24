@@ -47,7 +47,7 @@ class RootAction extends PageManagerAction
 		$user = $this->getUser();
 		$response->assign('user', $user);
 		
-		$this->getResponse()->outputTemplate('webroot/cms/content-manager/root/index.html.twig');
+		$response->outputTemplate('index.html.twig');
 	}
 	
 	/**
@@ -57,7 +57,7 @@ class RootAction extends PageManagerAction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		return new Response\TwigResponse();
+		return new Response\TwigResponse(__CLASS__);
 	}
 	
 	/**

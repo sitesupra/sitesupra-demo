@@ -105,6 +105,28 @@ class HtmlProcessor implements ProcessorInterface
 
 		return $places;
 	}
+	
+	/**
+	 * Generates absolute filename
+	 * @param string $layoutSrc
+	 * @return string
+	 * @throws Exception\RuntimeException when file or security issue is raised
+	 */
+	protected function getFileName($layoutSrc)
+	{
+		$filename = $this->getLayoutDir() . \DIRECTORY_SEPARATOR . $layoutSrc;
+		if ( ! is_file($filename)) {
+			throw new Exception\LayoutNotFoundException("File '$layoutSrc' was not found");
+		}
+		if ( ! is_readable($filename)) {
+			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");
+		}
+		
+		// security stuff
+		$this->securityCheck($filename);
+		
+		return $filename;
+	}
 
 	/**
 	 * @param string $layoutSrc
@@ -113,18 +135,9 @@ class HtmlProcessor implements ProcessorInterface
 	 */
 	protected function getContent($layoutSrc)
 	{
-		$filename = $this->getLayoutDir() . \DIRECTORY_SEPARATOR . $layoutSrc;
-		if ( ! \is_file($filename)) {
-			throw new Exception\LayoutNotFoundException("File '$layoutSrc' was not found");
-		}
-		if ( ! \is_readable($filename)) {
-			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");
-		}
-		
-		// security stuff
-		$this->securityCheck($filename);
+		$filename = $this->getFileName($layoutSrc);
 
-		return \file_get_contents($filename);
+		return file_get_contents($filename);
 	}
 
 	/**

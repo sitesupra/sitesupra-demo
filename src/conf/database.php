@@ -105,7 +105,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			// Manage entity revision values
 			$eventManager->addEventSubscriber(new Listener\EntityRevisionListener());
 			// Audit entity changes in Draft schema
-			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
+//			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
 		case 'Audit':
 			$eventManager->addEventSubscriber(new NestedSetListener());

@@ -283,23 +283,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	}
 
 	/**
-	 * Generate response object
-	 * @param Request\RequestInterface $request
-	 * @return Response\ResponseInterface
-	 */
-	public function createResponse(Request\RequestInterface $request)
-	{
-		if ($request instanceof Request\HttpRequest) {
-			return new Response\TwigResponse();
-		}
-		if ($request instanceof Request\CliRequest) {
-			return new Response\CliResponse();
-		}
-
-		return new Response\EmptyResponse();
-	}
-
-	/**
 	 * Validates redirect url, if url contain collen then will return cms path
 	 * @param string $redirectTo
 	 * @return string 

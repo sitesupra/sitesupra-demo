@@ -4,7 +4,8 @@ namespace Supra\Response;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
-use Twig_Environment;
+use Supra\Template\Parser\Twig\Twig;
+use Supra\Template\Parser\Twig\Loader\FilesystemLoaderByContext;
 
 /**
  * Response based on Twig template parser
@@ -17,13 +18,12 @@ class TwigResponse extends HttpResponse
 	protected $templateVariables = array();
 	
 	/**
-	 * Root directory for templates
-	 * @var string
+	 * @var mixed
 	 */
-	protected $templatePath;
+	protected $context;
 	
 	/**
-	 * @var Twig_Environment
+	 * @var Twig
 	 */
 	protected $twigEnvironment;
 	
@@ -33,15 +33,16 @@ class TwigResponse extends HttpResponse
 	 */
 	public function __construct($context = null)
 	{
-		if ( ! is_null($context)) {
-			$this->setTemplatePathByContext($context);
-		}
+		$this->context = $context;
+		$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
 		
-		$this->twigEnvironment = ObjectRepository::getObject($this, 'Twig_Environment');
+		if ( ! $this->twigEnvironment instanceof Twig) {
+			throw new Exception\IncompatibleObject("Twig response object must have Twig template parser assigned");
+		}
 	}
 	
 	/**
-	 * @return Twig_Environment
+	 * @return Twig
 	 */
 	public function getTwigEnvironment()
 	{
@@ -54,24 +55,12 @@ class TwigResponse extends HttpResponse
 	 */
 	public function outputTemplate($templateName)
 	{
-		$oldLoader = $this->twigEnvironment->getLoader();
-		$e = null;
-		
-		$loader = new \Twig_Loader_Filesystem(SUPRA_PATH . DIRECTORY_SEPARATOR . $this->templatePath);
-		$this->twigEnvironment->setLoader($loader);
-		
-		try {
-			$template = $this->twigEnvironment->loadTemplate($templateName);
-			$content = $template->render($this->templateVariables);
+		$loader = new FilesystemLoaderByContext($this->context);
+		$content = $this->twigEnvironment->parseTemplate($templateName, 
+				$this->templateVariables,
+				$loader);
 
-			$this->output($content);
-		} catch (\Exception $e) {}
-		
-		$this->twigEnvironment->setLoader($oldLoader);
-		
-		if ( ! empty($e)) {
-			throw $e;
-		}
+		$this->output($content);
 	}
 	
 	/**
@@ -84,46 +73,4 @@ class TwigResponse extends HttpResponse
 		$this->templateVariables[$name] = $value;
 	}
 
-	/**
-	 * Set template path, will make it relative to supra path for Twig usage
-	 * @param string $templatePath
-	 * @throws Exception\RuntimeException if template path is outside the supra path
-	 */
-	public function setTemplatePath($templatePath)
-	{
-		$supraPath = realpath(SUPRA_PATH) . DIRECTORY_SEPARATOR;
-		$templatePath = realpath($templatePath);
-		
-		if (strpos($templatePath, $supraPath) !== 0) {
-			throw new Exception\RuntimeException("Template directory outside supra path is not allowed");
-		}
-		
-		$relativePath = substr($templatePath, strlen($supraPath));
-		$this->templatePath = $relativePath;
-	}
-	
-	/**
-	 * Sets base template directory by context class path
-	 * @param mixed $context
-	 * @throws Exception\InvalidArgumentException on invalid context received
-	 */
-	public function setTemplatePathByContext($context)
-	{
-		if (is_object($context)) {
-			$context = get_class($context);
-		}
-		
-		if ( ! is_string($context)) {
-			throw new Exception\InvalidArgumentException("Caller must be object or string");
-		}
-		
-		$classPath = Loader::getInstance()->findClassPath($context);
-		
-		if (empty($classPath)) {
-			throw new Exception\InvalidArgumentException("Caller class '$context' path was not found by autoloader");
-		}
-		
-		$classPath = dirname($classPath);
-		$this->setTemplatePath($classPath);
-	}
 }

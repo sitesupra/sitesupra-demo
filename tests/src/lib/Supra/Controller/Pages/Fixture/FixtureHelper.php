@@ -526,7 +526,7 @@ class FixtureHelper
 	{
 		$layout = new Entity\Layout();
 		$this->entityManager->persist($layout);
-		$layout->setFile('root.html');
+		$layout->setFile('root.html.twig');
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);

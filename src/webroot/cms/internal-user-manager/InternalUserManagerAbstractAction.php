@@ -145,14 +145,13 @@ class InternalUserManagerAbstractAction extends CmsAction
 		$mailer = ObjectRepository::getMailer($this);
 		$message = new TwigMessage();
 		
-		// FIXME: relative path
-		$message->setTemplatePath(__DIR__ . '/mail-template');
+		$message->setContext(__CLASS__);
 		
 		// FIXME: from address should not be hardcoded here etc.
 		$message->setSubject('Password recovery')
 				->setFrom('admin@supra7.vig')
 				->setTo($userMail)
-				->setBody('resetpassword.twig', $mailVars);
+				->setBody('mail-template/resetpassword.twig', $mailVars);
 		$mailer->send($message);
 	}
 	

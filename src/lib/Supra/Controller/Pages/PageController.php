@@ -133,8 +133,9 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function getLayoutProcessor()
 	{
-		$processor = new Layout\Processor\HtmlProcessor();
-		$processor->setLayoutDir(\SUPRA_PATH . 'template');
+		$processor = new Layout\Processor\TwigProcessor();
+		$processor->setLayoutDir(SUPRA_TEMPLATE_PATH);
+		
 		return $processor;
 	}
 

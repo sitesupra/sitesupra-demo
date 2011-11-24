@@ -17,6 +17,7 @@ use Supra\Event\EventManager;
 use Solarium_Client;
 use Supra\Configuration\Loader\IniConfigurationLoader;
 use Supra\Payment\Provider\PaymentProviderCollection;
+use Supra\Template\Parser\TemplateParser;
 
 /**
  * Object repository
@@ -45,6 +46,7 @@ class ObjectRepository
 	const INTERFACE_EVENT_MANAGER = 'Supra\Event\EventManager';
 	const INTERFACE_INI_CONFIGURATION = 'Supra\Configuration\Loader\IniConfigurationLoader';
 	const INTERFACE_PAYMENT_PROVIDER_COLLECTION = 'Supra\Payment\Provider\PaymentProviderCollection';
+	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
 	
 	/**
 	 * Object relation storage
@@ -867,5 +869,36 @@ class ObjectRepository
 	public static function setDefaultPaymentProviderCollection(PaymentProviderCollection $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
-	}	
+	}
+	
+	/**
+	 * Get assigned template parser.
+	 * @param mixed $caller
+	 * @return TemplateParser
+	 */
+	public static function getTemplateParser($caller)
+	{
+		$templateParser = self::getObject($caller, self::INTERFACE_TEMPLATE_PARSER);
+		
+		return $templateParser;
+	}
+
+	/**
+	 * Assign template parser to namespace.
+	 * @param mixed $caller
+	 * @param TemplateParser $object
+	 */
+	public static function setTemplateParser($caller, TemplateParser $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_TEMPLATE_PARSER);
+	}
+	
+	/**
+	 * Set default template parser.
+	 * @param TemplateParser $object
+	 */
+	public static function setDefaultTemplateParser(TemplateParser $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_TEMPLATE_PARSER);
+	}
 }
