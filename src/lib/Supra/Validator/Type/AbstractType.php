@@ -11,7 +11,7 @@ use Supra\Loader\Loader;
 abstract class AbstractType implements ValidationTypeInterface
 {
 	const BIGINT = 'bigint';
-//	const BOOLEAN = 'boolean';
+	const BOOLEAN = 'boolean';
 //	const DATETIME = 'datetime';
 //	const DATETIMETZ = 'datetimetz';
 //	const DATE = 'date';
@@ -35,7 +35,7 @@ abstract class AbstractType implements ValidationTypeInterface
 	 * @var array
 	 */
 	private static $typesMap = array(
-//		self::BOOLEAN => 'Supra\Validator\Type\BooleanType',
+		self::BOOLEAN => 'Supra\Validator\Type\BooleanType',
 		self::INTEGER => 'Supra\Validator\Type\IntegerType',
 		self::SMALLINT => 'Supra\Validator\Type\SmallIntType',
 		self::BIGINT => 'Supra\Validator\Type\BigIntType',
