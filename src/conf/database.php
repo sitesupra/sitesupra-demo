@@ -14,13 +14,15 @@ use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\Sha1HashType;
 use Supra\Database\Doctrine\Type\PathType;
-use Supra\Database\Doctrine\Type\TemplateType;
-use Supra\Database\Doctrine\Type\BlockType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
 use Supra\Controller\Pages\PageController;
 
 Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
+
+// TODO: Remove later
+Type::addType('block', 'Supra\Database\Doctrine\Type\UnknownType');
+Type::addType('template', 'Supra\Database\Doctrine\Type\UnknownType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
@@ -105,7 +107,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			// Manage entity revision values
 			$eventManager->addEventSubscriber(new Listener\EntityRevisionListener());
 			// Audit entity changes in Draft schema
-//			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
+			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
 		case 'Audit':
 			$eventManager->addEventSubscriber(new NestedSetListener());
