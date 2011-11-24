@@ -35,4 +35,12 @@ try {
 } catch (\Exception $e) {
 	$cli->renderException($e, $output);
 	\Log::error("Error while running CLI command: {$e->__toString()}");
+	
+	$statusCode = $e->getCode();
+	$statusCode = is_numeric($statusCode) && $statusCode ? $statusCode : 1;
+	if ($statusCode > 255) {
+		$statusCode = 255;
+	}
+	
+	exit($statusCode);
 }
