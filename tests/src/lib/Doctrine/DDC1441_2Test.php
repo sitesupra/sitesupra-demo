@@ -1,12 +1,12 @@
 <?php
 
-namespace Supra\Tests\Database;
+namespace Supra\Tests\Doctrine;
 
 /**
  * This test checks Doctrine problem existance that it cannot load correct metadata
  * for proxy class if it's hasn't been initialized yet
  */
-class ProxyMetadataExceptionTest extends \PHPUnit_Framework_TestCase
+class DDC1441_2Test extends \PHPUnit_Framework_TestCase
 {
 	const ENTITY_NAME = 'Supra\Console\Cron\Entity\CronJob';
 	
@@ -25,8 +25,8 @@ class ProxyMetadataExceptionTest extends \PHPUnit_Framework_TestCase
 	
 	public function testNotLoaded()
 	{
-		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.3', 'lt')) {
-			self::markTestSkipped("Is not working in Doctrine ORM 2.1.2");
+		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.5', 'lt')) {
+			self::markTestSkipped("Is not working in Doctrine ORM " . \Doctrine\ORM\Version::VERSION);
 		}
 		
 		// Unsets metadata
