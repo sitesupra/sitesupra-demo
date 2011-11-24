@@ -18,7 +18,7 @@ class Template extends Abstraction\AbstractPage
 	 * {@inheritdoc}
 	 */
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
-	
+
 	/**
 	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"}, indexBy="media")
 	 * @var Collection
@@ -40,7 +40,7 @@ class Template extends Abstraction\AbstractPage
 	 */
 	public function addTemplateLayout(TemplateLayout $templateLayout)
 	{
-		// Not true enymore
+		// Not true anymore
 //		if ($this->hasParent()) {
 //			throw new Exception\RuntimeException("Template layout can be set to root template only");
 //		}
@@ -73,7 +73,7 @@ class Template extends Abstraction\AbstractPage
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
 	}
-	
+
 	/**
 	 * Whether the layout exists
 	 * @param string $media
@@ -82,7 +82,7 @@ class Template extends Abstraction\AbstractPage
 	public function hasLayout($media = Layout::MEDIA_SCREEN)
 	{
 		$has = $this->templateLayouts->offsetExists($media);
-		
+
 		return $has;
 	}
 
@@ -94,14 +94,14 @@ class Template extends Abstraction\AbstractPage
 	public function getLayout($media = Layout::MEDIA_SCREEN)
 	{
 		$templateLayouts = $this->getTemplateLayouts();
-		
+
 		if ($templateLayouts->offsetExists($media)) {
 			$templateLayout = $templateLayouts->offsetGet($media);
 			/* @var $templateLayout TemplateLayout */
-			
+
 			return $templateLayout->getLayout();
 		}
-		
+
 		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
 	}
 
@@ -114,12 +114,12 @@ class Template extends Abstraction\AbstractPage
 		/* @var $templates Template[] */
 		$templates = $this->getAncestors(0, true);
 		$templates = array_reverse($templates);
-		
+
 		$pageSet = new PageSet($templates);
-		
+
 		return $pageSet;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @return string
@@ -128,5 +128,5 @@ class Template extends Abstraction\AbstractPage
 	{
 		return __CLASS__;
 	}
-	
+
 }

@@ -2,7 +2,7 @@
 
 namespace Supra\Payment\Action;
 
-class CustomerReturnActionAbstraction extends ActionAbstraction
+abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 {
 	
 }
