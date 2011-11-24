@@ -114,6 +114,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	}
 
 	/**
+	 * @TODO: should return result object not an array
 	 * @param Solarium_Result_Select $selectResults 
 	 */
 	public function processResults(Solarium_Result_Select $selectResults)
@@ -123,6 +124,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		$highlighting = $selectResults->getHighlighting();
 
 		foreach ($selectResults as $selectResultItem) {
+			/* @var $selectResultItem \Solarium_Document_ReadOnly */
 
 			$result = array(
 					'localeId' => $selectResultItem->localeId,

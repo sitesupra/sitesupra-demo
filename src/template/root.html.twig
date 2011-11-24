@@ -8,7 +8,7 @@
 	<meta name="Generator" content="SiteSupra" />
 	<meta http-equiv="MSSmartTagsPreventParsing" content="TRUE" />
 	<meta http-equiv="imagetoolbar" content="no" />
-	<title>SiteSupra</title>
+	<title>{% block title %}SiteSupra{% endblock %}</title>
 	<link rel="stylesheet" href="/resources/css/supra.css" type="text/css" />
 	<link rel="icon" type="image/png" href="/favicon.png" />
 </head>
@@ -22,7 +22,9 @@
 		<!--placeHolder(sidebar)-->
 	</div>
 	<div id="content" title="Main">
-		<!--placeHolder(main)-->
+		{% block content %}
+			<!--placeHolder(main)-->
+		{% endblock %}
 	</div>
 	<div id="footer" title="Footer">
 		<!--placeHolder(footer)-->

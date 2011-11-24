@@ -40,9 +40,10 @@ class Template extends Abstraction\AbstractPage
 	 */
 	public function addTemplateLayout(TemplateLayout $templateLayout)
 	{
-		if ($this->hasParent()) {
-			throw new Exception\RuntimeException("Template layout can be set to root template only");
-		}
+		// Not true enymore
+//		if ($this->hasParent()) {
+//			throw new Exception\RuntimeException("Template layout can be set to root template only");
+//		}
 		if ($this->lock('templateLayout')) {
 			if ($this->addUnique($this->templateLayouts, $templateLayout, 'media')) {
 				$templateLayout->setTemplate($this);
@@ -72,6 +73,18 @@ class Template extends Abstraction\AbstractPage
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
 	}
+	
+	/**
+	 * Whether the layout exists
+	 * @param string $media
+	 * @return boolean
+	 */
+	public function hasLayout($media = Layout::MEDIA_SCREEN)
+	{
+		$has = $this->templateLayouts->offsetExists($media);
+		
+		return $has;
+	}
 
 	/**
 	 * Get layout object by
@@ -81,12 +94,14 @@ class Template extends Abstraction\AbstractPage
 	public function getLayout($media = Layout::MEDIA_SCREEN)
 	{
 		$templateLayouts = $this->getTemplateLayouts();
-		/* @var $templateLayout TemplateLayout */
-		foreach ($templateLayouts as $key => $templateLayout) {
-			if ($templateLayout->getMedia() == $media) {
-				return $templateLayout->getLayout();
-			}
+		
+		if ($templateLayouts->offsetExists($media)) {
+			$templateLayout = $templateLayouts->offsetGet($media);
+			/* @var $templateLayout TemplateLayout */
+			
+			return $templateLayout->getLayout();
 		}
+		
 		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
 	}
 

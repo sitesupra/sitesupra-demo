@@ -286,7 +286,7 @@ abstract class PageRequest extends HttpRequest
 			return $this->layout;
 		}
 
-		$this->layout = $this->getRootTemplate()
+		$this->layout = $this->getPageSet()
 				->getLayout($this->media);
 
 		return $this->layout;

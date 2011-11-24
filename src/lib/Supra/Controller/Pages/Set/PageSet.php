@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Set;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Entity\Layout;
 
 /**
  * Set containing 
@@ -26,5 +27,26 @@ class PageSet extends AbstractSet
 	public function getFinalPage()
 	{
 		return $this->getLastElement();
+	}
+	
+	/**
+	 * Get layout for the page hierarchy (last one in the stack)
+	 * @param string $media
+	 * @return Layout
+	 */
+	public function getLayout($media)
+	{
+		$layout = null;
+		
+		foreach ($this as $abstractPage) {
+			if ($abstractPage instanceof Template) {
+				if ($abstractPage->hasLayout($media)) {
+					$layout = $abstractPage->getLayout($media);
+				}
+			}
+		}
+		
+		//TODO: what if NULL?
+		return $layout;
 	}
 }

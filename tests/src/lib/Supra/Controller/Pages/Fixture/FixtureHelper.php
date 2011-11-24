@@ -25,7 +25,11 @@ class FixtureHelper
 	private $log;
 	protected $headerTemplateBlocks = array();
 	protected $rootPage;
-	protected $template;
+	
+	protected $rootTemplate;
+	protected $childTemplate;
+	protected $childTemplateWithLayout;
+	
 	private $locales = array();
 	protected static $constants = array(
 			0 => array(
@@ -235,7 +239,8 @@ class FixtureHelper
 		$draftEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
-		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\LayoutPlaceHolder::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\Layout::CN())->execute();
 	}
 
 	/**
@@ -251,16 +256,16 @@ class FixtureHelper
 		$em->beginTransaction();
 
 		try {
-			$this->template = $this->createTemplate();
+			$this->createTemplate();
 
-			$rootPage = $this->createPage(0, null, $this->template->getParent());
+			$rootPage = $this->createPage(0, null, $this->rootTemplate);
 			$this->rootPage = $rootPage;
 
-			$page = $this->createPage(1, $rootPage, $this->template);
+			$page = $this->createPage(1, $rootPage, $this->childTemplate);
 
-			$page2 = $this->createPage(2, $page, $this->template);
+			$page2 = $this->createPage(2, $page, $this->childTemplate);
 
-			$newsApp = $this->createPage(3, $rootPage, $this->template);
+			$newsApp = $this->createPage(3, $rootPage, $this->childTemplateWithLayout);
 
 			$creationTime = new \DateTime();
 
@@ -274,14 +279,14 @@ class FixtureHelper
 				$template['creation_time'] = clone($creationTime);
 				$template['pathPart'] = sprintf($template['pathPart'], $i);
 				self::$constants[$length] = $template;
-				$publication = $this->createPage($length, $newsApp, $this->template);
+				$publication = $this->createPage($length, $newsApp, $this->childTemplate);
 			}
 
-			$newsPages = $this->createPage(4, $newsApp, $this->template);
+			$newsPages = $this->createPage(4, $newsApp, $this->childTemplate);
 
-			$subscribe = $this->createPage(5, $newsPages, $this->template);
+			$subscribe = $this->createPage(5, $newsPages, $this->childTemplate);
 
-			$search = $this->createPage(7, $rootPage, $this->template);
+			$search = $this->createPage(7, $rootPage, $this->childTemplate);
 		}
 		catch (\Exception $e) {
 			$em->rollback();
@@ -357,9 +362,10 @@ class FixtureHelper
 	protected function createTemplate()
 	{
 		$template = new Entity\Template();
+		$this->rootTemplate = $template;
 		$this->entityManager->persist($template);
 
-		$layout = $this->createLayout();
+		$layout = $this->createLayout('root.html.twig');
 		$template->addLayout('screen', $layout);
 
 		/* @var $locale \Supra\Locale\Locale */
@@ -471,6 +477,7 @@ class FixtureHelper
 		$this->entityManager->flush();
 
 		$childTemplate = new Entity\Template();
+		$this->childTemplate = $childTemplate;
 
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
@@ -518,15 +525,54 @@ class FixtureHelper
 		$this->entityManager->persist($childTemplate);
 		$childTemplate->moveAsLastChildOf($template);
 		$this->entityManager->flush();
+		
+		// With layout
+		$childTemplate = new Entity\Template();
+		$this->childTemplateWithLayout = $childTemplate;
+		$this->entityManager->persist($childTemplate);
+		
+		$layout = $this->createLayout('child.html.twig');
+		$childTemplate->addLayout('screen', $layout);
 
-		return $childTemplate;
+		/* @var $locale \Supra\Locale\Locale */
+		foreach ($this->locales as $locale) {
+			$localeId = $locale->getId();
+
+			$childTemplateLocalization = new Entity\TemplateLocalization($localeId);
+			$this->entityManager->persist($childTemplateLocalization);
+			$childTemplateLocalization->setTemplate($childTemplate);
+			$childTemplateLocalization->setTitle('Child template with funky layout');
+
+
+			$templatePlaceHolder = $childTemplateLocalization->getPlaceHolders()
+					->get('sidebar');
+
+			if (empty($templatePlaceHolder)) {
+				$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
+				$this->entityManager->persist($templatePlaceHolder);
+				$templatePlaceHolder->setMaster($childTemplateLocalization);
+			}
+
+			$templatePlaceHolder = $childTemplateLocalization->getPlaceHolders()
+					->get('main');
+
+			if (empty($templatePlaceHolder)) {
+				$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
+				$this->entityManager->persist($templatePlaceHolder);
+				$templatePlaceHolder->setMaster($childTemplateLocalization);
+			}
+
+		}
+
+		$childTemplate->moveAsLastChildOf($template);
+		$this->entityManager->flush();
 	}
 
-	protected function createLayout()
+	protected function createLayout($fileName)
 	{
 		$layout = new Entity\Layout();
 		$this->entityManager->persist($layout);
-		$layout->setFile('root.html.twig');
+		$layout->setFile($fileName);
 
 		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
 			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
