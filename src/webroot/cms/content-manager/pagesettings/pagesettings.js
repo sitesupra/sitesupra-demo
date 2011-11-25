@@ -679,7 +679,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			form.getInput('title').set('label', label_title);
 			
 			//Layout input
-			if (type != 'template' || !this.page_data.root) {
+			if (type != 'template') {
 				form.getInput('layout').hide();
 				form.getInput('layout').set('disabled', true);
 			} else {

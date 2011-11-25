@@ -7,6 +7,8 @@ use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use DateTime;
 use Supra\Cms\Exception\CmsException;
+use Supra\Validator\Type\AbstractType;
+use Supra\Controller\Pages\Task\LayoutProcessorTask;
 
 /**
  * Page settings actions
@@ -20,61 +22,106 @@ class PagesettingsAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		$this->checkLock();
 		$page = $this->getPage();
 		$localeId = $this->getLocale()->getId();
 		$pageData = $page->getLocalization($localeId);
 
 		if (empty($pageData)) {
-			$pageData = new Entity\PageLocalization($localeId);
-			$pageData->setMaster($page);
+			$pageData = Entity\Abstraction\Localization::factory($localeId, $page);
 		}
 
-		if ($this->hasRequestParameter('global')) {
-			$global = $this->getRequestParameter('global');
+		if ($input->has('global')) {
+			$global = $input->getValid('global', AbstractType::BOOLEAN);
 			$page->setGlobal($global);
 		}
 
 		//TODO: create some simple objects for save post data with future validation implementation?
-		if ($this->hasRequestParameter('title')) {
-			$title = $this->getRequestParameter('title');
+		if ($input->has('title')) {
+			$title = $input->get('title');
 			$pageData->setTitle($title);
+		}
+		
+		if ($pageData instanceof Entity\TemplateLocalization) {
+			if ($input->has('layout')) {
+				
+				$media = $this->getMedia();
+				$template = $pageData->getMaster();
+				
+				// Remove current layout if any
+				$templateLayout = $template->getTemplateLayouts()
+						->get($media);
+				
+				if ( ! empty($templateLayout)) {
+					$this->entityManager->remove($templateLayout);
+				}
+				
+				// Add new layout
+				if ( ! $input->isEmpty('layout')) {
+					//TODO: validate
+					$layoutId = $input->get('layout');
+					
+					$layoutProcessor = $this->getPageController()
+							->getLayoutProcessor();
+
+					// Create or update layout
+					$layoutTask = new LayoutProcessorTask();
+					$layoutTask->setLayoutId($layoutId);
+					$layoutTask->setEntityManager($this->entityManager);
+					$layoutTask->setLayoutProcessor($layoutProcessor);
+					$layoutTask->perform();
+					$layout = $layoutTask->getLayout();
+
+					$templateLayout = $template->addLayout($media, $layout);
+					
+					// Persist the new template layout object (cascade)
+					$this->entityManager->persist($templateLayout);
+				} else {
+					if ($template->isRoot()) {
+						throw new CmsException(null, "Cannot remove layout for root template");
+					}
+				}
+			}
 		}
 
 		if ($pageData instanceof Entity\PageLocalization) {
 
-			if ($this->hasRequestParameter('path')) {
-				$pathPart = $this->getRequestParameter('path');
+			if ($input->has('path')) {
+				//TODO: validation 
+				$pathPart = $input->get('path');
 				$pageData->setPathPart($pathPart);
 			}
 
-			if ($this->hasRequestParameter('template')) {
-				$templateId = $this->getRequestParameter('template');
+			if ($input->has('template')) {
+				//TODO: validation
+				$templateId = $input->get('template');
 
 				/* @var $template Entity\Template */
 				$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
 				$pageData->setTemplate($template);
 			}
 
-			if ($this->hasRequestParameter('active')) {
-				$active = $this->getRequestParameter('active');
+			if ($input->has('active')) {
+				$active = $input->getValid('active', AbstractType::BOOLEAN);
 				$pageData->setActive($active);
 			}
 
-			if ($this->hasRequestParameter('description')) {
-				$metaDescription = $this->getRequestParameter('description');
+			if ($input->has('description')) {
+				$metaDescription = $input->get('description');
 				$pageData->setMetaDescription($metaDescription);
 			}
 
-			if ($this->hasRequestParameter('keywords')) {
-				$metaKeywords = $this->getRequestParameter('keywords');
+			if ($input->has('keywords')) {
+				$metaKeywords = $input->get('keywords');
 				$pageData->setMetaKeywords($metaKeywords);
 			}
 
-			if ($this->hasRequestParameter('scheduled_date')) {
+			if ($input->has('scheduled_date')) {
 
-				$date = $this->getRequestParameter('scheduled_date');
-				$time = $this->getRequestParameter('scheduled_time');
+				//TODO: validation
+				$date = $input->get('scheduled_date');
+				$time = $input->get('scheduled_time', '00:00');
 
 				if (empty($date)) {
 					$pageData->unsetScheduleTime();
@@ -95,10 +142,10 @@ class PagesettingsAction extends PageManagerAction
 				}
 			}
 			
-			if ($this->hasRequestParameter('created_date')) {
+			if ($input->has('created_date')) {
 
-				$date = $this->getRequestParameter('created_date');
-				$time = $this->getRequestParameter('created_time');
+				$date = $input->get('created_date');
+				$time = $input->get('created_time', '00:00');
 
 				// Set manually only if both elements are received
 				if ( ! empty($date) && ! empty($time)) {
@@ -115,7 +162,8 @@ class PagesettingsAction extends PageManagerAction
 
 			}
 			
-			$redirect = $this->getRequestParameter('redirect');
+			//TODO: validation
+			$redirect = $input->get('redirect');
 		
 			if ( ! is_null($redirect)) {
 

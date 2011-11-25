@@ -44,11 +44,14 @@ class Template extends Abstraction\AbstractPage
 //		if ($this->hasParent()) {
 //			throw new Exception\RuntimeException("Template layout can be set to root template only");
 //		}
-		if ($this->lock('templateLayout')) {
-			if ($this->addUnique($this->templateLayouts, $templateLayout, 'media')) {
-				$templateLayout->setTemplate($this);
-			}
-			$this->unlock('templateLayout');
+		if ($this->lock('templateLayouts')) {
+			
+			$media = $templateLayout->getMedia();
+			
+			$this->templateLayouts->set($media, $templateLayout);
+			$templateLayout->setTemplate($this);
+			
+			$this->unlock('templateLayouts');
 		}
 	}
 
@@ -65,13 +68,15 @@ class Template extends Abstraction\AbstractPage
 	 * Add layout for specific media
 	 * @param string $media
 	 * @param Layout $layout
-	 * @throws Exception\RuntimeException if layout for this media already exists
+	 * @return TemplateLayout
 	 */
 	public function addLayout($media, Layout $layout)
 	{
 		$templateLayout = new TemplateLayout($media);
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
+		
+		return $templateLayout;
 	}
 
 	/**

@@ -7,6 +7,10 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\PermissionType;
 use Supra\Controller\Pages\Entity\LockData;
+use Supra\Controller\Pages\Entity\ApplicationLocalization;
+use Supra\Controller\Pages\Entity\TemplateLocalization;
+use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\GroupLocalization;
 
 /**
  * @Entity
@@ -262,5 +266,45 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * @param Entity $baseEntity
+	 * @param string $locale
+	 * @param AbstractPage $page
+	 * @return Localization
+	 */
+	public static function factory(AbstractPage $page, $locale)
+	{
+		$localization = null;
+		$discriminator = $page->getDiscriminator();
+		
+		switch ($discriminator) {
+			case Entity::APPLICATION_DISCR:
+				$localization = new ApplicationLocalization($locale);
+				break;
+			
+			
+			case Entity::GROUP_DISCR:
+				$localization = new GroupLocalization($locale, $page);
+				break;
+			
+			
+			case Entity::TEMPLATE_DISCR:
+				$localization = new TemplateLocalization($locale);
+				break;
+			
+			
+			case Entity::PAGE_DISCR:
+				$localization = new PageLocalization($locale);
+				break;
+			
+			default:
+				throw new \InvalidArgumentException("Discriminator $discriminator not recognized");
+		}
+		
+		$localization->setMaster($page);
+		
+		return $localization;
 	}
 }

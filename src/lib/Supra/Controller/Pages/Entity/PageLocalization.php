@@ -14,6 +14,7 @@ use Supra\ObjectRepository\ObjectRepository;
  * PageLocalization class
  * @Entity
  * @method PageLocalization getParent()
+ * @method Page getMaster()
  */
 class PageLocalization extends Abstraction\Localization
 {

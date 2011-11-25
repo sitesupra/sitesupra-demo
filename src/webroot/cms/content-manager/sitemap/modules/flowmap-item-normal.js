@@ -13,7 +13,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 	
 	FlowMapItemNormal.ATTRS = {
 		'defaultChildType': {
-			value: FlowMapItemNormal,
+			value: FlowMapItemNormal
 		}
 	};
 	

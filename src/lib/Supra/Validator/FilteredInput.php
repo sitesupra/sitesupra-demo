@@ -169,15 +169,23 @@ class FilteredInput extends \ArrayIterator
 	}
 	
 	/**
-	 * Whether the value in the index is empty
-	 * NB! "0" and empty array are not treated as empty as for empty() PHP function
+	 * Whether the value in the index is empty.
+	 * "0" is treated empty only if $strict is off.
+	 * NB! empty array is not treated as empty, exception will be raised.
 	 * @param string $index
+	 * @param boolean $strict
 	 * @return boolean
 	 */
-	public function isEmpty($index)
+	public function isEmpty($index, $strict = true)
 	{
 		$value = $this->get($index, null);
-		$empty = ($value == '');
+		$empty = null;
+		
+		if ($strict) {
+			$empty = ($value == '');
+		} else {
+			$empty = empty($value);
+		}
 		
 		return $empty;
 	}

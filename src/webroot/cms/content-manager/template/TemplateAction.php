@@ -9,21 +9,48 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Layout\Exception as LayoutException;
+use Supra\Controller\Layout\Processor\ProcessorInterface;
+use Supra\Controller\Pages\Task\LayoutProcessorTask;
 
 /**
  * Sitemap
  */
 class TemplateAction extends PageManagerAction
 {
-
 	/**
-	 * 
+	 * Template creation
 	 */
 	public function createAction()
 	{
-		$this->isPostRequest();
+		$this->entityManager->beginTransaction();
+		$templateData = null;
+		
+		try {
+			$templateData = $this->createActionTransactional();
+		} catch (\Exception $e) {
+			$this->entityManager->rollback();
+			
+			throw $e;
+		}
+		
+		$this->entityManager->commit();
+		
+		// Decision in #2695 to publish the template right after creating it
+		$this->pageData = $templateData;
+		$this->publish();
 
-		$parentId = $this->getRequestParameter('parent');
+		$this->outputPage($templateData);
+	}
+	
+	/**
+	 * Method called in transaction
+	 * @return Entity\TemplateLocalization
+	 */
+	protected function createActionTransactional()
+	{
+		$this->isPostRequest();
+		$input = $this->getRequestInput();
+
 		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
@@ -34,67 +61,50 @@ class TemplateAction extends PageManagerAction
 
 		$templateData->setMaster($template);
 
-		if ($this->hasRequestParameter('title')) {
-			$title = $this->getRequestParameter('title');
+		if ($input->has('title')) {
+			$title = $input->get('title');
 			$templateData->setTitle($title);
 		}
 
-		// Find parent page
-		$parent = null;
+		if ( ! $input->isEmpty('layout')) {
+			//TODO: validate
+			$layoutId = $input->get('layout');
+			$layoutProcessor = $this->getPageController()
+					->getLayoutProcessor();
+
+			$layoutTask = new LayoutProcessorTask();
+			$layoutTask->setLayoutId($layoutId);
+			$layoutTask->setEntityManager($this->entityManager);
+			$layoutTask->setLayoutProcessor($layoutProcessor);
+
+			$layoutTask->perform();
+
+			$layout = $layoutTask->getLayout();
+
+			$templateLayout = $template->addLayout($this->getMedia(), $layout);
+			$this->entityManager->persist($templateLayout);
+		}
 		
-		if ( ! empty($parentId)) {
-			$parentLocalization = $this->entityManager->find(Entity\TemplateLocalization::CN(), $parentId);
-			/* @var $parentLocalization Entity\TemplateLocalization */
+		$this->entityManager->flush();
+		
+		// Find parent page
+		if ( ! $input->isEmpty('parent', false)) {
 			
-			if (is_null($parentLocalization)) {
+			$parentLocalization = $this->getPageLocalizationByRequestKey('parent');
+			
+			if ( ! $parentLocalization instanceof Entity\TemplateLocalization) {
+				$parentId = $input->get('parent', null);
 				throw new CmsException(null, "Could not found template parent by ID $parentId");
 			}
 			
 			$parent = $parentLocalization->getMaster();
-		} else {
-			//TODO: receive from ui
-			$file = 'root.html';
 			
-			// Search for this layout
-			$layoutRepo = $this->entityManager->getRepository('Supra\Controller\Pages\Entity\Layout');
-			$layout = $layoutRepo->findOneByFile($file);
-			
-			if (is_null($layout)) {
-				$layout = new \Supra\Controller\Pages\Entity\Layout();
-				$this->entityManager->persist($layout);
-				$layout->setFile($file);
-				$processor = $this->getLayoutProcessor();
-				try {
-					$places = $processor->getPlaces($file);
-					foreach ($places as $name) {
-						$placeHolder = new \Supra\Controller\Pages\Entity\LayoutPlaceHolder($name);
-						$placeHolder->setLayout($layout);
-					}
-				} catch (LayoutException\LayoutNotFoundException $e) {
-					throw new CmsException('template.error.layout_not_found');
-				} catch (LayoutException\RuntimeException $e) {
-					throw new CmsException('template.error.layout_error');
-				} catch (\Exception $e) {
-					throw new CmsException('template.error.create_internal_error');
-				}
-			}
-			
-			$template->addLayout(Entity\Layout::MEDIA_SCREEN, $layout);
-		}
-		
-		$this->entityManager->flush();
-
-		// Set parent
-		if ( ! empty($parent)) {
+			// Set parent
 			$template->moveAsLastChildOf($parent);
 			$this->entityManager->flush();
 		}
 		
-		// Decision in #2695 to publish the template right after creating it
-		$this->pageData = $templateData;
-		$this->publish();
-
-		$this->outputPage($templateData);
+		return $templateData;
 	}
 
 	/**
@@ -103,13 +113,14 @@ class TemplateAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		$this->checkLock();
 		$pageData = $this->getPageLocalization();
 		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
-		if ($this->hasRequestParameter('title')) {
-			$title = $this->getRequestParameter('title');
+		if ($input->has('title')) {
+			$title = $input->get('title');
 			$pageData->setTitle($title);
 		}
 
@@ -163,17 +174,6 @@ class TemplateAction extends PageManagerAction
 			return;
 		}
 		$this->unlockPage();
-	}
-
-	/**
-	 * @return Supra\Controller\Layout\Processor\ProcessorInterface
-	 */
-	protected function getLayoutProcessor()
-	{
-		$processor = new \Supra\Controller\Layout\Processor\HtmlProcessor();
-		// FIXME: hardcode
-		$processor->setLayoutDir(\SUPRA_PATH . 'template');
-		return $processor;
 	}
 
 }

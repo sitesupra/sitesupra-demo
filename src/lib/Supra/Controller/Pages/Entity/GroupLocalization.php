@@ -7,6 +7,7 @@ use Supra\Controller\Pages\Exception;
 
 /**
  * @Entity
+ * @method GroupPage getMaster()
  */
 class GroupLocalization extends Abstraction\Localization
 {

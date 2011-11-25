@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Exception;
  * TemplateLocalization class
  * @Entity
  * @method TemplateLocalization getParent()
+ * @method Template getMaster()
  */
 class TemplateLocalization extends Abstraction\Localization
 {

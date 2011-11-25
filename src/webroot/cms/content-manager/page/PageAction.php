@@ -157,15 +157,16 @@ class PageAction extends PageManagerAction
 
 		if ($page instanceof Entity\Template) {
 			$layout = null;
-			$root = false;
-			if ($page->isRoot()) {
-				$layout = $page->getLayout(Entity\Layout::MEDIA_SCREEN)
+			
+			if ($page->hasLayout($this->getMedia())) {
+				$layout = $page->getLayout($this->getMedia())
 						->getFile();
-				$root = true;
 			}
+			
 			$array['layout'] = $layout;
-			$array['root'] = $root;
 		}
+		
+		$array['root'] = $page->isRoot();
 
 		$contents = array();
 		$page = $request->getPage();
@@ -256,27 +257,29 @@ class PageAction extends PageManagerAction
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 
 		$page = null;
-		$pageData = null;
+//		$pageData = null;
 		$pathPart = null;
 
 		// Page types
 		if ($type == Entity\Abstraction\Entity::GROUP_DISCR) {
 			$page = new Entity\GroupPage();
-			$pageData = $page->getLocalization($localeId);
+//			$pageData = $page->getLocalization($localeId);
 		}
 		elseif ($type == Entity\Abstraction\Entity::APPLICATION_DISCR) {
 			$page = new Entity\ApplicationPage();
-			$pageData = new Entity\ApplicationLocalization($localeId);
-			$pageData->setMaster($page);
+//			$pageData = new Entity\ApplicationLocalization($localeId);
+//			$pageData->setMaster($page);
 
 			$applicationId = $this->getRequestParameter('application_id');
 			$page->setApplicationId($applicationId);
 		}
 		else {
 			$page = new Entity\Page();
-			$pageData = new Entity\PageLocalization($localeId);
-			$pageData->setMaster($page);
+//			$pageData = new Entity\PageLocalization($localeId);
+//			$pageData->setMaster($page);
 		}
+		
+		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 
 		$this->entityManager->persist($page);
 

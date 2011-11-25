@@ -87,22 +87,22 @@ class PageRequestEdit extends PageRequest
 		 */
 		/* @var $publicPage Entity\Abstraction\AbstractPage */
 		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		$oldRedirect = $newRedirect = null;
 				
-		// Something went very wrong
+		// AbstractPage is not inside the public scheme yet
 		if (empty($publicPage)) {
-			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
+//			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
+		} else {
+			// Remove the old redirect link referenced element
+			$publicData = $publicPage->getLocalization($localeId);
+
+			if ($publicData instanceof Entity\PageLocalization) {
+				$oldRedirect = $publicData->getRedirect();
+			}
 		}
 		
 		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 
-		// Remove the old redirect link referenced element
-		$publicData = $publicPage->getLocalization($localeId);
-		$oldRedirect = $newRedirect = null;
-
-		if ($publicData instanceof Entity\PageLocalization) {
-			$oldRedirect = $publicData->getRedirect();
-		}
-		
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
