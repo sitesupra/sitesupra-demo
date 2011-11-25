@@ -44,6 +44,12 @@ class BooleanTypeTest extends \PHPUnit_Framework_TestCase
 		$a = null;
 		$this->object->validate($a);
 		self::assertSame(false, $a);
+		$a = '';
+		$this->object->validate($a);
+		self::assertSame(false, $a);
+		$a = '0';
+		$this->object->validate($a);
+		self::assertSame(false, $a);
 		$a = 'off';
 		$this->object->validate($a);
 		self::assertSame(false, $a);
