@@ -6,8 +6,10 @@ use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 
-// This loads test connection as well
 //require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
+
+// This loads test connection as well.
+// We need test connection because of fixtures now.
 require_once __DIR__ . '/../tests/bootstrap.php';
 
 $namespace = '';
