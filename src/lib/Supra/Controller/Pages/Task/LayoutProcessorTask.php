@@ -92,12 +92,14 @@ class LayoutProcessorTask
 					$placeHolder->setLayout($layout);
 				}
 			} catch (LayoutException\LayoutNotFoundException $e) {
-				throw new CmsException('template.error.layout_not_found');
+				throw new CmsException('template.error.layout_not_found', null, $e);
 			} catch (LayoutException\RuntimeException $e) {
-				throw new CmsException('template.error.layout_error');
-			} catch (\Exception $e) {
-				throw new CmsException('template.error.create_internal_error');
+				throw new CmsException('template.error.layout_error', null, $e);
 			}
+			// Let it go..
+//			catch (\Exception $e) {
+//				throw new CmsException('template.error.create_internal_error', null, $e);
+//			}
 		}
 
 		// Keep created layout
