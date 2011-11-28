@@ -8,8 +8,8 @@ $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerCo
 $sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
 $sessionManagerConfiguration->isDefault = false;
 $sessionManagerConfiguration->namespaces = array(
+	'Supra\Cms\AuthenticationPreFilterController',
 	'Supra\Cms\CmsController',
-	'Project\Authentication\AuthenticationPreFilterController',
 	'Project\SampleAuthentication\AuthenticateController',
 	'Project\SampleAuthentication\AuthenticatePreFilterController',
 );

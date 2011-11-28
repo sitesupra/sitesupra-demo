@@ -17,8 +17,8 @@ $userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
 ObjectRepository::setUserProvider('#cms', $userProvider);
 
 // Experimental: added extra rules for controllers
+ObjectRepository::setUserProvider('Supra\Cms\AuthenticationPreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\CmsController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\InternalUserManager\Restore\RestoreController', $userProvider);
-ObjectRepository::setUserProvider('Project\Authentication\AuthenticationPreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);

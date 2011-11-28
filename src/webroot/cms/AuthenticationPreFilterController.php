@@ -1,14 +1,15 @@
 <?php
 
-namespace Project\Authentication;
+namespace Supra\Cms;
 
-use Supra\Authentication;
+use Supra\Authentication\AuthenticationController;
+
 /**
  * Authentication PreFilter
  *
  * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
-class AuthenticationPreFilterController extends Authentication\AuthenticationController
+class AuthenticationPreFilterController extends AuthenticationController
 {
 	public function __construct()
 	{
