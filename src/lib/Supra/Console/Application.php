@@ -57,4 +57,23 @@ class Application extends SymfonyConsoleApplication
 		$repo->addJob($input, $period);
 	}
 	
+	/**
+	 * Command line application commands can be passed as classnames.
+	 * This allows skipping non-existent classes.
+	 * @param array|string $classes
+	 */
+	public function addCommandClasses($classes)
+	{
+		$classes = (array) $classes;
+		$commands = array();
+		
+		foreach ($classes as $class) {
+			if (class_exists($class)) {
+				$commands[] = new $class();
+			}
+		}
+		
+		$this->addCommands($commands);
+	}
+	
 }
