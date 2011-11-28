@@ -36,6 +36,7 @@ YUI().add("supra.io", function (Y) {
 			'data': null,
 			'sync': false,
 			'context': null,
+			'suppress_errors': false,
 			'on': {
 				'success': fn_success,
 				'failure': null,
@@ -159,6 +160,13 @@ YUI().add("supra.io", function (Y) {
 					response = {'status': true, 'data': responseText};
 					break;
 			}
+			
+			if (!response.status && !response.error_message) {
+				//Request didn't completed successfully and there is no message,
+				//show default error message
+				response.error_message = ERROR_INVALID_RESPONSE;
+			}
+			
 		} catch (e) {
 			Y.log('Unable to parse "' + url + '" request response: invalid JSON', 'error');
 			response.error_message = ERROR_INVALID_RESPONSE;
@@ -187,7 +195,7 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		//Show error message
-		if (response.error_message) {
+		if (response.error_message && !cfg.suppress_errors) {
 			SU.Manager.executeAction('Confirmation', {
 			    'message': response.error_message,
 			    'useMask': true,
@@ -197,7 +205,7 @@ YUI().add("supra.io", function (Y) {
 			});
 		}
 		
-		//Show error message
+		//Show confirmation message
 		if (response.confirmation_message) {
 			SU.Manager.executeAction('Confirmation', {
 			    'message': response.confirmation_message,
