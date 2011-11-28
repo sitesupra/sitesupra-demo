@@ -2,8 +2,6 @@
 
 use Supra\ObjectRepository\ObjectRepository;
 
-require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
-
 $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerConfiguration();
 $sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
 $sessionManagerConfiguration->isDefault = false;

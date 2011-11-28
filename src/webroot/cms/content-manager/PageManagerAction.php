@@ -73,7 +73,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	private function getPageControllerClass()
 	{
-		return 'Project\Pages\PageController';
+		return 'Supra\Controller\Pages\PageController';
 	}
 	
 	/**

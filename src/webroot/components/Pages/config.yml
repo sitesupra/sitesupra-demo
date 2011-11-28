@@ -2,4 +2,4 @@
     router: 
       Supra\Router\Configuration\RouterConfiguration:
         url: /
-        controller: Project\Pages\PageController
+        controller: Supra\Controller\Pages\PageController
