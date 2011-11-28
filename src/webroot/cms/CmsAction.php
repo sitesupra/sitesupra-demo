@@ -66,6 +66,8 @@ abstract class CmsAction extends SimpleController
 
 			$response->setErrorMessage($message);
 			
+			$this->log->warn($exception);
+			
 		/*
 		 * Resource not found exceptions should be thrown to CmsController 
 		 * for static json file execution, for DEVELOPEMENT only!

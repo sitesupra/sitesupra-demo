@@ -29,7 +29,7 @@ class PagesettingsAction extends PageManagerAction
 		$pageData = $page->getLocalization($localeId);
 
 		if (empty($pageData)) {
-			$pageData = Entity\Abstraction\Localization::factory($localeId, $page);
+			$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 		}
 
 		if ($input->has('global')) {

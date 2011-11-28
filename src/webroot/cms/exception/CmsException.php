@@ -13,14 +13,16 @@ class CmsException extends \RuntimeException implements LocalizedException
 	
 	/**
 	 * @param string $messageKey
+	 * @param string $message
+	 * @param \Exception $parentException
 	 */
-	public function __construct($messageKey, $message = null)
+	public function __construct($messageKey, $message = null, \Exception $parentException = null)
 	{
 		// Send message or messageKey as the exception message
 		if (is_null($message)) {
 			$message = $messageKey;
 		}
-		parent::__construct($message);
+		parent::__construct($message, null, $parentException);
 		
 		$this->setMessageKey($messageKey);
 	}
