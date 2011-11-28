@@ -265,15 +265,20 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (id in this.children) {
 				//Send request
 				this.get('super').sendBlockDelete(child, function (data, status) {
+					var node = this.getNode();
+					
+					this.destroy();
+					if (node) node.remove();
+					
 					delete(this.children[id]);
-					child.destroy();
+					
+					//Remove from order list
+					var index = Y.Array.indexOf(this.children_order, String(id));
+					if (index != -1) {
+						this.children_order.splice(index, 1);
+					}
+					
 				}, this);
-				
-				//Remove from order list
-				var index = Y.Array.indexOf(this.children_order, String(id));
-				if (index != -1) {
-					this.children_order.splice(index, 1);
-				}
 			}
 		},
 		

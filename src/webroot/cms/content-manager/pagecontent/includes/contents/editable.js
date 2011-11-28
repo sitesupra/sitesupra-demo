@@ -332,13 +332,18 @@ YUI.add('supra.page-content-editable', function (Y) {
 			var editing_disabled = this.get('super').get('disabled');
 			
 			if (!editing_disabled && property_id != old_property_id) {
-				if (old_property_id && old_property_id in this.html_inputs) {
-					this.html_inputs[old_property_id].set('disabled', true);
+				if (this.html_inputs) {
+					if (old_property_id && old_property_id in this.html_inputs) {
+						this.html_inputs[old_property_id].set('disabled', true);
+					}
+					if (property_id && property_id in this.html_inputs) {
+						this.html_inputs[property_id].set('disabled', false);
+					}
+					
+					return property_id;
+				} else {
+					return null;
 				}
-				if (property_id && property_id in this.html_inputs) {
-					this.html_inputs[property_id].set('disabled', false);
-				}
-				return property_id;
 			}
 			
 			return old_property_id;

@@ -423,6 +423,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 						//Discard all changes
 						host.unresolved_changes = false;
 						
+						//Close form
+						this.hidePropertiesForm();
+						
 						//Trigger event; plugins or other contents may use this
 						this.fire('delete');
 						

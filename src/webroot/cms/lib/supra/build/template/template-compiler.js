@@ -662,7 +662,7 @@ YUI.add('supra.template-compiler', function (Y) {
 		REG_VAR_STRING		= /("[^"]*"|'[^']*')/g,
 		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&)([a-z])/gi,
 		REG_VAR_FN			= /(^|\s|\[|\(|\!|\&)([a-z0-9_]+\()/gi,
-		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]\(\)]+)\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
+		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]\(\)]+)\s?\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
 		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
 		
 		REG_AND				= /\s+and\s+/g,
