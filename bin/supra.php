@@ -11,16 +11,16 @@ $cli = \Supra\Console\Application::getInstance();
 $cli->setCatchExceptions(true);
 //$cli->setHelperSet($helperSet);
 
-$cli->addCommands(array(
-	new \Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand(),
-	new \Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand(),
-	new \Supra\Database\Console\SchemaUpdateCommand(),
-	new \Supra\Database\Console\SchemaDropCommand(),
-	new \Supra\Console\Cron\Command(),
-	new \Supra\Search\Command\RunIndexerCommand(),
-	new \Supra\Search\Command\WipeCommand(),
-	new \Supra\Search\Command\WipeQueuesCommand(),
-	new \Supra\Search\Command\QueueAllPageLocalizationsCommand()
+$cli->addCommandClasses(array(
+	'\Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand',
+	'\Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand',
+	'\Supra\Database\Console\SchemaUpdateCommand',
+	'\Supra\Database\Console\SchemaDropCommand',
+	'\Supra\Console\Cron\Command',
+	'\Supra\Search\Command\RunIndexerCommand',
+	'\Supra\Search\Command\WipeCommand',
+	'\Supra\Search\Command\WipeQueuesCommand',
+	'\Supra\Search\Command\QueueAllPageLocalizationsCommand'
 ));
 
 //$cli->addCronJob('su:schema:update', 
