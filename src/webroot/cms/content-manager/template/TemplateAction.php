@@ -77,7 +77,13 @@ class TemplateAction extends PageManagerAction
 			$layoutTask->setEntityManager($this->entityManager);
 			$layoutTask->setLayoutProcessor($layoutProcessor);
 
-			$layoutTask->perform();
+			try {
+				$layoutTask->perform();
+			} catch (LayoutException\LayoutNotFoundException $e) {
+				throw new CmsException('template.error.layout_not_found', null, $e);
+			} catch (LayoutException\RuntimeException $e) {
+				throw new CmsException('template.error.layout_error', null, $e);
+			}
 
 			$layout = $layoutTask->getLayout();
 

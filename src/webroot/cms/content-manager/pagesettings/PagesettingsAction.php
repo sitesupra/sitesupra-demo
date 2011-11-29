@@ -9,6 +9,7 @@ use DateTime;
 use Supra\Cms\Exception\CmsException;
 use Supra\Validator\Type\AbstractType;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
+use Supra\Controller\Layout\Exception as LayoutException;
 
 /**
  * Page settings actions
@@ -70,7 +71,15 @@ class PagesettingsAction extends PageManagerAction
 					$layoutTask->setLayoutId($layoutId);
 					$layoutTask->setEntityManager($this->entityManager);
 					$layoutTask->setLayoutProcessor($layoutProcessor);
-					$layoutTask->perform();
+					
+					try {
+						$layoutTask->perform();
+					} catch (LayoutException\LayoutNotFoundException $e) {
+						throw new CmsException('template.error.layout_not_found', null, $e);
+					} catch (LayoutException\RuntimeException $e) {
+						throw new CmsException('template.error.layout_error', null, $e);
+					}
+					
 					$layout = $layoutTask->getLayout();
 
 					$templateLayout = $template->addLayout($media, $layout);
