@@ -173,11 +173,78 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			//Remove style attribute
 			html = html.replace(/\s+style="[^"]*"/gi, '');
 			
+			//Remove empty class attributes
+			html = html.replace(/class="\s*"/g, '');
+			
+			//Remove YUI classnames
+			html = html.replace(/(yui3\-table\-selected|yui3\-cell\-selected)/g, '');
+			
 			//Fire event to allow plugins to clean up after themselves
 			var event = {'html': html};
 			this.fire('cleanHTML', {}, event);
 			
 			return event.html || '';
+		},
+		
+		/**
+		 * Beutify HTML
+		 * 
+		 * @param {String} html HTML
+		 * @return Beutified HTML code
+		 * @type {String}
+		 */
+		beutifyHTML: function (html) {
+			var i = 0,
+				len = html.length,
+				chr = '',
+				indent = 0,
+				out = '',
+				tags = [],
+				tag_name = '',
+				tag_inline = false,
+				inline = Supra.HTMLEditor.ELEMENTS_INLINE,
+				not_closed = Supra.HTMLEditor.NOT_CLOSED_TAGS;
+			
+			function insertNewLine () {
+				var str = '';
+				for(var i=0; i<indent; i++) str += '    ';
+				out += '\n' + str;
+			}
+			
+			for(; i<len; i++) {
+				chr = html.charAt(i);
+				if (chr == '<') {
+					tag_name = html.substr(i+1).match(/\/?([a-z]+)/i);
+					tag_name = tag_name ? tag_name[1] : '';
+					tag_inline = !!inline[tag_name] || !!not_closed[tag_name];
+					tags.push(tag_inline);
+					
+					if (!tag_inline) {
+						if (html.charAt(i+1) == '/') {
+							indent--;	//Closing tag </a>
+							insertNewLine();
+						} else {
+							insertNewLine();
+							indent++;	//Opening tag <a>
+						}
+					}
+					
+					out+= chr;
+				} else if (chr == '>') {
+					out+= chr;
+					tag_inline = tags.pop();
+					if (!tag_inline) {
+						insertNewLine();
+					}
+				} else {
+					out+= chr;
+				}
+			}
+			
+			out = out.replace(/\r/g, '');
+			out = out.replace(/[ \n\t]*(\n[ \t]*)/g, '$1');
+			
+			return out;
 		},
 		
 		/**
