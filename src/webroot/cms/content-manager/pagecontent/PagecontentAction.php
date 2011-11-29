@@ -105,7 +105,7 @@ class PagecontentAction extends PageManagerAction
 		$propertyDefinitionList = $blockController->getPropertyDefinition();
 		
 		// Load received property values and data from the POST
-		$properties = $this->getRequestParameter('properties');
+		$properties = (array) $this->getRequestParameter('properties');
 		
 		foreach ($properties as $propertyName => $propertyPost) {
 			
