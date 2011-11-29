@@ -69,7 +69,7 @@ SU('anim', 'transition', function (Y) {
 			
 			//On locale change reload data
 			Manager.SiteMap.languagebar.on('localeChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
+				if (this.get('visible') && evt.newVal != evt.prevVal) {
 					this.load(null, evt.newVal);
 				}
 			}, this);
