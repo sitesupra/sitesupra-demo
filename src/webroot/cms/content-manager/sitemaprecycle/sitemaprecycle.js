@@ -66,6 +66,13 @@ SU('anim', 'transition', function (Y) {
 		render: function () {
 			//Close button
 			this.renderHeader();
+			
+			//On locale change reload data
+			Manager.SiteMap.languagebar.on('localeChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					this.load(null, evt.newVal);
+				}
+			}, this);
 		},
 		
 		/**
@@ -247,12 +254,20 @@ SU('anim', 'transition', function (Y) {
 		/**
 		 * Load recycle bin data
 		 */
-		load: function (type) {
+		load: function (type, locale) {
 			var sitemap = Manager.getAction('SiteMap'),
-				type = type || sitemap.input_type.getValue();
+				type = type || sitemap.input_type.getValue(),
+				locale = locale || Supra.data.get('locale');
 			
 			this.one('.recycle-list').addClass('loading');
-			Supra.io(this.getDataPath(type), this.renderItems, this);
+			
+			Supra.io(this.getDataPath(type), {
+				'data': {
+					'locale': locale
+				},
+				'context': this,
+				'on': {'complete': this.renderItems}
+			});
 		},
 		
 		/**
