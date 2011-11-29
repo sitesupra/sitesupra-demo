@@ -148,9 +148,11 @@ YUI.add("website.input-template", function (Y) {
 			this.panel.get('boundingBox').one('ul').on('click', this.onTemplateClick, this);
 			
 			//On change update template title and src
-			this.after('valueChange', function () {
-				this.syncUI();
-				this.fire('change');
+			this.after('valueChange', function (event) {
+				if (event.newVal) {
+					this.syncUI();
+					this.fire('change');
+				}
 			});
 			
 			//On document click hide panel
@@ -168,7 +170,16 @@ YUI.add("website.input-template", function (Y) {
 				} else if (evt) {
 					evt.detach();
 				}
-			});
+			}, this);
+			
+			//On SiteMap hide remove cached data
+			var SiteMap = Supra.Manager.getAction('SiteMap');
+			if (SiteMap.input_type) {
+				SiteMap.input_type.on('valueChange', function (event) {
+					this.templates = null;
+					this.set('value', null);
+				}, this);
+			}
 		},
 		
 		/**
@@ -229,6 +240,7 @@ YUI.add("website.input-template", function (Y) {
 			this.panel.set('align', {'node': this.get('previewNode'), 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
 			this.panel.set('arrowAlign', this.get('previewNode'));
 			this.panel.show();
+			
 			this.panel.syncUI();
 			
 			evt.halt();
