@@ -236,6 +236,9 @@
 	
 	overflow: hidden;
 	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	
+	/* Expand to for easier drag and drop of new blocks */
+	min-height: 90px;
 }
 
 /**
