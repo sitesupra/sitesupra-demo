@@ -276,6 +276,20 @@ YUI.add('supra.iframe-handler', function (Y) {
 		_handleContentElementBehaviour: function (body) {
 			//Links
 			Y.delegate('click', function (e) {
+				//External links should be opened in new window
+				//Check if link is external
+				var target = e.target,
+					href = null;
+				
+				if (!target.test('a')) {
+					target = target.ancestor('a');
+				}
+				if (target && (href = target.get('href'))) {
+					if (href.search(document.location.protocol + '//' + document.location.host) == -1) {
+						window.open(href);
+					}
+				}
+				
 				e.preventDefault();
 			}, body, 'a');
 			
