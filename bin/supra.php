@@ -12,15 +12,16 @@ $cli->setCatchExceptions(true);
 //$cli->setHelperSet($helperSet);
 
 $cli->addCommandClasses(array(
-	'\Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand',
-	'\Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand',
-	'\Supra\Database\Console\SchemaUpdateCommand',
-	'\Supra\Database\Console\SchemaDropCommand',
-	'\Supra\Console\Cron\Command',
-	'\Supra\Search\Command\RunIndexerCommand',
-	'\Supra\Search\Command\WipeCommand',
-	'\Supra\Search\Command\WipeQueuesCommand',
-	'\Supra\Search\Command\QueueAllPageLocalizationsCommand'
+	'Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand',
+	'Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand',
+	'Supra\Database\Console\SchemaUpdateCommand',
+	'Supra\Database\Console\SchemaDropCommand',
+	'Supra\Console\Cron\Command',
+	'Supra\Search\Command\RunIndexerCommand',
+	'Supra\Search\Command\WipeCommand',
+	'Supra\Search\Command\WipeQueuesCommand',
+	'Supra\Search\Command\QueueAllPageLocalizationsCommand',
+	'Supra\Controller\Pages\Command\LayoutRereadCommand',
 ));
 
 //$cli->addCronJob('su:schema:update', 
