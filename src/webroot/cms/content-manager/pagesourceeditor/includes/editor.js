@@ -62,7 +62,7 @@ YUI.add('supra.source-editor', function (Y) {
 		 * @param {String} html HTML code
 		 */
 		setHTML: function (html) {
-			this.get('contentBox').set('value', this.beutifyHTML(html));
+			this.get('contentBox').set('value', this.beautifyHTML(html));
 			//this.adjustHeight();
 			return html;
 		},
@@ -78,13 +78,13 @@ YUI.add('supra.source-editor', function (Y) {
 		},
 		
 		/**
-		 * Beutify HTML
+		 * Beautify HTML
 		 * 
 		 * @param {String} html HTML code
-		 * @return Beutified HTML code
+		 * @return Beautified HTML code
 		 * @type {String}
 		 */
-		beutifyHTML: Supra.HTMLEditor.prototype.beutifyHTML,
+		beautifyHTML: Supra.HTMLEditor.prototype.beautifyHTML,
 		
 		/**
 		 * Adjust textarea height

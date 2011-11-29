@@ -187,13 +187,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
-		 * Beutify HTML
+		 * Beautify HTML
 		 * 
 		 * @param {String} html HTML
 		 * @return Beutified HTML code
 		 * @type {String}
 		 */
-		beutifyHTML: function (html) {
+		beautifyHTML: function (html) {
 			var i = 0,
 				len = html.length,
 				chr = '',
