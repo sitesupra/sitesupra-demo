@@ -20,7 +20,10 @@ class LayoutRereadCommand extends Command
     protected function configure()
     {
 		$this->setName('su:layout:update')
-				->setDescription("Rereads the known layouts and updates their information in database");
+				->setDescription("Rereads the known layouts and updates their information in database")
+				->addOption('delete', null, 
+						\Symfony\Component\Console\Input\InputOption::VALUE_NONE, 
+						'Whether to remove unknown placeholders');
     }
 	
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -37,6 +40,10 @@ class LayoutRereadCommand extends Command
 		$layoutUpdateTask->setEntityManager($entityManager);
 		$layoutUpdateTask->setLayoutProcessor($layoutProcessor);
 		
+		if ($input->getOption('delete')) {
+			$layoutUpdateTask->removePlaceHolders();
+		}
+		
 		foreach ($layouts as $layout) {
 			/* @var $layout Layout */
 			$file = $layout->getFile();
@@ -48,7 +55,6 @@ class LayoutRereadCommand extends Command
 				/* @var $e \Exception */
 				$output->writeln("<error>Exception was caught: {$e->getMessage()}</error>");
 			}
-//			$layoutUpdateTask->getLayout();
 		}
 		
 		$entityManager->flush();

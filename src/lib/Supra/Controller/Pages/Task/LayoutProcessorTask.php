@@ -14,6 +14,7 @@ class LayoutProcessorTask
 {
 	const STAT_LAYOUT = 'layouts';
 	const STAT_PLACEHOLDERS = 'placeholders';
+	const STAT_REMOVABLE_PLACEHOLDERS = 'removable_placeholders';
 	
 	/**
 	 * Layout name, usually filename
@@ -30,6 +31,12 @@ class LayoutProcessorTask
 	 * @var EntityManager
 	 */
 	protected $entityManager;
+	
+	/**
+	 * Whether to remove place holders from database which are not found in layout
+	 * @var boolean
+	 */
+	protected $removePlaceHolders = false;
 	
 	/**
 	 * Resulting layout object
@@ -73,6 +80,14 @@ class LayoutProcessorTask
 	{
 		$this->entityManager = $entityManager;
 	}
+	
+	/**
+	 * @param boolean $remove
+	 */
+	public function removePlaceHolders($remove = true)
+	{
+		$this->removePlaceHolders = $remove;
+	}
 
 	/**
 	 * @return Entity\Layout
@@ -98,6 +113,7 @@ class LayoutProcessorTask
 		$this->statistics = array(
 			self::STAT_LAYOUT => array(),
 			self::STAT_PLACEHOLDERS => array(),
+			self::STAT_REMOVABLE_PLACEHOLDERS => array(),
 		);
 	}
 	
@@ -108,8 +124,17 @@ class LayoutProcessorTask
 	{
 		$newLayoutCount = count($this->statistics[self::STAT_LAYOUT]);
 		$newPlaceHoldersCount = count($this->statistics[self::STAT_PLACEHOLDERS]);
+		$deletableCount = count($this->statistics[self::STAT_REMOVABLE_PLACEHOLDERS]);
 		
 		$message = "$newLayoutCount new layouts, $newPlaceHoldersCount new placeholders";
+		
+		if ($deletableCount > 0) {
+			if ($this->removePlaceHolders) {
+				$message .= ", $deletableCount placeholders removed";
+			} else {
+				$message .= ", $deletableCount placeholders could be removed";
+			}
+		}
 		
 		return $message;
 	}
@@ -135,7 +160,6 @@ class LayoutProcessorTask
 		}
 		
 		$placeHolders = $layout->getPlaceHolders();
-		
 		$processor = $this->layoutProcessor;
 		$places = $processor->getPlaces($file);
 
@@ -147,11 +171,28 @@ class LayoutProcessorTask
 			} else {
 				$placeHolder = new Entity\LayoutPlaceHolder($name);
 				$placeHolder->setLayout($layout);
+				$this->entityManager->persist($placeHolder);
 				
-				$this->statistics[self::STAT_PLACEHOLDERS][$file][] = $name;
+				$this->statistics[self::STAT_PLACEHOLDERS][] = array($file, $name);
 			}
-			
-			$this->entityManager->persist($placeHolder);
+		}
+		
+		// Remove not found place holders which are stored in database
+		$placeHolderNames = $layout->getPlaceHolderNames();
+		$missingPlaceHolders = array_diff($placeHolderNames, $places);
+		
+		if ( ! empty($missingPlaceHolders)) {
+			foreach ($missingPlaceHolders as $name) {
+				if ($placeHolders->containsKey($name)) {
+					
+					if ($this->removePlaceHolders) {
+						$placeHolder = $placeHolders->get($name);
+						$this->entityManager->remove($placeHolder);
+					}
+					
+					$this->statistics[self::STAT_REMOVABLE_PLACEHOLDERS][] = array($file, $name);
+				}
+			}
 		}
 
 		// Keep created layout
