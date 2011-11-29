@@ -287,8 +287,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * 
 		 * @param {Object} data
 		 * @param {Object} attrs
+		 * @param {Boolean} use_only If DOM elements for content is not found, don't create them
 		 */
-		createChild: function (data, attrs) {
+		createChild: function (data, attrs, use_only) {
 			var win = this.get('win');
 			var doc = this.get('doc');
 			var body = this.get('body');
@@ -296,22 +297,25 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var type = data.type;
 			var properties = Manager.Blocks.getBlock(type);
 			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
+			var html_id = '#content_' + (type || null) + '_' + (data.id || null);
 			
-			if (classname in PageContent) {
-				var block = this.children[data.id] = new PageContent[classname](SU.mix(attrs || {}, {
-					'doc': doc,
-					'win': win,
-					'body': body,
-					'data': data,
-					'parent': this,
-					'super': this.get('super')
-				}));
-				block.render();
-				
-				//Add to order list
-				this.children_order.push(String(data.id));
-			} else {
-				Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
+			if (!use_only || body.one(html_id)) {
+				if (classname in PageContent) {
+					var block = this.children[data.id] = new PageContent[classname](SU.mix(attrs || {}, {
+						'doc': doc,
+						'win': win,
+						'body': body,
+						'data': data,
+						'parent': this,
+						'super': this.get('super')
+					}));
+					block.render();
+					
+					//Add to order list
+					this.children_order.push(String(data.id));
+				} else {
+					Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
+				}
 			}
 			
 			return block;
@@ -450,7 +454,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					this.createChild(data.contents[i], {
 						'dragable': !data.contents[i].locked && !this.isLocked() && permission_order,
 						'editable': !data.contents[i].locked && permission_edit
-					});
+					}, true);
 				}
 			}
 			

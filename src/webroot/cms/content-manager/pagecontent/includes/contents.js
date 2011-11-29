@@ -188,10 +188,12 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * Create children
 		 * 
 		 * @param {Object} data
+		 * @param {Boolean} use_only If DOM elements for content is not found, don't create them
 		 * @private
 		 */
-		createChildren: function (data) {
+		createChildren: function (data, use_only) {
 			var data = data || this.get('contentData');
+			
 			if (data) {
 				var body = this.get('body');
 				var doc = this.get('doc');
@@ -202,29 +204,31 @@ YUI.add('supra.iframe-contents', function (Y) {
 					var type = data[i].type;
 					var properties = Manager.Blocks.getBlock(type);
 					var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
+					var html_id = '#content_' + (data[i].type || null) + '_' + (data[i].id || null);
 					
-					if (classname in Action) {
-						var block = this.children[data[i].id] = new Action[classname]({
-							'doc': doc,
-							'win': win,
-							'body': body,
-							'data': data[i],
-							'parent': null,
-							'super': this,
-							'dragable': !data[i].locked,
-							'editable': !data[i].locked
-						});
-						block.render();
-					} else {
-						Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
+					if (!use_only || body.one(html_id)) {
+						if (classname in Action) {
+							var block = this.children[data[i].id] = new Action[classname]({
+								'doc': doc,
+								'win': win,
+								'body': body,
+								'data': data[i],
+								'parent': null,
+								'super': this,
+								'dragable': !data[i].locked,
+								'editable': !data[i].locked
+							});
+							block.render();
+						} else {
+							Y.error('Class "' + classname + '" for content "' + data[i].id + '" is missing.');
+						}
 					}
-					
 				}
 			}
 		},
 		
 		renderUI: function () {
-			this.createChildren();
+			this.createChildren(null, true);
 			this.get('body').addClass('yui3-editable');
 		},
 		
