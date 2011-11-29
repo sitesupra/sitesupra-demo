@@ -11,6 +11,7 @@ use Supra\Controller\Pages\Request\HttpEditRequest;
 use Supra\Controller\Pages\Response\Block;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Block controller abstraction
@@ -96,6 +97,7 @@ abstract class BlockController extends ControllerAbstraction
 		if ($response instanceof Response\TwigResponse) {
 			$twig = $response->getTwigEnvironment();
 			$helper = new Helper\TwigHelper($this);
+			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
 		}
 	}
