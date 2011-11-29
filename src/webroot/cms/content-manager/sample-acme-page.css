@@ -69,6 +69,15 @@ body {
 	list-style: none;
 }
 
+#footer {
+	clear: both;
+	overflow: hidden;
+	border-top: 1px solid #ccc;
+	text-align: right;
+	padding: 15px 20px 0;
+	margin: 20px 0 0;
+}
+
 .text h1 {
 	margin: 0 0 18px;
 	font-size: 22px;

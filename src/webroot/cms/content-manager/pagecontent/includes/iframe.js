@@ -277,7 +277,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Links
 			Y.delegate('click', function (e) {
 				//External links should be opened in new window
-				//Check if link is external
+				//Internal links should be opened as page
 				var target = e.target,
 					href = null;
 				
@@ -286,7 +286,20 @@ YUI.add('supra.iframe-handler', function (Y) {
 				}
 				if (target && (href = target.get('href'))) {
 					if (href.search(document.location.protocol + '//' + document.location.host) == -1) {
+						//External link
 						window.open(href);
+					} else {
+						href = href.replace(document.location.protocol + '//' + document.location.host, '');
+						
+						Manager.Page.getPageIdFromPath(href, function (data, status) {
+							if (status && data && data != Supra.data.get(['page', 'id'])) {
+								//Stop editing
+								Action.stopEditing();
+								
+								//Change path
+								Root.save(Root.ROUTE_PAGE.replace(':page_id', data));
+							}
+						});
 					}
 				}
 				

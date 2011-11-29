@@ -135,6 +135,24 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Converts path to page ID
+		 * 
+		 * @param {String} page_path
+		 * @private
+		 */
+		getPageIdFromPath: function (page_path, callback) {
+			Supra.io(this.getDataPath('path-to-id'), {
+				'data': {
+					'page_path': page_path,
+					'locale': Supra.data.get('locale')
+				},
+				'on': {
+					'complete': callback
+				}
+			}, this);
+		},
+		
+		/**
 		 * Load page data
 		 * 
 		 * @param {Number} page_id
