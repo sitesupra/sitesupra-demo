@@ -8,6 +8,8 @@ use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Layout\Processor\TwigProcessor;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Layout\Exception\LayoutException;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Rereads known layouts and updates their information
@@ -21,11 +23,14 @@ class LayoutRereadCommand extends Command
     {
 		$this->setName('su:layout:update')
 				->setDescription("Rereads the known layouts and updates their information in database")
-				->addOption('delete', null, 
-						\Symfony\Component\Console\Input\InputOption::VALUE_NONE, 
+				->addOption('delete', null, null, 
 						'Whether to remove unknown placeholders');
     }
 	
+	/**
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
     {
         $entityManager = ObjectRepository::getEntityManager($this);
