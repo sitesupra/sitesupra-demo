@@ -5,6 +5,7 @@ namespace Supra\Controller\Layout\Processor;
 use Supra\Response\ResponseInterface;
 use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Layout\Exception;
+use Supra\Request\RequestInterface;
 
 /**
  * Simple layout processor
@@ -44,7 +45,20 @@ class HtmlProcessor implements ProcessorInterface
 	 * @var string
 	 */
 	protected $endDelimiter = '-->';
+	
+	/**
+	 * @var RequestInterface
+	 */
+	protected $request;
 
+	/**
+	 * @param RequestInterface $request
+	 */
+	public function setRequest(RequestInterface $request)
+	{
+		$this->request = $request;
+	}
+	
 	/**
 	 * Process the layout
 	 * @param ResponseInterface $response
@@ -158,7 +172,7 @@ class HtmlProcessor implements ProcessorInterface
 
 	protected function macroExists($name)
 	{
-		$exists = \in_array($name, static::$macroFunctions);
+		$exists = in_array($name, static::$macroFunctions);
 		return $exists;
 	}
 
@@ -184,7 +198,7 @@ class HtmlProcessor implements ProcessorInterface
 
 				$macroString = substr($layoutContent, $startLength, $pos - $startLength);
 				$macro = trim($macroString);
-				if ( ! \preg_match('!^(.*)\((.*)\)$!', $macro, $macroInfo)) {
+				if ( ! preg_match('!^(.*)\((.*)\)$!', $macro, $macroInfo)) {
 					$cdataCallback(substr($layoutContent, 0, $startLength));
 					$layoutContent = substr($layoutContent, $startLength);
 					continue;
@@ -192,7 +206,7 @@ class HtmlProcessor implements ProcessorInterface
 
 				$macroFunction = trim($macroInfo[1]);
 				$macroArguments = explode(',', $macroInfo[2]);
-				$macroArguments = \array_map('trim', $macroArguments);
+				$macroArguments = array_map('trim', $macroArguments);
 
 				if ( ! $this->macroExists($macroFunction)) {
 					$cdataCallback(substr($layoutContent, 0, $startLength));

@@ -2,50 +2,34 @@
 
 namespace Supra\Controller\Pages\Helper;
 
-use Supra\Controller\Pages\BlockController;
-use Supra\Response\TwigResponse;
-use Twig_Markup;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
+use Supra\Request\RequestInterface;
 
 /**
- * Supra page controller twig helper
+ * Helper object for twig processor
  */
 class TwigHelper
 {
 	/**
-	 * @var BlockController
+	 * @var RequestInterface
 	 */
-	protected $blockController;
-	
-	/**
-	 * @var Locale
-	 */
-	protected $locale;
-	
-	/**
-	 * @param BlockController $blockController
-	 */
-	public function __construct(BlockController $blockController)
-	{
-		$this->blockController = $blockController;
-		$this->locale = ObjectRepository::getLocaleManager($this)
-				->getCurrent();
-	}
-	
-	/**
-	 * Outputs block property
-	 * @param string $name
-	 * @return string
-	 */
-	public function property($name)
-	{
-		$value = $this->blockController->getPropertyValue($name);
-		
-		// Marks content safe
-		$valueObject = new Twig_Markup($value);
+	protected $request;
 
-		return $valueObject;
+	/**
+	 * @return RequestInterface
+	 */
+	public function getRequest()
+	{
+		return $this->request;
+	}
+
+	/**
+	 * @param RequestInterface $request
+	 */
+	public function setRequest(RequestInterface $request = null)
+	{
+		$this->request = $request;
 	}
 	
 	/**
@@ -53,6 +37,9 @@ class TwigHelper
 	 */
 	public function getLocale()
 	{
-		return $this->locale;
+		$locale = ObjectRepository::getLocaleManager($this)
+				->getCurrent();
+		
+		return $locale;
 	}
 }

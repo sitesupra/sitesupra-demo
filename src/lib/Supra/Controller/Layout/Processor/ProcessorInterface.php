@@ -4,6 +4,7 @@ namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface;
 use Supra\Controller\Pages\Entity\Layout;
+use Supra\Request\RequestInterface;
 
 /**
  * Layout processor interface
@@ -24,4 +25,10 @@ interface ProcessorInterface
 	 * @return array
 	 */
 	public function getPlaces($layoutSrc);
+	
+	/**
+	 * Set request object to use
+	 * @param RequestInterface $request
+	 */
+	public function setRequest(RequestInterface $request);
 }

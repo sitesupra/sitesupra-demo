@@ -96,9 +96,16 @@ abstract class BlockController extends ControllerAbstraction
 		
 		if ($response instanceof Response\TwigResponse) {
 			$twig = $response->getTwigEnvironment();
-			$helper = new Helper\TwigHelper($this);
+			
+			// Now it 
+			$helper = new Helper\TwigHelper();
+			$helper->setRequest($this->request);
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
+			
+			$blockHelper = new Helper\TwigBlockHelper($this);
+			ObjectRepository::setCallerParent($blockHelper, $this);
+			$twig->addGlobal('supraBlock', $blockHelper);
 		}
 	}
 

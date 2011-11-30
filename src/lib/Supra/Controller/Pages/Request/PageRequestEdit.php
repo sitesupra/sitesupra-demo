@@ -446,7 +446,7 @@ class PageRequestEdit extends PageRequest
 			
 			$page = $em->find(AbstractPage::CN(), $pageId);
 			$em->remove($page);
-			$em->flush();
+ 			$em->flush();
 			
 		} catch (\Exception $e) {
 			$connection->rollBack();

@@ -173,11 +173,36 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 		if (empty($parent)) {
 			return null;
 		}
-
+		
 		/* @var $parent AbstractPage */
 		$parentData = $parent->getLocalization($this->locale);
 		
 		return $parentData;
+	}
+	
+	/**
+	 * @return Collection
+	 */
+	public function getChildren()
+	{
+		$coll = new ArrayCollection();
+		$master = $this->getMaster();
+		
+		if (empty($master)) {
+			return $coll;
+		}
+		
+		$masterChildren = $master->getChildren();
+		
+		foreach ($masterChildren as $child) {
+			$localization = $child->getLocalization($this->locale);
+			
+			if ( ! empty($localization)) {
+				$coll->add($localization);
+			}
+		}
+		
+		return $coll;
 	}
 	
 	/**
