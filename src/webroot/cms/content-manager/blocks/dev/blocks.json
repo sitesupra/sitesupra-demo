@@ -11,7 +11,9 @@
 			"properties": [
 				{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
 				{"id": "active", "type": "Checkbox", "label": "{#form.visible#}", "value": true, "labels": ["{#buttons.yes#}", "{#buttons.no#}"]},
-				{"id": "link", "type": "Link", "label": "Link", "value": null}
+				{"id": "link", "type": "Link", "label": "Link", "value": null},
+				{"id": "str", "type": "String", "label": "String", "value": ""},
+				{"id": "text", "type": "Text", "label": "Text", "value": ""}
 			]
 		},
 		{

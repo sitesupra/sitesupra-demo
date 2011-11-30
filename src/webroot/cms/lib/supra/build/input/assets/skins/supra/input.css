@@ -12,6 +12,7 @@
 }
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
+	.yui3-input-text-hidden,
 	.yui3-input-select-hidden,
 	.yui3-input-select-list-hidden,
 	.yui3-input-checkbox-hidden,
@@ -69,6 +70,7 @@
 	}
 	
 	.yui3-input input,
+	.yui3-input textarea,
 	.yui3-input select {
 		font-size: 14px;
 		height: 30px;
@@ -84,6 +86,12 @@
 		-webkit-border-radius: 3px;
 		border-radius: 3px;
 	}
+	.yui3-input textarea {
+		height: auto;
+		line-height: 16px;
+		padding: 3px;
+		resize: vertical;
+	}
 	.yui3-input select {
 		height: auto;
 		line-height: 16px;
@@ -95,24 +103,31 @@
 	
 	.yui3-input input:hover,
 	.yui3-input.yui3-input-focused input,
+	.yui3-input textarea:hover,
+	.yui3-input.yui3-input-focused textarea,
 	.yui3-input select:hover,
 	.yui3-input.yui3-input-focused select {
 		border-color: #36c;
 	}
 	
 	.yui3-input-disabled input:hover,
+	.yui3-input-disabled textarea:hover,
 	.yui3-input-disabled select:hover {
 		border-color: #999;
 	}
 
 .yui3-input .input-label-replacement input,
 .yui3-input.input-label-replacement input,
+.yui3-input .input-label-replacement textarea,
+.yui3-input.input-label-replacement textarea,
 .yui3-input-focused.input-label-replacement span.replacement,
 .yui3-input-focused .input-label-replacement span.replacement {
 	display: none;
 }
 .yui3-input-focused.input-label-replacement input,
-.yui3-input-focused .input-label-replacement input {
+.yui3-input-focused .input-label-replacement input,
+.yui3-input-focused.input-label-replacement textarea,
+.yui3-input-focused .input-label-replacement textarea {
 	display: inline;
 	width: 100%;
 }
@@ -277,7 +292,8 @@
 	.yui3-form-default .yui3-input label {
 		width: 160px;
 	}
-	.yui3-form-default .yui3-input-string input {
+	.yui3-form-default .yui3-input-string input,
+	.yui3-form-default .yui3-input-text textarea {
 		width: 400px;
 	}
 	
@@ -312,6 +328,7 @@
 		width: auto;
 	}
 	.yui3-form-vertical .yui3-input-string label,
+	.yui3-form-vertical .yui3-input-text label,
 	.yui3-form-vertical .yui3-input-path label,
 	.yui3-form-vertical .yui3-input-select label,
 	.yui3-form-vertical .yui3-input-select-list label,

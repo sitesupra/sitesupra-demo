@@ -22,6 +22,9 @@
 			"group_3": "Contributors",
 			"group_3_rights": "Can add and edit",
 			
+			"manage_groups": "Manage groups",
+			"click_to_manage": "Click to manage",
+			
 			"user_move_confirm": "Moving user will reset user's custom permissions to the new group's default permissions."
 		},
 		

@@ -43,8 +43,19 @@ YUI.add('supra.input-string', function (Y) {
 		INPUT_TEMPLATE: '<input type="text" value="" />',
 		LABEL_TEMPLATE: '<label></label>',
 		
+		/**
+		 * Key code constants
+		 */
 		KEY_RETURN: 13,
 		KEY_ESCAPE: 27,
+		
+		/**
+		 * If keys are allowed, overwriten when String class
+		 * is extended
+		 */
+		KEY_RETURN_ALLOW: true,
+		KEY_ESCAPE_ALLOW: true,
+		
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
@@ -89,12 +100,12 @@ YUI.add('supra.input-string', function (Y) {
 				charCode = charCode - 144;
 			}
 			
-			if (keyCode == this.KEY_RETURN) {
+			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
 				if (this.get('replacementNode') || this.get('blurOnReturn')) {
 					//If using replacement node then show it
 					input.blur();
 				}
-			} else if (keyCode == this.KEY_ESCAPE) {
+			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);
 				input.blur();
 				this.fire('reset');

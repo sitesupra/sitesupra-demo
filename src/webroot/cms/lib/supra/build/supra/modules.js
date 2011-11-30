@@ -449,13 +449,17 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/string.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-text': {
+		path: 'input/text.js',
+		requires: ['supra.input-string']
+	},
 	'supra.input-path': {
 		path: 'input/path.js',
 		requires: ['supra.input-string']
 	},
 	'supra.input-checkbox': {
 		path: 'input/checkbox.js',
-		requires: ['supra.input-proto', 'supra.input-select-list']
+		requires: ['supra.input-select-list']
 	},
 	'supra.input-file-upload': {
 		path: 'input/fileupload.js',
@@ -485,6 +489,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-proto',
 			'supra.input-hidden',
 			'supra.input-string',
+			'supra.input-text',
 			'supra.input-path',
 			'supra.input-checkbox',
 			'supra.input-file-upload',

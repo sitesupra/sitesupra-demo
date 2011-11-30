@@ -120,4 +120,4 @@ YUI.add("supra.input-checkbox", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto", "supra.input-select-list"]});
+}, YUI.version, {requires:["supra.input-select-list"]});
