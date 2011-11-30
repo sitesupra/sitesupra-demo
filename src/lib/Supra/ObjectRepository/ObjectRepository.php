@@ -350,8 +350,7 @@ class ObjectRepository
 		self::checkLateBinding($child);
 
 		if (( ! $overwrite) && isset($ch[$child]) && ($ch[$child] !== $parent)) {
-			// Commented out because "When an object is destroyed, its hash may be reused for other objects."
-//			throw new Exception\RuntimeException("Caller $child parent already declared");
+			throw new Exception\RuntimeException("Caller $child parent already declared");
 		}
 
 		$ch[$child] = $parent;

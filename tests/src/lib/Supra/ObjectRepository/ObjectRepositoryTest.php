@@ -213,15 +213,14 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::getObject('xxx', 'stdClass');
 	}
 
-	// See comment inside setCallerParent method
-//	/**
-//	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
-//	 */
-//	public function testCallerHierarchyDuplicateCallerParent()
-//	{
-//		ObjectRepository::setCallerParent('xxx', 'yyy\\zzz');
-//		ObjectRepository::setCallerParent('xxx', 'vvv\\aaa');
-//	}
+	/**
+	 * @expectedException \Supra\ObjectRepository\Exception\RuntimeException
+	 */
+	public function testCallerHierarchyDuplicateCallerParent()
+	{
+		ObjectRepository::setCallerParent('xxx', 'yyy\\zzz');
+		ObjectRepository::setCallerParent('xxx', 'vvv\\aaa');
+	}
 
 	/**
 	 * Made for full code coverage
