@@ -12,8 +12,8 @@ YUI.add('supra.input-text', function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {};
 	
-	Y.extend(Input, Supra.Input.Proto, {
-		INPUT_TEMPLATE: '<textarea></textarea>',
+	Y.extend(Input, Supra.Input.String, {
+		INPUT_TEMPLATE: '<textarea spellcheck="false"></textarea>',
 		KEY_RETURN_ALLOW: false
 	});
 	
@@ -23,4 +23,4 @@ YUI.add('supra.input-text', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});
+}, YUI.version, {requires:['supra.input-string']});
