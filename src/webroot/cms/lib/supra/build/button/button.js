@@ -266,7 +266,7 @@ YUI.add('supra.button', function (Y) {
 		_setLabel: function (label) {
 			var labelNode = this.get('nodeLabel');
 			if (labelNode) {
-				label = label || '&nbsp;';
+				label = label ? Y.Escape.html(Supra.Intl.replace(label)) : '&nbsp;';
 				labelNode.set('innerHTML', label);
 			}
 		},

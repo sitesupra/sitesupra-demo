@@ -20,6 +20,12 @@
 			"insert": "Insert"
 		},
 		
+		"form": {
+			"title": "Title",
+			"visible": "Visible",
+			"style": "Style"
+		},
+		
 		"page": {
 			"edit": "Edit page",
 			"publish": "Publish",

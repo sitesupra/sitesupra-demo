@@ -247,6 +247,9 @@
 	.yui3-input-select-list .yui3-button img+p {
 		display: none;
 	}
+	.yui3-input-select-list .yui3-button p {
+		min-width: 50px;
+	}
 
 /* Slider */
 .yui3-input-slider .less,

@@ -9,7 +9,11 @@
 			"icon": "/cms/lib/supra/img/blocks/text.png",
 			"classname": "Editable",
 			"properties": [
-				{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}}
+				{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
+				{"id": "visible", "type": "SelectList", "label": "{#form.visible#}", "value": "0", "values": [
+					{"id": "1", "title": "{#buttons.yes#}"},
+					{"id": "0", "title": "{#buttons.no#}"}
+				]}
 			]
 		},
 		{
@@ -22,7 +26,7 @@
 			"properties": [
 				{"id": "html1", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
 				{"id": "html2", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
-				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
+				{"id": "visible", "type": "Checkbox", "label": "{#form.visible#}", "value": true}
 			]
 		},
 		{
@@ -33,8 +37,8 @@
 			"icon": "/cms/lib/supra/img/blocks/sample.png",
 			"classname": "Editable",
 			"properties": [
-				{"id": "title", "type": "String", "label": "Title", "value": "Sample block title"},
-				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
+				{"id": "title", "type": "String", "label": "{#form.title#}", "value": "Sample block title"},
+				{"id": "visible", "type": "Checkbox", "label": "{#form.visible#}", "value": true}
 			]
 		},
 		{
@@ -45,8 +49,8 @@
 			"icon": "/cms/lib/supra/img/blocks/gallery.png",
 			"classname": "Gallery",
 			"properties": [
-				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true},
-				{"id": "style", "type": "SelectList", "label": "Style", "value": "preview", "values": [
+				{"id": "visible", "type": "Checkbox", "label": "{#form.visible#}", "value": true},
+				{"id": "style", "type": "SelectList", "label": "{#form.style#}", "value": "preview", "values": [
 					{"id": "preview", "title": "Preview", "icon": "/cms/lib/supra/img/htmleditor/gallery-style-1.png"},
 					{"id": "list", "title": "List", "icon": "/cms/lib/supra/img/htmleditor/gallery-style-2.png"}
 				]},
@@ -61,7 +65,7 @@
 			"icon": "/cms/lib/supra/img/blocks/feedback.png",
 			"classname": "Editable",
 			"properties": [
-				{"id": "visible", "type": "Checkbox", "label": "Visible", "value": true}
+				{"id": "visible", "type": "Checkbox", "label": "{#form.visible#}", "value": true}
 			]
 		}
 	]

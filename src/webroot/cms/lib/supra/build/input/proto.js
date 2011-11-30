@@ -258,7 +258,11 @@ YUI.add('supra.input-proto', function (Y) {
 		
 		_setLabel: function (lbl) {
 			var node = this.get('labelNode');
-			if (node) node.set('innerHTML', Y.Escape.html(lbl));
+			if (node) {
+				lbl = Supra.Intl.replace(lbl);
+				lbl = Y.Escape.html(lbl);
+				node.set('innerHTML', lbl);
+			}
 			
 			return lbl;
 		},

@@ -202,7 +202,6 @@ YUI.add('supra.input-select-list', function (Y) {
 				}
 			}
 			
-			
 			return value;
 		},
 		
