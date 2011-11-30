@@ -354,8 +354,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 					
 					//Send request
 					this.sendBlockDelete(child, function () {
+						var node = child.getNode();
+						
+						//Remove from child list
 						delete(this.children[i]);
+						
+						//Destroy block
 						child.destroy();
+						if (node) node.remove();
 					}, this);
 				}
 			}

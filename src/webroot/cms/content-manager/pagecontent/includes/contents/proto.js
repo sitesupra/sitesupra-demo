@@ -261,15 +261,20 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Object} child
 		 */
 		removeChild: function (child) {
-			var id = child.getId();
+			var id = child.getId(),
+				block = null;
 			if (id in this.children) {
+				block = this.children[id];
+				
 				//Send request
 				this.get('super').sendBlockDelete(child, function (data, status) {
-					var node = this.getNode();
+					var node = block.getNode();
 					
-					this.destroy();
+					//Destroy block
+					block.destroy();
 					if (node) node.remove();
 					
+					//Remove from child list
 					delete(this.children[id]);
 					
 					//Remove from order list
