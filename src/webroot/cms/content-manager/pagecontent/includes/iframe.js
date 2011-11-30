@@ -288,7 +288,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 					if (href.search(document.location.protocol + '//' + document.location.host) == -1) {
 						//External link
 						window.open(href);
-					} else {
+					} else if (!Action.isEditing()) {
+						//If is editing, then don't change page
 						href = href.replace(document.location.protocol + '//' + document.location.host, '');
 						
 						Manager.Page.getPageIdFromPath(href, function (data, status) {

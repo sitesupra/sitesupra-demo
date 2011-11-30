@@ -12,7 +12,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 	Manager.getAction('LayoutLeftContainer').addChildAction('LinkManager');
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginContainer, {
 		
 		/**
 		 * Unique action name
@@ -91,29 +91,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			});
 			
 			this.slideshow.render();
-			this.slideshow.on('slideChange', function (evt) {
-				
-			}, this);
-			this.slideshow.after('slideChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					var heading = this.one('h2.yui3-sidebar-header span');
-					
-					if (this.slideshow.history.length <= 1) {
-						this.button_back.hide();
-						heading.hide();
-					} else {
-						this.button_back.show();
-						heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
-						heading.show();
-					}
-					
-					var fn = 'on' + evt.newVal.substr(0,1).toUpperCase() + evt.newVal.substr(1);
-					if (fn in this) {
-						var node = this.slideshow.getSlide(evt.newVal);
-						this[fn](node);
-					}
-				}
-			}, this);
+			this.slideshow.after('slideChange', this.onSlideshowSlideChange, this);
 			
 			//
 			var links = this.all('#linkToRoot a[data-slideshow]');
@@ -133,15 +111,6 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			this.button_close.on('click', this.close, this);
 			
 			
-			//On visibility change show/hide container
-			this.on('visibleChange', function (evt) {
-				if (evt.newVal) {
-					this.one().removeClass('hidden');
-				} else {
-					this.one().addClass('hidden');
-				}
-			}, this);
-			
 			//When layout position/size changes update slide position
 			Manager.LayoutLeftContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
 			
@@ -150,6 +119,31 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				'srcNode': this.one('form')
 			});
 			this.form.render();
+		},
+		
+		/**
+		 * On slideshow slide change update heading, button visibility
+		 * and call appropriate callback function: onLinkToPage or onLinkToFile
+		 */
+		onSlideshowSlideChange: function (evt) {
+			if (evt.newVal != evt.prevVal) {
+				var heading = this.one('h2.yui3-sidebar-header span');
+				
+				if (this.slideshow.history.length <= 1) {
+					this.button_back.hide();
+					heading.hide();
+				} else {
+					this.button_back.show();
+					heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
+					heading.show();
+				}
+				
+				var fn = 'on' + evt.newVal.substr(0,1).toUpperCase() + evt.newVal.substr(1);
+				if (fn in this) {
+					var node = this.slideshow.getSlide(evt.newVal);
+					this[fn](node);
+				}
+			}
 		},
 		
 		/**

@@ -102,7 +102,8 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 					'type': this.NAME,
 					'title': target.getAttribute('title'),
 					'target': target.getAttribute('target'),
-					'href': this.normalizeHref(target.getAttribute('href'))
+					'href': this.normalizeHref(target.getAttribute('href')),
+					'resource': 'link'
 				}
 			}
 			
