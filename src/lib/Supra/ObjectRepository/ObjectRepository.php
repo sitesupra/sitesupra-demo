@@ -25,18 +25,18 @@ use Supra\Template\Parser\TemplateParser;
 class ObjectRepository
 {
 	const DEFAULT_KEY = '';
-	
+
 	/**
 	 * Used when binding the object to controller
 	 * TODO: just an idea, not realized because of multiple methods which should be implemented
 	 */
 	const CONTROLLER_PREFIX = 'CONTROLLER/';
-	
+
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
-	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionManager';		
+	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionManager';
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
 	const INTERFACE_LOCALE_MANAGER = 'Supra\Locale\LocaleManager';
 	const INTERFACE_MAILER = 'Supra\Mailer\Mailer';
@@ -47,14 +47,14 @@ class ObjectRepository
 	const INTERFACE_INI_CONFIGURATION = 'Supra\Configuration\Loader\IniConfigurationLoader';
 	const INTERFACE_PAYMENT_PROVIDER_COLLECTION = 'Supra\Payment\Provider\PaymentProviderCollection';
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
-	
+
 	/**
 	 * Object relation storage
 	 *
 	 * @var array
 	 */
 	protected static $objectBindings = array();
-	
+
 	/**
 	 * Forced caller hierarchy
 	 * @var array
@@ -66,7 +66,7 @@ class ObjectRepository
 	 * @var array
 	 */
 	protected static $controllerStack = array();
-	
+
 	/**
 	 * Variable for checking if the added binding wouldn't change any previous 
 	 * repository requests. Can be disabled by setting to null. This also stores
@@ -85,7 +85,7 @@ class ObjectRepository
 	{
 		array_unshift(self::$controllerStack, $controllerId);
 	}
-	
+
 	/**
 	 * Marks the end of the controller execution
 	 * @param string $expectedControllerId
@@ -94,21 +94,22 @@ class ObjectRepository
 	public static function endControllerContext($expectedControllerId)
 	{
 		$actualControllerId = array_shift(self::$controllerStack);
-		
+
 		if ($actualControllerId != $expectedControllerId) {
-			
+
 			$expectationString = null;
-			
+
 			if (empty($actualControllerId)) {
 				$expectationString = "No controller";
-			} else {
+			}
+			else {
 				$expectationString = "Controller '$actualControllerId'";
 			}
-			
+
 			throw new Exception\LogicException("$expectationString was expected to be ended, but '$expectedControllerId' was passed");
 		}
 	}
-	
+
 	/**
 	 * Shouldn't be called. Used by tests.
 	 */
@@ -116,7 +117,7 @@ class ObjectRepository
 	{
 		self::$controllerStack = array();
 	}
-	
+
 	/**
 	 * Normalizes caller, object is converted to the class name string
 	 * @param mixed $caller
@@ -126,17 +127,28 @@ class ObjectRepository
 	{
 		if (is_object($caller)) {
 			$callerClass = get_class($caller);
-			$callerHash = spl_object_hash($caller);
+			$callerHash = self::getObjectHash($caller);
 			$caller = $callerClass . '\\' . $callerHash;
-		} elseif ( ! is_string($caller)) {
+		}
+		elseif ( ! is_string($caller)) {
 			throw new Exception\RuntimeException('Caller must be class instance or class name');
-		} else {
+		}
+		else {
 			$caller = trim($caller, '\\');
 		}
-		
+
 		return $caller;
 	}
-	
+
+	private static function getObjectHash($object)
+	{
+		if ( ! isset($object->__oid__)) {
+			$object->__oid__ = uniqid();
+		}
+
+		return $object->__oid__;
+	}
+
 	/**
 	 * Normalizes interface name argument
 	 * @param string $interface
@@ -148,12 +160,12 @@ class ObjectRepository
 		if ( ! is_string($interface)) {
 			throw new Exception\RuntimeException('Interface argument must be a string');
 		}
-		
+
 		$interface = trim($interface, '\\');
-		
+
 		return $interface;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -163,32 +175,32 @@ class ObjectRepository
 		$debugBacktrace = debug_backtrace(); // php v5.3.6 and higher
 		$resultArray = array();
 		$i = 1;
-		
+
 		foreach ($debugBacktrace as $trace) {
-			
+
 			$trace = (array) $trace + array(
-				'class' => null,
-				'type' => null,
-				'function' => null,
-				'line' => null,
-				'file' => null,
+					'class' => null,
+					'type' => null,
+					'function' => null,
+					'line' => null,
+					'file' => null,
 			);
-			
+
 			if ($trace['class'] == __CLASS__) {
 				continue;
 			}
-			
+
 			$resultArray[] = "#$i: {$trace['class']}{$trace['type']}{$trace['function']}() in {$trace['file']}:{$trace['line']}";
-			if ($i++ > 5) {
+			if ($i ++ > 5) {
 				break;
 			}
 		}
-		
+
 		$resultString = implode("\n", $resultArray);
 
 		return $resultString;
 	}
-	
+
 	/**
 	 * @see self::$lateBindingCheckCache
 	 * @param string $caller
@@ -199,26 +211,27 @@ class ObjectRepository
 		if (empty(static::$lateBindingCheckCache)) {
 			return;
 		}
-		
+
 		$interfaces = null;
-		
+
 		if (is_null($interface)) {
 			$interfaces = array_keys(static::$lateBindingCheckCache);
-		} else {
+		}
+		else {
 			$interfaces = (array) $interface;
 		}
-		
+
 		foreach ($interfaces as $interface) {
-		
+
 			if ( ! isset(static::$lateBindingCheckCache[$interface])) {
 				continue;
 			}
-			
+
 			// Ignore the logger
 			if ($interface == self::INTERFACE_LOGGER) {
 				continue;
 			}
-			
+
 			foreach (static::$lateBindingCheckCache[$interface] as $callerTest => $getterTrace) {
 
 				if (self::isParentCaller($callerTest, $caller)) {
@@ -234,7 +247,7 @@ class ObjectRepository
 			}
 		}
 	}
-	
+
 	/**
 	 * Internal relation setter
 	 *
@@ -248,23 +261,23 @@ class ObjectRepository
 		$caller = self::normalizeCallerArgument($caller);
 		$interface = self::normalizeInterfaceArgument($interface);
 		$selfCaller = self::normalizeCallerArgument($object);
-		
+
 		self::checkLateBinding($caller, $interface);
-	
+
 		if ( ! is_object($object)) {
 			throw new Exception\RuntimeException('Object argument must be an object');
 		}
-		
+
 		if ( ! is_a($object, $interface)) {
 			throw new Exception\RuntimeException('Object must be an instance of interface class or must extend it');
 		}
 
 		self::$objectBindings[$interface][$caller] = $object;
-		
+
 		// Bind self if called from self or it's children
 		self::$objectBindings[$interface][$selfCaller] = $object;
 	}
-	
+
 	/**
 	 * Checks if caller is the child of the parent caller
 	 * @param mixed $child
@@ -275,19 +288,19 @@ class ObjectRepository
 	{
 		$child = self::normalizeCallerArgument($child);
 		$parent = self::normalizeCallerArgument($parent);
-		
+
 		while ( ! is_null($child)) {
 			if ($child === $parent) {
 				return true;
 			}
-			
+
 			$visited = array();
 			$child = self::getParentCaller($child, $visited);
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Find object by exact namespace/classname
 	 * @param string $caller
@@ -310,15 +323,16 @@ class ObjectRepository
 	{
 		$object = null;
 		$visited = array();
-		
+
 		do {
 			$object = self::findObject($caller, $interface);
 			$caller = self::getParentCaller($caller, $visited);
-		} while (is_null($object) && ! is_null($caller));
-		
+		}
+		while (is_null($object) && ! is_null($caller));
+
 		return $object;
 	}
-	
+
 	/**
 	 * Force caller object hierarchy
 	 * @param mixed $child
@@ -329,20 +343,20 @@ class ObjectRepository
 	{
 		// Shortcut variable
 		$ch = &self::$callerHierarchy;
-		
+
 		$child = self::normalizeCallerArgument($child);
 		$parent = self::normalizeCallerArgument($parent);
-		
+
 		self::checkLateBinding($child);
-		
+
 		if (( ! $overwrite) && isset($ch[$child]) && ($ch[$child] !== $parent)) {
 			// Commented out because "When an object is destroyed, its hash may be reused for other objects."
 //			throw new Exception\RuntimeException("Caller $child parent already declared");
 		}
-		
+
 		$ch[$child] = $parent;
 	}
-	
+
 	/**
 	 * Loads parent caller name for the current caller
 	 * @param string $caller
@@ -355,24 +369,26 @@ class ObjectRepository
 		if ($caller === self::DEFAULT_KEY) {
 			return null;
 		}
-		
+
 		// Try parent namespace
 		$backslashPos = strrpos($caller, "\\");
 		$parentCaller = null;
 
 		if (isset(self::$callerHierarchy[$caller])) {
-			
+
 			// Visited nodes are checked and registered only here, 
 			// other strategies are safe
 			if (in_array($caller, $visited)) {
 				throw new Exception\RuntimeException("Loop detected in caller hierarchy");
 			}
 			$visited[] = $caller;
-			
+
 			$parentCaller = self::$callerHierarchy[$caller];
-		} elseif ($backslashPos !== false) {
+		}
+		elseif ($backslashPos !== false) {
 			$parentCaller = substr($caller, 0, $backslashPos);
-		} else {
+		}
+		else {
 			$parentCaller = self::DEFAULT_KEY;
 		}
 
@@ -390,28 +406,28 @@ class ObjectRepository
 	public static function getObject($caller, $interface)
 	{
 		$interface = self::normalizeInterfaceArgument($interface);
-		
+
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
 			$controllerCaller = $controllerId;
 			// @see self::CONTROLLER_PREFIX
 //			$controllerCaller = self::CONTROLLER_PREFIX . $controllerId;
 			$object = self::findObject($controllerCaller, $interface);
-			
+
 			if ( ! is_null($object)) {
 				return $object;
 			}
 		}
-		
+
 		// 2. If not found, try matching nearest defined object by caller
 		$caller = self::normalizeCallerArgument($caller);
-		
+
 		// @see self::$lateBindingCheckCache
 		if (isset(static::$lateBindingCheckCache)) {
-			static::$lateBindingCheckCache[$interface][$caller] = 
+			static::$lateBindingCheckCache[$interface][$caller] =
 					self::generateLateBindingCheckTrace();
 		}
-		
+
 		$object = self::findNearestObject($caller, $interface);
 
 		return $object;
@@ -428,7 +444,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, $interface);
 	}
-	
+
 	/**
 	 * Set default assigned object of its class
 	 *
@@ -439,7 +455,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, $interface);
 	}
-	
+
 	/**
 	 * Get assigned logger
 	 *
@@ -596,7 +612,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_USER_PROVIDER);
 	}
-	
+
 	/**
 	 * Set default user provider
 	 *
@@ -606,7 +622,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_USER_PROVIDER);
 	}
-	
+
 	/**
 	 * Get assigned locale manager
 	 *
@@ -628,7 +644,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_LOCALE_MANAGER);
 	}
-	
+
 	/**
 	 * Set default locale manager
 	 *
@@ -670,7 +686,7 @@ class ObjectRepository
 	{
 		return self::getObject($caller, self::INTERFACE_MAILER);
 	}
-	
+
 	/**
 	 * Get assigned authorization provider.
 	 *
@@ -692,7 +708,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
 	}
-	
+
 	/**
 	 * Set default authorization provider.
 	 *
@@ -701,8 +717,8 @@ class ObjectRepository
 	public static function setDefaultAuthorizationProvider(AuthorizationProvider $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUTHORIZATION_PROVIDER);
-	}	
-	
+	}
+
 	/**
 	 * Get assigned application configuration.
 	 *
@@ -724,7 +740,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
 	}
-	
+
 	/**
 	 * Set application configuration.
 	 *
@@ -733,7 +749,7 @@ class ObjectRepository
 	public static function setDefaultApplicationConfiguration(ApplicationConfiguration $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
-	}	
+	}
 
 	/**
 	 * Get Solarium client assigned for caller.
@@ -755,7 +771,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_SOLARIUM_CLIENT);
 	}
-	
+
 	/**
 	 * Set default Solarium client.
 	 * @param Solarium_Client $object 
@@ -764,7 +780,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SOLARIUM_CLIENT);
 	}
-	
+
 	/**
 	 * Get assigned event manager.
 	 *
@@ -774,11 +790,11 @@ class ObjectRepository
 	public static function getEventManager($caller)
 	{
 		$eventManager = self::getObject($caller, self::INTERFACE_EVENT_MANAGER);
-		
+
 		if (is_null($eventManager)) {
 			$eventManager = EventManager::getEmptyInstance();
 		}
-		
+
 		return $eventManager;
 	}
 
@@ -792,7 +808,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_EVENT_MANAGER);
 	}
-	
+
 	/**
 	 * Set default event manager.
 	 *
@@ -802,7 +818,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_EVENT_MANAGER);
 	}
-	
+
 	/**
 	 * Get assigned ini configuration loader.
 	 *
@@ -812,7 +828,7 @@ class ObjectRepository
 	public static function getIniConfigurationLoader($caller)
 	{
 		$iniConfigurationLoader = self::getObject($caller, self::INTERFACE_INI_CONFIGURATION);
-		
+
 		return $iniConfigurationLoader;
 	}
 
@@ -826,7 +842,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_INI_CONFIGURATION);
 	}
-	
+
 	/**
 	 * Set default ini configuration loader.
 	 *
@@ -837,7 +853,6 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INI_CONFIGURATION);
 	}
 
-	
 	/**
 	 * Get assigned payment provider collection.
 	 *
@@ -847,7 +862,7 @@ class ObjectRepository
 	public static function getPaymentProviderCollection($caller)
 	{
 		$paymentProviderCollection = self::getObject($caller, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
-		
+
 		return $paymentProviderCollection;
 	}
 
@@ -861,7 +876,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
 	}
-	
+
 	/**
 	 * Set default payment provider collection.
 	 *
@@ -871,7 +886,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
 	}
-	
+
 	/**
 	 * Get assigned template parser.
 	 * @param mixed $caller
@@ -880,7 +895,7 @@ class ObjectRepository
 	public static function getTemplateParser($caller)
 	{
 		$templateParser = self::getObject($caller, self::INTERFACE_TEMPLATE_PARSER);
-		
+
 		return $templateParser;
 	}
 
@@ -893,7 +908,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_TEMPLATE_PARSER);
 	}
-	
+
 	/**
 	 * Set default template parser.
 	 * @param TemplateParser $object
@@ -902,4 +917,5 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_TEMPLATE_PARSER);
 	}
+
 }
