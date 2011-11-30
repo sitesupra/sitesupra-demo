@@ -23,7 +23,8 @@
 		"form": {
 			"title": "Title",
 			"visible": "Visible",
-			"style": "Style"
+			"style": "Style",
+			"set_link": "Set link"
 		},
 		
 		"page": {

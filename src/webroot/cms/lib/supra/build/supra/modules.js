@@ -473,6 +473,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/slider.js',
 		requires: ['supra.input-proto', 'slider']
 	},
+	'supra.input-link': {
+		path: 'input/link.js',
+		requires: ['supra.input-proto']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -486,7 +490,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-file-upload',
 			'supra.input-select',
 			'supra.input-select-list',
-			'supra.input-slider'
+			'supra.input-slider',
+			'supra.input-link'
 		],
 	},
 	'supra.input': {

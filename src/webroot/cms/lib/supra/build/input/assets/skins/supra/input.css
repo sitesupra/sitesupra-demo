@@ -14,9 +14,11 @@
 	.yui3-input-string-hidden,
 	.yui3-input-select-hidden,
 	.yui3-input-select-list-hidden,
+	.yui3-input-checkbox-hidden,
 	.yui3-input-path-hidden,
 	.yui3-input-checkbox-hidden,
-	.yui3-input-file-upload-hidden {
+	.yui3-input-file-upload-hidden,
+	.yui3-input-link-hidden {
 		display: none;
 	}
 	
@@ -153,25 +155,6 @@
 		line-height: 30px;
 	}
 
-/* Checkbox */
-.yui3-input-checkbox {
-	height: 30px;
-	line-height: 30px;
-}
-	.yui3-input-checkbox input {
-		width: auto;
-		height: auto;
-		margin: 0 0 0 7px;
-		vertical-align: middle;
-		border: 0;
-		
-		-moz-border-radius: 0;
-		-webkit-border-radius: 0;
-		border-radius: 0;
-	}
-	.yui3-input-checkbox label {
-		padding-top: 0;
-	}
 
 /* File upload */
 .yui3-input-file-upload {
@@ -244,10 +227,13 @@
 .yui3-input-select-list {
 }
 	.yui3-button-group button img+p,
-	.yui3-input-select-list .yui3-button img+p {
+	.yui3-input-select-list .yui3-button img+p,
+	.yui3-input-checkbox button img+p,
+	.yui3-input-checkbox .yui3-button img+p {
 		display: none;
 	}
-	.yui3-input-select-list .yui3-button p {
+	.yui3-input-select-list .yui3-button p,
+	.yui3-input-checkbox .yui3-button p {
 		min-width: 50px;
 	}
 
@@ -268,6 +254,15 @@
 .yui3-input-slider .more {
 	vertical-align: top;
 	padding: 2px 0 0 10px;
+}
+
+/* Link */
+.yui3-input-link .yui3-button,
+.yui3-input-link .yui3-button div {
+	display: block;
+}
+.yui3-input-link .yui3-button button {
+	width: 100%;
 }
 
 /**
@@ -320,9 +315,11 @@
 	.yui3-form-vertical .yui3-input-path label,
 	.yui3-form-vertical .yui3-input-select label,
 	.yui3-form-vertical .yui3-input-select-list label,
+	.yui3-form-vertical .yui3-input-checkbox label,
 	.yui3-form-vertical .yui3-input-text label,
 	.yui3-form-vertical .yui3-input-file-upload label,
-	.yui3-form-vertical .yui3-input-slider label {
+	.yui3-form-vertical .yui3-input-slider label,
+	.yui3-form-vertical .yui3-input-link label {
 		display: block;
 	}
 	.yui3-form-vertical .yui3-input-string input,
@@ -332,12 +329,6 @@
 	}
 	.yui3-form-vertical .yui3-input-path input {
 		width: 50%;
-	}
-
-	.yui3-form-vertical .yui3-input-checkbox label {
-		padding: 7px 5px;
-		line-height: 1em;
-		vertical-align: middle;
 	}
 
 /**

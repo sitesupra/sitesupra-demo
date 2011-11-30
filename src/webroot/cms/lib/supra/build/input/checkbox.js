@@ -49,6 +49,13 @@ YUI.add("supra.input-checkbox", function (Y) {
 			}
 		},
 		
+		/**
+		 * On label change update values
+		 * 
+		 * @param {Array} labels Array of labels
+		 * @return New labels attribute value
+		 * @private
+		 */
 		_setLabels: function (labels) {
 			if (labels.length == 2) {
 				var values = [
@@ -60,20 +67,49 @@ YUI.add("supra.input-checkbox", function (Y) {
 			return labels;
 		},
 		
+		/**
+		 * Used when rendering buttons
+		 * 
+		 * @private
+		 */
 		_getInternalValue: function () {
 			return this.get('value') ? '1' : '0';
 		},
 		
+		/**
+		 * Value getter.
+		 * Returns value as boolean
+		 * 
+		 * @return Value
+		 * @type {Boolean}
+		 */
 		_getValue: function () {
 			return !!this.get('inputNode').get('checked');
 		},
 		
+		/**
+		 * Value setter.
+		 * 
+		 * @param {Boolean} value Value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
 		_setValue: function (value) {
 			//Check
 			this.get('inputNode').set('checked', value === true || value == '1' ? true : false);
 			
 			//Update style
 			return Input.superclass._setValue.apply(this, [value === true || value == '1' ? '1' : '0']);
+		},
+		
+		/**
+		 * After value change trigger event
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal === true || evt.newVal == '1' ? true : false});
+			}
 		}
 		
 	});

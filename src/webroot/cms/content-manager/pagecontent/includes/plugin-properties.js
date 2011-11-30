@@ -29,6 +29,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		
 		
+		//Options
+		options: null,
+		
 		// Form instance
 		form: null,
 		
@@ -90,7 +93,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		// Execute action
 		execute: function (form, options) {
-			var options = options || {
+			var options = this.options = options || {
 				'doneCallback': null,
 				'hideEditorToolbar': false
 			};
