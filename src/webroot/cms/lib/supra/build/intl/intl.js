@@ -169,6 +169,11 @@ YUI.add('supra.intl', function (Y) {
 		 */
 		replace: function (template /* Template */, escape /* Escape type */) {
 			var self = this;
+			
+			if (template.indexOf('#') == -1) {
+				return template;
+			}
+			
 			return template.replace(/{#([^#]+)#}/g, function (all, key) {
 				var key = Y.Lang.trim(key),
 					ret = self.get(key.split('.')) || all;

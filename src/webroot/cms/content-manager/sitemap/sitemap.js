@@ -120,12 +120,12 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				'title': SU.Intl.get(['sitemap', 'recycle_bin']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
 				'action': 'SiteMapRecycle'
-			}, {
+			}/*, {
 				'id': 'history',
 				'title': SU.Intl.get(['sitemap', 'undo_history']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 				'action': 'PageHistory'
-			}]);
+			}*/]);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
 			//Drag & drop
