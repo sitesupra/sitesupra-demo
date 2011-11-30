@@ -12,8 +12,6 @@ use Supra\NestedSet\ArrayRepository;
 use Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy;
 use Supra\Database\Entity as DatabaseEntity;
 
-require_once SUPRA_COMPONENT_PATH . 'Authentication/AuthenticationSessionNamespace.php';
-
 class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase 
 {
 	/**
