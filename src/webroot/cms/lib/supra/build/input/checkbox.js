@@ -10,46 +10,70 @@ YUI.add("supra.input-checkbox", function (Y) {
 	
 	Input.NAME = "input-checkbox";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
-	Input.ATTRS = {};
-	
 	Input.HTML_PARSER = {};
+	Input.ATTRS = {
+		/**
+		 * Selecting multiple values is not allowed
+		 */
+		'multiple': {
+			readOnly: true,
+			value: false
+		},
+		
+		/**
+		 * Value/option list
+		 */
+		'labels': {
+			value: ['{#buttons.yes#}', '{#buttons.no#}'],
+			setter: '_setLabels'
+		},
+		
+		/**
+		 * Default value
+		 */
+		'defaultValue': {
+			value: true
+		}
+	};
 	
-	Y.extend(Input, Supra.Input.Proto, {
+	Y.extend(Input, Supra.Input.SelectList, {
 		INPUT_TEMPLATE: '<input type="checkbox" value="1" />',
 		
 		_original_value: null,
 		
-		bindUI: function () {
-			Input.superclass.bindUI.apply(this, arguments);
+		renderUI: function () {
+			Supra.Input.SelectList.superclass.renderUI.apply(this, arguments);
 			
-			var input = this.get('inputNode');
-			
-			//Handle value attribute change
-			this.on('valueChange', this._afterValueChange, this);
+			if (!this.buttons_rendered) {
+				this.set('labels', this.get('labels'));
+			}
 		},
 		
-		renderUI: function () {
-			var r = Input.superclass.renderUI.apply(this, arguments);
-			return r;
+		_setLabels: function (labels) {
+			if (labels.length == 2) {
+				var values = [
+					{"id": "1", "title": labels[0]},
+					{"id": "0", "title": labels[1]}
+				];
+				this.set('values', values);
+			}
+			return labels;
+		},
+		
+		_getInternalValue: function () {
+			return this.get('value') ? '1' : '0';
 		},
 		
 		_getValue: function () {
-			return this.get("inputNode").get("checked");
+			return !!this.get('inputNode').get('checked');
 		},
 		
 		_setValue: function (value) {
-			var value = !!value;
+			//Check
+			this.get('inputNode').set('checked', value === true || value == '1' ? true : false);
 			
-			this.get("inputNode").set("checked", value);
-			
-			this._original_value = value;
-			return value;
-		},
-		
-		_afterValueChange: function (evt) {
-			if (evt.prevVal != evt.newVal) {
-				this.fire('change', {'value': evt.newVal});
-			}
+			//Update style
+			return Input.superclass._setValue.apply(this, [value === true || value == '1' ? '1' : '0']);
 		}
 		
 	});
@@ -60,4 +84,4 @@ YUI.add("supra.input-checkbox", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-proto"]});
+}, YUI.version, {requires:["supra.input-proto", "supra.input-select-list"]});

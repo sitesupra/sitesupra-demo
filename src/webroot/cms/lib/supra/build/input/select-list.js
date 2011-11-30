@@ -110,7 +110,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			this.buttons = {};
 			
-			var value = this.get('value'),
+			var value = this._getInternalValue(),
 				multiple = this.get('multiple'),
 				has_value_match = false,
 				contentBox = this.get('contentBox'),
@@ -146,7 +146,7 @@ YUI.add('supra.input-select-list', function (Y) {
 					button.get('boundingBox').addClass('yui3-button-last');
 				}
 				
-				if (input) {
+				if (input && input.options) {
 					//Add options to allow selecting value
 					input.options[input.options.length] = new Option(values[i].title, values[i].id);
 					if (value == values[i].id) input.value = value;
@@ -203,6 +203,10 @@ YUI.add('supra.input-select-list', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		_getInternalValue: function () {
+			return this.get('value');
 		},
 		
 		_getValue: function () {

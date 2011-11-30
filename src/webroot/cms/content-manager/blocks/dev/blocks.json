@@ -10,10 +10,7 @@
 			"classname": "Editable",
 			"properties": [
 				{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
-				{"id": "visible", "type": "SelectList", "label": "{#form.visible#}", "value": "0", "values": [
-					{"id": "1", "title": "{#buttons.yes#}"},
-					{"id": "0", "title": "{#buttons.no#}"}
-				]}
+				{"id": "active", "type": "Checkbox", "label": "{#form.visible#}", "value": true, "labels": ["{#buttons.yes#}", "{#buttons.no#}"]}
 			]
 		},
 		{
