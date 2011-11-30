@@ -157,13 +157,9 @@ YUI.add('website.list-dd', function (Y) {
 					this.fire('drop', {
 						'drag_id': drag_id,
 						'drop_id': drop_id,
+						'drag_node': node,
 						'drop_node': this.drop_target
 					});
-					
-					if (drag_id) {
-						//Move node
-						this.drop_target.append(node);
-					}
 				}
 				
 				this.drop_target = null;

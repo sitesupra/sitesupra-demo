@@ -145,22 +145,41 @@ Supra('website.list-dd', function (Y) {
 		onDrop: function (e /* Event */) {
 			var target = e.drop_node,
 				drag_id = e.drag_id,
-				drop_id = e.drop_id;
+				drop_id = e.drop_id,
+				drag_node = e.drag_node,
+				drop_node = e.drop_node;
 			
 			if (drag_id) {
 				//Moving
-				Supra.io(this.getDataPath('update'), {
-					'data': {
-						'user_id': drag_id,
-						'group': drop_id
-					},
-					'method': 'post',
-					'context': this
+				Manager.executeAction('Confirmation', {
+					'message': Supra.Intl.get(['userlist', 'user_move_confirm']),
+					'useMask': true,
+					'buttons': [
+						{'id': 'yes', 'style': 'mid-blue', 'click': function () { this.onUserMoveConfirm(drag_id, drop_id, drag_node, drop_node); }, 'context': this},
+						{'id': 'no'}
+					]
 				});
 			} else {
 				//Adding
 				this.addUser(drop_id);
 			}
+		},
+		
+		/**
+		 * If user confirms user group change send request to server
+		 */
+		onUserMoveConfirm: function (drag_id, drop_id, drag_node, drop_node) {
+			Supra.io(this.getDataPath('update'), {
+				'data': {
+					'user_id': drag_id,
+					'group': drop_id
+				},
+				'method': 'post',
+				'context': this
+			});
+			
+			//Move node
+			drop_node.append(drag_node);
 		},
 		
 		/**

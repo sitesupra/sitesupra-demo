@@ -20,7 +20,9 @@
 			"group_2_rights": "Can publish",
 			
 			"group_3": "Contributors",
-			"group_3_rights": "Can add and edit"
+			"group_3_rights": "Can add and edit",
+			
+			"user_move_confirm": "Moving user will reset user's custom permissions to the new group's default permissions."
 		},
 		
 		"userdetails": {
