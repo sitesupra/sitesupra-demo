@@ -16,12 +16,21 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 		initPlugins: function () {
 			this.plugins = {};
 			var plugins = Supra.HTMLEditor.PLUGINS,
-				configuration;
+				configuration = null,
+				mode = this.get('mode');
 			
 			for(var id in plugins) {
 				configuration = this.getPluginConfiguration(id);
 				
 				if (configuration !== false) {
+					
+					//If plugin doesn't support this mode then skip it
+					if (configuration) {
+						if (Y.Array.indexOf(configuration.modes || [], mode) == -1) {
+							continue;
+						}
+					}
+					
 					this.plugins[id] = Supra.mix({
 						'htmleditor': this,
 						'id': id,
@@ -136,12 +145,13 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 			if (!(pluginId in Supra.HTMLEditor.PLUGINS) && !defaultConfig) return false;
 			
 			var configuration = Supra.data.get(['supra.htmleditor', 'plugins', pluginId]),
-				defaultConfig = defaultConfig || Supra.HTMLEditor.PLUGINS[pluginId].configuration;
+				defaultConfig = defaultConfig || Supra.HTMLEditor.PLUGINS[pluginId].configuration,
+				defaultModes = [SU.HTMLEditor.MODE_STRING, SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH];
 			
 			if (configuration) {
 				if (Y.Lang.isObject(configuration)) {
 					//Mix together user configuration and default
-					configuration = Supra.mix({}, defaultConfig, configuration);
+					configuration = Supra.mix({'modes': defaultModes}, defaultConfig, configuration);
 					
 					return configuration;
 				} else {
@@ -152,7 +162,7 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				return false;
 			}
 			
-			return defaultConfig;
+			return Supra.mix({'modes': defaultModes}, defaultConfig);
 		}
 		
 	});

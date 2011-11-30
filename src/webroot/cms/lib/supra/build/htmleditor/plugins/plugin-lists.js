@@ -4,6 +4,10 @@
 YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		
+		/* List types */
 		lists: ['ul', 'ol']
 	};
 	

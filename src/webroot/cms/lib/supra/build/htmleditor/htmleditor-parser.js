@@ -79,105 +79,111 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @param {Object} html
 		 */
 		cleanHTML: function (html) {
-			//Convert <span> into B, EM, U, S
-			var styleToTag = [
-				['b', /font-weight:\s?bold/i],
-				['em', /font-style:\s?italic/i],
-				['u', /text-decoration:[^"']*underline/i],
-				['s', /text-decoration:[^"']*strike-through/i]
-			];
+			var mode = this.get('mode');
 			
-			//Remove YUI ids from nodes
-			html = html.replace(/\s+id="yui_[^"]*"/gi, '');
-			
-			//Remove un-editable classnames
-			html = html.replace(/su\-(un)?editable/gi, '');
-			
-			var styleTags = Supra.HTMLEditor.STYLED_INLINE,
-				styleTag,
-				regexStyle,
-				tagIndex,
-				tagOpenStart,
-				tagOpenEnd,
-				tagClose,
-				tagContent,
-				tagsAdd = [],
-				tagsAppend = '',
-				tagsPrepend = '',
-				k = 0,
-				kk = styleToTag.length;
-			
-			for(var i=0,ii=styleTags.length; i<ii; i++) {
-				styleTag = styleTags[i];
+			if (mode == SU.HTMLEditor.MODE_STRING) {
+				//In string mode there is nothing to clean up
+			} else {
+				//Convert <span> into B, EM, U, S
+				var styleToTag = [
+					['b', /font-weight:\s?bold/i],
+					['em', /font-style:\s?italic/i],
+					['u', /text-decoration:[^"']*underline/i],
+					['s', /text-decoration:[^"']*strike-through/i]
+				];
 				
-				tagOpenStart = html.indexOf('<' + styleTag);
+				//Remove YUI ids from nodes
+				html = html.replace(/\s+id="yui_[^"]*"/gi, '');
 				
-				//If there is a letter after style tag then match isn't correct
-				while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
-					tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
-				}
+				//Remove un-editable classnames
+				html = html.replace(/su\-(un)?editable/gi, '');
 				
-				tagOpenEnd = html.indexOf('>', tagOpenStart);
-				tagsAdd = [];
+				var styleTags = Supra.HTMLEditor.STYLED_INLINE,
+					styleTag,
+					regexStyle,
+					tagIndex,
+					tagOpenStart,
+					tagOpenEnd,
+					tagClose,
+					tagContent,
+					tagsAdd = [],
+					tagsAppend = '',
+					tagsPrepend = '',
+					k = 0,
+					kk = styleToTag.length;
 				
-				while(tagOpenStart != -1) {
-					//See if correct tag was matched
-					tagClose = html.indexOf('</' + styleTag, tagOpenStart);
+				for(var i=0,ii=styleTags.length; i<ii; i++) {
+					styleTag = styleTags[i];
 					
-					if (tagClose == -1) {
-						//Tag is not closed, remove it
-						html = html.substring(0, tagOpenStart) + html.substr(tagOpenEnd + 1);
-					} else {
-						tagContent = html.substring(tagOpenStart, tagOpenEnd);
-						
-						for(k=0; k<kk; k++) {
-							if (tagContent.match(styleToTag[k][1])) {
-								tagsAdd[tagsAdd.length] = styleToTag[k][0];
-							}
-						}
-						
-						tagsPrepend = tagsAdd.length ? '<_' + tagsAdd.join('><_') + '>' : '';
-						tagsAppend  = tagsAdd.length ? '</_' + tagsAdd.reverse().join('></_') + '>' : '';
-						
-						html = html.substring(0, tagOpenStart)
-							 + '<_' + html.substring(tagOpenStart + 1, tagOpenEnd + 1)
-							 + tagsPrepend + html.substring(tagOpenEnd + 1, tagClose) + tagsAppend
-							 + '</_' + html.substring(tagClose + 2);
-					}
-					
-					tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 1);
+					tagOpenStart = html.indexOf('<' + styleTag);
 					
 					//If there is a letter after style tag then match isn't correct
-					html.charAt(tagOpenStart + styleTag.length + 1).match(/a-z/i);
 					while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
 						tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
 					}
 					
 					tagOpenEnd = html.indexOf('>', tagOpenStart);
 					tagsAdd = [];
+					
+					while(tagOpenStart != -1) {
+						//See if correct tag was matched
+						tagClose = html.indexOf('</' + styleTag, tagOpenStart);
+						
+						if (tagClose == -1) {
+							//Tag is not closed, remove it
+							html = html.substring(0, tagOpenStart) + html.substr(tagOpenEnd + 1);
+						} else {
+							tagContent = html.substring(tagOpenStart, tagOpenEnd);
+							
+							for(k=0; k<kk; k++) {
+								if (tagContent.match(styleToTag[k][1])) {
+									tagsAdd[tagsAdd.length] = styleToTag[k][0];
+								}
+							}
+							
+							tagsPrepend = tagsAdd.length ? '<_' + tagsAdd.join('><_') + '>' : '';
+							tagsAppend  = tagsAdd.length ? '</_' + tagsAdd.reverse().join('></_') + '>' : '';
+							
+							html = html.substring(0, tagOpenStart)
+								 + '<_' + html.substring(tagOpenStart + 1, tagOpenEnd + 1)
+								 + tagsPrepend + html.substring(tagOpenEnd + 1, tagClose) + tagsAppend
+								 + '</_' + html.substring(tagClose + 2);
+						}
+						
+						tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 1);
+						
+						//If there is a letter after style tag then match isn't correct
+						html.charAt(tagOpenStart + styleTag.length + 1).match(/a-z/i);
+						while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
+							tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
+						}
+						
+						tagOpenEnd = html.indexOf('>', tagOpenStart);
+						tagsAdd = [];
+					}
 				}
+				
+				//Convert <_ into <
+				html = html.replace(/<(\/?)_/g, '<$1');
+				
+				//Convert <strong> into <b>
+				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
+				
+				//Convert <i> into <em>
+				html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
+				
+				//Remove tags, which are not white-listed (SPAN is also removed)
+				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
+				
+				//Remove style attribute
+				html = html.replace(/\s+style="[^"]*"/gi, '');
+				
+				//Remove empty class attributes
+				html = html.replace(/class="\s*"/g, '');
+				
+				//Remove YUI classnames
+				html = html.replace(/(yui3\-table\-selected|yui3\-cell\-selected)/g, '');
 			}
-			
-			//Convert <_ into <
-			html = html.replace(/<(\/?)_/g, '<$1');
-			
-			//Convert <strong> into <b>
-			html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
-			
-			//Convert <i> into <em>
-			html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
-			
-			//Remove tags, which are not white-listed (SPAN is also removed)
-			html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
-			
-			//Remove style attribute
-			html = html.replace(/\s+style="[^"]*"/gi, '');
-			
-			//Remove empty class attributes
-			html = html.replace(/class="\s*"/g, '');
-			
-			//Remove YUI classnames
-			html = html.replace(/(yui3\-table\-selected|yui3\-cell\-selected)/g, '');
 			
 			//Fire event to allow plugins to clean up after themselves
 			var event = {'html': html};

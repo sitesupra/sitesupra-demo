@@ -29,8 +29,19 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		},
 		'toolbar': {
 			value: null
+		},
+		/**
+		 * HTMLEditor mode: SU.HTMLEditor.MODE_SIMPLE or SU.HTMLEditor.MODE_RICH
+		 */
+		'mode': {
+			value: 3
 		}
 	};
+	
+	HTMLEditor.MODE_STRING	= 1;
+	HTMLEditor.MODE_SIMPLE	= 2;
+	HTMLEditor.MODE_RICH	= 3;
+	
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		

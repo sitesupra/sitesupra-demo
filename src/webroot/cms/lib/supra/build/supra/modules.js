@@ -511,6 +511,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.input-proto']
 	},
 	
+	//In-line string editor
+	'supra.input-inline-string': {
+		path: 'input/string-inline.js',
+		requires: ['supra.input-inline-html']
+	},
+	
 	/**
 	 * Calendar widget
 	 */

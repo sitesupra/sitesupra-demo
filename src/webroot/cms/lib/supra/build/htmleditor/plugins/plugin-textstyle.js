@@ -1,6 +1,10 @@
 YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		
+		/* List of document commands */
 		commands: ['bold', 'italic', 'underline', 'strikethrough']
 	};
 	

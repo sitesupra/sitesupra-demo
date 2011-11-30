@@ -1,7 +1,11 @@
 YUI().add('supra.htmleditor-plugin-image', function (Y) {
 	
 	var defaultConfiguration = {
-		'size': '200x200'
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		
+		/* Default image size */
+		size: '200x200'
 	};
 	
 	var defaultProps = {

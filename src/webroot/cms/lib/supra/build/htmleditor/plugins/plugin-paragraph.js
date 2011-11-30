@@ -1,11 +1,14 @@
 YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		
 		/*
 		 * Selects whether pressing return inside a paragraph creates another paragraph or just inserts a <br> tag.
 		 * By defaults it's disabled
 		 */
-		'insertBrOnReturn': false
+		insertBrOnReturn: false
 	};
 	
 	/*

@@ -181,15 +181,20 @@
 .yui3-content-editing .yui3-content-inline {
 	outline: 2px dashed rgba(0,0,0,.35);
 	
-	position: relative;
-	z-index: 10000;
-	
 	-moz-outline-radius: 4px;
 	-webkit-outline-radius: 4px;
 	outline-radius: 4px;
 	
 	overflow: hidden;
 	min-height: 1.5em;
+}
+.yui3-content-editing {
+	position: relative;
+	z-index: 10000;
+}
+.yui3-content-editing .yui3-input-string-inline .yui3-content-inline {
+	overflow: visible;
+	min-height: 1em;
 }
 
 /**

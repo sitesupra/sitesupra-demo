@@ -5,7 +5,10 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
-	var defaultConfiguration = {};
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
+	};
 	
 	SU.HTMLEditor.addPlugin('source', defaultConfiguration, {
 		

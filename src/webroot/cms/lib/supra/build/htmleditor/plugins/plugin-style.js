@@ -4,6 +4,8 @@
 YUI().add('supra.htmleditor-plugin-style', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
 	};
 	
 	/*

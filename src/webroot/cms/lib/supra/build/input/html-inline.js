@@ -46,7 +46,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'doc': doc,
 					'win': win,
 					'srcNode': src,
-					'toolbar': toolbar
+					'toolbar': toolbar,
+					'mode': Supra.HTMLEditor.MODE_RICH
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);

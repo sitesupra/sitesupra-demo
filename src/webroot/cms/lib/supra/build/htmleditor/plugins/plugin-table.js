@@ -5,6 +5,8 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		HTMLEDITOR_BUTTON  = 'inserttable';
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
 	};
 	
 	

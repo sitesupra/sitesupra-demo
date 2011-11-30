@@ -1,6 +1,8 @@
 YUI().add('supra.htmleditor-plugin-link', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
 	};
 	
 	SU.HTMLEditor.addPlugin('link', defaultConfiguration, {

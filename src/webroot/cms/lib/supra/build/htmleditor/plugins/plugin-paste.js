@@ -1,6 +1,10 @@
 YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 	
 	var defaultConfiguration = {
+		/* 
+		 * Modes definition is missing, because plugin works in all modes
+		 */
+		
 		/*
 		 * If pasting from word remove spans
 		 * SPAN is used for styles, but styles are removed, so no need for spans
@@ -137,25 +141,36 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 		 * @param {Object} html
 		 */
 		cleanPastedHTML: function (html) {
-			var htmleditor = this.htmleditor;
+			var htmleditor = this.htmleditor,
+				mode = htmleditor.get('mode');
 			
-			//If content was pasted from MS Word, remove all MS tags/styles/comments
-			html = this.cleanUpWordFormatting(html);
+			if (mode == SU.HTMLEditor.MODE_STRING) {
+				//Remove all tags
+				html = html.replace(/<[^>]+>/g, '');
+				
+				//Calling, because plugins could be using 'cleanHTML' event
+				html = htmleditor.cleanHTML(html);
 			
-			//In case if content was copied from editor, then need to remove IDs, classes, etc.
-			html = htmleditor.cleanHTML(html);
-			
-			//Remove extra tag, which is used to fix WebKit no-pasting in empty element
-			//<p>...WebKitFix</p>  or  ...<p>WebKitFix</p>
-			html = html.replace(/(^<p>(.*)|()<p>)(&nbsp;)?WebKitFix<\/p>$/i, '$2');
-			
-			//Remove script, style and link nodes
-			html = html.replace(/<script[^>]*\/?>([\s\S]*?<\/script>)?/ig, '');
-			html = html.replace(/<style[^>]*\/?>([\s\S]*?<\/style>)?/ig, '');
-			html = html.replace(/<link[^>]*\/?>/ig, '');
-			
-			//Remove "su..." ids to prevent conflict
-			html = html.replace(/id=("|')?su[0-9]+("|')?\s?/ig, '');
+			} else {
+				
+				//If content was pasted from MS Word, remove all MS tags/styles/comments
+				html = this.cleanUpWordFormatting(html);
+				
+				//In case if content was copied from editor, then need to remove IDs, classes, etc.
+				html = htmleditor.cleanHTML(html);
+				
+				//Remove extra tag, which is used to fix WebKit no-pasting in empty element
+				//<p>...WebKitFix</p>  or  ...<p>WebKitFix</p>
+				html = html.replace(/(^<p>(.*)|()<p>)(&nbsp;)?WebKitFix<\/p>$/i, '$2');
+				
+				//Remove script, style and link nodes
+				html = html.replace(/<script[^>]*\/?>([\s\S]*?<\/script>)?/ig, '');
+				html = html.replace(/<style[^>]*\/?>([\s\S]*?<\/style>)?/ig, '');
+				html = html.replace(/<link[^>]*\/?>/ig, '');
+				
+				//Remove "su..." ids to prevent conflict
+				html = html.replace(/id=("|')?su[0-9]+("|')?\s?/ig, '');
+			}
 			
 			//Fire pasteHTML event and allow listeners to modify content
 			var event = {'html': html};

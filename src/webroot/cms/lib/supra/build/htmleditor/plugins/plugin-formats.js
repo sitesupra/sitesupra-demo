@@ -4,6 +4,10 @@
 YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 	
 	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		
+		/* Available formats */
 		formats: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p']
 	};
 	
