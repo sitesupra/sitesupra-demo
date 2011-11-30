@@ -78,31 +78,7 @@ class HistoryPageRequestView extends PageRequest
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		$localeId = $localization->getLocale();
 		
-		$draftEm = ObjectRepository::getEntityManager('Supra\Cms');
-		$pageSetIds = null;
-		
-		if ($page instanceof Entity\Template) {
-			
-			$layout = null;
-			
-			if ( ! $page->isRoot()) {
-				$localizationId = $this->getPageLocalization()->getId();
-				$draftEm->getUnitOfWork()->clear();
-				$localization = $draftEm->find(static::TEMPLATE_DATA_ENTITY, $localizationId);
-
-				$pageSetIds = $localization->getTemplateHierarchy()->collectIds();
-				$layout = $localization->getTemplateHierarchy()
-											->getRootTemplate()
-											->getLayout();
-			} else {
-				$pageSetIds = array($page->getId());
-				$layout = $page->getLayout();
-			}
-			$this->overrideLayout($layout);
-		} else {
-			
-			$pageSetIds = $this->getPageSetIds();
-		}
+		$pageSetIds = $this->getPageSetIds();
 		
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		
@@ -111,6 +87,7 @@ class HistoryPageRequestView extends PageRequest
 			return $this->placeHolderSet;
 		}
 		
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		// Load template placeholders from draft
 		$qb = $draftEm->createQueryBuilder();
 		$qb->select('ph')

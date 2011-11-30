@@ -561,24 +561,4 @@ abstract class PageRequest extends HttpRequest
 		return $this->blockPropertySet;
 	}
 
-	/**
-	 * In case if we are forced to fetch layout from another schema
-	 * this method will allow us to override layout with our one
-	 */
-	public function overrideLayout($layout)
-	{
-		$this->layout = $layout;
-	}
-
-	/**
-	 * Clear properties
-	 */
-	public function resetSets()
-	{
-		$this->pageSet = null;
-		$this->blockSet = null;
-		$this->placeHolderSet = null;
-		$this->blockPropertySet = null;
-	}
-
 }
