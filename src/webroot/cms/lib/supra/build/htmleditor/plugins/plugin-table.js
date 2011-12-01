@@ -40,6 +40,14 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			var content = Manager.getAction('PageContentSettings').one();
 			if (!content) return;
 			
+			
+			//Remove table from "style" plugin list, because this plugin will manage TABLE classnames
+			var plugin = this.htmleditor.getPlugin('style');
+			if (plugin) {
+				plugin.excludeTag('table');
+			}
+			
+			//Get styles
 			var styles = this.getTableStyles();
 			
 			//Properties form
@@ -494,7 +502,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 */
 		getTableStyles: function () {
 			var style_plugin = this.htmleditor.getPlugin('style'),
-				styles = style_plugin.getSelectors('table', true),	//Get all table styles
+				styles = style_plugin.getSelectors('table', true, true),	//Get all table styles
 				list = [];
 			
 			for(var i=0,ii=styles.length; i<ii; i++) {

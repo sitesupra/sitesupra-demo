@@ -32,6 +32,22 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 		targetNode: null,
 		
 		/**
+		 * List of tags, which can't be styled
+		 * @type {Object}
+		 */
+		excludeList: {},
+		
+		
+		/**
+		 * Add tag to list of tags which will not be in the list
+		 * 
+		 * @param {String} tagName Tag name
+		 */
+		excludeTag: function (tagName) {
+			this.excludeList[tagName.toUpperCase()] = true;
+		},
+		
+		/**
 		 * Returns selectors matching tag
 		 * 
 		 * @param {String} tagName Tag name to search for 
@@ -39,15 +55,22 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 		 * @return List of selectors
 		 * @type {Array}
 		 */
-		getSelectors: function (tagName, excludeGlobal) {
+		getSelectors: function (tagName, excludeGlobal, skipTagExclude) {
 			var selectors = this.selectors,
 				tagName = tagName.toUpperCase(),
 				result = [];
 			
-			if (tagName in selectors) {
-				result = result.concat(selectors[tagName]);
+			//Only tags which are not in excluded tag list
+			if (skipTagExclude || !(tagName in this.excludeList)) {
+				
+				//Selectors matching a tag
+				if (tagName in selectors) {
+					result = result.concat(selectors[tagName]);
+				}
+				
 			}
 			
+			//Selectors which are not tag specific
 			if (!excludeGlobal && tagName != '' && selectors['']) {
 				result = result.concat(selectors['']);
 			}
@@ -236,6 +259,7 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 				this.dropdown.style.display = 'inline';
 			}, this);
 			
+			this.excludeList = {};
 			this.selectors = this.collectStyleSelectors();
 			this.createDropdown();
 		},
