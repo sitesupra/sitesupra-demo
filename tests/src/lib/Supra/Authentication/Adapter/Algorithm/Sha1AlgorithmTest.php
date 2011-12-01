@@ -43,9 +43,6 @@ class Sha1AlgorithmTest extends \PHPUnit_Framework_TestCase
 		
 	}
 
-	/**
-	 * @covers {className}::{origMethodName}
-	 */
 	public function testCrypt()
 	{
 		$hash1 = $this->object->crypt($this->password, $this->salt);
@@ -58,9 +55,6 @@ class Sha1AlgorithmTest extends \PHPUnit_Framework_TestCase
 		self::assertNotEquals($hash1, $hash4);
 	}
 
-	/**
-	 * @covers {className}::{origMethodName}
-	 */
 	public function testValidate()
 	{
 		self::assertTrue($this->object->validate($this->password, '091b5bd20c8ce45988793c64a3a11aeed7c300a0', '4ed7511acb009'));

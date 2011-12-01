@@ -38,10 +38,6 @@ class BlowfishAlgorithmTest extends \PHPUnit_Framework_TestCase
 		
 	}
 
-	/**
-	 * @covers {className}::{origMethodName}
-	 * @todo Implement testCrypt().
-	 */
 	public function testCrypt()
 	{
 		$hash1 = $this->object->crypt($this->password);
@@ -54,10 +50,6 @@ class BlowfishAlgorithmTest extends \PHPUnit_Framework_TestCase
 		self::assertNotEquals($hash1, $hash3);
 	}
 
-	/**
-	 * @covers {className}::{origMethodName}
-	 * @todo Implement testValidate().
-	 */
 	public function testValidate()
 	{
 		self::assertTrue($this->object->validate($this->password, '$2a$12$SY5BN2PUdytGZd5bG3RuVuLc9ccAPvitAYn9F1g4o5jBIuqxHjTiO'));
