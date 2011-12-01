@@ -63,6 +63,13 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		 */
 		toolbar: null,
 		
+		/**
+		 * Timer used for hiding
+		 * @type {Object}
+		 * @private
+		 */
+		hide_timer: null,
+		
 		
 		
 		
@@ -138,21 +145,13 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		hide: function () {
 			if (!this.get('created') || !this.toolbar.get('visible')) return;
 			
-			//Hide toolbar
-			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
-			group_node.transition({
-				'duration': 0.35,
-				'easing': 'ease-out',
-				'marginTop': '50px'
-			});
+			if (this.hide_timer) {
+				this.hide_timer.cancel();
+			}
 			
-			Y.later(500, this, function () {
-				this.toolbar.set('visible', false);
-				Manager.getAction('LayoutTopContainer').fire('resize');
-				Action.Base.prototype.hide.call(this);
-			});
+			this.hide_timer = Y.later(16, this, this.afterHide);
 			
-			//Show button toolbar
+			//Removed toolbar buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			
 			//Toggle classnames
@@ -166,10 +165,39 @@ SU('transition', 'supra.htmleditor', function (Y) {
 		},
 		
 		/**
+		 * After small delay actually hide toolbar
+		 */
+		afterHide: function () {
+			//Unset timer
+			this.hide_timer = null;
+			
+			//Animate toolbar out
+			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
+			group_node.transition({
+				'duration': 0.35,
+				'easing': 'ease-out',
+				'marginTop': '50px'
+			});
+			
+			//When animation ends hide it
+			Y.later(500, this, function () {
+				this.toolbar.set('visible', false);
+				Manager.getAction('LayoutTopContainer').fire('resize');
+				Action.Base.prototype.hide.call(this);
+			});
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function (dontShow) {
 			if (dontShow) return;
+			
+			//Cancel timer
+			if (this.hide_timer) {
+				this.hide_timer.cancel();
+				this.hide_timer = null;
+			}
 			
 			//Show toolbar and resize container
 			this.toolbar.set('visible', true);
