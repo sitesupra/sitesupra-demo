@@ -333,12 +333,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			if (property && id in inputs) {
+				var srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+				
 				//Get input config
 				config = Supra.mix({
 					'doc': host.get('doc'),
 					'win': host.get('win'),
 					'toolbar': Supra.Manager.EditorToolbar.getToolbar(),
-					'srcNode': host_node.one('#' + host_node.getAttribute('id') + '_' + property.id)
+					'srcNode': srcNode,
+					'contentBox': srcNode,
+					'boundingBox': srcNode
 				}, property, {
 					'value': value ? value : property.value
 				});
