@@ -35,9 +35,6 @@ class TwigBlockHelper
 	{
 		$value = $this->blockController->getPropertyValue($name);
 		
-		// Marks content safe
-		$valueObject = new Twig_Markup($value);
-
-		return $valueObject;
+		return $value;
 	}
 }

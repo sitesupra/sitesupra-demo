@@ -29,6 +29,7 @@ class BlocksAction extends PageManagerAction
 			$properties = array();
 			
 			foreach ($propertyDefinition as $key => $property) {
+				/* @var $property \Supra\Editable\EditableInterface */
 				$properties[] = array(
 					'id' => $key,
 					'type' => $property->getEditorType(),

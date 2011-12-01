@@ -3,11 +3,12 @@
 namespace Supra\Editable;
 
 /**
- * String editable content
+ * Link
+ * TODO: what could be a default value for link?
  */
-class String extends EditableAbstraction
+class Link extends EditableAbstraction
 {
-	const EDITOR_TYPE = 'String';
+	const EDITOR_TYPE = 'Link';
 	const EDITOR_INLINE_EDITABLE = false;
 	
 	/**
@@ -27,5 +28,4 @@ class String extends EditableAbstraction
 	{
 		return self::EDITOR_INLINE_EDITABLE;
 	}
-	
 }

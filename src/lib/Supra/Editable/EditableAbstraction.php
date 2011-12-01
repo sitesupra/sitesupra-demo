@@ -10,12 +10,6 @@ use Supra\Loader;
 abstract class EditableAbstraction implements EditableInterface
 {
 	/**
-	 * Default filter classes for content by action
-	 * @var array
-	 */
-	protected static $defaultFilters = array();
-
-	/**
 	 * Array of content filters
 	 * @var array
 	 */
@@ -36,7 +30,7 @@ abstract class EditableAbstraction implements EditableInterface
 	 * Default value
 	 * @var mixed
 	 */
-	protected $defaultValue = '';
+	protected $defaultValue;
 
 	/**
 	 * @param string $label
@@ -44,19 +38,6 @@ abstract class EditableAbstraction implements EditableInterface
 	public function __construct($label)
 	{
 		$this->setLabel($label);
-		$filterClass = null;
-
-		// Fill in the default filters
-		foreach (static::$defaultFilters as $filterClass) {
-
-			try {
-				$filter = Loader\Loader::getClassInstance($filterClass, 'Supra\Editable\Filter\FilterInterface');
-				$this->filters[] = $filter;
-			} catch (Loader\Exception\LoaderException $e) {
-				throw new Exception\FilterNotFound($e->getMessage(), $this);
-			}
-
-		}
 	}
 
 	/**
@@ -85,7 +66,12 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->filters[] = $filter;
 	}
-
+	
+	public function getFilters()
+	{
+		return $this->filters;
+	}
+	
 	/**
 	 * Get filtered value for the editable content by action
 	 * @param string $action
@@ -133,6 +119,20 @@ abstract class EditableAbstraction implements EditableInterface
 	public function setDefaultValue($value)
 	{
 		$this->defaultValue = $value;
+	}
+	
+	/**
+	 * Which fields to serialize
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		$fields = array(
+			'label',
+			'defaultValue'
+		);
+		
+		return $fields;
 	}
 
 }

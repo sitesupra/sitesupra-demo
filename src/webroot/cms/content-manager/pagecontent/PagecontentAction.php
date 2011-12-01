@@ -101,34 +101,41 @@ class PagecontentAction extends PageManagerAction
 		
 		// Receive block property definition
 		$blockController = $block->createController();
+		/* @var $blockController \Supra\Controller\Pages\BlockController */
+		
 		$block->prepareController($blockController, $request);
-		$propertyDefinitionList = $blockController->getPropertyDefinition();
 		
 		// Load received property values and data from the POST
 		$properties = (array) $this->getRequestParameter('properties');
 		
 		foreach ($properties as $propertyName => $propertyPost) {
 			
-			if ( ! isset($propertyDefinitionList[$propertyName])) {
-				throw new CmsException(null, "Property $propertyName not defined for block $block");
-			}
+			$property = $blockController->getProperty($propertyName);
 			
-			$propertyDefinition = $propertyDefinitionList[$propertyName];
+			// Could be new, should persist
+			$this->entityManager->persist($property);
+			/* @var $property Entity\BlockProperty */
 			
-			if ( ! $propertyDefinition instanceof \Supra\Editable\EditableInterface) {
-				throw new CmsException(null, "Property $propertyName definition must implement EditableInterface");
-			}
+			$editable = $property->getEditable();
 			
 			$name = $propertyName;
-			$type = get_class($propertyDefinition);
+			$type = $property->getType();
 			$value = null;
 			$valueData = array();
 			
 			// Specific result received from CMS for HTML
-			if ($propertyDefinition instanceof \Supra\Editable\Html) {
+			if ($editable instanceof \Supra\Editable\Html) {
 				$value = $propertyPost['html'];
 				if (isset($propertyPost['data'])) {
 					$valueData = $propertyPost['data'];
+				}
+			} elseif ($editable instanceof \Supra\Editable\Link) {
+				// No value for the link, just metadata
+				$value = null;
+				
+				if ( ! empty($propertyPost)) {
+					$valueData = array($propertyPost);
+					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
 				}
 			} else {
 				$value = $propertyPost;
@@ -137,55 +144,27 @@ class PagecontentAction extends PageManagerAction
 			// Property select in one DQL
 			$blockPropertyEntity = Entity\BlockProperty::CN();
 
-			$query = $this->entityManager->createQuery("SELECT p FROM $blockPropertyEntity AS p
-					JOIN p.localization AS l
-					JOIN p.block AS b
-				WHERE l.master = ?0 
-					AND p.block = ?1 
-					AND l.locale = ?2 
-					AND p.name = ?3
-					AND p.type = ?4");
-
-			$params = array(
-				$pageId,
-				$blockId,
-				$localeId,
-				$name,
-				$type
-			);
-
-			$query->setParameters($params);
-
-			/* @var $blockProperty Entity\BlockProperty */
-			$blockProperty = null;
-
-			try {
-				$blockProperty = $query->getSingleResult();
-			} catch (\Doctrine\ORM\NoResultException $noResults) {
-
-				$blockProperty = new Entity\BlockProperty($name, $type);
-				$this->entityManager->persist($blockProperty);
-				$blockProperty->setLocalization($pageData);
-				$blockProperty->setBlock($block);
-			}
-
 			// Remove all old references
-			$metadataCollection = $blockProperty->getMetadata();
+			$metadataCollection = $property->getMetadata();
 			foreach ($metadataCollection as $metadata) {
 				$this->entityManager->remove($metadata);
 			}
 
 			// Empty the metadata
-			$blockProperty->resetMetadata();
+			$property->resetMetadata();
 
 			// Set new refeneced elements
-			$blockProperty->setValue($value);
+			$property->setValue($value);
 
 			foreach ($valueData as $elementName => &$elementData) {
 				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 
-				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $blockProperty, $element);
-				$blockProperty->addMetadata($blockPropertyMetadata);
+				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
+				$property->addMetadata($blockPropertyMetadata);
+				
+//				// Let's persist new elements
+//				$this->entityManager->persist($element);
+//				$this->entityManager->persist($blockPropertyMetadata);
 			}
 		}
 		

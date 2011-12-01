@@ -154,6 +154,10 @@ class PageAction extends PageManagerAction
 				'created_time' => $createdTime,
 				'global' => $page->getGlobal()
 		);
+		
+		if (strpos($array['internal_html'], '&amp;lt;') !== false) {
+			1+1;
+		}
 
 		if ($page instanceof Entity\Template) {
 			$layout = null;
@@ -223,11 +227,17 @@ class PageAction extends PageManagerAction
 
 						if ($blockProperty->getEditable() instanceof Editable\Html) {
 							$propertyData = array(
-									'html' => $propertyValue,
-									'data' => $data
+								'html' => $propertyValue,
+								'data' => $data
 							);
 						}
-
+						
+						if ($blockProperty->getEditable() instanceof Editable\Link) {
+							if (isset($data[0])) {
+								$propertyData = $data[0];
+							}
+						}
+						
 						$blockData['properties'][$propertyName] = $propertyData;
 					}
 				}

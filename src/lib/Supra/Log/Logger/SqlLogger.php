@@ -86,6 +86,9 @@ class SqlLogger implements SQLLoggerInterface
 			if (is_array($param)) {
 				$param = 'ARRAY[' . implode('; ', $param) . ']';
 			}
+			if (is_object($param)) {
+				$param = 'OBJECT[' . serialize($param) . ']';
+			}
 			
 			$length = mb_strlen($param);
 			

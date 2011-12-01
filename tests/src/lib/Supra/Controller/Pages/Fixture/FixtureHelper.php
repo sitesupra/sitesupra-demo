@@ -407,7 +407,8 @@ class FixtureHelper
 					// used later in page
 					$this->headerTemplateBlocks[$localeId] = $block;
 
-					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+					$blockProperty = new Entity\BlockProperty('content');
+					$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -421,7 +422,8 @@ class FixtureHelper
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 
-					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+					$blockProperty = new Entity\BlockProperty('content');
+					$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -435,7 +437,8 @@ class FixtureHelper
 					//				$block->setPosition(200);
 					//				$block->setLocked(true);
 					//
-	//				$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+	//				$blockProperty = new Entity\BlockProperty('content');
+	//				$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					//				$this->entityManager->persist($blockProperty);
 					//				$blockProperty->setBlock($block);
 					//				$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -450,7 +453,8 @@ class FixtureHelper
 					$block->setPosition(100);
 					$block->setLocked();
 
-					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+					$blockProperty = new Entity\BlockProperty('content');
+					$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -464,7 +468,8 @@ class FixtureHelper
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 
-					$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+					$blockProperty = new Entity\BlockProperty('content');
+					$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					$this->entityManager->persist($blockProperty);
 					$blockProperty->setBlock($block);
 					$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -515,7 +520,8 @@ class FixtureHelper
 			$block->setPosition(200);
 			$block->setLocked(true);
 
-			$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+			$blockProperty = new Entity\BlockProperty('content');
+			$blockProperty->setEditable(new \Supra\Editable\Html(''));
 			$this->entityManager->persist($blockProperty);
 			$blockProperty->setBlock($block);
 			$blockProperty->setLocalization($childTemplateLocalization);
@@ -643,7 +649,8 @@ class FixtureHelper
 				foreach (array('header', 'main', 'footer') as $name) {
 
 					if ($name == 'header') {
-						$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
+						$blockProperty = new Entity\BlockProperty('title');
+						$blockProperty->setEditable(new \Supra\Editable\String(''));
 						$this->entityManager->persist($blockProperty);
 						$blockProperty->setBlock($this->headerTemplateBlocks[$localeId]);
 						$blockProperty->setLocalization($pageData);
@@ -664,7 +671,8 @@ class FixtureHelper
 						$block->setPlaceHolder($placeHolder);
 						$block->setPosition(0);
 
-						$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+						$blockProperty = new Entity\BlockProperty('content');
+						$blockProperty->setEditable(new \Supra\Editable\Html(''));
 						$this->entityManager->persist($blockProperty);
 						$blockProperty->setBlock($block);
 						$blockProperty->setLocalization($pageData);
@@ -699,13 +707,15 @@ class FixtureHelper
 								// reverse order
 								$block->setPosition(100 * $i);
 
-								$blockProperty = new Entity\BlockProperty('title', 'Supra\Editable\String');
+								$blockProperty = new Entity\BlockProperty('title');
+								$blockProperty->setEditable(new \Supra\Editable\String(''));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);
 								$blockProperty->setValue($this->randomText($localeId, 0, 1));
 
-								$blockProperty = new Entity\BlockProperty('content', 'Supra\Editable\Html');
+								$blockProperty = new Entity\BlockProperty('content');
+								$blockProperty->setEditable(new \Supra\Editable\Html(''));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);

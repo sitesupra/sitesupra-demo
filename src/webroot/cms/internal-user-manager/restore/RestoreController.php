@@ -69,18 +69,18 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$basePath = $this->getBasePath();
 		$response->assign('basePath', $basePath);
 		
-		if (($this->emptyRequestParameter('e')) || ($this->emptyRequestParameter('t')) || ($this->emptyRequestParameter('h'))) {
-			
-			
+		$input = $this->getRequestInput();
+		
+		if ($input->isEmpty('e') || $input->isEmpty('t') || $input->isEmpty('h')) {
 			$response->redirect($basePath . 'request');
 			return;
 		}
 		
-		$email = $this->getRequestParameter('e');
-		$time = $this->getRequestParameter('t');
-		$hash = $this->getRequestParameter('h');
+		$email = $input->getValid('e', 'email');
+		$time = $input->getValid('t', 'integer');
+		$hash = $input->get('h');
 		
-		$user = $this->validateUser();
+		$user = $this->validateUser($email, $time, $hash);
 
 		if ($user instanceof User) {
 			
@@ -91,7 +91,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			$response->outputTemplate('form.html.twig');
 			return;
 		} else {
-			$response->output('Wrong link. Try to request a new one');
+			$response->output('Expired or invalid link. Try initiating password recovery once more.');
 			return;
 		}
 	}
@@ -107,16 +107,18 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$errorMessage = '';
 		
 		if ($request->isPost()) {
-			$email = $request->getPostValue('email');
+			$input = $request->getPost();
+			$email = $input->get('email');
 			
-			if (empty($email)) {
+			if ($input->isEmpty('email')) {
 				$errorMessage = 'No email address passed';
 				
-			} elseif ( ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			} elseif ( ! $input->isValid('email', 'email')) {
 				$errorMessage = 'Email address not valid';
 			
 			} else {
 
+				$email = $input->getValid('email', 'email');
 				$user = $this->getRequestedUser($email);
 				
 				if ( ! $user instanceof User) {
@@ -144,20 +146,21 @@ class RestoreController extends InternalUserManagerAbstractAction
 	public function changepasswordAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		
 		$response = $this->getResponse();
 		
 		// Assign parameters back to template
-		$email = $this->getRequestParameter('e');
-		$time = $this->getRequestParameter('t');
-		$hash = $this->getRequestParameter('h');
+		$email = $input->getValid('e', 'email');
+		$time = $input->getValid('t', 'integer');
+		$hash = $input->get('h');
 		
 		$response->assign('email', $email);
 		$response->assign('time', $time);
 		$response->assign('hash', $hash);
 		
-		$plainPassword = $this->getRequestParameter('password');
-		$confirmPassword = $this->getRequestParameter('confirm_password');
+		$plainPassword = $input->get('password');
+		$confirmPassword = $input->get('confirm_password');
 
 		// Check password match
 		if($plainPassword !== $confirmPassword) {
@@ -182,7 +185,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			return;
 		}
 		
-		$user = $this->validateUser();
+		$user = $this->validateUser($email, $time, $hash);
 		
 		if (is_null($user)) {
 			$response->output('errorMessage', 'Something went wrong. Try to request new link.');
@@ -237,10 +240,8 @@ class RestoreController extends InternalUserManagerAbstractAction
 	/**
 	 * @return User
 	 */
-	private function validateUser()
+	private function validateUser($email, $time, $hash)
 	{	
-		$email = $this->getRequestParameter('e');
-		
 		$user = $this->getRequestedUser($email);
 
 		// find user
@@ -249,9 +250,6 @@ class RestoreController extends InternalUserManagerAbstractAction
 		}
 		
 		$currentSalt = $user->getSalt();
-		$time = $this->getRequestParameter('t');
-		$hash = $this->getRequestParameter('h');
-		
 		$result = $this->validateHash($user, $time, $hash);
 		
 		if ( ! $result) {

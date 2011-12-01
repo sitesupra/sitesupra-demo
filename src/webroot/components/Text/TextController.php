@@ -51,6 +51,8 @@ class TextController extends BlockController
 		$html = new \Supra\Editable\Html("Content");
 		$contents['content'] = $html;
 		
+		$link = new \Supra\Editable\Link("Link");
+		$contents['link'] = $link;
 		
 		return $contents;
 	}

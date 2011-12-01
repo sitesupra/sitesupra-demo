@@ -60,6 +60,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	protected $metadata;
 	
 	/**
+	 * @Column(type="object", nullable=true)
 	 * @var EditableInterface
 	 */
 	protected $editable;
@@ -67,13 +68,11 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	/**
 	 * Constructor
 	 * @param string $name
-	 * @param string $type
 	 */
-	public function __construct($name, $type)
+	public function __construct($name)
 	{
 		parent::__construct();
 		$this->name = $name;
-		$this->type = $type;
 		$this->resetMetadata();
 	}
 
@@ -153,6 +152,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function setType($type)
 	{
+		throw new \RuntimeException("Should not be used anymore");
 		$this->type = $type;
 	}
 
@@ -194,7 +194,9 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function setEditable(EditableInterface $editable)
 	{
+		$editable->setContent($this->value);
 		$this->editable = $editable;
+		$this->type = get_class($editable);
 	}
 
 	/**

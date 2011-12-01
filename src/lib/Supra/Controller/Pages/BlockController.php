@@ -149,7 +149,8 @@ abstract class BlockController extends ControllerAbstraction
 		} else {
 			$propertyType = (string) $property->getType();
 
-			if ( ! $editable instanceof $propertyType) {
+			// TODO: must create some feature to cast the property to the new class on upgrades
+			if (get_class($editable) != $propertyType) {
 				$newProperty = true;
 			}
 		}
@@ -161,7 +162,7 @@ abstract class BlockController extends ControllerAbstraction
 
 			$propertyType = get_class($editable);
 
-			$property = new Entity\BlockProperty($name, $propertyType);
+			$property = new Entity\BlockProperty($name);
 			$property->setValue($editable->getDefaultValue());
 			$property->setBlock($this->getBlock());
 
@@ -169,12 +170,16 @@ abstract class BlockController extends ControllerAbstraction
 			//FIXME: should do somehow easier than that
 			$property->setLocalization($this->getRequest()->getPageLocalization());
 		}
-
-		//TODO: this is ugly content copying
-		$content = $property->getValue();
-		$editable->setContent($content);
+		
+		//TODO: should we overwrite editable content parameters from the block controller config?
 		$property->setEditable($editable);
-
+		
+		// This is done in previous line already
+//		//TODO: this is ugly content copying
+//		$content = $property->getValue();
+//		$editable->setContent($content);
+		
+		//TODO: do this some way better..
 		$this->configureContentFilters($property, $editable);
 		
 		return $property;
@@ -239,6 +244,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * object set
 	 * 
 	 * @TODO could move to block response object
+	 * @TODO NB! This isn't escaped currently! Maybe this method doesn't make sense?
 	 * 
 	 * @param string $name
 	 */

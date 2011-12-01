@@ -11,13 +11,6 @@ class Html extends String
 	const EDITOR_INLINE_EDITABLE = true;
 	
 	/**
-	 * No filtering for HTML
-	 * @var array
-	 */
-	protected static $defaultFilters = array();
-
-	
-	/**
 	 * Return editor type
 	 * @return string
 	 */
