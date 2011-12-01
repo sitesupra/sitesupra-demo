@@ -13,6 +13,7 @@
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
 	.yui3-input-text-hidden,
+	.yui3-input-number-hidden,
 	.yui3-input-select-hidden,
 	.yui3-input-select-list-hidden,
 	.yui3-input-checkbox-hidden,
@@ -143,6 +144,30 @@
 .yui3-input-hidden {
 	display: none;
 }
+
+/* Number */
+.yui3-input-number {
+	position: relative;
+}
+	.yui3-input-number .button-add,
+	.yui3-input-number .button-sub {
+		position: absolute;
+		right: 10px;
+		top: 3px;
+	}
+	.yui3-input-number .button-add p,
+	.yui3-input-number .button-sub p {
+		padding: 0;
+		width: 10px;
+	}
+	.yui3-input-number .button-sub {
+		right: 35px;
+	}
+	
+	.yui3-form-vertical .yui3-input-number .button-add,
+	.yui3-form-vertical .yui3-input-number .button-sub {
+		top: 29px;
+	}
 
 /* Path */
 .yui3-input-path {
@@ -293,6 +318,7 @@
 		width: 160px;
 	}
 	.yui3-form-default .yui3-input-string input,
+	.yui3-form-default .yui3-input-number input,
 	.yui3-form-default .yui3-input-text textarea {
 		width: 400px;
 	}
@@ -328,6 +354,7 @@
 		width: auto;
 	}
 	.yui3-form-vertical .yui3-input-string label,
+	.yui3-form-vertical .yui3-input-number label,
 	.yui3-form-vertical .yui3-input-text label,
 	.yui3-form-vertical .yui3-input-path label,
 	.yui3-form-vertical .yui3-input-select label,
@@ -340,6 +367,7 @@
 		display: block;
 	}
 	.yui3-form-vertical .yui3-input-string input,
+	.yui3-form-vertical .yui3-input-number input,
 	.yui3-form-vertical .yui3-input-select select,
 	.yui3-form-vertical .yui3-input-text textarea {
 		width: 100%;
@@ -363,6 +391,7 @@
 	text-align: center;
 }
 .yui3-input-string.yui3-input-error input,
+.yui3-input-number.yui3-input-error input,
 .yui3-input-path.yui3-input-error input,
 .yui3-input-text.yui3-input-error textarea {
 	border-color: #c00;

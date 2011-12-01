@@ -72,7 +72,6 @@ YUI.add('supra.input-string', function (Y) {
 			}
 			
 			//Handle keydown
-			//input.on('keydown', this._onKeyDown, this);
 			input.on('keypress', this._onKeyDown, this);
 			
 			//Handle value attribute change
@@ -119,7 +118,7 @@ YUI.add('supra.input-string', function (Y) {
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
 				if (e.ctrlKey && charCode == 118) return;
-				if (!mask.test(value)) return e.halt();
+				if (!mask.test(value)) return e.preventDefault();
 			}
 		},
 		
