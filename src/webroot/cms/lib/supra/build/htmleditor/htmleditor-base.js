@@ -265,7 +265,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			 * text and should be canceled
 			 */
 			if (!event.stopped && !this.editingAllowed && (event._event.charCode || !navKey)) {
-				event.halt();
+				event.preventDefault();
 				return;
 			} else if (!navKey && !event.ctrlKey) {
 				this._changed();

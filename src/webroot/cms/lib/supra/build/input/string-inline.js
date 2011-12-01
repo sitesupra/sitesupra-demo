@@ -17,9 +17,11 @@ YUI.add("supra.input-inline-string", function (Y) {
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.InlineHTML, {
+		/*CONTENT_TEMPLATE: null,*/
 		
 		renderUI: function () {
-			Input.superclass.renderUI.apply(this, arguments);
+			//We overwrite InlineHTML.renderUI, that's why we call parent
+			Supra.Input.InlineHTML.superclass.renderUI.apply(this, arguments);
 			
 			this.set('boundingBox', this.get('srcNode'));
 			
@@ -68,9 +70,11 @@ YUI.add("supra.input-inline-string", function (Y) {
 		 * Clean up
 		 */
 		destructor: function () {
-			this.htmleditor.detach('change');
-			this.htmleditor.destroy();
-			this.htmleditor = null;
+			if (this.htmleditor) {
+				this.htmleditor.detach('change');
+				this.htmleditor.destroy();
+				this.htmleditor = null;
+			}
 		}
 		
 	});

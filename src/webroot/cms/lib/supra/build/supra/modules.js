@@ -256,6 +256,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-style',
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
+			'supra.htmleditor-plugin-paragraph-string',
 			'supra.htmleditor-plugin-source'
 		],
 		skinnable: true
@@ -339,6 +340,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-paragraph': {
 			path: 'htmleditor/plugins/plugin-paragraph.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-paragraph-string': {
+			path: 'htmleditor/plugins/plugin-paragraph-string.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-source': {

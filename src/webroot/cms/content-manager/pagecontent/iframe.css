@@ -26,9 +26,9 @@
 }
 */
 
+/* .yui3-widget,
+.yui3-input, */
 .yui3-content,
-.yui3-widget,
-.yui3-input,
 .yui3-dd-proxy {
 	padding: 0 !important;
 	margin: 0 !important;
@@ -192,7 +192,7 @@
 	position: relative;
 	z-index: 10000;
 }
-.yui3-content-editing .yui3-input-string-inline .yui3-content-inline {
+.yui3-content-editing .yui3-input-string-inline.yui3-content-inline {
 	overflow: visible;
 	min-height: 1em;
 }
