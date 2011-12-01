@@ -77,6 +77,7 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * Some minor validation to check if the default algorithms are safe enough
 	 */
 	public function testCredentialChange()
 	{
@@ -92,8 +93,8 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 		$password1 = $user->getPassword();
 		self::assertNotEmpty($password1);
 		
-		// Password hash should be 40 characters
-		self::assertEquals(40, strlen($password1));
+		// Password hash should be big enough
+		self::assertGreaterThan(20, strlen($password1), 'password hash should be not less than 20 characters');
 		
 		// Credential change resets salt now automatically
 		$this->object->credentialChange($user, $password);

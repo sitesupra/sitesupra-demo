@@ -6,6 +6,7 @@ use Supra\User\Entity\User;
 use Supra\Authentication\Exception;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Loader\Loader;
 
 /**
  * Adapter with email as login and password sha1 hash validation
@@ -13,16 +14,15 @@ use Supra\ObjectRepository\ObjectRepository;
 class HashAdapter implements AuthenticationAdapterInterface
 {
 	/**
-	 * Hashing method used
+	 * Hashing algorithm used
 	 * @var string
 	 */
-	private $algorithm = 'sha1';
+	private $algorithmClass = 'Supra\Authentication\Adapter\Algorithm\BlowfishAlgorithm';
 	
 	/**
-	 * Whether to use binary hash value
-	 * @var boolean
+	 * @var Algorithm\CryptAlgorithm
 	 */
-	private $rawOutput = false;
+	private $algorithm;
 	
 	/**
 	 * Finds user in database
@@ -34,6 +34,19 @@ class HashAdapter implements AuthenticationAdapterInterface
 	{
 		
 	}
+	
+	/**
+	 * @return Algorithm\CryptAlgorithm
+	 */
+	protected function getAlgorythm()
+	{
+		if (is_null($this->algorithm)) {
+			$this->algorithm = Loader::getClassInstance($this->algorithmClass,
+					Algorithm\CryptAlgorithm::CN);
+		}
+		
+		return $this->algorithm;
+	}
 
 	/**
 	 * Authenticates user
@@ -44,32 +57,16 @@ class HashAdapter implements AuthenticationAdapterInterface
 	public function authenticate(User $user, AuthenticationPassword $password)
 	{
 		$salt = $user->getSalt();
-		$hash = $this->generatePasswordHash($password, $salt);
-		
 		$userPassword = $user->getPassword();
 		
-		if($hash != $userPassword) {
-			throw new Exception\WrongPasswordException();
+		$valid = $this->getAlgorythm()
+				->validate($password, $userPassword, $salt);
+		
+		if ( ! $valid) {
+			throw new Exception\WrongPasswordException("Hashing algorithm validation failed");
 		}
 	}
 		
-	/**
-	 * Generates password for database
-	 * @param AuthenticationPassword $password
-	 * @param string $salt
-	 * @return string
-	 */
-	protected function generatePasswordHash(AuthenticationPassword $password, $salt)
-	{
-		if (empty($salt)) {
-			throw new Exception\RuntimeException("User password salt is not permitted to be empty");
-		}
-		
-		$hash = hash_hmac($this->algorithm, (string) $password, $salt, $this->rawOutput);
-		
-		return $hash;
-	}
-	
 	/**
 	 * {@inheritdoc}
 	 * @param User $user
@@ -87,7 +84,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 			}
 			
 			$salt = $user->resetSalt();
-			$passHash = $this->generatePasswordHash($password, $salt);
+			$passHash = $this->getAlgorythm()->crypt($password, $salt);
 			$user->setPassword($passHash);
 		}
 		

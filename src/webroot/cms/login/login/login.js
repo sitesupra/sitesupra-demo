@@ -101,7 +101,7 @@ SU('supra.input', 'cookie', function (Y) {
 		 */
 		validate: function (data) {
 			data.supra_login = Y.Lang.trim(data.supra_login);
-			data.supra_password = Y.Lang.trim(data.supra_password);
+			data.supra_password = data.supra_password;
 			
 			if (!data.supra_login || !data.supra_password) {
 				//Show error message
