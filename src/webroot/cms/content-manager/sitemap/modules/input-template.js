@@ -159,7 +159,7 @@ YUI.add("website.input-template", function (Y) {
 			var evt = null;
 			var fn = function (event) {
 				var target = event.target.closest('div.sitemap-template-panel');
-				if (!target) this.hide();
+				if (!target) this.panel.hide();
 			};
 			
 			//When panel is hidden remove 'click' event listener from document
