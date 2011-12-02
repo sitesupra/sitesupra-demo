@@ -141,7 +141,7 @@ class TemplateAction extends PageManagerAction
 				->getMaster();
 		
 		if ($page->hasChildren()) {
-			throw new CmsException(null, "Cannot remove template with childrens");
+			throw new CmsException(null, "Cannot remove template with children");
 		}
 
 		$this->delete();
