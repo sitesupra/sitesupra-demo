@@ -308,6 +308,14 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	}
 	
 	/**
+	 * @return NestedSet\Node\DoctrineNode
+	 */
+	public function getNestedSetNode()
+	{
+		return $this->nestedSetNode;
+	}
+		
+	/**
 	 * {@inheritdoc}
 	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
 	 */

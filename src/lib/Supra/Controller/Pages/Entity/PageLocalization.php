@@ -8,7 +8,6 @@ use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Search\IndexedDocument;
 use Supra\Controller\Pages\Request\PageRequestView;
-use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * PageLocalization class

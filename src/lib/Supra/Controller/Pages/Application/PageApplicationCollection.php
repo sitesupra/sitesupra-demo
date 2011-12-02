@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Exception;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Collection of page applications
@@ -75,7 +76,8 @@ class PageApplicationCollection
 		}
 		
 		$applicationId = $applicationPage->getApplicationId();
-		$cacheId = spl_object_hash($pageLocalization) . spl_object_hash($em);
+		$cacheId = ObjectRepository::getObjectHash($pageLocalization) 
+				. spl_object_hash($em);
 		
 		if ( ! isset($this->loadedApplications[$cacheId])) {
 			$configuration = $this->getConfiguration($applicationId);

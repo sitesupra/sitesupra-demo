@@ -130,7 +130,6 @@ abstract class BlockController extends ControllerAbstraction
 		}
 		
 		$propertyDefinitions = $this->getPropertyDefinition();
-		$editable = null;
 		
 		if ( ! isset($propertyDefinitions[$name])) {
 			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
@@ -202,16 +201,24 @@ abstract class BlockController extends ControllerAbstraction
 			// View
 			} else {
 				$filter = new Filter\ParsedHtmlFilter();
+				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
+		}
+		
+		if ($editable instanceof \Supra\Editable\Link) {
+			$filter = new Filter\LinkFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
 		}
 	}
 	
 	/**
 	 * Get property value, use default if not found
 	 * @param string $name
-	 * @return string
+	 * @return mixed
 	 */
 	public function getPropertyValue($name)
 	{

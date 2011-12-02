@@ -121,7 +121,50 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->title = $title;
 	}
+	
+	/**
+	 * Get element title
+	 * @return string
+	 */
+	public function getElementTitle()
+	{
+		$title = null;
+		
+		switch ($this->resource) {
+			
+			case self::RESOURCE_PAGE:
+				$pageData = $this->getPage();
 
+				/* @var $pageData PageLocalization */
+				if ( ! is_null($pageData)) {
+					$title = $pageData->getTitle();
+				}
+				break;
+			
+			case self::RESOURCE_FILE:
+				$file = $this->getFile();
+
+				if ($file instanceof File) {
+					$localeId = ObjectRepository::getLocaleManager($this)
+							->getCurrent()
+							->getId();
+					
+					$title = $file->getTitle($localeId);
+				}
+
+				break;
+				
+			case self::RESOURCE_LINK:
+				$title = $this->getHref();
+				break;
+
+			default:
+				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");
+		}
+		
+		return $title;
+	}
+	
 	/**
 	 * @return string
 	 */
@@ -188,45 +231,64 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
+	 * @return PageLocalization
+	 */
+	public function getPage()
+	{
+		if (empty($this->pageId)) {
+			return;
+		}
+		
+		$em = ObjectRepository::getEntityManager($this);
+		$pageData = $em->find(PageLocalization::CN(), $this->pageId);
+		
+		return $pageData;
+	}
+	
+	/**
+	 * @return File
+	 */
+	public function getFile()
+	{
+		if (empty($this->fileId)) {
+			return;
+		}
+		
+		$fs = ObjectRepository::getFileStorage($this);
+		$em = $fs->getDoctrineEntityManager();
+		$file = $em->find(File::CN(), $this->fileId);
+		
+		return $file;
+	}
+	
+	/**
 	 * Get URL of the link
 	 * @return string
 	 */
 	public function getUrl()
 	{
 		$url = null;
-		$localeManager = ObjectRepository::getLocaleManager($this);
-		$localeId = $localeManager->getCurrent()->getId();
 		
 		switch ($this->getResource()) {
 			
 			case self::RESOURCE_PAGE:
-				$pageId = $this->getPageId();
+				$pageData = $this->getPage();
 
-				$em = ObjectRepository::getEntityManager($this);
+				/* @var $pageData PageLocalization */
+				if ( ! is_null($pageData)) {
+					$path = $pageData->getPath();
 
-				$pageData = $em->find(PageLocalization::CN(), $pageId);
-
-				try {
-					/* @var $pageData PageLocalization */
-					if ( ! is_null($pageData)) {
-						$path = $pageData->getPath();
-						
-						if ( ! is_null($path)) {
-							$url = $path->getPath(Path::FORMAT_LEFT_DELIMITER);
-						}
+					if ( ! is_null($path)) {
+						$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
 					}
-				} catch (\Doctrine\ORM\NoResultException $noResults) {
-					//ignore
 				}
 				break;
 			
 			case self::RESOURCE_FILE:
-				$fileId = $this->getFileId();
-				$fs = ObjectRepository::getFileStorage($this);
-				$em = $fs->getDoctrineEntityManager();
-				$file = $em->find(File::CN(), $fileId);
+				$file = $this->getFile();
 
 				if ($file instanceof File) {
+					$fs = ObjectRepository::getFileStorage($this);
 					$url = $fs->getWebPath($file);
 				}
 

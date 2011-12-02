@@ -65,6 +65,7 @@ class PageController extends ControllerAbstraction
 	 */
 	public function getEntityManager()
 	{
+		//TODO: create listener which would add each loaded entity as child of this
 		return ObjectRepository::getEntityManager($this);
 	}
 

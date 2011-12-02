@@ -54,7 +54,12 @@ interface EditableInterface
 	
 	/**
 	 * Get filtered value for the editable content by action
-	 * @return string
+	 * @return mixed
 	 */
 	public function getFilteredValue();
+	
+	/**
+	 * @return array
+	 */
+	public function getAdditionalParameters();
 }

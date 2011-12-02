@@ -16,7 +16,7 @@ class String extends EditableAbstraction
 	 */
 	public function getEditorType()
 	{
-		return self::EDITOR_TYPE;
+		return static::EDITOR_TYPE;
 	}
 	
 	/**
@@ -25,7 +25,7 @@ class String extends EditableAbstraction
 	 */
 	public function isInlineEditable()
 	{
-		return self::EDITOR_INLINE_EDITABLE;
+		return static::EDITOR_INLINE_EDITABLE;
 	}
 	
 }

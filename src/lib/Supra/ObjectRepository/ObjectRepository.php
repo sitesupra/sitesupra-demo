@@ -140,7 +140,7 @@ class ObjectRepository
 		return $caller;
 	}
 
-	private static function getObjectHash($object)
+	public static function getObjectHash($object)
 	{
 		if ( ! isset($object->__oid__)) {
 			$object->__oid__ = uniqid();

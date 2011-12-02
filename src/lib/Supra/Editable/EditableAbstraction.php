@@ -135,4 +135,11 @@ abstract class EditableAbstraction implements EditableInterface
 		return $fields;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getAdditionalParameters()
+	{
+		return array();
+	}
 }
