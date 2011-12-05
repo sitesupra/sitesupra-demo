@@ -122,6 +122,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			this.footer = footer;
 			form.get('boundingBox').insert(footer, 'after');
 			
+			form.on('visibleChange', function (e) {
+				if (this.footer && e.newVal != e.prevVal && !e.newVal) {
+					this.footer.addClass('hidden');
+				}
+			}, this);
+			
 			//Delete button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(footer);
@@ -457,7 +463,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		hideSettingsForm: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
-				this.footer.addClass('hidden');
 			}
 		},
 		
