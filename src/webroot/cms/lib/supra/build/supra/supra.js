@@ -93,8 +93,8 @@ if (typeof Supra === "undefined") {
 	    comboBase:	"/cms/lib/yui." + YUI.version + "/combo/combo.php?",
 	    filter:		{
 				        //Remove supra. from module paths
-				        'searchExp': "supra\\.([^/]*?)(-min)?(\\.js|\\.css)?",
-				        'replaceStr': "$1$3"
+				        'searchExp': "(supra|website)\\.([^/]*?)(-min)?(\\.js|\\.css)?",
+				        'replaceStr': "$2$4"
 			        },
 		
 		//Default skin

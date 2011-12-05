@@ -1,0 +1,68 @@
+{
+	"status": 1,
+	"data": [
+		{
+			"attributes": {
+				"id": "sample",
+				"title": "Sample",
+				
+				"delete": true,
+				"create": true,
+				"sortable": false,
+				"locale": false
+			},
+			
+			"fields": {
+				"title_lv":		{ "label": "Title LV", 		"type": "String" },
+				"title_ru":		{ "label": "Title RU", 		"type": "String" },
+				"title_en":		{ "label": "Title EN", 		"type": "String" },
+				"city_lv": 		{ "label": "City LV",		"type": "Select", 	"valuesListId": "cities" },
+				"address_lv":	{ "label": "Address LV", 	"type": "String" },
+				"address_ru":	{ "label": "Address RU", 	"type": "String" },
+				"address_en":	{ "label": "Address EN", 	"type": "String" },
+				"working_time": { "label": "Working time", 	"type": "String" },
+				"phone":		{ "label": "Phone", 		"type": "String" },
+				"fax": 			{ "label": "Fax", 			"type": "String" },
+				"email":		{ "label": "E-mail", 		"type": "String" },
+				"status": 		{ "label": "Status",		"type": "Select",	"valuesListId": "status", "value": 1 }
+			},
+			
+			"lists": {
+				"cities": [
+					{"id": 1, "title": "Aizkraukle"},
+					{"id": 2, "title": "Jelgava"},
+					{"id": 3, "title": "Nirza"},
+					{"id": 4, "title": "Rīga"}
+				],
+				"status": [
+					{"id": 0, "title": "Hidden"},
+					{"id": 1, "title": "Visible"}
+				]
+			},
+			
+			"ui_list": [
+				"title_lv",
+				"city_lv",
+				"address_lv",
+				"phone",
+				"status"
+			],
+			
+			"ui_edit": [
+				"title_lv",
+				"title_ru",
+				"title_en",
+				"city_lv",
+				"address_lv",
+				"address_ru",
+				"address_en",
+				"working_time",
+				"phone",
+				"fax",
+				"email",
+				"status",
+				"location"
+			]
+		}
+	]
+}

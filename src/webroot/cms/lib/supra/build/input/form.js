@@ -655,9 +655,11 @@ YUI.add("supra.form", function (Y) {
 		 */
 		save: function () {
 			var url = this.get('urlSave');
-			if (this.get('disabled') || !url) return;
+			if (!this.get('disabled') && url) {
+				//@TODO
+			}
 			
-			//@TODO
+			this.fire('save');
 		},
 		
 		/**
@@ -665,6 +667,8 @@ YUI.add("supra.form", function (Y) {
 		 */
 		load: function () {
 			//@TODO
+			
+			this.fire('load');
 		},
 		
 		/**
@@ -672,6 +676,8 @@ YUI.add("supra.form", function (Y) {
 		 */
 		'delete': function () {
 			//@TODO
+			
+			this.fire('delete');
 		},
 		
 		_setDisabled: function (disabled) {

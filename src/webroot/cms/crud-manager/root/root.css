@@ -1,0 +1,9 @@
+.crud {
+	position: absolute;
+	bottom: 10px;
+}
+
+.crud .yui3-datagrid table {
+	max-width: 1000px;
+	margin: 0 auto;
+}

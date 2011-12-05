@@ -1,0 +1,77 @@
+<?php sleep(1); ?>{
+	"status": 1,
+	"data": {
+		"offset": <?php echo (!empty($_GET['offset']) ? $_GET['offset'] : '0'); ?>,
+		"total": 100,
+		"results": [
+		
+			{
+				"id": 1,
+				"title_lv": "Centrālais birojs",
+				"title_ru": "...",
+				"title_en": "Central office",
+				"city_lv": 4,
+				"address_lv": "Brīvības 39",
+				"address_ru": "Brīvības 39",
+				"address_en": "Brīvības 39",
+				"working_time": "8:30-17:30",
+				"phone": "67112222",
+				"fax": "67106444",
+				"email": "info@gjensidige.lv",
+				"status": 1,
+				"location": ["37.273371", "129.814453"]
+			},
+			{
+				"id": 2,
+				"title_lv": "OCTA apdrošināšanas nodaļa",
+				"title_ru": "...",
+				"title_en": "OCTA insurance department",
+				"city_lv": 4,
+				"address_lv": "Brīvības 39",
+				"address_ru": "Brīvības 39",
+				"address_en": "Brīvības 39",
+				"working_time": "8:30-17:30",
+				"phone": "67106343",
+				"fax": "67106444",
+				"email": "info@gjensidige.lv",
+				"status": 1,
+				"location": ["37.273371", "129.814453"]
+			},
+			{
+				"id": 3,
+				"title_lv": "Pārdaugavas filiāle",
+				"title_ru": "...",
+				"title_en": "Branch Pārdaugava",
+				"city_lv": 2,
+				"address_lv": "Mūksalas 39",
+				"address_ru": "Mūksalas 39",
+				"address_en": "Mūksalas 39",
+				"working_time": "8:30-17:30",
+				"phone": "67854361, 67854362",
+				"fax": "67106444",
+				"email": "info@gjensidige.lv",
+				"status": 1,
+				"location": ["56.648111", "23.728924"]
+			},
+			
+			{"id": 4,"title_lv": "Centrālais birojs","title_ru": "...","title_en": "Central office","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67112222","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 5,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 6,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]},
+			{"id": 7,"title_lv": "Centrālais birojs","title_ru": "...","title_en": "Central office","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67112222","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 8,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 9,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]},
+			{"id": 10,"title_lv": "Centrālais birojs","title_ru": "...","title_en": "Central office","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67112222","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 11,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 12,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]},
+			{"id": 13,"title_lv": "Centrālais birojs","title_ru": "...","title_en": "Central office","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67112222","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 14,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 15,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]},
+			{"id": 16,"title_lv": "Centrālais birojs","title_ru": "...","title_en": "Central office","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67112222","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 17,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 18,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]},
+			{"id": 19,"title_lv": "OCTA apdrošināšanas nodaļa","title_ru": "...","title_en": "OCTA insurance department","city_lv": 4,"address_lv": "Brīvības 39","address_ru": "Brīvības 39","address_en": "Brīvības 39","working_time": "8:30-17:30","phone": "67106343","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["37.273371", "129.814453"]},
+			{"id": 20,"title_lv": "Pārdaugavas filiāle","title_ru": "...","title_en": "Branch Pārdaugava","city_lv": 2,"address_lv": "Mūksalas 39","address_ru": "Mūksalas 39","address_en": "Mūksalas 39","working_time": "8:30-17:30","phone": "67854361, 67854362","fax": "67106444","email": "info@gjensidige.lv","status": 1,"location": ["56.648111", "23.728924"]}
+		
+		]
+	}
+}

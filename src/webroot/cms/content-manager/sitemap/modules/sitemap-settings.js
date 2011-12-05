@@ -196,12 +196,46 @@ YUI().add('website.sitemap-settings', function (Y) {
 		},
 		
 		/**
+		 * Duplicate selected page or template
+		 * 
+		 * @private
+		 */
+		duplicatePage: function () {
+			if (!this.data) return;
+			
+			//Send request to server
+			var page_id = this.data.id,
+				locale = this.host.languagebar.get('locale'),
+				type = this.host.getType(),
+				target = null,
+				target_fn = null;
+			
+			if (type == 'templates') {
+				target = Manager.getAction('Template');
+				target_fn = 'duplicateTemplate';
+			} else {
+				target = Manager.getAction('Page');
+				target_fn = 'duplicatePage';
+			}
+			
+			target[target_fn](page_id, locale, function () {
+				//Hide properties
+				this.panel.hide();
+				this.data = null;
+				
+				//Reload tree
+				this.host.flowmap.reload();
+				this.host.setLoading(true);
+			}, this);
+		},
+		
+		/**
 		 * Delete selected page
 		 * 
 		 * @private
 		 */
 		deletePage: function () {
-			if (!this.host.property_data) return;
+			if (!this.data) return;
 			
 			if (this.host.getType() == 'templates') {
 				var message_id = 'message_delete_template';
@@ -227,7 +261,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 		 */
 		deletePageConfirm: function () {
 			//Send request to server
-			var page_id = this.host.property_data.id,
+			var page_id = this.data.id,
 				locale = this.host.languagebar.get('locale'),
 				type = this.host.getType(),
 				target = null,
@@ -244,7 +278,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 			target[target_fn](page_id, locale, function () {
 				//Hide properties
 				this.panel.hide();
-				this.host.property_data = null;
+				this.data = null;
 				
 				//Reload tree
 				this.host.flowmap.reload();
