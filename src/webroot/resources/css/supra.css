@@ -49,7 +49,9 @@ h2 {
 	padding: 13px 13px 4px;
 	color: #333;
 }
-h3 {
+h3,
+h4,
+h5 {
 	font-size: 1em;
 	font-weight: normal;
 	color: #333;
@@ -141,6 +143,47 @@ big {
 #content table td, #content table th {
 	padding: 3px 5px;
 	border: 1px solid #CCC;
+}
+
+/* Text */
+#header .text,
+#content .text {
+	padding: 0 13px;
+}
+
+.text h1,
+.text h2,
+.text h3,
+.text h4,
+.text h5 {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.text h2,
+.text h3,
+.text h4,
+.text h5,
+.text p,
+.text ul,
+.text ol {
+	margin: 13px 0 4px;
+	padding: 0;
+}
+
+.text h1 {
+	color: #333;
+}
+
+.text ul,
+.text ol {
+	padding-left: 20px;
+}
+.text ul {
+	list-style: disc;
+}
+.text ol {
+	list-style: decimal;
 }
 
 /* Image and Gallery */
