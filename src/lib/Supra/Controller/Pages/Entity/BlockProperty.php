@@ -27,8 +27,6 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", inversedBy="blockProperties", cascade={"persist"})
 	 * @JoinColumn(name="block_id", referencedColumnName="id", nullable=false)
-	 * @History:SkipForeignKey(type="sha1")
-	 * @Trash:SkipForeignKey(type="sha1")
 	 * @var Block
 	 */
 	protected $block;
@@ -219,14 +217,14 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	/**
 	 * Doctrine safe clone method with cloning of children
 	 */
-	public function __clone()
-	{
-		if ( ! empty($this->id)) {
-			$this->regenerateId();
-			$this->block = null;
-			$this->localization = null;
-		}
-	}
+//	public function __clone()
+//	{
+//		if ( ! empty($this->id)) {
+//			$this->regenerateId();
+//			$this->block = null;
+//			$this->localization = null;
+//		}
+//	}
 	
 	public function getOwner()
 	{

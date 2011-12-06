@@ -104,7 +104,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	/**
 	 * @param string $locale
 	 */
-	protected function setLocale($locale)
+	public function setLocale($locale)
 	{
 		$this->locale = $locale;
 	}

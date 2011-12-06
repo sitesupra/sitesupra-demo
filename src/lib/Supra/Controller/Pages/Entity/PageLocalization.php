@@ -399,5 +399,12 @@ class PageLocalization extends Abstraction\Localization
 
 		return $ancestors;
 	}
+	
+	public function __clone ()
+	{
+		parent::__clone();
+		
+		$this->path = null;
+	}
 
 }

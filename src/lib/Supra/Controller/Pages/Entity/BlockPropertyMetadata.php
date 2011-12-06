@@ -67,6 +67,14 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	{
 		return $this->referencedElement;
 	}
+
+	/**
+	 * @param ReferencedElement\ReferencedElementAbstract $referencedElement 
+	 */
+	public function setReferencedElement($referencedElement)
+	{
+		$this->referencedElement = $referencedElement;
+	}
 	
 	public function getOwner()
 	{

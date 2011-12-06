@@ -203,5 +203,16 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	{
 		return $this->revision;
 	}
+	
+	/**
+	 * 
+	 */
+	public function __clone()
+	{
+		if ($this->id) {
+			$this->regenerateId();
+			$this->setRevisionId(sha1(uniqid()));
+		}
+	}
 
 }

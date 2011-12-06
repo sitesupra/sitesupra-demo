@@ -413,7 +413,7 @@ class PageAction extends PageManagerAction
 		$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
 		if ($page->hasChildren()) {
-			throw new CmsException(null, "Cannot remove page with childrens");
+			throw new CmsException(null, "Cannot remove page with children");
 		}
 
 		$this->delete();
@@ -463,7 +463,7 @@ class PageAction extends PageManagerAction
 	}
 
 	public function versionPreviewAction()
-	{
+	{	
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 		
@@ -500,5 +500,14 @@ class PageAction extends PageManagerAction
 		$this->getResponse()
 				->setResponseData($return);
 	}
-
+	
+	/**
+	 * Page duplicate action
+	 */
+	public function duplicateAction()
+	{
+		$this->checkLock(false);
+		$this->duplicate();
+	}
+	
 }

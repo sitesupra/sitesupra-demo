@@ -733,4 +733,42 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager->flush();
 	}
 	
+	/**
+	 * 
+	 */
+	protected function duplicate ()
+	{
+		$pageLocalization = $this->getPageLocalizationByRequestKey('page_id');
+		$request = $this->getPageRequest();
+		$em = $this->entityManager;
+		
+		$page = $pageLocalization->getMaster();
+
+		$clonePage = function() use ($request, $em, $page) {
+			
+			$newPage = $request->recursiveClone($page);
+			
+			// page indexes in sitemap tree
+			$newPage->setLeftValue(0);
+			$newPage->setRightValue(0);
+			$newPage->setLevel(1);
+			
+			$em->getRepository(AbstractPage::CN())
+				->getNestedSetRepository()
+				->add($newPage);			
+			
+			if ($page->hasParent()) {
+				$newPage->moveAsNextSiblingOf($page);
+			} else {
+				$newPage->moveAsFirstChildOf($page);
+			}
+			
+		};
+		
+		$em->transactional($clonePage);
+		
+		$this->getResponse()
+				->setResponseData(true);
+	}
+	
 }

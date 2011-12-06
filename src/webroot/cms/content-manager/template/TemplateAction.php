@@ -181,5 +181,14 @@ class TemplateAction extends PageManagerAction
 		}
 		$this->unlockPage();
 	}
+	
+	/**
+	 * Template duplicate action
+	 */
+	public function duplicateAction()
+	{
+		$this->checkLock(false);
+		$this->duplicate();
+	}
 
 }

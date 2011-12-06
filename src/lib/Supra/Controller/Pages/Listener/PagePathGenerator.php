@@ -11,6 +11,8 @@ use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 
 /**
  * Creates the page path and checks it's uniqueness
@@ -33,7 +35,7 @@ class PagePathGenerator implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-		return array(Events::onFlush);
+		return array(Events::onFlush, Events::postLoad);
 	}
 	
 	/**
@@ -58,6 +60,66 @@ class PagePathGenerator implements EventSubscriber
 					if ($dataEntity instanceof Entity\PageLocalization) {
 						$this->generatePath($dataEntity);
 					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Finds Localizations without generated path, but with defined pathPart
+	 * (happens when page is cloned, also is usable on page create action), and 
+	 * generates unique path
+	 * Do not use as feature, this possibly will be removed, as it is more accurate
+	 * to check path availability before page is created
+	 * 
+	 * @param LifecycleEventArgs $eventArgs 
+	 */
+	public function postLoad(LifecycleEventArgs $eventArgs)
+	{
+		$entity = $eventArgs->getEntity();
+		
+		if ($entity instanceof Entity\PageLocalization) {
+			
+			$path = $entity->getPath();
+
+			if (is_null($path)) {
+				
+				$this->em = $eventArgs->getEntityManager();
+				$this->unitOfWork = $this->em->getUnitOfWork();
+				
+				$pathPart = $entity->getPathPart();
+				$parentPath = $this->findPageBasePath($entity);
+				
+				$pathValid = false;
+				$i = 2;
+				$suffix = '';
+				
+				do {
+					
+					$newPath = clone $parentPath;
+					$newPath->appendString($pathPart . $suffix);
+					
+					try {
+						$this->checkForDuplicates($entity, $newPath);
+						$pathValid = true;
+					}
+					catch (DuplicatePagePathException $pathInvalid) {
+						$suffix = '-' . $i;
+						$i ++;
+	
+						// Loop stopper
+						if ($i > 100) {
+							throw $pathInvalid;
+						}
+					}
+				}
+				while ( ! $pathValid);
+				
+				if ($pathPart != ($pathPart . $suffix)) {
+					$entity->setPath($newPath);
+					$entity->setPathPart($pathPart . $suffix);
+
+					$this->unitOfWork->scheduleExtraUpdate($entity, array('path' => array(null, $newPath), 'pathPart' => array($pathPart, $pathPart . $suffix)));
 				}
 			}
 		}

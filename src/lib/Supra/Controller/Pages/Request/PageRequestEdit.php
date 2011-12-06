@@ -18,6 +18,8 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
+use Doctrine\Common\Collections\Collection;
+use Supra\Controller\Pages\Entity\PageLocalization;
 
 /**
  * Request object for edit mode requests
@@ -29,6 +31,13 @@ class PageRequestEdit extends PageRequest
 	 * @var boolean
 	 */
 	protected $allowFlushing = true;
+	
+	/**
+	 * Used as temporary container for cloned entities
+	 * see recursiveClone() method
+	 * @var array
+	 */
+	private $_clonedEntities = array();
 	
 	/**
 	 * Factory method for page request edit mode
@@ -498,6 +507,76 @@ class PageRequestEdit extends PageRequest
 				->getResult();
 		
 		return $placeHolders;
+	}
+	
+	/**
+	 * Recursively goes through entity collections, clones and persists elements from them
+	 * 
+	 * @param Entity $entity
+	 * @param Entity $associationOwner
+	 * @return Entity
+	 */
+	public function recursiveClone($entity, $associationOwner = null) 
+	{
+		$em = $this->getDoctrineEntityManager();
+		$cloned = false;
+		
+		// reset at first iteration
+		if (is_null($associationOwner)) {
+			$this->_clonedEntities = array();
+		}
+		
+		$entityData = $em->getUnitOfWork()->getOriginalEntityData($entity);
+		$classMetadata = $em->getClassMetadata($entity::CN());
+		
+		$entityHash = spl_object_hash($entity);
+		if ( ! isset($this->_clonedEntities[$entityHash])) {
+			$newEntity = clone $entity;
+			$this->_clonedEntities[$entityHash] = $newEntity;
+			$cloned = true;
+		} else {
+			$newEntity = $this->_clonedEntities[$entityHash];
+		}
+		
+		foreach ($classMetadata->associationMappings as $fieldName => $association) {
+			if ( ! $association['isOwningSide']) {
+				if (isset($entityData[$fieldName])) {
+					if ($entityData[$fieldName] instanceof Collection) {
+						foreach ($entityData[$fieldName] as $collectionItem) {
+							$this->recursiveClone($collectionItem, $newEntity);
+						}
+					} else {
+						$this->recursiveClone($collectionItem, $newEntity);
+					}
+				}
+			} else if ( ! is_null($associationOwner)) {
+				$ownerEntityClassName = $classMetadata->associationMappings[$fieldName]['targetEntity'];
+				$ownerReflectionClass = new \ReflectionClass($ownerEntityClassName);
+
+				if ($ownerReflectionClass->isInstance($associationOwner)) {
+					$classMetadata->reflFields[$fieldName]->setValue($newEntity, $associationOwner);
+					
+					if ( ! $cloned) {
+						$em->getUnitOfWork()->propertyChanged($newEntity, $fieldName, null, $associationOwner);
+					}
+				}
+			}
+		}
+		
+		// handle specific cases
+		//  -copy referenced elements manually
+		if ($newEntity instanceof Entity\BlockPropertyMetadata && $cloned) {
+			$referencedElement = $entity->getReferencedElement();
+			
+			$newReferencedElement = clone $referencedElement;
+			$em->persist($newReferencedElement);
+			
+			$newEntity->setReferencedElement($newReferencedElement);
+		}
+		
+		$em->persist($newEntity);
+		
+		return $newEntity;
 	}
 	
 }

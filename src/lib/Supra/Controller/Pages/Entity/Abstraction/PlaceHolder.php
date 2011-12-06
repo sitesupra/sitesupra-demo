@@ -241,5 +241,19 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	{
 		return $this->localization;
 	}
-
+	
+	/*
+	public function __clone()
+	{
+		parent::__clone();
+		
+		$blocks = new ArrayCollection();
+		foreach($this->blocks as $block) {
+			$newBlock = clone $block;
+			$blocks->add($block);
+		}
+		
+		$this->blocks = $blocks;
+	}
+*/
 }

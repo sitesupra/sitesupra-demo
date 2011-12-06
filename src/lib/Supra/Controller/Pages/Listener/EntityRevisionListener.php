@@ -137,7 +137,7 @@ class EntityRevisionListener implements EventSubscriber
 	 */
 	private function _setRevisionId($entity, $newRevisionId, $nestedCall = false) 
 	{
-		// helps to avoid useless revision overwriting 
+		// helps to avoid useless revision overwriting
 		if (in_array(spl_object_hash($entity), $this->visitedEntities)) {
 			return;
 		}
@@ -162,7 +162,9 @@ class EntityRevisionListener implements EventSubscriber
 		// recursively going up to set up revision for entity owners
 		if ($entity instanceof OwnedEntityInterface) {
 			$parentEntity = $entity->getOwner();
-			$this->_setRevisionId($parentEntity, $newRevisionId, true);
+			if ( ! is_null($parentEntity)) {
+				$this->_setRevisionId($parentEntity, $newRevisionId, true);
+			}
 		}
 	}
 	

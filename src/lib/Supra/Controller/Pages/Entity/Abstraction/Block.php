@@ -289,5 +289,5 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		return $this->placeHolder;
 	}
-
+	
 }
