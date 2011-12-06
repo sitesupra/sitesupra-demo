@@ -83,12 +83,16 @@ class PagePathGenerator implements EventSubscriber
 			$path = $entity->getPath();
 
 			if (is_null($path)) {
-				
+
 				$this->em = $eventArgs->getEntityManager();
 				$this->unitOfWork = $this->em->getUnitOfWork();
 				
 				$pathPart = $entity->getPathPart();
-				$parentPath = $this->findPageBasePath($entity);
+				$parentPath = $entity->getParentPath();
+				
+				if (is_null($parentPath)) {
+					$parentPath = $this->findPageBasePath($entity);
+				}
 				
 				$pathValid = false;
 				$i = 2;

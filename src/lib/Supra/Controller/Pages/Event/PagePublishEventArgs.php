@@ -28,6 +28,11 @@ class PagePublishEventArgs extends EventArgs
 	 */
 	protected $blockPropertyIdCollection = array();
 	
+	/**
+	 * @var Doctrine\ORM\EntityManager
+	 */
+	protected $entityManager;
+	
 	
 	public function setUserId($userId)
 	{
@@ -48,6 +53,11 @@ class PagePublishEventArgs extends EventArgs
 		$this->blockPropertyIdCollection = $blockPropertyIdCollection;
 	}
 	
+	public function setEntityManager($entityManager)
+	{
+		$this->entityManager = $entityManager;
+	}
+	
 	public function getBlockIdCollection()
 	{
 		return $this->blockIdCollection;
@@ -66,5 +76,10 @@ class PagePublishEventArgs extends EventArgs
 	public function getLocalizationId()
 	{
 		return $this->localization;
+	}
+	
+	public function getEntityManager()
+	{
+		return $this->entityManager;
 	}
 }

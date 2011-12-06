@@ -62,11 +62,12 @@ class PageRequestEdit extends PageRequest
 	}
 	
 	/**
-	 * @param EntityManager $publicEm
+	 *
 	 */
-	public function publish(EntityManager $publicEm)
+	public function publish()
 	{
 		$draftEm = $this->getDoctrineEntityManager();
+		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
 		
 		if ($draftEm == $publicEm) {
 			$this->log->debug("Publish doesn't do anything because CMS and public database connections are identical");
@@ -265,6 +266,7 @@ class PageRequestEdit extends PageRequest
 		$pagePublishEventArgs->setUserId($userId);
 		$pagePublishEventArgs->setBlockIdCollection($draftBlockIdList);
 		$pagePublishEventArgs->setBlockPropertyIdCollection($draftPropertyIds);
+		$pagePublishEventArgs->setEntityManager($draftEm);
 		
 		$draftEm->getEventManager()
 				->dispatchEvent(AuditEvents::pagePublishEvent, $pagePublishEventArgs);

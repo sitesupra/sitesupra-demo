@@ -20,7 +20,7 @@ class GroupPageRequest extends PageRequestEdit
 		return array();
 	}
 	
-	public function publish(EntityManager $publicEm)
+	public function publish()
 	{
 		return;
 	}

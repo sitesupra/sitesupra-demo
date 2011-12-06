@@ -404,8 +404,8 @@ abstract class PageManagerAction extends CmsAction
 
 		$pageRequest = $this->getPageRequest();
 
-		$copyContent = function() use ($pageRequest, $publicEm) {
-					$pageRequest->publish($publicEm);
+		$copyContent = function() use ($pageRequest) {
+					$pageRequest->publish();
 				};
 
 		$publicEm->transactional($copyContent);

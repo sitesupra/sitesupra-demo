@@ -108,6 +108,8 @@ class EntityAuditListener implements EventSubscriber
 			$this->em = $eventArgs->getEntityManager();
 		} elseif ($eventArgs instanceof OnFlushEventArgs) {
 			$this->em = $eventArgs->getEntityManager();
+		} elseif ($eventArgs instanceof PagePublishEventArgs) {
+			$this->em = $eventArgs->getEntityManager();
 		} else {
 			throw new \LogicException("Unknown event args received");
 		}
@@ -321,6 +323,8 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function pagePublishEvent(PagePublishEventArgs $eventArgs) 
 	{
+		$this->prepareEnvironment($eventArgs);
+		
 		$localizationId = $eventArgs->getLocalizationId();
 		$userId = $eventArgs->getUserId();
 		
