@@ -73,7 +73,7 @@ class BlockControllerCollection
 		$controllerClass = $configuration->controllerClass;
 		
 		if ( ! class_exists($controllerClass)) {
-			throw new Exception\RuntimeException('Class does not exist');
+			throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
 		}
 		
 		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');

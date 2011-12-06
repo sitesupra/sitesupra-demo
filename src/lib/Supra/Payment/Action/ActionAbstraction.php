@@ -4,14 +4,25 @@ namespace Supra\Payment\Action;
 
 use Supra\Controller\ControllerAbstraction;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Transaction\TransactionProvider;
 
 abstract class ActionAbstraction extends ControllerAbstraction
 {
-
+	/**
+	 * @var Order
+	 */
+	protected $order;
+	
 	/**
 	 * @var PaymentProviderAbstraction
 	 */
 	protected $paymentProvider;
+	
+	/**
+	 * @var TransactionProvider 
+	 */
+	protected $transactionProvider;
 
 	public function assertPostRequest()
 	{
@@ -30,13 +41,22 @@ abstract class ActionAbstraction extends ControllerAbstraction
 
 		$this->requestMethod = Request\HttpRequest::METHOD_GET;
 	}
-
+	
 	/**
-	 * @return PaymentProviderAbstraction
+	 * @param string $phaseName
+	 * @param array $parameters 
 	 */
-	public function getPaymentProvider()
+	protected function storeDataToTransactionParamaters($phaseName, $parameters)
 	{
-		return $this->paymentProvider;
-	}
+		$transaction = $this->order->getTransaction();
+
+		foreach ($parameters as $key => $value) {
+
+			$transaction->makeAndAddPrameter(
+					$phaseName, $key, $value);
+		}
+
+		$this->transactionProvider->store($transaction);
+	}	
 
 }

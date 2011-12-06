@@ -66,7 +66,7 @@ class SearchController extends BlockController
 
 		$searchRequest->setText($text);
 		$searchRequest->setLocale($locale);
-		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
+		$searchRequest->setSchemaName(PageController::SCHEMA_DRAFT);
 
 		$searchResults = $searchService->processRequest($searchRequest);
 

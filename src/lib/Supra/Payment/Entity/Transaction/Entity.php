@@ -4,6 +4,7 @@ namespace Supra\Payment\Entity\Transaction;
 
 use Supra\Database;
 use Supra\User\Entity\AbstractUser;
+use Supra\Payment\Entity\TransactionParameter;
 
 /**
  * @MappedSuperclass
@@ -14,26 +15,6 @@ use Supra\User\Entity\AbstractUser;
  */
 class Entity extends Database\Entity
 {
-
-	protected function copy(Entity $from)
-	{
-		$properties = $from->getPropertiesAsArray();
-
-		foreach ($properties as $name => $value) {
-			$this->$name = $value;
-		}
-	}
-
-	protected function getPropertiesAsArray()
-	{
-		$result = array();
-
-		foreach ($this as $name => $value) {
-			$result[$name] = $value;
-		}
-
-		return $result;
-	}
 
 	/**
 	 * @Column(type="integer", nullable=false)
@@ -60,12 +41,6 @@ class Entity extends Database\Entity
 	protected $paymentProviderId;
 
 	/**
-	 * @Column(type="string", nullable=false)
-	 * @var string
-	 */
-	protected $paymentProviderAccount;
-
-	/**
 	 * @Column(type="decimal", precision="10", scale="2", nullable=false)
 	 * @var float
 	 */
@@ -84,18 +59,96 @@ class Entity extends Database\Entity
 	protected $type;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\User\Entity\AbstractUser")
-	 * @JoinColumn(name="userId", referencedColumnName="id")
-	 * @var AbstractUser
+	 * @Column(type="string", nullable=false)
+	 * @var string
 	 */
-	protected $user;
+	protected $userId;
 
 	/**
-	 * @return AbstractUser
+	 * @Column(type="text", nullable=true)
+	 * @var string
 	 */
-	public function getUser()
+	protected $description;
+
+	/**
+	 * @OneToMany(targetEntity="Supra\Payment\Entity\TransactionParameter", mappedBy="transaction")
+	 * @var ArrayCollection
+	 */
+	protected $parameters;
+
+	function __construct()
 	{
-		return $this->user;
+		parent::__construct();
+
+		$this->parameters = new \Doctrine\Common\Collections\ArrayCollection();
+	}
+
+	protected function copy(Entity $from)
+	{
+		$properties = $from->getPropertiesAsArray();
+
+		foreach ($properties as $name => $value) {
+			$this->$name = $value;
+		}
+	}
+
+	protected function getPropertiesAsArray()
+	{
+		$result = array();
+
+		foreach ($this as $name => $value) {
+			$result[$name] = $value;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUserId()
+	{
+		return $this->userId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPaymentProviderId()
+	{
+		return $this->paymentProviderId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDescription()
+	{
+		return $this->description;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getAmount()
+	{
+		return $this->amount;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getType()
+	{
+		return $this->type;
 	}
 
 }

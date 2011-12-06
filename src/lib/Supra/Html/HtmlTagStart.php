@@ -22,6 +22,15 @@ class HtmlTagStart extends HtmlTagAbstraction
 	}
 
 	/**
+	 * @param string $name
+	 * @return string
+	 */
+	public function getAttribute($name)
+	{
+		return $this->attributes[$name];
+	}
+
+	/**
 	 * @param string $class
 	 */
 	public function addClass($class)
@@ -52,7 +61,7 @@ class HtmlTagStart extends HtmlTagAbstraction
 
 		return $html;
 	}
-	
+
 	/**
 	 * Returns opened tag.
 	 * @return string

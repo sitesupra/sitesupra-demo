@@ -56,7 +56,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function setSchemaName($schemaName)
 	{
 		if ( ! in_array($schemaName, PageController::$knownSchemaNames)) {
-			throw new IndexerRuntimeException('Unknown schema name "' . $schemaName . '". Use constants from PageControler.');
+			throw new IndexerRuntimeException('Unknown schema name "' . $schemaName . '". Use constants from PageController.');
 		}
 
 		$this->schemaName = $schemaName;

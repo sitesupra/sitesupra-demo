@@ -2,13 +2,19 @@
 
 namespace Supra\Payment\Order;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Entity\Order\OrderItem;
-use Supra\Paymeny\Product\ProductProvider;
+use Supra\Payment\Product\ProductProvider;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\User\Entity\User;
+use Supra\Payment\Product\ProductAbstraction;
+use Supra\Payment\Product\ProductProviderAbstraction;
+use Supra\Event\EventManager;
+use Supra\Payment\Entity\Order\OrderProductItem;
 
 class OrderProvider
 {
@@ -73,11 +79,11 @@ class OrderProvider
 
 			$productId = $orderItem->getProductId();
 			$productClass = $orderItem->getProductClass();
-			$amount = $orderItem->getAmount();
+			$quantity = $orderItem->getQuantity();
 
 			$product = $productProvider->getProductByIdAndClass($productId, $productClass);
 
-			$newPrices[$orderItem->getId()] = $product->getPrice($amount, $newCurrency);
+			$newPrices[$orderItem->getId()] = $product->getPrice($quantity, $newCurrency);
 		}
 
 		foreach ($orderItems as $orderItem) {
@@ -97,21 +103,91 @@ class OrderProvider
 		$this->em->flush();
 	}
 
-	public function prepareOrderForPayment(Order $order, PaymentProviderAbstraction $paymentProvider, $paymentProviderAccount)
+	/**
+	 * @return Order 
+	 */
+	public function getOrderByTransaction(Transaction $transaction)
 	{
-		$transaction = $paymentProvider->createTransaction();
-		$transaction->setPaymentProviderAccount($paymentProviderAccount);
+		$criteria = array(
+				'transaction' => $transaction->getId()
+		);
 
-		$orderUser = $order->getUser();
-		$transaction->setUser($orderUser);
+		$order = $this->orderRepository->findOneBy($criteria);
 
-		$order->setTransaction($transaction);
-		$order->setStatus(OrderStatus::PAYMENT_STARTED);
+		if (empty($order)) {
+			throw new Exception\RuntimeException('No order for transaction id "' . $transaction->getId() . '"');
+		}
+
+		return $order;
+	}
+
+	/**
+	 * @param User $user 
+	 */
+	public function getOpenOrderForUser(User $user)
+	{
+		$criteria = array(
+				'userId' => $user->getId(),
+				'status' => OrderStatus::OPEN
+		);
+
+		$order = $this->orderRepository->findOneBy($criteria);
+
+		if (empty($order)) {
+
+			$order = new Order();
+			$order->setUserId($user->getId());
+			$this->store($order);
+		}
+
+		return $order;
+	}
+
+	/**
+	 * @param Order $order
+	 */
+	public function store(Order $order)
+	{
+		$itemsToRemove = array();
+
+		foreach ($order->getItems() as $orderItem) {
+			/* @var $orderItem OrderItem */
+
+			// If this is product item, and quantity ordered is zero, 
+			// remove order item as it makes no sense.
+			if (
+					$orderItem instanceof OrderProductItem &&
+					$orderItem->getQuantity() == 0
+			) {
+				$this->em->remove($orderItem);
+				$itemsToRemove[] = $orderItem;
+			}
+			else {
+				$this->em->persist($orderItem);
+			}
+		}
+
+		foreach ($itemsToRemove as $orderItemToRemove) {
+			$order->removeOrderItem($orderItemToRemove);
+		}
+
+		$transaction = $order->getTransaction();
+
+		if ( ! empty($transaction)) {
+			$this->em->persist($transaction);
+		}
 
 		$this->em->persist($order);
-		$this->em->persist($transaction);
 
 		$this->em->flush();
+	}
+
+	/**
+	 * @return EventManager
+	 */
+	public function getEventManager()
+	{
+		return $this->em->getEventManager();
 	}
 
 }

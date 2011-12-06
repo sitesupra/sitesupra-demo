@@ -3,6 +3,9 @@
 namespace Supra\User\Entity;
 
 use Doctrine\Common\Collections\Collection;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Locale\Locale;
+
 
 /**
  * User object
@@ -11,62 +14,70 @@ use Doctrine\Common\Collections\Collection;
  */
 class User extends AbstractUser
 {
+
 	/**
 	 * @Column(type="string", name="password", nullable=true)
 	 * @var string
 	 */
 	protected $password;
-	
+
 	/**
 	 * @Column(type="string", name="login", nullable=false, unique=true)
 	 * @var string
 	 */
 	protected $login;
-	
+
 	/**
 	 * @Column(type="string", name="email", nullable=false, unique=true)
 	 * @var string
 	 */
 	protected $email;
-	
+
 	/**
 	 * TODO: temporary solution
 	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $avatar;
-	
+
 	/**
-	* @ManyToOne(targetEntity="Group")
-	* @JoinColumn(name="group_id", referencedColumnName="id")
+	 * @ManyToOne(targetEntity="Group")
+	 * @JoinColumn(name="group_id", referencedColumnName="id")
 	 */
 	protected $group;
-	
+
 	/**
 	 * @Column(type="datetime", name="last_login_at", nullable="false")
 	 * @var \DateTime
 	 */
 	protected $lastLoginTime;
-	
+
 	/**
 	 * @Column(type="boolean", name="active")
 	 * @var boolean
 	 */
 	protected $active = true;
-	
+
 	/**
 	 * @Column(type="string", nullable=false, length="23")
 	 * @var string
 	 */
 	protected $salt;
-	
+
 	/**
 	 * Added only to cascade removal
 	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
 	 * @var Collection
 	 */
 	protected $userSessions;
-	
+
+	/**
+	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
+	 * @Column(type="string", nullable=true, length="40")
+	 * @var string
+	 */
+	protected $localeId;
+
 	/**
 	 * Generates random salt for new users
 	 */
@@ -75,7 +86,7 @@ class User extends AbstractUser
 		parent::__construct();
 		$this->resetSalt();
 	}
-	
+
 	/**
 	 * Returns user password
 	 * @return type 
@@ -84,7 +95,7 @@ class User extends AbstractUser
 	{
 		return $this->password;
 	}
-	
+
 	/**
 	 * Sets user password
 	 * @param string $password 
@@ -93,7 +104,7 @@ class User extends AbstractUser
 	{
 		$this->password = $password;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -127,7 +138,7 @@ class User extends AbstractUser
 	{
 		$this->email = $email;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -143,7 +154,7 @@ class User extends AbstractUser
 	{
 		$this->avatar = $avatar;
 	}
-	
+
 	/**
 	 * Returns user last logged in time 
 	 * @return \DateTime 
@@ -179,7 +190,7 @@ class User extends AbstractUser
 	{
 		$this->active = $active;
 	}
-	
+
 	/**
 	 * Returns salt
 	 * @return string 
@@ -197,10 +208,10 @@ class User extends AbstractUser
 	{
 		// Generates 23 character salt
 		$this->salt = uniqid('', true);
-		
+
 		return $this->salt;
 	}
-	
+
 	/**
 	 * @return Entity\Group
 	 */
@@ -216,17 +227,38 @@ class User extends AbstractUser
 	{
 		$this->group = $group;
 	}
-	
-   /**
-   * {@inheritDoc}
-   */
-	public function isSuper() 
+
+	/**
+	 * @param Locale $locale 
+	 */
+	public function setLocale(Locale $locale)
 	{
-		if( ! is_null($this->getGroup())) {
+		$this->localeId = $locale->getId();
+	}
+
+	/**
+	 * @return Locale
+	 */
+	public function getLocale()
+	{
+		$localeManager = ObjectRepository::getLocaleManager($this);
+
+		$locale = $localeManager->getLocale($this->localeId);
+
+		return $locale;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isSuper()
+	{
+		if ( ! is_null($this->getGroup())) {
 			return $this->getGroup()->isSuper();
 		}
 		else {
 			return false;
 		}
 	}
+
 }

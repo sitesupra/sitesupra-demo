@@ -2,14 +2,21 @@
 
 namespace Supra\Payment\Action;
 
-use Supra\Payment\Entity\Order;
+use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Html\HtmlTag;
 use Supra\Response\TwigResponse;
+use Supra\Payment\Order\OrderProvider;
+use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Entity\TransactionParameter;
+use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\Payment\Provider\Event\ProxyEventArgs;
+use Supra\Payment\Order\OrderStatus;
+use Supra\Payment\Transaction\TransactionStatus;
+use Supra\Payment\Transaction\TransactionProvider;
 
 abstract class ProxyActionAbstraction extends ActionAbstraction
 {
-
 	/**
 	 * @var Order
 	 */
@@ -18,62 +25,151 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 	/**
 	 * @var boolean
 	 */
-	protected $autosubmit;
+	protected $formAutosubmit;
 
-	function __construct()
+	/**
+	 * @var string
+	 */
+	protected $formAction;
+
+	/**
+	 * @var string
+	 */
+	protected $formMethod;
+
+	/**
+	 * @var array
+	 */
+	protected $proxyData;
+
+	/**
+	 * @var string
+	 */
+	protected $redirectUrl;
+
+	abstract protected function preparePayment();
+
+	abstract protected function beginPaymentProcedure();
+
+	public function execute()
 	{
 		$this->fetchOrderFromRequest();
-	}
 
-	public function setAutosubmit($autosubmit)
-	{
-		$this->autosubmit = $autosubmit;
+		$this->fetchPaymentProvider();
+
+		$this->preparePayment();
+
+		$this->beginPaymentProcedure();
 	}
 
 	/**
 	 * @return array
 	 */
-	abstract function getFormData();
-
-	/**
-	 * @return array
-	 */
-	protected function getFormElements()
+	protected function getPaymentProviderFormElements()
 	{
-		$formData = $this->getFormData();
-
 		$formElements = array();
 
-		foreach ($formData as $name => $value) {
+		foreach ($this->proxyData as $name => $value) {
 
-			$hiddenInput = new HtmlTag('input');
-			$hiddenInput->setAttribute('hidden', true);
-			$hiddenInput->setAttribute('name', $name);
-			$hiddenInput->setAttribute('value', $value);
+			$input = new HtmlTag('input');
 
-			$formElements[] = $hiddenInput;
+			$input->setAttribute('name', $name);
+			$input->setAttribute('value', $value);
+
+			if ($this->autosubmit) {
+				$input->setAttribute('type', 'hidden');
+			}
+			else {
+				$input->setAttribute('type', 'text');
+			}
+
+			$formElements[] = $input;
 		}
 
 		return $formElements;
 	}
 
-	public function execute()
+	/**
+	 * Writes TransactionParameters to database.
+	 */
+	protected function storeProxyPhaseTransactionParameters()
 	{
+		$transactionProvider = new TransactionProvider();
+		
+		$transaction = $this->order->getTransaction();
+
+		foreach ($this->proxyData as $name => $value) {
+
+			$transactionParameter = new TransactionParameter();
+
+			$transactionParameter->setPhaseName(PaymentProviderAbstraction::PHASE_NAME_PROXY);
+
+			$transactionParameter->setName($name);
+			$transactionParameter->setValue($value);
+
+			$transactionParameter->setTransaction($transaction);
+
+			$transaction->addParameter($transactionParameter);
+		}
+		
+		$transactionProvider->store($transaction);
+	}
+
+	/**
+	 * Creates form to be submitted to payment provider.
+	 */
+	protected function submitFormToPaymentProvider()
+	{
+		$this->storeProxyPhaseTransactionParameters();
+
 		$response = new TwigResponse($this);
 
-		$formElements = $this->getFormElements();
-		
-		$providerActionUrl = $this->getProviderActionUrl();
+		$formElements = $this->getPaymentProviderFormElements();
 
 		$response->assign('formElements', $formElements);
-		$response->assign('providerActionUrl', $providerActionUrl);
-		$response->assign('autosubmit', $this->autosubmit);
+
+		$response->assign('action', $this->formAction);
+		$response->assign('method', $this->formMethod);
+
+		$response->assign('autosubmit', $this->formAutosubmit);
 
 		$response->outputTemplate('proxyform.html.twig');
 
 		$response->getOutputString();
 
 		$this->response = $response;
+
+		$this->order->setStatus(OrderStatus::PAYMENT_STARTED);
+		$this->em->persist($this->order);
+		$this->em->flush();
+
+		$this->fireProxyActionEvent();
+	}
+
+	/**
+	 * @return array
+	 */
+	abstract function getRedirectQueryData();
+
+	protected function redirectToPaymentProvider()
+	{
+		$this->storeProxyPhaseTransactionParameters();
+
+		$this->order->setStatus(OrderStatus::PAYMENT_STARTED);
+		
+		$this->order->getTransaction()->setStatus(TransactionStatus::IN_PROGRESS);
+
+		$orderProvider = new OrderProvider();
+		$orderProvider->store($this->order);
+
+		$this->fireProxyActionEvent();
+
+		$queryData = $this->getRedirectQueryData();
+
+		$query = http_build_query($queryData)
+		;
+		$this->response->header('Location', $this->redirectUrl . '?' . $query);
+		$this->response->flush();
 	}
 
 	/**
@@ -82,33 +178,40 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 	 */
 	public function fetchOrderFromRequest()
 	{
-		$orderId = $this->getRequest()->getParameter('orderId');
+		$request = $this->getRequest();
+
+		$orderId = $request->getParameter(PaymentProviderAbstraction::ORDER_ID);
 
 		if (empty($orderId)) {
 			throw new Exception\PaymentActionRuntimeException('No order id');
 		}
 
-		$em = ObjectRepository::getEntityManager($this);
+		$orderProvider = new OrderProvider();
+		$this->order = $orderProvider->getOrder($orderId);
 
-		$orderRepository = $em->getRepository(Order::CN());
-
-		$this->order = $orderRepository->find($orderId);
-
-		if (empty($this->order)) {
-			throw new Exception\PaymentActionRuntimeException('Order not found for id "' . $orderId . '"');
+		if ($this->order->getStatus() != OrderStatus::OPEN) {
+			throw new Exception\RuntimeException('Order "' . $orderId . '" is not fresh!');
 		}
+	}
 
-		$orderTransaction = $this->order->getTransaction();
-
-		if (empty($orderTransaction)) {
-			throw new Exception\PaymentActionRuntimeException('Order "' . $orderId . '" does not have a transaction.');
-		}
-
-		$paymentProviderId = $orderTransaction->getPaymentProviderId();
-
+	public function fetchPaymentProvider()
+	{
 		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
 
+		$transaction = $this->order->getTransaction();
+
+		$paymentProviderId = $transaction->getPaymentProviderId();
+
 		$this->paymentProvider = $paymentProviderCollection->get($paymentProviderId);
+	}
+
+	private function fireProxyActionEvent()
+	{
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new ProxyEventArgs();
+		$eventArgs->setOrder($this->order);
+		$eventManager->fire(PaymentProviderAbstraction::EVENT_PROXY, $eventArgs);
 	}
 
 }

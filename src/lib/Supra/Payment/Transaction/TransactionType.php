@@ -12,12 +12,23 @@ class TransactionType
 	
 	const TRANSFER = 3100;
 	
-	static $knonwnTypes = array(
+	static $knownTypes = array(
 		self::PURCHASE,
 		self::RECURRING_PURCHASE,
 		self::PURCHASE_REFUND,
 		self::RECURRING_PURCHASE_REFUND,
 		self::TRANSFER
 	);
+	
+	/**
+	 * Validates value of $type to be one of known types. Throws exception.
+	 * @param integer $status 
+	 */
+	static function validate($type)
+	{
+		if ( ! in_array($type, self::$knownTypes)) {
+			throw new Exception\RuntimeException('Unknown type "' . $type . '". Use constants from Transaction\TransactionType class.');
+		}
+	}	
 	
 }

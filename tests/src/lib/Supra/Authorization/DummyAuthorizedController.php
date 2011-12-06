@@ -6,7 +6,7 @@ use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Authorization\AuthorizedAction;
 use Supra\Controller\EmptyController;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
-use Supra\Authorization\AuthorizedControlerExecuteAction;
+use Supra\Authorization\AuthorizedControllerExecuteAction;
 use Supra\User\Entity\AbstractUser;
 
 class DummyAuthorizedController extends EmptyController implements AuthorizedControllerInterface

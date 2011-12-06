@@ -54,6 +54,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',
+			SUPRA_LIBRARY_PATH . 'Supra/Payment/Entity',
 	);
 	$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 	//$driverImpl = new \Doctrine\ORM\Mapping\Driver\YamlDriver(SUPRA_LIBRARY_PATH . 'Supra/yaml/');

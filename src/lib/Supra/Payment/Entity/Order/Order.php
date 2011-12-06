@@ -6,23 +6,27 @@ use Supra\Database;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Entity\Currency\Currency;
 use Supra\User\Entity\AbstractUser;
+use Supra\Payment\Entity\Order\OrderItem;
+use Supra\Payment\Order\OrderStatus;
+use \DateTime;
+use Supra\Payment\Product\ProductAbstraction;
+use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
+use Doctrine\Common\Collections\ArrayCollection;
+use \Locale;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
- * @Entity
+ * @Entity 
+ * @HasLifecycleCallbacks
  */
 class Order extends Database\Entity
 {
 
 	/**
-	 * @OneToMany(targetEntity="OrderItem", mappedBy="orderId")
+	 * @OneToMany(targetEntity="OrderItem", mappedBy="order")
+	 * @var ArrayCollection
 	 */
 	protected $items;
-
-	/**
-	 * @Column(type="string", nullable=false)
-	 * @var string
-	 */
-	protected $userId;
 
 	/**
 	 * @Column(type="datetime")
@@ -37,7 +41,7 @@ class Order extends Database\Entity
 	protected $modificationTime;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Payment\Entity\Transaction\Transaction")
+	 * @OneToOne(targetEntity="Supra\Payment\Entity\Transaction\Transaction")
 	 * @JoinColumn(name="transactionId", referencedColumnName="id")
 	 * @var Transaction
 	 */
@@ -51,25 +55,78 @@ class Order extends Database\Entity
 	protected $currency;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\User\Entity\AbstractUser")
-	 * @JoinColumn(name="userId", referencedColumnName="id")
-	 * @var AbstractUser
+	 * @Column(type="string", nullable=false)
+	 * @var string
 	 */
-	protected $user;
+	protected $userId;
+
+	/**
+	 * @Column(type="integer", nullable=false)
+	 * @var integer
+	 */
+	protected $status;
+
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $returnUrl;
+
+	/**
+	 * @Column(type="string", nullable=true, length="40")
+	 * @var string
+	 */
+	protected $localeId;
+
+	function __construct()
+	{
+		parent::__construct();
+
+		$this->status = OrderStatus::OPEN;
+		$this->items = new ArrayCollection();
+	}
 
 	/**
 	 * Returns order items.
 	 * @return array
 	 */
-	function getItems()
+	public function getItems()
 	{
 		return $this->items;
 	}
 
 	/**
+	 * @param array $items 
+	 */
+	public function setItems($items)
+	{
+		$this->items = $items;
+	}
+
+	/**
+	 * @param Locale $locale 
+	 */
+	public function setLocale(Locale $locale)
+	{
+		$this->localeId = $locale->getId();
+	}
+
+	/**
+	 * @return Locale
+	 */
+	public function getLocale()
+	{
+		$localeManager = ObjectRepository::getLocaleManager($this);
+
+		$locale = $localeManager->getLocale($this->localeId);
+
+		return $locale;
+	}
+
+	/**
 	 * @return Transaction
 	 */
-	function getTransaction()
+	public function getTransaction()
 	{
 		return $this->transaction;
 	}
@@ -77,15 +134,31 @@ class Order extends Database\Entity
 	/**
 	 * @return Currency
 	 */
-	function getCurrency()
+	public function getCurrency()
 	{
 		return $this->currency;
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getReturnUrl()
+	{
+		return $this->returnUrl;
+	}
+
+	/**
+	 * @param string $returnUrl 
+	 */
+	public function setReturnUrl($returnUrl)
+	{
+		$this->returnUrl = $returnUrl;
+	}
+
+	/**
 	 * @param Transaction $transaction 
 	 */
-	function setTransaction(Transaction $transaction)
+	public function setTransaction(Transaction $transaction)
 	{
 		$this->transaction = $transaction;
 	}
@@ -99,19 +172,19 @@ class Order extends Database\Entity
 	}
 
 	/**
-	 * @param AbstractUser $user 
+	 * @param string $userId
 	 */
-	public function setUser(AbstractUser $user)
+	public function setUserId($userId)
 	{
-		$this->user = $user;
+		$this->userId = $userId;
 	}
 
 	/**
 	 * @return AbstractUser
 	 */
-	public function getUser()
+	public function getUserId()
 	{
-		return $this->user;
+		return $this->userId;
 	}
 
 	/**
@@ -129,6 +202,160 @@ class Order extends Database\Entity
 		}
 
 		return $total;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalForProductItems()
+	{
+		$total = 0.0;
+
+		foreach ($this->items as $item) {
+
+			if ($item instanceof OrderProductItem) {
+				$total = $total + $item->getPrice();
+			}
+		}
+
+		return $total;
+	}
+
+	/**
+	 * Sets status for this order. See Order\OrderStatus class for more details.
+	 * @param integer $status 
+	 */
+	public function setStatus($status)
+	{
+		OrderStatus::validate($status);
+		$this->status = $status;
+	}
+
+	/**
+	 * Returns status or this order. See Order\OrderStatus class for more details.
+	 * @return integer
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * @param OrderItem $item
+	 */
+	public function addItem(OrderItem $item)
+	{
+		if ($item->validateAddToOrder($this)) {
+
+			$item->setOrder($this);
+			$this->items[] = $item;
+		}
+	}
+
+	/**
+	 * @prePersist
+	 */
+	public function autoCretionTime()
+	{
+		$this->creationTime = new \DateTime('now');
+		$this->modificationTime = new \DateTime('now');
+	}
+
+	/**
+	 * @preUpdate
+	 */
+	public function autoModificationTime()
+	{
+		$this->modificationTime = new \DateTime('now');
+	}
+
+	/**
+	 * @param string $productId 
+	 * @return OrderItem
+	 */
+	public function getOrderItemByProduct(ProductAbstraction $product)
+	{
+		foreach ($this->items as $item) {
+			/* @var $item OrderItem */
+
+			if ($item instanceof OrderProductItem) {
+
+				if ($item->getProductId() == $product->getId() &&
+						$item->getProductProviderClass() == $product->getProviderClass()
+				) {
+					return $item;
+				}
+			}
+		}
+
+		$newOrderItem = new OrderProductItem();
+
+		$newOrderItem->setOrder($this);
+		$newOrderItem->setProduct($product);
+		$this->items[] = $newOrderItem;
+
+		return $newOrderItem;
+	}
+
+	/**
+	 * @param string $paymentProviderId
+	 * @return OrderPaymentProviderItem 
+	 */
+	public function getOrderItemByPayementProvider($paymentProviderId = null)
+	{
+		foreach ($this->items as $item) {
+
+			if ($item instanceof OrderPaymentProviderItem) {
+
+				if (
+						$paymentProviderId == null ||
+						$item->getPaymentProviderId() == $paymentProviderId
+				) {
+					return $item;
+				}
+			}
+		}
+
+		$paymentProviderItem = new OrderPaymentProviderItem();
+		$paymentProviderItem->setPaymentProviderId($paymentProviderId);
+		$paymentProviderItem->setOrder($this);
+		$paymentProviderItem->setPrice(1);
+
+		$this->items[] = $paymentProviderItem;
+
+		return $paymentProviderItem;
+	}
+
+	/**
+	 * @param OrderItem $orderItem 
+	 */
+	public function removeOrderItem(OrderItem $orderItem)
+	{
+		//if (in_array($orderItem, $this->items)) {
+		// unset($this->items[array_search($orderItem, $this->items)]);
+		//}
+		$this->items->removeElement($orderItem);
+	}
+
+	public function updateLocale(Locale $locale)
+	{
+		if ($this->locale != $locale->getId()) {
+			$this->setLocale($locale);
+		}
+	}
+
+	public function getProductItems()
+	{
+		$result = array();
+
+		foreach ($this->items as $item) {
+
+			if ($item instanceof OrderProductItem) {
+				$result[] = $item;
+			}
+		}
+
+		return $result;
 	}
 
 }

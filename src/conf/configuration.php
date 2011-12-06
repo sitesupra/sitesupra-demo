@@ -17,6 +17,7 @@ require_once SUPRA_CONF_PATH . 'mailer.php';
 require_once SUPRA_CONF_PATH . 'authorization.php';
 require_once SUPRA_CONF_PATH . 'event.php';
 require_once SUPRA_CONF_PATH . 'search.php';
+require_once SUPRA_CONF_PATH . 'payment.php';
 
 $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new \Supra\Configuration\Loader\ComponentConfigurationLoader($parser);
@@ -24,6 +25,7 @@ $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Search/config.yml');
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Payment/DummyShop/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
 
 // Experimental: should be good if would be able to define extra PHP configuration as well

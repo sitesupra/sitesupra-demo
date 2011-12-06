@@ -43,5 +43,25 @@ class Currency extends Database\Entity
 		return $this->isoCode;
 	}
 
+	public function setIsoCode($isoCode)
+	{
+		$this->isoCode = $isoCode;
+	}
+
+	public function setAbbreviation($abbreviation)
+	{
+		$this->abbreviation = $abbreviation;
+	}
+
+	public function setSymbol($symbol)
+	{
+		$this->symbol = $symbol;
+	}
+
+	public function setEnabled($enabled)
+	{
+		$this->enabled = $enabled;
+	}
+
 }
 

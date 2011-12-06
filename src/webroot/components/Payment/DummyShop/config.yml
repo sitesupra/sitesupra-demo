@@ -1,0 +1,5 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\Payment\DummyShop\DummyShopController
+    title: Dummy Shop!
+    description: Buy moar! Buy moar!
+    cmsClassname: Editable

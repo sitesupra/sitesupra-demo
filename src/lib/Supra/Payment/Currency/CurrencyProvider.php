@@ -39,14 +39,34 @@ class CurrencyProvider
 	 * @param string $isoCode
 	 * @return Currency
 	 */
-	public function findCurrencyByIsoCode($isoCode)
+	public function getCurrencyByIsoCode($isoCode)
 	{
-		$currency = $this->currencyRepositry->findBy(array('isoCode' => $isoCode));
+		$currency = $this->currencyRepository->findOneBy(array('isoCode' => $isoCode));
 
 		if (empty($currency)) {
-			throw new Exception\RuntimeException('Currency not found for ISO code "' . $isoCode . '"');
+			
+			return $this->createDummyCurrency($isoCode);
+			
+			//throw new Exception\RuntimeException('Currency not found for ISO code "' . $isoCode . '"');
 		}
 
+		return $currency;
+	}
+
+	/**
+	 * @param string $isoCode 
+	 */
+	private function createDummyCurrency($isoCode)
+	{
+		$currency = new Currency();
+		$currency->setIsoCode($isoCode);
+		$currency->setAbbreviation($isoCode . '-ABBREV');
+		$currency->setSymbol($isoCode . '-SYMBOL');
+		$currency->setEnabled(true);
+		
+		$this->em->persist($currency);
+		$this->em->flush();
+		
 		return $currency;
 	}
 

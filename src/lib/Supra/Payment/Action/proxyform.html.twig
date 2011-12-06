@@ -12,7 +12,7 @@
 
   </head>
   <body>
-		<form id="proxyform" action="{{ providerActionUrl }}" method="post" >
+		<form id="proxyform" action="{{ action }}" method="{{ method }}" >
 
 			{% for formElement in formElements %}
 			<p>... {{ formElement | raw }} ...</p>

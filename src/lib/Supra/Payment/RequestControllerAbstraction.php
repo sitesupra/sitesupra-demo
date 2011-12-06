@@ -1,10 +1,10 @@
 <?php
 
-namespace Supra\Payment\Provider;
+namespace Supra\Payment;
 
 use Supra\Controller\ControllerAbstraction;
 use Supra\Controller\FrontController;
-use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\ObjectRepository\ObjectRepository;
 
 abstract class RequestControllerAbstraction extends ControllerAbstraction
 {
@@ -12,24 +12,17 @@ abstract class RequestControllerAbstraction extends ControllerAbstraction
 	protected $proxyActionClass;
 	protected $providerNotificationActionClass;
 	protected $customerReturnActionClass;
-	
-	/**
-	 * @var PaymentProviderAbstraction
-	 */
-	protected $paymentProvider;
 
 	/**
 	 * @param string $proxyActionClass
 	 * @param string $providerNotificationActionClass
 	 * @param string $customerReturnActionClass 
 	 */
-	function __construct($proxyActionClass, $providerNotificationActionClass, $customerReturnActionClass, $paymentProviderClass)
+	function __construct($proxyActionClass, $providerNotificationActionClass, $customerReturnActionClass)
 	{
 		$this->proxyActionClass = $proxyActionClass;
 		$this->providerNotificationActionClass = $providerNotificationActionClass;
 		$this->customerReturnActionClass = $customerReturnActionClass;
-		
-		$this->paymentProvider = new $paymentProviderClass();
 	}
 
 	private function executeAction($actionControllerClass)

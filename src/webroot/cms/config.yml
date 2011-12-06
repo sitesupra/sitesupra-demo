@@ -19,12 +19,6 @@
         url: /cms/restore
         controller: Supra\Cms\InternalUserManager\Restore\RestoreController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /dummy-pay
-        controller: Project\Payment\DummyPay\RequestController
-
 - Supra\Cms\ApplicationConfiguration:
     id: Supra\Cms\ContentManager
     title: Pages
@@ -68,3 +62,22 @@
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news
     className: Supra\Controller\Pages\News\NewsApplication
+    
+  
+- Project\Payment\Paypal\Configuration:
+    id: paypal_one
+    url: /payment/paypal_one
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://krists.videinfra.com
+    iniSectionName: paypal_configuration_one
+    collection: Project\Payment\DummyStore
+    
+    
+- Project\Payment\Paypal\Configuration:
+    id: paypal_two
+    url: /payment/paypal_two
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://krists.videinfra.com
+    iniSectionName: paypal_configuration_two
+    collection: Project\Payment\DummyStore
+      

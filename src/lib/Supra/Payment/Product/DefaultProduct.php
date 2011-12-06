@@ -45,12 +45,12 @@ class DefaultProduct extends ProductAbstraction
 	}
 
 	/**
-	 * Returns price for $amount of items for in currency $currency.
-	 * @param float $amount
+	 * Returns price for $quantity of items for in currency $currency.
+	 * @param integer $quantity
 	 * @param Currency $currency
 	 * @param DateTime $when 
 	 */
-	function getPrice($amount, Currency $currency, DateTime $when = null)
+	function getPrice($quantity, Currency $currency, DateTime $when = null)
 	{
 		$isoCode = $currency->getIsoCode();
 
@@ -58,7 +58,7 @@ class DefaultProduct extends ProductAbstraction
 			throw new Exception\RuntimeException('No price for this currency "' . $isoCode . '"');
 		}
 
-		return $amount * $this->prices[$isoCode];
+		return $quantity * $this->prices[$isoCode];
 	}
 
 }
