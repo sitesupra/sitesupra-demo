@@ -67,10 +67,13 @@ class TwigResponse extends HttpResponse
 	 * Assign parameter for the Twig template
 	 * @param string $name
 	 * @param mixed $value
+	 * @return TwigResponse
 	 */
 	public function assign($name, $value)
 	{
 		$this->templateVariables[$name] = $value;
+		
+		return $this;
 	}
 
 }

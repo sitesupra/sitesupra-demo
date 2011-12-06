@@ -11,6 +11,7 @@ class Number extends String
 	
 	private $minValue;
 	private $maxValue;
+	private $step = 1;
 	
 	public function getMinValue()
 	{
@@ -31,6 +32,16 @@ class Number extends String
 	{
 		$this->maxValue = $maxValue;
 	}
+	
+	public function getStep()
+	{
+		return $this->step;
+	}
+
+	public function setStep($step)
+	{
+		$this->step = $step;
+	}
 
 	/**
 	 * @return array
@@ -40,6 +51,7 @@ class Number extends String
 		return array(
 			'minValue' => $this->minValue,
 			'maxValue' => $this->maxValue,
+			'step' => $this->step,
 		);
 	}
 }
