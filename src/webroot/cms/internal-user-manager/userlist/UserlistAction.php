@@ -59,7 +59,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 			if (is_null($user->getGroup())) {
 				
-				$this->log->debug('User has no group: ', $user);
+				$this->log->debug('User has no group: ', $user->getId());
 				
 				continue;
 			}

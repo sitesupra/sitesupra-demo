@@ -60,6 +60,17 @@ class ApplicationConfiguration implements ConfigurationInterface
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
 	}
 	
+	public function getApplicationDataForInternalUserManager() {
+		
+		return array(
+				'id' => $this->id,
+				'title' => $this->title,
+				'icon' => $this->icon,
+				'path' => $this->path,
+				'permissions' => array($this->authorizationAccessPolicy->getPermissionForInternalUserManager())
+		);
+	}
+	
 	/**
 	 * To keep authorization component interface
 	 * @return string
