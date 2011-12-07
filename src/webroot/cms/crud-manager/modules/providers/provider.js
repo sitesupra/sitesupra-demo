@@ -524,7 +524,8 @@ YUI.add('website.provider', function (Y) {
 			
 			Supra.io(uri, {
 				'data': {
-					'record': e.record.getID(),
+					'providerId': this.get('id'),
+					'id': e.record.getID(),
 					'record-after':  e.newRecordPrevious ? e.newRecordPrevious.getID() : '',
 					'record-before': e.newRecordNext ? e.newRecordNext.getID() : ''
 				},
