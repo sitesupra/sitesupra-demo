@@ -220,8 +220,9 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		/**
 		 * Open property panel
 		 * 
+		 * @param {Y.Node} target Align target
 		 * @param {Object} data Property form data
-		 * @private
+		 * @param {Boolean} newpage True if this is a new page and false if template
 		 */
 		showNewPagePanel: function (target, data, newpage) {
 			this.initializeWidgets();
@@ -236,7 +237,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			inputs.template.set('disabled', !newpage);
 			
 			//Position panel
-			this.panel.set('align', {'node': target, 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
+			this.position(target);
 			
 			//Position arrow
 			if (target) {
@@ -245,6 +246,15 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				this.panel.show();
 				this.panel.set('arrowAlign', target);
 			}
+		},
+		
+		/**
+		 * Reposition panel
+		 * 
+		 * @param {Y.Node} target Align target
+		 */
+		position: function (target) {
+			this.panel.set('align', {'node': target, 'points': [Y.WidgetPositionAlign.LC, Y.WidgetPositionAlign.RC]});
 		},
 		
 		/**

@@ -422,6 +422,20 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			//New page also triggers this event, but drag.id is empty
 			if (!event.drag.id) return;
 			
+			//New page can be dragged, but shouldn't send request to server 
+			if (String(event.drag.id).indexOf('yui_') != -1) {
+				var drag_id = event.drag.id;
+				
+				//Update new page popup position
+				Y.later(250, this, function () {
+					var source = source = this.flowmap.getNodeById(drag_id),
+						node = source.get('boundingBox').one('.tree-node, .flowmap-node-inner');
+					this.plugins.getPlugin('PluginSitemapNewPage').position(node);
+				});
+				
+				return;
+			}
+			
 			var position = event.position,
 				drag_id = event.drag.id,
 				drop_id = event.drop.id,
@@ -443,7 +457,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 						this.setLoading(true);
 					}
 				}
-			})
+			});
 		},
 		
 		/**
