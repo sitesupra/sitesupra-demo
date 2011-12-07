@@ -64,8 +64,13 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 			if (this.isRoot()) {
 				level = 1;
 				
-				//Root level templates can't be dragable
+				//Root level pages and templates can't be dragable
 				this.set('isDragable', false);
+				
+				//Root level page can't be deleted or duplicated
+				if (SU.Manager.SiteMap.getType() != 'templates') {
+					this.get('boundingBox').one('.edit').addClass('edit-hidden');
+				}
 			} else if (this.get('parent').isRoot()) {
 				level = 2;
 				this.set('defaultChildType', Supra.FlowMapItemNormal);

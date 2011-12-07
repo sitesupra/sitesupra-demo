@@ -338,6 +338,9 @@
 	display: inline-block !important;
 	visibility: hidden;
 }
+.flowmap-node span.edit-hidden {
+	visibility: hidden !important;
+}
 .tree-node:hover span.edit,
 .flowmap-node-inner:hover span.edit {
 	visibility: visible;
