@@ -66,7 +66,28 @@ class HistoryPageRequestView extends PageRequest
 			}
 		}
 	}
+	
+	public function getPageSet()
+	{
+		if (isset($this->pageSet)) {
+			return $this->pageSet;
+		}
 
+		// Override nested set repository EM, page set will be loaded from draft
+		$page = $this->getPage();
+		$nestedSetRepository = $page->getNestedSetNode()
+				->getRepository();
+		
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$nestedSetRepository->setEntityManager($draftEm);
+		
+		
+		$this->pageSet = $this->getPageLocalization()
+				->getTemplateHierarchy();
+
+		return $this->pageSet;
+	}
+	
 	public function getPlaceHolderSet()
 	{
 		if (isset($this->placeHolderSet)) {
@@ -79,7 +100,6 @@ class HistoryPageRequestView extends PageRequest
 		$localeId = $localization->getLocale();
 		
 		$pageSetIds = $this->getPageSetIds();
-		
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		
 		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {

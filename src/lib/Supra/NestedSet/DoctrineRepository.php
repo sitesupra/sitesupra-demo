@@ -77,6 +77,14 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		return $this->entityManager;
 	}
+	
+	/**
+	 * @param EntityManager $entityManager 
+	 */
+	public function setEntityManager($entityManager)
+	{
+		$this->entityManager = $entityManager;
+	}
 
 	/**
 	 * Get class name of managed Doctrine entity
