@@ -1502,7 +1502,7 @@ class UnitOfWork implements PropertyChangedListener
                         if ($assoc2['isCascadeMerge']) {
                             $managedCol->initialize();
                             // clear and set dirty a managed collection if its not also the same collection to merge from.
-                            if (!$managedCol->isEmpty() && $managedCol != $mergeCol) {
+                            if (!$managedCol->isEmpty() && $managedCol !== $mergeCol) {
                                 $managedCol->unwrap()->clear();
                                 $managedCol->setDirty(true);
                                 if ($assoc2['isOwningSide'] && $assoc2['type'] == ClassMetadata::MANY_TO_MANY && $class->isChangeTrackingNotify()) {
