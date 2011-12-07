@@ -70,8 +70,8 @@ YUI.add('website.datagrid-loader', function (Y) {
 			
 			var host = this.get('host'),
 				content_height = host.tableBodyNode.get('offsetHeight'),	// Loaded data height
-				scroll_height = host.get('contentBox').get('offsetHeight'),
-				scroll_offset = host.get('contentBox').get('scrollTop'),
+				scroll_height = host.get('boundingBox').get('offsetHeight'),
+				scroll_offset = host.get('boundingBox').get('scrollTop'),
 				diff = content_height - (scroll_height + scroll_offset);
 			
 			if (diff < 50) {
@@ -89,7 +89,7 @@ YUI.add('website.datagrid-loader', function (Y) {
 		 */
 		getResultsPerRequest: function () {
 			var host = this.get('host'),
-				scroll_height = host.get('contentBox').get('offsetHeight'),
+				scroll_height = host.get('boundingBox').get('offsetHeight'),
 				content_height = host.tableBodyNode.get('offsetHeight'),			// Loaded data height, 32 is a guess
 				record_height = 32,													// Average record height
 				results_per_request = 0;
@@ -131,7 +131,7 @@ YUI.add('website.datagrid-loader', function (Y) {
 			}
 			
 			//Scroll to top
-			this.get('host').get('contentBox').set('scrollTop', 0);
+			this.get('host').get('boundingBox').set('scrollTop', 0);
 		},
 		
 		/**
@@ -246,7 +246,7 @@ YUI.add('website.datagrid-loader', function (Y) {
 			host.load = this.load;
 			
 			//On scroll and resize recheck if more items need to be loaded
-			host.get('contentBox').on('scroll', this.checkRecordsInView, this);
+			host.get('boundingBox').on('scroll', this.checkRecordsInView, this);
 			
 			this.handleResize = Y.throttle(Y.bind(this.checkRecordsInView, this), 50);
 			Y.on('resize', this.handleResize, window);
