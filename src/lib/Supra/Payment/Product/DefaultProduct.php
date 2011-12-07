@@ -5,7 +5,7 @@ namespace Supra\Payment\Product;
 use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 
-class DefaultProduct extends ProductAbstraction
+abstract class DefaultProduct extends ProductAbstraction
 {
 
 	/**
@@ -60,5 +60,5 @@ class DefaultProduct extends ProductAbstraction
 
 		return $quantity * $this->prices[$isoCode];
 	}
-
+	
 }
