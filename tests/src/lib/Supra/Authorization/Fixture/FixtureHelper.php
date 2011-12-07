@@ -65,6 +65,10 @@ class FixtureHelper
 	{
 		/* @var $user User */
 		$user = $this->up->findUserByLogin($userName);
+		
+		if (empty($user)) {
+			$user = $this->up->findUserByLogin($userName . '@supra7.vig');
+		}
 
 		$em = $this->up->getEntityManager();
 		$plainPassword = $userName;
