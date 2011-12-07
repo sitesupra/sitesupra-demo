@@ -158,6 +158,19 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
+.tree-node label.state-draft,
+.flowmap-node label.state-draft {
+	color: #36c;
+}
+.tree-node label.state-global,
+.flowmap-node label.state-global {
+	color: #bbb;
+}
+.tree-node label.state-unpublished,
+.flowmap-node label.state-unpublished {
+	color: #777;
+}
+
 .flowmap-node span.img {
 	display: inline-block;
 }

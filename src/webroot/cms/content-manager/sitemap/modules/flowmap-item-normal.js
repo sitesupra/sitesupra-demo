@@ -40,11 +40,30 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		renderUI: function () {
 			Supra.FlowMapItemNormal.superclass.renderUI.apply(this, arguments);
 			
+			var data = this.get('data');
+			
 			//"Show all" link
-			if (this.get('data').collapsed) {
+			if (data.collapsed) {
 				var node = this.get('boundingBox').one('a.show-all');
 				node.removeClass('hidden');
 				node.on('click', this.onShowAllClick, this);
+			}
+			
+			//Label styles
+			var label = this.get('boundingBox').one('label');
+			
+			if (data.published && data.unpublished_draft) {
+				//Published page with unpublished draft
+				label.addClass('state-draft');
+			} else if (data.global) {
+				//Global page without localization in current locale
+				label.addClass('state-global');
+			} else if (data.published) {
+				//Published page
+				//...this is default style
+			} else {
+				//Unpublished page with draft
+				label.addClass('state-unpublished');
 			}
 		},
 		
