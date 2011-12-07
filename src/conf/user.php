@@ -1,14 +1,16 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
-use Project\AutoregisterAuthenticationAdapter\AutoregisterAuthenticationAdapter;
+//use Project\AutoregisterAuthenticationAdapter\AutoregisterAuthenticationAdapter;
+use Supra\Authentication\Adapter\HashAdapter;
 use Supra\User\UserProvider;
 use Supra\User\Validation\EmailValidation;
 
 $userProvider = new UserProvider();
 
 $userProvider->addValidationFilter(new EmailValidation());
-$userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
+//$userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
+$userProvider->setAuthAdapter(new HashAdapter());
 
 // This is provider for CMS
 //ObjectRepository::setUserProvider('Supra\Cms', $userProvider);
