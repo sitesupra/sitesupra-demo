@@ -24,6 +24,11 @@ class AutoregisterAuthenticationAdapter extends HashAdapter
 		$user->setName($login);
 		$user->setEmail($login . '@supra7.vig');
 		
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$group = $userProvider->findGroupByName('contribs');
+			
+		$user->setGroup($group);
+
 		$this->credentialChange($user, $password);
 		
 		return $user;
@@ -45,7 +50,7 @@ class AutoregisterAuthenticationAdapter extends HashAdapter
 			$user->setLogin($login);
 			
 			// Flush again if login was changed...
-			$userProvider = ObjectRepository::getUserProvider($this);
+			$userProvider = ObjectRepository::getUserProvider($this);	
 			$userProvider->getEntityManager()
 					->flush();
 		}
