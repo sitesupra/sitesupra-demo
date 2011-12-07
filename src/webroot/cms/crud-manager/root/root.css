@@ -3,10 +3,21 @@
 	bottom: 10px;
 }
 
-.crud .yui3-datagrid table {
-	width: 1000px;
+/**
+ * Grid
+ */
+.crud .yui3-datagrid {
+	padding-left: 90px;
+}
+.crud .yui3-datagrid .yui3-datagrid-content {
+	max-width: 1000px;
+	min-width: 800px;
 	margin: 0 auto;
 }
+
+/**
+ * Form
+ */
 .crud .yui3-form,
 .crud .yui3-footer {
 	width: 600px;
@@ -26,6 +37,9 @@
 	margin-top: -40px;
 	z-index: 10;
 	width: 60px;
+}
+.yui3-datagrid-bar span {
+	display: block;
 }
 .yui3-datagrid-bar img {
 	display: block;

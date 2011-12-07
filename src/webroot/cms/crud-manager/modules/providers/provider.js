@@ -293,7 +293,9 @@ YUI.add('website.provider', function (Y) {
 		 */
 		deleteRecord: function (record_id) {
 			var record_id = record_id || this.get('recordId');
-			if (!record_id) return;
+			
+			//If in edit mode, then empty record_id is for new item
+			if (!record_id && this.get('mode') == 'list') return;
 			
 			var message = Supra.Intl.get(['crud', 'delete_confirmation']);
 			
@@ -313,22 +315,27 @@ YUI.add('website.provider', function (Y) {
 		 * @param {String} record_id Record ID
 		 */
 		deleteRecordConfirm: function (record_id) {
-			var uri = Supra.Manager.getAction('Form').getDataPath('delete'),
-				post_data = {
-					'id': record_id,
-					'providerId': this.get('id')
-				};
-			
-			if (this.get('locale')) {
-				//@TODO Add locale if it's supported
+			//Delete record
+			if (record_id) {
+				var uri = Supra.Manager.getAction('Form').getDataPath('delete'),
+					post_data = {
+						'id': record_id,
+						'providerId': this.get('id')
+					};
+				
+				if (this.get('locale')) {
+					//@TODO Add locale if it's supported
+				}
+				
+				Supra.io(uri, {
+					'data': post_data,
+					'method': 'post'
+				});
+				
+				this.data_grid.removeRow(record_id);
 			}
 			
-			Supra.io(uri, {
-				'data': post_data,
-				'method': 'post'
-			});
-			
-			this.data_grid.removeRow(record_id);
+			//Transition back to list mode
 			this.set('mode', 'list');
 		},
 		

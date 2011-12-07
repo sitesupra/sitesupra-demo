@@ -67,12 +67,7 @@
 
 .yui3-datagrid.fixed {
 	position: relative;
-}
-.yui3-datagrid.fixed,
-.yui3-datagrid.fixed .yui3-datagrid-content {
 	height: 100%;
-}
-.yui3-datagrid.fixed .yui3-datagrid-content {
 	overflow: auto;
 	overflow-x: hidden;
 }
