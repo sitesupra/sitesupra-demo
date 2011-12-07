@@ -69,7 +69,7 @@ class FixtureHelper
 		$em = $this->up->getEntityManager();
 		$plainPassword = $userName;
 		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
-		
+
 		if (empty($user)) {
 
 			$user = new User();
@@ -79,7 +79,7 @@ class FixtureHelper
 			$user->setName($userName);
 			$user->setEmail($userName . '@supra7.vig');
 		}
-		
+
 		// Reset password
 		$this->up->getAuthAdapter()->credentialChange($user, $password);
 		$em->flush();
@@ -142,52 +142,58 @@ class FixtureHelper
 		$this->up->getEntityManager()->flush();
 
 		$superUser = $users[$superUserName];
+
+		$denyForSuper = array(
+				\Supra\Cms\InternalUserManager\InternalUserManagerController::CN()
+		);
+
 		foreach (CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
 
-			if (in_array($appConfig->id, array('internal-user-manager'))) {
-				//$appConfig->authorizationAccessPolicy->grantApplicationSomeAccessPermission($superUser->getGroup());
+			\Log::debug('QQQ $appConfig->id ', $appConfig->id);
+
+			if (in_array($appConfig->id, $denyForSuper)) {
+				//$appConfig->authorizationAccessPolicy->revokeApplicationAllAccessPermission($superUser->getGroup());
 			}
 			else {
+				\Log::debug('QQQ GRANT');
 				$appConfig->authorizationAccessPolicy->grantApplicationAllAccessPermission($superUser->getGroup());
 			}
 		}
 
-		\Log::debug('==============================');
-
 		$contribUser = $users[$contribUserName];
+
+		$denyForContrib = array(
+				\Supra\Cms\InternalUserManager\InternalUserManagerController::CN(),
+				\Supra\Cms\BannerManager\BannerManagerController::CN()
+		);
+
 		foreach (CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
-			
-			if ( ! in_array($appConfig->id, array('internal-user-manager', 'banner-manager'))) {
+
+			if ( ! in_array($appConfig->id, $denyForContrib)) {
 				$appConfig->authorizationAccessPolicy->grantApplicationSomeAccessPermission($contribUser->getGroup());
 			}
 		}
 
 		// Allow upload everywhere (Media Library application).
 		$this->ap->setPermsissionStatus(
-				$contribUser->getGroup(), 
-				new FileEntity\SlashFolder(),
-				FileEntity\Abstraction\File::PERMISSION_UPLOAD_NAME, 
-				PermissionStatus::ALLOW
+				$contribUser->getGroup(), new FileEntity\SlashFolder(), FileEntity\Abstraction\File::PERMISSION_UPLOAD_NAME, PermissionStatus::ALLOW
 		);
-		
+
 		// Locate content root node and allow editing for everytghing below it.
 		$pr = $this->em->getRepository(PageEntity\Abstraction\AbstractPage::CN());
 		$rootNodes = $pr->getRootNodes();
 
 		foreach ($rootNodes as $rootNode) {
-			
+
 			// Skip templates.
-			if( $rootNode instanceof PageEntity\Template) {
+			if ($rootNode instanceof PageEntity\Template) {
 				continue;
 			}
-			
+
 			$this->ap->setPermsissionStatus(
-					$contribUser->getGroup(), 
-					$rootNode,
-					PageEntity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE,
-					PermissionStatus::ALLOW
+					$contribUser->getGroup(), $rootNode, PageEntity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE, PermissionStatus::ALLOW
 			);
-			
+
 			break;
 		}
 
