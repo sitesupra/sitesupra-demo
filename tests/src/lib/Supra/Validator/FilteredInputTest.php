@@ -153,5 +153,14 @@ class FilteredInputTest extends \PHPUnit_Framework_TestCase
 		
 		self::assertFalse($input->valid());
 	}
+	
+	public function testEmptyIterator()
+	{
+		$array = array();
+		$empty = new FilteredInput($array);
+		
+		self::assertFalse($empty->contains(1));
+		self::assertFalse($empty->contains(null));
+	}
 
 }

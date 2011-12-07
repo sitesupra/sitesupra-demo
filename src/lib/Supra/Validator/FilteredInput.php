@@ -64,7 +64,13 @@ class FilteredInput extends \ArrayIterator
 	 */
 	public function contains($value, $strict = false)
 	{
-		$key = $this->key();
+		$restore = false;
+		$key = null;
+		if ($this->valid()) {
+			$key = $this->key();
+			$restore = true;
+		}
+		
 		$this->rewind();
 		$found = false;
 		
@@ -83,7 +89,9 @@ class FilteredInput extends \ArrayIterator
 			}
 		}
 		
-		$this->seek($key);
+		if ($restore) {
+			$this->seek($key);
+		}
 		
 		return $found;
 	}
