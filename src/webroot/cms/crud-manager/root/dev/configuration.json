@@ -8,11 +8,12 @@
 				
 				"delete": true,
 				"create": true,
-				"sortable": false,
+				"sortable": true,
 				"locale": false
 			},
 			
 			"fields": {
+				"id":			{ "label": "",				"type": "Hidden" },
 				"title_lv":		{ "label": "Title LV", 		"type": "String" },
 				"title_ru":		{ "label": "Title RU", 		"type": "String" },
 				"title_en":		{ "label": "Title EN", 		"type": "String" },
@@ -24,7 +25,7 @@
 				"phone":		{ "label": "Phone", 		"type": "String" },
 				"fax": 			{ "label": "Fax", 			"type": "String" },
 				"email":		{ "label": "E-mail", 		"type": "String" },
-				"status": 		{ "label": "Status",		"type": "Select",	"valuesListId": "status", "value": 1 }
+				"status": 		{ "label": "Status",		"type": "Select",	"values": [{"id": 0, "title": "Hidden"},{"id": 1, "title": "Visible"}], "value": 1 }
 			},
 			
 			"lists": {
@@ -33,11 +34,7 @@
 					{"id": 2, "title": "Jelgava"},
 					{"id": 3, "title": "Nirza"},
 					{"id": 4, "title": "Rīga"}
-				],
-				"status": [
-					{"id": 0, "title": "Hidden"},
-					{"id": 1, "title": "Visible"}
-				]
+				] 
 			},
 			
 			"ui_list": [
@@ -49,6 +46,7 @@
 			],
 			
 			"ui_edit": [
+				"id",
 				"title_lv",
 				"title_ru",
 				"title_en",

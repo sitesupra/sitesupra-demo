@@ -111,6 +111,10 @@ SU('supra.input', function (Y) {
 				button = footer.getButton(buttons[i].id);
 				button.on('click', this.hide, this);
 				
+				if (i == 0) {
+					//Focus first button
+					button.focus();
+				}
 				if ('click' in buttons[i]) {
 					button.on('click', buttons[i].click, buttons[i].context || null);
 				}

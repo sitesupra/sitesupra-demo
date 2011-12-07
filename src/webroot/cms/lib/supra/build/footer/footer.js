@@ -89,7 +89,7 @@ YUI.add('supra.footer', function (Y) {
 			Footer.superclass.renderUI.apply(this, arguments);
 			
 			var button_count = 0;
-			var definitions = this.buttons_definition || {};
+			var definitions = Supra.mix(this.buttons_definition || {}, this.get('buttons') || {}, true);
 			
 			//Find all buttons
 			if (this.get('autoDiscoverButtons')) {
@@ -178,11 +178,11 @@ YUI.add('supra.footer', function (Y) {
 				'label': ''
 			};
 			
-			if ('id' in config && config.id in BUTTON_STYLES) {
+			if (config.id && config.id in BUTTON_STYLES) {
 				style_definition.style = BUTTON_STYLES[config.id];
 			}
 			
-			if ('id' in config) {
+			if (config.id && !config.label) {
 				var label = Supra.Intl.get(['buttons', config.id]);
 				if (label) style_definition.label = label;
 			}

@@ -54,8 +54,21 @@ Supra('website.list-dd', function (Y) {
 		 */
 		render: function () {
 			//Set default buttons
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			
+			/* - Group mode functionality is not done yet
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
+				{
+					'id': 'details',
+					'title': SU.Intl.get(['userlist', 'manage_groups']),
+					'icon': this.getActionPath() + 'images/icon-groups.png',
+					'action': 'UserList',
+					'actionFunction': 'toggleGroupMode',
+					'type': 'button'
+				}
+			]);
+			*/
 			
 			//Load users
 			this.load();
@@ -83,6 +96,24 @@ Supra('website.list-dd', function (Y) {
 				'context': this,
 				'on': {'complete': this.fillUserList}
 			});
+		},
+		
+		/**
+		 * Group editing mode
+		 * 
+		 * @private
+		 */
+		toggleGroupMode: function () {
+			var button = Manager.getAction('PageToolbar').buttons.details;
+			var node = this.one('div.userlist-groups');
+			
+			if (button.get('down')) {
+				button.set('down', false);
+				node.removeClass('group-mode');
+			} else {
+				button.set('down', true);
+				node.addClass('group-mode');
+			}
 		},
 		
 		/**
@@ -183,12 +214,23 @@ Supra('website.list-dd', function (Y) {
 		},
 		
 		/**
+		 * Start editing group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @private
+		 */
+		editGroup: function (group_id /* Group ID */) {
+			Supra.Manager.executeAction('User', null, group_id);
+			this.hide();
+		},
+		
+		/**
 		 * Start editing user
 		 * 
 		 * @param {String} user_id User ID
 		 * @private
 		 */
-		editUser: function (user_id) {
+		editUser: function (user_id /* User ID */) {
 			Supra.Manager.executeAction('User', user_id);
 			this.hide();
 		},

@@ -10,7 +10,7 @@ SU.addModule('website.providers', {
 });
 SU.addModule('website.provider', {
 	path: 'providers/provider.js',
-	requires: ['widget', 'website.datagrid', 'supra.form']
+	requires: ['widget', 'website.datagrid', 'website.datagrid-bar', 'supra.form']
 });
 
 SU.addModule('website.datagrid', {
@@ -20,19 +20,33 @@ SU.addModule('website.datagrid', {
 });
 SU.addModule('website.datagrid-loader', {
 	path: 'datagrid/datagrid-loader.js',
-	skinnable: true,
 	requires: ['plugin', 'website.datagrid']
+});
+SU.addModule('website.datagrid-dragable', {
+	path: 'datagrid/datagrid-dragable.js',
+	requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'website.datagrid']
 });
 SU.addModule('website.datagrid-row', {
 	path: 'datagrid/datagrid-row.js',
 	requires: ['widget']
 });
 
+SU.addModule('website.datagrid-bar', {
+	path: 'datagrid-bar/datagrid-bar.js',
+	requires: ['widget', 'dd-drag', 'dd-drop']
+});
 
 /**
  * Main manager action, initiates all other actions
  */
-Supra('supra.slideshow', 'website.providers', 'website.datagrid', 'website.datagrid-loader', function (Y) {
+Supra(
+	'supra.slideshow',
+	'website.providers',
+	'website.datagrid',
+	'website.datagrid-loader',
+	'website.datagrid-dragable',
+	
+	function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -99,7 +113,7 @@ Supra('supra.slideshow', 'website.providers', 'website.datagrid', 'website.datag
 		 * @type {Object}
 		 */
 		getFormContainer: function (id) {
-			return this.slideshow.addSlide('form-' + id);
+			return this.slideshow.addSlide('form-' + id).one('div');
 		},
 		
 		/**
@@ -132,6 +146,44 @@ Supra('supra.slideshow', 'website.providers', 'website.datagrid', 'website.datag
 			for(var provider_id in e.providers) {
 				Supra.CRUD.Providers.setActiveProvider(provider_id);
 				break;
+			}
+			
+			//Bind listeners
+			var provider = null;
+			for(var provider_id in e.providers) {
+				provider = e.providers[provider_id];
+				provider.after('modeChange', this.handleModeChange, this);
+			}
+		},
+		
+		/**
+		 * On mode change slide slideshow
+		 */
+		handleModeChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				var provider = Supra.CRUD.Providers.getActiveProvider(),
+					provider_id = provider.get('id'),
+					datagrid = provider.getDataGrid(),
+					form = provider.getForm(),
+					footer = provider.getFooter();
+				
+				if (e.newVal == 'list') {
+					//Show DataGrid and hide Form after animation
+					datagrid.show();
+					this.slideshow.scrollTo('datagrid-' + provider_id, function () {
+						form.hide();
+						footer.hide();
+					});
+				} else {
+					//Show Form and hide DataGrid after animation
+					Supra.Manager.executeAction('Form');
+					
+					form.show();
+					footer.show();
+					this.slideshow.scrollTo('form-' + provider_id, function () {
+						datagrid.hide();
+					});
+				}
 			}
 		},
 		

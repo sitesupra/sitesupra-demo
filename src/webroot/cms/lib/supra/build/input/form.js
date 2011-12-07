@@ -53,6 +53,13 @@ YUI.add("supra.form", function (Y) {
 		"style": {
 			value: ""
 		},
+		/**
+		 * Values which user was trying to set, but didn't had inputs
+		 * for them
+		 */
+		"plainValues": {
+			value: {}
+		},
 		"disabled": {
 			value: false,
 			setter: "_setDisabled"
@@ -230,7 +237,7 @@ YUI.add("supra.form", function (Y) {
 		 */
 		addInput: function (config) {
 			if (this.get('rendered')) {
-				//@TODO Add possibility to change input attributes after input has been rendered
+				//@TODO Add possibility to change input attributes after form has been rendered
 			} else {
 				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
@@ -487,7 +494,7 @@ YUI.add("supra.form", function (Y) {
 		 */
 		getValues: function (key, save) {
 			var key = key || 'name';
-			var values = {};
+			var values = Supra.mix({}, this.get('plainValues'));
 			var definitions = this.inputs_definition;
 			var prop = save ? 'saveValue' : 'value';
 			
@@ -501,6 +508,18 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
+		 * Returns save values as input name => value pairs
+		 * Optionally other attribute can be used instead of "name"
+		 * 
+		 * @param {String} key
+		 * @return Form input values
+		 * @type {Object}
+		 */
+		getSaveValues: function (key) {
+			return this.getValues(key, true);
+		},
+		
+		/**
 		 * Set input values
 		 * 
 		 * @param {Object} data
@@ -511,7 +530,8 @@ YUI.add("supra.form", function (Y) {
 				definitions = this.inputs_definition,
 				input = null,
 				key_value = null;
-				data = skip_encode ? data : this.serializeObject(data, null, true);
+				data = skip_encode ? data : this.serializeObject(data, null, true),
+				plainValues = this.get('plainValues');
 			
 			data = data || {};
 			
@@ -521,6 +541,12 @@ YUI.add("supra.form", function (Y) {
 				
 				if (key_value in data) {
 					input.set('value', data[key_value]);
+				}
+			}
+			
+			for(var id in data) {
+				if (!this.inputs[id]) {
+					plainValues[id] = data[id];
 				}
 			}
 			
@@ -554,6 +580,8 @@ YUI.add("supra.form", function (Y) {
 					inputs[id].resetValue();
 				}
 			}
+			
+			this.set('plainValues', {});
 			
 			return this;
 		},
@@ -651,15 +679,49 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
+		 * Validate form values
+		 * 
+		 * @return True on success, false on failure
+		 * @type {Boolean}
+		 */
+		validate: function () {
+			//@TODO
+			return true;
+		},
+		
+		/**
 		 * Validate and execute save request if url is set and user is authorized to save data
 		 */
-		save: function () {
-			var url = this.get('urlSave');
-			if (!this.get('disabled') && url) {
-				//@TODO
+		save: function (callback, context) {
+			if (!this.get('disabled') && this.validate()) {
+				var uri = this.get('urlSave'),
+					values = null;
+				
+				if (uri) {
+					values = this.getSaveValues(this.get('inputs') ? 'id' : 'name');
+					
+					Supra.io(uri, {
+						'method': 'post',
+						'data': values,
+						'context': context || this,
+						'on': {
+							'success': callback,
+							'failure': callback
+						}
+					});
+					
+				} else {
+					if (callback) {
+						callback.call(context = context || this, null, 1);
+					}
+				}
+				
+				this.fire('save');
+			} else {
+				if (callback) {
+					callback.call(context = context || this, null, 0);
+				}
 			}
-			
-			this.fire('save');
 		},
 		
 		/**

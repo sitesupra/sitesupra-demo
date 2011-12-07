@@ -40,6 +40,9 @@ YUI.add("website.datagrid", function (Y) {
 			'value': [],
 			'setter': '_setColumns'
 		},
+		'dataColumns': {
+			'value': []
+		},
 		'idColumn': {
 			'value': null,
 			'getter': '_getIDColumn',
@@ -94,17 +97,41 @@ YUI.add("website.datagrid", function (Y) {
 		
 		/**
 		 * Reference for beginChange() and endChange()
+		 * @type {Object}
+		 * @private
 		 */
 		reference_point: null,
 		
+		/**
+		 * Table node
+		 * @type {Y.Node}
+		 * @private
+		 */
 		tableNode: null,
+		
+		/**
+		 * Table heading node
+		 * @type {Y.Node}
+		 * @private
+		 */
 		tableHeadingNode: null,
+		
+		/**
+		 * Table body node
+		 * @type {Y.Node}
+		 * @private
+		 */
 		tableBodyNode: null,
 		
 		/**
-		 * Rows
+		 * Rows, instances of DataGridRow
+		 * @type {Array}
+		 * @private
 		 */
 		rows: [],
+		
+		
+		
 		
 		/*
 		 * Request params
@@ -177,6 +204,14 @@ YUI.add("website.datagrid", function (Y) {
 			}
 		},
 		
+		
+		
+		
+		/**
+		 * Add needed elements
+		 * 
+		 * @private
+		 */
 		renderUI: function () {
 			DataGrid.superclass.renderUI.apply(this, arguments);
 			
@@ -188,6 +223,7 @@ YUI.add("website.datagrid", function (Y) {
 			var fields = [],
 				heading = this.get('tableHeadingNode'),
 				columns = this.get('columns'),
+				data_columns = this.get('dataColumns'),
 				column = null,
 				id = null,
 				node = null;
@@ -205,6 +241,17 @@ YUI.add("website.datagrid", function (Y) {
 				id = column.id.replace(/[^a-z0-9\-_]*/g, '');
 				node = Y.Node.create('<th class="col-' + id + '">' + (column.title || '') + '</th>');
 				heading.append(node);
+			}
+			
+			//Data columns are not rendered
+			for(var i=0,ii=data_columns.length; i<ii; i++) {
+				fields.push(data_columns[i].id);
+			}
+			
+			//Add ID column to data column list
+			column = this.get('idColumn');
+			if (column.length) {
+				fields.push(column[0]);
 			}
 			
 			//Fixed heading
@@ -238,29 +285,60 @@ YUI.add("website.datagrid", function (Y) {
 				
 				this.set('dataSource', datasource);
 			}
-			
-			this.after('render', function () {
-				this.reset();
-			}, this);
-		},
-		
-		bindUI: function () {
-			DataGrid.superclass.bindUI.apply(this, arguments);
-		},
-		
-		syncUI: function () {
-			DataGrid.superclass.syncUI.apply(this, arguments);
 		},
 		
 		/**
-		 * Reload data
+		 * Attach event listeners
+		 * 
+		 * @private
+		 */
+		bindUI: function () {
+			DataGrid.superclass.bindUI.apply(this, arguments);
+			
+			this.tableBodyNode.delegate('click', this._handleRowClick, 'tr', this);
+			
+			//When rendering is done start loading data
+			this.after('render', this.reset, this);
+		},
+		
+		/**
+		 * On row click fire row:click event with row
+		 * 
+		 * @param {Event} e Event
+		 */
+		_handleRowClick: function (e) {
+			var target = e.target.closest('TR'),
+				row_id = target ? target.getData('rowID') : null;
+			
+			if (row_id) {
+				var row = this.getRowByID(row_id),
+					data = row.getData();
+				
+				this.fire('row:click', {'data': data, 'row': row});
+			}
+		},
+		
+		/**
+		 * Remove existing data and reload using offset 0
 		 */
 		reset: function () {
 			this.fire('reset');
+			this.requestParams.set('offset', 0);
+			this.removeAllRows();
+			this.load();
+		},
+		
+		/**
+		 * Load data
+		 */
+		load: function () {
+			//Event
+			this.fire('load');
 			
-			var datasource = this.get('dataSource');
+			//Style
+			this.get('boundingBox').addClass('yui3-datagrid-loading');
 			
-			datasource.sendRequest({
+			this.get('dataSource').sendRequest({
 				'request': this.requestParams.toString(),
 				'callback': {
 					'success': Y.bind(this._dataReceivedSuccess, this),
@@ -270,20 +348,10 @@ YUI.add("website.datagrid", function (Y) {
 		},
 		
 		/**
-		 * Add even/odd classes to rows
-		 * @private
-		 */
-		_renderEvenOddRows: function () {
-			var rows = this.rows;
-			for(var i=0,ii=rows.length; i<ii; i++) {
-				rows[i].getNode().addClass('yui3-datagrid-' + (i % 2 ? 'odd' : 'even'));
-			}
-		},
-		
-		/**
 		 * Handle received data
 		 * 
 		 * @param {Object} e
+		 * @private
 		 */
 		_dataReceivedSuccess: function (e) {
 			var response = e.response;
@@ -296,13 +364,15 @@ YUI.add("website.datagrid", function (Y) {
 			var results = response.results, i = null;
 			for(i in results) {
 				if (results.hasOwnProperty(i)) {
-					this.addRow(results[i]);
+					this.addRow(results[i], null, true);
 				}
 			}
 			
-			this._renderEvenOddRows();
+			//Event
+			this.fire('load:success', {'results': results});
 			
-			this.fire('reset:success', {'results': results});
+			//Remove loading style
+			this.get('boundingBox').removeClass('yui3-datagrid-loading');
 			
 			this.endChange();
 		},
@@ -311,9 +381,13 @@ YUI.add("website.datagrid", function (Y) {
 		 * Handle request error
 		 * 
 		 * @param {Object} e
+		 * @private
 		 */
 		_dataReceivedFailure: function (e) {
 			Y.log(e, 'error');
+			
+			//Remove loading style
+			this.get('boundingBox').removeClass('yui3-datagrid-loading');
 			
 			//Don't need old data
 			this.removeAllRows();
@@ -323,7 +397,7 @@ YUI.add("website.datagrid", function (Y) {
 		/**
 		 * Returns all rows
 		 * 
-		 * @return Array of rows
+		 * @return Array of rows, Supra.DataGridRow instances
 		 * @type {Array}
 		 */
 		getAllRows: function () {
@@ -334,7 +408,7 @@ YUI.add("website.datagrid", function (Y) {
 		 * Returns row by ID
 		 * 
 		 * @param {String} row_id
-		 * @return Rows DataGridRow instance
+		 * @return DataGridRow instance for row
 		 * @type {Object}
 		 */
 		getRowByID: function (row_id) {
@@ -349,7 +423,7 @@ YUI.add("website.datagrid", function (Y) {
 		 * Returns row by index
 		 * 
 		 * @param {Number} index Row index
-		 * @return Rows DataGridRow instance
+		 * @return DataGridRow instance for row
 		 * @type {Object}
 		 */
 		getRowByIndex: function (index) {
@@ -361,13 +435,28 @@ YUI.add("website.datagrid", function (Y) {
 		},
 		
 		/**
+		 * Returns row by node
+		 * 
+		 * @param {Object} node Node
+		 * @return DataGridRow instance for row
+		 * @type {Object}
+		 */
+		getRowByNode: function (node) {
+			var rows = this.rows;
+			for(var i=0,ii=rows.length; i<ii; i++) {
+				if (rows[i].getNode().compareTo(node)) return rows[i];
+			}
+			return null;
+		},
+		
+		/**
 		 * Removes row by ID and returns removed row data
 		 * 
-		 * @param {String} row_id
+		 * @param {String} row_id Row ID
 		 * @return Removed row data
 		 * @type {Object}
 		 */
-		removeRow: function () {
+		removeRow: function (row_id) {
 			var rows = this.rows;
 			for(var i=0,ii=rows.length; i<ii; i++) {
 				if (rows[i].getID() == row_id) {
@@ -400,26 +489,56 @@ YUI.add("website.datagrid", function (Y) {
 		},
 		
 		/**
-		 * Add row to DataGrid
+		 * Add row to DataGrid or move existing row to another position
 		 * 
 		 * @param {Object} row Row data
-		 * @param {Object} where Place where to insert row, by default at the end
+		 * @param {Object} before Record before which to insert new row. Optional, default is at the end
+		 * @param {Boolean} skip_check Don't check if row is already in data. Optional, default is false
 		 * @return Row object
 		 * @type {Object}
 		 */
-		addRow: function (row, where) {
-			var rows = this.rows;
+		addRow: function (row, before, skip_check) {
+			var rows = this.rows,
+				found = false;
 			
 			//If not DataGridRow object, then create it
 			if (!(row instanceof Supra.DataGridRow)) {
 				row = new Supra.DataGridRow(this, row, rows.length);
 			}
 			
-			//Add to row list
-			rows.push(row);
+			if (!skip_check) {
+				//Check if row is not in the data already
+				var id = row.getID();
+				for(var i=0,ii=rows.length; i<ii; i++) {
+					if (id == rows[i].getID()) {
+						//Remove from data
+						rows.splice(i, 1);
+						break;
+					}
+				}
+			}
 			
-			//Insert into DOM
-			this.tableBodyNode.append(row.getNode());
+			//Find row before which to insert
+			if (before && before instanceof Supra.DataGridRow) {
+				var id = before.getID();
+				for(var i=0,ii=rows.length; i<ii; i++) {
+					if (rows[i].getID() == id) {
+						//Add to data
+						rows.splice(i + 1, 0, row);
+						before.getNode().insert(row.getNode(), 'before');
+						found = true;
+						break;
+					}
+				}
+			}
+			
+			if (!found) {
+				//Add to row list
+				rows.push(row);
+				
+				//Insert into DOM
+				this.tableBodyNode.append(row.getNode());
+			}
 			
 			return row;
 		},

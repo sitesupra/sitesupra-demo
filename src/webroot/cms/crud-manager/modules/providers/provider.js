@@ -10,6 +10,7 @@ YUI.add('website.provider', function (Y) {
 		this.fields = config.fields;
 		this.fields_list = config.ui_list;
 		this.fields_edit = config.ui_edit;
+		this.lists = config.lists;
 		
 		Provider.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -88,7 +89,7 @@ YUI.add('website.provider', function (Y) {
 		 * Selected record ID
 		 */
 		'recordId': {
-			'value': true
+			'value': null
 		}
 	};
 	
@@ -116,11 +117,25 @@ YUI.add('website.provider', function (Y) {
 		fields_edit: [],
 		
 		/**
+		 * Value lists
+		 * @type {Object}
+		 * @private
+		 */
+		lists: {},
+		
+		/**
 		 * Form instance
 		 * @type {Supra.Form}
 		 * @private
 		 */
 		form: null,
+		
+		/**
+		 * Form footer, Supra.Footer instance
+		 * @type {Supra.Footer}
+		 * @private
+		 */
+		footer: null,
 		
 		/**
 		 * Data grid instance
@@ -140,6 +155,8 @@ YUI.add('website.provider', function (Y) {
 				tmp_edit = this.fields_edit,
 				fields_list = this.fields_list = [],
 				fields_edit = this.fields_edit = [],
+				lists = this.lists,
+				field = null,
 				key = null,
 				len = 0,
 				tmp = null;
@@ -160,8 +177,13 @@ YUI.add('website.provider', function (Y) {
 				}
 			}
 			for(key=0, len=tmp_edit.length; key<len; key++) {
-				if (fields[tmp_edit[key]]) {
-					fields_edit.push(fields[tmp_edit[key]]);
+				field = fields[tmp_edit[key]];
+				if (field) {
+					//Resolve value lists
+					if (field.valuesListId) {
+						field.values = lists[field.valuesListId] || [];
+					}
+					fields_edit.push(field);
 				}
 			}
 		},
@@ -184,6 +206,16 @@ YUI.add('website.provider', function (Y) {
 		 */
 		getDataGrid: function () {
 			return this.data_grid;
+		},
+		
+		/**
+		 * Returns footer instance
+		 * 
+		 * @return Form footer instance
+		 * @type {Supra.Footer}
+		 */
+		getFooter: function () {
+			return this.footer;
 		},
 		
 		/**
@@ -248,10 +280,56 @@ YUI.add('website.provider', function (Y) {
 				data_grid = this.data_grid;
 			
 			if (record_id && data_grid) {
-				return data_grid.getRecord(record_id);
+				return data_grid.getRowByID(record_id).data;
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Delete record
+		 * 
+		 * @param {String} record_id Record ID
+		 */
+		deleteRecord: function (record_id) {
+			var record_id = record_id || this.get('recordId');
+			if (!record_id) return;
+			
+			var message = Supra.Intl.get(['crud', 'delete_confirmation']);
+			
+			Supra.Manager.executeAction('Confirmation', {
+				'message': message,
+				'useMask': true,
+				'buttons': [
+					{'id': 'delete', 'label': 'Yes', 'click': function () { this.deleteRecordConfirm(record_id) }, 'context': this},
+					{'id': 'no', 'label': 'No'}
+				]
+			});
+		},
+		
+		/**
+		 * Delete record after confirmation
+		 * 
+		 * @param {String} record_id Record ID
+		 */
+		deleteRecordConfirm: function (record_id) {
+			var uri = Supra.Manager.getAction('Form').getDataPath('delete'),
+				post_data = {
+					'id': record_id,
+					'providerId': this.get('id')
+				};
+			
+			if (this.get('locale')) {
+				//@TODO Add locale if it's supported
+			}
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post'
+			});
+			
+			this.data_grid.removeRow(record_id);
+			this.set('mode', 'list');
 		},
 		
 		/**
@@ -261,6 +339,7 @@ YUI.add('website.provider', function (Y) {
 		 */
 		_createDataGrid: function () {
 			if (!this.data_grid) {
+				var container = Supra.Manager.Root.getDataGridContainer(this.get('id'));
 				
 				//Get request params
 				var request_params = {
@@ -277,16 +356,34 @@ YUI.add('website.provider', function (Y) {
 					'requestURI': Supra.Manager.Root.getDataPath('datalist'),
 					'requestParams': request_params,
 					'columns': this.getListFields(),
+					'dataColumns': this.getEditFields(),
 					'idColumn': this.get('primaryKey'),
 					'tableHeadingFixed': true
 				});
 				
 				this.data_grid.plug(Supra.DataGrid.LoaderPlugin);
+				this.data_grid.plug(Supra.DataGrid.DragablePlugin, {
+					'dd-sort': this.get('sortable'),
+					'dd-insert': this.get('create'),
+					'dd-delete': this.get('delete')
+				});
 				
-				this.data_grid.render(
-					Supra.Manager.Root.getDataGridContainer(this.get('id'))
-				);
+				this.data_grid.render(container);
 				
+				this.data_grid.on('row:click', this._handleRecordClick, this);
+				this.data_grid.on('drag:sort', this._handleRecordSort, this);
+				this.data_grid.on('drag:insert', this._handleRowInsert, this);
+				
+				/**
+				 * Create drag and drop bar
+				 */
+				this.bar = new Supra.DataGridBar({
+					'new-item': this.get('create'),
+					'recycle-bin': this.get('delete')
+				});
+				this.bar.render(container);
+				
+				this.bar.on('insert:click', this._handleRowInsert, this);
 			}
 		},
 		
@@ -297,15 +394,36 @@ YUI.add('website.provider', function (Y) {
 		 */
 		_createForm: function () {
 			if (!this.form) {
+				var container = Supra.Manager.Root.getFormContainer(this.get('id'));
 				
 				this.form = new Supra.Form({
-					'inputs': this.getEditFields()
+					'autoDiscoverInputs': false,
+					'inputs': this.getEditFields(),
+					'urlSave': Supra.Manager.getAction('Form').getDataPath('save')
 				});
 				
-				this.form.render(
-					Supra.Manager.Root.getFormContainer(this.get('id'))
-				);
+				this.form.render(container);
 				
+				//Footer
+				var buttons = [];
+				
+				if (this.get('delete')) {
+					buttons.push({
+						'id': 'delete'
+					});
+				}
+				
+				this.footer = new Supra.Footer({'buttons': buttons});
+				this.footer.render(container);
+				
+				if (this.get('delete')) {
+					this.footer.getButton('delete').on('click', function () {
+						this.deleteRecord(this.get('recordId'));
+					}, this);
+					this.form.on('disabledChange', function (evt) {
+						this.footer.getButton('delete').set('disabled', evt.newVal);
+					}, this);
+				}
 			}
 		},
 		
@@ -336,15 +454,100 @@ YUI.add('website.provider', function (Y) {
 		 */
 		_setModeState: function (state) {
 			//Only active provider can have state 'form'
-			if (!this.get('active') || (state != 'list' && state != 'form')) {
+			if (!this.get('active') || (state != 'list' && state != 'edit')) {
 				state = 'list';
 			}
 			
-			if (state == 'form' && this.get('active') && !this.form) {
-				this._createForm();
+			if (state == 'edit') {
+				if (!this.form) {
+					this._createForm();
+				} else {
+					this.form.resetValues();
+				}
+				
+				var values = Supra.mix({
+					'providerId': this.get('id'),
+					'record-before': null,
+					'record-after': null
+				}, this.getRecord());
+				
+				this.form.setValues(values, 'id');
 			}
 			
 			return state;
+		},
+		
+		/**
+		 * On record click open form
+		 * 
+		 * @private
+		 */
+		_handleRecordClick: function (e) {
+			var record_id = e.row.getID();
+			if (record_id) {
+				this.set('recordId', record_id);
+				this.set('mode', 'edit');
+			}
+		},
+		
+		/**
+		 * 
+		 */
+		_handleRowInsert: function (e) {
+			this.set('recordId', '');
+			this.set('mode', 'edit');
+			
+			this.form.setValues({
+				'record-before': e.recordNext ? e.recordNext.getID() : '',
+				'record-after': e.recordPrevious ? e.recordPrevious.getID() : ''
+			});
+		},
+		
+		/**
+		 * On record sort send to server
+		 * 
+		 * @private
+		 */
+		_handleRecordSort: function (e) {
+			var uri = Supra.Manager.getAction('Root').getDataPath('sort'),
+				data_grid = this.data_grid;
+			
+			//Update data
+			data_grid.addRow(e.record, e.newRecordNext);
+			
+			Supra.io(uri, {
+				'data': {
+					'record': e.record.getID(),
+					'record-after':  e.newRecordPrevious ? e.newRecordPrevious.getID() : '',
+					'record-before': e.newRecordNext ? e.newRecordNext.getID() : ''
+				},
+				'method': 'post',
+				'context': this,
+				'on': {
+					'failure': function () {
+						//Restore previous position
+						data_grid.addRow(e.record, e.oldRecordNext);
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Destructor
+		 * 
+		 * @private
+		 */
+		destroy: function () {
+			Provider.superclass.destroy.apply(this, arguments);
+			
+			this.data_grid.destroy();
+			this.form.destroy();
+			this.footer.destroy();
+			
+			delete(this.fields);
+			delete(this.fields_list);
+			delete(this.fields_edit);
+			delete(this.lists);
 		}
 		
 	});
@@ -356,4 +559,4 @@ YUI.add('website.provider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['widget', 'supra.form', 'website.datagrid']});
+}, YUI.version, {requires: ['widget', 'supra.form', 'website.datagrid', 'website.datagrid-bar']});

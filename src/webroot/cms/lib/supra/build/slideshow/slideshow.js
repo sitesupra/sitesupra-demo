@@ -171,8 +171,9 @@ YUI.add('supra.slideshow', function (Y) {
 		 * 
 		 * @param {Object} slideId Slide ID
 		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback function context
 		 */
-		scrollTo: function (slideId /* Slide ID */, callback /* Callback function */) {
+		scrollTo: function (slideId /* Slide ID */, callback /* Callback function */, context /* Context */) {
 			var oldSlideId = this.get('slide');
 			if (slideId == oldSlideId || !this.anim || !(slideId in this.slides)) return slideId;
 			
@@ -214,7 +215,7 @@ YUI.add('supra.slideshow', function (Y) {
 					
 					//Execute callback
 					if (Y.Lang.isFunction(callback)) {
-						callback(slideId);
+						callback.call(context || this, slideId);
 					}
 				}, this);
 				
@@ -239,7 +240,7 @@ YUI.add('supra.slideshow', function (Y) {
 				
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {
-					callback(slideId);
+					callback.call(context || this, slideId);
 				}
 			}
 			

@@ -4,6 +4,43 @@
 }
 
 .crud .yui3-datagrid table {
-	max-width: 1000px;
+	width: 1000px;
 	margin: 0 auto;
+}
+.crud .yui3-form,
+.crud .yui3-footer {
+	width: 600px;
+	margin: 0 auto;
+}
+.crud .yui3-footer .yui3-footer-content {
+	padding-left: 185px;
+}
+
+/**
+ * Data Grid Bar
+ */
+.yui3-datagrid-bar {
+	position: absolute;
+	left: 15px;
+	top: 50%;
+	margin-top: -40px;
+	z-index: 10;
+	width: 60px;
+}
+.yui3-datagrid-bar img {
+	display: block;
+}
+.yui3-datagrid-bar .new-item img {
+	cursor: pointer;
+}
+
+.yui3-datagrid .yui3-dd-marker {
+	
+}
+
+.yui3-datagrid-bar .yui3-dd-drop {
+	opacity: 0.5;
+}
+.yui3-datagrid-bar .yui3-dd-drop-active-valid {
+	opacity: 1;
 }

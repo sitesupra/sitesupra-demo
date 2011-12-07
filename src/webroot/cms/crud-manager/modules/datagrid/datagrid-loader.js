@@ -49,6 +49,13 @@ YUI.add('website.datagrid-loader', function (Y) {
 		total: 0,
 		
 		/**
+		 * Last known results per request
+		 * @type {Number}
+		 * @private
+		 */
+		resultsPerRequest: 0,
+		
+		/**
 		 * Spacing node
 		 */
 		tableSpacerNode: null,
@@ -58,28 +65,98 @@ YUI.add('website.datagrid-loader', function (Y) {
 		/**
 		 * Load records, which should be in view now
 		 */
-		_loadRecordsInView: function () {
-			if (this.loading || this.loaded >= this.total) return;
+		checkRecordsInView: function () {
+			if (!this.get('host').get('visible') || this.loading || this.loaded >= this.total) return;
 			
 			var host = this.get('host'),
-				content_height = host.tableBodyNode.get('offsetHeight'),	//Loaded data height
-				scroll_height = host.get('contentBox').get('offsetHeight');
+				content_height = host.tableBodyNode.get('offsetHeight'),	// Loaded data height
+				scroll_height = host.get('contentBox').get('offsetHeight'),
 				scroll_offset = host.get('contentBox').get('scrollTop'),
 				diff = content_height - (scroll_height + scroll_offset);
 			
 			if (diff < 50) {
 				host.requestParams.set('offset', this.loaded);
-				host.reset();
+				host.requestParams.set('resultsPerRequest', this.getResultsPerRequest());
+				host.load();
 			}
 		},
 		
-		_onReset: function () {
+		/**
+		 * Return number of results which should be returned for each request
+		 * 
+		 * @return Optimal results per request
+		 * @type {Number}
+		 */
+		getResultsPerRequest: function () {
+			var host = this.get('host'),
+				scroll_height = host.get('contentBox').get('offsetHeight'),
+				content_height = host.tableBodyNode.get('offsetHeight'),			// Loaded data height, 32 is a guess
+				record_height = 32,													// Average record height
+				results_per_request = 0;
+			
+			if (this.loaded && content_height) {
+				record_height = content_height / this.loaded;
+			}
+			
+			if (record_height) {
+				results_per_request = Math.ceil(scroll_height / record_height * 1.5);
+			} else {
+				results_per_request = this.resultsPerRequest;
+			}
+			
+			this.resultsPerRequest = Math.max(20, results_per_request || this.resultsPerRequest);
+			return this.resultsPerRequest;
+		},
+		
+		/**
+		 * When loading is done reset 'loading' state
+		 * 
+		 * @private
+		 */
+		onLoadComplete: function () {
 			this.loading = true;
 		},
 		
 		/**
+		 * On reset scroll to top
+		 * 
+		 * @private
+		 */
+		beforeReset: function () {
+			this.loaded = 0;
+			
+			//Set initial results per request
+			if (!this.get('host').requestParams.get('resultsPerRequest')) {
+				this.get('host').requestParams.set('resultsPerRequest', this.getResultsPerRequest());
+			}
+			
+			//Scroll to top
+			this.get('host').get('contentBox').set('scrollTop', 0);
+		},
+		
+		/**
+		 * Load data
+		 * Overwrite DataGrid load function, execution context is DataGrid
+		 * 
+		 * @private
+		 */
+		load: function () {
+			//Event
+			this.fire('load');
+			
+			this.get('dataSource').sendRequest({
+				'request': this.requestParams.toString(),
+				'callback': {
+					'success': Y.bind(this._dataReceivedSuccess, this),
+					'failure': Y.bind(this._dataReceivedFailure, this)
+				}
+			});
+		},
+		
+		/**
 		 * Handle successful load
-		 * Execution context is DataGrid
+		 * Overwrite DataGrid _dataReceivedSuccess function, execution
+		 * context is DataGrid
 		 * 
 		 * @param {Object} e Response event
 		 * @private
@@ -89,12 +166,6 @@ YUI.add('website.datagrid-loader', function (Y) {
 				loader = this.loader;
 			
 			this.beginChange();
-			
-			//Don't need old data
-			if (response.meta.offset == 0) {
-				this.loader.loaded = 0;
-				this.removeAllRows();
-			}
 			
 			//Mark chunk as loaded
 			this.loader.total = response.meta.total;
@@ -109,9 +180,14 @@ YUI.add('website.datagrid-loader', function (Y) {
 				}
 			}
 			
-			this._renderEvenOddRows();
+			//Current style doesn't support this
+			//this._renderEvenOddRows();
 			
-			this.fire('reset:success', {'results': results});
+			//Event
+			this.fire('load:success', {'results': results});
+			
+			//Remove loading style
+			this.get('boundingBox').removeClass('yui3-datagrid-loading');
 			
 			this.endChange();
 			
@@ -121,7 +197,8 @@ YUI.add('website.datagrid-loader', function (Y) {
 		
 		/**
 		 * Handle load failure
-		 * Execution context is DataGrid
+		 * Overwrite DataGrid _dataReceivedFailure function, execution
+		 * context is DataGrid
 		 * 
 		 * @param {Object} e Response event
 		 * @private
@@ -152,7 +229,7 @@ YUI.add('website.datagrid-loader', function (Y) {
 			this.tableSpacerNode.setStyle('height', content_height + 'px');
 			
 			//Recheck scroll position
-			this._loadRecordsInView();
+			this.checkRecordsInView();
 		},
 		
 		/**
@@ -163,16 +240,29 @@ YUI.add('website.datagrid-loader', function (Y) {
 			
 			this.chunks = {};
 			
+			//Overwrite some of the DataGrid functionality
 			host._dataReceivedSuccess = this._dataReceivedSuccess;
 			host._dataReceivedFailure = this._dataReceivedFailure;
+			host.load = this.load;
 			
-			host.get('contentBox').on('scroll', this._loadRecordsInView, this);
+			//On scroll and resize recheck if more items need to be loaded
+			host.get('contentBox').on('scroll', this.checkRecordsInView, this);
 			
-			this._onResize = Y.throttle(Y.bind(this._onResize, this), 50);
-			Y.on('resize', this._onResize, window);
+			this.handleResize = Y.throttle(Y.bind(this.checkRecordsInView, this), 50);
+			Y.on('resize', this.handleResize, window);
 			
-			host.on('reset', this._onReset, this);
+			//On load complete update 'loading' status
+			host.on('load', this.onLoadComplete, this);
 			
+			//On reset scroll to top
+			host.on('reset', this.beforeReset, this);
+			
+			//After visibility change update view if needed
+			host.after('visibleChange', function (evt) {
+				if (evt.newVal) {
+					Y.later(16, this, this.checkRecordsInView);
+				}
+			}, this);
 		},
 		
 		/**

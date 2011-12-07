@@ -85,11 +85,13 @@ YUI.add("website.datagrid-row", function (Y) {
 		 */
 		getID: function () {
 			if (this.id !== null) return this.id;
-			var id_components = this.id_components;
-			var data = this.data;
-			var id = [];
+			var id_components = this.id_components,
+				data = this.data,
+				id = [],
+				i = 0,
+				ii = id_components.length;
 			
-			for(var i=0,ii=id_components.length; i<ii; i++) {
+			for(; i<ii; i++) {
 				id[i] = (id_components[i] in data ? data[id_components[i]] : '');
 			}
 			
@@ -151,7 +153,35 @@ YUI.add("website.datagrid-row", function (Y) {
 			if (column_id in this.nodes) return this.nodes[column_id];
 			
 			var id = column_id.replace(/[^a-z0-9\-_]*/g, '');
-			return this.nodes[column_id] = this.node.one('td.' + id);
+			return this.nodes[column_id] = this.node.one('td.row-' + id);
+		},
+		
+		/**
+		 * Try guessing which is title column and returns node for it if found
+		 * or first column node if not found
+		 * 
+		 * @return Title column TD for this row
+		 * @type {Y.Node}
+		 */
+		getTitleColumnNode: function () {
+			if (!this.node) return;
+			var columns = this.host.getColumns(),
+				i = 0,
+				ii = columns.length,
+				id = null,
+				title = null,
+				check = ['title', 'name'];
+			
+			for(; i<ii; i++) {
+				id = columns[i].id.toLowerCase();
+				title = columns[i].title.toLowerCase();
+				
+				if (id.indexOf('title') != -1 || id.indexOf('name') != -1 || title.indexOf('title') != -1 || title.indexOf('name') != -1) {
+					return this.getColumnNode(id);
+				}
+			}
+			
+			return this.getColumnNode(column[0].id);
 		},
 		
 		/**
@@ -165,7 +195,7 @@ YUI.add("website.datagrid-row", function (Y) {
 			if (this.node) return this.node;
 			
 			var columns = this.host.getColumns(),
-				html = [];
+				html = [],
 				data = this.data,
 				column = null,
 				column_id = null,
@@ -193,7 +223,10 @@ YUI.add("website.datagrid-row", function (Y) {
 				}
 			}
 			
-			return this.node = Y.Node.create('<tr>' + html.join('') + '</tr>');
+			this.node = Y.Node.create('<tr>' + html.join('') + '</tr>');
+			this.node.setData('rowID', this.getID());
+			
+			return this.node;
 		},
 		
 		/**

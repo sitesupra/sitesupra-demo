@@ -111,3 +111,14 @@
 	opacity: 0.5;
 	width: auto !important;
 }
+
+/**
+ * --------------------------------- Group management --------------------------------------
+ */
+.userlist-groups .edit-label,
+.userlist-groups.group-mode ul {
+	display: none;
+}
+.userlist-groups.group-mode .edit-label {
+	display: block;
+}
