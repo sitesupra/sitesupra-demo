@@ -5,7 +5,7 @@ namespace Supra\Console;
 use Supra\Version;
 use Supra\ObjectRepository\ObjectRepository;
 use Symfony\Component\Console\Application as SymfonyConsoleApplication;
-use Supra\Component\Console\Cron\Period\AbstractPeriod;
+use Supra\Console\Cron\Period\AbstractPeriod;
 
 /**
  * Application

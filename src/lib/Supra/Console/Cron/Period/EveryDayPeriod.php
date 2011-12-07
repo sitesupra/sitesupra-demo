@@ -20,15 +20,30 @@ class EveryDayPeriod extends AbstractPeriod
 	 * 
 	 * @return \DateTime
 	 */
-	public function getNext() 
+	public function getNext(\DateTime $previousTime = null) 
 	{
-		$nextTime = strtotime($this->parameter);
-		if ($nextTime < time()) {
-			$nextTime += 86400;
+		// First run default time
+		$nextTime = time();
+		
+		$parameter = $this->parameter;
+		
+		// Parameter not specified, previous run exists
+		if (is_null($parameter) && $previousTime instanceof \DateTime) {
+			$parameter = $previousTime->format('H:i');
+		}
+		
+		// Minutes specified
+		if ( ! is_null($parameter)) {
+			$nextTime = strtotime($parameter);
+			
+			if ($nextTime < time()) {
+				$nextTime += 86400;
+			}
 		}
 		
 		$dateTime = new \DateTime();
 		$dateTime->setTimestamp($nextTime);
+		
 		return $dateTime;		
 	}
 

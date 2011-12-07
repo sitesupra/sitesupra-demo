@@ -39,6 +39,7 @@ class CronJob extends Entity
 	protected $periodParameter;
 
 	/**
+	 * @TODO: fix
 	 * @Column(name="las_execution_time",type="datetime",nullable=true)
 	 * @var DateTime
 	 */

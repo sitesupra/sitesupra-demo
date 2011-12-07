@@ -11,7 +11,7 @@ interface PeriodInterface
 
 	public function __construct($parameter);
 
-	public function getNext();
+	public function getNext(\DateTime $previousTime = null);
 
 	public function getParameter();
 

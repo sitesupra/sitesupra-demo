@@ -37,7 +37,7 @@ abstract class AbstractPeriod implements PeriodInterface
 	 */
 	public function __construct($parameter = null)
 	{
-		if ( ! empty($parameter)) {
+		if ( ! is_null($parameter)) {
 			$parameterValid = $this->validateParameter($parameter);
 			if ($parameterValid) {
 				$this->parameter = $parameter;

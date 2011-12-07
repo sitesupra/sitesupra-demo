@@ -55,38 +55,50 @@ class Command extends SymfonyCommand
 				continue;
 			}
 			
+			$log = ObjectRepository::getLogger($this);
+			
 			$jobStatus = $job->getStatus();
 			switch ($jobStatus) {
 				case CronJob::STATUS_NEW:
 				case CronJob::STATUS_OK:
+				case CronJob::STATUS_FAILED:
 					
+					// Lock and set next run time
 					$job->setStatus(CronJob::STATUS_LOCKED);
+					$this->updateJobNextExecutionTime($job);
 					$em->flush();
 					
 					$commandInput = new StringInput($job->getCommandInput());
-					$commandOutput = new NullOutput();
+					$commandOutput = new \Supra\Console\Output\ArrayOutput();
+					
 					try {
 						$return = $cli->doRun($commandInput, $commandOutput);
+						
 						if ($return === 0) {
+							$output = $commandOutput->getOutput();
+							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);
 							$job->setStatus(CronJob::STATUS_OK);
 						} else {
+							$output = $commandOutput->getOutput();
+							$log->error("Scheduled task {$job->getCommandInput()} has non-zero return code {$return} and output ", $output);
 							$job->setStatus(CronJob::STATUS_FAILED);
 						}
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
+						$output = $commandOutput->getOutput();
+						$log->error("Unexpected failure while running scheduled task {$job->getCommandInput()}: {$e->__toString()}\nOutput: ", $output);
+						
 						$job->setStatus(CronJob::STATUS_FAILED);
 					}
 					$job->setLastExecutionTime($thisTime);
 					
-					$this->updateJobNextExecutionTime($job);
 					break;
 					
-				case CronJob::STATUS_FAILED:
-					
-					$this->updateJobNextExecutionTime($job);
-					break;
-				
+				// TODO: how to unlock in case of some fatal error?
 				case CronJob::STATUS_LOCKED:
 				default:
+					
+					$this->updateJobNextExecutionTime($job);
+					
 					// nothing
 					break;
 			}
@@ -132,7 +144,9 @@ class Command extends SymfonyCommand
 	{
 		$periodClass = $job->getPeriodClass();
 		$period = new $periodClass($job->getPeriodParameter());
-		$nextTime = $period->getNext();
+		/* @var $period Period\PeriodInterface */
+		$previousTime = $job->getNextExecutionTime();
+		$nextTime = $period->getNext($previousTime);
 		$job->setNextExecutionTime($nextTime);
 	}
 	

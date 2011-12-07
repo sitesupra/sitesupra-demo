@@ -19,8 +19,10 @@ class EveryYearPeriod extends AbstractPeriod
 	 * Get closest suitable point in time (future)
 	 * 
 	 * @return \DateTime
+	 * 
+	 * @TODO: implement $previousTime usage
 	 */
-	public function getNext() 
+	public function getNext(\DateTime $previousTime = null) 
 	{
 		$now = new \DateTime();
 		$dateTime = \DateTime::createFromFormat($this->parameterFormat, $this->parameter);

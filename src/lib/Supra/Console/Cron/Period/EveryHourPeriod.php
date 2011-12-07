@@ -20,20 +20,30 @@ class EveryHourPeriod extends AbstractPeriod
 	 * 
 	 * @return \DateTime
 	 */
-	public function getNext() 
+	public function getNext(\DateTime $previousTime = null) 
 	{
-		$nextTime = date('H:i');
-		if ( ! is_null($this->parameter)) {
-			$nextTime = date('H') . ':' . $this->parameter;
-		}
-		$nextTime = strtotime($nextTime);
+		// First run default time
+		$nextTime = time();
 		
-		if ($nextTime < time()) {
-			$nextTime += 3600;
+		$parameter = (int) $this->parameter;
+		
+		// Parameter not specified, previous run exists
+		if (is_null($parameter) && $previousTime instanceof \DateTime) {
+			$parameter = $previousTime->format('i');
+		}
+		
+		// Minutes specified
+		if ( ! is_null($parameter)) {
+			$nextTime = strtotime(date('H:') . $parameter);
+			
+			if ($nextTime < time()) {
+				$nextTime += 3600;
+			}
 		}
 		
 		$dateTime = new \DateTime();
 		$dateTime->setTimestamp($nextTime);
+		
 		return $dateTime;		
 	}
 
