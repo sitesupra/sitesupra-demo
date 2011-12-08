@@ -196,9 +196,11 @@ class PageAction extends PageManagerAction
 
 			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
 
-
 			/* @var $block Entity\Abstraction\Block */
 			foreach ($blockSubset as $block) {
+				
+				$controller = $block->createController();
+				$block->prepareController($controller, $request);
 
 				$blockData = array(
 						'id' => $block->getId(),
@@ -207,13 +209,12 @@ class PageAction extends PageManagerAction
 						'properties' => array(),
 				);
 
-				$blockPropertySubset = $blockPropertySet->getBlockPropertySet($block);
-
-				/* @var $blockProperty Entity\BlockProperty */
-				foreach ($blockPropertySubset as $blockProperty) {
+				$editables = $controller->getPropertyDefinition();
+				
+				foreach ($editables as $propertyName => $editable) {
+					$blockProperty = $controller->getProperty($propertyName);
+					
 					if ($page->isBlockPropertyEditable($blockProperty)) {
-
-						$propertyName = $blockProperty->getName();
 						$propertyValue = $blockProperty->getValue();
 						$metadataCollection = $blockProperty->getMetadata();
 						$data = array();
@@ -242,7 +243,7 @@ class PageAction extends PageManagerAction
 						$blockData['properties'][$propertyName] = $propertyData;
 					}
 				}
-
+				
 				$placeHolderData['contents'][] = $blockData;
 			}
 
