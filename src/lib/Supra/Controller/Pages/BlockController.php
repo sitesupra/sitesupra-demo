@@ -123,12 +123,7 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function getProperty($name)
 	{
-		$property = null;
-		
-		if ($this->propertyExists($name)) {
-			$property = $this->properties[$name];
-		}
-		
+		// Find editable by name
 		$propertyDefinitions = $this->getPropertyDefinition();
 		
 		if ( ! isset($propertyDefinitions[$name])) {
@@ -141,23 +136,24 @@ abstract class BlockController extends ControllerAbstraction
 			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
 		}
 		
-		$newProperty = false;
-
-		if (empty($property)) {
-			$newProperty = true;
-		} else {
-			$propertyType = (string) $property->getType();
-
-			// TODO: must create some feature to cast the property to the new class on upgrades
-			if (get_class($editable) != $propertyType) {
-				$newProperty = true;
+		// Find property by name and type
+		$property = null;
+		$expectedType = get_class($editable);
+		
+		foreach ($this->properties as $propertyCheck) {
+			/* @var $propertyCheck BlockProperty */
+			if ($propertyCheck->getName() === $name 
+					&& $propertyCheck->getType() === $expectedType) {
+				
+				$property = $propertyCheck;
+				break;
 			}
 		}
 		
 		/*
 		 * Must create new property here
 		 */
-		if ($newProperty) {
+		if (empty($property)) {
 
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
@@ -229,23 +225,6 @@ abstract class BlockController extends ControllerAbstraction
 		return $value;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getProperties()
-	{
-		return $this->properties;
-	}
-
-	/**
-	 * @param string $name
-	 * @return boolean
-	 */
-	public function propertyExists($name)
-	{
-		return array_key_exists($name, $this->properties);
-	}
-	
 	/**
 	 * Get the content and output it to the response or return if no response 
 	 * object set

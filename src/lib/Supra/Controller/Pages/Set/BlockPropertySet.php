@@ -22,7 +22,7 @@ class BlockPropertySet extends AbstractSet
 		foreach ($this as $blockProperty) {
 			if ($blockProperty->getBlock()->equals($block)) {
 				$blockPropertyName = $blockProperty->getName();
-				$blockPropertySet->offsetSet($blockPropertyName, $blockProperty);
+				$blockPropertySet->append($blockProperty);
 			}
 		}
 		
