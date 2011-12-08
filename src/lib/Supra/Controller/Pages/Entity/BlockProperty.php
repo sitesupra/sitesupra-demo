@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 /**
  * Block property class.
  * @Entity
+ * @HasLifecycleCallbacks
  */
 class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
@@ -58,7 +59,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	protected $metadata;
 	
 	/**
-	 * @Column(type="object", nullable=true)
+	 * @Column(type="object")
 	 * @var EditableInterface
 	 */
 	protected $editable;
@@ -72,6 +73,14 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		parent::__construct();
 		$this->name = $name;
 		$this->resetMetadata();
+	}
+	
+	/**
+	 * @PostLoad
+	 */
+	public function initializeEditable()
+	{
+		$this->setValue($this->value);
 	}
 
 	/**
@@ -176,7 +185,8 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function setValue($value)
 	{
-		$this->value = $value;
+		$this->editable->setContent($value);
+		$this->value = $this->editable->getContent();
 	}
 	
 	/**

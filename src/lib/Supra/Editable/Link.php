@@ -4,7 +4,8 @@ namespace Supra\Editable;
 
 /**
  * Link
- * TODO: what could be a default value for link?
+ * @TODO: what could be a default value for link?
+ * @TODO: possibility to limit to file/image/internal/external links
  */
 class Link extends EditableAbstraction
 {

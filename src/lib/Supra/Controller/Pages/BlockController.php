@@ -140,7 +140,7 @@ abstract class BlockController extends ControllerAbstraction
 		if ( ! $editable instanceof EditableInterface) {
 			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
 		}
-
+		
 		$newProperty = false;
 
 		if (empty($property)) {
@@ -153,25 +153,25 @@ abstract class BlockController extends ControllerAbstraction
 				$newProperty = true;
 			}
 		}
-
+		
 		/*
 		 * Must create new property here
 		 */
 		if ($newProperty) {
 
-			$propertyType = get_class($editable);
-
 			$property = new Entity\BlockProperty($name);
+			$property->setEditable($editable);
+			
 			$property->setValue($editable->getDefaultValue());
 			$property->setBlock($this->getBlock());
 
 			// Must set some DATA object. Where to get this? And why data is set to property not block?
 			//FIXME: should do somehow easier than that
 			$property->setLocalization($this->getRequest()->getPageLocalization());
+		} else {
+			//TODO: should we overwrite editable content parameters from the block controller config?
+			$property->setEditable($editable);
 		}
-		
-		//TODO: should we overwrite editable content parameters from the block controller config?
-		$property->setEditable($editable);
 		
 		// This is done in previous line already
 //		//TODO: this is ugly content copying
