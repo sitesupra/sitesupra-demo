@@ -14,6 +14,7 @@ use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
+use Supra\Controller\Pages\Repository\PageRepository;
 
 /**
  * 
@@ -508,6 +509,43 @@ class PageAction extends PageManagerAction
 	{
 		$this->checkLock(false);
 		$this->duplicate();
+	}
+	
+	/**
+	 * Converts internal path to page ID
+	 */
+	public function pathToIdAction()
+	{
+		$input = $this->getRequestInput();
+		$controller = $this->getPageController();
+		$em = $controller->getEntityManager();
+		$repo = $em->getRepository(Entity\PageLocalization::CN());
+		/* @var $repo PageRepository */
+		
+		$path = $input->get('page_path');
+		$path = trim($path, '/');
+		$locale = $input->get('locale');
+		
+		//TODO: the locale detection from URL could differ in fact
+		// Remove locale prefix
+		if ($path == $locale || strpos($path, $locale . '/') === 0) {
+			$path = substr($path, strlen($locale) + 1);
+		}
+		
+		$criteria = array(
+			'path' => $path,
+			'locale' => $locale,
+		);
+		
+		$pageLocalization = $repo->findOneBy($criteria);
+		
+		if ( ! $pageLocalization instanceof Entity\PageLocalization) {
+			throw new CmsException(null, 'No page was found by the URL');
+		}
+		
+		$pageId = $pageLocalization->getId();
+		
+		$this->getResponse()->setResponseData($pageId);
 	}
 	
 }
