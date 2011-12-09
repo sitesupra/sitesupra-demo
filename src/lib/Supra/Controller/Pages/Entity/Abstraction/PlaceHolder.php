@@ -153,7 +153,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	 */
 	public static function factory(Localization $localization, $name, PlaceHolder $source = null)
 	{
-		$discriminator = $localization->getDiscriminator();
+		$discriminator = $localization::DISCRIMINATOR;
 		$placeHolder = null;
 		
 		switch ($discriminator) {

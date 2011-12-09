@@ -235,7 +235,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 */
 	public static function factory(Entity $base)
 	{
-		$discriminator = $base->getDiscriminator();
+		$discriminator = $base::DISCRIMINATOR;
 		$block = null;
 		
 		switch ($discriminator) {

@@ -302,7 +302,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	public static function factory(AbstractPage $page, $locale)
 	{
 		$localization = null;
-		$discriminator = $page->getDiscriminator();
+		$discriminator = $page::DISCRIMINATOR;
 		
 		switch ($discriminator) {
 			case Entity::APPLICATION_DISCR:

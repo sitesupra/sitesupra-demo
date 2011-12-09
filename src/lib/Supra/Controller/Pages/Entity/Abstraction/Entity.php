@@ -86,15 +86,6 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	}
 
 	/**
-	 * Get discriminator key for the object ("page", "template", null if not found)
-	 * @return string
-	 */
-	public function getDiscriminator()
-	{
-		return static::DISCRIMINATOR;
-	}
-
-	/**
 	 * Check if discriminators match for objects.
 	 * They must be equal, with exceptions:
 	 *		* PageLocalization object can have Page block properties assigned to template block object
@@ -107,8 +98,8 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 			throw new Exception\LogicException("Entity not passed to the matchDiscriminator method");
 		}
 		
-		$discrA = $this->getDiscriminator();
-		$discrB = $object->getDiscriminator();
+		$discrA = $this::DISCRIMINATOR;
+		$discrB = $object::DISCRIMINATOR;
 
 		$this->log()->debug("Checking discr matching for $this and $object: $discrA and $discrB");
 
