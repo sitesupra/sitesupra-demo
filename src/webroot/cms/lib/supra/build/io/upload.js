@@ -113,7 +113,7 @@ YUI.add('supra.io-upload', function (Y) {
 				response = Supra.io.parseResponse(this.get('requestUri'), {'type': 'json'}, this.xhr.responseText);
 			
 			//Handle error message if there is one
-			Supra.io.handleResponse(null, response);
+			Supra.io.handleResponse({}, response);
 			
 			if (response.status && response.data) {
 				this.fire('load', SU.mix({'data': response.data}, event_data));
