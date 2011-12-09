@@ -3,10 +3,10 @@
 
 SU('supra.tabs', 'dd-drag', function (Y) {
 	
-	//Shortcut
-	var Manager = SU.Manager;
-	var Action = Manager.Action;
-	var Loader = Manager.Loader;
+	//Shortcuts
+	var Manager = SU.Manager,
+		Action = Manager.Action,
+		Loader = Manager.Loader;
 	
 	//Add as left bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('PageInsertBlock');

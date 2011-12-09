@@ -3,7 +3,7 @@
 
 SU('anim', 'transition', function (Y) {
 	
-	//Shortcut
+	//Shortcuts
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
@@ -11,7 +11,7 @@ SU('anim', 'transition', function (Y) {
 	Manager.getAction('LayoutLeftContainer').addChildAction('SiteMapRecycle');
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginContainer, {
 		
 		/**
 		 * Unique action name
