@@ -123,6 +123,13 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		called: {},
 		
+		/**
+		 * Sidebar is only temporary hidden, needed to make sure
+		 * buttons are not hidden when opening link manager for redirect
+		 * @type {Boolean}
+		 */
+		temporary_hidden: false,
+		
 		
 		/**
 		 * On slide change show/hide buttons and call callback function
@@ -337,9 +344,19 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Open link manager for redirect
 		 */
 		openLinkManager: function () {
+			this.temporary_hidden = true;
+			
 			var value = this.form.getInput('redirect').getValue();
 			var callback = Y.bind(this.onLinkManagerClose, this);
-			Supra.Manager.executeAction('PageLinkManager', value, callback);
+			
+			//Disable editing for everything else
+			Supra.Manager.PageContent.getContent().set('disabled', true);
+			
+			//Open link manager
+			Supra.Manager.executeAction('PageLinkManager', value, {
+				'callback': callback,
+				'hideToolbar': true
+			});
 		},
 		
 		/**
@@ -348,6 +365,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * @param {Object} data
 		 */
 		onLinkManagerClose: function (data) {
+			this.temporary_hidden = false;
+			
+			//Re-enable editing
+			Supra.Manager.PageContent.getContent().set('disabled', false);
+			
 			this.form.getInput('redirect').setValue(data);
 			this.setFormValue('redirect', {'redirect': data});
 			this.execute(true);
@@ -688,9 +710,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
-			//Hide buttons
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			if (!this.temporary_hidden) {
+				//Hide buttons
+				Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+				Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			}
 			
 			//Hide action
 			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);

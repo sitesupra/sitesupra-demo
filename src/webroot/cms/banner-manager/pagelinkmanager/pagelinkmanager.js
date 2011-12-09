@@ -66,12 +66,21 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		callback: null,
 		
+		/**
+		 * Link manager options
+		 */
+		options: null,
+		
 		
 		
 		/**
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
+			//Toolbar buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
 			//Back and Close buttons
 			var buttons = this.all('button');
 			
@@ -131,6 +140,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
+			
+			//Show previous buttons
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			//Hide action
 			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
 		},
@@ -241,10 +255,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * Close and save data
 		 */
 		close: function () {
-			if (this.callback) {
+			if (this.options.callback) {
 				var data = this.getData();
-				this.callback(data);
-				this.callback = null;
+				this.options.callback(data);
+				this.options.callback = null;
 			}
 			
 			this.hide();
@@ -253,14 +267,19 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		/**
 		 * Execute action
 		 */
-		execute: function (data, callback) {
+		execute: function (data, options) {
+			this.options = Supra.mix({
+				'hideToolbar': false,
+				'callback': null
+			}, options || {});
+			
 			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
 			
-			this.callback = null;
 			this.setData(data);
 			
-			if (SU.Y.Lang.isFunction(callback)) {
-				this.callback = callback;
+			if (this.options.hideToolbar) {
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 		}
 	});

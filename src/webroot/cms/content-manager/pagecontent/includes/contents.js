@@ -38,7 +38,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 			value: null
 		},
 		'disabled': {
-			value: false
+			value: false,
+			setter: '_setDisabled'
 		},
 		'activeChild': {
 			value: null
@@ -376,18 +377,28 @@ YUI.add('supra.iframe-contents', function (Y) {
 		_setHighlight: function (value) {
 			if (value) {
 				this.set('disabled', true);
-				this.get('body').removeClass('yui3-editable');
 				this.get('body').addClass('yui3-highlight');
-				
-				this.set('activeChild', null);
 			} else {
 				this.set('disabled', false);
-				this.get('body').addClass('yui3-editable');
 				this.get('body').removeClass('yui3-highlight');
 				
 				for (var i in this.children) {
 					this.children[i].set('highlight', false);
 				}
+			}
+			
+			return !!value;
+		},
+		
+		/**
+		 * Disable editing
+		 */
+		_setDisabled: function (value) {
+			if (value) {
+				this.get('body').removeClass('yui3-editable');
+				this.set('activeChild', null);
+			} else {
+				this.get('body').addClass('yui3-editable');
 			}
 			
 			return !!value;

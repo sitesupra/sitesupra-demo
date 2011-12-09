@@ -162,7 +162,10 @@ Supra(function (Y) {
 		openLinkManager: function () {
 			var value = this.form.getInput('target').getValue();
 			var callback = Y.bind(this.onLinkChange, this);
-			Supra.Manager.executeAction('PageLinkManager', value, callback);
+			
+			Supra.Manager.executeAction('PageLinkManager', value, {
+				'callback': callback
+			});
 			
 			this.button_target.set('down', true);
 		},
