@@ -26,7 +26,7 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 	 */
 	public function register(Node\NodeInterface $node)
 	{
-		if ( ! \in_array($node, $this->array, true)) {
+		if ( ! in_array($node, $this->array, true)) {
 			$this->array[] = $node;
 		}
 	}
@@ -39,8 +39,8 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 	{
 		if (is_null($node)) {
 			$this->array = array();
-		} elseif (\in_array($node, $this->array, true)) {
-			$key = \array_search($node,	$this->array, true);
+		} elseif (in_array($node, $this->array, true)) {
+			$key = array_search($node,	$this->array, true);
 			unset($this->array[$key]);
 		}
 	}

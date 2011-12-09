@@ -34,6 +34,11 @@ abstract class NodeAbstraction implements NodeInterface
 	protected $level;
 	
 	/**
+	 * @var NodeInterface
+	 */
+	protected $masterNode;
+	
+	/**
 	 * True if cannot have children nodes
 	 * @var boolean
 	 */
@@ -65,6 +70,7 @@ abstract class NodeAbstraction implements NodeInterface
 		$this->right = $node->getRightValue();
 		$this->level = $node->getLevel();
 		$this->title = $node->__toString();
+		$this->masterNode = $node;
 		
 		if ($node instanceof NodeLeafInterface) {
 			$this->setLeafInterface(true);
@@ -369,6 +375,7 @@ abstract class NodeAbstraction implements NodeInterface
 			array_unshift($items, $node->__toString());
 		}
 		$path = implode($separator, $items);
+		
 		return $path;
 	}
 
@@ -387,13 +394,10 @@ abstract class NodeAbstraction implements NodeInterface
 		$level = $this->getLevel();
 
 		$searchCondition = $this->repository->createSearchCondition();
-		if ($includeNode) {
-			$searchCondition->leftLessThanOrEqualsTo($left)
-					->rightMoreThanOrEqualsTo($right);
-		} else {
-			$searchCondition->leftLessThan($left)
-					->rightMoreThan($right);
-		}
+		
+		// Will include the self node if required in the end
+		$searchCondition->leftLessThan($left)
+				->rightMoreThan($right);
 
 		if ($levelLimit < 0) {
 			throw new Exception\Domain("Level limit cannot be negative in getAncestors method");
@@ -405,6 +409,11 @@ abstract class NodeAbstraction implements NodeInterface
 				->byLevelDescending();
 
 		$ancestors = $this->repository->search($searchCondition, $orderRule);
+		
+		// Fixes not flushed node returning
+		if ($includeNode) {
+			array_unshift($ancestors, $this->masterNode);
+		}
 		
 		return $ancestors;
 	}
