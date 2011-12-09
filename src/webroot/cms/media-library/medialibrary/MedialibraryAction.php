@@ -333,8 +333,16 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$folder->addChild($fileEntity);
 			}
 			
-			// trying to upload file
-			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			try {
+				// trying to upload file
+				$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+			} catch (\Exception $e) {
+				$this->entityManager->flush();
+				$this->entityManager->remove($fileEntity);
+				$this->entityManager->flush();
+				
+				throw $e;
+			}
 			
 			if ($fileEntity instanceof Entity\Image) {
 				// create preview
