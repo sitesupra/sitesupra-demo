@@ -333,14 +333,20 @@ abstract class PageManagerAction extends CmsAction
 						($data instanceof Entity\GroupLocalization ? 'group' :
 								($page->getLevel() === 0 ? 'home' : 'page')),
 				'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
+				'global' => $page->isGlobal(),
 		);
 
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {
 			$templateId = $data->getTemplate()
 					->getId();
-
+			
 			$array['template'] = $templateId;
+			
+			$scheduleTime = $data->getScheduleTime();
+			if ( ! is_null($scheduleTime)) {
+				$array['scheduled'] = true;
+			}
 		}
 
 		// Node type
@@ -384,12 +390,28 @@ abstract class PageManagerAction extends CmsAction
 				}
 			}
 		}
-
+		
+		$array['unpublished_draft'] = true;
+		$array['published'] = false;
+		
+		$localizationId = $data->getId();
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		if ($publicLocalization instanceof Localization) {
+			$array['unpublished_draft'] = false;
+			
+			$publicRevision = $publicLocalization->getRevisionId();
+			$draftRevision = $data->getRevisionId();
+			if ($draftRevision == $publicRevision) {
+				$array['published'] = true;
+			}
+		}
+		
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 		$array['path'] = $pathPart;
 		// Additional base path received from application
 		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
-
+		
 		return $array;
 	}
 
