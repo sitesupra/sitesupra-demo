@@ -82,7 +82,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			node.style.left = '-9000px';
 			node.style.top = pos[1] + 'px';
 			node.style.opacity = 0;
-			node.innerHTML = '<p>WebKitFix</p>';
+			node.innerHTML = '<p>&nbsp;</p>';
 			
 			srcNode.appendChild(node);
 			
