@@ -59,27 +59,28 @@ Supra(function (Y) {
 	 * @type {Object}
 	 */
 	var DEFAULT_BUTTONS = {
-		'Root': [
-			{
-				'id': 'edit',
-				'callback': function () {
-					if (Manager.Page.isPage()) {
-						Manager.Page.lockPage();
-					} else {
-						Manager.Template.lockTemplate();
-					}
-				}
-			},
-			{
-				'id': 'unlock',
-				'visible': false,
-				'callback': function () {
-					//Force page unlock
-					Manager.Page.unlockPage(true);
+		'Root': []
+	};
+	
+	if (Supra.Authorization.isAllowed(['page', 'edit'], true)) {
+		DEFAULT_BUTTONS.Root = [{
+			'id': 'edit',
+			'callback': function () {
+				if (Manager.Page.isPage()) {
+					Manager.Page.lockPage();
+				} else {
+					Manager.Template.lockTemplate();
 				}
 			}
-		]
-	};
+		}, {
+			'id': 'unlock',
+			'visible': false,
+			'callback': function () {
+				//Force page unlock
+				Manager.Page.unlockPage(true);
+			}
+		}];
+	}
 	
 	Supra.Manager.getAction('PageToolbar').set('buttons', DEFAULT_TOOLBAR);
 	Supra.Manager.getAction('PageButtons').set('buttons', DEFAULT_BUTTONS);

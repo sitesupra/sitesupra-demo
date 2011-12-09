@@ -182,72 +182,84 @@ Supra(function (Y) {
 		onLoadComplete: function (data, status) {
 			this.loading = false;
 			
-			//Edit button
-			var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
-				button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
-				message_unlock = button_unlock.get('boundingBox').previous('p');
-			
-			if (status) {
-				this.data = data;
-				this.fire('loaded', {'data': data});
+			//Is user authorized to edit page?
+			if (Supra.Authorization.isAllowed(['page', 'edit'], true)) {
+				//Edit button
+				var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
+					button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
+					message_unlock = button_unlock.get('boundingBox').previous('p');
 				
-				//Check lock status
-				var userlogin = Supra.data.get(['user', 'login']);
-				if (data.lock && data.lock.userlogin != userlogin) {
-					//Page locked by someone else
+				if (status) {
+					this.data = data;
+					this.fire('loaded', {'data': data});
 					
-					button_edit.hide();
-					button_unlock.show();
-					button_unlock.set('disabled', !data.lock.allow_unlock);
-					
-					//Show message "Locked by ... on ..."
-					if (!message_unlock) {
-						message_unlock = Y.Node.create('<p class="yui3-page-butons-message"></p>');
-						button_unlock.get('boundingBox').insert(message_unlock, 'before');
-					}
-					
-					var template = Supra.Intl.get([this.getType(), 'locked_message']),
-						lock_data = Supra.mix({}, data.lock, {
-							'datetime': Y.DataType.Date.reformat(data.lock.datetime, 'in_datetime', 'out_datetime_short')
-						});
-					
-					template = Supra.Template.compile(template);
-					message_unlock.set('innerHTML', template(lock_data));
-					
-				} else if (data.lock) {
-					//Page locked by user, switch to editing
-					
-					button_edit.show();
-					button_unlock.hide();
-					if (message_unlock) message_unlock.remove();
-					
-					//On first page load page content may not exist yet
-					var content_action = Manager.getAction('PageContent');
-					if (content_action.get('executed')) {
-						content_action.startEditing();
-					} else {
-						content_action.after('execute', function () {
+					//Check lock status
+					var userlogin = Supra.data.get(['user', 'login']);
+					if (data.lock && data.lock.userlogin != userlogin) {
+						//Page locked by someone else
+						
+						button_edit.hide();
+						button_unlock.show();
+						button_unlock.set('disabled', !data.lock.allow_unlock);
+						
+						//Show message "Locked by ... on ..."
+						if (!message_unlock) {
+							message_unlock = Y.Node.create('<p class="yui3-page-butons-message"></p>');
+							button_unlock.get('boundingBox').insert(message_unlock, 'before');
+						}
+						
+						var template = Supra.Intl.get([this.getType(), 'locked_message']),
+							lock_data = Supra.mix({}, data.lock, {
+								'datetime': Y.DataType.Date.reformat(data.lock.datetime, 'in_datetime', 'out_datetime_short')
+							});
+						
+						template = Supra.Template.compile(template);
+						message_unlock.set('innerHTML', template(lock_data));
+						
+					} else if (data.lock) {
+						//Page locked by user, switch to editing
+						
+						button_edit.show();
+						button_unlock.hide();
+						if (message_unlock) message_unlock.remove();
+						
+						//On first page load page content may not exist yet
+						var content_action = Manager.getAction('PageContent');
+						if (content_action.get('executed')) {
 							content_action.startEditing();
-						});
+						} else {
+							content_action.after('execute', function () {
+								content_action.startEditing();
+							});
+						}
+						
+					} else {
+						//Page not locked, show "Edit page" button
+						
+						button_edit.show();
+						button_unlock.hide();
+						if (message_unlock) message_unlock.remove();
+						
 					}
+					
+					//Update edit button label to "Edit page" or "Edit template"
+					var label = Supra.Intl.get([this.getType(), 'edit']);
+					button_edit.set('label', label);
 					
 				} else {
-					//Page not locked, show "Edit page" button
-					
-					button_edit.show();
-					button_unlock.hide();
-					if (message_unlock) message_unlock.remove();
-					
+					//Remove loading style
+					Y.one('body').removeClass('loading');
+					button_edit.hide();
 				}
-				
-				//Update edit button label to "Edit page" or "Edit template"
-				var label = Supra.Intl.get([this.getType(), 'edit']);
-				button_edit.set('label', label);
-				
 			} else {
-				//Remove loading style
-				Y.one('body').removeClass('loading');
-				button_edit.hide();
+				if (status) {
+					//Set data
+					this.data = data;
+					this.fire('loaded', {'data': data});
+				} else {
+					//Remove loading style
+					Y.one('body').removeClass('loading');
+				}
 			}
 		},
 		

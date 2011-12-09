@@ -155,7 +155,9 @@ SU('dd-drag', function (Y) {
 			}
 		},
 		onStartEditingRoute: function (req) {
-			if (!this.editing) {
+			var is_allowed = Supra.Authorization.isAllowed(['page', 'edit'], true);
+			
+			if (!this.editing && is_allowed) {
 				var page = Manager.getAction('Page'),
 					data = page.data;
 				

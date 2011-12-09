@@ -450,12 +450,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			});
 			form.render();
 			
-			//Disable inputs if form is not editable
-			if (!Supra.Authorization.isAllowed(['page', 'edit'], true)) {
-				var inputs = form.getInputs();
-				for(var id in inputs) inputs[id].set('disabled', true);
-			}
-			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
 		},
