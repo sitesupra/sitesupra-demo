@@ -68,7 +68,7 @@
 				ret = Supra.data;
 			
 			for(var i=0,ii=keys.length; i<ii; i++) {
-				if (keys[i] in ret) {
+				if (typeof ret == 'object' && keys[i] in ret) {
 					ret = ret[keys[i]];
 				} else {
 					return default_value;

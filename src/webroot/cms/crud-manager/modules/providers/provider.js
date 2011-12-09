@@ -317,7 +317,7 @@ YUI.add('website.provider', function (Y) {
 		deleteRecordConfirm: function (record_id) {
 			//Delete record
 			if (record_id) {
-				var uri = Supra.Manager.getAction('Form').getDataPath('delete'),
+				var uri = Supra.CRUD.getDataPath('delete'),
 					post_data = {
 						'id': record_id,
 						'providerId': this.get('id')
@@ -360,7 +360,7 @@ YUI.add('website.provider', function (Y) {
 				}
 				
 				this.data_grid = new Supra.DataGrid({
-					'requestURI': Supra.Manager.Root.getDataPath('datalist'),
+					'requestURI': Supra.CRUD.getDataPath('datalist'),
 					'requestParams': request_params,
 					'columns': this.getListFields(),
 					'dataColumns': this.getEditFields(),
@@ -406,7 +406,7 @@ YUI.add('website.provider', function (Y) {
 				this.form = new Supra.Form({
 					'autoDiscoverInputs': false,
 					'inputs': this.getEditFields(),
-					'urlSave': Supra.Manager.getAction('Form').getDataPath('save')
+					'urlSave': Supra.CRUD.getDataPath('save')
 				});
 				
 				this.form.render(container);
@@ -516,7 +516,7 @@ YUI.add('website.provider', function (Y) {
 		 * @private
 		 */
 		_handleRecordSort: function (e) {
-			var uri = Supra.Manager.getAction('Root').getDataPath('sort'),
+			var uri = Supra.CRUD.getDataPath('sort'),
 				data_grid = this.data_grid;
 			
 			//Update data
@@ -560,7 +560,23 @@ YUI.add('website.provider', function (Y) {
 		
 	});
 	
-	var CRUD = Supra.CRUD = Supra.CRUD || {};
+	
+	/**
+	 * Namespace, get manager data path
+	 */
+	var CRUD = Supra.CRUD = Supra.CRUD || {
+		/**
+		 * Returns CRUD manager data path by ID
+		 * 
+		 * @param {String} id ID
+		 * @return Path
+		 * @type {String}
+		 */
+		getDataPath: function (id, default_value) {
+			return Supra.data.get(['crudManagerPaths', id], default_value);
+		}
+	};
+	
 	Supra.CRUD.Provider = Provider;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

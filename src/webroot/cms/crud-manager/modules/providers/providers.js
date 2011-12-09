@@ -3,11 +3,15 @@
 
 YUI.add('website.providers', function (Y) {
 	
-	/**
-	 * Providers
+	/*
+	 * Shortcuts
 	 */
-	var CRUD = Supra.CRUD = Supra.CRUD || {};
+	var CRUD = Supra.CRUD;
 	
+	
+	/**
+	 * Providers manager
+	 */
 	function Providers () {
 		Providers.superclass.constructor.apply(this, arguments);
 		this.providers = {};
@@ -51,7 +55,7 @@ YUI.add('website.providers', function (Y) {
 		 */
 		initialize: function () {
 			//Load data
-			var uri = Supra.Manager.getAction('Root').getDataPath('configuration');
+			var uri = Supra.CRUD.getDataPath('configuration');
 			Supra.io(uri, this.setup, this);
 		},
 		
