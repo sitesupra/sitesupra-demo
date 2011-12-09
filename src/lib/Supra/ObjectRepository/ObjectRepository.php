@@ -18,6 +18,7 @@ use Solarium_Client;
 use Supra\Configuration\Loader\IniConfigurationLoader;
 use Supra\Payment\Provider\PaymentProviderCollection;
 use Supra\Template\Parser\TemplateParser;
+use Supra\BannerMachine\BannerProvider;
 
 /**
  * Object repository
@@ -47,6 +48,7 @@ class ObjectRepository
 	const INTERFACE_INI_CONFIGURATION = 'Supra\Configuration\Loader\IniConfigurationLoader';
 	const INTERFACE_PAYMENT_PROVIDER_COLLECTION = 'Supra\Payment\Provider\PaymentProviderCollection';
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
+	const INTERFACE_BANNER_MACHINE = 'Supra\BannerMachine\BannerProvider';
 
 	/**
 	 * Object relation storage
@@ -917,4 +919,34 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_TEMPLATE_PARSER);
 	}
 
-}
+
+	/**
+	 * Get assigned banner provider.
+	 * @param mixed $caller
+	 * @return BannerProvider
+	 */
+	public static function getBannerProvider($caller)
+	{
+		$bannerProvider = self::getObject($caller, self::INTERFACE_BANNER_MACHINE);
+
+		return $bannerProvider;
+	}
+
+	/**
+	 * Assign banner provider to namespace.
+	 * @param mixed $caller
+	 * @param BannerProvider $object
+	 */
+	public static function setBannerProvider($caller, BannerProvider $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_BANNER_MACHINE);
+	}
+
+	/**
+	 * Set default banner provider.
+	 * @param BannerProvider $object
+	 */
+	public static function setDefaultBannerProvider(BannerProvider $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_BANNER_MACHINE);
+	}}

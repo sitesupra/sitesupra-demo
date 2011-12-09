@@ -5,20 +5,14 @@ namespace Supra\Cms\BannerManager;
 use Supra\Controller\SimpleController;
 use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\User\Entity\AbstractUser;
+use Supra\Response\JsonResponse;
+use Supra\Request\RequestInterface;
+use Supra\Controller\DistributedController;
 
 /**
  * Banner Manager controller
  */
-class BannerManagerController extends SimpleController
+class BannerManagerController extends DistributedController
 {
-	/**
-	 * Main action
-	 */
-	public function indexAction()
-	{
-		$output = file_get_contents(__DIR__ . '/index.html');
-		
-		$this->getResponse()
-				->output($output);
-	}	
+	protected $defaultAction = 'root';
 }
