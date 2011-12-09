@@ -8,6 +8,7 @@ use Supra\FileStorage\Entity;
 use Supra\FileStorage\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
+use Supra\Log\Writer\WriterAbstraction;
 
 /**
  * File storage
@@ -67,6 +68,14 @@ class FileStorage
 	public function getDoctrineEntityManager()
 	{
 		return ObjectRepository::getEntityManager($this);
+	}
+	
+	/**
+	 * @return WriterAbstraction
+	 */
+	public function log()
+	{
+		return ObjectRepository::getLogger($this);
 	}
 
 	/**
@@ -172,13 +181,15 @@ class FileStorage
 	 * @param Entity\File $file
 	 * @param string $source
 	 */
-	function storeFileData(Entity\File $file, $sourceFilePath)
+	public function storeFileData(Entity\File $file, $sourceFilePath)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
 			$filter->validateFile($file);
 		}
 
+		$this->createBothFoldersInFileSystem($file);
+		
 		$filePath = $this->getFilesystemPath($file);
 
 		if ( ! copy($sourceFilePath, $filePath)) {
@@ -258,20 +269,18 @@ class FileStorage
 	}
 
 	/**
-	 * Rename folder in all file storages
+	 * Rename folder in all file storages.
+	 * Doesn't involve moving the folder in another folder.
 	 * @param Entity\Folder $folder
-	 * @param string $title new folder name
+	 * @param string $newTitle new folder name
 	 */
-	public function renameFolder(Entity\Folder $folder, $title)
+	public function renameFolder(Entity\Folder $folder, $newTitle)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 		
-		$internalPath = $this->getInternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
-		$externalPath = $this->getExternalPath() . $folder->getPath(DIRECTORY_SEPARATOR, true);
-		
 		$newFolder = clone($folder);
 		$entityManager->detach($newFolder);
-		$newFolder->setFileName($title);
+		$newFolder->setFileName($newTitle);
 
 		// old folder name for rollback if validation fails
 		$oldFolderName = $folder->getFileName();
@@ -282,8 +291,7 @@ class FileStorage
 		}
 
 		// rename folder in both file storages
-		$this->renameFolderInFileSystem($folder, $title, $internalPath);
-		$this->renameFolderInFileSystem($folder, $title, $externalPath);
+		$this->renameFolderInFileSystem($folder, $newFolder);
 
 		$entityManager->merge($newFolder);
 		$entityManager->flush();
@@ -292,20 +300,36 @@ class FileStorage
 	/**
 	 * Actual folder rename which is triggered by $this->renameFolder();
 	 * @param Entity\Folder $folder
-	 * @param string $title new folder name
+	 * @param Entity\Folder $newFolder new folder data
 	 * @param string $path
 	 */
-	private function renameFolderInFileSystem(Entity\Folder $folder, $title, $path)
+	private function renameFolderInFileSystem(Entity\Folder $folder, Entity\Folder $newFolder)
 	{
-		if (is_dir($path)) {
-			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $title;
-			$result = rename($path, $newPath);
-			if ( ! $result) {
-				throw new Exception\RuntimeException('Failed to rename folder');
+		// rename folder in both file storages
+		$externalPath = $this->getExternalPath();
+		$internalPath = $this->getInternalPath();
+		
+		foreach (array($externalPath, $internalPath) as $basePath) {
+			
+			$oldFullPath = $basePath . $folder->getPath(DIRECTORY_SEPARATOR, true);
+			$newFullPath = $basePath . $newFolder->getPath(DIRECTORY_SEPARATOR, true);
+			
+			// Should not happen
+			if ($oldFullPath === $newFullPath) {
+				continue;
 			}
 			
-		} else {
-			throw new Exception\RuntimeException($path . ' is not a folder');
+			if (is_dir($oldFullPath)) {
+				
+				$result = rename($oldFullPath, $newFullPath);
+				
+				if ( ! $result) {
+					throw new Exception\RuntimeException("Failed to rename folder from '$oldFullPath' to '$newFullPath'");
+				}
+			} else {
+				$this->log()->warn("Folder '$oldFullPath' missing in filesystem on rename");
+				$this->createFolderInFileSystem($basePath, $newFolder);
+			}
 		}
 	}
 
@@ -316,45 +340,55 @@ class FileStorage
 	 */
 	public function createFolder(Entity\Folder $folder)
 	{		
-		$destination = $folder->getPath(DIRECTORY_SEPARATOR, false);
-		$folderName = $folder->getFileName();
-		
 		// validating folder before creation
 		foreach ($this->folderUploadFilters as $filter) {
 			$filter->validateFolder($folder);
 		}
 		
-		if (( ! empty($folderName)) && ( ! empty($destination))) {
-			$folderName = DIRECTORY_SEPARATOR . $folderName;
+		$this->createBothFoldersInFileSystem($folder);
+	}
+	
+	/**
+	 * Creates the filesystem folder in both storages -- internal and external
+	 * @param Entity\Abstraction\File $folder
+	 */
+	private function createBothFoldersInFileSystem(Entity\Abstraction\File $folder = null)
+	{
+		if ($folder instanceof Entity\File) {
+			$folder = $folder->getParent();
 		}
-
-		$internalPath = $this->getInternalPath() . $destination . $folderName;
-		$externalPath = $this->getExternalPath() . $destination . $folderName;
-
-		$internalFolderResult = $this->createFolderInFileSystem($internalPath);
-		$externalFolderResult = $this->createFolderInFileSystem($externalPath);
+		
+		$this->createFolderInFileSystem($this->getExternalPath(), $folder);
+		$this->createFolderInFileSystem($this->getInternalPath(), $folder);
 	}
 
 	/**
 	 * Actual folder creation function which is triggered by $this->createFolder();
-	 * @param string $fullPath
+	 * @param string $basePath
+	 * @param Entity\Folder $folder
 	 * @return true or throws Exception\RuntimeException
 	 */
-	private function createFolderInFileSystem($fullPath)
+	private function createFolderInFileSystem($basePath, Entity\Folder $folder = null)
 	{
-		$externalPath = $this->getExternalPath();
-		$internalPath = $this->getInternalPath();
+		$destination = '';
+		if ( ! is_null($folder)) {
+			$destination = $folder->getPath(DIRECTORY_SEPARATOR, true);
+		}
 		
-		if (($fullPath != $externalPath) && ($fullPath != $internalPath)) {
-			if ( ! is_dir($fullPath)) {
-				if (mkdir($fullPath, $this->folderAccessMode)) {
-					return true;
-				} else {
-					throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
-				}
+		$fullPath = $basePath . $destination;
+		
+		if ( ! is_dir($fullPath)) {
+
+			if (file_exists($fullPath)) {
+				throw new Exception\RuntimeException('Could not create folder in ' 
+						. $fullPath . ', file exists with the same name');
 			}
-		} else {
-			return true;
+
+			if (mkdir($fullPath, $this->folderAccessMode, true)) {
+				return true;
+			} else {
+				throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
+			}
 		}
 	}
 
@@ -428,14 +462,16 @@ class FileStorage
 			}
 		}
 		
+		$folder = $file->getParent();
+		
 		if ($public) {
 			foreach ($fileList as $filePath) {
-				$this->moveFileToExternalStorage($filePath);
+				$this->moveFileToExternalStorage($filePath, $folder);
 			}
 			$file->setPublic(true);
 		} else {
 			foreach ($fileList as $filePath) {
-				$this->moveFileToInternalStorage($filePath);
+				$this->moveFileToInternalStorage($filePath, $folder);
 			}
 			$file->setPublic(false);
 		}
@@ -466,16 +502,14 @@ class FileStorage
 	/**
 	 * Actual file move to external storage
 	 * @param string $filePath
+	 * @param Entity\Folder $folder
 	 */
-	private function moveFileToExternalStorage($filePath)
+	private function moveFileToExternalStorage($filePath, Entity\Folder $folder = null)
 	{
 		$oldPath = $this->getInternalPath() . $filePath;
 		$newPath = $this->getExternalPath() . $filePath;
 
-		$newPathDir = dirname($newPath);
-		if ( ! file_exists($newPathDir)) {
-			mkdir($newPathDir, $this->folderAccessMode, true);
-		}
+		$this->createBothFoldersInFileSystem($folder);
 
 		if ( ! rename($oldPath, $newPath)) {
 			throw new Exception\RuntimeException('Failed to move file to the public storage');
@@ -485,16 +519,14 @@ class FileStorage
 	/**
 	 * Actual file move to internal storage
 	 * @param string $filePath
+	 * @param Entity\Folder $folder
 	 */
-	private function moveFileToInternalStorage($filePath)
+	private function moveFileToInternalStorage($filePath, Entity\Folder $folder = null)
 	{
 		$oldPath = $this->getExternalPath() . $filePath;
 		$newPath = $this->getInternalPath() . $filePath;
 
-		$newPathDir = dirname($newPath);
-		if ( ! file_exists($newPathDir)) {
-			mkdir($newPathDir, $this->folderAccessMode, true);
-		}
+		$this->createBothFoldersInFileSystem($folder);
 
 		if ( ! rename($oldPath, $newPath)) {
 			throw new Exception\RuntimeException('Failed to move file to the private storage');
@@ -738,11 +770,11 @@ class FileStorage
 
 	/**
 	 * Get full file path or its directory (with trailing slash)
-	 * @param Entity\File $file
+	 * @param Entity\Abstraction\File $file
 	 * @param boolean $dirOnly 
 	 * @return string
 	 */
-	public function getFilesystemPath(Entity\File $file, $includeFilename = true)
+	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true)
 	{
 		if ( ! $file instanceof Entity\Abstraction\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
@@ -902,14 +934,25 @@ class FileStorage
 	private function removeFileInFileSystem(Entity\File $file)
 	{
 		$filePath = $this->getFilesystemPath($file);
-		unlink($filePath);
+		
+		if (file_exists($filePath)) {
+			$result = unlink($filePath);
+			
+			if ( ! $result) {
+				throw new Exception\RuntimeException("Could not delete '$filePath' from file storage");
+			}
+		}
 			
 		// remove sizes if object is image
 		if ($file instanceof Entity\Image) {
 			$sizes = $file->getImageSizeCollection();
 			foreach ($sizes as $size) {
 				$sizePath = $this->getImagePath($file, $size->getName());
-				unlink($sizePath);
+				$result = unlink($sizePath);
+				
+				if ( ! $result) {
+					throw new Exception\RuntimeException("Could not delete '$sizePath' from file storage");
+				}
 			}
 		}
 	}

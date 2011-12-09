@@ -300,6 +300,19 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 
 		return $result;
 	}
+	
+	/**
+	 * So the full path generation method of the file would use the cloned and changed entity
+	 */
+	public function __clone()
+	{
+		if ( ! empty($this->id)) {
+			if ( ! empty($this->nestedSetNode)) {
+				$this->nestedSetNode = clone($this->nestedSetNode);
+				$this->nestedSetNode->belongsTo($this);
+			}
+		}
+	}
 
 	/**
 	 * Free the node unsetting the pointers to other objects.
