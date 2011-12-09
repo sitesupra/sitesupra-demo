@@ -51,9 +51,9 @@
 				
 				//User data
 				'user': {
-					'name': {{ user.name | json_encode | raw }},
-					'login': {{ user.login | json_encode | raw }},
-					'avatar': {{ user.avatar | json_encode | raw }}
+					'name': {{ action.user.name | json_encode | raw }},
+					'login': {{ action.user.login | json_encode | raw }},
+					'avatar': {{ action.user.avatar | json_encode | raw }}
 				},
 				
 				{% block jsSupraDataSet %}{% endblock %}

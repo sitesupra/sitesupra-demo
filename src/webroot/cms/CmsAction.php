@@ -131,9 +131,9 @@ abstract class CmsAction extends SimpleController
 		$localeList = $this->createLocaleArray();
 		$response->assign('localesList', $localeList);
 		
-		// Currently signed in user
-		$user = $this->getUser();
-		$response->assign('user', $user);
+		// Used to get currently signed in user
+		//TODO: think about something better...
+		$response->assign('action', $this);
 		
 		return $response;
 	}
@@ -283,9 +283,9 @@ abstract class CmsAction extends SimpleController
 	/** 
 	 * Returns object of current user
 	 * @return User
-	 * @throws LogicException if there is no current user
+	 * @throws Exception\RuntimeException if there is no current user
 	 */
-	protected function getUser()
+	public function getUser()
 	{
 		if (is_null($this->user)) {
 			$session = ObjectRepository::getSessionManager($this)
@@ -295,7 +295,7 @@ abstract class CmsAction extends SimpleController
 			$this->user = $session->getUser();
 
 			if ( ! $this->user instanceof User) {
-				throw new Exception\LogicException("User is not logged in");
+				throw new Exception\RuntimeException("User is not logged in");
 			}
 		}
 		
