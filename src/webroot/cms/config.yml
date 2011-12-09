@@ -23,7 +23,7 @@
     id: Supra\Cms\ContentManager
     title: Pages
     icon: /cms/lib/supra/img/apps/content
-    path: /cms/content-manager/
+    url: content-manager
     authorizationAccessPolicy:
       Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
 #       @TODO: Could assign this value from application configuration "id" parameter somehow
@@ -33,7 +33,7 @@
 #   Assigned to controller because inside this namespace is password restore controller
     id: Supra\Cms\InternalUserManager\InternalUserManagerController
     title: Backoffice users
-    path: /cms/internal-user-manager/
+    url: internal-user-manager
     icon: /cms/lib/supra/img/apps/internal-user
 #   For development only
     allowGroupEditing: true
@@ -44,7 +44,7 @@
 - Supra\Cms\ApplicationConfiguration:
     id: Supra\Cms\BannerManager
     title: Banners
-    path: /cms/banner-manager/
+    url: banner-manager
     icon: /cms/lib/supra/img/apps/banner
     authorizationAccessPolicy:
       Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
@@ -53,7 +53,7 @@
 - Supra\Cms\ApplicationConfiguration:
     id: Supra\Cms\MediaLibrary
     title: Media Library
-    path: /cms/media-library/
+    url: media-library
     icon: /cms/lib/supra/img/apps/media_library
     authorizationAccessPolicy:
       Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:

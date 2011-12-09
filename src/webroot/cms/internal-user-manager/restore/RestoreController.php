@@ -39,9 +39,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		$response = new TwigResponse($this);
-
-		return $response;
+		return $this->createTwigResponse();
 	}
 	
 	/**
@@ -88,7 +86,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			$response->assign('time', $time);
 			$response->assign('hash', $hash);
 			
-			$response->outputTemplate('form.html.twig');
+			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
 			return;
 		} else {
 			$response->output('Expired or invalid link. Try initiating password recovery once more.');
@@ -127,7 +125,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 
 					$this->sendPasswordChangeLink($user);
 					
-					$response->outputTemplate('request.success.html.twig');
+					$response->outputTemplate('internal-user-manager/restore/request.success.html.twig');
 					return;
 				}
 			}
@@ -136,7 +134,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$response->assign('email', $email);
 		$response->assign('errorMessage', $errorMessage);
 		
-		$response->outputTemplate('request.html.twig');
+		$response->outputTemplate('internal-user-manager/restore/request.html.twig');
 	}
 	
 	/**
@@ -165,7 +163,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		// Check password match
 		if($plainPassword !== $confirmPassword) {
 			$response->assign('errorMessage', 'Passwords do not match');
-			$response->outputTemplate('form.html.twig');
+			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
 			
 			return;
 		}
@@ -180,7 +178,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		// check password lenght
 		if($passwordLength < self::MIN_PASSWORD_LENGTH) {
 			$response->assign('errorMessage', 'Passwords length should be '. self::MIN_PASSWORD_LENGTH .' or more characters');
-			$response->outputTemplate('form.html.twig');
+			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
 			
 			return;
 		}

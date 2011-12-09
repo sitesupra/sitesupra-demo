@@ -8,14 +8,14 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Log;
 use Supra\Request;
 use Supra\Response;
+use Supra\Cms\CmsAction;
 
 /**
  * Login controller
  * @method Response\TwigResponse getResponse()
  */
-class LoginController extends SimpleController
+class LoginController extends CmsAction
 {
-
 	/**
 	 * Default action when no action is provided
 	 * @var string
@@ -38,8 +38,7 @@ class LoginController extends SimpleController
 			unset($session->message);
 		}
 
-		//TODO: should make short somehow!
-		$response->outputTemplate('index.html.twig');
+		$response->outputTemplate('login/index.html.twig');
 		
 		// Could fix the problem with login page cache
 		$response->forbidCache();
@@ -52,11 +51,7 @@ class LoginController extends SimpleController
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		if ( ! $request instanceof Request\HttpRequest) {
-			throw new \Supra\Request\Exception\InvalidRequest("Only HTTP requests are allowed");
-		}
-		
-		return new Response\TwigResponse($this);
+		return $this->createTwigResponse();
 	}
 
 }

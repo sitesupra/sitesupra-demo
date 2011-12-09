@@ -2,19 +2,29 @@
 
 namespace Supra\Cms\InternalUserManager\Root;
 
-use Supra\Controller\SimpleController;
+use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
+use Supra\Response\TwigResponse;
+use Supra\Request\RequestInterface;
 
 /**
+ * @method TwigResponse getResponse()
  */
-class RootAction extends SimpleController
+class RootAction extends InternalUserManagerAbstractAction
 {
+	/**
+	 * @param RequestInterface $request
+	 * @return TwigResponse
+	 */
+	public function createResponse(RequestInterface $request)
+	{
+		return $this->createTwigResponse();
+	}
+
+	/**
+	 * Output the template
+	 */
 	public function indexAction()
 	{
-		
-
-		//TODO: introduce some template engine
-		$output = file_get_contents(dirname(__DIR__) . '/index.html');
-		
-		$this->getResponse()->output($output);
+		$this->getResponse()->outputTemplate('internal-user-manager/root/index.html.twig');
 	}
 }

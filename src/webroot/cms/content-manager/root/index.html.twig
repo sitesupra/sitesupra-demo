@@ -1,144 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-	<title>Content Manager v2</title>
-	
-	<!-- Fav icon -->
-	<link rel="icon" type="image/png" href="/favicon.png" /><!--[if lte IE 8]>
-	<link rel="shortcut icon" href="/favicon-simple.ico" type="image/vnd.microsoft.icon" />
-	<![endif]--><!--[if gt IE 8]>
-	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
-	<![endif]-->
-	
-	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
-	<script src="/cms/lib/yui.3.4.0/combo/combo.php?/cms/lib/yui.3.4.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.4.0/build/loader/loader.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
-	
-	<!-- Load all base CSS files at once -->
-	<link rel="stylesheet" type="text/css" href="/cms/lib/yui.3.4.0/combo/combo.php?/cms/lib/yui.3.4.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css&amp;/cms/lib/supra/build/supra/common.css" />
+{% extends 'template/index.html.twig' %}
 
-	<link rel="icon" type="image/png" href="/favicon.png" />
-	
-</head>
-<body class="yui3-skin-supra">
-	
-	<div class="cms-header" id="cmsHeader"></div>
-	<div class="cms-content" id="cmsContent"></div>
-	
-	<script type="text/javascript">
-	//<![CDATA[
-		
-		Supra('supra.manager', 'supra.authorization', function (Y) {
-			var APP_PATH = '/content-manager',
-				STATIC_PATH = '/cms',
-				DYNAMIC_PATH = '/cms';
-			
-			//Set current manager paths
-			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
-			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
-			
-			Supra.Manager.Loader.setBasePath(APP_PATH);
-			Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH);
-			
-			//Configuration / parameters
-			Supra.data.set({
-				//Session (used in Ajax requests)
-				'sessionName': 'SID',
-				'sessionId': 'REPLACE_WITH_SESSION_ID_STRING',
-				
-				//Date & time formats
-				'dateFormat': '%d.%m.%Y',
-				'timeFormat': '%H:%M:%S',
-				'timeFormatShort': '%H:%M',
-				
-				//User data
-				'user': {
-					'name': {{ user.name | json_encode | raw }},
-					'login': {{ user.login | json_encode | raw }},
-					'avatar': {{ user.avatar | json_encode | raw }}
-				},
-				
-				//Page which will be initially loaded
-				'page': {
-					'id': {{ pageLocalizationId | json_encode | raw }}
-				},
-				
-				//Supra.HTMLEditor + plugins
-				'supra.htmleditor': {
-					'stylesheets': {
-						'skip_default': false
-					},
-					'plugins': {
-						'image': {
-							'size': '200x200'
-						}
-					}
-				},
-				
-				//Gallery manager
-				'gallerymanager': {
-					'properties': [
-						{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''},
-						{'id': 'description', 'type': 'String', 'label': 'Description', 'value': ''},
-						{'id': 'author', 'type': 'String', 'label': 'Author name', 'value': ''}
-					]
-				},
-				
-				//Languages
-				'locale': {{ currentLocale | json_encode | raw }},
-				
-				'contexts': {{ localesList | json_encode | raw }},
-				
-				//Application
-				'application': {
-					'id': 'content',
-					'path': STATIC_PATH + APP_PATH,
-					'icon': '/cms/lib/supra/img/apps/content',
-					'title': 'Pages'
-				},
-				
-				//Internationalization
-				'lang': 'en'
+{% block jsSupraDataSet %}
+	//Page which will be initially loaded
+	'page': {
+		'id': {{ pageLocalizationId | json_encode | raw }}
+	},
 
-			});
-			
-			Supra.Authorization.setPermissions([
-				{'id': [],		 				'allow': true},
-				{'id': ['page'], 				'allow': true},
-				{'id': ['page', 'delete'], 		'allow': true},
-				{'id': ['page', 'create'], 		'allow': true},
-				{'id': ['page', 'order'],  		'allow': true},
-				{'id': ['page', 'edit'],  		'allow': true},
-				{'id': ['page', 'publish'], 	'allow': true},
-				{'id': ['block'],  				'allow': true},
-				{'id': ['block', 'delete'],  	'allow': true},
-				{'id': ['block', 'insert'],  	'allow': true},
-				{'id': ['block', 'order'],  	'allow': true},
-				{'id': ['block', 'edit'],  		'allow': true}
-			]);
-				
-			//Start loading actions
-			Supra.Manager.loadActions([
-				'Header',
-				'Root',
-				'LayoutContainers',
-				'PageToolbar',
-				'PageButtons',
-				'Page',
-				'Template',
-				'PageContent',
-				'Blocks',
-				'EditorToolbar'
-			]);
-			
-			//Execute initial actions
-			Supra.Manager.executeAction('Header');
-			Supra.Manager.executeAction('Root');
-			
-		});
-		
-	//]]>
-	</script>
+	//Supra.HTMLEditor + plugins
+	'supra.htmleditor': {
+		'stylesheets': {
+			'skip_default': false
+		},
+		'plugins': {
+			'image': {
+				'size': '200x200'
+			}
+		}
+	},
 
-</body>
-</html>
+	//Gallery manager
+	'gallerymanager': {
+		'properties': [
+			{'id': 'title', 'type': 'String', 'label': 'Title', 'value': ''},
+			{'id': 'description', 'type': 'String', 'label': 'Description', 'value': ''},
+			{'id': 'author', 'type': 'String', 'label': 'Author name', 'value': ''}
+		]
+	},
+{% endblock %}

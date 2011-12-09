@@ -11,6 +11,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
+use Supra\Response\TwigResponse;
 
 /**
  * Description of CmsAction
@@ -110,6 +111,66 @@ abstract class CmsAction extends SimpleController
 		$response = new JsonResponse();
 		
 		return $response;
+	}
+	
+	/**
+	 * @return TwigResponse
+	 */
+	protected function createTwigResponse()
+	{
+		$response = new TwigResponse(__CLASS__);
+		$managerConfiguration = ObjectRepository::getApplicationConfiguration($this);
+		$response->assign('manager', $managerConfiguration);
+
+		// No request object yet. Still -- do managers need to know the current locale?
+//		// Current locale ID
+//		$localeId = $this->getLocale()->getId();
+//		$response->assign('currentLocale', $localeId);
+		
+		// Locale array
+		$localeList = $this->createLocaleArray();
+		$response->assign('localesList', $localeList);
+		
+		// Currently signed in user
+		$user = $this->getUser();
+		$response->assign('user', $user);
+		
+		return $response;
+	}
+	
+	/**
+	 * Creates locale array for JS
+	 * @return array
+	 */
+	private function createLocaleArray()
+	{
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$locales = $localeManager->getLocales();
+		
+		$jsLocales = array();
+		
+		/* @var $locale Locale */
+		foreach ($locales as $locale) {
+			
+			$country = $locale->getCountry();
+			
+			if ( ! isset($jsLocales[$country])) {
+				$jsLocales[$country] = array(
+					'title' => $country,
+					'languages' => array()
+				);
+			}
+			
+			$jsLocales[$country]['languages'][] = array(
+				'id' => $locale->getId(),
+				'title' => $locale->getTitle(),
+				'flag' => $locale->getProperty('flag')
+			);
+		}
+		
+		$jsLocales = array_values($jsLocales);
+		
+		return $jsLocales;
 	}
 	
 	/**

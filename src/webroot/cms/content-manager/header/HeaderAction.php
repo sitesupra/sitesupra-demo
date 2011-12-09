@@ -26,9 +26,10 @@ class HeaderAction extends PageManagerAction
 		$response = array();
 		
 		foreach ($appConfigs as $appConfig) {
+			/* @var $appConfig ApplicationConfiguration */
 			
 			if($this->applicationIsVisible($this->getUser(), $appConfig)) {
-				$response[] = get_object_vars($appConfig);
+				$response[] = $appConfig->getApplicationDataForInternalUserManager();
 			}
 		}
 		

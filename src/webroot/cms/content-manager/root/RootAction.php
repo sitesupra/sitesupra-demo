@@ -11,6 +11,7 @@ use Supra\Locale\Locale;
 
 /**
  * Root action, returns initial HTML
+ * @method TwigResponse getResponse()
  */
 class RootAction extends PageManagerAction
 {
@@ -19,13 +20,7 @@ class RootAction extends PageManagerAction
 	 */
 	public function indexAction()
 	{
-		$request = $this->getRequest();
 		$response = $this->getResponse();
-		/* @var $response TwigResponse */
-		
-		// Current locale ID
-		$localeId = $this->getLocale()->getId();
-		$response->assign('currentLocale', $localeId);
 		
 		// Last opened page, overrides current detected locale if found
 		$pageLocalization = $this->getInitialPageLocalization();
@@ -39,15 +34,7 @@ class RootAction extends PageManagerAction
 			$response->assign('pageLocalizationId', null);
 		}
 
-		// Locale array
-		$localeList = $this->createLocaleArray();
-		$response->assign('localesList', $localeList);
-		
-		// Currently signed in user
-		$user = $this->getUser();
-		$response->assign('user', $user);
-		
-		$response->outputTemplate('index.html.twig');
+		$response->outputTemplate('content-manager/root/index.html.twig');
 	}
 	
 	/**
@@ -57,42 +44,7 @@ class RootAction extends PageManagerAction
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		return new Response\TwigResponse(__CLASS__);
-	}
-	
-	/**
-	 * Creates locale array for JS
-	 * @return array
-	 */
-	private function createLocaleArray()
-	{
-		$localeManager = ObjectRepository::getLocaleManager($this);
-		$locales = $localeManager->getLocales();
-		
-		$jsLocales = array();
-		
-		/* @var $locale Locale */
-		foreach ($locales as $locale) {
-			
-			$country = $locale->getCountry();
-			
-			if ( ! isset($jsLocales[$country])) {
-				$jsLocales[$country] = array(
-					'title' => $country,
-					'languages' => array()
-				);
-			}
-			
-			$jsLocales[$country]['languages'][] = array(
-				'id' => $locale->getId(),
-				'title' => $locale->getTitle(),
-				'flag' => $locale->getProperty('flag')
-			);
-		}
-		
-		$jsLocales = array_values($jsLocales);
-		
-		return $jsLocales;
+		return $this->createTwigResponse();
 	}
 	
 }

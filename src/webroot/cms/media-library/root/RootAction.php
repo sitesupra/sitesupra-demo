@@ -5,11 +5,13 @@ namespace Supra\Cms\MediaLibrary\Root;
 use Supra\Controller\SimpleController;
 use Supra\Request;
 use Supra\Response;
+use Supra\Cms\CmsAction;
 
 /**
  * Root action, returns initial HTML
+ * @method TwigResponse getResponse()
  */
-class RootAction extends SimpleController
+class RootAction extends CmsAction
 {
 	/**
 	 * @param Request\RequestInterface $request
@@ -17,9 +19,7 @@ class RootAction extends SimpleController
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		$response = SimpleController::createResponse($request);
-		
-		return $response;
+		return $this->createTwigResponse();
 	}
 	
 	/**
@@ -27,8 +27,6 @@ class RootAction extends SimpleController
 	 */
 	public function indexAction()
 	{
-		//TODO: introduce some template engine
-		$output = file_get_contents(dirname(__DIR__) . '/index.html');	
-		$this->getResponse()->output($output);
+		$this->getResponse()->outputTemplate('media-library/root/index.html.twig');
 	}
 }

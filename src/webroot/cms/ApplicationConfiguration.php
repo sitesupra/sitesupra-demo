@@ -40,7 +40,7 @@ class ApplicationConfiguration implements ConfigurationInterface
 	 *
 	 * @var string
 	 */
-	public $path;
+	public $url;
 
 	/**
 	 * @var AuthorizationAccessPolicyAbstraction
@@ -63,11 +63,12 @@ class ApplicationConfiguration implements ConfigurationInterface
 	public function getApplicationDataForInternalUserManager() {
 		
 		return array(
-				'id' => $this->id,
-				'title' => $this->title,
-				'icon' => $this->icon,
-				'path' => $this->path,
-				'permissions' => array($this->authorizationAccessPolicy->getPermissionForInternalUserManager())
+			'id' => $this->id,
+			'title' => $this->title,
+			'icon' => $this->icon,
+			//TODO: hardcoded CMS URL
+			'path' => '/cms/' . $this->url,
+			'permissions' => array($this->authorizationAccessPolicy->getPermissionForInternalUserManager())
 		);
 	}
 	
