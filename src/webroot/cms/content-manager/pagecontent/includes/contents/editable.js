@@ -361,7 +361,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				'page_id': Page.getPageData().id,
 				'block_id': this.getId(),
 				'locale': Supra.data.get('locale'),
-				'properties': this.properties.getSaveValues()
+				'properties': this.properties.getNonInlineSaveValues()
 			};
 			
 			Supra.io(uri, {

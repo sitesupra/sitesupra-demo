@@ -552,6 +552,24 @@ YUI.add('supra.page-content-properties', function (Y) {
 			} else {
 				return {};
 			}
+		},
+		
+		/**
+		 * Returns all non-inline property values for saving
+		 * 
+		 * @return Values
+		 * @type {Object}
+		 */
+		getNonInlineSaveValues: function (values) {
+			var values = values ? values : this.getSaveValues(),
+				properties = this.get('properties'),
+				out = {};
+			
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				if (!properties[i].inline) out[properties[i].id] = values[properties[i].id];
+			}
+			
+			return out;
 		}
 		
 	});
