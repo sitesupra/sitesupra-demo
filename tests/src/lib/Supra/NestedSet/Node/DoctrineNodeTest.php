@@ -89,7 +89,7 @@ class DoctrineNodeTest extends NodeTest
 
 		$em = $this->entityManager = $this->getConnection();
 		$this->rebuild();
-
+		
 		$rep = $em->getRepository('Supra\Tests\NestedSet\Model\ProductAbstraction');
 		$this->repository = $rep;
 
@@ -108,6 +108,10 @@ class DoctrineNodeTest extends NodeTest
 	 */
 	protected function tearDown()
 	{
+		if (empty($this->entityManager)) {
+			throw new \RuntimeException("No entity manager");
+		}
+		
 		$this->entityManager->rollback();
 
 		$this->memory['preTearDown'] = \memory_get_usage(false);

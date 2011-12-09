@@ -412,7 +412,11 @@ abstract class NodeAbstraction implements NodeInterface
 		
 		// Fixes not flushed node returning
 		if ($includeNode) {
-			array_unshift($ancestors, $this->masterNode);
+			if (isset($this->masterNode)) {
+				array_unshift($ancestors, $this->masterNode);
+			} else {
+				array_unshift($ancestors, $this);
+			}
 		}
 		
 		return $ancestors;

@@ -493,7 +493,7 @@ DOC
 	}
 	
 	/**
-	 * @expectedException \Exception
+	 * @expectedException Supra\NestedSet\Exception\InvalidOperation
 	 */
 	public function testLeafNodeFail()
 	{
