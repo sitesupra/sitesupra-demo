@@ -333,7 +333,6 @@ abstract class PageManagerAction extends CmsAction
 						($data instanceof Entity\GroupLocalization ? 'group' :
 								($page->getLevel() === 0 ? 'home' : 'page')),
 				'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
-				'global' => $page->isGlobal(),
 		);
 
 		// Template ID

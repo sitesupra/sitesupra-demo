@@ -73,13 +73,14 @@ class SitemapAction extends PageManagerAction
 	 */
 	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false)
 	{
-		$data = $page->getLocalization($locale);
-
+		$data = $page->getLocalization($locale);	
+		
 		if (empty($data)) {
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
 				// hoping that there is at least one page data instance (naive)
 				$data = $page->getLocalizations()->first();
+				$isGlobal = true;
 			} else {
 
 				return null;
@@ -150,6 +151,10 @@ class SitemapAction extends PageManagerAction
 			}
 		} else {
 			$array = $childrenArray;
+		}
+		
+		if ($isGlobal) {
+			$array['global'] = true;
 		}
 
 		return $array;
