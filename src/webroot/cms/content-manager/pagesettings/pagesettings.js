@@ -48,7 +48,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 	Manager.getAction('LayoutRightContainer').addChildAction('PageSettings');
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -69,6 +69,13 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * @private
 		 */
 		HAS_TEMPLATE: true,
+		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutRightContainer',
 		
 		
 		
@@ -122,13 +129,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Slides which onSlide... function has been called
 		 */
 		called: {},
-		
-		/**
-		 * Sidebar is only temporary hidden, needed to make sure
-		 * buttons are not hidden when opening link manager for redirect
-		 * @type {Boolean}
-		 */
-		temporary_hidden: false,
 		
 		
 		/**
@@ -344,7 +344,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Open link manager for redirect
 		 */
 		openLinkManager: function () {
-			this.temporary_hidden = true;
+			this.set('toolbarButtonsFrozen', true);
 			
 			var value = this.form.getInput('redirect').getValue();
 			var callback = Y.bind(this.onLinkManagerClose, this);
@@ -365,7 +365,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * @param {Object} data
 		 */
 		onLinkManagerClose: function (data) {
-			this.temporary_hidden = false;
+			this.set('toolbarButtonsFrozen', false);
 			
 			//Re-enable editing
 			Supra.Manager.PageContent.getContent().set('disabled', false);
@@ -614,19 +614,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				}
 			}]);
 			
-			this.on('visibleChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					if (evt.newVal) {
-						this.one().removeClass('hidden');
-					} else {
-						this.slideshow.set('noAnimation', true);
-						this.slideshow.scrollBack();
-						this.slideshow.set('noAnimation', false);
-						
-						this.one().addClass('hidden');
-					}
-				}
-			}, this);
+			if (!this.form) this.createForm();
 		},
 		
 		/**
@@ -705,33 +693,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
-		 * Hide action
-		 */
-		hide: function () {
-			Action.Base.prototype.hide.apply(this, arguments);
-			
-			if (!this.temporary_hidden) {
-				//Hide buttons
-				Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-				Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-			}
-			
-			//Hide action
-			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
-		},
-		
-		/**
 		 * Execute action
 		 */
 		execute: function (dont_update_data) {
-			//Show buttons
-			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
-			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			this.show();
 			
-			//Show content
-			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
-			
-			if (!this.form) this.createForm();
 			if (dont_update_data !== true) {
 				this.page_data = Supra.mix({}, Manager.Page.getPageData());
 				this.setFormValues();

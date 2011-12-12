@@ -137,13 +137,13 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					container = this.host.one();
 				
 				if (evt.newVal) {
+					//Show container
+					if (container) container.removeClass('hidden');
+					
 					//Show action
 					if (this.host.LAYOUT_CONTAINER) {
 						Manager.getAction(this.host.LAYOUT_CONTAINER).setActiveAction(this.host.NAME);
 					}
-					
-					//Show container
-					if (container) container.removeClass('hidden');
 					
 					//Show buttons
 					toolbar.setActiveAction(this.host.NAME);
@@ -168,19 +168,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		},
 		
 		/**
-		 * On execute show container
-		 */
-		_onExecute: function () {
-			this.host.show();
-		},
-		
-		/**
 		 * Render
 		 */
 		render: function () {
 			PluginSidebar.superclass.render.apply(this, arguments);
-			
-			
 		},
 		
 		/**
@@ -188,12 +179,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		 */
 		execute: function () {
 			PluginSidebar.superclass.execute.apply(this, arguments);
-			
-			try {
 			this.host.show();
-			} catch (err) {
-				console.log(err);
-			}
 		}
 		
 	});

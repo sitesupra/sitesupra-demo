@@ -102,7 +102,7 @@ YUI.add('supra.manager-action', function (Y) {
 				action.once('execute', action._preExecute, action);
 				
 				//Before execute do call plugins
-				action.before('execute', action._postExecute, action);
+				action.on('execute', action._postExecute, action);
 				
 				//On execute call original execute method
 				action.on('execute', function (event) {
