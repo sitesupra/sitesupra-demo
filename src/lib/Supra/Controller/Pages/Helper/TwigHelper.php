@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Helper;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
 use Supra\Request\RequestInterface;
+use Supra\Controller\Pages\Request\PageRequestEdit;
 
 /**
  * Helper object for twig processor
@@ -30,6 +31,15 @@ class TwigHelper
 	public function setRequest(RequestInterface $request = null)
 	{
 		$this->request = $request;
+	}
+	
+	/**
+	 * Returns if in CMS mode
+	 * @return boolean
+	 */
+	public function isCmsRequest()
+	{
+		return ($this->request instanceof PageRequestEdit);
 	}
 	
 	/**
