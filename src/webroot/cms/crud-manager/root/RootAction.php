@@ -2,7 +2,7 @@
 
 namespace Supra\Cms\CrudManager\Root;
 
-use Supra\Controller\SimpleController;
+use Supra\Cms\CmsAction;
 use Supra\Request;
 use Supra\Response;
 
@@ -11,27 +11,24 @@ use Supra\Response;
  * @method PageRequest getRequest()
  * @method Response\TwigResponse getResponse()
  */
-class RootAction extends SimpleController
+class RootAction extends CmsAction
 {
-
 	/**
+	 * Generate response object
 	 * @param Request\RequestInterface $request
-	 * @return Response\ResponseInterface 
+	 * @return Response\ResponseInterface
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		$response = SimpleController::createResponse($request);
-
-		return $response;
+		return $this->createTwigResponse();
 	}
-
+	
 	/**
 	 * Method returning manager initial HTML
 	 */
 	public function indexAction()
 	{
-		$output = file_get_contents(dirname(__DIR__) . '/index.html');
-		$this->getResponse()->output($output);
+		$this->getResponse()->outputTemplate('crud-manager/root/root.html.twig');
 	}
 
 }

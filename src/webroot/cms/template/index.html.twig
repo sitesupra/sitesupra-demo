@@ -36,7 +36,8 @@
 			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
 			
 			Supra.Manager.Loader.setBasePath(APP_PATH);
-			Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH);
+			
+			Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH + {% block jsModulePath %}''{% endblock %});
 			
 			//Configuration / parameters
 			Supra.data.set({
