@@ -7,6 +7,8 @@
 		
 		"lock": false,
 		
+		"allow_edit": true,
+		
 		"title": "<?php
 			$titles = Array('Catalogue', 'News', 'Services', 'Products');
 			shuffle($titles);

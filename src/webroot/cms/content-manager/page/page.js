@@ -183,7 +183,10 @@ Supra(function (Y) {
 			this.loading = false;
 			
 			//Is user authorized to edit page?
-			if (Supra.Authorization.isAllowed(['page', 'edit'], true)) {
+			var allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
+							 Supra.Authorization.isAllowed(['page', 'edit'], true);
+			
+			if (allow_edit) {
 				//Edit button
 				var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
 					button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
@@ -256,6 +259,16 @@ Supra(function (Y) {
 					//Set data
 					this.data = data;
 					this.fire('loaded', {'data': data});
+					
+					//Hide edit buttons and message
+					var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
+						button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
+						message_unlock = button_unlock.get('boundingBox').previous('p');
+					
+					button_edit.hide();
+					button_unlock.hide();
+					if (message_unlock) message_unlock.remove();
+					
 				} else {
 					//Remove loading style
 					Y.one('body').removeClass('loading');
