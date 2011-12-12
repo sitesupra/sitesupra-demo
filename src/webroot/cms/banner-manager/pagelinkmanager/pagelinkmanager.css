@@ -59,3 +59,7 @@
 	text-align: center;
 	margin: 0 10px 10px;
 }
+
+.yui3-linkmanager .yui3-sidebar-footer {
+	text-align: center;
+}

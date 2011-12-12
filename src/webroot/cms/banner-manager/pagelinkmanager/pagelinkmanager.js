@@ -168,6 +168,15 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				'page_id': null
 			}, data || {});
 			
+			//If link exists show "Remove link", otherwise hide it
+			if (data.href || data.page_id) {
+				this.one('.yui3-sidebar-footer').removeClass('hidden');
+				this.one('.yui3-sidebar-content').addClass('has-footer');
+			} else {
+				this.one('.yui3-sidebar-footer').addClass('hidden');
+				this.one('.yui3-sidebar-content').removeClass('has-footer');
+			}
+			
 			//Set values by input name
 			this.form.setValues(data, 'name');
 			
