@@ -505,8 +505,8 @@ YUI.add('website.provider', function (Y) {
 			this.set('mode', 'edit');
 			
 			this.form.setValues({
-				'record-before': e.recordNext ? e.recordNext.getID() : '',
-				'record-after': e.recordPrevious ? e.recordPrevious.getID() : ''
+				'record-before': e.recordPrevious ? e.recordPrevious.getID() : '',
+				'record-after': e.recordNext ? e.recordNext.getID() : ''
 			});
 		},
 		
@@ -526,8 +526,8 @@ YUI.add('website.provider', function (Y) {
 				'data': {
 					'providerId': this.get('id'),
 					'id': e.record.getID(),
-					'record-after':  e.newRecordPrevious ? e.newRecordPrevious.getID() : '',
-					'record-before': e.newRecordNext ? e.newRecordNext.getID() : ''
+					'record-after':  e.newRecordNext ? e.newRecordNext.getID() : '',
+					'record-before': e.newRecordPrevious ? e.newRecordPrevious.getID() : ''
 				},
 				'method': 'post',
 				'context': this,
