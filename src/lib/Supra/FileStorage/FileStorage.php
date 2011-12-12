@@ -948,10 +948,13 @@ class FileStorage
 			$sizes = $file->getImageSizeCollection();
 			foreach ($sizes as $size) {
 				$sizePath = $this->getImagePath($file, $size->getName());
-				$result = unlink($sizePath);
 				
-				if ( ! $result) {
-					throw new Exception\RuntimeException("Could not delete '$sizePath' from file storage");
+				if (file_exists($sizePath)) {
+					$result = unlink($sizePath);
+
+					if ( ! $result) {
+						throw new Exception\RuntimeException("Could not delete '$sizePath' from file storage");
+					}
 				}
 			}
 		}
