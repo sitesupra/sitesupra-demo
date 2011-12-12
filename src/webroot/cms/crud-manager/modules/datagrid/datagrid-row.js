@@ -136,7 +136,9 @@ YUI.add("website.datagrid-row", function (Y) {
 						value = escape(String(value));
 					}
 					
-					td.set('innerHTML', value);
+					if (value !== null && value !== undefined) {
+						td.set('innerHTML', value);
+					}
 				}
 			}
 		},

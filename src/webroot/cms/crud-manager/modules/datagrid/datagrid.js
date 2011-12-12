@@ -554,6 +554,25 @@ YUI.add("website.datagrid", function (Y) {
 		},
 		
 		/**
+		 * Returns column by ID
+		 * 
+		 * @param {String} id Column ID
+		 * @return Column information
+		 * @type {Object}
+		 */
+		getColumn: function (id) {
+			var columns = this.get('columns'),
+				i = 0,
+				ii = columns.length;
+			
+			for(; i<ii; i++) {
+				if (columns[i].id == id) return columns[i];
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Add column
 		 * 
 		 * @param {String} id

@@ -159,7 +159,8 @@ YUI.add('website.provider', function (Y) {
 				field = null,
 				key = null,
 				len = 0,
-				tmp = null;
+				tmp = null,
+				conf = null;
 			
 			//Set IDs
 			for(key in fields) {
@@ -167,15 +168,6 @@ YUI.add('website.provider', function (Y) {
 			}
 			
 			//Set field list
-			for(key=0, len=tmp_list.length; key<len; key++) {
-				tmp = fields[tmp_list[key]];
-				if (tmp) {
-					fields_list.push({
-						'id': tmp.id,
-						'title': tmp.label
-					});
-				}
-			}
 			for(key=0, len=tmp_edit.length; key<len; key++) {
 				field = fields[tmp_edit[key]];
 				if (field) {
@@ -184,6 +176,23 @@ YUI.add('website.provider', function (Y) {
 						field.values = lists[field.valuesListId] || [];
 					}
 					fields_edit.push(field);
+				}
+			}
+			for(key=0, len=tmp_list.length; key<len; key++) {
+				tmp = fields[tmp_list[key]];
+				if (tmp) {
+					conf = {
+						'id': tmp.id,
+						'title': tmp.label
+					};
+					
+					//Select and SelectList field output should be taken from value list
+					if (tmp.type == 'Select' || tmp.type == 'SelectList') {
+						conf.values = tmp.values;
+						conf.formatter = this._formatSelectColumnValue;
+					}
+					
+					fields_list.push(conf);
 				}
 			}
 		},
@@ -391,6 +400,30 @@ YUI.add('website.provider', function (Y) {
 				this.bar.render(container);
 				
 				this.bar.on('insert:click', this._handleRowInsert, this);
+			}
+		},
+		
+		/**
+		 * Format data grid column value
+		 * 
+		 * @param {String} col_id Column ID
+		 * @param {String} value Column text
+		 */
+		_formatSelectColumnValue: function (col_id, value, data) {
+			var column = this.host.getColumn(col_id);
+			
+			if (column) {
+				var values = column.values,
+					i = 0,
+					ii = values.length;
+				
+				for(; i<ii; i++) {
+					if (values[i].id == value) return Y.Escape.html(values[i].title);
+				}
+				
+				return Y.Escape.html(value || '');
+			} else {
+				return Y.Escape.html(value || '');
 			}
 		},
 		
