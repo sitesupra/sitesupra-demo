@@ -115,13 +115,13 @@
 	top: 32px;
 }
 .yui3-sidebar-content.has-header.has-buttons {
-	top: 85px;
+	top: 89px;
 }
 .yui3-sidebar-content.no-header.no-buttons {
 	top: 0;
 }
 .yui3-sidebar-content.has-footer {
-	bottom: 53px;
+	bottom: 56px;
 }
 .yui3-sidebar-content.scrollable {
 	overflow-x: hidden;

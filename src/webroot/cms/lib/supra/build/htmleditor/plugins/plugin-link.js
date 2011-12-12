@@ -217,7 +217,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			
 			// When double clicking on link show popup
 			var container = htmleditor.get('srcNode');
-			container.delegate('dblclick', Y.bind(this.editLink, this), 'a');
+			container.delegate('click', Y.bind(this.editLink, this), 'a');
 			
 			var self = this;
 			var toolbar = htmleditor.get('toolbar');

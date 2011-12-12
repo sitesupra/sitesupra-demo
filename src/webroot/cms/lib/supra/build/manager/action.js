@@ -101,7 +101,7 @@ YUI.add('supra.manager-action', function (Y) {
 				//On first 'execute' make sure Action is initialized
 				action.once('execute', action._preExecute, action);
 				
-				//After execute do call plugins
+				//Before execute do call plugins
 				action.before('execute', action._postExecute, action);
 				
 				//On execute call original execute method

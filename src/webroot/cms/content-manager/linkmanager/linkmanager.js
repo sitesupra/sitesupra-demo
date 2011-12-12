@@ -42,6 +42,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		button_cancel: null,
 		button_back: null,
+		button_remove: null,
 		
 		/**
 		 * Link to file / link to page slideshow, Supra.Slideshow instance
@@ -66,6 +67,12 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * @type {Object}
 		 */
 		form: null,
+		
+		/**
+		 * New link or editing existing one
+		 * @type {Boolean}
+		 */
+		is_new: false,
 		
 		/**
 		 * Link data
@@ -110,6 +117,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
 			
+			//Remove button
+			var button = this.one('.yui3-sidebar-footer button');
+			this.button_remove = new Supra.Button({'srcNode': button});
+			this.button_remove.render();
+			this.button_remove.on('click', this.removeLink, this);
 			
 			//When layout position/size changes update slide position
 			Manager.LayoutLeftContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
@@ -271,6 +283,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * @param {Object} data
 		 */
 		setData: function (data) {
+			this.is_new = !data;
+			
 			data = SU.mix({
 				'type': '',
 				'target': '',
@@ -282,6 +296,15 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				'file_title': '',
 				'linktype': 'internal'
 			}, data || {});
+			
+			//Show footer for existing link and hide for new link
+			if (this.is_new) {
+				this.one('.yui3-sidebar-footer').addClass('hidden');
+				this.one('.yui3-sidebar-content').removeClass('has-footer');
+			} else {
+				this.one('.yui3-sidebar-footer').removeClass('hidden');
+				this.one('.yui3-sidebar-content').addClass('has-footer');
+			}
 			
 			//Since file title is different input 'title' is used to transfer data
 			//reverse it
@@ -459,6 +482,18 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			}
 			
 			this.button_close.set('label', Supra.Intl.get(['buttons', label]));
+		},
+		
+		/**
+		 * Remove link and save data
+		 */
+		removeLink: function () {
+			if (this.callback) {
+				this.callback(null);
+				this.callback = null;
+			}
+			
+			this.close();
 		},
 		
 		/**

@@ -87,6 +87,10 @@
 	margin: 0 10px 10px;
 }
 
+.yui3-linkmanager .yui3-sidebar-footer {
+	text-align: center;
+}
+
 /**
  * Media library
  */
@@ -94,6 +98,6 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	bottom: 115px; /* File controls at the bottom */
+	bottom: 118px; /* File controls at the bottom */
 	width: 100%;
 }
