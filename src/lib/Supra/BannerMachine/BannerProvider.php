@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Supra\BannerMachine\Entity\Banner;
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 
 class BannerProvider
 {
@@ -29,7 +30,7 @@ class BannerProvider
 	/**
 	 * @var array
 	 */
-	protected $sizeTypes;
+	protected $types;
 
 	public function getEntityManager()
 	{
@@ -52,28 +53,28 @@ class BannerProvider
 	/**
 	 * @return array
 	 */
-	public function getSizeTypes()
+	public function getTypes()
 	{
-		return $this->sizeTypes;
+		return $this->types;
 	}
 
-	public function setSizeTypes($sizeTypes)
+	public function setTypes($types)
 	{
-		$this->sizeTypes = $sizeTypes;
+		$this->types = $types;
 	}
 
 	/**
-	 * @param string SizeType
+	 * @param BannerTypeAbstraction $type
 	 * @return ArrayCollection
 	 */
-	public function getBanners($sizeType)
+	public function getBanners($type)
 	{
-		if (empty($this->sizeTypes[$sizeType->getId()])) {
-			throw new Exception\RuntimeException('Unknown banner size type "' . $sizeType->getId() . '".');
+		if (empty($this->types[$type->getId()])) {
+			throw new Exception\RuntimeException('Unknown banner type "' . $type->getId() . '".');
 		}
 
 		$criteria = array(
-				'sizeTypeId' => $sizeType->getId()
+				'typeId' => $type->getId()
 		);
 
 		$banners = $this->getEntityRepository()->findBy($criteria);
@@ -131,16 +132,16 @@ class BannerProvider
 	}
 
 	/**
-	 * @param string $sizeTypeId
-	 * @return SizeType
+	 * @param string $typeId
+	 * @return BannerTypeAbstraction
 	 */
-	public function getSizeType($sizeTypeId)
+	public function getType($typeId)
 	{
-		if (empty($this->sizeTypes[$sizeTypeId])) {
-			throw new Exception\RuntimeException('Unknown banner size type "' . $sizeTypeId . '".');
+		if (empty($this->types[$typeId])) {
+			throw new Exception\RuntimeException('Unknown banner type "' . $typeId . '".');
 		}
 
-		return $this->sizeTypes[$sizeTypeId];
+		return $this->types[$typeId];
 	}
 
 }

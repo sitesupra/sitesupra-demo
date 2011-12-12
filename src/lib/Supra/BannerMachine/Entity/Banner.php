@@ -93,7 +93,7 @@ abstract class Banner extends Database\Entity
 	 * @Column(type="string")
 	 * @var string
 	 */
-	protected $sizeTypeId;
+	protected $typeId;
 
 	abstract function getContent();
 
@@ -152,9 +152,9 @@ abstract class Banner extends Database\Entity
 		$this->title = $title;
 	}
 
-	public function setSizeTypeId($sizeTypeId)
+	public function setTypeId($typeId)
 	{
-		$this->sizeTypeId = $sizeTypeId;
+		$this->typeId = $typeId;
 	}
 
 	public function setScheduledFrom($scheduledFrom)
@@ -206,9 +206,9 @@ abstract class Banner extends Database\Entity
 		return $this->title;
 	}
 
-	public function getSizeTypeId()
+	public function getTypeId()
 	{
-		return $this->sizeTypeId;
+		return $this->typeId;
 	}
 
 	public function getPriority()

@@ -1,8 +1,11 @@
 <?php
 
-namespace Supra\BannerMachine;
+namespace Supra\BannerMachine\BannerType;
 
-class SizeType
+use Supra\BannerMachine\Entity\Banner;
+use Supra\BannerMachine\Entity\ImageBanner;
+
+abstract class BannerTypeAbstraction
 {
 
 	/**
@@ -89,6 +92,18 @@ class SizeType
 	{
 		return $this->height;
 	}
+
+	/**
+	 * @param Banner $banner 
+	 */
+	public function validate(Banner $banner)
+	{
+		if (Banner instanceof ImageBanner) {
+			$this->validateImageBanner($banner);
+		}
+	}
+	
+	abstract protected function validateImageBanner(ImageBanner $banner);
 
 }
 

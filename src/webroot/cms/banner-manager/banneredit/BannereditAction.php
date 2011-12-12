@@ -102,11 +102,15 @@ class BannereditAction extends CmsAction
 			$banner->setInternalTarget($bannerTarget->get('page_id'));
 		}
 
-		$banner->setSizeTypeId($postData->get('group_id', 'unknown-size-type'));
+		$banner->setTypeId($postData->get('group_id', 'unknown-banner-type'));
 
 		$imageFile = $this->imageFileRepository->find($postData->get('image'));
 
 		$banner->setFile($imageFile);
+		
+		$bannerType = $this->bannerProvider->getType($banner->getTypeId());		
+		
+		$bannerType->validate($this);
 
 		$this->bannerProvider->store($banner);
 	}
@@ -132,7 +136,7 @@ class BannereditAction extends CmsAction
 
 		$result = array(
 				'banner_id' => $banner->getId(),
-				'group_id' => $banner->getSizeTypeId(),
+				'group_id' => $banner->getTypeId(),
 				'priority' => $banner->getPriority(),
 				'schedule' => array(
 						'from' => $banner->getScheduledFrom()->format('Y-m-d'),
@@ -170,7 +174,7 @@ class BannereditAction extends CmsAction
 
 		if ($banner instanceof ImageBanner) {
 
-			$sizeType = $this->bannerProvider->getSizeType($banner->getSizeTypeId());
+			$type = $this->bannerProvider->getType($banner->getTypeId());
 
 			$path = array();
 			foreach ($banner->getFile()->getAncestors() as $ancestor) {
@@ -182,8 +186,8 @@ class BannereditAction extends CmsAction
 					'id' => $banner->getFile()->getId(),
 					'path' => $path,
 					'external_path' => $fileStorage->getWebPath($banner->getFile()),
-					'width' => $sizeType->getWidth(),
-					'height' => $sizeType->getHeight()
+					'width' => $type->getWidth(),
+					'height' => $type->getHeight()
 			);
 		}
 

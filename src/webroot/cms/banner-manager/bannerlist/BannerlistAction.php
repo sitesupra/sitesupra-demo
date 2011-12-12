@@ -4,8 +4,8 @@ namespace Supra\Cms\BannerManager\Bannerlist;
 
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\BannerMachine\SizeType;
 use Supra\BannerMachine\Entity\Banner;
+use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 use Supra\BannerMachine\Entity\ImageBanner;
 
 class BannerlistAction extends CmsAction
@@ -19,12 +19,12 @@ class BannerlistAction extends CmsAction
 
 		$fileStorage = ObjectRepository::getFileStorage($this);
 
-		$bannerSizeTypes = $bannerProvider->getSizeTypes();
+		$bannerTypes = $bannerProvider->getTypes();
 
-		foreach ($bannerSizeTypes as $bannerSizeType) {
-			/* @var $bannerSizeType SizeType */
+		foreach ($bannerTypes as $bannerType) {
+			/* @var $bannerType BannerTypeAbstraction */
 
-			$banners = $bannerProvider->getBanners($bannerSizeType);
+			$banners = $bannerProvider->getBanners($bannerType);
 
 			$children = array();
 
@@ -32,7 +32,7 @@ class BannerlistAction extends CmsAction
 				/* @var $banner Banner */
 
 				$externalPath = '#';
-				
+
 				if ($banner instanceof ImageBanner) {
 					$externalPath = $fileStorage->getWebPath($banner->getFile());
 				}
@@ -40,8 +40,8 @@ class BannerlistAction extends CmsAction
 				$children[] = array(
 						'banner_id' => $banner->getId(),
 						'external_path' => $externalPath,
-						'width' => $bannerSizeType->getWidth(),
-						'height' => $bannerSizeType->getHeight(),
+						'width' => $bannerType->getWidth(),
+						'height' => $bannerType->getHeight(),
 						'status' => $banner->getStatus(),
 						'schedule' => array(
 								'from' => $banner->getScheduledFrom(),
@@ -51,8 +51,8 @@ class BannerlistAction extends CmsAction
 			}
 
 			$bannerList[] = array(
-					'group_id' => $bannerSizeType->getId(),
-					'title' => $bannerSizeType->getName(),
+					'group_id' => $bannerType->getId(),
+					'title' => $bannerType->getName(),
 					'children' => $children
 			);
 		}

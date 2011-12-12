@@ -6,13 +6,14 @@ use Supra\Configuration\ConfigurationInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\BannerMachine\BannerProvider;
 use Supra\BannerMachine\Exception;
-use Supra\BannerMachine\SizeType;
+use Supra\BannerMachine\Configuration\BannerType\BannerTypeConfigurationAbstraction;
+
 
 class ProviderConfiguration implements ConfigurationInterface
 {
 
 	public $id;
-	public $sizeTypes;
+	public $types;
 	public $path;
 	public $namespace;
 
@@ -20,17 +21,17 @@ class ProviderConfiguration implements ConfigurationInterface
 	{
 		$provider = new BannerProvider();
 
-		$sizeTypes = array();
+		$types = array();
 
-		foreach ($this->sizeTypes as $sizeTypeConfiguration) {
-			/* @var $sizeTypeConfiguration SizeTypeConfiguration */
+		foreach ($this->types as $typeConfiguration) {
+			/* @var $typeConfiguration BannerTypeConfigurationAbstraction */
 
-			$sizeType = $sizeTypeConfiguration->getSizeType();
+			$type = $typeConfiguration->getType();
 
-			$sizeTypes[$sizeType->getId()] = $sizeType;
+			$types[$type->getId()] = $type;
 		}
 
-		$provider->setSizeTypes($sizeTypes);
+		$provider->setTypes($types);
 
 		ObjectRepository::setDefaultBannerProvider($provider);
 		ObjectRepository::setBannerProvider('#' . $this->id, $provider);
