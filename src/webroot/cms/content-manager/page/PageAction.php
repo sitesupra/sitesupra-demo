@@ -15,6 +15,7 @@ use Supra\Cms\Exception\ObjectLockedException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Repository\PageRepository;
+use Supra\Authorization\Exception\AuthorizationException;
 
 /**
  * 
@@ -25,7 +26,7 @@ class PageAction extends PageManagerAction
 	 * Returns all page information required for load
 	 */
 	public function pageAction()
-	{
+	{	
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
@@ -68,6 +69,17 @@ class PageAction extends PageManagerAction
 			return;
 		}
 
+		$isAllowedEditing = true;
+		try {
+			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+		} catch (AuthorizationException $e) {
+			try {
+				$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+			} catch (AuthorizationException $e) {
+				$isAllowedEditing = false;
+			}
+		}
+		
 		$request->setPageLocalization($pageData);
 		$controller->execute($request);
 
@@ -153,7 +165,8 @@ class PageAction extends PageManagerAction
 				'active' => $active,
 				'created_date' => $createdDate,
 				'created_time' => $createdTime,
-				'global' => $page->getGlobal()
+				'global' => $page->getGlobal(),
+				'allow_edit' => $isAllowedEditing,
 		);
 		
 		if (strpos($array['internal_html'], '&amp;lt;') !== false) {
