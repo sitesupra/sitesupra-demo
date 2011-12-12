@@ -133,7 +133,7 @@ SU('supra.input', 'cookie', function (Y) {
 				document.location.search += ((document.location.search == '') ? '?' : '&') + 'success=' + (new Date()).valueOf();
 			} else {
 				var key = Supra.data.get('sessionName'),	//Cookie key
-					value = Y.Cookie.get(key);				//Session ID
+					value = key ? Y.Cookie.get(key) : '';	//Session ID
 				
 				//Update session ID
 				Supra.data.set('sessionId', value);
