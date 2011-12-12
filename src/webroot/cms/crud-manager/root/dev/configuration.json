@@ -25,7 +25,8 @@
 				"phone":		{ "label": "Phone", 		"type": "String" },
 				"fax": 			{ "label": "Fax", 			"type": "String" },
 				"email":		{ "label": "E-mail", 		"type": "String" },
-				"status": 		{ "label": "Status",		"type": "Select",	"values": [{"id": 0, "title": "Hidden"},{"id": 1, "title": "Visible"}], "value": 1 }
+				"status": 		{ "label": "Status",		"type": "Select",	"values": [{"id": 0, "title": "Hidden"},{"id": 1, "title": "Visible"}], "value": 1 },
+				"location":		{ "label": "Location",		"type": "Map", 		"value": ["56.952183", "24.122286"]}
 			},
 			
 			"lists": {

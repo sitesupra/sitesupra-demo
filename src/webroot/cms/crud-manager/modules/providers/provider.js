@@ -478,7 +478,7 @@ YUI.add('website.provider', function (Y) {
 					'record-after': null
 				}, this.getRecord());
 				
-				this.form.setValues(values, 'id');
+				this.form.setValuesObject(values, 'id');
 			}
 			
 			return state;

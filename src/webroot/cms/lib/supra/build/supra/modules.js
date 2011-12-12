@@ -490,6 +490,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-map': {
+		path: 'input/map.js',
+		requires: ['supra.input-proto']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -506,7 +510,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select',
 			'supra.input-select-list',
 			'supra.input-slider',
-			'supra.input-link'
+			'supra.input-link',
+			'supra.input-map'
 		],
 	},
 	'supra.input': {
@@ -650,6 +655,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.manager-action-plugin-maincontent': {
 		path: 'manager/action/plugin-maincontent.js',
+		requires: ['supra.manager-action-plugin-base']
+	},
+	'supra.manager-action-plugin-layout-sidebar': {
+		path: 'manager/action/plugin-layout-sidebar.js',
 		requires: ['supra.manager-action-plugin-base']
 	}
 	
