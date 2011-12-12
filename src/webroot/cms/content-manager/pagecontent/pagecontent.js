@@ -334,13 +334,14 @@ SU('dd-drag', function (Y) {
 	        dd.on('drag:end', function(e) {
 				e.preventDefault();
 				
+				var scroll = this.iframe_handler.getScroll();
 				var x = e.pageX, y = e.pageY;
 				var r = Y.DOM._getRegion(y, x+1, y+1, x);
 				var target = this.iframe_handler.get('srcNode');
 				
 				if (target.inRegion(r)) {
 					var xy = target.getXY();
-					xy[0] = x - xy[0]; xy[1] = y - xy[1];
+					xy[0] = x - xy[0] + scroll[0]; xy[1] = y - xy[1] + scroll[1];
 					
 					var ret = this.fire('dragend:hit', {
 						position: xy,

@@ -237,6 +237,20 @@ YUI.add('supra.iframe-handler', function (Y) {
 		},
 		
 		/**
+		 * Returns scroll position
+		 */
+		getScroll: function () {
+			var doc = this.get('doc'),
+				body = doc.body,
+				html = doc.getElementsByTagName('HTML')[0];
+			
+			return [
+					(html ? html.scrollLeft : 0) || (body ? body.scrollLeft : 0),
+					(html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) 
+				];
+		},
+		
+		/**
 		 * Render UI
 		 */
 		renderUI: function () {
