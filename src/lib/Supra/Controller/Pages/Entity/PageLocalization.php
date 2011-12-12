@@ -403,8 +403,12 @@ class PageLocalization extends Abstraction\Localization
 	public function __clone ()
 	{
 		parent::__clone();
-		
-		$this->path = null;
+
+		if (empty($this->id)) {
+			$this->path = null;
+		} else {
+			$this->path = clone $this->path;
+		}
 	}
 
 }

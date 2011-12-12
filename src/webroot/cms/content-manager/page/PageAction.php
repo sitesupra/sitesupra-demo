@@ -57,9 +57,12 @@ class PageAction extends PageManagerAction
 		/* @var $pageData Entity\Abstraction\Localization */
 		$pageData = $page->getLocalization($localeId);
 
-		// FIXME: temporary solution
 		if (empty($pageData) && $page->isGlobal()) {
-			$pageData = $page->getLocalizations()->first();
+			$existingPageData = $page->getLocalizations()->first();
+			$pageData = $request->recursiveClone($existingPageData);
+			$pageData->setTitle($existingPageData->getTitle());
+			$pageData->setLocale($localeId);
+			$pageData->setMaster($page);
 		}
 
 		if (empty($pageData)) {
@@ -448,6 +451,10 @@ class PageAction extends PageManagerAction
 		$this->publish();
 		
 		$this->unlockPage();
+		
+		$auditLog = ObjectRepository::getAuditLogger($this);
+		$user = $this->getUser();
+		$auditLog->info(array(), 'Content manager', 'Publish', $user->getLogin());
 	}
 
 	/**
