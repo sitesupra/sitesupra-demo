@@ -19,6 +19,10 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	
 	const TYPE_TRASH = 2;
 	
+	// when page is restored from trash, revision data is marked as 'restored'
+	// and will not be shown at recycle bin anymore
+	const TYPE_RESTORED = 3;
+	
 	/**
 	 * @Column(type="datetime", nullable=true, name="created_at")
 	 * @var DateTime

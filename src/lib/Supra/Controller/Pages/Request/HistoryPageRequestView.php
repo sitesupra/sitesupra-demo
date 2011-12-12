@@ -535,7 +535,8 @@ class HistoryPageRequestView extends PageRequest
 
 		// TODO: remove audit records also
 		$revisionData = $draftEm->find(PageRevisionData::CN(), $this->revision);
-		$draftEm->remove($revisionData);
+		/* @var $revisionData PageRevisionData */
+		$revisionData->setType(PageRevisionData::TYPE_RESTORED);
 		$draftEm->flush();
 
 		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
