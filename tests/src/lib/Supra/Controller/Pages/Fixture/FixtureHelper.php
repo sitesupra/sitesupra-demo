@@ -225,22 +225,38 @@ class FixtureHelper
 	{
 		$publicEm = ObjectRepository::getEntityManager('');
 		$draftEm = $this->entityManager;
+		$auditEm = ObjectRepository::getEntityManager('#audit');
 
+		$auditEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
+		
+		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\LayoutPlaceHolder::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Layout::CN())->execute();
+		
+		$publicEm->createQuery("DELETE FROM " . Entity\PageRevisionData::CN())->execute();
 	}
 
 	/**
