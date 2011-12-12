@@ -840,8 +840,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			}
 			
 			//Execute callback
-			if (Y.Lang.isFunction(callback)) {
-				callback(id, data);
+			if (loaded) {
+				if (Y.Lang.isFunction(callback)) {
+					callback(id, data);
+				}
 			}
 			
 			return this;
