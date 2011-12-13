@@ -14,6 +14,7 @@ Supra(function (Y) {
 	var NEW_BANNER_DATA = {
 		'banner_id': null,
 		'group_id': null,
+		'locale': null,
 		
 		'image': {
 			'id': null,
@@ -152,6 +153,14 @@ Supra(function (Y) {
 			Supra.Manager.getAction('Schedule').on('visibleChange', function (e) {
 				this.button_schedule.set('down', e.newVal);
 			}, this);
+			
+			//Delete button
+			var button = new Supra.Button({
+				'srcNode': this.one('fieldset.delete-group button'),
+				'style': 'mid-red'
+			});
+			button.on('click', this.deleteBanner, this);
+			button.render();
 		},
 		
 		/**
@@ -269,7 +278,8 @@ Supra(function (Y) {
 				
 				Supra.io(this.getDataPath('load'), {
 					'data': {
-						'banner_id': banner_id
+						'banner_id': banner_id,
+						'locale': Supra.data.get('locale')
 					},
 					'context': this,
 					'on': {'success': this.setData}
@@ -370,7 +380,9 @@ Supra(function (Y) {
 		 */
 		save: function () {
 			var data = Supra.mix(
-				{},
+				{
+					locale: Supra.data.get('locale')
+				},
 				//Data which was loaded
 				this.data,
 				//Values using 'name' as key and for save
@@ -398,16 +410,77 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Delete banner
+		 */
+		deleteBanner: function () {
+			Manager.executeAction('Confirmation', {
+				'message': Supra.Intl.get(['edit', 'delete_message']),
+				'useMask': true,
+				'buttons': [
+					{
+						'id': 'delete',
+						'label': Supra.Intl.get(['buttons', 'yes']),
+						'click': this.deleteConfirmed,
+						'context': this
+					},
+					{
+						'id': 'no',
+						'label': Supra.Intl.get(['buttons', 'no'])
+					}
+				]
+			});
+		},
+		
+		/**
+		 * When user confirms banner delete close banner edit
+		 * and send request to server if this is not new banner
+		 * 
+		 * @private
+		 */
+		deleteConfirmed: function () {
+			if (!this.data.banner_id) {
+				//New banner delete should cancel editing
+				this.openBannerList(false);
+				return;
+			}
+			
+			Supra.io(this.getDataPath('delete'), {
+				'method': 'post',
+				'data': {
+					'banner_id': this.data.banner_id,
+					'locale': Supra.data.get('locale')
+				},
+				'context': this,
+				'on': {
+					'success': this.openBannerList
+				}
+			});
+		},
+		
+		/**
 		 * On hide save all data
 		 */
 		hide: function () {
 			if (this.get('visible')) {
 				this.set('visible', false);
-				
 				this.save();
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Open banner list without saving current banner
+		 */
+		openBannerList: function (reload) {
+			if (this.get('visible')) {
+				this.set('visible', false);
+				
+				//Banner list needs to be reloaded only if banner was deleted
+				if (reload !== false) Manager.getAction('BannerList').load();
+				
+				Manager.executeAction('BannerList');
+			}
 		},
 		
 		/**

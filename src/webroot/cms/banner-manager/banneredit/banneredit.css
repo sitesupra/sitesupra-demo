@@ -102,3 +102,20 @@
 .banner .yui3-input-select-list .yui3-button p {
 	min-width: 50px;
 }
+
+/**
+ * Delete
+ */
+.banner .delete-group {
+	width: 300px;
+	margin: 0 auto;
+	border-top: 1px solid #eee;
+	padding: 10px;
+}
+.banner .delete-group .yui3-button,
+.banner .delete-group .yui3-button div {
+	display: block;
+}
+.banner .delete-group .yui3-button button {
+	width: 100%;
+}

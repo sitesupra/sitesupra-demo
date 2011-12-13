@@ -3,6 +3,14 @@
 	bottom: 10px;
 }
 
+.languages {
+	padding-bottom: 5px;
+}
+
+/**
+ * Groups
+ */
+.languages,
 .list-group-select {
 	text-align: center;
 	padding-left: 200px;
@@ -15,7 +23,7 @@
 	position: absolute;
 	overflow: hidden;
 	left: 200px;
-	top: 40px;
+	top: 75px;
 	right: 0;
 	bottom: 0;
 	border: 1px solid #eee;
@@ -156,6 +164,7 @@
 	z-index: 4;
 	right: 50px;
 	top: 50%;
+	margin-top: 20px;
 }
 .main-list a.prev {
 	display: block;
@@ -163,7 +172,7 @@
 	z-index: 4;
 	left: 250px;
 	top: 50%;
-	margin: -10px 0 0;
+	margin-top: 20px;
 }
 
 

@@ -10,7 +10,7 @@ SU.addModule('website.list-dd', {
 /**
  * Main manager action, initiates all other actions
  */
-Supra('website.list-dd', function (Y) {
+Supra('website.list-dd', 'supra.languagebar', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -71,6 +71,13 @@ Supra('website.list-dd', function (Y) {
 		 */
 		banner_index: 0,
 		
+		/**
+		 * Language bar widget instance
+		 * @type {Object}
+		 * @private
+		 */
+		languagebar: null,
+		
 		
 		
 		/**
@@ -87,6 +94,9 @@ Supra('website.list-dd', function (Y) {
 			this.select = new Supra.Input.SelectList();
 			this.select.render(this.one('div.list-group-select'));
 			this.select.on('change', this.fillBannerList, this);
+			
+			//Create languagebar
+			this.initializeLanguageBar();
 			
 			//Load banners
 			this.load();
@@ -113,8 +123,31 @@ Supra('website.list-dd', function (Y) {
 				this.hide();
 			}, 'div.size0 > div, a', this);
 			
+			//On locale change reload data
+			Y.Global.on('localeChange', this.load, this);
+			
 			//Bind drag and drop
 			this.bindDragAndDrop();
+		},
+		
+		/**
+		 * Create language bar
+		 * 
+		 * @private
+		 */
+		initializeLanguageBar: function () {
+			//Create language bar
+			this.languagebar = new SU.LanguageBar({
+				'locale': SU.data.get('locale'),
+				'contexts': SU.data.get('contexts'),
+				'localeLabel': SU.Intl.get(['list', 'viewing_banners'])
+			});
+			this.languagebar.on('localeChange', function (evt) {
+				Supra.data.set('locale', evt.newVal);
+			}, this);
+			
+			//Render language bar
+			this.languagebar.render(this.one('.languages'));
 		},
 		
 		/**
@@ -125,6 +158,9 @@ Supra('website.list-dd', function (Y) {
 			
 			//Load data
 			Supra.io(this.getDataPath('load'), {
+				'data': {
+					'locale': Supra.data.get('locale')
+				},
 				'context': this,
 				'on': {'complete': this.fillGroupList}
 			});

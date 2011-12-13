@@ -126,9 +126,14 @@ SU('transition', 'supra.htmleditor', function (Y) {
 			//Add "Apply", "Close" buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
+				'context': this,
 				'callback': Y.bind(function () {
 					var active_content = Manager.PageContent.getContent().get('activeChild');
+					if (active_content) {
 						active_content.fire('block:save');
+					} else {
+						Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+					}
 				}, this)
 			}/*, {
 				'id': 'close',

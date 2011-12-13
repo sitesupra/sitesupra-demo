@@ -251,6 +251,11 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 			
 			htmleditor.get('toolbar').on('disabledChange', function (evt) {
 				this.dropdown.disabled = evt.newVal;
+				if (evt.newVal) {
+					this.dropdown.style.display = 'none';
+				} else if (!this.htmleditor.get('disabled')) {
+					this.dropdown.style.display = 'inline';
+				}
 			}, this);
 			htmleditor.on('disable', function () {
 				this.dropdown.style.display = 'none';

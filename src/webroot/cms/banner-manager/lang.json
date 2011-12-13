@@ -15,7 +15,8 @@
 		},
 		
 		"list": {
-			"new": "New"
+			"new": "New",
+			"viewing_banners": "Viewing banners for"
 		},
 		
 		"edit": {
@@ -35,7 +36,9 @@
 			"schedule_from": "From ",
 			"schedule_to": " till ",
 			
-			"status": "Active"
+			"status": "Active",
+			
+			"delete_message": "Are you sure you want to delete selected banner?"
 		},
 		
 		"statistics": {
