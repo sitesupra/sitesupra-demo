@@ -27,6 +27,12 @@ abstract class EditableAbstraction implements EditableInterface
 	protected $label;
 	
 	/**
+	 * Grouping label
+	 * @var string
+	 */
+	protected $groupLabel;
+	
+	/**
 	 * Default value
 	 * @var mixed
 	 */
@@ -35,9 +41,10 @@ abstract class EditableAbstraction implements EditableInterface
 	/**
 	 * @param string $label
 	 */
-	public function __construct($label)
+	public function __construct($label, $groupLabel = null)
 	{
 		$this->setLabel($label);
+		$this->setGroupLabel($groupLabel);
 	}
 
 	/**
@@ -103,6 +110,22 @@ abstract class EditableAbstraction implements EditableInterface
 	public function setLabel($label)
 	{
 		$this->label = $label;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getGroupLabel()
+	{
+		return $this->groupLabel;
+	}
+
+	/**
+	 * @param string $groupLabel
+	 */
+	public function setGroupLabel($groupLabel)
+	{
+		$this->groupLabel = $groupLabel;
 	}
 	
 	/**

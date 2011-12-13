@@ -24,6 +24,16 @@ interface EditableInterface
 	public function getLabel();
 	
 	/**
+	 * @param string $groupLabel
+	 */
+	public function setGroupLabel($groupLabel);
+	
+	/**
+	 * @return string
+	 */
+	public function getGroupLabel();
+	
+	/**
 	 * @return mixed
 	 */
 	public function getDefaultValue();
