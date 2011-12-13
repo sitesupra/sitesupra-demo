@@ -517,7 +517,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-link',
 			'supra.input-map',
 			'supra.input-button'
-		],
+		]
 	},
 	'supra.input': {
 		path: 'input/input.js',

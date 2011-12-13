@@ -72,7 +72,7 @@ YUI.add('supra.button', function (Y) {
 			} else {
 				var node = srcNode.one('BUTTON,INPUT');
 				if (!node) {
-					node = Y.Node.create('<button type="button">' + (Supra.Intl.replace(this.get('label')) || '') + '</button>');
+					node = Y.Node.create('<button type="button">' + (Supra.Intl.replace(this.get('label') || '')) + '</button>');
 					this.get('contentBox').append(node);
 				}
 				
