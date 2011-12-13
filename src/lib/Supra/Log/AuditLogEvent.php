@@ -2,6 +2,10 @@
 
 namespace Supra\Log;
 
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Configuration\ComponentConfiguration;
+use Supra\User\Entity\User as UserEntity;
+
 /**
  * Audit log event
  *
@@ -39,9 +43,28 @@ class AuditLogEvent extends LogEvent
 	{
 		$this->data = $data;
 		$this->level = $level;
-		$this->component = (string) $component;
+
+		if (is_object($component)) {
+			$componentConfig = ObjectRepository::getComponentConfiguration($component);
+			if ($componentConfig instanceof ComponentConfiguration
+				&& ! empty($componentConfig->title)
+			) {
+				$this->component = $componentConfig->title;
+			} else {
+				$this->component = get_class($component);
+			}
+		} else {		
+			$this->component = (string) $component;
+		}
+		
 		$this->action = (string) $action;
-		$this->user = (string) $user;
+		
+		if ($user instanceof UserEntity) {
+			$this->user = $user->getLogin();
+		} else {
+			$this->user = (string) $user;
+		}
+		
 		$this->timestamp = time();
 		$this->microtime = (string) microtime(true);
 		$this->logger = $logger;

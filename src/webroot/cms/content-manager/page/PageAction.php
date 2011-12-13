@@ -448,9 +448,8 @@ class PageAction extends PageManagerAction
 		
 		$this->unlockPage();
 		
-//		$auditLog = ObjectRepository::getAuditLogger($this);
-//		$user = $this->getUser();
-//		$auditLog->info(array(), 'Content manager', 'Publish', $user->getLogin());
+		$auditLog = ObjectRepository::getAuditLogger($this);
+		$auditLog->info(array(), $this, 'Publish', $this->getUser());
 	}
 
 	/**

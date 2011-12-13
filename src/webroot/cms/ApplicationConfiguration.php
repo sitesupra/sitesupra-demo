@@ -6,27 +6,14 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
+use Supra\Configuration\ComponentConfiguration;
 
 /**
  * ApplicationConfiguration
  *
  */
-class ApplicationConfiguration implements ConfigurationInterface
+class ApplicationConfiguration extends ComponentConfiguration
 {
-
-	/**
-	 * Application ID
-	 *
-	 * @var string
-	 */
-	public $id;
-
-	/**
-	 * Application title
-	 *
-	 * @var string
-	 */
-	public $title;
 
 	/**
 	 * Application icon path
@@ -52,6 +39,8 @@ class ApplicationConfiguration implements ConfigurationInterface
 	 */
 	public function configure()
 	{
+		parent::configure();
+
 		$this->authorizationAccessPolicy->setAppConfig($this);
 
 		$config = CmsApplicationConfiguration::getInstance();

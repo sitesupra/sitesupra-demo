@@ -19,6 +19,7 @@ use Supra\Configuration\Loader\IniConfigurationLoader;
 use Supra\Payment\Provider\PaymentProviderCollection;
 use Supra\Template\Parser\TemplateParser;
 use Supra\BannerMachine\BannerProvider;
+use Supra\Configuration\ComponentConfiguration;
 
 /**
  * Object repository
@@ -34,6 +35,7 @@ class ObjectRepository
 	const CONTROLLER_PREFIX = 'CONTROLLER/';
 
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
+	const INTERFACE_AUDIT_LOGGER = 'Supra\Log\Writer\AuditLogWriter';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
@@ -49,6 +51,7 @@ class ObjectRepository
 	const INTERFACE_PAYMENT_PROVIDER_COLLECTION = 'Supra\Payment\Provider\PaymentProviderCollection';
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
 	const INTERFACE_BANNER_MACHINE = 'Supra\BannerMachine\BannerProvider';
+	const INTERFACE_COMPONENT_CONFIGURATION = 'Supra\Configuration\ComponentConfiguration';
 
 	/**
 	 * Object relation storage
@@ -735,7 +738,7 @@ class ObjectRepository
 	 * Assign application configuration to namespace
 	 *
 	 * @param mixed $caller
-	 * @param AuthorizationProvider $object 
+	 * @param ApplicationConfiguration $object 
 	 */
 	public static function setApplicationConfiguration($caller, ApplicationConfiguration $object)
 	{
@@ -745,11 +748,51 @@ class ObjectRepository
 	/**
 	 * Set application configuration.
 	 *
-	 * @param AuthorizationProvider $object 
+	 * @param ApplicationConfiguration $object 
 	 */
 	public static function setDefaultApplicationConfiguration(ApplicationConfiguration $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_APPLICATION_CONFIGURATION);
+	}
+
+	/**
+	 * Get assigned audit logger
+	 *
+	 * @param mixed $caller
+	 * @return AuditLogWriter
+	 */
+	public static function getAuditLogger($caller)
+	{
+		$logger = self::getObject($caller, self::INTERFACE_AUDIT_LOGGER);
+
+		// Create bootstrap logger in case of missing logger
+		if (empty($logger)) {
+			$logger = Log::getBootstrapLogger();
+			self::setDefaultLogger($logger);
+		}
+
+		return $logger;
+	}
+
+	/**
+	 * Assign audit logger instance to caller class
+	 *
+	 * @param mixed $caller
+	 * @param AuditLogWriter $object 
+	 */
+	public static function setAuditLogger($caller, WriterAbstraction $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_AUDIT_LOGGER);
+	}
+
+	/**
+	 * Set default audit logger
+	 *
+	 * @param AuditLogWriter $object 
+	 */
+	public static function setDefaultAuditLogger(WriterAbstraction $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUDIT_LOGGER);
 	}
 
 	/**
@@ -949,4 +992,38 @@ class ObjectRepository
 	public static function setDefaultBannerProvider(BannerProvider $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_BANNER_MACHINE);
-	}}
+	}
+
+	/**
+	 * Get assigned component configuration.
+	 *
+	 * @param mixed $caller
+	 * @return ComponentConfiguration
+	 */
+	public static function getComponentConfiguration($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_COMPONENT_CONFIGURATION);
+	}
+
+	/**
+	 * Assign component configuration to namespace
+	 *
+	 * @param mixed $caller
+	 * @param ComponentConfiguration $object 
+	 */
+	public static function setComponentConfiguration($caller, ComponentConfiguration $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_COMPONENT_CONFIGURATION);
+	}
+
+	/**
+	 * Set default component configuration
+	 *
+	 * @param ComponentConfiguration $object 
+	 */
+	public static function setDefaultComponentConfiguration(ComponentConfiguration $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_COMPONENT_CONFIGURATION);
+	}
+
+}
