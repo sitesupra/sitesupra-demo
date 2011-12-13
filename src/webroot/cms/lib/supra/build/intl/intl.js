@@ -168,7 +168,8 @@ YUI.add('supra.intl', function (Y) {
 		 * @type {String}
 		 */
 		replace: function (template /* Template */, escape /* Escape type */) {
-			var self = this;
+			var self = this,
+				template = template || '';
 			
 			if (template.indexOf('#') == -1) {
 				return template;

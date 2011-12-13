@@ -515,8 +515,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-list',
 			'supra.input-slider',
 			'supra.input-link',
-			'supra.input-map',
-			'supra.input-button'
+			'supra.input-map'
 		]
 	},
 	'supra.input': {

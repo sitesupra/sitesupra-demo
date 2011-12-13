@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add("supra.input-button", function (Y) {
+YUI.add("supra.slideshow-input-button", function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
