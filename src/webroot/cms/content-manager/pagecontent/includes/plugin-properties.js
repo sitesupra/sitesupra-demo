@@ -284,7 +284,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			};
 			
 			//Slideshow is used for grouping properties
-			var slideshow = this.initializeSlideshow();
+			var slideshow = this.initializeSlideshow(),
+				slide_main = null,
 				slide = slide_main = slideshow.getSlide('propertySlideMain');
 			
 			//Properties
@@ -329,16 +330,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.initializeButtons(slideshow);
 			
 			//Create form
-			this.initializeForm(form_config);
+			var form = this.initializeForm(form_config);
 			
 			//Bind to change event
 			var inputs = form.getInputs();
 			for(var id in inputs) {
 				inputs[id].on('change', this.onPropertyChange, this);
 			}
-			
-			this.set('slideshow', slideshow);
-			this.set('form', form);
 		},
 		
 		initializeButtons: function (slideshow) {
@@ -365,6 +363,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				slide = slideshow.addSlide('propertySlideMain'),
 				slide_main = slide;
 			
+			this.set('slideshow', slideshow);
 			return slideshow;
 		},
 		
@@ -373,7 +372,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		initializeForm: function (form_config) {
 			var form = new Supra.Form(form_config),
-				data = this.get('data').properties;
+				data = this.get('data').properties,
+				slideshow = this.get('slideshow');
 			
 			form.render(Manager.PageContentSettings.getContainer());
 			form.get('boundingBox').addClass('yui3-form-properties');
@@ -382,6 +382,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			slideshow.render(form.get('contentBox'));
 			
 			form.setValues(data, 'id');
+			
+			this.set('form', form);
+			return form;
 		},
 		
 		/**

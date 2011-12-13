@@ -508,7 +508,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		getTableStyles: function () {
 			var style_plugin = this.htmleditor.getPlugin('style'),
 				styles = style_plugin.getSelectors('table', true, true),	//Get all table styles
-				list = [];
+				list = [{'id': '', 'title': ''}];
 			
 			for(var i=0,ii=styles.length; i<ii; i++) {
 				list.push({
