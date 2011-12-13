@@ -400,6 +400,15 @@ class PageLocalization extends Abstraction\Localization
 		return $ancestors;
 	}
 	
+	/**
+	 * Gets page level by PATH not structure, ignores group pages
+	 * @return int
+	 */
+	public function getLevel()
+	{
+		return $this->path->getDepth();
+	}
+	
 	public function __clone ()
 	{
 		parent::__clone();
