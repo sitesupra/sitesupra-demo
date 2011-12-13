@@ -46,8 +46,10 @@ class FormAction extends CrudManagerAbstractAction
 		$output = $record->setEditValues($post);
 
 		$em->flush();
-
-		$this->move($record->getId(), $post->get('record-before'));
+		
+		$recordId = $record->getId();
+		$recordBefore = $post->get('record-before', null);
+		$this->move($recordId, $recordBefore);
 
 		$response = $this->getResponse();
 		$response->setResponseData($output);
@@ -108,11 +110,11 @@ class FormAction extends CrudManagerAbstractAction
 		$post = $request->getPost();
 
 		$recordId = $post->get('id');
-		$recordBefore = $post->get('record-before');
+		$recordBefore = $post->get('record-before', null);
 		if (empty($recordId)) {
 			throw new CmsException(null, 'Empty record id');
 		}
-
+		
 		$this->move($recordId, $recordBefore);
 	}
 
@@ -125,30 +127,40 @@ class FormAction extends CrudManagerAbstractAction
 	{
 		$configuration = ObjectRepository::getApplicationConfiguration($this);
 		$em = ObjectRepository::getEntityManager($this);
-
-		$queryResult = array();
-		if ( ! is_null($recordBefore)) {
-			$query = $em->createQuery("SELECT e.position as position FROM {$configuration->entity} e WHERE e.id = :before");
-			$query->setParameter('before', $recordBefore);
-			$queryResult = $query->getResult();
-			$beforePosition = $queryResult[0]['position'];
-		}
-
-		if (empty($queryResult)) {
-			$query = $em->createQuery("SELECT MIN(e.position) as position FROM {$configuration->entity} e");
-			$queryResult = $query->getResult();
-			$beforePosition = $queryResult[0]['position'] - 1;
-		}
-
-		$query = $em->createQuery("UPDATE {$configuration->entity} e SET e.position = e.position + 1 WHERE e.position > :beforePosition");
-		$query->setParameter('beforePosition', $beforePosition);
-		$queryResult = $query->execute();
-
-		$query = $em->createQuery("UPDATE {$configuration->entity} e SET e.position = :newPosition WHERE e.id = :currentRecord");
-		$query->setParameter('newPosition', $beforePosition + 1);
-		$query->setParameter('currentRecord', $recordId);
-		$queryResult = $query->execute();
+		$beforePosition = 0;
 		
+		$em->beginTransaction();
+
+		try {
+			$queryResult = array();
+			if ( ! empty($recordBefore)) {
+				$query = $em->createQuery("SELECT e.position as position FROM {$configuration->entity} e WHERE e.id = :before");
+				$query->setParameter('before', $recordBefore);
+				$beforePosition = $query->getSingleScalarResult();
+			}
+
+			// This is because of MySQL unique contraint failure if position is unique
+			$query = $em->createQuery("UPDATE {$configuration->entity} e SET e.position = - e.position WHERE e.position > :beforePosition");
+			$query->setParameter('beforePosition', $beforePosition);
+			$queryResult = $query->execute();
+
+			$query = $em->createQuery("UPDATE {$configuration->entity} e SET e.position = - e.position + 1 WHERE e.position < - :beforePosition");
+			$query->setParameter('beforePosition', $beforePosition);
+			$queryResult = $query->execute();
+
+			$query = $em->createQuery("UPDATE {$configuration->entity} e SET e.position = :newPosition WHERE e.id = :currentRecord");
+			$query->setParameter('newPosition', $beforePosition + 1);
+			$query->setParameter('currentRecord', $recordId);
+			$queryResult = $query->execute();
+			
+			$em->flush();
+		} catch (\Exception $e) {
+			$em->rollback();
+			
+			throw $e;
+		}
+		
+		$em->commit();
 	}
 
 }
