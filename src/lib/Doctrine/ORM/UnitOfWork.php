@@ -42,6 +42,11 @@ use Exception, InvalidArgumentException, UnexpectedValueException,
  */
 class UnitOfWork implements PropertyChangedListener
 {
+	/**
+	 * Fix for spl_object_hash reusage in case of garbage collection process on objects
+	 */
+	private $splObjectHashMemory = array();
+	
     /**
      * An entity is in MANAGED state when its persistence is managed by an EntityManager.
      */
@@ -1858,6 +1863,8 @@ class UnitOfWork implements PropertyChangedListener
         if ($this->evm->hasListeners(Events::onClear)) {
             $this->evm->dispatchEvent(Events::onClear, new Event\OnClearEventArgs($this->em));
         }
+		
+		$this->splObjectHashMemory = array();
     }
 
     /**
@@ -2316,6 +2323,8 @@ class UnitOfWork implements PropertyChangedListener
         $this->entityStates[$oid] = self::STATE_MANAGED;
         $this->originalEntityData[$oid] = $data;
         $this->addToIdentityMap($entity);
+		
+		$this->splObjectHashMemory[$oid] = $entity;
     }
 
     /**
