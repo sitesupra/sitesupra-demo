@@ -159,7 +159,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					node.render(cont);
 					
 					node.on('click', function (evt, data) {
-						this.fire('command', data);
+						if (!node.get('disabled')) {
+							this.fire('command', data);
+						}
 						
 						evt.preventDefault();
 						evt.stopPropagation();

@@ -128,13 +128,17 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * @param {String} html
 		 */
 		setHTML: function (html) {
+			//Make sure we have a string, not null or undefined
+			var html = String(html || '');
+			
 			//editor:setHTML event
 			var event = {html: this.uncleanHTML(html)};
 			this.fire('setHTML', {}, event);
 			
 			//untagHTML
-			var html = event.html,
-				plugins = this.getAllPlugins(),
+			html = event.html;
+			
+			var plugins = this.getAllPlugins(),
 				data = this.getAllData(),
 				id = null;
 			
