@@ -31,6 +31,28 @@
 	display: none;
 }
 
+.yui3-page-settings .input-group,
+.yui3-form-properties .input-group {
+	position: relative;
+	margin: 0 -10px;
+	padding: 10px 15px 10px 10px;
+	border-top: 1px solid #eee;
+}
+.yui3-page-settings .input-group p.label,
+.yui3-form-properties .input-group p.label {
+	padding: 0;
+}
+.yui3-page-settings .input-group-button .yui3-button,
+.yui3-page-settings .input-group-button .yui3-button div,
+.yui3-form-properties .input-group-button .yui3-button,
+.yui3-form-properties .input-group-button .yui3-button div {
+	display: block;
+}
+.yui3-page-settings .input-group-button .yui3-button button,
+.yui3-form-properties .input-group-button .yui3-button button {
+	width: 100%;
+}
+
 
 /**
  * iframe overlay

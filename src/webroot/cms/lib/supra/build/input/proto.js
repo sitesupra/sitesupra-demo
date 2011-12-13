@@ -95,9 +95,10 @@ YUI.add('supra.input-proto', function (Y) {
 		_original_value: null,
 		
 		bindUI: function () {
-			var r = Input.superclass.bindUI.apply(this, arguments);
+			Input.superclass.bindUI.apply(this, arguments);
 			
 			var input = this.get('inputNode');
+			if (!input) return;
 			
 			//On Input focus, focus input element
 			this.on('focusedChange', function (event) {
@@ -115,8 +116,6 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			//On input element blur, blur Input
 			input.on('blur', this.blur, this);
-			
-			return r;
 		},
 		
 		renderUI: function () {

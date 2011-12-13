@@ -12,9 +12,9 @@
 				{"id": "str", "type": "InlineString", "inline": true, "value": ""},
 				{"id": "html", "type": "InlineHTML", "inline": true, "value": {"html": "", "data": {}}},
 				{"id": "active", "type": "Checkbox", "label": "{#form.visible#}", "value": true, "labels": ["{#buttons.yes#}", "{#buttons.no#}"]},
-				{"id": "link", "type": "Link", "label": "Link", "value": null},
-				{"id": "text", "type": "Text", "label": "Text", "value": ""},
-				{"id": "num", "type": "Number", "label": "Number", "value": "0", "minValue": "0", "maxValue": "10"}
+				{"id": "num", "type": "Number", "label": "Number", "value": "0", "minValue": "0", "maxValue": "10"},
+				{"id": "link", "type": "Link", "label": "Link", "value": null, "group": "Grouped"},
+				{"id": "text", "type": "Text", "label": "Text", "value": "", "group": "Grouped"}
 			]
 		},
 		{

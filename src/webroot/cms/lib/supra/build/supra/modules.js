@@ -398,12 +398,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.slideshow': {
 		path: 'slideshow/slideshow.js',
-		requires: ['widget', 'anim'],
+		requires: ['widget', 'anim', 'supra.slideshow-input-button'],
 		skinnable: true
 	},
 	'supra.slideshow-multiview': {
 		path: 'slideshow/slideshow-multiview.js',
 		requires: ['supra.slideshow']
+	},
+	'supra.slideshow-input-button': {
+		path: 'slideshow/slideshow-input-button.js',
+		requires: ['supra.input-proto']
 	},
 	
 	/**
@@ -511,7 +515,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-list',
 			'supra.input-slider',
 			'supra.input-link',
-			'supra.input-map'
+			'supra.input-map',
+			'supra.input-button'
 		],
 	},
 	'supra.input': {

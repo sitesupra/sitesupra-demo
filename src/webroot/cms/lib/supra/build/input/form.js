@@ -10,6 +10,7 @@ YUI.add("supra.form", function (Y) {
 		"label": "",
 		"type": "String",
 		"srcNode": null,
+		"containerNode": null,
 		"labelNode": null,
 		"value": "",
 		"disabled": false
@@ -357,6 +358,10 @@ YUI.add("supra.form", function (Y) {
 					
 					if (definition.srcNode) {
 						input.render();
+					} else if (definition.containerNode) {
+						//If input doesn't exist but has container node, then create
+						//input inside it
+						input.render(definition.containerNode);
 					} else {
 						//If input doesn't exist, then create it
 						input.render(contentBox);
@@ -373,6 +378,22 @@ YUI.add("supra.form", function (Y) {
 			if (style) {
 				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
 			}
+		},
+		
+		/**
+		 * Destructor
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			//Destroy all input widgets
+			var inputs = this.inputs;
+			for(var key in inputs) {
+				inputs[key].destroy();
+			}
+			
+			this.inputs = null;
+			this.inputs_definition = null;
 		},
 		
 		/**
@@ -501,7 +522,9 @@ YUI.add("supra.form", function (Y) {
 			for(var id in this.inputs) {
 				var input = this.inputs[id];
 				var val = input.get(prop);
-				values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
+				if (val !== undefined) {
+					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
+				}
 			}
 			
 			return values;

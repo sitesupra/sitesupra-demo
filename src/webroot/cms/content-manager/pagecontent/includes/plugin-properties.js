@@ -152,9 +152,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/*
-		 * Form Y.Node instance
+		 * Supra.Form instance
 		 */
 		'form': {
+			'value': null
+		},
+		
+		/**
+		 * Supra.Slideshow instance, used for grouping inputs
+		 */
+		'slideshow': {
 			'value': null
 		},
 		
@@ -276,6 +283,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'toolbar': Supra.Manager.EditorToolbar.getToolbar()
 			};
 			
+			//Slideshow is used for grouping properties
+			var slideshow = this.initializeSlideshow();
+				slide = slide_main = slideshow.getSlide('propertySlideMain');
+			
+			//Properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				if (properties[i].inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
@@ -284,18 +296,40 @@ YUI.add('supra.page-content-properties', function (Y) {
 					host_properties.boundingBox = host_properties.srcNode;
 					form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
 				} else {
+					//Grouping
+					if (properties[i].group) {
+						//Get slide or create it
+						slide_id = properties[i].group.replace(/[^a-z0-9\-\_]/ig, '');
+						slide = slideshow.getSlide(slide_id);
+					} else {
+						slide_id = 'propertySlideMain';
+						slide = slide_main;
+					}
+					
+					//Create slide and add button to inputs
+					if (!slide && properties[i].group) {
+						slide = slideshow.addSlide(slide_id);
+						form_config.inputs.push({
+							'id': slide_id + '_button',
+							'label': properties[i].group,
+							'type': 'Button',
+							'slideshow': slideshow,
+							'slideId': slide_id,
+							'containerNode': slide_main
+						});
+					}
+					
+					//Set input container node to that slide
+					properties[i].containerNode = slide;
 					form_config.inputs.push(properties[i]);
 				}
 			}
 			
-			var form = new Supra.Form(form_config),
-				data = this.get('data').properties;
+			//Add back button for slideshow
+			this.initializeButtons(slideshow);
 			
-			form.render(Manager.PageContentSettings.getContainer());
-			form.get('boundingBox').addClass('yui3-form-properties');
-			form.hide();
-			
-			form.setValues(data, 'id');
+			//Create form
+			this.initializeForm(form_config);
 			
 			//Bind to change event
 			var inputs = form.getInputs();
@@ -303,7 +337,66 @@ YUI.add('supra.page-content-properties', function (Y) {
 				inputs[id].on('change', this.onPropertyChange, this);
 			}
 			
+			this.set('slideshow', slideshow);
 			this.set('form', form);
+		},
+		
+		initializeButtons: function (slideshow) {
+			var container = Manager.PageContentSettings.getContainer(),
+				back_button = null;
+			
+			container.append('<div class="yui3-sidebar-buttons hidden"><button>' + Supra.Intl.get(['buttons', 'back']) + '</button></div>');
+			
+			back_button = new Supra.Button({'srcNode': container.one('button')});
+			back_button.on('click', slideshow.scrollBack, slideshow);
+			back_button.render();
+			
+			//On slideshow slide change update button
+			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
+		},
+		
+		/**
+		 * Create slideshow
+		 */
+		initializeSlideshow: function () {
+			//Slideshow is used for grouping properties
+			var slideshow = new Supra.Slideshow(),
+				slide_id = null,
+				slide = slideshow.addSlide('propertySlideMain'),
+				slide_main = slide;
+			
+			return slideshow;
+		},
+		
+		/**
+		 * Create form
+		 */
+		initializeForm: function (form_config) {
+			var form = new Supra.Form(form_config),
+				data = this.get('data').properties;
+			
+			form.render(Manager.PageContentSettings.getContainer());
+			form.get('boundingBox').addClass('yui3-form-properties');
+			form.hide();
+			
+			slideshow.render(form.get('contentBox'));
+			
+			form.setValues(data, 'id');
+		},
+		
+		/**
+		 * On Slideshow slide change show
+		 */
+		onSlideshowSlideChange: function (evt) {
+			var container = Manager.PageContentSettings.getContainer();
+			if (evt.newVal == 'propertySlideMain') {
+				container.one('.yui3-sidebar-content').removeClass('has-buttons');
+				container.one('.yui3-sidebar-buttons').addClass('hidden');
+			} else {
+				container.one('.yui3-sidebar-content').addClass('has-buttons');
+				container.one('.yui3-sidebar-buttons').removeClass('hidden');
+			}
+			
 		},
 		
 		/**
@@ -580,4 +673,4 @@ YUI.add('supra.page-content-properties', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'plugin', 'supra.button', 'supra.input', 'supra.input-inline-html', 'supra.input-inline-string']});
+}, YUI.version, {requires:['widget', 'plugin', 'supra.button', 'supra.input', 'supra.input-inline-html', 'supra.input-inline-string', 'supra.slideshow']});
