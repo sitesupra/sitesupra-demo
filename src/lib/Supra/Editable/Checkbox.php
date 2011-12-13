@@ -43,7 +43,24 @@ class Checkbox extends EditableAbstraction
 	{
 		$this->noLabel = $noLabel;
 	}
+	
+	/**
+	 * @return string 
+	 */
+	public function getYesLabel()
+	{
+		return $this->yesLabel;
+	}
 
+	/**
+	 * @return string 
+	 */
+	public function getNoLabel()
+	{
+		return $this->noLabel;
+	}
+
+	
 	public function getAdditionalParameters()
 	{
 		return array(
