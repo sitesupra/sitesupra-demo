@@ -93,6 +93,18 @@ class DataAction extends CrudManagerAbstractAction
 					$data['value'] = $defaultValue;
 				}
 			}
+			
+			if ($fieldObject instanceof Editable\Checkbox) {
+
+				$labels = array($fieldObject->getYesLabel(), $fieldObject->getNoLabel());
+				$data['labels'] = $labels;
+				
+				// default value
+				$defaultValue = $fieldObject->getDefaultValue();
+				if ( ! empty($defaultValue)) {
+					$data['defaultValue'] = $defaultValue;
+				}
+			}
 
 			$fields[$key] = $data;
 		}

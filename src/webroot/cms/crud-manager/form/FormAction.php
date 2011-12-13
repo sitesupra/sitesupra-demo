@@ -23,7 +23,7 @@ class FormAction extends CrudManagerAbstractAction
 		$repo = $em->getRepository($configuration->entity);
 
 		$post = $request->getPost();
-
+		
 		$record = null;
 		$recordId = $post->get('id');
 
@@ -41,15 +41,21 @@ class FormAction extends CrudManagerAbstractAction
 			throw new CmsException(null, 'Could not find any record with id #' . $recordId);
 		}
 
+		ObjectRepository::setCallerParent($record, $this);
+		
 		$em->persist($record);
-
+		
+		//setting new values
 		$output = $record->setEditValues($post);
-
+		
 		$em->flush();
 		
 		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
-		$this->move($recordId, $recordBefore);
+		
+		if($repo->isSortable()) {
+			$this->move($recordId, $recordBefore);
+		}
 
 		$response = $this->getResponse();
 		$response->setResponseData($output);
@@ -134,6 +140,16 @@ class FormAction extends CrudManagerAbstractAction
 		try {
 			$queryResult = array();
 			if ( ! empty($recordBefore)) {
+				
+				// check if nothing has been changed
+				$query = $em->createQuery("SELECT e.id as position FROM {$configuration->entity} e WHERE e.id = :recordId");
+				$query->setParameter('recordId', $recordId);
+				$beforePosition = $query->getSingleScalarResult();
+				
+				if($beforePosition == $recordBefore) {
+					return;
+				}
+				
 				$query = $em->createQuery("SELECT e.position as position FROM {$configuration->entity} e WHERE e.id = :before");
 				$query->setParameter('before', $recordBefore);
 				$beforePosition = $query->getSingleScalarResult();

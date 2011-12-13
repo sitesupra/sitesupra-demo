@@ -17,7 +17,9 @@
 			"rename": "Rename",
 			"browse": "Browse",
 			"error": "Ok",
-			"insert": "Insert"
+			"insert": "Insert",
+			"visible": "Visible",
+			"hidden": "Hidden"
 		},
 		
 		"form": {

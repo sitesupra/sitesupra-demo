@@ -151,7 +151,7 @@ YUI.add('supra.button', function (Y) {
 			var btn = this.get('nodeButton');
 			if (btn) {
 				if (!this.get('nodeLabel') || this.get('nodeLabel').get('tagName') != 'P') {
-					var p = Y.Node.create('<p>' + this.get('label') + '</p>');
+					var p = Y.Node.create('<p>' + Supra.Intl.replace(this.get('label') || '') + '</p>');
 					
 					btn.set('innerHTML', '');
 					btn.appendChild(p);
