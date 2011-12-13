@@ -219,6 +219,11 @@
 			"button": "Page blocks"
 		},
 		
+		"placeholders": {
+			"title": "Placeholders on the page",
+			"button": "Placeholders"
+		},
+		
 		"gallerymanager": {
 			"title": "Manage gallery images",
 			"label_title": "Title"

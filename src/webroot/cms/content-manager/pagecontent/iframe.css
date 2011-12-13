@@ -213,6 +213,17 @@
 	min-height: 10px;
 }
 
+.yui3-content-list.yui3-content-editing {
+	overflow: hidden;
+	min-height: 90px;
+}
+.yui3-content-list.yui3-content-editing .yui3-content-inline {
+	/* If list is being edited, then don't highlight inline contents */
+	outline: none;
+	min-height: 0;
+	overflow: visible;
+}
+
 /**
  * Specific content styles
  */

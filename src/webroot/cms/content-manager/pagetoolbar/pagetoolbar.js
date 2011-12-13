@@ -138,6 +138,17 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Returns action button
+		 * 
+		 * @param {String} button_id Button ID
+		 * @return Button instance or null if not found
+		 * @type {Supra.Button}
+		 */
+		getActionButton: function (button_id) {
+			return this.buttons[button_id] ? this.buttons[button_id] : null;
+		},
+		
+		/**
 		 * Set active group action, changes buttons to ones associated with action.
 		 * Chainable
 		 * 

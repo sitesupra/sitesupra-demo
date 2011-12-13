@@ -279,6 +279,11 @@ SU('anim', function (Y) {
 			return action_id in this.groups;
 		},
 		
+		/**
+		 * Display buttons for action
+		 * 
+		 * @param {String} action_id Action ID
+		 */
 		setActiveAction: function (action_id) {
 			var old_animation_index = null;
 			
@@ -312,6 +317,11 @@ SU('anim', function (Y) {
 			}
 		},
 		
+		/**
+		 * Hide buttons for action if they are currently displayed
+		 * 
+		 * @param {String} action_id Action ID
+		 */
 		unsetActiveAction: function (action_id) {
 			if (action_id && action_id == this.active_action) {
 				this.setActiveAction(null);

@@ -111,7 +111,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		savePropertyChanges: function () {
 			if (this.properties && this.unresolved_changes) {
-				this.get('super').sendBlockProperties(this, function (status, response_data) {
+				//For blocks use sendBlockProperties, for place holders sendPlaceHolderProperties
+				if (this.isInstanceOf('page-content-list')) {
+					var fn = 'sendPlaceHolderProperties';
+				} else {
+					var fn = 'sendBlockProperties';
+				}
+				
+				this.get('super')[fn](this, function (status, response_data) {
 					
 					var data = this.get('data');
 					data.properties = this.properties.getValues();
@@ -243,14 +250,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 				//Find if there are any inline properties
 				var properties = this.getProperties();
 				
-				for(var i=0,ii=properties.length; i<ii; i++) {
-					if (properties[i].inline) {
-						//Add class to allow detect if content has inline properties
-						this.getNode().addClass(CLASSNAME_INLINE_EDITABLE);
-						break;
+				if (properties) {
+					for(var i=0,ii=properties.length; i<ii; i++) {
+						if (properties[i].inline) {
+							//Add class to allow detect if content has inline properties
+							this.getNode().addClass(CLASSNAME_INLINE_EDITABLE);
+							break;
+						}
 					}
 				}
-				
 			}
 		},
 		

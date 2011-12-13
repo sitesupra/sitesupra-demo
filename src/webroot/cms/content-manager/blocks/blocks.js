@@ -4,7 +4,8 @@
 SU(function (Y) {
 
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Manager = SU.Manager,
+		Action = Manager.Action;
 	
 	/**
 	 * Action for retrieving all blocks
@@ -94,7 +95,23 @@ SU(function (Y) {
 		 * @type {Object}
 		 */
 		getBlock: function (id) {
-			return (id in this.data ? this.data[id] : null);
+			var data = (id in this.data ? this.data[id] : null),
+				page_data = Manager.Page.getPageData();
+			
+			//If editing template, then add possibility to lock blocks
+			//and placeholders by adding 'locked' property to property list
+			if (page_data.type != 'page') {
+				data = data || {'classname': '', 'type': id, 'properties': [], 'title': ''};
+				data.properties = data.properties || [];
+				
+				data.properties.push({
+					'id': 'locked',
+					'type': 'Checkbox',
+					'label': 'Global block'
+				});
+			}
+			
+			return data;
 		},
 		
 		/**

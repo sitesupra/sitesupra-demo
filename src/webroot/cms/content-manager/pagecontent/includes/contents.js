@@ -345,6 +345,37 @@ YUI.add('supra.iframe-contents', function (Y) {
 		},
 		
 		/**
+		 * Save placeholder properties
+		 * 
+		 * @param {Object} placeholder Supra.Manager.PageContent.List instance
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
+		 */
+		sendPlaceHolderProperties: function (placeholder, callback, context) {
+			var url = Manager.PageContent.getDataPath('save-placeholder'),
+				page_data = Manager.Page.getPageData(),
+				values = placeholder.properties.getValues();
+			
+			var save_values = placeholder.properties.getSaveValues();
+			
+			//Allow block to modify data before saving it
+			save_values = placeholder.processData(save_values);
+			
+			var post_data = {
+				'page_id': page_data.id,
+				'place_holder_id': placeholder.getId(),
+				'locale': Supra.data.get('locale'),
+				'properties': save_values
+			};
+			
+			Supra.io(url, {
+				'data': post_data,
+				'method': 'post',
+				'on': {'success': callback}
+			}, context);
+		},
+		
+		/**
 		 * Remove child Supra.Manager.PageContent.Proto object
 		 * 
 		 * @param {Object} child

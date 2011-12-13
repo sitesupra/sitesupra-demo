@@ -49,7 +49,15 @@ Supra(function (Y) {
 				'id': 'blocksview',
 				'title': SU.Intl.get(['blocks', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-blocks.png',
-				'action': 'BlocksView'
+				'action': 'BlocksView',
+				'actionFunction': 'setType'
+			},
+			{
+				'id': 'placeholderview',
+				'title': SU.Intl.get(['placeholders', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-placeholders.png',
+				'action': 'BlocksView',
+				'actionFunction': 'setType'
 			}
 		]
 	};

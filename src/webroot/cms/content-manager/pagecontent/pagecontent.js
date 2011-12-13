@@ -176,6 +176,16 @@ SU('dd-drag', function (Y) {
 					Manager.getAction('PageToolbar').setActiveAction('Page');
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);
 					
+					//Hide "Placeholders" button if editing page and show if editing template
+					var button = Manager.getAction('PageToolbar').getActionButton('placeholderview');
+					if (data.type == 'page') {
+						button.set('disabled', true);
+						button.hide();
+					} else {
+						button.set('disabled', false);
+						button.show();
+					}
+					
 					//Enable highlights
 					this.getContent().set('highlight', false);
 					

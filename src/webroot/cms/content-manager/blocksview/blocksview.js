@@ -38,8 +38,18 @@ SU(function (Y) {
 		
 		/**
 		 * Block list
+		 * @type {Object}
+		 * @private
 		 */
 		blocks: null,
+		
+		/**
+		 * Type of blocks which are shown
+		 * either 'blocks' or 'palceholders'
+		 * @type {String}
+		 * @private
+		 */
+		type: '',
 		
 		
 		
@@ -62,14 +72,29 @@ SU(function (Y) {
 				var target = evt.target.closest('LI'),
 					content_id = target.getAttribute('data-id');
 				
-				this.blocks[content_id].set('highlightOverlay', true);
+				if (this.type == 'blocks') {
+					//Blocks
+					this.blocks[content_id].set('highlightOverlay', true);
+				} else {
+					//Place holders
+					Manager.PageContent.getContent().set('highlight', true);
+					this.blocks[content_id].set('highlight', true);
+				}
+				
 			}, 'li', this);
 			
 			container.delegate('mouseleave', function (evt) {
 				var target = evt.target.closest('LI'),
 					content_id = target.getAttribute('data-id');
 				
-				this.blocks[content_id].set('highlightOverlay', false);
+				if (this.type == 'blocks') {
+					//Blocks
+					this.blocks[content_id].set('highlightOverlay', false);
+				} else {
+					//Place holders
+					Manager.PageContent.getContent().set('highlight', false);
+					this.blocks[content_id].set('highlight', false);
+				}
 			}, 'li', this);
 			
 			container.delegate('click', function (evt) {
@@ -96,25 +121,34 @@ SU(function (Y) {
 		 * Render block list
 		 */
 		renderData: function () {
+			if (!this.type) return;
+			
 			var blocks = this.blocks = Manager.PageContent.getContent().getAllChildren(),
 				block = null,
 				block_type = null,
 				block_definition = null,
 				container = this.one('ul.block-list'),
 				template_data = [],
-				item = null;
+				item = null,
+				is_placeholder = false;
 			
 			for(var id in blocks) {
 				//If not locked and is not list
-				if (!blocks[id].isLocked() && !blocks[id].isInstanceOf('page-content-list')) {
-					block = blocks[id];
-					block_definition = block.getBlockInfo();
+				if (!blocks[id].isLocked()) {
+					is_placeholder = blocks[id].isInstanceOf('page-content-list');
 					
-					template_data.push({
-						'id': id,
-						'title': block_definition.title,
-						'icon': block_definition.icon
-					});
+					if ((this.type == 'blocks' && !is_placeholder) || (this.type != 'blocks' && is_placeholder)) {
+						
+						block = blocks[id];
+						block_definition = block.getBlockInfo();
+						
+						template_data.push({
+							'id': id,
+							'title': block_definition ? block_definition.title : '',
+							'icon': block_definition ? block_definition.icon : ''
+						});
+						
+					}
 				}
 			}
 			
@@ -138,6 +172,24 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Show blocks
+		 */
+		setType: function (type) {
+			var prev_type = this.type;
+			
+			if (type == 'blocksview') {
+				this.type = 'blocks';
+			} else {
+				this.type = 'palceholders';
+			}
+			
+			//On not first run, then call execute
+			if (prev_type) {
+				this.execute();
+			}
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
@@ -148,7 +200,7 @@ SU(function (Y) {
 			//Show content
 			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
 			
-			//
+			//Get all blocks for selected type and display icons
 			this.renderData();
 		}
 	});

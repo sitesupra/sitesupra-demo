@@ -23,9 +23,16 @@ YUI.add('supra.page-content-list', function (Y) {
 	
 	ContentList.NAME = 'page-content-list';
 	ContentList.CLASS_NAME = Y.ClassNameManager.getClassName(ContentList.NAME);
-	ContentList.ATTRS = {};
+	ContentList.ATTRS = {
+		/**
+		 * Placeholders are not dragable
+		 */
+		'dragable': {
+			'value': false
+		}
+	};
 	
-	Y.extend(ContentList, PageContent.Proto, {
+	Y.extend(ContentList, PageContent.Editable, {
 		drag_delegate: null,
 		drag_selector: null,
 		dragable_regions: null,
@@ -320,6 +327,27 @@ YUI.add('supra.page-content-list', function (Y) {
 		},
 		
 		/**
+		 * Shouldn't have any overlay, since user can't click or drag place holders
+		 */
+		renderOverlay: function () {
+		},
+		
+		/**
+		 * There is no need to reload content, because list doesn't have any
+		 * properties which could change content
+		 */
+		reloadContentHTML: function () {
+		},
+		
+		/**
+		 * Since there are no properties which could change content we don't have
+		 * to do anything
+		 * @private
+		 */
+		_reloadContentSetHTML: function () {
+		},
+		
+		/**
 		 * Destructor
 		 * 
 		 * @private
@@ -342,4 +370,4 @@ YUI.add('supra.page-content-list', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.page-content-proto', 'dd-delegate', 'dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'dd-scroll']});
+}, YUI.version, {requires:['supra.page-content-editable', 'dd-delegate', 'dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'dd-scroll']});

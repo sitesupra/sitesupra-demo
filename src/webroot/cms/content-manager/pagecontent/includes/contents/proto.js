@@ -401,22 +401,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.overlay.on('click', function() {
 					this.get('super').set('activeChild', this);
 				}, this);
-				
-				//Handle block save / cancel
-				this.on('block:save', function () {
-					// Unset active content
-					if (this.get('super').get('activeChild') === this) {
-						this.get('super').set('activeChild', null);
-					}
-				});
-				this.on('block:cancel', function () {
-					// Unset active content
-					this.unresolved_changes = false;
-					if (this.get('super').get('activeChild') === this) {
-						this.get('super').set('activeChild', null);
-					}
-				});
 			}
+			
+			//Handle block save / cancel
+			this.on('block:save', function () {
+				// Unset active content
+				if (this.get('super').get('activeChild') === this) {
+					this.get('super').set('activeChild', null);
+				}
+			});
+			this.on('block:cancel', function () {
+				// Unset active content
+				this.unresolved_changes = false;
+				if (this.get('super').get('activeChild') === this) {
+					this.get('super').set('activeChild', null);
+				}
+			});
 			
 			this.before('destroy', this.beforeDestroy, this);
 		},
