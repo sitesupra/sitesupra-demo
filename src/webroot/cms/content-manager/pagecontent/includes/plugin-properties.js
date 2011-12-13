@@ -286,7 +286,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Slideshow is used for grouping properties
 			var slideshow = this.initializeSlideshow(),
 				slide_main = null,
-				slide = slide_main = slideshow.getSlide('propertySlideMain');
+				slide_id = 'propertySlideMain',
+				slide = slide_main = slideshow.getSlide(slide_id);
 			
 			//Properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
