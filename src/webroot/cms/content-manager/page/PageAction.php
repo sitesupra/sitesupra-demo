@@ -172,10 +172,6 @@ class PageAction extends PageManagerAction
 				'allow_edit' => $isAllowedEditing,
 		);
 		
-		if (strpos($array['internal_html'], '&amp;lt;') !== false) {
-			1+1;
-		}
-
 		if ($page instanceof Entity\Template) {
 			$layout = null;
 			

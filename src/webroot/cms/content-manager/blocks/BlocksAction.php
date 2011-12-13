@@ -36,6 +36,7 @@ class BlocksAction extends PageManagerAction
 					'inline' => $property->isInlineEditable(),
 					'label' => $property->getLabel(),
 					'value' => $property->getDefaultValue(),
+					'group' => $property->getGroupLabel(),
 				) + $property->getAdditionalParameters();
 			}
 			
