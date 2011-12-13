@@ -7,9 +7,13 @@ namespace Supra\Editable;
  */
 class Select extends EditableAbstraction
 {
-
 	const EDITOR_TYPE = 'Select';
 	const EDITOR_INLINE_EDITABLE = false;
+
+	/**
+	 * @var array
+	 */
+	protected $options;
 
 	/**
 	 * Return editor type
@@ -39,10 +43,28 @@ class Select extends EditableAbstraction
 	{
 		$this->setLabel($label);
 		$this->setContent($content);
-		
+
+		$this->options = $content; // Is this a hack?
+
 		if ( ! is_null($defaultId)) {
 			$this->setDefaultValue($defaultId);
 		}
+	}
+
+	public function getAdditionalParameters()
+	{
+		$values = array();
+
+		foreach ($this->options as $label => $value) {
+			$values[] = array('id' => $label, 'title' => $value);
+		}
+
+		return array('values' => $values);
+	}
+
+	public function getContent()
+	{
+		return parent::getContent();
 	}
 
 }
