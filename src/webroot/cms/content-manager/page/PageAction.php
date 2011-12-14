@@ -230,7 +230,10 @@ class PageAction extends PageManagerAction
 					$blockProperty = $controller->getProperty($propertyName);
 					
 					if ($page->isBlockPropertyEditable($blockProperty)) {
-						$propertyValue = $blockProperty->getValue();
+						
+						$editable = $blockProperty->getEditable();
+						
+						$propertyValue = $editable->getContentForEdit();
 						$metadataCollection = $blockProperty->getMetadata();
 						$data = array();
 
@@ -242,14 +245,14 @@ class PageAction extends PageManagerAction
 
 						$propertyData = $propertyValue;
 
-						if ($blockProperty->getEditable() instanceof Editable\Html) {
+						if ($editable instanceof Editable\Html) {
 							$propertyData = array(
 								'html' => $propertyValue,
 								'data' => $data
 							);
 						}
 						
-						if ($blockProperty->getEditable() instanceof Editable\Link) {
+						if ($editable instanceof Editable\Link) {
 							if (isset($data[0])) {
 								$propertyData = $data[0];
 							}
