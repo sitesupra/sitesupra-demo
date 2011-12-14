@@ -34,6 +34,7 @@
 			"publish": "Publish",
 			
 			"block_properties": "block properties",
+			"placeholder_properties": "placeholder properties",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
 			
 			"click_to_edit": "Click to edit",

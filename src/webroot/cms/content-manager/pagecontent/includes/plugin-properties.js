@@ -237,9 +237,22 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
 			
-			
 			//Form heading
-			var heading = Y.Node.create('<h2>' + Y.Escape.html(block.title) + ' ' + SU.Intl.get(['page', 'block_properties']) + '</h2>');
+			var title = block.title;
+			if (!title) {
+				//Convert ID into title
+				title = this.get('host').getId();
+				title = title.replace(/[\-\_\.]/g, ' ');
+				title = title.substr(0,1).toUpperCase() + title.substr(1);
+			}
+			
+			if (this.get('host').isInstanceOf('page-content-list')) {
+				title += ' ' + SU.Intl.get(['page', 'placeholder_properties']);
+			} else {
+				title += ' ' + SU.Intl.get(['page', 'block_properties']);
+			}
+			
+			var heading = Y.Node.create('<h2>' + Y.Escape.html(title) + '</h2>');
 			form.get('contentBox').insert(heading, 'before');
 			
 			

@@ -134,6 +134,15 @@ SU(function (Y) {
 				title = '',
 				icon = '';
 			
+			//Update heaidng
+			var heading = this.one('h2');
+			if (this.type == 'blocks') {
+				heading.set('text', Supra.Intl.get(['blocks', 'title']));
+			} else {
+				heading.set('text', Supra.Intl.get(['placeholders', 'title']));
+			}
+			
+			//Update block list
 			for(var id in blocks) {
 				//If not closed and is not list
 				if (!blocks[id].isClosed()) {
@@ -148,7 +157,7 @@ SU(function (Y) {
 						title = block_definition ? block_definition.title : '';
 						if (!title) {
 							title = id;
-							title = title.replace(/[\-\_\.]/g, '');
+							title = title.replace(/[\-\_\.]/g, ' ');
 							title = title.substr(0,1).toUpperCase() + title.substr(1);
 						}
 						
