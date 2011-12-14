@@ -76,11 +76,14 @@ class DataAction extends CrudManagerAbstractAction
 		$fields = array();
 		
 		foreach ($fieldObjects as $key => $fieldObject) {
-
+			/* @var $fieldObject Editable\EditableInterface */
+			
 			$data = array(
 				'label' => $fieldObject->getLabel(),
 				'type' => $fieldObject->getEditorType(),
 			);
+			
+			$data['defaultValue'] = $fieldObject->getDefaultValue();
 			
 			$data = array_merge($data, $fieldObject->getAdditionalParameters());
 			$fields[$key] = $data;
