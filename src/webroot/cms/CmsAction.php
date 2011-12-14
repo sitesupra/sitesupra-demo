@@ -12,6 +12,7 @@ use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Response\TwigResponse;
+use Supra\Log\AuditLogEvent;
 
 /**
  * Description of CmsAction
@@ -325,5 +326,18 @@ abstract class CmsAction extends SimpleController
 		}
 		
 		throw new EntityAccessDeniedException($user, $object, $permissionName);
+	}
+
+	/**
+	 * Write to audit log
+	 *
+	 * @param string $action
+	 * @param mixed $data
+	 * @param int $level 
+	 */
+	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
+	{
+		$auditLog = ObjectRepository::getAuditLogger($this);
+		$auditLog->info($data, $this, $action, $this->getUser());
 	}
 }

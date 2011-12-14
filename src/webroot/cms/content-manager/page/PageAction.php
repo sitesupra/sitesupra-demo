@@ -366,6 +366,8 @@ class PageAction extends PageManagerAction
 			while ( ! $pathValid);
 		}
 
+		$this->writeAuditLog('Create', $pageData);
+
 		$this->outputPage($pageData);
 	}
 
@@ -415,6 +417,8 @@ class PageAction extends PageManagerAction
 		
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
+
+		$this->writeAuditLog('Save', $pageData);
 	}
 
 	/**
@@ -434,6 +438,8 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->delete();
+
+		$this->writeAuditLog('Delete', $page);
 	}
 
 	/**
@@ -443,16 +449,16 @@ class PageAction extends PageManagerAction
 	{
 		// Must be executed with POST method
 		$this->isPostRequest();
+		$pageLocalization = $this->getPageLocalization();
 
-		$this->checkActionPermission($this->getPageLocalization(), Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
+		$this->checkActionPermission($pageLocalization, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
 		$this->checkLock();
 		$this->publish();
 		
 		$this->unlockPage();
 		
-//		$auditLog = ObjectRepository::getAuditLogger($this);
-//		$auditLog->info(array(), $this, 'Publish', $this->getUser());
+		$this->writeAuditLog('Publish', $pageLocalization);
 	}
 
 	/**
@@ -528,6 +534,8 @@ class PageAction extends PageManagerAction
 	{
 		$this->checkLock(false);
 		$this->duplicate();
+		
+		$this->writeAuditLog('Delete', $this->getPageByRequestKey('page_id'));
 	}
 	
 	/**

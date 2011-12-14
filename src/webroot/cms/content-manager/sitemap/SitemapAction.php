@@ -63,6 +63,8 @@ class SitemapAction extends PageManagerAction
 		} catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
+		
+		$this->writeAuditLog('Move', $page);
 	}
 
 	/**

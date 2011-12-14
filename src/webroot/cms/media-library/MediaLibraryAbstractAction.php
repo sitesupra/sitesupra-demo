@@ -5,6 +5,9 @@ namespace Supra\Cms\MediaLibrary;
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
+use Supra\FileStorage\Entity\Abstraction\File;
+use Supra\FileStorage\Entity\Image;
+use Supra\Log\AuditLogEvent;
 
 /**
  * Common MediaLibrary action
@@ -89,5 +92,24 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 		$file = $this->getRequestedEntity($key, 'Supra\FileStorage\Entity\Image');
 		
 		return $file;
+	}
+
+	/**
+	 * Write to audit log
+	 *
+	 * @param string $action
+	 * @param mixed $data
+	 * @param int $level 
+	 */
+	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
+	{
+		if ($data instanceof File) {
+			$data = array(
+				'title' => $data->getFileName(),
+				'id' => $data->getId()
+			);
+		}
+		
+		parent::writeAuditLog($action, $data, $level);
 	}
 }

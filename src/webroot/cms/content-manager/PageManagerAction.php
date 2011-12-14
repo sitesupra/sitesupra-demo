@@ -31,6 +31,9 @@ use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Log\AuditLogEvent;
 
 /**
  * Controller containing common methods
@@ -790,6 +793,33 @@ abstract class PageManagerAction extends CmsAction
 		
 		$this->getResponse()
 				->setResponseData(true);
+	}
+
+	/**
+	 * Write to audit log
+	 *
+	 * @param string $action
+	 * @param mixed $data
+	 * @param int $level 
+	 */
+	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
+	{
+		$pageLocalization = null;
+		
+		if ($data instanceof Page) {
+			$localeId = $this->getLocale()->getId();
+			$data = $data->getLocalization($localeId);
+		}
+			
+		if ($data instanceof PageLocalization) {
+			$data = array(
+				'title' => $data->getTitle(),
+				'id' => $data->getId(),
+				'locale' => $data->getLocale()
+			);
+		}
+		
+		parent::writeAuditLog($action, $data, $level);
 	}
 	
 }
