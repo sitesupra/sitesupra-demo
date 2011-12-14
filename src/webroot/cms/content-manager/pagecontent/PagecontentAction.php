@@ -18,6 +18,8 @@ use Supra\Editable;
  */
 class PagecontentAction extends PageManagerAction
 {
+	const LOCKED_SAVE_PROPERTY_NAME = 'locked';
+	
 	/**
 	 * Insert block action
 	 */
@@ -54,15 +56,13 @@ class PagecontentAction extends PageManagerAction
 		$block->prepareController($controller, $request);
 		$block->executeController($controller);
 		$response = $controller->getResponse();
-		$locked = false;
-		
-		if ($block instanceof Entity\TemplateBlock) {
-			$locked = $block->getLocked();
-		}
+		$locked = $block->getLocked();
 		
 		$array = array(
 			'id' => $block->getId(),
 			'type' => $blockType,
+			// If you can insert it, you can edit it
+			'closed' => false,
 			'locked' => $locked,
 			
 			// TODO: generate
@@ -88,9 +88,10 @@ class PagecontentAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageLocalization();
 		$request = $this->getPageRequest();
+		$input = $this->getRequestInput();
 		
 		$pageId = $pageData->getMaster()->getId();
-		$blockId = $this->getRequestParameter('block_id');
+		$blockId = $input->get('block_id');
 		
 		/* @var $block Entity\Abstraction\Block */
 		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
@@ -106,65 +107,77 @@ class PagecontentAction extends PageManagerAction
 		$block->prepareController($blockController, $request);
 		
 		// Load received property values and data from the POST
-		$properties = (array) $this->getRequestParameter('properties');
+		if ($input->hasChild('properties')) {
 		
-		foreach ($properties as $propertyName => $propertyPost) {
-			
-			$property = $blockController->getProperty($propertyName);
-			
-			// Could be new, should persist
-			$this->entityManager->persist($property);
-			/* @var $property Entity\BlockProperty */
-			
-			$editable = $property->getEditable();
-			
-			$name = $propertyName;
-			$type = $property->getType();
-			$value = null;
-			$valueData = array();
-			
-			// Specific result received from CMS for HTML
-			if ($editable instanceof \Supra\Editable\Html) {
-				$value = $propertyPost['html'];
-				if (isset($propertyPost['data'])) {
-					$valueData = $propertyPost['data'];
+			$properties = $input->getChild('properties');
+
+			if ($block instanceof Entity\TemplateBlock) {
+				if ($properties->has(self::LOCKED_SAVE_PROPERTY_NAME)) {
+					$locked = $properties->getValid(self::LOCKED_SAVE_PROPERTY_NAME, 'boolean');
+					$block->setLocked($locked);
+					$properties->offsetUnset(self::LOCKED_SAVE_PROPERTY_NAME);
 				}
-			} elseif ($editable instanceof \Supra\Editable\Link) {
-				// No value for the link, just metadata
+			}
+
+			foreach ($properties as $propertyName => $propertyPost) {
+
+				$property = $blockController->getProperty($propertyName);
+
+				// Could be new, should persist
+				$this->entityManager->persist($property);
+				/* @var $property Entity\BlockProperty */
+
+				$editable = $property->getEditable();
+
+				$name = $propertyName;
+				$type = $property->getType();
 				$value = null;
-				
-				if ( ! empty($propertyPost)) {
-					$valueData = array($propertyPost);
-					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+				$valueData = array();
+
+				// Specific result received from CMS for HTML
+				if ($editable instanceof \Supra\Editable\Html) {
+					$value = $propertyPost['html'];
+					if (isset($propertyPost['data'])) {
+						$valueData = $propertyPost['data'];
+					}
+				} elseif ($editable instanceof \Supra\Editable\Link) {
+					// No value for the link, just metadata
+					$value = null;
+
+					if ( ! empty($propertyPost)) {
+						$valueData = array($propertyPost);
+						$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+					}
+				} else {
+					$value = $propertyPost;
 				}
-			} else {
-				$value = $propertyPost;
-			}
 
-			// Property select in one DQL
-			$blockPropertyEntity = Entity\BlockProperty::CN();
+				// Property select in one DQL
+				$blockPropertyEntity = Entity\BlockProperty::CN();
 
-			// Remove all old references
-			$metadataCollection = $property->getMetadata();
-			foreach ($metadataCollection as $metadata) {
-				$this->entityManager->remove($metadata);
-			}
+				// Remove all old references
+				$metadataCollection = $property->getMetadata();
+				foreach ($metadataCollection as $metadata) {
+					$this->entityManager->remove($metadata);
+				}
 
-			// Empty the metadata
-			$property->resetMetadata();
+				// Empty the metadata
+				$property->resetMetadata();
 
-			// Set new refeneced elements
-			$property->setValue($value);
+				// Set new refeneced elements
+				$property->setValue($value);
 
-			foreach ($valueData as $elementName => &$elementData) {
-				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
+				foreach ($valueData as $elementName => &$elementData) {
+					$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 
-				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
-				$property->addMetadata($blockPropertyMetadata);
-				
-//				// Let's persist new elements
-//				$this->entityManager->persist($element);
-//				$this->entityManager->persist($blockPropertyMetadata);
+					$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
+					$property->addMetadata($blockPropertyMetadata);
+
+					// Should be persisted by cascade
+//					// Let's persist new elements
+//					$this->entityManager->persist($element);
+//					$this->entityManager->persist($blockPropertyMetadata);
+				}
 			}
 		}
 		
