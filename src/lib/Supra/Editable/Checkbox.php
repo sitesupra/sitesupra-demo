@@ -62,13 +62,19 @@ class Checkbox extends EditableAbstraction
 
 	
 	public function getAdditionalParameters()
-	{
-		return array(
+	{				
+		$output = array(
 			'labels' => array(
 				$this->yesLabel,
 				$this->noLabel,
 			),
 		);
+
+		if ( ! is_null($this->getDefaultValue())) {
+			$output['defaultValue'] = $this->getDefaultValue();
+		}
+
+		return $output;
 	}
 	
 	/**

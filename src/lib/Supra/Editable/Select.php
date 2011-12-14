@@ -59,7 +59,13 @@ class Select extends EditableAbstraction
 			$values[] = array('id' => $label, 'title' => $value);
 		}
 
-		return array('values' => $values);
+		$output = array('values' => $values);
+
+		if ( ! is_null($this->getDefaultValue())) {
+			$output['value'] = $this->getDefaultValue();
+		}
+
+		return $output;
 	}
 
 	public function getContent()

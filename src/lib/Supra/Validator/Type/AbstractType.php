@@ -21,7 +21,7 @@ abstract class AbstractType implements ValidationTypeInterface
 	const SMALLINT = 'smallint';
 //	const STRING = 'string';
 //	const TEXT = 'text';
-//	const FLOAT = 'float';
+	const FLOAT = 'float';
 	const EMAIL = 'email';
 
 	/**
@@ -46,7 +46,7 @@ abstract class AbstractType implements ValidationTypeInterface
 //		self::DATE => 'Supra\Validator\Type\DateType',
 //		self::TIME => 'Supra\Validator\Type\TimeType',
 //		self::DECIMAL => 'Supra\Validator\Type\DecimalType',
-//		self::FLOAT => 'Supra\Validator\Type\FloatType',
+		self::FLOAT => 'Supra\Validator\Type\FloatType',
 		self::EMAIL => 'Supra\Validator\Type\EmailType',
 	);
 
