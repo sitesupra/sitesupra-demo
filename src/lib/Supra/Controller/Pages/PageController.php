@@ -14,6 +14,8 @@ use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Response\PlaceHolder;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\Uri\Path;
 
 /**
  * Page controller
@@ -75,12 +77,32 @@ class PageController extends ControllerAbstraction
 	public function execute()
 	{
 		$request = $this->getRequest();
+		$response = $this->getResponse();
 
 		// Check redirect for public calls
 		if ($request instanceof Request\PageRequestView) {
 
-			$redirect = $request->getPageLocalization()
-					->getRedirect();
+			$localization = null;
+			
+			try {
+				$localization = $request->getPageLocalization();
+			} catch (ResourceNotFoundException $e) {
+				
+				try {
+					//TODO: hardcoded for now
+					$tryPath = '404';
+					$request->setPath(new Path($tryPath));
+					$localization = $request->getPageLocalization();
+
+					$response->setCode(404);
+					
+				// Throw the original exception if 404 page is not found
+				} catch (ResourceNotFoundException $e404) {
+					throw $e;
+				}
+			}
+			
+			$redirect = $localization->getRedirect();
 
 			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
 				//TODO: any validation? skipping? loop check?
@@ -88,8 +110,7 @@ class PageController extends ControllerAbstraction
 				ObjectRepository::setCallerParent($redirect, $this);
 
 				$location = $redirect->getUrl($this);
-				$this->getResponse()
-						->redirect($location);
+				$response->redirect($location);
 
 				return;
 			}
