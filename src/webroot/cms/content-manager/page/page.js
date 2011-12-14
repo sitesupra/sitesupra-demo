@@ -510,7 +510,7 @@ Supra(function (Y) {
 		 * @param {Boolean} status Request status
 		 */
 		onDeleteComplete: function (data, status) {
-			Supra.Manager.PageContent.stopEditing();
+			Supra.Manager.PageContent.onStopEditingRoute();
 			Supra.Manager.executeAction('SiteMap');
 		},
 		
