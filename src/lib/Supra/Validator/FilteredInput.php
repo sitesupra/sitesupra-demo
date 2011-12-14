@@ -124,13 +124,15 @@ class FilteredInput extends \ArrayIterator
 	 * @return FilteredInput
 	 * @throws Exception\RuntimeException
 	 */
-	public function getChild($index)
+	public function getChild($index, $emptyAsDefault = false)
 	{
 		if ($this->hasChild($index)) {
 			$value = $this->offsetGet($index);
 			$value = new self($value);
 			
 			return $value;
+		} elseif ($emptyAsDefault) {
+			return new self();
 		} else {
 			throw new Exception\RuntimeException("No such offset or does not contain array");
 		}
