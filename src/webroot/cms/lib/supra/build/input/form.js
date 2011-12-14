@@ -444,12 +444,20 @@ YUI.add("supra.form", function (Y) {
 				
 				if (String(id).indexOf('[') != -1) {
 					if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
-						name = skip_decode || !is_string ? m[1] : decodeURIComponent(String(m[1]));
+						try {
+							name = skip_decode || !is_string ? m[1] : QueryString.unescape(String(m[1]));
+						} catch (e) {
+							name = m[1];
+						}
 						if (!(name in out)) out[name] = {};
 						this.unserializeItem(m[2] + m[3], obj[id], out[name], skip_decode);
 					}
 				} else {
-					out[id] = skip_decode || !is_string ? obj[id] : decodeURIComponent(obj[id]);
+					try {
+						out[id] = skip_decode || !is_string ? obj[id] : QueryString.unescape(obj[id]);
+					} catch (e) {
+						out[id] = obj[id];
+					}
 				}
 			}
 			
@@ -464,16 +472,25 @@ YUI.add("supra.form", function (Y) {
 		 * @param {Object} out
 		 */
 		unserializeItem: function (id, value, out, skip_decode) {
-			var m, name;
+			var m, name, is_string;
 			
 			if (String(id).indexOf('[') != -1) {
 				if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
-					name = skip_decode ? m[1] : decodeURIComponent(String(m[1]));
+					try {
+						name = skip_decode ? m[1] : QueryString.unescape(String(m[1]));
+					} catch (e) {
+						name = m[1];
+					}
 					if (!(name in out)) out[name] = {};
 					this.unserializeItem(m[2] + m[3], value, out[name], skip_decode);
 				}
 			} else {
-				out[id] = skip_decode ? value : decodeURIComponent(value);
+				is_string = typeof value == 'string';
+				try {
+					out[id] = skip_decode || !is_string ? value : QueryString.unescape(value);
+				} catch (e) {
+					out[id] = value;
+				}
 			}
 		},
 		

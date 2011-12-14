@@ -242,7 +242,11 @@ YUI.add('supra.template-compiler', function (Y) {
 			 * @type {String}
 			 */
 			'url_decode': function (str) {
-				return decodeURIComponent((''+str));
+				try {
+					return QueryString.unescape((''+str));
+				} catch (e) {
+					return '' + str;
+				}
 			},
 			
 			/**
