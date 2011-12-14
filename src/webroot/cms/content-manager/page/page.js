@@ -307,6 +307,9 @@ Supra(function (Y) {
 			
 			//Reload page data
 			this.loadPage(this.data.id);
+			
+			//Show notification
+			Supra.Manager.executeAction('Notification', Supra.Intl.get(['page', 'publish_notification']));
 		},
 		
 		/**
@@ -338,7 +341,7 @@ Supra(function (Y) {
 		/**
 		 * Handle successful unlock
 		 */
-		onUnlockPage: function () {
+		onUnlockPage: function (data, status) {
 			//Show edit and hide unlock buttons
 			var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
 				button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
@@ -352,6 +355,12 @@ Supra(function (Y) {
 			//Remove lock information from page
 			if (Manager.Page.data.lock) {
 				delete(Manager.Page.data.lock);
+			}
+			
+			if (status) {
+				//Show notification if unlock was called as Supra.io callback
+				//and not directly from onPublishPage
+				Supra.Manager.executeAction('Notification', Supra.Intl.get(['page', 'unlock_notification']));
 			}
 		},
 		

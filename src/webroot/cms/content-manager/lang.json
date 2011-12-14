@@ -33,6 +33,9 @@
 			"edit": "Edit page",
 			"publish": "Publish",
 			
+			"unlock_notification": "Information is successfully saved!",
+			"publish_notification": "Information is successfully published!",
+			
 			"block_properties": "block properties",
 			"placeholder_properties": "placeholder properties",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
