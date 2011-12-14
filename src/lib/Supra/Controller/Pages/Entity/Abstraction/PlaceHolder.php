@@ -74,6 +74,22 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	{
 		return $this->name;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getTitle()
+	{
+		$name = $this->name;
+		$names = preg_split('/(\s|_|\-|(?<=[a-z])(?=[A-Z])|(?<=[0-9])(?=[^0-9])|(?<=[^0-9])(?=[0-9]))+/', $name);
+		
+		$names = array_map('trim', $names);
+		$names = array_map('ucfirst', $names);
+		
+		$title = implode(' ', $names);
+		
+		return $title;
+	}
 
 	/**
 	 * Place holder locked status always is false for pages
