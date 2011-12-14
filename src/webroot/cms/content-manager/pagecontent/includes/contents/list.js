@@ -88,6 +88,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			var block = this.createChild({
 				'id': data.id,
 				'closed': false,
+				'locked': false,
 				'type': data.type,
 				'data': data,
 				'value': data.html

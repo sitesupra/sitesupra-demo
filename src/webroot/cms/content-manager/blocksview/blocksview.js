@@ -130,7 +130,9 @@ SU(function (Y) {
 				container = this.one('ul.block-list'),
 				template_data = [],
 				item = null,
-				is_placeholder = false;
+				is_placeholder = false,
+				title = '',
+				icon = '';
 			
 			for(var id in blocks) {
 				//If not closed and is not list
@@ -142,10 +144,25 @@ SU(function (Y) {
 						block = blocks[id];
 						block_definition = block.getBlockInfo();
 						
+						//Change block title into more readable form
+						title = block_definition ? block_definition.title : '';
+						if (!title) {
+							title = id;
+							title = title.replace(/[\-\_\.]/g, '');
+							title = title.substr(0,1).toUpperCase() + title.substr(1);
+						}
+						
+						//Icon
+						icon = (block_definition ? block_definition.icon : '');
+						if (!icon && is_placeholder) {
+							//Default placeholder icon
+							icon = '/cms/lib/supra/img/blocks/list.png';
+						}
+						
 						template_data.push({
 							'id': id,
-							'title': block_definition ? block_definition.title : '',
-							'icon': block_definition ? block_definition.icon : ''
+							'title': title,
+							'icon': icon 
 						});
 						
 					}
