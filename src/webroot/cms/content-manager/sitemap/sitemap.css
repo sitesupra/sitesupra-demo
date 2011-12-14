@@ -113,6 +113,7 @@
 }
 
 .flowmap-node-inner {
+	display: block;
 	cursor: pointer;
 	padding: 10px 10px 0;
 	position: relative;
@@ -155,8 +156,10 @@
 	display: block;
 	font-size: 14px;
 	padding: 5px 0 9px;
-	white-space: nowrap;
+	white-space: normal;
 	text-overflow: ellipsis;
+	overflow: hidden;
+	max-height: 26px;
 }
 .tree-node label.state-draft,
 .flowmap-node label.state-draft {
@@ -366,8 +369,8 @@
 .flowmap-node span.edit {
 	position: absolute;
 	margin: 0;
-	right: 13px;
-	bottom: 37px;
+	right: 16px;
+	top: 109px;
 }
 
 .yui3-dd-drop-active-valid span.edit,
