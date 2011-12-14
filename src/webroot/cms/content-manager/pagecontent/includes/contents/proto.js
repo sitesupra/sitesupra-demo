@@ -47,28 +47,56 @@ YUI.add('supra.page-content-proto', function (Y) {
 		'body': {
 			value: null
 		},
+		
+		/**
+		 * Parent block
+		 */
+		'parent': {
+			value: null
+		},
+		
+		/**
+		 * Supra.Manager.PageContent.IframeContents
+		 */
+		'super': {
+			value: null
+		},
+		
+		/**
+		 * Is block being edited right now
+		 */
 		'editing': {
 			value: false,
 			setter: '_setEditing'
 		},
-		'parent': {
-			value: null
-		},
-		'super': {
-			value: null
-		},
+		
+		/**
+		 * Is block editable
+		 */
 		'editable': {
 			value: false,
 			writeOnce: true
 		},
+		
+		/**
+		 * Is block dragable
+		 */
 		'dragable': {
 			value: false,
 			setter: '_setDragable'
 		},
+		
+		/**
+		 * Is block highlighted right now?
+		 */
 		'highlight': {
 			value: false,
 			setter: '_setHighlight'
 		},
+		
+		/**
+		 * If block overlay highlighted right now?
+		 */
 		'highlightOverlay': {
 			value: false,
 			setter: '_setHighlightOverlay'
@@ -203,7 +231,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if specific child type is allowed
-		 * If is locked then child is not allowed
+		 * If is closed then child is not allowed
 		 * 
 		 * @param {String} type Block type
 		 * @return True if child with type is allowed, otherwise false
@@ -211,7 +239,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		isChildTypeAllowed: function (type) {
 			var data = this.get('data');
-			if (this.isLocked()) {
+			if (this.isClosed()) {
 				return false;
 			}
 			if ('allow' in data) {
@@ -227,29 +255,29 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Returns if block is locked
+		 * Returns if block is closed
 		 * 
-		 * @return True if block is locked, otherwise false
+		 * @return True if block is closed, otherwise false
 		 * @type {Boolean}
 		 */
-		isLocked: function () {
+		isClosed: function () {
 			var data = this.get('data');
-			if ('locked' in data) {
-				return data.locked;
+			if ('closed' in data) {
+				return data.closed;
 			}
 			return false;
 		},
 		
 		/**
-		 * Returns if parent is locked
+		 * Returns if parent is closed
 		 * 
-		 * @return True if parent is locked, otherwise false
+		 * @return True if parent is closed, otherwise false
 		 * @type {Boolean}
 		 */
-		isParentLocked: function () {
+		isParentClosed: function () {
 			var parent = this.get('parent');
 			if (parent) {
-				return parent.isLocked();
+				return parent.isClosed();
 			} else {
 				return false;
 			}
@@ -457,8 +485,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
 					this.createChild(data.contents[i], {
-						'dragable': !data.contents[i].locked && !this.isLocked() && permission_order,
-						'editable': !data.contents[i].locked && permission_edit
+						'dragable': !data.contents[i].closed && !this.isClosed() && permission_order,
+						'editable': !data.contents[i].closed && permission_edit
 					}, true);
 				}
 			}
@@ -478,7 +506,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			if (this.get('dragable')) {
-				if (!this.isLocked() && permission_order) {
+				if (!this.isClosed() && permission_order) {
 					this.set('dragable', true);
 				} else {
 					this.set('dragable', false);

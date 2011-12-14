@@ -87,12 +87,12 @@ YUI.add('supra.page-content-list', function (Y) {
 		createChildFromData: function (data) {
 			var block = this.createChild({
 				'id': data.id,
-				'locked': false,
+				'closed': false,
 				'type': data.type,
 				'data': data,
 				'value': data.html
 			}, {
-				'dragable': !this.isLocked(),
+				'dragable': !this.isClosed(),
 				'editable': true
 			});
 			

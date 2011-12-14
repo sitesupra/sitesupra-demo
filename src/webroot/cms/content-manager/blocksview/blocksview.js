@@ -133,8 +133,8 @@ SU(function (Y) {
 				is_placeholder = false;
 			
 			for(var id in blocks) {
-				//If not locked and is not list
-				if (!blocks[id].isLocked()) {
+				//If not closed and is not list
+				if (!blocks[id].isClosed()) {
 					is_placeholder = blocks[id].isInstanceOf('page-content-list');
 					
 					if ((this.type == 'blocks' && !is_placeholder) || (this.type != 'blocks' && is_placeholder)) {

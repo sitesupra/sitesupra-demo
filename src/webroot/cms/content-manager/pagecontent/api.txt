@@ -147,11 +147,11 @@ Supra.Manager.PageContent.Proto
 		isChildTypeAllowed(type)
 			Returns if given type is allowed as child
 		
-		isLocked()
-			Returns true if is locked (can't be editing, dragged or deleted)
+		isClosed()
+			Returns true if is closed (can't be editing, dragged or deleted)
 			
-		isParentLocked()
-			Returns true if parent is locked (block can't be dragged, deleted and new blocks can't be added to parent)
+		isParentClosed()
+			Returns true if parent is closed (block can't be dragged, deleted and new blocks can't be added to parent)
 		
 		removeChild(child)
 			Removes child block

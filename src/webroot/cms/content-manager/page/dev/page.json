@@ -50,13 +50,15 @@
 			{
 				"id": "inner",
 				"type": "list",
-				"locked": false,
+				"closed": false,
+				"locked": true,
 				"allow": ["html", "string", "sample", "Project_Text_TextController", "gallery"],
 				"contents": [
 					{
 						"id": 111,
 						"type": "Project_Text_TextController",
-						"locked": false,
+						"closed": false,
+						"locked": true,
 						"properties": {
 							"str": "Welcome dear User!",
 							"html": {
@@ -94,6 +96,7 @@
 					{
 						"id": 222,
 						"type": "Project_Text_TextController",
+						"closed": false,
 						"locked": false,
 						"properties": {
 							"html": {
@@ -107,12 +110,14 @@
 			{
 				"id": "sidebar",
 				"type": "list",
+				"closed": true,
 				"locked": true,
 				"allow": ["string", "Project_Text_TextController"],
 				"contents": [
 					{
 						"id": 333,
 						"type": "Project_Text_TextController",
+						"closed": false,
 						"locked": false,
 						"properties": {
 							"html": {

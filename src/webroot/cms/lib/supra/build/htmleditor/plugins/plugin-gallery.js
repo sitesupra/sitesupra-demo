@@ -77,8 +77,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		insertGalleryBlock: function (images) {
 			var list = Manager.PageContent.getActiveContent().get('parent');
 			
-			//If list is locked or gallery is not a valid child type then cancel
-			if (list.isLocked() || !list.isChildTypeAllowed('gallery')) return;
+			//If list is closed or gallery is not a valid child type then cancel
+			if (list.isClosed() || !list.isChildTypeAllowed('gallery')) return;
 			
 			//Insert block
 			list.get('super').getBlockInsertData({

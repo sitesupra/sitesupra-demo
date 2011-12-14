@@ -105,7 +105,7 @@ SU(function (Y) {
 				data.properties = data.properties || [];
 				
 				data.properties.push({
-					'id': 'locked',
+					'id': '__locked__',
 					'type': 'Checkbox',
 					'label': 'Global block'
 				});

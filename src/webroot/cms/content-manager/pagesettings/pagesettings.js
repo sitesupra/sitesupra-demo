@@ -127,8 +127,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		
 		/**
 		 * Slides which onSlide... function has been called
+		 * @type {Object}
 		 */
 		called: {},
+		
+		/**
+		 * Disabled state of page content before settings was shown
+		 * @type {Boolean}
+		 */
+		last_content_disabled_state: false,
+		
 		
 		
 		/**
@@ -693,6 +701,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
+		 * On settings block hiden re-enable content editing
+		 */
+		hide: function () {
+			Action.Base.prototype.hide.apply(this, arguments);
+			
+			//Restore disabled state as it was before PageSettings was shown
+			Manager.PageContent.getContent().set('disabled', this.last_content_disabled_state);
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function (dont_update_data) {
@@ -707,6 +725,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.slideshow.set('noAnimation', true);
 			this.slideshow.scrollBack();
 			this.slideshow.set('noAnimation', false);
+			
+			//Disable content editing
+			var content = Manager.PageContent.getContent();
+			this.last_content_disabled_state = content.get('disabled');
+			content.set('disabled', true);
 		}
 	});
 	

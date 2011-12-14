@@ -113,8 +113,8 @@ ContentProto
 		getBlockTitle - returns block title
 		getBlockInfo - returns block information
 		
-		isLocked - locked content children can't be added, removed or moved
-		isParentLocked
+		isClosed - closed content children can't be added, removed or moved
+		isParentClosed
 		
 		processData - remove all uneeded before it will be sent to server
 		

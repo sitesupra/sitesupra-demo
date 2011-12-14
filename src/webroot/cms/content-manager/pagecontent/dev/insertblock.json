@@ -3,7 +3,7 @@
 	"data": {
 		"id": <?php $id = rand(); echo $id; ?>,
 		"type": "<?php echo $_POST['type']; ?>",
-		"locked": false,
+		"closed": false,
 		<?php if ($_POST['type'] == 'Project_Text_TextController') { ?>
 		"properties": {
 			"html": {

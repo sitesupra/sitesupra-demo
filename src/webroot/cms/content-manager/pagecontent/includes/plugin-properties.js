@@ -261,9 +261,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 				form.get('contentBox') .removeClass('has-footer');
 			}
 			
-			//Don't show delete button if block or placeholder is locked
+			//Don't show delete button if block or placeholder is closed
 			var host = this.get('host');
-			if (host.isLocked() || host.isParentLocked()) {
+			if (host.isClosed() || host.isParentClosed()) {
 				btn.hide();
 			}
 		},

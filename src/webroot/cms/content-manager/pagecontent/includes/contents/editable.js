@@ -191,7 +191,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 		renderUISettings: function () {
 			//Find if there are any HTML properties
 			var properties = this.getProperties(),
-				has_html_properties = false;
+				has_html_properties = false,
+				page_data = Page.getPageData(),
+				data = this.get('data');
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				if (properties[i].inline && properties[i].type == 'InlineHTML') {
@@ -200,9 +202,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 				}
 			}
 			
+			//If editing template, then set "__locked__" property value
+			if (page_data.type != 'page') {
+				data.properties = data.properties || {};
+				data.properties.__locked__ = data.locked;
+			}
+			
 			//Add properties plugin (creates form)
 			this.plug(PageContent.PluginProperties, {
-				'data': this.get('data'),
+				'data': data,
 				//If there are inline HTML properties, then settings form is opened using toolbar buttons
 				'showOnEdit': has_html_properties ? false: true
 			});
@@ -363,14 +371,23 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		reloadContentHTML: function () {
 			var uri = PageContent.getDataPath('contenthtml'),
+				page_data = Page.getPageData(),
 				data = null;
 			
 			data = {
-				'page_id': Page.getPageData().id,
+				'page_id': page_data.id,
 				'block_id': this.getId(),
 				'locale': Supra.data.get('locale'),
 				'properties': this.properties.getNonInlineSaveValues()
 			};
+			
+			//If editing template, then send also "locked" property
+			if (page_data.type != 'page') {
+				data.locked = data.properties.__locked__;
+				delete(data.properties.__locked__);
+				
+				this.properties.get('data').locked = data.locked;
+			}
 			
 			Supra.io(uri, {
 				'method': 'post',

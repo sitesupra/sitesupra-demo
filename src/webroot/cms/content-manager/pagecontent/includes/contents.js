@@ -216,8 +216,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 								'data': data[i],
 								'parent': null,
 								'super': this,
-								'dragable': !data[i].locked,
-								'editable': !data[i].locked
+								'dragable': !data[i].closed,
+								'editable': !data[i].closed
 							});
 							block.render();
 						} else {
@@ -337,6 +337,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 				'properties': save_values
 			};
 			
+			//If editing template, then send also "locked", but not as part
+			//of properties
+			if (page_data.type != 'page') {
+				post_data.locked = save_values.__locked__;
+				block.properties.get('data').locked = post_data.locked;
+				delete(save_values.__locked__);
+			}
+			
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
@@ -356,15 +364,22 @@ YUI.add('supra.iframe-contents', function (Y) {
 				page_data = Manager.Page.getPageData(),
 				values = placeholder.properties.getValues();
 			
-			var save_values = placeholder.properties.getSaveValues();
+			var save_values = placeholder.properties.getSaveValues(),
+				locked = false;
 			
 			//Allow block to modify data before saving it
 			save_values = placeholder.processData(save_values);
+			
+			//Send "locked" as separate value, not as part of properties
+			locked = save_values.__locked__;
+			delete(save_values.__locked__);
+			placeholder.properties.get('data').locked = locked;
 			
 			var post_data = {
 				'page_id': page_data.id,
 				'place_holder_id': placeholder.getId(),
 				'locale': Supra.data.get('locale'),
+				'locked': locked,
 				'properties': save_values
 			};
 			
