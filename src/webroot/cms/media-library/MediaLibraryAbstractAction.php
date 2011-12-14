@@ -5,7 +5,9 @@ namespace Supra\Cms\MediaLibrary;
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
-use Supra\FileStorage\Entity\Abstraction\File;
+use Supra\FileStorage\Entity\Abstraction\File as FileAbstraction;
+use Supra\FileStorage\Entity\Folder;
+use Supra\FileStorage\Entity\File;
 use Supra\FileStorage\Entity\Image;
 use Supra\Log\AuditLogEvent;
 
@@ -111,5 +113,39 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 		}
 		
 		parent::writeAuditLog($action, $data, $level);
+	}
+
+	/**
+	 * Write to audit log
+	 *
+	 * @param string $action
+	 * @param mixed $data
+	 * @param object $item
+	 * @param int $level 
+	 */
+	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
+	{
+		$pageLocalization = null;
+		
+		if ($item instanceof Page) {
+			$localeId = $this->getLocale()->getId();
+			$item = $item->getLocalization($localeId);
+		}
+			
+		$itemString = null;
+		if ($item instanceof FileAbstraction) {
+			if ($item instanceof File) {
+				$itemString = 'File ';
+			} else if ($item instanceof Folder) {
+				$itemString = 'Folder ';
+			} else if ($item instanceof Image) {
+				$itemString = 'Image ';
+			} else {
+				$itemString = 'Item ';
+			}
+			$itemString .= $item->getFileName();
+		}
+		
+		parent::writeAuditLog($action, $message, $itemString, $level);
 	}
 }

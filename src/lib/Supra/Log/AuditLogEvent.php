@@ -32,16 +32,24 @@ class AuditLogEvent extends LogEvent
 	public $user;
 
 	/**
+	 * Text message
+	 *
+	 * @var string
+	 */
+	public $message;
+
+	/**
 	 * Log event constructor
-	 * @param array $data
 	 * @param string $level
 	 * @param string $component
 	 * @param string $action
+	 * @param string $message
 	 * @param string $logger
+	 * @param string $user
+	 * @param array $data
 	 */
-	public function __construct($data, $level, $component, $action, $user, $logger)
+	public function __construct($level, $component, $action, $message, $logger, $user = null, $data = array())
 	{
-		$this->data = $data;
 		$this->level = $level;
 
 		if (is_object($component)) {
@@ -58,13 +66,17 @@ class AuditLogEvent extends LogEvent
 		}
 		
 		$this->action = (string) $action;
-		
+		$this->message = (string) $message;
+
 		if ($user instanceof UserEntity) {
 			$this->user = $user->getLogin();
-		} else {
+		} else if ( ! empty($user)) {
 			$this->user = (string) $user;
+		} else {
+			$this->user = '';
 		}
 		
+		$this->data = $data;
 		$this->timestamp = time();
 		$this->microtime = (string) microtime(true);
 		$this->logger = $logger;
@@ -79,7 +91,9 @@ class AuditLogEvent extends LogEvent
 		return array(
 			'timestamp' => $this->timestamp,
 			'microtime' => $this->microtime,
-			'subject' => $this->getSubject(),
+//			TODO: decide on data field
+//			'subject' => $this->getSubject(),
+			'subject' => $this->message,
 			'level' => $this->level,
 			'levelPriority' => $this->getLevelPriority(),
 			'component' => $this->component,

@@ -5,7 +5,14 @@ namespace Supra\Log\Writer;
 use Supra\Log\AuditLogEvent;
 
 /**
- * Stream log writer
+ * Audit log writer
+ * 
+ * @method void dump(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void debug(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void info(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void warn(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void error(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void fatal(mixed $component, string $action, string $message, mixed $user, array $data)
  */
 class AuditLogWriter extends FileWriter
 {
@@ -59,12 +66,19 @@ class AuditLogWriter extends FileWriter
 			// Generate logger name
 			$loggerName = $this->name;
 
-			$data = $arguments[0];
-			$component = $arguments[1];
-			$action = $arguments[2];
-			$user = $arguments[3];
+			$component = $arguments[0];
+			$action = $arguments[1];
+			$message = $arguments[2];
+			$user = null;
+			if (isset($arguments[3])) {
+				$user = $arguments[3];
+			}
+			$data = null;
+			if (isset($arguments[4])) {
+				$data = $arguments[4];
+			}
 
-			$event = new AuditLogEvent($data, $level, $component, $action, $user, $loggerName);
+			$event = new AuditLogEvent($level, $component, $action, $message, $loggerName, $user, $data);
 			$this->write($event);
 			
 		} catch (\Exception $e) {

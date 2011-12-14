@@ -10,7 +10,7 @@ namespace Supra\Log\Formatter;
 class AuditLogFormatter extends SimpleFormatter
 {
 	
-	const FORMAT = '[%time%] %level% %action% by %user% in %component% - %subject%';
+	const FORMAT = '[%time%] %level% %component% %action% %user% : %subject%';
 	
 	/**
 	 * Configuration

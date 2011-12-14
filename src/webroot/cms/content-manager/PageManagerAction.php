@@ -800,28 +800,25 @@ abstract class PageManagerAction extends CmsAction
 	 *
 	 * @param string $action
 	 * @param mixed $data
+	 * @param object $item
 	 * @param int $level 
 	 */
-	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
+	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
-		return;
-		
 		$pageLocalization = null;
 		
-		if ($data instanceof Page) {
+		// TODO support templates
+		if ($item instanceof Page) {
 			$localeId = $this->getLocale()->getId();
-			$data = $data->getLocalization($localeId);
+			$item = $item->getLocalization($localeId);
 		}
 			
-		if ($data instanceof PageLocalization) {
-			$data = array(
-				'title' => $data->getTitle(),
-				'id' => $data->getId(),
-				'locale' => $data->getLocale()
-			);
+		$itemString = null;
+		if ($item instanceof PageLocalization) {
+			$itemString = "page '" . $item->getTitle() . "'";
 		}
 		
-		parent::writeAuditLog($action, $data, $level);
+		parent::writeAuditLog($action, $message, $itemString, $level);
 	}
 	
 }

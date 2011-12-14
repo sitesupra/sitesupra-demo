@@ -369,7 +369,7 @@ class PageAction extends PageManagerAction
 			while ( ! $pathValid);
 		}
 
-		$this->writeAuditLog('Create', $pageData);
+		$this->writeAuditLog('create', '%item% created', $pageData);
 
 		$this->outputPage($pageData);
 	}
@@ -421,7 +421,7 @@ class PageAction extends PageManagerAction
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 
-		$this->writeAuditLog('Save', $pageData);
+		$this->writeAuditLog('save', '%item saved', $pageData);
 	}
 
 	/**
@@ -442,7 +442,7 @@ class PageAction extends PageManagerAction
 
 		$this->delete();
 
-		$this->writeAuditLog('Delete', $page);
+		$this->writeAuditLog('delete', '%item% deleted', $page);
 	}
 
 	/**
@@ -461,7 +461,7 @@ class PageAction extends PageManagerAction
 		
 		$this->unlockPage();
 		
-		$this->writeAuditLog('Publish', $pageLocalization);
+		$this->writeAuditLog('publish', '%item% published', $pageLocalization);
 	}
 
 	/**
@@ -538,7 +538,7 @@ class PageAction extends PageManagerAction
 		$this->checkLock(false);
 		$this->duplicate();
 		
-		$this->writeAuditLog('Delete', $this->getPageByRequestKey('page_id'));
+		$this->writeAuditLog('duplicate', '%item% duplicated', $this->getPageByRequestKey('page_id'));
 	}
 	
 	/**

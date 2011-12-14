@@ -349,12 +349,22 @@ abstract class CmsAction extends SimpleController
 	 * Write to audit log
 	 *
 	 * @param string $action
-	 * @param mixed $data
+	 * @param string $message
+	 * @param string $item
 	 * @param int $level 
 	 */
-	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
+	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
 		$auditLog = ObjectRepository::getAuditLogger($this);
-		$auditLog->info($data, $this, $action, $this->getUser());
+		$user = $this->getUser();
+
+		if ((mb_strpos($message, '%item%') !== false)
+			&& ! empty($item) && is_string($item)
+		) {
+			$message = str_replace('%item%', $item, $message);
+			$message = ucfirst($message);
+		}
+
+		$auditLog->info($this, $action, $message, $user, array());
 	}
 }
