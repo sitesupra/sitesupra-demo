@@ -62,6 +62,10 @@ interface EditableInterface
 	 */
 	public function setContent($content);
 	
+	public function getContentForEdit();
+	
+	public function setContentFromEdit($content);
+	
 	/**
 	 * Get filtered value for the editable content by action
 	 * @return mixed

@@ -64,6 +64,16 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->content = $content;
 	}
+	
+	public function getContentForEdit()
+	{
+		return $this->content;
+	}
+	
+	public function setContentFromEdit($content)
+	{
+		$this->content = $content;
+	}
 
 	/**
 	 * Adds filter for the editable content

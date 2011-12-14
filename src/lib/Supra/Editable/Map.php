@@ -10,8 +10,21 @@ use Supra\Validator\Type\AbstractType;
  */
 class Map extends EditableAbstraction
 {
-	private $latitude = '56.952183';
-	private $longitude = '24.122286';
+	/**
+	 * @var float
+	 */
+	private $latitude;
+	
+	/**
+	 * @var float
+	 */
+	private $longitude;
+	
+	/**
+	 * Default value (Latvia/Riga)
+	 * @var mixed
+	 */
+	protected $defaultValue = array('56.95', '24.1');
 	
 	const EDITOR_TYPE = 'Map';
 	const EDITOR_INLINE_EDITABLE = false;
@@ -59,22 +72,11 @@ class Map extends EditableAbstraction
 	}
 
 	/**
-	 * @param string $longitude 
+	 * @param string $longitude
 	 */
 	public function setLongitude($longitude)
 	{
 		$this->longitude = $longitude;
-	}
-
-		
-	public function getAdditionalParameters()
-	{
-		return array(
-			'value' => array(
-				$this->latitude,
-				$this->longitude,
-			),
-		);
 	}
 	
 	/**
@@ -83,15 +85,63 @@ class Map extends EditableAbstraction
 	 */
 	public function setContent($content)
 	{
+		if (empty($content)) {
+			return;
+		}
+		
+		// normalize
+		if (is_string($content)) {
+			$content = explode(';', $content, 2);
+		}
+		
+		list($this->latitude, $this->longitude) = $content;
+		
 		parent::setContent($content);
 	}
 	
 	/**
-	 * Validates and sanitizes the content
-	 * @return boolean
+	 * Converts to string
+	 * @return string
 	 */
 	public function getContent()
 	{
-		return parent::getContent();
+		$content = $this->latitude . ';' . $this->longitude;
+		
+		return $content;
 	}
+	
+	public function getFilteredValue()
+	{
+		return parent::getFilteredValue();
+	}
+	
+	public function getDefaultValue()
+	{
+		return parent::getDefaultValue();
+	}
+
+	public function getContentForEdit()
+	{
+		return array(
+			$this->latitude,
+			$this->longitude,
+		);
+	}
+	
+	/**
+	 * Not used now!
+	 * @param array $content
+	 */
+	public function setContentFromEdit($content)
+	{
+		$this->latitude = $content[0];
+		$this->longitude = $content[1];
+	}
+	
+//	public function getFilteredValue()
+//	{
+//		$content = parent::getFilteredValue();
+//		
+//		return explode(';', $content, 2);
+//	}
 }
