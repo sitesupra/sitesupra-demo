@@ -196,14 +196,16 @@ class PageAction extends PageManagerAction
 		foreach ($placeHolderSet as $placeHolder) {
 
 			$placeHolderData = array(
-					'id' => $placeHolder->getName(),
-					'type' => 'list',
-					'locked' => ! $pageData->isPlaceHolderEditable($placeHolder),
-					//TODO: not specified now
-//					'allow' => array(
-//							0 => 'Project_Text_TextController',
-//					),
-					'contents' => array()
+				'id' => $placeHolder->getName(),
+				'title' => $placeHolder->getTitle(),
+				'type' => 'list',
+				'closed' => ! $pageData->isPlaceHolderEditable($placeHolder),
+				'locked' => $placeHolder->getLocked(),
+				//TODO: not specified now
+//				'allow' => array(
+//						0 => 'Project_Text_TextController',
+//				),
+				'contents' => array()
 			);
 
 			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
@@ -215,10 +217,11 @@ class PageAction extends PageManagerAction
 				$block->prepareController($controller, $request);
 
 				$blockData = array(
-						'id' => $block->getId(),
-						'type' => $block->getComponentName(),
-						'locked' => ! $pageData->isBlockEditable($block),
-						'properties' => array(),
+					'id' => $block->getId(),
+					'type' => $block->getComponentName(),
+					'closed' => ! $pageData->isBlockEditable($block),
+					'locked' => $block->getLocked(),
+					'properties' => array(),
 				);
 
 				$editables = (array) $controller->getPropertyDefinition();
