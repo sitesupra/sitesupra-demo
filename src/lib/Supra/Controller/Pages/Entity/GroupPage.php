@@ -30,8 +30,20 @@ class GroupPage extends Page
 		
 		// Create fake localization if not persisted
 		if (is_null($localization)) {
-			$localization = new GroupLocalization($locale, $this);
+			$localization = $this->createLocalization($locale);
 		}
+		
+		return $localization;
+	}
+	
+	/**
+	 * Creates new group localization with the same ID the master has
+	 * @param string $locale
+	 * @return GroupLocalization
+	 */
+	public function createLocalization($locale)
+	{
+		$localization = new GroupLocalization($locale, $this);
 		
 		return $localization;
 	}
@@ -42,9 +54,12 @@ class GroupPage extends Page
 	 */
 	public function persistLocalization(GroupLocalization $localization)
 	{
-		// Reset ID because for not persisted object it is equal with master ID
-		$localization->regenerateId();
-		$this->setLocalization($localization);
+		if ( ! $localization->isPersistent()) {
+			// Reset ID because for not persisted object it is equal with master ID
+			$localization->regenerateId();
+			$this->setLocalization($localization);
+			$localization->setPersistent();
+		}
 	}
 
 //	/**

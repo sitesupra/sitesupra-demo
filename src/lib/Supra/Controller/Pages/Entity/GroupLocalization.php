@@ -14,6 +14,12 @@ class GroupLocalization extends Abstraction\Localization
 	const DISCRIMINATOR = self::GROUP_DISCR;
 	
 	/**
+	 * Flag which marks the entity created automatically on miss
+	 * @var boolean
+	 */
+	private $persistent = true;
+	
+	/**
 	 * Creates new group localization object, sets ID equal to master ID, will
 	 * regenerate if persisted
 	 * @param string $locale
@@ -25,6 +31,7 @@ class GroupLocalization extends Abstraction\Localization
 		$this->id = $groupPage->getId();
 		$this->title = $groupPage->getTitle();
 		$this->master = $groupPage;
+		$this->persistent = false;
 	}
 	
 	public function getTemplateHierarchy()
@@ -68,5 +75,21 @@ class GroupLocalization extends Abstraction\Localization
 		parent::setTitle($title);
 		
 		$this->master->setTitle($title);
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isPersistent()
+	{
+		return $this->persistent;
+	}
+
+	/**
+	 * Sets the entity as persisted
+	 */
+	public function setPersistent()
+	{
+		$this->persistent = true;
 	}
 }

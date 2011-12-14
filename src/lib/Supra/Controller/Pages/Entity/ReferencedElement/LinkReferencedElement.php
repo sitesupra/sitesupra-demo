@@ -2,10 +2,11 @@
 
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
-use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\Entity\GroupPage;
 
 /**
  * @Entity
@@ -135,7 +136,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			case self::RESOURCE_PAGE:
 				$pageData = $this->getPage();
 
-				/* @var $pageData PageLocalization */
+				/* @var $pageData Localization */
 				if ( ! is_null($pageData)) {
 					$title = $pageData->getTitle();
 				}
@@ -231,7 +232,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
-	 * @return PageLocalization
+	 * @return Localization
 	 */
 	public function getPage()
 	{
@@ -240,7 +241,19 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		}
 		
 		$em = ObjectRepository::getEntityManager($this);
-		$pageData = $em->find(PageLocalization::CN(), $this->pageId);
+		$pageData = $em->find(Localization::CN(), $this->pageId);
+		
+		if (empty($pageData)) {
+			$master = $em->find(GroupPage::CN(), $this->pageId);
+			
+			if ($master instanceof GroupPage) {
+				//FIXME: somehow better?
+				$locale = ObjectRepository::getLocaleManager($this)
+						->getCurrent()
+						->getId();
+				$pageData = $master->getLocalization($locale);
+			}
+		}
 		
 		return $pageData;
 	}
