@@ -70,10 +70,6 @@ class Checkbox extends EditableAbstraction
 			),
 		);
 
-		if ( ! is_null($this->getDefaultValue())) {
-			$output['defaultValue'] = $this->getDefaultValue();
-		}
-
 		return $output;
 	}
 	
