@@ -18,7 +18,7 @@ use Supra\Editable;
  */
 class PagecontentAction extends PageManagerAction
 {
-	const LOCKED_SAVE_PROPERTY_NAME = 'locked';
+	const LOCKED_SAVE_PROPERTY_NAME = '__locked__';
 	
 	/**
 	 * Insert block action
@@ -79,7 +79,8 @@ class PagecontentAction extends PageManagerAction
 	}
 	
 	/**
-	 * Content save action
+	 * Content save action.
+	 * Responds with block inner HTML content.
 	 */
 	public function saveAction()
 	{
@@ -106,78 +107,74 @@ class PagecontentAction extends PageManagerAction
 		
 		$block->prepareController($blockController, $request);
 		
-		// Load received property values and data from the POST
-		if ($input->hasChild('properties')) {
+		if ($block instanceof Entity\TemplateBlock) {
+			if ($input->has('locked')) {
+				$locked = $input->getValid('locked', 'boolean');
+				$block->setLocked($locked);
+			}
+		}
 		
-			$properties = $input->getChild('properties');
+		// Load received property values and data from the POST
+		$properties = $input->getChild('properties', true);
 
-			if ($block instanceof Entity\TemplateBlock) {
-				if ($properties->has(self::LOCKED_SAVE_PROPERTY_NAME)) {
-					$locked = $properties->getValid(self::LOCKED_SAVE_PROPERTY_NAME, 'boolean');
-					$block->setLocked($locked);
-					$properties->offsetUnset(self::LOCKED_SAVE_PROPERTY_NAME);
+		foreach ($properties as $propertyName => $propertyPost) {
+
+			$property = $blockController->getProperty($propertyName);
+
+			// Could be new, should persist
+			$this->entityManager->persist($property);
+			/* @var $property Entity\BlockProperty */
+
+			$editable = $property->getEditable();
+
+			$name = $propertyName;
+			$type = $property->getType();
+			$value = null;
+			$valueData = array();
+
+			// Specific result received from CMS for HTML
+			if ($editable instanceof \Supra\Editable\Html) {
+				$value = $propertyPost['html'];
+				if (isset($propertyPost['data'])) {
+					$valueData = $propertyPost['data'];
 				}
+			} elseif ($editable instanceof \Supra\Editable\Link) {
+				// No value for the link, just metadata
+				$value = null;
+
+				if ( ! empty($propertyPost)) {
+					$valueData = array($propertyPost);
+					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+				}
+			} else {
+				$value = $propertyPost;
 			}
 
-			foreach ($properties as $propertyName => $propertyPost) {
+			// Property select in one DQL
+			$blockPropertyEntity = Entity\BlockProperty::CN();
 
-				$property = $blockController->getProperty($propertyName);
+			// Remove all old references
+			$metadataCollection = $property->getMetadata();
+			foreach ($metadataCollection as $metadata) {
+				$this->entityManager->remove($metadata);
+			}
 
-				// Could be new, should persist
-				$this->entityManager->persist($property);
-				/* @var $property Entity\BlockProperty */
+			// Empty the metadata
+			$property->resetMetadata();
 
-				$editable = $property->getEditable();
+			// Set new refeneced elements
+			$property->setValue($value);
 
-				$name = $propertyName;
-				$type = $property->getType();
-				$value = null;
-				$valueData = array();
+			foreach ($valueData as $elementName => &$elementData) {
+				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 
-				// Specific result received from CMS for HTML
-				if ($editable instanceof \Supra\Editable\Html) {
-					$value = $propertyPost['html'];
-					if (isset($propertyPost['data'])) {
-						$valueData = $propertyPost['data'];
-					}
-				} elseif ($editable instanceof \Supra\Editable\Link) {
-					// No value for the link, just metadata
-					$value = null;
+				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
+				$property->addMetadata($blockPropertyMetadata);
 
-					if ( ! empty($propertyPost)) {
-						$valueData = array($propertyPost);
-						$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
-					}
-				} else {
-					$value = $propertyPost;
-				}
-
-				// Property select in one DQL
-				$blockPropertyEntity = Entity\BlockProperty::CN();
-
-				// Remove all old references
-				$metadataCollection = $property->getMetadata();
-				foreach ($metadataCollection as $metadata) {
-					$this->entityManager->remove($metadata);
-				}
-
-				// Empty the metadata
-				$property->resetMetadata();
-
-				// Set new refeneced elements
-				$property->setValue($value);
-
-				foreach ($valueData as $elementName => &$elementData) {
-					$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
-
-					$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
-					$property->addMetadata($blockPropertyMetadata);
-
-					// Should be persisted by cascade
+				// Should be persisted by cascade
 //					// Let's persist new elements
 //					$this->entityManager->persist($element);
 //					$this->entityManager->persist($blockPropertyMetadata);
-				}
 			}
 		}
 		
@@ -268,61 +265,40 @@ class PagecontentAction extends PageManagerAction
 	}
 	
 	/**
-	 * Responds with block inner HTML content
+	 * Alias to save method.
 	 */
 	public function contenthtmlAction()
 	{
-		//TODO: filter out inline editable properties
 		$this->saveAction();
-//		
-//		return;
-//		
-//		$this->isPostRequest();
-//		$blockId = $this->getRequestParameter('block_id');
-//		$properties = $this->getRequestParameter('properties');
-//		
-//		$request = $this->getPageRequest();
-//		$blocks = $request->getBlockSet();
-//		$block = $blocks->findById($blockId);
-//		
-//		if (is_null($block)) {
-//			throw new CmsException(null, "Block doesn't exist anymore");
-//		}
-//		
-//		$propertySet = $request->getBlockPropertySet()
-//				->getBlockPropertySet($block);
-//		
-//		$blockController = $block->createController();
-//		$block->prepareController($blockController, $request);
-//		
-//		foreach ($properties as $name => $value) {
-//			
-//			$property = $blockController->getProperty($name);
-//			
-//			if ( ! $property instanceof Entity\BlockProperty) {
-//				throw new CmsException(null, "Property $name doesn't exist for the block");
-//			}
-//
-//			$this->entityManager->detach($property);
-//			$editable = $property->getEditable();
-//
-//			/*
-//			 * TODO: how to pass metadata here? Currently it's fixed by 
-//			 * letting setting only not inline editable contents.
-//			 */
-//			if ( ! $editable->isInlineEditable()) {
-//				$property->setValue($value);
-//			}
-//		}
-//		
-//		$blockController->prepareTwigHelper();
-//		$block->executeController($blockController);
-//		
-//		$response = $blockController->getResponse();
-//		/* @var $response HttpResponse */
-//		$outputString = $response->getOutputString();
-//		
-//		$this->getResponse()->setResponseData(
-//				array('internal_html' => $outputString));
+	}
+	
+	/**
+	 * Saves placeholder settings (locked parameter)
+	 */
+	public function savePlaceholderAction()
+	{
+		$this->isPostRequest();
+		$input = $this->getRequestInput();
+		$request = $this->getPageRequest();
+		
+		$placeHolderName = $input->get('place_holder_id');
+		
+		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+		$placeHolder = $request->getPageLocalization()
+				->getPlaceHolders()
+				->get($placeHolderName);
+		
+		if (empty($placeHolder)) {
+			throw new CmsException(null, "The placeholder by name '$placeHolderName' doesn't exist anymore");
+		}
+		
+		if ( ! $placeHolder instanceof Entity\TemplatePlaceHolder) {
+			throw new CmsException(null, "Not possible to change locked status for page placeholder");
+		}
+		
+		$locked = $input->getValid('locked', 'boolean');
+		$placeHolder->setLocked($locked);
+		
+		$this->entityManager->flush();
 	}
 }
