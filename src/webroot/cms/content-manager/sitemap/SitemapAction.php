@@ -73,7 +73,16 @@ class SitemapAction extends PageManagerAction
 	 */
 	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false)
 	{
-		$data = $page->getLocalization($locale);	
+		/* @var $data Entity\Abstraction\Localization */
+		$data = null;
+		$isGlobal = false;
+		
+		// Must have group localization with ID equal with master because group localizations are not published currently
+		if ($page instanceof Entity\GroupPage) {
+			$data = $page->createLocalization($locale);
+		} else {
+			$data = $page->getLocalization($locale);
+		}
 		
 		if (empty($data)) {
 			// try to get any localization if page is global

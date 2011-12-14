@@ -221,7 +221,7 @@ class PageAction extends PageManagerAction
 						'properties' => array(),
 				);
 
-				$editables = $controller->getPropertyDefinition();
+				$editables = (array) $controller->getPropertyDefinition();
 				
 				foreach ($editables as $propertyName => $editable) {
 					$blockProperty = $controller->getProperty($propertyName);

@@ -103,13 +103,11 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			}
 
 			$tree = $this->buildContentTreeArray($rootNode, $localeId);
-			// TODO: hardcoded
-			$tree['icon'] = 'home';
-			$tree['title'] = '[' . $localeId . '] Home';
 
 			$entityTree[] = $tree;
 		}
 
+		// This will make the group page localizations permanent
 		$em->flush(); // !!!
 
 		return $entityTree;
@@ -158,14 +156,14 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 
 		$array = array(
 				'id' => $itemId,
-				'title' => '[' . $locale . '] ' . $localization->getTitle(),
+//				'title' => '[' . $locale . '] ' . $localization->getTitle(),
+				'title' => $localization->getTitle(),
 				'icon' => 'page',
-				'preview' => '/cms/lib/supra/img/sitemap/preview/page-1.jpg'
 		);
 
-		if ($page instanceof PageEntity\GroupPage) {
-			$array['title'] = '{PG} ' . $array['title'];
-		}
+//		if ($page instanceof PageEntity\GroupPage) {
+//			$array['title'] = '{PG} ' . $array['title'];
+//		}
 
 		$array['children'] = array();
 
