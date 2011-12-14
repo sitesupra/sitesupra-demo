@@ -589,12 +589,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (this.overlay) this.overlay.addClass(CLASSNAME_EDITING);
 				this.getNode().addClass(CLASSNAME_EDITING);
 				
+				//Prevent user from switching to other blocks
+				this.get('body').removeClass('yui3-editable');
+				
 				//Fire editing-start event and propagate up to parent
 				this.fire('editing-start');
 				this.get('super').fire('editing-start', this.get('data'));
 			} else {
 				if (this.overlay) this.overlay.removeClass(CLASSNAME_EDITING);
 				this.getNode().removeClass(CLASSNAME_EDITING);
+				
+				//Prevent user from switching to other blocks
+				this.get('body').addClass('yui3-editable');
 				
 				//Fire editing-end event and propagate up to parent
 				this.fire('editing-end');

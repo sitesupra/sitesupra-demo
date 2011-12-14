@@ -327,7 +327,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 					
 					//When clicking on node enable corresponding editor
 					inline_node.on('mousedown', function (event, id) {
-						this.set('active_inline_property', id);
+						if (this.get('editing')) {
+							this.set('active_inline_property', id);
+						}
 					}, this, id);
 				}
 			}
@@ -349,9 +351,12 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			if (!editing_disabled && property_id != old_property_id) {
 				if (this.inline_inputs) {
+					//Disable old inline input
 					if (old_property_id && old_property_id in this.inline_inputs) {
 						this.inline_inputs[old_property_id].set('disabled', true);
 					}
+					
+					//Enable active inline input
 					if (property_id && property_id in this.inline_inputs) {
 						this.inline_inputs[property_id].set('disabled', false);
 					}
