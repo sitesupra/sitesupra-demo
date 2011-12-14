@@ -13,7 +13,7 @@ class Select extends EditableAbstraction
 	/**
 	 * @var array
 	 */
-	protected $options;
+	protected $values = array();
 
 	/**
 	 * Return editor type
@@ -33,44 +33,26 @@ class Select extends EditableAbstraction
 		return static::EDITOR_INLINE_EDITABLE;
 	}
 
-	/**
-	 * @param string $label
-	 * @param array $content 
-	 * @param string $defaultId 
-	 * @example new Select('Cities', array(array('id' => 0, 'title' => 'Riga')), 0);
-	 */
-	public function __construct($label, $content = array(), $defaultId = null)
-	{
-		$this->setLabel($label);
-		$this->setContent($content);
-
-		$this->options = $content; // Is this a hack?
-
-		if ( ! is_null($defaultId)) {
-			$this->setDefaultValue($defaultId);
-		}
-	}
-
 	public function getAdditionalParameters()
 	{
 		$values = array();
 
-		foreach ($this->options as $label => $value) {
+		foreach ($this->values as $label => $value) {
 			$values[] = array('id' => $label, 'title' => $value);
 		}
 
 		$output = array('values' => $values);
 
-		if ( ! is_null($this->getDefaultValue())) {
-			$output['value'] = $this->getDefaultValue();
-		}
-
 		return $output;
 	}
 
-	public function getContent()
+	public function getValues()
 	{
-		return parent::getContent();
+		return $this->values;
 	}
 
+	public function setValues($values)
+	{
+		$this->values = $values;
+	}
 }
