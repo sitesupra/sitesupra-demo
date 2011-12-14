@@ -2,18 +2,28 @@
 
 namespace Supra\Cms\BannerManager\Root;
 
-use Supra\Controller\SimpleController;
+use Supra\Cms\CmsAction;
+use Supra\Response\TwigResponse;
+use Supra\Request;
 
-class RootAction extends SimpleController
+/**
+ * @method TwigResponse getResponse()
+ */
+class RootAction extends CmsAction
 {
-
+	/**
+	 * @param Request\RequestInterface $request
+	 * @return TwigResponse
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		return $this->createTwigResponse();
+	}
+	
 	public function indexAction()
 	{
-		$output = file_get_contents(__DIR__ . '/index.html');
-
 		$this->getResponse()
-				->output($output);
+				->outputTemplate('banner-manager/root/index.html.twig');
 	}
 
 }
-

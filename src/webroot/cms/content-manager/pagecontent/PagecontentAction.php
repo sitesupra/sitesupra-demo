@@ -18,8 +18,6 @@ use Supra\Editable;
  */
 class PagecontentAction extends PageManagerAction
 {
-	const LOCKED_SAVE_PROPERTY_NAME = '__locked__';
-	
 	/**
 	 * Insert block action
 	 */
