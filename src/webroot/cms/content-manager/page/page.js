@@ -460,13 +460,22 @@ Supra(function (Y) {
 		
 		/**
 		 * Delete page
+		 * 
+		 * @param {Function} callback Callback function, optional
+		 * @param {Object} context Callback function context, optional
 		 */
-		deleteCurrentPage: function (data, locale) {
+		deleteCurrentPage: function (callback, context) {
 			var page_data = this.data,
 				page_id = page_data.id,
 				locale = Supra.data.get('locale');
 			
-			this.deletePage(page_id, locale, this.onDeleteComplete, this);
+			this.deletePage(page_id, locale, function (data, status) {
+				//Callback function
+				if (callback) callback.apply(context || this, arguments);
+				
+				//Open sitemap
+				this.onDeleteComplete(data, status);
+			}, this);
 		},
 		
 		/**
@@ -495,14 +504,14 @@ Supra(function (Y) {
 		},
 		
 		/**
-		 * On delete request complete load new page
+		 * On delete request complete show sitemap
 		 * 
-		 * @param {Number} transaction Request transaction ID
 		 * @param {Object} data Response JSON data
+		 * @param {Boolean} status Request status
 		 */
 		onDeleteComplete: function (data, status) {
-			//Data is page ID which should be loaded next (parent page?)
-			this.loadPage(data);
+			Supra.Manager.PageContent.stopEditing();
+			Supra.Manager.executeAction('SiteMap');
 		},
 		
 		/**

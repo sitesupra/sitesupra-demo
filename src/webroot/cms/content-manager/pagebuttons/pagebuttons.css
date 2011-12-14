@@ -136,7 +136,8 @@
 /**
  * Disabled styles
  */
-.yui3-page-buttons .yui3-button-disabled.yui3-button-mid p {
+.yui3-page-buttons .yui3-button-disabled.yui3-button-mid p,
+.yui3-input-select-list-disabled .yui3-button p {
 	color: #ccc;
 }
 .yui3-page-buttons .yui3-button-disabled.yui3-button-mid-blue p {

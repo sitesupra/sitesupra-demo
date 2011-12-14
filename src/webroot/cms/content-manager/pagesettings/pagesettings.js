@@ -98,6 +98,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		button_cancel: null,
 		button_back: null,
+		button_delete: null,
 		
 		/**
 		 * Redirect button
@@ -398,7 +399,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					{
 						'id': 'delete',
 						'label': Supra.Intl.get(['buttons', 'yes']),
-						'click': function () { Manager.Page.deleteCurrentPage(); this.hide(); },
+						'click': this.deletePageConfirmed,
 						'context': this
 					},
 					{
@@ -409,6 +410,32 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			});
 			
 			return true;
+		},
+		
+		/**
+		 * Page delete is confirmed, now actually delete page 
+		 */
+		deletePageConfirmed: function () {
+			//Disable form
+			this.form.set('disabled', true);
+			this.button_delete.set('loading', true);
+			Supra.Manager.PageButtons.buttons[this.NAME][0].set('disabled', true);
+			
+			//Delete page
+			Manager.Page.deleteCurrentPage(this.afterDeletePage, this);
+		},
+		
+		/**
+		 * After page delete enable buttons
+		 */
+		afterDeletePage: function () {
+			//Enable form
+			this.form.set('disabled', false);
+			this.button_delete.set('loading', false);
+			Supra.Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
+			
+			//Hide page settings
+			this.hide();
 		},
 		
 		/**
@@ -429,43 +456,42 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.button_back.render().hide().on('click', function () { this.slideshow.scrollBack(); }, this);
 			
 			//Delete button
-			var button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'});
-				button_delete.render().on('click', this.deletePage, this);
+			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'});
+			this.button_delete.render().on('click', this.deletePage, this);
 				
 			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
-				button_delete.hide();
+				this.button_delete.hide();
 			}
 			
 			//Meta button
-			(new Supra.Button({'srcNode': buttons.filter('.button-meta').item(0)}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideMeta'); }, this);
+			var button_meta = new Supra.Button({'srcNode': buttons.filter('.button-meta').item(0)});
+			button_meta.render().on('click', function () { this.slideshow.set('slide', 'slideMeta'); }, this);
 			
 			//Version button
 			/*
-			(new Supra.Button({'srcNode': buttons.filter('.button-version').item(0), 'style': 'large'}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideVersion'); }, this);
+			var button_version = new Supra.Button({'srcNode': buttons.filter('.button-version').item(0), 'style': 'large'});
+			button_version.render().on('click', function () { this.slideshow.set('slide', 'slideVersion'); }, this);
 			*/
 			
 			//Template button
-			(new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'template'}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
+			var button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'template'});
+			button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
 			
 			//Schedule button
-			(new Supra.Button({'srcNode': buttons.filter('.button-schedule').item(0)}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideSchedule'); }, this);
+			var button_schedule = new Supra.Button({'srcNode': buttons.filter('.button-schedule').item(0)});
+			button_schedule.render().on('click', function () { this.slideshow.set('slide', 'slideSchedule'); }, this);
 			
 			//Redirect button
-			this.button_redirect = (new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)}));
-			this.button_redirect
-				.render().on('click', function () { this.openLinkManager(); }, this);
+			this.button_redirect = new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)});
+			this.button_redirect.render().on('click', function () { this.openLinkManager(); }, this);
 			
 			//Advanced settings button
-			(new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideAdvanced'); }, this);
+			var button_advanced = new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)});
+			button_advanced.render().on('click', function () { this.slideshow.set('slide', 'slideAdvanced'); }, this);
 				
 			//Created settings button
-			(new Supra.Button({'srcNode': buttons.filter('.button-created').item(0)}))
-				.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
+			var button_settings = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0)});
+			button_settings.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
 				
 			//Slideshow
 			var slideshow = this.slideshow = new Supra.Slideshow({
@@ -479,6 +505,21 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				'srcNode': this.one('form')
 			});
 			form.render();
+			
+			//When form is disabled/enabled take care of buttons
+			form.on('disabledChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					this.button_back.set('disabled', evt.newVal);
+					this.button_delete.set('disabled', evt.newVal);
+					this.button_redirect.set('disabled', evt.newVal);
+					button_meta.set('disabled', evt.newVal);
+					//button_version.set('disabled', evt.newVal);
+					button_template.set('disabled', evt.newVal);
+					button_schedule.set('disabled', evt.newVal);
+					button_advanced.set('disabled', evt.newVal);
+					button_settings.set('disabled', evt.newVal);
+				}
+			}, this);
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
