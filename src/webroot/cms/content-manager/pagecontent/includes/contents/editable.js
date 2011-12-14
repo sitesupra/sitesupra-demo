@@ -310,10 +310,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 						inputs[id].getEditor().addCommand('settings', Y.bind(this.onSettingsCommand, this));
 					}
 					
-					//If there is no inline node, then throw error
+					//If there is no inline node, fail silently
 					inline_node = node.one('#' + this.getNodeId() + '_' + properties[i].id);
 					if (!inline_node) {
-						Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
+						//Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
 						continue;
 					}
 					
