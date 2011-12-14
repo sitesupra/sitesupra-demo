@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 /**
  * BlockPropertyMetadata
  * @Entity
+ * @Table(uniqueConstraints={@UniqueConstraint(name="block_name_idx", columns={"blockProperty_id", "name"})}))
  */
 class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {

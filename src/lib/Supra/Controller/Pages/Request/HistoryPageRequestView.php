@@ -400,10 +400,10 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		// block properties
-		$historyProperties = $this->getBlockPropertySet()
-				->getPageProperties($pageLocalization);
+		//$historyProperties = $this->getBlockPropertySet()
+				//->getPageProperties($pageLocalization);
 		
-		$historyPropIds = $historyProperties->collectIds();
+		//$historyPropIds = $historyProperties->collectIds();
 		
 		$existingBlocks = $this->getBlocksInPage($draftEm, $destLocalization);
 		$blocks = $this->getBlockSet();
@@ -426,9 +426,9 @@ class HistoryPageRequestView extends PageRequest
 			$draftEm->merge($block);
 		}
 		
-		foreach ($historyProperties as $property) {
-			$draftEm->merge($property);
-		}
+		//foreach ($historyProperties as $property) {
+			//$draftEm->merge($property);
+		//}
 		
 		if ($page instanceof Entity\Template 
 				&& $page->isRoot()) {
@@ -447,7 +447,7 @@ class HistoryPageRequestView extends PageRequest
 		}
 		
 		$draftEm->flush();
-
+		
 		$draftEm->getEventManager()
 				->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 	

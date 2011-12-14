@@ -156,6 +156,11 @@ class PagecontentAction extends PageManagerAction
 			foreach ($metadataCollection as $metadata) {
 				$this->entityManager->remove($metadata);
 			}
+			
+			// flush, to remove old entites before add something new
+			// or unique constraint rule @ blockPropertyMetadata will fail
+			// FIXME: remove flush from foreach
+			$this->entityManager->flush();
 
 			// Empty the metadata
 			$property->resetMetadata();
