@@ -804,6 +804,8 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
 	{
+		return;
+		
 		$pageLocalization = null;
 		
 		if ($data instanceof Page) {
