@@ -379,14 +379,13 @@ Supra(function (Y) {
 		 * Save banner data
 		 */
 		save: function () {
-			var data = Supra.mix(
-				{
-					locale: Supra.data.get('locale')
-				},
+			var data = Supra.mix({},
 				//Data which was loaded
 				this.data,
 				//Values using 'name' as key and for save
-				this.form.getValues('name', true)
+				this.form.getValues('name', true),
+				//Locale
+				{'locale': Supra.data.get('locale')}
 			);
 			
 			var uri = data.banner_id ? this.getDataPath('save') : this.getDataPath('insert');
