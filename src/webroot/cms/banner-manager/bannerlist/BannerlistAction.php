@@ -13,6 +13,8 @@ class BannerlistAction extends CmsAction
 
 	public function loadAction()
 	{
+		$request = $this->getRequest();
+		
 		$bannerList = array();
 
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
@@ -20,11 +22,13 @@ class BannerlistAction extends CmsAction
 		$fileStorage = ObjectRepository::getFileStorage($this);
 
 		$bannerTypes = $bannerProvider->getTypes();
-
+		
+		$localeId = $request->getParameter('locale');
+		
 		foreach ($bannerTypes as $bannerType) {
 			/* @var $bannerType BannerTypeAbstraction */
 
-			$banners = $bannerProvider->getBanners($bannerType);
+			$banners = $bannerProvider->getBanners($bannerType, $localeId);
 
 			$children = array();
 
@@ -34,7 +38,12 @@ class BannerlistAction extends CmsAction
 				$externalPath = '#';
 
 				if ($banner instanceof ImageBanner) {
-					$externalPath = $fileStorage->getWebPath($banner->getFile());
+
+					$file = $banner->getFile();
+
+					if ( ! empty($file)) {
+						$externalPath = $fileStorage->getWebPath($banner->getFile());
+					}
 				}
 
 				$children[] = array(

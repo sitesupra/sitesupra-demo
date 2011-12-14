@@ -21,30 +21,30 @@ class BannereditAction extends CmsAction
 	 * @var BannerProvider
 	 */
 	protected $bannerProvider;
-	
+
 	/**
 	 * @var EntityRepository
 	 */
 	protected $pageLocalizationRepository;
-	
+
 	/**
 	 * @var EntityRepository
 	 */
 	protected $imageFileRepository;
-	
+
 
 	function __construct()
 	{
 		parent::__construct();
 
 		$this->bannerProvider = ObjectRepository::getBannerProvider($this);
-		
+
 		$em = $this->bannerProvider->getEntityManager();
-		
+
 		$this->pageRepository = $em->getRepository(PageLocalization::CN());
 		$this->imageFileRepository = $em->getRepository(Image::CN());
 	}
-	
+
 	/**
 	 * Stores updated banner data.
 	 */
@@ -54,11 +54,11 @@ class BannereditAction extends CmsAction
 				->getPost();
 
 		\Log::debug('BANNER SAVE REQUEST: ', $postData->getArrayCopy());
-		
+
 		$banner = $this->bannerProvider->getBanner($postData->get('banner_id'));
-		
-		$this->updateBannerFromPost($banner, $postData);		
-		
+
+		$this->updateBannerFromPost($banner, $postData);
+
 		$this->getResponse()->setResponseData(null);
 	}
 
@@ -78,7 +78,7 @@ class BannereditAction extends CmsAction
 
 		$this->getResponse()->setResponseData(null);
 	}
-	
+
 	/**
 	 * Takes banner object and post data and updates objects properties and stores it.
 	 * @param Banner $banner
@@ -107,10 +107,12 @@ class BannereditAction extends CmsAction
 		$imageFile = $this->imageFileRepository->find($postData->get('image'));
 
 		$banner->setFile($imageFile);
-		
-		$bannerType = $this->bannerProvider->getType($banner->getTypeId());		
-		
-		$bannerType->validate($this);
+
+		$banner->setLocaleId($postData->get('locale'));
+
+		$bannerType = $this->bannerProvider->getType($banner->getTypeId());
+
+		$bannerType->validate($banner);
 
 		$this->bannerProvider->store($banner);
 	}
@@ -155,12 +157,19 @@ class BannereditAction extends CmsAction
 			/* @var $page Page */
 			$page = $this->pageRepository->find($banner->getInternalTarget());
 
-			$result['target'] = array(
-					'resource' => 'page',
-					'page_id' => $banner->getInternalTarget(),
-					'href' => '#',
-					'title' => $page->getTitle()
-			);
+			if (empty($page)) {
+
+				$result['target'] = array();
+			}
+			else {
+
+				$result['target'] = array(
+						'resource' => 'page',
+						'page_id' => $banner->getInternalTarget(),
+						'href' => '#',
+						'title' => $page->getTitle()
+				);
+			}
 		}
 		else {
 
@@ -176,11 +185,10 @@ class BannereditAction extends CmsAction
 
 			$type = $this->bannerProvider->getType($banner->getTypeId());
 
-			$path = array();
+			$path = array(0); // !!! Important !!!
 			foreach ($banner->getFile()->getAncestors() as $ancestor) {
 				$path[] = $ancestor->getId();
 			}
-			//$path[] = $banner->getFile()->getId();
 
 			$result['image'] = array(
 					'id' => $banner->getFile()->getId(),
@@ -192,6 +200,20 @@ class BannereditAction extends CmsAction
 		}
 
 		$this->getResponse()->setResponseData($result);
+	}
+
+	public function deleteAction()
+	{
+		$request = $this->getRequest();
+
+		$bannerId = $request->getParameter('banner_id');
+
+		$banner = $this->bannerProvider->getBanner($bannerId);
+
+		$this->bannerProvider->remove($banner);
+
+		$this->getResponse()
+				->setResponseData(null);
 	}
 
 }

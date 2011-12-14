@@ -1,0 +1,5 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\BannerMachine\BannerMachineController
+    title: Banner
+    description: IMA PRETTY BANNER!
+    cmsClassname: Editable

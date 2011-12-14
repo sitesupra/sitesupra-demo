@@ -98,7 +98,7 @@ abstract class BannerTypeAbstraction
 	 */
 	public function validate(Banner $banner)
 	{
-		if (Banner instanceof ImageBanner) {
+		if ($banner instanceof ImageBanner) {
 			$this->validateImageBanner($banner);
 		}
 	}

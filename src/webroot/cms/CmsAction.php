@@ -26,13 +26,13 @@ abstract class CmsAction extends SimpleController
 	 * @var string
 	 */
 	private $requestMethod;
-	
+
 	/**
 	 * Current (authorized) user
 	 * @var User
 	 */
 	private $user;
-	
+
 	/**
 	 * Assign current user
 	 */
@@ -40,7 +40,7 @@ abstract class CmsAction extends SimpleController
 	{
 		parent::__construct();
 	}
-	
+
 	/**
 	 * Localized error handling
 	 */
@@ -48,72 +48,85 @@ abstract class CmsAction extends SimpleController
 	{
 		// Handle localized exceptions
 		try {
-			parent::execute();
-		} catch (LocalizedException $exception) {
 			
+			$response = $this->getResponse();
+			$localeId = $this->getLocale()->getId();
+			if($response instanceof JsonResponse) {
+				$response->appendResponseData(array('currentLocale' => $localeId));
+			}
+			else {
+				$response->assign('currentLocale', $localeId);
+			}
+			
+			parent::execute();
+			
+		} catch (LocalizedException $exception) {
+
 			// No support for not Json actions
 			$response = $this->getResponse();
 			if ( ! $response instanceof JsonResponse) {
 				throw $exception;
 			}
-			
+
 			//TODO: should use exception "message" at all?
 			$message = $exception->getMessage();
 			$messageKey = $exception->getMessageKey();
-			
+
 			if ( ! empty($messageKey)) {
 				$message = '{#' . $messageKey . '#}';
 				$response->setErrorMessage($messageKey);
 			}
 
 			$response->setErrorMessage($message);
-			
+
 			$this->log->warn($exception);
-			
-		/*
-		 * Resource not found exceptions should be thrown to CmsController 
-		 * for static json file execution, for DEVELOPEMENT only!
-		 */
-		} catch (Exception\ResourceNotFoundException $e) {
+
+			/*
+			 * Resource not found exceptions should be thrown to CmsController 
+			 * for static json file execution, for DEVELOPEMENT only!
+			 */
+		}
+		catch (Exception\ResourceNotFoundException $e) {
 			throw $e;
-		} catch (EntityAccessDeniedException $e) {
-				
+		}
+		catch (EntityAccessDeniedException $e) {
+
 			// No support for not Json actions
 			$response = $this->getResponse();
 			if ( ! $response instanceof JsonResponse) {
 				throw $e;
 			}
-			
+
 			$response->setCode(403);
 			$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
-			
+
 			$this->log->warn($e);
-			
-		} catch (\Exception $e) {
+		}
+		catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
 			if ( ! $response instanceof JsonResponse) {
 				throw $e;
 			}
-			
+
 			//TODO: Remove later. Should not be shown to user
 			$response->setErrorMessage($e->getMessage());
-			
+
 			// Write the issue inside the log
 			$this->log->error($e);
 		}
 	}
-	
+
 	/**
 	 * @return JsonResponse
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
 		$response = new JsonResponse();
-		
+
 		return $response;
 	}
-	
+
 	/**
 	 * @return TwigResponse
 	 */
@@ -183,10 +196,10 @@ abstract class CmsAction extends SimpleController
 		if ( ! $this->getRequest()->isPost()) {
 			throw new Exception\BadRequestException("Post request method is required for the action");
 		}
-		
+
 		$this->requestMethod = Request\HttpRequest::METHOD_POST;
 	}
-	
+
 	/**
 	 * If the request parameter was sent
 	 * @param string $key
@@ -196,10 +209,10 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = $this->getRequestParameter($key);
 		$exists = ($value != '');
-		
+
 		return $exists;
 	}
-	
+
 	/**
 	 * Tells if request value is empty (not sent or empty value)
 	 * @param string $key
@@ -209,7 +222,7 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = $this->getRequestParameter($key);
 		$empty = empty($value);
-		
+
 		return $empty;
 	}
 
@@ -220,16 +233,17 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = null;
 		$request = $this->getRequest();
-		
+
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPost();
-		} else {
+		}
+		else {
 			$value = $request->getQuery();
 		}
-		
+
 		return $value;
 	}
-	
+
 	/**
 	 * Get POST/GET request parameter depending on the action setting
 	 * @param string $key
@@ -239,16 +253,17 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = null;
 		$request = $this->getRequest();
-		
+
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPostValue($key);
-		} else {
+		}
+		else {
 			$value = $request->getQueryValue($key);
 		}
-		
+
 		return $value;
 	}
-	
+
 	/**
 	 * Will return Locale object specified by request params or default
 	 * @return Locale
@@ -257,31 +272,33 @@ abstract class CmsAction extends SimpleController
 	{
 		$locale = null;
 		$localeManager = ObjectRepository::getLocaleManager($this);
-		
+
 		$request = $this->request;
 		/* @var $request HttpRequest */
-		
+
 		$requestedLocaleId = $request->getPostValue('locale');
-		
+
 		if (empty($requestedLocaleId)) {
 			$requestedLocaleId = $request->getQueryValue('locale');
 		}
-		
+
 		if ( ! empty($requestedLocaleId)) {
 			try {
 				$locale = $localeManager->getLocale($requestedLocaleId);
-			} catch (\Exception $e) {
+			}
+			catch (\Exception $e) {
 				$this->log->error("CmsAction: locale '$requestedLocaleId' is missing for request '{$this->request->getActionString()}'");
 				$locale = $localeManager->getCurrent();
 			}
-		} else {
+		}
+		else {
 			$locale = $localeManager->getCurrent(); // get default (current)
 		}
-		
+
 		return $locale;
 	}
-	
-	/** 
+
+	/**
 	 * Returns object of current user
 	 * @return User
 	 * @throws Exception\RuntimeException if there is no current user
@@ -292,17 +309,17 @@ abstract class CmsAction extends SimpleController
 			$session = ObjectRepository::getSessionManager($this)
 					->getSpace('Supra\Authentication\AuthenticationSessionNamespace');
 			/* @var $session AuthenticationSessionNamespace */
-			
+
 			$this->user = $session->getUser();
 
 			if ( ! $this->user instanceof User) {
 				throw new Exception\RuntimeException("User is not logged in");
 			}
 		}
-		
+
 		return $this->user;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $object
@@ -313,18 +330,18 @@ abstract class CmsAction extends SimpleController
 	protected function checkActionPermission($object, $permissionName)
 	{
 		$user = $this->getUser();
-		
+
 		$ap = ObjectRepository::getAuthorizationProvider($this);
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
-		
+
 		if ($appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($user)) {
 			return true;
 		}
-		
+
 		if ($ap->isPermissionGranted($user, $object, $permissionName)) {
 			return true;
 		}
-		
+
 		throw new EntityAccessDeniedException($user, $object, $permissionName);
 	}
 

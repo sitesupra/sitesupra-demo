@@ -40,15 +40,15 @@ class DefaultSizeType extends BannerTypeAbstraction
 		$imageRatio = $imageWidth / $imageHeight;
 
 		$typeRatio = $this->getWidth() / $this->getHeight();
-
+		
 		if (
 				($imageRatio > $typeRatio + $this->ratioDelta) ||
 				($imageRatio < $typeRatio - $this->ratioDelta)
 		) {
-			return FALSE;
+			throw new Exception\RuntimeException('Width / height ratio not valid for chosen image.');
 		}
 
-		return TRUE;
+		return true;
 	}
 
 }

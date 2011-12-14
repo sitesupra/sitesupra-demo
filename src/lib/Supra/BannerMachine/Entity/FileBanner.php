@@ -3,6 +3,7 @@
 namespace Supra\BannerMachine\Entity;
 
 use Supra\FileStorage\Entity\File;
+use Supra\ObjectRepository\ObjectRepository;
 
 abstract class FileBanner extends Banner
 {
@@ -28,6 +29,10 @@ abstract class FileBanner extends Banner
 	public function setFile(File $file)
 	{
 		$this->file = $file;
+		
+		$lm = ObjectRepository::getLocaleManager($this);
+		
+		$this->title = $file->getTitle($lm->getCurrent()->getId());
 	}
 
 }

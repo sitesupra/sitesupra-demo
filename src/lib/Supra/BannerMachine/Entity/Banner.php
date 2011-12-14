@@ -4,6 +4,7 @@ namespace Supra\BannerMachine\Entity;
 
 use Supra\Database;
 use \DateTime;
+use Project\BannerMachine\BannerMachineController;
 
 /**
  * @Entity
@@ -17,6 +18,9 @@ abstract class Banner extends Database\Entity
 	const TARGET_TYPE_INTERNAL = 1;
 	const TARGET_TYPE_EXTERNAL = 2;
 
+	const STATUS_ACTIVE = 1;
+	const STATUS_INACTIVE = 0;
+
 	/**
 	 * @Column(type="string", nullable=true)
 	 * @var string
@@ -28,6 +32,12 @@ abstract class Banner extends Database\Entity
 	 * @var integer
 	 */
 	protected $targetType;
+
+	/**
+	 * @Column(type="string", nullable=false)
+	 * @var string
+	 */
+	protected $localeId;
 
 	/**
 	 * @Column(type="string", nullable=true)
@@ -95,7 +105,9 @@ abstract class Banner extends Database\Entity
 	 */
 	protected $typeId;
 
-	abstract function getContent();
+	abstract function getExposureModeContent(BannerMachineController $controller);
+	
+	abstract function getEditModeContent(BannerMachineController $controller);
 
 	public function getWidth()
 	{
@@ -244,6 +256,16 @@ abstract class Banner extends Database\Entity
 	public function getExternalTarget()
 	{
 		return $this->externalTarget;
+	}
+
+	public function getLocaleId()
+	{
+		return $this->localeId;
+	}
+
+	public function setLocaleId($localeId)
+	{
+		$this->localeId = $localeId;
 	}
 
 }
