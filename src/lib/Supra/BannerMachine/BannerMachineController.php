@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\BannerMachine;
+namespace Supra\BannerMachine;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\ObjectRepository\ObjectRepository;
