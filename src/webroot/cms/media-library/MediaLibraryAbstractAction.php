@@ -101,25 +101,6 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	 *
 	 * @param string $action
 	 * @param mixed $data
-	 * @param int $level 
-	 */
-	protected function writeAuditLog($action, $data, $level = AuditLogEvent::INFO) 
-	{
-		if ($data instanceof File) {
-			$data = array(
-				'title' => $data->getFileName(),
-				'id' => $data->getId()
-			);
-		}
-		
-		parent::writeAuditLog($action, $data, $level);
-	}
-
-	/**
-	 * Write to audit log
-	 *
-	 * @param string $action
-	 * @param mixed $data
 	 * @param object $item
 	 * @param int $level 
 	 */
