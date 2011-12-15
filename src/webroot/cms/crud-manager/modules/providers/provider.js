@@ -443,6 +443,7 @@ YUI.add('website.provider', function (Y) {
 				});
 				
 				this.form.render(container);
+				this.form.resetValues();
 				
 				//Footer
 				var buttons = [];

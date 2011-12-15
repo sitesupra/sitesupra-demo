@@ -54,7 +54,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				tag = tagToSpan[i][0];
 				
 				expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
-				console.log(expression.toString(), tagToSpan[i][1]);
 				html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
 				
 				expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");

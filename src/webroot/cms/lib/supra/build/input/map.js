@@ -108,12 +108,24 @@ YUI.add('supra.input-map', function (Y) {
 		 */
 		value: null,
 		
+		/**
+		 * Map node
+		 * @type {HTMLElement}
+		 * @private
+		 */
+		node: null,
+		
 		
 		renderUI: function () {
 			//Create map
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			MapManager.prepare(this.createMap, this);
+			var node = Y.Node.create('<div></div>');
+			node.setStyle('height', '300px');
+			this.get('boundingBox').append(node);
+			this.node = node.getDOMNode();
+			
+			MapManager.prepare(this.createMap, this); 
 		},
 		
 		/**
@@ -122,32 +134,28 @@ YUI.add('supra.input-map', function (Y) {
 		createMap: function () {
 			if (this.map) return;
 			
-			var latlng = null;
-			
-			var node = Y.Node.create('<div></div>');
-			node.setStyle('height', '300px');
-			this.get('boundingBox').append(node);
-			
-			node = node.getDOMNode();
-			
-			if (this.value) {
-				latlng = new google.maps.LatLng(this.value[0], this.value[1]);
+			if (!this.value) {
+				this.value = this.get('defaultValue') || [0, 0];
 			}
 			
-			var myOptions = {
-				zoom: 8,
-				center: latlng,
-				streetViewControl: false,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
-			};
+			var latlng = new google.maps.LatLng(this.value[0], this.value[1]),
+				node = this.node,
+				myOptions = {
+					zoom: 8,
+					center: latlng,
+					streetViewControl: false,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				},
+				map,
+				marker;
 			
-			var map = this.map = new google.maps.Map(node, myOptions);
+			map = this.map = new google.maps.Map(node, myOptions);
 			
 			//Add marker
 			if (!latlng) {
 				latlng = map.getCenter();
 			}
-			var marker = this.marker = new google.maps.Marker({'position': latlng, 'map': map, 'draggable': true});
+			marker = this.marker = new google.maps.Marker({'position': latlng, 'map': map, 'draggable': true});
 			
 			//On marker drag trigger change event
 			google.maps.event.addListener(marker, 'dragend', Y.bind(this._afterValueChange, this));
@@ -161,8 +169,6 @@ YUI.add('supra.input-map', function (Y) {
 		 */
 		_setValue: function (data) {
 			this.value = data;
-			
-			console.log(data);
 			
 			if (this.map) {
 				if (data) {
@@ -186,7 +192,7 @@ YUI.add('supra.input-map', function (Y) {
 			if (!this.map || !this.marker) return this.value;
 			
 			var point = this.marker.getPosition();
-			return [point.lat(), point.lng()];
+			return point ? [point.lat(), point.lng()] : this.value;
 		},
 		
 		/**

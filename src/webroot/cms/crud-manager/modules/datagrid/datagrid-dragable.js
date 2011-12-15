@@ -221,7 +221,7 @@ YUI.add('website.datagrid-dragable', function (Y) {
 		 * @private
 		 */
 		newItemDragOver: function (e) {
-			//Only if 'new-item' is present in dragable items groups
+			//Only if 'new-item' is in dragged item group list
 			if (!e.drag._groups['new-item']) return;
 			
 			var drag = this.temp_node,
@@ -259,7 +259,7 @@ YUI.add('website.datagrid-dragable', function (Y) {
 			if (!e.drag._groups['new-item']) return;
 			
 			var drag = this.temp_node,
-				drop = e.drop.get('node').closest('TBODY');
+				drop = e.drop.get('node').one('tbody');
 			
 			if (drop) {
 				//Create element
@@ -295,7 +295,7 @@ YUI.add('website.datagrid-dragable', function (Y) {
 		newItemDrop: function (e) {
 			if (!e.drag._groups['new-item'] || !this.temp_node) return;
 			
-			if (this.get('dd-sort')) {
+			if (this.get('dd-sort') && this.get('host').rows.length) {
 				var drag = this.temp_node,
 					prev = drag.previous(),
 					next = drag.next();
@@ -389,12 +389,13 @@ YUI.add('website.datagrid-dragable', function (Y) {
 			
 			if (this.get('dd-insert')) {
 				this.drop = new Y.DD.Drop({
-					'node': container,
+					'node': container.closest('.yui3-datagrid-content'),
 					'groups': ['new-item']
 				});
 				
 				this.drop.on('drop:hit', this.newItemDrop, this);
 				this.drop.on('drop:exit', this.newItemDragExitMain, this);
+				this.drop.on('drop:over', this.newItemDragOverMain, this);
 				
 				if (del) {
 					del.on('drop:hit', this.newItemDrop, this);
