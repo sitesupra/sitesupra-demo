@@ -138,6 +138,10 @@ SU('dd-drag', function (Y) {
 			return this.iframe_handler.getContent();
 		},
 		
+		getIframeHandler: function () {
+			return this.iframe_handler;
+		},
+		
 		/**
 		 * On editing start change toolbar
 		 */
@@ -186,8 +190,10 @@ SU('dd-drag', function (Y) {
 						button.show();
 					}
 					
-					//Enable highlights
-					this.getContent().set('highlight', false);
+					if (this.getContent()) {
+						//Enable highlights
+						this.getContent().set('highlight', false);
+					}
 					
 				} else {
 					
@@ -255,6 +261,9 @@ SU('dd-drag', function (Y) {
 				
 				//Render iframe
 				this.iframe_handler.render();
+				
+				//Set loading style
+				this.iframe_handler.set('loading', true);
 				
 				this.iframe_handler.on('activeChildChange', function (evt) {
 					this.fire('activeChildChange', evt);

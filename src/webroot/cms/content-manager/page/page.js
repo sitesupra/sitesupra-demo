@@ -162,6 +162,11 @@ Supra(function (Y) {
 			this.loading = true;
 			this.data = null;
 			
+			//Add loading style to the iframe
+			var iframe_handler = Supra.Manager.PageContent.getIframeHandler();
+			if (iframe_handler) iframe_handler.set('loading', true);
+			
+			//Load page data
 			Supra.io(this.getDataPath(), {
 				'data': {
 					'page_id': page_id || '',
@@ -191,6 +196,9 @@ Supra(function (Y) {
 				var button_edit = Supra.Manager.PageButtons.buttons.Root[0],
 					button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
 					message_unlock = button_unlock.get('boundingBox').previous('p');
+				
+				//Remove loading icons from Edit button, which was added by publish
+				button_edit.set('loading', false);
 				
 				if (status) {
 					this.data = data;
@@ -280,6 +288,11 @@ Supra(function (Y) {
 		 * Publish page
 		 */
 		publishPage: function () {
+			//Change "Edit" button style to loading
+			var button_edit = Supra.Manager.PageButtons.buttons.Root[0];
+			button_edit.set('loading', true);
+			
+			//Send request
 			var uri = this.getDataPath('publish'),
 				page_data = this.getPageData();
 			

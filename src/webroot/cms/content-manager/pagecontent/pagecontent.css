@@ -53,6 +53,25 @@
 	width: 100%;
 }
 
+/**
+ * Loading
+ */
+.yui3-page-iframe .yui3-page-iframe-temp {
+	background: none;
+}
+.yui3-page-iframe .yui3-page-iframe-temp iframe {
+	visibility: visible;
+}
+
+.yui3-page-iframe .yui3-page-iframe-loading,
+.yui3-page-iframe-temp {
+	background: url(../../lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+.yui3-page-iframe .yui3-page-iframe-loading iframe,
+.yui3-page-iframe-temp iframe {
+	visibility: hidden;
+}
+
 
 /**
  * iframe overlay

@@ -59,6 +59,13 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		'win': {
 			value: null
+		},
+		/**
+		 * Loading state
+		 */
+		'loading': {
+			value: false,
+			setter: '_setLoading'
 		}
 	};
 	
@@ -142,6 +149,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.contents.after('activeChildChange', function (event) {
 				this.fire('activeChildChange', {newVal: event.newVal, prevVal: event.prevVal});
 			}, this);
+			
+			//Loading is done, remove loading style
+			this.set('loading', false);
 			
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body});
@@ -255,7 +265,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		renderUI: function () {
 			IframeHandler.superclass.renderUI.apply(this, arguments);
-
+			
 			var cont = this.get('contentBox');
 			var iframe = this.get('nodeIframe');
 			
@@ -339,11 +349,14 @@ YUI.add('supra.iframe-handler', function (Y) {
 					if (!links[i].sheet) {
 						loaded = false;
 						break;
+					} else {
 					}
 				}
 				
 				if (loaded) {
-					this.createContent();
+					Y.later(50, this, function () {
+						this.createContent();
+					});
 				} else {
 					setTimeout(fn, 50);
 				}
@@ -388,6 +401,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 				
 				//When stylesheets are loaded initialize IframeContents
 				this._onStylesheetLoad(links, body);
+			}
+		},
+		
+		/**
+		 * Set loading state
+		 */
+		_setLoading: function (value) {
+			if (value) {
+				this.get('contentBox').addClass('yui3-page-iframe-loading');
+			} else {
+				this.get('contentBox').removeClass('yui3-page-iframe-loading');
 			}
 		}
 		

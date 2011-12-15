@@ -195,6 +195,9 @@ YUI.add('supra.button', function (Y) {
 			this.on('mouseover', this._onMouseOver, this);
 			this.on('mouseout', this._onMouseOut, this)
 			
+			this.get('contentBox').on('click', this._onDisabledPreventClick, this);
+			this.get('boundingBox').on('click', this._onDisabledPreventClick, this);
+			
 			this.on('click', this._onClick, this);
 			
 			//On focus, focus input
@@ -333,9 +336,12 @@ YUI.add('supra.button', function (Y) {
 			}
 		},
 		
+		_onDisabledPreventClick: function (evt) {
+			if (this.get('disabled')) evt.halt(true);
+		},
+		
 		_onClick: function (evt) {
-			if (this.get('disabled')) evt.halt();
-			
+			if (this.get('disabled')) return evt.halt(true);
 			if (this.get('type') == 'toggle') {
 				var down = !this.get('down');
 				this.set('down', down);
