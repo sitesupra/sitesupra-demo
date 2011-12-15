@@ -18,12 +18,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	/* Find all tags */
 	var REGEXP_FIND_TAGS = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
 	
+	var REGEXP_FIND_CLASS = /class=(([a-z0-9\_\-]+)|"([^"]+)")/i;
+	
 	/* List of tagNames and matching regular expressions to find correct tag name */
 	var STYLE_TO_TAG_NAME = [
 		['B', /font-weight:\s?bold/i],
 		['EM', /font-style:\s?italic/i],
 		['U', /text-decoration:[^"']*underline/i],
-		['S', /text-decoration:[^"']*strike-through/i]
+		['S', /text-decoration:[^"']*line-through/i]
 	];
 	
 	Y.mix(Supra.HTMLEditor.prototype, {
@@ -43,7 +45,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					['b',  'font-weight: bold'],
 					['em', 'font-style: italic'],
 					['u',  'text-decoration: underline'],
-					['s',  'text-decoration: strike-through']
+					['s',  'text-decoration: line-through']
 				],
 				tag,
 				expression;
@@ -51,10 +53,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			for(var i=0,ii=tagToSpan.length; i<ii; i++) {
 				tag = tagToSpan[i][0];
 				
-				expression = new RegExp("<" + tag + "(\s[^>]*)?>", "ig");
-				html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';">');
+				expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
+				console.log(expression.toString(), tagToSpan[i][1]);
+				html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
 				
-				expression = new RegExp("<\/" + tag + "(\s[^>]*)?>", "ig");
+				expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");
 				html = html.replace(expression, '</span>');
 			}
 			
@@ -73,7 +76,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * 		Input:  <span style="font-weight: bold; font-style: italic;">text</span>
 		 * 		Output: <b><i>text</i></b>
 		 *
-		 * 		Input:  <span style="text-decoration: underline strike-through;">text</span>
+		 * 		Input:  <span style="text-decoration: underline line-through;">text</span>
 		 * 		Output: <u><s>text</s></u>
 		 *  
 		 * @param {Object} html
@@ -89,7 +92,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					['b', /font-weight:\s?bold/i],
 					['em', /font-style:\s?italic/i],
 					['u', /text-decoration:[^"']*underline/i],
-					['s', /text-decoration:[^"']*strike-through/i]
+					['s', /text-decoration:[^"']*line-through/i]
 				];
 				
 				//Remove YUI ids from nodes
@@ -109,6 +112,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					tagsAdd = [],
 					tagsAppend = '',
 					tagsPrepend = '',
+					classAdd = '',
 					k = 0,
 					kk = styleToTag.length;
 				
@@ -141,7 +145,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 								}
 							}
 							
-							tagsPrepend = tagsAdd.length ? '<_' + tagsAdd.join('><_') + '>' : '';
+							classAdd = tagContent.match(REGEXP_FIND_CLASS);
+							classAdd = classAdd ? ' class="' + (classAdd[2] || classAdd[3]) + '"' : '';
+							
+							tagsPrepend = tagsAdd.length ? '<_' + tagsAdd.join(classAdd + '><_') + classAdd + '>' : '';
 							tagsAppend  = tagsAdd.length ? '</_' + tagsAdd.reverse().join('></_') + '>' : '';
 							
 							html = html.substring(0, tagOpenStart)
