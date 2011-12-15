@@ -355,6 +355,8 @@ abstract class CmsAction extends SimpleController
 	 */
 	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
+		return;
+		
 		$auditLog = ObjectRepository::getAuditLogger($this);
 		$user = $this->getUser();
 
