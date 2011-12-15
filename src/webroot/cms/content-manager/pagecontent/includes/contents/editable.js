@@ -392,6 +392,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 				delete(data.properties.__locked__);
 				
 				this.properties.get('data').locked = data.locked;
+			} else if ('__locked__' in data.properties) {
+				delete(data.properties.__locked__);
 			}
 			
 			Supra.io(uri, {

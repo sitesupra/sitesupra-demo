@@ -347,6 +347,11 @@ YUI.add('supra.iframe-contents', function (Y) {
 				}
 			}
 			
+			//Remove __locked__ from values whic hare sent to backend
+			if ('__locked__' in save_values) {
+				delete(save_values.__locked__);
+			}
+			
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
