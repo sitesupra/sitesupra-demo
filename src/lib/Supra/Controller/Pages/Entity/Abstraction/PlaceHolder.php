@@ -198,8 +198,8 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 				}
 
 				// Create new block
-				$block = Block::factoryClone($localization, $block);
-				$placeHolder->addBlock($block);
+				$newBlock = Block::factoryClone($localization, $block);
+				$placeHolder->addBlock($newBlock);
 
 				// Should persist by cascade
 //				// Persist only for draft connection with ID generation
@@ -227,6 +227,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 //				$blockProperties = $query->getResult();
 //
 //				$localization = $this->getPageLocalization();
+				$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('#cms');				
 				
 				// Block properties are loaded from the block and filtered manually now
 				$blockProperties = $block->getBlockProperties();
@@ -235,16 +236,20 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 				foreach ($blockProperties as $blockProperty) {
 					
 					// We are interested only in the properties belonging to the current localization
-					if ($blockProperty->getLocalization()->equals($localization)) {
+//					if ($blockProperty->getLocalization()->equals($localization)) {
 						$blockProperty = clone($blockProperty);
+						
+						$blockProperty->resetLocalization();
+						$blockProperty->resetBlock();
+						
 						$blockProperty->setLocalization($localization);
-						$blockProperty->setBlock($block);
-					}
+						$blockProperty->setBlock($newBlock);
+//					}
 
 					// Should persist by cascade
 //					// Persist only for draft connection with ID generation
 //					if ($this instanceof PageRequestEdit) {
-//						$em->persist($blockProperty);
+						$em->persist($blockProperty);
 //					}
 				}
 			}

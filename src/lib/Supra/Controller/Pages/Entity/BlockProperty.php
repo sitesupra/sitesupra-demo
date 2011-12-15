@@ -117,6 +117,16 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		$this->metadata = new Collections\ArrayCollection();
 	}
 	
+	public function resetBlock()
+	{
+		$this->block = null;
+	}
+	
+	public function resetLocalization()
+	{
+		$this->localization = null;
+	}
+	
 	/**
 	 * @param BlockPropertyMetadata $metadata
 	 */
