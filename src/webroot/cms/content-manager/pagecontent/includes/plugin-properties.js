@@ -639,7 +639,19 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		setValues: function (values) {
 			var form = this.get('form');
+			
 			if (form) {
+				var page_data = Manager.Page.getPageData(),
+					locked_input = form.getInput('__locked__');
+				
+				if (page_data.type != 'page') {
+					//Templates have "locked" input
+					locked_input.set('disabled', false).set('visible', true);
+				} else {
+					//Pages don't have "locked" input
+					locked_input.set('disabled', true).set('visible', false);
+				}
+				
 				form.setValuesObject(values, 'id');
 			}
 		},

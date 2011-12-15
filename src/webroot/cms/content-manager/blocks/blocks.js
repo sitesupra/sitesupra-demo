@@ -95,21 +95,19 @@ SU(function (Y) {
 		 * @type {Object}
 		 */
 		getBlock: function (id) {
-			var data = (id in this.data ? this.data[id] : null),
-				page_data = Manager.Page.getPageData();
+			var data = (id in this.data ? this.data[id] : null);
 			
-			//If editing template, then add possibility to lock blocks
-			//and placeholders by adding 'locked' property to property list
-			if (page_data.type != 'page') {
-				data = data || {'classname': '', 'type': id, 'properties': [], 'title': ''};
-				data.properties = data.properties || [];
-				
-				data.properties.push({
-					'id': '__locked__',
-					'type': 'Checkbox',
-					'label': 'Global block'
-				});
-			}
+			//When user will be editing template, then will need possibility to lock blocks;
+			//add 'locked' property to property list;
+			//input will be hidden and disabled if current page is not template (see plugin-properties.js)
+			data = data || {'classname': '', 'type': id, 'properties': [], 'title': ''};
+			data.properties = data.properties || [];
+			
+			data.properties.push({
+				'id': '__locked__',
+				'type': 'Checkbox',
+				'label': 'Global block'
+			});
 			
 			return data;
 		},
