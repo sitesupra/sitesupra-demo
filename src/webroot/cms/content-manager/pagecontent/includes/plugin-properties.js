@@ -642,10 +642,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			if (form) {
 				var page_data = Manager.Page.getPageData(),
-					locked_input = form.getInput('__locked__');
+					locked_input = form.getInput('__locked__'),
+					parent = this.get('host').get('parent');
 				
-				if (page_data.type != 'page') {
-					//Templates have "locked" input
+				
+				if (page_data.type != 'page' && (!parent || !parent.get('data').closed)) {
+					//Template blocks have "Global block" input
+					//but if placeholder is closed (not editable), then don't show it
 					locked_input.set('disabled', false).set('visible', true);
 				} else {
 					//Pages don't have "locked" input

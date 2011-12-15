@@ -340,9 +340,11 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//If editing template, then send also "locked", but not as part
 			//of properties
 			if (page_data.type != 'page') {
-				post_data.locked = save_values.__locked__;
-				block.properties.get('data').locked = post_data.locked;
-				delete(save_values.__locked__);
+				if (typeof save_values.__locked__ !== 'undefined') {
+					post_data.locked = save_values.__locked__;
+					block.properties.get('data').locked = post_data.locked;
+					delete(save_values.__locked__);
+				}
 			}
 			
 			Supra.io(url, {
