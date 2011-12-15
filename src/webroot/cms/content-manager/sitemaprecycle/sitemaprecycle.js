@@ -257,7 +257,7 @@ SU('anim', 'transition', function (Y) {
 		load: function (type, locale) {
 			var sitemap = Manager.getAction('SiteMap'),
 				type = type || sitemap.input_type.getValue(),
-				locale = locale || Supra.data.get('locale');
+				locale = locale || sitemap.languagebar.get('locale');
 			
 			this.one('.recycle-list').addClass('loading');
 			
