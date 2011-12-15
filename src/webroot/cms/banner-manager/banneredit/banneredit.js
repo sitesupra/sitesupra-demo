@@ -85,11 +85,17 @@ Supra(function (Y) {
 		
 		/**
 		 * Schedule input button
-		 * 
 		 * @type {Object}
 		 * @private
 		 */
 		button_schedule: null,
+		
+		/**
+		 * Delete button
+		 * @type {Object}
+		 * @private
+		 */
+		button_delete: null,
 		
 		
 		
@@ -100,67 +106,68 @@ Supra(function (Y) {
 		 */
 		render: function () {
 			//Set default buttons
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
-				{
-					'id': 'change',
-					'title': SU.Intl.get(['edit', 'change']),
-					'icon': this.getActionPath() + 'images/icon-change.png',
-					'action': 'BannerEdit',
-					'actionFunction': 'showMediaSidebar',
-					'type': 'button'
-				}
-			]);
-			
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [
-				{
-					'id': 'done',
-					'callback': this.hide,
-					'context': this
-				}
-			]);
-			
-			this.addChildAction('MediaSidebar');
-			
+				Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
+					{
+						'id': 'change',
+						'title': SU.Intl.get(['edit', 'change']),
+						'icon': this.getActionPath() + 'images/icon-change.png',
+						'action': 'BannerEdit',
+						'actionFunction': 'showMediaSidebar',
+						'type': 'button'
+					}
+				]);
+				
+				Manager.getAction('PageButtons').addActionButtons(this.NAME, [
+					{
+						'id': 'done',
+						'callback': this.hide,
+						'context': this
+					}
+				]);
+				
+				this.addChildAction('MediaSidebar');
+				
 			//Target button
-			var button = new Supra.Button({
-				'srcNode': this.one('fieldset.target button'),
-				'style': 'group'
-			});
-			button.addClass('yui3-button-first').addClass('yui3-button-last');
-			button.render();
-			button.on('click', this.openLinkManager, this);
-			this.button_target = button;
+				var button = new Supra.Button({
+					'srcNode': this.one('fieldset.target button'),
+					'style': 'group'
+				});
+				button.addClass('yui3-button-first').addClass('yui3-button-last');
+				button.render();
+				button.on('click', this.openLinkManager, this);
+				this.button_target = button;
 			
 			//Schedule button
-			var button = new Supra.Button({
-				'srcNode': this.one('fieldset.schedule button'),
-				'style': 'group'
-			});
-			button.addClass('yui3-button-first').addClass('yui3-button-last');
-			button.render();
-			button.on('click', this.openScheduler, this);
-			this.button_schedule = button;
+				button = new Supra.Button({
+					'srcNode': this.one('fieldset.schedule button'),
+					'style': 'group'
+				});
+				button.addClass('yui3-button-first').addClass('yui3-button-last');
+				button.render();
+				button.on('click', this.openScheduler, this);
+				this.button_schedule = button;
 			
-			//On target value change update button label
-			this.form.getInput('target').on('valueChange', this.updateLinkUI, this);
-			this.form.getInput('schedule').on('valueChange', this.updateScheduleUI, this);
+			//On target and schedule value changes update button labels
+				this.form.getInput('target').on('valueChange', this.updateLinkUI, this);
+				this.form.getInput('schedule').on('valueChange', this.updateScheduleUI, this);
 			
 			//When link manager and schedule manager closes unset button down state
-			Supra.Manager.getAction('PageLinkManager').on('visibleChange', function (e) {
-				this.button_target.set('down', e.newVal);
-			}, this);
-			
-			Supra.Manager.getAction('Schedule').on('visibleChange', function (e) {
-				this.button_schedule.set('down', e.newVal);
-			}, this);
+				Supra.Manager.getAction('PageLinkManager').on('visibleChange', function (e) {
+					this.button_target.set('down', e.newVal);
+				}, this);
+				
+				Supra.Manager.getAction('Schedule').on('visibleChange', function (e) {
+					this.button_schedule.set('down', e.newVal);
+				}, this);
 			
 			//Delete button
-			var button = new Supra.Button({
-				'srcNode': this.one('fieldset.delete-group button'),
-				'style': 'mid-red'
-			});
-			button.on('click', this.deleteBanner, this);
-			button.render();
+				button = new Supra.Button({
+					'srcNode': this.one('fieldset.delete-group button'),
+					'style': 'mid-red'
+				});
+				button.on('click', this.deleteBanner, this);
+				button.render();
+				this.button_delete = button;
 		},
 		
 		/**
@@ -313,6 +320,15 @@ Supra(function (Y) {
 			
 			//Set image
 			this.updatePreview(data.image);
+			
+			//Show/hide delete button
+			if (data.banner_id) {
+				//Existing banner
+				this.button_delete.show();
+			} else {
+				//New banner
+				this.button_delete.hide();
+			}
 			
 			//Remove loading animation
 			this.one().removeClass('loading');
