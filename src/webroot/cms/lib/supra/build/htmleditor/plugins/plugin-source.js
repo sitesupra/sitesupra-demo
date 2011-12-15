@@ -12,23 +12,11 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 	
 	SU.HTMLEditor.addPlugin('source', defaultConfiguration, {
 		
-		toggleSourceEditor: function () {
-			var button = this.htmleditor.get('toolbar').getButton('source');
-			if (button.get('down')) {
-				Manager.executeAction('PageSourceEditor', {
-					'html': this.htmleditor.getHTML(),
-					'callback': Y.bind(this.updateSource, this)
-				});
-			} else {
-				this.hideSourceEditor();
-			}
-		},
-		
-		/**
-		 * Hide media library bar
-		 */
-		hideSourceEditor: function () {
-			Manager.getAction('PageSourceEditor').hide();
+		showSourceEditor: function () {
+			Manager.executeAction('PageSourceEditor', {
+				'html': this.htmleditor.getHTML(),
+				'callback': Y.bind(this.updateSource, this)
+			});
 		},
 		
 		/**
@@ -53,14 +41,9 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 				button = toolbar ? toolbar.getButton('source') : null;
 			
 			// Add command
-			htmleditor.addCommand('source', Y.bind(this.toggleSourceEditor, this));
+			htmleditor.addCommand('source', Y.bind(this.showSourceEditor, this));
 			
 			if (button) {
-				//When media library is shown/hidden make button selected/unselected
-				sourceeditor.after('visibleChange', function (evt) {
-					button.set('down', evt.newVal);
-				});
-				
 				//When un-editable node is selected disable mediasidebar toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
 					button.set('disabled', !event.allowed);

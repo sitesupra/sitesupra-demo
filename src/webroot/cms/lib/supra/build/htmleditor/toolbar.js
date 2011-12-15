@@ -16,7 +16,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"},
 					{"type": "separator"},
-					{"id": "source", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"}
+					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"}
 				]
 			},
 			{

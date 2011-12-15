@@ -117,15 +117,6 @@ SU(function (Y) {
 				'context': this,
 				'callback': this.hide
 			}]);
-			
-			//On visibility change disable/enable toolbar
-			this.on('visibleChange', function (evt) {
-				//Disable toolbar
-				Manager.getAction('EditorToolbar').set('disabled', evt.newVal);
-				
-				//Enable only "Source" button
-				Manager.getAction('EditorToolbar').getToolbar().getButton('source').set('disabled', false);
-			}, this);
 		},
 		
 		/**
@@ -133,7 +124,7 @@ SU(function (Y) {
 		 */
 		hide: function () {
 			//Callback
-			if (this.callback) {
+			if (this.callback && this.editor) {
 				this.callback(this.editor.getHTML());
 			}
 			
@@ -141,6 +132,7 @@ SU(function (Y) {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
 			//Hide buttons
+			Manager.getAction('EditorToolbar').set('visible', true);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 		},
 		
@@ -152,6 +144,7 @@ SU(function (Y) {
 			this.callback = data.callback;
 			
 			//Show buttons
+			Manager.getAction('EditorToolbar').set('visible', false);
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			
 			//Show content
