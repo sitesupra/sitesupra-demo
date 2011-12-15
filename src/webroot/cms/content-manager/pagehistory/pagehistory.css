@@ -14,6 +14,9 @@
 	cursor: pointer;
 	background: url("/cms/lib/supra/img/tree/page.png") 7px 50% no-repeat;
 }
+.history-list-disabled li > span {
+	cursor: default;
+}
 .history-list li span > button,
 .history-list li span .yui3-button {
 	display: none;

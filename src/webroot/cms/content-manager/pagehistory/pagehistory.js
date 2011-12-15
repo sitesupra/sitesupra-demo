@@ -65,6 +65,12 @@ SU(function (Y) {
 		 */
 		button: null,
 		
+		/**
+		 * History is loading
+		 * @type {Boolean}
+		 * @private
+		 */
+		loading: false,
 		
 		
 		/**
@@ -89,20 +95,25 @@ SU(function (Y) {
 		 * @private
 		 */
 		showVersionPreview: function (e) {
+			if (this.loading) return;
+			
 			var target = e.target.closest('li'),
 				version_id = target.getAttribute('data-id');
 			
 			if (this.current_version != version_id) {
 				this.current_version = version_id;
+				this.loading = true;
 				
 				target.siblings().removeClass('active');
 				target.addClass('loading');
 				target.addClass('active');
+				target.get('parentNode').addClass('history-list-disabled');
 				
-				Manager.getAction('PageContent').iframe_handler.showVersionPreview(version_id, function () {
+				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function () {
 					target.removeClass('loading');
-				});
-				
+					target.get('parentNode').removeClass('history-list-disabled');
+					this.loading = false;
+				}, this);
 				
 				//Create button
 				if (!this.button) {
@@ -222,6 +233,11 @@ SU(function (Y) {
 			}
 			
 			Action.Base.prototype.hide.apply(this, arguments);
+			
+			//Unset active and loading, so that next time PageHistory is shown
+			//there wouldn't be any items with selected or loading styles
+			this.loading = false;
+			this.element_list.all('.loading, .active').removeClass('loading').removeClass('active')
 			
 			//Hide buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);

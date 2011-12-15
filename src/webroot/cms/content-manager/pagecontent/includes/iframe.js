@@ -233,7 +233,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				},
 				'context': this,
 				'on': {
-					'success': function (data, status) {
+					'complete': function (data, status) {
 						if (data) {
 							this.setHTML(data.internal_html, true);
 						}
