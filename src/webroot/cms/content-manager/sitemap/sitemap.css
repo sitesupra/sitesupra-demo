@@ -388,11 +388,11 @@
  * Panel
  */
 .sitemap-settings .middle {
-	padding: 10px 10px 7px;
+	padding: 10px;
 	white-space: nowrap;
 }
 .sitemap-settings .middle .yui3-button {
-	margin-left: 7px;
+	margin-left: 5px;
 }
 .sitemap-settings .middle .yui3-button:first-child {
 	margin-left: 0;

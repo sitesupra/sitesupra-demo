@@ -175,6 +175,8 @@
 			"create_template": "Create",
 			"cancel": "Cancel",
 			
+			"rename_page": "Rename", 
+			
 			"delete_page": "Delete",
 			"delete_template": "Delete",
 			"message_delete_page": "Are you sure you want to delete selected page?",

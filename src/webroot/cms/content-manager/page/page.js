@@ -519,6 +519,32 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Delete virtual folder
+		 *
+		 * @param {Number} page_id Page ID
+		 * @param {String} locale Current locale
+		 * @param {Function} callback Callback function, optional
+		 * @param {Object} context Callback function context, optional
+		 */
+		deleteVirtualFolder: function (page_id, locale, callback, context) {
+			var action = Manager.getAction('VirtualFolder'),
+				uri = action.getDataPath('delete');
+			
+			var post_data = {
+				'page_id': page_id,
+				'locale': locale,
+				'action': 'delete'
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'context': context,
+				'on': {'success': callback}
+			}, context);
+		},
+		
+		/**
 		 * On delete request complete show sitemap
 		 * 
 		 * @param {Object} data Response JSON data

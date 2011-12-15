@@ -42,6 +42,13 @@ YUI().add('website.sitemap-settings', function (Y) {
 		button_duplicate: null,
 		
 		/**
+		 * Rename button, Supra.Button instance
+		 * @type {Object}
+		 * @private
+		 */
+		button_rename: null,
+		
+		/**
 		 * Show hidden pages element, Y.Node instance
 		 * @type {Object}
 		 * @private
@@ -112,8 +119,19 @@ YUI().add('website.sitemap-settings', function (Y) {
 			//Duplicate and delete buttons
 			var contbox = this.panel.get('boundingBox'),
 				buttons = contbox.all('button'),
-				
-				btn = this.button_duplicate = new Supra.Button({'srcNode': buttons.item(0), 'style': 'mid'});
+			
+			
+			//Rename button for virtual folder
+				btn = this.button_rename = new Supra.Button({'srcNode': buttons.item(0), 'style': 'mid'});
+				btn.render();
+				btn.on('click', this.renamePage, this);
+			
+			if (!Supra.Authorization.isAllowed(['page', 'edit'], true)) {
+				btn.hide();
+			}
+			
+			//Duplicate
+				btn = this.button_duplicate = new Supra.Button({'srcNode': buttons.item(1), 'style': 'mid'});
 				btn.render();
 				btn.on('click', this.duplicatePage, this);
 			
@@ -121,7 +139,8 @@ YUI().add('website.sitemap-settings', function (Y) {
 				btn.hide();
 			}
 			
-			var btn = this.button_delete = new Supra.Button({'srcNode': buttons.item(1), 'style': 'mid-red'});
+			//Delete
+				btn = this.button_delete = new Supra.Button({'srcNode': buttons.item(2), 'style': 'mid-red'});
 				btn.render();
 				btn.on('click', this.deletePage, this);
 			
@@ -184,6 +203,13 @@ YUI().add('website.sitemap-settings', function (Y) {
 					this.button_duplicate.set('label', Supra.Intl.get(['sitemap', 'duplicate_page']));
 				}
 				
+				if (data.type == 'group') {
+					this.button_duplicate.hide();
+					this.button_rename.show();
+				} else {
+					this.button_duplicate.show();
+					this.button_rename.hide();
+				}
 				if (data.has_hidden_pages) {
 					this.node_hidden_pages.removeClass('hidden');
 				} else {
@@ -193,6 +219,15 @@ YUI().add('website.sitemap-settings', function (Y) {
 				this.panel.show();
 				this.panel.set('arrowAlign', target);
 			}
+		},
+		
+		/**
+		 * Rename virtual folder
+		 * 
+		 * @private
+		 */
+		renamePage: function () {
+			/* @TODO #4190 */
 		},
 		
 		/**
@@ -267,7 +302,10 @@ YUI().add('website.sitemap-settings', function (Y) {
 				target = null,
 				target_fn = null;
 			
-			if (type == 'templates') {
+			if (this.data.type == 'group') {
+				target = Manager.getAction('Page');
+				target_fn = 'deleteVirtualFolder';
+			} else if (type == 'templates') {
 				target = Manager.getAction('Template');
 				target_fn = 'deleteTemplate';
 			} else {
