@@ -115,6 +115,16 @@ class PagesettingsAction extends PageManagerAction
 				$active = $input->getValid('active', AbstractType::BOOLEAN);
 				$pageData->setActive($active);
 			}
+			
+			if ($input->has('is_visible_in_menu')) {
+				$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
+				$pageData->setVisibleInMenu($visibleInMenu);
+			}
+			
+			if ($input->has('is_visible_in_sitemap')) {
+				$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
+				$pageData->setVisibleInSitemap($visibleInSitemap);
+			}
 
 			if ($input->has('description')) {
 				$metaDescription = $input->get('description');

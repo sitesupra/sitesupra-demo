@@ -170,6 +170,8 @@ class PageAction extends PageManagerAction
 				'created_time' => $createdTime,
 				'global' => $page->getGlobal(),
 				'allow_edit' => $isAllowedEditing,
+				'is_visible_in_menu' => $pageData->isVisibleInMenu(),
+				'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 		);
 		
 		if ($page instanceof Entity\Template) {

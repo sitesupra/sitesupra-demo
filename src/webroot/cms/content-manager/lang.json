@@ -123,6 +123,8 @@
 			"page_layout": "Layout",
 			
 			"active": "Active",
+			"is_visible_in_sitemap": "Show in sitemap",
+			"is_visible_in_menu": "Show in menu",
 			
 			"meta": "Meta",
 			"meta_title": "Meta",
