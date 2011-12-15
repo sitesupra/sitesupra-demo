@@ -32,7 +32,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Page;
-use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\Template;
 use Supra\Log\AuditLogEvent;
 
 /**
@@ -805,17 +805,21 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
-		$pageLocalization = null;
-		
 		// TODO support templates
-		if ($item instanceof Page) {
+		if ($item instanceof AbstractPage) {
 			$localeId = $this->getLocale()->getId();
 			$item = $item->getLocalization($localeId);
 		}
 			
 		$itemString = null;
-		if ($item instanceof PageLocalization) {
-			$itemString = "page '" . $item->getTitle() . "'";
+		if ($item instanceof Localization) {
+			$master = $item->getMaster();
+			if ($master instanceof Template) {
+				$itemString = 'template ';
+			} else {
+				$itemString = 'page ';
+			}
+			$itemString .= "'" . $item->getTitle() . "'";
 		}
 		
 		parent::writeAuditLog($action, $message, $itemString, $level);

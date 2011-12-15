@@ -115,16 +115,14 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 			
 		$itemString = null;
 		if ($item instanceof FileAbstraction) {
-			if ($item instanceof File) {
-				$itemString = 'File ';
+			if ($item instanceof Image) {
+				$itemString = 'Image ';
 			} else if ($item instanceof Folder) {
 				$itemString = 'Folder ';
-			} else if ($item instanceof Image) {
-				$itemString = 'Image ';
 			} else {
-				$itemString = 'Item ';
+				$itemString = 'File ';
 			}
-			$itemString .= $item->getFileName();
+			$itemString .= "'" . $item->getFileName() . "'";
 		}
 		
 		parent::writeAuditLog($action, $message, $itemString, $level);

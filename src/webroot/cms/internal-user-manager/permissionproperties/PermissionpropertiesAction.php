@@ -54,6 +54,9 @@ class PermissionpropertiesAction extends InternalUserManagerAbstractAction
 
 		if ($appConfig instanceof ApplicationConfiguration) {
 			$appConfig->authorizationAccessPolicy->updateAccessPolicy($user, $input);
+			$this->writeAuditLog('update access policy', 
+					"Permissions updated for user '" . $user->getName() 
+					. "' in application '" . $appConfig->title . "'");
 		}
 	}
 

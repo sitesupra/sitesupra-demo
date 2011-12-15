@@ -40,6 +40,8 @@ class TemplateAction extends PageManagerAction
 		$this->publish();
 
 		$this->outputPage($templateData);
+
+		$this->writeAuditLog('create', '%item% created', $templateData);
 	}
 	
 	/**
@@ -131,6 +133,8 @@ class TemplateAction extends PageManagerAction
 		}
 
 		$this->entityManager->flush();
+		
+		$this->writeAuditLog('save', '%item% saved', $pageData);
 	}
 
 	public function deleteAction()
@@ -145,6 +149,8 @@ class TemplateAction extends PageManagerAction
 		}
 
 		$this->delete();
+
+		$this->writeAuditLog('delete', '%item% deleted', $page);
 	}
 
 	/**

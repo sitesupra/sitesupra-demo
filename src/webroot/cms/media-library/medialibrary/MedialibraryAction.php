@@ -211,7 +211,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$fileId = $file->getId();
-		$this->writeAuditLog('save', '%item% created', $file);
+		$this->writeAuditLog('save', '%item% saved', $file);
 		$this->getResponse()->setResponseData($fileId);
 	}
 

@@ -111,5 +111,9 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		}
 		
 		$this->entityManager->flush();
+		
+		$this->writeAuditLog('update user', 
+				"User '" . $user->getName()
+				. "' moved to group '" . $newGroupName ."'");
 	}
 }

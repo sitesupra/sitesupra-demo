@@ -109,6 +109,9 @@ class UserAction extends InternalUserManagerAbstractAction
 		$entityManager->remove($user);
 		$entityManager->flush();
 
+		$this->writeAuditLog('delete user', 
+				"User '" . $user->getName() . "' deleted");
+
 		$this->getResponse()->setResponseData(null);
 	}
 
@@ -141,6 +144,9 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 		
 		$this->sendPasswordChangeLink($user);
+
+		$this->writeAuditLog('reset password', 
+				"Password for user '" . $user->getName() . "' reseted");
 
 		$this->getResponse()->setResponseData(null);
 	}
@@ -186,6 +192,9 @@ class UserAction extends InternalUserManagerAbstractAction
 		$authAdapter->credentialChange($user);
 
 		$this->sendPasswordChangeLink($user);
+
+		$this->writeAuditLog('insert user', 
+				"User '" . $user->getName() . "' created");
 	}
 
 	/**
@@ -237,6 +246,9 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
+
+		$this->writeAuditLog('save user', 
+				"User '" . $user->getName() . "' saved");
 
 		$response = $this->getUserResponseArray($user);
 		$this->getResponse()->setResponseData($response);
