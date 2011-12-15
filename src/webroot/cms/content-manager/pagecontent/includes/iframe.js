@@ -302,13 +302,15 @@ YUI.add('supra.iframe-handler', function (Y) {
 			Y.delegate('click', function (e) {
 				//External links should be opened in new window
 				//Internal links should be opened as page
+				//Javascript,hash and mail links should be ignored
 				var target = e.target,
-					href = null;
+					href = null,
+					local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
 				
 				if (!target.test('a')) {
 					target = target.ancestor('a');
 				}
-				if (target && (href = target.get('href'))) {
+				if (target && (href = target.get('href')) && !local_links.test(href)) {
 					if (href.search(document.location.protocol + '//' + document.location.host) == -1) {
 						//External link
 						window.open(href);

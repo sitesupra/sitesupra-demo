@@ -201,6 +201,8 @@ Supra(function (Y) {
 				button_edit.set('loading', false);
 				
 				if (status) {
+					Supra.data.set({'page': {'id': data.id}});
+					
 					this.data = data;
 					this.fire('loaded', {'data': data});
 					
