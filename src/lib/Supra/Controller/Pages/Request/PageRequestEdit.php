@@ -566,7 +566,8 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		// handle specific cases
-		//  -copy referenced elements manually
+		//  - copy referenced elements manually
+		//  - reset path for PageLocalizations
 		if ($newEntity instanceof Entity\BlockPropertyMetadata && $cloned) {
 			$referencedElement = $entity->getReferencedElement();
 			
@@ -574,6 +575,9 @@ class PageRequestEdit extends PageRequest
 			$em->persist($newReferencedElement);
 			
 			$newEntity->setReferencedElement($newReferencedElement);
+		}
+		else if ($newEntity instanceof Entity\PageLocalization) {
+			$newEntity->resetPath();
 		}
 		
 		$em->persist($newEntity);
