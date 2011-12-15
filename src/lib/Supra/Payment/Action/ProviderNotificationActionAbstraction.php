@@ -13,7 +13,6 @@ use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Provider\Event\ProviderNotificationEventArgs;
 use Supra\Payment\Transaction\TransactionProvider;
 use Supra\Payment\Transaction\TransactionStatus;
-use Project\Payment\Paypal\PaymentProvider;
 
 abstract class ProviderNotificationActionAbstraction extends ActionAbstraction
 {
@@ -24,7 +23,7 @@ abstract class ProviderNotificationActionAbstraction extends ActionAbstraction
 	protected $order;
 
 	/**
-	 * @var PaymentProvider
+	 * @var PaymentProviderAbstraction
 	 */
 	protected $paymentProvider;
 

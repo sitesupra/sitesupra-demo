@@ -5,7 +5,7 @@ namespace Supra\BannerMachine\Entity;
 use Supra\FileStorage\Entity\Image as ImageFile;
 use Supra\Html\HtmlTag;
 use Supra\ObjectRepository\ObjectRepository;
-use Project\BannerMachine\BannerMachineController;
+use Supra\BannerMachine\BannerMachineController;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\BannerMachine\BannerMachineRedirector;
 

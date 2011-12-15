@@ -4,7 +4,7 @@ namespace Supra\BannerMachine\Entity;
 
 use Supra\Database;
 use \DateTime;
-use Project\BannerMachine\BannerMachineController;
+use Supra\BannerMachine\BannerMachineController;
 
 /**
  * @Entity

@@ -7,6 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\BannerMachine\Exception\BannerNotFoundException;
+use Supra\BannerMachine\Exception\RuntimeException as BannerMachineRuntimeException;
 
 class BannerMachineController extends BlockController
 {
@@ -105,7 +106,7 @@ class BannerMachineController extends BlockController
 
 			$bannerContent = $banner->getEditModeContent($this);
 		}
-		catch (BannerNotFoundException $e) {
+		catch (BannerMachineRuntimeException $e) {
 
 			$bannerContent = '<h1>BANNER NOT FOUND</h1>';
 		}

@@ -2,7 +2,7 @@
 
 namespace Supra\BannerMachine\Entity;
 
-use Project\BannerMachine\BannerMachineController;
+use Supra\BannerMachine\BannerMachineController;
 
 /**
  * @Entity
