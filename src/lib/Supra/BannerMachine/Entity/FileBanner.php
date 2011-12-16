@@ -29,10 +29,20 @@ abstract class FileBanner extends Banner
 	public function setFile(File $file)
 	{
 		$this->file = $file;
-		
+
 		$lm = ObjectRepository::getLocaleManager($this);
-		
+
 		$this->title = $file->getTitle($lm->getCurrent()->getId());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getExternalPath()
+	{
+		$fs = ObjectRepository::getFileStorage($this);
+
+		return $fs->getWebPath($this->file);
 	}
 
 }

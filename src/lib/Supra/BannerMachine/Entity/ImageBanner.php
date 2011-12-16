@@ -3,11 +3,13 @@
 namespace Supra\BannerMachine\Entity;
 
 use Supra\FileStorage\Entity\Image as ImageFile;
+use Supra\FileStorage\Entity\File as GenericFile;
 use Supra\Html\HtmlTag;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\BannerMachine\BannerMachineController;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\BannerMachine\BannerMachineRedirector;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * @Entity
@@ -28,6 +30,10 @@ class ImageBanner extends FileBanner
 	 */
 	public function setFile(ImageFile $file)
 	{
+		if ($file instanceof GenericFile) {
+			throw new CmsException(null, 'Can not change type of banner file!');
+		}
+
 		parent::setFile($file);
 	}
 
@@ -39,10 +45,6 @@ class ImageBanner extends FileBanner
 	{
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
 		
-		$imgTag = $this->getImgTag();
-		
-		$hrefTag = new HtmlTag('a', $imgTag->toHtml());
-
 		$redirectorParams = array(
 				BannerMachineRedirector::REQUEST_KEY_BANNER_ID => $this->getId(),
 				BannerMachineRedirector::REQUEST_KEY_EXTRA => $controller->getPropertyValue(BannerMachineController::PROPERTY_NAME_APPEND_TO_URL),
@@ -51,42 +53,43 @@ class ImageBanner extends FileBanner
 
 		$redirectorUrl = $bannerProvider->getRedirectorPath() . '?' . http_build_query($redirectorParams);
 
-		$hrefTag->setAttribute('href', $redirectorUrl);
-
-		return $hrefTag->toHtml();
+		return $this->getImageBannerContent($redirectorUrl);
 	}
-	
+
 	/**
 	 * @param BannerMachineController $controller
 	 * @return string
 	 */
 	public function getEditModeContent(BannerMachineController $controller)
 	{
-		return $this->getImgTag()->toHtml();
+		return $this->getImageBannerContent('#');
 	}
 
 	/**
-	 * @return HtmlTag
+	 * @param string $redirectorUrl
+	 * @return string
 	 */
-	protected function getImgTag()
+	protected function getImageBannerContent($redirectorUrl) 
 	{
+		$tp = ObjectRepository::getTemplateParser($this);
+		$templateLoader = new \Twig_Loader_Filesystem(SUPRA_TEMPLATE_PATH);
+
 		$fileStorage = ObjectRepository::getFileStorage($this);
 
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
 
 		$bannerType = $bannerProvider->getType($this->getTypeId());
-
-		$imgTag = new HtmlTag('img');
-		$imgTag->setAttribute('src', $fileStorage->getWebPath($this->file));
-		$imgTag->setAttribute('width', $bannerType->getWidth());
-		$imgTag->setAttribute('height', $bannerType->getHeight());
-
-		return $imgTag;
+		
+		$data = array(
+				'redirectorUrl' => $redirectorUrl,
+				'width' => $bannerType->getWidth(),
+				'height' => $bannerType->getHeight(),
+				'src' => $fileStorage->getWebPath($this->file)
+		);
+		
+		$imageBannerContent = $tp->parseTemplate('banner\banner-image.html.twig', $data, $templateLoader);
+		
+		return $imageBannerContent;
 	}
-
-	public function validate()
-	{
-		return true;
-	}
-
+	
 }

@@ -72,6 +72,7 @@ class BannerMachineController extends BlockController
 			$locale = $lm->getLocale($localeId);
 
 			$banner = $bannerProvider->getRandomBanner($bannerType, $locale);
+			
 			$bannerProvider->increaseBannerExposureCounter($banner);
 
 			$bannerContent = $banner->getExposureModeContent($this);

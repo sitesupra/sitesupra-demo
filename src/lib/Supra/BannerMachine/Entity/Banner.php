@@ -52,13 +52,13 @@ abstract class Banner extends Database\Entity
 	protected $externalTarget;
 
 	/**
-	 * @Column(type="datetime")
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $scheduledFrom;
 
 	/**
-	 * @Column(type="datetime")
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $scheduledTill;
@@ -106,7 +106,7 @@ abstract class Banner extends Database\Entity
 	protected $typeId;
 
 	abstract function getExposureModeContent(BannerMachineController $controller);
-	
+
 	abstract function getEditModeContent(BannerMachineController $controller);
 
 	public function getWidth()
@@ -118,8 +118,6 @@ abstract class Banner extends Database\Entity
 	{
 		return $this->height;
 	}
-
-	abstract function validate();
 
 	/**
 	 * @prePersist
@@ -268,4 +266,6 @@ abstract class Banner extends Database\Entity
 		$this->localeId = $localeId;
 	}
 
+	abstract public function getExternalPath();
+	
 }
