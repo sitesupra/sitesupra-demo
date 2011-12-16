@@ -72,7 +72,8 @@
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news
     className: Supra\Controller\Pages\News\NewsApplication
-          
+    title: News application
+    icon: /cms/lib/supra/img/sitemap/new-news-app.png
           
 - Supra\BannerMachine\Configuration\ProviderConfiguration:
     id: banner-machine-one

@@ -11,6 +11,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationInterface;
+use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
 
 /**
  * Sitemap
@@ -256,6 +257,27 @@ class SitemapAction extends PageManagerAction
 		}
 
 		return $response;
+	}
+	
+	public function applicationsAction()
+	{
+		$applications = PageApplicationCollection::getInstance()
+				->getApplicationConfigurationList();
+		
+		$data = array();
+		
+		foreach ($applications as $applicationConfiguration) {
+			/* @var $applicationConfiguration \Supra\Controller\Pages\Configuration\PageApplicationConfiguration */
+			
+			$data[] = array(
+				'id' => $applicationConfiguration->id,
+				'title' => $applicationConfiguration->title,
+				'icon' => $applicationConfiguration->icon,
+			);
+		}
+		
+		$this->getResponse()
+				->setResponseData($data);
 	}
 	
 }
