@@ -25,7 +25,7 @@ class LockData extends Abstraction\Entity implements Timestampable
 	protected $modificationTime;
 	
 	/**
-	 * @Column(type="sha1")
+	 * @Column(type="supraId")
 	 * @var string
 	 */
 	protected $userId;

@@ -6,12 +6,11 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * Column type to store sha1 hashes
- * @deprecated
+ * Column type to store supra ID hashes
  */
-class Sha1HashType extends Type
+class SupraIdType extends Type
 {
-	const NAME = 'sha1';
+	const NAME = 'supraId';
 	
 	/**
 	 * {@inheritdoc}

@@ -23,7 +23,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	const DISCRIMITATOR_VALUE = 'pageLocalization';
 	
 	/**
-	 * @Column(type="sha1")
+	 * @Column(type="supraId")
 	 * @var string
 	 */
 	protected $pageLocalizationId;

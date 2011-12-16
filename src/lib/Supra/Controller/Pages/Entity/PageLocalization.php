@@ -25,8 +25,8 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * @ManyToOne(targetEntity="Template", fetch="EAGER")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
-	 * @History:SkipForeignKey(type="sha1")
-	 * @Trash:SkipForeignKey(type="sha1")
+	 * @History:SkipForeignKey(type="supraId")
+	 * @Trash:SkipForeignKey(type="supraId")
 	 * @var Template
 	 */
 	protected $template;

@@ -190,7 +190,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	/**
 	 * @return string
 	 */
-	public function getRevisionId ()
+	public function getRevisionId()
 	{
 		return $this->revision;
 	}
@@ -202,7 +202,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	{
 		if ($this->id) {
 			$this->regenerateId();
-			$this->setRevisionId(sha1(uniqid()));
+			$this->setRevisionId(self::generateId(__CLASS__));
 		}
 	}
 

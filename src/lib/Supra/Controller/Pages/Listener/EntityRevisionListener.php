@@ -14,7 +14,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Controller\Pages\Event\AuditEvents;
-
+use Supra\Database\Entity;
 
 class EntityRevisionListener implements EventSubscriber
 {
@@ -173,7 +173,7 @@ class EntityRevisionListener implements EventSubscriber
 	 */
 	private function _getRevisionId()
 	{
-		return sha1(uniqid());
+		return Entity::generateId(__CLASS__);
 	}
 	
 	public function pagePreRestoreEvent ()

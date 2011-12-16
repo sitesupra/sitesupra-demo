@@ -30,7 +30,7 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	protected $creationTime;
 	
 	/**
-	 * @Column(type="sha1")
+	 * @Column(type="supraId")
 	 * @var string
 	 */
 	protected $user;
@@ -44,7 +44,7 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	/**
 	 * Contains page or page localization ID
 	 * 
-	 * @Column(type="sha1")
+	 * @Column(type="supraId")
 	 * @var string
 	 */
 	protected $reference;

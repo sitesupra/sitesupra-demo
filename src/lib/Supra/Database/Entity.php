@@ -11,7 +11,7 @@ abstract class Entity
 {
 	/**
 	 * @Id
-	 * @Column(type="sha1")
+	 * @Column(type="supraId")
 	 * @var string
 	 */
 	protected $id;
@@ -210,8 +210,20 @@ abstract class Entity
 		return $value;
 	}
 	
+	/**
+	 * Time sortable ID
+	 */
 	public static function generateId($className) 
 	{
-		return sha1(uniqid($className, true));
+		$time = microtime(true) - 1324027985;
+		$time = (int) (1000 * $time);
+		$time = base_convert($time, 10, 36);
+		$time = str_pad($time, 9, '0', STR_PAD_LEFT);
+		
+		$random = sha1(uniqid($className, true));
+		$random = base_convert($random, 16, 36);
+		$random = str_pad($random, 31, '0', STR_PAD_LEFT);
+		
+		return $time . $random;
 	}
 }
