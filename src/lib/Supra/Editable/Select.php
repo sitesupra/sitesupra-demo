@@ -46,11 +46,19 @@ class Select extends EditableAbstraction
 		return $output;
 	}
 
+	/**
+	 * @return array 
+	 */
 	public function getValues()
 	{
 		return $this->values;
 	}
 
+	/**
+	 * Set Select box values
+	 * @example $values = array('key' => 'value'); Result 'id' => 'key', 'title' => 'value'
+	 * @param array $values 
+	 */
 	public function setValues($values)
 	{
 		$this->values = $values;
