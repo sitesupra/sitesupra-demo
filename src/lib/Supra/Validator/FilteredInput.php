@@ -215,7 +215,7 @@ class FilteredInput extends \ArrayIterator
 		if (empty($additionalParameters)) {
 			$validator->validate($value);
 		} else {
-			call_user_func_array(array($validator, 'validate'), $additionalParameters);
+			call_user_func_array(array($validator, 'validate'), array(&$value, $additionalParameters));
 		}
 		
 		return $value;
