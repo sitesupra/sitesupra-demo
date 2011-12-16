@@ -133,7 +133,15 @@ class PageRequestEdit extends PageRequest
 		$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);
 
 		if ( ! empty($removedBlockIdList)) {
-			$this->removeBlocks($publicEm, $removedBlockIdList);
+			//$this->removeBlocks($publicEm, $removedBlockIdList);
+			foreach($removedBlockIdList as $removedBlockId) {
+				foreach($existentBlocks as $block) {
+					if ($block->getId() == $removedBlockId) {
+						$publicEm->remove($block);
+						break;
+					}
+				}
+			}
 		}
 
 		// 4. Merge all placeholders, don't delete not used, let's keep them
@@ -300,27 +308,27 @@ class PageRequestEdit extends PageRequest
 	 * @param EntityManager $em
 	 * @param array $blockIdList
 	 */
-	private function removeBlocks(EntityManager $em, array $blockIdList)
-	{
-		if (empty($blockIdList)) {
-			return;
-		}
-		
-		$blockPropetyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
-		$blockEntity = PageRequest::BLOCK_ENTITY;
-		
-		$qb = $em->createQueryBuilder();
-		$qb->delete($blockPropetyEntity, 'p')
-				->where($qb->expr()->in('p.block', $blockIdList))
-				->getQuery()
-				->execute();
-		
-		$qb = $em->createQueryBuilder();
-		$qb->delete($blockEntity, 'b')
-				->where($qb->expr()->in('b', $blockIdList))
-				->getQuery()
-				->execute();
-	}
+//	private function removeBlocks(EntityManager $em, array $blockIdList)
+//	{
+//		if (empty($blockIdList)) {
+//			return;
+//		}
+//		
+//		$blockPropetyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+//		$blockEntity = PageRequest::BLOCK_ENTITY;
+//		
+//		$qb = $em->createQueryBuilder();
+//		$qb->delete($blockPropetyEntity, 'p')
+//				->where($qb->expr()->in('p.block', $blockIdList))
+//				->getQuery()
+//				->execute();
+//		
+//		$qb = $em->createQueryBuilder();
+//		$qb->delete($blockEntity, 'b')
+//				->where($qb->expr()->in('b', $blockIdList))
+//				->getQuery()
+//				->execute();
+//	}
 	
 	/**
 	 * Load place holder ID list from block ID list
