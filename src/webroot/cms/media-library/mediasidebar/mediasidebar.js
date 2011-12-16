@@ -107,8 +107,9 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				//when loading all images in the folder, not only when opening image
 				'loadItemProperties': ['sizes', 'description'],
 				
-				//Allow selecting image
-				'imagesSelectable': true
+				//Allow selecting files and images
+				'imagesSelectable': true,
+				'filesSelectable': true
 			});
 			
 			//Enable drag & drop support
