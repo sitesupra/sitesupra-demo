@@ -37,6 +37,7 @@ class PageSet extends AbstractSet
 	public function getLayout($media)
 	{
 		$layout = null;
+		$trace = array();
 		
 		foreach ($this as $abstractPage) {
 			if ($abstractPage instanceof Template) {
@@ -44,9 +45,14 @@ class PageSet extends AbstractSet
 					$layout = $abstractPage->getLayout($media);
 				}
 			}
+			
+			$trace[] = $abstractPage->__toString();
 		}
 		
-		//TODO: what if NULL?
+		if (is_null($layout)) {
+			throw new Exception\RuntimeException("No layout was found for page set " . implode(', ', $trace));
+		}
+		
 		return $layout;
 	}
 }
