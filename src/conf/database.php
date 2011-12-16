@@ -12,17 +12,18 @@ use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
 use Doctrine\DBAL\Types\Type;
-use Supra\Database\Doctrine\Type\Sha1HashType;
+use Supra\Database\Doctrine\Type\SupraIdType;
 use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
 use Supra\Controller\Pages\PageController;
 
-Type::addType(Sha1HashType::NAME, 'Supra\Database\Doctrine\Type\Sha1HashType');
+Type::addType(SupraIdType::NAME, 'Supra\Database\Doctrine\Type\SupraIdType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 
 // TODO: Remove later
 Type::addType('block', 'Supra\Database\Doctrine\Type\UnknownType');
 Type::addType('template', 'Supra\Database\Doctrine\Type\UnknownType');
+Type::addType('sha1', 'Supra\Database\Doctrine\Type\UnknownType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
@@ -120,7 +121,7 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	$em = EntityManager::create($connectionOptions, $config, $eventManager);
 	$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(SupraIdType::NAME));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 	$em->_mode = $managerName;
 
