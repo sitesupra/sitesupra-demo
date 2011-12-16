@@ -616,6 +616,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				delete(post_data.description);
 				delete(post_data.keywords);
 				delete(post_data.active);
+				delete(post_data.is_visible_in_menu);
+				delete(post_data.is_visible_in_sitemap);
 				delete(post_data.redirect);
 			}
 			
@@ -685,6 +687,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				inputs = [
 					['template', form.getInput('path')],
 					['template', form.getInput('active')],
+					['template', form.getInput('is_visible_in_menu')],
+					['template', form.getInput('is_visible_in_sitemap')],
 					
 					['template', '.button-meta'],
 					['template', form.getInput('description')],
