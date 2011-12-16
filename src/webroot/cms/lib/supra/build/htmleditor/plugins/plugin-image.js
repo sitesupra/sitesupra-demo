@@ -292,12 +292,39 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		},
 		
 		/**
+		 * Returns image data from node
+		 * 
+		 * @param {HTMLElement} node Node
+		 * @return Image data
+		 * @type {Object}
+		 */
+		getImageDataFromNode: function (node) {
+			var data = this.htmleditor.getData(node);
+			if (!data && node.test('img')) {
+				//Parse node and try to fill all properties
+				/*
+				data = Supra.mix({}, defaultProps, {
+					'title': node.getAttribute('title') || '',
+					'description': node.getAttribute('alt') || '',
+					'align': node.getAttribute('align') || 'left',
+					'size_width': node.getAttribute('width') || node.offsetWidth || 0,
+					'size_height': node.getAttribute('height') || node.offsetHeight || 0,
+					'style': node.hasClass('lightbox') ? 'lightbox' : (node.hasClass('border') ? 'border' : ''),
+					'image': '' //We don't know ID
+				});
+				this.htmleditor.setData(node, data);
+				*/
+			}
+			return data;
+		},
+		
+		/**
 		 * Show image settings bar
 		 */
 		showImageSettings: function (event) {
 			if (event.target.test('.gallery')) return;
 			
-			var data = this.htmleditor.getData(event.target);
+			var data = this.getImageDataFromNode(event.target);
 			if (!data) {
 				Y.log('Missing image data for image ' + event.target.getAttribute('src'));
 				return;
@@ -367,7 +394,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 						'description': data.description,
 						'align': imageData.align,
 						'style': imageData.style,
-						'image': data	//Original image data
+						'image': data,	//Original image data
+						'size_width': imageData.size_width,
+						'size_height': imageData.size_height
 					});
 					
 					//Preserve image data
@@ -398,7 +427,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" />');
+					htmleditor.replaceSelection('<img id="' + uid + '" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" />');
 					htmleditor.setData(uid, data);
 				}
 				
