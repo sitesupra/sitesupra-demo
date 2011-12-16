@@ -518,7 +518,7 @@ class PageRequestEdit extends PageRequest
 	 * @param Entity $associationOwner
 	 * @return Entity
 	 */
-	public function recursiveClone($entity, $associationOwner = null) 
+	public function recursiveClone($entity, $associationOwner = null, $resetPath = false) 
 	{
 		$em = $this->getDoctrineEntityManager();
 		$cloned = false;
@@ -545,10 +545,10 @@ class PageRequestEdit extends PageRequest
 				if (isset($entityData[$fieldName])) {
 					if ($entityData[$fieldName] instanceof Collection) {
 						foreach ($entityData[$fieldName] as $collectionItem) {
-							$this->recursiveClone($collectionItem, $newEntity);
+							$this->recursiveClone($collectionItem, $newEntity, $resetPath);
 						}
 					} else {
-						$this->recursiveClone($collectionItem, $newEntity);
+						$this->recursiveClone($collectionItem, $newEntity, $resetPath);
 					}
 				}
 			} else if ( ! is_null($associationOwner)) {
@@ -576,7 +576,7 @@ class PageRequestEdit extends PageRequest
 			
 			$newEntity->setReferencedElement($newReferencedElement);
 		}
-		else if ($newEntity instanceof Entity\PageLocalization) {
+		else if ($newEntity instanceof Entity\PageLocalization && $resetPath) {
 			$newEntity->resetPath();
 		}
 		

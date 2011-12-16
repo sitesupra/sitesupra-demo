@@ -770,7 +770,7 @@ abstract class PageManagerAction extends CmsAction
 
 		$clonePage = function() use ($request, $em, $page) {
 			
-			$newPage = $request->recursiveClone($page);
+			$newPage = $request->recursiveClone($page, null, true);
 			
 			// page indexes in sitemap tree
 			$newPage->setLeftValue(0);
