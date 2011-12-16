@@ -187,7 +187,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 		 * @type {Boolean}
 		 */
 		isContentFromWord: function (html) {
-			if (html.indexOf('WordDocument') != -1) return true;
+			if (html.indexOf('MsoNormal') != -1 || html.indexOf('WordDocument') != -1) return true;
 			return false;
 		},
 		
@@ -208,18 +208,42 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				html = html.replace(/<\/?span[^>]*>/ig, '');
 			}
 			
+			//Since classname in word pasted text has semantic meaning, we need to
+			//keep them to check after attributes are removed
+			var remove_class_attr = false;
+			if (Y.Array.indexOf(this.config.removeAttributes, 'class') != -1) {
+				html = html.replace(/class="/g, 'class_su="');
+				remove_class_attr = true;
+			}
+			
 			//Content should be style using CSS files, not in-line styles
 			//class-names don't match website classnames, should be removed also
 			//lang attribute should be set on document, not in-line
 			//v: and w: attributes are meaning-less
 			if (this.config.removeAttributes && this.config.removeAttributes.length) {
-				html = html.replace(new RegExp('\\s+(' + this.config.removeAttributes.join('|') + ')="[^"]*', 'ig'), '');
+				html = html.replace(new RegExp('\\s+(' + this.config.removeAttributes.join('|') + ')="[^"]*"', 'ig'), '');
 			}
 			
 			//Remove empty tags
 			if (this.config.removeEmptyTags) {
 				html = html.replace(/<([^\s>]+)[^>]*><\/\1>/ig, '');
 			}
+			
+			//Fix table headings by replacing <td><p class="TableHeading">...</p></td>
+			//with <th><p>...</p></th>
+			var attr = 'class';
+			if (remove_class_attr) {
+				attr = 'class_su';
+			}
+			
+			html = html.replace(new RegExp('<td([^>]+)>\\s*<p ' + attr + '="TableHeading">(.*?)</p>\\s*<\/td>', 'gi'), '<th$1><p>$2</p><\/th>');
+			
+			if (remove_class_attr) {
+				html = html.replace(new RegExp('\\s+' + attr + '="[^"]*"', 'ig'), '');
+			}
+			
+			//Remove P tags from tables
+			html = html.replace(/<(td|th)([^>]*)>\s*<p>(.*?)<\/p>/g, '<$1$2>$3');
 			
 			//Remove broken images
 			html = html.replace(/<img[^>]+src="file:\/\/[^>]+>/ig, '');

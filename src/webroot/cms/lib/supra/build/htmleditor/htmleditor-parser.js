@@ -16,7 +16,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	Supra.HTMLEditor.STYLED_INLINE   = ['span', 'b', 'i', 'em', 'sub', 'sup', 'small', 'strong', 's', 'strike', 'a', 'u', 'q', 'big'];
 	
 	/* Find all tags */
-	var REGEXP_FIND_TAGS = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi;
+	var REGEXP_FIND_TAGS = /<\/?([a-z][a-z0-9\:]*)\b[^>]*>/gi;
 	
 	var REGEXP_FIND_CLASS = /class=(([a-z0-9\_\-]+)|"([^"]+)")/i;
 	

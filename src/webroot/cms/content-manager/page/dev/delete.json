@@ -1,5 +1,5 @@
 <?php sleep(2); ?>
 {
 	"status": 1,
-	"data": 22
+	"data": null
 }
