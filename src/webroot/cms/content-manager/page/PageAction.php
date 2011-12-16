@@ -84,8 +84,15 @@ class PageAction extends PageManagerAction
 		}
 		
 		$request->setPageLocalization($pageData);
-		$controller->execute($request);
-
+		$templateError = false;
+		
+		// TODO: handling?
+		if ($pageData->getTemplate() != null) {
+			$controller->execute($request);
+		} else {
+			$templateError = true;
+		}
+		
 		$pathPart = null;
 		$pathPrefix = null;
 		$templateArray = array();
@@ -110,18 +117,26 @@ class PageAction extends PageManagerAction
 			}
 
 			$template = $pageData->getTemplate();
-			$templateData = $template->getLocalization($localeId);
+			
+			if ($template instanceof Entity\Template) {
+				$templateData = $template->getLocalization($localeId);
 
-			if ( ! $templateData instanceof Entity\TemplateLocalization) {
-				throw new \Supra\Controller\Pages\Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
+				if ($templateData instanceof Entity\TemplateLocalization) {
+					$templateArray = array(
+						'id' => $template->getId(),
+						'title' => $templateData->getTitle(),
+						//TODO: hardcoded
+						'img' => '/cms/lib/supra/img/templates/template-1.png',
+					);
+				} else {
+					$templateError = true;
+					//TODO: warn
+//					throw new \Supra\Controller\Pages\Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
+				}
+			} else {
+				$templateError = true;
+				//TODO: warn
 			}
-
-			$templateArray = array(
-					'id' => $template->getId(),
-					'title' => $templateData->getTitle(),
-					//TODO: hardcoded
-					'img' => '/cms/lib/supra/img/templates/template-1.png',
-			);
 
 			$scheduledDateTime = $pageData->getScheduleTime();
 			$redirectLink = $pageData->getRedirect();
@@ -172,6 +187,10 @@ class PageAction extends PageManagerAction
 				'allow_edit' => $isAllowedEditing,
 		);
 		
+		if ($templateError) {
+			$array['internal_html'] = '<h1>Page template not found</h1><p>Please make sure the template is assigned and the template is published in this locale.</p>';
+		}
+		
 		if ($pageData instanceof Entity\PageLocalization) {
 			$array['is_visible_in_menu'] = $pageData->isVisibleInMenu();
 			$array['is_visible_in_sitemap'] = $pageData->isVisibleInSitemap();
@@ -192,10 +211,16 @@ class PageAction extends PageManagerAction
 
 		$contents = array();
 		$page = $request->getPage();
-		$placeHolderSet = $request->getPlaceHolderSet()
-				->getFinalPlaceHolders();
-		$blockSet = $request->getBlockSet();
-		$blockPropertySet = $request->getBlockPropertySet();
+		
+		$placeHolderSet = array();
+		$blockSet = new \Supra\Controller\Pages\Set\BlockSet();
+		
+		if ( ! $templateError) {
+			$placeHolderSet = $request->getPlaceHolderSet()
+					->getFinalPlaceHolders();
+			$blockSet = $request->getBlockSet();
+		}
+		
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {

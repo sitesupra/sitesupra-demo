@@ -60,10 +60,8 @@ abstract class CmsAction extends SimpleController
 			
 			$response = $this->getResponse();
 			$localeId = $this->getLocale()->getId();
-			if($response instanceof JsonResponse) {
-				$response->appendResponseData(array('currentLocale' => $localeId));
-			}
-			else {
+			
+			if ($response instanceof TwigResponse) {
 				$response->assign('currentLocale', $localeId);
 			}
 			

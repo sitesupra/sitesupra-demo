@@ -340,8 +340,12 @@ abstract class PageManagerAction extends CmsAction
 
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {
-			$templateId = $data->getTemplate()
-					->getId();
+			$template = $data->getTemplate();
+			$templateId = null;
+			
+			if ( ! empty($template)) {
+				$templateId = $template->getId();
+			}
 			
 			$array['template'] = $templateId;
 			
@@ -373,11 +377,7 @@ abstract class PageManagerAction extends CmsAction
 				$parentPage = $page->getParent();
 				$parentLocalization = $parentPage->getLocalization($locale);
 
-				if (is_null($parentLocalization)) {
-					throw new CmsException(null, "Parent page has no localization in the selected language");
-				}
-
-				if ($parentPage instanceof Entity\ApplicationPage) {
+				if ( ! is_null($parentLocalization) && $parentPage instanceof Entity\ApplicationPage) {
 					$applicationId = $parentPage->getApplicationId();
 					$application = PageApplicationCollection::getInstance()
 							->createApplication($parentLocalization, $this->entityManager);
