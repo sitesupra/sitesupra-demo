@@ -5,6 +5,7 @@ namespace Supra\Cms\CrudManager\Root;
 use Supra\Cms\CmsAction;
 use Supra\Request;
 use Supra\Response;
+use Supra\Uri\Path;
 
 /**
  * Root action, returns initial HTML
@@ -28,7 +29,12 @@ class RootAction extends CmsAction
 	 */
 	public function indexAction()
 	{
-		$this->getResponse()->outputTemplate('crud-manager/root/root.html.twig');
+		$response = $this->getResponse();
+		$requestPath = $this->getRequest()->getPath();
+		$pathString = $requestPath->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+		
+		$response->assign('path', $pathString);
+		$response->outputTemplate('crud-manager/root/root.html.twig');
 	}
 
 }

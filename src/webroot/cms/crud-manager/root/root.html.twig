@@ -1,14 +1,28 @@
 {% extends 'template/index.html.twig' %}
 
-{% block jsModulePath %}'/modules'{% endblock %}
+{#% block jsModulePath %}'/modules'{% endblock %#}
 
 {% block jsSupraDataSet %}
 //CRUD manager data paths
 'crudManagerPaths': {
-	'configuration': '/cms/crud-manager/data/configuration.json',
-	'datalist': '/cms/crud-manager/data/datalist.json',
-	'save': '/cms/crud-manager/form/save.json',
-	'delete': '/cms/crud-manager/form/delete.json',
-	'sort': '/cms/crud-manager/form/sort.json'
+	'configuration': {{path | json_encode | raw}} + 'data/configuration.json',
+	'datalist': {{path | json_encode | raw}} + 'data/datalist.json',
+	'save': {{path | json_encode | raw}} + 'form/save.json',
+	'delete': {{path | json_encode | raw}} + 'form/delete.json',
+	'sort': {{path | json_encode | raw}} + 'form/sort.json'
 },
+{% endblock %}
+
+{% block jsPathConfiguration %}
+	var APP_PATH = '/crud-manager',
+		STATIC_PATH = '/cms',
+		DYNAMIC_PATH = '/cms';
+
+	//Set current manager paths
+	Supra.Manager.Loader.setStaticPath(STATIC_PATH);
+	Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
+
+	Supra.Manager.Loader.setBasePath(APP_PATH);
+
+	Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH + '/modules');
 {% endblock %}

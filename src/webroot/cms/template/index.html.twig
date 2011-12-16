@@ -27,6 +27,7 @@
 	//<![CDATA[
 	
 		Supra('supra.manager', 'supra.authorization', function (Y) {
+			{% block jsPathConfiguration %}
 			var APP_PATH = '/{{ manager.url }}',
 				STATIC_PATH = '/cms',
 				DYNAMIC_PATH = '/cms';
@@ -38,6 +39,7 @@
 			Supra.Manager.Loader.setBasePath(APP_PATH);
 			
 			Supra.setWebsiteModulePath(STATIC_PATH + APP_PATH + {% block jsModulePath %}''{% endblock %});
+			{% endblock %}
 			
 			//Configuration / parameters
 			Supra.data.set({

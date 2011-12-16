@@ -15,5 +15,22 @@ class CrudManagerController extends DistributedController
 	 * @var string
 	 */
 	protected $defaultAction = 'root';
+	
+	/**
+	 * Must provide the base namespace, taken from the current class name
+	 * @return string
+	 */
+	public function getBaseNamespace()
+	{
+		$className = __CLASS__;
+		$lastBackslash = strrpos($className, '\\');
+		$namespace = '';
+		
+		if ($lastBackslash !== false) {
+			$namespace = substr($className, 0, $lastBackslash);
+		}
+		
+		return $namespace;
+	}
 
 }

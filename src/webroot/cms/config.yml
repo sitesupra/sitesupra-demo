@@ -58,18 +58,17 @@
     authorizationAccessPolicy:
       Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\MediaLibrary
-        
-- Supra\Cms\CrudManager\ApplicationConfiguration:
-    id: Supra\Cms\CrudManager
-    title: Branches Manager
-    url: crud-manager
-    icon: /cms/lib/supra/img/apps/media_library
-    entity: Gjensidige\Branches\Entity\Branches
-    authorizationAccessPolicy:
-      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
-        applicationNamespace: Supra\Cms\CrudManager
-      
-      
+
+#- Supra\Cms\CrudManager\ApplicationConfiguration:
+#    id: Supra\Cms\CrudManager
+#    title: Branches Manager
+#    url: crud-manager
+#    icon: /cms/lib/supra/img/apps/media_library
+#    entity: fill the entity name here
+#    authorizationAccessPolicy:
+#      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
+#        applicationNamespace: Supra\Cms\CrudManager
+
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news
     className: Supra\Controller\Pages\News\NewsApplication

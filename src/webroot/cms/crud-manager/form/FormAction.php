@@ -72,7 +72,7 @@ class FormAction extends CrudManagerAbstractAction
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 
-		if ($repo->isDeletable()) {
+		if ( ! $repo->isDeletable()) {
 			throw new CmsException(null, 'It\'s not allowed to remove records. Change configuration');
 		}
 

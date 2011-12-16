@@ -810,7 +810,7 @@ abstract class PageManagerAction extends CmsAction
 			$localeId = $this->getLocale()->getId();
 			$item = $item->getLocalization($localeId);
 		}
-			
+		
 		$itemString = null;
 		if ($item instanceof Localization) {
 			$master = $item->getMaster();
