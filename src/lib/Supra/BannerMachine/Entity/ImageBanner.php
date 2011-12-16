@@ -30,7 +30,7 @@ class ImageBanner extends FileBanner
 	 */
 	public function setFile(ImageFile $file)
 	{
-		if ($file instanceof GenericFile) {
+		if ( ! ($file instanceof ImageFile)) {
 			throw new CmsException(null, 'Can not change type of banner file!');
 		}
 
@@ -44,7 +44,7 @@ class ImageBanner extends FileBanner
 	public function getExposureModeContent(BannerMachineController $controller)
 	{
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
-		
+
 		$redirectorParams = array(
 				BannerMachineRedirector::REQUEST_KEY_BANNER_ID => $this->getId(),
 				BannerMachineRedirector::REQUEST_KEY_EXTRA => $controller->getPropertyValue(BannerMachineController::PROPERTY_NAME_APPEND_TO_URL),
@@ -69,7 +69,7 @@ class ImageBanner extends FileBanner
 	 * @param string $redirectorUrl
 	 * @return string
 	 */
-	protected function getImageBannerContent($redirectorUrl) 
+	protected function getImageBannerContent($redirectorUrl)
 	{
 		$tp = ObjectRepository::getTemplateParser($this);
 		$templateLoader = new \Twig_Loader_Filesystem(SUPRA_TEMPLATE_PATH);
@@ -79,17 +79,17 @@ class ImageBanner extends FileBanner
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
 
 		$bannerType = $bannerProvider->getType($this->getTypeId());
-		
+
 		$data = array(
 				'redirectorUrl' => $redirectorUrl,
 				'width' => $bannerType->getWidth(),
 				'height' => $bannerType->getHeight(),
 				'src' => $fileStorage->getWebPath($this->file)
 		);
-		
+
 		$imageBannerContent = $tp->parseTemplate('banner\banner-image.html.twig', $data, $templateLoader);
-		
+
 		return $imageBannerContent;
 	}
-	
+
 }
