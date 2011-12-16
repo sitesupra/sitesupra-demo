@@ -513,7 +513,6 @@ function twig_escape_filter(Twig_Environment $env, $string, $type = 'html', $cha
 			$prevError = error_get_last();
 			
             $result = htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE, $charset);
-			error_log($string);
 			
 			if (error_get_last() != $prevError) {
 				\Log::error("Error ", error_get_last(), " for string ", $string . ' and charset ' . $charset);
