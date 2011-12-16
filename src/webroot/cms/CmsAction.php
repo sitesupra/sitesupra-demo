@@ -46,6 +46,15 @@ abstract class CmsAction extends SimpleController
 	 */
 	public function execute()
 	{
+		// Used for exception debugging to see the context
+		$debugRequest = $_REQUEST;
+		if (isset($debugRequest['password'])) {
+			$debugRequest['password'] = '******';
+		}
+		if (isset($debugRequest['confirm_password'])) {
+			$debugRequest['confirm_password'] = '******';
+		}
+		
 		// Handle localized exceptions
 		try {
 			
@@ -79,7 +88,7 @@ abstract class CmsAction extends SimpleController
 
 			$response->setErrorMessage($message);
 
-			$this->log->warn($exception);
+			$this->log->warn($exception, "\nRequest:\n", $debugRequest);
 
 			/*
 			 * Resource not found exceptions should be thrown to CmsController 
@@ -113,7 +122,7 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage($e->getMessage());
 
 			// Write the issue inside the log
-			$this->log->error($e);
+			$this->log->error($e, "\nRequest:\n", $debugRequest);		
 		}
 	}
 

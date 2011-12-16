@@ -26,10 +26,13 @@ class FormAction extends CrudManagerAbstractAction
 		
 		$record = null;
 		$recordId = $post->get('id');
+		$newRecord = false;
 
 		if ( ! empty($recordId)) {
 			$record = $repo->findOneById($recordId);
 		} else {
+			$newRecord = true;
+			
 			if ($repo->isCreatable()) {
 				$record = new $configuration->entity;
 			} else {
@@ -53,7 +56,7 @@ class FormAction extends CrudManagerAbstractAction
 		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
 		
-		if($repo->isSortable()) {
+		if ($repo->isSortable() && $newRecord) {
 			$this->move($recordId, $recordBefore);
 		}
 

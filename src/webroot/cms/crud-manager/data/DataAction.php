@@ -26,7 +26,7 @@ class DataAction extends CrudManagerAbstractAction
 		$repo = $em->getRepository($configuration->entity);
 		
 		$order = null;
-		if($repo->isSortable()){
+		if ($repo->isSortable()) {
 			$order = array(
 				'position' => 'asc'
 			);
@@ -72,7 +72,9 @@ class DataAction extends CrudManagerAbstractAction
 			'locale' => $repo->isLocalized(),
 		);
 
-		$fieldObjects = $repo->getEditableFields();
+		//TODO: something is wrong here
+		$fieldObjects = $repo->getEditableFields()
+				+ $repo->getListFields();
 		$fields = array();
 		
 		foreach ($fieldObjects as $key => $fieldObject) {
@@ -94,7 +96,7 @@ class DataAction extends CrudManagerAbstractAction
 				'attributes' => $attributes,
 				'fields' => $fields,
 				'ui_list' => array_keys($repo->getListFields()),
-				'ui_edit' => array_keys($fields),
+				'ui_edit' => array_keys($repo->getEditableFields()),
 				'lists' => array(),
 			)
 		);
