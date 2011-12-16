@@ -117,14 +117,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				folder_id = null;
 			
 			if (node) {
-				folder_id = parseInt(node.getData('itemId'), 10);
+				folder_id = node.getData('itemId');
 				folder_node = node;
 			} else {
 				node = target.closest('div.yui3-slideshow-multiview-slide, div.yui3-slideshow-slide');
 				if (node) {
 					node = node.one('ul.folder,div.empty');
 					if (node) {
-						folder_id = parseInt(node.getAttribute('data-id'), 10);
+						folder_id = node.getAttribute('data-id');
 						folder_node = node.ancestor();
 					}
 				}

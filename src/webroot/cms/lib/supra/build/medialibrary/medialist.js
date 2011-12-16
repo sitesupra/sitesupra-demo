@@ -931,7 +931,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				history = null;
 			
 			history = Y.Array.map(slideshow.history, function (id) {
-				return parseInt(id.replace('slide_', ''), 10);
+				return id.replace('slide_', '');
 			});
 			
 			//Reset data
