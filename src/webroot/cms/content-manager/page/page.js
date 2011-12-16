@@ -558,6 +558,28 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Rename virtual folder
+		 */
+		renameVirtualFolder: function (page_id, locale, title, callback, context) {
+			var action = Manager.getAction('VirtualFolder'),
+				uri = action.getDataPath('rename');
+			
+			var post_data = {
+				'page_id': page_id,
+				'title': title,
+				'locale': locale,
+				'action': 'rename'
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'context': context,
+				'on': {'success': callback}
+			}, context);
+		},
+		
+		/**
 		 * Duplicate page
 		 *
 		 * @param {Number} page_id Page ID

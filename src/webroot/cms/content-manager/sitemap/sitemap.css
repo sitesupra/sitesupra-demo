@@ -117,6 +117,7 @@
 	cursor: pointer;
 	padding: 10px 10px 0;
 	position: relative;
+	overflow: hidden;
 }
 .flowmap-node-inner * {
 	cursor: pointer;
@@ -161,6 +162,7 @@
 	overflow: hidden;
 	max-height: 26px;
 }
+
 .tree-node label.state-draft,
 .flowmap-node label.state-draft {
 	color: #36c;
@@ -172,6 +174,26 @@
 .tree-node label.state-unpublished,
 .flowmap-node label.state-unpublished {
 	color: #777;
+}
+
+.flowmap-node .yui3-input-string-inline-focused {
+	/* Inline editing */
+	padding: 4px 0;
+	margin: 0 0 4px;
+	background: #fff;
+	overflow: hidden;
+	max-height: 26px;
+	
+	color: #333;
+	cursor: text;
+	font-size: 14px;
+	outline: none;
+	white-space: normal;
+	
+	border: 1px solid #36c;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 .flowmap-node span.img {

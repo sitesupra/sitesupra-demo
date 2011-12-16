@@ -62,6 +62,15 @@ YUI().add('website.sitemap-settings', function (Y) {
 		 */
 		data: null,
 		
+		/**
+		 * Inline edit input
+		 * @type {Object}
+		 * @private
+		 */
+		rename_input: null,
+		rename_page_id: null,
+		rename_input_label: null,
+		
 		
 		/**
 		 * @constructor
@@ -152,6 +161,12 @@ YUI().add('website.sitemap-settings', function (Y) {
 			this.node_hidden_pages = contbox.one('p.hidden-pages');
 			this.node_hidden_pages.one('a').on('click', this.onShowHiddenPages, this);
 			
+			//On sitemap close stop rename
+			this.host.on('visibleChange', function (evt) {
+				if (evt.newVal != evt.prevVal && !evt.newVal) {
+					this.onPageRenameBlur(true);
+				}
+			}, this);
 		},
 		
 		/**
@@ -227,7 +242,85 @@ YUI().add('website.sitemap-settings', function (Y) {
 		 * @private
 		 */
 		renamePage: function () {
-			/* @TODO #4190 */
+			if (this.rename_input) {
+				//Close previous input if it's still open
+				this.onPageRenameBlur(false);
+			}
+			
+			this.rename_page_id = this.data.id;
+			
+			//Create temporary node
+			var node = this.rename_input_label = this.host.flowmap.getNodeById(this.data.id).get('boundingBox').one('label');
+			var clone = Y.Node.create('<div class="label-replacement">' + node.get('text') + '</div>');
+			
+			node.insert(clone, 'after');
+			node.setStyle('display', 'none');
+			
+			//When user clicks on clone, don't propagate, because in tree default behaviour
+			//is prevented
+			clone.on('mousedown', function (evt) { evt.stopPropagation(); });
+			
+			//Create editor
+			var input = this.rename_input = new Supra.Input.InlineString({'boundingBox': clone, 'contentBox': clone, 'srcNode': clone, 'doc': document, 'win': window, 'value': node.get('text')});
+			input.render();
+			input.set('disabled', false);
+			input.focus();
+			input.selectAll();
+			
+			//On return/escape/blur stop editing
+			clone.on('keyup', function (evt) {
+				var charCode = evt.charCode || evt.keyCode;
+				if (charCode == 13) {
+					//Return key, rename
+					this.onPageRenameBlur(true);
+					evt.halt();
+				} else if (charCode == 27) {
+					//Escape key, revert
+					this.onPageRenameBlur(false);
+					evt.halt();
+				}
+			}, this);
+			
+			clone.on('blur', function () {
+				this.onPageRenameBlur(true);
+			}, this);
+			
+			//Hide panel
+			this.panel.hide();
+		},
+		
+		onPageRenameBlur: function (save) {
+			if (!this.rename_input) return;
+			
+			var input = this.rename_input,
+				label = this.rename_input_label,
+				value = input.get('value'),
+				clone = input.get('srcNode');
+			
+			if (save) {
+				value = Y.Lang.trim(value);
+				value = value.replace(/<[^>]+>/gi, '').replace(/[\r\n]/g, '');
+				if (!value) save = false;
+			}
+			
+			this.rename_input = null;
+			this.rename_input_label = null;
+			
+			input.blur();
+			input.set('disabled', true);
+			input.destroy();
+			clone.remove();
+			
+			if (save) {
+				label.set('text', value);
+				
+				var page_id = this.rename_page_id,
+					locale = this.host.languagebar.get('locale');
+				
+				Manager.Page.renameVirtualFolder(page_id, locale, value);
+			}
+			
+			label.setStyle('display', 'block');
 		},
 		
 		/**

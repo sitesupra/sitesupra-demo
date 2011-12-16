@@ -68,6 +68,61 @@ YUI.add("supra.input-inline-string", function (Y) {
 		},
 		
 		/**
+		 * On focus move carret to the end of the text
+		 */
+		focus: function () {
+			if (this.get('disabled')) return;
+			Input.superclass.focus.apply(this, arguments);
+			
+			var node = this.get('srcNode'),
+				element = node.getDOMNode(),
+				length = element.childNodes.length;
+			
+			this.htmleditor.setSelection({
+				start: element,
+				start_offset: length,
+				end: element,
+				end_offset: length
+			});
+		},
+		
+		/**
+		 * On blur move carret to the body
+		 */
+		blur: function () {
+			if (this.get('disabled')) return;
+			Input.superclass.blur.apply(this, arguments);
+			
+			if (this.htmleditor) {
+				//Set carret position to body
+				this.htmleditor.setSelection({
+					start: document.body,
+					start_offset: 0,
+					end: document.body,
+					end_offset: 0
+				});
+			}
+		},
+		
+		/**
+		 * Select all text
+		 */
+		selectAll: function () {
+			if (this.get('disabled')) return;
+			
+			var node = this.get('srcNode'),
+				element = node.getDOMNode(),
+				length = element.childNodes.length;
+			
+			this.htmleditor.setSelection({
+				start: element,
+				start_offset: 0,
+				end: element,
+				end_offset: length
+			});
+		},
+		
+		/**
 		 * Clean up
 		 */
 		destructor: function () {

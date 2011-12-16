@@ -135,7 +135,7 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 		 * @type {Boolean}
 		 */
 		navigationCharCode: function (charCode) {
-			//Space, backspace, return
+			//32 - Space, 8 - backspace, 13 - return
 			if (charCode == 32 || charCode == 8 || charCode == 13) return false;
 			
 			// before 40 are navigation keys
