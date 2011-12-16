@@ -629,7 +629,15 @@ class FileStorage
 			foreach ($sizes as $size) {
 				$sizeName = $size->getName();
 				$filePath = $this->getImagePath($file, $sizeName);
-				unlink($filePath);
+				
+				if (file_exists($filePath)) {
+					$result = unlink($filePath);
+					
+					if ( ! $result) {
+						throw new Exception\RuntimeException("Could not delete '$filePath' from file storage");
+					}
+				}
+				
 				$this->createResizedImage($file, $size->getTargetWidth(), 
 						$size->getTargetHeight(), $size->getCropMode(), 
 						$size->getQuality(), true);

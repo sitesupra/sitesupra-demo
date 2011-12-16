@@ -118,7 +118,7 @@ class PageLocalization extends Abstraction\Localization
 	protected $visibleInSitemap = true;
 	
 	/**
-	* Flag for hiding page from menu
+	 * Flag for hiding page from menu
 	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
