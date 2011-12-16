@@ -307,9 +307,11 @@ Supra(function (Y) {
 			Supra.io(uri, {
 				'data': post_data,
 				'method': 'post',
-				'context': this,
+				
+				//When called from Supra.Manager.Template context should still be Page
+				'context': Manager.Page,
 				'on': {
-					'success': this.onPublishPage
+					'success': Manager.Page.onPublishPage
 				}
 			});
 		},
