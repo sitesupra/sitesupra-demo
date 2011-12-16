@@ -10,6 +10,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Creates image size when ImageReferencedElement is created in db
@@ -97,7 +98,7 @@ class ImageSizeCreatorListener implements EventSubscriber
 		$imageId = $entity->getImageId();
 		$width = $entity->getWidth();
 		$height = $entity->getHeight();
-
+		
 		$fileStorage = $this->getFileStorage();
 
 		$fsEm = $fileStorage->getDoctrineEntityManager();

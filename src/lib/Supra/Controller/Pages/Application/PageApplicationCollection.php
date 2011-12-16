@@ -52,6 +52,14 @@ class PageApplicationCollection
 	}
 	
 	/**
+	 * @retunr array
+	 */
+	public function getApplicationConfigurationList()
+	{
+		return $this->applicationConfigurationList;
+	}
+	
+	/**
 	 * @param string $id
 	 * @return PageApplicationConfiguration 
 	 */
