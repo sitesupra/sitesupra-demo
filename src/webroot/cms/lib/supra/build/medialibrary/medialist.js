@@ -231,7 +231,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @type {Number}
 		 */
 		'displayType': {
-			value: List.DISPLAY_ALL
+			value: List.DISPLAY_ALL,
+			setter: '_setDisplayType'
 		},
 		
 		/**
@@ -373,7 +374,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			})).render();
 			
 			//Start loading data
-			this.open(this.get('rootFolderId'));
+			Y.later(1, this, function () {
+				this.open(this.get('rootFolderId'));
+			});
 		},
 		
 		/**
@@ -1128,6 +1131,20 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 */
 		_setNoAnimations: function (value) {
 			this.slideshow.set('noAnimations', value);
+			return value;
+		},
+		
+		/**
+		 * Display type setter
+		 */
+		_setDisplayType: function (value) {
+			if (this.get('displayType') != value) {
+				var data_object = this.get('dataObject');
+				if (data_object) {
+					this.get('dataObject').setRequestParam('type', value);
+					//this.reload();
+				}
+			}
 			return value;
 		}
 	}, {});

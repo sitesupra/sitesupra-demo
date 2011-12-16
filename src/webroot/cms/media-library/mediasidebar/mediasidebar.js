@@ -236,9 +236,13 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 */
 		execute: function (options) {
 			//Set options
-			this.options = options || {};
+			this.options = Supra.mix({
+				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES
+			}, options || {}, true);
 			
 			//Scroll to folder / item
+			this.medialist.set('displayType', this.options.displayType);
+			
 			this.medialist.reset();
 			this.medialist.set('noAnimations', true);
 			this.medialist.open(this.options.item || 0);

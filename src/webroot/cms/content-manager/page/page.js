@@ -348,9 +348,9 @@ Supra(function (Y) {
 			Supra.io(uri, {
 				'data': post_data,
 				'method': 'post',
-				'context': this,
+				'context': Manager.Page,
 				'on': {
-					'success': this.onUnlockPage
+					'success': Manager.Page.onUnlockPage
 				}
 			});
 		},

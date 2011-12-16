@@ -245,7 +245,10 @@ Supra(function (Y) {
 					'onselect': Y.bind(this.onImageSelect, this),
 					
 					//Open current item
-					'item': item
+					'item': item,
+					
+					//Display type, 0 - all
+					'displayType': 0
 				});
 				
 				action.once('hide', function () {

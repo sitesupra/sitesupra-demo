@@ -85,7 +85,12 @@ Supra(function (Y) {
 			'visible': false,
 			'callback': function () {
 				//Force page unlock
-				Manager.Page.unlockPage(true);
+				if (Manager.Page.isPage()) {
+					Manager.Page.unlockPage(true);
+				} else {
+					Manager.Template.unlockTemplate(true);
+				}
+				
 			}
 		}];
 	}

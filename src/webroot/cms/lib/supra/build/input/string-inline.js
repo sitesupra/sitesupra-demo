@@ -20,7 +20,8 @@ YUI.add("supra.input-inline-string", function (Y) {
 		/*CONTENT_TEMPLATE: null,*/
 		
 		renderUI: function () {
-			//We overwrite InlineHTML.renderUI, that's why we call parent
+			//We overwrite InlineHTML.renderUI and it shouldn't be called, that's why
+			//we call InlineHTML parent not Input parent
 			Supra.Input.InlineHTML.superclass.renderUI.apply(this, arguments);
 			
 			this.set('boundingBox', this.get('srcNode'));
