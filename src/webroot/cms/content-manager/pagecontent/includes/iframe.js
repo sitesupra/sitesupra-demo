@@ -307,6 +307,11 @@ YUI.add('supra.iframe-handler', function (Y) {
 					href = null,
 					local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
 				
+				if (target.test('.yui3-content-editing a')) {
+					//If clicked on link inside content which is beeing edited, then don't do anything
+					e.preventDefault();
+					return;
+				}
 				if (!target.test('a')) {
 					target = target.ancestor('a');
 				}

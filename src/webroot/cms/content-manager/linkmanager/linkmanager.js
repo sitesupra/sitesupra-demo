@@ -81,6 +81,12 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		data: {},
 		
 		/**
+		 * Original data with which link manager was opened
+		 * @type {Object}
+		 */
+		original_data: null,
+		
+		/**
 		 * Callback function
 		 * @type {Function}
 		 */
@@ -283,6 +289,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * @param {Object} data
 		 */
 		setData: function (data) {
+			this.original_data = data;
 			this.is_new = !data;
 			
 			data = SU.mix({
@@ -314,6 +321,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			
 			if (this.link_slideshow) {
 				this.link_slideshow.set('noAnimations', true);
+			}
+			
+			//Reset tree selected node
+			if (this.tree) {
+				this.tree.set('selectedNode', null);
 			}
 			
 			//Set values by input name
@@ -493,15 +505,21 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				this.callback = null;
 			}
 			
-			this.close();
+			this.close(true);
 		},
 		
 		/**
 		 * Close and save data
 		 */
-		close: function () {
+		close: function (allow_remove) {
 			if (this.callback) {
 				var data = this.getData();
+				
+				if (allow_remove !== true) {
+					//If not allowed to remove, then return original data
+					data = data || this.original_data;
+				}
+				
 				this.callback(data);
 				this.callback = null;
 			}
