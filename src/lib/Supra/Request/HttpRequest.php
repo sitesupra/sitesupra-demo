@@ -35,6 +35,12 @@ class HttpRequest implements RequestInterface
 	 */
 	protected $post;
 
+	/*
+	 * POST uploads data
+	 * @var PostFileData
+	 */
+	protected $files;
+	
 	/**
 	 * Cookies received from the client
 	 * @var array
@@ -58,6 +64,7 @@ class HttpRequest implements RequestInterface
 	 */
 	public function __construct()
 	{
+		$this->files = new PostFilesData();
 		$this->post = new RequestData();
 		$this->query = new RequestData();
 	}
@@ -78,6 +85,9 @@ class HttpRequest implements RequestInterface
 		}
 		if (isset($_COOKIE)) {
 			$this->setCookies($_COOKIE);
+		}
+		if (isset($_FILES)) {
+			$this->setPostFiles($_FILES);
 		}
 
 		if ( ! isset($_SERVER['SCRIPT_URL'])) {
@@ -224,6 +234,16 @@ class HttpRequest implements RequestInterface
 		}
 		
 		return $this->post[$index];
+	}
+	
+	public function setPostFiles($files) 
+	{
+		$this->files = new PostFilesData($files);
+	}
+	
+	public function getPostFiles()
+	{
+		return $this->files;
 	}
 
 	/**

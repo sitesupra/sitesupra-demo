@@ -23,7 +23,8 @@ abstract class AbstractType implements ValidationTypeInterface
 //	const TEXT = 'text';
 	const FLOAT = 'float';
 	const EMAIL = 'email';
-
+	const POST_FILE = 'post_file';
+	
 	/**
 	 * Map of instantiated type objects
 	 * @var array
@@ -48,6 +49,7 @@ abstract class AbstractType implements ValidationTypeInterface
 //		self::DECIMAL => 'Supra\Validator\Type\DecimalType',
 		self::FLOAT => 'Supra\Validator\Type\FloatType',
 		self::EMAIL => 'Supra\Validator\Type\EmailType',
+		self::POST_FILE => 'Supra\Validator\Type\PostFileType',
 	);
 
 	/**
