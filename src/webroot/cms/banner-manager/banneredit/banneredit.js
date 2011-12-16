@@ -268,7 +268,7 @@ Supra(function (Y) {
 				this.data.image.id = data.image.id;
 				this.data.image.path = data.image.path;
 				
-				if (this.data.image.sizes) {
+				if (data.image.sizes) {
 					//Image
 					this.data.image.external_path = data.image.sizes.original.external_path;
 					this.data.image.width = data.image.sizes.original.width;
