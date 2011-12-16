@@ -77,10 +77,26 @@ class PageRequestEdit extends PageRequest
 		
 		$draftData = $this->getPageLocalization();
 		
-		// Set creation time if empty
 		if ($draftData instanceof Entity\PageLocalization) {
+			// Set creation time if empty
 			if ( ! $draftData->isPublishTimeSet()) {
 				$draftData->setCreationTime();
+			}
+			
+			// Pages also need to be checked for path duplicates
+			$locale = $draftData->getLocale();
+			$pathString = $draftData->getPath()
+					->getFullPath();
+			$localizationRepository = $publicEm->getRepository(PageLocalization::CN());
+		
+			$criteria = array(
+				'locale' => $locale,
+				'path' => $pathString
+			);
+
+			$duplicate = $localizationRepository->findOneBy($criteria);
+			if ( ! is_null($duplicate) && ($duplicate->getId() != $draftData->getId())) {
+				throw new Exception\RuntimeException("Another page with path $pathString already exists");
 			}
 		}
 		
