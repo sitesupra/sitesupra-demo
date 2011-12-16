@@ -5,6 +5,7 @@ namespace Supra\Cms\BannerManager\Banneredit;
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\BannerMachine\Entity\ImageBanner;
+use Supra\BannerMachine\Entity\FlashBanner;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
 use \DateTime;
@@ -32,6 +33,10 @@ class BannereditAction extends CmsAction
 	 */
 	protected $imageFileRepository;
 
+	/**
+	 * @var EntityRepository
+	 */
+	protected $fileRepository;
 
 	function __construct()
 	{
@@ -43,6 +48,7 @@ class BannereditAction extends CmsAction
 
 		$this->pageRepository = $em->getRepository(PageLocalization::CN());
 		$this->imageFileRepository = $em->getRepository(Image::CN());
+		$this->fileRepository = $em->getRepository(File::CN());
 	}
 
 	/**
@@ -72,7 +78,24 @@ class BannereditAction extends CmsAction
 
 		\Log::debug('BANNER INSERT REQUEST: ', $postData->getArrayCopy());
 
-		$banner = new ImageBanner();
+		$file = $this->fileRepository->find($postData->get('image'));
+
+		$banner = null;
+
+		if ($file instanceof Image) {
+			$banner = new ImageBanner();
+		}
+		else {
+
+			$mimeType = $file->getMimeType();
+
+			if ($mimeType == FlashBanner::MIME_TYPE) {
+				$banner = new FlashBanner();
+			}
+			else {
+				throw new \Supra\Cms\Exception\CmsException('Files with type "' . $mimeType . '" are not supported.');
+			}
+		}
 
 		$this->updateBannerFromPost($banner, $postData);
 
@@ -84,14 +107,20 @@ class BannereditAction extends CmsAction
 	 * @param Banner $banner
 	 * @param type $postData 
 	 */
-	private function updateBannerFromPost(Banner $banner, $postData)
+	private function updateBannerFromPost(Banner $banner, $postData, File $file = null)
 	{
 		$banner->setStatus($postData->get('status', 1));
 		$banner->setPriority($postData->get('priority', 5));
 
 		$schedule = $postData->getChild('schedule');
-		$banner->setScheduledFrom(new DateTime($schedule->get('from', 'now')));
-		$banner->setScheduledTill(new DateTime($schedule->get('to', 'tomorrow')));
+
+		if ($schedule->get('from', false)) {
+			$banner->setScheduledFrom(new DateTime($schedule->get('from')));
+		}
+
+		if ($schedule->get('to', false)) {
+			$banner->setScheduledTill(new DateTime($schedule->get('to')));
+		}
 
 		$bannerTarget = $postData->getChild('target');
 
@@ -104,9 +133,9 @@ class BannereditAction extends CmsAction
 
 		$banner->setTypeId($postData->get('group_id', 'unknown-banner-type'));
 
-		$imageFile = $this->imageFileRepository->find($postData->get('image'));
+		$bannerFile = $this->fileRepository->find($postData->get('image'));
 
-		$banner->setFile($imageFile);
+		$banner->setFile($bannerFile);
 
 		$banner->setLocaleId($postData->get('locale'));
 
@@ -132,18 +161,24 @@ class BannereditAction extends CmsAction
 			throw new Exception\RuntimeException('Banner id not posted.');
 		}
 
-		$fileStorage = ObjectRepository::getFileStorage($this);
-
 		$banner = $this->bannerProvider->getBanner($bannerId);
+
+		$schedule = array('from' => null, 'to' => null);
+		$from = $banner->getScheduledFrom();
+		$to = $banner->getScheduledTill();
+
+		if ( ! empty($from)) {
+			$schedule['from'] = $to->format('Y-m-d');
+		}
+		if ( ! empty($to)) {
+			$schedule['to'] = $to->format('Y-m-d');
+		}
 
 		$result = array(
 				'banner_id' => $banner->getId(),
 				'group_id' => $banner->getTypeId(),
 				'priority' => $banner->getPriority(),
-				'schedule' => array(
-						'from' => $banner->getScheduledFrom()->format('Y-m-d'),
-						'to' => $banner->getScheduledTill()->format('Y-m-d')
-				),
+				'schedule' => $schedule,
 				'status' => $banner->getStatus(),
 				'stats' => array(
 						'exposures' => $banner->getExposureCount(),
@@ -181,23 +216,20 @@ class BannereditAction extends CmsAction
 			);
 		}
 
-		if ($banner instanceof ImageBanner) {
+		$type = $this->bannerProvider->getType($banner->getTypeId());
 
-			$type = $this->bannerProvider->getType($banner->getTypeId());
-
-			$path = array(0); // !!! Important !!!
-			foreach ($banner->getFile()->getAncestors() as $ancestor) {
-				$path[] = $ancestor->getId();
-			}
-
-			$result['image'] = array(
-					'id' => $banner->getFile()->getId(),
-					'path' => $path,
-					'external_path' => $fileStorage->getWebPath($banner->getFile()),
-					'width' => $type->getWidth(),
-					'height' => $type->getHeight()
-			);
+		$path = array(0); // !!! Important !!!
+		foreach ($banner->getFile()->getAncestors() as $ancestor) {
+			$path[] = $ancestor->getId();
 		}
+
+		$result['image'] = array(
+				'id' => $banner->getFile()->getId(),
+				'path' => $path,
+				'external_path' => $banner->getExternalPath(),
+				'width' => $type->getWidth(),
+				'height' => $type->getHeight()
+		);
 
 		$this->getResponse()->setResponseData($result);
 	}
@@ -206,7 +238,7 @@ class BannereditAction extends CmsAction
 	{
 		$request = $this->getRequest();
 
-		$bannerId = $request->getParameter('banner_id');
+		$bannerId = $request->getPostValue('banner_id');
 
 		$banner = $this->bannerProvider->getBanner($bannerId);
 

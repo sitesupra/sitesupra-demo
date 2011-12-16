@@ -80,17 +80,18 @@
     redirectorPath: /banner-machine-one
     types: 
       - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
-          id: wide
-          name: Wide (200 x 50)
-          width: 200
-          height: 50
-          ratioDelta: 0.2
-      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
           id: square
-          name: Square (100 x 100)
-          width: 100
-          height: 100       
+          name: Square (215 x 246)
+          width: 215
+          height: 246
           ratioDelta: 0.1
-      - Supra\BannerMachine\Configuration\BannerType\AnythingGoesTypeConfiguration: 
+      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
+          id: wide
+          name: Wide (970 x 130)
+          width: 970
+          height: 130
+          ratioDelta: 0.1
+          
+      - Supra\BannerMachine\Configuration\BannerType\AnythingGoesTypeConfiguration:
           id: any
-          name: Anything goes
+          name: Any

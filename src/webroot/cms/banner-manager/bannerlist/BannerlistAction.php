@@ -7,6 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\BannerMachine\Entity\Banner;
 use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 use Supra\BannerMachine\Entity\ImageBanner;
+use Supra\BannerMachine\Entity\FlashBanner;
 
 class BannerlistAction extends CmsAction
 {
@@ -35,20 +36,9 @@ class BannerlistAction extends CmsAction
 			foreach ($banners as $banner) {
 				/* @var $banner Banner */
 
-				$externalPath = '#';
-
-				if ($banner instanceof ImageBanner) {
-
-					$file = $banner->getFile();
-
-					if ( ! empty($file)) {
-						$externalPath = $fileStorage->getWebPath($banner->getFile());
-					}
-				}
-
 				$children[] = array(
 						'banner_id' => $banner->getId(),
-						'external_path' => $externalPath,
+						'external_path' => $banner->getExternalPath(),
 						'width' => $bannerType->getWidth(),
 						'height' => $bannerType->getHeight(),
 						'status' => $banner->getStatus(),

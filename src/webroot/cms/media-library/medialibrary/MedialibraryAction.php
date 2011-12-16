@@ -14,6 +14,7 @@ use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
 use Supra\Exception\LocalizedException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
+use Supra\FileStorage\Entity\Folder;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -67,6 +68,19 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		foreach ($rootNodes as $rootNode) {
 			/* @var $rootNode Entity\Abstraction\File */
 			$item = array();
+			
+			if( ! $this->emptyRequestParameter('type')) {
+				
+				$itemType = $this->getEntityType($rootNode);
+				$requestedType = $this->getRequestParameter('type');
+				
+				if( ! ( 
+						($itemType == $requestedType) || 
+						($itemType == Folder::TYPE_ID)
+				) ) {
+					continue;
+				}
+			}
 			
 			$title = $rootNode->getFileName();
 			

@@ -267,9 +267,18 @@ Supra(function (Y) {
 			if (data.image) {
 				this.data.image.id = data.image.id;
 				this.data.image.path = data.image.path;
-				this.data.image.external_path = data.image.sizes.original.external_path;
-				this.data.image.width = data.image.sizes.original.width;
-				this.data.image.height = data.image.sizes.original.height;
+				
+				if (this.data.image.sizes) {
+					//Image
+					this.data.image.external_path = data.image.sizes.original.external_path;
+					this.data.image.width = data.image.sizes.original.width;
+					this.data.image.height = data.image.sizes.original.height;
+				} else {
+					//Flash
+					this.data.image.external_path = '/cms/lib/supra/img/apps/banner_32x32.png';
+					this.data.image.width = -1;
+					this.data.image.height = -1;
+				}
 				
 				this.updatePreview(this.data.image);
 			}
