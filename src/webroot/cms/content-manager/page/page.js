@@ -516,7 +516,7 @@ Supra(function (Y) {
 				'data': post_data,
 				'method': 'post',
 				'context': context,
-				'on': {'success': callback}
+				'on': {'complete': callback}
 			}, context);
 		},
 		
@@ -553,8 +553,10 @@ Supra(function (Y) {
 		 * @param {Boolean} status Request status
 		 */
 		onDeleteComplete: function (data, status) {
-			Supra.Manager.PageContent.onStopEditingRoute();
-			Supra.Manager.executeAction('SiteMap');
+			if (status) {
+				Supra.Manager.PageContent.onStopEditingRoute();
+				Supra.Manager.executeAction('SiteMap');
+			}
 		},
 		
 		/**

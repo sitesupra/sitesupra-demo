@@ -379,13 +379,15 @@ SU('supra.languagebar', 'website.sitemap-tree-node', 'website.sitemap-tree-newpa
 				version_id = this.property_data.version,
 				locale = this.languagebar.get('locale');
 			
-			Manager.Page.deletePage(page_id, version_id, locale, function () {
-				//Hide properties
-				this.panel.hide();
-				this.property_data = null;
-				
-				//Reload tree
-				this.tree.reload();
+			Manager.Page.deletePage(page_id, version_id, locale, function (data, success) {
+				if (success) {
+					//Hide properties
+					this.panel.hide();
+					this.property_data = null;
+					
+					//Reload tree
+					this.tree.reload();
+				}
 			}, this);
 		},
 		

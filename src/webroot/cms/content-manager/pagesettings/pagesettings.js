@@ -428,14 +428,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		/**
 		 * After page delete enable buttons
 		 */
-		afterDeletePage: function () {
+		afterDeletePage: function (data, success) {
 			//Enable form
 			this.form.set('disabled', false);
 			this.button_delete.set('loading', false);
 			Supra.Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
 			
-			//Hide page settings
-			this.hide();
+			if (success) {
+				//Hide page settings
+				this.hide();
+			}
 		},
 		
 		/**
