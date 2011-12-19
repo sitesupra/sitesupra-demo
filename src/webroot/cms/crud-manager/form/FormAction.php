@@ -25,7 +25,12 @@ class FormAction extends CrudManagerAbstractAction
 		$post = $request->getPost();
 		
 		$record = null;
-		$recordId = $post->get('id');
+		$recordId = null;
+		
+		try {
+			$recordId = $post->get('id');
+		} catch (RuntimeException $exc) {}
+
 		$newRecord = false;
 
 		if ( ! empty($recordId)) {

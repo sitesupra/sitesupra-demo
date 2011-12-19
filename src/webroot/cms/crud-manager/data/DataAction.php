@@ -73,7 +73,7 @@ class DataAction extends CrudManagerAbstractAction
 		);
 
 		//TODO: something is wrong here
-		$fieldObjects = $repo->getEditableFields()
+		$fieldObjects = array('id' => new Editable\Hidden('Id')) + $repo->getEditableFields()
 				+ $repo->getListFields();
 		$fields = array();
 		
