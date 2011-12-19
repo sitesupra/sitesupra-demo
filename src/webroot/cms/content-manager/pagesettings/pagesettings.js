@@ -596,6 +596,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			delete(form_data.created_hours);
 			delete(form_data.created_minutes);
 			
+			form_data.scheduled_time = page_data.scheduled_time;
+			form_data.scheduled_date = page_data.scheduled_date;
+			
 			Supra.mix(page_data, form_data);
 			
 			//Remove unneeded data for save request
