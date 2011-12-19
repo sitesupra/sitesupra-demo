@@ -107,62 +107,64 @@ class SitemapAction extends PageManagerAction
 
 		$children = null;
 		
-		if ($page instanceof Entity\ApplicationPage) {
-			$application = PageApplicationCollection::getInstance()
-					->createApplication($data, $this->entityManager);
+		if ( ! $isGlobal) {
+			if ($page instanceof Entity\ApplicationPage) {
+				$application = PageApplicationCollection::getInstance()
+						->createApplication($data, $this->entityManager);
 
-			$application->showInactivePages(true);
-			
-			$modes = $application->getAvailableSitemapViewModes();
-			
-			$collapsedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes);
-			$expandedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes);
+				$application->showInactivePages(true);
 
-			$forceExpand = $this->hasRequestParameter('expand');
-			$hasRootId = $this->hasRequestParameter('root');
-			$showHidden = ($hasRootId && ! $forceExpand);
-			
-			if ($showHidden) {
-				$children = $application->getHiddenPages();
-			} elseif ($forceExpand && $expandedMode) {
-				$children = $application->expandedSitemapView();
-			} elseif ($collapsedMode) {
-				//TODO: children could be a grouped array
-				$children = $application->collapsedSitemapView();
-				
-				// Send sitemap that expanded view is available for the root node
-				if ($expandedMode) {
-					$array['collapsed'] = true;
+				$modes = $application->getAvailableSitemapViewModes();
+
+				$collapsedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes);
+				$expandedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes);
+
+				$forceExpand = $this->hasRequestParameter('expand');
+				$hasRootId = $this->hasRequestParameter('root');
+				$showHidden = ($hasRootId && ! $forceExpand);
+
+				if ($showHidden) {
+					$children = $application->getHiddenPages();
+				} elseif ($forceExpand && $expandedMode) {
+					$children = $application->expandedSitemapView();
+				} elseif ($collapsedMode) {
+					//TODO: children could be a grouped array
+					$children = $application->collapsedSitemapView();
+
+					// Send sitemap that expanded view is available for the root node
+					if ($expandedMode) {
+						$array['collapsed'] = true;
+					}
+				} elseif ($expandedMode) {
+					$children = $application->expandedSitemapView();
+				} else {
+					$children = array();
 				}
-			} elseif ($expandedMode) {
-				$children = $application->expandedSitemapView();
+
+				$array['has_hidden_pages'] = $application->hasHiddenPages();
+
+				//TODO: pass to client if there are any hidden pages
+
+			} elseif ($page instanceof Entity\TemporaryGroupPage) {
+				$children = $page->getChildren();
 			} else {
-				$children = array();
+				$children = $page->getChildren();
 			}
-			
-			$array['has_hidden_pages'] = $application->hasHiddenPages();
-			
-			//TODO: pass to client if there are any hidden pages
-			
-		} elseif ($page instanceof Entity\TemporaryGroupPage) {
-			$children = $page->getChildren();
-		} else {
-			$children = $page->getChildren();
-		}
-		
-		$childrenArray = $this->convertPagesToArray($children, $locale);
-		
-		if ( ! $skipRoot) {
-			if (count($childrenArray) > 0) {
-				$array['children'] = $childrenArray;
-				
-				// TODO: hardcoded
-				if ($array['icon'] == 'page') {
-					$array['icon'] = 'folder';
+
+			$childrenArray = $this->convertPagesToArray($children, $locale);
+
+			if ( ! $skipRoot) {
+				if (count($childrenArray) > 0) {
+					$array['children'] = $childrenArray;
+
+					// TODO: hardcoded
+					if ($array['icon'] == 'page') {
+						$array['icon'] = 'folder';
+					}
 				}
+			} else {
+				$array = $childrenArray;
 			}
-		} else {
-			$array = $childrenArray;
 		}
 		
 		if ($isGlobal) {
