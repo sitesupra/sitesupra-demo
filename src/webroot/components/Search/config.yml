@@ -1,5 +1,2 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Search\SearchController
-    title: Search!!!
-    description: Search search search search!
-    cmsClassname: Editable
+- Supra\Search\SearchControllerConfiguration:
+    resultTemplateFilename: search-results.html.twig

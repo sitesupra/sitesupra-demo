@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\Search;
+namespace Supra\Search;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\Request;
@@ -10,12 +10,20 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\BlockControllerCollection;
 
 /**
  * Simple text block
  */
 class SearchController extends BlockController
 {
+
+	public function createResponse(Request\RequestInterface $request)
+	{
+		$response = new Response\TwigResponse();
+		
+		return $response;
+	}
 
 	public function execute()
 	{
@@ -31,16 +39,20 @@ class SearchController extends BlockController
 		}
 
 		$path = $request->getPath();
-		
-		if( ! empty($path)) {
+
+		if ( ! empty($path)) {
 			$resultUrl = $path->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 			$response->assign('resultUrl', $resultUrl);
 		}
 
 		$response->assign('searchResults', $searchResults);
 
-		// Local file is used
-		$response->outputTemplate('index.html.twig');
+		$response->outputTemplate('template/' . $this->configuration->resultTemplateFilename);
+	}
+
+	public function setConfiguration(SearchControllerConfiguration $configuration)
+	{
+		parent::setConfiguration($configuration);
 	}
 
 	/**

@@ -55,7 +55,12 @@ class TwigResponse extends HttpResponse
 	 */
 	public function outputTemplate($templateName)
 	{
-		$loader = new FilesystemLoaderByContext($this->context);
+		$loader = null;
+		
+		if ( ! is_null($this->context)) {
+			$loader = new FilesystemLoaderByContext($this->context);
+		}
+		
 		$content = $this->twigEnvironment->parseTemplate($templateName, 
 				$this->templateVariables,
 				$loader);

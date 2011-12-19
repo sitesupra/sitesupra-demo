@@ -51,6 +51,8 @@ class BlockControllerCollection
 	 */
 	public function getConfiguration($blockId)
 	{
+		$blockId = 	str_replace('\\', '_', $blockId);
+		
 		return $this->configuration[$blockId];
 	}
 
@@ -59,7 +61,8 @@ class BlockControllerCollection
 	 */
 	public function addConfiguration(BlockControllerConfiguration $configuration)
 	{
-		$blockId = $configuration->id;
+		$blockId = 	str_replace('\\', '_', $configuration->id);
+		
 		$this->configuration[$blockId] = $configuration;
 	}
 	
@@ -76,7 +79,10 @@ class BlockControllerCollection
 			throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
 		}
 		
+		/* @var $controller BlockController */
 		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+		
+		$controller->setConfiguration($configuration);
 		
 		return $controller;
 	}

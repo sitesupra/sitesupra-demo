@@ -13,6 +13,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Controller\Pages\Entity\TemplateBlock;
 use Supra\Loader;
+use Supra\Controller\Pages\BlockControllerCollection;
 
 /**
  * Block database entity abstraction
@@ -23,6 +24,7 @@ use Supra\Loader;
  */
 abstract class Block extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
+
 	/**
 	 * @Column(type="string", name="component")
 	 * @var string
@@ -34,19 +36,19 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 * @var int
 	 */
 	protected $position;
-	
+
 	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
 	 * @JoinColumn(name="place_holder_id", referencedColumnName="id")
 	 * @var PlaceHolder
 	 */
 	protected $placeHolder;
-	
+
 	/**
 	 * Left here just because cascade in remove
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}) 
 	 * @var Collection 
-	 */ 
+	 */
 	protected $blockProperties;
 
 	/**
@@ -64,7 +66,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		parent::__construct();
 		$this->blockProperties = new ArrayCollection();
 	}
-	
+
 	/**
 	 * Get locked value, always false for page blocks
 	 * @return boolean
@@ -101,7 +103,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		return $this->componentClass;
 	}
-	
+
 	/**
 	 * @param string $componentClass
 	 */
@@ -109,7 +111,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		$this->componentClass = trim($componentClass, '\\');
 	}
-	
+
 	/**
 	 * Get component class name safe for HTML node ID generation
 	 * @return string
@@ -118,10 +120,10 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		$componentName = $this->componentClass;
 		$componentName = str_replace('\\', '_', $componentName);
-		
+
 		return $componentName;
 	}
-	
+
 	/**
 	 * Set normalized component name, converted to classname
 	 * @param string $componentName
@@ -149,7 +151,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		$this->position = $position;
 	}
-	
+
 	/**
 	 * @return Collection
 	 */
@@ -168,10 +170,10 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		$placeHolder = $this->getPlaceHolder();
 		$placeHolderId = $placeHolder->getId();
 		$in = in_array($placeHolderId, $placeHolderIds);
-		
+
 		return $in;
 	}
-	
+
 	/**
 	 * Factory of the block controller
 	 * @return BlockController
@@ -179,24 +181,36 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	public function createController()
 	{
 		$component = $this->getComponentClass();
+		
 		if ( ! class_exists($component)) {
-			$this->log()->warn("Block component $component was not found for block $this");
 			
+			$this->log()->warn("Block component $component was not found for block $this");
+
 			return null;
 		}
 
 		try {
+			
 			$blockController = Loader\Loader::getClassInstance($component, 'Supra\Controller\Pages\BlockController');
+			
 			$blockController->setBlock($this);
+			
+			$blockControllerCollection = BlockControllerCollection::getInstance();
+			
+			$configuration = $blockControllerCollection->getConfiguration($component);
+			
+			$blockController->setConfiguration($configuration);
 
 			return $blockController;
-		} catch (Loader\Exception\ClassMismatch $e) {
-			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
+		}
+		catch (Loader\Exception\ClassMismatch $e) {
 			
+			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
+
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Prepares controller
 	 * @param BlockController $controller
@@ -208,16 +222,16 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		$blockPropertySet = $request->getBlockPropertySet();
 		$blockPropertySubset = $blockPropertySet->getBlockPropertySet($this);
 		$controller->setBlockPropertySet($blockPropertySubset);
-		
+
 		// Create response
 		$response = $controller->createResponse($request);
-		
+
 		// Prepare
 		$controller->prepare($request, $response);
-		
+
 		$controller->prepareTwigHelper();
 	}
-	
+
 	/**
 	 * Executes the controller of the block
 	 * @param BlockController $controller
@@ -227,7 +241,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		// Execute
 		$controller->execute();
 	}
-	
+
 	/**
 	 * Creates new instance based on the discriminator of the base entity
 	 * @param Entity $base
@@ -237,25 +251,25 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		$discriminator = $base::DISCRIMINATOR;
 		$block = null;
-		
+
 		switch ($discriminator) {
 			case self::TEMPLATE_DISCR:
 				$block = new TemplateBlock();
 				break;
-			
+
 			case self::PAGE_DISCR:
 			case self::APPLICATION_DISCR:
 				$block = new PageBlock();
 				break;
-			
-			
+
+
 			default:
 				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");
 		}
-		
+
 		return $block;
 	}
-	
+
 	/**
 	 * Creates new instance based on the discriminator of base entity and 
 	 * the properties of source entity
@@ -266,13 +280,13 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	public static function factoryClone(Entity $base, Block $source)
 	{
 		$block = self::factory($base);
-		
+
 		$block->setComponentClass($source->getComponentClass());
 		$block->setPosition($source->getPosition());
-		
+
 		return $block;
 	}
-	
+
 	/**
 	 * Doctrine safe clone method with cloning of children
 	 */
@@ -284,10 +298,10 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 			$this->placeHolder = null;
 		}
 	}
-	
-	public function getOwner() 
+
+	public function getOwner()
 	{
 		return $this->placeHolder;
 	}
-	
+
 }
