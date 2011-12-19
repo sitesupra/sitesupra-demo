@@ -39,8 +39,8 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	protected $title;
 
 	/**
-	 * Duplicate FK, still needed for DQL when it's not important what type the entity is
-	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="localizations", fetch="EAGER")
+	 * The parent entity which stores hierarchy information, AbstractPage implementation
+	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="localizations")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var AbstractPage
 	 */
@@ -67,6 +67,20 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 * @var Collection
 	 */
 	protected $placeHolders;
+	
+//	/**
+//	 * Flag for hiding page from sitemap
+//	 * @Column(type="boolean", nullable=false)
+//	 * @var boolean
+//	 */
+//	protected $visibleInSitemap = false;
+//	
+//	/**
+//	 * Flag for hiding page from menu
+//	 * @Column(type="boolean", nullable=false)
+//	 * @var boolean
+//	 */
+//	protected $visibleInMenu = false;
 
 	/**
 	 * Construct
@@ -331,6 +345,22 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 		$localization->setMaster($page);
 		
 		return $localization;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isVisibleInMenu()
+	{
+		return false;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isVisibleInSitemap()
+	{
+		return false;
 	}
 	
 	/**
