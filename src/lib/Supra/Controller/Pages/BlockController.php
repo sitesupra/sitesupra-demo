@@ -12,6 +12,7 @@ use Supra\Controller\Pages\Response\Block;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 /**
  * Block controller abstraction
@@ -20,6 +21,7 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 abstract class BlockController extends ControllerAbstraction
 {
+
 	/**
 	 * @var Set\BlockPropertySet
 	 */
@@ -30,20 +32,25 @@ abstract class BlockController extends ControllerAbstraction
 	 * @var Entity\Abstraction\Block
 	 */
 	protected $block;
-	
+
 	/**
 	 * Current request page
 	 * @var Entity\Abstraction\AbstractPage
 	 */
 	protected $page;
-	
+
+	/**
+	 * @var BlockControllerConfiguration
+	 */
+	protected $configuration;
+
 	/**
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
 	 */
 	abstract public function getPropertyDefinition();
-	
+
 	/**
 	 * Prepares controller for execution
 	 * @param RequestInterface $request
@@ -52,7 +59,7 @@ abstract class BlockController extends ControllerAbstraction
 	public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		parent::prepare($request, $response);
-		
+
 		if ($request instanceof PageRequest) {
 			$page = $request->getPage();
 			$this->setPage($page);
@@ -83,26 +90,26 @@ abstract class BlockController extends ControllerAbstraction
 	public function createResponse(Request\RequestInterface $request)
 	{
 		$response = new Response\TwigResponse($this);
-		
+
 		return $response;
 	}
-	
+
 	/**
 	 * Assigns supra helper to the twig as global helper
 	 */
 	public function prepareTwigHelper()
 	{
 		$response = $this->getResponse();
-		
+
 		if ($response instanceof Response\TwigResponse) {
 			$twig = $response->getTwigEnvironment();
-			
+
 			// Now it 
 			$helper = new Helper\TwigHelper();
 			$helper->setRequest($this->request);
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
-			
+
 			$blockHelper = new Helper\TwigBlockHelper($this);
 			ObjectRepository::setCallerParent($blockHelper, $this);
 			$twig->addGlobal('supraBlock', $blockHelper);
@@ -125,31 +132,31 @@ abstract class BlockController extends ControllerAbstraction
 	{
 		// Find editable by name
 		$propertyDefinitions = $this->getPropertyDefinition();
-		
+
 		if ( ! isset($propertyDefinitions[$name])) {
 			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 		}
-		
+
 		$editable = $propertyDefinitions[$name];
 
 		if ( ! $editable instanceof EditableInterface) {
 			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
 		}
-		
+
 		// Find property by name and type
 		$property = null;
 		$expectedType = get_class($editable);
-		
+
 		foreach ($this->properties as $propertyCheck) {
 			/* @var $propertyCheck BlockProperty */
-			if ($propertyCheck->getName() === $name 
+			if ($propertyCheck->getName() === $name
 					&& $propertyCheck->getType() === $expectedType) {
-				
+
 				$property = $propertyCheck;
 				break;
 			}
 		}
-		
+
 		/*
 		 * Must create new property here
 		 */
@@ -157,29 +164,29 @@ abstract class BlockController extends ControllerAbstraction
 
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
-			
+
 			$property->setValue($editable->getDefaultValue());
 			$property->setBlock($this->getBlock());
 
 			// Must set some DATA object. Where to get this? And why data is set to property not block?
 			//FIXME: should do somehow easier than that
 			$property->setLocalization($this->getRequest()->getPageLocalization());
-		} else {
+		}
+		else {
 			//TODO: should we overwrite editable content parameters from the block controller config?
 			$property->setEditable($editable);
 		}
-		
+
 		// This is done in previous line already
 //		//TODO: this is ugly content copying
 //		$content = $property->getValue();
 //		$editable->setContent($content);
-		
 		//TODO: do this some way better..
 		$this->configureContentFilters($property, $editable);
-		
+
 		return $property;
 	}
-	
+
 	/**
 	 * Add additional filters for the property
 	 * @param Entity\BlockProperty $property
@@ -194,15 +201,16 @@ abstract class BlockController extends ControllerAbstraction
 				$filter = new Filter\EditableHtml();
 				$filter->property = $property;
 				$editable->addFilter($filter);
-			// View
-			} else {
+				// View
+			}
+			else {
 				$filter = new Filter\ParsedHtmlFilter();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
 		}
-		
+
 		if ($editable instanceof \Supra\Editable\Link) {
 			$filter = new Filter\LinkFilter();
 			ObjectRepository::setCallerParent($filter, $this);
@@ -210,7 +218,7 @@ abstract class BlockController extends ControllerAbstraction
 			$editable->addFilter($filter);
 		}
 	}
-	
+
 	/**
 	 * Get property value, use default if not found
 	 * @param string $name
@@ -221,7 +229,7 @@ abstract class BlockController extends ControllerAbstraction
 		$property = $this->getProperty($name);
 		$editable = $property->getEditable();
 		$value = $editable->getFilteredValue();
-		
+
 		return $value;
 	}
 
@@ -260,8 +268,24 @@ abstract class BlockController extends ControllerAbstraction
 		if (empty($this->block)) {
 			$this->block = new Entity\PageBlock();
 		}
-		
+
 		return $this->block;
 	}
-	
+
+	/**
+	 * @param BlockControllerConfiguration $configuration 
+	 */
+	public function setConfiguration(BlockControllerConfiguration $configuration)
+	{
+		$this->configuration = $configuration;
+	}
+
+	/**
+	 * @return BlockControllerConfiguration
+	 */
+	public function getConfiguration()
+	{
+		return $this->configuration;
+	}
+
 }
