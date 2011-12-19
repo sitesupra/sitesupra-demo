@@ -332,4 +332,13 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 		
 		return $localization;
 	}
+	
+	/**
+	 * Clear page lock on clone action
+	 */
+	public function __clone()
+	{
+		parent::__clone();
+		$this->lock = null;
+	}
 }
