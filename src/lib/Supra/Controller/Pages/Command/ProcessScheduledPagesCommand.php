@@ -13,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Log\Log;
 /**
  *
  */
@@ -46,12 +47,21 @@ class ProcessScheduledPagesCommand extends Command
 			$request = PageRequestEdit::factory($localization);
 			$request->setDoctrineEntityManager($this->_em);
 			
-			$request->publish();
+			try {
+				$request->publish();
+			} catch (\Exception $e) {
+				// skip page, if something went wrong
+				$pageId = $localization->getId();
+				Log::error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
+				
+				continue;
+			}
 			
 			/* @var $localization PageLocalization */
 			$localization->unsetScheduleTime();
-			$this->_em->flush();
+			
 		}
+		$this->_em->flush();
     }
 	
 	/**
