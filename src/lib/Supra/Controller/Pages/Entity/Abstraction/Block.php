@@ -211,7 +211,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 * @param PageRequest $request
 	 * @param ArrayCollection $responseAdditionalData
 	 */
-	public function prepareController(BlockController $controller, PageRequest $request, ArrayCollection $additionalData)
+	public function prepareController(BlockController $controller, PageRequest $request, ArrayCollection $additionalData = null)
 	{
 		// Set properties for controller
 		$blockPropertySet = $request->getBlockPropertySet();
@@ -220,7 +220,11 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 
 		// Create response
 		$response = $controller->createResponse($request);
-		
+
+		if (is_null($additionalData)) {
+			$additionalData = new ArrayList();
+		}
+
 		$response->setAdditionalData($additionalData);
 
 		// Prepare
