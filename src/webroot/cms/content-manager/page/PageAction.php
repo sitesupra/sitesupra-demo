@@ -16,6 +16,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Authorization\Exception\AuthorizationException;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * 
@@ -29,7 +30,6 @@ class PageAction extends PageManagerAction
 	{	
 		$controller = $this->getPageController();
 		$localeId = $this->getLocale()->getId();
-		$media = $this->getMedia();
 		$pageData = $this->getPageLocalization();
 		$pageId = $pageData->getId();
 
@@ -38,10 +38,6 @@ class PageAction extends PageManagerAction
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
-
-		// Entity manager 
-		$em = $request->getDoctrineEntityManager();
-		$pageDao = $em->getRepository(PageRequestEdit::PAGE_ABSTRACT_ENTITY);
 
 		$page = $pageData->getMaster();
 
@@ -207,7 +203,6 @@ class PageAction extends PageManagerAction
 		
 		$array['root'] = $page->isRoot();
 
-		$contents = array();
 		$page = $request->getPage();
 		
 		$placeHolderSet = array();
@@ -219,7 +214,8 @@ class PageAction extends PageManagerAction
 			$blockSet = $request->getBlockSet();
 		}
 		
-
+		$responseAdditionalData = new ArrayCollection();
+		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 
@@ -242,7 +238,7 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 				
 				$controller = $block->createController();
-				$block->prepareController($controller, $request);
+				$block->prepareController($controller, $request, $responseAdditionalData);
 
 				$blockData = array(
 					'id' => $block->getId(),
