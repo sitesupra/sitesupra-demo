@@ -17,6 +17,11 @@ class VirtualfolderAction extends PageManagerAction
 		
 		$this->isPostRequest();
 		$folder = $this->getPageLocalization()->getMaster();
+
+		if( ! $folder instanceof Entity\GroupPage ) {
+			throw new CmsException(null, "Not a virtualfolder object");
+		}
+		
 		
 		if ($folder->hasChildren()) {
 			throw new CmsException(null, "Cannot remove virtualfolder with children");
@@ -34,6 +39,11 @@ class VirtualfolderAction extends PageManagerAction
 		
 		$this->isPostRequest();
 		$folder = $this->getPageLocalization();
+		
+		if( ! $folder instanceof Entity\GroupLocalization ) {
+			throw new CmsException(null, "Not a virtualfolder object");
+		}
+		
 		$title = $this->getRequestParameter('title');
 		$folder->setTitle($title);
 		$this->entityManager->flush();
