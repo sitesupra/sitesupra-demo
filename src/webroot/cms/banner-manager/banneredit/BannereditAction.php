@@ -59,7 +59,7 @@ class BannereditAction extends CmsAction
 		$postData = $this->getRequest()
 				->getPost();
 
-		\Log::debug('BANNER SAVE REQUEST: ', $postData->getArrayCopy());
+		//\Log::debug('BANNER SAVE REQUEST: ', $postData->getArrayCopy());
 
 		$banner = $this->bannerProvider->getBanner($postData->get('banner_id'));
 
@@ -76,7 +76,7 @@ class BannereditAction extends CmsAction
 		$postData = $this->getRequest()
 				->getPost();
 
-		\Log::debug('BANNER INSERT REQUEST: ', $postData->getArrayCopy());
+		//\Log::debug('BANNER INSERT REQUEST: ', $postData->getArrayCopy());
 
 		$file = $this->fileRepository->find($postData->get('image'));
 
