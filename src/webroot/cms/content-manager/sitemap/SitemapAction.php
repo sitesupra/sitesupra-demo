@@ -176,7 +176,7 @@ class SitemapAction extends PageManagerAction
 	
 	/**
 	 * @param array $children
-	 * @param strng $locale
+	 * @param string $locale
 	 * @return array
 	 */
 	private function convertPagesToArray(array $children, $locale)
@@ -199,6 +199,12 @@ class SitemapAction extends PageManagerAction
 				//FIXME: fix inconsistency
 				if ($child instanceof Entity\Abstraction\Localization) {
 					$child = $child->getMaster();
+				}
+				
+				if ( ! $child instanceof Entity\Abstraction\AbstractPage) {
+					$this->log->error("Wrong instance of page node received, array: ", $children);
+					
+					continue;
 				}
 
 				$childArray = $this->buildTreeArray($child, $locale);
