@@ -12,8 +12,6 @@ use Supra\Console\Cron\Entity\CronJob;
 use Supra\Console\Application;
 
 
-require_once SUPRA_CONF_PATH . '/cron.php';
-
 /**
  * Master cron command
  */
@@ -38,6 +36,8 @@ class Command extends SymfonyCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+
+		require_once SUPRA_CONF_PATH . '/cron.php';
 
 		$masterCronJob = $this->getMasterCronEntity();
 
