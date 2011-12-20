@@ -10,6 +10,8 @@ use Supra\BannerMachine\Configuration\BannerType\BannerTypeConfigurationAbstract
 use Supra\BannerMachine\BannerMachineRedirector;
 use Supra\Router\UriRouter;
 use Supra\Controller\FrontController;
+use Supra\BannerMachine\EventListener;
+use Supra\FileStorage\FileEventArgs;
 
 class ProviderConfiguration implements ConfigurationInterface
 {
@@ -42,6 +44,13 @@ class ProviderConfiguration implements ConfigurationInterface
 
 		ObjectRepository::setDefaultBannerProvider($provider);
 		ObjectRepository::setBannerProvider('#' . $this->id, $provider);
+
+		$eventListener = new EventListener();
+
+		$fileStorage = ObjectRepository::getFileStorage($provider);
+		
+		$eventManager = ObjectRepository::getEventManager($fileStorage);
+		$eventManager->listen(array(FileEventArgs::FILE_EVENT_PRE_DELETE), $eventListener);
 	}
 
 }

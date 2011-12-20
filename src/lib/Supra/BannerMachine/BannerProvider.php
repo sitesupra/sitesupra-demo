@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 use \DateTime;
 use Supra\Locale\Locale;
+use Supra\FileStorage\Entity\Abstraction\File;
 
 class BannerProvider
 {
@@ -209,7 +210,7 @@ class BannerProvider
 				break;
 			}
 		}
-		
+
 		$chosenBanner = $this->getBanner($bannerId);
 
 		return $chosenBanner;
@@ -243,6 +244,19 @@ class BannerProvider
 	public function getRedirectorPath()
 	{
 		return $this->redirectorPath;
+	}
+
+	public function getBannersByFile(File $file)
+	{
+		$criteria = array('file' => $file->getId());
+
+		$imageBannerEr = $this->getEntityManager()->getRepository(Entity\ImageBanner::CN());
+		$imageBanners = $imageBannerEr->findBy($criteria);
+		
+		$flashBannerEr = $this->getEntityManager()->getRepository(Entity\FlashBanner::CN());
+		$flashBanners = $flashBannerEr->findBy($criteria);
+		
+		return $imageBanners + $flashBanners;
 	}
 
 }

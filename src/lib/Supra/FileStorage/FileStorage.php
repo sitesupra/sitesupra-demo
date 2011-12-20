@@ -19,7 +19,7 @@ class FileStorage
 
 	const RESERVED_DIR_SIZE = "_size";
 	const RESERVED_DIR_VERSION = "_ver";
-	
+
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
 
@@ -53,15 +53,15 @@ class FileStorage
 	 * @var array
 	 */
 	public $fileUploadErrorMessages = array(
-		'1' => 'The uploaded file exceeds the maximum upload file size',
-		'2' => 'The uploaded file exceeds the maximum upload file size',
-		'3' => 'The uploaded file was only partially uploaded',
-		'4' => 'No file was uploaded',
-		'6' => 'Missing a temporary folder',
-		'7' => 'Failed to write file to disk',
-		'8' => 'A PHP extension stopped the file upload',
+			'1' => 'The uploaded file exceeds the maximum upload file size',
+			'2' => 'The uploaded file exceeds the maximum upload file size',
+			'3' => 'The uploaded file was only partially uploaded',
+			'4' => 'No file was uploaded',
+			'6' => 'Missing a temporary folder',
+			'7' => 'Failed to write file to disk',
+			'8' => 'A PHP extension stopped the file upload',
 	);
-	
+
 	/**
 	 * @return EntityManager
 	 */
@@ -69,7 +69,7 @@ class FileStorage
 	{
 		return ObjectRepository::getEntityManager($this);
 	}
-	
+
 	/**
 	 * @return WriterAbstraction
 	 */
@@ -189,12 +189,13 @@ class FileStorage
 		}
 
 		$this->createBothFoldersInFileSystem($file);
-		
+
 		$filePath = $this->getFilesystemPath($file);
 
 		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $filePath . '"');
-		} else {
+		}
+		else {
 			chmod($filePath, $this->fileAccessMode);
 		}
 	}
@@ -208,11 +209,11 @@ class FileStorage
 	public function renameFile(Entity\File $file, $filename)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
-		
+
 		$newFile = clone($file);
 		$entityManager->detach($newFile);
 		$newFile->setFileName($filename);
-		
+
 		$oldExtension = $file->getExtension();
 		$newExtension = $newFile->getExtension();
 
@@ -225,7 +226,7 @@ class FileStorage
 		}
 
 		$this->renameFileInFileSystem($file, $filename);
-		
+
 		$entityManager->merge($newFile);
 		$entityManager->flush();
 	}
@@ -238,14 +239,14 @@ class FileStorage
 	private function renameFileInFileSystem(Entity\File $file, $filename)
 	{
 		$path = $this->getFilesystemPath($file);
-		
+
 		if (file_exists($path)) {
-			
+
 			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $filename;
 			$result = rename($path, $newPath);
-			
+
 			if ($result) {
-				
+
 				if ($file instanceof Entity\Image) {
 					$sizes = $file->getImageSizeCollection();
 					if ( ! $sizes->isEmpty()) {
@@ -255,10 +256,10 @@ class FileStorage
 							$newPath = dirname($filePath) . DIRECTORY_SEPARATOR . $filename;
 							rename($filePath, $newPath);
 						}
-					}		
+					}
 				}
-				
-			} else {
+			}
+			else {
 				throw new Exception\RuntimeException('File renaming failed');
 			}
 		}
@@ -277,7 +278,7 @@ class FileStorage
 	public function renameFolder(Entity\Folder $folder, $newTitle)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
-		
+
 		$newFolder = clone($folder);
 		$entityManager->detach($newFolder);
 		$newFolder->setFileName($newTitle);
@@ -308,25 +309,26 @@ class FileStorage
 		// rename folder in both file storages
 		$externalPath = $this->getExternalPath();
 		$internalPath = $this->getInternalPath();
-		
+
 		foreach (array($externalPath, $internalPath) as $basePath) {
-			
+
 			$oldFullPath = $basePath . $folder->getPath(DIRECTORY_SEPARATOR, true);
 			$newFullPath = $basePath . $newFolder->getPath(DIRECTORY_SEPARATOR, true);
-			
+
 			// Should not happen
 			if ($oldFullPath === $newFullPath) {
 				continue;
 			}
-			
+
 			if (is_dir($oldFullPath)) {
-				
+
 				$result = rename($oldFullPath, $newFullPath);
-				
+
 				if ( ! $result) {
 					throw new Exception\RuntimeException("Failed to rename folder from '$oldFullPath' to '$newFullPath'");
 				}
-			} else {
+			}
+			else {
 				$this->log()->warn("Folder '$oldFullPath' missing in filesystem on rename");
 				$this->createFolderInFileSystem($basePath, $newFolder);
 			}
@@ -339,15 +341,15 @@ class FileStorage
 	 * @param Entity\Folder $folder 
 	 */
 	public function createFolder(Entity\Folder $folder)
-	{		
+	{
 		// validating folder before creation
 		foreach ($this->folderUploadFilters as $filter) {
 			$filter->validateFolder($folder);
 		}
-		
+
 		$this->createBothFoldersInFileSystem($folder);
 	}
-	
+
 	/**
 	 * Creates the filesystem folder in both storages -- internal and external
 	 * @param Entity\Abstraction\File $folder
@@ -357,7 +359,7 @@ class FileStorage
 		if ($folder instanceof Entity\File) {
 			$folder = $folder->getParent();
 		}
-		
+
 		$this->createFolderInFileSystem($this->getExternalPath(), $folder);
 		$this->createFolderInFileSystem($this->getInternalPath(), $folder);
 	}
@@ -374,19 +376,20 @@ class FileStorage
 		if ( ! is_null($folder)) {
 			$destination = $folder->getPath(DIRECTORY_SEPARATOR, true);
 		}
-		
+
 		$fullPath = $basePath . $destination;
-		
+
 		if ( ! is_dir($fullPath)) {
 
 			if (file_exists($fullPath)) {
-				throw new Exception\RuntimeException('Could not create folder in ' 
+				throw new Exception\RuntimeException('Could not create folder in '
 						. $fullPath . ', file exists with the same name');
 			}
 
 			if (mkdir($fullPath, $this->folderAccessMode, true)) {
 				return true;
-			} else {
+			}
+			else {
 				throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
 			}
 		}
@@ -414,9 +417,11 @@ class FileStorage
 
 		if ($file instanceof Entity\File) {
 			$this->setPublicForFile($file, $public);
-		} else if ($file instanceof Entity\Folder) {
+		}
+		else if ($file instanceof Entity\Folder) {
 			$this->setPublicForFolder($file, $public);
-		} else {
+		}
+		else {
 			throw new Exception\RuntimeException('Wrong entity passed');
 		}
 	}
@@ -443,7 +448,7 @@ class FileStorage
 			\Log::info($msg);
 			return;
 		}
-		
+
 		$fileList = array();
 
 		// prepare list of files to be moved
@@ -452,8 +457,8 @@ class FileStorage
 			$sizes = $file->getImageSizeCollection();
 			if ( ! $sizes->isEmpty()) {
 				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
-							. DIRECTORY_SEPARATOR
-							. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
+						. DIRECTORY_SEPARATOR
+						. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
 				foreach ($sizes as $size) {
 					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR
@@ -461,21 +466,22 @@ class FileStorage
 				}
 			}
 		}
-		
+
 		$folder = $file->getParent();
-		
+
 		if ($public) {
 			foreach ($fileList as $filePath) {
 				$this->moveFileToExternalStorage($filePath, $folder);
 			}
 			$file->setPublic(true);
-		} else {
+		}
+		else {
 			foreach ($fileList as $filePath) {
 				$this->moveFileToInternalStorage($filePath, $folder);
 			}
 			$file->setPublic(false);
 		}
-		
+
 		$file->setModificationTime();
 	}
 
@@ -491,7 +497,7 @@ class FileStorage
 			if ($node instanceof Entity\File) {
 				$this->setPublicForFile($node, $public);
 			}
-			
+
 			if ($node instanceof Entity\Folder) {
 				$node->setPublic($public);
 			}
@@ -560,24 +566,24 @@ class FileStorage
 		}
 
 		$size = $file->getImageSize($sizeName);
-		
+
 		if (($size->getTargetHeight() == $targetHeight)
-			&& ($size->getTargetWidth() == $targetWidth)
-			&& ($size->getQuality() == $quality)
-			&& ($size->getCropMode() == $cropped)
-			&& empty($force)
+				&& ($size->getTargetWidth() == $targetWidth)
+				&& ($size->getQuality() == $quality)
+				&& ($size->getCropMode() == $cropped)
+				&& empty($force)
 		) {
 			// nothing to update
 			return $sizeName;
 		}
-		
+
 		$size->setQuality($quality);
 		$size->setCropMode($cropped);
 		$size->setTargetWidth($targetWidth);
 		$size->setTargetHeight($targetHeight);
-		
+
 		$originalFilePath = $this->getFilesystemPath($file, true);
-		
+
 		// initiate resizer
 		$resizer = new ImageProcessor\ImageResizer;
 		$resizer->setSourceFile($originalFilePath)
@@ -585,13 +591,13 @@ class FileStorage
 				->setTargetWidth($targetWidth)
 				->setTargetHeight($targetHeight)
 				->setCropMode($cropped);
-		
+
 		$expectedSize = $resizer->getExpectedSize();
 		$size->setWidth($expectedSize['width']);
 		$size->setHeight($expectedSize['height']);
 
 		$resizedFileDir = $this->getFilesystemDir($file)
-				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR 
+				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
 				. $size->getFolderName();
 
 		if ( ! file_exists($resizedFileDir)) {
@@ -605,9 +611,9 @@ class FileStorage
 		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
 		$resizer->setOutputFile($resizedFilePath);
 		$resizer->process();
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
-		
+
 		$entityManager->persist($size);
 		$entityManager->flush();
 
@@ -618,31 +624,29 @@ class FileStorage
 	 * Recreate all existing resized versions of the image
 	 * @param Entity\Image $file 
 	 */
-	protected function recreateImageSizes(Entity\Image $file) 
+	protected function recreateImageSizes(Entity\Image $file)
 	{
 		if ( ! $file instanceof Entity\Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
-		
+
 		$sizes = $file->getImageSizeCollection();
 		if ( ! $sizes->isEmpty()) {
 			foreach ($sizes as $size) {
 				$sizeName = $size->getName();
 				$filePath = $this->getImagePath($file, $sizeName);
-				
+
 				if (file_exists($filePath)) {
 					$result = unlink($filePath);
-					
+
 					if ( ! $result) {
 						throw new Exception\RuntimeException("Could not delete '$filePath' from file storage");
 					}
 				}
-				
-				$this->createResizedImage($file, $size->getTargetWidth(), 
-						$size->getTargetHeight(), $size->getCropMode(), 
-						$size->getQuality(), true);
+
+				$this->createResizedImage($file, $size->getTargetWidth(), $size->getTargetHeight(), $size->getCropMode(), $size->getQuality(), true);
 			}
-		}		
+		}
 	}
 
 	/**
@@ -651,7 +655,7 @@ class FileStorage
 	 * @param integer $rotationCount
 	 * @param integer $quality
 	 */
-	public function rotateImage(Entity\Image $file, $rotationCount, $quality = 95) 
+	public function rotateImage(Entity\Image $file, $rotationCount, $quality = 95)
 	{
 		if ( ! $file instanceof Entity\Image) {
 			throw new Exception\RuntimeException('Image entity expected');
@@ -669,7 +673,7 @@ class FileStorage
 			$tmp = $file->getWidth();
 			$file->setWidth($file->getHeight());
 			$file->setHeight($tmp);
-			
+
 			$entityManager = $this->getDoctrineEntityManager();
 			$entityManager->persist($file);
 			$entityManager->flush();
@@ -683,17 +687,17 @@ class FileStorage
 	 * @param Entity\Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImageLeft(Entity\Image $file, $quality = 95) 
+	public function rotateImageLeft(Entity\Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_LEFT, $quality);
 	}
-	
+
 	/**
 	 * Rotate image by 90 degrees CW
 	 * @param Entity\Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImageRight(Entity\Image $file, $quality = 95) 
+	public function rotateImageRight(Entity\Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_RIGHT, $quality);
 	}
@@ -703,7 +707,7 @@ class FileStorage
 	 * @param Entity\Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImage180(Entity\Image $file, $quality = 95) 
+	public function rotateImage180(Entity\Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_180, $quality);
 	}
@@ -717,12 +721,12 @@ class FileStorage
 	 * @param integer $height
 	 * @param integer $quality 
 	 */
-	public function cropImage(Entity\Image $file, $left, $top, $width, $height, $quality = 95) 
+	public function cropImage(Entity\Image $file, $left, $top, $width, $height, $quality = 95)
 	{
 		if ( ! $file instanceof Entity\Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
-		
+
 		$filename = $this->getFilesystemPath($file);
 		$cropper = new ImageProcessor\ImageCropper();
 		$cropper->setSourceFile($filename)
@@ -736,7 +740,7 @@ class FileStorage
 
 		$file->setWidth($width);
 		$file->setHeight($height);
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->persist($file);
 		$entityManager->flush();
@@ -771,7 +775,8 @@ class FileStorage
 
 		if ($isImage === 0) {
 			return true;
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -788,17 +793,17 @@ class FileStorage
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
 		$path = $this->getInternalPath();
-		
+
 		if ($file->isPublic()) {
 			$path = $this->getExternalPath();
 		}
 		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
 		$path .= DIRECTORY_SEPARATOR;
-		
+
 		if ($includeFilename) {
 			$path .= $file->getFileName();
 		}
-		
+
 		return $path;
 	}
 
@@ -829,7 +834,8 @@ class FileStorage
 			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
 					. $size->getFolderName() . DIRECTORY_SEPARATOR
 					. $file->getFileName();
-		} else {
+		}
+		else {
 			$path .= $file->getFileName();
 		}
 		return $path;
@@ -850,11 +856,10 @@ class FileStorage
 		if ($file->isPublic()) {
 			$path = '/';
 			// get file storage dir in webroot and fix backslash on windows
-			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), 
-					array('', '/'), $this->getExternalPath());
+			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $this->getExternalPath());
 			// get file dir
 			$path .= $file->getPath('/', false) . '/';
-			
+
 			if (($file instanceof Entity\Image) || isset($sizeName)) {
 				$size = $file->findImageSize($sizeName);
 				if ($size instanceof Entity\ImageSize) {
@@ -862,19 +867,20 @@ class FileStorage
 							. $size->getFolderName() . '/';
 				}
 			}
-			
+
 			$path .= $file->getFileName();
 			return $path;
-		} else {	
-			
+		}
+		else {
+
 			//TODO: hardcoded now
-			$path = '/cms/media-library/download/'.$file->getFileName();
-			
+			$path = '/cms/media-library/download/' . $file->getFileName();
+
 			$query = array(
-				'inline' => 'inline',
-				'id' => $file->getId(),
+					'inline' => 'inline',
+					'id' => $file->getId(),
 			);
-			
+
 			if (($file instanceof Entity\Image) || isset($sizeName)) {
 				$size = $file->findImageSize($sizeName);
 				if ($size instanceof Entity\ImageSize) {
@@ -896,7 +902,7 @@ class FileStorage
 	{
 		$filePath = $this->getFilesystemPath($file);
 		$fileContent = file_get_contents($filePath);
-		
+
 		return $fileContent;
 	}
 
@@ -909,15 +915,15 @@ class FileStorage
 		if ($oldFileIsImage !== $newFileIsImage) {
 			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
 		}
-		
+
 		// TODO: change to versioning
 		$this->removeFileInFileSystem($fileEntity);
-		
+
 		// setting new data
 		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
-				
+
 		$this->storeFileData($fileEntity, $file['tmp_name']);
 
 		// additional jobs for images
@@ -930,7 +936,7 @@ class FileStorage
 			// reprocess sizes
 			$this->recreateImageSizes($fileEntity);
 		}
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->flush();
 	}
@@ -942,21 +948,21 @@ class FileStorage
 	private function removeFileInFileSystem(Entity\File $file)
 	{
 		$filePath = $this->getFilesystemPath($file);
-		
+
 		if (file_exists($filePath)) {
 			$result = unlink($filePath);
-			
+
 			if ( ! $result) {
 				throw new Exception\RuntimeException("Could not delete '$filePath' from file storage");
 			}
 		}
-			
+
 		// remove sizes if object is image
 		if ($file instanceof Entity\Image) {
 			$sizes = $file->getImageSizeCollection();
 			foreach ($sizes as $size) {
 				$sizePath = $this->getImagePath($file, $size->getName());
-				
+
 				if (file_exists($sizePath)) {
 					$result = unlink($sizePath);
 
@@ -967,28 +973,38 @@ class FileStorage
 			}
 		}
 	}
-	
+
+	protected function fireFileEvent($type, $args)
+	{
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire($type, $args);
+	}
+
 	/**
 	 * Remove file or folder from database and system
 	 * @param Entity\Abstraction\File $entity 
 	 */
 	public function remove(Entity\Abstraction\File $entity)
 	{
+		$eventArgs = new FileEventArgs();
+		$eventArgs->setFile($entity);
+		$this->fireFileEvent(FileEventArgs::FILE_EVENT_PRE_DELETE, $eventArgs);
+
 		if ($entity instanceof Entity\Folder) {
 			$hasChildren = $entity->hasChildren();
 			if ($hasChildren) {
 				throw new Exception\RuntimeException('You can remove only empty folders');
 			}
 			$this->removeFolder($entity);
-			
-		} elseif($entity instanceof Entity\File){
+		}
+		elseif ($entity instanceof Entity\File) {
 			$this->removeFile($entity);
-			
-		} else {
+		}
+		else {
 			throw new Exception\LogicException('Not recognized file type passed: ' . get_class($entity));
 		}
 	}
-	
+
 	/**
 	 * Remove folder from database and file system
 	 * @param Entity\Folder $folder 
@@ -996,12 +1012,12 @@ class FileStorage
 	private function removeFolder(Entity\Folder $folder)
 	{
 		$this->removeFolderInFileSystem($folder);
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->remove($folder);
 		$entityManager->flush();
 	}
-	
+
 	/**
 	 * Remove folder in file system
 	 * @param Entity\Folder $folder
@@ -1009,16 +1025,15 @@ class FileStorage
 	private function removeFolderInFileSystem(Entity\Folder $folder)
 	{
 		$folderPath = $folder->getPath(DIRECTORY_SEPARATOR, true);
-		
+
 		$folderExternalPath = $this->getExternalPath() . $folderPath;
 		$folderInternalPath = $this->getInternalPath() . $folderPath;
-		
+
 		// we are ignoring that one of the folders might not exist
 		$resultInternal = @rmdir($folderInternalPath);
 		$resultExternal = @rmdir($folderExternalPath);
-
 	}
-	
+
 	/**
 	 * Remove file from database and file system
 	 * @param Entity\File $file 
@@ -1026,12 +1041,12 @@ class FileStorage
 	private function removeFile(Entity\File $file)
 	{
 		$this->removeFileInFileSystem($file);
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->remove($file);
 		$entityManager->flush();
 	}
-	
+
 	/**
 	 * Loads item info array
 	 * @param Entity\Abstraction\File $file
@@ -1041,11 +1056,11 @@ class FileStorage
 	public function getFileInfo(Entity\Abstraction\File $file, $locale)
 	{
 		$info = $file->getInfo($locale);
-		
+
 		if ($file instanceof Entity\File) {
 			$filePath = $this->getWebPath($file);
 			$info['file_web_path'] = $filePath;
-		
+
 			if ($file instanceof Entity\Image) {
 
 				foreach ($info['sizes'] as $sizeName => &$size) {
@@ -1055,7 +1070,8 @@ class FileStorage
 					// TODO: original size is also as size, such skipping is ugly
 					if ($sizeName == 'original') {
 						$sizePath = $filePath;
-					} else {
+					}
+					else {
 						$sizePath = $this->getWebPath($file, $sizeName);
 					}
 
@@ -1063,18 +1079,19 @@ class FileStorage
 				}
 			}
 		}
-		
+
 		// Generate folder ID path
 		$parents = $file->getAncestors(0, false);
 		$parents = array_reverse($parents);
 		$path = array(0);
-		
+
 		foreach ($parents as $parent) {
 			array_push($path, $parent->getId());
 		}
 
 		$info['path'] = $path;
-		 
+
 		return $info;
 	}
+
 }
