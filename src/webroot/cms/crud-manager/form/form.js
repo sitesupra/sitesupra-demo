@@ -53,9 +53,11 @@ Supra(function (Y) {
 		
 		/**
 		 * Save form
+		 * @todo Bug #4418 GJENSIDIGE. CHECK AND FIX CODE IF NEEDED WHEN KASPARS WILL BE BACK.
 		 */
 		save: function () {
 			var form = this.getForm();
+			var button = Supra.Manager.getAction('PageButtons').buttons[this.NAME][0];
 			
 			//Save
 			form.save(function (data, status) {
@@ -67,15 +69,14 @@ Supra(function (Y) {
 				
 				form.set('disabled', false);
 				button.set('loading', false);
+				button.hide();
 			}, this);
 			
 			//Disable form
 			form.set('disabled', true);
 			
 			//Disable save button
-			var button = Supra.Manager.getAction('PageButtons').buttons[this.NAME][0];
 			button.set('loading', true);
-			
 		},
 		
 		/**
@@ -101,10 +102,14 @@ Supra(function (Y) {
 		
 		/**
 		 * Execute action
+		 * @todo Bug #4418 GJENSIDIGE. CHECK AND FIX CODE IF NEEDED WHEN KASPARS WILL BE BACK.
 		 */
 		execute: function () {
 			//Show buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
+			var button = Supra.Manager.getAction('PageButtons').buttons[this.NAME][0];
+			button.show();
 		}
 	});
 	
