@@ -222,7 +222,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		$response = $controller->createResponse($request);
 
 		if (is_null($additionalData)) {
-			$additionalData = new ArrayList();
+			$additionalData = new ArrayCollection();
 		}
 
 		$response->setAdditionalData($additionalData);
