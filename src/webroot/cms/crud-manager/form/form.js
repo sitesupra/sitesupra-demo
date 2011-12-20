@@ -65,11 +65,12 @@ Supra(function (Y) {
 					//Reload data grid
 					CRUD.Providers.getActiveProvider().getDataGrid().reset();
 					CRUD.Providers.getActiveProvider().set('mode', 'list');
+					button.hide();
 				}
 				
 				form.set('disabled', false);
 				button.set('loading', false);
-				button.hide();
+				
 			}, this);
 			
 			//Disable form
