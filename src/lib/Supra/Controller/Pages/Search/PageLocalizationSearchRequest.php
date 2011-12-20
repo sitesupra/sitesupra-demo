@@ -79,9 +79,9 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		$textFieldName = 'text_' . $languageCode;
 		$titleFieldName = 'title_' . $languageCode;
 
-		$this->hilightPrefix = '<b>';
-		$this->hilightPostfix = '</b>';
-		$this->hilightedFields = array($textFieldName, $titleFieldName);
+		$this->highlightPrefix = '<b>';
+		$this->highlightPostfix = '</b>';
+		$this->highlightedFields = array($textFieldName, $titleFieldName);
 
 		$helper = $selectQuery->getHelper();
 
@@ -130,7 +130,8 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 					'localeId' => $selectResultItem->localeId,
 					'pageWebPath' => $selectResultItem->pageWebPath,
 					'title' => $selectResultItem->title_general,
-					'text' => $selectResultItem->text_general
+					'text' => $selectResultItem->text_general,
+					'ancestorIds' => $selectResultItem->ancestorIds
 			);
 
 			if ( ! empty($highlighting)) {
@@ -140,7 +141,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 				if ($highlightedResultItem) {
 
 					foreach ($highlightedResultItem as $highlight) {
-						$result['hilight'] = implode(' (...) ', $highlight);
+						$result['highlight'] = implode(' (...) ', $highlight);
 					}
 				}
 			}

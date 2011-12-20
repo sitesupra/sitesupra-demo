@@ -36,7 +36,7 @@ class Loader
 		if (is_null(self::$instance)) {
 			self::$instance = new self();
 		}
-		
+
 		return self::$instance;
 	}
 
@@ -67,17 +67,16 @@ class Loader
 	{
 		if ( ! $this->strategiesOrdered) {
 
-			$orderFunction = function(LoaderStrategyInterface $a, LoaderStrategyInterface $b)
-			{
-				$aDepth = $a->getDepth();
-				$bDepth = $b->getDepth();
-				
-				if ($aDepth == $bDepth) {
-					return 0;
-				}
-				
-				return $aDepth < $bDepth ? 1 : -1;
-			};
+			$orderFunction = function(LoaderStrategyInterface $a, LoaderStrategyInterface $b) {
+						$aDepth = $a->getDepth();
+						$bDepth = $b->getDepth();
+
+						if ($aDepth == $bDepth) {
+							return 0;
+						}
+
+						return $aDepth < $bDepth ? 1 : -1;
+					};
 
 			usort($this->strategies, $orderFunction);
 
@@ -104,7 +103,7 @@ class Loader
 	{
 		return '\\' . ltrim($class, '\\');
 	}
-	
+
 	/**
 	 * Find class path by its name
 	 * @param string $className
@@ -118,12 +117,12 @@ class Loader
 
 		foreach ($this->strategies as $strategy) {
 			$classPath = $strategy->findClass($className);
-			
+
 			if ( ! is_null($classPath)) {
 				return $classPath;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -157,7 +156,7 @@ class Loader
 	{
 		return $this->load($className);
 	}
-	
+
 	/**
 	 * Registers the autoloader
 	 */
@@ -176,12 +175,12 @@ class Loader
 	 * @throws Supra\Loader\Exception\InterfaceNotFound
 	 * @throws Supra\Loader\Exception\ClassNotFound
 	 */
-	public static function getClassInstance($className, $interface = null) 
+	public static function getClassInstance($className, $interface = null)
 	{
 		if ( ! class_exists($className)) {
 			throw new Exception\ClassNotFound($className);
 		}
-		
+
 		$object = new $className();
 		if ( ! is_null($interface) && is_string($interface)) {
 			if ( ! class_exists($interface) && ! interface_exists($interface)) {
@@ -189,9 +188,9 @@ class Loader
 			}
 			if ( ! $object instanceof $interface) {
 				throw new Exception\ClassMismatch($className, $interface);
-			}	
+			}
 		}
-
+		
 		return $object;
-	}
+}
 }

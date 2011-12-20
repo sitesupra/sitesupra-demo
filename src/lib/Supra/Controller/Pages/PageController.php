@@ -16,6 +16,7 @@ use Supra\Controller\Pages\Response\PlaceHolder;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Uri\Path;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Page controller
@@ -205,10 +206,12 @@ class PageController extends ControllerAbstraction
 	protected function prepareBlockControllers()
 	{
 		$request = $this->getRequest();
+		
+		$additionalData = new ArrayCollection();
 
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request) {
-					$block->prepareController($blockController, $request);
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $additionalData) {
+					$block->prepareController($blockController, $request, $additionalData);
 				};
 
 		// Iterates through all blocks and calls the function passed

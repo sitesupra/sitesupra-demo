@@ -80,7 +80,10 @@ class BlockControllerCollection
 		}
 		
 		/* @var $controller BlockController */
-		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+		
+		$controller = $controllerClass::createController();
+
+		//$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
 		
 		$controller->setConfiguration($configuration);
 		

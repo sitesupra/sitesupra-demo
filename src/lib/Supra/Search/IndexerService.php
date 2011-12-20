@@ -28,8 +28,9 @@ class IndexerService
 
 		//$pingQuery = $this->solariumClient->createPing();
 		//$this->solariumClient->ping($pingQuery);
-		
-		$this->systemId = 'someSystemId';
+
+		$configurationLoader = ObjectRepository::getIniConfigurationLoader($this);
+		$this->systemId = $configurationLoader->getValue('solarium', 'systemId');
 	}
 
 	public function getSystemId()
@@ -56,7 +57,7 @@ class IndexerService
 				$document->uniqueId = $document->systemId . '-'
 						. $document->class . '-'
 						. $document->getLocalId();
-				
+
 				$document->validate();
 
 				$updateQuery->addDocument($document);
@@ -84,7 +85,7 @@ class IndexerService
 	public function processQueue(IndexerQueue $queue)
 	{
 //		$indexedQueueItems = array();
-		
+
 		while ($queue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) !== 0) {
 
 			$queueItem = $queue->getNextItemForIndexing();
@@ -94,7 +95,7 @@ class IndexerService
 
 			$queue->store($queueItem);
 		}
-		
+
 		//foreach($indexedQueueItems as $indexedQueueItem) {
 		//	
 		//	$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);

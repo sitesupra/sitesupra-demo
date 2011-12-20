@@ -13,6 +13,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Loader;
 
 /**
  * Block controller abstraction
@@ -286,6 +287,15 @@ abstract class BlockController extends ControllerAbstraction
 	public function getConfiguration()
 	{
 		return $this->configuration;
+	}
+
+	static function createController()
+	{
+		$className = self::CN();
+		
+		$controller = Loader\Loader::getClassInstance($className, 'Supra\Controller\Pages\BlockController');
+		
+		return $controller;
 	}
 
 }

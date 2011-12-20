@@ -3,6 +3,7 @@
 namespace Supra\Response;
 
 use Supra\Http\Cookie;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * HTTP response object
@@ -11,71 +12,72 @@ class HttpResponse implements ResponseInterface
 {
 	// Reserved array key for status header
 	const STATUS_HEADER_NAME = '';
-	
+
 	const PROTOCOL = 'HTTP';
-	
+
 	const STATUS_OK = 200;
 	const STATUS_NO_CONTENT = 204;
 	const STATUS_NOT_MODIFIED = 304;
-	
+
+	/**
+	 * @var ArrayCollection
+	 */
+	protected $additionalData;
+
 	/**
 	 * Messages for HTTP status codes
 	 * @var array
 	 */
 	protected static $messages = array(
-		100 => 'Continue',
-		101 => 'Switching Protocols',
-
-		self::STATUS_OK => 'OK',
-		201 => 'Created',
-		202 => 'Accepted',
-		203 => 'Non-Authoritative Information',
-		self::STATUS_NO_CONTENT => 'No Content',
-		205 => 'Reset Content',
-		206 => 'Partial Content',
-
-		300 => 'Multiple Choices',
-		301 => 'Moved Permanently',
-		302 => 'Found',
-		303 => 'See Other',
-		self::STATUS_NOT_MODIFIED => 'Not Modified',
-		305 => 'Use Proxy',
-		307 => 'Temporary Redirect',
-
-		400 => 'Bad Request',
-		401 => 'Unauthorized',
-		402 => 'Payment Required',
-		403 => 'Forbidden',
-		404 => 'Not Found',
-		405 => 'Method Not Allowed',
-		406 => 'Not Acceptable',
-		407 => 'Proxy Authentication Required',
-		408 => 'Request Timeout',
-		409 => 'Conflict',
-		410 => 'Gone',
-		411 => 'Length Required',
-		412 => 'Precondition Failed',
-		413 => 'Request Entity Too Large',
-		414 => 'Request-URI Too Long',
-		415 => 'Unsupported Media Type',
-		416 => 'Requested Range Not Satisfiable',
-		417 => 'Expectation Failed',
-
-		500 => 'Internal Server Error',
-		501 => 'Not Implemented',
-		502 => 'Bad Gateway',
-		503 => 'Service Unavailable',
-		504 => 'Gateway Timeout',
-		505 => 'HTTP Version Not Supported',
-		509 => 'Bandwidth Limit Exceeded'
+			100 => 'Continue',
+			101 => 'Switching Protocols',
+			self::STATUS_OK => 'OK',
+			201 => 'Created',
+			202 => 'Accepted',
+			203 => 'Non-Authoritative Information',
+			self::STATUS_NO_CONTENT => 'No Content',
+			205 => 'Reset Content',
+			206 => 'Partial Content',
+			300 => 'Multiple Choices',
+			301 => 'Moved Permanently',
+			302 => 'Found',
+			303 => 'See Other',
+			self::STATUS_NOT_MODIFIED => 'Not Modified',
+			305 => 'Use Proxy',
+			307 => 'Temporary Redirect',
+			400 => 'Bad Request',
+			401 => 'Unauthorized',
+			402 => 'Payment Required',
+			403 => 'Forbidden',
+			404 => 'Not Found',
+			405 => 'Method Not Allowed',
+			406 => 'Not Acceptable',
+			407 => 'Proxy Authentication Required',
+			408 => 'Request Timeout',
+			409 => 'Conflict',
+			410 => 'Gone',
+			411 => 'Length Required',
+			412 => 'Precondition Failed',
+			413 => 'Request Entity Too Large',
+			414 => 'Request-URI Too Long',
+			415 => 'Unsupported Media Type',
+			416 => 'Requested Range Not Satisfiable',
+			417 => 'Expectation Failed',
+			500 => 'Internal Server Error',
+			501 => 'Not Implemented',
+			502 => 'Bad Gateway',
+			503 => 'Service Unavailable',
+			504 => 'Gateway Timeout',
+			505 => 'HTTP Version Not Supported',
+			509 => 'Bandwidth Limit Exceeded'
 	);
-	
+
 	/**
 	 * Status code
 	 * @var int
 	 */
 	protected $code = self::STATUS_OK;
-	
+
 	/**
 	 * Status code message
 	 * @var string
@@ -86,7 +88,7 @@ class HttpResponse implements ResponseInterface
 	 * Server protocol
 	 */
 	protected $protocolVersion = '1.0';
-	
+
 	/**
 	 * Headers
 	 * @var array
@@ -111,6 +113,11 @@ class HttpResponse implements ResponseInterface
 	 */
 	protected $cookies = array();
 
+	function __construct()
+	{
+		$this->additionalData = new ArrayCollection();
+	}
+
 	/**
 	 * Normalizes header name
 	 * @param string $name
@@ -121,7 +128,7 @@ class HttpResponse implements ResponseInterface
 		$name = str_replace(array('-', '_'), ' ', $name);
 		$name = ucwords(strtolower($name));
 		$name = str_replace(' ', '-', $name);
-		
+
 		return $name;
 	}
 
@@ -132,7 +139,7 @@ class HttpResponse implements ResponseInterface
 	{
 		
 	}
-	
+
 	/**
 	 * Set response status code
 	 * @param int $code
@@ -140,11 +147,11 @@ class HttpResponse implements ResponseInterface
 	public function setCode($code)
 	{
 		$code = (int) $code;
-		
+
 		if ( ! isset(self::$messages[$code])) {
 			throw new Exception\RuntimeException("Code $code is not known to the HttpResponse class");
 		}
-		
+
 		$this->code = $code;
 		$this->message = self::$messages[$code];
 	}
@@ -160,7 +167,7 @@ class HttpResponse implements ResponseInterface
 		if ($name != self::STATUS_HEADER_NAME) {
 			$name = static::normalizeHeader($name);
 		}
-		
+
 		if ($replace || ! array_key_exists($name, $this->headers)) {
 			$this->headers[$name] = array();
 		}
@@ -176,7 +183,8 @@ class HttpResponse implements ResponseInterface
 		foreach ($this->headers[$name] as $data) {
 			if ($name == self::STATUS_HEADER_NAME) {
 				header($data['value']);
-			} else {
+			}
+			else {
 				header($name . ': ' . $data['value'], $data['replace']);
 			}
 		}
@@ -190,7 +198,7 @@ class HttpResponse implements ResponseInterface
 	{
 		$name = static::normalizeHeader($name);
 		unset($this->headers[$name]);
-		
+
 		// Remove redirect flag
 		if ($name == static::normalizeHeader('Location')) {
 			$this->redirect = false;
@@ -224,7 +232,7 @@ class HttpResponse implements ResponseInterface
 	{
 		return $this->redirect;
 	}
-	
+
 	/**
 	 * Returns if response might have content
 	 * @return boolean
@@ -232,15 +240,15 @@ class HttpResponse implements ResponseInterface
 	public function hasOutput()
 	{
 		$hasOutput = true;
-		
+
 		if ($this->isRedirect()) {
 			$hasOutput = false;
 		}
-		
+
 		if ($this->code == self::STATUS_NO_CONTENT || $this->code == self::STATUS_NOT_MODIFIED) {
 			$hasOutput = false;
 		}
-		
+
 		return $hasOutput;
 	}
 
@@ -260,7 +268,7 @@ class HttpResponse implements ResponseInterface
 	{
 		$this->output = array();
 	}
-	
+
 	/**
 	 * Get output as string
 	 * @return string
@@ -287,33 +295,34 @@ class HttpResponse implements ResponseInterface
 		// Don't send status header if is 200
 		if ($this->code != self::STATUS_OK) {
 
-			$statusHeader = self::PROTOCOL . '/' . $this->protocolVersion . ' ' 
+			$statusHeader = self::PROTOCOL . '/' . $this->protocolVersion . ' '
 					. $this->code . ' ' . $this->message;
 
 			$this->header(self::STATUS_HEADER_NAME, $statusHeader);
 		}
-		
+
 		foreach ($this->headers as $name => $values) {
 			$this->sendHeader($name);
 		}
 		$this->headers = array();
-		
+
 		foreach ($this->cookies as $cookie) {
 			$this->sendCookie($cookie);
 		}
 		$this->cookies = array();
 
 		if ($this->hasOutput()) {
-			
+
 			foreach ($this->output as $output) {
 				if ($output instanceof HttpResponse) {
 					$output->flush();
-				} else {
+				}
+				else {
 					echo $output;
 				}
 			}
 		}
-		
+
 		$this->output = array();
 	}
 
@@ -326,13 +335,13 @@ class HttpResponse implements ResponseInterface
 		if ( ! ($response instanceof HttpResponse)) {
 			throw new Exception\IncompatibleObject("The response object passed to Response\HttpResponse::flushToResponse() must be compatible with the source object");
 		}
-		
+
 		// Overwrites response code only if higher and resets (TODO: is it correct way to do?)
 		if ($this->code > $response->code) {
 			$response->setCode($this->code);
 		}
 		$this->code = self::STATUS_OK;
-		
+
 		foreach ($this->headers as $name => $headers) {
 			foreach ($headers as $headerData) {
 				$response->header($name, $headerData['value'], $headerData['replace']);
@@ -366,7 +375,7 @@ class HttpResponse implements ResponseInterface
 	{
 		$cookie->send();
 	}
-	
+
 	/**
 	 * Helper method to increase the odds noone will cache the response
 	 */
@@ -378,4 +387,38 @@ class HttpResponse implements ResponseInterface
 		$this->header("Cache-Control", "post-check=0, pre-check=0", false);
 		$this->header("Pragma", "no-cache");
 	}
+
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function setAdditionalDataItem($key, $value)
+	{
+		$this->additionalData[$key] = $value;
+	}
+
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function getAdditionalDataItem($key, $defaultValue = null)
+	{
+		if (empty($this->additionalData[$key])) {
+			return $defaultValue;
+		}
+
+		return $this->additionalData[$key];
+	}
+
+	public function setAdditionalData($data)
+	{
+		$this->additionalData = $data;
+	}
+
+	public function getAdditionalData()
+	{
+		return $this->additionalData;
+	}
+
 }
+

@@ -26,7 +26,9 @@ class SearchService
 	{
 		$this->solariumClient = ObjectRepository::getSolariumClient($this);
 		$this->log = ObjectRepository::getLogger($this);
-		$this->systemId = 'someSystemId';
+		
+		$configurationLoader = ObjectRepository::getIniConfigurationLoader($this);
+		$this->systemId = $configurationLoader->getValue('solarium', 'systemId');
 	}
 
 	/**

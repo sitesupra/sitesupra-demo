@@ -11,9 +11,9 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 	const ORDER_DESC = Solarium_Query_Select::SORT_DESC;
 	const ORDER_NONE = null;
 
-	protected $hilightedFields;
-	protected $hilightPrefix;
-	protected $hilightPostfix;
+	protected $highlightedFields;
+	protected $highlightPrefix;
+	protected $highlightPostfix;
 	protected $sortField;
 	protected $sortOrder;
 	protected $resultStartRow = null;
@@ -66,31 +66,31 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 	}
 
 	/**
-	 * Sets hilighting options - fileds hilighted, prefix and suffix of hilighted fragment.
+	 * Sets highlighting options - fileds highlighted, prefix and suffix of highlighted fragment.
 	 * @param array $fields
 	 * @param string $prefix
 	 * @param string $postfix 
 	 */
 	public function setHilightingOptions($fields, $prefix, $postfix)
 	{
-		$this->hilightedFields = $fields;
-		$this->hilightPrefix = $prefix;
-		$this->hilightPostfix = $postfix;
+		$this->highlightedFields = $fields;
+		$this->highlightPrefix = $prefix;
+		$this->highlightPostfix = $postfix;
 	}
 
 	/**
-	 * Applies hilighting options to $selectQuery.
+	 * Applies highlighting options to $selectQuery.
 	 * @param Solarium_Query_Select $selectQuery 
 	 */
 	protected function applyHilightingOptions(Solarium_Query_Select $selectQuery)
 	{
-		if ( ! empty($this->hilightedFields)) {
+		if ( ! empty($this->highlightedFields)) {
 
 			$hl = $selectQuery->getHighlighting();
 
-			$hl->setFields($this->hilightedFields);
-			$hl->setSimplePrefix($this->hilightPrefix);
-			$hl->setSimplePostfix($this->hilightPostfix);
+			$hl->setFields($this->highlightedFields);
+			$hl->setSimplePrefix($this->highlightPrefix);
+			$hl->setSimplePostfix($this->highlightPostfix);
 		}
 	}
 

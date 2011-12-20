@@ -180,43 +180,38 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 */
 	public function createController()
 	{
+		$blockController = null;
+
 		$component = $this->getComponentClass();
-		
+
 		if ( ! class_exists($component)) {
-			
 			$this->log()->warn("Block component $component was not found for block $this");
+		}
+		else {
 
-			return null;
+			try {
+
+				$blockControllerCollection = BlockControllerCollection::getInstance();
+
+				$blockController = $blockControllerCollection->getBlockController($component);
+
+				$blockController->setBlock($this);
+			}
+			catch (Loader\Exception\ClassMismatch $e) {
+				$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
+			}
 		}
 
-		try {
-			
-			$blockController = Loader\Loader::getClassInstance($component, 'Supra\Controller\Pages\BlockController');
-			
-			$blockController->setBlock($this);
-			
-			$blockControllerCollection = BlockControllerCollection::getInstance();
-			
-			$configuration = $blockControllerCollection->getConfiguration($component);
-			
-			$blockController->setConfiguration($configuration);
-
-			return $blockController;
-		}
-		catch (Loader\Exception\ClassMismatch $e) {
-			
-			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
-
-			return null;
-		}
+		return $blockController;
 	}
 
 	/**
 	 * Prepares controller
 	 * @param BlockController $controller
 	 * @param PageRequest $request
+	 * @param ArrayCollection $responseAdditionalData
 	 */
-	public function prepareController(BlockController $controller, PageRequest $request)
+	public function prepareController(BlockController $controller, PageRequest $request, ArrayCollection $additionalData)
 	{
 		// Set properties for controller
 		$blockPropertySet = $request->getBlockPropertySet();
@@ -225,6 +220,8 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 
 		// Create response
 		$response = $controller->createResponse($request);
+		
+		$response->setAdditionalData($additionalData);
 
 		// Prepare
 		$controller->prepare($request, $response);
