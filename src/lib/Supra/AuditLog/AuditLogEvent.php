@@ -1,10 +1,11 @@
 <?php
 
-namespace Supra\Log;
+namespace Supra\AuditLog;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\User\Entity\User as UserEntity;
+use Supra\Log\LogEvent;
 
 /**
  * Audit log event
@@ -94,6 +95,7 @@ class AuditLogEvent extends LogEvent
 //			TODO: decide on data field
 //			'subject' => $this->getSubject(),
 			'subject' => $this->message,
+			'message' => $this->message,
 			'level' => $this->level,
 			'levelPriority' => $this->getLevelPriority(),
 			'component' => $this->component,

@@ -9,7 +9,7 @@ use Supra\FileStorage\Entity\Abstraction\File as FileAbstraction;
 use Supra\FileStorage\Entity\Folder;
 use Supra\FileStorage\Entity\File;
 use Supra\FileStorage\Entity\Image;
-use Supra\Log\AuditLogEvent;
+use Supra\AuditLog\AuditLogEvent;
 
 /**
  * Common MediaLibrary action

@@ -1,11 +1,13 @@
 <?php
 
-namespace Supra\Log\Writer;
+namespace Supra\AuditLog\Writer;
 
-use Supra\Log\AuditLogEvent;
+use Supra\Log\Exception;
+use Supra\Log\Writer\WriterAbstraction;
+use Supra\AuditLog\AuditLogEvent;
 
 /**
- * Audit log writer
+ * Audit log writer abstraction
  * 
  * @method void dump(mixed $component, string $action, string $message, mixed $user, array $data)
  * @method void debug(mixed $component, string $action, string $message, mixed $user, array $data)
@@ -14,13 +16,26 @@ use Supra\Log\AuditLogEvent;
  * @method void error(mixed $component, string $action, string $message, mixed $user, array $data)
  * @method void fatal(mixed $component, string $action, string $message, mixed $user, array $data)
  */
-class AuditLogWriter extends FileWriter
+abstract class AuditLogWriterAbstraction
 {
+
+	/**
+	 * Log writer class name
+	 * @var string
+	 */
+	protected static $logWriterClassName = 'Supra\Log\Writer\NullWriter';
+
+	/**
+	 * Default writer parameters
+	 * @var array
+	 */
+	public static $defaultWriterParameters = array();
+
 	/**
 	 * Default formatter
 	 * @var string
 	 */
-	public static $defaultFormatter = 'Supra\Log\Formatter\AuditLogFormatter';
+	public static $defaultFormatter = 'Supra\AuditLog\Formatter\AuditLogFormatter';
 
 	/**
 	 * Default formatter parameters
@@ -29,24 +44,31 @@ class AuditLogWriter extends FileWriter
 	public static $defaultFormatterParameters = array();
 
 	/**
-	 * Default configuration
-	 * @var array
+	 * Log writer instance
+	 * @var WriterAbstraction
 	 */
-	public static $defaultParameters = array(
-		'folder' => \SUPRA_LOG_PATH,
-		'file' => 'audit.log',
-	);
-	
+	protected $logWriter;
+
 	/**
-	 * Log writer constructor
+	 * Audit writer constructor
 	 * @param array $parameters
 	 */
 	function __construct(array $parameters = array())
 	{
-		// parent constructor
-		parent::__construct($parameters);
+		$parameters = $parameters + static::$defaultWriterParameters;
+		$this->logWriter = new static::$logWriterClassName($parameters);
+		$formatter = new static::$defaultFormatter(static::$defaultFormatterParameters);
+		$this->logWriter->setFormatter($formatter);
+		$this->logWriter->setName('Audit');
+	}
 
-		$this->setName('Audit');
+	/**
+	 * Set log writer instance
+	 * @param WriterAbstraction $logWriter 
+	 */
+	protected function setLogWriter(WriterAbstraction $logWriter)
+	{
+		$this->logWriter = $logWriter;
 	}
 
 	/**
@@ -79,7 +101,7 @@ class AuditLogWriter extends FileWriter
 			}
 
 			$event = new AuditLogEvent($level, $component, $action, $message, $loggerName, $user, $data);
-			$this->write($event);
+			$this->logWriter->write($event);
 			
 		} catch (\Exception $e) {
 			
@@ -97,5 +119,5 @@ class AuditLogWriter extends FileWriter
 			}
 		}
 	}
-
+	
 }

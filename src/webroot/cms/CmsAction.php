@@ -12,7 +12,7 @@ use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Response\TwigResponse;
-use Supra\Log\AuditLogEvent;
+use Supra\AuditLog\AuditLogEvent;
 
 /**
  * Description of CmsAction

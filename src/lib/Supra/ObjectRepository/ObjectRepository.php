@@ -20,6 +20,8 @@ use Supra\Payment\Provider\PaymentProviderCollection;
 use Supra\Template\Parser\TemplateParser;
 use Supra\BannerMachine\BannerProvider;
 use Supra\Configuration\ComponentConfiguration;
+use Supra\AuditLog\Writer\AuditLogWriterAbstraction;
+use Supra\AuditLog\Writer\NullAuditLogWriter;
 
 /**
  * Object repository
@@ -35,7 +37,7 @@ class ObjectRepository
 	const CONTROLLER_PREFIX = 'CONTROLLER/';
 
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
-	const INTERFACE_AUDIT_LOGGER = 'Supra\Log\Writer\AuditLogWriter';
+	const INTERFACE_AUDIT_LOGGER = 'Supra\AuditLog\Writer\AuditLogWriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
 	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
@@ -759,16 +761,15 @@ class ObjectRepository
 	 * Get assigned audit logger
 	 *
 	 * @param mixed $caller
-	 * @return AuditLogWriter
+	 * @return AuditLogWriterAbstraction
 	 */
 	public static function getAuditLogger($caller)
 	{
 		$logger = self::getObject($caller, self::INTERFACE_AUDIT_LOGGER);
 
-		// Create bootstrap logger in case of missing logger
 		if (empty($logger)) {
-			$logger = Log::getBootstrapLogger();
-			self::setDefaultLogger($logger);
+			$logger = new NullAuditLogWriter();
+			self::setDefaultAuditLogger($logger);
 		}
 
 		return $logger;
@@ -778,9 +779,9 @@ class ObjectRepository
 	 * Assign audit logger instance to caller class
 	 *
 	 * @param mixed $caller
-	 * @param AuditLogWriter $object 
+	 * @param AuditLogWriterAbstraction $object 
 	 */
-	public static function setAuditLogger($caller, WriterAbstraction $object)
+	public static function setAuditLogger($caller, AuditLogWriterAbstraction $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_AUDIT_LOGGER);
 	}
@@ -788,9 +789,9 @@ class ObjectRepository
 	/**
 	 * Set default audit logger
 	 *
-	 * @param AuditLogWriter $object 
+	 * @param AuditLogWriterAbstraction $object 
 	 */
-	public static function setDefaultAuditLogger(WriterAbstraction $object)
+	public static function setDefaultAuditLogger(AuditLogWriterAbstraction $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_AUDIT_LOGGER);
 	}

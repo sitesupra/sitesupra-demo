@@ -33,7 +33,7 @@ use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\Template;
-use Supra\Log\AuditLogEvent;
+use Supra\AuditLog\AuditLogEvent;
 
 /**
  * Controller containing common methods

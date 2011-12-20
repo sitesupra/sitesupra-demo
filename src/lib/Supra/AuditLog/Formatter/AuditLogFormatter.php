@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Log\Formatter;
+namespace Supra\AuditLog\Formatter;
 
-//use Supra\Log\LogEvent;
+use Supra\Log\Formatter\SimpleFormatter;
 
 /**
  * Audit log formatter

@@ -3,6 +3,7 @@
 use Supra\Log\LogEvent;
 use Supra\Log\Writer;
 use Supra\Log\Filter;
+use Supra\AuditLog\Writer as AuditWriter;
 use Supra\ObjectRepository\ObjectRepository;
 
 /*
@@ -37,5 +38,5 @@ ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $chainWriter);
 /*
  * Audit log
  */
-$auditWriter = new Writer\AuditLogWriter(array('file' => 'audit.log'));
+$auditWriter = new AuditWriter\FileAuditLogWriter(array('file' => 'audit.log'));
 ObjectRepository::setDefaultAuditLogger($auditWriter);
