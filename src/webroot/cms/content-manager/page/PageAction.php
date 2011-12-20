@@ -185,15 +185,13 @@ class PageAction extends PageManagerAction
 				'created_time' => $createdTime,
 				'global' => $page->getGlobal(),
 				'allow_edit' => $isAllowedEditing,
+				'is_visible_in_menu' => $pageData->isVisibleInMenu(),
+				'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
+				'include_in_search' => $pageData->isIncludedInSearch(),
 		);
 		
 		if ($templateError) {
 			$array['internal_html'] = '<h1>Page template not found</h1><p>Please make sure the template is assigned and the template is published in this locale.</p>';
-		}
-		
-		if ($pageData instanceof Entity\PageLocalization) {
-			$array['is_visible_in_menu'] = $pageData->isVisibleInMenu();
-			$array['is_visible_in_sitemap'] = $pageData->isVisibleInSitemap();
 		}
 		
 		if ($page instanceof Entity\Template) {
@@ -346,13 +344,22 @@ class PageAction extends PageManagerAction
 		// Template ID
 		if ($pageData instanceof Entity\PageLocalization) {
 			$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
-
+			/* @var $template Supra\Controller\Pages\Entity\Template */
+			
 			if (empty($template)) {
 				$this->getResponse()->setErrorMessage("Template not specified or found");
 
 				return;
 			}
 
+			$templateLocalization = $template->getLocalization($localeId);
+			
+			if($templateLocalization instanceof Entity\TemplateLocalization) {
+				$pageData->includeInSearch($templateLocalization->isIncludedInSearch());
+				$pageData->setVisibleInMenu($templateLocalization->isVisibleInMenu());
+				$pageData->setVisibleInSitemap($templateLocalization->isVisibleInSitemap());
+			}
+			
 			$pageData->setTemplate($template);
 
 			$pathPart = '';

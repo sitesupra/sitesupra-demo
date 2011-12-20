@@ -68,19 +68,26 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 */
 	protected $placeHolders;
 	
-//	/**
-//	 * Flag for hiding page from sitemap
-//	 * @Column(type="boolean", nullable=false)
-//	 * @var boolean
-//	 */
-//	protected $visibleInSitemap = false;
-//	
-//	/**
-//	 * Flag for hiding page from menu
-//	 * @Column(type="boolean", nullable=false)
-//	 * @var boolean
-//	 */
-//	protected $visibleInMenu = false;
+	
+	/**
+	 *  Flag for hiding page from sitemap
+	 * @Column(type="boolean", nullable=false)
+	 * @var boolean
+	 */
+	protected $visibleInSitemap = true;
+
+	/**
+	 * Flag for hiding page from menu
+	 * @Column(type="boolean", nullable=false)
+	 * @var boolean
+	 */
+	protected $visibleInMenu = true;
+
+	/**
+	 * @Column(type="boolean", nullable=false)
+	 * @var boolean
+	 */
+	protected $includeInSearch = true;
 
 	/**
 	 * Construct
@@ -350,17 +357,49 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	/**
 	 * @return boolean
 	 */
-	public function isVisibleInMenu()
+	public function isVisibleInSitemap()
 	{
-		return false;
+		return $this->visibleInSitemap;
 	}
-	
+
+	/**
+	 * @param boolean $visibleInSitemap 
+	 */
+	public function setVisibleInSitemap($visibleInSitemap)
+	{
+		$this->visibleInSitemap = $visibleInSitemap;
+	}
+
 	/**
 	 * @return boolean
 	 */
-	public function isVisibleInSitemap()
+	public function isVisibleInMenu()
 	{
-		return false;
+		return $this->visibleInMenu;
+	}
+
+	/**
+	 * @param boolean $visibleInMenu 
+	 */
+	public function setVisibleInMenu($visibleInMenu)
+	{
+		$this->visibleInMenu = $visibleInMenu;
+	}
+
+	/**
+	 * @return boolean 
+	 */
+	public function isIncludedInSearch()
+	{
+		return $this->includeInSearch;
+	}
+
+	/**
+	 * @param boolean $includeInSearch 
+	 */
+	public function includeInSearch($includeInSearch)
+	{
+		$this->includeInSearch = $includeInSearch;
 	}
 	
 	/**

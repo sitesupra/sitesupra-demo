@@ -109,20 +109,6 @@ class PageLocalization extends Abstraction\Localization
 	 * @var boolean
 	 */
 	protected $publishTimeSet = false;
-
-	/**
-	 * Flag for hiding page from sitemap
-	 * @Column(type="boolean", nullable=false)
-	 * @var boolean
-	 */
-	protected $visibleInSitemap = true;
-	
-	/**
-	 * Flag for hiding page from menu
-	 * @Column(type="boolean", nullable=false)
-	 * @var boolean
-	 */
-	protected $visibleInMenu = true;
 	
 	/**
 	 * Additionally set creation time
@@ -136,38 +122,6 @@ class PageLocalization extends Abstraction\Localization
 		$this->publishTimeSet = false;
 	}
 
-	/**
-	 * @return boolean
-	 */
-	public function isVisibleInSitemap()
-	{
-		return $this->visibleInSitemap;
-	}
-
-	/**
-	 * @param boolean $visibleInSitemap 
-	 */
-	public function setVisibleInSitemap($visibleInSitemap)
-	{
-		$this->visibleInSitemap = $visibleInSitemap;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function isVisibleInMenu()
-	{
-		return $this->visibleInMenu;
-	}
-	
-	/**
-	 * @param boolean $visibleInMenu 
-	 */
-	public function setVisibleInMenu($visibleInMenu)
-	{
-		$this->visibleInMenu = $visibleInMenu;
-	}
-	
 	/**
 	 * @return Page
 	 */

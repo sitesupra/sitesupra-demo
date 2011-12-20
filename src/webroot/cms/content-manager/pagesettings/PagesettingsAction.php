@@ -44,6 +44,21 @@ class PagesettingsAction extends PageManagerAction
 			$pageData->setTitle($title);
 		}
 		
+		if ($input->has('is_visible_in_menu')) {
+			$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
+			$pageData->setVisibleInMenu($visibleInMenu);
+		}
+
+		if ($input->has('is_visible_in_sitemap')) {
+			$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
+			$pageData->setVisibleInSitemap($visibleInSitemap);
+		}
+
+		if ($input->has('include_in_search')) {
+			$includeInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
+			$pageData->includeInSearch($includeInSearch);
+		}
+		
 		if ($pageData instanceof Entity\TemplateLocalization) {
 			if ($input->has('layout')) {
 				
@@ -114,16 +129,6 @@ class PagesettingsAction extends PageManagerAction
 			if ($input->has('active')) {
 				$active = $input->getValid('active', AbstractType::BOOLEAN);
 				$pageData->setActive($active);
-			}
-			
-			if ($input->has('is_visible_in_menu')) {
-				$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
-				$pageData->setVisibleInMenu($visibleInMenu);
-			}
-			
-			if ($input->has('is_visible_in_sitemap')) {
-				$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
-				$pageData->setVisibleInSitemap($visibleInSitemap);
 			}
 
 			if ($input->has('description')) {

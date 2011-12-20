@@ -125,6 +125,7 @@
 			"active": "Active",
 			"is_visible_in_sitemap": "Show in sitemap",
 			"is_visible_in_menu": "Show in menu",
+			"include_in_search": "Include in search",
 			
 			"meta": "Meta",
 			"meta_title": "Meta",
