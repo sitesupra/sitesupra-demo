@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\BannerMachine\Entity\Banner;
 use Doctrine\ORM\EntityRepository;
 use Supra\Controller\Pages\Entitsy\Page;
+use Supra\Cms\Exception\CmsException;
 
 class BannereditAction extends CmsAction
 {
@@ -79,6 +80,10 @@ class BannereditAction extends CmsAction
 		//\Log::debug('BANNER INSERT REQUEST: ', $postData->getArrayCopy());
 
 		$file = $this->fileRepository->find($postData->get('image'));
+		
+		if(empty($file)) {
+			throw new CmsException(null, 'Banner file not chosen.');
+		}
 
 		$banner = null;
 
@@ -86,7 +91,7 @@ class BannereditAction extends CmsAction
 			$banner = new ImageBanner();
 		}
 		else {
-
+			
 			$mimeType = $file->getMimeType();
 
 			if ($mimeType == FlashBanner::MIME_TYPE) {
