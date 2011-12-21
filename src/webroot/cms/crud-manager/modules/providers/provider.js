@@ -344,6 +344,9 @@ YUI.add('website.provider', function (Y) {
 				this.data_grid.removeRow(record_id);
 			}
 			
+			//@TODO FIXME
+			Supra.Manager.getAction('PageButtons').unsetActiveAction('Form');
+			
 			//Transition back to list mode
 			this.set('mode', 'list');
 		},
