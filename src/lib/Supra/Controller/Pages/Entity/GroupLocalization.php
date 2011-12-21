@@ -14,6 +14,24 @@ class GroupLocalization extends Abstraction\Localization
 	const DISCRIMINATOR = self::GROUP_DISCR;
 	
 	/**
+	 * Overrides the default value
+	 * @var boolean
+	 */
+	protected $visibleInSitemap = false;
+
+	/**
+	 * Overrides the default value
+	 * @var boolean
+	 */
+	protected $visibleInMenu = false;
+
+	/**
+	 * Overrides the default value
+	 * @var boolean
+	 */
+	protected $includeInSearch = false;
+	
+	/**
 	 * Flag which marks the entity created automatically on miss
 	 * @var boolean
 	 */
@@ -92,4 +110,44 @@ class GroupLocalization extends Abstraction\Localization
 	{
 		$this->persistent = true;
 	}
+	
+	/**
+	 * Don't allow setting this
+	 * @param boolean $includeInSearch
+	 */
+	public function includeInSearch($includeInSearch)
+	{
+	}
+	
+	/**
+	 * Don't allow setting this
+	 * @param boolean $visibleInMenu
+	 */
+	public function setVisibleInMenu($visibleInMenu)
+	{
+	}
+
+	/**
+	 * Don't allow setting this
+	 * @param boolean $visibleInSitemap
+	 */
+	public function setVisibleInSitemap($visibleInSitemap)
+	{
+	}
+	
+	public function isVisibleInSitemap()
+	{
+		return false;
+	}
+
+	public function isVisibleInMenu()
+	{
+		return false;
+	}
+
+	public function isIncludedInSearch()
+	{
+		return false;
+	}
+
 }
