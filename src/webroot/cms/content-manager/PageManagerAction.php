@@ -24,7 +24,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestView;
-use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\Cms\CmsController;
 use Supra\Loader\Loader;
 use Supra\Controller\Pages\Listener\EntityAuditListener;
@@ -423,7 +423,6 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function publish()
 	{
-		$controller = $this->getPageController();
 		$publicEm = $this->getPublicEntityManager();
 
 		$pageRequest = $this->getPageRequest();
@@ -435,12 +434,12 @@ abstract class PageManagerAction extends CmsAction
 		$publicEm->transactional($copyContent);
 
 		// If all went well, fire the post-publish event for published page localization.
-		//$eventArgs = new PagePublishEventArgs();
-		//$eventArgs->user = $this->getUser();
-		//$eventArgs->localization = $this->getPageLocalization();
+		$eventArgs = new CmsPagePublishEventArgs();
+		$eventArgs->user = $this->getUser();
+		$eventArgs->localization = $this->getPageLocalization();
 
-		//$eventManager = ObjectRepository::getEventManager($this);
-		//$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
 	}
 
 	/**
@@ -678,7 +677,6 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$this->isPostRequest();
 
-		$userId = $this->getUser()->getId();
 		$pageData = $this->getPageLocalization();
 
 		$pageLock = $pageData->getLock();

@@ -2,7 +2,7 @@
 
 namespace Supra\Cms;
 
-use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageLocalizationIndexerQueueItem;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
@@ -13,9 +13,9 @@ class CmsPageLocalizationIndexerQueueListener
 {
 	/**
 	 * Will add published pages into search indexer queue
-	 * @param PagePublishEventArgs $eventArgs
+	 * @param CmsPagePublishEventArgs $eventArgs
 	 */
-	public function postPagePublish(PagePublishEventArgs $eventArgs)
+	public function postPagePublish(CmsPagePublishEventArgs $eventArgs)
 	{
 		$localization = $eventArgs->localization;
 		
