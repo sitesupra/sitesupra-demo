@@ -60,6 +60,7 @@
 	text-align: center;
 }
 .yui3-page-settings #slideSchedule label,
+.yui3-page-settings .template-hint,
 .yui3-page-settings #slideCreated label {
 	display: block;
 	padding: 10px;
