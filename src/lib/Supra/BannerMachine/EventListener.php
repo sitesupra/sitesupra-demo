@@ -21,7 +21,7 @@ class EventListener
 			$banners = $bannerProvider->getBannersByFile($file);
 
 			if ( ! empty($banners)) {
-				throw new CmsException(null, 'Can not delete this file because it is used in banner manager.');
+				throw new CmsException(null, 'File can\'t be removed because it is used as a banner');
 			}
 		}
 	}
