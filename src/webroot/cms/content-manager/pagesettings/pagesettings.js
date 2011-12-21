@@ -562,7 +562,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					this.page_data.redirect = null;
 					this.setFormValue('redirect', {'redirect': null});
 					this.slideshow.scrollTo('slideMain');
-					//this.setFormValue('redirect', {'redirect': null});
 					this.form.getInput('redirect').setValue(null);										
 					break;
 				case 'relative':
@@ -583,8 +582,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		onRelativeRedirectClick: function() {
 			var value = this.relative_redirect_select.get('value');
-			var label = 'Rel: ' + value + ' child';
-			this.redirect_select.buttons.relative.set('label', label);
 
 			var redirect = {
 				'href': value,
@@ -646,7 +643,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					// or reset them to defaults if redirect is empty
 					if (data && data.href) {
 						if (data.resource == "relative") {
-							var label = 'Rel: ' + data.title;
+							var label = data.title;
 							this.redirect_select.buttons.relative.set('label', label);
 							this.redirect_select.buttons.fixed.set('label', 'Fixed');
 							this.relative_redirect_select._setValue(data.href);
