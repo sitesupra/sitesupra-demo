@@ -87,11 +87,24 @@ class PageController extends ControllerAbstraction
 			
 			try {
 				$localization = $request->getPageLocalization();
+				
+				$redirect = $localization->getRedirect();
+				if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
+					//TODO: any validation? skipping? loop check?
+
+					ObjectRepository::setCallerParent($redirect, $this);
+				
+					$location = $redirect->getUrl($this);
+					$response->redirect($location);
+
+					return;
+				}
 			} catch (ResourceNotFoundException $e) {
 				
 				try {
 					//TODO: hardcoded for now
 					$tryPath = '404';
+					$request->resetPageLocalization();
 					$request->setPath(new Path($tryPath));
 					$localization = $request->getPageLocalization();
 
@@ -101,19 +114,6 @@ class PageController extends ControllerAbstraction
 				} catch (ResourceNotFoundException $e404) {
 					throw $e;
 				}
-			}
-			
-			$redirect = $localization->getRedirect();
-
-			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
-				//TODO: any validation? skipping? loop check?
-
-				ObjectRepository::setCallerParent($redirect, $this);
-
-				$location = $redirect->getUrl($this);
-				$response->redirect($location);
-
-				return;
 			}
 		}
 

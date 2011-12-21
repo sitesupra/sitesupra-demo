@@ -168,6 +168,11 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->pageData = $pageData;
 	}
+	
+	public function resetPageLocalization() 
+	{
+		$this->pageData = null;
+	}
 
 	/**
 	 * @param \Doctrine\ORM\EntityManager $em
