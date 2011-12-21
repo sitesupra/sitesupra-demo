@@ -187,7 +187,13 @@ class PagesettingsAction extends PageManagerAction
 			}
 			
 			//TODO: validation
-			$redirect = $input->get('redirect');
+			try {
+				$redirect = $input->get('redirect');
+			} catch (\Supra\Validator\Exception\RuntimeException $e) {
+				// FIXME: workaround for is_scalar() on arrays inside validator
+				$redirect = $this->getRequest()
+						->getPostValue('redirect');
+			}
 		
 			if ( ! is_null($redirect)) {
 

@@ -18,6 +18,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	const RESOURCE_PAGE = 'page';
 	const RESOURCE_FILE = 'file';
 	const RESOURCE_LINK = 'link';
+	const RESOURCE_RELATIVE_PAGE = 'relative';
+	
+	const RELATIVE_LAST = 'last';
+	const RELATIVE_FIRST = 'first';
 	
 	/**
 	 * @Column(type="string")
@@ -158,7 +162,16 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			case self::RESOURCE_LINK:
 				$title = $this->getHref();
 				break;
-
+			
+			case self::RESOURCE_RELATIVE_PAGE:
+				$href = $this->getHref();
+				if ($href == self::RELATIVE_FIRST) {
+					$title = 'First child';
+				} else {
+					$title = 'Last child';
+				}
+				break;
+				
 			default:
 				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");
 		}
@@ -309,6 +322,26 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				
 			case self::RESOURCE_LINK:
 				$url = $this->getHref();
+				break;
+			
+			case self::RESOURCE_RELATIVE_PAGE:
+				$pageChildren = $this->getPage()
+						->getChildren();
+				
+				if ( ! is_null($pageChildren) && ! empty($pageChildren)) {
+					$url = $this->getHref();
+					
+					if ($url == self::RELATIVE_FIRST) {
+						$relativeChild = $pageChildren->first();
+					} else {
+						$relativeChild = $pageChildren->last();
+					}
+					
+					$path = $relativeChild->getPath();
+					if ( ! is_null($path)) {
+						$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
+					}
+				}
 				break;
 
 			default:

@@ -148,7 +148,16 @@
 			
 			"redirect": "Set redirect",
 			"redirect_to": "Redirect to: ",
+			"redirect_title": "Redirect settings",
 			
+			"redirect_active": "Active",
+			"redirect_first": "First child",
+			"redirect_last": "Last child",
+			"redirect_relative": "Relative",
+			"redirect_relative_title": "Relative redirect to",
+			"redirect_fixed": "Fixed",
+			"redirect_off": "Off",
+						
 			"advanced": "Advanced settings",
 			"advanced_title": "Advanced settings",
 			

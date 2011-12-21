@@ -348,7 +348,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				node.set('text', Supra.Intl.get(['settings', 'advanced_unknown']));
 			}
 		},
-		
+	
 		/**
 		 * Open link manager for redirect
 		 */
@@ -356,6 +356,11 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.set('toolbarButtonsFrozen', true);
 			
 			var value = this.form.getInput('redirect').getValue();
+			
+			if (value && value.resource == "relative") {
+				value = null;
+			}
+			
 			var callback = Y.bind(this.onLinkManagerClose, this);
 			
 			//Disable editing for everything else
@@ -484,8 +489,28 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			button_schedule.render().on('click', function () { this.slideshow.set('slide', 'slideSchedule'); }, this);
 			
 			//Redirect button
+			//this.button_redirect = new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)});
+			//this.button_redirect.render().on('click', function () { this.openLinkManager(); }, this);
 			this.button_redirect = new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)});
-			this.button_redirect.render().on('click', function () { this.openLinkManager(); }, this);
+			this.button_redirect.render().on('click', function () { this.slideshow.set('slide', 'slideRedirect'); }, this);	
+			
+			// Redirect select list
+			this.redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#redirect_type')});
+			this.redirect_select.render();
+				// Redirect "Off" button
+				this.redirect_select.buttons.off.on('click', function () { this.onRedirectClick(); }, this);
+				// Redirect "Relative" button
+				this.redirect_select.buttons.relative.on('click', function () {	this.onRedirectClick(); }, this);
+				// Redirect "Fixed" button
+				this.redirect_select.buttons.fixed.on('click', function () { this.onRedirectClick(); }, this);
+			
+			// Relative redirect select list
+			this.relative_redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#relative_redirect')});
+			this.relative_redirect_select.render();
+				// Redirect -> Relative "First child" button
+				this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
+				// Redirect -> Relative "Last child" button
+				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
 			//Advanced settings button
 			var button_advanced = new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)});
@@ -525,6 +550,54 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
+		},
+		
+		/**
+		 * Handle redirect list button clicks
+		 */
+		onRedirectClick: function () {
+			var value = this.redirect_select.get('value');
+			switch (value) {
+				case 'off':
+					this.page_data.redirect = null;
+					this.setFormValue('redirect', {'redirect': null});
+					this.slideshow.scrollTo('slideMain');
+					//this.setFormValue('redirect', {'redirect': null});
+					this.form.getInput('redirect').setValue(null);										
+					break;
+				case 'relative':
+					var redirect = this.form.getInput('redirect').getValue()
+					this.setFormValue('redirect', {'redirect': redirect});
+					this.slideshow.set('slide', 'slideRedirectRelative');
+					break;
+				case 'fixed':
+					this.openLinkManager();
+					break;
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Handle relative redirect list button clicks
+		 */
+		onRelativeRedirectClick: function() {
+			var value = this.relative_redirect_select.get('value');
+			var label = 'Rel: ' + value + ' child';
+			this.redirect_select.buttons.relative.set('label', label);
+
+			var redirect = {
+				'href': value,
+				'resource': "relative",
+				'page_id': this.page_data['id'],
+				'title': (value == "first" ? 'First child' : 'Last child')
+			};
+			
+			this.form.getInput('redirect').setValue(redirect);
+			this.setFormValue('redirect', {'redirect': redirect});
+			this.page_data.redirect = redirect;
+
+			this.slideshow.scrollTo('slideMain');
 		},
 		
 		/**
@@ -568,6 +641,42 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					var data = page_data.redirect;
 					var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
 					this.button_redirect.set('label', title);
+					
+					// Trying to set correct titles for redirect selects buttons 
+					// or reset them to defaults if redirect is empty
+					if (data && data.href) {
+						if (data.resource == "relative") {
+							var label = 'Rel: ' + data.title;
+							this.redirect_select.buttons.relative.set('label', label);
+							this.redirect_select.buttons.fixed.set('label', 'Fixed');
+							this.relative_redirect_select._setValue(data.href);
+						} else {
+							this.redirect_select.buttons.relative.set('label', 'Relative');
+							this.redirect_select.buttons.fixed.set('label', data.title);
+							this.relative_redirect_select._setValue('');
+						}
+					} else {
+						this.redirect_select.buttons.fixed.set('label', 'Fixed');
+						this.redirect_select.buttons.relative.set('label', 'Relative');
+						this.relative_redirect_select._setValue('');
+					}
+					
+					var redirect_value = 'off';
+					if (data && data.resource) {
+						switch (data.resource) {
+							case 'relative':
+								redirect_value = 'relative';
+								break;
+							case 'page': 
+							case 'link':
+								if (data.href) {
+									redirect_value = 'fixed';
+								}
+								break;
+						}
+					}
+					this.redirect_select._setValue(redirect_value);
+					
 					break;
 				/*case 'version':
 					var node = this.one('.button-version small');
@@ -700,7 +809,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					['template', form.getInput('template[img]')],
 					['template', form.getInput('template[title]')],
 					
-					['template', '.button-redirect']
+					['template', '.button-redirect'],
+					['page', '.template-hint']
 				];
 			
 			for(var i=inputs.length - 1; i>=0; i--) {

@@ -51,7 +51,7 @@
 				</div>
 				
 				<div class="input-group input-group-button">
-					<button type="button" class="button-redirect"><p>{#settings.redirect#}</p></button>
+					<button type="button" class="button-redirect"><p>{#settings.redirect_title#}</p></button>
 					<input type="hidden" name="redirect" />
 				</div>
 				
@@ -105,6 +105,27 @@
 					<button type="button"><p>{#buttons.apply#}</p></button>
 				</div>
 			
+			</div><div id="slideRedirect" class="hidden">
+		
+				<h3>{#settings.redirect_title#}</h3>
+				
+				<label for="redirect_type" class="hidden"></label>
+				<select name="redirect_type" id="redirect_type" value="">
+					<option value="off">{#settings.redirect_off#}</option>
+					<option value="relative">{#settings.redirect_relative#}</option>
+					<option value="fixed">{#settings.redirect_fixed#}</option>
+				</select>
+
+			</div><div id="slideRedirectRelative" class="hidden">
+		
+				<h3>{#settings.redirect_relative_title#}</h3>
+				
+				<label for="relative_redirect" class="hidden"></label>
+				<select name="relative_redirect" id="relative_redirect" value="">
+					<option value="first">{#settings.redirect_first#}</option>
+					<option value="last">{#settings.redirect_last#}</option>
+				</select>
+
 			</div><div id="slideAdvanced" class="hidden">
 			
 				<h3>{#settings.advanced_title#}</h3>
@@ -134,11 +155,11 @@
 						<option value="0">{#buttons.off#}</option>
 					</select>
 					
-					<div class="template-hint">
-						<p>{#settings.pages_will_inherit_these_values#}</p>
-					</div>
+					<div><p class="template-hint">
+						{#settings.pages_will_inherit_these_values#}
+					</p></div>
 				</div>
-				
+					
 				<div class="input-group input-group-button">
 					<button type="button" class="button-created"><p>
 						{#settings.advanced_unknown#}
