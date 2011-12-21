@@ -22,7 +22,7 @@
 - Supra\Cms\ApplicationConfiguration:
     id: Supra\Cms\ContentManager
     title: Pages
-    icon: /cms/lib/supra/img/apps/content
+    icon: /cms/lib/supra/img/apps/pages
     url: content-manager
     authorizationAccessPolicy:
       Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
@@ -34,7 +34,7 @@
     id: Supra\Cms\InternalUserManager\InternalUserManagerController
     title: Backoffice users
     url: internal-user-manager
-    icon: /cms/lib/supra/img/apps/internal-user
+    icon: /cms/lib/supra/img/apps/backoffice_users
 #   For development only
     allowGroupEditing: true
     authorizationAccessPolicy:
@@ -45,7 +45,7 @@
     id: Supra\Cms\BannerManager
     title: Banners
     url: banner-manager
-    icon: /cms/lib/supra/img/apps/banner
+    icon: /cms/lib/supra/img/apps/banners
     authorizationAccessPolicy:
       Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\BannerManager
