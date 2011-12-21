@@ -22,6 +22,7 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 		$this->title = 'Search';
 		$this->description = 'Search controller';
 		$this->cmsClassname = 'Editable';
+		$this->iconWebPath = '/assets/img/blocks/system_block.png';
 		
 		parent::configure();
 	}
