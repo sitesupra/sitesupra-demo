@@ -7,6 +7,7 @@ use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\GroupPage;
+use Supra\Controller\Exception\ResourceNotFoundException;
 
 /**
  * @Entity
@@ -331,15 +332,30 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				if ( ! is_null($pageChildren) && ! empty($pageChildren)) {
 					$url = $this->getHref();
 					
-					if ($url == self::RELATIVE_FIRST) {
-						$relativeChild = $pageChildren->first();
-					} else {
-						$relativeChild = $pageChildren->last();
-					}
-					
-					$path = $relativeChild->getPath();
-					if ( ! is_null($path)) {
-						$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
+					$pageChildren = $pageChildren->toArray();
+					while (true) {
+						if ($url == self::RELATIVE_FIRST) {
+							$relativeChild = array_shift($pageChildren);
+						} else {
+							$relativeChild = array_pop($pageChildren);
+						}
+						
+						// exit from loop
+						if(is_null($relativeChild)) {
+							throw new ResourceNotFoundException('Valid relative redirect child was not found');
+						}
+						
+						// skip inactive pages
+						if ( ! $relativeChild->isActive()) {
+							continue;
+						}
+
+						$path = $relativeChild->getPath();
+						if ( ! is_null($path)) {
+							$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
+						}
+						
+						break;
 					}
 				}
 				break;
