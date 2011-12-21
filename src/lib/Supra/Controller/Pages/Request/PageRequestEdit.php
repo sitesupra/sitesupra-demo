@@ -251,6 +251,16 @@ class PageRequestEdit extends PageRequest
 		//TODO: remove reference elements as well!
 		$propertyIdList = $draftProperties->collectIds();
 		
+		
+		// 12. Remove old redirect if exists and doesn't match with new one
+		// NOTE: remove() on publicEm should be called before publicEm::unitOfWork will be clear()'ed (code below)
+		// or removing will fail ("detached entity could not be removed")
+		if ( ! is_null($oldRedirect)) {
+			if (is_null($newRedirect) || ! $oldRedirect->equals($newRedirect)) {
+				$publicEm->remove($oldRedirect);
+			}
+		}
+		
 		if ( ! empty($propertyIdList)) {
 			$qb = $publicEm->createQueryBuilder();
 			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
@@ -268,13 +278,6 @@ class PageRequestEdit extends PageRequest
 			$publicEm->merge($property);
 		}
 		
-		// 12. Remove old redirect if exists and doesn't match with new one
-		if ( ! is_null($oldRedirect)) {
-			if (is_null($newRedirect) || ! $oldRedirect->equals($newRedirect)) {
-				$publicEm->remove($oldRedirect);
-			}
-		}
-
 		$draftEm->flush();
 		$publicEm->flush();
 		
