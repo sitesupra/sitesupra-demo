@@ -47,7 +47,16 @@ class DefaultSizeType extends BannerTypeAbstraction
 		) {
 			throw new Exception\RuntimeException('Width / height ratio not valid for chosen image.');
 		}
-
+		
+		if(
+				($imageWidth > $this->getWidth() * (1 + $this->ratioDelta)) || 
+				($imageWidth < $this->getWidth() * (1 - $this->ratioDelta)) ||
+				($imageHeight > $this->getHeight() * (1 + $this->ratioDelta)) || 
+				($imageHeight < $this->getHeight() * (1 - $this->ratioDelta))
+		) { 
+			throw new Exception\RuntimeException('Image size is not valid.');
+		}
+						
 		return true;
 	}
 

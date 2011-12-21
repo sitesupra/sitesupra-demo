@@ -189,9 +189,10 @@ class SearchController extends BlockController
 
 		$locale = $lm->getCurrent();
 
+		$searchRequest->setResultMaxRows(1000);
 		$searchRequest->setText($text);
 		$searchRequest->setLocale($locale);
-		$searchRequest->setSchemaName(PageController::SCHEMA_DRAFT);
+		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 
 		$searchResults = $searchService->processRequest($searchRequest);
 
