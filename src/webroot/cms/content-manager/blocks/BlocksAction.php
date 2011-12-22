@@ -40,10 +40,14 @@ class BlocksAction extends PageManagerAction
 				) + $property->getAdditionalParameters();
 			}
 			
+			$group = 'Site features';
+			if ( ! is_null($conf->group)) {
+				$group = $conf->group;
+			}
+			
 			$response[] = array(
 				'id' => $conf->id,
-				//TODO: hardcoded
-				'group' => "Site features",
+				'group' => $group,
 				'title' => $conf->title,
 				'description' => $conf->description,
 				'icon' => $conf->iconWebPath,
