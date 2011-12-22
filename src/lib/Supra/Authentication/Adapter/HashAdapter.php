@@ -25,6 +25,13 @@ class HashAdapter implements AuthenticationAdapterInterface
 	private $algorithm;
 	
 	/**
+     * Domain name allows make authentication simply with username 
+     * @example username: mycoolusername. Result mycoolusername@defaultdomain.lv
+	 * @var string 
+	 */
+	private $defaultDomain;
+	
+	/**
 	 * Finds user in database
 	 * @param string $login
 	 * @param AuthenticationPassword $password
@@ -92,6 +99,46 @@ class HashAdapter implements AuthenticationAdapterInterface
 		$userProvider = ObjectRepository::getUserProvider($this);
 		$userProvider->getEntityManager()
 				->flush();
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param string $login
+	 * @return string 
+	 */
+	public function getFullLoginName($login)
+	{
+		$domain = $this->getDefaultDomain();
+		
+		if (empty($domain)) {
+			return $login;
+		}
+		
+		// check if current login is an email
+		$isEmail = strpos($login, '@');
+		if ($isEmail !== false) {
+			return $login;
+		}
+		
+		$login = $login . '@' . $this->getDefaultDomain();
+		
+		return $login;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDefaultDomain()
+	{
+		return $this->defaultDomain;
+	}
+
+	/**
+	 * @param string $defaultDomain 
+	 */
+	public function setDefaultDomain($defaultDomain)
+	{
+		$this->defaultDomain = trim($defaultDomain, '@');
 	}
 
 }

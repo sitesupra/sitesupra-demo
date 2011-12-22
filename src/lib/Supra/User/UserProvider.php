@@ -120,7 +120,9 @@ class UserProvider
 	public function authenticate($login, AuthenticationPassword $password)
 	{
 		$adapter = $this->getAuthAdapter();
-
+		
+		$login = $adapter->getFullLoginName($login);
+		
 		$user = $this->findUserByLogin($login);
 
 		// Try finding the user from adapter

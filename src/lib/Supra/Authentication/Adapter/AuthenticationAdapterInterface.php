@@ -31,4 +31,11 @@ interface AuthenticationAdapterInterface
 	 * @param AuthenticationPassword $password
 	 */
 	public function credentialChange(User $user, AuthenticationPassword $password = null);
+	
+	/**
+	 * Returns full login name. 
+	 * @param string $login
+	 * @return string 
+	 */
+	public function getFullLoginName($login);
 }
