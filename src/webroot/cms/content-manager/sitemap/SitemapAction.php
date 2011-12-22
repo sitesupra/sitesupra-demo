@@ -12,6 +12,9 @@ use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationInterface;
 use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
+use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
+use Supra\Cms\CmsController;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Sitemap
@@ -65,6 +68,14 @@ class SitemapAction extends PageManagerAction
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
 		
+		// If all went well, fire the post-publish event for published page localization.
+		$eventArgs = new CmsPagePublishEventArgs();
+		$eventArgs->user = $this->getUser();
+		$eventArgs->localization = $this->getPageLocalization();
+
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+			
 		$this->writeAuditLog('Move', $page);
 	}
 
