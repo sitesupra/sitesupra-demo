@@ -132,6 +132,9 @@ class PageRequestEdit extends PageRequest
 		
 		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 
+		// Initialize, because proxy object is not merged
+		$draftData->getTemplate()->getId();
+		
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
