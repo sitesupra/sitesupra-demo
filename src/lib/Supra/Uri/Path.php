@@ -377,10 +377,12 @@ class Path
 	 * @param Path $path
 	 * @return Path
 	 */
-	public function append(Path $path)
+	public function append(Path $path = null)
 	{
-		$pathList = array_merge($this->path, $path->basePathParts, $path->path);
-		$this->setPathList($pathList);
+		if ( ! is_null($path)) {
+			$pathList = array_merge($this->path, $path->basePathParts, $path->path);
+			$this->setPathList($pathList);
+		}
 		
 		return $this;
 	}
@@ -393,6 +395,32 @@ class Path
 	{
 		$path = new Path($pathString);
 		$this->append($path);
+		
+		return $this;
+	}
+	
+	/**
+	 * @param Path $path
+	 * @return Path
+	 */
+	public function prepend(Path $path = null)
+	{
+		if ( ! is_null($path)) {
+			$pathList = array_merge($path->basePathParts, $path->path, $this->path);
+			$this->setPathList($pathList);
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * @param string $pathString
+	 * @return Path
+	 */
+	public function prependString($pathString)
+	{
+		$path = new Path($pathString);
+		$this->prepend($path);
 		
 		return $this;
 	}

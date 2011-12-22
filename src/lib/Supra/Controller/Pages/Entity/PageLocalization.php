@@ -23,7 +23,7 @@ class PageLocalization extends Abstraction\Localization
 	const DISCRIMINATOR = self::PAGE_DISCR;
 
 	/**
-	 * @ManyToOne(targetEntity="Template", fetch="EAGER")
+	 * @ManyToOne(targetEntity="Template")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
 	 * @History:SkipForeignKey(type="supraId")
 	 * @Trash:SkipForeignKey(type="supraId")
@@ -32,18 +32,25 @@ class PageLocalization extends Abstraction\Localization
 	protected $template;
 
 	/**
-	 * Limitation because of MySQL unique constraint 1k byte limit
-	 * @Column(type="path", length="255", nullable="true")
-	 * @var Path
+	 * @OneToOne(targetEntity="PageLocalizationPath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
+	 * @var PageLocalizationPath
+	 * @TODO: remove field from audit scheme maybe?
 	 */
-	protected $path = null;
+	protected $path;
+	
+//	/**
+//	 * Limitation because of MySQL unique constraint 1k byte limit
+//	 * @Column(type="path", length="255", nullable="true")
+//	 * @var Path
+//	 */
+//	protected $oldPath = null;
 
-	/**
-	 * Used when current page has no path (e.g. news application)
-	 * @Column(type="path", length="255")
-	 * @var Path
-	 */
-	protected $parentPath = null;
+//	/**
+//	 * Used when current page has no path (e.g. news application)
+//	 * @Column(type="path", length="255")
+//	 * @var Path
+//	 */
+//	protected $oldParentPath = null;
 
 	/**
 	 * @Column(type="string", name="path_part")
@@ -118,6 +125,8 @@ class PageLocalization extends Abstraction\Localization
 	{
 		parent::__construct($locale);
 
+		$this->path = new PageLocalizationPath();
+		$this->path->setLocale($locale);
 		$this->setCreationTime();
 		$this->publishTimeSet = false;
  
@@ -186,7 +195,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function setPath(Path $path = null)
 	{
-		$this->path = $path;
+		$this->getPathEntity()->setPath($path);
 	}
 
 	/**
@@ -195,7 +204,35 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function getPath()
 	{
+		$path = $this->getPathEntity()->getPath();
+		
+		// Method should not return NULL for now...
+		if (is_null($path)) {
+			$path = new Path();
+			$this->getPathEntity()->setPath($path);
+		}
+		
+		return $path;
+	}
+	
+	/**
+	 * @return PageLocalizationPath
+	 */
+	public function getPathEntity()
+	{
+		if (is_null($this->path)) {
+			$this->resetPath();
+		}
+		
 		return $this->path;
+	}
+	
+	/**
+	 * @param PageLocalizationPath $pathEntity
+	 */
+	public function setPathEntity(PageLocalizationPath $pathEntity)
+	{
+		$this->path = $pathEntity;
 	}
 
 	/**
@@ -238,21 +275,23 @@ class PageLocalization extends Abstraction\Localization
 		return $this->pathPart;
 	}
 
-	/**
-	 * @return Path
-	 */
-	public function getParentPath()
-	{
-		return $this->parentPath;
-	}
+//	/**
+//	 * @return Path
+//	 * @deprecated
+//	 */
+//	public function getParentPath()
+//	{
+//		return $this->oldParentPath;
+//	}
 
-	/**
-	 * @param Path $parentPath
-	 */
-	public function setParentPath(Path $parentPath)
-	{
-		$this->parentPath = $parentPath;
-	}
+//	/**
+//	 * @param Path $parentPath
+//	 * @deprecated
+//	 */
+//	public function setParentPath(Path $parentPath)
+//	{
+//		$this->oldParentPath = $parentPath;
+//	}
 
 	/**
 	 * @return string
@@ -408,7 +447,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function getLevel()
 	{
-		return $this->path->getDepth();
+		return $this->getPath()->getDepth();
 	}
 
 	//public function __clone ()
@@ -423,7 +462,8 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function resetPath()
 	{
-		$this->path = null;
+		$this->path = new PageLocalizationPath();
+		$this->path->setLocale($this->locale);
 	}
 
 }

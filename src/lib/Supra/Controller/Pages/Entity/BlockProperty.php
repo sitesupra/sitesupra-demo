@@ -53,7 +53,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	
 	/**
 	 * Value additional data about links, images
-	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, fetch="EAGER", indexBy="name")
+	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, indexBy="name")
 	 * @var Collections\Collection
 	 */
 	protected $metadata;

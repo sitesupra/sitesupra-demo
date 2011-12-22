@@ -17,6 +17,14 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	const TABLE_SUFFIX = '_draft';
 	
 	/**
+	 * Entities to be versioned
+	 * @var array
+	 */
+	protected static $versionedEntities = array(
+		'Supra\Controller\Pages\Entity\PageLocalizationPath',
+	);
+	
+	/**
 	 * {@inheritdoc}
 	 * @return array
 	 */
@@ -30,11 +38,13 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
+		$versionedEntities = array_merge(parent::$versionedEntities, self::$versionedEntities);
+		
 		$classMetadata = $eventArgs->getClassMetadata();
 		$className = $classMetadata->name;
 		$name = &$classMetadata->table['name'];
 		
-		if (in_array($className, static::$versionedEntities) && strpos($name, static::TABLE_SUFFIX) === false) {
+		if (in_array($className, $versionedEntities) && strpos($name, static::TABLE_SUFFIX) === false) {
 			$name = $name . static::TABLE_SUFFIX;
 		}
 	}

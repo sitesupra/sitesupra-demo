@@ -20,6 +20,9 @@ use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\PageLocalizationPath;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Supra\Controller\Pages\Listener\PagePathGenerator;
 
 /**
  * Request object for edit mode requests
@@ -87,15 +90,15 @@ class PageRequestEdit extends PageRequest
 			$locale = $draftData->getLocale();
 			$pathString = $draftData->getPath()
 					->getFullPath();
-			$localizationRepository = $publicEm->getRepository(PageLocalization::CN());
+			$pathRepository = $publicEm->getRepository(PageLocalizationPath::CN());
 		
 			$criteria = array(
 				'locale' => $locale,
 				'path' => $pathString
 			);
 
-			$duplicate = $localizationRepository->findOneBy($criteria);
-			if ( ! is_null($duplicate) && ($duplicate->getId() != $draftData->getId())) {
+			$duplicate = $pathRepository->findOneBy($criteria);
+			if ( ! is_null($duplicate) && ! $draftData->getPathEntity()->equals($duplicate)) {
 				throw new Exception\RuntimeException("Another page with path $pathString already exists");
 			}
 		}
@@ -559,6 +562,8 @@ class PageRequestEdit extends PageRequest
 		$classMetadata = $em->getClassMetadata($entity::CN());
 		
 		$entityHash = spl_object_hash($entity);
+		$newEntity = null;
+		
 		if ( ! isset($this->_clonedEntities[$entityHash])) {
 			$newEntity = clone $entity;
 			$this->_clonedEntities[$entityHash] = $newEntity;
@@ -605,6 +610,9 @@ class PageRequestEdit extends PageRequest
 		}
 		else if ($newEntity instanceof Entity\PageLocalization && $resetPath) {
 			$newEntity->resetPath();
+			$eventArgs = new LifecycleEventArgs($newEntity, $em);
+			$em->getEventManager()
+					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
 		}
 		
 		$em->persist($newEntity);

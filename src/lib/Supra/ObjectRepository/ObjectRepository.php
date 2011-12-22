@@ -81,7 +81,7 @@ class ObjectRepository
 	 * FIXME: Should be disabled on production for  performance reasons.
 	 * @var array
 	 */
-	protected static $lateBindingCheckCache = array();
+	protected static $lateBindingCheckCache = null;
 
 	/**
 	 * Marks beginning of the controller context,

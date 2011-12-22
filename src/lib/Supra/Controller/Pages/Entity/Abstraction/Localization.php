@@ -22,7 +22,6 @@ use Supra\Controller\Pages\Entity\GroupLocalization;
  *		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization",
  *		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
  * })
- * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
 abstract class Localization extends Entity implements AuditedEntityInterface
 {

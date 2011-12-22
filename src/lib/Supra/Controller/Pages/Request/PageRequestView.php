@@ -53,7 +53,7 @@ class PageRequestView extends PageRequest
 		$path = $this->getPath();
 
 		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository(Entity\PageLocalization::CN());
+		$er = $em->getRepository(Entity\PageLocalizationPath::CN());
 
 		$searchCriteria = array(
 			'locale' => $this->getLocale(),
@@ -62,12 +62,17 @@ class PageRequestView extends PageRequest
 
 		//TODO: think about "enable path params" feature
 
-		/* @var $pageData Entity\PageLocalization */
-		$pageData = $er->findOneBy($searchCriteria);
+		/* @var $path Entity\PageLocalizationPath */
+		$path = $er->findOneBy($searchCriteria);
+		
+		if (empty($path)) {
+			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
+		}
+		
+		$pageData = $em->getRepository(Entity\PageLocalization::CN())
+				->findOneBy(array('path' => $path->getId()));
 
 		if (empty($pageData)) {
-			//TODO: 404 page
-
 			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
 		}
 		
