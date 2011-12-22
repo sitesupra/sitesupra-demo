@@ -575,7 +575,7 @@ class PageRequestEdit extends PageRequest
 							$this->recursiveClone($collectionItem, $newEntity, $resetPath);
 						}
 					} else {
-						$this->recursiveClone($collectionItem, $newEntity, $resetPath);
+						$this->recursiveClone($entityData[$fieldName], $newEntity, $resetPath);
 					}
 				}
 			} else if ( ! is_null($associationOwner)) {
