@@ -7,10 +7,12 @@ use Supra\User\UserProvider;
 use Supra\User\Validation\EmailValidation;
 
 $userProvider = new UserProvider();
-
 $userProvider->addValidationFilter(new EmailValidation());
+
+$authAdapter = new HashAdapter();
+$authAdapter->setDefaultDomain('supra7.vig');
 //$userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
-$userProvider->setAuthAdapter(new HashAdapter());
+$userProvider->setAuthAdapter($authAdapter);
 
 // This is provider for CMS
 //ObjectRepository::setUserProvider('Supra\Cms', $userProvider);
