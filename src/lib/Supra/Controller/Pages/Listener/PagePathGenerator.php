@@ -297,6 +297,10 @@ class PagePathGenerator implements EventSubscriber
 		$locale = $pageData->getLocale();
 		
 		$parentPage = $page->getParent();
+
+// root page
+if (empty($parentPage)) return new Path('');
+
 		$parentHasPath = true;
 		$parentPageData = $parentPage->getLocalization($locale);
 		
