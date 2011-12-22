@@ -23,6 +23,7 @@ $cli->addCommandClasses(array(
 	'Supra\Search\Command\QueueAllPageLocalizationsCommand',
 	'Supra\Controller\Pages\Command\LayoutRereadCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
+	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 ));
 
 $cli->setHelperSet($helperSet);
