@@ -12,6 +12,9 @@ use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationInterface;
 use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
+use Supra\Controller\Pages\PageController;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\Cms\CmsController;
 use Supra\ObjectRepository\ObjectRepository;
@@ -67,6 +70,13 @@ class SitemapAction extends PageManagerAction
 		} catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
+		
+		// Move page in public as well by event (change path)
+		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
+		$publicPage = $publicEm->find(Entity\Page::CN(), $page->getId());
+		$eventArgs = new LifecycleEventArgs($publicPage, $publicEm);
+		$publicEm->getEventManager()->dispatchEvent(PagePathGenerator::postPageMove, $eventArgs);
+		$publicEm->flush();
 		
 		// If all went well, fire the post-publish event for published page localization.
 		$eventArgs = new CmsPagePublishEventArgs();
