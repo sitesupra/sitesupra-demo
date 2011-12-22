@@ -67,6 +67,10 @@ class TwigHelper
 		
 		$checkPath = new Path($path);
 		$currentPath = $localization->getPath();
+
+		if (is_null($currentPath)) {
+			return false;
+		}
 		
 		if ($strict) {
 			if ($checkPath->equals($currentPath)) {
