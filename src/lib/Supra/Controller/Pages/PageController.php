@@ -95,6 +95,18 @@ class PageController extends ControllerAbstraction
 					ObjectRepository::setCallerParent($redirect, $this);
 				
 					$location = $redirect->getUrl($this);
+					if (is_null($location)) {
+						throw new ResourceNotFoundException('Redirect destination is not found');
+					}
+					
+					// if redirect is external URL
+					$pageId = $redirect->getPageId();
+					if (empty($pageId)) {
+						if (str_replace(array('http://', 'https://'), '', $location) === $location) {
+							$location = 'http://' . $location;
+						}
+					}
+					
 					$response->redirect($location);
 
 					return;
