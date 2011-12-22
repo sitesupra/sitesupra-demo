@@ -14,6 +14,8 @@ use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Controller\Pages\PageController;
 use Supra\Search\Exception\IndexerRuntimeException;
+use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
+use Supra\Search\SearchService;
 
 /**
  * @Entity
@@ -21,7 +23,7 @@ use Supra\Search\Exception\IndexerRuntimeException;
 class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 {
 	const DISCRIMITATOR_VALUE = 'pageLocalization';
-	
+
 	/**
 	 * @Column(type="supraId")
 	 * @var string
@@ -68,22 +70,94 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function getIndexedDocuments()
 	{
 		$result = array();
-		$class = PageLocalization::CN();
-
 		$em = ObjectRepository::getEntityManager($this->schemaName);
-		$pr = $em->getRepository($class);
+		$pr = $em->getRepository(PageLocalization::CN());
 
 		/* @var $pageLocalization PageLocalization */
 		$pageLocalization = $pr->find($this->pageLocalizationId);
-		
-		$lm = ObjectRepository::getLocaleManager($this);
-		
-		$locale = $lm->getLocale($pageLocalization->getLocale());
-		
-		$languageCode = $locale->getProperty("language");
 
-		$id = implode('-', array($this->pageLocalizationId, $this->schemaName, $this->revisionId));
-		
+		$isVisible = $pageLocalization->isActive();
+		$reindexChildren = true;
+
+		$previousIndexedDocument = $this->findPageLocalizationIndexedDocument($pageLocalization->getId());
+
+		if ( ! empty($previousIndexedDocument)) {
+
+			$ancestorIds = $previousIndexedDocument->ancestorIds;
+
+			$previousParentId = array_shift($ancestorIds);
+			$currentParentId = $pageLocalization->getParent()->getId();
+
+			if ($previousParentId != $currentParentId) {
+
+				$currentParentIndexedDocument = $this->findPageLocalizationIndexedDocument($currentParentId);
+
+				$isVisible = $pageLocalization->isActive() && $currentParentIndexedDocument->visible;
+			}
+			
+			$reindexChildren = $isVisible != $previousIndexedDocument->visible;
+		}
+
+		$result[] = $this->makeIndexedDocument($pageLocalization, $isVisible);
+
+		if ($reindexChildren) {
+
+			$children = $pageLocalization->getChildren();
+
+			foreach ($children as $child) {
+
+				if ( ! $child instanceof GroupLocalization) {
+
+					$result[] = $this->makeIndexedDocument($child, $isVisible);
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	protected function findPageLocalizationIndexedDocument($pageLocalizationId)
+	{
+		$findRequest = new PageLocalizationFindRequest();
+
+		$findRequest->setSchemaName($this->schemaName);
+		$findRequest->setPageLocalizationId($pageLocalizationId);
+
+		$searchService = new SearchService();
+
+		$results = $searchService->processRequest($findRequest);
+
+		foreach ($results as $result) {
+			if ($result->pageLocalizationId == $pageLocalizationId) {
+				return $result;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param PageLocalization $pageLocalization
+	 * @return IndexedDocument 
+	 */
+	protected function makeIndexedDocument(PageLocalization $pageLocalization, $visible)
+	{
+		$lm = ObjectRepository::getLocaleManager($this);
+
+		$locale = $lm->getLocale($pageLocalization->getLocale());
+
+		$languageCode = $locale->getProperty('language');
+
+		$id = 'noidlol';
+		if ($this->schemaName == PageController::SCHEMA_PUBLIC) {
+			$id = implode('-', array($pageLocalization->getId(), $this->schemaName));
+		}
+		else {
+			$id = implode('-', array($pageLocalization->getId(), $this->schemaName, $this->revisionId));
+		}
+
+		$class = PageLocalization::CN();
+
 		$indexedDocument = new IndexedDocument($class, $id);
 
 		$indexedDocument->schemaName = $this->schemaName;
@@ -96,23 +170,28 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->title_general = $indexedDocument->formatText($pageLocalization->getTitle());
 		$indexedDocument->__set('title_' . $languageCode, $indexedDocument->title_general);
 
+		$indexedDocument->active = $pageLocalization->isActive() ? 'true' : 'false';
+
 		$indexedDocument->keywords = $pageLocalization->getMetaKeywords();
 		$indexedDocument->description = $pageLocalization->getMetaDescription();
-		
+
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
+
+		$indexedDocument->visible = $visible ? 'true' : 'false';
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();
 		$ancestorIds = array();
-		foreach($ancestors as $ancestor) {
+		foreach ($ancestors as $ancestor) {
 			/* @var $ancestor Page */
-			
-			$ancestorIds[] = $ancestor->getId();
+			if ($ancestor instanceof PageLocalization) {
+				$ancestorIds[] = $ancestor->getId();
+			}
 		}
-	
+
 		$indexedDocument->ancestorIds = $ancestorIds;
-		
+
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
-		
+
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
 		$pageRequestView->setLocale($pageLocalization->getLocale());
 		$pageRequestView->setPageLocalization($pageLocalization);
@@ -126,20 +205,22 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		foreach ($blockPropertySet as $blockProperty) {
 			/* @var $blockProperty BlockProperty */
-
+			
 			if ( ! $blockProperty->getLocalization() instanceof TemplateLocalization) {
 
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}
 		}
-		
+
 		$indexedDocument->text_general = join(' ', $pageContents);
 		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
-		$result[] = $indexedDocument;
+		$indexedDocument->active = $pageLocalization->isActive();
+		
+		\Log::debug('LLL makeIndexedDocument: ', 	$indexedDocument->pageLocalizationId, ' visible: ', 	$indexedDocument->visible);
 
-		return $result;
+		return $indexedDocument;
 	}
 
 	public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
@@ -164,12 +245,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				$image = $metadataItem->getReferencedElement();
 
 				if ($image instanceof ImageReferencedElement) {
-
-//					$result[] = '[[[IMAGE ';
-//					$result[] = $metadataItem->getName();
-//					$result[] = '===';
 					$result[] = $image->getAlternativeText();
-//					$result[] = ']]]';
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
@@ -182,16 +258,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				$link = $metadataItem->getReferencedElement();
 
 				if ($link instanceof LinkReferencedElement) {
-
-//					$result[] = '[[[LINK ';
-//					$result[] = $metadataItem->getName();
-//					$result[] = '===';
 					$result[] = $link->getTitle();
-//					$result[] = '===';
-//
-//					$result[] = $link->getHref() ? : $link->getPageId();
-//
-//					$result[] = ']]]';
 				}
 			}
 		}

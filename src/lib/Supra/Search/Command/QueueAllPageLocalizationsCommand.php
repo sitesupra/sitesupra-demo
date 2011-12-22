@@ -28,11 +28,14 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		foreach (PageController::$knownSchemaNames as $schemaName) {
+		//$schemaNames = PageController::$knownSchemaNames;
+		$schemaNames = array(PageController::SCHEMA_PUBLIC);
+		
+		foreach ($schemaNames as $schemaName) {
 
 			$output->write('Search: Pages: Reading from schema "' . $schemaName . '" - ');
 			
-			$count = $this->addPageLocalizations($schemaName);
+			$count = $this->addPageLocalizations($schemaName, $output);
 
 			$output->writeln('added ' . intval($count) . ' page localizations to indexer queue.');
 		}
@@ -47,7 +50,7 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	 * @param string $chemaName
 	 * @return number
 	 */
-	private function addPageLocalizations($schemaName)
+	private function addPageLocalizations($schemaName, $output)
 	{
 		$em = ObjectRepository::getEntityManager($schemaName);
 
@@ -58,6 +61,7 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 		$indexerQueue = new PageLocalizationIndexerQueue($schemaName);
 
 		foreach ($pageLocalizations as $pageLocalization) {
+			$output->writeln($pageLocalization->getId());
 			$indexerQueue->add($pageLocalization);
 		}
 

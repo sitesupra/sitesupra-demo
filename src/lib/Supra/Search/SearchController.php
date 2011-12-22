@@ -77,37 +77,43 @@ class SearchController extends BlockController
 
 		$results = $this->getResults();
 		
-		$em = ObjectRepository::getEntityManager($this);
-		
-		$pr = $em->getRepository(Page::CN());
-		
-		foreach($results as &$result) {
-			
-			$result['breadcrumbs'] = array();	
-			
-			$ancestorIds = array_reverse($result['ancestorIds']);
-			
-			foreach($ancestorIds as $ancestorId) {
-				
-					$p = $pr->find($ancestorId);
-					
-					if($p instanceof Page) {
-						
-						$pl = $p->getLocalization($result['localeId']);
-						$result['breadcrumbs'][] = $pl->getTitle();
-					}
-					else if($p instanceof PageLocalization) {
-						$result['breadcrumbs'][] = $p->getTitle();
-					}
-					elseif($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
-						$result['breadcrumbs'][] = $p->getTitle();
-					}
-			}
+		if(empty($results)) {
+			$response->outputTemplate('template/' . $this->configuration->noResultsTemplateFilename);
 		}
+		else {
+		
+			$em = ObjectRepository::getEntityManager($this);
 
-		$response->assign('searchResults', $results);
+			$pr = $em->getRepository(Page::CN());
 
-		$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
+			foreach($results as &$result) {
+
+				$result['breadcrumbs'] = array();	
+
+				$ancestorIds = array_reverse($result['ancestorIds']);
+
+				foreach($ancestorIds as $ancestorId) {
+
+						$p = $pr->find($ancestorId);
+
+						if($p instanceof Page) {
+
+							$pl = $p->getLocalization($result['localeId']);
+							$result['breadcrumbs'][] = $pl->getTitle();
+						}
+						else if($p instanceof PageLocalization) {
+							$result['breadcrumbs'][] = $p->getTitle();
+						}
+						elseif($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
+							$result['breadcrumbs'][] = $p->getTitle();
+						}
+				}
+			}
+
+			$response->assign('searchResults', $results);
+
+			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
+		}
 	}
 
 	protected function getResults()

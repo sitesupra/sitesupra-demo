@@ -62,6 +62,8 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	public function applyParametersToSelectQuery(Solarium_Query_Select $selectQuery)
 	{
 		$this->addSimpleFilter('schemaName', $this->schemaName);
+		
+		$this->addSimpleFilter('visible', true);
 
 		$textFieldName = null;
 		$titleFieldName = null;
