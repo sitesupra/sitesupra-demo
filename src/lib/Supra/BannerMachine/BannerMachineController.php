@@ -78,8 +78,9 @@ class BannerMachineController extends BlockController
 			$bannerContent = $banner->getExposureModeContent($this);
 		}
 		catch (BannerNotFoundException $e) {
-
-			$bannerContent = '<h1>BANNER NOT FOUND</h1>';
+			// Don't show the error on the frontend
+//			$bannerContent = '<h1>BANNER NOT FOUND</h1>';
+			return;
 		}
 
 		$response->assign('bannerContent', $bannerContent);
