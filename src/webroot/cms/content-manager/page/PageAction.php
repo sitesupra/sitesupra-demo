@@ -17,6 +17,7 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Authorization\Exception\AuthorizationException;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\NoResultException;
 
 /**
  * 
@@ -581,8 +582,7 @@ class PageAction extends PageManagerAction
 		$input = $this->getRequestInput();
 		$controller = $this->getPageController();
 		$em = $controller->getEntityManager();
-		$repo = $em->getRepository(Entity\PageLocalization::CN());
-		/* @var $repo PageRepository */
+		$localizationEntity = Entity\PageLocalization::CN();
 		
 		$path = $input->get('page_path');
 		$path = trim($path, '/');
@@ -599,15 +599,17 @@ class PageAction extends PageManagerAction
 			'locale' => $locale,
 		);
 		
-		$pageLocalization = $repo->findOneBy($criteria);
-		
-		if ( ! $pageLocalization instanceof Entity\PageLocalization) {
+		try {
+			$pageLocalization = $em->createQuery("SELECT l FROM $localizationEntity l JOIN l.path p
+					WHERE p.path = :path AND l.locale = :locale")
+					->setParameters($criteria)
+					->getSingleResult();
+			$pageId = $pageLocalization->getId();
+
+			$this->getResponse()->setResponseData($pageId);
+		} catch (NoResultException $noResult) {
 			throw new CmsException(null, 'No page was found by the URL');
 		}
-		
-		$pageId = $pageLocalization->getId();
-		
-		$this->getResponse()->setResponseData($pageId);
 	}
 	
 }
