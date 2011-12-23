@@ -102,7 +102,8 @@ class PageController extends ControllerAbstraction
 					// if redirect is external URL
 					$pageId = $redirect->getPageId();
 					if (empty($pageId)) {
-						if (str_replace(array('http://', 'https://'), '', $location) === $location) {
+						$scheme = parse_url($location, PHP_URL_SCHEME);
+						if (empty($scheme)) {
 							$location = 'http://' . $location;
 						}
 					}
