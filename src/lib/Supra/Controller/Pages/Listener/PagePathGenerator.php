@@ -74,8 +74,8 @@ class PagePathGenerator implements EventSubscriber
 				
 				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
 				
-				// TODO: run only if pathPart has changed. Run for all children then.
-				if (isset($changeSet['pathPart'])) {
+				// Run only if pathPart or page activity has changed. Run for all children.
+				if (isset($changeSet['pathPart']) || isset($changeSet['active'])) {
 					$master = $entity->getMaster();
 					$pageLocalizationEntity = Entity\PageLocalization::CN();
 					

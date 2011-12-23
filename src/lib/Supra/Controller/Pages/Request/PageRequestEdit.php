@@ -88,18 +88,22 @@ class PageRequestEdit extends PageRequest
 			
 			// Pages also need to be checked for path duplicates
 			$locale = $draftData->getLocale();
-			$pathString = $draftData->getPath()
-					->getFullPath();
-			$pathRepository = $publicEm->getRepository(PageLocalizationPath::CN());
-		
-			$criteria = array(
-				'locale' => $locale,
-				'path' => $pathString
-			);
+			$path = $draftData->getPathEntity()->getPath();
+			
+			// Check only if path is not null
+			if ( ! is_null($path)) {
+				$pathString = $path->getFullPath();
+				$pathRepository = $publicEm->getRepository(PageLocalizationPath::CN());
 
-			$duplicate = $pathRepository->findOneBy($criteria);
-			if ( ! is_null($duplicate) && ! $draftData->getPathEntity()->equals($duplicate)) {
-				throw new Exception\RuntimeException("Another page with path $pathString already exists");
+				$criteria = array(
+					'locale' => $locale,
+					'path' => $pathString
+				);
+
+				$duplicate = $pathRepository->findOneBy($criteria);
+				if ( ! is_null($duplicate) && ! $draftData->getPathEntity()->equals($duplicate)) {
+					throw new Exception\RuntimeException("Another page with path $pathString already exists");
+				}
 			}
 		}
 		

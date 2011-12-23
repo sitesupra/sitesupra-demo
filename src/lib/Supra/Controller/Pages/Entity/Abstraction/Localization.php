@@ -201,7 +201,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	}
 	
 	/**
-	 * @return Collection
+	 * @return ArrayCollection
 	 */
 	public function getChildren()
 	{
@@ -219,6 +219,29 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 			
 			if ( ! empty($localization)) {
 				$coll->add($localization);
+			}
+		}
+		
+		return $coll;
+	}
+	
+	/**
+	 * Loads only public children
+	 * @return ArrayCollection
+	 */
+	public function getPublicChildren()
+	{
+		$coll = $this->getChildren();
+		
+		foreach ($coll as $key => $child) {
+			if ( ! $child instanceof PageLocalization) {
+				$coll->remove($key);
+				continue;
+			}
+			
+			if ( ! $child->isPublic()) {
+				$coll->remove($key);
+				continue;
 			}
 		}
 		

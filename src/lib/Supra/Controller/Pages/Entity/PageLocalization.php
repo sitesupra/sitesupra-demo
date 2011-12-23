@@ -8,6 +8,7 @@ use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Search\IndexedDocument;
 use Supra\Controller\Pages\Request\PageRequestView;
+use Supra\Uri\NullPath;
 
 /**
  * PageLocalization class
@@ -38,20 +39,6 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	protected $path;
 	
-//	/**
-//	 * Limitation because of MySQL unique constraint 1k byte limit
-//	 * @Column(type="path", length="255", nullable="true")
-//	 * @var Path
-//	 */
-//	protected $oldPath = null;
-
-//	/**
-//	 * Used when current page has no path (e.g. news application)
-//	 * @Column(type="path", length="255")
-//	 * @var Path
-//	 */
-//	protected $oldParentPath = null;
-
 	/**
 	 * @Column(type="string", name="path_part")
 	 * @var string
@@ -208,7 +195,7 @@ class PageLocalization extends Abstraction\Localization
 		
 		// Method should not return NULL for now...
 		if (is_null($path)) {
-			$path = new Path();
+			$path = NullPath::getInstance();
 			$this->getPathEntity()->setPath($path);
 		}
 		
@@ -274,24 +261,6 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return $this->pathPart;
 	}
-
-//	/**
-//	 * @return Path
-//	 * @deprecated
-//	 */
-//	public function getParentPath()
-//	{
-//		return $this->oldParentPath;
-//	}
-
-//	/**
-//	 * @param Path $parentPath
-//	 * @deprecated
-//	 */
-//	public function setParentPath(Path $parentPath)
-//	{
-//		$this->oldParentPath = $parentPath;
-//	}
 
 	/**
 	 * @return string
@@ -464,6 +433,26 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->path = new PageLocalizationPath();
 		$this->path->setLocale($this->locale);
+	}
+	
+	/**
+	 * Whether the page is available
+	 * @return boolean
+	 */
+	public function isPublic()
+	{
+		if ( ! $this->active) {
+			return false;
+		}
+		
+		$path = $this->getPathEntity()
+				->getPath();
+		
+		if (is_null($path)) {
+			return false;
+		}
+		
+		return true;
 	}
 
 }
