@@ -569,6 +569,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function duplicateAction()
 	{
+		$this->isPostRequest();
 		$this->duplicate();
 		
 		$this->writeAuditLog('duplicate', '%item% duplicated', $this->getPageByRequestKey('page_id'));
