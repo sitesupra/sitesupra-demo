@@ -169,11 +169,19 @@ class PageRequestEdit extends PageRequest
 				}
 			}
 		}
+		
+		$placeHolderIds = array();
+		$placeHolderNames = array();
 
 		// 4. Merge all placeholders, don't delete not used, let's keep them
 		foreach ($draftBlocks as $block) {
 			$placeHolder = $block->getPlaceHolder();
 			$publicEm->merge($placeHolder);
+			
+			$placeHolderId = $placeHolder->getId();
+			$placeHolderName = $placeHolder->getName();
+			$placeHolderIds[$placeHolderId] = $placeHolderId;
+			$placeHolderNames[$placeHolderName] = $placeHolderName;
 		}
 		
 		/*
@@ -181,6 +189,28 @@ class PageRequestEdit extends PageRequest
 		 * placeholder wasn't yet created
 		 */
 		$publicEm->flush();
+		
+		// 4.2. Delete not used placeholders
+		$placeHolderEntity = Entity\Abstraction\PlaceHolder::CN();
+		$localizationId = $draftData->getId();
+		$placeHolderIds = array_values($placeHolderIds);
+		$placeHolderNames = array_values($placeHolderNames);
+		
+		if ( ! empty($placeHolderIds)) {
+		
+			$notUsedPlaceHolders = $publicEm->createQuery("SELECT ph FROM $placeHolderEntity ph
+					WHERE ph.localization = ?0 AND ph.id NOT IN (?1) AND ph.name IN (?2)")
+					->setParameters(array($localizationId, $placeHolderIds, $placeHolderNames))
+					->getResult();
+
+			foreach ($notUsedPlaceHolders as $notUsedPlaceHolder) {
+				$publicEm->remove($notUsedPlaceHolder);
+			}
+		}
+		
+		// 4.3. Flush just to be sure to track erorrs early
+		$publicEm->flush();
+		
 
 		// 5. Merge all blocks in 1
 		foreach ($draftBlocks as $block) {
