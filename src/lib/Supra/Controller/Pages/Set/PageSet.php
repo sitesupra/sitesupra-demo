@@ -50,7 +50,7 @@ class PageSet extends AbstractSet
 		}
 		
 		if (is_null($layout)) {
-			throw new Exception\RuntimeException("No layout was found for page set " . implode(', ', $trace));
+			throw new Exception\LayoutNotFound("No layout was found for page set " . implode(', ', $trace));
 		}
 		
 		return $layout;
