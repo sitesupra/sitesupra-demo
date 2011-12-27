@@ -53,6 +53,19 @@ class TwigHelper
 	 */
 	public function isActive($path, $strict = false)
 	{
+		// Check if path is relative
+		$pathData = parse_url($path);
+		if ( ! empty($pathData['scheme'])
+				||  ! empty($pathData['host'])
+				||  ! empty($pathData['port'])
+				||  ! empty($pathData['user'])
+				||  ! empty($pathData['pass'])
+				) {
+			return false;
+		}
+		
+		$path = $pathData['path'];
+		
 		$request = $this->request;
 		
 		if ( ! $request instanceof PageRequest) {
@@ -64,6 +77,11 @@ class TwigHelper
 		if ( ! $localization instanceof PageLocalization) {
 			return false;
 		}
+		
+		// Remove locale prefix
+		$localeId = $localization->getLocale();
+		$localeIdQuoted = preg_quote($localeId);
+		$path = preg_replace('#^(/?)' . $localeIdQuoted . '(/|$)#', '$1', $path);
 		
 		$checkPath = new Path($path);
 		$currentPath = $localization->getPath();
