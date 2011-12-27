@@ -26,7 +26,7 @@ class NullPath extends Path
 	
 	public function __toString()
 	{
-		return null;
+		return '';
 	}
 
 	public function append(Path $path = null)
