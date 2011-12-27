@@ -612,6 +612,7 @@ class PageAction extends PageManagerAction
 
 			$this->getResponse()->setResponseData($pageId);
 		} catch (NoResultException $noResult) {
+			$this->log->warn("No page found by URL $path in locale $locale");
 			throw new CmsException(null, 'No page was found by the URL');
 		}
 	}
