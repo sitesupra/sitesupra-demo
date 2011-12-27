@@ -106,16 +106,21 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			$ancestorIds = $previousIndexedDocument->ancestorIds;
 
 			$previousParentId = array_shift($ancestorIds);
-			$currentParentId = $pageLocalization->getParent()->getId();
 
-			if ($previousParentId != $currentParentId) {
+			$parent = $pageLocalization->getParent();
+			
+			if ( ! empty($parent)) {
+				$currentParentId = $parent->getId();
 
-				$currentParentIndexedDocument = $this->findPageLocalizationIndexedDocument($currentParentId);
+				if ($previousParentId != $currentParentId) {
 
-				$isVisible = $pageLocalization->isActive() && $currentParentIndexedDocument->visible;
+					$currentParentIndexedDocument = $this->findPageLocalizationIndexedDocument($currentParentId);
+
+					$isVisible = $pageLocalization->isActive() && $currentParentIndexedDocument->visible;
+				}
+
+				$reindexChildren = $isVisible != $previousIndexedDocument->visible;
 			}
-
-			$reindexChildren = $isVisible != $previousIndexedDocument->visible;
 		}
 
 		$result[] = $this->makeIndexedDocument($pageLocalization, $isVisible);
