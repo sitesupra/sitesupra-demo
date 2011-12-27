@@ -307,6 +307,18 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 					if ( ! is_null($path)) {
 						$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
+						
+						// Append locale
+						$localeManager = ObjectRepository::getLocaleManager($this);
+						
+						if ( ! empty($localeManager)) {
+							$locale = $localeManager->getCurrent();
+							
+							if ( ! empty($locale)) {
+								$localeId = $locale->getId();
+								$url = '/' . $localeId . $url;
+							}
+						}
 					}
 				}
 				break;
