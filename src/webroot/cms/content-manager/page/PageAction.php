@@ -18,6 +18,7 @@ use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Authorization\Exception\AuthorizationException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NoResultException;
+use Supra\Controller\Pages\Exception\LayoutNotFound;
 
 /**
  * 
@@ -85,7 +86,11 @@ class PageAction extends PageManagerAction
 		
 		// TODO: handling?
 		if ($pageData->getTemplate() != null) {
-			$controller->execute($request);
+			try {
+				$controller->execute($request);
+			} catch (LayoutNotFound $e) {
+				$templateError = true;
+			}
 		} else {
 			$templateError = true;
 		}
@@ -188,7 +193,7 @@ class PageAction extends PageManagerAction
 		);
 		
 		if ($templateError) {
-			$array['internal_html'] = '<h1>Page template not found</h1><p>Please make sure the template is assigned and the template is published in this locale.</p>';
+			$array['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
 		}
 		
 		if ($page instanceof Entity\Template) {
@@ -344,9 +349,7 @@ class PageAction extends PageManagerAction
 			/* @var $template Supra\Controller\Pages\Entity\Template */
 			
 			if (empty($template)) {
-				$this->getResponse()->setErrorMessage("Template not specified or found");
-
-				return;
+				throw new CmsException(null, "Template not specified or found");
 			}
 
 			$templateLocalization = $template->getLocalization($localeId);
