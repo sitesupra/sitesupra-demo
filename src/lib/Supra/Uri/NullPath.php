@@ -24,11 +24,6 @@ class NullPath extends Path
 		return self::$instance;
 	}
 	
-	public function __construct()
-	{
-		
-	}
-	
 	public function __toString()
 	{
 		return null;

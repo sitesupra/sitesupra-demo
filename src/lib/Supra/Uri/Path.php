@@ -338,9 +338,19 @@ class Path
 			return false;
 		}
 		
+		// Same object (maybe NullPath)
+		if ($this === $path) {
+			return true;
+		}
+		
 		$thisString = $this->getFullPath();
 		$pathString = $path->getFullPath();
 		$result = null;
+		
+		// Does not equal if any of path is NULL
+		if (is_null($thisString) || is_null($pathString)) {
+			return false;
+		}
 		
 		if ($this->caseSensitive) {
 			$result = (strcmp($thisString, $pathString) === 0);
@@ -380,7 +390,7 @@ class Path
 	public function append(Path $path = null)
 	{
 		if ( ! is_null($path)) {
-			$pathList = array_merge($this->path, $path->basePathParts, $path->path);
+			$pathList = array_merge($this->path, $path->basePathParts, $path->getPathList());
 			$this->setPathList($pathList);
 		}
 		
@@ -406,7 +416,7 @@ class Path
 	public function prepend(Path $path = null)
 	{
 		if ( ! is_null($path)) {
-			$pathList = array_merge($path->basePathParts, $path->path, $this->path);
+			$pathList = array_merge($path->basePathParts, $path->getPathList(), $this->path);
 			$this->setPathList($pathList);
 		}
 		
