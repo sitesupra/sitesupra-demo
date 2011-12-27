@@ -56,11 +56,15 @@ class PageAction extends PageManagerAction
 		$pageData = $page->getLocalization($localeId);
 
 		if (empty($pageData) && $page->isGlobal()) {
-			$existingPageData = $page->getLocalizations()->first();
+			$existingPageData = $this->getPageLocalization();
 			$pageData = $request->recursiveClone($existingPageData);
 			$pageData->setTitle($existingPageData->getTitle());
 			$pageData->setLocale($localeId);
 			$pageData->setMaster($page);
+			// need to reset PagePath AFTER new locale is set
+			if ($pageData instanceof Entity\PageLocalization) {
+				$pageData->resetPath();
+			}
 		}
 
 		if (empty($pageData)) {
