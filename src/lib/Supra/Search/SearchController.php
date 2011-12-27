@@ -26,22 +26,22 @@ class SearchController extends BlockController
 	const PROPERTY_NAME_BLOCK_TYPE = 'blockType';
 	const BLOCK_TYPE_FORM = 'form';
 	const BLOCK_TYPE_RESULTS = 'results';
-	
+
 	const ADDITIONAL_RESPONSE_DATA_KEY_RESULTS = 'search-results';
 
 	//static $results = null;
-	
+
 	public function createResponse(Request\RequestInterface $request)
 	{
 		$response = new Response\TwigResponse();
 
 		return $response;
 	}
-	
+
 	public function execute()
 	{
 		$blockType = $this->getPropertyValue(self::PROPERTY_NAME_BLOCK_TYPE);
-		
+
 		if ($blockType == self::BLOCK_TYPE_FORM) {
 
 			//$this->response = $this->formResponse;
@@ -62,7 +62,11 @@ class SearchController extends BlockController
 
 		$results = $this->getResults();
 
-		if ( ! empty($results)) {
+		if ($results instanceof \Supra\Search\Exception\RuntimeException) {
+
+			$response->assign('error', true);
+		}
+		else if ( ! empty($results)) {
 
 			$response->assign('haveResults', true);
 			$response->assign('resultCount', count($results));
@@ -76,37 +80,41 @@ class SearchController extends BlockController
 		$response = $this->getResponse();
 
 		$results = $this->getResults();
-		
-		if(empty($results)) {
+
+		if (empty($results)) {
 			$response->outputTemplate('template/' . $this->configuration->noResultsTemplateFilename);
 		}
+		else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
+
+			$response->assign('error', true);
+			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
+		}
 		else {
-		
 			$em = ObjectRepository::getEntityManager($this);
 
 			$pr = $em->getRepository(PageLocalization::CN());
 
-			foreach($results as &$result) {
+			foreach ($results as &$result) {
 
-				$result['breadcrumbs'] = array();	
+				$result['breadcrumbs'] = array();
 
 				$ancestorIds = array_reverse($result['ancestorIds']);
 
-				foreach($ancestorIds as $ancestorId) {
+				foreach ($ancestorIds as $ancestorId) {
 
-						$p = $pr->find($ancestorId);
+					$p = $pr->find($ancestorId);
 
-						if($p instanceof Page) {
+					if ($p instanceof Page) {
 
-							$pl = $p->getLocalization($result['localeId']);
-							$result['breadcrumbs'][] = $pl->getTitle();
-						}
-						else if($p instanceof PageLocalization) {
-							$result['breadcrumbs'][] = $p->getTitle();
-						}
-						elseif($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
-							$result['breadcrumbs'][] = $p->getTitle();
-						}
+						$pl = $p->getLocalization($result['localeId']);
+						$result['breadcrumbs'][] = $pl->getTitle();
+					}
+					else if ($p instanceof PageLocalization) {
+						$result['breadcrumbs'][] = $p->getTitle();
+					}
+					elseif ($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
+						$result['breadcrumbs'][] = $p->getTitle();
+					}
 				}
 			}
 
@@ -125,7 +133,7 @@ class SearchController extends BlockController
 
 		$q = $request->getQueryValue('q');
 		$response->assign('q', $q);
-		
+
 		$results = $response->getAdditionalDataItem(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS);
 
 		if ( ! is_null($results)) {
@@ -135,20 +143,27 @@ class SearchController extends BlockController
 		if ($request instanceof PageRequestView) {
 
 			if ( ! is_null($q)) {
+
+				$path = $request->getPath();
+
+				if ( ! empty($path)) {
+					$resultUrl = $path->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+					$response->assign('resultUrl', $resultUrl);
+				}
+
 				$response->assign('q', $q);
-				$results = $this->doSearch($q);
-			}
 
-			$path = $request->getPath();
-
-			if ( ! empty($path)) {
-				$resultUrl = $path->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-				$response->assign('resultUrl', $resultUrl);
+				try {
+					$results = $this->doSearch($q);
+				}
+				catch (\Supra\Search\Exception\RuntimeException $e) {
+					$results = $e;
+				}
 			}
 		}
 
 		$response->setAdditionalDataItem(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS, $results);
-		
+
 		return $results;
 	}
 
