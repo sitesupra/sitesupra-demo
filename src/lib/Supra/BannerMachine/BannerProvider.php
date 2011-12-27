@@ -184,7 +184,13 @@ class BannerProvider
 		$now = new DateTime('now');
 
 		$q = $this->getEntityManager()->createQuery();
-		$q->setDQL('SELECT b.id, b.priority + 1 AS priority FROM ' . Banner::CN() . ' b WHERE b.localeId = :localeId AND ( (b.scheduledFrom IS NULL AND b.scheduledTill IS NULL) OR (:now BETWEEN b.scheduledFrom AND b.scheduledTill) ) AND b.typeId = :typeId AND b.status = :status ORDER BY b.priority');
+		$q->setDQL('SELECT b.id, b.priority + 1 AS priority FROM ' . Banner::CN() . 
+				' b WHERE b.localeId = :localeId 
+					AND ( (b.scheduledFrom IS NULL AND b.scheduledTill IS NULL) 
+						OR (:now BETWEEN b.scheduledFrom AND b.scheduledTill) ) 
+					AND b.typeId = :typeId 
+					AND b.status = :status 
+					ORDER BY b.priority');
 		$q->setParameter('typeId', $bannerType->getId());
 		$q->setParameter('status', Banner::STATUS_ACTIVE);
 		$q->setParameter('localeId', $locale->getId());

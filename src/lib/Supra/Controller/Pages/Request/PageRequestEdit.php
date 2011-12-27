@@ -315,6 +315,14 @@ class PageRequestEdit extends PageRequest
 		
 		// 11. Merge all properties from 5
 		foreach ($draftProperties as $property) {
+			
+			// Initialize the property metadata so it is copied as well
+			/* @var $property Entity\BlockProperty */
+			$metadata = $property->getMetadata();
+			if ($metadata instanceof \Doctrine\ORM\PersistentCollection) {
+				$metadata->initialize();
+			}
+			
 			$publicEm->merge($property);
 		}
 		

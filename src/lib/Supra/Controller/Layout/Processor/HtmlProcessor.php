@@ -76,7 +76,7 @@ class HtmlProcessor implements ProcessorInterface
 		// Flush place holder responses into master response
 		$macroCallback = function($func, array $args) use (&$response, &$placeResponses) {
 			if ($func == HtmlProcessor::PLACE_HOLDER) {
-				if ( ! \array_key_exists(0, $args) || $args[0] == '') {
+				if ( ! array_key_exists(0, $args) || $args[0] == '') {
 					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
 				}
 

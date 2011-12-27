@@ -354,8 +354,8 @@ abstract class PageRequest extends HttpRequest
 			$this->placeHolderSet->append($placeHolder);
 		}
 
+		
 		// Create missing place holders automatically
-		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
 

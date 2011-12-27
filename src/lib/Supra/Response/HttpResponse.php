@@ -318,7 +318,7 @@ class HttpResponse implements ResponseInterface
 					$output->flush();
 				}
 				else {
-					echo $output;
+ 					echo $output;
 				}
 			}
 		}
