@@ -14,6 +14,7 @@ class CmsController extends DistributedController
 	const ACTION_CLASS_SUFFIX = 'Controller';
 	
 	const EVENT_POST_PAGE_PUBLISH = 'postPagePublish';
+	const EVENT_POST_PAGE_DELETE = 'postPageDelete';
 	
 	/**
 	 * Page manager is the default action

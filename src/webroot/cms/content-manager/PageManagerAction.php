@@ -34,6 +34,7 @@ use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\AuditLog\AuditLogEvent;
+use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
 
 /**
  * Controller containing common methods
@@ -500,12 +501,19 @@ abstract class PageManagerAction extends CmsAction
 					->getSingleScalarResult();
 
 			if ((int) $count > 0) {
-				throw new CmsException(null, "Cannot remove template as there are pages using it");
+				throw new CmsException(null, 'Cannot remove template as there are pages using it.');
 			}
 		}
 
 		$pageRequest = $this->getPageRequest();
 		$pageRequest->delete();
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new CmsPageDeleteEventArgs();
+		$eventArgs->localization = $this->getPageLocalization();
+		$eventArgs->user = $this->getUser();
+		$eventManager->fire(CmsController::EVENT_POST_PAGE_DELETE, $eventArgs);
 
 		$this->getResponse()
 				->setResponseData(true);
