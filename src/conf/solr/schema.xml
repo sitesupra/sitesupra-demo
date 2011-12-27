@@ -82,21 +82,20 @@
 	<fields>
 		<!-- Reuired for all indexed documents -->
 		<field name="uniqueId" type="string" indexed="true" stored="true" required="true" />
-
 		<field name="systemId" type="string" indexed="true" stored="true" required="true" /> 		
-		
 		<field name="class" type="string" indexed="true" stored="true" required="true" />
 		
 		<!-- Specific to PageLocalization objects -->
 		<field name="revisionId" type="string" indexed="true" stored="true" required="false" />	 		
 		<field name="schemaName" type="string" indexed="true" stored="true" required="false" />
-		<field name="pageLocalizationId" type="string" indexed="false" stored="true" required="false" />
+		<field name="pageLocalizationId" type="string" indexed="true" stored="true" required="false" />
 		<field name="localeId" type="string" indexed="true" stored="true" required="false" /> 
 		<field name="pageId" type="string" indexed="true" stored="true" required="false" /> 
 		<field name="text_general" type="text_general" indexed="true" stored="true" required="false" /> 
 		<field name="title_general" type="text_general" indexed="true" stored="true" required="false" /> 
 		<field name="createTime" type="date" indexed="true" stored="true" required="false" />
 		<field name="modifyTime" type="date" indexed="true" stored="true" required="false" />
+		<field name="active" type="boolean" indexed="true" stored="true" required="false" />
 		<field name="text_lv" type="text_lv" indexed="true" stored="true" required="false" />
 		<field name="text_en" type="text_en" indexed="true" stored="true" required="false" />	 
 		<field name="text_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
@@ -108,6 +107,10 @@
 		<field name="description" type="string" indexed="true" stored="true" required="false" />
 		<field name="pageWebPath" type="string" indexed="true" stored="true" required="false" />
 		<field name="ancestorIds" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
+		
+		<!-- Specific to PageLocalization objects -->
+		<field name="visible" type="boolean" indexed="true" stored="true" required="false" />		
+		
 	</fields>
 
  	<uniqueKey>uniqueId</uniqueKey>
