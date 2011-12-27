@@ -123,4 +123,18 @@ class IndexerService
 		return $result->getNumFound();
 	}
 
+	/**
+	 * @param string $uniqueId 
+	 */
+	public function removeFromIndex($uniqueId)
+	{
+		$query = $this->solariumClient->createUpdate();
+
+		$query->addDeleteById($uniqueId);
+
+		$query->addCommit();
+
+		$this->solariumClient->execute($query);
+	}
+
 }

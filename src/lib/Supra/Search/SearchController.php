@@ -84,7 +84,7 @@ class SearchController extends BlockController
 		
 			$em = ObjectRepository::getEntityManager($this);
 
-			$pr = $em->getRepository(Page::CN());
+			$pr = $em->getRepository(PageLocalization::CN());
 
 			foreach($results as &$result) {
 

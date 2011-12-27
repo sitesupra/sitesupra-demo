@@ -52,6 +52,26 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	}
 
 	/**
+	 * @param string $schemaName
+	 * @param string $pageLocalizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	static function getUniqueId($schemaName, $pageLocalizationId, $revisionId = null)
+	{
+		$id = null;
+
+		if ($schemaName == PageController::SCHEMA_PUBLIC) {
+			$id = implode('-', array($pageLocalizationId, $schemaName));
+		}
+		else {
+			$id = implode('-', array($pageLocalizationId, $schemaName, $revisionId));
+		}
+
+		return $id;
+	}
+
+	/**
 	 * Sets schema name to be used for this queue item.
 	 * @param string $schemaName 
 	 */
@@ -94,7 +114,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 				$isVisible = $pageLocalization->isActive() && $currentParentIndexedDocument->visible;
 			}
-			
+
 			$reindexChildren = $isVisible != $previousIndexedDocument->visible;
 		}
 
@@ -148,13 +168,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$languageCode = $locale->getProperty('language');
 
-		$id = 'noidlol';
-		if ($this->schemaName == PageController::SCHEMA_PUBLIC) {
-			$id = implode('-', array($pageLocalization->getId(), $this->schemaName));
-		}
-		else {
-			$id = implode('-', array($pageLocalization->getId(), $this->schemaName, $this->revisionId));
-		}
+		$id = self::getUniqueId($this->schemaName, $pageLocalization->getId(), $pageLocalization->getRevisionId());
 
 		$class = PageLocalization::CN();
 
@@ -205,7 +219,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		foreach ($blockPropertySet as $blockProperty) {
 			/* @var $blockProperty BlockProperty */
-			
+
 			if ( ! $blockProperty->getLocalization() instanceof TemplateLocalization) {
 
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
@@ -217,8 +231,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
 		$indexedDocument->active = $pageLocalization->isActive();
-		
-		\Log::debug('LLL makeIndexedDocument: ', 	$indexedDocument->pageLocalizationId, ' visible: ', 	$indexedDocument->visible);
+
+		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, ' visible: ', $indexedDocument->visible);
 
 		return $indexedDocument;
 	}
@@ -255,10 +269,16 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				/* @var $metadataItem Supra\Controller\Pages\Entity\BlockPropertyMetadata */
 				$metadataItem = $metadata[$element->getId()];
 
-				$link = $metadataItem->getReferencedElement();
+				if ( ! empty($metadataItem)) {
 
-				if ($link instanceof LinkReferencedElement) {
-					$result[] = $link->getTitle();
+					$link = $metadataItem->getReferencedElement();
+
+					if ($link instanceof LinkReferencedElement) {
+						$result[] = $link->getTitle();
+					}
+				}
+				else {
+					\Log::debug('EMPTY REFERENCED LINK?');
 				}
 			}
 		}
