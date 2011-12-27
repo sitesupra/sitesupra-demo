@@ -7,6 +7,7 @@ use Twig_Environment;
 use Supra\Mailer\Exception;
 use Supra\Template\Parser\Twig\Loader\FilesystemLoaderByContext;
 use Supra\Template\Parser\Twig\Twig;
+use Supra\Configuration\Exception\ConfigurationMissing;
 
 /**
  * Message
@@ -35,6 +36,15 @@ class TwigMessage extends SimpleMessage
 		parent::__construct($contentType, $charset);
 		
 		$this->twig = ObjectRepository::getTemplateParser($this);
+		
+		$host = $_SERVER['HTTP_HOST'];
+		$defaultEmail = "no-reply@$host";
+		
+		try {
+			$defaultEmail = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'default_email');
+		} catch (ConfigurationMissing $exc) {}
+
+		$this->setFrom($defaultEmail);
 		
 		//TODO: move this validation to ObjectRepository
 		if ( ! $this->twig instanceof Twig) {

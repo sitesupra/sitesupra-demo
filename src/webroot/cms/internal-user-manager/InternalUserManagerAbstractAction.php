@@ -122,24 +122,44 @@ class InternalUserManagerAbstractAction extends CmsAction
 	/**
 	 * Sends password change link
 	 * @param Entity\User $user
+	 * @param string $template Template name from /cms/internal-user-manager/mail-template. By default resetpassword template is set
 	 */
-	protected function sendPasswordChangeLink(Entity\User $user)
+	protected function sendPasswordChangeLink(Entity\User $user, $template = null)
 	{
+		$subject = 'New user account created';
+		if(is_null($template)) {
+			$template = 'resetpassword';
+			$subject = 'Password recovery';
+		}
+		
 		$time = time();
 		$userMail = $user->getEmail();
 		$hash = $this->generatePasswordRecoveryHash($user, $time);
 
-		// TODO: Change hardcoded link
+		$authAdapter = ObjectRepository::getUserProvider($this)->getAuthAdapter();
+		
+		$userLogin = null;
+		
+		if(is_callable(array($authAdapter, 'getDefaultDomain'))) {
+			$domain = $authAdapter->getDefaultDomain();
+			if(strpos($userMail, '@'.$domain)) {
+				$emailParts = explode('@', $userMail);
+				$userLogin = $emailParts[0];
+			}
+		}
+		
 		$host = $this->request->getServerValue('HTTP_HOST');
 		$url = 'http://' . $host . '/cms/restore';
 		$query = http_build_query(array(
 				'e' => $userMail,
 				't' => $time,
 				'h' => $hash,
-				));
+		));
 
 		$mailVars = array(
-				'link' => $url . '?' . $query
+				'link' => $url . '?' . $query,
+				'email' => $userMail,
+				'login' => $userLogin,
 		);
 
 		$mailer = ObjectRepository::getMailer($this);
@@ -148,10 +168,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 		$message->setContext(__CLASS__);
 		
 		// FIXME: from address should not be hardcoded here etc.
-		$message->setSubject('Password recovery')
-				->setFrom('admin@supra7.vig')
+		$message->setSubject($subject)
 				->setTo($userMail)
-				->setBody('mail-template/resetpassword.twig', $mailVars);
+				->setBody("mail-template/{$template}.twig", $mailVars);
 		$mailer->send($message);
 	}
 	

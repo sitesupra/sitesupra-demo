@@ -191,7 +191,7 @@ class UserAction extends InternalUserManagerAbstractAction
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
 
-		$this->sendPasswordChangeLink($user);
+		$this->sendPasswordChangeLink($user, 'createpassword');
 
 		$this->writeAuditLog('insert user', 
 				"User '" . $user->getName() . "' created");
