@@ -18,6 +18,12 @@ use Supra\NestedSet\DoctrineRepository;
  */
 class NewsApplication implements PageApplicationInterface
 {
+	/*
+	 * Order direction constants
+	 */
+	const ORDER_DESC = 'DESC';
+	const ORDER_ASC = 'ASC';
+	
 	/**
 	 * @var EntityManager
 	 */
@@ -196,7 +202,7 @@ class NewsApplication implements PageApplicationInterface
 	/**
 	 * @return QueryBuilder
 	 */
-	public function createCountQueryBuilder($groupBy = null)
+	public function createCountQueryBuilder($groupBy = null, $orderDirection = self::ORDER_ASC)
 	{
 		$qb = $this->createNewsQueryBuilder();
 		
@@ -205,7 +211,7 @@ class NewsApplication implements PageApplicationInterface
 		if ( ! empty($groupBy)) {
 			$qb->addSelect($groupBy)
 					->groupBy($groupBy)
-					->orderBy($groupBy, 'ASC');
+					->orderBy($groupBy, $orderDirection);
 		}
 		
 		return $qb;
@@ -215,10 +221,10 @@ class NewsApplication implements PageApplicationInterface
 	 * Loads news count by year
 	 * @return array
 	 */
-	public function getCountByYear()
+	public function getCountByYear($orderDirection = self::ORDER_ASC)
 	{
 		$groupBy = 'l.creationYear';
-		$qb = $this->createCountQueryBuilder($groupBy);
+		$qb = $this->createCountQueryBuilder($groupBy, $orderDirection);
 		
 		$data = $qb->getQuery()->getResult();
 		
