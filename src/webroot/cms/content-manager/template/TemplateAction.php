@@ -52,7 +52,14 @@ class TemplateAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
+		
+		$rootTemplate = $input->isEmpty('parent', false);
+		$hasLayout = ( ! $input->isEmpty('layout'));
 
+		if ($rootTemplate && ! $hasLayout) {
+			throw new CmsException(null, "Root template must have layout specified");
+		}
+		
 		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
@@ -67,8 +74,8 @@ class TemplateAction extends PageManagerAction
 			$title = $input->get('title');
 			$templateData->setTitle($title);
 		}
-
-		if ( ! $input->isEmpty('layout')) {
+		
+		if ($hasLayout) {
 			//TODO: validate
 			$layoutId = $input->get('layout');
 			$layoutProcessor = $this->getPageController()
@@ -96,7 +103,7 @@ class TemplateAction extends PageManagerAction
 		$this->entityManager->flush();
 		
 		// Find parent page
-		if ( ! $input->isEmpty('parent', false)) {
+		if ( ! $rootTemplate) {
 			
 			$parentLocalization = $this->getPageLocalizationByRequestKey('parent');
 			
