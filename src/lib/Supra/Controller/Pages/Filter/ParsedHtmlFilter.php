@@ -62,7 +62,7 @@ class ParsedHtmlFilter implements FilterInterface
 		if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
 			$file = $link->getFile();
 			$extension = $file->getExtension();
-			$tag->addClass('file-' . $extension);
+			$tag->addClass('file-' . mb_strtolower($extension));
 		}
 
 		$html = $tag->toHtml();
