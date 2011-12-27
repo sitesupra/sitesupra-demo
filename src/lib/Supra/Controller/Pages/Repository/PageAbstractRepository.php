@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
 use BadMethodCallException;
 use Supra\Controller\Pages\Entity\Page;
+use Supra\NestedSet\SearchCondition\DoctrineSearchCondition;
+use Supra\NestedSet\SelectOrder\DoctrineSelectOrder;
 
 /**
  * Abstract page repository
@@ -73,7 +75,13 @@ abstract class PageAbstractRepository extends EntityRepository implements Reposi
 	 */
 	public function getRootNodes()
 	{
-		$rootNodes = $this->findByLevel(0);
+		$filter = new DoctrineSearchCondition();
+		$filter->levelEqualsTo(0);
+		
+		$order = new DoctrineSelectOrder();
+		$order->byLeftAscending();
+		
+		$rootNodes = $this->nestedSetRepository->search($filter, $order);
 		
 		return $rootNodes;
 	}
