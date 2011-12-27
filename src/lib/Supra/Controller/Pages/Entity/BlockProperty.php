@@ -15,6 +15,7 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
  * Block property class.
  * @Entity
  * @HasLifecycleCallbacks
+ * @Table(uniqueConstraints={@UniqueConstraint(name="unique_idx", columns={"localization_id", "block_id", "type", "name"})}))
  */
 class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
