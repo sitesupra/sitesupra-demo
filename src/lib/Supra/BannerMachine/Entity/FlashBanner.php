@@ -61,7 +61,7 @@ class FlashBanner extends FileBanner
 	 */
 	public function getExternalPath()
 	{
-		return '/cms/lib/supra/img/apps/banner_32x32.png';
+		return '/cms/lib/supra/img/medialibrary/icon-file-swf-large.png';
 	}
 	
 	/**
