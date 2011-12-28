@@ -66,7 +66,7 @@ class EntityRevisionListener implements EventSubscriber
 					'fieldName' => 'revision',
 					'type' => 'string',
 					'columnName' => 'revision',
-					'length' => 40,
+					'length' => 20,
 				));
 			}
 		}

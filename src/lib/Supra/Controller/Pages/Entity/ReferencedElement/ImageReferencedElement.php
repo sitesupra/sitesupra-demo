@@ -14,7 +14,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	/**
 	 * Image ID to keep link data without existant real image.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
-	 * @Column(type="supraId", nullable="true")
+	 * @Column(type="supraId20", nullable="true")
 	 * @var string
 	 */
 	protected $imageId;

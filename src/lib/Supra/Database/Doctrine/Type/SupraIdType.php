@@ -10,7 +10,7 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class SupraIdType extends Type
 {
-	const NAME = 'supraId';
+	const NAME = 'supraId20';
 	
 	/**
 	 * {@inheritdoc}
@@ -29,7 +29,7 @@ class SupraIdType extends Type
 	 */
 	public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
 	{
-		$fieldDeclaration['length'] = 40;
+		$fieldDeclaration['length'] = 20;
 		$fieldDeclaration['fixed'] = true;
 		
 		$sql = $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);

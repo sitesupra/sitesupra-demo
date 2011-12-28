@@ -53,7 +53,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 				));
 			}
 			
-			$revisionTable->addColumn(self::REVISION_COLUMN_NAME, 'string', array('length' => 40));
+			$revisionTable->addColumn(self::REVISION_COLUMN_NAME, 'string', array('length' => 20));
 			$revisionTable->addColumn(self::REVISION_TYPE_COLUMN_NAME, 'smallint', array('length' => 1));
 			
 			$pkColumns = $entityTable->getPrimaryKey()
