@@ -632,8 +632,30 @@ class PageRequestEdit extends PageRequest
 				$ownerEntityClassName = $classMetadata->associationMappings[$fieldName]['targetEntity'];
 				$ownerReflectionClass = new \ReflectionClass($ownerEntityClassName);
 
+				// FIXME association handling needs rework, not full and buggy
 				if ($ownerReflectionClass->isInstance($associationOwner)) {
 					$classMetadata->reflFields[$fieldName]->setValue($newEntity, $associationOwner);
+
+					$ownerClassMetadata = $em->getClassMetadata($ownerEntityClassName);
+					$ownerFieldName = $association['inversedBy'];
+					if ($ownerClassMetadata->hasAssociation($ownerFieldName)) {
+						$ownerAssociationMapping = $ownerClassMetadata->getAssociationMapping($ownerFieldName);
+						if ($ownerClassMetadata->isCollectionValuedAssociation($ownerFieldName)) {
+							$collection = $ownerClassMetadata->reflFields[$ownerFieldName]->getValue($associationOwner);
+							if ($collection instanceof Collection) {
+								$indexBy = $ownerAssociationMapping['indexBy'];
+								$collection->removeElement($entity);
+								if ( ! empty($indexBy)) {
+									$elementKey = $classMetadata->reflFields[$indexBy]->getValue($newEntity);
+									$collection->set($elementKey, $newEntity);
+								} else if ( ! $collection->contains($newEntity)) {
+									$collection->add($newEntity);
+								}
+							}
+						} else {
+							$ownerClassMetadata->reflFields[$ownerFieldName]->setValue($associationOwner, $newEntity);
+						}
+					}
 					
 					if ( ! $cloned) {
 						$em->getUnitOfWork()->propertyChanged($newEntity, $fieldName, null, $associationOwner);
