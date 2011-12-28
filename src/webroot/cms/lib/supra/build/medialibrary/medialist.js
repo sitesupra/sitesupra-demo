@@ -990,14 +990,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					//File or image
 					if (data[0].type == Data.TYPE_FILE) {
 						template = this.get('templateFile');
-						console.log(template);
 					} else if (data[0].type == Data.TYPE_IMAGE) {
 						template = this.get('templateImage');
 					}
 					
 					node = this.renderTemplate(data[0], template);
-					console.log(node);
-					console.log(data[0]);
 					slide.empty().append(node);
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {
@@ -1021,7 +1018,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					for(var i=0,ii=data.length; i<ii; i++) {
 						item = this.renderTemplate(data[i], templates[data[i].type]);
-						console.log(item);
 						item.setData('itemId', data[i].id);
 						
 						if (append) {
