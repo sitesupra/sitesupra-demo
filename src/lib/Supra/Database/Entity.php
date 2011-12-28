@@ -218,7 +218,7 @@ abstract class Entity
 		$time = microtime(true) - 1324027985;
 		$time = (int) (1000 * $time);
 		$time = base_convert($time, 10, 36);
-		$time = substr($time, 9);
+		$time = substr($time, 0, 9);
 		$time = str_pad($time, 9, '0', STR_PAD_LEFT);
 		
 		$random = sha1(uniqid($className, true));
