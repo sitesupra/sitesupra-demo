@@ -275,7 +275,7 @@ Supra(function (Y) {
 					this.data.image.height = data.image.sizes.original.height;
 				} else {
 					//Flash
-					this.data.image.external_path = '/cms/lib/supra/img/apps/banner_32x32.png';
+					this.data.image.external_path = '/cms/lib/supra/img/medialibrary/icon-file-swf-large.png';
 					this.data.image.width = -1;
 					this.data.image.height = -1;
 				}
