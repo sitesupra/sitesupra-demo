@@ -58,6 +58,8 @@ class IndexerService
 						. $document->class . '-'
 						. $document->getLocalId();
 
+				\Log::debug('INDEXING UNIQUE ID: ', $document->uniqueId);
+				
 				$document->validate();
 
 				$updateQuery->addDocument($document);

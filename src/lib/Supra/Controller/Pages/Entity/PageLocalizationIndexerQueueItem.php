@@ -16,6 +16,7 @@ use Supra\Controller\Pages\PageController;
 use Supra\Search\Exception\IndexerRuntimeException;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\SearchService;
+use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
 
 /**
  * @Entity
@@ -41,6 +42,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @var string
 	 */
 	protected $schemaName;
+	
+	static $indexedLocalizationIds = array();
 
 	public function __construct(PageLocalization $pageLocalization)
 	{
@@ -50,6 +53,14 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$this->revisionId = $pageLocalization->getRevisionId();
 		$this->schemaName = PageController::SCHEMA_DRAFT;
 	}
+
+	protected $parentLocalization;
+	protected $parentDocument;
+	protected $localization;
+	protected $previousDocument;
+	protected $previousParentId;
+	protected $isVisible;
+	protected $reindexChildren;
 
 	/**
 	 * @param string $schemaName
@@ -63,8 +74,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		if ($schemaName == PageController::SCHEMA_PUBLIC) {
 			$id = implode('-', array($pageLocalizationId, $schemaName));
-		}
-		else {
+		} else {
 			$id = implode('-', array($pageLocalizationId, $schemaName, $revisionId));
 		}
 
@@ -89,53 +99,179 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 */
 	public function getIndexedDocuments()
 	{
-		$result = array();
+		if (in_array($this->pageLocalizationId, self::$indexedLocalizationIds)) {
+			
+			\Log::debug('LLL hit cache BIGTIME!!! ', $this->pageLocalizationId);
+			return array();
+		}
+
 		$em = ObjectRepository::getEntityManager($this->schemaName);
 		$pr = $em->getRepository(PageLocalization::CN());
 
 		/* @var $pageLocalization PageLocalization */
-		$pageLocalization = $pr->find($this->pageLocalizationId);
+		$this->localization = $pr->find($this->pageLocalizationId);
 
-		$isVisible = $pageLocalization->isActive();
-		$reindexChildren = true;
+		$this->previousDocument = $this->findPageLocalizationIndexedDocument($this->pageLocalizationId);
 
-		$previousIndexedDocument = $this->findPageLocalizationIndexedDocument($pageLocalization->getId());
+		if ( ! empty($this->previousDocument)) {
 
-		if ( ! empty($previousIndexedDocument)) {
-
-			$ancestorIds = $previousIndexedDocument->ancestorIds;
-
-			$previousParentId = array_shift($ancestorIds);
-
-			$parent = $pageLocalization->getParent();
-			
-			if ( ! empty($parent)) {
-				$currentParentId = $parent->getId();
-
-				if ($previousParentId != $currentParentId) {
-
-					$currentParentIndexedDocument = $this->findPageLocalizationIndexedDocument($currentParentId);
-
-					$isVisible = $pageLocalization->isActive() && $currentParentIndexedDocument->visible;
-				}
-
-				$reindexChildren = $isVisible != $previousIndexedDocument->visible;
-			}
+			$ancestorIds = $this->previousDocument->ancestorIds;
+			$this->previousParentId = array_shift($ancestorIds);
 		}
 
-		$result[] = $this->makeIndexedDocument($pageLocalization, $isVisible);
+		$l = $this->localization->getParent();
 
-		if ($reindexChildren) {
+		while ( ! ($l instanceof PageLocalization || empty($l))) {
+			$l = $l->getParent();
+		}
 
-			$children = $pageLocalization->getChildren();
+		$this->parentLocalization = $l;
 
-			foreach ($children as $child) {
+		if ( ! empty($this->parentLocalization)) {
 
-				if ( ! $child instanceof GroupLocalization) {
+			$this->parentDocument = $this->findPageLocalizationIndexedDocument($this->parentLocalization->getId());
+		}
 
+		if ( ! empty($this->parentLocalization) && ! empty($this->previousDocument)) {
+
+			$this->hasParentHasPrevious();
+		} else if ( ! empty($this->parentLocalization) && empty($this->previousDocument)) {
+
+			$this->hasParentNoPrevious();
+		} else if (empty($this->parentLocalization) && ! empty($this->previousDocument)) {
+
+			$this->noParentHasPrevious();
+		} else if (empty($this->parentLocalization) && empty($this->previousDocument)) {
+
+			$this->noParentNoPrevious();
+		}
+
+		$result = array();
+
+		$result[] = $this->makeIndexedDocument($this->localization, $this->isVisible);
+
+		if ($this->reindexChildren) {
+			$result = $result + $this->reindexChildren($this->localization, $this->isVisible);
+		}
+
+		return $result;
+	}
+
+	protected function hasParentHasPrevious()
+	{
+		// Page has been moved?
+		if ($this->parentLocalization->getId() != $this->previousParentId) {
+			// - Yes. 
+			// Set "visibility" to that of parent document.
+			$this->isVisible = $this->parentDocument->visible;
+
+			// If "visibility" has changed since last indexing, child pages have to be reindexed as well.
+			if ($this->previousDocument->visible != $this->isVisible) {
+				$this->reindexChildren = true;
+			} else {
+				$this->reindexChildren = false;
+			}
+		} else {
+			// - No.
+			// If "activity" has been turned OFF ...
+			if ($this->localization->isActive() == false && $this->previousDocument->active == true) {
+
+				// This localiaztion is not active and not visible, same goes for its children.
+				$this->isVisible = false;
+				$this->reindexChildren = true;
+			}
+			// ... or if "activity" has been turned ON ...
+			else if ($this->localization->isActive() == true && $this->previousDocument->active == false) {
+
+				// This localization is active and visible, same goes for its children.
+				if ( ! empty($this->parentDocument)) {
+					$this->isVisible = $this->parentDocument->visible;
+				} else {
+					$this->isVisible = $this->parentLocalization->isActive();
+				}
+
+				$this->reindexChildren = true;
+			} else {
+
+				// Nothing of substance has changed since last indexing.
+				$this->isVisible = $this->previousDocument->visible;
+				$this->reindexChildren = false;
+			}
+		}
+	}
+
+	protected function hasParentNoPrevious()
+	{
+		if ($this->localization->isActive()) {
+
+			// If localization is "active", "visibility" is inherited from its parent, ...
+			if (empty($this->parentDocument)) {
+				$this->isVisible = $this->parentLocalization->isActive();
+			} else {
+				$this->isVisible = $this->parentDocument->visible;
+			}
+		} else {
+
+			// ... otherwise "visibility" is FALSE.
+			$this->isVisible = false;
+		}
+
+		// ... and chidren will be reindexed just to be safe.
+		$this->reindexChildren = true;
+	}
+
+	protected function noParentHasPrevious()
+	{
+		// This looks like extreme edge case.
+		// We are indexing root page localization. Check if it has 
+		// not been moved since last indexing ...
+		if (empty($this->previousParentId)) {
+			// - not moved.
+
+			if ($this->previousDocument->active != $this->localization->isActive()) {
+
+				// "Activity" has been changed and now we have to adjust "visiblilty" of this
+				// localization as well as that of all children.
+				$this->isVisible = $this->localization->isActive();
+				$this->reindexChildren = true;
+			} else {
+
+				$this->isVisible = $this->parentDocument->visible;
+				$this->reindexChildren = false;
+			}
+		} else {
+			// If this localization has been made root localization, 
+			// set "visibility" according to "activity", and reindex children.
+			$this->isVisible = $this->localization->isActive();
+			$this->reindexChildren = true;
+		}
+	}
+
+	protected function noParentNoPrevious()
+	{
+		$this->isVisible = $this->localization->isActive();
+		$this->reindexChildren = true;
+	}
+
+	protected function reindexChildren(PageLocalization $pageLocalization, $isVisible)
+	{
+		$result = array();
+
+		$children = $pageLocalization->getChildren();
+
+		foreach ($children as $child) {
+
+			if ( ! $child instanceof GroupLocalization) {
+
+				if ( ! in_array($child->getId(), self::$indexedLocalizationIds)) {
 					$result[] = $this->makeIndexedDocument($child, $isVisible);
 				}
+				else {
+					\Log::debug('LLL hit cache!!! ', $child->getId());
+				}
 			}
+
+			$result = $result + $this->reindexChildren($child, $isVisible);
 		}
 
 		return $result;
@@ -239,6 +375,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, ' visible: ', $indexedDocument->visible);
 
+		self::$indexedLocalizationIds[] = $pageLocalization->getId();
+
 		return $indexedDocument;
 	}
 
@@ -253,12 +391,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 			if ($element instanceof Markup\HtmlElement) {
 				$result[] = $element->getContent();
-			}
-			else if ($element instanceof Markup\SupraMarkupImage) {
+			} else if ($element instanceof Markup\SupraMarkupImage) {
 
 				$metadata = $blockProperty->getMetadata();
 
-				/* @var $metadataItem Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+				/* @var $metadataItem BlockPropertyMetadata */
 				$metadataItem = $metadata[$element->getId()];
 
 				$image = $metadataItem->getReferencedElement();
@@ -266,12 +403,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				if ($image instanceof ImageReferencedElement) {
 					$result[] = $image->getAlternativeText();
 				}
-			}
-			else if ($element instanceof Markup\SupraMarkupLinkStart) {
+			} else if ($element instanceof Markup\SupraMarkupLinkStart) {
 
 				$metadata = $blockProperty->getMetadata();
 
-				/* @var $metadataItem Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+				/* @var $metadataItem BlockPropertyMetadata */
 				$metadataItem = $metadata[$element->getId()];
 
 				if ( ! empty($metadataItem)) {
@@ -281,8 +417,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 					if ($link instanceof LinkReferencedElement) {
 						$result[] = $link->getTitle();
 					}
-				}
-				else {
+				} else {
 					\Log::debug('EMPTY REFERENCED LINK?');
 				}
 			}

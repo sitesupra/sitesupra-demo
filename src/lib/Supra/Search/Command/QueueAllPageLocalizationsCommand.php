@@ -61,7 +61,7 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 		$indexerQueue = new PageLocalizationIndexerQueue($schemaName);
 
 		foreach ($pageLocalizations as $pageLocalization) {
-			$output->writeln($pageLocalization->getId());
+			//$output->writeln($pageLocalization->getId());
 			$indexerQueue->add($pageLocalization);
 		}
 
