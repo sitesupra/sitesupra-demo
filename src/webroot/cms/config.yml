@@ -36,7 +36,7 @@
     url: internal-user-manager
     icon: /cms/lib/supra/img/apps/backoffice_users
 #   For development only
-    allowGroupEditing: true
+#    allowGroupEditing: true
     authorizationAccessPolicy:
       Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
