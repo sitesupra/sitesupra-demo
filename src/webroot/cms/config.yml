@@ -32,7 +32,7 @@
 - Supra\Cms\InternalUserManager\ApplicationConfiguration:
 #   Assigned to controller because inside this namespace is password restore controller
     id: Supra\Cms\InternalUserManager\InternalUserManagerController
-    title: Backoffice users
+    title: Backoffice Users
     url: internal-user-manager
     icon: /cms/lib/supra/img/apps/backoffice_users
 #   For development only

@@ -19,6 +19,8 @@ class BlocksAction extends PageManagerAction
 		$configurationList = $blockCollection->getConfigurationList();
 		
 		$response = array();
+		$groupTitles = array();
+		$blockTitles = array();
 		
 		/* @var $conf BlockControllerConfiguration */
 		foreach ($configurationList as $blockId => $conf) {
@@ -54,7 +56,12 @@ class BlocksAction extends PageManagerAction
 				'classname' => $conf->cmsClassname,
 				'properties' => $properties,
 			);
+			
+			$groupTitles[] = $group;
+			$blockTitles[] = $conf->title;
 		}
+		
+		array_multisort($groupTitles, $blockTitles, $response);
 		
 		$this->getResponse()->setResponseData($response);
 	}
