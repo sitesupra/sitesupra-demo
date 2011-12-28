@@ -23,6 +23,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
 	
+	// known extensions for MediaLibrary UI
+	protected $knownExtensions = array(
+		'pdf', 'xls', 'xlsx', 'doc', 'docx', 'swf', 'ppt', 'pptx',
+	);
+	
 	/**
 	 * Get internal file entity type constant
 	 * @param Entity\Abstraction\File $entity
@@ -86,6 +91,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			
 			if ($rootNode instanceof Entity\File) {
 				$title = $rootNode->getTitle($localeId);
+				$extension = mb_strtolower($rootNode->getExtension());
+				
+				if (in_array($extension, $this->knownExtensions)) {
+					$item['knownExtension'] = $extension;
+				}
 			}
 
 			$item['id'] = $rootNode->getId();
@@ -437,6 +447,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$localeId = $this->getLocale()->getId();
 		$output = $this->fileStorage->getFileInfo($file, $localeId);
+		
+		$extension = mb_strtolower($file->getExtension());
+		if (in_array($extension, $this->knownExtensions)) {
+			$output['known_extension'] = $extension;
+		}
 		
 		return $output;
 	}

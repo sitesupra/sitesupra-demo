@@ -57,7 +57,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display file
 	 * @type {Array}
 	 */
-	List.FILE_PROPERTIES = ['title', 'filename', 'description', 'file_web_path'];
+	List.FILE_PROPERTIES = ['title', 'filename', 'description', 'file_web_path', 'known_extension'];
 	
 	/**
 	 * Constant, list of properties needed to display image
@@ -100,7 +100,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
-		<li class="type-file" data-id="{{ id }}">\
+		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %}" data-id="{{ id }}">\
 			<a></a>\
 			<span>{{ title|escape }}</span>\
 		</li>');
@@ -127,7 +127,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
-			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-file-large.png" alt="" /></div>\
+			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" alt="" /></div>\
 			<span>{{ title|escape }}</span>\
 			<span>{{ description|escape }}</span>\
 		</div>');
@@ -990,11 +990,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					//File or image
 					if (data[0].type == Data.TYPE_FILE) {
 						template = this.get('templateFile');
+						console.log(template);
 					} else if (data[0].type == Data.TYPE_IMAGE) {
 						template = this.get('templateImage');
 					}
 					
 					node = this.renderTemplate(data[0], template);
+					console.log(node);
+					console.log(data[0]);
 					slide.empty().append(node);
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {
@@ -1018,6 +1021,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					for(var i=0,ii=data.length; i<ii; i++) {
 						item = this.renderTemplate(data[i], templates[data[i].type]);
+						console.log(item);
 						item.setData('itemId', data[i].id);
 						
 						if (append) {

@@ -32,7 +32,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
 			<div class="preview">\
-				<img src="/cms/lib/supra/img/medialibrary/icon-file-large.png" alt="" />\
+				<img src="/cms/lib/supra/img/medialibrary/icon-file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" alt="" />\
 			</div>\
 			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
 				<input type="text" name="title" value="{{ title|escape }}" />\

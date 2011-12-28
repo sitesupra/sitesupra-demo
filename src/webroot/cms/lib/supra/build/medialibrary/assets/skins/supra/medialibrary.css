@@ -5,7 +5,7 @@
 
 /**
  * Loading screen
- */
+*/
 .yui3-medialist div.loading {
 	width: 100%;
 	height: 100%;
@@ -15,7 +15,7 @@
 
 /**
  * Empty
- */
+*/
 .yui3-medialist div.empty {
 	padding: 10px;
 	text-align: center;
@@ -23,7 +23,7 @@
 
 /**
  * Folder
- */
+*/
 .yui3-medialist ul.folder {
 	list-style: none;
 }
@@ -87,6 +87,23 @@
 .yui3-medialist ul.folder > li.type-file > a {
 	background: url(../../supra/img/medialibrary/icon-file.png) 0 0 no-repeat;
 }
+
+.yui3-medialist ul.folder > li.type-file-pdf > a {
+	background: url(../../supra/img/medialibrary/icon-file-pdf.png) 0 0 no-repeat;
+}
+.yui3-medialist ul.folder > li.type-file-swf > a {
+	background: url(../../supra/img/medialibrary/icon-file-swf.png) 0 0 no-repeat;
+}
+.yui3-medialist ul.folder > li.type-file-doc > a, .yui3-medialist ul.folder > li.type-file-docx > a {
+	background: url(../../supra/img/medialibrary/icon-file-doc.png) 0 0 no-repeat;
+}
+.yui3-medialist ul.folder > li.type-file-xls > a, .yui3-medialist ul.folder > li.type-file-xlsx > a {
+	background: url(../../supra/img/medialibrary/icon-file-xls.png) 0 0 no-repeat;
+}
+.yui3-medialist ul.folder > li.type-file-ppt > a, .yui3-medialist ul.folder > li.type-file-pptx > a {
+	background: url(../../supra/img/medialibrary/icon-file-ppt.png) 0 0 no-repeat;
+}
+
 .yui3-medialist ul.folder > li.type-image > a {
 	background: url(../../supra/img/medialibrary/icon-image.png) 0 0 no-repeat;
 }
@@ -121,7 +138,7 @@
 	width: 50%;
 	height: 25px;
 	background: url(../../supra/img/medialibrary/upload-progress.png) 0 0 repeat;
-	
+
 	-moz-animation-duration: 7s;
 	-webkit-animation-duration: 7s;
 	-moz-animation-name: progressBar;
@@ -133,16 +150,16 @@
 }
 @-moz-keyframes progressBar {
 	from { background-position: 0% 0%; }
-	to { background-position: 0% 260px; }
+to { background-position: 0% 260px; }
 }
 @-webkit-keyframes progressBar {
 	from { background-position: 0% 0% }
-	to { background-position: 0% 260px; }
+to { background-position: 0% 260px; }
 }
 
 /**
  * Image / File
- */
+*/
 .yui3-medialist div.image,
 .yui3-medialist div.file {
 	padding: 20px;
@@ -246,7 +263,7 @@
 
 /**
  * Slideshow
- */
+*/
 .yui3-medialist .yui3-slideshow-multiview ul.folder > li {
 	border-top: 0;
 }
@@ -256,7 +273,7 @@
 
 /**
  * Slider
- */
+*/
 .yui3-medialist-extended {
 	padding-bottom: 34px;
 }
@@ -285,14 +302,14 @@
 
 /**
  * HTML5 drag & drop
- */
+*/
 .yui3-html5-dd-target {
 	/*
 	box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
 	-moz-box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
 	-webkit-box-shadow: 0 0 3px #41AFF2 inset, 0 1px 1px #41AFF2 inset;
 	*/
-	
+
 	border: 2px solid #3B85D1 !important;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
