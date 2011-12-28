@@ -391,7 +391,21 @@ class HistoryPageRequestView extends PageRequest
 		//$destPage = $draftEm->merge($page);
 		
 		$pageLocalization = $this->getPageLocalization();
+		
+		if ($pageLocalization instanceof Entity\PageLocalization) {
+			$pagePath = $pageLocalization->getPathEntity();
+		}
+		
 		$destLocalization = $draftEm->merge($pageLocalization);
+		
+		if ( ! is_null($pagePath)) {
+			$pagePath = $draftEm->merge($pagePath);
+			$destLocalization->setPathEntity($pagePath);
+			$classMeta = $draftEm->getClassMetadata($destLocalization::CN());
+			$draftEm->getUnitOfWork()->scheduleExtraUpdate($destLocalization, array('path' => array(null, $pagePath)));
+			$draftEm->getUnitOfWork()->recomputeSingleEntityChangeSet($classMeta, $destLocalization);
+			$draftEm->flush();
+		}
 		
 		// place holders
 		$placeHolders = $pageLocalization->getPlaceHolders();
@@ -407,7 +421,7 @@ class HistoryPageRequestView extends PageRequest
 		
 		$existingBlocks = $this->getBlocksInPage($draftEm, $destLocalization);
 		$blocks = $this->getBlockSet();
-		
+				
 		// Find un-used blocks and remove them from draft
 		$existingBlockIds = Entity\Abstraction\Entity::collectIds($existingBlocks);
 		$blocksIds = Entity\Abstraction\Entity::collectIds($blocks);
@@ -426,8 +440,50 @@ class HistoryPageRequestView extends PageRequest
 			$draftEm->merge($block);
 		}
 		
+		$existingBlockProperties = $draftEm->createQuery('select bp from ' . Entity\BlockProperty::CN() . ' bp where bp.localization = ?0')
+				->setParameters(array($pageLocalization->getId()))
+				->getResult();
+		$existingBlockPropertyId = Entity\Abstraction\Entity::collectIds($existingBlockProperties);
+		$existingMetadata = $draftEm->createQuery('select bpm from ' . Entity\BlockPropertyMetadata::CN() . ' bpm where bpm.blockProperty in (?0)')
+				->setParameters(array($existingBlockPropertyId))
+				->execute();
+		
+		foreach($existingMetadata as $existingMetadataItem) {
+			$draftEm->remove($existingMetadataItem);
+			$referencedElement = $existingMetadataItem->getReferencedElement();
+			if ( ! is_null($referencedElement)) {
+				$draftEm->remove($referencedElement);
+			}
+		}
+		$draftEm->flush();
+		
+		$auditEm = ObjectRepository::getEntityManager('#audit');
 		foreach ($historyProperties as $property) {
+			
 			$draftEm->merge($property);
+			
+			$metadata = $auditEm->createQuery('select bpm from ' . Entity\BlockPropertyMetadata::CN() . ' bpm where bpm.blockProperty = ?0 and bpm.revision = ?1')
+					->setParameters(array($property->getId(), $this->revision))
+					->getResult();
+			
+			foreach($metadata as $metadataItem) {
+				
+				$metadataData = $auditEm->getUnitOfWork()->getOriginalEntityData($metadataItem);
+				if (isset($metadataData['referencedElement_id'])) {
+					$referencedElement = $auditEm->createQuery('select re from ' . Entity\ReferencedElement\ReferencedElementAbstract::CN() . 
+							' re WHERE re.id = ?0 AND re.revision = ?1')
+							->setParameters(array($metadataData['referencedElement_id'], $this->revision))
+							->getResult();
+				}
+				
+				if ( ! empty($referencedElement)) {
+					$draftEm->merge($referencedElement[0]);
+				}
+				
+				$draftEm->merge($metadataItem);
+			}
+			
+			
 		}
 		
 		if ($page instanceof Entity\Template 
@@ -533,7 +589,6 @@ class HistoryPageRequestView extends PageRequest
 			}
 		}
 
-		// TODO: remove audit records also
 		$revisionData = $draftEm->find(PageRevisionData::CN(), $this->revision);
 		/* @var $revisionData PageRevisionData */
 		$revisionData->setType(PageRevisionData::TYPE_RESTORED);
