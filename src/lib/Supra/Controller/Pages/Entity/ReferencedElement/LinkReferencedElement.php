@@ -362,7 +362,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 					$url = $this->getPageFullPath($relativeChild);
 				} else {
-					throw new ResourceNotFoundException('Valid relative redirect child was not found');
+					//throw new ResourceNotFoundException('Valid relative redirect child was not found');
+					return null;
 				}
 				break;
 
