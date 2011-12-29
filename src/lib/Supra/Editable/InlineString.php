@@ -5,7 +5,7 @@ namespace Supra\Editable;
 /**
  * String editable content
  */
-class String extends EditableAbstraction
+class InlineString extends EditableAbstraction
 {
 	const EDITOR_TYPE = 'InlineString';
 	const EDITOR_INLINE_EDITABLE = true;

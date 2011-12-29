@@ -221,6 +221,13 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
+		
+		if ($editable instanceof \Supra\Editable\InlineString) {
+			$filter = new Filter\EditableString();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
 	}
 
 	/**
