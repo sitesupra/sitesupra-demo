@@ -8,6 +8,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Uri\NullPath;
 
 /**
  * @Entity
@@ -289,6 +291,30 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
+	 * Generates full page URL with locale prefix
+	 * @param Localization $pageLocalization
+	 * @return string
+	 */
+	private function getPageFullPath(Localization $pageLocalization)
+	{
+		if ( ! $pageLocalization instanceof PageLocalization) {
+			return null;
+		}
+		
+		$path = $pageLocalization->getPath();
+		$url = null;
+
+		if ( ! is_null($path) && ! $path instanceof NullPath) {
+			$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
+
+			$localeId = $pageLocalization->getLocale();
+			$url = '/' . $localeId . $url;
+		}
+		
+		return $url;
+	}
+	
+	/**
 	 * Get URL of the link
 	 * @return string
 	 */
@@ -301,25 +327,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			case self::RESOURCE_PAGE:
 				$pageData = $this->getPage();
 
-				/* @var $pageData PageLocalization */
 				if ( ! is_null($pageData)) {
-					$path = $pageData->getPath();
-
-					if ( ! is_null($path)) {
-						$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
-						
-						// Append locale
-						$localeManager = ObjectRepository::getLocaleManager($this);
-						
-						if ( ! empty($localeManager)) {
-							$locale = $localeManager->getCurrent();
-							
-							if ( ! empty($locale)) {
-								$localeId = $locale->getId();
-								$url = '/' . $localeId . $url;
-							}
-						}
-					}
+					$url = $this->getPageFullPath($pageData);
 				}
 				break;
 			
@@ -339,36 +348,21 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			
 			case self::RESOURCE_RELATIVE_PAGE:
 				$pageChildren = $this->getPage()
-						->getChildren();
+						->getPublicChildren();
 				
-				if ( ! is_null($pageChildren) && ! empty($pageChildren)) {
-					$url = $this->getHref();
-					
-					$pageChildren = $pageChildren->toArray();
-					while (true) {
-						if ($url == self::RELATIVE_FIRST) {
-							$relativeChild = array_shift($pageChildren);
-						} else {
-							$relativeChild = array_pop($pageChildren);
-						}
-						
-						// exit from loop
-						if(is_null($relativeChild)) {
-							throw new ResourceNotFoundException('Valid relative redirect child was not found');
-						}
-						
-						// skip inactive pages
-						if ( ! $relativeChild->isActive()) {
-							continue;
-						}
+				if ( ! $pageChildren->isEmpty()) {
+					$type = $this->getHref();
+					$relativeChild = null;
 
-						$path = $relativeChild->getPath();
-						if ( ! is_null($path)) {
-							$url = $path->getPath(Path::FORMAT_BOTH_DELIMITERS);
-						}
-						
-						break;
+					if ($type == self::RELATIVE_FIRST) {
+						$relativeChild = $pageChildren->first();
+					} else {
+						$relativeChild = $pageChildren->last();
 					}
+
+					$url = $this->getPageFullPath($relativeChild);
+				} else {
+					throw new ResourceNotFoundException('Valid relative redirect child was not found');
 				}
 				break;
 
