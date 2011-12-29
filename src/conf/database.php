@@ -24,6 +24,7 @@ Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
 Type::addType('block', 'Supra\Database\Doctrine\Type\UnknownType');
 Type::addType('template', 'Supra\Database\Doctrine\Type\UnknownType');
 Type::addType('sha1', 'Supra\Database\Doctrine\Type\UnknownType');
+Type::addType('supraId', 'Supra\Database\Doctrine\Type\UnknownType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
