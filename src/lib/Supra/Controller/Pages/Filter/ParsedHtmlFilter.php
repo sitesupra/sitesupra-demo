@@ -60,8 +60,11 @@ class ParsedHtmlFilter implements FilterInterface
 		}
 		
 		if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
-			$file = $link->getFile();
 			
+			$tag->setAttribute('target', '_blank');
+			
+			$file = $link->getFile();
+		
 			if ( ! empty($file)) {
 				$extension = $file->getExtension();
 				$tag->addClass('file-' . mb_strtolower($extension));
