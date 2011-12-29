@@ -28,6 +28,8 @@ class SearchController extends BlockController
 	const BLOCK_TYPE_RESULTS = 'results';
 
 	const ADDITIONAL_RESPONSE_DATA_KEY_RESULTS = 'search-results';
+	
+	const RESULTS_PER_PAGE = 5;
 
 	//static $results = null;
 
@@ -66,10 +68,12 @@ class SearchController extends BlockController
 
 			$response->assign('error', true);
 		}
-		else if ( ! empty($results)) {
-
+		else if ( ! empty($results->processedResults)) {
+			
+			/* @var $results \Solarium_Result_Select */
+		
 			$response->assign('haveResults', true);
-			$response->assign('resultCount', count($results));
+			$response->assign('resultCount', $results->getNumFound());
 		}
 
 		$response->outputTemplate('template/' . $this->configuration->formTemplateFilename);
@@ -81,7 +85,7 @@ class SearchController extends BlockController
 
 		$results = $this->getResults();
 
-		if (empty($results)) {
+		if (empty($results->processedResults)) {
 			$response->outputTemplate('template/' . $this->configuration->noResultsTemplateFilename);
 		}
 		else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
@@ -90,11 +94,13 @@ class SearchController extends BlockController
 			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
 		}
 		else {
+			/* @var $results \Solarium_Result_Select */
+			
 			$em = ObjectRepository::getEntityManager($this);
 
 			$pr = $em->getRepository(PageLocalization::CN());
 
-			foreach ($results as &$result) {
+			foreach ($results->processedResults as &$result) {
 
 				$result['breadcrumbs'] = array();
 
@@ -117,8 +123,12 @@ class SearchController extends BlockController
 					}
 				}
 			}
-
-			$response->assign('searchResults', $results);
+			
+			$totalPages = ceil($results->getNumFound() / self::RESULTS_PER_PAGE);
+			$response->assign('resultsPerPage', self::RESULTS_PER_PAGE);
+			$response->assign('searchResults', $results->processedResults);
+			$response->assign('pages', range(1, $totalPages));
+			$response->assign('pageCount', $totalPages);
 
 			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
 		}
@@ -130,9 +140,12 @@ class SearchController extends BlockController
 
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
-
+		
 		$q = $request->getQueryValue('q');
 		$response->assign('q', $q);
+		
+		$currentPageNumber = $request->getQueryValue('p', 0);
+		$response->assign('currentPageNumber', $currentPageNumber);
 
 		$results = $response->getAdditionalDataItem(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS);
 
@@ -151,10 +164,8 @@ class SearchController extends BlockController
 					$response->assign('resultUrl', $resultUrl);
 				}
 
-				$response->assign('q', $q);
-
 				try {
-					$results = $this->doSearch($q);
+					$results = $this->doSearch($q, self::RESULTS_PER_PAGE, abs(intval($currentPageNumber) * intval(self::RESULTS_PER_PAGE)));
 				}
 				catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
@@ -200,7 +211,7 @@ class SearchController extends BlockController
 	 * @param string $text
 	 * @return array
 	 */
-	private function doSearch($text)
+	private function doSearch($text, $maxRows, $startRow)
 	{
 		$searchService = new SearchService();
 
@@ -210,7 +221,8 @@ class SearchController extends BlockController
 
 		$locale = $lm->getCurrent();
 
-		$searchRequest->setResultMaxRows(1000);
+		$searchRequest->setResultMaxRows($maxRows);
+		$searchRequest->setResultStartRow($startRow);
 		$searchRequest->setText($text);
 		$searchRequest->setLocale($locale);
 		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);

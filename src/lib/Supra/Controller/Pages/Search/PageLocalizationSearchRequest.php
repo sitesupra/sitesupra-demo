@@ -151,7 +151,9 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 			$results[] = $result;
 		}
 
-		return $results;
+		$selectResults->processedResults = $results;
+		
+		return $selectResults;
 	}
 
 }

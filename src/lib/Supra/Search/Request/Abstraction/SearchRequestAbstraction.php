@@ -36,7 +36,7 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 	 * Sets starging row of resultset fragment.
 	 * @param integer $resultStartRow 
 	 */
-	public function setResultStartow($resultStartRow)
+	public function setResultStartRow($resultStartRow)
 	{
 		$this->resultStartRow = $resultStartRow;
 	}
@@ -61,7 +61,7 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 		}
 
 		if ( ! empty($this->resultStartRow)) {
-			$selectQuery->setSorts($this->resultStartRow);
+			$selectQuery->setStart($this->resultStartRow);
 		}
 	}
 
