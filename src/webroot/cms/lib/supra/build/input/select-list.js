@@ -188,6 +188,12 @@ YUI.add('supra.input-select-list', function (Y) {
 		},
 		
 		_setValue: function (value) {
+			
+			// Convert boolean values to string
+			if (typeof value == 'boolean') {
+				value = value ? "1" : "0";
+			}
+			
 			//Input value is not valid if 'multiple' attribute is true
 			this.get('inputNode').set('value', value);
 			
@@ -252,7 +258,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			this.set('value', value !== null ? value : (values.length ? values[0].id : ''));
 			return this;
-		},
+		}
 		
 	});
 	
