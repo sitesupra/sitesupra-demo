@@ -132,7 +132,7 @@ class PageAction extends PageManagerAction
 						'id' => $template->getId(),
 						'title' => $templateData->getTitle(),
 						//TODO: hardcoded
-						'img' => '/cms/lib/supra/img/templates/template-1.png',
+						'img' => '/cms/lib/supra/img/templates/template-3-small.png',
 					);
 				} else {
 					$templateError = true;

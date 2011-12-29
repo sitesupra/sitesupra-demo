@@ -472,8 +472,8 @@
 	display: none;
 }
 .sitemap-new-page .yui3-input-template div {
-	width: 124px;
-	height: 124px;
+	width: 31px;
+	height: 31px;
 	border: 3px solid #f5f5f5;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -492,7 +492,7 @@
 	display: block;
 }
 .sitemap-new-page .yui3-input-template p {
-	padding: 52px 20px 0 5px;
+	padding: 13px 20px 0 5px;
 	font-size: 14px;
 	line-height: 16px;
 	text-align: left;
@@ -520,8 +520,8 @@
 	cursor: pointer;
 }
 .yui3-sitemap-template-list div {
-	width: 124px;
-	height: 124px;
+	width: 31px;
+	height: 31px;
 	border: 3px solid #f5f5f5;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
@@ -539,6 +539,6 @@
 	display: block;
 }
 .yui3-sitemap-template-list p {
-	padding: 52px 20px 0 0;
+	padding: 13px 20px 0 0;
 	font-size: 12px;
 }

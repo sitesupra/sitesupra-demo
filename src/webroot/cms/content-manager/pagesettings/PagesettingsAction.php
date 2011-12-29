@@ -226,6 +226,8 @@ class PagesettingsAction extends PageManagerAction
 	public function templatesAction()
 	{
 		$localeId = $this->getLocale()->getId();
+		$templateArray = array();
+		$templateTitles = array();
 
 		$templateDataDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_DATA_ENTITY);
 		$templateDataList = $templateDataDao->findByLocale($localeId);
@@ -233,15 +235,19 @@ class PagesettingsAction extends PageManagerAction
 		/* @var $templateData Entity\TemplateLocalization */
 		foreach ($templateDataList as $templateData) {
 
-			$templateArray = array(
+			$templateArray[] = array(
 				'id' => $templateData->getMaster()->getId(),
 				'title' => $templateData->getTitle(),
 				//TODO: hardcoded
-				'img' => "/cms/lib/supra/img/templates/template-1.png"
+				'img' => "/cms/lib/supra/img/templates/template-3-small.png"
 			);
-
-			$this->getResponse()->appendResponseData($templateArray);
+			
+			$templateTitles[] = $templateData->getTitle();
 		}
+		
+		array_multisort($templateTitles, $templateArray);
+		
+		$this->getResponse()->setResponseData($templateArray);
 	}
 	
 }
