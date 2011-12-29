@@ -15,6 +15,7 @@ use Supra\BannerMachine\Entity\Banner;
 use Doctrine\ORM\EntityRepository;
 use Supra\Controller\Pages\Entitsy\Page;
 use Supra\Cms\Exception\CmsException;
+use Supra\Request\RequestData;
 
 class BannereditAction extends CmsAction
 {
@@ -80,8 +81,8 @@ class BannereditAction extends CmsAction
 		//\Log::debug('BANNER INSERT REQUEST: ', $postData->getArrayCopy());
 
 		$file = $this->fileRepository->find($postData->get('image'));
-		
-		if(empty($file)) {
+
+		if (empty($file)) {
 			throw new CmsException(null, 'Banner file not chosen.');
 		}
 
@@ -89,15 +90,13 @@ class BannereditAction extends CmsAction
 
 		if ($file instanceof Image) {
 			$banner = new ImageBanner();
-		}
-		else {
-			
+		} else {
+
 			$mimeType = $file->getMimeType();
 
 			if ($mimeType == FlashBanner::MIME_TYPE) {
 				$banner = new FlashBanner();
-			}
-			else {
+			} else {
 				throw new \Supra\Cms\Exception\CmsException('Files with type "' . $mimeType . '" are not supported.');
 			}
 		}
@@ -110,7 +109,7 @@ class BannereditAction extends CmsAction
 	/**
 	 * Takes banner object and post data and updates objects properties and stores it.
 	 * @param Banner $banner
-	 * @param type $postData 
+	 * @param RequestData $postData 
 	 */
 	private function updateBannerFromPost(Banner $banner, $postData, File $file = null)
 	{
@@ -127,13 +126,19 @@ class BannereditAction extends CmsAction
 			$banner->setScheduledTill(new DateTime($schedule->get('to')));
 		}
 
-		$bannerTarget = $postData->getChild('target');
+		if ( ! $postData->hasChild('target')) {
 
-		if ($bannerTarget->get('resource') == 'link') {
-			$banner->setExternalTarget($bannerTarget->get('href'));
-		}
-		else {
-			$banner->setInternalTarget($bannerTarget->get('page_id'));
+			$banner->setExternalTarget('#');
+			
+		} else {
+			
+			$bannerTarget = $postData->getChild('target');
+
+			if ($bannerTarget->get('resource') == 'link') {
+				$banner->setExternalTarget($bannerTarget->get('href'));
+			} else {
+				$banner->setInternalTarget($bannerTarget->get('page_id'));
+			}
 		}
 
 		$banner->setTypeId($postData->get('group_id', 'unknown-banner-type'));
@@ -180,16 +185,16 @@ class BannereditAction extends CmsAction
 		}
 
 		$result = array(
-				'banner_id' => $banner->getId(),
-				'group_id' => $banner->getTypeId(),
-				'priority' => $banner->getPriority(),
-				'schedule' => $schedule,
-				'status' => $banner->getStatus(),
-				'stats' => array(
-						'exposures' => $banner->getExposureCount(),
-						'ctr' => $banner->getCtr(),
-						'average_ctr' => $banner->getAverageCtr()
-				)
+			'banner_id' => $banner->getId(),
+			'group_id' => $banner->getTypeId(),
+			'priority' => $banner->getPriority(),
+			'schedule' => $schedule,
+			'status' => $banner->getStatus(),
+			'stats' => array(
+				'exposures' => $banner->getExposureCount(),
+				'ctr' => $banner->getCtr(),
+				'average_ctr' => $banner->getAverageCtr()
+			)
 		);
 
 		if ($banner->getTargetType() == Banner::TARGET_TYPE_INTERNAL) {
@@ -200,24 +205,22 @@ class BannereditAction extends CmsAction
 			if (empty($page)) {
 
 				$result['target'] = array();
-			}
-			else {
+			} else {
 
 				$result['target'] = array(
-						'resource' => 'page',
-						'page_id' => $banner->getInternalTarget(),
-						'href' => '#',
-						'title' => $page->getTitle()
+					'resource' => 'page',
+					'page_id' => $banner->getInternalTarget(),
+					'href' => '#',
+					'title' => $page->getTitle()
 				);
 			}
-		}
-		else {
+		} else {
 
 			$result['target'] = array(
-					'resource' => 'link',
-					'page_id' => null,
-					'href' => $banner->getExternalTarget(),
-					'title' => $banner->getExternalTarget()
+				'resource' => 'link',
+				'page_id' => null,
+				'href' => $banner->getExternalTarget(),
+				'title' => $banner->getExternalTarget()
 			);
 		}
 
@@ -229,11 +232,11 @@ class BannereditAction extends CmsAction
 		}
 
 		$result['image'] = array(
-				'id' => $banner->getFile()->getId(),
-				'path' => $path,
-				'external_path' => $banner->getExternalPath(),
-				'width' => $type->getWidth(),
-				'height' => $type->getHeight()
+			'id' => $banner->getFile()->getId(),
+			'path' => $path,
+			'external_path' => $banner->getExternalPath(),
+			'width' => $type->getWidth(),
+			'height' => $type->getHeight()
 		);
 
 		$this->getResponse()->setResponseData($result);
