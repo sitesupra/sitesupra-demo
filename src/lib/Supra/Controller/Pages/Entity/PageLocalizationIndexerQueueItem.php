@@ -42,7 +42,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @var string
 	 */
 	protected $schemaName;
-	
 	static $indexedLocalizationIds = array();
 
 	public function __construct(PageLocalization $pageLocalization)
@@ -99,8 +98,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 */
 	public function getIndexedDocuments()
 	{
+		$result = array();
+
 		if (in_array($this->pageLocalizationId, self::$indexedLocalizationIds)) {
-			
+
 			\Log::debug('LLL hit cache BIGTIME!!! ', $this->pageLocalizationId);
 			return array();
 		}
@@ -110,6 +111,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		/* @var $pageLocalization PageLocalization */
 		$this->localization = $pr->find($this->pageLocalizationId);
+
+		if (empty($this->localization)) {
+			return $result;
+		}
 
 		$this->previousDocument = $this->findPageLocalizationIndexedDocument($this->pageLocalizationId);
 
@@ -145,8 +150,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 			$this->noParentNoPrevious();
 		}
-
-		$result = array();
 
 		$result[] = $this->makeIndexedDocument($this->localization, $this->isVisible);
 
@@ -265,8 +268,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 				if ( ! in_array($child->getId(), self::$indexedLocalizationIds)) {
 					$result[] = $this->makeIndexedDocument($child, $isVisible);
-				}
-				else {
+				} else {
 					\Log::debug('LLL hit cache!!! ', $child->getId());
 				}
 			}
