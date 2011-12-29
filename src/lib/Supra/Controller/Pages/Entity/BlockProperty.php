@@ -133,7 +133,8 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function addMetadata(BlockPropertyMetadata $metadata)
 	{
-		$this->metadata->add($metadata);
+		$name = $metadata->getName();
+		$this->metadata->offsetSet($name, $metadata);
 	}
 	
 	/**

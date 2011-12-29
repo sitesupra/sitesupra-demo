@@ -936,6 +936,8 @@ class FileStorage
 			// reprocess sizes
 			$this->recreateImageSizes($fileEntity);
 		}
+		
+		$fileEntity->setModificationTime();
 
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->flush();

@@ -65,6 +65,14 @@ class ParsedHtmlFilter implements FilterInterface
 			if ( ! empty($file)) {
 				$extension = $file->getExtension();
 				$tag->addClass('file-' . mb_strtolower($extension));
+
+				$modificationTime = $file->getModificationTime();
+				
+				if ( ! empty($modificationTime)) {
+					$tag->setAttribute('data-modification-date', $modificationTime->format('d'));
+					$tag->setAttribute('data-modification-month', $modificationTime->format('m'));
+					$tag->setAttribute('data-modification-year', $modificationTime->format('Y'));
+				}
 			}
 		}
 
