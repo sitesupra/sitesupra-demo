@@ -19,6 +19,7 @@ use Supra\Controller\Pages\PageController;
 
 Type::addType(SupraIdType::NAME, 'Supra\Database\Doctrine\Type\SupraIdType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
+Type::overrideType(Type::DATETIME, 'Supra\Database\Doctrine\Type\UtcDateTimeType');
 
 // TODO: Remove later
 Type::addType('block', 'Supra\Database\Doctrine\Type\UnknownType');
