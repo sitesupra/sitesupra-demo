@@ -857,8 +857,14 @@ class FileStorage
 			$path = '/';
 			// get file storage dir in webroot and fix backslash on windows
 			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $this->getExternalPath());
+			
 			// get file dir
-			$path .= $file->getPath('/', false) . '/';
+			$pathNodes = $file->getAncestors(0, false);
+			
+			foreach ($pathNodes as $pathNode) {
+				/* @var $pathNode Entity\Folder */
+				$path .= rawurlencode($pathNode->getFileName()) . '/';
+			}
 
 			if (($file instanceof Entity\Image) || isset($sizeName)) {
 				$size = $file->findImageSize($sizeName);
@@ -868,13 +874,15 @@ class FileStorage
 				}
 			}
 
-			$path .= $file->getFileName();
+			// Encode the filename URL part
+			$path .= rawurlencode($file->getFileName());
+			
 			return $path;
 		}
 		else {
 
 			//TODO: hardcoded now
-			$path = '/cms/media-library/download/' . $file->getFileName();
+			$path = '/cms/media-library/download/' . rawurlencode($file->getFileName());
 
 			$query = array(
 					'inline' => 'inline',
@@ -889,6 +897,7 @@ class FileStorage
 			}
 			$queryOutput = http_build_query($query);
 			$output = $path . '?' . $queryOutput . '&';
+			
 			return $output;
 		}
 	}
