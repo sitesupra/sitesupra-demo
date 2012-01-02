@@ -33,10 +33,13 @@ class UtcDateTimeType extends Types\DateTimeType
 
 		$val = \DateTime::createFromFormat($format, $value, $timezone);
 
-		if ( ! $val) {
+		if ( ! $val instanceof \DateTime) {
 			throw ConversionException::conversionFailed($value, $this->getName());
 		}
-
+		
+		$timezone = new \DateTimeZone(date_default_timezone_get());
+		$val->setTimeZone($timezone);
+		
 		return $val;
 	}
 
