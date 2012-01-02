@@ -3,7 +3,7 @@
 namespace Supra\Response;
 
 use Supra\Http\Cookie;
-use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Response\ResponseContext;
 
 /**
  * HTTP response object
@@ -20,56 +20,56 @@ class HttpResponse implements ResponseInterface
 	const STATUS_NOT_MODIFIED = 304;
 
 	/**
-	 * @var ArrayCollection
+	 * @var ResponseContext
 	 */
-	protected $additionalData;
+	protected $context;
 
 	/**
 	 * Messages for HTTP status codes
 	 * @var array
 	 */
 	protected static $messages = array(
-			100 => 'Continue',
-			101 => 'Switching Protocols',
-			self::STATUS_OK => 'OK',
-			201 => 'Created',
-			202 => 'Accepted',
-			203 => 'Non-Authoritative Information',
-			self::STATUS_NO_CONTENT => 'No Content',
-			205 => 'Reset Content',
-			206 => 'Partial Content',
-			300 => 'Multiple Choices',
-			301 => 'Moved Permanently',
-			302 => 'Found',
-			303 => 'See Other',
-			self::STATUS_NOT_MODIFIED => 'Not Modified',
-			305 => 'Use Proxy',
-			307 => 'Temporary Redirect',
-			400 => 'Bad Request',
-			401 => 'Unauthorized',
-			402 => 'Payment Required',
-			403 => 'Forbidden',
-			404 => 'Not Found',
-			405 => 'Method Not Allowed',
-			406 => 'Not Acceptable',
-			407 => 'Proxy Authentication Required',
-			408 => 'Request Timeout',
-			409 => 'Conflict',
-			410 => 'Gone',
-			411 => 'Length Required',
-			412 => 'Precondition Failed',
-			413 => 'Request Entity Too Large',
-			414 => 'Request-URI Too Long',
-			415 => 'Unsupported Media Type',
-			416 => 'Requested Range Not Satisfiable',
-			417 => 'Expectation Failed',
-			500 => 'Internal Server Error',
-			501 => 'Not Implemented',
-			502 => 'Bad Gateway',
-			503 => 'Service Unavailable',
-			504 => 'Gateway Timeout',
-			505 => 'HTTP Version Not Supported',
-			509 => 'Bandwidth Limit Exceeded'
+		100 => 'Continue',
+		101 => 'Switching Protocols',
+		self::STATUS_OK => 'OK',
+		201 => 'Created',
+		202 => 'Accepted',
+		203 => 'Non-Authoritative Information',
+		self::STATUS_NO_CONTENT => 'No Content',
+		205 => 'Reset Content',
+		206 => 'Partial Content',
+		300 => 'Multiple Choices',
+		301 => 'Moved Permanently',
+		302 => 'Found',
+		303 => 'See Other',
+		self::STATUS_NOT_MODIFIED => 'Not Modified',
+		305 => 'Use Proxy',
+		307 => 'Temporary Redirect',
+		400 => 'Bad Request',
+		401 => 'Unauthorized',
+		402 => 'Payment Required',
+		403 => 'Forbidden',
+		404 => 'Not Found',
+		405 => 'Method Not Allowed',
+		406 => 'Not Acceptable',
+		407 => 'Proxy Authentication Required',
+		408 => 'Request Timeout',
+		409 => 'Conflict',
+		410 => 'Gone',
+		411 => 'Length Required',
+		412 => 'Precondition Failed',
+		413 => 'Request Entity Too Large',
+		414 => 'Request-URI Too Long',
+		415 => 'Unsupported Media Type',
+		416 => 'Requested Range Not Satisfiable',
+		417 => 'Expectation Failed',
+		500 => 'Internal Server Error',
+		501 => 'Not Implemented',
+		502 => 'Bad Gateway',
+		503 => 'Service Unavailable',
+		504 => 'Gateway Timeout',
+		505 => 'HTTP Version Not Supported',
+		509 => 'Bandwidth Limit Exceeded'
 	);
 
 	/**
@@ -106,7 +106,7 @@ class HttpResponse implements ResponseInterface
 	 * @var boolean
 	 */
 	protected $redirect = false;
-
+	
 	/**
 	 * Cookies
 	 * @var Cookie[]
@@ -115,7 +115,7 @@ class HttpResponse implements ResponseInterface
 
 	function __construct()
 	{
-		$this->additionalData = new ArrayCollection();
+		//$this->context = new ResponseContext();
 	}
 
 	/**
@@ -183,8 +183,7 @@ class HttpResponse implements ResponseInterface
 		foreach ($this->headers[$name] as $data) {
 			if ($name == self::STATUS_HEADER_NAME) {
 				header($data['value']);
-			}
-			else {
+			} else {
 				header($name . ': ' . $data['value'], $data['replace']);
 			}
 		}
@@ -316,9 +315,8 @@ class HttpResponse implements ResponseInterface
 			foreach ($this->output as $output) {
 				if ($output instanceof HttpResponse) {
 					$output->flush();
-				}
-				else {
- 					echo $output;
+				} else {
+					echo $output;
 				}
 			}
 		}
@@ -389,35 +387,19 @@ class HttpResponse implements ResponseInterface
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed $value
+	 * @param ResponseContext $context 
 	 */
-	public function setAdditionalDataItem($key, $value)
+	public function setContext(ResponseContext $context)
 	{
-		$this->additionalData[$key] = $value;
+		$this->context = $context;
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed $value
+	 * @return ResponseContext
 	 */
-	public function getAdditionalDataItem($key, $defaultValue = null)
+	public function getContext()
 	{
-		if (empty($this->additionalData[$key])) {
-			return $defaultValue;
-		}
-
-		return $this->additionalData[$key];
-	}
-
-	public function setAdditionalData($data)
-	{
-		$this->additionalData = $data;
-	}
-
-	public function getAdditionalData()
-	{
-		return $this->additionalData;
+		return $this->context;
 	}
 
 }

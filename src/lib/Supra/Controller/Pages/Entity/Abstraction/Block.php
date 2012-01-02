@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Supra\Controller\ControllerAbstraction;
-use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Response\ResponseContext;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\BlockController;
@@ -211,7 +211,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 * @param PageRequest $request
 	 * @param ArrayCollection $responseAdditionalData
 	 */
-	public function prepareController(BlockController $controller, PageRequest $request, ArrayCollection $additionalData = null)
+	public function prepareController(BlockController $controller, PageRequest $request, ResponseContext $responseContext = null)
 	{
 		// Set properties for controller
 		$blockPropertySet = $request->getBlockPropertySet();
@@ -221,11 +221,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		// Create response
 		$response = $controller->createResponse($request);
 
-		if (is_null($additionalData)) {
-			$additionalData = new ArrayCollection();
-		}
-
-		$response->setAdditionalData($additionalData);
+		$response->setContext($responseContext);
 
 		// Prepare
 		$controller->prepare($request, $response);

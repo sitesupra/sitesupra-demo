@@ -17,6 +17,7 @@ class HtmlTag extends HtmlTagStart
 	 * @var HtmlTagEnd
 	 */
 	private $endTag;
+	protected $forceTwoPartTag = false;
 
 	/**
 	 * @param string $tagName
@@ -29,6 +30,11 @@ class HtmlTag extends HtmlTagStart
 		$this->endTag = new HtmlTagEnd($tagName);
 
 		$this->setContent($content);
+	}
+
+	public function forceTwoPartTag($forceTwoPartTag)
+	{
+		$this->forceTwoPartTag = $forceTwoPartTag;
 	}
 
 	/**
@@ -45,11 +51,10 @@ class HtmlTag extends HtmlTagStart
 	public function toHtml()
 	{
 		$html = null;
-		
-		if ( ! is_null($this->content)) {
+
+		if ( ! is_null($this->content) || $this->forceTwoPartTag) {
 			$html = $this->getHtmlForOpenTag() . $this->content . $this->endTag->toHtml();
-		}
-		else {
+		} else {
 			$html = $this->getHtmlForClosedTag();
 		}
 

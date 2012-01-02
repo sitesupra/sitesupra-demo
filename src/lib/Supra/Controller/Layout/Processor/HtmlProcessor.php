@@ -45,11 +45,16 @@ class HtmlProcessor implements ProcessorInterface
 	 * @var string
 	 */
 	protected $endDelimiter = '-->';
-	
+
 	/**
 	 * @var RequestInterface
 	 */
 	protected $request;
+
+	/**
+	 * @var ResponseInterface
+	 */
+	protected $response;
 
 	/**
 	 * @param RequestInterface $request
@@ -58,7 +63,15 @@ class HtmlProcessor implements ProcessorInterface
 	{
 		$this->request = $request;
 	}
-	
+
+	/**
+	 * @param ResponseInterface $response 
+	 */
+	public function setResponse(ResponseInterface $response)
+	{
+		$this->response = $response;
+	}
+
 	/**
 	 * Process the layout
 	 * @param ResponseInterface $response
@@ -67,28 +80,28 @@ class HtmlProcessor implements ProcessorInterface
 	 */
 	public function process(ResponseInterface $response, array $placeResponses, $layoutSrc)
 	{
-		
+
 		// Output CDATA
 		$cdataCallback = function($cdata) use ($response) {
-			$response->output($cdata);
-		};
+					$response->output($cdata);
+				};
 
 		// Flush place holder responses into master response
 		$macroCallback = function($func, array $args) use (&$response, &$placeResponses) {
-			if ($func == HtmlProcessor::PLACE_HOLDER) {
-				if ( ! array_key_exists(0, $args) || $args[0] == '') {
-					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
-				}
+					if ($func == HtmlProcessor::PLACE_HOLDER) {
+						if ( ! array_key_exists(0, $args) || $args[0] == '') {
+							throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
+						}
 
-				$place = $args[0];
+						$place = $args[0];
 
-				if (isset($placeResponses[$place])) {
-					/* @var $placeResponse ResponseInterface */
-					$placeResponse = $placeResponses[$place];
-					$placeResponse->flushToResponse($response);
-				}
-			}
-		};
+						if (isset($placeResponses[$place])) {
+							/* @var $placeResponse ResponseInterface */
+							$placeResponse = $placeResponses[$place];
+							$placeResponse->flushToResponse($response);
+						}
+					}
+				};
 
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
 	}
@@ -103,25 +116,27 @@ class HtmlProcessor implements ProcessorInterface
 		$places = array();
 
 		// Ignore CDATA
-		$cdataCallback = function($cdata) {};
+		$cdataCallback = function($cdata) {
+					
+				};
 
 		// Collect place holders
 		$macroCallback = function($func, array $args) use (&$places, $layoutSrc) {
-			if ($func == HtmlProcessor::PLACE_HOLDER) {
-				if ( ! array_key_exists(0, $args) || $args[0] == '') {
-					throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
-				}
-				
-				// Normalize placeholder ID for case insensitive MySQL varchar field
-				$places[] = mb_strtolower($args[0]);
-			}
-		};
+					if ($func == HtmlProcessor::PLACE_HOLDER) {
+						if ( ! array_key_exists(0, $args) || $args[0] == '') {
+							throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
+						}
+
+						// Normalize placeholder ID for case insensitive MySQL varchar field
+						$places[] = mb_strtolower($args[0]);
+					}
+				};
 
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
 
 		return $places;
 	}
-	
+
 	/**
 	 * Generates absolute filename
 	 * @param string $layoutSrc
@@ -137,10 +152,10 @@ class HtmlProcessor implements ProcessorInterface
 		if ( ! is_readable($filename)) {
 			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");
 		}
-		
+
 		// security stuff
 		$this->securityCheck($filename);
-		
+
 		return $filename;
 	}
 
@@ -215,7 +230,7 @@ class HtmlProcessor implements ProcessorInterface
 				}
 
 				$macroCallback($macroFunction, $macroArguments);
-				
+
 				// remove the used data
 				$layoutContent = substr($layoutContent, $pos + $endLength);
 			}

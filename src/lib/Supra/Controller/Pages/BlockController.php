@@ -111,6 +111,7 @@ abstract class BlockController extends ControllerAbstraction
 			// Now it 
 			$helper = new Helper\TwigHelper();
 			$helper->setRequest($this->request);
+			$helper->setResponseContext($response->getContext());
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
 

@@ -28,7 +28,7 @@ class SearchController extends BlockController
 	const BLOCK_TYPE_RESULTS = 'results';
 
 	const ADDITIONAL_RESPONSE_DATA_KEY_RESULTS = 'search-results';
-	
+
 	const RESULTS_PER_PAGE = 5;
 
 	//static $results = null;
@@ -49,8 +49,7 @@ class SearchController extends BlockController
 			//$this->response = $this->formResponse;
 			//$this->getResults();
 			$this->executeForm();
-		}
-		else if ($blockType == self::BLOCK_TYPE_RESULTS) {
+		} else if ($blockType == self::BLOCK_TYPE_RESULTS) {
 
 			//$this->response = $this->resultsResponse;
 			//$this->getResults();
@@ -67,11 +66,10 @@ class SearchController extends BlockController
 		if ($results instanceof \Supra\Search\Exception\RuntimeException) {
 
 			$response->assign('error', true);
-		}
-		else if ( ! empty($results->processedResults)) {
-			
+		} else if ( ! empty($results->processedResults)) {
+
 			/* @var $results \Solarium_Result_Select */
-		
+
 			$response->assign('haveResults', true);
 			$response->assign('resultCount', $results->getNumFound());
 		}
@@ -87,15 +85,13 @@ class SearchController extends BlockController
 
 		if (empty($results->processedResults)) {
 			$response->outputTemplate('template/' . $this->configuration->noResultsTemplateFilename);
-		}
-		else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
+		} else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
 
 			$response->assign('error', true);
 			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
-		}
-		else {
+		} else {
 			/* @var $results \Solarium_Result_Select */
-			
+
 			$em = ObjectRepository::getEntityManager($this);
 
 			$pr = $em->getRepository(PageLocalization::CN());
@@ -114,21 +110,22 @@ class SearchController extends BlockController
 
 						$pl = $p->getLocalization($result['localeId']);
 						$result['breadcrumbs'][] = $pl->getTitle();
-					}
-					else if ($p instanceof PageLocalization) {
+					} else if ($p instanceof PageLocalization) {
 						$result['breadcrumbs'][] = $p->getTitle();
-					}
-					elseif ($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
+					} elseif ($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
 						$result['breadcrumbs'][] = $p->getTitle();
 					}
 				}
 			}
-			
+
 			$totalPages = ceil($results->getNumFound() / self::RESULTS_PER_PAGE);
 			$response->assign('resultsPerPage', self::RESULTS_PER_PAGE);
 			$response->assign('searchResults', $results->processedResults);
 			$response->assign('pages', range(1, $totalPages));
 			$response->assign('pageCount', $totalPages);
+
+			//$response->getContext()
+			//		->addJsToLayoutSnippet('js', 'alert(123);');
 
 			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
 		}
@@ -140,14 +137,15 @@ class SearchController extends BlockController
 
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
-		
+
 		$q = $request->getQueryValue('q');
 		$response->assign('q', $q);
-		
+
 		$currentPageNumber = $request->getQueryValue('p', 0);
 		$response->assign('currentPageNumber', $currentPageNumber);
 
-		$results = $response->getAdditionalDataItem(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS);
+		$results = $response->getContext()
+				->getValue(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS);
 
 		if ( ! is_null($results)) {
 			return $results;
@@ -166,14 +164,14 @@ class SearchController extends BlockController
 
 				try {
 					$results = $this->doSearch($q, self::RESULTS_PER_PAGE, abs(intval($currentPageNumber) * intval(self::RESULTS_PER_PAGE)));
-				}
-				catch (\Supra\Search\Exception\RuntimeException $e) {
+				} catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
 				}
 			}
 		}
 
-		$response->setAdditionalDataItem(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS, $results);
+		$response->getContext()
+				->setValue(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS, $results);
 
 		return $results;
 	}
@@ -187,8 +185,8 @@ class SearchController extends BlockController
 		$contents = array();
 
 		$types = array(
-				self::BLOCK_TYPE_FORM => 'Form',
-				self::BLOCK_TYPE_RESULTS => 'Results'
+			self::BLOCK_TYPE_FORM => 'Form',
+			self::BLOCK_TYPE_RESULTS => 'Results'
 		);
 
 		$blockTypesForSelect = array();

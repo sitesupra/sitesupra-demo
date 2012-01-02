@@ -20,7 +20,7 @@ class TwigResponse extends HttpResponse
 	/**
 	 * @var mixed
 	 */
-	protected $context;
+	protected $loaderContext;
 	
 	/**
 	 * @var Twig
@@ -29,11 +29,11 @@ class TwigResponse extends HttpResponse
 	
 	/**
 	 * Can set context classname or object to search for the templates there
-	 * @param mixed $context
+	 * @param mixed $loaderContext
 	 */
-	public function __construct($context = null)
+	public function __construct($loaderContext = null)
 	{
-		$this->context = $context;
+		$this->loaderContext = $loaderContext;
 		$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
 		
 		if ( ! $this->twigEnvironment instanceof Twig) {
@@ -57,8 +57,8 @@ class TwigResponse extends HttpResponse
 	{
 		$loader = null;
 		
-		if ( ! is_null($this->context)) {
-			$loader = new FilesystemLoaderByContext($this->context);
+		if ( ! is_null($this->loaderContext)) {
+			$loader = new FilesystemLoaderByContext($this->loaderContext);
 		}
 		
 		$content = $this->twigEnvironment->parseTemplate($templateName, 

@@ -16,7 +16,7 @@ use Supra\Controller\Pages\Response\PlaceHolder;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Uri\Path;
-use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Response\ResponseContext;
 
 /**
  * Page controller
@@ -84,16 +84,16 @@ class PageController extends ControllerAbstraction
 		if ($request instanceof Request\PageRequestView) {
 
 			$localization = null;
-			
+
 			try {
 				$localization = $request->getPageLocalization();
-				
+
 				$redirect = $localization->getRedirect();
 				if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
 					//TODO: any validation? skipping? loop check?
 
 					ObjectRepository::setCallerParent($redirect, $this);
-				
+
 					$location = $redirect->getUrl($this);
 					if ( ! is_null($location)) {
 						// if redirect is external URL
@@ -111,7 +111,7 @@ class PageController extends ControllerAbstraction
 					}
 				}
 			} catch (ResourceNotFoundException $e) {
-				
+
 				try {
 					//TODO: hardcoded for now
 					$tryPath = '404';
@@ -120,8 +120,8 @@ class PageController extends ControllerAbstraction
 					$localization = $request->getPageLocalization();
 
 					$response->setCode(404);
-					
-				// Throw the original exception if 404 page is not found
+
+					// Throw the original exception if 404 page is not found
 				} catch (ResourceNotFoundException $e404) {
 					throw $e;
 				}
@@ -160,7 +160,8 @@ class PageController extends ControllerAbstraction
 		$layoutSrc = $layout->getFile();
 		$response = $this->getResponse();
 		$layoutProcessor->setRequest($this->request);
-		
+		$layoutProcessor->setResponse($response);
+
 		$layoutProcessor->process($response, $placeResponses, $layoutSrc);
 	}
 
@@ -170,9 +171,9 @@ class PageController extends ControllerAbstraction
 	public function getLayoutProcessor()
 	{
 		$processor = new Layout\Processor\TwigProcessor();
-		ObjectRepository::setCallerParent($processor, $this);	
+		ObjectRepository::setCallerParent($processor, $this);
 		$processor->setLayoutDir(SUPRA_TEMPLATE_PATH);
-		
+
 		return $processor;
 	}
 
@@ -217,12 +218,15 @@ class PageController extends ControllerAbstraction
 	protected function prepareBlockControllers()
 	{
 		$request = $this->getRequest();
-		
-		$additionalData = new ArrayCollection();
+
+		$responseContext = new ResponseContext();
+
+		$this->getResponse()
+				->setContext($responseContext);
 
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $additionalData) {
-					$block->prepareController($blockController, $request, $additionalData);
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $responseContext) {
+					$block->prepareController($blockController, $request, $responseContext);
 				};
 
 		// Iterates through all blocks and calls the function passed
@@ -257,8 +261,7 @@ class PageController extends ControllerAbstraction
 
 		if ($this->request instanceof namespace\Request\PageRequestEdit) {
 			$response = new PlaceHolder\PlaceHolderResponseEdit();
-		}
-		else {
+		} else {
 			$response = new PlaceHolder\PlaceHolderResponseView();
 		}
 
@@ -348,8 +351,7 @@ class PageController extends ControllerAbstraction
 
 			try {
 				$return[$index] = $function($block, $blockController);
-			}
-			catch (Exception\InvalidBlockException $e) {
+			} catch (Exception\InvalidBlockException $e) {
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);
 			}
