@@ -162,73 +162,63 @@ Dt.reverseformats = {
  * @return {Date} A Date, or null.
  */
 Y.namespace("Parsers").date = Dt.parse = function(data, oConfig) {
-    var date = null;
 	
-    //Convert to date
-    if(!(LANG.isDate(data))) {
-        date = new Date(data);
-    } else {
+    if(LANG.isDate(data)) {
         return data;
     }
 
-    // Validate
-    if(LANG.isDate(date) && (date != "Invalid Date") && !isNaN(date)) { // Workaround for bug 2527965
-        return date;
-    }
-    else {
-        oConfig = oConfig || {};
-		var format = oConfig.format || Y.config.dateFormat  || "%Y-%m-%d",
-			resources = Y.Intl.get('datatype-date-format'),
-			aggs = Dt.aggregates,
-			formats = Dt.reverseformats,
-			started = false;
-		
-		//Replace aggregates
-		for(var i in aggs) format = format.replace('%' + i, aggs[i]);
-		
-		//Replace formats
-		var str = data.replace(/^\s+|\s$/g, ''),
-			empty = new Date(0,0,0,0,0,0),
-			out = {
-				'year': empty.getFullYear(),
-				'month': empty.getMonth(),
-				'date': empty.getDate(),
-				'hours': empty.getHours(),
-				'minutes': empty.getMinutes(),
-				'seconds': empty.getSeconds()
-			};
-		
-		for(var i=0,ii=format.length; i<ii; i++) {
-			if (format[i] == '%') {
-				if (i+1 < ii && format[i+1] in formats) {
-					str = formats[format[i+1]](str, out);
-					//If nothing was found then date is invalid
-					if (str === null) return;
-				}
-				i++;
-			} else if (format[i] == str[0]) {
-				str = str.substr(1);
-				started = true;
-			} else if (started) {
-				//If parsing has started and unexpected char found then date is invalid
-				return null;
-			} else {
-				//If parsing hasn't started yet, then ignore
-				str = str.substr(1);
+	oConfig = oConfig || {};
+	var format = oConfig.format || Y.config.dateFormat  || "%Y-%m-%d",
+		aggs = Dt.aggregates,
+		formats = Dt.reverseformats,
+		started = false;
+
+	//Replace aggregates
+	for(var i in aggs) format = format.replace('%' + i, aggs[i]);
+
+	//Replace formats
+	var str = data.replace(/^\s+|\s$/g, ''),
+		empty = new Date(0,0,0,0,0,0),
+		out = {
+			'year': empty.getFullYear(),
+			'month': empty.getMonth(),
+			'date': empty.getDate(),
+			'hours': empty.getHours(),
+			'minutes': empty.getMinutes(),
+			'seconds': empty.getSeconds()
+		};
+
+	for(var i=0,ii=format.length; i<ii; i++) {
+		if (format[i] == '%') {
+			if (i+1 < ii && format[i+1] in formats) {
+				str = formats[format[i+1]](str, out);
+				//If nothing was found then date is invalid
+				if (str === null) return;
 			}
+			i++;
+		} else if (format[i] == str[0]) {
+			str = str.substr(1);
+			started = true;
+		} else if (started) {
+			//If parsing has started and unexpected char found then date is invalid
+			//Try using built in parser
+			return new Date(data);
+		} else {
+			//If parsing hasn't started yet, then ignore
+			str = str.substr(1);
 		}
-		
-		//Validate
-		var d = new Date(out.year, out.month, out.date, out.hours, out.minutes, out.seconds);
-		if (d.getFullYear() != out.year ||
-			d.getMonth() != out.month ||
-			d.getDate() != out.date ||
-			d.getHours() != out.hours ||
-			d.getMinutes() != out.minutes ||
-			d.getSeconds() != out.seconds) return null;
-		
-		return d;
-    }
+	}
+
+	//Validate
+	var d = new Date(out.year, out.month, out.date, out.hours, out.minutes, out.seconds);
+	if (d.getFullYear() != out.year ||
+		d.getMonth() != out.month ||
+		d.getDate() != out.date ||
+		d.getHours() != out.hours ||
+		d.getMinutes() != out.minutes ||
+		d.getSeconds() != out.seconds) return null;
+
+	return d;
 };
 
 

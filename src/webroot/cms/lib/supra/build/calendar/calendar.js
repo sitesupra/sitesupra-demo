@@ -79,7 +79,7 @@ YUI.add("supra.calendar", function (Y) {
 		 */
 		'noAnimations': {
 			value: false
-		},
+		}
 	};
 	
 	Calendar.HTML_PARSER = {

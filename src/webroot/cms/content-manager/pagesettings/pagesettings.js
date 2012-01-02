@@ -174,7 +174,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * When schedule slide is shown create widget, bind listeners
 		 */
 		onSlideSchedule: function (node) {
-			var date = this.page_data.scheduled_date;
+			var date = Y.DataType.Date.reformat(this.page_data.scheduled_date, 'in_date', 'raw');
 			
 			//Create calendar if it doesn't exist
 			if (!this.calendar_schedule) {
@@ -234,7 +234,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * When created slide is shown create widget, bind listeners
 		 */
 		onSlideCreated: function (node) {
-			var date = this.page_data.created_date;
+			var date = Y.DataType.Date.reformat(this.page_data.created_date, 'in_date', 'raw');
 			
 			//Create calendar if it doesn't exist
 			if (!this.calendar_created) {
