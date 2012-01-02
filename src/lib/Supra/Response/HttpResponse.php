@@ -106,7 +106,7 @@ class HttpResponse implements ResponseInterface
 	 * @var boolean
 	 */
 	protected $redirect = false;
-	
+
 	/**
 	 * Cookies
 	 * @var Cookie[]
@@ -115,7 +115,7 @@ class HttpResponse implements ResponseInterface
 
 	function __construct()
 	{
-		//$this->context = new ResponseContext();
+		$this->context = new ResponseContext();
 	}
 
 	/**
@@ -389,9 +389,11 @@ class HttpResponse implements ResponseInterface
 	/**
 	 * @param ResponseContext $context 
 	 */
-	public function setContext(ResponseContext $context)
+	public function setContext(ResponseContext $context = null)
 	{
-		$this->context = $context;
+		if ( ! empty($context)) {
+			$this->context = $context;
+		}
 	}
 
 	/**
