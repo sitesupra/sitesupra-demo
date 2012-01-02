@@ -90,7 +90,7 @@ if (typeof Supra === "undefined") {
 		combine:	true,
 	    root:		"/cms/lib/yui." + YUI.version + "/build/",
 		base:		"/cms/lib/yui." + YUI.version + "/build/",
-	    comboBase:	"/cms/lib/yui." + YUI.version + "/combo/combo.php?",
+	    comboBase:	"/cms/lib/supra/combo/combo.php?",
 	    filter:		{
 				        //Remove supra. from module paths
 				        'searchExp': "(supra|website)\\.([^/]*?)(-min)?(\\.js|\\.css)?",
@@ -110,7 +110,7 @@ if (typeof Supra === "undefined") {
 				root: "/cms/lib/supra/build/",
 				base: "/cms/lib/supra/build/",
 				//Use YUI file combo
-				comboBase: "/cms/lib/yui." + YUI.version + "/combo/combo.php?",
+				comboBase: "/cms/lib/supra/combo/combo.php?",
 				modules: {}	//@see modules.js
 			},
 			website: {
@@ -119,7 +119,7 @@ if (typeof Supra === "undefined") {
 				root: "/cms/",
 				base: "/cms/",
 				//Use YUI file combo
-				comboBase: "/cms/lib/yui." + YUI.version + "/combo/combo.php?",
+				comboBase: "/cms/lib/supra/combo/combo.php?",
 				filter: "raw",
 				modules: {}
 			}

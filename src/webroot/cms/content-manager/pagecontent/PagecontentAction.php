@@ -131,12 +131,12 @@ class PagecontentAction extends PageManagerAction
 			$valueData = array();
 
 			// Specific result received from CMS for HTML
-			if ($editable instanceof \Supra\Editable\Html) {
+			if ($editable instanceof Editable\Html) {
 				$value = $propertyPost['html'];
 				if (isset($propertyPost['data'])) {
 					$valueData = $propertyPost['data'];
 				}
-			} elseif ($editable instanceof \Supra\Editable\Link) {
+			} elseif ($editable instanceof Editable\Link) {
 				// No value for the link, just metadata
 				$value = null;
 
@@ -144,6 +144,9 @@ class PagecontentAction extends PageManagerAction
 					$valueData = array($propertyPost);
 					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
 				}
+//			} elseif ($editable instanceof Editable\InlineString) {
+//				// Workaround for inline string escaping
+//				$value = htmlspecialchars_decode($propertyPost);
 			} else {
 				$value = $propertyPost;
 			}
