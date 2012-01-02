@@ -16,7 +16,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Authorization\Exception\AuthorizationException;
-use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
 
@@ -224,7 +224,9 @@ class PageAction extends PageManagerAction
 			$blockSet = $request->getBlockSet();
 		}
 		
-		$responseAdditionalData = new ArrayCollection();
+		$responseContext = new ResponseContext();
+		
+		$this->getResponse()->setContext($responseContext);
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
@@ -248,7 +250,7 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 				
 				$controller = $block->createController();
-				$block->prepareController($controller, $request, $responseAdditionalData);
+				$block->prepareController($controller, $request, $responseContext);
 
 				$blockData = array(
 					'id' => $block->getId(),
