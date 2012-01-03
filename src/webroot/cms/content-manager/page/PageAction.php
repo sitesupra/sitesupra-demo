@@ -200,6 +200,11 @@ class PageAction extends PageManagerAction
 			$array['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
 		}
 		
+		if ($page instanceof Entity\Page) {
+			$array['page_change_frequency'] = $pageData->getChangeFrequency();
+			$array['page_priority'] = $pageData->getPagePriority();
+		}
+		
 		if ($page instanceof Entity\Template) {
 			$layout = null;
 			

@@ -129,6 +129,17 @@
 			"pages_will_inherit_these_values": "New pages will inherit these template values on creation",
 			"meta": "Meta",
 			"meta_title": "Meta",
+			"page_change_frequency": {
+				"title": "How frequently the page may change",
+				"always": "Always",
+				"hourly": "Hourly",
+				"daily": "Daily",
+				"weekly": "Weekly",
+				"monthly": "Monthly",
+				"yearly": "Yearly",
+				"never": "Never"
+			},
+			"page_priority": "The priority of that URL relative to other URLs on the site",
 			"keywords": "Keywords",
 			"description": "Description",
 			

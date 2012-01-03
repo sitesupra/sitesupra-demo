@@ -726,6 +726,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				delete(post_data.path_prefix);
 				delete(post_data.description);
 				delete(post_data.keywords);
+				delete(post_data.page_change_frequency);
+				delete(post_data.page_priority);
 				delete(post_data.active);
 				delete(post_data.redirect);
 			}

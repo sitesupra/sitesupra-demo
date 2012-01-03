@@ -53,7 +53,7 @@ class PagesettingsAction extends PageManagerAction
 			$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
 			$pageData->setVisibleInSitemap($visibleInSitemap);
 		}
-
+		
 		if ($input->has('include_in_search')) {
 			$includeInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
 			$pageData->includeInSearch($includeInSearch);
@@ -215,6 +215,17 @@ class PagesettingsAction extends PageManagerAction
 					$pageData->setRedirect($link);
 				}
 			}
+
+			if ($input->has('page_change_frequency')) {
+				$changeFrequency = $input->get('page_change_frequency');
+				$pageData->setChangeFrequency($changeFrequency);
+			}
+
+			if ($input->has('page_priority')) {
+				$pagePriority = $input->get('page_priority');
+				$pageData->setPagePriority($pagePriority);
+			}
+		
 		}
 
 		$this->entityManager->flush();
