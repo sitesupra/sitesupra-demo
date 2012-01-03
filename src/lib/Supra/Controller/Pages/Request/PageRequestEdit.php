@@ -41,6 +41,12 @@ class PageRequestEdit extends PageRequest
 	 * @var array
 	 */
 	private $_clonedEntities = array();
+
+	/**
+	 * recursiveClone() method recursion depth
+	 * @var int
+	 */
+	private $_cloneRecursionDepth;
 	
 	/**
 	 * Factory method for page request edit mode
@@ -601,6 +607,9 @@ class PageRequestEdit extends PageRequest
 		// reset at first iteration
 		if (is_null($associationOwner)) {
 			$this->_clonedEntities = array();
+			$this->_cloneRecursionDepth = 1;
+		} else {
+			$this->_cloneRecursionDepth++;
 		}
 		
 		$entityData = $em->getUnitOfWork()->getOriginalEntityData($entity);
@@ -635,27 +644,6 @@ class PageRequestEdit extends PageRequest
 				// FIXME association handling needs rework, not full and buggy
 				if ($ownerReflectionClass->isInstance($associationOwner)) {
 					$classMetadata->reflFields[$fieldName]->setValue($newEntity, $associationOwner);
-
-					$ownerClassMetadata = $em->getClassMetadata($ownerEntityClassName);
-					$ownerFieldName = $association['inversedBy'];
-					if ($ownerClassMetadata->hasAssociation($ownerFieldName)) {
-						$ownerAssociationMapping = $ownerClassMetadata->getAssociationMapping($ownerFieldName);
-						if ($ownerClassMetadata->isCollectionValuedAssociation($ownerFieldName)) {
-							$collection = $ownerClassMetadata->reflFields[$ownerFieldName]->getValue($associationOwner);
-							if ($collection instanceof Collection) {
-								$indexBy = $ownerAssociationMapping['indexBy'];
-								$collection->removeElement($entity);
-								if ( ! empty($indexBy)) {
-									$elementKey = $classMetadata->reflFields[$indexBy]->getValue($newEntity);
-									$collection->set($elementKey, $newEntity);
-								} else if ( ! $collection->contains($newEntity)) {
-									$collection->add($newEntity);
-								}
-							}
-						} else {
-							$ownerClassMetadata->reflFields[$ownerFieldName]->setValue($associationOwner, $newEntity);
-						}
-					}
 					
 					if ( ! $cloned) {
 						$em->getUnitOfWork()->propertyChanged($newEntity, $fieldName, null, $associationOwner);
@@ -683,6 +671,16 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		$em->persist($newEntity);
+
+		// workaround to keep cloned entities in sync with database
+		// otherwise using them after clone will fail
+		$this->_cloneRecursionDepth--;
+		if ($this->_cloneRecursionDepth == 0) {
+			$em->flush();
+			foreach ($this->_clonedEntities as $clonedEntity) {
+				$em->refresh($clonedEntity);
+			}
+		}
 		
 		return $newEntity;
 	}
