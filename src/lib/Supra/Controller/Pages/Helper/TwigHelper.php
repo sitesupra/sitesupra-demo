@@ -54,7 +54,7 @@ class TwigHelper
 	/**
 	 * @param ResponseContext $responseContext 
 	 */
-	public function setResponseContext(ResponseContext $responseContext)
+	public function setResponseContext(ResponseContext $responseContext = null)
 	{
 		$this->responseContext = $responseContext;
 	}
