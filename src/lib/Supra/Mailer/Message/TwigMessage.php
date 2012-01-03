@@ -41,7 +41,7 @@ class TwigMessage extends SimpleMessage
 		$defaultEmail = "no-reply@$host";
 		
 		try {
-			$defaultEmail = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'default_email');
+			$defaultEmail = ObjectRepository::getIniConfigurationLoader($this)->getValue('mail', 'default_email');
 		} catch (ConfigurationMissing $exc) {}
 
 		$this->setFrom($defaultEmail);

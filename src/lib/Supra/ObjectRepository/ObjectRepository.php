@@ -24,6 +24,7 @@ use Supra\AuditLog\Writer\AuditLogWriterAbstraction;
 use Supra\AuditLog\Writer\NullAuditLogWriter;
 use Doctrine\Common\Cache\Cache;
 use Supra\Mailer\CampaignMonitor;
+use Supra\Info;
 
 /**
  * Object repository
@@ -58,6 +59,7 @@ class ObjectRepository
 	const INTERFACE_COMPONENT_CONFIGURATION = 'Supra\Configuration\ComponentConfiguration';
 	const INTERFACE_CAMPAIGN_MONITOR = 'Supra\Mailer\CampaignMonitor';
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
+	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
 
 	/**
 	 * Object relation storage
@@ -1082,4 +1084,34 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_COMPONENT_CONFIGURATION);
 	}
 
+	/**
+	 * Get assigned system info object.
+	 * @param mixed $caller
+	 * @return Info
+	 */
+	public static function getSystemInfo($caller)
+	{
+		$systemInfo = self::getObject($caller, self::INTERFACE_SYSTEM_INFO);
+
+		return $systemInfo;
+	}
+
+	/**
+	 * Assign system info to namespace.
+	 * @param mixed $caller
+	 * @param Info $object
+	 */
+	public static function setSystemInfo($caller, Info $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_SYSTEM_INFO);
+	}
+
+	/**
+	 * Set default system info
+	 * @param Info $object
+	 */
+	public static function setDefaultSystemInfo(Info $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SYSTEM_INFO);
+	}
 }
