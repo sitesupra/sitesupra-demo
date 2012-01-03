@@ -16,6 +16,45 @@ YUI.add("supra.input-inline-string", function (Y) {
 	
 	Input.HTML_PARSER = {};
 	
+	var HTML_CHARS = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;',
+        '`': '&#x60;'
+    }
+	
+	var HTML_CHARS_INVERSE = {};
+	var HTML_CHARS_REGEXP = '';
+	
+	for (var i in HTML_CHARS) {
+		HTML_CHARS_INVERSE[HTML_CHARS[i].toLowerCase()] = i;
+		HTML_CHARS_REGEXP += '\\' + i;
+	}
+	
+	HTML_CHARS_REGEXP = new RegExp('[' + HTML_CHARS_REGEXP + ']', 'g');
+	
+	var escapeHtml = function(chr)
+	{
+		if (chr in HTML_CHARS) {
+			return HTML_CHARS[chr];
+		}
+		
+		return chr;
+	}
+	
+	var unescapeHtml = function(ent)
+	{
+		var entLo = ent.toLowerCase();
+		if (entLo in HTML_CHARS_INVERSE) {
+			return HTML_CHARS_INVERSE[entLo];
+		}
+		
+		return ent;
+	}
+	
 	Y.extend(Input, Supra.Input.InlineHTML, {
 		/*CONTENT_TEMPLATE: null,*/
 		
@@ -45,10 +84,11 @@ YUI.add("supra.input-inline-string", function (Y) {
 		
 		_getValue: function (value) {
 			if (this.htmleditor) {
-				return this.htmleditor.getHTML();
-			} else {
-				return value;
+				value = this.htmleditor.getHTML();
+				value = value.replace(/&.*?;/g, unescapeHtml);
 			}
+		
+			return value;
 		},
 		
 		_getSaveValue: function (value) {
@@ -60,6 +100,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 		},
 		
 		_setValue: function (value) {
+			value = value.replace(HTML_CHARS_REGEXP, escapeHtml);
 			if (this.htmleditor) {
 				this.htmleditor.setHTML(value);
 			}
