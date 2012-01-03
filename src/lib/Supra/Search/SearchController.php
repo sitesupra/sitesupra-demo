@@ -24,21 +24,8 @@ use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
  */
 class SearchController extends BlockController
 {
-	const PROPERTY_NAME_BLOCK_TYPE = 'blockType';
-	const BLOCK_TYPE_FORM = 'form';
-	const BLOCK_TYPE_RESULTS = 'results';
+	const RESPONSE_CONTEXT_KEY_RESULTS = 'search-results';
 
-	const ADDITIONAL_RESPONSE_DATA_KEY_RESULTS = 'search-results';
-
-	//static $results = null;
-
-	public function createResponse(Request\RequestInterface $request)
-	{
-		$response = new Response\TwigResponse();
-
-		return $response;
-	}
-	
 	/**
 	 * Accepts only SearchControllerConfiguration instances
 	 * @param BlockControllerConfiguration $configuration 
@@ -48,7 +35,7 @@ class SearchController extends BlockController
 		if ( ! $configuration instanceof SearchControllerConfiguration) {
 			throw new Exception\RuntimeException("Search controller accepts only SearchControllerConfiguration as configuration");
 		}
-		
+
 		$this->configuration = $configuration;
 	}
 
@@ -62,55 +49,16 @@ class SearchController extends BlockController
 
 	public function execute()
 	{
-		$blockType = $this->getPropertyValue(self::PROPERTY_NAME_BLOCK_TYPE);
-
-		if ($blockType == self::BLOCK_TYPE_FORM) {
-
-			//$this->response = $this->formResponse;
-			//$this->getResults();
-			$this->executeForm();
-		} else if ($blockType == self::BLOCK_TYPE_RESULTS) {
-
-			//$this->response = $this->resultsResponse;
-			//$this->getResults();
-			$this->executeResults();
-		}
-	}
-
-	public function executeForm()
-	{
-		$response = $this->getResponse();
-		$configuration = $this->getConfiguration();
-		$results = $this->getResults();
-
-		if ($results instanceof \Supra\Search\Exception\RuntimeException) {
-			
-			$this->log->error("Search error: ", $results);
-			
-			$response->assign('error', true);
-		} else if ( ! empty($results->processedResults)) {
-
-			/* @var $results \Solarium_Result_Select */
-
-			$response->assign('haveResults', true);
-			$response->assign('resultCount', $results->getNumFound());
-		}
-
-		$response->outputTemplate('template/' . $configuration->formTemplateFilename);
-	}
-
-	protected function executeResults()
-	{
 		$response = $this->getResponse();
 		$configuration = $this->getConfiguration();
 		$results = $this->getResults();
 
 		if (empty($results->processedResults)) {
-			$response->outputTemplate('template/' . $configuration->noResultsTemplateFilename);
+			$response->outputTemplate($configuration->noResultsTemplateFilename);
 		} else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
 
 			$response->assign('error', true);
-			$response->outputTemplate('template/' . $configuration->resultsTemplateFilename);
+			$response->outputTemplate($configuration->resultsTemplateFilename);
 		} else {
 			/* @var $results \Solarium_Result_Select */
 
@@ -149,10 +97,7 @@ class SearchController extends BlockController
 			$response->assign('pages', range(1, $totalPages));
 			$response->assign('pageCount', $totalPages);
 
-			//$response->getContext()
-			//		->addJsToLayoutSnippet('js', 'alert(123);');
-
-			$response->outputTemplate('template/' . $configuration->resultsTemplateFilename);
+			$response->outputTemplate($configuration->resultsTemplateFilename);
 		}
 	}
 
@@ -170,7 +115,7 @@ class SearchController extends BlockController
 		$response->assign('currentPageNumber', $currentPageNumber);
 
 		$results = $response->getContext()
-				->getValue(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS);
+				->getValue(self::RESPONSE_CONTEXT_KEY_RESULTS);
 
 		if ( ! is_null($results)) {
 			return $results;
@@ -196,40 +141,11 @@ class SearchController extends BlockController
 		}
 
 		$response->getContext()
-				->setValue(self::ADDITIONAL_RESPONSE_DATA_KEY_RESULTS, $results);
+				->setValue(self::RESPONSE_CONTEXT_KEY_RESULTS, $results);
 
 		return $results;
 	}
-
-	/**
-	 * Loads property definition array
-	 * @return array
-	 */
-	public function getPropertyDefinition()
-	{
-		$contents = array();
-
-		$types = array(
-			self::BLOCK_TYPE_FORM => 'Form',
-			self::BLOCK_TYPE_RESULTS => 'Results'
-		);
-
-		$blockTypesForSelect = array();
-		foreach ($types as $id => $value) {
-			/* @var $type BannerTypeAbstraction */
-
-			$blockTypesForSelect[$id] = $value;
-		}
-
-		$html = new \Supra\Editable\Select('Block type');
-		$html->setValues($blockTypesForSelect);
-		$html->setDefaultValue($id);
-
-		$contents[self::PROPERTY_NAME_BLOCK_TYPE] = $html;
-
-		return $contents;
-	}
-
+	
 	/**
 	 * @param string $text
 	 * @return array
@@ -255,12 +171,4 @@ class SearchController extends BlockController
 		return $searchResults;
 	}
 
-	/* static function createController()
-	  {
-	  if (is_null(self::$instance)) {
-	  self::$instance = parent::createController();
-	  }
-
-	  return self::$instance;
-	  } */
 }

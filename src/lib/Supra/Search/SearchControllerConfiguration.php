@@ -21,22 +21,38 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	 * @var string
 	 */
 	public $noResultsTemplateFilename;
-	
+
 	/**
 	 * @var int
 	 */
 	public $resultsPerPage = 10;
 
 	/**
+	 * @var string
+	 */
+	public $controllerClass;
+
+	/**
 	 * Main method
 	 */
 	public function configure()
 	{
-		$this->controllerClass = SearchController::CN();
-		$this->title = 'Search';
+		if (empty($this->controllerClass)) {
+			$this->controllerClass = SearchController::CN();
+		}
+
+		if (empty($this->title)) {
+			$this->title = 'Search';
+		}
+		
 		$this->group = 'System';
-		$this->description = 'Search controller';
+		
+		if(empty($this->description)) {
+			$this->description = 'Search controller';
+		}
+		
 		$this->cmsClassname = 'Editable';
+		
 		$this->iconWebPath = '/assets/img/blocks/system_block.png';
 
 		parent::configure();
