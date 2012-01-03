@@ -54,6 +54,8 @@ class SearchController extends BlockController
 		$results = $this->getResults();
 
 		if (empty($results->processedResults)) {
+			
+			$response->assign('resultCount', '0');
 			$response->outputTemplate($configuration->noResultsTemplateFilename);
 		} else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
 
@@ -96,6 +98,7 @@ class SearchController extends BlockController
 			$response->assign('searchResults', $results->processedResults);
 			$response->assign('pages', range(1, $totalPages));
 			$response->assign('pageCount', $totalPages);
+			$response->assign('resultCount', $results->getNumFound());
 
 			$response->outputTemplate($configuration->resultsTemplateFilename);
 		}
