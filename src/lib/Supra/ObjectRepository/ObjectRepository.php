@@ -23,6 +23,7 @@ use Supra\Configuration\ComponentConfiguration;
 use Supra\AuditLog\Writer\AuditLogWriterAbstraction;
 use Supra\AuditLog\Writer\NullAuditLogWriter;
 use Doctrine\Common\Cache\Cache;
+use Supra\Mailer\CampaignMonitor;
 
 /**
  * Object repository
@@ -55,6 +56,7 @@ class ObjectRepository
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
 	const INTERFACE_BANNER_MACHINE = 'Supra\BannerMachine\BannerProvider';
 	const INTERFACE_COMPONENT_CONFIGURATION = 'Supra\Configuration\ComponentConfiguration';
+	const INTERFACE_CAMPAIGN_MONITOR = 'Supra\Mailer\CampaignMonitor';
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 
 	/**
@@ -714,7 +716,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MAILER);
 	}
-
+	
 	/**
 	 * Get assigned mailer
 	 *
@@ -726,6 +728,26 @@ class ObjectRepository
 		return self::getObject($caller, self::INTERFACE_MAILER);
 	}
 
+	/**
+	 * Set default Campaign Monitor Api
+	 * @param SmApi $object 
+	 */
+	public static function setDefaultCampaignMonitorApi(SmApi $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_CAMPAIGN_MONITOR);
+	}
+	
+	/**
+	 * Get assigned Campaign Monitor Api
+	 * @param mixed $caller
+	 * @return CmApi
+	 */
+	public static function getCampaignMonitorApi($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_CAMPAIGN_MONITOR);
+	}
+	
+	
 	/**
 	 * Get assigned authorization provider.
 	 *
