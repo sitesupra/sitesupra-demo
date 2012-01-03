@@ -78,9 +78,22 @@ class TwigResponse extends HttpResponse
 	 */
 	public function assign($name, $value)
 	{
-		$this->templateVariables[$name] = $value;
+		if (is_array($name)) {
+			$this->templateVariables = array_merge($this->templateVariables, $name);
+		} else {
+			$this->templateVariables[$name] = $value;
+		}
 		
 		return $this;
+	}
+	
+	/**
+	 * Get assigned template data
+	 * @return array
+	 */
+	public function getTemplateVariables()
+	{
+		return $this->templateVariables;
 	}
 
 }
