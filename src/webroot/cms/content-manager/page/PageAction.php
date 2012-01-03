@@ -469,7 +469,7 @@ class PageAction extends PageManagerAction
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 
-		$this->writeAuditLog('save', '%item saved', $pageData);
+		$this->writeAuditLog('save', '%item% saved', $pageData);
 	}
 
 	/**

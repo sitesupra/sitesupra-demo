@@ -229,6 +229,8 @@ class PagesettingsAction extends PageManagerAction
 		}
 
 		$this->entityManager->flush();
+
+		$this->writeAuditLog('settings save', 'Settings of %item% saved', $pageData);
 	}
 
 	/**

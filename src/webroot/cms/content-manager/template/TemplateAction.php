@@ -171,6 +171,9 @@ class TemplateAction extends PageManagerAction
 		$this->checkLock();
 		$this->publish();
 		$this->unlockPage();
+
+		$templateLocalization = $this->getPageLocalization();
+		$this->writeAuditLog('publish', '%item% published', $templateLocalization);
 	}
 	
 	/**

@@ -32,6 +32,9 @@ class PagehistoryAction extends PageManagerAction
 		$this->restoreLocalizationVersion();
 		$this->getResponse()
 				->setResponseData(true);
+
+		$pageData = $this->getPageLocalization();
+		$this->writeAuditLog('history restore', '%item% restored', $pageData);
 	}
 	
 	/**
