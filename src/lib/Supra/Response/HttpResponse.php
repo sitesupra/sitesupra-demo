@@ -113,9 +113,12 @@ class HttpResponse implements ResponseInterface
 	 */
 	protected $cookies = array();
 
-	function __construct()
+	/**
+	 * 
+	 */
+	public function __construct()
 	{
-		$this->context = new ResponseContext();
+		
 	}
 
 	/**
@@ -401,8 +404,11 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function getContext()
 	{
+		if (empty($this->context)) {
+			$this->context = new ResponseContext();
+		}
+		
 		return $this->context;
 	}
 
 }
-

@@ -33,6 +33,8 @@ class TwigResponse extends HttpResponse
 	 */
 	public function __construct($loaderContext = null)
 	{
+		parent::__construct();
+		
 		$this->loaderContext = $loaderContext;
 		$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
 		
