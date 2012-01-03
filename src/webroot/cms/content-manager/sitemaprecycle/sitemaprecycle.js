@@ -133,7 +133,8 @@ SU('anim', 'transition', function (Y) {
 		 * @type {String}
 		 */
 		dateToTitle: function (date) {
-			var date = Y.DataType.Date.parse(date).getTime(),
+//			var date = Y.DataType.Date.parse(date).getTime(),
+			var date = Date.parse(date),
 				diff = Math.ceil(((new Date()).getTime() - date) / 86400000),
 				title = '';
 			
