@@ -24,6 +24,7 @@ $cli->addCommandClasses(array(
 	'Supra\Controller\Pages\Command\LayoutRereadCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
+	'Supra\Seo\Command\GenerateSitemapCommand',
 ));
 
 $cli->setHelperSet($helperSet);
