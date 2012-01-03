@@ -29,6 +29,8 @@ class PageController extends ControllerAbstraction
 	const SCHEMA_PUBLIC = '#public';
 	const SCHEMA_AUDIT = '#audit';
 
+	const EVENT_POST_PREPARE_CONTENT = 'postPrepareContent';
+	
 	//public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_AUDIT, self::SCHEMA_PUBLIC);
 	public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_PUBLIC);
 
@@ -145,7 +147,14 @@ class PageController extends ControllerAbstraction
 		\Log::debug("Blocks executed for {$page}");
 
 		$placeResponses = $this->getPlaceResponses($request);
-
+		
+		$eventArgs = new Event\PostPrepareContentEventArgs();
+		$eventArgs->request = $this->getRequest();
+		$eventArgs->response = $this->getResponse();
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(self::EVENT_POST_PREPARE_CONTENT, $eventArgs);
+		
 		$this->processLayout($layout, $placeResponses);
 		\Log::debug("Layout {$layout} processed and output to response for {$page}");
 	}
