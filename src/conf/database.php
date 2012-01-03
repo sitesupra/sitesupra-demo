@@ -4,6 +4,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Supra\Database\Doctrine;
 use Doctrine\Common\Cache\ArrayCache;
+use Supra\Cache\CacheNamespaceWrapper;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
@@ -45,6 +46,8 @@ foreach ($managerNames as $managerName => $namespace) {
 	//$memcache = new \Memcache();
 	//$memcache->addserver('127.0.0.1');
 	//$cache->setMemcache($memcache);
+	$cacheInstance = ObjectRepository::getCacheAdapter('');
+	$cache = new CacheNamespaceWrapper($cacheInstance);
 	//NB! Must have different namespace for draft connection
 	$cache->setNamespace($managerName);
 	$config->setMetadataCacheImpl($cache);

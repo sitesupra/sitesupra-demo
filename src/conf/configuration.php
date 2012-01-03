@@ -7,6 +7,8 @@ Supra\ObjectRepository\ObjectRepository::setDefaultIniConfigurationLoader($iniPa
 
 require_once SUPRA_CONF_PATH . 'loader.php';
 require_once SUPRA_CONF_PATH . 'log.php';
+require_once SUPRA_CONF_PATH . 'system.php';
+require_once SUPRA_CONF_PATH . 'cache.php';
 require_once SUPRA_CONF_PATH . 'database.php';
 require_once SUPRA_CONF_PATH . 'locale.php';
 require_once SUPRA_CONF_PATH . 'filestorage.php';

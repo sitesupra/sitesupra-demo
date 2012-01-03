@@ -34,7 +34,7 @@ class GenerateSitemapCommand extends Command
 		try {
 			$this->generateSitemapXml($records);
 			$this->generateRobotsTxt();
-		} catch (Exception $exc) {
+		} catch (\Supra\Locale\Exception $exc) {
 			$output->writeln($exc->getMessage());
 		}
 
