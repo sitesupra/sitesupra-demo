@@ -144,9 +144,6 @@ class PagecontentAction extends PageManagerAction
 					$valueData = array($propertyPost);
 					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
 				}
-			} elseif ($editable instanceof Editable\InlineString) {
-				// Workaround for inline string escaping
-				$value = html_entity_decode($propertyPost, ENT_COMPAT, 'UTF-8');
 			} else {
 				$value = $propertyPost;
 			}

@@ -93,10 +93,11 @@ YUI.add("supra.input-inline-string", function (Y) {
 		
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
-				return this.htmleditor.getProcessedHTML();
-			} else {
-				return value;
+				value = this.htmleditor.getProcessedHTML();
+				value = value.replace(/&.*?;/g, unescapeHtml);
 			}
+			
+			return value;
 		},
 		
 		_setValue: function (value) {
