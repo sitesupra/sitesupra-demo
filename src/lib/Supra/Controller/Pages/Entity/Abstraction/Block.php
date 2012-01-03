@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Controller\Pages\Entity\TemplateBlock;
 use Supra\Loader;
 use Supra\Controller\Pages\BlockControllerCollection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Block database entity abstraction

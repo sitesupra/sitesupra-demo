@@ -28,10 +28,12 @@ class EditableString implements FilterInterface
 
 		$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName
 				. '" class="yui3-content-inline yui3-input-string-inline">';
-		$html .= $content;
+		$html .= htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
 		$html .= '</div>';
 
-		return $html;
+		$markup = new \Twig_Markup($html);
+		
+		return $markup;
 	}
 
 }

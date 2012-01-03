@@ -47,7 +47,7 @@ class IniConfigurationLoader
 			return $this->data[$section][$key];
 		}
 		
-		if ( ! is_null($default)) {
+		if (func_num_args() > 2) {
 			return $default;
 		}
 		

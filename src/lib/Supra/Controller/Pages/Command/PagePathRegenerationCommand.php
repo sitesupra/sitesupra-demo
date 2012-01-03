@@ -21,7 +21,7 @@ class PagePathRegenerationCommand extends Command
      */
     protected function configure()
     {
-		$this->setName('su:page:regenerate_path')
+		$this->setName('su:pages:regenerate_path')
 				->setDescription("Regenerates the path for all pages");
     }
 	
