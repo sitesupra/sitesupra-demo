@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Search\IndexerService;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\IndexedDocument;
@@ -256,7 +257,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$this->reindexChildren = true;
 	}
 
-	protected function reindexChildren(PageLocalization $pageLocalization, $isVisible)
+	protected function reindexChildren(Localization $pageLocalization, $isVisible)
 	{
 		$result = array();
 

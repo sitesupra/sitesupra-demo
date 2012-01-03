@@ -84,7 +84,9 @@ class SearchController extends BlockController
 		$results = $this->getResults();
 
 		if ($results instanceof \Supra\Search\Exception\RuntimeException) {
-
+			
+			$this->log->error("Search error: ", $results);
+			
 			$response->assign('error', true);
 		} else if ( ! empty($results->processedResults)) {
 
@@ -119,8 +121,11 @@ class SearchController extends BlockController
 			foreach ($results->processedResults as &$result) {
 
 				$result['breadcrumbs'] = array();
-
-				$ancestorIds = array_reverse($result['ancestorIds']);
+				
+				$ancestorIds = array();
+				if (isset($result['ancestorIds'])) {
+					$ancestorIds = array_reverse($result['ancestorIds']);
+				}
 
 				foreach ($ancestorIds as $ancestorId) {
 
