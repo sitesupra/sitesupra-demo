@@ -44,7 +44,7 @@ class TextController extends BlockController
 	{
 		$contents = array();
 		
-		$html = new \Supra\Editable\String("Title");
+		$html = new \Supra\Editable\InlineString("Title");
 		$html->setDefaultValue('Paragraph default title');
 		$contents['title'] = $html;
 		
