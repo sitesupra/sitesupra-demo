@@ -96,23 +96,24 @@ class ResponseContext
 		return $this->layoutSnippetResponses;
 	}
 
-	public function addJsToLayoutSnippet($key, $js)
+	public function addJsToLayoutSnippet($key, $js, $type = 'text/javascript')
 	{
 		$response = $this->getLayoutSnippetResponse($key);
+		$js = (string) $js;
 
-		$scriptTag = new HtmlTag('script');
-		$scriptTag->setContent($js);
+		$scriptTag = new HtmlTag('script', $js);
+		$scriptTag->setAttribute('type', $type);
 
 		$response->output($scriptTag->toHtml());
 	}
 
-	public function addJsUrlToLayoutSnippet($key, $url)
+	public function addJsUrlToLayoutSnippet($key, $url, $type = 'text/javascript')
 	{
 		$response = $this->getLayoutSnippetResponse($key);
 
-		$scriptTag = new HtmlTag('script');
+		$scriptTag = new HtmlTag('script', '');
 		$scriptTag->setAttribute('src', $url);
-		$scriptTag->forceTwoPartTag(true);
+		$scriptTag->setAttribute('type', $type);
 
 		$response->output($scriptTag->toHtml());
 	}

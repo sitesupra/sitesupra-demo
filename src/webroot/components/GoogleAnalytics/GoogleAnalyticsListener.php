@@ -8,8 +8,6 @@ use Supra\Controller\Pages\Request\PageRequestView;
 
 class GoogleAnalyticsListener 
 {
-	const SELF_DIR_PATH = 'GoogleAnalytics/';
-	
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
 		$userConfig = ObjectRepository::getIniConfigurationLoader($this);
@@ -22,14 +20,12 @@ class GoogleAnalyticsListener
 			return;
 		}
 		
-		$twig = ObjectRepository::getTemplateParser($this);
-		$loader = new \Twig_Loader_Filesystem(SUPRA_COMPONENT_PATH . self::SELF_DIR_PATH);
-	
-		$jsCode = $twig->parseTemplate('main.js.twig', array('accountId' => $accountId), $loader);
+		$response = new \Supra\Response\TwigResponse($this);
+		$response->assign('accountId', $accountId);
+		$response->outputTemplate('main.js.twig');
 		
 		$eventArgs->response
 				->getContext()
-				->addJsToLayoutSnippet('js', $jsCode);
-
+				->addJsToLayoutSnippet('js', $response);
 	}
 }
