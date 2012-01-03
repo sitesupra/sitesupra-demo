@@ -17,6 +17,7 @@ use Supra\Controller\Pages\Set\BlockPropertySet as PageBlockPropertySet;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 /**
  * Simple text block
@@ -29,8 +30,6 @@ class SearchController extends BlockController
 
 	const ADDITIONAL_RESPONSE_DATA_KEY_RESULTS = 'search-results';
 
-	const RESULTS_PER_PAGE = 5;
-
 	//static $results = null;
 
 	public function createResponse(Request\RequestInterface $request)
@@ -38,6 +37,27 @@ class SearchController extends BlockController
 		$response = new Response\TwigResponse();
 
 		return $response;
+	}
+	
+	/**
+	 * Accepts only SearchControllerConfiguration instances
+	 * @param BlockControllerConfiguration $configuration 
+	 */
+	public function setConfiguration(BlockControllerConfiguration $configuration)
+	{
+		if ( ! $configuration instanceof SearchControllerConfiguration) {
+			throw new Exception\RuntimeException("Search controller accepts only SearchControllerConfiguration as configuration");
+		}
+		
+		$this->configuration = $configuration;
+	}
+
+	/**
+	 * @return SearchControllerConfiguration
+	 */
+	public function getConfiguration()
+	{
+		return $this->configuration;
 	}
 
 	public function execute()
@@ -60,7 +80,7 @@ class SearchController extends BlockController
 	public function executeForm()
 	{
 		$response = $this->getResponse();
-
+		$configuration = $this->getConfiguration();
 		$results = $this->getResults();
 
 		if ($results instanceof \Supra\Search\Exception\RuntimeException) {
@@ -74,21 +94,21 @@ class SearchController extends BlockController
 			$response->assign('resultCount', $results->getNumFound());
 		}
 
-		$response->outputTemplate('template/' . $this->configuration->formTemplateFilename);
+		$response->outputTemplate('template/' . $configuration->formTemplateFilename);
 	}
 
 	protected function executeResults()
 	{
 		$response = $this->getResponse();
-
+		$configuration = $this->getConfiguration();
 		$results = $this->getResults();
 
 		if (empty($results->processedResults)) {
-			$response->outputTemplate('template/' . $this->configuration->noResultsTemplateFilename);
+			$response->outputTemplate('template/' . $configuration->noResultsTemplateFilename);
 		} else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
 
 			$response->assign('error', true);
-			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
+			$response->outputTemplate('template/' . $configuration->resultsTemplateFilename);
 		} else {
 			/* @var $results \Solarium_Result_Select */
 
@@ -118,8 +138,8 @@ class SearchController extends BlockController
 				}
 			}
 
-			$totalPages = ceil($results->getNumFound() / self::RESULTS_PER_PAGE);
-			$response->assign('resultsPerPage', self::RESULTS_PER_PAGE);
+			$totalPages = ceil($results->getNumFound() / $configuration->resultsPerPage);
+			$response->assign('resultsPerPage', $configuration->resultsPerPage);
 			$response->assign('searchResults', $results->processedResults);
 			$response->assign('pages', range(1, $totalPages));
 			$response->assign('pageCount', $totalPages);
@@ -127,14 +147,14 @@ class SearchController extends BlockController
 			//$response->getContext()
 			//		->addJsToLayoutSnippet('js', 'alert(123);');
 
-			$response->outputTemplate('template/' . $this->configuration->resultsTemplateFilename);
+			$response->outputTemplate('template/' . $configuration->resultsTemplateFilename);
 		}
 	}
 
 	protected function getResults()
 	{
 		$request = $this->getRequest();
-
+		$configuration = $this->getConfiguration();
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
 
@@ -163,7 +183,7 @@ class SearchController extends BlockController
 				}
 
 				try {
-					$results = $this->doSearch($q, self::RESULTS_PER_PAGE, abs(intval($currentPageNumber) * intval(self::RESULTS_PER_PAGE)));
+					$results = $this->doSearch($q, $configuration->resultsPerPage, abs(intval($currentPageNumber) * intval($configuration->resultsPerPage)));
 				} catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
 				}

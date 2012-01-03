@@ -21,7 +21,15 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	 * @var string
 	 */
 	public $noResultsTemplateFilename;
+	
+	/**
+	 * @var int
+	 */
+	public $resultsPerPage = 10;
 
+	/**
+	 * Main method
+	 */
 	public function configure()
 	{
 		$this->controllerClass = SearchController::CN();
