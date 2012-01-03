@@ -22,6 +22,7 @@ use Supra\BannerMachine\BannerProvider;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\AuditLog\Writer\AuditLogWriterAbstraction;
 use Supra\AuditLog\Writer\NullAuditLogWriter;
+use Doctrine\Common\Cache\Cache;
 
 /**
  * Object repository
@@ -54,6 +55,7 @@ class ObjectRepository
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
 	const INTERFACE_BANNER_MACHINE = 'Supra\BannerMachine\BannerProvider';
 	const INTERFACE_COMPONENT_CONFIGURATION = 'Supra\Configuration\ComponentConfiguration';
+	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 
 	/**
 	 * Object relation storage
@@ -649,6 +651,37 @@ class ObjectRepository
 	public static function setLocaleManager($caller, LocaleManager $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_LOCALE_MANAGER);
+	}
+	
+	/**
+	 * Get assigned cache adapter
+	 *
+	 * @param mixed $caller
+	 * @return Cache
+	 */
+	public static function getCacheAdapter($caller)
+	{
+		return self::getObject($caller, self::INTERFACE_CACHE);
+	}
+
+	/**
+	 * Assign cache adapter
+	 *
+	 * @param mixed $caller
+	 * @param Cache $object 
+	 */
+	public static function setCacheAdapter($caller, Cache $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_CACHE);
+	}
+
+	/**
+	 * Sets default cache adapter
+	 * @param Cache $object 
+	 */
+	public static function setDefaultCacheAdapter(Cache $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_CACHE);
 	}
 
 	/**

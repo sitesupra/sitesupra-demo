@@ -11,6 +11,7 @@ use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Entity\TemplateLocalization;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\GroupLocalization;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * @Entity
@@ -25,6 +26,14 @@ use Supra\Controller\Pages\Entity\GroupLocalization;
  */
 abstract class Localization extends Entity implements AuditedEntityInterface
 {
+	const CHANGE_FREQUENCY_HOURLY = 'hourly';
+	const CHANGE_FREQUENCY_DAILY = 'daily';
+	const CHANGE_FREQUENCY_WEEKLY = 'weekly';
+	const CHANGE_FREQUENCY_MONTHY = 'monthly';
+	const CHANGE_FREQUENCY_YEARLY = 'yearly';
+	const CHANGE_FREQUENCY_ALWAYS = 'always';
+	const CHANGE_FREQUENCY_NEVER = 'never';
+	
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -87,7 +96,36 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 * @var boolean
 	 */
 	protected $includeInSearch = true;
+	
+	/**
+	 * How frequently the page may change:
+	 * 'Always' is used to denote documents that change each time that they are accessed. 
+	 * 'Never' is used to denote archived URLs (i.e. files that will not be changed again).
+	 * 
+	 * @example always, hourly, daily, weekly, monthly, yearly, never. 
+	 * Use constants. Localization::CHANGE_FREQUENCY_DAILY;
+	 * 
+	 * @Column(type="string")
+	 * @var string
+	 * 
+	 */
+	protected $changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
+	
+	/**
+	 * The priority of that URL relative to other URLs on the site. 
+	 * This allows webmasters to suggest to crawlers which pages are considered more important.
+	 * The valid range is from 0.0 to 1.0, with 1.0 being the most important. 
+	 * The default value is 0.5.
+	 * 
+	 * Rating all pages on a site with a high priority does not affect search listings, 
+	 * as it is only used to suggest to the crawlers how important pages in the site are to one another.
+	 * 
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $pagePriority = '0.5';
 
+	
 	/**
 	 * Construct
 	 * @param string $locale
@@ -424,6 +462,69 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 		$this->includeInSearch = $includeInSearch;
 	}
 	
+	/**
+	 * Returns age change frequency for sitemap.xml
+	 * @return string 
+	 */
+	public function getChangeFrequency()
+	{
+		return $this->changeFrequency;
+	}
+
+	/**
+	 * Sets page change frequency for sitemap.xml
+	 * Use constants like Localization::CHANGE_FREQUENCY_DAILY;
+	 * @example always, hourly, daily, weekly, monthly, yearly, never. 
+	 * @param string $changeFrequency 
+	 */
+	public function setChangeFrequency($changeFrequency)
+	{
+		$frequencies = array(
+			self::CHANGE_FREQUENCY_HOURLY,
+			self::CHANGE_FREQUENCY_DAILY,
+			self::CHANGE_FREQUENCY_WEEKLY,
+			self::CHANGE_FREQUENCY_MONTHY,
+			self::CHANGE_FREQUENCY_YEARLY,
+			self::CHANGE_FREQUENCY_ALWAYS,
+			self::CHANGE_FREQUENCY_NEVER,
+		);
+
+		if ( ! in_array($changeFrequency, $frequencies)) {
+			$logger = ObjectRepository::getLogger($this);
+			$logger->error('Wrong frequency provided. Will use default');
+			return false;
+		}
+
+		$this->changeFrequency = $changeFrequency;
+	}
+
+	/**
+	 * Returns page priority for sitemap.xml
+	 * @return string 
+	 */
+	public function getPagePriority()
+	{
+		return $this->pagePriority;
+	}
+
+	/**
+	 * Sets page priority for sitemap.xml
+	 * The valid range is from 0.0 to 1.0, with 1.0 being the most important. 
+	 * @param string $pagePriority 
+	 */
+	public function setPagePriority($pagePriority)
+	{
+		if($pagePriority < 0 || $pagePriority > 1) {
+			$logger = ObjectRepository::getLogger($this);
+			$logger->error('Wrong priority provided. Will use default. 
+				The valid range is from 0.0 to 1.0, with 1.0 being the most important');
+			return false;
+		}
+		
+		$this->pagePriority = $pagePriority;
+	}
+
+		
 	/**
 	 * Clear page lock on clone action
 	 */

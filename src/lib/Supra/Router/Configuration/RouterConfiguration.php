@@ -35,6 +35,11 @@ class RouterConfiguration implements ConfigurationInterface
 	public $priority = RouterAbstraction::PRIORITY_MEDIUM;
 	
 	/**
+	 * @var boolean
+	 */
+	public $strictUrlMatch = false;
+
+	/**
 	 * @return RouterInterface
 	 */
 	public function configure()
@@ -44,6 +49,7 @@ class RouterConfiguration implements ConfigurationInterface
 		//TODO: should create some better parameter passing for different router implementations
 		if ($router instanceof UriRouter) {
 			$router->setPath($this->url);
+			$router->setStrictUrlMatch($this->strictUrlMatch);
 		}
 		
 		$router->setPriorityDiff($this->priority);

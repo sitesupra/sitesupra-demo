@@ -29,6 +29,8 @@ class UriRouter extends RouterAbstraction
 	 */
 	protected $path;
 
+	protected $strictUrlMatch = false;
+	
 	/**
 	 * Router constructor
 	 */
@@ -65,12 +67,20 @@ class UriRouter extends RouterAbstraction
 
 		$path = $request->getPath();
 
+		if ($this->isStrictUrlMatch()) {
+			if ($path->equals($this->path)) {
+				return true;
+			}
+			
+			return false;
+		}
+
 		if ($path->startsWith($this->path)) {
 //			$path->setBasePath($this->path);
-			
+
 			return true;
 		}
-		
+
 		return false;
 	}
 	
@@ -105,6 +115,22 @@ class UriRouter extends RouterAbstraction
 	}
 
 	/**
+	 * @return boolean 
+	 */
+	public function isStrictUrlMatch()
+	{
+		return $this->strictUrlMatch;
+	}
+
+	/**
+	 * @param boolean $strictUrlMatch 
+	 */
+	public function setStrictUrlMatch($strictUrlMatch)
+	{
+		$this->strictUrlMatch = $strictUrlMatch;
+	}
+
+		/**
 	 * Represents the router as string
 	 * @return string
 	 */
