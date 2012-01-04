@@ -272,7 +272,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						'filesSelectable': true,
 						'listURI': medialibrary.getDataPath('list'),
 						'viewURI': medialibrary.getDataPath('view'),
-						'displayType': Supra.MediaLibraryList.DISPLAY_FILES
+						'displayType': Supra.MediaLibraryList.DISPLAY_ALL
 					})).render();
 					
 					//On file select change button to "Insert"

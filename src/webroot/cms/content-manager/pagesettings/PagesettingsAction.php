@@ -55,8 +55,8 @@ class PagesettingsAction extends PageManagerAction
 		}
 		
 		if ($input->has('include_in_search')) {
-			$includeInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
-			$pageData->includeInSearch($includeInSearch);
+			$includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
+			$pageData->setIncludedInSearch($includedInSearch);
 		}
 		
 		if ($pageData instanceof Entity\TemplateLocalization) {

@@ -366,7 +366,7 @@ class PageAction extends PageManagerAction
 			$templateLocalization = $template->getLocalization($localeId);
 			
 			if($templateLocalization instanceof Entity\TemplateLocalization) {
-				$pageData->includeInSearch($templateLocalization->isIncludedInSearch());
+				$pageData->setIncludedInSearch($templateLocalization->isIncludedInSearch());
 				$pageData->setVisibleInMenu($templateLocalization->isVisibleInMenu());
 				$pageData->setVisibleInSitemap($templateLocalization->isVisibleInSitemap());
 			}
