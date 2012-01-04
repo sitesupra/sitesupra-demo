@@ -155,7 +155,12 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$result[] = $this->makeIndexedDocument($this->localization, $this->isVisible);
 
 		if ($this->reindexChildren) {
-			$result = $result + $this->reindexChildren($this->localization, $this->isVisible);
+			
+			$childResult = $this->reindexChildren($this->localization, $this->isVisible);
+			
+			foreach($childResult as $r) {
+				$result[] = $r;
+			}
 		}
 
 		return $result;
@@ -274,7 +279,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				}
 			}
 
-			$result = $result + $this->reindexChildren($child, $isVisible);
+			$childResult = $this->reindexChildren($child, $isVisible);
+			
+			foreach($childResult as $r) {
+				$result[] = $r;
+			}
 		}
 
 		return $result;
@@ -348,24 +357,29 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->ancestorIds = $ancestorIds;
 
+		$pageContents = array();
+		
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
 
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
 		$pageRequestView->setLocale($pageLocalization->getLocale());
 		$pageRequestView->setPageLocalization($pageLocalization);
-
-		$em = ObjectRepository::getEntityManager($pageLocalization);
-
+		$em = ObjectRepository::getEntityManager($pageLocalization);//
 		$pageRequestView->setDoctrineEntityManager($em);
 		$blockPropertySet = $pageRequestView->getBlockPropertySet($em);
-
-		$pageContents = array();
+		
+		$indexedEditableClasses = array(
+			\Supra\Editable\Html::CN(),
+			\Supra\Editable\String::CN(),
+			\Supra\Editable\InlineString::CN()
+		);
 
 		foreach ($blockPropertySet as $blockProperty) {
 			/* @var $blockProperty BlockProperty */
 
-			if ( ! $blockProperty->getLocalization() instanceof TemplateLocalization) {
-
+			if ( ! ($blockProperty->getLocalization() instanceof TemplateLocalization) &&
+					in_array($blockProperty->getType(), $indexedEditableClasses)
+			) {
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}

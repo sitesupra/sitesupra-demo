@@ -25,13 +25,13 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @var string
 	 */
 	protected $label;
-	
+
 	/**
 	 * Grouping label
 	 * @var string
 	 */
 	protected $groupLabel;
-	
+
 	/**
 	 * Default value
 	 * @var mixed
@@ -64,12 +64,12 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->content = $content;
 	}
-	
+
 	public function getContentForEdit()
 	{
 		return $this->content;
 	}
-	
+
 	public function setContentFromEdit($content)
 	{
 		$this->content = $content;
@@ -83,12 +83,12 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->filters[] = $filter;
 	}
-	
+
 	public function getFilters()
 	{
 		return $this->filters;
 	}
-	
+
 	/**
 	 * Get filtered value for the editable content by action
 	 * @param string $action
@@ -121,7 +121,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->label = $label;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -137,7 +137,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->groupLabel = $groupLabel;
 	}
-	
+
 	/**
 	 * @return mixed 
 	 */
@@ -153,7 +153,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->defaultValue = $value;
 	}
-	
+
 	/**
 	 * Which fields to serialize
 	 * @return array
@@ -164,7 +164,7 @@ abstract class EditableAbstraction implements EditableInterface
 			'label',
 			'defaultValue'
 		);
-		
+
 		return $fields;
 	}
 
@@ -175,4 +175,10 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		return array();
 	}
+
+	public static function CN()
+	{
+		return get_called_class();
+	}
+
 }
