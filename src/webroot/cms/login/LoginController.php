@@ -37,6 +37,15 @@ class LoginController extends CmsAction
 			$response->assign('message', $session->message);
 			unset($session->message);
 		}
+		
+		// TODO: Hardcoded
+		$manager = new \Supra\Cms\ApplicationConfiguration();
+		$manager->id = 'login';
+		$manager->title = 'Login';
+		$manager->url = 'login';
+		$manager->configure();
+		
+		$response->assign('manager', $manager);
 
 		$response->outputTemplate('login/index.html.twig');
 		

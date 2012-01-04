@@ -13,6 +13,7 @@ use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Response\TwigResponse;
 use Supra\AuditLog\AuditLogEvent;
+use Supra\User\Entity\AnonymousUser;
 
 /**
  * Description of CmsAction
@@ -320,7 +321,7 @@ abstract class CmsAction extends SimpleController
 			$this->user = $session->getUser();
 
 			if ( ! $this->user instanceof User) {
-				throw new Exception\RuntimeException("User is not logged in");
+				$this->user = new AnonymousUser();
 			}
 		}
 

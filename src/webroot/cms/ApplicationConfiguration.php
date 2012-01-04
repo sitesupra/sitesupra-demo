@@ -41,7 +41,9 @@ class ApplicationConfiguration extends ComponentConfiguration
 	{
 		parent::configure();
 
-		$this->authorizationAccessPolicy->setAppConfig($this);
+		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
+			$this->authorizationAccessPolicy->setAppConfig($this);
+		}
 
 		$config = CmsApplicationConfiguration::getInstance();
 		$config->addConfiguration($this);
@@ -49,16 +51,24 @@ class ApplicationConfiguration extends ComponentConfiguration
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
 	}
 	
-	public function getApplicationDataForInternalUserManager() {
-		
-		return array(
+	/**
+	 * @return array
+	 */
+	public function getApplicationDataForInternalUserManager()
+	{
+		$array = array(
 			'id' => $this->id,
 			'title' => $this->title,
 			'icon' => $this->icon,
 			//TODO: hardcoded CMS URL
 			'path' => '/cms/' . $this->url,
-			'permissions' => array($this->authorizationAccessPolicy->getPermissionForInternalUserManager())
 		);
+		
+		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
+			$array['permissions'] = array($this->authorizationAccessPolicy->getPermissionForInternalUserManager());
+		}
+		
+		return $array;
 	}
 	
 	/**

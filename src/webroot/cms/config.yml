@@ -91,7 +91,3 @@
           width: 970
           height: 130
           ratioDelta: 0.1
-          
-      - Supra\BannerMachine\Configuration\BannerType\AnythingGoesTypeConfiguration:
-          id: any
-          name: Any
