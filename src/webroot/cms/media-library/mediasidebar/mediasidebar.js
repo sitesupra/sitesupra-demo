@@ -57,6 +57,12 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		button_close: null,
 		
 		/**
+		 * Insert button, Supra.Button instance
+		 * @type {Object}
+		 */
+		button_insert: null,
+		
+		/**
 		 * Back button, Supra.Button instance
 		 * @type {Object}
 		 */
@@ -108,8 +114,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				'loadItemProperties': ['sizes', 'description'],
 				
 				//Allow selecting files and images
-				'imagesSelectable': true,
-				'filesSelectable': true
+				'imagesSelectable': false,
+				'filesSelectable': false
 			});
 			
 			//Enable drag & drop support
@@ -129,15 +135,17 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				} else {
 					this.button_back.show();
 				}
-			}, this);
-
-			//On 'select' event trigger callback if it exists
-			list.on('select', function (e) {
-				if (Y.Lang.isFunction(this.options.onselect)) {
-					this.options.onselect({'image': e.data});
-				}
-				if (Y.Lang.isFunction(this.options.onclose)) {
-					this.options.onclose();
+				
+				//Get current slide data and show "Insert" if image is selected
+				if (evt.newVal) {
+					var item_data = this.getData(evt.newVal.replace('slide_', ''));
+					if (item_data && item_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+						this.button_insert.set('visible', true);
+						this.button_close.set('visible', false);
+					} else {
+						this.button_insert.set('visible', false);
+						this.button_close.set('visible', true);
+					}
 				}
 			}, this);
 		},
@@ -158,6 +166,10 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
+			
+			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
+			this.button_insert.render();
+			this.button_insert.on('click', this.insert, this);
 		},
 		
 		/**
@@ -194,7 +206,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 */
 		getData: function (id /* File, image or folder ID */) {
 			var data = this.medialist.get('dataObject').getData(id);
-			if (data.type == SU.MediaLibraryData.TYPE_FOLDER) {
+			if (data && data.type == SU.MediaLibraryData.TYPE_FOLDER) {
 				data = SU.mix({}, data);
 				data.children = this.medialist.get('dataObject').getChildrenData(id);
 			}
@@ -222,11 +234,27 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		},
 		
 		/**
-		 * Hide media sidebar and trigger close event
+		 * Hide media sidebar and call close callback
 		 */
 		close: function () {
 			this.hide();
 			
+			if (Y.Lang.isFunction(this.options.onclose)) {
+				this.options.onclose();
+			}
+		},
+		
+		/**
+		 * Hide media sidebar and call select and close callbacks
+		 */
+		insert: function () {
+			this.hide();
+			
+			if (Y.Lang.isFunction(this.options.onselect)) {
+				this.options.onselect({
+					'image': this.medialist.getSelectedItem()
+				});
+			}
 			if (Y.Lang.isFunction(this.options.onclose)) {
 				this.options.onclose();
 			}

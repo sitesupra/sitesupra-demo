@@ -90,7 +90,8 @@
 .yui3-sidebar-content .yui3-buttons .yui3-button {
 	margin: 10px 10px 0 0;
 }
-.yui3-left-container .yui3-sidebar-buttons .button-close {
+.yui3-left-container .yui3-sidebar-buttons .button-close,
+.yui3-left-container .yui3-sidebar-buttons .button-insert {
 	float: right;
 	margin: 10px 0 0 10px;
 }

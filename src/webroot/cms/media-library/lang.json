@@ -16,7 +16,10 @@
 			"replace": "Replace",
 			"rename": "Rename",
 			"browse": "Browse",
-			"error": "Ok"
+			"error": "Ok",
+			"insert": "Insert",
+			"visible": "Visible",
+			"hidden": "Hidden"
 		},
 		
 		"medialibrary": {
@@ -56,6 +59,11 @@
 				"extension_rename": "File extension cannot be changed",
 				"image_to_file": "Image cannot be replaced with regular file and vice versa"
 			}
+		},
+		
+		"mediasidebar": {
+			"insert_image": "Insert image",
+			"open_app": "Open Library app"
 		}
 	}
 }

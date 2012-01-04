@@ -123,6 +123,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
 			
+			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
+			this.button_insert.render();
+			this.button_insert.on('click', this.close, this);
+			
 			//Remove button
 			var button = this.one('.yui3-sidebar-footer button');
 			this.button_remove = new Supra.Button({'srcNode': button});
@@ -269,15 +273,14 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					var list = this.medialist = (new Supra.MediaLibraryList({
 						'srcNode': node.one('#linkToFileMediaList'),
 						'foldersSelectable': false,
-						'filesSelectable': true,
+						'filesSelectable': false,
 						'listURI': medialibrary.getDataPath('list'),
 						'viewURI': medialibrary.getDataPath('view'),
 						'displayType': Supra.MediaLibraryList.DISPLAY_ALL
 					})).render();
 					
 					//On file select change button to "Insert"
-					list.on('select', this.updateButtonUI, this);
-					list.on('deselect', this.updateButtonUI, this);
+					list.slideshow.after('slideChange', this.updateButtonUI, this);
 			} else {
 				this.medialist.reload();
 			}
@@ -368,9 +371,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					
 					var path = [].concat(data.file_path, [data.file_id]);
 					this.medialist.set('noAnimations', true);
-					this.medialist.open(path, Y.bind(function () {
-						this.medialist.setSelectedItem(data.file_id);
-					}, this));
+					this.medialist.open(path);
 					this.medialist.set('noAnimations', false);
 					
 					break;
@@ -435,11 +436,17 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				var item_data = this.medialist.getSelectedItem();
 				if (!item_data) return;
 				
+				//File path for image is taken from original image
+				var file_path = item_data.file_web_path;
+				if (!file_path && item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+					file_path = item_data.sizes.original.external_path;
+				}
+				
 				return {
 					'resource': 'file',
-					'href': item_data.file_web_path,
+					'href': file_path,
 					'target': '',
-					'title': data.file_title,
+					'title': data.file_title || data.title,
 					'file_id': item_data.id,
 					'file_path': item_data.path
 				};
@@ -468,7 +475,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * Set button label to "Insert" or "Close"
 		 */
 		updateButtonUI: function () {
-			var label = 'close';
+			var show_insert = false;
 			
 			switch(this.slideshow.get('slide')) {
 				case 'linkToPage':
@@ -476,24 +483,28 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						case 'linkManagerInternal':
 							//Tree tab
 							if (this.tree.get('selectedNode')) {
-								label = 'insert';
+								show_insert = true;
 							}
 							break;
 						case 'linkManagerExternal':
 							//External href input tab
 							if (Y.Lang.trim(this.form.getInput('href').get('value'))) {
-								label = 'insert';
+								show_insert = true;
 							}
 							break;
 					}
 					break;
 				case 'linkToFile':
 					//Media library tab
-					if (this.medialist.file_selected) label = 'insert';
+					var item = this.medialist.getSelectedItem();
+					if (item && item.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+						show_insert = true;
+					}
 					break;
 			}
 			
-			this.button_close.set('label', Supra.Intl.get(['buttons', label]));
+			this.button_close.set('visible', !show_insert);
+			this.button_insert.set('visible', show_insert);
 		},
 		
 		/**
