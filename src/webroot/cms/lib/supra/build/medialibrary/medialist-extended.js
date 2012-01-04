@@ -34,6 +34,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="preview">\
 				<img src="/cms/lib/supra/img/medialibrary/icon-file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" alt="" />\
 			</div>\
+			<!--\
 			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
 				<input type="text" name="title" value="{{ title|escape }}" />\
 			</span>\
@@ -41,6 +42,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				<input type="text" name="description" value="{{ description|escape }}" />\
 			</span>\
 			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
+			-->\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
 				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
@@ -57,6 +59,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="preview">\
 				<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
 			</div>\
+			<!--\
 			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
 				<input type="text" name="title" value="{{ title|escape }}" />\
 			</span>\
@@ -64,6 +67,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				<input type="text" name="description" value="{{ description|escape }}" />\
 			</span>\
 			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
+			-->\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
 				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
@@ -556,14 +560,14 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Create buttons
 				var buttons = node.all('button'),
-					btn_localize = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small'}),
-					btn_download = new Supra.Button({'srcNode': buttons.item(1)}),
-					btn_replace = new Supra.Button({'srcNode': buttons.item(2)});
+					/*btn_localize = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small'}),*/
+					btn_download = new Supra.Button({'srcNode': buttons.item(0)}),
+					btn_replace = new Supra.Button({'srcNode': buttons.item(1)});
 				
-				btn_localize.render();
+				/*btn_localize.render();*/
 				btn_download.render();
 				btn_replace.render();
-				inp.btn_localize = btn_localize;
+				/*inp.btn_localize = btn_localize;*/
 				inp.btn_download = btn_download;
 				inp.btn_replace = btn_replace;
 				

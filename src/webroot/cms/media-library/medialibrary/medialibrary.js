@@ -28,7 +28,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
-	    },
+	    }/*,
 		{
 	        'id': 'mlundo',
 			'title': SU.Intl.get(['medialibrary', 'undo_history']),
@@ -55,7 +55,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			'type': 'button',
 			'visible': false,
 			'disabled': true
-	    }
+	    }*/
 	];
 	
 	//Image editor toolbar buttons
@@ -356,6 +356,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				id = data.id;
 			}
 			
+			/*
 			if (data && Supra.MediaLibraryData.TYPE_FOLDER == data.type) {
 				if (data['private']) {
 					if (data.parent) {
@@ -384,6 +385,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 				buttons.mlprivate.set('disabled', true);
 				buttons.mlpublic.set('disabled', true);
 			}
+			*/
 		},
 		
 		/**

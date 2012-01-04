@@ -110,9 +110,11 @@ Supra('supra.slideshow', function (Y) {
 			action = Manager.getAction('UserPermissions');
 			action.setPlaceHolder(slide.one('div'));
 			
+			/*
 			slide = this.slideshow.addSlide('UserStats')
 			action = Manager.getAction('UserStats');
 			action.setPlaceHolder(slide.one('div'));
+			*/
 			
 			//Set default buttons
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
@@ -129,14 +131,14 @@ Supra('supra.slideshow', function (Y) {
 					'icon': this.getActionPath() + 'images/icon-permissions.png',
 					'action': 'UserPermissions',
 					'type': 'tab'
-				},
+				}/*,
 				{
 					'id': 'stats',
 					'title': SU.Intl.get(['userstats', 'title']),
 					'icon': this.getActionPath() + 'images/icon-stats.png',
 					'action': 'UserStats',
 					'type': 'tab'
-				}
+				}*/
 			]);
 			
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [
@@ -150,7 +152,7 @@ Supra('supra.slideshow', function (Y) {
 			this.addChildAction('PermissionProperties');
 			this.addChildAction('UserDetails');
 			this.addChildAction('UserPermissions');
-			this.addChildAction('UserStats');
+			/*this.addChildAction('UserStats');*/
 			
 		},
 		
@@ -165,7 +167,9 @@ Supra('supra.slideshow', function (Y) {
 			
 			if (user_id) {
 				//Enable stats button
+				/*
 				buttons.stats.set('disabled', false);
+				*/
 				
 				Supra.io(this.getDataPath('load'), {
 					'data': {
@@ -176,7 +180,9 @@ Supra('supra.slideshow', function (Y) {
 				});
 			} else {
 				//There are no stats for new user
+				/*
 				buttons.stats.set('disabled', true);
+				*/
 				
 				var data = Supra.mix({}, NEW_USER_DATA[group_id], true);
 				this.setData(data);
