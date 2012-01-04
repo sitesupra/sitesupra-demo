@@ -109,11 +109,15 @@ class BannerMachineController extends BlockController
 
 			$bannerContent = $banner->getEditModeContent($this);
 		}
-		catch (\RuntimeException $e) {
+		catch(BannerNotFoundException $e) {
+			
+			$bannerContent = '<p>There are no banners for selected banner type!';
+		}
+ 		catch (\RuntimeException $e) {
 			
 			\Log::error($e);
 
-			$bannerContent = '<div style="background-color: red; text-align: center;">Banner machine error has occurred! Plase notify administration!</div>';
+			$bannerContent = '<p style="color: red;">Banner machine error has occurred! Plase notify administration!';
 		}
 
 		$response->assign('bannerContent', $bannerContent);
