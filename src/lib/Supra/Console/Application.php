@@ -27,7 +27,8 @@ class Application extends SymfonyConsoleApplication
 	 */
 	public function __construct()
 	{
-		parent::__construct('Supra Command Line Interface', Version::VERSION);
+		$info = ObjectRepository::getSystemInfo($this);
+		parent::__construct($info->name, $info->version);
 	}
 
 	/**

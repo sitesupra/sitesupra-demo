@@ -72,7 +72,7 @@ class SearchController extends BlockController
 			
 			$response->assign('resultCount', '0');
 			$response->outputTemplate($configuration->noResultsTemplateFilename);
-		} else if ($results instanceof \Supra\Search\Exception\RuntimeException) {
+		} else if ($results instanceof Exception\RuntimeException) {
 
 			$response->assign('error', true);
 			$response->outputTemplate($configuration->resultsTemplateFilename);

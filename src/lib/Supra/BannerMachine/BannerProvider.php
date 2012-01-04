@@ -142,6 +142,17 @@ class BannerProvider
 
 	/**
 	 * @param string $typeId
+	 * @return boolean
+	 */
+	public function hasType($typeId)
+	{
+		$has = ( ! empty($this->types[$typeId]));
+
+		return $has;
+	}
+	
+	/**
+	 * @param string $typeId
 	 * @return BannerTypeAbstraction
 	 */
 	public function getType($typeId)
