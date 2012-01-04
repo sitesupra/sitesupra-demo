@@ -182,6 +182,13 @@ YUI.add('supra.uploader', function (Y) {
 		onFileBrowse: function () {
 			//Get files
 			var files = Y.Node.getDOMNode(this.input).files;
+			
+			if (!files) {
+				//File API is not supported
+				//@TODO
+				return;
+			}
+			
 			if (!files.length) return;
 			
 			if (this.get('multiple')) {

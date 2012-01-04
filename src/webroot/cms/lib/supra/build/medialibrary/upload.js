@@ -201,6 +201,13 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		onFileBrowse: function () {
 			//Get files
 			var files = Y.Node.getDOMNode(this.get('input')).files;
+			
+			if (!files) {
+				//File API is not supported
+				//@TODO
+				return;
+			}
+			
 			if (!files.length) return;
 			
 			//Find folder
