@@ -65,6 +65,8 @@ class FormAction extends CrudManagerAbstractAction
 			$this->move($recordId, $recordBefore);
 		}
 
+		$this->writeAuditLog('save', "Record '%item%' saved", $recordId);
+
 		$response = $this->getResponse();
 		$response->setResponseData($output);
 	}
@@ -97,6 +99,8 @@ class FormAction extends CrudManagerAbstractAction
 
 		$em->remove($record);
 		$em->flush();
+
+		$this->writeAuditLog('delete', "Record '%item%' deleted", $recordId);
 	}
 
 	/**
@@ -185,6 +189,8 @@ class FormAction extends CrudManagerAbstractAction
 		}
 		
 		$em->commit();
+
+		$this->writeAuditLog('move', "Record '%item%' moved", $recordId);
 	}
 
 }

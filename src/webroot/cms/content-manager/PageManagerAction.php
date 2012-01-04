@@ -811,7 +811,6 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
-		// TODO support templates
 		if ($item instanceof AbstractPage) {
 			$localeId = $this->getLocale()->getId();
 			$item = $item->getLocalization($localeId);
