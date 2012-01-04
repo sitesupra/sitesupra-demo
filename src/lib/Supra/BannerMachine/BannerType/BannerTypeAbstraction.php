@@ -7,7 +7,8 @@ use Supra\BannerMachine\Entity\ImageBanner;
 
 abstract class BannerTypeAbstraction
 {
-
+	const CN = __CLASS__;
+	
 	/**
 	 * @var string
 	 */

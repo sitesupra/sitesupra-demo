@@ -12,15 +12,16 @@ class DefaultSizeTypeConfiguration extends BannerTypeConfigurationAbstraction
 	public $ratioDelta;
 	
 	/**
-	 * @var DefaultSizeType
+	 * @return DefaultSizeType
 	 */
-	protected $type;
-
 	protected function makeType()
 	{
-		$this->type = new DefaultSizeType();
+		return new DefaultSizeType();
 	}
 	
+	/**
+	 * Additionally configure the ratio delta
+	 */
 	public function configure() {
 		
 		parent::configure();

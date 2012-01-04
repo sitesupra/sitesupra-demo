@@ -7,10 +7,24 @@ use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 
 abstract class BannerTypeConfigurationAbstraction implements ConfigurationInterface
 {
-
+	/**
+	 * @var string
+	 */
 	public $id;
+	
+	/**
+	 * @var int
+	 */
 	public $width;
+	
+	/**
+	 * @var int
+	 */
 	public $height;
+	
+	/**
+	 * @var string
+	 */
 	public $name;
 
 	/**
@@ -18,20 +32,22 @@ abstract class BannerTypeConfigurationAbstraction implements ConfigurationInterf
 	 */
 	protected $type;
 
+	/**
+	 * Main method
+	 */
 	public function configure()
 	{
-		$this->makeType();
+		$this->type = $this->makeType();
 		
-		if (empty($this->type)) {
-			throw new Exception\ConfigurationException('type (in makeType()) must be created before configuration');
-		}
-
 		$this->type->setId($this->id);
 		$this->type->setName($this->name);
 		$this->type->setWidth($this->width);
 		$this->type->setHeight($this->height);
 	}
 	
+	/**
+	 * @return BannerTypeAbstraction
+	 */
 	abstract protected function makeType();
 
 	/**
