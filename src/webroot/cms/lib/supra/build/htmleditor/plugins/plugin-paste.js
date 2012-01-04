@@ -82,7 +82,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			node.style.left = '-9000px';
 			node.style.top = pos[1] + 'px';
 			node.style.opacity = 0;
-			node.innerHTML = '<p>&nbsp;</p>';
+			node.innerHTML = '&nbsp;';
 			
 			srcNode.appendChild(node);
 			
@@ -91,7 +91,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				'start': node,
 				'end': node,
 				'start_offset': 0,
-				'end_offset': 0
+				'end_offset': node.childNodes.length
 			});
 			
 			setTimeout(this.afterPaste, 0);
@@ -123,8 +123,15 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				if (html !== null && html !== false) {
 					html = html || '';
 					
-					//Insert html
-					htmleditor.replaceSelection(html, null);
+					//Insert html 
+					if (Y.UA.webkit) {
+						//In webkit selection is set only after timeout
+						Y.later(16, this, function () {
+							htmleditor.replaceSelection(html, null);
+						});
+					} else {
+						htmleditor.replaceSelection(html, null);
+					}
 				}
 				
 				//Remove placeholder since it's not needed anymore
@@ -159,14 +166,13 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				//In case if content was copied from editor, then need to remove IDs, classes, etc.
 				html = htmleditor.cleanHTML(html);
 				
-				//Remove extra tag, which is used to fix WebKit no-pasting in empty element
-				//<p>...WebKitFix</p>  or  ...<p>WebKitFix</p>
-				html = html.replace(/(^<p>(.*)|()<p>)(&nbsp;)?WebKitFix<\/p>$/i, '$2');
-				
 				//Remove script, style and link nodes
 				html = html.replace(/<script[^>]*\/?>([\s\S]*?<\/script>)?/ig, '');
 				html = html.replace(/<style[^>]*\/?>([\s\S]*?<\/style>)?/ig, '');
 				html = html.replace(/<link[^>]*\/?>/ig, '');
+				
+				//WebKit may add BR, remove it
+				html = html.replace(/<br\s?\/?>$/i, '');
 				
 				//Remove "su..." ids to prevent conflict
 				html = html.replace(/id=("|')?su[0-9]+("|')?\s?/ig, '');
