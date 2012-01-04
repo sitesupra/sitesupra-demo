@@ -118,13 +118,21 @@ YUI.add('supra.page-content-editable', function (Y) {
 					var fn = 'sendBlockProperties';
 				}
 				
-				this.get('super')[fn](this, function (status, response_data) {
+				this.get('super')[fn](this, function (response_data, status) {
 					
-					var data = this.get('data');
-					data.properties = this.properties.getValues();
-					this.set('data', data);
+					//Enable editing
+					this.set('loading', false);
+					
+					if (status) {
+						var data = this.get('data');
+						data.properties = this.properties.getValues();
+						this.set('data', data);
+					}
 					
 				}, this);
+				
+				//Disable editing until 
+				this.set('loading', true);
 			}
 			
 			this.unresolved_changes = false;

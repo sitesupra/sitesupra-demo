@@ -347,7 +347,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 				}
 			}
 			
-			//Remove __locked__ from values whic hare sent to backend
+			//Remove __locked__ from values which are sent to backend
 			if ('__locked__' in save_values) {
 				delete(save_values.__locked__);
 			}
@@ -355,7 +355,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
-				'on': {'success': callback}
+				'on': {'complete': callback}
 			}, context);
 		},
 		
@@ -393,7 +393,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
-				'on': {'success': callback}
+				'on': {'complete': callback}
 			}, context);
 		},
 		

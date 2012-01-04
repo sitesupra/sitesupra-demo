@@ -28,11 +28,12 @@ YUI.add('supra.page-content-proto', function (Y) {
 	ContentProto.CLASS_NAME = getClassName(ContentProto.NAME);
 	
 	//CSS classes
-	var CLASSNAME = getClassName('content'),									// yui3-content
-		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),					// yui3-content-overlay
-		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),	// yui3-content-overlay-hover
-		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),				// yui3-content-dragable
-		CLASSNAME_EDITING = getClassName('content', 'editing');					// yui3-content-editing
+	var CLASSNAME = getClassName('content'),										// yui3-content
+		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
+		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
+		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
+		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),					// yui3-content-dragable
+		CLASSNAME_EDITING = getClassName('content', 'editing');						// yui3-content-editing
 	
 	ContentProto.ATTRS = {
 		'data': {
@@ -100,6 +101,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 		'highlightOverlay': {
 			value: false,
 			setter: '_setHighlightOverlay'
+		},
+		
+		/**
+		 * Display loading icon and prevent selecting
+		 */
+		'loading': {
+			value: false,
+			setter: '_setLoading'
 		},
 		
 		/**
@@ -427,7 +436,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		bindUI: function () {
 			if (this.get('editable') && this.overlay) {
 				this.overlay.on('click', function() {
-					this.get('super').set('activeChild', this);
+					if (!this.get('loading')) {
+						this.get('super').set('activeChild', this);
+					}
 				}, this);
 			}
 			
@@ -627,6 +638,25 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_HOVER);
 			} else {
 				this.overlay.removeClass(CLASSNAME_OVERLAY_HOVER);
+			}
+			
+			return !!value;
+		},
+		
+		/**
+		 * loading attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @private
+		 */
+		_setLoading: function (value) {
+			if (!this.overlay) return false;
+			this.set('highlightOverlay', !!value);
+			
+			if (value) {
+				this.overlay.addClass(CLASSNAME_OVERLAY_LOADING);
+			} else {
+				this.overlay.removeClass(CLASSNAME_OVERLAY_LOADING);
 			}
 			
 			return !!value;

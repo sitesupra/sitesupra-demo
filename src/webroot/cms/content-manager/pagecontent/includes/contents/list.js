@@ -49,13 +49,15 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			this.getNode().on('click', function (e) {
 				var target = e.target.closest(overlay_selector),
-					overlay = null;
+					overlay = null,
+					block = null;
 				
 				if (!target) return;
 				
 				for(var id in this.children) {
+					block = this.children[id];
 					//If children is editable and is not part of drag & drop
-					if (this.children[id].get('editable') && this.children[id].get('dragable')) {
+					if (block.get('editable') && block.get('dragable') && !block.get('loading')) {
 						overlay = this.children[id].overlay;
 						if (overlay.compareTo(target)) {
 							this.get('super').set('activeChild', this.children[id]);

@@ -78,7 +78,8 @@
 	opacity: 0;
 }
 .yui3-editable .yui3-content-overlay:hover,
-.yui3-editable .yui3-content-overlay-hover {
+.yui3-editable .yui3-content-overlay-hover,
+.yui3-editable .yui3-content-overlay-loading {
 	/* FF3 */
 	-moz-transition-property: opacity;
 	-moz-transition-duration: 0.35s;
@@ -119,6 +120,22 @@
 
 .yui3-editable .yui3-content-overlay:hover span {
 	display: block;
+}
+
+/* Overlay loading indicator */
+.yui3-editable .yui3-content-overlay-loading {
+	cursor: default;
+}
+.yui3-editable .yui3-content-overlay-loading span {
+	cursor: default;
+	display: block;
+	overflow: hidden;
+	padding: 24px 0 0;
+	height: 0;
+	width: 24px;
+	margin: -12px 0 0 -12px !important;
+	background: url(/cms/lib/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
+	text-indent: 100px;
 }
 
 
