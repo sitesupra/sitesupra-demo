@@ -67,15 +67,7 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load data
-			if (data && data.global) {
-				if (data.type == 'page') {
-					this.loadDuplicatePage(data.id);
-				} else {
-					this.loadDuplicateTemplate(data.id);
-				}
-			} else {
-				this.loadPage(data ? data.id : '');
-			}
+			this.loadPage(data ? data.id : '');
 			
 			//Wait till blocks and layouts are done
 			var queue = 0,
@@ -184,27 +176,6 @@ Supra(function (Y) {
 					'complete': this.onLoadComplete
 				}
 			}, this);
-		},
-		
-		/**
-		 * Duplicate global page and load it
-		 * 
-		 * @param {Number} page_id
-		 * @private
-		 */
-		loadDuplicatePage: function (page_id) {
-			this.duplicatePage(page_id, Supra.data.get('locale'), this.onLoadComplete, this);
-		},
-		
-		/**
-		 * Duplicate global template and load it
-		 * 
-		 * @param {Number} page_id
-		 * @private
-		 */
-		loadDuplicateTemplate: function (page_id) {
-			var action = Manager.getAction('Template');
-			action.duplicateTemplate(page_id, Supra.data.get('locale'), this.onLoadComplete, this);
 		},
 		
 		/**
@@ -620,6 +591,31 @@ Supra(function (Y) {
 		 */
 		duplicatePage: function (page_id, locale, callback, context) {
 			var uri = this.getDataPath('duplicate');
+			
+			var post_data = {
+				'page_id': page_id,
+				'locale': locale,
+				'action': 'duplicate'
+			};
+			
+			Supra.io(uri, {
+				'data': post_data,
+				'method': 'post',
+				'context': context,
+				'on': {'success': callback}
+			}, context);
+		},
+		
+		/**
+		 * Duplicate global page
+		 *
+		 * @param {Number} page_id Page ID
+		 * @param {String} locale Current locale
+		 * @param {Function} callback Callback function, optional
+		 * @param {Object} context Callback function context, optional
+		 */
+		duplicateGlobalPage: function (page_id, locale, callback, context) {
+			var uri = this.getDataPath('duplicate-global');
 			
 			var post_data = {
 				'page_id': page_id,

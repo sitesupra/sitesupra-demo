@@ -40,6 +40,15 @@ Supra(function (Y) {
 		 */
 		duplicateTemplate: DEFINITION.duplicatePage,
 		
+		/**
+		 * Duplicate template
+		 * 
+		 * @param {Number} template_id Template ID
+		 * @param {String} locale Current locale
+		 * @param {Function} callback Callback function, optional
+		 * @param {Object} context Callback function context, optional
+		 */
+		duplicateGlobalTemplate: DEFINITION.duplicateGlobalPage,
 		
 		/**
 		 * Create new template and returns page data to callback
