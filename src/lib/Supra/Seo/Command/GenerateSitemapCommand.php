@@ -12,12 +12,14 @@ class GenerateSitemapCommand extends Command
 {
 
 	private $host;
+	private $notIncludedInSearch = array();
 
 	protected function configure()
 	{
 		$this->setName('su:seo:generate_sitemap')
 				->setDescription('Generates sitemap.xml and robots.txt.')
-				->setHelp('Generates sitemap.xml and robots.txt.');
+				->setHelp('Generates sitemap.xml and robots.txt.
+					Includes only records which are included in search and visible in sitemap');
 	}
 
 	/**
@@ -32,7 +34,7 @@ class GenerateSitemapCommand extends Command
 		}
 
 		$records = $this->prepareSitemap($output);
-		
+
 		$this->generateSitemapXml($records);
 		$this->generateRobotsTxt();
 
@@ -85,7 +87,6 @@ class GenerateSitemapCommand extends Command
 		$qb->join('l.path', 'p');
 		$qb->andWhere('p.path IS NOT NULL');
 		$qb->andWhere('l.redirect IS NULL');
-		$qb->andWhere('l.visibleInSitemap = true');
 
 		$result = $qb->getQuery()->getResult();
 
@@ -97,9 +98,18 @@ class GenerateSitemapCommand extends Command
 				continue;
 			}
 
-			$revisions[] = $record->getRevisionId();
-
 			$locale = $record->getLocale();
+
+			if ( ! $record->isIncludedInSearch()) {
+				$this->notIncludedInSearch[$record->getId()] = '/' . $locale . '/' . $record->getPath()->getFullPath('/');
+				continue;
+			}
+
+			if ( ! $record->isVisibleInSitemap()) {
+				continue;
+			}
+
+			$revisions[] = $record->getRevisionId();
 
 			$records[$record->getId()] = array(
 				'loc' => $this->host . '/' . $locale . '/' . $record->getPath()->getFullPath('/'),
@@ -140,7 +150,7 @@ class GenerateSitemapCommand extends Command
 	{
 		$xmlContent = '<?xml version="1.0" encoding="utf-8"?> 
 				<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
-		
+
 		$xml = new \SimpleXMLElement($xmlContent);
 
 		foreach ($records as $record) {
@@ -163,9 +173,13 @@ class GenerateSitemapCommand extends Command
 		$path = SUPRA_WEBROOT_PATH . 'robots.txt';
 		
 		$content = 'User-agent: *' . PHP_EOL;
-		$content .= 'Allow: /' . PHP_EOL;
-		$content .= "Sitemap: {$this->host}/sitemap.xml" . PHP_EOL;
+
+		foreach ($this->notIncludedInSearch as $record) {
+			$content .= "Disallow: {$record}$" . PHP_EOL;
+		}
 		
+		$content .= "Sitemap: {$this->host}/sitemap.xml" . PHP_EOL;
+
 		$fp = fopen($path, 'w');
 
 		if ( ! fwrite($fp, $content)) {
