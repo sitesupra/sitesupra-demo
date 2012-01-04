@@ -19,6 +19,8 @@ use Supra\Authorization\Exception\AuthorizationException;
 use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Supra\Controller\Pages\Listener\PagePathGenerator;
 
 /**
  * 
@@ -57,14 +59,19 @@ class PageAction extends PageManagerAction
 
 		if (empty($pageData) && $page->isGlobal()) {
 			$existingPageData = $this->getPageLocalization();
-			$pageData = $request->recursiveClone($existingPageData);
+			$pageData = $request->recursiveClone($existingPageData, null, true);
 			$pageData->setTitle($existingPageData->getTitle());
 			$pageData->setLocale($localeId);
 			$pageData->setMaster($page);
-			// need to reset PagePath AFTER new locale is set
-			if ($pageData instanceof Entity\PageLocalization) {
-				$pageData->resetPath();
-			}
+			
+			$newPath = $pageData->getPathEntity();
+			$newPath->setLocale($localeId);
+			
+			$this->entityManager->flush();
+			
+			$eventArgs = new LifecycleEventArgs($pageData, $this->entityManager);
+				$this->entityManager->getEventManager()
+					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
 		}
 
 		if (empty($pageData)) {
