@@ -77,9 +77,10 @@ class BannerMachineController extends BlockController
 
 			$bannerContent = $banner->getExposureModeContent($this);
 		}
-		catch (BannerNotFoundException $e) {
-			// Don't show the error on the frontend
-//			$bannerContent = '<h1>BANNER NOT FOUND</h1>';
+		catch (\RuntimeException $e) {
+			
+			\Log::error($e);
+			
 			return;
 		}
 
@@ -108,9 +109,11 @@ class BannerMachineController extends BlockController
 
 			$bannerContent = $banner->getEditModeContent($this);
 		}
-		catch (BannerMachineRuntimeException $e) {
+		catch (\RuntimeException $e) {
+			
+			\Log::error($e);
 
-			$bannerContent = '<h1>BANNER NOT FOUND</h1>';
+			$bannerContent = '<div style="background-color: red; text-align: center;">Banner machine error has occurred! Plase notify administration!</div>';
 		}
 
 		$response->assign('bannerContent', $bannerContent);
