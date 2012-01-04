@@ -5,7 +5,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
 		
 		/* Default image size */
-		size: '200x200'
+		size: '200x200',
+		
+		/* Allow none, border, lightbox styles */
+		styles: true
 	};
 	
 	var defaultProps = {
@@ -91,6 +94,13 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			var footer = Y.Node.create('<div class="yui3-sidebar-footer hidden"></div>');
 			this.footer = footer;
 			form.get('boundingBox').insert(footer, 'after');
+			
+			//If in configuration styles are disabled, then hide buttons
+			if (this.configuration.styles) {
+				form.getInput('style').set('visible', true);
+			} else {
+				form.getInput('style').set('visible', false);
+			}
 			
 			//Add 'Delete' and 'Replace buttons'
 			//Delete button

@@ -67,7 +67,15 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load data
-			this.loadPage(data ? data.id : '');
+			if (data && data.global) {
+				if (data.type == 'page') {
+					this.loadDuplicatePage(data.id);
+				} else {
+					this.loadDuplicateTemplate(data.id);
+				}
+			} else {
+				this.loadPage(data ? data.id : '');
+			}
 			
 			//Wait till blocks and layouts are done
 			var queue = 0,
@@ -176,6 +184,27 @@ Supra(function (Y) {
 					'complete': this.onLoadComplete
 				}
 			}, this);
+		},
+		
+		/**
+		 * Duplicate global page and load it
+		 * 
+		 * @param {Number} page_id
+		 * @private
+		 */
+		loadDuplicatePage: function (page_id) {
+			this.duplicatePage(page_id, Supra.data.get('locale'), this.onLoadComplete, this);
+		},
+		
+		/**
+		 * Duplicate global template and load it
+		 * 
+		 * @param {Number} page_id
+		 * @private
+		 */
+		loadDuplicateTemplate: function (page_id) {
+			var action = Manager.getAction('Template');
+			action.duplicateTemplate(page_id, Supra.data.get('locale'), this.onLoadComplete, this);
 		},
 		
 		/**

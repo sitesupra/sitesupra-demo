@@ -138,6 +138,15 @@ Supra(function (Y) {
 		ROUTE_PAGE_CONT_R: 	/^\/h\/page\/([^\/]+)\/edit\/([^\/]+)$/,
 		
 		
+		
+		/**
+		 * Temporary save sitemap page data
+		 * @type {Object}
+		 * @private
+		 */
+		sitemap_page_data: null,
+		
+		
 		/**
 		 * Y.Controller routers
 		 */
@@ -163,16 +172,25 @@ Supra(function (Y) {
 			
 			//Load page
 			var page_id = req.params.page_id,
-				page_data = Manager.Page.getPageData();
+				page_data = Manager.Page.getPageData(),
+				sitemap_page_data = this.sitemap_page_data || {'global': false, 'type': 'page'};
 			
 			if (page_id && ( ! page_data || page_id != page_data.id)) {
 				//Open page; evt.data is in format  {'id': 1}
-				Manager.getAction('Page').execute({'id': page_id});
+				Manager.getAction('Page').execute({
+					'id': page_id,
+					'global': sitemap_page_data.global,	//If page is global, then use duplicatePage not loadPage
+					'type': sitemap_page_data.type		//Pages and templates have separate duplicate functions
+				});
+				
+				//Reset global temporary value
+				this.sitemap_page_data = null;
 			}
 			
 			//Make sure other routes are also executed
 			req.next();
 		},
+		
 		/**
 		 * Open sitemap
 		 */
@@ -239,6 +257,9 @@ Supra(function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
+				//If page is global then use "duplicate" instead of "load"
+				this.sitemap_page_data = evt.data;
+				
 				//Change path
 				this.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
 			}, this);

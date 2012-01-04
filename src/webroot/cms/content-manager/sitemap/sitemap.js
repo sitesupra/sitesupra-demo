@@ -472,9 +472,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			//Change page
 			this.fire('page:select', {
-				'data': {
-					'id': evt.data.id
-				}
+				'data': evt.data
 			});
 			
 			//Set selected in data
