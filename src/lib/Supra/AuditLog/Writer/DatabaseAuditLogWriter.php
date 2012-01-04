@@ -9,13 +9,10 @@ namespace Supra\AuditLog\Writer;
 class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 {
 	/*
-	 * TODO: Currently null writer. To be implemented.
+	 * TODO: Currently does nothing. To be implemented.
 	 */
-
-	/**
-	 * Log writer class name
-	 * @var string
-	 */
-	protected static $logWriterClassName = 'Supra\Log\Writer\NullWriter';
-
+	public function write($level, $component, $action, $message, $user = null, $data = array()) 
+	{
+		1+1;
+	}
 }

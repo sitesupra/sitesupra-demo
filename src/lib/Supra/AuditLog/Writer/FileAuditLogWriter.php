@@ -6,7 +6,7 @@ namespace Supra\AuditLog\Writer;
  * File audit log writer
  * 
  */
-class FileAuditLogWriter extends AuditLogWriterAbstraction
+class FileAuditLogWriter extends AuditLogWriter
 {
 
 	/**

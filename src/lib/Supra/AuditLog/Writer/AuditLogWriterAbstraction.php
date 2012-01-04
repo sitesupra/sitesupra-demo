@@ -3,7 +3,6 @@
 namespace Supra\AuditLog\Writer;
 
 use Supra\Log\Exception;
-use Supra\Log\Writer\WriterAbstraction;
 use Supra\AuditLog\AuditLogEvent;
 
 /**
@@ -20,56 +19,15 @@ abstract class AuditLogWriterAbstraction
 {
 
 	/**
-	 * Log writer class name
-	 * @var string
+	 * Write to audit log
+	 * @param string $level
+	 * @param mixed $component
+	 * @param string $action
+	 * @param string $message
+	 * @param mixed $user
+	 * @param array $data 
 	 */
-	protected static $logWriterClassName = 'Supra\Log\Writer\NullWriter';
-
-	/**
-	 * Default writer parameters
-	 * @var array
-	 */
-	public static $defaultWriterParameters = array();
-
-	/**
-	 * Default formatter
-	 * @var string
-	 */
-	public static $defaultFormatter = 'Supra\AuditLog\Formatter\AuditLogFormatter';
-
-	/**
-	 * Default formatter parameters
-	 * @var array
-	 */
-	public static $defaultFormatterParameters = array();
-
-	/**
-	 * Log writer instance
-	 * @var WriterAbstraction
-	 */
-	protected $logWriter;
-
-	/**
-	 * Audit writer constructor
-	 * @param array $parameters
-	 */
-	function __construct(array $parameters = array())
-	{
-		$parameters = $parameters + static::$defaultWriterParameters;
-		$this->logWriter = new static::$logWriterClassName($parameters);
-		$formatter = new static::$defaultFormatter(static::$defaultFormatterParameters);
-		$this->logWriter->setFormatter($formatter);
-		$this->logWriter->setName('Audit');
-	}
-
-	/**
-	 * Set log writer instance
-	 * @param WriterAbstraction $logWriter 
-	 */
-	protected function setLogWriter(WriterAbstraction $logWriter)
-	{
-		$this->logWriter = $logWriter;
-	}
+	abstract public function write($level, $component, $action, $message, $user = null, $data = array());
 
 	/**
 	 * Magic call method for debug/info/etc
@@ -85,9 +43,6 @@ abstract class AuditLogWriterAbstraction
 				throw Exception\LogicException::badLogLevel($method);
 			}
 			
-			// Generate logger name
-			$loggerName = $this->name;
-
 			$component = $arguments[0];
 			$action = $arguments[1];
 			$message = $arguments[2];
@@ -100,23 +55,13 @@ abstract class AuditLogWriterAbstraction
 				$data = $arguments[4];
 			}
 
-			$event = new AuditLogEvent($level, $component, $action, $message, $loggerName, $user, $data);
-			$this->logWriter->write($event);
+			$this->write($level, $component, $action, $message, $user, $data);
 			
 		} catch (\Exception $e) {
 			
-			// Try bootstrap logger if the current fails
+			// Try bootstrap logger to log the exception
 			$bootstrapLogger = Log::getBootstrapLogger();
-			
-			if ($bootstrapLogger != $this) {
-				
-				// Log the exception
-				$bootstrapLogger->error($e);
-			} else {
-				
-				// Bootstrap failed
-				throw $e;
-			}
+			$bootstrapLogger->error($e);
 		}
 	}
 	
