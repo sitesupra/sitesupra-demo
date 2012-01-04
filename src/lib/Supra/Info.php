@@ -10,7 +10,9 @@ class Info implements Configuration\ConfigurationInterface
 	const NO_SCHEME = 1;
 	const WITH_SCHEME = 2;
 	
-	public $systemId;
+	public $name = 'SiteSupra';
+	
+	public $version = '7.0.0';
 	
 	public $hostName;
 
@@ -55,6 +57,11 @@ class Info implements Configuration\ConfigurationInterface
 		}
 		
 		return $string;
+	}
+	
+	public function getSystemId()
+	{
+		return $this->name . ' ' . $this->version;
 	}
 
 }

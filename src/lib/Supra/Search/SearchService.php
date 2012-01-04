@@ -18,17 +18,27 @@ class SearchService
 	private $log;
 	
 	/**
-	 * @var Solarium_Client;
+	 * System ID to be used for this project.
+	 * @var string
 	 */
-	protected $solariumClient;
+	private $systemId;
 
 	function __construct()
 	{
-		$this->solariumClient = ObjectRepository::getSolariumClient($this);
 		$this->log = ObjectRepository::getLogger($this);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getSystemId()
+	{
+		if (is_null($this->systemId)) {
+			$info = ObjectRepository::getSystemInfo($this);
+			$this->systemId = $info->getSystemId();
+		}
 		
-		$configurationLoader = ObjectRepository::getIniConfigurationLoader($this);
-		$this->systemId = $configurationLoader->getValue('solarium', 'systemId');
+		return $this->systemId;
 	}
 
 	/**
@@ -37,15 +47,16 @@ class SearchService
 	 */
 	public function processRequest($request)
 	{
-		$selectQuery = $this->solariumClient->createSelect();
+		$solariumClient = ObjectRepository::getSolariumClient($this);
+		$selectQuery = $solariumClient->createSelect();
 
-		$request->addSimpleFilter('systemId', $this->systemId);
+		$request->addSimpleFilter('systemId', $this->getSystemId());
 
 		$request->applyParametersToSelectQuery($selectQuery);
 
 		$this->log->debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
 
-		$selectResults = $this->solariumClient->select($selectQuery);
+		$selectResults = $solariumClient->select($selectQuery);
 
 		$requestResults = $request->processResults($selectResults);
 

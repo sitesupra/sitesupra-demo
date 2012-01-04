@@ -2,15 +2,14 @@
 
 namespace Supra\Search;
 
-use \Solarium_Client;
-use \Solarium_Exception;
-use \Solarium_Document_ReadWrite;
+use Solarium_Client;
+use Solarium_Exception;
+use Solarium_Document_ReadWrite;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
 
 class IndexerService
 {
-
 	/**
 	 * @var \Solarium_Client;
 	 */
@@ -22,19 +21,16 @@ class IndexerService
 	 */
 	private $systemId;
 
-	function __construct()
-	{
-		$this->solariumClient = ObjectRepository::getSolariumClient($this);
-
-		//$pingQuery = $this->solariumClient->createPing();
-		//$this->solariumClient->ping($pingQuery);
-
-		$configurationLoader = ObjectRepository::getIniConfigurationLoader($this);
-		$this->systemId = $configurationLoader->getValue('solarium', 'systemId');
-	}
-
+	/**
+	 * @return string
+	 */
 	public function getSystemId()
 	{
+		if (is_null($this->systemId)) {
+			$info = ObjectRepository::getSystemInfo($this);
+			$this->systemId = $info->getSystemId();
+		}
+		
 		return $this->systemId;
 	}
 
@@ -44,11 +40,13 @@ class IndexerService
 	 */
 	public function processItem(IndexerQueueItem $queueItem)
 	{
+		$solariumClient = $this->getSolariumClient($this);
+		
 		try {
 
 			$documents = $queueItem->getIndexedDocuments();
 
-			$updateQuery = $this->solariumClient->createUpdate();
+			$updateQuery = $solariumClient->createUpdate();
 
 			foreach ($documents as $document) {
 				/* @var $document IndexedDocument */
@@ -67,7 +65,7 @@ class IndexerService
 
 			$updateQuery->addCommit();
 
-			$result = $this->solariumClient->update($updateQuery);
+			$result = $solariumClient->update($updateQuery);
 
 			if ($result->getStatus() !== 0) {
 				throw new Exception\RuntimeException('Got bad status in update result: ' . $result->getStatus());
@@ -107,6 +105,10 @@ class IndexerService
 
 	public function getSolariumClient()
 	{
+		if (is_null($this->solariumClient)) {
+			$this->solariumClient = ObjectRepository::getSolariumClient($this);
+		}
+		
 		return $this->solariumClient;
 	}
 
@@ -116,11 +118,13 @@ class IndexerService
 	 */
 	public function getDocumentCount()
 	{
-		$query = $this->solariumClient->createSelect();
+		$solariumClient = $this->getSolariumClient($this);
+		
+		$query = $solariumClient->createSelect();
 		$query->setQuery('systemId:' . $this->getSystemId());
 		$query->setRows(0);
 
-		$result = $this->solariumClient->select($query);
+		$result = $solariumClient->select($query);
 
 		return $result->getNumFound();
 	}
@@ -130,13 +134,15 @@ class IndexerService
 	 */
 	public function removeFromIndex($uniqueId)
 	{
-		$query = $this->solariumClient->createUpdate();
+		$solariumClient = $this->getSolariumClient($this);
+		
+		$query = $solariumClient->createUpdate();
 
 		$query->addDeleteById($uniqueId);
 
 		$query->addCommit();
 
-		$this->solariumClient->execute($query);
+		$solariumClient->execute($query);
 	}
 
 }
