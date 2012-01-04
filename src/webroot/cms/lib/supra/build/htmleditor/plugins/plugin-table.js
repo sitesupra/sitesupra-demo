@@ -94,7 +94,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				btn.render(node_group).on('click', this.cmdRowAfter, this);
 				button_list.rowAfter = btn;
 			
-			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'marge_cells']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'merge_cells']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
 				btn.addClass('yui3-button-first');
 				btn.addClass('yui3-button-last');
 				btn.render(node_group).on('click', this.cmdMergeCells, this);

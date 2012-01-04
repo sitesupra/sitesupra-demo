@@ -159,6 +159,11 @@ YUI.add('supra.button', function (Y) {
 					this.set('nodeLabel', p);
 				}
 				
+				//Buttons with group style doesn't have labels, use "title" attribute
+				if (this.get('style') == 'group' && this.get('icon')) {
+					btn.setAttribute('title', this.get('label') || '');
+				}
+				
 				if (!btn.getAttribute('type')) {
 					btn.setAttribute('type', 'button');
 				}
@@ -267,10 +272,18 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setLabel: function (label) {
-			var labelNode = this.get('nodeLabel');
+			var labelNode = this.get('nodeLabel'),
+				escaped = null;
+			
 			if (labelNode) {
-				label = label ? Y.Escape.html(Supra.Intl.replace(label)) : '&nbsp;';
-				labelNode.set('innerHTML', label);
+				label = label ? Supra.Intl.replace(label) : '';
+				escaped = label ? Y.Escape.html(label) : '&nbsp;';
+				labelNode.set('innerHTML', escaped);
+				
+				//Buttons with group style doesn't have labels, use "title" attribute
+				if (this.get('style') == 'group' && this.get('icon')) {
+					this.get('buttonNode').setAttribute('title', label);
+				}
 			}
 		},
 		
