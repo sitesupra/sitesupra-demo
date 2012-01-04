@@ -95,7 +95,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
-	protected $includeInSearch = true;
+	protected $includedInSearch = true;
 	
 	/**
 	 * How frequently the page may change:
@@ -451,15 +451,15 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 */
 	public function isIncludedInSearch()
 	{
-		return $this->includeInSearch;
+		return $this->includedInSearch;
 	}
 
 	/**
-	 * @param boolean $includeInSearch 
+	 * @param boolean $includedInSearch 
 	 */
-	public function includeInSearch($includeInSearch)
+	public function setIncludedInSearch($includedInSearch)
 	{
-		$this->includeInSearch = $includeInSearch;
+		$this->includedInSearch = $includedInSearch;
 	}
 	
 	/**

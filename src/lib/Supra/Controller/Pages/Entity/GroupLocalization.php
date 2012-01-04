@@ -29,7 +29,7 @@ class GroupLocalization extends Abstraction\Localization
 	 * Overrides the default value
 	 * @var boolean
 	 */
-	protected $includeInSearch = false;
+	protected $includedInSearch = false;
 	
 	/**
 	 * Flag which marks the entity created automatically on miss
@@ -113,9 +113,9 @@ class GroupLocalization extends Abstraction\Localization
 	
 	/**
 	 * Don't allow setting this
-	 * @param boolean $includeInSearch
+	 * @param boolean $includedInSearch
 	 */
-	public function includeInSearch($includeInSearch)
+	public function includedInSearch($includedInSearch)
 	{
 	}
 	

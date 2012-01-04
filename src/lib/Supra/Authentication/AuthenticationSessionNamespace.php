@@ -15,7 +15,7 @@ class AuthenticationSessionNamespace extends SessionNamespace
 
 	/**
 	 * Returns user from session
-	 * @return User 
+	 * @return User
 	 */
 	public function getUser()
 	{
