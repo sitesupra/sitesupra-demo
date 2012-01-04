@@ -44,6 +44,15 @@ class TwigResponse extends HttpResponse
 	}
 	
 	/**
+	 * Override loader context
+	 * @param mixed $loaderContext
+	 */
+	public function setLoaderContext($loaderContext = null)
+	{
+		$this->loaderContext = $loaderContext;
+	}
+		
+	/**
 	 * @return Twig
 	 */
 	public function getTwigEnvironment()

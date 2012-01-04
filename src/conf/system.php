@@ -6,6 +6,7 @@ $conf = ObjectRepository::getIniConfigurationLoader('');
 
 $systemInfo = new Supra\Info();
 $systemInfo->hostName = $conf->getValue('system', 'host');
-$systemInfo->systemId = $conf->getValue('system', 'system_id');
+$systemInfo->name = $conf->getValue('system', 'name');
+$systemInfo->version = $conf->getValue('system', 'version');
 
 ObjectRepository::setDefaultSystemInfo($systemInfo);

@@ -9,6 +9,6 @@ $systemInfo = ObjectRepository::getSystemInfo('');
 //$memcache->addserver('127.0.0.1');
 //$cache->setMemcache($memcache);
 $cache = new \Doctrine\Common\Cache\ArrayCache();
-$cache->setNamespace($systemInfo->systemId);
+$cache->setNamespace($systemInfo->getSystemId());
 
 ObjectRepository::setDefaultCacheAdapter($cache);

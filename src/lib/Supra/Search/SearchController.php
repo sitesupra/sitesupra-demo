@@ -27,6 +27,21 @@ class SearchController extends BlockController
 	const RESPONSE_CONTEXT_KEY_RESULTS = 'search-results';
 
 	/**
+	 * @param Request\RequestInterface $request
+	 * @return Response\TwigResponse
+	 */
+	public function createResponse(Request\RequestInterface $request)
+	{
+		$response = parent::createResponse($request);
+		
+		if ( ! $this->getConfiguration()->localTemplateDirectory) {
+			$response->setLoaderContext(null);
+		}
+		
+		return $response;
+	}
+	
+	/**
 	 * Accepts only SearchControllerConfiguration instances
 	 * @param BlockControllerConfiguration $configuration 
 	 */

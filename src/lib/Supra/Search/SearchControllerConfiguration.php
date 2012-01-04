@@ -6,12 +6,6 @@ use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 class SearchControllerConfiguration extends BlockControllerConfiguration
 {
-
-	/**
-	 * @var string
-	 */
-	public $formTemplateFilename;
-
 	/**
 	 * @var string
 	 */
@@ -31,6 +25,13 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	 * @var string
 	 */
 	public $controllerClass;
+	
+	/**
+	 * Whether to use the controller location to search for templates or use 
+	 * system template directory.
+	 * @var boolean
+	 */
+	public $localTemplateDirectory = true;
 
 	/**
 	 * Main method
@@ -39,6 +40,7 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	{
 		if (empty($this->controllerClass)) {
 			$this->controllerClass = SearchController::CN();
+			$this->localTemplateDirectory = false;
 		}
 
 		if (empty($this->title)) {

@@ -1,5 +1,4 @@
 - Supra\Search\SearchControllerConfiguration:
-    formTemplateFilename: search/search-form.html.twig
-    resultsTemplateFilename: search/search-results.html.twig
-    noResultsTemplateFilename: search/search-results-empty.html.twig
-    resultsPerPage: 10
+    resultsTemplateFilename: template/search/search-results.html.twig
+    noResultsTemplateFilename: template/search/search-results-empty.html.twig
+    resultsPerPage: 2
