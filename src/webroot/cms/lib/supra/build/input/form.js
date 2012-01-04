@@ -277,6 +277,22 @@ YUI.add("supra.form", function (Y) {
 				}
 			}, this);
 			
+			//Find button with "form" attribute which could be in the footer
+			//and add support for IE
+			if (Y.UA.ie) {
+				var form = this.get('srcNode'),
+					form_id = form.get('id'),
+					button = Y.one('button[form="' + form_id + '"]');
+				
+				if (button && !button.closest(form)) {
+					button.on('click', function () {
+						//On submit call "save"
+						this.fire('submit');
+						this.save();
+					}, this);
+				}
+			}
+			
 			//On submit call "save"
 			this.get('srcNode').on('submit', function (event) {
 				//Use ajax

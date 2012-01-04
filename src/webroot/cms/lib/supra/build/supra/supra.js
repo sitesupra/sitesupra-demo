@@ -35,13 +35,18 @@ if (typeof Supra === "undefined") {
 				
 				// catch errors in callback function
 				var fn = arguments[i];
-				args.push(function () {
-					try {
-						fn.apply(this, arguments);
-					} catch (e) {
-						Y.log(e, 'error');
-					}
-				});
+				
+				if (Supra.data.get('catchNativeErrors')) {
+					args.push(function () {
+						try {
+							fn.apply(this, arguments);
+						} catch (e) {
+							Y.log(e, 'error');
+						}
+					});	
+				} else {
+					args.push(fn);
+				}
 			
 			} else if (type == 'string') {				// Module
 				

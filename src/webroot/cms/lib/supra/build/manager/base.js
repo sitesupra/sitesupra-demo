@@ -123,10 +123,14 @@ YUI.add('supra.manager-base', function (Y) {
 					//Only if loaded
 					if (action.get('loaded')) {
 						//Execute
-						try {
+						if (Supra.data.get('catchNativeErrors')) {
+							try {
+								action.execute.apply(action, exec_info.args);
+							} catch (e) {
+								Y.error(e);
+							}
+						} else {
 							action.execute.apply(action, exec_info.args);
-						} catch (e) {
-							Y.error(e);
 						}
 						
 						//Remove item from queue
@@ -152,12 +156,20 @@ YUI.add('supra.manager-base', function (Y) {
 			
 			if (action_name in this.actions) {
 				if (this.actions[action_name].isLoaded()) {
-					try {
+					
+					//Execute
+					if (Supra.data.get('catchNativeErrors')) {
+						try {
+							var action = this.actions[action_name];
+							action.execute.apply(action, args);
+						} catch (e) {
+							Y.error(e);
+						}
+					} else {
 						var action = this.actions[action_name];
 						action.execute.apply(action, args);
-					} catch (e) {
-						Y.error(e);
 					}
+					
 				} else {
 					//If not loaded then add to queue
 					this.addActionToQueue(action_name, args);

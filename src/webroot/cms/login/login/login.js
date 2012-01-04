@@ -74,7 +74,6 @@ SU('supra.input', 'cookie', function (Y) {
 			var uri = Loader.getDynamicPath() + Loader.getActionBasePath('Login');
 			var data = this.loginform.getValues('name', true);
 			
-			//@TODO Replace with actual form validation
 			if (!this.validate(data)) return;
 			
 			//Disable button and form

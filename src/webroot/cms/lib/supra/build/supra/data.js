@@ -20,6 +20,9 @@
 		//Locale (LANGUAGE_CONTEXT)
 		'locale': '',
 		
+		//Catch JS errors
+		'catchNativeErrors': false,
+		
 		/**
 		 * Set data
 		 */

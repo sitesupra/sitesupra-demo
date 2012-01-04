@@ -40,7 +40,11 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		 */
 		HAS_TEMPLATE: true,
 		
-		
+		/**
+		 * Dependancies
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['PageToolbar', 'PageButtons'],
 		
 		
 		/**
@@ -204,7 +208,7 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		},
 		
 		/**
-		 * opulate banner list
+		 * Populate banner list
 		 */
 		fillBannerList: function (event) {
 			var value = typeof event == 'object' ? event.value : event;
@@ -230,6 +234,9 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 			
 		},
 		
+		/**
+		 * Update banner positions
+		 */
 		positionBanners: function (index, height) {
 			
 			var container = this.one('div.list-banners'),
