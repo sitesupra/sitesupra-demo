@@ -83,7 +83,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
-	    },
+	    }/*,
 		{
 	        'id': 'mlimageundo',
 			'title': SU.Intl.get(['medialibrary', 'undo_history']),
@@ -91,7 +91,7 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
 			'type': 'button'
-	    }
+	    }*/
 	];
 	
 	var NAME_EDITOR = 'MediaLibraryimageeditor',
