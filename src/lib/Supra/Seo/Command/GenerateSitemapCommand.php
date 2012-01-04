@@ -8,12 +8,13 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity;
 use Supra\Exception\FilesystemPermissionException;
 use Supra\Info;
+use Supra\Uri\Path;
 
 class GenerateSitemapCommand extends Command
 {
 
 	private $host;
-	private $notIncludedInSearch = array();
+//	private $notIncludedInSearch = array();
 
 	protected function configure()
 	{
@@ -64,9 +65,11 @@ class GenerateSitemapCommand extends Command
 		/* @var $nestedSetRepository \Supra\NestedSet\DoctrineRepository */
 
 		$searchCondition = $nestedSetRepository->createSearchCondition();
-		$searchCondition->leftMoreThan($rootPage->getLeftValue());
-		$searchCondition->leftLessThan($rootPage->getRightValue());
-		$searchCondition->levelLessThanOrEqualsTo($rootPage->getLevel() + 10);
+		
+		// Don't need to limit
+//		$searchCondition->leftMoreThanOrEqualsTo($rootPage->getLeftValue());
+//		$searchCondition->leftLessThanOrEqualsTo($rootPage->getRightValue());
+//		$searchCondition->levelLessThanOrEqualsTo(10);
 
 		$orderCondition = $nestedSetRepository->createSelectOrderRule();
 		$orderCondition->byLeftAscending();
@@ -84,6 +87,9 @@ class GenerateSitemapCommand extends Command
 		$qb->join('l.path', 'p');
 		$qb->andWhere('p.path IS NOT NULL');
 		$qb->andWhere('l.redirect IS NULL');
+		
+		// Include root page
+		$qb->andWhere('(l.includedInSearch = true OR e.level = 0)');
 
 		$result = $qb->getQuery()->getResult();
 
@@ -94,41 +100,44 @@ class GenerateSitemapCommand extends Command
 			if ( ! $record instanceof Entity\PageLocalization) {
 				continue;
 			}
-
+			
 			$locale = $record->getLocale();
 
-			if ( ! $record->isIncludedInSearch()) {
-				$this->notIncludedInSearch[$record->getId()] = '/' . $locale . '/' . $record->getPath()->getFullPath('/');
-				continue;
-			}
+//			if ( ! $record->isIncludedInSearch()) {
+//				$this->notIncludedInSearch[$record->getId()] = '/' . $locale . $record->getPath()->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+//				continue;
+//			}
 
 			$revisions[] = $record->getRevisionId();
 
 			$records[$record->getId()] = array(
-				'loc' => $this->host . '/' . $locale . '/' . $record->getPath()->getFullPath('/'),
-				'lastmod' => date('Y-m-d', $record->getCreationTime()->getTimestamp()),
+				'loc' => $this->host . '/' . $locale . $record->getPath()->getFullPath(Path::FORMAT_BOTH_DELIMITERS),
+				'lastmod' => $record->getCreationTime()->format('c'),
 				'changefreq' => $record->getChangeFrequency(),
 				'priority' => $record->getPagePriority(),
 			);
 		}
 
-		$qb = $em->createQueryBuilder();
-		$qb->from(Entity\PageRevisionData::CN(), 'r');
-		$qb->select('r');
-		$qb->where('r.id IN (?0)')
-				->setParameter(0, $revisions);
-		$result = $qb->getQuery();
-		$dql = $result->getDQL();
-		$result = $result->getResult();
+		// Run only if any revision is found
+		if ( ! empty($revisions)) {
+			$qb = $em->createQueryBuilder();
+			$qb->from(Entity\PageRevisionData::CN(), 'r');
+			$qb->select('r');
+			$qb->where('r.id IN (?0)')
+					->setParameter(0, $revisions);
+			$result = $qb->getQuery();
+			$dql = $result->getDQL();
+			$result = $result->getResult();
 
-		foreach ($result as $revision) {
-			/* @var $revision Entity\PageRevisionData */
-			$pageId = $revision->getReferenceId();
-			if ( ! isset($records[$pageId])) {
-				continue;
+			foreach ($result as $revision) {
+				/* @var $revision Entity\PageRevisionData */
+				$pageId = $revision->getReferenceId();
+				if ( ! isset($records[$pageId])) {
+					continue;
+				}
+
+				$records[$pageId]['lastmod'] = $revision->getCreationTime()->format('c');
 			}
-
-			$records[$pageId]['lastmod'] = date('Y-m-d', $revision->getCreationTime()->getTimestamp());
 		}
 
 		return $records;
@@ -141,8 +150,8 @@ class GenerateSitemapCommand extends Command
 	 */
 	private function generateSitemapXml($records = array())
 	{
-		$xmlContent = '<?xml version="1.0" encoding="utf-8"?> 
-				<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
+		$xmlContent = '<?xml version="1.0" encoding="utf-8"?>'
+				. '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
 
 		$xml = new \SimpleXMLElement($xmlContent);
 
@@ -167,9 +176,9 @@ class GenerateSitemapCommand extends Command
 		
 		$content = 'User-agent: *' . PHP_EOL;
 
-		foreach ($this->notIncludedInSearch as $record) {
-			$content .= "Disallow: {$record}$" . PHP_EOL;
-		}
+//		foreach ($this->notIncludedInSearch as $record) {
+//			$content .= "Disallow: {$record}$" . PHP_EOL;
+//		}
 		
 		$content .= "Sitemap: {$this->host}/sitemap.xml" . PHP_EOL;
 

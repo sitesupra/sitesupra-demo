@@ -49,7 +49,7 @@ class SqlLogger implements SQLLoggerInterface
 			if (isset($traceElement['class'])) {
 				$class = $traceElement['class'];
 			}
-			if ($class != __CLASS__ && strpos($class, 'Doctrine\\') !== 0) {
+			if ($class != __CLASS__ && strpos($class, 'Doctrine\\') !== 0 && strpos($class, 'Supra\\NestedSet\\') !== 0) {
 				break;
 			}
 			
