@@ -105,10 +105,6 @@ class GenerateSitemapCommand extends Command
 				continue;
 			}
 
-			if ( ! $record->isVisibleInSitemap()) {
-				continue;
-			}
-
 			$revisions[] = $record->getRevisionId();
 
 			$records[$record->getId()] = array(
