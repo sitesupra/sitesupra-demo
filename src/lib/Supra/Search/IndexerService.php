@@ -28,7 +28,7 @@ class IndexerService
 	{
 		if (is_null($this->systemId)) {
 			$info = ObjectRepository::getSystemInfo($this);
-			$this->systemId = $info->getSystemId();
+			$this->systemId = $info->name;
 		}
 		
 		return $this->systemId;
