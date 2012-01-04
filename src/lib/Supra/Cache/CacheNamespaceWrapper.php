@@ -42,7 +42,7 @@ class CacheNamespaceWrapper extends AbstractCache
 
 	public function getIds()
 	{
-		throw new \Supra\Locale\Exception('Not implemented');
+		throw new \LogicException('Method Supra\Cache\CacheNamespaceWrapper::getIds() is not implemented');
 	}
 
 }

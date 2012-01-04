@@ -30,6 +30,8 @@ class CookieStorage extends StorageAbstraction
 	{
 		if ( ! ($response instanceof HttpResponse)) {
 			Log::warn("The response must be instance of Http response to use cookie storage");
+			
+			return;
 			//throw new Exception("The response must be instance of Http response to use cookie storage");
 		}
 		

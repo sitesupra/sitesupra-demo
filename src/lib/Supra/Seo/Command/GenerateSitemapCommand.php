@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity;
 use Supra\Exception\FilesystemPermissionException;
+use Supra\Info;
 
 class GenerateSitemapCommand extends Command
 {
@@ -27,12 +28,8 @@ class GenerateSitemapCommand extends Command
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
 		$systemInfo = ObjectRepository::getSystemInfo($this);
-		$this->host = trim($systemInfo->hostName, '/');
-		if (strpos($this->host, 'http') !== 0) {
-			// @todo @fixme: hardcoded http protocol. Add https check.
-			$this->host = 'http://' . $this->host;
-		}
-
+		$this->host = $systemInfo->getHostName(Info::WITH_SCHEME);
+		
 		$records = $this->prepareSitemap($output);
 
 		$this->generateSitemapXml($records);
