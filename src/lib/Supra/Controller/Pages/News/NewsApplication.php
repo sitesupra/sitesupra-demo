@@ -498,7 +498,7 @@ class NewsApplication implements PageApplicationInterface
 		
 		if ( ! $countOnly) {
 			//"select l.*" is not supported by SQL-92 standart
-			$selectValues = 'l.id, l.locale, l.title, l.visibleInSitemap, l.visibleInMenu, l.includeInSearch,
+			$selectValues = 'l.id, l.locale, l.title, l.visibleInSitemap, l.visibleInMenu, l.includedInSearch,
 						l.revision, l.path_part, l.meta_description, l.meta_keywords, l.active,	l.schedule_time,
 						l.creationTime, l.creationYear, l.creationMonth, l.publishTimeSet, l.master_id, l.lock_id,
 						l.template_id, l.path_id, l.redirect_id, l.discr, pt.locale, pt.path, pt.id';
