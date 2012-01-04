@@ -87,7 +87,7 @@
           ratioDelta: 0.1
       - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
           id: wide
-          name: Wide (970 x 130)
-          width: 970
+          name: Wide (952 x 130)
+          width: 952
           height: 130
           ratioDelta: 0.1
