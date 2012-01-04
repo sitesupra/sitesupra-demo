@@ -15,7 +15,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		'type': null,
 		'title': '',
 		'description': '',
-		'align': 'right',
+		'align': 'middle',
 		'style': '',
 		'image': {}
 	};
