@@ -319,15 +319,18 @@ class NewsApplication implements PageApplicationInterface
 	}
 	
 	/**
-	 * Get total news count
+	 * Get total news count (including global ones)
 	 * @return int
 	 */
 	protected function getNewsCount()
 	{
-		$count = $this->createNewsQueryBuilder()
-				->select('COUNT(l.id)')
-				->getQuery()
-				->getSingleScalarResult();
+		//$count = $this->createNewsQueryBuilder()
+		//		->select('COUNT(l.id)')
+		//		->getQuery()
+		//		->getSingleScalarResult();
+		
+		$query = $this->getNewsNativeQuery(true);
+		$count = $query->getSingleScalarResult();
 		
 		return $count;
 	}
@@ -369,14 +372,17 @@ class NewsApplication implements PageApplicationInterface
 	 */
 	public function collapsedSitemapView()
 	{
-		$qb = $this->createNewsQueryBuilder()
-				->orderBy('l.creationTime', 'DESC');
-		$query = $qb->getQuery();
+//		$qb = $this->createNewsQueryBuilder()
+//			->orderBy('l.creationTime', 'DESC');
+//		$query = $qb->getQuery();
+//		$data = $query->getResult();
 		
+		$limit = null;
 		if ($this->limitCollapsed()) {
-			$query->setMaxResults($this->collapsedLimit);
+			$limit = $this->collapsedLimit;
 		}
 		
+		$query = $this->getNewsNativeQuery(false, $limit);
 		$data = $query->getResult();
 		
 		return $data;
@@ -390,10 +396,13 @@ class NewsApplication implements PageApplicationInterface
 	{
 		$groupedData = array();
 		
-		$qb = $this->createNewsQueryBuilder();
-		$qb->orderBy('l.creationTime', 'DESC');
+		//$qb = $this->createNewsQueryBuilder();
+		//$qb->orderBy('l.creationTime', 'DESC');
 		
-		$news = $qb->getQuery()->getResult();
+		//$news = $qb->getQuery()->getResult();
+		$query = $this->getNewsNativeQuery();
+		$news = $query->getResult();
+		
 		$data = array();
 		
 		$currentYear = date('Y');
@@ -440,5 +449,79 @@ class NewsApplication implements PageApplicationInterface
 		$groups = $qb->getQuery()->getResult();
 		
 		return $groups;
+	}
+	
+	/**
+	 * @param boolean $countOnly
+	 * @param int $limit
+	 * @return NativeQuery
+	 */
+	protected function getNewsNativeQuery($countOnly = false, $limit = null)
+	{
+		$locale = $this->applicationLocalization->getLocale();
+		
+		$page = $this->applicationLocalization->getMaster();
+		$lft = $page->getLeftValue();
+		$rgt = $page->getRightValue();
+		$lvl = $page->getLevel();
+		
+		$queryParameters = array(
+			'lvl' => $lvl + 1,
+			'lft' => $lft,
+			'rgt' => $rgt,
+			'locale' => $locale
+		);
+		
+		$rsm = new \Doctrine\ORM\Query\ResultSetMapping;
+		
+		$rsm->addEntityResult(Entity\PageLocalization::CN(), 'l');
+		
+		$classMetadata = $this->em->getClassMetadata(Entity\PageLocalization::CN());
+		foreach ($classMetadata->fieldMappings as $mapping) {
+			$rsm->addFieldResult('l', $mapping['columnName'], $mapping['fieldName']);
+		}
+	
+		// localization path
+		$rsm->addJoinedEntityResult(Entity\PageLocalizationPath::CN(), 'pt', 'l', 'path');
+		$rsm->addFieldResult('pt', 'id', 'id');
+		$rsm->addFieldResult('pt', 'locale', 'locale');
+		$rsm->addFieldResult('pt', 'path', 'path');
+
+		$rsm->setDiscriminatorColumn('l', 'discr');
+		$rsm->addMetaResult('l', 'discr', 'discr');
+		
+		$rsm->addMetaResult('l', 'master_id', 'master_id');
+		$rsm->addMetaResult('l', 'template_id', 'template_id');
+		$rsm->addMetaResult('l', 'redirect_id', 'redirect_id');
+		$rsm->addMetaResult('l', 'path_id', 'path_id');
+		$rsm->addMetaResult('l', 'id', 'id', true);
+		
+		if ( ! $countOnly) {
+			//"select l.*" is not supported by SQL-92 standart
+			$selectValues = 'l.id, l.locale, l.title, l.visibleInSitemap, l.visibleInMenu, l.includeInSearch,
+						l.revision, l.path_part, l.meta_description, l.meta_keywords, l.active,	l.schedule_time,
+						l.creationTime, l.creationYear, l.creationMonth, l.publishTimeSet, l.master_id, l.lock_id,
+						l.template_id, l.path_id, l.redirect_id, l.discr, pt.locale, pt.path, pt.id';
+		} else {
+			$selectValues = 'COUNT(l.id) as count';
+			$rsm->addScalarResult('count', 'count');
+		}
+		
+		$limitString = null;
+		if ( ! is_null($limit)) {
+			$limitString = 'LIMIT ' . (int)$limit;
+		}
+
+		$sql = "SELECT {$selectValues} FROM su_AbstractPage ap 
+					INNER JOIN su_Localization_draft l ON ap.id = l.master_id 
+					INNER JOIN su_PageLocalizationPath_draft pt ON pt.id = l.path_id 
+					WHERE (ap.lvl = :lvl AND ap.lft > :lft AND ap.rgt < :rgt AND ap.discr = 'page') 
+					AND l.id = (SELECT l2.id FROM su_Localization_draft l2 WHERE l2.master_id = l.master_id ORDER BY (l2.locale = :locale) DESC, l2.revision ASC LIMIT 1) 
+					ORDER BY l.creationTime DESC {$limitString}";
+		
+		$query = $this->em->createNativeQuery($sql, $rsm);
+		$query->setParameters($queryParameters);
+				
+		return $query;
 	}
 }
