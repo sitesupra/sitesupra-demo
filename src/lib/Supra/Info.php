@@ -61,7 +61,7 @@ class Info implements Configuration\ConfigurationInterface
 	
 	public function getSystemId()
 	{
-		return $this->name . ' ' . $this->version;
+		return $this->name . '_' . $this->version;
 	}
 
 }
