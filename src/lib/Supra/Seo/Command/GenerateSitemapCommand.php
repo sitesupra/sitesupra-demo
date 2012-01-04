@@ -6,6 +6,7 @@ use Symfony\Component\Console;
 use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity;
+use Supra\Exception\FilesystemPermissionException;
 
 class GenerateSitemapCommand extends Command
 {
@@ -31,12 +32,9 @@ class GenerateSitemapCommand extends Command
 		}
 
 		$records = $this->prepareSitemap($output);
-		try {
-			$this->generateSitemapXml($records);
-			$this->generateRobotsTxt();
-		} catch (\Supra\Locale\Exception $exc) {
-			$output->writeln($exc->getMessage());
-		}
+		
+		$this->generateSitemapXml($records);
+		$this->generateRobotsTxt();
 
 		$output->writeln('Generated sitemap.xml and robots.txt in webroot');
 	}
@@ -136,12 +134,14 @@ class GenerateSitemapCommand extends Command
 	/**
 	 * Generates sitemap and stores to webroot folder
 	 * @param array $records
-	 * @throws Supra\Locale\Exception
+	 * @throws FilesystemPermissionException
 	 */
 	private function generateSitemapXml($records = array())
 	{
-		$xml = new \SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?> 
-				<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+		$xmlContent = '<?xml version="1.0" encoding="utf-8"?> 
+				<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>';
+		
+		$xml = new \SimpleXMLElement($xmlContent);
 
 		foreach ($records as $record) {
 			$subnode = $xml->addChild("url");
@@ -154,7 +154,7 @@ class GenerateSitemapCommand extends Command
 
 		$xmlData = $xml->asXML(SUPRA_WEBROOT_PATH . 'sitemap.xml');
 		if ( ! $xmlData) {
-			throw new \Supra\Locale\Exception('Failed to create/overwrite sitemap.xml in ' . SUPRA_WEBROOT_PATH);
+			throw new FilesystemPermissionException('Failed to create/overwrite sitemap.xml in ' . SUPRA_WEBROOT_PATH);
 		}
 	}
 
@@ -169,7 +169,7 @@ class GenerateSitemapCommand extends Command
 		$fp = fopen($path, 'w');
 
 		if ( ! fwrite($fp, $content)) {
-			throw new \Supra\Locale\Exception('Failed to write into robots.txt');
+			throw new FilesystemPermissionException('Failed to write into robots.txt');
 		}
 
 		fclose($fp);
