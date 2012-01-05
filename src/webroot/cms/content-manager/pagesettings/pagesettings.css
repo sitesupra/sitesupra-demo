@@ -48,6 +48,13 @@
 	vertical-align: middle;
 }
 
+.yui3-page-settings-button-fixed p {
+	overflow: hidden;
+	max-width: 105px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 /*
  * Schedule
  */

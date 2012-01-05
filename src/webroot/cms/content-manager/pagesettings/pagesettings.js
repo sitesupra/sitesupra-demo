@@ -503,6 +503,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				this.redirect_select.buttons.relative.on('click', function () {	this.onRedirectClick(); }, this);
 				// Redirect "Fixed" button
 				this.redirect_select.buttons.fixed.on('click', function () { this.onRedirectClick(); }, this);
+				this.redirect_select.buttons.fixed.addClass('yui3-page-settings-button-fixed');
 			
 			// Relative redirect select list
 			this.relative_redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#relative_redirect')});
