@@ -53,7 +53,6 @@ Supra(function (Y) {
 		
 		/**
 		 * Save form
-		 * @todo Bug #4418 GJENSIDIGE. CHECK AND FIX CODE IF NEEDED WHEN KASPARS WILL BE BACK.
 		 */
 		save: function () {
 			var form = this.getForm();
@@ -65,7 +64,6 @@ Supra(function (Y) {
 					//Reload data grid
 					CRUD.Providers.getActiveProvider().getDataGrid().reset();
 					CRUD.Providers.getActiveProvider().set('mode', 'list');
-					button.hide();
 				}
 				
 				form.set('disabled', false);
@@ -108,9 +106,6 @@ Supra(function (Y) {
 		execute: function () {
 			//Show buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
-			
-			var button = Supra.Manager.getAction('PageButtons').buttons[this.NAME][0];
-			button.show();
 		}
 	});
 	

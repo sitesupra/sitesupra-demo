@@ -516,6 +516,10 @@ YUI.add('website.provider', function (Y) {
 				}, this.getRecord());
 				
 				this.form.setValuesObject(values, 'id');
+			} else {
+				//Hide buttons, because we are using slider and form will not be
+				//automatically hidden
+				Supra.Manager.getAction('PageButtons').unsetActiveAction('Form');
 			}
 			
 			return state;
