@@ -15,6 +15,8 @@ use Supra\Exception\LocalizedException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\FileStorage\Entity\Folder;
+use Supra\Cms\MediaLibrary\ApplicationConfiguration;
+use Supra\ObjectRepository\ObjectRepository;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -22,11 +24,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
-	
-	// known extensions for MediaLibrary UI
-	protected $knownExtensions = array(
-		'pdf', 'xls', 'xlsx', 'doc', 'docx', 'swf', 'ppt', 'pptx',
-	);
 	
 	/**
 	 * Get internal file entity type constant
@@ -93,8 +90,14 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$title = $rootNode->getTitle($localeId);
 				$extension = mb_strtolower($rootNode->getExtension());
 				
-				if (in_array($extension, $this->knownExtensions)) {
+				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
+				if (in_array($extension, $knownExtensions)) {
 					$item['knownExtension'] = $extension;
+				}
+					
+				$checkExistance = $this->getApplicationConfigValue('checkFileExistance');
+				if ($checkExistance == ApplicationConfiguration::CHECK_FULL) {
+					$item['broken'] = ( ! $this->isAvailable($rootNode));
 				}
 			}
 
@@ -449,10 +452,60 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$output = $this->fileStorage->getFileInfo($file, $localeId);
 		
 		$extension = mb_strtolower($file->getExtension());
-		if (in_array($extension, $this->knownExtensions)) {
+		$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
+		if (in_array($extension, $knownExtensions)) {
 			$output['known_extension'] = $extension;
+		}
+		
+		$checkExistance = $this->getApplicationConfigValue('checkFileExistance');
+		if ($checkExistance == ApplicationConfiguration::CHECK_FULL 
+				|| $checkExistance == ApplicationConfiguration::CHECK_PARTIAL) {
+				
+			$output['broken'] = ( ! $this->isAvailable($file));
 		}
 		
 		return $output;
 	}
+	
+	/**
+	 * Check weither $file exists and is readable
+	 * @param Entity\File $file
+	 * @return boolean
+	 */
+	private function isAvailable(Entity\File $file)
+	{
+		$filePath = $this->fileStorage
+				->getFilesystemPath($file);
+
+		if (file_exists($filePath) && is_readable($filePath)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Helper method to fetch config value from ApplicationConfig class
+	 * for media library
+	 * @param string $key
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	private function getApplicationConfigValue($key, $default = null)
+	{
+		$appConfig = ObjectRepository::getApplicationConfiguration($this);
+		
+		if ($appConfig instanceof ApplicationConfiguration) {
+			if (property_exists($appConfig, $key)) {
+				return $appConfig->$key;
+			}
+		}
+		
+		if ( ! is_null($default)) {
+			return $default;
+		}
+		
+		return null;
+	}
+	
 }

@@ -50,11 +50,27 @@
       Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\BannerManager
 
-- Supra\Cms\ApplicationConfiguration:
+- Supra\Cms\MediaLibrary\ApplicationConfiguration:
     id: Supra\Cms\MediaLibrary
     title: Media Library
     url: media-library
     icon: /cms/lib/supra/img/apps/media_library
+    
+##  possible values: "full", "partial" and "none"
+##   - "none" will disable any existance check
+##   - "partial" will force to check only when tab with file info is displayed
+##   - "full" will force to check file existance also when complete list of files is displayed
+##  default is "none"
+    checkFileExistance: partial
+    knownFileExtensions: 
+      - pdf
+      - xls
+      - xlsx
+      - doc
+      - docx
+      - swf
+      - ppt
+      - pptx
     authorizationAccessPolicy:
       Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\MediaLibrary

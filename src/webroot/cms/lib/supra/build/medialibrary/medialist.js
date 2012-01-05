@@ -100,7 +100,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
-		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %}" data-id="{{ id }}">\
+		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
 			<span>{{ title|escape }}</span>\
 		</li>');
@@ -110,7 +110,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
-		<li class="type-image" data-id="{{ id }}">\
+		<li class="type-image {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
 			<span>{{title|escape }}</span>\
 		</li>');
@@ -127,7 +127,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
-			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" alt="" /></div>\
+			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-{% if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" alt="" /></div>\
 			<span>{{ title|escape }}</span>\
 			<span>{{ description|escape }}</span>\
 		</div>');
@@ -138,7 +138,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
-			<div class="preview"><img src="{{ previewUrl }}?r={{ Math.random() }}" alt="" /></div>\
+			<div class="preview">\
+			{% if broken %}\
+					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
+			{% else %}\
+				<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
+			{% endif %}\
+			</div>\
 			<span>{{ title|escape }}</span>\
 			<span>{{ description|escape }}</span>\
 		</div>');

@@ -108,6 +108,10 @@
 	background: url(../../supra/img/medialibrary/icon-image.png) 0 0 no-repeat;
 }
 
+.yui3-medialist ul.folder > li.type-broken > a {
+	background: url(../../supra/img/medialibrary/icon-broken.png) 0 0 no-repeat;
+}
+
 
 .yui3-medialist ul.folder > li.type-temp {
 	line-height: 23px;
