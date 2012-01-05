@@ -29,6 +29,12 @@ class LockData extends Abstraction\Entity implements Timestampable
 	 * @var string
 	 */
 	protected $userId;
+
+	/**
+	 * @Column(type="string",nullable=true)
+	 * @var string
+	 */
+	protected $pageRevision = '';
 	
 	/**
 	 * Returns creation time
@@ -88,6 +94,24 @@ class LockData extends Abstraction\Entity implements Timestampable
 	public function setUserId($userId)
 	{
 		$this->userId = $userId;
+	}
+
+	/**
+	 * Set page data revision
+	 * @param string $revisionId
+	 */
+	public function setPageRevision($revisionId)
+	{
+		$this->pageRevision = $revisionId;
+	}
+
+	/**
+	 * Get page data revision
+	 * @return string
+	 */
+	public function getPageRevision()
+	{
+		return $this->pageRevision;
 	}
 
 }
