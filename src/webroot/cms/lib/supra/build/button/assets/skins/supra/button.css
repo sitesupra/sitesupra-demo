@@ -39,6 +39,9 @@ button::-moz-focus-inner {
 .yui3-button-disabled p {
 	cursor: default;
 }
+.yui3-button-disabled p {
+	color: #CCC;
+}
 
 /* Small size buttons */
 .yui3-button-small, .yui3-button-small-blue, .yui3-button-small-red,

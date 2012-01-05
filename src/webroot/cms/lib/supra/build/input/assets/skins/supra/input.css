@@ -295,6 +295,10 @@
 	vertical-align: top;
 	padding: 2px 0 0 10px;
 }
+.yui3-input-slider-disabled .less,
+.yui3-input-slider-disabled .more {
+	color: #CCC;
+}
 
 /* Link */
 .yui3-input-link .yui3-button,

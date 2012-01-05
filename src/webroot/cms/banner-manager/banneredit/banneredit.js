@@ -168,6 +168,15 @@ Supra(function (Y) {
 				button.on('click', this.deleteBanner, this);
 				button.render();
 				this.button_delete = button;
+			
+			//When form is disabled/enabled do the same for buttons
+				this.form.on('disabledChange', function (evt) {
+					this.button_target.set('disabled', evt.newVal);
+					this.button_delete.set('disabled', evt.newVal);
+					this.button_schedule.set('disabled', evt.newVal);
+					Manager.PageToolbar.buttons.change.set('disabled', evt.newVal);
+					Manager.PageButtons.buttons[this.NAME][0].set('disabled', evt.newVal);
+				}, this);
 		},
 		
 		/**
@@ -406,7 +415,7 @@ Supra(function (Y) {
 		/**
 		 * Save banner data
 		 */
-		save: function () {
+		save: function (callback, context) {
 			var data = Supra.mix({},
 				//Data which was loaded
 				this.data,
@@ -418,6 +427,13 @@ Supra(function (Y) {
 			
 			var uri = data.banner_id ? this.getDataPath('save') : this.getDataPath('insert');
 			
+			//Add loading indicator to button
+			var button = Manager.getAction('PageButtons').buttons[this.NAME][0];
+			button.set('loading', true);
+			
+			//Disable form
+			this.form.set('disabled', true);
+			
 			//Don't send stats
 			delete(data.stats);
 			
@@ -427,10 +443,24 @@ Supra(function (Y) {
 			Supra.io(uri, {
 				'method': 'post',
 				'data': data,
+				'context': this,
 				'on': {
-					'success': function () {
-						Manager.getAction('BannerList').load();
-						Manager.executeAction('BannerList');
+					'complete': function (data, status) {
+						if (status) {
+							Manager.getAction('BannerList').load();
+							Manager.executeAction('BannerList');
+						}
+						
+						//Enable form form
+						this.form.set('disabled', false);
+						
+						//Remove loading indicator
+						button.set('loading', false);
+						
+						//Callback
+						if (Y.Lang.isFunction(callback)) {
+							callback.apply(context || this, arguments);
+						}
 					}
 				}
 			});
@@ -471,6 +501,12 @@ Supra(function (Y) {
 				return;
 			}
 			
+			//Set loading indicator
+			this.button_delete.set('loading', true);
+			
+			//Disable form and buttons
+			this.form.set('disabled', true);
+			
 			Supra.io(this.getDataPath('delete'), {
 				'method': 'post',
 				'data': {
@@ -479,7 +515,11 @@ Supra(function (Y) {
 				},
 				'context': this,
 				'on': {
-					'success': this.openBannerList
+					'success': this.openBannerList,
+					'complete': function () {
+						this.form.set('disabled', false);
+						this.button_delete.set('loading', false);
+					}
 				}
 			});
 		},
@@ -489,8 +529,11 @@ Supra(function (Y) {
 		 */
 		hide: function () {
 			if (this.get('visible')) {
-				this.set('visible', false);
-				this.save();
+				this.save(function (data, status) {
+					if (status) {
+						this.set('visible', false);
+					}
+				});
 			}
 			
 			return this;

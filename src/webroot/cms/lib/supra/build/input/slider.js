@@ -186,7 +186,7 @@ YUI.add('supra.input-slider', function (Y) {
 		 * @private
 		 */
 		_setValuePlus: function (e) {
-			if (this.slider) {
+			if (this.slider && !this.get('disabled')) {
 				var index = this.slider.get('value'),
 					values = this.get('values');
 				
@@ -203,7 +203,7 @@ YUI.add('supra.input-slider', function (Y) {
 		 * @private
 		 */
 		_setValueMinus: function (e) {
-			if (this.slider) {
+			if (this.slider && !this.get('disabled')) {
 				var index = this.slider.get('value'),
 					values = this.get('values');
 				
