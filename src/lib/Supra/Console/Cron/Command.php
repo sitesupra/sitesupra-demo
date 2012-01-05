@@ -38,13 +38,16 @@ class Command extends SymfonyCommand
 	{
 
 		require_once SUPRA_CONF_PATH . '/cron.php';
-
+		
+		$em = ObjectRepository::getEntityManager($this);
 		$masterCronJob = $this->getMasterCronEntity();
 
+		$em->getConnection()->beginTransaction();
+		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+		
 		$lastTime = $masterCronJob->getLastExecutionTime();
 		$thisTime = new \DateTime();
 
-		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository(CronJob::CN());
 		/* @var $repo Repository\CronJobRepository */
 		$jobs = $repo->findScheduled($lastTime, $thisTime);
@@ -74,13 +77,21 @@ class Command extends SymfonyCommand
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
+					$connection = $em->getConnection();
+					$connection->beginTransaction();
+					
 					try {
 						$return = $cli->doRun($commandInput, $commandOutput);
+						
+						$connection->commit();
 						
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
 							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);
 							$job->setStatus(CronJob::STATUS_OK);
+							
+							// will mean last success execution time
+							$job->setLastExecutionTime($thisTime);
 						} else {
 							$output = $commandOutput->getOutput();
 							$log->error("Scheduled task {$job->getCommandInput()} has non-zero return code {$return} and output ", $output);
@@ -90,14 +101,16 @@ class Command extends SymfonyCommand
 						$output = $commandOutput->getOutput();
 						$log->error("Unexpected failure while running scheduled task {$job->getCommandInput()}: {$e->__toString()}\nOutput: ", $output);
 						
+						$connection->rollBack();
+						
 						$job->setStatus(CronJob::STATUS_FAILED);
 					}
-					$job->setLastExecutionTime($thisTime);
 					
 					break;
 					
-				// TODO: how to unlock in case of some fatal error?
 				case CronJob::STATUS_LOCKED:
+					// unlock still locked job
+					$job->setStatus(CronJob::STATUS_FAILED);
 				default:
 					
 					$this->updateJobNextExecutionTime($job);
@@ -105,10 +118,15 @@ class Command extends SymfonyCommand
 					// nothing
 					break;
 			}
+			
 			$em->flush();
 		}
 
 		$masterCronJob->setLastExecutionTime($thisTime);
+		
+		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
+		$em->getConnection()->commit();
+		
 		$em->flush();
 		
 	}
