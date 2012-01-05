@@ -277,6 +277,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
+		 * Parse tag attributes HTML and return object with key, value pairs
+		 * 
+		 * @param {String} html HTML which should be parsed
+		 * @return Object with key,value pairs of attributes
+		 * @type {Object}
+		 */
+		parseTagAttributes: function (html) {
+			var parts = {};
+			html.replace(/([a-z0-9\-]+)=("[^"]*"|'[^']*'|[^\s]*)/ig, function (all, key, val) {
+				parts[key] = decodeURIComponent(val.replace(/(^'|^"|"$|'$)/g, ''));
+				return '';
+			});
+			return parts;
+		},
+		
+		/**
 		 * Returns array with correct tag names (B, EM, U or S) for SPAN element, for all other
 		 * elements returns array with single value, which is actual tagName
 		 * 

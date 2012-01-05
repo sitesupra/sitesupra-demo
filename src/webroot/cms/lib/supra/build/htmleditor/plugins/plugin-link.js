@@ -256,6 +256,9 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			
 			this.visible = false;
 			
+			//After paste replace links with tags
+			htmleditor.on('pasteHTML', this.tagPastedHTML, this);
+			
 			//When selection changes hide link manager
 			htmleditor.on('selectionChange', this.hideLinkManager, this);
 			
@@ -298,6 +301,38 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			html = html.replace(/<\/a[^>]*>/g, '{/supra.' + NAME + '}');
 			
 			return html;
+		},
+		
+		/**
+		 * Process pasted HTML and add links to data object
+		 * Called after paste plugin cleanPastedHTML
+		 * 
+		 * @param {Object} event Event
+		 */
+		tagPastedHTML: function (event, data) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			//Opening tag
+			data.html = data.html.replace(/<a([^>]*)>/gi, function (html, attrs_html) {
+				var attrs = htmleditor.parseTagAttributes(attrs_html),
+					id = htmleditor.generateDataUID(),
+					data = {
+						'href': attrs.href || '',
+						'resource': 'link',
+						'target': attrs.target || '',
+						'title': attrs.title || '',
+						'type': 'link'
+					};
+				
+				htmleditor.setData(id, data, true);
+				
+				if (attrs.id) {
+					return '<a' + attrs_html.replace(/id="?'?[a-z0-9\_]+'?"?/i, 'id="' + id + '"') + '>';
+				} else {
+					return '<a' + attrs_html + ' id="' + id + '">';
+				}
+			});
 		},
 		
 		/**

@@ -84,8 +84,9 @@ YUI().add('supra.htmleditor-data', function (Y) {
 		 * 
 		 * @param {Object} node
 		 * @param {Object} data
+		 * @param {Boolean} silent Doesn't trigger change if value is true, default is false
 		 */
-		setData: function (node, data) {
+		setData: function (node, data, silent) {
 			var id;
 			if (typeof node == 'string') {
 				id = node;
@@ -102,7 +103,9 @@ YUI().add('supra.htmleditor-data', function (Y) {
 			this.data[id] = data;
 			
 			//Data was changed, update state
-			this._changed();
+			if (!silent) {
+				this._changed();
+			}
 		},
 		
 		/**
