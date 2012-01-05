@@ -201,6 +201,10 @@ class BannerProvider
 						OR (:now BETWEEN b.scheduledFrom AND b.scheduledTill) ) 
 					AND b.typeId = :typeId 
 					AND b.status = :status 
+					AND (
+						(b.targetType = 1 AND b.internalTarget IS NOT NULL AND b.internalTarget != \'\') OR
+						(b.targetType = 2 AND b.externalTarget IS NOT NULL AND b.externalTarget != \'\')
+					)
 					ORDER BY b.priority');
 		$q->setParameter('typeId', $bannerType->getId());
 		$q->setParameter('status', Banner::STATUS_ACTIVE);

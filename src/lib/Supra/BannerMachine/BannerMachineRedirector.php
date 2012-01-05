@@ -21,7 +21,7 @@ class BannerMachineRedirector extends ControllerAbstraction
 		$bannerId = $request->getParameter(self::REQUEST_KEY_BANNER_ID);
 
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
-		
+
 		/** @var $banner Banner */
 		$banner = $bannerProvider->getBanner($bannerId);
 
@@ -33,8 +33,7 @@ class BannerMachineRedirector extends ControllerAbstraction
 			if ($banner->getTargetType() == Banner::TARGET_TYPE_EXTERNAL) {
 
 				$response->redirect($banner->getExternalTarget());
-			}
-			else {
+			} else {
 
 				$em = ObjectRepository::getEntityManager($this);
 				$repo = $em->getRepository(PageLocalization::CN());
@@ -42,7 +41,17 @@ class BannerMachineRedirector extends ControllerAbstraction
 				/* @var $pageLocalization PageLocalization */
 				$pageLocalization = $repo->find($banner->getInternalTarget());
 
-				$response->redirect($pageLocalization->getPath());
+
+				if ( ! empty($pageLocalization)) {
+
+					$path = $pageLocalization->getPath();
+
+					if ($path->isEmpty()) {
+						$response->redirect($pageLocalization->getRedirect()->getHref());
+					} else {
+						$response->redirect($path);
+					}
+				}
 			}
 		}
 	}
