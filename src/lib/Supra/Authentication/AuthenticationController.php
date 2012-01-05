@@ -200,6 +200,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$successUri = $this->getSuccessRedirectUrl();
 						$this->response->redirect($successUri);
 					}
+
+					$auditLog = ObjectRepository::getAuditLogger($this);
+					$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged in", $user);
 					
 					throw new StopRequestException("Login success");
 					
