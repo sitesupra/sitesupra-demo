@@ -136,11 +136,14 @@ class ParsedHtmlFilter implements FilterInterface
 				$tag->setAttribute('height', $height);
 			}
 
-			//FIXME: now it applies for both – alt and title
-			$title = $imageData->getAlternativeText();
+			$title = trim($imageData->getTitle());
 			if ( ! empty($title)) {
 				$tag->setAttribute('title', $title);
-				$tag->setAttribute('alt', $title);
+			}
+			
+			$alternativeText = trim($imageData->getAlternativeText());
+			if ( ! empty($alternativeText)) {
+				$tag->setAttribute('alt', $alternativeText);
 			}
 
 			$html = $tag->toHtml();

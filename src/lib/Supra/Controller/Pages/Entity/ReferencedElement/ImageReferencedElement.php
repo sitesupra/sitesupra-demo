@@ -50,6 +50,13 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $height;
 	
 	/**
+	 * 
+	 * @Column(type="string", nullable="true")
+	 * @var string
+	 */
+	protected $title;
+	
+	/**
 	 * @Column(type="string", nullable="true")
 	 * @var string
 	 */
@@ -96,7 +103,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @param string $align
+	 * @param string $style
 	 */
 	public function setStyle($style)
 	{
@@ -128,7 +135,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @param integer $align
+	 * @param integer $width
 	 */
 	public function setWidth($width)
 	{
@@ -144,7 +151,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @param integer $align
+	 * @param integer $height
 	 */
 	public function setHeight($height)
 	{
@@ -160,7 +167,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @param string $align
+	 * @param string $alternativeText
 	 */
 	public function setAlternativeText($alternativeText)
 	{
@@ -168,6 +175,22 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
+	 * @return string 
+	 */
+	public function getTitle()
+	{
+		return $this->title;
+	}
+
+	/**
+	 * @param string $title 
+	 */
+	public function setTitle($title)
+	{
+		$this->title = $title;
+	}
+
+		/**
 	 * {@inheritdoc}
 	 * @return array
 	 */
@@ -180,7 +203,8 @@ class ImageReferencedElement extends ReferencedElementAbstract
 			'style' => $this->style,
 			'size_width' => $this->width,
 			'size_height' => $this->height,
-			'title' => $this->alternativeText,
+			'title' => $this->title,
+			'description' => $this->alternativeText,
 			'size_name' => $this->sizeName,
 		);
 		
@@ -198,7 +222,8 @@ class ImageReferencedElement extends ReferencedElementAbstract
 		$this->style = $array['style'];
 		$this->width = $array['size_width'];
 		$this->height = $array['size_height'];
-		$this->alternativeText = $array['title'];
+		$this->title = $array['title'];
+		$this->alternativeText = $array['description'];
 		$this->sizeName = $array['size_name'];
 	}
 
