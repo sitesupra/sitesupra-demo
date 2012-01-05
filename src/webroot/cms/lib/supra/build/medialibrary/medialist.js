@@ -977,6 +977,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				node,
 				item;
 			
+			//No slide to render data into, probably it was already closed
+			if (!slide) return;
+			
 			//Get data if arguments is not passed
 			if (typeof data === 'undefined' || data === null) {
 				data = this.get('dataObject').getData(id);
