@@ -696,6 +696,13 @@ abstract class PageManagerAction extends CmsAction
 			$pageData->setLock(null);
 
 			$this->entityManager->flush();
+
+			$previousRevision = $pageLock->getPageRevision();
+			$currentRevision = $pageData->getRevisionId();
+
+			if ($previousRevision != $currentRevision) {
+				$this->writeAuditLog('unlock', "Draft for %item% saved", $pageData);
+			}
 		}
 	}
 
@@ -761,6 +768,8 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager->persist($pageLock);
 
 		$pageLock->setUserId($userId);
+		$revisionId = $pageData->getRevisionId();
+		$pageLock->setPageRevision($revisionId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
 	}
