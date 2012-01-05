@@ -57,7 +57,7 @@
     icon: /cms/lib/supra/img/apps/media_library
     
 ##  possible values: "full", "partial" and "none"
-##   - "none" will disable any existance check
+##   - "none" will disable any existence check
 ##   - "partial" will force to check only when tab with file info is displayed
 ##   - "full" will force to check file existence also when complete list of files is displayed
 ##  default is "none"
