@@ -706,6 +706,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			form_data.scheduled_time = page_data.scheduled_time;
 			form_data.scheduled_date = page_data.scheduled_date;
 			
+			form_data.created_time = page_data.created_time;
+			form_data.created_date = page_data.created_date;
+			
 			Supra.mix(page_data, form_data);
 			
 			//Remove unneeded data for save request

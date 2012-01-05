@@ -24,6 +24,7 @@ var LANG = Y.Lang,
  */
 Dt.reformat = function(data, from, to) {
     var date = null;
+    if (!data) return null;
     
     if (from == 'raw') {
     	date = Y.Lang.isDate(data) ? data : null;
