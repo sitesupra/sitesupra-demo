@@ -827,21 +827,24 @@ abstract class PageManagerAction extends CmsAction
 			$localization = $request->recursiveClone($existingLocalization, null, true);
 			// 2. set new locale for localization itself
 			$localization->setLocale($localeId);
-			// 3. set new locale for path entity also
-			$path = $localization->getPathEntity();
-			$path->setLocale($localeId);
-			// 4. flush, to store path locale
-			$em->flush();
-		
-			// for now we have new(already duplicated) localization with correct locale id
-			// with empty PageLocalizationPath(new entity was created, but 'path' column contains no data)
-			// but new Localization::$pathPart contains same string as old one
+			
+			if ($localization instanceof Entity\PageLocalization) {
+				// 3. set new locale for path entity also
+				$path = $localization->getPathEntity();
+				$path->setLocale($localeId);
+				// 4. flush, to store path locale
+				$em->flush();
 
-			// 5. pass new localization (with new path entity) to PagePathGenerator
-			// which will try to build new path for this locale using Localization::$pathPart string
-			$eventArgs = new LifecycleEventArgs($localization, $em);
-				$em->getEventManager()
-					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+				// for now we have new(already duplicated) localization with correct locale id
+				// with empty PageLocalizationPath(new entity was created, but 'path' column contains no data)
+				// but new Localization::$pathPart contains same string as old one
+
+				// 5. pass new localization (with new path entity) to PagePathGenerator
+				// which will try to build new path for this locale using Localization::$pathPart string
+				$eventArgs = new LifecycleEventArgs($localization, $em);
+					$em->getEventManager()
+						->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+			}
 
 			$newLocalizationId = $localization->getId();
 			
