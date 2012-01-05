@@ -95,7 +95,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$item['knownExtension'] = $extension;
 				}
 					
-				$checkExistance = $this->getApplicationConfigValue('checkFileExistance');
+				$checkExistance = $this->getApplicationConfigValue('checkFileExistence');
 				if ($checkExistance == ApplicationConfiguration::CHECK_FULL) {
 					$item['broken'] = ( ! $this->isAvailable($rootNode));
 				}
@@ -457,7 +457,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$output['known_extension'] = $extension;
 		}
 		
-		$checkExistance = $this->getApplicationConfigValue('checkFileExistance');
+		$checkExistance = $this->getApplicationConfigValue('checkFileExistence');
 		if ($checkExistance == ApplicationConfiguration::CHECK_FULL 
 				|| $checkExistance == ApplicationConfiguration::CHECK_PARTIAL) {
 				

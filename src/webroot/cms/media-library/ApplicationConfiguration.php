@@ -14,7 +14,7 @@ class ApplicationConfiguration extends \Supra\Cms\ApplicationConfiguration
 	/**
 	 * @var string
 	 */
-	public $checkFileExistance = self::CHECK_NONE;
+	public $checkFileExistence = self::CHECK_NONE;
 	
 	/**
 	 * @var array
