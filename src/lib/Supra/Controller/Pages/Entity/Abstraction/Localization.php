@@ -530,7 +530,9 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 */
 	public function __clone()
 	{
-		parent::__clone();
-		$this->lock = null;
+		if ( ! empty($this->id)) {
+			parent::__clone();
+			$this->lock = null;
+		}
 	}
 }

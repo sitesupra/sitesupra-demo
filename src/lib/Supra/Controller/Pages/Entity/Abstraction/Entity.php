@@ -200,7 +200,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 */
 	public function __clone()
 	{
-		if ($this->id) {
+		if ( ! empty($this->id)) {
 			$this->regenerateId();
 			$this->setRevisionId(self::generateId(__CLASS__));
 		}

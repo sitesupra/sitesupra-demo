@@ -421,10 +421,12 @@ class PageLocalization extends Abstraction\Localization
 
 	public function __clone ()
 	{
-		parent::__clone();
-		
-		$this->path = new PageLocalizationPath();
-		$this->path->setLocale($this->locale);
+		if ( ! empty($this->id)) {
+			parent::__clone();
+
+			$this->path = new PageLocalizationPath();
+			$this->path->setLocale($this->locale);
+		}
 	}
 
 	/**
@@ -445,6 +447,16 @@ class PageLocalization extends Abstraction\Localization
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * @param string $locale
+	 */
+	public function setLocale($locale)
+	{
+		parent::setLocale($locale);
+		
+		$this->path->setLocale($locale);
 	}
 
 }
