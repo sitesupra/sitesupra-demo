@@ -43,6 +43,13 @@ Supra(function (Y) {
 		}
 	};
 	
+	
+	//When BannerEdit action is hidden, hide also sidebar actions
+	Manager.getAction('BannerEdit').addChildAction('PageLinkManager');
+	Manager.getAction('BannerEdit').addChildAction('Schedule');
+	Manager.getAction('BannerEdit').addChildAction('MediaSidebar');
+	
+	
 	//Create Action class
 	new Action(Action.PluginContainer, Action.PluginMainContent, Action.PluginForm, {
 		
