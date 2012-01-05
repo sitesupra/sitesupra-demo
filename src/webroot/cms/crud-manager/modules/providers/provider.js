@@ -338,14 +338,15 @@ YUI.add('website.provider', function (Y) {
 				
 				Supra.io(uri, {
 					'data': post_data,
-					'method': 'post'
+					'method': 'post',
+					'context': this,
+					'on': {
+						'success': function () {
+							this.data_grid.removeRow(record_id);
+						}
+					}
 				});
-				
-				this.data_grid.removeRow(record_id);
 			}
-			
-			//@TODO FIXME
-			Supra.Manager.getAction('PageButtons').unsetActiveAction('Form');
 			
 			//Transition back to list mode
 			this.set('mode', 'list');

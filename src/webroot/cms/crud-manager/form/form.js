@@ -101,7 +101,6 @@ Supra(function (Y) {
 		
 		/**
 		 * Execute action
-		 * @todo Bug #4418 GJENSIDIGE. CHECK AND FIX CODE IF NEEDED WHEN KASPARS WILL BE BACK.
 		 */
 		execute: function () {
 			//Show buttons
