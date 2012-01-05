@@ -646,7 +646,7 @@ Supra(function (Y) {
 				'method': 'post',
 				'context': context,
 				'on': {
-					'success': callback
+					'complete': callback
 				}
 			});
 		},

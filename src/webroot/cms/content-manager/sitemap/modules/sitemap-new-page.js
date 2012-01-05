@@ -101,7 +101,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				'autoDiscoverInputs': true,
 				'inputs': [
 					{'id': 'title', 'type': 'String', 'useReplacement': true},
-					{'id': 'layout', 'type': 'String', 'useReplacement': true},
+					{'id': 'layout', 'type': 'String', 'useReplacement': true, 'label': SU.Intl.get(['sitemap', 'form_label_layout'])},
 					{'id': 'path', 'type': 'Path', 'useReplacement': true}
 				]
 			});
@@ -302,56 +302,46 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			target[target_fn](postdata, function (data, status) {
 				this.button_create.set('loading', false);
 				
-				var treenode = this.host.flowmap.getNodeById(old_id);
-				var all_data = this.host.flowmap.getIndexedData();
-				var node_data = treenode.get('data');
-				var children = data.children;
-				
-				if (children) {
-					delete(data.children);
-				}
-				
-				data.temporary = false;
-				Supra.mix(old_data, data);
-				Supra.mix(node_data, data);
-				
-				var data_indexed = this.host.flowmap.getIndexedData();
-				delete(data_indexed[old_id]);
-				data_indexed[data.id] = data;
-				
-				//Update item
-				treenode.set('label', data.title);
-				treenode.set('icon', data.icon);
-				treenode.set('preview', data.preview);
-				
-				//Unset data
-				this.host.property_data = null;
-				
-				//Hide panel
-				this.panel.hide();
-				
-				//Add children
-				if (children) {
-					var index = 0;
+				if (status) {
+					var treenode = this.host.flowmap.getNodeById(old_id);
+					var all_data = this.host.flowmap.getIndexedData();
+					var node_data = treenode.get('data');
+					var children = data.children;
 					
-					for(var i=0,ii=children.length; i<ii; i++) {
-						children[i].parent = data.id;
-						all_data[children[i].id] = children[i];
-						
-						/*
-						treenode.add({
-							'data': children[i],
-							'label': children[i].title,
-							'icon': children[i].icon,
-							'isDropTarget': children[i].isDropTarget,
-							'isDragable': children[i].isDragable
-						}, index);
-						
-						index++;
-						*/
+					if (children) {
+						delete(data.children);
 					}
 					
-					treenode.addChildren(children);
+					data.temporary = false;
+					Supra.mix(old_data, data);
+					Supra.mix(node_data, data);
+					
+					var data_indexed = this.host.flowmap.getIndexedData();
+					delete(data_indexed[old_id]);
+					data_indexed[data.id] = data;
+					
+					//Update item
+					treenode.set('label', data.title);
+					treenode.set('icon', data.icon);
+					treenode.set('preview', data.preview);
+					
+					//Unset data
+					this.host.property_data = null;
+					
+					//Hide panel
+					this.panel.hide();
+					
+					//Add children
+					if (children) {
+						var index = 0;
+						
+						for(var i=0,ii=children.length; i<ii; i++) {
+							children[i].parent = data.id;
+							all_data[children[i].id] = children[i];
+						}
+						
+						treenode.addChildren(children);
+					}
 				}
 			}, this);
 		}

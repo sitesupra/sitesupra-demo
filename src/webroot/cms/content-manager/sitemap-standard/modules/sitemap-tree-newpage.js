@@ -165,7 +165,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
 			
-			SU.Manager.Page.createPage(pagedata, function () {
+			SU.Manager.Page.createPage(pagedata, function (data, status) {
 				this.onNewPageDataLoad.apply(this, arguments);
 				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
 			}, this);
