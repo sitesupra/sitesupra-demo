@@ -61,7 +61,7 @@
 ##   - "partial" will force to check only when tab with file info is displayed
 ##   - "full" will force to check file existance also when complete list of files is displayed
 ##  default is "none"
-    checkFileExistance: partial
+    checkFileExistance: full
     knownFileExtensions: 
       - pdf
       - xls
