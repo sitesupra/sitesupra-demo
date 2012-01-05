@@ -6,6 +6,7 @@ use Supra\Controller\SimpleController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Log\Log;
+use Supra\User\Entity\AbstractUser;
 
 /**
  * Logout controller
@@ -36,7 +37,13 @@ class LogoutController extends SimpleController
 	public function indexAction()
 	{
 		$userProvider = ObjectRepository::getUserProvider($this);
+		$user = $userProvider->getSignedInUser();
 		$userProvider->signOut();
+
+		if ($user instanceof AbstractUser) {
+			$auditLog = ObjectRepository::getAuditLogger($this);
+			$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged out", $user);
+		}
 		
 		$loginPage = $this->getLoginPage();
 		$this->response->redirect($loginPage);
