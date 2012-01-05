@@ -74,7 +74,8 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			$title = $localization->getTitle();
 		}
 		else {
-			$title = 'Deleted object #' . $itemId;
+			// $title = 'Deleted object #' . $itemId;
+			return array();
 		}
 
 		$itemPermission = parent::getEntityPermissionArray($user, $itemId, $allowed, array());
