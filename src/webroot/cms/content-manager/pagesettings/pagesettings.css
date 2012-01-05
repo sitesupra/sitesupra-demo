@@ -50,7 +50,7 @@
 
 .yui3-page-settings-button-fixed p {
 	overflow: hidden;
-	max-width: 105px;
+	max-width: 100px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

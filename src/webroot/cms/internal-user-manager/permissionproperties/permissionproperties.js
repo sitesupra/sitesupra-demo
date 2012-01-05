@@ -174,11 +174,20 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			
 			var inputs = this.form.getInputs(),
 				fn;
+			
+			var getCallback = function (fn) {
+				return function (e) {
+					fn.call(this, Supra.mix(e || {}, {
+						'list': this.user
+					}));
+				};
+			};
+			
 			for(i in inputs) {
 				fn = this.onInputChange;
 				if (i == 'allow') fn = this.onAllowChange;
 				
-				inputs[i].on('change', fn, this);
+				inputs[i].on('change', getCallback(fn), this);
 			}
 			
 			
@@ -212,7 +221,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 				}
 			}
 			
-			this.onAllowChange({'value': values.allow, 'list': values}); 
+			this.onAllowChange({'value': values.allow, 'list': values}, true); 
 		},
 		
 		/**
@@ -312,7 +321,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 		/**
 		 * On 'Permissions' change show/hide tree
 		 */
-		onAllowChange: function (event) {
+		onAllowChange: function (event, silent) {
 			if (event.value == 1) {
 				this.list.show();
 				this.slideshow.set('slide', 'treeSlide');
@@ -322,7 +331,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 				this.slideshow.set('slide', 'propertiesSlide');
 			}
 			
-			if (!event.list) {
+			if (!silent) {
 				//Save properties only if not first change (when setting initial values)
 				this.saveProperties();
 				
@@ -356,6 +365,9 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 						post.list = list[i];
 					}
 				}
+				
+				//Save property values
+				this.user.items = list;
 			}
 			
 			//Save value change
@@ -369,6 +381,13 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			var user = Manager.getAction('User').getData(),
 				values = this.form.getValues('id'),
 				items = this.list.getValue();
+			
+			if (values.allow != '1') {
+				//Restore from saved property
+				items = this.user.items;
+			}
+			
+			this.user.allow  = values.allow;
 			
 			user.permissions[this.application.id] = Supra.mix(values, {
 				'items': items
