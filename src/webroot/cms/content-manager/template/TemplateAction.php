@@ -203,8 +203,17 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function duplicateAction()
 	{
-		$this->checkLock(false);
+		$this->isPostRequest();
 		$this->duplicate();
+	}
+	
+	/**
+	 * Duplicate global localization
+	 */
+	public function duplicateGlobalAction()
+	{
+		$this->isPostRequest();
+		$this->duplicateGlobal();
 	}
 
 }

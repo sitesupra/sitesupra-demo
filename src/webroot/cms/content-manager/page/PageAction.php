@@ -19,8 +19,6 @@ use Supra\Authorization\Exception\AuthorizationException;
 use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Listener\PagePathGenerator;
 
 /**
  * 
@@ -569,62 +567,6 @@ class PageAction extends PageManagerAction
 	}
 	
 	/**
-	 * Duplicate global localization
-	 */
-	public function duplicateGlobalAction()
-	{
-		$this->isPostRequest();
-		
-		// current locale
-		$localeId = $this->getLocale()
-				->getId();		
-		
-		// localization, that will be duplicated
-		$existingLocalization = $this->getPageLocalization();
-		
-		$originalLocaleId = $existingLocalization->getLocale();
-		
-		if ($localeId == $originalLocaleId) {
-			throw new CmsException(null, 'Page duplicate will do nothing as old locale and new locale are identical');
-		}
-		
-		$em = $this->entityManager;
-		$request = $this->getPageRequest();
-		
-		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId) {
-			
-			// 1. duplicate localization
-			$localization = $request->recursiveClone($existingLocalization, null, true);
-			// 2. set new locale for localization itself
-			$localization->setLocale($localeId);
-			// 3. set new locale for path entity also
-			$path = $localization->getPathEntity();
-			$path->setLocale($localeId);
-			// 4. flush, to store path locale
-			$em->flush();
-		
-			// for now we have new(already duplicated) localization with correct locale id
-			// with empty PageLocalizationPath(new entity was created, but 'path' column contains no data)
-			// but new Localization::$pathPart contains same string as old one
-
-			// 5. pass new localization (with new path entity) to PagePathGenerator
-			// which will try to build new path for this locale using Localization::$pathPart string
-			$eventArgs = new LifecycleEventArgs($localization, $em);
-				$em->getEventManager()
-					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
-
-			$newLocalizationId = $localization->getId();
-			
-			return $newLocalizationId;
-		};
-		
-		$newLocalizationId = $em->transactional($cloneLocalization);
-
-		$this->getResponse()
-				->setResponseData(array('id' => $newLocalizationId));
-	}
-	
-	/**
 	 * Page duplicate action
 	 */
 	public function duplicateAction()
@@ -633,6 +575,15 @@ class PageAction extends PageManagerAction
 		$this->duplicate();
 		
 		$this->writeAuditLog('duplicate', '%item% duplicated', $this->getPageByRequestKey('page_id'));
+	}
+	
+	/**
+	 * Duplicate global localization
+	 */
+	public function duplicateGlobalAction()
+	{
+		$this->isPostRequest();
+		$this->duplicateGlobal();
 	}
 	
 	/**
