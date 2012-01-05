@@ -133,16 +133,29 @@ class BannereditAction extends CmsAction
 
 		if ( ! $postData->hasChild('target')) {
 
-			$banner->setExternalTarget('#');
-			
+			throw new CmsException(null, 'Banner target is not set!');
 		} else {
-			
+
 			$bannerTarget = $postData->getChild('target');
 
 			if ($bannerTarget->get('resource') == 'link') {
-				$banner->setExternalTarget($bannerTarget->get('href'));
+
+				$href = $bannerTarget->get('href');
+
+				if (empty($href)) {
+					throw new CmsException(null, 'Banner target is not set!');
+				}
+
+				$banner->setExternalTarget($href);
 			} else {
-				$banner->setInternalTarget($bannerTarget->get('page_id'));
+
+				$pageId = $bannerTarget->get('page_id');
+
+				if (empty($pageId)) {
+					throw new CmsException(null, 'Banner target is not set!');
+				}
+
+				$banner->setInternalTarget($pageId);
 			}
 		}
 
