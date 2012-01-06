@@ -208,7 +208,8 @@ class PageLocalization extends Abstraction\Localization
 	public function getPathEntity()
 	{
 		if (is_null($this->path)) {
-			$this->resetPath();
+			$this->path = new PageLocalizationPath();
+			$this->path->setLocale($this->locale);
 		}
 
 		return $this->path;
