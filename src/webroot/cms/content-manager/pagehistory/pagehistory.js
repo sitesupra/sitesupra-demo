@@ -102,17 +102,16 @@ SU(function (Y) {
 			
 			if (this.current_version != version_id) {
 				this.current_version = version_id;
-				this.loading = true;
 				
 				target.siblings().removeClass('active');
 				target.addClass('loading');
 				target.addClass('active');
-				target.get('parentNode').addClass('history-list-disabled');
+				
+				this.disableList();
 				
 				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function () {
 					target.removeClass('loading');
-					target.get('parentNode').removeClass('history-list-disabled');
-					this.loading = false;
+					this.enableList();
 				}, this);
 				
 				//Create button
@@ -130,11 +129,32 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Disable list
+		 */
+		enableList: function () {
+			this.loading = false;
+			this.one('.history-list').removeClass('history-list-disabled');
+		},
+		
+		/**
+		 * Disable list
+		 */
+		disableList: function () {
+			this.loading = true;
+			this.one('.history-list').addClass('history-list-disabled');
+		},
+		
+		/**
 		 * Restore specific version and hide PageHistory block
 		 *
 		 * @param {String} version_id
 		 */
 		restoreVersion: function (version_id) {
+			//Disable elements
+			this.disableList();
+			this.button.set('loading', true);
+			Manager.PageButtons.buttons[this.NAME][0].set('disabled', true);
+			
 			Supra.io(this.getDataPath('restore'), {
 				'method': 'post',
 				'data': {
@@ -145,6 +165,11 @@ SU(function (Y) {
 				'context': this,
 				'on': {
 					'success': function () {
+						//Re-enable elements
+						this.enableList();
+						this.button.set('loading', false);
+						Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
+						
 						//Reload page
 						this.reloadPage();
 						this.hide();
