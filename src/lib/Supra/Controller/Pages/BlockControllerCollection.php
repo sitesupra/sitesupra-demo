@@ -1,14 +1,16 @@
 <?php
 
 /**
- * BlockControllerCollection
+ * Collection of blocks and block groups
  *
  * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
+
 namespace Supra\Controller\Pages;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration;
 use Supra\Loader\Loader;
 
 /**
@@ -16,11 +18,15 @@ use Supra\Loader\Loader;
  */
 class BlockControllerCollection
 {
+
 	/**
 	 * @var array 
 	 */
-	protected $configuration = array();
-	
+	protected $configuration = array(
+		'blocks' => array(),
+		'groups' => array(),
+	);
+
 	/**
 	 * @var BlockControllerCollection 
 	 */
@@ -40,53 +46,87 @@ class BlockControllerCollection
 	/**
 	 * @return array 
 	 */
-	public function getConfigurationList()
+	public function getBlocksConfigurationList()
 	{
-		return $this->configuration;
+		return $this->configuration['blocks'];
 	}
-	
+
 	/**
 	 * @param string $blockId
 	 * @return BlockControllerConfiguration 
 	 */
-	public function getConfiguration($blockId)
+	public function getBlockConfiguration($blockId)
 	{
-		$blockId = 	str_replace('\\', '_', $blockId);
-		
-		return $this->configuration[$blockId];
+		$blockId = str_replace('\\', '_', $blockId);
+
+		return $this->configuration['blocks'][$blockId];
 	}
 
 	/**
 	 * @param BlockControllerConfiguration $configuration 
 	 */
-	public function addConfiguration(BlockControllerConfiguration $configuration)
+	public function addBlockConfiguration(BlockControllerConfiguration $configuration)
 	{
-		$blockId = 	str_replace('\\', '_', $configuration->id);
-		
-		$this->configuration[$blockId] = $configuration;
+		$blockId = str_replace('\\', '_', $configuration->id);
+
+		$this->configuration['blocks'][$blockId] = $configuration;
 	}
-	
+
+	/**
+	 * @return array 
+	 */
+	public function getGroupsConfigurationList()
+	{
+		return $this->configuration['groups'];
+	}
+
+	/**
+	 * @param string $groupId
+	 * @return BlockControllerGroupConfiguration
+	 */
+	public function getGroupConfiguration($groupId)
+	{
+		$groupId = str_replace(' ', '-', trim($groupId));
+
+		return $this->configuration['groups'][$groupId];
+	}
+
+	/**
+	 * @param BlockControllerGroupConfiguration $configuration 
+	 */
+	public function addGroupConfiguration(BlockControllerGroupConfiguration $configuration)
+	{
+		if (empty($configuration->id)) {
+			throw new Exception\ConfigurationException('Group id can not be empty');
+		}
+
+		$groupId = str_replace(' ', '-', trim($configuration->id));
+
+		$this->configuration['groups'][$groupId] = $configuration;
+	}
+
 	/**
 	 * @param string $controllerClass
 	 * @return BlockController 
 	 */
 	public function getBlockController($blockId)
 	{
-		$configuration = $this->getConfiguration($blockId);
+		$configuration = $this->getBlockConfiguration($blockId);
 		$controllerClass = $configuration->controllerClass;
-		
+
 		if ( ! class_exists($controllerClass)) {
 			throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
 		}
-		
+
 		/* @var $controller BlockController */
-		
+
 		$controller = $controllerClass::createController();
 
 		//$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-		
+
 		$controller->setConfiguration($configuration);
-		
+
 		return $controller;
 	}
+
 }

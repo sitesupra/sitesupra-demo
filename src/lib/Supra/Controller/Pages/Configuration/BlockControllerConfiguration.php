@@ -25,10 +25,11 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	public $title;
 
 	/**
+	 * Group id 
 	 * @var string
 	 */
-	public $group = null;
-
+	public $groupId = null;
+	
 	/**
 	 * @var string
 	 */
@@ -73,7 +74,7 @@ class BlockControllerConfiguration implements ConfigurationInterface
 		}
 
 		BlockControllerCollection::getInstance()
-				->addConfiguration($this);
+				->addBlockConfiguration($this);
 	}
 
 	/**

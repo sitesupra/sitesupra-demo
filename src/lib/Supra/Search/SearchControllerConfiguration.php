@@ -47,7 +47,7 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 			$this->title = 'Search';
 		}
 		
-		$this->group = 'System';
+		$this->groupId = 'system';
 		
 		if(empty($this->description)) {
 			$this->description = 'Search controller';
