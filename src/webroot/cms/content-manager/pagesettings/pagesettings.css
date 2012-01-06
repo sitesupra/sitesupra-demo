@@ -48,11 +48,15 @@
 	vertical-align: middle;
 }
 
+.yui3-button-group.yui3-page-settings-button-fixed {
+	margin-right: 0;
+}
 .yui3-page-settings-button-fixed p {
 	overflow: hidden;
-	max-width: 100px;
+	max-width: 85px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	padding: 0;
 }
 
 /*
