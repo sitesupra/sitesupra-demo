@@ -1,5 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     controllerClass: Project\Languages\LanguageSelectorBlock
     title: Language Selector
+    groupId: system
     description: 
     cmsClassname: Editable
