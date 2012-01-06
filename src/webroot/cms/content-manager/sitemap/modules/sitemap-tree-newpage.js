@@ -166,6 +166,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			//Set special style to proxy node
 			dd.on('drag:start', treenode._dragStart);
 			
+			
 			// When we leave drop target hide marker
 			dd.on('drag:exit', treenode._dragExit);
 			
@@ -302,6 +303,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			//Open editor
 			Y.later(150, this, function () {
+				//Start editing
 				this.get('host').getNodeById(page_data.id).edit(null, true);
 			});
 		},
@@ -311,7 +313,9 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				page_data = SU.mix({}, default_data, data),
 				parent_node = this.get('host').getNodeById(page_data.parent),
 				parent_data = parent_node ? parent_node.get('data') : null,
-				temp_id = Supra.Y.guid();
+				temp_id = Supra.Y.guid(),
+				scroll = false,
+				node = null;
 			
 			//Set temporary ID
 			page_data.id = temp_id;
@@ -330,30 +334,41 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				parent_node.expand();
 				
 				//Create node
-				parent_node.add({
+				node = parent_node.add({
 					'label': page_data.title,
 					'icon': page_data.icon,
-					'data': page_data
+					'data': page_data,
+					'isDropTarget': false
 				}, this.new_page_index);
+				
 			} else {
-				//Add to tree (Root)
+				//Add new root level item
 				
 				//Set into data
 				var data = this.get('host').getData();
 				data.push(page_data);
 				
 				//Create node
-				this.get('host').add({
+				node = this.get('host').add({
 					'label': page_data.title,
 					'icon': page_data.icon,
-					'data': page_data
+					'data': page_data,
+					'isDropTarget': false
 				}, this.new_page_index);
+				
+				//Scroll to the bottom of the page
+				scroll = true;
 			}
+			
+			//Style temporary node
+			node.item(0).get('boundingBox').addClass('yui3-tree-node-temp');
 			
 			//Scroll
 			Y.later(50, this, function () {
 				//Root template is added to the bottom, scroll to it
-				Manager.SiteMap.one('.yui3-sitemap-scrollable').set('scrollTop', 10000);
+				if (scroll) {
+					Manager.SiteMap.one('.yui3-sitemap-scrollable').set('scrollTop', 10000);
+				}
 				
 				//Open editor
 				Y.later(50, this, function () {
@@ -413,7 +428,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			//Set new page index depending on where it was dropped
 			if (position == 'inside') {
-				if (parent_data.new_children_first) {
+				if (parent_data && parent_data.new_children_first) {
 					this.new_page_index = 0;
 				} else {
 					this.new_page_index = target.size() + 1;

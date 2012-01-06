@@ -154,6 +154,9 @@ Supra('supra.slideshow', function (Y) {
 			this.addChildAction('UserPermissions');
 			/*this.addChildAction('UserStats');*/
 			
+			//Load media library Intl data
+			var app_path = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('MediaLibrary');
+			Supra.Intl.loadAppData(app_path);
 		},
 		
 		/**

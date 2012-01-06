@@ -126,6 +126,10 @@
 .flowmap-node-inner.type-group * {
 	cursor: default;
 }
+.yui3-tree-node-temp .flowmap-node-inner,
+.yui3-tree-node-temp .flowmap-node-inner * {
+	cursor: default;
+}
 
 .flowmap-node-inner:hover {
 	-moz-border-radius: 5px;
@@ -381,7 +385,8 @@
 	display: inline-block !important;
 	visibility: hidden;
 }
-.flowmap-node span.edit-hidden {
+.flowmap-node span.edit-hidden,
+.yui3-tree-node-temp span.edit {
 	visibility: hidden !important;
 }
 .tree-node:hover span.edit,
@@ -519,9 +524,10 @@
 	max-height: 420px;
 	overflow-y: auto;
 	float: left;
+	min-width: 170px;
 }
 .yui3-sitemap-template-list li {
-	padding: 5px 130px 5px 0;
+	padding: 5px 40px 5px 0;
 	cursor: pointer;
 }
 .yui3-sitemap-template-list div {
@@ -532,7 +538,7 @@
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	float: right;
-	margin-right: -130px;
+	margin-right: -40px;
 }
 .yui3-sitemap-template-list li:hover div {
 	border-color: #e0e0e0;

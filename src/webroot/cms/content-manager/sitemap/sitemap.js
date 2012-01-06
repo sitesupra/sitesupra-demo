@@ -474,6 +474,12 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 * @private
 		 */
 		onTreeNodeClick: function (evt) {
+			//Can't open page which is not create yet (temporary node)
+			if (evt.data.id.match(/^yui_/)) {
+				evt.halt();
+				return false;
+			}
+			
 			//Before changing page update locale
 			Supra.data.set('locale', this.languagebar.get('locale'));
 			

@@ -130,6 +130,12 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 			//On locale change reload data
 			Y.Global.on('localeChange', this.load, this);
 			
+			//On resize update banner positions
+			Y.on('resize', Y.throttle(Y.bind(function () {
+				console.log('RESIZE');
+				this.positionBanners(this.banner_index);
+			}, this)), window);
+			
 			//Bind drag and drop
 			this.bindDragAndDrop();
 		},

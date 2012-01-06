@@ -57,28 +57,8 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			//On language change hide panel
 			this.host.languagebar.on('localeChange', this.panel.hide, this.panel);
 			
-			//On document click hide panel
-			var evt = null;
-			var fn = function (event) {
-				var target = event.target.closest('div.sitemap-new-page');
-				if (!target) this.hide();
-			};
-			
 			//When panel is hidden remove 'click' event listener from document
-			this.panel.on('visibleChange', function (event) {
-				if (event.newVal) {
-					if (evt) evt.detach();
-					evt = Y.one(document).on('click', fn, this.panel);
-				} else {
-					if (evt) {
-						evt.detach();
-					}
-					
-					if (this.host.property_data) {
-						this.removeTemporaryNode();
-					}
-				}
-			}, this);
+			this.panel.on('visibleChange', this.handleVisibleChange, this);
 			
 			this.addWidget(this.panel);
 			
@@ -121,6 +101,32 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			//Cancel button
 			var link = contbox.one('a.cancel');
 				link.on('click', this.panel.hide, this.panel);
+		},
+		
+		/**
+		 * Check if mouse clicked inside panel, if not then hide it
+		 */
+		checkMouseClick: function (event) {
+			var target = event.target.closest('div.sitemap-new-page');
+			if (!target) this.hide();
+		},
+		
+		/**
+		 * Handle panel visibility change
+		 */
+		handleVisibleChange: function (event) {
+			if (event.newVal) {
+				if (this.visibility_evt) this.visibility_evt.detach();
+				this.visibility_evt = Y.one(document).on('click', this.checkMouseClick, this.panel);
+			} else {
+				if (this.visibility_evt) {
+					this.visibility_evt.detach();
+				}
+				
+				if (this.host.property_data) {
+					this.removeTemporaryNode();
+				}
+			}
 		},
 		
 		/**
@@ -235,6 +241,11 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			
 			//Enable/disable template input
 			inputs.template.set('disabled', !newpage);
+			
+			//Hide panel if it is already visible to remove old temporary node
+			if (this.panel.get('visible')) {
+				this.panel.hide();
+			}
 			
 			//Position panel
 			this.position(target);
