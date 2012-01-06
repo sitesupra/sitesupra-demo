@@ -477,7 +477,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$filePath = $this->fileStorage
 				->getFilesystemPath($file);
 
-		if (file_exists($filePath) && is_readable($filePath)) {
+		if (is_readable($filePath)) {
 			return true;
 		}
 		
