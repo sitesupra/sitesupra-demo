@@ -395,6 +395,8 @@ class PageLocalization extends Abstraction\Localization
 
 		$master = $this->getMaster();
 		$masterAncestors = $master->getAncestors();
+		
+		$ancestors[] = $master;
 
 		foreach ($masterAncestors as $masterAncestor) {
 			/* @var $masterAncestor Page */
