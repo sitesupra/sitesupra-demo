@@ -38,10 +38,22 @@ SU(function (Y) {
 		
 		
 		/**
+		 * Group data
+		 * @type {Object}
+		 */
+		groups: {},
+		
+		/**
 		 * Block data
 		 * @type {Object}
 		 */
 		data: {},
+		
+		/**
+		 * Block data
+		 * @type {Array}
+		 */
+		data_array: {},
 		
 		/**
 		 * Callback function
@@ -61,10 +73,12 @@ SU(function (Y) {
 			Supra.io(url, {
 				'on': {
 					'success': function (data) {
+						this.groups = data.groups;
+						this.data_array = data.blocks;
 						this.data = {};
 						
-						for(var i=0,ii=data.length; i<ii; i++) {
-							var block = data[i];
+						for(var i=0,ii=data.blocks.length; i<ii; i++) {
+							var block = data.blocks[i];
 							this.data[block.id] = block;
 						}
 						
@@ -85,6 +99,26 @@ SU(function (Y) {
 		 */
 		getAllBlocks: function () {
 			return this.data;
+		},
+		
+		/**
+		 * Returns all block data 
+		 * 
+		 * @return All data
+		 * @type {Object}
+		 */
+		getAllBlocksArray: function () {
+			return this.data_array;
+		},
+		
+		/**
+		 * Returns all block group data
+		 * 
+		 * @return All block group data
+		 * @type {Array}
+		 */
+		getAllGroups: function () {
+			return this.groups;
 		},
 		
 		/**
