@@ -40,7 +40,7 @@
  * Overlay
  */
 .yui3-content-overlay,
-.yui3-editable .yui3-content-overlay.yui3-content-editing {
+.yui3-editable .yui3-content-overlay.editing {
 	/* By default not visible */
 	display: none;
 }
@@ -194,8 +194,8 @@
 /**
  * Default content
  */
-.yui3-content-editing,
-.yui3-content-editing .yui3-content-inline {
+.editing,
+.editing .yui3-content-inline {
 	outline: 2px dashed rgba(0,0,0,.35);
 	
 	-moz-outline-radius: 4px;
@@ -205,11 +205,11 @@
 	overflow: hidden;
 	min-height: 1.5em;
 }
-.yui3-content-editing {
+.editing {
 	position: relative;
 	z-index: 10000;
 }
-.yui3-content-editing .yui3-input-string-inline.yui3-content-inline {
+.editing .yui3-input-string-inline.yui3-content-inline {
 	overflow: visible;
 	min-height: 1em;
 }
@@ -217,7 +217,7 @@
 /**
  * HTML content
  */
-.yui3-content-editing.yui3-content-inline-editable {
+.editing.yui3-content-inline-editable {
 	outline: none;
 	overflow: visible;
 }
@@ -230,11 +230,11 @@
 	min-height: 10px;
 }
 
-.yui3-content-list.yui3-content-editing {
+.yui3-content-list.editing {
 	overflow: hidden;
 	min-height: 90px;
 }
-.yui3-content-list.yui3-content-editing .yui3-content-inline {
+.yui3-content-list.editing .yui3-content-inline {
 	/* If list is being edited, then don't highlight inline contents */
 	outline: none;
 	min-height: 0;
@@ -245,11 +245,11 @@
  * Specific content styles
  */
 
-.yui3-content-editing .yui3-input-html-inline img {
+.editing .yui3-input-html-inline img {
 	cursor: pointer !important;
 }
-.yui3-content-editing .yui3-input-html-inline img.yui3-image-selected,
-.yui3-content-editing .yui3-input-html-inline img.yui3-gallery-selected {
+.editing .yui3-input-html-inline img.yui3-image-selected,
+.editing .yui3-input-html-inline img.yui3-gallery-selected {
 	/* Image focused */
 	-moz-box-shadow: 0 0 4px #39f;
 	-webkit-box-shadow: 0 0 4px #39f;
@@ -337,16 +337,16 @@
 	outline: none;
 }
 
-.yui3-content-editing table.yui3-table-selected td,
-.yui3-content-editing table.yui3-table-selected th {
+.editing table.yui3-table-selected td,
+.editing table.yui3-table-selected th {
 	/*outline: 1px dotted #ccc;*/
 }
-.yui3-content-editing table.yui3-table-selected .yui3-cell-selected {
+.editing table.yui3-table-selected .yui3-cell-selected {
 	box-shadow: 0 0 4px #39f;
 	-moz-box-shadow: 0 0 4px #39f;
 }
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-	.yui3-content-editing table.yui3-table-selected .yui3-cell-selected {
+	.editing table.yui3-table-selected .yui3-cell-selected {
 		outline: 2px dotted #39f;
 		box-shadow: none;
 	}

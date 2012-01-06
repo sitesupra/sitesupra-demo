@@ -33,7 +33,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
 		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),					// yui3-content-dragable
-		CLASSNAME_EDITING = getClassName('content', 'editing');						// yui3-content-editing
+		CLASSNAME_EDITING = 'editing';												// editing
 	
 	ContentProto.ATTRS = {
 		'data': {
