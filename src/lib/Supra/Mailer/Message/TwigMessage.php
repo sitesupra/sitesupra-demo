@@ -37,8 +37,8 @@ class TwigMessage extends SimpleMessage
 		
 		$this->twig = ObjectRepository::getTemplateParser($this);
 		
-		$host = $_SERVER['HTTP_HOST'];
-		$defaultEmail = "no-reply@$host";
+		$host = ObjectRepository::getSystemInfo($this)->getHostName();	
+		$defaultEmail = "no-reply@{$host}";
 		
 		try {
 			$defaultEmail = ObjectRepository::getIniConfigurationLoader($this)->getValue('mail', 'default_email');
