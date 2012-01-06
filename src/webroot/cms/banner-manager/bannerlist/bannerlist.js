@@ -200,7 +200,7 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 					container.removeClass('hover');
 				}, 'div.size0 > div', this);
 				
-				this.fillBannerList(values[0].id);
+				this.fillBannerList(this.select.get('value'));
 			}
 			
 			//Hide loading icon
