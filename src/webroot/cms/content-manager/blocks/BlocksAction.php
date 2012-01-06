@@ -22,6 +22,12 @@ class BlocksAction extends PageManagerAction
 		$groupTitles = array();
 		$blockTitles = array();
 		
+		$response['groups'][]  = array(
+			'id' => 'siteFeatures',
+			'title' => 'Site Features',
+			'default' => false,
+		);
+		
 		/* @var $conf BlockControllerConfiguration */
 		foreach ($configurationList as $blockId => $conf) {
 			
@@ -42,14 +48,14 @@ class BlocksAction extends PageManagerAction
 				) + $property->getAdditionalParameters();
 			}
 			
-			$group = 'Site features';
-			if ( ! is_null($conf->group)) {
-				$group = $conf->group;
-			}
+			$groupId = 'siteFeatures';
+//			if ( ! is_null($conf->group)) {
+//				$group = $conf->group;
+//			}
 			
-			$response[] = array(
+			$response['blocks'][] = array(
 				'id' => $conf->id,
-				'group' => $group,
+				'group' => $groupId,
 				'title' => $conf->title,
 				'description' => $conf->description,
 				'icon' => $conf->iconWebPath,
@@ -57,7 +63,7 @@ class BlocksAction extends PageManagerAction
 				'properties' => $properties,
 			);
 			
-			$groupTitles[] = $group;
+			$groupTitles[] = $groupId;
 			$blockTitles[] = $conf->title;
 		}
 		
