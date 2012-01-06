@@ -411,7 +411,20 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				pagedata.parent = parent;
 			}
 			
-			this.new_page_index = (position == 'inside' ? target.size() + 1 : (position == 'after' ? target.get('index') + 1 : target.get('index')));
+			//Set new page index depending on where it was dropped
+			if (position == 'inside') {
+				if (parent_data.new_children_first) {
+					this.new_page_index = 0;
+				} else {
+					this.new_page_index = target.size() + 1;
+				}
+			} else {
+				if (position == 'after') {
+					this.new_page_index = target.get('index') + 1;
+				} else {
+					this.new_page_index = target.get('index');
+				}
+			}
 			
 			if (this.type == 'templates' && !pagedata.parent) {
 				//Create temporary node, template will be created after layout value is set

@@ -62,6 +62,9 @@
 				"path": "news",
 				"application_id": "news",
 				"collapsed": true,
+				
+				"new_children_first": true,
+				
 				"children": [
 					{"id": 27, 	"has_hidden_pages": false, "type": "page", "preview": "/cms/lib/supra/img/sitemap/preview/page-3.jpg", "title": "Out offices world wide", 	"template": "template_1", "path": "office", 	"icon": "page", 	"published": true, 	"scheduled": false}
 				]
