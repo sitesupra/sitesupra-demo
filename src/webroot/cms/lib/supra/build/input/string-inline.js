@@ -3,19 +3,9 @@
 	
 YUI.add("supra.input-inline-string", function (Y) {
 	
-	function Input (config) {
-		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-	}
-	
-	Input.NAME = "input-string-inline";
-	Input.ATTRS = {
-		'doc': null,
-		'win': null
-	};
-	
-	Input.HTML_PARSER = {};
-	
+	/**
+	 * Helper functions for escaping/unescaping strings
+	 */
 	var HTML_CHARS = {
         '&': '&amp;',
         '<': '&lt;',
@@ -36,24 +26,31 @@ YUI.add("supra.input-inline-string", function (Y) {
 	
 	HTML_CHARS_REGEXP = new RegExp('[' + HTML_CHARS_REGEXP + ']', 'g');
 	
-	var escapeHtml = function(chr)
-	{
-		if (chr in HTML_CHARS) {
-			return HTML_CHARS[chr];
-		}
-		
-		return chr;
+	function escapeHtml (chr) {
+		return HTML_CHARS[chr] || chr;
 	}
 	
-	var unescapeHtml = function(ent)
-	{
-		var entLo = ent.toLowerCase();
-		if (entLo in HTML_CHARS_INVERSE) {
-			return HTML_CHARS_INVERSE[entLo];
-		}
-		
-		return ent;
+	function unescapeHtml (ent) {
+		return HTML_CHARS_INVERSE[entLo.toLowerCase()] || ent;
 	}
+	
+	
+	
+	/**
+	 * Inline string input widget
+	 */
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	Input.NAME = "input-string-inline";
+	Input.ATTRS = {
+		'doc': null,
+		'win': null
+	};
+	
+	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.InlineHTML, {
 		/*CONTENT_TEMPLATE: null,*/
