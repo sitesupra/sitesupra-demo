@@ -697,17 +697,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				form_data = this.form.getValuesObject();
 			
 			//Remove unneeded form data for save request
+			//Scheduled and created date/time are in page_data
 			delete(form_data.template);
+			delete(form_data.scheduled_time);
+			delete(form_data.scheduled_date);
 			delete(form_data.schedule_hours);
 			delete(form_data.schedule_minutes);
+			delete(form_data.created_time);
+			delete(form_data.created_date);
 			delete(form_data.created_hours);
 			delete(form_data.created_minutes);
-			
-			form_data.scheduled_time = page_data.scheduled_time;
-			form_data.scheduled_date = page_data.scheduled_date;
-			
-			form_data.created_time = page_data.created_time;
-			form_data.created_date = page_data.created_date;
 			
 			Supra.mix(page_data, form_data);
 			
