@@ -139,6 +139,7 @@ Supra('website.list-dd', function (Y) {
 				//Populate
 				Y.Array.each(data, function (data) {
 					data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
+					data.user_id = Supra.data.get(['user', 'id']);
 					groups[data.group].append(template(data));
 				})
 			}
@@ -157,7 +158,7 @@ Supra('website.list-dd', function (Y) {
 			this.plug(Supra.ListDD, {
 				'dropSelector': 'div.userlist-groups ul',
 				'dragContainerSelector': 'div.userlist-groups',
-				'dragSelector': 'li',
+				'dragSelector': 'li.dragable',
 				'proxyClass': 'userlist-proxy',
 				'targetClass': 'userlist-group-target'
 			});
