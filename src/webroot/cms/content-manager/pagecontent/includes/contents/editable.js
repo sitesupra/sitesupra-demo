@@ -164,15 +164,27 @@ YUI.add('supra.page-content-editable', function (Y) {
 		onEditingStart: function () {
 			//If there are InlineHTML contents, show toolbar when editing
 			if (this.inline_inputs_count) {
-				for(var id in this.inline_inputs) {
-					//Enable only first editor
-					this.set('active_inline_property', id);
-					break;
-				}
-				if (id in this.html_inputs) {
+				if (this.html_inputs_count) {
 					Manager.EditorToolbar.execute();
 				}
+				
+				var first_id = false;
+				for(var id in this.inline_inputs) {
+					//Will enable only first editor
+					if (!first_id) {
+						first_id = id;
+					} else {
+						//Disable all editors, except first
+						this.inline_inputs[id].set('disabled', true);
+					}
+				}
+				
+				if (first_id) {
+					//Set first editor as active
+					this.set('active_inline_property', first_id);
+				}
 			}
+			
 			this.unresolved_changes = true;
 			this.properties.set('data', this.get('data'));
 		},
@@ -319,8 +331,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 					this.inline_inputs_count++;
 					
 					if (inputs[id] instanceof Supra.Input.InlineHTML) {
-						this.html_inputs[id] = inputs[id];
-						this.html_inputs_count++;
+						
+						if (!(inputs[id] instanceof Supra.Input.InlineString)) {
+							this.html_inputs[id] = inputs[id];
+							this.html_inputs_count++;
+						}
 						
 						//Bind command to editor instead of toolbar, because toolbar is shared between editors
 						inputs[id].getEditor().addCommand('settings', Y.bind(this.onSettingsCommand, this));
