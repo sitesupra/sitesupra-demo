@@ -209,10 +209,15 @@
 }
 
 /* Show all */
+.flowmap-children .yui3-tree-node > .show-all {
+	display: inline-block;
+	padding: 0 0 0 50px;
+}
 .flowmap-children .yui3-flowmap-item > .show-all {
 	display: block;
 	float: left;
 	margin: -15px 0 0 50px;
+	padding: 0;
 	position: relative;
 }
 .flowmap-children .yui3-tree-node-collapsed > .show-all {

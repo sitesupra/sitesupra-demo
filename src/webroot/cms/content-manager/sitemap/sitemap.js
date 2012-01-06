@@ -313,8 +313,15 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				'context': this,
 				'on': {
 					'success': function (data) {
-						this.flowmap.getNodeById(page_id).removeNonHiddenChildren();
+						var tree_node = this.flowmap.getNodeById(page_id)
+						
+						tree_node.removeNonHiddenChildren();
 						this.addPagesToTree(page_id, data);
+						
+						//Collapse all children
+						for(var i=0,ii=tree_node.size(); i<ii; i++) {
+							tree_node.item(i).collapseAll();
+						}
 					}
 				}
 			})
