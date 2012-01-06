@@ -116,7 +116,7 @@ class BannereditAction extends CmsAction
 	 * @param Banner $banner
 	 * @param RequestData $postData 
 	 */
-	private function updateBannerFromPost(Banner $banner, $postData, File $file = null)
+	private function updateBannerFromPost(Banner $banner, $postData)
 	{
 		$banner->setStatus($postData->get('status', 1));
 		$banner->setPriority($postData->get('priority', 5));
@@ -131,9 +131,15 @@ class BannereditAction extends CmsAction
 			$banner->setScheduledTill(new DateTime($schedule->get('to')));
 		}
 
+		$bannerFile = $this->fileRepository->find($postData->get('image'));
+
+		$haveFlashBanner = ! empty($bannerFile) && $bannerFile->getMimeType() == FlashBanner::MIME_TYPE;
+
 		if ( ! $postData->hasChild('target')) {
 
-			throw new CmsException(null, 'Banner target is not set!');
+			if ( ! $haveFlashBanner) {
+				throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
+			}
 		} else {
 
 			$bannerTarget = $postData->getChild('target');
@@ -143,7 +149,11 @@ class BannereditAction extends CmsAction
 				$href = $bannerTarget->get('href');
 
 				if (empty($href)) {
-					throw new CmsException(null, 'Banner target is not set!');
+					if ( ! $haveFlashBanner) {
+						throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
+					} else {
+						$banner->setExternalTarget('');
+					}
 				}
 
 				$banner->setExternalTarget($href);
@@ -152,20 +162,22 @@ class BannereditAction extends CmsAction
 				$pageId = $bannerTarget->get('page_id');
 
 				if (empty($pageId)) {
-					throw new CmsException(null, 'Banner target is not set!');
+					if ( ! $haveFlashBanner) {
+						throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
+					} else {
+						$banner->setInternalTarget('');
+					}
+				} else {
+					$banner->setInternalTarget($pageId);
 				}
-
-				$banner->setInternalTarget($pageId);
 			}
 		}
 
 		$banner->setTypeId($postData->get('group_id', 'unknown-banner-type'));
 
-		$bannerFile = $this->fileRepository->find($postData->get('image'));
+		$banner->setLocaleId($postData->get('locale'));
 
 		$banner->setFile($bannerFile);
-
-		$banner->setLocaleId($postData->get('locale'));
 
 		$bannerType = $this->bannerProvider->getType($banner->getTypeId());
 
