@@ -38,7 +38,7 @@ class PageLocalization extends Abstraction\Localization
 	 * @TODO: remove field from audit scheme maybe?
 	 */
 	protected $path;
-	
+
 	/**
 	 * @Column(type="string", name="path_part")
 	 * @var string
@@ -116,7 +116,7 @@ class PageLocalization extends Abstraction\Localization
 		$this->path->setLocale($locale);
 		$this->setCreationTime();
 		$this->publishTimeSet = false;
- 
+
 		$this->wasActive = $this->active;
 	}
 
@@ -192,16 +192,16 @@ class PageLocalization extends Abstraction\Localization
 	public function getPath()
 	{
 		$path = $this->getPathEntity()->getPath();
-		
+
 		// Method should not return NULL for now...
 		if (is_null($path)) {
 			$path = NullPath::getInstance();
 			$this->getPathEntity()->setPath($path);
 		}
-		
+
 		return $path;
 	}
-	
+
 	/**
 	 * @return PageLocalizationPath
 	 */
@@ -210,10 +210,10 @@ class PageLocalization extends Abstraction\Localization
 		if (is_null($this->path)) {
 			$this->resetPath();
 		}
-		
+
 		return $this->path;
 	}
-	
+
 	/**
 	 * @param PageLocalizationPath $pathEntity
 	 */
@@ -419,7 +419,7 @@ class PageLocalization extends Abstraction\Localization
 		return $this->getPath()->getDepth();
 	}
 
-	public function __clone ()
+	public function __clone()
 	{
 		if ( ! empty($this->id)) {
 			parent::__clone();
@@ -438,25 +438,27 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! $this->active) {
 			return false;
 		}
-		
+
 		$path = $this->getPathEntity()
 				->getPath();
-		
+
 		if (is_null($path)) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @param string $locale
 	 */
 	public function setLocale($locale)
 	{
 		parent::setLocale($locale);
-		
-		$this->path->setLocale($locale);
+
+		if ( ! empty($this->path)) {
+			$this->path->setLocale($locale);
+		}
 	}
 
 }
