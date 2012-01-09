@@ -822,9 +822,9 @@ abstract class PageManagerAction extends CmsAction
 	
 	public function duplicateGlobal()
 	{
-		// current locale
-		$localeId = $this->getLocale()
-				->getId();		
+		$localeId = $this->getRequestParameter('locale');
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$localeManager->exists($localeId);
 		
 		// localization, that will be duplicated
 		$existingLocalization = $this->getPageLocalization();
