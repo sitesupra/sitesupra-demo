@@ -751,6 +751,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				'on': {
 					'success': function () {
 						Manager.Page.setPageData(page_data);
+						
+						//Change page version title
+						Manager.getAction('PageHeader').setVersionTitle('autosaved');
 					}
 				}
 			}, this);

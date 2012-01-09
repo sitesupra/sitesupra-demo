@@ -111,7 +111,7 @@ Supra(function (Y) {
 		 * Dependancies
 		 * @type {Array}
 		 */
-		DEPENDANCIES: ['Page', 'Template', 'PageToolbar', 'PageButtons', 'PageContent'],
+		DEPENDANCIES: ['Page', 'Template', 'PageHeader', 'PageToolbar', 'PageButtons', 'PageContent'],
 		
 		/**
 		 * Action doesn't have stylesheet

@@ -258,7 +258,12 @@ YUI.add('supra.iframe-contents', function (Y) {
 				'data': data,
 				'method': 'post',
 				'on': {
-					'success': callback
+					'success': function (data) {
+						callback.call(this, data);
+						
+						//Change page version title
+						Manager.getAction('PageHeader').setVersionTitle('autosaved');
+					}
 				},
 				'context': context
 			});
@@ -282,7 +287,12 @@ YUI.add('supra.iframe-contents', function (Y) {
 				'data': data,
 				'method': 'post',
 				'on': {
-					'success': callback
+					'success': function (data) {
+						callback.call(this, data);
+						
+						//Change page version title
+						Manager.getAction('PageHeader').setVersionTitle('autosaved');
+					}
 				},
 				'context': context
 			});
@@ -310,6 +320,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 				'data': data,
 				'method': 'post'
 			});
+						
+			//Change page version title
+			Manager.getAction('PageHeader').setVersionTitle('autosaved');
 		},
 		
 		/**
@@ -355,7 +368,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
-				'on': {'complete': callback}
+				'on': {'complete': function (data, status) {
+					callback.apply(this, arguments);
+					
+					if (status) {
+						//Change page version title
+						Manager.getAction('PageHeader').setVersionTitle('autosaved');
+					}
+				}}
 			}, context);
 		},
 		
@@ -393,7 +413,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Supra.io(url, {
 				'data': post_data,
 				'method': 'post',
-				'on': {'complete': callback}
+				'on': {'complete': function () {
+					callback.apply(this, arguments);
+					
+					if (status) {
+						//Change page version title
+						Manager.getAction('PageHeader').setVersionTitle('autosaved');
+					}
+				}}
 			}, context);
 		},
 		

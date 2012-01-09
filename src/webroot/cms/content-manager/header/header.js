@@ -2,7 +2,7 @@
 "use strict";
 
 /**
- * Header action
+ * Header action, app dock
  */
 Supra('supra.header', function (Y) {
 

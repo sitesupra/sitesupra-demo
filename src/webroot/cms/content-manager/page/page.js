@@ -90,6 +90,7 @@ Supra(function (Y) {
 			var pagecontent = Manager.getAction('PageContent'),
 				pagetoolbar = Manager.getAction('PageToolbar');
 			
+			Manager.executeAction('PageHeader');
 			Manager.executeAction('PageButtons');
 			Manager.executeAction('PageContent');
 			
@@ -166,6 +167,9 @@ Supra(function (Y) {
 			var iframe_handler = Supra.Manager.PageContent.getIframeHandler();
 			if (iframe_handler) iframe_handler.set('loading', true);
 			
+			//Add loading icon to button
+			Supra.Manager.PageButtons.buttons.Root[0].set('loading', true);
+			
 			//Load page data
 			Supra.io(this.getDataPath(), {
 				'data': {
@@ -188,8 +192,13 @@ Supra(function (Y) {
 			this.loading = false;
 			
 			//Is user authorized to edit page?
-			var allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
-							 Supra.Authorization.isAllowed(['page', 'edit'], true);
+			if (status && data) {
+				var allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
+								 Supra.Authorization.isAllowed(['page', 'edit'], true);
+				
+				//Show page header
+				Manager.getAction('PageHeader').show();
+			}
 			
 			if (allow_edit) {
 				//Edit button
@@ -197,7 +206,7 @@ Supra(function (Y) {
 					button_unlock = Supra.Manager.PageButtons.buttons.Root[1],
 					message_unlock = button_unlock.get('boundingBox').previous('p');
 				
-				//Remove loading icons from Edit button, which was added by publish
+				//Remove loading icons from Edit button, which was added by publish and load
 				button_edit.set('loading', false);
 				
 				if (status) {
@@ -282,6 +291,9 @@ Supra(function (Y) {
 				} else {
 					//Remove loading style
 					Y.one('body').removeClass('loading');
+					
+					//Open sitemap
+					Supra.Manager.executeAction('SiteMap');
 				}
 			}
 		},
@@ -327,6 +339,9 @@ Supra(function (Y) {
 			
 			//Show notification
 			Supra.Manager.executeAction('Notification', Supra.Intl.get(['page', 'publish_notification']));
+			
+			//Change page version title
+			Supra.Manager.getAction('PageHeader').setVersionTitle('published');
 		},
 		
 		/**
@@ -378,6 +393,9 @@ Supra(function (Y) {
 				//Show notification if unlock was called as Supra.io callback
 				//and not directly from onPublishPage
 				Supra.Manager.executeAction('Notification', Supra.Intl.get(['page', 'unlock_notification']));
+				
+				//Change page version title
+				Supra.Manager.getAction('PageHeader').setVersionTitle('draft');
 			}
 		},
 		

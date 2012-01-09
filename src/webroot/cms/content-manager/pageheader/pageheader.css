@@ -1,0 +1,32 @@
+.loading .cms-page-header {
+	display: none;
+}
+
+.cms-header .cms-page-header {
+	float: left;
+	position: relative;
+	z-index: 4;
+	color: #fff;
+}
+
+.cms-page-header .page-title {
+	padding: 8px 0 0 3px;
+	font-weight: bold;
+}
+.cms-page-header .languages {
+	float: left;
+}
+.cms-page-header .version {
+	float: left;
+	padding: 2px 0 0;
+}
+
+.cms-page-header .version,
+.cms-page-header .yui3-languagebar a.selected {
+	color: #ccc;
+	font-size: 11px;
+	line-height: 14px;
+}
+.cms-page-header .yui3-languagebar span.title {
+	vertical-align: text-bottom;
+}

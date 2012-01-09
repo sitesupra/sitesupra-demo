@@ -103,7 +103,7 @@ YUI.add("supra.languagebar", function (Y) {
 		 * 
 		 * @private
 		 */
-		showDropdown: function () {
+		toggleDropdown: function () {
 			//Create panel
 			if (!this.panel) {
 				this.panel = new Supra.Tooltip({
@@ -121,9 +121,15 @@ YUI.add("supra.languagebar", function (Y) {
 				//On body click hide panel
 				var body = new Y.Node(document.body);
 				body.on('click', this.panel.hide, this.panel);
+				
+				this.panel.show();
+			} else {
+				if (this.panel.get('visible')) {
+					this.panel.hide();
+				} else {
+					this.panel.show();
+				}
 			}
-			
-			this.panel.show();
 		},
 		
 		/**
@@ -159,7 +165,7 @@ YUI.add("supra.languagebar", function (Y) {
 			LanguageBar.superclass.bindUI.apply(this, arguments);
 			
 			var link = this.get('srcNode').one('a');
-			if (link) link.on('click', this.showDropdown, this)
+			if (link) link.on('click', this.toggleDropdown, this)
 			
 			this.get('contentBox').on('click', function (evt) {
 				evt.stopPropagation();

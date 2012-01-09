@@ -658,6 +658,9 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				this.setLoading(true);
 			}
 			this.first_exec = false;
+			
+			//Hide page header
+			Manager.getAction('PageHeader').hide();
 		}
 	});
 	

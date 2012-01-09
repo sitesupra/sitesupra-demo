@@ -2,11 +2,18 @@
   * = Page header 
   */
 .cms-header {
+	min-height: 52px; /* App dock height */
+}
+.cms-header .yui3-app {
+	float: left;
 }
 
 
+/**
+  * = Current app icon 
+  */
 .yui3-app-current {
-	position: absolute;
+	position: relative;
 	z-index: 101;
 	left: 0;
 	top: 0;
@@ -53,6 +60,9 @@
 	color: #333;
 }
 
+/**
+  * = App dock 
+  */
 .yui3-app-dock {
 	position: absolute;
 	z-index: 100;
