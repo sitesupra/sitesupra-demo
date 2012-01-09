@@ -342,12 +342,25 @@ SU('dd-drag', function (Y) {
 	            node: item.node,
 	            dragMode: 'intersect'
 	        });
+	        
+	        if (item.useProxy) {
+	        	dd.plug(Y.Plugin.DDProxy, {
+	        		cloneNode: true,
+	        		moveOnEnd: false
+	        	});
+	        }
 			
 			dd.on('drag:start', function(e) {
 				this.fire('dragstart', {
 					block: item.data,
 					dragnode: dd
 				});
+				
+				if (item.useProxy) {
+					var proxy = e.target.get('dragNode');
+					proxy.addClass('yui3-tab-blocks-block');
+					proxy.appendTo(Y.one('body'));
+				}
 				
 				//Show overlay, otherwise it's not possible to drag over iframe
 				this.iframe_handler.set('overlayVisible', true);
@@ -389,6 +402,8 @@ SU('dd-drag', function (Y) {
 				//Hide overlay to allow interacting with content
 				this.iframe_handler.set('overlayVisible', false);
 	        }, this);
+	        
+	        return dd;
 		},
 		
 		/**

@@ -139,7 +139,8 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 					'type': 'block',
 					'data': data,
 					'id': id,
-					'node': node
+					'node': node,
+					'useProxy': true
 				});
 				
 			}, this));
