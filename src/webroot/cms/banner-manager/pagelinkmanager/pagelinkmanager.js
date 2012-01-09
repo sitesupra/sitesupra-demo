@@ -189,6 +189,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			var reloading_tree = false;
 			if (this.locale && this.locale != Supra.data.get('locale')) {
 				reloading_tree = true;
+				
+				this.locale = Supra.data.get('locale');
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
+				
+				this.tree.set('requestUri', sitemap_data_path);
 				this.tree.reload();
 			}
 			

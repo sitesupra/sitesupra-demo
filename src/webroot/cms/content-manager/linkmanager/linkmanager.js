@@ -92,6 +92,12 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		callback: null,
 		
+		/**
+		 * Last known locale
+		 * @type {String}
+		 */
+		locale: null,
+		
 		
 		
 		/**
@@ -233,7 +239,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					this.link_slideshow.on('slideChange', this.updateButtonUI, this);
 				//Create tree
 					//Use sitemap data
-					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data;
+					this.locale = Supra.data.get('locale');
+					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data + '?locale=' + this.locale;
 					
 					//Create tree
 					this.tree = new SU.Tree({
@@ -326,6 +333,18 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				this.link_slideshow.set('noAnimations', true);
 			}
 			
+			//If locale has changed since last time this action was opened then reload tree data
+			var reloading_tree = false;
+			if (this.locale && this.locale != Supra.data.get('locale')) {
+				reloading_tree = true;
+				
+				this.locale = Supra.data.get('locale');
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
+				
+				this.tree.set('requestUri', sitemap_data_path);
+				this.tree.reload();
+			}
+			
 			//Reset tree selected node
 			if (this.tree) {
 				this.tree.set('selectedNode', null);
@@ -347,8 +366,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					
 					if (data.page_id) {
 						var node = this.tree.getNodeById(data.page_id);
-						if (!node) {
+						if (!node || reloading_tree) {
 							this.tree.once('render:complete', function () {
+								this.tree.set('selectedNode', null);
+								
 								var node = this.tree.getNodeById(data.page_id);
 								if (node) this.tree.set('selectedNode', node);
 							}, this);
