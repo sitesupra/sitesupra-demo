@@ -428,7 +428,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			
 			//Set new page index depending on where it was dropped
 			if (position == 'inside') {
-				if (parent_data && parent_data.new_children_first) {
+				if (drop_data && drop_data.new_children_first) {
 					this.new_page_index = 0;
 				} else {
 					this.new_page_index = target.size() + 1;
