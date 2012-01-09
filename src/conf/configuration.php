@@ -29,8 +29,8 @@ $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Search/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Payment/DummyShop/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'blockGroupsConfig.yml');
-
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'config.yml');
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Subscribe/config.yml');
 // Experimental: should be good if would be able to define extra PHP configuration as well
 require_once SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.php';
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');

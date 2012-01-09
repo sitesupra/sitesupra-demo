@@ -1,0 +1,23 @@
+{%if action == 'subscribe' %}
+
+	{%if (postedData != true  and errors is null) %}
+		<form  method="post" >
+			<label>Name:</label><input type="text" name="name"/>
+			<br/>
+			<label>Email address:</label><input type="text" name="email"/>
+			<br/>
+			<button type="submit">Submit</button>
+		</form>
+	{%else%}
+		Subscribtion confirmation email send on {{ email }}
+	{%endif%}
+		
+{%elseif action == 'unsubscribe' %}
+	<form  method="post" >
+		<label>Email address:</label><input type="text" name="email"/>
+	</form>
+{%elseif action == 'confirmsubscribe' %}
+
+{%elseif action == 'confirmunsubscribe' %}
+
+{%endif%}
