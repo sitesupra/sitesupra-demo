@@ -302,6 +302,9 @@ class SitemapAction extends PageManagerAction
 				'id' => $applicationConfiguration->id,
 				'title' => $applicationConfiguration->title,
 				'icon' => $applicationConfiguration->icon,
+				'new_children_first' => $applicationConfiguration->newChildrenFirst,
+				'isDragable' => $applicationConfiguration->isDragable,
+			    'isDropTarget' => $applicationConfiguration->isDropTarget,
 			);
 		}
 		

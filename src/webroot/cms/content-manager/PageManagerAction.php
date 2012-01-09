@@ -366,6 +366,10 @@ abstract class PageManagerAction extends CmsAction
 		elseif ($page instanceof Entity\ApplicationPage) {
 			$type = Entity\Abstraction\Entity::APPLICATION_DISCR;
 			$array['application_id'] = $page->getApplicationId();
+			$conf = PageApplicationCollection::getInstance()->getConfiguration($page->getApplicationId());
+			$array['new_children_first'] = $conf->newChildrenFirst;
+			$array['isDragable'] = $conf->isDragable;
+			$array['isDropTarget'] = $conf->isDropTarget;
 		}
 		$array['type'] = $type;
 
