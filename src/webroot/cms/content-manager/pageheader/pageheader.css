@@ -12,6 +12,11 @@
 .cms-page-header .page-title {
 	padding: 8px 0 0 3px;
 	font-weight: bold;
+	
+	width: 200px;
+	overflow: hidden;
+	white-space: normal;
+	text-overflow: ellipsis;
 }
 .cms-page-header .languages {
 	float: left;
