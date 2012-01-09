@@ -172,14 +172,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//Fix context
 			var win = this.get('iframe').get('win');
-			this.onResize = Y.throttle(Y.bind(this.onResize, this), 50);
-			Y.on('resize', this.onResize, win);
+			this.resizeOverlays = Y.throttle(Y.bind(this.resizeOverlays, this), 50);
+			Y.on('resize', this.resizeOverlays, win);
 		},
 		
 		/**
-		 * On resize sync overlay position
+		 * Resize and reposition overlays
 		 */
-		onResize: function () {
+		resizeOverlays: function () {
 			for(var i in this.children) {
 				this.children[i].syncOverlayPosition();
 			}
@@ -526,7 +526,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//Unsubscribe resize
 			var win = this.get('iframe').get('win');
-			Y.unsubscribe('resize', this.onResize, win);
+			Y.unsubscribe('resize', this.resizeOverlays, win);
 		}
 	});
 	

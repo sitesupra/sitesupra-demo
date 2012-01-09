@@ -193,6 +193,9 @@ SU('dd-drag', function (Y) {
 					if (this.getContent()) {
 						//Enable highlights
 						this.getContent().set('highlight', false);
+						
+						//Resize overlays
+						this.getContent().resizeOverlays();
 					}
 					
 				} else {
