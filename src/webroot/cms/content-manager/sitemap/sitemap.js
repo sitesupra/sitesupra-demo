@@ -582,6 +582,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 					
+					Manager.executeAction('PageHeader');
 				} else {
 					Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);

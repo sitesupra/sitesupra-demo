@@ -98,6 +98,9 @@ Supra('supra.languagebar', function (Y) {
 		 * Execute action, update data
 		 */
 		execute: function () {
+			//If SiteMap is visible, then don't show header
+			if (Supra.Manager.getAction('SiteMap').get('visible')) return;
+			
 			this.show();
 			
 			var page = Manager.Page.getPageData();
