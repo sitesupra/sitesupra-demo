@@ -610,6 +610,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.setFormValue('version', page_data);
 			*/
 			
+			//Global/local switch
+			this.form.getInput('global').set('disabled', page_data.global_disabled);
+			
 			//Set redirect value
 			this.form.getInput('redirect').setValue(page_data.redirect);
 			
@@ -735,6 +738,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				delete(post_data.redirect);
 			}
 			
+			delete(post_data.global_disabled);
 			delete(post_data.type);
 			delete(post_data.id);
 			delete(post_data.path_prefix);
