@@ -85,7 +85,7 @@ class TwigResponse extends HttpResponse
 	 * @param mixed $value
 	 * @return TwigResponse
 	 */
-	public function assign($name, $value)
+	public function assign($name, $value = null)
 	{
 		if (is_array($name)) {
 			$this->templateVariables = array_merge($this->templateVariables, $name);
