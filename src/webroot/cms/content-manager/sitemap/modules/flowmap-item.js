@@ -49,7 +49,10 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 								</div>\
 								<span class="toggle hidden"></span>\
 			  				</div>\
-			  				<ul class="flowmap-children"></ul>\
+			  				<div class="flowmap-children-container">\
+			  					<div class="flowmap-arrow"></div>\
+			  					<ul class="flowmap-children"></ul>\
+			  				</div>\
 			  				<a class="show-all hidden">' + SU.Intl.get(['sitemap', 'show_all_pages']) + '</a>',
 		
 		/**
@@ -137,7 +140,7 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 		 */
 		expand: function (silent) {
 			var box = this.get('boundingBox'),
-				node = box.one('ul'),
+				node = box.one('div.flowmap-children-container'),
 				proxy = node.cloneNode(true),
 				width = null;
 			

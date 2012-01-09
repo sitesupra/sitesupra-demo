@@ -272,14 +272,33 @@
 	height: 212px;
 	padding: 0 5px;
 }
-.flowmap-children .flowmap-children {
-	background: #fff;
+.flowmap-children .flowmap-children-container {
+	background: #eee;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
+	
 	text-align: left;
 	margin-bottom: 20px;
+	padding: 5px;
+	
+	position: relative;
+}
+.flowmap-children .flowmap-children-container.offscreen {
+	position: absolute;
+}
+.flowmap-children .flowmap-children-container .flowmap-arrow {
+	width: 23px;
+	height: 12px;
+	position: absolute;
+	left: 50%;
+	top: -12px;
+	margin-left: -6px;
+	background: url(/cms/lib/supra/img/sitemap/arrow.gif) 0 0 no-repeat;
 }
 
-.yui3-tree-node-collapsed .flowmap-children,
-.flowmap-children .flowmap-children:empty {
+.yui3-tree-node-collapsed .flowmap-children-container,
+.flowmap-children .flowmap-children-container:empty {
 	display: none;
 }
 
@@ -414,10 +433,10 @@
 }
 
 /* Off screen proxy */
-.flowmap-children.offscreen .tree-children {
+.flowmap-children-container.offscreen .tree-children {
 	display: block !important;
 }
-.flowmap-children.offscreen .tree-children .yui3-flowmap-item {
+.flowmap-children-container.offscreen .tree-children .yui3-flowmap-item {
 	-moz-transition: none;
 	-webkit-transition: none;
 	transition: none;
