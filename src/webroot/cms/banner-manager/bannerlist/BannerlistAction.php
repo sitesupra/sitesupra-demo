@@ -20,8 +20,6 @@ class BannerlistAction extends CmsAction
 
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
 
-		$fileStorage = ObjectRepository::getFileStorage($this);
-
 		$bannerTypes = $bannerProvider->getTypes();
 		
 		$localeId = $request->getParameter('locale');

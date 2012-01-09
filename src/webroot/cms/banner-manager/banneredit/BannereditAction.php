@@ -69,8 +69,7 @@ class BannereditAction extends CmsAction
 
 		$this->getResponse()->setResponseData(null);
 
-		$file = $banner->getFile();
-		$this->writeAuditLog('save', "Banner '%item%' saved", $file->getTitle());
+		$this->writeAuditLog('save', "Banner '%item%' saved", $banner->getTitle());
 	}
 
 	/**
@@ -108,7 +107,7 @@ class BannereditAction extends CmsAction
 
 		$this->getResponse()->setResponseData(null);
 
-		$this->writeAuditLog('insert', "Banner '%item%' created", $file->getTitle());
+		$this->writeAuditLog('insert', "Banner '%item%' created", $banner->getTitle());
 	}
 
 	/**
@@ -280,14 +279,12 @@ class BannereditAction extends CmsAction
 
 		$banner = $this->bannerProvider->getBanner($bannerId);
 
-		$file = $banner->getFile();
-
 		$this->bannerProvider->remove($banner);
 
 		$this->getResponse()
 				->setResponseData(null);
 
-		$this->writeAuditLog('delete', "Banner '%item%' deleted", $file->getTitle());
+		$this->writeAuditLog('delete', "Banner '%item%' deleted", $banner->getTitle());
 	}
 
 }
