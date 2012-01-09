@@ -195,9 +195,6 @@ Supra(function (Y) {
 			if (status && data) {
 				var allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
 								 Supra.Authorization.isAllowed(['page', 'edit'], true);
-				
-				//Show page header
-				Manager.getAction('PageHeader').show();
 			}
 			
 			if (allow_edit) {
@@ -295,6 +292,11 @@ Supra(function (Y) {
 					//Open sitemap
 					Supra.Manager.executeAction('SiteMap');
 				}
+			}
+			
+			if (status) {
+				//Show page header
+				Manager.getAction('PageHeader').execute();
 			}
 		},
 		
