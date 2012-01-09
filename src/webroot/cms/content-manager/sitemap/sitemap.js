@@ -108,12 +108,22 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		first_exec: true,
 		
+		/**
+		 * Last known locale
+		 * @type {String}
+		 * @private
+		 */
+		locale: null,
+		
 		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
 		 */
 		initialize: function () {
+			//Set locale
+			this.locale = Supra.data.get('locale');
+			
 			//Add buttons to toolbar
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
 				'id': 'recyclebin',
@@ -152,6 +162,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
+					this.locale = evt.newVal;
 					this.flowmap.set('requestUri', this.getRequestUri(evt.newVal));
 					this.flowmap.reload();
 					this.setLoading(true);
@@ -360,7 +371,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 * @private
 		 */
 		getRequestUri: function (locale, type) {
-			var locale = locale || SU.data.get('locale');
+			var locale = locale || this.locale;
 			var type = type || this.input_type.getValue();
 			
 			return this.getDataPath(type) + '?locale=' + locale;
