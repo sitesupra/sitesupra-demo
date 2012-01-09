@@ -132,48 +132,7 @@ class PagePathGenerator implements EventSubscriber
 		$entity = $eventArgs->getEntity();
 		
 		if ($entity instanceof Entity\PageLocalization) {
-			
-			$pathEntity = $entity->getPathEntity();
-			
-			$this->em = $eventArgs->getEntityManager();
-			$this->unitOfWork = $this->em->getUnitOfWork();
-				
-			$pathPart = $entity->getPathPart();
-
-			$pathValid = false;
-			$i = 2;
-			$suffix = '';
-			$newPath = null;
-
-			do {
-
-				try {
-					$entity->setPathPart($pathPart . $suffix);
-					$newPath = $this->findPagePath($entity);
-					if ( ! is_null($newPath)) {
-						$this->checkForDuplicates($entity, $newPath);
-					}
-					$pathValid = true;
-				}
-				catch (DuplicatePagePathException $pathInvalid) {
-					$suffix = '-' . $i;
-					// Loop stopper
-					if ($i > 100) {
-						throw $pathInvalid;
-					}
-				}
-
-				$i ++;
-			}
-			while ( ! $pathValid);
-			
-			if ( ! is_null($newPath)) {
-				$entity->setPath($newPath);
-				$entity->setPathPart($pathPart . $suffix);
-
-				$pathEntity = $entity->getPathEntity();
-				$this->em->persist($pathEntity);
-			}
+			$this->generatePath($entity, true);
 		}
 	}
 	
@@ -199,7 +158,7 @@ class PagePathGenerator implements EventSubscriber
 				->getResult();
 
 		foreach ($pageLocalizations as $pageLocalization) {
-			$this->generatePath($pageLocalization);
+			$this->generatePath($pageLocalization, true);
 		}
 	}
 	
@@ -207,7 +166,7 @@ class PagePathGenerator implements EventSubscriber
 	 * Generates new full path and validates its uniqueness
 	 * @param Entity\PageLocalization $pageData
 	 */
-	public function generatePath(Entity\PageLocalization $pageData)
+	public function generatePath(Entity\PageLocalization $pageData, $force = false)
 	{
 		$page = $pageData->getMaster();
 		
@@ -222,12 +181,37 @@ class PagePathGenerator implements EventSubscriber
 
 				// Check duplicates only if path is not null
 				if ( ! is_null($newPath)) {
-					$this->checkForDuplicates($pageData, $newPath);
+
+					$i = 2; $e = null;
+					$pathPart = $pageData->getPathPart();
+
+					do {
+						try {
+							$this->checkForDuplicates($pageData, $newPath);
+							$pathValid = true;
+						} catch (DuplicatePagePathException $e) {
+							if ($force) {
+								$suffix = '-' . $i;
+								$pageData->setPathPart($pathPart . $suffix);
+								$newPath = $this->findPagePath($pageData);
+
+								$i++;
+
+								// loop stoper
+								if ($i > 100) {
+									throw $e;
+								}
+							}
+						}
+					}  while ($force && ! $pathValid);
+					
+					if ($e instanceof DuplicatePagePathException && ! $pathValid) {
+						throw $e;
+					}
 				}
 
 				// Validation passed, set the new path
 				$pageData->setPath($newPath);
-				
 				$changes = true;
 			}
 		} else {
@@ -375,5 +359,5 @@ class PagePathGenerator implements EventSubscriber
 
 		return $path;
 	}
-	
+		
 }

@@ -537,6 +537,18 @@ class PageRequestEdit extends PageRequest
 					->getId();
 			
 			$page = $em->find(AbstractPage::CN(), $pageId);
+		
+			$localizations = $page->getLocalizations();
+			foreach($localizations as $localization) {
+				if ($localization instanceof PageLocalization) {
+					$pathEntity = $localization->getPathEntity();
+					$em->remove($pathEntity);
+					
+					$localization->resetPath();
+				}
+			}
+			$em->flush();
+
 			$em->remove($page);
  			$em->flush();
 			

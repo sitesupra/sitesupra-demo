@@ -26,8 +26,6 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * @ManyToOne(targetEntity="Template")
 	 * @JoinColumn(name="template_id", referencedColumnName="id", nullable=true)
-	 * @History:SkipForeignKey(type="supraId20")
-	 * @Trash:SkipForeignKey(type="supraId20")
 	 * @var Template
 	 */
 	protected $template;
@@ -462,6 +460,11 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! empty($this->path)) {
 			$this->path->setLocale($locale);
 		}
+	}
+	
+	public function resetPath() 
+	{
+		$this->path = null;
 	}
 
 }
