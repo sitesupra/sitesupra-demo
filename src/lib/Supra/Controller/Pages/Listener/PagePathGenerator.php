@@ -130,9 +130,14 @@ class PagePathGenerator implements EventSubscriber
 	public function postPageClone(LifecycleEventArgs $eventArgs)
 	{
 		$entity = $eventArgs->getEntity();
+		$this->em = $eventArgs->getEntityManager();
+		$this->unitOfWork = $this->em->getUnitOfWork();
 		
 		if ($entity instanceof Entity\PageLocalization) {
 			$this->generatePath($entity, true);
+		} else 	if ($entity instanceof Entity\Page) {
+			// Run for all children, every locale
+			$this->pageChange($entity, true);
 		}
 	}
 	

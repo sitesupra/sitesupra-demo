@@ -609,6 +609,7 @@ class PageRequestEdit extends PageRequest
 	 * 
 	 * @param Entity $entity
 	 * @param Entity $associationOwner
+	 * @param boolean $skipPathEvent
 	 * @return Entity
 	 */
 	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false) 
