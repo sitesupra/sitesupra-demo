@@ -804,6 +804,10 @@ abstract class PageManagerAction extends CmsAction
 				$newPage->moveAsFirstChildOf($page);
 			}
 			
+			$eventArgs = new LifecycleEventArgs($newPage, $em);
+			$em->getEventManager()
+					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+			
 		};
 		
 		$em->transactional($clonePage);
