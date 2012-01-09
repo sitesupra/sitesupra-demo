@@ -160,6 +160,13 @@ class PageAction extends PageManagerAction
 		if ($page instanceof Entity\Template) {
 			$type = 'template';
 		}
+		
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		$publishedData = $publicEm->find(Entity\Abstraction\Localization::CN(), $pageData->getId());
+		$isPublished = false;
+		if ($publishedData instanceof Entity\Abstraction\Localization) {
+			$isPublished = ($pageData->getRevisionId() == $publishedData->getRevisionId());
+		}
 
 		$array = array(
 			'id' => $pageData->getId(),
@@ -183,6 +190,7 @@ class PageAction extends PageManagerAction
 			'is_visible_in_menu' => $pageData->isVisibleInMenu(),
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 			'include_in_search' => $pageData->isIncludedInSearch(),
+			'published' => $isPublished,
 		);
 
 		if ($templateError) {
