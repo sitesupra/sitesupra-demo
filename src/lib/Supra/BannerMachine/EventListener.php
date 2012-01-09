@@ -6,6 +6,7 @@ use Supra\FileStorage\FileEventArgs;
 use Supra\Cms\Exception\CmsException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\File;
+use Supra\BannerMachine\Entity\FileBanner;
 
 class EventListener
 {
@@ -21,7 +22,24 @@ class EventListener
 			$banners = $bannerProvider->getBannersByFile($file);
 
 			if ( ! empty($banners)) {
-				throw new CmsException(null, 'File can\'t be removed because it is used as a banner');
+				
+				$lm = ObjectRepository::getLocaleManager($this);
+				
+				$locales = array();
+				
+				foreach($banners as $banner) {
+					/* @var $banner FileBanner */
+					$locale = $lm->getLocale($banner->getLocaleId());
+					
+					if(!empty($locale)) {
+						$locales[] = $locale->getTitle();
+					}
+					else {
+						$locales[] = '[' . $banner->getLocaleId() . ']';
+					}
+				}
+				
+				throw new CmsException(null, 'This file can\'t be removed because it is used as a banner in locales: ' . join(', ', $locales));
 			}
 		}
 	}
