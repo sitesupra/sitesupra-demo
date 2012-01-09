@@ -233,7 +233,9 @@
 	background: url("/cms/lib/supra/img/ajax-loader.gif") 50% 50% no-repeat;
 }
 .yui3-sitemap .loading .yui3-tree {
-	display: none;
+	position: absolute;
+	left: -9000px;
+	top: -9000px;
 }
 
 /* Root */
@@ -414,6 +416,11 @@
 /* Off screen proxy */
 .flowmap-children.offscreen .tree-children {
 	display: block !important;
+}
+.flowmap-children.offscreen .tree-children .yui3-flowmap-item {
+	-moz-transition: none;
+	-webkit-transition: none;
+	transition: none;
 }
 
 /**
