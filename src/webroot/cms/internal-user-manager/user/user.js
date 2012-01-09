@@ -336,6 +336,9 @@ Supra('supra.slideshow', function (Y) {
 				}
 			} else {
 				uri = Manager.getAction('usergroup').getDataPath('save');
+				
+				//Groups don't have avatars
+				delete(data.avatar);
 			}
 			
 			Supra.io(uri, {
