@@ -136,6 +136,7 @@
 
 .list-banners .list-banner div img {
 	display: block;
+	width: 100%;
 }
 
 .list-banners .list-banner a,
