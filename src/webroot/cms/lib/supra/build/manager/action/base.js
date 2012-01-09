@@ -152,6 +152,12 @@ YUI.add('supra.manager-action-base', function (Y) {
 		HAS_TEMPLATE: null,
 		
 		/**
+		 * Action dependancies on other actions
+		 * @type {Array}
+		 */
+		DEPENDANCIES: null,
+		
+		/**
 		 * Template
 		 * @type {String}
 		 */

@@ -115,7 +115,12 @@ Supra(function (Y) {
 			
 			//Update application list
 			this.applications = data;
-			this.setUserData(Manager.getAction('User').getData());
+			
+			if (Manager.User.isUser()) {
+				this.setUserData(Manager.getAction('User').getData());
+			} else {
+				this.setGroupData(Manager.getAction('User').getData());
+			}
 			
 			//Update user application data list
 			this.updateUserAppList();
@@ -156,10 +161,22 @@ Supra(function (Y) {
 		 * @private
 		 */
 		setUserData: function (data /* User data */) {
+			var img = this.one('div.info img'),
+				a	= this.one('div.info a'),
+				b	= this.one('div.info b');
 			
-			this.one('div.info img').setAttribute('src', data.avatar);
-			this.one('div.info a').set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));
-			this.one('div.info b').set('text', Supra.Intl.get(['userdetails', 'group_' + data.group]));
+			img.setAttribute('src', data.avatar);
+			a.set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));
+			
+			if (Manager.User.isUser()) {
+				a.removeClass('hidden');
+				a.next().removeClass('hidden');
+				b.set('text', Supra.Intl.get(['userdetails', 'group_' + data.group]));
+			} else {
+				a.addClass('hidden');
+				a.next().addClass('hidden');
+				b.set('text', Supra.Intl.get(['userdetails', 'group_' + data.group_id]));
+			}
 			
 			var ul = this.one('ul'),
 				li = null,
@@ -180,6 +197,16 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Update UI
+		 * 
+		 * @param {Object} data Group data
+		 * @private
+		 */
+		setGroupData: function (data /* Group data */) {
+			this.setUserData(data);
+		},
+		
+		/**
 		 * Hide action
 		 */
 		hide: function () {
@@ -195,8 +222,8 @@ Supra(function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
-			//If new user validate form
-			if (!Manager.User.getData().user_id) {
+			//If new user: validate form
+			if (Manager.User.isUser() && !Manager.User.getData().user_id) {
 				//
 				Manager.UserDetails.createNewUser();
 				Manager.UserDetails.execute();
@@ -211,10 +238,16 @@ Supra(function (Y) {
 			this.show();
 			
 			var user = Manager.getAction('User');
-			user.slideshow.set('slide', this.NAME);
 			
-			//Update UI with user data
-			this.setUserData(Manager.getAction('User').getData());
+			if (Manager.User.isUser()) {
+				//Update UI with user data
+				this.setUserData(Manager.getAction('User').getData());
+				user.slideshow.set('slide', this.NAME);
+			} else {
+				//Update UI with group data
+				this.setGroupData(Manager.getAction('User').getData());
+				user.slideshow.syncUI();
+			}
 		}
 	});
 	

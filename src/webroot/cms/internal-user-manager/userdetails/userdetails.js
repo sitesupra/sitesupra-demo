@@ -25,7 +25,7 @@ Supra('supra.input', function (Y) {
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: true,
+		HAS_STYLESHEET: false,
 		
 		/**
 		 * Load action template

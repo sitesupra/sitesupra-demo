@@ -348,14 +348,23 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 		},
 		
 		sendValueChange: function (name, value, id, locale) {
-			var user = Manager.User.getData();
-			var post = {
-				'user_id': user.user_id,
-				'application_id': this.application.id,
-				'property': name,
-				'locale': locale,
-				'value': value
-			};
+			var data = Manager.User.getData(),
+				uri = null,
+				post = {
+					'application_id': this.application.id,
+					'property': name,
+					'locale': locale,
+					'value': value
+				};
+			
+			//User or group specific properties
+			if (Manager.User.isUser()) {
+				post.user_id = data.user_id;
+				uri = this.getDataPath('save');
+			} else {
+				post.group_id = data.group_id;
+				uri = this.getDataPath('savegroup');
+			}
 			
 			//Send only changed item
 			if (id) {
@@ -371,7 +380,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			}
 			
 			//Save value change
-			Supra.io(this.getDataPath('save'), {
+			Supra.io(uri, {
 				'data': post,
 				'method': 'post'
 			});

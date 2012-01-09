@@ -45,6 +45,13 @@ Supra('website.list-dd', function (Y) {
 		
 		
 		
+		/**
+		 * Group mode state
+		 * @type {Boolean}
+		 * @private
+		 */
+		group_mode: false,
+		
 		
 		
 		/**
@@ -55,9 +62,16 @@ Supra('website.list-dd', function (Y) {
 		render: function () {
 			//Set default buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			
-			/* - Group mode functionality is not done yet
+			//Group mode functionality
+			Manager.getAction('PageButtons').addActionButtons(this.NAME + '-groups', [
+				{
+					'id': 'done',
+					'callback': this.toggleGroupMode,
+					'context': this
+				}
+			]);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME + '-groups', []);
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 				{
 					'id': 'details',
@@ -68,12 +82,11 @@ Supra('website.list-dd', function (Y) {
 					'type': 'button'
 				}
 			]);
-			*/
 			
 			//Load users
 			this.load();
 			
-			//On user click start editing
+			//On user/group click start editing
 			this.one('div.userlist-groups').delegate('click', function (e) {
 				var target = e.target.closest('li'),
 					user_id = target.getAttribute('data-id');
@@ -82,6 +95,15 @@ Supra('website.list-dd', function (Y) {
 					this.editUser(user_id);
 				}
 			}, 'li', this);
+			
+			this.one('div.userlist-groups').delegate('click', function (e) {
+				var target = e.target.closest('div'),
+					group_id = target.getAttribute('data-group');
+				
+				if (group_id) {
+					this.editGroup(group_id);
+				}
+			}, 'p.edit-label', this);
 			
 			//Bind drag and drop
 			this.bindDragAndDrop();
@@ -104,15 +126,23 @@ Supra('website.list-dd', function (Y) {
 		 * @private
 		 */
 		toggleGroupMode: function () {
-			var button = Manager.getAction('PageToolbar').buttons.details;
 			var node = this.one('div.userlist-groups');
+			var new_user = this.one('div.user-add');
 			
-			if (button.get('down')) {
-				button.set('down', false);
+			this.group_mode = !this.group_mode;
+			
+			if (!this.group_mode) {
 				node.removeClass('group-mode');
+				new_user.removeClass('hidden');
+				
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			} else {
-				button.set('down', true);
 				node.addClass('group-mode');
+				new_user.addClass('hidden');
+				
+				Manager.getAction('PageButtons').setActiveAction(this.NAME + '-groups');
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME + '-groups');
 			}
 		},
 		
@@ -221,7 +251,7 @@ Supra('website.list-dd', function (Y) {
 		 * @private
 		 */
 		editGroup: function (group_id /* Group ID */) {
-			Supra.Manager.executeAction('User', null, group_id);
+			Supra.Manager.executeAction('User', null, group_id, true);
 			this.hide();
 		},
 		
@@ -252,13 +282,14 @@ Supra('website.list-dd', function (Y) {
 		execute: function () {
 			//Change toolbar buttons
 			var toolbar = Manager.getAction('PageToolbar'),
-				buttons = Manager.getAction('PageButtons');
+				buttons = Manager.getAction('PageButtons'),
+				name = this.group_mode ? this.NAME + '-groups' : this.NAME;
 			
 			if (toolbar.get('created')) {
-				toolbar.setActiveAction(this.NAME);
+				toolbar.setActiveAction(name);
 			}
 			if (buttons.get('created')) {
-				buttons.setActiveAction(this.NAME);
+				buttons.setActiveAction(name);
 			}
 			
 			this.show();

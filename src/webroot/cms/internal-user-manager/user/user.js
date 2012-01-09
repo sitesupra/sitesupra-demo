@@ -56,7 +56,7 @@ Supra('supra.slideshow', function (Y) {
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: false,
+		HAS_STYLESHEET: true,
 		
 		/**
 		 * Load action template
@@ -81,6 +81,13 @@ Supra('supra.slideshow', function (Y) {
 		 * @private
 		 */
 		slideshow: null,
+		
+		/**
+		 * Data type, 'user' or 'group'
+		 * @type {String}
+		 * @private
+		 */
+		type: null,
 		
 		
 		
@@ -179,7 +186,7 @@ Supra('supra.slideshow', function (Y) {
 						'user_id': user_id
 					},
 					'context': this,
-					'on': {'success': this.setData}
+					'on': {'success': this.setUserData}
 				});
 			} else {
 				//There are no stats for new user
@@ -188,12 +195,55 @@ Supra('supra.slideshow', function (Y) {
 				*/
 				
 				var data = Supra.mix({}, NEW_USER_DATA[group_id], true);
-				this.setData(data);
+				this.setUserData(data);
 			}
 		},
 		
 		/**
-		 * Returns user data
+		 * Set group
+		 * 
+		 * @param {String} group_id Group ID
+		 */
+		setGroup: function (group_id /* Group ID */) {
+			var uri = Manager.getAction('UserGroup').getDataPath('load');
+			
+			Supra.io(uri, {
+				'data': {
+					'group_id': group_id
+				},
+				'context': this,
+				'on': {'success': this.setGroupData}
+			});
+		},
+		
+		/**
+		 * Update user data
+		 * 
+		 * @param {Object} data User data
+		 */
+		setUserData: function (data /* User data */) {
+			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
+			this.data = data;
+			this.fire('userChange', {'data': data});
+			
+			Manager.getAction('UserDetails').execute();
+		},
+		
+		/**
+		 * Update group data
+		 * 
+		 * @param {Object} data Group data
+		 */
+		setGroupData: function (data /* Group data*/) {
+			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-group-' + PREVIEW_SIZE + '.png';
+			this.data = data;
+			this.fire('userChange', {'data': data});
+			
+			Manager.getAction('UserPermissions').execute();
+		},
+		
+		/**
+		 * Returns user or group data
 		 * 
 		 * @return User data
 		 * @type {Object}
@@ -203,20 +253,13 @@ Supra('supra.slideshow', function (Y) {
 		},
 		
 		/**
-		 * Update data
+		 * Returns true if currently editing user or false is editing group
 		 * 
-		 * @param {Object} data User data
+		 * @return True if editing user
+		 * @type {Boolean}
 		 */
-		setData: function (data /* User data */) {
-			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
-			this.data = data;
-			this.fire('userChange', {'data': data});
-			
-			Manager.getAction('UserDetails').execute();
-			
-			if (Manager.getAction('UserPermissions').get('created')) {
-				Manager.getAction('UserPermissions')
-			}
+		isUser: function () {
+			return this.type == 'user';
 		},
 		
 		
@@ -277,30 +320,36 @@ Supra('supra.slideshow', function (Y) {
 		 * Save user data
 		 */
 		save: function (callback) {
-			var data = Supra.mix({}, this.data);
+			var data = Supra.mix({}, this.data),
+				uri = null;
 			
-			//Cancel if 'name' is missing
-			if (data.name) {
-				var uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
+			if (this.isUser()) {
+				if (!data.name) {
+					//Cancel if 'name' is missing
+					return;					
+				}
+				uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
 				
 				if (!data.avatar_id) {
 					data.avatar = '';
 					data.avatar_id = '';
 				}
-				
-				Supra.io(uri, {
-					'method': 'post',
-					'data': data,
-					'on': {
-						'complete': function (data, status) {
-							if (Y.Lang.isFunction(callback)) callback(data, status);
-						},
-						'success': function () {
-							Manager.getAction('UserList').load();
-						}
-					}
-				});
+			} else {
+				uri = Manager.getAction('usergroup').getDataPath('save');
 			}
+			
+			Supra.io(uri, {
+				'method': 'post',
+				'data': data,
+				'on': {
+					'complete': function (data, status) {
+						if (Y.Lang.isFunction(callback)) callback(data, status);
+					},
+					'success': function () {
+						Manager.getAction('UserList').load();
+					}
+				}
+			});
 		},
 		
 		/**
@@ -320,20 +369,38 @@ Supra('supra.slideshow', function (Y) {
 		/**
 		 * Execute action
 		 */
-		execute: function (user_id, group_id) {
+		execute: function (user_id, group_id, group_editing) {
 			//Change toolbar buttons
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons');
 			
 			if (toolbar.get('created')) {
 				toolbar.setActiveAction(this.NAME);
+				
+				if (!group_editing) {
+					toolbar.buttons.details.show();
+				} else {
+					toolbar.buttons.details.hide();
+				}
+				
 			}
 			if (buttons.get('created')) {
 				buttons.setActiveAction(this.NAME);
 			}
 			
-			this.setUser(user_id, group_id);
+			this.slideshow.set('noAnimations', true);
 			
+			if (!group_editing) {
+				this.setUser(user_id, group_id);
+				this.slideshow.set('slide', 'UserDetails');
+				this.type = 'user';
+			} else {
+				this.setGroup(group_id);
+				this.slideshow.set('slide', 'UserPermissions');
+				this.type = 'usergroup';
+			}
+			
+			this.slideshow.set('noAnimations', false);
 			this.show();
 		}
 	});

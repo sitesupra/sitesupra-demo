@@ -11,7 +11,8 @@
 	cursor: move;
 }
 .userlist .user-add em,
-.userlist-groups li em {
+.userlist-groups li em,
+.userlist-groups .edit-label em {
 	display: block;
 	
 	background: #fff;
@@ -22,7 +23,8 @@
 	padding: 2px;
 }
 .userlist .user-add:hover em,
-.userlist-groups li:hover em {
+.userlist-groups li:hover em,
+.userlist-groups .edit-label:hover em {
 	border-color: #36c;
 }
 .userlist .user-add img {
@@ -77,19 +79,24 @@
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 }
-.userlist-groups li {
+.userlist-groups li,
+.userlist-groups .edit-label {
 	padding: 5px 10px;
 	cursor: pointer;
 }
-.userlist-groups li:hover {
+.userlist-groups li:hover,
+.userlist-groups .edit-label:hover {
 	background: #f5f5f5;
 }
 .userlist-groups li em,
-.userlist-groups li a {
+.userlist-groups li a,
+.userlist-groups .edit-label em,
+.userlist-groups .edit-label a {
 	display: inline-block;
 	vertical-align: middle;
 }
-.userlist-groups li a {
+.userlist-groups li a,
+.userlist-groups .edit-label a {
 	padding-left: 10px;
 	text-decoration: none;
 }
@@ -121,4 +128,6 @@
 }
 .userlist-groups.group-mode .edit-label {
 	display: block;
+	position: relative;
+	margin: -2px 0 0 1px;
 }
