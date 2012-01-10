@@ -18,6 +18,12 @@ class HelperAction extends PageManagerAction
 		if ($localization instanceof \Supra\Controller\Pages\Entity\Abstraction\Localization) {
 			$draftEm->remove($localization);
 			$draftEm->flush();
+			
+			$publicEm = $this->getPublicEntityManager();
+			$localization = $publicEm->find(\Supra\Controller\Pages\Entity\Abstraction\Localization::CN(), $localizationId);
+			
+			$publicEm->remove($localization);
+			$publicEm->flush();
 		} else {
 			$this->getResponse()->setResponseData('No localization found!');
 		}
