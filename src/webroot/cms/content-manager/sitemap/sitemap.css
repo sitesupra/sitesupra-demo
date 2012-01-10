@@ -305,6 +305,14 @@
 	display: none;
 }
 
+/* Label clipping */
+.flowmap-children .tree-node label {
+	max-width: 180px;
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 /* Toggle */
 .flowmap-children .flowmap-node .toggle {
 	position: absolute;
