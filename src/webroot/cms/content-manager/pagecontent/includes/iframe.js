@@ -190,7 +190,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @param {Boolean} preview_only Set only HTML, but it shouldn't be editable
 		 * @return HTML
 		 * @type {String}
-		 * @private
 		 */
 		setHTML: function (html, preview_only) {
 			//Set attribute
@@ -206,9 +205,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.set('doc', doc);
 			
 			//Change iframe HTML
-			doc.open();
-			doc.writeln(html);
-			doc.close();
+			this.writeHTML(html);
 			
 			//Small delay before continue
 			Y.later(50, this, function () {
@@ -216,6 +213,33 @@ YUI.add('supra.iframe-handler', function (Y) {
 			});
 			
 			return html;
+		},
+		
+		/**
+		 * Write HTML into iframe
+		 * 
+		 * @param {String} html HTML
+		 * @private
+		 */
+		writeHTML: function (html) {
+			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var doc = win.document;
+			
+			doc.open("text/html", "replace");
+			
+			//IE freezes when trying to insert <script> with src attribute using writeln
+			if (Supra.Y.UA.ie) {
+				html = html.replace(/<script [^>]*src="?'?([^\s"']+).*?<\/script[^>]*>/gi, function (m, src) {
+					return '<script>' +
+								'var node_script = document.createElement("script");' +
+								'node_script.src = "' + src + '";' +
+								'document.getElementsByTagName("head")[0].appendChild(node_script);' +
+						   '</script>';
+				});
+			}
+			
+			doc.writeln(html);
+			doc.close();
 		},
 		
 		/**
