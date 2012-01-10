@@ -841,7 +841,7 @@ abstract class PageManagerAction extends CmsAction
 		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId) {
 			
 			// 1. duplicate localization
-			$localization = $request->recursiveClone($existingLocalization, null, true);
+			$localization = $request->recursiveClone($existingLocalization, null, true, $localeId);
 			// 2. set new locale for localization itself
 			$localization->setLocale($localeId);
 			
