@@ -2,6 +2,13 @@
 	position: absolute;
 	bottom: 10px;
 }
+.user.loading {
+	background: url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+}
+.user.loading > div {
+	visibility: hidden;
+}
+
 .user .yui3-slideshow-slide-content {
 	width: 100%;
 	height: 100%;

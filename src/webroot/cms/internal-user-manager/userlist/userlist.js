@@ -89,10 +89,12 @@ Supra('website.list-dd', function (Y) {
 			//On user/group click start editing
 			this.one('div.userlist-groups').delegate('click', function (e) {
 				var target = e.target.closest('li'),
-					user_id = target.getAttribute('data-id');
+					user_id = target.getAttribute('data-id'),
+					group = target.closest('div.userlist-group'),
+					group_id = group.getAttribute('data-group');
 				
 				if (user_id) {
-					this.editUser(user_id);
+					this.editUser(user_id, group_id);
 				}
 			}, 'li', this);
 			
@@ -261,8 +263,8 @@ Supra('website.list-dd', function (Y) {
 		 * @param {String} user_id User ID
 		 * @private
 		 */
-		editUser: function (user_id /* User ID */) {
-			Supra.Manager.executeAction('User', user_id);
+		editUser: function (user_id /* User ID */, group_id /* Group ID */) {
+			Supra.Manager.executeAction('User', user_id, group_id);
 			this.hide();
 		},
 		

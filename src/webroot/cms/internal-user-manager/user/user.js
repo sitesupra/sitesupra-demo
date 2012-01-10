@@ -181,6 +181,9 @@ Supra('supra.slideshow', function (Y) {
 				buttons.stats.set('disabled', false);
 				*/
 				
+				//Loading icon
+				this.one().addClass('loading');
+				
 				Supra.io(this.getDataPath('load'), {
 					'data': {
 						'user_id': user_id
@@ -207,6 +210,9 @@ Supra('supra.slideshow', function (Y) {
 		setGroup: function (group_id /* Group ID */) {
 			var uri = Manager.getAction('UserGroup').getDataPath('load');
 			
+			//Loading icon
+			this.one().addClass('loading');
+			
 			Supra.io(uri, {
 				'data': {
 					'group_id': group_id
@@ -222,6 +228,8 @@ Supra('supra.slideshow', function (Y) {
 		 * @param {Object} data User data
 		 */
 		setUserData: function (data /* User data */) {
+			this.one().removeClass('loading');
+			
 			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-default-' + PREVIEW_SIZE + '.png';
 			this.data = data;
 			this.fire('userChange', {'data': data});
@@ -235,6 +243,8 @@ Supra('supra.slideshow', function (Y) {
 		 * @param {Object} data Group data
 		 */
 		setGroupData: function (data /* Group data*/) {
+			this.one().removeClass('loading');
+			
 			data.avatar = data.avatar || '/cms/lib/supra/img/avatar-group-' + PREVIEW_SIZE + '.png';
 			this.data = data;
 			this.fire('userChange', {'data': data});
@@ -381,8 +391,16 @@ Supra('supra.slideshow', function (Y) {
 				toolbar.setActiveAction(this.NAME);
 				
 				if (!group_editing) {
+					//Admins has all rights, no need to manage them
+					if (group_id == 1) {
+						toolbar.buttons.permissions.hide();
+					} else {
+						toolbar.buttons.permissions.show();
+					}
+					
 					toolbar.buttons.details.show();
 				} else {
+					toolbar.buttons.permissions.show();
 					toolbar.buttons.details.hide();
 				}
 				
