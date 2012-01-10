@@ -19,6 +19,8 @@ use Supra\Authorization\Exception\AuthorizationException;
 use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
+use Supra\Controller\Pages\Exception\InvalidBlockException;
+use Supra\Controller\Pages\MissingBlockController;
 
 /**
  * 
@@ -259,6 +261,11 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$controller = $block->createController();
+
+				if ($controller instanceof MissingBlockController) {
+					$block->setComponentName('Supra\Controller\Pages\MissingBlockController');
+				}
+				
 				$block->prepareController($controller, $request, $responseContext);
 
 				$blockData = array(
