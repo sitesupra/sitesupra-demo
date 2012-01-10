@@ -58,6 +58,13 @@ Supra('supra.panel', 'transition', function (Y) {
 		 */
 		resize_event: null,
 		
+		/**
+		 * Last known user ID
+		 * @type {String}
+		 * @private
+		 */
+		user_id: null,
+		
 		
 		/**
 		 * Bind Actions together
@@ -83,6 +90,11 @@ Supra('supra.panel', 'transition', function (Y) {
 			
 			this.after('visibleChange', this.handleVisibilityAnimation, this);
 			
+			//On item click change avatar
+			this.one('ul').delegate('click', this.onAvatarClick, 'li', this);
+			
+			//Create uploader
+			this.createUploader();
 		},
 		
 		handleVisibilityAnimation: function (evt) {
@@ -121,46 +133,88 @@ Supra('supra.panel', 'transition', function (Y) {
 			}
 		},
 		
+		/**
+		 * Load user avatar list
+		 * 
+		 * @private
+		 */
 		loadData: function () {
-			Supra.io(this.getDataPath(), function (data) {
-				
-				//Render template inside node
-				var html = Supra.Template('avatarTemplate', {'avatars': data});
-				
-				this.data = data;
-				this.one('ul').empty();
-				this.one('ul').append(html);
-				
-				//On item click change avatar
-				this.one('ul').delegate('click', this.onAvatarClick, 'li', this);
-				
-				//Create uploader
-				var ml = Manager.getAction('MediaLibrary'),
-					target = this.one('li:last-child');
-				
-				this.uploader = new Supra.Uploader({
-					'clickTarget': target,
-					'dropTarget': target,
-					
-					'multiple': false,
-					'accept': 'image/*',
-					
-					'requestUri': Manager.getAction('User').getDataPath('uploadAvatar'),
-					'data': {
-						'folder': Supra.data.get(['mediaLibrary', 'avatarFolder'], 0)
-					}
-				});
-				
-				this.uploader.on('file:upload', this.onFileUploadStart, this);
-				this.uploader.on('file:complete', this.onFileUploadEnd, this);
-				this.uploader.on('file:validationerror', this.validationError, this);
-				
-				//Show panel
-				this.show();
-				
-			}, this);
+			var user_id = Manager.User.getData().user_id;
+			
+			//Update uploader parameter
+			this.uploader.get('data').user_id = user_id;
+			
+			//Load data for this user
+			Supra.io(this.getDataPath(), {
+				'data': {
+					'user_id': user_id
+				},
+				'context': this,
+				'on': {
+					'success': this.fillData
+				}
+			});
 		},
 		
+		/**
+		 * Render list
+		 * 
+		 * @param {Object} data Data
+		 * @private
+		 */
+		fillData: function (data) {
+			this.data = data;
+			
+			//Render template inside node
+			var html = Supra.Template('avatarTemplate', {'avatars': data}),
+				ul   = this.one('ul'),
+				li   = ul.all('li');
+			
+			li.splice(0, li.size() - 1).remove();
+			ul.prepend(html);
+			
+			//Show panel
+			this.show();
+		},
+		
+		/**
+		 * Create uploader widget instance
+		 * 
+		 * @private
+		 */
+		createUploader: function () {
+			if (this.uploader) return;
+			
+			//Create uploader
+			var ml = Manager.getAction('MediaLibrary'),
+				target = this.one('li:last-child');
+			
+			this.user_id = Manager.User.getData().user_id;
+			
+			this.uploader = new Supra.Uploader({
+				'clickTarget': target,
+				'dropTarget': target,
+				
+				'multiple': false,
+				'accept': 'image/*',
+				
+				'requestUri': Manager.getAction('User').getDataPath('uploadAvatar'),
+				'data': {
+					'folder': Supra.data.get(['mediaLibrary', 'avatarFolder'], 0),
+					'user_id': this.user_id
+				}
+			});
+			
+			this.uploader.on('file:upload', this.onFileUploadStart, this);
+			this.uploader.on('file:complete', this.onFileUploadEnd, this);
+			this.uploader.on('file:validationerror', this.validationError, this);
+		},
+		
+		/**
+		 * Show file type error message
+		 * 
+		 * @private
+		 */
 		validationError: function () {
 			Manager.executeAction('Confirmation', {
 				'message': Supra.Intl.get(['useravatar', 'file_type_error']),
@@ -195,6 +249,11 @@ Supra('supra.panel', 'transition', function (Y) {
 			
 		},
 		
+		/**
+		 * On avatar click update user data
+		 * 
+		 * @private
+		 */
 		onAvatarClick: function (event) {
 			var target = event.target.closest('li'),
 				id = target.getAttribute('data-id'),
@@ -225,8 +284,9 @@ Supra('supra.panel', 'transition', function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
+			var user_id = Manager.User.getData().user_id;
 			
-			if (this.data) {
+			if (this.data && this.user_id == user_id) {
 				this.show();
 			} else {
 				this.loadData();
