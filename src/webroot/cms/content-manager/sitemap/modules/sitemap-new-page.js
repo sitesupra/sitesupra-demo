@@ -333,6 +333,9 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					delete(data_indexed[old_id]);
 					data_indexed[data.id] = data;
 					
+					//Enable editing
+					treenode.get('boundingBox').removeClass('yui3-tree-node-temp');
+					
 					//Update item
 					treenode.set('label', data.title);
 					treenode.set('icon', data.icon);
