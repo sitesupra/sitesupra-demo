@@ -104,7 +104,8 @@ Supra('supra.languagebar', function (Y) {
 			this.show();
 			
 			var page = Manager.Page.getPageData();
-			this.one('.page-title').set('text', page ? page.title : '');
+			this.one('.page-title').set('text', page ? page.title : '')
+								   .setAttribute('title', page ? page.title : '');
 			
 			this.setVersionTitle(page && page.published ? 'published' : 'draft');
 			

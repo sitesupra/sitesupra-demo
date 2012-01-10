@@ -41,13 +41,24 @@
 }
 
 .yui3-medialist ul.folder a {
-	display: inline-block;
+	display: block;
 	vertical-align: middle;
 	height: 24px;
+	float: left;
+	margin-right: -24px;
 }
 .yui3-medialist ul.folder span {
 	display: inline-block;
+	padding: 4px 0 4px 30px;
+	
+	width: 100%;
+	overflow: hidden;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	
+	text-overflow: ellipsis;
 	vertical-align: middle;
+	white-space: nowrap;
 }
 
 .yui3-medialist ul.folder li.renaming {
