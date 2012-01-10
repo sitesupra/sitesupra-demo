@@ -283,6 +283,7 @@
 	padding: 5px;
 	
 	position: relative;
+	display: none;
 }
 .flowmap-children .flowmap-children-container.offscreen {
 	position: absolute;
@@ -297,8 +298,10 @@
 	background: url(/cms/lib/supra/img/sitemap/arrow.gif) 0 0 no-repeat;
 }
 
-.yui3-tree-node-collapsed .flowmap-children-container,
-.flowmap-children .flowmap-children-container:empty {
+.yui3-tree-node.has-children > .flowmap-children-container {
+	display: block;
+}
+.yui3-tree-node-collapsed.has-children > .flowmap-children-container {
 	display: none;
 }
 
