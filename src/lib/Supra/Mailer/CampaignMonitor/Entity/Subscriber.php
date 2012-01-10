@@ -30,6 +30,54 @@ class Subscriber extends Entity
 	protected $name;
 
 	/**
+	 * @Column(type="string", name="confirm_hash", nullable=true)
+	 * @var string
+	 */
+	protected $confirmHash;
+	
+	/**
+	 * @Column(type="datetime", name="confirm_message_datetime", nullable=true)
+	 * @var string
+	 */
+	protected $confirmMessageDatetime;
+	
+	/**
+	 * @Column(type="boolean", name="active", nullable=false)
+	 * @var type 
+	 */
+	protected $active = false;
+	
+	/**
+	 * Set confirm hash
+	 * @param string $hash 
+	 */
+	public function setConfirmHash($hash)
+	{
+		$this->confirmHash = $hash;
+	}
+	
+	/**
+	 * Gget confirm hash
+	 * @return string
+	 */
+	public function getConfirmHash()
+	{
+		return $this->confirmHash;
+	}
+	
+	
+	public function setConfirmDateTimeAsNow(){
+		$this->confirmMessageDatetime = new \DateTime("now");
+	}
+	
+	
+	public function getConfirmDateTime()
+	{
+		return $this->confirmMessageDatetime;
+	}
+	
+	
+	/**
 	 * Return subscriber email address
 	 * @return string
 	 */
@@ -47,6 +95,22 @@ class Subscriber extends Entity
 		$this->emailAddress = $emailAddress;
 	}
 
+	/**
+	 * Set subscriber active status
+	 * @param boolean $state 
+	 */
+	public function setActive($state){
+		$this->active = (bool) $state;
+	}
+	
+	/**
+	 * Return active subscriber status
+	 * @return boolean
+	 */
+	public function getActive(){
+		return $this->active;
+	}
+	
 	/**
 	 * Return subscriber name
 	 * @return string
