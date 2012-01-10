@@ -346,9 +346,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				data = evt.data,
 				file_id = evt.file_id,
 				node = evt.node,
-				folder = evt.folder;
+				folder = evt.folder,
+				temp_file = (typeof file_id == 'number' && file_id < 0);
 			
-			if (file_id) {
+			if (temp_file) {
+				//Mix temporary and loaded data
+				var old_data = data_object.getData(file_id);
+				data = Supra.mix({}, old_data, data);
+			} else if (file_id) {
 				//If request was replace then update data
 				var old_data = data_object.getData(file_id);
 				if (old_data) {
