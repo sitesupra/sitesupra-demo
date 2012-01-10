@@ -1,6 +1,6 @@
 {%if action == 'subscribe' %}
 
-	{%if (postedData != true  and errors is null) %}
+	{%if (postedData != true  and error is null) %}
 		<form  method="post" >
 			<label>Name:</label><input type="text" name="name"/>
 			<br/>
@@ -9,7 +9,8 @@
 			<button type="submit">Submit</button>
 		</form>
 	{%else%}
-		Subscribtion confirmation email send on {{ email }}
+	
+		<h1>Subscribtion confirmation email send on {{ email }}</h1>
 	{%endif%}
 		
 {%elseif action == 'unsubscribe' %}

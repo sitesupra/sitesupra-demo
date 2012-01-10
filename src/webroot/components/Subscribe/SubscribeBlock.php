@@ -2,13 +2,15 @@
 
 namespace Project\Subscribe;
 
+use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\BlockController,
 	Supra\Request,
 	Supra\Response;
 
 use Supra\Mailer;
 use Supra\Mailer\Message;
-use Supra\ObjectRepository;
+use Supra\Mailer\Message\TwigMessage;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 
 /**
@@ -85,12 +87,15 @@ class SubscribeBlock extends BlockController
 			try{
 				
 				$email = $postData->getValid('email', \Supra\Validator\Type\AbstractType::EMAIL);
-				
+
+			/**
+			 * @todo add required exception type
+			 */
 			} catch(\Exception $e) {
 				$error[] = 'wrong_email_address';
 			}
 			
-			$subscriberName = $postData->get('email');
+			$subscriberName = $postData->get('name');
 			
 			//Store subscriber
 			
@@ -100,31 +105,54 @@ class SubscribeBlock extends BlockController
 			$subscriber->setName($subscriberName);
 			$subscriber->setActive(false);
 			$subscriberId = $subscriber->getId();
+			$hash = $this->getHash($email, $subscriberId);
+			$subscriber->setConfirmHash($hash);
+			$subscriber->setConfirmDateTimeAsNow();
 			
 			$entityManager = ObjectRepository::getEntityManager($this);
 			$entityManager->persist($subscriber);
-			$entityManager->flush();
 			
-			$hash = $this->getHash($email, $subscriberId);
 			
 			/* @var $localization PageLocalization */
 			$localization = $this->getRequest()->getPageLocalization();
 			
-			if( ! ($localization instanceof PageLocalization)) {
+			if( ! ($localization instanceof Entity\PageLocalization)) {
 				return null;
 			}
 			
-			$url = $localization->getPath()->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+			$url = ObjectRepository::getSystemInfo($this)->getHostName();	
+			
+			$url.= $localization->getPath()->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 			
 			$url.="?hash={$hash}&email={$email}"; 
 			
+			//$url = urlencode($url);
+			
+			/**
+			 * @todo get subject and mail from-addres from configuration
+			 */
 			$emailParams = array (
+					'subject' => 'Subscribe confirmation',
 					'name' => $subscriberName,
 					'link' => $url,
 					'email' => $email);
 			
-			$this->sendEmail($emailParams, 'confirm_subscribe');
 			
+			try{
+				
+				$this->sendEmail($emailParams, 'confirm_subscribe');
+				
+			} catch (\Exception $e) {
+				$error[] = 'cant_sent_mail';				
+			}
+			
+			
+			if( empty($error) ) {
+				$entityManager->flush();
+			}
+
+			$this->response->assign('email', $email);
+			$this->response->assign('error', $error);
 			$this->response->assign('postedData', true);
 		}
 		
@@ -191,8 +219,8 @@ class SubscribeBlock extends BlockController
 			$message->setContext(__CLASS__);
 			
 			$message->setSubject($emailParams['subject'])
-					->setTo($emailParams['subject'])
-					->setBody("mail-template/{$templateName}.twig", $emailParams);
+					->setTo($emailParams['email'], $emailParams['name'])
+					->setBody("mail-template/{$templateName}.twig", $emailParams, 'text/html');
 					
 			$mailer->send($message);
 	}
