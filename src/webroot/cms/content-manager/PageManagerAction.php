@@ -356,6 +356,15 @@ abstract class PageManagerAction extends CmsAction
 			if ( ! is_null($scheduleTime)) {
 				$array['scheduled'] = true;
 			}
+			
+			$array['global_disabled'] = false;
+			
+			$localizations = $page->getLocalizations()->count();
+			
+			if($localizations > 1) {
+				$array['global_disabled'] = true;
+			}
+			
 		}
 
 		// Node type
