@@ -369,6 +369,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//Open link manager
 			Supra.Manager.executeAction('PageLinkManager', value, {
 				'callback': callback,
+				'groupsSelectable': false,
 				'hideToolbar': true
 			});
 		},

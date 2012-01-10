@@ -61,12 +61,6 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		data: {},
 		
 		/**
-		 * Callback function
-		 * @type {Function}
-		 */
-		callback: null,
-		
-		/**
 		 * Link manager options
 		 * @type {Object}
 		 */
@@ -189,7 +183,16 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			var reloading_tree = false;
 			if (this.locale && this.locale != Supra.data.get('locale')) {
 				reloading_tree = true;
-				
+			}
+			
+			//If some option changed, then reload tree also
+			if (this.tree && this.options.groupsSelectable != this.tree.get('groupNodesSelectable')) {
+				this.tree.set('groupNodesSelectable', this.options.groupsSelectable);
+				reloading_tree = true;
+			}
+			
+			//Reload tree if needed
+			if (reloading_tree)	{
 				this.locale = Supra.data.get('locale');
 				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
 				
@@ -280,7 +283,6 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			if (this.options.callback) {
 				var data = this.getData();
 				this.options.callback(data);
-				this.options.callback = null;
 			}
 			
 			this.hide();
@@ -289,13 +291,18 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		/**
 		 * Execute action
 		 */
-		execute: function (data, options) {
+		execute: function (data, options, callback) {
+			if (SU.Y.Lang.isFunction(options)) {
+				callback = options;
+				options = null;
+			}
+			
+			//Link manager options
 			this.options = Supra.mix({
 				'hideToolbar': false,
-				'callback': null
+				'callback': callback,
+				'groupsSelectable': false	//Virtual folders
 			}, options || {});
-			
-			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
 			
 			this.setData(data);
 			
@@ -303,6 +310,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
+			
+			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
 		}
 	});
 	

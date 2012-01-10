@@ -254,6 +254,9 @@ YUI.add('supra.tree', function(Y) {
 				value: null,
 				setter: '_setSelectedNode'
 			},
+			'groupNodesSelectable': {
+				value: true
+			},
 			'rootNodeExpandable': {
 				value: false
 			}

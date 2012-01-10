@@ -178,7 +178,10 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			SU.Manager.getAction('LinkManager').once('execute', function () {
 				this.visible = true;
 			}, this);
-			SU.Manager.getAction('LinkManager').execute(data, callback);
+			
+			SU.Manager.getAction('LinkManager').execute(data, {
+				'groupsSelectable': false
+			}, callback);
 		},
 		
 		/**

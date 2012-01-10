@@ -179,13 +179,21 @@ YUI.add('supra.tree-node', function(Y) {
 				//If event was prevented then don't do anything
 				if (evt.prevented) return;
 				
-				var event_name = 'node-click';
+				var tree = this.getTree(),
+					data = this.get('data'),
+					event_name = 'node-click';
+				
 				if (evt.target.get('tagName') == 'A') {
 					event_name = 'newpage-click';
 					evt.preventDefault();
 				}
 				
-				if (this.getTree().fire(event_name, {node: this, data: this.get('data')})) {
+				if (!tree.get('groupNodesSelectable') && data.type == 'group') {
+					//Groups can't be selected
+					return;
+				}
+				
+				if (tree.fire(event_name, {node: this, data: data})) {
 					//If event wasn't stopped then set this node as selected
 					this.set('isSelected', true);
 				}
@@ -232,7 +240,14 @@ YUI.add('supra.tree-node', function(Y) {
 			this.set('nodeToggle', this.get('boundingBox').one('span.toggle'));
 			
 			if (this.isRoot() && this.getTree().get('rootNodeExpandable')) {
-				this.get('boundingBox').one('div.tree-node').addClass('tree-node-root-expandable');
+				var node = this.get('boundingBox').one('div.tree-node');
+				if (node) node.addClass('tree-node-root-expandable');
+			}
+			
+			//Group nodes selectable?
+			if (this.getTree() && !this.getTree().get('groupNodesSelectable') && data && data.type == 'group') {
+				var node = this.get('boundingBox').one('div.tree-node');
+				if (node) node.addClass('unselectable');
 			}
 			
 			//Children

@@ -43,6 +43,7 @@
 	.tree-node span.toggle {
 		background: url(../../supra/img/tree/collapse.png) 0 0 no-repeat;
 		margin-right: 3px;
+		cursor: pointer;
 	}
 	.tree-node span.toggle.hidden {
 		display: inline-block !important;
@@ -80,7 +81,7 @@
 		.tree-node label:hover {
 			text-decoration: none;
 		}
-		
+	
 	.tree-node a {
 		float: right;
 		display: inline-block;
@@ -180,6 +181,19 @@
 	position: absolute;
 	display: none;
 }
+
+/**
+ * Unselectable nodes
+ */
+.tree-node.unselectable {
+	cursor: default;
+}
+	.tree-node.unselectable label,
+	.tree-node.unselectable:hover label {
+		color: #333;
+		cursor: default;
+		text-decoration: none;
+	}
 
 
 /**
