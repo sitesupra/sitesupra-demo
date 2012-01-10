@@ -277,7 +277,9 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				data = this.form.getValues('name', true),
 				postdata = null,
 				type = this.host.getType(),
-				page_type = old_data.type;
+				page_type = old_data.type,
+				target = null,
+				target_fn = null;
 			
 			postdata = {
 				'locale': Manager.SiteMap.languagebar.get('locale'),
