@@ -23,6 +23,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\PageLocalizationPath;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
+use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 /**
  * Request object for edit mode requests
@@ -612,7 +613,7 @@ class PageRequestEdit extends PageRequest
 	 * @param boolean $skipPathEvent
 	 * @return Entity
 	 */
-	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false) 
+	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false, $targetLocale = null) 
 	{
 		$em = $this->getDoctrineEntityManager();
 		$cloned = false;
@@ -644,10 +645,10 @@ class PageRequestEdit extends PageRequest
 				if (isset($entityData[$fieldName])) {
 					if ($entityData[$fieldName] instanceof Collection) {
 						foreach ($entityData[$fieldName] as $collectionItem) {
-							$this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
+							$this->recursiveClone($collectionItem, $newEntity, $skipPathEvent, $targetLocale);
 						}
 					} else {
-						$this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
+						$this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent, $targetLocale);
 					}
 				}
 			} else if ( ! is_null($associationOwner)) {
@@ -672,6 +673,22 @@ class PageRequestEdit extends PageRequest
 			$referencedElement = $entity->getReferencedElement();
 			
 			$newReferencedElement = clone $referencedElement;
+			if ($newReferencedElement instanceof LinkReferencedElement
+					&& $newReferencedElement->getResource() == LinkReferencedElement::RESOURCE_PAGE) {
+				
+				$page = $referencedElement->getPage();
+				if ($page instanceof PageLocalization) {
+					$master = $page->getMaster();
+					$correctLocalization = $em->getRepository(PageLocalization::CN())->findOneBy(array('master' => $master->getId(), 'locale' => $targetLocale));
+					if ($correctLocalization instanceof PageLocalization) {
+						$newReferencedElement->setPageId($correctLocalization->getId());
+					} else {
+						$newReferencedElement->setPageId(null);
+						$newReferencedElement->setResource(LinkReferencedElement::RESOURCE_LINK);
+						$newReferencedElement->setHref('#');
+					}
+				}
+			}
 			$em->persist($newReferencedElement);
 			
 			$newEntity->setReferencedElement($newReferencedElement);
