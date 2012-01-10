@@ -115,7 +115,10 @@ class BlockControllerCollection
 		$controllerClass = $configuration->controllerClass;
 
 		if ( ! class_exists($controllerClass)) {
-			throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
+			//throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
+			//throw new Exception\InvalidBlockException('Class "' . $controllerClass . '" does not exist');
+			$controllerClass = 'Supra\Controller\Pages\MissingBlockController';
+			$configuration = new BlockControllerConfiguration();
 		}
 
 		/* @var $controller BlockController */
