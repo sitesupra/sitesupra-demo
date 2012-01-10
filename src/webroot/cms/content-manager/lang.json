@@ -187,7 +187,8 @@
 			
 			"created_title": "Page created on",
 			
-			"delete_message": "Are you sure you want to delete selected page?"
+			"delete_message": "Are you sure you want to delete selected page?",
+			"delete_message_all": "Do you really want to delete this page from all languages?"
 		},
 		
 		"sitemap": {
@@ -208,6 +209,7 @@
 			"delete_page": "Delete",
 			"delete_template": "Delete",
 			"message_delete_page": "Are you sure you want to delete selected page?",
+			"message_delete_page_all": "Do you really want to delete this page from all languages?",
 			"message_delete_template": "Are you sure you want to delete selected template?",
 			
 			"duplicate_page": "Duplicate",

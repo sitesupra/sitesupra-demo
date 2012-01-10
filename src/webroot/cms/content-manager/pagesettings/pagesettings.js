@@ -397,8 +397,15 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				return false;
 			}
 			
+			if (this.page_data.global_disabled) {
+				//Global disabled is true if page has more than one localization
+				var message_id = 'delete_message_all';
+			} else {
+				var message_id = 'delete_message';
+			}
+			
 			Manager.executeAction('Confirmation', {
-				'message': Supra.Intl.get(['settings', 'delete_message']),
+				'message': Supra.Intl.get(['settings', message_id]),
 				'useMask': true,
 				'buttons': [
 					{

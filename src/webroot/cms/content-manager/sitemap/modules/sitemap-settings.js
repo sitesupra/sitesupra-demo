@@ -368,7 +368,11 @@ YUI().add('website.sitemap-settings', function (Y) {
 			if (this.host.getType() == 'templates') {
 				var message_id = 'message_delete_template';
 			} else {
-				var message_id = 'message_delete_page';
+				if (this.data.global_disabled) {
+					var message_id = 'message_delete_page_all'
+				} else {
+					var message_id = 'message_delete_page';
+				}
 			}
 			
 			Manager.executeAction('Confirmation', {
