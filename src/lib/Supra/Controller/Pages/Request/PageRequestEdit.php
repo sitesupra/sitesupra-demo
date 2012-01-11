@@ -141,7 +141,8 @@ class PageRequestEdit extends PageRequest
 			}
 		}
 		
-		$proxy = $publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+		$publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+		$publicEm->getProxyFactory()->getProxy(PageLocalizationPath::CN(), -1);
 
 		// Initialize, because proxy object is not merged
 		$draftData->getTemplate()->getId();
