@@ -51,9 +51,17 @@ class Subscriber extends Entity
 	 * Set confirm hash
 	 * @param string $hash 
 	 */
-	public function setConfirmHash($hash)
+	protected function setConfirmHash($hash)
 	{
 		$this->confirmHash = $hash;
+	}
+	
+	/**
+	 * Generate confirmation hash
+	 */
+	public function generateConfirmHash(){
+		$this->setConfirmHash($this->generateId());
+		$this->updateConfirmDateTime();
 	}
 	
 	/**
@@ -65,12 +73,17 @@ class Subscriber extends Entity
 		return $this->confirmHash;
 	}
 	
-	
-	public function setConfirmDateTimeAsNow(){
+	/**
+	 * Update confirmation date time
+	 */
+	protected function updateConfirmDateTime(){
 		$this->confirmMessageDatetime = new \DateTime("now");
 	}
 	
-	
+	/**
+	 * Return current confirmation date time
+	 * @return string
+	 */
 	public function getConfirmDateTime()
 	{
 		return $this->confirmMessageDatetime;
