@@ -872,15 +872,18 @@ abstract class PageManagerAction extends CmsAction
 						->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
 			}
 
-			$newLocalizationId = $localization->getId();
-			
-			return $newLocalizationId;
+			return $localization;
 		};
 		
-		$newLocalizationId = $em->transactional($cloneLocalization);
-
+		$newLocalization = $em->transactional($cloneLocalization);
+		if ($newLocalization instanceof Entity\TemplateLocalization) {
+			$this->pageData = $newLocalization;
+			$this->publish();
+		}
+		
 		$this->getResponse()
-				->setResponseData(array('id' => $newLocalizationId));
+				->setResponseData(array('id' => $newLocalization->getId()));
+		
 	}
 
 	/**
