@@ -1,5 +1,11 @@
 - Supra\Controller\Configuration\ControllerConfiguration:
     router: 
       Supra\Router\Configuration\RouterConfiguration:
+        class: Supra\Router\TopPriorityRouter
+        controller: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
+
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
         url: /
         controller: Supra\Controller\Pages\PageController
