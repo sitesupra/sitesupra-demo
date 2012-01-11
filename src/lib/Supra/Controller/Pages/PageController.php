@@ -317,6 +317,10 @@ class PageController extends ControllerAbstraction
 					if ($request instanceof Request\PageRequestEdit) {
 						$blockId = $block->getId();
 						$blockName = $block->getComponentName();
+						
+						if ($blockController instanceof BrokenBlockController) {
+							$blockName = 'Supra_Controller_Pages_BrokenBlockController';
+						}
 
 						$prefixCountent = '<div id="content_' . $blockName . '_' . $blockId
 								. '" class="yui3-content yui3-content-' . $blockName

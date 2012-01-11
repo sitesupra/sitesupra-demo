@@ -19,6 +19,8 @@ use Supra\Loader\Loader;
 class BlockControllerCollection
 {
 
+	const BROKEN_BLOCK_ID = 'Supra_Controller_Pages_BrokenBlockController';
+	
 	/**
 	 * @var array 
 	 */
@@ -115,10 +117,8 @@ class BlockControllerCollection
 		$controllerClass = $configuration->controllerClass;
 
 		if ( ! class_exists($controllerClass)) {
-			//throw new Exception\RuntimeException('Class "' . $controllerClass . '" does not exist');
-			//throw new Exception\InvalidBlockException('Class "' . $controllerClass . '" does not exist');
-			$controllerClass = 'Supra\Controller\Pages\MissingBlockController';
-			$configuration = new BlockControllerConfiguration();
+			$configuration = $this->getBlockConfiguration(self::BROKEN_BLOCK_ID);
+			$controllerClass = $configuration->controllerClass;
 		}
 
 		/* @var $controller BlockController */
