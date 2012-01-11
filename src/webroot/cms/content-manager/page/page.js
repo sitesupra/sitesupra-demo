@@ -66,8 +66,10 @@ Supra(function (Y) {
 		 * @param {Object} data Data
 		 */
 		execute: function (data) {
-			//Load data
-			this.loadPage(data ? data.id : '');
+			//Load page data if sitemap will not open
+			if (Manager.Root.getPath() != Manager.Root.ROUTE_SITEMAP) {
+				this.loadPage(data ? data.id : '');
+			}
 			
 			//Wait till blocks and layouts are done
 			var queue = 0,

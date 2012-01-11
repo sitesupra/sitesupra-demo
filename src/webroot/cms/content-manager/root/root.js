@@ -229,6 +229,9 @@ Supra(function (Y) {
 				//Search /h/sitemap in path
 				if (this.getPath() == this.ROUTE_SITEMAP) {
 					SU.Manager.executeAction('SiteMap');
+					
+					//Remove loading style
+					Y.one('body').removeClass('loading');
 				}
 			});
 			
