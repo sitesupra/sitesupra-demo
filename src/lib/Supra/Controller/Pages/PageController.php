@@ -319,7 +319,7 @@ class PageController extends ControllerAbstraction
 						$blockName = $block->getComponentName();
 						
 						if ($blockController instanceof BrokenBlockController) {
-							$blockName = 'Supra_Controller_Pages_BrokenBlockController';
+							$blockName = $blockController::BLOCK_NAME;
 						}
 
 						$prefixCountent = '<div id="content_' . $blockName . '_' . $blockId

@@ -7,6 +7,8 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 
 class BrokenBlockController extends BlockController
 {
+	
+	const BLOCK_NAME = 'Supra_Controller_Pages_BrokenBlockController';
 
 	public function getPropertyDefinition()
 	{
