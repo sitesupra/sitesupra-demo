@@ -78,6 +78,16 @@ interface RouterInterface
 	public function getParameter($key, $default = null);
 
 	/**
+	 * @return mixed
+	 */
+	public function getObjectRepositoryCaller();
+
+	/**
+	 * @param mixed $objectRepositoryCaller
+	 */
+	public function setObjectRepositoryCaller($objectRepositoryCaller);
+	
+	/**
 	 * Represents the router as string
 	 * @return string
 	 */

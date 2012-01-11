@@ -49,12 +49,14 @@ class LocaleManager
 	 */
 	public function exists($localeIdentifier, $throws = true)
 	{
-		if (\array_key_exists($localeIdentifier, $this->locales)) {
+		if (array_key_exists($localeIdentifier, $this->locales)) {
 			return true;
 		}
+		
 		if ($throws) {
 			throw new Exception("Locale '$localeIdentifier' is not defined");
 		}
+		
 		return false;
 	}
 
@@ -90,12 +92,20 @@ class LocaleManager
 	}
 
 	/**
-	 * Set current locale by locale ID
-	 * @param string $localeIdentifier
+	 * Set current locale by locale object or ID
+	 * @param mixed $locale
 	 * @throws Exception if such locale is not defined
 	 */
-	public function setCurrent($localeIdentifier)
+	public function setCurrent($locale)
 	{
+		$localeIdentifier = null;
+		
+		if ($locale instanceof Locale) {
+			$localeIdentifier = $locale->getId();
+		} else {
+			$localeIdentifier = $locale;
+		}
+		
 		$this->exists($localeIdentifier, true);
 		$this->current = $this->locales[$localeIdentifier];
 	}

@@ -38,6 +38,12 @@ class RouterConfiguration implements ConfigurationInterface
 	 * @var boolean
 	 */
 	public $strictUrlMatch = false;
+	
+	/**
+	 * What caller should be used to access object repository
+	 * @var mixed
+	 */
+	public $objectRepositoryCaller = null;
 
 	/**
 	 * @return RouterInterface
@@ -52,6 +58,7 @@ class RouterConfiguration implements ConfigurationInterface
 			$router->setStrictUrlMatch($this->strictUrlMatch);
 		}
 		
+		$router->setObjectRepositoryCaller($this->objectRepositoryCaller);
 		$router->setPriorityDiff($this->priority);
 		
 		// Bind to URL
