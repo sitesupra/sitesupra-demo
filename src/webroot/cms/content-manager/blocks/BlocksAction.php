@@ -108,6 +108,7 @@ class BlocksAction extends PageManagerAction
 				'icon' => $conf->iconWebPath,
 				'classname' => $conf->cmsClassname,
 				'properties' => $properties,
+				'hidden' => $conf->hidden,
 			);
 		}
 

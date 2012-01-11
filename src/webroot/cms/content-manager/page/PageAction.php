@@ -263,7 +263,9 @@ class PageAction extends PageManagerAction
 				$controller = $block->createController();
 
 				if ($controller instanceof BrokenBlockController) {
-					$block->setComponentName('Supra\Controller\Pages\BrokenBlockController');
+					$componentName = $controller->getConfiguration()
+							->controllerClass;
+					$block->setComponentName($componentName);
 				}
 				
 				$block->prepareController($controller, $request, $responseContext);
