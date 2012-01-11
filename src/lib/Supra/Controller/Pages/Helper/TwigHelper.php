@@ -146,7 +146,7 @@ class TwigHelper
 	}
 	
 	/**
-	 * @return Info
+	 * @return string
 	 */
 	public function getHost()
 	{
