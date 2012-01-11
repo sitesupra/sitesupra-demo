@@ -20,7 +20,7 @@ use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
 use Supra\Controller\Pages\Exception\InvalidBlockException;
-use Supra\Controller\Pages\MissingBlockController;
+use Supra\Controller\Pages\BrokenBlockController;
 
 /**
  * 
@@ -262,8 +262,8 @@ class PageAction extends PageManagerAction
 
 				$controller = $block->createController();
 
-				if ($controller instanceof MissingBlockController) {
-					$block->setComponentName('Supra\Controller\Pages\MissingBlockController');
+				if ($controller instanceof BrokenBlockController) {
+					$block->setComponentName('Supra\Controller\Pages\BrokenBlockController');
 				}
 				
 				$block->prepareController($controller, $request, $responseContext);
