@@ -11,3 +11,8 @@
     id: system
     title: System
     default: true
+    
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+   title: Broken block
+   groupId: system
+   controllerClass: Supra\Controller\Pages\BrokenBlockController
