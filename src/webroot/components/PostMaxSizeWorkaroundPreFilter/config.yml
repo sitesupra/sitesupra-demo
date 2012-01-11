@@ -1,0 +1,5 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        class: Supra\Router\TopPriorityRouter
+        controller: Project\PostMaxSizeWorkaroundPreFilter\PreFilterController
