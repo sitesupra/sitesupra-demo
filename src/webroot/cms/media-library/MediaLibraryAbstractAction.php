@@ -106,8 +106,6 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	 */
 	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
 	{
-		$pageLocalization = null;
-		
 		if ($item instanceof Page) {
 			$localeId = $this->getLocale()->getId();
 			$item = $item->getLocalization($localeId);

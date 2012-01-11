@@ -1,4 +1,12 @@
 - Supra\Controller\Configuration\ControllerConfiguration:
+  router:
+    Supra\Router\Configuration\RouterConfiguration:
+        url: /cms
+        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+        controller: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+        objectRepositoryCaller: Supra\Cms
+
+- Supra\Controller\Configuration\ControllerConfiguration:
 # TODO: should be controller config not config of the router
 #    class: Project\Authentication\AuthenticationPreFilterController
     router: 

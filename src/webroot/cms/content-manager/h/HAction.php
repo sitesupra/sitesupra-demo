@@ -13,12 +13,18 @@ class HAction extends RootAction
 {
 	protected $notFoundAction = 'index';
 	
+	protected $skipInitialPageLoading = false;
+	
 	/**
 	 * Overriden to read page ID from the history URL
 	 * @return Entity\Abstraction\Localization
 	 */
 	protected function getInitialPageLocalization()
 	{
+		if ($this->skipInitialPageLoading) {
+			return;
+		}
+		
 		$request = $this->getRequest();
 		$path = $request->getPath();
 		
@@ -32,5 +38,15 @@ class HAction extends RootAction
 		}
 		
 		return parent::getInitialPageLocalization();
+	}
+	
+	/**
+	 * When sitemap is opened, we don't need any initial page
+	 */
+	public function sitemapAction()
+	{
+		$this->skipInitialPageLoading = true;
+		
+		$this->indexAction();
 	}
 }
