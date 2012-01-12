@@ -5,7 +5,7 @@ namespace Supra\User\Entity;
 use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
-
+use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
 /**
  * User object
@@ -34,12 +34,17 @@ class User extends AbstractUser
 	protected $email;
 
 	/**
-	 * TODO: temporary solution
-	 * @Column(type="string", nullable=true)
+	 * @Column(type="string", name="avatar_id", nullable=true)
 	 * @var string
 	 */
-	protected $avatar;
+	protected $avatarId;
 
+	/**
+	 * @Column(type="boolean", name="personal_avatar", nullable=true)
+	 * @var boolean
+	 */
+	protected $personalAvatar;
+	
 	/**
 	 * @ManyToOne(targetEntity="Group")
 	 * @JoinColumn(name="group_id", referencedColumnName="id")
@@ -144,15 +149,20 @@ class User extends AbstractUser
 	 */
 	public function getAvatar()
 	{
-		return $this->avatar;
+		return $this->avatarId;
 	}
 
 	/**
-	 * @param string $avatar
+	 * @param string $avatarId - Predefined avatar id. One of UseravatarAction::$sampleAvatars
+	 * @return boolean
 	 */
-	public function setAvatar($avatar)
+	public function setAvatar($avatarId)
 	{
-		$this->avatar = $avatar;
+		if(in_array($avatarId, UseravatarAction::getPredefinedAvatarIds())) {
+			$this->avatarId = $avatarId;
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -260,5 +270,23 @@ class User extends AbstractUser
 			return false;
 		}
 	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isPersonalAvatar()
+	{
+		return $this->personalAvatar;
+	}
+
+	/**
+	 * @param boolean $personalAvatar 
+	 */
+	public function setPersonalAvatar($personalAvatar)
+	{
+		$this->personalAvatar = $personalAvatar;
+	}
+
+
 
 }
