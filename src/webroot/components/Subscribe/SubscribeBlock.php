@@ -20,8 +20,6 @@ use Supra\Mailer\CampaignMonitor\Entity\Subscriber;
  */
 class SubscribeBlock extends BlockController
 {
-	const SALT = 'h5$|zQ';
-
 	const ACTION_SUBSCRIBE = 'subscribe';
 	const ACTION_UNSUBSCRIBE = 'unsubscribe';
 	const ACTION_CONFIRM_SUBSCRIBE = 'confirm_subscribe';
@@ -153,7 +151,7 @@ class SubscribeBlock extends BlockController
 
 	/**
 	 * Unsubscribe action
-	 * @return null
+	 * @return void
 	 */
 	protected function actionUnsubscribe()
 	{
@@ -182,13 +180,24 @@ class SubscribeBlock extends BlockController
 			$localization = $this->getRequest()->getPageLocalization();
 
 			if ( ! ($localization instanceof Entity\PageLocalization)) {
-				return null;
+				
+				return;
+				
 			}
-
-
 
 			//Get subscriber
 			$subscriber = $this->getSubscriber($email, null, true);
+			
+			if(empty ($subscriber)) {
+				$error[] = 'subscriber_not_found';
+				$this->response->assign('email', $postData->get('email', ''));
+				
+				return;
+				
+			} else {
+				$subscriber = $subscriber[0];
+			}
+			
 			$subscriber->generateConfirmHash();
 			$hash = $subscriber->getConfirmHash();
 			$subscriberName = $subscriber->getName();
@@ -247,8 +256,28 @@ class SubscribeBlock extends BlockController
 	 */
 	protected function actionConfirmUnsubscribe()
 	{
-		$this->deleteSubscriber($email, $hash);
+		
+		$error = false;
+
+		$email = $this->request->getParameter('email', '');
+		$hash = $this->request->getParameter('hash', '');
+		$this->response->assign('email', $email);
+		$this->response->assign('error', &$error);
 		$this->response->assign('action', self::ACTION_CONFIRM_UNSUBSCRIBE);
+
+		$confirmedSubscriber = $this->confirmUnsubscribe($email, $hash);
+
+		if ( ! ($confirmedSubscriber instanceof Subscriber)) {
+			
+			$error = true;
+			return;
+			
+		} else {
+			$this->response->assign('name', $confirmedSubscriber->getName());
+			$entityManager = ObjectRepository::getEntityManager($this);
+			$entityManager->flush();
+		}
+		
 	}
 
 	/**
@@ -274,8 +303,22 @@ class SubscribeBlock extends BlockController
 		return $subscriber;
 	}
 
-	protected function unsubscribe()
+	/**
+	 * Unsubscribe user 
+	 * @param string $email
+	 * @param string $hash
+	 * @return \Supra\Mailer\CampaignMonitor\Entity\Subscriber 
+	 */
+	protected function confirmUnsubscribe($email, $hash)
 	{
+		$subscriber = $this->getSubscriber($email, $hash, true);
+		
+		if( ! empty($subscriber)) {
+			$this->deleteSubscriber($email);
+			return $subscriber[0];
+		}
+		
+		return null;
 		
 	}
 
