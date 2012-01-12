@@ -318,6 +318,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				'title': '',
 				'href': '',
 				'page_id': null,
+				'page_master_id': null,
 				'file_id': null,
 				'file_path': [],
 				'file_title': '',
@@ -383,13 +384,25 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					this.form.getInput('linkManagerType').set('value', 'internal');
 					this.link_slideshow.set('noAnimations', false);
 					
+					var key,
+						value;
+
+					// Supports selection by page ID or master ID
 					if (data.page_id) {
-						var node = this.tree.getNodeById(data.page_id);
+						key = 'id';
+						value = data.page_id;
+					} else if (data.page_master_id) {
+						key = 'master_id';
+						value = data.page_master_id;
+					}
+
+					if (key) {
+						var node = this.tree.getNodeBy(key, value);
 						if (!node || reloading_tree) {
 							this.tree.once('render:complete', function () {
 								this.tree.set('selectedNode', null);
-								
-								var node = this.tree.getNodeById(data.page_id);
+
+								var node = this.tree.getNodeBy(key, value);
 								if (node) this.tree.set('selectedNode', node);
 							}, this);
 						} else {
@@ -445,19 +458,22 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					var tree_node = this.tree.get('selectedNode'),
 						page_data = null,
 						page_id = '',
+						page_master_id = '',
 						page_path = '';
 					
 					if (tree_node) {
 						page_data = tree_node.get('data');
 						if (page_data) {
 							page_id = page_data.id;
-							page_path = this.getTreePagePath(page_id);
+							page_master_id = page_data.master_id;
+							page_path = page_data.full_path || page_data.title;
 						}
 					}
 					
 					return {
 						'resource': 'page',
 						'page_id': page_id,
+						'page_master_id': page_master_id,
 						'href': page_path,
 						'target': data.target,
 						'title': data.title

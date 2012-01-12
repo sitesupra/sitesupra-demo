@@ -167,7 +167,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				'resource': 'page',
 				'title': '',
 				'href': '',
-				'page_id': null
+				'page_id': null,
+				'page_master_id': null
 			}, data || {});
 			
 			//Set values by input name
@@ -200,17 +201,32 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				this.tree.reload();
 			}
 			
-			if (data.resource == 'page' && data.page_id) {
-				var node = this.tree.getNodeById(data.page_id);
-				if (!node || reloading_tree) {
-					this.tree.once('render:complete', function () {
-						this.tree.set('selectedNode', null);
-						
-						var node = this.tree.getNodeById(data.page_id);
-						if (node) this.tree.set('selectedNode', node);
-					}, this);
-				} else {
-					this.tree.set('selectedNode', node);
+			if (data.resource == 'page') {
+				
+				var key,
+					value;
+				
+				// Supports selection by page ID or master ID
+				if (data.page_id) {
+					key = 'id';
+					value = data.page_id;
+				} else if (data.page_master_id) {
+					key = 'master_id';
+					value = data.page_master_id;
+				}
+				
+				if (key) {
+					var node = this.tree.getNodeBy(key, value);
+					if (!node || reloading_tree) {
+						this.tree.once('render:complete', function () {
+							this.tree.set('selectedNode', null);
+
+							var node = this.tree.getNodeBy(key, value);
+							if (node) this.tree.set('selectedNode', node);
+						}, this);
+					} else {
+						this.tree.set('selectedNode', node);
+					}
 				}
 			}
 			
@@ -230,6 +246,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				var tree_node = this.tree.get('selectedNode'),
 					page_data = null,
 					page_id = '',
+					page_master_id = '',
 					page_path = '',
 					page_title = '';
 				
@@ -237,7 +254,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					page_data = tree_node.get('data');
 					if (page_data) {
 						page_id = page_data.id;
-						page_path = this.getTreePagePath(page_id);
+						page_master_id = page_data.master_id;
+						page_path = page_data.full_path;
 						page_title = page_data.title;
 					}
 				}
@@ -245,6 +263,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				return {
 					'resource': 'page',
 					'page_id': page_id,
+					'page_master_id': page_master_id,
 					'href': page_path,
 					'title': page_title
 				};

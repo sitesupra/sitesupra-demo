@@ -346,15 +346,16 @@ abstract class PageManagerAction extends CmsAction
 
 		// Main data
 		$array = array(
-				'id' => $data->getId(),
-				'title' => $data->getTitle(),
-				// TODO: hardcoded
-				'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
-						($data instanceof Entity\GroupLocalization ? 'group' :
-								($page->getLevel() === 0 ? 'home' : 'page')),
-				'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
+			'id' => $data->getId(),
+			'master_id' => $page->getId(),
+			'title' => $data->getTitle(),
+			// TODO: hardcoded
+			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
+					($data instanceof Entity\GroupLocalization ? 'group' :
+							($page->getLevel() === 0 ? 'home' : 'page')),
+			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
 		);
-
+		
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {
 			$template = $data->getTemplate();
@@ -379,6 +380,8 @@ abstract class PageManagerAction extends CmsAction
 				$array['global_disabled'] = true;
 			}
 			
+			$array['full_path'] = $data->getPath()
+					->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 		}
 
 		// Node type

@@ -315,11 +315,23 @@ YUI.add('supra.tree-node', function(Y) {
 		 * @type {Object}
 		 */
 		getNodeById: function (id) {
+			return this.getNodeBy('id', id);
+		},
+		
+		/**
+		 * Returns TreeNode by ID
+		 * 
+		 * @param {Object} key field name
+		 * @param {Object} value field value
+		 * @return Tree node
+		 * @type {Object}
+		 */
+		getNodeBy: function (key, value) {
 			var i = 0, node;
 			while(node = this.item(i)) {
-				if (node.get('data').id == id) {
+				if (node.get('data')[key] == value) {
 					return node;
-				} else if (node = node.getNodeById(id)) {
+				} else if (node = node.getNodeBy(key, value)) {
 					return node;
 				}
 				i++;
