@@ -23,6 +23,7 @@ require_once SUPRA_CONF_PATH . 'payment.php';
 
 $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new \Supra\Configuration\Loader\ComponentConfigurationLoader($parser);
+$configLoader->setCacheLevel(Supra\Configuration\Loader\ComponentConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
