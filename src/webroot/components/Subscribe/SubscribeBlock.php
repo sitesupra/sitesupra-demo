@@ -3,15 +3,16 @@
 namespace Project\Subscribe;
 
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\BlockController,
-	Supra\Request,
-	Supra\Response;
+use Supra\Controller\Pages\BlockController;
+use Supra\Request;
+use Supra\Response;
 use Supra\Mailer;
 use Supra\Mailer\Message;
 use Supra\Mailer\Message\TwigMessage;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Mailer\CampaignMonitor\Entity\Subscriber;
+use Supra\Validator\Exception;
 
 /**
  * Description of SubscribeBlock
@@ -76,30 +77,44 @@ class SubscribeBlock extends BlockController
 	protected function actionSubscribe()
 	{
 		$error = null;
+		$this->response->assign('action', self::ACTION_SUBSCRIBE);
 
 		if ($this->request->isPost()) {
 
+			$this->response->assign('postedData', true);
 			$postData = $this->request->getPost();
 
 			try {
-
 				$email = $postData->getValid('email', \Supra\Validator\Type\AbstractType::EMAIL);
-
-				/**
-				 * @todo add required exception type
-				 */
-			} catch (\Exception $e) {
+			} catch (Exception\ValidationFailure $e) {
 				$error[] = 'wrong_email_address';
 			}
 
-			$subscriberName = $postData->get('name', '');
+			$this->response->assign('email', $postData->get('email', ''));
 
+			$subscriberName = $postData->get('name', '');
 			$subscriberName = trim($subscriberName);
+			$this->response->assign('name', $subscriberName);
 
 			if (empty($subscriberName)) {
 				$error[] = 'empty_subscriber_name';
 			}
 
+			//Check is subscriber already exists and active
+
+			$activeSubscriber = $this->getSubscriber($email, null, true);
+
+			/**
+			 * @todo how to handle this case?
+			 */
+			if ( ! empty($activeSubscriber)) {
+				$error[] = 'subscriber_alredy_active';
+			}
+
+			if ( ! empty($error)) {
+				$this->response->assign('error', $error);
+				return;
+			}
 
 			/* @var $localization PageLocalization */
 			$localization = $this->getRequest()->getPageLocalization();
@@ -128,25 +143,20 @@ class SubscribeBlock extends BlockController
 				'email' => $email);
 
 			try {
-
 				$this->sendEmail($emailParams, 'confirm_subscribe');
 			} catch (\Exception $e) {
-				$error[] = 'cant_sent_mail';
+				$this->log->error("Can't send email on subscribe action; ", (string) $e);
+				$error[] = 'cant_send_mail';
 			}
 
 			if (empty($error)) {
 				$entityManager = ObjectRepository::getEntityManager($this);
 				$entityManager->persist($subscriber);
 				$entityManager->flush();
+			} else {
+				$this->response->assign('error', $error);
 			}
-
-			$this->response->assign('email', $email);
-			$this->response->assign('error', $error);
-			$this->response->assign('postedData', true);
 		}
-
-		$this->response->assign('errors', $error);
-		$this->response->assign('action', self::ACTION_SUBSCRIBE);
 	}
 
 	/**
@@ -155,10 +165,8 @@ class SubscribeBlock extends BlockController
 	 */
 	protected function actionUnsubscribe()
 	{
-
 		$error = null;
 		$this->response->assign('action', self::ACTION_UNSUBSCRIBE);
-		$this->response->assign('error', &$error);
 
 		if ($this->request->isPost()) {
 
@@ -170,34 +178,34 @@ class SubscribeBlock extends BlockController
 				/**
 				 * @todo add required exception type
 				 */
-			} catch (\Exception $e) {
+			} catch (Exception\ValidationFailure $e) {
 				$error[] = 'wrong_email_address';
 				$this->response->assign('email', $postData->get('email', ''));
+				$this->response->assign('error', $error);
 				return;
 			}
+
+			$this->response->assign('email', $postData->get('email', ''));
+
 
 			/* @var $localization PageLocalization */
 			$localization = $this->getRequest()->getPageLocalization();
 
 			if ( ! ($localization instanceof Entity\PageLocalization)) {
-				
 				return;
-				
 			}
 
 			//Get subscriber
 			$subscriber = $this->getSubscriber($email, null, true);
-			
-			if(empty ($subscriber)) {
+
+			if (empty($subscriber)) {
 				$error[] = 'subscriber_not_found';
-				$this->response->assign('email', $postData->get('email', ''));
-				
+				$this->response->assign('error', $error);
 				return;
-				
 			} else {
 				$subscriber = $subscriber[0];
 			}
-			
+
 			$subscriber->generateConfirmHash();
 			$hash = $subscriber->getConfirmHash();
 			$subscriberName = $subscriber->getName();
@@ -217,7 +225,8 @@ class SubscribeBlock extends BlockController
 			try {
 				$this->sendEmail($emailParams, 'confirm_unsubscribe');
 			} catch (\Exception $e) {
-				$error[] = 'cant_sent_mail';
+				$this->log->error("Can't send email on unsubscribe action; ", (string) $e);
+				$error[] = 'cant_send_mail';
 			}
 
 			if (empty($error)) {
@@ -225,6 +234,8 @@ class SubscribeBlock extends BlockController
 				$entityManager->persist($subscriber);
 				$entityManager->flush();
 			}
+
+			$this->response->assign('error', $error);
 		}
 	}
 
@@ -256,28 +267,25 @@ class SubscribeBlock extends BlockController
 	 */
 	protected function actionConfirmUnsubscribe()
 	{
-		
+
 		$error = false;
 
 		$email = $this->request->getParameter('email', '');
 		$hash = $this->request->getParameter('hash', '');
-		$this->response->assign('email', $email);
-		$this->response->assign('error', &$error);
-		$this->response->assign('action', self::ACTION_CONFIRM_UNSUBSCRIBE);
 
 		$confirmedSubscriber = $this->confirmUnsubscribe($email, $hash);
 
 		if ( ! ($confirmedSubscriber instanceof Subscriber)) {
-			
 			$error = true;
-			return;
-			
 		} else {
 			$this->response->assign('name', $confirmedSubscriber->getName());
 			$entityManager = ObjectRepository::getEntityManager($this);
 			$entityManager->flush();
 		}
-		
+
+		$this->response->assign('error', $error);
+		$this->response->assign('email', $email);
+		$this->response->assign('action', self::ACTION_CONFIRM_UNSUBSCRIBE);
 	}
 
 	/**
@@ -312,14 +320,13 @@ class SubscribeBlock extends BlockController
 	protected function confirmUnsubscribe($email, $hash)
 	{
 		$subscriber = $this->getSubscriber($email, $hash, true);
-		
-		if( ! empty($subscriber)) {
+
+		if ( ! empty($subscriber)) {
 			$this->deleteSubscriber($email);
 			return $subscriber[0];
 		}
-		
+
 		return null;
-		
 	}
 
 	/**
