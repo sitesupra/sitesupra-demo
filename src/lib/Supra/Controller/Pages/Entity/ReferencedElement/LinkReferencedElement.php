@@ -6,10 +6,12 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Uri\NullPath;
+use Doctrine\ORM\NoResultException;
 
 /**
  * @Entity
@@ -225,7 +227,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'resource' => $this->resource,
 			'title' => $this->title,
 			'target' => $this->target,
-			'page_id' => $this->pageId,
+			'page_master_id' => $this->pageId,
 			'file_id' => $this->fileId,
 			'href' => $this->href,
 		);
@@ -242,7 +244,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->resource = $array['resource'];
 		$this->title = $array['title'];
 		$this->target = $array['target'];
-		$this->pageId = $array['page_id'];
+		$this->pageId = $array['page_master_id'];
 		$this->fileId = $array['file_id'];
 		$this->href = $array['href'];
 	}
@@ -257,17 +259,34 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		}
 		
 		$em = ObjectRepository::getEntityManager($this);
-		$pageData = $em->find(Localization::CN(), $this->pageId);
 		
-		if (empty($pageData)) {
+		$pageData = null;
+		$localizationEntity = Localization::CN();
+		$localeId = ObjectRepository::getLocaleManager($this)
+				->getCurrent()
+				->getId();
+		
+		$criteria = array(
+			'master' => $this->pageId,
+			'locale' => $localeId,
+		);
+		
+		// Now master page ID is stored, still the old implementation is working
+		$dql = "SELECT l FROM $localizationEntity l 
+				WHERE (l.master = :master AND l.locale= :locale) 
+				OR l.id = :master";
+		
+		try {
+			$pageData = $em->createQuery($dql)
+					->setParameters($criteria)
+					->getSingleResult();
+		} catch (NoResultException $noResult) {
+			
+			// Special case for group page selection when no localization exists in database
 			$master = $em->find(GroupPage::CN(), $this->pageId);
 			
 			if ($master instanceof GroupPage) {
-				//FIXME: somehow better?
-				$locale = ObjectRepository::getLocaleManager($this)
-						->getCurrent()
-						->getId();
-				$pageData = $master->getLocalization($locale);
+				$pageData = $master->getLocalization($localeId);
 			}
 		}
 		
