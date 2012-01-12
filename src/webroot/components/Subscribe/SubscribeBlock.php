@@ -137,7 +137,7 @@ class SubscribeBlock extends BlockController
 			 * @todo get subject and mail from-addres from configuration
 			 */
 			$emailParams = array(
-				'subject' => 'Subscribe confirmation',
+				'subject' => $this->getPropertyValue('confirmSubscribeSubject'),
 				'name' => $subscriberName,
 				'link' => $url,
 				'email' => $email);
@@ -217,7 +217,7 @@ class SubscribeBlock extends BlockController
 			 * @todo get subject and mail from-addres from configuration
 			 */
 			$emailParams = array(
-				'subject' => 'Unsubscribe confirmation',
+				'subject' => $this->getPropertyValue('confirmUnsubscribeSubject'),
 				'name' => $subscriberName,
 				'link' => $url,
 				'email' => $email);
@@ -342,6 +342,7 @@ class SubscribeBlock extends BlockController
 		$message->setContext(__CLASS__);
 
 		$message->setSubject($emailParams['subject'])
+				->setFrom($this->getPropertyValue('emailFromAddress'), $this->getPropertyValue('emailFromName'))
 				->setTo($emailParams['email'], $emailParams['name'])
 				->setBody("mail-template/{$templateName}.twig", $emailParams, 'text/html');
 
@@ -429,6 +430,36 @@ class SubscribeBlock extends BlockController
 		$url.= $action;
 
 		return $url;
+	}
+
+	/**
+	 * Loads property definition array
+	 * @return array
+	 */
+	public function getPropertyDefinition()
+	{
+		$contents = array();
+
+		$hostName = ObjectRepository::getSystemInfo($this)
+				->getHostName(\Supra\Info::NO_SCHEME);
+
+		$stringValue = new \Supra\Editable\String("Email from address");
+		$stringValue->setDefaultValue('no-reply@' . $hostName);
+		$contents['emailFromAddress'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\String("Email from name");
+		$stringValue->setDefaultValue($hostName);
+		$contents['emailFromName'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\String("Email subscribe confirm subject");
+		$stringValue->setDefaultValue('Confirm subscription');
+		$contents['confirmSubscribeSubject'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\String("Email unsubscribe confirm subject");
+		$stringValue->setDefaultValue('Confirm unsubscribe');
+		$contents['confirmUnsubscribeSubject'] = $stringValue;
+
+		return $contents;
 	}
 
 }
