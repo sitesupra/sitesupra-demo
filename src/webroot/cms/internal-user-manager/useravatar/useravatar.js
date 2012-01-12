@@ -198,7 +198,7 @@ Supra('supra.panel', 'transition', function (Y) {
 				'multiple': false,
 				'accept': 'image/*',
 				
-				'requestUri': Manager.getAction('User').getDataPath('uploadAvatar'),
+				'requestUri': Manager.getAction('UserAvatar').getDataPath('upload'),
 				'data': {
 					'folder': Supra.data.get(['mediaLibrary', 'avatarFolder'], 0),
 					'user_id': this.user_id
