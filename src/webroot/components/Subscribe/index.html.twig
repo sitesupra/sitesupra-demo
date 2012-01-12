@@ -2,27 +2,37 @@
 
 	<h1>Subscribe Action</h1>	
 	
-	{%if (postedData != true  and error is null) %}
+	{%if (postedData != true  or error is not null) %}
 
+		{% if error is not null %}
+			{% for key, value in error %}				
+				<div style="color:red;">Error: {{ value }}</div>
+			{% endfor %} 
+		{%endif%}
+	
 		<form  method="post" >
-			<label>Name:</label><input type="text" name="name"/>
+			<label>Name:</label><input type="text" name="name" value="{{name}}"/>
 			<br/>
-			<label>Email address:</label><input type="text" name="email"/>
+			<label>Email address:</label><input type="text" name="email" value="{{email}}"/>
 			<br/>
 			<button type="submit">Submit</button>
 		</form>
 
 	{%else%}
-	
 		<h1>Subscribtion confirmation email send on {{ email }}</h1>
-		
 	{%endif%}
 		
 {%elseif action == 'unsubscribe' %}
 		
 	<h1>Unsubscribe Action</h1>	
 	
-	{%if (postedData != true  and error is null) %}
+	{%if (postedData != true or error is not null) %}
+	
+		{% if error is not null %}
+			{% for key, value in error %}				
+				<div style="color:red;">Error: {{ value }}</div>
+			{% endfor %} 
+		{%endif%}
 	
 		<form  method="post" >
 			<label>Email address:</label><input type="text" name="email"/>
