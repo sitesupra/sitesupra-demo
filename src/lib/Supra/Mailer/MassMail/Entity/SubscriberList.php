@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Mailer\CampaignMonitor\Entity;
+namespace Supra\Mailer\MassMail\Entity;
 
 use Supra\Database\Entity;
 
