@@ -171,6 +171,16 @@ class PageAction extends PageManagerAction
 		if ($publishedData instanceof Entity\Abstraction\Localization) {
 			$isPublished = ($pageData->getRevisionId() == $publishedData->getRevisionId());
 		}
+		
+		$pageLocalizationArray = array();
+		$pageLocalizations = $page->getLocalizations();
+		
+		foreach ($pageLocalizations as $localization) {
+			/* @var $localization Entity\Abstraction\Localization */
+			$pageLocalizationArray[$localization->getLocale()] = array(
+				'page_id' => $localization->getId()
+			);
+		}
 
 		$array = array(
 			'id' => $pageData->getId(),
@@ -191,6 +201,7 @@ class PageAction extends PageManagerAction
 			'created_date' => $createdDate,
 			'created_time' => $createdTime,
 			'global' => $page->getGlobal(),
+			'localizations' => $pageLocalizationArray,
 			'allow_edit' => $isAllowedEditing,
 			'is_visible_in_menu' => $pageData->isVisibleInMenu(),
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),

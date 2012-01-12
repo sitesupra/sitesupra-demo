@@ -6,6 +6,11 @@
 		"type": "page",
 		"locale": "lv_LV",
 		
+		"localizations": {
+			"lv_LV": {"page_id": 20},
+			"ru_LV": {"page_id": 21}
+		},
+		
 		"lock": false,
 		
 		"allow_edit": true,

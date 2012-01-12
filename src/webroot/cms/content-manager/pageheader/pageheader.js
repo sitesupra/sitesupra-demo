@@ -9,7 +9,8 @@ Supra('supra.languagebar', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager,
-		Action = Manager.Action;
+		Action = Manager.Action,
+		Root = Manager.getAction('Root');
 	
 	//Create Action class
 	new Action(Action.PluginContainer, {
@@ -70,9 +71,21 @@ Supra('supra.languagebar', function (Y) {
 			
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					//Change global locale and reload page
-					Supra.data.set('locale', evt.newVal);
-					Supra.Manager.Page.loadPage(Supra.data.get(['page', 'id']));
+					
+					var currentLocale = Supra.data.get('locale');
+					var page = Manager.Page.getPageData();
+					
+					if (evt.newVal in page.localizations) {
+						//Change global locale and reload page
+						Supra.data.set('locale', evt.newVal);
+						
+						var pageId = page.localizations[evt.newVal].page_id;
+						Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
+					} else {
+						//TODO: warning about not exising translation
+						var self = this;
+						window.setTimeout(function() {self.languagebar.set('locale', currentLocale);}, 0);
+					}
 				}
 			}, this);
 		},
@@ -111,6 +124,8 @@ Supra('supra.languagebar', function (Y) {
 			
 			var locale = Supra.data.get('locale');
 			this.languagebar.set('locale', locale);
+			
+			//TODO: hide the languages the page doesn't have
 		}
 	});
 	
