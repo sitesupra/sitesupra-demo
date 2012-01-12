@@ -173,6 +173,20 @@ abstract class PageManagerAction extends CmsAction
 			$pageId = $this->getRequestParameter('page_id');
 			throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
 		}
+		
+		// Handle issue when page requested with wrong locale
+		$pageLocaleId = $this->pageData->getLocale();
+		$expectedLocaleId = $this->getLocale()->getId();
+		
+		/*
+		 * Set the system current locale if differs from 'locale' parameter received.
+		 * This is done for BACK button to work after navigating to page with different language.
+		 * NB! this change won't be saved in the currrent locale browser cookie storage.
+		 */
+		if ($expectedLocaleId != $pageLocaleId) {
+			ObjectRepository::getLocaleManager($this)
+				->setCurrent($pageLocaleId);
+		}
 
 		return $this->pageData;
 	}
@@ -356,6 +370,15 @@ abstract class PageManagerAction extends CmsAction
 			if ( ! is_null($scheduleTime)) {
 				$array['scheduled'] = true;
 			}
+			
+			$array['global_disabled'] = false;
+			
+			$localizations = $page->getLocalizations()->count();
+			
+			if($localizations > 1) {
+				$array['global_disabled'] = true;
+			}
+			
 		}
 
 		// Node type
@@ -863,15 +886,18 @@ abstract class PageManagerAction extends CmsAction
 						->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
 			}
 
-			$newLocalizationId = $localization->getId();
-			
-			return $newLocalizationId;
+			return $localization;
 		};
 		
-		$newLocalizationId = $em->transactional($cloneLocalization);
-
+		$newLocalization = $em->transactional($cloneLocalization);
+		if ($newLocalization instanceof Entity\TemplateLocalization) {
+			$this->pageData = $newLocalization;
+			$this->publish();
+		}
+		
 		$this->getResponse()
-				->setResponseData(array('id' => $newLocalizationId));
+				->setResponseData(array('id' => $newLocalization->getId()));
+		
 	}
 
 	/**

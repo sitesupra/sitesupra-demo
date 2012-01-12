@@ -1,4 +1,7 @@
 {
 	"status": 1,
-	"data": 20
+	"data": {
+		'locale': 'lv_LV',
+		'page_id': 20
+	}
 }

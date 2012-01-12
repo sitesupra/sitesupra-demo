@@ -18,6 +18,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPoli
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\User\Entity\Group;
 use Supra\Cms\Exception\CmsException;
+use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
 /**
  * Sitemap
@@ -232,8 +233,8 @@ class UserAction extends InternalUserManagerAbstractAction
 			$user->setEmail($email);
 		}
 		
-		if ($input->has('avatar')) {
-			$avatar = $input->get('avatar');
+		if ($input->has('avatar_id')) {
+			$avatar = $input->getValid('avatar_id', \Supra\Validator\Type\AbstractType::SMALLINT);
 			$user->setAvatar($avatar);
 		}
 
@@ -269,7 +270,8 @@ class UserAction extends InternalUserManagerAbstractAction
 		if ($user instanceof Entity\User) {
 			$response['email'] = $user->getEmail();
 			$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
-			$response['avatar'] = $user->getAvatar();
+			$response['avatar_id'] = $user->getAvatar();
+			$response['avatar'] = UseravatarAction::getAvatarExternalPath($response['avatar_id'], '48x48');
 		}
 		else {
 			$response['email'] = 'N/A';

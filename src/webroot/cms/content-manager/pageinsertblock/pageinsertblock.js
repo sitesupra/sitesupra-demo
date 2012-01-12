@@ -86,6 +86,11 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 			
 			for(; i<ii; i++) {
 				var block = data_all[i];
+				
+				if (block.hidden) {
+					continue;
+				}
+				
 				var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Escape.html(block.description) + '" /><label>' + Y.Escape.html(block.title) + '</label></li>');
 				
 				contents[block.group].append(node);

@@ -1,23 +1,64 @@
 {%if action == 'subscribe' %}
 
-	{%if (postedData != true  and errors is null) %}
+	<h1>Subscribe Action</h1>	
+	
+	{%if (postedData != true  or error is not null) %}
+
+		{% if error is not null %}
+			{% for key, value in error %}				
+				<div style="color:red;">Error: {{ value }}</div>
+			{% endfor %} 
+		{%endif%}
+	
 		<form  method="post" >
-			<label>Name:</label><input type="text" name="name"/>
+			<label>Name:</label><input type="text" name="name" value="{{name}}"/>
 			<br/>
-			<label>Email address:</label><input type="text" name="email"/>
+			<label>Email address:</label><input type="text" name="email" value="{{email}}"/>
 			<br/>
 			<button type="submit">Submit</button>
 		</form>
+
 	{%else%}
-		Subscribtion confirmation email send on {{ email }}
+		<h1>Subscribtion confirmation email send on {{ email }}</h1>
 	{%endif%}
 		
 {%elseif action == 'unsubscribe' %}
-	<form  method="post" >
-		<label>Email address:</label><input type="text" name="email"/>
-	</form>
-{%elseif action == 'confirmsubscribe' %}
-
-{%elseif action == 'confirmunsubscribe' %}
-
+		
+	<h1>Unsubscribe Action</h1>	
+	
+	{%if (postedData != true or error is not null) %}
+	
+		{% if error is not null %}
+			{% for key, value in error %}				
+				<div style="color:red;">Error: {{ value }}</div>
+			{% endfor %} 
+		{%endif%}
+	
+		<form  method="post" >
+			<label>Email address:</label><input type="text" name="email"/>
+			<button type="submit">Submit</button>
+		</form>
+	
+	{%else%} 
+	
+		<h1>Unsubscribe confirmation email send on {{ email }}</h1>
+	
+	{%endif%}
+		
+{%elseif action == 'confirm_subscribe' %}
+<h1>		
+		{%if error == true %}
+			Incorrect url or your link is expired.
+		{%else%}
+			Your subscription confirmed.
+		{%endif%}
+			
+{%elseif action == 'confirm_unsubscribe' %}
+			
+		{%if error == true %}
+			Incorrect url or your link is expired.
+		{%else%}
+			You succesfully unsubscribed.
+		{%endif%}
+</h1>		
 {%endif%}

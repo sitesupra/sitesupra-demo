@@ -213,7 +213,7 @@ abstract class Entity
 	/**
 	 * Time sortable ID
 	 */
-	public static function generateId($className) 
+	public static function generateId($className = '') 
 	{
 		$time = microtime(true) - 1324027985;
 		$time = (int) (1000 * $time);

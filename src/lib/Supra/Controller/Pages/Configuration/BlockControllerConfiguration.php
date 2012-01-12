@@ -60,6 +60,12 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	public $controllerClass;
 
 	/**
+	 * Should be block hidden from block menu or not
+	 * @var boolean
+	 */
+	public $hidden = false;
+	
+	/**
 	 * Adds block configuration to block controller collection
 	 */
 	public function configure()

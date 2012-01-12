@@ -166,8 +166,6 @@ class SitemapAction extends PageManagerAction
 
 				//TODO: pass to client if there are any hidden pages
 
-			} elseif ($page instanceof Entity\TemporaryGroupPage) {
-				$children = $page->getChildren();
 			} else {
 				$children = $page->getChildren();
 			}

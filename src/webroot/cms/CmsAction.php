@@ -273,35 +273,13 @@ abstract class CmsAction extends SimpleController
 	}
 
 	/**
-	 * Will return Locale object specified by request params or default
+	 * Return current locale
 	 * @return Locale
 	 */
 	protected function getLocale()
 	{
-		$locale = null;
 		$localeManager = ObjectRepository::getLocaleManager($this);
-
-		$request = $this->request;
-		/* @var $request HttpRequest */
-
-		$requestedLocaleId = $request->getPostValue('locale');
-
-		if (empty($requestedLocaleId)) {
-			$requestedLocaleId = $request->getQueryValue('locale');
-		}
-
-		if ( ! empty($requestedLocaleId)) {
-			try {
-				$locale = $localeManager->getLocale($requestedLocaleId);
-			}
-			catch (\Exception $e) {
-				$this->log->error("CmsAction: locale '$requestedLocaleId' is missing for request '{$this->request->getActionString()}'");
-				$locale = $localeManager->getCurrent();
-			}
-		}
-		else {
-			$locale = $localeManager->getCurrent(); // get default (current)
-		}
+		$locale = $localeManager->getCurrent();
 
 		return $locale;
 	}

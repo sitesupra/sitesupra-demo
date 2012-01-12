@@ -12,6 +12,7 @@ use Supra\Authorization\Exception\ConfigurationException as AuthorizationConfigu
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\InternalUserManager\ApplicationConfiguration;
+use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
 /**
  * Sitemap
@@ -66,7 +67,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 			$result[] = array(
 				'id' => $user->getId(),
-				'avatar' => $user->getAvatar(),
+				'avatar' => UseravatarAction::getAvatarExternalPath($user->getAvatar(), '48x48'),
 				'name' => $user->getName(),
 				'group' => $this->dummyGroupMap[$user->getGroup()->getName()]
 			);

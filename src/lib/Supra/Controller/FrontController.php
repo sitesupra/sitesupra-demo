@@ -170,6 +170,14 @@ class FrontController
 			$router->finalizeRequest($request);
 		}
 		
+		if ( ! is_null($router)) {
+			$objectRepositoryCaller = $router->getObjectRepositoryCaller();
+			
+			if ( ! empty($objectRepositoryCaller)) {
+				ObjectRepository::setCallerParent($controller, $objectRepositoryCaller);
+			}
+		}
+		
 		$controllerClass = get_class($controller);
 		
 		try {

@@ -860,6 +860,7 @@ class FileStorage
 			
 			// get file dir
 			$pathNodes = $file->getAncestors(0, false);
+			$pathNodes = array_reverse($pathNodes);
 			
 			foreach ($pathNodes as $pathNode) {
 				/* @var $pathNode Entity\Folder */

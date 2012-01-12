@@ -9,10 +9,16 @@ use Supra\Log\Log;
 use Supra\ObjectRepository\ObjectRepository;
 
 /**
- * Path locale detector
+ * Request parameter locale detector
  */
-class PathLocaleDetector extends DetectorAbstraction
+class ParameterLocaleDetector extends DetectorAbstraction
 {
+	/**
+	 * Parameter name used to pass the locale ID
+	 * @var string
+	 */
+	private $parameterName = 'locale';
+	
 	/**
 	 * Detects the current locale
 	 * @param RequestInterface $request
@@ -29,14 +35,18 @@ class PathLocaleDetector extends DetectorAbstraction
 		
 		$localeManager = ObjectRepository::getLocaleManager($this);
 	
-		$path = $request->getPath();
-		$list = $path->getPathList();
+		$post = $request->getPost();
+		$query = $request->getQuery();
+		$localeId = null;
 		
-		if (!empty($list) && !empty($list[0])) {
-			$localeId = $list[0];
-			
+		if ( ! $post->isEmpty($this->parameterName)) {
+			$localeId = $post->get($this->parameterName);
+		} else {
+			$localeId = $query->get($this->parameterName, null);
+		}
+		
+		if ( ! is_null($localeId)) {
 			if ($localeManager->exists($localeId, false)) {
-				$path->setBasePath(new \Supra\Uri\Path($localeId));
 				return $localeId;
 			}
 		}

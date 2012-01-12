@@ -134,5 +134,24 @@ class TwigHelper
 
 		return $locale;
 	}
+	
+	/**
+	 * @return Info
+	 */
+	public function getInfo()
+	{
+		$info = ObjectRepository::getSystemInfo($this);
+		
+		return $info;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getHost()
+	{
+		return $this->getInfo()
+				->getHostName(\Supra\Info::WITH_SCHEME);
+	}
 
 }

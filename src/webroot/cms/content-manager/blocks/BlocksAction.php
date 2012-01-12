@@ -31,7 +31,7 @@ class BlocksAction extends PageManagerAction
 		$isDefaultGroupSet = false;
 		$defaultGroupKey = 0;
 		$groupIds = array();
-		foreach ($groupConfigurationList as $groupId => $group) {
+		foreach ($groupConfigurationList as $group) {
 			/* @var $group \Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration */
 
 			$isDefaultGroup = $group->default;
@@ -60,7 +60,12 @@ class BlocksAction extends PageManagerAction
 		}
 
 		if (empty($response['groups'])) {
-			throw new ConfigurationMissing('At least one block group should be configured');
+//			throw new ConfigurationMissing('At least one block group should be configured');
+			
+			$response['groups'][] = array(
+				'id' => 'all_blocks',
+				'title' => 'All Blocks',
+			);
 		}
 
 		if ( ! $isDefaultGroupSet) {
@@ -72,7 +77,7 @@ class BlocksAction extends PageManagerAction
 
 			$blockGroup = $conf->groupId;
 			if (empty($blockGroup) || ! in_array($blockGroup, $groupIds)) {
-				$logger->warn("Block \"{$conf->id}#{$conf->title}\" has empty group id or there is no group with such id. Block will be added into default group");
+				$logger->debug("Block \"{$conf->id}#{$conf->title}\" has empty group id or there is no group with such id. Block will be added into default group");
 				$blockGroup = $response['groups'][$defaultGroupKey]['id'];
 			}
 
@@ -103,6 +108,7 @@ class BlocksAction extends PageManagerAction
 				'icon' => $conf->iconWebPath,
 				'classname' => $conf->cmsClassname,
 				'properties' => $properties,
+				'hidden' => $conf->hidden,
 			);
 		}
 

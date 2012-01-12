@@ -52,6 +52,12 @@ abstract class RouterAbstraction implements RouterInterface
 	protected $priorityDiff;
 	
 	/**
+	 * What caller should be used to access object repository
+	 * @var mixed
+	 */
+	protected $objectRepositoryCaller;
+	
+	/**
 	 * @return integer 
 	 */
 	public function getPriorityDiff()
@@ -161,4 +167,19 @@ abstract class RouterAbstraction implements RouterInterface
 		
 	}
 
+	/**
+	 * @return mixed
+	 */
+	public function getObjectRepositoryCaller()
+	{
+		return $this->objectRepositoryCaller;
+	}
+
+	/**
+	 * @param mixed $objectRepositoryCaller
+	 */
+	public function setObjectRepositoryCaller($objectRepositoryCaller)
+	{
+		$this->objectRepositoryCaller = $objectRepositoryCaller;
+	}
 }
