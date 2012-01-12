@@ -340,20 +340,33 @@ YUI.add('supra.iframe-handler', function (Y) {
 					target = target.ancestor('a');
 				}
 				if (target && (href = target.get('href')) && !local_links.test(href)) {
-					if (href.search(document.location.protocol + '//' + document.location.host) == -1) {
+					
+					var regExp = new RegExp('^' + document.location.protocol 
+						+ '//' 
+						+ document.location.host.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
+						+ '($|/)', 'i');
+					
+					if (!regExp.test(href)) {
 						//External link
 						window.open(href);
 					} else if (!Action.isEditing()) {
 						//If is editing, then don't change page
-						href = href.replace(document.location.protocol + '//' + document.location.host, '');
 						
 						Manager.Page.getPageIdFromPath(href, function (data, status) {
-							if (status && data && data != Supra.data.get(['page', 'id'])) {
-								//Stop editing
-								Action.stopEditing();
-								
-								//Change path
-								Root.save(Root.ROUTE_PAGE.replace(':page_id', data));
+							if (status && data && data.page_id) {
+								if (data.page_id != Supra.data.get(['page', 'id'])) {
+									
+									Supra.data.set('locale', data.locale);
+									
+									//Stop editing
+									Action.stopEditing();
+
+									//Change path
+									Root.save(Root.ROUTE_PAGE.replace(':page_id', data.page_id));
+								}
+							} else {
+								//TODO: open the link in the new tab or show message with link to the page
+								window.open(href);
 							}
 						});
 					}

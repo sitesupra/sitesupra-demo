@@ -21,6 +21,8 @@ use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
 use Supra\Controller\Pages\Exception\InvalidBlockException;
 use Supra\Controller\Pages\BrokenBlockController;
+use Supra\Uri\Path;
+use Supra\Locale\Locale;
 
 /**
  * 
@@ -34,10 +36,13 @@ class PageAction extends PageManagerAction
 	public function pageAction()
 	{
 		$controller = $this->getPageController();
-		$localeId = $this->getLocale()->getId();
 		$pageData = $this->getPageLocalization();
+		
+		// Use page localization locale, still current CmsAction locale should be the same already
+		$localeId = $pageData->getLocale();
+		
 		$pageId = $pageData->getId();
-
+		
 		// Create special request
 		$request = $this->getPageRequest();
 
@@ -46,6 +51,7 @@ class PageAction extends PageManagerAction
 
 		$page = $pageData->getMaster();
 
+		// Can this really happen?
 		if (empty($page)) {
 			$this->getResponse()
 					->setErrorMessage("Page does not exist");
@@ -54,16 +60,6 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->setInitialPageId($pageId);
-
-		/* @var $pageData Entity\Abstraction\Localization */
-		$pageData = $page->getLocalization($localeId);
-
-		if (empty($pageData)) {
-			$this->getResponse()
-					->setErrorMessage("Page does not exist");
-
-			return;
-		}
 
 		$isAllowedEditing = true;
 		try {
@@ -102,7 +98,7 @@ class PageAction extends PageManagerAction
 		$createdDate = null;
 		$createdTime = null;
 		$globalDisabled = false;
-		
+
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
 
@@ -156,9 +152,9 @@ class PageAction extends PageManagerAction
 				$createdDate = $createdDateTime->format('Y-m-d');
 				$createdTime = $createdDateTime->format('H:i:s');
 			}
-			
+
 			$localizations = $page->getLocalizations()->count();
-			if($localizations > 1) {
+			if ($localizations > 1) {
 				$globalDisabled = true;
 			}
 		}
@@ -168,7 +164,7 @@ class PageAction extends PageManagerAction
 		if ($page instanceof Entity\Template) {
 			$type = 'template';
 		}
-		
+
 		$publicEm = ObjectRepository::getEntityManager('#public');
 		$publishedData = $publicEm->find(Entity\Abstraction\Localization::CN(), $pageData->getId());
 		$isPublished = false;
@@ -178,6 +174,7 @@ class PageAction extends PageManagerAction
 
 		$array = array(
 			'id' => $pageData->getId(),
+			'locale' => $localeId,
 			'title' => $pageData->getTitle(),
 			'path' => $pathPart,
 			'path_prefix' => $pathPrefix,
@@ -267,7 +264,7 @@ class PageAction extends PageManagerAction
 							->controllerClass;
 					$block->setComponentName($componentName);
 				}
-				
+
 				$block->prepareController($controller, $request, $responseContext);
 
 				$blockData = array(
@@ -614,18 +611,36 @@ class PageAction extends PageManagerAction
 		$localizationEntity = Entity\PageLocalization::CN();
 
 		$path = $input->get('page_path');
+		$path = parse_url($path, PHP_URL_PATH);
 		$path = trim($path, '/');
-		$locale = $input->get('locale');
+		$localeId = null;
 
-		//TODO: the locale detection from URL could differ in fact
-		// Remove locale prefix
-		if ($path == $locale || strpos($path, $locale . '/') === 0) {
-			$path = substr($path, strlen($locale) + 1);
+		$path = new Path($path);
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$locales = $localeManager->getLocales();
+		
+		foreach ($locales as $locale) {
+			/* @var $locale Locale */
+			
+			$localeId = $locale->getId();
+			$pathPrefix = new Path($localeId);
+			
+			if ($path->startsWith($pathPrefix)) {
+				$path->setBasePath($pathPrefix);
+				$locale = $localeId;
+				break;
+			}
 		}
-
+		
+		if (is_null($localeId)) {
+			$localeId = $input->get('locale');
+		}
+		
+		$pagePath = $path->getPath(Path::FORMAT_NO_DELIMITERS);
+		
 		$criteria = array(
-			'path' => $path,
-			'locale' => $locale,
+			'path' => $pagePath,
+			'locale' => $localeId,
 		);
 
 		try {
@@ -634,11 +649,17 @@ class PageAction extends PageManagerAction
 					->setParameters($criteria)
 					->getSingleResult();
 			$pageId = $pageLocalization->getId();
+			
+			// TODO: pass locale to JS as well
+			$response = array(
+				'page_id' => $pageId,
+				'locale' => $localeId,
+			);
 
-			$this->getResponse()->setResponseData($pageId);
+			$this->getResponse()->setResponseData($response);
 		} catch (NoResultException $noResult) {
-			$this->log->warn("No page found by URL $path in locale $locale");
-			throw new CmsException(null, 'No page was found by the URL');
+			
+			return;
 		}
 	}
 

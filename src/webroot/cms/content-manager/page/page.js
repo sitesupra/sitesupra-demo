@@ -192,11 +192,17 @@ Supra(function (Y) {
 		 */
 		onLoadComplete: function (data, status) {
 			this.loading = false;
+			var allow_edit = false;
 			
 			//Is user authorized to edit page?
 			if (status && data) {
-				var allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
+				allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
 								 Supra.Authorization.isAllowed(['page', 'edit'], true);
+			}
+			
+			// Change current locale
+			if (status && data && data.locale) {
+				Supra.data.set('locale', data.locale);
 			}
 			
 			if (allow_edit) {
