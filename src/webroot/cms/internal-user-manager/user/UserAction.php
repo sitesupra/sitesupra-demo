@@ -234,8 +234,10 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 		
 		if ($input->has('avatar_id')) {
-			$avatar = $input->getValid('avatar_id', \Supra\Validator\Type\AbstractType::SMALLINT);
-			$user->setAvatar($avatar);
+			$avatar = $input->get('avatar_id');
+			if ($user->setAvatar($avatar)) {
+				$user->setPersonalAvatar(false);
+			}
 		}
 
 		try {
@@ -270,8 +272,10 @@ class UserAction extends InternalUserManagerAbstractAction
 		if ($user instanceof Entity\User) {
 			$response['email'] = $user->getEmail();
 			$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
-			$response['avatar_id'] = $user->getAvatar();
-			$response['avatar'] = UseravatarAction::getAvatarExternalPath($response['avatar_id'], '48x48');
+			if( ! $user->isPersonalAvatar()) {
+				$response['avatar_id'] = $user->getAvatar();
+			}
+			$response['avatar'] = UseravatarAction::getAvatarExternalPath($user, '48x48');
 		}
 		else {
 			$response['email'] = 'N/A';
