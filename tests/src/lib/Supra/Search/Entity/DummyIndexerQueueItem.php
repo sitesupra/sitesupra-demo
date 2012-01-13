@@ -15,7 +15,7 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 {
 
 	/**
-	 * @Column(type="sha1")
+	 * @Column(type="supraId20")
 	 * @var string
 	 */
 	protected $dummyId;

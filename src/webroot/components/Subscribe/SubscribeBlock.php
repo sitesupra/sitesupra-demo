@@ -11,7 +11,7 @@ use Supra\Mailer\Message;
 use Supra\Mailer\Message\TwigMessage;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
-use Supra\Mailer\CampaignMonitor\Entity\Subscriber;
+use Supra\Mailer\MassMail\Entity\Subscriber;
 use Supra\Validator\Exception;
 
 /**
@@ -292,7 +292,7 @@ class SubscribeBlock extends BlockController
 	 * Confirm subscriber - set it as active
 	 * @param string $email
 	 * @param string $hash
-	 * @return \Supra\Mailer\CampaignMonitor\Entity\Subscriber 
+	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
 	 */
 	protected function confirmSubscribe($email, $hash)
 	{
@@ -315,7 +315,7 @@ class SubscribeBlock extends BlockController
 	 * Unsubscribe user 
 	 * @param string $email
 	 * @param string $hash
-	 * @return \Supra\Mailer\CampaignMonitor\Entity\Subscriber 
+	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
 	 */
 	protected function confirmUnsubscribe($email, $hash)
 	{
@@ -354,13 +354,13 @@ class SubscribeBlock extends BlockController
 	 * @param string $email
 	 * @param string|null $hash
 	 * @param bool|null $active
-	 * @return Supra\Mailer\CampaignMonitor\Entity\Subscriber[]
+	 * @return Supra\Mailer\MassMail\Entity\Subscriber[]
 	 */
 	private function getSubscriber($email, $hash = null, $active = null)
 	{
 
 		$entityManager = ObjectRepository::getEntityManager($this);
-		$repo = $entityManager->getRepository('Supra\Mailer\CampaignMonitor\Entity\Subscriber');
+		$repo = $entityManager->getRepository('Supra\Mailer\MassMail\Entity\Subscriber');
 
 		$params = array('emailAddress' => $email);
 
@@ -398,7 +398,7 @@ class SubscribeBlock extends BlockController
 	 * Create new subscriber
 	 * @param string $email
 	 * @param string $subscriberName
-	 * @return \Supra\Mailer\CampaignMonitor\Entity\Subscriber 
+	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
 	 */
 	private function createSubscriber($email, $subscriberName)
 	{

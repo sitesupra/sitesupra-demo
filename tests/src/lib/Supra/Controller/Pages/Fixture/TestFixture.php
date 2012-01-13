@@ -11,6 +11,10 @@ class TestFixture extends \PHPUnit_Extensions_OutputTestCase
 {
 	public function testFixture()
 	{
+		throw new \LogicException("This script is not in working condition right now. "
+				. "It tries to write draft in test_* tables and publish in su_* tables. "
+				. "Also it removes pages from audit and public schemes.");
+		
 		// Find the test entity manager
 		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
 		$helper = new FixtureHelper($em);

@@ -12,7 +12,7 @@ use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Controller\Pages\Listener;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Doctrine\DBAL\Types\Type;
-use Supra\Database\Doctrine\Type\Sha1HashType;
+use Supra\Database\Doctrine\Type\SupraIdType;
 use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
 use Supra\Database\Doctrine\Type\TemplateType;
@@ -72,7 +72,7 @@ $eventManager->addEventListener(array(Events::loadClassMetadata), new Supra\Test
 
 $em = EntityManager::create($connectionOptions, $config, $eventManager);
 $em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
-$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(Sha1HashType::NAME));
+$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(SupraIdType::NAME));
 $em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
 $em->_mode = 'test';
 

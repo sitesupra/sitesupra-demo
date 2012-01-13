@@ -16,6 +16,25 @@ use Supra\Configuration\ConfigurationInterface;
 class ComponentConfigurationLoader
 {
 	/**
+	 * Lowest caching level, means no cache at all
+	 */
+	const CACHE_LEVEL_NO_CACHE = 0;
+	
+	/**
+	 * Caching level which assumes, that cache will expire 
+	 * on file modification time change
+	 */
+	const CACHE_LEVEL_EXPIRE_BY_MODIFICATION = 1;
+	
+	/**
+	 * Highest caching level, means no cache expiring at all
+	 */
+	const CACHE_LEVEL_NO_EXPIRE = 2;
+	
+	
+	const CACHE_NAMESPACE = 'conf_';
+	
+	/**
 	 * @var WriterAbstraction
 	 */
 	protected $log;
@@ -32,6 +51,16 @@ class ComponentConfigurationLoader
 	private $parser;
 	
 	/**
+	 * @var integer
+	 */
+	protected $cacheLevel = self::CACHE_LEVEL_NO_CACHE;
+	
+	/**
+	 * @var MemcacheCache
+	 */
+	private $cacheAdapter;
+	
+	/**
 	 * @param ParserInterface $parser
 	 */
 	public function __construct(ParserInterface $parser = null)
@@ -41,6 +70,8 @@ class ComponentConfigurationLoader
 		if ( ! is_null($parser)) {
 			$this->setParser($parser);
 		}
+		
+		$this->cacheAdapter = ObjectRepository::getCacheAdapter($this);
 	}
 	
 	/**
@@ -73,12 +104,18 @@ class ComponentConfigurationLoader
 		
 		$data = null;
 		
-		try {
-			$data = $this->parser->parseFile($configurationFile);
-		} catch (Exception\ConfigurationException $e) {
-			throw new Exception\InvalidConfiguration("Configuration file "
-					. $this->configurationFile 
-					. " could not be parsed", null, $e);
+		$data = $this->getCachedData($configurationFile);
+		
+		if (empty($data)) {
+			try {
+				$data = $this->parser->parseFile($configurationFile);
+			} catch (Exception\ConfigurationException $e) {
+				throw new Exception\InvalidConfiguration("Configuration file "
+						. $this->configurationFile 
+						. " could not be parsed", null, $e);
+			}
+			
+			$this->storeData($data);
 		}
 		
 		foreach ($data as $item) {
@@ -178,5 +215,65 @@ class ComponentConfigurationLoader
 	{
 		return $this->configurationFile;
 	}
+	
+	/**
+	 * Returns cached data for $fileName if caching is enabled and cache exists
+	 * 
+	 * @param string $id
+	 * @return mixed
+	 */
+	protected function getCachedData($fileName)
+	{
+		if ($this->cacheLevel == self::CACHE_LEVEL_NO_CACHE) {
+			return null;
+		}
+		
+		$data = null;
+		
+		$id = $this->_getCacheIdByName($fileName);
+		$data = $this->cacheAdapter->fetch($id);
+		
+		return $data;
+	}
+
+
+	/**
+	 * Store parsed config array
+	 * 
+	 * @param array $data
+	 * @return boolean
+	 */
+	protected function storeData($data)
+	{
+		if ($this->cacheLevel == self::CACHE_LEVEL_NO_CACHE) {
+			return;
+		}
+		
+		$id = $this->_getCacheIdByName($this->configurationFile);
+
+		return $this->cacheAdapter->save($id, $data);
+	}
+	
+	/**
+	 * @param int $level 
+	 */
+	public function setCacheLevel($level)
+	{
+		$this->cacheLevel = $level;
+	}
+	
+	/**
+	 * Helper method to get unique string for config file
+	 * @return string
+	 */
+	private function _getCacheIdByName($fileName) 
+	{
+		$modificationTime = null;
+		if ($this->cacheLevel == self::CACHE_LEVEL_EXPIRE_BY_MODIFICATION && is_readable($fileName)) {
+			$modificationTime = filemtime($fileName);
+		}
+		
+		return md5( self::CACHE_NAMESPACE . $fileName . $modificationTime );
+	} 
 	
 }

@@ -126,12 +126,12 @@ class PageRequestEdit extends PageRequest
 		 * usable proxy class for it otherwise
 		 */
 		/* @var $publicPage Entity\Abstraction\AbstractPage */
-		$publicPage = $publicEm->find(PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+		$publicPage = $publicEm->find(AbstractPage::CN(), $pageId);
 		$oldRedirect = $newRedirect = null;
 				
 		// AbstractPage is not inside the public scheme yet
 		if (empty($publicPage)) {
-//			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
+			throw new Exception\LogicException("Page {$pageId} is not found inside the public scheme");
 		} else {
 			// Remove the old redirect link referenced element
 			$publicData = $publicPage->getLocalization($localeId);
