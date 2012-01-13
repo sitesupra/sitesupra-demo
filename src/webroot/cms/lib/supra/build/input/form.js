@@ -103,6 +103,10 @@ YUI.add("supra.form", function (Y) {
 			
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
+				
+				//suIgnore allows to skip inputs
+				if (input.getAttribute('suIgnore')) continue;
+				
 				var id = input.getAttribute('id') || input.getAttribute('name');
 				var name = input.getAttribute('name') || input.getAttribute('id');
 				var value = input.get("value");
@@ -279,16 +283,25 @@ YUI.add("supra.form", function (Y) {
 			
 			//Find button with "form" attribute which could be in the footer
 			//and add support for IE
-			if (Y.UA.ie) {
+			if (Y.UA.ie && Y.UA.ie <= 9) {
 				var form = this.get('srcNode'),
 					form_id = form.get('id'),
 					button = Y.one('button[form="' + form_id + '"]');
 				
 				if (button && !button.closest(form)) {
+					//On submit call "save"
 					button.on('click', function () {
-						//On submit call "save"
 						this.fire('submit');
 						this.save();
+					}, this);
+					
+					//On input return key call "save"
+					form.all('input[type="text"],input[type="password"]').on('keyup', function (event) {
+						if (event.keyCode == 13) { //Return key
+							this.fire('submit');
+							this.save();
+							event.preventDefault();
+						}
 					}, this);
 				}
 			}

@@ -13,6 +13,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		List = Supra.MediaLibraryList,
 		Template = Supra.Template;
 	
+	/*
+	 * HTML5 support
+	 */
+	var FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
+	
 	/**
 	 * Extended media list
 	 * Handles data loading, scrolling, selection
@@ -467,7 +472,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		handleReplaceClick: function (event /* Event */) {
 			var item = this.getSelectedItem(); 
-			
 			this.upload.openBrowser(item.id);
 		},
 		
@@ -576,10 +580,19 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				inp.btn_replace = btn_replace;
 				
 				btn_download.on('click', this.handleDownloadClick, this);
-				btn_replace.on('click', this.handleReplaceClick, this);
+				
+				if (FILE_API_SUPPORTED) {
+					//
+					btn_replace.on('click', this.handleReplaceClick, this);
+				} else {
+					//Create file upload form
+					this.upload.createLegacyInput(btn_replace, true);
+				}
 				
 				//Create form
 				node.all('input').each(function (item) {
+					if (item.getAttribute('suIgnore')) return;
+					
 					var props = {
 						'srcNode': item,
 						'useReplacement': true,

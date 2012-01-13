@@ -165,7 +165,7 @@ Supra(function (Y) {
 				a	= this.one('div.info a'),
 				b	= this.one('div.info b');
 			
-			img.setAttribute('src', data.avatar);
+			img.setAttribute('src', data.avatar + '?r=' + (+new Date()));
 			a.set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));
 			
 			if (Manager.User.isUser()) {

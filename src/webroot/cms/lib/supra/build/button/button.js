@@ -12,13 +12,13 @@ YUI.add('supra.button', function (Y) {
 	
 	Button.ATTRS = {
 		nodeWrapper: {
-			value: null,
+			value: null
 		},
 		nodeButton: {
-			value: null,
+			value: null
 		},
 		nodeLabel: {
-			value: null,
+			value: null
 		},
 		label: {
 			value: '',
@@ -206,12 +206,14 @@ YUI.add('supra.button', function (Y) {
 			this.on('click', this._onClick, this);
 			
 			//On focus, focus input
+			/*
 			this.on('focusedChange', function (event) {
 				if (event.newVal) {
 					var btn = this.get('nodeButton');
 					if (btn) btn.focus();
 				}
 			}, this);
+			*/
 		},
 		
 		_syncUIStyle: function (name, add) {

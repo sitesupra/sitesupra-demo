@@ -4,7 +4,7 @@
 /**
  * Handles file upload process
  */
-YUI.add('supra.io-upload', function (Y) {
+YUI.add('supra.io-upload-legacy', function (Y) {
 	
 	/*
 	 * http://hacks.mozilla.org/category/fileapi/:
@@ -45,12 +45,21 @@ YUI.add('supra.io-upload', function (Y) {
 		},
 		
 		/**
-		 * File which should be uploaded
+		 * Form element
 		 * @type {Object}
 		 */
-		'file': {
+		'form': {
+			value: null
+		},
+		
+		/**
+		 * Iframe element
+		 * @type {Object}
+		 */
+		'iframe': {
 			value: null
 		}
+		
 	};
 	
 	Y.extend(UploaderIO, Y.Base, {
@@ -66,40 +75,53 @@ YUI.add('supra.io-upload', function (Y) {
 		 * Start file upload
 		 */
 		start: function () {
-			//Use FormData
-			var fd = new FormData(),
-				data = this.get('data') || {},
-				uri = this.get('requestUri'),
-				limit = 500;	//500 MB
+			var uri = this.get('requestUri'),
+				
+				form = this.get('form'),
+				iframe = this.get('iframe'),
+				input = null,
+				
+				limit = 500,					//file size limit
+			  
+				data = {
+					"MAX_FILE_SIZE": limit * 1024 * 1024
+				};
 			
-			fd.append("MAX_FILE_SIZE", limit * 1024 * 1024);
-			fd.append("file", this.get('file'));
-			for(var i in data) fd.append(i, data[i]);
+			//Add data to the form
+			data = Supra.mix(data, this.get('data') || {});
 			
-			var xhr = this.xhr = new XMLHttpRequest();
-			
-			//Progress
-			if ('upload' in xhr) {
-				xhr.upload.addEventListener("progress", Y.bind(this.onProgress, this), false);
+			for(var i in data) {
+				input = Y.Node.create('<input type="hidden" />');
+				input.setAttribute('name', i);
+				input.setAttribute('value', data[i]);
+				form.append(input);
 			}
-
+			
+			//Set action
+			if (!uri.match(/:\/\//)) {
+				uri = document.location.protocol + '//' + document.location.hostname + uri;
+			}
+			
+			form.setAttribute('action', uri);
+			
 			//Send
-			xhr.onload = Y.bind(this.onLoad, this);
-			xhr.open("POST", uri);
-			xhr.send(fd);
+			try {
+				form.submit();
+			} catch (e) {
+				//Error occured
+				this.fire('load', SU.mix({'data': null}, this.get('eventData') || {}));
+				return;
+			}
+			
+			//Listeners
+			iframe.once('load', this.onLoad, this);
 		},
 		
 		/**
 		 * Abort file upload
 		 */
 		abort: function () {
-			if (this.xhr) {
-				this.fire('abort');
-				this.xhr.abort();
-				this.destroy();
-			} else {
-				this.destroy();
-			}
+			//Not possible
 		},
 		
 		/**
@@ -110,7 +132,8 @@ YUI.add('supra.io-upload', function (Y) {
 		 */
 		onLoad: function (evt) {
 			var event_data = this.get('eventData') || {},
-				response = Supra.io.parseResponse(this.get('requestUri'), {'type': 'json'}, this.xhr.responseText);
+				response_text = this.get('iframe').getDOMNode().contentWindow.document.body.innerHTML,
+				response = Supra.io.parseResponse(this.get('requestUri'), {'type': 'json'}, response_text);
 			
 			//Handle error message if there is one
 			Supra.io.handleResponse({}, response);
@@ -126,40 +149,29 @@ YUI.add('supra.io-upload', function (Y) {
 		},
 		
 		/**
-		 * On progress fire event
-		 * 
-		 * @param {Event} evt
-		 * @private
-		 */
-		onProgress: function (evt) {
-			if (evt.lengthComputable) {
-				var percentage = Math.round((evt.loaded * 100) / evt.total),
-					event_data = this.get('eventData');
-				
-				this.fire('progress', SU.mix({
-					'total': evt.total,
-					'loaded': evt.loaded,
-					'percentage': percentage
-				}, event_data));
-			}
-		},
-		
-		/**
 		 * Handle destroy event
 		 * 
 		 * @param {Event} evt
 		 * @private
 		 */
 		onBeforeDestroy: function (evt) {
-			delete(this.xhr);
+			//Remove all hidden fields
+			var form = this.get('form');
+			form.all('input[type="hidden"]').remove();
+			
+			//Unset attributes
+			this.set('form', null);
+			this.set('iframe', null);
+			this.set('data', null);
+			this.set('eventData', null);
 		}
 		
 	});
 	
-	Supra.IOUpload = UploaderIO;
+	Supra.IOUploadLegacy = UploaderIO;
 	
 	//Since this Widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.io-upload-legacy']});
+}, YUI.version, {'requires': ['base', 'json']});

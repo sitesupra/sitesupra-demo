@@ -526,9 +526,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Disable image resizing using handles, FF
 		 */
 		disableImageObjectResizing: function () {
-			try {
-				this.htmleditor.get('doc').execCommand("enableObjectResizing", false, false);
-			} catch (err) {}
+			if (!Y.UA.ie || Y.UA.ie > 9) {
+				try {
+					this.htmleditor.get('doc').execCommand("enableObjectResizing", false, false);
+				} catch (err) {}
+			}
 		},
 			
 		/**
