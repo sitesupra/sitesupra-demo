@@ -38,7 +38,7 @@ Supra(function (Y) {
 		 * Dependancies
 		 * @type {Array}
 		 */
-		DEPENDANCIES: ['Header'],
+		DEPENDANCIES: ['Header', 'PageToolbar', 'PageButtons'],
 		
 		
 		
