@@ -9,6 +9,7 @@ use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
 use Supra\Database\Doctrine\Listener\Timestampable;
+use Supra\AuditLog\TitleTrackingItemInterface;
 
 /**
  * File abstraction
@@ -50,7 +51,7 @@ use Supra\Database\Doctrine\Listener\Timestampable;
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
 abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, 
-		AuthorizedEntityInterface, Timestampable
+		AuthorizedEntityInterface, Timestampable, TitleTrackingItemInterface
 {
 	const PERMISSION_UPLOAD_NAME = 'file_upload';
 	const PERMISSION_UPLOAD_MASK = 256;
@@ -109,6 +110,12 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var integer
 	 */
 	protected $public = true;
+	
+	/**
+	 * @var string
+	 */
+	protected $originalTitle;
+
 
 	/**
 	 * Get left value
@@ -341,6 +348,12 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function setFileName($fileName) 
 	{
 		$result = preg_replace('/\s+/i', ' ', $fileName);
+		
+		// track only first title change
+		if (is_null($this->originalTitle) && ! is_null($this->fileName) && ($this->fileName != $fileName)) {
+			$this->originalTitle = $this->fileName;
+		}
+		
 		$this->fileName = trim($result);
 	}
 
@@ -442,6 +455,28 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		$ap->registerGenericEntityPermission(self::PERMISSION_DELETE_NAME, self::PERMISSION_DELETE_MASK, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_UPLOAD_NAME, self::PERMISSION_UPLOAD_MASK, __CLASS__);
+	}
+	
+	/**
+	 * Used to improve audit log readability
+	 */
+	public function getOriginalTitle()
+	{
+		return $this->originalTitle;
+	}
+	
+	/**
+	 * Wrapper
+	 * @return string
+	 */
+	public function getTitle()
+	{
+		return $this->getFileName();
+	}
+	
+	public function setOriginalTitle($title)
+	{
+		$this->originalTitle = $title;
 	}
 	
 }
