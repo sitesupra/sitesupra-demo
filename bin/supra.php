@@ -25,6 +25,7 @@ $cli->addCommandClasses(array(
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
+	'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
 ));
 
 $cli->setHelperSet($helperSet);
