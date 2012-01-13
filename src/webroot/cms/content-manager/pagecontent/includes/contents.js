@@ -125,9 +125,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//Restore state
 			this.get('iframe').on('ready', function () {
-				var m = null;
-				if (m = Root.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
-					var block = this.getChildById(m[1]);
+				var match = Root.getPath().match(Root.ROUTE_PAGE_CONT_R);
+				if (match) {
+					var block = this.getChildById(match[1]);
 					if (block) {
 						//Need delay to make sure editing state is correctly set
 						//needed only if settings immediately after load
