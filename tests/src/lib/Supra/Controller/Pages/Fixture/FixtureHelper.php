@@ -257,6 +257,9 @@ class FixtureHelper
 		$publicEm->createQuery("DELETE FROM " . Entity\Layout::CN())->execute();
 		
 		$publicEm->createQuery("DELETE FROM " . Entity\PageRevisionData::CN())->execute();
+		
+		$draftEm->createQuery("DELETE FROM " . Entity\PageLocalizationPath::CN())->execute();
+		$publicEm->createQuery("DELETE FROM " . Entity\PageLocalizationPath::CN())->execute();
 	}
 
 	/**
