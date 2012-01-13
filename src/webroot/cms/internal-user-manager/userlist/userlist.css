@@ -95,6 +95,14 @@
 	display: inline-block;
 	vertical-align: middle;
 }
+.userlist-groups li em img,
+.userlist-groups li a img {
+	display: block;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
 .userlist-groups li a,
 .userlist-groups .edit-label a {
 	padding-left: 10px;

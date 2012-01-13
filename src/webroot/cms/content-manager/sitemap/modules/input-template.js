@@ -42,17 +42,35 @@ YUI.add("website.input-template", function (Y) {
 		panel: null,
 		
 		/**
+		 * Templates are loading
+		 * @type {Boolean}
+		 * @private
+		 */
+		loading: false,
+		
+		/**
 		 * Load templates
 		 * 
 		 * @private
 		 */
 		loadTemplates: function () {
+			if (this.loading) return;
+			this.loading = true;
+			
 			var uri = this.get('templateRequestUri');
 			if (!uri) {
 				uri = SU.Manager.getAction('PageSettings').getDataPath('templates');
 			}
 			
-			Supra.io(uri, Y.bind(this.loadTemplatesComplete, this));
+			Supra.io(uri, {
+				'data': {
+					'locale': Supra.Manager.SiteMap.languagebar.get('locale')
+				},
+				'context': this,
+				'on': {
+					'success': this.loadTemplatesComplete
+				}
+			});
 		},
 		
 		/**
@@ -63,8 +81,14 @@ YUI.add("website.input-template", function (Y) {
 		 * @private
 		 */
 		loadTemplatesComplete: function (data, status) {
+			this.loading = false;
 			this.templates = data;
 			this.syncUI();
+			
+			//Sort A-Z
+			data.sort(function (a, b) {
+				return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+			});
 			
 			//Render template list
 			var node_list = this.panel.get('contentBox').one('ul'),
@@ -72,6 +96,7 @@ YUI.add("website.input-template", function (Y) {
 				value = this.get('value');
 			
 			node_list.empty();
+			
 			for(var i=0,ii=data.length; i<ii; i++) {
 				node_item = Y.Node.create('<li data-template="' + data[i].id + '" class="clearfix ' + (data[i].id == value ? 'selected' : '') + '"><div><img src="' + data[i].img + '" alt="" /></div><p>' + Y.Escape.html(data[i].title) + '</p></li>');
 				node_item.setData('templateId', data[i].id);
@@ -175,6 +200,11 @@ YUI.add("website.input-template", function (Y) {
 			//On SiteMap hide remove cached data
 			var SiteMap = Supra.Manager.getAction('SiteMap');
 			if (SiteMap.input_type) {
+				//On locale or type change reset templates, this will force to reload them
+				SiteMap.languagebar.on('localeChange', function (event) {
+					this.templates = null;
+					this.set('value', null);
+				}, this);
 				SiteMap.input_type.on('valueChange', function (event) {
 					this.templates = null;
 					this.set('value', null);
