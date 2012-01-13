@@ -15,7 +15,9 @@ class DailyFileWriter extends FileWriter
 	 */
 	public static $defaultParameters = array(
 		'folder' => \SUPRA_LOG_PATH,
-		'file' => 'supra.%date%.log',
+		'file' => null,
+		'fileBase' => 'supra',
+		'fileExtension' => '.log',
 		'dateFormat' => 'Ymd',
 	);
 	
@@ -41,6 +43,22 @@ class DailyFileWriter extends FileWriter
 		}
 		
 		return $url;
+	}
+	
+	/**
+	 * @return string 
+	 */
+	protected function getFileName()
+	{
+		$file = $this->parameters['file'];
+		
+		if (empty($file)) {
+			$file = $this->parameters['fileBase']
+					. '.%date%'
+					. $this->parameters['fileExtension'];
+		}
+		
+		return $file;
 	}
 
 }

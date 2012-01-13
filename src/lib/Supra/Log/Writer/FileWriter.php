@@ -13,20 +13,41 @@ class FileWriter extends StreamWriter
 	 */
 	public static $defaultParameters = array(
 		'folder' => \SUPRA_LOG_PATH,
-		'file' => 'supra.log',
+		'file' => null,
+		'fileBase' => 'supra',
+		'fileExtension' => '.log',
 	);
 	
 	/**
 	 * Log writer constructor
 	 * @param array $parameters
 	 */
-	function __construct(array $parameters = array())
+	public function __construct(array $parameters = array())
 	{
 		// parent constructor
 		parent::__construct($parameters);
 		
+		$fileName = $this->getFileName(); 
+		
 		// build full url
-		$this->parameters['url'] = rtrim($this->parameters['folder'], '/\\') . DIRECTORY_SEPARATOR . ltrim($this->parameters['file'], '/\\');
+		$this->parameters['url'] = rtrim($this->parameters['folder'], '/\\') 
+				. DIRECTORY_SEPARATOR 
+				// minor sanitizing
+				. str_replace(DIRECTORY_SEPARATOR, '', $fileName);
 	}
 	
+	/**
+	 * @return string 
+	 */
+	protected function getFileName()
+	{
+		$fileName = $this->parameters['file'];
+		
+		if (empty($fileName)) {
+			$fileName = $this->parameters['fileBase']
+					. $this->parameters['fileExtension'];
+		}
+		
+		return $fileName;
+	}
 }
