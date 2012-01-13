@@ -1106,4 +1106,21 @@ class FileStorage
 		return $info;
 	}
 
+		/**
+	 * Retuns folder access mode like "0750"
+	 * @return string 
+	 */
+	public function getFolderAccessMode()
+	{
+		return $this->folderAccessMode;
+	}
+
+	/**
+	 * Retuns file access mode like "0640"
+	 * @return string 
+	 */
+	public function getFileAccessMode()
+	{
+		return $this->fileAccessMode;
+	}
 }

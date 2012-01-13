@@ -6,10 +6,12 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Uri\NullPath;
+use Doctrine\ORM\NoResultException;
 
 /**
  * @Entity
@@ -51,7 +53,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	protected $title;
 	
 	/**
-	 * Page localization ID to keep link data without existant real page.
+	 * Page master ID to keep link data without existant real page.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
 	 * @Column(type="supraId20", nullable="true")
 	 * @var string
@@ -65,6 +67,12 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $fileId;
+	
+	/**
+	 * Internally cached page localization
+	 * @var PageLocalization
+	 */
+	private $pageLocalization;
 	
 	/**
 	 * @return string
@@ -195,6 +203,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setPageId($pageId)
 	{
+		$this->pageLocalization = null;
 		$this->pageId = $pageId;
 	}
 
@@ -213,7 +222,17 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->fileId = $fileId;
 	}
-	
+
+	/**
+	 * Method to override the used page localization
+	 * @param PageLocalization $pageLocalization 
+	 */
+	public function setPageLocalization(PageLocalization $pageLocalization)
+	{
+		$this->pageLocalization = $pageLocalization;
+		$this->pageId = $pageLocalization->getMaster()->getId();
+	}
+
 	/**
 	 * {@inheritdoc}
 	 * @return array
@@ -225,7 +244,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'resource' => $this->resource,
 			'title' => $this->title,
 			'target' => $this->target,
-			'page_id' => $this->pageId,
+			'page_master_id' => $this->pageId,
 			'file_id' => $this->fileId,
 			'href' => $this->href,
 		);
@@ -242,9 +261,11 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->resource = $array['resource'];
 		$this->title = $array['title'];
 		$this->target = $array['target'];
-		$this->pageId = $array['page_id'];
+		$this->pageId = $array['page_master_id'];
 		$this->fileId = $array['file_id'];
 		$this->href = $array['href'];
+		
+		$this->pageLocalization = null;
 	}
 	
 	/**
@@ -256,20 +277,44 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			return;
 		}
 		
-		$em = ObjectRepository::getEntityManager($this);
-		$pageData = $em->find(Localization::CN(), $this->pageId);
+		if ( ! is_null($this->pageLocalization)) {
+			return $this->pageLocalization;
+		}
 		
-		if (empty($pageData)) {
+		$em = ObjectRepository::getEntityManager($this);
+		
+		$pageData = null;
+		$localizationEntity = Localization::CN();
+		$localeId = ObjectRepository::getLocaleManager($this)
+				->getCurrent()
+				->getId();
+		
+		$criteria = array(
+			'master' => $this->pageId,
+			'locale' => $localeId,
+		);
+		
+		// Now master page ID is stored, still the old implementation is working
+		$dql = "SELECT l FROM $localizationEntity l 
+				WHERE (l.master = :master AND l.locale= :locale) 
+				OR l.id = :master";
+		
+		try {
+			$pageData = $em->createQuery($dql)
+					->setParameters($criteria)
+					->getSingleResult();
+		} catch (NoResultException $noResult) {
+			
+			// Special case for group page selection when no localization exists in database
 			$master = $em->find(GroupPage::CN(), $this->pageId);
 			
 			if ($master instanceof GroupPage) {
-				//FIXME: somehow better?
-				$locale = ObjectRepository::getLocaleManager($this)
-						->getCurrent()
-						->getId();
-				$pageData = $master->getLocalization($locale);
+				$pageData = $master->getLocalization($localeId);
 			}
 		}
+		
+		// Cache the result
+		$this->pageLocalization = $pageData;
 		
 		return $pageData;
 	}
@@ -347,8 +392,14 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				break;
 			
 			case self::RESOURCE_RELATIVE_PAGE:
-				$pageChildren = $this->getPage()
-						->getPublicChildren();
+				$page = $this->getPage();
+				
+				if (is_null($page)) {
+					$this->log()->warn("No page ID set or found for relative link #", $this->getId());
+					throw new ResourceNotFoundException("Invalid redirect");
+				}
+				
+				$pageChildren = $page->getPublicChildren();
 				
 				if ( ! $pageChildren->isEmpty()) {
 					$type = $this->getHref();

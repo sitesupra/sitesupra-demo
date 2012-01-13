@@ -121,7 +121,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		if ( ! empty($this->previousDocument)) {
 
-			$ancestorIds = $this->previousDocument->ancestorIds;
+			$ancestorIds = (array) $this->previousDocument->ancestorIds;
 			$this->previousParentId = array_shift($ancestorIds);
 		}
 

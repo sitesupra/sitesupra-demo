@@ -596,6 +596,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				'href': value,
 				'resource': "relative",
 				'page_id': this.page_data['id'],
+				'page_master_id': this.page_data['master_id'],
 				'title': (value == "first" ? 'First child' : 'Last child')
 			};
 			

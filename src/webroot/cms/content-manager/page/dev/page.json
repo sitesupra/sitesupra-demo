@@ -2,6 +2,7 @@
 	"status": 1,
 	"data": {
 		"id": <?php echo (!empty($_GET['page_id']) ? $_GET['page_id'] : 1); ?>,
+		"master_id": 123,
 		
 		"type": "page",
 		"locale": "lv_LV",
