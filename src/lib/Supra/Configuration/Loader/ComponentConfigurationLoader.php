@@ -9,7 +9,6 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
 use Supra\Configuration\ConfigurationInterfaceParserCallback;
 use Supra\Configuration\ConfigurationInterface;
-use Doctrine\Common\Cache\Cache;
 
 /**
  * Component configuration loader
@@ -54,7 +53,7 @@ class ComponentConfigurationLoader
 	protected $cacheLevel = self::CACHE_LEVEL_NO_CACHE;
 	
 	/**
-	 * @var Cache
+	 * @var Doctrine\Common\Cache\Cache
 	 */
 	private $cacheAdapter;
 	
@@ -68,7 +67,7 @@ class ComponentConfigurationLoader
 		if ( ! is_null($parser)) {
 			$this->setParser($parser);
 		}
-		
+
 		$this->cacheAdapter = ObjectRepository::getCacheAdapter($this);
 	}
 	
