@@ -674,22 +674,22 @@ class PageRequestEdit extends PageRequest
 			$referencedElement = $entity->getReferencedElement();
 			
 			$newReferencedElement = clone $referencedElement;
-			if ($newReferencedElement instanceof LinkReferencedElement
-					&& $newReferencedElement->getResource() == LinkReferencedElement::RESOURCE_PAGE) {
-				
-				$page = $referencedElement->getPage();
-				if ($page instanceof PageLocalization) {
-					$master = $page->getMaster();
-					$correctLocalization = $em->getRepository(PageLocalization::CN())->findOneBy(array('master' => $master->getId(), 'locale' => $targetLocale));
-					if ($correctLocalization instanceof PageLocalization) {
-						$newReferencedElement->setPageId($correctLocalization->getId());
-					} else {
-						$newReferencedElement->setPageId(null);
-						$newReferencedElement->setResource(LinkReferencedElement::RESOURCE_LINK);
-						$newReferencedElement->setHref('#');
-					}
-				}
-			}
+//			if ($newReferencedElement instanceof LinkReferencedElement
+//					&& $newReferencedElement->getResource() == LinkReferencedElement::RESOURCE_PAGE) {
+//				
+//				$page = $referencedElement->getPage();
+//				if ($page instanceof PageLocalization) {
+//					$master = $page->getMaster();
+//					$correctLocalization = $em->getRepository(PageLocalization::CN())->findOneBy(array('master' => $master->getId(), 'locale' => $targetLocale));
+//					if ($correctLocalization instanceof PageLocalization) {
+//						$newReferencedElement->setPageId($correctLocalization->getId());
+//					} else {
+//						$newReferencedElement->setPageId(null);
+//						$newReferencedElement->setResource(LinkReferencedElement::RESOURCE_LINK);
+//						$newReferencedElement->setHref('#');
+//					}
+//				}
+//			}
 			$em->persist($newReferencedElement);
 			
 			$newEntity->setReferencedElement($newReferencedElement);
