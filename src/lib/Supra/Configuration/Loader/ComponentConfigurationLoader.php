@@ -9,6 +9,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
 use Supra\Configuration\ConfigurationInterfaceParserCallback;
 use Supra\Configuration\ConfigurationInterface;
+use Doctrine\Common\Cache\Cache;
 
 /**
  * Component configuration loader
