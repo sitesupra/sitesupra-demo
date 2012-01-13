@@ -225,7 +225,7 @@ class ComponentConfigurationLoader
 	protected function getCachedData($fileName)
 	{
 		if ($this->cacheLevel == self::CACHE_LEVEL_NO_CACHE) {
-			return $null;
+			return null;
 		}
 		
 		$data = null;
