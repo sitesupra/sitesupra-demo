@@ -563,7 +563,47 @@ abstract class PageRequest extends HttpRequest
 
 		$this->blockPropertySet->exchangeArray($result);
 
+		// Preload blockPropertyMetadata using single query for public requests to increase performance
+		if ($this instanceof PageRequestView) {
+			$this->preLoadPropertyMetadata();
+		}
+		
 		return $this->blockPropertySet;
+	}
+	
+	/**
+	 * Technically, this should optimize blockPropertyMetadata collections loading
+	 * by doing it in single query
+	 */
+	protected function preLoadPropertyMetadata()
+	{
+		
+		$blockPropertyIds = $this->blockPropertySet->collectIds();
+		
+		if ( ! empty($blockPropertyIds)) {
+			$metadataEntity = Entity\BlockPropertyMetadata::CN();
+
+			$qb = $this->getDoctrineEntityManager()->createQueryBuilder();
+			$qb->from($metadataEntity, 'm')
+					->select('m')
+					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
+
+			$query = $qb->getQuery();
+			$metadataArray = $query->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+			
+			foreach($metadataArray as $propertyMetadata) {
+				/* @var $propertyMetadata BlockPropertyMetadata */
+				$property = $propertyMetadata->getBlockProperty();
+				$propertyId = $property->getId();
+
+				$property = $this->blockPropertySet->findById($propertyId);
+				if ( ! is_null($property)) {
+					/* @var $property BlockProperty */
+					$property->addOverridenMetadata($propertyMetadata);
+				}				
+			}
+		}
+		
 	}
 
 }
