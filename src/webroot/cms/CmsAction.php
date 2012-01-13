@@ -14,6 +14,9 @@ use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Response\TwigResponse;
 use Supra\AuditLog\AuditLogEvent;
 use Supra\User\Entity\AnonymousUser;
+use Supra\AuditLog\TitleTrackingItemInterface;
+use Supra\Controller\Pages\Entity;
+use Supra\FileStorage\Entity as FileEntity;
 
 /**
  * Description of CmsAction
@@ -343,14 +346,39 @@ abstract class CmsAction extends SimpleController
 	{
 		$auditLog = ObjectRepository::getAuditLogger($this);
 		$user = $this->getUser();
-
-		if ((mb_strpos($message, '%item%') !== false)
-			&& ! empty($item) && is_string($item)
-		) {
+		
+		if (is_object($item)) {
+			$itemString = null;
+			if ($item instanceof Entity\PageLocalization) {
+				$itemString = 'template ';
+			} else if ($item instanceof Entity\TemplateLocalization) {
+				$itemString = 'page ';
+			} else if ($item instanceof FileEntity\Image) {
+				$itemString = 'Image ';
+			} else if ($item instanceof FileEntity\Folder) {
+				$itemString = 'Folder ';
+			} else if ($item instanceof FileEntity\Abstraction\File) {
+				$itemString = 'File ';
+			}
+			
+			if ($item instanceof TitleTrackingItemInterface) {
+				$originalTitle = null;
+				$originalTitle = $item->getOriginalTitle();
+				
+				$itemTitle = $item->getTitle();
+				if ( ! is_null($originalTitle) && ($originalTitle != $itemTitle)) {
+					$itemString .= "'{$itemTitle}' (title changed from '{$originalTitle}')";
+				} else {
+					$itemString .= "'" . $itemTitle . "'";
+				}
+			}
+			
+			$message = str_replace('%item%', $itemString, $message);
+		} else {
 			$message = str_replace('%item%', $item, $message);
-			$message = ucfirst($message);
 		}
-
+	
+		$message = ucfirst($message);
 		$auditLog->info($this, $action, $message, $user, array());
 	}
 }

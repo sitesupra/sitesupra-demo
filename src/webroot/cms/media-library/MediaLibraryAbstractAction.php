@@ -111,18 +111,6 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 			$item = $item->getLocalization($localeId);
 		}
 			
-		$itemString = null;
-		if ($item instanceof FileAbstraction) {
-			if ($item instanceof Image) {
-				$itemString = 'Image ';
-			} else if ($item instanceof Folder) {
-				$itemString = 'Folder ';
-			} else {
-				$itemString = 'File ';
-			}
-			$itemString .= "'" . $item->getFileName() . "'";
-		}
-		
-		parent::writeAuditLog($action, $message, $itemString, $level);
+		parent::writeAuditLog($action, $message, $item, $level);
 	}
 }

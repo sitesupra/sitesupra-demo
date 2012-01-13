@@ -188,6 +188,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$file = $this->getEntity();
 		$localeId = $this->getLocale()->getId();
 
+		$originalTitle = $file->getTitle();
+		$file->setOriginalTitle($originalTitle);
+		
 		// set private
 		if ($this->hasRequestParameter('private')) {
 			$private = $this->getRequestParameter('private');

@@ -898,7 +898,7 @@ abstract class PageManagerAction extends CmsAction
 			$this->publish();
 		}
 		
-		$this->writeAuditLog('created', "%item%[{$localeId}] created from [{$originalLocaleId}] locale", $newLocalization);
+		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$originalLocaleId}] locale", $newLocalization);
 				
 		$this->getResponse()
 				->setResponseData(array('id' => $newLocalization->getId()));
@@ -920,18 +920,7 @@ abstract class PageManagerAction extends CmsAction
 			$item = $item->getLocalization($localeId);
 		}
 		
-		$itemString = null;
-		if ($item instanceof Localization) {
-			$master = $item->getMaster();
-			if ($master instanceof Template) {
-				$itemString = 'template ';
-			} else {
-				$itemString = 'page ';
-			}
-			$itemString .= "'" . $item->getTitle() . "'";
-		}
-		
-		parent::writeAuditLog($action, $message, $itemString, $level);
+		parent::writeAuditLog($action, $message, $item, $level);
 	}
 	
 }

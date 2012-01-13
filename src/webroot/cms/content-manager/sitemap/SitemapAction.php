@@ -112,7 +112,18 @@ class SitemapAction extends PageManagerAction
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
 				// hoping that there is at least one page data instance (naive)
-				$data = $page->getLocalizations()->first();
+				//$data = $page->getLocalizations()->first();
+				
+				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
+				// this, i suppose, will be replaced with dialog window with localization selector
+				$localizations = $page->getLocalizations();
+				$data = $localizations->first();
+				foreach($localizations as $globalLocalization) {
+					if ($globalLocalization->getId() < $data->getId()) {
+						$data = $globalLocalization;
+					}
+				}
+				
 				$isGlobal = true;
 			} else {
 
