@@ -102,8 +102,6 @@ class ComponentConfigurationLoader
 			throw new Exception\RuntimeException("Parser not assigned to configuration loader");
 		}
 		
-		$data = null;
-		
 		$data = $this->getCachedData($configurationFile);
 		
 		if (empty($data)) {
@@ -227,8 +225,6 @@ class ComponentConfigurationLoader
 		if ($this->cacheLevel == self::CACHE_LEVEL_NO_CACHE) {
 			return null;
 		}
-		
-		$data = null;
 		
 		$id = $this->_getCacheIdByName($fileName);
 		$data = $this->cacheAdapter->fetch($id);
