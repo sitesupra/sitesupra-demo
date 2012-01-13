@@ -366,8 +366,14 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				break;
 			
 			case self::RESOURCE_RELATIVE_PAGE:
-				$pageChildren = $this->getPage()
-						->getPublicChildren();
+				$page = $this->getPage();
+				
+				if (is_null($page)) {
+					$this->log()->warn("No page ID set or found for relative link #", $this->getId());
+					throw new ResourceNotFoundException("Invalid redirect");
+				}
+				
+				$pageChildren = $page->getPublicChildren();
 				
 				if ( ! $pageChildren->isEmpty()) {
 					$type = $this->getHref();

@@ -89,7 +89,15 @@ class PageController extends ControllerAbstraction
 
 			try {
 				$localization = $request->getPageLocalization();
-
+				/* @var $localization Entity\PageLocalization */
+				
+				if ( ! $localization instanceof Entity\PageLocalization) {
+					$this->log->warn("Page received from PageRequestView is not of PageLocalization instance, requested uri: ",
+							$request->getRequestUri(), ', got ',
+							(is_object($localization) ? get_class($localization) : gettype($localization)));
+					throw new ResourceNotFoundException("Wrong page instance received");
+				}
+				
 				$redirect = $localization->getRedirect();
 				if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
 					//TODO: any validation? skipping? loop check?
@@ -98,11 +106,16 @@ class PageController extends ControllerAbstraction
 
 					$location = $redirect->getUrl($this);
 					if ( ! is_null($location)) {
-						// if redirect is external URL
-						$pageId = $redirect->getPageId();
-						if (empty($pageId)) {
+						
+						$resource = $redirect->getResource();
+						
+						// If redirect is external URL, add scheme for links like "www.example.org"
+						if ($resource == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_LINK) {
+							
 							$scheme = parse_url($location, PHP_URL_SCHEME);
-							if (empty($scheme)) {
+							$firstChar = substr($location, 0, 1);
+							
+							if (empty($scheme) && $firstChar != '/') {
 								$location = 'http://' . $location;
 							}
 						}
@@ -131,11 +144,11 @@ class PageController extends ControllerAbstraction
 		}
 
 		// Continue processing
-		$blocks = $request->getBlockSet();
+//		$blocks = $request->getBlockSet();
 		$layout = $request->getLayout();
 		$page = $request->getPage();
 
-		$places = $request->getPlaceHolderSet();
+//		$places = $request->getPlaceHolderSet();
 
 		$this->findBlockControllers($request);
 		\Log::debug("Block controllers found for {$page}");
