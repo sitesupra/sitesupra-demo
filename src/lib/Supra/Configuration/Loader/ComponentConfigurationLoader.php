@@ -31,9 +31,6 @@ class ComponentConfigurationLoader
 	 */
 	const CACHE_LEVEL_NO_EXPIRE = 2;
 	
-	
-	const CACHE_NAMESPACE = 'conf_';
-	
 	/**
 	 * @var WriterAbstraction
 	 */
@@ -56,7 +53,7 @@ class ComponentConfigurationLoader
 	protected $cacheLevel = self::CACHE_LEVEL_NO_CACHE;
 	
 	/**
-	 * @var MemcacheCache
+	 * @var Cache
 	 */
 	private $cacheAdapter;
 	
@@ -104,7 +101,7 @@ class ComponentConfigurationLoader
 		
 		$data = $this->getCachedData($configurationFile);
 		
-		if (empty($data)) {
+		if (is_null($data)) {
 			try {
 				$data = $this->parser->parseFile($configurationFile);
 			} catch (Exception\ConfigurationException $e) {
@@ -226,10 +223,10 @@ class ComponentConfigurationLoader
 			return null;
 		}
 		
-		$id = $this->_getCacheIdByName($fileName);
+		$id = $this->getCacheIdByName($fileName);
 		$data = $this->cacheAdapter->fetch($id);
 		
-		return $data;
+		return ($data === false ? null : $data);
 	}
 
 
@@ -245,7 +242,7 @@ class ComponentConfigurationLoader
 			return;
 		}
 		
-		$id = $this->_getCacheIdByName($this->configurationFile);
+		$id = $this->getCacheIdByName($this->configurationFile);
 
 		return $this->cacheAdapter->save($id, $data);
 	}
@@ -259,17 +256,17 @@ class ComponentConfigurationLoader
 	}
 	
 	/**
-	 * Helper method to get unique string for config file
+	 * Helper method to get unique id string for config file
 	 * @return string
 	 */
-	private function _getCacheIdByName($fileName) 
+	private function getCacheIdByName($fileName) 
 	{
 		$modificationTime = null;
 		if ($this->cacheLevel == self::CACHE_LEVEL_EXPIRE_BY_MODIFICATION && is_readable($fileName)) {
 			$modificationTime = filemtime($fileName);
 		}
 		
-		return md5( self::CACHE_NAMESPACE . $fileName . $modificationTime );
+		return md5( __CLASS__ . $fileName . $modificationTime );
 	} 
 	
 }
