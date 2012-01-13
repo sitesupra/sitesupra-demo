@@ -269,6 +269,9 @@ Supra(function (Y) {
 						
 					}
 					
+					//Update localization list
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
+					
 					//Update edit button label to "Edit page" or "Edit template"
 					var label = Supra.Intl.get([this.getType(), 'edit']);
 					button_edit.set('label', label);

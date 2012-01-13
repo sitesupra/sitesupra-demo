@@ -50,6 +50,8 @@
 			"locked_message": "Page was locked by {{ username }} on {{ datetime }}",
 			"unlock": "Unlock",
 			
+			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language",
+			
 			"error": {
 				"page_locked": "Page is locked by another user"
 			}
