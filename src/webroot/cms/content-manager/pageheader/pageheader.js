@@ -75,6 +75,11 @@ Supra('supra.languagebar', function (Y) {
 					var currentLocale = Supra.data.get('locale');
 					var page = Manager.Page.getPageData();
 					
+					// No page loaded
+					if ( ! page) {
+						return;
+					}
+					
 					if (evt.newVal in page.localizations) {
 						//Change global locale and reload page
 						Supra.data.set('locale', evt.newVal);
