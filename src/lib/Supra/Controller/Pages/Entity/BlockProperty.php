@@ -58,6 +58,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 * @var Collections\Collection
 	 */
 	protected $metadata;
+	protected $overridenMetadata;
 	
 	/**
 	 * @Column(type="object")
@@ -107,6 +108,10 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function getMetadata()
 	{
+		if ( ! is_null($this->overridenMetadata)) {
+			return $this->overridenMetadata;
+		}
+		
 		return $this->metadata;
 	}
 	
@@ -116,6 +121,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	public function resetMetadata()
 	{
 		$this->metadata = new Collections\ArrayCollection();
+		$this->overridenMetadata = new Collections\ArrayCollection();
 	}
 	
 	public function resetBlock()
@@ -135,6 +141,16 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	{
 		$name = $metadata->getName();
 		$this->metadata->offsetSet($name, $metadata);
+	}
+	
+	public function addOverridenMetadata(BlockPropertyMetadata $metadata) 
+	{
+		if (empty($this->overridenMetadata)) {
+			$this->overridenMetadata = new Collections\ArrayCollection();
+		}
+		
+		$name = $metadata->getName();
+		$this->overridenMetadata->offsetSet($name, $metadata);
 	}
 	
 	/**
