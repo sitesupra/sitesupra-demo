@@ -297,7 +297,9 @@ class SitemapAction extends PageManagerAction
 			
 			foreach ($rootNodes as $rootNode) {
 				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot, $existingOnly);
-				$response[] = $tree;
+				if ( ! is_null($tree)) {
+					$response[] = $tree;
+				}
 			}
 		}
 
