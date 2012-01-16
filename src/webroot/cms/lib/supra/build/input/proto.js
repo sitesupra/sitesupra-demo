@@ -249,6 +249,7 @@ YUI.add('supra.input-proto', function (Y) {
 		},
 		
 		_setValue: function (value) {
+			value = (value === undefined || value === null ? '' : value);
 			this.get('inputNode').set('value', value);
 			
 			this._original_value = value;
