@@ -47,7 +47,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 						'id' => $group->getId(),
 						'avatar' => null,
 						'name' =>  '[' . $group->getName() . ']',
-						'group' => $this->dummyGroupMap[$group->getName()]
+						'group' => $this->groupToDummyId($group)
 					);
 				}
 			}
@@ -69,7 +69,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 				'id' => $user->getId(),
 				'avatar' => UseravatarAction::getAvatarExternalPath($user, '48x48'),
 				'name' => $user->getName(),
-				'group' => $this->dummyGroupMap[$user->getGroup()->getName()]
+				'group' => $this->groupToDummyId($user->getGroup())
 			);
 			
 		}
@@ -86,7 +86,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		
 		$userId = $this->getRequestParameter('user_id');
 		$newGroupDummyId = $this->getRequestParameter('group');
-		$newGroupName = array_search($newGroupDummyId, $this->dummyGroupMap);
+		$newGroupName = $this->dummyGroupIdToGroupName($newGroupDummyId);
 		
 		/* @var $user Entity\User */
 		$user = $this->userRepository->find($userId);

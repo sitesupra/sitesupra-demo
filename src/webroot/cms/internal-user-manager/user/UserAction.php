@@ -20,11 +20,9 @@ use Supra\User\Entity\Group;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
-/**
- * Sitemap
- */
 class UserAction extends InternalUserManagerAbstractAction
 {
+
 	function __construct()
 	{
 		parent::__construct();
@@ -54,19 +52,8 @@ class UserAction extends InternalUserManagerAbstractAction
 			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 		}
 
-		$config = CmsApplicationConfiguration::getInstance();
-		$appConfigs = $config->getArray();
-
-		$permissions = array();
-
-		foreach ($appConfigs as $appConfig) {
-			/* @var $appConfig ApplicationConfiguration  */
-
-			$permissions[$appConfig->id] = $appConfig->authorizationAccessPolicy->getAccessPolicy($user);
-		}
-
 		$response = $this->getUserResponseArray($user);
-		$response['permissions'] = $permissions;
+		$response['permissions'] = $this->getApplicationPermissionsResponseArray($user);
 
 		$this->getResponse()->setResponseData($response);
 	}
@@ -78,7 +65,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
-		
+
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ($input->isEmpty('user_id')) {
 
@@ -106,12 +93,11 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
 		$entityManager = ObjectRepository::getEntityManager($this->userProvider);
-		
+
 		$entityManager->remove($user);
 		$entityManager->flush();
 
-		$this->writeAuditLog('delete user', 
-				"User '" . $user->getName() . "' deleted");
+		$this->writeAuditLog('delete user', "User '" . $user->getName() . "' deleted");
 
 		$this->getResponse()->setResponseData(null);
 	}
@@ -123,7 +109,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	{
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
-		
+
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
 		if ($input->isEmpty('user_id')) {
 
@@ -143,15 +129,14 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
-		
+
 		$this->sendPasswordChangeLink($user);
 
-		$this->writeAuditLog('reset password', 
-				"Password for user '" . $user->getName() . "' reseted");
+		$this->writeAuditLog('reset password', "Password for user '" . $user->getName() . "' reseted");
 
 		$this->getResponse()->setResponseData(null);
 	}
-	
+
 	/**
 	 * Insert action
 	 */
@@ -167,7 +152,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$em = $this->userProvider->getEntityManager();
 
-		$groupName = array_search($dummyGroupId, $this->dummyGroupMap);
+		$groupName = $this->dummyGroupIdToGroupName($dummyGroupId);
 		$group = $this->userProvider->findGroupByName($groupName);
 
 		$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
@@ -183,8 +168,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		try {
 			$this->userProvider->validate($user);
-		}
-		catch (Exception\RuntimeException $exc) {
+		} catch (Exception\RuntimeException $exc) {
 			//FIXME: don't pass original message!
 			throw new CmsException(null, "Not valid input: {$exc->getMessage()}");
 		}
@@ -194,8 +178,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$this->sendPasswordChangeLink($user, 'createpassword');
 
-		$this->writeAuditLog('insert user', 
-				"User '" . $user->getName() . "' created");
+		$this->writeAuditLog('insert user', "User '" . $user->getName() . "' created");
 	}
 
 	/**
@@ -208,7 +191,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		// try to find as user/group ...
 		$user = $this->getEntityFromRequestKey('user_id');
-		
+
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 
 		if ($user->getId() != $this->getUser()->getId()) {
@@ -227,12 +210,12 @@ class UserAction extends InternalUserManagerAbstractAction
 			$name = $input->get('name');
 			$user->setName($name);
 		}
-		
+
 		if ($input->has('email')) {
 			$email = $input->getValid('email', 'email');
 			$user->setEmail($email);
 		}
-		
+
 		if ($input->has('avatar_id')) {
 			$avatar = $input->get('avatar_id');
 			if ($user->setAvatar($avatar)) {
@@ -242,51 +225,17 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		try {
 			$this->userProvider->validate($user);
-		}
-		catch (Exception\RuntimeException $e) {
+		} catch (Exception\RuntimeException $e) {
 			throw new CmsException(null, "Not valid input: {$e->getMessage()}");
 		}
 
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
 
-		$this->writeAuditLog('save user', 
-				"User '" . $user->getName() . "' saved");
+		$this->writeAuditLog('save user', "User '" . $user->getName() . "' saved");
 
 		$response = $this->getUserResponseArray($user);
 		$this->getResponse()->setResponseData($response);
-	}
-
-	/**
-	 * Returns array for response 
-	 * @param AbstractUser $user
-	 * @return array
-	 */
-	private function getUserResponseArray(AbstractUser $user)
-	{
-		$response = array(
-			'user_id' => $user->getId(),
-			'name' => $user->getName()
-		);
-
-		if ($user instanceof Entity\User) {
-			$response['email'] = $user->getEmail();
-			$response['group'] = $this->dummyGroupMap[$user->getGroup()->getName()];
-			if( ! $user->isPersonalAvatar()) {
-				$response['avatar_id'] = $user->getAvatar();
-			}
-			$response['avatar'] = UseravatarAction::getAvatarExternalPath($user, '48x48');
-		}
-		else {
-			$response['email'] = 'N/A';
-			$response['group'] = $this->dummyGroupMap[$user->getName()];
-		}
-		
-		if (empty($response['avatar'])) {
-			$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
-		}
-
-		return $response;
 	}
 
 }
