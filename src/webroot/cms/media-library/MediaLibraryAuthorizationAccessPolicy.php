@@ -35,7 +35,10 @@ class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEnt
 		$rootNodes = $fr->getRootNodes();
 		
 		foreach ($rootNodes as $rootNode) {
-			$entityTree[] = $this->buildMediaLibraryTreeArray($rootNode);
+			$tree = $this->buildMediaLibraryTreeArray($rootNode);
+			if ( ! is_null($tree)) {
+				array_push($entityTree, $tree);
+			}
 		}
 
 		$slashNode['children'] = $entityTree;
@@ -46,7 +49,7 @@ class MediaLibraryAuthorizationAccessPolicy extends AuthorizationThreewayWithEnt
 	private function buildMediaLibraryTreeArray(FileEntity\Abstraction\File $file) 
 	{ 
 		if( ! ($file instanceof FileEntity\Folder)) {
-			return array();
+			return null;
 		}
 		
 		$array = array(
