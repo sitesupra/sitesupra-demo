@@ -982,7 +982,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		renderItem: function (id /* File or folder ID */, data /* Item data */, append /* Append or replace */) {
-			var slide = this.slideshow.getSlide('slide_' + id),
+			var id = isNaN(id) ? id : parseInt(id, 10),
+				slide = this.slideshow.getSlide('slide_' + id),
 				template,
 				node,
 				item;
