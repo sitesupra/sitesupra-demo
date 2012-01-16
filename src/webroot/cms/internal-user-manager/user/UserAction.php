@@ -196,6 +196,8 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$this->writeAuditLog('insert user', 
 				"User '" . $user->getName() . "' created");
+		
+		$this->getResponse()->setResponseData(array('user_id' => $user->getId()));
 	}
 
 	/**
