@@ -241,7 +241,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			if (Supra.Y.UA.ie) {
 				//Load scripts one by one to make sure order is correct
-				function loadNextScript () {
+				var loadNextScript = function () {
 					if (!scripts.length) return;
 					
 					var source = scripts.shift();
@@ -251,7 +251,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					node.type = 'text/javascript';
 					node.onload = loadNextScript;
 					doc.body.appendChild(node);
-				}
+				};
 				
 				doc.body.onload = loadNextScript;
 			}
