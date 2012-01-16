@@ -666,8 +666,13 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.show();
 			
 			if (!this.first_exec) {
-				this.flowmap.reload();
-				this.setLoading(true);
+				var page_locale = Manager.Page.getPageData().locale;
+				if (page_locale != this.languagebar.get('locale')) {
+					this.languagebar.set('locale', page_locale);
+				} else {
+					this.flowmap.reload();
+					this.setLoading(true);
+				}
 			}
 			this.first_exec = false;
 			
