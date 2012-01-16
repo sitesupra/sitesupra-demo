@@ -12,8 +12,7 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER;
 	
 	/**
-	 * Media list
-	 * Handles data loading, scrolling, selection
+	 * Add drag and drop support from media library to other actions
 	 */
 	function Plugin (config) {
 		Plugin.superclass.constructor.apply(this, arguments);

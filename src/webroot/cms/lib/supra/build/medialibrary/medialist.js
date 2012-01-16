@@ -483,7 +483,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var parent_id = null,
 				parent_data = null;
 			
-			if (parent) {
+			if (parent == this.get('rootFolderId')) {
+				//Root folder doesn't have data in dataObject
+				parent_id = parent;
+				parent_data = {'id': parent_id};
+			} else if (parent) {
 				parent_id = parent;
 				parent_data = this.getItemData(parent_id);
 				
