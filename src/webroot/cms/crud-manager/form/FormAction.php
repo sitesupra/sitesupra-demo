@@ -7,6 +7,8 @@ use Supra\Editable;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Validator\Exception\RuntimeException;
 use Supra\Cms\Exception\CmsException;
+use Supra\AuditLog\TitleTrackingItemInterface;
+use Supra\Cms\CrudManager\CrudEntityInterface;
 
 class FormAction extends CrudManagerAbstractAction
 {
@@ -23,21 +25,21 @@ class FormAction extends CrudManagerAbstractAction
 		$repo = $em->getRepository($configuration->entity);
 
 		$post = $request->getPost();
-		
+
 		$record = null;
 		$recordId = null;
-		
+
 		try {
 			$recordId = $post->get('id');
 		} catch (RuntimeException $exc) {}
-
+			
 		$newRecord = false;
 
 		if ( ! empty($recordId)) {
 			$record = $repo->findOneById($recordId);
 		} else {
 			$newRecord = true;
-			
+
 			if ($repo->isCreatable()) {
 				$record = new $configuration->entity;
 			} else {
@@ -50,22 +52,26 @@ class FormAction extends CrudManagerAbstractAction
 		}
 
 		ObjectRepository::setCallerParent($record, $this);
-		
+
 		$em->persist($record);
-		
+
 		//setting new values
 		$output = $record->setEditValues($post);
-		
+
 		$em->flush();
-		
+
 		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
-		
+
 		if ($repo->isSortable() && $newRecord) {
-			$this->move($recordId, $recordBefore);
+			$this->move($record, $recordBefore, false);
 		}
 
-		$this->writeAuditLog('save', "Record '%item%' saved", $recordId);
+		if ( ! $record instanceof TitleTrackingItemInterface) {
+			$record = $recordId;
+		}
+
+		$this->writeAuditLog('save', "Record %item% saved", $record);
 
 		$response = $this->getResponse();
 		$response->setResponseData($output);
@@ -100,7 +106,11 @@ class FormAction extends CrudManagerAbstractAction
 		$em->remove($record);
 		$em->flush();
 
-		$this->writeAuditLog('delete', "Record '%item%' deleted", $recordId);
+		if ( ! $record instanceof TitleTrackingItemInterface) {
+			$record = $recordId;
+		}
+
+		$this->writeAuditLog('delete', "Record %item% deleted", $record);
 	}
 
 	/**
@@ -132,36 +142,43 @@ class FormAction extends CrudManagerAbstractAction
 		if (empty($recordId)) {
 			throw new CmsException(null, 'Empty record id');
 		}
-		
-		$this->move($recordId, $recordBefore);
+
+		$record = $repo->findOneById($recordId);
+		if ( ! $record instanceof $configuration->entity) {
+			throw new CmsException(null, 'Can\'t find record to delete');
+		}
+
+		$this->move($record, $recordBefore);
 	}
 
 	/**
 	 * Moving current record
-	 * @param string $recordId
+	 * @param \Supra\Cms\CrudManager\CrudEntityInterface $record
 	 * @param string $recordBefore
 	 */
-	protected function move($recordId, $recordBefore)
+	protected function move(CrudEntityInterface $record, $recordBefore, $writeLog = true)
 	{
 		$configuration = ObjectRepository::getApplicationConfiguration($this);
 		$em = ObjectRepository::getEntityManager($this);
 		$beforePosition = 0;
-		
+
 		$em->beginTransaction();
+
+		$recordId = $record->getId();
 
 		try {
 			$queryResult = array();
 			if ( ! empty($recordBefore)) {
-				
+
 				// check if nothing has been changed
 				$query = $em->createQuery("SELECT e.id as position FROM {$configuration->entity} e WHERE e.id = :recordId");
 				$query->setParameter('recordId', $recordId);
 				$beforePosition = $query->getSingleScalarResult();
-				
-				if($beforePosition == $recordBefore) {
+
+				if ($beforePosition == $recordBefore) {
 					return;
 				}
-				
+
 				$query = $em->createQuery("SELECT e.position as position FROM {$configuration->entity} e WHERE e.id = :before");
 				$query->setParameter('before', $recordBefore);
 				$beforePosition = $query->getSingleScalarResult();
@@ -180,17 +197,19 @@ class FormAction extends CrudManagerAbstractAction
 			$query->setParameter('newPosition', $beforePosition + 1);
 			$query->setParameter('currentRecord', $recordId);
 			$queryResult = $query->execute();
-			
+
 			$em->flush();
 		} catch (\Exception $e) {
 			$em->rollback();
-			
+
 			throw $e;
 		}
-		
+
 		$em->commit();
 
-		$this->writeAuditLog('move', "Record '%item%' moved", $recordId);
+		if ($writeLog) {
+			$this->writeAuditLog('move', "Record %item% moved", $record);
+		}
 	}
 
 }

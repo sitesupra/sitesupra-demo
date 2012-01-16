@@ -342,11 +342,11 @@ abstract class CmsAction extends SimpleController
 	 * @param string $item
 	 * @param int $level 
 	 */
-	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
+	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO)
 	{
 		$auditLog = ObjectRepository::getAuditLogger($this);
 		$user = $this->getUser();
-		
+
 		if (is_object($item)) {
 			$itemString = null;
 			if ($item instanceof Entity\PageLocalization) {
@@ -360,11 +360,10 @@ abstract class CmsAction extends SimpleController
 			} else if ($item instanceof FileEntity\Abstraction\File) {
 				$itemString = 'file ';
 			}
-			
+
 			if ($item instanceof TitleTrackingItemInterface) {
-				$originalTitle = null;
 				$originalTitle = $item->getOriginalTitle();
-				
+
 				$itemTitle = $item->getTitle();
 				if ( ! is_null($originalTitle) && ($originalTitle != $itemTitle)) {
 					$itemString .= "'{$itemTitle}' (title changed from '{$originalTitle}')";
@@ -372,13 +371,13 @@ abstract class CmsAction extends SimpleController
 					$itemString .= "'" . $itemTitle . "'";
 				}
 			}
-			
-			$message = str_replace('%item%', $itemString, $message);
-		} else {
-			$message = str_replace('%item%', $item, $message);
+
+			$item = $itemString;
 		}
-	
+
+		$message = str_replace('%item%', $item, $message);
 		$message = ucfirst($message);
+
 		$auditLog->info($this, $action, $message, $user, array());
 	}
 }
