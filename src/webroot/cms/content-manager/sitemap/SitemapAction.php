@@ -113,7 +113,7 @@ class SitemapAction extends PageManagerAction
 			if ($page->isGlobal()) {
 				
 				if ($skipGlobal) {
-					return array();
+					return null;
 				}
 				
 				// hoping that there is at least one page data instance (naive)
