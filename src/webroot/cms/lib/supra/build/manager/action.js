@@ -133,11 +133,11 @@ YUI.add('supra.manager-action', function (Y) {
 			}
 			
 			if (load_list.length) {
-				Manager.loadActions(load_list);
-				
 				if (!(name in Loader.dependancies)) Loader.dependancies[name] = [];
 				Loader.dependancies[name] = load_list;
 				Loader.loading[name].dependancies = true;
+				
+				Manager.loadActions(load_list);
 			}
 		}
 		

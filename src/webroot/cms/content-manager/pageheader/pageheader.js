@@ -37,12 +37,6 @@ Supra('supra.languagebar', function (Y) {
 		HAS_TEMPLATE: true,
 		
 		/**
-		 * Dependancy list
-		 * @type {Array}
-		 */
-		DEPENDANCIES: [],
-		
-		/**
 		 * Content placeholder
 		 * @type {Y.Node}
 		 */
@@ -78,7 +72,6 @@ Supra('supra.languagebar', function (Y) {
 			//On change reload page
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					
 					var currentLocale = Supra.data.get('locale');
 					var page = Manager.Page.getPageData();
 					

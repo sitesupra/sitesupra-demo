@@ -222,7 +222,7 @@ Supra(function (Y) {
 				} else {
 					page_id = Supra.data.get('page', {'id': 0});
 				}
-				 
+				
 				SU.Manager.executeAction('Page', page_id);
 				SU.Manager.executeAction('Template');
 				

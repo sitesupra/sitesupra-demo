@@ -224,22 +224,37 @@ YUI.add('supra.iframe-handler', function (Y) {
 		writeHTML: function (html) {
 			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
 			var doc = win.document;
+			var scripts = [];
 			
 			doc.open("text/html", "replace");
 			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {
 				html = html.replace(/<script [^>]*src="?'?([^\s"']+).*?<\/script[^>]*>/gi, function (m, src) {
-					return '<script>' +
-								'var node_script = document.createElement("script");' +
-								'node_script.src = "' + src + '";' +
-								'document.getElementsByTagName("head")[0].appendChild(node_script);' +
-						   '</script>';
+					scripts.push(src);
+					return '';
 				});
 			}
 			
 			doc.writeln(html);
 			doc.close();
+			
+			if (Supra.Y.UA.ie) {
+				//Load scripts one by one to make sure order is correct
+				function loadNextScript () {
+					if (!scripts.length) return;
+					
+					var source = scripts.shift();
+					var node = doc.createElement('SCRIPT');
+					
+					node.src = source;
+					node.type = 'text/javascript';
+					node.onload = loadNextScript;
+					doc.body.appendChild(node);
+				}
+				
+				doc.body.onload = loadNextScript;
+			}
 		},
 		
 		/**

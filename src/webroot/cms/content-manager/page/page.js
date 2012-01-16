@@ -296,6 +296,9 @@ Supra(function (Y) {
 					button_unlock.hide();
 					if (message_unlock) message_unlock.remove();
 					
+					//Update localization list
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
+					
 				} else {
 					//Remove loading style
 					Y.one('body').removeClass('loading');

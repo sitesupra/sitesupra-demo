@@ -298,6 +298,7 @@ YUI.add('supra.manager-loader', function (Y) {
 			
 			for(var id in this.dependancies) {
 				list = this.dependancies[id];
+				
 				index = Y.Array.indexOf(list, action_name);
 				if (index !== -1) {
 					list.splice(index, 1);

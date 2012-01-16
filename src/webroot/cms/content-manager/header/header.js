@@ -33,12 +33,6 @@ Supra('supra.header', function (Y) {
 		 */
 		HAS_TEMPLATE: false,
 		
-		/**
-		 * Dependancy list
-		 * @type {Array}
-		 */
-		DEPENDANCIES: [],
-		
 		
 		
 		
