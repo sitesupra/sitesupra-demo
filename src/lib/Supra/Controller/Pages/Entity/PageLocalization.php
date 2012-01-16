@@ -425,7 +425,7 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! empty($this->id)) {
 			parent::__clone();
 
-			$this->redirect = null;
+			$this->redirect = clone $this->redirect;
 			$this->path = new PageLocalizationPath();
 			$this->path->setLocale($this->locale);
 		}
