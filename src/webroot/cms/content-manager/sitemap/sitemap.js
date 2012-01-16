@@ -666,6 +666,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.show();
 			
 			if (!this.first_exec) {
+				//Open sitemap in same language as currently opened page
 				var page_locale = Manager.Page.getPageData().locale;
 				if (page_locale != this.languagebar.get('locale')) {
 					this.languagebar.set('locale', page_locale);

@@ -134,6 +134,7 @@
 	background: none;
 }
 .yui3-medialist ul.folder > li.type-temp .title {
+	line-height: normal;
 	padding-left: 28px;
 	position: relative;
 	z-index: 1;
@@ -143,7 +144,7 @@
 	left: 0;
 	right: 0;
 	top: 0;
-	height: 25px;
+	height: 29px;
 	padding: 1px;
 	border: 1px solid #CDECFF;
 }
