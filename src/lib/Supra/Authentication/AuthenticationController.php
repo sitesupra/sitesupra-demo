@@ -24,6 +24,11 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	protected $loginPath = 'login';
 
 	/**
+	 * Check session action path
+	 * @var string
+	 */
+	protected $checkSessionPath = 'check-session';
+	/**
 	 * Base path
 	 * @var string
 	 */
@@ -243,8 +248,15 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			}
 		}
 
-		// check for session presence
-		$sessionUser = $userProvider->getSignedInUser();
+		// by default, we update session access time on each request
+		// the only case when we need to skip this step is
+		// when request is "session check" action
+		$updateSession = true;
+		$checkSessionPath = trim($this->getBasePath() . '/' . $this->checkSessionPath, '/');
+		if ($uri == $checkSessionPath) {
+			$updateSession = false;
+		}
+		$sessionUser = $userProvider->getSignedInUser($updateSession);
 
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {
