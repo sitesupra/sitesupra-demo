@@ -350,15 +350,15 @@ abstract class CmsAction extends SimpleController
 		if (is_object($item)) {
 			$itemString = null;
 			if ($item instanceof Entity\PageLocalization) {
-				$itemString = 'template ';
-			} else if ($item instanceof Entity\TemplateLocalization) {
 				$itemString = 'page ';
+			} else if ($item instanceof Entity\TemplateLocalization) {
+				$itemString = 'template ';
 			} else if ($item instanceof FileEntity\Image) {
-				$itemString = 'Image ';
+				$itemString = 'image ';
 			} else if ($item instanceof FileEntity\Folder) {
-				$itemString = 'Folder ';
+				$itemString = 'folder ';
 			} else if ($item instanceof FileEntity\Abstraction\File) {
-				$itemString = 'File ';
+				$itemString = 'file ';
 			}
 			
 			if ($item instanceof TitleTrackingItemInterface) {
