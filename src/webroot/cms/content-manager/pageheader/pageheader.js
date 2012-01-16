@@ -71,7 +71,7 @@ Supra('supra.languagebar', function (Y) {
 			
 			//Set available localizations
 			var page = Manager.Page.getPageData();
-			if (page.localizations) {
+			if (page && page.localizations) {
 				this.setAvailableLocalizations(page.localizations);
 			}
 			
@@ -87,7 +87,7 @@ Supra('supra.languagebar', function (Y) {
 						return;
 					}
 					
-					if (evt.newVal in page.localizations) {
+					if (page.localizations && evt.newVal in page.localizations) {
 						//Change global locale and reload page
 						Supra.data.set('locale', evt.newVal);
 						
@@ -141,23 +141,27 @@ Supra('supra.languagebar', function (Y) {
 				item = null,
 				filtered = [];
 			
-			for(var i=0,ii=contexts.length; i<ii; i++) {
-				context = contexts[i];
-				
-				item = {
-					'title': context.title,
-					'languages': []
-				};
-				
-				for(var k=0,kk=context.languages.length; k<kk; k++) {
-					if (context.languages[k].id in locales) {
-						item.languages.push(context.languages[k]);
+			if (locales) {
+				for(var i=0,ii=contexts.length; i<ii; i++) {
+					context = contexts[i];
+					
+					item = {
+						'title': context.title,
+						'languages': []
+					};
+					
+					for(var k=0,kk=context.languages.length; k<kk; k++) {
+						if (context.languages[k].id in locales) {
+							item.languages.push(context.languages[k]);
+						}
+					}
+					
+					if (item.languages.length) {
+						filtered.push(item);
 					}
 				}
-				
-				if (item.languages.length) {
-					filtered.push(item);
-				}
+			} else {
+				filtered = contexts;
 			}
 			
 			this.languagebar.set('contexts', filtered);

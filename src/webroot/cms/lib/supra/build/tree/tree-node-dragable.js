@@ -249,6 +249,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 						target.add(self);
 					} else {
 						var index = target.get('index');
+						if (target.get('parent') === self.get('parent') && target.get('index') > self.get('index')) {
+							//If same parent then after removing item from parent new index will change
+							index--;
+						}
 						if (position == 'after') {
 							index++;
 						}
