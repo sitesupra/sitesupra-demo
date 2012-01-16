@@ -22,16 +22,21 @@ class FlashBanner extends FileBanner
 	 */
 	public function getExposureModeContent(BannerMachineController $controller)
 	{
-		$bannerProvider = ObjectRepository::getBannerProvider($this);
-		
-		$redirectorParams = array(
+		$redirectorUrl = null;
+
+		if ($this->hasTarget()) {
+
+			$bannerProvider = ObjectRepository::getBannerProvider($this);
+
+			$redirectorParams = array(
 				BannerMachineRedirector::REQUEST_KEY_BANNER_ID => $this->getId(),
 				BannerMachineRedirector::REQUEST_KEY_EXTRA => $controller->getPropertyValue(BannerMachineController::PROPERTY_NAME_APPEND_TO_URL),
 				BannerMachineRedirector::REQUEST_KEY_PAGE_REF => $controller->getPage()->getId()
-		);
+			);
 
-		$redirectorUrl = $bannerProvider->getRedirectorPath() . '?' . http_build_query($redirectorParams);		
-		
+			$redirectorUrl = $bannerProvider->getRedirectorPath() . '?' . http_build_query($redirectorParams);
+		}
+
 		return $this->getFlashBannerContent($redirectorUrl);
 	}
 
@@ -63,12 +68,12 @@ class FlashBanner extends FileBanner
 	{
 		return '/cms/lib/supra/img/medialibrary/icon-file-swf-large.png';
 	}
-	
+
 	/**
 	 * @param string $redirectorUrl
 	 * @return string
 	 */
-	protected function getFlashBannerContent($redirectorUrl) 
+	protected function getFlashBannerContent($redirectorUrl)
 	{
 		$tp = ObjectRepository::getTemplateParser($this);
 		$templateLoader = new \Twig_Loader_Filesystem(SUPRA_TEMPLATE_PATH);
@@ -78,17 +83,20 @@ class FlashBanner extends FileBanner
 		$bannerProvider = ObjectRepository::getBannerProvider($this);
 
 		$bannerType = $bannerProvider->getType($this->getTypeId());
-		
+
 		$data = array(
-				'clickTag' => urldecode($redirectorUrl),
-				'width' => $bannerType->getWidth(),
-				'height' => $bannerType->getHeight(),
-				'swfUrl' => $fileStorage->getWebPath($this->file)
+			'width' => $bannerType->getWidth(),
+			'height' => $bannerType->getHeight(),
+			'swfUrl' => $fileStorage->getWebPath($this->file)
 		);
-		
+
+		if ( ! empty($redirectorUrl)) {
+			$data['clickTag'] = urldecode($redirectorUrl);
+		}
+
 		$imageBannerContent = $tp->parseTemplate('banner\banner-flash.html.twig', $data, $templateLoader);
-		
+
 		return $imageBannerContent;
-	}	
+	}
 
 }
