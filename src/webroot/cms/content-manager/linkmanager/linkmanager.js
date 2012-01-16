@@ -251,7 +251,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					this.locale = Supra.data.get('locale');
 					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data +
 											'?locale=' + this.locale +
-											'&published_only=1';
+											'&existing_only=1';
 					
 					//Create tree
 					this.tree = new SU.Tree({

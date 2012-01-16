@@ -95,7 +95,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false)
 	{
 		/* @var $data Entity\Abstraction\Localization */
 		$data = null;
@@ -111,6 +111,11 @@ class SitemapAction extends PageManagerAction
 		if (empty($data)) {
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
+				
+				if ($skipGlobal) {
+					//return array();
+				}
+				
 				// hoping that there is at least one page data instance (naive)
 				//$data = $page->getLocalizations()->first();
 				
@@ -181,7 +186,7 @@ class SitemapAction extends PageManagerAction
 				$children = $page->getChildren();
 			}
 
-			$childrenArray = $this->convertPagesToArray($children, $locale);
+			$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal);
 
 			if ( ! $skipRoot) {
 				if (count($childrenArray) > 0) {
@@ -209,7 +214,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function convertPagesToArray(array $children, $locale)
+	private function convertPagesToArray(array $children, $locale, $skipGlobal = false)
 	{
 		$childrenArray = array();
 		
@@ -220,7 +225,7 @@ class SitemapAction extends PageManagerAction
 				$group->setTitle($name);
 				$group->setChildren($child);
 				
-				$groupArray = $this->buildTreeArray($group, $locale);
+				$groupArray = $this->buildTreeArray($group, $locale, false, $skipGlobal);
 				
 				$childrenArray[] = $groupArray;
 			} else {
@@ -237,7 +242,7 @@ class SitemapAction extends PageManagerAction
 					continue;
 				}
 
-				$childArray = $this->buildTreeArray($child, $locale);
+				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
 
 				if ( ! empty($childArray)) {
 					$childrenArray[] = $childArray;
@@ -257,6 +262,8 @@ class SitemapAction extends PageManagerAction
 	{
 		$pages = array();
 		$localeId = $this->getLocale()->getId();
+		
+		$existingOnly = (bool)$this->getRequestParameter('existing_only');
 
 		$em = $this->entityManager;
 
@@ -283,13 +290,13 @@ class SitemapAction extends PageManagerAction
 			$rootNode = $rootNodeLocalization->getMaster();
 			$skipRoot = true;
 			
-			$response = $this->buildTreeArray($rootNode, $localeId, true);
+			$response = $this->buildTreeArray($rootNode, $localeId, true, $existingOnly);
 			
 		} else {
 			$rootNodes = $pageRepository->getRootNodes();
 			
 			foreach ($rootNodes as $rootNode) {
-				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot);
+				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot, $existingOnly);
 				$response[] = $tree;
 			}
 		}
