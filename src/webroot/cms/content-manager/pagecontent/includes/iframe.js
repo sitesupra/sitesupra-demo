@@ -161,15 +161,16 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Destroy contents object
 		 */
 		destroyContent: function () {
+			var doc = this.get('doc');
+			
 			if (this.contents) {
 				this.contents.destroy();
 				this.contents = null;
 			}
 			
-			var doc = this.get('doc');
 			if (doc) {
 				//Remove all listeners
-				Y.one(doc).purge();
+				Y.one(doc).purge(true);
 			}
 		},
 		
@@ -199,7 +200,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.destroyContent();
 			
 			//Save document & window instances
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var win = this.get('nodeIframe').getDOMNode().contentWindow;
 			var doc = win.document;
 			this.set('win', win);
 			this.set('doc', doc);
@@ -222,7 +223,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		writeHTML: function (html) {
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var win = this.get('nodeIframe').getDOMNode().contentWindow;
 			var doc = win.document;
 			var scripts = [];
 			

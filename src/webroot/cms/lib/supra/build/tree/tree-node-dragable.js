@@ -330,6 +330,20 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				});
 				dd.set('treeNode', this);
 			}
+			
+			//Clean up
+			this.before('destroy', this._beforeDestroy, this);
+		},
+		
+		_beforeDestroy: function () {
+			if (this.dd) {
+				//Remove drag and drop
+				if (this.dd.target) {
+					this.dd.target.destroy();
+				}
+				this.dd.unplug(Y.Plugin.DDProxy);
+				this.dd.destroy();
+			}
 		},
 		
 		_setDragable: function (val) {
