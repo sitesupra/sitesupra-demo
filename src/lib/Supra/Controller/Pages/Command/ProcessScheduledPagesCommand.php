@@ -14,6 +14,8 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Log\Log;
+use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
+use Supra\Cms\CmsController;
 /**
  *
  */
@@ -51,6 +53,14 @@ class ProcessScheduledPagesCommand extends Command
 			//$publicEm->getConnection()->beginTransaction();
 			try {
 				$request->publish();
+				
+				$eventArgs = new CmsPagePublishEventArgs();
+				$eventArgs->localization = $localization;
+				
+				// FIXME!!!
+				$eventManager = ObjectRepository::getEventManager('Supra\Cms\ContentManager');
+				$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+				
 				//$publicEm->getConnection()->commit();
 			} catch (\Exception $e) {
 
