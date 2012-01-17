@@ -337,6 +337,10 @@ class EntityAuditListener implements EventSubscriber
 		
 		$this->staticRevisionId = $revisionData->getId();
 		
+
+		$this->auditEm->getProxyFactory()
+				->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+		
 		// page single localization
 		$localization = $this->em->find(Localization::CN(), $localizationId);
 		$this->insertAuditRecord($localization, self::REVISION_TYPE_COPY);
