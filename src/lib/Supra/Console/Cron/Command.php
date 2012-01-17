@@ -69,16 +69,19 @@ class Command extends SymfonyCommand
 				case CronJob::STATUS_OK:
 				case CronJob::STATUS_FAILED:
 					
-					// Lock and set next run time
+					// Lock job
 					$job->setStatus(CronJob::STATUS_LOCKED);
-					$this->updateJobNextExecutionTime($job);
 					$em->flush();
 					
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
 					try {
+
 						$return = $cli->doRun($commandInput, $commandOutput);
+						
+						// workaround for cleared unit of work
+						$job = $repo->find($job->getId());
 						
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
@@ -93,11 +96,16 @@ class Command extends SymfonyCommand
 							$job->setStatus(CronJob::STATUS_FAILED);
 						}
 					} catch (\Exception $e) {
+						
+						$job = $repo->find($job->getId());
+						
 						$output = $commandOutput->getOutput();
 						$log->error("Unexpected failure while running scheduled task {$job->getCommandInput()}: {$e->__toString()}\nOutput: ", $output);
 						
 						$job->setStatus(CronJob::STATUS_FAILED);
 					}
+					
+					$this->updateJobNextExecutionTime($job);
 					
 					break;
 					
