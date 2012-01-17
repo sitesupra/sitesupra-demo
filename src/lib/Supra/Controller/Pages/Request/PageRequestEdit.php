@@ -338,7 +338,7 @@ class PageRequestEdit extends PageRequest
 		$publicEm->flush();
 		
 		// Store page version
-		$userId = 'fixme-fixture-have-no-user';
+		$userId = 'scheduled-publish';
 		$user = $this->getUser();
 		if ($user instanceof User) {
 			$userId = $user->getId();

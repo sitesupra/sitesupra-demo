@@ -77,14 +77,14 @@ class Command extends SymfonyCommand
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
-					$connection = $em->getConnection();
-					$connection->beginTransaction();
+					//$connection = $em->getConnection();
+					//$connection->beginTransaction();
 					
 					try {
 						$return = $cli->doRun($commandInput, $commandOutput);
 						
-						$connection->commit();
-						
+						//$connection->commit();
+
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
 							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);

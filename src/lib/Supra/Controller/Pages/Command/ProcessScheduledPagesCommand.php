@@ -40,6 +40,7 @@ class ProcessScheduledPagesCommand extends Command
 	protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->_em = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
 	
 		$scheduledLocalizations = $this->findScheduled();
 		
@@ -49,6 +50,8 @@ class ProcessScheduledPagesCommand extends Command
 			
 			try {
 				$request->publish();
+				$publicEm->flush();
+				$publicEm->getConnection()->commit();
 			} catch (\Exception $e) {
 				// skip page, if something went wrong
 				$pageId = $localization->getId();
