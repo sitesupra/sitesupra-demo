@@ -59,7 +59,9 @@ class ProcessScheduledPagesCommand extends Command
 			} catch (\Exception $e) {
 				// skip page, if something went wrong
 				$pageId = $localization->getId();
-				Log::error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
+				
+				$log = ObjectRepository::getLogger($this);
+				$log->error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
 				
 				continue;
 			}
