@@ -65,6 +65,9 @@ require_once SUPRA_LIBRARY_PATH . 'Swift' . DIRECTORY_SEPARATOR . 'swift_require
 require_once SUPRA_LIBRARY_PATH . 'Solarium' . DIRECTORY_SEPARATOR . 'Autoloader.php';
 Solarium_Autoloader::register();
 
+// Set social media namespace
+$socialMediaNamespace = new NamespaceLoaderStrategy('SocialMedia', SUPRA_LIBRARY_PATH . 'SocialMedia');
+$loader->registerNamespace($socialMediaNamespace);
 
 // Set the initial timezone to the logger
 Supra\Log\LogEvent::setDefaultTimezone(date_default_timezone_get());

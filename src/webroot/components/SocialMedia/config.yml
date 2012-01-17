@@ -1,0 +1,5 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /social
+        controller: Project\SocialMedia\SocialMediaController
