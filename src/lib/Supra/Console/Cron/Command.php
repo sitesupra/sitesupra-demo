@@ -123,9 +123,11 @@ class Command extends SymfonyCommand
 		}
 
 		$masterCronJob->setLastExecutionTime($thisTime);
-		$em->getConnection()->commit();
 		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
-			
+		
+		if ($em->getConnection()->isTransactionActive()) {
+			$em->getConnection()->commit();	
+		}
 		$em->flush();
 		
 	}
