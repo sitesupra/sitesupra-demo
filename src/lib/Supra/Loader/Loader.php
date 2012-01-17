@@ -140,9 +140,10 @@ class Loader
 		$classPath = $this->findClassPath($className);
 
 		if ( ! is_null($classPath)) {
-			require_once $classPath;
-
-			return true;
+			
+			$included = @include_once $classPath;
+			
+			return (bool) $included;
 		}
 
 		return false;

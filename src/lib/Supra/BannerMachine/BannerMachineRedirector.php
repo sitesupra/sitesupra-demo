@@ -7,6 +7,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\ControllerAbstraction;
 use Supra\Response\HttpResponse;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Uri\NullPath;
+use Supra\Controller\Exception\ResourceNotFoundException;
 
 class BannerMachineRedirector extends ControllerAbstraction
 {
@@ -46,8 +48,8 @@ class BannerMachineRedirector extends ControllerAbstraction
 
 					$path = $pageLocalization->getPath();
 
-					if ($path->isEmpty()) {
-						$response->redirect($pageLocalization->getRedirect()->getHref());
+					if ($path instanceof NullPath) {
+						throw new ResourceNotFoundException('Banner target not available.');
 					} else {
 						$response->redirect($path);
 					}
