@@ -95,7 +95,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false, $inheritConfig = null)
 	{
 		/* @var $data Entity\Abstraction\Localization */
 		$data = null;
@@ -143,7 +143,6 @@ class SitemapAction extends PageManagerAction
 		}
 
 		$children = null;
-		$inheritConfig = null;
 		
 		if ( ! $isGlobal) {
 			if ($page instanceof Entity\ApplicationPage) {
@@ -230,9 +229,9 @@ class SitemapAction extends PageManagerAction
 				$group->setTitle($name);
 				$group->setChildren($child);
 				
-				$groupArray = $this->buildTreeArray($group, $locale, false, $skipGlobal);
-				
-				$childrenArray[] = $groupArray;
+				$childArray = $this->buildTreeArray($group, $locale, false, $skipGlobal, $config);
+				$childArray['isDragable'] = false;
+
 			} else {
 			
 				// Application responds with localization objects..
@@ -249,15 +248,16 @@ class SitemapAction extends PageManagerAction
 
 				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
 
-				// it is possibly, that childrens should inherit some config values from parent node
-				if (( ! empty($childArray) && is_array($childArray))
-						&& (! empty($config) && is_array($config))) {
-					$childArray = array_merge($childArray, $config);
-				}
-				
-				if ( ! empty($childArray)) {
-					$childrenArray[] = $childArray;
-				}
+			}
+			
+			// it is possibly, that childrens should inherit some config values from parent node
+			if (( ! empty($childArray) && is_array($childArray))
+					&& (! empty($config) && is_array($config))) {
+				$childArray = array_merge($childArray, $config);
+			}
+			
+			if ( ! empty($childArray)) {
+				$childrenArray[] = $childArray;
 			}
 		}
 		
