@@ -123,10 +123,9 @@ class Command extends SymfonyCommand
 		}
 
 		$masterCronJob->setLastExecutionTime($thisTime);
-		
-		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
 		$em->getConnection()->commit();
-		
+		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
+			
 		$em->flush();
 		
 	}
