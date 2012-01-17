@@ -179,6 +179,8 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->sendPasswordChangeLink($user, 'createpassword');
 
 		$this->writeAuditLog('insert user', "User '" . $user->getName() . "' created");
+		
+		$this->getResponse()->setResponseData(array('user_id' => $user->getId()));
 	}
 
 	/**
