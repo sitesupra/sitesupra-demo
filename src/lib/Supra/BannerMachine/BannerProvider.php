@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityRepository;
 use Supra\BannerMachine\Entity\Banner;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
+use Supra\BannerMachine\Exception\BannerNotFoundException;
 use \DateTime;
 use Supra\Locale\Locale;
 use Supra\FileStorage\Entity\Abstraction\File;
@@ -82,8 +83,8 @@ class BannerProvider
 		}
 
 		$criteria = array(
-				'typeId' => $type->getId(),
-				'localeId' => $localeId
+			'typeId' => $type->getId(),
+			'localeId' => $localeId
 		);
 
 		$banners = $this->getEntityRepository()->findBy($criteria);
@@ -150,7 +151,7 @@ class BannerProvider
 
 		return $has;
 	}
-	
+
 	/**
 	 * @param string $typeId
 	 * @return BannerTypeAbstraction
@@ -195,16 +196,12 @@ class BannerProvider
 		$now = new DateTime('now');
 
 		$q = $this->getEntityManager()->createQuery();
-		$q->setDQL('SELECT b.id, b.priority + 1 AS priority FROM ' . Banner::CN() . 
+		$q->setDQL('SELECT b.id, b.priority + 1 AS priority FROM ' . Banner::CN() .
 				' b WHERE b.localeId = :localeId 
 					AND ( (b.scheduledFrom IS NULL AND b.scheduledTill IS NULL) 
 						OR (:now BETWEEN b.scheduledFrom AND b.scheduledTill) ) 
 					AND b.typeId = :typeId 
 					AND b.status = :status 
-					AND (
-						(b.targetType = 1 AND b.internalTarget IS NOT NULL AND b.internalTarget != \'\') OR
-						(b.targetType = 2 AND b.externalTarget IS NOT NULL AND b.externalTarget != \'\')
-					)
 					ORDER BY b.priority');
 		$q->setParameter('typeId', $bannerType->getId());
 		$q->setParameter('status', Banner::STATUS_ACTIVE);
@@ -230,6 +227,10 @@ class BannerProvider
 				$bannerId = $bannerData['id'];
 				break;
 			}
+		}
+
+		if (empty($bannerId)) {
+			throw new BannerNotFoundException();
 		}
 
 		$chosenBanner = $this->getBanner($bannerId);
@@ -273,10 +274,10 @@ class BannerProvider
 
 		$imageBannerEr = $this->getEntityManager()->getRepository(Entity\ImageBanner::CN());
 		$imageBanners = $imageBannerEr->findBy($criteria);
-		
+
 		$flashBannerEr = $this->getEntityManager()->getRepository(Entity\FlashBanner::CN());
 		$flashBanners = $flashBannerEr->findBy($criteria);
-		
+
 		return $imageBanners + $flashBanners;
 	}
 

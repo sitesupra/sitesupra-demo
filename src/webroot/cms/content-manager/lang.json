@@ -50,6 +50,8 @@
 			"locked_message": "Page was locked by {{ username }} on {{ datetime }}",
 			"unlock": "Unlock",
 			
+			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language",
+			
 			"error": {
 				"page_locked": "Page is locked by another user"
 			}
@@ -179,8 +181,7 @@
 			"advanced": "Advanced settings",
 			"advanced_title": "Advanced settings",
 			
-			"advanced_global": "Global",
-			"advanced_local": "Local",
+			"allow_translate": "Allow to translate this page",
 			
 			"advanced_create": "Page created on ",
 			"advanced_unknown": "Creation time not set yet",

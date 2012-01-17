@@ -132,7 +132,6 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 			
 			//On resize update banner positions
 			Y.on('resize', Y.throttle(Y.bind(function () {
-				console.log('RESIZE');
 				this.positionBanners(this.banner_index);
 			}, this)), window);
 			

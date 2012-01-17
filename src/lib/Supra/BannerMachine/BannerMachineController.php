@@ -48,8 +48,7 @@ class BannerMachineController extends BlockController
 
 		if ($request instanceof PageRequestView) {
 			$this->exposeBanner();
-		}
-		else {
+		} else {
 			$this->editBanner();
 		}
 	}
@@ -65,22 +64,24 @@ class BannerMachineController extends BlockController
 		try {
 
 			$bannerType = $this->getBannerType();
-			
+
 			$pageLocalization = $this->getRequest()->getPageLocalization();
 			$localeId = $pageLocalization->getLocale();
 			$lm = ObjectRepository::getLocaleManager($this);
 			$locale = $lm->getLocale($localeId);
 
 			$banner = $bannerProvider->getRandomBanner($bannerType, $locale);
-			
+
 			$bannerProvider->increaseBannerExposureCounter($banner);
 
 			$bannerContent = $banner->getExposureModeContent($this);
-		}
-		catch (\RuntimeException $e) {
-			
+		} catch (BannerNotFoundException $e) {
+
+			return;
+		} catch (\RuntimeException $e) {
+
 			\Log::error($e);
-			
+
 			return;
 		}
 
@@ -108,13 +109,11 @@ class BannerMachineController extends BlockController
 			$banner = $bannerProvider->getRandomBanner($bannerType, $locale);
 
 			$bannerContent = $banner->getEditModeContent($this);
-		}
-		catch(BannerNotFoundException $e) {
-			
+		} catch (BannerNotFoundException $e) {
+
 			$bannerContent = '<p>There are no banners for selected banner type!';
-		}
- 		catch (\RuntimeException $e) {
-			
+		} catch (\RuntimeException $e) {
+
 			\Log::error($e);
 
 			$bannerContent = '<p style="color: red;">Banner machine error has occurred! Plase notify administration!';
@@ -146,7 +145,7 @@ class BannerMachineController extends BlockController
 		$html = new \Supra\Editable\Select('Banner type');
 		$html->setValues($bannerTypesForSelect);
 		$html->setDefaultValue($type->getId());
-		
+
 		$contents[self::PROPERTY_NAME_BANNER_TYPE] = $html;
 
 		return $contents;

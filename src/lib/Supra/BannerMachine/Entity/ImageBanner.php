@@ -43,15 +43,20 @@ class ImageBanner extends FileBanner
 	 */
 	public function getExposureModeContent(BannerMachineController $controller)
 	{
-		$bannerProvider = ObjectRepository::getBannerProvider($this);
+		$redirectorUrl = null;
 
-		$redirectorParams = array(
+		if ($this->hasTarget()) {
+
+			$bannerProvider = ObjectRepository::getBannerProvider($this);
+
+			$redirectorParams = array(
 				BannerMachineRedirector::REQUEST_KEY_BANNER_ID => $this->getId(),
 				BannerMachineRedirector::REQUEST_KEY_EXTRA => $controller->getPropertyValue(BannerMachineController::PROPERTY_NAME_APPEND_TO_URL),
 				BannerMachineRedirector::REQUEST_KEY_PAGE_REF => $controller->getPage()->getId()
-		);
+			);
 
-		$redirectorUrl = $bannerProvider->getRedirectorPath() . '?' . http_build_query($redirectorParams);
+			$redirectorUrl = $bannerProvider->getRedirectorPath() . '?' . http_build_query($redirectorParams);
+		}
 
 		return $this->getImageBannerContent($redirectorUrl);
 	}
@@ -81,11 +86,14 @@ class ImageBanner extends FileBanner
 		$bannerType = $bannerProvider->getType($this->getTypeId());
 
 		$data = array(
-				'redirectorUrl' => $redirectorUrl,
-				'width' => $bannerType->getWidth(),
-				'height' => $bannerType->getHeight(),
-				'src' => $fileStorage->getWebPath($this->file)
+			'width' => $bannerType->getWidth(),
+			'height' => $bannerType->getHeight(),
+			'src' => $fileStorage->getWebPath($this->file)
 		);
+		
+		if(! empty($redirectorUrl)) {
+			$data['redirectorUrl'] = $redirectorUrl;
+		}
 
 		$imageBannerContent = $tp->parseTemplate('banner\banner-image.html.twig', $data, $templateLoader);
 

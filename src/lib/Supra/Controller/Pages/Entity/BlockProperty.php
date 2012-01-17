@@ -108,9 +108,11 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 */
 	public function getMetadata()
 	{
-		if ( ! is_null($this->overridenMetadata)) {
+		if ($this->overridenMetadata instanceof Collections\ArrayCollection
+				&& $this->overridenMetadata->count() > 0) {
+					
 			return $this->overridenMetadata;
-		}
+		}	
 		
 		return $this->metadata;
 	}

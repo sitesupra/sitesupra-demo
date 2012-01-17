@@ -88,7 +88,7 @@ Supra('supra.input', function (Y) {
 		updateUI: function (data) {
 			
 			if ('avatar' in data) {
-				this.one('div.info img').setAttribute('src', data.avatar);
+				this.one('div.info img').setAttribute('src', data.avatar + '?r=' + (+new Date()));
 			}
 			if ('name' in data) {
 				this.one('div.info a').set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));

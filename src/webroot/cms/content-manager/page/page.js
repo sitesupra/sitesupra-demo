@@ -269,6 +269,9 @@ Supra(function (Y) {
 						
 					}
 					
+					//Update localization list
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
+					
 					//Update edit button label to "Edit page" or "Edit template"
 					var label = Supra.Intl.get([this.getType(), 'edit']);
 					button_edit.set('label', label);
@@ -292,6 +295,9 @@ Supra(function (Y) {
 					button_edit.hide();
 					button_unlock.hide();
 					if (message_unlock) message_unlock.remove();
+					
+					//Update localization list
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
 					
 				} else {
 					//Remove loading style

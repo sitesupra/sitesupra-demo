@@ -127,15 +127,16 @@ class Loader
 	}
 
 	/**
-	 * Try loading class by it's name
+	 * Autoload method, try loading class by it's name
 	 * @param string $className
 	 * @return boolean
 	 */
-	public function load($className)
+	public function autoload($className)
 	{
-		$this->orderStrategies();
+		if ( ! $this->strategiesOrdered) {
+			$this->orderStrategies();
+		}
 
-		$className = static::normalizeClassName($className);
 		$classPath = $this->findClassPath($className);
 
 		if ( ! is_null($classPath)) {
@@ -145,16 +146,6 @@ class Loader
 		}
 
 		return false;
-	}
-
-	/**
-	 * Autoload method
-	 * @param string $className
-	 * @return boolean
-	 */
-	public function autoload($className)
-	{
-		return $this->load($className);
 	}
 
 	/**

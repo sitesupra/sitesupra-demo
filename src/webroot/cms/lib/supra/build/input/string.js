@@ -194,6 +194,8 @@ YUI.add('supra.input-string', function (Y) {
 		},
 		
 		_setValue: function (value) {
+			value = (value === undefined || value === null ? '' : value);
+			
 			this.get('inputNode').set('value', value);
 			var node = this.get('replacementNode');
 			if (node) {

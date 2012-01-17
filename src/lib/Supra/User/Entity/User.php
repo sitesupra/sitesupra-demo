@@ -274,7 +274,7 @@ class User extends AbstractUser
 	/**
 	 * @return boolean
 	 */
-	public function isPersonalAvatar()
+	public function hasPersonalAvatar()
 	{
 		return $this->personalAvatar;
 	}

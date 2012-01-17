@@ -8,7 +8,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
 	var IO = Supra.IOUpload,
-		MediaLibraryList = Supra.MediaLibraryList;
+		IOLegacy = Supra.IOUploadLegacy,
+		MediaLibraryList = Supra.MediaLibraryList,
+		FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
 	
 	/**
 	 * File upload
@@ -45,7 +47,60 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		'disabled': {
 			value: false,
 			setter: '_setDisabled'
-		}
+		},
+		
+		/**
+		 * File input
+		 * @type {Object}
+		 */
+		'input': {
+			value: null
+		},
+		
+		/**
+		 * Form element for adding new file
+		 * Used only if File API is not supported
+		 * @type {Object}
+		 */
+		'form': {
+			value: null
+		},
+		
+		/**
+		 * Iframe element
+		 * Used only if File API is not supported
+		 * @type {Object}
+		 */
+		'iframe': {
+			value: null
+		},
+		
+		/**
+		 * File input for replacing file
+		 * Used only if File API is not supported
+		 * @type {Object}
+		 */
+		'input_replace': {
+			value: null
+		},
+		
+		/**
+		 * Form element for replacing file
+		 * Used only if File API is not supported
+		 * @type {Object}
+		 */
+		'form_replace': {
+			value: null
+		},
+		
+		/**
+		 * Iframe element for replacing file
+		 * Used only if File API is not supported
+		 * @type {Object}
+		 */
+		'iframe_replace': {
+			value: null
+		},
 	};
 	
 	Y.extend(Plugin, Y.Plugin.Base, {
@@ -77,15 +132,94 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			
 			this.subscribers = [];
 			
-			//Create invisible input which will be used for "Browse file" window
-			var input = Y.Node.create('<input class="offscreen" type="file" multiple="multiple" />');
-			input.on('change', this.onFileBrowse, this);
-			this.get('host').get('contentBox').append(input);
-			this.set('input', input); 
+			var container = this.get('host').get('contentBox'),
+				input = null,
+				node_id = null,
+				uri = null,
+				form = null,
+				iframe = null;
+			
+			if (FILE_API_SUPPORTED) {
+				this.createInput();
+			} else {
+				/* Create form and iframe where form will be submitted to
+				 * For IE 
+				 */
+				var button = Supra.Manager.PageToolbar.getActionButton('mlupload');
+				if (button) {
+					this.createLegacyInput(button, false);
+				}
+			}
 			
 			//Enable
 			if (!this.get('disabled')) {
 				this.set('disabled', false);
+			}
+		},
+		
+		/**
+		 * Create input for file upload
+		 * 
+		 * @private
+		 */
+		createInput: function () {
+			var container = this.get('host').get('contentBox'),
+				input = null;
+			
+			//Create invisible input which will be used for "Browse file" window
+			input = Y.Node.create('<input class="offscreen" type="file" multiple="multiple" />');
+			input.on('change', this.onFileBrowse, this);
+			container.append(input);
+			
+			this.set('input', input);
+		},
+		
+		/**
+		 * Create input for legacy browsers
+		 * File insert and file replace will be two different forms
+		 * inserted inside "Upload" and "Replace" buttons to capture mouse click
+		 * 
+		 * @private
+		 */
+		createLegacyInput: function (button, for_replace) {
+			var container = button.get('boundingBox'),
+				uri = document.location.protocol + '//' + document.location.hostname + '/cms/lib/supra/build/io/blank.html',
+				node_id = Y.guid(),
+				iframe,
+				form,
+				input;
+			
+			iframe = Y.Node.create('<iframe class="offscreen" id="' + node_id + '" name="' + node_id + '" src="' + uri + '" />');
+			form = Y.Node.create('<form target="' + node_id + '" class="legacy-file-upload-form" method="post" action="" enctype="multipart/form-data">\
+										<input suIgnore="true" type="file" name="file" class="upload-file-input" />\
+										<button suIgnore="true" type="submit">Upload</button>\
+								  </form>');
+			
+			input = form.one('input');
+			input.on('change', function () {
+				if (for_replace) {
+					var item = this.get('host').getSelectedItem();
+					this.replaceFileLegacy(item.id);
+				} else {
+					this.onFileBrowse();
+				}
+			}, this);
+			
+			Y.one('body').append(iframe);
+			container.prepend(form);
+			
+			if (!for_replace) {
+				this.set('form', form);
+				this.set('iframe', iframe);
+				this.set('input', input);
+			} else {
+				if (this.get('iframe_replace')) this.get('iframe_replace').remove();
+				if (this.get('form_replace')) this.get('form_replace').remove();
+				if (this.get('input_replace')) this.get('input_replace').remove();
+				
+				this.set('form_replace', form);
+				this.set('iframe_replace', iframe);
+				this.set('input_replace', input);
 			}
 		},
 		
@@ -182,10 +316,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			var node = Y.Node.getDOMNode(input);
 			
 			if (file_id) {
-				input.removeAttribute('multiple');
+				if (FILE_API_SUPPORTED) input.removeAttribute('multiple');
 				input.setData('fileId', file_id);
 			} else {
-				input.setAttribute('multiple', 'multiple');
+				if (FILE_API_SUPPORTED) input.setAttribute('multiple', 'multiple');
 				input.setData('fileId', null);
 			}
 			
@@ -195,20 +329,19 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		
 		/**
 		 * When files are browsed start uploading them
-		 * 
 		 * @private
 		 */
 		onFileBrowse: function () {
 			//Get files
 			var files = Y.Node.getDOMNode(this.get('input')).files;
 			
-			if (!files) {
-				//File API is not supported
-				//@TODO
+			if (!FILE_API_SUPPORTED) {
+				//Will use default form submit without progress support
+				files = false;
+			} else if  (!files.length) {
+				//No files were selected
 				return;
 			}
-			
-			if (!files.length) return;
 			
 			//Find folder
 			var file_id = this.get('input').getData('fileId'),
@@ -218,10 +351,18 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			
 			if (!file_id) {
 				//Upload new files
-				this.uploadFiles(folder, files);
+				if (FILE_API_SUPPORTED) {
+					this.uploadFiles(folder, files);
+				} else {
+					this.uploadFilesLegacy(folder);
+				}
 			} else {
 				//Replace file
-				this.replaceFile(file_id, files);
+				if (FILE_API_SUPPORTED) {
+					this.replaceFile(file_id, files);
+				} else {
+					this.replaceFileLegacy(file_id);
+				}
 			}
 		},
 		
@@ -277,6 +418,55 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		/**
+		 * Upload files using standart form submit, instead of File API
+		 * 
+		 * @param {Number} folder Folder ID into which file will be uploaded
+		 * @private
+		 */
+		uploadFilesLegacy: function (folder /* Folder ID */) {
+			var file_name = this.get('input').getDOMNode().value || '';
+			
+			file_name = file_name.replace(/.*(\\|\/)/, '');
+			
+			//If only images are displayed, then only images can be uploaded. Same with files
+			if (!file_name || !this.testFileExtension(file_name)) return;
+			
+			//Find folder
+			var folder = folder ? folder : this.get('host').get('rootFolderId'),
+				data = {'folder': folder},
+				event_data = null,
+				io = null,
+				uri = this.get('requestUri'),
+				file_id = null,
+				file = null;
+			
+			//Create temporary item
+			file_id = this.get('host').addFile(folder, {'title': file_name});
+			
+			//Event data will be passed to 'load' and 'progress' event listeners
+			event_data = {
+				'folder': folder,
+				'file_id': file_id,
+				'file_name': file_name,
+				'node': this.get('host').getItemNode(file_id)
+			};
+			
+			io = new IOLegacy({
+				'form': this.get('form'),
+				'iframe': this.get('iframe'),
+				'requestUri': uri,
+				'data': data,
+				'eventData': event_data
+			});
+			
+			//Add event listeners
+			io.on('load', this.onFileComplete, this);
+			
+			//Start uploading
+			io.start();
+		},
+		
+		/**
 		 * Replace file
 		 * 
 		 * @param {Number} file_id File ID which will be replaced
@@ -323,6 +513,50 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		/**
+		 * Replace file using standart form submit, instead of File API
+		 * 
+		 * @param {Number} file_id File ID which will be replaced
+		 * @private
+		 */
+		replaceFileLegacy: function (file_id /* File ID */) {
+			var file_name = this.get('input_replace').getDOMNode().value || '';
+			file_name = file_name.replace(/.*(\\|\/)/, '');
+			
+			//If only images are displayed, then only images can be uploaded. Same with files
+			if (!file_name || !this.testFileExtension(file_name)) return;
+			
+			//Find folder
+			var data = {'file_id': file_id},
+				event_data = null,
+				io = null,
+				uri = this.get('requestUri'),
+				img_node = this.get('host').getImageNode();
+			
+			if (img_node) {
+				img_node.ancestor().addClass('loading');
+			}
+			
+			//Event data will be passed to 'load' and 'progress' event listeners
+			event_data = {
+				'file_id': file_id
+			};
+			
+			io = new IOLegacy({
+				'form': this.get('form_replace'),
+				'iframe': this.get('iframe_replace'),
+				'requestUri': uri,
+				'data': data,
+				'eventData': event_data
+			});
+			
+			//Add event listeners
+			io.on('load', this.onFileComplete, this);
+			
+			//Start uploading
+			io.start();
+		},
+		
+		/**
 		 * On file upload progress update progress bar
 		 * 
 		 * @param {Event} evt
@@ -349,33 +583,33 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				folder = evt.folder,
 				temp_file = (typeof file_id == 'number' && file_id < 0);
 			
-			if (temp_file) {
-				//Mix temporary and loaded data
-				var old_data = data_object.getData(file_id);
-				data = Supra.mix({}, old_data, data);
-			} else if (file_id) {
-				//If request was replace then update data
-				var old_data = data_object.getData(file_id);
-				if (old_data) {
-					Supra.mix(old_data, data);
-				}
-				
-				//Fire event on media list
-				this.get('host').fire('replace', {'file_id': file_id});
-			}
-			
-			if (!evt.node) {
-				//If request was for replace and image is till opened then
-				//reload image source
-				var item = this.get('host').getSelectedItem();
-				if (item && file_id == item.id) {
-					this.get('host').reloadImageSource(data);
-				}
-				
-				return;
-			}
-			
 			if (data) {
+				if (temp_file) {
+					//Mix temporary and loaded data
+					var old_data = data_object.getData(file_id);
+					data = Supra.mix({}, old_data, data);
+				} else if (file_id) {
+					//If request was replace then update data
+					var old_data = data_object.getData(file_id);
+					if (old_data) {
+						Supra.mix(old_data, data);
+					}
+					
+					//Fire event on media list
+					this.get('host').fire('replace', {'file_id': file_id});
+				}
+				
+				if (!evt.node) {
+					//If request was for replace and image is till opened then
+					//reload image source
+					var item = this.get('host').getSelectedItem();
+					if (item && file_id == item.id) {
+						this.get('host').reloadImageSource(data);
+					}
+					
+					return;
+				}
+				
 				//Add file
 				var new_file_id = this.get('host').addFile(folder, data),
 					new_file_node = this.get('host').getItemNode(new_file_id);
@@ -395,7 +629,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		
 		/**
 		 * Checks if file type is allowed to be uploaded
-		 * Testing is based on file extension
+		 * Testing is based on file mime type (extension)
 		 * 
 		 * @param {File} file
 		 * @return True if file type is allowed, otherwise false
@@ -407,9 +641,35 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				case MediaLibraryList.DISPLAY_ALL:
 					return true;
 				case MediaLibraryList.DISPLAY_IMAGES:
+					var file_name = file.fileName || file.name;
+					
+					//SWF is data and image
+					if (file_name.match(/\.swf$/)) return true;
 					return !!file.type.match(/^image\//);
 				case MediaLibraryList.DISPLAY_FILES:
 					return !!(!file.type.match(/^image\//));
+				default:
+					return true;
+			}
+		},
+		
+		/**
+		 * Checks if file type is allowed to be uploaded
+		 * Testing is based on file extension
+		 * 
+		 * @param {File} file
+		 * @return True if file type is allowed, otherwise false
+		 * @type {Boolean}
+		 * @private
+		 */
+		testFileExtension: function (file_name) {
+			switch(this.get('host').get('displayType')) {
+				case MediaLibraryList.DISPLAY_ALL:
+					return true;
+				case MediaLibraryList.DISPLAY_IMAGES:
+					return !!file_name.match(/\.(swf|jpeg|jpg|gif|png|bmp|tiff|iff)$/);
+				case MediaLibraryList.DISPLAY_FILES:
+					return !file_name.match(/\.(jpeg|jpg|gif|png|bmp|tiff|iff)$/);
 				default:
 					return true;
 			}

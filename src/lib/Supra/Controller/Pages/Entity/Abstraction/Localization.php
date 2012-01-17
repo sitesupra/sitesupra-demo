@@ -12,6 +12,7 @@ use Supra\Controller\Pages\Entity\TemplateLocalization;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\AuditLog\TitleTrackingItemInterface;
 
 /**
  * @Entity
@@ -24,7 +25,7 @@ use Supra\ObjectRepository\ObjectRepository;
  *		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
  * })
  */
-abstract class Localization extends Entity implements AuditedEntityInterface
+abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface
 {
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
 	const CHANGE_FREQUENCY_DAILY = 'daily';
@@ -45,6 +46,11 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 * @var string
 	 */
 	protected $title;
+	
+	/**
+	 * @var string
+	 */
+	protected $originalTitle;
 
 	/**
 	 * The parent entity which stores hierarchy information, AbstractPage implementation
@@ -180,6 +186,11 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 	 */
 	public function setTitle($title)
 	{
+		// track only first title change
+		if (is_null($this->originalTitle) && ! is_null($this->title) && ($this->title != $title)) {
+			$this->originalTitle = $this->title;
+		}
+		
 		$this->title = $title;
 	}
 
@@ -534,5 +545,13 @@ abstract class Localization extends Entity implements AuditedEntityInterface
 			parent::__clone();
 			$this->lock = null;
 		}
+	}
+	
+	/**
+	 * Used to improve audit log readability
+	 */
+	public function getOriginalTitle()
+	{
+		return $this->originalTitle;
 	}
 }

@@ -48,7 +48,6 @@ use Supra\Controller\Pages\Exception;
  * @method AbstractPage moveAsFirstChildOf(AbstractPage $parentNode)
  * @method AbstractPage moveAsLastChildOf(AbstractPage $parentNode)
  * @method boolean isLeaf()
- * @method boolean isRoot()
  * @method boolean isAncestorOf(AbstractPage $node)
  * @method boolean isDescendantOf(AbstractPage $node)
  * @method boolean isEqualTo(AbstractPage $node)
@@ -98,6 +97,19 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	{
 		parent::__construct();
 		$this->localizations = new ArrayCollection();
+	}
+	
+	/**
+	 * Don't serialize nested set node
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		$properties = get_object_vars($this);
+		unset($properties['nestedSetNode']);
+		$properties = array_keys($properties);
+		
+		return $properties;
 	}
 
 	/**

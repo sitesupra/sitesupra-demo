@@ -59,7 +59,8 @@ YUI.add("supra.languagebar", function (Y) {
 		 * @type {Array}
 		 */
 		'contexts': {
-			value: null
+			value: null,
+			setter: '_setContexts'
 		},
 		/**
 		 * Current locale, format: LANGUAGE_CONTEXT
@@ -133,13 +134,28 @@ YUI.add("supra.languagebar", function (Y) {
 		},
 		
 		/**
+		 * Set contexts
+		 * 
+		 * @param {Array} contexts Contexts
+		 */
+		_setContexts: function (contexts) {
+			if (!this.panel) return;
+			
+			var content = this.panel.get('contentBox');
+				content.all('ul').remove();
+				content.append(this.renderUIList(contexts));
+			
+			this.set('locale', this.get('locale'));
+		},
+		
+		/**
 		 * Render context/language list
 		 * 
 		 * @private
 		 */
-		renderUIList: function () {
+		renderUIList: function (contexts) {
 			return Y.Node.create(TEMPLATE({
-				'contexts': this.get('contexts')
+				'contexts': contexts || this.get('contexts')
 			}));
 		},
 		

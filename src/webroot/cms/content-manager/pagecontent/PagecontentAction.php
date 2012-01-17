@@ -169,6 +169,11 @@ class PagecontentAction extends PageManagerAction
 			$property->setValue($value);
 
 			foreach ($valueData as $elementName => &$elementData) {
+				
+				if ( ! isset($elementData['href'])) {
+					$elementData['href'] = null;
+				}
+				
 				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 
 				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);

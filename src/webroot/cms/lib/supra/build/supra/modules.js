@@ -118,6 +118,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.io-upload': {
 		path: 'io/upload.js',
 		requires: [
+			'supra.io-upload-legacy'
+		]
+	},
+	'supra.io-upload-legacy': {
+		path: 'io/upload-legacy.js',
+		requires: [
 			'base',
 			'json'
 		]
@@ -615,7 +621,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		]
 	},
 	'supra.manager-base': {
-		path: 'manager/base.js',
+		path: 'manager/base.js'
 	},
 	'supra.manager-loader': {
 		path: 'manager/loader.js',

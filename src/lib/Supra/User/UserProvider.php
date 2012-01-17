@@ -217,7 +217,7 @@ class UserProvider
 	 * TODO: throw exception on failure
 	 * @return Entity\User
 	 */
-	public function getSignedInUser()
+	public function getSignedInUser($updateSessionTime = true)
 	{
 		$sessionManager = $this->getSessionManager();
 		$session = $this->getSessionSpace();
@@ -237,8 +237,10 @@ class UserProvider
 		}
 		
 		// Update the last access time
-		$userSession->setModificationTime();
-		$entityManager->flush();
+		if ($updateSessionTime) {
+			$userSession->setModificationTime();
+			$entityManager->flush();
+		}
 		
 		return $user;
 	}

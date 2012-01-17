@@ -108,12 +108,18 @@ abstract class Banner extends Database\Entity
 	abstract function getExposureModeContent(BannerMachineController $controller);
 
 	abstract function getEditModeContent(BannerMachineController $controller);
-
+	
+	/**
+	 * @return integer
+	 */
 	public function getWidth()
 	{
 		return $this->width;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getHeight()
 	{
 		return $this->height;
@@ -211,61 +217,108 @@ abstract class Banner extends Database\Entity
 		$this->targetType = self::TARGET_TYPE_INTERNAL;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTitle()
 	{
 		return $this->title;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getTypeId()
 	{
 		return $this->typeId;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getPriority()
 	{
 		return $this->priority;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getTargetType()
 	{
 		return $this->targetType;
 	}
 
+	/**
+	 * @return integer
+	 */
 	public function getExposureCount()
 	{
 		return $this->exposureCount;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getCtr()
 	{
-		return 0;
+		return 0.0;
 	}
 
+	/**
+	 * @return float
+	 */
 	public function getAverageCtr()
 	{
-		return 0;
+		return 0.0;
 	}
-
+	
+	/**
+	 * @return string
+	 */
 	public function getInternalTarget()
 	{
 		return $this->internalTarget;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getExternalTarget()
 	{
 		return $this->externalTarget;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getLocaleId()
 	{
 		return $this->localeId;
 	}
 
+	/**
+	 * @param string $localeId 
+	 */
 	public function setLocaleId($localeId)
 	{
 		$this->localeId = $localeId;
 	}
 
+	/**
+	 * @return boolean
+	 */
+	public function hasTarget()
+	{
+		$targetType = $this->getTargetType();
+		
+		$internalTarget = $this->getInternalTarget();
+		$externalTarget = $this->getExternalTarget();
+		
+		return
+				($targetType == self::TARGET_TYPE_INTERNAL && ! empty($internalTarget) ) ||
+				($targetType == self::TARGET_TYPE_EXTERNAL && ! empty($externalTarget) );
+	}
+
 	abstract public function getExternalPath();
-	
 }

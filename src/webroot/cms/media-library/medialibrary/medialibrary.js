@@ -97,6 +97,8 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 	var NAME_EDITOR = 'MediaLibraryimageeditor',
 		NAME_EDITOR_CROP = 'MediaLibraryimageeditorcrop';
 	
+	//HTML5 Support
+	var FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
 	
 	//Shortcuts
 	var Manager = SU.Manager;
@@ -286,7 +288,10 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 			switch (button_id) {
 				case 'mlupload':
 					
-					this.medialist.upload.openBrowser();
+					if (FILE_API_SUPPORTED) {
+						this.medialist.upload.openBrowser();
+					}
+					
 					break;
 					
 				case 'mlfolder':

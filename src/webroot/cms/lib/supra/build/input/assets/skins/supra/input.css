@@ -405,3 +405,37 @@
 .yui3-input-text.yui3-input-error textarea {
 	border-color: #c00;
 }
+
+/**
+ * File upload form for legacy browsers (IE 9)
+ */
+.legacy-file-upload-form {
+	position: relative;
+	z-index: 2;
+	
+	height: 0;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	
+	top: 0px;
+}
+.legacy-file-upload-form input,
+.legacy-file-upload-form button {
+	position: absolute;
+	left: -9000px;
+	top: -9000px;
+}
+.legacy-file-upload-form .upload-file-input {
+	cursor: pointer;
+	left: -350px;
+	top: 0;
+	z-index: 3;
+	display: inline-block;
+	
+	width: 200px;
+	height: 32px;
+	zoom: 3;
+	
+	opacity: 0;
+}

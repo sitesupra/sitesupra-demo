@@ -150,11 +150,16 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				sel_tr = sel_td.ancestor(),
 				all_td = sel_tr.get('children'),
 				new_tr = '',
-				colspan = 1;
+				colspan = 1,
+				cell_html = '<br />';
+			
+			if (Y.UA.ie) {
+				cell_html = '';
+			}
 			
 			for(var i=0,ii=all_td.size(); i<ii; i++) {
 				colspan = parseInt(all_td.item(i).getAttribute('colspan'), 10) || 1;
-				new_tr += '<td' + (colspan > 1 ? ' colspan="' + colspan +'"' : '') + '><br /></td>';
+				new_tr += '<td' + (colspan > 1 ? ' colspan="' + colspan +'"' : '') + '>' + cell_html + '</td>';
 			}
 			
 			sel_tr.insert('<tr>' + new_tr + '</tr>', where);
@@ -320,8 +325,13 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 */
 		insertCell: function (tr, index) {
 			//Insert new cell
+			var cell_html = '<br />';
+			if (Y.UA.ie) {
+				cell_html = '';
+			}
+			
 			var td = document.createElement(tr.childNodes.length ? tr.childNodes[0].tagName : 'TD');
-				td.innerHTML = '<br />';
+				td.innerHTML = cell_html;
 			
 			var cell = this.getCellAtIndex(tr, index);
 			if (cell) {
@@ -567,11 +577,16 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			var htmleditor = this.htmleditor;
 			
 			if (!htmleditor.get('disabled') && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
+				var cell_html = '<br />';
+				if (Y.UA.ie) {
+					cell_html = '';
+				}
+				
 				var styles = this.getTableStyles(),	//Get all table styles
 					classname = styles.length ? styles[0].id : '',
 					
-					html_row = '<tr><td><br /></td><td><br /></td><td><br /></td></tr>',
-					html_table = '<table class="' + classname + '"><tbody><tr><th><br /></th><th><br /></th><th><br /></th></tr>' + html_row + html_row + '</tbody></table>';
+					html_row = '<tr><td>' + cell_html + '</td><td>' + cell_html + '</td><td>' + cell_html + '</td></tr>',
+					html_table = '<table class="' + classname + '"><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
 				
 				//Replace selection with table
 				var node = htmleditor.replaceSelection(html_table);

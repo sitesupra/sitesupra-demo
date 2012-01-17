@@ -161,15 +161,16 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Destroy contents object
 		 */
 		destroyContent: function () {
+			var doc = this.get('doc');
+			
 			if (this.contents) {
 				this.contents.destroy();
 				this.contents = null;
 			}
 			
-			var doc = this.get('doc');
 			if (doc) {
 				//Remove all listeners
-				Y.one(doc).purge();
+				Y.one(doc).purge(true);
 			}
 		},
 		
@@ -199,7 +200,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.destroyContent();
 			
 			//Save document & window instances
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var win = this.get('nodeIframe').getDOMNode().contentWindow;
 			var doc = win.document;
 			this.set('win', win);
 			this.set('doc', doc);
@@ -222,24 +223,39 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		writeHTML: function (html) {
-			var win = Y.Node.getDOMNode(this.get('nodeIframe')).contentWindow;
+			var win = this.get('nodeIframe').getDOMNode().contentWindow;
 			var doc = win.document;
+			var scripts = [];
 			
 			doc.open("text/html", "replace");
 			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {
 				html = html.replace(/<script [^>]*src="?'?([^\s"']+).*?<\/script[^>]*>/gi, function (m, src) {
-					return '<script>' +
-								'var node_script = document.createElement("script");' +
-								'node_script.src = "' + src + '";' +
-								'document.getElementsByTagName("head")[0].appendChild(node_script);' +
-						   '</script>';
+					scripts.push(src);
+					return '';
 				});
 			}
 			
 			doc.writeln(html);
 			doc.close();
+			
+			if (Supra.Y.UA.ie) {
+				//Load scripts one by one to make sure order is correct
+				var loadNextScript = function () {
+					if (!scripts.length) return;
+					
+					var source = scripts.shift();
+					var node = doc.createElement('SCRIPT');
+					
+					node.src = source;
+					node.type = 'text/javascript';
+					node.onload = loadNextScript;
+					doc.body.appendChild(node);
+				};
+				
+				doc.body.onload = loadNextScript;
+			}
 		},
 		
 		/**

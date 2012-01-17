@@ -7,6 +7,12 @@
 YUI.add('supra.uploader', function (Y) {
 	
 	/**
+	 * HTML5 feature support
+	 */
+	var FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
+	
+	
+	/**
 	 * Media list
 	 * Handles data loading, scrolling, selection
 	 * 
@@ -106,12 +112,37 @@ YUI.add('supra.uploader', function (Y) {
 		io: {},
 		
 		/**
+		 * Legacy browser (IE9) upload form, iframe and input
+		 */
+		legacy_form: null,
+		legacy_iframe: null,
+		legacy_input: null,
+		
+		
+		
+		
+		/**
 		 * Add needed nodes
 		 * 
 		 * @private
 		 */
 		renderUI: function () {
+			if (FILE_API_SUPPORTED) {
+				this.createInput();
+			} else {
+				this.createLegacyInput();
+			}
 			
+			//Enable
+			if (!this.get('disabled')) {
+				this.set('disabled', false);
+			}
+		},
+		
+		/**
+		 * Create input for file upload
+		 */
+		createInput: function () {
 			//Create upload node
 			var multiple = this.get('multiple'),
 				accept = this.get('accept'),
@@ -120,11 +151,40 @@ YUI.add('supra.uploader', function (Y) {
 			Y.one('body').append(input);
 			input.on('change', this.onFileBrowse, this);
 			this.input = input;
+		},
+		
+		/**
+		 * Create input for legacy browsers
+		 * 
+		 * @private
+		 */
+		createLegacyInput: function () {
+			var click_target = this.get('clickTarget'),
+				uri = document.location.protocol + '//' + document.location.hostname + '/cms/lib/supra/build/io/blank.html',
+				node_id = Y.guid(),
+				iframe,
+				form,
+				input;
 			
-			//Enable
-			if (!this.get('disabled')) {
-				this.set('disabled', false);
-			}
+			//Nowhere to insert form
+			if (!click_target) return;
+			
+			iframe = Y.Node.create('<iframe class="offscreen" id="' + node_id + '" name="' + node_id + '" src="' + uri + '" />');
+			form = Y.Node.create('<form target="' + node_id + '" class="legacy-file-upload-form" method="post" action="" enctype="multipart/form-data">\
+										<input suIgnore="true" type="file" name="file" class="upload-file-input" />\
+										<button suIgnore="true" type="submit">Upload</button>\
+								  </form>');
+			
+			input = form.one('input');
+			
+			input.on('change', this.onFileBrowse, this);
+			
+			Y.one('body').append(iframe);
+			click_target.prepend(form);
+			
+			this.legacy_form = form;
+			this.legacy_iframe = iframe;
+			this.legacy_input = input;
 		},
 		
 		/**
@@ -136,12 +196,14 @@ YUI.add('supra.uploader', function (Y) {
 			var click_target = this.get('clickTarget'),
 				drop_target = this.get('dropTarget');
 			
-			//On input click prevent propagation, because click opens file window
-			//which is not part of this document
-			this.input.on('click', function (event) { event.stopPropagation(); });
-			
-			if (click_target) {
-				this.listeners.push(click_target.on('click', this.openFileBrowser, this));
+			if (FILE_API_SUPPORTED) {
+				//On input click prevent propagation, because click opens file window
+				//which is not part of this document
+				this.input.on('click', function (event) { event.stopPropagation(); });
+				
+				if (click_target) {
+					this.listeners.push(click_target.on('click', this.openFileBrowser, this));
+				}
 			}
 			
 			if (drop_target) {
@@ -180,21 +242,21 @@ YUI.add('supra.uploader', function (Y) {
 		 * When file is selected start uploading
 		 */
 		onFileBrowse: function () {
-			//Get files
-			var files = Y.Node.getDOMNode(this.input).files;
-			
-			if (!files) {
-				//File API is not supported
-				//@TODO
-				return;
-			}
-			
-			if (!files.length) return;
-			
-			if (this.get('multiple')) {
-				for(var i=0,ii=files.length; i<ii; i++) this.addFile(files[i]);
+			if (FILE_API_SUPPORTED) {
+				//Get files
+				var files = Y.Node.getDOMNode(this.input).files;
+				if (!files.length) return;
+				
+				if (this.get('multiple')) {
+					for(var i=0,ii=files.length; i<ii; i++) this.addFile(files[i]);
+				} else {
+					this.addFile(files[0]);
+				}	
 			} else {
-				this.addFile(files[0]);
+				var file = this.getLegacyFileData(this.legacy_input);
+				if (!file.fileName) return;
+				
+				this.addFile(file);
 			}
 		},
 		
@@ -265,6 +327,7 @@ YUI.add('supra.uploader', function (Y) {
 				//Match file type against accept attribute
 				if (accept) {
 					accept = accept.split(',');
+					
 					for(var i=0,ii=accept.length; i<ii; i++) {
 						 reg = accept[i].replace(/\*/g, '.*');
 						 reg = new RegExp('^' + Y.Lang.trim(reg) + '$', 'i');
@@ -304,14 +367,26 @@ YUI.add('supra.uploader', function (Y) {
 		uploadFile: function (id /* File ID */) {
 			if (!(id in this.io) && id in this.files) {
 				
-				var io = this.io[id] = new Supra.IOUpload({
-					'file': this.files[id],
-					'requestUri': this.get('requestUri'),
-					'data': this.get('data'),
-					'eventData': {
-						'fileId': id
-					}
-				});
+				if (FILE_API_SUPPORTED) {
+					var io = this.io[id] = new Supra.IOUpload({
+						'file': this.files[id],
+						'requestUri': this.get('requestUri'),
+						'data': this.get('data'),
+						'eventData': {
+							'fileId': id
+						}
+					});
+				} else {
+					var io = this.io[id] = new Supra.IOUploadLegacy({
+						'form': this.legacy_form,
+						'iframe': this.legacy_iframe,
+						'requestUri': this.get('requestUri'),
+						'data': this.get('data'),
+						'eventData': {
+							'fileId': id
+						}
+					});
+				}
 				
 				//Upload start event
 				this.fireEvent('file:upload', id);
@@ -349,6 +424,37 @@ YUI.add('supra.uploader', function (Y) {
 			} else {
 				return file._uploader_file_id = Y.guid();
 			}
+		},
+		
+		/**
+		 * Returns file data from input
+		 * 
+		 * @param {Object} input Input
+		 * @return File data
+		 * @type {Object}
+		 */
+		getLegacyFileData: function (input) {
+			if (!input) return null;
+			
+			var file_name = input.getDOMNode().value || '',
+				data = {
+					'fileName': file_name,
+					'fileSize': 0,
+					'name': file_name,
+					'size': 0,
+					'type': ''
+				};
+			
+			var images = ['swf', 'jpeg', 'jpg', 'gif', 'png', 'bmp', 'tiff', 'iff'],
+				m = data.fileName.match(/\.([a-z0-9]+)$/);
+			
+			if (m && images.indexOf(m[1]) != -1) {
+				data.type = 'image/' + m[1];
+			} else {
+				data.type = 'application/' + m[1];
+			}
+			
+			return data;
 		},
 		
 		/**

@@ -20,7 +20,7 @@ class BrokenBlockController extends BlockController
 		$request = $this->getRequest();
 		if ($request instanceof PageRequestEdit) {
 			$this->getResponse()
-					->output("This block was removed");
+					->output("<p><span>This block was removed</span></p>");
 		}
 	}
 	

@@ -95,7 +95,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false)
 	{
 		/* @var $data Entity\Abstraction\Localization */
 		$data = null;
@@ -111,8 +111,24 @@ class SitemapAction extends PageManagerAction
 		if (empty($data)) {
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
+				
+				if ($skipGlobal) {
+					return null;
+				}
+				
 				// hoping that there is at least one page data instance (naive)
-				$data = $page->getLocalizations()->first();
+				//$data = $page->getLocalizations()->first();
+				
+				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
+				// this, i suppose, will be replaced with dialog window with localization selector
+				$localizations = $page->getLocalizations();
+				$data = $localizations->first();
+				foreach($localizations as $globalLocalization) {
+					if ($globalLocalization->getId() < $data->getId()) {
+						$data = $globalLocalization;
+					}
+				}
+				
 				$isGlobal = true;
 			} else {
 
@@ -127,6 +143,7 @@ class SitemapAction extends PageManagerAction
 		}
 
 		$children = null;
+		$inheritConfig = null;
 		
 		if ( ! $isGlobal) {
 			if ($page instanceof Entity\ApplicationPage) {
@@ -163,6 +180,10 @@ class SitemapAction extends PageManagerAction
 				}
 
 				$array['has_hidden_pages'] = $application->hasHiddenPages();
+				
+				if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
+					$inheritConfig['isDropTarget'] = false;
+				}
 
 				//TODO: pass to client if there are any hidden pages
 
@@ -170,7 +191,7 @@ class SitemapAction extends PageManagerAction
 				$children = $page->getChildren();
 			}
 
-			$childrenArray = $this->convertPagesToArray($children, $locale);
+			$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal, $inheritConfig);
 
 			if ( ! $skipRoot) {
 				if (count($childrenArray) > 0) {
@@ -198,7 +219,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function convertPagesToArray(array $children, $locale)
+	private function convertPagesToArray(array $children, $locale, $skipGlobal = false, $config = null)
 	{
 		$childrenArray = array();
 		
@@ -209,7 +230,7 @@ class SitemapAction extends PageManagerAction
 				$group->setTitle($name);
 				$group->setChildren($child);
 				
-				$groupArray = $this->buildTreeArray($group, $locale);
+				$groupArray = $this->buildTreeArray($group, $locale, false, $skipGlobal);
 				
 				$childrenArray[] = $groupArray;
 			} else {
@@ -226,8 +247,14 @@ class SitemapAction extends PageManagerAction
 					continue;
 				}
 
-				$childArray = $this->buildTreeArray($child, $locale);
+				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
 
+				// it is possibly, that childrens should inherit some config values from parent node
+				if (( ! empty($childArray) && is_array($childArray))
+						&& (! empty($config) && is_array($config))) {
+					$childArray = array_merge($childArray, $config);
+				}
+				
 				if ( ! empty($childArray)) {
 					$childrenArray[] = $childArray;
 				}
@@ -246,6 +273,8 @@ class SitemapAction extends PageManagerAction
 	{
 		$pages = array();
 		$localeId = $this->getLocale()->getId();
+		
+		$existingOnly = (bool)$this->getRequestParameter('existing_only');
 
 		$em = $this->entityManager;
 
@@ -272,14 +301,16 @@ class SitemapAction extends PageManagerAction
 			$rootNode = $rootNodeLocalization->getMaster();
 			$skipRoot = true;
 			
-			$response = $this->buildTreeArray($rootNode, $localeId, true);
+			$response = $this->buildTreeArray($rootNode, $localeId, true, $existingOnly);
 			
 		} else {
 			$rootNodes = $pageRepository->getRootNodes();
 			
 			foreach ($rootNodes as $rootNode) {
-				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot);
-				$response[] = $tree;
+				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot, $existingOnly);
+				if ( ! is_null($tree)) {
+					$response[] = $tree;
+				}
 			}
 		}
 

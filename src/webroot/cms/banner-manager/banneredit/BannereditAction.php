@@ -132,13 +132,9 @@ class BannereditAction extends CmsAction
 
 		$bannerFile = $this->fileRepository->find($postData->get('image'));
 
-		$haveFlashBanner = ! empty($bannerFile) && $bannerFile->getMimeType() == FlashBanner::MIME_TYPE;
-
 		if ( ! $postData->hasChild('target')) {
 
-			if ( ! $haveFlashBanner) {
-				throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
-			}
+			$banner->setExternalTarget('');
 		} else {
 
 			$bannerTarget = $postData->getChild('target');
@@ -148,11 +144,7 @@ class BannereditAction extends CmsAction
 				$href = $bannerTarget->get('href');
 
 				if (empty($href)) {
-					if ( ! $haveFlashBanner) {
-						throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
-					} else {
-						$banner->setExternalTarget('');
-					}
+					$href = '';
 				}
 
 				$banner->setExternalTarget($href);
@@ -161,14 +153,10 @@ class BannereditAction extends CmsAction
 				$pageId = $bannerTarget->get('page_id');
 
 				if (empty($pageId)) {
-					if ( ! $haveFlashBanner) {
-						throw new CmsException(null, 'Banner target is mandatory for non-flash banners!');
-					} else {
-						$banner->setInternalTarget('');
-					}
-				} else {
-					$banner->setInternalTarget($pageId);
+					$pageId = '';
 				}
+
+				$banner->setInternalTarget($pageId);
 			}
 		}
 

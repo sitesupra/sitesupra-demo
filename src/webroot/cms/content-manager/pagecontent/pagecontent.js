@@ -293,7 +293,7 @@ SU('dd-drag', function (Y) {
 				
 				//If editing was called before content was ready or there is a route path
 				//then call it now
-				if (this.edit_on_ready || Root.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
+				if (this.edit_on_ready || Root.getPath().match(Root.ROUTE_PAGE_EDIT_R) || Root.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
 					this.iframe_handler.once('ready', function () {
 						this.edit_on_ready = false;
 						this.onStartEditingRoute();

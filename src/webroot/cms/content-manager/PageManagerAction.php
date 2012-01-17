@@ -559,12 +559,23 @@ abstract class PageManagerAction extends CmsAction
 		
 		$localizationId = $this->getRequestParameter('page_id');
 		
-		// we need to know page id instead of single localization id
-		$pageLocalization = $auditEm->getRepository(Localization::CN())
-				->findOneBy(array('id' => $localizationId));
-		$pageId = $pageLocalization->getMaster()
-				->getId();
+		// TODO: we could simply pass revision ID to serverside and skip this step
+		$qb = $auditEm->createQueryBuilder();
+		$qb->select('ap.id')
+				->from(Localization::CN(), 'l')
+				->join('l.master', 'ap')
+				->where('l.id = :id')
+				->setMaxResults(1);
+		$qb->setParameter('id', $localizationId);
+		$query = $qb->getQuery();
+		$result = $query->getResult(ColumnHydrator::HYDRATOR_ID);
 		
+		// throw an exception if we failed to get master for this page
+		if (empty($result)) {
+			throw new CmsException(null, 'Page not found in recycle bin');
+		}
+		
+		$pageId = array_pop($result);
 		// get revision by type and removed page id
 		$pageRevisionData = $auditEm->getRepository(PageRevisionData::CN())
 				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'reference' => $pageId));
@@ -898,6 +909,8 @@ abstract class PageManagerAction extends CmsAction
 			$this->publish();
 		}
 		
+		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$originalLocaleId}] locale", $newLocalization);
+				
 		$this->getResponse()
 				->setResponseData(array('id' => $newLocalization->getId()));
 		
@@ -918,18 +931,7 @@ abstract class PageManagerAction extends CmsAction
 			$item = $item->getLocalization($localeId);
 		}
 		
-		$itemString = null;
-		if ($item instanceof Localization) {
-			$master = $item->getMaster();
-			if ($master instanceof Template) {
-				$itemString = 'template ';
-			} else {
-				$itemString = 'page ';
-			}
-			$itemString .= "'" . $item->getTitle() . "'";
-		}
-		
-		parent::writeAuditLog($action, $message, $itemString, $level);
+		parent::writeAuditLog($action, $message, $item, $level);
 	}
 	
 }

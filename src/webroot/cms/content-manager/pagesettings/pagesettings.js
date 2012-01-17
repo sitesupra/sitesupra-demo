@@ -619,9 +619,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.setFormValue('version', page_data);
 			*/
 			
-			//Global/local switch
-			this.form.getInput('global').set('disabled', page_data.global_disabled);
-			
 			//Set redirect value
 			this.form.getInput('redirect').setValue(page_data.redirect);
 			

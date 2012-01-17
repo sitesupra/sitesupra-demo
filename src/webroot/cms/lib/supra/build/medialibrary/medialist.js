@@ -483,7 +483,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var parent_id = null,
 				parent_data = null;
 			
-			if (parent) {
+			if (parent == this.get('rootFolderId')) {
+				//Root folder doesn't have data in dataObject
+				parent_id = parent;
+				parent_data = {'id': parent_id};
+			} else if (parent) {
 				parent_id = parent;
 				parent_data = this.getItemData(parent_id);
 				
@@ -978,7 +982,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		renderItem: function (id /* File or folder ID */, data /* Item data */, append /* Append or replace */) {
-			var slide = this.slideshow.getSlide('slide_' + id),
+			var id = isNaN(id) ? id : parseInt(id, 10),
+				slide = this.slideshow.getSlide('slide_' + id),
 				template,
 				node,
 				item;

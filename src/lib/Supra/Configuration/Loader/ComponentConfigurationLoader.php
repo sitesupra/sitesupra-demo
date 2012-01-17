@@ -53,7 +53,7 @@ class ComponentConfigurationLoader
 	protected $cacheLevel = self::CACHE_LEVEL_NO_CACHE;
 	
 	/**
-	 * @var Cache
+	 * @var Doctrine\Common\Cache\Cache
 	 */
 	private $cacheAdapter;
 	
@@ -67,7 +67,7 @@ class ComponentConfigurationLoader
 		if ( ! is_null($parser)) {
 			$this->setParser($parser);
 		}
-		
+
 		$this->cacheAdapter = ObjectRepository::getCacheAdapter($this);
 	}
 	

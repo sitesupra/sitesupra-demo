@@ -115,12 +115,15 @@ YUI.add('supra.page-content-list', function (Y) {
 			this.drag_selector = selector;
 			
 			//DD must be initialized for iframe
-			PageContent.initDD(this.get('doc'));
+			if (!Y.UA.ie) {
+				//IE fails when trying to do this
+				PageContent.initDD(this.get('doc'));
+			}
 			
 			var del = this.drag_delegate = new Y.DD.Delegate({
 				container: cont,
 				nodes: selector,
-				target: {},
+				target: true,
 				dragConfig: {
 					haltDown: false,
 					clickTimeThresh: 1000
@@ -144,7 +147,10 @@ YUI.add('supra.page-content-list', function (Y) {
 			del.on('drag:drag', Y.throttle(Y.bind(this.onDragDrag, this), 50));
 			
 			//Restore document
-			PageContent.initDD(document);
+			if (!Y.UA.ie) {
+				//IE fails when trying to do this
+				PageContent.initDD(document);
+			}
 		},
 		
 		onDragStart: function (e) {
@@ -356,13 +362,15 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * @private
 		 */
 		beforeDestroy: function () {
-			ContentList.superclass.beforeDestroy.apply(this, arguments);
-			
 			if (this.drag_delegate) {
+				//Make sure targets are destroyed
+				this.drag_delegate.dd.unplug(Supra.Y.Plugin.DDProxy);
+				this.drag_delegate.dd.unplug(Supra.Y.Plugin.DDConstrained);
+				this.drag_delegate.dd.destroy();
 				this.drag_delegate.destroy();
-				delete(this.drag_delegate);
 			}
 			
+			ContentList.superclass.beforeDestroy.apply(this, arguments);
 			delete(this.children_order);
 		}
 	});

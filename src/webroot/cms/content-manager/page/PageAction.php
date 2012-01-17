@@ -97,7 +97,6 @@ class PageAction extends PageManagerAction
 		$redirect = null;
 		$createdDate = null;
 		$createdTime = null;
-		$globalDisabled = false;
 
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
@@ -152,11 +151,6 @@ class PageAction extends PageManagerAction
 				$createdDate = $createdDateTime->format('Y-m-d');
 				$createdTime = $createdDateTime->format('H:i:s');
 			}
-
-			$localizations = $page->getLocalizations()->count();
-			if ($localizations > 1) {
-				$globalDisabled = true;
-			}
 		}
 
 		$type = 'page';
@@ -208,7 +202,6 @@ class PageAction extends PageManagerAction
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 			'include_in_search' => $pageData->isIncludedInSearch(),
 			'published' => $isPublished,
-			'global_disabled' => $globalDisabled,
 		);
 
 		if ($templateError) {
@@ -387,13 +380,14 @@ class PageAction extends PageManagerAction
 
 			$pageData->setTemplate($template);
 
-			$pathPart = '';
-			if ($this->hasRequestParameter('path')) {
-				$pathPart = $this->getRequestParameter('path');
+			if ( ! $this->hasRequestParameter('path')) {
+				throw new CmsException(null, 'Page path can not be empty');
 			}
-
+			
+			$pathPart = $this->getRequestParameter('path');
+			
 			if ( ! $this->hasRequestParameter('title')) {
-				throw new CmsException(null, 'Page title can not be emtpty!');
+				throw new CmsException(null, 'Page title can not be empty');
 			}
 		}
 

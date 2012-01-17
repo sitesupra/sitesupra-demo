@@ -117,7 +117,7 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 			return null;
 		}
 		
-		if ( ! $user->isPersonalAvatar()) {
+		if ( ! $user->hasPersonalAvatar()) {
 			foreach (self::$sampleAvatars as $sampleAvatar) {
 				if ($sampleAvatar['id'] == $user->getAvatar()) {
 					return $sampleAvatar['sizes'][$size]['external_path'];

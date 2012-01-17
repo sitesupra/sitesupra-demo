@@ -77,14 +77,14 @@ class Command extends SymfonyCommand
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
-					$connection = $em->getConnection();
-					$connection->beginTransaction();
+					//$connection = $em->getConnection();
+					//$connection->beginTransaction();
 					
 					try {
 						$return = $cli->doRun($commandInput, $commandOutput);
 						
-						$connection->commit();
-						
+						//$connection->commit();
+
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
 							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);
@@ -123,10 +123,11 @@ class Command extends SymfonyCommand
 		}
 
 		$masterCronJob->setLastExecutionTime($thisTime);
-		
 		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
-		$em->getConnection()->commit();
 		
+		if ($em->getConnection()->isTransactionActive()) {
+			$em->getConnection()->commit();	
+		}
 		$em->flush();
 		
 	}
@@ -145,12 +146,14 @@ class Command extends SymfonyCommand
 		
 		if ( ! $entity instanceof CronJob) {
 			$entity = new CronJob();
-			$em->persist($entity);
 			$entity->setCommandInput($this->getName());
 			$lastTime = new \DateTime();
 			$lastTime->setTimestamp(0);
 			$entity->setLastExecutionTime($lastTime);
 			$entity->setStatus(CronJob::STATUS_MASTER);
+			
+			$em->persist($entity);
+			$em->flush();
 		}
 		
 		return $entity;

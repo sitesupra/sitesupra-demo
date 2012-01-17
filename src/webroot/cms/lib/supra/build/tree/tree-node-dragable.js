@@ -249,6 +249,10 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 						target.add(self);
 					} else {
 						var index = target.get('index');
+						if (target.get('parent') === self.get('parent') && target.get('index') > self.get('index')) {
+							//If same parent then after removing item from parent new index will change
+							index--;
+						}
 						if (position == 'after') {
 							index++;
 						}
@@ -325,6 +329,20 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 					treeNode: this
 				});
 				dd.set('treeNode', this);
+			}
+			
+			//Clean up
+			this.before('destroy', this._beforeDestroy, this);
+		},
+		
+		_beforeDestroy: function () {
+			if (this.dd) {
+				//Remove drag and drop
+				if (this.dd.target) {
+					this.dd.target.destroy();
+				}
+				this.dd.unplug(Y.Plugin.DDProxy);
+				this.dd.destroy();
 			}
 		},
 		

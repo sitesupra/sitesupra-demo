@@ -37,12 +37,6 @@ Supra('supra.languagebar', function (Y) {
 		HAS_TEMPLATE: true,
 		
 		/**
-		 * Dependancy list
-		 * @type {Array}
-		 */
-		DEPENDANCIES: [],
-		
-		/**
 		 * Content placeholder
 		 * @type {Y.Node}
 		 */
@@ -69,22 +63,42 @@ Supra('supra.languagebar', function (Y) {
 				'contexts': SU.data.get('contexts')
 			});
 			
+			//Set available localizations
+			var page = Manager.Page.getPageData();
+			if (page && page.localizations) {
+				this.setAvailableLocalizations(page.localizations);
+			}
+			
+			//On change reload page
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					
 					var currentLocale = Supra.data.get('locale');
 					var page = Manager.Page.getPageData();
 					
-					if (evt.newVal in page.localizations) {
+					// No page loaded
+					if ( ! page) {
+						return;
+					}
+					
+					if (page.localizations && evt.newVal in page.localizations) {
 						//Change global locale and reload page
 						Supra.data.set('locale', evt.newVal);
 						
 						var pageId = page.localizations[evt.newVal].page_id;
 						Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
 					} else {
-						//TODO: warning about not exising translation
-						var self = this;
-						window.setTimeout(function() {self.languagebar.set('locale', currentLocale);}, 0);
+						//Warning about not exising translation
+						Manager.executeAction('Confirmation', {
+							'message': '{#page.page_doesnt_exist_in_locale#}',
+							'useMask': true,
+							'buttons': [{
+								'id': 'ok',
+								'label': Supra.Intl.get(['buttons', 'error'])
+							}]
+						});
+						
+						//Prevent language change
+						evt.halt();
 					}
 				}
 			}, this);
@@ -108,6 +122,46 @@ Supra('supra.languagebar', function (Y) {
 		},
 		
 		/**
+		 * Set available locales, only these will be shown in locale dropdown
+		 * 
+		 * @param {Object} locales
+		 */
+		setAvailableLocalizations: function (locales) {
+			if (!this.languagebar) return;
+			
+			var contexts = SU.data.get('contexts'),
+				context = null,
+				item = null,
+				filtered = [];
+			
+			if (locales) {
+				for(var i=0,ii=contexts.length; i<ii; i++) {
+					context = contexts[i];
+					
+					item = {
+						'title': context.title,
+						'languages': []
+					};
+					
+					for(var k=0,kk=context.languages.length; k<kk; k++) {
+						if (context.languages[k].id in locales) {
+							item.languages.push(context.languages[k]);
+						}
+					}
+					
+					if (item.languages.length) {
+						filtered.push(item);
+					}
+				}
+			} else {
+				filtered = contexts;
+			}
+			
+			this.languagebar.set('contexts', filtered);
+			this.languagebar.set('locale', this.languagebar.get('locale'));
+		},
+		
+		/**
 		 * Execute action, update data
 		 */
 		execute: function () {
@@ -124,8 +178,6 @@ Supra('supra.languagebar', function (Y) {
 			
 			var locale = Supra.data.get('locale');
 			this.languagebar.set('locale', locale);
-			
-			//TODO: hide the languages the page doesn't have
 		}
 	});
 	

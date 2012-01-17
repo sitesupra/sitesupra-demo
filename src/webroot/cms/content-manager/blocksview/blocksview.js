@@ -153,6 +153,11 @@ SU(function (Y) {
 						block = blocks[id];
 						block_definition = block.getBlockInfo();
 						
+						if (block_definition.hidden) {
+							//Don't show hidden blocks (eq. broken block)
+							continue;
+						}
+						
 						//Change block title into more readable form
 						title = block_definition ? block_definition.title : '';
 						if (!title) {

@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Set;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 /**
  * Page controller request
@@ -577,19 +578,42 @@ abstract class PageRequest extends HttpRequest
 	 */
 	protected function preLoadPropertyMetadata()
 	{
-		
+		$em = $this->getDoctrineEntityManager();
 		$blockPropertyIds = $this->blockPropertySet->collectIds();
 		
 		if ( ! empty($blockPropertyIds)) {
+			// 3 stages to preload block property metadata
+			// stage 1: collect referenced elements IDs
 			$metadataEntity = Entity\BlockPropertyMetadata::CN();
-
-			$qb = $this->getDoctrineEntityManager()->createQueryBuilder();
+			$qb = $em->createQueryBuilder();
 			$qb->from($metadataEntity, 'm')
-					->select('m')
+					->join('m.referencedElement', 'el')
+					->select('el.id')
 					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
 
 			$query = $qb->getQuery();
-			$metadataArray = $query->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+			$referencedElementsIds = $query->getResult(ColumnHydrator::HYDRATOR_ID);
+			
+			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
+			if ( ! empty($referencedElementsIds)) {
+				$qb = $em->createQueryBuilder();
+				$referencedElementEntity = Entity\ReferencedElement\ReferencedElementAbstract::CN();
+				$qb->from($referencedElementEntity, 'el')
+						->select('el')
+						->where($qb->expr()->in('el.id', $referencedElementsIds));
+
+				$query = $qb->getQuery();
+				$query->getResult();
+			}
+			
+			// stage 3: load metadata
+			$qb = $em->createQueryBuilder();
+			$qb->select('m')
+					->from($metadataEntity, 'm')
+					->join('m.referencedElement', 'el')
+					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
+			$query = $qb->getQuery();
+			$metadataArray = $query->getResult();
 			
 			foreach($metadataArray as $propertyMetadata) {
 				/* @var $propertyMetadata BlockPropertyMetadata */

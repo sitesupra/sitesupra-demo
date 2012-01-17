@@ -222,7 +222,7 @@ Supra(function (Y) {
 				} else {
 					page_id = Supra.data.get('page', {'id': 0});
 				}
-				 
+				
 				SU.Manager.executeAction('Page', page_id);
 				SU.Manager.executeAction('Template');
 				
@@ -236,6 +236,9 @@ Supra(function (Y) {
 			});
 			
 			this.bindSiteMap();
+			
+			// run session check
+			this.checkSession();	
 		},
 		
 		/**
@@ -285,7 +288,18 @@ Supra(function (Y) {
 			if (content.get('created')) { 
 				content.stopEditing();
 			}
+		},
+		
+		checkSession: function () {
+			SU.io('/cms/check-session', {
+				'on': {
+					'complete': function () {
+						setTimeout(this.checkSession.bind(this, this), 60000);  
+					}
+				}
+			}, this);
 		}
+
 	});
 	
 });
