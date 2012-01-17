@@ -387,13 +387,14 @@ class PageAction extends PageManagerAction
 
 			$pageData->setTemplate($template);
 
-			$pathPart = '';
-			if ($this->hasRequestParameter('path')) {
-				$pathPart = $this->getRequestParameter('path');
+			if ( ! $this->hasRequestParameter('path')) {
+				throw new CmsException(null, 'Page path can not be empty');
 			}
-
+			
+			$pathPart = $this->getRequestParameter('path');
+			
 			if ( ! $this->hasRequestParameter('title')) {
-				throw new CmsException(null, 'Page title can not be emtpty!');
+				throw new CmsException(null, 'Page title can not be empty');
 			}
 		}
 
