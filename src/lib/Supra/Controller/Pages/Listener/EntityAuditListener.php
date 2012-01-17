@@ -336,7 +336,6 @@ class EntityAuditListener implements EventSubscriber
 		$this->em->persist($revisionData);
 		
 		$this->staticRevisionId = $revisionData->getId();
-		
 
 		$this->auditEm->getProxyFactory()
 				->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
