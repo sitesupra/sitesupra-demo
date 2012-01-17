@@ -52,14 +52,14 @@ $loader->registerNamespace($doctrineNamespace);
 $symfonyNamespace = new NamespaceLoaderStrategy('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
+$loader->registerSystemAutoload();
+
 // Twig autoloader, TODO: should write such supra7 autoloader
 require_once SUPRA_LIBRARY_PATH . 'Twig' . DIRECTORY_SEPARATOR . 'Autoloader.php';
 Twig_Autoloader::register();
 
 // Swift autoloader, FIXME
 require_once SUPRA_LIBRARY_PATH . 'Swift' . DIRECTORY_SEPARATOR . 'swift_required.php';
-$loader->registerSystemAutoload();
-
 
 // Solarium autoloader, TODO: should write such supra7 autoloader
 require_once SUPRA_LIBRARY_PATH . 'Solarium' . DIRECTORY_SEPARATOR . 'Autoloader.php';

@@ -93,10 +93,15 @@ class BlockControllerConfiguration implements ConfigurationInterface
 		$dir = dirname($file);
 		$iconPath = $dir . '/' . $this->icon;
 
-		if (file_exists($iconPath) && strpos($iconPath, SUPRA_WEBROOT_PATH) === 0) {
-			$iconPath = substr($iconPath, strlen(SUPRA_WEBROOT_PATH) - 1);
-		} else {
+		// Disabled for performance
+//		if ( ! file_exists($iconPath)) {
+//			$iconPath = null;
+//		} else
+		
+		if (strpos($iconPath, SUPRA_WEBROOT_PATH) !== 0) {
 			$iconPath = null;
+		} else {
+			$iconPath = substr($iconPath, strlen(SUPRA_WEBROOT_PATH) - 1);
 		}
 
 		return $iconPath;

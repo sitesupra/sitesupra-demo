@@ -102,8 +102,7 @@ class NamespaceLoaderStrategy implements LoaderStrategyInterface
 	 */
 	public function contains($className)
 	{
-		$classNamespace = substr($className, 0, $this->getLength());
-		return $classNamespace == $this->getNamespace();
+		return (strpos($className, $this->namespace) === 0);
 	}
 	
 	/**
@@ -135,12 +134,14 @@ class NamespaceLoaderStrategy implements LoaderStrategyInterface
 		$filePath = $this->convertToFilePath($classPath);
 		
 		$filePath = $namespacePath . $filePath;
-		if ( ! file_exists($filePath)) {
-			return null;
-			/*throw new Exception\ClassNotFound("Class ${className} should be contained inside"
-					. " the ${namespacePath} namespace but could not be found"
-					. " by path ${classPath}");*/
-		}
+		
+		// Disabled for performance
+//		if ( ! file_exists($filePath)) {
+//			return null;
+//			/*throw new Exception\ClassNotFound("Class ${className} should be contained inside"
+//					. " the ${namespacePath} namespace but could not be found"
+//					. " by path ${classPath}");*/
+//		}
 
 		return $filePath;
 	}

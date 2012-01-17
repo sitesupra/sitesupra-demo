@@ -6,6 +6,7 @@ use Supra\Request\HttpRequest;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity;
+use Doctrine\ORM\NoResultException;
 
 /**
  * Page controller request object on view method
@@ -53,29 +54,27 @@ class PageRequestView extends PageRequest
 		$path = $this->getPath();
 
 		$em = $this->getDoctrineEntityManager();
-		$er = $em->getRepository(Entity\PageLocalizationPath::CN());
-
+		$localizationEntity = Entity\PageLocalization::CN();
+		
 		$searchCriteria = array(
 			'locale' => $this->getLocale(),
 			'path' => $path->getPath(),
 		);
 
-		//TODO: think about "enable path params" feature
-
-		/* @var $path Entity\PageLocalizationPath */
-		$path = $er->findOneBy($searchCriteria);
+		$dql = "SELECT l FROM $localizationEntity l JOIN l.path p 
+			WHERE p.path = :path
+			AND p.locale = :locale";
 		
-		if (empty($path)) {
+		try {
+			//TODO: think about "enable path params" feature
+			$pageData = $em->createQuery($dql)
+					->setParameters($searchCriteria)
+					->getSingleResult();
+		} catch (NoResultException $noResult) {
 			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
 		}
 		
-		$pageData = $em->getRepository(Entity\PageLocalization::CN())
-				->findOneBy(array('path' => $path->getId()));
-
-		if (empty($pageData)) {
-			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
-		}
-		
+		/* @var $pageData Entity\PageLocalization */
 		if ( ! $pageData->isActive()) {
 			throw new ResourceNotFoundException("Page found by path '$path' in pages controller but is inactive");
 		}

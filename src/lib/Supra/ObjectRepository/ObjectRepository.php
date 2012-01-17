@@ -161,22 +161,23 @@ class ObjectRepository
 		return $object->__oid__;
 	}
 
-	/**
-	 * Normalizes interface name argument
-	 * @param string $interface
-	 * @return string
-	 * @throws Exception\RuntimeException if argument invalid
-	 */
-	private static function normalizeInterfaceArgument($interface)
-	{
-		if ( ! is_string($interface)) {
-			throw new Exception\RuntimeException('Interface argument must be a string');
-		}
-
-		$interface = trim($interface, '\\');
-
-		return $interface;
-	}
+	// Disabled for performance
+//	/**
+//	 * Normalizes interface name argument
+//	 * @param string $interface
+//	 * @return string
+//	 * @throws Exception\RuntimeException if argument invalid
+//	 */
+//	private static function normalizeInterfaceArgument($interface)
+//	{
+//		if ( ! is_string($interface)) {
+//			throw new Exception\RuntimeException('Interface argument must be a string');
+//		}
+//
+//		$interface = trim($interface, '\\');
+//
+//		return $interface;
+//	}
 
 	/**
 	 * @return string
@@ -271,7 +272,7 @@ class ObjectRepository
 	protected static function addBinding($caller, $object, $interface)
 	{
 		$caller = self::normalizeCallerArgument($caller);
-		$interface = self::normalizeInterfaceArgument($interface);
+//		$interface = self::normalizeInterfaceArgument($interface);
 		$selfCaller = self::normalizeCallerArgument($object);
 
 		self::checkLateBinding($caller, $interface);
@@ -416,7 +417,7 @@ class ObjectRepository
 	 */
 	public static function getObject($caller, $interface)
 	{
-		$interface = self::normalizeInterfaceArgument($interface);
+//		$interface = self::normalizeInterfaceArgument($interface);
 
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
