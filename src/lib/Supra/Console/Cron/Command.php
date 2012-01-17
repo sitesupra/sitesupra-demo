@@ -145,12 +145,14 @@ class Command extends SymfonyCommand
 		
 		if ( ! $entity instanceof CronJob) {
 			$entity = new CronJob();
-			$em->persist($entity);
 			$entity->setCommandInput($this->getName());
 			$lastTime = new \DateTime();
 			$lastTime->setTimestamp(0);
 			$entity->setLastExecutionTime($lastTime);
 			$entity->setStatus(CronJob::STATUS_MASTER);
+			
+			$em->persist($entity);
+			$em->flush();
 		}
 		
 		return $entity;
