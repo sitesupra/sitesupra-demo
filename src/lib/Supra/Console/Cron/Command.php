@@ -77,14 +77,9 @@ class Command extends SymfonyCommand
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
-					//$connection = $em->getConnection();
-					//$connection->beginTransaction();
-					
 					try {
 						$return = $cli->doRun($commandInput, $commandOutput);
 						
-						//$connection->commit();
-
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
 							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);
@@ -100,8 +95,6 @@ class Command extends SymfonyCommand
 					} catch (\Exception $e) {
 						$output = $commandOutput->getOutput();
 						$log->error("Unexpected failure while running scheduled task {$job->getCommandInput()}: {$e->__toString()}\nOutput: ", $output);
-						
-						$connection->rollBack();
 						
 						$job->setStatus(CronJob::STATUS_FAILED);
 					}
@@ -122,13 +115,16 @@ class Command extends SymfonyCommand
 			$em->flush();
 		}
 
+		// if someone will clear UnitOfWork, master cron job will have status `detached`
+		// so it would be safer to fetch it one more time
+		$masterCronJob = $this->getMasterCronEntity();
 		$masterCronJob->setLastExecutionTime($thisTime);
-		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
 		
-		if ($em->getConnection()->isTransactionActive()) {
-			$em->getConnection()->commit();	
-		}
+		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
 		$em->flush();
+		
+		$em->getConnection()
+				->commit();
 		
 	}
 
@@ -153,7 +149,7 @@ class Command extends SymfonyCommand
 			$entity->setStatus(CronJob::STATUS_MASTER);
 			
 			$em->persist($entity);
-			$em->flush();
+			//$em->flush();
 		}
 		
 		return $entity;

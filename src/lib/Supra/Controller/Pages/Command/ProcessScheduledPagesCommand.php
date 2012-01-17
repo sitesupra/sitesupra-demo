@@ -49,9 +49,13 @@ class ProcessScheduledPagesCommand extends Command
 			$request->setDoctrineEntityManager($this->_em);
 			
 			try {
-				$request->publish();
-				$publicEm->flush();
-				$publicEm->getConnection()->commit();
+				
+				$publish = function() use ($request) {
+					$request->publish();
+				};
+
+				$publicEm->transactional($publish);
+				
 			} catch (\Exception $e) {
 				// skip page, if something went wrong
 				$pageId = $localization->getId();
