@@ -143,6 +143,7 @@ class SitemapAction extends PageManagerAction
 		}
 
 		$children = null;
+		$inheritConfig = null;
 		
 		if ( ! $isGlobal) {
 			if ($page instanceof Entity\ApplicationPage) {
@@ -179,6 +180,10 @@ class SitemapAction extends PageManagerAction
 				}
 
 				$array['has_hidden_pages'] = $application->hasHiddenPages();
+				
+				if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
+					$inheritConfig['isDropTarget'] = false;
+				}
 
 				//TODO: pass to client if there are any hidden pages
 
@@ -186,7 +191,7 @@ class SitemapAction extends PageManagerAction
 				$children = $page->getChildren();
 			}
 
-			$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal);
+			$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal, $inheritConfig);
 
 			if ( ! $skipRoot) {
 				if (count($childrenArray) > 0) {
@@ -214,7 +219,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $locale
 	 * @return array
 	 */
-	private function convertPagesToArray(array $children, $locale, $skipGlobal = false)
+	private function convertPagesToArray(array $children, $locale, $skipGlobal = false, $config = null)
 	{
 		$childrenArray = array();
 		
@@ -244,6 +249,11 @@ class SitemapAction extends PageManagerAction
 
 				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
 
+				// it is possibly, that childrens should inherit some config values from parent node
+				if ( ! empty($config) && is_array($config)) {
+					$childArray = array_merge($childArray, $config);
+				}
+				
 				if ( ! empty($childArray)) {
 					$childrenArray[] = $childArray;
 				}
