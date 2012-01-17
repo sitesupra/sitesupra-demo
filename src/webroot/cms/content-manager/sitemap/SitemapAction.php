@@ -250,7 +250,8 @@ class SitemapAction extends PageManagerAction
 				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
 
 				// it is possibly, that childrens should inherit some config values from parent node
-				if ( ! empty($config) && is_array($config)) {
+				if (( ! empty($childArray) && is_array($childArray))
+						&& (! empty($config) && is_array($config))) {
 					$childArray = array_merge($childArray, $config);
 				}
 				
