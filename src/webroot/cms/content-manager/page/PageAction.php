@@ -37,12 +37,12 @@ class PageAction extends PageManagerAction
 	{
 		$controller = $this->getPageController();
 		$pageData = $this->getPageLocalization();
-		
+
 		// Use page localization locale, still current CmsAction locale should be the same already
 		$localeId = $pageData->getLocale();
-		
+
 		$pageId = $pageData->getId();
-		
+
 		// Create special request
 		$request = $this->getPageRequest();
 
@@ -62,13 +62,25 @@ class PageAction extends PageManagerAction
 		$this->setInitialPageId($pageId);
 
 		$isAllowedEditing = true;
-		try {
-			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-		} catch (AuthorizationException $e) {
+
+		if ($page instanceof Entity\Template) {
+
 			try {
-				$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+				$isAllowedEditing = $this->checkApplicationAllAccessPermission();
 			} catch (AuthorizationException $e) {
 				$isAllowedEditing = false;
+			}
+		} else {
+
+			try {
+				$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+			} catch (AuthorizationException $e) {
+
+				try {
+					$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+				} catch (AuthorizationException $e) {
+					$isAllowedEditing = false;
+				}
 			}
 		}
 
@@ -165,10 +177,10 @@ class PageAction extends PageManagerAction
 		if ($publishedData instanceof Entity\Abstraction\Localization) {
 			$isPublished = ($pageData->getRevisionId() == $publishedData->getRevisionId());
 		}
-		
+
 		$pageLocalizationArray = array();
 		$pageLocalizations = $page->getLocalizations();
-		
+
 		foreach ($pageLocalizations as $localization) {
 			/* @var $localization Entity\Abstraction\Localization */
 			$pageLocalizationArray[$localization->getLocale()] = array(
@@ -383,9 +395,9 @@ class PageAction extends PageManagerAction
 			if ( ! $this->hasRequestParameter('path')) {
 				throw new CmsException(null, 'Page path can not be empty');
 			}
-			
+
 			$pathPart = $this->getRequestParameter('path');
-			
+
 			if ( ! $this->hasRequestParameter('title')) {
 				throw new CmsException(null, 'Page title can not be empty');
 			}
@@ -624,26 +636,26 @@ class PageAction extends PageManagerAction
 		$path = new Path($path);
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$locales = $localeManager->getLocales();
-		
+
 		foreach ($locales as $locale) {
 			/* @var $locale Locale */
-			
+
 			$localeId = $locale->getId();
 			$pathPrefix = new Path($localeId);
-			
+
 			if ($path->startsWith($pathPrefix)) {
 				$path->setBasePath($pathPrefix);
 				$locale = $localeId;
 				break;
 			}
 		}
-		
+
 		if (is_null($localeId)) {
 			$localeId = $input->get('locale');
 		}
-		
+
 		$pagePath = $path->getPath(Path::FORMAT_NO_DELIMITERS);
-		
+
 		$criteria = array(
 			'path' => $pagePath,
 			'locale' => $localeId,
@@ -655,7 +667,7 @@ class PageAction extends PageManagerAction
 					->setParameters($criteria)
 					->getSingleResult();
 			$pageId = $pageLocalization->getId();
-			
+
 			// TODO: pass locale to JS as well
 			$response = array(
 				'page_id' => $pageId,
@@ -664,7 +676,7 @@ class PageAction extends PageManagerAction
 
 			$this->getResponse()->setResponseData($response);
 		} catch (NoResultException $noResult) {
-			
+
 			return;
 		}
 	}

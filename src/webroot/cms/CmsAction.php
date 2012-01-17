@@ -11,6 +11,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
+use Supra\Authorization\Exception\ApplicationAccessDeniedException;
 use Supra\Response\TwigResponse;
 use Supra\AuditLog\AuditLogEvent;
 use Supra\User\Entity\AnonymousUser;
@@ -25,6 +26,7 @@ use Supra\FileStorage\Entity as FileEntity;
  */
 abstract class CmsAction extends SimpleController
 {
+
 	/**
 	 * Forced request 
 	 * @var string
@@ -58,19 +60,18 @@ abstract class CmsAction extends SimpleController
 		if (isset($debugRequest['confirm_password'])) {
 			$debugRequest['confirm_password'] = '******';
 		}
-		
+
 		// Handle localized exceptions
 		try {
-			
+
 			$response = $this->getResponse();
 			$localeId = $this->getLocale()->getId();
-			
+
 			if ($response instanceof TwigResponse) {
 				$response->assign('currentLocale', $localeId);
 			}
-			
+
 			parent::execute();
-			
 		} catch (LocalizedException $exception) {
 
 			// No support for not Json actions
@@ -96,11 +97,9 @@ abstract class CmsAction extends SimpleController
 			 * Resource not found exceptions should be thrown to CmsController 
 			 * for static json file execution, for DEVELOPEMENT only!
 			 */
-		}
-		catch (Exception\ResourceNotFoundException $e) {
+		} catch (Exception\ResourceNotFoundException $e) {
 			throw $e;
-		}
-		catch (EntityAccessDeniedException $e) {
+		} catch (EntityAccessDeniedException $e) {
 
 			// No support for not Json actions
 			$response = $this->getResponse();
@@ -112,8 +111,7 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 
 			$this->log->warn($e);
-		}
-		catch (\Exception $e) {
+		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
 			if ( ! $response instanceof JsonResponse) {
@@ -124,7 +122,7 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage($e->getMessage());
 
 			// Write the issue inside the log
-			$this->log->error($e, "\nRequest:\n", $debugRequest);		
+			$this->log->error($e, "\nRequest:\n", $debugRequest);
 		}
 	}
 
@@ -151,18 +149,17 @@ abstract class CmsAction extends SimpleController
 //		// Current locale ID
 //		$localeId = $this->getLocale()->getId();
 //		$response->assign('currentLocale', $localeId);
-		
 		// Locale array
 		$localeList = $this->createLocaleArray();
 		$response->assign('localesList', $localeList);
-		
+
 		// Used to get currently signed in user
 		//TODO: think about something better...
 		$response->assign('action', $this);
-		
+
 		return $response;
 	}
-	
+
 	/**
 	 * Creates locale array for JS
 	 * @return array
@@ -171,33 +168,33 @@ abstract class CmsAction extends SimpleController
 	{
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$locales = $localeManager->getLocales();
-		
+
 		$jsLocales = array();
-		
+
 		/* @var $locale Locale */
 		foreach ($locales as $locale) {
-			
+
 			$country = $locale->getCountry();
-			
+
 			if ( ! isset($jsLocales[$country])) {
 				$jsLocales[$country] = array(
 					'title' => $country,
 					'languages' => array()
 				);
 			}
-			
+
 			$jsLocales[$country]['languages'][] = array(
 				'id' => $locale->getId(),
 				'title' => $locale->getTitle(),
 				'flag' => $locale->getProperty('flag')
 			);
 		}
-		
+
 		$jsLocales = array_values($jsLocales);
-		
+
 		return $jsLocales;
 	}
-	
+
 	/**
 	 * Mark request as POST request
 	 * @throws Exception\ResourceNotFoundException if POST method is not used
@@ -247,8 +244,7 @@ abstract class CmsAction extends SimpleController
 
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPost();
-		}
-		else {
+		} else {
 			$value = $request->getQuery();
 		}
 
@@ -267,8 +263,7 @@ abstract class CmsAction extends SimpleController
 
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPostValue($key);
-		}
-		else {
+		} else {
 			$value = $request->getQueryValue($key);
 		}
 
@@ -335,6 +330,22 @@ abstract class CmsAction extends SimpleController
 	}
 
 	/**
+	 * @return boolean
+	 */
+	protected function checkApplicationAllAccessPermission()
+	{
+		$user = $this->getUser();
+
+		$appConfig = ObjectRepository::getApplicationConfiguration($this);
+
+		if ($appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($user)) {
+			return true;
+		}
+		
+		throw new ApplicationAccessDeniedException($user, $this);
+	}
+
+	/**
 	 * Write to audit log
 	 *
 	 * @param string $action
@@ -380,4 +391,5 @@ abstract class CmsAction extends SimpleController
 
 		$auditLog->info($this, $action, $message, $user, array());
 	}
+
 }
