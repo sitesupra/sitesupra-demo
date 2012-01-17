@@ -48,22 +48,21 @@ class ProcessScheduledPagesCommand extends Command
 			$request = PageRequestEdit::factory($localization);
 			$request->setDoctrineEntityManager($this->_em);
 			
+			//$publicEm->getConnection()->beginTransaction();
 			try {
-				
-				$publish = function() use ($request) {
-					$request->publish();
-				};
-
-				$publicEm->transactional($publish);
-				
+				$request->publish();
+				//$publicEm->getConnection()->commit();
 			} catch (\Exception $e) {
+
+				//$publicEm->getConnection()->rollBack();
 				// skip page, if something went wrong
 				$pageId = $localization->getId();
-				
+
 				$log = ObjectRepository::getLogger($this);
 				$log->error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
-				
+
 				continue;
+
 			}
 			
 			/* @var $localization PageLocalization */
