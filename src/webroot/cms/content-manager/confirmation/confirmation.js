@@ -19,6 +19,7 @@ SU('supra.input', function (Y) {
 		'message': '',
 		'escape': true,
 		'useMask': true,
+		'align': 'center',
 		'buttons': []
 	};
 	
@@ -87,7 +88,12 @@ SU('supra.input', function (Y) {
 				message = Y.Escape.html(message);
 			}
 			
-			this.one('p').set('innerHTML', message);
+			this.one('p')
+					.removeClass('align-left')
+					.removeClass('align-right')
+					.removeClass('align-center')
+					.addClass('align-' + config.align)
+					.set('innerHTML', message);
 		},
 		
 		/**

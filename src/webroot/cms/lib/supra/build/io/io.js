@@ -203,6 +203,24 @@ YUI().add("supra.io", function (Y) {
 			        {'id': 'delete', 'label': 'Ok'}
 			    ]
 			});
+		
+		//Show warning messages
+		} else if (response.warning_message && !cfg.suppress_errors) {
+			var message = response.warning_message,
+				single = true;
+			
+			if (Y.Lang.isArray(message)) {
+				single = false;
+				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+			}
+			SU.Manager.executeAction('Confirmation', {
+			    'message': message,
+			    'align': single ? 'center' : 'left',
+			    'useMask': true,
+			    'buttons': [
+			        {'id': 'delete', 'label': 'Ok'}
+			    ]
+			});
 		}
 		
 		//Show confirmation message

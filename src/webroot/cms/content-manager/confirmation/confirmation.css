@@ -4,6 +4,25 @@
 	
 	font-size: 14px;
 }
+.supra-confirmation-message.align-center {
+	text-align: center;
+}
+.supra-confirmation-message.align-left {
+	text-align: left;
+}
+.supra-confirmation-message.align-right {
+	text-align: right;
+}
+
+.supra-confirmation-message ul {
+	list-style: disc;
+	padding: 8px 0 0 20px;
+}
+.supra-confirmation-message li {
+	list-style: disc;
+	padding: 5px 0 0;
+}
+
 .supra-confirmation-message em,
 .supra-confirmation-message i {
 	font-style: italic;

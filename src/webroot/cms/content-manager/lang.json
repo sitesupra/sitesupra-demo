@@ -23,6 +23,10 @@
 			"hidden": "Hidden"
 		},
 		
+		"error": {
+			"warnings": "Warnings:"
+		},
+		
 		"form": {
 			"title": "Title",
 			"visible": "Visible",
