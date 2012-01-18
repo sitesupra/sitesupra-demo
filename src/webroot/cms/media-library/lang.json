@@ -57,7 +57,8 @@
 				"file_size": "File size exceeds the allowed limit",
 				"not_allowed_mime": "File type is not allowed",
 				"extension_rename": "File extension cannot be changed",
-				"image_to_file": "Image cannot be replaced with regular file and vice versa"
+				"image_to_file": "Image cannot be replaced with regular file and vice versa",
+				"invalid_drop": "File type was not recognized"
 			}
 		},
 		
