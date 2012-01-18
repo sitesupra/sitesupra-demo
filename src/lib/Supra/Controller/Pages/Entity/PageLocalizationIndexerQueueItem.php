@@ -44,6 +44,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 */
 	protected $schemaName;
 	static $indexedLocalizationIds = array();
+	protected $parentLocalization;
+	protected $parentDocument;
+	/**
+	 *
+	 * @var PageLocalization
+	 */
+	protected $localization;
+	protected $previousDocument;
+	protected $previousParentId;
+	protected $isVisible;
+	protected $reindexChildren;
 
 	public function __construct(PageLocalization $pageLocalization)
 	{
@@ -53,14 +64,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$this->revisionId = $pageLocalization->getRevisionId();
 		$this->schemaName = PageController::SCHEMA_DRAFT;
 	}
-
-	protected $parentLocalization;
-	protected $parentDocument;
-	protected $localization;
-	protected $previousDocument;
-	protected $previousParentId;
-	protected $isVisible;
-	protected $reindexChildren;
 
 	/**
 	 * @param string $schemaName
@@ -155,10 +158,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$result[] = $this->makeIndexedDocument($this->localization, $this->isVisible);
 
 		if ($this->reindexChildren) {
-			
+
 			$childResult = $this->reindexChildren($this->localization, $this->isVisible);
-			
-			foreach($childResult as $r) {
+
+			foreach ($childResult as $r) {
 				$result[] = $r;
 			}
 		}
@@ -280,8 +283,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			}
 
 			$childResult = $this->reindexChildren($child, $isVisible);
-			
-			foreach($childResult as $r) {
+
+			foreach ($childResult as $r) {
 				$result[] = $r;
 			}
 		}
@@ -344,7 +347,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
-		$indexedDocument->visible = $visible ? 'true' : 'false';
+		$indexedDocument->visible = $visible && $pageLocalization->isIncludedInSearch() ? 'true' : 'false';
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();
 		$ancestorIds = array();
@@ -358,16 +361,16 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->ancestorIds = $ancestorIds;
 
 		$pageContents = array();
-		
+
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
 
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
 		$pageRequestView->setLocale($pageLocalization->getLocale());
 		$pageRequestView->setPageLocalization($pageLocalization);
-		$em = ObjectRepository::getEntityManager($pageLocalization);//
+		$em = ObjectRepository::getEntityManager($pageLocalization); //
 		$pageRequestView->setDoctrineEntityManager($em);
 		$blockPropertySet = $pageRequestView->getBlockPropertySet($em);
-		
+
 		$indexedEditableClasses = array(
 			\Supra\Editable\Html::CN(),
 			\Supra\Editable\String::CN(),
