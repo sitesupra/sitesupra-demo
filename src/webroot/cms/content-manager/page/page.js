@@ -714,6 +714,8 @@ Supra(function (Y) {
 		 * @type {Object}
 		 */
 		getPageData: function () {
+			//Use Manager.Page reference, because this function is
+			//copied (ussing assign) and used in Manager.Template
 			return Manager.Page.data;
 		},
 		
