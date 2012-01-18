@@ -235,10 +235,7 @@ Supra(function (Y) {
 				}
 			});
 			
-			this.bindSiteMap();
-			
-			// run session check
-			this.checkSession();	
+			this.bindSiteMap();	
 		},
 		
 		/**
@@ -303,16 +300,6 @@ Supra(function (Y) {
 			if (content.get('created')) { 
 				content.stopEditing();
 			}
-		},
-		
-		checkSession: function () {
-			SU.io('/cms/check-session', {
-				'on': {
-					'complete': function () {
-						setTimeout(this.checkSession.bind(this, this), 60000);  
-					}
-				}
-			}, this);
 		}
 
 	});

@@ -90,6 +90,9 @@
 				'lang': 'en'
 			});
 			
+			//Start pinging server
+			Supra.data.set('sessionKeepAlive', true);
+			
 			{% block jsSupraAuthorization %}
 			Supra.Authorization.setPermissions([
 				{'id': [],		 				'allow': true}
