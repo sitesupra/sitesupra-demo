@@ -190,6 +190,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Convert <i> into <em>
 				html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
 				
+				//Moves whitespaces outside <A> tags
+				html = html.replace(/(<a [^>]+>)\s/g, ' $1');
+				html = html.replace(/\s(<\/a[^>]*>)/g, '$1 ');
+				
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
 				
