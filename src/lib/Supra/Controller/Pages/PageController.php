@@ -17,6 +17,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Uri\Path;
 use Supra\Response\ResponseContext;
+use Supra\Controller\Pages\Event\BlockEvents;
+use Supra\Controller\Pages\Event\BlockEventsArgs;
 
 /**
  * Page controller
@@ -30,6 +32,9 @@ class PageController extends ControllerAbstraction
 	const SCHEMA_AUDIT = '#audit';
 
 	const EVENT_POST_PREPARE_CONTENT = 'postPrepareContent';
+	const EVENT_BLOCK_START = 'blockStartExecuteEvent';
+	const EVENT_BLOCK_END = 'blockEndExecuteEvent';
+	
 	
 	//public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_AUDIT, self::SCHEMA_PUBLIC);
 	public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_PUBLIC);
@@ -260,11 +265,26 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function executeBlockControllers()
 	{
+		$eventManager = ObjectRepository::getEventManager($this);
+		
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) {
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($eventManager) {
+			
 					// It is important to prepare the twig helper for each block controller right before execution
 					$blockController->prepareTwigHelper();
+
+					$eventArgs = new BlockEventsArgs();
+					$eventArgs->blockClass = $block->getComponentClass();
+
+					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
+					
+					$blockTimeStart = microtime(true);
 					$blockController->execute();
+					$blockTimeEnd = microtime(true);
+					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
+					$eventArgs->duration = $blockExecutionTime;
+					$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
+					
 				};
 
 		// Iterates through all blocks and calls the function passed

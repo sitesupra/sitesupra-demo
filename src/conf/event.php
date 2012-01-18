@@ -9,6 +9,7 @@ use Supra\Cms\CmsUserSingleSessionListener;
 use Supra\Cms\CmsController;
 use Supra\Controller\Pages\PageController;
 use Project\GoogleAnalytics\GoogleAnalyticsListener;
+use Supra\Controller\Pages\Listener\BlockExecuteListener;
 
 $eventManager = new EventManager();
 
@@ -32,5 +33,9 @@ $eventManager = new EventManager();
 
 $listener = new GoogleAnalyticsListener();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
+
+
+$listener = new BlockExecuteListener();
+$eventManager->listen($listener->getSubscribedEvents(), $listener);
 
 ObjectRepository::setEventManager('Supra\Controller\Pages', $eventManager);
