@@ -210,8 +210,12 @@ YUI().add("supra.io", function (Y) {
 				single = true;
 			
 			if (Y.Lang.isArray(message)) {
-				single = false;
-				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+				if (message.length > 1) {
+					single = false;
+					message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+				} else {
+					message = message.shift();
+				}
 			}
 			SU.Manager.executeAction('Confirmation', {
 			    'message': message,

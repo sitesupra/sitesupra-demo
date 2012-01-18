@@ -344,6 +344,11 @@ Supra('supra.slideshow', function (Y) {
 					data.avatar = '';
 					data.avatar_id = '';
 				}
+				
+				//Disable permission button
+				var toolbar = Manager.getAction('PageToolbar');
+				toolbar.getActionButton('permissions').set('disabled', true);
+				toolbar.getActionButton('details').set('disabled', true);
 			} else {
 				uri = Manager.getAction('usergroup').getDataPath('save');
 				
@@ -357,6 +362,11 @@ Supra('supra.slideshow', function (Y) {
 				'on': {
 					'complete': function (data, status) {
 						if (Y.Lang.isFunction(callback)) callback(data, status);
+						
+						//Enable permission button
+						var toolbar = Manager.getAction('PageToolbar');
+						toolbar.getActionButton('permissions').set('disabled', false);
+						toolbar.getActionButton('details').set('disabled', false);
 					},
 					'success': function () {
 						Manager.getAction('UserList').load();
