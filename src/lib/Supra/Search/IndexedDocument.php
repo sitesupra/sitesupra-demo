@@ -43,13 +43,21 @@ class IndexedDocument extends Solarium_Document_ReadWrite
 
 	/**
 	 * Returns a text stripped from HTML and other insanities.
-	 * @param string $text
+	 * @param string $content
 	 * @return string 
 	 */
-	public function formatText($text)
+	public function formatText($content)
 	{
-		//return str_replace("\xA0", ' ', html_entity_decode(strip_tags($text)));
-		return strip_tags($text);
+//		$content = str_replace('„', '"', $content);
+//		$content = str_replace('”', '"', $content);
+//		
+		// Inline tags
+		$content = preg_replace('/<\/?(i|b|em|strong|span)( [^>]*)?>/i', '', $content);
+		
+		// Block tags
+		$content = preg_replace('/<[^>]*>/', ' ', $content);
+		
+		return $content;
 	}
 
 	/**
