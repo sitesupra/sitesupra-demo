@@ -104,18 +104,51 @@ SU('supra.input', function (Y) {
 		},
 		
 		/**
+		 * Set locales
+		 * 
+		 * @param {Array} locales Array of available locale ids
+		 * @private
+		 */
+		setLocales: function (locales) {
+			var values = [],
+				contexts = Supra.data.get('contexts'),
+				l = 0,
+				ll = contexts.length,
+				languages = null,
+				k = 0,
+				kk = 0;
+			
+			//Find titles for locales
+			for(var i=0,ii=locales.length; i<ii; i++) {
+				for(l=0; l<ll; l++) {
+					languages = contexts[l].languages;
+					for(k=0,kk=languages.length; k<kk; k++) {
+						if (languages[k].id == locales[i]) {
+							values.push({
+								'id': languages[k].id,
+								'title': languages[k].title
+							});
+						}
+					}
+				}
+			}
+			
+			this.form.getInput('locale').set('values', values);
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function (config) {
 			//Configuration
 			this.config = SU.mix({
-				'locales': {},
+				'locales': [],
 				'context': this,
 				'on': {}
 			}, DEFAULT_CONFIG, config || {});
 			
 			//Set locales
-			this.form.getInput('locale').set('values', this.config.locales);
+			this.setLocales(this.config.locales);
 			
 			//Show in the middle of the screen
 			this.panel.centered();
