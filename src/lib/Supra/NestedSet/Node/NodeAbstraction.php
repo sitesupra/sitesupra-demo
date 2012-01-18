@@ -775,7 +775,12 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	protected function move($pos, $level)
 	{
-		$this->validateMove($pos);
+		$validMove = $this->validateMove($pos);
+		
+		// Skip invalid move
+		if ( ! $validMove) {
+			return $this;
+		}
 
 		// Functionality with better performance
 		$levelDiff = $level - $this->getLevel();
@@ -801,14 +806,18 @@ abstract class NodeAbstraction implements NodeInterface
 	/**
 	 * Check if the move is valid, block node movement under it's descendants
 	 * @param int $pos
-	 * @throws Exception\InvalidOperation on invalid move
+	 * @return boolean, false on invalid move
 	 */
 	protected function validateMove($pos)
 	{
 		if ($this->getLeftValue() <= $pos && $this->getRightValue() >= $pos) {
-			$dump = static::dump($this);
-			throw new Exception\InvalidOperation("The move not allowed for {$dump} to position $pos");
+			
+			return false;
+//			$dump = static::dump($this);
+//			throw new Exception\InvalidOperation("The move not allowed for {$dump} to position $pos");
 		}
+		
+		return true;
 	}
 
 	/**
