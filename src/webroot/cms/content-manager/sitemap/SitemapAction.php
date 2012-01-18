@@ -108,6 +108,8 @@ class SitemapAction extends PageManagerAction
 			$data = $page->getLocalization($locale);
 		}
 		
+		$array = array();
+		
 		if (empty($data)) {
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
@@ -129,6 +131,11 @@ class SitemapAction extends PageManagerAction
 					}
 				}
 				
+				// collecting available localizations
+				foreach ($localizations as $globalLocalization) {
+					$array['localizations'][] = $globalLocalization->getLocale();
+				}
+								
 				$isGlobal = true;
 			} else {
 
@@ -136,10 +143,11 @@ class SitemapAction extends PageManagerAction
 			}
 		}
 		
-		$array = array();
-
 		if ( ! $skipRoot) {
-			$array = $this->loadNodeMainData($data);
+			$nodeData = $this->loadNodeMainData($data);
+			if ( ! empty($nodeData)) {
+				$array = array_merge($nodeData, $array);
+			}
 		}
 
 		$children = null;
