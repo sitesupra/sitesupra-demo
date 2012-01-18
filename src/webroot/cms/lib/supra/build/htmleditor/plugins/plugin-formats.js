@@ -25,13 +25,50 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 		 */
 		buttons: null,
 		
-		
+		/**
+		 * Execute command
+		 * 
+		 * @param {Object} data
+		 * @param {String} command Command
+		 * @private
+		 */
 		exec: function (data, command) {
-			this.htmleditor.get('doc').execCommand('formatblock', false, command);
-			this.htmleditor._changed();
+			var htmleditor = this.htmleditor,
+				doc = this.htmleditor.get('doc'),
+				selection = null;
+			
+			if (Y.UA.ie) {
+				//If selection length is 0 then IE fails to change node
+				selection = htmleditor.getSelection();
+				if (selection.start == selection.end && selection.start_offset == selection.end_offset) {
+					if (selection.end_offset == selection.end.length) {
+						selection.start_offset--;
+					} else {
+						selection.end_offset++;
+					}
+				}
+				
+				htmleditor.setSelection(selection);
+			}
+			
+			//Change to P, H1, H2, ...
+			doc.execCommand('formatblock', false, '<' + command + '>');
+			
+			//Trigger "change" event on editor
+			htmleditor._changed();
+			
+			//Update button states
+			this.handleNodeChange();
+			
 			return true;
 		},
 		
+		/**
+		 * Find button for format
+		 * 
+		 * @param {String} format Format
+		 * @private
+		 */
 		bindButton: function (format) {
 			var htmleditor = this.htmleditor;
 			var toolbar = htmleditor.get('toolbar');
@@ -51,11 +88,26 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 				buttons = this.buttons,
 				down,
 				format,
+				selectedElement = null,
 				//currentFormat is empty string (false in Safari) or "H1", "P", ...
+				//in IE currentFormat is "Normal" even for elements without tag or "Heading 1", ...
 				currentFormat = null;
 				
 				try {
 					currentFormat = htmleditor.get('doc').queryCommandValue('formatblock');
+					
+					//Normalize IE value
+					if (Y.UA.ie) {
+						currentFormat = currentFormat.replace('Heading ', 'H');
+						
+						//Check for P tag
+						if (currentFormat == 'Normal') {
+							selectedElement = htmleditor.getSelectedElement('P');
+							if (selectedElement) {
+								currentFormat = 'P';
+							}
+						}
+					}
 				} catch (err) {
 					//If selected text is not 'contenteditable' then error is thrown
 					currentFormat = '';
