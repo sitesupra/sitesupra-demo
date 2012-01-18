@@ -645,15 +645,17 @@ Supra(function (Y) {
 		 *
 		 * @param {Number} page_id Page ID
 		 * @param {String} locale Current locale
+		 * @param {String} source_locale Locale from which page will be copied
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		duplicateGlobalPage: function (page_id, locale, callback, context) {
+		duplicateGlobalPage: function (page_id, locale, source_locale, callback, context) {
 			var uri = this.getDataPath('duplicate-global');
 			
 			var post_data = {
 				'page_id': page_id,
 				'locale': locale,
+				'source_locale': source_locale,
 				'action': 'duplicate'
 			};
 			

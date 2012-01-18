@@ -495,16 +495,19 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			Supra.data.set('locale', this.languagebar.get('locale'));
 			
 			//Change page
-			this.fire('page:select', {
-				'data': evt.data
-			});
+			if (this.fire('page:select', {'data': evt.data})) {
+				this.onPageOpen(evt.data.id);
+			}
 			
+		},
+		
+		onPageOpen: function (page_id) {
 			//Set selected in data
 			Supra.data.set('page', {
-				'id': evt.data.id
+				'id': page_id
 			});
 			
-			var target = this.flowmap.getNodeById(evt.data.id);
+			var target = this.flowmap.getNodeById(page_id);
 			this.animate(target.get('boundingBox'));
 		},
 		

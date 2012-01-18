@@ -404,6 +404,9 @@ YUI.add("supra.form", function (Y) {
 			//Style
 			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, 'default'));
 			var style = this.get('style');
+			if (!style) {
+				style = this.get('srcNode').getAttribute('suStyle') || '';
+			}
 			if (style) {
 				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
 			}
