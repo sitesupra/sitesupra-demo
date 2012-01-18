@@ -104,11 +104,23 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 				imax = result.length,
 				selector,
 				match,
-				list = [];
+				list = [],
+				tmp = null;
 				
 			for(; i < imax; i++) {
 				selector = result[i].replace('#su-style-dropdown ', '');
-				match = selector.match(/(.+\s)?([a-z0-9]+)?\.([a-z0-9\-\_]+)\s?(\[([^\]]+)\])?/i)
+				
+				//Format is .selector tag.classname[attribute]
+				match = selector.match(/(.+\s)?([a-z0-9]+)?\.([a-z0-9\-\_]+)\s?(\[([^\]]+)\])?/i);
+				
+				//Need to support also: .selector tag[attribute].classname
+				if (match && !match[1] && !match[2] && !match[4] && !match[5]) {
+					match = selector.match(/(.+\s)?([a-z0-9]+)?(\[([^\]]+)\])?\.([a-z0-9\-\_]+)\s?/i);
+					
+					//Fix incorrect indexes
+					tmp = match[4]; match[4] = match[5]; match[5] = tmp;
+					tmp = match[3]; match[3] = match[4]; match[4] = tmp;
+				}
 				
 				if (match) {
 					list.push({
