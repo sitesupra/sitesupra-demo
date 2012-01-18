@@ -669,8 +669,10 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.show();
 			
 			if (!this.first_exec) {
+				var page_data = Manager.Page.getPageData(),
+					page_locale = page_data ? page_data.locale : this.languagebar.get('locale');
+				
 				//Open sitemap in same language as currently opened page
-				var page_locale = Manager.Page.getPageData().locale;
 				if (page_locale != this.languagebar.get('locale')) {
 					this.languagebar.set('locale', page_locale);
 				} else {
@@ -678,6 +680,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					this.setLoading(true);
 				}
 			}
+			
 			this.first_exec = false;
 			
 			//Hide page header
