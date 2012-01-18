@@ -76,20 +76,20 @@ SU('supra.input', function (Y) {
 			
 			//Callbacks
 			this.footer.buttons.create.on('click', function () {
-				this.panel.hide();
-				this.config = null;
-				
 				if (this.config.on && this.config.on.create) {
 					this.config.on.create.call(this.config.context, this.form.getInput('locale').get('value'));
 				}
-			}, this);
-			this.footer.buttons.cancel.on('click', function () {
+				
 				this.panel.hide();
 				this.config = null;
-				
+			}, this);
+			this.footer.buttons.cancel.on('click', function () {
 				if (this.config.on && this.config.on.cancel) {
 					this.config.on.cancel.call(this.config.context);
 				}
+				
+				this.panel.hide();
+				this.config = null;
 			}, this);
 		},
 		
