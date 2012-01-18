@@ -249,7 +249,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				//Create tree
 					//Use sitemap data
 					this.locale = Supra.data.get('locale');
-					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data +
+					var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
 											'?locale=' + this.locale +
 											'&existing_only=1';
 					
@@ -361,7 +361,9 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			//Reload tree if needed
 			if (reloading_tree) {
 				this.locale = Supra.data.get('locale');
-				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+										'?locale=' + this.locale +
+										'&existing_only=1';
 				
 				this.tree.set('requestUri', sitemap_data_path);
 				this.tree.reload();

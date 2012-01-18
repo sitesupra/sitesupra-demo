@@ -126,14 +126,15 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			//Create tree
 				//Use sitemap data
 				this.locale = Supra.data.get('locale');
-				var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data +
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
 											'?locale=' + this.locale +
 											'&existing_only=1';
 				
 				//Create tree
 				this.tree = new SU.Tree({
 					srcNode: this.one('.tree'),
-					requestUri: sitemap_data_path
+					requestUri: sitemap_data_path,
+					groupNodesSelectable: false
 				});
 				this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 				this.tree.render();
@@ -197,7 +198,9 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			//Reload tree if needed
 			if (reloading_tree)	{
 				this.locale = Supra.data.get('locale');
-				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+											'?locale=' + this.locale +
+											'&existing_only=1';
 				
 				this.tree.set('requestUri', sitemap_data_path);
 				this.tree.reload();
