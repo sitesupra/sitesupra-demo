@@ -42,6 +42,8 @@ class Command extends SymfonyCommand
 		$em = ObjectRepository::getEntityManager($this);
 		$masterCronJob = $this->getMasterCronEntity();
 
+		$this->fixBrokenCronJobs($em);
+		
 		$em->getConnection()->beginTransaction();
 		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
 		
@@ -176,6 +178,38 @@ class Command extends SymfonyCommand
 		$previousTime = $job->getNextExecutionTime();
 		$nextTime = $period->getNext($previousTime);
 		$job->setNextExecutionTime($nextTime);
+	}
+	
+	/**
+	 * When something has failed for Cron job execution intervals and
+	 * some task contains next execution time that is less than Master task
+	 * last execution time, we will update this job next execution time
+	 * and hope, that this will help to execute this task next time
+	 */
+	protected function fixBrokenCronJobs(\Doctrine\ORM\EntityManager $em)
+	{
+		$masterJob = $this->getMasterCronEntity();
+		$lastTime = $masterJob->getLastExecutionTime();
+		
+		$nullTime = new \DateTime();
+		$nullTime->setTimestamp(0);
+		
+		$thisTime = new \DateTime();
+		
+		$repo = $em->getRepository(CronJob::CN());
+		/* @var $repo Repository\CronJobRepository */
+		// select all tasks where next execution time is less than last execution time for cron task
+		$jobList = $repo->findScheduled($nullTime, $lastTime);
+		
+		foreach($jobList as $job) {
+			/* @var $job CronJob */
+			$job->setNextExecutionTime($thisTime);
+			$this->updateJobNextExecutionTime($job);
+		}
+		
+		if ( ! empty($jobList)) {
+			$em->flush();
+		}
 	}
 	
 }
