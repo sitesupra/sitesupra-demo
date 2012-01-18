@@ -33,12 +33,15 @@
 		<fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
 			<analyzer type="index">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="en/stopwords.txt" enablePositionIncrements="true" />
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.EnglishPossessiveFilterFactory"/>
 				<filter class="solr.PorterStemFilterFactory"/>
 			</analyzer>
 			<analyzer type="query">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="en/stopwords.txt" enablePositionIncrements="true" />
+<!--				<filter class="solr.SynonymFilterFactory" synonyms="en/synonyms.txt" ignoreCase="true" expand="true"/>-->
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.EnglishPossessiveFilterFactory"/>
 				<filter class="solr.PorterStemFilterFactory"/>
@@ -48,11 +51,14 @@
 		<fieldType name="text_ru" class="solr.TextField" positionIncrementGap="100">
 			<analyzer type="index">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="ru/stopwords.txt" enablePositionIncrements="true" />
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.SnowballPorterFilterFactory" language="Russian" />
 			</analyzer>
 			<analyzer type="query">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="ru/stopwords.txt" enablePositionIncrements="true" />
+<!--				<filter class="solr.SynonymFilterFactory" synonyms="ru/synonyms.txt" ignoreCase="true" expand="true"/>-->
 				<filter class="solr.LowerCaseFilterFactory"/>
 				<filter class="solr.SnowballPorterFilterFactory" language="Russian" />
 			</analyzer>
@@ -61,13 +67,68 @@
 		<fieldType name="text_lv" class="solr.TextField" positionIncrementGap="100">
 			<analyzer type="index">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="lv/stopwords.txt" enablePositionIncrements="true" />
 				<filter class="solr.LowerCaseFilterFactory"/>
-				<filter class="solr.LatvianStemFilterFactory"/>
+<!--				<filter class="solr.LatvianStemFilterFactory"/>-->
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="lv/lv_LV.dic"
+					affix="lv/lv_LV.aff"
+					ignoreCase="true" />
 			</analyzer>
 			<analyzer type="query">
 				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="lv/stopwords.txt" enablePositionIncrements="true" />
+<!--				<filter class="solr.SynonymFilterFactory" synonyms="lv/synonyms.txt" ignoreCase="true" expand="true"/>-->
 				<filter class="solr.LowerCaseFilterFactory"/>
-				<filter class="solr.LatvianStemFilterFactory"/>
+<!--				<filter class="solr.LatvianStemFilterFactory"/>-->
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="lv/lv_LV.dic"
+					affix="lv/lv_LV.aff"
+					ignoreCase="true" />
+			</analyzer>
+		</fieldType>
+		
+		<fieldType name="text_lt" class="solr.TextField" positionIncrementGap="100">
+			<analyzer type="index">
+				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="lt/stopwords.txt" enablePositionIncrements="true" />
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="lt/lt_LT.dic"
+					affix="lt/lt_LT.aff"
+					ignoreCase="true" />
+			</analyzer>
+			<analyzer type="query">
+				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="lt/stopwords.txt" enablePositionIncrements="true" />
+<!--				<filter class="solr.SynonymFilterFactory" synonyms="lt/synonyms.txt" ignoreCase="true" expand="true"/>-->
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="lt/lt_LT.dic"
+					affix="lt/lt_LT.aff"
+					ignoreCase="true" />
+			</analyzer>
+		</fieldType>
+		
+		<fieldType name="text_et" class="solr.TextField" positionIncrementGap="100">
+			<analyzer type="index">
+				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="et/stopwords.txt" enablePositionIncrements="true" />
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="et/et_EE.dic"
+					affix="et/et_EE.aff"
+					ignoreCase="true" />
+			</analyzer>
+			<analyzer type="query">
+				<tokenizer class="solr.StandardTokenizerFactory"/>
+				<filter class="solr.StopFilterFactory" ignoreCase="true" words="et/stopwords.txt" enablePositionIncrements="true" />
+<!--				<filter class="solr.SynonymFilterFactory" synonyms="et/synonyms.txt" ignoreCase="true" expand="true"/>-->
+				<filter class="solr.LowerCaseFilterFactory"/>
+				<filter class="solr.HunspellStemFilterFactory"
+					dictionary="et/et_EE.dic"
+					affix="et/et_EE.aff"
+					ignoreCase="true" />
 			</analyzer>
 		</fieldType>
 		
@@ -99,9 +160,13 @@
 		<field name="text_lv" type="text_lv" indexed="true" stored="true" required="false" />
 		<field name="text_en" type="text_en" indexed="true" stored="true" required="false" />	 
 		<field name="text_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
+		<field name="text_lt" type="text_lt" indexed="true" stored="true" required="false" />	 		
+		<field name="text_et" type="text_et" indexed="true" stored="true" required="false" />	 		
 		<field name="title_lv" type="text_lv" indexed="true" stored="true" required="false" />
 		<field name="title_en" type="text_en" indexed="true" stored="true" required="false" />	 
 		<field name="title_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
+		<field name="title_lt" type="text_lt" indexed="true" stored="true" required="false" />	 		
+		<field name="title_et" type="text_et" indexed="true" stored="true" required="false" />	 		
 		<field name="author" type="string" indexed="true" stored="true" required="false" />
 		<field name="keywords" type="string" indexed="true" stored="true" required="false" />
 		<field name="description" type="string" indexed="true" stored="true" required="false" />
