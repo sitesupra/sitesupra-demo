@@ -7,6 +7,9 @@
 	min-height: 200px;
 	background: url(../../supra/img/tree/loading.gif) 50% 50% no-repeat;
 }
+.yui3-tree-loading .yui3-tree-node {
+	display: none;
+}
 
 .tree-node {
 	cursor: pointer;
