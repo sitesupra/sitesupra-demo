@@ -63,6 +63,8 @@ YUI().add("supra.io", function (Y) {
 		cfg.on._failure = cfg.on.failure;
 		cfg.on._complete = cfg.on.complete;
 		cfg.on.complete = null;
+		cfg._data = cfg.data;
+		cfg._url = url;
 		
 		//Add session id to data
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
@@ -229,12 +231,7 @@ YUI().add("supra.io", function (Y) {
 		
 		//Show confirmation message
 		if (response.confirmation_message) {
-			SU.Manager.executeAction('Confirmation', {
-			    'message': response.confirmation_message,
-			    'useMask': true,
-			    'buttons': [{'id': 'yes'}, {'id': 'no'}]
-			});
-			//@TODO
+			return this.handleConfirmationMessage(cfg, response);
 		}
 		
 		//Missing callbacks, ignore
@@ -243,6 +240,8 @@ YUI().add("supra.io", function (Y) {
 		//Call callbacks
 		var fn = response.status ? cfg.on._success : cfg.on._failure;
 		
+		delete(cfg.on._data);
+		delete(cfg.on.data);
 		delete(cfg.on._success);
 		delete(cfg.on._failure);
 		delete(cfg.on.success);
@@ -260,6 +259,59 @@ YUI().add("supra.io", function (Y) {
 		} else {
 			return null;
 		}
+	};
+	
+	/**
+	 * Handle confirmation message parameter
+	 * Show confirmation message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleConfirmationMessage = function (cfg, response) {
+		SU.Manager.executeAction('Confirmation', {
+		    'message': response.confirmation_message.message,
+		    'useMask': true,
+		    'buttons': [
+		    	{'id': 'yes', 'context': this, 'click': function () { this.handleConfirmationResult(1, cfg, response); }},
+		    	{'id': 'no',  'context': this, 'click': function () { this.handleConfirmationResult(0, cfg, response); }}
+		    ]
+		});
+	};
+	
+	/**
+	 * On message confirm or deny send same request again and add answer to
+	 * the data
+	 * 
+	 * @param {Number} answer Confirmation message answer
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleConfirmationResult = function (answer, cfg, response) {
+		var url = cfg._url;
+		
+		//Restore original values
+		cfg.on.success  = cfg.on._success;
+		cfg.on.failure  = cfg.on._failure;
+		cfg.on.complete = cfg.on._complete;
+		cfg.data     = cfg._data;
+		
+		delete(cfg.on._success);
+		delete(cfg.on._failure);
+		delete(cfg.on._complete);
+		delete(cfg.on._data);
+		delete(cfg.on._url);
+		
+		//Add answer to the request
+		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
+			cfg.data = {};
+		}
+		cfg.data[response.confirmation_message.id] = answer;
+		
+		//Run request again
+		Supra.io(url, cfg);
 	};
 	
 	
