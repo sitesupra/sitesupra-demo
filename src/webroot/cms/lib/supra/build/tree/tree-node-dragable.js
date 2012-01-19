@@ -341,8 +341,13 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				if (this.dd.target) {
 					this.dd.target.destroy();
 				}
-				this.dd.unplug(Y.Plugin.DDProxy);
 				this.dd.destroy();
+				this.dd.unplug(Y.Plugin.DDProxy);
+				
+				//Destroy children
+				for(var i=this.size()-1; i>=0; i--) {
+					this.item(i).destroy();
+				}
 			}
 		},
 		

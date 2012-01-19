@@ -213,8 +213,11 @@ YUI.add('supra.tree', function(Y) {
 				if (!status) data = [];
 				
 				// Remove all nodes and data
+				var item = null;
 				for(var i=this.size() - 1; i >= 0; i--) {
+					item = this.item(i);
 					this.remove(i);
+					item.destroy();
 				}
 				
 				this._data = [];
@@ -249,6 +252,17 @@ YUI.add('supra.tree', function(Y) {
 			};
 			
 			var request = Supra.io(uri, complete, this);
+		},
+		
+		/**
+		 * Remove all children
+		 */
+		empty: function () {
+			var item = null;
+			for(var i=this.size() - 1; i >= 0; i--) {
+				this.item(i).destroy();
+				this.remove(i);
+			}
 		},
 		
 		/**
