@@ -282,6 +282,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			//To request URI add application ID
 			var uri = this.getDataPath('datalist', {'application_id': this.application.id, 'locale': this.languagebar.get('locale')});
 			
+			this.tree.set('loading', true);
 			this.tree.set('requestUri', uri);
 			this.tree.reload();
 		},
