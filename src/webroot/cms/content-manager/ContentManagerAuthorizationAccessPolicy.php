@@ -57,7 +57,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		}
 		else if ($page instanceof PageEntity\GroupPage) {
 
-			$title = '{GP} ' . $page->getTitle();
+			$title = $page->getTitle();
 		}
 		else if ($page instanceof PageEntity\Page) {
 
