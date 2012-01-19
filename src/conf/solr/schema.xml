@@ -172,7 +172,8 @@
 		<field name="ancestorIds" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 		
 		<!-- Specific to PageLocalization objects -->
-		<field name="visible" type="boolean" indexed="true" stored="true" required="false" />		
+		<field name="isActive" type="boolean" indexed="true" stored="true" required="false" />		
+		<field name="includeInSearch" type="boolean" indexed="true" stored="true" required="false" />
 		
 	</fields>
 
