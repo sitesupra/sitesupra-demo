@@ -119,8 +119,6 @@ class BlockExecuteListener implements EventSubscriber
 		/**
 		 * @todo do something on all page end execution
 		 */
-		
-		$a = 1+1;
 	}
 	
 }
