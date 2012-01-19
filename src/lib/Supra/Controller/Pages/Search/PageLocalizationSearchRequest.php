@@ -63,7 +63,8 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	{
 		$this->addSimpleFilter('schemaName', $this->schemaName);
 		
-		$this->addSimpleFilter('visible', true);
+		$this->addSimpleFilter('isActive', true);
+		$this->addSimpleFilter('includeInSearch', true);
 
 		// This is default for case when locale is not set for this request.
 		$languageCode = 'general';
@@ -72,7 +73,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 
 			$this->addSimpleFilter('localeId', $this->locale->getId());
 
-			$languageCode = $this->locale->getProperty("language");
+			$languageCode = $this->locale->getProperty('language');
 		}
 
 		$textFieldName = 'text_' . $languageCode;

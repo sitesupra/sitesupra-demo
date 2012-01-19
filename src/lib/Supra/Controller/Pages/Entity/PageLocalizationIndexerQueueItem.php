@@ -53,7 +53,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	protected $localization;
 	protected $previousDocument;
 	protected $previousParentId;
-	protected $isVisible;
+	protected $isActive;
 	protected $reindexChildren;
 
 	public function __construct(PageLocalization $pageLocalization)
@@ -155,11 +155,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			$this->noParentNoPrevious();
 		}
 
-		$result[] = $this->makeIndexedDocument($this->localization, $this->isVisible);
+		$result[] = $this->makeIndexedDocument($this->localization, $this->isActive);
 
 		if ($this->reindexChildren) {
 
-			$childResult = $this->reindexChildren($this->localization, $this->isVisible);
+			$childResult = $this->reindexChildren($this->localization, $this->isActive);
 
 			foreach ($childResult as $r) {
 				$result[] = $r;
@@ -174,39 +174,41 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		// Page has been moved?
 		if ($this->parentLocalization->getId() != $this->previousParentId) {
 			// - Yes. 
+			
 			// Set "visibility" to that of parent document.
-			$this->isVisible = $this->parentDocument->visible;
+			$this->isActive = $this->parentDocument->isActive;
 
 			// If "visibility" has changed since last indexing, child pages have to be reindexed as well.
-			if ($this->previousDocument->visible != $this->isVisible) {
+			if ($this->previousDocument->isActive != $this->isActive) {
 				$this->reindexChildren = true;
 			} else {
 				$this->reindexChildren = false;
 			}
 		} else {
 			// - No.
+
 			// If "activity" has been turned OFF ...
 			if ($this->localization->isActive() == false && $this->previousDocument->active == true) {
 
-				// This localiaztion is not active and not visible, same goes for its children.
-				$this->isVisible = false;
+				// This localiaztion is not active and not active, same goes for its children.
+				$this->isActive = false;
 				$this->reindexChildren = true;
 			}
 			// ... or if "activity" has been turned ON ...
 			else if ($this->localization->isActive() == true && $this->previousDocument->active == false) {
 
-				// This localization is active and visible, same goes for its children.
+				// This localization is active and active, same goes for its children.
 				if ( ! empty($this->parentDocument)) {
-					$this->isVisible = $this->parentDocument->visible;
+					$this->isActive = $this->parentDocument->isActive;
 				} else {
-					$this->isVisible = $this->parentLocalization->isActive();
+					$this->isActive = $this->parentLocalization->isActive();
 				}
 
 				$this->reindexChildren = true;
 			} else {
 
 				// Nothing of substance has changed since last indexing.
-				$this->isVisible = $this->previousDocument->visible;
+				$this->isActive = $this->previousDocument->isActive;
 				$this->reindexChildren = false;
 			}
 		}
@@ -218,14 +220,14 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 			// If localization is "active", "visibility" is inherited from its parent, ...
 			if (empty($this->parentDocument)) {
-				$this->isVisible = $this->parentLocalization->isActive();
+				$this->isActive = $this->parentLocalization->isActive();
 			} else {
-				$this->isVisible = $this->parentDocument->visible;
+				$this->isActive = $this->parentDocument->isActive;
 			}
 		} else {
 
 			// ... otherwise "visibility" is FALSE.
-			$this->isVisible = false;
+			$this->isActive = false;
 		}
 
 		// ... and chidren will be reindexed just to be safe.
@@ -242,30 +244,30 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 			if ($this->previousDocument->active != $this->localization->isActive()) {
 
-				// "Activity" has been changed and now we have to adjust "visiblilty" of this
+				// "Activity" has been changed and now we have to adjust "activity" of this
 				// localization as well as that of all children.
-				$this->isVisible = $this->localization->isActive();
+				$this->isActive = $this->localization->isActive();
 				$this->reindexChildren = true;
 			} else {
 
-				$this->isVisible = $this->parentDocument->visible;
+				$this->isActive = $this->parentDocument->isActive;
 				$this->reindexChildren = false;
 			}
 		} else {
 			// If this localization has been made root localization, 
 			// set "visibility" according to "activity", and reindex children.
-			$this->isVisible = $this->localization->isActive();
+			$this->isActive = $this->localization->isActive();
 			$this->reindexChildren = true;
 		}
 	}
 
 	protected function noParentNoPrevious()
 	{
-		$this->isVisible = $this->localization->isActive();
+		$this->isActive = $this->localization->isActive();
 		$this->reindexChildren = true;
 	}
 
-	protected function reindexChildren(Localization $pageLocalization, $isVisible)
+	protected function reindexChildren(Localization $pageLocalization, $isActive)
 	{
 		$result = array();
 
@@ -276,13 +278,13 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			if ( ! $child instanceof GroupLocalization) {
 
 				if ( ! in_array($child->getId(), self::$indexedLocalizationIds)) {
-					$result[] = $this->makeIndexedDocument($child, $isVisible);
+					$result[] = $this->makeIndexedDocument($child, $isActive);
 				} else {
 					\Log::debug('LLL hit cache!!! ', $child->getId());
 				}
 			}
 
-			$childResult = $this->reindexChildren($child, $isVisible);
+			$childResult = $this->reindexChildren($child, $isActive);
 
 			foreach ($childResult as $r) {
 				$result[] = $r;
@@ -316,7 +318,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @param PageLocalization $pageLocalization
 	 * @return IndexedDocument 
 	 */
-	protected function makeIndexedDocument(PageLocalization $pageLocalization, $visible)
+	protected function makeIndexedDocument(PageLocalization $pageLocalization, $isActive)
 	{
 		$lm = ObjectRepository::getLocaleManager($this);
 
@@ -347,7 +349,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
-		$indexedDocument->visible = $visible && $pageLocalization->isIncludedInSearch() ? 'true' : 'false';
+		$indexedDocument->isActive = $isActive ? 'true' : 'false';
+		
+		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();
 		$ancestorIds = array();
@@ -395,7 +399,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->active = $pageLocalization->isActive();
 
-		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, ' visible: ', $indexedDocument->visible);
+		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, ' isActive: ', $indexedDocument->isActive);
 
 		self::$indexedLocalizationIds[] = $pageLocalization->getId();
 
