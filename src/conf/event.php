@@ -20,22 +20,20 @@ $eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionList
 
 ObjectRepository::setEventManager($userProvider, $eventManager);
 
-
+// Default EM
 $eventManager = new EventManager();
 
 $listener = new CmsPageLocalizationIndexerQueueListener();
 $eventManager->listen(CmsController::EVENT_POST_PAGE_PUBLISH, $listener);
 
-ObjectRepository::setEventManager('Supra\Cms\ContentManager', $eventManager);
-
 // Google Analytics
-$eventManager = new EventManager();
-
 $listener = new GoogleAnalyticsListener();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
-
 
 $listener = new BlockExecuteListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
-ObjectRepository::setEventManager('Supra\Controller\Pages', $eventManager);
+$listener = new \Supra\Log\Logger\SqlLogger();
+$eventManager->listen($listener->getSubscribedEvents(), $listener);
+
+ObjectRepository::setDefaultEventManager($eventManager);

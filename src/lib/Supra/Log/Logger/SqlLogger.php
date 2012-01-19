@@ -6,6 +6,7 @@ use Doctrine\DBAL\Logging\SQLLogger as SQLLoggerInterface;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\LogEvent;
+use Supra\Controller\Pages\Event\SqlEvents;
 
 /**
  * Sql class
@@ -31,6 +32,19 @@ class SqlLogger implements SQLLoggerInterface
 	 * @var float
 	 */
 	private $start;
+
+	/**
+	 * Return list of subscribed events
+	 * @return array
+	 */
+	public function getSubscribedEvents(){
+		
+		return array(
+			SqlEvents::startQuery,
+			SqlEvents::stopQuery,
+		);
+		
+	}
 	
 	/**
 	 * @param string $subject

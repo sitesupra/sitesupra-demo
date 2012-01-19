@@ -77,7 +77,7 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config->setAutoGenerateProxyClasses(true);
 
 	// SQL logger
-	$sqlLogger = new \Supra\Log\Logger\SqlLogger();
+	$sqlLogger = new \Supra\Log\Logger\EventsSqlLogger();
 	$config->setSQLLogger($sqlLogger);
 
 	$ini = ObjectRepository::getIniConfigurationLoader('');
