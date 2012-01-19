@@ -102,8 +102,8 @@ Supra('supra.slideshow', function (Y) {
 			this.slideshow = new Supra.Slideshow();
 			this.slideshow.render(this.one());
 			
-			var on_resize = Y.throttle(Y.bind(this.slideshow.syncUI, this.slideshow), 50);
-			Y.one(document).after('resize', on_resize);
+			//On resize update slideshow slide position
+			Y.on('resize', Y.bind(this.slideshow.syncUI, this.slideshow), window);
 			
 			//Create slides
 			var slide = null, action = null;
