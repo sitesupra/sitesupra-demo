@@ -69,7 +69,7 @@ abstract class DistributedController extends ControllerAbstraction
 
 		\Log::debug('Class: ', $class);
 
-		if ( ! class_exists($class)) {
+		if ( ! Loader::classExists($class)) {
 			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found (class '$class')");
 		}
 		

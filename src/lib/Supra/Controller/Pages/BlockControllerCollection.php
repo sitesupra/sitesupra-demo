@@ -114,7 +114,7 @@ class BlockControllerCollection
 		$configuration = $this->getBlockConfiguration($blockId);
 		$controllerClass = $configuration->controllerClass;
 
-		if ( ! class_exists($controllerClass)) {
+		if ( ! Loader::classExists($controllerClass)) {
 			$configuration = $this->getBlockConfiguration(BrokenBlockController::BLOCK_NAME);
 			$controllerClass = $configuration->controllerClass;
 		}
