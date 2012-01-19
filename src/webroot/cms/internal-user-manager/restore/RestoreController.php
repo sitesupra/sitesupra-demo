@@ -60,8 +60,6 @@ class RestoreController extends InternalUserManagerAbstractAction
 	 */
 	public function indexAction()
 	{
-		$request = $this->getRequest();
-		/* @var $request Request\HttpRequest */
 		$response = $this->getResponse();
 		
 		$basePath = $this->getBasePath();
@@ -191,7 +189,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			return;
 		}
 		
-		$salt = $user->resetSalt();
+		$user->resetSalt();
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
 		$authAdapter = $userProvider->getAuthAdapter();
@@ -247,7 +245,6 @@ class RestoreController extends InternalUserManagerAbstractAction
 			return null;
 		}
 		
-		$currentSalt = $user->getSalt();
 		$result = $this->validateHash($user, $time, $hash);
 		
 		if ( ! $result) {
