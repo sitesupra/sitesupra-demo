@@ -26,3 +26,4 @@ ObjectRepository::setUserProvider('Supra\Cms\CmsController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\InternalUserManager\Restore\RestoreController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);
+ObjectRepository::setUserProvider('Project\SocialMedia\SocialMediaController', $userProvider);

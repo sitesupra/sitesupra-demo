@@ -99,4 +99,10 @@ class Facebook extends BaseFacebook
 					$key));
 	}
 
+	protected static function errorLog($msg)
+	{
+		$logger = \Supra\ObjectRepository\ObjectRepository::getLogger($this);
+		$logger->error($msg);
+	}
+
 }

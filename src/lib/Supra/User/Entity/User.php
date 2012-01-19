@@ -84,6 +84,18 @@ class User extends AbstractUser
 	protected $localeId;
 
 	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $facebookId;
+	
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $facebookAccessToken;
+	
+	/**
 	 * Generates random salt for new users
 	 */
 	public function __construct()
@@ -285,6 +297,26 @@ class User extends AbstractUser
 	public function setPersonalAvatar($personalAvatar)
 	{
 		$this->personalAvatar = $personalAvatar;
+	}
+
+	public function getFacebookId()
+	{
+		return $this->facebookId;
+	}
+
+	public function setFacebookId($facebookId)
+	{
+		$this->facebookId = $facebookId;
+	}
+
+	public function getFacebookAccessToken()
+	{
+		return $this->facebookAccessToken;
+	}
+
+	public function setFacebookAccessToken($facebookAccessToken)
+	{
+		$this->facebookAccessToken = $facebookAccessToken;
 	}
 
 

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Select page</title>
+	</head>
+	<body>
+		<ul>
+		{% for page in pages %}
+			<li>{{ page.name }} | <a href="/social/edit-page?page_id={{ page.id }}">Choose</a></li>
+		{% endfor %}
+		</ul>
+	</body>
+</html>

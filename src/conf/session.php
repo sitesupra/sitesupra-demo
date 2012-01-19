@@ -10,6 +10,7 @@ $sessionManagerConfiguration->namespaces = array(
 	'Supra\Cms\CmsController',
 	'Project\SampleAuthentication\AuthenticateController',
 	'Project\SampleAuthentication\AuthenticatePreFilterController',
+	'Project\SocialMedia\SocialMediaController',
 );
 $sessionManagerConfiguration->configure();
 

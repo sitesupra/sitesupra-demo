@@ -6,6 +6,7 @@ use SocialMedia\AdapterAbstraction;
 use SocialMedia\Exception\SocialMediaException;
 use Supra\ObjectRepository\ObjectRepository;
 use SocialMedia\Facebook\Exception\FacebookApiException;
+use Supra\User\Entity\User;
 
 class Adapter extends AdapterAbstraction
 {
@@ -15,13 +16,24 @@ class Adapter extends AdapterAbstraction
 	 * @var Facebook 
 	 */
 	public $instance;
+	private $applicationToken;
+	private $userToken;
+
+	/**
+	 * @var User 
+	 */
+	public $cmsUser;
+
+	/**
+	 * @var array 
+	 */
 	static public $requiredPermissions = array(
 		'manage_pages',
 		'offline_access',
 		'publish_stream',
 	);
 
-	public function __construct()
+	public function __construct(User $user)
 	{
 		// currently all configuration in supra.ini
 		$appId = null;
@@ -41,6 +53,9 @@ class Adapter extends AdapterAbstraction
 		);
 
 		$this->instance = new Facebook($config);
+		$this->cmsUser = $user;
+		$this->userToken = $user->getFacebookAccessToken();
+		$this->setAccessToken($user->getFacebookAccessToken());
 	}
 
 	public function getId()
@@ -60,6 +75,10 @@ class Adapter extends AdapterAbstraction
 
 	public function getUserId()
 	{
+		$userId = $this->cmsUser->getFacebookId();
+		if ( ! empty($userId)) {
+			return $userId;
+		}
 		return $this->instance->getUser();
 	}
 
@@ -106,7 +125,7 @@ class Adapter extends AdapterAbstraction
 			return $result;
 		}
 
-		$permissions = $this->instance->api('/me/permissions', 'GET', array('access_token' => $this->instance->getAccessToken()));
+		$permissions = $this->instance->api('/' . $this->getUserId() . '/permissions', 'GET', array('access_token' => $this->instance->getAccessToken()));
 
 		$cache->save($cacheName, $permissions, 60);
 
@@ -142,32 +161,71 @@ class Adapter extends AdapterAbstraction
 	{
 		return $this->getId() . '-' . $this->instance->getAppId();
 	}
-	
-	public function getUserPages() {
+
+	/**
+	 * 
+	 * @param boolean $cache if cache false, will ignore cache and make api request
+	 * @return array 
+	 */
+	public function getUserPages($cache = true)
+	{
 		$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
 		$cacheName = $this->getCacheName() . 'user-pages';
-		$result = $cache->fetch($cacheName);
 
-		if ( ! empty($result)) {
-			return $result;
+		if ($cache) {
+			$result = $cache->fetch($cacheName);
+
+			if ( ! empty($result)) {
+				return $result;
+			}
 		}
 
 		$queryResult = $this->instance->api($this->getUserId() . '/accounts', 'GET', array('access_token' => $this->instance->getAccessToken()));
-		
+
 		$pages = array();
 		foreach ($queryResult['data'] as $page) {
 			if ($page['category'] == 'Application') {
 				continue;
 			}
-			
-			$pages[] = $page;
-			
+
+			$pages[$page['id']] = $page;
 		}
-		
-		$cache->save($cacheName, $pages, 3600);
+
+		$cache->save($cacheName, $pages, 300);
 
 		return $pages;
 	}
-	
+
+	public function checkUserPage($pageId)
+	{
+		$pages = $this->getUserPages();
+		if (array_key_exists($pageId, $pages)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public function setAccessToken($token)
+	{
+		$this->instance->setAccessToken($token);
+	}
+
+	public function getApplicationAccessToken()
+	{
+		if ( ! empty($this->applicationToken)) {
+			return $this->applicationToken;
+		}
+		
+		$result = $this->instance->api('/'.$this->getUserId().'/accounts', 'GET', array('access_token' => $this->userToken));
+		foreach ($result['data'] as $accountData) {
+			if ($accountData['id'] != $this->getAppId()) {
+				continue;
+			}
+
+			$this->applicationToken = $accountData['access_token'];
+		}
+
+	}
 
 }
