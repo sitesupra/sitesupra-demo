@@ -141,7 +141,7 @@ class Loader
 
 		if ( ! is_null($classPath)) {
 			
-			$included = @include_once $classPath;
+			$included = include_once $classPath;
 			
 			return (bool) $included;
 		}
