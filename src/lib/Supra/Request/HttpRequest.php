@@ -335,4 +335,36 @@ class HttpRequest implements RequestInterface
 		
 		return $path;
 	}
+	
+	/**
+	 * Loads local base URL in format http:://domain from data received in the request
+	 * @return string
+	 */
+	public function getBaseUrl()
+	{
+		$domain = $this->getServerValue('SERVER_NAME');
+		
+		if (empty($domain)) {
+			return null;
+		}
+		
+		$scheme = 'http';
+		$defaultPort = 80;
+		$httpsStatus = $this->getServerValue('HTTPS', 'off');
+		
+		if ($httpsStatus != 'off') {
+			$scheme = 'https';
+			$defaultPort = 443;
+		}
+		
+		$baseUrl = $scheme . '://' . $domain;
+		
+		$actualPort = $this->getServerValue('SERVER_PORT', $defaultPort);
+		
+		if ($actualPort != $defaultPort) {
+			$baseUrl .= ':' . $actualPort;
+		}
+		
+		return $baseUrl;
+	}
 }
