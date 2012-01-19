@@ -5,6 +5,7 @@ namespace Supra\FileStorage\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\NestedSet;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * File object
@@ -125,8 +126,12 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 * @param string $locale
 	 * @return string
 	 */
-	public function getTitle($locale)
+	public function getTitle($locale = null)
 	{
+		if (is_null($locale)) {
+			$locale = ObjectRepository::getLocaleManager($this)->getCurrent()->getId();
+		}
+		
 		$metaData = $this->getMetaData($locale);
 		
 		if ($metaData instanceof MetaData) {
