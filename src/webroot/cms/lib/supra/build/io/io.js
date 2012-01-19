@@ -114,7 +114,7 @@ YUI().add("supra.io", function (Y) {
 				
 			} else {
 				//Invalid response
-				Y.log('Request to "' + url + '" failed', 'error');
+				Y.log('Request to "' + url + '" failed', 'debug');
 				
 				return Supra.io.handleResponse(cfg, {
 					'status': 0,
@@ -170,7 +170,7 @@ YUI().add("supra.io", function (Y) {
 			}
 			
 		} catch (e) {
-			Y.log('Unable to parse "' + url + '" request response: invalid JSON', 'error');
+			Y.log('Unable to parse "' + url + '" request response: invalid JSON', 'debug');
 			response.error_message = ERROR_INVALID_RESPONSE;
 		}
 		

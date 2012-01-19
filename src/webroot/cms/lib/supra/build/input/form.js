@@ -246,7 +246,7 @@ YUI.add("supra.form", function (Y) {
 			} else {
 				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
-					Y.log('Input configuration must specify ID or NAME', 'error');
+					Y.log('Input configuration must specify ID or NAME', 'debug');
 					return this;
 				}
 				

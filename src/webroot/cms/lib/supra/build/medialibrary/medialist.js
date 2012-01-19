@@ -729,7 +729,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Load data
 			if (!loaded) {
-				data_object.once('load:success:' + id, function (event) {
+				data_object.once('load:complete:' + id, function (event) {
 					if (Y.Lang.isFunction(callback)) {
 						callback(event.id, event.data);
 					}
@@ -817,9 +817,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (!loaded) {
 				slide.empty().append(this.renderTemplate(data, this.get('templateLoading')));
 				
-				data_object.once('load:success:' + id, function (event) {
-					this.renderItem(event.id, event.data);
-					
+				data_object.once('load:complete:' + id, function (event) {
+					if (event.data) {
+						//Success
+						this.renderItem(event.id, event.data);
+					} else {
+						//Failure, go back to previous slide
+						this.slideshow.scrollBack();
+					}
 					if (Y.Lang.isFunction(callback)) {
 						callback(event.id, event.data);
 					}
@@ -872,7 +877,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		openPath: function (path /* Path to open */, callback /* Callback function */) {
 			var slideshow = this.slideshow,
 				from = 0,
-				stack = path;
+				stack = path,
+				root_folder_id = this.get('rootFolderId');
+			
+			//Check if root folder is in path, if not then add
+			if (path[0] != root_folder_id) {
+				path.unshift(root_folder_id);
+			}
 			
 			//Check if one of the path folders is already opened
 			for(var i=path.length-1; i>=0; i--) {
@@ -884,8 +895,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Open folders one by one
 			if (stack.length) {
-				var next = Y.bind(function () {
-					if (stack.length) {
+				var next = Y.bind(function (item_id, data) {
+					if (stack.length && data) {
 						var id = stack[0];
 						stack = stack.slice(1);
 						this.open(id, next);
@@ -896,7 +907,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						}
 					}
 				}, this);
-				next();
+				next(null, true);
 			} else if (path.length) {
 				//Last item is already opened, only need to show it
 				this.open(path[path.length - 1]);

@@ -294,7 +294,7 @@ YUI.add('supra.datatable', function (Y) {
 		 * @param {Object} e
 		 */
 		_dataReceivedFailure: function (e) {
-			Y.log(e, 'error');
+			Y.log(e, 'debug');
 			
 			//Don't need old data
 			this.removeAllRows();
@@ -430,7 +430,7 @@ YUI.add('supra.datatable', function (Y) {
 			data = Supra.mix({}, COLUMN_DEFINITION, data);
 			
 			if (!('id' in data) || !data.id) {
-				Y.log('All DataTable column must have an ID', 'error');
+				Y.log('All DataTable column must have an ID', 'debug');
 				return this;
 			}
 			
@@ -480,7 +480,7 @@ YUI.add('supra.datatable', function (Y) {
 				if (value.hasOwnProperty(i)) {
 					data = Supra.mix({}, COLUMN_DEFINITION, value[i]);
 					if (!('id' in data) || !data.id) {
-						Y.log('All DataTable columns must have an ID', 'error');
+						Y.log('All DataTable columns must have an ID', 'debug');
 						continue;
 					}
 					
