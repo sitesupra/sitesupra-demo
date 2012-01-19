@@ -25,14 +25,24 @@ class DataAction extends CrudManagerAbstractAction
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 		
-		$order = null;
-		if ($repo->isSortable()) {
-			$order = array(
-				'position' => 'asc'
-			);
-		}
+		// selecting all data 
+		$qb = $em->createQueryBuilder();
+		$qb->select('e');
+		$qb->from($configuration->entity, 'e');
 		
-		$results = $repo->findBy(array(), $order, $resultsPerRequest, $offset);
+		// set ordering and additional parameters
+		$repo->setAdditionalQueryParams($qb);
+		
+		$qb->setFirstResult($offset);
+		$qb->setMaxResults($resultsPerRequest);
+		
+		// if crud manager is sortable, then we overwrite orderings
+		if ($repo->isSortable()) {
+			$qb->orderBy('e.position', 'asc');
+		}
+		$query = $qb->getQuery();
+		
+		$results = $query->getResult();
 		
 		$query = $em->createQuery("SELECT COUNT(e) as totalCount FROM {$configuration->entity} e");
 		$queryResult = $query->getResult();
