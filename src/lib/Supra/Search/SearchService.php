@@ -9,6 +9,7 @@ use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
 use Request\SearchRequestAbstraction;
 use Supra\Log\Writer\WriterAbstraction;
+use Solarium_Result_Select;
 
 class SearchService
 {
@@ -45,7 +46,7 @@ class SearchService
 	 * @param Request\SearchRequestInterface $request
 	 * @return Solarium_Result_Select
 	 */
-	public function processRequest($request)
+	public function processRequest(Request\SearchRequestInterface $request)
 	{
 		$solariumClient = ObjectRepository::getSolariumClient($this);
 		$selectQuery = $solariumClient->createSelect();

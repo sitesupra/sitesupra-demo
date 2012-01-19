@@ -360,8 +360,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->ancestorIds = $ancestorIds;
 
+		// Include general title in the text
 		$pageContents = array();
-
+		$pageContents[] = $indexedDocument->title_general;
+		
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
 
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
