@@ -916,7 +916,7 @@ abstract class PageManagerAction extends CmsAction
 			$this->publish();
 		}
 		
-		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$originalLocaleId}] locale", $newLocalization);
+		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$sourceLocaleId}] locale", $newLocalization);
 				
 		$this->getResponse()
 				->setResponseData(array('id' => $newLocalization->getId()));
