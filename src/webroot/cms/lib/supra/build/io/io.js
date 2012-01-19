@@ -197,42 +197,19 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		//Show error message
-		if (response.error_message && !cfg.suppress_errors) {
-			SU.Manager.executeAction('Confirmation', {
-			    'message': response.error_message,
-			    'useMask': true,
-			    'buttons': [
-			        {'id': 'delete', 'label': 'Ok'}
-			    ]
-			});
+		if (response.error_message) {
+			this.handleErrorMessage(cfg, response);
 		
 		//Show warning messages
-		} else if (response.warning_message && !cfg.suppress_errors) {
-			var message = response.warning_message,
-				single = true;
-			
-			if (Y.Lang.isArray(message)) {
-				if (message.length > 1) {
-					single = false;
-					message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
-				} else {
-					message = message.shift();
-				}
-			}
-			SU.Manager.executeAction('Confirmation', {
-			    'message': message,
-			    'align': single ? 'center' : 'left',
-			    'useMask': true,
-			    'buttons': [
-			        {'id': 'delete', 'label': 'Ok'}
-			    ]
-			});
+		} else if (response.warning_message) {
+			this.handleWarningMessage(cfg, response);
 		}
 		
 		//Show confirmation message
 		if (response.confirmation_message) {
 			return this.handleConfirmationMessage(cfg, response);
 		}
+		
 		
 		//Missing callbacks, ignore
 		if (!cfg || !cfg.on) return null;
@@ -259,6 +236,60 @@ YUI().add("supra.io", function (Y) {
 		} else {
 			return null;
 		}
+	};
+	
+	/**
+	 * Handle error message parameter
+	 * Show error message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleErrorMessage = function (cfg, response) {
+		//No error or warning messages when "suppress_errors" parameter is set
+		if (cfg.suppress_errors) return;
+		
+		SU.Manager.executeAction('Confirmation', {
+		    'message': response.error_message,
+		    'useMask': true,
+		    'buttons': [
+		        {'id': 'delete', 'label': 'Ok'}
+		    ]
+		});
+	};
+	
+	/**
+	 * Handle warning message parameter
+	 * Show warning message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleWarningMessage = function (cfg, response) {
+		//No error or warning messages when "suppress_errors" parameter is set
+		if (cfg.suppress_errors) return;
+		
+		var message = response.warning_message,
+			single = true;
+		
+		if (Y.Lang.isArray(message)) {
+			if (message.length > 1) {
+				single = false;
+				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+			} else {
+				message = message.shift();
+			}
+		}
+		SU.Manager.executeAction('Confirmation', {
+		    'message': message,
+		    'align': single ? 'center' : 'left',
+		    'useMask': true,
+		    'buttons': [
+		        {'id': 'delete', 'label': 'Ok'}
+		    ]
+		});
 	};
 	
 	/**
