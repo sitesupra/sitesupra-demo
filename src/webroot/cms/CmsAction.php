@@ -78,7 +78,7 @@ abstract class CmsAction extends SimpleController
 			}
 
 			parent::execute();
-		} catch (Exception\StopExecutionException $exception) {
+		} catch (StopExecutionException $exception) {
 			// Do nothing
 			$this->log->debug("CMS action excection stopped");
 		} catch (LocalizedException $exception) {
