@@ -1,0 +1,138 @@
+/* No need for button outline */
+button::-moz-focus-inner {
+	border: 0;
+}
+
+/*
+ * - General button styles
+ */
+.su-button {
+	&,
+	div,
+	button,
+	p {
+		display: inline-block;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		width: auto;
+		height: auto;
+		
+		background: none;
+		background-repeat: no-repeat;
+		
+		color: #fff;
+		font-size: 12px;
+		font-weight: bold;
+		cursor: pointer;
+		text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
+	}
+	
+	div {
+		padding: 0 5px;
+	}
+	
+	button {
+		background-repeat: repeat-x;
+		
+		&,
+		&:focus,
+		&:active {
+			outline: none !important;
+		}
+		
+		&,
+		p {
+			font-family: Helvetica, Arial, sans-serif;
+		}
+	}
+	
+	/* Button loading state */
+	&.su-button-loading p {
+		color: transparent !important;
+		text-shadow: none !important;
+		background: url(../../supra/img/ajax-loader-24.png) 50% 50% no-repeat;
+	}
+}
+
+/* Disable button style */
+.su-button-disabled {
+	&,
+	div,
+	button,
+	p {
+		cursor: default;
+	}
+	
+	p {
+		color: #CCC;
+	}
+}
+
+/* Button background image mixin */
+.button-background ( @image ) {
+	&,
+	div,
+	button {
+		background-image: @image;
+	}
+}
+
+/* Button mixin */
+.button ( @image, @height, @offset: 0) {
+	background-position: 100% @offset*-1-@height*2;
+	
+	.button-background (@image);
+	&,
+	div {
+		.border-radius (3px);
+	}
+	
+	div {
+		background-position: 0 @offset*-1;
+	}
+	button {
+		height: @height;
+		overflow: hidden;
+		background-position: 0 @offset*-1-@height;
+	}
+	p {
+		height: @height;
+		line-height: @height;
+		padding: 0 5px;
+	}
+	
+	&.su-button-focused,
+	&.su-button-mouse-hover {
+		background-position: 100% @offset*-1-@height*5;
+		
+		div {
+			background-position: 0 @offset*-1-@height*3;
+		}
+		button {
+			background-position: 0 @offset*-1-@height*4;
+		}
+	}
+	
+	&.su-button-down {
+		background-position: 100% @offset*-1-@height*8;
+		
+		div {
+			background-position: 0 @offset*-1-@height*6;
+		}
+		button {
+			background-position: 0 @offset*-1-@height*7;
+		}
+	}
+	
+	&.su-button-disabled {
+		background-position: 100% @offset*-1-@height*11;
+		
+		div {
+			background-position: 0 @offset*-1-@height*9;
+		}
+		button {
+			background-position: 0 @offset*-1-@height*10;
+		}
+	}
+}

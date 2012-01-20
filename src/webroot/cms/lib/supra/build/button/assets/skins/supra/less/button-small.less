@@ -1,0 +1,55 @@
+/* Default */
+.su-button-small {
+	.button (url(button-small-light.png), 25px, 600px);
+}
+
+/* Gray */
+.su-button-small-gray {
+	.button (url(button-small-light.png), 25px, 0px);
+	
+	p {
+		color: #A3A4B9;
+	}
+	&.button-back p {
+		background: url(icon-back.png) 50% 50% no-repeat;
+		width: 5px;	/* 5px width + 10px padding + 10px padding on button = 25px */
+	}
+}
+
+/* Blue */
+.su-button-small-blue {
+	.button (url(button-small-light.png), 25px, 300px);
+}
+
+/* Red */
+.su-button-small-red {
+	.button (url(button-small-light.png), 27px, 900px);
+}
+
+
+/* Dark background */
+.ui-dark {
+	.su-button-small,
+	.su-button-small-gray,
+	.su-button-small-blue,
+	.su-button-small-red {
+		.button-background (url(button-small-dark.png));
+	}
+}
+
+/* Shadow */
+.su-button-small,
+.su-button-small-gray,
+.su-button-small-blue,
+.su-button-small-red {
+	.box-shadow (0, 1px, 0, rgba(0, 15, 53, 0.4) );
+}
+
+.ui-dark {
+	.su-button-small,
+	.su-button-small-gray,
+	.su-button-small-blue,
+	.su-button-small-red {
+		.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.15) );
+	}
+}
