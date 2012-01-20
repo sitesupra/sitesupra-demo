@@ -167,16 +167,16 @@
 	max-height: 26px;
 }
 
-.tree-node label.state-draft,
-.flowmap-node label.state-draft {
+.flowmap .tree-node label.state-draft,
+.flowmap .flowmap-node label.state-draft {
 	color: #36c;
 }
-.tree-node label.state-global,
-.flowmap-node label.state-global {
+.flowmap .tree-node label.state-global,
+.flowmap .flowmap-node label.state-global {
 	color: #bbb;
 }
-.tree-node label.state-unpublished,
-.flowmap-node label.state-unpublished {
+.flowmap .tree-node label.state-unpublished,
+.flowmap .flowmap-node label.state-unpublished {
 	color: #777;
 }
 
@@ -418,6 +418,7 @@
 	visibility: hidden;
 }
 .flowmap-node span.edit-hidden,
+.tree-node span.edit-hidden,
 .yui3-tree-node-temp span.edit {
 	visibility: hidden !important;
 }

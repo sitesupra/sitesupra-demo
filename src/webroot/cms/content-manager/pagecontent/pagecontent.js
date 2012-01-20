@@ -159,12 +159,11 @@ SU('dd-drag', function (Y) {
 			}
 		},
 		onStartEditingRoute: function (req) {
-			var is_allowed = Supra.Authorization.isAllowed(['page', 'edit'], true);
+			var page = Manager.getAction('Page'),
+				data = page.getPageData(),
+				is_allowed = Supra.Permission.get('page', data.id, 'edit', false);
 			
 			if (!this.editing && is_allowed) {
-				var page = Manager.getAction('Page'),
-					data = page.data;
-				
 				//Check lock status
 				var userlogin = Supra.data.get(['user', 'login']);
 				if (data && data.lock && data.lock.userlogin == userlogin) {
@@ -179,6 +178,15 @@ SU('dd-drag', function (Y) {
 					this.edit_on_ready = false;
 					Manager.getAction('PageToolbar').setActiveAction('Page');
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);
+					
+					//Disable "Publish" button is there are no permissions for that
+					var button_publish = Supra.Manager.PageButtons.buttons.Page[0];
+					
+					if (!Supra.Permission.get('page', data.id, 'publish', false)) {
+						button_publish.set('disabled', true);
+					} else {
+						button_publish.set('disabled', false);
+					}
 					
 					//Hide "Placeholders" button if editing page and show if editing template
 					var button = Manager.getAction('PageToolbar').getActionButton('placeholderview');
@@ -422,10 +430,8 @@ SU('dd-drag', function (Y) {
 			}, this);
 			
 			//Add toolbar buttons
-			var buttons = [];
-			
-			if (Supra.Authorization.isAllowed(['page', 'publish'], true)) {
-				buttons.push({
+			var buttons = [
+				{
 					'id': 'publish',
 					'callback': function () {
 						if (Manager.Page.isPage()) {
@@ -435,20 +441,19 @@ SU('dd-drag', function (Y) {
 						}
 						Manager.Root.execute();
 					}
-				});
-			}
-			
-			buttons.push({
-				'id': 'close',
-				'callback': function () {
-					if (Manager.Page.isPage()) {
-						Manager.Page.unlockPage();
-					} else {
-						Manager.Template.unlockTemplate();
+				},
+				{
+					'id': 'close',
+					'callback': function () {
+						if (Manager.Page.isPage()) {
+							Manager.Page.unlockPage();
+						} else {
+							Manager.Template.unlockTemplate();
+						}
+						Manager.Root.execute();
 					}
-					Manager.Root.execute();
 				}
-			});
+			];
 			
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, buttons);
 		},

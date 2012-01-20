@@ -63,10 +63,10 @@ Supra.useModules = [
 	'supra.datatype-date-reformat',	// + supra.datatype-date-parse
 	'supra.base',					// + base, node
 	'supra.panel',					// + supra.button, widget, overlay
+	'supra.permission',
 	'supra.io',						// + io, json
 	'supra.io-session',
 	'supra.dom',
-	'supra.authorization',
 	'supra.template'
 ];
 
@@ -587,10 +587,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
-	 * Authorization
+	 * Permission
 	 */
-	'supra.authorization': {
-		path: 'authorization/authorization.js'
+	'supra.permission': {
+		path: 'permission/permission.js'
 	},
 	
 	/**
@@ -612,7 +612,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.manager': {
 		path: 'manager/manager.js',
 		requires: [
-			'supra.authorization',
+			'supra.permission',
 			'supra.manager-base',
 			'supra.manager-loader',
 			'supra.manager-loader-actions',

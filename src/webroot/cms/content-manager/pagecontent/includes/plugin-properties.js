@@ -269,10 +269,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(footer).on('click', this.deleteContent, this);
 			
-			if (!Supra.Authorization.isAllowed(['block', 'delete'], true)) {
+			/*if (!Supra.Permission.get('block', 'delete', null, true)) {
 				btn.hide();
-				form.get('contentBox') .removeClass('has-footer');
-			}
+				form.get('contentBox').removeClass('has-footer');
+			}*/
 			
 			//Don't show delete button if block or placeholder is closed
 			var host = this.get('host');

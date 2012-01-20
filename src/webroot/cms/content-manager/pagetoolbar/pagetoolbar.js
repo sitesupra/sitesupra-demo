@@ -409,9 +409,11 @@ SU(function (Y) {
 						
 						permissions = button_config[i].permissions;
 						
+						/*
 						if (permissions && !Supra.Authorization.isAllowed(permissions, true)) {
 							continue;
 						}
+						*/
 						
 						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon, "visible": visible});
 						button.set('topbarButtonId', id);

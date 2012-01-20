@@ -206,52 +206,53 @@ YUI.add('supra.tree', function(Y) {
 		 */
 		reload: function () {
 			var uri = this.get('requestUri');
+			var request = Supra.io(uri, this.reloadComplete, this);
+		},
+		
+		/**
+		 * Handle reload response
+		 */
+		reloadComplete: function (data, status) {
+			//On failure assume nothing was returned
+			if (!status) data = [];
 			
-			// Define a function to handle the response data.
-			function complete(data, status) {
-				//On failure assume nothing was returned
-				if (!status) data = [];
+			// Remove all nodes and data
+			var item = null;
+			for(var i=this.size() - 1; i >= 0; i--) {
+				item = this.item(i);
+				this.remove(i);
+				item.destroy();
+			}
+			
+			this._data = [];
+			this._data_indexed = {};
+			
+			//Create data index
+			var data_indexed = {};
+			var tmp = [].concat(data), i=0;
+			
+			while(i < tmp.length) {
 				
-				// Remove all nodes and data
-				var item = null;
-				for(var i=this.size() - 1; i >= 0; i--) {
-					item = this.item(i);
-					this.remove(i);
-					item.destroy();
-				}
+				data_indexed[tmp[i].id] = tmp[i];
 				
-				this._data = [];
-				this._data_indexed = {};
-				
-				//Create data index
-				var data_indexed = {};
-				var tmp = [].concat(data), i=0;
-				
-				while(i < tmp.length) {
-					
-					data_indexed[tmp[i].id] = tmp[i];
-					
-					if ('children' in tmp[i] && tmp[i].children) {
-						for(var k=0, kk=tmp[i].children.length; k<kk; k++) {
-							Y.mix(tmp[i].children[k], {
-								parent: tmp[i].id
-							});
-							tmp.push(tmp[i].children[k]);
-						}
+				if ('children' in tmp[i] && tmp[i].children) {
+					for(var k=0, kk=tmp[i].children.length; k<kk; k++) {
+						Y.mix(tmp[i].children[k], {
+							parent: tmp[i].id
+						});
+						tmp.push(tmp[i].children[k]);
 					}
-					
-					i++;
 				}
 				
-				this._data = data;
-				this._data_indexed = data_indexed;
-				
-				this.renderTreeUI(data);
-				
-				this.fire('render:complete');
-			};
+				i++;
+			}
 			
-			var request = Supra.io(uri, complete, this);
+			this._data = data;
+			this._data_indexed = data_indexed;
+			
+			this.renderTreeUI(data);
+			
+			this.fire('render:complete');
 		},
 		
 		/**

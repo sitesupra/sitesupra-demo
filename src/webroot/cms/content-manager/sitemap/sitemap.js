@@ -195,12 +195,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				}
 				
 				//Template drop target
-				var new_root_template = this.one('div.template-drop');
-				if (evt.value == 'templates' && Supra.Authorization.isAllowed(['page', 'create'], true)) {
-					new_root_template.removeClass('hidden');
-				} else {
-					new_root_template.addClass('hidden');
-				}
+				new_root_template.removeClass('hidden');
 			}, this);
 		},
 		
@@ -229,6 +224,9 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			this.flowmap.plug(SU.Tree.ExpandHistoryPlugin);
 			
+			//After load update permission list
+			this.flowmap.after('render:complete', this.loadFlowMapPermissions, this);
+			
 			//Page move
 			this.flowmap.on('drop', this.onPageMove, this);
 			
@@ -236,14 +234,10 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			var new_page_list_node = this.one('.additional'),
 				new_template_drop = this.one('div.template-drop');
 			
-			if (Supra.Authorization.isAllowed(['page', 'create'], true)) {
-				this.flowmap.plug(SU.Tree.NewPagePlugin, {
-					'dragNode': new_page_list_node,
-					'newItemDropNode': new_template_drop
-				});
-			} else {
-				new_page_node.addClass('hidden');
-			}
+			this.flowmap.plug(SU.Tree.NewPagePlugin, {
+				'dragNode': new_page_list_node,
+				'newItemDropNode': new_template_drop
+			});
 			
 			//When tree is rendered set selected page
 			this.flowmap.after('render:complete', function () {
@@ -253,6 +247,68 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				
 				this.setLoading(false);
 			}, this);
+		},
+		
+		/**
+		 * Load permissions for all pages
+		 */
+		loadFlowMapPermissions: function () {
+			var data = this.flowmap.getData(),
+				permission  = [],
+				traverse = null;
+			
+			traverse = function (data, permission) {
+				for(var i=0,ii=data.length; i<ii; i++) {
+					permission.push({'id': data[i].id, 'type': 'page'});
+					
+					if (data[i].children && data[i].children.length) {
+						traverse(data[i].children, permission);
+					}
+				}
+			};
+			
+			traverse(data, permission);
+			
+			Supra.Permission.request(permission, this.onLoadFlowMapPermissions, this);
+		},
+		
+		/**
+		 * On permission load
+		 */
+		onLoadFlowMapPermissions: function (permissions) {
+			var pages = permissions.page,
+				id    = null,
+				tree  = this.flowmap,
+				node  = null,
+				type  = this.getType();
+			
+			//Enable editing if it's allowed
+			for(id in pages) {
+				node = tree.getNodeById(id);
+				if (node) {
+					if (pages[id].edit) {
+						//Enable editing only if not root page
+						if (!node.isRoot() || type == 'templates') {
+							//
+							node.get('boundingBox').one('.edit').removeClass('edit-hidden');
+						}
+						
+						//Enable selecting global pages which were disabled
+						if (node.get('data').global) {
+							node.set('selectable', true);
+						}
+						
+						//Enable drag and drop
+						if (node.dd) {
+							node.dd.set('lock', false);
+						}
+					} else {
+						if (node.dd) {
+							node.dd.set('lock', true);
+						}
+					}
+				}
+			}
 		},
 		
 		/**

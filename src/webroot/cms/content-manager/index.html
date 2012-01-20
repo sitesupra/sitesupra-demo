@@ -26,7 +26,7 @@
 	<script type="text/javascript">
 	//<![CDATA[
 		
-		Supra('supra.manager', 'supra.authorization', function (Y) {
+		Supra('supra.manager', function (Y) {
 			var APP_PATH = '/content-manager',
 				STATIC_PATH = '/cms',
 				DYNAMIC_PATH = '/cms';
@@ -115,21 +115,6 @@
 
 			});
 			
-			Supra.Authorization.setPermissions([
-				{'id': [],		 				'allow': true},
-				{'id': ['page'], 				'allow': true},
-				{'id': ['page', 'delete'], 		'allow': true},
-				{'id': ['page', 'create'], 		'allow': true},
-				{'id': ['page', 'order'],  		'allow': true},
-				{'id': ['page', 'edit'],  		'allow': true},
-				{'id': ['page', 'publish'], 	'allow': true},
-				{'id': ['block'],  				'allow': true},
-				{'id': ['block', 'delete'],  	'allow': true},
-				{'id': ['block', 'insert'],  	'allow': true},
-				{'id': ['block', 'order'],  	'allow': true},
-				{'id': ['block', 'edit'],  		'allow': true}
-			]);
-				
 			//Start loading actions
 			Supra.Manager.loadActions([
 				'Header',

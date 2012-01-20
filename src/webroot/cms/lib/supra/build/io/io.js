@@ -5,58 +5,19 @@ YUI().add("supra.io", function (Y) {
 	
 	var ERROR_INVALID_RESPONSE = 'Error occured, please try again later';
 	
-	Supra.io = function (url, cfg, context) {
-		var cfg = cfg || {},
-			fn = null,
-			io = null,
-			fn_success = function () {};
+	Supra.io = function (url, cfg, permissions, callback, context) {
+		var io = null;
 		
 		//Clone args object to make sure it's unchanged
-		var args = [url, cfg, context];
-		if (args[1] && !SU.Y.Lang.isFunction(args[1])) {
-			//Only if cfg is not callback function
-			args[1] = Supra.mix({}, args[1]);
-			if (args[1].on) {
-				args[1].on = {
-					'success': args[1].on.success,
-					'failure': args[1].on.failure,
-					'complete': args[1].on.complete
-				}
-			}
-		}
+		var args = [url, cfg, permissions, callback, context];
 		
-		//Second parameter is allowed to be callback function
-		if (Y.Lang.isFunction(cfg)) {
-			fn_success = cfg;
-			cfg = {};
-		}
-		
-		var cfg_default = {
-			'type': 'json',
-			'data': null,
-			'sync': false,
-			'context': null,
-			'suppress_errors': false,
-			'on': {
-				'success': fn_success,
-				'failure': null,
-				'complete': null
-			}
-		};
-		
-		if (context) {
-			cfg_default.context = context;
-		}
-		
-		//Save context and remove from config to avoid traversing them
-		context = cfg.context || cfg_default.context;
-		cfg.context = cfg_default.context = null;
-		
-		//Use cfg_default and Y.mix to make sure properties for cfg exist
-		cfg = Y.mix(cfg, cfg_default, false, null, 0, true);
-		
-		//Restore context
-		cfg.context = cfg_default.context = context;
+		//Check optional arguments
+		var normal = Supra.io.normalizeArguments(url, cfg, permissions, callback, context);
+		url         = normal[0];
+		cfg         = normal[1];
+		permissions = normal[2];
+		callback    = normal[3];
+		context     = normal[4];
 		
 		//Success and failure methods are overwritten, save references to originals
 		cfg.on._success = cfg.on.success;
@@ -68,7 +29,7 @@ YUI().add("supra.io", function (Y) {
 		
 		//Add session id to data
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
-			cfg.data = {};
+			cfg._data = cfg.data = {};
 		}
 		
 		var sid_name = SU.data.get('sessionName', null),
@@ -78,10 +39,18 @@ YUI().add("supra.io", function (Y) {
 			cfg.data[sid_name] = sid_id;
 		}
 		
-		//Convert object into string compatible with PHP
-		if ('data' in cfg && Y.Lang.isObject(cfg.data)) {
-			cfg.data = Supra.io.serializeIntoString(cfg.data);
+		//Add permissions to the request
+		if (cfg.permissions) {
+			cfg.data = Supra.mix({
+				'_check-permissions': cfg.permissions
+			}, cfg.data);
+			
+			//Make sure Supra.Permission.request doesn't do another request
+			Supra.Permission.setIsLoading(cfg.permissions)
 		}
+		
+		//Convert object into string compatible with PHP
+		cfg.data = Supra.io.serializeIntoString(cfg.data);
 		
 		//Set callbacks
 		cfg.on.success = function (transaction, response) {
@@ -90,7 +59,6 @@ YUI().add("supra.io", function (Y) {
 			return Supra.io.handleResponse(cfg, response);
 
 		};
-		
 		cfg.on.failure = function (transaction, response) {
 
 			if (response.status == 401) {
@@ -128,6 +96,77 @@ YUI().add("supra.io", function (Y) {
 		
 		io = Y.io(url, cfg);
 		return io;
+	};
+	
+	/**
+	 * Normalize Supra.io arguments
+	 * 
+	 * @return Array with normalized arguments
+	 * @type {Array}
+	 * @private
+	 */
+	Supra.io.normalizeArguments = function (url, cfg, permissions, callback, context) {
+		//Check optional arguments
+		if (Y.Lang.isArray(cfg)) {
+			//cfg argument missing
+			context = callback;
+			callback = permissions;
+			permissions = cfg;
+			cfg = {};
+		} else if (Y.Lang.isFunction(cfg)) {
+			//cfg and permissions arguments missing
+			callback = cfg;
+			context = permissions;
+			cfg = {};
+			permissions = null;
+		} else if (Y.Lang.isFunction(permissions)) {
+			//permissions argument missing
+			context = callback;
+			callback = permissions;
+			permissions = null;
+		} else if (Y.Lang.isObject(permissions) && !Y.Lang.isArray(permissions)) {
+			//permissions and callback arguments missing
+			context = permissions;
+			callback = null;
+			permissions = null;
+		} else if (Y.Lang.isObject(callback)) {
+			context = callback;
+			callback = null;
+		}
+		
+		//Normalize permissions
+		if (!Y.Lang.isArray(permissions)) {
+			permissions = null;
+		}
+		
+		//Configuration
+		if (!Y.Lang.isObject(cfg)) {
+			cfg = {};
+		}
+		
+		var cfg_default = {
+			'type': 'json',
+			'data': null,
+			'permissions': permissions,
+			'sync': false,
+			'context': context,
+			'suppress_errors': false,
+			'on': {
+				'success': callback,
+				'failure': null,
+				'complete': null
+			}
+		};
+		
+		//Save context and remove from config to avoid traversing them on Supra.mix
+		context = cfg.context || cfg_default.context;
+		cfg.context = cfg_default.context = null;
+		
+		cfg = Supra.mix(cfg_default, cfg, true);
+		
+		cfg.context = cfg_default.context = context;
+		
+		return [url, cfg, permissions, callback, context];
 	};
 	
 	/**
@@ -210,32 +249,37 @@ YUI().add("supra.io", function (Y) {
 			return this.handleConfirmationMessage(cfg, response);
 		}
 		
+		//Handle permissions
+		if (response.permissions) {
+			Supra.Permission.add(response.permissions, cfg.permissions);
+		}
 		
 		//Missing callbacks, ignore
 		if (!cfg || !cfg.on) return null;
 		
 		//Call callbacks
-		var fn = response.status ? cfg.on._success : cfg.on._failure;
-		
-		delete(cfg.on._data);
-		delete(cfg.on.data);
-		delete(cfg.on._success);
-		delete(cfg.on._failure);
-		delete(cfg.on.success);
-		delete(cfg.on.failure);
+		var fn  = response.status ? cfg.on._success : cfg.on._failure,
+			ret = null;
 		
 		if (Y.Lang.isFunction(cfg.on._complete)) {
 			cfg.on._complete.apply(cfg.context, [response.data, response.status]);
 		}
 		
+		if (Y.Lang.isFunction(fn)) {
+			ret = fn.apply(cfg.context, [response.data, response.status]);
+		}
+		
+		delete(cfg.permissions);
+		delete(cfg._data);
+		delete(cfg.data);
+		delete(cfg.on._success);
+		delete(cfg.on._failure);
+		delete(cfg.on.success);
+		delete(cfg.on.failure);
 		delete(cfg.on._complete);
 		delete(cfg.on.complete);
 		
-		if (Y.Lang.isFunction(fn)) {
-			return fn.apply(cfg.context, [response.data, response.status]);
-		} else {
-			return null;
-		}
+		return ret;
 	};
 	
 	/**
@@ -327,13 +371,13 @@ YUI().add("supra.io", function (Y) {
 		cfg.on.success  = cfg.on._success;
 		cfg.on.failure  = cfg.on._failure;
 		cfg.on.complete = cfg.on._complete;
-		cfg.data     = cfg._data;
+		cfg.data        = cfg._data;
 		
 		delete(cfg.on._success);
 		delete(cfg.on._failure);
 		delete(cfg.on._complete);
-		delete(cfg.on._data);
-		delete(cfg.on._url);
+		delete(cfg._data);
+		delete(cfg._url);
 		
 		//Add answer to the request
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {

@@ -192,6 +192,10 @@ YUI.add('supra.tree-node', function(Y) {
 					//Groups can't be selected
 					return;
 				}
+				if (!this.get('selectable')) {
+					//Node is not selectable
+					return;
+				}
 				
 				if (tree.fire(event_name, {node: this, data: data})) {
 					//If event wasn't stopped then set this node as selected
@@ -213,11 +217,30 @@ YUI.add('supra.tree-node', function(Y) {
 				target.syncUI();
 			});
 			
+			//On selectable attribute change update
+			this.on('selectableChange', this.onSelectableChange, this);
+			
 			//On addChild update data
 			//Handle only sorting, new items should be handled by default handler
 			this.on('addChild', this.onAddChild, this);
 			
 			this.on('removeChild', this.onRemoveChild, this);
+		},
+		
+		/**
+		 * On selectable attribute change update style
+		 */
+		onSelectableChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				var node = this.get('boundingBox').one('div.tree-node');
+				if (node) {
+					if (evt.newVal) {
+						node.removeClass('unselectable');
+					} else {
+						node.addClass('unselectable');
+					}
+				}
+			}
 		},
 		
 		renderUI: function () {
@@ -246,8 +269,9 @@ YUI.add('supra.tree-node', function(Y) {
 			
 			//Group nodes selectable?
 			if (this.getTree() && !this.getTree().get('groupNodesSelectable') && data && data.type == 'group') {
-				var node = this.get('boundingBox').one('div.tree-node');
-				if (node) node.addClass('unselectable');
+				this.onSelectableChange({'newVal': false, 'prevVal': true});
+			} else if (!this.get('selectable')) {
+				this.onSelectableChange({'newVal': false, 'prevVal': true});
 			}
 			
 			//Children

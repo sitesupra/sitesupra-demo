@@ -178,10 +178,15 @@ Supra(function (Y) {
 					'page_id': page_id || '',
 					'locale': Supra.data.get('locale')
 				},
+				'permissions': [{
+					'id': page_id,
+					'type': 'page'
+				}],
+				'context': this,
 				'on': {
 					'complete': this.onLoadComplete
 				}
-			}, this);
+			});
 		},
 		
 		/**
@@ -196,8 +201,10 @@ Supra(function (Y) {
 			
 			//Is user authorized to edit page?
 			if (status && data) {
-				allow_edit = data.allow_edit === true || data.allow_edit === false ? data.allow_edit :
-								 Supra.Authorization.isAllowed(['page', 'edit'], true);
+				allow_edit = Supra.Permission.get('page', data.id, 'edit', false);
+				if (allow_edit === true && data.allow_edit === false) {
+					allow_edit = false;
+				}
 			}
 			
 			// Change current locale
@@ -318,13 +325,19 @@ Supra(function (Y) {
 		 * Publish page
 		 */
 		publishPage: function () {
+			//Send request
+			var uri = this.getDataPath('publish'),
+				page_data = this.getPageData();
+			
+			//Permissions
+			if (!Supra.Permission.get('page', page_data.id, 'publish', false)) {
+				return false;
+			}
+			
 			//Change "Edit" button style to loading
 			var button_edit = Supra.Manager.PageButtons.buttons.Root[0];
 			button_edit.set('loading', true);
 			
-			//Send request
-			var uri = this.getDataPath('publish'),
-				page_data = this.getPageData();
 			
 			var post_data = {
 				'page_id': page_data.id,

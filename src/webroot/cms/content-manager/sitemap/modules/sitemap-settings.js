@@ -135,27 +135,15 @@ YUI().add('website.sitemap-settings', function (Y) {
 				btn.render();
 				btn.on('click', this.renamePage, this);
 			
-			if (!Supra.Authorization.isAllowed(['page', 'edit'], true)) {
-				btn.hide();
-			}
-			
 			//Duplicate
 				btn = this.button_duplicate = new Supra.Button({'srcNode': buttons.item(1), 'style': 'mid'});
 				btn.render();
 				btn.on('click', this.duplicatePage, this);
 			
-			if (!Supra.Authorization.isAllowed(['page', 'duplicate'], true)) {
-				btn.hide();
-			}
-			
 			//Delete
 				btn = this.button_delete = new Supra.Button({'srcNode': buttons.item(2), 'style': 'mid-red'});
 				btn.render();
 				btn.on('click', this.deletePage, this);
-			
-			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
-				btn.hide();
-			}
 			
 			//Hidden pages link
 			this.node_hidden_pages = contbox.one('p.hidden-pages');

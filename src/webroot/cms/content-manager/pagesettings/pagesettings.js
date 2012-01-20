@@ -394,9 +394,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Delete page
 		 */
 		deletePage: function () {
-			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)){
+			/*
+			var page = Supra.Manager.Page.getPageData();
+			if (!Supra.Permission.get('page', page.id, 'delete', true)) {
 				return false;
 			}
+			*/
 			
 			if (this.page_data.global_disabled) {
 				//Global disabled is true if page has more than one localization
@@ -473,10 +476,13 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//Delete button
 			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'});
 			this.button_delete.render().on('click', this.deletePage, this);
-				
-			if (!Supra.Authorization.isAllowed(['page', 'delete'], true)) {
+			
+			/*
+			var page = Supra.Manager.Page.getPageData();
+			if (!Supra.Permission.get('page', page.id, 'delete', true)) {
 				this.button_delete.hide();
 			}
+			*/
 			
 			//Meta button
 			var button_meta = new Supra.Button({'srcNode': buttons.filter('.button-meta').item(0)});

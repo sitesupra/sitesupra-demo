@@ -74,6 +74,7 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 				if (SU.Manager.SiteMap.getType() != 'templates') {
 					this.get('boundingBox').one('.edit').addClass('edit-hidden');
 				}
+				
 			} else if (this.get('parent').isRoot()) {
 				level = 2;
 				this.set('defaultChildType', Supra.FlowMapItemNormal);
@@ -118,6 +119,11 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 			if (evt.target.closest('.flowmap-node-inner')) {
 				var data = this.get('data'),
 					clickable = data.type != 'group';
+				
+				if (!this.get('selectable')) {
+					//Node can't be selected
+					return;
+				}
 				
 				if (clickable && this.getTree().fire('node-click', {'node': this, 'data': data})) {
 					//If event wasn't stopped then set this node as selected

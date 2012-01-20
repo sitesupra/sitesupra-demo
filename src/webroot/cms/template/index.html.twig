@@ -37,7 +37,7 @@
 	<script type="text/javascript">
 	//<![CDATA[
 	
-		Supra('supra.manager', 'supra.authorization', function (Y) {
+		Supra('supra.manager', function (Y) {
 			{% block jsPathConfiguration %}
 			var APP_PATH = '/{{ manager.url }}',
 				STATIC_PATH = '/cms',
@@ -92,12 +92,6 @@
 			
 			//Start pinging server
 			Supra.data.set('sessionKeepAlive', true);
-			
-			{% block jsSupraAuthorization %}
-			Supra.Authorization.setPermissions([
-				{'id': [],		 				'allow': true}
-			]);
-			{% endblock %}
 			
 			{% block jsSupraManager %}
 			//Start loading actions

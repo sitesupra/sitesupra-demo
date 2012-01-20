@@ -490,8 +490,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		renderUI: function () {
 			var data = this.get('data');
-			var permission_order = Supra.Authorization.isAllowed(['block', 'order'], true);
-			var permission_edit = Supra.Authorization.isAllowed(['block', 'edit'], true);
+			var permission_order = true; //Supra.Permission.get('block', 'order', null, true);
+			var permission_edit = true;  //Supra.Permission.get('block', 'edit', null, true);
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {

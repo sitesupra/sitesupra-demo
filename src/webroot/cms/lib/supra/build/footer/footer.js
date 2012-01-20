@@ -1,31 +1,31 @@
 //Invoke strict mode
-'use strict';
+"use strict";
 
-YUI.add('supra.footer', function (Y) {
+YUI.add("supra.footer", function (Y) {
 	
 	//Button configuration defaults
 	var BUTTON_DEFINITION = {
-		'id': null,
-		'srcNode': null,
-		'type': 'push',
-		'label': '',
-		'icon': null,
-		'style': 'mid',
-		'disabled': false
+		"id": null,
+		"srcNode": null,
+		"type": "push",
+		"label": "",
+		"icon": null,
+		"style": "mid",
+		"disabled": false
 	};
 	
 	var BUTTON_STYLES = {
-		'create': 'mid-green',
-		'save': 'mid-blue',
-		'ok': 'mid-blue',
-		'cancel': 'mid',
-		'yes': 'mid-blue',
-		'no': 'mid',
-		'apply': 'mid-blue',
-		'done': 'mid',
-		'delete': 'mid-red',
-		'reset': 'mid',
-		'error': 'mid-red'
+		"create": "mid-green",
+		"save": "mid-blue",
+		"ok": "mid-blue",
+		"cancel": "mid",
+		"yes": "mid-blue",
+		"no": "mid",
+		"apply": "mid-blue",
+		"done": "mid",
+		"delete": "mid-red",
+		"reset": "mid",
+		"error": "mid-red"
 	};
 	
 	function bubbleEvent (event, event_name) {
@@ -46,16 +46,16 @@ YUI.add('supra.footer', function (Y) {
 		this.buttons_definition = {};
 	}
 	
-	Footer.NAME = 'footer';
+	Footer.NAME = "footer";
 	Footer.ATTRS = {
-		'buttons': {
+		"buttons": {
 			value: null
 		},
-		'autoDiscoverButtons': {
+		"autoDiscoverButtons": {
 			value: true
 		},
-		'style': {
-			value: 'default'
+		"style": {
+			value: "default"
 		}
 	};
 	
@@ -90,10 +90,10 @@ YUI.add('supra.footer', function (Y) {
 			Footer.superclass.renderUI.apply(this, arguments);
 			
 			var button_count = 0;
-			var definitions = Supra.mix(this.buttons_definition || {}, this.get('buttons') || {}, true);
+			var definitions = Supra.mix(this.buttons_definition || {}, this.get("buttons") || {}, true);
 			
 			//Find all buttons
-			if (this.get('autoDiscoverButtons')) {
+			if (this.get("autoDiscoverButtons")) {
 				definitions = Supra.mix(this.discoverButtons(), definitions, true);
 			}
 			
@@ -104,7 +104,7 @@ YUI.add('supra.footer', function (Y) {
 			}
 			
 			//Style
-			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Footer.NAME, this.get('style')));
+			this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Footer.NAME, this.get("style")));
 			
 			//If there are no buttons to show, then hide panel
 			if (button_count == 0) this.hide();
@@ -120,7 +120,7 @@ YUI.add('supra.footer', function (Y) {
 			//When user will click on button, then event BUTTON_ID will be triggered on Footer
 			var buttons = this.buttons;
 			for(var i in buttons) {
-				buttons[i].on('click', bubbleEvent, this, buttons[i].get('id'));
+				buttons[i].on("click", bubbleEvent, this, buttons[i].get("id"));
 			}
 		},
 		
@@ -132,14 +132,14 @@ YUI.add('supra.footer', function (Y) {
 		 * @type {Object}
 		 */
 		discoverButtons: function () {
-			var buttons = this.get('srcNode').all('input[type="button"],input[type="submit"],button');
+			var buttons = this.get("srcNode").all("input[type='button'],input[type='submit'],button");
 			var config = {};
 			var styles = BUTTON_STYLES;
 			
 			for(var i=0,ii=buttons.size(); i<ii; i++) {
 				var button = buttons.item(i);
 				
-				var id = button.getAttribute('id');
+				var id = button.getAttribute("id");
 				if (!id) {
 					for(var style in styles) {
 						if (button.hasClass(style)) {
@@ -151,14 +151,14 @@ YUI.add('supra.footer', function (Y) {
 				
 				if (!id) continue;
 				
-				var disabled = button.getAttribute('disabled') ? true : false;
-				var label = button.test('input') ? button.get('value') : button.get('innerHTML');
+				var disabled = button.getAttribute("disabled") ? true : false;
+				var label = button.test("input") ? button.get("value") : button.get("innerHTML");
 				
 				config[id] = {
-					'id': id,
-					'label': label,
-					'srcNode': button,
-					'disabled': disabled
+					"id": id,
+					"label": label,
+					"srcNode": button,
+					"disabled": disabled
 				};
 			}
 			
@@ -175,8 +175,8 @@ YUI.add('supra.footer', function (Y) {
 		 */
 		normalizeButtonConfig: function (config) {
 			var style_definition = {
-				'style': 'mid',
-				'label': ''
+				"style": "mid",
+				"label": ""
 			};
 			
 			if (config.id && config.id in BUTTON_STYLES) {
@@ -184,7 +184,7 @@ YUI.add('supra.footer', function (Y) {
 			}
 			
 			if (config.id && !config.label) {
-				var label = Supra.Intl.get(['buttons', config.id]);
+				var label = Supra.Intl.get(["buttons", config.id]);
 				if (label) style_definition.label = label;
 			}
 			
@@ -204,12 +204,12 @@ YUI.add('supra.footer', function (Y) {
 		 * @see Supra.Button
 		 */
 		addButton: function (config) {
-			if (this.get('rendered')) {
+			if (this.get("rendered")) {
 				this._renderButton(config);
 				this.show();
 			} else {
 				var index = this.button_index++;
-				var id = ('id' in config && config.id ? config.id : 'button' + index);
+				var id = ("id" in config && config.id ? config.id : "button" + index);
 				var conf = (id in this.buttons_definition ? this.buttons_definition[id] : {});
 				this.buttons_definition[id] = Supra.mix(conf, config);
 			}
@@ -222,8 +222,8 @@ YUI.add('supra.footer', function (Y) {
 		 * @param {Object} definition
 		 */
 		_renderButton: function (definition) {
-			var srcNode = this.get('srcNode'),
-				contentBox = this.get('contentBox'),
+			var srcNode = this.get("srcNode"),
+				contentBox = this.get("contentBox"),
 				definition = this.normalizeButtonConfig(definition),
 				id = definition.id,
 				buttons = this.buttons = (this.buttons || {}),
@@ -231,9 +231,9 @@ YUI.add('supra.footer', function (Y) {
 			
 			//Try finding input
 			if (!definition.srcNode) {
-				node = srcNode.one('#' + id);
+				node = srcNode.one("#" + id);
 				if (!node) {
-					node = srcNode.one('input.' + id + ', button.' + id);
+					node = srcNode.one("input." + id + ", button." + id);
 				}
 				
 				definition.srcNode = node;
@@ -264,7 +264,7 @@ YUI.add('supra.footer', function (Y) {
 		 */
 		removeButton: function (id) {
 			if (id in this.buttons) {
-				var node = this.buttons[id].get('srcNode');
+				var node = this.buttons[id].get("srcNode");
 				this.buttons[id].destroy();
 				delete(this.buttons[id]);
 				node.destroy();
@@ -307,7 +307,7 @@ YUI.add('supra.footer', function (Y) {
 		setButtonDisabled: function (id, disabled) {
 			var button = this.getButton(id);
 			if (button) {
-				button.set('disabled', !!disabled);
+				button.set("disabled", !!disabled);
 			}
 			return this;
 		},
@@ -322,7 +322,7 @@ YUI.add('supra.footer', function (Y) {
 		getButtonDisabled: function (id) {
 			var button = this.getButton(id);
 			if (button) {
-				return button.get('disabled');
+				return button.get("disabled");
 			} else {
 				return false;
 			}
@@ -337,7 +337,7 @@ YUI.add('supra.footer', function (Y) {
 		setButtonVisible: function (id, visible) {
 			var button = this.getButton(id);
 			if (button) {
-				button.set('visible', !!visible);
+				button.set("visible", !!visible);
 			}
 			return this;
 		},
@@ -353,7 +353,7 @@ YUI.add('supra.footer', function (Y) {
 		getButtonVisible: function (id) {
 			var button = this.getButton(id);
 			if (button) {
-				return button.get('visible');
+				return button.get("visible");
 			} else {
 				return false;
 			}
@@ -364,7 +364,7 @@ YUI.add('supra.footer', function (Y) {
 		 * If enabled, then will try to find buttons
 		 */
 		setAutoDiscoverButtons: function () {
-			this.set('autoDiscoverButtons', true);
+			this.set("autoDiscoverButtons", true);
 			return this;
 		}
 	});

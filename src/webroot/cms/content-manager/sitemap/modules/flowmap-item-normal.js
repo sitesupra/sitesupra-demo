@@ -6,6 +6,13 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 	var ITEM_PADDING = 10;
 
 	function FlowMapItemNormal (config) {
+		config = config || {};
+		
+		//Global pages can't be selected untill
+		if (config.data.global) {
+			config.selectable = false;
+		}
+		
 		FlowMapItemNormal.superclass.constructor.apply(this, [config]);
 	};
 	
@@ -42,6 +49,17 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			
 			var data = this.get('data');
 			
+			//Permissions
+			if (!Supra.Permission.get('page', data.id, 'edit', false)) {
+				//Can't edit
+				this.get('boundingBox').one('.edit').addClass('edit-hidden');
+				
+				//Can't create copy
+				if (data.global) {
+					this.set('selectable', false);
+				}
+			}
+			
 			//"Show all" link
 			if (data.collapsed) {
 				var node = this.get('boundingBox').one('a.show-all');
@@ -71,17 +89,18 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		 * Attach event listeners
 		 */
 		bindUI: function () {
-			if (!Supra.Authorization.isAllowed(['page', 'order'], true)) {
-				this.set('isDragable', false);
-				this.set('isDropTarget', false);
-			}
-			
 			//Parent
 			FlowMapItemNormal.superclass.bindUI.apply(this, arguments);
 			
 			var node_edit = this.get('boundingBox').one('span.edit');
 			if (node_edit) {
 				node_edit.on('click', this.edit, this);
+			}
+			
+			//Disable drag and drop
+			var page_id = this.get('data').id;
+			if (!Supra.Permission.get('page', page_id, 'edit', false)) {
+				if (this.dd) this.dd.set('lock', true);
 			}
 			
 			this.before('addChild', this.syncUISize, this);
@@ -354,7 +373,9 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		_dragOver: function (e) {
 			if (e.drag.get('node') != e.drop.get('node')) {
 				var treenode = e.drop.get('treeNode');
-				if (!treenode) return;
+				
+				//If target is locked then it can't be dragged or dropped on
+				if (!treenode || (treenode.dd && treenode.dd.get('lock'))) return;
 				
 				var self = this.get('treeNode'),
 					type = e.drop.get('node').hasClass('tree-node') ? 'normal' : 'flow',
@@ -394,9 +415,26 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		},
 		
 		/**
+		 * Overwrite unlock to prevent unlocking uneditable children
+		 */
+		unlockChildren: function () {
+			this.each(function () {
+				if (Supra.Permission.get('page', this.get('data').id, 'edit', false)) {
+					if (this.dd) {
+						this.dd.set('lock', false);
+						if (this.dd.target) {
+							this.dd.target.set('lock', false);
+						}
+					}
+				}
+				this.unlockChildren();
+			});
+		},
+		
+		/**
 		 * Remove all child pages which doesn't have property is_hidden_page
 		 */
-		'removeNonHiddenChildren': function () {
+		removeNonHiddenChildren: function () {
 			var tree = this.getTree(),
 				data = this.get('data'),
 				data_indexed = tree.getIndexedData(),

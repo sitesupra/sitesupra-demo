@@ -197,7 +197,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			if (e.drag.get('node') != e.drop.get('node')) {
 				var self = this.get('treeNode');
 				var treeNode = e.drop.get('treeNode');
-				if (!treeNode || !self) return;
+				if (!treeNode || !self || (treeNode.dd && treeNode.dd.get('lock'))) return;
 				
 				var node = Y.Node.getDOMNode(e.drop.get('node'));
 				var place = 'inside';
