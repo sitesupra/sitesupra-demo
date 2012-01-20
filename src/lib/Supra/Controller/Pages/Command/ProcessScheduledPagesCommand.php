@@ -14,6 +14,8 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Log\Log;
+use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
+use Supra\Cms\CmsController;
 /**
  *
  */
@@ -48,16 +50,29 @@ class ProcessScheduledPagesCommand extends Command
 			$request = PageRequestEdit::factory($localization);
 			$request->setDoctrineEntityManager($this->_em);
 			
+			//$publicEm->getConnection()->beginTransaction();
 			try {
 				$request->publish();
-				$publicEm->flush();
-				$publicEm->getConnection()->commit();
+				
+				$eventArgs = new CmsPagePublishEventArgs();
+				$eventArgs->localization = $localization;
+				
+				// FIXME!!!
+				$eventManager = ObjectRepository::getEventManager('Supra\Cms\ContentManager');
+				$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+				
+				//$publicEm->getConnection()->commit();
 			} catch (\Exception $e) {
+
+				//$publicEm->getConnection()->rollBack();
 				// skip page, if something went wrong
 				$pageId = $localization->getId();
-				Log::error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
-				
+
+				$log = ObjectRepository::getLogger($this);
+				$log->error("Failed to publish localization #{$pageId}, with error {$e->getMessage()}");
+
 				continue;
+
 			}
 			
 			/* @var $localization PageLocalization */

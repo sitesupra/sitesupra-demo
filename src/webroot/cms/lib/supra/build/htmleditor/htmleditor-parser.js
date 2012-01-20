@@ -34,30 +34,36 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @param {Object} html
 		 */
 		uncleanHTML: function (html) {
-			//Convert <strong> into <b>
-			html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
-			
 			//Convert <i> into <em>
-			html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
+			html = html.replace(/<(\/?)i((\s[^>]+)?)>/ig, '<$1em$2>');
 			
-			//Convert B, EM, U, S into SPAN
-			var tagToSpan = [
-					['b',  'font-weight: bold'],
-					['em', 'font-style: italic'],
-					['u',  'text-decoration: underline'],
-					['s',  'text-decoration: line-through']
-				],
-				tag,
-				expression;
-			
-			for(var i=0,ii=tagToSpan.length; i<ii; i++) {
-				tag = tagToSpan[i][0];
+			if (Y.UA.ie) {
+				//IE uses STRONG, EM, U, STRIKE instead of SPAN
+				html = html.replace(/<(\/?)b((\s[^>]+)?)>/ig, '<$1strong$2>');
+				html = html.replace(/<(\/?)s((\s[^>]+)?)>/ig, '<$1strike$2>');
+			} else {
+				//Convert <strong> into <b>
+				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
 				
-				expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
-				html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
+				//Convert B, EM, U, S into SPAN
+				var tagToSpan = [
+						['b',  'font-weight: bold'],
+						['em', 'font-style: italic'],
+						['u',  'text-decoration: underline'],
+						['s',  'text-decoration: line-through']
+					],
+					tag,
+					expression;
 				
-				expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");
-				html = html.replace(expression, '</span>');
+				for(var i=0,ii=tagToSpan.length; i<ii; i++) {
+					tag = tagToSpan[i][0];
+					
+					expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
+					html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
+					
+					expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");
+					html = html.replace(expression, '</span>');
+				}
 			}
 			
 			var event = {'html': html};
@@ -86,6 +92,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (mode == SU.HTMLEditor.MODE_STRING) {
 				//In string mode there is nothing to clean up
 			} else {
+				//IE creates STRONG, EM, U, STRIKE instead of SPAN
+				if (Y.UA.ie) {
+					html = html.replace(/<(\/?)strong/ig, '<$1b');
+					html = html.replace(/<(\/?)strike/ig, '<$1s');
+				}
+				
 				//Convert <span> into B, EM, U, S
 				var styleToTag = [
 					['b', /font-weight:\s?bold/i],
@@ -177,6 +189,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				//Convert <i> into <em>
 				html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
+				
+				//Moves whitespaces outside <A> tags
+				html = html.replace(/(<a [^>]+>)\s/g, ' $1');
+				html = html.replace(/\s(<\/a[^>]*>)/g, '$1 ');
 				
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);

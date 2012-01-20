@@ -2,7 +2,7 @@
 
 namespace Supra\Search\Request\Abstraction;
 
-use \Solarium_Query_Select;
+use Solarium_Query_Select;
 use Supra\Search\Request\SearchRequestInterface;
 
 abstract class SearchRequestAbstraction implements SearchRequestInterface

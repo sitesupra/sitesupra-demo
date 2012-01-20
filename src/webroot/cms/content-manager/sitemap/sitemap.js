@@ -495,16 +495,19 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			Supra.data.set('locale', this.languagebar.get('locale'));
 			
 			//Change page
-			this.fire('page:select', {
-				'data': evt.data
-			});
+			if (this.fire('page:select', {'data': evt.data})) {
+				this.onPageOpen(evt.data.id);
+			}
 			
+		},
+		
+		onPageOpen: function (page_id) {
 			//Set selected in data
 			Supra.data.set('page', {
-				'id': evt.data.id
+				'id': page_id
 			});
 			
-			var target = this.flowmap.getNodeById(evt.data.id);
+			var target = this.flowmap.getNodeById(page_id);
 			this.animate(target.get('boundingBox'));
 		},
 		
@@ -582,7 +585,10 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 					
-					Manager.executeAction('PageHeader');
+					Manager.executeAction('PageHeader', true);
+					
+					//Clean up tree
+					this.flowmap.empty();
 				} else {
 					Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);
@@ -666,8 +672,10 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			this.show();
 			
 			if (!this.first_exec) {
+				var page_data = Manager.Page.getPageData(),
+					page_locale = page_data ? page_data.locale : this.languagebar.get('locale');
+				
 				//Open sitemap in same language as currently opened page
-				var page_locale = Manager.Page.getPageData().locale;
 				if (page_locale != this.languagebar.get('locale')) {
 					this.languagebar.set('locale', page_locale);
 				} else {
@@ -675,6 +683,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					this.setLoading(true);
 				}
 			}
+			
 			this.first_exec = false;
 			
 			//Hide page header

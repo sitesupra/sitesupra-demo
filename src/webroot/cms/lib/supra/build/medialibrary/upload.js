@@ -297,8 +297,19 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				//Sync position
 				this.get('host').slideshow.syncUI();
 				
-				//Upload all files
-				this.uploadFiles(folder, files);
+				if (files.length) {
+					//Upload all files
+					this.uploadFiles(folder, files);
+				} else {
+					//No files detected
+					SU.Manager.executeAction('Confirmation', {
+					    'message': '{#medialibrary.validation_error.invalid_drop#}',
+					    'useMask': true,
+					    'buttons': [
+					        {'id': 'delete', 'label': 'Ok'}
+					    ]
+					});
+				}
 			}
 			
 			this.last_drop_target = null;
@@ -619,7 +630,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 					node.insert(new_file_node, 'before');
 				}
 			} else {
-				Y.log('Failed to upload "' + evt.file_name + '"', 'error');
+				Y.log('Failed to upload "' + evt.file_name + '"', 'debug');
 			}
 			
 			//Remove temporary data and node

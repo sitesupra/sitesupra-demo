@@ -146,10 +146,21 @@ class TwigHelper
 	}
 	
 	/**
+	 * Try getting 1) from request 2) from system settings
 	 * @return string
 	 */
 	public function getHost()
 	{
+		// From request
+		if ($this->request instanceof \Supra\Request\HttpRequest) {
+			$fromRequest = $this->request->getBaseUrl();
+			
+			if ( ! empty($fromRequest)) {
+				return $fromRequest;
+			}
+		}
+		
+		// From info package
 		return $this->getInfo()
 				->getHostName(\Supra\Info::WITH_SCHEME);
 	}

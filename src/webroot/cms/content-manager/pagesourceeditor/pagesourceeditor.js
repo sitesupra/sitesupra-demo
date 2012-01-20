@@ -123,6 +123,8 @@ SU(function (Y) {
 		 * Hide action
 		 */
 		hide: function () {
+			if (!this.get('visible')) return;
+			
 			//Callback
 			if (this.callback && this.editor) {
 				this.callback(this.editor.getHTML());

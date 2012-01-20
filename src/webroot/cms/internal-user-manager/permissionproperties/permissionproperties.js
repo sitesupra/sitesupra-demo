@@ -255,10 +255,12 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 				
 				tree.render(container.one('div'));
 				this.tree = tree;
+				this.tree.set('loading', true);
 				this.list.set('tree', tree);
 				
 				this.renderLanguageBar(container.one('div.languages'));
 			} else {
+				this.tree.set('loading', true);
 				this.tree.set('requestUri', uri);
 				this.tree.reload();
 			}
@@ -280,6 +282,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			//To request URI add application ID
 			var uri = this.getDataPath('datalist', {'application_id': this.application.id, 'locale': this.languagebar.get('locale')});
 			
+			this.tree.set('loading', true);
 			this.tree.set('requestUri', uri);
 			this.tree.reload();
 		},

@@ -57,7 +57,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		}
 		else if ($page instanceof PageEntity\GroupPage) {
 
-			$title = '{GP} ' . $page->getTitle();
+			$title = $page->getTitle();
 		}
 		else if ($page instanceof PageEntity\Page) {
 
@@ -105,7 +105,9 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 
 			$tree = $this->buildContentTreeArray($rootNode, $localeId);
 
-			$entityTree[] = $tree;
+			if ( ! is_null($tree)) {
+				array_push($entityTree, $tree);
+			}
 		}
 
 		// This will make the group page localizations permanent

@@ -99,6 +99,14 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		options: null,
 		
 		
+		/**
+		 *  
+		 */
+		initialize: function () {
+			//Load media library Intl data
+			var app_path = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('MediaLibrary');
+			Supra.Intl.loadAppData(app_path);
+		},
 		
 		/**
 		 * Render widgets and add event listeners
@@ -249,7 +257,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				//Create tree
 					//Use sitemap data
 					this.locale = Supra.data.get('locale');
-					var sitemap_data_path = SU.Manager.Loader.getActionInfo('Sitemap').path_data +
+					var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
 											'?locale=' + this.locale +
 											'&existing_only=1';
 					
@@ -361,7 +369,9 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			//Reload tree if needed
 			if (reloading_tree) {
 				this.locale = Supra.data.get('locale');
-				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data + '?locale=' + this.locale;
+				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+										'?locale=' + this.locale +
+										'&existing_only=1';
 				
 				this.tree.set('requestUri', sitemap_data_path);
 				this.tree.reload();

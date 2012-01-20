@@ -53,7 +53,11 @@ class AuditManagerListener implements EventSubscriber
 			$entityOriginalData = $em->getUnitOfWork()->getOriginalEntityData($entity);
 			
 			$draftTemplate = $draftEm->find(Template::CN(), $entityOriginalData['template_id']);
-			$entity->setTemplate($draftTemplate);
+			if ( ! is_null($draftTemplate)) {
+				$entity->setTemplate($draftTemplate);
+			} else {
+				$entity->setNullTemplate();
+			}
 		}
 		
 		else if ($entity instanceof BlockProperty) {
@@ -62,7 +66,9 @@ class AuditManagerListener implements EventSubscriber
 			$block = $entity->getBlock();
 			if (is_null($block)) {
 				$draftBlock = $draftEm->find(Block::CN(), $entityOriginalData['block_id']);
-				$entity->setBlock($draftBlock);
+				if ( ! is_null($draftBlock)) {
+					$entity->setBlock($draftBlock);
+				}
 			}
 		}		
 	}

@@ -97,7 +97,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 						container = Y.Node.getDOMNode(this.get('srcNode'));
 					
 					//Don't traverse up more than container	
-					while (!node.compareTo(container)) {
+					while (node && !node.compareTo(container)) {
 						if (node.test(selector)) return Y.Node.getDOMNode(node);
 						node = node.get('parentNode');
 					}

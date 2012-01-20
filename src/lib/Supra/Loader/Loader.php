@@ -140,9 +140,10 @@ class Loader
 		$classPath = $this->findClassPath($className);
 
 		if ( ! is_null($classPath)) {
-			require_once $classPath;
-
-			return true;
+			
+			$included = include_once $classPath;
+			
+			return (bool) $included;
 		}
 
 		return false;
@@ -168,13 +169,13 @@ class Loader
 	 */
 	public static function getClassInstance($className, $interface = null)
 	{
-		if ( ! class_exists($className)) {
+		if ( ! self::classExists($className)) {
 			throw new Exception\ClassNotFound($className);
 		}
 
 		$object = new $className();
 		if ( ! is_null($interface) && is_string($interface)) {
-			if ( ! class_exists($interface) && ! interface_exists($interface)) {
+			if ( ! self::classExists($interface) && ! self::interfaceExists($interface)) {
 				throw new Exception\InterfaceNotFound($className);
 			}
 			if ( ! $object instanceof $interface) {
@@ -183,5 +184,55 @@ class Loader
 		}
 		
 		return $object;
-}
+	}
+	
+	/**
+	 * Search for the class without any messages about "include_once" failures
+	 * which will appear using the class_exists() function.
+	 * @param string $className
+	 * @return boolean
+	 */
+	public static function classExists($className)
+	{
+		// Already loaded
+		if (class_exists($className, false)) {
+			return true;
+		}
+		
+		$classPath = self::getInstance()
+				->findClassPath($className);
+		
+		// This is the case when include_once will warn you
+		if ( ! is_null($classPath) && ! file_exists($classPath)) {
+			return false;
+		}
+		
+		// Use standard loader otherwise
+		return class_exists($className, true);
+	}
+	
+	/**
+	 * Search for the interface without any messages about "include_once" failures
+	 * which will appear using the interface_exists() function.
+	 * @param string $className
+	 * @return boolean
+	 */
+	public static function interfaceExists($className)
+	{
+		// Already loaded
+		if (interface_exists($className, false)) {
+			return true;
+		}
+		
+		$classPath = self::getInstance()
+				->findClassPath($className);
+		
+		// This is the case when include_once will warn you
+		if ( ! is_null($classPath) && ! file_exists($classPath)) {
+			return false;
+		}
+		
+		// Use standard loader otherwise
+		return interface_exists($className, true);
+	}
 }

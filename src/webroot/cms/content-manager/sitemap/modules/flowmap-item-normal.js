@@ -421,6 +421,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 					traverse(child);
 					
 					//Remove item
+					this.item(i).destroy();
 					this.remove(i);
 				}
 			}

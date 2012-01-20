@@ -253,7 +253,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				var ancestor = image.ancestor();
 				if (!ancestor) {
-					Y.log('Missing ancestor for selected image. Image not in DOM anymore?');
+					Y.log('Missing ancestor for selected image. Image not in DOM anymore?', 'debug');
 					return;
 				}
 				
@@ -336,7 +336,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			var data = this.getImageDataFromNode(event.target);
 			if (!data) {
-				Y.log('Missing image data for image ' + event.target.getAttribute('src'));
+				Y.log('Missing image data for image ' + event.target.getAttribute('src'), 'debug');
 				return;
 			}
 			

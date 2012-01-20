@@ -64,7 +64,7 @@ YUI.add('supra.tree', function(Y) {
 			
 			this.reload();
 			
-			this.get('boundingBox').addClass(C('tree', 'loading'));
+			this.set('loading', true);
 		},
 		
 		bindUI: function () {
@@ -74,7 +74,7 @@ YUI.add('supra.tree', function(Y) {
 		},
 		
 		renderTreeUI: function (data) {
-			this.get('boundingBox').removeClass(C('tree', 'loading'));
+			this.set('loading', false);
 			
 			for(var i=0,ii=data.length; i<ii; i++) {
 				this._renderTreeUIChild(data[i], i);
@@ -213,8 +213,11 @@ YUI.add('supra.tree', function(Y) {
 				if (!status) data = [];
 				
 				// Remove all nodes and data
+				var item = null;
 				for(var i=this.size() - 1; i >= 0; i--) {
+					item = this.item(i);
 					this.remove(i);
+					item.destroy();
 				}
 				
 				this._data = [];
@@ -249,6 +252,33 @@ YUI.add('supra.tree', function(Y) {
 			};
 			
 			var request = Supra.io(uri, complete, this);
+		},
+		
+		/**
+		 * Remove all children
+		 */
+		empty: function () {
+			var item = null;
+			for(var i=this.size() - 1; i >= 0; i--) {
+				this.item(i).destroy();
+				this.remove(i);
+			}
+		},
+		
+		/**
+		 * Set loading style
+		 */
+		_setLoading: function (value) {
+			var node = this.get('boundingBox'),
+				classname = C('tree', 'loading');
+			
+			if (value) {
+				node.addClass(classname);
+			} else {
+				node.removeClass(classname);
+			}
+			
+			return !!value;
 		}
 	}, {
 		
@@ -271,6 +301,10 @@ YUI.add('supra.tree', function(Y) {
 			},
 			'rootNodeExpandable': {
 				value: false
+			},
+			'loading': {
+				value: false,
+				setter: '_setLoading'
 			}
 		},
 		

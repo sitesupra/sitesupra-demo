@@ -112,7 +112,7 @@ YUI.add('supra.manager-base', function (Y) {
 		runExecutionQueue: function ()  {
 			var queue = this.executionQueue;
 			var index = 0;
-
+			
 			while(index < queue.length) {
 				var exec_info = queue[index];
 				var action_name = exec_info.action_name;
@@ -122,6 +122,9 @@ YUI.add('supra.manager-base', function (Y) {
 					
 					//Only if loaded
 					if (action.get('loaded')) {
+						//Remove item from queue
+						this.executionQueue = queue = queue.slice(0,index).concat(queue.slice(index+1));
+						
 						//Execute
 						if (Supra.data.get('catchNativeErrors')) {
 							try {
@@ -133,8 +136,9 @@ YUI.add('supra.manager-base', function (Y) {
 							action.execute.apply(action, exec_info.args);
 						}
 						
-						//Remove item from queue
-						this.executionQueue = queue = queue.slice(0,index).concat(queue.slice(index+1));
+						//Executing an action could change executionQueue array, reset it
+						index = 0;
+						queue = this.executionQueue;
 					} else {
 						index++;
 					}

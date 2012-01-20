@@ -71,6 +71,9 @@ class BlocksAction extends PageManagerAction
 		if ( ! $isDefaultGroupSet) {
 			$response['groups'][$defaultGroupKey]['default'] = true;
 		}
+		
+		// Title array for ordering
+		$titles = array();
 
 		foreach ($blockConfigurationList as $blockId => $conf) {
 			/* @var $conf \Supra\Controller\Pages\Configuration\BlockControllerConfiguration */
@@ -110,7 +113,12 @@ class BlocksAction extends PageManagerAction
 				'properties' => $properties,
 				'hidden' => $conf->hidden,
 			);
+			
+			$titles[] = $conf->title;
 		}
+		
+		// Order by block title
+		array_multisort($titles, $response['blocks']);
 
 		$this->getResponse()->setResponseData($response);
 	}

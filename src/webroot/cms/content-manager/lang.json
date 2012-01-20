@@ -12,6 +12,7 @@
 			"save": "Save",
 			"cancel": "Cancel",
 			"delete": "Delete",
+			"create": "Create",
 			"apply": "Apply",
 			"replace": "Replace",
 			"rename": "Rename",
@@ -20,6 +21,10 @@
 			"insert": "Insert",
 			"visible": "Visible",
 			"hidden": "Hidden"
+		},
+		
+		"error": {
+			"warnings": "Warnings:"
 		},
 		
 		"form": {
@@ -238,6 +243,10 @@
 				"parent_page_not_found": "The parent page does not exist anymore",
 				"duplicate_path": "Page with the same path already exists"
 			}
+		},
+		
+		"sitemapduplicate": {
+			"message": "Select language you would like to use"
 		},
 		
 		"insertblock": {

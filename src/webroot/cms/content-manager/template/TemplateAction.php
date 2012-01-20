@@ -17,24 +17,27 @@ use Supra\Controller\Pages\Task\LayoutProcessorTask;
  */
 class TemplateAction extends PageManagerAction
 {
+
 	/**
 	 * Template creation
 	 */
 	public function createAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->entityManager->beginTransaction();
 		$templateData = null;
-		
+
 		try {
 			$templateData = $this->createActionTransactional();
 		} catch (\Exception $e) {
 			$this->entityManager->rollback();
-			
+
 			throw $e;
 		}
-		
+
 		$this->entityManager->commit();
-		
+
 		// Decision in #2695 to publish the template right after creating it
 		$this->pageData = $templateData;
 		$this->publish();
@@ -43,23 +46,25 @@ class TemplateAction extends PageManagerAction
 
 		$this->writeAuditLog('create', '%item% created', $templateData);
 	}
-	
+
 	/**
 	 * Method called in transaction
 	 * @return Entity\TemplateLocalization
 	 */
 	protected function createActionTransactional()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
-		
+
 		$rootTemplate = $input->isEmpty('parent', false);
 		$hasLayout = ( ! $input->isEmpty('layout'));
 
 		if ($rootTemplate && ! $hasLayout) {
 			throw new CmsException(null, "Root template must have layout specified");
 		}
-		
+
 		$localeId = $this->getLocale()->getId();
 
 		$template = new Entity\Template();
@@ -74,7 +79,7 @@ class TemplateAction extends PageManagerAction
 			$title = $input->get('title');
 			$templateData->setTitle($title);
 		}
-		
+
 		if ($hasLayout) {
 			//TODO: validate
 			$layoutId = $input->get('layout');
@@ -99,26 +104,26 @@ class TemplateAction extends PageManagerAction
 			$templateLayout = $template->addLayout($this->getMedia(), $layout);
 			$this->entityManager->persist($templateLayout);
 		}
-		
+
 		$this->entityManager->flush();
-		
+
 		// Find parent page
 		if ( ! $rootTemplate) {
-			
+
 			$parentLocalization = $this->getPageLocalizationByRequestKey('parent');
-			
+
 			if ( ! $parentLocalization instanceof Entity\TemplateLocalization) {
 				$parentId = $input->get('parent', null);
 				throw new CmsException(null, "Could not found template parent by ID $parentId");
 			}
-			
+
 			$parent = $parentLocalization->getMaster();
-			
+
 			// Set parent
 			$template->moveAsLastChildOf($parent);
 			$this->entityManager->flush();
 		}
-		
+
 		return $templateData;
 	}
 
@@ -127,11 +132,12 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function saveAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
 		$this->checkLock();
 		$pageData = $this->getPageLocalization();
-		$localeId = $this->getLocale()->getId();
 
 		//TODO: create some simple objects for save post data with future validation implementation?
 		if ($input->has('title')) {
@@ -140,17 +146,19 @@ class TemplateAction extends PageManagerAction
 		}
 
 		$this->entityManager->flush();
-		
+
 		$this->writeAuditLog('save', '%item% saved', $pageData);
 	}
 
 	public function deleteAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->isPostRequest();
 
 		$page = $this->getPageLocalization()
 				->getMaster();
-		
+
 		if ($page->hasChildren()) {
 			throw new CmsException(null, "Cannot remove template with children");
 		}
@@ -165,9 +173,11 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function publishAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		// Must be executed with POST method
 		$this->isPostRequest();
-		
+
 		$this->checkLock();
 		$this->publish();
 		$this->unlockPage();
@@ -175,20 +185,24 @@ class TemplateAction extends PageManagerAction
 		$templateLocalization = $this->getPageLocalization();
 		$this->writeAuditLog('publish', '%item% published', $templateLocalization);
 	}
-	
+
 	/**
 	 * Called on template lock action
 	 */
 	public function lockAction()
 	{
-		$this->lockPage();	
+		$this->checkApplicationAllAccessPermission();
+
+		$this->lockPage();
 	}
-	
-	/** 
+
+	/**
 	 * Called on template unlock action
 	 */
 	public function unlockAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		try {
 			$this->checkLock();
 		} catch (\Exception $e) {
@@ -197,21 +211,25 @@ class TemplateAction extends PageManagerAction
 		}
 		$this->unlockPage();
 	}
-	
+
 	/**
 	 * Template duplicate action
 	 */
 	public function duplicateAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->isPostRequest();
 		$this->duplicate();
 	}
-	
+
 	/**
 	 * Duplicate global localization
 	 */
 	public function duplicateGlobalAction()
 	{
+		$this->checkApplicationAllAccessPermission();
+
 		$this->isPostRequest();
 		$this->duplicateGlobal();
 	}

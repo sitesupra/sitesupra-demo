@@ -863,12 +863,19 @@ abstract class PageManagerAction extends CmsAction
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeManager->exists($localeId);
 		
-		// localization, that will be duplicated
 		$existingLocalization = $this->getPageLocalization();
+		$master = $existingLocalization->getMaster();
 		
-		$originalLocaleId = $existingLocalization->getLocale();
+		$sourceLocaleId = $this->getRequestParameter('source_locale');
+		$localeManager->exists($sourceLocaleId);
 		
-		if ($localeId == $originalLocaleId) {
+		$existingLocalization = $master->getLocalization($sourceLocaleId);
+		
+		if (is_null($existingLocalization)) {
+			throw new CmsException(null, "No source page [{$sourceLocaleId}] was found");
+		}
+		
+		if ($localeId == $sourceLocaleId) {
 			throw new CmsException(null, 'Page duplicate will do nothing as old locale and new locale are identical');
 		}
 		
@@ -909,7 +916,7 @@ abstract class PageManagerAction extends CmsAction
 			$this->publish();
 		}
 		
-		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$originalLocaleId}] locale", $newLocalization);
+		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$sourceLocaleId}] locale", $newLocalization);
 				
 		$this->getResponse()
 				->setResponseData(array('id' => $newLocalization->getId()));

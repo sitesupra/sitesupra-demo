@@ -2,10 +2,10 @@
 
 namespace Supra\Console;
 
-use Supra\Version;
 use Supra\ObjectRepository\ObjectRepository;
 use Symfony\Component\Console\Application as SymfonyConsoleApplication;
 use Supra\Console\Cron\Period\AbstractPeriod;
+use Supra\Loader\Loader;
 
 /**
  * Application
@@ -69,7 +69,7 @@ class Application extends SymfonyConsoleApplication
 		$commands = array();
 		
 		foreach ($classes as $class) {
-			if (class_exists($class)) {
+			if (Loader::classExists($class)) {
 				$commands[] = new $class();
 			}
 		}

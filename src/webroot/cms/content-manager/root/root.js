@@ -235,10 +235,7 @@ Supra(function (Y) {
 				}
 			});
 			
-			this.bindSiteMap();
-			
-			// run session check
-			this.checkSession();	
+			this.bindSiteMap();	
 		},
 		
 		/**
@@ -257,10 +254,25 @@ Supra(function (Y) {
 						context = Supra.Manager.getAction('Template');
 					}
 					
-					//After duplicate change path
-					context[fn](evt.data.id, Supra.data.get('locale'), function (data, status) {
-						this.save(this.ROUTE_PAGE.replace(':page_id', data.id));
-					}, this);
+					Manager.executeAction('SiteMapDuplicate', {
+						'context': this,
+						'locales': evt.data.localizations || [],
+						'on': {
+							'create': function (source_locale) {
+								//Show transition
+								Manager.getAction('SiteMap').onPageOpen(evt.data.id);
+								
+								//Call duplicate request
+								context[fn](evt.data.id, Supra.data.get('locale'), source_locale, function (data, status) {
+									//After duplicate change path
+									this.save(this.ROUTE_PAGE.replace(':page_id', data.id));
+								}, this);
+								
+							}
+						}
+					});
+					
+					evt.halt();
 					
 				} else {
 					//Change path
@@ -288,16 +300,6 @@ Supra(function (Y) {
 			if (content.get('created')) { 
 				content.stopEditing();
 			}
-		},
-		
-		checkSession: function () {
-			SU.io('/cms/check-session', {
-				'on': {
-					'complete': function () {
-						setTimeout(this.checkSession.bind(this, this), 60000);  
-					}
-				}
-			}, this);
 		}
 
 	});

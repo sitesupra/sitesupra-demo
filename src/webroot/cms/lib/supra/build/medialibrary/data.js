@@ -490,15 +490,19 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 */
 		loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
 			if (!data || !data.records) {
-				Y.error('Supra.MediaLibraryData:loadData error occured while loading data for folder "' + id + '"');
+				Y.log('Supra.MediaLibraryData:loadData error occured while loading data for folder "' + id + '"', 'debug');
 				this.fire('load:failure', {'data': null});
 				this.fire('load:failure:' + id, {'data': null});
-				return false;
+				
+				data = {'records': null};
+			} else {
+				this.addData(id, data.records);
+				this.fire('load:success', {'id': id, 'data': data.records});
+				this.fire('load:success:' + id, {'id': id, 'data': data.records});
 			}
 			
-			this.addData(id, data.records);
-			this.fire('load:success', {'id': id, 'data': data.records});
-			this.fire('load:success:' + id, {'id': id, 'data': data.records});
+			this.fire('load:complete', {'id': id, 'data': data.records});
+			this.fire('load:complete:' + id, {'id': id, 'data': data.records});
 		},
 		
 		/**

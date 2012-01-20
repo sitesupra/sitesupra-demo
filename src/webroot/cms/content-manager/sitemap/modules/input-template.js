@@ -48,6 +48,8 @@ YUI.add("website.input-template", function (Y) {
 		 */
 		loading: false,
 		
+		
+		
 		/**
 		 * Load templates
 		 * 
@@ -93,7 +95,8 @@ YUI.add("website.input-template", function (Y) {
 			//Render template list
 			var node_list = this.panel.get('contentBox').one('ul'),
 				node_item = null,
-				value = this.get('value');
+				value = this.get('value'),
+				has_value = false;
 			
 			node_list.empty();
 			
@@ -101,6 +104,13 @@ YUI.add("website.input-template", function (Y) {
 				node_item = Y.Node.create('<li data-template="' + data[i].id + '" class="clearfix ' + (data[i].id == value ? 'selected' : '') + '"><div><img src="' + data[i].img + '" alt="" /></div><p>' + Y.Escape.html(data[i].title) + '</p></li>');
 				node_item.setData('templateId', data[i].id);
 				node_list.append(node_item);
+				
+				if (value == data[i].id) has_value = true;
+			}
+			
+			if (!has_value && data.length) {
+				//Use first template if value not found in template list
+				this.set('value', data[0].id);
 			}
 		},
 		
@@ -298,6 +308,14 @@ YUI.add("website.input-template", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (!value) {
+				//First template from list
+				var templates = this.templates;
+				if (templates && templates.length) {
+					value = templates[0].id;
+				}
+			}
+			
 			this.get("inputNode").set("value", value);
 			this._original_value = value;
 			return value;

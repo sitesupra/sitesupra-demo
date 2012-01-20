@@ -185,7 +185,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 
 		$component = $this->getComponentClass();
 
-		if ( ! class_exists($component)) {
+		if ( ! Loader\Loader::classExists($component)) {
 			$this->log()->warn("Block component $component was not found for block $this");
 		}
 		//else {

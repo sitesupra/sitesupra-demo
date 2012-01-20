@@ -400,8 +400,11 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			});
 			
 			if (this.type != 'templates') {
+				var drop_template = drop_data.template,
+					parent_template = parent_data ? parent_data.template : '';
+				
 				//Page template (parent template)
-				pagedata.template = (position == 'inside' ? drop_data.template : (parent_data ? parent_data.template : ''));
+				pagedata.template = (position == 'inside' ? drop_template || parent_template : parent_template);
 			}
 			
 			if (position == 'before') {

@@ -142,6 +142,16 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->template = $template;
 	}
+	
+	/**
+	 * Set null as page template, 
+	 * used for deleted pages that have unexisted template assigned
+	 * @param Template $template
+	 */
+	public function setNullTemplate()
+	{
+		$this->template = null;
+	}
 
 	/**
 	 * Get page template

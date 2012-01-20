@@ -15,6 +15,7 @@ YUI.add('supra.footer', function (Y) {
 	};
 	
 	var BUTTON_STYLES = {
+		'create': 'mid-green',
 		'save': 'mid-blue',
 		'ok': 'mid-blue',
 		'cancel': 'mid',

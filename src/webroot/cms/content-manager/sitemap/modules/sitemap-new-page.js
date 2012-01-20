@@ -34,6 +34,19 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		 */
 		button_create: null,
 		
+		/**
+		 * Panel instance (Supra.Panel)
+		 * @type {Object}
+		 * @private
+		 */
+		panel: null,
+		
+		/**
+		 * Form instance (Supra.Form)
+		 * @type {Object}
+		 * @private
+		 */
+		form: null,
 		
 		/**
 		 * @constructor

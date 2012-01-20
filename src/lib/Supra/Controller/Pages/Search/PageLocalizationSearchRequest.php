@@ -63,10 +63,8 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	{
 		$this->addSimpleFilter('schemaName', $this->schemaName);
 		
-		$this->addSimpleFilter('visible', true);
-
-		$textFieldName = null;
-		$titleFieldName = null;
+		$this->addSimpleFilter('isActive', true);
+		$this->addSimpleFilter('includeInSearch', true);
 
 		// This is default for case when locale is not set for this request.
 		$languageCode = 'general';
@@ -75,24 +73,18 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 
 			$this->addSimpleFilter('localeId', $this->locale->getId());
 
-			$languageCode = $this->locale->getProperty("language");
+			$languageCode = $this->locale->getProperty('language');
 		}
 
 		$textFieldName = 'text_' . $languageCode;
-		$titleFieldName = 'title_' . $languageCode;
 
 		$this->highlightPrefix = '<b>';
 		$this->highlightPostfix = '</b>';
-		$this->highlightedFields = array($textFieldName, $titleFieldName);
+		$this->highlightedFields = array($textFieldName);
 
 		$helper = $selectQuery->getHelper();
 
-		$solrQuery = array(
-				$textFieldName . ':' . $helper->escapePhrase($this->text),
-				$titleFieldName . ':' . $helper->escapePhrase($this->text)
-		);
-
-		$solrQuery = join(' OR ', $solrQuery);
+		$solrQuery = $textFieldName . ':' . $helper->escapePhrase($this->text);	
 
 		$selectQuery->setQuery($solrQuery);
 

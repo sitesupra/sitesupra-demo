@@ -23,6 +23,10 @@
 		//Catch JS errors
 		'catchNativeErrors': false,
 		
+		//Keep alive session by periodically pinging server
+		'sessionKeepAlive': false,
+		
+		
 		/**
 		 * Set data
 		 */
@@ -91,6 +95,8 @@
 			Supra.data.set(target, Supra.Y.mix(source, Supra.data.get(target, {}), false, null, 0, 2));
 		},
 		
+		
+		
 		/**
 		 * When date format changes update YUI configuration
 		 */
@@ -107,6 +113,19 @@
 		_localeChange: function (newVal, prevVal) {
 			if (newVal !== prevVal) {
 				Supra.Y.Global.fire('localeChange', {'newVal': newVal, 'prevVal': prevVal});
+			}
+		},
+		
+		/**
+		 * On sessionKeepAlive change start/stop timer
+		 */
+		_sessionKeepAliveChange: function (newVal, prevVal) {
+			if (newVal !== prevVal) {
+				if (newVal) {
+					Supra.session.ping();
+				} else {
+					Supra.session.cancelPing();
+				}
 			}
 		}
 	};

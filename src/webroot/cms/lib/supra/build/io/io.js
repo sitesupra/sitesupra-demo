@@ -63,6 +63,8 @@ YUI().add("supra.io", function (Y) {
 		cfg.on._failure = cfg.on.failure;
 		cfg.on._complete = cfg.on.complete;
 		cfg.on.complete = null;
+		cfg._data = cfg.data;
+		cfg._url = url;
 		
 		//Add session id to data
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
@@ -112,7 +114,7 @@ YUI().add("supra.io", function (Y) {
 				
 			} else {
 				//Invalid response
-				Y.log('Request to "' + url + '" failed', 'error');
+				Y.log('Request to "' + url + '" failed', 'debug');
 				
 				return Supra.io.handleResponse(cfg, {
 					'status': 0,
@@ -168,7 +170,7 @@ YUI().add("supra.io", function (Y) {
 			}
 			
 		} catch (e) {
-			Y.log('Unable to parse "' + url + '" request response: invalid JSON', 'error');
+			Y.log('Unable to parse "' + url + '" request response: invalid JSON', 'debug');
 			response.error_message = ERROR_INVALID_RESPONSE;
 		}
 		
@@ -195,25 +197,19 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		//Show error message
-		if (response.error_message && !cfg.suppress_errors) {
-			SU.Manager.executeAction('Confirmation', {
-			    'message': response.error_message,
-			    'useMask': true,
-			    'buttons': [
-			        {'id': 'delete', 'label': 'Ok'}
-			    ]
-			});
+		if (response.error_message) {
+			this.handleErrorMessage(cfg, response);
+		
+		//Show warning messages
+		} else if (response.warning_message) {
+			this.handleWarningMessage(cfg, response);
 		}
 		
 		//Show confirmation message
 		if (response.confirmation_message) {
-			SU.Manager.executeAction('Confirmation', {
-			    'message': response.confirmation_message,
-			    'useMask': true,
-			    'buttons': [{'id': 'yes'}, {'id': 'no'}]
-			});
-			//@TODO
+			return this.handleConfirmationMessage(cfg, response);
 		}
+		
 		
 		//Missing callbacks, ignore
 		if (!cfg || !cfg.on) return null;
@@ -221,6 +217,8 @@ YUI().add("supra.io", function (Y) {
 		//Call callbacks
 		var fn = response.status ? cfg.on._success : cfg.on._failure;
 		
+		delete(cfg.on._data);
+		delete(cfg.on.data);
 		delete(cfg.on._success);
 		delete(cfg.on._failure);
 		delete(cfg.on.success);
@@ -238,6 +236,113 @@ YUI().add("supra.io", function (Y) {
 		} else {
 			return null;
 		}
+	};
+	
+	/**
+	 * Handle error message parameter
+	 * Show error message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleErrorMessage = function (cfg, response) {
+		//No error or warning messages when "suppress_errors" parameter is set
+		if (cfg.suppress_errors) return;
+		
+		SU.Manager.executeAction('Confirmation', {
+		    'message': response.error_message,
+		    'useMask': true,
+		    'buttons': [
+		        {'id': 'delete', 'label': 'Ok'}
+		    ]
+		});
+	};
+	
+	/**
+	 * Handle warning message parameter
+	 * Show warning message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleWarningMessage = function (cfg, response) {
+		//No error or warning messages when "suppress_errors" parameter is set
+		if (cfg.suppress_errors) return;
+		
+		var message = response.warning_message,
+			single = true;
+		
+		if (Y.Lang.isArray(message)) {
+			if (message.length > 1) {
+				single = false;
+				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+			} else {
+				message = message.shift();
+			}
+		}
+		SU.Manager.executeAction('Confirmation', {
+		    'message': message,
+		    'align': single ? 'center' : 'left',
+		    'useMask': true,
+		    'buttons': [
+		        {'id': 'delete', 'label': 'Ok'}
+		    ]
+		});
+	};
+	
+	/**
+	 * Handle confirmation message parameter
+	 * Show confirmation message
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleConfirmationMessage = function (cfg, response) {
+		SU.Manager.executeAction('Confirmation', {
+		    'message': response.confirmation_message.message,
+		    'useMask': true,
+		    'buttons': [
+		    	{'id': 'yes', 'context': this, 'click': function () { this.handleConfirmationResult(1, cfg, response); }},
+		    	{'id': 'no',  'context': this, 'click': function () { this.handleConfirmationResult(0, cfg, response); }}
+		    ]
+		});
+	};
+	
+	/**
+	 * On message confirm or deny send same request again and add answer to
+	 * the data
+	 * 
+	 * @param {Number} answer Confirmation message answer
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleConfirmationResult = function (answer, cfg, response) {
+		var url = cfg._url;
+		
+		//Restore original values
+		cfg.on.success  = cfg.on._success;
+		cfg.on.failure  = cfg.on._failure;
+		cfg.on.complete = cfg.on._complete;
+		cfg.data     = cfg._data;
+		
+		delete(cfg.on._success);
+		delete(cfg.on._failure);
+		delete(cfg.on._complete);
+		delete(cfg.on._data);
+		delete(cfg.on._url);
+		
+		//Add answer to the request
+		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
+			cfg.data = {};
+		}
+		cfg.data[response.confirmation_message.id] = answer;
+		
+		//Run request again
+		Supra.io(url, cfg);
 	};
 	
 	

@@ -42,6 +42,8 @@ class Command extends SymfonyCommand
 		$em = ObjectRepository::getEntityManager($this);
 		$masterCronJob = $this->getMasterCronEntity();
 
+		$this->fixBrokenCronJobs($em);
+		
 		$em->getConnection()->beginTransaction();
 		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
 		
@@ -69,22 +71,20 @@ class Command extends SymfonyCommand
 				case CronJob::STATUS_OK:
 				case CronJob::STATUS_FAILED:
 					
-					// Lock and set next run time
+					// Lock job
 					$job->setStatus(CronJob::STATUS_LOCKED);
-					$this->updateJobNextExecutionTime($job);
 					$em->flush();
 					
 					$commandInput = new StringInput($job->getCommandInput());
 					$commandOutput = new \Supra\Console\Output\ArrayOutput();
 					
-					//$connection = $em->getConnection();
-					//$connection->beginTransaction();
-					
 					try {
+
 						$return = $cli->doRun($commandInput, $commandOutput);
 						
-						//$connection->commit();
-
+						// workaround for cleared unit of work
+						$job = $repo->find($job->getId());
+						
 						if ($return === 0) {
 							$output = $commandOutput->getOutput();
 							$log->info("Scheduled task {$job->getCommandInput()} finished with output ", $output);
@@ -98,13 +98,16 @@ class Command extends SymfonyCommand
 							$job->setStatus(CronJob::STATUS_FAILED);
 						}
 					} catch (\Exception $e) {
+						
+						$job = $repo->find($job->getId());
+						
 						$output = $commandOutput->getOutput();
 						$log->error("Unexpected failure while running scheduled task {$job->getCommandInput()}: {$e->__toString()}\nOutput: ", $output);
 						
-						$connection->rollBack();
-						
 						$job->setStatus(CronJob::STATUS_FAILED);
 					}
+					
+					$this->updateJobNextExecutionTime($job);
 					
 					break;
 					
@@ -122,13 +125,16 @@ class Command extends SymfonyCommand
 			$em->flush();
 		}
 
+		// if someone will clear UnitOfWork, master cron job will have status `detached`
+		// so it would be safer to fetch it one more time
+		$masterCronJob = $this->getMasterCronEntity();
 		$masterCronJob->setLastExecutionTime($thisTime);
-		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
 		
-		if ($em->getConnection()->isTransactionActive()) {
-			$em->getConnection()->commit();	
-		}
+		$em->lock($masterCronJob, \Doctrine\DBAL\LockMode::NONE);
 		$em->flush();
+		
+		$em->getConnection()
+				->commit();
 		
 	}
 
@@ -153,7 +159,7 @@ class Command extends SymfonyCommand
 			$entity->setStatus(CronJob::STATUS_MASTER);
 			
 			$em->persist($entity);
-			$em->flush();
+			//$em->flush();
 		}
 		
 		return $entity;
@@ -172,6 +178,38 @@ class Command extends SymfonyCommand
 		$previousTime = $job->getNextExecutionTime();
 		$nextTime = $period->getNext($previousTime);
 		$job->setNextExecutionTime($nextTime);
+	}
+	
+	/**
+	 * When something has failed for Cron job execution intervals and
+	 * some task contains next execution time that is less than Master task
+	 * last execution time, we will update this job next execution time
+	 * and hope, that this will help to execute this task next time
+	 */
+	protected function fixBrokenCronJobs(\Doctrine\ORM\EntityManager $em)
+	{
+		$masterJob = $this->getMasterCronEntity();
+		$lastTime = $masterJob->getLastExecutionTime();
+		
+		$nullTime = new \DateTime();
+		$nullTime->setTimestamp(0);
+		
+		$thisTime = new \DateTime();
+		
+		$repo = $em->getRepository(CronJob::CN());
+		/* @var $repo Repository\CronJobRepository */
+		// select all tasks where next execution time is less than last execution time for cron task
+		$jobList = $repo->findScheduled($nullTime, $lastTime);
+		
+		foreach($jobList as $job) {
+			/* @var $job CronJob */
+			$job->setNextExecutionTime($thisTime);
+			$this->updateJobNextExecutionTime($job);
+		}
+		
+		if ( ! empty($jobList)) {
+			$em->flush();
+		}
 	}
 	
 }

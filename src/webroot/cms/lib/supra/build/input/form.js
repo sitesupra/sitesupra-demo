@@ -246,7 +246,7 @@ YUI.add("supra.form", function (Y) {
 			} else {
 				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
-					Y.log('Input configuration must specify ID or NAME', 'error');
+					Y.log('Input configuration must specify ID or NAME', 'debug');
 					return this;
 				}
 				
@@ -404,6 +404,9 @@ YUI.add("supra.form", function (Y) {
 			//Style
 			this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, 'default'));
 			var style = this.get('style');
+			if (!style) {
+				style = this.get('srcNode').getAttribute('suStyle') || '';
+			}
 			if (style) {
 				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
 			}
