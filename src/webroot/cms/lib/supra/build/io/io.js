@@ -245,7 +245,7 @@ YUI().add("supra.io", function (Y) {
 		}
 		
 		//Show confirmation message
-		if (response.confirmation_message) {
+		if (response.confirmation) {
 			return this.handleConfirmationMessage(cfg, response);
 		}
 		
@@ -346,7 +346,7 @@ YUI().add("supra.io", function (Y) {
 	 */
 	Supra.io.handleConfirmationMessage = function (cfg, response) {
 		SU.Manager.executeAction('Confirmation', {
-		    'message': response.confirmation_message.message,
+		    'message': response.confirmation.question,
 		    'useMask': true,
 		    'buttons': [
 		    	{'id': 'yes', 'context': this, 'click': function () { this.handleConfirmationResult(1, cfg, response); }},
@@ -365,6 +365,12 @@ YUI().add("supra.io", function (Y) {
 	 * @private
 	 */
 	Supra.io.handleConfirmationResult = function (answer, cfg, response) {
+		
+		// Wrong answer, do nothing
+		if (response.confirmation.answer != null && response.confirmation.answer != answer) {
+			return;
+		}
+		
 		var url = cfg._url;
 		
 		//Restore original values
@@ -383,7 +389,11 @@ YUI().add("supra.io", function (Y) {
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
 			cfg.data = {};
 		}
-		cfg.data[response.confirmation_message.id] = answer;
+		if (!('_confirmation' in cfg.data)) {
+			cfg.data['_confirmation'] = {};
+		}
+		
+		cfg.data['_confirmation'][response.confirmation.id] = answer;
 		
 		//Run request again
 		Supra.io(url, cfg);

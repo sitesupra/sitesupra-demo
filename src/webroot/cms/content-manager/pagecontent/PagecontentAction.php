@@ -26,8 +26,6 @@ class PagecontentAction extends PageManagerAction
 		$this->isPostRequest();
 		$this->checkLock();
 		
-		$localeId = $this->getLocale()->getId();
-		$media = $this->getMedia();
 		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
 		$request = $this->getPageRequest();
@@ -84,12 +82,9 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		$localeId = $this->getLocale()->getId();
-		$pageData = $this->getPageLocalization();
 		$request = $this->getPageRequest();
 		$input = $this->getRequestInput();
 		
-		$pageId = $pageData->getMaster()->getId();
 		$blockId = $input->get('block_id');
 		
 		/* @var $block Entity\Abstraction\Block */
@@ -125,8 +120,6 @@ class PagecontentAction extends PageManagerAction
 
 			$editable = $property->getEditable();
 
-			$name = $propertyName;
-			$type = $property->getType();
 			$value = null;
 			$valueData = array();
 
@@ -149,7 +142,6 @@ class PagecontentAction extends PageManagerAction
 			}
 
 			// Property select in one DQL
-			$blockPropertyEntity = Entity\BlockProperty::CN();
 
 			// Remove all old references
 			$metadataCollection = $property->getMetadata();
@@ -253,8 +245,6 @@ class PagecontentAction extends PageManagerAction
 		
 		$blocks = $pageRequest->getBlockSet()
 				->getPlaceHolderBlockSet($placeHolder);
-		
-		$maxPosition = max($blockPositionById);
 		
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {

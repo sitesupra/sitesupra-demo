@@ -18,6 +18,8 @@ use Supra\User\Entity\AnonymousUser;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\Controller\Pages\Entity;
 use Supra\FileStorage\Entity as FileEntity;
+use Supra\Cms\Exception\StopExecutionException;
+use Supra\Validator\FilteredInput;
 
 /**
  * Description of CmsAction
@@ -26,7 +28,11 @@ use Supra\FileStorage\Entity as FileEntity;
  */
 abstract class CmsAction extends SimpleController
 {
-
+	/**
+	 * Request array context used for JS to provide confirmation answers
+	 */
+	const CONFIRMATION_ANSWER_CONTEXT = '_confirmation';
+	
 	/**
 	 * Forced request 
 	 * @var string
@@ -72,6 +78,9 @@ abstract class CmsAction extends SimpleController
 			}
 
 			parent::execute();
+		} catch (Exception\StopExecutionException $exception) {
+			// Do nothing
+			$this->log->debug("CMS action excection stopped");
 		} catch (LocalizedException $exception) {
 
 			// No support for not Json actions
@@ -390,6 +399,50 @@ abstract class CmsAction extends SimpleController
 		$message = ucfirst($message);
 
 		$auditLog->info($this, $action, $message, $user, array());
+	}
+	
+	/**
+	 * Sends confirmation message to JavaScript or returns answer if already received
+	 * @param string $question
+	 * @param string $id
+	 * @param boolean $answer by default next request is made only when "Yes"
+	 *		is pressed. Setting to null will make callback for both answers.
+	 */
+	protected function getConfirmation($question, $id = '0', $answer = true)
+	{
+		$input = $this->getRequestInput();
+		$confirmationPool = $input->getChild(self::CONFIRMATION_ANSWER_CONTEXT, true);
+		
+		/* @var $confirmationPool FilteredInput */
+		
+		if ($confirmationPool->has($id)) {
+			$userAnswer = $confirmationPool->getValid($id, 'boolean');
+			
+			// Any answer is OK
+			if (is_null($answer)) {
+				return $userAnswer;
+			}
+			
+			// Match
+			if ($userAnswer === $answer) {
+				return $userAnswer;
+			
+			// Wrong answer, in fact JS didn't need to do this request anymore
+			} else {
+				throw new CmsException(null, "Wrong answer");
+			}
+		}
+		
+		$confirmationResponsePart = array(
+			'id' => $id,
+			'question' => $question,
+			'answer' => $answer
+		);
+		
+		$this->getResponse()
+				->addResponsePart('confirmation', $confirmationResponsePart);
+		
+		throw new StopExecutionException();
 	}
 
 }

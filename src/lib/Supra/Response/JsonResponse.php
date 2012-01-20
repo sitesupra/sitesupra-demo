@@ -20,10 +20,10 @@ class JsonResponse extends HttpResponse
 	private $errorMessage;
 	
 	/**
-	 * Confirmation message
-	 * @var string
+	 * Additional response parts
+	 * @var array
 	 */
-	private $confirmationMessage;
+	private $responseParts = array();
 	
 	/**
 	 * Status message. Boolean true/false or 1/0
@@ -74,12 +74,13 @@ class JsonResponse extends HttpResponse
 	}
 
 	/**
-	 * Sets confirmation message
-	 * @param string $confirmationMessage
+	 * Add aditional response part in main JSON object
+	 * @param string $name
+	 * @param mixed $value
 	 */
-	public function setConfirmationMessage($confirmationMessage)
+	public function addResponsePart($name, $value)
 	{
-		$this->confirmationMessage = $confirmationMessage;
+		$this->responseParts[$name] = $value;
 	}
 
 	/**
@@ -112,14 +113,18 @@ class JsonResponse extends HttpResponse
 	 */
 	private function generateOutput()
 	{
-		$responseData = array(
+		$response = array(
 			"status" => $this->status,
 			"data" => $this->responseData,
 			"error_message" => $this->errorMessage,
-			"confirmation_message" => $this->confirmationMessage,
 		);
+		
+		// Append other parts, don't overwrite existing
+		if (is_array($this->responseParts)) {
+			$response += $this->responseParts;
+		}
 				
-		$this->output($responseData);
+		$this->output($response);
 	}
 	
 	/**

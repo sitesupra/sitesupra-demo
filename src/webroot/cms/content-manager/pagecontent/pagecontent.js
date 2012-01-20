@@ -180,7 +180,7 @@ SU('dd-drag', function (Y) {
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);
 					
 					//Disable "Publish" button is there are no permissions for that
-					var button_publish = Supra.Manager.PageButtons.buttons.Page[0];
+					var button_publish = Supra.Manager.PageButtons.buttons.PageContent[0];
 					
 					if (!Supra.Permission.get('page', data.id, 'publish', false)) {
 						button_publish.set('disabled', true);

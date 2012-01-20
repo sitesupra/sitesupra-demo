@@ -33,7 +33,7 @@ $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 $listener = new BlockExecuteListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
-$listener = new \Supra\Log\Logger\SqlLogger();
-$eventManager->listen($listener->getSubscribedEvents(), $listener);
+//$listener = new \Supra\Log\Logger\SqlLogger();
+//$eventManager->listen($listener->getSubscribedEvents(), $listener);
 
 ObjectRepository::setDefaultEventManager($eventManager);

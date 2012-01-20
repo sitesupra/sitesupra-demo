@@ -337,6 +337,10 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->getResponse()->setResponseData($array);
+		
+		// TODO: implement in CmsAction
+		$this->getResponse()
+				->addResponsePart('permissions', array(array('edit' => true, 'publish' => true)));
 	}
 
 	/**
