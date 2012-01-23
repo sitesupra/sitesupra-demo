@@ -23,8 +23,8 @@
 		//Catch JS errors
 		'catchNativeErrors': false,
 		
-		//Keep alive session by periodically pinging server
-		'sessionKeepAlive': false,
+		//Session check by periodically pinging server
+		'sessionCheckPings': false,
 		
 		
 		/**
@@ -117,9 +117,9 @@
 		},
 		
 		/**
-		 * On sessionKeepAlive change start/stop timer
+		 * On sessionCheckPings change start/stop timer
 		 */
-		_sessionKeepAliveChange: function (newVal, prevVal) {
+		_sessionCheckPingsChange: function (newVal, prevVal) {
 			if (newVal !== prevVal) {
 				if (newVal) {
 					Supra.session.ping();
