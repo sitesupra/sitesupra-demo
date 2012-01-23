@@ -871,6 +871,8 @@ abstract class PageManagerAction extends CmsAction
 		
 		$existingLocalization = $master->getLocalization($sourceLocaleId);
 		
+		$this->checkActionPermission($master, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+		
 		if (is_null($existingLocalization)) {
 			throw new CmsException(null, "No source page [{$sourceLocaleId}] was found");
 		}

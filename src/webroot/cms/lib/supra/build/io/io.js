@@ -84,12 +84,21 @@ YUI().add("supra.io", function (Y) {
 				//Invalid response
 				Y.log('Request to "' + url + '" failed', 'debug');
 				
-				return Supra.io.handleResponse(cfg, {
-					'status': 0,
-					'success': false,
-					'data': null,
-					'error_message': ERROR_INVALID_RESPONSE
-				});
+				if (response.responseText) {
+					
+					var response = Supra.io.parseResponse(url, cfg, response.responseText);
+					
+					return Supra.io.handleResponse(cfg, response);
+					
+				} else {
+					
+					return Supra.io.handleResponse(cfg, {
+						'status': 0,
+						'success': false,
+						'data': null,
+						'error_message': ERROR_INVALID_RESPONSE
+					});
+				}				
 				
 			}
 		};
@@ -315,24 +324,35 @@ YUI().add("supra.io", function (Y) {
 		//No error or warning messages when "suppress_errors" parameter is set
 		if (cfg.suppress_errors) return;
 		
-		var message = response.warning_message,
-			single = true;
+		var message,
+			single;
 		
-		if (Y.Lang.isArray(message)) {
-			if (message.length > 1) {
-				single = false;
-				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
-			} else {
+		if (Y.Lang.isArray(response.warning_message)) {
+			
+			message = response.warning_message;
+
+			if(message.length == 0) {
+				return;
+			}
+			else if(message.lenght == 1) {
+				
+				single = true;
 				message = message.shift();
 			}
-		}
+			else if (message.length > 1) {
+				
+				single = false;
+				message = '{#error.warnings#}<ul><li>' + message.join('</li><li>') + '</li></ul>';
+			}
+		} 
+		
 		SU.Manager.executeAction('Confirmation', {
-		    'message': message,
-		    'align': single ? 'center' : 'left',
-		    'useMask': true,
-		    'buttons': [
-		        {'id': 'delete', 'label': 'Ok'}
-		    ]
+			'message': message,
+			'align': single ? 'center' : 'left',
+			'useMask': true,
+			'buttons': [
+				{'id': 'delete', 'label': 'Ok'}
+			]
 		});
 	};
 	

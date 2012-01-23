@@ -12,31 +12,42 @@ class JsonResponse extends HttpResponse
 	 * @var array
 	 */
 	private $responseData;
-	
+
 	/**
 	 * Error message
 	 * @var string
 	 */
 	private $errorMessage;
-	
+
 	/**
 	 * Additional response parts
 	 * @var array
 	 */
 	private $responseParts = array();
-	
+
 	/**
 	 * Status message. Boolean true/false or 1/0
 	 * @var boolean
 	 */
 	private $status = 1;
-	
+
 	/**
 	 * If the data is already sent
 	 * @var boolean
 	 */
 	private $dataSent = false;
-	
+
+	/**
+	 * Array of warning messages.
+	 * @var array
+	 */
+	private $warningMessages = array();
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
 	/**
 	 * @param mixed $data 
 	 */
@@ -44,7 +55,7 @@ class JsonResponse extends HttpResponse
 	{
 		$this->responseData = $data;
 	}
-	
+
 	/**
 	 * Allows pushing values to the response data array
 	 * @param mixed $data
@@ -55,11 +66,11 @@ class JsonResponse extends HttpResponse
 		if (is_null($this->responseData)) {
 			$this->responseData = array();
 		}
-		
+
 		if ( ! is_array($this->responseData)) {
-			throw new Exception\RuntimeException("Cannot append data to JsonResponse, data is not an array");
+			throw new Exception\RuntimeException('Cannot append data to JsonResponse, data is not an array');
 		}
-		
+
 		$this->responseData[] = $data;
 	}
 
@@ -91,7 +102,7 @@ class JsonResponse extends HttpResponse
 	{
 		$this->status = $status;
 	}
-			
+
 	/**
 	 * Do json encoding before passing to the parent, called internally only
 	 * @param array $data
@@ -99,24 +110,25 @@ class JsonResponse extends HttpResponse
 	public function output($data)
 	{
 		if ($this->dataSent) {
-			throw new Exception\LogicException("Cannot output more then once");
+			throw new Exception\LogicException('Cannot output more then once');
 		}
-		
+
 		$dataJson = json_encode($data);
 		parent::output($dataJson);
-		
+
 		$this->dataSent = true;
 	}
-	
+
 	/**
 	 * Converts the output data into stream
 	 */
 	private function generateOutput()
 	{
 		$response = array(
-			"status" => $this->status,
-			"data" => $this->responseData,
-			"error_message" => $this->errorMessage,
+			'status' => $this->status,
+			'data' => $this->responseData,
+			'error_message' => $this->errorMessage,
+			'warning_message' => $this->warningMessages
 		);
 		
 		// Append other parts, don't overwrite existing
@@ -126,15 +138,20 @@ class JsonResponse extends HttpResponse
 				
 		$this->output($response);
 	}
-	
+
 	/**
 	 * Flushes output
 	 */
 	public function flush()
 	{
 		$this->generateOutput();
-		
+
 		parent::flush();
 	}
-	
+
+	public function addWarningMessage($message)
+	{
+		$this->warningMessages[] = $message;
+	}
+
 }

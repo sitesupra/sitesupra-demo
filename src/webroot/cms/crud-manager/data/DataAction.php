@@ -39,14 +39,13 @@ class DataAction extends CrudManagerAbstractAction
 		// if crud manager is sortable, then we overwrite orderings
 		if ($repo->isSortable()) {
 			$qb->orderBy('e.position', 'asc');
-		}
+		}	
 		$query = $qb->getQuery();
 		
 		$results = $query->getResult();
 		
 		$query = $em->createQuery("SELECT COUNT(e) as totalCount FROM {$configuration->entity} e");
-		$queryResult = $query->getResult();
-		$totalCount = $queryResult[0]['totalCount'];
+		$totalCount = $query->getSingleScalarResult();
 
 		$data = array();
 		foreach ($results as $result) {

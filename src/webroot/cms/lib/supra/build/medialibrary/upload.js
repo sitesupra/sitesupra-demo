@@ -701,10 +701,12 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			
 			//Add listeners
 			if (!disabled) {
-				this.subscribers.push(node.on('dragenter', this.dragEnter, this));
-				this.subscribers.push(node.on('dragexit', this.dragExit, this));
-				this.subscribers.push(node.on('dragover', this.dragOver, this));
-				this.subscribers.push(node.on('drop', this.dragDrop, this));
+				if (FILE_API_SUPPORTED) {
+					this.subscribers.push(node.on('dragenter', this.dragEnter, this));
+					this.subscribers.push(node.on('dragexit', this.dragExit, this));
+					this.subscribers.push(node.on('dragover', this.dragOver, this));
+					this.subscribers.push(node.on('drop', this.dragDrop, this));
+				}
 			}
 			
 			return !!disabled;

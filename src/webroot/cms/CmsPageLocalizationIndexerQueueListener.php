@@ -32,8 +32,8 @@ class CmsPageLocalizationIndexerQueueListener
 	}
 
 	/**
-	 * Will add published pages into search indexer queue
-	 * @param CmsPagePublishEventArgs $eventArgs
+	 * Will remove indexed pages from search indexer 
+	 * @param CmsPageDeleteEventArgs $eventArgs
 	 */
 	public function postPageDelete(CmsPageDeleteEventArgs $eventArgs)
 	{

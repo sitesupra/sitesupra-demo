@@ -117,9 +117,11 @@ abstract class CmsAction extends SimpleController
 			}
 
 			$response->setCode(403);
-			$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
+			$response->setErrorMessage('You don\'t have permission to perform this action.<br />Contact your supervisor.');
+			//$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 
 			$this->log->warn($e);
+			
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();

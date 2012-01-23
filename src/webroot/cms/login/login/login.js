@@ -144,6 +144,9 @@ SU('supra.input', 'cookie', function (Y) {
 				//Hide form
 				this.hide();
 				
+				//Restore pinging
+				Supra.session.ping();
+				
 				//Execute requests which were queued
 				Supra.io.loginRequestQueue.run();
 			}
@@ -199,6 +202,9 @@ SU('supra.input', 'cookie', function (Y) {
 			} else {
 				this.loginform.getInput('supra_password').focus();
 			}
+			
+			//Disable ping
+			Supra.session.cancelPing();
 		}
 		
 	});
