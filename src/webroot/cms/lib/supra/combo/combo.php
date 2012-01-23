@@ -79,17 +79,12 @@ function getCache($eTag) {
 
 function getEtag($files)
 {
-	global $pre, $checkFileModificationTime;
+	global $css, $pre, $checkFileModificationTime;
 	$cacheSource = array();
 	$cacheSource[] = filemtime(__FILE__);
 	foreach ($files as $file) {
-		$cacheSource[] = $file;
-		
 		if ($checkFileModificationTime) {
-			if ( ! is_file($pre . $file)) {
-				die();
-			}
-			$cacheSource[] = filemtime($pre . $file);
+			$cacheSource += getFileMtime($file);
 		}
 	}
 	return md5(implode(',', $cacheSource));
@@ -100,13 +95,7 @@ function writeFiles($files, $eTag) {
     $outFile = '';
     $out = '';
     foreach ($files as $file) {
-		$outFile = @file_get_contents($pre . $file);
-
-		if ($css) {
-			//Add path for images which are in same folder as CSS file
-			$dir = dirname($file);
-			$outFile = preg_replace("/url\(([^\/]*)\)/", "url($dir/$1)", $outFile);
-		}
+		$outFile = getFileContent($file);
 
 		$out .= $outFile . "\n";
     }
@@ -120,6 +109,68 @@ function writeFiles($files, $eTag) {
 	}
 	
     return $out;
+}
+
+function getFileMtime($file)
+{
+	global $css, $pre;
+	
+	$cacheSource = array();
+	
+	$files = array($pre . $file);
+	
+	// Try searching for .less file
+	if ($css) {
+		$lessFile = $pre . $file . '.less';
+		
+		if (file_exists($lessFile)) {
+			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
+			require_once $lessPhp;
+			$less = new SupraLessCFileList($lessFile);
+			$less->setRootDir($pre);
+			$less->parse();
+			$files = $less->getFileList();
+		}
+	}
+	
+	foreach ($files as $file) {
+		$cacheSource[] = $file;
+		$cacheSource[] = filemtime($file);
+	}
+	
+	return $cacheSource;
+}
+
+function getFileContent($file)
+{
+	global $css, $pre;
+	
+	$outFile = null;
+	
+	// Try searching for .less file
+	if ($css) {
+		$lessFile = $pre . $file . '.less';
+		
+		if (file_exists($lessFile)) {
+			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
+			require_once $lessPhp;
+			$less = new SupraLessC($lessFile);
+			$less->setRootDir($pre);
+			$outFile = $less->parse();
+		}
+	}
+
+	if (is_null($outFile)) {
+		$outFile = @file_get_contents($pre . $file);
+	}
+
+	if ($css) {
+		//Add path for images which are in same folder as CSS file
+		$dir = dirname($file);
+		$outFile = preg_replace("/url\(([^\/]*)\)/", "url($dir/$1)", $outFile);
+	}
+
+	return $outFile;
 }
 
 if ($css) {
