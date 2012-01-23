@@ -19,11 +19,36 @@ YUI().add("supra.io-session", function (Y) {
 		timeout_handler: null,
 		
 		/**
+		 * Has there been any activity since last ping
+		 * @type {Boolean}
+		 * @private
+		 */
+		activity: false,
+		
+		/**
+		 * Mouse event listener
+		 * @type {Object}
+		 * @private
+		 */
+		activity_mouse_listener: null,
+		
+		/**
+		 * Key event listener
+		 * @type {Object}
+		 * @private
+		 */
+		activity_key_listener: null,
+		
+		
+		/**
 		 * Ping server
 		 */
 		ping: function () {
 			if (this.timeout_handler) return;
 			this.timeout_handler = Y.later(PING_INTERVAL, this, this._pingRequest, null, true);
+			
+			this.activity = false;
+			this._addActivityListeners();
 		},
 		
 		/**
@@ -33,7 +58,46 @@ YUI().add("supra.io-session", function (Y) {
 			if (this.timeout_handler) {
 				this.timeout_handler.cancel();
 				this.timeout_handler = null;
+				
+				this.activity = false;
+				this._removeActivityListeners();
 			}
+		},
+		
+		/**
+		 * Remove activity event listeners
+		 * 
+		 * @private
+		 */
+		_removeActivityListeners: function () {
+			if (this.activity_mouse_listener) {
+				this.activity_mouse_listener.detach();
+				this.activity_key_listener.detach();
+				
+				this.activity_mouse_listener = null;
+				this.activity_key_listener = null;
+			}
+		},
+		
+		/**
+		 * Add activity event listenesr
+		 * 
+		 * @private
+		 */
+		_addActivityListeners: function () {
+			if (!this.activity_mouse_listener) {
+				var doc = new Y.Node(document);
+				this.activity_mouse_listener = doc.on('click', this.triggerActivity, this);
+				this.activity_key_listener = doc.on('keydown', this.triggerActivity, this);
+			}
+		},
+		
+		/**
+		 * Change activity state
+		 */
+		triggerActivity: function () {
+			this.activity = true;
+			this._removeActivityListeners();
 		},
 		
 		/**
@@ -42,7 +106,15 @@ YUI().add("supra.io-session", function (Y) {
 		 * @private
 		 */
 		_pingRequest: function () {
-			Supra.io(PING_URI);
+			Supra.io(PING_URI, {
+				'data': {
+					'activity': this.activity
+				}
+			});
+			
+			//Add activity event listeners
+			this.activity = false;
+			this._addActivityListeners();
 		}
 	};
 	

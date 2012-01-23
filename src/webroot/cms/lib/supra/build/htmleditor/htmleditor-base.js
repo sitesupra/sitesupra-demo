@@ -373,6 +373,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 */
 		_changed: function () {
 			this.fire('change');
+			Supra.session.triggerActivity();
 		}
 		
 	});

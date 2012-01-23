@@ -296,6 +296,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 				},
 				'context': context
 			});
+			
+			//Global activity
+			Supra.session.triggerActivity();
 		},
 		
 		/**
@@ -323,6 +326,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 						
 			//Change page version title
 			Manager.getAction('PageHeader').setVersionTitle('autosaved');
+			
+			//Global activity
+			Supra.session.triggerActivity();
 		},
 		
 		/**
@@ -377,6 +383,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 					}
 				}}
 			}, context);
+			
+			//Global activity
+			Supra.session.triggerActivity();
 		},
 		
 		/**
@@ -422,6 +431,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 					}
 				}}
 			}, context);
+			
+			//Global activity
+			Supra.session.triggerActivity();
 		},
 		
 		/**

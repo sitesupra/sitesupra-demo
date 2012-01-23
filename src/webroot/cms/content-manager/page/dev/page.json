@@ -137,10 +137,10 @@
 			}
 		]
 	},
-	'permissions': [
+	"permissions": [
 		{
-			'edit': true,
-			'publish': true
+			"edit": true,
+			"publish": true
 		}
 	]
 }
