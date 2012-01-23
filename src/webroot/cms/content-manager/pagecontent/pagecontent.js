@@ -161,7 +161,7 @@ SU('dd-drag', function (Y) {
 		onStartEditingRoute: function (req) {
 			var page = Manager.getAction('Page'),
 				data = page.getPageData(),
-				is_allowed = Supra.Permission.get('page', data.id, 'edit', false);
+				is_allowed = Supra.Permission.get('page', data.id, 'edit_page', false);
 			
 			if (!this.editing && is_allowed) {
 				//Check lock status
@@ -182,7 +182,7 @@ SU('dd-drag', function (Y) {
 					//Disable "Publish" button is there are no permissions for that
 					var button_publish = Supra.Manager.PageButtons.buttons.PageContent[0];
 					
-					if (!Supra.Permission.get('page', data.id, 'publish', false)) {
+					if (!Supra.Permission.get('page', data.id, 'supervise_page', false)) {
 						button_publish.set('disabled', true);
 					} else {
 						button_publish.set('disabled', false);

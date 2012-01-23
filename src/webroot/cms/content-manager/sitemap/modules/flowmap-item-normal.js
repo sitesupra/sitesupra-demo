@@ -50,7 +50,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			var data = this.get('data');
 			
 			//Permissions
-			if (!Supra.Permission.get('page', data.id, 'edit', false)) {
+			if (!Supra.Permission.get('page', data.id, 'edit_page', false)) {
 				//Can't edit
 				this.get('boundingBox').one('.edit').addClass('edit-hidden');
 				
@@ -99,7 +99,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 			
 			//Disable drag and drop
 			var page_id = this.get('data').id;
-			if (!Supra.Permission.get('page', page_id, 'edit', false)) {
+			if (!Supra.Permission.get('page', page_id, 'edit_page', false)) {
 				if (this.dd) this.dd.set('lock', true);
 			}
 			
@@ -419,7 +419,7 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		 */
 		unlockChildren: function () {
 			this.each(function () {
-				if (Supra.Permission.get('page', this.get('data').id, 'edit', false)) {
+				if (Supra.Permission.get('page', this.get('data').id, 'edit_page', false)) {
 					if (this.dd) {
 						this.dd.set('lock', false);
 						if (this.dd.target) {

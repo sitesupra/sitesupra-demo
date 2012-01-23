@@ -201,7 +201,7 @@ Supra(function (Y) {
 			
 			//Is user authorized to edit page?
 			if (status && data) {
-				allow_edit = Supra.Permission.get('page', data.id, 'edit', false);
+				allow_edit = Supra.Permission.get('page', data.id, 'edit_page', false);
 				if (allow_edit === true && data.allow_edit === false) {
 					allow_edit = false;
 				}
@@ -330,7 +330,7 @@ Supra(function (Y) {
 				page_data = this.getPageData();
 			
 			//Permissions
-			if (!Supra.Permission.get('page', page_data.id, 'publish', false)) {
+			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {
 				return false;
 			}
 			
