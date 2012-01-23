@@ -59,6 +59,11 @@ class AuthorizationProvider
 	private $log;
 
 	/**
+	 * @var array
+	 */
+	protected $authirzedEntityClassAliases;
+
+	/**
 	 * Constructs AuthorizationProvider
 	 */
 	public function __construct()
@@ -69,8 +74,10 @@ class AuthorizationProvider
 		$this->registerPermission(new ApplicationAllAccessPermission());
 		$this->registerPermission(new ApplicationSomeAccessPermission());
 		$this->registerPermission(new ControllerExecutePermission());
+
+		$this->authirzedEntityAliases = array();
 	}
-	
+
 	/**
 	 * @return AclProvider
 	 */
@@ -82,11 +89,11 @@ class AuthorizationProvider
 			$permissionGrantingStrategy = new PermissionGrantingStrategy();
 
 			$tables = array(
-					'class_table_name' => 'acl_classes',
-					'entry_table_name' => self::ACL_ENTRY_TABLE_NAME,
-					'oid_table_name' => 'acl_object_identities',
-					'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
-					'sid_table_name' => 'acl_security_identities',
+				'class_table_name' => 'acl_classes',
+				'entry_table_name' => self::ACL_ENTRY_TABLE_NAME,
+				'oid_table_name' => 'acl_object_identities',
+				'oid_ancestors_table_name' => 'acl_object_identity_ancestors',
+				'sid_table_name' => 'acl_security_identities',
 			);
 
 			$this->aclProvider = new AclProvider(
@@ -94,8 +101,17 @@ class AuthorizationProvider
 							$permissionGrantingStrategy,
 							$tables);
 		}
-		
+
 		return $this->aclProvider;
+	}
+
+	/**
+	 * @param string $alias
+	 * @param string $class 
+	 */
+	public function registerAuthorizedEntityClassAlias($alias, $class)
+	{
+		$this->authirzedEntityClassAliases[$alias] = $class;
 	}
 
 	/* TODO: Check for overlapping masks in same class/sublclass tree */
@@ -119,8 +135,7 @@ class AuthorizationProvider
 					$existingPermission->getMask() != $mask
 			) {
 				throw new Exception\ConfigurationException('Permission type named "' . $name . '" is already registered');
-			}
-			else {
+			} else {
 				return;
 			}
 		}
@@ -159,6 +174,24 @@ class AuthorizationProvider
 	}
 
 	/**
+	 * @param string $id
+	 * @param string $classAlias
+	 * @return ObjectIdentity 
+	 */
+	public function createObjectIdentityWithClassAlias($id, $classAlias)
+	{
+		if (empty($this->authirzedEntityClassAliases[$classAlias])) {
+			throw new Exception\RuntimeException('Authorized entity alias "' . $classAlias . '" is not known.');
+		}
+
+		$class = $this->authirzedEntityClassAliases[$classAlias];
+
+		$objectIdentity = $this->createObjectIdentity($id, $class);
+
+		return $objectIdentity;
+	}
+
+	/**
 	 * Registers generic authorized entity permission type.
 	 * @param string $name
 	 * @param integer $mask
@@ -180,8 +213,7 @@ class AuthorizationProvider
 	{
 		if ( ! isset($this->permissionsByName[$permissionName])) {
 			throw new Exception\ConfigurationException('Permission type named "' . $permissionName . '" is not registered');
-		}
-		else {
+		} else {
 
 			if ( ! empty($objectToCheck)) {
 
@@ -189,8 +221,7 @@ class AuthorizationProvider
 
 				if ($objectToCheck instanceof ObjectIdentity) {
 					$permissionsForObject = $this->getPermissionsForClass($objectToCheck->getType());
-				}
-				else {
+				} else {
 					$permissionsForObject = $this->getPermissionsForObject($objectToCheck);
 				}
 
@@ -260,17 +291,13 @@ class AuthorizationProvider
 
 		if ($object instanceof ObjectIdentity) {
 			$objectIdentity = $object;
-		}
-		else if ($object instanceof AuthorizedEntityInterface) {
+		} else if ($object instanceof AuthorizedEntityInterface) {
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), $object->getAuthorizationClass());
-		}
-		else if ($object instanceof AuthorizedControllerInterface) {
+		} else if ($object instanceof AuthorizedControllerInterface) {
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), self::AUTHORIZED_CONTROLLER_INTERFACE);
-		}
-		else if ($object instanceof ApplicationConfiguration) {
+		} else if ($object instanceof ApplicationConfiguration) {
 			$objectIdentity = new ObjectIdentity($object->getAuthorizationId(), self::APPLICATION_CONFIGURATION_CLASS);
-		}
-		else {
+		} else {
 			throw new Exception\ConfigurationException('Do not know how to get object identity from ' . get_class($object));
 		}
 
@@ -358,8 +385,7 @@ class AuthorizationProvider
 			}
 
 			$acl->insertObjectAce($userSecurityIdentity, $permission->getAllowMask(), $newAceIndex);
-		}
-		else if ($newPermissionStatus == PermissionStatus::DENY) {
+		} else if ($newPermissionStatus == PermissionStatus::DENY) {
 
 			// If status is not changed, do nothing.
 			if ($currentPermissionStatus == PermissionStatus::DENY) {
@@ -380,8 +406,7 @@ class AuthorizationProvider
 			}
 
 			$acl->insertObjectAce($userSecurityIdentity, $permission->getDenyMask(), $newAceIndex);
-		}
-		else if ($newPermissionStatus == PermissionStatus::NONE) {
+		} else if ($newPermissionStatus == PermissionStatus::NONE) {
 
 			// If current permission status is not NONE, there is Ace 
 			// entry (ALLOW or DENY) which has to be removed.
@@ -399,8 +424,7 @@ class AuthorizationProvider
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			throw new Exception\ConfigurationException('Bad permission status value! use constants from AuthorizationPermission class!');
 		}
 
@@ -448,8 +472,7 @@ class AuthorizationProvider
 
 						$result = PermissionStatus::ALLOW;
 						break;
-					}
-					else if ($ace->getMask() == $permission->getDenyMask()) {
+					} else if ($ace->getMask() == $permission->getDenyMask()) {
 
 						$result = PermissionStatus::DENY;
 						break;
@@ -476,8 +499,7 @@ class AuthorizationProvider
 		try {
 			$acls = $this->getAclProvider()->findAcls(array($objectIdentity));
 			$acl = $acls->offsetGet($objectIdentity);
-		}
-		catch (AclNotFoundException $e) {
+		} catch (AclNotFoundException $e) {
 			// do nothing.
 		}
 
@@ -510,19 +532,16 @@ class AuthorizationProvider
 
 				if ($permissionStatus == PermissionStatus::ALLOW) {
 					return true;
-				}
-				else if ($permissionStatus == PermissionStatus::DENY) {
+				} else if ($permissionStatus == PermissionStatus::DENY) {
 					return false;
 				}
 			}
-		}
-		else {
+		} else {
 			$permissionStatus = $this->getPermissionStatus($user, $object, $permissionName);
 
 			if ($permissionStatus == PermissionStatus::ALLOW) {
 				return true;
-			}
-			else if ($permissionStatus == PermissionStatus::DENY) {
+			} else if ($permissionStatus == PermissionStatus::DENY) {
 				return false;
 			}
 		}
@@ -582,8 +601,7 @@ class AuthorizationProvider
 						if ($permission) {
 							if ($permission->getAllowMask() == $ace->getMask()) {
 								$resultRow[$permission->getName()] = PermissionStatus::ALLOW;
-							}
-							else if ($permission->getDenyMask() == $ace->getMask()) {
+							} else if ($permission->getDenyMask() == $ace->getMask()) {
 								$resultRow[$permission->getName()] = PermissionStatus::DENY;
 							}
 						}
@@ -592,6 +610,24 @@ class AuthorizationProvider
 			}
 
 			$results[$oid->getIdentifier()] = $resultRow;
+		}
+
+		return $results;
+	}
+
+	public function getPermissionStatusesForAuthorizedEntity(AbstractUser $user, $object)
+	{
+		$objectIdentity = $this->getObjectIdentity($object);
+
+		$class = $objectIdentity->getType();
+
+		$permissionNamesForClass = array_keys($this->getPermissionsForClass($class));
+
+		$results = array();
+		
+		foreach($permissionNamesForClass as $permissionName) {
+			
+			$results[$permissionName] = $this->isPermissionGranted($user, $objectIdentity, $permissionName);
 		}
 
 		return $results;

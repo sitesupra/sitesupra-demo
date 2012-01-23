@@ -175,6 +175,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	
 	public static function registerPermissions(AuthorizationProvider $ap) 
 	{
+		$ap->registerAuthorizedEntityClassAlias('page', get_called_class());
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_EDIT_PAGE, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_SUPERVISE_PAGE, __CLASS__);
 	}

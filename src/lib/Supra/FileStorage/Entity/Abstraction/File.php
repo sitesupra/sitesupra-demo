@@ -453,6 +453,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	
 	public static function registerPermissions(AuthorizationProvider $ap) 
 	{
+		$ap->registerAuthorizedEntityClassAlias('file', get_called_class());
 		$ap->registerGenericEntityPermission(self::PERMISSION_DELETE_NAME, self::PERMISSION_DELETE_MASK, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_UPLOAD_NAME, self::PERMISSION_UPLOAD_MASK, __CLASS__);
 	}

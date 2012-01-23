@@ -7,6 +7,7 @@ namespace Supra\Response;
  */
 class JsonResponse extends HttpResponse
 {
+
 	/**
 	 * Response data
 	 * @var array
@@ -42,6 +43,12 @@ class JsonResponse extends HttpResponse
 	 * @var array
 	 */
 	private $warningMessages = array();
+
+	/**
+	 * Array of permission info passed along/with response.
+	 * @var array
+	 */
+	private $permissions;
 
 	public function __construct()
 	{
@@ -128,14 +135,15 @@ class JsonResponse extends HttpResponse
 			'status' => $this->status,
 			'data' => $this->responseData,
 			'error_message' => $this->errorMessage,
-			'warning_message' => $this->warningMessages
+			'warning_message' => $this->warningMessages,
+			'permissions' => $this->permissions
 		);
-		
+
 		// Append other parts, don't overwrite existing
 		if (is_array($this->responseParts)) {
 			$response += $this->responseParts;
 		}
-				
+
 		$this->output($response);
 	}
 
@@ -149,9 +157,23 @@ class JsonResponse extends HttpResponse
 		parent::flush();
 	}
 
+	/**
+	 * Adds a warning message to the response. Message(s) will be 
+	 * displayed to the user.
+	 * @param string $message 
+	 */
 	public function addWarningMessage($message)
 	{
 		$this->warningMessages[] = $message;
+	}
+
+	/**
+	 * Sets "permissions" section of response.
+	 * @param array $permissions 
+	 */
+	public function setResponsePermissions($permissions)
+	{
+		$this->permissions = $permissions;
 	}
 
 }

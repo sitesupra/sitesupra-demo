@@ -20,6 +20,7 @@ use Supra\Controller\Pages\Entity;
 use Supra\FileStorage\Entity as FileEntity;
 use Supra\Cms\Exception\StopExecutionException;
 use Supra\Validator\FilteredInput;
+use Supra\Cms\CheckPermissions\CheckPermissionsController;
 
 /**
  * Description of CmsAction
@@ -32,7 +33,7 @@ abstract class CmsAction extends SimpleController
 	 * Request array context used for JS to provide confirmation answers
 	 */
 	const CONFIRMATION_ANSWER_CONTEXT = '_confirmation';
-	
+
 	/**
 	 * Forced request 
 	 * @var string
@@ -67,8 +68,11 @@ abstract class CmsAction extends SimpleController
 			$debugRequest['confirm_password'] = '******';
 		}
 
+		\Log::debug('QQQQQQQQQQQQQQQQQQ: ', $this->getRequest()->getQuery());
+
 		// Handle localized exceptions
 		try {
+			$request = $this->getRequest();
 
 			$response = $this->getResponse();
 			$localeId = $this->getLocale()->getId();
@@ -76,6 +80,8 @@ abstract class CmsAction extends SimpleController
 			if ($response instanceof TwigResponse) {
 				$response->assign('currentLocale', $localeId);
 			}
+
+			$this->processCheckPermissions();
 
 			parent::execute();
 		} catch (StopExecutionException $exception) {
@@ -121,7 +127,6 @@ abstract class CmsAction extends SimpleController
 			//$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 
 			$this->log->warn($e);
-			
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
@@ -352,7 +357,7 @@ abstract class CmsAction extends SimpleController
 		if ($appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($user)) {
 			return true;
 		}
-		
+
 		throw new ApplicationAccessDeniedException($user, $this);
 	}
 
@@ -402,49 +407,80 @@ abstract class CmsAction extends SimpleController
 
 		$auditLog->info($this, $action, $message, $user, array());
 	}
-	
+
 	/**
 	 * Sends confirmation message to JavaScript or returns answer if already received
 	 * @param string $question
 	 * @param string $id
 	 * @param boolean $answer by default next request is made only when "Yes"
-	 *		is pressed. Setting to null will make callback for both answers.
+	 * 		is pressed. Setting to null will make callback for both answers.
 	 */
 	protected function getConfirmation($question, $id = '0', $answer = true)
 	{
 		$input = $this->getRequestInput();
 		$confirmationPool = $input->getChild(self::CONFIRMATION_ANSWER_CONTEXT, true);
-		
+
 		/* @var $confirmationPool FilteredInput */
-		
+
 		if ($confirmationPool->has($id)) {
 			$userAnswer = $confirmationPool->getValid($id, 'boolean');
-			
+
 			// Any answer is OK
 			if (is_null($answer)) {
 				return $userAnswer;
 			}
-			
+
 			// Match
 			if ($userAnswer === $answer) {
 				return $userAnswer;
-			
-			// Wrong answer, in fact JS didn't need to do this request anymore
+
+				// Wrong answer, in fact JS didn't need to do this request anymore
 			} else {
 				throw new CmsException(null, "Wrong answer");
 			}
 		}
-		
+
 		$confirmationResponsePart = array(
 			'id' => $id,
 			'question' => $question,
 			'answer' => $answer
 		);
-		
+
 		$this->getResponse()
 				->addResponsePart('confirmation', $confirmationResponsePart);
-		
+
 		throw new StopExecutionException();
 	}
+
+	private function processCheckPermissions()
+	{
+		$request = $this->getRequest();
+
+		$query = $request->getQuery();
+		
+		if ( $query->hasChild(CheckPermissionsController::REQUEST_KEY_CHECK_PERMISSIONS)) {
+
+			$entitiesToQuery = $query->getChild(CheckPermissionsController::REQUEST_KEY_CHECK_PERMISSIONS);
+
+			$result = array();
+
+			$ap = ObjectRepository::getAuthorizationProvider($this);
+
+			$user = $this->getUser();
+
+			foreach ($entitiesToQuery as $entityToQuery) {
+
+				$id = $entityToQuery[CheckPermissionsController::REQUEST_KEY_ID];
+				$classAlias = $entityToQuery[CheckPermissionsController::REQUEST_KEY_TYPE];
+
+				$objectIdentity = $ap->createObjectIdentityWithClassAlias($id, $classAlias);
+
+				$result[] = $ap->getPermissionStatusesForAuthorizedEntity($user, $objectIdentity);
+			}
+
+			$this->getResponse()
+					->setResponsePermissions($result);
+		}
+ 	}
 
 }
