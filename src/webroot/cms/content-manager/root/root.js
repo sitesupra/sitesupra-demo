@@ -216,20 +216,22 @@ Supra(function (Y) {
 				//Search in path "/r/page/:page_id"
 				var page_id = this.getPath().match(this.ROUTE_PAGE_R);
 				if (page_id) {
+					//Extracted from path
 					page_id = {'id': page_id[1]};
 				} else {
-					page_id = Supra.data.get('page', {'id': 0});
+					//From data
+					page_id = Supra.data.get(['page', 'id'], null);
 				}
 				
-				SU.Manager.executeAction('Page', page_id);
-				SU.Manager.executeAction('Template');
-				
-				//Search /h/sitemap in path
-				if (this.getPath() == this.ROUTE_SITEMAP) {
+				//If there is no page ID or /h/sitemap is in path, then open SiteMap
+				if (!page_id || this.getPath() == this.ROUTE_SITEMAP) {
 					SU.Manager.executeAction('SiteMap');
 					
 					//Remove loading style
 					Y.one('body').removeClass('loading');
+				} else {
+					SU.Manager.executeAction('Page', page_id);
+					SU.Manager.executeAction('Template');
 				}
 			});
 			
