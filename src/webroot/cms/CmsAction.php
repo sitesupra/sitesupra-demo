@@ -68,8 +68,6 @@ abstract class CmsAction extends SimpleController
 			$debugRequest['confirm_password'] = '******';
 		}
 
-		\Log::debug('QQQQQQQQQQQQQQQQQQ: ', $this->getRequest()->getQuery());
-
 		// Handle localized exceptions
 		try {
 			$request = $this->getRequest();
