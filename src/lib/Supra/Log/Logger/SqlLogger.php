@@ -7,11 +7,11 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\LogEvent;
 use Supra\Controller\Pages\Event\SqlEvents;
-
+use Supra\Controller\Pages\Event\SqlEventsArgs;
 /**
  * Sql class
  */
-class SqlLogger implements SQLLoggerInterface
+class SqlLogger
 {
 	/**
 	 * @var string
@@ -79,11 +79,11 @@ class SqlLogger implements SQLLoggerInterface
 	/**
 	 * {@inheritdoc}
 	 */
-	public function startQuery($sql, array $params = null, array $types = null)
+	public function startQuery(SqlEventsArgs $eventArgs)
 	{
-		$this->sql = $sql;
-		$this->params = (array) $params;
-		$this->types = $types;
+		$this->sql = $eventArgs->sql;
+		$this->params = (array) $eventArgs->params;
+		$this->types = $eventArgs->types;
 		$this->start = microtime(true);
 		
 		// Fix DateTime object logging
