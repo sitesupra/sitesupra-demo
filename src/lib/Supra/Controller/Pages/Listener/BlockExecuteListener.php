@@ -16,34 +16,31 @@ use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
  */
 class BlockExecuteListener implements EventSubscriber
 {
-	
+
 	/**
 	 * Statistics output array
 	 * @var array
 	 */
 	private $statisticsData;
-	
+
 	/**
 	 * Block queries counter
 	 * @var integer
 	 */
 	private $queriesCounter = 0;
-	
-	
+
 	/**
 	 * Block queries execution time counter
 	 * @var float
 	 */
 	private $queriesTimeCounter = 0;
-	
-	
+
 	/**
 	 * Show is block on run now
 	 * @var boolean
 	 */
 	private $runBlockFlag = false;
-	
-	
+
 	/**
 	 * Return subscribed events list
 	 * @return array
@@ -58,7 +55,7 @@ class BlockExecuteListener implements EventSubscriber
 			SqlEvents::stopQuery,
 		);
 	}
-	
+
 	/**
 	 * Start of the block execution event handler
 	 * @param BlockEventsArgs $eventArgs 
@@ -68,9 +65,9 @@ class BlockExecuteListener implements EventSubscriber
 		$this->queriesCounter = 0;
 		$this->queriesTimeCounter = 0;
 		$this->runBlockFlag = true;
-		$this->statisticsData[] = $eventArgs->blockClass .' - start;';		
+		//$this->statisticsData[] = $eventArgs->blockClass .' - start;';		
 	}
-	
+
 	/**
 	 * End of the block execution event handler
 	 * @param BlockEventsArgs $eventArgs 
@@ -78,47 +75,61 @@ class BlockExecuteListener implements EventSubscriber
 	public function blockEndExecuteEvent(BlockEventsArgs $eventArgs)
 	{
 		$this->runBlockFlag = false;
+
+		$time = round($eventArgs->duration * 1000);
+
 		$message = $eventArgs->blockClass .
-			' - end; execution time: ' .
-			"{$eventArgs->duration} seconds;";
-			
-		if($this->queriesCounter) {	
-		
-			$message .= " executed {$this->queriesCounter} ".
-			"queries in {$this->queriesTimeCounter} seconds.";
-			
+				' - executed in ' .
+				"{$time} milliseconds;";
+
+		if ($this->queriesCounter) {
+
+			$time = round($this->queriesTimeCounter * 1000);
+
+			$message .= " executed {$this->queriesCounter} " .
+					"queries in {$time} milliseconds.";
 		}
-		
+
 		$this->statisticsData[] = $message;
 	}
-	
+
 	/**
 	 * Start query execution event handler
 	 * @param SqlEventsArgs $eventArgs 
 	 */
-	public function startQuery(SqlEventsArgs $eventArgs){}
-	
+	public function startQuery(SqlEventsArgs $eventArgs)
+	{
+		
+	}
+
 	/**
 	 * Stop query execution event handler
 	 * @param SqlEventsArgs $eventArgs
 	 * @return void 
 	 */
-	public function stopQuery(SqlEventsArgs $eventArgs){
-		
-		if( ! $this->runBlockFlag ) {
+	public function stopQuery(SqlEventsArgs $eventArgs)
+	{
+
+		if ( ! $this->runBlockFlag) {
 			return;
 		}
-		
+
 		$time = $eventArgs->stopTime - $eventArgs->startTime;
 		$this->queriesTimeCounter += $time;
-		$this->queriesCounter++;		
-		
+		$this->queriesCounter ++;
 	}
-	
-	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs){
-		/**
-		 * @todo do something on all page end execution
-		 */
+
+	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
+	{
+
+
+		$response = new \Supra\Response\TwigResponse($this);
+		$response->assign('debugData', $this->statisticsData);
+		$response->outputTemplate('block_execute_listener.js.twig');
+
+		$eventArgs->response
+				->getContext()
+				->addJsToLayoutSnippet('js', $response);
 	}
-	
+
 }

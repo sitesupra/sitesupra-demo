@@ -1,0 +1,8 @@
+if(typeof console != 'undefined' ) {
+
+	{% for key, value in debugData %}				
+		console.log({{ value | json_encode | raw}});
+	{% endfor %} 
+
+}
+
