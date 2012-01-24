@@ -17,7 +17,15 @@ class HttpResponse implements ResponseInterface
 
 	const STATUS_OK = 200;
 	const STATUS_NO_CONTENT = 204;
+	const STATUS_MOVED_PERMANENTLY = 301;
+	const STATUS_FOUND = 302;
+	const STATUS_SEE_OTHER = 303;
 	const STATUS_NOT_MODIFIED = 304;
+	const STATUS_TEMPORARY_REDIRECT = 307;
+	
+	// Redirect types
+	const REDIRECT_PERMAMENT = 301;
+	const REDIRECT_TEMPORARY = 302;
 
 	/**
 	 * @var ResponseContext
@@ -39,12 +47,12 @@ class HttpResponse implements ResponseInterface
 		205 => 'Reset Content',
 		206 => 'Partial Content',
 		300 => 'Multiple Choices',
-		301 => 'Moved Permanently',
-		302 => 'Found',
-		303 => 'See Other',
+		self::STATUS_MOVED_PERMANENTLY => 'Moved Permanently',
+		self::STATUS_FOUND => 'Found',
+		self::STATUS_SEE_OTHER => 'See Other',
 		self::STATUS_NOT_MODIFIED => 'Not Modified',
 		305 => 'Use Proxy',
-		307 => 'Temporary Redirect',
+		self::STATUS_TEMPORARY_REDIRECT => 'Temporary Redirect',
 		400 => 'Bad Request',
 		401 => 'Unauthorized',
 		402 => 'Payment Required',
@@ -211,10 +219,29 @@ class HttpResponse implements ResponseInterface
 	 * Redirect response
 	 * @param string $location
 	 */
-	public function redirect($location)
+	public function redirect($location, $type = self::REDIRECT_TEMPORARY)
 	{
 		$this->redirect = true;
 		$this->header('Location', $location);
+		
+		// Calculate status depending on HTTP version and redirect type
+		$status = null;
+		
+		if ($this->protocolVersion == '1.1') {
+			if ($type == self::REDIRECT_PERMAMENT) {
+				$status = self::STATUS_MOVED_PERMANENTLY;
+			} else {
+				$status = self::STATUS_SEE_OTHER;
+			}
+		} else {
+			if ($type == self::REDIRECT_PERMAMENT) {
+				$status = self::STATUS_MOVED_PERMANENTLY;
+			} else {
+				$status = self::STATUS_FOUND;
+			}
+		}
+		
+		$this->setCode($status);
 	}
 
 	/**
