@@ -10,12 +10,22 @@ use Supra\Database\Entity;
 class Campaign extends Entity
 {
 
+	const STATUS_NEW = 10;
+	const STATUS_READY_TO_SEND = 20;
+	const STATUS_INACTIVE = 30;
+	
+	
 	/**
 	 * @ManyToOne(targetEntity="SubscriberList")
 	 */
 	protected $subscriberList;
+	
+	public function setSubscriberList(SubscriberList $subscriberList)
+	{
+		$this->subscriberList = $subscriberList;
+	}
 
-	/**
+		/**
 	 * @Column(type="string", name="subject", nullable=false)
 	 * @var string
 	 */

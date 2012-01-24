@@ -1,8 +1,17 @@
 <?php
+
 namespace Supra\Mailer\MassMail;
+
+use Supra\ObjectRepository;
 
 class MassMail
 {
+	private $entityManager;
+	
+	public function __construct(){
+		$this->entityManager = ObjectRepository::getEntityManager($this);		
+	}
+	
 	/**
 	 * Campaign manager instance
 	 * @var Manager\CampaignManager
@@ -34,7 +43,7 @@ class MassMail
 	public function getSubscriberListManager()
 	{
 		if($this->subscriberListManager == null) {
-			$this->subscriberListManager = new Manager\SubscriberListManager();
+			$this->subscriberListManager = new Manager\SubscriberListManager($this->entityManager);
 		}
 		
 		return $this->subscriberListManager;
@@ -47,7 +56,7 @@ class MassMail
 	public function getCampaignManager()
 	{
 		if($this->campaignManager == null) {
-			$this->campaignManager = new Manager\CampaignManager();
+			$this->campaignManager = new Manager\CampaignManager($this->entityManager);
 		}
 		
 		return $this->campaignManager;
@@ -60,7 +69,7 @@ class MassMail
 	public function getSendQueueManager()
 	{
 		if($this->sendQueueManager == null) {
-			$this->sendQueueManager = new Manager\SendQueueManager;
+			$this->sendQueueManager = new Manager\SendQueueManager($this->entityManager);
 		}
 		
 		return $this->sendQueueManager;
@@ -71,13 +80,21 @@ class MassMail
 	 * @return Manager\SubscriberManager
 	 */
 	public function getSubscriberManager()
-	{
-		
+	{	
 		if($this->subscriberManager == null) {
-			$this->subscriberManager = new Manager\SubscriberManager();
+			$this->subscriberManager = new Manager\SubscriberManager($this->entityManager);
 		}
 
 		return $this->subscriberManager;	
+	}
+
+	/**
+	 * Flush entities changes
+	 */
+	public function flush(){
+	
+		$this->entityManager->flush();
+		
 	}
 	
 }
