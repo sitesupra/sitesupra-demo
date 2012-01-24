@@ -31,7 +31,7 @@ $locale->addProperty('flag', 'ru');
 $locale->addProperty('language', 'ru'); // as per ISO 639-1
 $localeManagerTemplate->add($locale);
 
-$localeManagerTemplate->setCurrent('en_LV');
+$localeManagerTemplate->setCurrent('en');
 
 {
 	$localeManager = clone($localeManagerTemplate);
