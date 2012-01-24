@@ -89,12 +89,21 @@ class HttpRequest implements RequestInterface
 		if (isset($_FILES)) {
 			$this->setPostFiles($_FILES);
 		}
-
-		if ( ! isset($_SERVER['SCRIPT_URL'])) {
-			throw new Exception\InvalidRequest("Script URL not set in Http request object");
+		
+		$pathInfo = null;
+		$pathInfoOffsets = array('PATH_INFO', 'ORIG_PATH_INFO', 'SCRIPT_URL');
+		
+		foreach ($pathInfoOffsets as $pathInfoOffset) {
+			if (isset($_SERVER[$pathInfoOffset])) {
+				$pathInfo = $_SERVER[$pathInfoOffset];
+			}
 		}
 
-		$this->requestUri = $_SERVER['SCRIPT_URL'];
+		if (is_null($pathInfo)) {
+			throw new Exception\InvalidRequest("Script URL not set in Http request object");
+		}
+		
+		$this->requestUri = $pathInfo;
 		Log::info('Request URI: ', $this->requestUri);
 
 		$path = new Path($this->requestUri);
