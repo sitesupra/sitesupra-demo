@@ -4,6 +4,7 @@ use Supra\ObjectRepository\ObjectRepository;
 
 $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerConfiguration();
 $sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
+$sessionManagerConfiguration->sessionExpirationTime = 1440;
 $sessionManagerConfiguration->isDefault = false;
 $sessionManagerConfiguration->namespaces = array(
 	'Supra\Cms\AuthenticationPreFilterController',
