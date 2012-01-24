@@ -361,17 +361,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				value = null;
 			}
 			
-			var callback = Y.bind(this.onLinkManagerClose, this);
-			
 			//Disable editing for everything else
 			Supra.Manager.PageContent.getContent().set('disabled', true);
 			
 			//Open link manager
-			Supra.Manager.executeAction('PageLinkManager', value, {
-				'callback': callback,
-				'groupsSelectable': false,
+			Supra.Manager.executeAction('LinkManager', value, {
+				'mode': 'page',
 				'hideToolbar': true
-			});
+			}, this.onLinkManagerClose, this);
 		},
 		
 		/**
@@ -625,14 +622,18 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.setFormValue('version', page_data);
 			*/
 			
-			//Set redirect value
-			this.form.getInput('redirect').setValue(page_data.redirect);
-			
-			//Set template info
-			this.setFormValue('template', page_data);
-			
-			//Set redirect info
-			this.setFormValue('redirect', page_data);
+			if (this.getType() == 'page') {
+				//Templates doesn't have 'redirect' or 'template'
+				
+				//Set redirect value
+				this.form.getInput('redirect').setValue(page_data.redirect);
+				
+				//Set template info
+				this.setFormValue('template', page_data);
+				
+				//Set redirect info
+				this.setFormValue('redirect', page_data);
+			}
 		},
 		
 		/**
@@ -710,6 +711,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		saveSettingsChanges: function () {
 			var page_data = this.page_data,
 				form_data = this.form.getValuesObject();
+			
+			//Scroll to first slide
+			this.slideshow.set('slide', 'slideMain')
 			
 			//Remove unneeded form data for save request
 			//Scheduled and created date/time are in page_data

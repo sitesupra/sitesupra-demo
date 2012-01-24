@@ -18,11 +18,8 @@ YUI.add('supra.input-link', function (Y) {
 		'label_set': {
 			'value': '{#form.set_link#}'
 		},
-		'action_link_manager': {
-			'value': 'LinkManager'
-		},
-		'groupsSelectable': {
-			'value': false
+		'mode': {
+			'value': 'link'
 		}
 	};
 	
@@ -54,7 +51,6 @@ YUI.add('supra.input-link', function (Y) {
 		 */
 		openLinkManager: function () {
 			var value = this.get('value');
-			var callback = Y.bind(this.onLinkManagerClose, this);
 			
 			//Save previous right layout container action to restore
 			//it after 
@@ -80,11 +76,10 @@ YUI.add('supra.input-link', function (Y) {
 				}
 			}
 			
-			Manager.executeAction(this.get('action_link_manager'), value, {
-				'groupsSelectable': this.get('groupsSelectable'),
-				'hideToolbar': true,
-				'callback': callback
-			});
+			Manager.executeAction('LinkManager', value, {
+				'mode': this.get('mode'),
+				'hideToolbar': true
+			}, this.onLinkManagerClose, this);
 		},
 		
 		/**

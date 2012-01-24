@@ -252,8 +252,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		// the only case when we need to skip this step is
 		// when request is "session check" action
 		$updateSession = true;
+		$userActivity = $request->getParameter('activity', null);
 		$checkSessionPath = trim($this->getBasePath() . '/' . $this->checkSessionPath, '/');
-		if ($uri == $checkSessionPath) {
+		if ($uri == $checkSessionPath && ! $userActivity) {
 			$updateSession = false;
 		}
 		$sessionUser = $userProvider->getSignedInUser($updateSession);

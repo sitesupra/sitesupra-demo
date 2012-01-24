@@ -1,6 +1,22 @@
 //Invoke strict mode
 "use strict";
 
+/**
+ * Link Manager
+ * 
+ * Execute arguments:
+ *   data - Link Data
+ *   options - Link manager options
+ *   callback - Link manager close event callback, new link data is passed as first argument
+ *   context - Callback execution context
+ * 
+ * Options:
+ *   mode - Mode can be 'link' (to choose page, image or file), 'page' (to choose page) or 'image' (to choose only 'image')
+ *   selectable - List of selectable items, use only if you can't do the same with 'mode' option:
+ *     {'pages': true, 'external': true, 'images': true, 'files': true}
+ *   hideToolbar - toolbar buttons will be hidden while link manager is open
+ *   hideLinkControls - link controls will be hidden, default is false
+ */
 SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
@@ -10,6 +26,29 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 	
 	//Add as right bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('LinkManager');
+	
+	//Modes
+	var MODES = {
+		'link': {
+			//In link mode is also shown "Remove link" button
+			'pages': true,
+			'external': true,
+			'images': true,
+			'files': true
+		},
+		'page': {
+			'pages': true,
+			'external': true,
+			'images': false,
+			'files': false
+		},
+		'image': {
+			'pages': false,
+			'external': false,
+			'images': true,
+			'files': false
+		}
+	};
 	
 	//Create Action class
 	new Action(Action.PluginContainer, {
@@ -37,21 +76,46 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		
 		
 		/**
-		 * Buttons
-		 * @type {Object}
+		 * Current mode
+		 * @type {String}
 		 */
-		button_cancel: null,
-		button_back: null,
-		button_remove: null,
+		mode: null,
 		
 		/**
-		 * Link to file / link to page slideshow, Supra.Slideshow instance
+		 * List of selectable item types
+		 * @type {Object}
+		 */
+		selectable: {},
+		
+		/**
+		 * Manager options
+		 * @type {Object}
+		 */
+		options: {},
+		
+		/**
+		 * Callback function
+		 * @type {Function}
+		 */
+		callback: null,
+		
+		/**
+		 * Callback function execution context
+		 * @type {Object}
+		 */
+		context: null,
+		
+		
+		
+		
+		/**
+		 * "Link to file" / "Link to page" slideshow, Supra.Slideshow instance
 		 * @type {Object}
 		 */
 		slideshow: null,
 		
 		/**
-		 * Link slideshow, Supra.Slideshow instance
+		 * "Internal" / "External" slideshow, Supra.Slideshow instance
 		 * @type {Object}
 		 */
 		link_slideshow: null,
@@ -68,11 +132,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		form: null,
 		
-		/**
-		 * New link or editing existing one
-		 * @type {Boolean}
-		 */
-		is_new: false,
+		
 		
 		/**
 		 * Link data
@@ -84,7 +144,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * Original data with which link manager was opened
 		 * @type {Object}
 		 */
-		original_data: null,
+		initial_data: null,
 		
 		/**
 		 * Last known locale
@@ -92,24 +152,45 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 */
 		locale: null,
 		
-		/**
-		 * Link manager options
-		 * @type {Object}
-		 */
-		options: null,
 		
 		
 		/**
-		 *  
+		 * Initialize main widgets
+		 * Widgets specific to file or page are created when slide is opened
+		 * 
+		 * @private
 		 */
 		initialize: function () {
 			//Load media library Intl data
-			var app_path = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('MediaLibrary');
-			Supra.Intl.loadAppData(app_path);
+				var app_path = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('MediaLibrary');
+				Supra.Intl.loadAppData(app_path);
+			
+			//Create main slideshow
+				this.slideshow = new Supra.Slideshow({
+					'srcNode': this.one('div.slideshow')
+				});
+			
+			//Back and Close buttons
+				var buttons = this.all('button');
+				
+				this.button_back   = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
+				this.button_close  = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
+				this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
+			
+			//Remove link button
+				var button = this.one('.yui3-sidebar-footer button');
+				this.button_remove = new Supra.Button({'srcNode': button});
+				
+			//Create form
+				this.form = new Supra.Form({
+					'srcNode': this.one('form')
+				});
 		},
 		
 		/**
-		 * Render widgets and add event listeners
+		 * Render main widgets and add event listeners
+		 * 
+		 * @private
 		 */
 		render: function () {
 			//Toolbar buttons
@@ -117,73 +198,85 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
 			//Slideshow widget
-			this.slideshow = new Supra.Slideshow({
-				'srcNode': this.one('div.slideshow')
-			});
-			
-			this.slideshow.render();
-			this.slideshow.after('slideChange', this.onSlideshowSlideChange, this);
-			
-			//
-			var links = this.all('#linkToRoot a[data-slideshow]');
-				links.on('click', this.onSlideshowLinkClick, this);
-			
+				this.slideshow.render();
+				this.slideshow.after('slideChange', this.onMainSlideChange, this);
+				
+				//When layout position/size changes update slide position
+				Manager.LayoutLeftContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
+				
+				//On main slide link click open specific slide
+				var links = this.all('#linkToRoot a[data-slideshow]');
+					links.on('click', this.openTargetSlide, this);
 			
 			//Back and Close buttons
-			var buttons = this.all('button');
+				this.button_back
+						.render()
+						.hide()
+						.on('click', this.scrollBack, this);
+				
+				this.button_close
+						.render()
+						.on('click', this.close, this);
+				
+				this.button_insert
+						.render()
+						.on('click', this.close, this);
 			
-			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
-			this.button_back.render();
-			this.button_back.hide();
-			this.button_back.on('click', this.scrollBack, this);
-			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
-			this.button_close.render();
-			this.button_close.on('click', this.close, this);
-			
-			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
-			this.button_insert.render();
-			this.button_insert.on('click', this.close, this);
-			
-			//Remove button
-			var button = this.one('.yui3-sidebar-footer button');
-			this.button_remove = new Supra.Button({'srcNode': button});
-			this.button_remove.render();
-			this.button_remove.on('click', this.removeLink, this);
-			
-			//When layout position/size changes update slide position
-			Manager.LayoutLeftContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
+			//Remove link button
+				this.button_remove
+						.render()
+						.on('click', this.removeLink, this);
 			
 			//Create form
-			this.form = new Supra.Form({
-				'srcNode': this.one('form')
-			});
-			this.form.render();
+				this.form.render();
 		},
 		
 		/**
 		 * On slideshow slide change update heading, button visibility
 		 * and call appropriate callback function: onLinkToPage or onLinkToFile
+		 * 
+		 * @param {Object} evt Event object
+		 * @private
 		 */
-		onSlideshowSlideChange: function (evt) {
-			if (evt.newVal != evt.prevVal) {
-				var heading = this.one('h2.yui3-sidebar-header span');
+		onMainSlideChange: function (evt) {
+			if (evt.newVal == evt.prevVal) return;
+			
+			var slide_id = evt.newVal,
+				heading = this.one('h2.yui3-sidebar-header span'),
 				
-				if (this.slideshow.history.length <= 1) {
+				fn = null,
+				node = null,
+				
+				show_back_button = true,
+				selectable = this.selectable,
+				medialibrary_visible = selectable.files || selectable.images,
+				link_visible = selectable.pages || selectable.external;
+			
+			//Show or hide back button
+				if (!medialibrary_visible || !link_visible) {
+					//If media library or link manager can't be selected
+					//then there is no need to go to root slide
+					if (this.slideshow.history.length <= 2) {
+						show_back_button = false;
+					}
+				} else if (this.slideshow.history.length <= 1) {
+					show_back_button = false;
+				}
+				
+				if (!show_back_button) {
 					this.button_back.hide();
 					heading.hide();
 				} else {
 					this.button_back.show();
-					heading.set('text', SU.Intl.get(['linkmanager', evt.newVal == 'linkToPage' ? 'title_page' : 'title_file']));
+					heading.set('text', SU.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']));
 					heading.show();
 				}
-				
-				var fn = 'on' + evt.newVal.substr(0,1).toUpperCase() + evt.newVal.substr(1);
-				if (fn in this) {
-					var node = this.slideshow.getSlide(evt.newVal);
-					this[fn](node);
+			
+			//Call slide callback if there is one
+				if (slide_id in this.slide) {
+					var node = this.slideshow.getSlide(slide_id);
+					this.slide[slide_id].call(this, node);
 				}
-			}
 		},
 		
 		/**
@@ -213,13 +306,13 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			}
 			
 			this.slideshow.scrollBack();
-			this.updateButtonUI();
+			this.updateInsertButton();
 		},
 		
 		/**
 		 * On slideshow link click navigate to slide
 		 */
-		onSlideshowLinkClick: function (e) {
+		openTargetSlide: function (e) {
 			var target = e.target.closest('a'),
 				id = target.getAttribute('data-slideshow');
 			
@@ -229,98 +322,253 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		},
 		
 		/**
-		 * On link slide create widgets, etc.
-		 * 
-		 * @param {Object} node
+		 * When slide is selected one of these callbacks will be called
 		 */
-		onLinkToPage: function (node) {
-			if (!this.link_slideshow) {
-				//Internal / External
-					//Create slideshow
-					var slideshow = this.link_slideshow = (new Supra.Slideshow({
-						'srcNode': node.one('div.slideshow')
-					})).render();
-					
-					//On Internal / External switch show slide
-					this.form.getInput('linkManagerType').on('change', function (evt) {
-						var slide = 'linkManager' + evt.value.substr(0,1).toUpperCase() + evt.value.substr(1);
-						slideshow.set('slide', slide);
-					}, this);
-					
-					//On href change update button label
-					this.form.getInput('href').on('change', this.updateButtonUI, this);
-					
-					//When layout position/size changes update slide position
-					Manager.LayoutLeftContainer.layout.on('sync', this.link_slideshow.syncUI, this.link_slideshow);
-					
-					this.link_slideshow.on('slideChange', this.updateButtonUI, this);
-				//Create tree
-					//Use sitemap data
-					this.locale = Supra.data.get('locale');
-					var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
-											'?locale=' + this.locale +
-											'&existing_only=1';
+		slide: {
+			/**
+			 * When "Link to page" slide is opened update state
+			 * and create widgets if needed
+		 	* 
+		 	* @param {Object} node Container node
+			 */
+			linkToPage: function (node) {
+				if (!this.link_slideshow) {
+					//Internal / External
+						//Create slideshow
+						var slideshow = this.link_slideshow = (new Supra.Slideshow({
+							'srcNode': node.one('div.slideshow')
+						})).render();
+						
+						//On "Internal / External" switch value change show slide
+						this.form.getInput('linkManagerType').on('change', function (evt) {
+							var slide = 'linkManager' + evt.value.substr(0,1).toUpperCase() + evt.value.substr(1);
+							slideshow.set('slide', slide);
+						}, this);
+						
+						//On "Internal / External" hide show slide
+						this.form.getInput('linkManagerType').on('visibleChange', function (evt) {
+							if (evt.prevVal != evt.newVal) {
+								if (evt.newVal) {
+									Y.one('#linkToPage').removeClass('no-switch');
+								} else {
+									Y.one('#linkToPage').addClass('no-switch');
+								}
+							}
+						}, this);
+						
+						//On href change update button label
+						this.form.getInput('href').on('change', this.updateInsertButton, this);
+						
+						//When layout position/size changes update slide position
+						Manager.LayoutLeftContainer.layout.on('sync', this.link_slideshow.syncUI, this.link_slideshow);
+						
+						this.link_slideshow.on('slideChange', this.updateInsertButton, this);
 					
 					//Create tree
-					this.tree = new SU.Tree({
-						srcNode: node.one('.tree'),
-						requestUri: sitemap_data_path,
-						groupNodesSelectable: this.options.groupsSelectable
-					});
-					this.tree.plug(SU.Tree.ExpandHistoryPlugin);
-					this.tree.render();
-					
-					//On node change update button label
-					this.tree.after('selectedNodeChange', this.updateButtonUI, this);
-			}
+						//Use sitemap data
+						this.locale = Supra.data.get('locale');
+						var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+												'?locale=' + this.locale +
+												'&existing_only=1';
+						
+						//Create tree
+						this.tree = new SU.Tree({
+							srcNode: node.one('.tree'),
+							requestUri: sitemap_data_path,
+							groupNodesSelectable: false
+						});
+						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
+						this.tree.render();
+						
+						//On node change update button label
+						this.tree.after('selectedNodeChange', this.updateInsertButton, this);
+				}
+				
+				this.updateBackButton();
+				this.updateInsertButton();
+			},
 			
-			this.updateButtonUI();
+			/**
+			 * When "Link to file" slide is opened create widgets
+			 * and reload medialist
+			 * 
+			 * @param {Object} node
+			 */
+			linkToFile: function (node) {
+				if (!this.medialist) {
+					//"Open App" button
+						var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
+						btn.on('click', function () {
+							Manager.executeAction('MediaLibrary');
+							Manager.getAction('MediaLibrary').once('hide', function () {
+								//Reload data
+								this.medialist.reload();
+							}, this);
+						}, this);
+						btn.render();
+						
+					//Create list widget
+						var medialibrary = Manager.getAction('MediaLibrary');
+						var list = this.medialist = (new Supra.MediaLibraryList({
+							'srcNode': node.one('#linkToFileMediaList'),
+							'foldersSelectable': false,
+							'filesSelectable': false,
+							'listURI': medialibrary.getDataPath('list'),
+							'viewURI': medialibrary.getDataPath('view'),
+							'displayType': this.getMediaListDisplayType()
+						})).render();
+						
+						//On file select change button to "Insert"
+						list.slideshow.after('slideChange', this.updateInsertButton, this);
+						list.slideshow.after('slideChange', this.updateBackButton, this);
+						
+						//When layout position/size changes update slide position
+						Manager.LayoutLeftContainer.layout.on('sync', list.slideshow.syncUI, list.slideshow);
+				} else {
+					//Update displayType
+						var display_type = this.getMediaListDisplayType();
+						if (display_type != this.medialist.get('displayType')) {
+							this.medialist.set('displayType', display_type);
+						}
+					
+					//Reload data
+						this.medialist.reload();
+				}
+			},
 		},
 		
 		/**
-		 * On slide create widgets, etc.
+		 * Returns media list display type based on what can be selected
 		 * 
-		 * @param {Object} node
+		 * @return Display type
+		 * @type {Number}
+		 * @private
 		 */
-		onLinkToFile: function (node) {
-			if (!this.medialist) {
-				//"Open App" button
-					var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
-					btn.on('click', function () {
-						Manager.executeAction('MediaLibrary');
-						Manager.getAction('MediaLibrary').once('hide', function () {
-							//Reload data
-							this.medialist.reload();
-						}, this);
-					}, this);
-					btn.render();
-					
-				//Create list widget
-					var medialibrary = Manager.getAction('MediaLibrary');
-					var list = this.medialist = (new Supra.MediaLibraryList({
-						'srcNode': node.one('#linkToFileMediaList'),
-						'foldersSelectable': false,
-						'filesSelectable': false,
-						'listURI': medialibrary.getDataPath('list'),
-						'viewURI': medialibrary.getDataPath('view'),
-						'displayType': Supra.MediaLibraryList.DISPLAY_ALL
-					})).render();
-					
-					//On file select change button to "Insert"
-					list.slideshow.after('slideChange', this.updateButtonUI, this);
+		getMediaListDisplayType: function () {
+			var display_type = Supra.MediaLibraryList.DISPLAY_ALL;
+			
+			if (!this.selectable.files) {
+				//Images only
+				display_type = Supra.MediaLibraryList.DISPLAY_IMAGES;
+			} else if (this.selectable.images) {
+				//Files only
+				display_type = Supra.MediaLibraryList.DISPLAY_FILES;
+			}
+			
+			return display_type;
+		},
+		
+		/**
+		 * Update button label to "Insert" or "Close"
+		 * 
+		 * @private
+		 */
+		updateInsertButton: function () {
+			var show_insert = false;
+			
+			switch(this.slideshow.get('slide')) {
+				case 'linkToPage':
+					switch(this.link_slideshow.get('slide')) {
+						case 'linkManagerInternal':
+							//Tree tab
+							if (this.tree.get('selectedNode')) {
+								show_insert = true;
+							}
+							break;
+						case 'linkManagerExternal':
+							//External href input tab
+							if (Y.Lang.trim(this.form.getInput('href').get('value'))) {
+								show_insert = true;
+							}
+							break;
+					}
+					break;
+				case 'linkToFile':
+					//Media library tab
+					var item = this.medialist.getSelectedItem();
+					if (item && item.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+						show_insert = true;
+					}
+					break;
+			}
+			
+			this.button_close.set('visible', !show_insert);
+			this.button_insert.set('visible', show_insert);
+		},
+		
+		/**
+		 * Update back button visibilty when in media library slide
+		 */
+		updateBackButton: function () {
+			switch(this.slideshow.get('slide')) {
+				case 'linkToFile':
+					//Don't show back button on first slide if there is no 'linkToPage' slide
+					if (!this.selectable.pages && !this.selectable.external) {
+						if (this.medialist.slideshow.history.length <= 1) {
+							this.button_back.hide();
+						} else {
+							this.button_back.show();
+						}
+					}
+					break;
+			}
+		},
+			
+		/**
+		 * Update UI so that user can select only items matching
+		 * configuration (options.selectable)
+		 * 
+		 * @private
+		 */
+		setDisplayMode: function (selectable) {
+			//Update settings
+			Supra.mix(this.selectable, selectable);
+			
+			if (!selectable.files && !selectable.images) {
+				//Only pages can be selected
+				this.slideshow.set('noAnimations', true);
+				this.slideshow.scrollBack();
+				this.slideshow.set('slide', 'linkToPage');
+				this.slideshow.set('noAnimations', false);
+				
+				//Switch between Internal and External not needed?
+				if (!selectable.pages || !selectable.external) {
+					this.form.getInput('linktype').hide();
+				} else {
+					this.form.getInput('linktype').show();
+				}
+				
+				if (!selectable.pages) {
+					//Only external link
+					this.link_slideshow.set('noAnimations', true);
+					this.link_slideshow.set('slide', 'linkManagerExternal');
+					this.link_slideshow.set('noAnimations', false);
+				} else if (!selectable.external) {
+					//Only pages link
+					this.link_slideshow.set('noAnimations', true);
+					this.link_slideshow.set('slide', 'linkManagerInternal');
+					this.link_slideshow.set('noAnimations', false);
+				}
+				
+			} else if (!selectable.pages && !selectable.external) {
+				//Only files or images can be selected
+				this.slideshow.set('noAnimations', true);
+				this.slideshow.scrollBack();
+				this.slideshow.set('slide', 'linkToFile');
+				this.slideshow.set('noAnimations', false);
 			} else {
-				this.medialist.reload();
+				this.form.getInput('linktype').show();
 			}
 		},
 		
 		/**
 		 * Restore state matching data
 		 * 
-		 * @param {Object} data
+		 * @param {Object} data Link data
+		 * @private
 		 */
 		setData: function (data) {
-			this.original_data = data;
-			this.is_new = !data;
+			this.initial_data = data;
 			
 			data = SU.mix({
 				'type': '',
@@ -336,12 +584,19 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			}, data || {});
 			
 			//Show footer for existing link and hide for new link
-			if (this.is_new) {
+			if (this.mode == 'link' && !data.page_id && !data.file_id && !data.href) {
 				this.one('.yui3-sidebar-footer').addClass('hidden');
 				this.one('.yui3-sidebar-content').removeClass('has-footer');
 			} else {
 				this.one('.yui3-sidebar-footer').removeClass('hidden');
 				this.one('.yui3-sidebar-content').addClass('has-footer');
+			}
+			
+			//Hide link controls?
+			if (this.options.hideLinkControls) {
+				this.one('.yui3-sidebar-content').removeClass('has-link-controls');
+			} else {
+				this.one('.yui3-sidebar-content').addClass('has-link-controls');
 			}
 			
 			//Since file title is different input 'title' is used to transfer data
@@ -361,24 +616,19 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			}
 			
 			//If some option changed, then reload tree also
-			if (this.tree && this.options.groupsSelectable != this.tree.get('groupNodesSelectable')) {
-				this.tree.set('groupNodesSelectable', this.options.groupsSelectable);
-				reloading_tree = true;
-			}
-			
-			//Reload tree if needed
-			if (reloading_tree) {
-				this.locale = Supra.data.get('locale');
-				var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
-										'?locale=' + this.locale +
-										'&existing_only=1';
-				
-				this.tree.set('requestUri', sitemap_data_path);
-				this.tree.reload();
-			}
-			
-			//Reset tree selected node
 			if (this.tree) {
+				//Reload tree if needed
+				if (reloading_tree) {
+					this.locale = Supra.data.get('locale');
+					var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+											'?locale=' + this.locale +
+											'&existing_only=1';
+					
+					this.tree.set('requestUri', sitemap_data_path);
+					this.tree.reload();
+				}
+				
+				//Reset tree selected node
 				this.tree.set('selectedNode', null);
 			}
 			
@@ -441,9 +691,19 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					
 					break;
 				default:
-					//Open root folder
-					if (this.medialist) this.medialist.open(null);
-					this.slideshow.set('slide', 'linkToRoot');
+						
+					if (!this.selectable.pages && !this.selectable.external) {
+						//Only media library
+						if (this.medialist) this.medialist.open(null);
+						this.slideshow.set('slide', 'linkToFile');
+					} else if (!this.selectable.images && !this.selectable.files) {
+						//Only pages
+						this.slideshow.set('slide', 'linkToPage');
+					} else {
+						//All, open root folder
+						this.slideshow.set('slide', 'linkToRoot');
+						if (this.medialist) this.medialist.open(null);
+					}
 					
 					break;
 			}
@@ -459,6 +719,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		 * 
 		 * @return Link data
 		 * @type {Object}
+		 * @private
 		 */
 		getData: function () {
 			var data = SU.mix(this.data || {}, this.form.getValues('name')),
@@ -471,7 +732,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						page_data = null,
 						page_id = '',
 						page_master_id = '',
-						page_path = '';
+						page_path = '',
+						page_title = data.title || '';
 					
 					if (tree_node) {
 						page_data = tree_node.get('data');
@@ -479,6 +741,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 							page_id = page_data.id;
 							page_master_id = page_data.master_id;
 							page_path = page_data.full_path || page_data.title;
+							
+							if (this.options.hideLinkControls) {
+								page_title = page_data.title;
+							}
 						}
 					}
 					
@@ -488,15 +754,20 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						'page_master_id': page_master_id,
 						'href': page_path,
 						'target': data.target,
-						'title': data.title
+						'title': page_title
 					};
 				} else {
+					var page_title = data.title;
+					if (this.options.hideLinkControls) {
+						page_title = data.href;
+					}
+					
 					//Link to external resource
 					return {
 						'resource': 'link',
 						'href': data.href,
 						'target': data.target,
-						'title': data.title
+						'title': page_title
 					};
 				}
 			} else if (slide_id == 'linkToFile') {
@@ -521,66 +792,16 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			}
 		},
 		
-		/**
-		 * Returns tree page path
-		 * 
-		 * @param {Number} id
-		 */
-		getTreePagePath: function (id) {
-			var data = this.tree.getIndexedData(),
-				item = (id in data ? data[id] : null),
-				list = [];
-			 
-			 while(item) {
-			 	list.push(item.path);
-				item = data[item.parent];
-			 }
-			 
-			 return list.length > 1 ? list.reverse().join('/') + '/' : '/';
-		},
+		
+		
 		
 		/**
-		 * Set button label to "Insert" or "Close"
-		 */
-		updateButtonUI: function () {
-			var show_insert = false;
-			
-			switch(this.slideshow.get('slide')) {
-				case 'linkToPage':
-					switch(this.link_slideshow.get('slide')) {
-						case 'linkManagerInternal':
-							//Tree tab
-							if (this.tree.get('selectedNode')) {
-								show_insert = true;
-							}
-							break;
-						case 'linkManagerExternal':
-							//External href input tab
-							if (Y.Lang.trim(this.form.getInput('href').get('value'))) {
-								show_insert = true;
-							}
-							break;
-					}
-					break;
-				case 'linkToFile':
-					//Media library tab
-					var item = this.medialist.getSelectedItem();
-					if (item && item.type != Supra.MediaLibraryData.TYPE_FOLDER) {
-						show_insert = true;
-					}
-					break;
-			}
-			
-			this.button_close.set('visible', !show_insert);
-			this.button_insert.set('visible', show_insert);
-		},
-		
-		/**
-		 * Remove link and save data
+		 * Remove link and close manager
 		 */
 		removeLink: function () {
-			if (this.options.callback) {
-				this.options.callback(null);
+			if (this.callback) {
+				this.callback.call(this.context, null);
+				this.callback = this.context = null;
 			}
 			
 			this.close(true);
@@ -588,46 +809,107 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 		
 		/**
 		 * Close and save data
+		 * 
+		 * @param {Boolean} allow_remove Removing link is allowed
 		 */
 		close: function (allow_remove) {
-			if (this.options.callback) {
+			if (this.callback) {
 				var data = this.getData();
 				
 				if (allow_remove !== true) {
 					//If not allowed to remove, then return original data
-					data = data || this.original_data;
+					data = data || this.initial_data;
 				}
 				
-				this.options.callback(data);
+				this.callback.call(this.context, data);
 			}
 			
+			this.callback = this.context = null;
 			this.hide();
 		},
 		
 		/**
-		 * Execute action
+		 * Set options
+		 * 
+		 * @param {Object} options Link manager display options
 		 */
-		execute: function (data, options, callback) {
-			if (SU.Y.Lang.isFunction(options)) {
+		setOptions: function (options) {
+			var mode = options && options.mode ? options.mode : 'link',
+				selectable = MODES[mode],
+				hide_link_controls = mode == 'link' ? false : true;
+			
+			this.options = {
+				'mode': mode,
+				'hideToolbar': false,
+				'hideLinkControls': hide_link_controls,
+				'selectable': selectable
+			};
+			
+			if (options) {
+				Supra.mix(this.options, options, true);
+			}
+			
+			this.mode = this.options.mode;
+			this.selectable = this.options.selectable;
+		},
+		
+		/**
+		 * Set callback
+		 * 
+		 * @param {Function} callback Callback function which is called when LinkManager is closed
+		 * @param {Object} context Callback function execution context
+		 */
+		setCallback: function (callback, context) {
+			//Callback
+			if (Y.Lang.isFunction(callback)) {
+				this.callback = callback;
+				this.context = context || this;
+			} else {
+				this.callback = null;
+				this.context = null;
+			}
+		},
+		
+		/**
+		 * Execute action
+		 * 
+		 * @param {Object} data Existing link data
+		 * @param {Object} options Link manager display options. Optional argument
+		 * @param {Function} callback Callback function which is called when LinkManager is closed
+		 * @param {Object} context Callback function execution context
+		 */
+		execute: function (data, options, callback, context) {
+			//Options is optional
+			if (Y.Lang.isFunction(options)) {
+				context = callback;
 				callback = options;
 				options = null;
 			}
 			
 			//Link manager options
-			this.options = Supra.mix({
-				'hideToolbar': false,
-				'callback': callback,
-				'groupsSelectable': false		//Virtual folders
-			}, options || {});
+			this.setOptions(options);
 			
+			//Callback
+			this.setCallback(callback, context);
+			
+			//Set display mode
+			this.setDisplayMode(this.selectable);
+			
+			//Set initial data
 			this.setData(data);
 			
+			//Toolbar
 			if (this.options.hideToolbar) {
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
 			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			
+			//Update UI
+			if (this.slideshow) this.slideshow.syncUI();
+			if (this.link_slideshow) this.link_slideshow.syncUI();
+			if (this.medialist) this.medialist.slideshow.syncUI();
 		}
 	});
 	

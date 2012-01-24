@@ -44,9 +44,9 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			else if (htmleditor.isSelectionEditable(selection))
 			{
 				//Show link manager
-				this.showLinkManager(null, Y.bind(function (data) {
+				this.showLinkManager(null, function (data) {
 					this.insertLinkConfirmed(data, selection);
-				}, this));
+				}, this);
 				
 				//Prevent default
 				return false;
@@ -109,9 +109,9 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				}
 			}
 			
-			this.showLinkManager(data, Y.bind(function (data) {
+			this.showLinkManager(data, function (data) {
 				this.editLinkConfirmed(data, target);
-			}, this));
+			}, this);
 		},
 		
 		/**
@@ -172,7 +172,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 * @param {Object} target
 		 * @param {Function} callback
 		 */
-		showLinkManager: function (data, callback) {
+		showLinkManager: function (data, callback, context) {
 			if (!callback) return;
 			
 			SU.Manager.getAction('LinkManager').once('execute', function () {
@@ -180,8 +180,8 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			}, this);
 			
 			SU.Manager.getAction('LinkManager').execute(data, {
-				'groupsSelectable': false
-			}, callback);
+				'mode': 'link'
+			}, callback, context || this);
 		},
 		
 		/**

@@ -163,6 +163,10 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 						this.fire('resize');
 					}
 				}
+			} else {
+				if (this.layout) {
+					this.layout.syncUI();
+				}
 			}
 		},
 		

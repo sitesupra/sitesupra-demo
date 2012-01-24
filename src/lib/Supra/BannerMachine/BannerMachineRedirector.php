@@ -9,6 +9,7 @@ use Supra\Response\HttpResponse;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Uri\NullPath;
 use Supra\Controller\Exception\ResourceNotFoundException;
+use Supra\BannerMachine\Exception\BannerMachineException;
 
 class BannerMachineRedirector extends ControllerAbstraction
 {
@@ -18,43 +19,50 @@ class BannerMachineRedirector extends ControllerAbstraction
 
 	public function execute()
 	{
-		$request = $this->getRequest();
+		$log = ObjectRepository::getLogger($this);
+		
+		try {
 
-		$bannerId = $request->getParameter(self::REQUEST_KEY_BANNER_ID);
+			$request = $this->getRequest();
 
-		$bannerProvider = ObjectRepository::getBannerProvider($this);
+			$bannerId = $request->getParameter(self::REQUEST_KEY_BANNER_ID);
 
-		/** @var $banner Banner */
-		$banner = $bannerProvider->getBanner($bannerId);
+			$bannerProvider = ObjectRepository::getBannerProvider($this);
 
-		$bannerProvider->increaseBannerClickCounter($banner);
+			/** @var $banner Banner */
+			$banner = $bannerProvider->getBanner($bannerId);
 
-		$response = $this->getResponse();
-		if ($response instanceof HttpResponse) {
+			$bannerProvider->increaseBannerClickCounter($banner);
 
-			if ($banner->getTargetType() == Banner::TARGET_TYPE_EXTERNAL) {
+			$response = $this->getResponse();
+			if ($response instanceof HttpResponse) {
 
-				$response->redirect($banner->getExternalTarget());
-			} else {
+				if ($banner->getTargetType() == Banner::TARGET_TYPE_EXTERNAL) {
 
-				$em = ObjectRepository::getEntityManager($this);
-				$repo = $em->getRepository(PageLocalization::CN());
+					$response->redirect($banner->getExternalTarget());
+				} else {
 
-				/* @var $pageLocalization PageLocalization */
-				$pageLocalization = $repo->find($banner->getInternalTarget());
+					$em = ObjectRepository::getEntityManager($this);
+					$repo = $em->getRepository(PageLocalization::CN());
+
+					/* @var $pageLocalization PageLocalization */
+					$pageLocalization = $repo->find($banner->getInternalTarget());
 
 
-				if ( ! empty($pageLocalization)) {
+					if ( ! empty($pageLocalization)) {
 
-					$path = $pageLocalization->getPath();
+						$path = $pageLocalization->getPath();
 
-					if ($path instanceof NullPath) {
-						throw new ResourceNotFoundException('Banner target not available.');
-					} else {
-						$response->redirect($path);
+						if ($path instanceof NullPath) {
+							throw new ResourceNotFoundException('Banner target not available.');
+						} else {
+							$response->redirect($path);
+						}
 					}
 				}
 			}
+		} catch (BannerMachineException $e) {
+			$log->info($e);
 		}
 	}
 

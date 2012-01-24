@@ -48,9 +48,16 @@
 	top: 52px;
 	left: 0;
 	right: 0;
-	bottom: 137px; /* Link controls at the bottom */
+	bottom: 0;
 	width: auto;
 	height: auto;
+}
+.has-link-controls #linkToPage > .yui3-slideshow {
+	bottom: 134px; /* Link controls at the bottom */
+}
+
+#linkToPage.no-switch > .yui3-slideshow {
+	top: 0;
 }
 #linkToPage .yui3-input-select-list {
 	margin: 10px 0;
@@ -75,11 +82,15 @@
 }
 
 .yui3-linkmanager .link-controls {
+	display: none;
 	position: absolute;
 	left: 0;
 	bottom: 0;
 	right: 0;
 	border-top: 1px solid #eee;
+}
+.yui3-linkmanager .has-link-controls .link-controls {
+	display: block;
 }
 
 .yui3-linkmanager .link-controls-buttons {
@@ -98,6 +109,9 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	bottom: 118px; /* File controls at the bottom */
+	bottom: 0;
 	width: 100%;
+}
+.yui3-linkmanager .has-link-controls .yui3-medialist {
+	bottom: 115px; /* File controls at the bottom */
 }

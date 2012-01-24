@@ -45,7 +45,7 @@ Supra(function (Y) {
 	
 	
 	//When BannerEdit action is hidden, hide also sidebar actions
-	Manager.getAction('BannerEdit').addChildAction('PageLinkManager');
+	Manager.getAction('BannerEdit').addChildAction('LinkManager');
 	Manager.getAction('BannerEdit').addChildAction('Schedule');
 	Manager.getAction('BannerEdit').addChildAction('MediaSidebar');
 	
@@ -159,7 +159,7 @@ Supra(function (Y) {
 				this.form.getInput('schedule').on('valueChange', this.updateScheduleUI, this);
 			
 			//When link manager and schedule manager closes unset button down state
-				Supra.Manager.getAction('PageLinkManager').on('visibleChange', function (e) {
+				Supra.Manager.getAction('LinkManager').on('visibleChange', function (e) {
 					this.button_target.set('down', e.newVal);
 				}, this);
 				
@@ -193,11 +193,10 @@ Supra(function (Y) {
 		 */
 		openLinkManager: function () {
 			var value = this.form.getInput('target').getValue();
-			var callback = Y.bind(this.onLinkChange, this);
 			
-			Supra.Manager.executeAction('PageLinkManager', value, {
-				'callback': callback
-			});
+			Supra.Manager.executeAction('LinkManager', value, {
+				'mode': 'page'
+			}, this.onLinkChange, this);
 			
 			this.button_target.set('down', true);
 		},

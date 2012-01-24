@@ -265,7 +265,11 @@ Supra(function (Y) {
 								//Call duplicate request
 								context[fn](evt.data.id, Supra.data.get('locale'), source_locale, function (data, status) {
 									//After duplicate change path
-									this.save(this.ROUTE_PAGE.replace(':page_id', data.id));
+									if (status && data) {
+										this.save(this.ROUTE_PAGE.replace(':page_id', data.id));
+									} else {
+										Supra.Manager.SiteMap.execute();
+									}
 								}, this);
 								
 							}
