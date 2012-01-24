@@ -39,8 +39,8 @@ class PhpSessionHandler extends HandlerAbstraction
 	 */
 	public function close() 
 	{
-		session_write_close();
-		
 		parent::close();
+		
+		session_write_close();
 	}
 }

@@ -221,6 +221,12 @@ class UserProvider
 	{
 		$sessionManager = $this->getSessionManager();
 		$session = $this->getSessionSpace();
+		
+		if ( ! $updateSessionTime) {
+			$sessionManager->getHandler()
+					->setSilentAccess(true);
+		}
+		
 		$user = $session->getUser();
 		
 		$sessionId = $sessionManager->getHandler()->getSessionId();

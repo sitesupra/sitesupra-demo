@@ -203,4 +203,9 @@ class SessionManager
 			}
 		}
 	}
+	
+	public function setExpirationTime($time)
+	{
+		$this->handler->setExpirationTime($time);
+	}
 }

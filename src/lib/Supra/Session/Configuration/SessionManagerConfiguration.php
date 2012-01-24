@@ -30,6 +30,12 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	public $isDefault;
 	
 	/**
+	 * Session expiration time in seconds
+	 * @var integer
+	 */
+	public $sessionExpirationTime;
+	
+	/**
 	 * Adds PHP namespace (a string) to list of namespaces that will be registered in object repository for this session namespace.
 	 * @param string $namespace 
 	 */
@@ -37,13 +43,15 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	{
 		$this->namespaces[] = $namespace;
 	}
-
+	
 	public function configure()
 	{
 		$handler = Loader::getClassInstance($this->handlerClass, 
 				'Supra\Session\Handler\HandlerAbstraction');
 		
 		$sessionManager = new SessionManager($handler);
+		
+		$sessionManager->setExpirationTime($this->sessionExpirationTime);
 		
 		foreach ($this->namespaces as $namespace) {
 			ObjectRepository::setSessionManager($namespace, $sessionManager);

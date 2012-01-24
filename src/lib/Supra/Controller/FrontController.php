@@ -141,6 +141,12 @@ class FrontController
 			$this->runControllerInner($exceptionController, $request);
 			$exceptionController->output();
 		}
+		
+		$sessionManagers = ObjectRepository::getAllSessionManagers();
+		foreach ($sessionManagers as $manager) {
+			$manager->getHandler()->close();
+		}
+		
 	}
 	
 	/**

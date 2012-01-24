@@ -10,6 +10,7 @@ use Supra\Session\Exception;
 abstract class HandlerAbstraction 
 {
 	const DEFAULT_SESSION_NAME = 'SID';
+	const SESSION_LAST_ACTIVITY_OFFSET = '__lastActivity';
 	
 	const SESSION_NOT_STARTED = 1000;
 	const SESSION_STARTED = 1001;
@@ -44,6 +45,17 @@ abstract class HandlerAbstraction
 	protected $sessionData;
 	
 	/**
+	 * Session expiration time in seconds
+	 * @var integer
+	 */
+	protected $expirationTime;
+	
+	/**
+	 * @var boolean
+	 */
+	protected $silentAccess = false;
+	
+	/**
 	 * @param string $sessionName
 	 */
 	public function __construct($sessionName = self::DEFAULT_SESSION_NAME) 
@@ -59,6 +71,12 @@ abstract class HandlerAbstraction
 	{
 		$this->sessionStatus = self::SESSION_STARTED;
 		$this->sessionData = & $_SESSION;
+		
+		if ( ! isset($this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET])) {
+			$this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] = time();
+		}
+			
+		$this->checkSessionExpire();
 	}
 	
 	/**
@@ -69,6 +87,10 @@ abstract class HandlerAbstraction
 	public function close() 
 	{
 		$this->sessionStatus = self::SESSION_CLOSED;
+		
+		if ( ! $this->silentAccess) {
+			$this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] = time();
+		}
 	}
 	
 	/**
@@ -127,5 +149,38 @@ abstract class HandlerAbstraction
 		}
 		
 		$this->sessionId = $sessionId;
+	}
+	
+	/**
+	 * @param integer $time
+	 */
+	public function setExpirationTime($time) 
+	{
+		$this->expirationTime = $time;
+	}
+	
+	/**
+	 * Checks session for expiration, and if it is, drops stored session data
+	 */
+	public function checkSessionExpire()
+	{
+
+		$expireTime = $this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] + $this->expirationTime;
+		
+		if ($expireTime < time()) {
+			$this->clear();
+			$this->sessionId = null;
+		}
+		
+	}
+	
+	/**
+	 * Marks session data access as silent, 
+	 * so session last activity time wouldn't be updated
+	 * @param type $silentAccess
+	 */
+	public function setSilentAccess($silentAccess = false)
+	{
+		$this->silentAccess = $silentAccess;
 	}
 }

@@ -444,6 +444,19 @@ class ObjectRepository
 
 		return $object;
 	}
+	
+	/**
+	 * Get array of objects of specified interface
+	 * 
+	 * @param string $interface
+	 * @return array
+	 */
+	public static function getAllObjects ($interface)
+	{
+		if (isset(self::$objectBindings[$interface])) {
+			return self::$objectBindings[$interface];
+		}
+	}
 
 	/**
 	 * Assign object of its own class to caller class
@@ -580,6 +593,11 @@ class ObjectRepository
 	public static function getSessionManager($caller)
 	{
 		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
+	}
+	
+	public static function getAllSessionManagers()
+	{
+		return self::getAllObjects(self::INTERFACE_SESSION_NAMESPACE_MANAGER);
 	}
 
 	/**
