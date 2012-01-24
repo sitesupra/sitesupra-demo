@@ -43,8 +43,27 @@ YUI.add('supra.tree', function(Y) {
 	
 	
 	Supra.Tree = Y.Base.create('tree', Tree, [Y.WidgetParent], {
+		/** 
+		 * First level page data 
+		 * @type {Array} 
+		 * @private 
+		 */ 
 		_data: [],
+		
+		/** 
+		 * All data indexed by page ID 
+		 * @type {Object} 
+		 * @private 
+		 */ 
 		_data_indexed: {},
+		
+		/** 
+		 * XHR request object 
+		 * @type {Object} 
+		 * @private 
+		 */ 
+		_xhr: null,
+		
 		
 		initializer: function () {
 		},
@@ -206,13 +225,20 @@ YUI.add('supra.tree', function(Y) {
 		 */
 		reload: function () {
 			var uri = this.get('requestUri');
-			var request = Supra.io(uri, this.reloadComplete, this);
+			
+			if (this._xhr) {
+				this._xhr.abort();
+			}
+			
+			this._xhr = Supra.io(uri, this.onDataLoad, this);
 		},
 		
 		/**
-		 * Handle reload response
+		 * Handle data load
+		 * 
+		 * @private
 		 */
-		reloadComplete: function (data, status) {
+		onDataLoad: function (data, status) {
 			//On failure assume nothing was returned
 			if (!status) data = [];
 			
@@ -246,6 +272,8 @@ YUI.add('supra.tree', function(Y) {
 				
 				i++;
 			}
+			
+			this._xhr = null;
 			
 			this._data = data;
 			this._data_indexed = data_indexed;

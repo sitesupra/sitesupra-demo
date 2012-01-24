@@ -120,6 +120,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 						Manager.EditorToolbar.hide();
 					}
 				}
+				
+				//Update slideshow position 
+				var slideshow = form.get('slideshow'); 
+				if (slideshow) { 
+					slideshow.syncUI(); 
+				}
 			}
 		}
 	});
@@ -257,9 +263,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			
 			//Buttons
-			var footer = Y.Node.create('<div class="yui3-sidebar-footer"></div>');
+			var footer = Y.Node.create('<div class="sidebar-footer"></div>');
 			
-			form.get('contentBox').addClass('yui3-sidebar-content')
+			form.get('contentBox').addClass('sidebar-content')
 								  .addClass('scrollable')
 								  .addClass('has-header')
 								  .addClass('has-footer')
@@ -345,6 +351,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			//Create form
 			var form = this.initializeForm(form_config);
+			form.set('slideshow', slideshow);
 			
 			//Bind to change event
 			var inputs = form.getInputs();
@@ -355,13 +362,17 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		initializeButtons: function (slideshow) {
 			var container = Manager.PageContentSettings.getContainer(),
+				node = null,
 				back_button = null;
 			
-			container.append('<div class="yui3-sidebar-buttons hidden"><button>' + Supra.Intl.get(['buttons', 'back']) + '</button></div>');
+			node = Y.Node.create('<div class="yui3-sidebar-buttons hidden"><button>' + Supra.Intl.get(['buttons', 'back']) + '</button></div>');
+			container.append(node);
 			
-			back_button = new Supra.Button({'srcNode': container.one('button')});
+			back_button = new Supra.Button({'srcNode': node.one('button')});
 			back_button.on('click', slideshow.scrollBack, slideshow);
 			back_button.render();
+			
+			this.set('buttons', node);
 			
 			//On slideshow slide change update button
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
@@ -405,15 +416,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * On Slideshow slide change show
 		 */
 		onSlideshowSlideChange: function (evt) {
-			var container = Manager.PageContentSettings.getContainer();
 			if (evt.newVal == 'propertySlideMain') {
-				container.one('.yui3-sidebar-content').removeClass('has-buttons');
-				container.one('.yui3-sidebar-buttons').addClass('hidden');
+				this.get('form').get('contentBox').removeClass('has-buttons');
+				this.get('buttons').addClass('hidden');
 			} else {
-				container.one('.yui3-sidebar-content').addClass('has-buttons');
-				container.one('.yui3-sidebar-buttons').removeClass('hidden');
+				this.get('form').get('contentBox').addClass('has-buttons');
+				this.get('buttons').removeClass('hidden');
 			}
-			
 		},
 		
 		/**
@@ -513,6 +522,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			this.set('normalChanged', false);
 			SU.Manager.PageContentSettings.hide();
+			
+			//Reset slideshow position
+			this.get('slideshow').set('slide', 'propertySlideMain');
 			
 			//Property which affects inline content may have
 			//changed, need to reload block content 

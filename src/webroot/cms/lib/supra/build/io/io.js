@@ -104,7 +104,22 @@ YUI().add("supra.io", function (Y) {
 		};
 		
 		io = Y.io(url, cfg);
+		
+		io.supra_cfg = cfg;
+		io._abort = io.abort;
+		io.abort = Supra.io.abort;
+		
 		return io;
+	};
+	
+	/**
+	 * Abort request without showing an error message
+	 */
+	Supra.io.abort = function () {
+		if (this.supra_cfg) {
+			this.supra_cfg.suppress_errors = true;
+		}
+		this._abort();
 	};
 	
 	/**
