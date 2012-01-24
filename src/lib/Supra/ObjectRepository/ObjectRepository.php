@@ -11,6 +11,7 @@ use Supra\Session\SessionManager;
 use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
 use Supra\Mailer\Mailer;
+use Supra\Mailer\MassMail\MassMail;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Cms\ApplicationConfiguration;
 use Supra\Event\EventManager;
@@ -56,7 +57,7 @@ class ObjectRepository
 	const INTERFACE_TEMPLATE_PARSER = 'Supra\Template\Parser\TemplateParser';
 	const INTERFACE_BANNER_MACHINE = 'Supra\BannerMachine\BannerProvider';
 	const INTERFACE_COMPONENT_CONFIGURATION = 'Supra\Configuration\ComponentConfiguration';
-	const INTERFACE_MASS_MAIL = 'Supra\Mailer\MassMail';
+	const INTERFACE_MASS_MAIL = 'Supra\Mailer\MassMail\MassMail';
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
 
@@ -1112,4 +1113,40 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SYSTEM_INFO);
 	}
+	
+	
+	/**
+	 * Get assigned MassMail instance.
+	 *
+	 * @param mixed $caller
+	 * @return MassMail
+	 */
+	public static function getMassMail($caller)
+	{
+		$massMail = self::getObject($caller, self::INTERFACE_MASS_MAIL);
+
+		return $massMail;
+	}
+
+	/**
+	 * Assign MassMail to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param MassMail $object 
+	 */
+	public static function setMassMail($caller, MassMail $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_MASS_MAIL);
+	}
+
+	/**
+	 * Set default MassMail object.
+	 *
+	 * @param MassMail $object 
+	 */
+	public static function setDefaultMassMail(MassMail $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MASS_MAIL);
+	}
+
 }
