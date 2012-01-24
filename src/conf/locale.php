@@ -6,7 +6,7 @@ $localeManagerTemplate = new Locale\LocaleManager();
 
 /* English | Latvia */
 $locale = new Locale\Locale();
-$locale->setId('en_LV');
+$locale->setId('en');
 $locale->setTitle('English');
 $locale->setCountry('Latvia');
 $locale->addProperty('flag', 'gb');
@@ -15,7 +15,7 @@ $localeManagerTemplate->add($locale);
 
 /* Latvian | Latvia */
 $locale = new Locale\Locale();
-$locale->setId('lv_LV');
+$locale->setId('lv');
 $locale->setTitle('Latvian');
 $locale->setCountry('Latvia');
 $locale->addProperty('flag', 'lv');
@@ -24,7 +24,7 @@ $localeManagerTemplate->add($locale);
 
 /* Russian | Russia */
 $locale = new Locale\Locale();
-$locale->setId('ru_RU');
+$locale->setId('ru');
 $locale->setTitle('Russian');
 $locale->setCountry('Russia');
 $locale->addProperty('flag', 'ru');

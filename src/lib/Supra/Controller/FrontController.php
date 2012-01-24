@@ -123,9 +123,8 @@ class FrontController
 	 */
 	public function execute()
 	{
-		$request = $this->getRequestObject();
-
 		try {
+			$request = $this->getRequestObject();
 			$this->findMatchingRouters($request);
 		}
 		catch (\Exception $exception) {
