@@ -123,8 +123,10 @@ class FrontController
 	 */
 	public function execute()
 	{
+		$request = $this->getRequestObject();
+		
 		try {
-			$request = $this->getRequestObject();
+			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		}
 		catch (\Exception $exception) {
@@ -135,7 +137,7 @@ class FrontController
 			//TODO: should be configurable somehow
 			$exceptionControllerClass = 'Supra\Controller\ExceptionController';
 			
-			$exceptionController = $this->initializeController($exceptionControllerClass, $request);
+			$exceptionController = $this->initializeController($exceptionControllerClass);
 			/* @var $exceptionController Supra\Controller\ExceptionController */
 			$exceptionController->setException($exception);
 			$this->runControllerInner($exceptionController, $request);
@@ -152,10 +154,9 @@ class FrontController
 	/**
 	 * Create controller instance
 	 * @param string $controllerClass
-	 * @param Request\RequestInterface $request
 	 * @return ControllerInterface
 	 */
-	private function initializeController($controllerClass, Request\RequestInterface $request)
+	private function initializeController($controllerClass)
 	{
 		ObjectRepository::beginControllerContext($controllerClass);
 		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
@@ -239,7 +240,7 @@ class FrontController
 	 */
 	public function runController($controllerClass, Request\RequestInterface $request)
 	{
-		$controller = $this->initializeController($controllerClass, $request);
+		$controller = $this->initializeController($controllerClass);
 		$this->runControllerInner($controller, $request);
 		
 		return $controller;
@@ -260,7 +261,7 @@ class FrontController
 			if ($router->match($request)) {
 				
 				$controllerClass = $router->getControllerClass();
-				$controller = $this->initializeController($controllerClass, $request);
+				$controller = $this->initializeController($controllerClass);
 
 				try {
 					$this->runControllerInner($controller, $request, $router);
@@ -305,21 +306,12 @@ class FrontController
 	}
 
 	/**
-	 * Creates request instance
+	 * Creates request instance. Only HttpRequest supported now.
 	 * @return Request\RequestInterface
 	 */
 	protected function getRequestObject()
 	{
-		$request = null;
-
-		if (!isset($_SERVER['SERVER_NAME'])) {
-			$request = new Request\CliRequest();
-		}
-		else {
-			$request = new Request\HttpRequest();
-		}
-
-		$request->readEnvironment();
+		$request = new Request\HttpRequest();
 
 		return $request;
 	}

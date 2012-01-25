@@ -29,6 +29,13 @@ use Supra\Locale\Locale;
  */
 class PageAction extends PageManagerAction
 {
+	/**
+	 * Overriden so PHP <= 5.3.2 doesn't treat pageAction() as a constructor
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
 	/**
 	 * Returns all page information required for load

@@ -24,7 +24,14 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 class SitemapAction extends PageManagerAction
 {
-
+	/**
+	 * Overriden so PHP <= 5.3.2 doesn't treat sitemapAction() as a constructor
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+	}
+	
 	/**
 	 * Main method passing the sitemap tree
 	 */

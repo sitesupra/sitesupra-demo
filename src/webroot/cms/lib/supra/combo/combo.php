@@ -23,6 +23,7 @@ if (count($files) > 100) {
 $css = strpos($files[0], '.css') !== false ? true : false;
 $ext = ($css ? 'css' : 'js');
 $cache = false;
+$lessCss = true;
 $pre = realpath('../../../../');
 $preLength = strlen($pre);
 $checkFileModificationTime = true;
@@ -113,7 +114,7 @@ function writeFiles($files, $eTag) {
 
 function getFileMtime($file)
 {
-	global $css, $pre;
+	global $css, $pre, $lessCss;
 	
 	$cacheSource = array();
 	
@@ -123,7 +124,7 @@ function getFileMtime($file)
 	if ($css) {
 		$lessFile = $pre . $file . '.less';
 		
-		if (file_exists($lessFile)) {
+		if ($lessCss && file_exists($lessFile)) {
 			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessCFileList($lessFile);
@@ -143,7 +144,7 @@ function getFileMtime($file)
 
 function getFileContent($file)
 {
-	global $css, $pre;
+	global $css, $pre, $lessCss;
 	
 	$outFile = null;
 	
@@ -151,7 +152,7 @@ function getFileContent($file)
 	if ($css) {
 		$lessFile = $pre . $file . '.less';
 		
-		if (file_exists($lessFile)) {
+		if ($lessCss && file_exists($lessFile)) {
 			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessC($lessFile);

@@ -172,6 +172,12 @@ Supra(function (Y) {
 			//Add loading icon to button
 			Supra.Manager.PageButtons.buttons.Root[0].set('loading', true);
 			
+			// Call the sitemap right ahead if page id is empty
+			if (typeof page_id != 'string' || page_id == '') {
+				this.onLoadComplete(null, false);
+				return;
+			}
+			
 			//Load page data
 			Supra.io(this.getDataPath(), {
 				'data': {

@@ -1718,6 +1718,7 @@ class lessc {
 	function pushBlock($tags, $argCount = 0) {
 		
 		if ($argCount > 0) {
+			// In fact there can be only one tag
 			foreach ($tags as &$tag) {
 				$tag .= '$' . $argCount;
 			}

@@ -22,8 +22,10 @@ use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
 class UserAction extends InternalUserManagerAbstractAction
 {
-
-	function __construct()
+	/**
+	 * Overriden so PHP <= 5.3.2 doesn't treat userAction() as a constructor
+	 */
+	public function __construct()
 	{
 		parent::__construct();
 	}

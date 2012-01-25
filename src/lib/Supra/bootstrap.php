@@ -83,4 +83,10 @@ class_alias('Supra\Log\Log', 'Log');
 mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
-require_once SUPRA_CONF_PATH . 'configuration.php';
+try {
+	require_once SUPRA_CONF_PATH . 'configuration.php';
+} catch (\Exception $e) {
+	\Log::fatal("Application configuration load failed: " . (string) $e);
+	header('Content-Type: text/plain');
+	die("500 INTERNAL SERVER ERROR\n");
+}
