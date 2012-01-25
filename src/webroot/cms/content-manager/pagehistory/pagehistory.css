@@ -18,13 +18,13 @@
 	cursor: default;
 }
 .history-list li span > button,
-.history-list li span .yui3-button {
+.history-list li span .su-button {
 	display: none;
 }
-.history-list li span .yui3-button {
+.history-list li span .su-button {
 	float: right;
 }
-.history-list li span .yui3-button button {
+.history-list li span .su-button button {
 	vertical-align: top;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .history-list li.active span > button,
-.history-list li.active span .yui3-button {
+.history-list li.active span .su-button {
 	display: inline-block;
 }
 

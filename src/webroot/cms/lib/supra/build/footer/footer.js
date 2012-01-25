@@ -10,22 +10,22 @@ YUI.add("supra.footer", function (Y) {
 		"type": "push",
 		"label": "",
 		"icon": null,
-		"style": "mid",
+		"style": "small",
 		"disabled": false
 	};
 	
 	var BUTTON_STYLES = {
-		"create": "mid-green",
-		"save": "mid-blue",
-		"ok": "mid-blue",
-		"cancel": "mid",
-		"yes": "mid-blue",
-		"no": "mid",
-		"apply": "mid-blue",
-		"done": "mid",
-		"delete": "mid-red",
-		"reset": "mid",
-		"error": "mid-red"
+		"create": "small-blue",
+		"save": "small-blue",
+		"ok": "small-blue",
+		"cancel": "small",
+		"yes": "small-blue",
+		"no": "small",
+		"apply": "small-blue",
+		"done": "small",
+		"delete": "small-blue",	//"small-red"
+		"reset": "small",
+		"error": "small-blue"	//"small-red"
 	};
 	
 	function bubbleEvent (event, event_name) {

@@ -14,7 +14,8 @@ YUI.add("website.template-list", function (Y) {
 	}
 	
 	TemplateList.NAME = "template-list";
-	TemplateList.CLASS_NAME = Y.ClassNameManager.getClassName(TemplateList.NAME);
+	TemplateList.CSS_PREFIX = 'su-' + TemplateList.NAME;
+	
 	TemplateList.ATTRS = {
 		'requestUri': {
 			value: null
@@ -26,6 +27,20 @@ YUI.add("website.template-list", function (Y) {
 	};
 	
 	TemplateList.HTML_PARSER = {};
+	
+	/**
+	 * Item template
+	 * @type {Function}
+	 */
+	TemplateList.TEMPLATE_ITEM = Supra.Template.compile('\
+		<li class="clearfix item {% if id == selected %}selected{% endif %}">\
+			<div class="item-content">\
+				<div class="item-content-inner">\
+					<div class="img"><img src="{{ img }}" alt="" /></div>\
+					<span></span><p><b>{{ title|e }}</b>{{ description|e }}</p>\
+				</div>\
+			</div>\
+		</li>');
 	
 	Y.extend(TemplateList, Y.Widget, {
 		
@@ -90,7 +105,14 @@ YUI.add("website.template-list", function (Y) {
 			for(var i=0,ii=templates.length; i<ii; i++) {
 				template = templates[i];
 				
-				item = Y.Node.create('<li class="clearfix ' + (selected == template.id ? 'selected' : '') + '"><div><img src="' + template.img + '" alt="" /></div><p>' + Y.Escape.html(template.title) + '</p></li>');
+				item = TemplateList.TEMPLATE_ITEM(
+					Supra.mix({
+						'selected': selected,
+						'description': 'Promo pages, part start pages'
+					}, template)
+				);
+				
+				item = Y.Node.create(item);
 				item.setData('template_id', template.id);
 				
 				content.append(item);
@@ -114,4 +136,4 @@ YUI.add("website.template-list", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["widget"]});
+}, YUI.version, {requires:["widget", "supra.template"]});

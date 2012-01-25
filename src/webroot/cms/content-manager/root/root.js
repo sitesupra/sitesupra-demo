@@ -221,6 +221,7 @@ Supra(function (Y) {
 				} else {
 					//From data
 					page_id = Supra.data.get(['page', 'id'], null);
+					if (page_id) page_id = {'id': page_id};
 				}
 				
 				//If there is no page ID or /h/sitemap is in path, then open SiteMap

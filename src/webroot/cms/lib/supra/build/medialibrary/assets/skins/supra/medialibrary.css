@@ -244,8 +244,8 @@
 	padding: 5px 5px 10px;
 }
 
-.yui3-medialist div.file .center .yui3-button button p,
-.yui3-medialist div.image .center .yui3-button button p {
+.yui3-medialist div.file .center .su-button button p,
+.yui3-medialist div.image .center .su-button button p {
 	width: 180px;
 }
 

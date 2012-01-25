@@ -151,7 +151,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//Delete button
 			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(form.get('contentBox'));
-				btn.addClass('yui3-button-delete');
+				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
 			
 			this.settings_form = form;
@@ -199,7 +199,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			//Position sync with other actions
 			this.plug(SU.PluginLayout, {
-				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			
 			var layoutTopContainer = Manager.getAction('LayoutTopContainer'),
@@ -207,9 +207,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				layoutRightContainer = Manager.getAction('LayoutRightContainer');
 			
 			//Top bar 
-			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
+			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
+			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
 		},
 		
 		/**

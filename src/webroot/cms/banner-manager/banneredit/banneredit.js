@@ -139,7 +139,7 @@ Supra(function (Y) {
 					'srcNode': this.one('fieldset.target button'),
 					'style': 'group'
 				});
-				button.addClass('yui3-button-first').addClass('yui3-button-last');
+				button.addClass('su-button-first').addClass('su-button-last');
 				button.render();
 				button.on('click', this.openLinkManager, this);
 				this.button_target = button;
@@ -149,7 +149,7 @@ Supra(function (Y) {
 					'srcNode': this.one('fieldset.schedule button'),
 					'style': 'group'
 				});
-				button.addClass('yui3-button-first').addClass('yui3-button-last');
+				button.addClass('su-button-first').addClass('su-button-last');
 				button.render();
 				button.on('click', this.openScheduler, this);
 				this.button_schedule = button;

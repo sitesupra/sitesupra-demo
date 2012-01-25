@@ -17,6 +17,9 @@ YUI.add('supra.input-proto', function (Y) {
 		'labelNode': {
 			value: null
 		},
+		'descriptionNode': {
+			value: null
+		},
 		'value': {
 			value: '',
 			setter: '_setValue',
@@ -36,6 +39,10 @@ YUI.add('supra.input-proto', function (Y) {
 		'label': {
 			value: null,
 			setter: '_setLabel'
+		},
+		'description': {
+			value: null,
+			setter: '_setDescription'
 		},
 		'validationRules': {
 			value: [],
@@ -72,6 +79,17 @@ YUI.add('supra.input-proto', function (Y) {
 			}
 			return label;
 		},
+		'descriptionNode': function (srcNode) {
+			var node = this.get('descriptionNode');
+			if (!node) {
+				node = srcNode.one('p');
+				if (!node) {
+					node = srcNode.next();
+					if (node && !node.test('p')) node = null;
+				}
+			}
+			return node;
+		},
 		'disabled': function (srcNode) {
 			var val = this.get('disabled');
 			var inp = this.get('inputNode');
@@ -91,6 +109,7 @@ YUI.add('supra.input-proto', function (Y) {
 	Y.extend(Input, Y.Widget, {
 		INPUT_TEMPLATE: '<input type="text" value="" />',
 		LABEL_TEMPLATE: '<label></label>',
+		DESCRIPTION_TEMPLATE: '<p class="description"></p>',
 		
 		_original_value: null,
 		
@@ -122,6 +141,7 @@ YUI.add('supra.input-proto', function (Y) {
 			var r = Input.superclass.renderUI.apply(this, arguments);
 			var inp = this.get('inputNode');
 			var lbl = this.get('labelNode');
+			var descr = this.get('descriptionNode');
 			var cont = this.get('contentBox');
 			var bound = this.get('boundingBox');
 			
@@ -131,12 +151,17 @@ YUI.add('supra.input-proto', function (Y) {
 				this.set('inputNode', inp);
 			}
 			
+			if (descr && inp) {
+				descr.addClass('description');
+				inp.insert(descr, 'after');
+			}
+			
 			if (inp && !lbl && this.LABEL_TEMPLATE) {
 				var id = inp.getAttribute('id');
 				
 				lbl = Y.Node.create(this.LABEL_TEMPLATE);
 				lbl.setAttribute('for', id);
-				lbl.set('innerHTML', this.get('label') || '');
+				lbl.set('text', this.get('label') || '');
 				
 				if (cont.compareTo(inp)) {
 					inp.insert(lbl, 'before');
@@ -260,11 +285,42 @@ YUI.add('supra.input-proto', function (Y) {
 			var node = this.get('labelNode');
 			if (node) {
 				lbl = Supra.Intl.replace(lbl);
-				lbl = Y.Escape.html(lbl);
-				node.set('innerHTML', lbl);
+				node.set('text', lbl);
 			}
 			
 			return lbl;
+		},
+		
+		/**
+		 * Description attribute setter
+		 * 
+		 * @param {String} descr Description text
+		 * @private
+		 */
+		_setDescription: function (descr) {
+			var node = this.get('descriptionNode'),
+				inp = this.get('inputNode');
+			
+			if (!node && !inp) {
+				//Can't do anything about it
+				return descr;
+			}
+			if (!node && descr && this.DESCRIPTION_TEMPLATE) {
+				node = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+				this.get('inputNode').insert(node, 'after');
+				this.set('descriptionNode', node);
+			}
+			if (node) {
+				var descr_text = Supra.Intl.replace(descr);
+				
+				if (descr_text) {
+					node.set('text', descr_text).removeClass('hidden');
+				} else {
+					node.set('text', '').addClass('hidden');
+				}
+			}
+			
+			return descr;
 		},
 		
 		/**

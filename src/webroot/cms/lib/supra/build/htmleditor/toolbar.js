@@ -145,17 +145,14 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					cont.append(node);
 					break;
 				case 'dropdown':
-					title = Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
-					label = Y.Node.create('<label class="yui3-toolbar-label">' + title + ':</label>');
 					node = Y.Node.create('<select></select>');
-					cont.append(label);
 					cont.append(node);
-					
 					break;
 				case 'button':
 				default:
 					title = Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
 					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
+					node.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 					node.render(cont);
 					
 					node.on('click', function (evt, data) {
@@ -172,15 +169,15 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						//Check if this is first button
 						node_previous = node.get('boundingBox').previous();
 						if (node_previous) {
-							if (node_previous.hasClass('yui3-button-last')) {
-								node_previous.removeClass('yui3-button-last');
+							if (node_previous.hasClass('su-button-last')) {
+								node_previous.removeClass('su-button-last');
 								first = false;
 							}
 						}
 					}
 					
-					if (first) node.addClass('yui3-button-first');
-					if (last) node.addClass('yui3-button-last');
+					if (first) node.addClass('su-button-first');
+					if (last) node.addClass('su-button-last');
 					
 					break;
 			}

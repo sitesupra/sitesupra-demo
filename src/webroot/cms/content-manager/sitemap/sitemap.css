@@ -1,15 +1,14 @@
 .yui3-sitemap {
 	position: absolute;
 	z-index: 2;
-	top: 60px;
-	bottom: 10px;
-	left: 10px;
-	right: 10px;
+	top: 48px;
+	bottom: 0px;
+	left: 0;
+	right: 0;
 	background: #fff;
 	overflow: hidden;
 }
 .yui3-sitemap-content {
-	border: 1px solid #eee;
 	width: 100%;
 	height: 100%;
 	
@@ -30,10 +29,10 @@
  */
 .yui3-sitemap-anim {
 	position: absolute;
-	left: 10px;
-	top: 60px;
-	right: 10px;
-	bottom: 10px;
+	top: 48px;
+	bottom: 0px;
+	left: 0;
+	right: 0;
 	background: #fff;
 	z-index: 100;
 	border: 1px solid #aaa;
@@ -273,7 +272,7 @@
 	padding: 0 5px;
 }
 .flowmap-children .flowmap-children-container {
-	background: #eee;
+	background: url(/cms/lib/supra/img/panel/bg.gif) 0 0 repeat;
 	-moz-border-radius: 8px;
 	-webkit-border-radius: 8px;
 	border-radius: 8px;
@@ -461,10 +460,10 @@
 	padding: 10px;
 	white-space: nowrap;
 }
-.sitemap-settings .middle .yui3-button {
+.sitemap-settings .middle .su-button {
 	margin-left: 5px;
 }
-.sitemap-settings .middle .yui3-button:first-child {
+.sitemap-settings .middle .su-button:first-child {
 	margin-left: 0;
 }
 .sitemap-settings p.hidden-pages {
@@ -488,7 +487,7 @@
 	padding: 10px 0;
 	text-align: left;
 }
-.sitemap-new-page .middle .yui3-button {
+.sitemap-new-page .middle .su-button {
 	vertical-align: middle;
 }
 .sitemap-new-page .middle a {

@@ -7,6 +7,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
+	var ACTION_TEMPLATE = '<div class="sidebar block-settings">\
+								<div class="sidebar-header">\
+									<button class="button-back hidden"><p></p></button>\
+									<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />\
+									<h2></h2>\
+									<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
+								</div>\
+								<div class="sidebar-content has-header"></div>\
+							</div>';
 	
 	/*
 	 * Container action
@@ -17,7 +26,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	//Add as right bar child
 	Manager.getAction('LayoutRightContainer').addChildAction('PageContentSettings');
 	
-	new Action({
+	new Action(Action.PluginLayoutSidebar, {
 		// Unique action name
 		NAME: 'PageContentSettings',
 		
@@ -27,7 +36,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		// Load stylesheet
 		HAS_STYLESHEET: false,
 		
+		// Layout container action NAME
+		LAYOUT_CONTAINER: 'LayoutRightContainer',
 		
+		
+		
+		//Template
+		template: ACTION_TEMPLATE,
 		
 		//Options
 		options: null,
@@ -45,25 +60,22 @@ YUI.add('supra.page-content-properties', function (Y) {
 		tooglePageButtons: function (visible) {
 			var buttons = SU.Manager.PageButtons.buttons[this.NAME];
 			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].set('visible', visible);
+			
+			this.get('controlButton').get('visible', !!visible);
 		},
 		
 		// Render action container
 		render: function () {
-			var node = Y.Node.create('<div></div>');
-			this.getPlaceHolder().append(node);
-			this.set('srcNode', new Y.NodeList(node));
-			
 			//Create toolbar buttons
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'done',
-				'context': this,
-				'callback': function () {
-					if (Y.Lang.isFunction(this.callback)) {
-						this.callback();
-					}
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
+			//"Done" button
+			this.get('controlButton').on('click', function () {
+				if (Y.Lang.isFunction(this.callback)) {
+					this.callback();
 				}
-			}]);
+			}, this);
 		},
 		
 		// Hide
@@ -73,9 +85,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Hide buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-			
-			//Hide action
-			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
 			
 			//Hide form
 			if (this.form) {
@@ -102,14 +111,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			
-			//Show action
-			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
-			
 			//Set form
 			if (form) {
 				if (this.form) this.form.hide();
 				this.form = form;
 				this.callback = options.doneCallback;
+				this.show();
 				form.show();
 				
 				this.tooglePageButtons(!!options.doneCallback);
@@ -197,8 +204,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		_node_content: null,
 		
-		_button_delete: false,
-		
 		_original_values: null,
 		
 		destructor: function () {
@@ -222,9 +227,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.set('properties', block.properties);
 			
 			//Create right bar container action if it doesn't exist
-			var PageContentSettings = Manager.getAction('PageContentSettings');
-			PageContentSettings.execute();
-			PageContentSettings.hide();
+			var action = Manager.getAction('PageContentSettings');
+			this.set('action', action);
+			action.execute();
+			action.hide();
 			
 			//Bind to editing-start and editing-end events
 			if (this.get('showOnEdit')) {
@@ -242,43 +248,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//On block save/cancel update 'changed' attributes
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
-			
-			//Form heading
-			var title = block.title;
-			if (!title) {
-				//Convert ID into title
-				title = this.get('host').getId();
-				title = title.replace(/[\-\_\.]/g, ' ');
-				title = title.substr(0,1).toUpperCase() + title.substr(1);
-			}
-			
-			if (this.get('host').isInstanceOf('page-content-list')) {
-				title += ' ' + SU.Intl.get(['page', 'placeholder_properties']);
-			} else {
-				title += ' ' + SU.Intl.get(['page', 'block_properties']);
-			}
-			
-			var heading = Y.Node.create('<h2>' + Y.Escape.html(title) + '</h2>');
-			form.get('contentBox').insert(heading, 'before');
-			
-			
-			//Buttons
-			var footer = Y.Node.create('<div class="sidebar-footer"></div>');
-			
-			form.get('contentBox').addClass('sidebar-content')
-								  .addClass('scrollable')
-								  .addClass('has-header')
-								  .addClass('has-footer')
-								  .insert(footer, 'after');
-			
-			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
-				btn.render(footer).on('click', this.deleteContent, this);
-			
-			/*if (!Supra.Permission.get('block', 'delete', null, true)) {
-				btn.hide();
-				form.get('contentBox').removeClass('has-footer');
-			}*/
 			
 			//Don't show delete button if block or placeholder is closed
 			var host = this.get('host');
@@ -306,7 +275,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var slideshow = this.initializeSlideshow(),
 				slide_main = null,
 				slide_id = 'propertySlideMain',
-				slide = slide_main = slideshow.getSlide(slide_id);
+				slide = slide_main = slideshow.getSlide(slide_id).one('.yui3-slideshow-slide-content');
 			
 			//Properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
@@ -346,8 +315,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			//Add back button for slideshow
-			this.initializeButtons(slideshow);
+			//On slideshow slide change update "Bacj" button
+			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
+			
+			//Delete button
+			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
+				btn.render(slide).on('click', this.deleteContent, this);
 			
 			//Create form
 			var form = this.initializeForm(form_config);
@@ -358,24 +331,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			for(var id in inputs) {
 				inputs[id].on('change', this.onPropertyChange, this);
 			}
-		},
-		
-		initializeButtons: function (slideshow) {
-			var container = Manager.PageContentSettings.getContainer(),
-				node = null,
-				back_button = null;
-			
-			node = Y.Node.create('<div class="yui3-sidebar-buttons hidden"><button>' + Supra.Intl.get(['buttons', 'back']) + '</button></div>');
-			container.append(node);
-			
-			back_button = new Supra.Button({'srcNode': node.one('button')});
-			back_button.on('click', slideshow.scrollBack, slideshow);
-			back_button.render();
-			
-			this.set('buttons', node);
-			
-			//On slideshow slide change update button
-			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
 		},
 		
 		/**
@@ -400,7 +355,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				data = this.get('data').properties,
 				slideshow = this.get('slideshow');
 			
-			form.render(Manager.PageContentSettings.getContainer());
+			window.prop_form = form;
+			form.render(this.get('action').one('.sidebar-content'));
 			form.get('boundingBox').addClass('yui3-form-properties');
 			form.hide();
 			
@@ -417,11 +373,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		onSlideshowSlideChange: function (evt) {
 			if (evt.newVal == 'propertySlideMain') {
-				this.get('form').get('contentBox').removeClass('has-buttons');
-				this.get('buttons').addClass('hidden');
+				this.get('action').get('backButton').set('visible', false);
 			} else {
-				this.get('form').get('contentBox').addClass('has-buttons');
-				this.get('buttons').removeClass('hidden');
+				this.get('action').get('backButton').set('visible', true);
 			}
 		},
 		
@@ -521,7 +475,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('host').fire('properties:save');
 			
 			this.set('normalChanged', false);
-			SU.Manager.PageContentSettings.hide();
+			this.get('action').hide();
 			
 			//Reset slideshow position
 			this.get('slideshow').set('slide', 'propertySlideMain');
@@ -570,11 +524,35 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * Returns properties form title
+		 * 
+		 * @return Properties form title
+		 * @type {String}
+		 */
+		getTitle: function () {
+			var type = this.get('host').get('data').type,
+				block = Manager.Blocks.getBlock(type),
+				title = block.title;
+			
+			if (!title) {
+				//Convert ID into title
+				title = this.get('host').getId();
+				title = title.replace(/[\-\_\.]/g, ' ');
+				title = title.substr(0,1).toUpperCase() + title.substr(1);
+			}
+			
+			return title;
+		},
+		
+		/**
 		 * Show properties form
 		 */
 		showPropertiesForm: function () {
-			var form = this.get('form');
-			Manager.getAction('PageContentSettings').execute(form, {
+			//Sidebar title
+			this.get('action').set('title', this.getTitle());
+			
+			//Show form
+			this.get('action').execute(this.get('form'), {
 				'doneCallback': Y.bind(this.savePropertyChanges, this),
 				'hideEditorToolbar': true
 			});
@@ -585,7 +563,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		hidePropertiesForm: function () {
 			this.get('form').hide();
-			Manager.getAction('PageContentSettings').hide();
+			this.get('action').hide();
 		},
 		
 		/**

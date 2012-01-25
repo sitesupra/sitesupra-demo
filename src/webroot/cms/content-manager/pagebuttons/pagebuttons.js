@@ -13,8 +13,8 @@ SU('anim', function (Y) {
 		'publish':	{'label': SU.Intl.get(['page', 'publish']), 'style': 'mid-blue'},
 		'apply':	{'label': SU.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'},
 		'done':		{'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'},
-		'edit':		{'label': SU.Intl.get(['page', 'edit']), 'style': 'mid-green'},
-		'unlock':	{'label': SU.Intl.get(['page', 'unlock']), 'style': 'mid-green'}
+		'edit':		{'label': SU.Intl.get(['page', 'edit']), 'style': 'mid-blue'},
+		'unlock':	{'label': SU.Intl.get(['page', 'unlock']), 'style': 'mid-blue'}
 	};
 	var BUTTON_DEFAULT_CONF = {
 		'type': 'button',

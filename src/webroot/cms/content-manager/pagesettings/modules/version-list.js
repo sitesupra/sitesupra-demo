@@ -84,7 +84,7 @@ YUI.add("website.version-list", function (Y) {
 		 */
 		selectVersion: function (evt) {
 			//Buttons has their own event handlers
-			var button = evt.target.closest('.yui3-button');
+			var button = evt.target.closest('.su-button');
 			if(button) return;
 			
 			//

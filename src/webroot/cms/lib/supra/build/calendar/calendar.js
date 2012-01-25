@@ -3,8 +3,7 @@
 
 YUI.add("supra.calendar", function (Y) {
 	
-	var getClass = Y.ClassNameManager.getClassName,
-		YDate = Y.DataType.Date;
+	var YDate = Y.DataType.Date;
 	
 	/**
 	 * Calendar class 
@@ -18,6 +17,7 @@ YUI.add("supra.calendar", function (Y) {
 	}
 	
 	Calendar.NAME = "calendar";
+	Calendar.CSS_PREFIX = 'su-' + Calendar.NAME;
 	
 	Calendar.ATTRS = {
 		'firstWeekDay': Supra.data.get('dateFirstWeekDay'),
@@ -84,13 +84,13 @@ YUI.add("supra.calendar", function (Y) {
 	
 	Calendar.HTML_PARSER = {
 		'navigationNode': function (srcNode) {
-			return srcNode.one('.' + getClass(Calendar.NAME, 'nav'));
+			return srcNode.one('.' + this.getClassName('nav'));
 		},
 		'bodyNode': function (srcNode) {
-			return srcNode.one('.' + getClass(Calendar.NAME, 'body'));
+			return srcNode.one('.' + this.getClassName('body'));
 		},
 		'datesNode': function (srcNode) {
-			return srcNode.one('.' + getClass(Calendar.NAME, 'dates'));
+			return srcNode.one('.' + this.getClassName('dates'));
 		}
 	};
 	
@@ -111,22 +111,22 @@ YUI.add("supra.calendar", function (Y) {
 			
 			if (!navNode) {
 				navNode = Y.Node.create(
-					'<div class="' + getClass(Calendar.NAME, 'nav') + '">\
-						<a class="' + getClass(Calendar.NAME, 'prev') + '"></a>\
-						<a class="' + getClass(Calendar.NAME, 'next') + '"></a>\
+					'<div class="' + this.getClassName('nav') + '">\
+						<a class="' + this.getClassName('prev') + '"></a>\
+						<a class="' + this.getClassName('next') + '"></a>\
 						<p></p>\
 					</div>');
 				
 				contentNode.prepend(navNode);
 				this.set('navigationNode', navNode);
 				
-				navNode.one('.yui3-calendar-prev').on('mousedown', this.goPrevMonth, this);
-				navNode.one('.yui3-calendar-next').on('mousedown', this.goNextMonth, this);
+				navNode.one('.su-calendar-prev').on('mousedown', this.goPrevMonth, this);
+				navNode.one('.su-calendar-next').on('mousedown', this.goNextMonth, this);
 			}
 			
 			if (!bodyNode) {
 				bodyNode = Y.Node.create(
-					'<div class="' + getClass(Calendar.NAME, 'body') + '"></div>');
+					'<div class="' + this.getClassName('body') + '"></div>');
 				
 				navNode.insert(bodyNode, 'after');
 				this.set('bodyNode', bodyNode);
@@ -136,7 +136,7 @@ YUI.add("supra.calendar", function (Y) {
 			
 			if (!suggestionsNode) {
 				suggestionsNode = Y.Node.create(
-					'<div class="' + getClass(Calendar.NAME, 'suggestions') + '"></div>');
+					'<div class="' + this.getClassName('suggestions') + '"></div>');
 				
 				contentNode.append(suggestionsNode);
 				this.set('suggestionsNode', suggestionsNode);
@@ -238,13 +238,13 @@ YUI.add("supra.calendar", function (Y) {
 			//Render header
 			for(var i=firstWeekDay,ii=7+firstWeekDay; i<ii; i++) {
 				k = i % 7;
-				headHTML.push('<th>' + weekDayNames[k].substr(0,1) + '</th>');
+				headHTML.push('<th>' + weekDayNames[k].toLowerCase() + '</th>');
 			}
 			
 			//Render body
 			k = 0;
 			
-			while(curDateTime < lastDateTime) {
+			while(curDateTime <= lastDateTime) {
 				classname = '';
 				if (curDateTime == dateTime) {
 					classname += ' selected';
@@ -257,7 +257,7 @@ YUI.add("supra.calendar", function (Y) {
 					classname += ' out';
 				}
 				
-				rowHTML.push('<td data-date="' + YDate.reformat(curDate, 'raw', 'in_date') + '"' + (classname ? ' class="' + classname + '"' : '') + '>' + curDate.getDate() + '</td>');
+				rowHTML.push('<td data-date="' + YDate.reformat(curDate, 'raw', 'in_date') + '"' + (classname ? ' class="' + classname + '"' : '') + '><span>' + curDate.getDate() + '</span></td>');
 				
 				k++;
 				if (k == 7) {
@@ -448,9 +448,9 @@ YUI.add("supra.calendar", function (Y) {
 		_setDates: function (dates) {
 			var datesNode = this.get('datesNode');
 			
-			if (Y.Lang.isArray(dates)) {
+			if (Y.Lang.isArray(dates) && dates.length) {
 				if (!datesNode) {
-					datesNode = Y.Node.create('<div class="' + getClass(Calendar.NAME, 'dates') + '"></div>');
+					datesNode = Y.Node.create('<div class="' + this.getClassName('dates') + '"></div>');
 					datesNode.delegate('click', Y.bind(this._onDatesItemClick, this), 'a');
 					this.set('datesNode', datesNode);
 				} else {

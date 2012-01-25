@@ -377,7 +377,7 @@ YUI().add('supra.htmleditor-plugin-style', function (Y) {
 			node = document.createElement('option');
 			node.tag = '';
 			node.value = '';
-			node.innerHTML = '&nbsp;';
+			node.innerHTML = Y.Escape.html(Supra.Intl.get(['htmleditor', 'style']));
 			this.dropdown.appendChild(node);
 			
 			for(tagName in selectors) {

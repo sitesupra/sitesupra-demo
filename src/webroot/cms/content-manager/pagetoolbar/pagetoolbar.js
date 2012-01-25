@@ -416,6 +416,7 @@ SU(function (Y) {
 						*/
 						
 						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon, "visible": visible});
+						button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 						button.set('topbarButtonId', id);
 						button.render(subcontainer);
 						button.on('click', this.handleButtonClick, this);

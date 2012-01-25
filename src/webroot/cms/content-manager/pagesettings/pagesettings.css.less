@@ -1,0 +1,57 @@
+@import "/cms/lib/supra/less/common.less";
+
+
+.page-settings {
+	.yui3-input-select-list .su-button p {
+		display: inline-block;
+		min-width: 50px;
+	}
+	
+	/*
+	 * Redirect: "Fixed" button width
+	 */
+	.page-settings-button-fixed p {
+		overflow: hidden;
+		max-width: 85px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		padding: 0;
+	}
+	
+	/*
+	 * Schedule, Created calendars
+	 */
+	.template-hint {
+		padding: 10px;
+		text-align: center;
+	}
+	
+	#slideSchedule,
+	#slideCreated {
+		p.label {
+			display: block;
+			padding: 10px 0 8px;
+		}
+		.yui3-input-string {
+			width: 30px;
+			display: inline-block;
+			vertical-align: middle;
+			padding: 0;
+			margin: 0;
+		}
+		.time span {
+			color: #A3A4B9;
+			vertical-align: middle;
+		}
+		.yui3-input-string input {
+			text-align: center;
+		}
+		.yui3-input-string label {
+			display: none;
+		}
+		
+		.su-button {
+			margin-top: 10px;
+		}
+	}
+}

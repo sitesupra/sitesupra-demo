@@ -13,7 +13,7 @@ YUI.add('supra.header.appdock', function(Y) {
 	var ICON_BLANK = '/cms/lib/supra/img/px.gif';
 	
 	//Templates
-	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" /><span>{title}</span>';
+	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" />';
 	var TEMPLATE_ITEM = '<li><a href="{path}"><img src="{icon}" alt="" /><span>{title}</span></a></li>';
 	var TEMPLATE_ITEM_LOGOUT = '<li class="logout"><a href="{path}"><div></div><span>{title}</span></a></li>';
 	

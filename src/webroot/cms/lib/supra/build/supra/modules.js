@@ -485,7 +485,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-checkbox': {
 		path: 'input/checkbox.js',
-		requires: ['supra.input-select-list']
+		requires: ['supra.input-proto', 'anim']
 	},
 	'supra.input-file-upload': {
 		path: 'input/fileupload.js',

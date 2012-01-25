@@ -601,7 +601,7 @@ YUI.add("supra.form", function (Y) {
 			var key = key || "name",
 				definitions = this.inputs_definition,
 				input = null,
-				key_value = null;
+				key_value = null,
 				data = skip_encode ? data : this.serializeObject(data, null, true),
 				plainValues = this.get("plainValues");
 			

@@ -2,7 +2,15 @@
 	padding: 20px;
 	max-width: 450px;
 	
+	color: #060313;
 	font-size: 14px;
+	font-weight: bold;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+
+	background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
+	-moz-border-radius: 3px 3px 0 0;
+	-webkit-border-radius: 3px 3px 0 0;
+	border-radius: 3px 3px 0 0;
 }
 .supra-confirmation-message.align-center {
 	text-align: center;

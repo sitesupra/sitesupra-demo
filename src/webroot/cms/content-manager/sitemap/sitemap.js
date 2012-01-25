@@ -286,7 +286,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			for(id in pages) {
 				node = tree.getNodeById(id);
 				if (node) {
-					if (pages[id].edit) {
+					if (pages[id].edit_page) {
 						//Enable editing only if not root page
 						if (!node.isRoot() || type == 'templates') {
 							//
@@ -678,13 +678,13 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				
 			//Content position sync with other actions
 			node.plug(SU.PluginLayout, {
-				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			
 			//Top bar 
-			node.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			node.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			node.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+			node.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
+			node.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
+			node.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
 		},
 		
 		/**

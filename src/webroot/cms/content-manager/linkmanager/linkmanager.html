@@ -1,16 +1,20 @@
-<div class="yui3-linkmanager yui3-sidebar">
+<div class="yui3-linkmanager sidebar">
 	
-	<!-- Form header -->
-	<h2 class="yui3-sidebar-header">{#linkmanager.title#} <span></span></h2>
-	
-	<!-- Buttons -->
-	<div class="yui3-sidebar-buttons">
-		<button type="button" class="button-back"><p>{#buttons.back#}</p></button>
-		<button type="button" class="button-close"><p>{#buttons.close#}</p></button>
-		<button type="button" class="button-insert"><p>{#buttons.insert#}</p></button>
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/link.png" alt="" />
+		<h2>{#linkmanager.title#}</h2>
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.close#}</p></button>
 	</div>
 	
-	<div class="yui3-sidebar-content has-header has-buttons"><form>
+	<!-- Content -->
+	<div class="sidebar-content has-header"><form class="yui3-form-vertical">
 		
 		<!-- Slider -->
 		<div class="slideshow">
@@ -56,9 +60,9 @@
 				<div class="link-controls">
 					
 					<label for="linkManagerTarget">{#linkmanager.new_window#}</label>
-					<select id="linkManagerTarget" name="target" suType="SelectList">
-						<option value="" selected="selected">{#buttons.off#}</option>
-						<option value="_blank">{#buttons.on#}</option>
+					<select id="linkManagerTarget" name="target" suType="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
 					</select>
 					
 					<label for="linkManagerTitle">{#linkmanager.link_title#}</label>
@@ -89,7 +93,8 @@
 		
 	</form></div>
 	
-	<div class="yui3-sidebar-footer hidden">
+	<!-- Footer -->
+	<div class="sidebar-footer hidden">
 		<button type="button">{#linkmanager.remove_link#}</button>
 	</div>
 	

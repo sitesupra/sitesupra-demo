@@ -18,119 +18,150 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		 * Initialize plugin
 		 */
 		initialize: function () {
-			var node = null;
+			var header = null,
+				node = null;
 			
-			node = this.host.one('.yui3-sidebar-header');
+			//Header
+			header = this.host.one('.sidebar-header');
 			this.host.addAttr('headerNode', {
-				value: node
+				'value': header
 			});
 			this.host.addAttr('headerVisible', {
-				value: node && !node.hasClass('hidden'),
-				setter: Y.bind(this._setHeaderVisible, this)
+				'value': header && !header.hasClass('hidden'),
+				'setter': Y.bind(this.setHeaderVisible, this)
 			});
 			
-			node = this.host.one('.yui3-sidebar-footer');
-			this.host.addAttr('footerNode', {
-				value: node
-			});
-			this.host.addAttr('footerVisible', {
-				value: node && !node.hasClass('hidden'),
-				setter: Y.bind(this._setFooterVisible, this)
+			//Buttons
+			node = header.one('.button-back');
+			this.host.addAttr('backButton', {
+				'value': node ? new Supra.Button({
+									'srcNode': node,
+									'style': 'small-gray',
+									'visible': !node.hasClass('hidden')
+								}) : null
 			});
 			
-			node = this.host.one('.yui3-sidebar-buttons');
-			this.host.addAttr('buttonsNode', {
-				value: node
+			node = header.one('.button-control');
+			this.host.addAttr('controlButton', {
+				'value': node ? new Supra.Button({
+									'srcNode': node,
+									'style': 'small-blue',
+									'visible': !node.hasClass('hidden')
+								}) : null
 			});
-			this.host.addAttr('buttonsVisible', {
-				value: node && !node.hasClass('hidden'),
-				setter: Y.bind(this._setButtonsVisible, this)
+			
+			//Icon
+			node = header.one('img');
+			this.host.addAttr('iconNode', {
+				'value': node
+			});
+			this.host.addAttr('icon', {
+				'value': node.getAttribute('src'),
+				'setter': Y.bind(this.setIcon, this)
+			});
+			
+			//Title
+			node = header.one('h2');
+			this.host.addAttr('titleNode', {
+				'value': node
+			});
+			this.host.addAttr('title', {
+				'value': node.get('text'),
+				'setter': Y.bind(this.setTitle, this)
+			});
+			
+			//Content
+			node = this.host.one('.sidebar-content');
+			this.host.addAttr('contentNode', {
+				'value': node
 			});
 			
 			/*
 			 * In frozen state if sidebar is hidden then toolbar buttons
-			 * will not be removed
+			 * will not be removed and "hide" function is not called,
+			 * on action execute "execute" function will not be called either
 			 */
-			this.host.addAttr('toolbarButtonsFrozen', {
-				value: false
+			this.host.addAttr('frozen', {
+				'value': false
 			});
 			
-			this.host.after('visibleChange', this._afterVisibleChange, this);
+			this.host._frozenExecute = this.host.execute;
+			this.host._frozenHide = this.host.hide;
+			
+			this.host.execute = this.executeHost;
+			this.host.hide = this.hideHost;
+			
+			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
 		
 		/**
 		 * Set header visibility
 		 * 
-		 * @param {Boolean} val Visibility state
+		 * @param {Boolean} value Visibility state
 		 * @return New visibility state
 		 * @type {Boolean}
 		 */
-		_setHeaderVisible: function (val) {
-			var node = this.host.one('.yui3-sidebar-header');
-			var cont = this.host.one('.yui3-sidebar-content');
+		setHeaderVisible: function (value) {
+			var node = this.host.one('headerNode'),
+				cont = this.host.get('contentNode');
 			
-			if (val && node) {
+			if (value && node) {
 				node.removeClass('hidden');
 				if (cont) cont.addClass('has-header');
 			} else {
 				if (node) node.addClass('hidden');
 				if (cont) cont.removeClass('has-header');
-				val = false;
+				value = false;
 			}
 			
-			return !!val;
+			return !!value;
 		},
 		
 		/**
-		 * Set footer visibility
+		 * Set header icon
 		 * 
-		 * @param {Boolean} val Visibility state
-		 * @return New visibility state
-		 * @type {Boolean}
+		 * @param {String} path Path to icon
+		 * @return New icon path
+		 * @type {String}
 		 */
-		_setFooterVisible: function (val) {
-			var node = this.host.one('.yui3-sidebar-footer');
-			var cont = this.host.one('.yui3-sidebar-content');
+		setIcon: function (path) {
+			var node = this.host.get('iconNode');
 			
-			if (val && node) {
-				node.removeClass('hidden');
-				if (cont) cont.addClass('has-footer');
-			} else {
-				if (node) node.addClass('hidden');
-				if (cont) cont.removeClass('has-footer');
-				val = false;
+			if (node) {
+				if (path) {
+					node.setAttribute('src', path);
+					node.removeClass('hidden');
+				} else {
+					node.addClass('hidden');
+				}
+				
+				return path;
 			}
 			
-			return !!val;
+			return null;
 		},
 		
 		/**
-		 * Set buttons visibility
+		 * Set sidebar title
 		 * 
-		 * @param {Boolean} val Visibility state
-		 * @return New visibility state
-		 * @type {Boolean}
+		 * @param {String} title Title
+		 * @return New title
+		 * @type {String}
 		 */
-		_setButtonsVisible: function (val) {
-			var node = this.host.one('.yui3-sidebar-buttons');
-			var cont = this.host.one('.yui3-sidebar-content');
+		setTitle: function (title) {
+			var node = this.host.get('titleNode');
 			
-			if (val && node) {
-				node.removeClass('hidden');
-				if (cont) cont.addClass('has-buttons');
-			} else {
-				if (node) node.addClass('hidden');
-				if (cont) cont.removeClass('has-buttons');
-				val = false;
+			if (node) {
+				node.set('text', title);
 			}
 			
-			return !!val;
+			return title;
 		},
 		
 		/**
 		 * On visibility change show/hide toolbar buttons
 		 */
-		_afterVisibleChange: function (evt) {
+		afterVisibleChange: function (evt) {
 			if (evt.newVal != evt.prevVal) {
 				var toolbar = Manager.getAction('PageToolbar'),
 					buttons = Manager.getAction('PageButtons'),
@@ -149,7 +180,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					toolbar.setActiveAction(this.host.NAME);
 					buttons.setActiveAction(this.host.NAME);
 				} else {
-					if (!this.host.get('toolbarButtonsFrozen')) {
+					if (!this.host.get('frozen')) {
 						//Hide buttons
 						toolbar.unsetActiveAction(this.host.NAME);
 						buttons.unsetActiveAction(this.host.NAME);
@@ -172,6 +203,13 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		 */
 		render: function () {
 			PluginSidebar.superclass.render.apply(this, arguments);
+			
+			//Render buttons
+			var button = this.host.get('backButton');
+			if (button) button.render();
+			
+			button = this.host.get('controlButton');
+			if (button) button.render();
 		},
 		
 		/**
@@ -180,6 +218,27 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		execute: function () {
 			PluginSidebar.superclass.execute.apply(this, arguments);
 			this.host.show();
+		},
+		
+		
+		/**
+		 * Function which overwrites hosts "execute" to prevent
+		 * calling it in frozen state
+		 */
+		executeHost: function () {
+			if (!this.get('frozen')) {
+				this._frozenExecute.apply(this, arguments);
+			}
+		},
+		
+		/**
+		 * Function which overwrites hosts "hide" to prevent
+		 * calling it in frozen state
+		 */
+		hideHost: function () {
+			if (!this.get('frozen')) {
+				this._frozenHide.apply(this, arguments);
+			}
 		}
 		
 	});

@@ -1,0 +1,104 @@
+.yui3-input-select-list {
+	
+	.su-button {
+		background-repeat: repeat-x;
+		background-position: 0 -32px;
+		
+		/* Normal state */
+		&, .su-button-content, button {
+			background-image: url(input-select-list-light.png);
+			height: 32px;
+			line-height: 32px;
+		}
+		.su-button-content {
+			background-position: 0 -32px;
+			background-repeat: no-repeat;
+			padding: 0;
+			width: 100%;
+		}
+		&.su-button-first .su-button-content {
+			background-position: 0 0;
+		}
+		button {
+			background-position: 100% -32px;
+			background-repeat: no-repeat;
+			width: 100%;
+		}
+		&.su-button-last button {
+			background-position: 100% -64px;
+		}
+		p {
+			color: #585B72;
+			font-weight: bold;
+			text-align: center;
+			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+			padding: 0 10px;
+		}
+		
+		&.su-button-first,
+		&.su-button-first .su-button-content {
+			.border-radius-all ( 3px, 0, 0, 3px );
+		}
+		&.su-button-last,
+		&.su-button-last .su-button-content,
+		&.su-button-last button {
+			.border-radius-all ( 0, 3px, 3px, 0 );
+		}
+		
+		/* Active state */
+		&.su-button-down {
+			background-position: 0 -128px;
+			
+			.su-button-content {
+				background-position: 0 -96px;
+			}
+			&.su-button-first .su-button-content {
+				background-position: 0 -192px;
+			}
+			button {
+				background-position: 100% -160px;
+			}
+			&.su-button-last button {
+				background-position: 100% -224px;
+			}
+			p {
+				color: #fff;
+				text-shadow: 0 1px 0 rgba(0, 19, 52, 0.4);
+			}
+		}
+		&.su-button-mouse-hover {
+			p {
+				color: #fff;
+				text-shadow: 0 1px 0 rgba(0, 19, 52, 0.4);
+			}
+		}
+	}
+	
+}
+
+.ui-dark .yui3-input-select-list {
+	.su-button {
+		&, .su-button-content, button {
+			background-image: url(input-select-list-dark.png);
+		}
+		p {
+			color: #373649;
+			text-shadow: 0 1px 0 #000;
+		}
+		/* Active state */
+		&.su-button-down p {
+			color: #fff;
+			text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
+		}
+		/* Mouse over state */
+		&.su-button-mouse-hover p {
+			color: #fff;
+			text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
+		}
+	}
+}
+
+	.su-button-group button img+p,
+	.yui3-input-select-list .su-button img+p {
+		display: none;
+	}

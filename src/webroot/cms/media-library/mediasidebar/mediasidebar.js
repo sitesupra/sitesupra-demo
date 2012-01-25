@@ -98,7 +98,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * @private
 		 */
 		renderMediaList: function () {
-			var container = this.one('.yui3-sidebar-content');
+			var container = this.one('.sidebar-content');
 			var medialibrary = Manager.getAction('MediaLibrary');
 			
 			var list = this.medialist = new Supra.MediaLibraryList({
@@ -163,11 +163,11 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			this.button_back.hide();
 			this.button_back.on('click', this.scrollBack, this);
 			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
+			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'small'});
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
 			
-			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
+			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'small-blue', 'visible': false});
 			this.button_insert.render();
 			this.button_insert.on('click', this.insert, this);
 		},
@@ -176,7 +176,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * Create footer button
 		 */
 		renderFooter: function () {
-			var button = this.one('.yui3-sidebar-footer button');
+			var button = this.one('.sidebar-footer button');
 			
 			this.button_app = new Supra.Button({'srcNode': button});
 			this.button_app.render();

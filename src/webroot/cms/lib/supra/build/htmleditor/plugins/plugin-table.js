@@ -61,7 +61,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.get('boundingBox').addClass('yui3-form-properties')
-									   .addClass('yui3-sidebar-content')
+									   .addClass('sidebar-content')
 									   .addClass('scrollable')
 									   .addClass('has-footer');
 				form.hide();
@@ -77,11 +77,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			//Insert row before, after, etc.
 			var button_list = {};
-			var node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
+			var node_group = Y.Node.create('<div class="su-button-group-list"></div>');
 			form.get('contentBox').append(node_group);
 			
 			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-before.png'});
-				btn.addClass('yui3-button-first');
+				btn.addClass('su-button-first');
 				btn.render(node_group).on('click', this.cmdRowBefore, this);
 				button_list.rowBefore = btn;
 			
@@ -90,21 +90,21 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				button_list.rowDelete = btn;
 			
 			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-row-after.png'});
-				btn.addClass('yui3-button-last');
+				btn.addClass('su-button-last');
 				btn.render(node_group).on('click', this.cmdRowAfter, this);
 				button_list.rowAfter = btn;
 			
 			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'merge_cells']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
-				btn.addClass('yui3-button-first');
-				btn.addClass('yui3-button-last');
+				btn.addClass('su-button-first');
+				btn.addClass('su-button-last');
 				btn.render(node_group).on('click', this.cmdMergeCells, this);
 				button_list.mergeCells = btn;
 			
-			node_group = Y.Node.create('<div class="yui3-button-group-list"></div>');
+			node_group = Y.Node.create('<div class="su-button-group-list"></div>');
 			form.get('contentBox').append(node_group);
 			
 			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_before']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-before.png'});
-				btn.addClass('yui3-button-first');
+				btn.addClass('su-button-first');
 				btn.render(node_group).on('click', this.cmdColBefore, this);
 				button_list.colBefore = btn;
 			
@@ -113,12 +113,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				button_list.colDelete = btn;
 			
 			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_after']), 'style': 'group', 'icon': '/cms/lib/supra/img/htmleditor/table-col-after.png'});
-				btn.addClass('yui3-button-last');
+				btn.addClass('su-button-last');
 				btn.render(node_group).on('click', this.cmdColAfter, this);
 				button_list.colAfter = btn;
 			
 			//Footer
-			var footer = Y.Node.create('<div class="yui3-sidebar-footer hidden"></div>');
+			var footer = Y.Node.create('<div class="sidebar-footer hidden"></div>');
 			this.footer = footer;
 			form.get('boundingBox').insert(footer, 'after');
 			
@@ -131,7 +131,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			//Delete button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(footer);
-				btn.addClass('yui3-button-delete');
+				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedTable, this);
 			
 			this.buttons = button_list;

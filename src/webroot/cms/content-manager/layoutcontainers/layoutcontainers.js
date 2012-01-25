@@ -233,7 +233,7 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 		 * @type {String}
 		 * @private
 		 */
-		CONTAINER_SELECTOR: '.yui3-right-container',
+		CONTAINER_SELECTOR: '.right-container',
 		
 	}));
 	
@@ -252,7 +252,7 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 		 * @type {String}
 		 * @private
 		 */
-		CONTAINER_SELECTOR: '.yui3-left-container'
+		CONTAINER_SELECTOR: '.left-container'
 		
 	}));
 	
@@ -270,7 +270,7 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 		 * @type {String}
 		 * @private
 		 */
-		CONTAINER_SELECTOR: '.yui3-top-container',
+		CONTAINER_SELECTOR: '.top-container',
 		
 		/**
 		 * Container can be hidden
@@ -336,11 +336,11 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
 			//Left and right container are under top container, maintain this position
-			layoutLeftContainer.plug(Supra.PluginLayout, {'offset': [10, 10, 10, 10]});
-			layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			layoutLeftContainer.plug(Supra.PluginLayout, {'offset': [0, 0, 0, 0]});
+			layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
 			
-			layoutRightContainer.plug(Supra.PluginLayout, {'offset': [10, 10, 10, 10]});
-			layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			layoutRightContainer.plug(Supra.PluginLayout, {'offset': [0, 0, 0, 0]});
+			layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
 			
 			//On left container show hide right container and wise versa
 			layoutLeftContainer.on('visibleChange', function (evt) {

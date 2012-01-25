@@ -5,14 +5,14 @@
 	margin: 0;
 }
 
-.yui3-linkmanager .yui3-input-select-list .yui3-button p {
+.yui3-linkmanager .yui3-input-select-list .su-button p {
 	display: inline-block;
 }
 
 .yui3-linkmanager .yui3-input label {
 	display: block;
 	width: auto;
-	padding: 0 0 5px 5px;
+	padding: 0 0 5px 0;
 }
 
 /**
@@ -60,8 +60,7 @@
 	top: 0;
 }
 #linkToPage .yui3-input-select-list {
-	margin: 10px 0;
-	text-align: center;
+	margin: 10px 19px 10px 20px;
 }
 
 #linkManagerType label {
@@ -70,7 +69,7 @@
 
 #linkManagerExternal .yui3-input,
 .yui3-linkmanager .link-controls .yui3-input {
-	margin: 10px;
+	margin: 10px 19px 10px 20px;
 }
 
 .yui3-linkmanager .yui3-input-string input {
@@ -78,7 +77,7 @@
 }
 
 .yui3-linkmanager .yui3-tree-content {
-	padding: 0 10px 10px;
+	padding: 0 19px 10px 20px;
 }
 
 .yui3-linkmanager .link-controls {
@@ -89,6 +88,10 @@
 	right: 0;
 	border-top: 1px solid #eee;
 }
+.yui3-linkmanager .link-controls .yui3-input-checkbox label {
+	width: 160px !important;
+}
+
 .yui3-linkmanager .has-link-controls .link-controls {
 	display: block;
 }
@@ -98,7 +101,7 @@
 	margin: 0 10px 10px;
 }
 
-.yui3-linkmanager .yui3-sidebar-footer {
+.yui3-linkmanager .sidebar-footer {
 	text-align: center;
 }
 

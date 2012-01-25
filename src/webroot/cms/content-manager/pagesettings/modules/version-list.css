@@ -32,6 +32,6 @@
 .version-list li:hover .version-item-buttons {
 	display: block;
 }
-.version-item-buttons .yui3-button {
+.version-item-buttons .su-button {
 	margin-right: 13px;
 }

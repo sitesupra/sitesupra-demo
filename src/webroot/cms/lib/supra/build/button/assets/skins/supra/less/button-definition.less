@@ -47,11 +47,22 @@ button::-moz-focus-inner {
 		}
 	}
 	
+	/* Icons */
+	img,
+	p {
+		-moz-user-drag: none;
+		-moz-user-select: none;
+		-webkit-user-drag: none;
+		-webkit-user-select: none;
+		user-drag: none;
+		user-select: none;
+	}
+	
 	/* Button loading state */
 	&.su-button-loading p {
 		color: transparent !important;
 		text-shadow: none !important;
-		background: url(../../supra/img/ajax-loader-24.png) 50% 50% no-repeat;
+		background: url(../../supra/img/ajax-loader-24-white.png) 50% 50% no-repeat;
 	}
 }
 
@@ -80,9 +91,9 @@ button::-moz-focus-inner {
 
 /* Button mixin */
 .button ( @image, @height, @offset: 0) {
+	.button-background (@image);
 	background-position: 100% @offset*-1-@height*2;
 	
-	.button-background (@image);
 	&,
 	div {
 		.border-radius (3px);
@@ -114,7 +125,8 @@ button::-moz-focus-inner {
 		}
 	}
 	
-	&.su-button-down {
+	&.su-button-down,
+	&.su-button-mouse-down {
 		background-position: 100% @offset*-1-@height*8;
 		
 		div {

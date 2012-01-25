@@ -135,15 +135,17 @@ YUI.add('supra.input-select-list', function (Y) {
 			//Buttons will be placed instead of input
 			this.get('inputNode').addClass('hidden');
 			
+			var button_width = 100 / values.length;
+			
 			for(var i=0,ii=values.length-1; i<=ii; i++) {
 				button = new Supra.Button({'label': values[i].title, 'icon': values[i].icon, 'type': 'toggle', 'style': 'group'});
 				this.buttons[values[i].id] = button;
 				
 				if (i == 0) {
-					button.get('boundingBox').addClass('yui3-button-first');
+					button.get('boundingBox').addClass('su-button-first');
 				}
 				if (i == ii) {
-					button.get('boundingBox').addClass('yui3-button-last');
+					button.get('boundingBox').addClass('su-button-last');
 				}
 				
 				if (input && input.options) {
@@ -158,6 +160,9 @@ YUI.add('supra.input-select-list', function (Y) {
 				}
 				
 				button.render(contentBox);
+				
+				//Set button width
+				button.get('boundingBox').setStyle('width', button_width + '%');
 				
 				//On click update input value
 				button.on('click', this._onClick, this, values[i].id);

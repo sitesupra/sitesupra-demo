@@ -2,7 +2,7 @@
   * = Page header 
   */
 .cms-header {
-	min-height: 52px; /* App dock height */
+	min-height: 48px; /* App dock height */
 }
 .cms-header .yui3-app {
 	float: left;
@@ -18,47 +18,23 @@
 	left: 0;
 	top: 0;
 	display: block;
-	padding: 10px;
+	padding: 8px;
 	cursor: pointer;
 	text-decoration: none;
 }
-.yui3-app-current img {
-	display: inline-block;
-	vertical-align: middle;
-	opacity: 0.8;
-	
+/*
 	-moz-transition: opacity 0.5s;
 	-webkit-transition: opacity 0.5s;
 	transition: opacity 0.5s;
-}
-.yui3-app-current span {
-	vertical-align: middle;
-	color: #ccc;
-	padding-left: 10px;
-	
-	-moz-transition: color 0.5s;
-	-webkit-transition: color 0.5s;
-	transition: color 0.5s;
 }
 .yui3-app-current:hover img {
 	opacity: 1;
 	
-	/* Hover opacity animation */
 	-moz-transition: opacity 0.5s;
 	-webkit-transition: opacity 0.5s;
 	transition: opacity 0.5s;
 }
-.yui3-app-current:hover span {
-	color: #fff;
-	
-	-moz-transition: color 0.5s;
-	-webkit-transition: color 0.5s;
-	transition: color 0.5s;
-}
-
-.yui3-app-dock-visible .yui3-app-current span {
-	color: #333;
-}
+*/
 
 /**
   * = App dock 

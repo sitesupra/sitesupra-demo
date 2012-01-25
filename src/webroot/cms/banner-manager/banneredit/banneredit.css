@@ -83,11 +83,11 @@
 .banner .input-group-button {
 	padding: 10px;
 }
-.banner .input-group-button .yui3-button,
-.banner .input-group-button .yui3-button div {
+.banner .input-group-button .su-button,
+.banner .input-group-button .su-button div {
 	display: block;
 }
-.banner .input-group-button .yui3-button button {
+.banner .input-group-button .su-button button {
 	width: 100%;
 }
 
@@ -99,7 +99,7 @@
 	margin: 0;
 }
 
-.banner .yui3-input-select-list .yui3-button p {
+.banner .yui3-input-select-list .su-button p {
 	min-width: 50px;
 }
 
@@ -112,10 +112,10 @@
 	border-top: 1px solid #eee;
 	padding: 10px;
 }
-.banner .delete-group .yui3-button,
-.banner .delete-group .yui3-button div {
+.banner .delete-group .su-button,
+.banner .delete-group .su-button div {
 	display: block;
 }
-.banner .delete-group .yui3-button button {
+.banner .delete-group .su-button button {
 	width: 100%;
 }

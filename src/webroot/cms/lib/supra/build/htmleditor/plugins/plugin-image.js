@@ -76,7 +76,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.get('boundingBox').addClass('yui3-form-properties')
-									   .addClass('yui3-sidebar-content')
+									   .addClass('sidebar-content')
 									   .addClass('scrollable')
 									   .addClass('has-footer');
 				form.hide();
@@ -91,7 +91,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			form.get('contentBox').insert(heading, 'before');
 			
 			//Footer
-			var footer = Y.Node.create('<div class="yui3-sidebar-footer hidden"></div>');
+			var footer = Y.Node.create('<div class="sidebar-footer hidden"></div>');
 			this.footer = footer;
 			form.get('boundingBox').insert(footer, 'after');
 			
@@ -106,13 +106,13 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			//Delete button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(footer);
-				btn.addClass('yui3-button-delete');
+				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
 			
 			//Replace button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'replace']), 'style': 'mid'});
 				btn.render(footer);
-				btn.addClass('yui3-button-edit');
+				btn.addClass('su-button-edit');
 				btn.on('click', function () {
 					//Open Media library on 'Replace'
 					if (this.selected_image) {

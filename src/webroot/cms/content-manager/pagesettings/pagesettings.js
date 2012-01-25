@@ -4,7 +4,7 @@
 //Add module definitions
 SU.addModule('website.template-list', {
 	path: 'pagesettings/modules/template-list.js',
-	requires: ['widget', 'website.template-list-css']
+	requires: ['widget', 'website.template-list-css', 'supra.template']
 });
 SU.addModule('website.template-list-css', {
 	path: 'pagesettings/modules/template-list.css',
@@ -32,6 +32,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 	
 	//Calendar dates
 	var DEFAULT_DATES = [
+		/*
 		{
 			'date': Y.DataType.Date.reformat(new Date(), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['settings', 'select_today'])
@@ -40,6 +41,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			'date': Y.DataType.Date.reformat(new Date(+new Date() + 86400000), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['settings', 'select_tomorrow'])
 		}
+		*/
 	];
 	
 	var SLIDE_ROOT = 'slideMain';
@@ -96,15 +98,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Buttons
 		 * @type {Object}
 		 */
-		button_cancel: null,
-		button_back: null,
 		button_delete: null,
-		
-		/**
-		 * Redirect button
-		 * @type {Object}
-		 */
-		button_redirect: null,
 		
 		/**
 		 * Template list object
@@ -149,24 +143,36 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			var slide_id = evt.newVal;
 			
 			if (evt.newVal == 'slideMain') {
-				//this.button_cancel.show();
-				this.button_back.hide();
-				this.one('div.yui3-sidebar-buttons').addClass('hidden');
-				this.one('div.yui3-sidebar-content').removeClass('has-buttons');
+				this.get('backButton').hide();
 			} else {
-				//this.button_cancel.hide();
-				this.button_back.show();
-				this.one('div.yui3-sidebar-buttons').removeClass('hidden');
-				this.one('div.yui3-sidebar-content').addClass('has-buttons');
+				this.get('backButton').show();
 			}
 			
 			//Call "onSlide..." callback function
 			var new_item = (slide_id ? Y.one('#' + slide_id) : null),
 				fn = slide_id ? 'on' + (slide_id.substr(0,1).toUpperCase() + slide_id.substr(1)) : null;
-			
+				
 			if (fn && fn in this) {
 				this[fn](new_item, !!(fn in this.called));
 				this.called[fn] = true;
+			}
+			
+			//Update header title and icon
+			if (new_item) {
+				var label = '';
+				
+				if (evt.newVal == 'slideMain') {
+					if (this.getType() != 'template') {
+						label = SU.Intl.get(['settings', 'title_page']);
+					} else {
+						label = SU.Intl.get(['settings', 'title_template']);
+					}
+				} else {
+					label = new_item.getAttribute('data-title');
+				}
+				
+				this.set('title', label);
+				this.set('icon', new_item.getAttribute('data-icon'));
 			}
 		},
 		
@@ -189,7 +195,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				//Create apply button
 				var btn = new Supra.Button({srcNode: node.one('button')});
 				btn.render();
-				btn.on('click', this.onSlideScheduleApply, this);
+				btn.on('click', this.onSlideScheduleClear, this);
 			} else {
 				//Set date
 				this.calendar_schedule.set('date', date);
@@ -211,9 +217,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
-		 * On "slideSchedule" slide Apply button click save calendar values
+		 * On "slideSchedule" slide close save calendar values
 		 */
-		onSlideScheduleApply: function () {
+		onSlideScheduleClose: function () {
 			//Save date
 			this.page_data.scheduled_date = Y.DataType.Date.reformat(this.calendar_schedule.get('date'), 'out_date', 'in_date');
 			
@@ -227,6 +233,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			date.setSeconds(0);
 			
 			this.page_data.scheduled_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
+		},
+		
+		/**
+		 * On "Clear all" button click reset date and time values
+		 */
+		onSlideScheduleClear: function () {
+			//Save date and time
+			this.page_data.scheduled_date = '';
+			this.page_data.scheduled_time = '';
+			
 			this.slideshow.scrollBack();
 		},
 		
@@ -343,7 +359,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			
 			if (this.page_data.created_date) {
 				var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
-				node.set('text', Supra.Intl.get(['settings', 'advanced_create']) + date);
+				node.set('text', date);
 			} else {
 				node.set('text', Supra.Intl.get(['settings', 'advanced_unknown']));
 			}
@@ -458,20 +474,30 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		createForm: function () {
 			
+			//Section buttons
+			var buttons = this.all('a.button-section');
+			buttons.on('click', function (event) {
+				var node = event.target.closest('a');
+				this.slideshow.set('slide', node.getAttribute('data-target'));
+			}, this);
+			buttons.on('keyup', function (event) {
+				if (event.keyCode == 13 || event.keyCode == 39) { //Return key or arrow right
+					var node = event.target.closest('a');
+					this.slideshow.set('slide', node.getAttribute('data-target'));
+				}
+			}, this);
+			
+			//Normal buttons
 			var buttons = this.all('button');
 			
-			//Close button
-			/*
-			this.button_cancel = new Supra.Button({'srcNode': buttons.filter('.button-cancel').item(0)});
-			this.button_cancel.render().on('click', this.cancelSettingsChanges, this);
-			*/
-			
 			//Back button
-			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
-			this.button_back.render().hide().on('click', function () { this.slideshow.scrollBack(); }, this);
+			this.get('backButton').on('click', this.onBackButton, this);
+			
+			//Control button
+			this.get('controlButton').on('click', this.saveSettingsChanges, this);
 			
 			//Delete button
-			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'mid-red'});
+			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'small-red'});
 			this.button_delete.render().on('click', this.deletePage, this);
 			
 			/*
@@ -481,10 +507,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			}
 			*/
 			
-			//Meta button
-			var button_meta = new Supra.Button({'srcNode': buttons.filter('.button-meta').item(0)});
-			button_meta.render().on('click', function () { this.slideshow.set('slide', 'slideMeta'); }, this);
-			
 			//Version button
 			/*
 			var button_version = new Supra.Button({'srcNode': buttons.filter('.button-version').item(0), 'style': 'large'});
@@ -492,18 +514,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			*/
 			
 			//Template button
-			var button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'template'});
-			button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
-			
-			//Schedule button
-			var button_schedule = new Supra.Button({'srcNode': buttons.filter('.button-schedule').item(0)});
-			button_schedule.render().on('click', function () { this.slideshow.set('slide', 'slideSchedule'); }, this);
-			
-			//Redirect button
-			//this.button_redirect = new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)});
-			//this.button_redirect.render().on('click', function () { this.openLinkManager(); }, this);
-			this.button_redirect = new Supra.Button({'srcNode': buttons.filter('.button-redirect').item(0)});
-			this.button_redirect.render().on('click', function () { this.slideshow.set('slide', 'slideRedirect'); }, this);	
+			this.button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'small-gray'});
+			this.button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
 			
 			// Redirect select list
 			this.redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#redirect_type')});
@@ -514,7 +526,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				this.redirect_select.buttons.relative.on('click', function () {	this.onRedirectClick(); }, this);
 				// Redirect "Fixed" button
 				this.redirect_select.buttons.fixed.on('click', function () { this.onRedirectClick(); }, this);
-				this.redirect_select.buttons.fixed.addClass('yui3-page-settings-button-fixed');
+				this.redirect_select.buttons.fixed.addClass('page-settings-button-fixed');
 			
 			// Relative redirect select list
 			this.relative_redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#relative_redirect')});
@@ -524,12 +536,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				// Redirect -> Relative "Last child" button
 				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
-			//Advanced settings button
-			var button_advanced = new Supra.Button({'srcNode': buttons.filter('.button-advanced').item(0)});
-			button_advanced.render().on('click', function () { this.slideshow.set('slide', 'slideAdvanced'); }, this);
-				
 			//Created settings button
-			var button_settings = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0)});
+			var button_settings = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
 			button_settings.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
 				
 			//Slideshow
@@ -548,15 +556,13 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//When form is disabled/enabled take care of buttons
 			form.on('disabledChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					this.button_back.set('disabled', evt.newVal);
+					this.get('backButton').set('disabled', evt.newVal);
 					this.button_delete.set('disabled', evt.newVal);
-					this.button_redirect.set('disabled', evt.newVal);
+					this.button_template.set('disabled', evt.newVal);
 					button_meta.set('disabled', evt.newVal);
-					//button_version.set('disabled', evt.newVal);
-					button_template.set('disabled', evt.newVal);
 					button_schedule.set('disabled', evt.newVal);
-					button_advanced.set('disabled', evt.newVal);
 					button_settings.set('disabled', evt.newVal);
+					//button_version.set('disabled', evt.newVal);
 				}
 			}, this);
 			
@@ -611,6 +617,22 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
+		 * Scroll back
+		 */
+		onBackButton: function () {
+			//Callback
+			var slide_id = this.slideshow.get('slide'),
+				fn = slide_id ? 'on' + (slide_id.substr(0,1).toUpperCase() + slide_id.substr(1)) + 'Close' : null;
+			
+			if (fn && this[fn]) {
+				this[fn]();
+			}
+			
+			//Scroll
+			this.slideshow.scrollBack();
+		},
+		
+		/**
 		 * Set form values
 		 */
 		setFormValues: function () {
@@ -646,15 +668,15 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			switch(key) {
 				case 'template':
 					//Set template info
-					var node = this.one('.button-template small');
-					node.one('span').set('text', page_data.template.title);
-					node.one('img').set('src', page_data.template.img);
+					this.button_template.set('label', page_data.template.title);
 					break;
 				case 'redirect':
 					//Update button label
 					var data = page_data.redirect;
 					var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
-					this.button_redirect.set('label', title);
+					
+					//@TODO
+					//this.button_redirect.set('label', title);
 					
 					// Trying to set correct titles for redirect selects buttons 
 					// or reset them to defaults if redirect is empty
@@ -782,25 +804,12 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
-		 * CancelSave changes
-		 */
-		cancelSettingsChanges: function () {
-			this.hide();
-		},
-		
-		/**
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
 			
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'done',
-				'context': this,
-				'callback': function () {
-					this.saveSettingsChanges();
-				}
-			}]);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
 			if (!this.form) this.createForm();
 		},
@@ -829,7 +838,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					['template', form.getInput('description')],
 					['template', form.getInput('keywords')],
 					
-					['template', '.button-template'],
+					['template', '.template-section'],
 					['template', form.getInput('template[id]')],
 					['template', form.getInput('template[img]')],
 					['template', form.getInput('template[title]')],
@@ -868,7 +877,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				label_title = SU.Intl.get(['settings', 'page_title_template']);
 			}
 			
-			this.one('h2.yui3-sidebar-header').set('text', label_header);
+			this.set('title', label_header)
 			form.getInput('title').set('label', label_title);
 			
 			//Layout input

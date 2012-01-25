@@ -128,13 +128,13 @@ Supra(function (Y) {
 				
 			//iFrame position sync with other actions
 			iframe_handler.plug(SU.PluginLayout, {
-				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			
 			//Top bar 
-			iframe_handler.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			iframe_handler.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			iframe_handler.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+			iframe_handler.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
+			iframe_handler.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
+			iframe_handler.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
 		},
 		
 		/**
@@ -510,7 +510,7 @@ Supra(function (Y) {
 							}
 						},
 						'context': this,
-						'style': 'mid-green'
+						'style': 'small-blue'
 					}];
 				}
 				

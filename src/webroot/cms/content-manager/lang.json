@@ -45,8 +45,7 @@
 			"unlock_notification": "Information is successfully saved!",
 			"publish_notification": "Information is successfully published!",
 			
-			"block_properties": "block properties",
-			"placeholder_properties": "placeholder properties",
+			"delete_block": "Delete block",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
 			
 			"click_to_edit": "Click to edit",
@@ -135,13 +134,23 @@
 			
 			"page_layout": "Layout",
 			
-			"active": "Active",
+			"is_active": "Page active",
+			
+			"is_global": "Page is global",
+			"is_global_description": "Global pages appear in other languages on the site. Local pages appear in a given version.",
+			
 			"is_visible_in_sitemap": "Show in sitemap",
 			"is_visible_in_menu": "Show in menu",
+			
 			"include_in_search": "Include in search",
+			"include_in_search_description": "Turn on to make the page appear in search results",
+			
 			"pages_will_inherit_these_values": "New pages will inherit these template values on creation",
-			"meta": "Meta",
-			"meta_title": "Meta",
+			
+			"delete_page": "Delete page",
+			
+			"meta": "SEO",
+			"meta_title": "SEO",
 			"page_change_frequency": {
 				"title": "How frequently the page may change",
 				"always": "Always",
@@ -164,15 +173,18 @@
 			"template": "Template",
 			"template_title": "Templates",
 			
-			"schedule": "Schedule: publish",
+			"schedule": "Schedule publish",
 			"schedule_title": "Schedule publish",
 			"select_today": "Select today",
 			"select_tomorrow": "Select tomorrow",
-			"time": "Selected time",
+			"select_date": "Select a date",
+			"select_time": "Select time",
+			
+			"calendar_clear": "Clear all",
 			
 			"redirect": "Set redirect",
 			"redirect_to": "Redirect to: ",
-			"redirect_title": "Redirect settings",
+			"redirect_title": "Redirect",
 			
 			"redirect_active": "Active",
 			"redirect_first": "First child",
@@ -183,13 +195,12 @@
 			"redirect_off": "Off",
 			"redirect_relative_hint": "Current page will be opened if there is none active child",
 						
-			"advanced": "Advanced settings",
-			"advanced_title": "Advanced settings",
+			"advanced": "More settings",
+			"advanced_title": "More settings",
 			
 			"allow_translate": "Allow to translate this page",
-			
-			"advanced_create": "Page created on ",
-			"advanced_unknown": "Creation time not set yet",
+			"advanced_create": "Page created on",
+			"advanced_unknown": "Not set yet",
 			
 			"created_title": "Page created on",
 			

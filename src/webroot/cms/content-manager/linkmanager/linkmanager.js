@@ -51,7 +51,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 	};
 	
 	//Create Action class
-	new Action(Action.PluginContainer, {
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -170,15 +170,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					'srcNode': this.one('div.slideshow')
 				});
 			
-			//Back and Close buttons
-				var buttons = this.all('button');
-				
-				this.button_back   = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
-				this.button_close  = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
-				this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'mid-green', 'visible': false});
-			
 			//Remove link button
-				var button = this.one('.yui3-sidebar-footer button');
+				var button = this.one('.sidebar-footer button');
 				this.button_remove = new Supra.Button({'srcNode': button});
 				
 			//Create form
@@ -209,17 +202,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					links.on('click', this.openTargetSlide, this);
 			
 			//Back and Close buttons
-				this.button_back
-						.render()
+				this.get('backButton')
 						.hide()
 						.on('click', this.scrollBack, this);
 				
-				this.button_close
-						.render()
-						.on('click', this.close, this);
-				
-				this.button_insert
-						.render()
+				this.get('controlButton')
 						.on('click', this.close, this);
 			
 			//Remove link button
@@ -242,7 +229,6 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			if (evt.newVal == evt.prevVal) return;
 			
 			var slide_id = evt.newVal,
-				heading = this.one('h2.yui3-sidebar-header span'),
 				
 				fn = null,
 				node = null,
@@ -250,7 +236,9 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				show_back_button = true,
 				selectable = this.selectable,
 				medialibrary_visible = selectable.files || selectable.images,
-				link_visible = selectable.pages || selectable.external;
+				link_visible = selectable.pages || selectable.external,
+				
+				title = SU.Intl.get(['linkmanager', 'title']);
 			
 			//Show or hide back button
 				if (!medialibrary_visible || !link_visible) {
@@ -264,13 +252,17 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				}
 				
 				if (!show_back_button) {
-					this.button_back.hide();
-					heading.hide();
+					this.get('backButton').hide();
 				} else {
-					this.button_back.show();
-					heading.set('text', SU.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']));
-					heading.show();
+					this.get('backButton').show();
 				}
+				
+			//Update title
+				if (this.slideshow.history.length > 1) {
+					title += ' ' + SU.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']);
+				}
+				
+				this.set('title', title);
 			
 			//Call slide callback if there is one
 				if (slide_id in this.slide) {
@@ -492,8 +484,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					break;
 			}
 			
-			this.button_close.set('visible', !show_insert);
-			this.button_insert.set('visible', show_insert);
+			var button = this.get('controlButton');
+			button.set('label', show_insert ? '{#buttons.insert#}' : '{#buttons.close#}');
 		},
 		
 		/**
@@ -505,9 +497,9 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					//Don't show back button on first slide if there is no 'linkToPage' slide
 					if (!this.selectable.pages && !this.selectable.external) {
 						if (this.medialist.slideshow.history.length <= 1) {
-							this.button_back.hide();
+							this.get('backButton').hide();
 						} else {
-							this.button_back.show();
+							this.get('backButton').show();
 						}
 					}
 					break;
@@ -585,18 +577,18 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			
 			//Show footer for existing link and hide for new link
 			if (this.mode == 'link' && !data.page_id && !data.file_id && !data.href) {
-				this.one('.yui3-sidebar-footer').addClass('hidden');
-				this.one('.yui3-sidebar-content').removeClass('has-footer');
+				this.one('.sidebar-footer').addClass('hidden');
+				this.one('.sidebar-content').removeClass('has-footer');
 			} else {
-				this.one('.yui3-sidebar-footer').removeClass('hidden');
-				this.one('.yui3-sidebar-content').addClass('has-footer');
+				this.one('.sidebar-footer').removeClass('hidden');
+				this.one('.sidebar-content').addClass('has-footer');
 			}
 			
 			//Hide link controls?
 			if (this.options.hideLinkControls) {
-				this.one('.yui3-sidebar-content').removeClass('has-link-controls');
+				this.one('.sidebar-content').removeClass('has-link-controls');
 			} else {
-				this.one('.yui3-sidebar-content').addClass('has-link-controls');
+				this.one('.sidebar-content').addClass('has-link-controls');
 			}
 			
 			//Since file title is different input 'title' is used to transfer data
@@ -631,6 +623,10 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 				//Reset tree selected node
 				this.tree.set('selectedNode', null);
 			}
+			
+			//Change "target" value from "_blank" to true and "" to false
+			//to make it compatible with checkbox
+			data.target = (data.target == '_blank' ? true : false);
 			
 			//Set values by input name
 			this.form.setValues(data, 'name');
@@ -753,7 +749,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						'page_id': page_id,
 						'page_master_id': page_master_id,
 						'href': page_path,
-						'target': data.target,
+						'target': data.target ? '_blank' : '',
 						'title': page_title
 					};
 				} else {
@@ -766,7 +762,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 					return {
 						'resource': 'link',
 						'href': data.href,
-						'target': data.target,
+						'target': data.target ? '_blank' : '',
 						'title': page_title
 					};
 				}

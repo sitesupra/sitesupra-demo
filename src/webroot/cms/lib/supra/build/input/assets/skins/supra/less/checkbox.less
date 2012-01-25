@@ -1,0 +1,123 @@
+.yui3-form-default .yui3-input.yui3-input-checkbox {
+	margin: 18px 0;
+}
+
+.yui3-input-checkbox label {
+	display: inline-block !important;
+	width: 128px !important;
+	padding-top: 7px !important;
+	padding-bottom: 0 !important;
+}
+.yui3-input-checkbox .description {
+	width: 128px !important;
+	padding-top: 4px !important;
+}
+
+.yui3-input-checkbox-bg {
+	display: block;
+	float: right;
+	margin: 5px 25px 0 0;
+	width: 50px;
+	height: 17px;
+	position: relative;
+	
+	background: url(checkbox-light.png) 0 0 no-repeat;
+	cursor: pointer;
+	outline: none;
+	
+	/**
+	 * Pin icon
+	 */
+	span {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		user-select: none;
+	}
+	span.pin {
+		position: absolute;
+		top: 0;
+		left: 28px;
+		
+		cursor: pointer;
+		background: url(checkbox-light.png) 0 -17px no-repeat;
+		
+		display: block;
+		width: 24px;
+		height: 26px;
+	}
+	&.active span.pin {
+		background-position: -24px -17px;
+		left: 0;
+	}
+	
+	/**
+	 * Labels
+	 */
+	.label-a,
+	.label-b {
+		color: #646478;
+		cursor: pointer;
+		font-size: 12px;
+		font-weight: bold;
+		line-height: 14px;
+		
+		display: block;
+		position: absolute;
+		top: 2px;
+	}
+	.label-a {
+		right: 55px;
+	}
+	.label-b {
+		color: #0A0616;
+		left: 56px;
+	}
+	&.active .label-a {
+		color: #0A0616;
+	}
+	&.active .label-b {
+		color: #646478;
+	}
+	
+}
+
+/**
+ * Dark theme
+ */
+.ui-dark .yui3-input-checkbox-bg {
+	&,
+	span.pin {
+		background-image: url(checkbox-dark.png);
+	}
+	
+	/**
+	 * Pin icon
+	 */
+	span.pin {
+		background-position: 0 -70px;
+		width: 67px;
+		height: 53px;
+		margin: -5px 0 0 -37px;
+	}
+	&.active span.pin {
+		background-position: 0 -17px;
+		margin: -5px 0 0 -9px;
+	}
+	
+	/**
+	 * Labels
+	 */
+	.label-a,
+	.label-b {
+		color: #646478;
+	}
+	.label-b {
+		color: #C8C8C8;
+	}
+	&.active .label-a {
+		color: #C8C8C8;
+	}
+	&.active .label-b {
+		color: #646478;
+	}	
+}

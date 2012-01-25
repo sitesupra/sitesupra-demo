@@ -44,7 +44,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
 			var container = this.properties.get('form').get('contentBox');
-			var buttons = Y.Node.create('<div class="yui3-buttons"></div>');
+			var buttons = Y.Node.create('<div class="su-buttons"></div>');
 				container.append(buttons);
 			
 			//Manage image button

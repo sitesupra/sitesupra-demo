@@ -23,3 +23,39 @@
 	-moz-box-shadow: @arguments;
 	box-shadow: @arguments;
 }
+.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000, @x2: 0, @y2: 0, @blur2: 1px, @color2: #000) {
+	-webkit-box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
+	-moz-box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
+	box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
+}
+.box-shadow-inset (@x: 0, @y: 0, @blur: 1px, @color: #000) {
+	-webkit-box-shadow: @arguments inset;
+	-moz-box-shadow: @arguments inset;
+	box-shadow: @arguments inset;
+}
+
+/*
+ * CSS3 transitions
+ */
+.transition-property (@property) {
+	-moz-transition-property: @property;
+	-webkit-transition-property: @property;
+	transition-property: @property;
+}
+
+.transition-duration (@duration) {
+	-moz-transition-duration: @duration;
+	-webkit-transition-duration: @duration;
+	transition-duration: @duration;
+}
+
+/*
+ * Gradients
+ */
+.linear-gradient (@colorA, @posA: 0%, @colorB, @posB: 100%) {
+	background-image: linear-gradient(top, @colorA @posA, @colorB @posB);
+	background-image: -o-linear-gradient(top, @colorA @posA, @colorB @posB);
+	background-image: -moz-linear-gradient(top, @colorA @posA, @colorB @posB);
+	background-image: -webkit-linear-gradient(top, @colorA @posA, @colorB @posB);
+	background-image: -ms-linear-gradient(top, @colorA @posA, @colorB @posB);
+}
