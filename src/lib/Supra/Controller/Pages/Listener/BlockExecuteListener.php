@@ -51,7 +51,7 @@ class BlockExecuteListener implements EventSubscriber
 			BlockEvents::blockStartExecuteEvent,
 			BlockEvents::blockEndExecuteEvent,
 			PageController::EVENT_POST_PREPARE_CONTENT,
-			SqlEvents::startQuery,
+//			SqlEvents::startQuery,
 			SqlEvents::stopQuery,
 		);
 	}
@@ -78,29 +78,32 @@ class BlockExecuteListener implements EventSubscriber
 
 		$time = round($eventArgs->duration * 1000);
 
-		$message = $eventArgs->blockClass .
-				' - executed in ' .
-				"{$time} milliseconds;";
+		$messageData = array();
+		$messageData[] = $eventArgs->blockClass;
+		$messageData[] = $time;
 
 		if ($this->queriesCounter) {
-
 			$time = round($this->queriesTimeCounter * 1000);
-
-			$message .= " executed {$this->queriesCounter} " .
-					"queries in {$time} milliseconds.";
+			
+			$messageData[] = $this->queriesCounter;
+			$messageData[] = $time;
 		}
 
-		$this->statisticsData[] = $message;
+		if (count($messageData) == 4) {
+			$this->statisticsData[] = vsprintf('%-50s %4dms %3d queries (%4dms)', $messageData);
+		} else {
+			$this->statisticsData[] = vsprintf('%-50s %4dms', $messageData);
+		}
 	}
 
-	/**
-	 * Start query execution event handler
-	 * @param SqlEventsArgs $eventArgs 
-	 */
-	public function startQuery(SqlEventsArgs $eventArgs)
-	{
-		
-	}
+//	/**
+//	 * Start query execution event handler
+//	 * @param SqlEventsArgs $eventArgs 
+//	 */
+//	public function startQuery(SqlEventsArgs $eventArgs)
+//	{
+//		
+//	}
 
 	/**
 	 * Stop query execution event handler
@@ -109,7 +112,6 @@ class BlockExecuteListener implements EventSubscriber
 	 */
 	public function stopQuery(SqlEventsArgs $eventArgs)
 	{
-
 		if ( ! $this->runBlockFlag) {
 			return;
 		}
@@ -121,8 +123,6 @@ class BlockExecuteListener implements EventSubscriber
 
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
-
-
 		$response = new \Supra\Response\TwigResponse($this);
 		$response->assign('debugData', $this->statisticsData);
 		$response->outputTemplate('block_execute_listener.js.twig');

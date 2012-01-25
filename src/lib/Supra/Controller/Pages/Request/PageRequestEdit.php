@@ -144,9 +144,11 @@ class PageRequestEdit extends PageRequest
 		$publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 		$publicEm->getProxyFactory()->getProxy(PageLocalizationPath::CN(), -1);
 
-		// Initialize, because proxy object is not merged
-		$draftData->getTemplate()->getId();
-		
+		// Initialize, because not initialized proxy objects are not merged
+		if ($draftData instanceof PageLocalization) {
+			$draftData->initializeProxyAssociations();
+		}
+
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);

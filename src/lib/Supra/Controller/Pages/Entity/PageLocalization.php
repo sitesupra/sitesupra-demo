@@ -31,7 +31,7 @@ class PageLocalization extends Abstraction\Localization
 	protected $template;
 
 	/**
-	 * @OneToOne(targetEntity="PageLocalizationPath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
+	 * @OneToOne(targetEntity="PageLocalizationPath", cascade={"remove", "persist", "merge"})
 	 * @var PageLocalizationPath
 	 * @TODO: remove field from audit scheme maybe?
 	 */
@@ -68,9 +68,8 @@ class PageLocalization extends Abstraction\Localization
 	protected $scheduleTime;
 
 	/**
-	 * NB! Eager load is because "publish" action includes Doctrine merge action 
-	 * which will fail if object isn't initialized.
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"}, fetch="EAGER")
+	 * Redirect information if any
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
 	 * @var ReferencedElement\LinkReferencedElement
 	 */
 	protected $redirect;
@@ -479,6 +478,22 @@ class PageLocalization extends Abstraction\Localization
 	public function resetPath() 
 	{
 		$this->path = null;
+	}
+	
+	/**
+	 * Helper for the publish method
+	 */
+	public function initializeProxyAssociations()
+	{
+		if ($this->template) {
+			$this->template->getId();
+		}
+		if ($this->path) {
+			$this->path->getId();
+		}
+		if ($this->redirect) {
+			$this->redirect->getId();
+		}
 	}
 
 }

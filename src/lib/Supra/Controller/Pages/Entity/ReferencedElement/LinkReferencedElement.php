@@ -295,7 +295,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		);
 		
 		// Now master page ID is stored, still the old implementation is working
-		$dql = "SELECT l FROM $localizationEntity l 
+		$dql = "SELECT l FROM $localizationEntity l
 				WHERE (l.master = :master AND l.locale= :locale) 
 				OR l.id = :master";
 		

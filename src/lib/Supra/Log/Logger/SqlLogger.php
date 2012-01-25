@@ -63,7 +63,11 @@ class SqlLogger
 			if (isset($traceElement['class'])) {
 				$class = $traceElement['class'];
 			}
-			if ($class != __CLASS__ && strpos($class, 'Doctrine\\') !== 0 && strpos($class, 'Supra\\NestedSet\\') !== 0) {
+			if ($class != __CLASS__ 
+					&& $class != 'Supra\Log\Logger\EventsSqlLogger' 
+					&& $class != 'Supra\Event\EventManager' 
+					&& strpos($class, 'Doctrine\\') !== 0 
+					&& strpos($class, 'Supra\\NestedSet\\') !== 0) {
 				break;
 			}
 			
