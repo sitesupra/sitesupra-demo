@@ -48,7 +48,7 @@ $config->setProxyNamespace('Supra\Tests\Proxy');
 $config->setAutoGenerateProxyClasses(true);
 
 // SQL logger
-$sqlLogger = new \Supra\Log\Logger\SqlLogger();
+$sqlLogger = new \Supra\Log\Logger\EventsSqlLogger();
 $config->setSQLLogger($sqlLogger);
 
 $connectionOptions = $ini['database'];

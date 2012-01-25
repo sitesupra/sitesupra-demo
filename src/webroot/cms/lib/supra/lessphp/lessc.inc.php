@@ -234,7 +234,7 @@ class lessc {
 		if ($this->tag($tag, true) && $this->argumentDef($args) &&
 			$this->literal('{'))
 		{
-			$block = $this->pushBlock($this->fixTags(array($tag)));
+			$block = $this->pushBlock($this->fixTags(array($tag)), count($args));
 			$block->args = $args;
 			return true;
 		} else {
@@ -845,7 +845,7 @@ class lessc {
 	// just do a shallow propety merge, seems to be what lessjs does
 	function mergeBlock($target, $from) {
 		$target = clone $target;
-		$target->props = array_merge($target->props, $from->props);
+			$target->props = array_merge($target->props, $from->props);
 		return $target;
 	}
 
@@ -970,23 +970,28 @@ class lessc {
 	}
 
 	// attempt to find block pointed at by path within search_in or its parent
-	function findBlock($search_in, $path, $seen=array()) {
+	function findBlock($search_in, $path, $seen=array(), $argCount = 0) {
 		if ($search_in == null) return null;
 		if (isset($seen[$search_in->id])) return null;
 		$seen[$search_in->id] = true;
 
 		$name = $path[0];
+		
+		// add argument count to the last path part
+		if (count($path) == 1 && $argCount > 0) {
+			$name = $name . '$' . $argCount;
+		}
 
 		if (isset($search_in->children[$name])) {
 			$block = $search_in->children[$name];
 			if (count($path) == 1) {
 				return $block;
 			} else {
-				return $this->findBlock($block, array_slice($path, 1), $seen);
+				return $this->findBlock($block, array_slice($path, 1), $seen, $argCount);
 			}
 		} else {
 			if ($search_in->parent === $search_in) return null;
-			return $this->findBlock($search_in->parent, $path, $seen);
+			return $this->findBlock($search_in->parent, $path, $seen, $argCount);
 		}
 	}
 
@@ -1034,9 +1039,16 @@ class lessc {
 			break;
 		case 'mixin':
 			list(, $path, $args) = $prop;
-
-			$mixin = $this->findBlock($block, $path);
+			$seen = array();
+			$argCount = count($args);
+			$mixin = $this->findBlock($block, $path, $seen, $argCount);
 			if (is_null($mixin)) {
+				
+				throw new RuntimeException("Could not find block "
+						. implode(' ', $path)
+						. ($argCount > 0 ? ' with ' . $argCount . ' arguments' : '') 
+						. ' to mixin');
+				
 				// echo "failed to find block: ".implode(" > ", $path)."\n";
 				break; // throw error here??
 			}
@@ -1703,7 +1715,14 @@ class lessc {
 	/* environment functions */
 
 	// push a new block on the stack, used for parsing
-	function pushBlock($tags) {
+	function pushBlock($tags, $argCount = 0) {
+		
+		if ($argCount > 0) {
+			foreach ($tags as &$tag) {
+				$tag .= '$' . $argCount;
+			}
+		}
+		
 		$b = new stdclass;
 		$b->parent = $this->env;
 

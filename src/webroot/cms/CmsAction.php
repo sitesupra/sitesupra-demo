@@ -274,7 +274,7 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = null;
 		$request = $this->getRequest();
-
+		
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPostValue($key);
 		} else {
