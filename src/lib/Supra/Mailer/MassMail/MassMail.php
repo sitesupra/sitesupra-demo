@@ -97,4 +97,11 @@ class MassMail
 		
 	}
 	
+	public function populateSendQueue(MassMail\Entity\Campaign $campaign){
+	
+		
+	}
+	
+	
+	
 }
