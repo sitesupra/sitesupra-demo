@@ -14,14 +14,10 @@ class SubscriberList extends Entity
 	 * Inverse Side
 	 *
 	 * @ManyToMany(targetEntity="Subscriber", mappedBy="lists")
+	 * @var \Doctrine\Common\Collections\Collection
 	 */
 	protected $subscribers;
 
-	/**
-	 * @Column(type="string", name="list_id", nullable=true, unique=true)
-	 * @var string
-	 */
-	protected $listId;
 
 	/**
 	 * @Column(type="string", name="title", nullable=false)
@@ -29,36 +25,19 @@ class SubscriberList extends Entity
 	 */
 	protected $title;
 
+	
 	/**
-	 * @Column(type="string", name="unsubscribe_page", nullable=true)
+	 * @Column(type="string", name="description", nullable=true)
 	 * @var string
 	 */
-	protected $unsubscribePage;
+	protected $description;
 
-	/**
-	 * @Column(type="boolean", name="confirmed_option", nullable=false)
-	 * @var string
-	 */
-	protected $confirmedOption = false;
-
-	/**
-	 * Set subscriber list id
-	 * @param string $listId 
-	 */
-	public function setListId($listId)
+	public function __construct()
 	{
-		$this->listId = $listId;
+		parent::__construct();
+		$this->subscribers = new \Doctrine\Common\Collections\ArrayCollection();
 	}
-
-	/**
-	 * Return subscriber list id
-	 * @return string
-	 */
-	public function getListId()
-	{
-		return $this->listId;
-	}
-
+	
 	/**
 	 * Return list title
 	 * @return string
@@ -76,41 +55,19 @@ class SubscriberList extends Entity
 	{
 		$this->title = trim($title);
 	}
-
-	/**
-	 * Set unsubscribe page url
-	 * @param string $url 
-	 */
-	public function setUnsubscribePage($url)
+	
+	public function getSubscribers()
 	{
-		$this->unsubscribePage = $url;
+		return $this->subscribers;
 	}
-
-	/**
-	 * Return unsubscribe page url
-	 * @return string
-	 */
-	public function getUnsubscribePage()
+		
+	public function addSubscriber(Subscriber $subscriber)
 	{
-		return $this->unsubscribePage;
+		$this->subscribers[] = $subscriber;
 	}
-
-	/**
-	 * Set confirmed option
-	 * @param boolean $state 
-	 */
-	public function setConfirmedOption($state)
+	
+	public function removeSubscriber(Subscriber $subscriber)
 	{
-		$this->confirmedOption = (bool) $state;
+		$this->subscribers->removeElement($subscriber);
 	}
-
-	/**
-	 * Return confirmed option
-	 * @return boolean
-	 */
-	public function getConfirmedOption()
-	{
-		return $this->confirmedOption;
-	}
-
 }

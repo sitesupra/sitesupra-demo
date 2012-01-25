@@ -65,14 +65,14 @@ class CampaignManager extends MassMailManager
 		$this->entityManager->remove($campaign);	
 	}
 	
-	public function send(){
+	public function send(Entity\Campaign $campaign){
 		/**
 		 * @todo implement functionality
 		 */
 	}
 	
 	
-	public function sendPreview(){
+	public function sendPreview(Entity\Campaign $campaign){
 		/**
 		 * @todo implement functionality
 		 */

@@ -2,7 +2,7 @@
 
 namespace Supra\Mailer\MassMail;
 
-use Supra\ObjectRepository;
+use Supra\ObjectRepository\ObjectRepository;
 
 class MassMail
 {
