@@ -3,8 +3,8 @@
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Supra\Database\Doctrine;
-use Doctrine\Common\Cache\ArrayCache;
 use Supra\Cache\CacheNamespaceWrapper;
+use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
@@ -24,8 +24,8 @@ Type::overrideType(Type::DATETIME, 'Supra\Database\Doctrine\Type\UtcDateTimeType
 
 // TODO: Remove later
 Type::addType('block', 'Supra\Database\Doctrine\Type\UnknownType');
-Type::addType('template', 'Supra\Database\Doctrine\Type\UnknownType');
 Type::addType('sha1', 'Supra\Database\Doctrine\Type\UnknownType');
+Type::addType('template', 'Supra\Database\Doctrine\Type\UnknownType');
 Type::addType('supraId', 'Supra\Database\Doctrine\Type\UnknownType');
 
 // TODO: use configuration classes maybe?
@@ -35,23 +35,23 @@ $managerNames = array(
 		'Audit' => 'Supra\Cms\Abstraction\Audit',
 );
 
+$ini = ObjectRepository::getIniConfigurationLoader('');
+$connectionOptions = $ini->getSection('database');
+
+// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
+$connectionOptions['driverOptions'] = array(
+		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+);
+
 foreach ($managerNames as $managerName => $namespace) {
 	$config = new Configuration();
 
-	// Doctrine cache (array cache for development)
-	$cache = new ArrayCache();
-
-	// Memcache cache configuration sample
-	//$cache = new \Doctrine\Common\Cache\MemcacheCache();
-	//$memcache = new \Memcache();
-	//$memcache->addserver('127.0.0.1');
-	//$cache->setMemcache($memcache);
 	$cacheInstance = ObjectRepository::getCacheAdapter('');
 	$cache = new CacheNamespaceWrapper($cacheInstance);
-	//NB! Must have different namespace for draft connection
 	$cache->setNamespace($managerName);
 	$config->setMetadataCacheImpl($cache);
 	$config->setQueryCacheImpl($cache);
+	$config->setResultCacheImpl($cache);
 
 	// Metadata driver
 	$entityPaths = array(
@@ -60,8 +60,8 @@ foreach ($managerNames as $managerName => $namespace) {
 			SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',
-			SUPRA_LIBRARY_PATH . 'Supra/Payment/Entity',
 			SUPRA_LIBRARY_PATH . 'Supra/BannerMachine/Entity',
+			SUPRA_LIBRARY_PATH . 'Supra/Payment/Entity',
 			SUPRA_LIBRARY_PATH . 'Supra/Mailer/MassMail/Entity',
 	);
 	$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
@@ -74,19 +74,12 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/');
 	$config->setProxyNamespace('Supra\\Proxy');
 
+	// TODO: should disable generation on production and pregenerate on build
 	$config->setAutoGenerateProxyClasses(true);
 
 	// SQL logger
 	$sqlLogger = new \Supra\Log\Logger\EventsSqlLogger();
 	$config->setSQLLogger($sqlLogger);
-
-	$ini = ObjectRepository::getIniConfigurationLoader('');
-	$connectionOptions = $ini->getSection('database');
-
-	// TODO: Let's see if it is still required with MySQL PDO charset updates in PHP 5.3.6
-	$connectionOptions['driverOptions'] = array(
-			PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-	);
 
 	// TODO: move to some other configuration
 	$config->addCustomNumericFunction('IF', 'Supra\Database\Doctrine\Functions\IfFunction');

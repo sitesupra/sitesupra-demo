@@ -40,6 +40,9 @@ require_once $loaderPath . 'Strategy/NamespaceLoaderStrategy.php';
 // Initiate and set the root namespace directory to the loader
 $loader = Loader::getInstance();
 
+// Important to register right ahead
+$loader->registerSystemAutoload();
+
 // Set Supra namespace
 $supraNamespace = new NamespaceLoaderStrategy('Supra', SUPRA_LIBRARY_PATH . 'Supra');
 $loader->registerNamespace($supraNamespace);
@@ -52,22 +55,22 @@ $loader->registerNamespace($doctrineNamespace);
 $symfonyNamespace = new NamespaceLoaderStrategy('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
-$loader->registerSystemAutoload();
-
-// Twig autoloader, TODO: should write such supra7 autoloader
-require_once SUPRA_LIBRARY_PATH . 'Twig' . DIRECTORY_SEPARATOR . 'Autoloader.php';
-Twig_Autoloader::register();
-
-// Swift autoloader, FIXME
-require_once SUPRA_LIBRARY_PATH . 'Swift' . DIRECTORY_SEPARATOR . 'swift_required.php';
-
-// Solarium autoloader, TODO: should write such supra7 autoloader
-require_once SUPRA_LIBRARY_PATH . 'Solarium' . DIRECTORY_SEPARATOR . 'Autoloader.php';
-Solarium_Autoloader::register();
-
 // Set social media namespace
 $socialMediaNamespace = new NamespaceLoaderStrategy('SocialMedia', SUPRA_LIBRARY_PATH . 'SocialMedia');
 $loader->registerNamespace($socialMediaNamespace);
+
+// Twig autoloader
+$twigLoader = new \Supra\Loader\Strategy\PearLoaderStrategy('Twig', SUPRA_LIBRARY_PATH . 'Twig', false);
+$loader->registerNamespace($twigLoader);
+
+// Swift autoloader and initializer
+$swiftLoader = new \Supra\Loader\Strategy\PearLoaderStrategy('Swift', SUPRA_LIBRARY_PATH . 'Swift/classes/', true);
+$loader->registerNamespace($swiftLoader);
+require_once SUPRA_LIBRARY_PATH . 'Swift/swift_init.php';
+
+// Solarium autoloader
+$solariumLoader = new \Supra\Loader\Strategy\PearLoaderStrategy('Solarium', SUPRA_LIBRARY_PATH . 'Solarium', false);
+$loader->registerNamespace($solariumLoader);
 
 // Set the initial timezone to the logger
 Supra\Log\LogEvent::setDefaultTimezone(date_default_timezone_get());

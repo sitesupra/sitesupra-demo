@@ -1,17 +1,19 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
-//use Project\AutoregisterAuthenticationAdapter\AutoregisterAuthenticationAdapter;
-use Supra\Authentication\Adapter\HashAdapter;
 use Supra\User\UserProvider;
 use Supra\User\Validation\EmailValidation;
+use Supra\Authentication\Adapter\HashAdapter;
 
 $userProvider = new UserProvider();
 $userProvider->addValidationFilter(new EmailValidation());
 
 $authAdapter = new HashAdapter();
-$authAdapter->setDefaultDomain('supra7.vig');
-//$userProvider->setAuthAdapter(new AutoregisterAuthenticationAdapter());
+
+$ini = ObjectRepository::getIniConfigurationLoader('');
+$defaultDomain = $ini->getValue('cms_authentication', 'default_domain', '');
+$authAdapter->setDefaultDomain($defaultDomain);
+
 $userProvider->setAuthAdapter($authAdapter);
 
 // This is provider for CMS
@@ -21,9 +23,9 @@ $userProvider->setAuthAdapter($authAdapter);
 ObjectRepository::setUserProvider('#cms', $userProvider);
 
 // Experimental: added extra rules for controllers
-ObjectRepository::setUserProvider('Supra\Cms\AuthenticationPreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\CmsController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\InternalUserManager\Restore\RestoreController', $userProvider);
+ObjectRepository::setUserProvider('Supra\Cms\AuthenticationPreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Project\SocialMedia\SocialMediaController', $userProvider);

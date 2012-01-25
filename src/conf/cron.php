@@ -7,3 +7,9 @@ $cli = \Supra\Console\Application::getInstance();
 
 $cli->addCronJob('su:pages:process_scheduled', 
 	new \Supra\Console\Cron\Period\EveryIntervalPeriod('5 minutes'));
+
+$cli->addCronJob('su:search:run_indexer', 
+	new \Supra\Console\Cron\Period\EveryIntervalPeriod('1 minutes'));
+
+$cli->addCronJob('su:seo:generate_sitemap', 
+	new \Supra\Console\Cron\Period\EveryIntervalPeriod('10 minutes'));

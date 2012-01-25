@@ -5,15 +5,18 @@ use Supra\Log\Writer;
 use Supra\Log\Filter;
 use Supra\AuditLog\Writer as AuditWriter;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Loader\Loader;
+
+$ini = ObjectRepository::getIniConfigurationLoader('');
 
 /*
  * Default log
  */
-$defaultWriter = new Writer\FileWriter();
+$loggerClass = $ini->getValue('log', 'logger', 'Supra\Log\Writer\FileWriter');
+$defaultWriter = Loader::getClassInstance($loggerClass, ObjectRepository::INTERFACE_LOGGER);
 $defaultWriter->setName('Supra7');
 
-$ini = ObjectRepository::getIniConfigurationLoader('');
-$logParams = $ini->getSection('log');
+$logParams = $ini->getSection('log', array('level' => 'warn'));
 
 $defaultWriter->addFilter(new Filter\LevelFilter($logParams));
 
@@ -22,21 +25,31 @@ Supra\ObjectRepository\ObjectRepository::setDefaultLogger($defaultWriter);
 /*
  * SQL statement logger
  */
-$chainWriter = new Writer\ChainWriter();
-$chainWriter->addWriter($defaultWriter);
+$sqlLog = $ini->getValue('log', 'sql_log', false);
 
-$sqlWriter = new Writer\FileWriter(array('file' => 'sql.log'));
-$sqlWriter->setName('SQL');
+if ($sqlLog) {
+	$sqlWriter = new Writer\FileWriter(array('file' => 'sql.log'));
+	$sqlWriter->setName('SQL');
 
-// Info level filter skips SELECT statements
-$sqlWriter->addFilter(new Filter\LevelFilter(array('level' => LogEvent::INFO)));
+	// Info level filter skips SELECT statements
+//	$sqlWriter->addFilter(new Filter\LevelFilter(array('level' => LogEvent::INFO)));
 
-$chainWriter->addWriter($sqlWriter);
-
-ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $chainWriter);
+	ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $sqlWriter);
+}
 
 /*
  * Audit log
  */
 $auditWriter = new AuditWriter\FileAuditLogWriter(array('file' => 'audit.log'));
 ObjectRepository::setDefaultAuditLogger($auditWriter);
+
+/**
+ * Cron tasks execution logger, for testing purposes
+ */
+$cronLog = $ini->getValue('log', 'cron_log', false);
+if ($cronLog) {
+	$cronWriter = new Writer\FileWriter(array('file' => 'cron.log'));
+	$cronWriter->setName('Cron');
+
+	ObjectRepository::setLogger('Supra\Console\Cron', $cronWriter);
+}

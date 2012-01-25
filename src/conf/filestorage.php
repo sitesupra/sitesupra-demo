@@ -11,7 +11,7 @@ $extensionFilter = new Supra\FileStorage\Validation\ExtensionUploadFilter();
 $extensionFilter->setMode(Supra\FileStorage\Validation\ExtensionUploadFilter::MODE_BLACKLIST);
 $extensionFilter->addItems(
 		array('php', 'phtml', 'php3', 'php4', 'js', 'shtml', 
-			'pl' ,'py', 'cgi', 'sh', 'asp', 'exe', 'bat'
+			'pl' ,'py', 'cgi', 'sh', 'asp', 'exe', 'bat', 'jar', 'phar'
 		));
 
 $fileNameFilter = new Supra\FileStorage\Validation\FileNameUploadFilter();

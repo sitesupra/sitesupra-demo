@@ -65,23 +65,20 @@ class Loader
 	 */
 	protected function orderStrategies()
 	{
-		if ( ! $this->strategiesOrdered) {
+		$orderFunction = function(LoaderStrategyInterface $a, LoaderStrategyInterface $b) {
+					$aDepth = $a->getDepth();
+					$bDepth = $b->getDepth();
 
-			$orderFunction = function(LoaderStrategyInterface $a, LoaderStrategyInterface $b) {
-						$aDepth = $a->getDepth();
-						$bDepth = $b->getDepth();
+					if ($aDepth == $bDepth) {
+						return 0;
+					}
 
-						if ($aDepth == $bDepth) {
-							return 0;
-						}
+					return $aDepth < $bDepth ? 1 : -1;
+				};
 
-						return $aDepth < $bDepth ? 1 : -1;
-					};
+		usort($this->strategies, $orderFunction);
 
-			usort($this->strategies, $orderFunction);
-
-			$this->strategiesOrdered = true;
-		}
+		$this->strategiesOrdered = true;
 	}
 
 	/**
@@ -91,7 +88,7 @@ class Loader
 	 */
 	public static function normalizeNamespaceName($namespace)
 	{
-		return '\\' . ltrim(rtrim($namespace, '\\') . '\\', '\\');
+		return ltrim(rtrim($namespace, '\\') . '\\', '\\');
 	}
 
 	/**
@@ -101,7 +98,7 @@ class Loader
 	 */
 	public static function normalizeClassName($class)
 	{
-		return '\\' . ltrim($class, '\\');
+		return ltrim($class, '\\');
 	}
 
 	/**
@@ -111,7 +108,9 @@ class Loader
 	 */
 	public function findClassPath($className)
 	{
-		$this->orderStrategies();
+		if ( ! $this->strategiesOrdered) {
+			$this->orderStrategies();
+		}
 
 		$className = static::normalizeClassName($className);
 
@@ -158,7 +157,8 @@ class Loader
 	}
 
 	/**
-	 * Get instance of $className that extends or implements $interface
+	 * Get instance of $className that extends or implements $interface.
+	 * NB! Will raise warnings if such class/interface file does not exist.
 	 *
 	 * @param string $className
 	 * @param string $interface 
@@ -169,13 +169,13 @@ class Loader
 	 */
 	public static function getClassInstance($className, $interface = null)
 	{
-		if ( ! self::classExists($className)) {
+		if ( ! class_exists($className)) {
 			throw new Exception\ClassNotFound($className);
 		}
 
 		$object = new $className();
 		if ( ! is_null($interface) && is_string($interface)) {
-			if ( ! self::classExists($interface) && ! self::interfaceExists($interface)) {
+			if ( ! class_exists($interface) && ! interface_exists($interface)) {
 				throw new Exception\InterfaceNotFound($className);
 			}
 			if ( ! $object instanceof $interface) {

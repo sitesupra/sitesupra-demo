@@ -14,9 +14,3 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\SocialMedia\SocialMediaController',
 );
 $sessionManagerConfiguration->configure();
-
-//$defaultSessionNamespaceConfiguration = new \Supra\Session\Configuration\SessionNamespaceConfiguration();
-//$defaultSessionNamespaceConfiguration->managerNamespace = '';
-//$defaultSessionNamespaceConfiguration->isDefault = true;
-//$defaultSessionNamespaceConfiguration->class = false;
-//$defaultSessionNamespaceConfiguration->configure();

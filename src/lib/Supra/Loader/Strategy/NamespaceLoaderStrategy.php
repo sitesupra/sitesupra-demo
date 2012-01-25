@@ -65,8 +65,8 @@ class NamespaceLoaderStrategy implements LoaderStrategyInterface
 	 */
 	public function setPath($path)
 	{
-		$this->path = rtrim($path, '/\\') . \DIRECTORY_SEPARATOR;
-		if ( ! \is_dir($this->path)) {
+		$this->path = rtrim($path, '/\\') . DIRECTORY_SEPARATOR;
+		if ( ! is_dir($this->path)) {
 			throw new Exception\InvalidPath($path);
 		}
 	}
@@ -112,7 +112,7 @@ class NamespaceLoaderStrategy implements LoaderStrategyInterface
 	 */
 	public function convertToFilePath($classPath)
 	{
-		$filePath = str_replace('\\', \DIRECTORY_SEPARATOR, $classPath);
+		$filePath = str_replace('\\', DIRECTORY_SEPARATOR, $classPath);
 		$filePath = $filePath . '.php';
 		
 		return $filePath;
@@ -128,8 +128,8 @@ class NamespaceLoaderStrategy implements LoaderStrategyInterface
 		if ( ! $this->contains($className)) {
 			return null;
 		}
-		$namespacePath = $this->getPath();
-		$classPath = substr($className, $this->getLength());
+		$namespacePath = $this->path;
+		$classPath = substr($className, $this->length);
 
 		$filePath = $this->convertToFilePath($classPath);
 		
