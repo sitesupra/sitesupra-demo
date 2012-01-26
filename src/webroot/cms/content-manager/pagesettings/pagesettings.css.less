@@ -9,12 +9,14 @@
 	
 	/*
 	 * Redirect: "Fixed" button width
+	 * Make sure button text is not outside borders
 	 */
 	.page-settings-button-fixed p {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		padding: 0;
+		max-width: 55px; 
 	}
 	
 	/*
@@ -70,6 +72,9 @@
 			width: 9px;
 			height: 7px;
 			margin-top: 3px;
+			
+			position: relative;
+			margin-right: -20px;
 		}
 		
 		.title {
@@ -79,7 +84,8 @@
 			font-weight: normal;
 			line-height: 13px;
 			text-decoration: underline;
-			margin-right: 2px;
+			padding-left: 20px;
+			padding-right: 15px;
 		}
 		.title:hover {
 			color: #fff;
@@ -91,6 +97,9 @@
 			margin-top: 2px;
 			background-position: -9px 0;
 			cursor: pointer;
+			
+			position: relative;
+			margin-left: -13px;
 		}
 		.remove:hover {
 			background-position: -22px 0;

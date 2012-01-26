@@ -760,12 +760,13 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Save changes
 		 */
 		saveSettingsChanges: function () {
-			var page_data = this.page_data,
-				form_data = this.form.getValuesObject();
-			
 			//Scroll to first slide
 			this.onBackButton();
 			this.slideshow.set('slide', 'slideMain')
+			
+			//Get data
+			var page_data = this.page_data,
+				form_data = this.form.getValuesObject();
 			
 			//Remove unneeded form data for save request
 			//Scheduled and created date/time are in page_data
