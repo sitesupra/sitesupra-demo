@@ -102,10 +102,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 		
 		// Execute action
 		execute: function (form, options) {
-			var options = this.options = options || {
+			var options = this.options = Supra.mix({
 				'doneCallback': null,
-				'hideEditorToolbar': false
-			};
+				'hideEditorToolbar': false,
+				
+				'scrollable': false,
+				'title': null,
+				'icon': '/cms/lib/supra/img/sidebar/icons/settings.png'
+			}, options || {});
 			
 			//Show buttons
 			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
@@ -127,6 +131,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 						Manager.EditorToolbar.hide();
 					}
 				}
+				
+				//Scrollable
+				this.set('scrollable', options.scrollable);
+				
+				//Title
+				this.set('title', options.title || '');
+				
+				//Icon
+				this.set('icon', options.icon);
 				
 				//Update slideshow position 
 				var slideshow = form.get('slideshow'); 
@@ -548,13 +561,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Show properties form
 		 */
 		showPropertiesForm: function () {
-			//Sidebar title
-			this.get('action').set('title', this.getTitle());
-			
 			//Show form
 			this.get('action').execute(this.get('form'), {
 				'doneCallback': Y.bind(this.savePropertyChanges, this),
-				'hideEditorToolbar': true
+				'hideEditorToolbar': true,
+				
+				'scrollable': false,
+				'title': this.getTitle()
 			});
 		},
 		

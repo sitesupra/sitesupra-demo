@@ -139,6 +139,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			for(var i=0,ii=values.length-1; i<=ii; i++) {
 				button = new Supra.Button({'label': values[i].title, 'icon': values[i].icon, 'type': 'toggle', 'style': 'group'});
+				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 				this.buttons[values[i].id] = button;
 				
 				if (i == 0) {

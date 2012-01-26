@@ -37,19 +37,13 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		drop: null,
 		
-		/**
-		 * Footer node
-		 * @type {Object}
-		 * @private
-		 */
-		footer: null,
 		
 		/**
 		 * Generate settings form
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').one();
+			var content = Manager.getAction('PageContentSettings').get('contentNode');
 			if (!content) return;
 			
 			//Properties form
@@ -57,12 +51,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				'inputs': [
 					{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_title']), 'value': ''},
 					{'id': 'description', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_description']), 'value': ''},
-					{'id': 'align', 'type': 'SelectList', 'label': Supra.Intl.get(['htmleditor', 'image_alignment']), 'value': 'right', 'values': [
+					{'id': 'align', 'style': 'minimal', 'type': 'SelectList', 'label': Supra.Intl.get(['htmleditor', 'image_alignment']), 'value': 'right', 'values': [
 						{'id': 'left', 'title': Supra.Intl.get(['htmleditor', 'alignment_left']), 'icon': '/cms/lib/supra/img/htmleditor/align-left.png'},
 						{'id': 'middle', 'title': Supra.Intl.get(['htmleditor', 'alignment_center']), 'icon': '/cms/lib/supra/img/htmleditor/align-center.png'},
 						{'id': 'right', 'title': Supra.Intl.get(['htmleditor', 'alignment_right']), 'icon': '/cms/lib/supra/img/htmleditor/align-right.png'}
 					]},
-					{'id': 'style', 'type': 'SelectList', 'title': Supra.Intl.get(['htmleditor', 'image_style']), 'value': 'default', 'values': [
+					{'id': 'style', 'style': 'minimal', 'type': 'SelectList', 'title': Supra.Intl.get(['htmleditor', 'image_style']), 'value': 'default', 'values': [
 						{'id': '', 'title': Supra.Intl.get(['htmleditor', 'style_normal']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-normal.png'},
 						{'id': 'border', 'title': Supra.Intl.get(['htmleditor', 'style_border']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-border.png'},
 						{'id': 'lightbox', 'title': Supra.Intl.get(['htmleditor', 'style_lightbox']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-lightbox.png'}
@@ -75,25 +69,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
-				form.get('boundingBox').addClass('yui3-form-properties')
-									   .addClass('sidebar-content')
-									   .addClass('scrollable')
-									   .addClass('has-footer');
 				form.hide();
 			
 			//On title, description, etc. change update image data
 			for(var i=0,ii=form_config.inputs.length; i<ii; i++) {
 				form.getInput(form_config.inputs[i].id).on('change', this.onPropertyChange, this);
 			}
-			
-			//Form heading
-			var heading = Y.Node.create('<h2>' + Supra.Intl.get(['htmleditor', 'image_properties']) + '</h2>');
-			form.get('contentBox').insert(heading, 'before');
-			
-			//Footer
-			var footer = Y.Node.create('<div class="sidebar-footer hidden"></div>');
-			this.footer = footer;
-			form.get('boundingBox').insert(footer, 'after');
 			
 			//If in configuration styles are disabled, then hide buttons
 			if (this.configuration.styles) {
@@ -103,16 +84,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 			
 			//Add 'Delete' and 'Replace buttons'
-			//Delete button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
-				btn.render(footer);
-				btn.addClass('su-button-delete');
-				btn.on('click', this.removeSelectedImage, this);
-			
 			//Replace button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'replace']), 'style': 'mid'});
-				btn.render(footer);
-				btn.addClass('su-button-edit');
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'image_replace']), 'style': 'small-gray'});
+				btn.render(form.get('contentBox'));
+				btn.addClass('button-section');
 				btn.on('click', function () {
 					//Open Media library on 'Replace'
 					if (this.selected_image) {
@@ -124,6 +99,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					}
 				}, this);
 			
+			//Delete button
+			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'image_delete']), 'style': 'small-red'});
+				btn.render(form.get('contentBox'));
+				btn.addClass('su-button-delete');
+				btn.on('click', this.removeSelectedImage, this);
+			
 			this.settings_form = form;
 			return form;
 		},
@@ -134,7 +115,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		hideSettingsForm: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
-				this.footer.addClass('hidden');
 			}
 		},
 		
@@ -340,12 +320,16 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				return;
 			}
 			
-			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm(), {
-				'doneCallback': Y.bind(this.settingsFormApply, this)
+			var action = Manager.getAction('PageContentSettings');
+			
+			action.execute(this.settings_form || this.createSettingsForm(), {
+				'doneCallback': Y.bind(this.settingsFormApply, this),
+				
+				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
+				'scrollable': true
 			});
 			
-			this.footer.removeClass('hidden');
-			
+			//
 			this.selected_image = event.target;
 			this.selected_image.addClass('yui3-image-selected');
 			this.selected_image_id = this.selected_image.getAttribute('id');
@@ -570,7 +554,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			//When media library is hidden show settings form if image is selected
 			mediasidebar.on('hide', function () {
 				if (this.selected_image) {
-					this.footer.removeClass('hidden');
 					Manager.executeAction('PageContentSettings', this.settings_form, {
 						'doneCallback': Y.bind(this.settingsFormApply, this)
 					});

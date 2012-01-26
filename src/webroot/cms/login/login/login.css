@@ -4,6 +4,7 @@
 
 .login-form {
 	width: 350px;
+	overflow: hidden;
 }
 .login-form .footer a {
 	display: inline-block;

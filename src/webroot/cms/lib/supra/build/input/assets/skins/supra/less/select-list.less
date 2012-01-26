@@ -34,6 +34,16 @@
 			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
 			padding: 0 10px;
 		}
+		.img {
+			display: inline-block;
+			vertical-align: middle;
+			height: 32px;
+			overflow: hidden;
+			
+			img {
+				position: relative;
+			}
+		}
 		
 		&.su-button-first,
 		&.su-button-first .su-button-content {
@@ -65,8 +75,12 @@
 				color: #fff;
 				text-shadow: 0 1px 0 rgba(0, 19, 52, 0.4);
 			}
+			img {
+				margin-top: -32px;
+			}
 		}
-		&.su-button-mouse-hover {
+		&.su-button-mouse-hover,
+		&.su-button-focused {
 			p {
 				color: #fff;
 				text-shadow: 0 1px 0 rgba(0, 19, 52, 0.4);
@@ -91,14 +105,105 @@
 			text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
 		}
 		/* Mouse over state */
-		&.su-button-mouse-hover p {
+		&.su-button-mouse-hover p,
+		&.su-button-focused p {
 			color: #fff;
 			text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
 		}
 	}
 }
 
-	.su-button-group button img+p,
-	.yui3-input-select-list .su-button img+p {
-		display: none;
+/**
+ * Minimal style (no labels)
+ */
+.yui3-input-select-list.yui3-input-minimal {
+	.yui3-input-select-list-content {
+		display: inline-block;
 	}
+	
+	.su-button {
+		.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.60));
+		background-repeat: repeat-x;
+		background-position: 0 -24px;	
+		
+		/* Normal state */
+		&, .su-button-content, button {
+			background-image: url(input-select-list-minimal.png);
+			height: 24px;
+			line-height: 24px;
+		}
+		.su-button-content {
+			background-position: 0 0;
+			background-repeat: no-repeat;
+			padding: 0;
+		}
+		&.su-button-first .su-button-content {
+			background-position: 0 -72px;
+		}
+		button {
+			background-position: 100% -48px;
+			background-repeat: no-repeat;
+			padding: 0 10px;
+		}
+		&.su-button-last button {
+			background-position: 100% -96px;
+		}
+		p {
+			display: none;
+		}
+		.img {
+			height: 24px;
+		}
+		
+		&.su-button-first,
+		&.su-button-first .su-button-content {
+			.border-radius ( 3px, 0, 0, 3px );
+		}
+		&.su-button-last,
+		&.su-button-last .su-button-content,
+		&.su-button-last button {
+			.border-radius ( 0, 3px, 3px, 0 );
+		}
+		
+		/* Hover */
+		&.su-button-mouse-hover,
+		&.su-button-focused {
+			background-position: 0 -144px;
+			
+			.su-button-content {
+				background-position: 0 -120px;
+			}
+			&.su-button-first .su-button-content {
+				background-position: 0 -192px;
+			}
+			button {
+				background-position: 100% -168px;
+			}
+			&.su-button-last button {
+				background-position: 100% -216px;
+			}
+		}
+		
+		/* Active state */
+		&.su-button-down {
+			background-position: 0 -264px;
+			
+			.su-button-content {
+				background-position: 0 -240px;
+			}
+			&.su-button-first .su-button-content {
+				background-position: 0 -312px;
+			}
+			button {
+				background-position: 100% -288px;
+			}
+			&.su-button-last button {
+				background-position: 100% -336px;
+			}
+			img {
+				margin-top: -24px;
+			}
+		}
+	}
+	
+}

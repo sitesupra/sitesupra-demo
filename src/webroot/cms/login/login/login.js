@@ -41,6 +41,8 @@ SU('supra.input', 'cookie', function (Y) {
 				this.panel.set('zIndex', 1000);
 				this.panel.set('useMask', true);
 			}
+			
+			Y.one('body').removeClass('loading');
 		},
 		
 		/**
@@ -50,8 +52,6 @@ SU('supra.input', 'cookie', function (Y) {
 		 */
 		render: function () {
 			this.loginform.on('submit', this.submit, this);
-			
-			Y.one('body').removeClass('loading');
 		},
 		
 		/**
@@ -81,6 +81,8 @@ SU('supra.input', 'cookie', function (Y) {
 			this.footer.getButton('done').set('loading', true);
 			
 			//Send request manually, because of unusual response types
+			//On failure 403 error will be caught by Supra.io and
+			//this action will be executed again
 			Supra.io(uri, {
 				'data': data,
 				'method': 'post',
@@ -175,6 +177,9 @@ SU('supra.input', 'cookie', function (Y) {
 		 * @param {Object} response Request response object
 		 */
 		execute: function (response) {
+			//Show form
+			this.show();
+			
 			//Show or hide error message
 			this.setErrorMessage(response ? response.error_message : null);
 			

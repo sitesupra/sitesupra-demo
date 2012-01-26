@@ -12,7 +12,6 @@
 	 */
 	.page-settings-button-fixed p {
 		overflow: hidden;
-		max-width: 85px;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		padding: 0;
@@ -53,5 +52,55 @@
 		.su-button {
 			margin-top: 10px;
 		}
+	}
+	
+	.redirect-target {
+		display: block;
+		padding: 4px 0 0 30px;
+		
+		span, a {
+			display: inline-block;
+			vertical-align: top;
+		}
+		
+		.icon, .remove {
+			background: url(modules/assets/redirect-icons.png) 0 0 no-repeat;
+		}
+		.icon {
+			width: 9px;
+			height: 7px;
+			margin-top: 3px;
+		}
+		
+		.title {
+			color: #8C8CA1;
+			cursor: pointer;
+			font-size: 11px;
+			font-weight: normal;
+			line-height: 13px;
+			text-decoration: underline;
+			margin-right: 2px;
+		}
+		.title:hover {
+			color: #fff;
+		}
+		
+		.remove {
+			width: 13px;
+			height: 14px;
+			margin-top: 2px;
+			background-position: -9px 0;
+			cursor: pointer;
+		}
+		.remove:hover {
+			background-position: -22px 0;
+		}
+	}
+	
+	.redirect-target + .button-section {
+		margin-top: 17px;
+	}
+	.redirect-target.hidden + .button-section {
+		margin-top: 25px;
 	}
 }

@@ -192,7 +192,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				});
 				calendar.render();
 				
-				//Create apply button
+				//Create "Clear" button
 				var btn = new Supra.Button({srcNode: node.one('button')});
 				btn.render();
 				btn.on('click', this.onSlideScheduleClear, this);
@@ -240,6 +240,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 */
 		onSlideScheduleClear: function () {
 			//Save date and time
+			this.calendar_schedule.set('date', new Date());
+			this.calendar_schedule.set('displayDate', new Date());
 			this.page_data.scheduled_date = '';
 			this.page_data.scheduled_time = '';
 			
@@ -262,10 +264,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				});
 				calendar.render();
 				
-				//Create apply button
+				//Create "Clear" button
 				var btn = new Supra.Button({srcNode: node.one('button')});
 				btn.render();
-				btn.on('click', this.onSlideCreatedApply, this);
+				btn.on('click', this.onSlideCreatedClear, this);
 			} else {
 				//Set date
 				this.calendar_created.set('date', date);
@@ -287,9 +289,9 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		},
 		
 		/**
-		 * On "slideCreated" slide Apply button click save calendar values
+		 * On "slideSchedule" slide close save calendar values
 		 */
-		onSlideCreatedApply: function () {
+		onSlideCreatedClose: function () {
 			//Save date
 			this.page_data.created_date = Y.DataType.Date.reformat(this.calendar_created.get('date'), 'out_date', 'in_date');
 			
@@ -303,6 +305,18 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			date.setSeconds(0);
 			
 			this.page_data.created_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
+		},
+		
+		/**
+		 * On "Clear all" button click reset date and time values
+		 */
+		onSlideCreatedClear: function () {
+			//Save date and time
+			this.calendar_created.set('date', new Date());
+			this.calendar_created.set('displayDate', new Date());
+			this.page_data.created_date = '';
+			this.page_data.created_time = '';
+			
 			this.slideshow.scrollBack();
 		},
 		
@@ -475,7 +489,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		createForm: function () {
 			
 			//Section buttons
-			var buttons = this.all('a.button-section');
+			var buttons = this.all('a[data-target]');
+			
 			buttons.on('click', function (event) {
 				var node = event.target.closest('a');
 				this.slideshow.set('slide', node.getAttribute('data-target'));
@@ -516,6 +531,10 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			//Template button
 			this.button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'small-gray'});
 			this.button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
+			
+			// Redirect section button value
+			this.redirect_title = this.one('span.redirect-target');
+			this.redirect_title.one('.remove').on('click', this.removeRedirect, this);
 			
 			// Redirect select list
 			this.redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#redirect_type')});
@@ -568,6 +587,16 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
+		},
+		
+		/**
+		 * Remove redirect
+		 */
+		removeRedirect: function (evt) {
+			this.redirect_select.set('value', 'off');
+			this.onRedirectClick();
+			
+			if (evt) evt.halt();
 		},
 		
 		/**
@@ -673,10 +702,14 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				case 'redirect':
 					//Update button label
 					var data = page_data.redirect;
-					var title = (data && data.href ? SU.Intl.get(['settings', 'redirect_to']) + data.title || data.href : SU.Intl.get(['settings', 'redirect']));
 					
-					//@TODO
-					//this.button_redirect.set('label', title);
+					//Redirect title
+					if (data && data.href) {
+						this.redirect_title.one('a.title').set('text', data.title || data.href);
+						this.redirect_title.removeClass('hidden');
+					} else {
+						this.redirect_title.addClass('hidden');
+					}
 					
 					// Trying to set correct titles for redirect selects buttons 
 					// or reset them to defaults if redirect is empty
@@ -735,6 +768,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				form_data = this.form.getValuesObject();
 			
 			//Scroll to first slide
+			this.onBackButton();
 			this.slideshow.set('slide', 'slideMain')
 			
 			//Remove unneeded form data for save request

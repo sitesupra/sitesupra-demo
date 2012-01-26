@@ -76,6 +76,12 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 				'value': node
 			});
 			
+			//Scrollable
+			this.host.addAttr('scrollable', {
+				'value': false,
+				'setter': Y.bind(this.setScrollable, this)
+			});
+			
 			/*
 			 * In frozen state if sidebar is hidden then toolbar buttons
 			 * will not be removed and "hide" function is not called,
@@ -156,6 +162,25 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			}
 			
 			return title;
+		},
+		
+		/**
+		 * Set if content node is scrollable
+		 * 
+		 * @param {Boolean} scrollable
+		 * @return True if content is scrollable, otherwise false
+		 * @type {Boolean}
+		 */
+		setScrollable: function (scrollable) {
+			var node = this.host.get('contentNode');
+			
+			if (scrollable) {
+				node.addClass('scrollable');
+			} else {
+				node.removeClass('scrollable');
+			}
+			
+			return !!scrollable;
 		},
 		
 		/**

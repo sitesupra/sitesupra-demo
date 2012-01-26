@@ -54,6 +54,10 @@ YUI.add('supra.input-proto', function (Y) {
 		'error': {
 			value: false,
 			setter: '_setError'
+		},
+		'style': {
+			value: null,
+			setter: '_setStyle'
 		}
 	};
 	
@@ -103,6 +107,9 @@ YUI.add('supra.input-proto', function (Y) {
 			}
 			
 			return !!val;
+		},
+		'style': function (srcNode) {
+			return srcNode.getAttribute('suStyle') || null;
 		}
 	};
 	
@@ -185,7 +192,10 @@ YUI.add('supra.input-proto', function (Y) {
 			bound.addClass(Y.ClassNameManager.getClassName('input'));
 			bound.addClass(Y.ClassNameManager.getClassName(this.constructor.NAME));
 			
+			//Style
+			this.set('style', this.get('style'));
 			
+			//Value
 			this.set('value', this.get('value'));
 			
 			return r;
@@ -321,6 +331,26 @@ YUI.add('supra.input-proto', function (Y) {
 			}
 			
 			return descr;
+		},
+		
+		/**
+		 * Set input style
+		 * 
+		 * @param {String} style Style
+		 * @private
+		 */
+		_setStyle: function (style) {
+			var prev = this.get('style'),
+				node = this.get('boundingBox');
+			
+			if (prev) {
+				this.removeClass(Y.ClassNameManager.getClassName('input', prev));
+			}
+			if (style) {
+				this.addClass(Y.ClassNameManager.getClassName('input', style));
+			}
+			
+			return style;
 		},
 		
 		/**
