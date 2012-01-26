@@ -383,38 +383,34 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * Open link manager for redirect
 		 */
 		openLinkManager: function () {
-			this.set('toolbarButtonsFrozen', true);
-			
 			var value = this.form.getInput('redirect').getValue();
 			
 			if (value && value.resource == "relative") {
 				value = null;
 			}
 			
-			//Disable editing for everything else
-			Supra.Manager.PageContent.getContent().set('disabled', true);
-			
 			//Open link manager
 			Supra.Manager.executeAction('LinkManager', value, {
 				'mode': 'page',
-				'hideToolbar': true
-			}, this.onLinkManagerClose, this);
+				//Open in slide instead of LinkManager action
+				'container': this.slideshow.getSlide('slideRedirectFixed').one('.yui3-slideshow-slide-content')
+			});
+			
+			this.slideshow.set('slide', 'slideRedirectFixed');
 		},
 		
 		/**
-		 * Update input value on change
-		 *
-		 * @param {Object} data
+		 * Update data on link manager close
 		 */
-		onLinkManagerClose: function (data) {
-			this.set('toolbarButtonsFrozen', false);
-			
-			//Re-enable editing
-			Supra.Manager.PageContent.getContent().set('disabled', false);
+		onSlideRedirectFixedClose: function () {
+			//Update data
+			var data = Manager.LinkManager.getData();
 			
 			this.form.getInput('redirect').setValue(data);
 			this.setFormValue('redirect', {'redirect': data});
-			this.execute(true);
+			
+			//Close link manager to keep visible state correct
+			Supra.Manager.getAction('LinkManager').hide();
 		},
 		
 		/**

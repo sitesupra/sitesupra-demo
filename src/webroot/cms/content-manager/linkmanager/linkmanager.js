@@ -380,6 +380,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						});
 						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 						this.tree.render();
+						this.tree.set('loading', true);
 						
 						//On node change update button label
 						this.tree.after('selectedNodeChange', this.updateInsertButton, this);
@@ -847,12 +848,30 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 				'mode': mode,
 				'hideToolbar': false,
 				'hideLinkControls': hide_link_controls,
-				'selectable': selectable
+				'selectable': selectable,
+				
+				'container': null
 			};
 			
 			if (options) {
 				Supra.mix(this.options, options, true);
 			}
+			
+			if (this.selectable.images || this.selectable.files) {
+				//Can safely change container only if sidebar header is
+				//not needed, otherwise UI will be unusable
+				this.options.container = null;
+			}
+			
+			//Move or restore slide container
+			if (!this.options.container) {
+				this.options.container = this.slideshow.get('contentBox');
+			} else {
+				this.options.hideToolbar = false;
+			}
+			
+			this.options.container.append(this.slideshow.getSlide('linkToPage'));
+			
 			
 			this.mode = this.options.mode;
 			this.selectable = this.options.selectable;
@@ -909,7 +928,9 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
-			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			if (!this.options.container) {
+				Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			}
 			
 			//Update UI
 			if (this.slideshow) this.slideshow.syncUI();
