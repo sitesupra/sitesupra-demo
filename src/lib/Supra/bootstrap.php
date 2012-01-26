@@ -12,6 +12,8 @@ if (version_compare(phpversion(),  SUPRA_REQUIRED_PHP_VERSION, 'lt')) {
 	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.');
 }
 
+define('SUPRA_ERROR_MESSAGE', '500 INTERNAL SERVER ERROR');
+
 // Define the main supra folders
 if ( ! defined('SUPRA_PATH')) {
 	define('SUPRA_PATH', dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR);
@@ -91,5 +93,5 @@ try {
 } catch (\Exception $e) {
 	\Log::fatal("Application configuration load failed: " . (string) $e);
 	header('Content-Type: text/plain');
-	die("500 INTERNAL SERVER ERROR\n");
+	die(SUPRA_ERROR_MESSAGE);
 }

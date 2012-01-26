@@ -51,7 +51,7 @@ class ExceptionController extends ControllerAbstraction
 				$response->output("403 FORBIDDEN\n");
 			} else {
 				$response->setCode(500);
-				$response->output("500 INTERNAL SERVER ERROR\n");
+				$response->output(SUPRA_ERROR_MESSAGE . "\n");
 			}
 		}
 		
