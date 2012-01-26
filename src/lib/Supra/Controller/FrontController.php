@@ -177,10 +177,13 @@ class FrontController
 		}
 		
 		if ( ! is_null($router)) {
+			ObjectRepository::setCallerParent($controller, $router);
 			$objectRepositoryCaller = $router->getObjectRepositoryCaller();
 			
 			if ( ! empty($objectRepositoryCaller)) {
-				ObjectRepository::setCallerParent($controller, $objectRepositoryCaller);
+				ObjectRepository::setCallerParent($router, $objectRepositoryCaller);
+			} else {
+				ObjectRepository::setCallerParent($router, get_class($controller));
 			}
 		}
 		
