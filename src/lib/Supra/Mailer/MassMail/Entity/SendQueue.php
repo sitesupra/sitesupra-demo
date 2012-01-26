@@ -72,13 +72,13 @@ class SendQueue extends Entity
 	protected $subject;
 	
 	/**
-	 * @Column(type="dateTime", name="create_date_time", nullable=false)
+	 * @Column(type="datetime", name="create_date_time", nullable=false)
 	 * @var string
 	 */
 	protected $createDateTime;
 	
 	/**
-	 * @Column(type="dateTime", name="send_date_time", nullable=true)
+	 * @Column(type="datetime", name="send_date_time", nullable=true)
 	 * @var string
 	 */
 	protected $sendDateTime;
