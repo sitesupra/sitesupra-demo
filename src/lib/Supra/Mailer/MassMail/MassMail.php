@@ -97,8 +97,49 @@ class MassMail
 		
 	}
 	
-	public function populateSendQueue(MassMail\Entity\Campaign $campaign){
-	
+	/**
+	 * Populate send queueu by camaign
+	 * @param Entity\Campaign $campaign 
+	 */
+	public function populateSendQueue(Entity\Campaign $campaign)
+	{
+		
+		$this->getCampaignManager();		
+		$subscribers = $campaign->getActiveSubscribers();
+		$massMailContent = new MassMaillContent();
+		
+		foreach($subscribers as $subscriber){
+			
+			$sendQueueItem = $this->getSendQueueManager()->createQueueItem();
+			$sendQueueItem->setNameTo($subscriber->getName());
+			$sendQueueItem->setEmailTo($subscriber->getEmailAddress());
+			$sendQueueItem->setEmailFrom($campaign->getFromEmail());
+			$sendQueueItem->setNameFrom($campaign->getFromName());
+			$sendQueueItem->setReplyTo($campaign->getReplyTo());
+			
+			$textContent = $campaign->getTextContent();
+			$htmlContent = $campaign->getHtmlContent();
+			$subject = $campaign->getSubject();
+			
+			$subject = $massMailContent->prepareContent($subject, 
+						MassMaillContent::TYPE_SUBJECT, 
+						$subscriber);
+
+			$htmlContent = $massMailContent->prepareContent($htmlContent, 
+						MassMaillContent::TYPE_HTML_CONTENT, 
+						$subscriber);
+			
+			$textContent = $massMailContent->prepareContent($textContent, 
+						MassMaillContent::TYPE_TEXT_CONTENT, 
+						$subscriber);
+		
+			$sendQueueItem->setSubject($subject);
+			$sendQueueItem->setTextContent($textContent);
+			$sendQueueItem->setHtmlContent($htmlContent);
+			$sendQueueItem->setStatus(Entity\SendQueueItem::STATUS_PREPARED);
+			$sendQueueItem->setCreateDateTime();
+			
+		}
 		
 	}
 	

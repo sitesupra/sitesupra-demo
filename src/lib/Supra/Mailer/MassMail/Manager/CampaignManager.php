@@ -65,6 +65,6 @@ class CampaignManager extends MassMailManager
 		$this->entityManager->remove($campaign);	
 	}
 	
-	
+
 	
 }

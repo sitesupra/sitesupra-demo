@@ -7,8 +7,13 @@ use Supra\Database\Entity;
 /**
  * @Entity
  */
-class SendQueue extends Entity
+class SendQueueItem extends Entity
 {
+	
+	const STATUS_PREPARED = 10;
+	const STATUS_SENT = 20;
+	const STATUS_SUSPENDED = 30;
+	const STATUS_ABORTED = 40;
 
 	/**
 	 * @Column(type="string", name="email_to", nullable=false)
@@ -288,7 +293,7 @@ class SendQueue extends Entity
 	 */
 	public function setCreateDateTime()
 	{
-		$this->createDateTime = $createDateTime;
+		$this->createDateTime = new \DateTime("now");
 	}
 
 	
@@ -298,7 +303,7 @@ class SendQueue extends Entity
 	 */
 	public function setSendDateTime()
 	{
-		$this->sendDateTime = $sendDateTime;
+		$this->sendDateTime = new \DateTime("now");
 	}
 
 

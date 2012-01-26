@@ -146,14 +146,34 @@ class Campaign extends Entity
 	}
 
 	/**
-	 * Returns list of assigned to campaign subscribers list
-	 * @return array
+	 * Returns list assigned to campaign
+	 * @return Entity\SubscriberList
 	 */
 	public function getSubscriberList()
 	{
 		return $this->subscriberList;
 	}
 
+	
+	public function getActiveSubscribers()
+	{	
+		$activeSubscribers = array();
+		$subscribers = $this->getSubscriberList()->getSubscribers();
+		
+		foreach($subscribers as $subscriber){
+			
+			if( ! $subscriber->getActive()) {
+				continue;
+			}
+			
+			$activeSubscribers[] = $subscriber;
+		}		
+		
+		return $activeSubscribers;
+		
+	}
+	
+	
 	/**
 	 * Returns campaign subject
 	 * @return string
