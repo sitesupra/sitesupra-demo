@@ -393,6 +393,7 @@ class HistoryPageRequestView extends PageRequest
 		$pageLocalization = $this->getPageLocalization();
 		
 		if ($pageLocalization instanceof Entity\PageLocalization) {
+			$pageLocalization->initializeProxyAssociations();
 			$pagePath = $pageLocalization->getPathEntity();
 		}
 		
@@ -542,6 +543,10 @@ class HistoryPageRequestView extends PageRequest
 				->findBy(array('master' => $pageId, 'revision' => $this->revision));
 
 		foreach($pageLocalizations as $localization) {
+			
+			if ($localization instanceof Entity\PageLocalization) {
+				$localization->initializeProxyAssociations();
+			}
 
 			$draftEm->merge($localization);
 			$this->setPageLocalization($localization);
