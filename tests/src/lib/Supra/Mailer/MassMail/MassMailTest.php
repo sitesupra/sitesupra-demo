@@ -125,7 +125,7 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		$massMail->flush();
 		
 		//send campaign
-		$massMail->getCampaignManager()->send($campaign);
+		$massMail->populateSendQueue($campaign);
 		
 		//store data
 		$massMail->flush();
