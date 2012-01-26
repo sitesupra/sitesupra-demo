@@ -337,16 +337,17 @@ abstract class PageManagerAction extends CmsAction
 	/**
 	 * Loads main node data array
 	 * @param Entity\Abstraction\Localization $data
+	 * @param boolean $localizationExists will pass page ID not localization ID if not exists
 	 * @return array
 	 */
-	protected function loadNodeMainData(Entity\Abstraction\Localization $data)
+	protected function loadNodeMainData(Entity\Abstraction\Localization $data, $localizationExists = true)
 	{
 		$page = $data->getMaster();
 		$locale = $data->getLocale();
 
 		// Main data
 		$array = array(
-			'id' => $data->getId(),
+			'id' => $localizationExists ? $data->getId() : $page->getId(),
 			'master_id' => $page->getId(),
 			'title' => $data->getTitle(),
 			// TODO: hardcoded
@@ -863,13 +864,15 @@ abstract class PageManagerAction extends CmsAction
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeManager->exists($localeId);
 		
-		$existingLocalization = $this->getPageLocalization();
-		$master = $existingLocalization->getMaster();
+		$master = $this->getPageByRequestKey('page_id');
 		
 		$sourceLocaleId = $this->getRequestParameter('source_locale');
 		$localeManager->exists($sourceLocaleId);
 		
 		$existingLocalization = $master->getLocalization($sourceLocaleId);
+		
+		// Overwrite current localization with the source data
+		$this->pageData = $existingLocalization;
 		
 		$this->checkActionPermission($master, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 		

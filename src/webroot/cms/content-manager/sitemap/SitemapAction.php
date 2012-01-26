@@ -116,8 +116,13 @@ class SitemapAction extends PageManagerAction
 		}
 		
 		$array = array();
+		$localizationExists = true;
 		
 		if (empty($data)) {
+			
+			$localeManager = ObjectRepository::getLocaleManager($this);
+			$localizationExists = false;
+			
 			// try to get any localization if page is global
 			if ($page->isGlobal()) {
 				
@@ -125,22 +130,30 @@ class SitemapAction extends PageManagerAction
 					return null;
 				}
 				
-				// hoping that there is at least one page data instance (naive)
-				//$data = $page->getLocalizations()->first();
-				
 				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
 				// this, i suppose, will be replaced with dialog window with localization selector
 				$localizations = $page->getLocalizations();
 				$data = $localizations->first();
-				foreach($localizations as $globalLocalization) {
-					if ($globalLocalization->getId() < $data->getId()) {
-						$data = $globalLocalization;
+				
+				// Search for the first created localization by it's ID
+				foreach ($localizations as $globalLocalization) {
+					/* @var $globalLocalization Entity\Abstraction\Localization */
+					if (strcmp($globalLocalization->getId(), $data->getId()) < 0) {
+						$localeId = $globalLocalization->getLocale();
+						
+						if ($localeManager->exists($localeId, false)) {
+							$data = $globalLocalization;
+						}
 					}
 				}
 				
 				// collecting available localizations
 				foreach ($localizations as $globalLocalization) {
-					$array['localizations'][] = $globalLocalization->getLocale();
+					$localeId = $globalLocalization->getLocale();
+					
+					if ($localeManager->exists($localeId, false)) {
+						$array['localizations'][] = $globalLocalization->getLocale();
+					}
 				}
 								
 				$isGlobal = true;
@@ -151,7 +164,7 @@ class SitemapAction extends PageManagerAction
 		}
 		
 		if ( ! $skipRoot) {
-			$nodeData = $this->loadNodeMainData($data);
+			$nodeData = $this->loadNodeMainData($data, $localizationExists);
 			if ( ! empty($nodeData)) {
 				$array = array_merge($nodeData, $array);
 			}
@@ -198,8 +211,6 @@ class SitemapAction extends PageManagerAction
 				if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
 					$inheritConfig['isDropTarget'] = false;
 				}
-
-				//TODO: pass to client if there are any hidden pages
 
 			} else {
 				$children = $page->getChildren();
@@ -286,7 +297,6 @@ class SitemapAction extends PageManagerAction
 	 */
 	protected function loadSitemapTree($entity)
 	{
-		$pages = array();
 		$localeId = $this->getLocale()->getId();
 		
 		$existingOnly = (bool)$this->getRequestParameter('existing_only');
