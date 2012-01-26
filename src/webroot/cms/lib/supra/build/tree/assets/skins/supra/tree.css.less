@@ -1,3 +1,7 @@
+.yui3-tree .tree > .yui3-tree-node {
+	background: url(../../supra/img/tree/background.png) 0 0 repeat;
+}
+
 .yui3-tree-node {
 	color: #323144;
 	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
@@ -23,7 +27,7 @@
 }
 
 	.tree-node div {
-		padding: 3px 13px 3px 10px;
+		padding: 4px 13px 4px 10px;
 		float: left;
 		
 		width: 100%;
@@ -44,6 +48,19 @@
 	}
 	.tree-node img {
 		vertical-align: bottom;
+	}
+	
+	.tree-node span.remove {
+		display: none;
+		position: absolute;
+		right: 0;
+		top: 0;
+		height: 25px;
+		width: 22px;
+		background: url(../../supra/img/tree/background-selected.png) 0 -25px no-repeat;
+	}
+	.tree-node span.remove:hover {
+		background-position: 0 -50px;
 	}
 	
 	.tree-node span.img,
@@ -87,10 +104,20 @@
 		font-style: italic;
 	}
 	
+	.yui3-tree-node-selected {
+		position: relative;
+	}
 	.yui3-tree-node-selected,
 	.yui3-tree-node-selected:hover {
-		background: url(../../supra/img/sidebar/left-bg-darker.gif) 0 0 repeat;
+		background: url(../../supra/img/tree/background-selected.png) 0 0 repeat-x;
 	}
+		.yui3-tree-node-selected>div label {
+			color: #fff;
+			text-shadow: 0 1px 0 rgba(0, 15, 63, 0.4);
+		}
+		.yui3-tree-node-selected>div span.remove {
+			display: block;
+		}
 		.yui3-tree-node-selected.dragable:hover div {
 			background: url(../../supra/img/tree/drag.png) 2px 2px no-repeat;
 		}

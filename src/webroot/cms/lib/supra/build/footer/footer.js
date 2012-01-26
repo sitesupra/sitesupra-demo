@@ -175,7 +175,7 @@ YUI.add("supra.footer", function (Y) {
 		 */
 		normalizeButtonConfig: function (config) {
 			var style_definition = {
-				"style": "mid",
+				"style": "small",
 				"label": ""
 			};
 			

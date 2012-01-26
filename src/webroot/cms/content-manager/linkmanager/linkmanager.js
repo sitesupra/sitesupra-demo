@@ -1,6 +1,12 @@
 //Invoke strict mode
 "use strict";
 
+//Add module definitions
+SU.addModule('website.sitemap-linkmanager-node', {
+	path: 'linkmanager/modules/tree-node.js',
+	requires: ['supra.tree', 'supra.tree-node']
+});
+
 /**
  * Link Manager
  * 
@@ -17,7 +23,7 @@
  *   hideToolbar - toolbar buttons will be hidden while link manager is open
  *   hideLinkControls - link controls will be hidden, default is false
  */
-SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', function (Y) {
+SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,
@@ -355,6 +361,8 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 						Manager.LayoutLeftContainer.layout.on('sync', this.link_slideshow.syncUI, this.link_slideshow);
 						
 						this.link_slideshow.on('slideChange', this.updateInsertButton, this);
+						
+						this.link_slideshow.syncUI();
 					
 					//Create tree
 						//Use sitemap data
@@ -364,10 +372,11 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 												'&existing_only=1';
 						
 						//Create tree
-						this.tree = new SU.Tree({
-							srcNode: node.one('.tree'),
-							requestUri: sitemap_data_path,
-							groupNodesSelectable: false
+						this.tree = new Supra.Tree({
+							'srcNode': node.one('.tree'),
+							'requestUri': sitemap_data_path,
+							'groupNodesSelectable': false,
+							'defaultChildType': Supra.LinkMapTreeNode
 						});
 						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 						this.tree.render();
@@ -389,7 +398,7 @@ SU('supra.input', 'supra.slideshow', 'supra.tree', 'supra.medialibrary', functio
 			linkToFile: function (node) {
 				if (!this.medialist) {
 					//"Open App" button
-						var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'mid'});
+						var btn = new Supra.Button({'srcNode': node.one('button'), 'style': 'small'});
 						btn.on('click', function () {
 							Manager.executeAction('MediaLibrary');
 							Manager.getAction('MediaLibrary').once('hide', function () {

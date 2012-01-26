@@ -175,7 +175,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 		 */
 		_setValue: function (value) {
 			//Check
-			this.get('inputNode').set('value', value === true || value == '1' ? 1 : 0);
+			this.get('inputNode').set('value', value === true || value == '1' ? '1' : '0');
 			
 			//Update style
 			if (value === true || value == '1') {
@@ -184,7 +184,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 				return true;
 			} else {
 				var node = this.get('backgroundNode');
-				if (node) node.addClass('active');
+				if (node) node.removeClass('active');
 				return false;
 			}
 		},

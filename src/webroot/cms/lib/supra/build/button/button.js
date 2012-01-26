@@ -135,7 +135,7 @@ YUI.add('supra.button', function (Y) {
 				style = button.getAttribute('suStyle');
 			}
 			
-			return style || 'mid';
+			return style || 'small';
 		}
     };
 	

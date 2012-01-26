@@ -53,14 +53,14 @@
 	height: auto;
 }
 .has-link-controls #linkToPage > .yui3-slideshow {
-	bottom: 134px; /* Link controls at the bottom */
+	bottom: 125px; /* Link controls at the bottom */
 }
 
 #linkToPage.no-switch > .yui3-slideshow {
 	top: 0;
 }
 #linkToPage .yui3-input-select-list {
-	margin: 10px 19px 10px 20px;
+	margin: 22px 19px 10px 20px;
 }
 
 #linkManagerType label {
@@ -86,7 +86,10 @@
 	left: 0;
 	bottom: 0;
 	right: 0;
-	border-top: 1px solid #eee;
+}
+.yui3-linkmanager .link-controls .yui3-input-string {
+	margin-top: 24px;
+	margin-bottom: 21px;
 }
 .yui3-linkmanager .link-controls .yui3-input-checkbox label {
 	width: 160px !important;
@@ -99,10 +102,6 @@
 .yui3-linkmanager .link-controls-buttons {
 	text-align: center;
 	margin: 0 10px 10px;
-}
-
-.yui3-linkmanager .sidebar-footer {
-	text-align: center;
 }
 
 /**
