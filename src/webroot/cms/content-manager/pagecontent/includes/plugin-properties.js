@@ -331,10 +331,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//On slideshow slide change update "Bacj" button
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
 			
-			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
-				btn.render(slide).on('click', this.deleteContent, this);
-			
 			//Create form
 			var form = this.initializeForm(form_config);
 			form.set('slideshow', slideshow);
@@ -344,6 +340,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 			for(var id in inputs) {
 				inputs[id].on('change', this.onPropertyChange, this);
 			}
+			
+			//Delete button
+			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
+				btn.render(slide).on('click', this.deleteContent, this);
+			
 		},
 		
 		/**
