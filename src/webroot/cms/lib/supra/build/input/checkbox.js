@@ -195,12 +195,16 @@ YUI.add("supra.input-checkbox", function (Y) {
 					'node': this.get('pinNode'),
 					'duration': 0.1
 				});
+				this.pin_anim.on('end', function () {
+					this.get('pinNode').setStyle('left', null);
+				}, this);
 				this.get('pinNode').setStyle('left', from + 'px');
 			}
 			
+			this.pin_anim.stop();
+			this.get('pinNode').setStyle('left', from + 'px');
 			this.pin_anim.set('from', {'left': from})
 						 .set('to', {'left': to})
-						 .stop()
 						 .run();
 		},
 		_animateValueToggle: function (evt) {
