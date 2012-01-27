@@ -5,28 +5,45 @@ namespace Project\Payment\Paypal;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\Payment\Transaction\TransactionType;
+use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
+use Supra\Payment\Entity\Order\RecurringPayment;
+use Supra\Payment\Entity\RecurringPayment\RecurringPaymentProductItem;
+use Supra\Payment\Entity\RecurringPayment\RecurringPaymentPaymentProviderItem;
+use Supra\Response\ResponseInterface;
+use Supra\Payment\Order\RecurringOrderPeriodDimension;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
 	const REQUEST_KEY_TOKEN = 'TOKEN';
 	const TRANSACTION_PARAMETER_NAME_TOKEN = 'TOKEN';
-	const TRANSCACTION_PARAMETER_TRANSACTIONID = 'PAYMENTINFO_0_TRANSACTIONID';
+	const TRANSACTION_PARAMETER_TRANSACTIONID = 'PAYMENTINFO_0_TRANSACTIONID';
+	const TRANSACTION_PARAMETER_PROFILEID = 'PROFILEID';
 
-	const PHASE_NAME_PROXY = 'proxy';
-	const PHASE_NAME_CHECKOUT_DETAILS = 'checkoutDetails';
-	const PHASE_NAME_DO_PAYMENT= 'doPayment';
-	const PHASE_NAME_IPN = 'ipn-';
+	const PHASE_NAME_PAYPAL_SET_EXPRESS_CHECKOUT = 'paypal-SetExpressCheckout';
+	const PHASE_NAME_CHECKOUT_DETAILS = 'paypal-CheckoutDetails';
+	const PHASE_NAME_DO_PAYMENT= 'paypal-DoPayment';
+	const PHASE_NAME_CREATE_RECURRING_PAYMENT = 'paypal-CreateRecurringPaymentsProfile';
+	const PHASE_NAME_IPN = 'paypal-ipn-';
 
 	const CUSTOMER_RETURN_ACTION = 'return';
 	const CUSTOMER_RETURN_ACTION_RETURN = 'return';
 	const CUSTOMER_RETURN_ACTION_CANCEL = 'cancel';
+	const CUSTOMER_RETURN_SUFFIX_SHOP = 'shop';
+	const CUSTOMER_RETURN_SUFFIX_RECURRING = 'recurring';
 
 	const EVENT_PAYER_CHECKOUT_DETAILS = 'paypalPayerCheckoutDetails';
+
+	const REQUEST_KEY_SHOP_ORDER_ID = 'shopo';
+	const REQUEST_KEY_RECURRING_ORDER_ID = 'recurro';
 
 	/**
 	 * @var string
@@ -98,10 +115,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @return string
 	 */
-	public function getPaypalRedirectUrl()
+	public function getPaypalRedirectUrl($queryData)
 	{
+		$queryString = http_build_query($queryData);
 
-		return $this->paypalRedirectUrl;
+		return $this->paypalRedirectUrl . '?' . $queryString;
 	}
 
 	/**
@@ -161,9 +179,19 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$apiData['METHOD'] = 'SetExpressCheckout';
 
-		$apiData['RETURNURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_RETURN;
-		$apiData['CANCELURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_CANCEL;
-		$apiData['NOTIFYURL'] = $this->getNotificationUrl();
+		$urlSuffix = null;
+
+		if ($order instanceof ShopOrder) {
+			$urlSuffix = self::CUSTOMER_RETURN_SUFFIX_SHOP;
+		} else if ($order instanceof RecurringOrder) {
+			$urlSuffix = self::CUSTOMER_RETURN_SUFFIX_RECURRING;
+		} else {
+			throw new Exception\RuntimeException('Do not know how to proxy this type of order.');
+		}
+
+		$apiData['RETURNURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_RETURN . '/' . $urlSuffix;
+		$apiData['CANCELURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_CANCEL . '/' . $urlSuffix;
+		$apiData['NOTIFYURL'] = $this->getNotificationUrl() . '/' . $urlSuffix;
 
 		$orderItems = $order->getItems();
 
@@ -182,9 +210,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 				$counter = intval($counter);
 
 				$itemData = array(
-						'L_AMT' . $counter => $orderItem->getPrice() / $orderItem->getQuantity(),
-						'L_DESC' . $counter => $orderItem->getDescription(),
-						'L_QTY' . $counter => $orderItem->getQuantity()
+					'L_PAYMENTREQUEST_0_AMT' . $counter => $orderItem->getPrice() / $orderItem->getQuantity(),
+					'L_PAYMENTREQUEST_0_DESC' . $counter => $orderItem->getDescription(),
+					'L_PAYMENTREQUEST_0_QTY' . $counter => $orderItem->getQuantity()
 				);
 
 				$totalItemAmount += $orderItem->getPrice();
@@ -192,10 +220,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 				$totalAmount += $orderItem->getPrice();
 
 				$totalItemQuantity += $orderItem->getQuantity();
-			}
-			else if ($orderItem instanceof OrderPaymentProviderItem) {
+			} else if ($orderItem instanceof OrderPaymentProviderItem) {
 
-				$apiData['HANDLINGAMT'] = $orderItem->getPrice();
+				$apiData['PAYMENTREQUEST_0_HANDLINGAMT'] = $orderItem->getPrice();
 			}
 
 			$counter ++;
@@ -203,11 +230,16 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$apiData = $apiData + $itemData;
 		}
 
-		$apiData['CURRENCYCODE'] = $order->getCurrency()->getIsoCode();
-		$apiData['ITEMAMT'] = $order->getTotalForProductItems();
-		$apiData['AMT'] = $order->getTotal();
+		if ($order instanceof RecurringOrder) {
+			$apiData['L_BILLINGTYPE0'] = 'RecurringPayments';
+			$apiData['L_BILLINGAGREEMENTDESCRIPTION0'] = $order->getBillingDescription();
+		}
 
-		$apiData['PAYMENTACTION'] = 'Sale';
+		$apiData['PAYMENTREQUEST_0_CURRENCYCODE'] = $order->getCurrency()->getIsoCode();
+		$apiData['PAYMENTREQUEST_0_ITEMAMT'] = $order->getTotalForProductItems();
+		$apiData['PAYMENTREQUEST_0_AMT'] = $order->getTotal();
+
+		$apiData['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';
 
 		return $apiData;
 	}
@@ -289,6 +321,95 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param RecurringOrder $recurringOrder
+	 * @param type $checkoutDetails
+	 * @return array
+	 */
+	public function getCreateRecurringPaymentsProfileApiData(RecurringOrder $recurringOrder, $checkoutDetails)
+	{
+		$apiData = $this->getBaseApiData();
+		
+		$now = new \DateTime();
+		
+
+		$apiData['METHOD'] = 'CreateRecurringPaymentsProfile';
+		$apiData['TOKEN'] = $checkoutDetails['TOKEN'];
+		$apiData['PROFILESTARTDATE'] = $now->format('c');
+		$apiData['DESC'] = $recurringOrder->getBillingDescription();
+
+		$periodDimension = $recurringOrder->getPeriodDimension();
+		$billingPeriod = null;
+		switch ($periodDimension) {
+			case RecurringOrderPeriodDimension::DAY: {
+					$billingPeriod = 'Day';
+					break;
+				}
+			case RecurringOrderPeriodDimension::MONTH: {
+					$billingPeriod = 'Month';
+					break;
+				}
+			case RecurringOrderPeriodDimension::WEEK: {
+					$billingPeriod = 'Week';
+					break;
+				}
+			default: {
+					throw new Paypal\Exception\RuntimeException('Do not know how to convert period dimension "' . $periodDimension . '" to Paypal billing period value.');
+				}
+		}
+		
+		$apiData['NOTIFYURL'] = $this->getNotificationUrl() . '/' . self::CUSTOMER_RETURN_SUFFIX_RECURRING;
+
+		$apiData['BILLINGPERIOD'] = $billingPeriod;
+		$apiData['BILLINGFREQUENCY'] = $recurringOrder->getPeriodLength();
+		$apiData['AMT'] = $recurringOrder->getTotal();
+		$apiData['CURRENCYCODE'] = $recurringOrder->getCurrency()->getIsoCode();
+		$apiData['EMAIL'] = $checkoutDetails['EMAIL'];
+
+		$items = $recurringOrder->getItems();
+
+		$counter = 0;
+
+		foreach ($items as $item) {
+
+			$itemData = array();
+
+			if ($item instanceof RecurringPaymentProductItem) {
+				$counter = intval($counter);
+
+				$itemData = array(
+					'L_PAYMENTREQUEST_0_ITEMCATEGORY' . $counter => 'Digital',
+					'L_PAYMENTREQUEST_0_AMT' . $counter => $item->getPrice() / $item->getQuantity(),
+					'L_PAYMENTREQUEST_0_NAME' . $counter => $item->getDescription(),
+					'L_PAYMENTREQUEST_0_QTY' . $counter => $item->getQuantity()
+				);
+			} else if ($item instanceof RecurringPaymentPaymentProviderItem) {
+
+				//$apiData['HANDLINGAMT'] = $item->getPrice();
+			}
+
+			$counter ++;
+
+			$apiData = $apiData + $itemData;
+		}
+
+		return $apiData;
+	}
+
+	/**
+	 * @param RecurringPayment $recurringPayment
+	 * @param array $checkoutDetails
+	 * @return array 
+	 */
+	public function makeCreateRecurringPaymentsProfileCall(RecurringOrder $recurringPayment, $checkoutDetails)
+	{
+		$apiData = $this->getCreateRecurringPaymentsProfileApiData($recurringPayment, $checkoutDetails);
+
+		$result = $this->callPaypalApi($apiData);
+
+		return $result;
+	}
+
+	/**
 	 * @param type $apiData
 	 * @return array
 	 */
@@ -346,7 +467,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @param Order $order 
 	 */
-	public function updateOrder(Order $order)
+	public function updateShopOrder(ShopOrder $order)
 	{
 		$paymentProviderOrderItem = $order->getOrderItemByPayementProvider();
 
@@ -361,16 +482,48 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param Order $order 
+	 * @param ShopOrder $order 
 	 * @return boolean
 	 */
-	public function validateOrder(Order $order)
+	public function validateShopOrder(ShopOrder $order)
 	{
 		if ($order->getTotalForProductItems() < 10.00) {
 			throw new Exception\RuntimeException('Total is too small!!!');
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param ShopOrder $order
+	 * @param ResponseInterface $response 
+	 */
+	public function processShopOrder(ShopOrder $order, ResponseInterface $response)
+	{
+		parent::processShopOrder($order, $response);
+
+		// This is Paypal specific behaviour.
+		$proxyActionUrlQueryData = array(
+			self::REQUEST_KEY_SHOP_ORDER_ID => $order->getId()
+		);
+
+		$this->redirectToProxy($proxyActionUrlQueryData, $response);
+	}
+
+	/**
+	 * @param RecurringOrder $order
+	 * @param ResponseInterface $response 
+	 */
+	public function processRecurringOrder(RecurringOrder $order, ResponseInterface $response)
+	{
+		parent::processRecurringOrder($order, $response);
+
+		// This is Paypal specific behaviour.
+		$proxyActionUrlQueryData = array(
+			self::REQUEST_KEY_RECURRING_ORDER_ID => $order->getId()
+		);
+
+		$this->redirectToProxy($proxyActionUrlQueryData, $response);
 	}
 
 	/**
@@ -390,7 +543,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function validateIpn($ipnData)
 	{
 		$queryData = array(
-				'cmd' => '_notify-validate'
+			'cmd' => '_notify-validate'
 		);
 
 		$validationUrl = $this->paypalRedirectUrl . '?' . http_build_query($queryData);
@@ -405,11 +558,31 @@ class PaymentProvider extends PaymentProviderAbstraction
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
 		$rawResponse = curl_exec($ch);
 
 		return $rawResponse == 'VERIFIED';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCustomerReturnActionUrl($queryData)
+	{
+		$query = http_build_query($queryData);
+
+		return $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX . '?' . $query;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getProviderNotificationActionUrl($queryData)
+	{
+		$query = http_build_query($queryData);
+
+		return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $query;
 	}
 
 }

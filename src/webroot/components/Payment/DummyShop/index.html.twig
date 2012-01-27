@@ -31,10 +31,17 @@
 
 	<hr />
 
-	<form method="get" action="{{ proxyActionUrl }}">
+	<form method="get" action="">
 		<input type="submit" name="submit" value="MAKETH TEH PAMYENTH!" />
 		<input type="hidden" name="orderId" value="{{ orderId }}" />
-		<input type="hidden" name="shopAction" value="validate" />
+		<input type="hidden" name="shopAction" value="submit" />
+	</form>
+
+	<hr />
+
+	<form method="get" action="">
+		<input type="submit" name="submit" value="MAKETH TEH RECURRING PAYMENT!" />
+		<input type="hidden" name="shopAction" value="submitRecurring" />
 	</form>
 
 	<hr />
