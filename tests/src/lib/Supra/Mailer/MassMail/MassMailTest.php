@@ -130,6 +130,8 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		//store data
 		$massMail->flush();
 
+		$massMail->getSendQueueManager()->send();
+		
 		//Drop test data
 		$massMail->getCampaignManager()->dropCampaign($campaign);
 		$massMail->getSubscriberListManager()->dropList($list);
