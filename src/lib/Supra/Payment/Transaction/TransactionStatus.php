@@ -4,27 +4,32 @@ namespace Supra\Payment\Transaction;
 
 class TransactionStatus
 {
-	const INITIALIZED = 0;
-	const FAILED = 100;
+	const STARTED = 400;
+
+	const PENDING = 300;
+
 	const SUCCESS = 200;
-	const IN_PROGRESS = 400;
-	const IN_PROGRESS2 = 410;
+
+	const PAYER_CANCELED = 500;
+	const SELLER_CANCELED = 510;
+	const PROVIDER_CANCELED = 520;
+
+	const FAILED = 100;
 
 	const PROVIDER_ERROR = 900;
 	const SYSTEM_ERROR = 910;
 
 	static $knownStatuses = array(
-			self::INITIALIZED,
-			
-			self::IN_PROGRESS,
-			
-			self::IN_PROGRESS2,
-			
-			self::SUCCESS,
-			self::FAILED,
-			
-			self::PROVIDER_ERROR,
-			self::SYSTEM_ERROR
+		self::INITIALIZED,
+		self::STARTED,
+		self::PENDING,
+		self::PAYER_CANCELED,
+		self::SELLER_CANCELED,
+		self::PROVIDER_CANCELED,
+		self::SUCCESS,
+		self::FAILED,
+		self::PROVIDER_ERROR,
+		self::SYSTEM_ERROR
 	);
 
 	/**

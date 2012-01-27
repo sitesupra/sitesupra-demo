@@ -5,9 +5,10 @@ namespace Supra\Payment\Transaction;
 class TransactionType
 {
 	const PURCHASE = 1100;
-	const RECURRING_PURCHASE = 1200;
-
 	const PURCHASE_REFUND = 2100;
+	
+	const RECURRING_INITIATE = 3200;
+	const RECURRING_PURCHASE = 1200;
 	const RECURRING_PURCHASE_REFUND = 2200;
 	
 	const TRANSFER = 3100;
