@@ -1,0 +1,125 @@
+.yui3-input-select {
+	.yui3-input-select-inner {
+		.border-radius (5px);
+		.box-shadow (0, 1px, 0px, rgba(163, 164, 185, 0.2));
+		
+		cursor: pointer;
+		outline: none;
+		
+		height: 26px;
+		line-height: 24px;
+		position: relative;
+		padding: 0 23px 0 0;
+		
+		background: url(input-select-light.png) 0px 0px no-repeat,
+					url(input-select-light.png) 100% -52px no-repeat,
+					url(input-select-light.png) 0px -26px repeat-x;
+		
+		// This is input, no need to allow user to select text
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		user-select: none;
+		
+		& > p {
+			.box-sizing (border-box);
+			
+			color: #39394F;
+			cursor: pointer;
+			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			
+			
+			padding: 2px 0 0 8px;
+			overflow: hidden;
+			width: 100%;
+		}
+		
+		.yui3-input-select-dropdown {
+			.border-radius (3px);
+			.box-shadow (0, 2px, 4px, rgba(4, 0, 16, 0.35));
+			
+			cursor: default;
+			display: none;
+			position: absolute;
+			z-index: 1;
+			top: 39px;
+			left: 0;
+			background: #fff;
+			min-height: 20px;
+			
+			.yui3-input-select-arrow {
+				position: absolute;
+				left: 50%;
+				top: -11px;
+				margin-left: -11px;
+				height: 11px;
+				width: 23px;
+				background: url(input-select-arrow.png) 0 0 no-repeat;
+			}
+			
+			a {
+				cursor: pointer;
+			}
+			
+			.yui3-input-select-dropdown-content {
+				padding: 0 23px 8px 8px;
+			}
+			
+			.yui3-input-select-item {
+				color: #39394F;
+				line-height: 14px;
+				text-decoration: none;
+				display: block;
+				padding: 8px 0 0;
+				
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}
+.yui3-input-select-focused,
+.yui3-input-select-mouse-over {
+	.yui3-input-select-inner {
+		background-position: 0px -78px,
+							 100% -130px,
+							 0px -104px;
+	}
+}
+.yui3-input-select-open {
+	.yui3-input-select-inner {
+		.box-shadow (none);
+		background-position: 0px -156px,
+							 100% -208px,
+							 0px -182px;
+		
+		& > p {
+			color: #fff;
+			text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
+		}
+		
+		.yui3-input-select-dropdown {
+			display: block;
+		}
+	}
+}
+
+.yui3-input-select-open,
+.yui3-input-select-closing {
+	.yui3-input-select-inner {
+		.yui3-input-select-dropdown {
+			display: block;
+		}
+	}
+}
+
+.ui-dark .yui3-input-select {
+	.yui3-input-select-inner {
+		.box-shadow (none);
+		background-image: url(input-select-dark.png),
+						  url(input-select-dark.png),
+						  url(input-select-dark.png);
+	}
+}

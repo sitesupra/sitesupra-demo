@@ -493,7 +493,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-select': {
 		path: 'input/select.js',
-		requires: ['supra.input-string']
+		requires: ['supra.input-string', 'anim']
 	},
 	'supra.input-select-list': {
 		path: 'input/select-list.js',

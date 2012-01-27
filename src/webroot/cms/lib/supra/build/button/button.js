@@ -216,7 +216,7 @@ YUI.add('supra.button', function (Y) {
 			this.on('mousedown', this._onMouseDown, this);
 			this.on('mouseup', this._onMouseUp, this);
 			this.on('mouseover', this._onMouseOver, this);
-			this.on('mouseout', this._onMouseOut, this)
+			this.on('mouseout', this._onMouseOut, this);
 			
 			this.get('contentBox').on('click', this._onDisabledPreventClick, this);
 			this.get('boundingBox').on('click', this._onDisabledPreventClick, this);
