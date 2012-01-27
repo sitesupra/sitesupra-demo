@@ -32,7 +32,7 @@ class UserProvider
 	 * Entity manager
 	 * @var EntityManager 
 	 */
-	public $entityManager;
+	private $entityManager;
 
 	/**
 	 * Authentication adapter
@@ -43,7 +43,7 @@ class UserProvider
 	/**
 	 * @return EntityManager
 	 */
-	public function getEntityManager()
+	private function getEntityManager()
 	{
 		return ObjectRepository::getEntityManager($this);
 	}
@@ -333,7 +333,7 @@ class UserProvider
 	/**
 	 * @return array
 	 */
-	public function findAllGrups()
+	public function findAllGroups()
 	{
 		$entityManager = $this->getEntityManager();
 		$repo = $entityManager->getRepository(Entity\Group::CN());
@@ -354,5 +354,55 @@ class UserProvider
 		
 		return $users;
 	}
+	
+	/**
+	 * Forces to flush entity manager
+	 */
+	public function update()
+	{
+		$this->getEntityManager()
+				->flush();
+	}
+	
+	/**
+	 * Create new, and return already persisted user entity
+	 * @return Entity\User
+	 */
+	public function createUser()
+	{
+		$user = new Entity\User();
+		$this->getEntityManager()
+				->persist($user);
+		
+		return $user;
+	}
+	
+	/**
+	 * Remove user
+	 * @param Entity\User $user
+	 */
+	public function deleteUser(Entity\User $user) 
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->remove($user);
+		$entityManager->flush();	
+	}
+	
+	/**
+	 * Find user by email
+	 * @param string $email
+	 * @return Entity\User
+	 */
+	public function findUserByEmail($email)
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
+		$user = $repo->findOneByEmail($email);
 
+		if (empty($user)) {
+			return null;
+		}
+		return $user;
+	}
 }

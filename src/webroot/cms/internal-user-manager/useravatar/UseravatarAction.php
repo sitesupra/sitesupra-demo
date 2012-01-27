@@ -159,14 +159,16 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 			throw new CmsException(null, 'Empty file');
 		}
 
-		$em = ObjectRepository::getEntityManager($this);
+		//$em = ObjectRepository::getEntityManager($this);
 
 		// find user
 		try {
 			$userId = $request->getPostValue('user_id');
-			$userRepo = $em->getRepository('Supra\User\Entity\User');
+			//$userRepo = $em->getRepository('Supra\User\Entity\User');
 
-			$user = $userRepo->findOneById($userId);
+			$user = $this->userProvider
+					->findUserById($userId);
+			
 			if ( ! $user instanceof User) {
 				throw new CmsException(null, 'Could not find a user');
 			}
@@ -223,9 +225,12 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 			throw new FileStorageException('Could not save original avatar to file system');
 		}
 
-		$em->persist($user);
+		//$em->persist($user);
 		$user->setPersonalAvatar(true);
-		$em->flush();
+		
+		$this->userProvider
+				->getAuthAdapter()
+				->credentialChange($user);
 		
 		$this->getResponse()->setResponseData($response);
 	}

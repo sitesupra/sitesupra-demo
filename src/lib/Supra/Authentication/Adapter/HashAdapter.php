@@ -97,8 +97,9 @@ class HashAdapter implements AuthenticationAdapterInterface
 		
 		// Flush automatically
 		$userProvider = ObjectRepository::getUserProvider($this);
-		$userProvider->getEntityManager()
-				->flush();
+		//$userProvider->getEntityManager()
+				//->flush();
+		$userProvider->update();
 	}
 	
 	/**

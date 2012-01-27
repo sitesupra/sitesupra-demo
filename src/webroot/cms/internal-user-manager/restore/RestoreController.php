@@ -260,9 +260,11 @@ class RestoreController extends InternalUserManagerAbstractAction
 	 */
 	private function getRequestedUser($email)
 	{
-		$repo = $this->entityManager->getRepository(User::CN());
+		//$repo = $this->entityManager->getRepository(User::CN());
 		//TODO: should it search by email or login?
-		$user = $repo->findOneByEmail($email);
+		//$user = $repo->findOneByEmail($email);
+		$user = $this->userProvider
+				->findUserByEmail($email);
 		
 		return $user;
 	}

@@ -7,7 +7,7 @@ use Supra\User\Entity;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\User\UserProvider;
-use Doctrine\ORM\EntityManager;
+//use Doctrine\ORM\EntityManager;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Mailer\Message\TwigMessage;
 use Supra\Cms\CmsApplicationConfiguration;
@@ -28,7 +28,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 	/**
 	 * @var EntityManager
 	 */
-	protected $entityManager;
+	//protected $entityManager;
 
 	/**
 	 * @var array
@@ -44,7 +44,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 		parent::__construct();
 
 		$this->userProvider = ObjectRepository::getUserProvider($this);
-		$this->entityManager = $this->userProvider->getEntityManager();
+		//$this->entityManager = $this->userProvider->getEntityManager();
 
 		//TODO: implement normal group loader and IDs
 		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);

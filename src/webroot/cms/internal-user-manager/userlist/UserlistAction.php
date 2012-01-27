@@ -20,13 +20,13 @@ use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 class UserlistAction extends InternalUserManagerAbstractAction
 {
 	/* @var EntityRepository */
-	private $userRepository;
+	//private $userRepository;
 	
 	function __construct() 
 	{
 		parent::__construct();
 		
-		$this->userRepository = $this->entityManager->getRepository(Entity\User::CN());
+		//$this->userRepository = $this->entityManager->getRepository(Entity\User::CN());
 	}
 	
 	public function userlistAction()
@@ -37,8 +37,10 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		
 		if ($appConfig instanceof ApplicationConfiguration) {
 			if ($appConfig->allowGroupEditing) {
-				$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
-				$groups = $groupRepository->findAll();
+				//$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+				//$groups = $groupRepository->findAll();
+				$groups = $this->userProvider
+						->findAllGroups();
 
 				/* @var $group Entity\Group */
 				foreach($groups as $group) {
@@ -53,7 +55,9 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			}
 		}
 		
-		$users = $this->userRepository->findAll();
+		//$users = $this->userRepository->findAll();
+		$users = $this->userProvider
+				->findAllUsers();
 		
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
@@ -89,7 +93,9 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		$newGroupName = $this->dummyGroupIdToGroupName($newGroupDummyId);
 		
 		/* @var $user Entity\User */
-		$user = $this->userRepository->find($userId);
+		//$user = $this->userRepository->find($userId);
+		$user = $this->userProvider
+				->findUserById($userId);
 		
 		if (empty($user)) {
 			throw new CmsException(null, 'Requested user was not found');
@@ -100,8 +106,11 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		}
 		
 		/* @var $groupRepository EntityRepository */
-		$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
-		$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
+		//$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+		//$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
+		
+		$newGroup = $this->userProvider
+				->findGroupByName($newGroupName);
 		
 		// On user group change all user individual permissions are unset
 		//TODO: ask confirmation from the action caller for this
@@ -111,7 +120,10 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			$user->setGroup($newGroup);	
 		}
 		
-		$this->entityManager->flush();
+		//$this->entityManager->flush();
+		$this->userProvider
+				->getAuthAdapter()
+				->credentialChange($user);
 		
 		$this->writeAuditLog('update user', 
 				"User '" . $user->getName()

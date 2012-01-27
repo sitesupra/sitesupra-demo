@@ -94,10 +94,12 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
-		$entityManager = ObjectRepository::getEntityManager($this->userProvider);
-
-		$entityManager->remove($user);
-		$entityManager->flush();
+		//$entityManager = ObjectRepository::getEntityManager($this->userProvider);
+		//$entityManager->remove($user);
+		//$entityManager->flush();
+		
+		$this->userProvider
+				->deleteUser($user);
 
 		$this->writeAuditLog('delete user', "User '" . $user->getName() . "' deleted");
 
@@ -152,15 +154,17 @@ class UserAction extends InternalUserManagerAbstractAction
 		$name = $input->get('name');
 		$dummyGroupId = $input->get('group');
 
-		$em = $this->userProvider->getEntityManager();
+		//$em = $this->userProvider->getEntityManager();
 
 		$groupName = $this->dummyGroupIdToGroupName($dummyGroupId);
 		$group = $this->userProvider->findGroupByName($groupName);
 
 		$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
 
-		$user = new Entity\User();
-		$em->persist($user);
+		$user = $this->userProvider
+				->createUser();
+		//$user = new Entity\User();
+		//$em->persist($user);
 
 		// TODO: add group, avatar
 		$user->setName($name);
@@ -174,10 +178,10 @@ class UserAction extends InternalUserManagerAbstractAction
 			//FIXME: don't pass original message!
 			throw new CmsException(null, "Not valid input: {$exc->getMessage()}");
 		}
-
+		
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
-
+	
 		$this->sendPasswordChangeLink($user, 'createpassword');
 
 		$this->writeAuditLog('insert user', "User '" . $user->getName() . "' created");
