@@ -299,7 +299,8 @@ class SitemapAction extends PageManagerAction
 	{
 		$localeId = $this->getLocale()->getId();
 		
-		$existingOnly = (bool)$this->getRequestParameter('existing_only');
+		$input = $this->getRequestInput();
+		$existingOnly = $input->getValid('existing_only', 'boolean');
 
 		$em = $this->entityManager;
 
