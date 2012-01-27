@@ -2,19 +2,25 @@
 
 namespace Supra\Payment\Order;
 
+use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Supra\ObjectRepository\ObjectRepository;
+use Supra\Payment\Transaction\TransactionProvider;
+use Supra\Payment\RecurringPayment\RecurringPaymentProvider;
+use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Entity\Order\OrderItem;
-use Supra\Payment\Product\ProductProvider;
-use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\Payment\Entity\Order\OrderProductItem;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Transaction\Transaction;
-use Supra\User\Entity\User;
+use Supra\Payment\Product\ProductProvider;
 use Supra\Payment\Product\ProductAbstraction;
 use Supra\Payment\Product\ProductProviderAbstraction;
+use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Event\EventManager;
-use Supra\Payment\Entity\Order\OrderProductItem;
+use Supra\User\Entity\User;
+use Supra\Payment\Entity\Abstraction\PaymentEntity;
 
 class OrderProvider
 {
@@ -27,7 +33,17 @@ class OrderProvider
 	/**
 	 * @var EntityRepository
 	 */
+	protected $shopOrderRepository;
+
+	/**
+	 * @var EntityRepository
+	 */
 	protected $orderRepository;
+
+	/**
+	 * @var EntityRepository
+	 */
+	protected $recurringOrderRepository;
 
 	/**
 	 * @var EntityRepository
@@ -35,19 +51,83 @@ class OrderProvider
 	protected $orderItemRepository;
 
 	/**
-	 * @param EntityManager $em 
+	 * @return EntityManager
 	 */
-	function __construct(EntityManager $em = null)
+	protected function getEntityManager()
 	{
-		if ( ! empty($em)) {
-			$this->em = $em;
-		}
-		else {
+		if (empty($this->em)) {
 			$this->em = ObjectRepository::getEntityManager($this);
 		}
 
-		$this->orderRepository = $this->em->getRepository(Order::CN());
-		$this->orderItemRepository = $this->em->getRepository(OrderItem::CN());
+		return $this->em;
+	}
+
+	/**
+	 * @param EntityManager $em 
+	 */
+	public function setEntityManager(EntityManager $em)
+	{
+		$this->em = $em;
+		$this->recurringOrderRepository = null;
+		$this->shopOrderRepository = null;
+		$this->orderRepostory = null;
+		$this->orderItemRepositoryr = null;
+	}
+
+	/**
+	 * @return EntityRepository
+	 */
+	protected function getOrderItemRepository()
+	{
+		if (empty($this->orderItemRepository)) {
+
+			$this->orderItemRepository = $this->getEntityManager()
+					->getRepository(OrderItem::CN());
+		}
+
+		return $this->orderItemRepository;
+	}
+
+	/**
+	 * @return EntityRepository
+	 */
+	protected function getOrderRepository()
+	{
+		if (empty($this->orderRepository)) {
+
+			$this->orderRepository = $this->getEntityManager()
+					->getRepository(Order::CN());
+		}
+
+		return $this->orderRepository;
+	}
+
+	/**
+	 * @return EntityRepository
+	 */
+	protected function getShopOrderRepository()
+	{
+		if (empty($this->shopOrderRepository)) {
+
+			$this->shopOrderRepository = $this->getEntityManager()
+					->getRepository(ShopOrder::CN());
+		}
+
+		return $this->shopOrderRepository;
+	}
+
+	/**
+	 * @return EntityRepository
+	 */
+	protected function getRecurringOrderRepository()
+	{
+		if (empty($this->recurringOrderRepository)) {
+
+			$this->recurringOrderRepository = $this->getEntityManager()
+					->getRepository(RecurringOrder::CN());
+		}
+
+		return $this->recurringOrderRepository;
 	}
 
 	/**
@@ -57,17 +137,31 @@ class OrderProvider
 	 */
 	public function getOrder($orderId)
 	{
-		$order = $this->orderRepository->find($orderId);
+		$order = $this->findOrder($orderId);
 
 		if (empty($order)) {
-			throw new Exception\RuntimeException('Order "' . $orderId . '" not found.');
+			throw new Exception\RuntimeException('Order "' . $orderId . '" is not found.');
 		}
+
+		return $order;
+	}
+
+	/**
+	 * @param String $orderId
+	 * @return Order
+	 */
+	public function findOrder($orderId)
+	{
+		$order = $this->getOrderRepository()
+				->find($orderId);
 
 		return $order;
 	}
 
 	public function changeOrderCurrency(Order $order, Currency $newCurrency)
 	{
+		$em = $this->getEntityManager();
+
 		$orderItems = $order->getItems();
 
 		$newPrices = array();
@@ -94,51 +188,107 @@ class OrderProvider
 
 			$orderItem->setPrice($newPrice);
 
-			$this->em->persist($orderItem);
+			$em->persist($orderItem);
 		}
 
 		$order->setCurrency($newCurrency);
-		$this->em->persist($order);
+		$em->persist($order);
 
-		$this->em->flush();
+		$em->flush();
 	}
 
 	/**
-	 * @return Order 
+	 * @return ShopOrder 
 	 */
-	public function getOrderByTransaction(Transaction $transaction)
+	public function getShopOrderByTransaction(Transaction $transaction)
 	{
 		$criteria = array(
-				'transaction' => $transaction->getId()
+			'transaction' => $transaction->getId()
 		);
 
-		$order = $this->orderRepository->findOneBy($criteria);
+		$order = $this->getShopOrderRepository()
+				->findOneBy($criteria);
 
 		if (empty($order)) {
-			throw new Exception\RuntimeException('No order for transaction id "' . $transaction->getId() . '"');
+			throw new Exception\RuntimeException('Order for transaction "' . $transaction->getId() . '" is not found.');
 		}
 
 		return $order;
 	}
 
 	/**
-	 * @param User $user 
+	 * @return RecurringOrder
 	 */
-	public function getOpenOrderForUser(User $user)
+	public function getRecurringOrderByRecurringPayment(RecurringPayment $recurringPayment)
 	{
 		$criteria = array(
-				'userId' => $user->getId(),
-				'status' => OrderStatus::OPEN
+			'recurringPayment' => $recurringPayment->getId()
 		);
 
-		$order = $this->orderRepository->findOneBy($criteria);
+		$order = $this->getRecurringOrderRepository()
+				->findOneBy($criteria);
+
+		if (empty($order)) {
+			throw new Exception\RuntimeException('Order for recurring payment"' . $recurringPayment->getId() . '" is not found.');
+		}
+
+		return $order;
+	}
+
+	/**
+	 * @param PaymentEntity $paymentEntity
+	 * @return Order
+	 */
+	public function getOrderByPaymentEntity(PaymentEntity $paymentEntity)
+	{
+		$order = null;
+
+		if ($paymentEntity instanceof Transaction) {
+			$order = $this->getShopOrderByTransaction($paymentEntity);
+		} else if ($paymentEntity instanceof RecurringPayment) {
+			$order = $this->getRecurringOrderByRecurringPayment($paymentEntity);
+		} else {
+			throw new Exception\RuntimeException('Do not know how to get order for payment entity with id "' . $paymentEntity->getId() . '"');
+		}
+
+		return $order;
+	}
+
+	/**
+	 * @param User $user
+	 * @return ShopOrder 
+	 */
+	public function getOpenShopOrderForUser(User $user)
+	{
+		$criteria = array(
+			'userId' => $user->getId(),
+			'status' => OrderStatus::OPEN
+		);
+
+		$order = $this->getShopOrderRepository()
+				->findOneBy($criteria);
 
 		if (empty($order)) {
 
-			$order = new Order();
+			$order = new ShopOrder();
 			$order->setUserId($user->getId());
 			$this->store($order);
 		}
+
+		return $order;
+	}
+
+	/**
+	 * @param User $user
+	 * @return RecurringOrder 
+	 */
+	public function getRecurringOrderForUser(User $user)
+	{
+		$criteria = array(
+			'userId' => $user->getId()
+		);
+
+		$order = $this->getRecurringOrderRepository()->findOneBy($criteria);
 
 		return $order;
 	}
@@ -148,6 +298,8 @@ class OrderProvider
 	 */
 	public function store(Order $order)
 	{
+		$em = $this->getEntityManager();
+
 		$itemsToRemove = array();
 
 		foreach ($order->getItems() as $orderItem) {
@@ -159,11 +311,10 @@ class OrderProvider
 					$orderItem instanceof OrderProductItem &&
 					$orderItem->getQuantity() == 0
 			) {
-				$this->em->remove($orderItem);
+				$em->remove($orderItem);
 				$itemsToRemove[] = $orderItem;
-			}
-			else {
-				$this->em->persist($orderItem);
+			} else {
+				$em->persist($orderItem);
 			}
 		}
 
@@ -171,15 +322,35 @@ class OrderProvider
 			$order->removeOrderItem($orderItemToRemove);
 		}
 
-		$transaction = $order->getTransaction();
+		if ($order instanceof ShopOrder) {
 
-		if ( ! empty($transaction)) {
-			$this->em->persist($transaction);
+			$transaction = $order->getTransaction();
+
+			if ( ! empty($transaction)) {
+
+				$transactionProvider = new TransactionProvider();
+				$transactionProvider->setEntityManager($em);
+
+				$transactionProvider->store($transaction);
+			}
+		} else if ($order instanceof RecurringOrder) {
+
+			$recurringPayment = $order->getRecurringPayment();
+
+			if ( ! empty($recurringPayment)) {
+
+				$recurringPaymentProvider = new RecurringPaymentProvider();
+				$recurringPaymentProvider->setEntityManager($em);
+
+				$recurringPaymentProvider->store($recurringPayment);
+			}
+		} else {
+			throw new Exception\RuntimeException('Do not know how to store order of class "' . get_class($order) . '"');
 		}
 
-		$this->em->persist($order);
+		$em->persist($order);
 
-		$this->em->flush();
+		$em->flush();
 	}
 
 	/**
@@ -187,7 +358,10 @@ class OrderProvider
 	 */
 	public function getEventManager()
 	{
-		return $this->em->getEventManager();
+		$eventManager = $this->getEntityManager()
+				->getEventManager();
+
+		return $eventManager;
 	}
 
 }

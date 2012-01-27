@@ -6,130 +6,99 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Request\HttpRequest;
 use Supra\Request\RequestData;
 use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Order\RecurringOrderStatus;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\OrderProvider;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Provider\Event\ProviderNotificationEventArgs;
 use Supra\Payment\Transaction\TransactionProvider;
 use Supra\Payment\Transaction\TransactionStatus;
+use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
 abstract class ProviderNotificationActionAbstraction extends ActionAbstraction
 {
 
-	/**
-	 * @var Order
-	 */
-	protected $order;
+	abstract public function getNotificationData();
+
+	abstract public function setNotificationData($notificationData);
 
 	/**
-	 * @var PaymentProviderAbstraction
+	 * @param ShopOrder $order 
 	 */
-	protected $paymentProvider;
-
-	/**
-	 * @var TransactionProvider
-	 */
-	protected $transactionProvider;
-
-	/**
-	 * @var OrderProvider
-	 */
-	protected $orderProvider;
-
-	/**
-	 * @var RequestData
-	 */
-	protected $notificationData;
-
-	/**
-	 * @return Transaction
-	 */
-	abstract public function getTransactionFromNotificationData();
-
-	abstract protected function getNotificationPhaseName();
-
-	abstract public function processProviderNotification();
-
-	public function execute()
+	protected function handleShopOrder(ShopOrder $order)
 	{
-		$this->transactionProvider = new TransactionProvider();
-		$this->orderProvider = new OrderProvider();
-
-		$request = $this->getRequest();
-		$this->notificationData = $request->getPost();
-
-		\Log::debug('Notification data: ', $this->notificationData->getArrayCopy());
-
-		$transaction = $this->getTransactionFromNotificationData();
-
-		$this->paymentProvider = $this->transactionProvider->getTransactionPaymentProvider($transaction);
-
-		$this->order = $this->orderProvider->getOrderByTransaction($transaction);
-
-		$statusBefore = $this->order->getStatus();
+		$transaction = null;
 
 		try {
 
-			$this->storeDataToTransactionParamaters($this->getNotificationPhaseName(), $this->notificationData);
+			$transaction = $order->getTransaction();
 
-			$this->processProviderNotification();
+			$statusBefore = $transaction->getStatus();
 
-			$statusNow = $this->order->getStatus();
+			$this->processShopOrder($order);
 
-			\Log::debug('Provider Notification Abstraction ', $statusBefore, ' ---> ', $statusNow);
+			$statusNow = $transaction->getStatus();
 
-			if ($statusBefore == OrderStatus::PAYMENT_STARTED) {
+			$this->fireProviderNotificationEvent();
 
-				if ($statusNow == OrderStatus::PAYMENT_RECEIVED) {
-					$this->paymentReceived();
-				}
-				else if ($statusNow == OrderStatus::PAYMENT_CANCELED) {
-					$this->paymentCanceled();
-				}
-				else if ($statusNow == OrderStatus::PAYMENT_FAILED) {
-					$this->paymentFailed();
-				}
+			\Log::debug('Provider Notification Abstraction Transaction Status ', $statusBefore, ' ---> ', $statusNow);
+		} catch (Exception\RuntimeException $e) {
+
+			if ( ! empty($transaction)) {
+				$transaction->setStatus(TransactionStatus::SYSTEM_ERROR);
 			}
 		}
-		catch (Exception\RuntimeException $e) {
+	}
 
-			$this->order->setStatus(OrderStatus::SYSTEM_ERROR);
+	/**
+	 * @param ShopOrder $order
+	 */
+	abstract protected function processShopOrder(ShopOrder $order);
 
-			$this->systemError();
+	/**
+	 * @param RecurringOrder $order 
+	 */
+	protected function handleRecurringOrder(RecurringOrder $order)
+	{
+		$recurringPayment = null;
+
+		try {
+			
+			$recurringPayment = $order->getRecurringPayment();
+
+			$statusBefore = $recurringPayment->getStatus();
+
+			$this->processRecurringOrder($order);
+
+			$statusNow = $recurringPayment->getStatus();
+
+			$this->fireProviderNotificationEvent();
+
+			\Log::debug('Provider Notification Abstraction RecurringPayment Status ', $statusBefore, ' ---> ', $statusNow);
+		} catch (Exception\RuntimeException $e) {
+
+			if(!empty($recurringPayment)) {
+				$recurringPayment->setStatus(RecurringPaymentStatus::SYSTEM_ERROR);
+			}
 		}
 	}
+
+	/**
+	 * @param $order RecurringOrder
+	 */
+	abstract protected function processRecurringOrder(RecurringOrder $order);
+
+	abstract protected function getProviderNotificationEventArgs();
 
 	protected function fireProviderNotificationEvent()
 	{
+		$eventArgs = $this->getProviderNotificationEventArgs();
+
 		$eventManager = ObjectRepository::getEventManager($this);
-
-		$eventArgs = new ProviderNotificationEventArgs();
-		$eventArgs->setOrder($this->order);
-		$eventArgs->setNotificationData($this->notificationData);
-
 		$eventManager->fire(PaymentProviderAbstraction::EVENT_PROVIDER_NOTIFICATION, $eventArgs);
 	}
 
-	protected function paymentReceived()
-	{
-		$this->fireProviderNotificationEvent();
-	}
-
-	protected function paymentCanceled()
-	{
-		$this->fireProviderNotificationEvent();
-	}
-
-	protected function paymentFailed()
-	{
-		$this->fireProviderNotificationEvent();
-	}
-
-	protected function systemError()
-	{
-		$this->fireProviderNotificationEvent();
-	}
-
 }
-

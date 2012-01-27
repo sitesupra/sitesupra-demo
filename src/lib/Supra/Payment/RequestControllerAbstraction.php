@@ -25,6 +25,9 @@ abstract class RequestControllerAbstraction extends ControllerAbstraction
 		$this->customerReturnActionClass = $customerReturnActionClass;
 	}
 
+	/**
+	 * @param string $actionControllerClass 
+	 */
 	private function executeAction($actionControllerClass)
 	{
 		$actionController = FrontController::getInstance()->runController($actionControllerClass, $this->getRequest());

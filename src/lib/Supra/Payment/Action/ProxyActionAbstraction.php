@@ -3,11 +3,14 @@
 namespace Supra\Payment\Action;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Html\HtmlTag;
 use Supra\Response\TwigResponse;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\TransactionParameter;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Provider\Event\ProxyEventArgs;
@@ -17,20 +20,13 @@ use Supra\Payment\Transaction\TransactionProvider;
 
 abstract class ProxyActionAbstraction extends ActionAbstraction
 {
-	/**
-	 * @var Order
-	 */
-	protected $order;
+	const PHASE_NAME_PROXY_FORM = 'proxy-form';
+	const PHASE_NAME_PROXY_REDIRECT = 'proxy-redirect';
 
 	/**
 	 * @var boolean
 	 */
 	protected $formAutosubmit;
-
-	/**
-	 * @var string
-	 */
-	protected $formAction;
 
 	/**
 	 * @var string
@@ -47,20 +43,10 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 	 */
 	protected $redirectUrl;
 
-	abstract protected function preparePayment();
-
-	abstract protected function beginPaymentProcedure();
-
-	public function execute()
-	{
-		$this->fetchOrderFromRequest();
-
-		$this->fetchPaymentProvider();
-
-		$this->preparePayment();
-
-		$this->beginPaymentProcedure();
-	}
+	/**
+	 * @return array
+	 */
+	abstract protected function getRedirectUrl();
 
 	/**
 	 * @return array
@@ -78,8 +64,7 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 
 			if ($this->autosubmit) {
 				$input->setAttribute('type', 'hidden');
-			}
-			else {
+			} else {
 				$input->setAttribute('type', 'text');
 			}
 
@@ -90,37 +75,11 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 	}
 
 	/**
-	 * Writes TransactionParameters to database.
-	 */
-	protected function storeProxyPhaseTransactionParameters()
-	{
-		$transactionProvider = new TransactionProvider();
-		
-		$transaction = $this->order->getTransaction();
-
-		foreach ($this->proxyData as $name => $value) {
-
-			$transactionParameter = new TransactionParameter();
-
-			$transactionParameter->setPhaseName(PaymentProviderAbstraction::PHASE_NAME_PROXY);
-
-			$transactionParameter->setName($name);
-			$transactionParameter->setValue($value);
-
-			$transactionParameter->setTransaction($transaction);
-
-			$transaction->addParameter($transactionParameter);
-		}
-		
-		$transactionProvider->store($transaction);
-	}
-
-	/**
 	 * Creates form to be submitted to payment provider.
 	 */
 	protected function submitFormToPaymentProvider()
 	{
-		$this->storeProxyPhaseTransactionParameters();
+		$this->fireProxyEvent();
 
 		$response = new TwigResponse($this);
 
@@ -128,7 +87,9 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 
 		$response->assign('formElements', $formElements);
 
-		$response->assign('action', $this->formAction);
+		$redirectUrl = $this->getRedirectUrl();
+
+		$response->assign('action', $redirectUrl);
 		$response->assign('method', $this->formMethod);
 
 		$response->assign('autosubmit', $this->formAutosubmit);
@@ -138,80 +99,61 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 		$response->getOutputString();
 
 		$this->response = $response;
-
-		$this->order->setStatus(OrderStatus::PAYMENT_STARTED);
-		$this->em->persist($this->order);
-		$this->em->flush();
-
-		$this->fireProxyActionEvent();
 	}
 
 	/**
-	 * @return array
+	 * Sends HTTP redirect header to client.
 	 */
-	abstract function getRedirectQueryData();
-
 	protected function redirectToPaymentProvider()
 	{
-		$this->storeProxyPhaseTransactionParameters();
+		$redirectUrl = $this->getRedirectUrl();
 
-		$this->order->setStatus(OrderStatus::PAYMENT_STARTED);
-		
-		$this->order->getTransaction()->setStatus(TransactionStatus::IN_PROGRESS);
+		$this->fireProxyEvent();
 
-		$orderProvider = new OrderProvider();
-		$orderProvider->store($this->order);
-
-		$this->fireProxyActionEvent();
-
-		$queryData = $this->getRedirectQueryData();
-
-		$query = http_build_query($queryData)
-		;
-		$this->response->header('Location', $this->redirectUrl . '?' . $query);
+		$this->response->header('Location', $redirectUrl);
 		$this->response->flush();
 	}
 
+	abstract protected function getProxtyEventArgs();
+	
+	private function fireProxyEvent()
+	{
+		$eventManager = ObjectRepository::getEventManager($this);
+
+		$eventArgs = $this->getProxtyEventArgs();
+
+		$eventManager->fire(PaymentProviderAbstraction::EVENT_PROXY, $eventArgs);
+	}
+
 	/**
-	 * Fetches order from entity manager.
+	 * @param string $parameterKeyName
 	 * @return Order
 	 */
-	public function fetchOrderFromRequest()
+	protected function fetchOrderFromRequest($parameterKeyName)
 	{
 		$request = $this->getRequest();
 
-		$orderId = $request->getParameter(PaymentProviderAbstraction::ORDER_ID);
+		$orderId = $request->getParameter($parameterKeyName);
 
-		if (empty($orderId)) {
-			throw new Exception\PaymentActionRuntimeException('No order id');
-		}
+		$order = $this->fetchOrder($orderId);
 
-		$orderProvider = new OrderProvider();
-		$this->order = $orderProvider->getOrder($orderId);
-
-		if ($this->order->getStatus() != OrderStatus::OPEN) {
-			throw new Exception\RuntimeException('Order "' . $orderId . '" is not fresh!');
-		}
+		return $order;
 	}
 
-	public function fetchPaymentProvider()
+	/**
+	 * @param string $orderId
+	 * @return Order
+	 */
+	protected function fetchOrder($orderId)
 	{
-		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
+		$order = $this->getOrderProvider()
+				->getOrder($orderId);
 
-		$transaction = $this->order->getTransaction();
+		if ($order->getStatus() != OrderStatus::FINALIZED) {
+			throw new Exception\RuntimeException('Order "' . $orderId . '" is not FINALIZED!');
+		}
 
-		$paymentProviderId = $transaction->getPaymentProviderId();
-
-		$this->paymentProvider = $paymentProviderCollection->get($paymentProviderId);
-	}
-
-	private function fireProxyActionEvent()
-	{
-		$eventManager = ObjectRepository::getEventManager($this);
-		
-		$eventArgs = new ProxyEventArgs();
-		$eventArgs->setOrder($this->order);
-		$eventManager->fire(PaymentProviderAbstraction::EVENT_PROXY, $eventArgs);
+		return $order;
 	}
 
 }

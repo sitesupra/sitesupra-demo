@@ -4,28 +4,26 @@ namespace Supra\Payment\Order;
 
 class OrderStatus
 {
-	const OPEN = 400;
+	const OPEN = 100; // Order is "open" and items can be added / removed.
 
-	const FINALIZED = 500;
-
-	const PAYMENT_STARTED = 600;
-	const PAYMENT_PENDING = 640;
-	const PAYMENT_RECEIVED = 650;
-	const PAYMENT_CANCELED = 660;
-	const PAYMENT_FAILED = 670;
+	const FINALIZED = 200; // Order is "closed" and now must be either paid or deleted.
+	
+	const PAYMENT_STARTED = 300; // Order has been dispatched to payment provider. A payment entity has been created for this order.
+	
+	const PAYMENT_START_ERROR = 400;
 
 	const SYSTEM_ERROR = 1000;
 
-	static $knownStatuses = array(
+	static function getKnownStatuses()
+	{
+		return array(
 			self::OPEN,
 			self::FINALIZED,
+			self::PAYMENT_START_ERROR,
 			self::PAYMENT_STARTED,
-			self::PAYMENT_PENDING,
-			self::PAYMENT_RECEIVED,
-			self::PAYMENT_CANCELED,
-			self::PAYMENT_FAILED,
 			self::SYSTEM_ERROR,
-	);
+		);
+	}
 
 	/**
 	 * Validates value of $status to be one of known statuses. Throws exception.
@@ -33,9 +31,10 @@ class OrderStatus
 	 */
 	static function validate($status)
 	{
-		if ( ! in_array($status, self::$knownStatuses)) {
-			throw new Exception\RuntimeException('Unknown status "' . $status . '". Use constants from Order\OrderStatus class.');
+		if ( ! in_array($status, static::getKnownStatuses())) {
+			throw new Exception\RuntimeException('Status value "' . $status . '" not recognized. Use constants from ' . get_called_class() . ' class.');
 		}
 	}
 
 }
+

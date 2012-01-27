@@ -51,16 +51,17 @@ abstract class ConfigurationAbstraction implements ConfigurationInterface
 			throw new ConfigurationException('Payment provider configuration must have "collection" key!');
 		}
 
-		$router = new UriRouter();
-		$router->setPath($this->url);
-		FrontController::getInstance()->route($router, $this->requestControllerClass);
-
 		$this->paymentProvider->setId($this->id);
 		$this->paymentProvider->setBaseUrl($this->url);
 
 		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this->collection);
-
 		$paymentProviderCollection->add($this->paymentProvider);
+		
+		$router = new PaymentProviderUriRouter();
+		$router->setPath($this->url);
+		$router->setPaymentProvider($this->paymentProvider);
+		
+		FrontController::getInstance()->route($router, $this->requestControllerClass);		
 	}
 
 }

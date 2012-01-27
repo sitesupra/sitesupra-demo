@@ -3,7 +3,11 @@
 namespace Supra\Payment\Provider;
 
 use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Order\OrderStatus;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Locale\Locale;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
@@ -11,40 +15,23 @@ use Supra\Payment\Transaction\TransactionType;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Response\ResponseInterface;
 use Supra\Response\TwigResponse;
+use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
+use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
 abstract class PaymentProviderAbstraction
 {
-  const EVENT_PROXY = 'proxy';
-  const EVENT_CUSTOMER_RETURN = 'customerReturnAction';
-  const EVENT_PROVIDER_NOTIFICATION = 'providerNotificationAction';
+	const EVENT_PROXY = 'proxy';
+	const EVENT_CUSTOMER_RETURN = 'customerReturnAction';
+	const EVENT_PROVIDER_NOTIFICATION = 'providerNotificationAction';
 
 	const PROXY_URL_POSTFIX = 'proxy';
 	const PROVIDER_NOTIFICATION_URL_POSTFIX = 'notification';
 	const CUSTOMER_RETURN_URL_POSTFIX = 'return';
-	
-	const ORDER_ID = 'o';
-	
-	const PHASE_NAME_PROXY = 'proxy';
 
 	/**
 	 * @var string
 	 */
 	protected $id;
-
-	/**
-	 * @var string
-	 */
-	protected $proxyActionClass;
-
-	/**
-	 * @var string
-	 */
-	protected $providerNotificationActionClass;
-
-	/**
-	 * @var string
-	 */
-	protected $customerReturnActionClass;
 
 	/**
 	 * @var string;
@@ -55,18 +42,6 @@ abstract class PaymentProviderAbstraction
 	 * @var EntityManager
 	 */
 	protected $em;
-
-	/**
-	 * @param EntityManager|null $em 
-	 */
-	function __construct(EntityManager $em = null)
-	{
-		if (empty($em)) {
-			$em = ObjectRepository::getEntityManager($this);
-		}
-
-		$this->em = $em;
-	}
 
 	/**
 	 * @return string
@@ -89,21 +64,11 @@ abstract class PaymentProviderAbstraction
 	 */
 	public function getEntityManager()
 	{
+		if (empty($this->em)) {
+			$this->em = ObjectRepository::getEntityManager($this);
+		}
+
 		return $this->em;
-	}
-
-	/**
-	 * @return Transaction 
-	 */
-	public function createPurchaseTransaction()
-	{
-		$transaction = new Transaction();
-		$transaction->setPaymentProviderId($this->id);
-		$transaction->setStatus(TransactionStatus::INITIALIZED);
-		$transaction->setType(TransactionType::PURCHASE);
-		$this->em->persist($transaction);
-
-		return $transaction;
 	}
 
 	/**
@@ -123,13 +88,14 @@ abstract class PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param array $queryData
 	 * @return string
 	 */
-	public function getProxyActionUrl(Order $order)
+	public function getProxyActionUrl($queryData)
 	{
-		$query = http_build_query(array(self::ORDER_ID => $order->getId()));
+		$queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::PROXY_URL_POSTFIX . '?' . $query;
+		return $this->getBaseUrl() . '/' . self::PROXY_URL_POSTFIX . '?' . $queryString;
 	}
 
 	/**
@@ -137,9 +103,9 @@ abstract class PaymentProviderAbstraction
 	 */
 	public function getCustomerReturnActionUrl($queryData)
 	{
-		$query = http_build_query($queryData);
+		$queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX . '?' . $query;
+		return $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX . '?' . $queryString;
 	}
 
 	/**
@@ -147,10 +113,126 @@ abstract class PaymentProviderAbstraction
 	 */
 	public function getProviderNotificationActionUrl($queryData)
 	{
-		$query = http_build_query($queryData);
+		$queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $query;
+		return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $queryString;
 	}
+
+	/**
+	 * @return Transaction 
+	 */
+	protected function createShopOrderTransaction(ShopOrder $order)
+	{
+		$transaction = new Transaction();
+
+		$transaction->setPaymentProviderId($this->getId());
+
+		$transaction->setUserId($order->getUserId());
+		$transaction->setCurrencyId($order->getCurrency()->getId());
+		$transaction->setStatus(TransactionStatus::STARTED);
+
+		$transaction->setAmount($order->getTotal());
+
+		return $transaction;
+	}
+
+	/**
+	 * @param RecurringOrder $order
+	 * @return RecurringPayment 
+	 */
+	protected function createRecurringOrderRecurringPayment(RecurringOrder $order)
+	{
+		$recurringPayment = new RecurringPayment();
+
+		$recurringPayment->setPaymentProviderId($this->getId());
+		$recurringPayment->setAmount($order->getTotal());
+		$recurringPayment->setUserId($order->getUserId());
+		$recurringPayment->setCurrencyId($order->getCurrency()->getId());
+
+		$recurringPayment->setStatus(RecurringPaymentStatus::REQUESTED);
+
+		return $recurringPayment;
+	}
+
+	/**
+	 * @param ShopOrder $order 
+	 */
+	public function validateShopOrder(ShopOrder $order)
+	{
+		return true;
+	}
+
+	/**
+	 * @param RecurringOrder $order 
+	 */
+	public function validateRecurringOrder(RecurringOrder $order)
+	{
+		return true;
+	}
+
+	/**
+	 * @param Order $order
+	 * @return float
+	 */
+	protected function finalizeShopOrder(ShopOrder $order)
+	{
+		$order->setStatus(OrderStatus::FINALIZED);
+	}
+
+	protected function finalizeRecurringOrder(RecurringOrder $order)
+	{
+		$order->setStatus(OrderStatus::FINALIZED);
+	}
+
+	/**
+	 * @param Order $order 
+	 */
+	public function updateShopOrder(ShopOrder $order)
+	{
+		
+	}
+
+	/**
+	 * @param array $queryData
+	 * @param ResponseInterface $response
+	 */
+	protected function redirectToProxy($queryData, ResponseInterface $response)
+	{
+		$proxyUrl = $this->getProxyActionUrl($queryData);
+
+		if ($response instanceof TwigResponse) {
+			$response->redirect($proxyUrl);
+			$response->flush();
+		} else {
+			throw new Exception\RuntimeException('Do not know how to do redirect with response type "' . get_class($response) . '".');
+		}
+	}
+
+	/**
+	 * @param ShopOrder $order
+	 * @param ResponseInterface $response 
+	 */
+	public function  processShopOrder(ShopOrder $order, ResponseInterface $response)
+	{
+		$transaction = $this->createShopOrderTransaction($order);
+		$order->setTransaction($transaction);
+
+		$this->finalizeShopOrder($order);
+	}
+
+	/**
+	 * @param RecurringOrder $order
+	 * @param ResponseInterface $response 
+	 */
+	public function processRecurringOrder(RecurringOrder $order, ResponseInterface $response)
+	{
+		$recurringPayment = $this->createRecurringOrderRecurringPayment($order);
+		$order->setRecurringPayment($recurringPayment);
+
+		$this->finalizeRecurringOrder($order);
+	}
+
+	abstract function getOrderItemDescription(Order $order, Locale $locale);
 
 	/**
 	 * @return string
@@ -160,65 +242,4 @@ abstract class PaymentProviderAbstraction
 		return get_called_class();
 	}
 
-	/**
-	 * @param Order $order 
-	 */
-	public function validateOrder(Order $order)
-	{
-		return true;
-	}
-
-	/**
-	 * @param Order $order
-	 * @return float
-	 */
-	protected function finalizeOrder(Order $order)
-	{
-		
-	}
-
-	/**
-	 * @param Order $order 
-	 */
-	public function updateOrder(Order $order)
-	{
-		
-	}
-
-	/**
-	 * @param Order $order 
-	 */
-	public function prepareTransaction(Order $order)
-	{
-		$transaction = $this->createPurchaseTransaction();
-		$order->setTransaction($transaction);
-		$transaction->setUserId($order->getUserId());
-		$transaction->setCurrencyId($order->getCurrency()->getId());
-		$transaction->setType(TransactionType::PURCHASE);
-		$transaction->setStatus(TransactionStatus::IN_PROGRESS);
-
-		$this->finalizeOrder($order);
-
-		$transaction->setAmount($order->getTotal());
-
-		$this->em->flush();
-	}
-
-	public function redirectToProxy(Order $order, ResponseInterface $response)
-	{
-		if ($response instanceof TwigResponse) {
-
-			$proxyUrl = $this->getProxyActionUrl($order);
-
-			$response->redirect($proxyUrl);
-
-			$response->flush();
-		}
-		else {
-			throw new Exception\RuntimeException('Do not know how to do redirect with this type of response.');
-		}
-	}
-
-	abstract function getOrderItemDescription(Order $order, Locale $locale);
 }
-

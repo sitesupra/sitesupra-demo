@@ -3,107 +3,95 @@
 namespace Supra\Payment\Action;
 
 use Supra\Payment\Provider\Event\CustomerReturnEventArgs;
-use Supra\ObjectRepository\ObjectRepository;
+use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order\Order;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
+use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Transaction\TransactionStatus;
-use Supra\Payment\Entity\Transaction\Transaction;
-use Supra\Response\HttpResponse;
 use Supra\Payment\Transaction\TransactionProvider;
-use Supra\Payment\Provider\PaymentProviderAbstraction;
+use Supra\Response\HttpResponse;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
 abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 {
+	const QUERY_KEY_SHOP_ORDER_ID = 'shopOrderId';
+	const QUERY_KEY_RECURRING_ORDER_ID = 'recurringOrderId';
 
-	/**
-	 * @var Order
-	 */
-	protected $order;
-
-	/**
-	 * @var OrderProvide
-	 */
-	protected $orderProvider;
-
-	/**
-	 * @var TransactionProvider
-	 */
-	protected $transactionProvider;
-
-	/**
-	 * @var PaymentProviderAbstraction
-	 */
-	protected $paymentProvider;
-
-	/**
-	 * @return Transaction
-	 */
-	abstract public function getTransactionFromRequest();
-
-	abstract public function processCustomerReturn();
-
-	public function execute()
+	protected function handleShopOrder(ShopOrder $order)
 	{
-		$this->orderProvider = new OrderProvider();
-		$this->transactionProvider = new TransactionProvider();
-		
-		//\Log::debug('$this->transctionProvider: ', $this->transctionProvider);
-
-		$transaction = $this->getTransactionFromRequest();
-		
-		$this->paymentProvider = $this->transactionProvider->getTransactionPaymentProvider($transaction);
-
-		$this->order = $this->orderProvider->getOrderByTransaction($transaction);
-
-		$statusBefore = $this->order->getStatus();
-
-		$this->processCustomerReturn();
-
-		$statusNow = $this->order->getStatus();
-
-		\Log::debug('Customer Return Abstraction ', $statusBefore, ' ---> ', $statusNow);
+		$transaction = null;
 
 		try {
+			$transaction = $order->getTransaction();
 
-			if ($statusBefore == OrderStatus::PAYMENT_STARTED) {
+			$statusBefore = $transaction->getStatus();
 
-				if ($statusNow == OrderStatus::PAYMENT_RECEIVED) {
-					$this->paymentReceived();
-				}
-				if ($statusNow == OrderStatus::PAYMENT_PENDING) {
-					$this->paymentPending();
-				}
-				else if ($statusNow == OrderStatus::PAYMENT_CANCELED) {
-					$this->paymentCanceled();
-				}
-				else if ($statusNow == OrderStatus::PAYMENT_FAILED) {
-					$this->paymentFailed();
-				}
-			}
-			else if ($statusBefore == OrderStatus::PAYMENT_RECEIVED) {
-				$this->fireProviderNotificationEvent();
+			$this->processShopOrder($order);
+
+			$statusNow = $transaction->getStatus();
+
+			\Log::debug('Customer Return Abstraction Transaction Status ', $statusBefore, ' ---> ', $statusNow);
+
+			$this->fireCustomerReturnEvent();
+		} catch (Exception\RuntimeException $e) {
+
+			if ( ! empty($transaction)) {
+				$transaction->setStatus(TransactionStatus::SYSTEM_ERROR);
 			}
 		}
-		catch (Exception\RuntimeException $e) {
+	}
 
-			$this->order->setStatus(OrderStatus::SYSTEM_ERROR);
-			$this->systemError();
+	/**
+	 * @param $order ShopOrder
+	 */
+	protected abstract function processShopOrder(ShopOrder $order);
+
+	protected function handleRecurringOrder(RecurringOrder $order)
+	{
+		$recurringPayment = null;
+
+		try {
+			$recurringPayment = $order->getRecurringPayment();
+
+			$statusBefore = $recurringPayment->getStatus();
+
+			$this->processRecurringOrder($order);
+
+			$statusNow = $recurringPayment->getStatus();
+
+			\Log::debug('Customer Return Abstraction RecurringPayment Status ', $statusBefore, ' ---> ', $statusNow);
+
+			$this->fireCustomerReturnEvent();
+		} catch (Exception\RuntimeException $e) {
+
+			if ( ! empty($recurringPayment)) {
+				$recurringPayment->setStatus(RecurringPaymentStatus::SYSTEM_ERROR);
+			}
 		}
+	}
 
-		$this->orderProvider->store($this->order);
-
+	/**
+	 * @param $order RecurringOrder
+	 */
+	protected abstract function processRecurringOrder(RecurringOrder $order);
+		
+	/**
+	 * @param string $returnUrl
+	 * @param array $queryData 
+	 */
+	protected function returnToPaymentInitiator($returnUrl, $queryData = array())
+	{
 		$response = $this->getResponse();
 
 		if ($response instanceof HttpResponse) {
 
 			if ( ! $response->isRedirect()) {
 
-				$queryParameters = array(
-						PaymentProviderAbstraction::ORDER_ID => $this->order->getId()
-				);
-
-				$queryParts = parse_url($this->order->getReturnUrl());
+				$queryParts = parse_url($returnUrl);
 
 				$urlBase = $queryParts['scheme'] . '://' . $queryParts['host'] . $queryParts['path'];
 
@@ -112,7 +100,7 @@ abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 				if ( ! empty($queryParts['query'])) {
 					$query[] = $queryParts['query'];
 				}
-				$query[] = http_build_query($queryParameters);
+				$query[] = http_build_query($queryData);
 
 				$query = join('&', $query);
 
@@ -121,40 +109,15 @@ abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 		}
 	}
 
+	abstract protected function getCustomerReturnEventArgs();
+
 	protected function fireCustomerReturnEvent()
 	{
 		$eventManager = ObjectRepository::getEventManager($this);
 
-		$eventArgs = new CustomerReturnEventArgs();
-		$eventArgs->setOrder($this->order);
-		$eventArgs->setResponse($this->response);
+		$eventArgs = $this->getCustomerReturnEventArgs();
 
 		$eventManager->fire(PaymentProviderAbstraction::EVENT_CUSTOMER_RETURN, $eventArgs);
-	}
-
-	protected function paymentReceived()
-	{
-		$this->fireCustomerReturnEvent();
-	}
-
-	protected function paymentPending()
-	{
-		$this->fireCustomerReturnEvent();
-	}
-
-	protected function paymentCanceled()
-	{
-		$this->fireCustomerReturnEvent();
-	}
-
-	protected function paymentFailed()
-	{
-		$this->fireCustomerReturnEvent();
-	}
-
-	protected function systemError()
-	{
-		$this->fireCustomerReturnEvent();
 	}
 
 }
