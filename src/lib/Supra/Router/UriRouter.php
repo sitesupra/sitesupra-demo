@@ -101,6 +101,9 @@ class UriRouter extends RouterAbstraction
 		
 		$path = $request->getPath();
 		$path->setBasePath($this->path);
+		
+		$request->setLastRouter($this);
+		
 		self::$requestFinalized = true;
 	}
 
