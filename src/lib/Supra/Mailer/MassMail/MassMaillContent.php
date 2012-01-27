@@ -11,6 +11,20 @@ class MassMaillContent
 	const TYPE_HTML_CONTENT = 10;
 	const TYPE_TEXT_CONTENT = 20;
 	const TYPE_SUBJECT = 30;
+
+	/**
+	 * Raw content
+	 * @var string
+	 */
+	protected $content;
+	
+	/**
+	 * Content type
+	 * @var int
+	 */
+	protected $type;
+	
+	
 	
 	/**
 	 * replacement tag => assigned subscriber object method
@@ -19,17 +33,23 @@ class MassMaillContent
 	protected $commonReplacements = array('subscriberName' => 'getName',
 										 'subscriberEmail' => 'getEmailAddress');
 
+
+	public function __construct($type, $content){
+	
+		$this->type = (int) $type;
+		$this->content = $content;
+		
+	}
+	
+	
+	
 	
 	/**
 	 * Prepare (make replacements) content
-	 * @param string $content
-	 * @param int $type
 	 * @param Entity\Subscriber $subscriber
 	 * @return string
 	 */
-	public function prepareContent(	$content, 
-									$type, 
-									Entity\Subscriber $subscriber){
+	public function getPreparedContent(Entity\Subscriber $subscriber){
 
 		/**
 		 * @todo make replacements for some custom fields
@@ -45,14 +65,14 @@ class MassMaillContent
 		
 		//common replacement
 		
-		$content = str_replace($search, $replace, $content);
+		$preparedContent = str_replace($search, $replace, $this->content);
 		
 		
 		/**
 		 * @todo implement some content type-depended replacements
 		 */
 		
-		switch($type) {
+		switch($this->type) {
 		
 			case self::TYPE_HTML_CONTENT: {
 				
@@ -67,7 +87,7 @@ class MassMaillContent
 			}break;
 		}
 		
-		return $content;
+		return $preparedContent;
 	}
 	
 	

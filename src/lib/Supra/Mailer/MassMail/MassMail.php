@@ -106,7 +106,14 @@ class MassMail
 		
 		$this->getCampaignManager();		
 		$subscribers = $campaign->getActiveSubscribers();
-		$massMailContent = new MassMaillContent();
+		
+		$massMailContentHtml = new MassMaillContent(MassMaillContent::TYPE_HTML_CONTENT, 
+									$campaign->getHtmlContent());
+		$massMailContentText = new MassMaillContent(MassMaillContent::TYPE_TEXT_CONTENT, 
+									$campaign->getTextContent());
+		$massMailContentSubject = new MassMaillContent(MassMaillContent::TYPE_SUBJECT, 
+									$campaign->getSubject());
+		
 		
 		foreach($subscribers as $subscriber){
 			
@@ -116,23 +123,11 @@ class MassMail
 			$sendQueueItem->setEmailFrom($campaign->getFromEmail());
 			$sendQueueItem->setNameFrom($campaign->getFromName());
 			$sendQueueItem->setReplyTo($campaign->getReplyTo());
-			
-			$textContent = $campaign->getTextContent();
-			$htmlContent = $campaign->getHtmlContent();
-			$subject = $campaign->getSubject();
-			
-			$subject = $massMailContent->prepareContent($subject, 
-						MassMaillContent::TYPE_SUBJECT, 
-						$subscriber);
+						
+			$subject = $massMailContentSubject->getPreparedContent($subscriber);
+			$htmlContent = $massMailContentHtml->getPreparedContent($subscriber);
+			$textContent = $massMailContentText->getPreparedContent($subscriber);
 
-			$htmlContent = $massMailContent->prepareContent($htmlContent, 
-						MassMaillContent::TYPE_HTML_CONTENT, 
-						$subscriber);
-			
-			$textContent = $massMailContent->prepareContent($textContent, 
-						MassMaillContent::TYPE_TEXT_CONTENT, 
-						$subscriber);
-		
 			$sendQueueItem->setSubject($subject);
 			$sendQueueItem->setTextContent($textContent);
 			$sendQueueItem->setHtmlContent($htmlContent);
@@ -142,7 +137,4 @@ class MassMail
 		}
 		
 	}
-	
-	
-	
 }

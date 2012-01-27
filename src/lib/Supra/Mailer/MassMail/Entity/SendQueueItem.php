@@ -14,6 +14,7 @@ class SendQueueItem extends Entity
 	const STATUS_SENT = 20;
 	const STATUS_SUSPENDED = 30;
 	const STATUS_ABORTED = 40;
+	const STATUS_ERROR_ON_SEND = 50;
 
 	/**
 	 * @Column(type="string", name="email_to", nullable=false)
