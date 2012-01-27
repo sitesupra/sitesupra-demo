@@ -32,19 +32,6 @@ class OrderPaymentProviderItem extends OrderItem
 	}
 
 	/**
-	 * @param Locale $locale
-	 * @return string 
-	 */
-	public function getDescription(Locale $locale = null)
-	{
-		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
-
-		$paymentProvider = $paymentProviderCollection->get($this->paymentProviderId);
-
-		return $paymentProvider->getOrderItemDescription($this->order, $locale);
-	}
-
-	/**
 	 * @param type $paymentProviderId 
 	 */
 	public function setPaymentProviderId($paymentProviderId)
@@ -58,6 +45,19 @@ class OrderPaymentProviderItem extends OrderItem
 	public function getPaymentProviderId()
 	{
 		return $this->paymentProviderId;
+	}
+	
+	/**
+	 * @param Locale $locale
+	 * @return string 
+	 */
+	public function getDescription(Locale $locale = null)
+	{
+		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
+
+		$paymentProvider = $paymentProviderCollection->get($this->paymentProviderId);
+
+		return $paymentProvider->getOrderItemDescription($this->order, $locale);
 	}
 
 }

@@ -3,6 +3,8 @@
 namespace Supra\Payment\Entity\Transaction;
 
 use \DateTime;
+use Supra\Payment\Entity\Abstraction\PaymentEntityLogEntry;
+use Supra\Payment\Entity\Abstraction\LogEntry;
 
 /**
  * @Entity
@@ -10,26 +12,11 @@ use \DateTime;
  * 		@index(name="transactionIdIdx", columns={"transactionId"})
  * })
  */
-class TransactionLogEntry extends Entity
+class TransactionLogEntry extends Transaction implements LogEntry
 {
-	
-	/**
-	 * @param Transaction $transaction 
-	 */
-	function __construct(Transaction $transaction)
-	{
-		$this->copy($transaction);
-
-		parent::__construct();
-
-		$this->transactionId = $transaction->getId();
-
-		$this->logTime = new DateTime('now');
-
-	}
 
 	/**
-	 * @Column(type="datetime")
+	 * @Column(type="datetime", nullable=false)
 	 * @var DateTime
 	 */
 	protected $logTime;
@@ -39,5 +26,25 @@ class TransactionLogEntry extends Entity
 	 * @var string
 	 */
 	protected $transactionId;
+
+	/**
+	 * @param Transaction $transaction 
+	 */
+	function __construct(Transaction $transaction)
+	{
+		$this->copy($transaction);
+		parent::__construct();
+
+		$this->logTime = new \DateTime('now');
+		$this->transactionId = $transaction->getId();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTransactionId()
+	{
+		return $this->transactionId;
+	}
 
 }

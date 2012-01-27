@@ -2,42 +2,41 @@
 
 namespace Supra\Payment\Entity\Transaction;
 
-use Supra\Payment\Entity\TransactionParameter;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\Transaction\TransactionType;
+use Supra\Payment\Entity\Abstraction\PaymentEntity;
 use \DateTime;
 
 /**
  * @Entity 
- * @HasLifecycleCallbacks
  */
-class Transaction extends Entity
+class Transaction extends PaymentEntity
 {
 
 	/**
-	 * @param string $paymentProviderId 
+	 * @Column(type="string", nullable=false)
+	 * @var float
 	 */
-	public function setPaymentProviderId($paymentProviderId)
-	{
-		$this->paymentProviderId = $paymentProviderId;
-	}
+	protected $amount;
 
 	/**
-	 * @param AbstractUser $user 
+	 * @Column(type="string", nullable=false)
+	 * @var string
 	 */
-	public function setUserId($userId)
-	{
-		$this->userId = $userId;
-	}
-
+	protected $currencyId;
+	
 	/**
-	 * @param integer $status 
+	 * @OneToMany(targetEntity="TransactionParameter", mappedBy="transaction")
+	 * @var ArrayCollection
 	 */
-	public function setStatus($status)
+	protected $parameters;
+	
+	/**
+	 * @return float
+	 */
+	public function getAmount()
 	{
-		TransactionStatus::validate($status);
-
-		$this->status = $status;
+		return $this->amount;
 	}
 
 	/**
@@ -49,6 +48,14 @@ class Transaction extends Entity
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getCurrencyId()
+	{
+		return $this->currencyId;
+	}
+
+	/**
 	 * @param string $currencyId 
 	 */
 	public function setCurrencyId($currencyId)
@@ -56,6 +63,9 @@ class Transaction extends Entity
 		$this->currencyId = $currencyId;
 	}
 
+	/**
+	 * @param integer $type 
+	 */
 	public function setType($type)
 	{
 		TransactionType::validate($type);
@@ -64,48 +74,15 @@ class Transaction extends Entity
 	}
 
 	/**
-	 * @param TransactionParameter $parameter 
+	 * @return TransactionParameter 
 	 */
-	public function addParameter(TransactionParameter $parameter)
-	{
-		$this->parameters[] = $parameter;
-	}
-
-	public function makeAndAddPrameter($phaseName, $parameterName, $parameterValue)
+	public function createParameter()
 	{
 		$parameter = new TransactionParameter();
-		
-		$parameter->setPhaseName($phaseName);
-		$parameter->setName($parameterName);
-		$parameter->setValue($parameterValue);
+
 		$parameter->setTransaction($this);
 
-		$this->addParameter($parameter);
-	}
-
-	/**
-	 * @prePersist
-	 */
-	public function autoCretionTime()
-	{
-		$this->creationTime = new DateTime('now');
-		$this->modificationTime = new DateTime('now');
-	}
-
-	/**
-	 * @preUpdate
-	 */
-	public function autoModificationTime()
-	{
-		$this->modificationTime = new DateTime('now');
-	}
-
-	/**
-	 * @return ArrayCollection
-	 */
-	public function getParameters()
-	{
-		return $this->parameters;
+		return $parameter;
 	}
 
 }

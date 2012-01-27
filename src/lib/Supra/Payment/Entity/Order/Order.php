@@ -2,24 +2,27 @@
 
 namespace Supra\Payment\Entity\Order;
 
-use Supra\Database;
-use Supra\Payment\Entity\Transaction\Transaction;
-use Supra\Payment\Entity\Currency\Currency;
-use Supra\User\Entity\AbstractUser;
-use Supra\Payment\Entity\Order\OrderItem;
-use Supra\Payment\Order\OrderStatus;
 use \DateTime;
+use Supra\Database;
+use Supra\Locale\Locale;
+use Supra\Payment\Entity\Currency\Currency;
+use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Product\ProductAbstraction;
+use Supra\Payment\Product\ProductProviderAbstraction;
+use Supra\Payment\Entity\Order\OrderItem;
+use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Doctrine\Common\Collections\ArrayCollection;
-use \Locale;
 use Supra\ObjectRepository\ObjectRepository;
-
-/**
- * @Entity 
+use Supra\Payment\Entity\Abstraction\PaymentEntity;/**
+ * @Entity
  * @HasLifecycleCallbacks
+ * @InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({"shop" = "ShopOrder", "recurring" = "RecurringOrder"})
  */
-class Order extends Database\Entity
+
+abstract class Order extends Database\Entity
 {
 
 	/**
@@ -39,13 +42,6 @@ class Order extends Database\Entity
 	 * @var DateTime
 	 */
 	protected $modificationTime;
-
-	/**
-	 * @OneToOne(targetEntity="Supra\Payment\Entity\Transaction\Transaction")
-	 * @JoinColumn(name="transactionId", referencedColumnName="id")
-	 * @var Transaction
-	 */
-	protected $transaction;
 
 	/**
 	 * @ManyToOne(targetEntity="Supra\Payment\Entity\Currency\Currency")
@@ -124,14 +120,6 @@ class Order extends Database\Entity
 	}
 
 	/**
-	 * @return Transaction
-	 */
-	public function getTransaction()
-	{
-		return $this->transaction;
-	}
-
-	/**
 	 * @return Currency
 	 */
 	public function getCurrency()
@@ -156,14 +144,6 @@ class Order extends Database\Entity
 	}
 
 	/**
-	 * @param Transaction $transaction 
-	 */
-	public function setTransaction(Transaction $transaction)
-	{
-		$this->transaction = $transaction;
-	}
-
-	/**
 	 * @param Currency $currency
 	 */
 	function setCurrency(Currency $currency)
@@ -180,7 +160,7 @@ class Order extends Database\Entity
 	}
 
 	/**
-	 * @return AbstractUser
+	 * @return string
 	 */
 	public function getUserId()
 	{
@@ -257,16 +237,16 @@ class Order extends Database\Entity
 	 */
 	public function autoCretionTime()
 	{
-		$this->creationTime = new \DateTime('now');
-		$this->modificationTime = new \DateTime('now');
+		$this->creationTime = new DateTime('now');
 	}
 
 	/**
 	 * @preUpdate
+	 * @prePersist
 	 */
 	public function autoModificationTime()
 	{
-		$this->modificationTime = new \DateTime('now');
+		$this->modificationTime = new DateTime('now');
 	}
 
 	/**
@@ -331,12 +311,12 @@ class Order extends Database\Entity
 	 */
 	public function removeOrderItem(OrderItem $orderItem)
 	{
-		//if (in_array($orderItem, $this->items)) {
-		// unset($this->items[array_search($orderItem, $this->items)]);
-		//}
 		$this->items->removeElement($orderItem);
 	}
 
+	/**
+	 * @param Locale $locale 
+	 */
 	public function updateLocale(Locale $locale)
 	{
 		if ($this->locale != $locale->getId()) {
@@ -344,6 +324,9 @@ class Order extends Database\Entity
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getProductItems()
 	{
 		$result = array();
@@ -358,5 +341,7 @@ class Order extends Database\Entity
 		return $result;
 	}
 
-}
+	abstract public function getPaymentProviderId();
 
+	abstract public function addToPaymentEntityParameters($phaseName, $data);
+}
