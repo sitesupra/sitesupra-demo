@@ -2,6 +2,8 @@
 
 namespace Supra\Request;
 
+use Supra\Router\RouterAbstraction;
+
 /**
  * Request interface
  */
@@ -33,4 +35,15 @@ interface RequestInterface
 	 * @return string
 	 */
 	public function getActionString($glue);
+	
+	/** 
+	 * Sets router used to match this request.
+	 * @param $router RouterAbstraction
+	 */
+	public function setLastRouter(RouterAbstraction $router);
+	
+	/**
+	 * @return RouterAbstraction
+	 */
+	public function getLastRouter();
 }

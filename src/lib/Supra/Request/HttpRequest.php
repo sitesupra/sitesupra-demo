@@ -4,6 +4,7 @@ namespace Supra\Request;
 
 use Supra\Uri\Path;
 use Supra\Log\Log;
+use Supra\Router\RouterAbstraction;
 
 /**
  * Http request object
@@ -16,7 +17,12 @@ class HttpRequest implements RequestInterface
 	const METHOD_PUT = 'PUT';
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_HEAD = 'HEAD';
-	
+
+	/**
+	 * @var RouterAbstraction
+	 */
+	protected $lastRouter;
+
 	/**
 	 * Server arguments
 	 * @var array
@@ -40,7 +46,7 @@ class HttpRequest implements RequestInterface
 	 * @var PostFileData
 	 */
 	protected $files;
-	
+
 	/**
 	 * Cookies received from the client
 	 * @var array
@@ -58,7 +64,7 @@ class HttpRequest implements RequestInterface
 	 * @var Path
 	 */
 	protected $path;
-	
+
 	/**
 	 * Set empty POST/GET
 	 */
@@ -89,10 +95,10 @@ class HttpRequest implements RequestInterface
 		if (isset($_FILES)) {
 			$this->setPostFiles($_FILES);
 		}
-		
+
 		$pathInfo = null;
 		$pathInfoOffsets = array('PATH_INFO', 'ORIG_PATH_INFO', 'SCRIPT_URL');
-		
+
 		foreach ($pathInfoOffsets as $pathInfoOffset) {
 			if (isset($_SERVER[$pathInfoOffset])) {
 				$pathInfo = $_SERVER[$pathInfoOffset];
@@ -102,7 +108,7 @@ class HttpRequest implements RequestInterface
 		if (is_null($pathInfo)) {
 			throw new Exception\InvalidRequest("Script URL not set in Http request object");
 		}
-		
+
 		$this->requestUri = $pathInfo;
 		Log::info('Request URI: ', $this->requestUri);
 
@@ -127,7 +133,7 @@ class HttpRequest implements RequestInterface
 	public function getActions($limit = null)
 	{
 		$actions = $this->path->getPathList();
-		
+
 		if ($limit > 0) {
 			return array_slice($actions, 0, $limit);
 		} else {
@@ -175,7 +181,7 @@ class HttpRequest implements RequestInterface
 		if ( ! array_key_exists($key, $this->server)) {
 			return $default;
 		}
-		
+
 		return $this->server[$key];
 	}
 
@@ -208,7 +214,7 @@ class HttpRequest implements RequestInterface
 		if ( ! $this->query->offsetExists($index)) {
 			return $default;
 		}
-		
+
 		return $this->query[$index];
 	}
 
@@ -241,15 +247,15 @@ class HttpRequest implements RequestInterface
 		if ( ! $this->post->offsetExists($index)) {
 			return $default;
 		}
-		
+
 		return $this->post[$index];
 	}
-	
-	public function setPostFiles($files) 
+
+	public function setPostFiles($files)
 	{
 		$this->files = new PostFilesData($files);
 	}
-	
+
 	public function getPostFiles()
 	{
 		return $this->files;
@@ -284,7 +290,7 @@ class HttpRequest implements RequestInterface
 		if ( ! array_key_exists($key, $this->cookies)) {
 			return $default;
 		}
-		
+
 		return $this->cookies[$key];
 	}
 
@@ -314,7 +320,7 @@ class HttpRequest implements RequestInterface
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
 		$isPost = $requestMethod == self::METHOD_POST;
-		
+
 		return $isPost;
 	}
 
@@ -326,7 +332,7 @@ class HttpRequest implements RequestInterface
 	{
 		$requestMethod = $this->getServerValue('REQUEST_METHOD');
 		$isGet = $requestMethod == self::METHOD_GET;
-		
+
 		return $isGet;
 	}
 
@@ -341,10 +347,10 @@ class HttpRequest implements RequestInterface
 		$this->path->setSeparator($glue);
 		$path = $this->path->getPath();
 		$this->path->setSeparator($previousSeparator);
-		
+
 		return $path;
 	}
-	
+
 	/**
 	 * Loads local base URL in format http:://domain from data received in the request
 	 * @return string
@@ -352,28 +358,45 @@ class HttpRequest implements RequestInterface
 	public function getBaseUrl()
 	{
 		$domain = $this->getServerValue('SERVER_NAME');
-		
+
 		if (empty($domain)) {
 			return null;
 		}
-		
+
 		$scheme = 'http';
 		$defaultPort = 80;
 		$httpsStatus = $this->getServerValue('HTTPS', 'off');
-		
+
 		if ($httpsStatus != 'off') {
 			$scheme = 'https';
 			$defaultPort = 443;
 		}
-		
+
 		$baseUrl = $scheme . '://' . $domain;
-		
+
 		$actualPort = $this->getServerValue('SERVER_PORT', $defaultPort);
-		
+
 		if ($actualPort != $defaultPort) {
 			$baseUrl .= ':' . $actualPort;
 		}
-		
+
 		return $baseUrl;
 	}
+
+	/**
+	 * @return RouterAbstraction
+	 */
+	public function getLastRouter()
+	{
+		return $this->lastRouter;
+	}
+
+	/**
+	 * @param RouterAbstraction $lastRouter 
+	 */
+	public function setLastRouter(RouterAbstraction $lastRouter)
+	{
+		$this->lastRouter = $lastRouter;
+	}
+
 }
