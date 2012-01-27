@@ -3,27 +3,17 @@
 /*
  * This file is part of Twig.
  *
- * (c) 2010 Fabien Potencier
+ * (c) 2011 Fabien Potencier
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 /**
- * Interface implemented by token parsers.
- *
- * @package twig
- * @author  Fabien Potencier <fabien@symfony.com>
+ * Evaluates an expression, disgarding the returned value.
  */
-interface Twig_TokenParserInterface
+class Twig_TokenParser_Do extends Twig_TokenParser
 {
-    /**
-     * Sets the parser associated with this token parser
-     *
-     * @param $parser A Twig_Parser instance
-     */
-    function setParser(Twig_Parser $parser);
-
     /**
      * Parses a token and returns a node.
      *
@@ -31,12 +21,22 @@ interface Twig_TokenParserInterface
      *
      * @return Twig_NodeInterface A Twig_NodeInterface instance
      */
-    function parse(Twig_Token $token);
+    public function parse(Twig_Token $token)
+    {
+        $expr = $this->parser->getExpressionParser()->parseExpression();
+
+        $this->parser->getStream()->expect(Twig_Token::BLOCK_END_TYPE);
+
+        return new Twig_Node_Do($expr, $token->getLine(), $this->getTag());
+    }
 
     /**
      * Gets the tag name associated with this token parser.
      *
      * @return string The tag name
      */
-    function getTag();
+    public function getTag()
+    {
+        return 'do';
+    }
 }
