@@ -30,21 +30,8 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
-	//Calendar dates
-	var DEFAULT_DATES = [
-		/*
-		{
-			'date': Y.DataType.Date.reformat(new Date(), 'raw', 'in_date'),
-			'title': Supra.Intl.get(['settings', 'select_today'])
-		},
-		{
-			'date': Y.DataType.Date.reformat(new Date(+new Date() + 86400000), 'raw', 'in_date'),
-			'title': Supra.Intl.get(['settings', 'select_tomorrow'])
-		}
-		*/
-	];
-	
 	var SLIDE_ROOT = 'slideMain';
+	
 	
 	//Add as right bar child
 	Manager.getAction('LayoutRightContainer').addChildAction('PageSettings');
@@ -142,7 +129,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		onSlideChange: function (evt) {
 			var slide_id = evt.newVal;
 			
-			if (evt.newVal == 'slideMain') {
+			if (evt.newVal == SLIDE_ROOT) {
 				this.get('backButton').hide();
 			} else {
 				this.get('backButton').show();
@@ -161,7 +148,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			if (new_item) {
 				var label = '';
 				
-				if (evt.newVal == 'slideMain') {
+				if (evt.newVal == SLIDE_ROOT) {
 					if (this.getType() != 'template') {
 						label = SU.Intl.get(['settings', 'title_page']);
 					} else {
@@ -188,7 +175,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				var calendar = this.calendar_schedule = new Supra.Calendar({
 					'srcNode': node.one('.calendar'),
 					'date': date,
-					'dates': DEFAULT_DATES
+					'dates': []
 				});
 				calendar.render();
 				
@@ -260,7 +247,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				var calendar = this.calendar_created = new Supra.Calendar({
 					'srcNode': node.one('.calendar'),
 					'date': date,
-					'dates': DEFAULT_DATES
+					'dates': []
 				});
 				calendar.render();
 				
@@ -604,7 +591,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 				case 'off':
 					this.page_data.redirect = null;
 					this.setFormValue('redirect', {'redirect': null});
-					this.slideshow.scrollTo('slideMain');
+					this.slideshow.scrollTo(SLIDE_ROOT);
 					this.form.getInput('redirect').setValue(null);										
 					break;
 				case 'relative':
@@ -638,7 +625,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			this.setFormValue('redirect', {'redirect': redirect});
 			this.page_data.redirect = redirect;
 
-			this.slideshow.scrollTo('slideMain');
+			this.slideshow.scrollTo(SLIDE_ROOT);
 		},
 		
 		/**
@@ -762,7 +749,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		saveSettingsChanges: function () {
 			//Scroll to first slide
 			this.onBackButton();
-			this.slideshow.set('slide', 'slideMain')
+			this.slideshow.set('slide', SLIDE_ROOT)
 			
 			//Get data
 			var page_data = this.page_data,

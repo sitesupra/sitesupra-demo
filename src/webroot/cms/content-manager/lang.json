@@ -263,7 +263,10 @@
 		},
 		
 		"insertblock": {
-			"button": "Insert"
+			"title": "Insert block",
+			"button": "Insert",
+			"no_description": "No description",
+			"drag_n_drop": "Drag-and-drop"
 		},
 		
 		"history": {

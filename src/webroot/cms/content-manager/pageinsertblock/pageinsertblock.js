@@ -1,12 +1,51 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.tabs', 'dd-drag', function (Y) {
+SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
+	
+	var SLIDE_ROOT = 'slideMain',
+		ICON_GROUP_PATH = '/cms/lib/supra/img/blocks/icons-groups/',
+	
+		GROUP_TEMPLATE = '\
+			<a class="button-section" tabindex="0" data-target="{{ id }}">\
+				<img src="' + ICON_GROUP_PATH + '{{ id }}-inactive.png" class="inactive" />\
+				<img src="' + ICON_GROUP_PATH + '{{ id }}.png" class="active" />\
+				<span>{{ title }}</span>\
+			</a>',
+		
+		DRAG_TEMPLATE = '\
+			<div class="drag-icon">\
+				<span>' + Supra.Intl.get(['insertblock', 'drag_n_drop']) + '</span>\
+				<span class="icon"></span>\
+			</div>',
+		
+		ITEM_TEMPLATE = '\
+			<div class="button-item" tabindex="0" data="{{ id }}" data-target="{{ id }}">\
+				<span class="img">\
+					<img src="{{ icon }}" alt="" />\
+				</span>\
+				<p class="title">{{ title|e }}</p>\
+				<p class="description">{{ description|default("' + Supra.Intl.get(['insertblock', 'no_description']) + '")|e }}</p>\
+			</div>',
+		
+		PREVIEW_TEMPLATE = '\
+			<div class="item">\
+				' + DRAG_TEMPLATE + '\
+				' + ITEM_TEMPLATE + '\
+				<div class="item-description">\
+					{{ html|default("") }}\
+				</div>\
+			</div>';
+	
+	GROUP_TEMPLATE = Supra.Template.compile(GROUP_TEMPLATE);
+	DRAG_TEMPLATE = Supra.Template.compile(DRAG_TEMPLATE);
+	ITEM_TEMPLATE = Supra.Template.compile(ITEM_TEMPLATE);
+	PREVIEW_TEMPLATE = Supra.Template.compile(PREVIEW_TEMPLATE);
 	
 	//Add as left bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('PageInsertBlock');
@@ -15,7 +54,7 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 	 * Sidebar panel action to Insert new block 
 	 * Actual block information is taken from Blocks action
 	 */
-	new Action({
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -35,7 +74,14 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_TEMPLATE: false,
+		HAS_TEMPLATE: true,
+		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutLeftContainer',
 		
 		
 		
@@ -45,15 +91,38 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 */
 		data: null,
 		
+		/**
+		 * Slideshow instance
+		 * @type {Object}
+		 */
+		slideshow: null,
 		
+		/**
+		 * Elements which are dragable
+		 * @type {Array}
+		 */
+		drags: [],
 		
+		/**
+		 * Drag and drop elements
+		 * @type {Array}
+		 */
+		dnd: [],
+		
+		/**
+		 * Temporary drag and drop instance for item
+		 * description slide
+		 * 
+		 * @type {Object}
+		 */
+		dnd_tmp: null,
 		
 		/**
 		 * Load blocks data
 		 * 
 		 * @private
 		 */
-		loadBlocks: function () {
+		renderData: function () {
 			if (this.data) return;
 			this.data = {};
 			
@@ -61,24 +130,32 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 				data_groups = Blocks.getAllGroups(),
 				data_all = Blocks.getAllBlocksArray();
 			
-			//Create tabs
+			//Create groups
 			var i = 0,
 				ii = data_groups.length,
 				group = null,
 				content = null,
+				main_content = this.slideshow.getSlide(SLIDE_ROOT),
+				group_html = '',
 				contents = {};
 			
 			for(; i<ii; i++) {
 				group = data_groups[i];
-				content = this.tabs.addTab({"id": group.id, "title": group.title});
-				content.append('<div class="block-list"><ul></ul></div>');
-				contents[group.id] = content.one('ul');
 				
-				if (group['default']) {
-					//This tab is opened by default
-					this.tabs.set('activeTab', group.id);
-				}
+				//Create slide
+				content = this.slideshow.addSlide(group.id);
+				content.setAttribute('data-title', group.title);
+				content.setAttribute('data-icon', ICON_GROUP_PATH + group.id + '.png');
+				content.addClass('button-item-list');
+				
+				contents[group.id] = content.one('.yui3-slideshow-slide-content');
+				contents[group.id].append(DRAG_TEMPLATE({}));
+				
+				//
+				group_html += GROUP_TEMPLATE(group);
 			}
+			
+			main_content.one('.yui3-slideshow-slide-content').append(group_html);
 			
 			//Create block items
 			i = 0;
@@ -91,7 +168,7 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 					continue;
 				}
 				
-				var node = Y.Node.create('<li data="' + block.id + '"><img src="' + block.icon + '" alt="' + Y.Escape.html(block.description) + '" /><label>' + Y.Escape.html(block.title) + '</label></li>');
+				var node = Y.Node.create(ITEM_TEMPLATE(block));
 				
 				contents[block.group].append(node);
 				
@@ -99,16 +176,37 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 				this.data[block.id].node = node;
 			}
 			
-			//Clear floats
-			for(i in contents) {
-				contents[i].append('<li class="clear"><!-- --></li>');
-			}
-			
 			//Drag&drop
 			this.setupDD();
 			
 			//Fire resize event
-			this.fire('resize');
+			this.slideshow.syncUI();
+		},
+		
+		/**
+		 * On slide change show/hide buttons and call callback function
+		 * 
+		 * @param {Object} evt
+		 */
+		onSlideChange: function (evt) {
+			var slide_id = evt.newVal,
+				new_item = (slide_id ? Y.one('#' + slide_id) : null);
+			
+			if (evt.newVal == SLIDE_ROOT) {
+				this.get('backButton').hide();
+			} else {
+				this.get('backButton').show();
+			}
+			
+			//Update header title and icon
+			if (new_item) {
+				var node = new_item.get('parentNode'),
+					title = new_item.getAttribute('data-title') || node.getAttribute('data-title'),
+					icon = new_item.getAttribute('data-icon') || node.getAttribute('data-icon');
+				
+				this.set('title', title);
+				this.set('icon', icon);
+			}
 		},
 		
 		/**
@@ -128,25 +226,23 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 * @private
 		 */
 		setupDD: function () {
-			this.drags = this.getPlaceHolder().all('div.block-list li');
+			this.dnd = [];
+			this.drags = this.getPlaceHolder().all('div.button-item');
 			this.drags.each(Y.bind(function (v, k, items) {
-				var node = items.item(k);
-				
-				//List item clearing floats shouldn't be dragable,
-				//because it's visual element
-				if (node.hasClass('clear')) return;
-				
-				var id = node.getAttribute('data');
-				var data = this.data[id];
+				var node = items.item(k),
+					id = node.getAttribute('data'),
+					data = this.data[id];
 				
 				//Add to DD list 
-				SU.Manager.PageContent.registerDD({
-					'type': 'block',
-					'data': data,
-					'id': id,
-					'node': node,
-					'useProxy': true
-				});
+				this.dnd.push(
+					SU.Manager.PageContent.registerDD({
+						'type': 'block',
+						'data': data,
+						'id': id,
+						'node': node,
+						'useProxy': true
+					})
+				);
 				
 			}, this));
 		},
@@ -156,21 +252,11 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 * @private
 		 */
 		initialize: function () {
-			//Hide content until all widgets are rendered
-			this.getPlaceHolder().addClass('hidden');
-			
-			//Check 'tabs' attribute for additional tab configuration
-			var tab_config = this.get('tabs') || {};
-			this.set('tabs', tab_config);
-			
-			//Create tabs
-			var tabs = this.tabs = new Supra.Tabs();
-			
-			for(var id in tab_config) {
-				if (Y.Lang.isObject(tab_config[id])) {
-					tabs.addTab({"id": id, "title": tab_config[id].title, "icon": tab_config[id].icon});
-				}
-			}
+			//Create slideshow
+			this.slideshow = new Supra.Slideshow({
+				'srcNode': this.one('div.slideshow')
+			});
+			this.slideshow.on('slideChange', this.onSlideChange, this);
 		},
 		
 		/**
@@ -178,43 +264,67 @@ SU('supra.tabs', 'dd-drag', function (Y) {
 		 * @private
 		 */
 		render: function () {
-			this.tabs.render(this.getPlaceHolder());
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
-			//Add className to allow custom styles
-			this.tabs.get('boundingBox').addClass(Y.ClassNameManager.getClassName('tab', 'blocks'));
+			this.slideshow.render();
 			
-			//Show content
-			this.getPlaceHolder().removeClass('hidden');
+			this.get('controlButton').on('click', this.hide, this);
+			this.get('backButton').on('click', this.slideshow.scrollBack, this.slideshow);
 			
-			//On visibility change show/hide tabs
-			this.on('visibleChange', function (evt) {
-				if (evt.prevVal != evt.newVal) {
-					if (evt.newVal) {
-						this.tabs.show();
-					} else {
-						this.tabs.hide();
-					}
-				}
-			});
-			
-			//Fire resize event
-			this.fire('resize');
+			//Attach event listeners
+			this.one().delegate(['click', 'keyup'], this.openSlide, 'a[data-target],div[data-target]', this);
 		},
 		
 		/**
-		 * Hide
+		 * Open slide
+		 */
+		openSlide: function (e) {
+			if (e.type == 'keyup' && e.keyCode != 13 && e.keyCode != 39) return; //Return key or arrow right
+			
+			var node = e.target.closest('a,div'),
+				id = node.getAttribute('data-target');
+			
+			//Check if opening block description and create slide
+			if (this.data[id]) {
+				var node = this.slideshow.addSlide(id, true),
+					content = node.one('div');
+				
+				content.append(PREVIEW_TEMPLATE(this.data[id]));
+				
+				//Drag and drop
+				if (this.dnd_tmp) this.dnd_tmp.destroy();
+				this.dnd_tmp = SU.Manager.PageContent.registerDD({
+					'type': 'block',
+					'data': this.data[id],
+					'id': id,
+					'node': content.one('.button-item'),
+					'useProxy': true
+				});
+			}
+			
+			this.slideshow.set('slide', id);
+		},
+		
+		/**
+		 * On hide scroll back to first slide
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
+			
+			this.slideshow
+					.set('noAnimation', true)
+					.set('slide', SLIDE_ROOT)
+					.set('noAnimation', false);
 		},
 		
 		/**
 		 * Execute action
 		 */
 		execute: function () {
-			this.loadBlocks();
-			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			this.show();
+			this.renderData();
+			this.slideshow.syncUI();
 		}
 	});
 	

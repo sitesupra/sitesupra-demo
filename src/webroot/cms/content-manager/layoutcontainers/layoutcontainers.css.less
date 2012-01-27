@@ -85,10 +85,7 @@
 .sidebar-header > img {
 	display: block;
 	float: left;
-	margin: 2px 10px 0 0;
-}
-.ui-dark .sidebar-header > img {
-	margin-top: 1px;
+	margin: 1px 10px 0 0;
 }
 
 .sidebar-header h2 {
@@ -131,22 +128,18 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-}
-.sidebar-content.has-header {
-	top: 57px;
-}
-.sidebar-content.has-footer {
-	bottom: 45px;
-}
 
-.sidebar-content.scrollable {
-	overflow-x: hidden;
-	overflow-y: auto;
-}
+	&.has-header {
+		top: 57px;
+	}
+	&.has-footer {
+		bottom: 45px;
+	}
+	&.scrollable {
+		overflow-x: hidden;
+		overflow-y: auto;
+	}
 
-
-.page-settings,
-.block-settings {
 	/*
 	 * Section link
 	 */
@@ -155,9 +148,9 @@
 		margin: 25px 0 0;
 		padding: 5px 0;
 		
-		color: #757589;
+		color: #090613;
 		text-decoration: none;
-		text-shadow: 0 1px 0 rgba(0,0,0,.75);
+		text-shadow: 0 1px 0 rgba(211,212,226,.33);
 		
 		img {
 			display: inline-block;
@@ -182,6 +175,7 @@
 		&:focus {
 			color: #fff;
 			outline: none;
+			text-shadow: 0 1px 0 rgba(0,0,0,0.75);
 		}
 		&:hover img.active,
 		&:focus img.active {
@@ -212,7 +206,22 @@
 			display: block;
 		}
 	}
+}
+
+.ui-dark .sidebar-content a.button-section {
+	color: #757589;
+	text-shadow: 0 1px 0 rgba(0,0,0,.75);
 	
+	&:hover,
+	&:focus {
+		color: #fff;
+		text-shadow: 0 1px 0 rgba(0,0,0,.75);
+	}
+}
+
+
+.page-settings,
+.block-settings {
 	/*
 	 * Inner style
 	 * Inside form is slideshow

@@ -18,6 +18,16 @@
 	background-clip: padding-box; 
 }
 
+.box-shadow (@none: none) {
+	-webkit-box-shadow: @arguments;
+	-moz-box-shadow: @arguments;
+	box-shadow: @arguments;
+}
+.box-shadow (@a, @b) {
+	-webkit-box-shadow: @a, @b;
+	-moz-box-shadow: @a, @b;
+	box-shadow: @a, @b;
+}
 .box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
 	-webkit-box-shadow: @arguments;
 	-moz-box-shadow: @arguments;

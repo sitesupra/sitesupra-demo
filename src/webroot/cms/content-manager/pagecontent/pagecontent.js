@@ -366,7 +366,7 @@ SU('dd-drag', function (Y) {
 				
 				if (item.useProxy) {
 					var proxy = e.target.get('dragNode');
-					proxy.addClass('yui3-tab-blocks-block');
+					proxy.addClass('su-blocks-block');
 					proxy.appendTo(Y.one('body'));
 				}
 				
