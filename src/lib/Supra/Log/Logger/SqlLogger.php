@@ -119,7 +119,10 @@ class SqlLogger
 		
 		$level = $this->getLogLevel();
 		
-		$this->log($this->sql . "\n"
+		$sql = $this->sql;
+		$sql = preg_replace('/SELECT\s+(.*)\s+FROM/', 'SELECT ... FROM', $sql);
+		
+		$this->log($sql . "\n"
 				. ($this->params ? "(" . implode('; ', $this->params) . ")\n" : ""), 
 				$level);
 		

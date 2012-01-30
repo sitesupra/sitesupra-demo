@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Set;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
+use Supra\Controller\Pages\Entity\BlockProperty;
 
 /**
  * Page controller request
@@ -316,7 +317,6 @@ abstract class PageRequest extends HttpRequest
 			return $this->placeHolderSet;
 		}
 
-		$page = $this->getPage();
 		$localization = $this->getPageLocalization();
 		$localeId = $localization->getLocale();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
@@ -588,39 +588,37 @@ abstract class PageRequest extends HttpRequest
 			$qb = $em->createQueryBuilder();
 			$qb->from($metadataEntity, 'm')
 					->join('m.referencedElement', 'el')
-					->select('el.id')
+					->select('m, el')
 					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
 
 			$query = $qb->getQuery();
-			$referencedElementsIds = $query->getResult(ColumnHydrator::HYDRATOR_ID);
+			$metadataArray = $query->getResult();
 			
 			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
 			$referencedElements = array();
-			if ( ! empty($referencedElementsIds)) {
-				$qb = $em->createQueryBuilder();
-				$referencedElementEntity = Entity\ReferencedElement\ReferencedElementAbstract::CN();
-				$qb->from($referencedElementEntity, 'el')
-						->select('el')
-						->where($qb->expr()->in('el.id', $referencedElementsIds));
-
-				$query = $qb->getQuery();
-				$referencedElements = $query->getResult();
-				$referencedElementIds = Entity\ReferencedElement\ReferencedElementAbstract::collectIds($referencedElements);
-				
-				$referencedElements = array_combine($referencedElementIds, $referencedElements);
+			foreach ($metadataArray as $metadata) {
+				/* @var $metadata Entity\BlockPropertyMetadata */
+				$referencedElement = $metadata->getReferencedElement();
+				$referencedElementId = $referencedElement->getId();
+				$referencedElements[$referencedElementId] = $referencedElement;
 			}
 
 			$elementPageIds = array();
 			foreach ($referencedElements as $element) {
 				if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
-					$elementPageIds[] = $element->getPageId();
+					$pageId = $element->getPageId();
+					if ( ! empty($pageId)) {
+						$elementPageIds[] = $element->getPageId();
+					}
 				}
 			}
 			
 			if ( ! empty($elementPageIds)) {
 				$qb = $em->createQueryBuilder();
 				$qb->from(Entity\PageLocalization::CN(), 'l')
-						->select('l')
+						->join('l.master', 'm')
+						->join('l.path', 'p')
+						->select('l, m, p')
 						->where($qb->expr()->in('l.master', $elementPageIds));
 				
 				$localizations = $qb->getQuery()
@@ -632,7 +630,7 @@ abstract class PageRequest extends HttpRequest
 					
 					$localizationIds[] = $entityData['master_id'];
 				}
-				//$localizationIds = Entity\PageLocalization::collectIds($localizations);
+				
 				$localizations = array_combine($localizationIds, $localizations);
 				
 				foreach($referencedElements as $element) {
@@ -644,20 +642,17 @@ abstract class PageRequest extends HttpRequest
 					}
 				}
 			}
-		
-			// stage 3: load metadata
-			$qb = $em->createQueryBuilder();
-			$qb->select('m')
-					->from($metadataEntity, 'm')
-					->join('m.referencedElement', 'el')
-					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
-			$query = $qb->getQuery();
-			$metadataArray = $query->getResult();
 			
-			foreach($metadataArray as $propertyMetadata) {
+			// stage 3: load metadata
+			foreach ($this->blockPropertySet as $blockProperty) {
+				/* @var $blockProperty BlockProperty */
+				$blockProperty->initializeOverridenMetadata();
+			}
+			
+			foreach ($metadataArray as $propertyMetadata) {
 				/* @var $propertyMetadata BlockPropertyMetadata */
 				$property = $propertyMetadata->getBlockProperty();
-				$propertyId = $property->getId();
+//				$propertyId = $property->getId();
 				
 				$propertyData = $em->getUnitOfWork()
 						->getOriginalEntityData($propertyMetadata);
@@ -670,11 +665,11 @@ abstract class PageRequest extends HttpRequest
 					}
 				}
 
-				$property = $this->blockPropertySet->findById($propertyId);
-				if ( ! is_null($property)) {
+//				$property = $this->blockPropertySet->findById($propertyId);
+//				if ( ! is_null($property)) {
 					/* @var $property BlockProperty */
 					$property->addOverridenMetadata($propertyMetadata);
-				}				
+//				}
 			}
 		}
 		

@@ -252,7 +252,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * @return ArrayCollection
 	 */
-	public function getChildren()
+	public function getChildren($type = __CLASS__)
 	{
 		$coll = new ArrayCollection();
 		$master = $this->getMaster();
@@ -261,15 +261,56 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 			return $coll;
 		}
 		
-		$masterChildren = $master->getChildren();
+		$nsn = $master->getNestedSetNode();
+
+		$nsr = $nsn->getRepository();
+		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
+
+		$sc = $nsr->createSearchCondition();
+		$sc->leftMoreThan($master->getLeftValue());
+		$sc->leftLessThan($master->getRightValue());
+		$sc->levelEqualsTo($master->getLevel() + 1);
+
+		$oc = $nsr->createSelectOrderRule();
+		$oc->byLeftAscending();
+
+		$qb = $nsr->createSearchQueryBuilder($sc, $oc);
+		/* @var $qb \Doctrine\ORM\QueryBuilder */
+
+		// This loads all current locale localizations and masters with one query
+		$qb->from($type, 'l');
+		$qb->andWhere('l.master = e')
+				->andWhere('l.locale = :locale')
+				->setParameter('locale', $this->locale);
+
+		// Need to include "e" as well so it isn't requested by separate query
+		$qb->andWhere('l.active = true');
 		
-		foreach ($masterChildren as $child) {
-			$localization = $child->getLocalization($this->locale);
-			
-			if ( ! empty($localization)) {
-				$coll->add($localization);
+		if ($type == PageLocalization::CN()) {
+			$qb->select('l, e, p');
+			$qb->join('l.path', 'p');
+			$qb->andWhere('p.path IS NOT NULL');
+		} else {
+			$qb->select('l, e');
+		}
+		
+		$query = $qb->getQuery();
+		$result = $query->getResult();
+		
+		// Filter out localizations only
+		foreach ($result as $record) {
+			if ($record instanceof Localization) {
+				$coll->add($record);
 			}
 		}
+		
+//		foreach ($masterChildren as $child) {
+//			$localization = $child->getLocalization($this->locale);
+//			
+//			if ( ! empty($localization)) {
+//				$coll->add($localization);
+//			}
+//		}
 		
 		return $coll;
 	}
@@ -280,7 +321,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 */
 	public function getPublicChildren()
 	{
-		$coll = $this->getChildren();
+		$coll = $this->getChildren(PageLocalization::CN());
 		
 		foreach ($coll as $key => $child) {
 			if ( ! $child instanceof PageLocalization) {
