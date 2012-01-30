@@ -284,12 +284,11 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 				->setParameter('locale', $this->locale);
 
 		// Need to include "e" as well so it isn't requested by separate query
-		$qb->andWhere('l.active = true');
-		
 		if ($type == PageLocalization::CN()) {
 			$qb->select('l, e, p');
 			$qb->join('l.path', 'p');
 			$qb->andWhere('p.path IS NOT NULL');
+			$qb->andWhere('l.active = true');
 		} else {
 			$qb->select('l, e');
 		}
