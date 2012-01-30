@@ -20,6 +20,7 @@ use Supra\Controller\Pages\Entity;
 use Supra\FileStorage\Entity as FileEntity;
 use Supra\Cms\Exception\StopExecutionException;
 use Supra\Validator\FilteredInput;
+use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Cms\CheckPermissions\CheckPermissionsController;
 
 /**
@@ -274,7 +275,7 @@ abstract class CmsAction extends SimpleController
 	{
 		$value = null;
 		$request = $this->getRequest();
-		
+
 		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
 			$value = $request->getPostValue($key);
 		} else {
@@ -455,8 +456,8 @@ abstract class CmsAction extends SimpleController
 		$request = $this->getRequest();
 
 		$query = $request->getQuery();
-		
-		if ( $query->hasChild(CheckPermissionsController::REQUEST_KEY_CHECK_PERMISSIONS)) {
+
+		if ($query->hasChild(CheckPermissionsController::REQUEST_KEY_CHECK_PERMISSIONS)) {
 
 			$entitiesToQuery = $query->getChild(CheckPermissionsController::REQUEST_KEY_CHECK_PERMISSIONS);
 
@@ -469,16 +470,27 @@ abstract class CmsAction extends SimpleController
 			foreach ($entitiesToQuery as $entityToQuery) {
 
 				$id = $entityToQuery[CheckPermissionsController::REQUEST_KEY_ID];
-				$classAlias = $entityToQuery[CheckPermissionsController::REQUEST_KEY_TYPE];
+				$applicationNamespaceAlias = $entityToQuery[CheckPermissionsController::REQUEST_KEY_TYPE];
 
-				$objectIdentity = $ap->createObjectIdentityWithClassAlias($id, $classAlias);
+				$applicationNamespace = $ap->getApplicationNamespaceFromAlias($applicationNamespaceAlias);
+				
+				$appConfig = ObjectRepository::getApplicationConfiguration($applicationNamespace);
 
-				$result[] = $ap->getPermissionStatusesForAuthorizedEntity($user, $objectIdentity);
+				$policy = $appConfig->authorizationAccessPolicy;
+
+				if ($policy instanceof AuthorizationThreewayWithEntitiesAccessPolicy) {
+
+					$entity = $policy->getAuthorizedEntityFromId($id);
+
+					if ( ! empty($entity)) {
+						$result[] = $ap->getPermissionStatusesForAuthorizedEntity($user, $entity);
+					}
+				}
 			}
 
 			$this->getResponse()
 					->setResponsePermissions($result);
 		}
- 	}
+	}
 
 }

@@ -10,9 +10,12 @@ use Doctrine\ORM\EntityRepository;
 use Supra\Locale\LocaleManager;
 use Supra\Authorization\Exception\RuntimeException as AuthorizationRuntimeException;
 use Supra\Validator\FilteredInput;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Controller\Pages\Entity\Page;
 
 class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
+
 	public function __construct()
 	{
 		parent::__construct('pages', PageEntity\Abstraction\Entity::CN());
@@ -30,7 +33,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		if (empty($allowed)) {
 			return array();
 		}
-		
+
 		$em = ObjectRepository::getEntityManager($this);
 		$page = $em->find(PageEntity\Abstraction\AbstractPage::CN(), $itemId);
 
@@ -47,22 +50,19 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			// fetch title directly.
 			$locale = $page->getLocale();
 			$title = $page->getTitle();
-		}
-		else if ($page instanceof PageEntity\GroupLocalization) {
+		} else if ($page instanceof PageEntity\GroupLocalization) {
 
 			// If item is a page group loaclization, read locale value and 
 			// fetch title directly.
 			$locale = $page->getLocale();
 			$title = $page->getTitle();
-		}
-		else if ($page instanceof PageEntity\GroupPage) {
+		} else if ($page instanceof PageEntity\GroupPage) {
 
 			$title = $page->getTitle();
-		}
-		else if ($page instanceof PageEntity\Page) {
+		} else if ($page instanceof PageEntity\Page) {
 
 			$localeManager = ObjectRepository::getLocaleManager($this);
-			
+
 			// Otherwise, if this is some master page, fetch current or first page localization 
 			// and get title from that.
 			$localization = $page->getLocalization($localeManager->getCurrent()->getId());
@@ -72,8 +72,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 			}
 
 			$title = $localization->getTitle();
-		}
-		else {
+		} else {
 			// $title = 'Deleted object #' . $itemId;
 			return array();
 		}
@@ -132,8 +131,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 				$allLocalizations = $page->getLocalizations();
 				$localization = $allLocalizations->first();
 			}
-		}
-		else {
+		} else {
 
 			$localization = $page->getLocalization($locale);
 
@@ -158,10 +156,10 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		\Log::debug('TREE HAS ITEM: ', $itemId);
 
 		$array = array(
-				'id' => $itemId,
+			'id' => $itemId,
 //				'title' => '[' . $locale . '] ' . $localization->getTitle(),
-				'title' => $localization->getTitle(),
-				'icon' => 'page',
+			'title' => $localization->getTitle(),
+			'icon' => 'page',
 		);
 
 //		if ($page instanceof PageEntity\GroupPage) {
@@ -181,8 +179,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 
 		if (count($array['children']) == 0) {
 			unset($array['children']);
-		}
-		else {
+		} else {
 			$array['icon'] = 'folder';
 		}
 
@@ -192,6 +189,31 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 	protected function getApplicationAccessValue(AbstractUser $user)
 	{
 		return parent::getApplicationAccessValue($user);
+	}
+
+	public function getAuthorizedEntityFromId($id)
+	{
+		$em = $this->getEntityManager();
+
+		$classesToTry = array(
+			Localization::CN(),
+			Page::CN()
+		);
+
+		$entity = null;
+
+		foreach ($classesToTry as $className) {
+
+			$repo = $em->getRepository($className);
+
+			$entity = $repo->find($id);
+
+			if ( ! empty($entity)) {
+				break;
+			}
+		}
+
+		return $entity;
 	}
 
 }

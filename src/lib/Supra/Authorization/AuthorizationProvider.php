@@ -61,7 +61,7 @@ class AuthorizationProvider
 	/**
 	 * @var array
 	 */
-	protected $authirzedEntityClassAliases;
+	protected $applicationNamespaceAliases;
 
 	/**
 	 * Constructs AuthorizationProvider
@@ -107,11 +107,29 @@ class AuthorizationProvider
 
 	/**
 	 * @param string $alias
-	 * @param string $class 
+	 * @param string $applicationNamespace 
 	 */
-	public function registerAuthorizedEntityClassAlias($alias, $class)
+	public function registerApplicationNamespaceAlias($alias, $applicationNamespace)
 	{
-		$this->authirzedEntityClassAliases[$alias] = $class;
+		$this->applicationNamespaceAliases[$alias] = $applicationNamespace;
+	}
+
+	/**
+	 *
+	 * @param string $alias 
+	 * @return string
+	 */
+	public function getApplicationNamespaceFromAlias($alias)
+	{
+		$className = null;
+
+		if (empty($this->applicationNamespaceAliases[$alias])) {
+			throw new Exception\RuntimeException('Authorized entity alias "' . $alias . '" is not known.');
+		}
+
+		$className = $this->applicationNamespaceAliases[$alias];
+
+		return $className;
 	}
 
 	/* TODO: Check for overlapping masks in same class/sublclass tree */
@@ -171,24 +189,6 @@ class AuthorizationProvider
 	public function createObjectIdentity($id, $class)
 	{
 		return new ObjectIdentity($id, $class);
-	}
-
-	/**
-	 * @param string $id
-	 * @param string $classAlias
-	 * @return ObjectIdentity 
-	 */
-	public function createObjectIdentityWithClassAlias($id, $classAlias)
-	{
-		if (empty($this->authirzedEntityClassAliases[$classAlias])) {
-			throw new Exception\RuntimeException('Authorized entity alias "' . $classAlias . '" is not known.');
-		}
-
-		$class = $this->authirzedEntityClassAliases[$classAlias];
-
-		$objectIdentity = $this->createObjectIdentity($id, $class);
-
-		return $objectIdentity;
 	}
 
 	/**
@@ -624,10 +624,10 @@ class AuthorizationProvider
 		$permissionNamesForClass = array_keys($this->getPermissionsForClass($class));
 
 		$results = array();
-		
-		foreach($permissionNamesForClass as $permissionName) {
-			
-			$results[$permissionName] = $this->isPermissionGranted($user, $objectIdentity, $permissionName);
+
+		foreach ($permissionNamesForClass as $permissionName) {
+
+			$results[$permissionName] = $this->isPermissionGranted($user, $object, $permissionName);
 		}
 
 		return $results;

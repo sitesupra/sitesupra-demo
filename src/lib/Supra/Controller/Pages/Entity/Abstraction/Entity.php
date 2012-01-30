@@ -22,25 +22,25 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 {
 	const PERMISSION_NAME_EDIT_PAGE = 'edit_page';
 	const PERMISSION_MASK_EDIT_PAGE = 256;
-	
+
 	const PERMISSION_NAME_SUPERVISE_PAGE = 'supervise_page';
 	const PERMISSION_MASK_SUPERVISE_PAGE = 512;
-	
+
 	const PAGE_DISCR = 'page';
 	const GROUP_DISCR = 'group';
 	const APPLICATION_DISCR = 'application';
 	const TEMPLATE_DISCR = 'template';
-	
+
 	/**
 	 * Constant for Doctrine discriminator, used to get entity type without entity manager
 	 */
 	const DISCRIMINATOR = null;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $revision = '';
-	
+
 	/**
 	 * Creates log writer instance
 	 */
@@ -48,7 +48,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	{
 		return ObjectRepository::getLogger($this);
 	}
-	
+
 	/**
 	 * Set the property value. Return true on success, false on equal parameter,
 	 * exception when argument not valid or different value was already set
@@ -56,7 +56,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 * @param mixed $value
 	 * @return bool
 	 * @throws Exception when trying to rewrite the property
-	 *	or invalid argument is passed
+	 * 	or invalid argument is passed
 	 */
 	protected function writeOnce(&$property, $value)
 	{
@@ -81,15 +81,15 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 					cannot rewrite with different value for $sourceEntity");
 		}
 		$property = $value;
-		
+
 		return true;
 	}
 
 	/**
 	 * Check if discriminators match for objects.
 	 * They must be equal, with exceptions:
-	 *		* PageLocalization object can have Page block properties assigned to template block object
-	 *		* Application objects can be bound to Page objects except case with AbstractPage <-> Localization reference
+	 * 		* PageLocalization object can have Page block properties assigned to template block object
+	 * 		* Application objects can be bound to Page objects except case with AbstractPage <-> Localization reference
 	 * @param Entity $object
 	 */
 	public function matchDiscriminator(Entity $object)
@@ -97,7 +97,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		if ( ! $object instanceof Entity) {
 			throw new Exception\LogicException("Entity not passed to the matchDiscriminator method");
 		}
-		
+
 		$discrA = $this::DISCRIMINATOR;
 		$discrB = $object::DISCRIMINATOR;
 
@@ -106,14 +106,14 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		if ($discrA == $discrB) {
 			return;
 		}
-		
+
 		// Allow binding page elements to application elements (except AbstractPage <-> Localization)
 		if ($discrA != self::TEMPLATE_DISCR && $discrB != self::TEMPLATE_DISCR) {
 			if ( ! ($this instanceof AbstractPage && $object instanceof Localization)) {
 				return;
 			}
 		}
-		
+
 		/*
 		 * Allow template elements being bound to the page elements in case of
 		 * block property set to page localization and template block
@@ -121,73 +121,83 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		if ($this instanceof \Supra\Controller\Pages\Entity\PageLocalization && $object instanceof \Supra\Controller\Pages\Entity\TemplateBlock) {
 			return;
 		}
-		
+
 		$this->unlockAll();
-		
+
 		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
 	}
-	
+
 	/**
 	 *
 	 * @param AbstractUser $user
 	 * @param Permission $permission
 	 * @return boolean
 	 */
-	public function authorize(AbstractUser $user, $permission, $grant) 
+	public function authorize(AbstractUser $user, $permission, $grant)
 	{
 		return $grant;
 	}
-	
+
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationId() 
+	public function getAuthorizationId()
 	{
 		return $this->getId();
 	}
-	
+
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationClass() 
+	public function getAuthorizationClass()
 	{
 		return __CLASS__;
-	}	
-	
+	}
+
 	/**
 	 * @return array
 	 */
-	public function getAuthorizationAncestors() 
+	public function getAuthorizationAncestors()
 	{
 		if ($this->_authorizationAncestorsCache) {
 			return $this->_authorizationAncestorsCache;
 		}
-				
+
 		$this->_authorizationAncestorsCache = $this->getAuthizationAncestorsDirect();
-		
+
 		return $this->_authorizationAncestorsCache;
 	}
-	
+
 	protected function getAuthizationAncestorsDirect()
 	{
 		return $this->getAncestors(0, false);
 	}
-	
-	public static function registerPermissions(AuthorizationProvider $ap) 
+
+	/**
+	 * @param AuthorizationProvider $ap 
+	 */
+	public static function registerPermissions(AuthorizationProvider $ap)
 	{
-		$ap->registerAuthorizedEntityClassAlias('page', get_called_class());
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_EDIT_PAGE, self::PERMISSION_MASK_EDIT_PAGE, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_NAME_SUPERVISE_PAGE, self::PERMISSION_MASK_SUPERVISE_PAGE, __CLASS__);
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public static function getAlias()
+	{
+		return 'page';
+	}
+
 	/**
 	 * @param string $revisionId 
 	 */
-	public function setRevisionId ($revisionId)
+	public function setRevisionId($revisionId)
 	{
 		$this->revision = $revisionId;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -195,7 +205,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	{
 		return $this->revision;
 	}
-	
+
 	/**
 	 * 
 	 */

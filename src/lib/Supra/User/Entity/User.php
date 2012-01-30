@@ -319,6 +319,9 @@ class User extends AbstractUser
 		$this->facebookAccessToken = $facebookAccessToken;
 	}
 
-
+	public static function getAlias()
+	{
+		return 'user';
+	}
 
 }

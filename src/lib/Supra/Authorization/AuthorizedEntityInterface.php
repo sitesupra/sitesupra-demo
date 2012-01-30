@@ -38,4 +38,9 @@ interface AuthorizedEntityInterface
 	 * @param AuthorizedProvider $ap
 	 */
 	public static function registerPermissions(AuthorizationProvider $ap);
+	
+	/**
+	 * @return string
+	 */
+	public static function getAlias();
 }

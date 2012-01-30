@@ -11,6 +11,8 @@ use Supra\User\Entity\Group;
 use Supra\User\Entity\User;
 use Supra\Authorization\Permission\Permission;
 use Supra\Validator\FilteredInput;
+use Doctrine\ORM\EntityManager;
+use Supra\Authorization\AuthorizedEntityInterface;
 
 /**
  * Class provides abstraction for access policies for managers with authorized entities (Pages, Files).
@@ -22,6 +24,11 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	const SET_PERMISSIONS_ID = 'values';
 	const SET_PERMISSION_ID = 'value';
 	const ENTITIES_ITEMS_ID = 'items';
+
+	/**
+	 * @var EntityManager
+	 */
+	protected $em;
 
 	/**
 	 * @var string
@@ -52,6 +59,10 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 		$subpropertyClass = $this->subpropertyClass;
 		$subpropertyClass::registerPermissions($this->ap);
+		
+		$permissionCheckAlias = $subpropertyClass::getAlias();
+		
+		$this->ap->registerApplicationNamespaceAlias($permissionCheckAlias, $this->applicationNamespace);
 
 		$this->subpropertyPermissionNames = array_keys($this->ap->getPermissionsForClass($subpropertyClass));
 
@@ -62,18 +73,38 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 		$this->permission['sublabel'] = $this->subpropertyLabel;
 		$this->permission['subproperty'] = array(
-				'id' => 'permissions',
-				'type' => 'SelectList',
-				'multiple' => true,
-				'values' => $subpropertyValues
+			'id' => 'permissions',
+			'type' => 'SelectList',
+			'multiple' => true,
+			'values' => $subpropertyValues
 		);
+	}
+
+	/**
+	 * @return EntityManager
+	 */
+	public function getEntityManager()
+	{
+		if (empty($this->em)) {
+			$this->em = ObjectRepository::getEntityManager($this);
+		}
+
+		return $this->em;
+	}
+
+	/**
+	 * @param EntityManager $em 
+	 */
+	public function setEntityManager(EntityManager $em)
+	{
+		$this->em = $em;
 	}
 
 	public function updateAccessPolicy(AbstractUser $user, FilteredInput $input)
 	{
 		// If we have data for entity (Page, File) update, update that ...
 		if ($input->hasChild(self::ENTITIES_LIST_ID)) {
-		
+
 			$updateData = $input->getChild(self::ENTITIES_LIST_ID);
 
 			$entityId = $updateData->get(self::ENTITY_ID);
@@ -86,8 +117,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 			}
 
 			$this->setEntityPermissions($user, $entityId, $setPermissionNames);
-		}
-		else {
+		} else {
 			// ... otherwise this update is for application access, update that.
 			parent::updateAccessPolicy($user, $input);
 		}
@@ -128,8 +158,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 				if (empty($entityPermissionStatuses)) {
 					$entityPermissionStatuses = $allEntityPermissionStatusesFromUser[$entityId];
-				}
-				else {
+				} else {
 
 					foreach ($allEntityPermissionStatusesFromUser[$entityId] as $permissionName => $status) {
 						if ($status != PermissionStatus::NONE) {
@@ -211,8 +240,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	{
 		if ($user instanceof User) {
 			return $this->setEntityPermissionsForUser($user, $entityId, $setPermissionNames);
-		}
-		else if ($user instanceof Group) {
+		} else if ($user instanceof Group) {
 			return $this->setEntityPermissionsForGroup($user, $entityId, $setPermissionNames);
 		}
 	}
@@ -239,26 +267,22 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 				if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
 					// ... set ALLOW for user on entity.
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::ALLOW);
-				}
-				else if ($currentPermissionStatusInGroup == PermissionStatus::ALLOW) {
+				} else if ($currentPermissionStatusInGroup == PermissionStatus::ALLOW) {
 					// ... if permission in group is ALLOW, we can unset any permission 
 					// for this user on entity.
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::NONE);
-				}
-				else {
+				} else {
 					// ... for now we do nothing if status in users group for this entity 
 					// is something else.
 				}
-			}
-			else {
+			} else {
 
 				// If it is not marked as "set" (i.e. - button is rised) ...
 				if ($currentPermissionStatusInGroup == PermissionStatus::ALLOW) {
 					// ... if permission in group is ALLOW, we have to set status for user 
 					// on this entity as DENY.
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::DENY);
-				}
-				else if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
+				} else if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::NONE);
 				}
 			}
@@ -284,8 +308,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 				// ... set ALLOW.
 				$this->ap->setPermsissionStatus($group, $oid, $permissionName, PermissionStatus::ALLOW);
-			}
-			else {
+			} else {
 
 				// ... if permission name is not marked, set it to NONE ...
 				$this->ap->setPermsissionStatus($group, $oid, $permissionName, PermissionStatus::NONE);
@@ -308,4 +331,20 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	}
 
 	abstract public function getEntityTree(FilteredInput $input);
+
+	/**
+	 * @param string $id 
+	 * @return AuthorizedEntityInterface
+	 */
+	public function getAuthorizedEntityFromId($id)
+	{
+		$em = $this->getEntityManager();
+
+		$repo = $em->getRepository($this->subpropertyClass);
+
+		$entity = $repo->find($id);
+
+		return $entity;
+	}
+
 }

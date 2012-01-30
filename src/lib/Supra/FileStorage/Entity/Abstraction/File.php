@@ -50,14 +50,13 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, 
-		AuthorizedEntityInterface, Timestampable, TitleTrackingItemInterface
+abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface, Timestampable, TitleTrackingItemInterface
 {
 	const PERMISSION_UPLOAD_NAME = 'file_upload';
 	const PERMISSION_UPLOAD_MASK = 256;
 	const PERMISSION_DELETE_NAME = 'file_delete';
 	const PERMISSION_DELETE_MASK = 512;
-	
+
 	/**
 	 * Integer object type ID
 	 */
@@ -96,7 +95,6 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @Column(type="datetime", name="created_at")
 	 * @var \DateTime
 	 */
-	
 	protected $creationTime;
 
 	/**
@@ -110,12 +108,11 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var integer
 	 */
 	protected $public = true;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $originalTitle;
-
 
 	/**
 	 * Get left value
@@ -271,7 +268,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Nested node title
 	 * @return string
@@ -307,7 +304,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 
 		return $result;
 	}
-	
+
 	/**
 	 * So the full path generation method of the file would use the cloned and changed entity
 	 */
@@ -345,19 +342,19 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		return $className;
 	}
 
-	public function setFileName($fileName) 
+	public function setFileName($fileName)
 	{
 		$result = preg_replace('/\s+/i', ' ', $fileName);
-		
+
 		// track only first title change
 		if (is_null($this->originalTitle) && ! is_null($this->fileName) && ($this->fileName != $fileName)) {
 			$this->originalTitle = $this->fileName;
 		}
-		
+
 		$this->fileName = trim($result);
 	}
 
-	public function getFileName() 
+	public function getFileName()
 	{
 		return $this->fileName;
 	}
@@ -401,11 +398,12 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getInfo($locale) {
+	public function getInfo($locale)
+	{
 		$info = array(
-				'id' => $this->getId(),
-				'filename' => $this->getFileName(),
-				'type' => static::TYPE_ID
+			'id' => $this->getId(),
+			'filename' => $this->getFileName(),
+			'type' => static::TYPE_ID
 		);
 
 		return $info;
@@ -417,15 +415,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @param boolean $grant
 	 * @return boolean
 	 */
-	public function authorize(AbstractUser $user, $permission, $grant) 
-  {
+	public function authorize(AbstractUser $user, $permission, $grant)
+	{
 		return $grant;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationId() 
+	public function getAuthorizationId()
 	{
 		return $this->getId();
 	}
@@ -433,31 +431,41 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationClass() 
+	public function getAuthorizationClass()
 	{
 		return __CLASS__;
 	}
-	
+
 	/**
 	 * @return array
 	 */
-	public function getAuthorizationAncestors() 
+	public function getAuthorizationAncestors()
 	{
 		$ancestors = $this->getAncestors(0, false);
-		
+
 		// Append synthetic "slash" folder to the beginng of ancestors list.
 		$ancestors[] = new SlashFolder();
-		
+
 		return $ancestors;
-	}	
-	
-	public static function registerPermissions(AuthorizationProvider $ap) 
+	}
+
+	/**
+	 * @param AuthorizationProvider $ap 
+	 */
+	public static function registerPermissions(AuthorizationProvider $ap)
 	{
-		$ap->registerAuthorizedEntityClassAlias('file', get_called_class());
 		$ap->registerGenericEntityPermission(self::PERMISSION_DELETE_NAME, self::PERMISSION_DELETE_MASK, __CLASS__);
 		$ap->registerGenericEntityPermission(self::PERMISSION_UPLOAD_NAME, self::PERMISSION_UPLOAD_MASK, __CLASS__);
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public static function getAlias()
+	{
+		return 'file';
+	}
+
 	/**
 	 * Used to improve audit log readability
 	 */
@@ -465,7 +473,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->originalTitle;
 	}
-	
+
 	/**
 	 * Wrapper
 	 * @return string
@@ -474,10 +482,10 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->getFileName();
 	}
-	
+
 	public function setOriginalTitle($title)
 	{
 		$this->originalTitle = $title;
 	}
-	
+
 }

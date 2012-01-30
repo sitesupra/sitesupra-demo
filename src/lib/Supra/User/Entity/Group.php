@@ -48,4 +48,9 @@ class Group extends AbstractUser implements AuthorizedEntityInterface
 		return $this;
 	}
 
+	public static function getAlias()
+	{
+		return 'user';
+	}
+
 }
