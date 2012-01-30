@@ -104,8 +104,10 @@ class MassMail
 	public function populateSendQueue(Entity\Campaign $campaign)
 	{
 		
-		$this->getCampaignManager();		
-		$subscribers = $campaign->getActiveSubscribers();
+		$subscribersList = $campaign->getSubscriberList();
+		$subscribers = $this->getSubscriberListManager()
+				->getActiveSubscribers($subscribersList);
+		
 		
 		$massMailContentHtml = new MassMaillContent(MassMaillContent::TYPE_HTML_CONTENT, 
 									$campaign->getHtmlContent());

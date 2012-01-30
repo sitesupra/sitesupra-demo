@@ -69,4 +69,24 @@ class SubscriberListManager extends MassMailManager
 		return $result;
 	}
 	
+	/**
+	 * Return active list subscribers
+	 * @param Entity\SubscriberList $list
+	 * @return Entity\Subscriber[]
+	 */
+	public function getActiveSubscribers(Entity\SubscriberList $list){
+		
+		$activeSubacribers = array();
+		$subscribers = $list->getSubscribers();
+		
+		foreach($subscribers as $subscriber)
+		{	
+			if( $subscriber->getActive() ) {
+				$activeSubacribers[] = $subscriber;
+			}
+		}
+
+		return $activeSubacribers;
+	}
+	
 }

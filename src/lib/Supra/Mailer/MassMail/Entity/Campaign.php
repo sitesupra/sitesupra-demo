@@ -153,26 +153,6 @@ class Campaign extends Entity
 	{
 		return $this->subscriberList;
 	}
-
-	
-	public function getActiveSubscribers()
-	{	
-		$activeSubscribers = array();
-		$subscribers = $this->getSubscriberList()->getSubscribers();
-		
-		foreach($subscribers as $subscriber){
-			
-			if( ! $subscriber->getActive()) {
-				continue;
-			}
-			
-			$activeSubscribers[] = $subscriber;
-		}		
-		
-		return $activeSubscribers;
-		
-	}
-	
 	
 	/**
 	 * Returns campaign subject
