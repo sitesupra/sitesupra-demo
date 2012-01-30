@@ -595,6 +595,7 @@ abstract class PageRequest extends HttpRequest
 			$referencedElementsIds = $query->getResult(ColumnHydrator::HYDRATOR_ID);
 			
 			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
+			$referencedElements = array();
 			if ( ! empty($referencedElementsIds)) {
 				$qb = $em->createQueryBuilder();
 				$referencedElementEntity = Entity\ReferencedElement\ReferencedElementAbstract::CN();
@@ -603,9 +604,47 @@ abstract class PageRequest extends HttpRequest
 						->where($qb->expr()->in('el.id', $referencedElementsIds));
 
 				$query = $qb->getQuery();
-				$query->getResult();
+				$referencedElements = $query->getResult();
+				$referencedElementIds = Entity\ReferencedElement\ReferencedElementAbstract::collectIds($referencedElements);
+				
+				$referencedElements = array_combine($referencedElementIds, $referencedElements);
+			}
+
+			$elementPageIds = array();
+			foreach ($referencedElements as $element) {
+				if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
+					$elementPageIds[] = $element->getPageId();
+				}
 			}
 			
+			if ( ! empty($elementPageIds)) {
+				$qb = $em->createQueryBuilder();
+				$qb->from(Entity\PageLocalization::CN(), 'l')
+						->select('l')
+						->where($qb->expr()->in('l.master', $elementPageIds));
+				
+				$localizations = $qb->getQuery()
+						->getResult();
+				
+				foreach($localizations as $pageLocalization) {
+					$entityData = $em->getUnitOfWork()
+							->getOriginalEntityData($pageLocalization);
+					
+					$localizationIds[] = $entityData['master_id'];
+				}
+				//$localizationIds = Entity\PageLocalization::collectIds($localizations);
+				$localizations = array_combine($localizationIds, $localizations);
+				
+				foreach($referencedElements as $element) {
+					if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
+						$pageId = $element->getPageId();
+						if (isset($localizations[$pageId])) {
+							$element->setPageLocalization($localizations[$pageId]);
+						}
+					}
+				}
+			}
+		
 			// stage 3: load metadata
 			$qb = $em->createQueryBuilder();
 			$qb->select('m')
@@ -619,6 +658,17 @@ abstract class PageRequest extends HttpRequest
 				/* @var $propertyMetadata BlockPropertyMetadata */
 				$property = $propertyMetadata->getBlockProperty();
 				$propertyId = $property->getId();
+				
+				$propertyData = $em->getUnitOfWork()
+						->getOriginalEntityData($propertyMetadata);
+				
+				if (isset($propertyData['referencedElement_id'])) {
+					
+					$elementId = $propertyData['referencedElement_id'];
+					if (isset($referencedElements[$elementId])) {
+						$propertyMetadata->setOverridenReferencedElement($referencedElements[$elementId]);
+					}
+				}
 
 				$property = $this->blockPropertySet->findById($propertyId);
 				if ( ! is_null($property)) {

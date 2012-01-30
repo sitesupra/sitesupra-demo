@@ -32,6 +32,11 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	protected $referencedElement;
 	
 	/**
+	 * @var ReferencedElement\ReferencedElementAbstract
+	 */
+	protected $overridenReferencedElement;
+	
+	/**
 	 * Binds
 	 * @param string $name
 	 * @param BlockProperty $blockProperty
@@ -66,6 +71,9 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	 */
 	public function getReferencedElement()
 	{
+		if ( ! empty($overridenReferencedElement)) {
+			return $this->overridenReferencedElement;
+		}
 		return $this->referencedElement;
 	}
 
@@ -80,6 +88,11 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	public function getOwner()
 	{
 		return $this->blockProperty;
+	}
+	
+	public function setOverridenReferencedElement($referencedElement)
+	{
+		$this->overridenReferencedElement = $referencedElement;
 	}
 
 }
