@@ -17,7 +17,7 @@ use Supra\Payment\Entity\Abstraction\LogEntry;
 
 class PaymentLogSubscriber implements EventSubscriber
 {
-
+	
 	/**
 	 * {@inheritdoc}
 	 * @return array
@@ -32,7 +32,7 @@ class PaymentLogSubscriber implements EventSubscriber
 	 */
 	public function postPersist(LifecycleEventArgs $eventArgs)
 	{
-		//\Log::debug('### postPersist ###', get_class($eventArgs->getEntity()));
+//		\Log::debug('### postPersist ###', get_class($eventArgs->getEntity()));
 
 		$entity = $eventArgs->getEntity();
 
@@ -56,7 +56,7 @@ class PaymentLogSubscriber implements EventSubscriber
 	 */
 	public function postUpdate(LifecycleEventArgs $eventArgs)
 	{
-		//\Log::debug('### postUpdate ###', get_class($eventArgs->getEntity()));
+//		\Log::debug('### postUpdate ###', get_class($eventArgs->getEntity()));
 
 		$entity = $eventArgs->getEntity();
 
