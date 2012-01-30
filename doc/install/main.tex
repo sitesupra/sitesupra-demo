@@ -177,16 +177,12 @@ Install PECL PHP extension with command "pecl install <package name>" (more info
 
 Use the php.ini-production file from bundled with PHP with values recommended for production installations.
 
-Additionally check and modify your php.ini file according to the recommendations below:
+Additionally check and modify your php.ini file according to the requirements below:
 
 \begin{itemize}
 	\item \textsf{safe\_mode = Off}
 	
 	\note{Swift mailer uses "proc\_\*" functions}
-	
-	\item \textsf{zlib.output\_compression = On}
-
-	\note{Will compress output automatically if browser supports it}
 	
 	\item \textsf{memory\_limit = 64MB}
 	
@@ -200,7 +196,7 @@ Additionally check and modify your php.ini file according to the recommendations
 
 \subsubsection{Apache HTTP Server Configuration}
 
-Configure \textsf{mod\_deflate} module to compress these content types automatically if browser accepts it:
+Configure \textsf{mod\_deflate} module to compress these content types automatically if browser supports it:
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
 AddOutputFilterByType DEFLATE text/html text/plain text/xml
@@ -222,7 +218,7 @@ Please refer to MySql documentation regarding database administration concepts s
 
 \subsubsection{Database Server Configuration}
 
-Enter the MySql console and create database user \textsf{supra}.
+Enter the MySql console and create database user \textsf{supra} with the chosen password. Choose strong not guessable password if the database server can be used by other applications.
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
   CREATE USER 'supra'@'\%' IDENTIFIED BY '<password>';
@@ -248,11 +244,21 @@ Operating system requirements are the same as for the Web Server.
 
 \subsubsection{Solr Server Software}
 
-Solr 3.5 or later from solr 3 branch must be installed.
+Apache Solr 3.5 or later from version 3 branch must be installed. Installation guide is available by address \url{http://wiki.apache.org/solr/SolrInstall}.
+
+\note{Solr 3.5 required for Hunspell dictionary support.}
 
 \todo{More solr installation notes}
 
 \subsubsection{Solr Server Configuration}
+
+The content from the \textsf{\vigPathToProject\vigPathToSrc/conf/solr/} must be copied to solr configuration folder:
+
+\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\$ cp -R \vigPathToProject\vigPathToSrc/conf/solr/* /opt/solr/solr/conf/
+\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+
+Solr service must be restarted after these changes.
 
 \todo{More solr configuration notes}
 
@@ -265,13 +271,13 @@ Solr 3.5 or later from solr 3 branch must be installed.
 Extract \textbf{web} component's archive file. The below examples assume web application destination folder is \textsf{{\vigPathToProject}}.
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-\$ cp {\vigPackageName}-X.Y.Z.web.zip \vigPathToProject/
+\$ cp {\vigPackageName}.web.X.Y.Z.zip \vigPathToProject/
 \$ cd \vigPathToProject/
-\$ unzip {\vigPackageName}-X.Y.Z.web.zip
-\$ rm {\vigPackageName}-X.Y.Z.web.zip
+\$ unzip {\vigPackageName}.web.X.Y.Z.zip
+\$ rm {\vigPackageName}.web.X.Y.Z.zip
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
-\note{Initial content must be provided inside web package. Uncomment if differs.}
+\note{Initial content must be provided inside web package. Uncomment "copy files" section if differs.}
 
 %\ subsubsection{Copy Files}
 %
@@ -293,19 +299,22 @@ Extract \textbf{web} component's archive file. The below examples assume web app
 %\$ rm {\vigPackageName}-X.Y.Z.files.zip
 %\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
-\subsubsection{Change Files and Folders Owner}
+\subsubsection{Change Files and Folders Owner\label{fileOwnerSection}}
 
-Run the below commands to set Apache user as files and folders owner assuming the Apache run user is \textsf{httpd}:
+Run the command below to set the Apache user as the owner of all application files and folders:
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-$ cd \vigPathToProject
-$ chown -R httpd *
+\$ chown -R httpd \vigPathToProject
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+
+Example assumes the Apache is run under \textsf{httpd} user.
 
 All files and folders under \textsf{\vigPathToProject} directory must be writable by the user \textsf{httpd}.
 
+\note{Fixed list of folders and files which must be writable could be generated as well.}
+
 \subsubsection{Web Application Configuration}
-Configure web application by modifying configuration file \vigPathToProject\vigPathToSrc/conf/supra.ini:
+Configure web application by modifying configuration file \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini}:
 
 \begin{itemize}
 	\item Provide database connection details;
@@ -332,6 +341,8 @@ Grant full permissions to the database for \textsf{supra} MySql user:
   mysql> GRANT ALL ON \vigProjectNameShort.* TO supra@'\%';
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
+For more security permission can be granted for Web Server host only. Please refer to MySql manual for more information.
+
 \subsubsection{Database Installation}
 Extract database component archive and install database by executing the extracted SQL script file from the MySql console.
 
@@ -344,18 +355,22 @@ Extract database component archive and install database by executing the extract
   mysql> \textbackslash. {\vigPackageName}.dump.X.Y.Z.sql
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
-Ignore warnings about already installed "plpgsql" language.
+\section{Reindex Search}
+Rebuild of search index is required when the database is installed for the first time. Depending on database size, rebuilding of search index may take several minutes. It can be done by running these commands:
 
-\note{Enable search reindex section for the first time installation}
-%\ section{Reindex Search}
-%Rebuild of search index is required when the database is installed for the first time or when database was upgraded. It can be done in the administration interface manager "Maintenance" by pressing button "Reindex all site content". Depending on database size, rebuilding of search index may take several minutes. 
+\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe
+\$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe_queues
+\$ /usr/bin/php \vigPathToProject/bin/supra su:search:queue_all_pages
+\$ /usr/bin/php \vigPathToProject/bin/supra su:search:run_indexer
+\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
 \subsection{Scheduled Task Configuration}
 
 Application needs a scheduled task to be installed on the Web Server. The command
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-  \$ /usr/bin/php \vigPathToProject/bin/supra su:cron
+\$ /usr/bin/php \vigPathToProject/bin/supra su:cron
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
 must be run periodically. Recommended period is 1 minute.
@@ -411,22 +426,22 @@ RewriteRule ^(.*)\$ index.php/\$1 [L,NS]
 \section{Upgrade Procedure}
 
 \subsection{Overview}
-Product upgrade process is similar to product installation. Always backup content folders and database prior to upgrade. Always stop Apache service prior to product upgrade.
+Always backup content folders and database prior to upgrade. The website will not be available during the upgrade.
 
-\subsection{Web Component Upgrade}
-
-\subsubsection{Stop Web Server}
-Shut down Apache web server by running the following command from shell:
+\subsection{Stop Web Server}
+Shut down Apache HTTP Server. The command can differ depending on the Apache HTTP Server installation path and method.
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
 \$ apachectl stop
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
+\subsection{Web Component Upgrade}
+
 \subsubsection{Backup Web Application}
 Backup your current product web component:
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-\$ mv \vigPathToProject \vigPathToProject-1.0
+\$ mv \vigPathToProject \vigPathToProject.bak
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
 \subsubsection{Install Web Application}
@@ -434,48 +449,42 @@ Extract \textbf{web} package in your product installation directory:
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
 \$ mkdir \vigPathToProject
-\$ unzip {\vigPackageName}-X.Y.Z.web.zip -d \vigPathToProject
+\$ unzip {\vigPackageName}.web.X.Y.Z.zip -d \vigPathToProject
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
 \subsubsection{Configure Web Application}
-Edit \textbf{conf/supra.ini} file. You may copy individual lines/settings from the old version of supra.ini.
+Edit \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini} file. You may copy individual values from the old version of the file. Do not copy entire file from the old version because new release configuration file might contain new configuration properties and application might not start when these properties will be missing.
 
-\textbf{Note:} do not copy entire supra.ini from the old version.
-
-\subsubsection{Copy Content from backup}
+\subsubsection{Copy Content from Backup}
 Copy content folder from the backup:
 
 \setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-\$ rm -Rf \vigPathToProject/content
-\$ cp -Rf \vigPathToProject-1.0/content \vigPathToProject/content
-\$ rm -Rf \vigPathToProject/webroot/content
+\$ cp -a \vigPathToProject.bak\vigPathToSrc/files/* \vigPathToProject\vigPathToSrc/files/
+\$ cp -a \vigPathToProject.bak\vigPathToSrc/webroot/files/* \vigPathToProject\vigPathToSrc/webroot/files/
 \end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
 
 \subsubsection{Change Files and Folders Owner}
-Run the below commands to set apache user as files and folders owner:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-\$ cd \vigPathToProject
-\$ chown -R apache *
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
-
-\subsubsection{Restart Web Server}
-Clean up cache and restart Apache:
-
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-\$ cd \vigPathToProject/data
-\$ rm -rf *
-\$ apachectl restart
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+See section \ref{fileOwnerSection} for details.
 
 \subsection{Database Component Upgrade}
 To upgrade the database component follow the next steps:
 
 \begin{enumerate}
-	\item Copy database package {\vigPackageName}-X.Y.Z.database.zip to database server.
+	\item Copy database package {\vigPackageName}.database.X.Y.Z.zip to database server.
 	\item Extract the archive.
-	\item Perform database backup as postgres user.
+	\item Perform database backup as \textsf{supra} MySql user.
 	\item Run all *.sql files from the database package. Make sure you are executing them in the right order -- each SQL script has its own ordinal number. Execute the scripts in ascending order. Be sure scripts return no errors.
 \end{enumerate}
+
+\todo{Currently database upgrades have not been made yet for supra7 projects. Need to think about how this will be done.}
+
+\subsection{Start Web Server}
+Start Apache HTTP Server. The command can differ depending on the Apache HTTP Server installation path and method.
+
+\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\$ apachectl start
+\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+
 
 \end{document}
