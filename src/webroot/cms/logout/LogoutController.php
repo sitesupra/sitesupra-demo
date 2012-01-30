@@ -38,9 +38,9 @@ class LogoutController extends SimpleController
 	{
 		$userProvider = ObjectRepository::getUserProvider($this);
 		$user = $userProvider->getSignedInUser();
-		$userProvider->signOut();
 
 		if ($user instanceof AbstractUser) {
+			$userProvider->signOut();
 			$auditLog = ObjectRepository::getAuditLogger($this);
 			$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged out", $user);
 		}
