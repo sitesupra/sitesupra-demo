@@ -108,10 +108,14 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 				->createCampaign('test campaign', $list);
 		
 		
-		$campaign->setSubject('test');
-		$campaign->setFromName('test');
-		$campaign->setFromEmail('test@test.test');
-		$campaign->setReplyTo('test@test.test');
+		$campaign->setSubject('test campaign');
+		$campaign->setFromName('test sender');
+		$campaign->setFromEmail('test.sender@test.test');
+		$campaign->setReplyTo('test.reply.to@test.test');
+		
+		
+		$campaign->setHtmlContent('<h1>Test content</h1>');
+		
 		
 		//create subscriber
 		$subscriber = $massMail->getSubscriberManager()
