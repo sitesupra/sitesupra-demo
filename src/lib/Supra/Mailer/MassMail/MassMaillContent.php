@@ -24,12 +24,12 @@ class MassMaillContent
 	protected $type;
 
 	/**
-	 * replacement tag => assigned subscriber object method
+	 * replacement tags
 	 * @var array
 	 */
 	protected $commonReplacements = array(
-		'subscriberName' => 'getName',
-		'subscriberEmail' => 'getEmailAddress'
+		'[[subscriberName]]',
+		'[[subscriberEmail]]',
 	);
 
 	public function __construct($type, $content)
@@ -39,27 +39,30 @@ class MassMaillContent
 	}
 
 	/**
+	 * Returns common template tags replacement for subscriber
+	 * @param Entity\Subscriber $subscriber
+	 * @return array
+	 */
+	protected function getCommonReplacementsValues(Entity\Subscriber $subscriber)
+	{
+		$replacements = array(
+				$subscriber->getName(),
+				$subscriber->getEmailAddress());
+		
+		return $replacements;
+	}
+		
+	/**
 	 * Prepare (make replacements) content
 	 * @param Entity\Subscriber $subscriber
 	 * @return string
 	 */
 	public function getPreparedContent(Entity\Subscriber $subscriber)
 	{
-
-		/**
-		 * @todo make replacements for some custom fields
-		 */
-		$search = array();
-		$replace = array();
-
-		foreach ($this->commonReplacements as $k => $v) {
-			$search[] = '[[' . $k . ']]';
-			$replace = $subscriber->$v;
-		}
-
 		//common replacement
-
-		$preparedContent = str_replace($search, $replace, $this->content);
+		$preparedContent = str_replace($this->commonReplacements, 
+				$this->getCommonReplacementsValues($subscriber), 
+				$this->content);
 
 
 		/**
@@ -82,6 +85,6 @@ class MassMaillContent
 
 		return $preparedContent;
 	}
-
+	
 }
 
