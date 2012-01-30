@@ -33,7 +33,7 @@ class SendQueueManager extends MassMailManager
 		$criteria = array('status' => Entity\SendQueueItem::STATUS_PREPARED);
 
 		$repository = $this->entityManager->getRepository(Entity\SendQueueItem::CN());
-		$result = $repository->findBy($criteria);
+		$result = $repository->findBy($criteria, array('id' => 'ASC'), $limit);
 
 		foreach ($result as $queueItem) {
 			$this->sendEmail($queueItem);
