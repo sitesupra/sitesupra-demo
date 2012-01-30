@@ -3,6 +3,7 @@
 namespace Supra\Mailer\MassMail\Entity;
 
 use Supra\Database\Entity;
+use Doctrine\Common\Collections;
 
 /**
  * @Entity
@@ -11,13 +12,10 @@ class SubscriberList extends Entity
 {
 
 	/**
-	 * Inverse Side
-	 *
 	 * @ManyToMany(targetEntity="Subscriber", mappedBy="lists")
-	 * @var \Doctrine\Common\Collections\Collection
+	 * @var Collections\Collection
 	 */
 	protected $subscribers;
-
 
 	/**
 	 * @Column(type="string", name="title", nullable=false)
@@ -25,7 +23,6 @@ class SubscriberList extends Entity
 	 */
 	protected $title;
 
-	
 	/**
 	 * @Column(type="string", name="description", nullable=true)
 	 * @var string
@@ -35,7 +32,7 @@ class SubscriberList extends Entity
 	public function __construct()
 	{
 		parent::__construct();
-		$this->subscribers = new \Doctrine\Common\Collections\ArrayCollection();
+		$this->subscribers = new Collections\ArrayCollection();
 	}
 	
 	/**
@@ -53,7 +50,7 @@ class SubscriberList extends Entity
 	 */
 	public function setTitle($title)
 	{
-		$this->title = trim($title);
+		$this->title = $title;
 	}
 	
 	public function getSubscribers()

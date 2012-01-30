@@ -307,8 +307,4 @@ class SendQueueItem extends Entity
 		$this->sendDateTime = new \DateTime("now");
 	}
 
-
-	
-	
 }
-

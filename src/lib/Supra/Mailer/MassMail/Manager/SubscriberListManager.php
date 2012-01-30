@@ -1,4 +1,5 @@
 <?php
+
 namespace Supra\Mailer\MassMail\Manager;
 
 use Supra\Mailer\MassMail\Entity;
@@ -10,7 +11,6 @@ class SubscriberListManager extends MassMailManager
 		parent::__construct($entityManager);
 	}
 
-	
 	/**
 	 * Create subscriber list
 	 * @param string $title
@@ -18,14 +18,13 @@ class SubscriberListManager extends MassMailManager
 	 */
 	public function createList($title)
 	{
-		$title = trim($title);	
 		$list = new Entity\SubscriberList();
 		$this->entityManager->persist($list);
 		$list->setTitle($title);
-		
+
 		return $list;
 	}
-	
+
 	/**
 	 * Remove list
 	 * @param Entity\SubscriberList $list 
@@ -34,7 +33,7 @@ class SubscriberListManager extends MassMailManager
 	{
 		$this->entityManager->remove($list);
 	}
-	
+
 	/**
 	 * Returns list
 	 * @param string $listId
@@ -44,14 +43,15 @@ class SubscriberListManager extends MassMailManager
 	{
 		$repository = $this->entityManager->getRepository('\Supra\Mailer\MassMail\Entity\SubscriberList');
 		$result = $repository->find($listId);
-		
+
 		return $result;
 	}
-	
-	public function getCampaiginsInList() {
-		
-	}
-	
+
+//	public function getCampaiginsInList()
+//	{
+//		
+//	}
+
 	/**
 	 * Returns set of lists by criteria
 	 * @param array $criteria
@@ -60,15 +60,15 @@ class SubscriberListManager extends MassMailManager
 	 * @param int|null $offset
 	 * @return array
 	 */
-	public function getListsSet($criteria = array(), $orderBy = null, $limit = null, $offset = null) 
+	public function getListsSet($criteria = array(), $orderBy = null, $limit = null, $offset = null)
 	{
-		
+
 		$repository = $this->entityManager->getRepository('\Supra\Mailer\MassMail\Entity\SubscriberList');
 		$result = $repository->findBy($criteria, $orderBy, $limit, $offset);
-		
+
 		return $result;
 	}
-	
+
 	/**
 	 * Return active list subscribers
 	 * @param Entity\SubscriberList $list

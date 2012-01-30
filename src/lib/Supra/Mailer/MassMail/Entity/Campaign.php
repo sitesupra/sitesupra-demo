@@ -14,7 +14,6 @@ class Campaign extends Entity
 	const STATUS_READY_TO_SEND = 20;
 	const STATUS_INACTIVE = 30;
 	
-	
 	/**
 	 * @ManyToOne(targetEntity="SubscriberList")
 	 */
@@ -25,7 +24,7 @@ class Campaign extends Entity
 		$this->subscriberList = $subscriberList;
 	}
 
-		/**
+	/**
 	 * @Column(type="string", name="subject", nullable=false)
 	 * @var string
 	 */
@@ -154,6 +153,26 @@ class Campaign extends Entity
 		return $this->subscriberList;
 	}
 	
+	/**
+	 * @return array
+	 */
+	public function getActiveSubscribers()
+	{
+		$activeSubscribers = array();
+		$subscribers = $this->getSubscriberList()->getSubscribers();
+
+		foreach ($subscribers as $subscriber) {
+			/* @var $subscriber Subscriber */
+			if ( ! $subscriber->getActive()) {
+				continue;
+			}
+
+			$activeSubscribers[] = $subscriber;
+		}
+
+		return $activeSubscribers;
+	}
+
 	/**
 	 * Returns campaign subject
 	 * @return string
