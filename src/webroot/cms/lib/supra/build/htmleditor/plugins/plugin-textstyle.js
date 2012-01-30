@@ -30,6 +30,7 @@ YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 		exec: function (data, command) {
 			var res = this.htmleditor.get('doc').execCommand(command, null, false);
 			this.htmleditor._changed();
+			this.htmleditor.refresh(true);
 			return res;
 		},
 		

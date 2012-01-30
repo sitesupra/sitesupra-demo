@@ -57,84 +57,44 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 			//Trigger "change" event on editor
 			htmleditor._changed();
 			
-			//Update button states
-			this.handleNodeChange();
-			
 			return true;
 		},
 		
 		/**
-		 * Find button for format
+		 * Returns current format
 		 * 
-		 * @param {String} format Format
-		 * @private
+		 * @return Current format
+		 * @type {String}
 		 */
-		bindButton: function (format) {
-			var htmleditor = this.htmleditor;
-			var toolbar = htmleditor.get('toolbar');
-			var button = toolbar ? toolbar.getButton(format) : null;
-			if (button) {
-				this.buttons[format.toUpperCase()] = button;
-			}
-		},
-		
-		/**
-		 * When node changes update button states
-		 * @param {Object} event
-		 */
-		handleNodeChange: function (event) {
+		getCurrentFormat: function () {
 			var htmleditor = this.htmleditor,
-				allowEditing = htmleditor.editingAllowed,
-				buttons = this.buttons,
-				down,
-				format,
 				selectedElement = null,
 				//currentFormat is empty string (false in Safari) or "H1", "P", ...
 				//in IE currentFormat is "Normal" even for elements without tag or "Heading 1", ...
 				currentFormat = null;
 				
-				try {
-					currentFormat = htmleditor.get('doc').queryCommandValue('formatblock');
+			try {
+				currentFormat = htmleditor.get('doc').queryCommandValue('formatblock');
+				
+				//Normalize IE value
+				if (Y.UA.ie) {
+					currentFormat = currentFormat.replace('Heading ', 'H');
 					
-					//Normalize IE value
-					if (Y.UA.ie) {
-						currentFormat = currentFormat.replace('Heading ', 'H');
-						
-						//Check for P tag
-						if (currentFormat == 'Normal') {
-							selectedElement = htmleditor.getSelectedElement('P');
-							if (selectedElement) {
-								currentFormat = 'P';
-							}
+					//Check for P tag
+					if (currentFormat == 'Normal') {
+						selectedElement = htmleditor.getSelectedElement('P');
+						if (selectedElement) {
+							currentFormat = 'P';
 						}
 					}
-				} catch (err) {
-					//If selected text is not 'contenteditable' then error is thrown
-					currentFormat = '';
 				}
-				
-				if (currentFormat) currentFormat = currentFormat.toUpperCase();
-			
-			for(format in buttons) {
-				down = (currentFormat == format ? true : false);
-				
-				buttons[format].set('disabled', !allowEditing);
-				buttons[format].set('down', down);
+			} catch (err) {
+				//If selected text is not 'contenteditable' then error is thrown
+				currentFormat = '';
 			}
-		},
-		
-		/**
-		 * When editing allowed changes update button states 
-		 * @param {Object} event
-		 */
-		handleEditingAllowChange: function (event) {
-			var i,
-				disabled = !event.allowed,
-				buttons = this.buttons;
 			
-			for(i in buttons) {
-				buttons[i].set('disabled', disabled);
-			}
+			if (currentFormat) currentFormat = currentFormat.toUpperCase();
+			return currentFormat;
 		},
 		
 		/**
@@ -145,8 +105,6 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
-			this.buttons = {};
-			
 			// Formats
 			if (configuration && Y.Lang.isArray(configuration.formats)) {
 				var formats = this.formats = configuration.formats;
@@ -162,12 +120,7 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 				
 			for(; i < imax; i++) {
 				this.htmleditor.addCommand(formats[i], execCallback);
-				this.bindButton(formats[i]);
 			}
-			
-			//When un-editable node is selected disable toolbar button
-			this.htmleditor.on('editingAllowedChange', this.handleEditingAllowChange, this);
-			this.htmleditor.on('nodeChange', this.handleNodeChange, this);
 		},
 		
 		/**

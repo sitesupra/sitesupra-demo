@@ -40,6 +40,7 @@
 			.box-shadow (0, 2px, 4px, rgba(4, 0, 16, 0.35));
 			
 			cursor: default;
+			color: #39394F;
 			display: none;
 			position: absolute;
 			z-index: 1;
@@ -59,6 +60,7 @@
 			}
 			
 			a {
+				color: #39394F;
 				cursor: pointer;
 			}
 			
@@ -70,16 +72,30 @@
 				color: #39394F;
 				line-height: 14px;
 				text-decoration: none;
+				white-space: nowrap;
 				display: block;
 				padding: 8px 0 0;
 				
-				&:hover {
+				&:hover,
+				&.selected {
+					color: #06c;
 					text-decoration: underline;
 				}
 			}
 		}
 	}
 }
+
+.yui3-input-select-disabled {
+	.yui3-input-select-inner {
+		&,
+		& > p {
+			cursor: default;
+		}
+	}
+	
+}
+
 .yui3-input-select-focused,
 .yui3-input-select-mouse-over {
 	.yui3-input-select-inner {

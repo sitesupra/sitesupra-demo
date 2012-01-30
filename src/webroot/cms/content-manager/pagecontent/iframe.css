@@ -172,6 +172,26 @@
 }
 
 /**
+ * Element highlight overlay
+ */
+.yui3-element-overlay {
+	position: absolute;
+	z-index: 9000;
+	overflow: hidden;
+	
+	border: 2px solid #3B85D1;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	
+	/*
+	-moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	-webkit-box-shadow:  0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	*/
+}
+
+/**
  * Drag & drop
  */
 .yui3-dd-shim {

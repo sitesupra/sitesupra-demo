@@ -44,7 +44,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			//Remove table from "style" plugin list, because this plugin will manage TABLE classnames
 			var plugin = this.htmleditor.getPlugin('style');
 			if (plugin) {
-				plugin.excludeTag('table');
+				plugin.excludeTags(['table', 'tr', 'td', 'th']);
 			}
 			
 			//Get styles
@@ -517,14 +517,17 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 */
 		getTableStyles: function () {
 			var style_plugin = this.htmleditor.getPlugin('style'),
-				styles = style_plugin.getSelectors('table', true, true),	//Get all table styles
 				list = [{'id': '', 'title': ''}];
 			
-			for(var i=0,ii=styles.length; i<ii; i++) {
-				list.push({
-					'id': styles[i].classname,
-					'title': styles[i].attributes.title
-				});
+			if (style_plugin) {
+				var styles = style_plugin.getSelectors('table', true, true);	//Get all table styles
+				
+				for(var i=0,ii=styles.length; i<ii; i++) {
+					list.push({
+						'id': styles[i].classname,
+						'title': styles[i].attributes.title
+					});
+				}
 			}
 			
 			return list;

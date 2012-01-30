@@ -127,19 +127,24 @@ YUI.add("supra.input-select", function (Y) {
 		anim_close: null,
 		
 		/**
+		 * Highlighted item id
+		 * @type {String}
+		 * @private
+		 */
+		highlight_id: 0,
+		
+		/**
 		 * Add nodes needed for widget
 		 */
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			//Wrap SELECT into DIV if input is contentBox
-			if (this.get('contentBox').test('select')) {
-				var node = Y.Node.create(this.CONTENT_TEMPLATE);
-				node.addClass(this.getClassName('inner'));
-				node.setAttribute('tabindex', '0');
-				this.get('inputNode').insert(node, 'after');
-				this.set('innerNode', node);
-			}
+			//Add inner node
+			var node = Y.Node.create(this.CONTENT_TEMPLATE);
+			node.addClass(this.getClassName('inner'));
+			node.setAttribute('tabindex', '0');
+			this.get('inputNode').insert(node, 'after');
+			this.set('innerNode', node);
 			
 			//Input doesn't need to be visible
 			this.get('inputNode').addClass('hidden');
@@ -178,11 +183,21 @@ YUI.add("supra.input-select", function (Y) {
 		},
 		
 		/**
+		 * Overwrite focus UI event to prevent styling if input
+		 * is disabled
+		 */
+		_uiSetFocused: function () {
+			if (this.get('disabled')) return;
+			Input.superclass._uiSetFocused.apply(this, arguments);
+		},
+		
+		/**
 		 * On mouse over set style
 		 * 
+		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		_onMouseOver: function () {
+		_onMouseOver: function (e) {
 			if (this.get('disabled')) return;
 			this.get('boundingBox').addClass(this.getClassName('mouse-over'));
 		},
@@ -190,9 +205,10 @@ YUI.add("supra.input-select", function (Y) {
 		/**
 		 * On mouse out remove style
 		 * 
+		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		_onMouseOut: function () {
+		_onMouseOut: function (e) {
 			if (this.get('disabled')) return;
 			this.get('boundingBox').removeClass(this.getClassName('mouse-over'));
 		},
@@ -200,27 +216,78 @@ YUI.add("supra.input-select", function (Y) {
 		/**
 		 * On mouse down open dropdown
 		 * 
+		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		_onMouseDown: function () {
-			this.set('opened', true);
+		_onMouseDown: function (e) {
+			//If user clicked inside dropdown then ignore
+			var target = e.target.closest('.' + this.getClassName('dropdown'));
+			if (target) return;
+			
+			this.set('opened', !this.get('opened'));
 		},
 		
 		/**
-		 * On key down open dropdown
+		 * On return/escape key down open/close dropdown and allow up/down key navigation
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
 		 */
 		_onKeyDown: function (e) {
-			if (e.keyCode == 13) {
-				//Return key, open dropdown
-				if (!this.get('opened')) this.set('opened', true);
-			} else if (e.keyCode == 27 || e.keyCode == 9) {
-				//Escape key, close dropdown
-				if (this.get('opened')) this.set('opened', false);
+			if (this.get('disabled')) return;
+			
+			var key = e.keyCode;
+			
+			if (!this.get('opened')) {
+				if (key == 13 || key == 40) {
+					//Return key or arrow down, open dropdown
+					this.set('opened', true);
+				}
+			} else {
+				if (key == 27 || key == 9) {
+					//Escape key or tab key, close dropdown
+					this.set('opened', false);
+				} else if (key == 40 || key == 38) {
+					//Arrow down or up
+					var dir = key == 40 ? 'next' : 'previous',
+						node = this.get('dropdownNode'),
+						item = node.one('.selected'),
+						prev = item;
+					
+					if (!item) {
+						item = node.one('.' + this.getClassName('item'));
+					} else {
+						item = item[dir]();
+					}
+					
+					//Find visible item
+					while(item && item.hasClass('hidden')) {
+						item = item[dir]();
+					}
+					
+					//Style
+					if (item) {
+						if (prev) {
+							prev.removeClass('selected');
+						}
+						item.addClass('selected');
+						this.highlight_id = item.getAttribute('data-id');
+					}
+				} else if (key == 13) {
+					if (this.highlight_id !== null) {
+						this.set('value', this.highlight_id);
+					}
+					
+					this.set('opened', false);
+				}
 			}
 		},
 		
 		/**
 		 * On item click change value and close dropdown
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
 		 */
 		_onItemClick: function (e) {
 			if (this.get('disabled')) return;
@@ -247,8 +314,8 @@ YUI.add("supra.input-select", function (Y) {
 			bounding_node.addClass(this.getClassName('open'));
 			dropdown_node.setStyles({
 				'opacity': 0,
-				'margin-top': -15,
-				'min-width': inner_node.get('offsetWidth')
+				'marginTop': -15,
+				'minWidth': inner_node.get('offsetWidth') + 'px'
 			});
 			
 			//Animations
@@ -323,6 +390,13 @@ YUI.add("supra.input-select", function (Y) {
 			this.anim_close
 					.stop()
 					.run();
+			
+			//Remove item highlighting
+			this.highlight_id = null;
+			var item = this.get('dropdownNode').one('.selected');
+			if (item) {
+				item.removeClass('selected');
+			}
 		},
 		
 		/**
@@ -373,7 +447,10 @@ YUI.add("supra.input-select", function (Y) {
 					value = this.get('value'),
 					text_node = this.get('textNode');
 				
-				domNode.options = [];
+				//Remove all options
+				for(var i = domNode.options.length - 1; i>=0; i--) {
+					domNode.remove(i);
+				}
 				
 				if (contentNode) {
 					contentNode.empty();
@@ -400,6 +477,27 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			return values;
+		},
+		
+		/**
+		 * Returns object with dropdown elements by value id
+		 * 
+		 * @return Dropdown elements
+		 * @type {Object}
+		 */
+		getValueNodes: function () {
+			var nodes = this.get('contentNode').all('.' + this.getClassName('item')),
+				node = null,
+				obj = {},
+				i = 0,
+				ii = nodes.size();
+			
+			for(; i<ii; i++) {
+				node = nodes.item(i);
+				obj[node.getAttribute('data-id')] = node;
+			}
+			
+			return obj;
 		},
 		
 		/**

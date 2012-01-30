@@ -42,10 +42,10 @@
 	background: url(/cms/lib/supra/img/toolbar/buttons-background.png) 0 -48px repeat-x;
 	padding: 8px 10px 0;
 	height: 42px - 8px; // - padding top
-	width: 650px;
+	width: 580px;
 	position: absolute;
 	z-index: 1;
-	margin: 48px 0 0 -325px;
+	margin: 48px 0 0 -290px;
 	top: 0;
 	left: 50%;
 	
@@ -58,6 +58,58 @@
 		.transition-property (top);
 		.transition-duration (0.5s);
 		top: -48px;
+	}
+	
+	/**
+	 * Toolbar dropdown
+	 */
+	.yui3-input-select {
+		display: inline-block;
+		vertical-align: top;
+		
+		&:last-child {
+			padding-right: 0;
+		}
+		
+		label {
+			display: none;
+		}
+		
+		.yui3-input-select-inner {
+			& > p {
+				min-width: 150px;
+			}
+			
+			.yui3-input-select-item {
+				cursor: pointer;
+			}
+			.style-class {
+				padding: 4px 0 0 24px;
+				
+				&.current {
+					background: url(dropdown-selected-item.png) 10px 100% no-repeat;
+				}
+			}
+			.style-main + .style-class {
+				padding-top: 6px;
+			}
+			.style-main {
+				padding-left: 14px;
+				&.H1 { font-size: 20px; font-weight: bold; line-height: 20px; }
+				&.H2 { font-size: 16px; font-weight: bold; line-height: 16px; }
+				&.H3 { font-size: 14px; line-height: 14px; }
+				&.H4 { font-size: 14px; font-style: italic; line-height: 14px; }
+				&.B  { font-weight: bold; }
+				&.EM { font-style: italic; }
+				&.S  { text-decoration: line-through; }
+				&.U  { text-decoration: underline; }
+				&.A  { text-decoration: underline; }
+				
+				&.current {
+					background: url(dropdown-selected-item.png) 0 100% no-repeat;
+				}
+			}
+		}
 	}
 	
 	/**
@@ -121,7 +173,8 @@
 		}
 		
 		/* :hover */
-		&.su-button-mouse-hover {
+		&.su-button-mouse-hover,
+		&.su-button-focused {
 			background-position: 0 @button-height * -6;
 			
 			.su-button-content {

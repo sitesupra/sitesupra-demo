@@ -118,8 +118,15 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		/**
 		 * Update selection, trigger necessary events
 		 */
-		refresh: function (force) {
-			return this._handleNodeChange({}, force);
+		refresh: function (force, delay) {
+			if (delay) {
+				//Delay is used after making modifications to the DOM
+				Y.later(60, this, function () {
+					this._handleNodeChange({}, force);
+				});
+			} else {
+				return this._handleNodeChange({}, force);
+			}
 		},
 		
 		/**

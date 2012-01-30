@@ -26,17 +26,18 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"id": "italic", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-italic.png", "command": "italic"},
 					{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
 					{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
-					{"type": "separator"},
+					/*{"type": "separator"},
 					{"id": "p", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-p.png", "command": "p"},
 					{"id": "h1", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h1.png", "command": "h1"},
 					{"id": "h2", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h2.png", "command": "h2"},
 					{"id": "h3", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h3.png", "command": "h3"},
 					{"id": "h4", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h4.png", "command": "h4"},
-					{"id": "h5", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h5.png", "command": "h5"},
+					{"id": "h5", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h5.png", "command": "h5"},*/
 					{"type": "separator"},
 					{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
 					{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
 					{"type": "separator"},
+					{"id": "type", "type": "dropdown", "command": "type"},
 					{"id": "style", "type": "dropdown", "command": "style"}
 				]
 			}
@@ -147,6 +148,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'dropdown':
 					node = Y.Node.create('<select></select>');
 					cont.append(node);
+					node = new Supra.Input.Select({'srcNode': node});
+					node.render();
 					break;
 				case 'button':
 				default:

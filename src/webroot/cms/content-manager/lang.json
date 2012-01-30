@@ -87,15 +87,41 @@
 			"italic": "Italic",
 			"underline": "Underline",
 			"strikethrough": "Strikethrough",
-			"p": "Paragraph",
-			"h1": "Heading 1",
-			"h2": "Heading 2",
-			"h3": "Heading 3",
-			"h4": "Heading 4",
-			"h5": "Heading 5",
+			
 			"ul": "Unordered list",
 			"ol": "Ordered list",
-			"style": "Style",
+			
+			"style": "Styles",
+			
+			"group_text": "Text",
+			"group_list": "List",
+			"group_table": "Table",
+			"group_image": "Image",
+			
+			"tags": {
+				"P": "Text Body",
+				"H1": "H1 Heading",
+				"H2": "H2 Heading",
+				"H3": "H3 Heading",
+				"H4": "H4 Heading",
+				"H5": "H5 Heading",
+				
+				"B": "Bold",
+				"EM": "Italic",
+				"U": "Underline",
+				"S": "Strikethrough",
+				
+				"UL": "Unordered List",
+				"OL": "Ordered List",
+				"LI": "List Item",
+				
+				"TABLE": "Table",
+				"TR": "Table Row",
+				"TD": "Table Cell",
+				"TH": "Table Cell",
+				
+				"IMG": "Image"
+			},
 			
 			"image_properties": "Image properties",
 			"image_title": "Image title",
