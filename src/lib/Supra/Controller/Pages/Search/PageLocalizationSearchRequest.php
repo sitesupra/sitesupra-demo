@@ -65,6 +65,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		
 		$this->addSimpleFilter('isActive', true);
 		$this->addSimpleFilter('includeInSearch', true);
+		$this->addSimpleFilter('isRedirected', false);
 
 		// This is default for case when locale is not set for this request.
 		$languageCode = 'general';

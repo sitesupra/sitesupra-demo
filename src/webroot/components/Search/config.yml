@@ -1,4 +1,7 @@
 - Supra\Search\SearchControllerConfiguration:
-    resultsTemplateFilename: template/search/search-results.html.twig
-    noResultsTemplateFilename: template/search/search-results-empty.html.twig
-    resultsPerPage: 2
+    resultsTemplateFilename: search-results.html.twig
+    noResultsTemplateFilename: search-results-empty.html.twig
+    controllerClass: Project\Search\ProjectSearchController
+    resultsPerPage: 10
+    title: Unified search block
+    description: Unified search block

@@ -46,6 +46,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	static $indexedLocalizationIds = array();
 	protected $parentLocalization;
 	protected $parentDocument;
+
 	/**
 	 *
 	 * @var PageLocalization
@@ -174,7 +175,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		// Page has been moved?
 		if ($this->parentLocalization->getId() != $this->previousParentId) {
 			// - Yes. 
-			
 			// Set "visibility" to that of parent document.
 			$this->isActive = $this->parentDocument->isActive;
 
@@ -186,7 +186,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			}
 		} else {
 			// - No.
-
 			// If "activity" has been turned OFF ...
 			if ($this->localization->isActive() == false && $this->previousDocument->active == true) {
 
@@ -350,8 +349,18 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
 		$indexedDocument->isActive = $isActive ? 'true' : 'false';
-		
+
 		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
+
+		$redirect = $this->localization->getRedirect();
+
+		$isRedirected = 'true';
+
+		if (empty($redirect)) {
+			$isRedirected = 'false';
+		}
+
+		$indexedDocument->isRedirected = $isRedirected;
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();
 		$ancestorIds = array();
@@ -367,7 +376,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		// Include general title in the text
 		$pageContents = array();
 		$pageContents[] = $indexedDocument->title_general;
-		
+
 		$dummyHttpRequest = new \Supra\Request\HttpRequest();
 
 		$pageRequestView = new PageRequestView($dummyHttpRequest);
