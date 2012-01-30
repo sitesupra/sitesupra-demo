@@ -65,6 +65,14 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	 */
 	public $hidden = false;
 	
+	
+	/**
+	 * Block HTML description
+	 * @var string
+	 */
+	public $html;
+	
+	
 	/**
 	 * Adds block configuration to block controller collection
 	 */
