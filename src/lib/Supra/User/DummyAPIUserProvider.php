@@ -97,7 +97,7 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 	{
 		$config = ObjectRepository::getIniConfigurationLoader($this);
 		
-		$key = $config->getValue('external_user_provider', 'key');
+		$key = $config->getValue('external_user_provider', 'key', null);
 		$this->requestKey = $key;
 	}
 	
@@ -253,7 +253,7 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 	/**
 	 * {@inheritDoc}
 	 */
-	public function deleteUser(Entity\User $user) 
+	public function doDeleteUser(Entity\User $user) 
 	{
 		
 	}
@@ -275,13 +275,13 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 	{
 		$user = new Entity\User();
 		
-		$userSessions = $this->getEntityManager()
-				->getRepository(Entity\UserSession::CN())
-				->findByUser($userData['id']);
+		//$userSessions = $this->getEntityManager()
+		//		->getRepository(Entity\UserSession::CN())
+		//		->findByUser($userData['id']);
 		
 		$userGroup = $this->findGroupById($userData['group']);
 		
-		$userData['sessions'] = $userSessions;
+		//$userData['sessions'] = $userSessions;
 		$userData['group'] = $userGroup;
 		
 		$user->fillFromArray($userData);

@@ -33,6 +33,9 @@ class UserSession extends Entity implements Timestampable
 	 */
 	protected $user;
 	
+	/**
+	 * @var Entity\User
+	 */
 	protected $userObject;
 
 	/**

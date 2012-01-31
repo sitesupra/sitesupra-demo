@@ -157,7 +157,7 @@ class UserProvider extends UserProviderAbstract implements UserProviderInterface
 	/**
 	 * {@inheritDoc}
 	 */
-	public function deleteUser(Entity\User $user) 
+	public function doDeleteUser(Entity\User $user) 
 	{
 		$entityManager = $this->getEntityManager();
 		

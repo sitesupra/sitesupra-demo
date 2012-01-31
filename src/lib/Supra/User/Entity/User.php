@@ -74,7 +74,7 @@ class User extends AbstractUser
 //	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
 //	 * @var Collection
 //	 */
-	protected $userSessions;
+//	protected $userSessions;
 
 	/**
 	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
@@ -333,7 +333,7 @@ class User extends AbstractUser
 		$this->active = $userData['active'];
 		
 		$this->salt = $userData['salt'];
-		$this->userSessions = $userData['userSessions'];
+		//$this->userSessions = $userData['userSessions'];
 
 		$this->localeId = $userData['localeId'];
 

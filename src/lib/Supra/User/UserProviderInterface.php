@@ -83,7 +83,7 @@ interface UserProviderInterface
 	 * Remove user
 	 * @param Entity\User $user
 	 */
-	public function deleteUser(Entity\User $user);
+	public function doDeleteUser(Entity\User $user);
 	
 	/**
 	 * Update/store user property changes

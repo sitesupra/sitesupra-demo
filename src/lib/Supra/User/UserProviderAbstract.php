@@ -226,5 +226,25 @@ abstract class UserProviderAbstract
 		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);
 	}
 	
+	final public function deleteUser($user)
+	{
+		$this->deleteUserSession($user);
+		$this->doDeleteUser($user);
+	}
+	
+	protected function deleteUserSession($user)
+	{
+		$userId = $user->getId();
+		
+		$em = $this->getEntityManager();
+		
+		$qb = $em->createQueryBuilder();
+		
+		$qb->delete(Entity\UserSession::CN(), 'us')
+			->where('us.user = :userId')
+			->setParameter('userId', $userId)
+			->getQuery()->execute();
+	}
+	
 }
 
