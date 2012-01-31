@@ -69,11 +69,11 @@ class User extends AbstractUser
 	 */
 	protected $salt;
 
-	/**
-	 * Added only to cascade removal
-	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
-	 * @var Collection
-	 */
+//	/**
+//	 * Added only to cascade removal
+//	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
+//	 * @var Collection
+//	 */
 	protected $userSessions;
 
 	/**
