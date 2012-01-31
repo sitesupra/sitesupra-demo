@@ -46,11 +46,11 @@ class Mailer extends \Swift_Mailer
 		$childrenCount = count($message->getChildren());
 		
 		if (empty($subject)) {
-			throw new Exception\RuntimeException('Emty message subject');
+			throw new Exception\RuntimeException('Empty message subject');
 		}
 
 		if ( empty($body) && empty($childrenCount) ) {
-			throw new Exception\RuntimeException('Emty message body');
+			throw new Exception\RuntimeException('Empty message body');
 		}
 
 		return parent::send($message, $failedRecipients);
