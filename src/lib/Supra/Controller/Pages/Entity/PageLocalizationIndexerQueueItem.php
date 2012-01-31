@@ -18,6 +18,7 @@ use Supra\Search\Exception\IndexerRuntimeException;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\SearchService;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
+use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 
 /**
  * @Entity
@@ -293,6 +294,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		return $result;
 	}
 
+	/**
+	 *
+	 * @param string $pageLocalizationId
+	 * @return Solarium_Document_ReadOnly
+	 */
 	protected function findPageLocalizationIndexedDocument($pageLocalizationId)
 	{
 		$findRequest = new PageLocalizationFindRequest();
@@ -302,11 +308,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$searchService = new SearchService();
 
-		$results = $searchService->processRequest($findRequest);
+		$resultSet = $searchService->processRequest($findRequest);
 
-		foreach ($results as $result) {
-			if ($result->pageLocalizationId == $pageLocalizationId) {
-				return $result;
+		$items = $resultSet->getItems();
+
+		foreach ($items as $item) {
+
+			if ($item instanceof PageLocalizationSearchResultItem) {
+				
+				if ($item->getPageLocalizationId() == $pageLocalizationId) {
+					return $item->getIndexedDocument();
+				}
 			}
 		}
 

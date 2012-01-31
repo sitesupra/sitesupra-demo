@@ -18,6 +18,8 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Search\PageLocalizationSearchResultSet;
+use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 
 /**
  * Simple text block
@@ -33,14 +35,14 @@ class SearchController extends BlockController
 	public function createResponse(Request\RequestInterface $request)
 	{
 		$response = parent::createResponse($request);
-		
+
 		if ( ! $this->getConfiguration()->localTemplateDirectory) {
 			$response->setLoaderContext(null);
 		}
-		
+
 		return $response;
 	}
-	
+
 	/**
 	 * Accepts only SearchControllerConfiguration instances
 	 * @param BlockControllerConfiguration $configuration 
@@ -68,57 +70,39 @@ class SearchController extends BlockController
 		$configuration = $this->getConfiguration();
 		$results = $this->getResults();
 
-		if (empty($results->processedResults)) {
-			
-			$response->assign('resultCount', '0');
-			$response->outputTemplate($configuration->noResultsTemplateFilename);
-		} else if ($results instanceof Exception\RuntimeException) {
+		if ($results instanceof Exception\RuntimeException) {
 
 			$response->assign('error', true);
 			$response->outputTemplate($configuration->resultsTemplateFilename);
-		} else {
-			/* @var $results \Solarium_Result_Select */
+		} else if ($results instanceof PageLocalizationSearchResultSet) {
 
-			$em = ObjectRepository::getEntityManager($this);
+			$totalResultCount = $results->getTotalResultCount();
 
-			$pr = $em->getRepository(PageLocalization::CN());
-
-			foreach ($results->processedResults as &$result) {
-
-				$result['breadcrumbs'] = array();
+			if ($totalResultCount == 0) {
 				
-				$ancestorIds = array();
-				if (isset($result['ancestorIds'])) {
-					$ancestorIds = array_reverse($result['ancestorIds']);
-				}
+				$response->assign('resultCount', '0');
+				$response->outputTemplate($configuration->noResultsTemplateFilename);
+			} else {
 
-				foreach ($ancestorIds as $ancestorId) {
+				$em = ObjectRepository::getEntityManager($this);
 
-					$p = $pr->find($ancestorId);
+				$results->gatherBreadcrumbs($em);
 
-					if ($p instanceof Page) {
+				$totalPages = ceil($results->getTotalResultCount() / $configuration->resultsPerPage);
+				$response->assign('resultsPerPage', $configuration->resultsPerPage);
+				$response->assign('searchResults', $results->getItems());
+				$response->assign('pages', range(1, $totalPages));
+				$response->assign('pageCount', $totalPages);
+				$response->assign('resultCount', $results->getTotalResultCount());
 
-						$pl = $p->getLocalization($result['localeId']);
-						$result['breadcrumbs'][] = $pl->getTitle();
-					} else if ($p instanceof PageLocalization) {
-						$result['breadcrumbs'][] = $p->getTitle();
-					} elseif ($p instanceof \Supra\Controller\Pages\Entity\GroupPage) {
-						$result['breadcrumbs'][] = $p->getTitle();
-					}
-				}
+				$response->outputTemplate($configuration->resultsTemplateFilename);
 			}
-
-			$totalPages = ceil($results->getNumFound() / $configuration->resultsPerPage);
-			$response->assign('resultsPerPage', $configuration->resultsPerPage);
-			$response->assign('searchResults', $results->processedResults);
-			$response->assign('pages', range(1, $totalPages));
-			$response->assign('pageCount', $totalPages);
-			$response->assign('resultCount', $results->getNumFound());
-
-			$response->outputTemplate($configuration->resultsTemplateFilename);
 		}
 	}
 
+	/**
+	 * @return RuntimeException | PageLocalizationSearchResultSet
+	 */
 	protected function getResults()
 	{
 		$request = $this->getRequest();
@@ -163,10 +147,10 @@ class SearchController extends BlockController
 
 		return $results;
 	}
-	
+
 	/**
 	 * @param string $text
-	 * @return array
+	 * @return PageLocalizationSearchResultSet
 	 */
 	private function doSearch($text, $maxRows, $startRow)
 	{
@@ -184,9 +168,9 @@ class SearchController extends BlockController
 		$searchRequest->setLocale($locale);
 		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 
-		$searchResults = $searchService->processRequest($searchRequest);
+		$results = $searchService->processRequest($searchRequest);
 
-		return $searchResults;
+		return $results;
 	}
 
 }

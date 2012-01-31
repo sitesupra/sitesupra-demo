@@ -3,11 +3,12 @@
 namespace Supra\Controller\Pages\Search;
 
 use \Solarium_Query_Select;
-use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
-use Supra\Locale\Locale;
 use \Solarium_Result_Select;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Locale\Locale;
+use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
+use Supra\Search\Result\DefaultSearchResultSet;
 
 class PageLocalizationSearchRequest extends SearchRequestAbstraction
 {
@@ -62,10 +63,10 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	public function applyParametersToSelectQuery(Solarium_Query_Select $selectQuery)
 	{
 		$this->addSimpleFilter('schemaName', $this->schemaName);
-		
-		$this->addSimpleFilter('isActive', true);
-		$this->addSimpleFilter('includeInSearch', true);
-		$this->addSimpleFilter('isRedirected', false);
+
+		$this->addSimpleFilter('isActive', 'true');
+		$this->addSimpleFilter('includeInSearch', 'true');
+		$this->addSimpleFilter('isRedirected', 'false');
 
 		// This is default for case when locale is not set for this request.
 		$languageCode = 'general';
@@ -85,7 +86,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 
 		$helper = $selectQuery->getHelper();
 
-		$solrQuery = $textFieldName . ':' . $helper->escapePhrase($this->text);	
+		$solrQuery = $textFieldName . ':' . $helper->escapePhrase($this->text);
 
 		$selectQuery->setQuery($solrQuery);
 
@@ -114,39 +115,20 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	 */
 	public function processResults(Solarium_Result_Select $selectResults)
 	{
-		$results = array();
+		$resultSet = new PageLocalizationSearchResultSet();
 
 		$highlighting = $selectResults->getHighlighting();
 
 		foreach ($selectResults as $selectResultItem) {
-			/* @var $selectResultItem \Solarium_Document_ReadOnly */
+			
+			$item = new PageLocalizationSearchResultItem($selectResultItem, $highlighting);
 
-			$result = array(
-					'localeId' => $selectResultItem->localeId,
-					'pageWebPath' => $selectResultItem->pageWebPath,
-					'title' => $selectResultItem->title_general,
-					'text' => $selectResultItem->text_general,
-					'ancestorIds' => $selectResultItem->ancestorIds
-			);
-
-			if ( ! empty($highlighting)) {
-
-				$highlightedResultItem = $highlighting->getResult($selectResultItem->uniqueId);
-
-				if ($highlightedResultItem) {
-
-					foreach ($highlightedResultItem as $highlight) {
-						$result['highlight'] = implode(' (...) ', $highlight);
-					}
-				}
-			}
-
-			$results[] = $result;
+			$resultSet->add($item);
 		}
-
-		$selectResults->processedResults = $results;
 		
-		return $selectResults;
+		$resultSet->setTotalResultCount($selectResults->getNumFound());
+
+		return $resultSet;
 	}
 
 }

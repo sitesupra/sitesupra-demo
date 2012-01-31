@@ -49,15 +49,20 @@ class CmsPageLocalizationIndexerQueueListener
 
 			$searchService = new SearchService();  
 
-			$results = $searchService->processRequest($findRequest);
+			$resultSet = $searchService->processRequest($findRequest);
+			
+			$items = $resultSet->getItems();
 
-			foreach ($results as $result) {
+			foreach ($items as $item) {
 				
-				if ($result->pageLocalizationId == $localization->getId()) {
+				if($item instanceof PageLocalizationSearchResultItem) {
+				
+					if ($item->getPageLocalizationId() == $localization->getId()) {
+						
+						$indexerService = new IndexerService();
 
-					$indexerService = new IndexerService();
-
-					$indexerService->removeFromIndex($result->uniqueId);
+						$indexerService->removeFromIndex($item->getUniqueId());
+					}
 				}
 			}
 		}

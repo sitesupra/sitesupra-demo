@@ -44,7 +44,7 @@ class SearchService
 
 	/**
 	 * @param Request\SearchRequestInterface $request
-	 * @return Solarium_Result_Select
+	 * @return Result\SearchResultSetInterface
 	 */
 	public function processRequest(Request\SearchRequestInterface $request)
 	{
@@ -56,6 +56,12 @@ class SearchService
 		$request->applyParametersToSelectQuery($selectQuery);
 
 		$this->log->debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
+		
+		$filters = array();
+		foreach($selectQuery->getFilterQueries() as $filterQuery) {
+			$filters[] = $filterQuery->getQuery();
+		}
+		$this->log->debug('SOLARIUM QUERY FILTER: ', join(' AND ', $filters));
 
 		$selectResults = $solariumClient->select($selectQuery);
 

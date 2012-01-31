@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
 use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
+use \Supra\Search\Result\DefaultSearchResultSet;
 
 class PageLocalizationFindRequest extends SearchRequestAbstraction
 {
@@ -53,7 +54,18 @@ class PageLocalizationFindRequest extends SearchRequestAbstraction
 
 	public function processResults(Solarium_Result_Select $selectResults)
 	{
-		return $selectResults;
+		$resultSet = new DefaultSearchResultSet();
+
+		foreach ($selectResults as $resultDocument) {
+
+			$item = new PageLocalizationSearchResultItem($resultDocument);
+
+			$resultSet->add($item);
+		}
+
+		$resultSet->setTotalResultCount($selectResults->getNumFound());
+
+		return $resultSet;
 	}
 
 }

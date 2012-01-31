@@ -2,6 +2,6 @@
     resultsTemplateFilename: search-results.html.twig
     noResultsTemplateFilename: search-results-empty.html.twig
     controllerClass: Project\Search\ProjectSearchController
-    resultsPerPage: 10
+    resultsPerPage: 5
     title: Unified search block
     description: Unified search block
