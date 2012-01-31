@@ -34,6 +34,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 						'dump-sql', null, InputOption::VALUE_NONE,
 						'Causes the generated SQL statements to be output.'
 					),
+					new InputOption(
+						'assert-updated', null, InputOption::VALUE_NONE,
+						'Causes exception if schema is not up to date.'
+					),
 				));
 	}
 
@@ -50,6 +54,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		
         $force = (true === $input->getOption('force'));
         $dumpSql = (true === $input->getOption('dump-sql'));
+		$assertUpdated = (true === $input->getOption('assert-updated'));
 		$updateRequired = false;
 		
 		$output->writeln('Updating database schema...');
@@ -85,6 +90,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 
 		if ($force) {
 			$output->writeln('Database schema updated successfully!');
+		}
+		
+		if ($updateRequired && $assertUpdated) {
+			throw new \RuntimeException("Schema is not up to date.");
 		}
 
 		if ($updateRequired && ! $force && ! $dumpSql) {
