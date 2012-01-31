@@ -135,6 +135,11 @@ function getFileMtime($file)
 	}
 	
 	foreach ($files as $file) {
+		
+		if ( ! file_exists($file)) {
+			error404();
+		}
+		
 		$cacheSource[] = $file;
 		$cacheSource[] = filemtime($file);
 	}
@@ -162,7 +167,12 @@ function getFileContent($file)
 	}
 
 	if (is_null($outFile)) {
-		$outFile = @file_get_contents($pre . $file);
+		
+		if ( ! file_exists($pre . $file)) {
+			error404();
+		}
+		
+		$outFile = file_get_contents($pre . $file);
 	}
 
 	if ($css) {
@@ -172,6 +182,12 @@ function getFileContent($file)
 	}
 
 	return $outFile;
+}
+
+function error404()
+{
+	header("HTTP/1.0 404 Not Found");
+	die();
 }
 
 if ($css) {
