@@ -7,15 +7,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
-	var ACTION_TEMPLATE = '<div class="sidebar block-settings">\
-								<div class="sidebar-header">\
-									<button class="button-back hidden"><p></p></button>\
-									<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />\
-									<h2></h2>\
-									<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
-								</div>\
-								<div class="sidebar-content has-header"></div>\
-							</div>';
+	var ACTION_TEMPLATE = '\
+			<div class="sidebar block-settings">\
+				<div class="sidebar-header">\
+					<button class="button-back hidden"><p></p></button>\
+					<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />\
+					<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
+					<h2></h2>\
+				</div>\
+				<div class="sidebar-content has-header"></div>\
+			</div>';
 	
 	/*
 	 * Container action

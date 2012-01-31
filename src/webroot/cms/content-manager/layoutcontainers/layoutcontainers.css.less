@@ -79,7 +79,7 @@
 }
 .sidebar-header .button-control {
 	float: right;
-	margin-left: 10px;
+	margin-left: -55px;
 }
 
 .sidebar-header > img {
@@ -89,22 +89,20 @@
 }
 
 .sidebar-header h2 {
-	float: left;
-	padding: 0;
+	padding: 0 60px 0 0;
+	
+	box-sizing: border-box;
+	overflow: hidden;
+	max-width: 100%;
+	width: auto;
 	
 	color: #fff;
 	font-size: 14px;
 	font-weight: bold;
 	line-height: 24px;
 	text-shadow: 0 1px 0 rgba(0,0,0,.75);
-}
-.ui-dark .sidebar-header h2 {
-	line-height: 22px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	
-	width: 140px;
-	overflow: hidden;
 }
 
 .left-container .sidebar-header {
@@ -208,17 +206,28 @@
 	}
 }
 
-.ui-dark .sidebar-content a.button-section {
-	color: #757589;
-	text-shadow: 0 1px 0 rgba(0,0,0,.75);
-	
-	&:hover,
-	&:focus {
-		color: #fff;
-		text-shadow: 0 1px 0 rgba(0,0,0,.75);
+.ui-dark {
+	.sidebar-content {
+		a.button-section {
+			color: #757589;
+			text-shadow: 0 1px 0 rgba(0,0,0,.75);
+			
+			&:hover,
+			&:focus {
+				color: #fff;
+				text-shadow: 0 1px 0 rgba(0,0,0,.75);
+			}
+		}
+		
+		/*
+		 * Inputs
+		 */
+		.yui3-form-content > .yui3-input:first-child,
+		.su-slide-content > .yui3-input:first-child {
+			margin-top: 0;
+		}
 	}
 }
-
 
 .page-settings,
 .block-settings {
