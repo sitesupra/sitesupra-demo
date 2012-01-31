@@ -1,23 +1,23 @@
 \documentclass[12pt]{article}
 
-\usepackage{graphicx}
-\usepackage{setspace}
-\usepackage{datetime}
+%\usepackage{graphicx}
+%\usepackage{setspace}
+%\usepackage{datetime}
 \usepackage{hyperref}
 \usepackage{alltt}
 \usepackage{tabularx}
 % This fixes table break, but breaks small tables
 %\usepackage{ltablex}
-\usepackage{svnkw}
-\usepackage[usenames,dvipsnames]{xcolor}
+%\usepackage{svnkw}
+%\usepackage[usenames,dvipsnames]{xcolor}
 
-\svnidlong
-{$HeadURL$}
-{$LastChangedDate$}
-{$LastChangedRevision$}
-{$LastChangedBy$}
+%\svnidlong
+%{$HeadURL$}
+%{$LastChangedDate$}
+%{$LastChangedRevision$}
+%{$LastChangedBy$}
 
-\newcommand{\todayYMD}{\the\year\twodigit\month\twodigit\day}
+%\newcommand{\todayYMD}{\the\year\twodigit\month\twodigit\day}
 \newcommand{\vigClientBranding}{0}
 \newcommand{\vigShowNotes}{1}
 \newcommand{\vigClientName}{Client Name}
@@ -25,56 +25,58 @@
 \newcommand{\vigProjectName}{SiteSupra 7}
 \newcommand{\vigProjectNameShort}{supra7}
 \newcommand{\vigAttn}{Person Name}
-\newcommand{\vigDocumentRevision}{\svnrev}
+%\newcommand{\vigDocumentRevision}{\svnrev}
+\newcommand{\vigDocumentRevision}{1}
 \newcommand{\vigPackageName}{supra7}
 %\newcommand{\vigPathToProject}{\textless path\_to\_project\textgreater}
 \newcommand{\vigPathToProject}{/var/www}
 \newcommand{\vigPathToSrc}{/src}
 \newcommand{\vigPathToWebroot}{\vigPathToSrc/webroot}
-\newcommand{\note}[1]{\ifthenelse{\vigShowNotes=1}{
+
+\newcommand{\note}[1]{
+%\ifthenelse{\vigShowNotes=1}{
 \textbf{NOTE:} 
-\textcolor{Brown}{
+%\textcolor{Brown}{
 #1
+%}
+%}{}
 }
-}{}}
-\newcommand{\todo}[1]{\ifthenelse{\vigShowNotes=1}{
+
+\newcommand{\todo}[1]{
+%\ifthenelse{\vigShowNotes=1}{
 \textbf{TODO:} 
-\textcolor{Red}{
+%\textcolor{Red}{
 #1
+%}
+%}{}
 }
-}{}}
 
 \setlength{\parindent}{0pt}
 
 \begin{document}
-\title{Install Guide}	
+\title{Installation Guide}	
 
 \begin{titlepage}
 
-\begin{flushleft} \large
-\leftskip0.5in
+%\ifthenelse{\vigClientBranding=1}{
+%\textbf{Customer:} \vigClientName\\
+%\textbf{Project:} \vigProjectName\\
+%\textbf{Attn:} \vigAttn
+%}
 
-\doublespacing
-\ \vspace{2em}
+%\begin{center}
+\textbf{\huge \vigProjectName}\\
+\textbf{\huge Installation Guide}\\
+%\todayYMD.VIG.\
+%\ifthenelse{\vigClientBranding=1}{\vigClientNameShort.\vigProjectNameShort.}\
+%Installation Guide.\vigDocumentRevision
 
-\ifthenelse{\vigClientBranding=1}{
-\textbf{Customer:} \vigClientName\\
-\textbf{Project:} \vigProjectName\\
-\textbf{Attn:} \vigAttn
-}
+%\end{flushleft}
 
-\vspace{8em}
-
-\textbf{\Huge \vigProjectName}\\
-\textbf{\Huge Installation Guide}\\
-\todayYMD.VIG.\ifthenelse{\vigClientBranding=1}{\vigClientNameShort.\vigProjectNameShort.}Installation Guide.\vigDocumentRevision
-
-\end{flushleft}
-
-\vfill
-\begin{center}
-{\large \svndate}
-\end{center}
+%\vfill
+%
+%{\large \today}
+%\end{center}
 
 \end{titlepage}
 
@@ -92,7 +94,7 @@ The information provided here, including but not limited by creative, technical,
 
 Any disclosure, copying, distribution or any action taken or omitted to be taken in reliance on it, is prohibited and may be illegal.
 
-\copyright Vide Infra Grupa, \the\year
+\copyright Vide Infra Grupa%, \the\year
 
 \vspace{2em}
 
@@ -101,7 +103,8 @@ Baznicas 39-5, Riga\\
 LV-1010, Latvia\\
 Phone: + (371) 6 729 33 90\\
 Fax:  + (371) 6 729 33 45\\
-e-mail: \href{mailto:info@videinfra.com}{info@videinfra.com} \\
+%e-mail: \href{mailto:info@videinfra.com}{info@videinfra.com} \\
+e-mail: info@videinfra.com\\
 \url{http://www.videinfra.com}
 
 \section*{Authorship}
@@ -198,14 +201,12 @@ Additionally check and modify your php.ini file according to the requirements be
 
 Configure \textsf{mod\_deflate} module to compress these content types automatically if browser supports it:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 AddOutputFilterByType DEFLATE text/html text/plain text/xml
 AddOutputFilterByType DEFLATE text/css
 AddOutputFilterByType DEFLATE application/javascript
 AddOutputFilterByType DEFLATE application/rss+xml
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}\vspace{1em}
-
-
+\end{alltt}
 
 \subsection{Database Server}
 Operating system requirements are the same as for the Web Server.
@@ -220,9 +221,9 @@ Please refer to MySql documentation regarding database administration concepts s
 
 Enter the MySql console and create database user \textsf{supra} with the chosen password. Choose strong not guessable password if the database server can be used by other applications.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-  CREATE USER 'supra'@'\%' IDENTIFIED BY '<password>';
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\begin{alltt}
+CREATE USER 'supra'@'\%' IDENTIFIED BY '<password>';
+\end{alltt}
 
 The server must be configured to accept connections from the Web Server.
 
@@ -254,9 +255,9 @@ Apache Solr 3.5 or later from version 3 branch must be installed. Installation g
 
 The content from the \textsf{\vigPathToProject\vigPathToSrc/conf/solr/} must be copied to solr configuration folder:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ cp -R \vigPathToProject\vigPathToSrc/conf/solr/* /opt/solr/solr/conf/
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 Solr service must be restarted after these changes.
 
@@ -270,12 +271,12 @@ Solr service must be restarted after these changes.
 
 Extract \textbf{web} component's archive file. The below examples assume web application destination folder is \textsf{{\vigPathToProject}}.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ cp {\vigPackageName}.web.X.Y.Z.zip \vigPathToProject/
 \$ cd \vigPathToProject/
 \$ unzip {\vigPackageName}.web.X.Y.Z.zip
 \$ rm {\vigPackageName}.web.X.Y.Z.zip
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \note{Initial content must be provided inside web package. Uncomment "copy files" section if differs.}
 
@@ -283,29 +284,29 @@ Extract \textbf{web} component's archive file. The below examples assume web app
 %
 %Extract \textsf{\vigPackageName-X.Y.Z.files-private.zip} archive if such file is  provided:
 %
-%\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+%\begin{alltt}
 %\$ cp {\vigPackageName}-X.Y.Z.files-private.zip \vigPathToProject\vigPathToSrc/files/
 %\$ cd \vigPathToProject\vigPathToSrc/files/
 %\$ unzip {\vigPackageName}-X.Y.Z.files-private.zip
 %\$ rm {\vigPackageName}-X.Y.Z.files-private.zip
-%\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+%\end{alltt}
 %
 %Extract \textsf{\vigPackageName-X.Y.Z.files.zip} archive if such file is provided:
 %
-%\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+%\begin{alltt}
 %\$ cp {\vigPackageName}-X.Y.Z.files.zip \vigPathToProject\vigPathToWebroot/files
 %\$ cd \vigPathToProject\vigPathToWebroot/files
 %\$ unzip {\vigPackageName}-X.Y.Z.files.zip
 %\$ rm {\vigPackageName}-X.Y.Z.files.zip
-%\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+%\end{alltt}
 
 \subsubsection{Change Files and Folders Owner\label{fileOwnerSection}}
 
 Run the command below to set the Apache user as the owner of all application files and folders:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ chown -R httpd \vigPathToProject
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 Example assumes the Apache is run under \textsf{httpd} user.
 
@@ -331,55 +332,55 @@ Enter MySql console using the MySql root user.
 
 Create database by running the following statement:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-  mysql> CREATE DATABASE \vigProjectNameShort CHARACTER SET UTF8;
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\begin{alltt}
+mysql> CREATE DATABASE \vigProjectNameShort CHARACTER SET UTF8;
+\end{alltt}
 
 Grant full permissions to the database for \textsf{supra} MySql user:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-  mysql> GRANT ALL ON \vigProjectNameShort.* TO supra@'\%';
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\begin{alltt}
+mysql> GRANT ALL ON \vigProjectNameShort.* TO supra@'\%';
+\end{alltt}
 
 For more security permission can be granted for Web Server host only. Please refer to MySql manual for more information.
 
 \subsubsection{Database Installation}
 Extract database component archive and install database by executing the extracted SQL script file from the MySql console.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ unzip {\vigPackageName}.dump.X.Y.Z.zip
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
-  mysql> use \vigProjectNameShort;
-  mysql> \textbackslash. {\vigPackageName}.dump.X.Y.Z.sql
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\begin{alltt}
+mysql> use \vigProjectNameShort;
+mysql> \textbackslash. {\vigPackageName}.dump.X.Y.Z.sql
+\end{alltt}
 
 \section{Reindex Search}
 Rebuild of search index is required when the database is installed for the first time. Depending on database size, rebuilding of search index may take several minutes. It can be done by running these commands:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe
 \$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe_queues
 \$ /usr/bin/php \vigPathToProject/bin/supra su:search:queue_all_pages
 \$ /usr/bin/php \vigPathToProject/bin/supra su:search:run_indexer
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsection{Scheduled Task Configuration}
 
 Application needs a scheduled task to be installed on the Web Server. The command
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ /usr/bin/php \vigPathToProject/bin/supra su:cron
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 must be run periodically. Recommended period is 1 minute.
 
 Sample \textsf{crontab} configuration line:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 * * * * * /usr/bin/php \vigPathToProject/bin/supra su:cron
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsection{Apache HTTP Server Host Configuration}
 
@@ -387,7 +388,7 @@ Project may be configured in Apache HTTP Server as virtual host. This is recomme
 
 Below is an example of the configuration. The actual configuration of virtual host may vary depending on system specific settings.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 <VirtualHost *:80>
   ServerAdmin administrator@company.com
   DocumentRoot "\vigPathToProject\vigPathToWebroot"
@@ -408,20 +409,20 @@ Below is an example of the configuration. The actual configuration of virtual ho
   RewriteRule ^ - [L,NS]
   RewriteRule ^(.*)\$ /index.php\$1 [L,NS]
 </VirtualHost>
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}\vspace{1em}
+\end{alltt}
 
 Also .htaccess based configuration is possible. The Apache DocumentRoot directive must point to the folder "\vigPathToProject\vigPathToWebroot" and the .htaccess file must be placed inside it.
 
 Example of such configuration:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 RewriteEngine on
 RewriteCond \%\{REQUEST_FILENAME\}.less -f
 RewriteRule ^(.*\textbackslash.css)\$ /cms/lib/supra/combo/combo.php?\$1 [L,NS]
 RewriteCond \%\{REQUEST_FILENAME\} -f
 RewriteRule ^(.*)\$ - [L,NS]
 RewriteRule ^(.*)\$ index.php/\$1 [L,NS]
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \section{Upgrade Procedure}
 
@@ -431,26 +432,26 @@ Always backup content folders and database prior to upgrade. The website will no
 \subsection{Stop Web Server}
 Shut down Apache HTTP Server. The command can differ depending on the Apache HTTP Server installation path and method.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ apachectl stop
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsection{Web Component Upgrade}
 
 \subsubsection{Backup Web Application}
 Backup your current product web component:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ mv \vigPathToProject \vigPathToProject.bak
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsubsection{Install Web Application}
 Extract \textbf{web} package in your product installation directory:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ mkdir \vigPathToProject
 \$ unzip {\vigPackageName}.web.X.Y.Z.zip -d \vigPathToProject
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsubsection{Configure Web Application}
 Edit \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini} file. You may copy individual values from the old version of the file. Do not copy entire file from the old version because new release configuration file might contain new configuration properties and application might not start when these properties will be missing.
@@ -458,10 +459,10 @@ Edit \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini} file. You may copy i
 \subsubsection{Copy Content from Backup}
 Copy content folder from the backup:
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ cp -a \vigPathToProject.bak\vigPathToSrc/files/* \vigPathToProject\vigPathToSrc/files/
 \$ cp -a \vigPathToProject.bak\vigPathToSrc/webroot/files/* \vigPathToProject\vigPathToSrc/webroot/files/
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 \subsubsection{Change Files and Folders Owner}
 
@@ -482,9 +483,9 @@ To upgrade the database component follow the next steps:
 \subsection{Start Web Server}
 Start Apache HTTP Server. The command can differ depending on the Apache HTTP Server installation path and method.
 
-\setlength\fboxsep{0.5em}\setbox0=\vbox{\vspace*{-\baselineskip}\begin{alltt}
+\begin{alltt}
 \$ apachectl start
-\end{alltt}\vspace*{-\baselineskip}}\fbox{\box0}
+\end{alltt}
 
 
 \end{document}
