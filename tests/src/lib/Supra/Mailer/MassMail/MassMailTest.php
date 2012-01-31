@@ -94,57 +94,56 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		);
 	}
 
-	
-	public function testCreateSubscriberListsCampaign(){
-		
+	public function testCreateSubscriberListsCampaign()
+	{
+
 		$massMail = new MassMail();
-		
+
 		//create list
 		$list = $massMail->getSubscriberListManager()
 				->createList('test list');
-		
+
 		//create campaign
 		$campaign = $massMail->getCampaignManager()
 				->createCampaign('test campaign', $list);
-		
-		
+
+
 		$campaign->setSubject('test campaign');
 		$campaign->setFromName('test sender');
 		$campaign->setFromEmail('test.sender@test.test');
 		$campaign->setReplyTo('test.reply.to@test.test');
-		
-		
+
+
 		$campaign->setHtmlContent('<h1>Test content</h1>');
-		
-		
+
+
 		//create subscriber
 		$subscriber = $massMail->getSubscriberManager()
 				->createSubscriber('test.user@test.test', 'test user', true);
-		
+
 		//subscribe to list
 		$massMail->getSubscriberManager()
 				->addToList($subscriber, $list);
-		
+
 		//store data
 		$massMail->flush();
-		
+
 		//send campaign
 		$massMail->populateSendQueue($campaign);
-		
+
 		//store data
 		$massMail->flush();
 
 		$massMail->getSendQueueManager()->send();
-		
+
 		//Drop test data
 		$massMail->getCampaignManager()->dropCampaign($campaign);
 		$massMail->getSubscriberListManager()->dropList($list);
 		$massMail->getSubscriberManager()->dropSubscriber($subscriber);
-		
+
 		$massMail->flush();
 	}
-	
-	
+
 }
 
 ?>
