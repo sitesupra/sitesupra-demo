@@ -31,17 +31,6 @@
 					<label for="layout">{#settings.page_layout#}</label>
 					<input type="text" name="layout" id="layout" value="" suValueMask="^[0-9a-zA-Z\-\_\.\/\\]*$" />
 					
-					<!-- div class="input-group input-group-button">
-						<button type="button" class="button-version"><p>
-							{#settings.version#}<br />
-							<small>
-								<b></b><br />
-								{#settings.last_change#} <span></span>
-							</small>
-						</p></button>
-						<input type="hidden" name="version_id" />
-					</div -->
-					
 					<a class="button-section button-meta" tabindex="0" data-target="slideMeta">
 						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo-inactive.png" class="inactive" />
 						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo.png" class="active" />
@@ -106,18 +95,7 @@
 						<option value="1">1</option>
 					</select>
 				
-				</div><!-- div id="slideVersion" class="hidden">
-				
-					<h3>{#settings.version_title#}</h3>
-					<div class="version-list">
-						<ul></ul>
-						<div class="clear"></div>
-						<div class="version-list-buttons">
-							<button type="button" class="button-new-version"><p>{#settings.new_version#}</p></button>
-						</div>
-					</div>
-				
-				</div --><div id="slideTemplate" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-template.png" data-title="{#settings.template_title#}">
+				</div><div id="slideTemplate" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-template.png" data-title="{#settings.template_title#}">
 				
 					<ul class="template-list"></ul>
 					<div class="clear"><!-- --></div>
@@ -142,7 +120,7 @@
 				</div><div id="slideRedirect" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-redirect.png" data-title="{#settings.redirect_title#}">
 			
 					<label for="redirect_type" class="hidden"></label>
-					<select name="redirect_type" id="redirect_type" value="">
+					<select name="redirect_type" id="redirect_type" value="" suType="SelectList">
 						<option value="off">{#settings.redirect_off#}</option>
 						<option value="relative">{#settings.redirect_relative#}</option>
 						<option value="fixed">{#settings.redirect_fixed#}</option>
@@ -151,7 +129,7 @@
 				</div><div id="slideRedirectRelative" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-redirect.png" data-title="{#settings.redirect_relative_title#}">
 			
 					<label for="relative_redirect" class="hidden"></label>
-					<select name="relative_redirect" id="relative_redirect" value="">
+					<select name="relative_redirect" id="relative_redirect" value="" suType="SelectList">
 						<option value="first">{#settings.redirect_first#}</option>
 						<option value="last">{#settings.redirect_last#}</option>
 					</select>

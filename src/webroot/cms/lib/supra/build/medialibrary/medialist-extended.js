@@ -299,7 +299,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			content.delegate('click', this.edit.handleRenameClick, 'ul.folder > li.type-folder', this.edit);
 			
 			//On list click close folder
-			content.delegate('click', this.handleCloseFolderClick, 'div.yui3-slideshow-multiview-slide', this);
+			content.delegate('click', this.handleCloseFolderClick, 'div.su-multiview-slide', this);
 			
 			//On item render set up form
 			this.on('itemRender', this.handleItemRender, this);
@@ -430,7 +430,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			if (target.closest('ul.folder')) return;
 			
 			// Get slide
-			target = target.closest('div.yui3-slideshow-multiview-slide');
+			target = target.closest('div.su-multiview-slide');
 			if (!target) return;
 			
 			var id = target.getData('itemId');

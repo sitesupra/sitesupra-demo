@@ -14,11 +14,11 @@
 	</div>
 	
 	<!-- Content -->
-	<div class="sidebar-content has-header"><form class="yui3-form-vertical">
+	<div class="sidebar-content has-header"><form suStyle="vertical">
 		
 		<!-- Slider -->
 		<div class="slideshow">
-			<div id="linkToRoot">
+			<div id="linkToRoot" suScrollable="false">
 				
 				<div class="title">
 					{#linkmanager.select#}
@@ -32,7 +32,7 @@
 			</div>
 			
 			<!-- Link to page -->
-			<div id="linkToPage" class="hidden">
+			<div id="linkToPage" class="hidden" suScrollable="false">
 				
 				<!-- Internal / External selector -->
 				<select id="linkManagerType" name="linktype" suType="SelectList">
@@ -73,7 +73,7 @@
 			</div>
 			
 			<!-- Link to file -->
-			<div id="linkToFile" class="hidden">
+			<div id="linkToFile" class="hidden" suScrollable="false">
 				
 				<div id="linkToFileMediaList"></div>
 				

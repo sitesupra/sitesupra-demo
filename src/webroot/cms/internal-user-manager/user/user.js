@@ -108,17 +108,17 @@ Supra('supra.slideshow', function (Y) {
 			//Create slides
 			var slide = null, action = null;
 			
-			slide = this.slideshow.addSlide('UserDetails')
+			slide = this.slideshow.addSlide({'id': 'UserDetails'})
 			action = Manager.getAction('UserDetails');
 			action.setPlaceHolder(slide.one('div'));
 			this.slideshow.set('slide', 'UserDetails');
 			
-			slide = this.slideshow.addSlide('UserPermissions')
+			slide = this.slideshow.addSlide({'id': 'UserPermissions'})
 			action = Manager.getAction('UserPermissions');
 			action.setPlaceHolder(slide.one('div'));
 			
 			/*
-			slide = this.slideshow.addSlide('UserStats')
+			slide = this.slideshow.addSlide({'id': 'UserStats'})
 			action = Manager.getAction('UserStats');
 			action.setPlaceHolder(slide.one('div'));
 			*/

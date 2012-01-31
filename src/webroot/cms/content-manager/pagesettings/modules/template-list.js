@@ -127,6 +127,12 @@ YUI.add("website.template-list", function (Y) {
 					return;
 				}
 			}, this);
+			
+			//Fire resize event
+			var scrollable = content.closest('.su-scrollable');
+			if (scrollable) {
+				scrollable.fire('contentResize');
+			}
 		}
 	});
 	

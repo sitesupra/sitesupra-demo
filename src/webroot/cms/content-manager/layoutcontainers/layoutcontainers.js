@@ -103,7 +103,8 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 						this.setActiveAction(null);
 					}
 					
-					this.fire('resize');
+					this.fire('contentResize');
+					this.one().fire('contentResize');
 				}
 			}, this);
 		},
@@ -152,7 +153,8 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 					if (this.layout) {
 						this.layout.syncUI();
 					} else {
-						this.fire('resize');
+						this.fire('contentResize');
+						this.one().fire('contentResize');
 					}
 				} else if (this.CAN_HIDE) {
 					this.hide();
@@ -160,7 +162,8 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 					if (this.layout) {
 						this.layout.syncUI();
 					} else {
-						this.fire('resize');
+						this.fire('contentResize');
+						this.one().fire('contentResize');
 					}
 				}
 			} else {

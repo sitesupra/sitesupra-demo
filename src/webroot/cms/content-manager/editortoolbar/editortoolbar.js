@@ -187,7 +187,7 @@ SU('transition', 'supra.htmleditor', function (Y) {
 			//When animation ends hide it
 			Y.later(500, this, function () {
 				this.toolbar.set('visible', false);
-				Manager.getAction('LayoutTopContainer').fire('resize');
+				Manager.getAction('LayoutTopContainer').fire('contentResize');
 				Action.Base.prototype.hide.call(this);
 			});
 		},
@@ -206,7 +206,7 @@ SU('transition', 'supra.htmleditor', function (Y) {
 			
 			//Show toolbar and resize container
 			this.toolbar.set('visible', true);
-			Manager.getAction('LayoutTopContainer').fire('resize');
+			Manager.getAction('LayoutTopContainer').fire('contentResize');
 			
 			//Add empty button set to PageToolbar to hide buttons
 			var pagetoolbar = Manager.getAction('PageToolbar');

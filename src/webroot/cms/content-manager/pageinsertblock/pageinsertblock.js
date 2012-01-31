@@ -143,19 +143,19 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				group = data_groups[i];
 				
 				//Create slide
-				content = this.slideshow.addSlide(group.id);
+				content = this.slideshow.addSlide({'id': group.id});
 				content.setAttribute('data-title', group.title);
 				content.setAttribute('data-icon', ICON_GROUP_PATH + group.id + '.png');
 				content.addClass('button-item-list');
 				
-				contents[group.id] = content.one('.yui3-slideshow-slide-content');
+				contents[group.id] = content.one('.su-slide-content');
 				contents[group.id].append(DRAG_TEMPLATE({}));
 				
 				//
 				group_html += GROUP_TEMPLATE(group);
 			}
 			
-			main_content.one('.yui3-slideshow-slide-content').append(group_html);
+			main_content.one('.su-slide-content').append(group_html);
 			
 			//Create block items
 			i = 0;
@@ -287,8 +287,8 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			
 			//Check if opening block description and create slide
 			if (this.data[id]) {
-				var node = this.slideshow.addSlide(id, true),
-					content = node.one('div');
+				var node = this.slideshow.addSlide({'id': id, 'removeOnHide': true}),
+					content = node.one('div.su-slide-content');
 				
 				content.append(PREVIEW_TEMPLATE(this.data[id]));
 				

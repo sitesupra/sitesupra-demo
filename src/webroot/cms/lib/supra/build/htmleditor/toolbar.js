@@ -249,7 +249,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				
 			}
 			
-			this.fire('resize');
+			this.fire('contentResize');
 			
 			return r;
 		},

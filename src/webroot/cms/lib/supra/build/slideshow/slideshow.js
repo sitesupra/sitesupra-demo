@@ -2,8 +2,6 @@
 "use strict";
 
 YUI.add('supra.slideshow', function (Y) {
-	//Shortcut
-	var getClass = Y.ClassNameManager.getClassName;
 	
 	/**
 	 * Slideshow class 
@@ -15,6 +13,7 @@ YUI.add('supra.slideshow', function (Y) {
 		Slideshow.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 		
+		this.render_queue = [];
 		this.history = [];
 		this.slides = {};
 		this.remove_on_hide = {};
@@ -22,6 +21,7 @@ YUI.add('supra.slideshow', function (Y) {
 	}
 	
 	Slideshow.NAME = 'slideshow';
+	Slideshow.CSS_PREFIX = 'su-' + Slideshow.NAME;
 	
 	Slideshow.ATTRS = {
 		/**
@@ -107,6 +107,15 @@ YUI.add('supra.slideshow', function (Y) {
 		history: [],
 		
 		/**
+		 * Children widgets which needs to be rendered
+		 * on slideshow renderUI
+		 * @type {Array}
+		 */
+		render_queue: [],
+		
+		
+		
+		/**
 		 * Render UI
 		 */
 		renderUI: function () {
@@ -116,8 +125,8 @@ YUI.add('supra.slideshow', function (Y) {
 			if (slides) {
 				slides.each(function () {
 					var id = this.get('id');
-					var bound = Y.Node.create('<div class="' + getClass(Slideshow.NAME, 'slide') + '"></div>');
-					this.addClass(getClass(Slideshow.NAME, 'slide', 'content'));
+					var bound = Y.Node.create('<div class="su-slide"></div>');
+					this.addClass('su-slide-content');
 					this.insert(bound, 'before');
 					bound.append(this);
 					newSlides[id] = bound;
@@ -125,6 +134,16 @@ YUI.add('supra.slideshow', function (Y) {
 					if (this.hasClass('hidden')) {
 						this.removeClass('hidden');
 						bound.addClass('hidden');
+					}
+					
+					//Add scrollbar
+					if (this.getAttribute('suScrollable') != 'false') {
+						var scrollable = new Supra.Scrollable({
+							'srcNode': this
+						});
+						
+						scrollable.render();
+						bound.setData('scrollable', scrollable);
 					}
 				});
 				
@@ -154,6 +173,13 @@ YUI.add('supra.slideshow', function (Y) {
 					this.scrollTo(e.newVal);
 				}
 			}, this);
+			
+			//Render Supra.Scrollable widgets
+			var render_queue = this.render_queue;
+			for(var i=0,ii=render_queue.length; i<ii; i++) {
+				render_queue[i].render();
+			}
+			this.render_queue = [];
 		},
 		
 		syncUI: function () {
@@ -164,6 +190,14 @@ YUI.add('supra.slideshow', function (Y) {
 			this.slide_width = this._getWidth();
 			
 			this.get('contentBox').set('scrollLeft', index * this.slide_width);
+			
+			//Update scrollbar position
+			if (this.slides[slideId]) {
+				var content = this.slides[slideId].one('.su-slide-content');
+				if (content) {
+					content.fire('contentResize');
+				}
+			}
 		},
 		
 		/**
@@ -223,6 +257,16 @@ YUI.add('supra.slideshow', function (Y) {
 				this.anim.set('from', {'scroll': [from, 0]});
 				this.anim.set('to', {'scroll': [to, 0]});
 				this.anim.run();
+				
+				//Update Supra.Scrollable
+				Y.later(16, this, function () {
+					if (this.slides[slideId]) {
+						var content = this.slides[slideId].one('.su-slide-content');
+						if (content) {
+							content.fire('contentResize');
+						}
+					}
+				});
 			} else {
 				if (oldSlideId in this.slides) {
 					if (oldSlideId in this.remove_on_hide) {
@@ -267,25 +311,49 @@ YUI.add('supra.slideshow', function (Y) {
 		/**
 		 * Adds slide to the slideshow
 		 * 
-		 * @param {String} slideId Slide ID
+		 * @param {Object} options Slide options
 		 * @param {Boolean} remove_on_hide Remove slide when it's hidden
 		 * @return Slide boundingBox node
 		 * @type {Object}
 		 */
-		addSlide: function (slideId, remove_on_hide) {
-			if (!slideId) return null;
+		addSlide: function (options) {
+			var options = Supra.mix({
+				'id': null,
+				'removeOnHide': false,
+				'scrollable': true
+			}, Y.Lang.isObject(options) ? options : {'id': options});
 			
-			if (remove_on_hide) {
+			if (!options.id) return null;
+			var slideId = options.id;
+			
+			if (options.removeOnHide) {
 				this.remove_on_hide[slideId] = true;
 			}
 			
 			if (!(slideId in this.slides)) {
-				var classSlide = getClass(Slideshow.NAME, 'slide'),
-					classContent = getClass(Slideshow.NAME, 'slide', 'content'),
-					slide = this.slides[slideId] = Y.Node.create('<div class="hidden ' + classSlide + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
+				var slide = this.slides[slideId] = Y.Node.create('\
+														<div class="hidden su-slide">\
+															<div id="' + slideId + '" class="su-slide-content"></div>\
+														</div>');
 				
 				this.slides[slideId] = slide;
 				this.get('contentBox').append(slide);
+				
+				//Add scrollbar
+				if (options.scrollable) {
+					var slideContent = slide.one('.su-slide-content'),
+						scrollable = new Supra.Scrollable({
+							'srcNode': slideContent
+						});
+					
+					slide.setData('scrollable', scrollable);
+					
+					if (this.get('rendered')) {
+						scrollable.render();
+					} else {
+						this.render_queue.push(scrollable);
+					}
+				}
 				
 				//If there are no slides, then make this as main
 				if (!this.get('slide')) {
@@ -383,4 +451,4 @@ YUI.add('supra.slideshow', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'anim']});
+}, YUI.version, {requires:['widget', 'anim', 'supra.scrollable']});

@@ -411,7 +411,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.slideshow': {
 		path: 'slideshow/slideshow.js',
-		requires: ['widget', 'anim', 'supra.slideshow-input-button'],
+		requires: ['widget', 'anim', 'supra.slideshow-input-button', 'supra.scrollable'],
 		skinnable: true
 	},
 	'supra.slideshow-multiview': {
@@ -421,6 +421,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.slideshow-input-button': {
 		path: 'slideshow/slideshow-input-button.js',
 		requires: ['supra.input-proto']
+	},
+	
+	/**
+	 * Scrollbar widget
+	 */
+	'supra.scrollable': {
+		path: 'scrollable/scrollable.js',
+		requires: ['widget'],
+		skinnable: true
 	},
 	
 	/**

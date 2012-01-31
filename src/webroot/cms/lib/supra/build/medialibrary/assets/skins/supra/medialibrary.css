@@ -281,10 +281,10 @@
 /**
  * Slideshow
  */
-.yui3-medialist .yui3-slideshow-multiview ul.folder > li {
+.yui3-medialist .su-slideshow-multiview ul.folder > li {
 	border-top: 0;
 }
-.yui3-medialist .yui3-slideshow-multiview ul.folder > li.selected {
+.yui3-medialist .su-slideshow-multiview ul.folder > li.selected {
 	background: #CDECFF;
 }
 
@@ -326,7 +326,7 @@
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 }
-.yui3-medialist .yui3-slideshow-multiview ul.folder > li.yui3-html5-dd-target {
+.yui3-medialist .su-slideshow-multiview ul.folder > li.yui3-html5-dd-target {
 	border: 1px solid #41AFF2;
 	background: #fff;
 	box-shadow: 0 0 5px #CDECFF;

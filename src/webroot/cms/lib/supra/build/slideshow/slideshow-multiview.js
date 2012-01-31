@@ -7,8 +7,6 @@
  */
 YUI.add('supra.slideshow-multiview', function (Y) {
 	//Shortcut
-	var getClass = Y.ClassNameManager.getClassName;
-	
 	var DEFAULT_SLIDE_WIDTH = 400;
 	
 	/**
@@ -21,6 +19,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		Slideshow.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 		
+		this.render_queue = [];
 		this.history = [];
 		this.slides = {};
 		this.removeOnHide = {};
@@ -28,6 +27,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 	}
 	
 	Slideshow.NAME = 'slideshow-multiview';
+	Slideshow.CSS_PREFIX = 'su-' + Slideshow.NAME;
 	
 	Slideshow.ATTRS = {
 		/**
@@ -127,6 +127,15 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		history: [],
 		
 		/**
+		 * Children widgets which needs to be rendered
+		 * on slideshow renderUI
+		 * @type {Array}
+		 */
+		render_queue: [],
+		
+		
+		
+		/**
 		 * Render UI
 		 */
 		renderUI: function () {
@@ -136,8 +145,8 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 			if (slides) {
 				slides.each(function () {
 					var id = this.get('id');
-					var bound = Y.Node.create('<div class="' + getClass(Slideshow.NAME, 'slide') + '"></div>');
-					this.addClass(getClass(Slideshow.NAME, 'slide', 'content'));
+					var bound = Y.Node.create('<div class="su-multiview-slide"></div>');
+					this.addClass('su-multiview-slide-content');
 					this.insert(bound, 'before');
 					bound.append(this);
 					newSlides[id] = bound;
@@ -180,6 +189,13 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 					this.scrollTo(e.newVal);
 				}
 			}, this);
+			
+			//Render Supra.Scrollable widgets
+			var render_queue = this.render_queue;
+			for(var i=0,ii=render_queue.length; i<ii; i++) {
+				render_queue[i].render();
+			}
+			this.render_queue = [];
 		},
 		
 		syncUI: function () {},
@@ -327,33 +343,25 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		 * @return Slide boundingBox node
 		 * @type {Object}
 		 */
-		addSlide: function (slideId, removeOnHide) {
-			if (!slideId) return null;
-			
-			//Convert arguments into options object
-			var options = slideId;
-			if (!Y.Lang.isObject(slideId)) {
-				options = {
-					'slideId': slideId,
-					'removeOnHide': !!removeOnHide
-				};
-			}
-			
-			slideId = options.slideId;
-			
-			options = Supra.mix({
+		addSlide: function (options) {
+			var options = Supra.mix({
+				'id': null,
+				'removeOnHide': false,
+				'scrollable': true,
 				'className': '',
 				'width': DEFAULT_SLIDE_WIDTH
-			}, options);
+			}, Y.Lang.isObject(options) ? options : {'id': options});
 			
+			if (!options.id) return null;
+			var slideId = options.id;
 			
 			if (options.removeOnHide) {
 				this.removeOnHide[slideId] = true;
 			}
 			
 			if (!(slideId in this.slides)) {
-				var classSlide = getClass(Slideshow.NAME, 'slide'),
-					classContent = getClass(Slideshow.NAME, 'slide', 'content'),
+				var classSlide = 'su-multiview-slide',
+					classContent = 'su-multiview-slide-content',
 					slide = this.slides[slideId] = Y.Node.create('<div class="hidden ' + classSlide + ' ' + options.className + '"><div id="' + slideId + '" class="' + classContent + '"></div></div>');
 				
 				slide.setStyle('width', options.width + 'px');
@@ -361,6 +369,22 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				
 				this.slides[slideId] = slide;
 				this.get('contentBox').prepend(slide);
+				
+				//Add scrollbar
+				if (options.scrollable) {
+					var slideContent = slide.one('.su-slide-content'),
+						scrollable = new Supra.Scrollable({
+							'srcNode': slideContent
+						});
+					
+					slide.setData('scrollable', scrollable);
+					
+					if (this.get('rendered')) {
+						scrollable.render();
+					} else {
+						this.render_queue.push(scrollable);
+					}
+				}
 				
 				//If there are no slides, then make this as main
 				if (!this.get('slide')) {

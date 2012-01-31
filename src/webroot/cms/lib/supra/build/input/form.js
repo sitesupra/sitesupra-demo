@@ -402,13 +402,14 @@ YUI.add("supra.form", function (Y) {
 			this.inputs_definition = definitions;
 			
 			//Style
-			this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, "default"));
 			var style = this.get("style");
 			if (!style) {
 				style = this.get("srcNode").getAttribute("suStyle") || "";
 			}
 			if (style) {
 				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
+			} else {
+				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, "default"));
 			}
 		},
 		

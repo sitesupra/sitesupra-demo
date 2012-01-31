@@ -57,7 +57,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 			if (throttle) {
 				this.sync_function = this._sync_fn = this.throttle(this.syncUI, throttle, this);
 			} else {
-				this.sync_function = this.syncUI();
+				this.sync_function = Y.bind(this.syncUI, this);
 			}
 			
 			this.sync_function();
@@ -165,7 +165,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 */
 		addOffset: function (widget, node, pos, margin) {
 			if (widget.after) {
-				widget.after('resize', this.sync_function, this);
+				widget.after('contentResize', this.sync_function, this);
 				widget.after('visibleChange', function (evt) {
 					if (evt.prevVal != evt.newVal) {
 						this.sync_function(evt);

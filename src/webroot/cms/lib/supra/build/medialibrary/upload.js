@@ -254,7 +254,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				folder_id = node.getData('itemId');
 				folder_node = node;
 			} else {
-				node = target.closest('div.yui3-slideshow-multiview-slide, div.yui3-slideshow-slide');
+				node = target.closest('div.su-multiview-slide, div.su-slide');
 				if (node) {
 					node = node.one('ul.folder,div.empty');
 					if (node) {

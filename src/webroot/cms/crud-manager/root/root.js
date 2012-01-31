@@ -102,7 +102,7 @@ Supra(
 		 * @type {Object}
 		 */
 		getDataGridContainer: function (id) {
-			return this.slideshow.addSlide('datagrid-' + id);
+			return this.slideshow.addSlide({'id': 'datagrid-' + id});
 		},
 		
 		/**
@@ -113,7 +113,7 @@ Supra(
 		 * @type {Object}
 		 */
 		getFormContainer: function (id) {
-			return this.slideshow.addSlide('form-' + id).one('div');
+			return this.slideshow.addSlide({'id': 'form-' + id}).one('div');
 		},
 		
 		/**

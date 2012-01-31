@@ -1,4 +1,4 @@
-.permissions .yui3-slideshow-multiview {
+.permissions .su-slideshow-multiview {
 	left: 292px;
 	top: 32px;
 	position: absolute;
@@ -9,7 +9,7 @@
 	height: auto;
 }
 
-.permissions .yui3-slideshow-multiview-slide:first-child {
+.permissions .su-multiview-slide:first-child {
 	border-right: 0;
 }
 

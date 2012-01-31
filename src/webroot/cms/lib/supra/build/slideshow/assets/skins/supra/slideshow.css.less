@@ -1,0 +1,61 @@
+@import "/cms/lib/supra/less/common.less";
+
+/**
+ * Slideshow
+ */
+.su-slideshow {
+	&,
+	.su-slideshow-content {
+		height: 100%;
+		width: 100%;
+		position: relative;
+	}
+	.su-slideshow-content {
+		overflow: hidden;
+	}
+	.su-slide {
+		.box-sizing (border-box);
+		
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+/**
+ * Multi-view slideshow
+ */
+.su-slideshow-multiview {
+	&,
+	.su-slideshow-multiview-content {
+		height: 100%;
+		width: 100%;
+		position: relative;
+		overflow: hidden;
+	}
+	.su-slideshow-multiview-content {
+		width: 9000px;
+	}
+	.su-multiview-slide {
+		.box-sizing (border-box);
+		
+		position: absolute;
+		z-index: 1;
+		top: 0;
+		left: 0;
+		width: 399px;
+		height: 100%;
+		border-right: 1px solid #eee;
+		background: #fff;
+	}
+}
+
+/**
+ * Hidden state
+ */
+.su-slideshow-hidden,
+.su-slideshow-multiview-hidden {
+	display: none;
+}

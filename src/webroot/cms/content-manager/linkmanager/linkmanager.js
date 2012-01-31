@@ -201,7 +201,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 				this.slideshow.after('slideChange', this.onMainSlideChange, this);
 				
 				//When layout position/size changes update slide position
-				Manager.LayoutLeftContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
+				Manager.LayoutLeftContainer.layout.after('sync', this.slideshow.syncUI, this.slideshow);
 				
 				//On main slide link click open specific slide
 				var links = this.all('#linkToRoot a[data-slideshow]');
@@ -358,7 +358,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						this.form.getInput('href').on('change', this.updateInsertButton, this);
 						
 						//When layout position/size changes update slide position
-						Manager.LayoutLeftContainer.layout.on('sync', this.link_slideshow.syncUI, this.link_slideshow);
+						Manager.LayoutLeftContainer.layout.after('sync', this.link_slideshow.syncUI, this.link_slideshow);
 						
 						this.link_slideshow.on('slideChange', this.updateInsertButton, this);
 						
@@ -381,6 +381,11 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
 						this.tree.render();
 						this.tree.set('loading', true);
+						
+						//Update scrollbars on toggle
+						this.tree.on('toggle', function () {
+							this.get('boundingBox').closest('.su-scrollable-content').fire('contentResize');
+						});
 						
 						//On node change update button label
 						this.tree.after('selectedNodeChange', this.updateInsertButton, this);
@@ -672,6 +677,9 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 
 								var node = this.tree.getNodeBy(key, value);
 								if (node) this.tree.set('selectedNode', node);
+								
+								//Update scrollbars
+								this.tree.get('boundingBox').closest('.su-scrollable-content').fire('contentResize');
 							}, this);
 						} else {
 							this.tree.set('selectedNode', node);
@@ -854,7 +862,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 			};
 			
 			if (options) {
-				Supra.mix(this.options, options, true);
+				Supra.mix(this.options, options || {}, true);
 			}
 			
 			if (this.selectable.images || this.selectable.files) {
@@ -865,13 +873,11 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 			
 			//Move or restore slide container
 			if (!this.options.container) {
-				this.options.container = this.slideshow.get('contentBox');
+				this.slideshow.get('contentBox').append(this.slideshow.getSlide('linkToPage'));
 			} else {
 				this.options.hideToolbar = false;
+				this.options.container.append(this.slideshow.getSlide('linkToPage'));
 			}
-			
-			this.options.container.append(this.slideshow.getSlide('linkToPage'));
-			
 			
 			this.mode = this.options.mode;
 			this.selectable = this.options.selectable;
@@ -930,6 +936,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 			
 			if (!this.options.container) {
 				Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+				this.show();
 			}
 			
 			//Update UI

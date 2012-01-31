@@ -11,19 +11,8 @@ SU.addModule('website.template-list-css', {
 	type: 'css'
 });
 
-/*
-SU.addModule('website.version-list', {
-	path: 'pagesettings/modules/version-list.js',
-	requires: ['widget', 'website.version-list-css']
-});
-SU.addModule('website.version-list-css', {
-	path: 'pagesettings/modules/version-list.css',
-	type: 'css'
-});
-*/
 
-
-SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
+SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager;
@@ -92,14 +81,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 		 * @type {Object}
 		 */
 		template_list: null,
-		
-		/**
-		 * Version list object
-		 * @type {Object}
-		 */
-		/*
-		version_list: null,
-		*/
 		
 		/**
 		 * Page data
@@ -332,28 +313,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			}
 		},
 		
-		/**
-		 * When version slide is shown create widget, bind listeners
-		 */
-		/*
-		onSlideVersion: function (node) {
-			if (!this.version_list) {
-				this.version_list = new Supra.VersionList({
-					'srcNode': node.one('div.version-list'),
-					'requestUri': this.getActionPath() + 'versions' + Loader.EXTENSION_DATA
-				});
-				
-				this.version_list.render();
-				
-				this.version_list.on('change', function (e) {
-					this.page_data.version = e.version;
-					this.setFormValue('version', this.page_data);
-					this.slideshow.scrollBack();
-				}, this);
-			}
-		},
-		*/
-		
 		onSlideAdvanced: function (node, init) {
 			//Update button label
 			var node = this.one('div.button-created p');
@@ -380,7 +339,7 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			Supra.Manager.executeAction('LinkManager', value, {
 				'mode': 'page',
 				//Open in slide instead of LinkManager action
-				'container': this.slideshow.getSlide('slideRedirectFixed').one('.yui3-slideshow-slide-content')
+				'container': this.slideshow.getSlide('slideRedirectFixed').one('.su-slide-content')
 			});
 			
 			this.slideshow.set('slide', 'slideRedirectFixed');
@@ -505,12 +464,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			}
 			*/
 			
-			//Version button
-			/*
-			var button_version = new Supra.Button({'srcNode': buttons.filter('.button-version').item(0), 'style': 'large'});
-			button_version.render().on('click', function () { this.slideshow.set('slide', 'slideVersion'); }, this);
-			*/
-			
 			//Template button
 			this.button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'small-gray'});
 			this.button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
@@ -518,25 +471,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			// Redirect section button value
 			this.redirect_title = this.one('span.redirect-target');
 			this.redirect_title.one('.remove').on('click', this.removeRedirect, this);
-			
-			// Redirect select list
-			this.redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#redirect_type')});
-			this.redirect_select.render();
-				// Redirect "Off" button
-				this.redirect_select.buttons.off.on('click', function () { this.onRedirectClick(); }, this);
-				// Redirect "Relative" button
-				this.redirect_select.buttons.relative.on('click', function () {	this.onRedirectClick(); }, this);
-				// Redirect "Fixed" button
-				this.redirect_select.buttons.fixed.on('click', function () { this.onRedirectClick(); }, this);
-				this.redirect_select.buttons.fixed.addClass('page-settings-button-fixed');
-			
-			// Relative redirect select list
-			this.relative_redirect_select = new Supra.Input.SelectList({'srcNode': this.one('#relative_redirect')});
-			this.relative_redirect_select.render();
-				// Redirect -> Relative "First child" button
-				this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
-				// Redirect -> Relative "Last child" button
-				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
 			//Created settings button
 			var button_settings = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
@@ -564,9 +498,26 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					button_meta.set('disabled', evt.newVal);
 					button_schedule.set('disabled', evt.newVal);
 					button_settings.set('disabled', evt.newVal);
-					//button_version.set('disabled', evt.newVal);
 				}
 			}, this);
+			
+			// Redirect select lists
+			this.redirect_select = form.getInput('redirect_type');
+				// Redirect "Off" button
+				this.redirect_select.buttons.off.on('click', function () { this.onRedirectClick(); }, this);
+				// Redirect "Relative" button
+				this.redirect_select.buttons.relative.on('click', function () {	this.onRedirectClick(); }, this);
+				// Redirect "Fixed" button
+				this.redirect_select.buttons.fixed.on('click', function () { this.onRedirectClick(); }, this);
+				this.redirect_select.buttons.fixed.addClass('page-settings-button-fixed');
+			
+			// Relative redirect select list
+			this.relative_redirect_select = form.getInput('relative_redirect');
+				// Redirect -> Relative "First child" button
+				this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
+				// Redirect -> Relative "Last child" button
+				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
+			
 			
 			//When layout position/size changes update slide
 			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
@@ -651,11 +602,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 			var page_data = this.page_data;
 			this.form.setValues(page_data, 'id');
 			
-			//Set version info
-			/*
-			this.setFormValue('version', page_data);
-			*/
-			
 			if (this.getType() == 'page') {
 				//Templates doesn't have 'redirect' or 'template'
 				
@@ -730,11 +676,6 @@ SU('website.template-list', /*'website.version-list',*/ 'supra.input', 'supra.ca
 					this.redirect_select._setValue(redirect_value);
 					
 					break;
-				/*case 'version':
-					var node = this.one('.button-version small');
-					node.one('b').set('text', page_data.version.title);
-					node.one('span').set('text', page_data.version.author + ', ' + page_data.version.date);
-					break;*/
 				default:
 					var obj = {};
 					obj[key] = page_data[key];

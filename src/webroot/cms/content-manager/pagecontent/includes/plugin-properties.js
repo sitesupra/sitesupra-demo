@@ -288,7 +288,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var slideshow = this.initializeSlideshow(),
 				slide_main = null,
 				slide_id = 'propertySlideMain',
-				slide = slide_main = slideshow.getSlide(slide_id).one('.yui3-slideshow-slide-content');
+				slide = slide_main = slideshow.getSlide(slide_id).one('.su-slide-content');
 			
 			//Properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
@@ -311,7 +311,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 					
 					//Create slide and add button to inputs
 					if (!slide && properties[i].group) {
-						slide = slideshow.addSlide(slide_id);
+						slide = slideshow.addSlide({
+							'id': slide_id
+						});
+						
 						form_config.inputs.push({
 							'id': slide_id + '_button',
 							'label': properties[i].group,
@@ -354,7 +357,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Slideshow is used for grouping properties
 			var slideshow = new Supra.Slideshow(),
 				slide_id = null,
-				slide = slideshow.addSlide('propertySlideMain'),
+				slide = slideshow.addSlide({'id': 'propertySlideMain'}),
 				slide_main = slide;
 			
 			this.set('slideshow', slideshow);

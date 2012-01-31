@@ -799,7 +799,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (!slide) {
 				//File and image slides should be removed when not visible anymore
 				var remove_on_hide = !loading_folder;
-				slide = this.slideshow.addSlide('slide_' + id, remove_on_hide);
+				slide = this.slideshow.addSlide({
+					'id': 'slide_' + id,
+					'removeOnHide': true
+				});
 				
 				if (loaded) {
 					if (data && data.type == Data.TYPE_FOLDER) {
