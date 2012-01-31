@@ -1,6 +1,7 @@
 <?php
-
 namespace Supra\Mailer\MassMail\Manager;
+
+use Supra\ObjectRepository\ObjectRepository;
 
 class MassMailManager
 {
@@ -9,9 +10,12 @@ class MassMailManager
 	 */
 	protected $entityManager;
 
+	protected $log;
+	
 	function __construct($entityManager)
 	{
 		$this->setEntityManager($entityManager);
+		$this->log = ObjectRepository::getLogger($this);
 	}
 
 	public function setEntityManager($entityManager)

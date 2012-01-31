@@ -7,6 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class SendQueueManager extends MassMailManager
 {
+
 	public function __construct($entityManager)
 	{
 		parent::__construct($entityManager);
@@ -55,7 +56,12 @@ class SendQueueManager extends MassMailManager
 			$message->setFrom($queueItem->getEmailFrom(), $queueItem->getNameFrom());
 			$message->setReplyTo($queueItem->getReplyTo());
 			$message->setTo($queueItem->getEmailTo(), $queueItem->getNameTo());
-			$message->addPart($queueItem->getHtmlContent(), 'text/html');
+
+			$htmlBody = $queueItem->getHtmlContent();
+
+			if ( ! empty($htmlBody)) {
+				$message->addPart($queueItem->getHtmlContent(), 'text/html');
+			}
 
 			$textBody = $queueItem->getTextContent();
 
@@ -66,7 +72,6 @@ class SendQueueManager extends MassMailManager
 			$mailer->send($message);
 			$queueItem->setStatus(Entity\SendQueueItem::STATUS_SENT);
 		} catch (\Exception $e) {
-
 			$queueItem->setStatus(Entity\SendQueueItem::STATUS_ERROR_ON_SEND);
 			$this->log->error("Can't send email from Mass Mail; ", (string) $e);
 		}

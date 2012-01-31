@@ -6,7 +6,6 @@ use Supra\Mailer\MassMail\Entity;
 
 class MassMaillContent
 {
-
 	const TYPE_HTML_CONTENT = 10;
 	const TYPE_TEXT_CONTENT = 20;
 	const TYPE_SUBJECT = 30;
@@ -23,15 +22,6 @@ class MassMaillContent
 	 */
 	protected $type;
 
-	/**
-	 * replacement tags
-	 * @var array
-	 */
-	protected $commonReplacements = array(
-		'[[subscriberName]]',
-		'[[subscriberEmail]]',
-	);
-
 	public function __construct($type, $content)
 	{
 		$this->type = (int) $type;
@@ -46,12 +36,12 @@ class MassMaillContent
 	protected function getCommonReplacementsValues(Entity\Subscriber $subscriber)
 	{
 		$replacements = array(
-				$subscriber->getName(),
-				$subscriber->getEmailAddress());
-		
+			'[[subscriberName]]' => $subscriber->getName(),
+			'[[subscriberEmail]]' => $subscriber->getEmailAddress());
+
 		return $replacements;
 	}
-		
+
 	/**
 	 * Prepare (make replacements) content
 	 * @param Entity\Subscriber $subscriber
@@ -60,10 +50,7 @@ class MassMaillContent
 	public function getPreparedContent(Entity\Subscriber $subscriber)
 	{
 		//common replacement
-		$preparedContent = str_replace($this->commonReplacements, 
-				$this->getCommonReplacementsValues($subscriber), 
-				$this->content);
-
+		$preparedContent = strtr($this->content, $this->getCommonReplacementsValues($subscriber));
 
 		/**
 		 * @todo implement some content type-depended replacements
@@ -85,6 +72,6 @@ class MassMaillContent
 
 		return $preparedContent;
 	}
-	
+
 }
 
