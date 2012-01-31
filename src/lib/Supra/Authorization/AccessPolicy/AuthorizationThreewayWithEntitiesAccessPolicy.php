@@ -59,9 +59,9 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 		$subpropertyClass = $this->subpropertyClass;
 		$subpropertyClass::registerPermissions($this->ap);
-		
+
 		$permissionCheckAlias = $subpropertyClass::getAlias();
-		
+
 		$this->ap->registerApplicationNamespaceAlias($permissionCheckAlias, $this->applicationNamespace);
 
 		$this->subpropertyPermissionNames = array_keys($this->ap->getPermissionsForClass($subpropertyClass));
@@ -347,4 +347,30 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		return $entity;
 	}
 
+	/**
+	 * @param AbstractUser $user
+	 * @param AuthorizedEntityInterface $entity
+	 * @return array
+	 */
+	public function getPermissionStatusesForAuthorizedEntity(AbstractUser $user, $entity)
+	{
+		$ap = $this->ap;
+		
+		$permissions = $ap->getPermissionsForObject($entity);
+		$permissionNames = array_keys($permissions);
+		
+		$allAccessGranted = $this->isApplicationAllAccessGranted($user);
+		$someAccessGranted = $this->isApplicationSomeAccessGranted($user);
+		
+		$result = array_combine($permissionNames, array_fill(0, count($permissionNames), false));
+		
+		if($allAccessGranted) {
+			$result = array_combine($permissionNames, array_fill(0, count($permissionNames), true));
+		}
+		elseif($someAccessGranted) {
+			$result = $ap->getPermissionStatusesForAuthorizedEntity($user, $entity);
+		}
+
+		return $result;
+	}
 }

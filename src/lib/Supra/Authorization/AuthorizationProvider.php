@@ -242,7 +242,7 @@ class AuthorizationProvider
 	 * @param Object $object
 	 * @return array of Permission
 	 */
-	private function getPermissionsForObject($object)
+	public function getPermissionsForObject($object)
 	{
 		return $this->getPermissionsForClass($this->getObjectIdentity($object)->getType());
 	}
