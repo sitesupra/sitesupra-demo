@@ -111,11 +111,11 @@ class MassMail
 		$subscribers = $this->getSubscriberListManager()
 				->getActiveSubscribers($subscribersList);
 
-		$massMailContentHtml = new MassMaillContent(MassMaillContent::TYPE_HTML_CONTENT,
+		$massMailContentHtml = new MassMailContent(MassMailContent::TYPE_HTML_CONTENT,
 						$campaign->getHtmlContent());
-		$massMailContentText = new MassMaillContent(MassMaillContent::TYPE_TEXT_CONTENT,
+		$massMailContentText = new MassMailContent(MassMailContent::TYPE_TEXT_CONTENT,
 						$campaign->getTextContent());
-		$massMailContentSubject = new MassMaillContent(MassMaillContent::TYPE_SUBJECT,
+		$massMailContentSubject = new MassMailContent(MassMailContent::TYPE_SUBJECT,
 						$campaign->getSubject());
 
 		foreach ($subscribers as $subscriber) {

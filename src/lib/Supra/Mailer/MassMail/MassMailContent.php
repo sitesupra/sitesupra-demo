@@ -4,7 +4,7 @@ namespace Supra\Mailer\MassMail;
 
 use Supra\Mailer\MassMail\Entity;
 
-class MassMaillContent
+class MassMailContent
 {
 	const TYPE_HTML_CONTENT = 10;
 	const TYPE_TEXT_CONTENT = 20;
