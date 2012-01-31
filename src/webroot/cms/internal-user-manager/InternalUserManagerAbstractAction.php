@@ -83,8 +83,26 @@ class InternalUserManagerAbstractAction extends CmsAction
 		}
 
 		$id = $input->get($key);
-		$entity = $this->userProvider->findById($id);
-
+		
+		switch($className) {
+			case Entity\Group::CN():
+				$entity = $this->userProvider->findGroupById($id);
+				break;
+			case Entity\User::CN():
+				$entity = $this->userProvider->findUserById($id);
+				break;
+			
+			case Entity\AbstractUser::CN():
+				$entity = $this->userProvider->findUserById($id);
+				if (is_null($entity)) {
+					$entity = $this->userProvider->findGroupById($id);
+				}
+				break;
+			default:
+				throw new \Supra\User\Exception\RuntimeException('Incorrect entity was requested');
+		}
+		//$entity = $this->userProvider->findById($id);
+		
 		if ( ! $entity instanceof $className) {
 			throw new CmsException('internalusermanager.validation_error.user_not_exists');
 		}

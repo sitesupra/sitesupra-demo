@@ -4,7 +4,7 @@ namespace Supra\ObjectRepository;
 
 use Doctrine\ORM\EntityManager;
 use Supra\FileStorage\FileStorage;
-use Supra\User\UserProvider;
+use Supra\User\UserProviderAbstract;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Session\SessionNamespace;
 use Supra\Session\SessionManager;
@@ -42,7 +42,7 @@ class ObjectRepository
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_AUDIT_LOGGER = 'Supra\AuditLog\Writer\AuditLogWriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
-	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProvider';
+	const INTERFACE_USER_PROVIDER = 'Supra\User\UserProviderAbstract';
 	const INTERFACE_ENTITY_MANAGER = 'Doctrine\ORM\EntityManager';
 	const INTERFACE_SESSION_NAMESPACE_MANAGER = 'Supra\Session\SessionManager';
 	const INTERFACE_SESSION_NAMESPACE = 'Supra\Session\SessionNamespace';
@@ -626,7 +626,7 @@ class ObjectRepository
 	 * Get assigned user provider
 	 *
 	 * @param mixed $caller
-	 * @return UserProvider
+	 * @return UserProviderAbstract
 	 */
 	public static function getUserProvider($caller)
 	{
@@ -637,9 +637,9 @@ class ObjectRepository
 	 * Assign user provider instance to caller class
 	 *
 	 * @param mixed $caller
-	 * @param UserProvider $object 
+	 * @param UserProviderAbstract $object 
 	 */
-	public static function setUserProvider($caller, UserProvider $object)
+	public static function setUserProvider($caller, UserProviderAbstract $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_USER_PROVIDER);
 	}

@@ -47,6 +47,18 @@ class Group extends AbstractUser implements AuthorizedEntityInterface
 	{
 		return $this;
 	}
+	
+	/**
+	 * @param array $groupData
+	 */
+	public function fillFromArray(array $groupData) 
+	{
+		$this->id = $groupData['id'];
+		$this->creationTime = $groupData['creationTime'];
+		$this->modificationTime = $groupData['modificationTime'];
+		$this->isSuper = $groupData['isSuper'];
+		$this->name = $groupData['name'];
+	}
 
 	public static function getAlias()
 	{

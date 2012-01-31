@@ -3,119 +3,15 @@
 namespace Supra\User;
 
 use Supra\User\Entity;
-use Supra\ObjectRepository\ObjectRepository;
-use Doctrine\ORM\EntityManager;
-use Supra\Authentication\Adapter;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
-use Supra\Authentication\Exception\AuthenticationFailure;
-use Supra\Authentication\AuthenticationSessionNamespace;
-use Supra\Session\SessionManager;
+use Doctrine\ORM\UnitOfWork;
 
-class UserProvider
+class UserProvider extends UserProviderAbstract implements UserProviderInterface
 {
-	/**
-	 * Event names
-	 */
-	const EVENT_PRE_SIGN_IN = 'preSignIn';
-	const EVENT_POST_SIGN_IN = 'postSignIn';
-	const EVENT_PRE_SIGN_OUT = 'preSignOut';
-	const EVENT_POST_SIGN_OUT = 'postSignOut';
 	
 	/**
-	 * Validation filters
-	 * @var array 
-	 */
-	private $validationFilters = array();
-
-	/**
-	 * Entity manager
-	 * @var EntityManager 
-	 */
-	private $entityManager;
-
-	/**
-	 * Authentication adapter
-	 * @var Adapter\AuthenticationAdapterInterface
-	 */
-	protected $authAdapter;
-
-	/**
-	 * @return EntityManager
-	 */
-	private function getEntityManager()
-	{
-		return ObjectRepository::getEntityManager($this);
-	}
-	
-	/**
-	 * @return SessionManager
-	 */
-	public function getSessionManager()
-	{
-		$manager = ObjectRepository::getSessionManager($this);
-		
-		return $manager;
-	}
-	
-	/**
-	 * @return AuthenticationSessionNamespace
-	 */
-	public function getSessionSpace()
-	{
-		$session = $this->getSessionManager()
-				->getAuthenticationSpace();
-		
-		return $session;
-	}
-
-	/**
-	 * Adds validation filter to array
-	 * @param Validation\UserValidationInterface $validationFilter 
-	 */
-	public function addValidationFilter($validationFilter)
-	{
-		ObjectRepository::setCallerParent($validationFilter, $this);
-		$this->validationFilters[] = $validationFilter;
-	}
-
-	/**
-	 * Validates user with all filters
-	 * @param Entity\User $user 
-	 */
-	public function validate(Entity\User $user)
-	{
-		foreach ($this->validationFilters as $filter) {
-			/* @var $filter Validation\UserValidationInterface */
-			$filter->validateUser($user);
-		}
-	}
-
-	/**
-	 * Returns authentication adapter object
-	 * @return Adapter\AuthenticationAdapterInterface
-	 */
-	public function getAuthAdapter()
-	{
-		return $this->authAdapter;
-	}
-
-	/**
-	 * Sets authentication adapter
-	 * @param Adapter\AuthenticationAdapterInterface $authAdapter 
-	 */
-	public function setAuthAdapter(Adapter\AuthenticationAdapterInterface $authAdapter)
-	{
-		ObjectRepository::setCallerParent($authAdapter, $this);
-		$this->authAdapter = $authAdapter;
-	}
-
-	/**
-	 * Passes user to authentication adapter
-	 * @param string $login 
-	 * @param AuthenticationPassword $password
-	 * @return Entity\User
-	 * @throws AuthenticationFailure
+	 * {@inheritDoc}
 	 */
 	public function authenticate($login, AuthenticationPassword $password)
 	{
@@ -125,17 +21,21 @@ class UserProvider
 		
 		$user = $this->findUserByLogin($login);
 
-		// Try finding the user from adapter
+//		// Try finding the user from adapter
+//		if (empty($user)) {
+//		$user = $adapter->findUser($login, $password);
+//
+//			if (empty($user)) {
+//				throw new UserNotFoundException();
+//			}
+//
+//			$entityManager = $this->getEntityManager();
+//			$entityManager->persist($user);
+//			$entityManager->flush();
+//		}
+		
 		if (empty($user)) {
-			$user = $adapter->findUser($login, $password);
-
-			if (empty($user)) {
-				throw new UserNotFoundException();
-			}
-
-			$entityManager = $this->getEntityManager();
-			$entityManager->persist($user);
-			$entityManager->flush();
+			throw new UserNotFoundException();
 		}
 
 		$adapter->authenticate($user, $password);
@@ -144,117 +44,7 @@ class UserProvider
 	}
 	
 	/**
-	 * Saves the user in the session storage
-	 * @param Entity\User $user
-	 */
-	public function signIn(Entity\User $user)
-	{
-		$entityManager = $this->getEntityManager();
-		
-		// Trigger pre sign in listener
-		$eventArgs = new Event\UserEventArgs();
-		$eventArgs->entityManager = $entityManager;
-		$eventArgs->user = $user;
-		
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(self::EVENT_PRE_SIGN_IN, $eventArgs);
-		
-		// Create session record
-		$sessionEntity = new Entity\UserSession();
-		$sessionEntity->setUser($user);
-		$entityManager->persist($sessionEntity);
-		$sessionId = $sessionEntity->getId();
-		
-		// Set entity generated session ID
-		$sessionManager = $this->getSessionManager();
-		$sessionManager->changeSessionId($sessionId);
-		
-		// Store user inside session storage
-		$session = $this->getSessionSpace();
-		$session->setUser($user);
-		
-		$entityManager->flush();
-		
-		// Trigger post sign in listener
-		$eventManager->fire(self::EVENT_POST_SIGN_IN, $eventArgs);
-	}
-	
-	/**
-	 * Removes the user from the session storage
-	 */
-	public function signOut()
-	{
-		$entityManager = $this->getEntityManager();
-		$session = $this->getSessionSpace();
-		$user = $session->getUser();
-		
-		// Remove the user from the session storage
-		$session->removeUser();
-		
-		// Trigger pre sign out listeners
-		$eventArgs = new Event\UserEventArgs();
-		$eventArgs->entityManager = $entityManager;
-		$eventArgs->user = $user;
-		
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(self::EVENT_PRE_SIGN_OUT, $eventArgs);
-		
-		// Find and remove user session from the database
-		$sessionManager = $this->getSessionManager();
-		$sessionId = $sessionManager->getHandler()->getSessionId();
-		$sessionEntity = $entityManager->find(Entity\UserSession::CN(), $sessionId);
-		
-		if ($sessionEntity instanceof Entity\UserSession) {
-			$entityManager->remove($sessionEntity);
-			$entityManager->flush();
-		}
-		
-		// Trigger post sign out listeners
-		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);
-	}
-	
-	/**
-	 * TODO: throw exception on failure
-	 * @return Entity\User
-	 */
-	public function getSignedInUser($updateSessionTime = true)
-	{
-		$sessionManager = $this->getSessionManager();
-		$session = $this->getSessionSpace();
-		
-		if ( ! $updateSessionTime) {
-			$sessionManager->getHandler()
-					->setSilentAccess(true);
-		}
-		
-		$user = $session->getUser();
-		
-		$sessionId = $sessionManager->getHandler()->getSessionId();
-		
-		$entityManager = $this->getEntityManager();
-		$userSession = $entityManager->find(Entity\UserSession::CN(), $sessionId);
-		
-		if ( ! $userSession instanceof Entity\UserSession) {
-			return null;
-		}
-		
-		if ($userSession->getUser() !== $user) {
-			return null;
-		}
-		
-		// Update the last access time
-		if ($updateSessionTime) {
-			$userSession->setModificationTime();
-			$entityManager->flush();
-		}
-		
-		return $user;
-	}
-
-	/**
-	 * Find user by login
-	 * @param string $login
-	 * @return Entity\User 
+	 * {@inheritDoc}
 	 */
 	public function findUserByLogin($login)
 	{
@@ -269,9 +59,7 @@ class UserProvider
 	}
 
 	/**
-	 * Find user by id
-	 * @param string $id
-	 * @return Entity\User 
+	 * {@inheritDoc}
 	 */
 	public function findUserById($id)
 	{
@@ -279,120 +67,9 @@ class UserProvider
 		
 		return $entityManager->find(Entity\User::CN(), $id);
 	}
-
-	/**
-	 * Find group by name
-	 * @param string $name
-	 * @return Entity\Group 
-	 */
-	public function findGroupByName($name)
-	{
-		$entityManager = $this->getEntityManager();
-		$repo = $entityManager->getRepository(Entity\Group::CN());
-		$group = $repo->findOneByName($name);
-
-		return $group;
-	}
-
-	/**
-	 * Find group by id
-	 * @param string $id
-	 * @return Entity\Group
-	 */
-	public function findGroupById($id)
-	{
-		$entityManager = $this->getEntityManager();
-		
-		return $entityManager->find(Entity\Group::CN(), $id);
-	}
 	
 	/**
-	 * Find user/group by ID
-	 * @param string $id
-	 * @return Entity\AbstractUser
-	 */
-	public function findById($id)
-	{
-		$entityManager = $this->getEntityManager();
-		
-		return $entityManager->find(Entity\AbstractUser::CN(), $id);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function findAllUsers()
-	{
-		$entityManager = $this->getEntityManager();
-		$repo = $entityManager->getRepository(Entity\User::CN());
-		$users = $repo->findAll();
-
-		return $users;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function findAllGroups()
-	{
-		$entityManager = $this->getEntityManager();
-		$repo = $entityManager->getRepository(Entity\Group::CN());
-		$groups = $repo->findAll();
-
-		return $groups;
-	}
-
-	/**
-	 * @param Entity\Group $group
-	 * @return array
-	 */
-	public function getAllUsersInGroup(Entity\Group $group)
-	{
-		$entityManager = $this->getEntityManager();
-		$repo = $entityManager->getRepository(Entity\User::CN());
-		$users = $repo->findBy(array('group' => $group->getId()));
-		
-		return $users;
-	}
-	
-	/**
-	 * Forces to flush entity manager
-	 */
-	public function update()
-	{
-		$this->getEntityManager()
-				->flush();
-	}
-	
-	/**
-	 * Create new, and return already persisted user entity
-	 * @return Entity\User
-	 */
-	public function createUser()
-	{
-		$user = new Entity\User();
-		$this->getEntityManager()
-				->persist($user);
-		
-		return $user;
-	}
-	
-	/**
-	 * Remove user
-	 * @param Entity\User $user
-	 */
-	public function deleteUser(Entity\User $user) 
-	{
-		$entityManager = $this->getEntityManager();
-		
-		$entityManager->remove($user);
-		$entityManager->flush();	
-	}
-	
-	/**
-	 * Find user by email
-	 * @param string $email
-	 * @return Entity\User
+	 * {@inheritDoc}
 	 */
 	public function findUserByEmail($email)
 	{
@@ -405,4 +82,101 @@ class UserProvider
 		}
 		return $user;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findGroupByName($name)
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\Group::CN());
+		$group = $repo->findOneByName($name);
+
+		return $group;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findGroupById($id)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		return $entityManager->find(Entity\Group::CN(), $id);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findAllUsers()
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
+		$users = $repo->findAll();
+
+		return $users;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findAllGroups()
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\Group::CN());
+		$groups = $repo->findAll();
+
+		return $groups;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getAllUsersInGroup(Entity\Group $group)
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
+		$users = $repo->findBy(array('group' => $group->getId()));
+		
+		return $users;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function createUser()
+	{
+		$user = new Entity\User();
+		
+		$this->getEntityManager()
+				->persist($user);
+		
+		return $user;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function deleteUser(Entity\User $user) 
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->remove($user);
+		$entityManager->flush();	
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function updateUser(Entity\User $user)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented user entity is not managed');
+		}
+		
+		$entityManager->flush();
+	}
+	
 }

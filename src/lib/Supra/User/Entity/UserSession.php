@@ -25,10 +25,15 @@ class UserSession extends Entity implements Timestampable
 	protected $lastActivityTime;
 	
 	/**
-	 * @ManyToOne(targetEntity="User", inversedBy="userSessions")
-	 * @var User
+//	 * @ManyToOne(targetEntity="User", inversedBy="userSessions")
+//	 * @var User
+	 * 
+	 * @Column(type="supraId20")
+	 * @var string
 	 */
 	protected $user;
+	
+	protected $userObject;
 
 	/**
 	 * @return DateTime
@@ -73,7 +78,16 @@ class UserSession extends Entity implements Timestampable
 	 */
 	public function getUser()
 	{
-		return $this->user;
+		if ( ! is_null($this->userObject)) {
+			return $this->userObject;
+		}
+		
+		$userProvider = \Supra\ObjectRepository\ObjectRepository::getUserProvider($this);
+		$user = $userProvider->findUserById($this->user);
+		
+		$this->userObject = $user;
+		
+		return $user;
 	}
 
 	/**
@@ -81,6 +95,7 @@ class UserSession extends Entity implements Timestampable
 	 */
 	public function setUser(User $user)
 	{
-		$this->user = $user;
+		$this->userObject = $user;
+		$this->user = $user->getId();
 	}
 }

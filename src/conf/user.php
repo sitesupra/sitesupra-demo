@@ -1,11 +1,11 @@
 <?php
 
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\User\UserProvider;
+use Supra\User;
 use Supra\User\Validation\EmailValidation;
 use Supra\Authentication\Adapter\HashAdapter;
 
-$userProvider = new UserProvider();
+$userProvider = new User\UserProvider();
 $userProvider->addValidationFilter(new EmailValidation());
 
 $authAdapter = new HashAdapter();

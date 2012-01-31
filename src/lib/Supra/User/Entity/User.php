@@ -318,7 +318,30 @@ class User extends AbstractUser
 	{
 		$this->facebookAccessToken = $facebookAccessToken;
 	}
+	
+	public function fillFromArray(array $userData) 
+	{
+		$this->id = $userData['id'];
+		$this->password = $userData['password'];
+		$this->login = $userData['login'];
+		$this->email = $userData['email'];
+		$this->name = $userData['name'];
+		$this->avatarId = $userData['avatarId'];
+		$this->personalAvatar = $userData['personalAvatar'];
+		$this->group = $userData['group'];
+		$this->lastLoginTime = $userData['lastLoginTime'];
+		$this->active = $userData['active'];
+		
+		$this->salt = $userData['salt'];
+		$this->userSessions = $userData['userSessions'];
 
+		$this->localeId = $userData['localeId'];
+
+		$this->facebookId = $userData['facebookId'];
+		$this->facebookAccessToken = $userData['facebookAccessToken'];
+		
+	}
+	
 	public static function getAlias()
 	{
 		return 'user';

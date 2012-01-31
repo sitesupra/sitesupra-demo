@@ -99,7 +99,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 		$userProvider = ObjectRepository::getUserProvider($this);
 		//$userProvider->getEntityManager()
 				//->flush();
-		$userProvider->update();
+		$userProvider->updateUser($user);
 	}
 	
 	/**
