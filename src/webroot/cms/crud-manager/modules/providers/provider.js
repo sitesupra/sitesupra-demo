@@ -378,7 +378,7 @@ YUI.add('website.provider', function (Y) {
 					'columns': this.getListFields(),
 					'dataColumns': this.getEditFields(),
 					'idColumn': this.get('primaryKey'),
-					'tableHeadingFixed': true
+					'tableHeadingFixed': false
 				});
 				
 				this.data_grid.plug(Supra.DataGrid.LoaderPlugin);

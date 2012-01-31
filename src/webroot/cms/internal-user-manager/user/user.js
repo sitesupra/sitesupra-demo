@@ -110,17 +110,17 @@ Supra('supra.slideshow', function (Y) {
 			
 			slide = this.slideshow.addSlide({'id': 'UserDetails'})
 			action = Manager.getAction('UserDetails');
-			action.setPlaceHolder(slide.one('div'));
+			action.setPlaceHolder(slide.one('.su-slide-content'));
 			this.slideshow.set('slide', 'UserDetails');
 			
 			slide = this.slideshow.addSlide({'id': 'UserPermissions'})
 			action = Manager.getAction('UserPermissions');
-			action.setPlaceHolder(slide.one('div'));
+			action.setPlaceHolder(slide.one('.su-slide-content'));
 			
 			/*
 			slide = this.slideshow.addSlide({'id': 'UserStats'})
 			action = Manager.getAction('UserStats');
-			action.setPlaceHolder(slide.one('div'));
+			action.setPlaceHolder(slide.one('.su-slide-content'));
 			*/
 			
 			//Set default buttons

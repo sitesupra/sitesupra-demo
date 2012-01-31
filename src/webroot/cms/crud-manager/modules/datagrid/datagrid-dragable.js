@@ -337,6 +337,8 @@ YUI.add('website.datagrid-dragable', function (Y) {
 			if (to && to.drop) {
 				to.drop.sizeShim();
 			}
+			
+			this.get('host').handleChange();
 		},
 		
 		/**

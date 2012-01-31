@@ -67,6 +67,9 @@ YUI.add("website.datagrid", function (Y) {
 		'dataSource': {
 			'value': null,
 			'setter': 'setDataSource'
+		},
+		'nodeScrollable': {
+			'value': null
 		}
 	};
 	
@@ -90,6 +93,9 @@ YUI.add("website.datagrid", function (Y) {
 			}
 			this.tableHeadingNode = node;
 			return node;
+		},
+		'nodeScrollable': function (srcNode) {
+			return srcNode.closest('.su-scrollable');
 		}
 	};
 	
@@ -326,6 +332,17 @@ YUI.add("website.datagrid", function (Y) {
 			this.requestParams.set('offset', 0);
 			this.removeAllRows();
 			this.load();
+			this.handleChange();
+		},
+		
+		/**
+		 * Handle data change
+		 */
+		handleChange: function () {
+			var node = this.get('nodeScrollable');
+			if (node) {
+				node.fire('contentResize');
+			}
 		},
 		
 		/**
@@ -391,7 +408,6 @@ YUI.add("website.datagrid", function (Y) {
 			
 			//Don't need old data
 			this.removeAllRows();
-			
 		},
 		
 		/**
@@ -468,6 +484,10 @@ YUI.add("website.datagrid", function (Y) {
 					return data;
 				}
 			}
+			
+			//Trigger change
+			this.handleChange();
+			
 			return null;
 		},
 		
@@ -539,6 +559,9 @@ YUI.add("website.datagrid", function (Y) {
 				//Insert into DOM
 				this.tableBodyNode.append(row.getNode());
 			}
+			
+			//Trigger change
+			this.handleChange();
 			
 			return row;
 		},
@@ -760,6 +783,10 @@ YUI.add("website.datagrid", function (Y) {
 			if (!this.reference_point) return this;
 			Y.DOM.restoreInDOM(this.reference_point);
 			this.reference_point = null;
+			
+			//Trigger change
+			this.handleChange();
+			
 			return this;
 		}
 	});
