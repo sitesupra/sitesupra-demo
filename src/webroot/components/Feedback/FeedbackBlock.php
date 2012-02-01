@@ -254,7 +254,7 @@ class FeedbackBlock extends BlockController
 		// Additional properties
 		//     success message
 		$editable = new Editable\Html('Success message');
-		$editable->setDefaultValue('<b>Paldies!</b> Jūsu atsauksme ir nosūtīts.<br />Atbildi sniegsim 1 darba dienas laikā.');
+		$editable->setDefaultValue('<b>Paldies!</b> Jūsu atsauksme ir nosūtīta.');
 		$properties['successMessage'] = $editable;
 		
 		return $properties;

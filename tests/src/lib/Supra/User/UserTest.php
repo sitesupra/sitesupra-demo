@@ -37,7 +37,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 	protected function setUp()
 	{
 		$this->userProvider = ObjectRepository::getUserProvider($this);
-		$this->em = $this->userProvider->getEntityManager();
+		$this->em = ObjectRepository::getEntityManager($this->userProvider);
 		
 		self::assertEquals('test', $this->em->_mode);
 		
@@ -72,9 +72,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$this->cleanUp();
 
-		$user = new Entity\User();
-
-		$this->em->persist($user);
+		$user = $this->userProvider
+				->createUser();
 
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
@@ -82,7 +81,6 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->userProvider->getAuthAdapter()
 				->credentialChange($user, $this->password);
 		
-		$this->em->flush();
 	}
 
 	public function testModifyUser()
@@ -90,9 +88,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->cleanUp();
 		$this->testCreateUser();
 		
-		$repo = $this->em->getRepository('Supra\User\Entity\User');
-
-		$user = $repo->findOneByName(self::TEST_USER_NAME);
+		$user = $this->userProvider
+				->findUserByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
@@ -105,10 +102,9 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$this->userProvider->getAuthAdapter()
 				->credentialChange($user);
-
-		$this->em->flush();
-
-		$result = $repo->findOneByEmail($randomEmail);
+		
+		$user = $this->userProvider
+				->findUserByEmail($randomEmail);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
@@ -119,16 +115,13 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 
 		$userProvider = ObjectRepository::getUserProvider($this);
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $this->em->getRepository('Supra\User\Entity\User');
 
-		$user = $repo->findOneByName(self::TEST_USER_NAME);
+		$user = $this->userProvider
+				->findUserByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
 		}
-
-//		$this->em->persist($user);
 
 		$user->setEmail('awesomechuckchucknorris.com');
 
@@ -141,7 +134,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 			return;
 		}
 		
-		$this->em->flush();
+		//$this->em->flush();
 
 		$this->fail('Succeed to change email');
 	}
@@ -149,21 +142,20 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 	public function testDeleteUser()
 	{
 
-		/* @var $repo Doctrine\ORM\EntityRepository */
-		$repo = $this->em->getRepository('Supra\User\Entity\User');
-
-		$user = $repo->findOneByName(self::TEST_USER_NAME);
+		$user = $this->userProvider
+				->findUserByName(self::TEST_USER_NAME);
 
 		if (empty($user)) {
 			$this->fail('Cant\'t find user with name: Chuck');
 		}
 
-		$this->em->remove($user);
-		$this->em->flush();
+		$this->userProvider
+				->deleteUser($user);
+		
+		$user = $this->userProvider
+				->findUserByName(self::TEST_USER_NAME);
 
-		$result = $repo->findOneByName(self::TEST_USER_NAME);
-
-		if ( ! empty($result)) {
+		if ( ! empty($user)) {
 			$this->fail('Chuck should not exist in database. Nobody can add records on Chuck');
 		}
 	}
@@ -175,10 +167,9 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$this->cleanUp();
 
-		$user = new Entity\User();
 		$userProvider = ObjectRepository::getUserProvider($this);
-
-		$this->em->persist($user);
+		/* @var $userProvider Supra\User\UserProvider */
+		$user = $userProvider->createUser();
 
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
@@ -188,11 +179,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$userProvider->validate($user);
 
-		$this->em->flush();
-
-		$user = new Entity\User();
-
-//		$this->em->persist($user);
+		$user = $userProvider->createUser();
 
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);

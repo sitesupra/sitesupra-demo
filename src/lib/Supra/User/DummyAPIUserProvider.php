@@ -162,6 +162,21 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 		
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findUserByName($name)
+	{
+		$userData = $this->requestSingleRow(Entity\User::CN(), array('name' => $name));
+		
+		if ( ! empty($userData)) {
+			$user = $this->createUserEntity($userData);
+			return $user;
+		}
+		
+		return null;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -258,6 +273,16 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 	/**
 	 * {@inheritDoc}
 	 */
+	public function createGroup()
+	{
+		$group = new Entity\Group();
+		
+		return $group;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public function doDeleteUser(Entity\User $user) 
 	{
 		
@@ -267,6 +292,14 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 	 * {@inheritDoc}
 	 */
 	public function updateUser(Entity\User $user)
+	{
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function updateGroup(Entity\Group $group)
 	{
 		
 	}

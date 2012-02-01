@@ -82,6 +82,21 @@ class UserProvider extends UserProviderAbstract implements UserProviderInterface
 		}
 		return $user;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findUserByName($name)
+	{
+		$entityManager = $this->getEntityManager();
+		$repo = $entityManager->getRepository(Entity\User::CN());
+		$user = $repo->findOneByName($name);
+
+		if (empty($user)) {
+			return null;
+		}
+		return $user;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -157,6 +172,19 @@ class UserProvider extends UserProviderAbstract implements UserProviderInterface
 	/**
 	 * {@inheritDoc}
 	 */
+	public function createGroup()
+	{
+		$group = new Entity\Group();
+		
+		$this->getEntityManager()
+				->persist($group);
+		
+		return $group;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public function doDeleteUser(Entity\User $user) 
 	{
 		$entityManager = $this->getEntityManager();
@@ -174,6 +202,20 @@ class UserProvider extends UserProviderAbstract implements UserProviderInterface
 		
 		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
 			throw new Exception\RuntimeException('Presented user entity is not managed');
+		}
+		
+		$entityManager->flush();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function updateGroup(Entity\Group $group)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented group entity is not managed');
 		}
 		
 		$entityManager->flush();

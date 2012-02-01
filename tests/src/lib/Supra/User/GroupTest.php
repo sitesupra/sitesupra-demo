@@ -30,7 +30,7 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		parent::setUp();
 		
 		$this->userProvider = ObjectRepository::getUserProvider($this);
-		$this->em = $this->userProvider->getEntityManager();
+		$this->em = ObjectRepository::getEntityManager($this->userProvider);
 		
 		self::assertEquals('test', $this->em->_mode);
 	}
@@ -51,35 +51,40 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 	{
 		$this->cleanUp();
 
-		$group = new Entity\Group();
-
-		$this->em->persist($group);
+		$group = $this->userProvider
+				->createGroup();
 
 		$group->setName('Super Heroes');
 
-		$this->em->flush();
+		$this->userProvider
+				->updateGroup($group);
+		
 	}
 
 	public function testGetGroupUsers()
 	{
 		$this->cleanUp();
 
-		$group = new Entity\Group();
-		$this->em->persist($group);
+		$group = $this->userProvider
+				->createGroup();
 
 		$group->setName('group111');
-		$this->em->flush();
+		
+		$this->userProvider
+				->updateGroup($group);
 
 		foreach (array('user1', 'user2', 'user444') as $userName) {
 
-			$user = new Entity\User();
-			$this->em->persist($user);
+			$user = $this->userProvider
+					->createUser();
 
 			$user->setName($userName);
 			$user->setLogin($userName);
 			$user->setEmail($userName);
 			$user->setGroup($group);
-			$this->em->flush();
+			
+			$this->userProvider
+					->updateUser($user);
 		}
 
 		$group2 = $this->userProvider->findGroupByName('group111');

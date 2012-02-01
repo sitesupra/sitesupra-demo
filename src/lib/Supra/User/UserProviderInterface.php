@@ -39,6 +39,13 @@ interface UserProviderInterface
 	 * @return Entity\User 
 	 */
 	public function findUserById($id);
+	
+	/**
+	 * Find user by name
+	 * @param string $id
+	 * @return Entity\User 
+	 */
+	public function findUserByName($name);
 
 	/**
 	 * Find group by name
@@ -80,6 +87,12 @@ interface UserProviderInterface
 	public function createUser();
 	
 	/**
+	 * Create and return new group
+	 * @return Entity\Group
+	 */
+	public function createGroup();
+	
+	/**
 	 * Remove user
 	 * @param Entity\User $user
 	 */
@@ -90,5 +103,11 @@ interface UserProviderInterface
 	 * @param Entity\User $user
 	 */
 	public function updateUser(Entity\User $user);
+	
+	/**
+	 * Update/store group property changes
+	 * @param Entity\Group $group
+	 */
+	public function updateGroup(Entity\Group $group);
 	
 }
