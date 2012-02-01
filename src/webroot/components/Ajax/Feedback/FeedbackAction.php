@@ -95,7 +95,7 @@ class FeedbackAction extends SimpleController
 		$userConfig = ObjectRepository::getIniConfigurationLoader($this);
 		$receiverEmail = $userConfig->getValue('feedback', 'receiver_email', null);
 		$senderEmail = $userConfig->getValue('feedback', 'sender_email', null);
-		$emailSubject = $userConfig->getValue('feedback', 'subject', null);
+		$emailSubject = $userConfig->getValue('feedback', 'subject', 'Feedback');
 				
 		$mailer = ObjectRepository::getMailer($this);
 		$message = \Swift_Message::newInstance($emailSubject, (string)$response, 'text/html', 'utf8')
