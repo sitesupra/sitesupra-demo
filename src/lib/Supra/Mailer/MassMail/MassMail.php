@@ -12,9 +12,13 @@ class MassMail
 	 */
 	private $entityManager;
 
-	public function __construct()
+	protected function getEntityManager()
 	{
-		$this->entityManager = ObjectRepository::getEntityManager($this);
+		if (is_null($this->entityManager)) {
+			$this->entityManager = ObjectRepository::getEntityManager($this);
+		}
+		
+		return $this->entityManager;
 	}
 
 	/**
@@ -48,7 +52,7 @@ class MassMail
 	public function getSubscriberListManager()
 	{
 		if (is_null($this->subscriberListManager)) {
-			$this->subscriberListManager = new Manager\SubscriberListManager($this->entityManager);
+			$this->subscriberListManager = new Manager\SubscriberListManager($this->getEntityManager());
 		}
 
 		return $this->subscriberListManager;
@@ -61,7 +65,7 @@ class MassMail
 	public function getCampaignManager()
 	{
 		if (is_null($this->campaignManager)) {
-			$this->campaignManager = new Manager\CampaignManager($this->entityManager);
+			$this->campaignManager = new Manager\CampaignManager($this->getEntityManager());
 		}
 
 		return $this->campaignManager;
@@ -74,7 +78,7 @@ class MassMail
 	public function getSendQueueManager()
 	{
 		if (is_null($this->sendQueueManager)) {
-			$this->sendQueueManager = new Manager\SendQueueManager($this->entityManager);
+			$this->sendQueueManager = new Manager\SendQueueManager($this->getEntityManager());
 		}
 
 		return $this->sendQueueManager;
@@ -87,7 +91,7 @@ class MassMail
 	public function getSubscriberManager()
 	{
 		if (is_null($this->subscriberManager)) {
-			$this->subscriberManager = new Manager\SubscriberManager($this->entityManager);
+			$this->subscriberManager = new Manager\SubscriberManager($this->getEntityManager());
 		}
 
 		return $this->subscriberManager;
@@ -98,7 +102,7 @@ class MassMail
 	 */
 	public function flush()
 	{
-		$this->entityManager->flush();
+		$this->getEntityManager()->flush();
 	}
 
 	/**
