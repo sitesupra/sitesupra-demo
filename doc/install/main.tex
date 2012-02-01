@@ -133,12 +133,16 @@ This document describes system requirements and installation procedure for {\vig
 
 \subsection{Delivery Packages}
 
-Web application is delivered in several packages:
+Web application is delivered in several packages.
+
 \begin{itemize}
-	\item \textbf{{\vigPackageName}.web.X.Y.Z.zip} -- contains web application. It is installed on Web Server.
-	\item \textbf{{\vigPackageName}.solr.X.Y.Z.zip} -- contains Apache Solr installation and configuration files. It is installed on Web Server.
-	\item \textbf{{\vigPackageName}.database.X.Y.Z.zip} -- contains database files. It is installed on database server.
+	\item \textbf{{\vigPackageName}.web.X.Y.Z.zip} -- contains web application. It is installed on the Web Server.
+	\item \textbf{{\vigPackageName}.solr.X.Y.Z.zip} -- contains Apache Solr installation and configuration files. It is installed on the Web Server.
+	\item \textbf{{\vigPackageName}.database.X.Y.Z.zip} -- contains database initial installation dump files. It is installed on the database server.
+	\item \textbf{{\vigPackageName}.database.X.Y.Z.zip} -- contains database upgrade files. It is installed on the database server.
 \end{itemize}
+
+Some of the packages can be not delivered if the corresponding components don't need to be installed or upgraded.
 
 The example commands in this document assumes these packages are downloaded into the system user's home directory \textsf{{\vigReleasePath}}.
 
