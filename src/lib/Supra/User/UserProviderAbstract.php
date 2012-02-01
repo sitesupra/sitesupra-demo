@@ -226,12 +226,20 @@ abstract class UserProviderAbstract
 		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);
 	}
 	
+	/**
+	 * Remove user
+	 * @param Entity\User $user
+	 */
 	final public function deleteUser($user)
 	{
 		$this->deleteUserSession($user);
 		$this->doDeleteUser($user);
 	}
 	
+	/**
+	 * Remove all user sessions
+	 * @param Entity\User $user
+	 */
 	protected function deleteUserSession($user)
 	{
 		$userId = $user->getId();

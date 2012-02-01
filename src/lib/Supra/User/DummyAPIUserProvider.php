@@ -101,6 +101,9 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 		$this->requestKey = $key;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public function authenticate($login, AuthenticationPassword $password)
 	{
 		$adapter = $this->getAuthAdapter();
@@ -199,8 +202,9 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 		$userData = $this->requestData(Entity\User::CN());
 		
 		if ( ! empty($userData)) {
-			foreach($userData as $user)
-			$users[] = $this->createUserEntity($user);
+			foreach($userData as $user) {
+				$users[] = $this->createUserEntity($user);
+			}
 		}
 		
 		return $users;
@@ -233,8 +237,9 @@ class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderI
 		$userData = $this->requestSingleRow(Entity\Group::CN(), array('group' => $groupId));
 		
 		if ( ! empty($userData)) {
-			foreach($userData as $user)
-			$users[] = $this->createUserEntity($user);
+			foreach($userData as $user) {
+				$users[] = $this->createUserEntity($user);
+			}
 		}
 		
 		return $users;
