@@ -33,6 +33,9 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->em = ObjectRepository::getEntityManager($this->userProvider);
 		
 		self::assertEquals('test', $this->em->_mode);
+		
+		$this->em->getUnitOfWork()
+				->clear();
 	}
 	
 	private function cleanUp($delete = false)
@@ -43,7 +46,7 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 		$query = $this->em->createQuery("delete from " . Entity\Group::CN());
 		$query->execute();
 		$query = $this->em->createQuery("delete from " . Entity\AbstractUser::CN());
-
+		
 		$query->execute();
 	}
 
