@@ -35,6 +35,7 @@ $entityPaths = array(
 		SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
 		SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
 		SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',
+		SUPRA_LIBRARY_PATH . 'Supra/Mailer/MassMail/Entity',
 		SUPRA_TESTS_LIBRARY_PATH . 'Supra/NestedSet/Model',
 		SUPRA_TESTS_LIBRARY_PATH . 'Supra/Search/Entity',
 );
