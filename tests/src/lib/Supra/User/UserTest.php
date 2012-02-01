@@ -184,8 +184,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
 		
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, $this->password);
+		//$this->userProvider->getAuthAdapter()
+				//->credentialChange($user, $this->password);
 
 		try {
 			$userProvider->validate($user);
