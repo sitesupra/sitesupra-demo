@@ -35,11 +35,11 @@ class Mailer extends \Swift_Mailer
 	 * The return value is the number of recipients who were accepted for
 	 * delivery.
 	 * 
-	 * @param Swift_Mime_Message $message
+	 * @param \Swift_Mime_Message $message
 	 * @param array &$failedRecipients, optional
 	 * @return int
 	 */
-	public function send(Swift_Mime_Message $message, &$failedRecipients = null)
+	public function send(\Swift_Mime_Message $message, &$failedRecipients = null)
 	{
 		$subject = $message->getSubject();
 		$body = $message->getBody();
