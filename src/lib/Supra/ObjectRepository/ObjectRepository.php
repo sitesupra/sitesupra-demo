@@ -649,7 +649,7 @@ class ObjectRepository
 	 *
 	 * @param UserProvider $object 
 	 */
-	public static function setDefaultUserProvider(UserProvider $object)
+	public static function setDefaultUserProvider(UserProviderAbstract $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_USER_PROVIDER);
 	}
