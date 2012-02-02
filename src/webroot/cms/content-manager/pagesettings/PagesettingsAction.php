@@ -10,6 +10,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Validator\Type\AbstractType;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Layout\Exception as LayoutException;
+use Supra\Authorization\Exception\EntityAccessDeniedException;
 
 /**
  * Page settings actions
@@ -43,7 +44,7 @@ class PagesettingsAction extends PageManagerAction
 			$title = $input->get('title');
 			$pageData->setTitle($title);
 		}
-		
+
 		if ($input->has('is_visible_in_menu')) {
 			$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
 			$pageData->setVisibleInMenu($visibleInMenu);
@@ -53,31 +54,31 @@ class PagesettingsAction extends PageManagerAction
 			$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
 			$pageData->setVisibleInSitemap($visibleInSitemap);
 		}
-		
+
 		if ($input->has('include_in_search')) {
 			$includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
 			$pageData->setIncludedInSearch($includedInSearch);
 		}
-		
+
 		if ($pageData instanceof Entity\TemplateLocalization) {
 			if ($input->has('layout')) {
-				
+
 				$media = $this->getMedia();
 				$template = $pageData->getMaster();
-				
+
 				// Remove current layout if any
 				$templateLayout = $template->getTemplateLayouts()
 						->get($media);
-				
+
 				if ( ! empty($templateLayout)) {
 					$this->entityManager->remove($templateLayout);
 				}
-				
+
 				// Add new layout
 				if ( ! $input->isEmpty('layout')) {
 					//TODO: validate
 					$layoutId = $input->get('layout');
-					
+
 					$layoutProcessor = $this->getPageController()
 							->getLayoutProcessor();
 
@@ -86,7 +87,7 @@ class PagesettingsAction extends PageManagerAction
 					$layoutTask->setLayoutId($layoutId);
 					$layoutTask->setEntityManager($this->entityManager);
 					$layoutTask->setLayoutProcessor($layoutProcessor);
-					
+
 					try {
 						$layoutTask->perform();
 					} catch (LayoutException\LayoutNotFoundException $e) {
@@ -94,11 +95,11 @@ class PagesettingsAction extends PageManagerAction
 					} catch (LayoutException\RuntimeException $e) {
 						throw new CmsException('template.error.layout_error', null, $e);
 					}
-					
+
 					$layout = $layoutTask->getLayout();
 
 					$templateLayout = $template->addLayout($media, $layout);
-					
+
 					// Persist the new template layout object (cascade)
 					$this->entityManager->persist($templateLayout);
 				} else {
@@ -143,29 +144,37 @@ class PagesettingsAction extends PageManagerAction
 
 			if ($input->has('scheduled_date')) {
 
-				//TODO: validation
-				$date = $input->get('scheduled_date');
-				$time = $input->get('scheduled_time', '00:00');
+				try {
+					$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
-				if (empty($date)) {
-					$pageData->unsetScheduleTime();
-				} else {
-					if (empty($time)) {
-						$time = '00:00';
-					}
+					//TODO: validation
+					$date = $input->get('scheduled_date');
+					$time = $input->get('scheduled_time', '00:00');
 
-					$dateTime = "{$date}T{$time}";
-
-					$scheduleTime = new DateTime($dateTime);
-
-					if ($scheduleTime instanceof DateTime) {
-						$pageData->setScheduleTime($scheduleTime);
+					if (empty($date)) {
+						$pageData->unsetScheduleTime();
 					} else {
-						throw new CmsException(null, "Schedule time provided in unrecognized format");
+						if (empty($time)) {
+							$time = '00:00';
+						}
+
+						$dateTime = "{$date}T{$time}";
+
+						$scheduleTime = new DateTime($dateTime);
+
+						if ($scheduleTime instanceof DateTime) {
+							$pageData->setScheduleTime($scheduleTime);
+						} else {
+							throw new CmsException(null, "Schedule time provided in unrecognized format");
+						}
 					}
+				} catch (EntityAccessDeniedException $e) {
+
+					$this->getResponse()
+							->addWarningMessage('Your changes have been stored, however because You do not have permission to publish this page, scheduled publish date is not.');
 				}
 			}
-			
+
 			if ($input->has('created_date')) {
 
 				$date = $input->get('created_date');
@@ -183,9 +192,8 @@ class PagesettingsAction extends PageManagerAction
 						throw new CmsException(null, "Creation time provided in unrecognized format");
 					}
 				}
-
 			}
-			
+
 			//TODO: validation
 			try {
 				$redirect = $input->get('redirect');
@@ -194,7 +202,7 @@ class PagesettingsAction extends PageManagerAction
 				$redirect = $this->getRequest()
 						->getPostValue('redirect');
 			}
-		
+
 			if ( ! is_null($redirect)) {
 
 				// Delete current link object
@@ -225,7 +233,6 @@ class PagesettingsAction extends PageManagerAction
 				$pagePriority = $input->get('page_priority');
 				$pageData->setPagePriority($pagePriority);
 			}
-		
 		}
 
 		$this->entityManager->flush();
@@ -254,13 +261,13 @@ class PagesettingsAction extends PageManagerAction
 				//TODO: hardcoded
 				'img' => "/cms/lib/supra/img/templates/template-3-small.png"
 			);
-			
+
 			$templateTitles[] = $templateData->getTitle();
 		}
-		
+
 		array_multisort($templateTitles, $templateArray);
-		
+
 		$this->getResponse()->setResponseData($templateArray);
 	}
-	
+
 }
