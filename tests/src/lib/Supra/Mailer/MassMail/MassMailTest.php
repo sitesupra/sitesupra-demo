@@ -219,7 +219,7 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		$list->addSubscriber($subscriber);
 
 		$this->object->flush();
-		
+
 		//populate queue
 		$this->object->populateSendQueue($campaign);
 
@@ -234,12 +234,11 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		$mailer = ObjectRepository::getMailer($this);
 
 		self::assertEquals(1, count($mailer->receavedMessage));
-		
 	}
 
 	public function testSubscribeAndActivateUserSend()
 	{
-		
+
 		$mailer = ObjectRepository::getMailer($this);
 
 		$list = $this->createList();
@@ -260,205 +259,196 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 
 
 		$this->object->flush();
-		
+
 		//populate queue
 		$this->object->populateSendQueue($campaign);
 
 		$this->object->flush();
 
 		$mailer->resetReceavedMessages();
-		
+
 		//send campaign
 		$this->object->getSendQueueManager()->send();
 
 		$this->object->flush();
-		
+
 		//check sent count; must be 0
 		self::assertEquals(0, count($mailer->receavedMessage));
-	
+
 		$subscriber->setActive(true);
 
 		$this->object->flush();
-		
+
 		//populate queue
 		$this->object->populateSendQueue($campaign);
 
 		$this->object->flush();
 
 		$mailer->resetReceavedMessages();
-		
+
 		//send campaign
 		$this->object->getSendQueueManager()->send();
 
 		$this->object->flush();
-		
+
 		//check sent count; must be 1
 
 		self::assertEquals(1, count($mailer->receavedMessage));
-				
+
 		$subscriber->setActive(false);
 
 		$this->object->flush();
-		
+
 		//populate queue
 		$this->object->populateSendQueue($campaign);
 
 		$this->object->flush();
 
 		$mailer->resetReceavedMessages();
-		
+
 		//send campaign
 		$this->object->getSendQueueManager()->send();
 
 		$this->object->flush();
-		
+
 		//check sent count; must be 0
 
 		self::assertEquals(0, count($mailer->receavedMessage));
-		
 	}
-	
-	
+
 	public function testDoubleSubscriberRegistartion()
 	{
-		
-		$subscriberName = 'subscriber_name_'. uniqid(null, true) . '_' . time();
-		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) .'_'. time() . '.vig';
+
+		$subscriberName = 'subscriber_name_' . uniqid(null, true) . '_' . time();
+		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) . '_' . time() . '.vig';
 
 		$subscriber = $this->object->getSubscriberManager()
 				->createSubscriber($subscriberEmail, $subscriberName, false);
-		
+
 
 		$subscriber = $this->object->getSubscriberManager()
 				->createSubscriber($subscriberEmail, $subscriberName, false);
 
 		$hash = $subscriber->getConfirmHash();
-		
+
 		$this->object->flush();
 
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail, $hash);
 
 		/* @var $storedSubscriber Entity\Subscriber */
-		
+
 		$storedSubscriber = $storedSubscriber[0];
-		
+
 		//Check for select last created subscriber
 		self::assertEquals($subscriber, $storedSubscriber);
 		//Check for subscriber is inactive
 		self::assertEquals(false, $storedSubscriber->getActive());
-		
+
 		//activate subscriber
 		$this->object->getSubscriberManager()->activateSubscriber($storedSubscriber);
 
 		//Flush DB changes
 		$this->object->flush();
-				
+
 		//check that subscriber is activated
 		self::assertEquals(true, $storedSubscriber->getActive());
-		
+
 		//check that no INACTIVE subscribers
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail, null, false);
 
 		/* @var $storedSubscriber Entity\Subscriber */
-		
+
 		$storedSubscriber = $storedSubscriber[0];
-		
+
 		self::assertEquals(true, empty($storedSubscriber));
-		
+
 
 		//check that subscriber is activated 
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail, null, true);
 
 		/* @var $storedSubscriber Entity\Subscriber */
-		
+
 		$storedSubscriber = $storedSubscriber[0];
-		
+
 		self::assertEquals(true, $storedSubscriber->getActive());
-		
+
 		$this->object->flush();
-		
-		
+
+
 		//check to no create new subscriber when it already activated
-		
+
 		$subscriberEmail = $storedSubscriber->getEmailAddress();
-		
-		try{
-			
+
+		try {
+
 			$subscriber = $this->object->getSubscriberManager()
 					->createSubscriber($subscriberEmail, $subscriberName, false);
-			
 		} catch (Exception\MailerException $e) {
-			self::assertEquals(true, (bool)($e instanceof Exception\RuntimeException));
+			self::assertEquals(true, (bool) ($e instanceof Exception\RuntimeException));
 		}
-		
 	}
-	
-	
-	public function testSubscribeAndDeleteSubscriber(){
-		
-		$subscriberName = 'subscriber_name_'. uniqid(null, true) . '_' . time();
-		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) .'_'. time() . '.vig';
+
+	public function testSubscribeAndDeleteSubscriber()
+	{
+
+		$subscriberName = 'subscriber_name_' . uniqid(null, true) . '_' . time();
+		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) . '_' . time() . '.vig';
 
 		$subscriber = $this->object->getSubscriberManager()
 				->createSubscriber($subscriberEmail, $subscriberName, false);
-		
+
 		$this->object->flush();
-		
+
 		$this->object->getSubscriberManager()->activateSubscriber($subscriber);
 
 		$this->object->flush();
-		
+
 		//check that subscriber is activated 
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail, null, true);
 
 		/* @var $storedSubscriber Entity\Subscriber */
-		
+
 		$storedSubscriber = $storedSubscriber[0];
-		
+
 		self::assertEquals(true, $storedSubscriber->getActive());
-			
+
 		$this->object->getSubscriberManager()
 				->unsubscribeByEmail($storedSubscriber->getEmailAddress(), $storedSubscriber->getConfirmHash());
 
 		$this->object->flush();
-		
+
 		//check that no subscriber with current email
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail);
 
 		self::assertEquals(true, empty($storedSubscriber));
-		
 	}
 
-	public function testRemoveSubscribersByEmail() {
-		
-		$subscriberName = 'subscriber_name_'. uniqid(null, true) . '_' . time();
-		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) .'_'. time() . '.vig';
-		
-		for($i = 0; $i<5; $i++) {
+	public function testRemoveSubscribersByEmail()
+	{
+
+		$subscriberName = 'subscriber_name_' . uniqid(null, true) . '_' . time();
+		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) . '_' . time() . '.vig';
+
+		for ($i = 0; $i < 5; $i ++ ) {
 			$subscriber = $this->object->getSubscriberManager()
 					->createSubscriber($subscriberEmail, $subscriberName, false);
-
-			
 		}
-		
+
 		$this->object->flush();
-		
+
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail);
 
 		self::assertEquals(5, count($storedSubscriber));
-				
+
 		$this->object->getSubscriberManager()->removeSubscribersByEmail($subscriberEmail);
-		
+
 		$this->object->flush();
 
 		$storedSubscriber = $this->object->getSubscriberManager()->getSubscriberByEmail($subscriberEmail);
 
 		self::assertEquals(0, count($storedSubscriber));
-		
 	}
-	
-	
-	
+
 	/**
 	 * Helper method - returns new Subscriber
 	 * @param bool $active
@@ -466,8 +456,8 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 	 */
 	private function createSubscriber($active = false)
 	{
-		$subscriberName = 'subscriber_name_' . uniqid(null, true) .'_'. time();
-		$subscriberEmail = 'subscriber_email@'. uniqid(null, true) .'_'. time() . '.vig';
+		$subscriberName = 'subscriber_name_' . uniqid(null, true) . '_' . time();
+		$subscriberEmail = 'subscriber_email@' . uniqid(null, true) . '_' . time() . '.vig';
 
 		$subscriber = $this->object->getSubscriberManager()
 				->createSubscriber($subscriberEmail, $subscriberName, $active);
