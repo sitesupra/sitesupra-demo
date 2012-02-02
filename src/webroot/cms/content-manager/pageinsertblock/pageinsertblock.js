@@ -9,43 +9,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		Loader = Manager.Loader;
 	
 	var SLIDE_ROOT = 'slideMain',
-		ICON_GROUP_PATH = '/cms/lib/supra/img/blocks/icons-groups/',
-	
-		GROUP_TEMPLATE = '\
-			<a class="button-section" tabindex="0" data-target="{{ id }}">\
-				<img src="' + ICON_GROUP_PATH + '{{ id }}-inactive.png" class="inactive" />\
-				<img src="' + ICON_GROUP_PATH + '{{ id }}.png" class="active" />\
-				<span>{{ title }}</span>\
-			</a>',
-		
-		DRAG_TEMPLATE = '\
-			<div class="drag-icon">\
-				<span>' + Supra.Intl.get(['insertblock', 'drag_n_drop']) + '</span>\
-				<span class="icon"></span>\
-			</div>',
-		
-		ITEM_TEMPLATE = '\
-			<div class="button-item" tabindex="0" data="{{ id }}" data-target="{{ id }}">\
-				<span class="img">\
-					<img src="{{ icon }}" alt="" />\
-				</span>\
-				<p class="title">{{ title|e }}</p>\
-				<p class="description">{{ description|default("' + Supra.Intl.get(['insertblock', 'no_description']) + '")|e }}</p>\
-			</div>',
-		
-		PREVIEW_TEMPLATE = '\
-			<div class="item">\
-				' + DRAG_TEMPLATE + '\
-				' + ITEM_TEMPLATE + '\
-				<div class="item-description">\
-					{{ html|default("") }}\
-				</div>\
-			</div>';
-	
-	GROUP_TEMPLATE = Supra.Template.compile(GROUP_TEMPLATE);
-	DRAG_TEMPLATE = Supra.Template.compile(DRAG_TEMPLATE);
-	ITEM_TEMPLATE = Supra.Template.compile(ITEM_TEMPLATE);
-	PREVIEW_TEMPLATE = Supra.Template.compile(PREVIEW_TEMPLATE);
+		ICON_GROUP_PATH = '/cms/lib/supra/img/blocks/icons-groups/';
 	
 	//Add as left bar child
 	Manager.getAction('LayoutLeftContainer').addChildAction('PageInsertBlock');
@@ -149,10 +113,10 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				content.addClass('button-item-list');
 				
 				contents[group.id] = content.one('.su-slide-content');
-				contents[group.id].append(DRAG_TEMPLATE({}));
+				contents[group.id].append(Supra.Template('blockDragTemplate', {}));
 				
 				//
-				group_html += GROUP_TEMPLATE(group);
+				group_html += Supra.Template('blockGroupTemplate', group);
 			}
 			
 			main_content.one('.su-slide-content').append(group_html);
@@ -168,7 +132,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 					continue;
 				}
 				
-				var node = Y.Node.create(ITEM_TEMPLATE(block));
+				var node = Y.Node.create(Supra.Template('blockItemTemplate', block));
 				
 				contents[block.group].append(node);
 				
@@ -286,11 +250,11 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				id = node.getAttribute('data-target');
 			
 			//Check if opening block description and create slide
-			if (this.data[id]) {
+			if (this.data[id] && this.slideshow.get('slide') != id) {
 				var node = this.slideshow.addSlide({'id': id, 'removeOnHide': true}),
 					content = node.one('div.su-slide-content');
 				
-				content.append(PREVIEW_TEMPLATE(this.data[id]));
+				content.append(Supra.Template('blockPreviewTemplate', this.data[id]));
 				
 				//Drag and drop
 				if (this.dnd_tmp) this.dnd_tmp.destroy();
