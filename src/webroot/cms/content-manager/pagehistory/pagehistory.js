@@ -140,7 +140,8 @@ SU('anim', function (Y) {
 					this.set('loading', false);
 					
 					if (!status) {
-						target.removeClass('active');
+						//@TODO
+						//target.removeClass('active');
 					} else {
 						prev_target.removeClass('active');
 						this.current_version = version_id;
