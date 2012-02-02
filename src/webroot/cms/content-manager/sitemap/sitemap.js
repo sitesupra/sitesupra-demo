@@ -441,11 +441,7 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		setLoading: function (state) {
 			var node = this.one('div.yui3-sitemap-scrollable');
-			if (state) {
-				node.addClass('loading');
-			} else {
-				node.removeClass('loading');
-			}
+			node.setClass('loading', state);
 		},
 		
 		/**

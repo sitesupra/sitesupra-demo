@@ -279,7 +279,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 						}
 						
 						if (Y.Lang.isFunction(callback)) {
-							callback.call(context || window, data);
+							callback.call(context || window, data, status);
 						}
 					}
 				}
@@ -323,11 +323,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		_setOverlayVisible: function (value) {
-			if (value) {
-				this.overlay.removeClass('hidden');
-			} else {
-				this.overlay.addClass('hidden');
-			}
+			this.overlay.setClass('hidden', !value);
 			return !!value;
 		},
 		
@@ -468,11 +464,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Set loading state
 		 */
 		_setLoading: function (value) {
-			if (value) {
-				this.get('contentBox').addClass('yui3-page-iframe-loading');
-			} else {
-				this.get('contentBox').removeClass('yui3-page-iframe-loading');
-			}
+			this.get('contentBox').setClass('yui3-page-iframe-loading', value);
 		}
 		
 	});

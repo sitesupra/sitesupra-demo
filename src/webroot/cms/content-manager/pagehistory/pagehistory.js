@@ -1,18 +1,19 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
+SU('anim', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
+	var YDate = Y.DataType.Date;
 	
 	//Add as right bar child
-	Manager.getAction('LayoutRightContainer').addChildAction('PageHistory');
+	Manager.getAction('LayoutLeftContainer').addChildAction('PageHistory');
 	
 	//Create Action class
-	new Action(Supra.Manager.Action.PluginContainer, {
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -33,6 +34,13 @@ SU(function (Y) {
 		 * @private
 		 */
 		HAS_TEMPLATE: true,
+		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutLeftContainer',
 		
 		
 		
@@ -73,20 +81,39 @@ SU(function (Y) {
 		loading: false,
 		
 		
+		
+		
 		/**
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'done',
-				'context': this,
-				'callback': this.hide
-			}]);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
-			this.element_list = this.one('ul.history-list');
-			this.element_list.delegate('click', this.showVersionPreview, 'li', this);
+			//Control button
+			this.get('controlButton').on('click', this.hide, this);
+			
+			//List
+			this.timeline = this.one('div.timeline');
+			this.timeline.delegate('click', this.toggleSection, 'p.title', this);
+			this.timeline.delegate('click', this.showVersionPreview, '.group p', this);
+			
+			//Loading state attribute
+			this.addAttrs({
+				'loading': {
+					'value': false,
+					'setter':
+						function (value) {
+							this.one('.timeline').setClass('disabled', value);
+							return !!value;
+						}
+				}
+			});
 		},
+		
+		
+		/* ------------------------------------ VERSION DATA ------------------------------------ */
+		
 		
 		/**
 		 * Show version preview
@@ -95,25 +122,32 @@ SU(function (Y) {
 		 * @private
 		 */
 		showVersionPreview: function (e) {
-			if (this.loading) return;
+			if (this.get('loading')) return;
 			
-			var target = e.target.closest('li'),
-				version_id = target.getAttribute('data-id');
+			var target = e.target.closest('p'),
+				version_id = target.getAttribute('data-id'),
+				prev_target = null;
 			
 			if (this.current_version != version_id) {
-				this.current_version = version_id;
-				
-				target.siblings().removeClass('active');
+				prev_target = this.all('p.active');
 				target.addClass('loading');
 				target.addClass('active');
 				
-				this.disableList();
+				this.set('loading', true);
 				
-				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function () {
+				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function (data, status) {
 					target.removeClass('loading');
-					this.enableList();
+					this.set('loading', false);
+					
+					if (!status) {
+						target.removeClass('active');
+					} else {
+						prev_target.removeClass('active');
+						this.current_version = version_id;
+					}
 				}, this);
 				
+				/*
 				//Create button
 				if (!this.button) {
 					this.button = new Supra.Button({'label': Supra.Intl.get(['history', 'restore']), 'style': 'small'});
@@ -125,23 +159,8 @@ SU(function (Y) {
 				
 				//Move button to correct place
 				target.one('span').append(this.button.get('boundingBox'));
+				*/
 			}
-		},
-		
-		/**
-		 * Disable list
-		 */
-		enableList: function () {
-			this.loading = false;
-			this.one('.history-list').removeClass('history-list-disabled');
-		},
-		
-		/**
-		 * Disable list
-		 */
-		disableList: function () {
-			this.loading = true;
-			this.one('.history-list').addClass('history-list-disabled');
 		},
 		
 		/**
@@ -151,7 +170,7 @@ SU(function (Y) {
 		 */
 		restoreVersion: function (version_id) {
 			//Disable elements
-			this.disableList();
+			this.set('loading', true);
 			this.button.set('loading', true);
 			Manager.PageButtons.buttons[this.NAME][0].set('disabled', true);
 			
@@ -166,7 +185,7 @@ SU(function (Y) {
 				'on': {
 					'success': function () {
 						//Re-enable elements
-						this.enableList();
+						this.set('loading', false);
 						this.button.set('loading', false);
 						Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
 						
@@ -202,9 +221,7 @@ SU(function (Y) {
 		},
 		
 		/**
-		 * Restore page view, reload page data
-		 *
-		 * @param 
+		 * Restore normal page view, reload page data 
 		 */
 		reloadPage: function () {
 			var iframe = Manager.getAction('PageContent').iframe_handler;
@@ -222,12 +239,16 @@ SU(function (Y) {
 			this.current_version = null;
 		},
 		
+		
+		/* ------------------------------------ LIST ------------------------------------ */
+		
+		
 		/**
 		 * Reload data
 		 */
 		reloadList: function () {
 			
-			Supra.io(this.getDataPath('load'), {
+			Supra.io(this.getDataPath('load-new'), {
 				'data': {
 					'page_id': Manager.getAction('Page').getPageData().id,
 					'locale': Supra.data.get('locale')
@@ -244,8 +265,207 @@ SU(function (Y) {
 		 * Draw data
 		 */
 		renderData: function (data, status) {
-			this.element_list.set('innerHTML', Supra.Template('pageHistoryListItem', {'items': data}));
-			this.element_list.removeClass('loading');
+			data = this.parseData(data);
+			
+			this.get('contentNode').removeClass('loading');
+			
+			this.timeline.set('innerHTML', Supra.Template('timeline', {'data': data}));
+			
+			this.updateScrollbars();
+		},
+		
+		
+		/* ------------------------------------ Data parsing ------------------------------------ */
+		
+		
+		/**
+		 * Parse data and change format
+		 */
+		parseData: function (data) {
+			var i = 0,
+				ii = data.length,
+				out = {},
+				groups = null,
+				date = null;
+			
+			for(; i<ii; i++) {
+				date = this.parseDate(data[i].date);
+				
+				if (!out[date.group]) {
+					out[date.group] = {
+						'sort': date.group,
+						'title': date.group_title,
+						'latest': date.latest,
+						'groups': {}
+					}
+				}
+				if (!out[date.group].groups[date.group_datetime]) {
+					out[date.group].groups[date.group_datetime] = {
+						'sort': date.group_datetime,
+						'datetime': date.group_datetime,
+						'versions': []
+					};
+				}
+				
+				out[date.group].groups[date.group_datetime].versions.push({
+					'version_id': data[i].version_id,
+					'title': data[i].title,
+					'action': data[i].action,
+					'datetime': date.datetime,
+					'author_fullname': data[i].author_fullname
+				});
+			}
+			
+			//Convert objects to arrays
+			data = [];
+			
+			for(var i in out) {
+				groups = [];
+				for(var k in out[i].groups) {
+					groups.push(out[i].groups[k]);
+				}
+				
+				groups = groups.sort(function (a, b) {
+					return a.sort < b.sort ? 1 : -1;
+				});
+				
+				out[i].groups = groups;
+				data.push(out[i]);
+			}
+			
+			data.sort(function (a, b) {
+				return a.sort < b.sort ? 1 : -1;
+			});
+			
+			return data;
+		},
+		
+		/**
+		 * Parse date
+		 */
+		parseDate: function (date) {
+			var today = new Date(),
+				y_day = null,
+				month = null,
+				raw = YDate.reformat(date, 'in_datetime_short', 'raw'),
+				month_names = Y.Intl.get('datatype-date-format').B,
+				out = {
+					'raw': raw,
+					'latest': false,
+					'group': '',
+					'group_title': '',
+					'group_datetime': '',
+					'datetime': YDate.reformat(raw, 'raw', 'out_time')
+				};
+			
+			today.setHours(0, 0, 0, 0);
+			
+			y_day = new Date(today.getTime() - 24*60*60*1000);
+			
+			month = new Date(today.getTime());
+			month.setDate(1);
+			
+			if (raw.getTime() >= today.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-%d');
+				out.group_title = Supra.Intl.get(['history', 'today']);
+				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
+				out.latest = true;
+			}
+			else if (raw.getTime() >= y_day.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-%d');
+				out.group_title = Supra.Intl.get(['history', 'yesterday']);
+				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
+				out.latest = true;
+			}
+			else if (raw.getTime() >= month.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-99');
+				out.group_title = Supra.Intl.get(['history', 'this_month']);
+				out.group_datetime = raw.getDate();
+			}
+			else
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-99');
+				out.group_title = month_names[raw.getMonth()];
+				out.group_datetime = raw.getDate();
+			}
+			
+			return out;
+		},
+		
+		
+		/* ------------------------------------ UI ------------------------------------ */
+		
+		
+		/**
+		 * Show/hide section
+		 * 
+		 * @param {Object} e Event facade or Y.Node instance
+		 */
+		toggleSection: function (e) {
+			var item = (e.target ? e.target.closest('.item') : e),
+				section = item.one('.section'),
+				height = 0,
+				anim = null;
+			
+			if (item.hasClass('expanded')) {
+				//Collapse
+				anim = new Y.Anim({
+					'node': section,
+					'from': {'height': section.get('offsetHeight')},
+					'to':   {'height': 0},
+					'duration': 0.25,
+					'easing': 'easeOut'
+				});
+				
+				anim.on('end', Y.bind(function () {
+					anim.destroy();
+					item.removeClass('expanded');
+					section.setStyles({'height': null});
+					this.updateScrollbars();
+				}, this));
+				
+				anim.run();
+			} else {
+				//Collapse expanded siblings
+				var siblings = item.siblings('.expanded');
+				if (siblings.size()) {
+					this.toggleSection(siblings.item(0));
+				}
+				
+				//Find content height
+				section.setStyles({'display': 'block', 'position': 'absolute', 'left': '-9000px'});
+				height = section.get('offsetHeight');
+				
+				//Animate
+				section.setStyles({'display': null, 'position': null, 'left': null, 'height': '0px'});
+				item.addClass('expanded');
+				
+				anim = new Y.Anim({
+					'node': section,
+					'from': {'height': 0},
+					'to':   {'height': height},
+					'duration': 0.25,
+					'easing': 'easeOut'
+				});
+				
+				anim.on('end', Y.bind(function () {
+					anim.destroy();
+					section.setStyles({'height': null});
+					this.updateScrollbars();
+				}, this));
+				
+				anim.run();
+			}
+		},
+		
+		/**
+		 * Update scrollbars
+		 */
+		updateScrollbars: function () {
+			this.one('.su-scrollable').fire('contentResize');
 		},
 		
 		/**
@@ -257,35 +477,26 @@ SU(function (Y) {
 				this.reloadPage();
 			}
 			
+			//Hide sidebar
 			Action.Base.prototype.hide.apply(this, arguments);
 			
 			//Unset active and loading, so that next time PageHistory is shown
 			//there wouldn't be any items with selected or loading styles
-			this.loading = false;
-			this.element_list.all('.loading, .active').removeClass('loading').removeClass('active')
-			
-			//Hide buttons
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-			
-			//Hide action
-			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
+			this.set('loading', false);
+			this.timeline.all('.loading, .active').removeClass('loading active');
 		},
 		
 		/**
 		 * Execute action
 		 */
 		execute: function () {
+			this.show();
+			
 			//Unset version
 			this.current_version = null;
 			
-			//Show buttons
-			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
-			Manager.getAction('PageButtons').setActiveAction(this.NAME);
-			
-			//Show content
-			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
-			
+			//Load data
+			this.updateScrollbars();
 			this.reloadList();
 		}
 	});

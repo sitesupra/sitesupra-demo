@@ -467,13 +467,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * @private
 		 */
 		_setHighlight: function (value) {
-			if (value) {
-				this.set('disabled', true);
-				this.get('body').addClass('yui3-highlight');
-			} else {
-				this.set('disabled', false);
-				this.get('body').removeClass('yui3-highlight');
-				
+			this.set('disabled', value);
+			this.get('body').setClass('yui3-highlight', value);
+			
+			if (!value) {
 				for (var i in this.children) {
 					this.children[i].set('highlight', false);
 				}
@@ -486,11 +483,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * Disable editing
 		 */
 		_setDisabled: function (value) {
+			this.get('body').setClass('yui3-editable', !value);
+			
 			if (value) {
-				this.get('body').removeClass('yui3-editable');
 				this.set('activeChild', null);
-			} else {
-				this.get('body').addClass('yui3-editable');
 			}
 			
 			return !!value;

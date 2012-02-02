@@ -501,11 +501,9 @@ SU(function (Y) {
 			
 			//Show / hide buttons when action is shown / hidden
 			this.on('visibleChange', function (evt) {
-				if (evt.newVal) {
-					this.one().removeClass('hidden');
-				} else {
-					this.one().addClass('hidden');
-					
+				this.one().setClass('hidden', !evt.newVal);
+				
+				if (!evt.newVal) {
 					//Hide all subactions
 					var buttons = this.buttons;
 					for(var id in buttons) {

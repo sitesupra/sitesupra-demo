@@ -264,11 +264,10 @@ YUI.add("supra.languagebar", function (Y) {
 			if (!Y.Lang.isString(label)) label = '';
 			var node = this.get('srcNode').one('.label');
 			if (node) {
+				node.setClass('hidden', !label);
+				
 				if (label) {
-					node.removeClass('hidden');
 					node.set('text', label);
-				} else {
-					node.addClass('hidden');
 				}
 			}
 			return label;

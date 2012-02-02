@@ -12,7 +12,7 @@ SU(function (Y) {
 	Manager.getAction('LayoutRightContainer').addChildAction('BlocksView');
 	
 	//Create Action class
-	new Action(Supra.Manager.Action.PluginContainer, {
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -51,6 +51,13 @@ SU(function (Y) {
 		 */
 		type: '',
 		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutRightContainer',
+		
 		
 		
 		/**
@@ -58,11 +65,7 @@ SU(function (Y) {
 		 */
 		render: function () {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'done',
-				'context': this,
-				'callback': this.hide
-			}]);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
 			
 			var container = this.one('ul.block-list');
@@ -115,6 +118,9 @@ SU(function (Y) {
 				}
 				*/
 			}, 'li', this);
+			
+			//Control button
+			this.get('controlButton').on('click', this.hide, this);
 		},
 		
 		/**
@@ -193,13 +199,6 @@ SU(function (Y) {
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			
-			//Hide buttons
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-			
-			//Hide action
-			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
 		},
 		
 		/**
@@ -224,12 +223,16 @@ SU(function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
+			this.show();
+			
+			/*
 			//Show buttons
 			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			
 			//Show content
 			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
+			*/
 			
 			//Get all blocks for selected type and display icons
 			this.renderData();

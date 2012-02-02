@@ -213,11 +213,8 @@ YUI().add('website.sitemap-settings', function (Y) {
 					this.button_duplicate.show();
 					this.button_rename.hide();
 				}
-				if (data.has_hidden_pages) {
-					this.node_hidden_pages.removeClass('hidden');
-				} else {
-					this.node_hidden_pages.addClass('hidden');
-				}
+				
+				this.node_hidden_pages.setClass('hidden', !data.has_hidden_pages);
 				
 				this.panel.show();
 				this.panel.set('arrowAlign', target);

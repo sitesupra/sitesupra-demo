@@ -685,7 +685,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.manager-action-plugin-layout-sidebar': {
 		path: 'manager/action/plugin-layout-sidebar.js',
-		requires: ['supra.manager-action-plugin-base']
+		requires: ['supra.manager-action-plugin-base', 'supra.input', 'supra.scrollable']
 	}
 	
 };

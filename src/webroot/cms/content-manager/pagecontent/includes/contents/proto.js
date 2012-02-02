@@ -577,11 +577,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var node = this.overlay;
 			
 			if (node) {
-				if (value) {
-					node.addClass(CLASSNAME_DRAGABLE);
-				} else {
-					node.removeClass(CLASSNAME_DRAGABLE);
-				}	
+				node.setClass(CLASSNAME_DRAGABLE, value);
 			}
 			
 			return !!value;
@@ -634,11 +630,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (!this.overlay) return false;
 			if (value == this.get('highlightOverlay')) return !!value;
 			
-			if (value) {
-				this.overlay.addClass(CLASSNAME_OVERLAY_HOVER);
-			} else {
-				this.overlay.removeClass(CLASSNAME_OVERLAY_HOVER);
-			}
+			this.overlay.setClass(CLASSNAME_OVERLAY_HOVER, value);
 			
 			return !!value;
 		},
@@ -653,11 +645,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (!this.overlay) return false;
 			this.set('highlightOverlay', !!value);
 			
-			if (value) {
-				this.overlay.addClass(CLASSNAME_OVERLAY_LOADING);
-			} else {
-				this.overlay.removeClass(CLASSNAME_OVERLAY_LOADING);
-			}
+			this.overlay.setClass(CLASSNAME_OVERLAY_LOADING, value);
 			
 			return !!value;
 		},
@@ -669,16 +657,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		_setHighlight: function (value) {
+			this.getNode().setClass('yui3-highlight-' + this.getBlockType(), value);
+			
 			if (value) {
-				this.getNode().addClass('yui3-highlight-' + this.getBlockType());
 				if (this.get('editing')) {
 					this.set('editing', false);
 				}
 				if (this.get('highlightOverlay')) {
 					this.set('highlightOverlay', false);
 				}
-			} else {
-				this.getNode().removeClass('yui3-highlight-' + this.getBlockType());
 			}
 			
 			return !!value;

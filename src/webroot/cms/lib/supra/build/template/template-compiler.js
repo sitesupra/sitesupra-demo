@@ -173,6 +173,16 @@ YUI.add('supra.template-compiler', function (Y) {
 		},
 		
 		/**
+		 * Output value
+		 * Used in compilerExpressions
+		 * 
+		 * @param {String} expression Expression to output
+		 */
+		'output': function (str) {
+			return 'p+=' + str + ';';
+		},
+		
+		/**
 		 * Debug value
 		 * 
 		 * @param {Object} object Object to debug
@@ -631,6 +641,10 @@ YUI.add('supra.template-compiler', function (Y) {
 				}
 				
 				return '_d.loop.index++;_d.loop.index0++;_d.loop.revindex--;_d.loop.revindex0--;_d.loop.first=false;_d.loop.last=_d.loop.index==_d.loop.length;} }';
+			},
+			// {% include "TemplateId" %}
+			'include': function (template) {
+				return 'p+=Supra.Template(' + C.compileVar(template) + ', _d);';
 			}
 		}
 	};

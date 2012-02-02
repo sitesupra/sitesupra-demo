@@ -620,6 +620,17 @@ YUI.add('supra.panel', function (Y) {
 		},
 		
 		/**
+		 * Add or remove classname to panels most outer element
+		 * 
+		 * @param {String} classname
+		 */
+		setClass: function (classname, value) {
+			var box = this.get('boundingBox');
+			if (box) box.setClass(classname, value);
+			return this;
+		},
+		
+		/**
 		 * Remove classname from panels most outer element
 		 * 
 		 * @param {String} classname

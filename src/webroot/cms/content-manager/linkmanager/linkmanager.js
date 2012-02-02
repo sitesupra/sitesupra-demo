@@ -346,11 +346,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						//On "Internal / External" hide show slide
 						this.form.getInput('linkManagerType').on('visibleChange', function (evt) {
 							if (evt.prevVal != evt.newVal) {
-								if (evt.newVal) {
-									Y.one('#linkToPage').removeClass('no-switch');
-								} else {
-									Y.one('#linkToPage').addClass('no-switch');
-								}
+								Y.one('#linkToPage').setClass('no-switch', !evt.newVal);
 							}
 						}, this);
 						
@@ -591,20 +587,13 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 			}, data || {});
 			
 			//Show footer for existing link and hide for new link
-			if (this.mode == 'link' && !data.page_id && !data.file_id && !data.href) {
-				this.one('.sidebar-footer').addClass('hidden');
-				this.one('.sidebar-content').removeClass('has-footer');
-			} else {
-				this.one('.sidebar-footer').removeClass('hidden');
-				this.one('.sidebar-content').addClass('has-footer');
-			}
+			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href);
+			
+			this.one('.sidebar-footer').setClass('hidden', hide_footer);
+			this.one('.sidebar-content').setClass('has-footer', !hide_footer);
 			
 			//Hide link controls?
-			if (this.options.hideLinkControls) {
-				this.one('.sidebar-content').removeClass('has-link-controls');
-			} else {
-				this.one('.sidebar-content').addClass('has-link-controls');
-			}
+			this.one('.sidebar-content').setClass('has-link-controls', !this.options.hideLinkControls);
 			
 			//Since file title is different input 'title' is used to transfer data
 			//reverse it

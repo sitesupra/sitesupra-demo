@@ -1,25 +1,48 @@
 <div class="yui3-page-history">
 	
-	<!-- Form header -->
-	<h2 class="sidebar-header">{# history.title #}</h2>
-	
-	<!-- Buttons -->
-	<div class="sidebar-buttons hidden">
-		<button type="button" class="button-back"><p>{# buttons.back #}</p></button>
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/history.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2>{# history.title #}</h2>
 	</div>
 	
 	<div class="sidebar-content scrollable has-header loading">
 	
-		<ul class="history-list loading"></ul>
+		<div class="timeline"></div>
 		
-		<script type="text/html" id="pageHistoryListItem">
-			{% for item in items %}
-			<li data-id="{{ item.version_id|e }}">
-				<span>
-					{# history.by #} {{ item.author_fullname|e }}
-					<span>{# history.on #} {{ item.date|datetime_short }}</span>
-				</span>
-			</li>
+		<script type="text/html" id="timeline">
+			<div class="line"></div>
+			
+			{% for period in data %}
+			<div class="item">
+				<div class="icon"></div>
+				<div class="line"><div></div></div>
+				<p class="title">{{ period.title|e }}</p>
+				
+				<div class="section {% if period.latest %}latest{% endif %}">
+					{% for group in period.groups %}
+					<div class="group">
+						<div class="icon">{{ group.datetime }}</div>
+						{% for version in group.versions %}
+							<p {% if version.action != 'publish' %}class="minor"{% endif %} data-id="{{ version.version_id|e }}">
+								{% set action_title = 'history.' + version.action %}
+								{{ version.datetime }} {{ version.title|default('')|e }} {{ action_title|intl }}
+								<em>{# history.by #} {{ version.author_fullname|e }}</em>
+							</p>
+						{% endfor %}
+					</div>
+					{% endfor %}
+				</div>
+			</div>
 			{% endfor %}
 		</script>
 	

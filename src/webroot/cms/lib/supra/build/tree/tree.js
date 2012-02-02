@@ -301,11 +301,7 @@ YUI.add('supra.tree', function(Y) {
 			var node = this.get('boundingBox'),
 				classname = C('tree', 'loading');
 			
-			if (value) {
-				node.addClass(classname);
-			} else {
-				node.removeClass(classname);
-			}
+			node.setClass(classname, value);
 			
 			return !!value;
 		}

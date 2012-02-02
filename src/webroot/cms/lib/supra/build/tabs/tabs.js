@@ -195,12 +195,9 @@ YUI.add('supra.tabs', function(Y) {
 		_setVisible: function (visible) {
 			var box = this.get('boundingBox');
 			if (box) {
-				if (visible) {
-					box.removeClass('hidden');
-				} else {
-					box.addClass('hidden');
-				}
+				box.setClass('hidden', !visible);
 			}
+			return visible;
 		},
 		
 		showTab: function (id) {
@@ -230,12 +227,7 @@ YUI.add('supra.tabs', function(Y) {
 			var classname = this.getClassName('toggle');
 			if (value) {
 				container.addClass(classname);
-				
-				if (!this.get('activeTab')) {
-					this.get('nodeContentContainer').addClass('hidden');
-				} else {
-					this.get('nodeContentContainer').removeClass('hidden');
-				}
+				this.get('nodeContentContainer').setClass('hidden', !this.get('activeTab'));
 			} else {
 				container.removeClass(classname);
 				this.get('nodeContentContainer').removeClass('hidden');
@@ -255,14 +247,12 @@ YUI.add('supra.tabs', function(Y) {
 			}
 			
 			if (value) {
-				this.get('nodeContentContainer').removeClass('hidden');
-				
 				this.tabs[value].button.set('down', true);
 				this.tabs[value].content.removeClass('hidden');
 				this.tabs[value].container.addClass(this.getClassName('item', 'selected'));
-			} else {
-				this.get('nodeContentContainer').addClass('hidden');
 			}
+			
+			this.get('nodeContentContainer').setClass('hidden', !value);
 			
 			this.fire('activeTabChange', {'prevValue': old, 'newValue': value});
 			
@@ -272,6 +262,12 @@ YUI.add('supra.tabs', function(Y) {
 		addClass: function () {
 			var box = this.get('boundingBox');
 			if (box) return box.addClass.apply(box, arguments);
+			return null;
+		},
+		
+		setClass: function () {
+			var box = this.get('boundingBox');
+			if (box) return box.setClass.apply(box, arguments);
 			return null;
 		},
 		

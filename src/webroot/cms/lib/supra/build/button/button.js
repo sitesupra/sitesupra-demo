@@ -253,11 +253,7 @@ YUI.add('supra.button', function (Y) {
 			var box = this.get('boundingBox');
 			
 			if (box) {
-				if (loading) {
-					box.addClass(this.getClassName('loading'));
-				} else {
-					box.removeClass(this.getClassName('loading'));
-				}
+				box.setClass(this.getClassName('loading'), loading);
 			}
 			
 			this.set('disabled', loading);
@@ -278,15 +274,11 @@ YUI.add('supra.button', function (Y) {
 		_setDown: function (down) {
 			if (down == this.get('down')) return !!down;
 			
-			if (down) {
-				var box = this.get('boundingBox');
-				if (box) box.addClass(this.getClassName('down'));
-			} else {
-				var box = this.get('boundingBox');
-				if (box) box.removeClass(this.getClassName('down'));
-			}
-			
-			if (box) box.removeClass(this.getClassName('mouse-hover'));
+			var box = this.get('boundingBox');
+			if (box) {
+				box.setClass(this.getClassName('down'), down);
+				box.removeClass(this.getClassName('mouse-hover'));
+			} 
 			
 			return !!down;
 		},
@@ -309,13 +301,8 @@ YUI.add('supra.button', function (Y) {
 		
 		_setVisible: function (visible) {
 			var box = this.get('boundingBox');
-			if (box) {
-				if (visible) {
-					box.removeClass('hidden');
-				} else {
-					box.addClass('hidden');
-				} 
-			}
+			if (box) box.setClass('hidden', !visible);
+			return visible;
 		},
 		
 		_setIcon: function (value) {
@@ -352,12 +339,10 @@ YUI.add('supra.button', function (Y) {
 			var box = this.get('boundingBox');
 			if (box) {
 				box.removeClass(this.getClassName('mouse-down'));
+				box.setClass(this.getClassName('down'), this.get('down'));
 				
 				if (this.get('down')) {
-					box.addClass(this.getClassName('down'));
 					box.removeClass(this.getClassName('mouse-hover'));
-				} else {
-					box.removeClass(this.getClassName('down'));
 				}
 			}
 		},
@@ -398,6 +383,12 @@ YUI.add('supra.button', function (Y) {
 		removeClass: function () {
 			var box = this.get('boundingBox');
 			if (box) box.removeClass.apply(box, arguments);
+			return this;
+		},
+		
+		setClass: function () {
+			var box = this.get('boundingBox');
+			if (box) box.setClass.apply(box, arguments);
 			return this;
 		},
 		

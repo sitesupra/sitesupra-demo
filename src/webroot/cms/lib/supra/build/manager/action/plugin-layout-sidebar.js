@@ -15,6 +15,14 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 	Y.extend(PluginSidebar, Action.PluginBase, {
 		
 		/**
+		 * Content scroller, Supra.Scrollable instance
+		 * @type {Object}
+		 */
+		scrollable: null,
+		
+		
+		
+		/**
 		 * Initialize plugin
 		 */
 		initialize: function () {
@@ -78,9 +86,13 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			
 			//Scrollable
 			this.host.addAttr('scrollable', {
-				'value': false,
+				'value': node.hasClass('scrollable'),
 				'setter': Y.bind(this.setScrollable, this)
 			});
+			
+			if (this.host.get('scrollable')) {
+				this.setScrollable(true);
+			}
 			
 			/*
 			 * In frozen state if sidebar is hidden then toolbar buttons
@@ -176,6 +188,12 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			
 			if (scrollable) {
 				node.addClass('scrollable');
+				if (!this.scrollable) {
+					var children = node.get('children');
+					this.scrollable = new Supra.Scrollable();
+					this.scrollable.render(node);
+					this.scrollable.get('contentBox').append(children);
+				}
 			} else {
 				node.removeClass('scrollable');
 			}
@@ -275,4 +293,4 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['supra.manager-action-plugin-base', 'supra.input']});
+}, YUI.version, {requires: ['supra.manager-action-plugin-base', 'supra.input', 'supra.scrollable']});

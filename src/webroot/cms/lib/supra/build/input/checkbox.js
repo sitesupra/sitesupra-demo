@@ -174,19 +174,16 @@ YUI.add("supra.input-checkbox", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			value = (value === true || value == '1');
+			
 			//Check
-			this.get('inputNode').set('value', value === true || value == '1' ? '1' : '0');
+			this.get('inputNode').set('value', value ? '1' : '0');
 			
 			//Update style
-			if (value === true || value == '1') {
-				var node = this.get('backgroundNode');
-				if (node) node.addClass('active');
-				return true;
-			} else {
-				var node = this.get('backgroundNode');
-				if (node) node.removeClass('active');
-				return false;
-			}
+			var node = this.get('backgroundNode');
+			if (node) node.setClass('active', value);
+			
+			return value;
 		},
 		
 		_animate: function (from, to) {

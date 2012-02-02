@@ -635,10 +635,9 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 					//Redirect title
 					if (data && data.href) {
 						this.redirect_title.one('a.title').set('text', data.title || data.href);
-						this.redirect_title.removeClass('hidden');
-					} else {
-						this.redirect_title.addClass('hidden');
 					}
+					
+					this.redirect_title.setClass('hidden', !data || !data.href);
 					
 					// Trying to set correct titles for redirect selects buttons 
 					// or reset them to defaults if redirect is empty
@@ -808,11 +807,7 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 			
 			for(var i=inputs.length - 1; i>=0; i--) {
 				if (typeof inputs[i][1] == 'string') {
-					if (inputs[i][0] == type) {
-						this.one(inputs[i][1]).ancestor().addClass('hidden');
-					} else {
-						this.one(inputs[i][1]).ancestor().removeClass('hidden');
-					}
+					this.one(inputs[i][1]).ancestor().setClass('hidden', inputs[i][0] == type);
 				} else {
 					if (inputs[i][0] == type) {
 						inputs[i][1].hide();

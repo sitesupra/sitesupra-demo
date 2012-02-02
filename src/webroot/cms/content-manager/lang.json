@@ -298,9 +298,15 @@
 		"history": {
 			"button": "History",
 			
-			"title": "Page history",
-			"by": "By",
-			"on": "on",
+			"title": "History",
+			
+			"publish": "published",
+			"change": "changed",
+			"by": "by",
+			
+			"today": "Today",
+			"yesterday": "Yesterday",
+			"this_month": "This month",
 			
 			"restore": "Restore",
 			"restore_message": "Are you sure?"

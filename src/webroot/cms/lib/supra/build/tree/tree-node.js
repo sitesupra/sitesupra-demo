@@ -36,12 +36,9 @@ YUI.add('supra.tree-node', function(Y) {
 		syncUI: function () {
 			var data = this.get('data');
 			var node = this.get('nodeToggle');
+			var visible = (data && 'children' in data && data.children.length);
 			
-			if (data && 'children' in data && data.children.length) {
-				node.removeClass('hidden');
-			} else {
-				node.addClass('hidden');
-			}
+			node.setClass('hidden', !visible);
 		},
 		
 		toggle: function () {
@@ -234,11 +231,7 @@ YUI.add('supra.tree-node', function(Y) {
 			if (evt.prevVal != evt.newVal) {
 				var node = this.get('boundingBox').one('div.tree-node');
 				if (node) {
-					if (evt.newVal) {
-						node.removeClass('unselectable');
-					} else {
-						node.addClass('unselectable');
-					}
+					node.setClass('unselectable', !evt.newVal);
 				}
 			}
 		},
@@ -371,17 +364,15 @@ YUI.add('supra.tree-node', function(Y) {
 			if (!!value == this.get('isSelected')) return value;
 			
 			var classname = C('tree-node', 'selected');
+			this.get('boundingBox').one('div').setClass(classname, value);
+			
 			if (value) {
-				this.get('boundingBox').one('div').addClass(classname);
-				
 				setTimeout(Y.bind(function () {
 					var tree = this.getTree();
 					if (tree.get('selectedNode') !== this) {
 						this.getTree().set('selectedNode', this);
 					}
 				}, this), 1);
-			} else {
-				this.get('boundingBox').one('div').removeClass(classname);
 			}
 			
 			return !!value;
@@ -389,11 +380,7 @@ YUI.add('supra.tree-node', function(Y) {
 		
 		_setLoading: function (loading) {
 			var classname = C('tree-node', 'loading');
-			if (loading) {
-				this.get('boundingBox').one('div').addClass(classname);
-			} else {
-				this.get('boundingBox').one('div').removeClass(classname);
-			}
+			this.get('boundingBox').one('div').setClass(classname, loading);
 			
 			return !!loading;
 		}

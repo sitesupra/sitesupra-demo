@@ -134,11 +134,7 @@ YUI.add('website.sitemap-flowmap-item', function (Y) {
 		},
 		
 		onChildChange: function () {
-			if (this.size()) {
-				this.get('boundingBox').addClass('has-children');
-			} else {
-				this.get('boundingBox').removeClass('has-children');
-			}
+			this.get('boundingBox').setClass('has-children', this.size());
 		},
 		
 		/**

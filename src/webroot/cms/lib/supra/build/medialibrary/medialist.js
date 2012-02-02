@@ -673,11 +673,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var node = this.getItemNode(id);
 			if (!node) return this;
 			
-			if (state) {
-				node.addClass('type-folder-private');
-			} else {
-				node.removeClass('type-folder-private');
-			}
+			node.setClass('type-folder-private', state);
 			
 			//Update all children
 			var children = this.get('dataObject').getChildrenData(id);
