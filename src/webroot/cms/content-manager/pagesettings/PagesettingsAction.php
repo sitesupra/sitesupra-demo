@@ -171,7 +171,7 @@ class PagesettingsAction extends PageManagerAction
 				} catch (EntityAccessDeniedException $e) {
 
 					$this->getResponse()
-							->addWarningMessage('Your changes have been stored, however because You do not have permission to publish this page, scheduled publish date is not.');
+							->addWarningMessage('Scheduled publish date is not saved. You must have Supervise permission to use scheduling functionality.');
 				}
 			}
 
