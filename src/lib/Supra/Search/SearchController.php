@@ -122,7 +122,7 @@ class SearchController extends BlockController
 		if ( ! is_null($results)) {
 			return $results;
 		}
-
+		
 		if ($request instanceof PageRequestView) {
 
 			if ( ! is_null($q)) {
@@ -140,6 +140,10 @@ class SearchController extends BlockController
 					$results = $e;
 				}
 			}
+		}
+		
+		if (is_null($results)) {
+			$results = new PageLocalizationSearchResultSet();
 		}
 
 		$response->getContext()
