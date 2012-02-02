@@ -12,5 +12,9 @@ interface SearchRequestInterface
 
 	public function addSimpleFilter($name, $value);
 	
+	/**
+	 * @param Solarium_Result_Select $selectResults 
+	 * @return DefaultSearchResultSet
+	 */
 	public function processResults(Solarium_Result_Select $selectResults);
 }

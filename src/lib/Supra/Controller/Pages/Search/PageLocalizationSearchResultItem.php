@@ -124,6 +124,7 @@ class PageLocalizationSearchResultItem extends SearchResultItemAbstraction
 	function __construct(Solarium_Document_ReadOnly $document, Solarium_Result_Select_Highlighting $highlighting = null)
 	{
 		$this->setUniqueId($document->uniqueId);
+		$this->setClass($document->class);
 
 		$this->setLocaleId($document->localeId);
 		$this->setPageWebPath($document->pageWebPath);

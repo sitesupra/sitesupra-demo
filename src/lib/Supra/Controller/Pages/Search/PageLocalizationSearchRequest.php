@@ -110,22 +110,25 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	}
 
 	/**
-	 * @TODO: should return result object not an array
 	 * @param Solarium_Result_Select $selectResults 
+	 * @return DefaultSearchResultSet
 	 */
 	public function processResults(Solarium_Result_Select $selectResults)
 	{
-		$resultSet = new PageLocalizationSearchResultSet();
-
+		$resultSet = new DefaultSearchResultSet();
+		
 		$highlighting = $selectResults->getHighlighting();
 
 		foreach ($selectResults as $selectResultItem) {
-			
-			$item = new PageLocalizationSearchResultItem($selectResultItem, $highlighting);
 
-			$resultSet->add($item);
+			if ($selectResultItem->class == PageLocalization::CN()) {
+
+				$item = new PageLocalizationSearchResultItem($selectResultItem, $highlighting);
+
+				$resultSet->add($item);
+			}
 		}
-		
+
 		$resultSet->setTotalResultCount($selectResults->getNumFound());
 
 		return $resultSet;

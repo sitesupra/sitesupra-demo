@@ -2,6 +2,8 @@
 
 namespace Supra\Search\Result;
 
+use Supra\Search\Result\SearchResultPostprocesserInterface;
+
 interface SearchResultSetInterface
 {
 
@@ -14,4 +16,8 @@ interface SearchResultSetInterface
 	public function getTotalResultCount();
 
 	public function setTotalResultCount($totalResultCount);
+	
+	public function addPostprocesser(SearchResultPostprocesserInterface $postprocesser);
+	
+	public function runPostprocessers();
 }

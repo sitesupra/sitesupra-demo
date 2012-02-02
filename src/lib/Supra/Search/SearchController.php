@@ -20,6 +20,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultSet;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 
 /**
  * Simple text block
@@ -74,7 +75,7 @@ class SearchController extends BlockController
 
 			$response->assign('error', true);
 			$response->outputTemplate($configuration->resultsTemplateFilename);
-		} else if ($results instanceof PageLocalizationSearchResultSet) {
+		} else if ($results instanceof Result\DefaultSearchResultSet) {
 
 			$totalResultCount = $results->getTotalResultCount();
 
@@ -85,8 +86,6 @@ class SearchController extends BlockController
 			} else {
 
 				$em = ObjectRepository::getEntityManager($this);
-
-				$results->gatherBreadcrumbs($em);
 
 				$totalPages = ceil($results->getTotalResultCount() / $configuration->resultsPerPage);
 				$response->assign('resultsPerPage', $configuration->resultsPerPage);
@@ -101,7 +100,7 @@ class SearchController extends BlockController
 	}
 
 	/**
-	 * @return RuntimeException | PageLocalizationSearchResultSet
+	 * @return RuntimeException | DefaultSearchResultSet
 	 */
 	protected function getResults()
 	{
@@ -141,9 +140,9 @@ class SearchController extends BlockController
 				}
 			}
 		}
-		
+
 		if (is_null($results)) {
-			$results = new PageLocalizationSearchResultSet();
+			$results = new Result\DefaultSearchResultSet();
 		}
 
 		$response->getContext()
@@ -154,18 +153,16 @@ class SearchController extends BlockController
 
 	/**
 	 * @param string $text
-	 * @return PageLocalizationSearchResultSet
+	 * @return Result\DefaultSearchResultSet
 	 */
 	private function doSearch($text, $maxRows, $startRow)
 	{
 		$searchService = new SearchService();
 
-		$searchRequest = new PageLocalizationSearchRequest();
-
 		$lm = ObjectRepository::getLocaleManager($this);
-
 		$locale = $lm->getCurrent();
 
+		$searchRequest = new PageLocalizationSearchRequest();
 		$searchRequest->setResultMaxRows($maxRows);
 		$searchRequest->setResultStartRow($startRow);
 		$searchRequest->setText($text);
@@ -173,6 +170,11 @@ class SearchController extends BlockController
 		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 
 		$results = $searchService->processRequest($searchRequest);
+		
+		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
+		$results->addPostprocesser($pageLocalizationPostProcesser);
+		
+		$results->runPostprocessers();
 
 		return $results;
 	}

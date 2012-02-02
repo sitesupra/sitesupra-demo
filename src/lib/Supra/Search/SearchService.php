@@ -66,7 +66,7 @@ class SearchService
 		$selectResults = $solariumClient->select($selectQuery);
 
 		$requestResults = $request->processResults($selectResults);
-
+		
 		return $requestResults;
 	}
 

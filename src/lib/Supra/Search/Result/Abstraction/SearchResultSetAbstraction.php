@@ -5,6 +5,8 @@ namespace Supra\Search\Result\Abstraction;
 use Supra\Search\Result\SearchResultSetInterface;
 use Supra\Search\Result\SearchResultItemInterface;
 use Supra\Search\Result\Exception;
+use Supra\Search\Result\SearchResultPostprocesserInterface;
+use Supra\Search\Result\DefaultSearchResultSet;
 
 abstract class SearchResultSetAbstraction implements SearchResultSetInterface
 {
@@ -13,6 +15,17 @@ abstract class SearchResultSetAbstraction implements SearchResultSetInterface
 	 * @var array 
 	 */
 	protected $items;
+
+	/**
+	 *
+	 * @var array
+	 */
+	protected $postprocessers;
+
+	/**
+	 * @var boolean
+	 */
+	protected $postprocessersRun;
 
 	/**
 	 * @var integer
@@ -56,15 +69,63 @@ abstract class SearchResultSetAbstraction implements SearchResultSetInterface
 	{
 		return count($this->items);
 	}
-
+	
+	/**
+	 * Returns total count of matched (but not returned!) items in resultset.
+	 * @return integer
+	 */
 	public function getTotalResultCount()
 	{
 		return $this->totalResultCount;
 	}
 	
+	/**
+	 * Set total count of matched (but not returned!) items in resultset.
+	 * @param integer $totalResultCount 
+	 */
 	public function setTotalResultCount($totalResultCount)
 	{
 		$this->totalResultCount = $totalResultCount;
+	}
+
+	/**
+	 * @param SearchResultPostprocesserInterface $postprocesser 
+	 */
+	public function addPostprocesser(SearchResultPostprocesserInterface $postprocesser)
+	{
+		$this->postprocessers[] = $postprocesser;
+	}
+
+	public function runPostprocessers()
+	{
+		if ( ! $this->postprocessersRun) {
+
+			foreach ($this->postprocessers as $postprocesser) {
+				/* @var $postprocesser SearchResultPostprocesserInterface */
+				$items = $this->getItems();
+
+				$postprocesserClasses = $postprocesser->getClasses();
+
+				$relevantItemSet = $items;
+				
+				if ( ! empty($postprocesserClasses)) {
+
+					$relevantItemSet = new DefaultSearchResultSet();
+
+					foreach ($items as $item) {
+						/* @var $item SearchResultItemInterface */
+						
+						if (in_array($item->getClass(), $postprocesserClasses)) {
+							$relevantItemSet->add($item);
+						}
+					}
+				}
+				
+				$postprocesser->postprocessResultSet($relevantItemSet);
+				
+				$this->postprocessersRun;
+			}
+		}
 	}
 
 }
