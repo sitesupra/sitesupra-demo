@@ -70,14 +70,12 @@ class FixtureHelper
 			$user = $this->up->findUserByLogin($userName . '@supra7.vig');
 		}
 
-		$em = $this->up->getEntityManager();
 		$plainPassword = $userName;
 		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 
 		if (empty($user)) {
 
-			$user = new User();
-			$em->persist($user);
+			$user = $this->up->createUser();
 
 			$user->setLogin($userName);
 			$user->setName($userName);
@@ -86,7 +84,6 @@ class FixtureHelper
 
 		// Reset password
 		$this->up->getAuthAdapter()->credentialChange($user, $password);
-		$em->flush();
 
 		if ( ! empty($group)) {
 
@@ -105,14 +102,13 @@ class FixtureHelper
 	public function makeGroup($groupName)
 	{
 		$group = $this->up->findGroupByName($groupName);
-		$em = $this->up->getEntityManager();
 
 		if (empty($group)) {
 
-			$group = new Group();
-			$em->persist($group);
+			$group = $this->up->createGroup();
 			$group->setName($groupName);
-			$em->flush();
+			
+			$this->up->updateGroup($group);
 		}
 
 		return $group;
@@ -143,7 +139,7 @@ class FixtureHelper
 
 		$adminsGroup = $users[$adminUserName]->getGroup();
 		$adminsGroup->setIsSuper(true);
-		$this->up->getEntityManager()->flush();
+		$this->up->updateGroup($group);
 
 		$superUser = $users[$superUserName];
 

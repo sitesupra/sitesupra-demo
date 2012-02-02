@@ -44,7 +44,9 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		
 		// Begin "both" (maybe) connections
 		$this->em->beginTransaction();
-		$this->up->getEntityManager()->beginTransaction();
+		
+		$userProviderEm = ObjectRepository::getEntityManager($this->up);
+		$userProviderEm->beginTransaction();
 
 		$this->ap = new AuthorizationProvider();
 		
@@ -62,9 +64,11 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	{
 		$name = 'test_' . rand(0, 999999999);
 		
-		$user = new \Supra\User\Entity\User();
-		$this->up->getEntityManager()->persist($user);
+		//$user = new \Supra\User\Entity\User();
+		//$this->up->getEntityManager()->persist($user);
 
+		$user = $this->up->createUser();
+		
 		$user->setName($name);
 		$user->setEmail($name . '@' . $name . '.com');
 		$plainPassword = 'Norris';
@@ -73,7 +77,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$this->up->getAuthAdapter()
 				->credentialChange($user, $password);
 
-		$this->up->getEntityManager()->flush();		
+		//$this->up->getEntityManager()->flush();		
 		
 		\Log::debug('Made test user: ' . $name);
 		
@@ -82,7 +86,8 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	
 	function tearDown() 
 	{
-		$this->up->getEntityManager()->rollback();
+		$userProviderEm = ObjectRepository::getEntityManager($this->up);
+		$userProviderEm->rollback();
 	
 		// Rollback second EM as well if connections differs, second rollback otherwise
 		$this->em->rollback();
