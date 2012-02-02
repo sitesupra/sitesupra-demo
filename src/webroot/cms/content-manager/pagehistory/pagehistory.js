@@ -249,7 +249,12 @@ SU('anim', function (Y) {
 		 */
 		reloadList: function () {
 			
-			Supra.io(this.getDataPath('load-new'), {
+			var data = [{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l11","date":"2012-02-02 13:30","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l12","date":"2012-02-02 13:11","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l13","date":"2012-02-02 10:55","action":"change","title":"Text block","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l14","date":"2012-02-02 06:43","action":"change","title":"Template","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l15","date":"2012-02-02 06:22","action":"change","title":"Text block","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l16","date":"2012-02-01 11:26","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l17","date":"2012-02-01 11:10","action":"publish","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-02-01 06:10","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-02-01 06:01","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-30 12:22","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-28 18:22","action":"publish","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-28 14:55","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2011-12-22 16:55","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2011-11-07 18:20","action":"publish","author_fullname":"tim"}];
+			this.renderData(data, true);
+			
+			//@TODO
+			/*
+			Supra.io(this.getDataPath('load'), {
 				'data': {
 					'page_id': Manager.getAction('Page').getPageData().id,
 					'locale': Supra.data.get('locale')
@@ -259,6 +264,7 @@ SU('anim', function (Y) {
 					'success': this.renderData
 				}
 			});
+			*/
 			
 		},
 		
@@ -356,7 +362,7 @@ SU('anim', function (Y) {
 					'group': '',
 					'group_title': '',
 					'group_datetime': '',
-					'datetime': YDate.reformat(raw, 'raw', 'out_time')
+					'datetime': YDate.reformat(raw, 'raw', 'out_time_short')
 				};
 			
 			today.setHours(0, 0, 0, 0);
@@ -415,8 +421,8 @@ SU('anim', function (Y) {
 				//Collapse
 				anim = new Y.Anim({
 					'node': section,
-					'from': {'height': section.get('offsetHeight')},
-					'to':   {'height': 0},
+					'from': {'height': section.get('offsetHeight'), 'opacity': 1},
+					'to':   {'height': 0, 'opacity': 0},
 					'duration': 0.25,
 					'easing': 'easeOut'
 				});
@@ -431,10 +437,12 @@ SU('anim', function (Y) {
 				anim.run();
 			} else {
 				//Collapse expanded siblings
+				/*
 				var siblings = item.siblings('.expanded');
 				if (siblings.size()) {
 					this.toggleSection(siblings.item(0));
 				}
+				*/
 				
 				//Find content height
 				section.setStyles({'display': 'block', 'position': 'absolute', 'left': '-9000px'});
@@ -446,8 +454,8 @@ SU('anim', function (Y) {
 				
 				anim = new Y.Anim({
 					'node': section,
-					'from': {'height': 0},
-					'to':   {'height': height},
+					'from': {'height': 0, 'opacity': 0},
+					'to':   {'height': height, 'opacity': 1},
 					'duration': 0.25,
 					'easing': 'easeOut'
 				});
