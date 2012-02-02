@@ -24,6 +24,7 @@
 \newcommand{\vigClientNameShort}{client}
 \newcommand{\vigProjectName}{SiteSupra 7}
 \newcommand{\vigProjectNameShort}{supra7}
+\newcommand{\vigPackageSolr}{supra7.solr.3.5.0.REV.zip}
 \newcommand{\vigAttn}{Person Name}
 %\newcommand{\vigDocumentRevision}{\svnrev}
 \newcommand{\vigDocumentRevision}{1}
@@ -39,7 +40,7 @@
 %\ifthenelse{\vigShowNotes=1}{
 \textbf{NOTE:} 
 %\textcolor{Brown}{
-#1
+\textit{#1}
 %}
 %}{}
 }
@@ -48,7 +49,7 @@
 %\ifthenelse{\vigShowNotes=1}{
 \textbf{TODO:} 
 %\textcolor{Red}{
-#1
+\textit{#1}
 %}
 %}{}
 }
@@ -138,14 +139,14 @@ Web application is delivered in several packages.
 
 \begin{itemize}
 	\item \textbf{{\vigPackageName}.web.\vigReleaseVersion.zip} -- contains web application. It is installed on the Web Server.
-	\item \textbf{{\vigPackageName}.solr.\vigReleaseVersion.zip} -- contains Apache Solr installation and configuration files. It is installed on the Web Server.
+	\item \textbf{\vigPackageSolr} -- contains Apache Solr installation and configuration files. It is installed on the Web Server.
 	\item \textbf{{\vigPackageName}.dump.\vigReleaseVersion.zip} -- contains database initial installation dump files. It is installed on the database server.
 	\item \textbf{{\vigPackageName}.database.\vigReleaseVersion.zip} -- contains database upgrade files. It is installed on the database server.
 \end{itemize}
 
 Some of the packages can be not delivered if the corresponding components don't need to be installed or upgraded.
 
-The example commands in this document assumes these packages are downloaded into the system user's home directory \textsf{{\vigReleasePath}}.
+The example commands in this document assumes these packages are downloaded into the system user's home directory \texttt{{\vigReleasePath}}.
 
 Part \textbf{\vigReleaseVersion} in the package filenames denotes product version number. It must be replaced by current version number when executing commands in the further examples.
 
@@ -168,12 +169,13 @@ Web application requires one of the following operating systems:
 Web server: Apache HTTP Server version 2.2.x or latest from 2.2 branch. The following Apache modules must be installed:
 \begin{itemize}
 	\item mod\_rewrite;
-	\item mod\_php;
-	\item mod\_deflate.
+	\item mod\_php.
 \end{itemize}
 
 \item 
-PHP version 5.3.6 or latest from 5.3 branch must be installed, freely available at \url{http://www.php.net}. The PHP CLI and Apache HTTP Server module \textsf{mod\_php} must be installed on the Web Server as documented in \url{http://php.net/manual/en/install.unix.php}.
+PHP version 5.3.6 or latest from 5.3 branch must be installed, freely available at \url{http://www.php.net}. The PHP CLI and Apache HTTP Server module \texttt{mod\_php} must be installed on the Web Server as documented in \url{http://php.net/manual/en/install.unix.php}.
+
+This guide assumes that the \texttt{php} CLI command is in the system path. Specify full path to the executable in the command examples mentioned further if your environment doesn't allow setting the command in the system path.
 
 \note{PHP 5.3.3 required because "As of PHP 5.3.3, methods with the same name as the last element of a namespaced class name will no longer be treated as constructor. This change doesn't affect non-namespaced classes.". Some Supra classes might have methods with name equal to classname without intention to work as constructor.}
 	
@@ -193,46 +195,35 @@ Apache Solr requires Oracle Java Virtual Machine (HotSpot) installed.
 
 PHP must be installed or built with the following PHP extensions enabled:
 
-\textsf{apc}, \textsf{ctype}, \textsf{curl}, \textsf{fileinfo}, \textsf{filter}, \textsf{freetype}, \textsf{gd} (with gif, jpeg, bmp, png support enabled), \textsf{hash}, \textsf{iconv}, \textsf{json}, \textsf{mbstring}, \textsf{openssl}, \textsf{pcre}, \textsf{pdo}, \textsf{pdo\_mysql}, \textsf{posix}, \textsf{session}, \textsf{simplexml}, \textsf{xml}, \textsf{zlib}.
+\texttt{apc}, \texttt{ctype}, \texttt{curl}, \texttt{fileinfo}, \texttt{filter}, \texttt{freetype}, \texttt{gd} (with gif, jpeg, bmp, png support enabled), \texttt{hash}, \texttt{iconv}, \texttt{json}, \texttt{mbstring}, \texttt{openssl}, \texttt{pcre}, \texttt{pdo}, \texttt{pdo\_mysql}, \texttt{posix}, \texttt{session}, \texttt{simplexml}, \texttt{xml}, \texttt{zlib}.
 
-\note{Most popular extra extensions we forget to add are \textsf{zip} (PHPExcel), \textsf{shmop} (GeoIP), \textsf{soap}, \textsf{ldap}.}
+\note{Most popular extra extensions we forget to add are \texttt{zip} (PHPExcel), \texttt{shmop} (GeoIP), \texttt{soap}, \texttt{ldap}.}
 
 \subsubsection{PECL extension Installation}
-Some extensions, like \textsf{memcache}, are not bundled with PHP and must be installed from PECL repository.
+Some extensions, like \texttt{memcache}, are not bundled with PHP and must be installed from PECL repository.
 
-Install PECL PHP extension with command "pecl install <package name>" (more information in \url{http://php.net/manual/en/install.pecl.pear.php}) or use phpize command (more information in \url{http://php.net/manual/en/install.pecl.phpize.php})
+Install PECL PHP extension with command "pecl install {\textless}package name{\textgreater}" (more information in \url{http://php.net/manual/en/install.pecl.pear.php}) or use phpize command (more information in \url{http://php.net/manual/en/install.pecl.phpize.php})
 
 \subsubsection{Modify PHP Configuration}
 
-Use the php.ini-production file from bundled with PHP with values recommended for production installations.
+Use the \texttt{php.ini-production} file bundled with PHP with values recommended for production installations.
 
 Additionally check and modify your php.ini file according to the requirements below:
 
 \begin{itemize}
-	\item \textsf{safe\_mode = Off}
+	\item \texttt{safe\_mode = Off}
 	
 	\note{Swift mailer uses "proc\_\*" functions}
 	
-	\item \textsf{memory\_limit = 64MB}
+	\item \texttt{memory\_limit = 64MB}
 	
 	\note{Increase this for bigger projects}
 	
 	\item Configure these parameters depending the size of media you'll need to upload through the website:
-	\\ \textsf{post\_max\_size = 10MB}
-	\\ \textsf{upload\_max\_filesize = 10MB}
+	\\ \texttt{post\_max\_size = 10MB}
+	\\ \texttt{upload\_max\_filesize = 10MB}
 	
 \end{itemize}
-
-\subsubsection{Apache HTTP Server Configuration}
-
-Configure \textsf{mod\_deflate} module to compress these content types automatically if browser supports it:
-
-\begin{alltt}
-AddOutputFilterByType DEFLATE text/html text/plain text/xml
-AddOutputFilterByType DEFLATE text/css
-AddOutputFilterByType DEFLATE application/javascript
-AddOutputFilterByType DEFLATE application/rss+xml
-\end{alltt}
 
 \subsubsection{Apache Solr Installation\label{solrInstallation}}
 
@@ -241,37 +232,25 @@ Create folder for Solr installation and unzip solr package into it.
 \begin{alltt}
 \$ mkdir /opt/solr
 \$ cd /opt/solr
-\$ unzip {\vigReleasePath}{\vigPackageName}.solr.\vigReleaseVersion.zip
+\$ unzip \vigPackageSolr
 \end{alltt}
 
-Create system user \textsf{solr} for the indexer service. Grant ownership for solr home directory to the new user.
+Create system user \texttt{solr} for the indexer service. Grant ownership for solr home directory to the new user and make Jetty startup script executable.
 
 \begin{alltt}
-\$ useradd -d /opt/solr -s /sbin/false solr
+\$ useradd -d /opt/solr -s /bin/false solr
 \$ chown solr:solr -R /opt/solr
+\$ chmod +x /opt/solr/jetty.sh
 \end{alltt}
 
-Copy Jetty Java Server configuration provided in the package to \textsf{/etc/default/} folder.
-
-\begin{alltt}
-\$ cp /opt/solr/jetty.conf /etc/default/jetty
-\end{alltt}
-
-Edit the file \textsf{/etc/defaults/jetty}. Check it contains valid JAVA\_HOME environment variable set according to your JVM installation.
-
-Copy Jetty startup script to allow starting and stopping the service as daemon.
-
-\begin{alltt}
-\$ cp /opt/solr/jetty.sh /etc/init.d/jetty
-\$ chmod +x /etc/init.d/jetty
-\end{alltt}
+Edit the file \texttt{/opt/solr/jetty.conf}. Check it contains valid \texttt{JAVA\_HOME} environment variable set according to your JVM installation.
 
 You should configure the system to start the Jetty server automatically on system boot.
 
-Start the Jetty service. By default it is bound to localhost:8983, it won't be accessible by other network. Test it by opening \url{http://localhost:8983/solr/} on the Web Server after starting the service.
+Start the Jetty service. By default it is bound to localhost:8983 and it won't be accessible by other network. Test it by opening \url{http://localhost:8983/solr/} on the Web Server after starting the service.
 
 \begin{alltt}
-\$ /etc/init.d/jetty start
+\$ /opt/solr/jetty.sh start
 \end{alltt}
 
 \subsection{Database Server}
@@ -285,13 +264,15 @@ Please refer to MySql documentation regarding database administration concepts s
 
 \subsubsection{Database Server Configuration}
 
-Enter the MySql console and create database user \textsf{supra} with the chosen password. Choose strong not guessable password if the database server can be used by other applications.
+Enter the MySql console and create database user \texttt{supra} with the chosen password. Choose strong not guessable password if the database server can be used by other applications.
 
 \begin{alltt}
 CREATE USER 'supra'@'\%' IDENTIFIED BY '<password>';
 \end{alltt}
 
 The server must be configured to accept connections from the Web Server.
+
+You can choose another MySql user name. Then it must be changed in further commands and configuration as well.
 
 \subsection{Memcached Server}
 Operating system requirements are the same as for the Web Server.
@@ -312,7 +293,7 @@ The server must accept connections from the Web Server.
 
 \subsubsection{Unpacking Files}
 
-Extract \textbf{web} component's archive file. The below examples assume web application destination folder is \textsf{{\vigPathToProject}}.
+Extract \textbf{web} component's archive file. The below examples assume web application destination folder is \texttt{{\vigPathToProject}}.
 
 \begin{alltt}
 \$ cd \vigPathToProject/
@@ -329,18 +310,18 @@ Run the command below to set the Apache user as the owner of all application fil
 \$ chown -R httpd \vigPathToProject
 \end{alltt}
 
-Example assumes the Apache is run under \textsf{httpd} user.
+Example assumes the Apache is run under \texttt{httpd} user.
 
-All files and folders under \textsf{\vigPathToProject} directory must be writable by the user \textsf{httpd}.
+All files and folders under \texttt{\vigPathToProject} directory must be writable by the user \texttt{httpd}.
 
 \note{Fixed list of folders and files which must be writable could be generated as well.}
 
 \subsubsection{Web Application Configuration}
-Configure web application by modifying configuration file \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini}:
+Configure web application by modifying configuration file \texttt{\vigPathToProject\vigPathToSrc/conf/supra.ini}:
 
 \begin{itemize}
 	\item Provide database connection details;
-	\item Provide \textsf{solr} server configuration;
+	\item Provide \texttt{solr} server configuration;
 	\item Configure other parameters according to your needs.
 	%\item Any specific supra.ini settings?
 \end{itemize}
@@ -357,7 +338,7 @@ Create database by running the following statement:
 mysql> CREATE DATABASE \vigProjectNameShort CHARACTER SET UTF8;
 \end{alltt}
 
-Grant full permissions to the database for \textsf{supra} MySql user:
+Grant full permissions to the database for \texttt{supra} MySql user:
 
 \begin{alltt}
 mysql> GRANT ALL ON \vigProjectNameShort.* TO supra@'\%';
@@ -382,67 +363,64 @@ mysql> \textbackslash. {\vigReleasePath}{\vigPackageName}.dump.\vigReleaseVersio
 Application needs a scheduled task to be installed on the Web Server. The command
 
 \begin{alltt}
-\$ /usr/bin/php \vigPathToProject/bin/supra su:cron
+\$ php \vigPathToProject/bin/supra su:cron
 \end{alltt}
 
 must be run periodically. Recommended period is 1 minute.
 
-Sample \textsf{crontab} configuration line:
+Sample \texttt{crontab} configuration line:
 
 \begin{alltt}
-* * * * * /usr/bin/php \vigPathToProject/bin/supra su:cron
+* * * * * php \vigPathToProject/bin/supra su:cron
 \end{alltt}
 
 \subsection{Apache HTTP Server Host Configuration}
 
 Project may be configured in Apache HTTP Server as virtual host. This is recommended option.
 
-Below is an example of the configuration. The actual configuration of virtual host may vary depending on system specific settings.
+Below is an example of the minimal configuration. The actual configuration of virtual host may vary depending on system specific settings.
 
 \begin{alltt}
 <VirtualHost *:80>
-  ServerAdmin administrator@company.com
   DocumentRoot "\vigPathToProject\vigPathToWebroot"
   <Directory "\vigPathToProject\vigPathToWebroot">
     Order allow,deny
     Allow from all
   </Directory>
-  ServerName www.acme.com
-  ServerAlias acme.com
+  ServerName www.example.com
+  ServerAlias example.com
   DirectoryIndex index.php
-  ErrorLog "/var/log/apache/acme-error\_log"
-  CustomLog "/var/log/apache/acme-access\_log" common
 
   RewriteEngine on
   RewriteCond \%\{DOCUMENT_ROOT\}\%\{REQUEST_FILENAME\}.less -f
-  RewriteRule ^(.*\textbackslash.css)\$ /cms/lib/supra/combo/combo.php?\$1 [L,NS]  
+  RewriteRule ^.*\textbackslash.css\$ /cms/lib/supra/combo/combo.php?\$0 [L,NS]  
   RewriteCond \%\{DOCUMENT_ROOT\}\%\{REQUEST_FILENAME\} -f
   RewriteRule ^ - [L,NS]
-  RewriteRule ^(.*)\$ /index.php\$1 [L,NS]
+  RewriteRule ^.*\$ /index.php\$0 [L,NS]
 </VirtualHost>
 \end{alltt}
 
-Also .htaccess based configuration is possible. The Apache DocumentRoot directive must point to the folder "\vigPathToProject\vigPathToWebroot" and the .htaccess file must be placed inside it.
+Also \texttt{.htaccess} based configuration is possible. The Apache \texttt{DocumentRoot} directive must point to the folder \texttt{\vigPathToProject\vigPathToWebroot} and the \texttt{.htaccess} file must be placed inside it. Apache HTTP Server must be configured to allow \texttt{.htaccess} file usage.
 
 Example of such configuration:
 
 \begin{alltt}
 RewriteEngine on
 RewriteCond \%\{REQUEST_FILENAME\}.less -f
-RewriteRule ^(.*\textbackslash.css)\$ /cms/lib/supra/combo/combo.php?\$1 [L,NS]
+RewriteRule ^.*\textbackslash.css\$ /cms/lib/supra/combo/combo.php?\$0 [L,NS]
 RewriteCond \%\{REQUEST_FILENAME\} -f
-RewriteRule ^(.*)\$ - [L,NS]
-RewriteRule ^(.*)\$ index.php/\$1 [L,NS]
+RewriteRule ^ - [L,NS]
+RewriteRule ^.*\$ index.php/\$0 [L,NS]
 \end{alltt}
 
 \subsection{Reindex Search\label{reindexSearch}}
 Rebuild of search index is required when the database is installed for the first time. Depending on database size, rebuilding of search index may take several minutes. It can be done by running these commands:
 
 \begin{alltt}
-\$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe
-\$ /usr/bin/php \vigPathToProject/bin/supra su:search:wipe_queues
-\$ /usr/bin/php \vigPathToProject/bin/supra su:search:queue_all_pages
-\$ /usr/bin/php \vigPathToProject/bin/supra su:search:run_indexer
+\$ php \vigPathToProject/bin/supra su:search:wipe
+\$ php \vigPathToProject/bin/supra su:search:wipe_queues
+\$ php \vigPathToProject/bin/supra su:search:queue_all_pages
+\$ php \vigPathToProject/bin/supra su:search:run_indexer
 \end{alltt}
 
 \section{Upgrade Procedure}
@@ -475,7 +453,7 @@ Extract \textbf{web} package in your product installation directory:
 \end{alltt}
 
 \subsubsection{Configure Web Application}
-Edit \textsf{\vigPathToProject\vigPathToSrc/conf/supra.ini} file. You may copy individual values from the old version of the file. Do not copy entire file from the old version because new release configuration file might contain new configuration properties and application might not start when these properties will be missing.
+Edit \texttt{\vigPathToProject\vigPathToSrc/conf/supra.ini} file. You may copy individual values from the old version of the file. Do not copy entire file from the old version because new release configuration file might contain new configuration properties and application might not start when these properties will be missing.
 
 \subsubsection{Copy Content from Backup}
 Copy content folder from the backup:
@@ -496,7 +474,7 @@ Apache Solr upgrade is required only if solr package is provided in the upgrade 
 Stop Jetty server beforehand.
 
 \begin{alltt}
-\$ /etc/init.d/jetty stop
+\$ /opt/solr/jetty.sh stop
 \end{alltt}
 
 Backup current solr home directory.
@@ -505,12 +483,12 @@ Backup current solr home directory.
 \$ mv /opt/solr /opt/solr.bak
 \end{alltt}
 
-Follow instructions from the first time installation in \ref{solrInstallation} except \textsf{solr} user creation part.
+Follow instructions from the first time installation in \ref{solrInstallation} except \texttt{solr} user creation part.
 
 Finally start Jetty server.
 
 \begin{alltt}
-\$ /etc/init.d/jetty start
+\$ /opt/solr/jetty.sh start
 \end{alltt}
 
 \subsection{Database Component Upgrade}
@@ -522,7 +500,7 @@ To upgrade the database component follow the next steps:
 \begin{enumerate}
 	\item Copy database package {\vigPackageName}.database.\vigReleaseVersion.zip to database server.
 	\item Extract the archive.
-	\item Perform database backup as \textsf{supra} MySql user.
+	\item Perform database backup as \texttt{supra} MySql user.
 	\item Run all *.sql files from the database package. Make sure you are executing them in the right order -- each SQL script has its own ordinal number. Execute the scripts in ascending order. Be sure scripts return no errors.
 \end{enumerate}
 

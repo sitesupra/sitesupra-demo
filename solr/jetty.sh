@@ -1,6 +1,19 @@
 #!/bin/bash  
+
 #
 # Startup script for jetty under *nix systems (it works under NT/cygwin too).
+
+# JETTY_HOME
+#   Where Jetty is installed. If not set, the script will try go
+#   guess it by first looking at the invocation path for the script,
+#   and then by looking in standard locations as $HOME/opt/jetty
+#   and /opt/jetty. The java system property "jetty.home" will be
+#   set to this value for use by configure.xml files, f.e.:
+#
+#    <Arg><SystemProperty name="jetty.home" default="."/>/webapps/jetty.war</Arg>
+#
+
+JETTY_HOME=/opt/solr
 
 # To get the service to restart correctly on reboot, uncomment below (3 lines):
 # ========================
@@ -11,25 +24,9 @@
 
 # Configuration files
 #
-# /etc/default/jetty
+# $JETTY_HOME/jetty.conf
 #   If it exists, this is read at the start of script. It may perform any 
 #   sequence of shell commands, like setting relevant environment variables.
-#
-# $HOME/.jettyrc
-#   If it exists, this is read at the start of script. It may perform any 
-#   sequence of shell commands, like setting relevant environment variables.
-#
-# /etc/jetty.conf
-#   If found, and no configurations were given on the command line,
-#   the file will be used as this script's configuration. 
-#   Each line in the file may contain:
-#     - A comment denoted by the pound (#) sign as first non-blank character.
-#     - The path to a regular file, which will be passed to jetty as a 
-#       config.xml file.
-#     - The path to a directory. Each *.xml file in the directory will be
-#       passed to jetty as a config.xml file.
-#
-#   The files will be checked for existence before being passed to jetty.
 #
 # $JETTY_HOME/etc/jetty.xml
 #   If found, used as this script's configuration file, but only if
@@ -46,15 +43,6 @@
 #
 # JAVA_OPTIONS
 #   Extra options to pass to the JVM
-#
-# JETTY_HOME
-#   Where Jetty is installed. If not set, the script will try go
-#   guess it by first looking at the invocation path for the script,
-#   and then by looking in standard locations as $HOME/opt/jetty
-#   and /opt/jetty. The java system property "jetty.home" will be
-#   set to this value for use by configure.xml files, f.e.:
-#
-#    <Arg><SystemProperty name="jetty.home" default="."/>/webapps/jetty.war</Arg>
 #
 # JETTY_PORT
 #   Override the default port for Jetty servers. If not set then the
@@ -134,20 +122,10 @@ CONFIGS=""
 NO_START=0
 
 ##################################################
-# See if there's a default configuration file
-##################################################
-if [ -f /etc/default/jetty6 ] ; then 
-  . /etc/default/jetty6
-elif [ -f /etc/default/jetty ] ; then 
-  . /etc/default/jetty
-fi
-
-
-##################################################
 # See if there's a user-specific configuration file
 ##################################################
-if [ -f $HOME/.jettyrc ] ; then 
-  . $HOME/.jettyrc
+if [ -f $JETTY_HOME/jetty.conf ] ; then 
+  . $JETTY_HOME/jetty.conf
 fi
 
 ##################################################
