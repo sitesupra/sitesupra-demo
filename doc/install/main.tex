@@ -33,6 +33,7 @@
 \newcommand{\vigPathToSrc}{/src}
 \newcommand{\vigPathToWebroot}{\vigPathToSrc/webroot}
 \newcommand{\vigReleasePath}{\textasciitilde/}
+\newcommand{\vigReleaseVersion}{X.Y.Z}
 
 \newcommand{\note}[1]{
 %\ifthenelse{\vigShowNotes=1}{
@@ -108,22 +109,22 @@ Fax:  + (371) 6 729 33 45\\
 e-mail: info@videinfra.com\\
 \url{http://www.videinfra.com}
 
-\section*{Authorship}
-
-\begin{tabularx}{\textwidth}{X X X}
- \textbf{Name} & \textbf{Email} & \textbf{Phone} \\
- \hline\noalign{\smallskip}
-% Your Name & your@email.com & +371-NNNNNNNN\\
-\end{tabularx}
-
-\section*{Revision History}
-Previous document ID:
-
-\begin{tabularx}{\textwidth}{l X l l}
- \textbf{Date} & \textbf{\mbox{Changes description}} & \textbf{Location} & \textbf{Initiated by} \\
- \hline\noalign{\smallskip}
-% 2011-01-01 & Blah blah blah blah blah blah blah blah & System requirements & Your Name \\
-\end{tabularx}
+%\ section*{Authorship}
+%
+%\begin{tabularx}{\textwidth}{X X X}
+% \textbf{Name} & \textbf{Email} & \textbf{Phone} \\
+% \hline\noalign{\smallskip}
+%% Your Name & your@email.com & +371-NNNNNNNN\\
+%\end{tabularx}
+%
+%\ section*{Revision History}
+%Previous document ID:
+%
+%\begin{tabularx}{\textwidth}{l X l l}
+% \textbf{Date} & \textbf{\mbox{Changes description}} & \textbf{Location} & \textbf{Initiated by} \\
+% \hline\noalign{\smallskip}
+%% 2011-01-01 & Blah blah blah blah blah blah blah blah & System requirements & Your Name \\
+%\end{tabularx}
 
 \newpage
 
@@ -136,17 +137,17 @@ This document describes system requirements and installation procedure for {\vig
 Web application is delivered in several packages.
 
 \begin{itemize}
-	\item \textbf{{\vigPackageName}.web.X.Y.Z.zip} -- contains web application. It is installed on the Web Server.
-	\item \textbf{{\vigPackageName}.solr.X.Y.Z.zip} -- contains Apache Solr installation and configuration files. It is installed on the Web Server.
-	\item \textbf{{\vigPackageName}.database.X.Y.Z.zip} -- contains database initial installation dump files. It is installed on the database server.
-	\item \textbf{{\vigPackageName}.database.X.Y.Z.zip} -- contains database upgrade files. It is installed on the database server.
+	\item \textbf{{\vigPackageName}.web.\vigReleaseVersion.zip} -- contains web application. It is installed on the Web Server.
+	\item \textbf{{\vigPackageName}.solr.\vigReleaseVersion.zip} -- contains Apache Solr installation and configuration files. It is installed on the Web Server.
+	\item \textbf{{\vigPackageName}.dump.\vigReleaseVersion.zip} -- contains database initial installation dump files. It is installed on the database server.
+	\item \textbf{{\vigPackageName}.database.\vigReleaseVersion.zip} -- contains database upgrade files. It is installed on the database server.
 \end{itemize}
 
 Some of the packages can be not delivered if the corresponding components don't need to be installed or upgraded.
 
 The example commands in this document assumes these packages are downloaded into the system user's home directory \textsf{{\vigReleasePath}}.
 
-Part \textbf{X.Y.Z} in the package filenames denotes product version number. It must be replaced by current version number when executing commands in the further examples.
+Part \textbf{\vigReleaseVersion} in the package filenames denotes product version number. It must be replaced by current version number when executing commands in the further examples.
 
 \section{System Requirements}
 
@@ -176,15 +177,15 @@ PHP version 5.3.6 or latest from 5.3 branch must be installed, freely available 
 
 \note{PHP 5.3.3 required because "As of PHP 5.3.3, methods with the same name as the last element of a namespaced class name will no longer be treated as constructor. This change doesn't affect non-namespaced classes.". Some Supra classes might have methods with name equal to classname without intention to work as constructor.}
 	
-\note{5.3.6 required for correct Mysql charset support on connection options without "SET NAMES" request.}
+\note{At least 5.3.6 is recommended for correct Mysql charset support on connection options without "SET NAMES" initial request.}
 
-\item 	
+\item
 Apache Solr 3.5 or later from version 3 branch must be installed. It is used for website search indexing and querying.
 
-Apache Solr requires Java Virtual Machine installed.
+Apache Solr requires Oracle Java Virtual Machine (HotSpot) installed.
 %Installation guide is available by address \url{http://wiki.apache.org/solr/SolrInstall}.
 
-\note{Solr 3.5 required for Hunspell dictionary support.}
+\note{At least Solr 3.5 required for Hunspell dictionary support.}
 
 \end{enumerate}
 
@@ -240,7 +241,7 @@ Create folder for Solr installation and unzip solr package into it.
 \begin{alltt}
 \$ mkdir /opt/solr
 \$ cd /opt/solr
-\$ unzip {\vigReleasePath}{\vigPackageName}.solr.X.Y.Z.zip
+\$ unzip {\vigReleasePath}{\vigPackageName}.solr.\vigReleaseVersion.zip
 \end{alltt}
 
 Create system user \textsf{solr} for the indexer service. Grant ownership for solr home directory to the new user.
@@ -315,7 +316,7 @@ Extract \textbf{web} component's archive file. The below examples assume web app
 
 \begin{alltt}
 \$ cd \vigPathToProject/
-\$ unzip {\vigReleasePath}{\vigPackageName}.web.X.Y.Z.zip
+\$ unzip {\vigReleasePath}{\vigPackageName}.web.\vigReleaseVersion.zip
 \end{alltt}
 
 \note{Initial content must be provided inside web package. Section "copy files" removed.}
@@ -368,12 +369,12 @@ For more security permission can be granted for Web Server host only. Please ref
 Extract database component archive and install database by executing the extracted SQL script file from the MySql console.
 
 \begin{alltt}
-\$ unzip {\vigReleasePath}{\vigPackageName}.dump.X.Y.Z.zip
+\$ unzip {\vigReleasePath}{\vigPackageName}.dump.\vigReleaseVersion.zip
 \end{alltt}
 
 \begin{alltt}
 mysql> use \vigProjectNameShort;
-mysql> \textbackslash. {\vigReleasePath}{\vigPackageName}.dump.X.Y.Z.sql
+mysql> \textbackslash. {\vigReleasePath}{\vigPackageName}.dump.\vigReleaseVersion.sql
 \end{alltt}
 
 \subsection{Scheduled Task Configuration}
@@ -470,7 +471,7 @@ Extract \textbf{web} package in your product installation directory:
 
 \begin{alltt}
 \$ mkdir \vigPathToProject
-\$ unzip {\vigReleasePath}{\vigPackageName}.web.X.Y.Z.zip -d \vigPathToProject
+\$ unzip {\vigReleasePath}{\vigPackageName}.web.\vigReleaseVersion.zip -d \vigPathToProject
 \end{alltt}
 
 \subsubsection{Configure Web Application}
@@ -519,7 +520,7 @@ Database upgrade is required only if database package is provided in the upgrade
 To upgrade the database component follow the next steps:
 
 \begin{enumerate}
-	\item Copy database package {\vigPackageName}.database.X.Y.Z.zip to database server.
+	\item Copy database package {\vigPackageName}.database.\vigReleaseVersion.zip to database server.
 	\item Extract the archive.
 	\item Perform database backup as \textsf{supra} MySql user.
 	\item Run all *.sql files from the database package. Make sure you are executing them in the right order -- each SQL script has its own ordinal number. Execute the scripts in ascending order. Be sure scripts return no errors.
