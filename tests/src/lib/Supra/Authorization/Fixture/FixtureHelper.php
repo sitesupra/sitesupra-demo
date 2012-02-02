@@ -69,7 +69,7 @@ class FixtureHelper
 		if (empty($user)) {
 			$user = $this->up->findUserByLogin($userName . '@supra7.vig');
 		}
-
+		
 		$plainPassword = $userName;
 		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 
@@ -82,15 +82,12 @@ class FixtureHelper
 			$user->setEmail($userName . '@supra7.vig');
 		}
 
-		// Reset password
-		$this->up->getAuthAdapter()->credentialChange($user, $password);
-
 		if ( ! empty($group)) {
-
 			$user->setGroup($group);
-			$em->flush();
 		}
-
+		
+		// Reset password
+		$this->up->getAuthAdapter()->credentialChange($user, $password);		
 		return $user;
 	}
 
