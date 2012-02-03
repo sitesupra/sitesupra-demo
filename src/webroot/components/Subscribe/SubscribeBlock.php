@@ -13,6 +13,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Mailer\MassMail\Entity\Subscriber;
 use Supra\Validator\Exception;
+//use Supra\Mailer\Exception;
 
 /**
  * Description of SubscribeBlock
@@ -37,9 +38,19 @@ class SubscribeBlock extends BlockController
 	 * @var Response\TwigResponse
 	 */
 	protected $response;
+	protected $subscriberManager;
+	protected $massMail;
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->massMail = ObjectRepository::getMassMail($this);
+		$this->subscriberManager = $this->massMail->getSubscriberManager();
+	}
 
 	public function execute()
 	{
+
 		$this->request = $this->getRequest();
 		$this->response = $this->getResponse();
 
@@ -100,14 +111,18 @@ class SubscribeBlock extends BlockController
 				$error[] = 'empty_subscriber_name';
 			}
 
-			//Check is subscriber already exists and active
+			/* @var $localization PageLocalization */
+			$localization = $this->getRequest()->getPageLocalization();
 
-			$activeSubscriber = $this->getSubscriber($email, null, true);
+			if ( ! ($localization instanceof Entity\PageLocalization)) {
+				return null;
+			}
 
-			/**
-			 * @todo how to handle this case?
-			 */
-			if ( ! empty($activeSubscriber)) {
+
+			//Create new subscriber
+			try {
+				$subscriber = $this->subscriberManager->createSubscriber($email, $subscriberName, false);
+			} catch (Exception\RuntimeException $e) {
 				$error[] = 'subscriber_alredy_active';
 			}
 
@@ -116,18 +131,7 @@ class SubscribeBlock extends BlockController
 				return;
 			}
 
-			/* @var $localization PageLocalization */
-			$localization = $this->getRequest()->getPageLocalization();
 
-			if ( ! ($localization instanceof Entity\PageLocalization)) {
-				return null;
-			}
-
-			//Remove old unconfirmed records
-			$this->deleteSubscriber($email, $hash = null, $active = false);
-
-			//Create new subscriber
-			$subscriber = $this->createSubscriber($email, $subscriberName);
 			$hash = $subscriber->getConfirmHash();
 
 			//Create url for confirm subscribe
@@ -150,9 +154,7 @@ class SubscribeBlock extends BlockController
 			}
 
 			if (empty($error)) {
-				$entityManager = ObjectRepository::getEntityManager($this);
-				$entityManager->persist($subscriber);
-				$entityManager->flush();
+				$this->massMail->flush();
 			} else {
 				$this->response->assign('error', $error);
 			}
@@ -196,14 +198,13 @@ class SubscribeBlock extends BlockController
 			}
 
 			//Get subscriber
-			$subscriber = $this->getSubscriber($email, null, true);
+			$subscriber = $this->subscriberManager->
+					getSingleSubscriberByEmail($email, null, true);
 
 			if (empty($subscriber)) {
 				$error[] = 'subscriber_not_found';
 				$this->response->assign('error', $error);
 				return;
-			} else {
-				$subscriber = $subscriber[0];
 			}
 
 			$subscriber->generateConfirmHash();
@@ -230,9 +231,7 @@ class SubscribeBlock extends BlockController
 			}
 
 			if (empty($error)) {
-				$entityManager = ObjectRepository::getEntityManager($this);
-				$entityManager->persist($subscriber);
-				$entityManager->flush();
+				$this->massMail->flush();
 			}
 
 			$this->response->assign('error', $error);
@@ -249,13 +248,17 @@ class SubscribeBlock extends BlockController
 		$email = $this->request->getParameter('email', '');
 		$hash = $this->request->getParameter('hash', '');
 
-		$confirmedSubscriber = $this->confirmSubscribe($email, $hash);
+		$subscriberToActivate = $this->subscriberManager->getSingleSubscriberByEmail($email, $hash);
 
-		if ( ! ($confirmedSubscriber instanceof Subscriber)) {
+		if ( ! ($subscriberToActivate instanceof Subscriber)) {
 			$error = true;
 		} else {
-			$this->response->assign('name', $confirmedSubscriber->getName());
+			$this->subscriberManager->activateSubscriber($subscriberToActivate);
+			$this->response->assign('name', $subscriberToActivate->getName());
 		}
+
+
+		$this->massMail->flush();
 
 		$this->response->assign('email', $email);
 		$this->response->assign('error', $error);
@@ -273,14 +276,13 @@ class SubscribeBlock extends BlockController
 		$email = $this->request->getParameter('email', '');
 		$hash = $this->request->getParameter('hash', '');
 
-		$confirmedSubscriber = $this->confirmUnsubscribe($email, $hash);
-
+		$confirmedSubscriber = $this->subscriberManager->unsubscribeByEmail($email, $hash);
+		
 		if ( ! ($confirmedSubscriber instanceof Subscriber)) {
 			$error = true;
 		} else {
 			$this->response->assign('name', $confirmedSubscriber->getName());
-			$entityManager = ObjectRepository::getEntityManager($this);
-			$entityManager->flush();
+			$this->massMail->flush();
 		}
 
 		$this->response->assign('error', $error);
@@ -288,46 +290,6 @@ class SubscribeBlock extends BlockController
 		$this->response->assign('action', self::ACTION_CONFIRM_UNSUBSCRIBE);
 	}
 
-	/**
-	 * Confirm subscriber - set it as active
-	 * @param string $email
-	 * @param string $hash
-	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
-	 */
-	protected function confirmSubscribe($email, $hash)
-	{
-		$subscriber = $this->getSubscriber($email, $hash, false);
-
-		if (empty($subscriber)) {
-			return;
-		}
-
-		$subscriber = $subscriber[0];
-		$subscriber->setActive(true);
-		$entityManager = ObjectRepository::getEntityManager($this);
-		$entityManager->persist($subscriber);
-		$entityManager->flush();
-
-		return $subscriber;
-	}
-
-	/**
-	 * Unsubscribe user 
-	 * @param string $email
-	 * @param string $hash
-	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
-	 */
-	protected function confirmUnsubscribe($email, $hash)
-	{
-		$subscriber = $this->getSubscriber($email, $hash, true);
-
-		if ( ! empty($subscriber)) {
-			$this->deleteSubscriber($email);
-			return $subscriber[0];
-		}
-
-		return null;
-	}
 
 	/**
 	 * Send email
@@ -347,69 +309,6 @@ class SubscribeBlock extends BlockController
 				->setBody("mail-template/{$templateName}.twig", $emailParams, 'text/html');
 
 		$mailer->send($message);
-	}
-
-	/**
-	 * Return subscribers by parameters
-	 * @param string $email
-	 * @param string|null $hash
-	 * @param bool|null $active
-	 * @return Supra\Mailer\MassMail\Entity\Subscriber[]
-	 */
-	private function getSubscriber($email, $hash = null, $active = null)
-	{
-
-		$entityManager = ObjectRepository::getEntityManager($this);
-		$repo = $entityManager->getRepository('Supra\Mailer\MassMail\Entity\Subscriber');
-
-		$params = array('emailAddress' => $email);
-
-		if ( ! empty($hash)) {
-			$params['confirmHash'] = $hash;
-		}
-
-		if ($active !== null) {
-			$params['active'] = (bool) $active;
-		}
-
-		$result = $repo->findBy($params);
-
-		return $result;
-	}
-
-	/**
-	 * Delete subscriber
-	 * @param string $email
-	 * @param string|null $hash 
-	 * @param bool|null $active
-	 */
-	private function deleteSubscriber($email, $hash = null, $active = null)
-	{
-
-		$entityManager = ObjectRepository::getEntityManager($this);
-		$subscribers = $this->getSubscriber($email, $hash, $active);
-
-		foreach ($subscribers as $entity) {
-			$entityManager->remove($entity);
-		}
-	}
-
-	/**
-	 * Create new subscriber
-	 * @param string $email
-	 * @param string $subscriberName
-	 * @return \Supra\Mailer\MassMail\Entity\Subscriber 
-	 */
-	private function createSubscriber($email, $subscriberName)
-	{
-
-		$subscriber = new Subscriber();
-		$subscriber->setEmailAddress($email);
-		$subscriber->setName($subscriberName);
-		$subscriber->setActive(false);
-		$subscriber->generateConfirmHash();
-
-		return $subscriber;
 	}
 
 	/**

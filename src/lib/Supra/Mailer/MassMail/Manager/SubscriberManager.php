@@ -32,13 +32,13 @@ class SubscriberManager extends MassMailManager
 	 */
 	public function createSubscriber($email, $name, $active = false)
 	{
-		
+
 		$activeSubscriber = $this->getSubscriberByEmail($email, null, true);
-		
-		if( ! empty($activeSubscriber)) {
+
+		if ( ! empty($activeSubscriber)) {
 			throw new Exception\RuntimeException("Subscriber with {$email} already esxists and activated");
 		}
-		
+
 		$subscriber = new Entity\Subscriber();
 		$this->entityManager->persist($subscriber);
 		$subscriber->setName($name);
@@ -91,7 +91,7 @@ class SubscriberManager extends MassMailManager
 	{
 		$list->removeSubscriber($subscriber);
 	}
-	
+
 	/**
 	 * Activate subscriber
 	 * @param Entity\Subscriber $subscriberToActivate 
@@ -136,7 +136,6 @@ class SubscriberManager extends MassMailManager
 		return $result;
 	}
 
-	
 	/**
 	 * Unsubscribe user (remove subscriber entity)
 	 * @param string $email
@@ -145,9 +144,9 @@ class SubscriberManager extends MassMailManager
 	 */
 	public function unsubscribeByEmail($email, $hash)
 	{
-		$subscriber = $this->getSingleSubscriberByEmail($email, $hash, true);
+		$subscriber = $this->getSingleSubscriberByEmail($email, $hash);
 
-		if (empty($subscriber)) {
+		if ( ! empty($subscriber)) {
 			$this->dropSubscriber($subscriber);
 			return $subscriber;
 		}
@@ -164,13 +163,13 @@ class SubscriberManager extends MassMailManager
 	 */
 	public function getSingleSubscriberByEmail($email, $hash = null, $active = null)
 	{
-		$subscriber = $this->getSubscriberByEmail($email, $hash, true);
-		
-		if ( empty($subscriber[0]) ) {
+		$subscriber = $this->getSubscriberByEmail($email, $hash);
+
+		if (empty($subscriber[0])) {
 			return null;
 		}
-		
+
 		return $subscriber[0];
 	}
-	
+
 }
