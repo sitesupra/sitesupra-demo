@@ -33,10 +33,6 @@ class SocialMediaController extends SimpleController
 			return new Response\TwigResponse($this);
 		}
 
-		if ($request instanceof Request\CliRequest) {
-			return new Response\CliResponse();
-		}
-
 		return new Response\EmptyResponse();
 	}
 
