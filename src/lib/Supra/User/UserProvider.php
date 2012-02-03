@@ -7,7 +7,7 @@ use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
 use Doctrine\ORM\UnitOfWork;
 
-class UserProvider extends UserProviderAbstract implements UserProviderInterface
+class UserProvider extends UserProviderAbstract
 {
 	
 	/**

@@ -45,6 +45,13 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$this->password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 	}
 	
+	protected function tearDown()
+	{
+		parent::tearDown();
+		
+		$this->em->clear();
+	}
+	
 //	private function cleanUp()
 //	{
 //		$query = $this->em->createQuery("delete from Supra\User\Entity\User");

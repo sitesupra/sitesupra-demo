@@ -9,7 +9,7 @@ use Doctrine\Common\Collections;
 use Supra\Authentication\Exception\UserNotFoundException;
 
 
-class DummyAPIUserProvider extends UserProviderAbstract implements UserProviderInterface
+class DummyAPIUserProvider extends UserProviderAbstract
 {
 	/**
 	 * Unique request key, 

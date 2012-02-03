@@ -4,8 +4,7 @@ namespace Supra\Tests\Authentication\Adapter;
 
 use Supra\Tests\ObjectRepository\Mockup\ObjectRepository;
 use Supra\Authentication\Adapter\HashAdapter;
-
-require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/Authentication/Adapter/HashAdapter.php';
+use Supra\User\UserProviderInterface;
 
 /**
  * Test class for HashAdapter.
@@ -18,6 +17,11 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	 * @var HashAdapter
 	 */
 	protected $object;
+	
+	/**
+	 * @var UserProviderInterface
+	 */
+	protected $userProvider;
 
 	/**
 	 * Sets up the fixture, for example, opens a network connection.
@@ -27,6 +31,8 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->object = new HashAdapter;
 		ObjectRepository::setCallerParent($this->object, $this);
+		$this->userProvider = new \Supra\Tests\User\Mockup\MockupUserProvider();
+		ObjectRepository::setUserProvider($this, $this->userProvider);
 	}
 
 	/**
@@ -52,9 +58,10 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAuthenticateOk()
 	{
-		$user = new \Supra\User\Entity\User();
+		$user = $this->userProvider->createUser();
 		$user->setLogin('admin@admin.com');
 		$user->setEmail('admin@admin.com');
+		$user->setName('admin@admin.com');
 		$password = new \Supra\Authentication\AuthenticationPassword('admin123');
 		
 		$this->object->credentialChange($user, $password);
@@ -66,9 +73,10 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAuthenticateFailure()
 	{
-		$user = new \Supra\User\Entity\User();
+		$user = $this->userProvider->createUser();
 		$user->setLogin('admin@admin.com');
 		$user->setEmail('admin@admin.com');
+		$user->setName('admin@admin.com');
 		$password = new \Supra\Authentication\AuthenticationPassword('admin123');
 		$wrongPassword = new \Supra\Authentication\AuthenticationPassword('admin');
 		
@@ -81,9 +89,10 @@ class HashAdapterTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCredentialChange()
 	{
-		$user = new \Supra\User\Entity\User();
+		$user = $this->userProvider->createUser();
 		$user->setLogin('admin@admin.com');
 		$user->setEmail('admin@admin.com');
+		$user->setName('admin@admin.com');
 		$password = new \Supra\Authentication\AuthenticationPassword('admin123');
 		
 		self::assertEmpty($user->getPassword());

@@ -13,7 +13,7 @@ use Supra\Session\SessionManager;
 use Doctrine\ORM\EntityManager;
 
 
-abstract class UserProviderAbstract
+abstract class UserProviderAbstract implements UserProviderInterface
 {
 	/**
 	 * Event names

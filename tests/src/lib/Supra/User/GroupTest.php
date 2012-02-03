@@ -38,6 +38,13 @@ class GroupTest extends \PHPUnit_Extensions_OutputTestCase
 				->clear();
 	}
 	
+	protected function tearDown()
+	{
+		parent::tearDown();
+		
+		$this->em->clear();
+	}
+	
 	private function cleanUp($delete = false)
 	{
 		

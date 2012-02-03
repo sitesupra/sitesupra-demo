@@ -91,6 +91,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 	
 		// Rollback second EM as well if connections differs, second rollback otherwise
 		$this->em->rollback();
+		$this->em->clear();
 	}
 	
 	function __testApplicationGrantAccessPermission() 
