@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 
 abstract class IndexerQueue
 {

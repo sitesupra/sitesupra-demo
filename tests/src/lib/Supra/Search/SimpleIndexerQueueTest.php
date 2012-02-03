@@ -10,17 +10,17 @@ class SimpleIndexerQueueTest extends SearchTestAbstraction
 {
 	function testAddToQueue() 
 	{
-		$dummyItem1 = new DummyItem(111, 50);
+		$dummyItem1 = new DummyItem(111, 50, '');
 
 		$q1 =	$this->iq->add($dummyItem1, 50);
 		
 		$q1->setStatus(IndexerQueueItemStatus::INDEXED);
 		$this->iq->store($q1);
 
-		$dummyItem2 = new DummyItem(111, 56);
+		$dummyItem2 = new DummyItem(111, 56, '');
 		$queueItem2 = $this->iq->add($dummyItem2, 80);
 		
-		$dummyItem3 = new DummyItem(222, 99);
+		$dummyItem3 = new DummyItem(222, 99, '');
 		$this->iq->add($dummyItem3, 55);
 		
 		$testQueueItem = $this->iq->getIndexerQueueItem($dummyItem2);
