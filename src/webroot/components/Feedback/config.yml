@@ -4,3 +4,4 @@
     controllerClass: Project\Feedback\FeedbackBlock
     description: Feedback form
     cmsClassname: Editable
+    icon: icon.png

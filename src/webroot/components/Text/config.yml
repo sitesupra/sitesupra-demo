@@ -4,3 +4,4 @@
     groupId: system
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Editable
+    icon: icon.png
