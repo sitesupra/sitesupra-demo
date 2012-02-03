@@ -174,6 +174,38 @@ PHP version 5.3.6 or latest from 5.3 branch must be installed, freely available 
 
 This guide assumes that the \texttt{php} CLI command is in the system path. Specify full path to the executable in the command examples mentioned further if your environment doesn't allow setting the command in the system path.
 
+Required PHP extensions:
+
+\begin{itemize}
+\item  \texttt{ctype}
+\item  \texttt{curl}
+\item  \texttt{fileinfo}
+\item  \texttt{filter}
+\item  \texttt{freetype}
+\item  \texttt{gd} (with gif, jpeg, png support enabled)
+\item  \texttt{hash}
+\item  \texttt{iconv}
+\item  \texttt{json}
+\item  \texttt{mbstring}
+\item  \texttt{memcache}
+\item  \texttt{openssl}
+\item  \texttt{pcre}
+\item  \texttt{pdo}
+\item  \texttt{pdo\_mysql}
+\item  \texttt{posix}
+\item  \texttt{session}
+\item  \texttt{simplexml}
+\item  \texttt{xml}
+\item  \texttt{zlib}
+\end{itemize}
+
+Recommended PHP extensions:
+\begin{itemize}
+	\item  \texttt{apc}
+\end{itemize}
+
+\note{Most popular extra extensions we forget to add are \texttt{zip} (PHPExcel), \texttt{shmop} (GeoIP), \texttt{soap}, \texttt{ldap}.}
+
 \note{PHP 5.3.3 required because "As of PHP 5.3.3, methods with the same name as the last element of a namespaced class name will no longer be treated as constructor. This change doesn't affect non-namespaced classes.". Some Supra classes might have methods with name equal to classname without intention to work as constructor.}
 	
 \note{At least 5.3.6 is recommended for correct Mysql charset support on connection options without "SET NAMES" initial request.}
@@ -187,19 +219,6 @@ Apache Solr requires Oracle Java Virtual Machine (HotSpot) installed.
 \note{At least Solr 3.5 required for Hunspell dictionary support.}
 
 \end{enumerate}
-
-\subsubsection{PHP Extension Installation Options}
-
-PHP must be installed or built with the following PHP extensions enabled:
-
-\texttt{apc}, \texttt{ctype}, \texttt{curl}, \texttt{fileinfo}, \texttt{filter}, \texttt{freetype}, \texttt{gd} (with gif, jpeg, bmp, png support enabled), \texttt{hash}, \texttt{iconv}, \texttt{json}, \texttt{mbstring}, \texttt{openssl}, \texttt{pcre}, \texttt{pdo}, \texttt{pdo\_mysql}, \texttt{posix}, \texttt{session}, \texttt{simplexml}, \texttt{xml}, \texttt{zlib}.
-
-\note{Most popular extra extensions we forget to add are \texttt{zip} (PHPExcel), \texttt{shmop} (GeoIP), \texttt{soap}, \texttt{ldap}.}
-
-\subsubsection{PECL extension Installation}
-Some extensions, like \texttt{memcache}, are not bundled with PHP and must be installed from PECL repository.
-
-Install PECL PHP extension with command "pecl install {\textless}package name{\textgreater}" (more information in \url{http://php.net/manual/en/install.pecl.pear.php}) or use phpize command (more information in \url{http://php.net/manual/en/install.pecl.phpize.php})
 
 \subsubsection{Modify PHP Configuration}
 
