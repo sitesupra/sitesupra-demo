@@ -200,9 +200,6 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 				this.slideshow.render();
 				this.slideshow.after('slideChange', this.onMainSlideChange, this);
 				
-				//When layout position/size changes update slide position
-				Manager.LayoutLeftContainer.layout.after('sync', this.slideshow.syncUI, this.slideshow);
-				
 				//On main slide link click open specific slide
 				var links = this.all('#linkToRoot a[data-slideshow]');
 					links.on('click', this.openTargetSlide, this);
@@ -353,9 +350,6 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						//On href change update button label
 						this.form.getInput('href').on('change', this.updateInsertButton, this);
 						
-						//When layout position/size changes update slide position
-						Manager.LayoutLeftContainer.layout.after('sync', this.link_slideshow.syncUI, this.link_slideshow);
-						
 						this.link_slideshow.on('slideChange', this.updateInsertButton, this);
 						
 						this.link_slideshow.syncUI();
@@ -424,9 +418,6 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						//On file select change button to "Insert"
 						list.slideshow.after('slideChange', this.updateInsertButton, this);
 						list.slideshow.after('slideChange', this.updateBackButton, this);
-						
-						//When layout position/size changes update slide position
-						Manager.LayoutLeftContainer.layout.on('sync', list.slideshow.syncUI, list.slideshow);
 				} else {
 					//Update displayType
 						var display_type = this.getMediaListDisplayType();

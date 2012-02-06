@@ -151,6 +151,9 @@ YUI.add('supra.plugin-layout', function (Y) {
 					}
 				}
 				node.setStyles(style);
+				
+				if (node.isInstanceOf('NodeList')) node = node.item(0);
+				if (node) node.fire('contentResize');
 			}
 			
 			this.fire('sync');

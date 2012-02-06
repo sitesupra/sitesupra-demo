@@ -174,6 +174,10 @@ YUI.add('supra.slideshow', function (Y) {
 				}
 			}, this);
 			
+			//Handle window resize
+			var layout = this.get('contentBox').closest('.left-container, .right-container');
+			layout.after('contentResize', this.syncUI, this);
+			
 			//Render Supra.Scrollable widgets
 			var render_queue = this.render_queue;
 			for(var i=0,ii=render_queue.length; i<ii; i++) {

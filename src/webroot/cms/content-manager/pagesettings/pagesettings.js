@@ -518,9 +518,6 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 				// Redirect -> Relative "Last child" button
 				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
-			
-			//When layout position/size changes update slide
-			Manager.LayoutRightContainer.layout.on('sync', this.slideshow.syncUI, this.slideshow);
 		},
 		
 		/**
