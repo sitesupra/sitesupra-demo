@@ -176,7 +176,7 @@ YUI.add('supra.slideshow', function (Y) {
 			
 			//Handle window resize
 			var layout = this.get('contentBox').closest('.left-container, .right-container');
-			layout.after('contentResize', this.syncUI, this);
+			if (layout) layout.after('contentResize', this.syncUI, this);
 			
 			//Render Supra.Scrollable widgets
 			var render_queue = this.render_queue;
