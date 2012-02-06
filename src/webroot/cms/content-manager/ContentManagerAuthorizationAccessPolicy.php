@@ -15,7 +15,8 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\PageLocalization;
 
-class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
+//class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
+class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
 
 	public function __construct()
