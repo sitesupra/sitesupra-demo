@@ -7,6 +7,7 @@ use SocialMedia\Exception\SocialMediaException;
 use Supra\ObjectRepository\ObjectRepository;
 use SocialMedia\Facebook\Exception\FacebookApiException;
 use Supra\User\Entity\User;
+use Supra\User\Entity\UserFacebookData;
 
 class Adapter extends AdapterAbstraction
 {
@@ -16,13 +17,29 @@ class Adapter extends AdapterAbstraction
 	 * @var Facebook 
 	 */
 	public $instance;
+
+	/**
+	 *
+	 * @var string 
+	 */
 	private $applicationToken;
+
+	/**
+	 *
+	 * @var string 
+	 */
 	private $userToken;
 
 	/**
-	 * @var User 
+	 *
+	 * @var string 
 	 */
-	public $cmsUser;
+	private $cmsUser;
+
+	/**
+	 * @var UserFacebookData 
+	 */
+	public $facebookData;
 
 	/**
 	 * @var array 
@@ -52,10 +69,23 @@ class Adapter extends AdapterAbstraction
 			'cookie' => true,
 		);
 
+
 		$this->instance = new Facebook($config);
+		$this->instance->clearAllData();
 		$this->cmsUser = $user;
-		$this->userToken = $user->getFacebookAccessToken();
-		$this->setAccessToken($user->getFacebookAccessToken());
+
+		$repo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookData');
+		$facebookData = $repo->findOneByUser($user->getId());
+
+		if ($facebookData instanceof UserFacebookData) {
+			$this->facebookData = $facebookData;
+
+			$userToken = $facebookData->getFacebookAccessToken();
+			if ( ! empty($userToken)) {
+				$this->userToken = $userToken;
+				$this->setAccessToken($userToken);
+			}
+		}
 	}
 
 	public function getId()
@@ -75,10 +105,13 @@ class Adapter extends AdapterAbstraction
 
 	public function getUserId()
 	{
-		$userId = $this->cmsUser->getFacebookId();
-		if ( ! empty($userId)) {
-			return $userId;
+		if ($this->facebookData instanceof UserFacebookData) {
+			$userId = $this->facebookData->getFacebookUserId();
+			if ( ! empty($userId)) {
+				return $userId;
+			}
 		}
+		
 		return $this->instance->getUser();
 	}
 
@@ -159,7 +192,7 @@ class Adapter extends AdapterAbstraction
 
 	private function getCacheName()
 	{
-		return $this->getId() . '-' . $this->instance->getAppId();
+		return $this->cmsUser->getId() . '-' . $this->getId() . '-' . $this->instance->getAppId();
 	}
 
 	/**
@@ -216,8 +249,8 @@ class Adapter extends AdapterAbstraction
 		if ( ! empty($this->applicationToken)) {
 			return $this->applicationToken;
 		}
-		
-		$result = $this->instance->api('/'.$this->getUserId().'/accounts', 'GET', array('access_token' => $this->userToken));
+
+		$result = $this->instance->api('/' . $this->getUserId() . '/accounts', 'GET', array('access_token' => $this->userToken));
 		foreach ($result['data'] as $accountData) {
 			if ($accountData['id'] != $this->getAppId()) {
 				continue;
@@ -225,7 +258,29 @@ class Adapter extends AdapterAbstraction
 
 			$this->applicationToken = $accountData['access_token'];
 		}
+	}
 
+	public function getUserPage($pageId, $cache = true)
+	{
+
+		$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
+		$cacheName = $this->getCacheName() . 'page-' . $pageId;
+
+		if ($cache) {
+			$result = $cache->fetch($cacheName);
+
+			if ( ! empty($result)) {
+				return $result;
+			}
+		}
+
+		$queryResult = $this->instance->api($pageId, 'GET', array('access_token' => $this->instance->getAccessToken()));
+
+		if ( ! empty($queryResult)) {
+			$cache->save($cacheName, $queryResult, 300);
+		}
+
+		return $queryResult;
 	}
 
 }

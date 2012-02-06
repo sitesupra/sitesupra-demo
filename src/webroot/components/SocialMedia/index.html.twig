@@ -55,6 +55,14 @@
 			}); 
 		</script>
 		<a id="fb-link" href="#">Link Facebook account</a>
+		{% if addedPages %}
+			or edit one of available pages:<br/>
+			<ul>
+			{% for page in addedPages %}
+				<li><a href="/social/view-page?page_id={{ page.id }}">{{ page.name }}</a> ({{page.tabs}} tabs)</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
 		<div id="fb-result"></div>
 	</body>
 </html>

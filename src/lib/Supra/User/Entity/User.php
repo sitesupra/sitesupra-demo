@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
+use Doctrine\Common\Collections;
 
 /**
  * User object
@@ -82,18 +83,6 @@ class User extends AbstractUser
 	 * @var string
 	 */
 	protected $localeId;
-
-	/**
-	 * @Column(type="string", nullable=true)
-	 * @var string
-	 */
-	protected $facebookId;
-	
-	/**
-	 * @Column(type="string", nullable=true)
-	 * @var string
-	 */
-	protected $facebookAccessToken;
 	
 	/**
 	 * Generates random salt for new users
@@ -336,10 +325,6 @@ class User extends AbstractUser
 		//$this->userSessions = $userData['userSessions'];
 
 		$this->localeId = $userData['localeId'];
-
-		$this->facebookId = $userData['facebookId'];
-		$this->facebookAccessToken = $userData['facebookAccessToken'];
-		
 	}
 	
 	public static function getAlias()

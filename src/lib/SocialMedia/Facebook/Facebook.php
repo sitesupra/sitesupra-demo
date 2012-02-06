@@ -54,7 +54,8 @@ class Facebook extends BaseFacebook
 	protected function setPersistentData($key, $value)
 	{
 		if ( ! in_array($key, self::$kSupportedKeys)) {
-			self::errorLog('Unsupported key passed to setPersistentData.');
+			$logger = \Supra\ObjectRepository\ObjectRepository::getLogger($this);
+			$logger->error('Unsupported key passed to setPersistentData.');
 			return;
 		}
 
@@ -65,7 +66,8 @@ class Facebook extends BaseFacebook
 	protected function getPersistentData($key, $default = false)
 	{
 		if ( ! in_array($key, self::$kSupportedKeys)) {
-			self::errorLog('Unsupported key passed to getPersistentData.');
+			$logger = \Supra\ObjectRepository\ObjectRepository::getLogger($this);
+			$logger->error('Unsupported key passed to getPersistentData.');
 			return $default;
 		}
 
@@ -77,7 +79,8 @@ class Facebook extends BaseFacebook
 	protected function clearPersistentData($key)
 	{
 		if ( ! in_array($key, self::$kSupportedKeys)) {
-			self::errorLog('Unsupported key passed to clearPersistentData.');
+			$logger = \Supra\ObjectRepository\ObjectRepository::getLogger($this);
+			$logger->error('Unsupported key passed to clearPersistentData.');
 			return;
 		}
 
@@ -104,5 +107,9 @@ class Facebook extends BaseFacebook
 		$logger = \Supra\ObjectRepository\ObjectRepository::getLogger($this);
 		$logger->error($msg);
 	}
-
+	
+	public function clearAllData()
+	{
+		$this->clearAllPersistentData();
+	}
 }
