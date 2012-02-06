@@ -57,6 +57,18 @@
 	            	
 	            },
 	            
+	            testExpression: function () {
+	            	var fn = Supra.Template.compile('{% if (x-y)%z==1 %}Ok{% endif %}');
+	            	var out = fn({'x': 10, 'y': 3, 'z': 2});
+	            	
+	            	ASSERT.areEqual('Ok', out, 'Complex expressions without whitespaces');
+	            	
+	            	var fn = Supra.Template.compile('{% if ( x - y ) % z == 1 %}Ok{% endif %}');
+	            	var out = fn({'x': 10, 'y': 3, 'z': 2});
+	            	
+	            	ASSERT.areEqual('Ok', out, 'Complex expressions with whitespaces');
+	            },
+	            
 	            testLoopItem: function () {
 	            	
 	            	var fn = Supra.Template.compile('{% for item in data %}{{ item }}{% endfor %}');
@@ -134,6 +146,8 @@
 	            	var fn = Supra.Template.compile('{{ data|escape }}');
 	            	ASSERT.areEqual('a&lt;b&gt;c&amp;d', fn({'data': 'a<b>c&d'}), 'Escape filter');
 	            	
+	            	var fn = Supra.Template.compile('{{ text|replace({ "Aaa Bbb": "Ccc Ddd" })|escape }}');
+	            	ASSERT.areEqual('Name: Ccc Ddd', fn({'text': 'Name: Aaa Bbb'}), 'Filters with complex parameters');
 	            }
 	            
 	            

@@ -104,9 +104,14 @@ YUI.add('supra.template-compiler', function (Y) {
 		'compileVar': function (variable, output) {
 			var _variable = variable = variable.trim();
 			
+			console.log(variable);
 			//Extract strings
 			var strings = variable.match(REG_VAR_STRING), len = strings ? strings.length : 0;
 			for(var i=0; i<len; i++) variable = variable.replace(strings[i], '\'$_' + i + '\'');
+			
+			//Trim whitespaces around , : { } ( )
+			//because of { "x": 12, "y": $_s1 }
+			variable = variable.replace(REG_VAR_TRIM, '$1');
 			
 			//Extract functions
 			if (variable.indexOf('(') != -1) {
@@ -133,9 +138,13 @@ YUI.add('supra.template-compiler', function (Y) {
 				}
 			}
 			
-			//Restore strings
+			//Restore strings and objects
 			for(var i=0; i<len; i++) variable = variable.replace('\'$_' + i + '\'', strings[i]);
+			/*
+			for(var i=0; i<o_len; i++) variable = variable.replace('\'$_o' + i + '\'', objects[i]);
+			*/
 			
+			console.log(variable);
 			
 			if (output) {
 				//Check if need to protect from outputing undefined or null
@@ -676,11 +685,13 @@ YUI.add('supra.template-compiler', function (Y) {
 		REG_TEXT			= new RegExp('(^|' + ESC_VAR_CLOSE + '|' + ESC_EXPR_CLOSE + ')(.*?)($|' + ESC_VAR_OPEN + '|' + ESC_EXPR_OPEN + ')', 'g'),
 		REG_TAG_WHITESPACE	= new RegExp('(' + ESC_VAR_OPEN + ')\\s+|\\s+(' + ESC_VAR_CLOSE + ')|(' + ESC_EXPR_OPEN + ')\\s+|\\s+(' + ESC_EXPR_CLOSE + ')', 'g'),
 		REG_STRIP_TAGS		= /<[^>]+>/g,
+		
 		REG_VAR				= new RegExp(ESC_VAR_OPEN + '(.*?)' + ESC_VAR_CLOSE, 'g'),
 		REG_VAR_STRING		= /("[^"]*"|'[^']*')/g,
-		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&)([a-z])/gi,
+		REG_VAR_TRIM		= /\s*(,|:|{|}|\(|\))\s*/g,
+		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&|\-|\+|\*|\/|\%)([a-z])/gi,
 		REG_VAR_FN			= /(^|\s|\[|\(|\!|\&)([a-z0-9_]+\()/gi,
-		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\[\]\(\)]+)\s?\|([a-z0-9_]+)(\(([^)]+)\))?/gi,
+		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+)\s?\|([a-z0-9_]+)(\(([^)]+)\))?/i,
 		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
 		
 		REG_AND				= /\s+and\s+/g,
