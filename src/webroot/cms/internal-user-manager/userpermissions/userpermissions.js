@@ -78,7 +78,7 @@ Supra(function (Y) {
 		 */
 		onAppClick: function (event) {
 			var target = event.target.closest('li'),
-				app = target.getAttribute('data-id'),
+				app = target.getAttribute('data-app-id'),
 				action = Manager.getAction('PermissionProperties'),
 				data = null,
 				user = Manager.getAction('User').getData();
@@ -151,6 +151,24 @@ Supra(function (Y) {
 						}
 					}
 				}
+				
+				//Update user permissions
+				var ul = this.one('ul'),
+					li = null,
+					allow = null;
+				
+				for(var app in user) {
+					allow = user[app].allow;
+					li = ul.one('li[data-id="' + app.replace(/[\/\\]/g, '') + '"]');
+					
+					if (li) {
+						li
+							.removeClass('allow-0')
+							.removeClass('allow-1')
+							.removeClass('allow-2')
+							.addClass('allow-' + allow);
+					}
+				}
 			}
 		},
 		
@@ -184,16 +202,6 @@ Supra(function (Y) {
 			
 			//Fill application list for new user
 			this.updateUserAppList();
-			
-			for(var app in data.permissions) {
-				allow = data.permissions[app].allow;
-				li = ul.one('li[data-id="' + app + '"]');
-				
-				if (li) {
-					li.removeClass('allow-0').removeClass('allow-1').removeClass('allow-2').addClass('allow-' + allow);
-				}
-			}
-			
 		},
 		
 		/**

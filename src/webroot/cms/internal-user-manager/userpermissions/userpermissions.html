@@ -14,7 +14,7 @@
 		<!-- Application template -->
 		<script type="text/html" id="applicationsListItem">
 			{% for item in data %}
-			<li class="allow-0" data-id="{{ item.id|escape }}">
+			<li class="allow-0" data-app-id="{{ item.id|escape }}" data-id="{{ item.id|replace({'\\':''})|escape }}">
 				<img src="{{ item.icon|escape }}_32x32.png" alt="" />
 				<em>
 					{{ item.title|escape }}

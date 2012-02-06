@@ -335,6 +335,14 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			}
 			
 			if (!silent) {
+				//Update application list item style
+				var item = Manager.UserPermissions.one('li[data-id="' + this.application.id.replace(/[\\\/]/g, '') + '"]');
+				
+				item.removeClass('allow-0')
+					.removeClass('allow-1')
+					.removeClass('allow-2')
+					.addClass('allow-' + event.value);
+				
 				//Save properties only if not first change (when setting initial values)
 				this.saveProperties();
 				
