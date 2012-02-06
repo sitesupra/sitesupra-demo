@@ -8,6 +8,12 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
+$auditLogDbConnectionOptions = $ini->getSection('database_audit_log', array());
+
+if (empty($auditLogDbConnectionOptions)) {
+	$auditLogDbConnectionOptions = $ini->getSection('database');
+}
+
 
 /*
  * Default log
@@ -40,7 +46,11 @@ if ($sqlLog) {
 /*
  * Audit log
  */
-$auditWriter = new AuditWriter\FileAuditLogWriter(array('file' => 'audit.log'));
+//Use file audit log
+//$auditWriter = new AuditWriter\FileAuditLogWriter(array('file' => 'audit.log'));
+//Use DB audit log
+$auditWriter = new AuditWriter\DatabaseAuditLogWriter($auditLogDbConnectionOptions);
+
 ObjectRepository::setDefaultAuditLogger($auditWriter);
 
 /**
