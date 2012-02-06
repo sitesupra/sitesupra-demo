@@ -154,17 +154,15 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @private
 		 */
 		onMouseWheel: function (e) {
-			//Get cross-browser delta
-			var delta = 0;
-			if (e._event.wheelDeltaY || e._event.wheelDelta) {
-				delta = (e._event.wheelDeltaY || e._event.wheelDelta) / 120;
-			} else if (e._event.detail) {
-				 delta = e._event.detail / 3;
+			//Check if mouse was scrolled inside container
+			var node = e.target.closest('.su-scrollable-content');
+			if (node !== this.get('contentBox')) {
+				return;
 			}
 			
 			//Update scroll position
 			var node = this.get('contentBox');
-			node.set('scrollTop', node.get('scrollTop') - delta * SCROLL_DISTANCE);
+			node.set('scrollTop', node.get('scrollTop') - e.wheelDelta * SCROLL_DISTANCE);
 		},
 		
 		/**
