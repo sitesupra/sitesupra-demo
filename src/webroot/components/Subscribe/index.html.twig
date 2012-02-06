@@ -1,6 +1,6 @@
 {%if action == 'subscribe' %}
 
-	<h1>Subscribe Action</h1>	
+	<h1>{{ supraBlock.property('SubscribeAction') | raw }}</h1>	
 	
 	{%if (postedData != true  or error is not null) %}
 
@@ -11,20 +11,20 @@
 		{%endif%}
 	
 		<form  method="post" >
-			<label>Name:</label><input type="text" name="name" value="{{name}}"/>
+			<label>{{ supraBlock.property('Name') | raw }}</label><input type="text" name="name" value="{{name}}"/>
 			<br/>
-			<label>Email address:</label><input type="text" name="email" value="{{email}}"/>
+			<label>{{ supraBlock.property('EmailAddress') | raw }}</label><input type="text" name="email" value="{{email}}"/>
 			<br/>
-			<button type="submit">Submit</button>
+			<button type="submit">{{ supraBlock.property('Submit') | raw }}</button>
 		</form>
 
 	{%else%}
-		<h1>Subscribtion confirmation email send on {{ email }}</h1>
+		<h1>{{ supraBlock.property('SubscribtionCnfirmationEmailSendOn') | raw }} {{ email }}</h1>
 	{%endif%}
 		
 {%elseif action == 'unsubscribe' %}
 		
-	<h1>Unsubscribe Action</h1>	
+	<h1>{{ supraBlock.property('UnsubscribeAction') | raw }}</h1>	
 	
 	{%if (postedData != true or error is not null) %}
 	
@@ -35,13 +35,13 @@
 		{%endif%}
 	
 		<form  method="post" >
-			<label>Email address:</label><input type="text" name="email"/>
-			<button type="submit">Submit</button>
+			<label>{{ supraBlock.property('EmailAddress') | raw }}</label><input type="text" name="email"/>
+			<button type="submit">{{ supraBlock.property('Submit') | raw }}</button>
 		</form>
 	
 	{%else%} 
 	
-		<h1>Unsubscribe confirmation email send on {{ email }}</h1>
+		<h1>{{ supraBlock.property('UnsubscribeConfirmationEmailSendOn') | raw }} {{ email }}</h1>
 	
 	{%endif%}
 		

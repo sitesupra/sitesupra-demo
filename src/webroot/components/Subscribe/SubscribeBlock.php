@@ -342,55 +342,55 @@ class SubscribeBlock extends BlockController
 		$hostName = ObjectRepository::getSystemInfo($this)
 				->getHostName(\Supra\Info::NO_SCHEME);
 
-		$stringValue = new \Supra\Editable\String("Email from address");
+		$stringValue = new \Supra\Editable\LabelString("Email from address");
 		$stringValue->setDefaultValue('no-reply@' . $hostName);
 		$contents['emailFromAddress'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Email from name");
+		$stringValue = new \Supra\Editable\LabelString("Email from name");
 		$stringValue->setDefaultValue($hostName);
 		$contents['emailFromName'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Email subscribe confirm subject");
+		$stringValue = new \Supra\Editable\LabelString("Email subscribe confirm subject");
 		$stringValue->setDefaultValue('Confirm subscription');
 		$contents['confirmSubscribeSubject'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Email unsubscribe confirm subject");
+		$stringValue = new \Supra\Editable\LabelString("Email unsubscribe confirm subject");
 		$stringValue->setDefaultValue('Confirm unsubscribe');
 		$contents['confirmUnsubscribeSubject'] = $stringValue;
 
 		//Error messages
-		$stringValue = new \Supra\Editable\String("Wrong email format");
+		$stringValue = new \Supra\Editable\LabelString("Wrong email format");
 //		$stringValue->setGroupLabel('Error case message');
 		$stringValue->setDefaultValue('Wrong email address');
 		$contents['wrong_email_address'] = $stringValue;
 		
-		$stringValue = new \Supra\Editable\String("Empty subscriber name");
+		$stringValue = new \Supra\Editable\LabelString("Empty subscriber name");
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue('Empty subscriber name');
 		$contents['empty_subscriber_name'] = $stringValue;
 		
-		$stringValue = new \Supra\Editable\String("Subscriber already activated");
+		$stringValue = new \Supra\Editable\LabelString("Subscriber already activated");
 //		$stringValue->setGroupLabel('Error case message');
 		$stringValue->setDefaultValue('Subscriber already activated');
 		$contents['subscriber_alredy_active'] = $stringValue;
 		
-		$stringValue = new \Supra\Editable\String("Error on sending email message");
+		$stringValue = new \Supra\Editable\LabelString("Error on sending email message");
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue("Can't send email");
 		$contents['cant_send_mail'] = $stringValue;
 		
 		//Labels
-		$stringValue = new \Supra\Editable\String("Name");
+		$stringValue = new \Supra\Editable\LabelString("Name");
 //		$stringValue->setGroupLabel('Labels');		
 		$stringValue->setDefaultValue("Name:");
 		$contents['Name'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Email address");
+		$stringValue = new \Supra\Editable\LabelString("Email address");
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue("Email address:");
 		$contents['EmailAddress'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Submit button");
+		$stringValue = new \Supra\Editable\LabelString("Submit button");
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue("Submit");
 		$contents['Submit'] = $stringValue;		
@@ -401,7 +401,7 @@ class SubscribeBlock extends BlockController
 		$stringValue->setDefaultValue("Subscribe Action");
 		$contents['SubscribeAction'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Subscribtion confirmation email send on ");
+		$stringValue = new \Supra\Editable\LabelString("Subscribtion confirmation email send on ");
 //		$stringValue->setGroupLabel('Titles');		
 		$stringValue->setDefaultValue("Subscribtion confirmation email send on ");
 		$contents['SubscribtionCnfirmationEmailSendOn '] = $stringValue;
@@ -411,7 +411,7 @@ class SubscribeBlock extends BlockController
 		$stringValue->setDefaultValue("Unsubscribe Action");
 		$contents['UnsubscribeAction'] = $stringValue;
 
-		$stringValue = new \Supra\Editable\String("Unsubscribe confirmation email send on");
+		$stringValue = new \Supra\Editable\LabelString("Unsubscribe confirmation email send on");
 //		$stringValue->setGroupLabel('Titles');		
 		$stringValue->setDefaultValue("Unsubscribe confirmation email send on");
 		$contents['UnsubscribeConfirmationEmailSendOn'] = $stringValue;
