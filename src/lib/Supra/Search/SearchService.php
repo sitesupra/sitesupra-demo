@@ -9,7 +9,7 @@ use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
 use Request\SearchRequestAbstraction;
 use Supra\Log\Writer\WriterAbstraction;
-use Solarium_Result_Select;
+use \Solarium_Result_Select;
 
 class SearchService
 {

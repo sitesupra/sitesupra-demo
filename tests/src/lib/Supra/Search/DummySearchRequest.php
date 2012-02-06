@@ -4,6 +4,7 @@ namespace Supra\Tests\Search;
 
 use Supra\Search\Request\Abstraction\EntitySearchRequestAbstraction;
 use \Solarium_Query_Select;
+use \Solarium_Result_Select;
 use Supra\Tests\Search\DummyItem;
 
 class DummySearchRequest extends EntitySearchRequestAbstraction
