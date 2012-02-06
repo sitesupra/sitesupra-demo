@@ -338,9 +338,22 @@ abstract class CmsAction extends SimpleController
 		}
 
 		if ($ap->isPermissionGranted($user, $object, $permissionName)) {
+			
+			if($permissionName == \Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE) {
+
+				if ($object instanceof Entity\PageLocalization) {
+
+					$scheduleTime = $object->getScheduleTime();
+
+					if ( ! empty($scheduleTime)) {
+						throw new EntityAccessDeniedException($user, $object, $permissionName);
+					}
+				}
+			}
+			
 			return true;
 		}
-
+		
 		throw new EntityAccessDeniedException($user, $object, $permissionName);
 	}
 

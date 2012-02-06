@@ -2,6 +2,7 @@
 
 namespace Supra\Cms\ContentManager;
 
+use Supra\Cms\CmsThreewayWithEntitiesAccessPolicy;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity as PageEntity;
@@ -12,8 +13,9 @@ use Supra\Authorization\Exception\RuntimeException as AuthorizationRuntimeExcept
 use Supra\Validator\FilteredInput;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity\PageLocalization;
 
-class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
+class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
 {
 
 	public function __construct()
@@ -24,6 +26,16 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 	public function configure()
 	{
 		parent::configure();
+
+		$this->permissionHierarchy = array(
+			\Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE => array(
+				\Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE,
+			),
+			\Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE => array(
+				\Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE,
+				\Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE
+			),
+		);
 
 		$this->permission['subproperty']['localized'] = true;
 	}
@@ -214,6 +226,47 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 		}
 
 		return $entity;
+	}
+
+	/**
+	 * @param AbstractUser $user
+	 * @param AuthorizedEntityInterface $entity
+	 * @return array
+	 */
+	public function getPermissionStatusesForAuthorizedEntity(AbstractUser $user, $entity)
+	{
+		$result = parent::getPermissionStatusesForAuthorizedEntity($user, $entity);
+
+		$allAccessGranted = $this->isApplicationAllAccessGranted($user);
+		if ($allAccessGranted) {
+			return $result;
+		}
+
+		$someAccessGranted = $this->isApplicationSomeAccessGranted($user);
+		if ( ! $someAccessGranted) {
+			return $result;
+		}
+
+		$em = $this->getEntityManager();
+
+		$editPagePermissionName = \Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE;
+
+		$repo = $em->getRepository(PageLocalization::CN());
+
+		if ($result[$editPagePermissionName]) {
+
+			$pageLocalization = $repo->find($entity->getAuthorizationId());
+
+			if ( ! empty($pageLocalization)) {
+				$scheduleTime = $pageLocalization->getScheduleTime();
+
+				if ( ! empty($scheduleTime)) {
+					$result[$editPagePermissionName] = false;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 }
