@@ -104,7 +104,6 @@ YUI.add('supra.template-compiler', function (Y) {
 		'compileVar': function (variable, output) {
 			var _variable = variable = variable.trim();
 			
-			console.log(variable);
 			//Extract strings
 			var strings = variable.match(REG_VAR_STRING), len = strings ? strings.length : 0;
 			for(var i=0; i<len; i++) variable = variable.replace(strings[i], '\'$_' + i + '\'');
@@ -113,7 +112,7 @@ YUI.add('supra.template-compiler', function (Y) {
 			//because of { "x": 12, "y": $_s1 }
 			variable = variable.replace(REG_VAR_TRIM, '$1');
 			
-			//Extract functions
+			//Convert functions
 			if (variable.indexOf('(') != -1) {
 				variable = variable.replace(REG_VAR_FN, '$1_fn.$2');
 			}
@@ -138,13 +137,8 @@ YUI.add('supra.template-compiler', function (Y) {
 				}
 			}
 			
-			//Restore strings and objects
+			//Restore strings
 			for(var i=0; i<len; i++) variable = variable.replace('\'$_' + i + '\'', strings[i]);
-			/*
-			for(var i=0; i<o_len; i++) variable = variable.replace('\'$_o' + i + '\'', objects[i]);
-			*/
-			
-			console.log(variable);
 			
 			if (output) {
 				//Check if need to protect from outputing undefined or null
