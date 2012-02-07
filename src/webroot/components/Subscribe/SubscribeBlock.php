@@ -383,6 +383,11 @@ class SubscribeBlock extends BlockController
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue("Your confirm link is wrong or expired");
 		$contents['wrong_confirm_url'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\LabelString("Subscriber not found");
+//		$stringValue->setGroupLabel('Error case message');		
+		$stringValue->setDefaultValue("Subscriber with current email not found.");
+		$contents['subscriber_not_found'] = $stringValue;
 		
 		//Labels
 		$stringValue = new \Supra\Editable\LabelString("Name");
