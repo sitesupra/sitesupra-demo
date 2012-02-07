@@ -262,12 +262,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//On block save/cancel update 'changed' attributes
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
-			
-			//Don't show delete button if block or placeholder is closed
-			var host = this.get('host');
-			if (host.isClosed() || host.isParentClosed()) {
-				btn.hide();
-			}
 		},
 		
 		/**
@@ -349,6 +343,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
 				btn.render(slide).on('click', this.deleteContent, this);
 			
+			//Don't show delete button if block or placeholder is closed
+			if (host.isClosed() || host.isParentClosed()) {
+				btn.hide();
+			}
 		},
 		
 		/**
