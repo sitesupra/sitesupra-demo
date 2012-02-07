@@ -5,3 +5,10 @@
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Editable
     icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        global: false
+        groups:
+          - Supra\Controller\Pages
+        lifetime: 5 minutes
+        

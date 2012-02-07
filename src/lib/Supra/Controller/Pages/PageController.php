@@ -19,6 +19,7 @@ use Supra\Uri\Path;
 use Supra\Response\ResponseContext;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
+use Supra\Cache\CacheGroupManager;
 
 /**
  * Page controller
@@ -45,6 +46,12 @@ class PageController extends ControllerAbstraction
 	 */
 	private $blockControllers = array();
 
+	/**
+	 * @var array
+	 */
+	private $blockContentCache = array();
+	private $blockCacheRequests = array();
+	
 	/**
 	 * Binds entity manager
 	 */
@@ -98,7 +105,7 @@ class PageController extends ControllerAbstraction
 				
 				if ( ! $localization instanceof Entity\PageLocalization) {
 					$this->log->warn("Page received from PageRequestView is not of PageLocalization instance, requested uri: ",
-							$request->getRequestUri(), ', got ',
+							$request->getActionString(), ', got ',
 							(is_object($localization) ? get_class($localization) : gettype($localization)));
 					throw new ResourceNotFoundException("Wrong page instance received");
 				}
@@ -154,14 +161,16 @@ class PageController extends ControllerAbstraction
 		$page = $request->getPage();
 
 //		$places = $request->getPlaceHolderSet();
-
-		$this->findBlockControllers($request);
+		
+		$this->findBlockCache();
+		
+		$this->findBlockControllers();
 		\Log::debug("Block controllers found for {$page}");
 
-		$this->prepareBlockControllers($request);
+		$this->prepareBlockControllers();
 		\Log::debug("Blocks prepared for {$page}");
 
-		$this->executeBlockControllers($request);
+		$this->executeBlockControllers();
 		\Log::debug("Blocks executed for {$page}");
 
 		$placeResponses = $this->getPlaceResponses($request);
@@ -213,6 +222,60 @@ class PageController extends ControllerAbstraction
 	{
 		return new Response\HttpResponse();
 	}
+	
+	/**
+	 * 
+	 */
+	protected function findBlockCache()
+	{
+		$request = $this->getRequest();
+		
+		/* @var $request PageRequest */
+		$localization = $request->getPageLocalization();
+		$blockContentCache = &$this->blockContentCache;
+		$blockCacheRequests = &$this->blockCacheRequests;
+		
+		// Don't search for cache in CMS
+		if ( ! $request instanceof Request\PageRequestView) {
+			return;
+		}
+		
+		$cache = ObjectRepository::getCacheAdapter($this);
+		$cacheGroupManager = new CacheGroupManager();
+		
+		$cacheSearch = function(Entity\Abstraction\Block $block) use ($localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests) {
+			$blockClass = $block->getComponentClass();
+			$blockCollection = BlockControllerCollection::getInstance();
+			$configuration = $blockCollection->getBlockConfiguration($blockClass);
+			$blockCache = $configuration->cache;
+			
+			if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {
+				
+				$cacheKey = $blockCache->getCacheKey($localization, $block);
+				
+				if (empty($cacheKey)) {
+					return;
+				}
+				
+				$content = $cache->fetch($cacheKey);
+				$blockId = $block->getId();
+				
+				if ($content !== false) {
+					
+					$response = unserialize($content);
+					
+					if ( ! empty($response)) {
+						$blockContentCache[$blockId] = $response;
+					}
+				} else {
+					$blockCacheRequests[$blockId] = $blockCache;
+				}
+			}
+		};
+		
+		// Iterates through all blocks and calls the function passed
+		$this->blockControllers = $this->iterateBlocks($cacheSearch);
+	}
 
 	/**
 	 * Create block controllers
@@ -221,19 +284,27 @@ class PageController extends ControllerAbstraction
 	{
 		$request = $this->getRequest();
 		$page = $request->getPage();
+		$blockContentCache = &$this->blockContentCache;
 
 		// function which adds controllers for the block
-		$controllerFactory = function(Entity\Abstraction\Block $block) use ($page) {
-					$blockController = $block->createController();
+		$controllerFactory = function(Entity\Abstraction\Block $block) use ($page, &$blockContentCache) {
+			
+			// Skip controller creation if cache found
+			$blockId = $block->getId();
+			if (array_key_exists($blockId, $blockContentCache)) {
+				return new CachedBlockController($blockContentCache[$blockId]);
+			}
+			
+			$blockController = $block->createController();
 
-					if (empty($blockController)) {
-						throw new Exception\InvalidBlockException('Block controller was not found');
-					}
+			if (empty($blockController)) {
+				throw new Exception\InvalidBlockException('Block controller was not found');
+			}
 
 //			$blockController->setPage($page);
 
-					return $blockController;
-				};
+			return $blockController;
+		};
 
 		// Iterates through all blocks and calls the function passed
 		$this->blockControllers = $this->iterateBlocks($controllerFactory);
@@ -250,11 +321,19 @@ class PageController extends ControllerAbstraction
 
 		$this->getResponse()
 				->setContext($responseContext);
+		
+		$blockContentCache = $this->blockContentCache;
 
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $responseContext) {
-					$block->prepareController($blockController, $request, $responseContext);
-				};
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $responseContext, &$blockContentCache) {
+			
+			$blockId = $block->getId();
+			if (array_key_exists($blockId, $blockContentCache)) {
+				return;
+			}
+			
+			$block->prepareController($blockController, $request, $responseContext);
+		};
 
 		// Iterates through all blocks and calls the function passed
 		$this->iterateBlocks($prepare);
@@ -266,26 +345,32 @@ class PageController extends ControllerAbstraction
 	protected function executeBlockControllers()
 	{
 		$eventManager = ObjectRepository::getEventManager($this);
+		$blockContentCache = $this->blockContentCache;
 		
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($eventManager) {
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($eventManager, &$blockContentCache) {
+
+			$blockId = $block->getId();
+			if (array_key_exists($blockId, $blockContentCache)) {
+				return;
+			}
 			
-					// It is important to prepare the twig helper for each block controller right before execution
-					$blockController->prepareTwigHelper();
+			// It is important to prepare the twig helper for each block controller right before execution
+			$blockController->prepareTwigHelper();
 
-					$eventArgs = new BlockEventsArgs();
-					$eventArgs->blockClass = $block->getComponentClass();
+			$eventArgs = new BlockEventsArgs();
+			$eventArgs->blockClass = $block->getComponentClass();
 
-					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
-					
-					$blockTimeStart = microtime(true);
-					$blockController->execute();
-					$blockTimeEnd = microtime(true);
-					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
-					$eventArgs->duration = $blockExecutionTime;
-					$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
-					
-				};
+			$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
+
+			$blockTimeStart = microtime(true);
+			$blockController->execute();
+			$blockTimeEnd = microtime(true);
+			$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
+			$eventArgs->duration = $blockExecutionTime;
+			$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
+
+		};
 
 		// Iterates through all blocks and calls the function passed
 		$this->iterateBlocks($prepare);
@@ -320,20 +405,27 @@ class PageController extends ControllerAbstraction
 	{
 		$placeResponses = array();
 		$request = $this->getRequest();
+		/* @var $request PageRequest */
 
 		$placeHolders = $request->getPlaceHolderSet();
 		$page = $request->getPage();
+		
+		$localization = $request->getPageLocalization();
 
 		$finalPlaceHolders = $placeHolders->getFinalPlaceHolders();
 
 		foreach ($finalPlaceHolders as $name => $placeHolder) {
 			$placeResponses[$name] = $this->createPlaceResponse($page, $placeHolder);
 		}
+		
+		$blockCacheRequests = &$this->blockCacheRequests;
+		$cache = ObjectRepository::getCacheAdapter($this);
 
 		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
-				use (&$placeResponses, &$page, $finalPlaceHolders, $request) {
+				use (&$placeResponses, $localization, $finalPlaceHolders, $request, $blockCacheRequests, $cache) {
 
 					$response = $blockController->getResponse();
+					$blockId = $block->getId();
 
 					$placeName = $block->getPlaceHolder()
 							->getName();
@@ -348,7 +440,6 @@ class PageController extends ControllerAbstraction
 
 					//TODO: move to separate method
 					if ($request instanceof Request\PageRequestEdit) {
-						$blockId = $block->getId();
 						$blockName = $block->getComponentName();
 						
 						if ($blockController instanceof BrokenBlockController) {
@@ -366,6 +457,14 @@ class PageController extends ControllerAbstraction
 
 					if ($request instanceof Request\PageRequestEdit) {
 						$placeResponse->output('</div>');
+					}
+					
+					if (isset($blockCacheRequests[$blockId])) {
+						$blockCache = $blockCacheRequests[$blockId];
+						$cacheKey = $blockCache->getCacheKey($localization, $block);
+						$lifetime = $blockCache->getLifetime();
+						
+						$cache->save($cacheKey, serialize($response), $lifetime);
 					}
 				};
 

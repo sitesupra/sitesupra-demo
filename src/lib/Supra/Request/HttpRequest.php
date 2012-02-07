@@ -54,10 +54,10 @@ class HttpRequest implements RequestInterface
 	protected $cookies = array();
 
 	/**
-	 * Full request URI
+	 * Request path
 	 * @var string
 	 */
-	protected $requestUri;
+	protected $requestPath;
 
 	/**
 	 * Path remainder used by controller
@@ -109,20 +109,22 @@ class HttpRequest implements RequestInterface
 			throw new Exception\InvalidRequest("Script URL not set in Http request object");
 		}
 
-		$this->requestUri = $pathInfo;
-		Log::info('Request URI: ', $this->requestUri);
+		$this->requestPath = $pathInfo;
+		Log::info('Request URI: ', $this->requestPath);
 
-		$path = new Path($this->requestUri);
+		$path = new Path($this->requestPath);
 		$this->setPath($path);
 	}
 
 	/**
-	 *
+	 * Get request URI (path + query)
 	 * @return string 
 	 */
 	public function getRequestUri()
 	{
-		return $this->requestUri;
+		$requestUri = $this->getServerValue('REQUEST_URI', $this->requestPath);
+		
+		return $requestUri;
 	}
 
 	/**

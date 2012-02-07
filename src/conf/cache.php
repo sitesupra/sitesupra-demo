@@ -3,22 +3,28 @@
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\Common\Cache\MemcacheCache;
 
-$memcachedHost = 'localhost';
-$memcachedPort = 11211;
+if ( ! class_exists('Memcache')) {
+	$cache = new Doctrine\Common\Cache\ArrayCache();
+} else {
 
-$systemInfo = ObjectRepository::getSystemInfo('');
+	$memcachedHost = 'localhost';
+	$memcachedPort = 11211;
 
-$memcache = new Memcache();
-$memcache->addserver($memcachedHost, $memcachedPort);
-$status = $memcache->getversion();
+	$systemInfo = ObjectRepository::getSystemInfo('');
 
-if ($status === false) {
-	\Log::fatal("Memcached server $memcachedHost:$memcachedPort not accessible");
-	die(SUPRA_ERROR_MESSAGE);
+	$memcache = new Memcache();
+	$memcache->addserver($memcachedHost, $memcachedPort);
+	$status = $memcache->getversion();
+
+	if ($status === false) {
+		\Log::fatal("Memcached server $memcachedHost:$memcachedPort not accessible");
+		die(SUPRA_ERROR_MESSAGE);
+	}
+
+	$cache = new MemcacheCache();
+	$cache->setMemcache($memcache);
 }
 
-$cache = new MemcacheCache();
-$cache->setMemcache($memcache);
 $cache->setNamespace($systemInfo->getSystemId());
 
 ObjectRepository::setDefaultCacheAdapter($cache);

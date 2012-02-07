@@ -102,11 +102,11 @@ class DummyShopController extends BlockController
 		/* @var $request PageRequestView */
 		$request = $this->getRequest();
 
-		$url = $request->getRequestUri();
+		$url = '/' . $request->getActionString();
 
 		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_ORDER);
 
-		return $url . http_build_query($queryParameters);
+		return $url . '?' . http_build_query($queryParameters);
 	}
 
 	/**
@@ -116,11 +116,11 @@ class DummyShopController extends BlockController
 	{
 		$request = $this->getRequest();
 
-		$url = $request->getRequestUri();
+		$url = '/' . $request->getActionString();
 
 		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_RECURRING_ORDER);
 
-		return $url . http_build_query($queryParameters);
+		return $url . '?' . http_build_query($queryParameters);
 	}
 
 	/**
@@ -138,7 +138,7 @@ class DummyShopController extends BlockController
 
 		$serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
 
-		$url = $serverHostWithProtocol . $request->getRequestUri();
+		$url = $serverHostWithProtocol . '/' . $request->getActionString();
 
 		$queryParameters = array(
 			self::ACTION_KEY => self::ACTION_TYPE_RETURN
@@ -162,7 +162,7 @@ class DummyShopController extends BlockController
 
 		$serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
 
-		$url = $serverHostWithProtocol . $request->getRequestUri();
+		$url = $serverHostWithProtocol . '/' . $request->getActionString();
 
 		$queryParameters = array(
 			self::ACTION_KEY => self::ACTION_TYPE_RETURN_RECURRING
@@ -179,11 +179,11 @@ class DummyShopController extends BlockController
 	{
 		$request = $this->getRequest();
 
-		$url = $request->getRequestUri();
+		$url = '/' . $request->getActionString();
 
 		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_UPDATE_ORDER);
 
-		return $url . http_build_query($queryParameters);
+		return $url . '?' . http_build_query($queryParameters);
 	}
 
 	/**

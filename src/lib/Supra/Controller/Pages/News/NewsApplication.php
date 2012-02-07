@@ -474,34 +474,35 @@ class NewsApplication implements PageApplicationInterface
 		
 		$rsm = new \Doctrine\ORM\Query\ResultSetMapping;
 		
-		$rsm->addEntityResult(Entity\PageLocalization::CN(), 'l');
-		
-		$classMetadata = $this->em->getClassMetadata(Entity\PageLocalization::CN());
-		foreach ($classMetadata->fieldMappings as $mapping) {
-			$rsm->addFieldResult('l', $mapping['columnName'], $mapping['fieldName']);
-		}
-	
-		// localization path
-		$rsm->addJoinedEntityResult(Entity\PageLocalizationPath::CN(), 'pt', 'l', 'path');
-		$rsm->addFieldResult('pt', 'id', 'id');
-		$rsm->addFieldResult('pt', 'locale', 'locale');
-		$rsm->addFieldResult('pt', 'path', 'path');
-
-		$rsm->setDiscriminatorColumn('l', 'discr');
-		$rsm->addMetaResult('l', 'discr', 'discr');
-		
-		$rsm->addMetaResult('l', 'master_id', 'master_id');
-		$rsm->addMetaResult('l', 'template_id', 'template_id');
-		$rsm->addMetaResult('l', 'redirect_id', 'redirect_id');
-		$rsm->addMetaResult('l', 'path_id', 'path_id');
-		$rsm->addMetaResult('l', 'id', 'id', true);
-		
 		if ( ! $countOnly) {
+			$rsm->addEntityResult(Entity\PageLocalization::CN(), 'l');
+
+			$classMetadata = $this->em->getClassMetadata(Entity\PageLocalization::CN());
+			foreach ($classMetadata->fieldMappings as $mapping) {
+				$rsm->addFieldResult('l', $mapping['columnName'], $mapping['fieldName']);
+			}
+			
+			// localization path
+			$rsm->addJoinedEntityResult(Entity\PageLocalizationPath::CN(), 'pt', 'l', 'path');
+			
+			$rsm->addFieldResult('pt', 'pt_id', 'id');
+			$rsm->addFieldResult('pt', 'locale', 'locale');
+			$rsm->addFieldResult('pt', 'path', 'path');
+			$rsm->addMetaResult('pt', 'pt_id', 'id', true);
+
+			$rsm->setDiscriminatorColumn('l', 'discr');
+			$rsm->addMetaResult('l', 'discr', 'discr');
+
+			$rsm->addMetaResult('l', 'master_id', 'master_id');
+			$rsm->addMetaResult('l', 'template_id', 'template_id');
+			$rsm->addMetaResult('l', 'redirect_id', 'redirect_id');
+			$rsm->addMetaResult('l', 'path_id', 'path_id');
+			$rsm->addMetaResult('l', 'id', 'id', true);
 			//"select l.*" is not supported by SQL-92 standart
 			$selectValues = 'l.id, l.locale, l.title, l.visibleInSitemap, l.visibleInMenu, l.includedInSearch,
 						l.revision, l.path_part, l.meta_description, l.meta_keywords, l.active,	l.schedule_time,
 						l.creationTime, l.creationYear, l.creationMonth, l.publishTimeSet, l.master_id, l.lock_id,
-						l.template_id, l.path_id, l.redirect_id, l.discr, pt.locale, pt.path, pt.id';
+						l.template_id, l.path_id, l.redirect_id, l.discr, pt.id AS pt_id, pt.locale, pt.path, pt.id AS pt_id';
 		} else {
 			$selectValues = 'COUNT(l.id) as count';
 			$rsm->addScalarResult('count', 'count');
@@ -521,7 +522,7 @@ class NewsApplication implements PageApplicationInterface
 		
 		$query = $this->em->createNativeQuery($sql, $rsm);
 		$query->setParameters($queryParameters);
-				
+		
 		return $query;
 	}
 }

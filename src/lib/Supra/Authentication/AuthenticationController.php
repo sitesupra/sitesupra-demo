@@ -17,6 +17,7 @@ use Supra\Session\SessionNamespace;
  */
 abstract class AuthenticationController extends ControllerAbstraction implements Controller\PreFilterInterface
 {
+
 	/**
 	 * Login page path
 	 * @var string
@@ -28,6 +29,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @var string
 	 */
 	protected $checkSessionPath = 'check-session';
+
 	/**
 	 * Base path
 	 * @var string
@@ -59,11 +61,11 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	public function getPublicUrlList()
 	{
 		$trimFunction = function ($value) {
-			return trim($value, '/');
-		};
+					return trim($value, '/');
+				};
 		$list = array_map($trimFunction, $this->publicUrlList);
-		
-		return $this->publicUrlList;
+
+		return $list;
 	}
 
 	/**
@@ -146,12 +148,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		$sessionManager = ObjectRepository::getSessionManager($this);
 		$session = $sessionManager->getDefaultSessionNamespace();
 		/* @var $session SessionNamespace */
-		
+
 		// Unset the session data
 		unset($session->login, $session->message);
-		
+
 		$request = $this->getRequest();
-		$isPublicUrl = $this->isPublicUrl($request->getRequestUri());
+		$uri = $this->getRequest()->getActionString();
+		$isPublicUrl = $this->isPublicUrl($uri);
 
 		// Allow accessign public URL
 		if ($isPublicUrl) {
@@ -167,10 +170,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 		$post = $this->getRequest()->isPost();
 		$userProvider = ObjectRepository::getUserProvider($this);
-		
-		$loginPath = $this->getLoginPath();
-		$uri = $this->getRequest()->getActionString();
 
+		$loginPath = trim($this->getLoginPath(), '/');
 		// if post request then check for login and password fields presence
 		if ($post) {
 
@@ -184,19 +185,19 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			$password = new AuthenticationPassword($plainPassword);
 
 			if ( ! empty($login)) {
-				
+
 				// Authenticating user
 				$user = null;
-				
+
 				try {
-					
+
 					// TODO: Maybe should be moved to some password policy guide with password expire features?
 					if ($password->isEmpty()) {
 						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
 					}
-					
+
 					$user = $userProvider->authenticate($login, $password);
-					
+
 					$userProvider->signIn($user);
 
 					if ($xmlHttpRequest) {
@@ -208,15 +209,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$auditLog = ObjectRepository::getAuditLogger($this);
 					$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged in", $user);
-					
+
 					throw new StopRequestException("Login success");
-					
 				} catch (Exception\AuthenticationFailure $exc) {
 					//TODO: pass the failure message somehow
-					
 					// Login not successfull
 					$message = 'Incorrect login name or password';
-					
+
 					//TODO: i18n
 					if ($exc instanceof Exception\ExistingSessionLimitation) {
 						$message = $exc->getMessage();
@@ -225,15 +224,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					if ($xmlHttpRequest) {
 						$this->response->setCode(401);
 						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
-						
 					} else {
 
 						$session->login = $login;
 						$session->message = $message;
-
-						$request = $this->request;
-
-						/* @var $request Request\HttpRequest */
 
 						// if authentication failed, we redirect user to login page
 						$path = new Path($loginPath);
@@ -274,7 +268,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				throw new StopRequestException("User not authenticated");
 			}
 		} else {
-			
+
 			// Redirect from login form if the session is active
 			if ($uri == $loginPath) {
 				$uri = $this->getSuccessRedirectUrl();
@@ -311,7 +305,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 			if ($externalUrl === false) {
 				$redirectTo = '/' . trim($redirectTo, '/');
-				
+
 				return $redirectTo;
 			}
 		}

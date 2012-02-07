@@ -177,6 +177,7 @@ class LogEvent
 	{
 		if (is_null($this->subject)) {
 			$this->subject = '';
+			$this->data = (array) $this->data;
 			foreach ($this->data as &$item) {
 				$this->subject .= self::formatObject($item);
 			}

@@ -116,7 +116,7 @@ class PageAction extends PageManagerAction
 		$redirect = null;
 		$createdDate = null;
 		$createdTime = null;
-
+		
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
 
@@ -127,7 +127,7 @@ class PageAction extends PageManagerAction
 				$pathPrefix = $page->getParent()
 						->getPath();
 			}
-
+		
 			$template = $pageData->getTemplate();
 
 			if ($template instanceof Entity\Template) {
@@ -149,7 +149,7 @@ class PageAction extends PageManagerAction
 				$templateError = true;
 				//TODO: warn
 			}
-
+			
 			$scheduledDateTime = $pageData->getScheduleTime();
 			$redirectLink = $pageData->getRedirect();
 			$metaKeywords = $pageData->getMetaKeywords();
@@ -194,7 +194,7 @@ class PageAction extends PageManagerAction
 				'page_id' => $localization->getId()
 			);
 		}
-
+		
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),

@@ -43,6 +43,11 @@ class TwigResponse extends HttpResponse
 		}
 	}
 	
+	public function __sleep()
+	{
+		return parent::__sleep();
+	}
+	
 	/**
 	 * Override loader context
 	 * @param mixed $loaderContext

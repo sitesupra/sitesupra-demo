@@ -45,9 +45,9 @@ class Info implements Configuration\ConfigurationInterface
 
 		if (isset($url['host'])) {
 			// Glue the URL
-			$string = ($url['user'] ? $url['user'] . ($url['pass'] ? ':' . $url['pass'] : '') . '@' : '')
+			$string = (isset($url['user']) ? $url['user'] . (isset($url['pass']) ? ':' . $url['pass'] : '') . '@' : '')
 					. $url['host']
-					. ($url['port'] ? ':' . $url['host'] : '');
+					. (isset($url['port']) ? ':' . $url['host'] : '');
 		} else {
 			throw new InvalidConfiguration("Invalid system hostname value");
 		}

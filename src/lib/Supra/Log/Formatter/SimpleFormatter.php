@@ -31,7 +31,7 @@ class SimpleFormatter implements FormatterInterface
 	 */
 	function __construct(array $parameters = array())
 	{
-		$this->parameters = $parameters + static::$defaultParameters;
+		$this->parameters = $parameters + static::$defaultParameters + self::$defaultParameters;
 		
 		// collect variables used in format
 		preg_match_all('/%([^%]+)%/', $this->parameters['format'], $matches);

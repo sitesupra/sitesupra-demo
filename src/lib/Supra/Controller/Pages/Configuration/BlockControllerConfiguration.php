@@ -72,6 +72,11 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	 */
 	public $html;
 	
+	/**
+	 * Cache implementation
+	 * @var BlockControllerCacheConfiguration
+	 */
+	public $cache;	
 	
 	/**
 	 * Adds block configuration to block controller collection

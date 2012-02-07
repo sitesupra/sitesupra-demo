@@ -128,6 +128,16 @@ class HttpResponse implements ResponseInterface
 	{
 		
 	}
+	
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		$fields = array_keys(get_object_vars($this));
+		
+		return $fields;
+	}
 
 	/**
 	 * Normalizes header name
