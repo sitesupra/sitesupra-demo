@@ -34,31 +34,50 @@ class UserFacebookData extends Entity
 	 */
 	protected $facebookAccessToken;
 
+	/**
+	 * @return User 
+	 */
 	public function getUser()
 	{
 		return $this->user;
 	}
 
+	/**
+	 * @param User $user 
+	 */
 	public function setUser(User $user)
 	{
 		$this->user = $user;
 	}
 
+	/**
+	 * @return string 
+	 */
 	public function getFacebookUserId()
 	{
 		return $this->facebookUserId;
 	}
 
+	/**
+	 *
+	 * @param string $facebookUserId 
+	 */
 	public function setFacebookUserId($facebookUserId)
 	{
 		$this->facebookUserId = $facebookUserId;
 	}
 
+	/**
+	 * @return string 
+	 */
 	public function getFacebookAccessToken()
 	{
 		return $this->facebookAccessToken;
 	}
 
+	/**
+	 * @param string $facebookAccessToken 
+	 */
 	public function setFacebookAccessToken($facebookAccessToken)
 	{
 		$this->facebookAccessToken = $facebookAccessToken;

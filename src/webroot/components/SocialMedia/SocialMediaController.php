@@ -127,6 +127,7 @@ class SocialMediaController extends SimpleController
 	{
 
 		$response = $this->getResponse();
+		/* @var $response \Supra\Response\TwigResponse */
 
 		$user = $this->getCurrentCmsUser();
 
@@ -134,8 +135,6 @@ class SocialMediaController extends SimpleController
 			$response->redirect('/cms');
 			return;
 		}
-
-		/* @var $response Response\HttpResponse */
 
 		$savedPages = $this->getAvailablePages();
 
@@ -148,7 +147,6 @@ class SocialMediaController extends SimpleController
 			
 		}
 
-		/* @var $response \Supra\Response\TwigResponse */
 		$response->assign('addedPages', $savedPages);
 
 		$response->outputTemplate('select-page.html.twig');
@@ -157,6 +155,9 @@ class SocialMediaController extends SimpleController
 	public function createTabAction()
 	{
 		$response = $this->getResponse();
+		$request = $this->getRequest();
+		/* @var $request Request\HttpRequest */
+		/* @var $response \Supra\Response\TwigResponse */
 
 		$user = $this->getCurrentCmsUser();
 
@@ -165,31 +166,12 @@ class SocialMediaController extends SimpleController
 			return;
 		}
 
-		/* @var $response Response\HttpResponse */
-//		$facebook = new Adapter($user);
-//
-//		try {
-//			$facebook->checkAppPermissions();
-//		} catch (FacebookApiException $e) {
-//			$response->redirect(self::PAGE_SOCIAL);
-//			return;
-//		}
-
-		$request = $this->getRequest();
-		/* @var $request Request\HttpRequest */
-
 		$pageId = $request->getParameter('page_id');
 		if (empty($pageId)) {
 			$response->redirect(self::PAGE_SELECT_PAGE);
 			return;
 		}
-//
-//		if ( ! $facebook->checkUserPage($pageId)) {
-//			$response->redirect(self::PAGE_SELECT_PAGE);
-//			return;
-//		}
 
-		/* @var $response \Supra\Response\TwigResponse */
 		$response->assign('pageId', $pageId);
 
 		$response->outputTemplate('create-tab.html.twig');
@@ -233,7 +215,17 @@ class SocialMediaController extends SimpleController
 		$pageData = $facebook->getUserPage($pageId, false);
 
 		$em = ObjectRepository::getEntityManager($this);
-		$page = new \Supra\User\Entity\UserFacebookPage();
+		$pageRepo = $em->getRepository('\Supra\User\Entity\UserFacebookPage');
+		$existingPage = $pageRepo->findOneByPageId($pageId);
+
+		if ($existingPage instanceof UserFacebookPage) {
+			// TODO: Give access to user to manage that page
+			$logger = ObjectRepository::getLogger($this);
+			$logger->info('Page ' . $existingPage->getPageTitle() . ' is already linked to supra');
+			return;
+		}
+
+		$page = new UserFacebookPage();
 		$em->persist($page);
 		$page->setPageId($pageId);
 		$page->setPageTitle($pageData['name']);
@@ -258,7 +250,6 @@ class SocialMediaController extends SimpleController
 	 */
 	private function getCurrentCmsUser()
 	{
-
 		$userProvider = ObjectRepository::getUserProvider($this);
 		$user = $userProvider->getSignedInUser();
 
@@ -272,17 +263,16 @@ class SocialMediaController extends SimpleController
 	public function saveTabAction()
 	{
 		$request = $this->getRequest();
-		/* @var $request Request\HttpRequest */
 		$response = $this->getResponse();
+		/* @var $request Request\HttpRequest */
 		/* @var $response Response\HttpResponse */
 		if ( ! $request->isPost()) {
 			throw new \Exception();
 		}
 
 		$post = $request->getPost();
-		$em = ObjectRepository::getEntityManager($this);
-
 		/* @var $post Supra\Request\RequestData */
+		$em = ObjectRepository::getEntityManager($this);
 
 		if ( ! $post->has('page_id')) {
 			$response->redirect(self::PAGE_SELECT_PAGE);
@@ -320,6 +310,11 @@ class SocialMediaController extends SimpleController
 
 		$title = $post->get('tab-title');
 
+		if (empty($title)) {
+			$response->redirect(self::PAGE_CREATE_TAB . '?page_id=' . $pageId);
+			return;
+		}
+
 		if ( ! $post->has('content')) {
 			$response->redirect(self::PAGE_CREATE_TAB . '?page_id=' . $pageId);
 			return;
@@ -327,10 +322,17 @@ class SocialMediaController extends SimpleController
 
 		$content = $post->get('content');
 
+		if (empty($content)) {
+			$response->redirect(self::PAGE_CREATE_TAB . '?page_id=' . $pageId);
+			return;
+		}
+
 		$em->persist($tab);
 		$tab->setHtml($content);
 		$tab->setTabTitle($title);
 		$tab->setPage($page);
+		// TODO: Draft / publish
+		$tab->setPublished(false);
 		$em->flush();
 
 		$response->redirect(self::PAGE_VIEW_PAGE . '?page_id=' . $pageId);
@@ -339,6 +341,9 @@ class SocialMediaController extends SimpleController
 	public function viewPageAction()
 	{
 		$response = $this->getResponse();
+		$request = $this->getRequest();
+		/* @var $response Response\HttpResponse */
+		/* @var $request Request\HttpRequest */
 
 		$user = $this->getCurrentCmsUser();
 
@@ -347,29 +352,13 @@ class SocialMediaController extends SimpleController
 			return;
 		}
 
-		/* @var $response Response\HttpResponse */
-//		$facebook = new Adapter($user);
-//
-//		try {
-//			$facebook->checkAppPermissions();
-//		} catch (FacebookApiException $e) {
-//			$response->redirect(self::PAGE_SOCIAL);
-//			return;
-//		}
-
 		$request = $this->getRequest();
-		/* @var $request Request\HttpRequest */
 
 		$pageId = $request->getParameter('page_id');
 		if (empty($pageId)) {
 			$response->redirect(self::PAGE_SELECT_PAGE);
 			return;
 		}
-
-//		if ( ! $facebook->checkUserPage($pageId)) {
-//			$response->redirect(self::PAGE_SELECT_PAGE);
-//			return;
-//		}
 
 		$output = array();
 
@@ -385,6 +374,7 @@ class SocialMediaController extends SimpleController
 			$output[] = array(
 				'id' => $tab->getId(),
 				'title' => $tab->getTabTitle(),
+				'published' => $tab->isPublished(),
 			);
 		}
 		// change to database page
@@ -393,30 +383,6 @@ class SocialMediaController extends SimpleController
 		$response->assign('page', $this->getPageData($page));
 
 		$response->outputTemplate('view-page.html.twig');
-	}
-
-	public function createDummyAction()
-	{
-		$user = $this->getCurrentCmsUser();
-		$facebook = new Adapter($user);
-
-		$em = ObjectRepository::getEntityManager($this);
-		$em->persist($user);
-
-		$pages = array_keys($facebook->getUserPages());
-
-		$facebookPage = new \Supra\User\Entity\UserFacebookPage();
-		$facebookPage->setUser($user);
-		$facebookPage->setPageId($pages[array_rand($pages)]);
-
-		$tab = new \Supra\User\Entity\UserFacebookPageTab();
-		$tab->setTabTitle('Welcome ' . mt_rand(0, 10000));
-		$tab->setHtml('<div>Hello World ' . mt_rand(0, 10000) . '!</div>');
-		$tab->setTabId($facebookPage->getPageId() . '-' . $tab->getId());
-
-		$tab->setPage($facebookPage);
-
-		$em->flush();
 	}
 
 	public function getAvailablePages()
@@ -468,6 +434,19 @@ class SocialMediaController extends SimpleController
 		$tab = $repo->findOneById($tabId);
 		/* @var $tab UserFacebookPageTab */
 		$pageId = $tab->getPage()->getPageId();
+
+		if ($tab->isPublished()) {
+			try {
+				$facebook = new Adapter($user);
+				$facebook->removeTabFromPage($tab);
+			} catch (FacebookApiException $exc) {
+				$logger = ObjectRepository::getLogger($this);
+				$logger->error($exc->getMessage());
+				$response->redirect(self::PAGE_VIEW_PAGE . '?page_id=' . $pageId);
+				return;
+			}
+		}
+
 		$em->remove($tab);
 		$em->flush();
 
@@ -506,6 +485,148 @@ class SocialMediaController extends SimpleController
 		$response->assign('tabId', $tabId);
 
 		$response->outputTemplate('create-tab.html.twig');
+	}
+
+	public function publishTabAction()
+	{
+		$response = $this->getResponse();
+		$request = $this->getRequest();
+		$logger = ObjectRepository::getLogger($this);
+		/* @var $response Response\TwigResponse */
+		/* @var $request Request\HttpRequest */
+
+		$user = $this->getCurrentCmsUser();
+
+		if (is_null($user)) {
+			$response->redirect('/cms');
+			return;
+		}
+
+		$publish = $request->getParameter('publish');
+		if ( ! in_array($publish, array('0', '1'))) {
+			$publish = false;
+			$logger->warn('"publish" is not boolean, will set publish to false');
+		}
+
+		$publish = (bool) $publish;
+
+		$em = ObjectRepository::getEntityManager($this);
+		$tabId = $request->getParameter('tab_id');
+		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+		$tab = $repo->findOneById($tabId);
+
+		if ( ! $tab instanceof UserFacebookPageTab) {
+			$response->redirect(self::PAGE_SELECT_PAGE);
+			return;
+		}
+
+		$facebook = new Adapter($user);
+		$pageId = $tab->getPage()->getPageId();
+		try {
+			if ($publish) {
+
+				$facebook->addTabToPage($tab);
+
+				// find already published pages and unpublish them
+				$publishedPages = $repo->findBy(array('published' => true));
+				foreach ($publishedPages as $publishedPage) {
+					$em->persist($publishedPage);
+					$publishedPage->setPublished(false);
+					$em->flush();
+				}
+			} else {
+				$facebook->removeTabFromPage($tab);
+			}
+		} catch (FacebookApiException $exc) {
+			$logger = ObjectRepository::getLogger($this);
+			$logger->error($exc->getMessage());
+			$response->redirect(self::PAGE_VIEW_PAGE . '?page_id=' . $pageId);
+			return;
+		}
+
+		$em->persist($tab);
+		$tab->setPublished($publish);
+		$em->flush();
+
+		$response->redirect(self::PAGE_VIEW_PAGE . '?page_id=' . $pageId);
+	}
+
+	public function viewTabAction()
+	{
+		$response = $this->getResponse();
+		$request = $this->getRequest();
+		/* @var $response Response\TwigResponse */
+		/* @var $request Request\HttpRequest */
+		$em = ObjectRepository::getEntityManager($this);
+		$tabId = $request->getParameter('tab_id');
+		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+		$tab = $repo->findOneById($tabId);
+
+		// TODO: Redirect to default supra tab?
+		if ( ! $tab instanceof UserFacebookPageTab) {
+			$response->outputTemplate('no-tab.html.twig');
+			return;
+		}
+
+		$response->assign('title', $tab->getTabTitle());
+		$response->assign('content', $tab->getHtml());
+
+		$response->outputTemplate('view-tab.html.twig');
+	}
+
+	// TODO: Need https to finnish
+	public function parseRequestAction()
+	{
+		$request = $this->getRequest();
+		$response = $this->getResponse();
+		/* @var $request Request\HttpRequest */
+		/* @var $response Response\HttpResponse */
+		if ( ! $request->isPost()) {
+			throw new \Exception();
+		}
+		
+		$data = array();
+		
+		$post = $request->getPost();
+		/* @var $post Supra\Request\RequestData */
+		if ($post->has('signed_request')) {
+			$signed_request = $this->parseSignedRequest($_POST['signed_request']);
+		}
+
+		if ( ! isset($data['page'])) {
+			throw new \Exception('Page data is empty');
+		}
+
+		$pageId = $data['page']['id'];
+		
+		// TODO: get result by page id
+	}
+
+	private function parseSignedRequest($signedRequest)
+	{
+		list($encodedSignature, $payload) = explode('.', $signedRequest, 2);
+
+		// decode the data
+		$sig = $this->base64UrlDecode($encodedSignature);
+		$data = json_decode($this->base64UrlDecode($payload), true);
+
+		if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
+			throw new \Exception('Unknown algorithm. Expected HMAC-SHA256');
+		}
+
+		// TODO: FIXME Always failed
+//		$expected_sig = hash_hmac('sha256', $payload, $secret, $raw = true);
+//		if ($sig !== $expected_sig) {
+//			error_log('Bad Signed JSON signature!');
+//			return null;
+//		}
+
+		return $data;
+	}
+
+	private function base64UrlDecode($input)
+	{
+		return base64_decode(strtr($input, '-_', '+/'));
 	}
 
 }

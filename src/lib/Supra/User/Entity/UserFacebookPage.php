@@ -58,16 +58,25 @@ class UserFacebookPage extends Entity
 		$this->tabs = new Collections\ArrayCollection();
 	}
 
+	/**
+	 * @return string 
+	 */
 	public function getPageId()
 	{
 		return $this->pageId;
 	}
 
+	/**
+	 * @param string $pageId 
+	 */
 	public function setPageId($pageId)
 	{
 		$this->pageId = $pageId;
 	}
 
+	/**
+	 * @return \Doctrine\ORM\PersistentCollection 
+	 */
 	public function getTabs()
 	{
 		return $this->tabs;
@@ -82,26 +91,41 @@ class UserFacebookPage extends Entity
 		$this->tabs->add($tab);
 	}
 
+	/**
+	 * @return string 
+	 */
 	public function getPageTitle()
 	{
 		return $this->pageTitle;
 	}
 
+	/**
+	 * @param string $pageTitle 
+	 */
 	public function setPageTitle($pageTitle)
 	{
 		$this->pageTitle = $pageTitle;
 	}
 
+	/**
+	 * @return string 
+	 */
 	public function getPageIcon()
 	{
 		return $this->pageIcon;
 	}
 
+	/**
+	 * @param string $pageIcon 
+	 */
 	public function setPageIcon($pageIcon)
 	{
 		$this->pageIcon = $pageIcon;
 	}
 
+	/**
+	 * @return UserFacebookData 
+	 */
 	public function getUserData()
 	{
 		return $this->userData;
@@ -112,11 +136,17 @@ class UserFacebookPage extends Entity
 		$this->userData = $userData;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getPageLink()
 	{
 		return $this->pageLink;
 	}
 
+	/**
+	 * @param string $pageLink 
+	 */
 	public function setPageLink($pageLink)
 	{
 		$this->pageLink = $pageLink;

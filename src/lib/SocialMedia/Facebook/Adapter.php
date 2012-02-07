@@ -8,6 +8,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use SocialMedia\Facebook\Exception\FacebookApiException;
 use Supra\User\Entity\User;
 use Supra\User\Entity\UserFacebookData;
+use Supra\User\Entity\UserFacebookPage;
+use Supra\User\Entity\UserFacebookPageTab;
 
 class Adapter extends AdapterAbstraction
 {
@@ -111,7 +113,7 @@ class Adapter extends AdapterAbstraction
 				return $userId;
 			}
 		}
-		
+
 		return $this->instance->getUser();
 	}
 
@@ -281,6 +283,79 @@ class Adapter extends AdapterAbstraction
 		}
 
 		return $queryResult;
+	}
+
+	/**
+	 * @param UserFacebookPageTab $tab 
+	 */
+	public function addTabToPage(UserFacebookPageTab $tab)
+	{
+		$this->toggleTabOnPage($tab, 'add');
+	}
+
+	/**
+	 * @param UserFacebookPageTab $tab 
+	 */
+	public function removeTabFromPage(UserFacebookPageTab $tab)
+	{
+		$this->toggleTabOnPage($tab, 'remove');
+	}
+
+	private function toggleTabOnPage(UserFacebookPageTab $tab, $action = 'remove')
+	{
+		$page = $tab->getPage();
+		$facebookData = $page->getUserData();
+
+		$accessToken = $facebookData->getFacebookAccessToken();
+		if (empty($accessToken)) {
+			// FIXME
+			throw new FacebookApiException(array(
+				'error_msg' => 'Could not find user access token'
+			));
+		}
+
+		$this->setAccessToken($accessToken);
+
+		// check app permissions
+		$this->checkAppPermissions();
+
+		$pageAccessToken = $this->getPageAccessToken($facebookData->getFacebookUserId(), $page->getPageId());
+		if (is_null($pageAccessToken)) {
+			// FIXME
+			throw new FacebookApiException(array(
+				'error_msg' => 'Could not find page access token'
+			));
+		}
+		if ($action == 'add') {
+			// 1 ) Adding app to page and page bar
+			// me/tabs?app_id=APP_ID&method=post&access_token=PAGE_ACCESS_TOKEN
+			$this->instance->api('/me/tabs', 'POST', array('access_token' => $pageAccessToken, 'app_id' => $this->getAppId()));
+
+			// 2 ) Changing tab name
+			// me/tabs/APP_ID?access_token=PAGE_ACCESS_TOKEN&custom_name=CUSTOM_NAME&method=post
+			$this->instance->api('/me/tabs/app_' . $this->getAppId(), 'POST', array('access_token' => $pageAccessToken, 'custom_name' => $tab->getTabTitle()));
+		} else {
+			// remove app from page
+			$this->instance->api('/me/tabs/app_' . $this->getAppId(), 'DELETE', array('access_token' => $pageAccessToken));
+		}
+	}
+
+	/**
+	 * Returns page access token
+	 * @param string $ownerId
+	 * @param string $pageId
+	 * @return string 
+	 */
+	public function getPageAccessToken($ownerId, $pageId)
+	{
+		$queryResult = $this->instance->api($ownerId . '/accounts', 'GET', array('access_token' => $this->instance->getAccessToken()));
+		foreach ($queryResult['data'] as $result) {
+			if ($result['id'] == $pageId) {
+				return $result['access_token'];
+			}
+		}
+
+		return null;
 	}
 
 }
