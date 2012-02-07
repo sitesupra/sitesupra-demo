@@ -122,7 +122,7 @@ class SubscribeBlock extends BlockController
 			//Create new subscriber
 			try {
 				$subscriber = $this->subscriberManager->createSubscriber($email, $subscriberName, false);
-			} catch (Exception\RuntimeException $e) {
+			} catch (Mailer\Exception\RuntimeException $e) {
 				$error[] = 'subscriber_alredy_active';
 			}
 
