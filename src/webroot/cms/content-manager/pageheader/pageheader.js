@@ -136,7 +136,7 @@ Supra('supra.languagebar', function (Y) {
 				//User saved without making any modifications
 				//If page was previously published, then it stays published
 				var page_data = Supra.Manager.Page.getPageData();
-				if (!this.has_changes && page_data.published) {
+				if (!this.has_changes && page_data && page_data.published) {
 					title = 'published';
 				}
 				

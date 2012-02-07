@@ -26,18 +26,18 @@
 			<div class="item">
 				<div class="icon"></div>
 				<div class="line"><div></div></div>
-				<p class="title">{{ period.title|e }}</p>
+				<p class="title"><span>{{ period.title|e }}</span></p>
 				
 				<div class="section {% if period.latest %}latest{% endif %}">
 					{% for group in period.groups %}
 					<div class="group">
 						<div class="icon">{{ group.datetime }}</div>
 						{% for version in group.versions %}
-							<p {% if version.action != 'publish' %}class="minor"{% endif %} data-id="{{ version.version_id|e }}">
+							<p class="{% if version.action != 'publish' %}minor{% endif %}" data-id="{{ version.version_id|e }}"><span>
 								{% set action_title = 'history.' + version.action %}
 								{{ version.datetime }} {{ version.title|default('')|e }} {{ action_title|intl }}
 								<em>{# history.by #} {{ version.author_fullname|e }}</em>
-							</p>
+							</span></p>
 						{% endfor %}
 					</div>
 					{% endfor %}

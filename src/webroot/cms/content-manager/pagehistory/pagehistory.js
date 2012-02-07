@@ -60,20 +60,6 @@ SU('anim', function (Y) {
 		element_list: null,
 		
 		/**
-		 * Currently previewed version
-		 * @type {String}
-		 * @private
-		 */
-		current_version: null,
-		
-		/**
-		 * "Restore" button
-		 * @type {Array}
-		 * @private
-		 */
-		button: null,
-		
-		/**
 		 * History is loading
 		 * @type {Boolean}
 		 * @private
@@ -129,38 +115,29 @@ SU('anim', function (Y) {
 				prev_target = null;
 			
 			if (this.current_version != version_id) {
-				prev_target = this.all('p.active');
+				prev_target = this.timeline.all('.active');
+				if (prev_target) prev_target.removeClass('active');
+				
 				target.addClass('loading');
 				target.addClass('active');
 				
 				this.set('loading', true);
+				this.get('controlButton').set('disabled', true);
 				
 				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function (data, status) {
 					target.removeClass('loading');
 					this.set('loading', false);
+					this.get('controlButton').set('disabled', false);
 					
 					if (!status) {
-						//@TODO
-						//target.removeClass('active');
+						//Handle error, @TODO
+						
+						target.removeClass('active');
+						if (prev_target) prev_target.addClass('active');
 					} else {
-						prev_target.removeClass('active');
 						this.current_version = version_id;
 					}
 				}, this);
-				
-				/*
-				//Create button
-				if (!this.button) {
-					this.button = new Supra.Button({'label': Supra.Intl.get(['history', 'restore']), 'style': 'small'});
-					this.button.render(target.one('span'));
-					this.button.on('click', function () {
-						this.restoreVersionConfirm(this.current_version);
-					}, this);
-				}
-				
-				//Move button to correct place
-				target.one('span').append(this.button.get('boundingBox'));
-				*/
 			}
 		},
 		
@@ -172,8 +149,7 @@ SU('anim', function (Y) {
 		restoreVersion: function (version_id) {
 			//Disable elements
 			this.set('loading', true);
-			this.button.set('loading', true);
-			Manager.PageButtons.buttons[this.NAME][0].set('disabled', true);
+			this.get('controlButton').set('disabled', true);
 			
 			Supra.io(this.getDataPath('restore'), {
 				'method': 'post',
@@ -187,38 +163,13 @@ SU('anim', function (Y) {
 					'success': function () {
 						//Re-enable elements
 						this.set('loading', false);
-						this.button.set('loading', false);
-						Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
+						this.get('controlButton').set('disabled', false);
 						
 						//Reload page
 						this.reloadPage();
-						this.hide();
 					}
 				}
 			});
-		},
-		
-		/**
-		 * Restore specific version and confirm before doing so
-		 *
-		 * @param {String} version_id
-		 */
-		restoreVersionConfirm: function (version_id) {
-			
-			Supra.Manager.executeAction('Confirmation', {
-				'message': SU.Intl.get(['history', 'restore_message']),
-				'useMask': true,
-				'buttons': [{
-						'id': 'yes',
-						'context': this,
-						'click': function () {
-							this.restoreVersion(version_id);
-						}
-					},
-					{'id': 'no'}
-				]
-			});
-			
 		},
 		
 		/**
@@ -249,11 +200,6 @@ SU('anim', function (Y) {
 		 */
 		reloadList: function () {
 			
-			var data = [{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l11","date":"2012-02-02 13:30","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l12","date":"2012-02-02 13:11","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l13","date":"2012-02-02 10:55","action":"change","title":"Text block","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l14","date":"2012-02-02 06:43","action":"change","title":"Template","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l15","date":"2012-02-02 06:22","action":"change","title":"Text block","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l16","date":"2012-02-01 11:26","action":"change","title":"Text block","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l17","date":"2012-02-01 11:10","action":"publish","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-02-01 06:10","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-02-01 06:01","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-30 12:22","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-28 18:22","action":"publish","author_fullname":"tim"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2012-01-28 14:55","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2011-12-22 16:55","action":"publish","author_fullname":"Admin"},{"version_id":"0ab1c2d3e4f5g6h7i8j9k10l18","date":"2011-11-07 18:20","action":"publish","author_fullname":"tim"}];
-			this.renderData(data, true);
-			
-			//@TODO
-			/*
 			Supra.io(this.getDataPath('load'), {
 				'data': {
 					'page_id': Manager.getAction('Page').getPageData().id,
@@ -264,7 +210,6 @@ SU('anim', function (Y) {
 					'success': this.renderData
 				}
 			});
-			*/
 			
 		},
 		
@@ -277,6 +222,12 @@ SU('anim', function (Y) {
 			this.get('contentNode').removeClass('loading');
 			
 			this.timeline.set('innerHTML', Supra.Template('timeline', {'data': data}));
+			
+			//Mark active latest item
+			var latest_item = this.timeline.one('.group p');
+			if (latest_item) {
+				latest_item.addClass('active');
+			}
 			
 			this.updateScrollbars();
 		},
@@ -436,14 +387,6 @@ SU('anim', function (Y) {
 				
 				anim.run();
 			} else {
-				//Collapse expanded siblings
-				/*
-				var siblings = item.siblings('.expanded');
-				if (siblings.size()) {
-					this.toggleSection(siblings.item(0));
-				}
-				*/
-				
 				//Find content height
 				section.setStyles({'display': 'block', 'position': 'absolute', 'left': '-9000px'});
 				height = section.get('offsetHeight');
@@ -483,7 +426,8 @@ SU('anim', function (Y) {
 		hide: function () {
 			//Restore original content
 			if (this.current_version) {
-				this.reloadPage();
+				this.restoreVersion(this.current_version);
+				this.current_version = null;
 			}
 			
 			//Hide sidebar
