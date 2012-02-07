@@ -312,7 +312,7 @@ class FixtureHelper
 			$subscribe = $this->createPage(5, $newsPages, $this->childTemplate);
 
 			$search = $this->createPage(7, $rootPage, $this->childTemplate);
-			$page404 = $this->createPage(8, $rootPage, $this->childTemplate);
+			$page404 = $this->createPage(8, $rootPage, $this->rootTemplate);
 		}
 		catch (\Exception $e) {
 			$em->rollback();
@@ -734,14 +734,14 @@ class FixtureHelper
 								$block->setPosition(100);
 
 								$blockProperty = new Entity\BlockProperty('title');
-								$blockProperty->setEditable(new \Supra\Editable\String('404 title'));
+								$blockProperty->setEditable(new \Supra\Editable\InlineString('404 title'));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);
 								$blockProperty->setValue('404 title');
 
 								$blockProperty = new Entity\BlockProperty('content');
-								$blockProperty->setEditable(new \Supra\Editable\Html('404 content'));
+								$blockProperty->setEditable(new \Supra\Editable\Html('<h1>Page not found</h1>'));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);
