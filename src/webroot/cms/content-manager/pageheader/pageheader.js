@@ -51,6 +51,13 @@ Supra('supra.languagebar', function (Y) {
 		 */
 		languagebar: null,
 		
+		/**
+		 * Has anything changed
+		 * @type {Boolean}
+		 * @private
+		 */
+		has_changes: false,
+		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
@@ -114,9 +121,32 @@ Supra('supra.languagebar', function (Y) {
 		
 		/**
 		 * Set version title
+		 * 
+		 * @param {String} title Version title
 		 * @private
 		 */
 		setVersionTitle: function (title) {
+			if (title == 'autosaved') {
+				
+				//User modified content
+				this.has_changes = true;
+				
+			} else if (title == 'draft') {
+				
+				//User saved without making any modifications
+				//If page was previously published, then it stays published
+				var page_data = Supra.Manager.Page.getPageData();
+				if (!this.has_changes && page_data.published) {
+					title = 'published';
+				}
+				
+			} else if (title == 'published') {
+				
+				//User published page
+				this.has_changes = false;
+				
+			}
+			
 			var version = Supra.Intl.get(['page', 'version_' + title]);
 			this.one('.version').set('text', version);
 		},
@@ -177,6 +207,7 @@ Supra('supra.languagebar', function (Y) {
 								   .setAttribute('title', page ? page.title : '');
 			
 			this.setVersionTitle(page && page.published ? 'published' : 'draft');
+			this.has_changes = false;
 			
 			//Don't change locale if page is loading
 			if (!ignore_locale_change) {
