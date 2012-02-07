@@ -198,6 +198,7 @@ class PageAction extends PageManagerAction
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),
+			'revision_id' => $pageData->getRevisionId(),
 			'locale' => $localeId,
 			'title' => $pageData->getTitle(),
 			'path' => $pathPart,
