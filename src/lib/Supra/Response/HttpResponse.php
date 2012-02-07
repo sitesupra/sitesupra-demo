@@ -134,7 +134,7 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function __sleep()
 	{
-		$fields = array_keys(get_object_vars($this));
+		$fields = array_keys(get_class_vars(__CLASS__));
 		
 		return $fields;
 	}
