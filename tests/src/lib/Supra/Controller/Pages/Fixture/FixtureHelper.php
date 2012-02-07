@@ -733,7 +733,7 @@ class FixtureHelper
 								// reverse order
 								$block->setPosition(100);
 
-								$blockProperty = new Entity\BlockProperty('title');
+								$blockProperty = new Entity\BlockProperty('404 title');
 								$blockProperty->setEditable(new \Supra\Editable\InlineString('404 title'));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
@@ -741,11 +741,11 @@ class FixtureHelper
 								$blockProperty->setValue('404 title');
 
 								$blockProperty = new Entity\BlockProperty('content');
-								$blockProperty->setEditable(new \Supra\Editable\Html('<h1>Page not found</h1>'));
+								$blockProperty->setEditable(new \Supra\Editable\Html('404 Content'));
 								$this->entityManager->persist($blockProperty);
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);
-								$blockProperty->setValue('404 content');
+								$blockProperty->setValue('<h1>Page not found</h1>');
 						}
 
 						else {
