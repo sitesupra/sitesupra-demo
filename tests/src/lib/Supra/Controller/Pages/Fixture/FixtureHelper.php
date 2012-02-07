@@ -70,6 +70,7 @@ class FixtureHelper
 			8 => array(
 					'title' => '404',
 					'pathPart' => '404',
+					'404' => true
 			),
 		
 	);
@@ -722,7 +723,31 @@ class FixtureHelper
 								$block->setComponentClass('Project\Search\SearchController');
 								$block->setPlaceHolder($placeHolder);
 								$block->setPosition(100);
+								
+						} else	if ($pageDefinition['404']) {
+							
+								$block = new Entity\PageBlock();
+								$this->entityManager->persist($block);
+								$block->setComponentClass('Project\Text\TextController');
+								$block->setPlaceHolder($placeHolder);
+								// reverse order
+								$block->setPosition(100);
+
+								$blockProperty = new Entity\BlockProperty('title');
+								$blockProperty->setEditable(new \Supra\Editable\String('404 title'));
+								$this->entityManager->persist($blockProperty);
+								$blockProperty->setBlock($block);
+								$blockProperty->setLocalization($pageData);
+								$blockProperty->setValue('404 title');
+
+								$blockProperty = new Entity\BlockProperty('content');
+								$blockProperty->setEditable(new \Supra\Editable\Html('404 content'));
+								$this->entityManager->persist($blockProperty);
+								$blockProperty->setBlock($block);
+								$blockProperty->setLocalization($pageData);
+								$blockProperty->setValue('404 content');
 						}
+
 						else {
 							foreach (range(1, 2) as $i) {
 								$block = new Entity\PageBlock();
