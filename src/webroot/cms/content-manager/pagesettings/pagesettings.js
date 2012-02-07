@@ -10,9 +10,13 @@ SU.addModule('website.template-list-css', {
 	path: 'pagesettings/modules/template-list.css',
 	type: 'css'
 });
+SU.addModule('website.input-keywords', {
+	path: 'pagesettings/modules/input-keywords.js',
+	requires: ['supra.input-proto']
+});
 
 
-SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
+SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager;

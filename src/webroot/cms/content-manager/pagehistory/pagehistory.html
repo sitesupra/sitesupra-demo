@@ -33,7 +33,7 @@
 					<div class="group">
 						<div class="icon">{{ group.datetime }}</div>
 						{% for version in group.versions %}
-							<p class="{% if version.action != 'publish' %}minor{% endif %}" data-id="{{ version.version_id|e }}"><span>
+							<p class="{% if version.action != 'publish' %}minor{% endif %} {% if version.version_id == revision_id %}active{% endif %}" data-id="{{ version.version_id|e }}"><span>
 								{% set action_title = 'history.' + version.action %}
 								{{ version.datetime }} {{ version.title|default('')|e }} {{ action_title|intl }}
 								<em>{# history.by #} {{ version.author_fullname|e }}</em>

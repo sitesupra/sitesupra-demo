@@ -221,13 +221,9 @@ SU('anim', function (Y) {
 			
 			this.get('contentNode').removeClass('loading');
 			
-			this.timeline.set('innerHTML', Supra.Template('timeline', {'data': data}));
+			var revision_id = Manager.Page.getPageData().revision_id;
 			
-			//Mark active latest item
-			var latest_item = this.timeline.one('.group p');
-			if (latest_item) {
-				latest_item.addClass('active');
-			}
+			this.timeline.set('innerHTML', Supra.Template('timeline', {'revision_id': revision_id, 'data': data}));
 			
 			this.updateScrollbars();
 		},
