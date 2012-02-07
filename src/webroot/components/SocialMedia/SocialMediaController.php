@@ -12,6 +12,7 @@ use SocialMedia\Facebook\Adapter;
 use Supra\User\Entity\UserFacebookData;
 use Supra\User\Entity\UserFacebookPage;
 use Supra\User\Entity\UserFacebookPageTab;
+use Doctrine\ORM\NoResultException;
 
 class SocialMediaController extends SimpleController
 {
@@ -20,6 +21,7 @@ class SocialMediaController extends SimpleController
 	const PAGE_EDIT_PAGE = '/social/edit-page';
 	const PAGE_VIEW_PAGE = '/social/view-page';
 	const PAGE_CREATE_TAB = '/social/create-tab';
+	const PAGE_VIEW_TAB = '/social/view-tab';
 
 	private $output = array(
 		'success' => 0,
@@ -584,13 +586,13 @@ class SocialMediaController extends SimpleController
 		if ( ! $request->isPost()) {
 			throw new \Exception();
 		}
-		
+
 		$data = array();
-		
+
 		$post = $request->getPost();
 		/* @var $post Supra\Request\RequestData */
 		if ($post->has('signed_request')) {
-			$signed_request = $this->parseSignedRequest($_POST['signed_request']);
+			$data = $this->parseSignedRequest($post->get('signed_request'));
 		}
 
 		if ( ! isset($data['page'])) {
@@ -598,8 +600,20 @@ class SocialMediaController extends SimpleController
 		}
 
 		$pageId = $data['page']['id'];
-		
-		// TODO: get result by page id
+
+		$em = ObjectRepository::getEntityManager($this);
+		$query = $em->createQuery('SELECT t.id FROM Supra\User\Entity\UserFacebookPageTab t JOIN t.page p WHERE p.pageId = :page_id AND t.published = 1');
+		$query->setParameter('page_id', $pageId);
+
+		$response = $this->getResponse();
+		try {
+			$tabId = $query->getSingleScalarResult();
+		} catch (NoResultException $exc) {
+			$response->outputTemplate('no-tab.html.twig');
+			return;
+		}
+
+		$response->redirect(self::PAGE_VIEW_TAB . '?tab_id=' . $tabId);
 	}
 
 	private function parseSignedRequest($signedRequest)
