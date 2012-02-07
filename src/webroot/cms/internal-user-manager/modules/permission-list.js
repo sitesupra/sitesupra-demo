@@ -192,7 +192,7 @@ YUI.add('website.permission-list', function (Y) {
 				flag = '<img src="/cms/lib/supra/img/flags/16x11/px.png" alt="" />',
 				existing = false;
 			
-			if (typeof data == 'object') {
+			if (typeof data == 'object' && !Y.Lang.isArray(data)) {
 				values = data.value;
 				locale = data.locale;
 				existing = true;
@@ -235,7 +235,8 @@ YUI.add('website.permission-list', function (Y) {
 				
 				subproperty = Supra.mix({}, subproperty, {
 					'label': title || '',
-					'id': data.id
+					'id': data.id,
+					'locale': locale
 				});
 				
 				this.data[i] = Supra.Form.factoryField(subproperty);
@@ -250,11 +251,13 @@ YUI.add('website.permission-list', function (Y) {
 				
 				//Add remove button
 				var button = Y.Node.create('<a class="remove"></a>');
-				button.setData('input-id', data.id);
 				this.data[i].get('contentBox').append(button);
 				
+				button.setData('item-locale', locale);
+				button.setData('item-id', data.id);
+				
 				//When property changes fire event on this
-				this.data[i].on('valueChange', function () {
+				this.data[i].after('valueChange', function () {
 					this.fire('change', {'subtype': 'change', 'id': data.id, 'locale': locale});
 				}, this);
 				
@@ -325,28 +328,23 @@ YUI.add('website.permission-list', function (Y) {
 		 * Remove item
 		 */
 		removeItem: function (e) {
-			var target = Y.Node(e.target),
-				id = target.getData('data-id'),
-				data = this.data,
-				locale = '';
-			
-			if (typeof data == 'object') {
-				locale = data.locale;
-			} else {
-				locale = this.get('languagebar').get('locale');
-			}
+			var target = e.target,
+				id = target.getData('item-id'),
+				locale = target.getData('item-locale'),
+				data = this.data;
 			
 			for(var i=0,ii=data.length; i<ii; i++) {
-				if (data[i].id == id) {
-					var id = data[i].get('id');
+				if (data[i].get('id') == id) {
+					id = data[i].get('id');
+					
 					data[i].destroy();
 					data.splice(i, 1);
 					this.removed[id] = true;
-					break;
+					
+					this.fire('change', {'subtype': 'change', 'id': id, 'locale': locale});
+					return;
 				}
 			}
-			
-			this.fire('change', {'subtype': 'change', 'id': id, 'locale': locale});
 		},
 		
 		/**
