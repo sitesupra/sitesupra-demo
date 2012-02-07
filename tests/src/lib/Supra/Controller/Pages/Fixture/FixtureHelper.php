@@ -66,7 +66,12 @@ class FixtureHelper
 					'title' => 'Search',
 					'pathPart' => 'search',
 					'search' => true
-			)
+			),
+			8 => array(
+					'title' => '404',
+					'pathPart' => '404',
+			),
+		
 	);
 
 	public function __construct(\Doctrine\ORM\EntityManager $em)
@@ -306,6 +311,7 @@ class FixtureHelper
 			$subscribe = $this->createPage(5, $newsPages, $this->childTemplate);
 
 			$search = $this->createPage(7, $rootPage, $this->childTemplate);
+			$page404 = $this->createPage(8, $rootPage, $this->childTemplate);
 		}
 		catch (\Exception $e) {
 			$em->rollback();
