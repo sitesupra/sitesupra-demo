@@ -378,8 +378,15 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		},
 		
 		addChild: function (position, target, drag_data, callback, context) {
-			var drop_data = target.get('data'),
+			var drop_data = null,
+				parent_data = null;
+			
+			if (target) {
+				drop_data = target.get('data'),
 				parent_data = target.get('parent') ? target.get('parent').get('data') : null;
+			} else {
+				position = 'inside';
+			}
 			
 			if (typeof drag_data == 'function') {
 				context = callback;
@@ -400,7 +407,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			});
 			
 			if (this.type != 'templates') {
-				var drop_template = drop_data.template,
+				var drop_template = drop_data ? drop_data.template : '',
 					parent_template = parent_data ? parent_data.template : '';
 				
 				//Page template (parent template)
@@ -434,7 +441,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				if (drop_data && drop_data.new_children_first) {
 					this.new_page_index = 0;
 				} else {
-					this.new_page_index = target.size() + 1;
+					this.new_page_index = (target ? target.size() + 1 : 0);
 				}
 			} else {
 				if (position == 'after') {
@@ -444,12 +451,8 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				}
 			}
 			
-			if (this.type == 'templates' && !pagedata.parent) {
+			if (!pagedata.parent || !pagedata.id) {
 				//Create temporary node, template will be created after layout value is set
-				this.addChildNodeTemporary(pagedata);
-				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
-			} else if (!pagedata.id) {
-				//Create temporary node, page will be created after layout value is set
 				this.addChildNodeTemporary(pagedata);
 				if (Y.Lang.isFunction(callback)) callback.apply(context, arguments);
 			}

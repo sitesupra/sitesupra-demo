@@ -195,7 +195,14 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				}
 				
 				//Template drop target
-				new_root_template.removeClass('hidden');
+				var new_root_item = this.one('div.item-drop');
+				
+				if (evt.value == 'templates') {
+					new_root_item.removeClass('page-drop').addClass('template-drop');
+				} else {
+					new_root_item.removeClass('template-drop');
+				}
+				
 			}, this);
 		},
 		
@@ -232,11 +239,11 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			
 			//New page
 			var new_page_list_node = this.one('.additional'),
-				new_template_drop = this.one('div.template-drop');
+				new_item_drop = this.one('div.item-drop');
 			
 			this.flowmap.plug(SU.Tree.NewPagePlugin, {
 				'dragNode': new_page_list_node,
-				'newItemDropNode': new_template_drop
+				'newItemDropNode': new_item_drop
 			});
 			
 			//When tree is rendered set selected page
@@ -270,6 +277,25 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			traverse(data, permission);
 			
 			Supra.Permission.request(permission, this.onLoadFlowMapPermissions, this);
+			
+			//If there are no pages, then allow creating new root page
+			var new_root_page = this.one('div.item-drop'),
+				drag_drop_types = this.one('div.additional'),
+				has_pages = false;
+			
+			for(var i=0,ii=data.length; i<ii; i++) {
+				if (!data[i].temporary) {
+					has_pages = true; break;
+				}
+			}
+			
+			if (has_pages || this.input_type.get('value') != 'sitemap') {
+				new_root_page.removeClass('page-drop');
+				drag_drop_types.removeClass('type-sitemap-first');
+			} else {
+				new_root_page.addClass('page-drop');
+				drag_drop_types.addClass('type-sitemap-first');
+			}
 		},
 		
 		/**

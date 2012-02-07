@@ -177,7 +177,16 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				all_data = flowmap.getIndexedData(),
 				path_input = this.form.getInput('path'),
 				template_input = this.form.getInput('template'),
-				layout_input = this.form.getInput('layout');
+				layout_input = this.form.getInput('layout'),
+				
+				pages = flowmap.getData(),
+				has_pages = false;
+			
+			for(var i=0,ii=pages.length; i<ii; i++) {
+				if (!pages[i].temporary) {
+					has_pages = true; break;
+				}
+			}
 			
 			if ((type != 'templates' && node && node.isRoot()) || ! data.path) {
 				//Root page or application page without a path
@@ -223,8 +232,14 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					path = path && path != '/' ? path + '/' : '/';
 					path = path + (data.basePath || '');
 	
-					path_input.show();
-					path_input.set('path', path);
+					if (has_pages) {
+						path_input.show();
+						path_input.set('path', path);
+					} else {
+						//Creating root page
+						path_input.hide();
+						path_input.set('disabled', true);
+					}
 					
 					template_input.show();
 				} else {
@@ -371,6 +386,14 @@ YUI().add('website.sitemap-new-page', function (Y) {
 						
 						treenode.addChildren(children);
 					}
+					
+					//Hide "Drop here to create a new master page"
+					this.host.one('div.item-drop').removeClass('page-drop');
+					
+					//Show "Virtual folder" and application list
+					 if (type == 'sitemap') {
+					 	this.host.one('div.additional').removeClass('type-sitemap-first');
+					 }
 				}
 			}, this);
 		}

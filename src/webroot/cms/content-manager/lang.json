@@ -267,6 +267,9 @@
 			"pages": "Pages",
 			"templates": "Templates",
 			
+			"new_root_page": "Drop here to create a new master page",
+			"new_root_template": "Drop here to create a new master template",
+			
 			"app_group": "Virtual folder",
 			"app_news": "News",
 			
