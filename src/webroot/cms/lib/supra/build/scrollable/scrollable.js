@@ -161,8 +161,12 @@ YUI.add('supra.scrollable', function (Y) {
 			}
 			
 			//Update scroll position
-			var node = this.get('contentBox');
-			node.set('scrollTop', node.get('scrollTop') - e.wheelDelta * SCROLL_DISTANCE);
+			var node = this.get('contentBox'),
+				scroll_distance = Math.min(this.viewHeight, Math.abs(e.wheelDelta * SCROLL_DISTANCE));
+			
+			if (e.wheelDelta < 0) scroll_distance = -scroll_distance;
+			
+			node.set('scrollTop', node.get('scrollTop') - scroll_distance);
 		},
 		
 		/**
@@ -268,6 +272,54 @@ YUI.add('supra.scrollable', function (Y) {
 			dragableNode.setStyles({
 				'top': ~~(scrollTop / this.pxRatio)
 			});
+		},
+		
+		/**
+		 * Check if node is in view
+		 * 
+		 * @param {Object} node Node
+		 * @return True if node is fully visible, otherwise false
+		 * @type {Boolean}
+		 */
+		isInView: function (node) {
+			var contentBox = this.get('contentBox'),
+				scrollTop = contentBox.get('scrollTop'),
+				viewHeight = this.viewHeight,
+				
+				height = node.get('offsetHeight'),
+				top = node.get('offsetTop');
+				
+			if (top >= scrollTop && (top + height) < scrollTop + viewHeight) {
+				return true;
+			} else {
+				return false;
+			}
+		},
+		
+		/**
+		 * Scroll ndoe in view
+		 * 
+		 * @param {Object} node Node
+		 * @return True if scrolled to the node, false if node was already in view
+		 * @type {Boolean}
+		 */
+		scrollInView: function (node) {
+			var contentBox = this.get('contentBox'),
+				scrollTop = contentBox.get('scrollTop'),
+				viewHeight = this.viewHeight,
+				
+				height = node.get('offsetHeight'),
+				top = node.get('offsetTop');
+				
+			if (top < scrollTop) {
+				contentBox.set('scrollTop', top);
+				this.syncUIPosition();
+			} else if ((top + height) > (scrollTop + viewHeight)) {
+				contentBox.set('scrollTop', top + height - viewHeight);
+				this.syncUIPosition();
+			} else {
+				return false;
+			}
 		},
 		
 		/**

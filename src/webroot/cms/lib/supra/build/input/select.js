@@ -77,6 +77,14 @@ YUI.add("supra.input-select", function (Y) {
 		},
 		
 		/**
+		 * Dropdown is scrollable
+		 */
+		"scrollable": {
+			value: true,
+			writeOnce: true
+		},
+		
+		/**
 		 * Item renderer, allows to create
 		 * custom styled items
 		 * @type {Function}
@@ -134,6 +142,13 @@ YUI.add("supra.input-select", function (Y) {
 		highlight_id: 0,
 		
 		/**
+		 * Scrollable instance
+		 * @type {Object}
+		 * @private
+		 */
+		scrollable: null,
+		
+		/**
 		 * Add nodes needed for widget
 		 */
 		renderUI: function () {
@@ -164,6 +179,16 @@ YUI.add("supra.input-select", function (Y) {
 			this.set('dropdownNode', dropdown_node);
 			this.set('contentNode', dropdown_node.one('.' + this.getClassName('dropdown-content')));
 			this.get('innerNode').append(dropdown_node);
+			
+			//Scrollable content
+			if (this.get('scrollable')) {
+				this.get('boundingBox').addClass(this.getClassName('scrollable'));
+				
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.get('contentNode')
+				});
+				this.scrollable.render();
+			}
 			
 			//Sync values
 			this.set('values', this.get('values'));
@@ -272,6 +297,11 @@ YUI.add("supra.input-select", function (Y) {
 						}
 						item.addClass('selected');
 						this.highlight_id = item.getAttribute('data-id');
+						
+						//Update scroll position
+						if (this.scrollable) {
+							this.scrollable.scrollInView(item);
+						}
 					}
 				} else if (key == 13) {
 					if (this.highlight_id !== null) {
@@ -338,6 +368,11 @@ YUI.add("supra.input-select", function (Y) {
 			
 			//Listeners
 			this.close_event_listener = Y.one(document).on('mousedown', this._closeDropDownAttr, this);
+			
+			//Scrollable
+			if (this.scrollable) {
+				this.scrollable.syncUI();
+			}
 		},
 		
 		/**
@@ -419,6 +454,24 @@ YUI.add("supra.input-select", function (Y) {
 				} else {
 					this._closeDropDown();
 				}
+			}
+			
+			return value;
+		},
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Array} values
+		 * @return New values
+		 * @type {Array}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			if (value && this.get('opened')) {
+				this.set('opened', false);
 			}
 			
 			return value;
@@ -560,4 +613,4 @@ YUI.add("supra.input-select", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-string", "anim"]});
+}, YUI.version, {requires:["supra.input-string", "anim", "supra.scrollable"]});

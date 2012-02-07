@@ -148,7 +148,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'dropdown':
 					node = Y.Node.create('<select></select>');
 					cont.append(node);
-					node = new Supra.Input.Select({'srcNode': node});
+					node = new Supra.Input.Select({'srcNode': node, 'scrollable': false});
 					node.render();
 					break;
 				case 'button':
