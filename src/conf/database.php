@@ -122,6 +122,10 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->getConfiguration()->addCustomHydrationMode(ColumnHydrator::HYDRATOR_ID, new ColumnHydrator($em));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(SupraIdType::NAME));
 	$em->getConnection()->getDatabasePlatform()->markDoctrineTypeCommented(Type::getType(PathType::NAME));
+	$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('blob', 'text');
+	$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('mediumblob', 'text');
+	$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');	
+	
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);
