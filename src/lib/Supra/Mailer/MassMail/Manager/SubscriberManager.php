@@ -163,7 +163,7 @@ class SubscriberManager extends MassMailManager
 	 */
 	public function getSingleSubscriberByEmail($email, $hash = null, $active = null)
 	{
-		$subscriber = $this->getSubscriberByEmail($email, $hash);
+		$subscriber = $this->getSubscriberByEmail($email, $hash, $active);
 
 		if (empty($subscriber[0])) {
 			return null;
