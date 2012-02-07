@@ -31,7 +31,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 	}
 	
 	function unescapeHtml (ent) {
-		return HTML_CHARS_INVERSE[entLo.toLowerCase()] || ent;
+		return HTML_CHARS_INVERSE[ent.toLowerCase()] || ent;
 	}
 	
 	
@@ -82,6 +82,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 		_getValue: function (value) {
 			if (this.htmleditor) {
 				value = this.htmleditor.getHTML();
+				value = value.replace(/<[^>]+>/g, '');
 				value = value.replace(/&.*?;/g, unescapeHtml);
 			}
 		
@@ -91,6 +92,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
 				value = this.htmleditor.getProcessedHTML();
+				value = value.replace(/<[^>]+>/g, '');
 				value = value.replace(/&.*?;/g, unescapeHtml);
 			}
 			
