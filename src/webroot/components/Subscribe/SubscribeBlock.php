@@ -378,6 +378,11 @@ class SubscribeBlock extends BlockController
 //		$stringValue->setGroupLabel('Error case message');		
 		$stringValue->setDefaultValue("Can't send email");
 		$contents['cant_send_mail'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\LabelString("Wrong confirmation URL");
+//		$stringValue->setGroupLabel('Error case message');		
+		$stringValue->setDefaultValue("Your confirm link is wrong or expired");
+		$contents['wrong_confirm_url'] = $stringValue;
 		
 		//Labels
 		$stringValue = new \Supra\Editable\LabelString("Name");
@@ -404,7 +409,7 @@ class SubscribeBlock extends BlockController
 		$stringValue = new \Supra\Editable\LabelString("Subscribtion confirmation email send on ");
 //		$stringValue->setGroupLabel('Titles');		
 		$stringValue->setDefaultValue("Subscribtion confirmation email send on ");
-		$contents['SubscribtionCnfirmationEmailSendOn '] = $stringValue;
+		$contents['SubscribtionConfirmationEmailSendOn'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\String("Unsubscribe Action");
 //		$stringValue->setGroupLabel('Titles');		
@@ -416,6 +421,17 @@ class SubscribeBlock extends BlockController
 		$stringValue->setDefaultValue("Unsubscribe confirmation email send on");
 		$contents['UnsubscribeConfirmationEmailSendOn'] = $stringValue;
 
+		
+		$stringValue = new \Supra\Editable\LabelString("Subscribtion confirmed");
+//		$stringValue->setGroupLabel('Titles');		
+		$stringValue->setDefaultValue("Your subscription confirmed.");
+		$contents['subscribtion_confirmed'] = $stringValue;
+
+		$stringValue = new \Supra\Editable\LabelString("Unsubscribe confirmed");
+//		$stringValue->setGroupLabel('Titles');		
+		$stringValue->setDefaultValue("You succesfully unsubscribed.");
+		$contents['unsubscribe_success'] = $stringValue;
+		
 		return $contents;
 	}
 
