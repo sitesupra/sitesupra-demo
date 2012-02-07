@@ -495,7 +495,6 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 					this.get('backButton').set('disabled', evt.newVal);
 					this.button_delete.set('disabled', evt.newVal);
 					this.button_template.set('disabled', evt.newVal);
-					button_meta.set('disabled', evt.newVal);
 					button_schedule.set('disabled', evt.newVal);
 					button_settings.set('disabled', evt.newVal);
 				}

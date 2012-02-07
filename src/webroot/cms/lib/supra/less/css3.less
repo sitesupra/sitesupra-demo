@@ -57,6 +57,19 @@
 }
 
 /*
+ * CSS3 transformations
+ */
+.transform (@property) {
+	-moz-transform: @property;
+	-webkit-transform: @property;
+	transform: @property;
+}
+.transform-origin (@property) {
+	-moz-transform-origin: @property;
+	-webkit-transform-origin: @property;
+	transform-origin: @property;
+}
+/*
  * CSS3 transitions
  */
 .transition (@property) {

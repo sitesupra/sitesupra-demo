@@ -11,6 +11,7 @@ YUI.add('website.permission-list', function (Y) {
 	function PermissionList (config) {
 		PermissionList.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
+		this.removed = {};
 	}
 	
 	PermissionList.NAME = 'permission-list';
@@ -94,6 +95,13 @@ YUI.add('website.permission-list', function (Y) {
 		 */
 		data: null,
 		
+		/**
+		 * List of removed items
+		 * @type {Object}
+		 * @private
+		 */
+		removed: null,
+		
 		
 		
 		/**
@@ -132,6 +140,8 @@ YUI.add('website.permission-list', function (Y) {
 					this.resetValue();
 				}
 			}, this);
+			
+			this.get('contentBox').delegate('click', this.removeItem, 'a.remove', this);
 		},
 		
 		/**
@@ -198,6 +208,11 @@ YUI.add('website.permission-list', function (Y) {
 				locale = '';
 			}
 			
+			//Remove from removed
+			if (data.id in this.removed) {
+				delete(this.removed[data.id]);
+			}
+			
 			//Check if it's not already in the list
 			for(var i=0,ii=this.data.length; i<ii; i++) {
 				if (typeof this.data[i] != 'object') {
@@ -214,12 +229,12 @@ YUI.add('website.permission-list', function (Y) {
 			if (subproperty) {
 				
 				var title = data.title;
-				if(! title) {
+				if(!title) {
 					title = tree.getNodeById(data.id).get('data').title;
 				}
 				
 				subproperty = Supra.mix({}, subproperty, {
-					'label': flag + ' ' + (title || ''),
+					'label': title || '',
 					'id': data.id
 				});
 				
@@ -230,8 +245,16 @@ YUI.add('website.permission-list', function (Y) {
 					this.data[i].set('value', values);
 				}
 				
+				//Add flag to label
+				this.data[i].get('labelNode').prepend(Y.Node.create(flag));
+				
+				//Add remove button
+				var button = Y.Node.create('<a class="remove"></a>');
+				button.setData('input-id', data.id);
+				this.data[i].get('contentBox').append(button);
+				
 				//When property changes fire event on this
-				this.data[i].on('change', function () {
+				this.data[i].on('valueChange', function () {
 					this.fire('change', {'subtype': 'change', 'id': data.id, 'locale': locale});
 				}, this);
 				
@@ -252,6 +275,7 @@ YUI.add('website.permission-list', function (Y) {
 		 */
 		getValue: function () {
 			var data = this.data,
+				removed = this.removed,
 				values = [];
 			
 			for(var i=0,ii=data.length; i<ii; i++) {
@@ -260,6 +284,10 @@ YUI.add('website.permission-list', function (Y) {
 				} else {
 					values.push({'id': data[i].get('id'), 'value': data[i].getValue()});
 				}
+			}
+			
+			for(var i in removed) {
+				values.push({'id': i});
 			}
 			
 			return values;
@@ -288,8 +316,37 @@ YUI.add('website.permission-list', function (Y) {
 			}
 			
 			this.data = [];
+			this.removed = {};
 			this.get('contentBox').all('div').remove();
 			
+		},
+		
+		/**
+		 * Remove item
+		 */
+		removeItem: function (e) {
+			var target = Y.Node(e.target),
+				id = target.getData('data-id'),
+				data = this.data,
+				locale = '';
+			
+			if (typeof data == 'object') {
+				locale = data.locale;
+			} else {
+				locale = this.get('languagebar').get('locale');
+			}
+			
+			for(var i=0,ii=data.length; i<ii; i++) {
+				if (data[i].id == id) {
+					var id = data[i].get('id');
+					data[i].destroy();
+					data.splice(i, 1);
+					this.removed[id] = true;
+					break;
+				}
+			}
+			
+			this.fire('change', {'subtype': 'change', 'id': id, 'locale': locale});
 		},
 		
 		/**
