@@ -435,7 +435,9 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 			
 			buttons.on('click', function (event) {
 				var node = event.target.closest('a');
-				this.slideshow.set('slide', node.getAttribute('data-target'));
+				if (!node.hasClass('disabled')) {
+					this.slideshow.set('slide', node.getAttribute('data-target'));
+				}
 			}, this);
 			buttons.on('keyup', function (event) {
 				if (event.keyCode == 13 || event.keyCode == 39) { //Return key or arrow right
@@ -609,6 +611,13 @@ SU('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', 
 				
 				//Set redirect info
 				this.setFormValue('redirect', page_data);
+			}
+			
+			//If user doesn't have publish rights, then disable "Schedule publish" button 
+			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {
+				this.one('a[data-target="slideSchedule"]').addClass('disabled');
+			} else {
+				this.one('a[data-target="slideSchedule"]').removeClass('disabled');
 			}
 		},
 		

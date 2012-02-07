@@ -181,6 +181,19 @@
 		&:focus img.inactive {
 			display: none;
 		}
+		
+		&.disabled {
+			opacity: 0.5;
+			color: #302750;
+			cursor: default;
+			
+			img.active {
+				display: none;
+			}
+			img.inactive {
+				display: inline-block;
+			}
+		}
 	}
 	a.button-section + a.button-section {
 		margin-top: 15px;
@@ -214,6 +227,9 @@
 			&:focus {
 				color: #fff;
 				text-shadow: 0 1px 0 rgba(0,0,0,.75);
+			}
+			&.disabled {
+				color: #606071;
 			}
 		}
 		
