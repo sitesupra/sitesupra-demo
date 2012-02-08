@@ -22,7 +22,7 @@ class SchemaCheckingHttpAdapter extends Solarium_Client_Adapter_Http
 		$solrSchemaMd5 = md5_file($schemaUrl);
 
 		if ($solrSchemaMd5 === false) {
-			throw new Exception\RuntimeException('Failed to fetch schema from Solr. URL: ' . $schemaUrl);
+			throw new Exception\BadSchemaException('Failed to fetch schema from Solr. URL: ' . $schemaUrl);
 		}
 
 		$localSchemaFilename = SUPRA_CONF_PATH . '/solr/schema.xml';
@@ -30,11 +30,11 @@ class SchemaCheckingHttpAdapter extends Solarium_Client_Adapter_Http
 		$localSchemaMd5 = md5_file($localSchemaFilename);
 
 		if ($localSchemaMd5 === false) {
-			throw new Exception\RuntimeException('Failed to fetch local Solr schema. Path: ' . $localSchemaFilename);
+			throw new Exception\BadSchemaException('Failed to fetch local Solr schema. Path: ' . $localSchemaFilename);
 		}
 
 		if ($solrSchemaMd5 != $localSchemaMd5) {
-			throw new Exception\RuntimeException('Local schema.xml and one used in Solr do not match.');
+			throw new Exception\BadSchemaException('Local schema.xml and one used in Solr do not match.');
 		}
 
 		return parent::execute($request);

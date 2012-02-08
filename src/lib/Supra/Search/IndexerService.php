@@ -10,6 +10,7 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class IndexerService
 {
+
 	/**
 	 * @var \Solarium_Client;
 	 */
@@ -30,7 +31,7 @@ class IndexerService
 			$info = ObjectRepository::getSystemInfo($this);
 			$this->systemId = $info->name;
 		}
-		
+
 		return $this->systemId;
 	}
 
@@ -41,7 +42,7 @@ class IndexerService
 	public function processItem(IndexerQueueItem $queueItem)
 	{
 		$solariumClient = $this->getSolariumClient($this);
-		
+
 		try {
 
 			$documents = $queueItem->getIndexedDocuments();
@@ -57,7 +58,7 @@ class IndexerService
 						. $document->getLocalId();
 
 				\Log::debug('INDEXING UNIQUE ID: ', $document->uniqueId);
-				
+
 				$document->validate();
 
 				$updateQuery->addDocument($document);
@@ -72,8 +73,9 @@ class IndexerService
 			}
 
 			$queueItem->setStatus(IndexerQueueItemStatus::INDEXED);
-		}
-		catch (Exception\RuntimeException $e) {
+		} catch (Exception\BadSchemaException $e) {
+			throw $e;
+		} catch (Exception\RuntimeException $e) {
 			$queueItem->setStatus(IndexerQueueItemStatus::FAILED);
 		}
 	}
@@ -108,7 +110,7 @@ class IndexerService
 		if (is_null($this->solariumClient)) {
 			$this->solariumClient = ObjectRepository::getSolariumClient($this);
 		}
-		
+
 		return $this->solariumClient;
 	}
 
@@ -119,7 +121,7 @@ class IndexerService
 	public function getDocumentCount()
 	{
 		$solariumClient = $this->getSolariumClient($this);
-		
+
 		$query = $solariumClient->createSelect();
 		$query->setQuery('systemId:' . $this->getSystemId());
 		$query->setRows(0);
@@ -135,7 +137,7 @@ class IndexerService
 	public function removeFromIndex($uniqueId)
 	{
 		$solariumClient = $this->getSolariumClient($this);
-		
+
 		$query = $solariumClient->createUpdate();
 
 		$query->addDeleteById($uniqueId);
