@@ -141,6 +141,13 @@ abstract class PageRequest extends HttpRequest
 	 * @var BlockPropertySet
 	 */
 	protected $blockPropertySet;
+	
+	/**
+	 * Block ID array to skip property loading for them.
+	 * These are usually blocks with cached results.
+	 * @var array
+	 */
+	private $skipBlockPropertyLoading = array();
 
 	/**
 	 * @param string $locale
@@ -486,6 +493,15 @@ abstract class PageRequest extends HttpRequest
 
 		return $this->blockSet;
 	}
+	
+	/**
+	 * Mark that properties must not be loaded for this block
+	 * @param string $blockId
+	 */
+	public function skipBlockPropertyLoading($blockId)
+	{
+		$this->skipBlockPropertyLoading[] = $blockId;
+	}
 
 	/**
 	 * @return Set\BlockPropertySet
@@ -513,6 +529,12 @@ abstract class PageRequest extends HttpRequest
 		foreach ($blockSet as $block) {
 			/* @var $block Entity\Abstraction\Block */
 
+			$blockId = $block->getId();
+			
+			if (in_array($blockId, $this->skipBlockPropertyLoading)) {
+				continue;
+			}
+			
 			$master = null;
 
 			if ($block->getLocked()) {
@@ -535,7 +557,6 @@ abstract class PageRequest extends HttpRequest
 				continue;
 			}
 
-			$blockId = $block->getId();
 			$dataId = $data->getId();
 
 			$and = $expr->andX();

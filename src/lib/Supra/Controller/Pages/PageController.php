@@ -244,7 +244,9 @@ class PageController extends ControllerAbstraction
 		$cache = ObjectRepository::getCacheAdapter($this);
 		$cacheGroupManager = new CacheGroupManager();
 		
-		$cacheSearch = function(Entity\Abstraction\Block $block) use ($localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests) {
+		$cacheSearch = function(Entity\Abstraction\Block $block) 
+			use ($localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request) {
+			
 			$blockClass = $block->getComponentClass();
 			$blockCollection = BlockControllerCollection::getInstance();
 			$configuration = $blockCollection->getBlockConfiguration($blockClass);
@@ -260,15 +262,19 @@ class PageController extends ControllerAbstraction
 				
 				$content = $cache->fetch($cacheKey);
 				$blockId = $block->getId();
+				$responseCache = null;
 				
 				if ($content !== false) {
 					
-					$response = unserialize($content);
+					$responseCache = unserialize($content);
 					
-					if ( ! empty($response)) {
-						$blockContentCache[$blockId] = $response;
+					if ( ! empty($responseCache)) {
+						$blockContentCache[$blockId] = $responseCache;
+						$request->skipBlockPropertyLoading($blockId);
 					}
-				} else {
+				}
+				
+				if (empty($responseCache)) {
 					$blockCacheRequests[$blockId] = $blockCache;
 				}
 			}
