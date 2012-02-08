@@ -170,7 +170,7 @@ Web server: Apache HTTP Server version 2.2.x or latest from 2.2 branch. The foll
 \end{itemize}
 
 \item 
-PHP version 5.3.6 or latest from 5.3 branch must be installed, freely available at \url{http://www.php.net}. The PHP CLI and Apache HTTP Server module \texttt{mod\_php} must be installed on the Web Server as documented in \url{http://php.net/manual/en/install.unix.php}.
+PHP version 5.3.10 or latest from 5.3 branch must be installed, freely available at \url{http://www.php.net}. The PHP CLI and Apache HTTP Server module \texttt{mod\_php} must be installed on the Web Server as documented in \url{http://php.net/manual/en/install.unix.php}.
 
 This guide assumes that the \texttt{php} CLI command is in the system path. Specify full path to the executable in the command examples mentioned further if your environment doesn't allow setting the command in the system path.
 
@@ -209,6 +209,8 @@ Recommended PHP extensions:
 \note{PHP 5.3.3 required because "As of PHP 5.3.3, methods with the same name as the last element of a namespaced class name will no longer be treated as constructor. This change doesn't affect non-namespaced classes.". Some Supra classes might have methods with name equal to classname without intention to work as constructor.}
 	
 \note{At least 5.3.6 is recommended for correct Mysql charset support on connection options without "SET NAMES" initial request.}
+
+\note{At least 5.3.10 is required because segmentation fault might arise with previous versions when page is loaded in the CMS.}
 
 \item
 Apache Solr 3.5 or later from version 3 branch must be installed. It is used for website search indexing and querying.
@@ -295,7 +297,7 @@ Operating system requirements are the same as for the Web Server.
 
 \subsubsection{Memcached Server Software}
 
-Memcached server 1.4.7 or later stable version must be installed. You can download it from \url{http://memcached.org/} and follow the instructions provided.
+Memcached server 1.4.7 or later stable version must be installed. See \url{http://memcached.org/}.
 
 \subsubsection{Memcached Server Configuration}
 
