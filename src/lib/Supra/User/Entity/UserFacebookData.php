@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Database\Entity;
 use Doctrine\Common\Collections;
+use Supra\Database\Doctrine\Listener\Timestampable;
+use DateTime;
 
 /**
  * User facebook data
@@ -33,6 +35,24 @@ class UserFacebookData extends Entity
 	 * @var string 
 	 */
 	protected $facebookAccessToken;
+
+	/**
+	 * @Column(type="datetime")
+	 * @var DateTime
+	 */
+	protected $creationTime;
+
+	/**
+	 * @Column(type="datetime")
+	 * @var DateTime
+	 */
+	protected $modificationTime;
+
+	/**
+	 * @Column(type="boolean", nullable=false)
+	 * @var boolean 
+	 */
+	protected $active = true;
 
 	/**
 	 * @return User 
@@ -82,5 +102,49 @@ class UserFacebookData extends Entity
 	{
 		$this->facebookAccessToken = $facebookAccessToken;
 	}
+
+	/**
+	 * @return \DateTime 
+	 */
+	public function getCreationTime()
+	{
+		return $this->creationTime;
+	}
+
+	/**
+	 * @return \DateTime  
+	 */
+	public function getModificationTime()
+	{
+		return $this->modificationTime;
+	}
+
+	public function setCreationTime(DateTime $time = null)
+	{
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->creationTime = $time;
+	}
+
+	public function setModificationTime(DateTime $time = null)
+	{
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->modificationTime = $time;
+	}
+	
+	public function isActive()
+	{
+		return $this->active;
+	}
+
+	public function setActive($active)
+	{
+		$this->active = $active;
+	}
+
+
 
 }

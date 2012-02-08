@@ -8,8 +8,9 @@ use Supra\Database\Entity;
 use Doctrine\Common\Collections;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use DateTime;
+
 /**
- * User facebook pages
+ * User facebook page tabs
  * @Entity
  * @Table(name="user_facebook_page_tab")
  */

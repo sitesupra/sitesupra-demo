@@ -83,7 +83,7 @@ class Adapter extends AdapterAbstraction
 			$this->facebookData = $facebookData;
 
 			$userToken = $facebookData->getFacebookAccessToken();
-			if ( ! empty($userToken)) {
+			if ( ! empty($userToken) && $facebookData->isActive()) {
 				$this->userToken = $userToken;
 				$this->setAccessToken($userToken);
 			}
@@ -117,16 +117,40 @@ class Adapter extends AdapterAbstraction
 		return $this->instance->getUser();
 	}
 
-	public function postMessage($params = null)
+	/**
+	 * Post message to wall
+	 * @param array $params
+	 * @see http://d2o0t5hpnwv4c1.cloudfront.net/1097_fbapi/post_breakdown.png
+	 * @see https://developers.facebook.com/docs/reference/api/page/#feed
+	 * $defaultParams = array(
+	 *     // Post message. Required
+	 *     'message' => 'Message',
+	 *     //Post URL. Required
+	 *     'link' => 'http://sitesupra.com/',
+	 *     // Post thumbnail image
+	 *     'picture' => 'http://sitesupra.com/images/maintanance_logo.png',
+	 *     // Post name
+	 *     'name' => '',
+	 *     // Post caption
+	 *     'caption' => '',
+	 *     // Post description
+	 *     'description' => '',
+	 *     // Post actions
+	 *     'actions' => array(),
+	 *     // Post privacy settings
+	 *    'privacy' => '',
+	 * );
+	 * @return type 
+	 */
+	public function postMessage($params = array())
 	{
+		if ( ! isset($params['message']))
+			return false;
+
 		try {
-			$this->instance->api('/me/feed', 'POST', array(
-				'link' => 'http://google.lv/',
-				'name' => 'Hellow World',
-				'description' => 'description',
-				'picture' => 'http://a4.mzstatic.com/us/r1000/080/Purple/52/29/76/mzl.hzhjgono.png',
-			));
+			$newPostId = $this->instance->api('/me/feed', 'POST', $params);
 		} catch (FacebookApiException $exc) {
+			// TODO: if SSL Connection timeout, add message to queue.
 			return false;
 		}
 
@@ -150,14 +174,22 @@ class Adapter extends AdapterAbstraction
 		return $this->instance;
 	}
 
-	public function getPermissonList()
+	/**
+	 *
+	 * @param boolean $caching
+	 * @return array 
+	 */
+	public function getPermissonList($caching = true)
 	{
 		$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
 		$cacheName = $this->getCacheName() . 'permissions';
-		$result = $cache->fetch($cacheName);
+		
+		if($caching) {
+			$result = $cache->fetch($cacheName);
 
-		if ( ! empty($result)) {
-			return $result;
+			if ( ! empty($result)) {
+				return $result;
+			}
 		}
 
 		$permissions = $this->instance->api('/' . $this->getUserId() . '/permissions', 'GET', array('access_token' => $this->instance->getAccessToken()));
@@ -171,34 +203,41 @@ class Adapter extends AdapterAbstraction
 	 * @throws FacebookApiException
 	 * @return boolean
 	 */
-	public function checkAppPermissions()
+	public function checkAppPermissions($cache = true)
 	{
-		$permissionsList = $this->getPermissonList();
+		$permissionsList = $this->getPermissonList($cache);
 
 		if (empty($permissionsList['data'][0])) {
-			throw new FacebookApiException('Empty permission list');
+			throw new FacebookApiException(array(
+				'error_msg' => 'Empty permission list'
+			));
 		}
 
-		$requiredPermissions = self::$requiredPermissions;
 		$permissionsList = array_keys($permissionsList['data'][0]);
 
-		foreach ($requiredPermissions as $permission) {
+		foreach (self::$requiredPermissions as $permission) {
 			if ( ! in_array($permission, $permissionsList)) {
 
 				$message = "Permission: {$permission} was not found in permissons which user allowed";
 
-				throw new FacebookApiException($message);
+				throw new FacebookApiException(array(
+					'error_msg' => $message
+				));
 			}
 		}
 	}
 
+	/**
+	 * Generates cache name from "CMS" user id and 
+	 * @return string 
+	 */
 	private function getCacheName()
 	{
 		return $this->cmsUser->getId() . '-' . $this->getId() . '-' . $this->instance->getAppId();
 	}
 
 	/**
-	 * 
+	 * Returns all user pages
 	 * @param boolean $cache if cache false, will ignore cache and make api request
 	 * @return array 
 	 */
@@ -231,6 +270,11 @@ class Adapter extends AdapterAbstraction
 		return $pages;
 	}
 
+	/**
+	 * Check if current user has page with provided id
+	 * @param string $pageId
+	 * @return boolean 
+	 */
 	public function checkUserPage($pageId)
 	{
 		$pages = $this->getUserPages();
@@ -241,11 +285,19 @@ class Adapter extends AdapterAbstraction
 		return false;
 	}
 
+	/**
+	 * Sets access token
+	 * @param string $token 
+	 */
 	public function setAccessToken($token)
 	{
 		$this->instance->setAccessToken($token);
 	}
 
+	/**
+	 * Returns application access token
+	 * @return string 
+	 */
 	public function getApplicationAccessToken()
 	{
 		if ( ! empty($this->applicationToken)) {
@@ -262,6 +314,12 @@ class Adapter extends AdapterAbstraction
 		}
 	}
 
+	/**
+	 * Returns facebook user page 
+	 * @param string $pageId
+	 * @param boolean $cache
+	 * @return array 
+	 */
 	public function getUserPage($pageId, $cache = true)
 	{
 
@@ -286,6 +344,7 @@ class Adapter extends AdapterAbstraction
 	}
 
 	/**
+	 * Adds tab to facebook page
 	 * @param UserFacebookPageTab $tab 
 	 */
 	public function addTabToPage(UserFacebookPageTab $tab)
@@ -294,6 +353,7 @@ class Adapter extends AdapterAbstraction
 	}
 
 	/**
+	 * Removes tab from facebook page
 	 * @param UserFacebookPageTab $tab 
 	 */
 	public function removeTabFromPage(UserFacebookPageTab $tab)
@@ -301,6 +361,11 @@ class Adapter extends AdapterAbstraction
 		$this->toggleTabOnPage($tab, 'remove');
 	}
 
+	/**
+	 * Adds or removes tab from facebook page
+	 * @param UserFacebookPageTab $tab
+	 * @param string $action add/remove
+	 */
 	private function toggleTabOnPage(UserFacebookPageTab $tab, $action = 'remove')
 	{
 		$page = $tab->getPage();
@@ -308,7 +373,6 @@ class Adapter extends AdapterAbstraction
 
 		$accessToken = $facebookData->getFacebookAccessToken();
 		if (empty($accessToken)) {
-			// FIXME
 			throw new FacebookApiException(array(
 				'error_msg' => 'Could not find user access token'
 			));
@@ -317,11 +381,10 @@ class Adapter extends AdapterAbstraction
 		$this->setAccessToken($accessToken);
 
 		// check app permissions
-		$this->checkAppPermissions();
+		$this->checkAppPermissions(false);
 
 		$pageAccessToken = $this->getPageAccessToken($facebookData->getFacebookUserId(), $page->getPageId());
 		if (is_null($pageAccessToken)) {
-			// FIXME
 			throw new FacebookApiException(array(
 				'error_msg' => 'Could not find page access token'
 			));
@@ -342,7 +405,7 @@ class Adapter extends AdapterAbstraction
 
 	/**
 	 * Returns page access token
-	 * @param string $ownerId
+	 * @param string $ownerId - Facebook user ID
 	 * @param string $pageId
 	 * @return string 
 	 */
