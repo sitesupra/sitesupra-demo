@@ -36,6 +36,7 @@ class PageController extends ControllerAbstraction
 	const EVENT_BLOCK_START = 'blockStartExecuteEvent';
 	const EVENT_BLOCK_END = 'blockEndExecuteEvent';
 	
+	const CACHE_GROUP_NAME = 'Supra\Controller\Pages';
 	
 	//public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_AUDIT, self::SCHEMA_PUBLIC);
 	public static $knownSchemaNames = array(self::SCHEMA_DRAFT, self::SCHEMA_PUBLIC);

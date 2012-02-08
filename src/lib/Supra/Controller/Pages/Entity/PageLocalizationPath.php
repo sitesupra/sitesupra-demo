@@ -62,14 +62,4 @@ class PageLocalizationPath extends Abstraction\Entity
 		}
 		$this->path = $path;
 	}
-
-//	public function getParentPath()
-//	{
-//		return $this->parentPath;
-//	}
-//
-//	public function setParentPath($parentPath)
-//	{
-//		$this->parentPath = $parentPath;
-//	}
 }

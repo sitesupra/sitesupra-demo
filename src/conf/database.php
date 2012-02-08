@@ -95,6 +95,7 @@ foreach ($managerNames as $managerName => $namespace) {
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
+			$eventManager->addEventSubscriber(new Listener\PageGroupCacheDropListener());
 			$eventManager->addEventSubscriber(new NestedSetListener());
 			break;
 

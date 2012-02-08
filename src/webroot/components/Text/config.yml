@@ -7,7 +7,6 @@
     icon: icon.png
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
-        enabled: false
         global: false
         groups:
           - Supra\Controller\Pages

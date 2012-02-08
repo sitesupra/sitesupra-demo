@@ -238,7 +238,7 @@ class DoctrineRepository extends RepositoryAbstraction
 			$dql .= $self->getAdditionalCondition('AND');
 			
 			$query = $entityManager->createQuery($dql);
-			$result = $query->execute();
+			$query->execute();
 
 //			$connection = $entityManager->getConnection();
 //			$statement = $connection->prepare($sql);
@@ -253,6 +253,8 @@ class DoctrineRepository extends RepositoryAbstraction
 
 			$arrayHelper->move($node, $pos, $levelDiff);
 		});
+		
+		
 	}
 
 //	public function oldMove(Node\DoctrineNode $node, $pos, $levelDiff = 0)
