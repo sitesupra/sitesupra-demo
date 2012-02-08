@@ -193,7 +193,7 @@ YUI.add('supra.slideshow', function (Y) {
 			this.slide_width = null;
 			this.slide_width = this._getWidth();
 			
-			this.get('contentBox').set('scrollLeft', index * this.slide_width);
+			this.get('contentBox').setStyle('left', - index * this.slide_width);
 			
 			//Update scrollbar position
 			if (this.slides[slideId]) {
@@ -221,12 +221,12 @@ YUI.add('supra.slideshow', function (Y) {
 			var index = Y.Array.indexOf(this.history, slideId),
 				oldIndex = Y.Array.indexOf(this.history, oldSlideId),
 				slideWidth = this._getWidth(),
-				to = index * slideWidth,
-				from = oldIndex * slideWidth;
+				to = - index * slideWidth,
+				from = - oldIndex * slideWidth;
 			
 			if (index == -1) {
 				index = this.history.length;
-				to = index * slideWidth;
+				to = - index * slideWidth;
 				this.history[index] = slideId;
 			}
 			
@@ -258,8 +258,8 @@ YUI.add('supra.slideshow', function (Y) {
 				}, this);
 				
 				this.anim.stop();
-				this.anim.set('from', {'scroll': [from, 0]});
-				this.anim.set('to', {'scroll': [to, 0]});
+				this.anim.set('from', {'left': from});
+				this.anim.set('to', {'left': to});
 				this.anim.run();
 				
 				//Update Supra.Scrollable
@@ -281,7 +281,7 @@ YUI.add('supra.slideshow', function (Y) {
 						this.slides[oldSlideId].addClass('hidden');
 					}
 				}
-				this.get('contentBox').set('scrollLeft', to);
+				this.get('contentBox').setStyle('left', to);
 				
 				//Make sure it's in correct position
 				Y.later(16, this, this.syncUI);

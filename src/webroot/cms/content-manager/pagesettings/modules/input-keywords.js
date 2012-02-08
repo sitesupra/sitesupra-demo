@@ -9,8 +9,6 @@ YUI.add("website.input-keywords", function (Y) {
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
-		
-		this._templates = null;
 	}
 	
 	Input.NAME = "input-keywords";
@@ -34,7 +32,6 @@ YUI.add("website.input-keywords", function (Y) {
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		INPUT_TEMPLATE: '<input type="text" value="" />',
-		LABEL_TEMPLATE: null,
 		
 		
 		
@@ -205,7 +202,6 @@ YUI.add("website.input-keywords", function (Y) {
 		},
 		
 		_setValue: function (value) {
-			console.log('_setValue(', value, ')');
 			this.get('inputNode').set('value', value);
 			this.set('keywords', value ? value.split(';') : []);
 			this.syncUI();

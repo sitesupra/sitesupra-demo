@@ -158,7 +158,6 @@ SU('anim', function (Y) {
 					'version_id': version_id,
 					'locale': Supra.data.get('locale')
 				},
-				'context': this,
 				'on': {
 					'success': function () {
 						//Re-enable elements
@@ -169,7 +168,7 @@ SU('anim', function (Y) {
 						this.reloadPage();
 					}
 				}
-			});
+			}, this);
 		},
 		
 		/**
