@@ -122,7 +122,7 @@ class HttpResponse implements ResponseInterface
 	protected $cookies = array();
 
 	/**
-	 * 
+	 * Constructor
 	 */
 	public function __construct()
 	{
@@ -134,9 +134,13 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function __sleep()
 	{
-		$fields = array_keys(get_class_vars(__CLASS__));
+		$fields = get_class_vars(__CLASS__);
+		// Context might include objects which do not serialize well. For now we're just skipping.
+		//TODO: could the cached blocks use context feature?
+		unset($fields['context']);
+		$fieldNames = array_keys($fields);
 		
-		return $fields;
+		return $fieldNames;
 	}
 
 	/**

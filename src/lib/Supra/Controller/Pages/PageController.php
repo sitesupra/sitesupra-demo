@@ -421,9 +421,10 @@ class PageController extends ControllerAbstraction
 		
 		$blockCacheRequests = &$this->blockCacheRequests;
 		$cache = ObjectRepository::getCacheAdapter($this);
+		$log = $this->log;
 
 		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
-				use (&$placeResponses, $localization, $finalPlaceHolders, $request, $blockCacheRequests, $cache) {
+				use (&$placeResponses, $localization, $finalPlaceHolders, $request, $blockCacheRequests, $cache, $log) {
 
 					$response = $blockController->getResponse();
 					$blockId = $block->getId();
@@ -465,7 +466,14 @@ class PageController extends ControllerAbstraction
 						$cacheKey = $blockCache->getCacheKey($localization, $block);
 						$lifetime = $blockCache->getLifetime();
 						
-						$cache->save($cacheKey, serialize($response), $lifetime);
+						try {
+							$serializedResponse = serialize($response);
+							$cache->save($cacheKey, $serializedResponse, $lifetime);
+						} catch (\Exception $e) {
+							$blockName = $block->getComponentName();
+							$log->error("Could not serialize response of block $blockName");
+						}
+						
 					}
 				};
 

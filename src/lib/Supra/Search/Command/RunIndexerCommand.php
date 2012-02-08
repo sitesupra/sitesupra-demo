@@ -29,8 +29,9 @@ class RunIndexerCommand extends Console\Command\Command
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
 		$indexerService = new IndexerService();
+		$schemaNames = array(PageController::SCHEMA_PUBLIC);
 
-		foreach(PageController::$knownSchemaNames as $schemaName) {
+		foreach($schemaNames as $schemaName) {
 			
 			$pageLocalizationIndexerQueue = new PageLocalizationIndexerQueue($schemaName);
 		

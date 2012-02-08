@@ -26,7 +26,9 @@ class WipeQueuesCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		foreach (PageController::$knownSchemaNames as $schemaName) {
+		$schemaNames = array(PageController::SCHEMA_PUBLIC);
+		
+		foreach ($schemaNames as $schemaName) {
 			
 			$output->write('Search: Pages: Indexer queue of schema "' . $schemaName . '" - ');
 				

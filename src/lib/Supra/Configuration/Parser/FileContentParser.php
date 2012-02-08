@@ -2,6 +2,8 @@
 
 namespace Supra\Configuration\Parser;
 
+use Supra\Configuration\Exception;
+
 /**
  * Parser which works with file content
  */
@@ -13,8 +15,12 @@ abstract class FileContentParser extends AbstractParser
 	 */
 	protected function parse($filename)
 	{
-		$contents = file_get_contents($filename);
-		$data = $this->parseContents($contents);
+		try {
+			$contents = file_get_contents($filename);
+			$data = $this->parseContents($contents);
+		} catch (\Exception $e) {
+			throw new Exception\RuntimeException("Could not parse configuration file $filename", null, $e);
+		}
 		
 		return $data;
 	}
