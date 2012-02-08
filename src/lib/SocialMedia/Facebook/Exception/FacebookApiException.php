@@ -10,6 +10,8 @@ namespace SocialMedia\Facebook\Exception;
 class FacebookApiException extends \Exception
 {
 
+	const CODE_PERMISSIONS_PROBLEM = 4000;
+	
 	/**
 	 * The result from the API server that represents the exception information.
 	 */

@@ -164,7 +164,8 @@ class SocialMediaController extends SimpleController
 			$response->assign('fetchedPages', $pageCollectionFromFacebook);
 		} catch (FacebookApiException $e) {
 			// if we receive "has not authorized application" exception - then removing already stored data
-			if (strpos($e->getMessage(), 'has not authorized application') != false) {
+			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
 				$response->redirect(self::PAGE_SOCIAL);
 
@@ -247,7 +248,8 @@ class SocialMediaController extends SimpleController
 		} catch (FacebookApiException $e) {
 
 			// if we receive "has not authorized application" exception - then removing already stored data
-			if (strpos($e->getMessage(), 'has not authorized application') != false) {
+			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
 				$response->redirect(self::PAGE_SOCIAL);
 
@@ -270,7 +272,8 @@ class SocialMediaController extends SimpleController
 			$this->log->error('Failed to fetch user page: ' . $e->getMessage());
 
 			// if we receive "has not authorized application" exception - then removing already stored data
-			if (strpos($e->getMessage(), 'has not authorized application') != false) {
+			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
 			}
 
@@ -522,16 +525,17 @@ class SocialMediaController extends SimpleController
 			try {
 				$facebook = new Adapter($user);
 				$facebook->removeTabFromPage($tab);
-			} catch (FacebookApiException $exc) {
+			} catch (FacebookApiException $e) {
 				// if we receive "has not authorized application" exception - then removing already stored data
-				if (strpos($exc->getMessage(), 'has not authorized application') != false) {
+				if ((strpos($e->getMessage(), 'has not authorized application') != false)
+						|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 					$this->deactivateUserDataRecord($user);
 					$response->redirect(self::PAGE_SOCIAL);
 
 					return;
 				}
 
-				$this->log->error($exc->getMessage());
+				$this->log->error($e->getMessage());
 				$response->redirect(self::PAGE_VIEW_PAGE . '?page_id=' . $pageId);
 				return;
 			}
@@ -630,11 +634,12 @@ class SocialMediaController extends SimpleController
 			} else {
 				$facebook->removeTabFromPage($tab);
 			}
-		} catch (FacebookApiException $exc) {
+		} catch (FacebookApiException $e) {
 			// if we receive "has not authorized application" exception - then removing already stored data
-			$this->log->error($exc->getMessage());
-			
-			if (strpos($exc->getMessage(), 'has not authorized application') != false) {
+			$this->log->error($e->getMessage());
+
+			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
 				$response->redirect(self::PAGE_SOCIAL);
 
@@ -823,7 +828,7 @@ class SocialMediaController extends SimpleController
 			$userDataRecord->setActive(false);
 			$em->flush();
 		}
-		
+
 		$this->log->info('Deactivating user facebook data record');
 		return true;
 	}

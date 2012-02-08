@@ -221,7 +221,8 @@ class Adapter extends AdapterAbstraction
 				$message = "Permission: {$permission} was not found in permissons which user allowed";
 
 				throw new FacebookApiException(array(
-					'error_msg' => $message
+					'error_msg' => $message,
+					'error_code' => FacebookApiException::CODE_PERMISSIONS_PROBLEM,
 				));
 			}
 		}
