@@ -25,6 +25,7 @@ use Supra\AuditLog\Writer\AuditLogWriterAbstraction;
 use Supra\AuditLog\Writer\NullAuditLogWriter;
 use Doctrine\Common\Cache\Cache;
 use Supra\Info;
+use Supra\Remote\Client\RemoteCommandService;
 
 /**
  * Object repository
@@ -60,6 +61,7 @@ class ObjectRepository
 	const INTERFACE_MASS_MAIL = 'Supra\Mailer\MassMail\MassMail';
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
+	const INTERFACE_REMOTE_COMMAND_SERVICE = 'Supra\Remote\Client\RemoteCommandService';
 
 	/**
 	 * Object relation storage
@@ -1148,5 +1150,41 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MASS_MAIL);
 	}
+	
+	
+	/**
+	 * Get assigned RemoteCommandService instance.
+	 *
+	 * @param mixed $caller
+	 * @return RemoteCommandService
+	 */
+	public static function getRemoteCommandService($caller)
+	{
+		$remoteCommandService = self::getObject($caller, self::INTERFACE_REMOTE_COMMAND_SERVICE);
 
+		return $remoteCommandService;
+	}
+
+	/**
+	 * Assign RemoteCommandService to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param RemoteCommandService $object 
+	 */
+	public static function setRemoteCommandService($caller, RemoteCommandService $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_REMOTE_COMMAND_SERVICE);
+	}
+
+	/**
+	 * Set default RemoteCommandService object.
+	 *
+	 * @param RemoteCommandService $object 
+	 */
+	public static function setDefaultRemoteCommandService(RemoteCommandService $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_REMOTE_COMMAND_SERVICE);
+	}
+	
+	
 }

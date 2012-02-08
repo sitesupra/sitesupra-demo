@@ -26,6 +26,8 @@ $cli->addCommandClasses(array(
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
 	'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
+	'Project\DummyRemote\DummyCommandOne',
+	'Supra\Remote\Command\RemoteCommand',
 ));
 
 $cli->setHelperSet($helperSet);

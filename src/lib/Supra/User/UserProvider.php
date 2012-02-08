@@ -9,16 +9,16 @@ use Doctrine\ORM\UnitOfWork;
 
 class UserProvider extends UserProviderAbstract
 {
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function authenticate($login, AuthenticationPassword $password)
 	{
 		$adapter = $this->getAuthAdapter();
-		
+
 		$login = $adapter->getFullLoginName($login);
-		
+
 		$user = $this->findUserByLogin($login);
 
 //		// Try finding the user from adapter
@@ -33,7 +33,7 @@ class UserProvider extends UserProviderAbstract
 //			$entityManager->persist($user);
 //			$entityManager->flush();
 //		}
-		
+
 		if (empty($user)) {
 			throw new UserNotFoundException();
 		}
@@ -42,19 +42,26 @@ class UserProvider extends UserProviderAbstract
 
 		return $user;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function findUserByLogin($login)
 	{
-		$entityManager = $this->getEntityManager();
-		$repo = $entityManager->getRepository(Entity\User::CN());
-		$user = $repo->findOneByLogin($login);
+		$user = null;
+		
+		if ($login == SystemUser::LOGIN) {
+			$user = new SystemUser();
+		} else {
+			$entityManager = $this->getEntityManager();
+			$repo = $entityManager->getRepository(Entity\User::CN());
+			$user = $repo->findOneByLogin($login);
+		}
 
 		if (empty($user)) {
 			return null;
 		}
+
 		return $user;
 	}
 
@@ -64,10 +71,10 @@ class UserProvider extends UserProviderAbstract
 	public function findUserById($id)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		return $entityManager->find(Entity\User::CN(), $id);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -82,7 +89,7 @@ class UserProvider extends UserProviderAbstract
 		}
 		return $user;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -116,10 +123,10 @@ class UserProvider extends UserProviderAbstract
 	public function findGroupById($id)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		return $entityManager->find(Entity\Group::CN(), $id);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -152,73 +159,73 @@ class UserProvider extends UserProviderAbstract
 		$entityManager = $this->getEntityManager();
 		$repo = $entityManager->getRepository(Entity\User::CN());
 		$users = $repo->findBy(array('group' => $group->getId()));
-		
+
 		return $users;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function createUser()
 	{
 		$user = new Entity\User();
-		
+
 		$this->getEntityManager()
 				->persist($user);
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function createGroup()
 	{
 		$group = new Entity\Group();
-		
+
 		$this->getEntityManager()
 				->persist($group);
-		
+
 		return $group;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
-	public function doDeleteUser(Entity\User $user) 
+	public function doDeleteUser(Entity\User $user)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		$entityManager->remove($user);
-		$entityManager->flush();	
+		$entityManager->flush();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function updateUser(Entity\User $user)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
 			throw new Exception\RuntimeException('Presented user entity is not managed');
 		}
-		
+
 		$entityManager->flush();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function updateGroup(Entity\Group $group)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
 			throw new Exception\RuntimeException('Presented group entity is not managed');
 		}
-		
+
 		$entityManager->flush();
 	}
-	
+
 }

@@ -116,3 +116,17 @@
           width: 952
           height: 130
           ratioDelta: 0.1
+
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /remote
+        controller: Supra\Remote\Server\RemoteCommandController
+        
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /dummy_command_invoker
+        controller: Project\DummyRemote\DummyCommandInvoker
+        
+        
