@@ -7,6 +7,7 @@ use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 use Supra\Payment\Product\ProductAbstraction;
 use Supra\Locale\Locale;
+use Supra\Payment\Entity\Order\Order;
 
 /**
  * @MappedSuperclass
