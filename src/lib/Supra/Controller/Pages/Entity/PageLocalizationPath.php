@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity;
 
+use Supra\Uri\Path;
+
 /**
  * Stores page full path
  * @Entity
@@ -22,13 +24,6 @@ class PageLocalizationPath extends Abstraction\Entity
 	 */
 	protected $path = null;
 
-//	/**
-//	 * Used when current page has no path (e.g. news application)
-//	 * @Column(type="path", length="255")
-//	 * @var Path
-//	 */
-//	protected $parentPath = null;
-	
 	/**
 	 * Special ID setter for path regeneration command so the ID in draft and 
 	 * public schemes are equal
@@ -49,13 +44,22 @@ class PageLocalizationPath extends Abstraction\Entity
 		$this->locale = $locale;
 	}
 
+	/**
+	 * @return Path
+	 */
 	public function getPath()
 	{
 		return $this->path;
 	}
 
+	/**
+	 * @param mixed $path 
+	 */
 	public function setPath($path)
 	{
+		if ( ! $path instanceof Path) {
+			$path = new Path($path);
+		}
 		$this->path = $path;
 	}
 

@@ -6,6 +6,7 @@ use Symfony\Component\Console;
 use Doctrine\ORM\Events;
 use Supra\Controller\Pages\Listener\PublicVersionedTableIdChange;
 use Supra\ObjectRepository\ObjectRepository;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * PageFixtureCommand
@@ -18,7 +19,14 @@ class PageFixtureCommand extends Console\Command\Command
 	{
 		$this->setName('su:fixture:page')
 				->setDescription('Runs page fixtures.')
-				->setHelp('Runs page fixtures.');
+				->setHelp('Runs page fixtures.')
+				->setDefinition(array(
+					new InputOption(
+						'delete', null, InputOption::VALUE_NONE,
+						'Calls delete only.'
+					)
+				)
+			);
 	}
 	
 	/**
@@ -39,7 +47,14 @@ class PageFixtureCommand extends Console\Command\Command
 //		}
 		
 		$fixture = new FixtureHelper($em);
-		$fixture->build();
+		
+		$delete = $input->getOption('delete');
+		
+		if ($delete) {
+			$fixture->deletePages();
+		} else {
+			$fixture->build();
+		}
 		
 		$output->writeln("Fixtures finished successfully");
 	}

@@ -380,6 +380,8 @@ class PageAction extends PageManagerAction
 		} else {
 			$page = new Entity\Page();
 		}
+		
+		$rootPage = empty($parent);
 
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 
@@ -404,11 +406,13 @@ class PageAction extends PageManagerAction
 
 			$pageData->setTemplate($template);
 
-			if ( ! $this->hasRequestParameter('path')) {
-				throw new CmsException(null, 'Page path can not be empty');
-			}
+			if ( ! $rootPage) {
+				if ( ! $this->hasRequestParameter('path')) {
+					throw new CmsException(null, 'Page path can not be empty');
+				}
 
-			$pathPart = $this->getRequestParameter('path');
+				$pathPart = $this->getRequestParameter('path');
+			}
 
 			if ( ! $this->hasRequestParameter('title')) {
 				throw new CmsException(null, 'Page title can not be empty');
@@ -422,34 +426,43 @@ class PageAction extends PageManagerAction
 		$this->entityManager->persist($pageData);
 
 		// Set parent node
-		if ( ! empty($parent)) {
+		if ( ! $rootPage) {
 			$page->moveAsLastChildOf($parent);
 		}
-
-		// Generate unused path
+		
 		//TODO: generate before "create" action
 		if ($pageData instanceof Entity\PageLocalization) {
-			$pathValid = false;
-			$i = 2;
-			$suffix = '';
+			if ($rootPage) {
+				// Must create root path for the root page
+				$rootPath = $pageData->getPathEntity();
+				$rootPath->setPath('');
+				$pageData->setPathPart('');
+			} else {
+				// Generate unused path
+				$pathValid = false;
+				$i = 2;
+				$suffix = '';
 
-			do {
-				try {
-					$pageData->setPathPart($pathPart . $suffix);
-					$this->entityManager->flush();
+				do {
+					try {
+						$pageData->setPathPart($pathPart . $suffix);
+						$this->entityManager->flush();
 
-					$pathValid = true;
-				} catch (DuplicatePagePathException $pathInvalid) {
-					$suffix = '-' . $i;
-					$i ++;
+						$pathValid = true;
+					} catch (DuplicatePagePathException $pathInvalid) {
+						$suffix = '-' . $i;
+						$i ++;
 
-					// Loop stopper
-					if ($i > 100) {
-						throw $pathInvalid;
+						// Loop stopper
+						if ($i > 100) {
+							throw $pathInvalid;
+						}
 					}
-				}
-			} while ( ! $pathValid);
+				} while ( ! $pathValid);
+			}
 		}
+		
+		$this->entityManager->flush();
 
 		$this->writeAuditLog('create', '%item% created', $pageData);
 
