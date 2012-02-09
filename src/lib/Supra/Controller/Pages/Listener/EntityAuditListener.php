@@ -150,7 +150,9 @@ class EntityAuditListener implements EventSubscriber
 		
 		// TODO: temporary, should make another solution
 		$userProvider = ObjectRepository::getUserProvider($this);
-		$this->user = $userProvider->getSignedInUser();
+		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
+			$this->user = $userProvider->getSignedInUser();
+		}
 	}
 	
 	/**
@@ -293,10 +295,8 @@ class EntityAuditListener implements EventSubscriber
 					$revision->setType(PageRevisionData::TYPE_REMOVED);
 					$revision->setReferenceId($this->localizationId);
 
-					if ($this->user instanceof \Supra\User\Entity\User) {
-						$revision->setUser($this->user->getId());
-					}
-
+					$revision->setUser($this->getCurrentUserId());
+	
 					$em = ObjectRepository::getEntityManager('#public');
 
 					$em->persist($revision);
@@ -496,13 +496,8 @@ class EntityAuditListener implements EventSubscriber
 		
 		$localizationId = $eventArgs->getProperty('localizationId');
 		
-		$userId = null;
-		if ($this->user instanceof \Supra\User\Entity\User) {
-			$userId = $this->user->getId();
-		}
-		
 		$revisionData = new PageRevisionData();
-		$revisionData->setUser($userId);
+		$revisionData->setUser($this->getCurrentUserId());
 		$revisionData->setType(PageRevisionData::TYPE_HISTORY_RESTORE);
 		$revisionData->setReferenceId($localizationId);
 		
@@ -575,13 +570,8 @@ class EntityAuditListener implements EventSubscriber
 		
 		$localizationId = $eventArgs->getProperty('localizationId');
 		
-		$userId = null;
-		if ($this->user instanceof \Supra\User\Entity\User) {
-			$userId = $this->user->getId();
-		}
-		
 		$revisionData = new PageRevisionData();
-		$revisionData->setUser($userId);
+		$revisionData->setUser($this->getCurrentUserId());
 		$revisionData->setType(PageRevisionData::TYPE_CREATE);
 		$revisionData->setReferenceId($localizationId);
 		
@@ -637,5 +627,15 @@ class EntityAuditListener implements EventSubscriber
 		}
 			
 		return false;
+	}
+	
+	private function getCurrentUserId()
+	{
+		$userId = '';
+		if ($this->user instanceof \Supra\User\Entity\User) {
+			$userId = $this->user->getId();
+		}
+		
+		return $userId;
 	}
 }

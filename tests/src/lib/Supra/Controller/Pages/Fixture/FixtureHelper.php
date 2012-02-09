@@ -278,6 +278,10 @@ class FixtureHelper
 		$rootPage = $page = $page2 = null;
 
 		$em = $this->entityManager;
+		
+		// disable audit logging
+		$em->getEventManager()->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreCreateEvent);
+		
 		$em->beginTransaction();
 
 		try {
