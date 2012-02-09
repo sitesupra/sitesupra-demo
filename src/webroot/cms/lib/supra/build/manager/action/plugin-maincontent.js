@@ -25,13 +25,13 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			
 			//Container position sync with other actions
 			this.host.plug(SU.PluginLayout, {
-				'offset': [10, 10, 10, 10]	//Default offset from page viewport
+				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			
 			//Offsets from other containers 
-			this.host.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			this.host.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			this.host.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
+			this.host.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
+			this.host.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
+			this.host.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
 			
 			//On visible change and execute reposition container
 			this.host.after('execute', function (e) {

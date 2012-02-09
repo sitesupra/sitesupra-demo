@@ -197,7 +197,7 @@ YUI.add('supra.slideshow', function (Y) {
 			
 			//Update scrollbar position
 			if (this.slides[slideId]) {
-				var content = this.slides[slideId].one('.su-slide-content');
+				var content = this.slides[slideId].one('.su-slide-content, .su-multiview-slide-content');
 				if (content) {
 					content.fire('contentResize');
 				}
@@ -265,7 +265,7 @@ YUI.add('supra.slideshow', function (Y) {
 				//Update Supra.Scrollable
 				Y.later(16, this, function () {
 					if (this.slides[slideId]) {
-						var content = this.slides[slideId].one('.su-slide-content');
+						var content = this.slides[slideId].one('.su-slide-content, .su-multiview-slide-content');
 						if (content) {
 							content.fire('contentResize');
 						}
@@ -345,7 +345,7 @@ YUI.add('supra.slideshow', function (Y) {
 				
 				//Add scrollbar
 				if (options.scrollable) {
-					var slideContent = slide.one('.su-slide-content'),
+					var slideContent = slide.one('.su-slide-content, .su-multiview-slide-content'),
 						scrollable = new Supra.Scrollable({
 							'srcNode': slideContent
 						});

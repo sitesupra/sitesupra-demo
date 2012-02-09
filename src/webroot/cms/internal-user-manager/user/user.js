@@ -432,7 +432,9 @@ Supra('supra.slideshow', function (Y) {
 			}
 			
 			this.slideshow.set('noAnimations', false);
+			
 			this.show();
+			this.slideshow.syncUI();
 		}
 	});
 	

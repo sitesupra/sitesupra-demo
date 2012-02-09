@@ -131,7 +131,8 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			
 			this.slideshow = new Supra.SlideshowMultiView({
 				'srcNode': this.one(),
-				'slide': 'propertiesSlide'
+				'slide': 'propertiesSlide',
+				'defaultSlideWidth': 400
 			});
 			this.slideshow.render();
 			
@@ -253,7 +254,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 					'dragProxyParent': this.getPlaceHolder()
 				});
 				
-				tree.render(container.one('div'));
+				tree.render(container.one('.su-multiview-slide-content'));
 				this.tree = tree;
 				this.tree.set('loading', true);
 				this.list.set('tree', tree);

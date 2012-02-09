@@ -45,10 +45,17 @@
 		z-index: 1;
 		top: 0;
 		left: 0;
-		width: 399px;
+		width: 290px;
 		height: 100%;
-		border-right: 1px solid #eee;
-		background: #fff;
+		
+		.box-shadow (1px, 0, 0, #B3B3C3);
+		border-right: 1px solid #7F7E92;
+		
+		&:first-child {
+			// This actually is last slide
+			.box-shadow (none);
+			border-right: 0;
+		}
 	}
 }
 

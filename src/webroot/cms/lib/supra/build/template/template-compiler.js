@@ -122,7 +122,7 @@ YUI.add('supra.template-compiler', function (Y) {
 			
 			//Fix filters, KEY|FILTER -> _f.FILTER(KEY)
 			var limit = 100;
-			while (limit && variable.indexOf('|') != -1) {
+			while (limit && REG_CHECK_MODIFIERS.test(variable)) {
 				variable = variable.replace(REG_VAR_MODIFIERS, function (all, variable, filter, params_, params) {
 					return '_f.' + filter + '(' + variable + (params ? ',' + params : '') + ')';
 				});
@@ -685,8 +685,10 @@ YUI.add('supra.template-compiler', function (Y) {
 		REG_VAR_TRIM		= /\s*(,|:|{|}|\(|\))\s*/g,
 		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&|\-|\+|\*|\/|\%|,)([a-z])/gi,
 		REG_VAR_FN			= /(^|\s|\[|\(|\!|\&)([a-z0-9_]+\()/gi,
-		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+)\s?\|([a-z0-9_]+)(\(([^)]+)\))?/i,
+		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+)\|([a-z0-9_]+)(\(([^)]+)\))?/i,
 		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
+		
+		REG_CHECK_MODIFIERS	= /[a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+\|[a-z0-9_]/i,
 		
 		REG_AND				= /\s+and\s+/g,
 		REG_OR				= /\s+or\s+/g,

@@ -1,6 +1,9 @@
+@import "/cms/lib/supra/less/common.less";
+
 .userlist {
 	position: absolute;
-	bottom: 10px;
+	bottom: 0;
+	font-size: 13px;
 }
 
 .userlist .user-add {
@@ -14,19 +17,13 @@
 .userlist-groups li em,
 .userlist-groups .edit-label em {
 	display: block;
-	
+	width: 48px;
+	height: 48px;
 	background: #fff;
-	border: 2px solid #eee;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	padding: 2px;
+	border: 3px solid #fff;
+	.box-shadow (0, 1px, 3px, rgba(0, 0, 0, 0.75));
 }
-.userlist .user-add:hover em,
-.userlist-groups li:hover em,
-.userlist-groups .edit-label:hover em {
-	border-color: #36c;
-}
+
 .userlist .user-add img {
 	display: block;
 }
@@ -98,15 +95,16 @@
 .userlist-groups li em img,
 .userlist-groups li a img {
 	display: block;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+	.border-radius (3px);
 }
 
 .userlist-groups li a,
 .userlist-groups .edit-label a {
 	padding-left: 10px;
 	text-decoration: none;
+	
+	color: #323144;
+	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
 }
 
 .userlist-groups h2 {

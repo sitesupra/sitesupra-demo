@@ -58,3 +58,7 @@
 .permissions .applications li.selected {
 	background-color: #CDECFF;
 }
+
+.permissions .su-multiview-slide {
+	width: 400px;
+}

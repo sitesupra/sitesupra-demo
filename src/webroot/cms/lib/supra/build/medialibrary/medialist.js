@@ -814,7 +814,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Load data
 			if (!loaded) {
-				slide.empty().append(this.renderTemplate(data, this.get('templateLoading')));
+				var slide_content = slide.one('.su-slide-content, .su-multiview-slide-content');
+				
+				slide_content
+					.empty()
+					.append(this.renderTemplate(data, this.get('templateLoading')));
+				
+				slide_content.fire('contentResize');
 				
 				data_object.once('load:complete:' + id, function (event) {
 					if (event.data) {
@@ -994,12 +1000,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		renderItem: function (id /* File or folder ID */, data /* Item data */, append /* Append or replace */) {
 			var id = isNaN(id) ? id : parseInt(id, 10),
 				slide = this.slideshow.getSlide('slide_' + id),
+				slide_content = null,
 				template,
 				node,
 				item;
 			
 			//No slide to render data into, probably it was already closed
 			if (!slide) return;
+			slide_content = slide.one('.su-slide-content, .su-multiview-slide-content');
 			
 			//Get data if arguments is not passed
 			if (typeof data === 'undefined' || data === null) {
@@ -1019,12 +1027,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					}
 					
 					node = this.renderTemplate(data[0], template);
-					slide.empty().append(node);
+					slide_content.empty().append(node);
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {
 					//Folder
 					if (append) {
-						node = slide.one('ul.folder');
+						node = slide_content.one('ul.folder');
 					}
 					if (!node) {
 						node = this.renderTemplate({'id': id}, this.get('templateFolder'));
@@ -1059,17 +1067,19 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					slide.setData('itemId', id);
 					
-					if (!append) slide.empty();
-					slide.append(node);
+					if (!append) slide_content.empty();
+					slide_content.append(node);
 					
 					this.fire('itemRender', {'node': node, 'data': data, 'type': Data.TYPE_FOLDER});
 				}
 			} else {
 				//Empty
 				node = this.renderTemplate({'id': id}, this.get('templateEmpty'));
-				slide.empty().append(node);
+				slide_content.empty().append(node);
 				this.fire('itemRender', {'node': node, 'data': data, 'type': null});
 			}
+			
+			slide_content.fire('contentResize');
 			
 			return this;
 		},

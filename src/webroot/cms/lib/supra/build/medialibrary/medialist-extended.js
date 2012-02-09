@@ -51,8 +51,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
 				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
-			<div class="center"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
+			<div class="input-group"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
+			<div class="input-group"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
 		</div>');
 	
 	/**
@@ -80,9 +80,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
 				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
 			</span>\
-			<div class="center"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
-			<div class="center"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
-			<div class="center"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
+			<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
+			<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
+			<div class="input-group"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
 		</div>');
 	
 	/**
@@ -94,6 +94,18 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<span class="title">{{ title|escape }}</span>\
 			<span class="progress"><em></em></span>\
 		</li>');
+	
+	/**
+	 * Constant, folder item template for image
+	 * @type {String}
+	 */
+	Extended.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
+		<li class="type-image {% if broken or !thumbnailUrl %}type-broken{% endif %}" data-id="{{ id }}">\
+			<a>{% if !broken and thumbnailUrl %}<img src="{{ thumbnailUrl|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
+			<span>{{title|escape }}</span>\
+		</li>');
+		
+	
 	
 	
 	Extended.ATTRS = {
@@ -139,6 +151,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		'templateFolderItemTemp': {
 			value: Extended.TEMPLATE_FOLDER_ITEM_TEMP
+		},
+		'templateFolderItemImage': {
+			value: Extended.TEMPLATE_FOLDER_ITEM_IMAGE
 		}
 	};
 	
@@ -265,6 +280,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			//Create slider
+			/*
 			var slider = this.slider = new Y.Slider({
 				'length': container.get('offsetWidth') - 16,	//16px margin
 				'value': 1000,	//At the end
@@ -272,6 +288,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				'thumbUrl': Y.config.base + '/slider-base/assets/skins/supra/thumb-x.png'
 			});
 			slider.render(container);
+			*/
 			
 			//Add plugin for editing files and folders
 			this.plug(List.Edit, {
@@ -308,7 +325,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			this.after('sortByChange', this.handleSortingChange, this);
 			
 			//On slide update slideshow
+			/*
 			this.slider.after('valueChange', this.syncScrollPosition, this);
+			*/
 			
 			//After resize update slider width
 			Y.on('resize', Y.throttle(Y.bind(this.updateScroll, this), 50), window);
@@ -319,15 +338,18 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		updateScroll: function () {
+			/*
 			var w = this.get('boundingBox').get('offsetWidth');
 			this.slider.set('length', w - 16);		//16px margin
 			this.syncScrollPosition(w);
+			*/
 		},
 		
 		/**
 		 * Sync scroll position
 		 */
 		syncScrollPosition: function (width) {
+			/*
 			var pos = this.slider.get('value'),
 				content_width = this.slideshow.history.length * this.slideshow._getWidth(),
 				container_width = typeof width == 'number' ? width : this.get('boundingBox').get('offsetWidth'),
@@ -338,6 +360,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			this.slideshow.get('contentBox').setStyle('left', - offset + 'px');
+			*/
 		},
 		
 		/**
@@ -575,6 +598,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				/*btn_localize.render();*/
 				btn_download.render();
 				btn_replace.render();
+				
 				/*inp.btn_localize = btn_localize;*/
 				inp.btn_download = btn_download;
 				inp.btn_replace = btn_replace;

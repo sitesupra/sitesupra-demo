@@ -82,7 +82,7 @@ YUI.add('supra.scrollable', function (Y) {
 			var boundingBox = this.get('boundingBox'),
 				dragableNode = null,
 				scrollbarNode = Y.Node.create('\
-									<div class="' + this.getClassName('scrollbar') + '">\
+									<div class="' + this.getClassName('scrollbar') + ' ' + this.getClassName('invisible') + '">\
 										<div class="' + this.getClassName('dragable') + '"></div>\
 									</div>');
 			

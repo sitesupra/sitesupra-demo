@@ -1,12 +1,16 @@
+@import "/cms/lib/supra/less/common.less";
+
 .user {
 	position: absolute;
-	bottom: 10px;
-}
-.user.loading {
-	background: url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
-}
-.user.loading > div {
-	visibility: hidden;
+	bottom: 0;
+	
+	&.loading {
+		background: url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
+		
+		& > div {
+			visibility: hidden;
+		}
+	}
 }
 
 .user .su-slide-content {
@@ -39,11 +43,9 @@
 	width: 48px;
 	height: 48px;
 	
-	border: 2px solid #eee;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	padding: 2px;
+	background: #fff;
+	border: 3px solid #fff;
+	.box-shadow (0, 1px, 3px, rgba(0, 0, 0, 0.75));
 }
 .userdetails .info em {
 	cursor: pointer;

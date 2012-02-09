@@ -67,6 +67,11 @@
 	            	var out = fn({'x': 10, 'y': 3, 'z': 2});
 	            	
 	            	ASSERT.areEqual('Ok', out, 'Complex expressions with whitespaces');
+	            	
+	            	var fn = Supra.Template.compile('{% if itemA and itemB or !itemC %}Ok{% endif %}');
+	            	var out = fn({'itemA': true, 'itemB': false, 'itemC': false});
+	            	
+	            	ASSERT.areEqual('Ok', out, 'and, or expressions');
 	            },
 	            
 	            testLoopItem: function () {

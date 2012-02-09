@@ -2,13 +2,15 @@
 
 .permissions .su-slideshow-multiview {
 	left: 292px;
-	top: 32px;
+	top: 0;
 	position: absolute;
 	right: 0;
 	bottom: 0;
-	border: 1px solid #eee;
 	width: auto;
 	height: auto;
+	
+	border-left: 1px solid #B3B3C3;
+	.box-shadow (-1px, 0, 0, #7F7E92);
 }
 
 .permissions .su-multiview-slide:first-child {
@@ -27,9 +29,10 @@
 	}
 	
 	.yui3-permission-list-content {
+		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
 		.border-radius (5px);
-		
-		border: 2px solid #eee;
+		.box-shadow (0, 1px, 3px, rgba(0,0,0,.3) inset);
+		padding: 2px;
 		min-height: 150px;
 		margin: 0 10px;
 	}
