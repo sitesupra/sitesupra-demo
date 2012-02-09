@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Entity\ReferencedElement;
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Controller\Pages\Exception;
+use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 
 /**
  * @Entity

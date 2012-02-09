@@ -10,4 +10,9 @@ final class AuditEvents
 	
 	const pagePreRestoreEvent = 'pagePreRestoreEvent';
 	const pagePostRestoreEvent = 'pagePostRestoreEvent';
+	
+	const pagePreEditEvent = 'pagePreEditEvent';
+	
+	const pagePreCreateEvent = 'pagePreCreateEvent';
+	const pagePostCreateEvent = 'pagePostCreateEvent';
 }

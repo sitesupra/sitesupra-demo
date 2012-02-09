@@ -26,6 +26,7 @@ use Supra\Controller\Pages\Listener\AuditCreateSchemaListener;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Event\PageEventArgs;
 
 
 class EntityAuditListener implements EventSubscriber
@@ -70,11 +71,30 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	private $staticRevisionId;
 	
+	/**
+	 * Listener states, generally is used to skip audit writing
+	 * when page is created/deleted/restored
+	 */
 	private $_pageDeleteState = false;
 	private $_pageRestoreState = false;
+	private $_pageCreateState = false;
+	
+	/**
+	 * @var \Supra\User\Entity\User
+	 */
+	private $user;
+	
+	/**
+	 * @var string
+	 */
+	private $localizationId;
+	
+	/**
+	 * @var PageRevisionData
+	 */
+	private $revision;
 
 	/**
-	 *
 	 * @return array
 	 */
 	public function getSubscribedEvents()
@@ -91,6 +111,11 @@ class EntityAuditListener implements EventSubscriber
 			
 			AuditEvents::pagePreRestoreEvent,
 			AuditEvents::pagePostRestoreEvent,
+			
+			AuditEvents::pagePreEditEvent,
+			
+			AuditEvents::pagePreCreateEvent,
+			AuditEvents::pagePostCreateEvent,
 		);
 	}
 	
@@ -113,6 +138,8 @@ class EntityAuditListener implements EventSubscriber
 			$this->em = $eventArgs->getEntityManager();
 		} elseif ($eventArgs instanceof PagePublishEventArgs) {
 			$this->em = $eventArgs->getEntityManager();
+		} else if ($eventArgs instanceof PageEventArgs) {
+			$this->em = $eventArgs->getProperty('entityManager');
 		} else {
 			throw new \LogicException("Unknown event args received");
 		}
@@ -120,6 +147,10 @@ class EntityAuditListener implements EventSubscriber
 		$this->uow = $this->em->getUnitOfWork();
 		$this->conn = $this->em->getConnection();
 		$this->platform = $this->conn->getDatabasePlatform();
+		
+		// TODO: temporary, should make another solution
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$this->user = $userProvider->getSignedInUser();
 	}
 	
 	/**
@@ -128,7 +159,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function postPersist(LifecycleEventArgs $eventArgs)
 	{
-		if ($this->_pageRestoreState) {
+		if ($this->isAuditSkipped()) {
 			return;
 		}
 		
@@ -145,7 +176,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function postUpdate(LifecycleEventArgs $eventArgs)
 	{
-		if ($this->_pageRestoreState) {
+		if ($this->isAuditSkipped()) {
 			return;
 		}
 		
@@ -154,10 +185,9 @@ class EntityAuditListener implements EventSubscriber
 		
 		$changeSet = $this->uow->getEntityChangeSet($entity);
 		foreach($changeSet as $fieldName => $fieldValue) {
-			// trying to avoid useless audit records:
-			//   - when Localization lock/unlock action is performed (lock column value update)
 			if ($fieldValue instanceof PersistentCollection
-					|| ($entity instanceof Localization && $fieldName == 'lock')) {
+					|| ($entity instanceof Localization && $fieldName == 'lock')
+					|| $fieldName == 'revision') {
 				unset($changeSet[$fieldName]);
 			}
 		}
@@ -173,7 +203,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
-		if ($this->_pageRestoreState) {
+		if ($this->isAuditSkipped()) {
 			return;
 		}
 		
@@ -187,7 +217,7 @@ class EntityAuditListener implements EventSubscriber
 				if ($this->_pageDeleteState) {
 					$revisionType = self::REVISION_TYPE_COPY;
 				}
-				
+	
 				$this->insertAuditRecord($entity, $revisionType);
 				$visitedIds[] = $entity->getId();
 			}
@@ -250,8 +280,35 @@ class EntityAuditListener implements EventSubscriber
 		//     when entity will be restored and deleted again
 		if ($revisionType == self::REVISION_TYPE_COPY || $revisionType == self::REVISION_TYPE_DELETE) {
 			$names[] = AuditCreateSchemaListener::REVISION_COLUMN_NAME;
-			$params[] = $this->_getRevisionId();
 			$types[] = \PDO::PARAM_STR;
+			
+			if ($revisionType == self::REVISION_TYPE_DELETE) {
+				
+				if ( ! isset($this->revision)) {
+									
+					$revision = new PageRevisionData();
+					$revision->setElementName($class->name);
+					$revision->setElementId($entityData['id']);
+
+					$revision->setType(PageRevisionData::TYPE_REMOVED);
+					$revision->setReferenceId($this->localizationId);
+
+					if ($this->user instanceof \Supra\User\Entity\User) {
+						$revision->setUser($this->user->getId());
+					}
+
+					$em = ObjectRepository::getEntityManager('#public');
+
+					$em->persist($revision);
+					$em->flush();
+					
+					$this->revision = $revision;
+				}
+				
+				$params[] = $this->revision->getId();
+			} else {
+				$params[] = $this->_getRevisionId();
+			}
 			
 			unset($classFields[AuditCreateSchemaListener::REVISION_COLUMN_NAME]);
 		}
@@ -417,7 +474,9 @@ class EntityAuditListener implements EventSubscriber
 		if (isset($this->staticRevisionId)) {
 			return $this->staticRevisionId;
 		}
-		return md5(uniqid());
+		// FIXME: remove exception
+		throw new \Exception('This should never happen');
+		//return md5(uniqid());
 	}
 	
 	public function pagePostDeleteEvent() 
@@ -431,9 +490,152 @@ class EntityAuditListener implements EventSubscriber
 		$this->_pageRestoreState = true;
 	}
 	
-	public function pagePostRestoreEvent() 
+	public function pagePostRestoreEvent(PageEventArgs $eventArgs) 
 	{
-		$this->_pageRestoreState = false;
-	}
+		$this->prepareEnvironment($eventArgs);
+		
+		$localizationId = $eventArgs->getProperty('localizationId');
+		
+		$userId = null;
+		if ($this->user instanceof \Supra\User\Entity\User) {
+			$userId = $this->user->getId();
+		}
+		
+		$revisionData = new PageRevisionData();
+		$revisionData->setUser($userId);
+		$revisionData->setType(PageRevisionData::TYPE_HISTORY_RESTORE);
+		$revisionData->setReferenceId($localizationId);
+		
+		$this->em->persist($revisionData);
+					
+		$this->staticRevisionId = $revisionData->getId();
 
+		// page single localization
+		$localization = $this->em->find(Localization::CN(), $localizationId);
+		$this->insertAuditRecord($localization, self::REVISION_TYPE_COPY);
+		
+		// page localization redirect
+		if ($localization instanceof PageLocalization) {
+			$redirect = $localization->getRedirect();
+			if ( ! is_null($redirect)) {
+				$this->insertAuditRecord($redirect, self::REVISION_TYPE_COPY);
+			}
+		}
+		
+		// page itself
+		$page = $localization->getMaster();
+		$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
+		
+		// page placeholders
+		$placeHolders = $localization->getPlaceHolders();
+		foreach ($placeHolders as $placeHolder) {
+			$this->insertAuditRecord($placeHolder, self::REVISION_TYPE_COPY);
+		}
+		
+		// page blocks
+		$blockIdCollection = $eventArgs->getProperty('blockIdCollection');
+		foreach($blockIdCollection as $blockId) {
+			$block = $this->em->find(Block::CN(), $blockId);
+			$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
+		}
+		
+		// block properties
+		$blockPropertyIdCollection =  $eventArgs->getProperty('blockPropertyIdCollection');
+		foreach($blockPropertyIdCollection as $propertyId) {
+			$property = $this->em->find(BlockProperty::CN(), $propertyId);
+			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
+			
+			$metadata = $property->getMetadata();
+			foreach($metadata as $metadataItem) {
+				$referencedElement = $metadataItem->getReferencedElement();
+				$this->insertAuditRecord($referencedElement, self::REVISION_TYPE_COPY);
+				$this->insertAuditRecord($metadataItem, self::REVISION_TYPE_COPY);
+			}
+		}
+		
+		$this->em->flush();
+		
+		$this->_pageRestoreState = false;
+				
+	}
+		
+	public function pagePreEditEvent(PageEventArgs $eventArgs)
+	{
+		$this->localizationId = $eventArgs->getProperty('localizationId');
+	}
+	
+	public function pagePreCreateEvent()
+	{
+		$this->_pageCreateState = true;
+	}
+	
+	public function pagePostCreateEvent(PageEventArgs $eventArgs)
+	{
+		$this->prepareEnvironment($eventArgs);
+		
+		$localizationId = $eventArgs->getProperty('localizationId');
+		
+		$userId = null;
+		if ($this->user instanceof \Supra\User\Entity\User) {
+			$userId = $this->user->getId();
+		}
+		
+		$revisionData = new PageRevisionData();
+		$revisionData->setUser($userId);
+		$revisionData->setType(PageRevisionData::TYPE_CREATE);
+		$revisionData->setReferenceId($localizationId);
+		
+		$this->em->persist($revisionData);
+		
+		$this->staticRevisionId = $revisionData->getId();
+
+		// page single localization
+		$localization = $this->em->find(Localization::CN(), $localizationId);
+		$this->insertAuditRecord($localization, self::REVISION_TYPE_COPY);
+		
+		// page itself
+		$page = $localization->getMaster();
+		$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
+		
+		$this->em->flush();
+		
+//		// page placeholders
+//		$placeHolders = $localization->getPlaceHolders();
+//		foreach ($placeHolders as $placeHolder) {
+//			$this->insertAuditRecord($placeHolder, self::REVISION_TYPE_COPY);
+//		}
+		
+//		// page blocks
+//		$blockIdCollection = $eventArgs->getBlockIdCollection();
+//		foreach($blockIdCollection as $blockId) {
+//			$block = $this->em->find(Block::CN(), $blockId);
+//			$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
+//		}
+		
+//		// block properties
+//		$blockPropertyIdCollection = $eventArgs->getBlockPropertyIdCollection();
+//		foreach($blockPropertyIdCollection as $propertyId) {
+//			$property = $this->em->find(BlockProperty::CN(), $propertyId);
+//			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
+//			
+//			$metadata = $property->getMetadata();
+//			foreach($metadata as $metadataItem) {
+//				$referencedElement = $metadataItem->getReferencedElement();
+//				$this->insertAuditRecord($referencedElement, self::REVISION_TYPE_COPY);
+//				$this->insertAuditRecord($metadataItem, self::REVISION_TYPE_COPY);
+//			}
+//		}
+		
+		$this->_pageCreateState = false;
+		
+	}
+	
+	private function isAuditSkipped()
+	{
+		if ($this->_pageCreateState || $this->_pageRestoreState) {
+			return true;
+		}
+			
+		return false;
+	}
 }

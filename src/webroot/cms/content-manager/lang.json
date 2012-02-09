@@ -304,14 +304,20 @@
 			"title": "History",
 			
 			"publish": "published",
+			"move": "moved",
+			"create": "created",
+			"add": "added",
+			"insert": "inserted",
+			"delete": "removed",
 			"change": "changed",
+			"restore": "version restored",
 			"by": "by",
 			
 			"today": "Today",
 			"yesterday": "Yesterday",
 			"this_month": "This month",
 			
-			"restore": "Restore",
+			"restore_button_label": "Restore",
 			"restore_message": "Are you sure?"
 		},
 		

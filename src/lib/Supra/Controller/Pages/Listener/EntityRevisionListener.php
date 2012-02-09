@@ -15,6 +15,9 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Database\Entity;
+use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Event\PageEventArgs;
 
 class EntityRevisionListener implements EventSubscriber
 {
@@ -39,6 +42,17 @@ class EntityRevisionListener implements EventSubscriber
 	 */
 	private $_pageRestoreState = false;
 	
+	/**
+	 * @var Supra\User\Entity\User
+	 */
+	private $user;
+	
+	/**
+	 * @var string
+	 */
+	private $localizationId;
+	private $revision;
+	
 
 	public function getSubscribedEvents()
 	{
@@ -46,6 +60,7 @@ class EntityRevisionListener implements EventSubscriber
 			Events::onFlush,
 			AuditEvents::pagePreRestoreEvent,
 			AuditEvents::pagePostRestoreEvent,
+			AuditEvents::pagePreEditEvent,
 		);
 	}
 	
@@ -88,19 +103,13 @@ class EntityRevisionListener implements EventSubscriber
 		$this->em = $eventArgs->getEntityManager();
 		$this->uow = $this->em->getUnitOfWork();
 		
+		// TODO: temporary, should make another solution
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$this->user = $userProvider->getSignedInUser();
+		
 		$this->visitedEntities = array();
 		// is it enough with single revision id for inserts and updates?
-		$revisionId = $this->_getRevisionId();
-		
-		foreach ($this->uow->getScheduledEntityInsertions() as $entity) {
-
-			if ( ! ($entity instanceof AuditedEntityInterface)) {
-				continue;
-			}
-			
-			$this->_setRevisionId($entity, $revisionId);
-				
-		}
+		//$revisionId = $this->_getRevisionId();
 		
 		foreach ($this->uow->getScheduledEntityUpdates() as $entity) {
 			
@@ -121,10 +130,26 @@ class EntityRevisionListener implements EventSubscriber
 			}
 
 			if ( ! empty($changeSet)) {
+				
+				$revision = $this->createRevisionData($entity);
+				$revisionId = $revision->getId();
+				
 				$this->_setRevisionId($entity, $revisionId);
 			}
 		}
+		
+			foreach ($this->uow->getScheduledEntityInsertions() as $entity) {
 
+			if ( ! ($entity instanceof AuditedEntityInterface)) {
+				continue;
+			}
+			
+			$revision = $this->createRevisionData($entity, PageRevisionData::TYPE_INSERT);
+			$revisionId = $revision->getId();
+						
+			$this->_setRevisionId($entity, $revisionId);
+				
+		}
 	}
 	
 	/**
@@ -168,22 +193,55 @@ class EntityRevisionListener implements EventSubscriber
 		}
 	}
 	
-	/**
-	 * @return string
-	 */
-	private function _getRevisionId()
-	{
-		return Entity::generateId(__CLASS__);
-	}
+//	/**
+//	 * @return string
+//	 */
+//	private function _getRevisionId()
+//	{
+//		return Entity::generateId(__CLASS__);
+//	}
 	
-	public function pagePreRestoreEvent ()
+	public function pagePreRestoreEvent()
 	{
 		$this->_pageRestoreState = true;
 	}
 	
-	public function pagePostRestoreEvent ()
+	public function pagePostRestoreEvent()
 	{
 		 $this->_pageRestoreState = false;
+	}
+	
+	public function pagePreEditEvent(PageEventArgs $eventArgs)
+	{
+		$this->localizationId = $eventArgs->getProperty('localizationId');
+	}
+	
+	private function createRevisionData($entity, $type = PageRevisionData::TYPE_CHANGE)
+	{
+		if ( ! is_null($this->revision)) {
+			return $this->revision;
+		}
+		
+		$em = ObjectRepository::getEntityManager('#public');
+		
+		$revision = new PageRevisionData();
+		
+		$revision->setElementName($entity::CN());
+		$revision->setElementId($entity->getId());
+		
+		$revision->setType($type);
+		$revision->setReferenceId($this->localizationId);
+		
+		if ($this->user instanceof \Supra\User\Entity\User) {
+			$revision->setUser($this->user->getId());
+		}
+		
+		$em->persist($revision);
+		$em->flush();
+		
+		$this->revision = $revision;
+		
+		return $revision;
 	}
 
 }

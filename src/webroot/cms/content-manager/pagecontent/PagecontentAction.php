@@ -144,30 +144,49 @@ class PagecontentAction extends PageManagerAction
 			// Property select in one DQL
 
 			// Remove all old references
-			$metadataCollection = $property->getMetadata();
-			foreach ($metadataCollection as $metadata) {
-				$this->entityManager->remove($metadata);
-			}
-			
-			// flush, to remove old entites before add something new
-			// or unique constraint rule @ blockPropertyMetadata will fail
-			// FIXME: remove flush from foreach
-			$this->entityManager->flush();
+//			$metadataCollection = $property->getMetadata();
+//			foreach ($metadataCollection as $metadata) {
+//				$this->entityManager->remove($metadata);
+//			}
+//			
+//			// flush, to remove old entites before add something new
+//			// or unique constraint rule @ blockPropertyMetadata will fail
+//			// FIXME: remove flush from foreach
+//			$this->entityManager->flush();
 
-			// Empty the metadata
-			$property->resetMetadata();
+//			// Empty the metadata
+//			$property->resetMetadata();
 
 			// Set new refeneced elements
 			$property->setValue($value);
 
+			
+			$metadataCollection = $property->getMetadata();
 			foreach ($valueData as $elementName => &$elementData) {
 				
 				if ( ! isset($elementData['href'])) {
 					$elementData['href'] = null;
 				}
 				
-				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
+				$elementFound = false;
+				if ( ! empty($metadataCollection)) {
+					foreach($metadataCollection as $metadataItem) {
+						
+						$name = $metadataItem->getName();
+						if ($name == $elementName) {
+							$element = $metadataItem->getReferencedElement();
+							$element->fillArray($elementData);
+							
+							$elementFound = true;
+						}
+					}
+				}
+				
+				if ($elementFound) {
+					continue;
+				}
 
+				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
 				$property->addMetadata($blockPropertyMetadata);
 

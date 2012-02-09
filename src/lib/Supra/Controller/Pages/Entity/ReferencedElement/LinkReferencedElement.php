@@ -424,5 +424,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		
 		return $url;
 	}
+	
+//	public function getOwner()
+//	{
+//		
+//	}
 
 }

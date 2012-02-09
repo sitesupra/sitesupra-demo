@@ -649,7 +649,7 @@ class ObjectRepository
 	/**
 	 * Set default user provider
 	 *
-	 * @param UserProvider $object 
+	 * @param UserProviderAbstract $object 
 	 */
 	public static function setDefaultUserProvider(UserProviderAbstract $object)
 	{

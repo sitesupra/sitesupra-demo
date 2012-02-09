@@ -4,7 +4,7 @@ namespace Supra\Cms\ContentManager\Page;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
-use Supra\Controller\Pages\Request\HistoryPageRequestView;
+use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
@@ -23,6 +23,9 @@ use Supra\Controller\Pages\Exception\InvalidBlockException;
 use Supra\Controller\Pages\BrokenBlockController;
 use Supra\Uri\Path;
 use Supra\Locale\Locale;
+use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\Controller\Pages\Event\AuditEvents;
+use Supra\Controller\Pages\Event\PageEventArgs;
 
 /**
  * 
@@ -365,7 +368,10 @@ class PageAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-
+		
+		$eventManager = $this->entityManager->getEventManager();
+		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
+		
 		$page = null;
 		$pathPart = null;
 
@@ -463,10 +469,18 @@ class PageAction extends PageManagerAction
 		}
 		
 		$this->entityManager->flush();
-
+		
 		$this->writeAuditLog('create', '%item% created', $pageData);
-
+		
 		$this->outputPage($pageData);
+		
+		// this will create page base copy (similar one, that is created on page publish action)
+		// which will be used as build base for page change-history displaying
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setProperty('localizationId', $pageData->getId());
+		$pageEventArgs->setProperty('entityManager', $this->entityManager);
+		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
+		
 	}
 
 	/**
@@ -589,12 +603,80 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
-		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$em = ObjectRepository::getEntityManager('#audit');
 
-		$pageLocalization = $em->getRepository(PageRequest::DATA_ENTITY)
-				->findOneBy(array('id' => $localizationId, 'revision' => $revisionId));
+		// find last published page revision
+		$params = array(
+			'id' => $revisionId,
+			'localizationId' => $localizationId,
+			'types' => array(
+				PageRevisionData::TYPE_HISTORY,
+				PageRevisionData::TYPE_CREATE,
+				PageRevisionData::TYPE_HISTORY_RESTORE,
+			),
+		);
+		
+		$qb = $em->createQueryBuilder();
+		$qb->select('r')
+				->from(PageRevisionData::CN(), 'r')
+				->where('r.id <= :id AND r.type in (:types) AND r.reference = :localizationId')
+				->orderBy('r.creationTime', 'DESC')
+				->setMaxResults(1)
+				->setParameters($params)
+				;
+		try {	
+			$lastPublishRevision = $qb->getQuery()
+					->getSingleResult();
+		} catch (\Doctrine\ORM\NoResultException $e) {
+			throw new CmsException(null, 'Cannot find last published page revision');
+		}
+		
+		$baseRevisionId = $lastPublishRevision->getId();
+			
+		// select all revisions from last published, till selected one
+		$qb = $em->createQueryBuilder();
+		
+		$params = array(
+			'id' => $revisionId,
+			'baseId' => $baseRevisionId,
+			'localizationId' => $localizationId, 
+		);
+		
+		$qb->select('r')
+				->from(PageRevisionData::CN(), 'r')
+				->where('r.id <= :id AND r.id > :baseId AND r.reference = :localizationId')
+				->orderBy('r.id', 'DESC')
+				->setParameters($params)
+				;
+		
+		$revisionList = $qb->getQuery()
+				->getResult();
+		
+		if ( ! empty($revisionList)) {
+			//throw new CmsException(null, "Nothing found for revision #{$revisionId}");
+		
+		
+			// loop through list of revisions, if there is localization present, we should use it as base localization
+			// as there are located last localization settings (template, schedule etc.)
+			$lastLocalizationRevision = null;
+			foreach($revisionList as $revision) {
+				/* @var $revision PageRevisionData */
+				$className = $revision->getElementName();
 
-		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
+				if ($className == Entity\PageLocalization::CN() || $className == Entity\TemplateLocalization::CN()) {
+					$lastLocalizationRevision = $revision;
+
+					break;
+				}
+			}
+		}
+		
+		$localizationRevision = (isset($lastLocalizationRevision) ? $lastLocalizationRevision : $lastPublishRevision);
+
+		$localization = $em->getRepository(Entity\Abstraction\Localization::CN())
+				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
+		
+		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}
 
@@ -603,11 +685,12 @@ class PageAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 
-		$request = new HistoryPageRequestView($localeId, $media);
-		$request->setPageLocalization($pageLocalization);
+		$request = new HistoryPageRequestEdit($localeId, $media);
+		$request->setPageLocalization($localization);
 
-		$revisionId = $pageLocalization->getRevisionId();
-		$request->setRevision($revisionId);
+		$revisionId = $localization->getRevisionId();
+		$request->setRevision($baseRevisionId);
+		$request->setRevisionArray($revisionList);
 
 		$response = $controller->createResponse($request);
 

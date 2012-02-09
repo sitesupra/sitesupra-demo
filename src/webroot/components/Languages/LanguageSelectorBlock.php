@@ -7,7 +7,7 @@ use Supra\Controller\Pages\BlockController;
 use Supra\Locale\Locale;
 use Supra\Controller\Pages\Entity;
 use Supra\Uri\Path;
-use Supra\Controller\Pages\Request\HistoryPageRequestView;
+use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 
 /**
  * Language Selector Block
@@ -41,7 +41,7 @@ class LanguageSelectorBlock extends BlockController
 			
 			foreach ($pageAncestors as $_page) {
 				/* @var $_page Entity\Abstraction\AbstractPage */
-				if ($request instanceof HistoryPageRequestView) {
+				if ($request instanceof HistoryPageRequestEdit) {
 					// Fetch available draft localizations
 					$pageLocalization = $request->getDraftLocalization($localeId);
 				} else {

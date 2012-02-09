@@ -16,12 +16,24 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 {
 	
 	const TYPE_HISTORY = 1;
+	const TYPE_HISTORY_RESTORE = 101;
 	
 	const TYPE_TRASH = 2;
 	
 	// when page is restored from trash, revision data is marked as 'restored'
 	// and will not be shown at recycle bin anymore
 	const TYPE_RESTORED = 3;
+	
+	// page element change
+	const TYPE_CHANGE = 4;
+	
+	// page element removed
+	const TYPE_REMOVED = 5;
+	const TYPE_CHANGE_DELETE = 5;
+	
+	// page created
+	const TYPE_CREATE = 6;
+	const TYPE_INSERT = 7;
 	
 	/**
 	 * @Column(type="datetime", nullable=true, name="created_at")
@@ -44,10 +56,29 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	/**
 	 * Contains page or page localization ID
 	 * 
-	 * @Column(type="supraId20")
+	 * @Column(type="supraId20", nullable=true)
 	 * @var string
 	 */
 	protected $reference;
+	
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $elementName;
+	
+	/**
+	 * @Column(type="supraId20", nullable=true)
+	 * @var string
+	 */
+	protected $elementId;
+	
+	/**
+	 * @Column(type="text", nullable=true)
+	 * @var sting
+	 */
+	protected $additionalInfo;
+	
 	
 	/**
 	 * Returns revision author
@@ -136,5 +167,30 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	public function setReferenceId($referenceId)
 	{
 		$this->reference = $referenceId;
+	}
+	
+	public function setElementId($id) 
+	{
+		$this->elementId = $id;
+	}
+	public function setElementName($name)
+	{
+		$this->elementName = $name;
+	}
+	public function getElementName()
+	{
+		return $this->elementName;
+	}
+	public function getElementId()
+	{
+		return $this->elementId;
+	}
+	public function setAdditionalInfo($info)
+	{
+		$this->additionalInfo = $info;
+	}
+	public function getAdditionalInfo()
+	{
+		return $this->additionalInfo;
 	}
 }

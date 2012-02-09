@@ -148,16 +148,29 @@ abstract class BlockController extends ControllerAbstraction
 			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
 		}
 
-		// Find property by name and type
+		// Find property by name
 		$property = null;
 		$expectedType = get_class($editable);
 
+		$typeChanged = false;
 		foreach ($this->properties as $propertyCheck) {
 			/* @var $propertyCheck BlockProperty */
-			if ($propertyCheck->getName() === $name
-					&& $propertyCheck->getType() === $expectedType) {
-
+			/* @var $property BlockProperty */
+//			if ($propertyCheck->getName() === $name
+//					&& $propertyCheck->getType() === $expectedType) {
+//
+//				$property = $propertyCheck;
+//				break;
+//			}
+			if ($propertyCheck->getName() === $name) {
+				
 				$property = $propertyCheck;
+				
+				if ($propertyCheck->getType() !== $expectedType) {
+					$property->setEditable($editable);
+					$property->setValue($editable->getDefaultValue());
+				}
+				
 				break;
 			}
 		}
@@ -166,7 +179,7 @@ abstract class BlockController extends ControllerAbstraction
 		 * Must create new property here
 		 */
 		if (empty($property)) {
-
+			
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
 
@@ -177,10 +190,12 @@ abstract class BlockController extends ControllerAbstraction
 			//FIXME: should do somehow easier than that
 			$property->setLocalization($this->getRequest()->getPageLocalization());
 		}
-		else {
-			//TODO: should we overwrite editable content parameters from the block controller config?
-			$property->setEditable($editable);
-		}
+//		else {
+//			//TODO: should we overwrite editable content parameters from the block controller config?
+//			$property->setEditable($editable);
+//		}
+		
+		$editable = $property->getEditable();
 
 		// This is done in previous line already
 //		//TODO: this is ugly content copying

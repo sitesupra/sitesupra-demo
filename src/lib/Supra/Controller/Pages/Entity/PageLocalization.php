@@ -377,8 +377,8 @@ class PageLocalization extends Abstraction\Localization
 		}
 
 		$this->creationTime = $creationTime;
-		$this->creationYear = $creationTime->format('Y');
-		$this->creationMonth = $creationTime->format('n');
+		$this->creationYear = (int) $creationTime->format('Y');
+		$this->creationMonth = (int) $creationTime->format('n');
 		$this->publishTimeSet = true;
 	}
 

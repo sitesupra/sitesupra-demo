@@ -71,7 +71,7 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	 */
 	public function getReferencedElement()
 	{
-		if ( ! empty($overridenReferencedElement)) {
+		if ( ! empty($this->overridenReferencedElement)) {
 			return $this->overridenReferencedElement;
 		}
 		return $this->referencedElement;

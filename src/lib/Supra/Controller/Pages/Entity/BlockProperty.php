@@ -201,7 +201,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	public function setType($type)
 	{
 		throw new \RuntimeException("Should not be used anymore");
-		$this->type = $type;
+		//$this->type = $type;
 	}
 
 	/**
