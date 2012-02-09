@@ -247,7 +247,10 @@ YUI.add('website.permission-list', function (Y) {
 				}
 				
 				//Add flag to label
-				this.data[i].get('labelNode').prepend(Y.Node.create(flag));
+				if (flag) {
+					flag = Y.Node.create(flag);
+					if (flag) this.data[i].get('labelNode').prepend(flag);
+				}
 				
 				//Add remove button
 				var button = Y.Node.create('<a class="remove"></a>');
