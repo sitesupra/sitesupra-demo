@@ -105,7 +105,9 @@ class EntityRevisionListener implements EventSubscriber
 		
 		// TODO: temporary, should make another solution
 		$userProvider = ObjectRepository::getUserProvider($this);
-		$this->user = $userProvider->getSignedInUser();
+		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
+			$this->user = $userProvider->getSignedInUser();
+		}
 		
 		$this->visitedEntities = array();
 		// is it enough with single revision id for inserts and updates?
@@ -232,9 +234,11 @@ class EntityRevisionListener implements EventSubscriber
 		$revision->setType($type);
 		$revision->setReferenceId($this->localizationId);
 		
+		$userId = '#';
 		if ($this->user instanceof \Supra\User\Entity\User) {
-			$revision->setUser($this->user->getId());
+			$userId = $this->user->getId();
 		}
+		$revision->setUser($userId);
 		
 		$em->persist($revision);
 		$em->flush();
