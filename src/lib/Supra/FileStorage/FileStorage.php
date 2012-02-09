@@ -445,7 +445,7 @@ class FileStorage
 		if ($public == $file->isPublic()) {
 			$msg = $file->getId() . ' ' . $file->getFileName() . ' is already ';
 			$msg .= ($file->isPublic() ? 'public' : 'private');
-			\Log::info($msg);
+			$this->log()->info($msg);
 			return;
 		}
 
@@ -518,7 +518,9 @@ class FileStorage
 		$this->createBothFoldersInFileSystem($folder);
 
 		if ( ! rename($oldPath, $newPath)) {
-			throw new Exception\RuntimeException('Failed to move file to the public storage');
+//			throw new Exception\RuntimeException('Failed to move file to the public storage');
+			$filename = basename($newPath);
+			$this->log()->warn('Failed to move file ('. $filename .') to the public storage');
 		}
 	}
 
@@ -535,7 +537,9 @@ class FileStorage
 		$this->createBothFoldersInFileSystem($folder);
 
 		if ( ! rename($oldPath, $newPath)) {
-			throw new Exception\RuntimeException('Failed to move file to the private storage');
+			// throw new Exception\RuntimeException('Failed to move file to the private storage');
+			$filename = basename($newPath);
+			$this->log()->warn('Failed to move file ('. $filename .') to the private storage');
 		}
 	}
 
