@@ -191,6 +191,8 @@
 			},
 			"page_priority": "The priority of that URL relative to other URLs on the site",
 			"keywords": "Keywords",
+			"suggestions": "Suggest",
+			"clear_all": "Clear all",
 			"description": "Description",
 			
 			"version": "Version",

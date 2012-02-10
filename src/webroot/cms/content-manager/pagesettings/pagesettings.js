@@ -617,6 +617,9 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				this.setFormValue('redirect', page_data);
 			}
 			
+			//Keywords
+			this.form.getInput('keywords').set('keywordRequestUri', this.getDataPath('dev/suggestions'));
+			
 			//If user doesn't have publish rights, then disable "Schedule publish" button 
 			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {
 				this.one('a[data-target="slideSchedule"]').addClass('disabled');
