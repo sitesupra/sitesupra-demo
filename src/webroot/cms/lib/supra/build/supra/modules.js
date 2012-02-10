@@ -66,6 +66,7 @@ Supra.useModules = [
 	'supra.permission',
 	'supra.io',						// + io, json
 	'supra.io-session',
+	'supra.io-css',
 	'supra.dom',
 	'supra.template'
 ];
@@ -118,6 +119,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.io-session': {
 		path: 'io/session.js',
+		requires: [
+			'io'
+		]
+	},
+	'supra.io-css': {
+		path: 'io/css.js',
 		requires: [
 			'io'
 		]

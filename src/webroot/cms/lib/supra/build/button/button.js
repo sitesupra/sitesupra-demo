@@ -21,6 +21,9 @@ YUI.add('supra.button', function (Y) {
 		nodeLabel: {
 			value: null
 		},
+		nodeLoading: {
+			value: null
+		},
 		label: {
 			value: '',
 			setter: '_setLabel'
@@ -253,6 +256,12 @@ YUI.add('supra.button', function (Y) {
 			var box = this.get('boundingBox');
 			
 			if (box) {
+				if (loading && !this.get('nodeLoading')) {
+					var node = Y.Node.create('<span class="loading-icon"></span>');
+					this.get('nodeLabel').insert(node, 'after');
+					this.set('nodeLoading', node);
+				}
+				
 				box.setClass(this.getClassName('loading'), loading);
 			}
 			

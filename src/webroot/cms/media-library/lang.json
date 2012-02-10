@@ -48,6 +48,16 @@
 			"download": "Download",
 			"edit": "Edit",
 			
+			"more_info": "More info",
+			"less_info": "Less info",
+			
+			"kind": "Kind",
+			"size": "Size",
+			"created": "Created",
+			"dimensions": "Dimensions",
+			"image": "Image",
+			"file": "File",
+			
 			"validation_error": {
 				"file_id_not_provided": "File ID has not been provided",
 				"file_not_exists": "Requested file does not exist",

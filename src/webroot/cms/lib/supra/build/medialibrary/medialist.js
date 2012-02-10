@@ -63,7 +63,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display image
 	 * @type {Array}
 	 */
-	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes'];
+	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes', 'known_extension'];
 	
 	
 	
@@ -71,7 +71,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, file or folder loading template
 	 * @type {String}
 	 */
-	List.TEMPLATE_LOADING = Template.compile('<div class="loading">&nbsp;</div>');
+	List.TEMPLATE_LOADING = Template.compile('<div class="loading-icon">&nbsp;</div>');
 	
 	/**
 	 * Constant, empty folder template
@@ -1110,11 +1110,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				thumbnail_size = this.get('thumbnailSize'),
 				preview_key = preview_size + '_url',
 				thumbnail_key = thumbnail_size + '_url',
-				item_data = data || {};
+				item_data = SU.mix({}, data || {});
 			
+			//URLs
 			if (item_data.sizes) {
-				item_data = SU.mix({}, item_data);
-				
 				if (thumbnail_size in item_data.sizes) {
 					item_data['thumbnailUrl'] = item_data.sizes[thumbnail_size].external_path;
 				}
@@ -1122,8 +1121,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					item_data['previewUrl'] = item_data.sizes[preview_size].external_path;
 				}
 			} else if (preview_key in item_data || thumbnail_key in item_data) {
-				item_data = SU.mix({}, item_data);
-				
 				if (thumbnail_key in item_data) {
 					item_data['thumbnailUrl'] = item_data[thumbnail_key];
 				}

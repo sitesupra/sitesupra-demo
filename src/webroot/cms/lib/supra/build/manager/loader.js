@@ -348,10 +348,12 @@ YUI.add('supra.manager-loader', function (Y) {
 			
 			//Load stylesheet if needed
 			if (stylesheetPath && hasStylesheet) {
+				
+				Manager.Loader.loading[action_name].style = true;
 				stylesheetLoaded = false;
 				
 				//CSS are loaded synchronously
-				Y.Get.css(stylesheetPath, {
+				Supra.io.css(stylesheetPath, {
 					'onSuccess': function () {
 						stylesheetLoaded = true;
 						Manager.Loader.loading[action_name].style = false;
@@ -374,6 +376,7 @@ YUI.add('supra.manager-loader', function (Y) {
 				
 				if (!(templatePath in cache)) {
 
+					Manager.Loader.loading[action_name].template = true;
 					loading[templatePath] = true;
 					templateLoaded = false;
 					

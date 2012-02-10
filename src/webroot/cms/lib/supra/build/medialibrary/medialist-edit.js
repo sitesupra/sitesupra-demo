@@ -167,9 +167,17 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					id = data.data.id,
 					item_data = data_object.getData(id),
 					original_value = data.data[name],
-					props = {};
+					props = {},
+					locale = null;
 				
-				props[name] = item_data[name] = value;
+				if (Y.Lang.isObject(data.data[name])) {
+					//Localized value
+					locale = this.getItemLocale();
+					props[name] = {};
+					props[name][locale] = item_data[name][locale] = value;
+				} else {
+					props[name] = item_data[name] = value;
+				}
 				
 				data_object.saveData(id, props, Y.bind(function (status) {
 					if (!status) {
@@ -178,8 +186,8 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					}
 				}, this));
 				
-				//Update title in folder list
-				if (name == 'title') {
+				//Update title in folder list, unless title is localized and it doesn't matches default locale
+				if (name == 'title' && (!locale || locale == Supra.data.get('locale'))) {
 					var host = this.get('host'),
 						parent_id = host.getItemData(id).parent,
 						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
@@ -189,6 +197,17 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			} else if (!value) {
 				data.input.set('value', data.data[name]);
 			}
+		},
+		
+		/**
+		 * Returns currently selected locale
+		 * 
+		 * @return Locale
+		 * @type {String}
+		 * @private
+		 */
+		getItemLocale: function () {
+			return this.get('host').getPropertyWidgets().locale.get('value');
 		},
 		
 		/**

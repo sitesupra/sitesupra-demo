@@ -50,6 +50,16 @@
 	box-sizing: @method;
 }
 
+/*
+ * Text
+ */
+.text-shadow () {
+	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
+}
+.text-shadow (@x: 0, @y: 1px, @blur, @color) {
+	text-shadow: @x @y @blur @color;
+}
+
 .user-select (@type: none) {
 	-moz-user-select: @type;
 	-webkit-user-select: @type;

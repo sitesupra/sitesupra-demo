@@ -128,6 +128,12 @@ SU('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y)
 		 */
 		HAS_TEMPLATE: true,
 		
+		/**
+		 * Dependancies
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['PageToolbar', 'PageButtons'],
+		
 		
 		
 		/**

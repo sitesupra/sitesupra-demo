@@ -531,7 +531,7 @@ SU(function (Y) {
 		 * Execute action
 		 */
 		execute: function () {
-			Manager.getAction('LayoutTopContainer').setActiveAction(this.NAME);
+			Manager.getAction('LayoutTopContainer').setActiveAction(this.NAME); 
 		}
 	});
 	

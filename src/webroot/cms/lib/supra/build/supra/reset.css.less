@@ -1,3 +1,6 @@
+@import "/cms/lib/supra/less/common.less";
+@import "common.css.less";
+
 /**
   * Table of contents:
   *		= Common classes
@@ -69,15 +72,16 @@ a, .pseudo-link {
 	outline-color: #36C;
 	text-decoration: underline;
 	cursor: pointer;
-}
-	a:hover, .pseudo-link:hover {
+	
+	&:hover {
 		text-decoration: none;
 	}
 	
-a.disabled, .pseudo-link.disabled {
-	color: #ccc;
-	text-decoration: none;
-	cursor: default;
+	&.disabled {
+		color: #ccc;
+		text-decoration: none;
+		cursor: default;
+	}
 }
 
 

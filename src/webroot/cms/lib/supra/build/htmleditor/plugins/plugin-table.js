@@ -545,8 +545,15 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			this.selected_table = event.target.closest('table');
 			this.selected_cell = event.target.closest('td,th');
-			this.selected_cell.addClass('yui3-cell-selected');
-			this.selected_table.addClass('yui3-table-selected');
+			
+			if (this.selected_table) {
+				this.selected_table.addClass('yui3-table-selected');
+			} else {
+				return;
+			}
+			if (this.selected_cell) {
+				this.selected_cell.addClass('yui3-cell-selected');
+			}
 			
 			//Find current style
 			var styles = this.getTableStyles();
@@ -635,7 +642,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 					this.selected_cell = element;
 					this.selected_cell.addClass('yui3-cell-selected');
 				} else {
-					this.showTableSettings({'target': element});
+					//If table is first element in editor, then on editing start
+					//table settings is shown which breaks block properties
+					Y.later(16, this, function () {
+						this.showTableSettings({'target': element});
+					});
 				}
 			} else if (this.selected_table) {
 				this.settingsFormApply();

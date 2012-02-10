@@ -201,7 +201,7 @@ YUI.add("supra.input-select", function (Y) {
 			inner_node.on('mouseenter', this._onMouseOver, this);
 			inner_node.on('mouseleave', this._onMouseOut, this);
 			inner_node.on('mousedown', this._onMouseDown, this);
-			inner_node.on('keydown', this._onKeyDown, this);
+			inner_node.on('keydown', this._onKeyPress, this);
 			
 			//Handle list item  click
 			inner_node.delegate('click', this._onItemClick, 'a[data-id]', this);
@@ -258,7 +258,7 @@ YUI.add("supra.input-select", function (Y) {
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		_onKeyDown: function (e) {
+		_onKeyPress: function (e) {
 			if (this.get('disabled')) return;
 			
 			var key = e.keyCode;

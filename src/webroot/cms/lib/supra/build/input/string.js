@@ -72,7 +72,8 @@ YUI.add('supra.input-string', function (Y) {
 			}
 			
 			//Handle keydown
-			input.on('keypress', this._onKeyDown, this);
+			input.on('keypress', this._onKeyPress, this);
+			input.on('keydown', this._onKeyDown, this);
 			
 			//Handle value attribute change
 			if (!this.get('srcNode').compareTo(input)) {
@@ -87,8 +88,9 @@ YUI.add('supra.input-string', function (Y) {
 		 * Chrome, Safari, IE9 - charCode and keyCode is for characters, but non output keys doesn't trigger keyPress
 		 *
 		 * @param {Event} e Event
+		 * @private
 		 */
-		_onKeyDown: function (e) {
+		_onKeyPress: function (e) {
 			var charCode = Y.UA.opera ? e._event.which : e._event.charCode,
 				keyCode = e._event.keyCode || e._event.which || e._event.charCode,
 				input = this.get('inputNode'),
@@ -100,14 +102,9 @@ YUI.add('supra.input-string', function (Y) {
 			}
 			
 			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
-				if (this.get('replacementNode') || this.get('blurOnReturn')) {
-					//If using replacement node then show it
-					input.blur();
-				}
+				//Already handled by _onKeyDown
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
-				input.set('value', this._original_value);
-				input.blur();
-				this.fire('reset');
+				//Already handled by _onKeyDown
 			} else if (mask && charCode) {
 				//46 - 'Delete'
 				//Validate against mask
@@ -119,6 +116,29 @@ YUI.add('supra.input-string', function (Y) {
 
 				if (e.ctrlKey && charCode == 118) return;
 				if (!mask.test(value)) return e.preventDefault();
+			}
+		},
+		
+		/**
+		 * Handle key down event
+		 * Chrome doesn't trigger escape on keypress event
+		 *
+		 * @param {Event} e Event
+		 * @private
+		 */
+		_onKeyDown: function (e) {
+			var keyCode = e._event.keyCode || e._event.which || e._event.charCode,
+				input = this.get('inputNode');
+			
+			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
+				if (this.get('replacementNode') || this.get('blurOnReturn')) {
+					//If using replacement node then show it
+					input.blur();
+				}
+			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
+				input.set('value', this._original_value);
+				input.blur();
+				this.fire('reset');
 			}
 		},
 		

@@ -39,20 +39,69 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<div class="preview">\
 				<img src="/cms/lib/supra/img/medialibrary/icon-{% if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" alt="" />\
 			</div>\
-			<!--\
-			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
-				<input type="text" name="title" value="{{ title|escape }}" />\
-			</span>\
-			<span class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
-				<input type="text" name="description" value="{{ description|escape }}" />\
-			</span>\
-			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
-			-->\
+			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.\s]*$" suUseReplacement="true" />\
 			</span>\
-			<div class="input-group"><button type="button">{{ "medialibrary.download"|intl }}</button></div>\
-			<div class="input-group"><button type="button">{{ "buttons.replace"|intl }}</button></div>\
+			\
+			<div class="group">\
+				<div class="input-group"><button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button></div>\
+				\
+				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
+				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
+				<div class="info hidden">\
+					{% if known_extension %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
+							<span class="info-data">{{ known_extension|upper }} {{ "medialibrary.file"|intl }}</span>\
+						</div>\
+					{% endif %}\
+					<div>\
+						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
+						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+					</div>\
+					{% if created %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
+							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
+					{% endif %}\
+					{% if sizes %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
+							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
+						</div>\
+					{% endif %}\
+				</div>\
+				\
+				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
+				<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
+			</div>\
+			\
+			<div class="group hidden">\
+				<div class="inp-locale">\
+					<select name="locale">\
+						{% set contexts = Supra.data.get("contexts") %}\
+						{% set current_locale = null %}\
+						{% for context in contexts %}\
+							{% for locale in context.languages %}\
+								{% if !current_locale %}\
+									{% set current_locale = locale.id %}\
+								{% endif %}\
+								<option value="{{ locale.id }}">{{ locale.title|e }}</option>\
+							{% endfor %}\
+						{% endfor %}\
+					</select>\
+				</div>\
+				<div class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
+					<input type="text" name="title" value="{% if title && title[current_locale] %}{{ title[current_locale]|default("")|escape }}{% endif %}" />\
+				</div>\
+				<div class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
+					<textarea name="description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</textarea>\
+				</div>\
+				\
+				<button type="button" class="done">{{ "buttons.done"|intl }}</button>\
+			</div>\
 		</div>');
 	
 	/**
@@ -68,21 +117,70 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
 				{% endif %}\
 			</div>\
-			<!--\
-			<span class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
-				<input type="text" name="title" value="{{ title|escape }}" />\
-			</span>\
-			<span class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
-				<input type="text" name="description" value="{{ description|escape }}" />\
-			</span>\
-			<div class="localize"><button type="button">{{ "medialibrary.localize"|intl }}</button></div>\
-			-->\
+			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.]*$" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.\s]*$" suUseReplacement="true" />\
 			</span>\
-			<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
-			<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
-			<div class="input-group"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
+			\
+			<div class="group">\
+				<div class="input-group"><button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button></div>\
+				\
+				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
+				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
+				<div class="info hidden">\
+					{% if known_extension %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
+							<span class="info-data">{{ known_extension|upper }} {{ "medialibrary.image"|intl }}</span>\
+						</div>\
+					{% endif %}\
+					<div>\
+						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
+						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+					</div>\
+					{% if created %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
+							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
+					{% endif %}\
+					{% if sizes %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
+							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
+						</div>\
+					{% endif %}\
+				</div>\
+				\
+				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
+				<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
+				<div class="input-group"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
+			</div>\
+			\
+			<div class="group hidden">\
+				<div class="inp-locale">\
+					<select name="locale">\
+						{% set contexts = Supra.data.get("contexts") %}\
+						{% set current_locale = null %}\
+						{% for context in contexts %}\
+							{% for locale in context.languages %}\
+								{% if !current_locale %}\
+									{% set current_locale = locale.id %}\
+								{% endif %}\
+								<option value="{{ locale.id }}">{{ locale.title|e }}</option>\
+							{% endfor %}\
+						{% endfor %}\
+					</select>\
+				</div>\
+				<div class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
+					<input type="text" name="title" value="{% if title && title[current_locale] %}{{ title[current_locale]|default("")|escape }}{% endif %}" />\
+				</div>\
+				<div class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
+					<textarea name="description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</textarea>\
+				</div>\
+				\
+				<button type="button" class="done">{{ "buttons.done"|intl }}</button>\
+			</div>\
 		</div>');
 	
 	/**
@@ -467,6 +565,53 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
+		 * 
+		 */
+		handleInfoToggleClick: function (event /* Event */) {
+			var node = event.target.closest('.group');
+			
+			node.one('div.info').toggleClass('hidden');
+			node.all('a.more, a.less').toggleClass('hidden');
+			
+			//Scrollbars
+			var content = node.closest('.su-scrollable-content');
+			content.fire('contentResize');
+			
+			event.halt();
+		},
+		
+		/**
+		 * Handle localize button click
+		 * 
+		 * @param {Event} event Event
+		 * @private
+		 */
+		handleLocalizeClick: function (event /* Event */) {
+			var node = event.target.get('boundingBox').closest('.su-scrollable-content');
+			
+			node.all('div.group').toggleClass('hidden');
+			
+			//Scrollbars
+			node.fire('contentResize');
+		},
+		
+		/**
+		 * Handle locale change
+		 * 
+		 * @param {Event} event Event
+		 */
+		handleLocaleChange: function (event /* Event */) {
+			var item = this.getSelectedItem(),
+				widgets = this.getPropertyWidgets(),
+				
+				title = Y.Lang.isObject(item.title) ? item.title[event.value] || '' : '',
+				description = Y.Lang.isObject(item.description) ? item.description[event.value] || '' : '';
+			
+			widgets.title.set('value', title || '');
+			widgets.description.set('value', description || '');
+		},
+		
+		/**
 		 * Handle download click
 		 * 
 		 * @param {Event} event Event
@@ -591,20 +736,31 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Create buttons
 				var buttons = node.all('button'),
-					/*btn_localize = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small'}),*/
-					btn_download = new Supra.Button({'srcNode': buttons.item(0)}),
-					btn_replace = new Supra.Button({'srcNode': buttons.item(1)});
+					btn_localize = new Supra.Button({ 'srcNode': buttons.filter('.localize').item(0) }),
+					btn_download = new Supra.Button({ 'srcNode': buttons.filter('.download').item(0) }),
+					btn_replace  = new Supra.Button({ 'srcNode': buttons.filter('.replace').item(0) }),
+					btn_done     = new Supra.Button({ 'srcNode': buttons.filter('.done').item(0) });
 				
-				/*btn_localize.render();*/
+				btn_localize.render();
 				btn_download.render();
 				btn_replace.render();
+				btn_done.render();
 				
-				/*inp.btn_localize = btn_localize;*/
+				inp.btn_localize = btn_localize;
 				inp.btn_download = btn_download;
 				inp.btn_replace = btn_replace;
+				inp.btn_done = btn_done;
 				
 				btn_download.on('click', this.handleDownloadClick, this);
 				
+				//Localization
+				btn_localize.on('click', this.handleLocalizeClick, this);
+				btn_done.on('click', this.handleLocalizeClick, this);
+				
+				//More / less
+				node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
+				
+				//Replace button
 				if (FILE_API_SUPPORTED) {
 					//
 					btn_replace.on('click', this.handleReplaceClick, this);
@@ -614,20 +770,31 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				}
 				
 				//Create form
-				node.all('input').each(function (item) {
+				node.all('input,textarea,select').each(function (item) {
 					if (item.getAttribute('suIgnore')) return;
 					
-					var props = {
-						'srcNode': item,
-						'useReplacement': true,
-						'value': item.get('value')
-					};
+					var tag = item.get('tagName').toLowerCase(),
+						name = item.getAttribute('name'),
+						props = {
+							'srcNode': item,
+							'useReplacement': !!item.getAttribute('suUseReplacement'),
+							'type': (tag == 'input' ? 'String' : (tag == 'textarea' ? 'Text' : 'SelectList')),
+							'value': item.get('value')
+						};
 					
-					var obj = new Supra.Input.String(props);
+					var obj = new Supra.Input[props.type](props);
 					obj.render();
-					obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
+					
+					if (name != 'locale') {
+						//Locale is not used for actual data, but only to switch locales
+						obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
+					}
+					
 					inp[item.get('name')] = obj;
 				}, this);
+				
+				//Handle locale change
+				inp.locale.after('change', this.handleLocaleChange, this);
 				
 				//Save input instances to destroy them when re-rendered
 				this.property_widgets = inp;

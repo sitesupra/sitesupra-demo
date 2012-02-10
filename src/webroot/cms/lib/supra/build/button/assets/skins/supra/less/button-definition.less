@@ -59,10 +59,26 @@ button::-moz-focus-inner {
 	}
 	
 	/* Button loading state */
-	&.su-button-loading p {
-		color: transparent !important;
-		text-shadow: none !important;
-		background: url(../../supra/img/ajax-loader-24-white.png) 50% 50% no-repeat;
+	.loading-icon {
+		display: none !important;
+		width: 12px;
+		height: 12px;
+		margin: -8px 0 0 -8px;
+		padding: 0 !important;
+		border-width: 3px;
+		.border-radius (12px);
+	}
+	&.su-button-loading {
+		position: relative;
+		
+		p {
+			color: transparent !important;
+			text-shadow: none !important;
+			background: none !important;
+		}
+		.loading-icon {
+			display: block !important;
+		}
 	}
 }
 

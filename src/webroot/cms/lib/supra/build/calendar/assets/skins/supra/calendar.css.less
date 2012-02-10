@@ -1,5 +1,6 @@
 @import "/cms/lib/supra/less/common.less";
 
+@shadow: 0 1px 0 rgba(0, 8, 30, 0.4);
 
 .su-calendar-content {
 	.linear-gradient (rgb(97,97,118), 0%, rgb(77,77,97), 38%);
@@ -13,7 +14,7 @@
 	font-size: 12px;
 	font-weight: bold;
 	line-height: 23px;
-	text-shadow: 0 1px 0 rgba(0, 8, 30, 0.4);
+	text-shadow: @shadow;
 }
 
 /**
@@ -71,7 +72,7 @@
 			font-size: 10px;
 			line-height: 16px;
 			text-align: center;
-			text-shadow: 0 1px 0 rgba(0, 8, 30, 0.4);
+			text-shadow: @shadow;
 		}
 		
 		tbody td {
