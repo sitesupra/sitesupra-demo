@@ -5,6 +5,6 @@ namespace Supra\Authorization\Permission;
 class PermissionStatus
 {
 	const ALLOW = 222;
-	const DENY =	111;
-	const NONE = 333;
+	const DENY = 111;
+	const INHERIT = 333;
 }

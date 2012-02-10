@@ -335,6 +335,137 @@ class AuthorizationProvider
 	}
 
 	/**
+	 *
+	 * @param AbstractUser $user
+	 * @param AuthorizedEntityInterface $object
+	 * @param string $permissionName
+	 * @param integer $newStatus
+	 * @return boolean
+	 */
+	public function setPermissionStatusDirect(AbstractUser $user, $object, $permissionName, $newStatus)
+	{
+		$currentStatus = $this->getPermissionStatus($user, $object, $permissionName);
+
+		$userSecurityIdentity = $this->getUserSecurityIdentity($user);
+
+		/* $acl Acl */
+		$acl = $this->getObjectAclForUserSecurityIdentity($userSecurityIdentity, $object);
+
+		if (empty($acl)) {
+			$objectIdentity = $this->getObjectIdentity($object);
+			$acl = $this->getAclProvider()->createAcl($objectIdentity);
+		}
+
+		if (empty($acl)) {
+			throw new Exception\RuntimeException('Could not create/ ACL for this object');
+		}
+
+		$permission = $this->getPermission($permissionName, $object);
+
+		$aces = $this->getAcesForSecurityIdentity($userSecurityIdentity, $acl);
+
+		if ($currentStatus == $newStatus) {
+			return false;
+		}
+
+		// If no previous entries are present, add new ace with coresponding mask.
+		if ($currentStatus == PermissionStatus::INHERIT) {
+
+			$newAceIndex = count($acl->getObjectAces());
+
+			$newAceMask = null;
+			if ($newStatus == PermissionStatus::ALLOW) {
+				$newAceMask = $permission->getAllowMask();
+			} else {
+				$newAceMask = $permission->getDenyMask();
+			}
+
+			$acl->insertObjectAce($userSecurityIdentity, $newAceMask, $newAceIndex);
+		} else if ($newStatus == PermissionStatus::INHERIT) {
+			// If we are removing existing permission entry, remove aces with ALLOW or DENY masks.
+
+			foreach ($aces as $index => $ace) {
+
+				$currentAceMask = $ace->getMask();
+
+				if (
+						$currentAceMask == $permission->getDenyMask() ||
+						$currentAceMask == $permission->getAllowMask()
+				) {
+					$acl->deleteObjectAce($index);
+				}
+			}
+		} else {
+			// In case of update, find existing ace and change its mask.
+			
+			$newAceMask = 0;
+
+			if ($newStatus == PermissionStatus::ALLOW) {
+				$newAceMask = $permission->getAllowMask();
+			} else if ($newStatus == PermissionStatus::DENY) {
+				$newAceMask = $permission->getDenyMask();
+			} else {
+				throw new Exception\RuntimeException('Bad new permission status.');
+			}
+			
+			foreach ($aces as $index => $ace) {
+
+				$currentAceMask = $ace->getMask();
+
+				if (
+						$currentAceMask == $permission->getDenyMask() ||
+						$currentAceMask == $permission->getAllowMask()
+				) {
+					$acl->updateObjectAce($index, $newAceMask);
+				}
+			}
+		}
+
+		$this->getAclProvider()
+				->updateAcl($acl);
+
+		return true;
+	}
+
+	/**
+	 * For $object, sets permission $permissionName to status $newStatus taking 
+	 * into account current permission status for $object of users group.
+	 * @param User $user
+	 * @param AuthorizedEntityInterface $object
+	 * @param string $permissionName
+	 * @param integer $newStatus
+	 * @return boolean
+	 */
+	public function setPermissionStatusDirectWithGroup(User $user, $object, $permissionName, $newStatus)
+	{
+		$currentStatus = $this->getPermissionStatus($user, $object, $permissionName);
+		$currentStatusInGroup = $this->getPermissionStatus($user->getGroup(), $object, $permissionName);
+
+		$result = true;
+
+		if ($currentStatus == $newStatus) {
+			$result = false;
+		}
+
+		if ($currentStatus == PermissionStatus::INHERIT) {
+
+			if ($newStatus == $currentStatusInGroup) {
+				$result = false;
+			} else {
+				$result = $this->setPermissionStatusDirect($user, $object, $permissionName, $newStatus);
+			}
+		} else if ($newStatus == PermissionStatus::INHERIT) {
+
+			$result = $this->setPermissionStatusDirect($user, $object, $permissionName, $newStatus);
+		} else {
+
+			$result = $this->setPermissionStatusDirect($user, $object, $permissionName, $newStatus);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Sets permission to $permissionStatus for $user for $object to $permissionName
 	 * @param AbstractUser $user
 	 * @param Object $object
@@ -366,12 +497,12 @@ class AuthorizationProvider
 
 		if ($newPermissionStatus == PermissionStatus::ALLOW) {
 
-			// If status is not changed, do nothing.
+// If status is not changed, do nothing.
 			if ($currentPermissionStatus == PermissionStatus::ALLOW) {
 				return;
 			}
 
-			// If current status is DENY, we have to find and remove that entry.
+// If current status is DENY, we have to find and remove that entry.
 			if ($currentPermissionStatus == PermissionStatus::DENY) {
 				/* @var $ace AclEntry */
 				foreach ($aces as $index => $ace) {
@@ -387,7 +518,7 @@ class AuthorizationProvider
 			$acl->insertObjectAce($userSecurityIdentity, $permission->getAllowMask(), $newAceIndex);
 		} else if ($newPermissionStatus == PermissionStatus::DENY) {
 
-			// If status is not changed, do nothing.
+// If status is not changed, do nothing.
 			if ($currentPermissionStatus == PermissionStatus::DENY) {
 				return;
 			}
@@ -406,11 +537,11 @@ class AuthorizationProvider
 			}
 
 			$acl->insertObjectAce($userSecurityIdentity, $permission->getDenyMask(), $newAceIndex);
-		} else if ($newPermissionStatus == PermissionStatus::NONE) {
+		} else if ($newPermissionStatus == PermissionStatus::INHERIT) {
 
-			// If current permission status is not NONE, there is Ace 
-			// entry (ALLOW or DENY) which has to be removed.
-			if ($currentPermissionStatus != PermissionStatus::NONE) {
+// If current permission status is not NONE, there is Ace 
+// entry (ALLOW or DENY) which has to be removed.
+			if ($currentPermissionStatus != PermissionStatus::INHERIT) {
 
 				foreach ($aces as $index => $ace) {
 
@@ -430,7 +561,7 @@ class AuthorizationProvider
 
 		$this->getAclProvider()->updateAcl($acl);
 
-		///$this->log->debug('AAAAAAAAAA Set ' . $permissionName . ' to ' . $permissionStatus . ' for ' . $object);
+		//$this->log->debug('AAAAAAAAAA Set ' . $permissionName . ' to ' . $permissionStatus . ' for ' . $object);
 	}
 
 	/**
@@ -446,7 +577,7 @@ class AuthorizationProvider
 
 		$acl = $this->getObjectAclForUserSecurityIdentity($userSecurityIdentity, $object);
 
-		$result = PermissionStatus::NONE;
+		$result = PermissionStatus::INHERIT;
 
 		if ( ! empty($acl)) {
 
@@ -500,7 +631,7 @@ class AuthorizationProvider
 			$acls = $this->getAclProvider()->findAcls(array($objectIdentity));
 			$acl = $acls->offsetGet($objectIdentity);
 		} catch (AclNotFoundException $e) {
-			// do nothing.
+// do nothing.
 		}
 
 		return $acl;
@@ -576,7 +707,7 @@ class AuthorizationProvider
 
 		$permissionNamesForClass = array_keys($this->getPermissionsForClass($class));
 
-		$defaultDenyAllRow = array_fill_keys($permissionNamesForClass, PermissionStatus::NONE);
+		$defaultDenyAllRow = array_fill_keys($permissionNamesForClass, PermissionStatus::INHERIT);
 
 		foreach ($acls as $oid) {
 

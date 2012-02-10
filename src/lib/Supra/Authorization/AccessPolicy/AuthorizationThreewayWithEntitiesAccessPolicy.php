@@ -57,14 +57,15 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 	{
 		parent::configure();
 
+		$ap = $this->ap;
+		
 		$subpropertyClass = $this->subpropertyClass;
-		$subpropertyClass::registerPermissions($this->ap);
+		$subpropertyClass::registerPermissions($ap);
 
 		$permissionCheckAlias = $subpropertyClass::getAlias();
+		$ap->registerApplicationNamespaceAlias($permissionCheckAlias, $this->applicationNamespace);
 
-		$this->ap->registerApplicationNamespaceAlias($permissionCheckAlias, $this->applicationNamespace);
-
-		$this->subpropertyPermissionNames = array_keys($this->ap->getPermissionsForClass($subpropertyClass));
+		$this->subpropertyPermissionNames = array_keys($ap->getPermissionsForClass($subpropertyClass));
 
 		$subpropertyValues = array();
 		foreach ($this->subpropertyPermissionNames as $name) {
@@ -161,7 +162,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 				} else {
 
 					foreach ($allEntityPermissionStatusesFromUser[$entityId] as $permissionName => $status) {
-						if ($status != PermissionStatus::NONE) {
+						if ($status != PermissionStatus::INHERIT) {
 							$entityPermissionStatuses[$permissionName] = $status;
 						}
 					}
@@ -245,7 +246,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		}
 	}
 
-	private function setEntityPermissionsForUser(User $user, $entityId, FilteredInput $setPermissionNames)
+	protected function setEntityPermissionsForUser(User $user, $entityId, FilteredInput $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -256,21 +257,19 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 		// set permissions received from client side and un-set those not received.
 		foreach ($this->subpropertyPermissionNames as $permissionName) {
 
-			$currentPermissionStatusInGroup = null;
-
 			$currentPermissionStatusInGroup = $this->ap->getPermissionStatus($user->getGroup(), $oid, $permissionName);
 
 			// If permission is marked as "set" for this authorized entity ...
 			if ($setPermissionNames->contains($permissionName)) {
 
 				// ... and group of user does not have anything for this entitiy ...
-				if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
+				if ($currentPermissionStatusInGroup == PermissionStatus::INHERIT) {
 					// ... set ALLOW for user on entity.
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::ALLOW);
 				} else if ($currentPermissionStatusInGroup == PermissionStatus::ALLOW) {
 					// ... if permission in group is ALLOW, we can unset any permission 
 					// for this user on entity.
-					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::NONE);
+					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::INHERIT);
 				} else {
 					// ... for now we do nothing if status in users group for this entity 
 					// is something else.
@@ -282,14 +281,14 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 					// ... if permission in group is ALLOW, we have to set status for user 
 					// on this entity as DENY.
 					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::DENY);
-				} else if ($currentPermissionStatusInGroup == PermissionStatus::NONE) {
-					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::NONE);
+				} else if ($currentPermissionStatusInGroup == PermissionStatus::INHERIT) {
+					$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::INHERIT);
 				}
 			}
 		}
 	}
 
-	private function setEntityPermissionsForGroup(Group $group, $entityId, FilteredInput $setPermissionNames)
+	protected function setEntityPermissionsForGroup(Group $group, $entityId, FilteredInput $setPermissionNames)
 	{
 		// Creating surrogate ObjectIdentity, as we do not need anything else and 
 		// lookup in some repo costs and even might be not trivial if actual class 
@@ -311,7 +310,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 			} else {
 
 				// ... if permission name is not marked, set it to NONE ...
-				$this->ap->setPermsissionStatus($group, $oid, $permissionName, PermissionStatus::NONE);
+				$this->ap->setPermsissionStatus($group, $oid, $permissionName, PermissionStatus::INHERIT);
 
 				// ... and set to NONE any user permissions that have DENY on this entity
 				// as only way they could have DENY is if some permission granted by group 
@@ -323,7 +322,7 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 					if ($currentStatus == PermissionStatus::DENY) {
 
-						$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::NONE);
+						$this->ap->setPermsissionStatus($user, $oid, $permissionName, PermissionStatus::INHERIT);
 					}
 				}
 			}

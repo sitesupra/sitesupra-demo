@@ -57,6 +57,7 @@
 			"label_some": "Some",
 			"label_all": "All",
 			"label_none": "None",
+			"label_allow_nothing": "None",
 			
 			"label_edit_page": "Edit",
 			"label_supervise_page": "Supervise",

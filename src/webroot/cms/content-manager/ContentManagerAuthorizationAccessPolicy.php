@@ -15,8 +15,8 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\PageLocalization;
 
-//class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
-class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
+class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
+//class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithEntitiesAccessPolicy
 {
 
 	public function __construct()
@@ -236,7 +236,7 @@ class ContentManagerAuthorizationAccessPolicy extends AuthorizationThreewayWithE
 	 */
 	public function getPermissionStatusesForAuthorizedEntity(AbstractUser $user, $entity)
 	{
-		$result = parent::getPermissionStatusesForAuthorizedEntity($user, $entity);
+ 		$result = parent::getPermissionStatusesForAuthorizedEntity($user, $entity);
 
 		$allAccessGranted = $this->isApplicationAllAccessGranted($user);
 		if ($allAccessGranted) {
