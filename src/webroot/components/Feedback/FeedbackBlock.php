@@ -190,7 +190,7 @@ class FeedbackBlock extends BlockController
 			// Inputs labels
 			$propertyName = $input['name'] . ' label';
 			
-			$label = new Editable\LabelString($propertyName, self::GROUP_LABELS);
+			$label = new Editable\String($propertyName, self::GROUP_LABELS);
 			if ( isset($input['labelValue'])) {
 				$label->setDefaultValue($input['labelValue']);
 			}
@@ -207,7 +207,7 @@ class FeedbackBlock extends BlockController
 				
 				//for($i = 1; $i <= $optionsCount; $i++) {
 				for($i = 1; $i <= $input['optionsCount']; $i++) {
-					$label = new Editable\LabelString( $input['name'] . " {$i}. option", $groupLabel);
+					$label = new Editable\String( $input['name'] . " {$i}. option", $groupLabel);
 					$label->setDefaultValue("{$i}. option");
 					$properties[ $input['name'] . " {$i}. option" ] = $label;
 				}
@@ -221,7 +221,7 @@ class FeedbackBlock extends BlockController
 					continue;
 				}
 				
-				$label = new Editable\LabelString('Reload ' . $propertyName, self::GROUP_LABELS);
+				$label = new Editable\String('Reload ' . $propertyName, self::GROUP_LABELS);
 				$label->setDefaultValue('Cits');
 				$properties[ 'Reload ' . $propertyName ] = $label;
 			}
@@ -241,7 +241,7 @@ class FeedbackBlock extends BlockController
 				foreach ($errorLabels as $errorType => $labelValue) {
 					$propertyName = "{$input['name']} {$errorType} error";
 					
-					$label = new Editable\LabelString($propertyName, self::GROUP_ERRORS);
+					$label = new Editable\String($propertyName, self::GROUP_ERRORS);
 					$label->setDefaultValue($labelValue);
 
 					$properties[ $propertyName ] = $label;
