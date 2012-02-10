@@ -63,7 +63,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display image
 	 * @type {Array}
 	 */
-	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes', 'known_extension'];
+	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes'];
 	
 	
 	
@@ -1110,7 +1110,16 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				thumbnail_size = this.get('thumbnailSize'),
 				preview_key = preview_size + '_url',
 				thumbnail_key = thumbnail_size + '_url',
-				item_data = SU.mix({}, data || {});
+				item_data = SU.mix({}, data || {}),
+				extension = null;
+			
+			//Extension
+			if (item_data.filename) {
+				extension = item_data.filename.match(/\.([a-z0-9]+)$/);
+				if (extension) {
+					item_data.extension = extension[1];
+				}
+			}
 			
 			//URLs
 			if (item_data.sizes) {
