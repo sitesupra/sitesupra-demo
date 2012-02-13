@@ -118,5 +118,83 @@ abstract class CmsThreewayWithEntitiesAccessPolicy extends AuthorizationThreeway
 		}
 	}
 
+	/**
+	 * @param AbstractUser $user
+	 * @return type 
+	 */
+	protected function getAllEntityPermissionStatuses(AbstractUser $user)
+	{
+		$result = array();
+
+		$statuses = parent::getAllEntityPermissionStatuses($user);
+
+		foreach ($statuses as $key => $permissionStatuses) {
+
+			$result[$key] = $this->getRealEffectivePermissions($permissionStatuses);
+		}
+
+		return $result;
+	}
+
+	protected function getRealEffectivePermissions($permissions)
+	{
+		$result = array();
+
+		if ($this->isAllowNothingActive($permissions)) {
+
+			$result[self::PERMISSION_NAME_ALLOW_NOTHING] = PermissionStatus::ALLOW;
+
+			return $result;
+		} else {
+
+			foreach (array_keys($this->permissionHierarchy) as $permissionName) {
+
+				if ($this->isHierarchicalPermissionActive($permissionName, $permissions)) {
+
+					$result[$permissionName] = PermissionStatus::ALLOW;
+					
+					return $result;
+				}
+			}
+
+			return $permissions;
+		}
+	}
+
+	protected function isHierarchicalPermissionActive($hierarchicalPermissionName, $permissions)
+	{
+		$hierachyPermissions = $this->permissionHierarchy[$hierarchicalPermissionName];
+
+		foreach ($hierachyPermissions as $requiredPermissionName) {
+
+			if ($permissions[$requiredPermissionName] != PermissionStatus::ALLOW) {
+				return false;
+			}
+		}
+
+		foreach ($this->subpropertyPermissionNames as $permissionName) {
+
+			if ( ! in_array($permissionName, $hierachyPermissions)) {
+				if ($permissions[$permissionName] == PermissionStatus::ALLOW) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+
+	protected function isAllowNothingActive($permissions)
+	{
+		foreach ($this->subpropertyPermissionNames as $permissionName) {
+
+			if ($permissions[$permissionName] != PermissionStatus::DENY) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }
 

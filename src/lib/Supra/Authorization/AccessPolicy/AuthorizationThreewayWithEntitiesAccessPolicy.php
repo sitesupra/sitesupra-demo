@@ -151,16 +151,21 @@ abstract class AuthorizationThreewayWithEntitiesAccessPolicy extends Authorizati
 
 			$entityPermissionStatuses = array();
 
+			// Use effective statuses from group as a starting point.
 			if ( ! empty($allEntityPermissionStatusesFromGroup[$entityId])) {
 				$entityPermissionStatuses = $allEntityPermissionStatusesFromGroup[$entityId];
 			}
 
 			if ( ! empty($allEntityPermissionStatusesFromUser[$entityId])) {
 
+				// If not inheriting anything from group...
 				if (empty($entityPermissionStatuses)) {
+					// ... just take effective permissions from user as they are.
 					$entityPermissionStatuses = $allEntityPermissionStatusesFromUser[$entityId];
 				} else {
-
+					
+					// ... otherwise combine effective group and user permissions 
+					// by making existing user permissions override ones from group.
 					foreach ($allEntityPermissionStatusesFromUser[$entityId] as $permissionName => $status) {
 						if ($status != PermissionStatus::INHERIT) {
 							$entityPermissionStatuses[$permissionName] = $status;
