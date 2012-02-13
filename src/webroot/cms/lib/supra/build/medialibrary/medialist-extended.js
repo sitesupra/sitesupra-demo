@@ -45,8 +45,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<div class="input-group"><button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button></div>\
-				\
+				<button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button>\
+				<br />\
 				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
 				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
 				<div class="info hidden">\
@@ -123,8 +123,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<div class="input-group"><button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button></div>\
-				\
+				<button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button>\
+				<br />\
 				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
 				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
 				<div class="info hidden">\
@@ -266,11 +266,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		property_widgets: {},
 		
 		/**
-		 * Slider widget instance
+		 * Horizontal scrollable area
 		 * @type {Object}
 		 * @private
 		 */
-		slider: null,
+		scrollable: null,
 		
 		
 		/**
@@ -377,17 +377,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				Supra.Manager.PageContent.initDD();
 			}
 			
-			//Create slider
-			/*
-			var slider = this.slider = new Y.Slider({
-				'length': container.get('offsetWidth') - 16,	//16px margin
-				'value': 1000,	//At the end
-				'max': 1000,	//for better precision
-				'thumbUrl': Y.config.base + '/slider-base/assets/skins/supra/thumb-x.png'
-			});
-			slider.render(container);
-			*/
-			
 			//Add plugin for editing files and folders
 			this.plug(List.Edit, {
 				'dataObject': this.get('dataObject')
@@ -422,43 +411,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			//On sort change redraw lists
 			this.after('sortByChange', this.handleSortingChange, this);
 			
-			//On slide update slideshow
-			/*
-			this.slider.after('valueChange', this.syncScrollPosition, this);
-			*/
-			
-			//After resize update slider width
-			Y.on('resize', Y.throttle(Y.bind(this.updateScroll, this), 50), window);
-			
-			this.slideshow.on('slideChange', this.updateScroll, this);
-			
 			Extended.superclass.bindUI.apply(this, arguments);
-		},
-		
-		updateScroll: function () {
-			/*
-			var w = this.get('boundingBox').get('offsetWidth');
-			this.slider.set('length', w - 16);		//16px margin
-			this.syncScrollPosition(w);
-			*/
-		},
-		
-		/**
-		 * Sync scroll position
-		 */
-		syncScrollPosition: function (width) {
-			/*
-			var pos = this.slider.get('value'),
-				content_width = this.slideshow.history.length * this.slideshow._getWidth(),
-				container_width = typeof width == 'number' ? width : this.get('boundingBox').get('offsetWidth'),
-				offset = 0;
-			
-			if (container_width < content_width) {
-				offset = Math.round((content_width - container_width) * pos / 1000);
-			}
-			
-			this.slideshow.get('contentBox').setStyle('left', - offset + 'px');
-			*/
 		},
 		
 		/**
@@ -820,7 +773,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	delete(this.fn); this.fn = function () {};
 	
 }, YUI.version, {'requires': [
-	'slider',
 	'supra.input',
 	'supra.medialibrary-list',
 	'supra.slideshow-multiview',

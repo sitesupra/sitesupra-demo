@@ -125,10 +125,10 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 							//Remove data
 							this.get('dataObject').removeData(obj.id, true);
 							obj.node.remove();
-							
-							//Redraw parent
-							this.get('host').renderItem(obj.data.parent);
 						}
+						
+						//Redraw parent
+						this.get('host').renderItem(obj.data.parent);
 					} else {
 						if (!status) {
 							//Revert title changes

@@ -208,7 +208,6 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.medialibrary-list-extended': {
 		path: 'medialibrary/medialist-extended.js',
 		requires: [
-			'slider',
 			'supra.input',
 			'supra.medialibrary',
 			'supra.slideshow-multiview',
@@ -431,7 +430,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
-	 * Scrollbar widget
+	 * Scrollable widget
 	 */
 	'supra.scrollable': {
 		path: 'scrollable/scrollable.js',

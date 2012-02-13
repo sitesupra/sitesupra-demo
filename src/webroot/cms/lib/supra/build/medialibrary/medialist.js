@@ -63,7 +63,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display image
 	 * @type {Array}
 	 */
-	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes'];
+	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes', 'created'];
 	
 	
 	
@@ -512,6 +512,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var slide = this.slideshow.getSlide('slide_' + parent_id);
 				if (!slide) {
 					return file_id;
+				} else {
+					//Hide "Empty" message
+					slide.one('div.empty').addClass('hidden');
 				}
 				
 				var data = Supra.mix({

@@ -197,6 +197,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
 				
+				//Remove empty UL and OL tags
+				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
+				
 				//Remove style attribute
 				html = html.replace(/\s+style="[^"]*"/gi, '');
 				

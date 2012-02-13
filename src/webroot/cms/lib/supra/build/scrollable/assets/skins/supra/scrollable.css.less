@@ -8,7 +8,7 @@
 	height: 100%;
 	width: 100%;
 	
-	.su-scrollable-content {
+	& > .su-scrollable-content {
 		.box-sizing (border-box);
 		
 		overflow: hidden;
@@ -16,7 +16,7 @@
 		width: 100%;
 		height: 100%;
 	}
-	.su-scrollable-scrollbar {
+	& > .su-scrollable-scrollbar {
 		.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.2));
 		.border-radius (6px);
 		.transition (opacity 0.35s);
@@ -29,31 +29,59 @@
 		bottom: 16px;
 		width: 6px;
 		opacity: 1;
-	}
-	.su-scrollable-dragable {
-		.border-radius (6px);
-		.transition (height 0.15s, top 0.15s);
 		
-		background: #646479;
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: 6px;
-		min-height: 50px;
-		cursor: pointer;
-		
-		&.su-scrollable-dragable-drag {
-			.transition (none);
+		.su-scrollable-dragable {
+			.border-radius (6px);
+			.transition (height 0.15s, top 0.15s);
+			
+			background: #646479;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 6px;
+			min-height: 50px;
+			cursor: pointer;
+			
+			&.su-scrollable-dragable-drag {
+				.transition (none);
+			}
 		}
 	}
-	.su-scrollable-invisible {
+	
+	& > .su-scrollable-invisible {
 		opacity: 0;
 	}
 }
 
 .ui-dark .su-scrollable {
-	.su-scrollable-scrollbar {
+	& > .su-scrollable-scrollbar {
 		background: #2B2838;
 		top: 0;
+	}
+}
+
+.su-scrollable-x,
+.ui-light .su-scrollable-x {
+	
+	& > .su-scrollable-content {
+		padding-right: 0 !important;
+		padding-bottom: 24px !important;
+		position: relative;
+		overflow: visible;
+	}
+	& > .su-scrollable-scrollbar {
+		top: auto;
+		bottom: 9px;
+		left: 11px;
+		right: 11px;
+		width: auto;
+		height: 6px;
+		
+		.su-scrollable-dragable {
+			min-height: 0;
+			min-width: 50px;
+			width: auto;
+			height: 6px;
+		}
 	}
 }

@@ -32,6 +32,9 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 	Slideshow.ATTRS = {
 		'defaultSlideWidth': {
 			'value': DEFAULT_SLIDE_WIDTH
+		},
+		'scrollable': {
+			'value': true
 		}
 	};
 	
@@ -93,6 +96,12 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		 * @type {Array}
 		 */
 		render_queue: [],
+		
+		/**
+		 * Supra.Scrollable instance
+		 * @type {Object}
+		 */
+		scrollable: null,
 		
 		
 		
@@ -161,6 +170,15 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				}
 			}, this);
 			
+			//Render Supra.Scrollable widget on slideshow itself
+			if (this.get('scrollable')) {
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.get('contentBox'),
+					'axis': 'x'
+				});
+				this.scrollable.render();
+			}
+			
 			//Render Supra.Scrollable widgets
 			var render_queue = this.render_queue;
 			for(var i=0,ii=render_queue.length; i<ii; i++) {
@@ -170,23 +188,22 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		},
 		
 		syncUI: function () {
-			/*
+			
 			var slideId = this.get('slide'),
-				index = Y.Array.indexOf(this.history, slideId);
+				index = Y.Array.indexOf(this.history, slideId),
+				position = 0;
 			
 			this.slide_width = null;
 			this.slide_width = this._getWidth();
 			
-			this.get('contentBox').setStyle('left', - index * this.slide_width);
+			position = (index != -1 ? - index * this.slide_width : 0);
+			
+			this.get('contentBox').setStyle('left', position);
 			
 			//Update scrollbar position
-			if (this.slides[slideId]) {
-				var content = this.slides[slideId].one('.su-slide-content, .su-multiview-slide-content');
-				if (content) {
-					content.fire('contentResize');
-				}
+			if (this.scrollable) {
+				this.scrollable.syncUI();
 			}
-			*/
 		},
 		
 		/**
@@ -203,6 +220,10 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				} else {
 					//Hide slide
 					this.slides[slideId].addClass('hidden');
+				}
+				
+				if (this.scrollable) {
+					this.scrollable.syncUI();
 				}
 			}
 		},
@@ -289,13 +310,13 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				
 				this.slide_anim.once('end', function () {
 					this.slides[slideId].one('.su-scrollable-content').fire('contentResize');
+					
+					//Scrollbars
+					if (this.scrollable) {
+						this.scrollable.syncUI();
+					}
 				}, this);
 				
-				/*
-				this.anim.set('from', {'left': from});
-				this.anim.set('to', {'left': from});
-				this.anim.run();
-				*/
 			} else {
 				//Show new slide
 				this.slides[slideId].setStyle('left', index * slideWidth + 'px')
@@ -310,6 +331,11 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {
 					callback(slideId);
+				}
+				
+				//Scrollbars
+				if (this.scrollable) {
+					this.scrollable.syncUI();
 				}
 			}
 			
