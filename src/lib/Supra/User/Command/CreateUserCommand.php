@@ -7,8 +7,13 @@ use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\UserProvider;
 use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
-
-require_once SUPRA_CONF_PATH . 'user.php';
+use Supra\Cms\CmsApplicationConfiguration;
+use Supra\FileStorage\Entity\SlashFolder;
+use Supra\Authorization\Permission\PermissionStatus;
+use Supra\FileStorage\Entity\Abstraction\File;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Entity\Abstraction\Entity;
+use Supra\Controller\Pages\Entity\Template;
 
 /**
  * CreateUserCommand
@@ -17,6 +22,10 @@ require_once SUPRA_CONF_PATH . 'user.php';
  */
 class CreateUserCommand extends Command
 {
+
+	private $userProvider;
+	private $entityManager;
+	private $authorizationProvider;
 
 	/**
 	 * Adds an option.
@@ -35,16 +44,22 @@ class CreateUserCommand extends Command
 				->setDescription('Creates new user')
 				->setHelp('Creates new user')
 				->addOption('email', null, Console\Input\InputOption::VALUE_REQUIRED, 'User email. Confirmation link will be sent to that email')
-				->addOption('group', null, Console\Input\InputOption::VALUE_OPTIONAL, 'User group. Can be one of admins, contribs or supers.', 'admins')
-				->addOption('name', null, Console\Input\InputOption::VALUE_OPTIONAL, 'User first name and last name');
+				->addOption('group', null, Console\Input\InputOption::VALUE_REQUIRED, 'User group. Can be one of admins, contribs or supers.', 'admins')
+				->addOption('name', null, Console\Input\InputOption::VALUE_REQUIRED, 'User first name and last name');
+	}
+
+	public function __construct($name = null)
+	{
+		parent::__construct($name);
+
+		$this->userProvider = ObjectRepository::getUserProvider($this);
+		$this->entityManager = ObjectRepository::getEntityManager($this);
+		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider('Supra\Cms');
 	}
 
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		//The command will create new admin account with the email specified in the arguments. Name might be passed as well. Use email first part if omitted.
-		//Password creation link must be sent by mail.
 		//User groups must be created beforehand if missing.
-		//The command must be inside src/lb not tests.
 
 		$email = $input->getOption('email');
 		if (is_null($email)) {
@@ -56,23 +71,28 @@ class CreateUserCommand extends Command
 			$name = strstr($email, '@', true);
 		}
 
-		//TODO: implement normal group loader and IDs
-		$dummyGroupMap = array('admins', 'contribs', 'supers');
+		// if not found any group
+		$repo = $this->entityManager->getRepository('Supra\User\Entity\Group');
+//		$databaseGroup = $repo->findOneBy(array());
+		$databaseGroup = $repo->findOneByName('admins');
 
 		$groupName = trim(strtolower($input->getOption('group')));
 
-		if ( ! in_array($groupName, $dummyGroupMap)) {
-			$groupName = 'admins';
-		}
 
-		$userProvider = ObjectRepository::getUserProvider($this);
-		if ( ! $userProvider instanceof UserProvider) {
+		if ( ! $this->userProvider instanceof UserProvider) {
 			throw new RuntimeException('Internal error: Could not reach user provider');
 		}
+		
+		$group = $this->userProvider->findGroupByName($groupName);
 
-		$group = $userProvider->findGroupByName($groupName);
+		if (is_null($group) && $databaseGroup instanceof \Supra\User\Entity\Group) {
+			throw new RuntimeException('There is no group "' . $groupName . '" in database');
+		} else {
+			$groups = $this->createGroups();
+			$group = $groups['admins'];
+		}
 
-		$user = $userProvider->createUser();
+		$user = $this->userProvider->createUser();
 
 		// TODO: add avatar
 		$user->setName($name);
@@ -80,17 +100,100 @@ class CreateUserCommand extends Command
 
 		$user->setGroup($group);
 
-		$userProvider->validate($user);
+		$this->userProvider->validate($user);
 
-		$authAdapter = $userProvider->getAuthAdapter();
+		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
-		
+
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
-		
+
 		$userAction = new InternalUserManagerAbstractAction();
 		ObjectRepository::setCallerParent($userAction, $this, true);
-		
+
 		$userAction->sendPasswordChangeLink($user, 'createpassword');
+	}
+
+	private function createGroups()
+	{
+		$groups = array(
+			'admins' => null,
+			'supers' => null,
+			'contribs' => null,
+		);
+
+		foreach ($groups as $groupName => $groupObject) {
+			$group = $this->makeGroup($groupName);
+			$groups[$groupName] = $group;
+		}
+
+		$adminsGroup = $groups['admins'];
+		$adminsGroup->setIsSuper(true);
+		$this->userProvider->updateGroup($group);
+
+
+		$permissions = array(
+			'supers' => array(
+				'object' => $groups['supers'],
+				'deny' => array(
+					\Supra\Cms\InternalUserManager\InternalUserManagerController::CN()
+				),
+			),
+			'contribs' => array(
+				'object' => $groups['contribs'],
+				'deny' => array(
+					\Supra\Cms\InternalUserManager\InternalUserManagerController::CN(),
+					\Supra\Cms\BannerManager\BannerManagerController::CN(),
+				),
+			),
+		);
+
+		foreach (CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
+			foreach ($permissions as $groupId => $data) {
+				if ( ! in_array($appConfig->id, $data['deny'])) {
+					$appConfig->authorizationAccessPolicy->grantApplicationSomeAccessPermission($data['object']);
+				}
+			}
+		}
+		// Allow upload everywhere (Media Library application).
+		$this->authorizationProvider->setPermsissionStatus(
+				$groups['contribs'], new SlashFolder(), File::PERMISSION_UPLOAD_NAME, PermissionStatus::ALLOW
+		);
+		
+		// Locate content root node and allow editing for everytghing below it.
+		$localEntityManager = ObjectRepository::getEntityManager('');
+		$pr = $localEntityManager->getRepository(AbstractPage::CN());
+		$rootNodes = $pr->getRootNodes();
+		
+		foreach ($rootNodes as $rootNode) {
+
+			// Skip templates.
+			if ($rootNode instanceof Template) {
+				continue;
+			}
+			
+			$this->authorizationProvider->setPermsissionStatus(
+					$groups['contribs'], $rootNode, Entity::PERMISSION_NAME_EDIT_PAGE, PermissionStatus::ALLOW
+			);
+
+			break;
+		}
+
+		return $groups;
+	}
+
+	private function makeGroup($groupName)
+	{
+		$group = $this->userProvider->findGroupByName($groupName);
+
+		if (empty($group)) {
+
+			$group = $this->userProvider->createGroup();
+			$group->setName($groupName);
+
+			$this->userProvider->updateGroup($group);
+		}
+
+		return $group;
 	}
 
 }

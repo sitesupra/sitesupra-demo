@@ -8,5 +8,5 @@ $authorizationProvider = new AuthorizationProvider();
 
 Group::registerPermissions($authorizationProvider);
 
-ObjectRepository::setCallerParent($authorizationProvider, '#cms');
+//ObjectRepository::setCallerParent($authorizationProvider, '#cms');
 ObjectRepository::setAuthorizationProvider('Supra\Cms', $authorizationProvider);

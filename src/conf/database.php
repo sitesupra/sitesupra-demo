@@ -92,16 +92,16 @@ foreach ($managerNames as $managerName => $namespace) {
 
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
 
+	$eventManager->addEventSubscriber(new NestedSetListener());
+	
 	switch ($managerName) {
 		case 'PublicSchema':
 			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
 			$eventManager->addEventSubscriber(new Listener\PageGroupCacheDropListener());
-			$eventManager->addEventSubscriber(new NestedSetListener());
 			break;
 
 		case 'Draft':
 			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
-			$eventManager->addEventSubscriber(new NestedSetListener());
 			$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
 			$eventManager->addEventSubscriber(new Listener\TableDraftSuffixAppender());
 			
@@ -113,7 +113,6 @@ foreach ($managerNames as $managerName => $namespace) {
 			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
 		case 'Audit':
-			$eventManager->addEventSubscriber(new NestedSetListener());
 			$eventManager->addEventSubscriber(new Listener\AuditManagerListener());
 			$eventManager->addEventSubscriber(new Listener\AuditCreateSchemaListener());
 			break;
