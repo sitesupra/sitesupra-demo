@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Uri\NullPath;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\BannerMachine\Exception\BannerMachineException;
+use Supra\BannerMachine\Exception\BannerNotFoundException;
 
 class BannerMachineRedirector extends ControllerAbstraction
 {
@@ -20,7 +21,7 @@ class BannerMachineRedirector extends ControllerAbstraction
 	public function execute()
 	{
 		$log = ObjectRepository::getLogger($this);
-		
+
 		try {
 
 			$request = $this->getRequest();
@@ -61,8 +62,17 @@ class BannerMachineRedirector extends ControllerAbstraction
 					}
 				}
 			}
-		} catch (BannerMachineException $e) {
+		} catch (BannerNotFoundException $e) {
+
 			$log->info($e);
+
+			// FIXME
+			$this->getResponse()
+					->redirect('/404');
+		} catch (BannerMachineException $e) {
+
+			$log->info($e);
+			throw $e;
 		}
 	}
 
