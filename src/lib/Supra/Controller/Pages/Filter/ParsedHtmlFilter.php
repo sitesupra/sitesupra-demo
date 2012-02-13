@@ -42,8 +42,6 @@ class ParsedHtmlFilter implements FilterInterface
 	 */
 	private function parseSupraLinkStart(Entity\ReferencedElement\LinkReferencedElement $link)
 	{
-		ObjectRepository::setCallerParent($link, $this);
-
 		$attributes = array(
 				'target' => $link->getTarget(),
 				'title' => $link->getTitle(),
@@ -194,6 +192,8 @@ class ParsedHtmlFilter implements FilterInterface
 				else {
 
 					$link = $metadataItem->getReferencedElement();
+					// Overwriting in case of duplicate markup tag usage
+					ObjectRepository::setCallerParent($link, $this, true);
 					$result[] = $this->parseSupraLinkStart($link);
 				}
 			}
