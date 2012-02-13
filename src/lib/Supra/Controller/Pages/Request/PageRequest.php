@@ -11,6 +11,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\BlockProperty;
+use Doctrine\ORM\Query;
 
 /**
  * Page controller request
@@ -96,6 +97,15 @@ abstract class PageRequest extends HttpRequest
 		$this->locale = $locale;
 		$this->media = $media;
 		$this->log = ObjectRepository::getLogger($this);
+	}
+
+	/**
+	 * Appends query result cache information in case of VIEW mode
+	 * @param Query $query
+	 */
+	protected function prepareQueryResultCache(Query $query)
+	{
+		// Does nothing by default
 	}
 
 	/**
@@ -291,6 +301,7 @@ abstract class PageRequest extends HttpRequest
 				->addOrderBy('p.level', 'ASC');
 
 		$query = $qb->getQuery();
+		$this->prepareQueryResultCache($query);
 		$placeHolderArray = $query->getResult();
 
 		foreach ($placeHolderArray as $placeHolder) {
@@ -394,7 +405,7 @@ abstract class PageRequest extends HttpRequest
 
 		// Execute block query
 		$query = $qb->getQuery();
-		$query->execute();
+		$this->prepareQueryResultCache($query);
 		$blocks = $query->getResult();
 
 		\Log::debug("Block count found: " . count($blocks));
@@ -515,8 +526,9 @@ abstract class PageRequest extends HttpRequest
 				->where($or);
 		$query = $qb->getQuery();
 
-		\Log::debug("Running query {$qb->getDQL()} to find block properties");
+		\Log::debug("Running query to find block properties");
 
+		$this->prepareQueryResultCache($query);
 		$result = $query->getResult();
 
 		$this->blockPropertySet->exchangeArray($result);
@@ -549,6 +561,7 @@ abstract class PageRequest extends HttpRequest
 					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
 
 			$query = $qb->getQuery();
+			$this->prepareQueryResultCache($query);
 			$metadataArray = $query->getResult();
 			
 			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
@@ -577,9 +590,10 @@ abstract class PageRequest extends HttpRequest
 						->join('l.path', 'p')
 						->select('l, m, p')
 						->where($qb->expr()->in('l.master', $elementPageIds));
-				
-				$localizations = $qb->getQuery()
-						->getResult();
+
+				$query = $qb->getQuery();
+				$this->prepareQueryResultCache($query);
+				$localizations = $query->getResult();
 				
 				foreach($localizations as $pageLocalization) {
 					$entityData = $em->getUnitOfWork()

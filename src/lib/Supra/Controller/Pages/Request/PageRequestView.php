@@ -7,6 +7,9 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\NoResultException;
+use Supra\Cache\CacheGroupManager;
+use Supra\Controller\Pages\PageController;
+use Doctrine\ORM\Query;
 
 /**
  * Page controller request object on view method
@@ -26,6 +29,22 @@ class PageRequestView extends PageRequest
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeId = $localeManager->getCurrent()->getId();
 		$this->setLocale($localeId);
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param Query $query
+	 */
+	protected function prepareQueryResultCache(Query $query)
+	{
+		// In ORM 2.1 the objects are not loaded correctly, seems that postPersist is not called.
+		// TODO: enable and check in Doctrine ORM 2.2.
+		return;
+		
+ 		$cacheGroupManager = new CacheGroupManager();
+		$resultId = $cacheGroupManager->getQueryResultCacheId($query, PageController::CACHE_GROUP_NAME);
+		$query->useResultCache(true)
+				->setResultCacheId($resultId);
 	}
 	
 	/**
@@ -65,12 +84,15 @@ class PageRequestView extends PageRequest
 			WHERE p.path = :path
 			AND p.locale = :locale";
 		
-		try {
-			//TODO: think about "enable path params" feature
-			$pageData = $em->createQuery($dql)
-					->setParameters($searchCriteria)
-					->getSingleResult();
-		} catch (NoResultException $noResult) {
+		//TODO: think about "enable path params" feature
+		$query = $em->createQuery($dql)
+				->setParameters($searchCriteria);
+
+		$this->prepareQueryResultCache($query);
+		
+		$pageData = $query->getOneOrNullResult();
+		
+		if (is_null($pageData)) {
 			throw new ResourceNotFoundException("No page found by path '$path' in pages controller");
 		}
 		
