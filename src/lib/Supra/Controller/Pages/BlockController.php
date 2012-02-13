@@ -46,6 +46,12 @@ abstract class BlockController extends ControllerAbstraction
 	protected $configuration;
 
 	/**
+	 * Stores ID values of configured block properties
+	 * @var array
+	 */
+	protected $configuredBlockProperties;
+
+	/**
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
@@ -152,16 +158,9 @@ abstract class BlockController extends ControllerAbstraction
 		$property = null;
 		$expectedType = get_class($editable);
 
-		$typeChanged = false;
 		foreach ($this->properties as $propertyCheck) {
 			/* @var $propertyCheck BlockProperty */
 			/* @var $property BlockProperty */
-//			if ($propertyCheck->getName() === $name
-//					&& $propertyCheck->getType() === $expectedType) {
-//
-//				$property = $propertyCheck;
-//				break;
-//			}
 			if ($propertyCheck->getName() === $name) {
 				
 				$property = $propertyCheck;
@@ -197,10 +196,6 @@ abstract class BlockController extends ControllerAbstraction
 		
 		$editable = $property->getEditable();
 
-		// This is done in previous line already
-//		//TODO: this is ugly content copying
-//		$content = $property->getValue();
-//		$editable->setContent($content);
 		//TODO: do this some way better..
 		$this->configureContentFilters($property, $editable);
 
@@ -214,6 +209,12 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	protected function configureContentFilters(Entity\BlockProperty $property, EditableInterface $editable)
 	{
+		$propertyId = $property->getId();
+
+		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
+			return;
+		}
+
 		// Html content additional filters
 		if ($editable instanceof \Supra\Editable\Html) {
 			// Editable action
@@ -246,6 +247,8 @@ abstract class BlockController extends ControllerAbstraction
 				$editable->addFilter($filter);
 			}
 		}
+
+		$this->configuredBlockProperties[$propertyId] = true;
 	}
 
 	/**
