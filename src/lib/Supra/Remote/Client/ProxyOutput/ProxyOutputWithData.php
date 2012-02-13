@@ -28,4 +28,11 @@ class ProxyOutputWithData extends ProxyOutput implements CommandOutputWithData
 		$this->data = $data;
 	}
 
+	public function unproxy(Output $output)
+	{
+		parent::unproxy($output);
+		
+		$output->setData($this->getData());
+	}
+
 }

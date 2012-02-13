@@ -34,7 +34,7 @@ class ProxyOutput extends Output
 	/**
 	 * This is to be called from RemoteCommandService ONLY!
 	 */
-	public function flushBufferToOutput(Output $output)
+	public function unproxy(Output $output)
 	{
 		foreach ($this->buffer as $bufferItem) {
 

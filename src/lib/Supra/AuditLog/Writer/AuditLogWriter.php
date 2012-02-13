@@ -68,15 +68,14 @@ class AuditLogWriter extends AuditLogWriterAbstraction
 	 * Write to audit log
 	 * @param string $level
 	 * @param mixed $component
-	 * @param string $action
 	 * @param string $message
 	 * @param mixed $user
 	 * @param array $data 
 	 */
-	public function write($level, $component, $action, $message, $user = null, $data = array()) 
+	public function write($level, $component, $message, $user = null, $data = array()) 
 	{
 		$loggerName = null;
-		$event = new AuditLogEvent($level, $component, $action, $message, $loggerName, $user, $data);
+		$event = new AuditLogEvent($level, $component, $message, $loggerName, $user, $data);
 		$this->logWriter->write($event);
 	}
 	

@@ -7,6 +7,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Supra\Console\Output\CommandOutputWithData;
 use Symfony\Component\Console\Output\StreamOutput;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Log\Log;
+use Supra\AuditLog\Writer\AuditLogWriter;
+use Supra\User\Entity\User;
+use Supra\User\SystemUser;
 
 class RemoteCommandService
 {
@@ -19,6 +23,84 @@ class RemoteCommandService
 	const RESPONSE_KEY_ERROR = 'error';
 
 	const INI_SECTION_NAME = 'remote_api_endpoints';
+
+	/**
+	 * @var Log
+	 */
+	protected $log;
+
+	/**
+	 * @var AuditLogWriter
+	 */
+	protected $auditLog;
+
+	/**
+	 * @var User
+	 */
+	protected $user;
+
+	/**
+	 * @return Log
+	 */
+	public function getLog()
+	{
+		if (empty($this->log)) {
+			$this->log = ObjectRepository::getLogger($this);
+		}
+
+		return $this->log;
+	}
+
+	/**
+	 * @param Log $log 
+	 */
+	public function setLog(Log $log)
+	{
+		$this->log = $log;
+	}
+
+	/**
+	 * @return AuditLogWriter
+	 */
+	public function getAuditLog()
+	{
+		if (empty($this->auditLog)) {
+			$this->auditLog = ObjectRepository::getAuditLogger($this);
+		}
+
+		return $this->auditLog;
+	}
+
+	/**
+	 * @param AuditLogWriter $auditLog 
+	 */
+	public function setAuditLog(AuditLogWriter $auditLog)
+	{
+		$this->auditLog = $auditLog;
+	}
+
+	/**
+	 * @return User
+	 */
+	public function getUser()
+	{
+		if (empty($this->user)) {
+
+			$up = new \Supra\User\UserProvider();
+
+			$this->user = $up->findUserByLogin(SystemUser::LOGIN);
+		}
+
+		return $this->user;
+	}
+
+	/**
+	 * @param User $user 
+	 */
+	public function setUser(User $user)
+	{
+		$this->user = $user;
+	}
 
 	/**
 	 * @param string $remoteName 
@@ -39,6 +121,8 @@ class RemoteCommandService
 
 	protected function getRemoteCommandPostData(InputInterface $input, OutputInterface $output)
 	{
+		$proxyOutput = null;
+		
 		if ($output instanceof CommandOutputWithData) {
 			$proxyOutput = new ProxyOutput\ProxyOutputWithData($output);
 		} else {
@@ -60,41 +144,42 @@ class RemoteCommandService
 	 */
 	public function execute($remoteName, InputInterface $input, OutputInterface $output)
 	{
-		$apiEndpointUrl = $this->getApiEndpointUrl($remoteName);
+		$endpointUrl = $this->getApiEndpointUrl($remoteName);
 
 		$postData = $this->getRemoteCommandPostData($input, $output);
 
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $apiEndpointUrl);
+		curl_setopt($ch, CURLOPT_URL, $endpointUrl);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 2);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
 		//curl_setopt($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=netbeans-xdebug');
 
 		$rawResponse = curl_exec($ch);
+		
+		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		if (empty($rawResponse)) {
+			throw $this->makeExecuteRuntimeException('Remote command timed out or failed catastrophically. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
+		}
 
 		$remoteCommandResponse = unserialize($rawResponse);
 
 		if (empty($remoteCommandResponse)) {
-			throw new Exception\RuntimeException('Failed to un serialize remote command response.');
+			throw $this->makeExecuteRuntimeException('Failed to un serialize remote command response. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
 
 		if ( ! $remoteCommandResponse instanceof RemoteCommandResponse) {
-			throw new Exception\RuntimeException('Remote command response must be instance of RemoteCommandResponse class.');
+			throw $this->makeExecuteRuntimeException('Remote command response must be instance of RemoteCommandResponse class.', $input, $output);
 		}
 
 		$proxyOutput = $remoteCommandResponse->getProxyOutput();
-		
-		$proxyOutput->flushBufferToOutput($output);
-		
-		if($output instanceof CommandOutputWithData) {
-			/* @var $proxyOutput ProxyOutput\ProxyOutputWithData */
-			$output->setData($proxyOutput->getData());
-		}
+
+		$proxyOutput->unproxy($output);
 
 		if ($remoteCommandResponse->getSuccess()) {
 			return $remoteCommandResponse->getResultCode();
@@ -107,11 +192,52 @@ class RemoteCommandService
 			if ($responseError instanceof \Exception) {
 				throw $responseError;
 			} else {
-				throw new Exception\RuntimeException('Remote command failed, error: ', $responseError);
+				throw $this->makeExecuteRuntimeException('Remote command failed, error: '. $responseError . ' URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 			}
 		} else {
-			throw new Exception\RuntimeException('Remote command failed.');
+			throw $this->makeExecuteRuntimeException('Remote command failed. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
+	}
+
+	/**
+	 * @param string $level
+	 * @param string $message
+	 * @param array $auditData 
+	 */
+	protected function writeToAuditLog($level, $message, $auditData)
+	{
+		$auditLog = $this->getAuditLog();
+
+		$user = $this->getUser();
+
+		$auditLog->write($level, 'Supra\Remote', $message, $user, $auditData);
+	}
+
+	/**
+	 * @param string $message
+	 * @param array $auditData 
+	 */
+	protected function writeErrorToAuditLog($message, $auditData)
+	{
+		$this->writeToAuditLog('error', $message, $auditData);
+	}
+
+	/**
+	 * @param string $message
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 * @return Exception\RuntimeException 
+	 */
+	protected function makeExecuteRuntimeException($message, InputInterface $input, OutputInterface $output)
+	{
+		$auditData = array(
+			'input' => $input,
+			'output' => $output
+		);
+
+		$this->writeToAuditLog('error', $message, $auditData);
+
+		return new Exception\RuntimeException($message);
 	}
 
 }

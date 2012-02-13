@@ -21,10 +21,8 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 		$this->connectionOptions = $connectionOptions;
 	}
 
-	public function write($level, $component, $action = '', $message = '', $user = null, $data = array())
+	public function write($level, $component, $message = '', $user = null, $data = array())
 	{
-
-		$action = (string) $action;
 		$message = (string) $message;
 
 		if (empty($this->dbConnection)) {
@@ -61,12 +59,11 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 			$data = null;
 		}
 
-		$query = 'INSERT INTO su_AuditLog (level, component, action, message, user, data) 
-			VALUES (:level, :component, :action, :message, :user, :data)';
+		$query = 'INSERT INTO su_AuditLog (level, component, message, user, data) 
+			VALUES (:level, :component, :message, :user, :data)';
 
 		$params = array('level' => $level,
 			'component' => $component,
-			'action' => $action,
 			'message' => $message,
 			'user' => $user,
 			'data' => $data);
@@ -77,7 +74,7 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 
 			ObjectRepository::getLogger($this)->error("Can't write audit log record in to DB; {$e->getMessage()}");
 			$auditWriter = new FileAuditLogWriter();
-			$auditWriter->write($level, $component, $action, $message, $user, $data);
+			$auditWriter->write($level, $component, $message, $user, $data);
 		}
 	}
 

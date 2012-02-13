@@ -145,6 +145,7 @@ class RemoteCommandController extends ControllerAbstraction
 			$remoteCommandResponse->setProxyOutput($output);
 			$remoteCommandResponse->setSuccess(true);
 		} catch (\Exception $e) {
+			
 			$remoteCommandResponse->setError($e);
 			$remoteCommandResponse->setSuccess(false);
 		}
@@ -159,7 +160,7 @@ class RemoteCommandController extends ControllerAbstraction
 		);
 
 		$this->getAuditLogger()
-				->info('Supra\Remote\Server', 'Command', $auditMessage, $auditUser, $auditData);
+				->info('Supra\Remote\Server', $auditMessage, $auditUser, $auditData);
 	}
 
 }

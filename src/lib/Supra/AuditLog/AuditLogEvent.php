@@ -21,12 +21,6 @@ class AuditLogEvent extends LogEvent
 	public $component;
 	
 	/**
-	 * Action name
-	 * @var string
-	 */
-	public $action;
-
-	/**
 	 * User name
 	 * @var string
 	 */
@@ -43,13 +37,12 @@ class AuditLogEvent extends LogEvent
 	 * Log event constructor
 	 * @param string $level
 	 * @param string $component
-	 * @param string $action
 	 * @param string $message
 	 * @param string $logger
 	 * @param string $user
 	 * @param array $data
 	 */
-	public function __construct($level, $component, $action, $message, $logger, $user = null, $data = array())
+	public function __construct($level, $component, $message, $logger, $user = null, $data = array())
 	{
 		$this->level = $level;
 
@@ -66,7 +59,6 @@ class AuditLogEvent extends LogEvent
 			$this->component = (string) $component;
 		}
 		
-		$this->action = (string) $action;
 		$this->message = (string) $message;
 
 		if ($user instanceof UserEntity) {
@@ -99,7 +91,6 @@ class AuditLogEvent extends LogEvent
 			'level' => $this->level,
 			'levelPriority' => $this->getLevelPriority(),
 			'component' => $this->component,
-			'action' => $this->action,
 			'user' => $this->user,
 			'logger' => $this->logger,
 			'thread' => getmypid(),

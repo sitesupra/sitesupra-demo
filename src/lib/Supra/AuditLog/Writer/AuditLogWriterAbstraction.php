@@ -8,12 +8,12 @@ use Supra\AuditLog\AuditLogEvent;
 /**
  * Audit log writer abstraction
  * 
- * @method void dump(mixed $component, string $action, string $message, mixed $user, array $data)
- * @method void debug(mixed $component, string $action, string $message, mixed $user, array $data)
- * @method void info(mixed $component, string $action, string $message, mixed $user, array $data)
- * @method void warn(mixed $component, string $action, string $message, mixed $user, array $data)
- * @method void error(mixed $component, string $action, string $message, mixed $user, array $data)
- * @method void fatal(mixed $component, string $action, string $message, mixed $user, array $data)
+ * @method void dump(mixed $component, string string $message, mixed $user, array $data)
+ * @method void debug(mixed $component, string string $message, mixed $user, array $data)
+ * @method void info(mixed $component, string string $message, mixed $user, array $data)
+ * @method void warn(mixed $component, string string $message, mixed $user, array $data)
+ * @method void error(mixed $component, string string $message, mixed $user, array $data)
+ * @method void fatal(mixed $component, string string $message, mixed $user, array $data)
  */
 abstract class AuditLogWriterAbstraction
 {
@@ -22,12 +22,11 @@ abstract class AuditLogWriterAbstraction
 	 * Write to audit log
 	 * @param string $level
 	 * @param mixed $component
-	 * @param string $action
 	 * @param string $message
 	 * @param mixed $user
 	 * @param array $data 
 	 */
-	abstract public function write($level, $component, $action, $message, $user = null, $data = array());
+	abstract public function write($level, $component, $message, $user = null, $data = array());
 
 	/**
 	 * Magic call method for debug/info/etc
@@ -44,18 +43,17 @@ abstract class AuditLogWriterAbstraction
 			}
 			
 			$component = $arguments[0];
-			$action = $arguments[1];
-			$message = $arguments[2];
+			$message = $arguments[1];
 			$user = null;
-			if (isset($arguments[3])) {
-				$user = $arguments[3];
+			if (isset($arguments[2])) {
+				$user = $arguments[2];
 			}
 			$data = null;
-			if (isset($arguments[4])) {
-				$data = $arguments[4];
+			if (isset($arguments[3])) {
+				$data = $arguments[3];
 			}
 
-			$this->write($level, $component, $action, $message, $user, $data);
+			$this->write($level, $component, $message, $user, $data);
 			
 		} catch (\Exception $e) {
 			
