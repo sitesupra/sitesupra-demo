@@ -123,7 +123,7 @@ class PagesettingsAction extends PageManagerAction
 				$templateId = $input->get('template');
 
 				/* @var $template Entity\Template */
-				$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+				$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
 				$pageData->setTemplate($template);
 			}
 
@@ -249,7 +249,7 @@ class PagesettingsAction extends PageManagerAction
 		$templateArray = array();
 		$templateTitles = array();
 
-		$templateDataDao = $this->entityManager->getRepository(PageRequest::TEMPLATE_DATA_ENTITY);
+		$templateDataDao = $this->entityManager->getRepository(Entity\TemplateLocalization::CN());
 		$templateDataList = $templateDataDao->findByLocale($localeId);
 
 		/* @var $templateData Entity\TemplateLocalization */

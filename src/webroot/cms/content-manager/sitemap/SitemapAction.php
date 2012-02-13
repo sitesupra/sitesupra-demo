@@ -49,7 +49,7 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function templatesAction()
 	{
-		$response = $this->loadSitemapTree(PageRequest::TEMPLATE_ENTITY);
+		$response = $this->loadSitemapTree(Entity\Template::CN());
 
 		$this->getResponse()
 				->setResponseData($response);

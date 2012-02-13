@@ -223,7 +223,7 @@ class PagecontentAction extends PageManagerAction
 		
 		$blockId = $this->getRequestParameter('block_id');
 		
-		$blockEntity = PageRequest::BLOCK_ENTITY;
+		$blockEntity = Entity\Abstraction\Block::CN();
 		$blockQuery = $this->entityManager->createQuery("SELECT b FROM $blockEntity b
 					WHERE b.id = ?0");
 		

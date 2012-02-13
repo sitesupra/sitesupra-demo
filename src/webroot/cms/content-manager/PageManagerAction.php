@@ -286,7 +286,7 @@ abstract class PageManagerAction extends CmsAction
 		// Root page otherwise
 		if (empty($localization)) {
 			$page = null;
-			$pageDao = $this->entityManager->getRepository(PageRequest::PAGE_ENTITY);
+			$pageDao = $this->entityManager->getRepository(Page::CN());
 			/* @var $pageDao PageRepository */
 			$pages = $pageDao->getRootNodes();
 

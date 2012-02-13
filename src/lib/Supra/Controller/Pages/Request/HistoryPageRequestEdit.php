@@ -375,7 +375,7 @@ class HistoryPageRequestEdit extends PageRequest
 	/**
 	 * @return Set\BlockPropertySet
 	 */
-	public function getBlockPropertySet($skipPublic = false)
+	public function getBlockPropertySet()
 	{
 		if (isset($this->blockPropertySet)) {
 			return $this->blockPropertySet;
@@ -435,7 +435,7 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 
 		$qb->select('bp')
-				->from(static::BLOCK_PROPERTY_ENTITY, 'bp')
+				->from(Entity\BlockProperty::CN(), 'bp')
 				->where($or)
 				->andWhere('bp.revision = :revision');
 
@@ -491,7 +491,7 @@ class HistoryPageRequestEdit extends PageRequest
 
 		if ($cnt > 0) {
 			$qb->select('bp')
-					->from(static::BLOCK_PROPERTY_ENTITY, 'bp')
+					->from(Entity\BlockProperty::CN(), 'bp')
 					->where($or);
 
 			$query = $qb->getQuery();
@@ -813,7 +813,7 @@ class HistoryPageRequestEdit extends PageRequest
 			$localizationId = $localization->getId();
 
 			// page blocks from audit
-			$blockEntity = PageRequest::BLOCK_ENTITY;
+			$blockEntity = Entity\Abstraction\Block::CN();
 			$dql = "SELECT b FROM $blockEntity b 
 					JOIN b.placeHolder ph
 					WHERE ph.localization = ?0 and b.revision = ?1";
@@ -826,7 +826,7 @@ class HistoryPageRequestEdit extends PageRequest
 			}
 
 			// block properties from audit
-			$propertyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
+			$propertyEntity = Entity\BlockProperty::CN();
 			$dql = "SELECT bp FROM $propertyEntity bp 
 					WHERE bp.localization = ?0 and bp.revision = ?1";
 			$properties = $auditEm->createQuery($dql)
@@ -862,7 +862,7 @@ class HistoryPageRequestEdit extends PageRequest
 	private function getBlocksInPage(EntityManager $em)
 	{
 		$localizationId = $this->getPageLocalization()->getId();
-		$blockEntity = PageRequest::BLOCK_ENTITY;
+		$blockEntity = Entity\Abstraction\Block::CN();
 		
 		$dql = "SELECT b FROM $blockEntity b 
 				JOIN b.placeHolder ph

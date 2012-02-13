@@ -346,7 +346,7 @@ class FixtureHelper
 				$em->clear();
 				$publicEm->clear();
 
-				$pageToPublish = $em->find(\Supra\Controller\Pages\Request\PageRequest::PAGE_ABSTRACT_ENTITY, $pageId);
+				$pageToPublish = $em->find(Entity\Abstraction\AbstractPage::CN(), $pageId);
 				/* @var $pageToPublish Entity\Abstraction\AbstractPage */
 
 				/* @var $locale \Supra\Locale\Locale */

@@ -258,7 +258,7 @@ class PageRequestEdit extends PageRequest
 		$parentTemplateBlockIdList = array_diff($blockIdList, $draftBlockIdList);
 		
 		if ( ! empty($parentTemplateBlockIdList)) {
-			$blockEntity = PageRequest::BLOCK_ENTITY;
+			$blockEntity = Entity\Abstraction\Block::CN();
 
 			$qb = $publicEm->createQueryBuilder();
 			$qb->from($blockEntity, 'b')
@@ -273,10 +273,16 @@ class PageRequestEdit extends PageRequest
 
 		// 8. Merge missing place holders from 7 (reset $locked property)
 		$draftPlaceHolderIdList = $this->getPlaceHolderIdList($draftEm, $missingBlockIdList);
-		$publicPlaceHolderIdList = $this->loadEntitiesByIdList($publicEm, PageRequest::PLACE_HOLDER_ENTITY, $draftPlaceHolderIdList, 'e.id', ColumnHydrator::HYDRATOR_ID);
+		$publicPlaceHolderIdList = $this->loadEntitiesByIdList($publicEm, 
+				Entity\Abstraction\PlaceHolder::CN(),
+				$draftPlaceHolderIdList,
+				'e.id',
+				ColumnHydrator::HYDRATOR_ID);
 		$missingPlaceHolderIdList = array_diff($draftPlaceHolderIdList, $publicPlaceHolderIdList);
 
-		$missingPlaceHolders = $this->loadEntitiesByIdList($draftEm, PageRequest::PLACE_HOLDER_ENTITY, $missingPlaceHolderIdList);
+		$missingPlaceHolders = $this->loadEntitiesByIdList($draftEm,
+				Entity\Abstraction\PlaceHolder::CN(),
+				$missingPlaceHolderIdList);
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($missingPlaceHolders as $placeHolder) {
@@ -289,7 +295,7 @@ class PageRequestEdit extends PageRequest
 		}
 
 		// 9. Merge missing blocks (add $temporary property)
-		$missingBlocks = $this->loadEntitiesByIdList($draftEm, PageRequest::TEMPLATE_BLOCK_ENTITY, $missingBlockIdList);
+		$missingBlocks = $this->loadEntitiesByIdList($draftEm, Entity\TemplateBlock::CN(), $missingBlockIdList);
 
 		/* @var $block Entity\TemplateBlock */
 		foreach ($missingBlocks as $block) {
@@ -367,7 +373,7 @@ class PageRequestEdit extends PageRequest
 	{
 		$localizationId = $localization->getId();
 		$locale = $localization->getLocale();
-		$blockEntity = PageRequest::BLOCK_ENTITY;
+		$blockEntity = Entity\Abstraction\Block::CN();
 		
 		$dql = "SELECT b FROM $blockEntity b 
 				JOIN b.placeHolder ph
@@ -380,19 +386,19 @@ class PageRequestEdit extends PageRequest
 		return $blocks;
 	}
 	
-	/**
-	 * Removes blocks with all properties by ID
-	 * @param EntityManager $em
-	 * @param array $blockIdList
-	 */
+//	/**
+//	 * Removes blocks with all properties by ID
+//	 * @param EntityManager $em
+//	 * @param array $blockIdList
+//	 */
 //	private function removeBlocks(EntityManager $em, array $blockIdList)
 //	{
 //		if (empty($blockIdList)) {
 //			return;
 //		}
 //		
-//		$blockPropetyEntity = PageRequest::BLOCK_PROPERTY_ENTITY;
-//		$blockEntity = PageRequest::BLOCK_ENTITY;
+//		$blockPropetyEntity = Entity\BlockProperty::CN();
+//		$blockEntity = Entity\Abstraction\Block::CN();
 //		
 //		$qb = $em->createQueryBuilder();
 //		$qb->delete($blockPropetyEntity, 'p')
@@ -420,7 +426,7 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		$qb = $em->createQueryBuilder();
-		$qb->from(PageRequest::BLOCK_ENTITY, 'b')
+		$qb->from(Entity\Abstraction\Block::CN(), 'b')
 				->join('b.placeHolder', 'p')
 				->select('DISTINCT p.id')
 				->where($qb->expr()->in('b', $blockIdList));

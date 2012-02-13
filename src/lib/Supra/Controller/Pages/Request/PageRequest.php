@@ -18,70 +18,6 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 abstract class PageRequest extends HttpRequest
 {
 	/**
-	 * @var string
-	 */
-	const PAGE_ABSTRACT_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\AbstractPage';
-	/**
-	 * Page class name
-	 * @var string
-	 */
-	const PAGE_ENTITY = 'Supra\Controller\Pages\Entity\Page';
-
-	/**
-	 * Data abstraction class name
-	 * @var string
-	 */
-	const DATA_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Localization';
-
-	/**
-	 * Page data class name
-	 * @var string
-	 */
-	const PAGE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageLocalization';
-
-	/**
-	 * Template class name
-	 * @var string
-	 */
-	const TEMPLATE_ENTITY = 'Supra\Controller\Pages\Entity\Template';
-
-	/**
-	 * Page data class name
-	 * @var string
-	 */
-	const TEMPLATE_DATA_ENTITY = 'Supra\Controller\Pages\Entity\TemplateLocalization';
-
-	/**
-	 * Block abstraction class name
-	 * @var string
-	 */
-	const BLOCK_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\Block';
-
-	/**
-	 * Template block class name
-	 * @var string
-	 */
-	const TEMPLATE_BLOCK_ENTITY = 'Supra\Controller\Pages\Entity\TemplateBlock';
-
-	/**
-	 * Block abstraction class name
-	 * @var string
-	 */
-	const PLACE_HOLDER_ENTITY = 'Supra\Controller\Pages\Entity\Abstraction\PlaceHolder';
-
-	/**
-	 * Block abstraction class name
-	 * @var string
-	 */
-	const BLOCK_PROPERTY_ENTITY = 'Supra\Controller\Pages\Entity\BlockProperty';
-
-	/**
-	 * Revision data class name
-	 * @var string
-	 */
-	const REVISION_DATA_ENTITY = 'Supra\Controller\Pages\Entity\PageRevisionData';
-
-	/**
 	 * @var WriterAbstraction
 	 */
 	protected $log;
@@ -343,7 +279,7 @@ abstract class PageRequest extends HttpRequest
 		$qb = $em->createQueryBuilder();
 
 		$qb->select('ph')
-				->from(static::PLACE_HOLDER_ENTITY, 'ph')
+				->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
 				->join('ph.localization', 'pl')
 				->join('pl.master', 'p')
 				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
@@ -434,7 +370,7 @@ abstract class PageRequest extends HttpRequest
 		// Here we find all 1) locked blocks from templates; 2) all blocks from final place holders
 		$qb = $em->createQueryBuilder();
 		$qb->select('b')
-				->from(static::BLOCK_ENTITY, 'b')
+				->from(Entity\Abstraction\Block::CN(), 'b')
 				->join('b.placeHolder', 'ph')
 				->orderBy('b.position', 'ASC');
 
@@ -575,7 +511,7 @@ abstract class PageRequest extends HttpRequest
 		}
 
 		$qb->select('bp')
-				->from(static::BLOCK_PROPERTY_ENTITY, 'bp')
+				->from(BlockProperty::CN(), 'bp')
 				->where($or);
 		$query = $qb->getQuery();
 

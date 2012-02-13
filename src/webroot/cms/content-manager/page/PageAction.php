@@ -522,7 +522,7 @@ class PageAction extends PageManagerAction
 			$templateId = $this->getRequestParameter('template');
 
 			/* @var $template Entity\Template */
-			$template = $this->entityManager->find(PageRequest::TEMPLATE_ENTITY, $templateId);
+			$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
 			$pageData->setTemplate($template);
 		}
 
