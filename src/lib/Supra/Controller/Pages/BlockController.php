@@ -49,7 +49,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * Stores ID values of configured block properties
 	 * @var array
 	 */
-	protected $configuredBlockProperties;
+	protected $configuredBlockProperties = array();
 
 	/**
 	 * Loads property definition array
