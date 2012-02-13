@@ -249,6 +249,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				for(var i=this.history.length-1, ii=callerIndex; i>ii; i--) {
 					this.hideSlide(this.history[i]);
 				}
+				this.history = this.history.splice(0, callerIndex + 1);
 				oldSlideId = callerId;
 			}
 			
