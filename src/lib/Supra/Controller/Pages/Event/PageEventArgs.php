@@ -9,7 +9,17 @@ class PageEventArgs extends EventArgs
 	/**
 	 * @var array
 	 */
-	private $properties = array();
+	protected $properties = array();
+	
+	/**
+	 * @var string
+	 */
+	protected $revisionInfo; 
+	
+	/**
+	 * @var \Doctrine\ORM\EntityManager
+	 */
+	protected $entityManager;
 	
 	
 	/**
@@ -32,5 +42,31 @@ class PageEventArgs extends EventArgs
 	public function setProperty($name, $value)
 	{
 		$this->properties[$name] = $value;
+	}
+	
+	/**
+	 * @param string $info
+	 */
+	public function setRevisionInfo($info)
+	{
+		$this->revisionInfo = $info;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getRevisionInfo()
+	{
+		return $this->revisionInfo;
+	}
+	
+	public function setEntityManager(\Doctrine\ORM\EntityManager $em)
+	{
+		$this->entityManager = $em;
+	}
+	
+	public function getEntityManager()
+	{
+		return $this->entityManager;
 	}
 }

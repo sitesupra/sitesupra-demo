@@ -81,6 +81,8 @@ class AuditCreateSchemaListener implements EventSubscriber
 		
 		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
 			$name = $name . self::AUDIT_SUFFIX;
+		} else if ($className == \Supra\Controller\Pages\Entity\PageLocalizationPath::CN()) {
+			$name = $name . TableDraftSuffixAppender::TABLE_SUFFIX;
 		}
 	}
 }

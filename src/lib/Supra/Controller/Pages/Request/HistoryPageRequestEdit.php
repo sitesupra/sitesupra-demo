@@ -121,12 +121,28 @@ class HistoryPageRequestEdit extends PageRequest
 			return $this->placeHolderSet;
 		}
 
+		$em = $this->getDoctrineEntityManager();
 		$localization = $this->getPageLocalization();
 		
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		
 		$pageSetIds = $this->getPageSetIds();
-		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+		
+		$layoutPlaceHolderNames = null;
+		if ($localization instanceof Entity\TemplateLocalization) {
+			$templateData = $em->getUnitOfWork()
+					->getOriginalEntityData($localization);
+			
+			$auditLayout = $em->getRepository(Entity\TemplateLayout::CN())
+					->findOneBy(array('template' => $templateData['master_id'], 'revision' => $this->revision));
+			
+			if ( ! is_null($auditLayout)) {
+				$layoutPlaceHolderNames = $auditLayout->getLayout()
+						->getPlaceHolderNames();
+			}
+		} else {
+			$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+		}
 		
 		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {
 			return $this->placeHolderSet;
@@ -685,9 +701,7 @@ class HistoryPageRequestEdit extends PageRequest
 		foreach ($auditProperties as $auditProperty) {
 			$draftEntityManager->merge($auditProperty);
 		}
-		
-		$auditPropertyIds = $auditProperties->collectIds();
-	
+			
 		$params = array(
 			'propertyIds' => $auditPropertyIds,
 			'revision' => $this->revision,
@@ -747,7 +761,7 @@ class HistoryPageRequestEdit extends PageRequest
 		
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setProperty('localizationId', $localization->getId());
-		$pageEventArgs->setProperty('entityManager', $draftEntityManager);
+		$pageEventArgs->setEntityManager($draftEntityManager);
 		
 		$draftBlocks = $this->getBlocksInPage($draftEntityManager);
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);

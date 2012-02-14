@@ -15,7 +15,7 @@ use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
-use Supra\Controller\Pages\Event\PagePublishEventArgs;
+use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Doctrine\Common\Collections\Collection;
@@ -345,22 +345,13 @@ class PageRequestEdit extends PageRequest
 		$draftEm->flush();
 		$publicEm->flush();
 		
-		// Store page version
-		$userId = 'scheduled-publish';
-		$user = $this->getUser();
-		if ($user instanceof User) {
-			$userId = $user->getId();
-		}
-		
-		$pagePublishEventArgs = new PagePublishEventArgs();
-		$pagePublishEventArgs->setLocalizationId($draftData->getId());
-		$pagePublishEventArgs->setUserId($userId);
-		$pagePublishEventArgs->setBlockIdCollection($draftBlockIdList);
-		$pagePublishEventArgs->setBlockPropertyIdCollection($draftPropertyIds);
-		$pagePublishEventArgs->setEntityManager($draftEm);
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setProperty('blockIdCollection', $draftBlockIdList);
+		$pageEventArgs->setProperty('blockPropertyIdCollection', $draftPropertyIds);
+		$pageEventArgs->setEntityManager($draftEm);
 		
 		$draftEm->getEventManager()
-				->dispatchEvent(AuditEvents::pagePublishEvent, $pagePublishEventArgs);
+				->dispatchEvent(AuditEvents::pagePublishEvent, $pageEventArgs);
 	}
 	
 	/**

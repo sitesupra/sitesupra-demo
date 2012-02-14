@@ -42,7 +42,7 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	protected $creationTime;
 	
 	/**
-	 * @Column(type="supraId20")
+	 * @Column(type="supraId20", nullable=true)
 	 * @var string
 	 */
 	protected $user;
@@ -169,26 +169,49 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 		$this->reference = $referenceId;
 	}
 	
+	/**
+	 * @param string $id
+	 */
 	public function setElementId($id) 
 	{
 		$this->elementId = $id;
 	}
+	
+	/**
+	 * @param string $name
+	 */
 	public function setElementName($name)
 	{
 		$this->elementName = $name;
 	}
+	
+	/**
+	 * @return string 
+	 */
 	public function getElementName()
 	{
 		return $this->elementName;
 	}
+	
+	/**
+	 * @return string
+	 */
 	public function getElementId()
 	{
 		return $this->elementId;
 	}
+	
+	/**
+	 * @param string $info
+	 */
 	public function setAdditionalInfo($info)
 	{
 		$this->additionalInfo = $info;
 	}
+	
+	/**
+	 * @return string
+	 */
 	public function getAdditionalInfo()
 	{
 		return $this->additionalInfo;

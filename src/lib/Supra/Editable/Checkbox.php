@@ -93,6 +93,6 @@ class Checkbox extends EditableAbstraction
 		$content = parent::getContent();
 		$content = FilteredInput::validate($content, AbstractType::BOOLEAN);
 		
-		return $content;
+		return (string)$content;
 	}
 }

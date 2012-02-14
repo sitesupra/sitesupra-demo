@@ -53,6 +53,11 @@ class EntityRevisionListener implements EventSubscriber
 	private $localizationId;
 	private $revision;
 	
+	/**
+	 * @var string
+	 */
+	private $revisionInfo;
+	
 
 	public function getSubscribedEvents()
 	{
@@ -61,6 +66,8 @@ class EntityRevisionListener implements EventSubscriber
 			AuditEvents::pagePreRestoreEvent,
 			AuditEvents::pagePostRestoreEvent,
 			AuditEvents::pagePreEditEvent,
+			
+			AuditEvents::pageContentEditEvent,
 		);
 	}
 	
@@ -195,14 +202,6 @@ class EntityRevisionListener implements EventSubscriber
 		}
 	}
 	
-//	/**
-//	 * @return string
-//	 */
-//	private function _getRevisionId()
-//	{
-//		return Entity::generateId(__CLASS__);
-//	}
-	
 	public function pagePreRestoreEvent()
 	{
 		$this->_pageRestoreState = true;
@@ -233,6 +232,7 @@ class EntityRevisionListener implements EventSubscriber
 		
 		$revision->setType($type);
 		$revision->setReferenceId($this->localizationId);
+		$revision->setAdditionalInfo($this->revisionInfo);
 		
 		$userId = '#';
 		if ($this->user instanceof \Supra\User\Entity\User) {
@@ -246,6 +246,14 @@ class EntityRevisionListener implements EventSubscriber
 		$this->revision = $revision;
 		
 		return $revision;
+	}
+	
+	/**
+	 * @param PageEventArgs $eventArgs
+	 */
+	public function pageContentEditEvent(PageEventArgs $eventArgs)
+	{
+		$this->revisionInfo = $eventArgs->getRevisionInfo();
 	}
 
 }
