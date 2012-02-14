@@ -12,12 +12,17 @@ use Supra\Response\HttpResponse;
 use Supra\Controller\FrontController;
 use Supra\Controller\Pages\Filter\EditableHtml;
 use Supra\Editable;
+use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Controller\Pages\Event\AuditEvents;
 
 /**
  * Controller for page content requests
  */
 class PagecontentAction extends PageManagerAction
 {
+	const ACTION_BLOCK_MOVE = 'blockMove';
+	const ACTION_BLOCK_PROPERTY_EDIT = 'blockPropertyEdit';
+	
 	/**
 	 * Insert block action
 	 */
@@ -244,7 +249,7 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		
+			
 		$placeHolderName = $this->getRequestParameter('place_holder_id');
 		$blockOrder = $this->getRequestParameter('order');
 		$blockPositionById = array_flip($blockOrder);
@@ -264,6 +269,12 @@ class PagecontentAction extends PageManagerAction
 		
 		$blocks = $pageRequest->getBlockSet()
 				->getPlaceHolderBlockSet($placeHolder);
+				
+		$eventManager = $this->entityManager->getEventManager();
+
+		$eventArgs = new PageEventArgs();
+		$eventArgs->setRevisionInfo(self::ACTION_BLOCK_MOVE);
+		$eventManager->dispatchEvent(AuditEvents::pageContentEditEvent, $eventArgs);
 		
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {

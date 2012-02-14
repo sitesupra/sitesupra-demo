@@ -671,7 +671,9 @@ abstract class PageManagerAction extends CmsAction
 	protected function restoreLocalizationVersion()
 	{
 		$revisionId = $this->getRequestParameter('version_id');
-		$localizationId = $this->getRequestParameter('page_id');
+	
+		$localization = $this->getPageLocalization();
+		$localizationId = $localization->getId();
 
 		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 		

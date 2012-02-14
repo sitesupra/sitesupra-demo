@@ -478,7 +478,7 @@ class PageAction extends PageManagerAction
 		// which will be used as build base for page change-history displaying
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setProperty('localizationId', $pageData->getId());
-		$pageEventArgs->setProperty('entityManager', $this->entityManager);
+		$pageEventArgs->setEntityManager($this->entityManager);
 		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
 		
 	}

@@ -11,6 +11,7 @@ use Supra\Controller\Pages\PageController;
 use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
+use Supra\Cms\ContentManager\Pagecontent\PagecontentAction;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -79,7 +80,7 @@ class PagehistoryAction extends PageManagerAction
 				
 				$title = 'Page';
 				$localization = $this->getPageLocalization();
-				if ($localization instanceof Entity\Template) {
+				if ($localization instanceof Entity\TemplateLocalization) {
 					$title = 'Template';
 				}
 			}
@@ -87,7 +88,7 @@ class PagehistoryAction extends PageManagerAction
 			$revisionElementName = $revision->getElementName();
 			$revisionType = $revision->getType();
 			
-						$firstCreateRevision = null;
+			$firstCreateRevision = null;
 			
 			if (is_null($action)) {
 				switch($revisionType) {
@@ -115,7 +116,7 @@ class PagehistoryAction extends PageManagerAction
 						$action = self::ACTION_RESTORE;
 						$title = 'Page';
 						$localization = $this->getPageLocalization();
-						if ($localization instanceof Entity\Template) {
+						if ($localization instanceof Entity\TemplateLocalization) {
 							$title = 'Template';
 						}
 						break;
@@ -161,8 +162,13 @@ class PagehistoryAction extends PageManagerAction
 					case Entity\PageBlock::CN():
 					case Entity\TemplateBlock::CN():
 						if ($action == self::ACTION_CHANGE) {
-							$title = 'Blocks';
-							$action = self::ACTION_MOVE;
+							if ($revision->getAdditionalInfo() == PagecontentAction::ACTION_BLOCK_MOVE) {
+								$title = 'Blocks';
+								$action = self::ACTION_MOVE;
+							} else {
+								$blockName = $this->getRevisionedEntityBlockName($revision);
+								$title = "{$blockName} block settings";
+							}
 						} else {
 							$blockName = $this->getRevisionedEntityBlockName($revision);
 							$title = "{$blockName} block";
