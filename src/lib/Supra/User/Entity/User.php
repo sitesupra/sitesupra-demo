@@ -35,6 +35,12 @@ class User extends AbstractUser
 	protected $email;
 
 	/**
+	 * @Column(type="boolean", name="email_confirmed")
+	 * @var boolean
+	 */
+	protected $emailConfirmed;
+
+	/**
 	 * @Column(type="string", name="avatar_id", nullable=true)
 	 * @var string
 	 */
@@ -45,7 +51,7 @@ class User extends AbstractUser
 	 * @var boolean
 	 */
 	protected $personalAvatar;
-	
+
 	/**
 	 * @ManyToOne(targetEntity="Group")
 	 * @JoinColumn(name="group_id", referencedColumnName="id")
@@ -83,7 +89,7 @@ class User extends AbstractUser
 	 * @var string
 	 */
 	protected $localeId;
-	
+
 	/**
 	 * Generates random salt for new users
 	 */
@@ -159,7 +165,7 @@ class User extends AbstractUser
 	 */
 	public function setAvatar($avatarId)
 	{
-		if(in_array($avatarId, UseravatarAction::getPredefinedAvatarIds())) {
+		if (in_array($avatarId, UseravatarAction::getPredefinedAvatarIds())) {
 			$this->avatarId = $avatarId;
 			return true;
 		}
@@ -200,6 +206,24 @@ class User extends AbstractUser
 	public function setActive($active)
 	{
 		$this->active = $active;
+	}
+
+	/**
+	 * Returns is user email confirmed
+	 * @return bool
+	 */
+	public function getEmailConfirmed()
+	{
+		return $this->emailConfirmed;
+	}
+
+	/**
+	 * Sets is user email confirmed
+	 * @param bool $confirmed 
+	 */
+	public function setEmailConfirmed($confirmed)
+	{
+		$this->emailConfirmed = (bool) $confirmed;
 	}
 
 	/**
@@ -266,12 +290,11 @@ class User extends AbstractUser
 	{
 		if ( ! is_null($this->getGroup())) {
 			return $this->getGroup()->isSuper();
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -307,8 +330,8 @@ class User extends AbstractUser
 	{
 		$this->facebookAccessToken = $facebookAccessToken;
 	}
-	
-	public function fillFromArray(array $userData) 
+
+	public function fillFromArray(array $userData)
 	{
 		$this->id = $userData['id'];
 		$this->password = $userData['password'];
@@ -320,13 +343,13 @@ class User extends AbstractUser
 		$this->group = $userData['group'];
 		$this->lastLoginTime = $userData['lastLoginTime'];
 		$this->active = $userData['active'];
-		
+
 		$this->salt = $userData['salt'];
 		//$this->userSessions = $userData['userSessions'];
 
 		$this->localeId = $userData['localeId'];
 	}
-	
+
 	public static function getAlias()
 	{
 		return 'user';
