@@ -87,7 +87,7 @@ class FixtureHelper
 		}
 		
 		// Reset password
-		$this->up->getAuthAdapter()->credentialChange($user, $password);
+		$this->up->credentialChange($user, $password);
 		$this->up->updateUser($user);
 
 		return $user;

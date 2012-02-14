@@ -85,9 +85,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
 		
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, $this->password);
-
+		$this->userProvider->credentialChange($user, $this->password);
 		$this->userProvider->updateUser($user);
 	}
 
@@ -108,9 +106,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$user->setEmail($randomEmail);
 		
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user);
-
+		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 		
 		$user = $this->userProvider
@@ -135,8 +131,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 
 		$user->setEmail('awesomechuckchucknorris.com');
 
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user);
+		$this->userProvider->credentialChange($user);
 		
 		try {
 			$userProvider->validate($user);
@@ -183,8 +178,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
 		
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, $this->password);
+		$this->userProvider->credentialChange($user, $this->password);
 
 		$userProvider->validate($user);
 		$this->userProvider->updateUser($user);
@@ -194,8 +188,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
 		
-		$this->userProvider->getAuthAdapter()
-				->credentialChange($user, $this->password);
+		$this->userProvider->credentialChange($user, $this->password);
 
 		try {
 			$userProvider->validate($user);

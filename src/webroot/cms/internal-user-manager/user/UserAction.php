@@ -209,8 +209,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			throw new CmsException(null, "Not valid input: {$exc->getMessage()}");
 		}
 		
-		$authAdapter = $this->userProvider->getAuthAdapter();
-		$authAdapter->credentialChange($user);
+		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 	
 		$this->sendPasswordChangeLink($user, 'createpassword');
@@ -271,8 +270,7 @@ class UserAction extends InternalUserManagerAbstractAction
 			throw new CmsException(null, "Not valid input: {$e->getMessage()}");
 		}
 
-		$authAdapter = $this->userProvider->getAuthAdapter();
-		$authAdapter->credentialChange($user);
+		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 
 		$this->writeAuditLog('save user', "User '" . $user->getName() . "' saved");

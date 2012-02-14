@@ -253,6 +253,16 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			->setParameter('userId', $userId)
 			->getQuery()->execute();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @param Entity\User $user
+	 * @param AuthenticationPassword $password
+	 */
+	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null)
+	{
+		$this->authAdapter->credentialChange($user, $password);
+	}
 	
 }
 

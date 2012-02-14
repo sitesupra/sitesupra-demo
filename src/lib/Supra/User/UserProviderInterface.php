@@ -109,5 +109,11 @@ interface UserProviderInterface
 	 * @param Entity\Group $group
 	 */
 	public function updateGroup(Entity\Group $group);
-	
+
+	/**
+	 * Shortcut for authentication adapter credential change
+	 * @param Entity\User $user
+	 * @param AuthenticationPassword $password
+	 */
+	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null);
 }

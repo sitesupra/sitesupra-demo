@@ -114,8 +114,7 @@ class CreateUserCommand extends Command
 
 		$this->userProvider->validate($user);
 
-		$authAdapter = $this->userProvider->getAuthAdapter();
-		$authAdapter->credentialChange($user);
+		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');

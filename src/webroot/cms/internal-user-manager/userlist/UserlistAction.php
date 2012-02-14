@@ -120,10 +120,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			$user->setGroup($newGroup);	
 		}
 		
-		$this->userProvider
-				->getAuthAdapter()
-				->credentialChange($user);
-
+		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 		
 		$this->writeAuditLog('update user', 

@@ -192,9 +192,8 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$user->resetSalt();
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
-		$authAdapter = $userProvider->getAuthAdapter();
 		
-		$authAdapter->credentialChange($user, $password);
+		$userProvider->credentialChange($user, $password);
 		$userProvider->updateUser($user);
 		
 		$response->redirect(self::LOGIN_PAGE);

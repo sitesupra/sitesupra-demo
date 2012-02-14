@@ -401,5 +401,5 @@ class DummyAPIUserProvider extends UserProviderAbstract
 		
 		return $array;
 	}
-		
+
 }
