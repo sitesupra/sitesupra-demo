@@ -81,6 +81,17 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 		button_delete: null,
 		
 		/**
+		 * 
+		 */
+		button_template: null,
+		
+		/**
+		 * "Created" button
+		 * @type {Object}
+		 */
+		button_created: null,
+		
+		/**
 		 * Template list object
 		 * @type {Object}
 		 */
@@ -367,15 +378,8 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 		 * Delete page
 		 */
 		deletePage: function () {
-			/*
-			var page = Supra.Manager.Page.getPageData();
-			if (!Supra.Permission.get('page', page.id, 'delete', true)) {
-				return false;
-			}
-			*/
-			
 			if (this.page_data.global_disabled) {
-				//Global disabled is true if page has more than one localization
+				//Global_disabled is true if page has more than one localization
 				var message_id = 'delete_message_all';
 			} else {
 				var message_id = 'delete_message';
@@ -408,7 +412,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			//Disable form
 			this.form.set('disabled', true);
 			this.button_delete.set('loading', true);
-			Supra.Manager.PageButtons.buttons[this.NAME][0].set('disabled', true);
+			this.get('controlButton').set('disabled', true);
 			
 			//Delete page
 			Manager.Page.deleteCurrentPage(this.afterDeletePage, this);
@@ -421,7 +425,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			//Enable form
 			this.form.set('disabled', false);
 			this.button_delete.set('loading', false);
-			Supra.Manager.PageButtons.buttons[this.NAME][0].set('disabled', false);
+			this.get('controlButton').set('disabled', false);
 			
 			if (success) {
 				//Hide page settings
@@ -463,13 +467,6 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'small-red'});
 			this.button_delete.render().on('click', this.deletePage, this);
 			
-			/*
-			var page = Supra.Manager.Page.getPageData();
-			if (!Supra.Permission.get('page', page.id, 'delete', true)) {
-				this.button_delete.hide();
-			}
-			*/
-			
 			//Template button
 			this.button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'small-gray'});
 			this.button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
@@ -478,10 +475,10 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			this.redirect_title = this.one('span.redirect-target');
 			this.redirect_title.one('.remove').on('click', this.removeRedirect, this);
 			
-			//Created settings button
-			var button_settings = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
-			button_settings.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
-				
+			//Created button
+			this.button_created = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
+			this.button_created.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
+			
 			//Slideshow
 			var slideshow = this.slideshow = new Supra.Slideshow({
 				'srcNode': this.one('div.slideshow')
@@ -496,15 +493,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			form.render();
 			
 			//When form is disabled/enabled take care of buttons
-			form.on('disabledChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					this.get('backButton').set('disabled', evt.newVal);
-					this.button_delete.set('disabled', evt.newVal);
-					this.button_template.set('disabled', evt.newVal);
-					button_schedule.set('disabled', evt.newVal);
-					button_settings.set('disabled', evt.newVal);
-				}
-			}, this);
+			form.on('disabledChange', this.onFormDisableChange, this);
 			
 			// Redirect select lists
 			this.redirect_select = form.getInput('redirect_type');
@@ -523,6 +512,21 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				// Redirect -> Relative "Last child" button
 				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
+		},
+		
+		/**
+		 * Handle form disable state change
+		 * 
+		 * @param {Event} evt Event facade object
+		 * @private
+		 */
+		onFormDisableChange: function (evt) {
+			if (evt.newVal != evt.prevVal) {
+				this.get('backButton').set('disabled', evt.newVal);
+				this.button_delete.set('disabled', evt.newVal);
+				this.button_template.set('disabled', evt.newVal);
+				this.button_created.set('disabled', evt.newVal);
+			}
 		},
 		
 		/**
