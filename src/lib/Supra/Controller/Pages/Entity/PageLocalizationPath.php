@@ -55,9 +55,9 @@ class PageLocalizationPath extends Abstraction\Entity
 	/**
 	 * @param mixed $path 
 	 */
-	public function setPath($path)
+	public function setPath($path = null)
 	{
-		if ( ! $path instanceof Path) {
+		if ( ! $path instanceof Path && ! is_null($path)) {
 			$path = new Path($path);
 		}
 		$this->path = $path;
