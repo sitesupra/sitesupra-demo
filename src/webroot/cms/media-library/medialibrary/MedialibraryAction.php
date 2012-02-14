@@ -101,6 +101,14 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				}
 			}
 
+			// Get thumbnail
+			if ($rootNode instanceof Entity\Image) {
+				// create preview
+				// TODO: hardcoded 30x30
+				$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
+				$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+			}
+
 			$item['id'] = $rootNode->getId();
 			$item['title'] = $title;
 			$item['filename'] = $rootNode->getFileName();
@@ -110,6 +118,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 			$output[] = $item;
 		}
+
+		// If any sizes were created
+		$this->entityManager->flush();
 
 		$return = array(
 			'totalRecords' => count($output),
