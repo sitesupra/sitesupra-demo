@@ -110,8 +110,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
-		<li class="type-image {% if broken or !thumbnailUrl %}type-broken{% endif %}" data-id="{{ id }}">\
-			<a>{% if !broken and thumbnailUrl %}<img src="{{ thumbnailUrl|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
+		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
+			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
 			<span>{{ title|escape }}</span>\
 		</li>');
 	
@@ -173,7 +173,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				{% if broken %}\
 					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
 				{% else %}\
-					<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
+					<img src="{{ preview|escape }}?r={{ Math.random() }}" alt="" />\
 				{% endif %}\
 			</div>\
 			\
@@ -316,7 +316,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @type {String}
 		 */
 		'thumbnailSize': {
-			value: '60x60'
+			value: '30x30'
 		},
 		
 		/**
@@ -602,10 +602,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					id: file_id,
 					parent: parent_id,
 					type: Supra.MediaLibraryData.TYPE_TEMP,
-					title: ''
+					title: '',
+					thumbnail: null,
+					preview: null
 				}, data || {});
-				
-				data[this.get('thumbnailSize') + '_url'] = null;
 				
 				//Add item to the file list
 				this.renderItem(parent_id, [data], true);
@@ -1199,7 +1199,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
-		 * Add previewUrl and thumbnailUrl to data if possible
+		 * Add preview and thumbnail to data if possible
 		 * for use in template
 		 * 
 		 * @param {Object} data
@@ -1210,8 +1210,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		getRenderData: function (data) {
 			var preview_size = this.get('previewSize'),
 				thumbnail_size = this.get('thumbnailSize'),
-				preview_key = preview_size + '_url',
-				thumbnail_key = thumbnail_size + '_url',
 				item_data = SU.mix({}, data || {}),
 				extension = null;
 			
@@ -1226,17 +1224,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			//URLs
 			if (item_data.sizes) {
 				if (thumbnail_size in item_data.sizes) {
-					item_data['thumbnailUrl'] = item_data.sizes[thumbnail_size].external_path;
+					item_data['thumbnail'] = item_data.sizes[thumbnail_size].external_path;
 				}
 				if (preview_size in item_data.sizes) {
-					item_data['previewUrl'] = item_data.sizes[preview_size].external_path;
-				}
-			} else if (preview_key in item_data || thumbnail_key in item_data) {
-				if (thumbnail_key in item_data) {
-					item_data['thumbnailUrl'] = item_data[thumbnail_key];
-				}
-				if (preview_key in item_data) {
-					item_data['previewUrl'] = item_data[preview_key];
+					item_data['preview'] = item_data.sizes[preview_size].external_path;
 				}
 			}
 			

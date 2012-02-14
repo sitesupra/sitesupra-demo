@@ -108,7 +108,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				{% if broken %}\
 					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
 				{% else %}\
-					<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
+					<img src="{{ preview|escape }}?r={{ Math.random() }}" alt="" />\
 				{% endif %}\
 			</div>\
 			\
@@ -192,8 +192,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	 * @type {String}
 	 */
 	Extended.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
-		<li class="type-image {% if broken or !thumbnailUrl %}type-broken{% endif %}" data-id="{{ id }}">\
-			<a>{% if !broken and thumbnailUrl %}<img src="{{ thumbnailUrl|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
+		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
+			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
 			<span>{{title|escape }}</span>\
 		</li>');
 		
