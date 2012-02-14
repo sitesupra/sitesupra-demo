@@ -335,7 +335,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 
 			if (parent_data) {
 				var re = new RegExp('^'+ Y.Escape.regex(default_data_title));
-				for (i=0; i<=compare.length-1; i++) {
+				for (var i=0,ii=compare.length; i<ii; i++) {
 					var match = re.exec(compare[i]);
 					if (match != null) {
 						increment++;
