@@ -119,9 +119,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$output[] = $item;
 		}
 
-		// If any sizes were created
-		$this->entityManager->flush();
-
 		$return = array(
 			'totalRecords' => count($output),
 			'records' => $output,
@@ -388,11 +385,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				throw $e;
 			}
 			
-			if ($fileEntity instanceof Entity\Image) {
-				// create preview
-				$this->fileStorage->createResizedImage($fileEntity, 200, 200);
-			}
-			
 			$this->entityManager->flush();
 
 			// genrating output
@@ -464,6 +456,14 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$localeId = $this->getLocale()->getId();
 		$output = $this->fileStorage->getFileInfo($file, $localeId);
+
+		// Create thumbnail&preview
+		if ($file instanceof Entity\Image) {
+			$thumbSize = $this->fileStorage->createResizedImage($file, 30, 30, true);
+			$previewSize = $this->fileStorage->createResizedImage($file, 200, 200);
+			$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
+			$output['preview'] = $this->fileStorage->getWebPath($file, $previewSize);
+		}
 		
 		$extension = mb_strtolower($file->getExtension());
 		$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
