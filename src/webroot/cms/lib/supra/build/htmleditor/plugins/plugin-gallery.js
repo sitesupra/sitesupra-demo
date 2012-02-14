@@ -15,16 +15,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
 		
 		/* Default image size */
-		size: '200x200'
-	};
-	
-	var defaultProps = {
-		'type': null,
-		'title': '',
-		'description': '',
-		'align': 'right',
-		'style': '',
-		'images': []
+		size: '200x200',
+		
+		/* Gallery block id */
+		galleryBlockId: null
 	};
 	
 	var Manager = Supra.Manager;
@@ -44,13 +38,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var htmleditor = this.htmleditor,
 				folder_data = Manager.MediaSidebar.getData(gallery_id, true);
 			
-			if (folder_data.type != SU.MediaLibraryData.TYPE_FOLDER) {
+			if (!folder_data || folder_data.type != SU.MediaLibraryData.TYPE_FOLDER) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
 			
 			//Prevent default (which is insert folder thumbnail image) 
-			e.halt();
+			if (e.halt) e.halt();
 			
 			
 			var image_data = [],
@@ -75,21 +69,26 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 		
 		insertGalleryBlock: function (images) {
-			var list = Manager.PageContent.getActiveContent().get('parent');
+			var list = Manager.PageContent.getContent().get('activeChild').get('parent'),
+				gallery_block_id = this.configuration.galleryBlockId;
 			
 			//If list is closed or gallery is not a valid child type then cancel
-			if (list.isClosed() || !list.isChildTypeAllowed('gallery')) return;
+			if (list.isClosed() || !list.isChildTypeAllowed(gallery_block_id)) return;
 			
 			//Insert block
 			list.get('super').getBlockInsertData({
-				'type': 'gallery',
+				'type': gallery_block_id,
 				'placeholder_id': list.getId()
 			}, function (data) {
 				this.createChildFromData(data);
 				
-				var block = this.get('super').get('activeContent');
-				for(var i=0,ii=images.length; i<ii; i++) {
-					block.addImage(images[i]);
+				var block = this.get('super').get('activeChild');
+				if (block.addImage) {
+					for(var i=0,ii=images.length; i<ii; i++) {
+						block.addImage(images[i]);
+					}
+				} else {
+					Y.log('Block "' + gallery_block_id + '" doesn\'t have required method "addImage"');
 				}
 				
 			}, list);
@@ -104,8 +103,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
-			//On image folder drop add gallery
-			htmleditor.get('srcNode').on('dataDrop', this.dropFolder, this);
+			if (configuration.galleryBlockId) {
+				//On image folder drop add gallery
+				htmleditor.get('srcNode').on('dataDrop', this.dropFolder, this);
+			}
 		},
 		
 		/**

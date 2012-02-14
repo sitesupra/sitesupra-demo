@@ -58,6 +58,8 @@
 			"image": "Image",
 			"file": "File",
 			
+			"drag_n_drop": "Drag-and-drop",
+			
 			"validation_error": {
 				"file_id_not_provided": "File ID has not been provided",
 				"file_not_exists": "Requested file does not exist",
@@ -73,8 +75,8 @@
 		},
 		
 		"mediasidebar": {
-			"insert_image": "Insert image",
-			"open_app": "Open Library app"
+			"insert_image": "Files",
+			"open_app": "Open Library App"
 		}
 	}
 }

@@ -9,7 +9,8 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER;
+	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER,
+		TYPE_IMAGE  = Supra.MediaLibraryData.TYPE_IMAGE;
 	
 	/**
 	 * Add drag and drop support from media library to other actions
@@ -35,8 +36,16 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 		 */
 		onItemRender: function (event) {
 			var node = event.node,
-				items = node.all('li');
+				items = node.all('li'),
+				image = node.one('div.preview img');
 			
+			//Drag preview image
+			if (image) {
+				image.setAttribute('draggable', 'true');
+				image.on('dragstart', this.onDragStart, this);
+			}
+			
+			//Drag list items
 			items.each(function (item, index, items) {
 				item.setAttribute('draggable', 'true');
 				item.on('dragstart', this.onDragStart, this);
@@ -49,7 +58,7 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 		 * @param {Object} e
 		 */
 		onDragStart: function (e) {
-			var target = e.target.closest('LI');
+			var target = e.target.closest('LI, .image');
 			if (!target) return;
 			
 			var widget = this.get('host'),
@@ -59,9 +68,12 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 			e._event.dataTransfer.effectAllowed = 'copy';
 			e._event.dataTransfer.setData('text', String(item_id));	// Use text to transfer item ID
 			
-			//If dragging folder all content must be loaded
+			//Load data
 			if (data.type == TYPE_FOLDER && !data.children) {
-				//Load folder content
+				//If dragging folder all content must be loaded
+				widget.load(item_id);
+			} else if (data.type == TYPE_IMAGE && !data.sizes) {
+				//Load image data
 				widget.load(item_id);
 			}
 		}

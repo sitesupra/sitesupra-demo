@@ -12,7 +12,7 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 	Manager.getAction('LayoutLeftContainer').addChildAction('MediaSidebar');
 	
 	//Create Action class
-	new Action(Action.PluginContainer, {
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -35,6 +35,13 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 */
 		HAS_TEMPLATE: true,
 		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutLeftContainer',
+		
 		
 		
 		
@@ -49,24 +56,6 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * @type {Object}
 		 */
 		options: {},
-		
-		/**
-		 * Close button, Supra.Button instance
-		 * @type {Object}
-		 */
-		button_close: null,
-		
-		/**
-		 * Insert button, Supra.Button instance
-		 * @type {Object}
-		 */
-		button_insert: null,
-		
-		/**
-		 * Back button, Supra.Button instance
-		 * @type {Object}
-		 */
-		button_back: null,
 		
 		
 		
@@ -131,20 +120,18 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			//Show/hide back button when slide changes
 			list.slideshow.on('slideChange', function (evt) {
 				if (list.slideshow.isRootSlide()) {
-					this.button_back.hide();
+					this.get('backButton').hide();
 				} else {
-					this.button_back.show();
+					this.get('backButton').show();
 				}
 				
 				//Get current slide data and show "Insert" if image is selected
 				if (evt.newVal) {
 					var item_data = this.getData(evt.newVal.replace('slide_', ''));
 					if (item_data && item_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
-						this.button_insert.set('visible', true);
-						this.button_close.set('visible', false);
+						this.get('controlButton').set('label', '{# buttons.insert #}');
 					} else {
-						this.button_insert.set('visible', false);
-						this.button_close.set('visible', true);
+						this.get('controlButton').set('label', '{# buttons.close #}');
 					}
 				}
 			}, this);
@@ -156,20 +143,20 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * @private
 		 */
 		renderHeader: function () {
-			var buttons = this.all('button');
 			
-			this.button_back = new Supra.Button({'srcNode': buttons.filter('.button-back').item(0)});
-			this.button_back.render();
-			this.button_back.hide();
-			this.button_back.on('click', this.scrollBack, this);
+			this.get('backButton').on('click', this.medialist.openPrevious, this.medialist);
 			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'small'});
-			this.button_close.render();
-			this.button_close.on('click', this.close, this);
+			this.get('controlButton').on('click', function () {
+				var slide = this.medialist.slideshow.get('slide'),
+					item_data = this.getData(slide.replace('slide_', ''));
+				
+				if (item_data && item_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+					this.insert();
+				} else {
+					this.close();
+				}
+			}, this);
 			
-			this.button_insert = new Supra.Button({'srcNode': buttons.filter('.button-insert').item(0), 'style': 'small-blue', 'visible': false});
-			this.button_insert.render();
-			this.button_insert.on('click', this.insert, this);
 		},
 		
 		/**
@@ -214,19 +201,10 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		},
 		
 		/**
-		 * Scroll to previous slide. Chainable
-		 */
-		scrollBack: function () {
-			this.medialist.slideshow.scrollBack();
-			return this;
-		},
-		
-		/**
 		 * Hide
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
 			
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
@@ -264,6 +242,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * Execute action
 		 */
 		execute: function (options) {
+			this.show();
+			
 			//Set options
 			this.options = Supra.mix({
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES
@@ -277,11 +257,11 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			this.medialist.open(this.options.item || 0);
 			this.medialist.set('noAnimations', false);
 			
-			//Show MediaSidebar in left container
-			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
-			
 			//Enable upload
 			this.medialist.upload.set('disabled', false);
+			
+			//Update slideshow
+			this.medialist.slideshow.syncUI();
 		}
 	});
 	

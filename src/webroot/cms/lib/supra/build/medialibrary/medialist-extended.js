@@ -66,12 +66,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
 					{% endif %}\
-					{% if sizes %}\
-						<div>\
-							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
-							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
-						</div>\
-					{% endif %}\
 				</div>\
 				\
 				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
@@ -518,22 +512,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * 
-		 */
-		handleInfoToggleClick: function (event /* Event */) {
-			var node = event.target.closest('.group');
-			
-			node.one('div.info').toggleClass('hidden');
-			node.all('a.more, a.less').toggleClass('hidden');
-			
-			//Scrollbars
-			var content = node.closest('.su-scrollable-content');
-			content.fire('contentResize');
-			
-			event.halt();
-		},
-		
-		/**
 		 * Handle localize button click
 		 * 
 		 * @param {Event} event Event
@@ -709,9 +687,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				//Localization
 				btn_localize.on('click', this.handleLocalizeClick, this);
 				btn_done.on('click', this.handleLocalizeClick, this);
-				
-				//More / less
-				node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
 				
 				//Replace button
 				if (FILE_API_SUPPORTED) {

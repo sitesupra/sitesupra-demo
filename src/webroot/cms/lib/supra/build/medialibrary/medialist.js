@@ -110,9 +110,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
-		<li class="type-image {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
-			<a></a>\
-			<span>{{title|escape }}</span>\
+		<li class="type-image {% if broken or !thumbnailUrl %}type-broken{% endif %}" data-id="{{ id }}">\
+			<a>{% if !broken and thumbnailUrl %}<img src="{{ thumbnailUrl|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
+			<span>{{ title|escape }}</span>\
 		</li>');
 	
 	/**
@@ -127,9 +127,36 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
-			<div class="preview"><img src="/cms/lib/supra/img/medialibrary/icon-{% if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" alt="" /></div>\
-			<span>{{ title|escape }}</span>\
-			<span>{{ description|escape }}</span>\
+			<div class="preview">\
+				<img src="/cms/lib/supra/img/medialibrary/icon-{% if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" alt="" />\
+			</div>\
+			\
+			{% set current_locale = Supra.data.get("locale") %}\
+			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
+			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			\
+			<div class="group">\
+				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
+				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
+				<div class="info hidden">\
+					{% if extension %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
+							<span class="info-data">{{ extension|upper }} {{ "medialibrary.file"|intl }}</span>\
+						</div>\
+					{% endif %}\
+					<div>\
+						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
+						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+					</div>\
+					{% if created %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
+							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
+					{% endif %}\
+				</div>\
+			</div>\
 		</div>');
 	
 	/**
@@ -138,18 +165,52 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	List.TEMPLATE_IMAGE = Template.compile('\
 		<div class="image">\
-			<div class="preview">\
-			{% if broken %}\
-					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
-			{% else %}\
-				<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
-			{% endif %}\
+			<div class="drag-icon">\
+				<span>{{ "medialibrary.drag_n_drop"|intl }}</span>\
+				<span class="icon"></span>\
 			</div>\
-			<span>{{ title|escape }}</span>\
-			<span>{{ description|escape }}</span>\
+			<div class="preview">\
+				{% if broken %}\
+					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
+				{% else %}\
+					<img src="{{ previewUrl|escape }}?r={{ Math.random() }}" alt="" />\
+				{% endif %}\
+			</div>\
+			\
+			{% set current_locale = Supra.data.get("locale") %}\
+			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
+			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			\
+			<div class="group">\
+				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
+				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
+				<div class="info hidden">\
+					{% if extension %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
+							<span class="info-data">{{ extension|upper }} {{ "medialibrary.image"|intl }}</span>\
+						</div>\
+					{% endif %}\
+					<div>\
+						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
+						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+					</div>\
+					{% if created %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
+							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
+					{% endif %}\
+					{% if sizes %}\
+						<div>\
+							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
+							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
+						</div>\
+					{% endif %}\
+				</div>\
+			</div>\
 		</div>');
-	
-	
+		
 	
 	List.ATTRS = {
 		/**
@@ -438,7 +499,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, this);
 			}
 			
-			//Allow selecting files
+			//Allow selecting images
 			if (this.get('imagesSelectable')) {
 				content.delegate('mouseenter', function (e) {
 					e.target.ancestor().addClass('hover');
@@ -462,7 +523,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, 'div.image div.preview img', this);
 				
 				this.slideshow.on('slideChange', function () {
-					this.image_selected = false;
+					if (this.image_selected) {
+						this.image_selected = false;
+						this.fire('deselect');
+					}
 				}, this);
 			}
 		},
@@ -474,6 +538,22 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 */
 		syncUI: function () {
 			
+		},
+		
+		/**
+		 * 
+		 */
+		handleInfoToggleClick: function (event /* Event */) {
+			var node = event.target.closest('.group');
+			
+			node.one('div.info').toggleClass('hidden');
+			node.all('a.more, a.less').toggleClass('hidden');
+			
+			//Scrollbars
+			var content = node.closest('.su-scrollable-content');
+			content.fire('contentResize');
+			
+			event.halt();
 		},
 		
 		/**
@@ -514,7 +594,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					return file_id;
 				} else {
 					//Hide "Empty" message
-					slide.one('div.empty').addClass('hidden');
+					var empty = slide.one('div.empty');
+					if (empty) empty.addClass('hidden');
 				}
 				
 				var data = Supra.mix({
@@ -800,7 +881,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var remove_on_hide = !loading_folder;
 				slide = this.slideshow.addSlide({
 					'id': 'slide_' + id,
-					'removeOnHide': true
+					'removeOnHide': remove_on_hide
 				});
 				
 				if (loaded) {
@@ -930,6 +1011,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Open parent folder
+		 */
+		openPrevious: function () {
+			var history = this.slideshow.history,
+				item = history.length > 1 ? history[history.length - 2] : null;
+			
+			if (item) {
+				this.open(item.replace('slide_', ''));
+			}
+		},
+		
+		/**
 		 * Reload all media library data
 		 */
 		reload: function () {
@@ -1030,7 +1123,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					}
 					
 					node = this.renderTemplate(data[0], template);
+					node.setData('itemId', data[0].id);
+					
 					slide_content.empty().append(node);
+					
+					//More / less
+					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
+					
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {
 					//Folder

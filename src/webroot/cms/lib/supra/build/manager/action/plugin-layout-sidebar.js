@@ -220,13 +220,17 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					}
 					
 					//Show buttons
-					toolbar.setActiveAction(this.host.NAME);
-					buttons.setActiveAction(this.host.NAME);
+					if (toolbar.hasActionButtons(this.host.NAME)) {
+						toolbar.setActiveAction(this.host.NAME);
+						buttons.setActiveAction(this.host.NAME);
+					}
 				} else {
 					if (!this.host.get('frozen')) {
 						//Hide buttons
-						toolbar.unsetActiveAction(this.host.NAME);
-						buttons.unsetActiveAction(this.host.NAME);
+						if (toolbar.hasActionButtons(this.host.NAME)) {
+							toolbar.unsetActiveAction(this.host.NAME);
+							buttons.unsetActiveAction(this.host.NAME);
+						}
 					}
 					
 					//Hide action

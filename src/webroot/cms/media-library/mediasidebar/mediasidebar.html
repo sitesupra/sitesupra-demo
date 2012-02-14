@@ -1,17 +1,22 @@
 <div class="yui3-mediasidebar sidebar">
 	
 	<!-- Header -->
-	<h2 class="sidebar-header">{# mediasidebar.insert_image #}</h2>
-	
-	<!-- Buttons -->
-	<div class="sidebar-buttons">
-		<button type="button" class="button-back"><p>{# buttons.back #}</p></button>
-		<button type="button" class="button-close"><p>{# buttons.close #}</p></button>
-		<button type="button" class="button-insert"><p>{# buttons.insert #}</p></button>
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/files.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2>{# mediasidebar.insert_image #}</h2>
 	</div>
 	
 	<!-- Content -->
-	<div class="sidebar-content has-header has-buttons">
+	<div class="sidebar-content has-footer has-header loading">
 	</div>
 	
 	<!-- Footer -->

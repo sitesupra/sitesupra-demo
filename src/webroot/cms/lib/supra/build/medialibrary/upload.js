@@ -123,6 +123,12 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 */
 		subscribers: [],
 		
+		/**
+		 * Drag element is valid
+		 * @type {Boolean}
+		 */
+		valid_drag: true,
+		
 		
 		
 		/**
@@ -234,7 +240,6 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		dragEnter: function (evt) {
-			
 			evt.halt();
 		},
 		
@@ -242,7 +247,19 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			evt.halt();
 		},
 		
+		dragStart: function (evt) {
+			//Drag start is called only for elements, not files from outside
+			//the document
+			this.valid_drag = false;
+		},
+		
+		dragEnd: function (evt) {
+			this.valid_drag = true;
+		},
+		
 		dragOver: function (evt) {
+			if (!this.valid_drag) return;
+			
 			evt.halt();
 			
 			var target = evt.target,
@@ -287,6 +304,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		dragDrop: function (evt) {
+			if (!this.valid_drag) return;
 			evt.halt();
 			
 			if (this.last_drop_target) {
@@ -702,6 +720,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			//Add listeners
 			if (!disabled) {
 				if (FILE_API_SUPPORTED) {
+					this.subscribers.push(node.on('dragstart', this.dragStart, this));
+					this.subscribers.push(node.on('dragend',   this.dragEnd, this));
 					this.subscribers.push(node.on('dragenter', this.dragEnter, this));
 					this.subscribers.push(node.on('dragexit', this.dragExit, this));
 					this.subscribers.push(node.on('dragover', this.dragOver, this));

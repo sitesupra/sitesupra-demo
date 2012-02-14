@@ -446,6 +446,15 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				return;
 			}
 			
+			if (!image_data.sizes) {
+				//Data not loaded yet, wait till it finishes
+				Manager.MediaSidebar.medialist.get('dataObject').once('load:complete:' + image_id, function () {
+					this.dropImage(target, image_id);
+				}, this);
+				
+				return;
+			}
+			
 			var uid = htmleditor.generateDataUID(),
 				size_data = this.getImageDataBySize(image_data),
 				src = size_data.external_path,
@@ -639,7 +648,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			if (!image_id) return;
 			
 			//Only if dropped from gallery
-			if (image_id.match(/^\d+$/) && e.drop) {
+			if (image_id.match(/^\d[a-z0-9]+$/i) && e.drop) {
 				if (e.halt) e.halt();
 				this.dropImage(e.drop, image_id);
 			}
