@@ -311,7 +311,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Add item to the folder list
 				this.renderItem(data.parent, [data], true);
-				this.get('dataObject').addData(data.parent, [data]);
+				this.get('dataObject').addData(data.parent, [data], true);
 				
 				//Start editing
 				var slide = this.slideshow.getSlide('slide_' + data.parent),

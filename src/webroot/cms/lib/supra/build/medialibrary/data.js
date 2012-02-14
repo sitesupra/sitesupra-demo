@@ -36,7 +36,8 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		};
 		
 		this.data = [];
-		this.dataIndexed = {};		
+		this.dataIndexed = {};
+		this.dataLoaded = {};		
 		this.addAttrs(attrs, config || {});
 	}
 	
@@ -64,13 +65,22 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		dataIndexed: null,
 		
 		/**
+		 * Loaded data information
+		 * @type {Object}
+		 * @private
+		 */
+		dataLoaded: null,
+		
+		
+		/**
 		 * Add data to the parent.
 		 * Chainable
 		 * 
 		 * @param {Number} parent Parent folder ID
 		 * @param {Object} data File or folder data
+		 * @param {Boolean} new_data Data was not laoded from server
 		 */
-		addData: function (parent /* Parent folder ID */, data /* File or folder data */) {
+		addData: function (parent /* Parent folder ID */, data /* File or folder data */, new_data /* New data */) {
 			if (Y.Lang.isArray(data)) {
 				if (data.length) {
 					//Add each item to the list
@@ -95,6 +105,14 @@ YUI.add('supra.medialibrary-data', function (Y) {
 						indexed[parent].children.push(data.id);
 					} else if (!parent) {
 						this.data.push(data);
+					}
+					
+					if (new_data) {
+						if (!this.dataLoaded[parent]) {
+							if (!this.dataLoaded[parent]) this.dataLoaded[parent] = {'offset': 0, 'totalRecords': 0};
+							this.dataLoaded[parent].offset++;
+							this.dataLoaded[totalRecords].offset++;
+						}
 					}
 				} else {
 					Supra.mix(indexed[data.id], data);
@@ -213,12 +231,15 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				delete(this.dataIndexed);
 				delete(this.data);
 				
+				this.dataLoaded = {};
 				this.dataIndexed = {};
 				this.data = [];
 			} else {
 				var indexed = this.dataIndexed,
+					loaded = this.dataLoaded,
 					children,
 					child_index,
+					parent_id,
 					parent;
 				
 				if (id in indexed) {
@@ -233,20 +254,26 @@ YUI.add('supra.medialibrary-data', function (Y) {
 					
 					//Remove from parent children list
 					if (all) {
-						parent = indexed[id].parent;
-						if (parent && parent in indexed) {
-							parent = indexed[parent];
+						parent_id = indexed[id].parent;
+						if (parent_id && parent_id in indexed) {
+							parent = indexed[parent_id];
 							parent.children_count--;
 							if (parent.children) {
 								child_index = Y.Array.lastIndexOf(parent.children, id);
 								if (child_index != -1) {
 									parent.children.splice(child_index, 1);
+									
+									if (loaded[parent_id]) {
+										loaded[parent_id].offset--;
+										loaded[parent_id].totalRecords--;
+									}
 								}
 							}
 						}
 					}
 					
 					//Destroy data
+					delete(loaded[id]);
 					delete(indexed[id]);
 					
 					//Remove from root folder list (if it's there)
@@ -254,6 +281,10 @@ YUI.add('supra.medialibrary-data', function (Y) {
 					for(var i=0,ii=data_list.length; i<ii; i++) {
 						if (data_list[i].id == id) {
 							data_list.splice(i, 1);
+							
+							loaded[data_list[i].parent].offset--;
+							loaded[data_list[i].parent].totalRecords--;
+							
 							break;
 						}
 					}
@@ -353,8 +384,11 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * 
 		 * @param {Number} id File or folder ID
 		 * @param {Array} data Optional list of properties
+		 * @param {String} type Request type
+		 * @param {Number} offset Data offset
+		 * @param {Number} resultsPerRequest results per request
 		 */
-		loadData: function (id /* File or folder ID */, properties /* List of properties */, type /* Request type */) {
+		loadData: function (id /* File or folder ID */, properties /* List of properties */, type /* Request type */, offset /* Data offset */, resultsPerRequest /* Results per request */) {
 			var url = type == 'view' ? this.get('viewURI') : this.get('listURI'),
 				data;
 			
@@ -366,16 +400,24 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			properties = (properties || []).concat(REQUIRED_PROPERTIES);
 			properties = Y.Array.unique(properties).join(',');
 			
-			data = Supra.mix({
+			data = {
 				'id': id || 0,
 				'properties': properties
-			}, this.get('requestParams') || {}, data || {});
+			};
+			
+			if (type != 'view') {
+				//To list request add resultsPerRequest and offset
+				data.offset = parseInt(offset || 0, 10);
+				data.resultsPerRequest = parseInt(resultsPerRequest || 0, 10);
+			}
+			
+			Supra.mix(data, this.get('requestParams') || {});
 			
 			Supra.io(url, {
 				'data': data,
 				'context': this,
 				'on': {
-					'complete': function (data, success) { this.loadComplete(data, id || 0); }
+					'complete': function (data, success) { this.loadComplete(data, id || 0, type); }
 				}
 			});
 			
@@ -486,9 +528,10 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * 
 		 * @param {Object} data File or folder data
 		 * @param {Number} id Folder ID
+		 * @param {String} type Request type
 		 * @private
 		 */
-		loadComplete: function (data /* File or folder data */, id /* Folder ID */) {
+		loadComplete: function (data /* File or folder data */, id /* Folder ID */, type /* Request type */) {
 			if (!data || !data.records) {
 				Y.log('Supra.MediaLibraryData:loadData error occured while loading data for folder "' + id + '"', 'debug');
 				this.fire('load:failure', {'data': null});
@@ -499,6 +542,13 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				this.addData(id, data.records);
 				this.fire('load:success', {'id': id, 'data': data.records});
 				this.fire('load:success:' + id, {'id': id, 'data': data.records});
+				
+				//Update loaded data list
+				if (type == 'list') {
+					if (!this.dataLoaded[id]) this.dataLoaded[id] = {'offset': 0, 'totalRecords': 0};
+					this.dataLoaded[id].offset += data.records.length;
+					this.dataLoaded[id].totalRecords = data.totalRecords;
+				}
 			}
 			
 			this.fire('load:complete', {'id': id, 'data': data.records});
@@ -513,6 +563,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			delete(this.dataIndexed);
 			this.data = [];
 			this.dataIndexed = {};
+			this.dataLoaded = {};
 		}
 		
 	};

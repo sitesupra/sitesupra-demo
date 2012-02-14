@@ -608,8 +608,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}, data || {});
 				
 				//Add item to the file list
+				var data_object = this.get('dataObject');
+				
 				this.renderItem(parent_id, [data], true);
-				this.get('dataObject').addData(parent_id, [data]);
+				data_object.addData(parent_id, [data], true);
 				
 				return file_id;
 			}
