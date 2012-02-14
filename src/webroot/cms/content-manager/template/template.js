@@ -33,8 +33,7 @@ Supra(function (Y) {
 		/**
 		 * Duplicate template
 		 * 
-		 * @param {Number} template_id Template ID
-		 * @param {String} locale Current locale
+		 * @param {Object} post_data Post Data
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */

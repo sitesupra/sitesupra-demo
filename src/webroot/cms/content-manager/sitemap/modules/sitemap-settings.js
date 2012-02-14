@@ -309,6 +309,55 @@ YUI().add('website.sitemap-settings', function (Y) {
 		},
 		
 		/**
+		 * Get property value increment
+		 * 
+		 * @param {Object} this_data Page data
+		 */
+		getPropertyValueIncrement: function (this_data) {
+			var compare = [],
+				valueInc = [],
+				increment = 1,
+				dupe_title = this_data.title,
+				dupe_path = this_data.path,
+				parent_id = this_data.parent,
+				parent = this.host.flowmap.getNodeById(parent_id);
+
+			parent_data = parent ? parent.get('data') : null;
+			children_data = parent_data ? parent_data['children'] : null;
+
+			for (var key in children_data) {
+				var obj = children_data[key];
+				for (var prop in obj) {
+					if (!obj.temporary) {
+						if (prop == 'title') {
+							compare.push(obj[prop]);
+						}
+					}
+				}
+			}
+
+			if (parent_data) {
+				var re = new RegExp('^'+ Y.Escape.regex(dupe_title));
+				for (i=0; i<=compare.length-1; i++) {
+					var match = re.exec(compare[i]);
+					if (match != null) {
+						increment++;
+					}
+				}
+			}
+		   
+			if (increment > 1) {
+				valueInc['0'] = dupe_title + ' ('+ increment +')';
+				valueInc['1'] = dupe_path + '-'+ increment;
+			}
+			else {
+				valueInc['0'] = dupe_title;
+				valueInc['1'] = dupe_path;
+			}
+			return valueInc;
+		},
+		
+		/**
 		 * Duplicate selected page or template
 		 * 
 		 * @private
@@ -321,7 +370,10 @@ YUI().add('website.sitemap-settings', function (Y) {
 				locale = this.host.languagebar.get('locale'),
 				type = this.host.getType(),
 				target = null,
-				target_fn = null;
+				target_fn = null,
+				valueInc = [],
+				duplicate_title = '',
+				duplicate_path = '';
 			
 			if (type == 'templates') {
 				target = Manager.getAction('Template');
@@ -331,7 +383,21 @@ YUI().add('website.sitemap-settings', function (Y) {
 				target_fn = 'duplicatePage';
 			}
 			
-			target[target_fn](page_id, locale, function () {
+			//Get Property Value Increment
+			valueInc = this.getPropertyValueIncrement(this.data);
+			if (valueInc['0'] != null) {
+				duplicate_title = valueInc['0'];
+			}
+			if (valueInc['1'] != null) {
+				duplicate_path = valueInc['1'];
+			}
+
+			target[target_fn]({
+				'page_id': page_id,
+				'locale': locale,
+				'title': duplicate_title,
+				'path': duplicate_path
+			}, function () {
 				//Hide properties
 				this.panel.hide();
 				this.data = null;

@@ -308,6 +308,53 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 			});
 		},
 		
+		/**
+		 * Get property value increment
+		 * 
+		 * @param {perent_node}
+		 * @param {default_data_title}
+		 * @param {default_data_path}
+		 */
+		getPropertyValueIncrement: function (parent_node, default_data_title, default_data_path) {
+			var compare = [];
+			var valueInc = [];
+			var increment = 1;
+
+			parent_data = parent_node ? parent_node.get('data') : null;
+			children_data = parent_data ? parent_data['children'] : null;
+
+			for (var key in children_data) {
+				var obj = children_data[key];
+				for (var prop in obj) {
+					if (!obj.temporary) {
+						if (prop == 'title') {
+							compare.push(obj[prop]);
+						}
+					}
+				}
+			}
+
+			if (parent_data) {
+				var re = new RegExp('^'+ Y.Escape.regex(default_data_title));
+				for (i=0; i<=compare.length-1; i++) {
+					var match = re.exec(compare[i]);
+					if (match != null) {
+						increment++;
+					}
+				}
+			}
+
+			if (increment > 1) {
+				valueInc['0'] = default_data_title + ' ('+ increment +')';
+				valueInc['1'] = default_data_path + '-'+ increment;
+			}
+			else {
+				valueInc['0'] = default_data_title;
+				valueInc['1'] = default_data_path;
+			}
+			return valueInc;
+		},
+		
 		addChildNodeTemporary: function (data) {
 			var default_data = this.type == 'templates' ? TREENODE_TEMPLATE_DATA : TREENODE_PAGE_DATA,
 				page_data = SU.mix({}, default_data, data),
@@ -333,6 +380,15 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				//Expand parent
 				parent_node.expand();
 				
+				//Get Property Value Increment
+				var valueInc = this.getPropertyValueIncrement(parent_node, default_data.title, default_data.path);
+				if (valueInc['0'] != null) {
+					page_data.title = valueInc['0'];
+				}
+				if (valueInc['1'] != null) {
+					page_data.path = valueInc['1'];
+				}
+				
 				//Create node
 				node = parent_node.add({
 					'label': page_data.title,
@@ -340,7 +396,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 					'data': page_data,
 					'isDropTarget': false
 				}, this.new_page_index);
-				
+
 			} else {
 				//Add new root level item
 				

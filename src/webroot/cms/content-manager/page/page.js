@@ -637,19 +637,16 @@ Supra(function (Y) {
 		/**
 		 * Duplicate page
 		 *
-		 * @param {Number} page_id Page ID
-		 * @param {String} locale Current locale
+		 * @param {Object} post_data Post Data
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		duplicatePage: function (page_id, locale, callback, context) {
+		duplicatePage: function (post_data, callback, context) {
 			var uri = this.getDataPath('duplicate');
 			
-			var post_data = {
-				'page_id': page_id,
-				'locale': locale,
+			post_data = Supra.mix({
 				'action': 'duplicate'
-			};
+			}, post_data);
 			
 			Supra.io(uri, {
 				'data': post_data,
