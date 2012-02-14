@@ -11,13 +11,24 @@ use Supra\Controller\Pages\PageController;
 use Project\GoogleAnalytics\GoogleAnalyticsListener;
 use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
+use Supra\Configuration\Exception\ConfigurationMissing;
 
 $eventManager = new EventManager();
 
 $userProvider = ObjectRepository::getUserProvider('#cms');
 
-$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
-$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
+$ini = ObjectRepository::getIniConfigurationLoader('');
+
+try {
+	$connectionOptions = $ini->getSection('external_user_database');
+	if ( ! $connectionOptions['active']) {
+		throw new ConfigurationMissing('');
+	}
+	
+} catch (ConfigurationMissing $e) {
+	$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
+	$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
+}
 
 ObjectRepository::setEventManager($userProvider, $eventManager);
 

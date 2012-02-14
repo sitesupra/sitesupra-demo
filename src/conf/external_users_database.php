@@ -22,6 +22,9 @@ use Supra\Configuration\Exception\ConfigurationMissing;
 $ini = ObjectRepository::getIniConfigurationLoader('');
 try {
 	$connectionOptions = $ini->getSection('external_user_database');
+	if ( ! $connectionOptions['active']) {
+		return;
+	}
 } catch (ConfigurationMissing $e) {
 	return;
 }
