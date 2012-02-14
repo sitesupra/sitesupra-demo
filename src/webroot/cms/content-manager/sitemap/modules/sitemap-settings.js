@@ -320,10 +320,9 @@ YUI().add('website.sitemap-settings', function (Y) {
 				dupe_title = this_data.title,
 				dupe_path = this_data.path,
 				parent_id = this_data.parent,
-				parent = this.host.flowmap.getNodeById(parent_id);
-
-			parent_data = parent ? parent.get('data') : null;
-			children_data = parent_data ? parent_data['children'] : null;
+				parent = this.host.flowmap.getNodeById(parent_id),
+				parent_data = parent ? parent.get('data') : null,
+				children_data = parent_data ? parent_data['children'] : null;
 
 			for (var key in children_data) {
 				var obj = children_data[key];
@@ -338,7 +337,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 
 			if (parent_data) {
 				var re = new RegExp('^'+ Y.Escape.regex(dupe_title));
-				for (i=0; i<=compare.length-1; i++) {
+				for (var i=0,ii=compare.length; i<ii; i++) {
 					var match = re.exec(compare[i]);
 					if (match != null) {
 						increment++;

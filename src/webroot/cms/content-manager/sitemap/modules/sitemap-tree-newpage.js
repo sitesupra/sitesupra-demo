@@ -316,12 +316,11 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 * @param {default_data_path}
 		 */
 		getPropertyValueIncrement: function (parent_node, default_data_title, default_data_path) {
-			var compare = [];
-			var valueInc = [];
-			var increment = 1;
-
-			parent_data = parent_node ? parent_node.get('data') : null;
-			children_data = parent_data ? parent_data['children'] : null;
+			var compare = [],
+				valueInc = [],
+				increment = 1,
+				parent_data = parent_node ? parent_node.get('data') : null,
+				children_data = parent_data ? parent_data['children'] : null;
 
 			for (var key in children_data) {
 				var obj = children_data[key];
