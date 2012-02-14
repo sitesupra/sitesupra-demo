@@ -95,7 +95,7 @@ class UserNotificationService
 		$em = $this->getEntityManager();
 
 		$notification->setIsRead(false);
-		$notification->setUser($user);
+		$notification->setUserId($user->getId());
 
 		$em->persist($notification);
 		$em->flush();
@@ -127,7 +127,7 @@ class UserNotificationService
 		$repo = $this->getUserNotificationRepository();
 
 		$criteria = array(
-			'user_id' => $user->getId()
+			'userId' => $user->getId()
 		);
 
 		$result = $repo->findBy($criteria);
@@ -141,11 +141,11 @@ class UserNotificationService
 		$qb = $em->createQueryBuilder();
 
 		$qb->from(UserNotification::CN(), 'un')
-				->where('un.user_id = :user_id')
+				->where('un.userId = :userId')
 				->andWhere('un.isRead = :isRead')
 				->andWhere('un.isVisible = :isVisible');
 
-		$qb->set('user_id', $user->getId());
+		$qb->set('userId', $user->getId());
 		$qb->set('isRead', $isRead);
 		$qb->set('isVisible', $isVisible);
 

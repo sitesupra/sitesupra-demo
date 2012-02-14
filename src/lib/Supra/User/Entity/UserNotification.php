@@ -12,9 +12,9 @@ use \DateTime;
 /**
  * @Entity
  * @Table(indexes={
- * 		@index(name="user_id_idx", columns={"user_id"}),
- *		@index(name="isRead_idx", columns={"isRead"}),
- *		@index(name="isVisible_idx", columns={"isVisible"})
+ * 		@index(name="userId_idx", columns={"userId"}),
+ * 		@index(name="isRead_idx", columns={"isRead"}),
+ * 		@index(name="isVisible_idx", columns={"isVisible"})
  * })
  * @HasLifecycleCallbacks
  */
@@ -22,11 +22,10 @@ class UserNotification extends Database\Entity
 {
 
 	/**
-	 * @ManyToOne(targetEntity="User")
-	 * @JoinColumn(name="user_id", referencedColumnName="id")
-	 * @var User
+	 * @Column(type="string", nullable=false)
+	 * @var string
 	 */
-	protected $user;
+	protected $userId;
 
 	/**
 	 * @Column(type="boolean", nullable=false)
@@ -89,24 +88,52 @@ class UserNotification extends Database\Entity
 	 */
 	protected $readTime;
 
-	public function getUser()
+	/**
+	 * @return string
+	 */
+	public function getUserId()
 	{
-		return $this->user;
+		return $this->userId;
 	}
 
-	public function setUser($user)
+	/**
+	 * @param string $userId 
+	 */
+	public function setUserId($userId)
 	{
-		$this->user = $user;
+		$this->userId = $userId;
 	}
 
-	public function getFrom()
+	/**
+	 * @return string
+	 */
+	public function getSender()
 	{
-		return $this->from;
+		return $this->sender;
 	}
 
-	public function setFrom($from)
+	/**
+	 * @param string $sender 
+	 */
+	public function setSender($sender)
 	{
-		$this->from = $from;
+		$this->sender = $sender;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getIsVisible()
+	{
+		return $this->isVisible;
+	}
+
+	/**
+	 * @param boolean $isVisible 
+	 */
+	public function setIsVisible($isVisible)
+	{
+		$this->isVisible = $isVisible;
 	}
 
 	public function getIsRead()
