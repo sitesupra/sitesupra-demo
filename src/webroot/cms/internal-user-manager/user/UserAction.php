@@ -163,14 +163,44 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$user = $this->userProvider
 				->createUser();
-		//$user = new Entity\User();
-		//$em->persist($user);
 
-		// TODO: add group, avatar
 		$user->setName($name);
 		$user->setEmail($email);
-
 		$user->setGroup($group);
+
+		if ( ! $input->isEmpty('avatar_id', false)) {
+			$avatar = $input->get('avatar_id');
+
+			if (in_array($avatar, UseravatarAction::getPredefinedAvatarIds())) {
+				$user->setAvatar($avatar);
+				$user->setPersonalAvatar(false);
+			} else {
+				$user->setPersonalAvatar(true);
+
+				$basePath = $this->getAvatarsPath();
+				$userId = $user->getId();
+				
+				// Moving from the temporary path
+				if ($userId != $avatar) {
+					$result = false;
+					foreach (UseravatarAction::$avatarSizes as $sizeId => $size) {
+
+						$tmpPath = $this->generateAvatarPath($basePath, $avatar, $sizeId);
+						$path = $this->generateAvatarPath($basePath, $userId, $sizeId);
+						$result = rename($tmpPath, $path);
+
+						if ( ! $result) {
+							break;
+						}
+					}
+
+					// No success
+					if ( ! $result) {
+						$user->setPersonalAvatar(false);
+					}
+				}
+			}
+		}
 
 		try {
 			$this->userProvider->validate($user);
@@ -181,6 +211,7 @@ class UserAction extends InternalUserManagerAbstractAction
 		
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
+		$this->userProvider->updateUser($user);
 	
 		$this->sendPasswordChangeLink($user, 'createpassword');
 
@@ -224,9 +255,12 @@ class UserAction extends InternalUserManagerAbstractAction
 			$user->setEmail($email);
 		}
 
-		if ($input->has('avatar_id')) {
+		if ( ! $input->isEmpty('avatar_id', false)) {
 			$avatar = $input->get('avatar_id');
-			if ($user->setAvatar($avatar)) {
+
+			$predefinedAvatarIds = UseravatarAction::getPredefinedAvatarIds();
+			if (in_array($avatar, $predefinedAvatarIds)) {
+				$user->setAvatar($avatar);
 				$user->setPersonalAvatar(false);
 			}
 		}
@@ -239,6 +273,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
+		$this->userProvider->updateUser($user);
 
 		$this->writeAuditLog('save user', "User '" . $user->getName() . "' saved");
 

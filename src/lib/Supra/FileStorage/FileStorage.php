@@ -265,7 +265,7 @@ class FileStorage
 		}
 		//TODO: Pass message to Media Library?
 //		else {
-//			throw new FileStorageException('File does not exist in ' . $path);
+//			throw new Exception\RuntimeException('File does not exist in ' . $path);
 //		}
 	}
 

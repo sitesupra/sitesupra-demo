@@ -103,11 +103,15 @@ Supra('supra.input', function (Y) {
 		 * On change update user data with form values
 		 */
 		onDataChange: function () {
-			var values = this.form.getValues(data, 'name'),
+			var values = this.form.getValues('name'),
 				data = Manager.getAction('User').getData();
-			
+
 			//Mix form values into data
+			var avatar = data.avatar,
+				avatar_id = data.avatar_id;
 			Supra.mix(data, values);
+			data.avatar = avatar;
+			data.avatar_id = avatar_id;
 			
 			this.updateUI(data);
 		},
@@ -119,7 +123,7 @@ Supra('supra.input', function (Y) {
 		 * @private
 		 */
 		setUserData: function (data /* User data */) {
-			
+
 			this.updateUI(data);
 			
 			this.form.setValues(data, 'name');
@@ -188,7 +192,7 @@ Supra('supra.input', function (Y) {
 			user.slideshow.set('slide', this.NAME);
 			
 			//Update UI with user data
-			this.setUserData(Manager.getAction('User').getData());
+			this.setUserData(user.getData());
 		}
 	});
 	

@@ -6,8 +6,7 @@ use Supra\Cms\CmsAction;
 use Supra\User\Entity;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
-use Supra\User\UserProvider;
-//use Doctrine\ORM\EntityManager;
+use Supra\User\UserProviderInterface;
 use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Mailer\Message\TwigMessage;
 use Supra\Cms\CmsApplicationConfiguration;
@@ -21,19 +20,18 @@ class InternalUserManagerAbstractAction extends CmsAction
 {
 
 	/**
-	 * @var UserProvider
+	 * @var UserProviderInterface
 	 */
 	protected $userProvider;
-
-	/**
-	 * @var EntityManager
-	 */
-	//protected $entityManager;
 
 	/**
 	 * @var array
 	 */
 	protected $dummyGroupMap;
+
+	/**
+	 * @var array
+	 */
 	protected $reverseDummyGroupMap;
 
 	/**
@@ -44,7 +42,6 @@ class InternalUserManagerAbstractAction extends CmsAction
 		parent::__construct();
 
 		$this->userProvider = ObjectRepository::getUserProvider($this);
-		//$this->entityManager = $this->userProvider->getEntityManager();
 
 		//TODO: implement normal group loader and IDs
 		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
@@ -101,7 +98,6 @@ class InternalUserManagerAbstractAction extends CmsAction
 			default:
 				throw new \Supra\User\Exception\RuntimeException('Incorrect entity was requested');
 		}
-		//$entity = $this->userProvider->findById($id);
 		
 		if ( ! $entity instanceof $className) {
 			throw new CmsException('internalusermanager.validation_error.user_not_exists');
@@ -189,7 +185,8 @@ class InternalUserManagerAbstractAction extends CmsAction
 
 		$systemInfo = ObjectRepository::getSystemInfo($this);
 		$host = $systemInfo->getHostName(\Supra\Info::WITH_SCHEME);
-		
+
+		// TODO: hardcoded CMS path
 		$url = $host . '/cms/restore';
 		$query = http_build_query(array(
 			'e' => $userMail,
@@ -278,7 +275,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 				$response['avatar_id'] = $user->getAvatar();
 			}
 			
-			$response['avatar'] = UseravatarAction::getAvatarExternalPath($user, '48x48');
+			$response['avatar'] = $this->getAvatarExternalPath($user);
 		} else {
 			
 			$response['email'] = 'N/A';
@@ -291,6 +288,73 @@ class InternalUserManagerAbstractAction extends CmsAction
 		}
 
 		return $response;
+	}
+
+	/**
+	 * @param Entity\User $user
+	 * @param string $sizeId
+	 * @return string
+	 */
+	protected function getAvatarExternalPath(Entity\User $user, $sizeId = '48x48')
+	{
+		if ( ! $user instanceof Entity\User) {
+			return null;
+		}
+
+		if ( ! $user->hasPersonalAvatar()) {
+			foreach (UseravatarAction::$sampleAvatars as $sampleAvatar) {
+				if ($sampleAvatar['id'] == $user->getAvatar()) {
+					return $sampleAvatar['sizes'][$sizeId]['external_path'];
+				}
+			}
+		} else {
+			return $this->generateAvatarPath($this->getAvatarsWebPath(), $user->getId(), $sizeId);
+		}
+	}
+
+	/**
+	 * @param string $base
+	 * @param string $userId
+	 * @param string $sizeId
+	 * @return string
+	 */
+	protected function generateAvatarPath($base, $userId, $sizeId)
+	{
+		return $base . $userId . '_' . $sizeId;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getAvatarsPath()
+	{
+		$fileStorage = ObjectRepository::getFileStorage($this);
+		$path = $fileStorage->getExternalPath();
+
+		$path = $path . '_avatars' . DIRECTORY_SEPARATOR;
+
+		return $path;
+	}
+
+	/**
+	 * @return string
+	 * @throws \Supra\Configuration\Exception\InvalidConfiguration
+	 */
+	protected function getAvatarsWebPath()
+	{
+		$path = $this->getAvatarsPath();
+
+		if (strpos($path, SUPRA_WEBROOT_PATH) !== 0) {
+			throw new \Supra\Configuration\Exception\InvalidConfiguration("File storage external path $path isn't inside webroot " . SUPRA_WEBROOT_PATH);
+		}
+
+		$path = substr($path, strlen(SUPRA_WEBROOT_PATH) - 1);
+
+		if (DIRECTORY_SEPARATOR != '/') {
+			$path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+		}
+		
+		return $path;
 	}
 
 }

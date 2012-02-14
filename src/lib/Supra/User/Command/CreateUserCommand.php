@@ -14,6 +14,9 @@ use Supra\FileStorage\Entity\Abstraction\File;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\Controller\Pages\Entity\Template;
+use Supra\User\UserProviderInterface;
+use Doctrine\ORM\EntityManager;
+use Supra\Authorization\AuthorizationProvider;
 
 /**
  * CreateUserCommand
@@ -22,9 +25,19 @@ use Supra\Controller\Pages\Entity\Template;
  */
 class CreateUserCommand extends Command
 {
-
+	/**
+	 * @var UserProviderInterface
+	 */
 	private $userProvider;
+
+	/**
+	 * @var EntityManager
+	 */
 	private $entityManager;
+
+	/**
+	 * @var AuthorizationProvider
+	 */
 	private $authorizationProvider;
 
 	/**
@@ -94,7 +107,6 @@ class CreateUserCommand extends Command
 
 		$user = $this->userProvider->createUser();
 
-		// TODO: add avatar
 		$user->setName($name);
 		$user->setEmail($email);
 
@@ -104,6 +116,7 @@ class CreateUserCommand extends Command
 
 		$authAdapter = $this->userProvider->getAuthAdapter();
 		$authAdapter->credentialChange($user);
+		$this->userProvider->updateUser($user);
 
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
 

@@ -161,15 +161,11 @@ class User extends AbstractUser
 
 	/**
 	 * @param string $avatarId - Predefined avatar id. One of UseravatarAction::$sampleAvatars
-	 * @return boolean
 	 */
 	public function setAvatar($avatarId)
 	{
-		if (in_array($avatarId, UseravatarAction::getPredefinedAvatarIds())) {
-			$this->avatarId = $avatarId;
-			return true;
-		}
-		return false;
+		$this->avatarId = $avatarId;
+		$this->personalAvatar = false;
 	}
 
 	/**

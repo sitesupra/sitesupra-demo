@@ -195,6 +195,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$authAdapter = $userProvider->getAuthAdapter();
 		
 		$authAdapter->credentialChange($user, $password);
+		$userProvider->updateUser($user);
 		
 		$response->redirect(self::LOGIN_PAGE);
 	}

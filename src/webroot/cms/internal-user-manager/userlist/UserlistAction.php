@@ -71,7 +71,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 			$result[] = array(
 				'id' => $user->getId(),
-				'avatar' => UseravatarAction::getAvatarExternalPath($user, '48x48'),
+				'avatar' => $this->getAvatarExternalPath($user, '48x48'),
 				'name' => $user->getName(),
 				'group' => $this->groupToDummyId($user->getGroup())
 			);
@@ -120,10 +120,11 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			$user->setGroup($newGroup);	
 		}
 		
-		//$this->entityManager->flush();
 		$this->userProvider
 				->getAuthAdapter()
 				->credentialChange($user);
+
+		$this->userProvider->updateUser($user);
 		
 		$this->writeAuditLog('update user', 
 				"User '" . $user->getName()

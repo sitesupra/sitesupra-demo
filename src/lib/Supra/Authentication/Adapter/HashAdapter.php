@@ -94,12 +94,6 @@ class HashAdapter implements AuthenticationAdapterInterface
 			$passHash = $this->getAlgorythm()->crypt($password, $salt);
 			$user->setPassword($passHash);
 		}
-		
-		// Flush automatically
-		$userProvider = ObjectRepository::getUserProvider($this);
-		//$userProvider->getEntityManager()
-				//->flush();
-		$userProvider->updateUser($user);
 	}
 	
 	/**

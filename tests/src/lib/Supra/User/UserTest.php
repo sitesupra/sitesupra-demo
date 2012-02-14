@@ -87,7 +87,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$this->userProvider->getAuthAdapter()
 				->credentialChange($user, $this->password);
-		
+
+		$this->userProvider->updateUser($user);
 	}
 
 	public function testModifyUser()
@@ -109,6 +110,8 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 		
 		$this->userProvider->getAuthAdapter()
 				->credentialChange($user);
+
+		$this->userProvider->updateUser($user);
 		
 		$user = $this->userProvider
 				->findUserByEmail($randomEmail);
@@ -141,8 +144,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 			return;
 		}
 		
-		//$this->em->flush();
-
+		$this->userProvider->updateUser($user);
 		$this->fail('Succeed to change email');
 	}
 
@@ -185,14 +187,15 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 				->credentialChange($user, $this->password);
 
 		$userProvider->validate($user);
+		$this->userProvider->updateUser($user);
 
 		$user = $userProvider->createUser();
 
 		$user->setName(self::TEST_USER_NAME);
 		$user->setEmail($randomEmail);
 		
-		//$this->userProvider->getAuthAdapter()
-				//->credentialChange($user, $this->password);
+		$this->userProvider->getAuthAdapter()
+				->credentialChange($user, $this->password);
 
 		try {
 			$userProvider->validate($user);
@@ -200,6 +203,7 @@ class UserTest extends \PHPUnit_Extensions_OutputTestCase
 			return;
 		}
 
+		$this->userProvider->updateUser($user);
 		$this->fail('Test should catch Runtime exception because user with same email already exists.');
 	}
 	

@@ -73,7 +73,6 @@ Supra('supra.panel', 'transition', function (Y) {
 		 */
 		render: function () {
 			
-			var user = Manager.getAction('User');
 			var details = Manager.getAction('UserDetails'),
 				target = details.one('div.info em');
 			

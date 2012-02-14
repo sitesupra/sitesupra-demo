@@ -77,8 +77,8 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$this->up->getAuthAdapter()
 				->credentialChange($user, $password);
 
-		//$this->up->getEntityManager()->flush();		
-		
+		$this->up->updateUser($user);
+
 		\Log::debug('Made test user: ' . $name);
 		
 		return $user;

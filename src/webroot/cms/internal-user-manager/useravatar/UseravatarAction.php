@@ -4,10 +4,10 @@ namespace Supra\Cms\InternalUserManager\Useravatar;
 
 use Supra\Cms\InternalUserManager\InternalUserManagerAbstractAction;
 use Supra\Validator;
-use Supra\FileStorage\FileStorageException;
 use Supra\FileStorage\ImageProcessor\ImageResizer;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
+use Supra\Cms\Exception\CmsException;
 
 /**
  * UseravatarAction
@@ -113,29 +113,6 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 		parent::__construct();
 	}
 
-	/**
-	 * @param string $id
-	 * @param string $size
-	 * @param $user
-	 * @return string 
-	 */
-	public static function getAvatarExternalPath($user, $size)
-	{
-		if ( ! $user instanceof User) {
-			return null;
-		}
-		
-		if ( ! $user->hasPersonalAvatar()) {
-			foreach (self::$sampleAvatars as $sampleAvatar) {
-				if ($sampleAvatar['id'] == $user->getAvatar()) {
-					return $sampleAvatar['sizes'][$size]['external_path'];
-				}
-			}
-		} else {
-			return self::getAvatarsPath() . $user->getId() . '_' . $size;
-		}
-	}
-
 	public function useravatarAction()
 	{
 		$this->getResponse()->setResponseData(self::$sampleAvatars);
@@ -143,13 +120,11 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 
 	public function uploadAction()
 	{
-
-		$request = $this->request;
+		$this->isPostRequest();
+		$input = $this->getRequestInput();
+		$request = $this->getRequest();
+		$user = null;
 		/* @var $request \Supra\Request\HttpRequest */
-
-		if ( ! $request->isPost()) {
-			throw new CmsException(null, 'Post request expected');
-		}
 
 		// getting File data
 		try {
@@ -159,12 +134,9 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 			throw new CmsException(null, 'Empty file');
 		}
 
-		//$em = ObjectRepository::getEntityManager($this);
-
 		// find user
-		try {
-			$userId = $request->getPostValue('user_id');
-			//$userRepo = $em->getRepository('Supra\User\Entity\User');
+		if ( ! $input->isEmpty('user_id')) {
+			$userId = $input->get('user_id');
 
 			$user = $this->userProvider
 					->findUserById($userId);
@@ -172,8 +144,9 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 			if ( ! $user instanceof User) {
 				throw new CmsException(null, 'Could not find a user');
 			}
-		} catch (Validator\Exception\RuntimeException $e) {
-			throw new CmsException(null, 'Empty user');
+		// Uploading for new user
+		} else {
+			$userId = '_tmp' . mt_rand();
 		}
 
 		$fileStorage = ObjectRepository::getFileStorage($this);
@@ -184,16 +157,17 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 		}
 
 		$originalFilePath = $file['tmp_name'];
-		$fullPath = self::getAvatarsPath(false);
+		$fullPath = $this->getAvatarsPath();
 
 		if ( ! is_dir($fullPath)) {
 			if ( ! mkdir($fullPath, $fileStorage->getFolderAccessMode(), true)) {
-				throw new FileStorageException('Could not create avatars folder');
+				throw new CmsException('Could not create avatars folder');
 			}
 		}
 		
 		$response = array(
 			'sizes' => array(),
+			'id' => $userId,
 		);
 
 		// resizing images
@@ -205,32 +179,29 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 					->setTargetHeight($size['height'])
 					->setCropMode(true);
 
-			$path = $fullPath . $userId . '_' . $sizeId;
+			$path = $this->generateAvatarPath($fullPath, $userId, $sizeId);
 			$resizer->setOutputFile($path);
 			$resizer->process();
-			
-			$response['sizes'][$sizeId]['external_path'] = self::getAvatarsPath() . $userId . '_' . $sizeId;
-			
+
+			$response['sizes'][$sizeId]['external_path'] = $this->generateAvatarPath($this->getAvatarsWebPath(), $userId, $sizeId);
 		}
 
 		$originalsPath = $fullPath . 'originals' . DIRECTORY_SEPARATOR;
 
 		if ( ! is_dir($originalsPath)) {
 			if ( ! mkdir($originalsPath, $fileStorage->getFolderAccessMode(), true)) {
-				throw new FileStorageException('Could not create original avatars folder');
+				throw new CmsException('Could not create original avatars folder');
 			}
 		}
 
 		if ( ! move_uploaded_file($originalFilePath, $originalsPath . $userId)) {
-			throw new FileStorageException('Could not save original avatar to file system');
+			throw new CmsException('Could not save original avatar to file system');
 		}
 
-		//$em->persist($user);
-		$user->setPersonalAvatar(true);
-		
-		$this->userProvider
-				->getAuthAdapter()
-				->credentialChange($user);
+		if ( ! is_null($user)) {
+			$user->setPersonalAvatar(true);
+			$this->userProvider->updateUser($user);
+		}
 		
 		$this->getResponse()->setResponseData($response);
 	}
@@ -243,23 +214,10 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 	{
 		$ids = array();
 		foreach (self::$sampleAvatars as $avatar) {
-			$ids[] = $avatar['id'];
+			$ids[] = (string) $avatar['id'];
 		}
 
 		return $ids;
-	}
-
-	private static function getAvatarsPath($forWeb = true)
-	{
-		$fileStorage = ObjectRepository::getFileStorage(self);
-		$externalPath = $fileStorage->getExternalPath();
-
-		if ($forWeb) {
-			$externalPath = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $externalPath);
-		}
-
-		$fullPath = $externalPath . '_avatars' . DIRECTORY_SEPARATOR;
-		return $fullPath;
 	}
 
 }
