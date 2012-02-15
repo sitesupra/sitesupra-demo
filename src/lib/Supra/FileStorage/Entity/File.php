@@ -119,7 +119,11 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 			return null;
 		}
 	}
-
+	
+	public function getMetaDataCollection() {
+		return $this->metaData;
+	}
+	
 	/**
 	 * Get localized title
 	 *
@@ -157,17 +161,55 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	}
 	
 	/**
+	 * Get list of localized descriptions
+	 * 
+	 * @return array
+	 */
+	public function getDescriptionArray()
+	{
+		$description = array();
+		
+		$metaDataCollection = $this->getMetaDataCollection();
+		
+		foreach($metaDataCollection as $locale => $metaData) {
+			/* @var $metaData MetaData */
+			$description[$locale] = $metaData->getDescription();
+		}
+		
+		return $description;
+	}
+	
+	/**
+	 * Get list of localized descriptions
+	 * 
+	 * @return array
+	 */
+	public function getTitleArray()
+	{
+		$title = array();
+		
+		$metaDataCollection = $this->getMetaDataCollection();
+		
+		foreach($metaDataCollection as $locale => $metaData) {
+			/* @var $metaData MetaData */
+			$title[$locale] = $metaData->getTitle();
+		}
+		
+		return $title;
+	}
+	
+	/**
 	 * {@inheritdoc}
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getInfo($locale)
+	public function getInfo($locale = null)
 	{
 		$info = parent::getInfo($locale);
 		
 		$info = $info + array(
-			'title' => $this->getTitle($locale),
-			'description' => $this->getDescription($locale),
+			'title' => (is_null($locale) ? $this->getTitleArray() : $this->getTitle($locale) ),
+			'description' => (is_null($locale) ? $this->getDescriptionArray() :  $this->getDescription($locale)),
 			'size' => $this->getSize()
 		);
 		

@@ -398,12 +398,13 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getInfo($locale)
+	public function getInfo($locale = null)
 	{
 		$info = array(
 			'id' => $this->getId(),
 			'filename' => $this->getFileName(),
-			'type' => static::TYPE_ID
+			'type' => static::TYPE_ID,
+			'created' => $this->getCreationTime()->format('c'),
 		);
 
 		return $info;

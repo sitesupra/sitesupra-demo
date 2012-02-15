@@ -315,6 +315,7 @@
 			"delete": "removed",
 			"change": "changed",
 			"restore": "version restored",
+			"duplicate": "duplicated",
 			"by": "by",
 			
 			"today": "Today",

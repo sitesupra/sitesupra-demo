@@ -17,16 +17,16 @@ class MetaData extends Abstraction\Entity
 	protected $locale;
 
 	/**
-	 * @Column(type="string")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $title;
 
 	/**
-	 * @Column(type="string")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
-	protected $description = '';
+	protected $description;
 
 	/**
 	 * @ManyToOne(targetEntity="File", cascade={"persist"}, inversedBy="metaData")

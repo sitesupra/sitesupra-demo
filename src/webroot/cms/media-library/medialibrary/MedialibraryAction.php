@@ -195,6 +195,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$title = $this->getRequestParameter('title');
 		$file = $this->getEntity();
 		$localeId = $this->getLocale()->getId();
+		
+		$localeManager = ObjectRepository::getLocaleManager($this);
 
 		$originalTitle = $file->getTitle();
 		$file->setOriginalTitle($originalTitle);
@@ -241,11 +243,56 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			
 			if ($this->hasRequestParameter('title')) {
 				$title = $this->getRequestParameter('title');
+				
+				if (is_array($title)) {
+					$localeId = key($title);
+					$title = array_shift($title);
+					
+					if ( ! $localeManager->exists($localeId)) {
+						throw new CmsException(null, "Specified locale {$localeId} not found");
+					}
+				}
+				
 				$metaData = $file->getMetaData($localeId);
+				
+				if (is_null($metaData)) {
+					$metaData = new Entity\MetaData($localeId);
+					$metaData->setMaster($file);
+					$file->setMetaData($metaData);
+				}
+				
 				$metaData->setTitle($title);
 				
-				$this->entityManager->flush();
+				
+				
 			}
+			
+			if ($this->hasRequestParameter('description')) {
+				$description = $this->getRequestParameter('description');
+				
+				if (is_array($description)) {
+					$localeId = key($description);
+					$description = array_shift($description);
+					
+					if ( ! $localeManager->exists($localeId)) {
+						throw new CmsException(null, "Specified locale {$localeId} not found");
+					}
+				}
+				
+				$metaData = $file->getMetaData($localeId);
+				
+				if (is_null($metaData)) {
+					$metaData = new Entity\MetaData($localeId);
+					$metaData->setMaster($file);
+					$file->setMetaData($metaData);
+				}
+				
+				$metaData->setDescription($description);
+			}
+			
+			
+			$this->entityManager->flush();
+			
 		}
 
 		$fileId = $file->getId();
@@ -455,7 +502,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	private function imageAndFileOutput(Entity\File $file)
 	{
 		$localeId = $this->getLocale()->getId();
-		$output = $this->fileStorage->getFileInfo($file, $localeId);
+		$output = $this->fileStorage->getFileInfo($file);
 
 		// Create thumbnail&preview
 		if ($file instanceof Entity\Image) {

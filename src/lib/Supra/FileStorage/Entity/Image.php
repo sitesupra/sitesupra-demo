@@ -140,7 +140,7 @@ class Image extends File
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getInfo($locale)
+	public function getInfo($locale = null)
 	{
 		$info = parent::getInfo($locale);
 		

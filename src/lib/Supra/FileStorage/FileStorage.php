@@ -1069,7 +1069,7 @@ class FileStorage
 	 * @param type $locale
 	 * @return type 
 	 */
-	public function getFileInfo(Entity\Abstraction\File $file, $locale)
+	public function getFileInfo(Entity\Abstraction\File $file, $locale = null)
 	{
 		$info = $file->getInfo($locale);
 
