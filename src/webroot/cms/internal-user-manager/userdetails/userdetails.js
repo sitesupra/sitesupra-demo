@@ -103,15 +103,12 @@ Supra('supra.input', function (Y) {
 		 * On change update user data with form values
 		 */
 		onDataChange: function () {
-			var values = this.form.getValues('name'),
+			var values = this.form.getValuesObject('name'),
 				data = Manager.getAction('User').getData();
 
-			//Mix form values into data
-			var avatar = data.avatar,
-				avatar_id = data.avatar_id;
-			Supra.mix(data, values);
-			data.avatar = avatar;
-			data.avatar_id = avatar_id;
+			//Update only name and email
+			data.name = values.name;
+			data.email = values.email;
 			
 			this.updateUI(data);
 		},
