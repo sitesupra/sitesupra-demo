@@ -421,7 +421,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<img id="' + uid + '" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" />');
+					htmleditor.replaceSelection('<img id="' + uid + '" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -460,14 +460,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				src = size_data.external_path,
 				img = null;
 			
-			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" />');
-			
-			//If droping on inline element then insert image before it, otherwise append to element
-			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
-				target.insert(img, 'before');
-			} else {
-				target.prepend(img);
-			}
 			
 			//Set additional image properties
 			var data = Supra.mix({}, defaultProps, {
@@ -478,6 +470,15 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				'size_width': size_data.width,
 				'size_height': size_data.height
 			});
+			
+			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
+			
+			//If droping on inline element then insert image before it, otherwise append to element
+			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
+				target.insert(img, 'before');
+			} else {
+				target.prepend(img);
+			}
 			
 			//Save into HTML editor data about image
 			htmleditor.setData(uid, data);
