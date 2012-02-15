@@ -84,6 +84,11 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 				'value': node
 			});
 			
+			this.host.addAttr('contentInnerNode', {
+				'value': null,
+				'getter': Y.bind(this.getContentInnerNode, this)
+			});
+			
 			//Scrollable
 			this.host.addAttr('scrollable', {
 				'value': node.hasClass('scrollable'),
@@ -193,12 +198,32 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					this.scrollable = new Supra.Scrollable();
 					this.scrollable.render(node);
 					this.scrollable.get('contentBox').append(children);
+				} else {
+					this.scrollable.set('disabled', false);
 				}
 			} else {
 				node.removeClass('scrollable');
+				
+				if (this.scrollable) {
+					this.scrollable.set('disabled', true);
+				}
 			}
 			
 			return !!scrollable;
+		},
+		
+		/**
+		 * Returns inner content node inside which content should be added
+		 * 
+		 * @return Content inner node
+		 * @type {Boolean}
+		 */
+		getContentInnerNode: function () {
+			if (this.scrollable) {
+				return this.scrollable.get('contentBox');
+			} else {
+				return this.host.get('contentNode');
+			}
 		},
 		
 		/**

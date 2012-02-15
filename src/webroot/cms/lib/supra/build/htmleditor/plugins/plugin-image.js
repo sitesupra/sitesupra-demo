@@ -43,7 +43,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').get('contentNode');
+			var content = Manager.getAction('PageContentSettings').get('contentInnerNode');
 			if (!content) return;
 			
 			//Properties form

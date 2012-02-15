@@ -381,7 +381,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				data = this.get('data').properties,
 				slideshow = this.get('slideshow');
 			
-			form.render(this.get('action').one('.sidebar-content'));
+			form.render(this.get('action').get('contentInnerNode'));
 			form.get('boundingBox').addClass('yui3-form-properties');
 			form.hide();
 			

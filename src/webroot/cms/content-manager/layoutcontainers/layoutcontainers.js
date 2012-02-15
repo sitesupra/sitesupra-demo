@@ -339,11 +339,13 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
 			//Left and right container are under top container, maintain this position
+			/*
 			layoutLeftContainer.plug(Supra.PluginLayout, {'offset': [0, 0, 0, 0]});
 			layoutLeftContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
 			
 			layoutRightContainer.plug(Supra.PluginLayout, {'offset': [0, 0, 0, 0]});
 			layoutRightContainer.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
+			*/
 			
 			//On left container show hide right container and wise versa
 			layoutLeftContainer.on('visibleChange', function (evt) {

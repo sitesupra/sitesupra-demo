@@ -33,6 +33,12 @@
 .sidebar-header {
 	height: 56px;
 	border-bottom: 1px solid #9394AA;
+	
+	.su-button {
+		//toolbar-text covers sidebar, make sure buttons are clickable
+		position: relative;
+		z-index: 12;
+	}
 }
 .dark-ui .sidebar-header {
 	border: 0;
@@ -69,45 +75,43 @@
 	left: 0;
 	top: 0;
 	right: 0;
+	
+	.button-back {
+		float: left;
+		margin-right: 10px;
+	}
+	.button-control {
+		float: right;
+		margin-left: -55px;
+	}
+	
+	& > img {
+		display: block;
+		float: left;
+		margin: 1px 10px 0 0;
+	}
+	
+	h2 {
+		padding: 0 60px 0 0;
+		
+		box-sizing: border-box;
+		overflow: hidden;
+		max-width: 100%;
+		width: auto;
+		
+		color: #fff;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 24px;
+		text-shadow: 0 1px 0 rgba(0,0,0,.75);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 }
 .ui-dark .sidebar-header {
 	padding: 16px 19px 0 18px;
 	height: 41px;
 	border: 0; 
-}
-
-.sidebar-header .button-back {
-	float: left;
-	margin-right: 10px;
-}
-.sidebar-header .button-control {
-	float: right;
-	margin-left: -55px;
-	position: relative;
-	z-index: 1;
-}
-
-.sidebar-header > img {
-	display: block;
-	float: left;
-	margin: 1px 10px 0 0;
-}
-
-.sidebar-header h2 {
-	padding: 0 60px 0 0;
-	
-	box-sizing: border-box;
-	overflow: hidden;
-	max-width: 100%;
-	width: auto;
-	
-	color: #fff;
-	font-size: 14px;
-	font-weight: bold;
-	line-height: 24px;
-	text-shadow: 0 1px 0 rgba(0,0,0,.75);
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .left-container .sidebar-header {

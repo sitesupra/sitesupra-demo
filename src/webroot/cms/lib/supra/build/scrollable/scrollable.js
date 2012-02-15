@@ -24,6 +24,13 @@ YUI.add('supra.scrollable', function (Y) {
 		},
 		
 		/**
+		 * Disabled state
+		 */
+		'disabled': {
+			'value': false
+		},
+		
+		/**
 		 * Use throttle
 		 */
 		'throttle': {
@@ -128,6 +135,9 @@ YUI.add('supra.scrollable', function (Y) {
 			//Drag and drop
 			node = this.get('dragableNode');
 			node.on('mousedown', this.onDragStart, this);
+			
+			//Disabled state
+			this.after('disabledChange', this.onDisabledChange, this);
 		},
 		
 		/**
@@ -163,6 +173,8 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @private
 		 */
 		onMouseWheel: function (e) {
+			if (this.get('disabled')) return;
+			
 			//Check if mouse was scrolled inside container
 			var node = e.target.closest('.su-scrollable-content');
 			if (node !== this.get('contentBox')) {
@@ -182,6 +194,8 @@ YUI.add('supra.scrollable', function (Y) {
 		 * Drag start
 		 */
 		onDragStart: function (e) {
+			if (this.get('disabled')) return;
+			
 			this.get('dragableNode').addClass(this.getClassName('dragable-drag'));
 			
 			this.dragging = true;
@@ -243,7 +257,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * Update UI
 		 */
 		syncUI: function () {
-			if (this.dragging) return;
+			if (this.dragging || this.get('disabled')) return;
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
@@ -316,7 +330,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @private
 		 */
 		syncUIPosition: function () {
-			if (this.dragging) return;
+			if (this.get('disabled') || this.dragging) return;
 			
 			var axis = this.get('axis'),
 				
@@ -373,6 +387,8 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @type {Boolean}
 		 */
 		scrollInView: function (node) {
+			if (this.get('disabled')) return;
+			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
 				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
@@ -401,6 +417,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @param {Function} fn
 		 * @param {Number} ms
 		 * @param {Object} context
+		 * @private
 		 */
 		throttle: function (fn, ms, context) {
 			ms = (ms) ? ms : 150;
@@ -425,6 +442,20 @@ YUI.add('supra.scrollable', function (Y) {
 					t = setTimeout(arguments.callee, ms);
 				}
 			});
+		},
+		
+		/**
+		 * Disabled change handler
+		 * 
+		 * @param {Event} evt Event facade object
+		 * @private
+		 */
+		onDisabledChange: function (evt) {
+			if (evt.newVal) {
+				this.get('scrollbarNode').addClass(this.getClassName('invisible'));
+			} else {
+				this.syncUI();
+			}
 		}
 	});
 	
