@@ -261,22 +261,28 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		loadFlowMapPermissions: function () {
 			var data = this.flowmap.getData(),
-				permission  = [],
-				traverse = null;
+				permission  = [];
 			
-			traverse = function (data, permission) {
+			
+			//Get all page IDs
+			var traverse = function (data, permission) {
 				for(var i=0,ii=data.length; i<ii; i++) {
-					permission.push({'id': data[i].id, 'type': 'page'});
-					
-					if (data[i].children && data[i].children.length) {
-						traverse(data[i].children, permission);
+					if (!data[i].temporary) {
+						permission.push({'id': data[i].id, 'type': 'page'});
+						
+						if (data[i].children && data[i].children.length) {
+							traverse(data[i].children, permission);
+						}
 					}
 				}
 			};
 			
 			traverse(data, permission);
-			
-			Supra.Permission.request(permission, this.onLoadFlowMapPermissions, this);
+				
+			//Request permission list
+			if (permission.length) {
+				Supra.Permission.request(permission, this.onLoadFlowMapPermissions, this);
+			}
 			
 			//If there are no pages, then allow creating new root page
 			var new_root_page = this.one('div.item-drop'),
