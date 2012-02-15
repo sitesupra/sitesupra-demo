@@ -85,7 +85,7 @@ function getEtag($files)
 	$cacheSource[] = filemtime(__FILE__);
 	foreach ($files as $file) {
 		if ($checkFileModificationTime) {
-			$cacheSource += getFileMtime($file);
+			$cacheSource = array_merge($cacheSource, getFileMtime($file));
 		}
 	}
 	return md5(implode(',', $cacheSource));

@@ -82,6 +82,7 @@ class PageRequestView extends PageRequest
 
 		$dql = "SELECT l FROM $localizationEntity l JOIN l.path p 
 			WHERE p.path = :path
+			AND p.active = true
 			AND p.locale = :locale";
 		
 		//TODO: think about "enable path params" feature

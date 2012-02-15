@@ -907,16 +907,20 @@ abstract class PageManagerAction extends CmsAction
 	/**
 	 * 
 	 */
-	protected function duplicate ()
+	protected function duplicate()
 	{
 		$pageLocalization = $this->getPageLocalizationByRequestKey('page_id');
 		$request = $this->getPageRequest();
 		$em = $this->entityManager;
-		
+
 		$page = $pageLocalization->getMaster();
 
 		$clonePage = function() use ($request, $em, $page) {
-			
+			/* @var $request PageRequestEdit */
+			/* @var $em EntityManager */
+			/* @var $page AbstractPage */
+			/* @var $pageLocalization Localization */
+
 			$em->getEventManager()
 				->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
 					
@@ -936,7 +940,7 @@ abstract class PageManagerAction extends CmsAction
 			} else {
 				$newPage->moveAsFirstChildOf($page);
 			}
-			
+
 			$eventArgs = new LifecycleEventArgs($newPage, $em);
 			$em->getEventManager()
 					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);

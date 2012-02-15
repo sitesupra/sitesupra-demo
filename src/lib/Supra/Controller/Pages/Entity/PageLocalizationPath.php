@@ -25,6 +25,13 @@ class PageLocalizationPath extends Abstraction\Entity
 	protected $path = null;
 
 	/**
+	 * Marks if the page is active
+	 * @Column(type="boolean", nullable="false")
+	 * @var boolean
+	 */
+	protected $active = true;
+
+	/**
 	 * Special ID setter for path regeneration command so the ID in draft and 
 	 * public schemes are equal
 	 * @param string $id
@@ -62,4 +69,21 @@ class PageLocalizationPath extends Abstraction\Entity
 		}
 		$this->path = $path;
 	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isActive()
+	{
+		return $this->active;
+	}
+
+	/**
+	 * @param boolean $active
+	 */
+	public function setActive($active)
+	{
+		$this->active = $active;
+	}
+
 }

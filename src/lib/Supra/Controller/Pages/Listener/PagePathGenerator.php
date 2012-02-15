@@ -180,14 +180,17 @@ class PagePathGenerator implements EventSubscriber
 		
 		if ( ! $page->isRoot()) {
 			
-			$newPath = $this->findPagePath($pageData);
+			list($newPath, $active) = $this->findPagePath($pageData);
 			
 			if ( ! Path::compare($oldPath, $newPath)) {
 
+				$suffix = null;
+				
 				// Check duplicates only if path is not null
 				if ( ! is_null($newPath)) {
 
-					$i = 2; $e = null;
+					$i = 2;
+					$e = null;
 					$pathPart = $pageData->getPathPart();
 
 					do {
@@ -195,17 +198,24 @@ class PagePathGenerator implements EventSubscriber
 							$this->checkForDuplicates($pageData, $newPath);
 							$pathValid = true;
 						} catch (DuplicatePagePathException $e) {
-							if ($force) {
-								$suffix = '-' . $i;
-								$pageData->setPathPart($pathPart . $suffix);
-								$newPath = $this->findPagePath($pageData);
 
-								$i++;
+							if ($force) {
 
 								// loop stoper
-								if ($i > 100) {
-									throw $e;
+								if ($i > 101) {
+									throw new Exception\RuntimeException("Couldn't find unique path for new page", null, $e);
 								}
+								
+								// Will try adding unique suffix after 100 iterations
+								if ($i > 100) {
+									$suffix = uniqid();
+								} else {
+									$suffix = $i;
+								}
+								$pageData->setPathPart($pathPart . '-' . $suffix);
+								list($newPath, $active) = $this->findPagePath($pageData);
+
+								$i++;
 							}
 						}
 					}  while ($force && ! $pathValid);
@@ -216,7 +226,10 @@ class PagePathGenerator implements EventSubscriber
 				}
 
 				// Validation passed, set the new path
-				$pageData->setPath($newPath);
+				$pageData->setPath($newPath, $active);
+				if ( ! is_null($suffix)) {
+					$pageData->setTitle($pageData->getTitle() . " ($suffix)");
+				}
 				$changes = true;
 			}
 		} else {
@@ -287,17 +300,18 @@ class PagePathGenerator implements EventSubscriber
 	 */
 	protected function findPagePath(Entity\PageLocalization $pageData)
 	{
+		$active = true;
 		$path = new Path();
 		
 		// Inactive page children have no path
 		if ( ! $pageData->isActive()) {
-			return null;
+			$active = false;
 		}
 		
 		$pathPart = $pageData->getPathPart();
 		
 		if (is_null($pathPart)) {
-			return null;
+			return array(null, null);
 		}
 		
 		$path->prependString($pathPart);
@@ -308,14 +322,14 @@ class PagePathGenerator implements EventSubscriber
 		$parentPage = $page->getParent();
 
 		if (is_null($parentPage)) {
-			return $path;
+			return array($path, $active);
 		}
 		
 		$parentLocalization = $parentPage->getLocalization($locale);
 		
-		// No localization
+		// No parent page localization
 		if (is_null($parentLocalization)) {
-			return null;
+			return array(null, null);
 		}
 		
 		// Page application feature to generate base path for pages
@@ -338,31 +352,37 @@ class PagePathGenerator implements EventSubscriber
 			$parentPage = $parentPage->getParent();
 			
 			if (is_null($parentPage)) {
-				return $pageData->getPathPart();
+				return array($pageData->getPathPart(), $active);
 			}
 			
 			$parentLocalization = $parentPage->getLocalization($locale);
 			
-			// No localization
+			// No parent page localization
 			if (is_null($parentLocalization)) {
-				return null;
+				return array(null, null);
 			}
 		}
-		
-		if ( ! $parentLocalization->isActive()) {
-			return null;
-		}
+
+		// Is checked further
+//		if ( ! $parentLocalization->isActive()) {
+//			$active = false;
+//		}
 		
 		// Assume that path is already regenerated for the parent
 		$parentPath = $parentLocalization->getPathEntity()->getPath();
-		
+		$parentActive = $parentLocalization->getPathEntity()->isActive();
+
+		if ( ! $parentActive) {
+			$active = false;
+		}
+
 		if (is_null($parentPath)) {
-			return null;
+			return array(null, null);
 		}
 		
 		$path->prepend($parentPath);
 
-		return $path;
+		return array($path, $active);
 	}
 		
 }

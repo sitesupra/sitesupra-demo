@@ -186,10 +186,12 @@ class PageLocalization extends Abstraction\Localization
 	 * Set page path
 	 * Should be called from the PagePathGenerator only!
 	 * @param Path $path
+	 * @param boolean $active
 	 */
-	public function setPath(Path $path = null)
+	public function setPath(Path $path = null, $active = true)
 	{
 		$this->getPathEntity()->setPath($path);
+		$this->getPathEntity()->setActive($active);
 	}
 
 	/**
@@ -198,10 +200,18 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function getPath()
 	{
+		$path = $this->getRealPath(true);
+
+		return $path;
+	}
+
+	public function getRealPath($activeOnly)
+	{
 		$path = $this->getPathEntity()->getPath();
+		$active = $this->getPathEntity()->isActive();
 
 		// Method should not return NULL for now...
-		if (is_null($path)) {
+		if (is_null($path) || ($activeOnly && ! $active)) {
 			$path = NullPath::getInstance();
 			$this->getPathEntity()->setPath($path);
 		}

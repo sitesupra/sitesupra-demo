@@ -316,7 +316,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 		 * @param {default_data_path}
 		 */
 		getPropertyValueIncrement: function (parent_node, default_data_title, default_data_path) {
-			var compare = [],
+			var compare = {},
 				valueInc = [],
 				increment = 1,
 				parent_data = parent_node ? parent_node.get('data') : null,
@@ -324,21 +324,24 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 
 			for (var key in children_data) {
 				var obj = children_data[key];
-				for (var prop in obj) {
-					if (!obj.temporary) {
-						if (prop == 'title') {
-							compare.push(obj[prop]);
-						}
+				if ( ! obj.temporary) {
+					if ('path' in obj) {
+						compare[obj.path] = true;
 					}
 				}
 			}
 
 			if (parent_data) {
-				var re = new RegExp('^'+ Y.Escape.regex(default_data_title));
-				for (var i=0,ii=compare.length; i<ii; i++) {
-					var match = re.exec(compare[i]);
-					if (match != null) {
-						increment++;
+				var testPath = null;
+				while (true) {
+					testPath = default_data_path + (increment > 1 ? '-' + increment : '');
+					if ( ! (testPath in compare)) {
+						break;
+					}
+					increment++;
+					// limit
+					if (increment > 100) {
+						break;
 					}
 				}
 			}
