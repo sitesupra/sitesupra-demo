@@ -29,6 +29,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Exception\LogicException;
 use Supra\Controller\Pages\Exception\RuntimeException;
+use Supra\Controller\Pages\Request\PageRequestEdit;
 
 
 class EntityAuditListener implements EventSubscriber
@@ -119,6 +120,9 @@ class EntityAuditListener implements EventSubscriber
 			
 			AuditEvents::pagePreCreateEvent,
 			AuditEvents::pagePostCreateEvent,
+			
+			AuditEvents::pagePreDuplicateEvent,
+			AuditEvents::pagePostDuplicateEvent,
 		);
 	}
 	
@@ -432,6 +436,14 @@ class EntityAuditListener implements EventSubscriber
 	{
 		$this->_pageCreateState = true;
 	}
+	
+	/**
+	 * See page pagePreCreateEvent doc
+	 */
+	public function pagePreDuplicateEvent()
+	{
+		$this->_pageCreateState = true;
+	}
 		
 	/**
 	 * Page pre-restore event is similar to page pre-create event, see doc for
@@ -454,6 +466,27 @@ class EntityAuditListener implements EventSubscriber
 		
 		$this->localizationId = $eventArgs->getProperty('localizationId');
 		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_CREATE);
+		
+		$this->staticRevisionId = $revisionData->getId();
+
+		$this->createPageCopy($eventArgs);
+		
+		$this->_pageCreateState = false;
+		
+	}
+	
+	/**
+	 * Take a full page snapshot inside audit tables under special revision with
+	 * type "TYPE_DUPLICATE"
+	 *  
+	 * @param PageEventArgs $eventArgs
+	 */
+	public function pagePostDuplicateEvent(PageEventArgs $eventArgs)
+	{
+		$this->prepareEnvironment($eventArgs);
+		
+		$this->localizationId = $eventArgs->getProperty('localizationId');
+		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_DUPLICATE);
 		
 		$this->staticRevisionId = $revisionData->getId();
 
@@ -597,27 +630,24 @@ class EntityAuditListener implements EventSubscriber
 			$this->insertAuditRecord($placeHolder, self::REVISION_TYPE_COPY);
 		}
 		
-		// page blocks
-		$blockIdCollection = $eventArgs->getProperty('blockIdCollection');
-		if ( ! empty($blockIdCollection)) {
-			foreach($blockIdCollection as $blockId) {
-				$block = $this->em->find(Block::CN(), $blockId);
-				$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
-			}
+		$request = PageRequestEdit::factory($localization);
+		$request->setDoctrineEntityManager($this->em);
+		
+		$blockSet = $request->getBlockSet();
+		foreach($blockSet as $block) {
+			$this->insertAuditRecord($block, self::REVISION_TYPE_COPY);
 		}
 		
-		// block properties
-		$blockPropertyIdCollection = $eventArgs->getProperty('blockPropertyIdCollection');
-		if ( ! empty($blockPropertyIdCollection)) {
-			foreach($blockPropertyIdCollection as $propertyId) {
-				$property = $this->em->find(BlockProperty::CN(), $propertyId);
-				$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
+		$blockPropertySet = $request->getBlockPropertySet();
+		foreach($blockPropertySet as $property) {
+			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
 
-				$metadata = $property->getMetadata();
-				foreach($metadata as $metadataItem) {
-					$referencedElement = $metadataItem->getReferencedElement();
+			$metaData = $property->getMetadata();
+			if ( ! empty($metaData)) {
+				foreach($metaData as $metaDataItem) {
+					$referencedElement = $metaDataItem->getReferencedElement();
 					$this->insertAuditRecord($referencedElement, self::REVISION_TYPE_COPY);
-					$this->insertAuditRecord($metadataItem, self::REVISION_TYPE_COPY);
+					$this->insertAuditRecord($metaDataItem, self::REVISION_TYPE_COPY);
 				}
 			}
 		}

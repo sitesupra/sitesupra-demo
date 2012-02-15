@@ -11,6 +11,8 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Layout\Exception as LayoutException;
 use Supra\Controller\Layout\Processor\ProcessorInterface;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
+use Supra\Controller\Pages\Event\AuditEvents;
+use Supra\Controller\Pages\Event\PageEventArgs;
 
 /**
  * Sitemap
@@ -67,6 +69,9 @@ class TemplateAction extends PageManagerAction
 
 		$localeId = $this->getLocale()->getId();
 
+		$eventManager = $this->entityManager->getEventManager();
+		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
+		
 		$template = new Entity\Template();
 		$templateData = new Entity\TemplateLocalization($localeId);
 
@@ -123,6 +128,11 @@ class TemplateAction extends PageManagerAction
 			$template->moveAsLastChildOf($parent);
 			$this->entityManager->flush();
 		}
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setProperty('localizationId', $templateData->getId());
+		$pageEventArgs->setEntityManager($this->entityManager);
+		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
 
 		return $templateData;
 	}

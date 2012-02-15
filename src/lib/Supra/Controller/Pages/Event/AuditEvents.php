@@ -22,4 +22,7 @@ final class AuditEvents
 	
 	const pagePreCreateEvent = 'pagePreCreateEvent';
 	const pagePostCreateEvent = 'pagePostCreateEvent';
+	
+	const pagePreDuplicateEvent = 'pagePreDuplicateEvent';
+	const pagePostDuplicateEvent = 'pagePostDuplicateEvent';
 }

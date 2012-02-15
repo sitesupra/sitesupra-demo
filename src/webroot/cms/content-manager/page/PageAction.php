@@ -609,10 +609,12 @@ class PageAction extends PageManagerAction
 		$params = array(
 			'id' => $revisionId,
 			'localizationId' => $localizationId,
+			// page full copies
 			'types' => array(
 				PageRevisionData::TYPE_HISTORY,
 				PageRevisionData::TYPE_CREATE,
 				PageRevisionData::TYPE_HISTORY_RESTORE,
+				PageRevisionData::TYPE_DUPLICATE,
 			),
 		);
 		

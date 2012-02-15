@@ -24,6 +24,7 @@ class PagehistoryAction extends PageManagerAction
 	const ACTION_CHANGE = 'change';
 	const ACTION_ADD = 'add';
 	const ACTION_RESTORE = 'restore';
+	const ACTION_DUPLICATE = 'duplicate';
 	
 	
 	public function loadAction()
@@ -56,12 +57,18 @@ class PagehistoryAction extends PageManagerAction
 	{
 		$response = array();
 		$timestamps = array();
-	
-		$historyRevisions = $this->loadRevisionList();
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
-
-		$firstCreateRevision = null;
+		
+		$localization = $this->getPageLocalization();
+		
+		$localizationType = 'Page';
+		if ($localization instanceof Entity\TemplateLocalization) {
+			$localizationType = 'Template';
+		}
+	
+		$historyRevisions = $this->getRevisionList();
+		
 		foreach ($historyRevisions as $revision) {
 			
 			$userId = $revision->getUser();
@@ -75,79 +82,65 @@ class PagehistoryAction extends PageManagerAction
 			$title = null;
 			$action = null;
 			
-			if ( ! is_null($firstCreateRevision)) {
-				$action = self::ACTION_CREATE;
-				
-				$title = 'Page';
-				$localization = $this->getPageLocalization();
-				if ($localization instanceof Entity\TemplateLocalization) {
-					$title = 'Template';
-				}
-			}
-			
 			$revisionElementName = $revision->getElementName();
 			$revisionType = $revision->getType();
-			
-			$firstCreateRevision = null;
-			
-			if (is_null($action)) {
-				switch($revisionType) {
-					case PageRevisionData::TYPE_CHANGE_DELETE:
-						$action = self::ACTION_DELETE;
-						break;
+		
+			switch ($revisionType) {
+				case PageRevisionData::TYPE_CHANGE_DELETE:
+					$action = self::ACTION_DELETE;
+					break;
 
-					case PageRevisionData::TYPE_HISTORY:
-						$action = self::ACTION_PUBLISH;
-						break;
-					
-					case PageRevisionData::TYPE_INSERT:
-						$action = self::ACTION_INSERT;
-						break;
+				case PageRevisionData::TYPE_HISTORY:
+					$action = self::ACTION_PUBLISH;
+					$title = $localizationType;
+					break;
 
-					case PageRevisionData::TYPE_CREATE:
-						// FIXME! page elements are created when page is opened
-						// so `real` page-create revision is wrong
-						$firstCreateRevision = true;
-						continue;
-											
-						break;
-						
-					case PageRevisionData::TYPE_HISTORY_RESTORE:
-						$action = self::ACTION_RESTORE;
-						$title = 'Page';
-						$localization = $this->getPageLocalization();
-						if ($localization instanceof Entity\TemplateLocalization) {
-							$title = 'Template';
-						}
-						break;
+				case PageRevisionData::TYPE_INSERT:
+					$action = self::ACTION_INSERT;
+					break;
 
-					default: 
-						$action = self::ACTION_CHANGE;
-				}
+				case PageRevisionData::TYPE_CREATE:
+					$action = self::ACTION_CREATE;
+					$title = $localizationType;
+					break;
+
+				case PageRevisionData::TYPE_HISTORY_RESTORE:
+					$action = self::ACTION_RESTORE;
+					$title = $localizationType;
+					break;
+
+				case PageRevisionData::TYPE_DUPLICATE:
+					$action = self::ACTION_DUPLICATE;
+					$title = $localizationType;
+					break;
+
+				default: 
+					$action = self::ACTION_CHANGE;
 			}
 			
-			if ( ! is_null($firstCreateRevision)) {
-				continue;
-			}			
-			
-			if ( ! isset($title) && in_array($revisionType, array(PageRevisionData::TYPE_CHANGE, PageRevisionData::TYPE_CHANGE_DELETE, PageRevisionData::TYPE_INSERT))) {
+			if ( ! isset($title) && $revisionType & (PageRevisionData::TYPE_CHANGE | PageRevisionData::TYPE_CHANGE_DELETE | PageRevisionData::TYPE_INSERT)) {
 				
 				$blockName = null;
 				switch($revisionElementName) {
 					case Entity\PageLocalization::CN():
-						$title = 'Page settings';
+						$title = "{$localizationType} settings";
 						break;
 					
 					case Entity\TemplateLocalization::CN():
-						$title = 'Template settings';
+						$title = "{$localizationType} settings";
 						break;
 					
 					case Entity\ReferencedElement\LinkReferencedElement::CN():
 					case Entity\ReferencedElement\ImageReferencedElement::CN():
 					case Entity\BlockPropertyMetadata::CN():
+						if ($revisionType == PageRevisionData::TYPE_REMOVED) {
+							continue;
+						}
+						
 						$blockName = $this->getRevisionedEntityBlockName($revision);
 						$title = "{$blockName} block settings";
 						$action = self::ACTION_CHANGE;
+						
 						break;
 					
 					case Entity\BlockProperty::CN():
@@ -175,21 +168,10 @@ class PagehistoryAction extends PageManagerAction
 						}
 						break;
 				}
-			} else if ( ! isset($title)) {
-				// It was page/template publish action		
-				switch ($revisionElementName) {
-					case Entity\PageLocalization::CN():
-						//$title = 'Page';
-						//break;
-						
-					case Entity\TemplateLocalization::CN():
-						//$title = 'Template';
-						//break;
-					
-					default:
-						//$title = 'Page';
-						$title = '';
-				}
+			}
+			
+			if (empty($title) || empty($action)) {
+				continue;
 			}
 			
 			$pageInfo = array(
@@ -275,24 +257,15 @@ class PagehistoryAction extends PageManagerAction
 		return $blockName;
 	}
 	
-	private function loadRevisionList()
+	/**
+	 * Loads list of page revisions
+	 * @return array
+	 */
+	private function getRevisionList()
 	{
 		$localizationId = $this->getRequestParameter('page_id');
-			
-		$params = array(
-			'types' => array(
-				PageRevisionData::TYPE_HISTORY,
-				PageRevisionData::TYPE_HISTORY_RESTORE,
-				PageRevisionData::TYPE_CHANGE,
-				PageRevisionData::TYPE_REMOVED,
-				PageRevisionData::TYPE_CREATE,
-				PageRevisionData::TYPE_INSERT,
-			), 
-			'reference' => $localizationId,
-		);
 		
 		$qb = $this->entityManager->createQueryBuilder();
-		
 		$qb->select('r.id')
 				->from(PageRevisionData::CN(), 'r')
 				->where('r.type = :type AND r.reference = :localization')
@@ -301,14 +274,22 @@ class PagehistoryAction extends PageManagerAction
 				->setParameter('type', PageRevisionData::TYPE_HISTORY)
 				->setParameter('localization', $localizationId);
 				;
-				
+		
 		$lastPublishRevisionId = $qb->getQuery()
 				->getOneOrNullResult(\Doctrine\ORM\AbstractQuery::HYDRATE_SCALAR);
 
+		$params = array(
+			'skipTypes' => array(
+				PageRevisionData::TYPE_TRASH,
+				PageRevisionData::TYPE_RESTORED,
+			), 
+			'reference' => $localizationId,
+		);
+		
 		$qb = $this->entityManager->createQueryBuilder();
 		$qb->select('r')
 				->from(PageRevisionData::CN(), 'r')
-				->where('r.reference = :reference AND r.type IN (:types)')
+				->where('r.reference = :reference AND r.type NOT IN (:skipTypes)')
 				->orderBy('r.id', 'ASC')
 				->setParameters($params);
 				;
@@ -320,13 +301,11 @@ class PagehistoryAction extends PageManagerAction
 			$qb->andWhere('(r.id >= :lastPublishId) OR (r.id <= :lastPublishId AND r.type = :type)')
 					->setParameter('lastPublishId', $lastPublishRevisionId)
 					->setParameter('type', PageRevisionData::TYPE_HISTORY);
-
 		}
 		
 		$revisions = $qb->getQuery()
 				->getResult();
-						
-		return $revisions;
 		
+		return $revisions;	
 	}
 }

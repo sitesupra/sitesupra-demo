@@ -14,7 +14,6 @@ use DateTime;
  */
 class PageRevisionData extends Abstraction\Entity implements Timestampable
 {
-	
 	const TYPE_HISTORY = 1;
 	const TYPE_HISTORY_RESTORE = 101;
 	
@@ -31,8 +30,9 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	const TYPE_REMOVED = 5;
 	const TYPE_CHANGE_DELETE = 5;
 	
-	// page created
 	const TYPE_CREATE = 6;
+	const TYPE_DUPLICATE = 8;
+	
 	const TYPE_INSERT = 7;
 	
 	/**

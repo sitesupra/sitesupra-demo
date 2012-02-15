@@ -346,8 +346,6 @@ class PageRequestEdit extends PageRequest
 		$publicEm->flush();
 		
 		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setProperty('blockIdCollection', $draftBlockIdList);
-		$pageEventArgs->setProperty('blockPropertyIdCollection', $draftPropertyIds);
 		$pageEventArgs->setEntityManager($draftEm);
 		
 		$draftEm->getEventManager()

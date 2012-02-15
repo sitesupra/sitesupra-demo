@@ -133,13 +133,18 @@ class HistoryPageRequestEdit extends PageRequest
 			$templateData = $em->getUnitOfWork()
 					->getOriginalEntityData($localization);
 			
-			$auditLayout = $em->getRepository(Entity\TemplateLayout::CN())
+			$templateLayout = $em->getRepository(Entity\TemplateLayout::CN())
 					->findOneBy(array('template' => $templateData['master_id'], 'revision' => $this->revision));
 			
-			if ( ! is_null($auditLayout)) {
-				$layoutPlaceHolderNames = $auditLayout->getLayout()
-						->getPlaceHolderNames();
+			if (is_null($templateLayout)) {
+				$layout = $localization->getTemplateHierarchy()
+						->getLayout($this->getMedia());
+			} else {
+				$layout = $templatelayout->getLayout();
 			}
+			
+			$layoutPlaceHolderNames = $layout->getPlaceHolderNames();			
+			
 		} else {
 			$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		}
@@ -428,6 +433,17 @@ class HistoryPageRequestEdit extends PageRequest
 			
 			\Log::debug("Master node for {$block} is found - {$master}");
 			
+			if ($master instanceof \Doctrine\ORM\Proxy\Proxy) {
+				$masterId = $master->getId();
+				
+				if (is_null($masterId)) {
+					$masterOriginalData = $em->getUnitOfWork()
+							->getOriginalEntityData($master);
+					
+					$master = $draftEm->find(AbstractPage::CN(), $masterOriginalData['id']);
+				}
+			}
+
 			// FIXME: n+1 problem
 			$data = $master->getLocalization($this->getLocale());
 			
@@ -483,6 +499,16 @@ class HistoryPageRequestEdit extends PageRequest
 
 			\Log::debug("Master node for {$block} is found - {$master}");
 
+			if ($master instanceof \Doctrine\ORM\Proxy\Proxy) {
+				$masterId = $master->getId();
+				
+				if (is_null($masterId)) {
+					$masterOriginalData = $em->getUnitOfWork()
+							->getOriginalEntityData($master);
+					
+					$master = $draftEm->find(AbstractPage::CN(), $masterOriginalData['id']);
+				}
+			}
 			// FIXME: n+1 problem
 			$data = $master->getLocalization($this->getLocale());
 
@@ -603,18 +629,8 @@ class HistoryPageRequestEdit extends PageRequest
 		$draftEntityManager->getEventManager()
 				->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 		
-		$draftEntityManager->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-		$draftEntityManager->getProxyFactory()->getProxy(Entity\PageLocalizationPath::CN(), -1);
-		
 		$auditLocalization = $this->getPageLocalization();
-		
-		if ($auditLocalization instanceof Entity\PageLocalization) {
-			// FIXME! without this path is loaded from wrong Path entity table (public one)
-			$draftLocalization = $draftEntityManager->find(Entity\PageLocalization::CN(), $auditLocalization->getId());
-			$draftPath = $draftLocalization->getPathEntity();
-			$auditLocalization->setPathEntity($draftPath);
-		}
-			
+
 		$localization = $draftEntityManager->merge($auditLocalization);
 	
 		// merge placeholders
@@ -644,7 +660,6 @@ class HistoryPageRequestEdit extends PageRequest
 			$draftEntityManager->merge($auditBlock);
 		}
 		
-		
 		// remove all existing draft metadata
 		$qb = $draftEntityManager->createQueryBuilder();
 		$qb->select('m')
@@ -653,7 +668,7 @@ class HistoryPageRequestEdit extends PageRequest
 				->where('bp.localization = :localizationId')
 				->setParameter('localizationId', $localization->getId())
 						;
-		
+
 		$existingDraftMetadata = $qb->getQuery()
 				->getResult();
 		
@@ -667,15 +682,6 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 		
 		$draftEntityManager->flush();
-		
-//		$draftEntityManager->createQuery('select bpm from ' . Entity\BlockPropertyMetadata::CN() . ' bpm where bpm.blockProperty in (?0)')
-//				->setParameters(array($existingBlockPropertyId))
-//				->execute();
-//		
-//		$existingBlockProperties = $draftEm->createQuery('select bp from ' . Entity\BlockProperty::CN() . ' bp where bp.localization = ?0')
-//				->setParameters(array($pageLocalization->getId()))
-//				->getResult();
-//		$existingBlockPropertyId = Entity\Abstraction\Entity::collectIds($existingBlockProperties);
 		
 		$auditEntityManager = ObjectRepository::getEntityManager('#audit');
 		
@@ -702,45 +708,28 @@ class HistoryPageRequestEdit extends PageRequest
 			$draftEntityManager->merge($auditProperty);
 		}
 			
-		$params = array(
-			'propertyIds' => $auditPropertyIds,
-			'revision' => $this->revision,
-		);
-		
-		$auditMetadata = array();
-		if ( ! empty($auditPropertyIds)) {
-			$qb = $auditEntityManager->createQueryBuilder();
-			$qb->select('m')
-					->from(Entity\BlockPropertyMetadata::CN(), 'm')
-					->where('m.blockProperty IN (:propertyIds) AND m.revision = :revision')
-					->setParameters($params);
-
-			$auditMetadata = $qb->getQuery()
-					->getResult();
-		}
-		
-//		$auditMetadata = $auditEntityManager->createQuery('select bpm from ' . Entity\BlockPropertyMetadata::CN() . ' bpm where bpm.blockProperty = ?0 and bpm.revision = ?1')
-//					->setParameters(array($property->getId(), $this->revision))
-//					->getResult();
+		if ( ! empty($auditProperties)) {
 			
-		foreach($auditMetadata as $auditMetadataItem) {
-			$metadataData = $auditEntityManager->getUnitOfWork()
-					->getOriginalEntityData($auditMetadataItem);
-			
-			if (isset($metadataData['referencedElement_id'])) {
-				$referencedElement = $auditEntityManager->createQuery('select re from ' . Entity\ReferencedElement\ReferencedElementAbstract::CN() . 
-							' re WHERE re.id = ?0 AND re.revision = ?1')
-						->setParameters(array($metadataData['referencedElement_id'], $this->revision))
-						->getResult();
+			$auditMetaData = $this->getAuditMetadataByProperty($auditProperties);
+			if ( ! empty($auditMetaData)) {
+				foreach($auditMetaData as $metaDataItem) {
+					
+					$draftEntityManager->merge($metaDataItem);
+					
+					$entityData = $auditEntityManager->getUnitOfWork()
+							->getOriginalEntityData($metaDataItem);
+					
+					if (isset($entityData['referencedElement_id'])) {
+						$referencedElement = $this->getAuditReferencedElement($entityData['referencedElement_id'], $metaDataItem->getRevisionId());
+						
+						if ( ! is_null($referencedElement)) {
+							$draftEntityManager->merge($referencedElement);
+						}
+					}
 				}
-				
-			if ( ! empty($referencedElement)) {
-				$draftEntityManager->merge($referencedElement[0]);
 			}
-				
-			$draftEntityManager->merge($auditMetadataItem);
 		}
-		
+				
 		//if ($page instanceof Entity\Template 
 		//		&& $page->isRoot()) {
 		//		
@@ -750,31 +739,64 @@ class HistoryPageRequestEdit extends PageRequest
 		//	}
 		//}
 		
-		//$listeners = $draftEm->getEventManager()->getListeners(\Doctrine\ORM\Events::onFlush);
-		//foreach ($listeners as $listener) {
-		//	if ($listener instanceof \Supra\Controller\Pages\Listener\PagePathGenerator) {
-		//		$listeners = $draftEm->getEventManager()->removeEventListener(\Doctrine\ORM\Events::onFlush, $listener);
-		//	}
-		//}
-		
 		$draftEntityManager->flush();
 		
 		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setProperty('localizationId', $localization->getId());
 		$pageEventArgs->setEntityManager($draftEntityManager);
-		
-		$draftBlocks = $this->getBlocksInPage($draftEntityManager);
-		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
-		$pageEventArgs->setProperty('blockIdCollection', $draftBlockIdList);
-		
-		$draftProperties = $this->getBlockPropertySet()
-				->getPageProperties($localization);
-		$draftPropertyIds = $draftProperties->collectIds();
-		$pageEventArgs->setProperty('blockPropertyIdCollection', $draftPropertyIds);
 		
 		$draftEntityManager->getEventManager()
 				->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
 	
+	}
+	
+	private function getAuditMetadataByProperty($properties) 
+	{
+		
+		if (empty($properties)) {
+			return null;
+		}
+		
+		$entityManager = $this->getDoctrineEntityManager();
+		
+		$qb = $entityManager->createQueryBuilder();
+		$expr = $qb->expr();
+		$or = $expr->orX();
+	
+		$count = 0;
+		foreach($properties as $property) {
+			$id = $property->getId();
+			$revision = $property->getRevisionId();
+			
+			$and = $expr->andX();
+			$and->add($expr->eq('m.blockProperty', '?' . (++$count)));
+			$qb->setParameter($count, $id);
+			$and->add($expr->eq('m.revision', '?' . (++$count)));
+			$qb->setParameter($count, $revision);
+			$or->add($and);
+		}
+		
+		$qb->select('m')
+				->from(Entity\BlockPropertyMetadata::CN(), 'm')
+				->where($or);
+		
+		$metaData = $qb->getQuery()
+						->getResult();
+		
+		return $metaData;
+	}
+	
+	private function getAuditReferencedElement($id, $revision)
+	{
+		$entityManager = $this->getDoctrineEntityManager();
+		
+		$entityName = Entity\ReferencedElement\ReferencedElementAbstract::CN();
+		$dql = "SELECT e FROM {$entityName} e WHERE e.id = :id AND e.revision = :revision";
+		
+		$element = $entityManager->createQuery($dql)
+				->setParameters(array('id' => $id, 'revision' => $revision))
+				->getOneOrNullResult();
+				
+		return $element;
 	}
 	
 	/**

@@ -37,6 +37,8 @@ use Supra\AuditLog\AuditLogEvent;
 use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
+use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Controller\Pages\Event\AuditEvents;
 
 /**
  * Controller containing common methods
@@ -691,6 +693,7 @@ abstract class PageManagerAction extends CmsAction
 			'types' => array(
 				PageRevisionData::TYPE_HISTORY,
 				PageRevisionData::TYPE_CREATE,
+				PageRevisionData::TYPE_DUPLICATE,
 			),
 		);
 		
@@ -914,6 +917,9 @@ abstract class PageManagerAction extends CmsAction
 
 		$clonePage = function() use ($request, $em, $page) {
 			
+			$em->getEventManager()
+				->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
+					
 			$newPage = $request->recursiveClone($page, null, true);
 			
 			// page indexes in sitemap tree
@@ -934,6 +940,19 @@ abstract class PageManagerAction extends CmsAction
 			$eventArgs = new LifecycleEventArgs($newPage, $em);
 			$em->getEventManager()
 					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+			
+			$eventArgs = new PageEventArgs();
+			$eventArgs->setEntityManager($em);
+			
+			$localizations = $newPage->getLocalizations();
+			
+			foreach($localizations as $newLocalization) {
+				$eventArgs->setProperty('localizationId', $newLocalization->getId());
+
+				$em->getEventManager()
+					->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
+			}
+			
 			
 		};
 		
@@ -972,6 +991,9 @@ abstract class PageManagerAction extends CmsAction
 		$em = $this->entityManager;
 		$request = $this->getPageRequest();
 		
+		$em->getEventManager()
+				->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
+		
 		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId) {
 			
 			// 1. duplicate localization
@@ -1001,6 +1023,14 @@ abstract class PageManagerAction extends CmsAction
 		};
 		
 		$newLocalization = $em->transactional($cloneLocalization);
+		
+		$eventArgs = new PageEventArgs();
+		$eventArgs->setEntityManager($em);
+		$eventArgs->setProperty('localizationId', $newLocalization->getId());
+		
+		$em->getEventManager()
+			->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
+		
 		if ($newLocalization instanceof Entity\TemplateLocalization) {
 			$this->pageData = $newLocalization;
 			$this->publish();
