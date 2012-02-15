@@ -39,16 +39,12 @@ if ( ! empty($_SERVER['argv'][1])) {
 			$namespace = '#tests';
 			break;
 		
-		case 'trash':
-			$namespace = PageController::SCHEMA_TRASH;
-			break;
-		
-		case 'history':
-			$namespace = PageController::SCHEMA_HISTORY;
-			break;
-		
 		case 'audit':
 			$namespace = PageController::SCHEMA_AUDIT;
+			break;
+
+		case 'users':
+			$namespace = 'Supra\User';
 			break;
 		
 		default:

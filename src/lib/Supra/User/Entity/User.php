@@ -35,7 +35,7 @@ class User extends AbstractUser
 	protected $email;
 
 	/**
-	 * @Column(type="boolean", name="email_confirmed")
+	 * @Column(type="boolean", name="email_confirmed", nullable=true)
 	 * @var boolean
 	 */
 	protected $emailConfirmed;
