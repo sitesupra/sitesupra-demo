@@ -401,41 +401,45 @@
 /**
  * Default form style
  */
-.yui3-form-default {
+.yui3-form-default,
+.yui3-form-vertical {
 	margin: 0 10px;
-}
-	.yui3-form-default .yui3-input {
+
+	.yui3-input {
 		margin: 10px 0;
+		
+		label {
+			width: 160px;
+		}
 	}
-	.yui3-form-default .yui3-input label {
-		width: 160px;
-	}
-	.yui3-form-default .yui3-input-string input,
-	.yui3-form-default .yui3-input-number input,
-	.yui3-form-default .yui3-input-text textarea {
+	
+	.yui3-input-string input,
+	.yui3-input-number input,
+	.yui3-input-text textarea {
 		width: 400px;
 	}
 	
-	.yui3-form-default .yui3-input span.replacement {
+	.yui3-input span.replacement {
 		min-width: 390px;
 	}
-		.yui3-form-default .yui3-input-path span.replacement {
+		.yui3-input-path span.replacement {
 			min-width: 0;
 		}
-		
-	.yui3-form-default .yui3-input-file-upload {
+	
+	.yui3-input-file-upload {
 		margin: 8px 0 7px;
-	}
-		.yui3-form-default .yui3-input-file-upload .yui3-input-file-upload-overlay,
-		.yui3-form-default .yui3-input-file-upload span {
+		
+		.yui3-input-file-upload-overlay, span {
 			min-width: 0;
 		}
-
-	.yui3-form-default .su-button-delete,
-	.yui3-form-default .su-button-edit,
-	.yui3-form-default .su-button-save {
+	}
+	
+	.su-button-delete,
+	.su-button-edit,
+	.su-button-save {
 		margin-right: 10px;
 	}
+}
 
 /**
  * Labels above inputs, full width

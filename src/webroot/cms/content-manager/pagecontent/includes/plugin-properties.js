@@ -299,6 +299,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 						//Get slide or create it
 						slide_id = properties[i].group.replace(/[^a-z0-9\-\_]/ig, '');
 						slide = slideshow.getSlide(slide_id);
+						
+						if (slide) {
+							slide = slide.one('.su-slide-content');
+						}
 					} else {
 						slide_id = 'propertySlideMain';
 						slide = slide_main;
@@ -318,6 +322,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 							'slideId': slide_id,
 							'containerNode': slide_main
 						});
+						
+						slide = slide.one('.su-slide-content');
 					}
 					
 					//Set input container node to that slide
@@ -326,7 +332,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			//On slideshow slide change update "Bacj" button
+			//On slideshow slide change update "Back" button
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
 			
 			//Create form
@@ -360,6 +366,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 				slide_main = slide;
 			
 			this.set('slideshow', slideshow);
+			
+			//Bind to "Back" button
+			this.get('action').get('backButton').on('click', slideshow.scrollBack, slideshow);
+			
 			return slideshow;
 		},
 		
@@ -371,7 +381,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 				data = this.get('data').properties,
 				slideshow = this.get('slideshow');
 			
-			window.prop_form = form;
 			form.render(this.get('action').one('.sidebar-content'));
 			form.get('boundingBox').addClass('yui3-form-properties');
 			form.hide();

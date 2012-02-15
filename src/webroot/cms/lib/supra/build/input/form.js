@@ -397,15 +397,24 @@ YUI.add("supra.form", function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			//Style
-			var style = this.get("style");
-			if (!style) {
-				style = this.get("srcNode").getAttribute("suStyle") || "";
-			}
-			if (style) {
-				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, style));
-			} else {
-				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, "default"));
+			var style = this.get("style") || this.get("srcNode").getAttribute("suStyle") || "default";
+			this.setStyle(style);
+		},
+		
+		/**
+		 * Change form style
+		 * 
+		 * @param {String} style Style values, valid values are "default", "vertical" and "default vertical"
+		 */
+		setStyle: function (style) {
+			//Style value can be also "default vertical"
+			style = style.split(' ');
+			
+			var i = 0,
+				ii = style.length;
+			
+			for(; i<ii; i++) {
+				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, style[i]));
 			}
 		},
 		

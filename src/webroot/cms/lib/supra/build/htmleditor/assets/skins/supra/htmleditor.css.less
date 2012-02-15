@@ -223,3 +223,12 @@
 		
 	}
 }
+
+/* Cross-browser inconsistencies fix */
+.gecko, .ie {
+	.yui3-editor-toolbar-text .yui3-button img {
+		position: relative;
+		margin: 0 0 0 -1px;
+		display: inline-block;
+	}
+}
