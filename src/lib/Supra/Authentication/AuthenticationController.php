@@ -202,6 +202,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
+						$this->response->output('1');
 					} else {
 						$successUri = $this->getSuccessRedirectUrl();
 						$this->response->redirect($successUri);

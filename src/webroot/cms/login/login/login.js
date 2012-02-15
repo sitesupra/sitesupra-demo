@@ -88,7 +88,7 @@ SU('supra.input', 'cookie', function (Y) {
 				'method': 'post',
 				'type': 'html',	//On success will respond with empty page
 				'context': this,
-				'on': { 'success': this.onLoginSuccess }
+				'on': { 'success': this.onLoginSuccess, 'failure': this.onLoginFailure }
 			});
 		},
 		
@@ -128,7 +128,12 @@ SU('supra.input', 'cookie', function (Y) {
 		 * 
 		 * @private
 		 */
-		onLoginSuccess: function () {
+		onLoginSuccess: function (data) {
+
+			if (data != '1') {
+				return this.onLoginFailure(data);
+			}
+
 			if (this.isLoginManager()) {
 				//Reload page, server will take care of the rest
 				document.location.search += ((document.location.search == '') ? '?' : '&') + 'success=' + (new Date()).valueOf();
@@ -152,6 +157,20 @@ SU('supra.input', 'cookie', function (Y) {
 				//Execute requests which were queued
 				Supra.io.loginRequestQueue.run();
 			}
+		},
+
+		/**
+		 * Handle server failures
+		 *
+		 * @private
+		 */
+		onLoginFailure: function (data) {
+			data = data || "Internal Server Error";
+			this.setErrorMessage(data);
+
+			//Enable button and form
+			this.footer.getButton('done').set('loading', false);
+			this.loginform.set('disabled', false);
 		},
 		
 		/**

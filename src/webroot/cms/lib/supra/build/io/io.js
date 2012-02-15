@@ -87,6 +87,7 @@ YUI().add("supra.io", function (Y) {
 				if (response.responseText) {
 					
 					var response = Supra.io.parseResponse(url, cfg, response.responseText);
+					response.status = false;
 					
 					return Supra.io.handleResponse(cfg, response);
 					
