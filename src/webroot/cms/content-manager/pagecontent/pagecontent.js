@@ -1,16 +1,16 @@
 //Invoke strict mode
 "use strict";
 
-SU('dd-drag', function (Y) {
+Supra('dd-drag', function (Y) {
 	
-	var LOCALE_LEAVE = 'There are unsaved changes. Are you sure you want to leave this page?';
-	
+	var BLOCK_PROTOTYPES = [
+		'Proto',
+		'Editable',
+		'List',
+		'Gallery'
+	];
 	
 	var includes = [
-		'{pagecontent}includes/contents/proto.js',
-		'{pagecontent}includes/contents/editable.js',
-		'{pagecontent}includes/contents/list.js',
-		'{pagecontent}includes/contents/gallery.js',
 		'{pagecontent}includes/plugin-properties.js',
 		'{pagecontent}includes/plugin-droptarget.js',
 		'{pagecontent}includes/iframe.js',
@@ -87,8 +87,14 @@ SU('dd-drag', function (Y) {
 		 */
 		initialize: function () {
 			var incl = includes,
+				blocks = this.BLOCK_PROTOTYPES = BLOCK_PROTOTYPES,
 				path = this.getActionPath(),
 				args = [];
+			
+			//Load blocks
+			for(var i=blocks.length-1; i>=0; i--) {
+				incl.unshift('{pagecontent}includes/contents/' + blocks[i].toLowerCase() + '.js');
+			}
 			
 			//Y.Controller route
 			Root.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
@@ -119,8 +125,9 @@ SU('dd-drag', function (Y) {
 			window.onbeforeunload = Y.bind(function (evt) {
 			    window.onbeforeunload = null;
 				if (this.hasUnsavedChanges()) {
-					evt.returnValue = LOCALE_LEAVE;
-					return LOCALE_LEAVE;
+					var message = Supra.Intl.get(['page', 'unsaved_changed']);
+					evt.returnValue = message;
+					return message;
 				}
 			}, this);
 			

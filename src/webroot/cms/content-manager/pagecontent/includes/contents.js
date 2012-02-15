@@ -574,9 +574,13 @@ YUI.add('supra.iframe-contents', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:[
-	'widget',
-	'supra.page-content-list',
-	'supra.page-content-editable',
-	'supra.page-content-gallery'
-]});
+}, YUI.version, {requires: (function () {
+	var blocks = Supra.Manager.getAction('PageContent').BLOCK_PROTOTYPES,
+		list = ['widget'];
+	
+	for(var i=0,ii=blocks.length; i<ii; i++) {
+		list.push('supra.page-content-' + blocks[i].toLowerCase());
+	}
+	
+	return list;
+})()});

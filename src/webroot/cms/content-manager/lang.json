@@ -56,6 +56,8 @@
 			
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language",
 			
+			"unsaved_changed": "There are unsaved changes. Are you sure you want to leave this page?",
+			
 			"error": {
 				"page_locked": "Page is locked by another user"
 			}
