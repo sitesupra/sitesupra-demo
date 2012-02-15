@@ -47,17 +47,20 @@ YUI.add('website.sitemap-flowmap-item-normal', function (Y) {
 		renderUI: function () {
 			Supra.FlowMapItemNormal.superclass.renderUI.apply(this, arguments);
 			
-			var data = this.get('data');
+			var data = this.get('data'),
+				can_edit = Supra.Permission.get('page', data.id, 'edit_page', false);
 			
 			//Permissions
-			if (!Supra.Permission.get('page', data.id, 'edit_page', false)) {
+			if (!can_edit || data.global) {
+				
 				//Can't edit
 				this.get('boundingBox').one('.edit').addClass('edit-hidden');
 				
+			} else if (!can_edit && data.global) {
+				
 				//Can't create copy
-				if (data.global) {
-					this.set('selectable', false);
-				}
+				this.set('selectable', false);
+				
 			}
 			
 			//"Show all" link

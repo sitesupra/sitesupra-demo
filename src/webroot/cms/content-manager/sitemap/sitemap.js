@@ -306,21 +306,24 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 				id    = null,
 				tree  = this.flowmap,
 				node  = null,
-				type  = this.getType();
+				type  = this.getType(),
+				is_global = false;
 			
 			//Enable editing if it's allowed
 			for(id in pages) {
 				node = tree.getNodeById(id);
 				if (node) {
 					if (pages[id].edit_page) {
-						//Enable editing only if not root page
-						if (!node.isRoot() || type == 'templates') {
-							//
+						
+						is_global = node.get('data').global;
+						
+						//Enable editing only if not global and not root page
+						if (!is_global && (!node.isRoot() || type == 'templates')) {
 							node.get('boundingBox').one('.edit').removeClass('edit-hidden');
 						}
 						
 						//Enable selecting global pages which were disabled
-						if (node.get('data').global) {
+						if (is_global) {
 							node.set('selectable', true);
 						}
 						
