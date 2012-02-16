@@ -60,14 +60,25 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function getPublicUrlList()
 	{
-		$trimFunction = function ($value) {
-					return trim($value, '/');
-				};
-		$list = array_map($trimFunction, $this->publicUrlList);
-
+		$list = $this->prepareUrlList($this->publicUrlList);
 		return $list;
 	}
 
+	/**
+	 * Cleanup URLs set for filtering
+	 * @param array $list
+	 * @return array 
+	 */
+	public function prepareUrlList($list) {
+		
+		$trimFunction = function ($value) {
+					return trim($value, '/');
+				};
+		$list = array_map($trimFunction, $list);
+		
+		return $list;
+	}
+	
 	/**
 	 * Returns login field name
 	 * @return string
@@ -285,7 +296,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @param string $publicUrl
 	 * @return boolean
 	 */
-	private function isPublicUrl($publicUrl)
+	protected function isPublicUrl($publicUrl)
 	{
 		$publicUrlList = $this->getPublicUrlList();
 		$publicUrl = trim($publicUrl, '/');
