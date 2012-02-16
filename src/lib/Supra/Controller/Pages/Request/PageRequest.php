@@ -309,44 +309,8 @@ abstract class PageRequest extends HttpRequest
 			$this->placeHolderSet->append($placeHolder);
 		}
 
-		
 		// Create missing place holders automatically
-		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
-		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
-
-		foreach ($layoutPlaceHolderNames as $name) {
-			if ( ! $finalPlaceHolders->offsetExists($name)) {
-
-
-				// Check if page doesn't have it already set locally
-				$placeHolder = null;
-				$knownPlaceHolders = $localization->getPlaceHolders();
-
-				if ($knownPlaceHolders->offsetExists($name)) {
-					$placeHolder = $knownPlaceHolders->offsetGet($name);
-				}
-
-				if (empty($placeHolder)) {
-					// Copy unlocked blocks from the parent template
-					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
-
-					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
-					$placeHolder->setMaster($localization);
-				}
-
-				// Persist only for draft connection with ID generation
-				if ($this instanceof PageRequestEdit) {
-					$em->persist($placeHolder);
-				}
-
-				$this->placeHolderSet->append($placeHolder);
-			}
-		}
-
-		// Flush only for draft connection with ID generation
-		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
-			$em->flush();
-		}
+		$this->createMissingPlaceHolders();
 
 		\Log::debug('Count of place holders found: ' . count($this->placeHolderSet));
 
@@ -644,6 +608,58 @@ abstract class PageRequest extends HttpRequest
 			}
 		}
 		
+	}
+	
+	/**
+	 * 
+	 */
+	public function createMissingPlaceHolders()
+	{
+		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+		
+		if (empty($layoutPlaceHolderNames) || ! isset($this->placeHolderSet)) {
+			return;
+		}
+		
+		$entityManager = $this->getDoctrineEntityManager();
+		$localization = $this->getPageLocalization();
+		
+		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
+		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
+		
+		foreach ($layoutPlaceHolderNames as $name) {
+			if ( ! $finalPlaceHolders->offsetExists($name)) {
+
+
+				// Check if page doesn't have it already set locally
+				$placeHolder = null;
+				$knownPlaceHolders = $localization->getPlaceHolders();
+
+				if ($knownPlaceHolders->offsetExists($name)) {
+					$placeHolder = $knownPlaceHolders->offsetGet($name);
+				}
+
+				if (empty($placeHolder)) {
+					// Copy unlocked blocks from the parent template
+					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
+
+					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
+					$placeHolder->setMaster($localization);
+				}
+
+				// Persist only for draft connection with ID generation
+				if ($this instanceof PageRequestEdit) {
+					$entityManager->persist($placeHolder);
+				}
+
+				$this->placeHolderSet->append($placeHolder);
+			}
+		}
+
+		// Flush only for draft connection with ID generation
+		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
+			$entityManager->flush();
+		}
 	}
 
 }

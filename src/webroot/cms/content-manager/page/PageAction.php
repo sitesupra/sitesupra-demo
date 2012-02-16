@@ -472,6 +472,11 @@ class PageAction extends PageManagerAction
 		
 		$this->writeAuditLog('create', '%item% created', $pageData);
 		
+		$request = PageRequestEdit::factory($pageData);
+		$request->setDoctrineEntityManager($this->entityManager);
+		$request->getPlaceHolderSet();
+		$request->createMissingPlaceHolders();
+		
 		$this->outputPage($pageData);
 		
 		// this will create page base copy (similar one, that is created on page publish action)
