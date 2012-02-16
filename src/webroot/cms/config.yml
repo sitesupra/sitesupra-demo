@@ -21,12 +21,6 @@
         url: /cms
         controller: Supra\Cms\CmsController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /cms/restore
-        controller: Supra\Cms\InternalUserManager\Restore\RestoreController
-        
 - Supra\Cms\ApplicationConfiguration:
     id: Supra\Cms\ContentManager
     title: Pages

@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Cms\InternalUserManager\Restore;
+namespace Supra\Cms\Restore;
 
 use Supra\Cms\CmsAction;
 use Supra\Controller\SimpleController;
@@ -84,7 +84,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			$response->assign('time', $time);
 			$response->assign('hash', $hash);
 			
-			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
+			$response->outputTemplate('restore/form.html.twig');
 			return;
 		} else {
 			$response->output('Expired or invalid link. Try initiating password recovery once more.');
@@ -123,7 +123,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 
 					$this->sendPasswordChangeLink($user);
 					
-					$response->outputTemplate('internal-user-manager/restore/request.success.html.twig');
+					$response->outputTemplate('restore/request.success.html.twig');
 					return;
 				}
 			}
@@ -132,7 +132,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$response->assign('email', $email);
 		$response->assign('errorMessage', $errorMessage);
 		
-		$response->outputTemplate('internal-user-manager/restore/request.html.twig');
+		$response->outputTemplate('restore/request.html.twig');
 	}
 	
 	/**
@@ -161,7 +161,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		// Check password match
 		if($plainPassword !== $confirmPassword) {
 			$response->assign('errorMessage', 'Passwords do not match');
-			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
+			$response->outputTemplate('restore/form.html.twig');
 			
 			return;
 		}
@@ -176,7 +176,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		// check password lenght
 		if($passwordLength < self::MIN_PASSWORD_LENGTH) {
 			$response->assign('errorMessage', 'Passwords length should be '. self::MIN_PASSWORD_LENGTH .' or more characters');
-			$response->outputTemplate('internal-user-manager/restore/form.html.twig');
+			$response->outputTemplate('restore/form.html.twig');
 			
 			return;
 		}
