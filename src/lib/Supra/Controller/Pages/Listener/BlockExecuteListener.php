@@ -123,6 +123,10 @@ class BlockExecuteListener implements EventSubscriber
 
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
+		if (empty($this->statisticsData)) {
+			return;
+		}
+
 		$response = new \Supra\Response\TwigResponse($this);
 		$response->assign('debugData', $this->statisticsData);
 		$response->outputTemplate('block_execute_listener.js.twig');
