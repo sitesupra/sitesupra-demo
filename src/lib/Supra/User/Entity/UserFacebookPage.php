@@ -16,7 +16,7 @@ class UserFacebookPage extends Entity
 {
 
 	/**
-	 * @OneToOne(targetEntity="UserFacebookData")
+	 * @ManyToOne(targetEntity="UserFacebookData")
 	 * @JoinColumn(name="facebook_data_id", referencedColumnName="id")
 	 * @var UserFacebookData
 	 */

@@ -24,12 +24,6 @@ class SocialMediaController extends SimpleController
 	const PAGE_CREATE_TAB = '/social/create-tab';
 	const PAGE_VIEW_TAB = '/social/view-tab';
 
-	private $output = array(
-		'success' => 0,
-		'data' => null,
-		'errorMessage' => null,
-	);
-
 	/**
 	 * Generate response object
 	 * @param Request\RequestInterface $request
@@ -38,7 +32,7 @@ class SocialMediaController extends SimpleController
 	public function createResponse(Request\RequestInterface $request)
 	{
 		if ($request instanceof Request\HttpRequest) {
-			return new Response\TwigResponse($this);
+			return new Response\JsonResponse();
 		}
 
 		return new Response\EmptyResponse();
@@ -52,31 +46,27 @@ class SocialMediaController extends SimpleController
 		$user = $this->getCurrentCmsUser();
 
 		if (is_null($user)) {
-			$response->redirect('/cms');
-			$this->log->debug('User is not logged in. Redirecting to /cms');
-
+			$this->setErrorOutput('User is not logged in into cms');
 			return;
 		}
 
 		$facebook = new Adapter($user);
 
+		$data['application_id'] = $facebook->getAppId();
+
 		$repo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookData');
 		$facebookData = $repo->findOneByUser($user->getId());
 
+		$data['facebook_data'] = false;
 		if ($facebookData instanceof UserFacebookData && $facebookData->isActive()) {
-			$this->log->debug('User facebook account is already linked with supra. Redirecting to page selection');
-			$response->redirect(self::PAGE_SELECT_PAGE);
-
-			return;
+			$data['facebook_data'] = true;
+			$this->log->debug('User facebook account is already linked with supra.');
 		}
 
-		$pages = $this->getAvailablePages();
+		$data = $data + $this->getAllAvailablePages();
 
-		/* @var $response \Supra\Response\TwigResponse */
-		$response->assign('appId', $facebook->getAppId());
-		$response->assign('addedPages', $pages);
-
-		$response->outputTemplate('index.html.twig');
+		/* @var $response \Supra\Response\JsonResponse */
+		$response->setResponseData($data);
 	}
 
 	public function facebookAction()
@@ -84,9 +74,7 @@ class SocialMediaController extends SimpleController
 		$user = $this->getCurrentCmsUser();
 
 		if (is_null($user)) {
-			$this->output['success'] = 1;
-			$this->output['redirect_url'] = '/cms';
-
+			$this->setErrorOutput('User is not logged in into cms');
 			return;
 		}
 
@@ -94,7 +82,7 @@ class SocialMediaController extends SimpleController
 		$request = $this->getRequest();
 		/* @var $request Request\HttpRequest */
 		$response = $this->getResponse();
-		/* @var $response Response\HttpResponse */
+		/* @var $response Response\JsonResponse */
 
 		if ( ! $request->isPost()) {
 			$this->setErrorOutput('Expected POST request');
@@ -134,10 +122,9 @@ class SocialMediaController extends SimpleController
 		$facebookData->setActive(true);
 		$em->flush();
 
-		$this->output['success'] = 1;
-		$this->output['redirect_url'] = self::PAGE_SELECT_PAGE;
+		$data = $this->getAllAvailablePages();
 
-		$response->output(json_encode($this->output));
+		$response->setResponseData($data);
 	}
 
 	public function selectPageAction()
@@ -203,16 +190,14 @@ class SocialMediaController extends SimpleController
 		}
 
 		$response->assign('pageId', $pageId);
-
-		$response->outputTemplate('create-tab.html.twig');
 	}
 
 	private function setErrorOutput($message)
 	{
 		$response = $this->getResponse();
-		$this->output['errorMessage'] = $message;
-		$this->log->error($message);
-		$response->output(json_encode($this->output));
+		/* @var $response Response\JsonResponse */
+		$response->setErrorMessage($message);
+		$this->log->debug($message);
 	}
 
 	public function addPageAction()
@@ -222,9 +207,7 @@ class SocialMediaController extends SimpleController
 		$user = $this->getCurrentCmsUser();
 
 		if (is_null($user)) {
-			$response->redirect('/cms');
-			$this->log->debug('User is not logged in. Redirecting to /cms');
-
+			$this->setErrorOutput('User is not logged in into cms');
 			return;
 		}
 
@@ -234,14 +217,15 @@ class SocialMediaController extends SimpleController
 		$request = $this->getRequest();
 		/* @var $request Request\HttpRequest */
 
-		$pageId = $request->getParameter('page_id');
-		if (empty($pageId)) {
-			$this->log->error('GET parameter "page_id" is empty');
-			$response->redirect(self::PAGE_SELECT_PAGE);
-
-			return;
+		if ( ! $request->isPost()) {
+			$this->setErrorOutput('Expected POST request');
 		}
 
+		$pageId = $request->getPostValue('page_id');
+		if (empty($pageId)) {
+			$this->setErrorOutput('POST parameter "page_id" is empty');
+			return;
+		}
 
 		try {
 			$facebook->checkUserPage($pageId);
@@ -251,17 +235,13 @@ class SocialMediaController extends SimpleController
 			if ((strpos($e->getMessage(), 'has not authorized application') != false)
 					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
-				$response->redirect(self::PAGE_SOCIAL);
-
+				
 				return;
 			}
 
-			$this->log->error('Failed to validate page with id ' . $pageId);
-			$response->redirect(self::PAGE_SELECT_PAGE);
-
+			$this->setErrorOutput($e->getMessage());
 			return;
 		}
-
 
 		$em = ObjectRepository::getEntityManager($this);
 
@@ -269,7 +249,7 @@ class SocialMediaController extends SimpleController
 			$pageData = $facebook->getUserPage($pageId, false);
 		} catch (FacebookApiException $e) {
 
-			$this->log->error('Failed to fetch user page: ' . $e->getMessage());
+			$this->setErrorOutput($e->getMessage());
 
 			// if we receive "has not authorized application" exception - then removing already stored data
 			if ((strpos($e->getMessage(), 'has not authorized application') != false)
@@ -277,7 +257,6 @@ class SocialMediaController extends SimpleController
 				$this->deactivateUserDataRecord($user);
 			}
 
-			$response->redirect(self::PAGE_SOCIAL);
 			return;
 		}
 
@@ -300,15 +279,21 @@ class SocialMediaController extends SimpleController
 		$repo = $em->getRepository('\Supra\User\Entity\UserFacebookData');
 		$facebookData = $repo->findOneByUser($user->getId());
 		if ( ! $facebookData instanceof UserFacebookData) {
-			$this->log->error('Facebook saved data is not accessable');
-			$response->redirect(self::PAGE_SELECT_PAGE);
+			$this->setErrorOutput('Facebook saved data is not accessable');
 			return;
 		}
 
 		$page->setUserData($facebookData);
 		$em->flush();
-
-		$response->redirect(self::PAGE_SELECT_PAGE);
+		
+		$availablePages = $this->getAllAvailablePages();
+	
+		$response->setResponseData(
+			array(
+				'page' => $pageData,
+				'fetched_pages_count' => count($availablePages['fetched_pages']),
+			)
+		);
 	}
 
 	/**
@@ -461,6 +446,10 @@ class SocialMediaController extends SimpleController
 		$response->outputTemplate('view-page.html.twig');
 	}
 
+	/**
+	 * Returns added to supra facebook pages 
+	 * @return array 
+	 */
 	public function getAvailablePages()
 	{
 		//TODO Check current user access rights to particular page
@@ -478,6 +467,36 @@ class SocialMediaController extends SimpleController
 		return $savedPages;
 	}
 
+	/**
+	 * Returns already added pages to database, and pages fetched from facebook
+	 * 
+	 * @param Adapter $facebook
+	 * @return array 
+	 */
+	public function getAllAvailablePages()
+	{
+
+		$pages = array();
+		$facebook = new Adapter($this->getCurrentCmsUser());
+
+		try {
+			$savedPages = $this->getAvailablePages();
+			$pageCollectionFromFacebook = $facebook->getUserPages();
+			$pageCollectionFromFacebook = array_diff_key($pageCollectionFromFacebook, $savedPages);
+			$pages['fetched_pages'] = array_values($pageCollectionFromFacebook);
+			$pages['available_pages'] = array_values($savedPages);
+		} catch (FacebookApiException $e) {
+			// if we receive "has not authorized application" exception - then removing already stored data
+			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
+				$this->deactivateUserDataRecord($this->getCurrentCmsUser());
+				$this->setErrorOutput($e->getMessage());
+			}
+		}
+
+		return $pages;
+	}
+
 	protected function getPageData(UserFacebookPage $page)
 	{
 		if ( ! $page instanceof UserFacebookPage) {
@@ -488,6 +507,8 @@ class SocialMediaController extends SimpleController
 		return array(
 			'id' => $page->getPageId(),
 			'name' => $page->getPageTitle(),
+			// title duplication for js
+			'title' => $page->getPageTitle(),
 			'picture' => $page->getPageIcon(),
 			'link' => $page->getPageLink(),
 			'tabs' => $page->getTabs()->count(),

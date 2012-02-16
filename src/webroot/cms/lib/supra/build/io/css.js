@@ -21,7 +21,7 @@ YUI().add("supra.io-css", function (Y) {
 			if (!args) args = arguments;
 			
 			for(var i=0,ii=styleSheets.length; i<ii; i++) {
-				if (styleSheets[i].href.indexOf(url) != -1) {
+				if (styleSheets[i].href && styleSheets[i].href.indexOf(url) != -1) {
 					if (Y.Lang.isFunction(callback)) {
 						callback.apply(context, args);
 					}

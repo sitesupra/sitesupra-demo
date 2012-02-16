@@ -14,7 +14,7 @@ use DateTime;
  * @Entity
  * @Table(name="user_facebook_data")
  */
-class UserFacebookData extends Entity
+class UserFacebookData extends Entity implements Timestampable
 {
 
 	/**

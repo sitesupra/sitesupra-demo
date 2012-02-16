@@ -218,7 +218,8 @@ class Adapter extends AdapterAbstraction
 		foreach (self::$requiredPermissions as $permission) {
 			if ( ! in_array($permission, $permissionsList)) {
 
-				$message = "Permission: {$permission} was not found in permissons which user allowed";
+				$message = "Permission failure: {$permission} was not found in permission list which user allowed.
+				Supra application will work only with full permission list";
 
 				throw new FacebookApiException(array(
 					'error_msg' => $message,
@@ -263,6 +264,8 @@ class Adapter extends AdapterAbstraction
 				continue;
 			}
 
+			$page['title'] = $page['name'];
+			
 			$pages[$page['id']] = $page;
 		}
 

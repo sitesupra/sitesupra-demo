@@ -1,0 +1,7 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Facebook
+    groupId: system
+    controllerClass: Project\Facebook\FacebookBlock
+    description: Facebook page block
+    cmsClassname: Facebook
+    icon: icon.png

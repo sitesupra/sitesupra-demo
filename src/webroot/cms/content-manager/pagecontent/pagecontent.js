@@ -7,7 +7,8 @@ Supra('dd-drag', function (Y) {
 		'Proto',
 		'Editable',
 		'List',
-		'Gallery'
+		'Gallery',
+        'Facebook'
 	];
 	
 	var includes = [
