@@ -128,10 +128,10 @@ SU('supra.input', function (Y) {
 		},
 		
 		execute: function (config) {
-			this.config = SU.mix({}, DEFAULT_CONFIG, config || {});
+			this.config = config = SU.mix({}, DEFAULT_CONFIG, config || {});
 			
 			this.renderMessage(config);
-			this.renderButtons(this.config);
+			this.renderButtons(config);
 			 
 			this.panel.set('useMask', config.useMask);
 			

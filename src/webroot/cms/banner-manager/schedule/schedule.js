@@ -96,11 +96,11 @@ SU('supra.calendar', function (Y) {
 			//Buttons
 			var buttons = this.all('button');
 			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'mid-blue'});
+			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'small-blue'});
 			this.button_close.render();
 			this.button_close.on('click', this.close, this);
 			
-			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove-schedule').item(0), 'style': 'mid'});
+			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove-schedule').item(0), 'style': 'small'});
 			this.button_remove.render();
 			this.button_remove.on('click', this.cancel, this);
 			

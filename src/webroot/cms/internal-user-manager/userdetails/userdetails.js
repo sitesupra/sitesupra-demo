@@ -51,7 +51,7 @@ Supra('supra.input', function (Y) {
 					'message': Supra.Intl.get(['userdetails', 'reset_message']),
 					'useMask': true,
 					'buttons': [
-						{'id': 'yes', 'style': 'mid-blue', 'click': this.resetPassword, 'context': this},
+						{'id': 'yes', 'style': 'small-blue', 'click': this.resetPassword, 'context': this},
 						{'id': 'no'}
 					]
 				});
@@ -63,7 +63,7 @@ Supra('supra.input', function (Y) {
 					'message': Supra.Intl.get(['userdetails', 'delete_message']),
 					'useMask': true,
 					'buttons': [
-						{'id': 'yes', 'style': 'mid-red', 'click': this.deleteUser, 'context': this},
+						{'id': 'yes', 'style': 'small-red', 'click': this.deleteUser, 'context': this},
 						{'id': 'no'}
 					]
 				});

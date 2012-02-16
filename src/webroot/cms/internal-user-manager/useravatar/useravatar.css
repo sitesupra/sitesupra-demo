@@ -7,7 +7,7 @@
 	-webkit-box-shadow: none;
 	box-shadow: none;
 }
-.useravatar-container.yui3-panel-true-hidden {
+.useravatar-container.su-panel-true-hidden {
 	display: none !important;
 }
 
@@ -41,7 +41,7 @@
 	opacity: 0;
 }
 
-.useravatar-container.yui3-panel-true-hidden {
+.useravatar-container.su-panel-true-hidden {
 	display: none !important;
 }
 

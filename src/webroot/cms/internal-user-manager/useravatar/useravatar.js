@@ -81,7 +81,7 @@ Supra('supra.panel', 'transition', function (Y) {
 			this.panel.set('alignTarget', target);
 			this.panel.set('alignPosition', 'T');
 			this.panel.get('boundingBox').addClass('useravatar-container');
-			this.panel.get('boundingBox').addClass('yui3-panel-true-hidden');
+			this.panel.get('boundingBox').addClass('su-panel-true-hidden');
 			
 			
 			//On window resize update panel position
@@ -101,7 +101,7 @@ Supra('supra.panel', 'transition', function (Y) {
 				var box = this.panel.get('boundingBox');
 				
 				if (evt.newVal) {
-					box.removeClass('yui3-panel-true-hidden');
+					box.removeClass('su-panel-true-hidden');
 					this.panel.syncUI();
 					
 					Y.later(32, this, function () {
@@ -117,7 +117,7 @@ Supra('supra.panel', 'transition', function (Y) {
 					box.addClass('yui3-animate-out');
 					
 					Y.later(350, this, function () {
-						box.addClass('yui3-panel-true-hidden');
+						box.addClass('su-panel-true-hidden');
 						box.removeClass('yui3-animate-in');
 						box.removeClass('yui3-animate-out');
 						box.removeClass('yui3-animate');

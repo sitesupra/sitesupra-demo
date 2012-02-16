@@ -139,17 +139,17 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'small-blue'});
 				btn.render(buttons).on('click', this.settingsFormApply, this);
 			
 			//Close button
 			/*
-			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
+			var btn = new Supra.Button({'label': 'Close', 'style': 'small'});
 				btn.render(buttons).on('click', this.settingsFormCancel, this);
 			*/
 			
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
@@ -186,12 +186,12 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			var buttons = this.one('.yui3-form-buttons');
 			
 			//Done button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'small-blue'});
 				btn.render(buttons).on('click', this.applyChanges, this);
 			
 			//Close button
 			/*
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'close']), 'style': 'mid'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'close']), 'style': 'small'});
 				btn.render(buttons).on('click', this.cancelChanges, this);
 			*/
 			

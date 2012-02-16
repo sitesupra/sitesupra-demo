@@ -23,6 +23,7 @@ YUI.add('supra.panel', function (Y) {
 	}
 	
 	Panel.NAME = 'panel';
+	Panel.CSS_PREFIX = 'su-' + Panel.NAME;
 	Panel.CLASS_NAME = Y.ClassNameManager.getClassName(Panel.NAME);
 	
 	Panel.ARROW_L = 'L';
@@ -176,7 +177,7 @@ YUI.add('supra.panel', function (Y) {
 			
 			if (useMask) {
 				if (!maskNode) {
-					var classname = Y.ClassNameManager.getClassName(Panel.NAME, 'mask'),
+					var classname = this.getClassName('mask'),
 						body = new Y.Node(document.body);
 					
 					if (!this.get('visible')) classname += ' hidden';
@@ -214,8 +215,8 @@ YUI.add('supra.panel', function (Y) {
 					var pos = this.get('arrowPosition');
 					
 					this._arrow = Y.Node.create(this.ARROW_TEMPLATE);
-					this._arrow.addClass(Y.ClassNameManager.getClassName(Panel.NAME, this.ARROW_CLASSNAME));
-					this._arrow.addClass(Y.ClassNameManager.getClassName(Panel.NAME, this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]));
+					this._arrow.addClass(this.getClassName(this.ARROW_CLASSNAME));
+					this._arrow.addClass(this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]));
 					this.get('contentBox').prepend(this._arrow);
 				}
 				
@@ -248,10 +249,10 @@ YUI.add('supra.panel', function (Y) {
 			}
 			
 			if (old[0] != pos[0] && this._arrow) {
-				var classname = Y.ClassNameManager.getClassName(Panel.NAME, this.ARROW_CLASSNAME, ARROW_CLASSNAMES[old[0]]);
+				var classname = this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[old[0]]);
 				this._arrow.removeClass(classname);
 				
-				var classname = Y.ClassNameManager.getClassName(Panel.NAME, this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]);
+				var classname = this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]);
 				this._arrow.addClass(classname);
 			}
 			
@@ -524,14 +525,14 @@ YUI.add('supra.panel', function (Y) {
 		 * Hide panel
 		 */
 		hide: function () {
-			this.get('boundingBox').addClass('yui3-panel-hidden');
+			this.get('boundingBox').addClass('su-panel-hidden');
 			Panel.superclass.hide.apply(this, arguments);
 			
 			return this;
 		},
 		
 		_checkHide: function (event) {
-			var target = event.target.closest('div.yui3-panel');
+			var target = event.target.closest('div.su-panel');
 			if (this.get('autoClose') && (!target || !target.compareTo(this.get('boundingBox')))) {
 				this.hide();
 			}
@@ -541,7 +542,7 @@ YUI.add('supra.panel', function (Y) {
 		 * Show panel
 		 */
 		show: function () {
-			this.get('boundingBox').removeClass('yui3-panel-hidden');
+			this.get('boundingBox').removeClass('su-panel-hidden');
 			
 			Panel.superclass.show.apply(this, arguments);
 			

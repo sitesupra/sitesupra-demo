@@ -131,17 +131,17 @@ YUI().add('website.sitemap-settings', function (Y) {
 			
 			
 			//Rename button for virtual folder
-				btn = this.button_rename = new Supra.Button({'srcNode': buttons.item(0), 'style': 'mid'});
+				btn = this.button_rename = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small'});
 				btn.render();
 				btn.on('click', this.renamePage, this);
 			
 			//Duplicate
-				btn = this.button_duplicate = new Supra.Button({'srcNode': buttons.item(1), 'style': 'mid'});
+				btn = this.button_duplicate = new Supra.Button({'srcNode': buttons.item(1), 'style': 'small'});
 				btn.render();
 				btn.on('click', this.duplicatePage, this);
 			
 			//Delete
-				btn = this.button_delete = new Supra.Button({'srcNode': buttons.item(2), 'style': 'mid-red'});
+				btn = this.button_delete = new Supra.Button({'srcNode': buttons.item(2), 'style': 'small-red'});
 				btn.render();
 				btn.on('click', this.deletePage, this);
 			
@@ -429,7 +429,7 @@ YUI().add('website.sitemap-settings', function (Y) {
 				'message': Supra.Intl.get(['sitemap', message_id]),
 				'useMask': true,
 				'buttons': [
-					{'id': 'delete', 'label': 'Yes', 'click': this.deletePageConfirm, 'context': this},
+					{'id': 'delete', 'label': '{# buttons.yes #}', 'click': this.deletePageConfirm, 'context': this},
 					{'id': 'no', 'label': 'No'}
 				]
 			});

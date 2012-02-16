@@ -170,7 +170,7 @@ Supra(function (Y) {
 			//Delete button
 				button = new Supra.Button({
 					'srcNode': this.one('fieldset.delete-group button'),
-					'style': 'mid-red'
+					'style': 'small-red'
 				});
 				button.on('click', this.deleteBanner, this);
 				button.render();

@@ -4,7 +4,7 @@
 	
 	&,
 	div {
-		.border-radius (4px);
+		.border-radius (3px);
 	}
 }
 .ui-dark .su-button-small {
@@ -52,7 +52,7 @@
 
 /* Red */
 .su-button-small-red {
-	.button (url(button-small-light.png), 27px, 924px);
+	.button (url(button-small-light.png), 25px, 900px);
 }
 
 
@@ -68,12 +68,12 @@
 
 /* Shadow */
 .su-button-small,
-.su-button-small-gray,
-.su-button-small-red {
+.su-button-small-gray {
 	.box-shadow (0, 1px, 0, rgba(0, 15, 53, 0.4) );
 }
-.su-button-small-blue {
-	.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.15) );
+.su-button-small-blue,
+.su-button-small-red {
+	.box-shadow (0, 1px, 0, rgba(55, 55, 55, 0.19) );
 }
 
 .ui-dark {
@@ -91,5 +91,9 @@
 		&.button-back p {
 			background-image: url(icon-back-dark.png);
 		}
+	}
+	
+	.su-button-small-red {
+		.button (url(button-small-dark.png), 27px, 924px);
 	}
 }

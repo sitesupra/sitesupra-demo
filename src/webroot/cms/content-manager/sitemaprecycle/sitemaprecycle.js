@@ -11,7 +11,7 @@ SU('anim', 'transition', function (Y) {
 	Manager.getAction('LayoutLeftContainer').addChildAction('SiteMapRecycle');
 	
 	//Create Action class
-	new Action(Action.PluginContainer, {
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -33,14 +33,15 @@ SU('anim', 'transition', function (Y) {
 		 */
 		HAS_TEMPLATE: true,
 		
-		
-		
-		
 		/**
-		 * Close button, Supra.Button instance
-		 * @type {Object}
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
 		 */
-		button_close: null,
+		LAYOUT_CONTAINER: 'LayoutLeftContainer',
+		
+		
+		
 		
 		/**
 		 * Tree node list
@@ -51,21 +52,13 @@ SU('anim', 'transition', function (Y) {
 		
 		
 		/**
-		 * Set configuration/properties, bind listeners, etc.
-		 * 
-		 * @private
-		 */
-		initialize: function () {
-		},
-		
-		/**
 		 * Render widgets
 		 * 
 		 * @private
 		 */
 		render: function () {
 			//Close button
-			this.renderHeader();
+			this.get('controlButton').on('click', this.hide, this);
 			
 			//On locale change reload data
 			Manager.SiteMap.languagebar.on('localeChange', function (evt) {
@@ -73,19 +66,6 @@ SU('anim', 'transition', function (Y) {
 					this.load(null, evt.newVal);
 				}
 			}, this);
-		},
-		
-		/**
-		 * Create buttons
-		 * 
-		 * @private
-		 */
-		renderHeader: function () {
-			var buttons = this.all('button');
-			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-close').item(0), 'style': 'mid-blue'});
-			this.button_close.render();
-			this.button_close.on('click', this.hide, this);
 		},
 		
 		/**
@@ -272,21 +252,12 @@ SU('anim', 'transition', function (Y) {
 		},
 		
 		/**
-		 * Hide
-		 */
-		hide: function () {
-			Action.Base.prototype.hide.apply(this, arguments);
-			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
-		},
-		
-		/**
 		 * Execute action
 		 *
 		 * @param {Object} request_params Optional. Request parameters
 		 */
 		execute: function (request_params /* Request parameters */) {
-			//Show MediaSidebar in left container
-			Manager.getAction('LayoutLeftContainer').setActiveAction(this.NAME);
+			this.show();
 			
 			this.load();
 		}

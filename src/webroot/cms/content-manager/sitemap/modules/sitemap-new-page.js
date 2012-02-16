@@ -107,7 +107,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			}
 			
 			//Save button
-			var btn = this.button_create = new Supra.Button({'srcNode': contbox.one('button'), 'style': 'mid'});
+			var btn = this.button_create = new Supra.Button({'srcNode': contbox.one('button'), 'style': 'small-blue'});
 				btn.render();
 				btn.on('click', this.saveNewPage, this);
 			

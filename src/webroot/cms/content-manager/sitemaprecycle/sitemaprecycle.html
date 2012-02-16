@@ -1,15 +1,21 @@
 <div class="yui3-recycle sidebar">
 	
 	<!-- Header -->
-	<h2 class="sidebar-header">Recycle bin</h2>
-	
-	<!-- Buttons -->
-	<div class="sidebar-buttons">
-		<button type="button" class="button-close"><p>Close</p></button>
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/history.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2>{# sitemap.recycle_bin #}</h2>
 	</div>
 	
-	<!-- Content -->
-	<div class="sidebar-content has-header has-buttons scrollable">
+	<div class="sidebar-content scrollable has-header">
 		
 		<ul class="recycle-list"></ul>
 		

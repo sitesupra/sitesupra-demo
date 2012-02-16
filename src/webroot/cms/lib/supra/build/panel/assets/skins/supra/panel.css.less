@@ -1,12 +1,18 @@
 @import "/cms/lib/supra/less/common.less";
 
-.yui3-panel {
-	.border-radius (3px);
-	.box-shadow (0, 1px, 2px, rgba(0, 0, 0, 0.35));
-	background: url(../../supra/img/panel/bg.gif) 0 0 repeat;
+.su-panel {
+	background: rgba(42, 41, 55, 0.85);
+	border: 1px solid #100E18;
+	.border-radius (6px);
+	.box-shadow (0, 1px, 0px, rgba(128, 133, 156, 0.18) inset, 0, 2px, 4px, rgba(0,0,0,0.3));
 	
+	.su-panel-content {
+		background: url(../../supra/img/panel/bg.gif) 0 0 repeat;
+		.border-radius (3px);
+		margin: 6px;
+	}
 	
-	&.yui3-panel-static {
+	&.su-panel-static {
 		position: relative;
 		left: 0;
 		top: 0;
@@ -17,35 +23,35 @@
 		display: none;
 	}
 	
-	&.yui3-panel-hidden {
+	&.su-panel-hidden {
 		display: none !important;
 	}
 	
-	.yui3-panel-arrow {
+	.su-panel-arrow {
 		position: absolute;
 		
-		&.yui3-panel-arrow-top {
+		&.su-panel-arrow-top {
 			background: url(../../supra/img/panel/arrow-top.png) 0 0 no-repeat;
 			width: 17px;
 			height: 11px;
 			top: -9px;
 			margin-left: -9px;
 		}
-		&.yui3-panel-arrow-bottom {
+		&.su-panel-arrow-bottom {
 			background: url(../../supra/img/panel/arrow-bottom.png) 0 0 no-repeat;
 			width: 17px;
 			height: 11px;
 			bottom: -9px;
 			margin-left: -9px;
 		}
-		&.yui3-panel-arrow-left {
+		&.su-panel-arrow-left {
 			background: url(../../supra/img/panel/arrow-left.png) 0 0 no-repeat;
 			width: 12px;
 			height: 19px;
 			left: -10px;
 			margin-top: -8px;
 		}
-		&.yui3-panel-arrow-right {
+		&.su-panel-arrow-right {
 			background: url(../../supra/img/panel/arrow-right.png) 0 0 no-repeat;
 			width: 12px;
 			height: 19px;
@@ -54,7 +60,7 @@
 		}
 	}
 	
-	.yui3-panel-inner {
+	.su-panel-inner {
 		.border-radius (3px);
 		background: #fff;
 		border: 1px solid #ccc;
@@ -62,7 +68,7 @@
 
 }
 
-.yui3-panel-mask {
+.su-panel-mask {
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -86,20 +92,20 @@
 		padding: 10px 15px;
 		color: #fff;
 	}
-	.yui3-panel-arrow-top {
+	.su-panel-arrow-top {
 		background-image: url(../../supra/img/panel/tooltip-arrow-top.png);
 		top: -11px !important;
 	}
-	.yui3-panel-arrow-bottom {
+	.su-panel-arrow-bottom {
 		background-image: url(../../supra/img/panel/tooltip-arrow-bottom.png);
 		bottom: -11px !important;
 	}
-	.yui3-panel-arrow-left {
+	.su-panel-arrow-left {
 		background-image: url(../../supra/img/panel/tooltip-arrow-left.png);
 		left: -12px !important;
 		margin-top: -8px;
 	}
-	.yui3-panel-arrow-right {
+	.su-panel-arrow-right {
 		background-image: url(../../supra/img/panel/tooltip-arrow-right.png);
 		right: -12px !important;
 		margin-top: -8px;

@@ -219,7 +219,7 @@ Supra('website.list-dd', function (Y) {
 					'message': Supra.Intl.get(['userlist', 'user_move_confirm']),
 					'useMask': true,
 					'buttons': [
-						{'id': 'yes', 'style': 'mid-blue', 'click': function () { this.onUserMoveConfirm(drag_id, drop_id, drag_node, drop_node); }, 'context': this},
+						{'id': 'yes', 'style': 'small-blue', 'click': function () { this.onUserMoveConfirm(drag_id, drop_id, drag_node, drop_node); }, 'context': this},
 						{'id': 'no'}
 					]
 				});
