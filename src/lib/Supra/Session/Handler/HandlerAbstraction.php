@@ -130,6 +130,22 @@ abstract class HandlerAbstraction
 		
 		return $this->sessionData;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getSessionName()
+	{
+		return $this->sessionName;
+	}
+
+	/**
+	 * @param string $sessionName
+	 */
+	public function setSessionName($sessionName)
+	{
+		$this->sessionName = $sessionName;
+	}
 
 	/**
 	 * @return string
