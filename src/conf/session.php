@@ -6,6 +6,7 @@ $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerCo
 $sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
 $sessionManagerConfiguration->sessionExpirationTime = 1440;
 $sessionManagerConfiguration->isDefault = false;
+$sessionManagerConfiguration->name = 'SID';
 $sessionManagerConfiguration->namespaces = array(
 	'Supra\Cms\AuthenticationPreFilterController',
 	'Supra\Cms\CmsController',
