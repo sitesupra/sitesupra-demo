@@ -17,6 +17,7 @@ use Supra\Database\Doctrine\Type\SupraIdType;
 use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
 use Supra\Controller\Pages\PageController;
+use Supra\FileStorage\Listener\FileGroupCacheDropListener;
 
 Type::addType(SupraIdType::NAME, 'Supra\Database\Doctrine\Type\SupraIdType');
 Type::addType(PathType::NAME, 'Supra\Database\Doctrine\Type\PathType');
@@ -93,6 +94,7 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
 
 	$eventManager->addEventSubscriber(new NestedSetListener());
+	$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
 	
 	switch ($managerName) {
 		case 'PublicSchema':

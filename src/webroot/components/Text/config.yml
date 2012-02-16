@@ -10,5 +10,6 @@
         global: false
         groups:
           - Supra\Controller\Pages
+          - Supra\FileStorage
         lifetime: 5 minutes
         

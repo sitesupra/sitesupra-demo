@@ -16,6 +16,7 @@ use Supra\Log\Writer\WriterAbstraction;
  */
 class FileStorage
 {
+	const CACHE_GROUP_NAME = 'Supra\FileStorage';
 
 	const RESERVED_DIR_SIZE = "_size";
 	const RESERVED_DIR_VERSION = "_ver";
