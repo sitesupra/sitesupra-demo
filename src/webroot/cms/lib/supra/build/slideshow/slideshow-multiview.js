@@ -189,6 +189,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		
 		syncUI: function () {
 			
+			/*
 			var slideId = this.get('slide'),
 				index = Y.Array.indexOf(this.history, slideId),
 				position = 0;
@@ -199,6 +200,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 			position = (index != -1 ? - index * this.slide_width : 0);
 			
 			this.get('contentBox').setStyle('left', position);
+			*/
 			
 			//Update scrollbar position
 			if (this.scrollable) {
