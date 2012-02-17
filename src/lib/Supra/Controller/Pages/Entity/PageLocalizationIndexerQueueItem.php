@@ -364,7 +364,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
 
-		$redirect = $this->localization->getRedirect();
+		$redirect = $pageLocalization->getRedirect();
 
 		$isRedirected = 'true';
 
