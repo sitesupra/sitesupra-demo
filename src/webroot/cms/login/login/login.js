@@ -1,5 +1,7 @@
 SU('supra.input', 'cookie', function (Y) {
-	
+
+	var COOKIE_CHANGE_CHECK_INTERVAL = 3000;
+
 	//Shortcut
 	var Manager = SU.Manager,
 		Loader = Manager.Loader,
@@ -27,9 +29,14 @@ SU('supra.input', 'cookie', function (Y) {
 		 * @private
 		 */
 		HAS_TEMPLATE: true,
-		
-		
-		
+
+		/**
+		 * Stores cookie string before popping up login form to compare afterwards
+		 * @type {String}
+		 * @private
+		 */
+		originalCookie: null,
+
 		/**
 		 * Set configuration/properties
 		 * 
@@ -138,6 +145,9 @@ SU('supra.input', 'cookie', function (Y) {
 				//Reload page, server will take care of the rest
 				document.location.search += ((document.location.search == '') ? '?' : '&') + 'success=' + (new Date()).valueOf();
 			} else {
+
+				this.cancelCookieChangeWatch();
+
 				var key = Supra.data.get('sessionName'),	//Cookie key
 					value = key ? Y.Cookie.get(key) : '';	//Session ID
 				
@@ -229,6 +239,47 @@ SU('supra.input', 'cookie', function (Y) {
 			
 			//Disable ping
 			Supra.session.cancelPing();
+			this.watchCookieChanges();
+		},
+
+		/**
+		 * Cookie changes timeout handler
+		 * @type {Object}
+		 * @private
+		 */
+		timeout_handler: null,
+
+		/**
+		 * Start to watch cookie changes
+		 */
+		watchCookieChanges: function () {
+			if (this.timeout_handler) return;
+			if (this.isLoginManager()) return;
+
+			// Remember the original cookie string
+			this.originalCookie = document.cookie;
+			this.timeout_handler = Y.later(COOKIE_CHANGE_CHECK_INTERVAL, this, this._checkCookieChanges, null, true);
+		},
+
+		/**
+		 * Cancel cookie change watch
+		 */
+		cancelCookieChangeWatch: function () {
+			if (this.timeout_handler) {
+				this.timeout_handler.cancel();
+				this.timeout_handler = null;
+			}
+		},
+
+		/**
+		 * Check cookie for changes, assume login success
+		 *
+		 * @private
+		 */
+		_checkCookieChanges: function () {
+			if (document.cookie != this.originalCookie) {
+				this.onLoginSuccess('1');
+			}
 		}
 		
 	});

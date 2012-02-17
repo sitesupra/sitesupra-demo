@@ -195,7 +195,7 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * Get page path
+	 * Get page actual path
 	 * @return Path
 	 */
 	public function getPath()
@@ -205,15 +205,24 @@ class PageLocalization extends Abstraction\Localization
 		return $path;
 	}
 
-	public function getRealPath($activeOnly)
+	/**
+	 * Will return real path or null path record if page not active and only
+	 * active path is requested.
+	 * 
+	 * @param boolean $activeOnly
+	 * @return Path
+	 */
+	private function getRealPath($activeOnly)
 	{
 		$path = $this->getPathEntity()->getPath();
 		$active = $this->getPathEntity()->isActive();
 
-		// Method should not return NULL for now...
-		if (is_null($path) || ($activeOnly && ! $active)) {
+		// Method will return NullPath instance
+		if (is_null($path)) {
 			$path = NullPath::getInstance();
 			$this->getPathEntity()->setPath($path);
+		} elseif ($activeOnly && ! $active) {
+			$path = NullPath::getInstance();
 		}
 
 		return $path;
@@ -439,6 +448,9 @@ class PageLocalization extends Abstraction\Localization
 		return $this->getPath()->getDepth();
 	}
 
+	/**
+	 * Clone magic, recurse clone for redirect and path
+	 */
 	public function __clone()
 	{
 		if ( ! empty($this->id)) {
@@ -459,10 +471,20 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function isPublic()
 	{
+		// This page not active
 		if ( ! $this->active) {
 			return false;
 		}
 
+		// Any parent not active
+		$active = $this->getPathEntity()
+				->isActive();
+
+		if ( ! $active) {
+			return false;
+		}
+
+		// Path is null for some other reason
 		$path = $this->getPathEntity()
 				->getPath();
 
