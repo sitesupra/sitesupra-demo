@@ -5,13 +5,8 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 $helperSet = null;
 
-require_once __DIR__ . '/cli-config.php';
-
-$cli = \Supra\Console\Application::getInstance();
-$cli->setCatchExceptions(true);
-//$cli->setHelperSet($helperSet);
-
-$cli->addCommandClasses(array(
+// This is supposed to be overriden as necessarry by config/cli.php
+$cliCommandClasses = array(
 	'Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand',
 	'Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand',
 	'Supra\Database\Console\SchemaUpdateCommand',
@@ -29,7 +24,15 @@ $cli->addCommandClasses(array(
 	'Project\DummyRemote\DummyCommandOne',
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
-));
+);
+
+require_once __DIR__ . '/cli-config.php';
+
+$cli = \Supra\Console\Application::getInstance();
+$cli->setCatchExceptions(true);
+//$cli->setHelperSet($helperSet);
+
+$cli->addCommandClasses($cliCommandClasses);
 
 $cli->setHelperSet($helperSet);
 $cli->setCatchExceptions(false);
@@ -40,12 +43,12 @@ try {
 } catch (\Exception $e) {
 	$cli->renderException($e, $output);
 	\Log::error("Error while running CLI command: {$e->__toString()}");
-	
+
 	$statusCode = $e->getCode();
 	$statusCode = is_numeric($statusCode) && $statusCode ? $statusCode : 1;
 	if ($statusCode > 255) {
 		$statusCode = 255;
 	}
-	
+
 	exit($statusCode);
 }
