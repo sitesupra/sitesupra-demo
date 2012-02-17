@@ -1128,4 +1128,11 @@ class FileStorage
 	{
 		return $this->fileAccessMode;
 	}
+	
+	public function fileExists(Entity\Abstraction\File $file)
+	{
+		$path = $this->getFilesystemPath($file, true);
+		
+		return file_exists($path);
+	}
 }

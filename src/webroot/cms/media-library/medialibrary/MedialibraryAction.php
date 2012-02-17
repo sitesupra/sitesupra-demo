@@ -105,8 +105,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			if ($rootNode instanceof Entity\Image) {
 				// create preview
 				// TODO: hardcoded 30x30
-				$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
-				$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+				if ($this->fileStorage->fileExists($rootNode)) {
+					$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
+					$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+				}
 			}
 
 			$item['id'] = $rootNode->getId();
@@ -435,7 +437,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$this->entityManager->flush();
 
 			// genrating output
-			$output = $this->imageAndFileOutput($fileEntity);
+			$output = $this->imageAndFileOutput($fileEntity, $localeId);
 
 			$this->writeAuditLog('upload', '%item% uploaded', $fileEntity);
 			$this->getResponse()->setResponseData($output);
@@ -499,13 +501,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	 * @param Entity\File $file
 	 * @return array
 	 */
-	private function imageAndFileOutput(Entity\File $file)
+	private function imageAndFileOutput(Entity\File $file, $localeId = null)
 	{
-		$localeId = $this->getLocale()->getId();
-		$output = $this->fileStorage->getFileInfo($file);
+		$output = $this->fileStorage->getFileInfo($file, $localeId);
 
 		// Create thumbnail&preview
-		if ($file instanceof Entity\Image) {
+		if ($file instanceof Entity\Image && $this->fileStorage->fileExists($file)) {
 			$thumbSize = $this->fileStorage->createResizedImage($file, 30, 30, true);
 			$previewSize = $this->fileStorage->createResizedImage($file, 200, 200);
 			$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
