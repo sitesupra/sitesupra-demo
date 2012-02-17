@@ -212,7 +212,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			}, this);
 			
 			Y.one('body').append(iframe);
-			container.prepend(form);
+			container.append(form);
+			container.addClass('legacy-file-upload-container');
 			
 			if (!for_replace) {
 				this.set('form', form);
