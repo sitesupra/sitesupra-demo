@@ -169,7 +169,7 @@ YUI().add("supra.io", function (Y) {
 			cfg = {};
 		}
 		
-		var cfg_default = {
+		var cfg_new = {
 			'type': 'json',
 			'data': null,
 			'permissions': permissions,
@@ -184,20 +184,15 @@ YUI().add("supra.io", function (Y) {
 		};
 		
 		//Save context and remove from config to avoid traversing them on Supra.mix
-		context = cfg.context || cfg_default.context;
-		// Backup context
-		var cnfContextBackup = cfg.context;
-		cfg.context = cfg_default.context = null;
-
-		// New variable to be able to reset context to the original one which is saved inside "args"
-		var cfgNew = Supra.mix(cfg_default, cfg, true);
-
-		// Restore context
-		cfg.context = cnfContextBackup;
+		context = cfg.context || cfg_new.context;
+		cfg.context = cfg_new.context = null;
 		
-		cfgNew.context = cfg_default.context = context;
+		Supra.mix(cfg_new, cfg, true);
 		
-		return [url, cfgNew, permissions, callback, context];
+		//Restore context
+		cfg.context = cfg_new.context = context;
+		
+		return [url, cfg_new, permissions, callback, context];
 	};
 	
 	/**
