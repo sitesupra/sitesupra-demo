@@ -180,16 +180,6 @@ YUI.add("supra.input-select", function (Y) {
 			this.set('contentNode', dropdown_node.one('.' + this.getClassName('dropdown-content')));
 			this.get('innerNode').append(dropdown_node);
 			
-			//Scrollable content
-			if (this.get('scrollable')) {
-				this.get('boundingBox').addClass(this.getClassName('scrollable'));
-				
-				this.scrollable = new Supra.Scrollable({
-					'srcNode': this.get('contentNode')
-				});
-				this.scrollable.render();
-			}
-			
 			//Sync values
 			this.set('values', this.get('values'));
 		},
@@ -372,6 +362,18 @@ YUI.add("supra.input-select", function (Y) {
 			//Scrollable
 			if (this.scrollable) {
 				this.scrollable.syncUI();
+			} else if (this.get('scrollable')) {
+				//Scrollable content
+				this.get('boundingBox').addClass(this.getClassName('scrollable'));
+				
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.get('contentNode'),
+					'axis': 'y'
+				});
+				
+				this.scrollable.render();
+				
+				this.set('contentNode', this.scrollable.get('contentBox'));
 			}
 		},
 		

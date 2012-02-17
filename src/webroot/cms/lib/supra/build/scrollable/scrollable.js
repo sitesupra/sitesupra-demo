@@ -451,10 +451,12 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @private
 		 */
 		onDisabledChange: function (evt) {
-			if (evt.newVal) {
-				this.get('scrollbarNode').addClass(this.getClassName('invisible'));
-			} else {
-				this.syncUI();
+			if (evt.newVal != evt.prevVal) {
+				if (evt.newVal) {
+					this.get('scrollbarNode').addClass(this.getClassName('invisible'));
+				} else {
+					this.syncUI();
+				}
 			}
 		}
 	});

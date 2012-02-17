@@ -242,7 +242,12 @@ YUI.add("supra.form", function (Y) {
 		 */
 		addInput: function (config) {
 			if (this.get("rendered")) {
-				//@TODO Add possibility to change input attributes after form has been rendered
+				if (config.isInstanceOf && config.isInstanceOf(Supra.Input.Proto)) {
+					//Add input to the list of form inputs
+					this.inputs[config.get('id')] = config;
+				} else {
+					//@TODO Add possibility to add new inputs after form has been rendered
+				}
 			} else {
 				var id = ("id" in config && config.id ? config.id : ("name" in config ? config.name : ""));
 				if (!id) {
