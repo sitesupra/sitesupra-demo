@@ -174,9 +174,9 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					//Localized value
 					locale = this.getItemLocale();
 					props[name] = {};
-					props[name][locale] = item_data[name][locale] = value;
+					props[name][locale] = item_data[name][locale] = data.data[name][locale] = value;
 				} else {
-					props[name] = item_data[name] = value;
+					props[name] = item_data[name] = data.data[name] = value;
 				}
 				
 				data_object.saveData(id, props, Y.bind(function (status) {
