@@ -500,15 +500,16 @@
  * File upload form for legacy browsers (IE 9)
  */
 .legacy-file-upload-form {
-	position: relative;
+	position: absolute;
 	z-index: 2;
 	
 	height: 0;
-	width: 100%;
+	width: 0;
 	padding: 0;
 	margin: 0;
 	
-	top: 0px;
+	top: 0;
+	left: 0;
 }
 .legacy-file-upload-form input,
 .legacy-file-upload-form button {
@@ -519,7 +520,7 @@
 .legacy-file-upload-form .upload-file-input {
 	cursor: pointer;
 	left: -350px;
-	top: 0;
+	top: -40px;
 	z-index: 3;
 	display: inline-block;
 	

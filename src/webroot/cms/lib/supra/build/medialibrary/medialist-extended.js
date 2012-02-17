@@ -353,7 +353,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					parent_slide = this.slideshow.getSlide('slide_' + parent_id)
 					if (parent_slide) {
 						parent_data = data_object.getData(parent_id);
-						console.log(parent_id, parent_data);
 						
 						if (!parent_data || !parent_data.children_count) {
 							this.renderItem(parent_id);
