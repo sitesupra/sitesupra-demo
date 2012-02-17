@@ -114,7 +114,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 						if (!this.dataLoaded[parent]) {
 							if (!this.dataLoaded[parent]) this.dataLoaded[parent] = {'offset': 0, 'totalRecords': 0};
 							this.dataLoaded[parent].offset++;
-							this.dataLoaded[totalRecords].offset++;
+							this.dataLoaded[parent].totalRecords++;
 						}
 					}
 				} else {
