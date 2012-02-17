@@ -85,7 +85,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				if (data.length) {
 					//Add each item to the list
 					for(var i=0,ii=data.length; i<ii; i++) {
-						this.addData(parent, data[i]);
+						this.addData(parent, data[i], new_data);
 					}
 				} else {
 					//Add empty children array to parent
@@ -103,6 +103,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 					if (parent in indexed) {
 						if (!indexed[parent].children) indexed[parent].children = [];
 						indexed[parent].children.push(data.id);
+						if (new_data) {
+							indexed[parent].children_count++;
+						}
 					} else if (!parent) {
 						this.data.push(data);
 					}
@@ -280,10 +283,11 @@ YUI.add('supra.medialibrary-data', function (Y) {
 					var data_list = this.data;
 					for(var i=0,ii=data_list.length; i<ii; i++) {
 						if (data_list[i].id == id) {
-							data_list.splice(i, 1);
 							
 							loaded[data_list[i].parent].offset--;
 							loaded[data_list[i].parent].totalRecords--;
+							
+							data_list.splice(i, 1);
 							
 							break;
 						}

@@ -334,7 +334,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			if (item) {
 				var data_object = this.get('dataObject'),
 					item_id = item.id,
-					parent_id = item.parent;
+					node = this.getItemNode(item_id),
+					parent_id = item.parent,
+					parent_slide = null,
+					parent_data = null;
 				
 				//Send request to server
 				data_object.saveDeleteData(item_id, Y.bind(function () {
@@ -346,8 +349,21 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					if (this.slideshow.isInHistory('slide_' + item_id)) {
 						this.open(parent_id);
 					}
-					if (this.slideshow.getSlide('slide_' + parent_id)) {
-						this.renderItem(parent_id);
+					
+					parent_slide = this.slideshow.getSlide('slide_' + parent_id)
+					if (parent_slide) {
+						parent_data = data_object.getData(parent_id);
+						console.log(parent_id, parent_data);
+						
+						if (!parent_data || !parent_data.children_count) {
+							this.renderItem(parent_id);
+						} else {
+							//Remove node
+							node.remove();
+							
+							//Update scrollbars
+							parent_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+						}
 					}
 					
 				}, this));
