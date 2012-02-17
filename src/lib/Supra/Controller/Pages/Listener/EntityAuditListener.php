@@ -150,6 +150,10 @@ class EntityAuditListener implements EventSubscriber
 			$this->em = $eventArgs->getEntityManager();
 		} else if ($eventArgs instanceof PageEventArgs) {
 			$this->em = $eventArgs->getEntityManager();
+			$localizationId = $eventArgs->getProperty('localizationId');
+			if ( ! empty($localizationId)) {
+				$this->localizationId = $localizationId;
+			}
 		} else {
 			throw new \LogicException("Unknown event args received");
 		}

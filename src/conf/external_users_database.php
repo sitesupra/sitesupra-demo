@@ -74,9 +74,9 @@ $eventManager = new EventManager();
 $eventManager->addEventSubscriber(new TableNamePrefixer('su_'));
 $eventManager->addEventSubscriber(new TimestampableListener());
 
-$eventManager->addEventSubscriber(new Listener\VersionedAnnotationListener());
+//$eventManager->addEventSubscriber(new Listener\VersionedAnnotationListener());
 
-$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
+//$eventManager->addEventListener(array(Events::loadClassMetadata), new Listener\EntityRevisionListener());
 
 $eventManager->addEventSubscriber(new NestedSetListener());
 

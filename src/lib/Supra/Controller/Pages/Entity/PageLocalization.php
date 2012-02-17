@@ -60,6 +60,12 @@ class PageLocalization extends Abstraction\Localization
 	 * @var boolean
 	 */
 	protected $active = true;
+	
+	/**
+	 * @Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $limitedAccess = false;
 
 	/**
 	 * @Column(type="datetime", nullable=true, name="schedule_time")
@@ -526,6 +532,38 @@ class PageLocalization extends Abstraction\Localization
 		if ($this->redirect) {
 			$this->redirect->getId();
 		}
+	}
+	
+	/**
+	 * @param boolean $access
+	 */
+	public function setLimitedAccessPage($access)
+	{
+		$this->limitedAccess = $access;
+	}
+	
+	public function isLimitedAccessPage()
+	{
+		return $this->limitedAccess;
+	}
+	
+	public function hasLimitedAccessParent()
+	{
+		$has = false;
+		
+		$parent = $this->getParent();
+		while( ! is_null($parent)) {
+			$isParentLimited = $parent->isLimitedAccessPage();
+			
+			if ($isParentLimited) {
+				$has = true;
+				break;
+			}
+			
+			$parent = $parent->getParent();
+		}
+		
+		return $has;
 	}
 
 }

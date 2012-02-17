@@ -72,6 +72,11 @@ class FixtureHelper
 					'pathPart' => '404',
 					'404' => true
 			),
+			9 => array(
+					'title' => 'Login',
+					'pathPart' => 'login',
+					'login' => true,
+			),
 		
 	);
 
@@ -317,6 +322,9 @@ class FixtureHelper
 
 			$search = $this->createPage(7, $rootPage, $this->childTemplate);
 			$page404 = $this->createPage(8, $rootPage, $this->rootTemplate);
+			
+			$loginPage = $this->createPage(9, $rootPage, $this->rootTemplate);
+			
 		}
 		catch (\Exception $e) {
 			$em->rollback();
@@ -750,6 +758,12 @@ class FixtureHelper
 								$blockProperty->setBlock($block);
 								$blockProperty->setLocalization($pageData);
 								$blockProperty->setValue('<h1>Page not found</h1>');
+						} else if ($pageDefinition['login']) {
+							$block = new Entity\PageBlock();
+							$this->entityManager->persist($block);
+							$block->setComponentClass('Project\Pages\LoginBlock');
+							$block->setPlaceHolder($placeHolder);
+							$block->setPosition(100);
 						}
 
 						else {

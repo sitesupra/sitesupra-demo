@@ -15,3 +15,16 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\SocialMedia\SocialMediaController',
 );
 $sessionManagerConfiguration->configure();
+
+// frontend session manager
+$sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerConfiguration();
+$sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
+$sessionManagerConfiguration->sessionExpirationTime = 1440;
+$sessionManagerConfiguration->isDefault = false;
+$sessionManagerConfiguration->name = 'fSID';
+$sessionManagerConfiguration->namespaces = array(
+	'Supra\Controller\Pages',
+	'Project\Pages\LoginPreFilterController',
+	'Project\Pages',
+);
+$sessionManagerConfiguration->configure();

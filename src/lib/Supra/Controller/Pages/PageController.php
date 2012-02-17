@@ -20,6 +20,7 @@ use Supra\Response\ResponseContext;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
+use Supra\Controller\Exception\AuthorizationRequiredException;
 
 /**
  * Page controller
@@ -111,6 +112,20 @@ class PageController extends ControllerAbstraction
 					throw new ResourceNotFoundException("Wrong page instance received");
 				}
 				
+				//
+				$hasLimitedParent = $localization->hasLimitedAccessParent();
+				$isLimited = $localization->isLimitedAccessPage();
+				
+				if ($isLimited || $hasLimitedParent) {
+					$sessionManager = ObjectRepository::getSessionManager($this);
+					$currentUser = $sessionManager->getAuthenticationSpace()
+							->getUser();
+					
+					if ( ! $currentUser instanceof \Supra\User\Entity\User) {
+						throw new AuthorizationRequiredException();
+					}
+				}
+				
 				$redirect = $localization->getRedirect();
 				if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
 					//TODO: any validation? skipping? loop check?
@@ -138,15 +153,19 @@ class PageController extends ControllerAbstraction
 						return;
 					}
 				}
+			// page requires user to be logged-in
+			} catch (AuthorizationRequiredException $e) {
+				try {
+					$this->getLocalizationByPath('login');
+					$response->setCode(403);
+				} catch (ResourceNotFoundException $e404) {
+					throw $e;
+				}
+			// page not found
 			} catch (ResourceNotFoundException $e) {
-
 				try {
 					//TODO: hardcoded for now
-					$tryPath = '404';
-					$request->resetPageLocalization();
-					$request->setPath(new Path($tryPath));
-					$localization = $request->getPageLocalization();
-
+					$this->getLocalizationByPath('404');
 					$response->setCode(404);
 
 					// Throw the original exception if 404 page is not found
@@ -185,6 +204,7 @@ class PageController extends ControllerAbstraction
 		
 		$this->processLayout($layout, $placeResponses);
 		\Log::debug("Layout {$layout} processed and output to response for {$page}");
+		
 	}
 
 	/**
@@ -518,6 +538,16 @@ class PageController extends ControllerAbstraction
 		}
 
 		return $return;
+	}
+	
+	protected function getLocalizationByPath($pathString) 
+	{
+		$request = $this->getRequest();
+		
+		$request->resetPageLocalization();
+		$request->setPath(new Path($pathString));
+		
+		$request->getPageLocalization();
 	}
 
 }

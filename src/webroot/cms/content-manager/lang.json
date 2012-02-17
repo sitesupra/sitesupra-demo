@@ -166,6 +166,9 @@
 			
 			"is_active": "Page active",
 			
+			"is_limited": "Limited access page",
+			"is_limited_description": "Limited access page viewing is available only to logged-in users",
+			
 			"is_global": "Page is global",
 			"is_global_description": "Global pages appear in other languages on the site. Local pages appear in a given version.",
 			

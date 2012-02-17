@@ -119,6 +119,8 @@ class PageAction extends PageManagerAction
 		$redirect = null;
 		$createdDate = null;
 		$createdTime = null;
+		$isLimited = null;
+		$hasLimitedParent = null;
 		
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
@@ -158,6 +160,11 @@ class PageAction extends PageManagerAction
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
 			$active = $pageData->isActive();
+			
+			if ($pageData instanceof Entity\PageLocalization) {
+				$isLimited = $pageData->isLimitedAccessPage();
+				$hasLimitedParent = $pageData->hasLimitedAccessParent();
+			}
 
 			if ( ! is_null($redirectLink)) {
 				$redirect = $this->convertReferencedElementToArray($redirectLink);
@@ -216,6 +223,8 @@ class PageAction extends PageManagerAction
 			'scheduled_time' => $scheduledTime,
 			'redirect' => $redirect,
 			'active' => $active,
+			'is_limited' => $isLimited,
+			'has_limited_parent' => $hasLimitedParent,
 			'created_date' => $createdDate,
 			'created_time' => $createdTime,
 			'global' => $page->getGlobal(),

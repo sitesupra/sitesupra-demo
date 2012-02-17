@@ -3,9 +3,25 @@
       Supra\Router\Configuration\RouterConfiguration:
         class: Supra\Router\TopPriorityRouter
         controller: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
+        
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /
+        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+        controller: Project\Pages\LoginPreFilterController
 
 - Supra\Controller\Configuration\ControllerConfiguration:
     router: 
       Supra\Router\Configuration\RouterConfiguration:
         url: /
         controller: Supra\Controller\Pages\PageController
+        
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Frontend login page block
+    groupId: system
+    controllerClass: Project\Pages\LoginBlock
+    description: Frontend login page block
+    cmsClassname: Editable
+    icon: icon.png
+    hidden: true

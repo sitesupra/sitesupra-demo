@@ -53,6 +53,12 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @var array
 	 */
 	public $publicUrlList = array();
+	
+	/**
+	 * Defines, will be user redirected on login success 
+	 * @var boolean
+	 */
+	protected $skipRedirect = false;
 
 	/**
 	 * Public URL list
@@ -165,12 +171,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 		$request = $this->getRequest();
 		$uri = $this->getRequest()->getActionString();
-		$isPublicUrl = $this->isPublicUrl($uri);
-
-		// Allow accessign public URL
-		if ($isPublicUrl) {
-			return;
-		}
 
 		$xmlHttpRequest = false;
 		$requestedWith = $this->getRequest()->getServerValue('HTTP_X_REQUESTED_WITH');
@@ -211,16 +211,20 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$userProvider->signIn($user);
 
+					$auditLog = ObjectRepository::getAuditLogger($this);
+					$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged in", $user);
+					
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
 						$this->response->output('1');
 					} else {
-						$successUri = $this->getSuccessRedirectUrl();
-						$this->response->redirect($successUri);
+						if ( ! $this->skipRedirect) {
+							$successUri = $this->getSuccessRedirectUrl();
+							$this->response->redirect($successUri);
+						} else {
+							return;
+						}
 					}
-
-					$auditLog = ObjectRepository::getAuditLogger($this);
-					$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged in", $user);
 
 					throw new StopRequestException("Login success");
 				} catch (Exception\AuthenticationFailure $exc) {
@@ -252,6 +256,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					throw new StopRequestException("Login failure");
 				}
 			}
+		}
+		
+		$isPublicUrl = $this->isPublicUrl($uri);
+
+		// Allow accessign public URL
+		if ($isPublicUrl) {
+			return;
 		}
 
 		// by default, we update session access time on each request
@@ -338,5 +349,14 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 		return $uri;
 	}
-
+	
+	/**
+	 *
+	 * @param boolean $skip 
+	 */
+	public function setSkipRedirect($skip) 
+	{
+		$this->skipRedirect = $skip;
+	}
+	
 }

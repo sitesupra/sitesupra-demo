@@ -49,6 +49,11 @@ class PagesettingsAction extends PageManagerAction
 			$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
 			$pageData->setVisibleInMenu($visibleInMenu);
 		}
+		
+		if ($input->has('is_limited')) {
+			$limitedAccess = $input->getValid('is_limited', AbstractType::BOOLEAN);
+			$pageData->setLimitedAccessPage($limitedAccess);
+		}
 
 		if ($input->has('is_visible_in_sitemap')) {
 			$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);

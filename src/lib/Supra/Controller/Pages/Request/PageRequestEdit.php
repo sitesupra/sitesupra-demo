@@ -347,6 +347,8 @@ class PageRequestEdit extends PageRequest
 		
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setEntityManager($draftEm);
+		// fixtures are using this
+		$pageEventArgs->setProperty('localizationId', $publicData->getId());
 		
 		$draftEm->getEventManager()
 				->dispatchEvent(AuditEvents::pagePublishEvent, $pageEventArgs);

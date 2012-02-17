@@ -630,6 +630,12 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			} else {
 				this.one('a[data-target="slideSchedule"]').removeClass('disabled');
 			}
+			
+			if (page_data.has_limited_parent) {
+				this.form.getInput('is_limited').set('disabled', true);
+			} else {
+				this.form.getInput('is_limited').set('disabled', false);
+			}
 		},
 		
 		/**
@@ -807,6 +813,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				inputs = [
 					['template', form.getInput('path')],
 					['template', form.getInput('active')],
+					['template', form.getInput('is_limited')],
 					
 					['template', '.button-meta'],
 					['template', form.getInput('description')],
