@@ -138,14 +138,18 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 		if ( ! $input->isEmpty('user_id')) {
 			$userId = $input->get('user_id');
 
-			$user = $this->userProvider
-					->findUserById($userId);
-			
-			if ( ! $user instanceof User) {
-				throw new CmsException(null, 'Could not find a user');
+			if ($userId != 'null') {
+				$user = $this->userProvider
+						->findUserById($userId);
+
+				if ( ! $user instanceof User) {
+					throw new CmsException(null, 'Could not find a user');
+				}
 			}
+		}
+
 		// Uploading for new user
-		} else {
+		if (is_null($user)) {
 			$userId = '_tmp' . mt_rand();
 		}
 

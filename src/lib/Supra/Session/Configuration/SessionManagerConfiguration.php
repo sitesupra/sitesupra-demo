@@ -49,7 +49,10 @@ class SessionManagerConfiguration implements ConfigurationInterface
 		$handler = Loader::getClassInstance($this->handlerClass, 
 				'Supra\Session\Handler\HandlerAbstraction');
 		/* @var $handler \Supra\Session\Handler\HandlerAbstraction */
-		$handler->setSessionName($this->name);
+
+		if ( ! empty($this->name)) {
+			$handler->setSessionName($this->name);
+		}
 		
 		$sessionManager = new SessionManager($handler);
 		
