@@ -183,6 +183,12 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					if (!status) {
 						//Revert changes
 						this.revertItemPropertyChange(id, name, original_value);
+						
+						if (Y.Lang.isObject(data.data[name])) {
+							data.data[name][locale] = original_value;
+						} else {
+							data.data[name] = original_value;
+						}
 					}
 				}, this));
 				
