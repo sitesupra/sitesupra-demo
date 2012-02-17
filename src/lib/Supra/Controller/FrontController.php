@@ -63,7 +63,7 @@ class FrontController
 	 */
 	public static function getInstance()
 	{
-		if (!isset(self::$instance)) {
+		if ( ! isset(self::$instance)) {
 			self::$instance = new self();
 		}
 
@@ -97,8 +97,7 @@ class FrontController
 
 		if ($bPriority > $aPriority) {
 			$diff = 1;
-		}
-		elseif ($bPriority < $aPriority) {
+		} elseif ($bPriority < $aPriority) {
 			$diff = -1;
 		}
 
@@ -111,7 +110,7 @@ class FrontController
 	 */
 	protected function getRouters()
 	{
-		if (!$this->routersOrdered) {
+		if ( ! $this->routersOrdered) {
 			usort($this->routers, array($this, 'compareRouters'));
 			$this->routersOrdered = true;
 		}
@@ -124,33 +123,34 @@ class FrontController
 	public function execute()
 	{
 		$request = $this->getRequestObject();
-		
+
 		try {
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
-		}
-		catch (\Exception $exception) {
+		} catch (\Exception $exception) {
 
 			// Log the exception raised
 			$this->log->error($exception);
 
 			//TODO: should be configurable somehow
 			$exceptionControllerClass = 'Supra\Controller\ExceptionController';
-			
+
 			$exceptionController = $this->initializeController($exceptionControllerClass);
 			/* @var $exceptionController Supra\Controller\ExceptionController */
 			$exceptionController->setException($exception);
 			$this->runControllerInner($exceptionController, $request);
 			$exceptionController->output();
 		}
-		
+
 		$sessionManagers = ObjectRepository::getAllSessionManagers();
-		foreach ($sessionManagers as $manager) {
-			$manager->getHandler()->close();
+		if ( ! empty($sessionManagers)) {
+
+			foreach ($sessionManagers as $manager) {
+				$manager->getHandler()->close();
+			}
 		}
-		
 	}
-	
+
 	/**
 	 * Create controller instance
 	 * @param string $controllerClass
@@ -160,10 +160,10 @@ class FrontController
 	{
 		ObjectRepository::beginControllerContext($controllerClass);
 		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
-		
+
 		return $controller;
 	}
-	
+
 	/**
 	 * Run controller
 	 * @param ControllerInterface $controller
@@ -175,22 +175,22 @@ class FrontController
 		if ( ! is_null($router) && ! $controller instanceof PreFilterInterface) {
 			$router->finalizeRequest($request);
 		}
-		
+
 		if ( ! is_null($router)) {
 			ObjectRepository::setCallerParent($controller, $router);
 			$objectRepositoryCaller = $router->getObjectRepositoryCaller();
-			
+
 			if ( ! empty($objectRepositoryCaller)) {
 				ObjectRepository::setCallerParent($router, $objectRepositoryCaller);
 			} else {
 				ObjectRepository::setCallerParent($router, get_class($controller));
 			}
 		}
-		
+
 		$controllerClass = get_class($controller);
-		
+
 		try {
-		
+
 			$response = $controller->createResponse($request);
 			$response->prepare();
 			$controller->prepare($request, $response);
@@ -211,24 +211,21 @@ class FrontController
 
 					if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
 						$controller->execute();
-					}
-					else {
+					} else {
 						throw new ApplicationAccessDeniedException($user, $appConfig);
 					}
-				}
-				else {
+				} else {
 					throw new Exception\RuntimeException('Could not get authentication session namespace.');
 				}
-			}
-			else {
+			} else {
 				$controller->execute();
 			}
 		} catch (\Exception $uncaughtException) {
 			
 		}
-		
+
 		ObjectRepository::endControllerContext($controllerClass);
-		
+
 		if ( ! empty($uncaughtException)) {
 			throw $uncaughtException;
 		}
@@ -245,7 +242,7 @@ class FrontController
 	{
 		$controller = $this->initializeController($controllerClass);
 		$this->runControllerInner($controller, $request);
-		
+
 		return $controller;
 	}
 
@@ -262,14 +259,12 @@ class FrontController
 		foreach ($allRouters as $router) {
 			/* @var $router Router\RouterAbstraction */
 			if ($router->match($request)) {
-				
+
 				$controllerClass = $router->getControllerClass();
 				$controller = $this->initializeController($controllerClass);
 
 				try {
 					$this->runControllerInner($controller, $request, $router);
-					
-					
 				} catch (Exception\StopRequestException $exc) {
 					$stopRequest = true;
 				}

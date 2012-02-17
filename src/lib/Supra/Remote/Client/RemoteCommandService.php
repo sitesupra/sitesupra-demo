@@ -122,7 +122,7 @@ class RemoteCommandService
 	protected function getRemoteCommandPostData(InputInterface $input, OutputInterface $output)
 	{
 		$proxyOutput = null;
-		
+
 		if ($output instanceof CommandOutputWithData) {
 			$proxyOutput = new ProxyOutput\ProxyOutputWithData($output);
 		} else {
@@ -138,14 +138,13 @@ class RemoteCommandService
 	}
 
 	/**
-	 * @param string $remoteName
+	 * @param string $endpointUrl
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
+	 * @return mixed
 	 */
-	public function execute($remoteName, InputInterface $input, OutputInterface $output)
+	public function executeWithUrl($endpointUrl, InputInterface $input, OutputInterface $output)
 	{
-		$endpointUrl = $this->getApiEndpointUrl($remoteName);
-
 		$postData = $this->getRemoteCommandPostData($input, $output);
 
 		$ch = curl_init();
@@ -160,7 +159,7 @@ class RemoteCommandService
 		//curl_setopt($ch, CURLOPT_COOKIE, 'XDEBUG_SESSION=netbeans-xdebug');
 
 		$rawResponse = curl_exec($ch);
-		
+
 		$httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		if (empty($rawResponse)) {
@@ -192,11 +191,24 @@ class RemoteCommandService
 			if ($responseError instanceof \Exception) {
 				throw $responseError;
 			} else {
-				throw $this->makeExecuteRuntimeException('Remote command failed, error: '. $responseError . ' URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
+				throw $this->makeExecuteRuntimeException('Remote command failed, error: ' . $responseError . ' URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 			}
 		} else {
 			throw $this->makeExecuteRuntimeException('Remote command failed. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
+	}
+
+	/**
+	 * @param string $remoteName
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 * @return mixed
+	 */
+	public function execute($remoteName, InputInterface $input, OutputInterface $output)
+	{
+		$endpointUrl = $this->getApiEndpointUrl($remoteName);
+
+		return $this->executeWithUrl($endpointUrl, $input, $output);
 	}
 
 	/**
