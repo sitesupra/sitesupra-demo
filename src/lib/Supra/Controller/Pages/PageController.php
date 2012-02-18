@@ -113,10 +113,11 @@ class PageController extends ControllerAbstraction
 				}
 				
 				//
-				$hasLimitedParent = $localization->hasLimitedAccessParent();
 				$isLimited = $localization->isLimitedAccessPage();
+				$isParentLimited = $localization->getPathEntity()
+						->isLimited();
 				
-				if ($isLimited || $hasLimitedParent) {
+				if ($isLimited || $isParentLimited) {
 					$sessionManager = ObjectRepository::getSessionManager($this);
 					$currentUser = $sessionManager->getAuthenticationSpace()
 							->getUser();

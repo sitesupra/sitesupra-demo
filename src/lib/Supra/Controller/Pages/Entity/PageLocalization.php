@@ -9,6 +9,8 @@ use Supra\Controller\Pages\Entity\Page;
 use Supra\Search\IndexedDocument;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Uri\NullPath;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\User\Entity\User;
 
 /**
  * PageLocalization class
@@ -194,10 +196,11 @@ class PageLocalization extends Abstraction\Localization
 	 * @param Path $path
 	 * @param boolean $active
 	 */
-	public function setPath(Path $path = null, $active = true)
+	public function setPath(Path $path = null, $active = true, $limited = false)
 	{
 		$this->getPathEntity()->setPath($path);
 		$this->getPathEntity()->setActive($active);
+		$this->getPathEntity()->setLimited($limited);
 	}
 
 	/**
@@ -481,7 +484,7 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! $this->active) {
 			return false;
 		}
-
+		
 		// Any parent not active
 		$active = $this->getPathEntity()
 				->isActive();
@@ -489,7 +492,25 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! $active) {
 			return false;
 		}
+		
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$isUserAuthorized = false;
+		if ($userProvider instanceof \Supra\User\UserProvider) {
+			$currentUser = $userProvider->getSignedInUser(false);
+			$isUserAuthorized = ($currentUser instanceof User);
+		}
+		
+		if ($this->limitedAccess && ! $isUserAuthorized) {
+			return false;
+		}
 
+		$isLimited = $this->getPathEntity()
+				->isLimited();
+		
+		if ($isLimited && ! $isUserAuthorized) {
+			return false;
+		}
+		
 		// Path is null for some other reason
 		$path = $this->getPathEntity()
 				->getPath();
@@ -547,23 +568,23 @@ class PageLocalization extends Abstraction\Localization
 		return $this->limitedAccess;
 	}
 	
-	public function hasLimitedAccessParent()
-	{
-		$has = false;
-		
-		$parent = $this->getParent();
-		while( ! is_null($parent)) {
-			$isParentLimited = $parent->isLimitedAccessPage();
-			
-			if ($isParentLimited) {
-				$has = true;
-				break;
-			}
-			
-			$parent = $parent->getParent();
-		}
-		
-		return $has;
-	}
+//	public function hasLimitedAccessParent()
+//	{
+//		$has = false;
+//		
+//		$parent = $this->getParent();
+//		while( ! is_null($parent)) {
+//			$isParentLimited = $parent->isLimitedAccessPage();
+//			
+//			if ($isParentLimited) {
+//				$has = true;
+//				break;
+//			}
+//			
+//			$parent = $parent->getParent();
+//		}
+//		
+//		return $has;
+//	}
 
 }

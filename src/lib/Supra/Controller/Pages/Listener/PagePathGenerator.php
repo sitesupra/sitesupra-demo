@@ -75,7 +75,7 @@ class PagePathGenerator implements EventSubscriber
 				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
 				
 				// Run only if pathPart or page activity has changed. Run for all children.
-				if (isset($changeSet['pathPart']) || isset($changeSet['active'])) {
+				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess'])) {
 					$master = $entity->getMaster();
 					$pageLocalizationEntity = Entity\PageLocalization::CN();
 					
@@ -180,7 +180,7 @@ class PagePathGenerator implements EventSubscriber
 		
 		if ( ! $page->isRoot()) {
 			
-			list($newPath, $active) = $this->findPagePath($pageData);
+			list($newPath, $active, $limited) = $this->findPagePath($pageData);
 			
 			if ( ! Path::compare($oldPath, $newPath)) {
 
@@ -213,7 +213,7 @@ class PagePathGenerator implements EventSubscriber
 									$suffix = $i;
 								}
 								$pageData->setPathPart($pathPart . '-' . $suffix);
-								list($newPath, $active) = $this->findPagePath($pageData);
+								list($newPath, $active, $limited) = $this->findPagePath($pageData);
 
 								$i++;
 							}
@@ -226,7 +226,7 @@ class PagePathGenerator implements EventSubscriber
 				}
 
 				// Validation passed, set the new path
-				$pageData->setPath($newPath, $active);
+				$pageData->setPath($newPath, $active, $limited);
 				if ( ! is_null($suffix)) {
 					$pageData->setTitle($pageData->getTitle() . " ($suffix)");
 				}
@@ -301,6 +301,7 @@ class PagePathGenerator implements EventSubscriber
 	protected function findPagePath(Entity\PageLocalization $pageData)
 	{
 		$active = true;
+		$limited = false;
 		$path = new Path();
 		
 		// Inactive page children have no path
@@ -308,10 +309,14 @@ class PagePathGenerator implements EventSubscriber
 			$active = false;
 		}
 		
+		if ($pageData->isLimitedAccessPage()) {
+			$limited = true;
+		}
+		
 		$pathPart = $pageData->getPathPart();
 		
 		if (is_null($pathPart)) {
-			return array(null, null);
+			return array(null, null, null);
 		}
 		
 		$path->prependString($pathPart);
@@ -322,14 +327,14 @@ class PagePathGenerator implements EventSubscriber
 		$parentPage = $page->getParent();
 
 		if (is_null($parentPage)) {
-			return array($path, $active);
+			return array($path, $active, $limited);
 		}
 		
 		$parentLocalization = $parentPage->getLocalization($locale);
 		
 		// No parent page localization
 		if (is_null($parentLocalization)) {
-			return array(null, null);
+			return array(null, null, null);
 		}
 		
 		// Page application feature to generate base path for pages
@@ -352,14 +357,14 @@ class PagePathGenerator implements EventSubscriber
 			$parentPage = $parentPage->getParent();
 			
 			if (is_null($parentPage)) {
-				return array($pageData->getPathPart(), $active);
+				return array($pageData->getPathPart(), $active, $limited);
 			}
 			
 			$parentLocalization = $parentPage->getLocalization($locale);
 			
 			// No parent page localization
 			if (is_null($parentLocalization)) {
-				return array(null, null);
+				return array(null, null, null);
 			}
 		}
 
@@ -371,18 +376,23 @@ class PagePathGenerator implements EventSubscriber
 		// Assume that path is already regenerated for the parent
 		$parentPath = $parentLocalization->getPathEntity()->getPath();
 		$parentActive = $parentLocalization->getPathEntity()->isActive();
+		$parentLimited = $parentLocalization->getPathEntity()->isLimited();
 
 		if ( ! $parentActive) {
 			$active = false;
 		}
+		
+		if ($parentLimited) {
+			$limited = true;
+		}
 
 		if (is_null($parentPath)) {
-			return array(null, null);
+			return array(null, null, null);
 		}
 		
 		$path->prepend($parentPath);
 
-		return array($path, $active);
+		return array($path, $active, $limited);
 	}
 		
 }
