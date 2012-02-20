@@ -21,11 +21,12 @@
         url: /cms
         controller: Supra\Cms\CmsController
 
-- Supra\Cms\ApplicationConfiguration:
+- Supra\Cms\ContentManager\ApplicationConfiguration:
     id: Supra\Cms\ContentManager
     title: Pages
     icon: /cms/lib/supra/img/apps/pages
     url: content-manager
+    galleryBlockId: Project\Gallery\GalleryBlock
     authorizationAccessPolicy:
       Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
 #       @TODO: Could assign this value from application configuration "id" parameter somehow

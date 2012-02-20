@@ -13,7 +13,7 @@ if ( ! class_exists('Memcache')) {
 	$systemInfo = ObjectRepository::getSystemInfo('');
 
 	$memcache = new Memcache();
-	$memcache->addserver($memcachedHost, $memcachedPort);
+	$memcache->addserver($memcachedHost, $memcachedPort, false);
 	$status = $memcache->getversion();
 
 	if ($status === false) {

@@ -48,4 +48,5 @@ $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SocialMedia/config.yml');
 
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Ajax/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Feedback/config.yml');
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Gallery/config.yml');
 $configLoader->loadFile(SUPRA_LIBRARY_PATH . 'Supra/Social/Facebook/config.yml');

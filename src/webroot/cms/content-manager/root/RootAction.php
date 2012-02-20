@@ -15,16 +15,17 @@ use Supra\Locale\Locale;
  */
 class RootAction extends PageManagerAction
 {
+
 	/**
 	 * Method returning manager initial HTML
 	 */
 	public function indexAction()
 	{
 		$response = $this->getResponse();
-		
+
 		// Last opened page, overrides current detected locale if found
 		$pageLocalization = $this->getInitialPageLocalization();
-		
+
 		if ( ! is_null($pageLocalization)) {
 			$pageLocalizationId = $pageLocalization->getId();
 			$locale = $pageLocalization->getLocale();
@@ -34,9 +35,16 @@ class RootAction extends PageManagerAction
 			$response->assign('pageLocalizationId', null);
 		}
 
+		$appConfig = ObjectRepository::getApplicationConfiguration($this);
+
+		if ( ! empty($appConfig->galleryBlockId)) {
+			$blockId = str_replace('\\', '_', $appConfig->galleryBlockId);
+			$response->assign('galleryBlockId', $blockId);
+		}
+
 		$response->outputTemplate('content-manager/root/index.html.twig');
 	}
-	
+
 	/**
 	 * Generate response object
 	 * @param Request\RequestInterface $request
@@ -46,5 +54,5 @@ class RootAction extends PageManagerAction
 	{
 		return $this->createTwigResponse();
 	}
-	
+
 }

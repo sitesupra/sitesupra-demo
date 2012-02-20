@@ -17,7 +17,7 @@
 				'styles': false
 			},
 			'gallery': {
-				'galleryBlockId': null
+				'galleryBlockId': {% if galleryBlockId%}{{ galleryBlockId | json_encode | raw }}{% else %}null{% endif %}
 			}
 		}
 	},

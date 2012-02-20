@@ -212,7 +212,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$userProvider->signIn($user);
 
 					$auditLog = ObjectRepository::getAuditLogger($this);
-					$auditLog->info(null, 'login', "User '{$user->getEmail()}' logged in", $user);
+					$auditLog->info("User '{$user->getEmail()}' logged in", $user);
 					
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
