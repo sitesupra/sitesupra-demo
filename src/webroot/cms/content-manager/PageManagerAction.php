@@ -831,7 +831,7 @@ abstract class PageManagerAction extends CmsAction
 			$currentRevision = $pageData->getRevisionId();
 
 			if ($previousRevision != $currentRevision) {
-				$this->writeAuditLog('unlock', "Draft for %item% saved", $pageData);
+				$this->writeAuditLog("Draft for %item% saved", $pageData);
 			}
 		}
 	}
@@ -1040,7 +1040,7 @@ abstract class PageManagerAction extends CmsAction
 			$this->publish();
 		}
 		
-		$this->writeAuditLog('create', "%item%[{$localeId}] created from [{$sourceLocaleId}] locale", $newLocalization);
+		$this->writeAuditLog("%item%[{$localeId}] created from [{$sourceLocaleId}] locale", $newLocalization);
 				
 		$this->getResponse()
 				->setResponseData(array('id' => $newLocalization->getId()));

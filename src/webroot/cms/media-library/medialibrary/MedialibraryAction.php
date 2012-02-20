@@ -184,7 +184,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->entityManager->flush();
 
 		$insertedId = $dir->getId();
-		$this->writeAuditLog('insert', '%item% created', $dir);
+		$this->writeAuditLog('%item% created', $dir);
 		$this->getResponse()->setResponseData($insertedId);
 	}
 
@@ -298,7 +298,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$fileId = $file->getId();
-		$this->writeAuditLog('save', '%item% saved', $file);
+		$this->writeAuditLog('%item% saved', $file);
 		$this->getResponse()->setResponseData($fileId);
 	}
 
@@ -323,7 +323,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			throw new CmsException('medialibrary.file_remove.can_not_delete_not_empty_directory', $e->getMessage());
 		}
 		
-		$this->writeAuditLog('deleter', '%item% deleted', $file);
+		$this->writeAuditLog('%item% deleted', $file);
 	}
 
 	/**
@@ -439,7 +439,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity, $localeId);
 
-			$this->writeAuditLog('upload', '%item% uploaded', $fileEntity);
+			$this->writeAuditLog('%item% uploaded', $fileEntity);
 			$this->getResponse()->setResponseData($output);
 		} else {
 			
@@ -468,7 +468,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$fileData = $this->imageAndFileOutput($file);
-		$this->writeAuditLog('rotate', '%item% rotated', $file);
+		$this->writeAuditLog('%item% rotated', $file);
 		$this->getResponse()->setResponseData($fileData);
 	}
 
@@ -492,7 +492,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$fileData = $this->imageAndFileOutput($file);
-		$this->writeAuditLog('crop', '%item% cropped', $file);
+		$this->writeAuditLog('%item% cropped', $file);
 		$this->getResponse()->setResponseData($fileData);
 	}
 

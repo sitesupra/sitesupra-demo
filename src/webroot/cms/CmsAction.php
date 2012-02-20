@@ -381,7 +381,7 @@ abstract class CmsAction extends SimpleController
 	 * @param string $item
 	 * @param int $level 
 	 */
-	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO)
+	protected function writeAuditLog($message, $item = null, $level = AuditLogEvent::INFO)
 	{
 		$auditLog = ObjectRepository::getAuditLogger($this);
 		$user = $this->getUser();
@@ -417,7 +417,7 @@ abstract class CmsAction extends SimpleController
 		$message = str_replace('%item%', $item, $message);
 		$message = ucfirst($message);
 
-		$auditLog->info($this, $action, $message, $user, array());
+		$auditLog->info($this, $message, $user, array());
 	}
 
 	/**

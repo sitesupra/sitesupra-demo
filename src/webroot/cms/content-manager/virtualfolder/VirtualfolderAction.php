@@ -28,7 +28,7 @@ class VirtualfolderAction extends PageManagerAction
 		}
 		
 		$this->delete();
-		$this->writeAuditLog('delete', '%item% deleted', $folder);
+		$this->writeAuditLog('%item% deleted', $folder);
 		$this->getResponse()->setResponseData(null);		
 	}
 	
@@ -47,7 +47,7 @@ class VirtualfolderAction extends PageManagerAction
 		$title = $this->getRequestParameter('title');
 		$folder->setTitle($title);
 		$this->entityManager->flush();
-		$this->writeAuditLog('rename', '%item% renamed', $folder);		
+		$this->writeAuditLog('%item% renamed', $folder);		
 		$this->getResponse()->setResponseData(null);
 	}
 	

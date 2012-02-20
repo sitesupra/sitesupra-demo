@@ -123,8 +123,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 		
-		$this->writeAuditLog('update user', 
-				"User '" . $user->getName()
+		$this->writeAuditLog("User '" . $user->getName()
 				. "' moved to group '" . $newGroupName ."'");
 	}
 }

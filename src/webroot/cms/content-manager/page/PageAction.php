@@ -491,7 +491,7 @@ class PageAction extends PageManagerAction
 		
 		$this->entityManager->flush();
 		
-		$this->writeAuditLog('create', '%item% created', $pageData);
+		$this->writeAuditLog('%item% created', $pageData);
 		
 		$request = PageRequestEdit::factory($pageData);
 		$request->setDoctrineEntityManager($this->entityManager);
@@ -555,7 +555,7 @@ class PageAction extends PageManagerAction
 		$this->entityManager->flush();
 		$this->outputPage($pageData);
 
-		$this->writeAuditLog('save', '%item% saved', $pageData);
+		$this->writeAuditLog('%item% saved', $pageData);
 	}
 
 	/**
@@ -576,7 +576,7 @@ class PageAction extends PageManagerAction
 
 		$this->delete();
 
-		$this->writeAuditLog('delete', '%item% deleted', $page);
+		$this->writeAuditLog('%item% deleted', $page);
 	}
 
 	/**
@@ -595,7 +595,7 @@ class PageAction extends PageManagerAction
 
 		$this->unlockPage();
 
-		$this->writeAuditLog('publish', '%item% published', $pageLocalization);
+		$this->writeAuditLog('%item% published', $pageLocalization);
 	}
 
 	/**
@@ -742,7 +742,7 @@ class PageAction extends PageManagerAction
 		$this->isPostRequest();
 		$this->duplicate();
 
-		$this->writeAuditLog('duplicate', '%item% duplicated', $this->getPageByRequestKey('page_id'));
+		$this->writeAuditLog('%item% duplicated', $this->getPageByRequestKey('page_id'));
 	}
 
 	/**

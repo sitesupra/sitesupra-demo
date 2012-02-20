@@ -101,7 +101,7 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->userProvider
 				->deleteUser($user);
 
-		$this->writeAuditLog('delete user', "User '" . $user->getName() . "' deleted");
+		$this->writeAuditLog("User '" . $user->getName() . "' deleted");
 
 		$this->getResponse()->setResponseData(null);
 	}
@@ -136,7 +136,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$this->sendPasswordChangeLink($user);
 
-		$this->writeAuditLog('reset password', "Password for user '" . $user->getName() . "' reseted");
+		$this->writeAuditLog("Password for user '" . $user->getName() . "' reseted");
 
 		$this->getResponse()->setResponseData(null);
 	}
@@ -214,7 +214,7 @@ class UserAction extends InternalUserManagerAbstractAction
 	
 		$this->sendPasswordChangeLink($user, 'createpassword');
 
-		$this->writeAuditLog('insert user', "User '" . $user->getName() . "' created");
+		$this->writeAuditLog("User '" . $user->getName() . "' created");
 		
 		$this->getResponse()->setResponseData(array('user_id' => $user->getId()));
 	}
@@ -273,7 +273,7 @@ class UserAction extends InternalUserManagerAbstractAction
 		$this->userProvider->credentialChange($user);
 		$this->userProvider->updateUser($user);
 
-		$this->writeAuditLog('save user', "User '" . $user->getName() . "' saved");
+		$this->writeAuditLog("User '" . $user->getName() . "' saved");
 
 		$response = $this->getUserResponseArray($user);
 		$this->getResponse()->setResponseData($response);

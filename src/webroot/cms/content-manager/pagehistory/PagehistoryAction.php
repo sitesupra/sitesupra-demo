@@ -47,7 +47,7 @@ class PagehistoryAction extends PageManagerAction
 				->setResponseData(true);
 
 		$pageData = $this->getPageLocalization();
-		$this->writeAuditLog('history restore', '%item% restored', $pageData);
+		$this->writeAuditLog('%item% restored', $pageData);
 	}
 	
 	/**

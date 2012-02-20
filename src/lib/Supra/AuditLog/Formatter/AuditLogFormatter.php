@@ -10,7 +10,7 @@ use Supra\Log\Formatter\SimpleFormatter;
 class AuditLogFormatter extends SimpleFormatter
 {
 	
-	const FORMAT = '[%time%] %level% %component% %action% %user% : %subject%';
+	const FORMAT = '[%time%] %level% %component% %user% : %subject%';
 	
 	/**
 	 * Configuration

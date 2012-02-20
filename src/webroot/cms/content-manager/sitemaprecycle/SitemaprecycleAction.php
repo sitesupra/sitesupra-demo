@@ -37,7 +37,7 @@ class SitemaprecycleAction extends PageManagerAction
 	{
 		$this->restorePageVersion();
 		$pageData =  $this->getPageLocalization();
-		$this->writeAuditLog('recycle bin restore', '%item% restored', $pageData);
+		$this->writeAuditLog('%item% restored', $pageData);
 	}
 
 	protected function loadSitemapTree($entity)
