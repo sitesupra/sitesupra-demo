@@ -205,6 +205,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 						 .run();
 		},
 		_animateValueToggle: function (evt) {
+			if (this.get('disabled')) return;
+			
 			if (this.get('value')) {
 				this._animateValueOff(evt);
 			} else {
@@ -212,6 +214,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 			}
 		},
 		_animateValueOn: function (evt) {
+			if (this.get('disabled')) return;
+			
 			if (!this.get('value')) {
 				this._animate(28, 0);
 				this.set('value', true);
@@ -221,6 +225,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 			}
 		},
 		_animateValueOff: function (evt) {
+			if (this.get('disabled')) return;
+			
 			if (this.get('value')) {
 				this._animate(0, 28);
 				this.set('value', false);
@@ -231,6 +237,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 		},
 		
 		_onKeyUp: function (event) {
+			if (this.get('disabled')) return;
+			
 			var key = event.keyCode;
 			
 			if (key == 32 || key == 13) {	//Space or return key
