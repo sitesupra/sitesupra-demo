@@ -57,10 +57,6 @@ $loader->registerNamespace($doctrineNamespace);
 $symfonyNamespace = new NamespaceLoaderStrategy('Symfony', SUPRA_LIBRARY_PATH . 'Symfony');
 $loader->registerNamespace($symfonyNamespace);
 
-// Set social media namespace
-$socialMediaNamespace = new NamespaceLoaderStrategy('SocialMedia', SUPRA_LIBRARY_PATH . 'SocialMedia');
-$loader->registerNamespace($socialMediaNamespace);
-
 // Twig autoloader
 $twigLoader = new \Supra\Loader\Strategy\PearLoaderStrategy('Twig', SUPRA_LIBRARY_PATH . 'Twig', false);
 $loader->registerNamespace($twigLoader);

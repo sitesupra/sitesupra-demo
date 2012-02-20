@@ -5,16 +5,19 @@ namespace Project\SocialMedia;
 use Supra\Request;
 use Supra\Response;
 use Supra\Controller\SimpleController;
-use SocialMedia\Facebook\Exception\FacebookApiException;
+use Supra\Social\Facebook\Exception\FacebookApiException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
-use SocialMedia\Facebook\Adapter;
+use Supra\Social\Facebook\Adapter;
 use Supra\User\Entity\UserFacebookData;
 use Supra\User\Entity\UserFacebookPage;
 use Supra\User\Entity\UserFacebookPageTab;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Entity\Page;
 
+/**
+ * @TODO Now only 3-4 functions in use, remove everything if Facebook will stay as Page block
+ */
 class SocialMediaController extends SimpleController
 {
 	const PAGE_SOCIAL = '/social';
@@ -511,7 +514,6 @@ class SocialMediaController extends SimpleController
 			'title' => $page->getPageTitle(),
 			'picture' => $page->getPageIcon(),
 			'link' => $page->getPageLink(),
-			'tabs' => $page->getTabs()->count(),
 		);
 	}
 
@@ -839,9 +841,9 @@ class SocialMediaController extends SimpleController
 		$facebook->postMessage($postMessageParams);
 	}
 
-	private function deactivateUserDataRecord(User $user)
+	public static function deactivateUserDataRecord(User $user)
 	{
-		$em = ObjectRepository::getEntityManager($this);
+		$em = ObjectRepository::getEntityManager(self);
 		$userDataRepo = $em->getRepository('\Supra\User\Entity\UserFacebookData');
 		$userDataRecord = $userDataRepo->findOneByUser($user->getId());
 		if ($userDataRecord instanceof UserFacebookData) {
@@ -850,7 +852,7 @@ class SocialMediaController extends SimpleController
 			$em->flush();
 		}
 
-		$this->log->info('Deactivating user facebook data record');
+		ObjectRepository::getLogger(self)->info('Deactivating user facebook data record');
 		return true;
 	}
 

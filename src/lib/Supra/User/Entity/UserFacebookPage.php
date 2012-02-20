@@ -47,16 +47,10 @@ class UserFacebookPage extends Entity
 	protected $pageLink;
 
 	/**
-	 * @OneToMany(targetEntity="UserFacebookPageTab", mappedBy="page", cascade={"persist", "remove"}, indexBy="id")
-	 * @var Collections\Collection
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\PageLocalization", cascade={"persist"})
+	 * @var PageLocalization
 	 */
-	protected $tabs;
-
-	public function __construct()
-	{
-		parent::__construct();
-		$this->tabs = new Collections\ArrayCollection();
-	}
+	protected $pageLocalization;
 
 	/**
 	 * @return string 
@@ -72,23 +66,6 @@ class UserFacebookPage extends Entity
 	public function setPageId($pageId)
 	{
 		$this->pageId = $pageId;
-	}
-
-	/**
-	 * @return \Doctrine\ORM\PersistentCollection 
-	 */
-	public function getTabs()
-	{
-		return $this->tabs;
-	}
-
-	/**
-	 * Use UserFacebookPageTab->setPage() method instead
-	 * @param UserFacebookPageTab $tab 
-	 */
-	public function addTab(UserFacebookPageTab $tab)
-	{
-		$this->tabs->add($tab);
 	}
 
 	/**
@@ -152,5 +129,20 @@ class UserFacebookPage extends Entity
 		$this->pageLink = $pageLink;
 	}
 	
+	/**
+	 * @return PageLocalization 
+	 */
+	public function getPageLocalization()
+	{
+		return $this->pageLocalization;
+	}
+
+	/**
+	 * @param PageLocalization $pageLocalization 
+	 */
+	public function setPageLocalization($pageLocalization)
+	{
+		$this->pageLocalization = $pageLocalization;
+	}
 	
 }

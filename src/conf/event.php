@@ -11,6 +11,7 @@ use Supra\Controller\Pages\PageController;
 use Project\GoogleAnalytics\GoogleAnalyticsListener;
 use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
+use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
 use Supra\Configuration\Exception\ConfigurationMissing;
 
 $eventManager = new EventManager();
@@ -55,6 +56,9 @@ if ($logSql) {
 }
 
 $listener = new PageGroupCacheDropListener();
+$eventManager->listen($listener->getSubscribedEvents(), $listener);
+
+$listener = new FacebookPagePublishingListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
 ObjectRepository::setDefaultEventManager($eventManager);

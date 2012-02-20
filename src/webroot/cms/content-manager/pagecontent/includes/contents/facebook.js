@@ -107,7 +107,9 @@ YUI.add('supra.page-content-facebook', function (Y) {
 				'on': {
 					'success': this.onApplicationData,
 					'failure': function (data, status) {
-						this.showMessage('Failed to fetch application data');
+						this.showMessage('Failed to fetch application data.\
+											Might facebook account is not linked with sitesupra');
+						this.container.one('a').removeClass('hidden');
 					}
 				}
 			}, this);
@@ -121,7 +123,7 @@ YUI.add('supra.page-content-facebook', function (Y) {
 					this.container.one('a').removeClass('hidden');
 				}
 				
-				if(data.fetched_pages.length > 0) {	
+				if(data.facebook_data == true && data.fetched_pages.length > 0) {	
 					this.container.one('h2').removeClass('hidden');
 				
 					var html = this.fetchedTemplate({
@@ -131,7 +133,9 @@ YUI.add('supra.page-content-facebook', function (Y) {
 				}
 				
 				if(data.available_pages.length > 0) {	
-//					this.fillDropdown(data.available_pages);
+					
+					this.fillDropdown(data.available_pages);
+					
 					if(this.existingPages.get('value') != ''){
 						this.form.getInput('tab_name').removeClass('hidden');
 					}
@@ -217,6 +221,16 @@ YUI.add('supra.page-content-facebook', function (Y) {
 										'pages': data.fetched_pages
 									});
 									
+									if(data.available_pages) {
+										this.fillDropdown(data.available_pages);
+					
+										if(this.existingPages.get('value') != ''){
+											this.form.getInput('tab_name').removeClass('hidden');
+										}
+
+										this.existingPages.show();
+									}
+									
 									this.container.one('ul.fetched-pages').set('innerHTML', html);
 								}
 							}
@@ -236,18 +250,16 @@ YUI.add('supra.page-content-facebook', function (Y) {
 				values = [this.defaultSelect].concat(values);
 			}
 			
-			console.log(values);
-			
 			this.existingPages.set('values', [].concat(values));
 			this.existingPages.show();
 			
-			var form = this.properties.get('form');
+			this.form.getInput('available_pages').set('value', this.get('data').properties.available_pages);
 			
 			this.existingPages.on('valueChange', function (evt) {
 				if(evt.newVal == '') {
-					form.getInput('tab_name').addClass('hidden');
+					this.form.getInput('tab_name').addClass('hidden');
 				} else {
-					form.getInput('tab_name').removeClass('hidden');
+					this.form.getInput('tab_name').removeClass('hidden');
 				}
 			}, this);
 			

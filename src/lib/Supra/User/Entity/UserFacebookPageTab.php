@@ -11,8 +11,6 @@ use DateTime;
 
 /**
  * User facebook page tabs
- * @Entity
- * @Table(name="user_facebook_page_tab")
  */
 class UserFacebookPageTab extends Entity implements Timestampable
 {
