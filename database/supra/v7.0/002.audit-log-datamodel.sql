@@ -1,3 +1,6 @@
+-- @supra:upgrade
+-- @supra:createsTable su_AuditLog
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `su_AuditLog`;
@@ -14,4 +17,3 @@ CREATE TABLE `su_AuditLog` (
 )
 ENGINE = MyISAM
 COMMENT = 'Audit log table';	
-	

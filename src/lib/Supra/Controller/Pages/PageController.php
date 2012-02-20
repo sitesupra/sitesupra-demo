@@ -99,8 +99,6 @@ class PageController extends ControllerAbstraction
 		// Check redirect for public calls
 		if ($request instanceof Request\PageRequestView) {
 
-			$localization = null;
-
 			try {
 				$localization = $request->getPageLocalization();
 				/* @var $localization Entity\PageLocalization */

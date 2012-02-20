@@ -13,4 +13,3 @@ DELETE FROM su_ReferencedElementAbstract_audit;
 DELETE FROM su_TemplateLayout_audit;
 DELETE FROM su_Template_audit;
 DELETE FROM su_PageRevisionData;
-

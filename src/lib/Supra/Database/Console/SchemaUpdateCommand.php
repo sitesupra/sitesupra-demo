@@ -2,12 +2,14 @@
 
 namespace Supra\Database\Console;
 
-use \Symfony\Component\Console\Input\InputOption;
-use \Symfony\Component\Console\Input\InputInterface;
-use \Symfony\Component\Console\Output\OutputInterface;
-use \Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Events;
 use Supra\Controller\Pages\Listener\VersionedAnnotationListener;
+use Supra\Database\Upgrade\DatabaseUpgradeRunner;
+use Supra\Database\Upgrade\SqlUpgradeFile;
 
 /**
  * Schema update command
@@ -58,7 +60,36 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		$updateRequired = false;
 		
 		$output->writeln('Updating database schema...');
-
+		
+		// Supra upgrade runner
+		$supraUpgradeRunner = new DatabaseUpgradeRunner();
+		$pendingUpgrades = $supraUpgradeRunner->getPendingUpgrades();
+		$output->write('General');
+		
+		if ( ! empty($pendingUpgrades)) {
+			
+			$updateRequired = true;
+			
+			$output->writeln("\t - " . count($pendingUpgrades) . " files");
+			
+			if ($force) {
+				$supraUpgradeRunner->executePendingUpgrades();
+			}
+			
+			if ($dumpSql) {
+				$output->writeln('');
+				foreach ($pendingUpgrades as $file) {
+					/* @var $file SqlUpgradeFile */
+					$output->writeln("\t\\. " . $file->getPathname());
+				}
+				$output->writeln('');
+			}
+		} else {
+			$output->writeln("\t - up to date");
+		}
+		
+		
+		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
 			$output->write($entityManagerName);
