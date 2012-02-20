@@ -67,6 +67,20 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		$this->addSimpleFilter('isActive', 'true');
 		$this->addSimpleFilter('includeInSearch', 'true');
 		$this->addSimpleFilter('isRedirected', 'false');
+		
+		$isAuthorized = false;
+		$userProvider = ObjectRepository::getUserProvider($this);
+		if ($userProvider instanceof \Supra\User\UserProvider) {
+			$user = $userProvider->getSignedInUser(false);
+			
+			if ($user instanceof \Supra\User\Entity\User) {
+				$isAuthorized = true;
+			}
+		}
+	
+		if ( ! $isAuthorized) {
+			$this->addSimpleFilter('isLimited', 'false');
+		}
 
 		// This is default for case when locale is not set for this request.
 		$languageCode = 'general';
