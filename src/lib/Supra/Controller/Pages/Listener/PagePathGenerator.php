@@ -178,9 +178,11 @@ class PagePathGenerator implements EventSubscriber
 		$oldPath = $pageData->getPath();
 		$changes = false;
 		
+		$oldPathEntity = $pageData->getPathEntity();
+		
+		list($newPath, $active, $limited) = $this->findPagePath($pageData);
+		
 		if ( ! $page->isRoot()) {
-			
-			list($newPath, $active, $limited) = $this->findPagePath($pageData);
 			
 			if ( ! Path::compare($oldPath, $newPath)) {
 
@@ -240,6 +242,13 @@ class PagePathGenerator implements EventSubscriber
 				$changes = true;
 				$pageData->setPath($newPath);
 			}
+		}
+		
+		if ($oldPathEntity->isLimited() !== $limited 
+				|| $oldPathEntity->isActive() !== $active) {
+				
+			$pageData->setPath($newPath, $active, $limited);
+			$changes = true;
 		}
 		
 		if ($changes) {

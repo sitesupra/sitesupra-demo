@@ -163,10 +163,13 @@ class PageAction extends PageManagerAction
 			
 			if ($pageData instanceof Entity\PageLocalization) {
 				$isLimited = $pageData->isLimitedAccessPage();
-				$hasLimitedParent = $pageData->getPathEntity()
-						->isLimited();
 				
-				$hasLimitedParent = (($hasLimitedParent && ( ! $isLimited)) ? true : false);
+				$hasLimitedParent = false;
+				$parent = $pageData->getParent();
+				if ( ! is_null($parent)) {
+					$hasLimitedParent = $parent->getPathEntity()
+							->isLimited();
+				}
 			}
 
 			if ( ! is_null($redirectLink)) {

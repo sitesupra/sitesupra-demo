@@ -842,6 +842,10 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				}
 			}
 			
+			if (this.page_data.has_limited_parent) {
+				this.form.getInput('is_limited').set('disabled', true);
+			}
+			
 			//Update labels
 			var label_header = '',
 				label_title = '';
