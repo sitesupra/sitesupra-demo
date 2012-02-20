@@ -931,9 +931,6 @@ class FileStorage
 			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
 		}
 
-		// TODO: change to versioning
-		$this->removeFileInFileSystem($fileEntity);
-
 		// setting new data
 		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
@@ -941,6 +938,9 @@ class FileStorage
 
 		$this->storeFileData($fileEntity, $file['tmp_name']);
 
+		// TODO: change to versioning
+		$this->removeFileInFileSystem($fileEntity);
+		
 		// additional jobs for images
 		if ($fileEntity instanceof Entity\Image) {
 			// store original size
