@@ -26,5 +26,6 @@ $sessionManagerConfiguration->namespaces = array(
 	'Supra\Controller\Pages',
 	'Project\Pages\LoginPreFilterController',
 	'Project\Pages',
+	'Supra\User',
 );
 $sessionManagerConfiguration->configure();
