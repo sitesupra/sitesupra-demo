@@ -76,7 +76,6 @@ class FacebookPagePublishingListener implements EventSubscriber
 		$user = $eventArgs->user;
 		/* @var $localization Supra\Controller\Pages\Entity\ApplicationLocalization */
 		/* @var $user Supra\User\Entity\User */
-		$facebook = new Facebook\Adapter($user);
 
 		$facebookBlock = $this->getFacebookBlock($eventArgs);
 		/* @var $facebookBlock PageBlock */
@@ -89,6 +88,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 
 				if ($page instanceof UserFacebookPage) {
 					try {
+						$facebook = new Facebook\Adapter($user);
 						$facebook->removeTabFromPage($page);
 					} catch (Facebook\Exception\FacebookApiException $e) {
 						// if we receive "has not authorized application" exception - then removing already stored data
@@ -119,8 +119,6 @@ class FacebookPagePublishingListener implements EventSubscriber
 
 		$pageId = $properties['available_pages'];
 
-
-
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPage');
 		$page = $repo->findOneByPageId($pageId);
@@ -129,6 +127,8 @@ class FacebookPagePublishingListener implements EventSubscriber
 			$this->logger->info('Could not find page with id ' . $tabId);
 			return;
 		}
+		
+		$facebook = new Facebook\Adapter($user);
 
 		try {
 			if ($publish) {
