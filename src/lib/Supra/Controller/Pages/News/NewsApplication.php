@@ -394,12 +394,6 @@ class NewsApplication implements PageApplicationInterface
 	 */
 	public function expandedSitemapView()
 	{
-		$groupedData = array();
-		
-		//$qb = $this->createNewsQueryBuilder();
-		//$qb->orderBy('l.creationTime', 'DESC');
-		
-		//$news = $qb->getQuery()->getResult();
 		$query = $this->getNewsNativeQuery();
 		$news = $query->getResult();
 		
@@ -486,7 +480,7 @@ class NewsApplication implements PageApplicationInterface
 			$rsm->addJoinedEntityResult(Entity\PageLocalizationPath::CN(), 'pt', 'l', 'path');
 			
 			$rsm->addFieldResult('pt', 'pt_id', 'id');
-			$rsm->addFieldResult('pt', 'locale', 'locale');
+			$rsm->addFieldResult('pt', 'pt_locale', 'locale');
 			$rsm->addFieldResult('pt', 'path', 'path');
 			$rsm->addMetaResult('pt', 'pt_id', 'id', true);
 
@@ -502,7 +496,7 @@ class NewsApplication implements PageApplicationInterface
 			$selectValues = 'l.id, l.locale, l.title, l.visibleInSitemap, l.visibleInMenu, l.includedInSearch,
 						l.revision, l.path_part, l.meta_description, l.meta_keywords, l.active,	l.schedule_time,
 						l.creationTime, l.creationYear, l.creationMonth, l.publishTimeSet, l.master_id, l.lock_id,
-						l.template_id, l.path_id, l.redirect_id, l.discr, pt.id AS pt_id, pt.locale, pt.path, pt.id AS pt_id';
+						l.template_id, l.path_id, l.redirect_id, l.discr, pt.id AS pt_id, pt.locale as pt_locale, pt.path, pt.id AS pt_id';
 		} else {
 			$selectValues = 'COUNT(l.id) as count';
 			$rsm->addScalarResult('count', 'count');
