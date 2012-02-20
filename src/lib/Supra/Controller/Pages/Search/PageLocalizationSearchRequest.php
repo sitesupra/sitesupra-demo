@@ -70,7 +70,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		
 		$isAuthorized = false;
 		$userProvider = ObjectRepository::getUserProvider($this);
-		if ($userProvider instanceof \Supra\User\UserProvider) {
+		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$user = $userProvider->getSignedInUser(false);
 			
 			if ($user instanceof \Supra\User\Entity\User) {

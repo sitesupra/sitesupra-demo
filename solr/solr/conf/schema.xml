@@ -175,6 +175,7 @@
 		<field name="isActive" type="boolean" indexed="true" stored="true" required="false" />		
 		<field name="includeInSearch" type="boolean" indexed="true" stored="true" required="false" />
 		<field name="isRedirected" type="boolean" indexed="true" stored="true" required="false" />
+		<field name="isLimited" type="boolean" indexed="true" stored="true" required="false" />
 		
 	</fields>
 
