@@ -374,14 +374,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->isRedirected = $isRedirected;
 		
-		$isLimited = $pageLocalization->isLimitedAccessPage();
-		if ( ! $isLimited) {
-			$parent = $pageLocalization->getParent();
-			if ( ! is_null($parent)) {
-				$isLimited = $parent->getPathEntity()
-						->isLimited();
-			}
-		}
+		$isLimited = $pageLocalization->getPathEntity()
+				->isLimited();
 		$indexedDocument->isLimited = $isLimited;
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();

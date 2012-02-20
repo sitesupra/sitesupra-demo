@@ -112,12 +112,10 @@ class PageController extends ControllerAbstraction
 					throw new ResourceNotFoundException("Wrong page instance received");
 				}
 				
-				//
-				$isLimited = $localization->isLimitedAccessPage();
-				$isParentLimited = $localization->getPathEntity()
+				$isLimited = $localization->getPathEntity()
 						->isLimited();
 				
-				if ($isLimited || $isParentLimited) {
+				if ($isLimited) {
 					$sessionManager = ObjectRepository::getSessionManager($this);
 					$currentUser = $sessionManager->getAuthenticationSpace()
 							->getUser();
