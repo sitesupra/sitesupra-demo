@@ -154,6 +154,9 @@ class PageRequestEdit extends PageRequest
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
 		
+		/* @var $publicData Entity\Localization */
+		$publicData->setLock(null);
+		
 		if ($publicData instanceof Entity\PageLocalization) {
 			$newRedirect = $publicData->getRedirect();
 		}
