@@ -19,21 +19,21 @@ class PageLocalizationPath extends Abstraction\Entity
 	
 	/**
 	 * Limitation because of MySQL unique constraint 1k byte limit
-	 * @Column(type="path", length="255", nullable="true")
+	 * @Column(type="path", length=255, nullable=true)
 	 * @var Path
 	 */
 	protected $path = null;
 
 	/**
 	 * Marks if the page is active
-	 * @Column(type="boolean", nullable="false")
+	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
 	protected $active = true;
 	
 	/**
 	 * Marks, if page is with limited access (requires an authorization)
-	 * @Column(type="boolean", nullable="false")
+	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
 	protected $limited = false;

@@ -104,7 +104,7 @@ class PageRequestEdit extends PageRequest
 
 				$criteria = array(
 					'locale' => $locale,
-					'path' => $pathString
+					'path' => $path,
 				);
 
 				$duplicate = $pathRepository->findOneBy($criteria);
@@ -144,10 +144,11 @@ class PageRequestEdit extends PageRequest
 		$publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
 		$publicEm->getProxyFactory()->getProxy(PageLocalizationPath::CN(), -1);
 
-		// Initialize, because not initialized proxy objects are not merged
-		if ($draftData instanceof PageLocalization) {
-			$draftData->initializeProxyAssociations();
-		}
+// TODO: check, is this still actual, after ORM version up to 2.2.0
+//		// Initialize, because not initialized proxy objects are not merged
+//		if ($draftData instanceof PageLocalization) {
+//			$draftData->initializeProxyAssociations();
+//		}
 
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);

@@ -25,7 +25,7 @@ class DDC1441_2Test extends \PHPUnit_Framework_TestCase
 	
 	public function testNotLoaded()
 	{
-		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.1.5', 'lt')) {
+		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.2.1', 'lt')) {
 			self::markTestSkipped("Is not working in Doctrine ORM " . \Doctrine\ORM\Version::VERSION);
 		}
 		

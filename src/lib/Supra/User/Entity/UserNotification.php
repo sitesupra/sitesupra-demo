@@ -71,19 +71,19 @@ class UserNotification extends Database\Entity
 	protected $sender;
 
 	/**
-	 * @Column(type="datetime", nullable="false")
+	 * @Column(type="datetime", nullable=false)
 	 * @var DateTime
 	 */
 	protected $creationTime;
 
 	/**
-	 * @Column(type="datetime", nullable="false")
+	 * @Column(type="datetime", nullable=false)
 	 * @var DateTime
 	 */
 	protected $modificationTime;
 
 	/**
-	 * @Column(type="datetime", nullable="false")
+	 * @Column(type="datetime", nullable=false)
 	 * @var DateTime
 	 */
 	protected $readTime;

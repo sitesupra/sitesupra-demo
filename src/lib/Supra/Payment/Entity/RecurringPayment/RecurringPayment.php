@@ -19,7 +19,7 @@ class RecurringPayment extends PaymentEntity
 	protected $parameters;
 
 	/**
-	 * @Column(type="decimal", precision="10", scale="2", nullable=false)
+	 * @Column(type="decimal", precision=10, scale=2, nullable=false)
 	 * @var float
 	 */
 	protected $amount;

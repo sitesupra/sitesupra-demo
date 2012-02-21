@@ -44,5 +44,11 @@ class CacheNamespaceWrapper extends AbstractCache
 	{
 		throw new \LogicException('Method Supra\Cache\CacheNamespaceWrapper::getIds() is not implemented');
 	}
+	
+	public function getStats()
+	{
+		// TODO: implement
+		return null;
+	}
 
 }

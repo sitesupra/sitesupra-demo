@@ -14,25 +14,25 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	/**
 	 * Image ID to keep link data without existant real image.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
-	 * @Column(type="supraId20", nullable="true")
+	 * @Column(type="supraId20", nullable=true)
 	 * @var string
 	 */
 	protected $imageId;
 	
 	/**
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $align;
 	
 	/**
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $style;
 	
 	/**
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $sizeName;
@@ -51,13 +51,13 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	
 	/**
 	 * 
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $title;
 	
 	/**
-	 * @Column(type="string", nullable="true")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $alternativeText;

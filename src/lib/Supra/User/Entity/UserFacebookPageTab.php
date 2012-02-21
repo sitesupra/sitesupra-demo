@@ -17,7 +17,7 @@ class UserFacebookPageTab extends Entity implements Timestampable
 
 	/**
 	 * @ManyToOne(targetEntity="UserFacebookPage", cascade={"persist"}, inversedBy="tabs")
-	 * @JoinColumn(name="page_id", referencedColumnName="id", nullable="false")
+	 * @JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
 	 * @var UserFacebookPage
 	 */
 	protected $page;

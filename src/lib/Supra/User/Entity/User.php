@@ -59,7 +59,7 @@ class User extends AbstractUser
 	protected $group;
 
 	/**
-	 * @Column(type="datetime", name="last_login_at", nullable="false")
+	 * @Column(type="datetime", name="last_login_at", nullable=true)
 	 * @var \DateTime
 	 */
 	protected $lastLoginTime;
@@ -71,7 +71,7 @@ class User extends AbstractUser
 	protected $active = true;
 
 	/**
-	 * @Column(type="string", nullable=false, length="23")
+	 * @Column(type="string", nullable=false, length=23)
 	 * @var string
 	 */
 	protected $salt;
@@ -85,7 +85,7 @@ class User extends AbstractUser
 
 	/**
 	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
-	 * @Column(type="string", nullable=true, length="40")
+	 * @Column(type="string", nullable=true, length=40)
 	 * @var string
 	 */
 	protected $localeId;

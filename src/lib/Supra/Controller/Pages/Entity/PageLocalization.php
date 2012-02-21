@@ -568,23 +568,4 @@ class PageLocalization extends Abstraction\Localization
 		return $this->limitedAccess;
 	}
 	
-//	public function hasLimitedAccessParent()
-//	{
-//		$has = false;
-//		
-//		$parent = $this->getParent();
-//		while( ! is_null($parent)) {
-//			$isParentLimited = $parent->isLimitedAccessPage();
-//			
-//			if ($isParentLimited) {
-//				$has = true;
-//				break;
-//			}
-//			
-//			$parent = $parent->getParent();
-//		}
-//		
-//		return $has;
-//	}
-
 }

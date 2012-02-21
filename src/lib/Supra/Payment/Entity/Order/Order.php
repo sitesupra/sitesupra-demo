@@ -69,7 +69,7 @@ abstract class Order extends Database\Entity
 	protected $returnUrl;
 
 	/**
-	 * @Column(type="string", nullable=true, length="40")
+	 * @Column(type="string", nullable=true, length=40)
 	 * @var string
 	 */
 	protected $localeId;

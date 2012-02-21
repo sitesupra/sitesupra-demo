@@ -259,13 +259,13 @@ class EntityAuditListener implements EventSubscriber
 	 * @param array $fieldNames
 	 * @return string 
 	 */
-	private function getInsertRevisionSQL(ClassMetadata $class, array $fieldNames)
+	private function getInsertRevisionSQL(ClassMetadata $class, array $fieldNames, array $sqlNames)
 	{
 		$tableName = $class->table['name'];
 
 		$sql = 'INSERT INTO ' . $tableName
 				. ' (' . implode(', ', $fieldNames) . ')'
-				. ' VALUES (:' . implode(', :', $fieldNames) . ')';
+				. ' VALUES (:' . implode(', :', $sqlNames) . ')';
 
 		return $sql;
 	}
@@ -379,10 +379,12 @@ class EntityAuditListener implements EventSubscriber
 			$types[] = $class->discriminatorColumn['type'];
 		}
 		
-		$insertRevisionSql = $this->getInsertRevisionSQL($class, $names);
+		$sqlNames = $this->prepareParameterNames($names);
 		
-		$namedParams = array_combine($names, $params);
-		$namedTypes = array_combine($names, $types);
+		$insertRevisionSql = $this->getInsertRevisionSQL($class, $names, $sqlNames);
+		
+		$namedParams = array_combine($sqlNames, $params);
+		$namedTypes = array_combine($sqlNames, $types);
 		
 		$this->conn->executeUpdate($insertRevisionSql, $namedParams, $namedTypes);
 	}
@@ -655,6 +657,25 @@ class EntityAuditListener implements EventSubscriber
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Update up to 2.2 ORM caused wrong query params placeholder handling, 
+	 * see SQLParserUtils::getPlaceholderPositions (preg_match is wrong?)
+	 * this method is a workaround
+	 * @param array $names
+	 * @return array
+	 */
+	private function prepareParameterNames($names)
+	{
+		foreach($names as &$name) {
+			if (strstr($name, '_')) {
+				list($before, $after) = explode('_', $name);
+				$name = $before . ucfirst($after);
+			}
+		}
+	
+		return $names;
 	}
 	
 }

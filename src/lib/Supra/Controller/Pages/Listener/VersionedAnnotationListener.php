@@ -38,8 +38,8 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener impleme
 	public function getSubscribedEvents()
 	{
 		return array(
-			Events::loadClassMetadata,
-			self::schemaUpdateEvent,
+			//Events::loadClassMetadata, // isn't used for now
+			//self::schemaUpdateEvent,
 		);
 	}
 	

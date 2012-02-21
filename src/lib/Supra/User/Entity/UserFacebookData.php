@@ -25,7 +25,7 @@ class UserFacebookData extends Entity implements Timestampable
 	protected $user;
 
 	/**
-	 * @Column(type="string", nullable=false, unique="true")
+	 * @Column(type="string", nullable=false, unique=true)
 	 * @var string 
 	 */
 	protected $facebookUserId;
