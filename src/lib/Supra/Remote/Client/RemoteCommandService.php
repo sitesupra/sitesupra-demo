@@ -130,8 +130,8 @@ class RemoteCommandService
 		}
 
 		$postData = array(
-			self::POST_KEY_COMMAND_INPUT => serialize($input),
-			self::POST_KEY_COMMAND_OUTPUT => serialize($proxyOutput),
+			self::POST_KEY_COMMAND_INPUT => base64_encode(serialize($input)),
+			self::POST_KEY_COMMAND_OUTPUT => base64_encode(serialize($proxyOutput))
 		);
 
 		return $postData;
@@ -166,7 +166,7 @@ class RemoteCommandService
 			throw $this->makeExecuteRuntimeException('Remote command timed out or failed catastrophically. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
 
-		$remoteCommandResponse = unserialize($rawResponse);
+		$remoteCommandResponse = unserialize(base64_decode($rawResponse));
 
 		if (empty($remoteCommandResponse)) {
 			throw $this->makeExecuteRuntimeException('Failed to un serialize remote command response. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);

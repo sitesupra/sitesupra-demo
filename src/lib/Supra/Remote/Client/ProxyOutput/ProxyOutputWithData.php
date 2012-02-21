@@ -3,6 +3,8 @@
 namespace Supra\Remote\Client\ProxyOutput;
 
 use Supra\Console\Output\CommandOutputWithData;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class ProxyOutputWithData extends ProxyOutput implements CommandOutputWithData
 {

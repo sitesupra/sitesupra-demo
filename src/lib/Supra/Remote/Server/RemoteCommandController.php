@@ -106,7 +106,7 @@ class RemoteCommandController extends ControllerAbstraction
 		}
 
 		/* @var $input InputInterface */
-		$input = unserialize($post->get(RemoteCommandService::POST_KEY_COMMAND_INPUT));
+		$input = unserialize(base64_decode($post->get(RemoteCommandService::POST_KEY_COMMAND_INPUT)));
 
 		if (empty($input)) {
 			throw new Exception\RuntimeException('Failed to unserialize command input.');
@@ -121,7 +121,7 @@ class RemoteCommandController extends ControllerAbstraction
 		}
 
 		/* @var $output OutputInterface */
-		$output = unserialize($post->get(RemoteCommandService::POST_KEY_COMMAND_OUTPUT));
+		$output = unserialize(base64_decode($post->get(RemoteCommandService::POST_KEY_COMMAND_OUTPUT)));
 
 		if (empty($output)) {
 			throw new Exception\RuntimeException('Failed to unserialize command output.');
@@ -150,7 +150,7 @@ class RemoteCommandController extends ControllerAbstraction
 			$remoteCommandResponse->setSuccess(false);
 		}
 
-		$response->output(serialize($remoteCommandResponse));
+		$response->output(base64_encode(serialize($remoteCommandResponse)));
 
 		$auditMessage = 'Command "' . $input->getFirstArgument() . '" executed.';
 		$auditUser = $this->getSystemUser();
