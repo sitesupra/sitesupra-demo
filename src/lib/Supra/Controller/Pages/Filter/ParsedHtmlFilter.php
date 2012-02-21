@@ -10,6 +10,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Markup;
+use Supra\FileStorage\Entity\Image;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -104,15 +105,21 @@ class ParsedHtmlFilter implements FilterInterface
 		$imageId = $imageData->getImageId();
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
-		$image = $em->find('Supra\FileStorage\Entity\Image', $imageId);
-
-		if (empty($image)) {
+		$image = $em->find(Image::CN(), $imageId);
+		
+		if ( ! $image instanceof Image) {
 			$this->log->warn("Image #{$imageId} has not been found");
 		}
 		else {
-			//TODO: add other attributes as align, size, etc
 			$sizeName = $imageData->getSizeName();
-			$src = $fs->getWebPath($image, $sizeName);
+			$size = $image->findImageSize($sizeName);
+			
+			if ( ! $size) {
+				$this->log->warn("Image #{$imageId} size $sizeName has not been found");
+				return;
+			}
+			
+			$src = $fs->getWebPath($image, $size);
 
 			$tag = new \Supra\Html\HtmlTag('img');
 			$tag->setAttribute('src', $src);
@@ -124,12 +131,12 @@ class ParsedHtmlFilter implements FilterInterface
 
 			$tag->addClass($imageData->getStyle());
 
-			$width = $imageData->getWidth();
+			$width = $size->getWidth();
 			if ( ! empty($width)) {
 				$tag->setAttribute('width', $width);
 			}
 
-			$height = $imageData->getHeight();
+			$height = $size->getHeight();
 			if ( ! empty($height)) {
 				$tag->setAttribute('height', $height);
 			}

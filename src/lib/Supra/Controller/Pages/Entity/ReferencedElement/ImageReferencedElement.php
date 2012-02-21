@@ -226,10 +226,5 @@ class ImageReferencedElement extends ReferencedElementAbstract
 		$this->alternativeText = $array['description'];
 		$this->sizeName = $array['size_name'];
 	}
-	
-//	public function getOwner()
-//	{
-//		
-//	}
 
 }

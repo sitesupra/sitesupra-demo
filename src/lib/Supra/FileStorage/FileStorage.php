@@ -849,13 +849,21 @@ class FileStorage
 	/**
 	 * Get web (external) path for file
 	 * @param Entity\File $file
-	 * @param type $sizeName
-	 * @return type 
+	 * @param Entity\ImageSize $size | string $size
+	 * @return string 
 	 */
-	public function getWebPath(Entity\File $file, $sizeName = null)
+	public function getWebPath(Entity\File $file, $size = null)
 	{
 		if ( ! $file instanceof Entity\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
+		}
+		
+		if ($file instanceof Entity\Image && isset($size)) {
+			if ( ! $size instanceof Entity\ImageSize) {
+				$size = $file->findImageSize($size);
+			}
+		} else {
+			$size = null;
 		}
 
 		if ($file->isPublic()) {
@@ -872,12 +880,9 @@ class FileStorage
 				$path .= rawurlencode($pathNode->getFileName()) . '/';
 			}
 
-			if (($file instanceof Entity\Image) || isset($sizeName)) {
-				$size = $file->findImageSize($sizeName);
-				if ($size instanceof Entity\ImageSize) {
-					$path .= self::RESERVED_DIR_SIZE . '/'
-							. $size->getFolderName() . '/';
-				}
+			if ($size instanceof Entity\ImageSize) {
+				$path .= self::RESERVED_DIR_SIZE . '/'
+						. $size->getFolderName() . '/';
 			}
 
 			// Encode the filename URL part
@@ -891,16 +896,14 @@ class FileStorage
 			$path = '/cms/media-library/download/' . rawurlencode($file->getFileName());
 
 			$query = array(
-					'inline' => 'inline',
-					'id' => $file->getId(),
+				'inline' => 'inline',
+				'id' => $file->getId(),
 			);
 
-			if (($file instanceof Entity\Image) || isset($sizeName)) {
-				$size = $file->findImageSize($sizeName);
-				if ($size instanceof Entity\ImageSize) {
-					$query['size'] = $size->getFolderName();
-				}
+			if ($size instanceof Entity\ImageSize) {
+				$query['size'] = $size->getFolderName();
 			}
+			
 			$queryOutput = http_build_query($query);
 			$output = $path . '?' . $queryOutput . '&';
 			

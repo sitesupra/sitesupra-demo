@@ -113,6 +113,11 @@ class ImageSizeCreatorListener implements EventSubscriber
 
 		$sizeName = $fileStorage->createResizedImage($image, $width, $height);
 		$entity->setSizeName($sizeName);
+		
+		// Maybe could update to real width/height inside image metadata?
+//		$size = $image->getImageSize($sizeName);
+//		$entity->setWidth($size->getWidth());
+//		$entity->setHeight($size->getHeight());
 
 		// Recalculate the changeset because of changed size name field
 		$class = $em->getClassMetadata(ImageReferencedElement::CN());
