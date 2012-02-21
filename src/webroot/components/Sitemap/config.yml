@@ -1,0 +1,4 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Sitemap
+    groupId: system
+    controllerClass: Project\Sitemap\SitemapBlock
