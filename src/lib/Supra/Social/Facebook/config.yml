@@ -4,4 +4,3 @@
     controllerClass: Supra\Social\Facebook\FacebookBlock
     description: Facebook page block
     cmsClassname: Facebook
-    icon: icon.png
