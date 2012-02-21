@@ -62,7 +62,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	
 	/**
 	 * Object's lock
-	 * @Draft:OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
+	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
 	 * @var LockData
 	 */
 	protected $lock;
