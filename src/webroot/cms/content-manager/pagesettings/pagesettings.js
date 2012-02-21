@@ -743,6 +743,10 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 					post_data.redirect = '';
 				}
 				
+				if (page_data.has_limited_parent) {
+					delete(post_data.is_limited);
+				}
+				
 			} else { //Template
 				//Remove template, path, meta, status
 				delete(post_data.template);
@@ -762,6 +766,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			delete(post_data.path_prefix);
 			delete(post_data.internal_html);
 			delete(post_data.contents);
+			delete(post_data.has_limited_parent);
 			
 			post_data.locale = Supra.data.get('locale');
 			
@@ -843,7 +848,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			}
 			
 			if (this.page_data.has_limited_parent) {
-				this.form.getInput('is_limited').set('disabled', true);
+				this.form.getInput('is_limited').set('disabled', true).set('value', 1);
 			}
 			
 			//Update labels
