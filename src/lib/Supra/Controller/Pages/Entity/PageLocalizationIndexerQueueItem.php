@@ -250,7 +250,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				$this->reindexChildren = true;
 			} else {
 
-				$this->isActive = $this->parentDocument->isActive;
+				$this->isActive = $this->previousDocument->isActive;
 				$this->reindexChildren = false;
 			}
 		} else {
@@ -357,12 +357,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$indexedDocument->keywords = $pageLocalization->getMetaKeywords();
 		$indexedDocument->description = $pageLocalization->getMetaDescription();
-
+		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
 		$indexedDocument->isActive = $isActive ? 'true' : 'false';
-
-		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
 
 		$redirect = $pageLocalization->getRedirect();
 
@@ -422,9 +420,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->text_general = join(' ', $pageContents);
 		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
-		$indexedDocument->active = $pageLocalization->isActive();
-
-		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, ' isActive: ', $indexedDocument->isActive);
+		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, '; isActive: ', $indexedDocument->isActive, '; active: ', $indexedDocument->active);
 
 		self::$indexedLocalizationIds[] = $pageLocalization->getId();
 

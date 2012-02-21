@@ -335,7 +335,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function isActive()
 	{
-		return $this->active;
+		return (boolean) $this->active;
 	}
 
 	/**
@@ -343,7 +343,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function setActive($active)
 	{
-		$this->active = $active;
+		$this->active = (boolean) $active;
 	}
 
 	/**
