@@ -14,6 +14,7 @@ use Supra\User\Entity\UserFacebookPage;
 use Supra\User\Entity\UserFacebookPageTab;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity\PageLocalization;
 
 /**
  * @TODO Now only 3-4 functions in use, remove everything if Facebook will stay as Page block
@@ -238,7 +239,7 @@ class SocialMediaController extends SimpleController
 			if ((strpos($e->getMessage(), 'has not authorized application') != false)
 					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
-				
+
 				return;
 			}
 
@@ -288,14 +289,14 @@ class SocialMediaController extends SimpleController
 
 		$page->setUserData($facebookData);
 		$em->flush();
-		
+
 		$availablePages = $this->getAllAvailablePages();
-	
+
 		$response->setResponseData(
-			array(
-				'page' => $pageData,
-				'fetched_pages_count' => count($availablePages['fetched_pages']),
-			)
+				array(
+					'page' => $pageData,
+					'fetched_pages_count' => count($availablePages['fetched_pages']),
+				)
 		);
 	}
 
@@ -713,8 +714,8 @@ class SocialMediaController extends SimpleController
 		/* @var $response Response\HttpResponse */
 		if ( ! $request->isPost()) {
 			$message = 'Expected POST request';
-			throw new \Exception($message);
 			$this->log->error($message);
+			throw new \Exception($message);
 		}
 
 		$data = array();
@@ -727,26 +728,35 @@ class SocialMediaController extends SimpleController
 
 		if ( ! isset($data['page'])) {
 			$message = 'Page data is empty';
-			throw new \Exception($message);
 			$this->log->error($message);
+			throw new \Exception($message);
 		}
 
 		$pageId = $data['page']['id'];
 
 		$em = ObjectRepository::getEntityManager($this);
-		$query = $em->createQuery('SELECT t.id FROM Supra\User\Entity\UserFacebookPageTab t JOIN t.page p WHERE p.pageId = :page_id AND t.published = 1');
-		$query->setParameter('page_id', $pageId);
+		$page = $em->getRepository('Supra\User\Entity\UserFacebookPage')->findOneByPageId($pageId);
 
-		$response = $this->getResponse();
-		try {
-			$tabId = $query->getSingleScalarResult();
-		} catch (NoResultException $exc) {
-			$this->log->error('Could not find tab for page ' . $pageId);
+		if ( ! $page instanceof UserFacebookPage) {
+			$this->log->error('Could not find page ' . $pageId);
 			$response->outputTemplate('no-tab.html.twig');
 			return;
 		}
 
-		$response->redirect(self::PAGE_VIEW_TAB . '?tab_id=' . $tabId);
+		$localization = $page->getPageLocalization();
+		if ( ! $localization instanceof PageLocalization) {
+			$this->log->error('Could not find page localization for facebook page "$pageId"');
+			return;
+		}
+
+		$path = $localization->getPath()->getFullPath(\Supra\Uri\Path::FORMAT_BOTH_DELIMITERS);
+//		$host = ObjectRepository::getSystemInfo($this)->getHostName(\Supra\Info::WITH_SCHEME);
+		$locale = ObjectRepository::getLocaleManager($this)->getCurrent()->getId();
+
+//		$url = $host . '/' . $locale . $path;
+		$url = 'https://159.148.152.67/' . $locale . $path;
+		
+		$response->redirect($url);
 	}
 
 	private function parseSignedRequest($signedRequest)
