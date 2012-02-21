@@ -17,6 +17,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Uri\Path;
 use Supra\Response\ResponseContext;
+use Supra\Response\ResponseContextLocalProxy;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
@@ -347,16 +348,29 @@ class PageController extends ControllerAbstraction
 				->setContext($responseContext);
 		
 		$blockContentCache = $this->blockContentCache;
+		$blockCacheRequests = $this->blockCacheRequests;
 
 		// function which adds controllers for the block
-		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $responseContext, &$blockContentCache) {
+		$prepare = function(Entity\Abstraction\Block $block, BlockController $blockController) use ($request, $responseContext, &$blockContentCache, &$blockCacheRequests) {
 			
 			$blockId = $block->getId();
-			if (array_key_exists($blockId, $blockContentCache)) {
-				return;
-			}
 			
-			$block->prepareController($blockController, $request, $responseContext);
+			// Cached response, need to merge local context
+			if (array_key_exists($blockId, $blockContentCache)) {
+				$cachedResponse = $blockContentCache[$blockId];
+				/* @var $cachedResponse Response\HttpResponse */
+				$context = $cachedResponse->getContext();
+				$context->flushToContext($responseContext);
+				return;
+			} else {
+				
+				// Creates local context proxy if the response will be cached
+				if (isset($blockCacheRequests[$blockId])) {
+					$responseContext = new ResponseContextLocalProxy($responseContext);
+				}
+				
+				$block->prepareController($blockController, $request, $responseContext);
+			}
 		};
 
 		// Iterates through all blocks and calls the function passed

@@ -130,14 +130,12 @@ class HttpResponse implements ResponseInterface
 	}
 	
 	/**
+	 * Skippig new fields added by extending
 	 * @return array
 	 */
 	public function __sleep()
 	{
 		$fields = get_class_vars(__CLASS__);
-		// Context might include objects which do not serialize well. For now we're just skipping.
-		//TODO: could the cached blocks use context feature?
-		unset($fields['context']);
 		$fieldNames = array_keys($fields);
 		
 		return $fieldNames;

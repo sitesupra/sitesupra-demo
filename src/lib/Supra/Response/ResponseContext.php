@@ -60,75 +60,71 @@ class ResponseContext
 	 */
 	public function addToLayoutSnippet($key, $snippet)
 	{
-		$layoutSnippetResponse = $this->getLayoutSnippetResponse($key);
-		$layoutSnippetResponse->output($snippet);
-	}
-
-	/**
-	 * @param string $key
-	 * @return HttpResponse
-	 */
-	public function getLayoutSnippetResponse($key)
-	{
+		$snippet = (string) $snippet;
+		
 		if (empty($this->layoutSnippetResponses[$key])) {
-			$this->layoutSnippetResponses[$key] = new HttpResponse();
+			$this->layoutSnippetResponses[$key] = $snippet;
+		} else {
+			$this->layoutSnippetResponses[$key] .= $snippet;
 		}
-
-		return $this->layoutSnippetResponses[$key];
 	}
 
 	/**
 	 * @param string $key
-	 * @return HttpResponse
+	 * @return string
 	 */
 	public function getLayoutSnippetContents($key)
 	{
-		$response = $this->getLayoutSnippetResponse($key);
-
-		return $response->__toString();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAllLayoutSnippetResponses()
-	{
-		return $this->layoutSnippetResponses;
+		if (isset($this->layoutSnippetResponses[$key])) {
+			return $this->layoutSnippetResponses[$key];
+		} else {
+			return '';
+		}
 	}
 
 	public function addJsToLayoutSnippet($key, $js, $type = 'text/javascript')
 	{
-		$response = $this->getLayoutSnippetResponse($key);
 		$js = (string) $js;
 
 		$scriptTag = new HtmlTag('script', $js);
 		$scriptTag->setAttribute('type', $type);
 
-		$response->output($scriptTag->toHtml());
+		$this->addToLayoutSnippet($key, $scriptTag->toHtml());
 	}
 
 	public function addJsUrlToLayoutSnippet($key, $url, $type = 'text/javascript')
 	{
-		$response = $this->getLayoutSnippetResponse($key);
-
 		$scriptTag = new HtmlTag('script', '');
 		$scriptTag->setAttribute('src', $url);
 		$scriptTag->setAttribute('type', $type);
 
-		$response->output($scriptTag->toHtml());
+		$this->addToLayoutSnippet($key, $scriptTag->toHtml());
 	}
 
 	public function addCssLinkToLayoutSnippet($key, $url)
 	{
-		$response = $this->getLayoutSnippetResponse($key);
-
 		$linkTag = new HtmlTag('link');
 
 		$linkTag->setAttribute('rel', 'stylesheet');
 		$linkTag->setAttribute('type', 'text/css');
 		$linkTag->setAttribute('href', $url);
-
-		$response->output($linkTag->toHtml());
+		
+		$this->addToLayoutSnippet($key, $linkTag->toHtml());
+	}
+	
+	/**
+	 * Flushes all data to another response context
+	 * @param ResponseContext $mainContext
+	 */
+	public function flushToContext(ResponseContext $mainContext)
+	{
+		foreach ($this->contextData as $key => $value) {
+			$mainContext->setValue($key, $value);
+		}
+		
+		foreach ($this->layoutSnippetResponses as $key => $value) {
+			$mainContext->addToLayoutSnippet($key, $value);
+		}
 	}
 
 }

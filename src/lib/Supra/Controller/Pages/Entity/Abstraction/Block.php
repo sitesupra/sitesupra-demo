@@ -222,7 +222,9 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		// Create response
 		$response = $controller->createResponse($request);
 
-		$response->setContext($responseContext);
+		if ( ! is_null($responseContext)) {
+			$response->setContext($responseContext);
+		}
 
 		// Prepare
 		$controller->prepare($request, $response);
