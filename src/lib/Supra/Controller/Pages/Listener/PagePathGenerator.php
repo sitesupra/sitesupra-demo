@@ -291,7 +291,7 @@ class PagePathGenerator implements EventSubscriber
 		// Duplicate path validation
 		$criteria = array(
 			'locale' => $locale,
-			'path' => $newPathString
+			'path' => $newPath
 		);
 
 		$duplicate = $repo->findOneBy($criteria);
