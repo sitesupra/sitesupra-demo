@@ -31,7 +31,7 @@ if ( ! empty($_SERVER['argv'][1])) {
 		
 		case 'draft':
 		case 'cms':
-			$namespace = PageController::SCHEMA_CMS;
+			$namespace = PageController::SCHEMA_DRAFT;
 			break;
 		
 		case 'test':

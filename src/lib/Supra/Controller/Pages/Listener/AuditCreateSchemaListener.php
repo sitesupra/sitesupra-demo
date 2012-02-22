@@ -21,9 +21,28 @@ class AuditCreateSchemaListener implements EventSubscriber
 	public function getSubscribedEvents()
 	{
 		return array(
+			ToolEvents::postGenerateSchema,
 			ToolEvents::postGenerateSchemaTable,
 			Events::loadClassMetadata
 		);
+	}
+	
+	/**
+	 * Removes common tables
+	 * @param GenerateSchemaEventArgs $eventArgs
+	 */
+	public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
+	{
+		$schema = $eventArgs->getSchema();
+		$tables = $schema->getTables();
+		
+		foreach ($tables as $entityTable) {
+			$tableName = $entityTable->getName();
+
+			if (strrpos($tableName, self::AUDIT_SUFFIX) !== strlen($tableName) - strlen(self::AUDIT_SUFFIX)) {
+				$schema->dropTable($tableName);
+			}
+		}
 	}
 
 	public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
@@ -33,7 +52,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$schema = $eventArgs->getSchema();
 		$entityTable = $eventArgs->getClassTable();
 		$tableName = $entityTable->getName();
-		
+
 		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
 			
 			// Recreate the table inside the schema
