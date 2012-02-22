@@ -74,7 +74,7 @@ class RemoteFindUserCommand extends Command
 
 		if ($output instanceof CommandOutputWithData) {
 			$this->output['user'] = $user;
-			$user->getGroup()->getId();
+//			$user->getGroup()->getId();
 			$output->setData($this->output);
 
 			return;
