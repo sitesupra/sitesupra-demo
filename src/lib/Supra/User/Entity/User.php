@@ -7,7 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 use Doctrine\Common\Collections;
-
+use DateTime;
 /**
  * User object
  * @Entity
@@ -179,11 +179,14 @@ class User extends AbstractUser
 
 	/**
 	 * Sets user last logged in time 
-	 * @param \DateTime $lastLoginTime
+	 * @param \DateTime $time
 	 */
-	public function setLastLoginTime(\DateTime $lastLoginTime)
+	public function setLastLoginTime(DateTime $time = null)
 	{
-		$this->lastLoginTime = $lastLoginTime;
+		if (is_null($time)) {
+			$time = new DateTime();
+		}
+		$this->lastLoginTime = $time;
 	}
 
 	/**
@@ -305,26 +308,6 @@ class User extends AbstractUser
 	public function setPersonalAvatar($personalAvatar)
 	{
 		$this->personalAvatar = $personalAvatar;
-	}
-
-	public function getFacebookId()
-	{
-		return $this->facebookId;
-	}
-
-	public function setFacebookId($facebookId)
-	{
-		$this->facebookId = $facebookId;
-	}
-
-	public function getFacebookAccessToken()
-	{
-		return $this->facebookAccessToken;
-	}
-
-	public function setFacebookAccessToken($facebookAccessToken)
-	{
-		$this->facebookAccessToken = $facebookAccessToken;
 	}
 
 	public function fillFromArray(array $userData)

@@ -77,6 +77,7 @@ class RemoteCommandController extends ControllerAbstraction
 	{
 		return array(
 			'Project\DummyRemote\DummyCommandOne',
+			'Supra\Remote\Command\RemoteFindUserCommand'
 		);
 	}
 

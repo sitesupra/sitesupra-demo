@@ -2,6 +2,7 @@
 
 use Supra\Loader\Loader;
 use Supra\Loader\Strategy\NamespaceLoaderStrategy;
+use Supra\Loader\Strategy\SupraProxyLoadStrategy;
 
 // Base output buffering
 ob_start();
@@ -38,6 +39,7 @@ $loaderPath = SUPRA_LIBRARY_PATH
 require_once $loaderPath . 'Loader.php';
 require_once $loaderPath . 'Strategy/LoaderStrategyInterface.php';
 require_once $loaderPath . 'Strategy/NamespaceLoaderStrategy.php';
+require_once $loaderPath . 'Strategy/SupraProxyLoadStrategy.php';
 
 // Initiate and set the root namespace directory to the loader
 $loader = Loader::getInstance();
@@ -47,6 +49,9 @@ $loader->registerSystemAutoload();
 
 // Set Supra namespace
 $supraNamespace = new NamespaceLoaderStrategy('Supra', SUPRA_LIBRARY_PATH . 'Supra');
+$loader->registerNamespace($supraNamespace);
+
+$supraNamespace = new SupraProxyLoadStrategy('Supra\Proxy', SUPRA_LIBRARY_PATH . 'Supra/Proxy');
 $loader->registerNamespace($supraNamespace);
 
 // Set Doctrine namespace

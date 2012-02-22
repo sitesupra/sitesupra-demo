@@ -62,6 +62,7 @@ class SitemapBlock extends LinksBlock
 		$nsr = $nsn->getRepository();
 		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
 
+		// @TODO: Managable sitemap depth
 		$sc = $nsr->createSearchCondition();
 		$sc->leftMoreThan($rootPage->getLeftValue());
 		$sc->leftLessThan($rootPage->getRightValue());
