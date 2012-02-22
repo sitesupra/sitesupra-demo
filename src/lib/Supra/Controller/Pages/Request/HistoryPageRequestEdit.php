@@ -17,6 +17,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Uri\Path;
 
 /**
  * Request object for history mode requests
@@ -627,7 +628,7 @@ class HistoryPageRequestEdit extends PageRequest
 		$draftEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		
 		$draftEntityManager->getEventManager()
-				->dispatchEvent(AuditEvents::pagePreRestoreEvent);
+				->dispatchEvent(AuditEvents::localizationPreRestoreEvent);
 		
 		$auditLocalization = $this->getPageLocalization();
 
@@ -745,7 +746,7 @@ class HistoryPageRequestEdit extends PageRequest
 		$pageEventArgs->setEntityManager($draftEntityManager);
 		
 		$draftEntityManager->getEventManager()
-				->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
+				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 	
 	}
 	
@@ -837,7 +838,9 @@ class HistoryPageRequestEdit extends PageRequest
 				$localization->initializeProxyAssociations();
 			}
 
-			$draftEm->merge($localization);
+			$draftLocalization = $draftEm->merge($localization);
+			$draftLocalization->resetPath();
+			
 			$this->setPageLocalization($localization);
 
 			$placeHolders = $localization->getPlaceHolders();
@@ -887,8 +890,12 @@ class HistoryPageRequestEdit extends PageRequest
 		/* @var $revisionData PageRevisionData */
 		$revisionData->setType(PageRevisionData::TYPE_RESTORED);
 		$draftEm->flush();
-
-		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setEntityManager($draftEm);
+		$pageEventArgs->setProperty('referenceId', $pageId);
+		
+		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
 		
 		$auditEm->getUnitOfWork()->clear();
 		

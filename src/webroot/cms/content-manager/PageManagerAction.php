@@ -179,7 +179,7 @@ abstract class PageManagerAction extends CmsAction
 		$localizationId = $this->pageData->getId();
 			
 		$pageEventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
-		$pageEventArgs->setProperty('localizationId', $localizationId);
+		$pageEventArgs->setProperty('referenceId', $localizationId);
 		
 		$this->entityManager->getEventManager()
 				->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $pageEventArgs);
@@ -951,7 +951,7 @@ abstract class PageManagerAction extends CmsAction
 			$localizations = $newPage->getLocalizations();
 			
 			foreach($localizations as $newLocalization) {
-				$eventArgs->setProperty('localizationId', $newLocalization->getId());
+				$eventArgs->setProperty('referenceId', $newLocalization->getId());
 
 				$em->getEventManager()
 					->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
@@ -1030,7 +1030,7 @@ abstract class PageManagerAction extends CmsAction
 		
 		$eventArgs = new PageEventArgs();
 		$eventArgs->setEntityManager($em);
-		$eventArgs->setProperty('localizationId', $newLocalization->getId());
+		$eventArgs->setProperty('referenceId', $newLocalization->getId());
 		
 		$em->getEventManager()
 			->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);

@@ -256,6 +256,10 @@ class PagePathGenerator implements EventSubscriber
 			$pathMetaData = $this->em->getClassMetadata($pathEntity->CN());
 			$localizationMetaData = $this->em->getClassMetadata($pageData->CN());
 			
+			if ($this->unitOfWork->getEntityState($pathEntity) === UnitOfWork::STATE_NEW) {
+				$this->em->persist($pathEntity);
+			}
+			
 			/*
 			 * Add the path changes to the changeset, must call different 
 			 * methods depending on is the entity inside the unit of work

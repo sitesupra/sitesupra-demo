@@ -130,7 +130,7 @@ class TemplateAction extends PageManagerAction
 		}
 		
 		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setProperty('localizationId', $templateData->getId());
+		$pageEventArgs->setProperty('referenceId', $templateData->getId());
 		$pageEventArgs->setEntityManager($this->entityManager);
 		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
 

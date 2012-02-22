@@ -11,6 +11,9 @@ final class AuditEvents
 	const pagePreRestoreEvent = 'pagePreRestoreEvent';
 	const pagePostRestoreEvent = 'pagePostRestoreEvent';
 	
+	const localizationPreRestoreEvent = 'localizationPreRestoreEvent';
+	const localizationPostRestoreEvent = 'localizationPostRestoreEvent';
+	
 	const pagePreEditEvent = 'pagePreEditEvent';
 	
 	/**

@@ -90,7 +90,7 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * @var string
 	 */
-	private $localizationId;
+	private $referenceId;
 	
 	/**
 	 * @var PageRevisionData
@@ -123,6 +123,9 @@ class EntityAuditListener implements EventSubscriber
 			
 			AuditEvents::pagePreDuplicateEvent,
 			AuditEvents::pagePostDuplicateEvent,
+			
+			AuditEvents::localizationPreRestoreEvent,
+			AuditEvents::localizationPostRestoreEvent,
 		);
 	}
 	
@@ -150,9 +153,9 @@ class EntityAuditListener implements EventSubscriber
 			$this->em = $eventArgs->getEntityManager();
 		} else if ($eventArgs instanceof PageEventArgs) {
 			$this->em = $eventArgs->getEntityManager();
-			$localizationId = $eventArgs->getProperty('localizationId');
-			if ( ! empty($localizationId)) {
-				$this->localizationId = $localizationId;
+			$referenceId = $eventArgs->getProperty('referenceId');
+			if ( ! empty($referenceId)) {
+				$this->referenceId = $referenceId;
 			}
 		} else {
 			throw new \LogicException("Unknown event args received");
@@ -302,7 +305,7 @@ class EntityAuditListener implements EventSubscriber
 					$revision->setElementId($entityData['id']);
 
 					$revision->setType(PageRevisionData::TYPE_REMOVED);
-					$revision->setReferenceId($this->localizationId);
+					$revision->setReferenceId($this->referenceId);
 
 					$revision->setUser($this->getCurrentUserId());
 	
@@ -428,7 +431,7 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function pagePreEditEvent(PageEventArgs $eventArgs)
 	{
-		$this->localizationId = $eventArgs->getProperty('localizationId');
+		$this->referenceId = $eventArgs->getProperty('referenceId');
 	}
 	
 	/**
@@ -461,6 +464,14 @@ class EntityAuditListener implements EventSubscriber
 	}
 	
 	/**
+	 * 
+	 */
+	public function localizationPreRestoreEvent() 
+	{
+		$this->pagePreRestoreEvent();
+	}
+	
+	/**
 	 * Take a full page snapshot inside audit tables under special revision with
 	 * type "TYPE_CREATE"
 	 *  
@@ -470,7 +481,6 @@ class EntityAuditListener implements EventSubscriber
 	{
 		$this->prepareEnvironment($eventArgs);
 		
-		$this->localizationId = $eventArgs->getProperty('localizationId');
 		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_CREATE);
 		
 		$this->staticRevisionId = $revisionData->getId();
@@ -491,12 +501,11 @@ class EntityAuditListener implements EventSubscriber
 	{
 		$this->prepareEnvironment($eventArgs);
 		
-		$this->localizationId = $eventArgs->getProperty('localizationId');
 		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_DUPLICATE);
 		
 		$this->staticRevisionId = $revisionData->getId();
 
-		$this->createPageCopy($eventArgs);
+		$this->createPageCopy();
 		
 		$this->_pageCreateState = false;
 		
@@ -510,18 +519,39 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function pagePostRestoreEvent(PageEventArgs $eventArgs) 
 	{
-		$this->prepareEnvironment($eventArgs);
+		//$this->prepareEnvironment($eventArgs);
 		
-		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_HISTORY_RESTORE);
+		//$revisionData = $this->createRevisionData(PageRevisionData::TYPE_HISTORY_RESTORE);
 					
-		$this->staticRevisionId = $revisionData->getId();
+		//$this->staticRevisionId = $revisionData->getId();
 		
-		$this->createPageCopy($eventArgs);
+		//$this->createPageFullCopy();
 		
 		$this->_pageRestoreState = false;
 				
 	}
 	
+	/**
+	 * Take a partial page snapshot (single localization, specified by reference and master data)
+	 * inside audit tables under special revision with
+	 * type "TYPE_CREATE"
+	 *  
+	 * @param PageEventArgs $eventArgs
+	 */
+	public function localizationPostRestoreEvent(PageEventArgs $eventArgs)
+	{
+		$this->prepareEnvironment($eventArgs);
+		
+		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_CREATE);
+		
+		$this->staticRevisionId = $revisionData->getId();
+
+		$this->createPageCopy();
+		
+		$this->_pageCreateState = false;
+		
+	}
+		
 	/**
 	 * Take a full page snapshot inside audit tables under special revision with
 	 * type "TYPE_HISTORY"
@@ -536,7 +566,7 @@ class EntityAuditListener implements EventSubscriber
 		
 		$this->staticRevisionId = $revisionData->getId();
 
-		$this->createPageCopy($eventArgs);
+		$this->createPageCopy();
 	}
 	
 	/**
@@ -564,7 +594,7 @@ class EntityAuditListener implements EventSubscriber
 		$revisionData = new PageRevisionData();
 		$revisionData->setUser($this->getCurrentUserId());
 		$revisionData->setType($type);
-		$revisionData->setReferenceId($this->localizationId);
+		$revisionData->setReferenceId($this->referenceId);
 		
 		$this->em->persist($revisionData);
 		$this->em->flush();
@@ -592,16 +622,17 @@ class EntityAuditListener implements EventSubscriber
 	 * Helper method, which creates audit records for entire page
 	 * All page element copies are created inside audit tables under single revision ID
 	 * 
-	 * @param PageEventArgs $eventArgs
 	 */
-	private function createPageCopy(PageEventArgs $eventArgs)
+	private function createPageCopy($skipMaster = false)
 	{
-		if (is_null($this->localizationId)) {
-			throw new RuntimeException('Localization ID was not defined');
+		if (is_null($this->referenceId)) {
+			throw new RuntimeException('Reference Id is not defined');
 		}
 		
-		// page single localization
-		$localization = $this->em->find(Localization::CN(), $this->localizationId);
+		$localization = $this->em->find(Localization::CN(), $this->referenceId);
+		if (is_null($localization)) {
+			throw new RuntimeException("Failed to find localization by reference #{$this->referenceId}");
+		}
 		
 		if ($localization instanceof PageLocalization) {
 			$localization->initializeProxyAssociations();
@@ -618,15 +649,17 @@ class EntityAuditListener implements EventSubscriber
 		}
 		
 		// page itself
+		if ( ! $skipMaster) {
 		$page = $localization->getMaster();
-		$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
-		
-		// template layouts
-		if ($page instanceof Entity\Template) {
-			$layouts = $page->getTemplateLayouts();
+			$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
 
-			foreach($layouts as $layout) {
-				$this->insertAuditRecord($layout, self::REVISION_TYPE_COPY);
+			// template layouts
+			if ($page instanceof Entity\Template) {
+				$layouts = $page->getTemplateLayouts();
+
+				foreach($layouts as $layout) {
+					$this->insertAuditRecord($layout, self::REVISION_TYPE_COPY);
+				}
 			}
 		}
 		
@@ -656,6 +689,24 @@ class EntityAuditListener implements EventSubscriber
 					$this->insertAuditRecord($metaDataItem, self::REVISION_TYPE_COPY);
 				}
 			}
+		}
+	}
+	
+	private function createPageFullCopy()
+	{
+		$page = $this->em->find(Entity\Abstraction\AbstractPage::CN(), $this->referenceId);
+		
+		/* @var $page Entity\Abstraction\AbstractPage */
+		if (is_null($page)) {
+			throw new RuntimeException("Failed to find page by reference #{$this->referenceId}");
+		}
+		
+		$pageLocalizations = $this->em->getRepository(Localization::CN())
+				->findBy(array('master' => $page->getId()));
+		
+		foreach($pageLocalizations as $localization) {
+			$this->referenceId = $localization->getId();
+			$this->createPageCopy(true);
 		}
 	}
 	

@@ -50,7 +50,7 @@ class EntityRevisionListener implements EventSubscriber
 	/**
 	 * @var string
 	 */
-	private $localizationId;
+	private $referenceId;
 	private $revision;
 	
 	/**
@@ -214,7 +214,7 @@ class EntityRevisionListener implements EventSubscriber
 	
 	public function pagePreEditEvent(PageEventArgs $eventArgs)
 	{
-		$this->localizationId = $eventArgs->getProperty('localizationId');
+		$this->referenceId = $eventArgs->getProperty('referenceId');
 	}
 	
 	private function createRevisionData($entity, $type = PageRevisionData::TYPE_CHANGE)
@@ -231,7 +231,7 @@ class EntityRevisionListener implements EventSubscriber
 		$revision->setElementId($entity->getId());
 		
 		$revision->setType($type);
-		$revision->setReferenceId($this->localizationId);
+		$revision->setReferenceId($this->referenceId);
 		$revision->setAdditionalInfo($this->revisionInfo);
 		
 		$userId = '#';

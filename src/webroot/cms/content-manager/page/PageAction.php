@@ -503,7 +503,7 @@ class PageAction extends PageManagerAction
 		// this will create page base copy (similar one, that is created on page publish action)
 		// which will be used as build base for page change-history displaying
 		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setProperty('localizationId', $pageData->getId());
+		$pageEventArgs->setProperty('referenceId', $pageData->getId());
 		$pageEventArgs->setEntityManager($this->entityManager);
 		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
 		
