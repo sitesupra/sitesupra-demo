@@ -1,0 +1,5 @@
+- Supra\Controller\Configuration\ControllerConfiguration:
+    router: 
+      Supra\Router\Configuration\RouterConfiguration:
+        url: /remote-cms-login
+        controller: Project\CmsRemoteLogin\Controller
