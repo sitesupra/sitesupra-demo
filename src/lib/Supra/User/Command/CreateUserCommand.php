@@ -99,7 +99,7 @@ class CreateUserCommand extends Command
 		$group = $this->userProvider->findGroupByName($groupName);
 
 		if (is_null($group) && $databaseGroup instanceof \Supra\User\Entity\Group) {
-			throw new RuntimeException('There is no group "' . $groupName . '" in database');
+			throw new RuntimeException('There is no group "' . $groupName . '"');
 		} else {
 			$groups = $this->createGroups();
 			$group = $groups['admins'];
@@ -140,7 +140,7 @@ class CreateUserCommand extends Command
 
 		$adminsGroup = $groups['admins'];
 		$adminsGroup->setIsSuper(true);
-		$this->userProvider->updateGroup($group);
+		$this->userProvider->updateGroup($adminsGroup);
 
 
 		$permissions = array(

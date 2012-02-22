@@ -138,7 +138,7 @@ class FixtureHelper
 
 		$adminsGroup = $users[$adminUserName]->getGroup();
 		$adminsGroup->setIsSuper(true);
-		$this->up->updateGroup($group);
+		$this->up->updateGroup($adminsGroup);
 
 		$superUser = $users[$superUserName];
 
