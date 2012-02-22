@@ -36,6 +36,11 @@ $cli->addCommandClasses($cliCommandClasses);
 
 $cli->setHelperSet($helperSet);
 $cli->setCatchExceptions(false);
+
+if (file_exists(SUPRA_CONF_PATH . 'cli.php')) {
+	require_once SUPRA_CONF_PATH . 'cli.php';
+}
+
 $input = new ArgvInput();
 $output = new ConsoleOutput();
 try {
