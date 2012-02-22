@@ -50,7 +50,7 @@ class PagesettingsAction extends PageManagerAction
 			$pageData->setVisibleInMenu($visibleInMenu);
 		}
 		
-		if ($input->has('is_limited')) {
+		if ($input->has('is_limited') && $pageData instanceof Entity\PageLocalization) {
 			$limitedAccess = $input->getValid('is_limited', AbstractType::BOOLEAN);
 			$pageData->setLimitedAccessPage($limitedAccess);
 		}

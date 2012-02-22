@@ -26,6 +26,7 @@
     title: Pages
     icon: /cms/lib/supra/img/apps/pages
     url: content-manager
+    allowLimitedPageOption: true
     galleryBlockId: Project\Gallery\GalleryBlock
     authorizationAccessPolicy:
       Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:

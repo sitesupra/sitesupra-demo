@@ -511,7 +511,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
 				// Redirect -> Relative "Last child" button
 				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
-			
+
 		},
 		
 		/**
@@ -631,11 +631,6 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				this.one('a[data-target="slideSchedule"]').removeClass('disabled');
 			}
 			
-			if (page_data.has_limited_parent) {
-				this.form.getInput('is_limited').set('disabled', true);
-			} else {
-				this.form.getInput('is_limited').set('disabled', false);
-			}
 		},
 		
 		/**
@@ -758,6 +753,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				delete(post_data.page_priority);
 				delete(post_data.active);
 				delete(post_data.redirect);
+				delete(post_data.is_limited);
 			}
 			
 			delete(post_data.global_disabled);
@@ -818,7 +814,6 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				inputs = [
 					['template', form.getInput('path')],
 					['template', form.getInput('active')],
-					['template', form.getInput('is_limited')],
 					
 					['template', '.button-meta'],
 					['template', form.getInput('description')],
@@ -847,8 +842,25 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 				}
 			}
 			
-			if (this.page_data.has_limited_parent) {
-				this.form.getInput('is_limited').set('disabled', true).set('value', 1);
+			// `is_limited` input is handled outside main loop
+			var input = this.form.getInput('is_limited');
+			var input_description = this.one('.isLimited-description');
+			var allowLimitedToggle = Supra.data.get('allowLimitedAccessPages');
+			if (allowLimitedToggle) {
+				if (type == 'page') {
+					input.show();
+					this.one('.isLimited-description').removeClass('hidden');
+					
+					if (this.page_data.has_limited_parent) {
+						input.set('disabled', true).set('value', 1);
+					}
+				} else {
+					input.hide();
+					input_description.addClass('hidden');
+				}
+			} else {
+				input.hide();
+				input_description.addClass('hidden');
 			}
 			
 			//Update labels

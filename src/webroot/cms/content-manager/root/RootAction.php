@@ -41,6 +41,14 @@ class RootAction extends PageManagerAction
 			$blockId = str_replace('\\', '_', $appConfig->galleryBlockId);
 			$response->assign('galleryBlockId', $blockId);
 		}
+		
+		if ($appConfig->allowLimitedPageOption == false) {
+			$allowLimitedOption = 'false';
+		} else {
+			$allowLimitedOption = 'true';
+		}
+		$response->assign('allowLimitedAccessPages', $allowLimitedOption);
+		
 
 		$response->outputTemplate('content-manager/root/index.html.twig');
 	}
