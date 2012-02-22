@@ -264,5 +264,27 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$this->authAdapter->credentialChange($user, $password);
 	}
 	
+	/**
+	 * Generates hash for password recovery
+	 * @param Entity\User $user 
+	 * @return string
+	 */
+	public function generatePasswordRecoveryHash(Entity\User $user, $time)
+	{
+		$salt = $user->getSalt();
+		$email = $user->getEmail();
+
+		$hashParts = array(
+			$email,
+			$time,
+			$salt
+		);
+
+		$hash = md5(implode(' ', $hashParts));
+		$hash = substr($hash, 0, 8);
+
+		return $hash;
+	}
+	
 }
 

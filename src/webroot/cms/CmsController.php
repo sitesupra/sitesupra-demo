@@ -16,6 +16,8 @@ class CmsController extends DistributedController
 	const EVENT_POST_PAGE_PUBLISH = 'postPagePublish';
 	const EVENT_POST_PAGE_DELETE = 'postPageDelete';
 	
+	const EVENT_POST_USER_CREATE = 'postUserCreate';
+	
 	/**
 	 * Page manager is the default action
 	 * @var string

@@ -39,6 +39,10 @@ $listener = new CmsPageLocalizationIndexerQueueListener();
 $eventManager->listen(CmsController::EVENT_POST_PAGE_PUBLISH, $listener);
 $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
 
+// Sends email for newly created users
+$listener = new \Supra\Cms\CmsUserCreateListener();
+$eventManager->listen(CmsController::EVENT_POST_USER_CREATE, $listener);
+
 // Google Analytics
 $listener = new GoogleAnalyticsListener();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
