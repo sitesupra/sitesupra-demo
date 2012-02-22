@@ -374,8 +374,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		insertImage: function (event) {
 			var htmleditor = this.htmleditor;
 			
+			var locale = Supra.data.get('locale');
+			
 			if (!htmleditor.get('disabled') && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
-				var data = event.image;
+				var image_data = event.image;
 				
 				if (this.selected_image) {
 					//If image in content is already selected, then replace
@@ -384,11 +386,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					
 					var data = Supra.mix({}, defaultProps, {
 						'type': this.NAME,
-						'title': data.title,
-						'description': data.description,
+						'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
+						'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
 						'align': imageData.align,
 						'style': imageData.style,
-						'image': data,	//Original image data
+						'image': image_data,	//Original image data
 						'size_width': imageData.size_width,
 						'size_height': imageData.size_height
 					});
@@ -406,14 +408,14 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					this.settings_form.getInput('description').setValue(data.description);
 				} else {
 					//Find image by size and set initial image properties
-					var size_data = this.getImageDataBySize(data),
+					var size_data = this.getImageDataBySize(image_data),
 						src = size_data.external_path;
 					
 					var data = Supra.mix({}, defaultProps, {
 						'type': this.NAME,
-						'title': data.title,
-						'description': data.description,
-						'image': data,	//Original image data
+						'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
+						'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
+						'image': image_data,	//Original image data
 						'size_width': size_data.width,
 						'size_height': size_data.height
 					});
@@ -460,12 +462,13 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				src = size_data.external_path,
 				img = null;
 			
+			var locale = Supra.data.get('locale');
 			
 			//Set additional image properties
 			var data = Supra.mix({}, defaultProps, {
 				'type': this.NAME,
-				'title': image_data.title,
-				'description': image_data.description,
+				'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
+				'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
 				'image': image_data,	//Original image data
 				'size_width': size_data.width,
 				'size_height': size_data.height
