@@ -28,6 +28,7 @@ $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new ComponentConfigurationLoader($parser);
 $configLoader->setCacheLevel(ComponentConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'CmsRemoteLogin/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Search/config.yml');

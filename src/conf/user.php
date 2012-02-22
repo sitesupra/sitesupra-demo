@@ -5,7 +5,9 @@ use Supra\User;
 use Supra\User\Validation\EmailValidation;
 use Supra\Authentication\Adapter\HashAdapter;
 
-$userProvider = new User\UserProvider();
+$userProvider = new User\RemoteUserProvider();
+$userProvider->setRemoteApiEndpointId('portal');
+		
 $userProvider->addValidationFilter(new EmailValidation());
 
 $authAdapter = new HashAdapter();
@@ -42,4 +44,4 @@ ObjectRepository::setUserProvider('Supra\User\Command\CreateUserCommand', $userP
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
 ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Project\SocialMedia\SocialMediaController', $userProvider);
-
+ObjectRepository::setUserProvider('Project\CmsRemoteLogin\Controller', $userProvider);
