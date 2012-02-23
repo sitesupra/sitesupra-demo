@@ -5,8 +5,8 @@ use Supra\User;
 use Supra\User\Validation\EmailValidation;
 use Supra\Authentication\Adapter\HashAdapter;
 
-$userProvider = new User\RemoteUserProvider();
-$userProvider->setRemoteApiEndpointId('portal');
+$userProvider = new User\UserProvider();
+//$userProvider->setRemoteApiEndpointId('portal');
 		
 $userProvider->addValidationFilter(new EmailValidation());
 
