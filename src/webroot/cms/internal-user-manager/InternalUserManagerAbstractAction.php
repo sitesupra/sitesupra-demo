@@ -169,9 +169,11 @@ class InternalUserManagerAbstractAction extends CmsAction
 
 		$time = time();
 		$userMail = $user->getEmail();
-		$hash = $this->generatePasswordRecoveryHash($user, $time);
 
-		$authAdapter = ObjectRepository::getUserProvider($this)->getAuthAdapter();
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$hash = $userProvider->generatePasswordRecoveryHash($user, $time);
+		
+		$authAdapter = $userProvider->getAuthAdapter();
 
 		$userLogin = null;
 
