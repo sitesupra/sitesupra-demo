@@ -31,6 +31,7 @@ class Controller extends SimpleController//\Supra\Controller\ControllerAbstracti
 		$input = new ArrayInput(array(
 					'command' => 'su:utility:get_user_by_token',
 					'token' => $this->getRequest()->getParameter('token'),
+					'site'	=> $this->getRequest()->getParameter('site'),
 				));
 
 		$output = new ArrayOutputWithData();
