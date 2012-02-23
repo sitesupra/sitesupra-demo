@@ -4,17 +4,18 @@ namespace Supra\Controller\Pages\Event;
 
 use Supra\Event\EventArgs;
 use Supra\User\Entity\User;
+use Supra\User\UserProviderInterface;
 
 class CmsUserCreateEventArgs extends EventArgs
 {
 	
 	/**
-	 * @var Supra\User\Entity\User
+	 * @var User
 	 */
 	public $user;
 	
 	/**
-	 * @var Supra\User\UserProviderInterface
+	 * @var UserProviderInterface
 	 */
 	public $userProvider;
 	
@@ -27,7 +28,7 @@ class CmsUserCreateEventArgs extends EventArgs
 	}
 	
 	/**
-	 * @return Supra\User\Entity\User
+	 * @return User
 	 */
 	public function getUser()
 	{
@@ -43,15 +44,15 @@ class CmsUserCreateEventArgs extends EventArgs
 	}
 	
 	/**
-	 * @param Supra\User\UserProviderInterface $userProvider
+	 * @param UserProviderInterface $userProvider
 	 */
-	public function setUserProvider(Supra\User\UserProviderInterface $userProvider) 
+	public function setUserProvider(UserProviderInterface $userProvider) 
 	{
 		$this->userProvider = $userProvider;
 	}
 	
 	/**
-	 * @return Supra\User\UserProviderInterface
+	 * @return UserProviderInterface
 	 */
 	public function getUserProvider()
 	{

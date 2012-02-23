@@ -17,8 +17,9 @@ use Supra\Controller\Pages\Entity\Template;
 use Supra\User\UserProviderInterface;
 use Doctrine\ORM\EntityManager;
 use Supra\Authorization\AuthorizationProvider;
-use Supra\Cms\CmsController;
+use Supra\User\Entity\Group;
 use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
+use Supra\Cms\CmsController;
 
 /**
  * CreateUserCommand
@@ -27,6 +28,7 @@ use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
  */
 class CreateUserCommand extends Command
 {
+
 	/**
 	 * @var UserProviderInterface
 	 */
@@ -42,17 +44,6 @@ class CreateUserCommand extends Command
 	 */
 	private $authorizationProvider;
 
-	/**
-	 * Adds an option.
-	 *
-	 * @param string  $name        The option name
-	 * @param string  $shortcut    The shortcut (can be null)
-	 * @param integer $mode        The option mode: One of the InputOption::VALUE_* constants
-	 * @param string  $description A description text
-	 * @param mixed   $default     The default value (must be null for InputOption::VALUE_REQUIRED or self::VALUE_NONE)
-	 *
-	 * @return Command The current instance 
-	 */
 	protected function configure()
 	{
 		$this->setName('su:user:create_user')
@@ -67,18 +58,39 @@ class CreateUserCommand extends Command
 	{
 		parent::__construct($name);
 
-		$this->userProvider = ObjectRepository::getUserProvider($this);
+		$this->userProvider = ObjectRepository::getUserProvider('Supra\Cms\CmsController');
+
+		if (empty($this->userProvider)) {
+			throw new RuntimeException('Could not get user provider.');
+		}
+
 		$this->entityManager = ObjectRepository::getEntityManager($this);
 		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider('Supra\Cms');
 	}
 
+	private function validateGroupName($groupName)
+	{
+		$validGroupNames = array(
+			'admins',
+			'contribs',
+			'supers'
+		);
+
+		if ( ! in_array($groupName, $validGroupNames)) {
+			throw new RuntimeException('Bad group name "' . $groupName . '".');
+		}
+	}
+
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		//User groups must be created beforehand if missing.
+		$userProvider = $this->userProvider;
+
+		// User groups must exist.
+		$this->ensureGroupsExist();
 
 		$email = $input->getOption('email');
 		if (is_null($email)) {
-			throw new RuntimeException('Email is required parameter');
+			throw new RuntimeException('Email is required option.');
 		}
 
 		$name = $input->getOption('name');
@@ -86,38 +98,20 @@ class CreateUserCommand extends Command
 			$name = strstr($email, '@', true);
 		}
 
-		// if not found any group
-		$repo = $this->entityManager->getRepository('Supra\User\Entity\Group');
-//		$databaseGroup = $repo->findOneBy(array());
-		$databaseGroup = $repo->findOneByName('admins');
-
 		$groupName = trim(strtolower($input->getOption('group')));
 
+		$this->validateGroupName($groupName);
 
-		if ( ! $this->userProvider instanceof UserProvider) {
-			throw new RuntimeException('Internal error: Could not reach user provider');
-		}
-		
-		$group = $this->userProvider->findGroupByName($groupName);
+		$group = $userProvider->findGroupByName($groupName);
 
-		if (is_null($group) && $databaseGroup instanceof \Supra\User\Entity\Group) {
-			throw new RuntimeException('There is no group "' . $groupName . '"');
-		} else {
-			$groups = $this->createGroups();
-			$group = $groups['admins'];
-		}
-
-		$user = $this->userProvider->createUser();
-
+		$user = $userProvider->createUser();
 		$user->setName($name);
 		$user->setEmail($email);
-
 		$user->setGroup($group);
 
-		$this->userProvider->validate($user);
-
-		$this->userProvider->credentialChange($user);
-		$this->userProvider->updateUser($user);
+		$userProvider->validate($user);
+		$userProvider->credentialChange($user);
+		$userProvider->updateUser($user);
 
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
 
@@ -125,96 +119,116 @@ class CreateUserCommand extends Command
 		ObjectRepository::setCallerParent($userAction, $this, true);
 
 		//$userAction->sendPasswordChangeLink($user, 'createpassword');
-		
+
 		$eventManager = ObjectRepository::getEventManager($this);
-		
+
 		$eventArgs = new CmsUserCreateEventArgs($user);
 		$eventArgs->setUserProvider($this->userProvider);
 		$eventManager->fire(CmsController::EVENT_POST_USER_CREATE, $eventArgs);
-		
 	}
 
-	private function createGroups()
+	private function ensureAdminsGroupExist()
 	{
-		$groups = array(
-			'admins' => null,
-			'supers' => null,
-			'contribs' => null,
-		);
+		$userProvider = $this->userProvider;
 
-		foreach ($groups as $groupName => $groupObject) {
-			$group = $this->makeGroup($groupName);
-			$groups[$groupName] = $group;
-		}
-
-		$adminsGroup = $groups['admins'];
-		$adminsGroup->setIsSuper(true);
-		$this->userProvider->updateGroup($adminsGroup);
-
-
-		$permissions = array(
-			'supers' => array(
-				'object' => $groups['supers'],
-				'deny' => array(
-					\Supra\Cms\InternalUserManager\InternalUserManagerController::CN()
-				),
-			),
-			'contribs' => array(
-				'object' => $groups['contribs'],
-				'deny' => array(
-					\Supra\Cms\InternalUserManager\InternalUserManagerController::CN(),
-					\Supra\Cms\BannerManager\BannerManagerController::CN(),
-				),
-			),
-		);
-
-		foreach (CmsApplicationConfiguration::getInstance()->getArray() as $appConfig) {
-			foreach ($permissions as $groupId => $data) {
-				if ( ! in_array($appConfig->id, $data['deny'])) {
-					$appConfig->authorizationAccessPolicy->grantApplicationSomeAccessPermission($data['object']);
-				}
-			}
-		}
-		// Allow upload everywhere (Media Library application).
-		$this->authorizationProvider->setPermsissionStatus(
-				$groups['contribs'], new SlashFolder(), File::PERMISSION_UPLOAD_NAME, PermissionStatus::ALLOW
-		);
-		
-		// Locate content root node and allow editing for everytghing below it.
-		$localEntityManager = ObjectRepository::getEntityManager('');
-		$pr = $localEntityManager->getRepository(AbstractPage::CN());
-		$rootNodes = $pr->getRootNodes();
-		
-		foreach ($rootNodes as $rootNode) {
-
-			// Skip templates.
-			if ($rootNode instanceof Template) {
-				continue;
-			}
-			
-			$this->authorizationProvider->setPermsissionStatus(
-					$groups['contribs'], $rootNode, Entity::PERMISSION_NAME_EDIT_PAGE, PermissionStatus::ALLOW
-			);
-
-			break;
-		}
-
-		return $groups;
-	}
-
-	private function makeGroup($groupName)
-	{
-		$group = $this->userProvider->findGroupByName($groupName);
+		$group = $userProvider->findGroupByName('admins');
 
 		if (empty($group)) {
 
-			$group = $this->userProvider->createGroup();
-			$group->setName($groupName);
+			$group = $this->createGroup('admins');
 
-			$this->userProvider->updateGroup($group);
+			$group->setIsSuper(true);
+
+			$userProvider->updateGroup($group);
 		}
+	}
 
-		return $group;
+	/**
+	 * @param Group $group
+	 * @param array $allowedApplicationIds 
+	 */
+	private function setApplicationAccessPermissions(Group $group, $allowedApplicationIds)
+	{
+		foreach (CmsApplicationConfiguration::getInstance()->getArray(true) as $appId => $appConfig) {
+
+			if (in_array($appId, $allowedApplicationIds)) {
+				$appConfig->authorizationAccessPolicy->grantApplicationAllAccessPermission($group);
+			} else {
+				$appConfig->authorizationAccessPolicy->revokeApplicationAllAccessPermission($group);
+			}
+		}
+	}
+
+	private function ensureSupersGroupExist()
+	{
+		$userProvider = $this->userProvider;
+
+		$group = $userProvider->findGroupByName('supers');
+
+		if (empty($group)) {
+
+			$group = $this->createGroup('supers');
+
+			$allowedApplicationIds = array(
+				'Supra\Cms\ContentManager',
+				//'Supra\Cms\InternalUserManager\InternalUserManagerController',
+				'Supra\Cms\BannerManager',
+				'Supra\Cms\MediaLibrary',
+			);
+
+			$this->setApplicationAccessPermissions($group, $allowedApplicationIds);
+		}
+	}
+
+	private function ensureContribsGroupExist()
+	{
+		$userProvider = $this->userProvider;
+		$authorizationProvider = $this->authorizationProvider;
+
+		$group = $userProvider->findGroupByName('contribs');
+
+		if (empty($group)) {
+
+			$group = $this->createGroup('contribs');
+
+			$allowedApplicationIds = array(
+				'Supra\Cms\ContentManager',
+				//'Supra\Cms\InternalUserManager\InternalUserManagerController',
+				//'Supra\Cms\BannerManager',
+				'Supra\Cms\MediaLibrary',
+			);
+
+			$this->setApplicationAccessPermissions($group, $allowedApplicationIds);
+
+			// Allow upload to everywhere.
+			$authorizationProvider->setPermsissionStatus(
+					$group, new SlashFolder(), File::PERMISSION_UPLOAD_NAME, PermissionStatus::ALLOW
+			);
+
+			// Locate (first) content root node and allow editing for everytghing below it.
+			$localEntityManager = ObjectRepository::getEntityManager('');
+			$pr = $localEntityManager->getRepository(AbstractPage::CN());
+			$rootNodes = $pr->getRootNodes();
+			foreach ($rootNodes as $rootNode) {
+
+				// Skip templates.
+				if ( ! $rootNode instanceof Template) {
+
+					$this->authorizationProvider->setPermsissionStatus(
+							$group, $rootNode, Entity::PERMISSION_NAME_EDIT_PAGE, PermissionStatus::ALLOW
+					);
+
+					break;
+				}
+			}
+		}
+	}
+
+	private function ensureGroupsExist()
+	{
+		$this->ensureAdminsGroupExist();
+		$this->ensureSupersGroupExist();
+		$this->ensureContribsGroupExist();
 	}
 
 }
