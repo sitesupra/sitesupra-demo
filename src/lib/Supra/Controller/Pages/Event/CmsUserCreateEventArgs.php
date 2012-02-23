@@ -14,6 +14,11 @@ class CmsUserCreateEventArgs extends EventArgs
 	public $user;
 	
 	/**
+	 * @var Supra\User\UserProviderInterface
+	 */
+	public $userProvider;
+	
+	/**
 	 * @param User $user
 	 */
 	public function __construct(User $user) 
@@ -35,6 +40,22 @@ class CmsUserCreateEventArgs extends EventArgs
 	public function setUser(User $user)
 	{
 		$this->user = $user;
+	}
+	
+	/**
+	 * @param Supra\User\UserProviderInterface $userProvider
+	 */
+	public function setUserProvider(Supra\User\UserProviderInterface $userProvider) 
+	{
+		$this->userProvider = $userProvider;
+	}
+	
+	/**
+	 * @return Supra\User\UserProviderInterface
+	 */
+	public function getUserProvider()
+	{
+		return $this->userProvider;
 	}
 
 }

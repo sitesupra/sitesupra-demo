@@ -17,6 +17,8 @@ use Supra\Controller\Pages\Entity\Template;
 use Supra\User\UserProviderInterface;
 use Doctrine\ORM\EntityManager;
 use Supra\Authorization\AuthorizationProvider;
+use Supra\Cms\CmsController;
+use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
 
 /**
  * CreateUserCommand
@@ -122,7 +124,14 @@ class CreateUserCommand extends Command
 		$userAction = new InternalUserManagerAbstractAction();
 		ObjectRepository::setCallerParent($userAction, $this, true);
 
-		$userAction->sendPasswordChangeLink($user, 'createpassword');
+		//$userAction->sendPasswordChangeLink($user, 'createpassword');
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new CmsUserCreateEventArgs($user);
+		$eventArgs->setUserProvider($this->userProvider);
+		$eventManager->fire(CmsController::EVENT_POST_USER_CREATE, $eventArgs);
+		
 	}
 
 	private function createGroups()

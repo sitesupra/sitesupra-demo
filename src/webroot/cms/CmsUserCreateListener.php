@@ -18,6 +18,14 @@ class CmsUserCreateListener
 		$userMail = $user->getEmail();
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
+		if (is_null($userProvider)) {
+			$userProvider = $eventArgs->getUserProvider();
+			
+			if (is_null($userProvider)) {
+				throw new \Supra\Event\Exception\RuntimeException('CmsUserCreate listener has no user provider assigned');
+			}
+		}
+		
 		$hash = $userProvider->generatePasswordRecoveryHash($user, $time);
 		
 		$authAdapter = $userProvider->getAuthAdapter();
