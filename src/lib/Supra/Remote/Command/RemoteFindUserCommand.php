@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\Console\Output\CommandOutputWithData;
+use Supra\User\Entity as UserEntity;
 
 class RemoteFindUserCommand extends Command
 {
@@ -74,7 +75,14 @@ class RemoteFindUserCommand extends Command
 
 		if ($output instanceof CommandOutputWithData) {
 			$this->output['user'] = $user;
-//			$user->getGroup()->getId();
+			
+			/**
+			 * Next checking need prevent case with user without group
+			 */
+			if( $user->getGroup() instanceof UserEntity\Group ){
+				$user->getGroup()->getId();
+			}
+			
 			$output->setData($this->output);
 
 			return;
