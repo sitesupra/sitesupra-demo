@@ -49,7 +49,7 @@ class CreateUserCommand extends Command
 		$this->setName('su:user:create_user')
 				->setDescription('Creates new user')
 				->setHelp('Creates new user')
-				->addOption('email', null, Console\Input\InputOption::VALUE_REQUIRED, 'User email. Confirmation link will be sent to that email')
+				->addArgument('email', Console\Input\InputArgument::REQUIRED, 'User email. Confirmation link will be sent to that email')
 				->addOption('group', null, Console\Input\InputOption::VALUE_REQUIRED, 'User group. Can be one of admins, contribs or supers.', 'admins')
 				->addOption('name', null, Console\Input\InputOption::VALUE_REQUIRED, 'User first name and last name');
 	}
@@ -88,10 +88,7 @@ class CreateUserCommand extends Command
 		// User groups must exist.
 		$this->ensureGroupsExist();
 
-		$email = $input->getOption('email');
-		if (is_null($email)) {
-			throw new RuntimeException('Email is required option.');
-		}
+		$email = $input->getArgument('email');
 
 		$name = $input->getOption('name');
 		if (is_null($name)) {

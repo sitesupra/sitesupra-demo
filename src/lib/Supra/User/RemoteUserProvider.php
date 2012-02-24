@@ -25,7 +25,8 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	private $remoteApiEndpointId;
 
-	const REMOTE_COMMAND = 'su:remote:find_user';
+	const REMOTE_COMMAND_USER = 'su:remote:find_user';
+	const REMOTE_COMMAND_GROUP = 'su:remote:find_group';
 
 	public function __construct()
 	{
@@ -54,18 +55,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function findUserByLogin($login)
 	{
-		$userData = $this->requestSingleRow(Entity\User::CN(), array('field' => 'login', 'value' => $login));
-
-		if ($userData instanceof Entity\User) {
-			return $userData;
-		}
-		
-		if (is_array($userData)) {
-			$user = $this->createUserEntity($userData);
-			return $user;
-		}
-
-		return null;
+		return $this->findUserByCriteria(array('field' => 'login', 'value' => $login));
 	}
 
 	/**
@@ -73,18 +63,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function findUserById($id)
 	{
-		$userData = $this->requestSingleRow(Entity\User::CN(), array('field' => 'id', 'value' => $id));
-
-		if ($userData instanceof Entity\User) {
-			return $userData;
-		}
-		
-		if (is_array($userData)) {
-			$user = $this->createUserEntity($userData);
-			return $user;
-		}
-
-		return null;
+		return $this->findUserByCriteria(array('field' => 'id', 'value' => $id));
 	}
 
 	/**
@@ -92,18 +71,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function findUserByEmail($email)
 	{
-		$userData = $this->requestSingleRow(Entity\User::CN(), array('field' => 'email', 'value' => $email));
-
-		if ($userData instanceof Entity\User) {
-			return $userData;
-		}
-		
-		if (is_array($userData)) {
-			$user = $this->createUserEntity($userData);
-			return $user;
-		}
-
-		return null;
+		return $this->findUserByCriteria(array('field' => 'email', 'value' => $email));
 	}
 
 	/**
@@ -111,14 +79,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function findUserByName($name)
 	{
-		$userData = $this->requestSingleRow(Entity\User::CN(), array('field' => 'name', 'value' => $name));
-
-		if ( ! empty($userData)) {
-			$user = $this->createUserEntity($userData);
-			return $user;
-		}
-
-		return null;
+		return $this->findUserByCriteria(array('field' => 'name', 'value' => $name));
 	}
 
 	public function findAllGroups()
@@ -128,22 +89,22 @@ class RemoteUserProvider extends UserProviderAbstract
 
 	public function findAllUsers()
 	{
-		throw new \Exception('Not implemented');
+		return $this->findUserByCriteria(array('--all-users' => true));
 	}
 
 	public function findGroupById($id)
 	{
-		throw new \Exception('Not implemented');
+		return $this->findGroupByCriteria(array('field' => 'id', 'value' => $id));
 	}
 
 	public function findGroupByName($name)
 	{
-		throw new \Exception('Not implemented');
+		return $this->findGroupByCriteria(array('field' => 'name', 'value' => $name));
 	}
 
 	public function getAllUsersInGroup(Entity\Group $group)
 	{
-		throw new \Exception('Not implemented');
+		return $this->findGroupByCriteria(array('field' => '', 'value' => $id));
 	}
 
 	public function loadUserByUsername($username)
@@ -248,19 +209,6 @@ class RemoteUserProvider extends UserProviderAbstract
 	}
 
 	/**
-	 * Helper wrapper for self::requestData() method, to get single result row
-	 * @param type $element
-	 * @param type $searchCriteria
-	 * @return array
-	 */
-	private function requestSingleRow($element, $searchCriteria)
-	{
-		$response = $this->requestData($element, $searchCriteria);
-
-		return $response;
-	}
-
-	/**
 	 * Request simulator, returns dummy data 
 	 * @param string $entityName
 	 * @param array $searchCriteria
@@ -279,21 +227,22 @@ class RemoteUserProvider extends UserProviderAbstract
 
 		$response = null;
 
+		if ( ! is_array($searchCriteria)) {
+			$searchCriteria = array();
+		}
+
+		$output = new ArrayOutputWithData();
+
 		switch ($entityName) {
 			case Entity\User::CN():
-				if ( ! is_array($searchCriteria)) {
-					$searchCriteria = array();
-				}
 
-				$searchCriteria = array('command' => self::REMOTE_COMMAND) + $searchCriteria;
+				$searchCriteria = array('command' => self::REMOTE_COMMAND_USER) + $searchCriteria;
 
 				$input = new ArrayInput($searchCriteria);
 
-				$output = new ArrayOutputWithData();
 				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
 				$response = $output->getData();
 				if (empty($response['user'])) {
-
 					$message = 'Failed to find user.';
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
@@ -302,12 +251,28 @@ class RemoteUserProvider extends UserProviderAbstract
 
 					return;
 				}
-				
+
 				$response = $response['user'];
 				break;
 
 			case Entity\Group::CN():
-				//todo
+				$searchCriteria = array('command' => self::REMOTE_COMMAND_GROUP) + $searchCriteria;
+
+				$input = new ArrayInput($searchCriteria);
+
+				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
+				$response = $output->getData();
+				if (empty($response['user'])) {
+					$message = 'Failed to find user.';
+					if ( ! empty($response['error'])) {
+						$message .= $response['error'];
+					}
+					$logger->error($message);
+
+					return;
+				}
+
+				$response = $response['user'];
 				break;
 		}
 
@@ -328,6 +293,16 @@ class RemoteUserProvider extends UserProviderAbstract
 	public function setRemoteApiEndpointId($remoteApiEndpointId)
 	{
 		$this->remoteApiEndpointId = $remoteApiEndpointId;
+	}
+
+	private function findUserByCriteria(array $criteria)
+	{
+		return $this->requestData(Entity\User::CN(), $criteria);
+	}
+
+	private function findGroupByCriteria(array $criteria)
+	{
+		return $this->requestData(Entity\Group::CN(), $criteria);
 	}
 
 }
