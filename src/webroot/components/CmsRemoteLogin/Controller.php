@@ -24,14 +24,16 @@ class Controller extends SimpleController//\Supra\Controller\ControllerAbstracti
 	public function execute()
 	{
 
+		$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id');		
+		
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 				
 		$remoteCommandService = new RemoteCommandService();
-
+		
 		$input = new ArrayInput(array(
 					'command' => 'su:utility:get_user_by_token',
 					'token' => $this->getRequest()->getParameter('token'),
-					'site'	=> $this->getRequest()->getParameter('site'),
+					'site'	=> $siteId,
 				));
 
 		$output = new ArrayOutputWithData();
