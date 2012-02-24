@@ -37,9 +37,9 @@ class RunIndexerCommand extends Console\Command\Command
 		
 			$output->write('Search: Pages: Indexing ' . $pageLocalizationIndexerQueue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) . ' items from queue for schema "' . $schemaName . '" - ');
 		
-			$indexerService->processQueue($pageLocalizationIndexerQueue);
+			$documentCount = $indexerService->processQueue($pageLocalizationIndexerQueue);
 			
-			$output->writeln('done.');
+			$output->writeln('done, added ' . intval($documentCount) . ' documents to index.');
 		}
 		
 		$output->writeln('Search: Pages: Indexing done.');

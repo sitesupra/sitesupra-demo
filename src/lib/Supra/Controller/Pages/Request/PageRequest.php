@@ -457,7 +457,7 @@ abstract class PageRequest extends HttpRequest
 				$master = $page;
 			}
 
-			\Log::debug("Master node for {$block} is found - {$master}");
+			//\Log::debug("Master node for {$block} is found - {$master}");
 
 			// FIXME: n+1 problem
 			$data = $master->getLocalization($this->locale);
@@ -477,7 +477,7 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
-			\Log::debug("Have generated condition for properties fetch for block $block");
+			// \Log::debug("Have generated condition for properties fetch for block $block");
 		}
 
 		// Stop if no propereties were found

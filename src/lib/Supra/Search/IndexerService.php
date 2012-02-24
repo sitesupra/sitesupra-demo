@@ -43,6 +43,8 @@ class IndexerService
 	{
 		$solariumClient = $this->getSolariumClient($this);
 
+		$documents = array();
+		
 		try {
 
 			$documents = $queueItem->getIndexedDocuments();
@@ -78,6 +80,8 @@ class IndexerService
 		} catch (Exception\RuntimeException $e) {
 			$queueItem->setStatus(IndexerQueueItemStatus::FAILED);
 		}
+		
+		return count($documents);
 	}
 
 	/**
@@ -88,11 +92,13 @@ class IndexerService
 	{
 //		$indexedQueueItems = array();
 
+		$documentCount = 0;
+		
 		while ($queue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) !== 0) {
 
 			$queueItem = $queue->getNextItemForIndexing();
 
-			$this->processItem($queueItem);
+			$documentCount = $documentCount + $this->processItem($queueItem);
 //			$indexedQueueItems[] = $queueItem;
 
 			$queue->store($queueItem);
@@ -103,6 +109,8 @@ class IndexerService
 		//	$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);
 		//	$queue->store($indexedQueueItem);
 		//}
+		
+		return $documentCount;
 	}
 
 	public function getSolariumClient()

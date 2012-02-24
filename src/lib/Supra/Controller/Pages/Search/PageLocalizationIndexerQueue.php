@@ -107,9 +107,13 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 			);
 
 			$queueItem = $this->repository->findOneBy($criteria);
+			/* @var $queueItem PageLocalizationIndexerQueueItem */
 
 			if ( ! empty($queueItem)) {
-				$this->em->remove($queueItem);
+				
+				if ($queueItem->getRevisionId() != $pageLocalizationIndexerQueueItem->getRevisionId()) {
+					$this->em->remove($queueItem);
+				}
 			} else {
 				
 			}
@@ -118,4 +122,5 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 		$pageLocalizationIndexerQueueItem->setSchemaName($this->schemaName);
 		parent::store($pageLocalizationIndexerQueueItem);
 	}
+
 }

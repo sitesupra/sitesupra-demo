@@ -9,6 +9,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
+use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Entity\Template;
 
 class QueueAllPageLocalizationsCommand extends Console\Command\Command
 {
@@ -30,14 +32,14 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	{
 		//$schemaNames = PageController::$knownSchemaNames;
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);
-		
+
 		foreach ($schemaNames as $schemaName) {
 
 			$output->write('Search: Pages: Reading from schema "' . $schemaName . '" - ');
-			
+
 			$count = $this->addPageLocalizations($schemaName, $output);
 
-			$output->writeln('added ' . intval($count) . ' page localizations to indexer queue.');
+			$output->writeln('added ' . intval($count) . ' root page localizations to indexer queue.');
 		}
 
 		$output->writeln('Search: Pages: Done adding pages to indexer queue.');
@@ -52,20 +54,34 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	 */
 	private function addPageLocalizations($schemaName, $output)
 	{
-		$em = ObjectRepository::getEntityManager($schemaName);
-
-		$repo = $em->getRepository(PageLocalization::CN());
-
-		$pageLocalizations = $repo->findAll();
-
 		$indexerQueue = new PageLocalizationIndexerQueue($schemaName);
 
-		foreach ($pageLocalizations as $pageLocalization) {
-			//$output->writeln($pageLocalization->getId());
-			$indexerQueue->add($pageLocalization);
+		$em = ObjectRepository::getEntityManager($schemaName);
+
+		$pr = $em->getRepository(AbstractPage::CN());
+		$rootNodes = $pr->getRootNodes();
+
+		$counter = 0;
+		foreach ($rootNodes as $rootNode) {
+
+			// Skip templates.
+			if ( ! $rootNode instanceof Template) {
+
+				foreach ($rootNode->getLocalizations() as $pageLocalization) {
+					$indexerQueue->add($pageLocalization);
+					$counter++;
+				}
+			}
 		}
 
-		return count($pageLocalizations);
+//		$repo = $em->getRepository(PageLocalization::CN());
+//		$pageLocalizations = $repo->findAll();
+//		foreach ($pageLocalizations as $pageLocalization) {
+//			//$output->writeln($pageLocalization->getId());
+//			$indexerQueue->add($pageLocalization);
+//		}
+		
+		return $counter;
 	}
 
 }
