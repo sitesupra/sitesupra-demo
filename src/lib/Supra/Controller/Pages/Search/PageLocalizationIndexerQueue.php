@@ -13,6 +13,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class PageLocalizationIndexerQueue extends IndexerQueue
 {
+
 	/**
 	 * @var string
 	 */
@@ -35,17 +36,17 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 	public function getOneByObjectAndStatus($pageLocalization, $status)
 	{
 		$criteria = array(
-				'pageLocalizationId' => $pageLocalization->getId(),
-				'schemaName' => $this->schemaName,
-				'revisionId' => $pageLocalization->getRevisionId(),
-				'status' => $status
+			'pageLocalizationId' => $pageLocalization->getId(),
+			'schemaName' => $this->schemaName,
+			'revisionId' => $pageLocalization->getRevisionId(),
+			'status' => $status
 		);
 
 		$queueItem = $this->repository->findOneBy($criteria);
 
 		return $queueItem;
 	}
-	
+
 	/**
 	 * @param QueryBuilder $dqb 
 	 */
@@ -63,7 +64,7 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 		parent::buildItemCountForStatusQuery($dqb);
 		$this->addSchemaConditionToBuilder($dqb);
 	}
-	
+
 	/**
 	 *
 	 * @param QueryBuil $dqb 
@@ -71,9 +72,9 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 	protected function buildNextItemForStatusQuery($dqb)
 	{
 		parent::buildNextItemForStatusQuery($dqb);
-		$this->addSchemaConditionToBuilder($dqb);		
-	}	
-	
+		$this->addSchemaConditionToBuilder($dqb);
+	}
+
 	/**
 	 * @param QueryBuilder $dqb 
 	 */
@@ -82,24 +83,39 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 		parent::buildRemoveAllQuery($dqb);
 		$this->addSchemaConditionToBuilder($dqb);
 	}
-	
+
 	/**
 	 * @param QueryBuilder $dqb 
 	 */
-	private function addSchemaConditionToBuilder($dqb) 
+	private function addSchemaConditionToBuilder($dqb)
 	{
 		$dqb->setParameter('schemaName', $this->schemaName);
 		$dqb->andWhere($dqb->expr()->eq('iq.schemaName', ':schemaName'));
 	}
-	
+
 	/**
 	 * @param PageLocalizationIndexerQueueItem $pageLocalizationIndexerQueueItem 
 	 */
 	public function store(PageLocalizationIndexerQueueItem $pageLocalizationIndexerQueueItem)
 	{
+		if ($this->schemaName == PageController::SCHEMA_PUBLIC) {
+
+			$criteria = array(
+				'pageLocalizationId' => $pageLocalizationIndexerQueueItem->getPageLocalizationId(),
+				'status' => IndexerQueueItemStatus::FRESH,
+				'schemaName' => $this->schemaName
+			);
+
+			$queueItem = $this->repository->findOneBy($criteria);
+
+			if ( ! empty($queueItem)) {
+				$this->em->remove($queueItem);
+			} else {
+				
+			}
+		}
+
 		$pageLocalizationIndexerQueueItem->setSchemaName($this->schemaName);
-		
 		parent::store($pageLocalizationIndexerQueueItem);
 	}
-
 }

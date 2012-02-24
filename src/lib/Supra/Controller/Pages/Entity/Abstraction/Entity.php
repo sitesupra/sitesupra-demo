@@ -40,6 +40,11 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 * @var string
 	 */
 	protected $revision = '';
+	
+	/**
+     * @var array
+	 */
+	private $_authorizationAncestorsCache = array();
 
 	/**
 	 * Creates log writer instance
@@ -159,11 +164,9 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 */
 	public function getAuthorizationAncestors()
 	{
-		if ($this->_authorizationAncestorsCache) {
-			return $this->_authorizationAncestorsCache;
+		if (empty($this->_authorizationAncestorsCache)) {
+			$this->_authorizationAncestorsCache = $this->getAuthizationAncestorsDirect();
 		}
-
-		$this->_authorizationAncestorsCache = $this->getAuthizationAncestorsDirect();
 
 		return $this->_authorizationAncestorsCache;
 	}

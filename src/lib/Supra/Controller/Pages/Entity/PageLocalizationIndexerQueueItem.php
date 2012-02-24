@@ -44,7 +44,6 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @var string
 	 */
 	protected $schemaName;
-	static $indexedLocalizationIds = array();
 	protected $parentLocalization;
 	protected $parentDocument;
 
@@ -57,6 +56,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	protected $previousParentId;
 	protected $isActive;
 	protected $reindexChildren;
+	static $indexedLocalizationIds = array();
 
 	public function __construct(PageLocalization $pageLocalization)
 	{
@@ -99,6 +99,31 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$this->schemaName = $schemaName;
 	}
 
+	static function addToIndexed($pageLocalizationId, $revisionId)
+	{
+		$mockId = self::makeMockId($pageLocalizationId, $revisionId);
+
+		self::$indexedLocalizationIds[] = $mockId;
+
+		\Log::debug('QQQQQ: ADD TO INDEXED: ', $mockId);
+	}
+
+	static function isIndexed($pageLocalizationId, $revisionId)
+	{
+		$mockId = self::makeMockId($pageLocalizationId, $revisionId);
+
+		$result = in_array($mockId, self::$indexedLocalizationIds);
+
+		\Log::debug('QQQQQ: IS INDEXED?: ', $mockId, ': ', $result);
+
+		return $result;
+	}
+
+	static function makeMockId($pageLocalizationId, $revisionId)
+	{
+		return $pageLocalizationId . '-' . $revisionId;
+	}
+
 	/**
 	 * @return array of IndexedDocument
 	 */
@@ -106,9 +131,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	{
 		$result = array();
 
-		if (in_array($this->pageLocalizationId, self::$indexedLocalizationIds)) {
+		if (self::isIndexed($this->pageLocalizationId, $this->revisionId)) {
 
-			\Log::debug('LLL hit cache BIGTIME!!! ', $this->pageLocalizationId);
+			\Log::debug('LLL hit cache BIGTIME!!! ', self::makeMockId($this->pageLocalizationId, $this->revisionId));
 			return array();
 		}
 
@@ -277,10 +302,10 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 			if ( ! $child instanceof GroupLocalization) {
 
-				if ( ! in_array($child->getId(), self::$indexedLocalizationIds)) {
+				if ( ! self::isIndexed($child->getId(), $child->getRevisionId())) {
 					$result[] = $this->makeIndexedDocument($child, $isActive);
 				} else {
-					\Log::debug('LLL hit cache!!! ', $child->getId());
+					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
 				}
 			}
 
@@ -315,7 +340,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		foreach ($items as $item) {
 
 			if ($item instanceof PageLocalizationSearchResultItem) {
-				
+
 				if ($item->getPageLocalizationId() == $pageLocalizationId) {
 					return $item->getIndexedDocument();
 				}
@@ -371,7 +396,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		}
 
 		$indexedDocument->isRedirected = $isRedirected;
-		
+
 		$isLimited = $pageLocalization->getPathEntity()
 				->isLimited();
 		$indexedDocument->isLimited = $isLimited;
@@ -420,9 +445,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->text_general = join(' ', $pageContents);
 		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
-		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId, '; isActive: ', $indexedDocument->isActive, '; active: ', $indexedDocument->active);
+		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId . '-' . $indexedDocument->revisionId, '; isActive: ', $indexedDocument->isActive, '; active: ', $indexedDocument->active);
 
-		self::$indexedLocalizationIds[] = $pageLocalization->getId();
+		self::addToIndexed($pageLocalization->getId(), $pageLocalization->getRevisionId());
 
 		return $indexedDocument;
 	}
@@ -472,5 +497,27 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		return implode(' ', $result);
 	}
+	
+	public function getPageLocalizationId()
+	{
+		return $this->pageLocalizationId;
+	}
+
+	public function setPageLocalizationId($pageLocalizationId)
+	{
+		$this->pageLocalizationId = $pageLocalizationId;
+	}
+
+	public function getRevisionId()
+	{
+		return $this->revisionId;
+	}
+
+	public function setRevisionId($revisionId)
+	{
+		$this->revisionId = $revisionId;
+	}
+
+
 
 }

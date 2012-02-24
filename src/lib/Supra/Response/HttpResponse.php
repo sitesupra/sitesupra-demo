@@ -136,6 +136,10 @@ class HttpResponse implements ResponseInterface
 	public function __sleep()
 	{
 		$fields = get_class_vars(__CLASS__);
+		
+		//  $messages is STATIC and confuses serialze();
+		unset($fields['messages']);
+		
 		$fieldNames = array_keys($fields);
 		
 		return $fieldNames;
