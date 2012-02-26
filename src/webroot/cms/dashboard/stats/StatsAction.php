@@ -74,6 +74,8 @@ class StatsAction extends CmsAction
 			$cache->save(__class__, $responseArray, strtotime($refreshInterval));
 		}
 		
+		$response->setResponseData($responseArray);
+		
 	}
 
 }
