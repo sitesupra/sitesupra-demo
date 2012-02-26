@@ -239,7 +239,7 @@ class GoogleAnalyticsDataProvider {
 		}
 		
 		if ($requestMethod == 'POST') {
-			$requestHeaders = "Content-type: application/x-www-form-urlencoded\r\nContent-Length: " . strlen($requestVars) . "\r\n" . $headers;
+			$requestHeaders = "Content-type: application/x-www-form-urlencoded\r\nContent-Length: " . strlen($httpRequestVars) . "\r\n" . $headers;
 			
 			$httpOptions['content'] = $httpRequestVars;
 		} else {
