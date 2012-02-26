@@ -131,3 +131,18 @@
 	-webkit-transition: all 0.35s;
 	transition: all 0.35s;
 }
+
+.yui3-app-dock-stats {
+	position: absolute;
+	z-index: 101;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+}
+
+.yui3-app-dock-stats .stat-content {
+	width: 444px;
+	overflow: hidden;
+	margin: 70px 0px 10px 20px;
+}
