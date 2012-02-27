@@ -54,7 +54,15 @@ class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testFindAllGroups()
 	{
-		
+		$groups = $this->userProvider->findAllGroups();
+		if (empty($groups)) {
+			self::fail('Get empty $groups array');
+			return;
+		}
+
+		foreach ($groups as $group) {
+			$this->validateGroup($group);
+		}
 	}
 
 	public function testFindAllUsers()
@@ -73,12 +81,23 @@ class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testFindGroupById()
 	{
-		
+		$group = $this->userProvider->findGroupById('vasyapupkin');
+		$this->validateGroup($group, false);
+
+		$group = $this->userProvider->findGroupById('1215125125125125');
+		$this->validateGroup($group, false);
+
+		$group = $this->userProvider->findGroupById('002s3lb1dt8t0kz58eeo');
+		$this->validateGroup($group);
 	}
 
 	public function testFindGroupByName()
 	{
-		
+		$group = $this->userProvider->findGroupByName('admins');
+		$this->validateGroup($group);
+
+		$group = $this->userProvider->findGroupByName('adminz');
+		$this->validateGroup($group, false);
 	}
 
 	/**
@@ -110,10 +129,10 @@ class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testFindUserByEmail()
 	{
-		$user = $this->userProvider->findUserByLogin('vasya');
+		$user = $this->userProvider->findUserByEmail('vasya');
 		$this->validateUser($user, false);
 
-		$user = $this->userProvider->findUserByLogin('vasya@google.lv');
+		$user = $this->userProvider->findUserByEmail('vasya@google.lv');
 		$this->validateUser($user);
 		$this->validateGroup($user->getGroup());
 	}
@@ -161,11 +180,28 @@ class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
 
 	public function testGetAllUsersInGroup()
 	{
-		
+		$group = $this->userProvider->findGroupById('002s3lb1dt8t0kz58eeo');
+		$this->validateGroup($group);
+
+		$users = $this->userProvider->getAllUsersInGroup($group);
+		if (empty($users)) {
+			self::fail('Get empty $users array');
+			return;
+		}
+
+		foreach ($users as $user) {
+			$this->validateUser($user);
+		}
 	}
 
 	public function testLoadUserByUsername()
 	{
+		$user = $this->userProvider->loadUserByUsername('vasya');
+		$this->validateUser($user, false);
+
+		$user = $this->userProvider->loadUserByUsername('vasya@google.lv');
+		$this->validateUser($user);
+		$this->validateGroup($user->getGroup());
 	}
 
 	public function testRefreshUser()

@@ -84,7 +84,7 @@ class RemoteUserProvider extends UserProviderAbstract
 
 	public function findAllGroups()
 	{
-		throw new \Exception('Not implemented');
+		return $this->findGroupByCriteria(array('--all-groups' => true));
 	}
 
 	public function findAllUsers()
@@ -104,12 +104,12 @@ class RemoteUserProvider extends UserProviderAbstract
 
 	public function getAllUsersInGroup(Entity\Group $group)
 	{
-		return $this->findGroupByCriteria(array('field' => '', 'value' => $id));
+		return $this->findUserByCriteria(array('field' => 'group', 'value' => $group->getId()));
 	}
 
 	public function loadUserByUsername($username)
 	{
-		throw new \Exception('Not implemented');
+		return $this->findUserByLogin($username);
 	}
 
 	public function refreshUser(UserInterface $user)
@@ -127,9 +127,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function createUser()
 	{
-		$user = new Entity\User();
-
-		return $user;
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
 
 	/**
@@ -137,9 +135,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function createGroup()
 	{
-		$group = new Entity\Group();
-
-		return $group;
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
 
 	/**
@@ -147,7 +143,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function doDeleteUser(Entity\User $user)
 	{
-		throw new \Exception('Not implemented');
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
 
 	/**
@@ -155,7 +151,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function updateUser(Entity\User $user)
 	{
-		throw new \Exception('Not implemented');
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
 
 	/**
@@ -163,49 +159,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function updateGroup(Entity\Group $group)
 	{
-		throw new \Exception('Not implemented');
-	}
-
-	/**
-	 * Creates detached User entity filled with data from input array 
-	 * @param array $userData
-	 * @return Entity\User
-	 */
-	private function createUserEntity(array $userData)
-	{
-		$user = new Entity\User();
-
-		//$userSessions = $this->getEntityManager()
-		//		->getRepository(Entity\UserSession::CN())
-		//		->findByUser($userData['id']);
-
-		$userGroup = $this->findGroupById($userData['group']);
-
-		//$userData['sessions'] = $userSessions;
-		$userData['group'] = $userGroup;
-
-		$user->fillFromArray($userData);
-
-		$this->getEntityManager()
-				->detach($user);
-
-		return $user;
-	}
-
-	/**
-	 * Creates detached Group entity filled with data from input array
-	 * @param array $groupData
-	 * @return Entity\Group
-	 */
-	private function createGroupEntity(array $groupData)
-	{
-		$group = new Entity\Group();
-		$group->fillFromArray($groupData);
-
-		$this->getEntityManager()
-				->detach($group);
-
-		return $group;
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
 
 	/**
@@ -225,7 +179,7 @@ class RemoteUserProvider extends UserProviderAbstract
 			return;
 		}
 
-		$response = null;
+		$response = array('data' => null);
 
 		if ( ! is_array($searchCriteria)) {
 			$searchCriteria = array();
@@ -242,8 +196,8 @@ class RemoteUserProvider extends UserProviderAbstract
 
 				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
 				$response = $output->getData();
-				if (empty($response['user'])) {
-					$message = 'Failed to find user.';
+				if (empty($response['data'])) {
+					$message = 'Failed to find user. ';
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
 					}
@@ -252,7 +206,6 @@ class RemoteUserProvider extends UserProviderAbstract
 					return;
 				}
 
-				$response = $response['user'];
 				break;
 
 			case Entity\Group::CN():
@@ -262,8 +215,8 @@ class RemoteUserProvider extends UserProviderAbstract
 
 				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
 				$response = $output->getData();
-				if (empty($response['user'])) {
-					$message = 'Failed to find user.';
+				if (empty($response['data'])) {
+					$message = 'Failed to find group. ';
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
 					}
@@ -272,11 +225,10 @@ class RemoteUserProvider extends UserProviderAbstract
 					return;
 				}
 
-				$response = $response['user'];
 				break;
 		}
 
-		return $response;
+		return $response['data'];
 	}
 
 	/**
