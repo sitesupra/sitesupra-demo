@@ -228,4 +228,17 @@ class CreateUserCommand extends Command
 		$this->ensureContribsGroupExist();
 	}
 
+	private function createGroup($groupName)
+	{
+		$group = $this->userProvider->findGroupByName($groupName);
+		if (empty($group)) {
+			$group = $this->userProvider->createGroup();
+			$group->setName($groupName);
+
+			$this->userProvider->updateGroup($group);
+		}
+
+		return $group;
+	}
+
 }
