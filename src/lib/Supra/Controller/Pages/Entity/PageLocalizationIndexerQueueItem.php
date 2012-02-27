@@ -200,30 +200,16 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$localizationMoved = true;
 
-		$localizationFullPath = null;
+		$localizationFullPath = $this->getPageLocalizationFullPath($localization);
+
 		$previousLocalizationFullPath = null;
-
-		$pathEntity = $localization->getPathEntity();
-		if ( ! empty($pathEntity)) {
-
-			$path = $pathEntity->getPath();
-			if ( ! empty($path)) {
-				$localizationFullPath = $path->getFullPath();
-			}
-		}
-		$pathEntity = $previousLocalization->getPathEntity();
-		if ( ! empty($pathEntity)) {
-
-			$path = $pathEntity->getPath();
-			if ( ! empty($path)) {
-				$previousLocalizationFullPath = $path->getFullPath();
-			}
+		if ($previousLocalization) {
+			$previousLocalizationFullPath = $this->getPageLocalizationFullPath($previousLocalization);
 		}
 
 		if ($localizationFullPath == $previousLocalizationFullPath) {
 			$localizationMoved = false;
 		}
-
 		// If "Is Active" has been chagned 
 		// OR page localization has been moved
 		// OR there is no previous indexed document 
@@ -249,6 +235,32 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param PageLocalization $pageLocalization
+	 * @return type 
+	 */
+	private function getPageLocalizationFullPath(PageLocalization $pageLocalization)
+	{
+		$localizationFullPath = null;
+
+		$pathEntity = $pageLocalization->getPathEntity();
+		if ( ! empty($pathEntity)) {
+
+			$path = null;
+			try {
+				$path = $pathEntity->getPath();
+			} catch (\Doctrine\ORM\EntityNotFoundException $e) {
+				// WTH IS THIS EVEN HAPPENING?
+			}
+
+			if ( ! empty($path)) {
+				$localizationFullPath = $path->getFullPath();
+			}
+		}
+
+		return $localizationFullPath;
 	}
 
 	/**
