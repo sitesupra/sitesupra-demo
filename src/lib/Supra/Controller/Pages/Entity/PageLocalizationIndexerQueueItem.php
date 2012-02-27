@@ -19,6 +19,9 @@ use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\SearchService;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+use Supra\Controller\Pages\Entity\GroupLocalization;
+use Supra\Controller\Pages\Entity\GroupPage;
+use Supra\Controller\Pages\Entity\PageRevisionData;
 
 /**
  * @Entity
@@ -44,20 +47,35 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @var string
 	 */
 	protected $schemaName;
-	protected $parentLocalization;
-	protected $parentDocument;
 
 	/**
-	 *
 	 * @var PageLocalization
 	 */
 	protected $localization;
-	protected $previousDocument;
-	protected $previousParentId;
+
+	/**
+	 * @var PageLocalization
+	 */
+	protected $previousLocalization;
+
+	/**
+	 * @var boolean
+	 */
 	protected $isActive;
+
+	/**
+	 * @var boolean
+	 */
 	protected $reindexChildren;
+
+	/**
+	 * @var array
+	 */
 	static $indexedLocalizationIds = array();
 
+	/**
+	 * @param PageLocalization $pageLocalization 
+	 */
 	public function __construct(PageLocalization $pageLocalization)
 	{
 		parent::__construct();
@@ -124,6 +142,33 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		return $pageLocalizationId . '-' . $revisionId;
 	}
 
+	public function getPreviousPublishedPageLocalization(PageLocalization $pageLocalization)
+	{
+		$auditEm = ObjectRepository::getEntityManager('#audit');
+
+		$query = $auditEm->createQuery('SELECT prd FROM ' . PageRevisionData::CN() . ' prd WHERE prd.reference = :pageLocalizationId AND prd.type = ' . PageRevisionData::TYPE_HISTORY . ' ORDER BY prd.id DESC');
+		$query->setMaxResults(1);
+		$query->setParameter('pageLocalizationId', $pageLocalization->getId());
+
+		$pageRevisionData = $query->getOneOrNullResult();
+		/* @var $pageRevisionData PageRevisionData */
+
+		if (empty($pageRevisionData)) {
+			return null;
+		}
+
+		$pageLocalizationRepo = $auditEm->getRepository(PageLocalization::CN());
+
+		$criteria = array(
+			'id' => $pageLocalization->getId(),
+			'revision' => $pageRevisionData->getId()
+		);
+
+		$previousPublishedPageLocalization = $pageLocalizationRepo->findOneBy($criteria);
+
+		return $previousPublishedPageLocalization;
+	}
+
 	/**
 	 * @return array of IndexedDocument
 	 */
@@ -140,179 +185,66 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$em = ObjectRepository::getEntityManager($this->schemaName);
 		$pr = $em->getRepository(PageLocalization::CN());
 
-		/* @var $pageLocalization PageLocalization */
-		$this->localization = $pr->find($this->pageLocalizationId);
+		$localization = $pr->find($this->pageLocalizationId);
+		/* @var $localization PageLocalization */
 
-		if (empty($this->localization)) {
+		if (empty($localization)) {
 			return $result;
 		}
 
-		$this->previousDocument = $this->findPageLocalizationIndexedDocument($this->pageLocalizationId);
+		$previousLocalization = $this->getPreviousPublishedPageLocalization($localization);
 
-		if ( ! empty($this->previousDocument)) {
+		$result[] = $this->makeIndexedDocument($localization);
 
-			$ancestorIds = (array) $this->previousDocument->ancestorIds;
-			$this->previousParentId = array_shift($ancestorIds);
+		$currentIndexedDocument = $this->findPageLocalizationIndexedDocument($localization->getId());
+
+		$localizationMoved = true;
+
+		$localizationFullPath = null;
+		$previousLocalizationFullPath = null;
+
+		$pathEntity = $localization->getPathEntity();
+		if ( ! empty($pathEntity)) {
+
+			$path = $pathEntity->getPath();
+			if ( ! empty($path)) {
+				$localizationFullPath = $path->getFullPath();
+			}
 		}
+		$pathEntity = $previousLocalization->getPathEntity();
+		if ( ! empty($pathEntity)) {
 
-		$l = $this->localization->getParent();
-
-		while ( ! ($l instanceof PageLocalization || empty($l))) {
-			$l = $l->getParent();
-		}
-
-		$this->parentLocalization = $l;
-
-		if ( ! empty($this->parentLocalization)) {
-
-			$this->parentDocument = $this->findPageLocalizationIndexedDocument($this->parentLocalization->getId());
-		}
-
-		if ( ! empty($this->parentLocalization) && ! empty($this->previousDocument)) {
-
-			$this->hasParentHasPrevious();
-		} else if ( ! empty($this->parentLocalization) && empty($this->previousDocument)) {
-
-			$this->hasParentNoPrevious();
-		} else if (empty($this->parentLocalization) && ! empty($this->previousDocument)) {
-
-			$this->noParentHasPrevious();
-		} else if (empty($this->parentLocalization) && empty($this->previousDocument)) {
-
-			$this->noParentNoPrevious();
-		}
-
-		$result[] = $this->makeIndexedDocument($this->localization, $this->isActive);
-
-		if ($this->reindexChildren) {
-
-			$childResult = $this->reindexChildren($this->localization, $this->isActive);
-
-			foreach ($childResult as $r) {
-				$result[] = $r;
+			$path = $pathEntity->getPath();
+			if ( ! empty($path)) {
+				$previousLocalizationFullPath = $path->getFullPath();
 			}
 		}
 
-		return $result;
-	}
-
-	protected function hasParentHasPrevious()
-	{
-		// Page has been moved?
-		if ($this->parentLocalization->getId() != $this->previousParentId) {
-			// - Yes. 
-			// Set "visibility" to that of parent document.
-			$this->isActive = $this->parentDocument->isActive;
-
-			// If "visibility" has changed since last indexing, child pages have to be reindexed as well.
-			if ($this->previousDocument->isActive != $this->isActive) {
-				$this->reindexChildren = true;
-			} else {
-				$this->reindexChildren = false;
-			}
-		} else {
-			// - No.
-			// If "activity" has been turned OFF ...
-			if ($this->localization->isActive() == false && $this->previousDocument->active == true) {
-
-				// This localiaztion is not active and not active, same goes for its children.
-				$this->isActive = false;
-				$this->reindexChildren = true;
-			}
-			// ... or if "activity" has been turned ON ...
-			else if ($this->localization->isActive() == true && $this->previousDocument->active == false) {
-
-				// This localization is active and active, same goes for its children.
-				if ( ! empty($this->parentDocument)) {
-					$this->isActive = $this->parentDocument->isActive;
-				} else {
-					$this->isActive = $this->parentLocalization->isActive();
-				}
-
-				$this->reindexChildren = true;
-			} else {
-
-				// Nothing of substance has changed since last indexing.
-				$this->isActive = $this->previousDocument->isActive;
-				$this->reindexChildren = false;
-			}
-		}
-	}
-
-	protected function hasParentNoPrevious()
-	{
-		if ($this->localization->isActive()) {
-
-			// If localization is "active", "visibility" is inherited from its parent, ...
-			if (empty($this->parentDocument)) {
-				$this->isActive = $this->parentLocalization->isActive();
-			} else {
-				$this->isActive = $this->parentDocument->isActive;
-			}
-		} else {
-
-			// ... otherwise "visibility" is FALSE.
-			$this->isActive = false;
+		if ($localizationFullPath == $previousLocalizationFullPath) {
+			$localizationMoved = false;
 		}
 
-		// ... and chidren will be reindexed just to be safe.
-		$this->reindexChildren = true;
-	}
+		// If "Is Active" has been chagned 
+		// OR page localization has been moved
+		// OR there is no previous indexed document 
+		// OR previous indexed document revision is not last published page localization revision
+		// then we have to reindex children too.
+		if (
+				($localization->isActive() != $previousLocalization->isActive() ) ||
+				($localizationMoved) ||
+				empty($currentIndexedDocument) ||
+				($currentIndexedDocument->revisionId != $previousLocalization->getRevisionId())
+		) {
 
-	protected function noParentHasPrevious()
-	{
-		// This looks like extreme edge case.
-		// We are indexing root page localization. Check if it has 
-		// not been moved since last indexing ...
-		if (empty($this->previousParentId)) {
-			// - not moved.
+			$children = $localization->getAllChildren();
 
-			if ($this->previousDocument->active != $this->localization->isActive()) {
-
-				// "Activity" has been changed and now we have to adjust "activity" of this
-				// localization as well as that of all children.
-				$this->isActive = $this->localization->isActive();
-				$this->reindexChildren = true;
-			} else {
-
-				$this->isActive = $this->previousDocument->isActive;
-				$this->reindexChildren = false;
-			}
-		} else {
-			// If this localization has been made root localization, 
-			// set "visibility" according to "activity", and reindex children.
-			$this->isActive = $this->localization->isActive();
-			$this->reindexChildren = true;
-		}
-	}
-
-	protected function noParentNoPrevious()
-	{
-		$this->isActive = $this->localization->isActive();
-		$this->reindexChildren = true;
-	}
-
-	protected function reindexChildren(Localization $pageLocalization, $isActive)
-	{
-		$result = array();
-
-		$children = $pageLocalization->getChildren();
-
-		foreach ($children as $child) {
-
-			if ( ! $child instanceof GroupLocalization) {
+			foreach ($children as $child) {
 
 				if ( ! self::isIndexed($child->getId(), $child->getRevisionId())) {
-					$result[] = $this->makeIndexedDocument($child, $isActive);
+					$result[] = $this->makeIndexedDocument($child);
 				} else {
 					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
 				}
-			}
-
-			$childResult = $this->reindexChildren($child, $isActive);
-
-			foreach ($childResult as $r) {
-				$result[] = $r;
 			}
 		}
 
@@ -354,7 +286,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	 * @param PageLocalization $pageLocalization
 	 * @return IndexedDocument 
 	 */
-	protected function makeIndexedDocument(PageLocalization $pageLocalization, $isActive)
+	protected function makeIndexedDocument(PageLocalization $pageLocalization)
 	{
 		$lm = ObjectRepository::getLocaleManager($this);
 
@@ -369,7 +301,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument = new IndexedDocument($class, $id);
 
 		$indexedDocument->schemaName = $this->schemaName;
-		$indexedDocument->revisionId = $this->revisionId;
+		$indexedDocument->revisionId = $pageLocalization->getRevisionId();
 
 		$indexedDocument->pageId = $pageLocalization->getMaster()->getId();
 		$indexedDocument->pageLocalizationId = $pageLocalization->getId();
@@ -385,21 +317,24 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
 		$indexedDocument->pageWebPath = $pageLocalization->getPath();
 
-		$indexedDocument->isActive = $isActive ? 'true' : 'false';
+		$pageLocalizationPathEntity = $pageLocalization->getPathEntity();
+		$isActive = 'true';
+		if (empty($pageLocalizationPathEntity)) {
+			$isActive = 'false';
+		} else if ( ! $pageLocalizationPathEntity->isActive()) {
+			$isActive = 'false';
+		}
+		$indexedDocument->isActive = $isActive;
 
 		$redirect = $pageLocalization->getRedirect();
-
 		$isRedirected = 'true';
-
 		if (empty($redirect)) {
 			$isRedirected = 'false';
 		}
-
 		$indexedDocument->isRedirected = $isRedirected;
 
-		$isLimited = $pageLocalization->getPathEntity()
-				->isLimited();
-		$indexedDocument->isLimited = $isLimited;
+		$isLimited = $pageLocalizationPathEntity->isLimited();
+		$indexedDocument->isLimited = $isLimited ? 'true' : 'false';
 
 		$ancestors = $pageLocalization->getAuthorizationAncestors();
 		$ancestorIds = array();
@@ -497,7 +432,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		return implode(' ', $result);
 	}
-	
+
 	public function getPageLocalizationId()
 	{
 		return $this->pageLocalizationId;
@@ -517,7 +452,5 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	{
 		$this->revisionId = $revisionId;
 	}
-
-
 
 }

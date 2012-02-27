@@ -50,6 +50,8 @@ class PageLocalizationFindRequest extends SearchRequestAbstraction
 		}
 
 		$selectQuery->setQuery(join(' AND ', $query));
+		
+		parent::applyParametersToSelectQuery($selectQuery);
 	}
 
 	public function processResults(Solarium_Result_Select $selectResults)

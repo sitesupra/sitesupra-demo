@@ -19,10 +19,10 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
- *		"page" = "Supra\Controller\Pages\Entity\PageLocalization",
- *		"template" = "Supra\Controller\Pages\Entity\TemplateLocalization",
- *		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization",
- *		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
+ * 		"page" = "Supra\Controller\Pages\Entity\PageLocalization",
+ * 		"template" = "Supra\Controller\Pages\Entity\TemplateLocalization",
+ * 		"application" = "Supra\Controller\Pages\Entity\ApplicationLocalization",
+ * 		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
  * })
  */
 abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface
@@ -34,7 +34,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	const CHANGE_FREQUENCY_YEARLY = 'yearly';
 	const CHANGE_FREQUENCY_ALWAYS = 'always';
 	const CHANGE_FREQUENCY_NEVER = 'never';
-	
+
 	/**
 	 * @Column(type="string")
 	 * @var string
@@ -46,7 +46,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var string
 	 */
 	protected $title;
-	
+
 	/**
 	 * @var string
 	 */
@@ -59,21 +59,21 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var AbstractPage
 	 */
 	protected $master;
-	
+
 	/**
 	 * Object's lock
 	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\LockData", cascade={"persist", "remove"})
 	 * @var LockData
 	 */
 	protected $lock;
-	
+
 	/**
 	 * Left here just because cascade in remove
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY") 
 	 * @var Collection 
-	 */ 
+	 */
 	protected $blockProperties;
-	
+
 	/**
 	 * Object's place holders. Doctrine requires this to be defined because
 	 * owning side references to this class with inversedBy parameter
@@ -81,8 +81,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var Collection
 	 */
 	protected $placeHolders;
-	
-	
+
 	/**
 	 *  Flag for hiding page from sitemap
 	 * @Column(type="boolean", nullable=false)
@@ -102,7 +101,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var boolean
 	 */
 	protected $includedInSearch = true;
-	
+
 	/**
 	 * How frequently the page may change:
 	 * 'Always' is used to denote documents that change each time that they are accessed. 
@@ -116,7 +115,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * 
 	 */
 	protected $changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
-	
+
 	/**
 	 * The priority of that URL relative to other URLs on the site. 
 	 * This allows webmasters to suggest to crawlers which pages are considered more important.
@@ -131,7 +130,6 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 */
 	protected $pagePriority = '0.5';
 
-	
 	/**
 	 * Construct
 	 * @param string $locale
@@ -142,7 +140,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
 	}
-	
+
 	/**
 	 * @return Collection
 	 */
@@ -150,7 +148,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->placeHolders;
 	}
-	
+
 	/**
 	 * Adds placeholder
 	 * @param PlaceHolder $placeHolder
@@ -190,7 +188,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		if (is_null($this->originalTitle) && ! is_null($this->title) && ($this->title != $title)) {
 			$this->originalTitle = $this->title;
 		}
-		
+
 		$this->title = $title;
 	}
 
@@ -209,13 +207,13 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	public function setMaster(AbstractPage $master)
 	{
 		$this->matchDiscriminator($master);
-		
+
 //		if ($this->writeOnce($this->master, $master)) {
-			$this->master = $master;
-			$master->setLocalization($this);
+		$this->master = $master;
+		$master->setLocalization($this);
 //		}
 	}
-	
+
 	/**
 	 * Get master object (page/template)
 	 * @return AbstractPage
@@ -224,7 +222,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->master;
 	}
-	
+
 	/**
 	 * Loads localization item parent
 	 * @return Localization
@@ -232,35 +230,53 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	public function getParent()
 	{
 		$master = $this->getMaster();
-		
+
 		if (empty($master)) {
 			return null;
 		}
-		
+
 		$parent = $master->getParent();
-		
+
 		if (empty($parent)) {
 			return null;
 		}
-		
+
 		/* @var $parent AbstractPage */
 		$parentData = $parent->getLocalization($this->locale);
-		
+
 		return $parentData;
+	}
+
+	/**
+	 * @param string $type 
+	 * @return ArrayCollection
+	 */
+	public function getAllChildren($type = __CLASS__)
+	{
+		return $this->getChildrenHelper($type, 0);
 	}
 	
 	/**
-	 * @return ArrayCollection
+	 * @param string $type
+	 * @return ArrayCollection 
 	 */
 	public function getChildren($type = __CLASS__)
 	{
+		return $this->getChildrenHelper($type, 1);
+	}
+
+	/**
+	 * @return ArrayCollection
+	 */
+	private function getChildrenHelper($type = __CLASS__, $maxDepth = 1)
+	{
 		$coll = new ArrayCollection();
 		$master = $this->getMaster();
-		
+
 		if (empty($master)) {
 			return $coll;
 		}
-		
+
 		$nsn = $master->getNestedSetNode();
 
 		$nsr = $nsn->getRepository();
@@ -269,7 +285,10 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$sc = $nsr->createSearchCondition();
 		$sc->leftMoreThan($master->getLeftValue());
 		$sc->leftLessThan($master->getRightValue());
-		$sc->levelEqualsTo($master->getLevel() + 1);
+		
+		if($maxDepth) {
+			$sc->levelEqualsTo($master->getLevel() + 1);
+		}
 
 		$oc = $nsr->createSelectOrderRule();
 		$oc->byLeftAscending();
@@ -292,17 +311,17 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		} else {
 			$qb->select('l, e');
 		}
-		
+
 		$query = $qb->getQuery();
 		$result = $query->getResult();
-		
+
 		// Filter out localizations only
 		foreach ($result as $record) {
 			if ($record instanceof Localization) {
 				$coll->add($record);
 			}
 		}
-		
+
 //		foreach ($masterChildren as $child) {
 //			$localization = $child->getLocalization($this->locale);
 //			
@@ -310,10 +329,10 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 //				$coll->add($localization);
 //			}
 //		}
-		
+
 		return $coll;
 	}
-	
+
 	/**
 	 * Loads only public children
 	 * @return ArrayCollection
@@ -321,29 +340,29 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	public function getPublicChildren()
 	{
 		$coll = $this->getChildren(PageLocalization::CN());
-		
+
 		foreach ($coll as $key => $child) {
 			if ( ! $child instanceof PageLocalization) {
 				$coll->remove($key);
 				continue;
 			}
-			
+
 			if ( ! $child->isPublic()) {
 				$coll->remove($key);
 				continue;
 			}
 		}
-		
+
 		return $coll;
 	}
-	
+
 	/**
 	 * Get page and it's template hierarchy starting with the root template
 	 * @return PageSet
 	 * @throws Exception\RuntimeException
 	 */
 	abstract public function getTemplateHierarchy();
-	
+
 	/**
 	 * Returns page lock object
 	 * @return LockData
@@ -352,7 +371,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->lock;
 	}
-	
+
 	/**
 	 * Sets page lock object
 	 * @param LockData $lock 
@@ -361,7 +380,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		$this->lock = $lock;
 	}
-	
+
 	/**
 	 * @param Block $block
 	 * @return boolean
@@ -370,12 +389,12 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		$localization = $block->getPlaceHolder()
 				->getMaster();
-		
+
 		$contains = $localization->equals($this);
-		
+
 		return $contains;
 	}
-	
+
 	/**
 	 * @param Block $block
 	 * @return boolean
@@ -386,15 +405,15 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		if ($this->containsBlock($block)) {
 			return true;
 		}
-		
+
 		// Also if it's not locked
 		if ( ! $block->getLocked()) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @param Block $block
 	 * @return boolean
@@ -405,10 +424,10 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		if ($this->containsBlock($block)) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @param PlaceHolder $placeHolder
 	 * @return boolean
@@ -417,14 +436,14 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		// Place holder can be ediable if it belongs to the page
 		$localization = $placeHolder->getMaster();
-		
+
 		if ($localization->equals($this)) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @param Entity $baseEntity
 	 * @param string $locale
@@ -435,36 +454,36 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		$localization = null;
 		$discriminator = $page::DISCRIMINATOR;
-		
+
 		switch ($discriminator) {
 			case Entity::APPLICATION_DISCR:
 				$localization = new ApplicationLocalization($locale);
 				break;
-			
-			
+
+
 			case Entity::GROUP_DISCR:
 				$localization = new GroupLocalization($locale, $page);
 				break;
-			
-			
+
+
 			case Entity::TEMPLATE_DISCR:
 				$localization = new TemplateLocalization($locale);
 				break;
-			
-			
+
+
 			case Entity::PAGE_DISCR:
 				$localization = new PageLocalization($locale);
 				break;
-			
+
 			default:
 				throw new \InvalidArgumentException("Discriminator $discriminator not recognized");
 		}
-		
+
 		$localization->setMaster($page);
-		
+
 		return $localization;
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -512,7 +531,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		$this->includedInSearch = $includedInSearch;
 	}
-	
+
 	/**
 	 * Returns age change frequency for sitemap.xml
 	 * @return string 
@@ -565,17 +584,16 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 */
 	public function setPagePriority($pagePriority)
 	{
-		if($pagePriority < 0 || $pagePriority > 1) {
+		if ($pagePriority < 0 || $pagePriority > 1) {
 			$logger = ObjectRepository::getLogger($this);
 			$logger->error('Wrong priority provided. Will use default. 
 				The valid range is from 0.0 to 1.0, with 1.0 being the most important');
 			return false;
 		}
-		
+
 		$this->pagePriority = $pagePriority;
 	}
 
-		
 	/**
 	 * Clear page lock on clone action
 	 */
@@ -586,7 +604,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 			$this->lock = null;
 		}
 	}
-	
+
 	/**
 	 * Used to improve audit log readability
 	 */
@@ -594,4 +612,5 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->originalTitle;
 	}
+
 }
