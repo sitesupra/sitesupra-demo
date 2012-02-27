@@ -17,37 +17,10 @@ use Supra\Remote\Client\RemoteCommandService;
 use Supra\Console\Output\CommandOutputWithData;
 use Supra\User\Entity;
 use SupraPortal\SiteUser\Entity\SiteUser;
+use Supra\Remote\RemoteFindAbstraction;
 
-class RemoteFindUserCommand extends Command
+class RemoteFindUserCommand extends RemoteFindAbstraction
 {
-
-	/**
-	 * @var array 
-	 */
-	public $output = array(
-		'user' => null,
-		'error' => null,
-	);
-
-	/**
-	 * @var OutputInterface
-	 */
-	public $outputInstance;
-
-	/**
-	 * @var \Supra\User\RemoteUserProvider
-	 */
-	public $userProvider;
-
-	/**
-	 * @var \Doctrine\ORM\EntityManager
-	 */
-	public $em;
-
-	/**
-	 * @var \Supra\Log\Writer\WriterAbstraction
-	 */
-	public $log;
 
 	/**
 	 * Field allowed values
@@ -58,16 +31,8 @@ class RemoteFindUserCommand extends Command
 		'email',
 		'login',
 		'name',
-		'username'
+		'group',
 	);
-
-	public function __construct($name = null)
-	{
-		parent::__construct($name);
-		$this->userProvider = ObjectRepository::getUserProvider($this);
-		$this->em = ObjectRepository::getEntityManager($this);
-		$this->log = ObjectRepository::getLogger($this);
-	}
 
 	protected function configure()
 	{
@@ -103,7 +68,7 @@ class RemoteFindUserCommand extends Command
 		}
 
 		// else if is set --all-users option 
-		else if ($findAllUsers) {
+		else if ($findAllUsers && (empty($field) || empty($value))) {
 			$users = $this->userProvider->findAllUsers();
 		}
 
@@ -121,29 +86,6 @@ class RemoteFindUserCommand extends Command
 			$this->outputUsers($users);
 			return;
 		}
-	}
-
-	/**
-	 * @param OutputInterface $this->outputInstance
-	 * @param array $array 
-	 */
-	public function writeArrayToOutput($array, $depth = 1)
-	{
-		$tab = str_repeat("\t", $depth);
-		if ($depth <= 1) {
-			$this->outputInstance->writeln("\n{$tab}User is found:\n");
-		}
-
-		foreach ($array as $key => $value) {
-			if (is_array($value)) {
-				$this->outputInstance->writeln("{$tab}[$key] => ");
-				$this->writeArrayToOutput($value,  ++ $depth);
-				-- $depth;
-			} else {
-				$this->outputInstance->writeln("{$tab}[$key] => \"$value\"");
-			}
-		}
-		$this->outputInstance->writeln('');
 	}
 
 	/**
@@ -180,6 +122,18 @@ class RemoteFindUserCommand extends Command
 			case 'name':
 				$user = $this->userProvider->findUserByName($value);
 				break;
+			case 'group':
+				$group = $this->userProvider->findGroupById($value);
+				if ( ! $group instanceof Entity\Group) {
+					$message = "Failed to find group with id {$value}";
+					$this->log->error($message);
+					$this->outputInstance->writeln($message);
+					return;
+				}
+				$users = $this->userProvider->getAllUsersInGroup($group);
+				$this->outputUsers($users);
+				return;
+				break;
 
 			default:
 				throw new Exception\RuntimeException('Wrong search field');
@@ -209,7 +163,7 @@ class RemoteFindUserCommand extends Command
 	{
 
 		if ($this->outputInstance instanceof CommandOutputWithData) {
-			$this->output['user'] = $this->assignUserGroup($user);
+			$this->output['data'] = $this->assignUserGroup($user);
 			$this->outputInstance->setData($this->output);
 
 			return;
@@ -289,7 +243,7 @@ class RemoteFindUserCommand extends Command
 		}
 
 		if ($this->outputInstance instanceof CommandOutputWithData) {
-			$this->output['user'] = $userData;
+			$this->output['data'] = $userData;
 			$this->outputInstance->setData($this->output);
 
 			return;
