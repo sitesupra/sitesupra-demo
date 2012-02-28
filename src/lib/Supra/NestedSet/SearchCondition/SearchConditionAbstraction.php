@@ -3,25 +3,26 @@
 namespace Supra\NestedSet\SearchCondition;
 
 use Supra\NestedSet\Exception;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * @method SearchConditionAbstraction leftEqualsTo(int $value)
  * @method SearchConditionAbstraction leftLessThan(int $value)
- * @method SearchConditionAbstraction leftMoreThan(int $value)
+ * @method SearchConditionAbstraction leftGreaterThan(int $value)
  * @method SearchConditionAbstraction leftLessThanOrEqualsTo(int $value)
- * @method SearchConditionAbstraction leftMoreThanOrEqualsTo(int $value)
+ * @method SearchConditionAbstraction leftGreaterThanOrEqualsTo(int $value)
  * @method SearchConditionAbstraction leftNotEqualsTo(int $value)
  * @method SearchConditionAbstraction rightEqualsTo(int $value)
  * @method SearchConditionAbstraction rightLessThan(int $value)
- * @method SearchConditionAbstraction rightMoreThan(int $value)
+ * @method SearchConditionAbstraction rightGreaterThan(int $value)
  * @method SearchConditionAbstraction rightLessThanOrEqualsTo(int $value)
- * @method SearchConditionAbstraction rightMoreThanOrEqualsTo(int $value)
+ * @method SearchConditionAbstraction rightGreaterThanOrEqualsTo(int $value)
  * @method SearchConditionAbstraction rightNotEqualsTo(int $value)
  * @method SearchConditionAbstraction levelEqualsTo(int $value)
  * @method SearchConditionAbstraction levelLessThan(int $value)
- * @method SearchConditionAbstraction levelMoreThan(int $value)
+ * @method SearchConditionAbstraction levelGreaterThan(int $value)
  * @method SearchConditionAbstraction levelLessThanOrEqualsTo(int $value)
- * @method SearchConditionAbstraction levelMoreThanOrEqualsTo(int $value)
+ * @method SearchConditionAbstraction levelGreaterThanOrEqualsTo(int $value)
  * @method SearchConditionAbstraction levelNotEqualsTo(int $value)
  */
 class SearchConditionAbstraction implements SearchConditionInterface
@@ -43,10 +44,20 @@ class SearchConditionAbstraction implements SearchConditionInterface
 	private static $relationMethods = array(
 		self::RELATION_EQUALS => 'equalsTo',
 		self::RELATION_LESS => 'lessThan',
-		self::RELATION_MORE => 'moreThan',
+		self::RELATION_GREATER => 'greaterThan',
 		self::RELATION_LESS_OR_EQUALS => 'lessThanOrEqualsTo',
-		self::RELATION_MORE_OR_EQUALS => 'moreThanOrEqualsTo',
-		self::RELATION_NOT_EQUALS => 'notEqualsTo'
+		self::RELATION_GREATER_OR_EQUALS => 'greaterThanOrEqualsTo',
+		self::RELATION_NOT_EQUALS => 'notEqualsTo',
+	);
+	
+	/**
+	 * Deprecated method names
+	 * TODO: remove later
+	 * @var array
+	 */
+	private static $deprecatedRelationMethods = array(
+		self::RELATION_GREATER => 'moreThan',
+		self::RELATION_GREATER_OR_EQUALS => 'moreThanOrEqualsTo',
 	);
 
 	/**
@@ -98,6 +109,19 @@ class SearchConditionAbstraction implements SearchConditionInterface
 				break;
 			}
 		}
+		
+		// Deprecated name
+		if ($relationFound === false) {
+			foreach (self::$deprecatedRelationMethods as $relationTest => $relationString) {
+				if (strcasecmp($relationString, $methodRemainder) === 0) {
+					ObjectRepository::getLogger($this)
+							->warn("Nested set method $method is deprecated, use greaterThan or greaterThanOrEqualsTo instead.");
+					$relationFound = $relationTest;
+					break;
+				}
+			}
+		}
+		
 		if ($relationFound === false) {
 			throw new Exception\BadMethodCall("Unknown method $method called for search condition object, no relation match found");
 		}

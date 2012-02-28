@@ -144,7 +144,7 @@ class NewsApplication implements PageApplicationInterface
 		/* @var $filter \Supra\NestedSet\SearchCondition\DoctrineSearchCondition */
 		
 		// Search for direct children
-		$filter->add(SearchConditionInterface::LEFT_FIELD, SearchConditionInterface::RELATION_MORE, $lft);
+		$filter->add(SearchConditionInterface::LEFT_FIELD, SearchConditionInterface::RELATION_GREATER, $lft);
 		$filter->add(SearchConditionInterface::RIGHT_FIELD, SearchConditionInterface::RELATION_LESS, $rgt);
 		$filter->add(SearchConditionInterface::LEVEL_FIELD, SearchConditionInterface::RELATION_EQUALS, $lvl + 1);
 		

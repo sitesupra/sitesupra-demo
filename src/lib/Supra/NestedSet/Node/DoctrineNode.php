@@ -80,7 +80,7 @@ class DoctrineNode extends NodeAbstraction
 		$rep = $this->repository;
 
 		$search = $rep->createSearchCondition()
-				->leftMoreThan($this->getLeftValue())
+				->leftGreaterThan($this->getLeftValue())
 				->rightLessThan($this->getRightValue())
 				->levelEqualsTo($this->getLevel() + 1);
 

@@ -67,7 +67,7 @@ class GenerateSitemapCommand extends Command
 		$searchCondition = $nestedSetRepository->createSearchCondition();
 		
 		// Don't need to limit
-//		$searchCondition->leftMoreThanOrEqualsTo($rootPage->getLeftValue());
+//		$searchCondition->leftGreaterThanOrEqualsTo($rootPage->getLeftValue());
 //		$searchCondition->leftLessThanOrEqualsTo($rootPage->getRightValue());
 //		$searchCondition->levelLessThanOrEqualsTo(10);
 

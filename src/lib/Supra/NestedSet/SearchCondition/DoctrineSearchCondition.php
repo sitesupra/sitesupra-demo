@@ -55,13 +55,13 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 				case self::RELATION_LESS_OR_EQUALS:
 					$where = $expr->lte($field, $valueExpr);
 					break;
-				case self::RELATION_MORE_OR_EQUALS:
+				case self::RELATION_GREATER_OR_EQUALS:
 					$where = $expr->gte($field, $valueExpr);
 					break;
 				case self::RELATION_LESS:
 					$where = $expr->lt($field, $valueExpr);
 					break;
-				case self::RELATION_MORE:
+				case self::RELATION_GREATER:
 					$where = $expr->gt($field, $valueExpr);
 					break;
 				case self::RELATION_NOT_EQUALS:

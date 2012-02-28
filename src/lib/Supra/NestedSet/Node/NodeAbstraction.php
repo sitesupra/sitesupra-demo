@@ -397,12 +397,12 @@ abstract class NodeAbstraction implements NodeInterface
 		
 		// Will include the self node if required in the end
 		$searchCondition->leftLessThan($left)
-				->rightMoreThan($right);
+				->rightGreaterThan($right);
 
 		if ($levelLimit < 0) {
 			throw new Exception\Domain("Level limit cannot be negative in getAncestors method");
 		} elseif ($levelLimit > 0) {
-			$searchCondition->levelMoreThanOrEqualsTo($level - $levelLimit);
+			$searchCondition->levelGreaterThanOrEqualsTo($level - $levelLimit);
 		}
 
 		$orderRule = $this->repository->createSelectOrderRule()
@@ -438,10 +438,10 @@ abstract class NodeAbstraction implements NodeInterface
 
 		$searchCondition = $this->repository->createSearchCondition();
 		if ($includeNode) {
-			$searchCondition->leftMoreThanOrEqualsTo($left)
+			$searchCondition->leftGreaterThanOrEqualsTo($left)
 					->rightLessThanOrEqualsTo($right);
 		} else {
-			$searchCondition->leftMoreThan($left)
+			$searchCondition->leftGreaterThan($left)
 					->rightLessThan($right);
 		}
 

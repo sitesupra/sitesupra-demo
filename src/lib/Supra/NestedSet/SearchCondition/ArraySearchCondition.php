@@ -50,13 +50,13 @@ class ArraySearchCondition extends SearchConditionAbstraction
 					case SearchConditionInterface::RELATION_LESS_OR_EQUALS:
 						$result = ($testValue <= $value);
 						break;
-					case SearchConditionInterface::RELATION_MORE_OR_EQUALS:
+					case SearchConditionInterface::RELATION_GREATER_OR_EQUALS:
 						$result = ($testValue >= $value);
 						break;
 					case SearchConditionInterface::RELATION_LESS:
 						$result = ($testValue < $value);
 						break;
-					case SearchConditionInterface::RELATION_MORE:
+					case SearchConditionInterface::RELATION_GREATER:
 						$result = ($testValue > $value);
 						break;
 					case SearchConditionInterface::RELATION_NOT_EQUALS:

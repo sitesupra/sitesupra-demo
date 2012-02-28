@@ -283,11 +283,12 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
 
 		$sc = $nsr->createSearchCondition();
-		$sc->leftMoreThan($master->getLeftValue());
+		$sc->leftGreaterThan($master->getLeftValue());
 		$sc->leftLessThan($master->getRightValue());
+		$sc->levelGreaterThan($master->getLevel());
 		
-		if($maxDepth) {
-			$sc->levelEqualsTo($master->getLevel() + 1);
+		if ($maxDepth) {
+			$sc->levelLessThanOrEqualsTo($master->getLevel() + $maxDepth);
 		}
 
 		$oc = $nsr->createSelectOrderRule();
