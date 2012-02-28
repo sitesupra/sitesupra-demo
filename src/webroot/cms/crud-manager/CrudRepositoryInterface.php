@@ -27,8 +27,12 @@ interface CrudRepositoryInterface
 	public function getListFields();
 	
 	/**
-	 * Function for setting additional parameters, ordering and so on,
+	 * Function for setting ordering and additional parameters
 	 * before getting result to output in CRUD manager
+	 * 
+	 * QueryBuilder CRUD entity alias is "e"
+	 *
+	 * @example $qb->addOrdering('e.title', 'asc');
 	 * @param QueryBuilder $qb
 	 * @return QueryBuilder
 	 */
