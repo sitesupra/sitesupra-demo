@@ -64,7 +64,7 @@ class SitemapBlock extends LinksBlock
 
 		// @TODO: Managable sitemap depth
 		$sc = $nsr->createSearchCondition();
-		$sc->leftMoreThan($rootPage->getLeftValue());
+		$sc->leftGreaterThan($rootPage->getLeftValue());
 		$sc->leftLessThan($rootPage->getRightValue());
 		$sc->levelLessThanOrEqualsTo($rootPage->getLevel() + 5);
 
