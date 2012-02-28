@@ -53,7 +53,7 @@ class User extends AbstractUser
 	protected $personalAvatar;
 
 	/**
-	 * @ManyToOne(targetEntity="Group")
+	 * @ManyToOne(targetEntity="Group", fetch="EAGER")
 	 * @JoinColumn(name="group_id", referencedColumnName="id")
 	 */
 	protected $group;
