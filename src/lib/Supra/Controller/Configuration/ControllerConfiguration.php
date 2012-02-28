@@ -5,6 +5,7 @@ namespace Supra\Controller\Configuration;
 use Supra\Router\Configuration\RouterConfiguration;
 use Supra\Configuration\ConfigurationInterface;
 use Closure;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Controller base configuration
