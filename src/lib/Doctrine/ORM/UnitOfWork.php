@@ -77,6 +77,11 @@ class UnitOfWork implements PropertyChangedListener
      */
     private $identityMap = array();
 
+	/**
+	 * Fix for spl_object_hash reusage in case of garbage collection process on objects
+	 */
+	private $splObjectHashMemory = array();
+	
     /**
      * Map of all identifiers of managed entities.
      * Keys are object ids (spl_object_hash).
@@ -2208,6 +2213,8 @@ class UnitOfWork implements PropertyChangedListener
         if ($this->evm->hasListeners(Events::onClear)) {
             $this->evm->dispatchEvent(Events::onClear, new Event\OnClearEventArgs($this->em, $entityName));
         }
+		
+		$this->splObjectHashMemory = array();
     }
 
     /**
@@ -2751,6 +2758,8 @@ class UnitOfWork implements PropertyChangedListener
         $this->originalEntityData[$oid] = $data;
 
         $this->addToIdentityMap($entity);
+		
+		$this->splObjectHashMemory[$oid] = $entity;
     }
 
     /**

@@ -115,7 +115,7 @@ class CreateUserCommand extends Command
 		$userAction = new InternalUserManagerAbstractAction();
 		ObjectRepository::setCallerParent($userAction, $this, true);
 
-		//$userAction->sendPasswordChangeLink($user, 'createpassword');
+		$userAction->sendPasswordChangeLink($user, 'createpassword');
 
 		$eventManager = ObjectRepository::getEventManager($this);
 
