@@ -1,12 +1,12 @@
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: { const: Project\SampleAuthentication\CONTROLLER_URL }
-        controller: Project\SampleAuthentication\AuthenticateController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: { const: Project\SampleAuthentication\CONTROLLER_URL }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Project\SampleAuthentication\AuthenticateController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: { const: Project\SampleAuthentication\CONTROLLER_URL }
-        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-        controller: Project\SampleAuthentication\AuthenticatePreFilterController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: { const: Project\SampleAuthentication\CONTROLLER_URL }
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Project\SampleAuthentication\AuthenticatePreFilterController

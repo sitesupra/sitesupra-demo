@@ -180,8 +180,17 @@ class ComponentConfigurationLoader
 			$value = end($item);
 			$key = key($item);
 			
-			if (($key == 'const') && defined($value)) {
-				$return = constant($value);
+			if ($key === 'const') {
+				
+				if ( ! is_string($value)) {
+					throw new \Exception("Constant name value not a string - " . var_export($value, 1) . var_export($item, 1));
+				}
+				
+				if (defined($value)) {
+					$return = constant($value);
+				} else {
+					throw new \Exception("Constant $value not found");
+				}
 			} else if (is_string($key)) {
 				// try to setup config object
 				$object = $this->processObject($key, $value);

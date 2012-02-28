@@ -4,6 +4,7 @@ namespace Supra\Router;
 
 use Supra\Request\RequestInterface;
 use Supra\Controller\ControllerInterface;
+use Closure;
 
 /**
  * Router interface
@@ -40,22 +41,20 @@ interface RouterInterface
 	public function setPriorityDiff($priorityDiff);
 
 	/**
-	 * Set controller to route
-	 * @param string $controllerClass
+	 * @return string
 	 */
-	public function setControllerClass($controllerClass);
-
-//	/**
-//	 * Initialize routed controller
-//	 * @return ControllerInterface
-//	 */
-//	public function initializeController();
-//	
-//	/**
-//	 * Get routed controller
-//	 * @return ControllerInterface
-//	 */
-//	public function getController();
+	public function getControllerClass();
+	
+	/**
+	 * @return Closure
+	 */
+	public function getControllerClosure();
+	
+	/**
+	 * Set closure which creates the controller to route
+	 * @param Closure $controllerClosure
+	 */
+	public function setControllerClosure(Closure $controllerClosure);
 
 	/**
 	 * Set parameters

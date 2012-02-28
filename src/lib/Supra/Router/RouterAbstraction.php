@@ -5,7 +5,7 @@ namespace Supra\Router;
 use Supra\Controller\ControllerInterface;
 use Supra\Request\RequestInterface;
 use Supra\Loader\Loader;
-
+use Closure;
 
 /**
  * Description of RouterAbstraction
@@ -34,17 +34,16 @@ abstract class RouterAbstraction implements RouterInterface
 	protected $parameters = array();
 
 	/**
-	 * Controller class name
 	 * @var string
 	 */
 	protected $controllerClass;
-
-	/**
-	 * Bound controller
-	 * @var ControllerInterface
-	 */
-	protected $controller;
 	
+	/**
+	 * Controller creation closure
+	 * @var Closure
+	 */
+	protected $controllerClosure;
+
 	/**
 	 * Controlls order for routers with equal base and router calculated priority
 	 * @var integer
@@ -75,14 +74,19 @@ abstract class RouterAbstraction implements RouterInterface
 
 	/**
 	 * Set controller to route
-	 * @param string $controller
+	 * @param Closure $controllerClosure
 	 */
-	public function setControllerClass($controllerClass)
+	public function setControllerClosure(Closure $controllerClosure = null)
 	{
-		if (empty($controllerClass)) {
-			throw new Exception\RuntimeException("Controller class name is not provided for the router");
-		}
-		$this->controllerClass = $controllerClass;
+		$this->controllerClosure = $controllerClosure;
+	}
+	
+	/**
+	 * @return Closure
+	 */
+	public function getControllerClosure()
+	{
+		return $this->controllerClosure;
 	}
 	
 	/**
@@ -92,38 +96,14 @@ abstract class RouterAbstraction implements RouterInterface
 	{
 		return $this->controllerClass;
 	}
-
-//	/**
-//	 * {@inheritdoc}
-//	 * @return ControllerInterface
-//	 */
-//	public function initializeController()
-//	{
-//		if ( ! is_null($this->controller)) {
-//			throw new Exception\RuntimeException("Controller is already initialized");
-//		}
-//		
-//		if ( ! class_exists($this->controllerClass)) {
-//			throw new Exception\RuntimeException("Controller class {$this->controllerClass} cannot be found");
-//		}
-//		
-//		$this->controller = Loader::getClassInstance($this->controllerClass, 'Supra\Controller\ControllerInterface');
-//		
-//		return $this->controller;
-//	}
-//	
-//	/**
-//	 * {@inheritdoc}
-//	 * @return ControllerInterface
-//	 */
-//	public function getController()
-//	{
-//		if (empty($this->controller)) {
-//			throw new Exception\RuntimeException("Controller not initialized");
-//		}
-//		
-//		return $this->controller;
-//	}
+	
+	/**
+	 * @param string $controllerClass
+	 */
+	public function setControllerClass($controllerClass)
+	{
+		$this->controllerClass = $controllerClass;
+	}
 
 	/**
 	 * Set parameters

@@ -1,5 +1,5 @@
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        class: Supra\Router\TopPriorityRouter
-        controller: Project\Locale\LocalePreFilterController
+- Supra\Router\Configuration\RouterConfiguration:
+    class: Supra\Router\TopPriorityRouter
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Project\Locale\LocalePreFilterController

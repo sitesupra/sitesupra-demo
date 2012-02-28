@@ -41,7 +41,7 @@ class ProviderConfiguration implements ConfigurationInterface
 		$router = new UriRouter();
 		$router->setPath($this->redirectorPath);
 		FrontController::getInstance()->route($router, BannerMachineRedirector::CN());
-
+		
 		ObjectRepository::setDefaultBannerProvider($provider);
 		ObjectRepository::setBannerProvider('#' . $this->id, $provider);
 

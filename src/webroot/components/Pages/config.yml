@@ -1,21 +1,21 @@
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        class: Supra\Router\TopPriorityRouter
-        controller: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
+- Supra\Router\Configuration\RouterConfiguration:
+    class: Supra\Router\TopPriorityRouter
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
         
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /
-        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-        controller: Project\Pages\LoginPreFilterController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Project\Pages\LoginPreFilterController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /
-        controller: Supra\Controller\Pages\PageController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Controller\Pages\PageController
         
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Frontend login page block

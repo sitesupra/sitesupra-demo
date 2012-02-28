@@ -8,6 +8,9 @@ use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
 use Supra\Router\UriRouter;
 use Supra\Controller\FrontController;
+use Supra\Controller\Configuration\ControllerConfiguration;
+use Supra\Configuration\Exception\InvalidConfiguration;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * RouterConfiguration
@@ -25,7 +28,7 @@ class RouterConfiguration implements ConfigurationInterface
 	public $url = '/';
 	
 	/**
-	 * @var string
+	 * @var ControllerConfiguration
 	 */
 	public $controller;
 	
@@ -61,9 +64,25 @@ class RouterConfiguration implements ConfigurationInterface
 		$router->setObjectRepositoryCaller($this->objectRepositoryCaller);
 		$router->setPriorityDiff($this->priority);
 		
+		// TODO: remove after refactored
+		if (is_string($this->controller)) {
+			$class = $this->controller;
+			$this->controller = new ControllerConfiguration();
+			$this->controller->class = $class;
+			
+			ObjectRepository::getLogger($this)
+					->warn("DEPRECATED: Router controller property must be ControllerConfiguration instance");
+		}
+		
+		if ( ! $this->controller instanceof ControllerConfiguration) {
+			throw new InvalidConfiguration("Not controller configuration attached to the router $this->class, on URL $this->url");
+		}
+		
+		$closure = $this->controller->getClosure();
+
 		// Bind to URL
 		FrontController::getInstance()
-					->route($router, $this->controller);
+					->route($router, $this->controller->class, $closure);
 	}
 	
 }

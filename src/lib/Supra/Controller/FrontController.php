@@ -14,6 +14,7 @@ use Supra\Cms\ApplicationConfiguration;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
+use Closure;
 
 /**
  * Front controller
@@ -74,10 +75,12 @@ class FrontController
 	 * Routing rules
 	 * @param Route\RouterInterface $router
 	 * @param string $controllerClass
+	 * @param Closure $controllerClosure
 	 */
-	public function route(Router\RouterInterface $router, $controllerClass)
+	public function route(Router\RouterInterface $router, $controllerClass, Closure $controllerClosure = null)
 	{
 		$router->setControllerClass($controllerClass);
+		$router->setControllerClosure($controllerClosure);
 		$this->routers[] = $router;
 		$this->routersOrdered = false;
 	}
@@ -133,9 +136,7 @@ class FrontController
 			$this->log->error($exception);
 
 			//TODO: should be configurable somehow
-			$exceptionControllerClass = 'Supra\Controller\ExceptionController';
-
-			$exceptionController = $this->initializeController($exceptionControllerClass);
+			$exceptionController = $this->initializeController(ExceptionController::CN());
 			/* @var $exceptionController Supra\Controller\ExceptionController */
 			$exceptionController->setException($exception);
 			$this->runControllerInner($exceptionController, $request);
@@ -154,12 +155,27 @@ class FrontController
 	/**
 	 * Create controller instance
 	 * @param string $controllerClass
+	 * @param Closure $controllerClosure
 	 * @return ControllerInterface
 	 */
-	private function initializeController($controllerClass)
+	private function initializeController($controllerClass, Closure $controllerClosure = null)
 	{
+		if ( ! $controllerClosure instanceof Closure) {
+			$controllerClosure = function() use ($controllerClass) {
+				return Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
+			};
+		}
+		
 		ObjectRepository::beginControllerContext($controllerClass);
-		$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
+		$controller = $controllerClosure();
+		
+		if (get_class($controller) != $controllerClass) {
+			$this->log->warn("Controller classname $controllerClass doesn't match with object classname initialized");
+		}
+		
+		if ( ! $controller instanceof ControllerInterface) {
+			throw new Exception\RuntimeException("Controller initialization step failed to generate controller instance using class $controllerClass");
+		}
 
 		return $controller;
 	}
@@ -261,7 +277,8 @@ class FrontController
 			if ($router->match($request)) {
 
 				$controllerClass = $router->getControllerClass();
-				$controller = $this->initializeController($controllerClass);
+				$controllerClosure = $router->getControllerClosure();
+				$controller = $this->initializeController($controllerClass, $controllerClosure);
 
 				try {
 					$this->runControllerInner($controller, $request, $router);

@@ -1,25 +1,23 @@
-- Supra\Controller\Configuration\ControllerConfiguration:
-  router:
-    Supra\Router\Configuration\RouterConfiguration:
-        url: /cms
-        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-        controller: Supra\Locale\PreFilter\LocaleDetectorPreFilter
-        objectRepositoryCaller: Supra\Cms\CmsController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+    objectRepositoryCaller: Supra\Cms\CmsController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-# TODO: should be controller config not config of the router
-#    class: Project\Authentication\AuthenticationPreFilterController
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /cms
-        priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-        controller: Supra\Cms\AuthenticationPreFilterController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Cms\AuthenticationPreFilterController
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /cms
-        controller: Supra\Cms\CmsController
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Cms\CmsController
 
 - Supra\Cms\ContentManager\ApplicationConfiguration:
     id: Supra\Cms\ContentManager
@@ -113,16 +111,14 @@
           height: 130
           ratioDelta: 0.1
 
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /remote
-        controller: Supra\Remote\Server\RemoteCommandController
-        
-- Supra\Controller\Configuration\ControllerConfiguration:
-    router: 
-      Supra\Router\Configuration\RouterConfiguration:
-        url: /dummy_command_invoker
-        controller: Project\DummyRemote\DummyCommandInvoker
-        
-        
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /remote
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Remote\Server\RemoteCommandController
+
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /dummy_command_invoker
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Project\DummyRemote\DummyCommandInvoker
