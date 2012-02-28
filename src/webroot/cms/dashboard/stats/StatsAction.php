@@ -26,6 +26,7 @@ class StatsAction extends CmsAction
 		
 		if (is_null($accountEmail) || is_null($accountPasswd) || is_null($profileId)) {
 			$response->setResponseData(false);	
+			return;
 		}
 		
 		$responseArray = array();
