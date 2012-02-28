@@ -37,14 +37,8 @@ class PageRequestView extends PageRequest
 	 */
 	protected function prepareQueryResultCache(Query $query)
 	{
-		// In ORM 2.1 the objects are not loaded correctly, seems that postPersist is not called.
-		// TODO: enable and check in Doctrine ORM 2.2.
-		return;
-		
  		$cacheGroupManager = new CacheGroupManager();
-		$resultId = $cacheGroupManager->getQueryResultCacheId($query, PageController::CACHE_GROUP_NAME);
-		$query->useResultCache(true)
-				->setResultCacheId($resultId);
+		$cacheGroupManager->configureQueryResultCache($query, PageController::CACHE_GROUP_NAME);
 	}
 	
 	/**
