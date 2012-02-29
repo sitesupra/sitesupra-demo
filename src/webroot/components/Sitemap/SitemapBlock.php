@@ -88,8 +88,6 @@ class SitemapBlock extends LinksBlock
 		$qb->andWhere('p.limited = false');
 
 		$query = $qb->getQuery();
-		/* @var $query \Doctrine\ORM\Query */
-		$query->useResultCache(true, 300);
 		$result = $query->getResult();
 		
 		// Filter out localizations only

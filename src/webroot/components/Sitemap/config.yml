@@ -2,3 +2,7 @@
     title: Sitemap
     groupId: system
     controllerClass: Project\Sitemap\SitemapBlock
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        groups:
+          - Supra\Controller\Pages
