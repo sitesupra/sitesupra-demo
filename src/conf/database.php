@@ -31,9 +31,9 @@ Type::addType('supraId', 'Supra\Database\Doctrine\Type\UnknownType');
 
 // TODO: use configuration classes maybe?
 $managerNames = array(
-		'PublicSchema' => '',
-		'Draft' => 'Supra\Cms',
-		'Audit' => 'Supra\Cms\Abstraction\Audit',
+	PageController::SCHEMA_PUBLIC => '',
+	PageController::SCHEMA_DRAFT => 'Supra\Cms',
+	PageController::SCHEMA_AUDIT => 'Supra\Cms\Abstraction\Audit',
 );
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
@@ -48,11 +48,13 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config = new Configuration();
 
 	$cacheInstance = ObjectRepository::getCacheAdapter('');
-	$cache = new CacheNamespaceWrapper($cacheInstance);
-	$cache->setNamespace($managerName);
-	$config->setMetadataCacheImpl($cache);
+	$cache = new CacheNamespaceWrapper($cacheInstance, $managerName);
 	$config->setQueryCacheImpl($cache);
 	$config->setResultCacheImpl($cache);
+	
+	// This will create proxy objects when entity metadata is saved in the cache
+	$metadataCache = new Doctrine\Cache\ProxyFactoryMetadataCache($cache);
+	$config->setMetadataCacheImpl($metadataCache);
 
 	// Metadata driver
 	$entityPaths = array(
@@ -70,13 +72,11 @@ foreach ($managerNames as $managerName => $namespace) {
 	$config->setMetadataDriverImpl($driverImpl);
 
 	// Proxy configuration
-	//$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/' . $managerName);
-	//$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
 	$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/');
 	$config->setProxyNamespace('Supra\\Proxy');
 
 	// TODO: should disable generation on production and pregenerate on build
-	$config->setAutoGenerateProxyClasses(true);
+	$config->setAutoGenerateProxyClasses(false);
 
 	// SQL logger
 	$sqlLogger = new \Supra\Log\Logger\EventsSqlLogger();
@@ -97,12 +97,12 @@ foreach ($managerNames as $managerName => $namespace) {
 	$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
 	
 	switch ($managerName) {
-		case 'PublicSchema':
+		case PageController::SCHEMA_PUBLIC:
 			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
 			$eventManager->addEventSubscriber(new Listener\PageGroupCacheDropListener());
 			break;
 
-		case 'Draft':
+		case PageController::SCHEMA_DRAFT:
 			$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
 			$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
 			$eventManager->addEventSubscriber(new Listener\TableDraftSuffixAppender());
@@ -114,7 +114,7 @@ foreach ($managerNames as $managerName => $namespace) {
 			// Audit entity changes in Draft schema
 			$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
 			break;
-		case 'Audit':
+		case PageController::SCHEMA_AUDIT:
 			$eventManager->addEventSubscriber(new Listener\AuditManagerListener());
 			$eventManager->addEventSubscriber(new Listener\AuditCreateSchemaListener());
 			break;
@@ -128,20 +128,9 @@ foreach ($managerNames as $managerName => $namespace) {
 	$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('mediumblob', 'text');
 	$em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');	
 	
+	// for debugging only
 	$em->_mode = $managerName;
 
 	ObjectRepository::setEntityManager($namespace, $em);
-
-	// Experimental: sets entity manager by ID
-	switch ($managerName) {
-		case 'Draft':
-			ObjectRepository::setEntityManager(PageController::SCHEMA_DRAFT, $em);
-			break;
-		case 'PublicSchema':
-			ObjectRepository::setEntityManager(PageController::SCHEMA_PUBLIC, $em);
-			break;
-		case 'Audit':
-			ObjectRepository::setEntityManager(PageController::SCHEMA_AUDIT, $em);
-			break;
-	}
+	ObjectRepository::setEntityManager($managerName, $em);
 }

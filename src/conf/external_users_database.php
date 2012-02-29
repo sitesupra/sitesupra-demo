@@ -34,7 +34,7 @@ $connectionOptions['driverOptions'] = array(
 	PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
 );
 
-$managerName = 'ExternalUsers';
+$managerName = '#ExternalUsers';
 $namespace = 'Supra\User';
 
 $config = new Configuration();
@@ -55,8 +55,6 @@ $driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 $config->setMetadataDriverImpl($driverImpl);
 
 // Proxy configuration
-//$config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/' . $managerName);
-//$config->setProxyNamespace('Supra\\Proxy\\' . $managerName);
 $config->setProxyDir(SUPRA_LIBRARY_PATH . 'Supra/Proxy/');
 $config->setProxyNamespace('Supra\\Proxy');
 
@@ -100,3 +98,4 @@ $em->_mode = $managerName;
 
 ObjectRepository::setEntityManager($namespace, $em);
 ObjectRepository::setEntityManager('Supra\Authorization', $em);
+ObjectRepository::setEntityManager($managerName, $em);

@@ -8,18 +8,47 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class CacheNamespaceWrapper extends AbstractCache
 {
-
 	/**
 	 * Cache instance
 	 * @var Cache
 	 */
 	protected $cache;
+	
+	/**
+	 * Create namespace name local copy for namespace getter
+	 * @var string
+	 */
+	private $namespace;
 
-	public function __construct(Cache $cache)
+	public function __construct(Cache $cache, $namespace = null)
 	{
 		$this->cache = $cache;
+		if ( ! is_null($namespace)) {
+			$this->setNamespace($namespace);
+		}
 	}
-
+	
+	/**
+	 * @param string $namespace
+	 */
+	public function setNamespace($namespace)
+	{
+		$this->namespace = (string) $namespace;
+		parent::setNamespace($namespace);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getNamespace()
+	{
+		if (is_null($this->namespace) && ($this->cache instanceof CacheNamespaceWrapper)) {
+			return $this->cache->getNamespace();
+		}
+		
+		return $this->namespace;
+	}
+	
 	protected function _doContains($id)
 	{
 		return $this->cache->contains($id);
