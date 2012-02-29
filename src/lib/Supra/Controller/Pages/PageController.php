@@ -174,12 +174,9 @@ class PageController extends ControllerAbstraction
 		}
 
 		// Continue processing
-//		$blocks = $request->getBlockSet();
 		$layout = $request->getLayout();
 		$page = $request->getPage();
 
-//		$places = $request->getPlaceHolderSet();
-		
 		$this->findBlockCache();
 		
 		$this->findBlockControllers();
@@ -187,6 +184,9 @@ class PageController extends ControllerAbstraction
 
 		$this->prepareBlockControllers();
 		\Log::debug("Blocks prepared for {$page}");
+		
+		// The cache might be context dependant
+		$this->findContextDependantBlockCache();
 
 		$this->executeBlockControllers();
 		\Log::debug("Blocks executed for {$page}");
@@ -272,23 +272,26 @@ class PageController extends ControllerAbstraction
 			
 			if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {
 				
-				$cacheKey = $blockCache->getCacheKey($localization, $block);
-				
-				if (empty($cacheKey)) {
-					return;
-				}
-				
-				$content = $cache->fetch($cacheKey);
 				$blockId = $block->getId();
 				$responseCache = null;
 				
-				if ($content !== false) {
-					
-					$responseCache = unserialize($content);
-					
-					if ( ! empty($responseCache)) {
-						$blockContentCache[$blockId] = $responseCache;
-						$request->skipBlockPropertyLoading($blockId);
+				if (empty($blockCache->context)) {
+					$cacheKey = $blockCache->getCacheKey($localization, $block);
+
+					if (empty($cacheKey)) {
+						return;
+					}
+
+					$content = $cache->fetch($cacheKey);
+
+					if ($content !== false) {
+
+						$responseCache = unserialize($content);
+
+						if ( ! empty($responseCache)) {
+							$blockContentCache[$blockId] = $responseCache;
+							$request->skipBlockPropertyLoading($blockId);
+						}
 					}
 				}
 				
@@ -299,7 +302,7 @@ class PageController extends ControllerAbstraction
 		};
 		
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($cacheSearch);
+		$this->iterateBlocks($cacheSearch);
 	}
 
 	/**
@@ -375,6 +378,72 @@ class PageController extends ControllerAbstraction
 
 		// Iterates through all blocks and calls the function passed
 		$this->iterateBlocks($prepare);
+	}
+	
+	/**
+	 * Late cache check for blocks which cache key depends on response context values
+	 */
+	protected function findContextDependantBlockCache()
+	{
+		$request = $this->getRequest();
+		
+		/* @var $request PageRequest */
+		$localization = $request->getPageLocalization();
+		$blockContentCache = &$this->blockContentCache;
+		$blockCacheRequests = &$this->blockCacheRequests;
+		
+		// Don't search for cache in CMS
+		if ( ! $request instanceof Request\PageRequestView) {
+			return;
+		}
+		
+		$cache = ObjectRepository::getCacheAdapter($this);
+		$cacheGroupManager = new CacheGroupManager();
+		$response = $this->getResponse();
+		$context = $response->getContext();
+		
+		$cacheSearch = function(Entity\Abstraction\Block $block, BlockController $blockController) 
+			use ($localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request, $context) {
+			
+			$blockId = $block->getId();
+			
+			if (array_key_exists($blockId, $blockCacheRequests)) {
+				$blockCache = $blockCacheRequests[$blockId];
+				/* @var $blockCache Configuration\BlockControllerCacheConfiguration */
+				$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
+				
+				if (empty($cacheKey)) {
+					return $blockController;
+				}
+				
+				$content = $cache->fetch($cacheKey);
+				$responseCache = null;
+				
+				if ($content !== false) {
+					
+					$responseCache = unserialize($content);
+					/* @var $responseCache Response\HttpResponse */
+					
+					if ( ! empty($responseCache)) {
+						$blockContentCache[$blockId] = $responseCache;
+						
+						// Cache found, don't need to cache
+						unset($blockCacheRequests[$blockId]);
+						
+						// Rewrite controller instance
+						$blockController = new CachedBlockController($blockContentCache[$blockId]);
+						
+						$cachedContext = $responseCache->getContext();
+						$cachedContext->flushToContext($context);
+					}
+				}
+			}
+			
+			return $blockController;
+		};
+		
+		// Iterates through all blocks and calls the function passed
+		$this->blockControllers = $this->iterateBlocks($cacheSearch);
 	}
 
 	/**
@@ -459,9 +528,11 @@ class PageController extends ControllerAbstraction
 		$blockCacheRequests = &$this->blockCacheRequests;
 		$cache = ObjectRepository::getCacheAdapter($this);
 		$log = $this->log;
+		$context = $this->getResponse()
+				->getContext();
 
 		$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
-				use (&$placeResponses, $localization, $finalPlaceHolders, $request, $blockCacheRequests, $cache, $log) {
+				use (&$placeResponses, $localization, $finalPlaceHolders, $request, $blockCacheRequests, $cache, $log, $context) {
 
 					$response = $blockController->getResponse();
 					$blockId = $block->getId();
@@ -500,7 +571,7 @@ class PageController extends ControllerAbstraction
 					
 					if (isset($blockCacheRequests[$blockId])) {
 						$blockCache = $blockCacheRequests[$blockId];
-						$cacheKey = $blockCache->getCacheKey($localization, $block);
+						$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
 						$lifetime = $blockCache->getLifetime();
 						
 						try {

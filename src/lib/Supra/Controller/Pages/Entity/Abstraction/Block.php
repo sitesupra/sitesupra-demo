@@ -188,7 +188,6 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		if ( ! Loader\Loader::classExists($component)) {
 			$this->log()->warn("Block component $component was not found for block $this");
 		}
-		//else {
 
 		try {
 
@@ -201,7 +200,6 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		catch (Loader\Exception\ClassMismatch $e) {
 			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
 		}
-		//}
 
 		return $blockController;
 	}

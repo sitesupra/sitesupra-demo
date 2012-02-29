@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Configuration;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
+use Supra\Response\ResponseContext;
 
 /**
  * Content cache configuration
@@ -30,6 +31,12 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	public $groups = array();
 	
 	/**
+	 * 
+	 * @var array
+	 */
+	public $context = array();
+	
+	/**
 	 * Lifetime of the cache. Empty means cache does not expires.
 	 * @var string
 	 */
@@ -44,17 +51,22 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	 * Get cache key where to store the block, return null if not cacheable
 	 * @param Localization $page
 	 * @param Block $block
+	 * @param ResponseContext $context used if cache is context dependant
 	 * @return string 
 	 */
-	public function getCacheKey(Localization $page, Block $block)
+	public function getCacheKey(Localization $page, Block $block, ResponseContext $context = null)
 	{
 		if ( ! $this->enabled) {
 			return;
 		}
-
+		
 		// No cache if lifetime is negative
 		$lifetime = $this->getLifetime();
 		if ($lifetime < 0) {
+			return;
+		}
+		
+		if ( ! empty($this->context) && is_null($context)) {
 			return;
 		}
 		
@@ -67,9 +79,13 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 		if ( ! $this->global) {
 			$cacheGroups[] = $page->getId();
 		}
-
+		
 		foreach ((array) $this->groups as $group) {
 			$cacheGroups[] = $cacheGroupManager->getRevision($group);
+		}
+		
+		foreach ((array) $this->context as $contextKey) {
+			$cacheGroups[] = $context->getValue($contextKey);
 		}
 		
 		$cacheKey = __CLASS__ . '_' . implode('_', $cacheGroups);
