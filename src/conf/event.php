@@ -12,21 +12,15 @@ use Project\GoogleAnalytics\GoogleAnalyticsListener;
 use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
-use Supra\Configuration\Exception\ConfigurationMissing;
 
 $eventManager = new EventManager();
 
 $userProvider = ObjectRepository::getUserProvider('#cms');
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
+$externalUserProviderActive = $ini->getValue('external_user_database', 'active', false);
 
-try {
-	$connectionOptions = $ini->getSection('external_user_database');
-	if ( ! $connectionOptions['active']) {
-		throw new ConfigurationMissing('');
-	}
-	
-} catch (ConfigurationMissing $e) {
+if ( ! $externalUserProviderActive) {
 	$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
 	$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
 }
