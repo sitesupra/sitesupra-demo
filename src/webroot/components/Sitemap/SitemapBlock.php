@@ -85,6 +85,7 @@ class SitemapBlock extends LinksBlock
 		$qb->andWhere('l.active = true');
 		$qb->join('l.path', 'p');
 		$qb->andWhere('p.path IS NOT NULL');
+		$qb->andWhere('p.limited = false');
 
 		$query = $qb->getQuery();
 		/* @var $query \Doctrine\ORM\Query */
