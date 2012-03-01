@@ -160,22 +160,47 @@ class ArrayRepository extends RepositoryAbstraction
 				if ( ! self::isBetween($itemRight, $left, $right)) {
 					throw new Exception\InvalidStructure("Node $item left index is between $node index but the right isn't");
 				}
-				
-				$item->moveLeftValue($moveA);
-				$item->moveRightValue($moveA);
-				$item->moveLevel($levelDiff);
+
+				$this->moveNode($item, $moveA, $moveA, $levelDiff);
+
+//				$item->moveLeftValue($moveA);
+//				$item->moveRightValue($moveA);
+//				$item->moveLevel($levelDiff);
 				continue;
 			}
 
 			// Left index matches the interval
 			if (self::isBetween($itemLeft, $a, $b)) {
-				$item->moveLeftValue($moveB);
+				$this->moveNode($item, $moveB, 0, 0);
+//				$item->moveLeftValue($moveB);
 			}
 			
 			// Right index matches the interval
 			if (self::isBetween($itemRight, $a, $b)) {
-				$item->moveRightValue($moveB);
+				$this->moveNode($item, 0, $moveB, 0);
+//				$item->moveRightValue($moveB);
 			}
+		}
+	}
+
+	/**
+	 * Method to move node left/right/level so could be extended.
+	 * DoctrineRepositoryArrayHelper is extending this with node "refresh".
+	 * @param Node\NodeInterface $item
+	 * @param int $moveLeft
+	 * @param int $moveRight
+	 * @param int $moveLevel
+	 */
+	protected function moveNode(Node\NodeInterface $item, $moveLeft, $moveRight, $moveLevel)
+	{
+		if ( ! empty($moveLeft)) {
+			$item->moveLeftValue($moveLeft);
+		}
+		if ( ! empty($moveRight)) {
+			$item->moveRightValue($moveRight);
+		}
+		if ( ! empty($moveLevel)) {
+			$item->moveLevel($moveLevel);
 		}
 	}
 

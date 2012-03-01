@@ -98,6 +98,7 @@ class PagePathGenerator implements EventSubscriber
 				}
 			}
 
+			// this should be covered by the move trigger
 			if ($entity instanceof Entity\Page) {
 				// Run for all children, every locale
 				$this->pageChange($entity);

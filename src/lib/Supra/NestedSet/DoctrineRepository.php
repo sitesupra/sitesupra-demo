@@ -65,7 +65,7 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->entityManager = $em;
 		$this->classMetadata = $class;
 		$this->className = $class->name;
-		$this->arrayHelper = new DoctrineRepositoryArrayHelper();
+		$this->arrayHelper = new DoctrineRepositoryArrayHelper($em);
 		$platform = $em->getConnection()->getDatabasePlatform();
 		$this->tableName = $class->getQuotedTableName($platform);
 	}
