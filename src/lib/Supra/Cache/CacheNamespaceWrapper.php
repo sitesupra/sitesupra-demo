@@ -2,11 +2,11 @@
 
 namespace Supra\Cache;
 
-use Doctrine\Common\Cache\AbstractCache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\Cache;
 use Supra\ObjectRepository\ObjectRepository;
 
-class CacheNamespaceWrapper extends AbstractCache
+class CacheNamespaceWrapper extends CacheProvider
 {
 	/**
 	 * Cache instance
@@ -49,22 +49,22 @@ class CacheNamespaceWrapper extends AbstractCache
 		return $this->namespace;
 	}
 	
-	protected function _doContains($id)
+	protected function doContains($id)
 	{
 		return $this->cache->contains($id);
 	}
 
-	protected function _doDelete($id)
+	protected function doDelete($id)
 	{
 		return $this->cache->delete($id);
 	}
 
-	protected function _doFetch($id)
+	protected function doFetch($id)
 	{
 		return $this->cache->fetch($id);
 	}
 
-	protected function _doSave($id, $data, $lifeTime = false)
+	protected function doSave($id, $data, $lifeTime = false)
 	{
 		return $this->cache->save($id, $data, $lifeTime);
 	}
@@ -80,4 +80,13 @@ class CacheNamespaceWrapper extends AbstractCache
 		return null;
 	}
 
+	protected function doFlush()
+	{
+		$this->cache->flushAll();
+	}
+
+	protected function doGetStats()
+	{
+		return $this->cache->getStats();
+	}
 }
