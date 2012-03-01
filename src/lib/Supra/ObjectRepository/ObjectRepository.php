@@ -418,7 +418,7 @@ class ObjectRepository
 	 * @return object
 	 * @throws Exception\RuntimeException
 	 */
-	public static function getObject($caller, $interface)
+	public static function getObject($caller, $interface, $throwOnMiss = false)
 	{
 //		$interface = self::normalizeInterfaceArgument($interface);
 
@@ -444,6 +444,10 @@ class ObjectRepository
 		}
 
 		$object = self::findNearestObject($caller, $interface);
+		
+		if (is_null($object) && $throwOnMiss) {
+			throw Exception\RuntimeException::objectNotFound($caller, $interface);
+		}
 
 		return $object;
 	}
@@ -531,7 +535,7 @@ class ObjectRepository
 	 */
 	public static function getEntityManager($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_ENTITY_MANAGER);
+		return self::getObject($caller, self::INTERFACE_ENTITY_MANAGER, true);
 	}
 
 	/**
@@ -563,7 +567,7 @@ class ObjectRepository
 	 */
 	public static function getFileStorage($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_FILE_STORAGE);
+		return self::getObject($caller, self::INTERFACE_FILE_STORAGE, true);
 	}
 
 	/**
@@ -595,7 +599,7 @@ class ObjectRepository
 	 */
 	public static function getSessionManager($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER);
+		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER, true);
 	}
 	
 	public static function getAllSessionManagers()
@@ -632,7 +636,7 @@ class ObjectRepository
 	 */
 	public static function getUserProvider($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_USER_PROVIDER);
+		return self::getObject($caller, self::INTERFACE_USER_PROVIDER, true);
 	}
 
 	/**
@@ -664,7 +668,7 @@ class ObjectRepository
 	 */
 	public static function getLocaleManager($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_LOCALE_MANAGER);
+		return self::getObject($caller, self::INTERFACE_LOCALE_MANAGER, true);
 	}
 
 	/**
@@ -686,7 +690,7 @@ class ObjectRepository
 	 */
 	public static function getCacheAdapter($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_CACHE);
+		return self::getObject($caller, self::INTERFACE_CACHE, true);
 	}
 
 	/**
@@ -748,7 +752,7 @@ class ObjectRepository
 	 */
 	public static function getMailer($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_MAILER);
+		return self::getObject($caller, self::INTERFACE_MAILER, true);
 	}
 	
 	/**
@@ -759,7 +763,7 @@ class ObjectRepository
 	 */
 	public static function getAuthorizationProvider($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_AUTHORIZATION_PROVIDER);
+		return self::getObject($caller, self::INTERFACE_AUTHORIZATION_PROVIDER, true);
 	}
 
 	/**
@@ -862,7 +866,7 @@ class ObjectRepository
 	 */
 	public static function getSolariumClient($caller)
 	{
-		return self::getObject($caller, self::INTERFACE_SOLARIUM_CLIENT);
+		return self::getObject($caller, self::INTERFACE_SOLARIUM_CLIENT, true);
 	}
 
 	/**
@@ -930,7 +934,7 @@ class ObjectRepository
 	 */
 	public static function getIniConfigurationLoader($caller)
 	{
-		$iniConfigurationLoader = self::getObject($caller, self::INTERFACE_INI_CONFIGURATION);
+		$iniConfigurationLoader = self::getObject($caller, self::INTERFACE_INI_CONFIGURATION, true);
 
 		return $iniConfigurationLoader;
 	}
@@ -964,7 +968,7 @@ class ObjectRepository
 	 */
 	public static function getPaymentProviderCollection($caller)
 	{
-		$paymentProviderCollection = self::getObject($caller, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION);
+		$paymentProviderCollection = self::getObject($caller, self::INTERFACE_PAYMENT_PROVIDER_COLLECTION, true);
 
 		return $paymentProviderCollection;
 	}
@@ -997,7 +1001,7 @@ class ObjectRepository
 	 */
 	public static function getTemplateParser($caller)
 	{
-		$templateParser = self::getObject($caller, self::INTERFACE_TEMPLATE_PARSER);
+		$templateParser = self::getObject($caller, self::INTERFACE_TEMPLATE_PARSER, true);
 
 		return $templateParser;
 	}
@@ -1029,7 +1033,7 @@ class ObjectRepository
 	 */
 	public static function getBannerProvider($caller)
 	{
-		$bannerProvider = self::getObject($caller, self::INTERFACE_BANNER_MACHINE);
+		$bannerProvider = self::getObject($caller, self::INTERFACE_BANNER_MACHINE, true);
 
 		return $bannerProvider;
 	}
@@ -1092,7 +1096,7 @@ class ObjectRepository
 	 */
 	public static function getSystemInfo($caller)
 	{
-		$systemInfo = self::getObject($caller, self::INTERFACE_SYSTEM_INFO);
+		$systemInfo = self::getObject($caller, self::INTERFACE_SYSTEM_INFO, true);
 
 		return $systemInfo;
 	}
@@ -1125,7 +1129,7 @@ class ObjectRepository
 	 */
 	public static function getMassMail($caller)
 	{
-		$massMail = self::getObject($caller, self::INTERFACE_MASS_MAIL);
+		$massMail = self::getObject($caller, self::INTERFACE_MASS_MAIL, true);
 
 		return $massMail;
 	}
@@ -1160,7 +1164,7 @@ class ObjectRepository
 	 */
 	public static function getRemoteCommandService($caller)
 	{
-		$remoteCommandService = self::getObject($caller, self::INTERFACE_REMOTE_COMMAND_SERVICE);
+		$remoteCommandService = self::getObject($caller, self::INTERFACE_REMOTE_COMMAND_SERVICE, true);
 
 		return $remoteCommandService;
 	}
