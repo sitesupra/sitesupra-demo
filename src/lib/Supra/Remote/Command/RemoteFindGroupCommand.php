@@ -38,7 +38,8 @@ class RemoteFindGroupCommand extends RemoteFindAbstraction
 				->setDefinition(new InputDefinition(array(
 							new InputArgument('field', InputArgument::OPTIONAL, 'Field to search for. One of ' . join(', ', $this->allowedFields) . ' fields'),
 							new InputArgument('value', InputArgument::OPTIONAL),
-							new InputOption('all-groups', null, InputOption::VALUE_NONE, 'If option is set, will ignore all arguments and will return all groups')
+							new InputOption('site-key', null, InputOption::VALUE_NONE, 'Site key'),
+							new InputOption('all-groups', null, InputOption::VALUE_NONE, 'If option is set, will ignore all arguments and will return all groups'),
 						)));
 	}
 
@@ -52,6 +53,14 @@ class RemoteFindGroupCommand extends RemoteFindAbstraction
 		$field = $input->getArgument('field');
 		$value = $input->getArgument('value');
 		$findAllGroups = $input->getOption('all-groups');
+		$siteKey = $input->getOption('site-key');
+
+		if (empty($siteKey)) {
+			$this->log->warn('Empty site key. Aborting');
+			return;
+		}
+
+		$this->userProvider->setSiteKey($siteKey);
 
 		// check if all fields are not empty
 		if (empty($field) && empty($value) && ! $findAllGroups) {

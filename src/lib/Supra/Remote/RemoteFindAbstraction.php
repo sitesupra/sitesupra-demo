@@ -35,7 +35,7 @@ class RemoteFindAbstraction extends Command
 	public $outputInstance;
 
 	/**
-	 * @var \Supra\User\RemoteUserProvider
+	 * @var \Supra\User\SiteUserProvider
 	 */
 	public $userProvider;
 
