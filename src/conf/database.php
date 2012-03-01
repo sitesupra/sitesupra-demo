@@ -60,6 +60,7 @@ foreach ($managerNames as $managerName => $namespace) {
 	$entityPaths = array(
 			SUPRA_LIBRARY_PATH . 'Supra/Controller/Pages/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/FileStorage/Entity/',
+			// This is required because of Proxy objects!
 			SUPRA_LIBRARY_PATH . 'Supra/User/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Console/Cron/Entity/',
 			SUPRA_LIBRARY_PATH . 'Supra/Search/Entity',

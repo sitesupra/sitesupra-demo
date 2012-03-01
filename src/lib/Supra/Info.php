@@ -9,6 +9,12 @@ class Info implements Configuration\ConfigurationInterface
 {
 	const NO_SCHEME = 1;
 	const WITH_SCHEME = 2;
+
+	/**
+	 * Site ID for remote comunication
+	 * @var string
+	 */
+	public $id;
 	
 	public $name = 'SiteSupra';
 	
@@ -64,4 +70,12 @@ class Info implements Configuration\ConfigurationInterface
 		return $this->name . '_' . $this->version;
 	}
 
+	/**
+	 * Returns remote site user id 
+	 * @return string
+	 */
+	public function getSiteId()
+	{
+		return $this->id;
+	}
 }

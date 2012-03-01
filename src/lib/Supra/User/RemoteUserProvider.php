@@ -23,6 +23,11 @@ class RemoteUserProvider extends UserProviderAbstract
 	/**
 	 * @var string
 	 */
+	private $siteKey;
+
+	/**
+	 * @var string
+	 */
 	private $remoteApiEndpointId;
 
 	const REMOTE_COMMAND_USER = 'su:remote:find_user';
@@ -169,6 +174,11 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	private function requestData($entityName, $searchCriteria = null)
 	{
+		//FIXME: generating proxy classes because server might return proxy object
+		$em = ObjectRepository::getEntityManager('');
+		$em->getProxyFactory()->getProxy(Entity\User::CN(), -1);
+		$em->getProxyFactory()->getProxy(Entity\Group::CN(), -1);
+		
 		$logger = ObjectRepository::getLogger($this);
 		$remoteApiEndpointId = $this->getRemoteApiEndpointId();
 		if (empty($remoteApiEndpointId)) {
@@ -190,7 +200,7 @@ class RemoteUserProvider extends UserProviderAbstract
 		switch ($entityName) {
 			case Entity\User::CN():
 
-				$searchCriteria = array('command' => self::REMOTE_COMMAND_USER) + $searchCriteria;
+				$searchCriteria = array('command' => self::REMOTE_COMMAND_USER, '--site-key' => $this->getSiteKey()) + $searchCriteria;
 
 				$input = new ArrayInput($searchCriteria);
 
@@ -201,26 +211,27 @@ class RemoteUserProvider extends UserProviderAbstract
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
 					}
-					$logger->error($message);
+					$logger->error($message, $searchCriteria);
 
 					return;
 				}
-
+				
 				break;
 
 			case Entity\Group::CN():
-				$searchCriteria = array('command' => self::REMOTE_COMMAND_GROUP) + $searchCriteria;
+				$searchCriteria = array('command' => self::REMOTE_COMMAND_GROUP, '--site-key' => $this->getSiteKey()) + $searchCriteria;
 
 				$input = new ArrayInput($searchCriteria);
 
 				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
 				$response = $output->getData();
 				if (empty($response['data'])) {
-					$message = 'Failed to find group. ';
+					$message = 'Failed to find group.';
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
 					}
-					$logger->error($message);
+					
+					$logger->error($message, $searchCriteria);
 
 					return;
 				}
@@ -256,5 +267,16 @@ class RemoteUserProvider extends UserProviderAbstract
 	{
 		return $this->requestData(Entity\Group::CN(), $criteria);
 	}
+
+	public function getSiteKey()
+	{
+		return $this->siteKey;
+	}
+
+	public function setSiteKey($siteKey)
+	{
+		$this->siteKey = $siteKey;
+	}
+
 
 }
