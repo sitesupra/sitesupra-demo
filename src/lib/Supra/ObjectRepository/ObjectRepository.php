@@ -458,7 +458,7 @@ class ObjectRepository
 	 * @param string $interface
 	 * @return array
 	 */
-	public static function getAllObjects ($interface)
+	public static function getAllObjects($interface)
 	{
 		if (isset(self::$objectBindings[$interface])) {
 			return self::$objectBindings[$interface];
