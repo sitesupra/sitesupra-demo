@@ -52,7 +52,7 @@ abstract class DefaultProduct extends ProductAbstraction
 	 */
 	function getPrice($quantity, Currency $currency, DateTime $when = null)
 	{
-		$isoCode = $currency->getIsoCode();
+		$isoCode = $currency->getIso4217Code();
 
 		if (empty($this->prices[$isoCode])) {
 			throw new Exception\RuntimeException('No price for this currency "' . $isoCode . '"');

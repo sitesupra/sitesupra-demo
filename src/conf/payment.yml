@@ -14,3 +14,34 @@
     callbackHost: http://krists.videinfra.com
     iniSectionName: paypal_configuration_two
     collection: Project\Payment\DummyStore
+    
+- Project\Payment\Transact\Configuration:
+    id: transact_one
+    url: /payment/transact_one
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://krists.videinfra.com
+    iniSectionName: transact_configuration_one
+    collection: Project\Payment\DummyStore
+    formDataPath: /transact-form
+    is3dAccount: true
+    gatewayCollects: true
+
+- Project\Payment\Transact\Configuration:
+    id: transact_two
+    url: /payment/transact_two
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://krists.videinfra.com
+    iniSectionName: transact_configuration_two
+    collection: Project\Payment\DummyStore
+    formDataPath: /transact-form
+    is3dAccount: true
+    gatewayCollects: false
+
+                     
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\Payment\Transact\TransactDataForm
+    title: Transact Form
+    groupId: system
+    description: It's a Transact Form.
+    cmsClassname: Editable
+

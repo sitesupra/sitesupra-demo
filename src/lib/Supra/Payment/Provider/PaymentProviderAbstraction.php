@@ -28,6 +28,10 @@ abstract class PaymentProviderAbstraction
 	const PROVIDER_NOTIFICATION_URL_POSTFIX = 'notification';
 	const CUSTOMER_RETURN_URL_POSTFIX = 'return';
 
+	const REQUEST_KEY_SHOP_ORDER_ID = 'shopo';
+	const REQUEST_KEY_ORDER_ID = 'o';
+	const REQUEST_KEY_RECURRING_ORDER_ID = 'recurro';
+	
 	/**
 	 * @var string
 	 */

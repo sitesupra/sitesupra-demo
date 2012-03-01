@@ -14,7 +14,7 @@ class Currency extends Database\Entity
 	 * @Column(type="string", nullable=false)
 	 * @var string
 	 */
-	protected $isoCode;
+	protected $iso4217Code;
 
 	/**
 	 * @Column(type="string", nullable=false)
@@ -35,17 +35,17 @@ class Currency extends Database\Entity
 	protected $enabled;
 
 	/**
-	 * Returns ISO code for this currency.
+	 * Returns ISO-4217 code for this currency.
 	 * @return string
 	 */
-	public function getIsoCode()
+	public function getIso4217Code()
 	{
-		return $this->isoCode;
+		return $this->iso4217Code;
 	}
 
-	public function setIsoCode($isoCode)
+	public function setIso4217Code($iso4217Code)
 	{
-		$this->isoCode = $isoCode;
+		$this->iso4217Code = $iso4217Code;
 	}
 
 	public function setAbbreviation($abbreviation)

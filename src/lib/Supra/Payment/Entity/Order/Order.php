@@ -14,14 +14,15 @@ use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Payment\Entity\Abstraction\PaymentEntity;/**
+use Supra\Payment\Entity\Abstraction\PaymentEntity;
+
+/**
  * @Entity
  * @HasLifecycleCallbacks
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"shop" = "ShopOrder", "recurring" = "RecurringOrder"})
  */
-
 abstract class Order extends Database\Entity
 {
 
@@ -66,7 +67,7 @@ abstract class Order extends Database\Entity
 	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
-	protected $returnUrl;
+	protected $initiatorUrl;
 
 	/**
 	 * @Column(type="string", nullable=true, length=40)
@@ -130,17 +131,17 @@ abstract class Order extends Database\Entity
 	/**
 	 * @return string
 	 */
-	public function getReturnUrl()
+	public function getInitiatorUrl()
 	{
-		return $this->returnUrl;
+		return $this->initiatorUrl;
 	}
 
 	/**
-	 * @param string $returnUrl 
+	 * @param string $initiatorUrl 
 	 */
-	public function setReturnUrl($returnUrl)
+	public function setInitiatorUrl($initiatorUrl)
 	{
-		$this->returnUrl = $returnUrl;
+		$this->initiatorUrl = $initiatorUrl;
 	}
 
 	/**
@@ -340,8 +341,13 @@ abstract class Order extends Database\Entity
 
 		return $result;
 	}
+	
+	abstract public function getPaymentEntityId();
 
 	abstract public function getPaymentProviderId();
 
 	abstract public function addToPaymentEntityParameters($phaseName, $data);
+
+	abstract public function getPaymentEntityParameterValue($phaseName, $name);
+	
 }

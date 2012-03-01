@@ -12,9 +12,9 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
- *	"t" = "Supra\Payment\Entity\Transaction\Transaction", 
- *	"tl" = "Supra\Payment\Entity\Transaction\TransactionLogEntry", 
- *	"rp" = "Supra\Payment\Entity\RecurringPayment\RecurringPayment",
+ * 	"t" = "Supra\Payment\Entity\Transaction\Transaction", 
+ * 	"tl" = "Supra\Payment\Entity\Transaction\TransactionLogEntry", 
+ * 	"rp" = "Supra\Payment\Entity\RecurringPayment\RecurringPayment",
  * 	"rpl" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentLogEntry",
  * 	"rpt" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction"
  * })
@@ -191,7 +191,7 @@ abstract class PaymentEntity extends Database\Entity
 	public function addToParameters($phaseName, $parameters)
 	{
 		if (is_array($parameters)) {
-			
+
 			foreach ($parameters as $key => $value) {
 
 				$parameter = $this->createParameter();
@@ -220,6 +220,52 @@ abstract class PaymentEntity extends Database\Entity
 	public function autoCreationTime()
 	{
 		$this->creationTime = new DateTime('now');
+	}
+
+	/**
+	 * @param string $phaseName 
+	 * @return ArrayCollection
+	 */
+	public function getParametersForPhaseName($phaseName)
+	{
+		$result = new ArrayCollection();
+
+		$parameters = $this->getParameters();
+
+		foreach ($parameters as $parameter) {
+			/* @var $parameter PaymentEntityParameter */
+
+			if ($parameter->getPhaseName() == $phaseName) {
+				$result->add($parameter);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $phaseName
+	 * @param string $name
+	 * @return ArrayCollection 
+	 */
+	public function getParameterValue($phaseName, $name, $defaultValue = null)
+	{
+		$parameters = $this->getParameters();
+
+		$value = $defaultValue;
+		
+		foreach ($parameters as $parameter) {
+			/* @var $parameter PaymentEntityParameter */
+
+			if (
+					($parameter->getPhaseName() == $phaseName) &&
+					($parameter->getParameterName() == $name)
+			) {
+				$value = $parameter->getParameterValue();
+			}
+		}
+
+		return $value;
 	}
 
 }

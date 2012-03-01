@@ -80,10 +80,10 @@ abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 	protected abstract function processRecurringOrder(RecurringOrder $order);
 		
 	/**
-	 * @param string $returnUrl
+	 * @param string $initiatorUrl
 	 * @param array $queryData 
 	 */
-	protected function returnToPaymentInitiator($returnUrl, $queryData = array())
+	protected function returnToPaymentInitiator($initiatorUrl, $queryData = array())
 	{
 		$response = $this->getResponse();
 
@@ -91,7 +91,7 @@ abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 
 			if ( ! $response->isRedirect()) {
 
-				$queryParts = parse_url($returnUrl);
+				$queryParts = parse_url($initiatorUrl);
 
 				$urlBase = $queryParts['scheme'] . '://' . $queryParts['host'] . $queryParts['path'];
 

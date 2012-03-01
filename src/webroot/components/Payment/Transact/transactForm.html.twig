@@ -1,0 +1,11 @@
+<form action ="{{ action }}" method="post" enctype="application/x-www-form-urlencoded">
+	
+	{% for formElement in formElements %} 
+	
+		{{ formElement | raw }}
+		
+	{% endfor %} 
+	
+	<input type="submit" value="SEND TRANSACT DATA!!!" />
+	
+</form>

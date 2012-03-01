@@ -2,7 +2,7 @@
 
 namespace Project\Payment\Paypal\Action;
 
-use Supra\Payment\Action\ProxyActionAbstraction;
+use Supra\Payment\Action\CommonProxyActionAbstraction;
 use Project\Payment\Paypal;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Order\OrderStatus;
@@ -16,7 +16,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Provider\Event\ProxyEventArgs;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
-class ProxyAction extends ProxyActionAbstraction
+class ProxyAction extends CommonProxyActionAbstraction
 {
 	const PHASE_NAME_PAYPAL_SET_EXPRESS_CHECKOUT = 'paypal-setExpressCheckout';
 

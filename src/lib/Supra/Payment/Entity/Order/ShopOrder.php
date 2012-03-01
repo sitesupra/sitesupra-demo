@@ -72,4 +72,33 @@ class ShopOrder extends Order
 		$this->status = $status;
 	}
 
+	/**
+	 * @param string $phaseName
+	 * @param string  $name
+	 * @return mixed
+	 */
+	public function getPaymentEntityParameterValue($phaseName, $name)
+	{
+		$transaction = $this->getTransaction();
+
+		if (empty($transaction)) {
+			throw new Exception\RuntimeException('Transaction entity not set.');
+		}
+
+		$value = $transaction->getParameterValue($phaseName, $name);
+
+		return $value;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPaymentEntityId()
+	{
+		$paymentEntityId = $this->getTransaction()
+				->getId();
+
+		return $paymentEntityId;
+	}
+
 }

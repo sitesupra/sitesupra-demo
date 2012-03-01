@@ -12,6 +12,7 @@ use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Order\RecurringOrderStatus;
@@ -21,6 +22,7 @@ use Supra\Payment\Order\RecurringOrderPeriodDimension;
 use Doctrine\ORM\EntityManager;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Transaction\TransactionStatus;
+use Supra\Payment\Provider\PaymentProviderAbstraction;
 
 class DummyShopController extends BlockController
 {
@@ -127,8 +129,8 @@ class DummyShopController extends BlockController
 	 * Returns URL for return redirect.
 	 * @return string
 	 */
-	private function getReturnToShopUrl()
-	{
+	private function getReturnToShopUrl(Order $order) {
+		
 		/* @var $request PageRequestView */
 		$request = $this->getRequest();
 
@@ -141,14 +143,14 @@ class DummyShopController extends BlockController
 		$url = $serverHostWithProtocol . '/' . $request->getActionString();
 
 		$queryParameters = array(
-			self::ACTION_KEY => self::ACTION_TYPE_RETURN
+			self::ACTION_KEY => self::ACTION_TYPE_RETURN,
+			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
 		);
 
 		return $url . '?' . http_build_query($queryParameters);
 	}
 
-	/**
-	 * Returns URL for return redirect.
+	/** Returns URL for return redirect.
 	 * @return string
 	 */
 	private function getReturnToShopUrlForRecurringOrder()
@@ -201,7 +203,9 @@ class DummyShopController extends BlockController
 
 		$this->order->updateLocale($currentLocale);
 
-		$this->order->setReturnUrl($this->getReturnToShopUrl());
+		$returnToShopUrl = $this->getReturnToShopUrl($this->order);
+		
+		$this->order->setInitiatorUrl($returnToShopUrl);
 	}
 
 	protected function getRecurringOrderForCurrentUser()
@@ -227,7 +231,7 @@ class DummyShopController extends BlockController
 			$order->setCurrency($currency);
 
 			$order->updateLocale($currentLocale);
-			$order->setReturnUrl($this->getReturnToShopUrlForRecurringOrder());
+			$order->setInitiatorUrl($this->getReturnToShopUrlForRecurringOrder());
 
 			$order->setPeriodLength(1);
 			$order->setPeriodDimension(RecurringOrderPeriodDimension::MONTH);
@@ -254,7 +258,7 @@ class DummyShopController extends BlockController
 	{
 		$request = $this->getRequest();
 
-		$orderId = $request->getParameter(CustomerReturnActionAbstraction::QUERY_KEY_SHOP_ORDER_ID);
+		$orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID);
 
 		$orderProvider = $this->getOrderProvider();
 
@@ -324,7 +328,7 @@ class DummyShopController extends BlockController
 	{
 		$up = ObjectRepository::getUserProvider('#cms');
 
-		return $up->findUserByLogin('admin@supra7.vig');
+		return $up->findUserByLogin('external-user-01');
 	}
 
 	/**
@@ -511,7 +515,7 @@ class DummyShopController extends BlockController
 	protected function getCurrencyByIsoCode($isoCode)
 	{
 		$currencyProvider = new CurrencyProvider();
-		$currency = $currencyProvider->getCurrencyByIsoCode($isoCode);
+		$currency = $currencyProvider->getCurrencyByIso4217Code($isoCode);
 
 		return $currency;
 	}

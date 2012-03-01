@@ -37,8 +37,6 @@ class RecurringOrder extends Order
 	 */
 	protected $periodDimension;
 
-	
-	
 	/**
 	 * @return integer
 	 */
@@ -132,6 +130,35 @@ class RecurringOrder extends Order
 	public function setBillingDescription($billingDescription)
 	{
 		$this->billingDescription = $billingDescription;
+	}
+
+	/**
+	 * @param string $phaseName
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getPaymentEntityParameterValue($phaseName, $name)
+	{
+		$recurringPayment = $this->getRecurringPayment();
+
+		if (empty($recurringPayment)) {
+			throw new Exception\RuntimeException('Ŗecurring payment entity not set.');
+		}
+
+		$value = $recurringPayment->getParameterValue($phaseName, $name);
+
+		return $value;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPaymentEntityId()
+	{
+		$paymentEntityId = $this->getRecurringPayment()
+				->getId();
+
+		return $paymentEntityId;
 	}
 
 }

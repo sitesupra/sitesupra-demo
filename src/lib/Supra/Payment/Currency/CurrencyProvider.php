@@ -36,32 +36,33 @@ class CurrencyProvider
 	}
 
 	/**
-	 * @param string $isoCode
+	 * @param string $iso4217Code
 	 * @return Currency
 	 */
-	public function getCurrencyByIsoCode($isoCode)
+	public function getCurrencyByIso4217Code($iso4217Code)
 	{
-		$currency = $this->currencyRepository->findOneBy(array('isoCode' => $isoCode));
+		$currency = $this->currencyRepository->findOneBy(array('iso4217Code' => $iso4217Code));
 
 		if (empty($currency)) {
 			
-			return $this->createDummyCurrency($isoCode);
+			return $this->createDummyCurrency($iso4217Code);
 			
 			//throw new Exception\RuntimeException('Currency not found for ISO code "' . $isoCode . '"');
 		}
 
 		return $currency;
 	}
+	
 
 	/**
-	 * @param string $isoCode 
+	 * @param string $iso4217Code 
 	 */
-	private function createDummyCurrency($isoCode)
+	private function createDummyCurrency($iso4217Code)
 	{
 		$currency = new Currency();
-		$currency->setIsoCode($isoCode);
-		$currency->setAbbreviation($isoCode . '-ABBREV');
-		$currency->setSymbol($isoCode . '-SYMBOL');
+		$currency->setIso4217Code($iso4217Code);
+		$currency->setAbbreviation($iso4217Code . '-ABBREV');
+		$currency->setSymbol($iso4217Code . '-SYMBOL');
 		$currency->setEnabled(true);
 		
 		$this->em->persist($currency);

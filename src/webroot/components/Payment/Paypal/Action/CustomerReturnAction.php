@@ -214,9 +214,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 			self::QUERY_KEY_SHOP_ORDER_ID => $order->getId()
 		);
 
-		$returnUrl = $order->getReturnUrl();
+		$initiatorUrl = $order->getInitiatorUrl();
 
-		$this->returnToPaymentInitiator($returnUrl, $returnQueryData);
+		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
 	protected function processRecurringOrder(RecurringOrder $order)
@@ -268,8 +268,8 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$returnQueryData = array(
 			self::QUERY_KEY_RECURRING_ORDER_ID => $order->getId()
 		);
-		$returnUrl = $order->getReturnUrl();
-		$this->returnToPaymentInitiator($returnUrl, $returnQueryData);
+		$initiatorUrl = $order->getInitiatorUrl();
+		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
 	/**
@@ -283,7 +283,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 
 		$transaction = $order->getTransaction();
 
-		if ($checkoutDetails['PAYMENTREQUEST_0_CURRENCYCODE'] != $order->getCurrency()->getIsoCode()) {
+		if ($checkoutDetails['PAYMENTREQUEST_0_CURRENCYCODE'] != $order->getCurrency()->getIso4217Code()) {
 
 			throw new Exception\RuntimeException('Currency codes do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
 		}
@@ -345,8 +345,8 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$returnQueryData = array(
 			self::QUERY_KEY_SHOP_ORDER_ID => $order->getId()
 		);
-		$returnUrl = $order->getReturnUrl();
-		$this->returnToPaymentInitiator($returnUrl, $returnQueryData);
+		$initiatorUrl = $order->getInitiatorUrl();
+		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
 	protected function handlePaypalShopOrderCancel()
@@ -367,8 +367,8 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$returnQueryData = array(
 			self::QUERY_KEY_SHOP_ORDER_ID => $order->getId()
 		);
-		$returnUrl = $order->getReturnUrl();
-		$this->returnToPaymentInitiator($returnUrl, $returnQueryData);
+		$initiatorUrl = $order->getInitiatorUrl();
+		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
 	/**

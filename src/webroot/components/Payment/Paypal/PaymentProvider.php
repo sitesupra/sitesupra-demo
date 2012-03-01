@@ -235,7 +235,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$apiData['L_BILLINGAGREEMENTDESCRIPTION0'] = $order->getBillingDescription();
 		}
 
-		$apiData['PAYMENTREQUEST_0_CURRENCYCODE'] = $order->getCurrency()->getIsoCode();
+		$apiData['PAYMENTREQUEST_0_CURRENCYCODE'] = $order->getCurrency()->getIso4217Code();
 		$apiData['PAYMENTREQUEST_0_ITEMAMT'] = $order->getTotalForProductItems();
 		$apiData['PAYMENTREQUEST_0_AMT'] = $order->getTotal();
 
@@ -362,7 +362,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['BILLINGPERIOD'] = $billingPeriod;
 		$apiData['BILLINGFREQUENCY'] = $recurringOrder->getPeriodLength();
 		$apiData['AMT'] = $recurringOrder->getTotal();
-		$apiData['CURRENCYCODE'] = $recurringOrder->getCurrency()->getIsoCode();
+		$apiData['CURRENCYCODE'] = $recurringOrder->getCurrency()->getIso4217Code();
 		$apiData['EMAIL'] = $checkoutDetails['EMAIL'];
 
 		$items = $recurringOrder->getItems();
@@ -533,7 +533,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function getOrderItemDescription(Order $order, Locale $locale = null)
 	{
-		return 'Paypal fee - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIsoCode();
+		return 'Paypal fee - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
 	}
 
 	/**
