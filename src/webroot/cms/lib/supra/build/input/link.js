@@ -20,6 +20,9 @@ YUI.add('supra.input-link', function (Y) {
 		},
 		'mode': {
 			'value': 'link'
+		},
+		'groupsSelectable': {
+			'value': false
 		}
 	};
 	
@@ -78,7 +81,10 @@ YUI.add('supra.input-link', function (Y) {
 			
 			Manager.executeAction('LinkManager', value, {
 				'mode': this.get('mode'),
-				'hideToolbar': true
+				'hideToolbar': true,
+				'selectable': {
+					'group_pages': this.get('groupsSelectable')
+				}
 			}, this.onLinkManagerClose, this);
 		},
 		

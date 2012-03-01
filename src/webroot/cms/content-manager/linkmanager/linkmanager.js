@@ -38,18 +38,21 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 		'link': {
 			//In link mode is also shown "Remove link" button
 			'pages': true,
+			'group_pages': false,
 			'external': true,
 			'images': true,
 			'files': true
 		},
 		'page': {
 			'pages': true,
+			'group_pages': false,
 			'external': true,
 			'images': false,
 			'files': false
 		},
 		'image': {
 			'pages': false,
+			'group_pages': false,
 			'external': false,
 			'images': true,
 			'files': false
@@ -365,7 +368,7 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 						this.tree = new Supra.Tree({
 							'srcNode': node.one('.tree'),
 							'requestUri': sitemap_data_path,
-							'groupNodesSelectable': false,
+							'groupNodesSelectable': this.options.selectable.group_pages,
 							'defaultChildType': Supra.LinkMapTreeNode
 						});
 						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
@@ -604,6 +607,12 @@ SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.
 			
 			//If some option changed, then reload tree also
 			if (this.tree) {
+				//If some option changed, then reload tree also
+				if (this.options.selectable.group_pages != this.tree.get('groupNodesSelectable')) {
+					this.tree.set('groupNodesSelectable', this.options.selectable.group_pages);
+					reloading_tree = true;
+				}
+				
 				//Reload tree if needed
 				if (reloading_tree) {
 					this.locale = Supra.data.get('locale');
