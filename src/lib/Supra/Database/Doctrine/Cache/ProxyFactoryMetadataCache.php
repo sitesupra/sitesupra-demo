@@ -16,7 +16,7 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function _doSave($id, $classMetadata, $lifeTime = false)
+	protected function doSave($id, $classMetadata, $lifeTime = false)
 	{
 		if ($classMetadata instanceof ClassMetadata) {
 			$namespace = $this->getNamespace();
@@ -25,6 +25,6 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 			$proxyFactory->generateProxyClasses(array($classMetadata));
 		}
 		
-		return parent::_doSave($id, $classMetadata, $lifeTime);
+		return parent::doSave($id, $classMetadata, $lifeTime);
 	}
 }
