@@ -17,7 +17,7 @@ abstract class SchemaAbstractCommand extends Command
 	 *
 	 * @var array
 	 */
-	protected $entityManagers;
+	protected $entityManagers = array();
 
 	/**
 	 * Constructor
@@ -27,14 +27,21 @@ abstract class SchemaAbstractCommand extends Command
 	public function __construct($name = null)
 	{
 		parent::__construct($name);
-		
-		$this->entityManagers = array(
-			'Public' => ObjectRepository::getEntityManager('#public'),
-			'Draft' => ObjectRepository::getEntityManager('#cms'),
-			//'trash' => ObjectRepository::getEntityManager('#trash'),
-			//'history' => ObjectRepository::getEntityManager('#history'),
-			// EXPERIMENTAL
-			'Audit' => ObjectRepository::getEntityManager('#audit'),
-		);
+
+		$entityManagers = ObjectRepository::getAllObjects(ObjectRepository::INTERFACE_ENTITY_MANAGER);
+		$index = 0;
+
+		foreach ($entityManagers as $entityManager) {
+
+			//FIXME: Have to use the debug _mode property to show some friendly name...
+			$mode = $entityManager->_mode;
+
+			// Shouldn't happen, still should need to update everything
+			if (isset($this->entityManagers[$mode]) && $this->entityManagers[$mode] !== $entityManager) {
+				$mode .= '$' . ++$index;
+			}
+
+			$this->entityManagers[$mode] = $entityManager;
+		}
 	}
 }
