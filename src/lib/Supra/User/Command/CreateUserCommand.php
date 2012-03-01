@@ -28,22 +28,6 @@ use Supra\Cms\CmsController;
  */
 class CreateUserCommand extends Command
 {
-
-	/**
-	 * @var UserProviderInterface
-	 */
-	private $userProvider;
-
-	/**
-	 * @var EntityManager
-	 */
-	private $entityManager;
-
-	/**
-	 * @var AuthorizationProvider
-	 */
-	private $authorizationProvider;
-
 	protected function configure()
 	{
 		$this->setName('su:user:create_user')
@@ -54,18 +38,14 @@ class CreateUserCommand extends Command
 				->addOption('name', null, Console\Input\InputOption::VALUE_REQUIRED, 'User first name and last name');
 	}
 
-	public function __construct($name = null)
+	public function getUserProvider()
 	{
-		parent::__construct($name);
+		return ObjectRepository::getUserProvider('Supra\Cms\CmsController');
+	}
 
-		$this->userProvider = ObjectRepository::getUserProvider('Supra\Cms\CmsController');
-
-		if (empty($this->userProvider)) {
-			throw new RuntimeException('Could not get user provider.');
-		}
-
-		$this->entityManager = ObjectRepository::getEntityManager($this);
-		$this->authorizationProvider = ObjectRepository::getAuthorizationProvider('Supra\Cms');
+	public function getAuthorizationProvider()
+	{
+		return ObjectRepository::getAuthorizationProvider('Supra\Cms');
 	}
 
 	private function validateGroupName($groupName)
@@ -83,7 +63,7 @@ class CreateUserCommand extends Command
 
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		$userProvider = $this->userProvider;
+		$userProvider = $this->getUserProvider();
 
 		// User groups must exist.
 		$this->ensureGroupsExist();
@@ -120,13 +100,13 @@ class CreateUserCommand extends Command
 		$eventManager = ObjectRepository::getEventManager($this);
 
 		$eventArgs = new CmsUserCreateEventArgs($user);
-		$eventArgs->setUserProvider($this->userProvider);
+		$eventArgs->setUserProvider($this->getUserProvider());
 		$eventManager->fire(CmsController::EVENT_POST_USER_CREATE, $eventArgs);
 	}
 
 	private function ensureAdminsGroupExist()
 	{
-		$userProvider = $this->userProvider;
+		$userProvider = $this->getUserProvider();
 
 		$group = $userProvider->findGroupByName('admins');
 
@@ -158,7 +138,7 @@ class CreateUserCommand extends Command
 
 	private function ensureSupersGroupExist()
 	{
-		$userProvider = $this->userProvider;
+		$userProvider = $this->getUserProvider();
 
 		$group = $userProvider->findGroupByName('supers');
 
@@ -179,8 +159,8 @@ class CreateUserCommand extends Command
 
 	private function ensureContribsGroupExist()
 	{
-		$userProvider = $this->userProvider;
-		$authorizationProvider = $this->authorizationProvider;
+		$userProvider = $this->getUserProvider();
+		$authorizationProvider = $this->getAuthorizationProvider();
 
 		$group = $userProvider->findGroupByName('contribs');
 
@@ -211,7 +191,7 @@ class CreateUserCommand extends Command
 				// Skip templates.
 				if ( ! $rootNode instanceof Template) {
 
-					$this->authorizationProvider->setPermsissionStatus(
+					$authorizationProvider->setPermsissionStatus(
 							$group, $rootNode, Entity::PERMISSION_NAME_EDIT_PAGE, PermissionStatus::ALLOW
 					);
 
@@ -230,12 +210,13 @@ class CreateUserCommand extends Command
 
 	private function createGroup($groupName)
 	{
-		$group = $this->userProvider->findGroupByName($groupName);
+		$userProvider = $this->getUserProvider();
+		$group = $userProvider->findGroupByName($groupName);
 		if (empty($group)) {
-			$group = $this->userProvider->createGroup();
+			$group = $userProvider->createGroup();
 			$group->setName($groupName);
 
-			$this->userProvider->updateGroup($group);
+			$userProvider->updateGroup($group);
 		}
 
 		return $group;

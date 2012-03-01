@@ -8,7 +8,7 @@ use Supra\Database\Entity;
  * Cron job entity
  *
  * @Entity(repositoryClass="Supra\Console\Cron\Repository\CronJobRepository")
- * @Table(name="su_cron_job",indexes={@index(name="next_execution_time_idx", columns={"next_execution_time"})})
+ * @Table(name="cron_job",indexes={@index(name="next_execution_time_idx", columns={"next_execution_time"})})
  */
 class CronJob extends Entity
 {
