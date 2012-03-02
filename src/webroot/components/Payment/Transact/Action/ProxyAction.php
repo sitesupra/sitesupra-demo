@@ -103,19 +103,25 @@ class ProxyAction extends ProxyActionAbstraction
 			$response->redirect($formDataUrl);
 		} else {
 
-			// If arived here from POST with CC data, begin payment 
-			// process.
+			// If arived here from POST with CC data - validate data and 
+			// begin payment process.
 
-			$this->processShopOrderFormData($postData);
+			if ($this->validateShopOrderFormData($postData)) {
+				$this->processShopOrderFormData($postData);
+			} else {
+
+				$formDataUrl = $paymentProvider->getFormDataUrl($order);
+				$response->redirect($formDataUrl);
+			}
 		}
 
 		$orderProvider->store($order);
 	}
 
 	/**
-	 * @param array $postData 
+	 * @param array $formData 
 	 */
-	protected function processShopOrderFormData($postData)
+	protected function processShopOrderFormData($formData)
 	{
 		$response = $this->getResponse();
 
@@ -128,7 +134,7 @@ class ProxyAction extends ProxyActionAbstraction
 		$orderProvider->store($order);
 
 		// Intialize Transact transaction with supplied post data.
-		$initializationResult = $this->initializeTransaction($postData);
+		$initializationResult = $this->initializeTransaction($formData);
 
 		// Store initialization result into order's payment entities parameters.
 		$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_INITIALIZE_TRANSACTION, $initializationResult);
@@ -153,7 +159,7 @@ class ProxyAction extends ProxyActionAbstraction
 			$response->redirect($redirectUrl);
 		} else {
 
-			$chargeResult = $this->chargeTransaction($postData);
+			$chargeResult = $this->chargeTransaction($formData);
 
 			$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_CHARGE_TRANSACTION, $chargeResult);
 			$orderProvider->store($order);
@@ -167,7 +173,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 				$response->redirect($redirectUrl);
 			} else
-				
+
 			// If charge result has key "Status", it means card was not 
 			// 3D-enabled and we have transaction result right away.
 			if ( ! empty($chargeResult['Status'])) {
@@ -188,6 +194,49 @@ class ProxyAction extends ProxyActionAbstraction
 				}
 			}
 		}
+	}
+
+	private function validateShopOrderFormData($formData)
+	{
+		$paymentProvider = $this->getPaymentProvider();
+
+		$formInputNames = array(
+			'name_on_card',
+			'street',
+			'zip',
+			'city',
+			'country',
+			'state',
+			'email',
+			'phone',
+			'cc',
+			'cvv',
+			'expire',
+			'bin_name',
+			'bin_phone',
+		);
+
+		$errorMessages = array();
+
+		foreach ($formInputNames as $inputName) {
+
+			if (empty($formData[$inputName])) {
+				$errorMessages[] = 'Missing "' . $inputName . '"';
+			}
+		}
+
+			
+		if ( ! empty($errorMessages)) {
+			
+			$order = $this->getOrder();
+
+			$session = $paymentProvider->getSessionForOrder($order);
+			$session->errorMessages = $errorMessages;
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

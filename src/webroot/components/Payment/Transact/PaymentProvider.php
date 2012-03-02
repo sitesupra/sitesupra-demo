@@ -18,13 +18,15 @@ use Supra\Response\ResponseInterface;
 use Supra\Payment\PaymentEntityProvider;
 use Supra\Payment\SearchPaymentEntityParameter;
 use Supra\Payment\Order\OrderProvider;
+use Supra\Session\SessionManager;
+use Supra\Session\SessionNamespace;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
 	const PHASE_NAME_INITIALIZE_TRANSACTION = 'transact-initializeTransaction';
 	const PHASE_NAME_CHARGE_TRANSACTION = 'transact-chargeTransaction';
 	const PHASE_NAME_STATUS_ON_RETURN = 'transact-statusOnReturn';
-	
+
 	const KEY_NAME_TRANSACT_TRANSACTION_ID = 'OK';
 	const KEY_NAME_MERCHANT_TRANSACTION_ID = 'merchant_transaction_id';
 
@@ -263,6 +265,18 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param Order\Order $order
+	 * @return SessionNamespace
+	 */
+	public function getSessionForOrder(Order\Order $order)
+	{
+		$sessionManager = ObjectRepository::getSessionManager($this);
+		$session = $sessionManager->getSessionNamespace($this->getId() . $order->getId());
+
+		return $session;
+	}
+
+	/**
 	 * @param Order\Order $order 
 	 */
 	public function updateShopOrder(Order\ShopOrder $order)
@@ -368,10 +382,10 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiUrl = $this->getApiUrl() . '?' . http_build_query($queryData);
 
 		\Log::debug('callTransactApi URL: ', $apiUrl);
-		
+
 		$logData = $postData;
-		
-		if($logData['cc']) {
+
+		if ($logData['cc']) {
 			$logData['cc'] = '****************';
 		}
 		\Log::debug('callTransactApi POST: ', $logData);
@@ -491,7 +505,8 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$apiData = $this->getApiBaseData();
 
-		$apiData['f_extended'] = 5;;
+		$apiData['f_extended'] = 5;
+		;
 		$apiData['init_transaction_id'] = $transactTrascationId;
 		$apiData['cc'] = $postData['cc'];
 		$apiData['cvv'] = $postData['cvv'];
@@ -583,7 +598,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		$paymentEntityProvider = $this->getPaymentEntityProvider();
 		$orderProvider = $this->getOrderProvider();
-		
+
 		$paymentEntity = $paymentEntityProvider->getEntiy($merchantTransactionId);
 
 		$order = $orderProvider->getOrderByPaymentEntity($paymentEntity);

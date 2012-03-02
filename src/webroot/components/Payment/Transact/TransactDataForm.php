@@ -30,7 +30,7 @@ class TransactDataForm extends BlockController
 	 * @var Order\Order
 	 */
 	protected $order;
-	
+
 	/**
 	 * @var array
 	 */
@@ -93,7 +93,7 @@ class TransactDataForm extends BlockController
 		}
 
 		$this->getResponse()
-				->outputTemplate('transactForm.html.twig');
+				->outputTemplate('transactDataForm.html.twig');
 	}
 
 	protected function processEditRequest()
@@ -106,16 +106,25 @@ class TransactDataForm extends BlockController
 
 	protected function processViewRequest()
 	{
+		$paymentProvider = $this->getPaymentProvider();
+		
 		$request = $this->getRequest();
 		$response = $this->getResponse();
+
+		$order = $this->getOrder();
+		$response->assign('order', $order);
+		
+		$session = $paymentProvider->getSessionForOrder($order);
 
 		$postData = $request->getPost()->getArrayCopy();
 		$response->assign('formElements', $this->buildFormElements($postData));
 
-		$order = $this->getOrder();
-		$paymentProvider = $this->getPaymentProvider();
+		if ( ! empty($session->errorMessages)) {
 
-		$response->assign('order', $order);
+			$response->assign('errorMessages', $session->errorMessages);
+
+			unset($session->errorMessages);
+		}
 
 		$returnUrl = $paymentProvider->getProxyActionReturnFormDataUrl($order);
 
@@ -145,7 +154,7 @@ class TransactDataForm extends BlockController
 			} else if ( ! empty($this->defaultValues[$name])) {
 				$input->setAttribute('value', $this->defaultValues[$name]);
 			}
-			
+
 			$formElements[] = $input->toHtml();
 
 			$br = new HtmlTag('br');

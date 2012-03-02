@@ -1,5 +1,13 @@
 <form action ="{{ action }}" method="post" enctype="application/x-www-form-urlencoded">
 	
+	{% if errorMessages %}
+	<ul> 
+		{% for errorMessage in errorMessages %}
+		<li>{{ errorMessage | raw }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+
 	{% for formElement in formElements %} 
 	
 		{{ formElement | raw }}
