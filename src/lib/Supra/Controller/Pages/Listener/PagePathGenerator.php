@@ -195,7 +195,7 @@ class PagePathGenerator implements EventSubscriber
 					// Additional check for path length
 					$pathString = $newPath->getPath();
 					if (mb_strlen($pathString) > 255) {
-						throw new Exception\RuntimeException('Overall path length should\'nt be more than 255 symbols');
+						throw new Exception\RuntimeException('Overall path length shouldn\'t be more than 255 symbols');
 					}
 
 					$i = 2;
