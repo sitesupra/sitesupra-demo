@@ -8,7 +8,7 @@ use Supra\Cms\CmsPageLocalizationIndexerQueueListener;
 use Supra\Cms\CmsUserSingleSessionListener;
 use Supra\Cms\CmsController;
 use Supra\Controller\Pages\PageController;
-use Project\GoogleAnalytics\GoogleAnalyticsListener;
+use Supra\Statistics\GoogleAnalytics\Listener\GoogleAnalyticsListener;
 use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
