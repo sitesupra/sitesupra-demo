@@ -191,6 +191,12 @@ class PagePathGenerator implements EventSubscriber
 				
 				// Check duplicates only if path is not null
 				if ( ! is_null($newPath)) {
+					
+					// Additional check for path length
+					$pathString = $newPath->getPath();
+					if (mb_strlen($pathString) > 255) {
+						throw new Exception\RuntimeException('Overall path length should\'nt be more than 255 symbols');
+					}
 
 					$i = 2;
 					$e = null;
