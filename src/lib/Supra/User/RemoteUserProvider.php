@@ -190,11 +190,6 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	private function requestData($entityName, $searchCriteria = null)
 	{
-		//FIXME: generating proxy classes because server might return proxy object
-		$em = ObjectRepository::getEntityManager('');
-		$em->getProxyFactory()->getProxy(Entity\User::CN(), -1);
-		$em->getProxyFactory()->getProxy(Entity\Group::CN(), -1);
-		
 		$logger = ObjectRepository::getLogger($this);
 		$remoteApiEndpointId = $this->getRemoteApiEndpointId();
 		if (empty($remoteApiEndpointId)) {
