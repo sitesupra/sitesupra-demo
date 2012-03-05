@@ -86,37 +86,31 @@ class FrontController
 	}
 
 	/**
-	 * Compare two routers.
-	 * Used to sort the routers by depth starting from the deapest level.
-	 * @param RouterInterface $a
-	 * @param RouterInterface $b
-	 * @return integer
-	 */
-	protected function compareRouters(Router\RouterInterface $a, Router\RouterInterface $b)
-	{
-		$diff = 0;
-		$aPriority = $a->getPriority();
-		$bPriority = $b->getPriority();
-
-		if ($bPriority > $aPriority) {
-			$diff = 1;
-		} elseif ($bPriority < $aPriority) {
-			$diff = -1;
-		}
-
-		return $diff;
-	}
-
-	/**
-	 * Return array of bound router-controller pairs
+	 * Return by priority ordered array of routers
 	 * @return Router\RouterInterface[]
 	 */
 	protected function getRouters()
 	{
 		if ( ! $this->routersOrdered) {
-			usort($this->routers, array($this, 'compareRouters'));
+			$routerPriorities = array();
+			$routerOrder = array();
+			$orderKey = 0;
+			
+			// Generate arrays to order routers by priority and then by order 
+			// how they were added initially
+			foreach ($this->routers as $router) {
+				/* @var $router Router\RouterInterface  */
+				$routerPriorities[] = $router->getPriority();
+				$routerOrder[] = $orderKey++;
+			}
+			
+			array_multisort($routerPriorities, SORT_DESC, SORT_REGULAR,
+					$routerOrder, SORT_ASC, SORT_NUMERIC,
+					$this->routers);
+			
 			$this->routersOrdered = true;
 		}
+		
 		return $this->routers;
 	}
 
