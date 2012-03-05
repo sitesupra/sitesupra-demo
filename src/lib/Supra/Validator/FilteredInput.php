@@ -262,6 +262,10 @@ class FilteredInput extends \ArrayIterator
 	 */
 	public function isValid($index, $type, $additionalParameter = null, $additionalParameter2 = null)
 	{
+		if ( ! $this->has($index)) {
+			return false;
+		}
+		
 		$value = $this->get($index);
 		$additionalParameters = array_slice(func_get_args(), 2);
 		
