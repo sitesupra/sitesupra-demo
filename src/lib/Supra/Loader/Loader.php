@@ -82,7 +82,7 @@ class Loader
 	}
 
 	/**
-	 * Normalize namespace name by appending \ in the front and end
+	 * Normalize namespace name by removing \ in the front and adding in the end
 	 * @param string $namespace
 	 * @return string
 	 */
@@ -92,7 +92,7 @@ class Loader
 	}
 
 	/**
-	 * Normalize class name by appending \ in the front
+	 * Normalize class name by trimming the separator
 	 * @param string $class
 	 * @return string
 	 */
