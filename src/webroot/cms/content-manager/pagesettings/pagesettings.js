@@ -798,7 +798,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			if (doc) {
 				doc = new Y.Node(doc);
 				if (doc) {
-					doc.all('.yui3-settings-title').set('text', post_data.title);
+					doc.all('.yui3-settings-title').set('text', page_data.title);
 				}
 			}
 		},
