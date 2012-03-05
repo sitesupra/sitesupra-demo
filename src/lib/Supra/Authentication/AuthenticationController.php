@@ -163,7 +163,12 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function execute()
 	{
+		$userProvider = ObjectRepository::getUserProvider($this);
+		// TODO: maybe should fetch session manager by user provider
+		//$sessionManager = ObjectRepository::getSessionManager($userProvider);
 		$sessionManager = ObjectRepository::getSessionManager($this);
+		
+		// TODO: cerate special namespace for this
 		$session = $sessionManager->getDefaultSessionNamespace();
 		/* @var $session SessionNamespace */
 
@@ -181,7 +186,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 
 		$post = $this->getRequest()->isPost();
-		$userProvider = ObjectRepository::getUserProvider($this);
 
 		$loginPath = $this->getLoginPath();
 		// if post request then check for login and password fields presence

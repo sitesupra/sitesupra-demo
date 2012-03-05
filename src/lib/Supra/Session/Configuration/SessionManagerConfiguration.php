@@ -55,7 +55,6 @@ class SessionManagerConfiguration implements ConfigurationInterface
 		}
 		
 		$sessionManager = new SessionManager($handler);
-		
 		$sessionManager->setExpirationTime($this->sessionExpirationTime);
 		
 		foreach ($this->namespaces as $namespace) {
@@ -65,5 +64,7 @@ class SessionManagerConfiguration implements ConfigurationInterface
 		if ($this->isDefault) {
 			ObjectRepository::setDefaultSessionManager($sessionManager);
 		}
+		
+		return $sessionManager;
 	}
 }
