@@ -9,11 +9,11 @@ use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\BlockControllerCollection;
 use Supra\Response\HttpResponse;
-use Supra\Controller\FrontController;
 use Supra\Controller\Pages\Filter\EditableHtml;
 use Supra\Editable;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Controller for page content requests
@@ -204,14 +204,30 @@ class PagecontentAction extends PageManagerAction
 		
 		$this->entityManager->flush();
 		
-		$block->prepareController($blockController, $request);
+		$controllerClass = $this->getPageControllerClass();
 		
-		$blockController->prepareTwigHelper();
-		$block->executeController($blockController);
+		// Need to be inside page and block controller scopes
+		ObjectRepository::beginControllerContext($controllerClass);
+		ObjectRepository::beginControllerContext($blockController);
+		$e = null;
+
+		try {
+			$block->prepareController($blockController, $request);
+
+			$blockController->prepareTwigHelper();
+			$block->executeController($blockController);
+
+			$response = $blockController->getResponse();
+			/* @var $response HttpResponse */
+			$outputString = $response->getOutputString();
+		} catch (\Exception $e) {};
 		
-		$response = $blockController->getResponse();
-		/* @var $response HttpResponse */
-		$outputString = $response->getOutputString();
+		ObjectRepository::endControllerContext($blockController);
+		ObjectRepository::endControllerContext($controllerClass);
+		
+		if ($e instanceof \Exception) {
+			throw $e;
+		}
 		
 		// Block HTML in response
 		$this->getResponse()->setResponseData(

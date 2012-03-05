@@ -79,7 +79,7 @@ abstract class PageManagerAction extends CmsAction
 	 * TODO: must return configurable controller instance (use repository?)
 	 * @return string
 	 */
-	private function getPageControllerClass()
+	protected function getPageControllerClass()
 	{
 		return 'Supra\Controller\Pages\PageController';
 	}

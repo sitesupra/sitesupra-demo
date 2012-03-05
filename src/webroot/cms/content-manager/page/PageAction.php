@@ -58,7 +58,7 @@ class PageAction extends PageManagerAction
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
-
+		
 		$page = $pageData->getMaster();
 
 		// Can this really happen?
@@ -99,11 +99,13 @@ class PageAction extends PageManagerAction
 
 		// TODO: handling?
 		if ($pageData->getTemplate() != null) {
+			ObjectRepository::beginControllerContext($controller);
 			try {
 				$controller->execute($request);
 			} catch (LayoutNotFound $e) {
 				$templateError = true;
 			}
+			ObjectRepository::endControllerContext($controller);
 		} else {
 			$templateError = true;
 		}
@@ -724,7 +726,18 @@ class PageAction extends PageManagerAction
 
 		$controller->prepare($request, $response);
 		$request->setDoctrineEntityManager($em);
-		$controller->execute($request);
+		
+		$e = null;
+		ObjectRepository::beginControllerContext($controller);
+		try {
+			$controller->execute($request);
+		} catch (\Exception $e) {}
+		
+		ObjectRepository::endControllerContext($controller);
+		
+		if ($e instanceof \Exception) {
+			throw $e;
+		}
 
 		$return = array(
 			'internal_html' => $response->__toString()
