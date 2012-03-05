@@ -98,6 +98,9 @@ class ObjectRepository
 	 */
 	public static function beginControllerContext($controllerId)
 	{
+		if (is_object($controllerId)) {
+			$controllerId = get_class($controllerId);
+		}
 		array_unshift(self::$controllerStack, $controllerId);
 	}
 
@@ -108,6 +111,10 @@ class ObjectRepository
 	 */
 	public static function endControllerContext($expectedControllerId)
 	{
+		if (is_object($expectedControllerId)) {
+			$expectedControllerId = get_class($expectedControllerId);
+		}
+		
 		$actualControllerId = array_shift(self::$controllerStack);
 
 		if ($actualControllerId != $expectedControllerId) {

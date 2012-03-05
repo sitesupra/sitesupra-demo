@@ -81,4 +81,3 @@ class RemoteFindAbstraction extends Command
 	}
 
 }
-

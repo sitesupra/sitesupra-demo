@@ -67,6 +67,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	public function getPublicUrlList()
 	{
 		$list = $this->prepareUrlList($this->publicUrlList);
+		
 		return $list;
 	}
 
@@ -123,11 +124,11 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 	/**
 	 * Returns login page path
-	 * @return string 
+	 * @return Path 
 	 */
 	public function getLoginPath()
 	{
-		return trim($this->loginPath, '/');
+		return new Path($this->loginPath, '/');
 	}
 
 	/**
@@ -170,7 +171,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		unset($session->login, $session->message);
 
 		$request = $this->getRequest();
-		$uri = $this->getRequest()->getActionString();
+		$path = $this->getRequest()->getPath();
 
 		$xmlHttpRequest = false;
 		$requestedWith = $this->getRequest()->getServerValue('HTTP_X_REQUESTED_WITH');
@@ -182,7 +183,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		$post = $this->getRequest()->isPost();
 		$userProvider = ObjectRepository::getUserProvider($this);
 
-		$loginPath = trim($this->getLoginPath(), '/');
+		$loginPath = $this->getLoginPath();
 		// if post request then check for login and password fields presence
 		if ($post) {
 
@@ -246,8 +247,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$session->message = $message;
 
 						// if authentication failed, we redirect user to login page
-						$path = new Path($loginPath);
-						$request->setPath($path);
+						$request->setPath($loginPath);
 
 						// Continue the request with login request path
 						return;
@@ -258,7 +258,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			}
 		}
 		
-		$isPublicUrl = $this->isPublicUrl($uri);
+		$isPublicUrl = $this->isPublicUrl($path);
 
 		// Allow accessign public URL
 		if ($isPublicUrl) {
@@ -271,7 +271,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		$updateSession = true;
 		$userActivity = $request->getParameter('activity', null);
 		$checkSessionPath = trim($this->getBasePath() . '/' . $this->checkSessionPath, '/');
-		if ($uri == $checkSessionPath && $userActivity === 'false') {
+		if ($path == $checkSessionPath && $userActivity === 'false') {
 			$updateSession = false;
 		}
 		$sessionUser = $userProvider->getSignedInUser($updateSession);
@@ -279,13 +279,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {
 
-			if ($uri != $loginPath) {
+			if ( ! $path->equals($loginPath)) {
 
 				if ($xmlHttpRequest) {
 					$this->response->setCode(401);
 				} else {
 					$fullUri = $this->getRequest()->getRequestUri();
-					$this->response->redirect('/' . $loginPath . '?redirect_to=' . urlencode($fullUri));
+					$this->response->redirect($loginPath->getPath(Path::FORMAT_BOTH_DELIMITERS) . '?redirect_to=' . urlencode($fullUri));
 				}
 
 				throw new StopRequestException("User not authenticated");
@@ -293,9 +293,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		} else {
 
 			// Redirect from login form if the session is active
-			if ($uri == $loginPath) {
-				$uri = $this->getSuccessRedirectUrl();
-				$this->response->redirect($uri);
+			if ($path->equals($loginPath)) {
+				$redirect = $this->getSuccessRedirectUrl();
+				$this->response->redirect($redirect);
 
 				throw new StopRequestException("Session is already active");
 			}
@@ -304,15 +304,22 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 	/**
 	 * Checks url for public access
-	 * @param string $publicUrl
+	 * @param Path $path
 	 * @return boolean
 	 */
-	protected function isPublicUrl($publicUrl)
+	protected function isPublicUrl(Path $path)
 	{
 		$publicUrlList = $this->getPublicUrlList();
-		$publicUrl = trim($publicUrl, '/');
+		
+		foreach ($publicUrlList as $publicUrl) {
+			$publicUrlPath = new Path($publicUrl);
+			
+			if ($path->equals($publicUrlPath)) {
+				return true;
+			}
+		}
 
-		return in_array($publicUrl, $publicUrlList);
+		return false;
 	}
 
 	/**
