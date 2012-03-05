@@ -88,20 +88,16 @@ class CreateUserCommand extends Command
 
 		$userProvider->validate($user);
 		$userProvider->credentialChange($user);
-		$userProvider->updateUser($user);
-
+		//$userProvider->updateUser($user);
+		$userProvider->insertUser($user);
+		
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
 
 		$userAction = new InternalUserManagerAbstractAction();
 		ObjectRepository::setCallerParent($userAction, $this, true);
 
 		$userAction->sendPasswordChangeLink($user, 'createpassword');
-
-		$eventManager = ObjectRepository::getEventManager($this);
-
-		$eventArgs = new CmsUserCreateEventArgs($user);
-		$eventArgs->setUserProvider($this->getUserProvider());
-		$eventManager->fire(CmsController::EVENT_POST_USER_CREATE, $eventArgs);
+		
 	}
 
 	private function ensureAdminsGroupExist()
@@ -216,7 +212,7 @@ class CreateUserCommand extends Command
 			$group = $userProvider->createGroup();
 			$group->setName($groupName);
 
-			$userProvider->updateGroup($group);
+			$userProvider->insertGroup($group);
 		}
 
 		return $group;

@@ -283,8 +283,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 			return false;
 		}
 		
-		
-		$generatedHash =$this->userProvider->generatePasswordRecoveryHash($user, $time);
+		$generatedHash = $this->userProvider->generatePasswordRecoveryHash($user, $time);
 
 		if ($generatedHash === $hash) {
 			return true;

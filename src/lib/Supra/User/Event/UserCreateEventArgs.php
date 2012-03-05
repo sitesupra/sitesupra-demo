@@ -1,12 +1,12 @@
 <?php
 
-namespace Supra\Controller\Pages\Event;
+namespace Supra\User\Event;
 
 use Supra\Event\EventArgs;
 use Supra\User\Entity\User;
 use Supra\User\UserProviderInterface;
 
-class CmsUserCreateEventArgs extends EventArgs
+class UserCreateEventArgs extends EventArgs
 {
 	
 	/**

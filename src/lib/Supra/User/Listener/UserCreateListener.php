@@ -1,14 +1,14 @@
 <?php
 
-namespace Supra\Cms;
+namespace Supra\User\Listener;
 
-use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
+use Supra\User\Event\UserCreateEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Mailer\Message\TwigMessage;
 
-class CmsUserCreateListener
+class UserCreateListener
 {
-	public function postUserCreate(CmsUserCreateEventArgs $eventArgs)
+	public function postUserCreate(UserCreateEventArgs $eventArgs)
 	{
 		$user = $eventArgs->getUser();
 		
@@ -17,7 +17,8 @@ class CmsUserCreateListener
 		$time = time();
 		$userMail = $user->getEmail();
 		
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER; 
+		$userProvider = ObjectRepository::getObject($this, $userProviderInterface, null); 
 		if (is_null($userProvider)) {
 			$userProvider = $eventArgs->getUserProvider();
 			
@@ -64,7 +65,7 @@ class CmsUserCreateListener
 
 		$message->setSubject($subject)
 				->setTo($userMail)
-				->setBody("internal-user-manager/mail-template/createpassword.twig", $mailVars);
+				->setBody("mail-template/createpassword.twig", $mailVars);
 		$mailer->send($message);
 	}
 }

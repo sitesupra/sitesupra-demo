@@ -20,7 +20,6 @@ use Supra\User\Entity\Group;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 use Supra\Cms\CmsController;
-use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
 
 class UserAction extends InternalUserManagerAbstractAction
 {
@@ -212,15 +211,8 @@ class UserAction extends InternalUserManagerAbstractAction
 		}
 		
 		$this->userProvider->credentialChange($user);
-		$this->userProvider->updateUser($user);
+		$this->userProvider->insertUser($user);
 		
-		$eventManager = ObjectRepository::getEventManager($this);
-		
-		$eventArgs = new CmsUserCreateEventArgs($user);
-		$eventManager->fire(CmsController::EVENT_POST_USER_CREATE, $eventArgs);
-		
-//		$this->sendPasswordChangeLink($user, 'createpassword');
-
 		$this->writeAuditLog("User '" . $user->getName() . "' created");
 		
 		$this->getResponse()->setResponseData(array('user_id' => $user->getId()));

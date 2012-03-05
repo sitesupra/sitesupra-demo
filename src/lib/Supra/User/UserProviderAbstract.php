@@ -11,6 +11,7 @@ use Supra\Authentication\Exception\AuthenticationFailure;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Session\SessionManager;
 use Doctrine\ORM\EntityManager;
+use Supra\User\Event\UserCreateEventArgs;
 
 
 abstract class UserProviderAbstract implements UserProviderInterface
@@ -22,6 +23,8 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	const EVENT_POST_SIGN_IN = 'postSignIn';
 	const EVENT_PRE_SIGN_OUT = 'preSignOut';
 	const EVENT_POST_SIGN_OUT = 'postSignOut';
+	
+	const EVENT_POST_USER_CREATE = 'postUserCreate';
 	
 	/**
 	 * Validation filters
@@ -284,6 +287,34 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$hash = substr($hash, 0, 8);
 
 		return $hash;
+	}
+	
+	/**
+	 * Wrapper around doInsertUser method, which stores newly created user
+	 * and fires "user-post-create-event"
+	 * @param Entity\User $user
+	 */
+	final public function insertUser(Entity\User $user)
+	{
+		$this->doInsertUser($user);
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new UserCreateEventArgs($user);
+		$eventArgs->setUserProvider($this);
+		$eventManager->fire(self::EVENT_POST_USER_CREATE, $eventArgs);
+	}
+	
+	/**
+	 * Store newly created group
+	 * @param Entity\Group $group
+	 */
+	final public function insertGroup(Entity\Group $group)
+	{
+		$this->doInsertGroup($group);
+		
+		// TODO: similar to insertUser(), this method also could fire event, 
+		// related with new group creation
 	}
 	
 }

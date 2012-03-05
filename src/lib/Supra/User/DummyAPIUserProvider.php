@@ -305,6 +305,22 @@ class DummyAPIUserProvider extends UserProviderAbstract
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertUser(Entity\User $user)
+	{
+		throw new Exception\LogicException('Dummy API User Provider does not support new user creation');
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertGroup(Entity\Group $group)
+	{
+		throw new Exception\LogicException('Dummy API User Provider does not support new group creation');
+	}
+	
+	/**
 	 * Creates detached User entity filled with data from input array 
 	 * @param array $userData
 	 * @return Entity\User

@@ -6,6 +6,7 @@ use Supra\User\Entity;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
 use Doctrine\ORM\UnitOfWork;
+use Supra\ObjectRepository\ObjectRepository;
 
 class UserProvider extends UserProviderAbstract
 {
@@ -170,10 +171,23 @@ class UserProvider extends UserProviderAbstract
 	{
 		$user = new Entity\User();
 
-		$this->getEntityManager()
-				->persist($user);
-
 		return $user;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertUser(Entity\User $user)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->persist($user);
+
+		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented user entity is not managed');
+		}
+
+		$entityManager->flush();
 	}
 
 	/**
@@ -183,10 +197,23 @@ class UserProvider extends UserProviderAbstract
 	{
 		$group = new Entity\Group();
 
-		$this->getEntityManager()
-				->persist($group);
-
 		return $group;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertGroup(Entity\Group $group)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->persist($group);
+
+		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented group entity is not managed');
+		}
+
+		$entityManager->flush();
 	}
 
 	/**

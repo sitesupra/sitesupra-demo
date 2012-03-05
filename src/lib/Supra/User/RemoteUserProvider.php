@@ -142,7 +142,23 @@ class RemoteUserProvider extends UserProviderAbstract
 	{
 		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertUser(Entity\User $user)
+	{
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertGroup(Entity\Group $group)
+	{
+		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

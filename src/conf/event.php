@@ -25,6 +25,10 @@ if ( ! $externalUserProviderActive) {
 	$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
 }
 
+// Sends email for newly created users
+$listener = new \Supra\User\Listener\UserCreateListener();
+$eventManager->listen(\Supra\User\UserProviderAbstract::EVENT_POST_USER_CREATE, $listener);
+
 ObjectRepository::setEventManager($userProvider, $eventManager);
 
 $eventManager = new EventManager();
@@ -32,10 +36,6 @@ $eventManager = new EventManager();
 $listener = new CmsPageLocalizationIndexerQueueListener();
 $eventManager->listen(CmsController::EVENT_POST_PAGE_PUBLISH, $listener);
 $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
-
-// Sends email for newly created users
-$listener = new \Supra\Cms\CmsUserCreateListener();
-$eventManager->listen(CmsController::EVENT_POST_USER_CREATE, $listener);
 
 // Google Analytics
 $listener = new GoogleAnalyticsListener();

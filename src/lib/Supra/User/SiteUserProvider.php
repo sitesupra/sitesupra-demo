@@ -313,9 +313,6 @@ class SiteUserProvider extends UserProviderAbstract
 	{
 		$user = new Entity\User();
 
-		$this->getEntityManager()
-				->persist($user);
-
 		return $user;
 	}
 
@@ -326,11 +323,41 @@ class SiteUserProvider extends UserProviderAbstract
 	{
 		$group = new Entity\Group();
 
-		$this->getEntityManager()
-				->persist($group);
-
 		return $group;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertUser(Entity\User $user)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->persist($user);
+
+		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented user entity is not managed');
+		}
+
+		$entityManager->flush();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public function doInsertGroup(Entity\Group $group)
+	{
+		$entityManager = $this->getEntityManager();
+		
+		$entityManager->persist($group);
+
+		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
+			throw new Exception\RuntimeException('Presented group entity is not managed');
+		}
+
+		$entityManager->flush();
+	}
+
 
 	/**
 	 * {@inheritDoc}
