@@ -21,7 +21,6 @@ $cliCommandClasses = array(
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
 	'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
-	'Project\DummyRemote\DummyCommandOne',
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
 );
