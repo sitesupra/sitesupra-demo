@@ -775,6 +775,9 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 					'success': function () {
 						Manager.Page.setPageData(page_data);
 						
+						//Update title in page content
+						this.updatePageContentData(page_data);
+						
 						//Change page version title
 						Manager.getAction('PageHeader').setVersionTitle('autosaved');
 					}
@@ -782,6 +785,22 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			}, this);
 			
 			this.hide();
+		},
+		
+		/**
+		 * Update content texts
+		 * 
+		 * @param {Object} page_data Page data
+		 * @private
+		 */
+		updatePageContentData: function (page_data) {
+			var doc = Supra.Manager.PageContent.getContent().get('doc');
+			if (doc) {
+				doc = new Y.Node(doc);
+				if (doc) {
+					doc.all('.yui3-settings-title').set('text', post_data.title);
+				}
+			}
 		},
 		
 		/**
