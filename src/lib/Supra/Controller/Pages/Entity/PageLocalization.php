@@ -493,9 +493,11 @@ class PageLocalization extends Abstraction\Localization
 			return false;
 		}
 		
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER;
+		$userProvider = ObjectRepository::getObject($this, $userProviderInterface, false);
 		$isUserAuthorized = false;
-		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
+		
+		if ($userProvider instanceof $userProviderInterface) {
 			$currentUser = $userProvider->getSignedInUser(false);
 			$isUserAuthorized = ($currentUser instanceof User);
 		}
