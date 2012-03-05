@@ -93,7 +93,8 @@
     title: News application
     icon: /cms/lib/supra/img/sitemap/new-news-app.png
     newChildrenFirst: true
-    
+
+#FIXME: move configuration to project-specific location
 - Supra\BannerMachine\Configuration\ProviderConfiguration:
     id: banner-machine-one
     redirectorPath: /banner-machine-one
@@ -110,15 +111,3 @@
           width: 952
           height: 130
           ratioDelta: 0.1
-
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /remote
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Remote\Server\RemoteCommandController
-
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /dummy_command_invoker
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\DummyRemote\DummyCommandInvoker
