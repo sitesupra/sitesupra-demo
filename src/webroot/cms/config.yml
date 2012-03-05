@@ -111,3 +111,9 @@
           width: 952
           height: 130
           ratioDelta: 0.1
+
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Broken block
+    groupId: system
+    hidden: true
+    controllerClass: Supra\Controller\Pages\BrokenBlockController
