@@ -376,6 +376,17 @@ mysql> use \vigProjectNameShort;
 mysql> \textbackslash. {\vigReleasePath}{\vigPackageName}.dump.\vigReleaseVersion.sql
 \end{alltt}
 
+\subsection{SiteSupra CMS account creation}
+
+To be able to sign into the CMS system available by path "/cms/" the first CMS administrator must be created. This can be done from the command line:
+
+\begin{alltt}
+\$ php /var/www/bin/supra su:user:create_user \textbackslash
+\ \ \ \ --name MyName my@email.com
+\end{alltt}
+
+Use your name and email address instead sample values in the example. After the command is executed the user will be created and approval email will be sent. Inside the email message will be a link. Following the link the new account password can be set. Make sure the link contains correct domain name where the SiteSupra is installed. Otherwise modify the relevant supra.ini configuration.
+
 \subsection{Scheduled Task Configuration}
 
 Application needs a scheduled task to be installed on the Web Server. The command
