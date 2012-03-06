@@ -20,5 +20,10 @@ class BlockEventsArgs  extends EventArgs {
 	 * @var string
 	 */
 	public $actionType;
+	
+	/**
+	 * @var string
+	 */
+	public $blockCacheInfo;
 }
 

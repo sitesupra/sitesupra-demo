@@ -616,8 +616,16 @@ class PageController extends ControllerAbstraction
 				}
 				
 				$return[$index] = $function($block, $blockController);
-				
+
 				if ( ! is_null($eventAction)) {
+					
+					if ($eventAction == Listener\BlockExecuteListener::ACTION_CACHE_SEARCH
+							|| $eventAction == Listener\BlockExecuteListener::ACTION_DEPENDANT_CACHE_SEARCH) {
+						
+						if (isset($this->blockContentCache[$block->getId()])) {
+							$eventArgs->blockCacheInfo = (Listener\BlockExecuteListener::ACTION_CACHE_SEARCH ? Listener\BlockExecuteListener::CACHE_TYPE_FULL : Listener\BlockExecuteListener::CACHE_TYPE_CONTEXT);
+						}
+					}
 					
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;

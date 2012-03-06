@@ -25,6 +25,9 @@ class BlockExecuteListener implements EventSubscriber
 	const ACTION_CONTROLLER_EXECUTE = 'execute controller';
 	const ACTION_RESPONSE_COLLECT = 'collect responses';
 	
+	const CACHE_TYPE_FULL = 'full';
+	const CACHE_TYPE_CONTEXT = 'context dependant';
+	
 	/**
 	 * Statistics output array
 	 * @var array
@@ -55,6 +58,11 @@ class BlockExecuteListener implements EventSubscriber
 	 */
 	private $blockClassNames = array();
 	
+	/**
+	 * Contais records about blocks, that were loaded from blocks cache 
+	 * @var array
+	 */
+	private $blockCacheTypes = array();
 
 	/**
 	 * Return subscribed events list
@@ -109,6 +117,11 @@ class BlockExecuteListener implements EventSubscriber
 			$stats[] = $time;
 			
 		}
+		
+		// passing info about block cache
+		if (isset($eventArgs->blockCacheInfo) && ! isset($this->blockCacheTypes[$blockOid])) {
+			$this->blockCacheTypes[$blockOid] = $eventArgs->blockCacheInfo;
+		}
 	}
 
 //	/**
@@ -157,6 +170,10 @@ class BlockExecuteListener implements EventSubscriber
 				
 				$overallTime += $singleActionStats[0];
 				
+				if ($singleActionStats[0] < 2) {
+					continue;
+				}
+				
 				if (isset($singleActionStats[1])) {
 					$totalQueries += $singleActionStats[1];
 					$totalQueryTime += $singleActionStats[2];
@@ -173,6 +190,13 @@ class BlockExecuteListener implements EventSubscriber
 				$blockStats['totals'] = vsprintf('%-50s %4dms %3d queries (%4dms)', array($name, $overallTime, $totalQueries, $totalQueryTime));
 			} else {
 				$blockStats['totals'] = vsprintf('%-50s %4dms', array($name, $overallTime));
+			}
+			
+			if ( ! empty($this->blockCacheTypes[$oid])) {
+				
+				$cacheType = $this->blockCacheTypes[$oid];
+				
+				$blockStats['actions'][] = vsprintf('     %-48s %s', array('cache used', $this->blockCacheTypes[$oid]));
 			}
 			
 			$responseData[] = $blockStats;
