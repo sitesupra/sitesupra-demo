@@ -6,7 +6,19 @@ use Supra\Event\EventArgs;
 
 class BlockEventsArgs  extends EventArgs {
 	
-	public $blockClass;
+	/**
+	 * @var float
+	 */
 	public $duration;
+	
+	/**
+	 * @var Supra\Controller\Pages\Entity\Abstraction\Block
+	 */
+	public $block;
+	
+	/**
+	 * @var string
+	 */
+	public $actionType;
 }
 

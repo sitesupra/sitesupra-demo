@@ -302,7 +302,7 @@ class PageController extends ControllerAbstraction
 		};
 		
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($cacheSearch);
+		$this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_CACHE_SEARCH);
 	}
 
 	/**
@@ -335,7 +335,7 @@ class PageController extends ControllerAbstraction
 		};
 
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($controllerFactory);
+		$this->blockControllers = $this->iterateBlocks($controllerFactory, Listener\BlockExecuteListener::ACTION_CONTROLLER_SEARCH);
 	}
 
 	/**
@@ -377,7 +377,7 @@ class PageController extends ControllerAbstraction
 		};
 
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($prepare);
+		$this->iterateBlocks($prepare, Listener\BlockExecuteListener::ACTION_CONTROLLER_PREPARE);
 	}
 	
 	/**
@@ -443,7 +443,7 @@ class PageController extends ControllerAbstraction
 		};
 		
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($cacheSearch);
+		$this->blockControllers = $this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDANT_CACHE_SEARCH);
 	}
 
 	/**
@@ -465,22 +465,12 @@ class PageController extends ControllerAbstraction
 			// It is important to prepare the twig helper for each block controller right before execution
 			$blockController->prepareTwigHelper();
 
-			$eventArgs = new BlockEventsArgs();
-			$eventArgs->blockClass = $block->getComponentClass();
-
-			$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
-
-			$blockTimeStart = microtime(true);
 			$blockController->execute();
-			$blockTimeEnd = microtime(true);
-			$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
-			$eventArgs->duration = $blockExecutionTime;
-			$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
-
+			
 		};
 
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($prepare);
+		$this->iterateBlocks($prepare, Listener\BlockExecuteListener::ACTION_CONTROLLER_EXECUTE);
 	}
 
 	/**
@@ -524,7 +514,7 @@ class PageController extends ControllerAbstraction
 		foreach ($finalPlaceHolders as $name => $placeHolder) {
 			$placeResponses[$name] = $this->createPlaceResponse($page, $placeHolder);
 		}
-		
+
 		$blockCacheRequests = &$this->blockCacheRequests;
 		$cache = ObjectRepository::getCacheAdapter($this);
 		$log = $this->log;
@@ -586,7 +576,7 @@ class PageController extends ControllerAbstraction
 				};
 
 		// Iterates through all blocks and collects placeholder responses
-		$this->iterateBlocks($collectResponses);
+		$this->iterateBlocks($collectResponses, Listener\BlockExecuteListener::ACTION_RESPONSE_COLLECT);
 
 		return $placeResponses;
 	}
@@ -596,11 +586,13 @@ class PageController extends ControllerAbstraction
 	 * @param \Closure $function
 	 * @return array
 	 */
-	protected function iterateBlocks(\Closure $function)
+	protected function iterateBlocks(\Closure $function, $eventAction = null)
 	{
 		$blocks = $this->getRequest()
 				->getBlockSet();
 
+		$eventManager = ObjectRepository::getEventManager($this);
+		
 		$return = array();
 
 		/* @var $block Entity\Abstraction\Block */
@@ -612,7 +604,28 @@ class PageController extends ControllerAbstraction
 			}
 
 			try {
+				
+				if ( ! is_null($eventAction)) {
+					$eventArgs = new BlockEventsArgs();
+					$eventArgs->block = $block;
+					$eventArgs->actionType = $eventAction;
+
+					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
+					
+					$blockTimeStart = microtime(true);			
+				}
+				
 				$return[$index] = $function($block, $blockController);
+				
+				if ( ! is_null($eventAction)) {
+					
+					$blockTimeEnd = microtime(true);
+					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
+					$eventArgs->duration = $blockExecutionTime;
+					$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
+				
+				}
+
 			} catch (Exception\InvalidBlockException $e) {
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);

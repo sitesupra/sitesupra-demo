@@ -10,13 +10,21 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Controller\Pages\Event\SqlEventsArgs;
 use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
+use Supra\Event\Exception\LogicException;
 
 /**
  * BlockExecuteListener
  */
 class BlockExecuteListener implements EventSubscriber
 {
-
+	
+	const ACTION_CACHE_SEARCH = 'search cache';
+	const ACTION_CONTROLLER_SEARCH = 'find controller';
+	const ACTION_CONTROLLER_PREPARE = 'prepare controller';
+	const ACTION_DEPENDANT_CACHE_SEARCH = 'search context dependent cache';
+	const ACTION_CONTROLLER_EXECUTE = 'execute controller';
+	const ACTION_RESPONSE_COLLECT = 'collect responses';
+	
 	/**
 	 * Statistics output array
 	 * @var array
@@ -40,6 +48,13 @@ class BlockExecuteListener implements EventSubscriber
 	 * @var boolean
 	 */
 	private $runBlockFlag = false;
+	
+	/**
+	 * Storage for executed block class names
+	 * @var array
+	 */
+	private $blockClassNames = array();
+	
 
 	/**
 	 * Return subscribed events list
@@ -64,8 +79,8 @@ class BlockExecuteListener implements EventSubscriber
 	{
 		$this->queriesCounter = 0;
 		$this->queriesTimeCounter = 0;
+
 		$this->runBlockFlag = true;
-		//$this->statisticsData[] = $eventArgs->blockClass .' - start;';		
 	}
 
 	/**
@@ -75,24 +90,24 @@ class BlockExecuteListener implements EventSubscriber
 	public function blockEndExecuteEvent(BlockEventsArgs $eventArgs)
 	{
 		$this->runBlockFlag = false;
+		
+		$blockOid = spl_object_hash($eventArgs->block);
+		
+		$this->statisticsData[$blockOid][$eventArgs->actionType] = array();
+		$stats = &$this->statisticsData[$blockOid][$eventArgs->actionType];
 
+		$this->blockClassNames[$blockOid] = $eventArgs->block->getComponentClass();
+		
 		$time = round($eventArgs->duration * 1000);
 
-		$messageData = array();
-		$messageData[] = $eventArgs->blockClass;
-		$messageData[] = $time;
+		$stats[] = $time;
 
 		if ($this->queriesCounter) {
 			$time = round($this->queriesTimeCounter * 1000);
 			
-			$messageData[] = $this->queriesCounter;
-			$messageData[] = $time;
-		}
-
-		if (count($messageData) == 4) {
-			$this->statisticsData[] = vsprintf('%-50s %4dms %3d queries (%4dms)', $messageData);
-		} else {
-			$this->statisticsData[] = vsprintf('%-50s %4dms', $messageData);
+			$stats[] = $this->queriesCounter;
+			$stats[] = $time;
+			
 		}
 	}
 
@@ -126,9 +141,45 @@ class BlockExecuteListener implements EventSubscriber
 		if (empty($this->statisticsData)) {
 			return;
 		}
-
+		
+		$responseData = array();
+		
+		foreach ($this->statisticsData as $oid => $stats) {
+			
+			$name = $this->blockClassNames[$oid];
+			
+			$blockStats = array();
+			$overallTime = 
+				$totalQueries = 
+				$totalQueryTime = 0;
+			
+			foreach ($stats as $actionType => $singleActionStats) {
+				
+				$overallTime += $singleActionStats[0];
+				
+				if (isset($singleActionStats[1])) {
+					$totalQueries += $singleActionStats[1];
+					$totalQueryTime += $singleActionStats[2];
+					
+					array_unshift($singleActionStats, $actionType);
+					$blockStats['actions'][] = vsprintf('     %-45s %4dms %3d queries (%4dms)', $singleActionStats);
+					
+				} else {
+					$blockStats['actions'][] = vsprintf('     %-45s %4dms', array($actionType, $singleActionStats[0]));
+				}
+			}
+			
+			if ($totalQueries > 0) {
+				$blockStats['totals'] = vsprintf('%-50s %4dms %3d queries (%4dms)', array($name, $overallTime, $totalQueries, $totalQueryTime));
+			} else {
+				$blockStats['totals'] = vsprintf('%-50s %4dms', array($name, $overallTime));
+			}
+			
+			$responseData[] = $blockStats;
+		}
+		
 		$response = new \Supra\Response\TwigResponse($this);
-		$response->assign('debugData', $this->statisticsData);
+		$response->assign('debugData', $responseData);
 		$response->outputTemplate('block_execute_listener.js.twig');
 
 		$eventArgs->response

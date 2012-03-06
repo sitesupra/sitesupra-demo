@@ -1,7 +1,14 @@
 if(typeof console != 'undefined' ) {
 
-	{% for key, value in debugData %}				
-		console.log({{ value | json_encode | raw}});
+	{% for blockStats in debugData %}				
+		console.log({{ blockStats.totals | json_encode | raw}});
+		
+		{% for actionValue in blockStats.actions %}
+			console.log({{ actionValue | json_encode | raw}});
+		{% endfor %}
+		
+		console.log(' ');
+		
 	{% endfor %} 
 
 }
