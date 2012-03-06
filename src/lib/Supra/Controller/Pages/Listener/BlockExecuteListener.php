@@ -193,9 +193,6 @@ class BlockExecuteListener implements EventSubscriber
 			}
 			
 			if ( ! empty($this->blockCacheTypes[$oid])) {
-				
-				$cacheType = $this->blockCacheTypes[$oid];
-				
 				$blockStats['actions'][] = vsprintf('     %-48s %s', array('cache used', $this->blockCacheTypes[$oid]));
 			}
 			
