@@ -48,6 +48,7 @@ class TransactDataForm extends BlockController
 		'expire' => '01/13',
 		'bin_name' => 'BinBinBin',
 		'bin_phone' => '111222333',
+		'card_bin' => '541333'
 	);
 
 	private function getFormInputMetadata()
@@ -63,18 +64,30 @@ class TransactDataForm extends BlockController
 		$formInputs['email'] = 'Email';
 		$formInputs['phone'] = 'Phone';
 
-		$paymentProvider = $this->getPaymentProvider();
+		$gatewayDoesNotCollect = array();
+		$gatewayDoesNotCollect['cc'] = 'Card number';
+		$gatewayDoesNotCollect['cvv'] = 'Card CCV number';
+		$gatewayDoesNotCollect['expire'] = 'Card expiration date, MM/YY';
 
-		if ( ! $paymentProvider->getGatewayCollects()) {
+		$gatewayDoesNotCollect['bin_name'] = 'BIN name';
+		$gatewayDoesNotCollect['bin_phone'] = 'BIN phone';
 
-			$formInputs['cc'] = 'Card number';
-			$formInputs['cvv'] = 'Card CCV number';
-			$formInputs['expire'] = 'Card expiration date, MM/YY';
+		$gatewayCollects = array();
+		$gatewayCollects['card_bin'] = 'Card BIN';
 
-			$formInputs['bin_name'] = 'BIN name';
-			$formInputs['bin_phone'] = 'BIN phone';
+		$request = $this->getRequest();
+
+		if ($request instanceof PageRequestView) {
+
+			$paymentProvider = $this->getPaymentProvider();
+
+			if ( ! $paymentProvider->getGatewayCollects()) {
+				$formInputs = $formInputs + $gatewayDoesNotCollect;
+			} else {
+				$formInputs = $formInputs + $gatewayCollects;
+			}
 		} else {
-			
+			$formInputs = $formInputs + $gatewayDoesNotCollect + $gatewayCollects;
 		}
 
 		return $formInputs;
@@ -107,13 +120,13 @@ class TransactDataForm extends BlockController
 	protected function processViewRequest()
 	{
 		$paymentProvider = $this->getPaymentProvider();
-		
+
 		$request = $this->getRequest();
 		$response = $this->getResponse();
 
 		$order = $this->getOrder();
 		$response->assign('order', $order);
-		
+
 		$session = $paymentProvider->getSessionForOrder($order);
 
 		$postData = $request->getPost()->getArrayCopy();
@@ -137,6 +150,8 @@ class TransactDataForm extends BlockController
 
 		$formElements = array();
 
+		$request = $this->getRequest();
+
 		foreach (array_keys($formInputMetadata) as $name) {
 
 			$label = new HtmlTag('label');
@@ -149,10 +164,13 @@ class TransactDataForm extends BlockController
 			$input->setAttribute('id', $name);
 			$input->setAttribute('name', $name);
 
-			if ( ! empty($inputValues)) {
-				$input->setAttribute('value', $inputValues[$name]);
-			} else if ( ! empty($this->defaultValues[$name])) {
-				$input->setAttribute('value', $this->defaultValues[$name]);
+			if ($request instanceof PageRequestView) {
+
+				if ( ! empty($inputValues)) {
+					$input->setAttribute('value', $inputValues[$name]);
+				} else if ( ! empty($this->defaultValues[$name])) {
+					$input->setAttribute('value', $this->defaultValues[$name]);
+				}
 			}
 
 			$formElements[] = $input->toHtml();

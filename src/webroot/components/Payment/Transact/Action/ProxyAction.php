@@ -56,7 +56,15 @@ class ProxyAction extends ProxyActionAbstraction
 
 	public function execute()
 	{
+		$response = $this->getResponse();
+		if ( ! ($response instanceof HttpResponse)) {
+			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($response) . '" type of response.');
+		}
+
 		$request = $this->getRequest();
+		if ( ! ($request instanceof HttpRequest)) {
+			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($request) . '" type of request.');
+		}
 
 		$orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID, null);
 
@@ -77,14 +85,8 @@ class ProxyAction extends ProxyActionAbstraction
 	public function executeShopOrderProxyAction()
 	{
 		$response = $this->getResponse();
-		if ( ! ($response instanceof HttpResponse)) {
-			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($response) . '" type of response.');
-		}
-
 		$request = $this->getRequest();
-		if ( ! ($request instanceof HttpRequest)) {
-			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($request) . '" type of request.');
-		}
+
 		$postData = $request->getPost()->getArrayCopy();
 
 		$orderProvider = $this->getOrderProvider();
@@ -193,6 +195,10 @@ class ProxyAction extends ProxyActionAbstraction
 						}break;
 				}
 			}
+			else {
+				//\Log::debug('FFFFFFFFFFFFFFFFFFFFAIL: ', $chargeResult);
+				$this->onFailure();
+			}
 		}
 	}
 
@@ -200,21 +206,37 @@ class ProxyAction extends ProxyActionAbstraction
 	{
 		$paymentProvider = $this->getPaymentProvider();
 
-		$formInputNames = array(
-			'name_on_card',
-			'street',
-			'zip',
-			'city',
-			'country',
-			'state',
-			'email',
-			'phone',
-			'cc',
-			'cvv',
-			'expire',
-			'bin_name',
-			'bin_phone',
-		);
+		$formInputNames = array();
+		if ($paymentProvider->getGatewayCollects()) {
+
+			$formInputNames = array(
+				'name_on_card',
+				'street',
+				'zip',
+				'city',
+				'country',
+				'state',
+				'email',
+				'phone',
+			);
+		} else {
+
+			$formInputNames = array(
+				'name_on_card',
+				'street',
+				'zip',
+				'city',
+				'country',
+				'state',
+				'email',
+				'phone',
+				'cc',
+				'cvv',
+				'expire',
+				'bin_name',
+				'bin_phone',
+			);
+		}
 
 		$errorMessages = array();
 
@@ -225,9 +247,9 @@ class ProxyAction extends ProxyActionAbstraction
 			}
 		}
 
-			
+
 		if ( ! empty($errorMessages)) {
-			
+
 			$order = $this->getOrder();
 
 			$session = $paymentProvider->getSessionForOrder($order);
@@ -278,15 +300,40 @@ class ProxyAction extends ProxyActionAbstraction
 
 	public function executeRecurringOrderProxyAction()
 	{
-//		$orderProvider = $this->getOrderProvider();
-//		$paymentProvider = $this->getPaymentProvider();
-//
-//		$order = $this->getOrder();
-//		/* @var $order Order\RecurringOrder */
-//
-//		$order->setStatus(OrderStatus::PAYMENT_STARTED);
-//
-//		$orderProvider->store($order);
+		$response = $this->getResponse();
+		$request = $this->getRequest();
+
+		$postData = $request->getPost()->getArrayCopy();
+
+		$orderProvider = $this->getOrderProvider();
+
+		$paymentProvider = $this->getPaymentProvider();
+
+		$order = $this->getOrder();
+		/* @var $order Order\RecurringOrder*/
+
+		// Check if arrived here from shop or from data form.
+		if ( ! $request->getQuery()->has(self::REQUEST_KEY_RETURN_FROM_FORM)) {
+
+			// If from shop, redirect user to data form URL.
+
+			$formDataUrl = $paymentProvider->getFormDataUrl($order);
+			$response->redirect($formDataUrl);
+		} else {
+
+			// If arived here from POST with CC data - validate data and 
+			// begin payment process.
+
+			if ($this->validateRecurringOrderFormData($postData)) {
+				$this->processRecurringOrderFormData($postData);
+			} else {
+
+				$formDataUrl = $paymentProvider->getFormDataUrl($order);
+				$response->redirect($formDataUrl);
+			}
+		}
+
+		$orderProvider->store($order);
 	}
 
 	/**
@@ -334,12 +381,15 @@ class ProxyAction extends ProxyActionAbstraction
 			$transaction = $order->getTransaction();
 
 			$transaction->setStatus(TransactionStatus::FAILED);
+			
 		} else if ($order instanceof Order\RecurringOrder) {
 
 			throw new Exception\RuntimeException('Recurring order processing is not implemeted yet.');
 		}
 
 		$orderProvider->store($order);
+		
+		$this->returnToPaymentInitiator($order->getInitiatorUrl());		
 	}
 
 	protected function onPending()

@@ -79,36 +79,6 @@ abstract class CustomerReturnActionAbstraction extends ActionAbstraction
 	 */
 	protected abstract function processRecurringOrder(RecurringOrder $order);
 		
-	/**
-	 * @param string $initiatorUrl
-	 * @param array $queryData 
-	 */
-	protected function returnToPaymentInitiator($initiatorUrl, $queryData = array())
-	{
-		$response = $this->getResponse();
-
-		if ($response instanceof HttpResponse) {
-
-			if ( ! $response->isRedirect()) {
-
-				$queryParts = parse_url($initiatorUrl);
-
-				$urlBase = $queryParts['scheme'] . '://' . $queryParts['host'] . $queryParts['path'];
-
-				$query = array();
-
-				if ( ! empty($queryParts['query'])) {
-					$query[] = $queryParts['query'];
-				}
-				$query[] = http_build_query($queryData);
-
-				$query = join('&', $query);
-
-				$response->redirect($urlBase . '?' . $query);
-			}
-		}
-	}
-
 	abstract protected function getCustomerReturnEventArgs();
 
 	protected function fireCustomerReturnEvent()

@@ -479,6 +479,12 @@ class DummyShopController extends BlockController
 							->output('<h1>YOU STARTED PAYMENT PROCEDURE!!!</h1>');
 				} break;
 
+			case TransactionStatus::FAILED: {
+
+					$this->getResponse()
+							->output('<h1>PAYMENT HAS FAILED!!!</h1>');
+				} break;
+
 			default: {
 
 					$this->getResponse()
