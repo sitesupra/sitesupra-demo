@@ -119,8 +119,14 @@ class BlockExecuteListener implements EventSubscriber
 		}
 		
 		// passing info about block cache
-		if (isset($eventArgs->blockCacheInfo) && ! isset($this->blockCacheTypes[$blockOid])) {
-			$this->blockCacheTypes[$blockOid] = $eventArgs->blockCacheInfo;
+		if ($eventArgs->cached && ! isset($this->blockCacheTypes[$blockOid])) {
+			if ($eventArgs->actionType == self::ACTION_CACHE_SEARCH) {
+				$this->blockCacheTypes[$blockOid] = self::CACHE_TYPE_FULL;
+			} elseif ($eventArgs->actionType == self::ACTION_DEPENDENT_CACHE_SEARCH) {
+				$this->blockCacheTypes[$blockOid] = self::CACHE_TYPE_CONTEXT;
+			} else {
+				$this->blockCacheTypes[$blockOid] = 'unknown cache';
+			}
 		}
 	}
 

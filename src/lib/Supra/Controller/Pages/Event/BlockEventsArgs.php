@@ -12,7 +12,7 @@ class BlockEventsArgs  extends EventArgs {
 	public $duration;
 	
 	/**
-	 * @var Supra\Controller\Pages\Entity\Abstraction\Block
+	 * @var \Supra\Controller\Pages\Entity\Abstraction\Block
 	 */
 	public $block;
 	
@@ -22,8 +22,8 @@ class BlockEventsArgs  extends EventArgs {
 	public $actionType;
 	
 	/**
-	 * @var string
+	 * @var boolean
 	 */
-	public $blockCacheInfo;
+	public $cached;
 }
 
