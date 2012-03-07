@@ -193,12 +193,6 @@ class DoctrineRepository extends RepositoryAbstraction
 				throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
 			}
 
-			// Decision was to remove the fush operation
-			// because it's the only place where lvl, lft, rgt are being changed.
-			//
-			// flush before update
-//			$entityManager->flush();
-
 			$left = $node->getLeftValue();
 			$right = $node->getRightValue();
 			$spaceUsed = $right - $left + 1;
@@ -225,9 +219,7 @@ class DoctrineRepository extends RepositoryAbstraction
 				$max = $right;
 			}
 
-			// Using SQL because DQL does not support such format
-			// Will fail with SQL server implementation without function IF(cond, yes, no)
-			// NB! It's important to set "lvl" as first for MySQL
+			// NB! It's important to set "level" before "left" for MySQL!
 			$dql = "UPDATE {$className} e
 					SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
 						e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
@@ -239,17 +231,6 @@ class DoctrineRepository extends RepositoryAbstraction
 			
 			$query = $entityManager->createQuery($dql);
 			$query->execute();
-
-//			$connection = $entityManager->getConnection();
-//			$statement = $connection->prepare($sql);
-//			$result = $statement->execute();
-//
-//			// Throw the exception if the exceptions are not thrown by the statement
-//			if ( ! $result) {
-//				$errorInfo = $statement->errorInfo();
-//				$errorString = $errorInfo[2];
-//				throw new \PDOException($errorString);
-//			}
 
 			$arrayHelper->move($node, $pos, $levelDiff);
 		});

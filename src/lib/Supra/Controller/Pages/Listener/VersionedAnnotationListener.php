@@ -37,6 +37,9 @@ class VersionedAnnotationListener extends VersionedTableMetadataListener impleme
 	
 	public function getSubscribedEvents()
 	{
+		\Supra\ObjectRepository\ObjectRepository::getLogger($this)
+				->warn(__CLASS__ . " should not be used anymore, please remove from database configuration. It does nothing.");
+		
 		return array(
 			//Events::loadClassMetadata, // isn't used for now
 			//self::schemaUpdateEvent,

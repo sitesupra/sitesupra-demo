@@ -16,13 +16,22 @@ class TableNamePrefixer implements EventSubscriber
 	 * @var string
 	 */
 	private $prefix;
+	
+	/**
+	 * Entity namespace to prefix
+	 * @var string
+	 */
+	private $entityNamespace;
 
 	/**
+	 * Add prefix for tablenames for entities from the namespace provided
 	 * @param string $prefix
+	 * @param string $prefixNamespace
 	 */
-	public function __construct($prefix)
+	public function __construct($prefix, $entityNamespace = 'Supra')
 	{
 		$this->prefix = $prefix;
+		$this->entityNamespace = trim($entityNamespace, '\\');
 	}
 	
 	/**
@@ -42,8 +51,16 @@ class TableNamePrefixer implements EventSubscriber
 		$classMetadata = $eventArgs->getClassMetadata();
 		$name = &$classMetadata->table['name'];
 		
-		// Add supra prefix for supra entities if not added already
-		if (strpos($classMetadata->namespace, 'Supra\\') === 0 && strpos($name, $this->prefix) !== 0) {
+		// Add supra prefix for entities matching the namespace
+		if ($this->entityNamespace !== '') {
+			if ($classMetadata->name != $this->entityNamespace 
+					&& strpos($classMetadata->name, $this->entityNamespace . '\\') !== 0) {
+				return;
+			}
+		}
+		
+		// Add supra prefix for entities if not added already
+		if (strpos($name, $this->prefix) !== 0) {
 			$name = $this->prefix . $name;
 		}
 	}

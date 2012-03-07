@@ -7,9 +7,6 @@ use Doctrine\Common\EventSubscriber;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use ReflectionClass;
-use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 use Doctrine\ORM\PersistentCollection;
@@ -19,7 +16,7 @@ use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Event\PageEventArgs;
 
-class EntityRevisionListener implements EventSubscriber
+class EntityRevisionSetterListener implements EventSubscriber
 {
 	
 	/**
@@ -61,42 +58,15 @@ class EntityRevisionListener implements EventSubscriber
 
 	public function getSubscribedEvents()
 	{
-		ObjectRepository::getLogger($this)
-				->warn("Listener " . __CLASS__ . " has been refactored into two separate listeners, please upgrade configuration");
-		
 		return array(
 			Events::onFlush,
 			AuditEvents::pagePreRestoreEvent,
 			AuditEvents::pagePostRestoreEvent,
 			AuditEvents::pagePreEditEvent,
-			
 			AuditEvents::pageContentEditEvent,
 		);
 	}
 	
-	/**
-	 * Maps `revision` field/column for Draft (affects Public also) schema
-	 * for entities that implements AuditedEntity interface
-	 * 
-	 * @param LoadClassMetadataEventArgs $eventArgs
-	 */
-	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
-	{
-		$metadata = $eventArgs->getClassMetadata();
-		$class = new ReflectionClass($metadata->name);
-		
-		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
-			if ( ! $metadata->hasField('revision')) {
-				$metadata->mapField(array(
-					'fieldName' => 'revision',
-					'type' => 'string',
-					'columnName' => 'revision',
-					'length' => 20,
-				));
-			}
-		}
-	}
-
 	/**
 	 * Listen all entity insertions and updates performed by Draft entity manager,
 	 * update their revision Id

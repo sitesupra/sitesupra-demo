@@ -11,6 +11,8 @@ use Doctrine\DBAL\Types\Type;
  */
 class UnknownType extends Type
 {
+	const CN = __CLASS__;
+	
 	private $name = 'unknown';
 	
     public function getName()

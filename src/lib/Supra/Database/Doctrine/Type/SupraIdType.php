@@ -10,6 +10,8 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
  */
 class SupraIdType extends Type
 {
+	const CN = __CLASS__;
+	
 	const NAME = 'supraId20';
 	
 	/**

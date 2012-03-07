@@ -11,6 +11,8 @@ use Supra\Uri\Path;
  */
 class PathType extends StringType
 {
+	const CN = __CLASS__;
+	
 	const NAME = 'path';
 	
 	/**

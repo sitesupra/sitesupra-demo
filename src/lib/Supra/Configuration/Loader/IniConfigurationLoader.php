@@ -13,12 +13,12 @@ class IniConfigurationLoader
 	/**
 	 * @var string
 	 */
-	private $filename;
+	protected $filename;
 	
 	/**
 	 * @var array
 	 */
-	private $data;
+	protected $data;
 	
 	/**
 	 * @param string $filename
@@ -32,6 +32,15 @@ class IniConfigurationLoader
 		$data = $parser->parseFile($this->filename);
 		
 		$this->data = $data;
+	}
+	
+	/**
+	 * Get all data
+	 * @return array
+	 */
+	public function getData()
+	{
+		return $this->data;
 	}
 	
 	/**
