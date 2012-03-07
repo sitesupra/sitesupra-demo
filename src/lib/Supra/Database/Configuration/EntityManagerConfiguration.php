@@ -258,7 +258,7 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		$databasePlatform->registerDoctrineTypeMapping('enum', 'string');	
 
 		// for debugging and su:schema:update command
-		$em->_mode = $this->name;
+		$entityManager->_mode = $this->name;
 	}
 	
 	protected function bindEntityManagerInObjectRepository(EntityManager $entityManager)
