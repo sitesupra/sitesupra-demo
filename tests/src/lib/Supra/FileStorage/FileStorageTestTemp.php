@@ -11,7 +11,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for EmptyController
  */
-class FileStorageTestLocal extends \PHPUnit_Extensions_OutputTestCase
+class FileStorageTestLocal extends \PHPUnit_Framework_TestCase
 {
 
 	const DELETE_FILES = true;

@@ -12,7 +12,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for EmptyController
  */
-class EmptyControllerTest extends \PHPUnit_Extensions_OutputTestCase
+class EmptyControllerTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * Tests execution

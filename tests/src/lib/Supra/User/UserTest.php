@@ -13,7 +13,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for EmptyController
  */
-class UserTest extends \PHPUnit_Extensions_OutputTestCase
+class UserTest extends \PHPUnit_Framework_TestCase
 {
 	const TEST_USER_NAME = 'Chuck123';
 	

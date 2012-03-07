@@ -13,7 +13,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for EmptyController
  */
-class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
+class RemoteUserProviderTest extends \PHPUnit_Framework_TestCase
 {
 
 	/**

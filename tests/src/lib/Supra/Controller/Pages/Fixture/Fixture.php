@@ -8,7 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
-class Fixture extends \PHPUnit_Extensions_OutputTestCase
+class Fixture extends \PHPUnit_Framework_TestCase
 {
 	public function testFixture()
 	{

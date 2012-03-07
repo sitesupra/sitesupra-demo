@@ -12,7 +12,7 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for EmptyController
  */
-class ImageProcessorTest extends \PHPUnit_Extensions_OutputTestCase
+class ImageProcessorTest extends \PHPUnit_Framework_TestCase
 {
 	
 	public function testGetImageInfo()
