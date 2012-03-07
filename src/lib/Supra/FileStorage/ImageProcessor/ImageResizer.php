@@ -107,15 +107,19 @@ class ImageResizer extends ImageProcessor
 
 			$dimensions = 
 					$this->calculateDimensions($imageInfo['width'], $imageInfo['height']);
-			extract($dimensions);
+			
+			$sourceLeft = $dimensions['sourceLeft'];
+			$sourceTop = $dimensions['sourceTop'];
+			$sourceWidth = $dimensions['sourceWidth'];
+			$sourceHeight = $dimensions['sourceHeight'];
+			$destWidth = $dimensions['destWidth'];
+			$destHeight = $dimensions['destHeight'];
 			
 			// create image resource for new image
 			$resizedImage = imagecreatetruecolor($destWidth, $destHeight);
 			// check if transparecy requires special treatment
-			if (($imageInfo['mime'] == 'image/png') 
-				|| ($imageInfo['mime'] == 'image/png')
-			) {
-				$this->preserveTransparency($sourceImage, $resizedImage);
+			if ($imageInfo[2] == IMAGETYPE_PNG) {
+				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo[2]);
 			}
 			
 			// copy and resize
@@ -127,7 +131,7 @@ class ImageResizer extends ImageProcessor
 
 			// save to file
 			$this->saveImageToFile($resizedImage, $this->targetFilename, 
-					$imageInfo['mime'], $this->targetQuality);
+					$imageInfo[2], $this->targetQuality, $imageInfo['mime']);
 
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			// copy original

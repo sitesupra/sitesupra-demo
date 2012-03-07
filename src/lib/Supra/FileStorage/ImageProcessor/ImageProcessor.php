@@ -39,7 +39,7 @@ abstract class ImageProcessor
 	 */
 	public function getImageInfo($filename)
 	{
-		if( ! file_exists($filename)|| ! is_readable($filename)) {
+		if ( ! file_exists($filename)|| ! is_readable($filename)) {
 			throw new ImageProcessorException('File ' . $filename . ' not found');
 		}
 		
@@ -114,9 +114,9 @@ abstract class ImageProcessor
 				throw new ImageProcessorException('Could not retrieve image info');
 			}
 			
-			switch ($imageInfo['mime']) {
+			switch ($imageInfo[2]) {
 				
-        		case 'image/gif':
+        		case IMAGETYPE_GIF:
 					if (imagetypes() & IMG_GIF) {
 						$image = imageCreateFromGIF($filename) ;
 					} else {
@@ -124,7 +124,7 @@ abstract class ImageProcessor
 					}
 					break;
 					
-				case 'image/jpeg':
+				case IMAGETYPE_JPEG:
 					if (imagetypes() & IMG_JPG) {
 						$image = imageCreateFromJPEG($filename) ;
 					} else {
@@ -132,7 +132,7 @@ abstract class ImageProcessor
 					}
 					break;
 					
-				case 'image/png':
+				case IMAGETYPE_PNG:
 					if (imagetypes() & IMG_PNG) {
 						$image = imageCreateFromPNG($filename) ;
 					} else {
@@ -140,7 +140,7 @@ abstract class ImageProcessor
 					}
 					break;
 					
-				case 'image/wbmp':
+				case IMAGETYPE_WBMP:
 					if (imagetypes() & IMG_WBMP) {
 						$image = imageCreateFromWBMP($filename) ;
 					} else {
@@ -164,15 +164,15 @@ abstract class ImageProcessor
 	/**
 	 * Save gd image to file
 	 *
-	 * @param type $image
-	 * @param type $filename
-	 * @param type $mimeType
-	 * @param type $jpegQuality
+	 * @param resource $image
+	 * @param string $filename
+	 * @param int $mimeType
+	 * @param int $jpegQuality
 	 */
-	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100) 
+	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100, $mimeName = null) 
 	{
 		switch ($mimeType) {
-			case 'image/gif':
+			case IMAGETYPE_GIF:
 				if (imagetypes() & IMG_GIF) {
 					return imagegif($image, $filename);
 				} else {
@@ -180,7 +180,7 @@ abstract class ImageProcessor
 				}
 				break;
 
-			case 'image/jpeg':
+			case IMAGETYPE_JPEG:
 				if (imagetypes() & IMG_JPG) {
 					return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
 				} else {
@@ -188,7 +188,7 @@ abstract class ImageProcessor
 				}
 				break;
 
-			case 'image/png':
+			case IMAGETYPE_PNG:
 				if (imagetypes() & IMG_PNG) {
 					return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
 				} else {
@@ -196,7 +196,7 @@ abstract class ImageProcessor
 				}
 				break;
 
-			case 'image/wbmp':
+			case IMAGETYPE_WBMP:
 				if (imagetypes() & IMG_WBMP) {
 					return imagewbmp($image, $filename);
 				} else {
@@ -205,7 +205,7 @@ abstract class ImageProcessor
 				break;
 
 			default:
-				throw new ImageProcessorException($this->originalImageInfo['mime'] . ' images are not supported');
+				throw new ImageProcessorException(($mimeName ?: $mimeType) . ' images are not supported');
 				break;
 		}	
 	}
@@ -292,8 +292,9 @@ abstract class ImageProcessor
 	 * 
 	 * @param resource $sourceImage
 	 * @param resource $destImage 
+	 * @param integer $mimeType
 	 */
-	protected function preserveTransparency($sourceImage, $destImage)
+	protected function preserveTransparency($sourceImage, $destImage, $mimeType)
 	{
 		$transparentIndex = imagecolortransparent($sourceImage);
 
@@ -313,7 +314,7 @@ abstract class ImageProcessor
 			imagecolortransparent($destImage, $transparentIndex);
 		}
 		// Always make a transparent background color for PNGs that don't have one allocated already
-		elseif ($this->originalImageInfo[2] == IMAGETYPE_PNG) {
+		elseif ($mimeType == IMAGETYPE_PNG) {
 
 			// Turn off transparency blending (temporarily)
 			imagealphablending($destImage, false);

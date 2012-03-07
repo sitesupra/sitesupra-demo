@@ -163,10 +163,8 @@ class ImageCropper extends ImageProcessor
 		$croppedImage = imagecreatetruecolor($this->width, $this->height);
 		
 		// check if transparecy requires special treatment
-		if (($imageInfo['mime'] == 'image/png') 
-			|| ($imageInfo['mime'] == 'image/png')
-		) {
-			$this->preserveTransparency($image, $croppedImage);
+		if ($imageInfo[2] == IMAGETYPE_PNG) {
+			$this->preserveTransparency($image, $croppedImage, $imageInfo[2]);
 		}
 
 		//copy cropped
@@ -177,7 +175,7 @@ class ImageCropper extends ImageProcessor
 
 		// save to file
 		$this->saveImageToFile($croppedImage, $this->targetFilename, 
-				$imageInfo['mime'], $this->targetQuality);
+				$imageInfo[2], $this->targetQuality, $imageInfo['mime']);
 		
 	}
 
