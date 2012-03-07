@@ -194,16 +194,6 @@ class RemoteUserProviderTest extends \PHPUnit_Extensions_OutputTestCase
 		}
 	}
 
-	public function testLoadUserByUsername()
-	{
-		$user = $this->userProvider->loadUserByUsername('vasya');
-		$this->validateUser($user, false);
-
-		$user = $this->userProvider->loadUserByUsername('vasya@google.lv');
-		$this->validateUser($user);
-		$this->validateGroup($user->getGroup());
-	}
-
 	public function testRefreshUser()
 	{
 		
