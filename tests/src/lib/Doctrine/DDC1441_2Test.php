@@ -19,15 +19,17 @@ class DDC1441_2Test extends \PHPUnit_Framework_TestCase
 		parent::setUp();
 		
 		$this->em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
-		$proxy = $this->em->getProxyFactory()->getProxy(self::ENTITY_NAME, -1);
-		$this->proxyName = get_class($proxy);
+		$this->proxyName = \Doctrine\Common\Util\ClassUtils::generateProxyClassName(
+				self::ENTITY_NAME, 
+				$this->em->getConfiguration()->getProxyNamespace());
 	}
 	
 	public function testNotLoaded()
 	{
-		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.2.1', 'lt')) {
-			self::markTestSkipped("Is not working in Doctrine ORM " . \Doctrine\ORM\Version::VERSION);
-		}
+		// Fixed inside ORM
+//		if (version_compare(\Doctrine\ORM\Version::VERSION, '2.2.1', 'lt')) {
+//			self::markTestSkipped("Is not working in Doctrine ORM " . \Doctrine\ORM\Version::VERSION);
+//		}
 		
 		// Unsets metadata
 		$this->em->getMetadataFactory()->setMetadataFor($this->proxyName, null);

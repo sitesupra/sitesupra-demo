@@ -155,7 +155,7 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
     public function getMetadataFor($className)
     {
         if ( ! isset($this->loadedMetadata[$className])) {
-            $realClassName = $className;
+            $realClassName = \Doctrine\Common\Util\ClassUtils::getRealClass($className);
 
             // Check for namespace alias
             if (strpos($className, ':') !== false) {

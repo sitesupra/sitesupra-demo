@@ -141,8 +141,8 @@ class PageRequestEdit extends PageRequest
 			}
 		}
 		
-		$publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-		$publicEm->getProxyFactory()->getProxy(PageLocalizationPath::CN(), -1);
+//		$publicEm->getProxyFactory()->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+//		$publicEm->getProxyFactory()->getProxy(PageLocalizationPath::CN(), -1);
 
 		// This IS still actual, after ORM version up to 2.2.0
 		// @TODO check in 2.3? 

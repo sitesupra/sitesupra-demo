@@ -139,11 +139,11 @@ class EntityAuditListener implements EventSubscriber
 		// that were mapped for another schemas (for example - `lock_id` in Draft)
 		$this->auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 		
-		$this->auditEm->getProxyFactory()
-				->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
-		
-		$this->auditEm->getProxyFactory()
-				->getProxy(BlockProperty::CN(), -1);
+//		$this->auditEm->getProxyFactory()
+//				->getProxy(Entity\ReferencedElement\LinkReferencedElement::CN(), -1);
+//		
+//		$this->auditEm->getProxyFactory()
+//				->getProxy(BlockProperty::CN(), -1);
 		
 		if ($eventArgs instanceof LifecycleEventArgs) {
 			$this->em = $eventArgs->getEntityManager();
