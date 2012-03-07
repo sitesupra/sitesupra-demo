@@ -39,7 +39,7 @@ class UserTest extends \PHPUnit_Framework_TestCase
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 		$this->em = ObjectRepository::getEntityManager($this->userProvider);
 		
-		self::assertEquals('test', $this->em->_mode);
+		self::assertEquals('#tests', $this->em->_mode);
 		
 		$plainPassword = 'Norris';
 		$this->password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
@@ -86,7 +86,7 @@ class UserTest extends \PHPUnit_Framework_TestCase
 		$user->setEmail($randomEmail);
 		
 		$this->userProvider->credentialChange($user, $this->password);
-		$this->userProvider->updateUser($user);
+		$this->userProvider->insertUser($user);
 	}
 
 	public function testModifyUser()
@@ -181,7 +181,7 @@ class UserTest extends \PHPUnit_Framework_TestCase
 		$this->userProvider->credentialChange($user, $this->password);
 
 		$userProvider->validate($user);
-		$this->userProvider->updateUser($user);
+		$this->userProvider->insertUser($user);
 
 		$user = $userProvider->createUser();
 

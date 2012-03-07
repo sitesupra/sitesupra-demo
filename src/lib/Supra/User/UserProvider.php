@@ -235,7 +235,7 @@ class UserProvider extends UserProviderAbstract
 		$entityManager = $this->getEntityManager();
 
 		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
-			throw new Exception\RuntimeException('Presented user entity is not managed');
+			throw new Exception\RuntimeException('Presented user entity is not managed. Call insertUser instead of updateUser for new user entities.');
 		}
 
 		$entityManager->flush();
@@ -249,7 +249,7 @@ class UserProvider extends UserProviderAbstract
 		$entityManager = $this->getEntityManager();
 
 		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
-			throw new Exception\RuntimeException('Presented group entity is not managed');
+			throw new Exception\RuntimeException('Presented group entity is not managed. Call insertGroup instead of updateGroup for new user entities.');
 		}
 
 		$entityManager->flush();

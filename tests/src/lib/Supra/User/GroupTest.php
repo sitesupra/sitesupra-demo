@@ -32,7 +32,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
 		$this->userProvider = ObjectRepository::getUserProvider($this);
 		$this->em = ObjectRepository::getEntityManager($this->userProvider);
 		
-		self::assertEquals('test', $this->em->_mode);
+		self::assertEquals('#tests', $this->em->_mode);
 		
 		$this->em->getUnitOfWork()
 				->clear();
@@ -67,7 +67,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
 		$group->setName('Super Heroes');
 
 		$this->userProvider
-				->updateGroup($group);
+				->insertGroup($group);
 		
 	}
 
@@ -81,7 +81,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
 		$group->setName('group111');
 		
 		$this->userProvider
-				->updateGroup($group);
+				->insertGroup($group);
 
 		foreach (array('user1', 'user2', 'user444') as $userName) {
 
@@ -94,7 +94,7 @@ class GroupTest extends \PHPUnit_Framework_TestCase
 			$user->setGroup($group);
 			
 			$this->userProvider
-					->updateUser($user);
+					->insertUser($user);
 		}
 
 		$group2 = $this->userProvider->findGroupByName('group111');
