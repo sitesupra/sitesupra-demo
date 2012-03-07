@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Events;
-use Supra\Controller\Pages\Listener\VersionedAnnotationListener;
 use Supra\Database\Upgrade\DatabaseUpgradeRunner;
 use Supra\Database\Upgrade\SqlUpgradeFile;
 
