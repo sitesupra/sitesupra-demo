@@ -231,57 +231,66 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		$object = null;
 
 		ObjectRepository::setApplicationConfiguration($caller, $object = new \Supra\Cms\ApplicationConfiguration());
+		ObjectRepository::setApplicationConfiguration('xxx2', $object2 = new \Supra\Cms\ApplicationConfiguration());
 		self::assertSame($object, ObjectRepository::getApplicationConfiguration($caller));
-		self::assertNotEquals($object, ObjectRepository::getApplicationConfiguration('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getApplicationConfiguration('xxx2'));
 		ObjectRepository::setDefaultApplicationConfiguration($object = new \Supra\Cms\ApplicationConfiguration());
 		self::assertSame($object, ObjectRepository::getApplicationConfiguration('xxx'));
 
 		ObjectRepository::setAuthorizationProvider($caller, $object = new \Supra\Authorization\AuthorizationProvider());
+		ObjectRepository::setAuthorizationProvider('xxx2', $object2 = new \Supra\Authorization\AuthorizationProvider());
 		self::assertSame($object, ObjectRepository::getAuthorizationProvider($caller));
-		self::assertNotEquals($object, ObjectRepository::getAuthorizationProvider('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getAuthorizationProvider('xxx2'));
 		ObjectRepository::setDefaultAuthorizationProvider($object = new \Supra\Authorization\AuthorizationProvider());
 		self::assertSame($object, ObjectRepository::getAuthorizationProvider('xxx'));
 
 //		ObjectRepository::setEntityManager($caller, new \Doctrine\ORM\EntityManager());
 		ObjectRepository::setFileStorage($caller, $object = new \Supra\FileStorage\FileStorage());
+		ObjectRepository::setFileStorage('xxx2', $object2 = new \Supra\FileStorage\FileStorage());
 		self::assertSame($object, ObjectRepository::getFileStorage($caller));
-		self::assertNotEquals($object, ObjectRepository::getFileStorage('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getFileStorage('xxx2'));
 		ObjectRepository::setDefaultFileStorage($object = new \Supra\FileStorage\FileStorage());
 		self::assertSame($object, ObjectRepository::getFileStorage('xxx'));
 
 		ObjectRepository::setSolariumClient($caller, $object = new \Solarium_Client());
+		ObjectRepository::setSolariumClient('xxx2', $object2 = new \Solarium_Client());
 		self::assertSame($object, ObjectRepository::getSolariumClient($caller));
-		self::assertNotEquals($object, ObjectRepository::getSolariumClient('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getSolariumClient('xxx2'));
 		ObjectRepository::setDefaultSolariumClient($object = new \Solarium_Client());
 		self::assertSame($object, ObjectRepository::getSolariumClient('xxx'));
 
 		ObjectRepository::setLocaleManager($caller, $object = new \Supra\Locale\LocaleManager());
+		ObjectRepository::setLocaleManager('xxx2', $object2 = new \Supra\Locale\LocaleManager());
 		self::assertSame($object, ObjectRepository::getLocaleManager($caller));
-		self::assertNotEquals($object, ObjectRepository::getLocaleManager('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getLocaleManager('xxx2'));
 		ObjectRepository::setDefaultLocaleManager($object = new \Supra\Locale\LocaleManager());
 		self::assertSame($object, ObjectRepository::getLocaleManager('xxx'));
 
 		ObjectRepository::setLogger($caller, $object = new \Supra\Log\Writer\FileWriter());
+		ObjectRepository::setLogger('xxx2', $object2 = new \Supra\Log\Writer\FileWriter());
 		self::assertSame($object, ObjectRepository::getLogger($caller));
-		self::assertNotEquals($object, ObjectRepository::getLogger('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getLogger('xxx2'));
 		ObjectRepository::setDefaultLogger($object = new \Supra\Log\Writer\FileWriter());
 		self::assertSame($object, ObjectRepository::getLogger('xxx'));
 
 		ObjectRepository::setMailer($caller, $object = new \Supra\Mailer\Mailer(new \Swift_NullTransport()));
+		ObjectRepository::setMailer('xxx2', $object2 = new \Supra\Mailer\Mailer(new \Swift_NullTransport()));
 		self::assertSame($object, ObjectRepository::getMailer($caller));
-		self::assertNotEquals($object, ObjectRepository::getMailer('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getMailer('xxx2'));
 		ObjectRepository::setDefaultMailer($object = new \Supra\Mailer\Mailer(new \Swift_NullTransport()));
 		self::assertSame($object, ObjectRepository::getMailer('xxx'));
 
 		ObjectRepository::setUserProvider($caller, $object = new \Supra\User\UserProvider());
+		ObjectRepository::setUserProvider('xxx2', $object2 = new \Supra\User\UserProvider());
 		self::assertSame($object, ObjectRepository::getUserProvider($caller));
-		self::assertNotEquals($object, ObjectRepository::getUserProvider('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getUserProvider('xxx2'));
 		ObjectRepository::setDefaultUserProvider($object = new \Supra\User\UserProvider());
 		self::assertSame($object, ObjectRepository::getUserProvider('xxx'));
 
 		ObjectRepository::setSessionManager($caller, $object = new \Supra\Session\SessionManager(new \Supra\Session\Handler\PhpSessionHandler()));
+		ObjectRepository::setSessionManager('xxx2', $object2 = new \Supra\Session\SessionManager(new \Supra\Session\Handler\PhpSessionHandler()));
 		self::assertSame($object, ObjectRepository::getSessionManager($caller));
-		self::assertNotEquals($object, ObjectRepository::getSessionManager('xxx'));
+		self::assertNotEquals($object, ObjectRepository::getSessionManager('xxx2'));
 		ObjectRepository::setDefaultSessionManager($object = new \Supra\Session\SessionManager(new \Supra\Session\Handler\PhpSessionHandler()));
 		self::assertSame($object, ObjectRepository::getSessionManager('xxx'));
 
