@@ -185,8 +185,8 @@ class PageController extends ControllerAbstraction
 		$this->prepareBlockControllers();
 		\Log::debug("Blocks prepared for {$page}");
 		
-		// The cache might be context dependant
-		$this->findContextDependantBlockCache();
+		// The cache might be context dependent
+		$this->findContextDependentBlockCache();
 
 		$this->executeBlockControllers();
 		\Log::debug("Blocks executed for {$page}");
@@ -383,7 +383,7 @@ class PageController extends ControllerAbstraction
 	/**
 	 * Late cache check for blocks which cache key depends on response context values
 	 */
-	protected function findContextDependantBlockCache()
+	protected function findContextDependentBlockCache()
 	{
 		$request = $this->getRequest();
 		
@@ -443,7 +443,7 @@ class PageController extends ControllerAbstraction
 		};
 		
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDANT_CACHE_SEARCH);
+		$this->blockControllers = $this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH);
 	}
 
 	/**
@@ -620,7 +620,7 @@ class PageController extends ControllerAbstraction
 				if ( ! is_null($eventAction)) {
 					
 					if ($eventAction == Listener\BlockExecuteListener::ACTION_CACHE_SEARCH
-							|| $eventAction == Listener\BlockExecuteListener::ACTION_DEPENDANT_CACHE_SEARCH) {
+							|| $eventAction == Listener\BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH) {
 						
 						if (isset($this->blockContentCache[$block->getId()])) {
 							$eventArgs->blockCacheInfo = (Listener\BlockExecuteListener::ACTION_CACHE_SEARCH ? Listener\BlockExecuteListener::CACHE_TYPE_FULL : Listener\BlockExecuteListener::CACHE_TYPE_CONTEXT);

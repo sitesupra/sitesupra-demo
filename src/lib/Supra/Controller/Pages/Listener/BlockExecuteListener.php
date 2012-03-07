@@ -21,12 +21,12 @@ class BlockExecuteListener implements EventSubscriber
 	const ACTION_CACHE_SEARCH = 'search cache';
 	const ACTION_CONTROLLER_SEARCH = 'find controller';
 	const ACTION_CONTROLLER_PREPARE = 'prepare controller';
-	const ACTION_DEPENDANT_CACHE_SEARCH = 'search context dependent cache';
+	const ACTION_DEPENDENT_CACHE_SEARCH = 'search context dependent cache';
 	const ACTION_CONTROLLER_EXECUTE = 'execute controller';
 	const ACTION_RESPONSE_COLLECT = 'collect responses';
 	
 	const CACHE_TYPE_FULL = 'full';
-	const CACHE_TYPE_CONTEXT = 'context dependant';
+	const CACHE_TYPE_CONTEXT = 'context dependent';
 	
 	/**
 	 * Statistics output array

@@ -51,7 +51,7 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	 * Get cache key where to store the block, return null if not cacheable
 	 * @param Localization $page
 	 * @param Block $block
-	 * @param ResponseContext $context used if cache is context dependant
+	 * @param ResponseContext $context used if cache is context dependent
 	 * @return string 
 	 */
 	public function getCacheKey(Localization $page, Block $block, ResponseContext $context = null)
