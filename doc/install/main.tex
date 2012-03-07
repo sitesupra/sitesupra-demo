@@ -376,17 +376,6 @@ mysql> use \vigProjectNameShort;
 mysql> \textbackslash. {\vigReleasePath}{\vigPackageName}.dump.\vigReleaseVersion.sql
 \end{alltt}
 
-\subsection{SiteSupra CMS account creation}
-
-To be able to sign into the CMS system available by path "/cms/" the first CMS administrator must be created. This can be done from the command line:
-
-\begin{alltt}
-\$ php /var/www/bin/supra su:user:create_user \textbackslash
-\ \ \ \ --name MyName my@email.com
-\end{alltt}
-
-Use your name and email address instead sample values in the example. After the command is executed the user will be created and approval email will be sent. Inside the email message will be a link. Following the link the new account password can be set. Make sure the link contains correct domain name where the SiteSupra is installed. Otherwise modify the relevant supra.ini configuration.
-
 \subsection{Scheduled Task Configuration}
 
 Application needs a scheduled task to be installed on the Web Server. The command
@@ -441,6 +430,20 @@ RewriteCond \%\{REQUEST_FILENAME\} -f
 RewriteRule ^ - [L,NS]
 RewriteRule ^.*\$ index.php/\$0 [L,NS]
 \end{alltt}
+
+\subsection{SiteSupra CMS account creation}
+
+To be able to sign into the CMS system available by path "/cms/" the first CMS administrator must be created. This can be done from the command line:
+
+\begin{alltt}
+\$ php /var/www/bin/supra su:user:create_user \textbackslash
+\ \ \ \ --name MyName my@email.com
+\end{alltt}
+
+Use your name and email address instead of the sample values. 
+Approval email with link to set an account password will be sent to the email address provided.
+
+\note{If the link doesn't work make sure it contains correct domain where the SiteSupra is installed. You can change the project's domain name used in the emails sent by modifying the relevant \texttt{supra.ini} configuration.}
 
 \subsection{Reindex Search\label{reindexSearch}}
 Rebuild of search index is required when the database is installed for the first time. Depending on database size, rebuilding of search index may take several minutes. It can be done by running these commands:
