@@ -664,7 +664,7 @@ YUI.add("website.datagrid", function (Y) {
 						continue;
 					}
 					
-					if (data.id == 'id' || (!id_col && String(data.id).indexOf('id') != -1)) {
+					if (data.id == 'id' || (!id_col && String(data.id).match(/(^|[^a-z])id([^a-z]|$)/i))) {
 						id_col = data.id;
 					}
 					
