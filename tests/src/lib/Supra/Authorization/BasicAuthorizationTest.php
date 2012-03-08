@@ -75,7 +75,7 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		$password = new \Supra\Authentication\AuthenticationPassword($plainPassword);
 		
 		$this->up->credentialChange($user, $password);
-		$this->up->updateUser($user);
+		$this->up->createUser($user);
 
 		\Log::debug('Made test user: ' . $name);
 		

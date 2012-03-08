@@ -2,7 +2,7 @@
 
 namespace Supra\Payment\Action;
 
-class CommonProxyActionAbstraction extends ProxyActionAbstraction
+abstract class CommonProxyActionAbstraction extends ProxyActionAbstraction
 {
 	const PHASE_NAME_PROXY_FORM = 'proxy-form';
 	const PHASE_NAME_PROXY_REDIRECT = 'proxy-redirect';
