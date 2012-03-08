@@ -542,7 +542,7 @@ class EntityAuditListener implements EventSubscriber
 	{
 		$this->prepareEnvironment($eventArgs);
 		
-		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_CREATE);
+		$revisionData = $this->createRevisionData(PageRevisionData::TYPE_HISTORY_RESTORE);
 		
 		$this->staticRevisionId = $revisionData->getId();
 
@@ -671,6 +671,7 @@ class EntityAuditListener implements EventSubscriber
 		
 		$request = PageRequestEdit::factory($localization);
 		$request->setDoctrineEntityManager($this->em);
+		$request->setLocale($localization->getLocale());
 		
 		$blockSet = $request->getBlockSet();
 		foreach($blockSet as $block) {

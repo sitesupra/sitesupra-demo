@@ -452,16 +452,17 @@ abstract class PageRequest extends HttpRequest
 				$master = $block->getPlaceHolder()
 						->getMaster()
 						->getMaster();
+				
+				$data = $master->getLocalization($this->locale);
 			}
 			else {
-				$master = $page;
+				//$master = $page;
+				$data = $this->getPageLocalization();
 			}
 
 			//\Log::debug("Master node for {$block} is found - {$master}");
 
 			// FIXME: n+1 problem
-			$data = $master->getLocalization($this->locale);
-
 			if (empty($data)) {
 				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
 				$blockSet->removeInvalidBlock($block, "Page data for locale not found");

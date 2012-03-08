@@ -966,7 +966,7 @@ abstract class PageManagerAction extends CmsAction
 				->setResponseData(true);
 	}
 	
-	public function duplicateGlobal()
+	protected function duplicateGlobal()
 	{
 		$localeId = $this->getRequestParameter('locale');
 		$localeManager = ObjectRepository::getLocaleManager($this);

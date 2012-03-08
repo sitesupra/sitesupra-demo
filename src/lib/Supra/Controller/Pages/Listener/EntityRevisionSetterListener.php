@@ -106,7 +106,10 @@ class EntityRevisionSetterListener implements EventSubscriber
 				//   - when changeset contains only associated collection
 				//   - when Localization lock/unlock action is performed (lock column value update)
 				if ($fieldValue instanceof PersistentCollection
-						|| ($entity instanceof Localization && $fieldName == 'lock')) {
+						|| ($entity instanceof Localization && $fieldName == 'lock')
+						|| $fieldName == 'revision'
+						|| ($fieldValue[0] instanceof \DateTime && $fieldValue[0] == $fieldValue[1])
+						|| ($fieldValue[0] instanceof \Supra\Editable\EditableAbstraction && $fieldValue[0] == $fieldValue[1])) {
 					unset($changeSet[$fieldName]);
 				}
 			}
