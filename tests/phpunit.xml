@@ -16,6 +16,8 @@
 			<exclude>
 				<directory>../src/lib/Supra/Proxy</directory>
 				<directory suffix="Interface.php">../src/lib</directory>
+				<file>../src/lib/Swift/swift_required.php</file>
+				<file>../src/lib/Swift/swift_required_pear.php</file>
 				<directory suffix=".skip.php">../src/lib</directory>
 			</exclude>
 		</whitelist>
