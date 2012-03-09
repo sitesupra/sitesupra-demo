@@ -223,7 +223,7 @@ class RemoteFindUserCommand extends RemoteFindAbstraction
 			return $user;
 		}
 
-		$userGroup = $siteUser->getUserGroup();
+		$userGroup = $siteUser->getGroup();
 		if ( ! $userGroup instanceof Entity\Group) {
 			$this->log->debug('Site user group is not defined. Failed to set group for user ' . $user->getEmail());
 			return $user;

@@ -25,7 +25,7 @@ class SiteUserProvider extends UserProviderAbstract
 	 * @var SiteEntity\Site
 	 */
 	private $siteEntity = null;
-	
+
 	/**
 	 * Returns site entity
 	 * @return type 
@@ -39,12 +39,12 @@ class SiteUserProvider extends UserProviderAbstract
 	 * Sets site entity
 	 * @param SiteEntity\Site $siteEntity 
 	 */
-	public function setSiteEntity($siteEntity)
+	public function setSiteEntity(SiteEntity\Site $siteEntity)
 	{
 		$this->siteEntity = $siteEntity;
+		$this->siteKey = $siteEntity->getId();
 	}
 
-	
 	/**
 	 * @return \Doctrine\ORM\QueryBuilder 
 	 */
@@ -144,22 +144,29 @@ class SiteUserProvider extends UserProviderAbstract
 	 */
 	public function findUserById($id)
 	{
-		$qb = $this->getDefaultUserQuery();
-		$qb->andWhere('su.user = :value');
-		$qb->setParameter('value', $id);
+		if (empty($this->siteKey)) {
+			$entityManager = $this->getEntityManager();
 
-		$result = array();
-		try {
-			$result = $qb->getQuery()->getSingleResult();
-		} catch (NoResultException $e) {
+			return $entityManager->find(Entity\User::CN(), $id);
+		} else {
+		
+			$qb = $this->getDefaultUserQuery();
+			$qb->andWhere('su.user = :value');
+			$qb->setParameter('value', $id);
+
+			$result = array();
+			try {
+				$result = $qb->getQuery()->getSingleResult();
+			} catch (NoResultException $e) {
+				return null;
+			}
+
+			if ($result instanceof SiteUser) {
+				return $result->getUser();
+			}
+
 			return null;
 		}
-
-		if ($result instanceof SiteUser) {
-			return $result->getUser();
-		}
-
-		return null;
 	}
 
 	/**
@@ -226,7 +233,7 @@ class SiteUserProvider extends UserProviderAbstract
 		}
 
 		if ($result instanceof SiteUser) {
-			return $result->getUserGroup();
+			return $result->getGroup();
 		}
 
 		return null;
@@ -250,34 +257,35 @@ class SiteUserProvider extends UserProviderAbstract
 		}
 
 		if ($result instanceof SiteUser) {
-			return $result->getUserGroup();
+			return $result->getGroup();
 		}
 
 		return null;
 	}
 
-	private function getDataFromResult($result, $entity) {
+	private function getDataFromResult($result, $entity)
+	{
 		$data = array();
 		foreach ($result as $row) {
 			if ( ! $row instanceof SiteUser) {
 				continue;
 			}
 
-			if($entity == Entity\User::CN()) {
+			if ($entity == Entity\User::CN()) {
 				$user = $row->getUser();
-				if($user instanceof $entity) {
+				if ($user instanceof $entity) {
 					$data[] = $user;
 				}
-			} 
-			
+			}
+
 			if ($entity == Entity\Group::CN()) {
-				$data[] = $row->getUserGroup();
+				$data[] = $row->getGroup();
 			}
 		}
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -318,18 +326,18 @@ class SiteUserProvider extends UserProviderAbstract
 	public function getAllUsersInGroup(Entity\Group $group)
 	{
 //		$this->getEntityManager()->clear();
-		
+
 		$qb = $this->getDefaultUserQuery();
 		$qb->join('su.userGroup', 'g')
 				->addSelect('g')
 				->andWhere('g = :group_id');
-		
+
 		$qb->setParameter('group_id', $group->getId());
 
 		$result = array();
 		try {
- 			$result = $qb->getQuery()->getDQL();
- 			$result = $qb->getQuery()->getResult();
+			$result = $qb->getQuery()->getDQL();
+			$result = $qb->getQuery()->getResult();
 		} catch (NoResultException $e) {
 			return null;
 		}
@@ -356,14 +364,14 @@ class SiteUserProvider extends UserProviderAbstract
 
 		return $group;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function doInsertUser(Entity\User $user)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		$entityManager->persist($user);
 
 		if ($entityManager->getUnitOfWork()->getEntityState($user, null) != UnitOfWork::STATE_MANAGED) {
@@ -372,21 +380,21 @@ class SiteUserProvider extends UserProviderAbstract
 
 		$entityManager->flush();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	protected function doInsertGroup(Entity\Group $group)
 	{
-		
-		if( ! ($this->siteEntity instanceof SiteEntity\Site)) {
-			throw new Exception\RuntimeException('Can not make new site-group; site entity not provided.');			
+
+		if ( ! ($this->siteEntity instanceof SiteEntity\Site)) {
+			throw new Exception\RuntimeException('Can not make new site-group; site entity not provided.');
 		}
-		
+
 		$siteuserGroup = new SiteUserGroup();
 		$siteuserGroup->setGroup($group);
 		$siteuserGroup->setSite($this->siteEntity);
-		
+
 		$entityManager = $this->getEntityManager();
 		$entityManager->persist($group);
 		$entityManager->persist($siteuserGroup);
@@ -397,7 +405,6 @@ class SiteUserProvider extends UserProviderAbstract
 
 		$entityManager->flush();
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -444,19 +451,11 @@ class SiteUserProvider extends UserProviderAbstract
 	 */
 	public function getSiteKey()
 	{
-		if(($this->siteEntity instanceof SiteEntity\Site) && $this->siteEntity->getId()) {
-			return $this->siteEntity->getId();
-		}
-
-		if(! empty ($this->siteKey)) {
+		if ( ! empty($this->siteKey)) {
 			return $this->siteKey;
 		}
-		
-		
-		
-		
+
 		throw new Exception\LogicException('Site key not defined; siteKey and siteEntity->id values are null');
-		
 	}
 
 	/**
@@ -466,9 +465,12 @@ class SiteUserProvider extends UserProviderAbstract
 	public function setSiteKey($siteKey)
 	{
 		$this->siteKey = $siteKey;
+		
+		if ( ! empty($this->siteEntity) && $this->siteEntity->getId() != $siteKey) {
+			$this->siteEntity = null;
+		}
 	}
-	
-	
+
 	/**
 	 * Cretae and returns new Site entity
 	 * @param string $subdomainUrl
@@ -476,15 +478,13 @@ class SiteUserProvider extends UserProviderAbstract
 	 */
 	public function createSite($subdomainUrl)
 	{
-		
+
 		$siteEntity = new SiteEntity\Site();
 		$this->getEntityManager()->persist($siteEntity);
 		$siteEntity->setSubdomainUrl($subdomainUrl);
-		$this->siteEntity = $siteEntity;
-		
-		return 	$siteEntity;
-		
+		$this->setSiteEntity($siteEntity);
+
+		return $siteEntity;
 	}
-	
 
 }
