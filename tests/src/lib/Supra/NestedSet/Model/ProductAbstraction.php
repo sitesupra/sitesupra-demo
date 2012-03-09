@@ -362,4 +362,9 @@ abstract class ProductAbstraction extends Entity implements NestedSet\Node\Entit
 	{
 		$this->nestedSetNode = $nestedSetNode;
 	}
+	
+	public function getNestedSetNode()
+	{
+		return $this->nestedSetNode;
+	}
 }
