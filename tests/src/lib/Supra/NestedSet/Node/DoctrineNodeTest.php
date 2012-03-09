@@ -34,11 +34,12 @@ class DoctrineNodeTest extends NodeTest
 
 	/**
 	 * Get Doctrine entity manager
+	 * @param string $connectionId
 	 * @return EntityManager
 	 */
-	protected function getConnection()
+	protected function getConnection($connectionId = '#tests')
 	{
-		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
+		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($connectionId);
 		return $em;
 	}
 	
@@ -47,7 +48,7 @@ class DoctrineNodeTest extends NodeTest
 		$this->getConnection()->remove($node);
 		$this->getConnection()->flush();
 	}
-
+	
 	/**
 	 * Rebuilds database schema
 	 */
@@ -186,8 +187,6 @@ DOC;
 		self::assertEquals($expected, $output);
 	}
 
-	
-
 	public function testPersistRemove()
 	{
 		$car = new Model\Product('Car');
@@ -214,5 +213,18 @@ DOC;
 	{
 		$this->entityManager->persist($product);
 	}
+	
+	// Tried to create simultaneous move...
+//	public function testDoubleMove()
+//	{
+//		$timestamp = strtotime(date('Y-m-d H:i:00', time() + 60));
+//		
+//		time_sleep_until($timestamp);
+//		$this->testMoveAsNextSiblingOf();
+//		
+//		$this->entityManager->commit();
+//		
+//		die();
+//	}
 
 }

@@ -33,6 +33,9 @@ class DraftEntityManagerConfiguration extends EntityManagerConfiguration
 		$eventManager->addEventSubscriber(new Listener\EntityRevisionSetterListener());
 		// Audit entity changes in Draft schema
 		$eventManager->addEventSubscriber(new Listener\EntityAuditListener());
+		
+		// Now public entity manager will receive the page move events as well
+		$eventManager->addEventSubscriber(new Listener\PageMovePublicEventPush());
 	}
 
 }

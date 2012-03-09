@@ -913,5 +913,12 @@ abstract class NodeAbstraction implements NodeInterface
 		
 		return $dumpString;
 	}
-	
+
+	/**
+	 * @return NodeInterface
+	 */
+	public function getMasterNode()
+	{
+		return $this->masterNode;
+	}
 }

@@ -186,13 +186,12 @@ class DoctrineRepository extends RepositoryAbstraction
 		$arrayHelper = $this->arrayHelper;
 		$self = $this;
 		
+		if ( ! $node instanceof Node\DoctrineNode) {
+			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
+		}
+		
 		// Transactional because need to rollback in case of trigger failure
-		$this->entityManager->transactional(function($entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper, $self) {
-			
-			if ( ! $node instanceof Node\DoctrineNode) {
-				throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
-			}
-
+		$this->entityManager->transactional(function(EntityManager $entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper, $self) {
 			$left = $node->getLeftValue();
 			$right = $node->getRightValue();
 			$spaceUsed = $right - $left + 1;
@@ -231,35 +230,19 @@ class DoctrineRepository extends RepositoryAbstraction
 			
 			$query = $entityManager->createQuery($dql);
 			$query->execute();
-
+			
+			// Change node parameters locally as well
+			// TODO: how to rollback these changes if nested set post move trigger fails?
 			$arrayHelper->move($node, $pos, $levelDiff);
 		});
 		
-		
+		// Trigger post move event. Only after transaction is commited because
+		// public schema must update it's stuff as well
+		$masterNode = $node->getMasterNode();
+		$eventArgs = new Event\NestedSetEventArgs($masterNode, $this->entityManager);
+		$this->entityManager->getEventManager()
+				->dispatchEvent(Event\NestedSetEvents::nestedSetPostMove, $eventArgs);
 	}
-
-//	public function oldMove(Node\DoctrineNode $node, $pos, $levelDiff = 0)
-//	{
-//		$pos = (int)$pos;
-//		$levelDiff = (int)$levelDiff;
-//
-//		$left = $node->getLeftValue();
-//		$right = $node->getRightValue();
-//		$diff = $pos - $left;
-//
-//		$dql = "UPDATE {$this->className} e
-//				SET e.left = e.left + {$diff},
-//					e.right = e.right + {$diff},
-//					e.level = e.level + {$levelDiff}
-//				WHERE e.left >= {$left} AND e.right <= {$right}";
-//		
-//		$dql .= $this->getAdditionalCondition('AND');
-//
-//		$query = $this->entityManager->createQuery($dql);
-//		$query->execute();
-//
-//		$this->arrayHelper->move($node, $pos, $levelDiff);
-//	}
 
 	/**
 	 * Deletes the nested set part under the node including the node

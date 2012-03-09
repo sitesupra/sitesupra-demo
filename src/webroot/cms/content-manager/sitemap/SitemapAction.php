@@ -79,12 +79,12 @@ class SitemapAction extends PageManagerAction
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
 
-		// Move page in public as well by event (change path)
-		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
-		$publicPage = $publicEm->find(Entity\Page::CN(), $page->getId());
-		$eventArgs = new LifecycleEventArgs($publicPage, $publicEm);
-		$publicEm->getEventManager()->dispatchEvent(PagePathGenerator::postPageMove, $eventArgs);
-		$publicEm->flush();
+//		// Move page in public as well by event (change path)
+//		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
+//		$publicPage = $publicEm->find(Entity\Page::CN(), $page->getId());
+//		$eventArgs = new LifecycleEventArgs($publicPage, $publicEm);
+//		$publicEm->getEventManager()->dispatchEvent(PagePathGenerator::postPageMove, $eventArgs);
+//		$publicEm->flush();
 
 		// If all went well, fire the post-publish events for published page localizations.
 		$eventManager = ObjectRepository::getEventManager($this);

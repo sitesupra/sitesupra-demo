@@ -13,16 +13,18 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
+use Supra\NestedSet\Event\NestedSetEventArgs;
+use Supra\NestedSet\Event\NestedSetEvents;
 
 /**
  * Creates the page path and checks it's uniqueness
  */
 class PagePathGenerator implements EventSubscriber
 {
-	/**
-	 * Called after page structure changes
-	 */
-	const postPageMove = 'postPageMove';
+//	/**
+//	 * Called after page structure changes
+//	 */
+//	const postPageMove = 'postPageMove';
 	
 	/**
 	 * Called after page duplication
@@ -57,7 +59,11 @@ class PagePathGenerator implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-		return array(Events::onFlush, self::postPageMove, self::postPageClone);
+		return array(
+			Events::onFlush, 
+			NestedSetEvents::nestedSetPostMove,
+			self::postPageClone
+		);
 	}
 	
 	/**
@@ -108,16 +114,20 @@ class PagePathGenerator implements EventSubscriber
 	
 	/**
 	 * This is called for public schema when structure is changed in draft schema
-	 * @param LifecycleEventArgs $eventArgs
+	 * @param NestedSetEventArgs $eventArgs
 	 */
-	public function postPageMove(LifecycleEventArgs $eventArgs)
+	public function nestedSetPostMove(NestedSetEventArgs $eventArgs)
 	{
 		$entity = $eventArgs->getEntity();
 		$this->em = $eventArgs->getEntityManager();
 		$this->unitOfWork = $this->em->getUnitOfWork();
 
 		if ($entity instanceof Entity\Page) {
-			$this->pageChange($entity);
+			$changedLocalizations = $this->pageChange($entity);
+			
+			foreach ($changedLocalizations as $changedLocalization) {
+				$this->em->flush($changedLocalization);
+			}
 		}
 	}
 	
@@ -145,6 +155,7 @@ class PagePathGenerator implements EventSubscriber
 	/**
 	 * Called when page structure is changed
 	 * @param Entity\Page $master
+	 * @return array of changed localizations
 	 */
 	private function pageChange(Entity\Page $master)
 	{
@@ -163,14 +174,22 @@ class PagePathGenerator implements EventSubscriber
 				))
 				->getResult();
 
+		$changedLocalizations = array();
+		
 		foreach ($pageLocalizations as $pageLocalization) {
-			$this->generatePath($pageLocalization, true);
+			$changedLocalization = $this->generatePath($pageLocalization, true);
+			if ( ! is_null($changedLocalization)) {
+				$changedLocalizations[] = $changedLocalization;
+			}
 		}
+		
+		return $changedLocalizations;
 	}
 	
 	/**
 	 * Generates new full path and validates its uniqueness
 	 * @param Entity\PageLocalization $pageData
+	 * @return Entity\PageLocalization if changes were made
 	 */
 	public function generatePath(Entity\PageLocalization $pageData, $force = false)
 	{
@@ -283,6 +302,8 @@ class PagePathGenerator implements EventSubscriber
 			} else {
 				$this->unitOfWork->computeChangeSet($localizationMetaData, $pageData);
 			}
+			
+			return $pageData;
 		}
 	}
 	

@@ -38,15 +38,15 @@ class FacebookPagePublishingListener implements EventSubscriber
 		return array(CmsController::EVENT_POST_PAGE_PUBLISH, CmsController::EVENT_POST_PAGE_DELETE);
 	}
 
-	public function postPageMove(LifecycleEventArgs $eventArgs)
-	{
-		// will fail
+//	public function postPageMove(LifecycleEventArgs $eventArgs)
+//	{
+//		// will fail
 //		$localization = $eventArgs->localization;
 //		/* @var $localization Supra\Controller\Pages\Entity\ApplicationLocalization */
 //		if ( ! $localization->isPublic()) {
 //			$this->togglePageOnFacebook($eventArgs, false);
 //		}
-	}
+//	}
 
 	/**
 	 * @param CmsPagePublishEventArgs $eventArgs 

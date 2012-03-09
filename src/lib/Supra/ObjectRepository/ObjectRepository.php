@@ -639,11 +639,12 @@ class ObjectRepository
 	 * Get assigned user provider
 	 *
 	 * @param mixed $caller
+	 * @param boolean $throwOnMiss
 	 * @return UserProviderAbstract
 	 */
-	public static function getUserProvider($caller)
+	public static function getUserProvider($caller, $throwOnMiss = true)
 	{
-		return self::getObject($caller, self::INTERFACE_USER_PROVIDER, true);
+		return self::getObject($caller, self::INTERFACE_USER_PROVIDER, $throwOnMiss);
 	}
 
 	/**

@@ -166,7 +166,7 @@ class EntityAuditListener implements EventSubscriber
 		$this->platform = $this->conn->getDatabasePlatform();
 		
 		// TODO: temporary, should make another solution
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProvider = ObjectRepository::getUserProvider($this, false);
 		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$this->user = $userProvider->getSignedInUser();
 		}

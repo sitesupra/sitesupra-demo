@@ -84,7 +84,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 		$this->uow = $this->em->getUnitOfWork();
 		
 		// TODO: temporary, should make another solution
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProvider = ObjectRepository::getUserProvider($this, false);
 		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$this->user = $userProvider->getSignedInUser();
 		}
