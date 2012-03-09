@@ -261,31 +261,12 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * Sets path part of the page
 	 * @param string $pathPart
-	 * @TODO: added exception for experimental purposes
-	 * @throws Exception\PagePathException if trying to set path for the root page
 	 */
 	public function setPathPart($pathPart)
 	{
 		// Remove all special characters
 		$pathPart = preg_replace('!\?/\\\\#!', '', $pathPart);
 		$pathPart = trim($pathPart);
-		$page = $this->getMaster();
-
-		if (empty($page)) {
-			throw new Exception\RuntimeException('Page data page object must be set before setting path part');
-		}
-
-		// Check if path part is not added to the root page
-		if ($page->isRoot() && $pathPart != '') {
-			throw new Exception\PagePathException("Root page cannot have path assigned", $this);
-		}
-
-		// Now with news application it's possible...
-		// FIXME: maybe should allow for applications only?
-//		// Check if not trying to set empty path to not root page
-//		if ( ! $page->isRoot() && $pathPart == '') {
-//			throw new Exception\PagePathException("Path cannot be empty", $this);
-//		}
 
 		$this->pathPart = $pathPart;
 	}

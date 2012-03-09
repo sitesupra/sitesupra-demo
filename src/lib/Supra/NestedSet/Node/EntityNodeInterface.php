@@ -20,4 +20,10 @@ interface EntityNodeInterface extends NodeInterface
 	 * @param DoctrineNode $nestedSetNode
 	 */
 	public function setNestedSetNode(DoctrineNode $nestedSetNode);
+	
+	/**
+	 * Nested set node getter
+	 * @return DoctrineNode
+	 */
+	public function getNestedSetNode();
 }

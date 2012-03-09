@@ -180,11 +180,18 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @param int $pos
 	 * @param int $levelDiff
 	 */
-	public function move(Node\NodeInterface $node, $pos, $levelDiff)
+	public function move(Node\NodeInterface $node, $pos, $levelDiff, $undoMove = false)
 	{
 		$className = $this->className;
 		$arrayHelper = $this->arrayHelper;
 		$self = $this;
+		
+		// Calculate the old position to rollback to in case of some issue
+		$oldPosition = $node->getLeftValue();
+		
+		if ($pos < $oldPosition) {
+			$oldPosition = $node->getRightValue() + 1;
+		}
 		
 		if ( ! $node instanceof Node\DoctrineNode) {
 			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
@@ -238,10 +245,25 @@ class DoctrineRepository extends RepositoryAbstraction
 		
 		// Trigger post move event. Only after transaction is commited because
 		// public schema must update it's stuff as well
-		$masterNode = $node->getMasterNode();
-		$eventArgs = new Event\NestedSetEventArgs($masterNode, $this->entityManager);
-		$this->entityManager->getEventManager()
-				->dispatchEvent(Event\NestedSetEvents::nestedSetPostMove, $eventArgs);
+		try {
+			$masterNode = $node->getMasterNode();
+			$eventArgs = new Event\NestedSetEventArgs($masterNode, $this->entityManager);
+			$this->entityManager->getEventManager()
+					->dispatchEvent(Event\NestedSetEvents::nestedSetPostMove, $eventArgs);
+		} catch (\Exception $e) {
+			
+			//TODO: new pages should be removed
+			
+			// Should not happen
+			if ($undoMove) {
+				throw $e;
+			}
+			
+			// Undo move
+			$this->move($node, $oldPosition, - $levelDiff, true);
+			
+			throw $e;
+		}
 	}
 
 	/**

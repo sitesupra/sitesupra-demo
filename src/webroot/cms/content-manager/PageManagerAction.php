@@ -933,7 +933,7 @@ abstract class PageManagerAction extends CmsAction
 			
 			$em->getRepository(AbstractPage::CN())
 				->getNestedSetRepository()
-				->add($newPage);			
+				->add($newPage);
 			
 			if ($page->hasParent()) {
 				$newPage->moveAsNextSiblingOf($page);

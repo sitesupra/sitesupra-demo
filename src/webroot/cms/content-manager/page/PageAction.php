@@ -454,41 +454,21 @@ class PageAction extends PageManagerAction
 		}
 		$this->entityManager->persist($pageData);
 
-		// Set parent node
-		if ( ! $rootPage) {
-			$page->moveAsLastChildOf($parent);
-		}
-		
-		//TODO: generate before "create" action
+		// Change path
 		if ($pageData instanceof Entity\PageLocalization) {
-			if ($rootPage) {
+			if ( ! $rootPage) {
+				$pageData->setPathPart($pathPart);
+			} else {
 				// Must create root path for the root page
 				$rootPath = $pageData->getPathEntity();
 				$rootPath->setPath('');
 				$pageData->setPathPart('');
-			} else {
-				// Generate unused path
-				$pathValid = false;
-				$i = 2;
-				$suffix = '';
-
-				do {
-					try {
-						$pageData->setPathPart($pathPart . $suffix);
-						$this->entityManager->flush();
-
-						$pathValid = true;
-					} catch (DuplicatePagePathException $pathInvalid) {
-						$suffix = '-' . $i;
-						$i ++;
-
-						// Loop stopper
-						if ($i > 100) {
-							throw $pathInvalid;
-						}
-					}
-				} while ( ! $pathValid);
 			}
+		}
+		
+		// Set parent node
+		if ( ! $rootPage) {
+			$page->moveAsLastChildOf($parent);
 		}
 		
 		$this->entityManager->flush();

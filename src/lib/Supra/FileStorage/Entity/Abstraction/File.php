@@ -394,6 +394,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	}
 
 	/**
+	 * {@inheritdoc}
+	 * @return NestedSet\Node\DoctrineNode
+	 */
+	public function getNestedSetNode()
+	{
+		return $this->nestedSetNode;
+	}
+
+	/**
 	 * Loads item info array
 	 * @param string $locale
 	 * @return array

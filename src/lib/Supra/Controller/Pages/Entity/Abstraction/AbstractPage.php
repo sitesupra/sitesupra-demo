@@ -337,6 +337,15 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	}
 
 	/**
+	 * {@inheritdoc}
+	 * @return NestedSet\Node\DoctrineNode
+	 */
+	public function getNestedSetRepositoryClassName()
+	{
+		return $this->nestedSetNode;
+	}
+
+	/**
 	 * Set global
 	 * @param boolean $global 
 	 */
@@ -381,5 +390,16 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
 	{
 		$isRoot = ($this->getLevel() == 0);
 		return $isRoot;
+	}
+	
+	/**
+	 * Need to unset the nested set node after clone
+	 */
+	public function __clone()
+	{
+		if ( ! empty($this->id)) {
+			$this->nestedSetNode = null;
+			parent::__clone();
+		}
 	}
 }

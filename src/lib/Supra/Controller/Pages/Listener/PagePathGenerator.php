@@ -123,7 +123,7 @@ class PagePathGenerator implements EventSubscriber
 		$this->unitOfWork = $this->em->getUnitOfWork();
 
 		if ($entity instanceof Entity\Page) {
-			$changedLocalizations = $this->pageChange($entity);
+			$changedLocalizations = $this->pageChange($entity, true);
 			
 			foreach ($changedLocalizations as $changedLocalization) {
 				$this->em->flush($changedLocalization);
@@ -157,7 +157,7 @@ class PagePathGenerator implements EventSubscriber
 	 * @param Entity\Page $master
 	 * @return array of changed localizations
 	 */
-	private function pageChange(Entity\Page $master)
+	private function pageChange(Entity\Page $master, $force = false)
 	{
 		// Run for all children
 		$pageLocalizationEntity = Entity\PageLocalization::CN();
@@ -177,7 +177,7 @@ class PagePathGenerator implements EventSubscriber
 		$changedLocalizations = array();
 		
 		foreach ($pageLocalizations as $pageLocalization) {
-			$changedLocalization = $this->generatePath($pageLocalization, true);
+			$changedLocalization = $this->generatePath($pageLocalization, $force);
 			if ( ! is_null($changedLocalization)) {
 				$changedLocalizations[] = $changedLocalization;
 			}
@@ -260,7 +260,7 @@ class PagePathGenerator implements EventSubscriber
 				}
 				$changes = true;
 			}
-		} else {
+		} elseif ($page->getLeftValue() == 1) {
 			$newPath = new Path('');
 			
 			// Root page
@@ -268,6 +268,11 @@ class PagePathGenerator implements EventSubscriber
 				$changes = true;
 				$pageData->setPath($newPath);
 			}
+		// Another root page...
+		} else {
+			$newPath = null;
+			$active = false;
+			$pageData->setPath($newPath, $active);
 		}
 		
 		if ($oldPathEntity->isLimited() !== $limited 

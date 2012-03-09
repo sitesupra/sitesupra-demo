@@ -69,9 +69,16 @@ class NestedSetListener implements EventSubscriber
 			$entityName = $entity->getNestedSetRepositoryClassName();
 			$repository = $em->getRepository($entityName);
 			
-			// Initialize the doctrine nested set node
-			$doctrineNode = new DoctrineNode($repository);
-			$entity->setNestedSetNode($doctrineNode);
+			// In case of refresh it already exists..
+			$doctrineNode = $entity->getNestedSetNode();
+			
+			// .. create new if doesn't
+			if (is_null($doctrineNode)) {
+				// Initialize the doctrine nested set node
+				$doctrineNode = new DoctrineNode($repository);
+				$entity->setNestedSetNode($doctrineNode);
+			}
+			
 			$doctrineNode->belongsTo($entity);
 		}
 	}
