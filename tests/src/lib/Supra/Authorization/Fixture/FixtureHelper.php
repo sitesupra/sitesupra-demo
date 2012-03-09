@@ -63,6 +63,7 @@ class FixtureHelper
 	 */
 	public function makeUser($userName, Group $group = null)
 	{
+		$new = false;
 		/* @var $user User */
 		$user = $this->up->findUserByLogin($userName);
 		
@@ -75,6 +76,7 @@ class FixtureHelper
 
 		if (empty($user)) {
 
+			$new = true;
 			$user = $this->up->createUser();
 
 			$user->setLogin($userName);
@@ -88,7 +90,12 @@ class FixtureHelper
 		
 		// Reset password
 		$this->up->credentialChange($user, $password);
-		$this->up->updateUser($user);
+		
+		if ($new) {
+			$this->up->insertUser($user);
+		} else {
+			$this->up->updateUser($user);
+		}
 
 		return $user;
 	}
