@@ -6,14 +6,45 @@ use Supra\User\Entity;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
 use Doctrine\ORM\UnitOfWork;
+use SupraPortal\SiteUser\Entity as SiteEntity;
 use SupraPortal\SiteUser\Entity\SiteUser;
+use SupraPortal\SiteUser\Entity\SiteUserGroup;
 use Doctrine\ORM\NoResultException;
 
 class SiteUserProvider extends UserProviderAbstract
 {
 
+	/**
+	 * Site key
+	 * @var string
+	 */
 	private $siteKey = null;
 
+	/**
+	 * Site entity
+	 * @var SiteEntity\Site
+	 */
+	private $siteEntity = null;
+	
+	/**
+	 * Returns site entity
+	 * @return type 
+	 */
+	public function getSiteEntity()
+	{
+		return $this->siteEntity;
+	}
+
+	/**
+	 * Sets site entity
+	 * @param SiteEntity\Site $siteEntity 
+	 */
+	public function setSiteEntity($siteEntity)
+	{
+		$this->siteEntity = $siteEntity;
+	}
+
+	
 	/**
 	 * @return \Doctrine\ORM\QueryBuilder 
 	 */
@@ -345,11 +376,20 @@ class SiteUserProvider extends UserProviderAbstract
 	/**
 	 * {@inheritDoc}
 	 */
-	public function doInsertGroup(Entity\Group $group)
+	protected function doInsertGroup(Entity\Group $group)
 	{
-		$entityManager = $this->getEntityManager();
 		
+		if( ! ($this->siteEntity instanceof SiteEntity\Site)) {
+			throw new Exception\RuntimeException('Can not make new site-group; site entity not provided.');			
+		}
+		
+		$siteuserGroup = new SiteUserGroup();
+		$siteuserGroup->setGroup($group);
+		$siteuserGroup->setSite($this->siteEntity);
+		
+		$entityManager = $this->getEntityManager();
 		$entityManager->persist($group);
+		$entityManager->persist($siteuserGroup);
 
 		if ($entityManager->getUnitOfWork()->getEntityState($group, null) != UnitOfWork::STATE_MANAGED) {
 			throw new Exception\RuntimeException('Presented group entity is not managed');
@@ -398,14 +438,53 @@ class SiteUserProvider extends UserProviderAbstract
 		$entityManager->flush();
 	}
 
+	/**
+	 * Returns site key value
+	 * @return string
+	 */
 	public function getSiteKey()
 	{
-		return $this->siteKey;
+		if(($this->siteEntity instanceof SiteEntity\Site) && $this->siteEntity->getId()) {
+			return $this->siteEntity->getId();
+		}
+
+		if(! empty ($this->siteKey)) {
+			return $this->siteKey;
+		}
+		
+		
+		
+		
+		throw new Exception\LogicException('Site key not defined; siteKey and siteEntity->id values are null');
+		
 	}
 
+	/**
+	 * Sets site key vslue
+	 * @param string $siteKey 
+	 */
 	public function setSiteKey($siteKey)
 	{
 		$this->siteKey = $siteKey;
 	}
+	
+	
+	/**
+	 * Cretae and returns new Site entity
+	 * @param string $subdomainUrl
+	 * @return SupraPortal\SiteUser\Entity\Site 
+	 */
+	public function createSite($subdomainUrl)
+	{
+		
+		$siteEntity = new SiteEntity\Site();
+		$this->getEntityManager()->persist($siteEntity);
+		$siteEntity->setSubdomainUrl($subdomainUrl);
+		$this->siteEntity = $siteEntity;
+		
+		return 	$siteEntity;
+		
+	}
+	
 
 }

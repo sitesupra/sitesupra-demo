@@ -317,5 +317,19 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		// related with new group creation
 	}
 	
+	/**
+	 * Insert newly created user
+	 * @param Entity\User $user
+	 */
+	abstract protected function doInsertUser(Entity\User $user);
+	
+	/**
+	 * Insert newly created group
+	 * @param Entity\Group $group
+	 */
+	abstract protected function doInsertGroup(Entity\Group $group);
+	
+	
+	
 }
 

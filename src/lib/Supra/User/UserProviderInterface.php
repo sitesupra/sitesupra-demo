@@ -117,16 +117,5 @@ interface UserProviderInterface
 	 */
 	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null);
 	
-	/**
-	 * Insert newly created user
-	 * @param Entity\User $user
-	 */
-	public function doInsertUser(Entity\User $user);
-	
-	/**
-	 * Insert newly created group
-	 * @param Entity\Group $group
-	 */
-	public function doInsertGroup(Entity\Group $group);
 	
 }
