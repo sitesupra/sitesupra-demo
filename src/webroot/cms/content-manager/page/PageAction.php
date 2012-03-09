@@ -468,7 +468,15 @@ class PageAction extends PageManagerAction
 		
 		// Set parent node
 		if ( ! $rootPage) {
-			$page->moveAsLastChildOf($parent);
+			try {
+				$page->moveAsLastChildOf($parent);
+			} catch (\Exception $e) {
+				$this->entityManager->remove($page);
+				$this->entityManager->remove($pageData);
+				$this->entityManager->flush();
+				
+				throw $e;
+			}
 		}
 		
 		$this->entityManager->flush();
