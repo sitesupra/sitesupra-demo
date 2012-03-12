@@ -19,6 +19,9 @@ use Supra\Controller\Pages\Event\PageEventArgs;
 class EntityRevisionSetterListener implements EventSubscriber
 {
 	
+	const pagePreDeleteEvent = 'preDeleteEvent';
+	const pagePostDeleteEvent = 'postDeleteEvent';
+	
 	/**
 	 * @var \Doctrine\ORM\EntityManager
 	 */
@@ -38,6 +41,12 @@ class EntityRevisionSetterListener implements EventSubscriber
 	 * @var boolean
 	 */
 	private $_pageRestoreState = false;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $_pageDeleteState = false;
 	
 	/**
 	 * @var Supra\User\Entity\User
@@ -64,6 +73,9 @@ class EntityRevisionSetterListener implements EventSubscriber
 			AuditEvents::pagePostRestoreEvent,
 			AuditEvents::pagePreEditEvent,
 			AuditEvents::pageContentEditEvent,
+			
+			self::pagePreDeleteEvent,
+			self::pagePostDeleteEvent,
 		);
 	}
 	
@@ -109,7 +121,9 @@ class EntityRevisionSetterListener implements EventSubscriber
 						|| ($entity instanceof Localization && $fieldName == 'lock')
 						|| $fieldName == 'revision'
 						|| ($fieldValue[0] instanceof \DateTime && $fieldValue[0] == $fieldValue[1])
-						|| ($fieldValue[0] instanceof \Supra\Editable\EditableAbstraction && $fieldValue[0] == $fieldValue[1])) {
+						|| ($fieldValue[0] instanceof \Supra\Editable\EditableAbstraction && $fieldValue[0] == $fieldValue[1])
+						// FIXME: workaround for PageLocalization::resetPath() called on page delete action
+						|| $this->_pageDeleteState && $fieldName == 'path') {
 					unset($changeSet[$fieldName]);
 				}
 			}
@@ -186,6 +200,16 @@ class EntityRevisionSetterListener implements EventSubscriber
 	public function pagePostRestoreEvent()
 	{
 		 $this->_pageRestoreState = false;
+	}
+	
+	public function preDeleteEvent()
+	{
+		$this->_pageDeleteState = true;
+	}
+	
+	public function postDeleteEvent()
+	{
+		$this->_pageDeleteState = false;
 	}
 	
 	public function pagePreEditEvent(PageEventArgs $eventArgs)

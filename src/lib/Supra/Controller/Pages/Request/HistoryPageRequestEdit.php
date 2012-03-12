@@ -808,9 +808,6 @@ class HistoryPageRequestEdit extends PageRequest
  		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 
-		$draftEventManager = $draftEm->getEventManager();
-		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
-		
 		$page = $this->getPageLocalization()
 				->getMaster();
 			
@@ -894,8 +891,6 @@ class HistoryPageRequestEdit extends PageRequest
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setEntityManager($draftEm);
 		$pageEventArgs->setProperty('referenceId', $pageId);
-		
-		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
 		
 		$auditEm->getUnitOfWork()->clear();
 		

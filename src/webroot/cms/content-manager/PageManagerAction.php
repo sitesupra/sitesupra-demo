@@ -39,6 +39,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
+use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
 
 /**
  * Controller containing common methods
@@ -550,7 +551,14 @@ abstract class PageManagerAction extends CmsAction
 		}
 
 		$pageRequest = $this->getPageRequest();
+		
+		$this->entityManager->getEventManager()
+				->dispatchEvent(EntityRevisionSetterListener::pagePreDeleteEvent);
+		
 		$pageRequest->delete();
+		
+		$this->entityManager->getEventManager()
+				->dispatchEvent(EntityRevisionSetterListener::pagePostDeleteEvent);
 		
 		$eventManager = ObjectRepository::getEventManager($this);
 		
@@ -635,6 +643,10 @@ abstract class PageManagerAction extends CmsAction
 		$request->setPageLocalization($pageLocalization);
 
 		$request->setRevision($revisionId);
+		
+		$draftEm = $this->entityManager;
+		$draftEventManager = $draftEm->getEventManager();
+		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 
 		$restorePage = function() use ($request) {
 				$page = $request->restorePage();
@@ -662,7 +674,9 @@ abstract class PageManagerAction extends CmsAction
 		catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
-
+		
+		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
+		
 		$this->getResponse()
 				->setResponseData(true);
 

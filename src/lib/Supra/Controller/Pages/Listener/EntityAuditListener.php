@@ -197,6 +197,11 @@ class EntityAuditListener implements EventSubscriber
 			return;
 		}
 		
+		// skip any update raised on page delete
+		if ($this->_pageDeleteState) {
+			return;
+		}
+		
 		$this->prepareEnvironment($eventArgs);
 		$entity = $eventArgs->getEntity();
 		
