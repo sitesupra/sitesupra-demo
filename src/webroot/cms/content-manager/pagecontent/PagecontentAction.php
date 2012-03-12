@@ -92,12 +92,15 @@ class PagecontentAction extends PageManagerAction
 		
 		$blockId = $input->get('block_id');
 		
-		/* @var $block Entity\Abstraction\Block */
 		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
+		/* @var $block Entity\Abstraction\Block */
 		
 		if (empty($block)) {
 			throw new CmsException(null, "Block doesn't exist anymore");
 		}
+		
+		$pageData = $block->getPlaceHolder()->getMaster();
+		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 		
 		// Receive block property definition
 		$blockController = $block->createController();

@@ -282,7 +282,8 @@ abstract class PageManagerAction extends CmsAction
 		// Try cookie
 		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
 			$pageLocalizationId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
-			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageLocalizationId);
+			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), 
+					$pageLocalizationId);
 		}
 
 		// Root page otherwise

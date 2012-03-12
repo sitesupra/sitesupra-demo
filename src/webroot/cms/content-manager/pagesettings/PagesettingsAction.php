@@ -29,9 +29,12 @@ class PagesettingsAction extends PageManagerAction
 		$page = $this->getPage();
 		$localeId = $this->getLocale()->getId();
 		$pageData = $page->getLocalization($localeId);
-
+		
 		if (empty($pageData)) {
+			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 			$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
+		} else {
+			$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 		}
 
 		if ($input->has('global')) {
