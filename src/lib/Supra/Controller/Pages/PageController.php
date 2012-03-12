@@ -181,6 +181,10 @@ class PageController extends ControllerAbstraction
 		
 		$this->findBlockControllers();
 		\Log::debug("Block controllers found for {$page}");
+		
+		// Initialize block property set so no additional queries are registered
+		// for the first block which does it
+		$request->getBlockPropertySet();
 
 		$this->prepareBlockControllers();
 		\Log::debug("Blocks prepared for {$page}");

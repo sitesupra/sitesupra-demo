@@ -417,7 +417,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @return Set\BlockPropertySet
 	 */
-	public function getBlockPropertySet($em = null)
+	public function getBlockPropertySet()
 	{
 		if (isset($this->blockPropertySet)) {
 			return $this->blockPropertySet;
