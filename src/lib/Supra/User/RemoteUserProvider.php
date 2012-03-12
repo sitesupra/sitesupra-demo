@@ -30,8 +30,8 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	private $remoteApiEndpointId;
 
-	const REMOTE_COMMAND_USER = 'su:remote:find_user';
-	const REMOTE_COMMAND_GROUP = 'su:remote:find_group';
+	const REMOTE_COMMAND_USER = 'su:portal:find_user';
+	const REMOTE_COMMAND_GROUP = 'su:portal:find_group';
 
 	public function __construct()
 	{
