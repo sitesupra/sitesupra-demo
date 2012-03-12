@@ -92,11 +92,6 @@ class CreateUserCommand extends Command
 		$userProvider->insertUser($user);
 		
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
-
-		$userAction = new InternalUserManagerAbstractAction();
-		ObjectRepository::setCallerParent($userAction, $this, true);
-
-		$userAction->sendPasswordChangeLink($user, 'createpassword');
 		
 	}
 
