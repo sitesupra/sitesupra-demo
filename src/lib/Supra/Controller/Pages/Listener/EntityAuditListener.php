@@ -209,7 +209,9 @@ class EntityAuditListener implements EventSubscriber
 		foreach($changeSet as $fieldName => $fieldValue) {
 			if ($fieldValue instanceof PersistentCollection
 					|| ($entity instanceof Localization && $fieldName == 'lock')
-					|| $fieldName == 'revision') {
+					|| $fieldName == 'revision'
+					|| ($fieldValue[0] instanceof \DateTime && $fieldValue[0] == $fieldValue[1]))
+			{
 				unset($changeSet[$fieldName]);
 			}
 		}
