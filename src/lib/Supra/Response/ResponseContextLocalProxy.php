@@ -21,7 +21,7 @@ class ResponseContextLocalProxy extends ResponseContext
 	 */
 	public function __construct(ResponseContext $mainContext)
 	{
-		$this->contextData = &$mainContext->contextData;
+		parent::__construct($mainContext);
 		$this->layoutSnippetResponses = &$mainContext->layoutSnippetResponses;
 		
 		$this->localContext = new ResponseContext();

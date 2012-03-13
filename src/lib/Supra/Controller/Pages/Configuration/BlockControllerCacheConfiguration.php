@@ -42,6 +42,13 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	 */
 	public $lifetime;
 	
+	/**
+	 * If set, the cache will be enabled only if value inside response context
+	 * by this name is not empty.
+	 * @var string
+	 */
+	public $enabledByContext;
+	
 	public function configure()
 	{
 		
@@ -68,6 +75,18 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 		
 		if ( ! empty($this->context) && is_null($context)) {
 			return;
+		}
+		
+		if ( ! empty($this->enabledByContext)) {
+			if (is_null($context)) {
+				return;
+			} else {
+				$value = $context->getValue($this->enabledByContext);
+				
+				if (empty($value)) {
+					return;
+				}
+			}
 		}
 		
 		$cacheGroups = array();
@@ -110,5 +129,14 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 		$lifetime = max($lifetime, -1);
 		
 		return $lifetime;
+	}
+	
+	/**
+	 * Whether the cache depends on context (can be found after block prepare stage)
+	 * @return boolean
+	 */
+	public function isContextDependent()
+	{
+		return ! empty($this->context) || ! empty($this->enabledByContext);
 	}
 }

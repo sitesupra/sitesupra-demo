@@ -9,9 +9,9 @@ class FilteredInput extends \ArrayIterator
 {
 	/**
 	 * Constructor
-	 * @param array $array
+	 * @param mixed $array array or iterator
 	 */
-	public function __construct(array $array = array())
+	public function __construct($array = array())
 	{
 		parent::__construct($array);
 	}

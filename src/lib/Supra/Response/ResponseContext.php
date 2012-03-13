@@ -3,23 +3,18 @@
 namespace Supra\Response;
 
 use Supra\Html\HtmlTag;
+use Supra\Validator\FilteredInput;
 
-class ResponseContext
+class ResponseContext extends FilteredInput
 {
-
-	/**
-	 * @var array
-	 */
-	protected $contextData;
-
 	/**
 	 * @var array
 	 */
 	protected $layoutSnippetResponses;
 
-	function __construct()
+	public function __construct($iterator = array())
 	{
-		$this->contextData = array();
+		parent::__construct($iterator);
 		$this->layoutSnippetResponses = array();
 	}
 
@@ -29,7 +24,7 @@ class ResponseContext
 	 */
 	public function setValue($key, $value)
 	{
-		$this->contextData[$key] = $value;
+		$this[$key] = $value;
 	}
 
 	/**
@@ -39,11 +34,11 @@ class ResponseContext
 	 */
 	public function getValue($key, $defaultValue = null)
 	{
-		if (empty($this->contextData[$key])) {
+		if (empty($this[$key])) {
 			return $defaultValue;
 		}
 
-		return $this->contextData[$key];
+		return $this[$key];
 	}
 
 	/**
@@ -51,7 +46,7 @@ class ResponseContext
 	 */
 	public function getAllValues()
 	{
-		return $this->contextData;
+		return $this->getArrayCopy();
 	}
 
 	/**
@@ -118,7 +113,7 @@ class ResponseContext
 	 */
 	public function flushToContext(ResponseContext $mainContext)
 	{
-		foreach ($this->contextData as $key => $value) {
+		foreach ($this->getAllValues() as $key => $value) {
 			$mainContext->setValue($key, $value);
 		}
 		

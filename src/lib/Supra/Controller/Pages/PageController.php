@@ -279,7 +279,7 @@ class PageController extends ControllerAbstraction
 				$blockId = $block->getId();
 				$responseCache = null;
 				
-				if (empty($blockCache->context)) {
+				if ( ! $blockCache->isContextDependent()) {
 					$cacheKey = $blockCache->getCacheKey($localization, $block);
 
 					if (empty($cacheKey)) {
