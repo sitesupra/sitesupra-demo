@@ -379,7 +379,7 @@ class PagePathGenerator implements EventSubscriber
 		$pathPart = $pageData->getPathPart();
 		
 		if (is_null($pathPart)) {
-			return array(null, null, null);
+			return array(null, false, false);
 		}
 		
 		$path->prependString($pathPart);
@@ -397,7 +397,7 @@ class PagePathGenerator implements EventSubscriber
 		
 		// No parent page localization
 		if (is_null($parentLocalization)) {
-			return array(null, null, null);
+			return array(null, false, false);
 		}
 		
 		// Page application feature to generate base path for pages
@@ -427,7 +427,7 @@ class PagePathGenerator implements EventSubscriber
 			
 			// No parent page localization
 			if (is_null($parentLocalization)) {
-				return array(null, null, null);
+				return array(null, false, false);
 			}
 		}
 
@@ -450,7 +450,7 @@ class PagePathGenerator implements EventSubscriber
 		}
 
 		if (is_null($parentPath)) {
-			return array(null, null, null);
+			return array(null, false, false);
 		}
 		
 		$path->prepend($parentPath);
