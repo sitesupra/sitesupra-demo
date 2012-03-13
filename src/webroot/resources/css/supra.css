@@ -12,6 +12,9 @@ a,base,span,pre,p {
 	margin: 0;
 	padding: 0;
 }
+ul {
+	margin-left: 20px;
+}
 body, html {
 	height: 100%;
 }

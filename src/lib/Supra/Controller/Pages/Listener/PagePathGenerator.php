@@ -73,6 +73,13 @@ class PagePathGenerator implements EventSubscriber
 	{
 		$this->em = $eventArgs->getEntityManager();
 		$this->unitOfWork = $this->em->getUnitOfWork();
+		
+		// New localization creation, could contain children already, need to recurse into children
+		foreach ($this->unitOfWork->getScheduledEntityInsertions() as $entity) {
+			if ($entity instanceof Entity\PageLocalization) {
+				$this->pageLocalizationChange($entity);
+			}
+		}
 
 		// Page path is not set from inserts, updates only
 		foreach ($this->unitOfWork->getScheduledEntityUpdates() as $entity) {
@@ -82,25 +89,7 @@ class PagePathGenerator implements EventSubscriber
 				
 				// Run only if pathPart or page activity has changed. Run for all children.
 				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess'])) {
-					$master = $entity->getMaster();
-					$pageLocalizationEntity = Entity\PageLocalization::CN();
-					
-					$dql = "SELECT l FROM $pageLocalizationEntity l JOIN l.master m
-							WHERE m.left >= :left
-							AND m.right <= :right
-							AND l.locale = :locale
-							ORDER BY m.left";
-					$pageLocalizations = $this->em->createQuery($dql)
-							->setParameters(array(
-								'left' => $master->getLeftValue(),
-								'right' => $master->getRightValue(),
-								'locale' => $entity->getLocale(),
-							))
-							->getResult();
-					
-					foreach ($pageLocalizations as $pageLocalization) {
-						$this->generatePath($pageLocalization);
-					}
+					$this->pageLocalizationChange($entity);
 				}
 			}
 
@@ -184,6 +173,34 @@ class PagePathGenerator implements EventSubscriber
 		}
 		
 		return $changedLocalizations;
+	}
+	
+	/**
+	 * Recurse path regeneration for the localization and all its descendants
+	 * @param Entity\PageLocalization $localization
+	 * @param boolean $force
+	 */
+	private function pageLocalizationChange(Entity\PageLocalization $localization, $force = false)
+	{
+		$master = $localization->getMaster();
+		$pageLocalizationEntity = Entity\PageLocalization::CN();
+
+		$dql = "SELECT l FROM $pageLocalizationEntity l JOIN l.master m
+				WHERE m.left >= :left
+				AND m.right <= :right
+				AND l.locale = :locale
+				ORDER BY m.left";
+		$pageLocalizations = $this->em->createQuery($dql)
+				->setParameters(array(
+					'left' => $master->getLeftValue(),
+					'right' => $master->getRightValue(),
+					'locale' => $localization->getLocale(),
+				))
+				->getResult();
+
+		foreach ($pageLocalizations as $pageLocalization) {
+			$this->generatePath($pageLocalization);
+		}
 	}
 	
 	/**
