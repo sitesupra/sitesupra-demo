@@ -36,8 +36,8 @@ class MassMailContent
 	protected function getCommonReplacementsValues(Entity\Subscriber $subscriber)
 	{
 		$replacements = array(
-			'[[subscriberName]]' => $subscriber->getName(),
-			'[[subscriberEmail]]' => $subscriber->getEmailAddress());
+			'%subscriberName%' => $subscriber->getName(),
+			'%subscriberEmail%' => $subscriber->getEmailAddress());
 
 		return $replacements;
 	}

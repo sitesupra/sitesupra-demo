@@ -16,6 +16,19 @@ class SendQueueItem extends Entity
 	const STATUS_ABORTED = 40;
 	const STATUS_ERROR_ON_SEND = 50;
 
+
+	/**
+	 * @ManyToOne(targetEntity="Campaign")
+	 * @var Campaign
+	 */	
+	protected $campaign;
+	
+	/**
+	 * @Column(type="array")
+	 * @var array
+	 */
+	protected $templateVar;
+	
 	/**
 	 * @Column(type="string", name="email_to", nullable=false)
 	 * @var string
@@ -306,5 +319,31 @@ class SendQueueItem extends Entity
 	{
 		$this->sendDateTime = new \DateTime("now");
 	}
+	
+	
+	/**
+	 * Returns relate dcampaign
+	 * @return Supra\Mailer\MassMail\Entity\Campaign
+	 */
+	public function getCampaign()
+	{
+		return $this->campaign;
+	}
+
+	public function getTemplateVar()
+	{
+		return $this->templateVar;
+	}
+
+	public function setCampaign($campaign)
+	{
+		$this->campaign = $campaign;
+	}
+
+	public function setTemplateVar($templateVar)
+	{
+		$this->templateVar = $templateVar;
+	}
+
 
 }

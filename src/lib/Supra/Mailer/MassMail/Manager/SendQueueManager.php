@@ -76,6 +76,22 @@ class SendQueueManager extends MassMailManager
 			$this->log->error("Can't send email from Mass Mail; ", (string) $e);
 		}
 	}
+	
+	/**
+	 * Update status by Ids set
+	 * @param array $itemsIdsSet
+	 * @param int $status 
+	 */
+	public function updateQueueItemSetStatus($itemsIdsSet, $status)
+	{
+		$status = (int) $status;
+		
+		$this->entityManager->createQuery('UPDATE SendQueue s SET status = :status WHERE id IN (:ids)')
+				->setParameter('status', $status)
+				->setParameter('ids', $itemsIdsSet)
+				->execute();
+		
+	}
 
 }
 
