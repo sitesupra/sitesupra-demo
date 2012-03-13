@@ -15,23 +15,16 @@ class FormAction extends CrudManagerAbstractAction
 
 	public function saveAction()
 	{
-		$request = $this->getRequest();
-		if ( ! $request->isPost()) {
-			throw new CmsException(null, 'Only post request allowed');
-		}
+		$this->isPostRequest();
 
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 
-		$post = $request->getPost();
+		$post = $this->getRequestInput();
 
 		$record = null;
-		$recordId = null;
-
-		try {
-			$recordId = $post->get('id');
-		} catch (RuntimeException $exc) {}
+		$recordId = $post->get('id', null);
 			
 		$newRecord = false;
 
@@ -75,16 +68,15 @@ class FormAction extends CrudManagerAbstractAction
 
 		$response = $this->getResponse();
 		$response->setResponseData($output);
+		
+		$this->dropGroupCache();
 	}
 
 	public function deleteAction()
 	{
-		$request = $this->getRequest();
-		if ( ! $request->isPost()) {
-			throw new CmsException(null, 'Only post request allowed');
-		}
+		$this->isPostRequest();
 
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 
@@ -92,7 +84,7 @@ class FormAction extends CrudManagerAbstractAction
 			throw new CmsException(null, 'It\'s not allowed to remove records. Change configuration');
 		}
 
-		$post = $request->getPost();
+		$post = $this->getRequestInput();
 		$recordId = $post->get('id');
 		if (empty($recordId)) {
 			throw new CmsException(null, 'Record id is empty');
@@ -111,6 +103,8 @@ class FormAction extends CrudManagerAbstractAction
 		}
 
 		$this->writeAuditLog("Record %item% deleted", $record);
+		
+		$this->dropGroupCache();
 	}
 
 	/**
@@ -118,12 +112,9 @@ class FormAction extends CrudManagerAbstractAction
 	 */
 	public function sortAction()
 	{
-		$request = $this->getRequest();
-		if ( ! $request->isPost()) {
-			throw new CmsException(null, 'Only post request allowed');
-		}
+		$this->isPostRequest();
 
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 
@@ -135,7 +126,7 @@ class FormAction extends CrudManagerAbstractAction
 			throw new \Exception('Looks like there is no $position property in ' . $configuration->entity . ' entity.');
 		}
 
-		$post = $request->getPost();
+		$post = $this->getRequestInput();
 
 		$recordId = $post->get('id');
 		$recordBefore = $post->get('record-before', null);
@@ -149,6 +140,8 @@ class FormAction extends CrudManagerAbstractAction
 		}
 
 		$this->move($record, $recordBefore);
+		
+		$this->dropGroupCache();
 	}
 
 	/**
@@ -158,7 +151,7 @@ class FormAction extends CrudManagerAbstractAction
 	 */
 	protected function move(CrudEntityInterface $record, $recordBefore, $writeLog = true)
 	{
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$beforePosition = 0;
 
@@ -212,4 +205,15 @@ class FormAction extends CrudManagerAbstractAction
 		}
 	}
 
+	/**
+	 * Drops group cache. Entity name is cache group name for now.
+	 */
+	private function dropGroupCache()
+	{
+		$configuration = $this->getConfiguration();
+		$group = $configuration->entity;
+		
+		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
+		$cacheGroupManager->resetRevision($group);
+	}
 }

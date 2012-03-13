@@ -21,7 +21,7 @@ class DataAction extends CrudManagerAbstractAction
 			$offset = 0;
 		}
 		
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 		
@@ -64,7 +64,7 @@ class DataAction extends CrudManagerAbstractAction
 
 	public function configurationAction()
 	{
-		$configuration = ObjectRepository::getApplicationConfiguration($this);
+		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
 		/* @var $repo Gjensidige\Branches\Repository\BranchesCrudRepository */
