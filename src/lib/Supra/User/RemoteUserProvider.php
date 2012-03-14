@@ -41,23 +41,6 @@ class RemoteUserProvider extends UserProviderAbstract
 	/**
 	 * {@inheritDoc}
 	 */
-	public function authenticate($login, AuthenticationPassword $password)
-	{
-		$adapter = $this->getAuthAdapter();
-
-		$user = $this->findUserByLogin($login);
-		if (empty($user)) {
-			throw new UserNotFoundException();
-		}
-
-		$adapter->authenticate($user, $password);
-
-		return $user;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public function findUserByLogin($login)
 	{
 		return $this->findUserByCriteria(array('field' => 'login', 'value' => $login));

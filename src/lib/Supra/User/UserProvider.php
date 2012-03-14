@@ -10,40 +10,6 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class UserProvider extends UserProviderAbstract
 {
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function authenticate($login, AuthenticationPassword $password)
-	{
-		$adapter = $this->getAuthAdapter();
-
-		$login = $adapter->getFullLoginName($login);
-
-		$user = $this->findUserByLogin($login);
-
-//		// Try finding the user from adapter
-//		if (empty($user)) {
-//		$user = $adapter->findUser($login, $password);
-//
-//			if (empty($user)) {
-//				throw new UserNotFoundException();
-//			}
-//
-//			$entityManager = $this->getEntityManager();
-//			$entityManager->persist($user);
-//			$entityManager->flush();
-//		}
-
-		if (empty($user)) {
-			throw new UserNotFoundException();
-		}
-
-		$adapter->authenticate($user, $password);
-
-		return $user;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */

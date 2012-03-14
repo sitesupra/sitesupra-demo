@@ -12,7 +12,7 @@ use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Session\SessionManager;
 use Doctrine\ORM\EntityManager;
 use Supra\User\Event\UserCreateEventArgs;
-
+use Supra\Authentication\Event\EventArgs;
 
 abstract class UserProviderAbstract implements UserProviderInterface
 {
@@ -112,6 +112,39 @@ abstract class UserProviderAbstract implements UserProviderInterface
 				->getAuthenticationSpace();
 		
 		return $session;
+	}
+	
+	/**
+	 * API method
+	 * @param string $login
+	 * @param AuthenticationPassword $password
+	 */
+	public final function authenticate($login, AuthenticationPassword $password)
+	{
+		$user = $this->doAuthenticate($login, $password);
+
+		return $user;
+	}
+	
+	/**
+	 * Inner authentication method
+	 * @param string $login
+	 * @param AuthenticationPassword $password
+	 * @return Entity\User
+	 */
+	protected function doAuthenticate($login, AuthenticationPassword $password)
+	{
+		$adapter = $this->getAuthAdapter();
+		$login = $adapter->getFullLoginName($login);
+
+		$user = $this->findUserByLogin($login);
+		if (empty($user)) {
+			throw new UserNotFoundException();
+		}
+
+		$adapter->authenticate($user, $password);
+
+		return $user;
 	}
 	
 	/**
@@ -328,8 +361,4 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 * @param Entity\Group $group
 	 */
 	abstract protected function doInsertGroup(Entity\Group $group);
-	
-	
-	
 }
-

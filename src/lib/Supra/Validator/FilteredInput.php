@@ -128,11 +128,11 @@ class FilteredInput extends \ArrayIterator
 	{
 		if ($this->hasChild($index)) {
 			$value = $this->offsetGet($index);
-			$value = new self($value);
+			$value = new static($value);
 			
 			return $value;
 		} elseif ($emptyAsDefault) {
-			return new self();
+			return new static();
 		} else {
 			throw new Exception\RuntimeException("No such offset or does not contain array");
 		}

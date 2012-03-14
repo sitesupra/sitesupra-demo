@@ -101,22 +101,7 @@ class DummyAPIUserProvider extends UserProviderAbstract
 		$this->requestKey = $key;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public function authenticate($login, AuthenticationPassword $password)
-	{
-		$adapter = $this->getAuthAdapter();
-		
-		$user = $this->findUserByLogin($login);
-		if (empty($user)) {
-			throw new UserNotFoundException();
-		}
-
-		$adapter->authenticate($user, $password);
-
-		return $user;
-	}
+	
 	
 	/**
 	 * {@inheritDoc}

@@ -3,6 +3,7 @@
 namespace Supra\Event;
 
 use Supra\Log\Log;
+use Supra\Loader\Loader;
 
 /**
  * Event manager object
@@ -86,6 +87,12 @@ class EventManager
 					call_user_func($listener, $eventArgs);
 				} elseif (is_object($listener)) {
 					$listener->$eventType($eventArgs);
+					
+				//TODO: This is bad because the listener will be separate instance 
+				// at all times. Should incubate inside some object maybe.
+//				} elseif (is_string($listener)) {
+//					$listener = Loader::getClassInstance($listener);
+//					$listener->$eventType($eventArgs);
 				} else {
 					Log::warn("Listener event type $eventType is not recognized as callable: ", $listener);
 					

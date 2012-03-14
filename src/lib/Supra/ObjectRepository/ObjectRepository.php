@@ -355,6 +355,29 @@ class ObjectRepository
 
 		return $object;
 	}
+	
+	/**
+	 * Finds all objects matching the caller name trace
+	 * @param mixed $caller
+	 * @param string $interface
+	 * @return array
+	 */
+	private static function findAllObjects($caller, $interface)
+	{
+		$objects = null;
+		$visited = array();
+
+		do {
+			$object = self::findObject($caller, $interface);
+			$caller = self::getParentCaller($caller, $visited);
+			
+			if ( ! empty($object) && ! in_array($object, $objects, true)) {
+				$objects[] = $object;
+			}
+		} while ( ! is_null($caller));
+
+		return $objects;
+	}
 
 	/**
 	 * Force caller object hierarchy

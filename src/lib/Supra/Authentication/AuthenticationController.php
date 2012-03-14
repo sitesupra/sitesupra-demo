@@ -204,6 +204,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 				// Authenticating user
 				$user = null;
+				
+				$eventArgs = new Event\EventArgs();
+				$eventArgs->request = $request;
 
 				try {
 
@@ -211,6 +214,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					if ($password->isEmpty()) {
 						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
 					}
+					
+					$eventManager = ObjectRepository::getEventManager($this);
+					$eventManager->fire(Event\EventArgs::preAuthenticate, $eventArgs);
 
 					$user = $userProvider->authenticate($login, $password);
 
@@ -218,6 +224,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$auditLog = ObjectRepository::getAuditLogger($this);
 					$auditLog->info("User '{$user->getEmail()}' logged in", $user);
+					
+					$eventManager = ObjectRepository::getEventManager($this);
+					$eventManager->fire(Event\EventArgs::onAuthenticationSuccess, $eventArgs);
 					
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
@@ -233,9 +242,17 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					throw new StopRequestException("Login success");
 				} catch (Exception\AuthenticationFailure $exc) {
+					
+					$eventManager = ObjectRepository::getEventManager($this);
+					$eventManager->fire(Event\EventArgs::onAuthenticationFailure, $eventArgs);
+					
 					//TODO: pass the failure message somehow
 					// Login not successfull
 					$message = 'Incorrect login name or password';
+					
+					if ($exc instanceof Exception\AuthenticationBanException) {
+						$message = 'Too many authentication failures';
+					}
 
 					//TODO: i18n
 					if ($exc instanceof Exception\ExistingSessionLimitation) {
