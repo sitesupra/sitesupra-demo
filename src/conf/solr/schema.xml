@@ -155,11 +155,11 @@
 		<field name="createTime" type="date" indexed="true" stored="true" required="false" />
 		<field name="modifyTime" type="date" indexed="true" stored="true" required="false" />
 		<field name="active" type="boolean" indexed="true" stored="true" required="false" />
-		<field name="text_lv" type="text_lv" indexed="true" stored="true" required="false" />
-		<field name="text_en" type="text_en" indexed="true" stored="true" required="false" />	 
-		<field name="text_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		
-		<field name="text_lt" type="text_lt" indexed="true" stored="true" required="false" />	 		
-		<field name="text_et" type="text_et" indexed="true" stored="true" required="false" />	 		
+		<field name="text_lv" type="text_lv" indexed="true" stored="true" required="false" termVectors="true"/>
+		<field name="text_en" type="text_en" indexed="true" stored="true" required="false" termVectors="true"/>	 
+		<field name="text_ru" type="text_ru" indexed="true" stored="true" required="false" termVectors="true"/>	 		
+		<field name="text_lt" type="text_lt" indexed="true" stored="true" required="false" termVectors="true"/>	 		
+		<field name="text_et" type="text_et" indexed="true" stored="true" required="false" termVectors="true"/>	 		
 		<field name="title_lv" type="text_lv" indexed="true" stored="true" required="false" />
 		<field name="title_en" type="text_en" indexed="true" stored="true" required="false" />	 
 		<field name="title_ru" type="text_ru" indexed="true" stored="true" required="false" />	 		

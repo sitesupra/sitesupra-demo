@@ -22,447 +22,514 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Pages\Entity\PageRevisionData;
+use Doctrine\ORM\EntityManager;
 
 /**
  * @Entity
  */
 class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 {
-	const DISCRIMITATOR_VALUE = 'pageLocalization';
-
-	/**
-	 * @Column(type="supraId20")
-	 * @var string
-	 */
-	protected $pageLocalizationId;
-
-	/**
-	 * @Column(type="string") 
-	 * @var string
-	 */
-	protected $revisionId;
-
-	/**
-	 * @Column(type="string") 
-	 * @var string
-	 */
-	protected $schemaName;
-
-	/**
-	 * @var PageLocalization
-	 */
-	protected $localization;
-
-	/**
-	 * @var PageLocalization
-	 */
-	protected $previousLocalization;
-
-	/**
-	 * @var boolean
-	 */
-	protected $isActive;
-
-	/**
-	 * @var boolean
-	 */
-	protected $reindexChildren;
-
-	/**
-	 * @var array
-	 */
-	static $indexedLocalizationIds = array();
-
-	/**
-	 * @param PageLocalization $pageLocalization 
-	 */
-	public function __construct(PageLocalization $pageLocalization)
-	{
-		parent::__construct();
-
-		$this->pageLocalizationId = $pageLocalization->getId();
-		$this->revisionId = $pageLocalization->getRevisionId();
-		$this->schemaName = PageController::SCHEMA_DRAFT;
-	}
-
-	/**
-	 * @param string $schemaName
-	 * @param string $pageLocalizationId
-	 * @param string $revisionId
-	 * @return string
-	 */
-	static function getUniqueId($schemaName, $pageLocalizationId, $revisionId = null)
-	{
-		$id = null;
-
-		if ($schemaName == PageController::SCHEMA_PUBLIC) {
-			$id = implode('-', array($pageLocalizationId, $schemaName));
-		} else {
-			$id = implode('-', array($pageLocalizationId, $schemaName, $revisionId));
-		}
-
-		return $id;
-	}
-
-	/**
-	 * Sets schema name to be used for this queue item.
-	 * @param string $schemaName 
-	 */
-	public function setSchemaName($schemaName)
-	{
-		if ( ! in_array($schemaName, PageController::$knownSchemaNames)) {
-			throw new IndexerRuntimeException('Unknown schema name "' . $schemaName . '". Use constants from PageController.');
-		}
-
-		$this->schemaName = $schemaName;
-	}
-
-	static function addToIndexed($pageLocalizationId, $revisionId)
-	{
-		$mockId = self::makeMockId($pageLocalizationId, $revisionId);
-
-		self::$indexedLocalizationIds[] = $mockId;
-
-		\Log::debug('QQQQQ: ADD TO INDEXED: ', $mockId);
-	}
-
-	static function isIndexed($pageLocalizationId, $revisionId)
-	{
-		$mockId = self::makeMockId($pageLocalizationId, $revisionId);
 
-		$result = in_array($mockId, self::$indexedLocalizationIds);
+    const DISCRIMITATOR_VALUE = 'pageLocalization';
+
+    /**
+     * @Column(type="supraId20")
+     * @var string
+     */
+    protected $pageLocalizationId;
+
+    /**
+     * @Column(type="string") 
+     * @var string
+     */
+    protected $revisionId;
+
+    /**
+     * @Column(type="string") 
+     * @var string
+     */
+    protected $schemaName;
+
+    /**
+     * @var PageLocalization
+     */
+    protected $localization;
+
+    /**
+     * @var PageLocalization
+     */
+    protected $previousLocalization;
+
+    /**
+     * @var boolean
+     */
+    protected $isActive;
+
+    /**
+     * @var boolean
+     */
+    protected $reindexChildren;
+
+    /**
+     * @var array
+     */
+    static $indexedLocalizationIds = array();
+
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    protected $em;
+
+    /**
+     * @var boolean
+     */
+    protected $ignoreChildren;
+
+    /**
+     * @param PageLocalization $pageLocalization 
+     */
+    public function __construct(PageLocalization $pageLocalization)
+    {
+        parent::__construct();
+
+        $this->pageLocalizationId = $pageLocalization->getId();
+        $this->revisionId = $pageLocalization->getRevisionId();
+        $this->schemaName = PageController::SCHEMA_DRAFT;
+
+        $this->ignoreChildren = false;
+    }
+
+    /**
+     * @param string $schemaName
+     * @param string $pageLocalizationId
+     * @param string $revisionId
+     * @return string
+     */
+    static function getUniqueId($schemaName, $pageLocalizationId, $revisionId = null)
+    {
+        $id = null;
+
+        if ($schemaName == PageController::SCHEMA_PUBLIC) {
+            $id = implode('-', array($pageLocalizationId, $schemaName));
+        } else {
+            $id = implode('-', array($pageLocalizationId, $schemaName, $revisionId));
+        }
+
+        return $id;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        if (empty($this->em)) {
+
+            $em = ObjectRepository::getEntityManager($this->schemaName);
+            $this->setEntityManager($em);
+        }
+
+        return $this->em;
+    }
+
+    /**
+     * @param EntityManager $em 
+     */
+    public function setEntityManager(EntityManager $em)
+    {
+        $this->em = $em;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getIgnoreChildren()
+    {
+        return $this->ignoreChildren;
+    }
+
+    /**
+     * @param boolean $ignoreChildren 
+     */
+    public function setIgnoreChildren($ignoreChildren)
+    {
+        $this->ignoreChildren = $ignoreChildren;
+    }
 
-		\Log::debug('QQQQQ: IS INDEXED?: ', $mockId, ': ', $result);
+    /**
+     * Sets schema name to be used for this queue item.
+     * @param string $schemaName 
+     */
+    public function setSchemaName($schemaName)
+    {
+        if ( ! in_array($schemaName, PageController::$knownSchemaNames)) {
+            throw new IndexerRuntimeException('Unknown schema name "' . $schemaName . '". Use constants from PageController.');
+        }
 
-		return $result;
-	}
+        $this->schemaName = $schemaName;
+    }
 
-	static function makeMockId($pageLocalizationId, $revisionId)
-	{
-		return $pageLocalizationId . '-' . $revisionId;
-	}
+    static function addToIndexed($pageLocalizationId, $revisionId)
+    {
+        $mockId = self::makeMockId($pageLocalizationId, $revisionId);
 
-	public function getPreviousPublishedPageLocalization(PageLocalization $pageLocalization)
-	{
-		$auditEm = ObjectRepository::getEntityManager('#audit');
+        self::$indexedLocalizationIds[] = $mockId;
+
+        \Log::debug('QQQQQ: ADD TO INDEXED: ', $mockId);
+    }
+
+    static function isIndexed($pageLocalizationId, $revisionId)
+    {
+        $mockId = self::makeMockId($pageLocalizationId, $revisionId);
+
+        $result = in_array($mockId, self::$indexedLocalizationIds);
+
+        \Log::debug('QQQQQ: IS INDEXED?: ', $mockId, ': ', $result);
+
+        return $result;
+    }
+
+    static function makeMockId($pageLocalizationId, $revisionId)
+    {
+        return $pageLocalizationId . '-' . $revisionId;
+    }
+
+    public function getPreviousPublishedPageLocalization(PageLocalization $pageLocalization)
+    {
+        $auditEm = ObjectRepository::getEntityManager('#audit');
+
+        $query = $auditEm->createQuery('SELECT prd FROM ' . PageRevisionData::CN() . ' prd WHERE prd.reference = :pageLocalizationId AND prd.type = ' . PageRevisionData::TYPE_HISTORY . ' ORDER BY prd.id DESC');
+        $query->setMaxResults(1);
+        $query->setParameter('pageLocalizationId', $pageLocalization->getId());
+
+        $pageRevisionData = $query->getOneOrNullResult();
+        /* @var $pageRevisionData PageRevisionData */
+
+        if (empty($pageRevisionData)) {
+            return null;
+        }
+
+        $pageLocalizationRepo = $auditEm->getRepository(PageLocalization::CN());
+
+        $criteria = array(
+            'id' => $pageLocalization->getId(),
+            'revision' => $pageRevisionData->getId()
+        );
+
+        $previousPublishedPageLocalization = $pageLocalizationRepo->findOneBy($criteria);
+
+        return $previousPublishedPageLocalization;
+    }
+
+    /**
+     * @return array of IndexedDocument
+     */
+    public function getIndexedDocuments()
+    {
+        $result = array();
+
+        if (self::isIndexed($this->pageLocalizationId, $this->revisionId)) {
+
+            \Log::debug('LLL hit cache BIGTIME!!! ', self::makeMockId($this->pageLocalizationId, $this->revisionId));
+            return array();
+        }
+
+        $em = $this->getEntityManager();
+        $pr = $em->getRepository(PageLocalization::CN());
+
+        $criteria = array(
+            'id' => $this->pageLocalizationId,
+            'revision' => $this->revisionId
+        );
+
+        $localization = $pr->findOneBy($criteria);
+        /* @var $localization PageLocalization */
+
+        if (empty($localization)) {
+            return $result;
+        }
+
+        \Log::debug('I:I:I:I:I:I:I: ', $localization->getTitle() . ' / ' . $localization->getRevisionId());
+
+        $previousLocalization = $this->getPreviousPublishedPageLocalization($localization);
+
+        $result[] = $this->makeIndexedDocument($localization);
+
+        $currentIndexedDocument = $this->findPageLocalizationIndexedDocument($localization->getId());
+
+        $localizationMoved = true;
+
+        $localizationFullPath = $this->getPageLocalizationFullPath($localization);
+
+        $previousLocalizationFullPath = null;
+        if ($previousLocalization) {
+            $previousLocalizationFullPath = $this->getPageLocalizationFullPath($previousLocalization);
+        }
+
+        if ($localizationFullPath == $previousLocalizationFullPath) {
+            $localizationMoved = false;
+        }
+        // If "Is Active" has been chagned 
+        // OR page localization has been moved
+        // OR there is no previous indexed document 
+        // OR previous indexed document revision is not last published page localization revision
+        // AND children are not ignored per se
+        // then we have to reindex children too.
+        if (
+                (
+                ($localization->isActive() != $previousLocalization->isActive() ) ||
+                ($localizationMoved) ||
+                empty($currentIndexedDocument) ||
+                ($currentIndexedDocument->revisionId != $previousLocalization->getRevisionId())
+                )
+                &&
+                $this->getIgnoreChildren() == false
+        ) {
+
+            $children = $localization->getAllChildren();
+
+            foreach ($children as $child) {
 
-		$query = $auditEm->createQuery('SELECT prd FROM ' . PageRevisionData::CN() . ' prd WHERE prd.reference = :pageLocalizationId AND prd.type = ' . PageRevisionData::TYPE_HISTORY . ' ORDER BY prd.id DESC');
-		$query->setMaxResults(1);
-		$query->setParameter('pageLocalizationId', $pageLocalization->getId());
+                if ( ! self::isIndexed($child->getId(), $child->getRevisionId())) {
+                    $result[] = $this->makeIndexedDocument($child);
+                } else {
+                    \Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param PageLocalization $pageLocalization
+     * @return type 
+     */
+    private function getPageLocalizationFullPath(PageLocalization $pageLocalization)
+    {
+        $localizationFullPath = null;
+
+        $pathEntity = $pageLocalization->getPathEntity();
+        if ( ! empty($pathEntity)) {
+
+            $path = null;
+            try {
+                $path = $pathEntity->getPath();
+            } catch (\Doctrine\ORM\EntityNotFoundException $e) {
+                // WTH IS THIS EVEN HAPPENING?
+            }
+
+            if ( ! empty($path)) {
+                $localizationFullPath = $path->getFullPath();
+            }
+        }
+
+        return $localizationFullPath;
+    }
+
+    /**
+     *
+     * @param string $pageLocalizationId
+     * @return Solarium_Document_ReadOnly
+     */
+    protected function findPageLocalizationIndexedDocument($pageLocalizationId)
+    {
+        $findRequest = new PageLocalizationFindRequest();
+
+        $findRequest->setSchemaName($this->schemaName);
+        $findRequest->setPageLocalizationId($pageLocalizationId);
+
+        $searchService = new SearchService();
+
+        $resultSet = $searchService->processRequest($findRequest);
+
+        $items = $resultSet->getItems();
+
+        foreach ($items as $item) {
+
+            if ($item instanceof PageLocalizationSearchResultItem) {
+
+                if ($item->getPageLocalizationId() == $pageLocalizationId) {
+                    return $item->getIndexedDocument();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param PageLocalization $pageLocalization
+     * @return IndexedDocument 
+     */
+    protected function makeIndexedDocument(PageLocalization $pageLocalization)
+    {
+        $lm = ObjectRepository::getLocaleManager($this);
+
+        $locale = $lm->getLocale($pageLocalization->getLocale());
+
+        $languageCode = $locale->getProperty('language');
+
+        $id = self::getUniqueId($this->schemaName, $pageLocalization->getId(), $pageLocalization->getRevisionId());
+
+        $class = PageLocalization::CN();
 
-		$pageRevisionData = $query->getOneOrNullResult();
-		/* @var $pageRevisionData PageRevisionData */
+        $indexedDocument = new IndexedDocument($class, $id);
 
-		if (empty($pageRevisionData)) {
-			return null;
-		}
+        $indexedDocument->schemaName = $this->schemaName;
+        $indexedDocument->revisionId = $pageLocalization->getRevisionId();
+
+        $indexedDocument->pageId = $pageLocalization->getMaster()->getId();
+        $indexedDocument->pageLocalizationId = $pageLocalization->getId();
+        $indexedDocument->localeId = $locale->getId();
 
-		$pageLocalizationRepo = $auditEm->getRepository(PageLocalization::CN());
+        $indexedDocument->title_general = $indexedDocument->formatText($pageLocalization->getTitle());
+        $indexedDocument->__set('title_' . $languageCode, $indexedDocument->title_general);
 
-		$criteria = array(
-			'id' => $pageLocalization->getId(),
-			'revision' => $pageRevisionData->getId()
-		);
+        $indexedDocument->active = $pageLocalization->isActive() ? 'true' : 'false';
 
-		$previousPublishedPageLocalization = $pageLocalizationRepo->findOneBy($criteria);
+        $indexedDocument->keywords = $pageLocalization->getMetaKeywords();
+        $indexedDocument->description = $pageLocalization->getMetaDescription();
+        $indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
+        $indexedDocument->pageWebPath = $pageLocalization->getPath();
 
-		return $previousPublishedPageLocalization;
-	}
+        $pageLocalizationPathEntity = $pageLocalization->getPathEntity();
+        $isActive = 'true';
+        if (empty($pageLocalizationPathEntity)) {
+            $isActive = 'false';
+        } else if ( ! $pageLocalizationPathEntity->isActive()) {
+            $isActive = 'false';
+        }
+        $indexedDocument->isActive = $isActive;
 
-	/**
-	 * @return array of IndexedDocument
-	 */
-	public function getIndexedDocuments()
-	{
-		$result = array();
+        $redirect = $pageLocalization->getRedirect();
+        $isRedirected = 'true';
+        if (empty($redirect)) {
+            $isRedirected = 'false';
+        }
+        $indexedDocument->isRedirected = $isRedirected;
 
-		if (self::isIndexed($this->pageLocalizationId, $this->revisionId)) {
+        $isLimited = $pageLocalizationPathEntity->isLimited();
+        $indexedDocument->isLimited = $isLimited ? 'true' : 'false';
 
-			\Log::debug('LLL hit cache BIGTIME!!! ', self::makeMockId($this->pageLocalizationId, $this->revisionId));
-			return array();
-		}
+        $ancestors = $pageLocalization->getAuthorizationAncestors();
+        $ancestorIds = array();
+        foreach ($ancestors as $ancestor) {
+            /* @var $ancestor Page */
+            if ($ancestor instanceof PageLocalization) {
+                $ancestorIds[] = $ancestor->getId();
+            }
+        }
 
-		$em = ObjectRepository::getEntityManager($this->schemaName);
-		$pr = $em->getRepository(PageLocalization::CN());
+        $indexedDocument->ancestorIds = $ancestorIds;
 
-		$localization = $pr->find($this->pageLocalizationId);
-		/* @var $localization PageLocalization */
+        // Include general title in the text
+        $pageContents = array();
+        $pageContents[] = $indexedDocument->title_general;
 
-		if (empty($localization)) {
-			return $result;
-		}
+        $dummyHttpRequest = new \Supra\Request\HttpRequest();
 
-		$previousLocalization = $this->getPreviousPublishedPageLocalization($localization);
+        $em = $this->getEntityManager();
 
-		$result[] = $this->makeIndexedDocument($localization);
+        $pageRequestView = new PageRequestView($dummyHttpRequest);
 
-		$currentIndexedDocument = $this->findPageLocalizationIndexedDocument($localization->getId());
+        $pageRequestView->setLocale($pageLocalization->getLocale());
+        $pageRequestView->setPageLocalization($pageLocalization);
+        $pageRequestView->setDoctrineEntityManager($em);
 
-		$localizationMoved = true;
+        $blockPropertySet = $pageRequestView->getBlockPropertySet($em);
 
-		$localizationFullPath = $this->getPageLocalizationFullPath($localization);
+        $indexedEditableClasses = array(
+            \Supra\Editable\Html::CN(),
+            \Supra\Editable\String::CN(),
+            \Supra\Editable\InlineString::CN()
+        );
 
-		$previousLocalizationFullPath = null;
-		if ($previousLocalization) {
-			$previousLocalizationFullPath = $this->getPageLocalizationFullPath($previousLocalization);
-		}
+        foreach ($blockPropertySet as $blockProperty) {
+            /* @var $blockProperty BlockProperty */
 
-		if ($localizationFullPath == $previousLocalizationFullPath) {
-			$localizationMoved = false;
-		}
-		// If "Is Active" has been chagned 
-		// OR page localization has been moved
-		// OR there is no previous indexed document 
-		// OR previous indexed document revision is not last published page localization revision
-		// then we have to reindex children too.
-		if (
-				($localization->isActive() != $previousLocalization->isActive() ) ||
-				($localizationMoved) ||
-				empty($currentIndexedDocument) ||
-				($currentIndexedDocument->revisionId != $previousLocalization->getRevisionId())
-		) {
+            if ( ! ($blockProperty->getLocalization() instanceof TemplateLocalization) &&
+                    in_array($blockProperty->getType(), $indexedEditableClasses)
+            ) {
+                $blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
+                $pageContents[] = $indexedDocument->formatText($blockContents);
+            }
+        }
 
-			$children = $localization->getAllChildren();
+        $indexedDocument->text_general = join(' ', $pageContents);
+        $indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
 
-			foreach ($children as $child) {
+        \Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId . '-' . $indexedDocument->revisionId, '; isActive: ', $indexedDocument->isActive, '; active: ', $indexedDocument->active);
 
-				if ( ! self::isIndexed($child->getId(), $child->getRevisionId())) {
-					$result[] = $this->makeIndexedDocument($child);
-				} else {
-					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
-				}
-			}
-		}
+        self::addToIndexed($pageLocalization->getId(), $pageLocalization->getRevisionId());
 
-		return $result;
-	}
+        return $indexedDocument;
+    }
 
-	/**
-	 * @param PageLocalization $pageLocalization
-	 * @return type 
-	 */
-	private function getPageLocalizationFullPath(PageLocalization $pageLocalization)
-	{
-		$localizationFullPath = null;
+    public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
+    {
+        $tokenizer = new Markup\DefaultTokenizer($blockProperty->getValue());
 
-		$pathEntity = $pageLocalization->getPathEntity();
-		if ( ! empty($pathEntity)) {
+        $tokenizer->tokenize();
 
-			$path = null;
-			try {
-				$path = $pathEntity->getPath();
-			} catch (\Doctrine\ORM\EntityNotFoundException $e) {
-				// WTH IS THIS EVEN HAPPENING?
-			}
+        $result = array();
+        foreach ($tokenizer->getElements() as $element) {
 
-			if ( ! empty($path)) {
-				$localizationFullPath = $path->getFullPath();
-			}
-		}
+            if ($element instanceof Markup\HtmlElement) {
+                $result[] = $element->getSafeContent();
+            } else if ($element instanceof Markup\SupraMarkupImage) {
 
-		return $localizationFullPath;
-	}
+                $metadata = $blockProperty->getMetadata();
 
-	/**
-	 *
-	 * @param string $pageLocalizationId
-	 * @return Solarium_Document_ReadOnly
-	 */
-	protected function findPageLocalizationIndexedDocument($pageLocalizationId)
-	{
-		$findRequest = new PageLocalizationFindRequest();
+                /* @var $metadataItem BlockPropertyMetadata */
+                $metadataItem = $metadata[$element->getId()];
 
-		$findRequest->setSchemaName($this->schemaName);
-		$findRequest->setPageLocalizationId($pageLocalizationId);
+                $image = $metadataItem->getReferencedElement();
 
-		$searchService = new SearchService();
+                if ($image instanceof ImageReferencedElement) {
+                    $result[] = $image->getAlternativeText();
+                }
+            } else if ($element instanceof Markup\SupraMarkupLinkStart) {
 
-		$resultSet = $searchService->processRequest($findRequest);
+                $metadata = $blockProperty->getMetadata();
 
-		$items = $resultSet->getItems();
+                /* @var $metadataItem BlockPropertyMetadata */
+                $metadataItem = $metadata[$element->getId()];
 
-		foreach ($items as $item) {
+                if ( ! empty($metadataItem)) {
 
-			if ($item instanceof PageLocalizationSearchResultItem) {
+                    $link = $metadataItem->getReferencedElement();
 
-				if ($item->getPageLocalizationId() == $pageLocalizationId) {
-					return $item->getIndexedDocument();
-				}
-			}
-		}
+                    if ($link instanceof LinkReferencedElement) {
+                        $result[] = $link->getTitle();
+                    }
+                } else {
+                    \Log::debug('EMPTY REFERENCED LINK?');
+                }
+            }
+        }
 
-		return null;
-	}
+        return implode(' ', $result);
+    }
 
-	/**
-	 * @param PageLocalization $pageLocalization
-	 * @return IndexedDocument 
-	 */
-	protected function makeIndexedDocument(PageLocalization $pageLocalization)
-	{
-		$lm = ObjectRepository::getLocaleManager($this);
+    public function getPageLocalizationId()
+    {
+        return $this->pageLocalizationId;
+    }
 
-		$locale = $lm->getLocale($pageLocalization->getLocale());
+    public function setPageLocalizationId($pageLocalizationId)
+    {
+        $this->pageLocalizationId = $pageLocalizationId;
+    }
 
-		$languageCode = $locale->getProperty('language');
+    public function getRevisionId()
+    {
+        return $this->revisionId;
+    }
 
-		$id = self::getUniqueId($this->schemaName, $pageLocalization->getId(), $pageLocalization->getRevisionId());
-
-		$class = PageLocalization::CN();
-
-		$indexedDocument = new IndexedDocument($class, $id);
-
-		$indexedDocument->schemaName = $this->schemaName;
-		$indexedDocument->revisionId = $pageLocalization->getRevisionId();
-
-		$indexedDocument->pageId = $pageLocalization->getMaster()->getId();
-		$indexedDocument->pageLocalizationId = $pageLocalization->getId();
-		$indexedDocument->localeId = $locale->getId();
-
-		$indexedDocument->title_general = $indexedDocument->formatText($pageLocalization->getTitle());
-		$indexedDocument->__set('title_' . $languageCode, $indexedDocument->title_general);
-
-		$indexedDocument->active = $pageLocalization->isActive() ? 'true' : 'false';
-
-		$indexedDocument->keywords = $pageLocalization->getMetaKeywords();
-		$indexedDocument->description = $pageLocalization->getMetaDescription();
-		$indexedDocument->includeInSearch = $pageLocalization->isIncludedInSearch();
-		$indexedDocument->pageWebPath = $pageLocalization->getPath();
-
-		$pageLocalizationPathEntity = $pageLocalization->getPathEntity();
-		$isActive = 'true';
-		if (empty($pageLocalizationPathEntity)) {
-			$isActive = 'false';
-		} else if ( ! $pageLocalizationPathEntity->isActive()) {
-			$isActive = 'false';
-		}
-		$indexedDocument->isActive = $isActive;
-
-		$redirect = $pageLocalization->getRedirect();
-		$isRedirected = 'true';
-		if (empty($redirect)) {
-			$isRedirected = 'false';
-		}
-		$indexedDocument->isRedirected = $isRedirected;
-
-		$isLimited = $pageLocalizationPathEntity->isLimited();
-		$indexedDocument->isLimited = $isLimited ? 'true' : 'false';
-
-		$ancestors = $pageLocalization->getAuthorizationAncestors();
-		$ancestorIds = array();
-		foreach ($ancestors as $ancestor) {
-			/* @var $ancestor Page */
-			if ($ancestor instanceof PageLocalization) {
-				$ancestorIds[] = $ancestor->getId();
-			}
-		}
-
-		$indexedDocument->ancestorIds = $ancestorIds;
-
-		// Include general title in the text
-		$pageContents = array();
-		$pageContents[] = $indexedDocument->title_general;
-
-		$dummyHttpRequest = new \Supra\Request\HttpRequest();
-
-		$pageRequestView = new PageRequestView($dummyHttpRequest);
-		$pageRequestView->setLocale($pageLocalization->getLocale());
-		$pageRequestView->setPageLocalization($pageLocalization);
-		$em = ObjectRepository::getEntityManager($pageLocalization); //
-		$pageRequestView->setDoctrineEntityManager($em);
-		$blockPropertySet = $pageRequestView->getBlockPropertySet($em);
-
-		$indexedEditableClasses = array(
-			\Supra\Editable\Html::CN(),
-			\Supra\Editable\String::CN(),
-			\Supra\Editable\InlineString::CN()
-		);
-
-		foreach ($blockPropertySet as $blockProperty) {
-			/* @var $blockProperty BlockProperty */
-
-			if ( ! ($blockProperty->getLocalization() instanceof TemplateLocalization) &&
-					in_array($blockProperty->getType(), $indexedEditableClasses)
-			) {
-				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
-				$pageContents[] = $indexedDocument->formatText($blockContents);
-			}
-		}
-
-		$indexedDocument->text_general = join(' ', $pageContents);
-		$indexedDocument->__set('text_' . $languageCode, $indexedDocument->text_general);
-
-		\Log::debug('LLL makeIndexedDocument: ', $indexedDocument->pageLocalizationId . '-' . $indexedDocument->revisionId, '; isActive: ', $indexedDocument->isActive, '; active: ', $indexedDocument->active);
-
-		self::addToIndexed($pageLocalization->getId(), $pageLocalization->getRevisionId());
-
-		return $indexedDocument;
-	}
-
-	public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
-	{
-		$tokenizer = new Markup\DefaultTokenizer($blockProperty->getValue());
-
-		$tokenizer->tokenize();
-
-		$result = array();
-		foreach ($tokenizer->getElements() as $element) {
-
-			if ($element instanceof Markup\HtmlElement) {
-				$result[] = $element->getContent();
-			} else if ($element instanceof Markup\SupraMarkupImage) {
-
-				$metadata = $blockProperty->getMetadata();
-
-				/* @var $metadataItem BlockPropertyMetadata */
-				$metadataItem = $metadata[$element->getId()];
-
-				$image = $metadataItem->getReferencedElement();
-
-				if ($image instanceof ImageReferencedElement) {
-					$result[] = $image->getAlternativeText();
-				}
-			} else if ($element instanceof Markup\SupraMarkupLinkStart) {
-
-				$metadata = $blockProperty->getMetadata();
-
-				/* @var $metadataItem BlockPropertyMetadata */
-				$metadataItem = $metadata[$element->getId()];
-
-				if ( ! empty($metadataItem)) {
-
-					$link = $metadataItem->getReferencedElement();
-
-					if ($link instanceof LinkReferencedElement) {
-						$result[] = $link->getTitle();
-					}
-				} else {
-					\Log::debug('EMPTY REFERENCED LINK?');
-				}
-			}
-		}
-
-		return implode(' ', $result);
-	}
-
-	public function getPageLocalizationId()
-	{
-		return $this->pageLocalizationId;
-	}
-
-	public function setPageLocalizationId($pageLocalizationId)
-	{
-		$this->pageLocalizationId = $pageLocalizationId;
-	}
-
-	public function getRevisionId()
-	{
-		return $this->revisionId;
-	}
-
-	public function setRevisionId($revisionId)
-	{
-		$this->revisionId = $revisionId;
-	}
+    public function setRevisionId($revisionId)
+    {
+        $this->revisionId = $revisionId;
+    }
 
 }
