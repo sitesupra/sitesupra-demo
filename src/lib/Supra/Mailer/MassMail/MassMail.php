@@ -85,6 +85,16 @@ class MassMail
 	}
 
 	/**
+	 * Sets send queue manager
+	 * @param Manager\SendQueueManager $queueManagerInstance 
+	 */
+	public function setSendQueuemanager(Manager\SendQueueManager $queueManagerInstance)
+	{
+		$queueManagerInstance->setEntityManager($this->getEntityManager());
+		$this->sendQueueManager = $queueManagerInstance;
+	}
+	
+	/**
 	 * Returns instance of SubscriberManager
 	 * @return Manager\SubscriberManager
 	 */
@@ -130,6 +140,7 @@ class MassMail
 			$sendQueueItem->setEmailFrom($campaign->getFromEmail());
 			$sendQueueItem->setNameFrom($campaign->getFromName());
 			$sendQueueItem->setReplyTo($campaign->getReplyTo());
+			$sendQueueItem->setCampaign($campaign);
 
 			$subject = $massMailContentSubject->getPreparedContent($subscriber);
 			$htmlContent = $massMailContentHtml->getPreparedContent($subscriber);

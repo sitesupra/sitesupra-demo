@@ -85,8 +85,9 @@ class SendQueueManager extends MassMailManager
 	public function updateQueueItemSetStatus($itemsIdsSet, $status)
 	{
 		$status = (int) $status;
+		$entityName = Entity\SendQueueItem::CN();
 		
-		$this->entityManager->createQuery('UPDATE SendQueue s SET status = :status WHERE id IN (:ids)')
+		$this->entityManager->createQuery('UPDATE '.$entityName.' sq SET sq.status = :status WHERE sq.id IN (:ids)')
 				->setParameter('status', $status)
 				->setParameter('ids', $itemsIdsSet)
 				->execute();

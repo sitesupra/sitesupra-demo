@@ -24,6 +24,14 @@ class Campaign extends Entity
 		$this->subscriberList = $subscriberList;
 	}
 
+	
+	/**
+	 * @OneToMany(targetEntity="SendQueueItem", mappedBy="campaign", cascade={"persist", "remove"} )
+	 * @var ArrayCollection
+	 */	
+	protected $sendQueueItems;
+	
+	
 	/**
 	 * @Column(type="string", name="subject", nullable=false)
 	 * @var string

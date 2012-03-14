@@ -3,8 +3,10 @@
 namespace Supra\Mailer\SendGrid;
 
 use Supra\Mailer\SendGrid\SmtpApiHeader;
+use Supra\Mailer\MassMail\Entity;
+use Supra\ObjectRepository\ObjectRepository;
 
-class SendQueueManager extends Supra\Mailer\MassMail\Manager\SendQueueManager
+class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 {
 
 	/**
@@ -23,7 +25,7 @@ class SendQueueManager extends Supra\Mailer\MassMail\Manager\SendQueueManager
 
 		foreach ($result as $index => $queueItem) {
 
-			$queueItem = new Supra\Mailer\MassMail\Entity\SendQueueItem();
+//			$queueItem = new \Supra\Mailer\MassMail\Entity\SendQueueItem();
 			$campaign = $queueItem->getCampaign();
 			$campaignId = $campaign->getId();
 			$campaignGroup[$campaignId]['campaignId'] = $campaignId;
@@ -46,7 +48,7 @@ class SendQueueManager extends Supra\Mailer\MassMail\Manager\SendQueueManager
 		}
 	}
 
-	protected function sendMessagesSet($messagesSet)
+	protected function sendMessagesSet($messageData)
 	{
 
 
@@ -57,8 +59,6 @@ class SendQueueManager extends Supra\Mailer\MassMail\Manager\SendQueueManager
 			$sendGridHeader->setUniqueArgs(array('campaignId' => $messageData['campaignId']));
 
 			$mailer = ObjectRepository::getMailer($this);
-			$mailer->getTransport()->setUserName($this->sendGridUserName);
-			$mailer->getTransport()->setPassword($this->sendGridPassword);
 			$message = new \Supra\Mailer\Message\SimpleMessage();
 
 			$headers = $message->getHeaders();

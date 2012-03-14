@@ -18,7 +18,7 @@ class SendQueueItem extends Entity
 
 
 	/**
-	 * @ManyToOne(targetEntity="Campaign")
+	 * @ManyToOne(targetEntity="Campaign", inversedBy="sendQueueItems", cascade={"persist", "remove"})
 	 * @var Campaign
 	 */	
 	protected $campaign;
