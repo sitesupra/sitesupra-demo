@@ -401,35 +401,6 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getAuthizationAncestorsDirect()
-	{
-		// This is overriden because page localizations themselves are not nested set element, so
-		// we take master page, fetch all of its ancestors and then fetch page localizations from those.
-		$ancestors = array();
-
-		$master = $this->getMaster();
-		$masterAncestors = $master->getAncestors();
-		
-		$ancestors[] = $master;
-
-		foreach ($masterAncestors as $masterAncestor) {
-			/* @var $masterAncestor Page */
-
-			$ancestors[] = $masterAncestor;
-
-			$ancestorLocalization = $masterAncestor->getLocalization($this->locale);
-
-			if ( ! empty($ancestorLocalization)) {
-				$ancestors[] = $ancestorLocalization;
-			}
-		}
-
-		return $ancestors;
-	}
-
-	/**
 	 * Gets page level by PATH not structure, ignores group pages
 	 * @return int
 	 */

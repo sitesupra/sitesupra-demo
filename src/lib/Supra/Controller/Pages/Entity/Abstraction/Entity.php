@@ -42,7 +42,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	protected $revision = '';
 	
 	/**
-     * @var array
+	 * @var array
 	 */
 	private $_authorizationAncestorsCache = array();
 
