@@ -4,6 +4,7 @@ namespace Supra\Tests\Mailer\Mockup;
 
 use Supra\Mailer\Mailer as SupraMailer;
 use \Swift_Mime_Message;
+use Supra\Mailer\Exception;
 
 class Mailer extends SupraMailer
 {
