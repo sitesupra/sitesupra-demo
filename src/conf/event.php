@@ -13,24 +13,30 @@ use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
 
-$eventManager = new EventManager();
-
-$userProvider = ObjectRepository::getUserProvider('#cms');
-
 $ini = ObjectRepository::getIniConfigurationLoader('');
-$externalUserProviderActive = $ini->getValue('external_user_database', 'active', false);
 
+/*
+ * CMS user provider event manager
+ */
+$userEventManager = new EventManager();
+
+// Limits one session per user
+$externalUserProviderActive = $ini->getValue('external_user_database', 'active', false);
 if ( ! $externalUserProviderActive) {
 	$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
-	$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
+	$userEventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
 }
 
 // Sends email for newly created users
 $listener = new \Supra\User\Listener\UserCreateListener();
-$eventManager->listen(\Supra\User\UserProviderAbstract::EVENT_POST_USER_CREATE, $listener);
+$userEventManager->listen(\Supra\User\UserProviderAbstract::EVENT_POST_USER_CREATE, $listener);
 
-ObjectRepository::setEventManager($userProvider, $eventManager);
+$userProvider = ObjectRepository::getUserProvider('#cms');
+ObjectRepository::setEventManager($userProvider, $userEventManager);
 
+/*
+ * General event manager
+ */
 $eventManager = new EventManager();
 
 $listener = new CmsPageLocalizationIndexerQueueListener();
