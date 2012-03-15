@@ -238,6 +238,7 @@ class SitemapAction extends PageManagerAction
 
 		if ($isGlobal) {
 			$array['global'] = true;
+			$array['isDragable'] = false;
 		}
 
 		return $array;
