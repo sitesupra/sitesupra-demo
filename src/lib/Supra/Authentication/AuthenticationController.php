@@ -186,6 +186,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 
 		$post = $this->getRequest()->isPost();
+		$isPublicUrl = $this->isPublicUrl($path);
 
 		$loginPath = $this->getLoginPath();
 		// if post request then check for login and password fields presence
@@ -268,7 +269,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$session->message = $message;
 
 						// if authentication failed, we redirect user to login page
-						$request->setPath($loginPath);
+						if ( ! $isPublicUrl) {
+							$request->setPath($loginPath);
+						}
 
 						// Continue the request with login request path
 						return;
@@ -279,8 +282,6 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			}
 		}
 		
-		$isPublicUrl = $this->isPublicUrl($path);
-
 		// Allow accessign public URL
 		if ($isPublicUrl) {
 			return;

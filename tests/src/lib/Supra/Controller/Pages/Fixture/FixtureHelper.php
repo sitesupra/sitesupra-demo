@@ -395,6 +395,20 @@ class FixtureHelper
 
 		$em->commit();
 		$publicEm->commit();
+		
+		// Need to clear because the last page had NULL path otherwise
+		$em->clear();
+		$publicEm->clear();
+		
+		// Not sure why this is needed...
+		$command = new \Supra\Controller\Pages\Command\PagePathRegenerationCommand();
+		$input = new \Symfony\Component\Console\Input\StringInput('');
+		$output = new \Supra\Console\Output\ArrayOutput();
+		
+		$command->run($input, $output);
+		
+		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
+		$cacheGroupManager->resetRevision(\Supra\Controller\Pages\PageController::CACHE_GROUP_NAME);
 	}
 
 	protected function createTemplate()
@@ -432,13 +446,13 @@ class FixtureHelper
 				if ($name == 'header') {
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Languages\LanguageSelectorBlock');
+					$block->setComponentClass('Project\Blocks\Languages\LanguageSelectorBlock');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
+					$block->setComponentClass('Project\Blocks\Text\TextController');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(200);
 
@@ -456,7 +470,7 @@ class FixtureHelper
 				if ($name == 'main') {
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
+					$block->setComponentClass('Project\Blocks\Text\TextController');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 
@@ -470,7 +484,7 @@ class FixtureHelper
 					//				// A locked block
 					//				$block = new Entity\TemplateBlock();
 					//				$this->entityManager->persist($block);
-					//				$block->setComponentClass('Project\Text\TextController');
+					//				$block->setComponentClass('Project\Blocks\Text\TextController');
 					//				$block->setPlaceHolder($templatePlaceHolder);
 					//				$block->setPosition(200);
 					//				$block->setLocked(true);
@@ -486,7 +500,7 @@ class FixtureHelper
 				if ($name == 'footer') {
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
+					$block->setComponentClass('Project\Blocks\Text\TextController');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 					$block->setLocked();
@@ -502,7 +516,7 @@ class FixtureHelper
 				if ($name == 'sidebar') {
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
-					$block->setComponentClass('Project\Text\TextController');
+					$block->setComponentClass('Project\Blocks\Text\TextController');
 					$block->setPlaceHolder($templatePlaceHolder);
 					$block->setPosition(100);
 
@@ -553,7 +567,7 @@ class FixtureHelper
 			// A locked block
 			$block = new Entity\TemplateBlock();
 			$this->entityManager->persist($block);
-			$block->setComponentClass('Project\Text\TextController');
+			$block->setComponentClass('Project\Blocks\Text\TextController');
 			$block->setPlaceHolder($templatePlaceHolder);
 			$block->setPosition(200);
 			$block->setLocked(true);
@@ -705,7 +719,7 @@ class FixtureHelper
 
 						$block = new Entity\PageBlock();
 						$this->entityManager->persist($block);
-						$block->setComponentClass('Project\Text\TextController');
+						$block->setComponentClass('Project\Blocks\Text\TextController');
 						$block->setPlaceHolder($placeHolder);
 						$block->setPosition(0);
 
@@ -732,7 +746,7 @@ class FixtureHelper
 							
 								$block = new Entity\PageBlock();
 								$this->entityManager->persist($block);
-								$block->setComponentClass('Project\Search\SearchController');
+								$block->setComponentClass('Project\Blocks\Search\ProjectSearchController');
 								$block->setPlaceHolder($placeHolder);
 								$block->setPosition(100);
 								
@@ -740,7 +754,7 @@ class FixtureHelper
 							
 								$block = new Entity\PageBlock();
 								$this->entityManager->persist($block);
-								$block->setComponentClass('Project\Text\TextController');
+								$block->setComponentClass('Project\Blocks\Text\TextController');
 								$block->setPlaceHolder($placeHolder);
 								// reverse order
 								$block->setPosition(100);
@@ -761,7 +775,7 @@ class FixtureHelper
 						} else if ($pageDefinition['login']) {
 							$block = new Entity\PageBlock();
 							$this->entityManager->persist($block);
-							$block->setComponentClass('Project\Pages\LoginBlock');
+							$block->setComponentClass('Project\Blocks\Login\LoginBlock');
 							$block->setPlaceHolder($placeHolder);
 							$block->setPosition(100);
 						}
@@ -770,7 +784,7 @@ class FixtureHelper
 							foreach (range(1, 2) as $i) {
 								$block = new Entity\PageBlock();
 								$this->entityManager->persist($block);
-								$block->setComponentClass('Project\Text\TextController');
+								$block->setComponentClass('Project\Blocks\Text\TextController');
 								$block->setPlaceHolder($placeHolder);
 								// reverse order
 								$block->setPosition(100 * $i);

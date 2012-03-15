@@ -11,3 +11,7 @@
     id: system
     title: System
     default: true
+
+- Supra\Configuration\IncludeLoaderConfiguration:
+    files:
+      - ${__DIR__}/Blocks/config.yml

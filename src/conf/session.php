@@ -10,8 +10,8 @@ $sessionManagerConfiguration->name = 'SID';
 $sessionManagerConfiguration->namespaces = array(
 	'Supra\Cms\AuthenticationPreFilterController',
 	'Supra\Cms\CmsController',
-	'Project\SampleAuthentication\AuthenticateController',
-	'Project\SampleAuthentication\AuthenticatePreFilterController',
+	'Project\SampleAuthentication\SampleAuthenticationController',
+	'Project\SampleAuthentication\SampleAuthenticationPreFilter',
 	'Project\SocialMedia\SocialMediaController',
 	'Project\CmsRemoteLogin\Controller',
 	'Project\Payment',
@@ -25,9 +25,8 @@ $sessionManagerConfiguration->sessionExpirationTime = 1440;
 $sessionManagerConfiguration->isDefault = false;
 $sessionManagerConfiguration->name = 'fSID';
 $sessionManagerConfiguration->namespaces = array(
-	'Supra\Controller\Pages',
-	'Project\Pages\LoginPreFilterController',
-	'Project\Pages',
+	'Project\Blocks\Login\LoginPreFilterController',
+	'Project\Blocks\Login\LoginBlock',
 	'Supra\User',
 	'Project\Payment',
 );

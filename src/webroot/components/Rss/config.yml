@@ -1,5 +1,0 @@
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /rss
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\Rss\Controller

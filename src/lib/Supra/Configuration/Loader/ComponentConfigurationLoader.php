@@ -7,7 +7,6 @@ use Supra\Configuration\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
-use Supra\Configuration\ConfigurationInterfaceParserCallback;
 use Supra\Configuration\ConfigurationInterface;
 
 /**
@@ -132,7 +131,7 @@ class ComponentConfigurationLoader
 			/* @var $object \Supra\Configuration\ConfigurationInterface */
 			$object = Loader\Loader::getClassInstance($className, 'Supra\Configuration\ConfigurationInterface');
 
-			if ($object instanceof ConfigurationInterfaceParserCallback) {
+			if ($object instanceof LoaderRequestingConfigurationInterface) {
 				$object->setLoader($this);
 			}
 			
@@ -204,6 +203,15 @@ class ComponentConfigurationLoader
 		if (is_array($return)) {
 			foreach ($return as &$subitem) {
 				$subitem = $this->processItem($subitem);
+			}
+		}
+		
+		// Replacement values
+		if (is_string($return)) {
+			if (strpos($return, '${') !== false) {
+				
+				// only the current directory for now
+				$return = str_replace('${__DIR__}', dirname($this->getFilePath()), $return);
 			}
 		}
 		

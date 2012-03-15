@@ -34,14 +34,14 @@ $authAdapter->setDefaultDomain($defaultDomain);
 $frontendUserProvider->setAuthAdapter($authAdapter);
 
 ObjectRepository::setUserProvider('Supra\Controller\Pages\PageController', $frontendUserProvider);
-ObjectRepository::setUserProvider('Project\Pages\LoginPreFilterController', $frontendUserProvider);
+ObjectRepository::setUserProvider('Project\Blocks\Login\LoginPreFilterController', $frontendUserProvider);
 
 // Experimental: added extra rules for controllers
 ObjectRepository::setUserProvider('Supra\Cms\CmsController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\InternalUserManager\Restore\RestoreController', $userProvider);
 ObjectRepository::setUserProvider('Supra\Cms\AuthenticationPreFilterController', $userProvider);
 ObjectRepository::setUserProvider('Supra\User\Command\CreateUserCommand', $userProvider);
-ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticateController', $userProvider);
-ObjectRepository::setUserProvider('Project\SampleAuthentication\AuthenticatePreFilterController', $userProvider);
+ObjectRepository::setUserProvider('Project\SampleAuthentication\SampleAuthenticationController', $userProvider);
+ObjectRepository::setUserProvider('Project\SampleAuthentication\SampleAuthenticationPreFilter', $userProvider);
 ObjectRepository::setUserProvider('Project\SocialMedia\SocialMediaController', $userProvider);
 ObjectRepository::setUserProvider('Project\CmsRemoteLogin\Controller', $userProvider);

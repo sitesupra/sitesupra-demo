@@ -2,26 +2,16 @@
     class: Supra\Router\TopPriorityRouter
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
-        
+        class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /
-    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    class: Supra\Router\TopPriorityRouter
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\Pages\LoginPreFilterController
-
+        class: Supra\Controller\PreFilter\PostMaxSizeWorkaroundPreFilter
+        
 - Supra\Router\Configuration\RouterConfiguration:
     url: /
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
         class: Supra\Controller\Pages\PageController
-        
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    title: Frontend login page block
-    groupId: system
-    controllerClass: Project\Pages\LoginBlock
-    description: Frontend login page block
-    cmsClassname: Editable
-    icon: icon.png
-    hidden: true

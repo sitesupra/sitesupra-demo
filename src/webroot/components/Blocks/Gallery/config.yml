@@ -1,0 +1,7 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\Blocks\Gallery\GalleryBlock
+    title: Gallery Block
+    groupId: system
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    cmsClassname: Gallery
+    icon: icon.png

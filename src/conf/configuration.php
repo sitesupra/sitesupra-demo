@@ -27,28 +27,17 @@ require_once SUPRA_CONF_PATH . 'payment.php';
 $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new ComponentConfigurationLoader($parser);
 $configLoader->setCacheLevel(ComponentConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Rss/config.yml');
+
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'CmsRemoteLogin/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Pages/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Text/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Search/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Payment/DummyShop/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'BannerMachine/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'DistributedController/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Subscribe/config.yml');
-// Experimental: should be good if would be able to define extra PHP configuration as well
-require_once SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.php';
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');
 
 $configLoader->loadFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Locale/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Languages/config.yml');
-//$configLoader->loadFile(SUPRA_CONF_PATH . 'payment.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SocialMedia/config.yml');
 
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Ajax/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Feedback/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Gallery/config.yml');
-$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Sitemap/config.yml');
 $configLoader->loadFile(SUPRA_LIBRARY_PATH . 'Supra/Social/Facebook/config.yml');
