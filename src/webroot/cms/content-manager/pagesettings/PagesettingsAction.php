@@ -253,8 +253,12 @@ class PagesettingsAction extends PageManagerAction
 				$pageData->setPagePriority($pagePriority);
 			}
 		}
-
-		$this->entityManager->flush();
+		
+		try {
+			$this->entityManager->flush();
+		} catch (\Supra\Controller\Pages\Exception\DuplicatePagePathException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
 
 		$this->writeAuditLog('Settings of %item% saved', $pageData);
 	}

@@ -352,7 +352,7 @@ class PagePathGenerator implements EventSubscriber
 		/* @var $duplicate Entity\PageLocalizationPath */
 
 		if ( ! is_null($duplicate) && ! $pageData->getPathEntity()->equals($duplicate)) {
-			throw new Exception\DuplicatePagePathException("Page with path $newPathString already exists", $pageData);
+			throw new Exception\DuplicatePagePathException("Page with path \"{$newPathString}\" already exists", $pageData);
 		}
 	}
 	
