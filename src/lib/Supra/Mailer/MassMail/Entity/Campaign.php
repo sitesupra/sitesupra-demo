@@ -27,7 +27,7 @@ class Campaign extends Entity
 	
 	/**
 	 * @OneToMany(targetEntity="SendQueueItem", mappedBy="campaign", cascade={"persist", "remove"} )
-	 * @var ArrayCollection
+	 * @var \Doctrine\Common\Collections\Collection
 	 */	
 	protected $sendQueueItems;
 	
@@ -80,6 +80,18 @@ class Campaign extends Entity
 	 */
 	protected $status;
 
+	public function __construct()
+	{
+		parent::__construct();
+		
+		$this->sendQueueItems = new \Doctrine\Common\Collections\ArrayCollection();
+	}
+	
+	public function addSendQueueItem(SendQueueItem $sendQueueItem)
+	{
+		$this->sendQueueItems[] = $sendQueueItem;
+	}
+	
 	/**
 	 * Set campaign subject
 	 * @param string $subject 

@@ -18,7 +18,7 @@ class SendQueueItem extends Entity
 
 
 	/**
-	 * @ManyToOne(targetEntity="Campaign", inversedBy="sendQueueItems", cascade={"persist", "remove"})
+	 * @ManyToOne(targetEntity="Campaign", inversedBy="sendQueueItems", cascade={"persist"})
 	 * @var Campaign
 	 */	
 	protected $campaign;
@@ -335,9 +335,10 @@ class SendQueueItem extends Entity
 		return $this->templateVar;
 	}
 
-	public function setCampaign($campaign)
+	public function setCampaign(Campaign $campaign)
 	{
 		$this->campaign = $campaign;
+		$campaign->addSendQueueItem($this);
 	}
 
 	public function setTemplateVar($templateVar)
