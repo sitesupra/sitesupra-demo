@@ -7,6 +7,7 @@ use Supra\Tests\Mailer\Mockup\Mailer;
 use Supra\Mailer\MassMail\Entity;
 use Supra\Mailer\MassMail\Manager;
 use Supra\Mailer\Exception;
+use Supra\Mailer\SendGrid;
 
 require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/Mailer/MassMail/MassMail.php';
 
@@ -156,6 +157,68 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		$massMail->flush();
 	}
 
+	public function testSendGridHeaders()
+	{
+
+		$massMail = $this->object;
+		$queueManager = new SendGrid\SendQueueManager();
+		$massMail->setSendQueuemanager($queueManager);
+		
+		//create list
+		$list = $massMail->getSubscriberListManager()
+				->createList('test list');
+
+		//create campaign
+		$campaign = $massMail->getCampaignManager()
+				->createCampaign('test campaign', $list);
+
+
+		$campaign->setSubject('test campaign');
+		$campaign->setFromName('test sender');
+		$campaign->setFromEmail('test.sender@test.test');
+		$campaign->setReplyTo('test.reply.to@test.test');
+
+		$campaign->setHtmlContent('<h1>Test content</h1>');
+		
+		$subscribers = array();
+		
+		for($i = 1; $i<=3; $i++){
+			
+			//create subscriber
+			$subscriber = $massMail->getSubscriberManager()
+					->createSubscriber('test.user.sendGrid'.$i.'@test.test', 'test user '.$i, true);
+
+			//subscribe to list
+			$massMail->getSubscriberManager()
+					->addToList($subscriber, $list);
+			
+			$subscribers[] = $subscriber;
+
+		}
+		
+		//store data
+		$massMail->flush();
+		
+		//send campaign
+		$massMail->populateSendQueue($campaign);
+
+		//store data
+		$massMail->flush();
+
+		$massMail->getSendQueueManager()->send();
+
+		//Drop test data
+		$massMail->getCampaignManager()->dropCampaign($campaign);
+		$massMail->flush();
+		$massMail->getSubscriberListManager()->dropList($list);
+		
+		foreach($subscribers as $subscriber) {
+			$massMail->getSubscriberManager()->dropSubscriber($subscriber);
+		}
+		
+		$massMail->flush();
+	}
+	
 	public function testInActiveSubscriberSend()
 	{
 
@@ -238,7 +301,6 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 
 	public function testSubscribeAndActivateUserSend()
 	{
-
 		$mailer = ObjectRepository::getMailer($this);
 
 		$list = $this->createList();
