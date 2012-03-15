@@ -70,6 +70,16 @@ class MassMail
 
 		return $this->campaignManager;
 	}
+	
+	/**
+	 * Returns current entity manager
+	 * @return Doctrine\ORM\EntityManager 
+	 */
+	public function getEntityManager(){
+		return $this->entityManager;
+	}
+	
+	
 
 	/**
 	 * Returns instance of SendQueueManager
@@ -90,7 +100,6 @@ class MassMail
 	 */
 	public function setSendQueuemanager(Manager\SendQueueManager $queueManagerInstance)
 	{
-		$queueManagerInstance->setEntityManager($this->getEntityManager());
 		$this->sendQueueManager = $queueManagerInstance;
 	}
 	
