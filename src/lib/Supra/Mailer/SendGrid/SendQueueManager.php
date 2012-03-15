@@ -21,11 +21,15 @@ class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 		$criteria = array('status' => Entity\SendQueueItem::STATUS_PREPARED);
 
 		$repository = $this->entityManager->getRepository(Entity\SendQueueItem::CN());
-		$result = $repository->findBy($criteria, array('id' => 'ASC'), $limit);
 
+		/**
+		 * @todo Add some data lock or some protection to process same data by another process
+		 */
+		
+		$result = $repository->findBy($criteria, array('id' => 'ASC'), $limit);
+		
 		foreach ($result as $index => $queueItem) {
 
-//			$queueItem = new \Supra\Mailer\MassMail\Entity\SendQueueItem();
 			$campaign = $queueItem->getCampaign();
 			$campaignId = $campaign->getId();
 			$campaignGroup[$campaignId]['campaignId'] = $campaignId;
