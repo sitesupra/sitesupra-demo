@@ -161,7 +161,8 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 	{
 
 		$massMail = $this->object;
-		$queueManager = new SendGrid\SendQueueManager();
+		
+		$queueManager = new SendGrid\SendQueueManager($massMail->getEntityManager());
 		$massMail->setSendQueuemanager($queueManager);
 		
 		//create list
