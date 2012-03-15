@@ -8,6 +8,7 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Set\PageSet;
 use Supra\NestedSet;
 use Supra\Controller\Pages\Exception;
+use Supra\Authorization\AuthorizedEntityInterface;
 
 /**
  * Page abstraction
@@ -15,15 +16,15 @@ use Supra\Controller\Pages\Exception;
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
- *		"template" = "Supra\Controller\Pages\Entity\Template", 
- *		"page" = "Supra\Controller\Pages\Entity\Page",
- *		"application" = "Supra\Controller\Pages\Entity\ApplicationPage",
- *		"group" = "Supra\Controller\Pages\Entity\GroupPage"
+ * 		"template" = "Supra\Controller\Pages\Entity\Template", 
+ * 		"page" = "Supra\Controller\Pages\Entity\Page",
+ * 		"application" = "Supra\Controller\Pages\Entity\ApplicationPage",
+ * 		"group" = "Supra\Controller\Pages\Entity\GroupPage"
  * })
  * @Table(indexes={
- *		@index(name="page_abstraction_lft_idx", columns={"lft"}),
- *		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
- *		@index(name="page_abstraction_lvl_idx", columns={"lvl"})
+ * 		@index(name="page_abstraction_lft_idx", columns={"lft"}),
+ * 		@index(name="page_abstraction_rgt_idx", columns={"rgt"}),
+ * 		@index(name="page_abstraction_lvl_idx", columns={"lvl"})
  * })
  * @method int getNumberChildren()
  * @method AbstractPage addChild(AbstractPage $child)
@@ -54,352 +55,357 @@ use Supra\Controller\Pages\Exception;
  */
 abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuditedEntityInterface
 {
-	/**
-	 * Filled by NestedSetListener
-	 * @var NestedSet\Node\DoctrineNode
-	 */
-	protected $nestedSetNode;
-	
-	/**
-	 * @OneToMany(targetEntity="Localization", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
-	 * @var Collection
-	 */
-	protected $localizations;
 
-	/**
-	 * @Column(type="integer", name="lft", nullable=true)
-	 * @var integer
-	 */
-	protected $left;
+    /**
+     * Filled by NestedSetListener
+     * @var NestedSet\Node\DoctrineNode
+     */
+    protected $nestedSetNode;
 
-	/**
-	 * @Column(type="integer", name="rgt", nullable=true)
-	 * @var integer
-	 */
-	protected $right;
+    /**
+     * @OneToMany(targetEntity="Localization", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
+     * @var Collection
+     */
+    protected $localizations;
 
-	/**
-	 * @Column(type="integer", name="lvl", nullable=true)
-	 * @var integer
-	 */
-	protected $level;
-	
-	/**
-	 * @Column(type="boolean", name="global", nullable=true)
-	 * @var boolean
-	 */
-	protected $global = true;
+    /**
+     * @Column(type="integer", name="lft", nullable=true)
+     * @var integer
+     */
+    protected $left;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		$this->localizations = new ArrayCollection();
-	}
-	
-	/**
-	 * Don't serialize nested set node
-	 * @return array
-	 */
-	public function __sleep()
-	{
-		$properties = get_object_vars($this);
-		unset($properties['nestedSetNode']);
-		$properties = array_keys($properties);
-		
-		return $properties;
-	}
+    /**
+     * @Column(type="integer", name="rgt", nullable=true)
+     * @var integer
+     */
+    protected $right;
 
-	/**
-	 * @return Collection
-	 */
-	public function getLocalizations()
-	{
-		return $this->localizations;
-	}
+    /**
+     * @Column(type="integer", name="lvl", nullable=true)
+     * @var integer
+     */
+    protected $level;
 
-	/**
-	 * Get data item by locale
-	 * @param string $locale
-	 * @return Localization
-	 */
-	public function getLocalization($locale)
-	{
-		$dataCollection = $this->getLocalizations();
-		$data = $dataCollection->get($locale);
-		
-		return $data;
-	}
+    /**
+     * @Column(type="boolean", name="global", nullable=true)
+     * @var boolean
+     */
+    protected $global = true;
 
-	/**
-	 * @param string $locale
-	 * @param Localization $data
-	 */
-	public function setLocalization(Localization $data)
-	{
-		if ($this->lock('localizations')) {
-			$this->matchDiscriminator($data);
-			if ($this->addUnique($this->localizations, $data, 'locale')) {
-				$data->setMaster($this);
-			}
-			$this->unlock('localizations');
-		}
-	}
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->localizations = new ArrayCollection();
+    }
 
-	/**
-	 * Get left value
-	 * @return int
-	 */
-	public function getLeftValue()
-	{
-		return $this->left;
-	}
+    /**
+     * Don't serialize nested set node
+     * @return array
+     */
+    public function __sleep()
+    {
+        $properties = get_object_vars($this);
+        unset($properties['nestedSetNode']);
+        $properties = array_keys($properties);
 
-	/**
-	 * Get right value
-	 * @return int
-	 */
-	public function getRightValue()
-	{
-		return $this->right;
-	}
+        return $properties;
+    }
 
-	/**
-	 * Get depth level
-	 * @return int
-	 */
-	public function getLevel()
-	{
-		return $this->level;
-	}
+    /**
+     * @return Collection
+     */
+    public function getLocalizations()
+    {
+        return $this->localizations;
+    }
 
-	/**
-	 * Set left value
-	 * @param int $left
-	 * @return AbstractPage
-	 */
-	public function setLeftValue($left)
-	{
-		$this->left = $left;
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->setLeftValue($left);
-		}
-		return $this;
-	}
+    /**
+     * Get data item by locale
+     * @param string $locale
+     * @return Localization
+     */
+    public function getLocalization($locale)
+    {
+        $dataCollection = $this->getLocalizations();
+        $data = $dataCollection->get($locale);
 
-	/**
-	 * Set right value
-	 * @param int $right
-	 * @return AbstractPage
-	 */
-	public function setRightValue($right)
-	{
-		$this->right = $right;
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->setRightValue($right);
-		}
-		return $this;
-	}
+        return $data;
+    }
 
-	/**
-	 * Set depth level
-	 * @param int $level
-	 * @return AbstractPage
-	 */
-	public function setLevel($level)
-	{
-		$this->level = $level;
-		
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->setLevel($level);
-		}
-		return $this;
-	}
+    /**
+     * @param string $locale
+     * @param Localization $data
+     */
+    public function setLocalization(Localization $data)
+    {
+        if ($this->lock('localizations')) {
+            $this->matchDiscriminator($data);
+            if ($this->addUnique($this->localizations, $data, 'locale')) {
+                $data->setMaster($this);
+            }
+            $this->unlock('localizations');
+        }
+    }
 
-	/**
-	 * Move left value by the difference
-	 * @param int $diff
-	 * @return AbstractPage
-	 */
-	public function moveLeftValue($diff)
-	{
-		$this->left += $diff;
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->moveLeftValue($diff);
-		}
-		return $this;
-	}
+    /**
+     * Get left value
+     * @return int
+     */
+    public function getLeftValue()
+    {
+        return $this->left;
+    }
 
-	/**
-	 * Move right value by the difference
-	 * @param int $diff
-	 * @return AbstractPage
-	 */
-	public function moveRightValue($diff)
-	{
-		$this->right += $diff;
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->moveRightValue($diff);
-		}
-		return $this;
-	}
+    /**
+     * Get right value
+     * @return int
+     */
+    public function getRightValue()
+    {
+        return $this->right;
+    }
 
-	/**
-	 * Move depth level by the difference
-	 * @param int $diff
-	 * @return AbstractPage
-	 */
-	public function moveLevel($diff)
-	{
-		$this->level += $diff;
-		
-		if (isset($this->nestedSetNode)) {
-			$this->nestedSetNode->moveLevel($diff);
-		}
-		return $this;
-	}
-	
-	/**
-	 * Nested node title
-	 * @return string
-	 */
-	public function getNodeTitle()
-	{
-		return $this->__toString();
-	}
-	
-	/**
-	 * Try the unknown method against the nested set node
-	 * @param string $method
-	 * @param array $arguments
-	 * @return mixed
-	 */
-	public function __call($method, $arguments)
-	{
-		$node = $this->nestedSetNode;
-		if (is_null($this->nestedSetNode)) {
-			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
-		}
+    /**
+     * Get depth level
+     * @return int
+     */
+    public function getLevel()
+    {
+        return $this->level;
+    }
 
-		if ( ! method_exists($node, $method)) {
-			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
-		}
-		$callable = array($node, $method);
-		$result = call_user_func_array($callable, $arguments);
+    /**
+     * Set left value
+     * @param int $left
+     * @return AbstractPage
+     */
+    public function setLeftValue($left)
+    {
+        $this->left = $left;
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->setLeftValue($left);
+        }
+        return $this;
+    }
 
-		// Compare the result with $node and return $this on match to keep method chaining
-		if ($result === $node) {
-			$result = $this;
-		}
+    protected function getAuthizationAncestorsDirect()
+    {
+        return $this->getAncestors(0, false);
+    }
 
-		return $result;
-	}
-	
-	/**
-	 * Free the node unsetting the pointers to other objects.
-	 * MUST clear entity manager after doing this!
-	 */
-	public function free()
-	{
-		if ( ! is_null($this->nestedSetNode)) {
-			$this->nestedSetNode->free($this);
-			$this->nestedSetNode = null;
-		}
-	}
-	
-	public function isBlockPropertyEditable(BlockProperty $blockProperty)
-	{
-		$page = $blockProperty->getLocalization()
-				->getMaster();
-		
-		$editable = $page->equals($this);
+    /**
+     * Set right value
+     * @param int $right
+     * @return AbstractPage
+     */
+    public function setRightValue($right)
+    {
+        $this->right = $right;
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->setRightValue($right);
+        }
+        return $this;
+    }
 
-		return $editable;
-	}
-	
-	/**
-	 * @return NestedSet\Node\DoctrineNode
-	 */
-	public function getNestedSetNode()
-	{
-		return $this->nestedSetNode;
-	}
-		
-	/**
-	 * {@inheritdoc}
-	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
-	 */
-	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
-	{
-		$this->nestedSetNode = $nestedSetNode;
-	}
+    /**
+     * Set depth level
+     * @param int $level
+     * @return AbstractPage
+     */
+    public function setLevel($level)
+    {
+        $this->level = $level;
 
-	/**
-	 * {@inheritdoc}
-	 * @return NestedSet\Node\DoctrineNode
-	 */
-	public function getNestedSetRepositoryClassName()
-	{
-		return $this->nestedSetNode;
-	}
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->setLevel($level);
+        }
+        return $this;
+    }
 
-	/**
-	 * Set global
-	 * @param boolean $global 
-	 */
-	public function setGlobal($global)
-	{
-		$this->global = (bool)$global;
-		
-	}
+    /**
+     * Move left value by the difference
+     * @param int $diff
+     * @return AbstractPage
+     */
+    public function moveLeftValue($diff)
+    {
+        $this->left += $diff;
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->moveLeftValue($diff);
+        }
+        return $this;
+    }
 
-	/**
-	 * Get global
-	 * @return boolean
-	 */
-	public function getGlobal()
-	{
-		return $this->global;
-	}
+    /**
+     * Move right value by the difference
+     * @param int $diff
+     * @return AbstractPage
+     */
+    public function moveRightValue($diff)
+    {
+        $this->right += $diff;
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->moveRightValue($diff);
+        }
+        return $this;
+    }
 
-	/**
-	 * Is global
-	 * @return boolean
-	 */
-	public function isGlobal()
-	{
-		return $this->global;
-	}
+    /**
+     * Move depth level by the difference
+     * @param int $diff
+     * @return AbstractPage
+     */
+    public function moveLevel($diff)
+    {
+        $this->level += $diff;
 
-	/**
-	 * Is local (not global)
-	 * @return boolean
-	 */
-	public function isLocal()
-	{
-		return ! $this->global;
-	}
-	
-	/**
-	 * Checks, weither page is root (level == 0) or not 
-	 * @return boolean
-	 */
-	public function isRoot()
-	{
-		$isRoot = ($this->getLevel() == 0);
-		return $isRoot;
-	}
-	
-	/**
-	 * Need to unset the nested set node after clone
-	 */
-	public function __clone()
-	{
-		if ( ! empty($this->id)) {
-			$this->nestedSetNode = null;
-			parent::__clone();
-		}
-	}
+        if (isset($this->nestedSetNode)) {
+            $this->nestedSetNode->moveLevel($diff);
+        }
+        return $this;
+    }
+
+    /**
+     * Nested node title
+     * @return string
+     */
+    public function getNodeTitle()
+    {
+        return $this->__toString();
+    }
+
+    /**
+     * Try the unknown method against the nested set node
+     * @param string $method
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($method, $arguments)
+    {
+        $node = $this->nestedSetNode;
+        if (is_null($this->nestedSetNode)) {
+            throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized.");
+        }
+
+        if ( ! method_exists($node, $method)) {
+            throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
+        }
+        $callable = array($node, $method);
+        $result = call_user_func_array($callable, $arguments);
+
+        // Compare the result with $node and return $this on match to keep method chaining
+        if ($result === $node) {
+            $result = $this;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Free the node unsetting the pointers to other objects.
+     * MUST clear entity manager after doing this!
+     */
+    public function free()
+    {
+        if ( ! is_null($this->nestedSetNode)) {
+            $this->nestedSetNode->free($this);
+            $this->nestedSetNode = null;
+        }
+    }
+
+    public function isBlockPropertyEditable(BlockProperty $blockProperty)
+    {
+        $page = $blockProperty->getLocalization()
+                ->getMaster();
+
+        $editable = $page->equals($this);
+
+        return $editable;
+    }
+
+    /**
+     * @return NestedSet\Node\DoctrineNode
+     */
+    public function getNestedSetNode()
+    {
+        return $this->nestedSetNode;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @param NestedSet\Node\DoctrineNode $nestedSetNode
+     */
+    public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
+    {
+        $this->nestedSetNode = $nestedSetNode;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return NestedSet\Node\DoctrineNode
+     */
+    public function getNestedSetRepositoryClassName()
+    {
+        return $this->nestedSetNode;
+    }
+
+    /**
+     * Set global
+     * @param boolean $global 
+     */
+    public function setGlobal($global)
+    {
+        $this->global = (bool) $global;
+    }
+
+    /**
+     * Get global
+     * @return boolean
+     */
+    public function getGlobal()
+    {
+        return $this->global;
+    }
+
+    /**
+     * Is global
+     * @return boolean
+     */
+    public function isGlobal()
+    {
+        return $this->global;
+    }
+
+    /**
+     * Is local (not global)
+     * @return boolean
+     */
+    public function isLocal()
+    {
+        return ! $this->global;
+    }
+
+    /**
+     * Checks, weither page is root (level == 0) or not 
+     * @return boolean
+     */
+    public function isRoot()
+    {
+        $isRoot = ($this->getLevel() == 0);
+        return $isRoot;
+    }
+
+    /**
+     * Need to unset the nested set node after clone
+     */
+    public function __clone()
+    {
+        if ( ! empty($this->id)) {
+            $this->nestedSetNode = null;
+            parent::__clone();
+        }
+    }
 }

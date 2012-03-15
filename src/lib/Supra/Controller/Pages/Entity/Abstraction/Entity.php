@@ -13,6 +13,7 @@ use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\Permission\Permission;
 use Supra\Authorization\AuthorizationProvider;
+use Supra\Authorizatoin\Exception as AuthorizationException;
 
 /**
  * Base entity class for Pages controller
@@ -173,7 +174,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 
 	protected function getAuthizationAncestorsDirect()
 	{
-		return $this->getAncestors(0, false);
+        throw new AuthorizationException\RuntimeException('Authorization ancestors not allowed.');
 	}
 
 	/**

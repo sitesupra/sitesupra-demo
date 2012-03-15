@@ -3,9 +3,8 @@
 namespace Supra\Authorization\Permission;
 
 use Supra\Authorization\AuthorizationProvider;
+use Supra\Authorization\Exception;
 use Supra\User\Entity\AbstractUser;
-use Supra\Authorization\Exception\AuthorizationConfigurationException;
-
 /**
  * Base class for permission type.
  */
@@ -52,10 +51,10 @@ class Permission
 					$ref->implementsInterface(AuthorizationProvider::AUTHORIZED_ENTITY_INTERFACE)
 				)
 		) {
-			throw new AuthorizationConfigurationException('Can not register permission type for class that does not implement ' . 
-					self::AUTHORIZED_CONTROLLER_INTERFACE . ' or ' . 
-					self::AUTHORIZED_ENTITY_INTERFACE . ' or is not class/sublclass of ' .
-					self::APPLICATION_CONFIGURATION_CLASS
+			throw new Exception\ConfigurationException('Can not register permission type for class that does not implement ' . 
+					AuthorizationProvider::AUTHORIZED_CONTROLLER_INTERFACE . ' or ' . 
+					AuthorizationProvider::AUTHORIZED_ENTITY_INTERFACE . ' or is not class/sublclass of ' .
+					AuthorizationProvider::APPLICATION_CONFIGURATION_CLASS
 				);
 		}
 		
