@@ -11,8 +11,22 @@ class MassMail
 	 * @var EntityManager
 	 */
 	private $entityManager;
-
-	protected function getEntityManager()
+	
+	
+	/**
+	 * Sets current entity manager
+	 * @param Doctrine\ORM\EntityManager $entityManager 
+	 */
+	public function setEntityManager(Doctrine\ORM\EntityManager $entityManager)
+	{
+		$this->entityManager = $entityManager;
+	}
+	
+	/**
+	 * Return current or default entity manager
+	 * @return Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
 	{
 		if (is_null($this->entityManager)) {
 			$this->entityManager = ObjectRepository::getEntityManager($this);
@@ -71,16 +85,6 @@ class MassMail
 		return $this->campaignManager;
 	}
 	
-	/**
-	 * Returns current entity manager
-	 * @return Doctrine\ORM\EntityManager 
-	 */
-	public function getEntityManager(){
-		return $this->entityManager;
-	}
-	
-	
-
 	/**
 	 * Returns instance of SendQueueManager
 	 * @return Manager\SendQueueManager
