@@ -26,8 +26,8 @@ To: example@example.com
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
  boundary=\"_=_swift_v4_13318895154f63056b4e24d_=_\"
-X-SMTPAPI: {\"to\": [\"test.user.sendGrid1@test.test\",
- \"test.user.sendGrid2@test.test\", \"test.user.sendGrid3@test.test\"],
+X-SMTPAPI: {\"to\": [\"test user 1<test.sender@test.test>\", \"test user
+ 2<test.sender@test.test>\", \"test user 3<test.sender@test.test>\"],
  \"unique_args\": {\"campaignId\": \"CAMPAIGN_ID\"}}
 
 
@@ -254,7 +254,7 @@ Content-Transfer-Encoding: quoted-printable
 		$compareToMessage = $this->prepareSendGridExampleMessage($sentMessage);
 		
 		self::assertEquals($exampleMessage, $compareToMessage);
-		
+		//aleksey.antipov+1@gmail.com
 	}
 	
 	public function testInActiveSubscriberSend()
@@ -597,7 +597,7 @@ Content-Transfer-Encoding: quoted-printable
 	private function prepareSendGridExampleMessage($message, $campaignId = null){
 		
 		$replacement = "********************";
-		$message = preg_replace("/\r\n\/", "\n", $message);
+		$message = str_replace("\r\n", "\n", $message);
 		$message = preg_replace('/Message\-ID\: \<([A-Za-z0-9\@\.]{1,})\>/', $replacement, $message);
 		$message = preg_replace('/Date:([A-Za-z0-9\ \-\+\,\.\:]{1,})/', $replacement, $message);
 		$message = preg_replace('/_=_([A-Za-z0-9_]{1,})_=_/', $replacement, $message);
@@ -607,7 +607,7 @@ Content-Transfer-Encoding: quoted-printable
 			$message = preg_replace('/CAMPAIGN_ID/', $campaignId, $message);		
 		}
 		
-		return $message;
+		return trim($message);
 		
 	}
 	
