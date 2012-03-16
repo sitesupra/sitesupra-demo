@@ -37,6 +37,7 @@ $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SampleAuthentication/config.yml');
 
 $configLoader->loadFile(SUPRA_WEBROOT_PATH . 'cms/config.yml');
+$configLoader->loadFile(SUPRA_CONF_PATH . 'payment.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SocialMedia/config.yml');
 
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Ajax/config.yml');

@@ -4,6 +4,8 @@ namespace Project\Payment\Transact;
 
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order;
+use Supra\Payment\Entity\Order\ShopOrder;
+use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\RecurringOrderPeriodDimension;
@@ -11,7 +13,6 @@ use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Transaction\TransactionType;
-use Supra\Payment\Entity\Order\RecurringPayment;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentProductItem;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentPaymentProviderItem;
 use Supra\Response\ResponseInterface;
@@ -20,14 +21,31 @@ use Supra\Payment\SearchPaymentEntityParameter;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Session\SessionManager;
 use Supra\Session\SessionNamespace;
+use Supra\Payment\Entity\Abstraction\PaymentEntity;
+use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
+use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
+use Supra\Payment\Transaction\TransactionStatus;
+use Supra\Response\TwigResponse;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
-	const PHASE_NAME_INITIALIZE_TRANSACTION = 'transact-initializeTransaction';
-	const PHASE_NAME_CHARGE_TRANSACTION = 'transact-chargeTransaction';
+	// Phase names used in Transact context
+
+	const PHASE_NAME_INITIALIZE_TRANSACTION = 'transact-initialize';
+	const PHASE_NAME_CHARGE_TRANSACTION = 'transact-charge';
+
+	// Phase names for recurring payments
+	const PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION = 'transact-initializeRecurring';
+	const PHASE_NAME_CHARGE_RECURRING_TRANSACTION = 'transact-chargeRecurring';
+
+	// Phase name for refund status
+	const PHASE_NAME_REFUND = 'transact-refund';
+
+	// Phase names for transaction status storage
 	const PHASE_NAME_STATUS_ON_RETURN = 'transact-statusOnReturn';
 	const PHASE_NAME_STATUS_ON_NOTIFICATION = 'transact-statusOnNotification';
 
+	// Misc. key names used in Transact context
 	const KEY_NAME_TRANSACT_TRANSACTION_ID = 'OK';
 	const KEY_NAME_MERCHANT_TRANSACTION_ID = 'merchant_transaction_id';
 
@@ -55,6 +73,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @var string
 	 */
 	protected $routingString;
+
+	/**
+	 * @var string
+	 */
+	protected $recurrentRoutingString;
 
 	/**
 	 * @var string
@@ -88,6 +111,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	protected $formDataPath;
 
 	/**
+	 * @var string
+	 */
+	protected $userIpOverride;
+
+	/**
 	 * @param string $merchantGuid 
 	 */
 	public function setMerchantGuid($merchantGuid)
@@ -113,6 +141,16 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function getReturnHost()
 	{
 		return $this->returnHost;
+	}
+
+	public function getRecurrentRoutingString()
+	{
+		return $this->recurrentRoutingString;
+	}
+
+	public function setRecurrentRoutingString($recurrentRoutingString)
+	{
+		$this->recurrentRoutingString = $recurrentRoutingString;
 	}
 
 	public function getCallbackHost()
@@ -158,41 +196,36 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$this->password = $password;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getApiUrl()
 	{
 		return $this->apiUrl;
 	}
 
-	/**
-	 * @param string $apiUrl 
-	 */
 	public function setApiUrl($apiUrl)
 	{
 		$this->apiUrl = $apiUrl;
 	}
 
-	/**
-	 * @param string $routingString
-	 */
+	public function getUserIpOverride()
+	{
+		return $this->userIpOverride;
+	}
+
+	public function setUserIpOverride($userIpOverride)
+	{
+		$this->userIpOverride = $userIpOverride;
+	}
+
 	public function setRoutingstring($routingString)
 	{
 		$this->routingString = $routingString;
 	}
 
-	/**
-	 * @param string $transactServiceUrl 
-	 */
 	public function setTransactApiUrl($transactApiUrl)
 	{
 		$this->transactApiUrl = $transactApiUrl;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getTransactApiUrl($apiName)
 	{
 		$query = array('a' => $apiName);
@@ -200,25 +233,16 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $this->transactApiUrl . '?' . http_build_query($query);
 	}
 
-	/**
-	 * @param string $returnHost 
-	 */
 	public function setReturnHost($returnHost)
 	{
 		$this->returnHost = $returnHost;
 	}
 
-	/**
-	 * @param string $callbackHost 
-	 */
 	public function setCallbackHost($callbackHost)
 	{
 		$this->callbackHost = $callbackHost;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getTransactRedirectUrl($queryData)
 	{
 		$queryString = http_build_query($queryData);
@@ -226,28 +250,38 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $this->transactRedirectUrl . '?' . $queryString;
 	}
 
-	/**
-	 * @param string $transactRedirectUrl 
-	 */
 	public function setTransactRedirectUrl($transactRedirectUrl)
 	{
 		$this->transactRedirectUrl = $transactRedirectUrl;
 	}
 
-	/**
-	 * @return string
-	 */
 	private function getNotificationUrl()
 	{
 		return $this->getCallbackHost() . $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getReturnUrl()
 	{
 		return $this->getReturnHost() . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX;
+	}
+
+	/**
+	 * @return PaymentEntityProvider
+	 */
+	public function getPaymentEntityProvider()
+	{
+		if (empty($this->paymentEntityProvider)) {
+
+			$em = $this->getEntityManager();
+
+			$provider = new PaymentEntityProvider();
+			$provider->setEntityManager($em);
+
+			$this->paymentEntityProvider = $provider;
+		}
+
+
+		return $this->paymentEntityProvider;
 	}
 
 	/**
@@ -340,13 +374,137 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param Order\RecurringOrder $order
+	 * @param float $newAmount
+	 * @param string $newDescription
+	 * @throws Exception\RuntimeException 
+	 */
+	public function processNextRecurringOrderTransaction(Order\RecurringOrder $order, $newAmount = null, $newDescription = null)
+	{
+		$orderProvider = $this->getOrderProvider();
+
+		$recurringPayment = $order->getRecurringPayment();
+
+		$initialTransaction = $recurringPayment->getInitialTransaction();
+
+		if (empty($initialTransaction) || $initialTransaction->getStatus() != TransactionStatus::SUCCESS) {
+			throw new Exception\RuntimeException('Initial transaction not completed.');
+		}
+
+		$initializeResult = $this->initializeRecurringTransaction($order, $newAmount, $newDescription);
+		$orderProvider->store($order);
+
+		if ( ! empty($initializeResult['ERROR'])) {
+
+			throw new Exception\RuntimeException('Could not start next recurring transaction.');
+		} else if ( ! empty($initializeResult['RedirectOnsite'])) {
+
+			throw new Exception\RuntimeException('Received redirect URL for recurrent transaction.');
+		}
+
+		$chargeResult = $this->chargeLastRecurringTransaction($order);
+
+		$orderProvider->store($order);
+
+		$this->updateRecurringOrderStatus($order, $chargeResult);
+
+		$orderProvider->store($order);
+	}
+
+	/**
+	 * @param Order\RecurringOrder $order
+	 * @param array $transactionStatus
+	 * @throws Exception\RuntimeException 
+	 */
+	public function updateRecurringOrderStatus(Order\RecurringOrder $order, $transactionStatus)
+	{
+		$recurringPayment = $order->getRecurringPayment();
+
+		$initialTransaction = $recurringPayment->getInitialTransaction();
+
+		$lastTransaction = $recurringPayment->getLastTransaction();
+
+		if (empty($transactionStatus) || empty($transactionStatus['Status'])) {
+			throw new Exception\RuntimeException('No transaction status.');
+		}
+
+		switch (strtolower($transactionStatus['Status'])) {
+
+			case 'success': {
+					$lastTransaction->setStatus(TransactionStatus::SUCCESS);
+
+					$order->getRecurringPayment()
+							->setStatus(RecurringPaymentStatus::PAID);
+				} break;
+
+			case 'failed': {
+					$lastTransaction->setStatus(TransactionStatus::FAILED);
+
+					if ($lastTransaction->getId() == $initialTransaction->getId()) {
+						$recurringPaymentStatus = RecurringPaymentStatus::INITIAL_TRANSACTION_FAILED;
+					} else {
+						$recurringPaymentStatus = RecurringPaymentStatus::LAST_TRANSACTION_FAILED;
+					}
+
+					$order->getRecurringPayment()
+							->setStatus($recurringPaymentStatus);
+				} break;
+
+			case 'pending': {
+
+					throw new Exception\RuntimeException('Pending transaction handling not implemented yet.');
+				} break;
+
+			default: {
+
+					throw new Exception\RuntimeException('Transaction status "' . $transactionStatus['Status'] . '" is not recognized.');
+				}
+		}
+	}
+
+	/**
+	 * @param Order\ShopOrder $order
+	 * @param array $transactionStatus
+	 * @throws Exception\RuntimeException 
+	 */
+	public function updateShopOrderStatus(Order\ShopOrder $order, $transactionStatus)
+	{
+		if (empty($transactionStatus) || empty($transactionStatus['Status'])) {
+			throw new Exception\RuntimeException('No transaction status.');
+		}
+
+		switch (strtolower($transactionStatus['Status'])) {
+
+			case 'success': {
+					$order->getTransaction()
+							->setStatus(TransactionStatus::SUCCESS);
+				} break;
+
+			case 'failed': {
+					$order->getTransaction()
+							->setStatus(TransactionStatus::FAILED);
+				} break;
+
+			case 'pending': {
+
+					throw new Exception\RuntimeException('Pending transaction handling not implemented yet.');
+				} break;
+
+			default: {
+
+					throw new Exception\RuntimeException('Transaction status "' . $transactionStatus['Status'] . '" is not recognized.');
+				}
+		}
+	}
+
+	/**
 	 * @param Order\Order $order
 	 * @param Locale $locale 
 	 * @return boolean
 	 */
 	public function getOrderItemDescription(Order\Order $order, Locale $locale = null)
 	{
-		return 'Transact fee - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
+		return 'Transact fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
 	}
 
 	/**
@@ -369,6 +527,48 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$query = http_build_query($queryData);
 
 		return $this->getNotificationUrl() . '?' . $query;
+	}
+
+	/**
+	 * @param Order\Order $order
+	 * @return string
+	 */
+	public function getProxyActionReturnFormDataUrl(Order\Order $order)
+	{
+		$queryData = array(
+			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true,
+			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
+		);
+
+		return $this->getProxyActionUrl($queryData);
+	}
+
+	/**
+	 * @param PaymentEntity $paymentEntity
+	 * @return string
+	 * @throws Exception\RuntimeException 
+	 */
+	public function getTransactTransactionIdFromPaymentEntity(PaymentEntity $paymentEntity)
+	{
+		$phaseName = null;
+
+		if ($paymentEntity instanceof Transaction) {
+
+			$phaseName = self::PHASE_NAME_INITIALIZE_TRANSACTION;
+		} else if ($paymentEntity instanceof RecurringPaymentTransaction) {
+
+			$phaseName = self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION;
+		} else {
+			throw new Exception\RuntimeException('Do not know how to get Transact transaction id from payment entity of type "' . get_class($paymentEntity) . '".');
+		}
+
+		$transactTransactionId = $paymentEntity->getParameterValue($phaseName, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+
+		if (empty($transactTransactionId)) {
+			throw new Exception\RuntimeException('Could not find Transact transaction id from payment entity "' . $paymentEntity->getId() . '".');
+		}
+
+		return $transactTransactionId;
 	}
 
 	/**
@@ -408,7 +608,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$curlError = curl_error($ch);
 		if ( ! empty($curlError)) {
-			\Log::debug('callTransactApi CURL ERROR: ', $curlError);
+			throw new Exception\RuntimeException('Transact API request failed: ' . $curlError);
 		}
 
 		$response = $this->decodeTransactResponse($rawResponse);
@@ -454,17 +654,31 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getUserIp()
+	{
+		$userIp = $this->getUserIpOverride();
+
+		if (empty($userIp)) {
+			$userIp = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $userIp;
+	}
+
+	/**
 	 * @param Order\Order $order
 	 * @param array $postData
 	 * @return array 
 	 */
-	protected function getInitializeTransactionData(Order\Order $order, $postData)
+	protected function getInitializeTransactTransactionData(Order\Order $order, $merchantTransactionId, $postData)
 	{
 		$apiData = $this->getApiBaseData();
 
-		$apiData['merchant_transaction_id'] = $order->getPaymentEntityId();
-		//$apiData['user_ip'] = '159.148.152.65'; //$_SERVER['REMOTE_ADDR'];
-		$apiData['user_ip'] = $_SERVER['REMOTE_ADDR'];
+		$apiData['merchant_transaction_id'] = $merchantTransactionId;
+
+		$apiData['user_ip'] = $this->getUserIp();
 
 		$description = array();
 		foreach ($order->getProductItems() as $item) {
@@ -475,6 +689,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$apiData['amount'] = $order->getTotal() * 100;
 		$apiData['currency'] = $order->getCurrency()->getIso4217Code();
+
+		$apiData['merchant_site_url'] = $order->getInitiatorUrl();
+
 		$apiData['name_on_card'] = $postData['name_on_card'];
 		$apiData['street'] = $postData['street'];
 		$apiData['zip'] = $postData['zip'];
@@ -487,27 +704,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['bin_name'] = $postData['bin_name'];
 		$apiData['bin_phone'] = $postData['bin_phone'];
 
-		$apiData['merchant_site_url'] = $this->getNotificationUrl();
-
 		return $apiData;
-	}
-
-	/**
-	 * @param Order\Order $order
-	 * @param array $postData
-	 * @return array 
-	 */
-	public function initializeRecurrentTransaction(Order\RecurringOrder $order, $postData)
-	{
-		$apiData = $this->getInitializeTransactionData($order, $postData);
-
-		$apiData['save_card'] = 1;
-
-		$result = $this->callTransactApi('init', $apiData);
-
-		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
-
-		return $result;
 	}
 
 	/**
@@ -517,27 +714,18 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function initializeTransaction(Order\ShopOrder $order, $postData)
 	{
-		$apiData = $this->getInitializeTransactionData($order, $postData);
+		$transaction = $order->getTransaction();
+		/* @var $transaction Transaction */
+
+		$apiData = $this->getInitializeTransactTransactionData($order, $transaction->getId(), $postData);
 
 		$result = $this->callTransactApi('init', $apiData);
 
 		\Log::debug('TRANSACT INIT TRANSACTION RESULT: ', $result);
 
+		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_TRANSACTION, $result);
+
 		return $result;
-	}
-
-	/**
-	 * @param Order\Order $order
-	 * @return string
-	 */
-	public function getProxyActionReturnFormDataUrl(Order\Order $order)
-	{
-		$queryData = array(
-			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true,
-			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
-		);
-
-		return $this->getProxyActionUrl($queryData);
 	}
 
 	/**
@@ -547,13 +735,16 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function chargeTransaction(Order\ShopOrder $order, $postData)
 	{
-		$transactTrascationId = $order->getPaymentEntityParameterValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+		$transaction = $order->getTransaction();
+
+		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($transaction);
 
 		$apiData = $this->getApiBaseData();
 
 		$apiData['f_extended'] = 5;
-		;
-		$apiData['init_transaction_id'] = $transactTrascationId;
+
+		$apiData['init_transaction_id'] = $transactTransactionId;
+
 		$apiData['cc'] = $postData['cc'];
 		$apiData['cvv'] = $postData['cvv'];
 		$apiData['expire'] = $postData['expire'];
@@ -562,21 +753,35 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		\Log::debug('TRANSACT CHARGE TRANSACTION RESULT: ', $result);
 
+		$transaction->addToParameters(self::PHASE_NAME_CHARGE_TRANSACTION, $result);
+
 		return $result;
 	}
 
 	/**
-	 * @param Order\Order $order
+	 * @param PaymentEntity $paymentEntity
 	 * @return array
 	 */
-	public function getTransactionStatus(Order\ShopOrder $order)
+	public function getTransactTransactionStatus(PaymentEntity $paymentEntity)
 	{
-		$transactTrascationId = $order->getPaymentEntityParameterValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($paymentEntity);
 
+		$result = $this->getTransactTransactionStatusForId($transactTransactionId);
+
+		return $result;
+	}
+
+	/**
+	 * @param string $transactTransactionId
+	 * @return array
+	 */
+	protected function getTransactTransactionStatusForId($transactTransactionId)
+	{
 		$apiData = $this->getApiBaseData();
 
 		$apiData['f_extended'] = 5;
-		$apiData['init_transaction_id'] = $transactTrascationId;
+
+		$apiData['init_transaction_id'] = $transactTransactionId;
 		$apiData['request_type'] = 'transaction_status';
 
 		$result = $this->callTransactApi('status_request', $apiData);
@@ -587,27 +792,176 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param Order\RecurringOrder
-	 * @param integer $amount
-	 * @param string $description 
+	 * @param Order\Order $order 
 	 */
-	public function initializeRecurrentPayment(Order\RecurringOrder $order, $amount, $description)
+	public function issueRefundForOrder(Order\Order $order, $refundAmount = false)
+	{
+		$orderProvider = $this->getOrderProvider();
+
+		if ($order instanceof ShopOrder) {
+			$this->issueRefundForShopOrder($order, $refundAmount);
+		} else if ($order instanceof Order\RecurringOrder) {
+			$this->issueRefundForRecurringOrder($order, $refundAmount);
+		} else {
+			throw new Exception\RuntimeException('Do not know how to refund "' . get_class($order) . '" ');
+		}
+
+		$orderProvider->store($order);
+	}
+
+	/**
+	 * @param ShopOrder $order
+	 * @param float $amount
+	 * @throws Exception\RuntimeException 
+	 */
+	protected function issueRefundForShopOrder(ShopOrder $order, $refundAmount)
+	{
+		$transaction = $order->getTransaction();
+
+		if ($transaction->getStatus() != TransactionStatus::SUCCESS) {
+			throw new Exception\RuntimeException('Only successful transactions can be refunded');
+		}
+
+		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($transaction);
+
+		if ($refundAmount === false) {
+			$refundAmount = $transaction->getAmount();
+		}
+
+		$result = $this->issueRefundForTransactTransactionId($transactTransactionId, $refundAmount);
+
+		$transaction->addToParameters(self::PHASE_NAME_REFUND, $result);
+
+		$transaction->setStatus(TransactionStatus::REFUNDED);
+	}
+
+	/**
+	 * @param RecurringOrder $order
+	 * @param float $refundAmount
+	 * @throws Exception\RuntimeException 
+	 */
+	protected function issueRefundForRecurringOrder(RecurringOrder $order, $refundAmount)
+	{
+		$recurringPayment = $order->getRecurringPayment();
+
+		$lastTransaction = $recurringPayment->getLastTransaction();
+
+		if ($lastTransaction->getStatus() != TransactionStatus::SUCCESS) {
+			throw new Exception\RuntimeException('Only successful transactions can be refunded');
+		}
+
+		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($lastTransaction);
+
+		if ($refundAmount === false) {
+			$refundAmount = $lastTransaction->getAmount();
+		}
+
+		$refundResult = $this->issueRefundForTransactTransactionId($transactTransactionId, $refundAmount);
+
+		$lastTransaction->addToParameters(self::PHASE_NAME_REFUND, $refundResult);
+
+		$lastTransaction->setStatus(TransactionStatus::REFUNDED);
+	}
+
+	/**
+	 * @param string $transactTransactionId
+	 * @param float $amount 
+	 * @return array
+	 */
+	protected function issueRefundForTransactTransactionId($transactTransactionId, $amount)
 	{
 		$apiData = $this->getApiBaseData();
 
-		$originalTransactionInitId = $order->getPaymentEntityParameterValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+		$apiData['init_transaction_id'] = $transactTransactionId;
+		$apiData['amount_to_refund'] = $amount * 100;
 
-		$merchantTransactionId = $order->getRecurringPayment()
-						->getLastTransaction()->getId();
+		$result = $this->callTransactApi('refund', $apiData);
 
-		$apiData['original_init_id'] = $originalTransactionInitId;
+		\Log::debug('TRANSACT REFUND RESULT: ', $result);
+
+		return $result;
+	}
+
+	/**
+	 * @param Order\Order $order
+	 * @param array $postData
+	 * @return array 
+	 */
+	public function initializeRecurringPayment(Order\RecurringOrder $order, $postData)
+	{
+		$recurringPayment = $order->getRecurringPayment();
+		/* @var $recurringPayment RecurringPayment */
+
+		$transaction = new RecurringPaymentTransaction();
+
+		$transaction->setStatus(TransactionStatus::STARTED);
+		$transaction->setAmount($order->getTotal());
+		$transaction->setDescription($order->getBillingDescription());
+
+		$recurringPayment->addTransaction($transaction);
+
+		$apiData = $this->getInitializeTransactTransactionData($order, $transaction->getId(), $postData);
+
+		$apiData['save_card'] = 1;
+
+		$result = $this->callTransactApi('init', $apiData);
+
+		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
+
+		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
+
+		return $result;
+	}
+
+	/**
+	 * @param Order\RecurringOrder
+	 * @param float $amount
+	 * @param string $description 
+	 */
+	public function initializeRecurringTransaction(Order\RecurringOrder $order, $newAmount = null, $newDescription = null)
+	{
+		$recurringPayment = $order->getRecurringPayment();
+		/* @var $recurringPayment RecurringPayment */
+
+		$initialTransaction = $recurringPayment->getInitialTransaction();
+		$initialTransacTransactionId = $this->getTransactTransactionIdFromPaymentEntity($initialTransaction);
+
+		$transaction = new RecurringPaymentTransaction();
+
+		if (empty($newAmount)) {
+			$amount = $order->getTotal();
+		} else {
+			$amount = $newAmount;
+		}
+
+		$transaction->setAmount($amount);
+
+		if (empty($newDescription)) {
+			$description = $order->getBillingDescription();
+		} else {
+			$description = $newDescription;
+		}
+
+		$transaction->setDescription($description);
+		$transaction->setStatus(TransactionStatus::STARTED);
+		$recurringPayment->addTransaction($transaction);
+
+		$merchantTransactionId = $transaction->getId();
+
+		$apiData = $this->getApiBaseData();
+
+		$apiData['rs'] = $this->getRecurrentRoutingString();
+
+		$apiData['original_init_id'] = $initialTransacTransactionId;
 		$apiData['merchant_transaction_id'] = $merchantTransactionId;
-		$apiData['amount'] = intval($amount);
+		$apiData['amount'] = intval($amount * 100);
 		$apiData['description'] = $description;
 
 		$result = $this->callTransactApi('init_recurrent', $apiData);
 
-		\Log::debug('TRANSACT INIT RECURRENT PAYMENT RESULT: ', $result);
+		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
+
+		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
 
 		return $result;
 	}
@@ -616,17 +970,54 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @param Order\RecurringOrder $order
 	 * @return array 
 	 */
-	public function chargeRecurringPayment(Order\RecurringOrder $order)
+	public function chargeInitialRecurringTransaction(Order\RecurringOrder $order, $postData)
 	{
-		$lastRecurringTransaction = $order->getRecurringPayment()->getLastTransaction();
-		$initTransactionId = $lastRecurringTransaction->getParameterValue(self::PHASE_NAME_INITIALIZE_RECURRENT, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+		$recurringPayment = $order->getRecurringPayment();
+
+		$initialTransaction = $recurringPayment->getInitialTransaction();
+
+		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($initialTransaction);
 
 		$apiData = $this->getApiBaseData();
-		$apiData['init_transaction_id'] = $initTransactionId;
+
+		$apiData['init_transaction_id'] = $transactTransactionId;
+		$apiData['f_extended'] = 5;
+
+		$apiData['cc'] = $postData['cc'];
+		$apiData['cvv'] = $postData['cvv'];
+		$apiData['expire'] = $postData['expire'];
+
+		$result = $this->callTransactApi('charge', $apiData);
+
+		\Log::debug('TRANSACT CHARGE INITIAL RECURRENT TRANSACTION RESULT: ', $result);
+		$initialTransaction->addToParameters(self::PHASE_NAME_CHARGE_RECURRING_TRANSACTION, $result);
+
+		return $result;
+	}
+
+	/**
+	 * @param Order\RecurringOrder $order
+	 * @return array 
+	 */
+	public function chargeLastRecurringTransaction(Order\RecurringOrder $order)
+	{
+		$recurringPayment = $order->getRecurringPayment();
+
+		$lastRecurringTransaction = $recurringPayment->getLastTransaction();
+
+		$recurringTransactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($lastRecurringTransaction);
+
+		$apiData = $this->getApiBaseData();
+
+		$apiData['rs'] = $this->getRecurrentRoutingString();
+
+		$apiData['init_transaction_id'] = $recurringTransactTransactionId;
+		$apiData['f_extended'] = 5;
 
 		$result = $this->callTransactApi('charge_recurrent', $apiData);
 
-		\Log::debug('TRANSACT CHARGE RECURRENT PAYMENT RESULT: ', $result);
+		\Log::debug('TRANSACT CHARGE RECURRENT TRANSACTION RESULT: ', $result);
+		$lastRecurringTransaction->addToParameters(self::PHASE_NAME_CHARGE_RECURRING_TRANSACTION, $result);
 
 		return $result;
 	}
@@ -635,74 +1026,29 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @param Order\RecurringOrder $order 
 	 * @return array
 	 */
-	public function getRecurringPaymentStatus(Order\RecurringOrder $order)
+	public function getLastRecurringTransactionStatus(Order\RecurringOrder $order)
 	{
-		$lastRecurringTransaction = $order->getRecurringPayment()->getLastTransaction();
-		$transactTrascationId = $lastRecurringTransaction->getParameterValue(self::PHASE_NAME_INITIALIZE_RECURRENT, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
+		$recurringPayment = $order->getRecurringPayment();
+
+		$initialTransaction = $recurringPayment->getIntialTransaction();
+		$lastTransaction = $order->getRecurringPayment()->getLastTransaction();
+
+		$transactTrascationId = $this->getTransactTransactionIdFromPaymentEntity($lastTransaction);
 
 		$apiData = $this->getApiBaseData();
 
 		$apiData['f_extended'] = 5;
+
+		if ($lastTransaction->getId() != $initialTransaction->getId()) {
+			$apiData['rs'] = $this->getRecurrentRoutingString();
+		}
+
 		$apiData['init_transaction_id'] = $transactTrascationId;
 		$apiData['request_type'] = 'transaction_status';
 
 		$result = $this->callTransactApi('status_request', $apiData);
 
 		\Log::debug('TRANSACT RECURRENT PAYMENT STATUS RESULT: ', $result);
-	}
-
-	/**
-	 * @return PaymentEntityProvider
-	 */
-	public function getPaymentEntityProvider()
-	{
-		if (empty($this->paymentEntityProvider)) {
-
-			$em = $this->getEntityManager();
-
-			$provider = new PaymentEntityProvider();
-			$provider->setEntityManager($em);
-
-			$this->paymentEntityProvider = $provider;
-		}
-
-
-		return $this->paymentEntityProvider;
-	}
-
-	/**
-	 * @param PaymentEntityProvide $paymentEntityProvider 
-	 */
-	public function setPaymentEntityProvider(PaymentEntityProvide $paymentEntityProvider)
-	{
-		$this->paymentEntityProvider = $paymentEntityProvider;
-	}
-
-	/**
-	 * @return OrderProvider
-	 */
-	public function getOrderProvider()
-	{
-		if (empty($this->orderProvider)) {
-
-			$em = $this->getEntityManager();
-
-			$provider = new OrderProvider();
-			$provider->setEntityManager($em);
-
-			$this->orderProvider = $provider;
-		}
-
-
-		return $this->orderProvider;
-	}
-
-	/**
-	 * @param OrderProvier $orderProvider 
-	 */
-	public function setOrderProvider(PaymentEntityProvide $orderProvider)
-	{
-		$this->orderProvider = $orderProvider;
 	}
 
 	/**
@@ -730,20 +1076,37 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$paymentEntityProvider = $this->getPaymentEntityProvider();
 		$orderProvider = $this->getOrderProvider();
 
-		$paymentEntities = $paymentEntityProvider->findByParameterPhaseAndNameAndValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID, $transactTransactionId);
-		
-		if(count($paymentEntities) > 1) {
+		$paymentEntities = $paymentEntityProvider->findByParameterNameAndValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID, $transactTransactionId);
+
+		if (count($paymentEntities) > 1) {
 			throw new Exception\RuntimeException('Got more than one payment entity for Transact transaction id "' . $transactTransactionId . '".');
 		}
-		if(count($paymentEntities) == 0) {
+		if (count($paymentEntities) == 0) {
 			throw new Exception\RuntimeException('Did not find any payment entities for Transact transaction id "' . $transactTransactionId . '".');
 		}
-		
+
 		$paymentEntity = array_pop($paymentEntities);
-		
+
 		$order = $orderProvider->getOrderByPaymentEntity($paymentEntity);
 
 		return $order;
+	}
+
+	/**
+	 * @param Order\Order $order
+	 * @throws Exception\RuntimeException 
+	 */
+	public function refundTransaction(Order\Order $order)
+	{
+		if ($order instanceof Order\ShopOrder) {
+
+			$this->refundShopOrder($order);
+		} else if ($order instanceof Order\RecurringOrder) {
+
+			$this->refundRecurringOrder($order);
+		} else {
+			throw new Exception\RuntimeException('Do not know how to do a refund for "' . get_class($order) . '" order type.');
+		}
 	}
 
 }

@@ -9,6 +9,7 @@ use \DateTime;
 
 /**
  * @Entity 
+ * @HasLifecycleCallbacks
  */
 class Transaction extends PaymentEntity
 {

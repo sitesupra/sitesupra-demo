@@ -14,7 +14,7 @@ use Supra\Database;
  * 	"tpl" = "Supra\Payment\Entity\Transaction\TransactionParameterLogEntry", 
  * 	"rpp" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentParameter",
  * 	"rppl" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentParameterLogEntry",
- * 	"rppt" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransactionParameter"
+ * 	"rptp" = "Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransactionParameter"
  * })
  */
 abstract class PaymentEntityParameter extends Database\Entity

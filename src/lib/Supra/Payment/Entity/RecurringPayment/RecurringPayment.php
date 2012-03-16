@@ -12,170 +12,190 @@ use Supra\Payment\Entity\Abstraction\PaymentEntity;
 class RecurringPayment extends PaymentEntity
 {
 
-	/**
-	 * @OneToMany(targetEntity="RecurringPaymentParameter", mappedBy="recurringPayment")
-	 * @var ArrayCollection
-	 */
-	protected $parameters;
+    /**
+     * @OneToMany(targetEntity="RecurringPaymentParameter", mappedBy="recurringPayment")
+     * @var ArrayCollection
+     */
+    protected $parameters;
 
-	/**
-	 * @Column(type="decimal", precision=10, scale=2, nullable=false)
-	 * @var float
-	 */
-	protected $amount;
+    /**
+     * @OneToMany(targetEntity="RecurringPaymentTransaction", mappedBy="recurringPayment")
+     * @var ArrayCollection
+     */
+    protected $transactions;
 
-	/**
-	 * @Column(type="string", nullable=false)
-	 * @var string
-	 */
-	protected $currencyId;
+    /**
+     * @OneToOne(targetEntity="RecurringPaymentTransaction")
+     * @JoinColumn(name="lastRecurringPaymentTransactionId", referencedColumnName="id")
+     * @var Transaction
+     */
+    protected $lastTransaction;
 
-	/**
-	 * @OneToMany(targetEntity="RecurringPaymentTransaction", mappedBy="recurringPayment")
-	 * @var ArrayCollection
-	 */
-	protected $transactions;
+    /**
+     * @OneToOne(targetEntity="RecurringPaymentTransaction")
+     * @JoinColumn(name="iRecurringPaymentTransactionId", referencedColumnName="id")
+     * @var Transaction
+     */
+    protected $initialTransaction;
 
-	/**
-	 * @OneToOne(targetEntity="RecurringPaymentTransaction")
-	 * @JoinColumn(name="lastRecurringPaymentTransactionId", referencedColumnName="id")
-	 * @var Transaction
-	 */
-	protected $lastTransaction;
-	
-	/**
-	 * @Column(type="integer", nullable=false)
-	 * @var integer
-	 */
-	protected $gracePeriodLength;
-	
-	/**
-	 * @Column(type="integer", nullable=false)
-	 * @var integer
-	 */
-	protected $paymentReminderOffset;
-	
-	/**
-	 * @return float
-	 */
-	public function getAmount()
-	{
-		return $this->amount;
-	}
+    /**
+     * @Column(type="integer", nullable=false)
+     * @var integer
+     */
+    protected $gracePeriodLength;
 
-	/**
-	 * @param float $amount 
-	 */
-	public function setAmount($amount)
-	{
-		$this->amount = $amount;
-	}
+    /**
+     * @Column(type="integer", nullable=false)
+     * @var integer
+     */
+    protected $paymentReminderOffset;
 
-	/**
-	 * @return string
-	 */
-	public function getCurrencyId()
-	{
-		return $this->currencyId;
-	}
+    /**
+     * @return float
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
 
-	/**
-	 * @param string $currencyId 
-	 */
-	public function setCurrencyId($currencyId)
-	{
-		$this->currencyId = $currencyId;
-	}
+    /**
+     * @param float $amount 
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getBillingDescription()
-	{
-		return $this->billingDescription;
-	}
+    /**
+     * @return string
+     */
+    public function getCurrencyId()
+    {
+        return $this->currencyId;
+    }
 
-	/**
-	 * @param string $billingDescription 
-	 */
-	public function setBillingDescription($billingDescription)
-	{
-		$this->billingDescription = $billingDescription;
-	}
+    /**
+     * @param string $currencyId 
+     */
+    public function setCurrencyId($currencyId)
+    {
+        $this->currencyId = $currencyId;
+    }
 
-	/**
-	 * @return RecurringPaymentParameter 
-	 */
-	public function createParameter()
-	{
-		$parameter = new RecurringPaymentParameter();
+    /**
+     * @return string
+     */
+    public function getBillingDescription()
+    {
+        return $this->billingDescription;
+    }
 
-		$parameter->setRecurringPayment($this);
+    /**
+     * @param string $billingDescription 
+     */
+    public function setBillingDescription($billingDescription)
+    {
+        $this->billingDescription = $billingDescription;
+    }
 
-		return $parameter;
-	}
+    /**
+     * @return RecurringPaymentParameter 
+     */
+    public function createParameter()
+    {
+        $parameter = new RecurringPaymentParameter();
 
-	public function getTransactions()
-	{
-		return $this->transactions;
-	}
+        $parameter->setRecurringPayment($this);
 
-	/**
-	 * @return RecurringPaymentTransaction
-	 */
-	public function getLastTransaction()
-	{
-		return $this->lastTransaction;
-	}
+        return $parameter;
+    }
 
-	/**
-	 * @param RecurringPaymentTransaction $lastTransaction 
-	 */
-	public function setLastTransaction(RecurringPaymentTransaction $lastTransaction)
-	{
-		$this->lastTransaction = $lastTransaction;
-	}
+    public function getTransactions()
+    {
+        return $this->transactions;
+    }
 
-	public function addTransaction(RecurringPaymentTransaction $transaction)
-	{
-		$transaction->setRecurringPayment($this);
-		$transaction->setCurrencyId($this->getCurrencyId());
-		$transaction->setUserId($this->getUserId());
-		
-		$this->transactions[] = $transaction;
-		$this->setLastTransaction($transaction);
-	}
+    /**
+     * @return RecurringPaymentTransaction
+     */
+    public function getLastTransaction()
+    {
+        return $this->lastTransaction;
+    }
 
-	/**
-	 * @return integer
-	 */
-	public function getGracePeriodLength()
-	{
-		return $this->gracePeriodLength;
-	}
+    /**
+     * @param RecurringPaymentTransaction $lastTransaction 
+     */
+    public function setLastTransaction(RecurringPaymentTransaction $lastTransaction)
+    {
+        $this->lastTransaction = $lastTransaction;
+    }
 
-	/**
-	 * @param integer $gracePeriodLength 
-	 */
-	public function setGracePeriodLength($gracePeriodLength)
-	{
-		$this->gracePeriodLength = $gracePeriodLength;
-	}
+    /**
+     * @return RecurringPaymentTransaction
+     */
+    public function getInitialTransaction()
+    {
+        return $this->initialTransaction;
+    }
 
-	/**
-	 * @return integer
-	 */
-	public function getPaymentReminderOffset()
-	{
-		return $this->paymentReminderOffset;
-	}
+    /**
+     * @param RecurringPaymentTransaction $initialTransaction 
+     */
+    public function setInitialTransaction(RecurringPaymentTransaction $initialTransaction)
+    {
+        $this->initialTransaction = $initialTransaction;
+    }
 
-	/**
-	 * @param integer $paymentReminderOffset 
-	 */
-	public function setPaymentReminderOffset($paymentReminderOffset)
-	{
-		$this->paymentReminderOffset = $paymentReminderOffset;
-	}
+    /**
+     * @param RecurringPaymentTransaction $transaction 
+     */
+    public function addTransaction(RecurringPaymentTransaction $transaction)
+    {
+        $transaction->setRecurringPayment($this);
+        $transaction->setCurrencyId($this->getCurrencyId());
+        $transaction->setUserId($this->getUserId());
+        $transaction->setPaymentProviderId($this->getPaymentProviderId());
+
+        $this->transactions[] = $transaction;
+
+        $this->setLastTransaction($transaction);
+
+        if (empty($this->initialTransaction)) {
+            $this->setInitialTransaction($transaction);
+        }
+    }
+
+    /**
+     * @return integer
+     */
+    public function getGracePeriodLength()
+    {
+        return $this->gracePeriodLength;
+    }
+
+    /**
+     * @param integer $gracePeriodLength 
+     */
+    public function setGracePeriodLength($gracePeriodLength)
+    {
+        $this->gracePeriodLength = $gracePeriodLength;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getPaymentReminderOffset()
+    {
+        return $this->paymentReminderOffset;
+    }
+
+    /**
+     * @param integer $paymentReminderOffset 
+     */
+    public function setPaymentReminderOffset($paymentReminderOffset)
+    {
+        $this->paymentReminderOffset = $paymentReminderOffset;
+    }
 
 }

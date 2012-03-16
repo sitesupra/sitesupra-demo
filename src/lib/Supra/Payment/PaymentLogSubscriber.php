@@ -84,7 +84,9 @@ class PaymentLogSubscriber implements EventSubscriber
 		$transaction = $eventArgs->getEntity();
 
 		$logEntry = new TransactionLogEntry($transaction);
-		$em->persist($logEntry);
+		
+        $em->persist($logEntry);
+        
 		$em->flush();
 	}
 

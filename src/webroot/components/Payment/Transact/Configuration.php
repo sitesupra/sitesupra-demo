@@ -8,10 +8,13 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class Configuration extends Payment\ConfigurationAbstraction
 {
+
 	const INI_KEY_MERCHANT_GUID = 'merchant_guid';
 	const INI_KEY_PASSWORD = 'password';
 	const INI_KEY_ROUTING_STRING = 'routing_string';
 	const INI_KEY_API_URL = 'api_url';
+	const INI_KEY_USER_IP_OVERRIDE = 'user_ip_override';
+	const INI_KEY_RECURRENT_ROUTING_STRING = 'recurrent_routing_string';
 
 	/**
 	 * @var string
@@ -43,6 +46,11 @@ class Configuration extends Payment\ConfigurationAbstraction
 	 */
 	public $formDataPath;
 
+	/**
+	 * @var string
+	 */
+	public $userIpOverride;
+
 	function configure()
 	{
 		$this->paymentProvider = new Transact\PaymentProvider();
@@ -59,8 +67,14 @@ class Configuration extends Payment\ConfigurationAbstraction
 		$routingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_ROUTING_STRING);
 		$this->paymentProvider->setRoutingstring($routingString);
 
-		$apiUrl = $iniLoader->getvalue($this->iniSectionName, self::INI_KEY_API_URL);
+		$recurrentRoutingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_RECURRENT_ROUTING_STRING);
+		$this->paymentProvider->setRecurrentRoutingString($recurrentRoutingString);
+
+		$apiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_URL);
 		$this->paymentProvider->setApiUrl($apiUrl);
+
+		$userIpOverride = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_USER_IP_OVERRIDE, null);
+		$this->paymentProvider->setUserIpOverride($userIpOverride);
 
 		$this->paymentProvider->setIs3dAccount((boolean) $this->is3dAccount);
 		$this->paymentProvider->setGatewayCollects((boolean) $this->gatewayCollects);

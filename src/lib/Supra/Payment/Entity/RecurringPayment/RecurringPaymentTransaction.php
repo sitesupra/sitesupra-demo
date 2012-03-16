@@ -3,6 +3,8 @@
 namespace Supra\Payment\Entity\RecurringPayment;
 
 use Supra\Payment\Entity\Abstraction\PaymentEntity;
+use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransactionParameter;
+use Supra\Payment\Transaction\TransactionStatus;
 
 /**
  * @Entity
@@ -11,82 +13,107 @@ use Supra\Payment\Entity\Abstraction\PaymentEntity;
 class RecurringPaymentTransaction extends PaymentEntity
 {
 
-	/**
-	 * @ManyToOne(targetEntity="RecurringPayment", inversedBy="transactions")
-	 * @JoinColumn(name="paymentEntityId", referencedColumnName="id")
-	 */
-	protected $recurringPayment;
+    /**
+     * @ManyToOne(targetEntity="RecurringPayment", inversedBy="transactions")
+     * @JoinColumn(name="paymentEntityId", referencedColumnName="id")
+     */
+    protected $recurringPayment;
 
-	/**
-	 * @Column(type="string", nullable=false)
-	 * @var float
-	 */
-	protected $amount;
+    /**
+     * @Column(type="string", nullable=false)
+     * @var float
+     */
+    protected $amount;
 
-	/**
-	 * @Column(type="string", nullable=false)
-	 * @var string
-	 */
-	protected $currencyId;
+    /**
+     * @Column(type="string", nullable=false)
+     * @var string
+     */
+    protected $currencyId;
 
-	/**
-	 * @OneToMany(targetEntity="TransactionParameter", mappedBy="transaction")
-	 * @var ArrayCollection
-	 */
-	protected $parameters;
+    /**
+     * @Column(type="string", nullable=false)
+     * @var string
+     */
+    protected $description;
 
-	public function getAmount()
-	{
-		return $this->amount;
-	}
+    /**
+     * @OneToMany(targetEntity="TransactionParameter", mappedBy="transaction")
+     * @var ArrayCollection
+     */
+    protected $parameters;
 
-	public function setAmount($amount)
-	{
-		$this->amount = $amount;
-	}
+    public function getAmount()
+    {
+        return $this->amount;
+    }
 
-	public function getCurrencyId()
-	{
-		return $this->currencyId;
-	}
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
+    }
 
-	public function setCurrencyId($currencyId)
-	{
-		$this->currencyId = $currencyId;
-	}
+    public function getCurrencyId()
+    {
+        return $this->currencyId;
+    }
 
-	public function getParameters()
-	{
-		return $this->parameters;
-	}
+    public function setCurrencyId($currencyId)
+    {
+        $this->currencyId = $currencyId;
+    }
 
-	public function setParameters($parameters)
-	{
-		$this->parameters = $parameters;
-	}
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
 
-	/**
-	 * @return RecurringPayment
-	 */
-	public function getRecurringPayment()
-	{
-		return $this->recurringPayment;
-	}
+    public function setParameters($parameters)
+    {
+        $this->parameters = $parameters;
+    }
 
-	/**
-	 * @param RecurringPayment $recurringPayment 
-	 */
-	public function setRecurringPayment(RecurringPayment $recurringPayment)
-	{
-		$this->recurringPayment = $recurringPayment;
-	}
+    /**
+     * @return RecurringPayment
+     */
+    public function getRecurringPayment()
+    {
+        return $this->recurringPayment;
+    }
 
-	public function createParameter()
-	{
-		$parameter = new RecurringPaymentTransactionParameter();
-		$parameter->setRecurringPaymentTransaction($this);
+    /**
+     * @param RecurringPayment $recurringPayment 
+     */
+    public function setRecurringPayment(RecurringPayment $recurringPayment)
+    {
+        $this->recurringPayment = $recurringPayment;
+    }
 
-		return $parameter;
-	}
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description 
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return RecurringPaymentTransactionParameter 
+     */
+    public function createParameter()
+    {
+        $parameter = new RecurringPaymentTransactionParameter();
+        $parameter->setRecurringPaymentTransaction($this);
+
+        return $parameter;
+    }
 
 }

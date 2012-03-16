@@ -3,8 +3,7 @@
 namespace Project\Payment\Transact\Action;
 
 use Project\Payment\Transact;
-use Supra\Request\HttpRequest;
-use Supra\ObjectRepository\ObjectRepository;
+use Project\Payment\Transact\Exception;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Payment\Provider\Event\ProviderNotificationEventArgs;
@@ -12,14 +11,18 @@ use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\RecurringOrderStatus;
 use Supra\Payment\Entity\TransactionParameter;
-use Supra\Payment\Entity\Order;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
-use Supra\Payment\Action\ProviderNotificationActionAbstraction;
+use Supra\Payment\Entity\Order;
 use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\Payment\Action\ProviderNotificationActionAbstraction;
+use Supra\Request\HttpRequest;
+use Supra\ObjectRepository\ObjectRepository;
 
 class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 {
+
 	const REQUEST_KEY_TRANSACT_TRANSACTION_ID = 'ID';
+	const REQUEST_KEY_MERCHANT_TRANSACTION_ID = 'MerchantID';
 
 	/**
 	 * @var Order\Order
@@ -94,6 +97,22 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getMerchantTransactionId()
+	{
+		$notificationData = $this->getNotificationData();
+
+		if (empty($notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID])) {
+			throw new Execption\RuntimeException('Could not get merchant transaction id from notification data.');
+		}
+
+		$transactTransactionId = $notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID];
+
+		return $transactTransactionId;
+	}
+
+	/**
 	 * @return Order\Order
 	 */
 	public function getOrder()
@@ -114,9 +133,9 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	{
 		$paymentProvider = $this->getPaymentProvider();
 
-		$transactTransactionId = $this->getTransactTransactionId();
+		$merchantTransactionId = $this->getMerchantTransactionId();
 
-		$order = $paymentProvider->getOrderFromTransactTransactionId($transactTransactionId);
+		$order = $paymentProvider->getOrderFromMerchantTransactionId($merchantTransactionId);
 
 		if (empty($order)) {
 			throw new Exception\RuntimeException('Could not fetch order from request.');
@@ -162,33 +181,12 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		$orderProvider = $this->getOrderProvider();
 		$paymentProvider = $this->getPaymentProvider();
 
-		$transactionStatus = $paymentProvider->getTransactionStatus($order);
+		$transaction = $order->getTransaction();
+
+		$transactionStatus = $paymentProvider->getTransactTransactionStatus($transaction);
 		$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $transactionStatus);
 
-		if (empty($transactionStatus) || empty($transactionStatus['Status'])) {
-			throw new Exception\RuntimeException('Could not get transaction status.');
-		}
-
-		switch ($transactionStatus['Status']) {
-
-			case 'Success': {
-					$order->getTransaction()
-							->setStatus(TransactionStatus::SUCCESS);
-				} break;
-
-			case 'Failed': {
-					$order->getTransaction()
-							->setStatus(TransactionStatus::FAILED);
-				} break;
-
-			case 'Pending': {
-					throw new Exception\RuntimeException('Pending transaction handling not impleneted yet.');
-				} break;
-
-			default: {
-					throw new Exception\RuntimeException('Transaction status "' . $transactionStatus['Status'] . '" is not recognized.');
-				}
-		}
+		$paymentProvider->updateShopOrderStatus($order, $transactionStatus);
 
 		$orderProvider->store($order);
 	}
@@ -198,7 +196,27 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	 */
 	protected function processRecurringOrder(Order\RecurringOrder $order)
 	{
-		throw new Exception\RuntimeException('Handling of notifications for recurring orders not implemented yet.');
+		$orderProvider = $this->getOrderProvider();
+		/* @var $paymentProvider Tranasact\PaymentProvider */
+		$paymentProvider = $this->getPaymentProvider();
+
+		$recurringPayment = $order->getRecurringPayment();
+
+		$transactTransactionId = $this->getTransactTransactionId();
+
+		$lastTransaction = $recurringPayment->getLastTransaction();
+		$lastTransactTransactionId = $paymentProvider->getTransactTransactionIdFromPaymentEntity($lastTransaction);
+
+		if ($lastTransactTransactionId != $transactTransactionId) {
+			throw new Exception\RuntimeException('Received notification is not for last transaction for this recurring payment.');
+		}
+
+		$transactionStatus = $paymentProvider->getTransactTransactionStatus($lastTransaction);
+		$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $transactionStatus);
+
+		$paymentProvider->updateRecurringOrderStatus($order, $transactionStatus);
+
+		$orderProvider->store($order);
 	}
 
 	/**

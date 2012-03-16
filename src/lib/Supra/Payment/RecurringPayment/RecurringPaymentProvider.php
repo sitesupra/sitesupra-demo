@@ -10,39 +10,39 @@ use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
 class RecurringPaymentProvider extends PaymentEntityProviderAbstraction
 {
 
-	/**
-	 * @return string
-	 */
-	protected function getEntityClassName()
-	{
-		return RecurringPayment::CN();
-	}
+    /**
+     * @return string
+     */
+    protected function getEntityClassName()
+    {
+        return RecurringPayment::CN();
+    }
 
-	/**
-	 * @return string
-	 */
-	protected function getEntityParameterClassName()
-	{
-		return RecurringPaymentParameter::CN();
-	}
+    /**
+     * @return string
+     */
+    protected function getEntityParameterClassName()
+    {
+        return RecurringPaymentParameter::CN();
+    }
 
-	public function store(RecurringPayment $entity)
-	{
-		$lastTransaction = $entity->getLastTransaction();
+    public function store(RecurringPayment $entity)
+    {
+        $lastTransaction = $entity->getLastTransaction();
 
-		if ( ! empty($lastTransaction)) {
-			$this->store($lastTransaction, true);
-		}
+        if ( ! empty($lastTransaction)) {
+            parent::store($lastTransaction, true);
+        }
 
-		$transactions = $entity->getTransactions();
+        $transactions = $entity->getTransactions();
 
-		if ( ! empty($transactions)) {
-			foreach ($transactions as $transaction) {
-				$this->store($transaction, true);
-			}
-		}
+        if ( ! empty($transactions)) {
+            foreach ($transactions as $transaction) {
+                parent::store($transaction, true);
+            }
+        }
 
-		parent::store($entity);
-	}
+        parent::store($entity);
+    }
 
 }

@@ -4,97 +4,99 @@ namespace Supra\Payment\Action;
 
 abstract class CommonProxyActionAbstraction extends ProxyActionAbstraction
 {
-	const PHASE_NAME_PROXY_FORM = 'proxy-form';
-	const PHASE_NAME_PROXY_REDIRECT = 'proxy-redirect';
 
-	/**
-	 * @var boolean
-	 */
-	protected $formAutosubmit;
+    const PHASE_NAME_PROXY_FORM = 'proxy-form';
+    const PHASE_NAME_PROXY_REDIRECT = 'proxy-redirect';
 
-	/**
-	 * @var string
-	 */
-	protected $formMethod;
+    /**
+     * @var boolean
+     */
+    protected $formAutosubmit;
 
-	/**
-	 * @var array
-	 */
-	protected $proxyData;
+    /**
+     * @var string
+     */
+    protected $formMethod;
 
-	/**
-	 * @var string
-	 */
-	protected $redirectUrl;
+    /**
+     * @var array
+     */
+    protected $proxyData;
 
-	/**
-	 * @return array
-	 */
-	abstract protected function getRedirectUrl();
+    /**
+     * @var string
+     */
+    protected $redirectUrl;
 
-	/**
-	 * @return array
-	 */
-	protected function getPaymentProviderFormElements()
-	{
-		$formElements = array();
+    /**
+     * @return array
+     */
+    abstract protected function getRedirectUrl();
 
-		foreach ($this->proxyData as $name => $value) {
+    /**
+     * @return array
+     */
+    protected function getPaymentProviderFormElements()
+    {
+        $formElements = array();
 
-			$input = new HtmlTag('input');
+        foreach ($this->proxyData as $name => $value) {
 
-			$input->setAttribute('name', $name);
-			$input->setAttribute('value', $value);
+            $input = new HtmlTag('input');
 
-			if ($this->autosubmit) {
-				$input->setAttribute('type', 'hidden');
-			} else {
-				$input->setAttribute('type', 'text');
-			}
+            $input->setAttribute('name', $name);
+            $input->setAttribute('value', $value);
 
-			$formElements[] = $input;
-		}
+            if ($this->autosubmit) {
+                $input->setAttribute('type', 'hidden');
+            } else {
+                $input->setAttribute('type', 'text');
+            }
 
-		return $formElements;
-	}
+            $formElements[] = $input;
+        }
 
-	/**
-	 * Creates form to be submitted to payment provider.
-	 */
-	protected function submitFormToPaymentProvider()
-	{
-		$this->fireProxyEvent();
+        return $formElements;
+    }
 
-		$response = new TwigResponse($this);
+    /**
+     * Creates form to be submitted to payment provider.
+     */
+    protected function submitFormToPaymentProvider()
+    {
+        $this->fireProxyEvent();
 
-		$formElements = $this->getPaymentProviderFormElements();
+        $response = new TwigResponse($this);
 
-		$response->assign('formElements', $formElements);
+        $formElements = $this->getPaymentProviderFormElements();
 
-		$redirectUrl = $this->getRedirectUrl();
+        $response->assign('formElements', $formElements);
 
-		$response->assign('action', $redirectUrl);
-		$response->assign('method', $this->formMethod);
+        $redirectUrl = $this->getRedirectUrl();
 
-		$response->assign('autosubmit', $this->formAutosubmit);
+        $response->assign('action', $redirectUrl);
+        $response->assign('method', $this->formMethod);
 
-		$response->outputTemplate('proxyform.html.twig');
+        $response->assign('autosubmit', $this->formAutosubmit);
 
-		$response->getOutputString();
+        $response->outputTemplate('proxyform.html.twig');
 
-		$this->response = $response;
-	}
+        $response->getOutputString();
 
-	/**
-	 * Sends HTTP redirect header to client.
-	 */
-	protected function redirectToPaymentProvider()
-	{
-		$redirectUrl = $this->getRedirectUrl();
+        $this->response = $response;
+    }
 
-		$this->fireProxyEvent();
+    /**
+     * Sends HTTP redirect header to client.
+     */
+    protected function redirectToPaymentProvider()
+    {
+        $redirectUrl = $this->getRedirectUrl();
 
-		$this->response->header('Location', $redirectUrl);
-		$this->response->flush();
-	}
+        $this->fireProxyEvent();
+
+        $this->response->header('Location', $redirectUrl);
+        $this->response->flush();
+    }
+
 }

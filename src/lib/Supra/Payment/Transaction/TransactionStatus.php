@@ -18,6 +18,8 @@ class TransactionStatus
 
 	const PROVIDER_ERROR = 900;
 	const SYSTEM_ERROR = 910;
+        
+        const REFUNDED = 600;
 
 	static $knownStatuses = array(
 		self::INITIALIZED,
@@ -29,7 +31,8 @@ class TransactionStatus
 		self::SUCCESS,
 		self::FAILED,
 		self::PROVIDER_ERROR,
-		self::SYSTEM_ERROR
+		self::SYSTEM_ERROR,
+        self::REFUNDED
 	);
 
 	/**

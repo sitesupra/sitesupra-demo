@@ -3,6 +3,7 @@
 namespace Project\Payment\Transact\Action;
 
 use Project\Payment\Transact;
+use Project\Payment\Transact\Exception;
 use Supra\Payment\Action\CustomerReturnActionAbstraction;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\Transaction\TransactionProvider;
@@ -10,16 +11,16 @@ use Supra\Payment\Entity\Transaction\TransactionParameter;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Entity\Abstraction\PaymentEntity;
+use Supra\Payment\Entity\Abstraction\PaymentEntityParameter;
 use Supra\Payment\Entity\Order;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Order\RecurringOrderStatus;
 use Supra\Payment\PaymentEntityProvider;
 use Supra\Payment\Provider\Event\CustomerReturnEventArgs;
+use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Payment\Entity\Abstraction\PaymentEntityParameter;
-use Supra\Payment\Provider\PaymentProviderAbstraction;
 
 class CustomerReturnAction extends CustomerReturnActionAbstraction
 {
@@ -97,33 +98,12 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 
 		$paymentProvider = $this->getPaymentProvider();
 
-		$transactionStatus = $paymentProvider->getTransactionStatus($order);
-		$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $transactionStatus);
+		$transaction = $order->getTransaction();
 
-		if (empty($transactionStatus) || empty($transactionStatus['Status'])) {
-			throw new Exception\RuntimeException('Could not get transaction status.');
-		}
+		$transactionStatus = $paymentProvider->getTransactTransactionStatus($transaction);
+		$transaction->addToParameters(Transact\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $transactionStatus);
 
-		switch ($transactionStatus['Status']) {
-
-			case 'Success': {
-					$order->getTransaction()
-							->setStatus(TransactionStatus::SUCCESS);
-				} break;
-
-			case 'Failed': {
-					$order->getTransaction()
-							->setStatus(TransactionStatus::FAILED);
-				} break;
-
-			case 'Pending': {
-					throw new Exception\RuntimeException('Pending transaction handling not impleneted yet.');
-				} break;
-
-			default: {
-					throw new Exception\RuntimeException('Transaction status "' . $transactionStatus['Status'] . '" is not recognized.');
-				}
-		}
+		$paymentProvider->updateShopOrderStatus($order, $transactionStatus);
 
 		$orderProvider->store($order);
 
@@ -136,6 +116,22 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	protected function processRecurringOrder(Order\RecurringOrder $order)
 	{
 		$orderProvider = $this->getOrderProvider();
+
+		$paymentProvider = $this->getPaymentProvider();
+
+		$recurringPayment = $order->getRecurringPayment();
+
+		$lastTransaction = $recurringPayment->getLastTransaction();
+		$initialTransaction = $recurringPayment->getInitialTransaction();
+
+		if ($lastTransaction->getId() != $initialTransaction->getId()) {
+			throw new Exception\RuntimeException('Recurring payment transaction is not initial for this recurring .');
+		}
+
+		$transactionStatus = $paymentProvider->getTransactTransactionStatus($lastTransaction);
+		$lastTransaction->addToParameters(Transact\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $transactionStatus);
+
+		$paymentProvider->updateRecurringOrderStatus($order, $transactionStatus);
 
 		$orderProvider->store($order);
 

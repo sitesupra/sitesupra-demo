@@ -16,9 +16,13 @@ use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Response\HttpResponse;
 use Supra\Request\HttpRequest;
 use Supra\Payment\Action\ProxyActionAbstraction;
+use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
+use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
+use Project\Payment\Transact\Exception;
 
 class ProxyAction extends ProxyActionAbstraction
 {
+
 	const REQUEST_KEY_RETURN_FROM_FORM = 'returnFromForm';
 
 	/**
@@ -138,8 +142,6 @@ class ProxyAction extends ProxyActionAbstraction
 		// Intialize Transact transaction with supplied post data.
 		$initializationResult = $this->initializeTransaction($formData);
 
-		// Store initialization result into order's payment entities parameters.
-		$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_INITIALIZE_TRANSACTION, $initializationResult);
 		$orderProvider->store($order);
 
 		// If transaction initalization had errors, throw exception.
@@ -151,7 +153,8 @@ class ProxyAction extends ProxyActionAbstraction
 		if ($paymentProvider->getGatewayCollects()) {
 
 			// ... if so, redirect user to data entry URL provided by Transact.
-
+			// 
+			// Check for "RedirectOnsite" though...
 			if (empty($initializationResult['RedirectOnsite'])) {
 				$this->throwPaymentStartErrorException($order, 'Gateway collection mode enabled, but no RedirectOnsite not received.');
 			}
@@ -161,24 +164,25 @@ class ProxyAction extends ProxyActionAbstraction
 			$response->redirect($redirectUrl);
 		} else {
 
+			// ... otherwise perform charge.
+
 			$chargeResult = $this->chargeTransaction($formData);
 
-			$order->addToPaymentEntityParameters(Transact\PaymentProvider::PHASE_NAME_CHARGE_TRANSACTION, $chargeResult);
 			$orderProvider->store($order);
 
-			// If charge result has key "Redirect", it means card used was 
+			// If charge result has key "Redirect", card used was 
 			// 3D-enabled and we have to redirect user to 3D provider to 
 			// continue.
+
 			if ( ! empty($chargeResult['Redirect'])) {
 
 				$redirectUrl = trim($chargeResult['Redirect']);
 
 				$response->redirect($redirectUrl);
-			} else
+			} else if ( ! empty($chargeResult['Status'])) {
 
-			// If charge result has key "Status", it means card was not 
-			// 3D-enabled and we have transaction result right away.
-			if ( ! empty($chargeResult['Status'])) {
+				// If charge result has key "Status", it means card was not 
+				// 3D-enabled and we have transaction result right away.
 
 				switch ($chargeResult['Status']) {
 
@@ -194,14 +198,19 @@ class ProxyAction extends ProxyActionAbstraction
 							$this->onPending();
 						}break;
 				}
-			}
-			else {
-				//\Log::debug('FFFFFFFFFFFFFFFFFFFFAIL: ', $chargeResult);
+			} else {
+
+				// Otherwise something has gone terribly wrong.
+
 				$this->onFailure();
 			}
 		}
 	}
 
+	/**
+	 * @param array $formData
+	 * @return boolean 
+	 */
 	private function validateShopOrderFormData($formData)
 	{
 		$paymentProvider = $this->getPaymentProvider();
@@ -262,6 +271,93 @@ class ProxyAction extends ProxyActionAbstraction
 	}
 
 	/**
+	 * @param array $formData 
+	 * @return boolean
+	 */
+	protected function validateRecurringOrderFormData($formData)
+	{
+		return $this->validateShopOrderFormData($formData);
+	}
+
+	/**
+	 * @param array $formData 
+	 */
+	protected function processRecurringOrderFormData($formData)
+	{
+		$response = $this->getResponse();
+
+		$paymentProvider = $this->getPaymentProvider();
+		$orderProvider = $this->getOrderProvider();
+		$order = $this->getOrder();
+		/* @var $order Order\RecurringOrder */
+
+		// Mark order payment as started.
+		$order->setStatus(OrderStatus::PAYMENT_STARTED);
+
+		// Intialize Transact recurring payment with supplied post data.
+		$initializationResult = $paymentProvider->initializeRecurringPayment($order, $formData);
+
+		$orderProvider->store($order);
+
+		// If transaction initalization had errors, throw exception.
+		if ( ! empty($initializationResult['ERROR'])) {
+			$this->throwPaymentStartErrorException($order, 'Error initializing Transact transaction.');
+		}
+
+		// Check if account has "gateway collects" mode enabled...
+		if ($paymentProvider->getGatewayCollects()) {
+
+			// ... if so, redirect user to data entry URL provided by Transact.
+
+			if (empty($initializationResult['RedirectOnsite'])) {
+				$this->throwPaymentStartErrorException($order, 'Gateway collection mode is enabled, but no RedirectOnsite not received.');
+			}
+
+			$redirectUrl = $initializationResult['RedirectOnsite'];
+
+			$response->redirect($redirectUrl);
+		} else {
+
+			$chargeResult = $paymentProvider->chargeInitialRecurringTransaction($order, $formData);
+
+			$orderProvider->store($order);
+
+			// If charge result has key "Redirect", it means card used was 
+			// 3D-enabled and we have to redirect user to 3D provider to 
+			// continue.
+			if ( ! empty($chargeResult['Redirect'])) {
+
+				$redirectUrl = trim($chargeResult['Redirect']);
+
+				$response->redirect($redirectUrl);
+			} else
+
+			// If charge result has key "Status", it means card was not 
+			// 3D-enabled and we have transaction result right away.
+			if ( ! empty($chargeResult['Status'])) {
+
+				switch ($chargeResult['Status']) {
+
+					case 'success': {
+							$this->onSuccess();
+						} break;
+
+					case 'failed': {
+							$this->onFailure();
+						} break;
+
+					case 'pending': {
+							$this->onPending();
+						}break;
+				}
+			} else {
+				//\Log::debug('FFFFFFFFFFFFFFFFFFFFAIL: ', $chargeResult);
+				$this->onFailure();
+			}
+		}
+	}
+
+	/**
 	 * @param Order\Order $order
 	 * @param string $message 
 	 * @throws Exception\RuntimeException
@@ -287,6 +383,18 @@ class ProxyAction extends ProxyActionAbstraction
 		return $result;
 	}
 
+	protected function initializeRecurringPayment($postData)
+	{
+		$order = $this->getOrder();
+		/* @var $order Order\RecurringOrder  */
+
+		$paymentProvider = $this->getPaymentProvider();
+
+		$initializationResult = $paymentProvider->initializeRecurrentPayment($order, $postData);
+
+		return $initializationResult;
+	}
+
 	protected function chargeTransaction($postData)
 	{
 		$order = $this->getOrder();
@@ -310,7 +418,7 @@ class ProxyAction extends ProxyActionAbstraction
 		$paymentProvider = $this->getPaymentProvider();
 
 		$order = $this->getOrder();
-		/* @var $order Order\RecurringOrder*/
+		/* @var $order Order\RecurringOrder */
 
 		// Check if arrived here from shop or from data form.
 		if ( ! $request->getQuery()->has(self::REQUEST_KEY_RETURN_FROM_FORM)) {
@@ -381,15 +489,16 @@ class ProxyAction extends ProxyActionAbstraction
 			$transaction = $order->getTransaction();
 
 			$transaction->setStatus(TransactionStatus::FAILED);
-			
 		} else if ($order instanceof Order\RecurringOrder) {
 
-			throw new Exception\RuntimeException('Recurring order processing is not implemeted yet.');
+			$recurringPayment = $order->getRecurringPayment();
+
+			$recurringPayment->setStatus(RecurrintPaymentStatus::FAILED);
 		}
 
 		$orderProvider->store($order);
-		
-		$this->returnToPaymentInitiator($order->getInitiatorUrl());		
+
+		$this->returnToPaymentInitiator($order->getInitiatorUrl());
 	}
 
 	protected function onPending()
