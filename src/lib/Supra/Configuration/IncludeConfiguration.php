@@ -33,7 +33,7 @@ abstract class IncludeConfiguration implements ConfigurationInterface
 			}
 			
 			// If relative, add supra path as a base
-			if ($file[0] != '/' && $file[0] != DIRECTORY_SEPARATOR) {
+			if ($file[0] != '/' && strpos($file, ':') !== false) {
 				$file = SUPRA_PATH . $file;
 			}
 			
