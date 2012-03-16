@@ -28,7 +28,10 @@ Content-Type: multipart/alternative;
  boundary=\"_=_swift_v4_13318895154f63056b4e24d_=_\"
 X-SMTPAPI: {\"to\": [\"test user 1<test.sender@test.test>\", \"test user
  2<test.sender@test.test>\", \"test user 3<test.sender@test.test>\"],
- \"unique_args\": {\"campaignId\": \"CAMPAIGN_ID\"}}
+ \"unique_args\": {\"campaignId\": \"CAMPAIGN_ID\"}, \"sub\":
+ {\"%subscriberName%\": [\"test user 1\", \"test user 2\", \"test user 3\"],
+ \"%subscriberEmail%\": [\"test.user.sendGrid1@test.test\",
+ \"test.user.sendGrid2@test.test\", \"test.user.sendGrid3@test.test\"]}}
 
 
 --_=_swift_v4_13318895154f63056b4e24d_=_
@@ -254,7 +257,6 @@ Content-Transfer-Encoding: quoted-printable
 		$compareToMessage = $this->prepareSendGridExampleMessage($sentMessage);
 		
 		self::assertEquals($exampleMessage, $compareToMessage);
-		//aleksey.antipov+1@gmail.com
 	}
 	
 	public function testInActiveSubscriberSend()
