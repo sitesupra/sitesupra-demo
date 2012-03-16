@@ -34,8 +34,12 @@ class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 			$campaignId = $campaign->getId();
 			$campaignGroup[$campaignId]['campaignId'] = $campaignId;
 			$campaignGroup[$campaignId]['body'] = $campaign->getHtmlContent();
-			$campaignGroup[$campaignId]['subject'] = $campaign->getSubject();
-			$campaignGroup[$campaignId]['email'][$index] = $queueItem->getEmailTo();
+			$campaignGroup[$campaignId]['subject'] = addslashes($campaign->getSubject());
+			
+			$emailTo = addslashes($queueItem->getNameTo()) . '<' . $queueItem->getEmailFrom() . '>';
+			
+			$campaignGroup[$campaignId]['email'][$index] = $emailTo;
+			$campaignGroup[$campaignId]['name'][$index] = $queueItem->getNameTo();
 			$campaignGroup[$campaignId]['from'] = array('email' => $queueItem->getEmailFrom(),
 				'name' => $queueItem->getNameFrom());
 			$campaignGroup[$campaignId]['queueItemId'][$index] = $queueItem->getId();
@@ -59,6 +63,7 @@ class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 		try {
 
 			$sendGridHeader = new SmtpApiHeader();
+//			$sendGridHeader->addTo($messageData['name'] . ' <' . $messageData['email'] . '>');
 			$sendGridHeader->addTo($messageData['email']);
 			$sendGridHeader->setUniqueArgs(array('campaignId' => $messageData['campaignId']));
 
