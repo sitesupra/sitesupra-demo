@@ -36,7 +36,8 @@ class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 			$campaignGroup[$campaignId]['body'] = $campaign->getHtmlContent();
 			$campaignGroup[$campaignId]['subject'] = addslashes($campaign->getSubject());
 			
-			$emailTo = addslashes($queueItem->getNameTo()) . '<' . $queueItem->getEmailTo() . '>';
+			//$emailTo = addslashes($queueItem->getNameTo()) . ' <' . $queueItem->getEmailTo() . '>';
+			$emailTo = $queueItem->getEmailTo();
 			
 			$campaignGroup[$campaignId]['email'][$index] = $emailTo;
 			$campaignGroup[$campaignId]['name'][$index] = $queueItem->getNameTo();
