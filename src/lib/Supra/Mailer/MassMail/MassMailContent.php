@@ -33,7 +33,7 @@ class MassMailContent
 	 * @param Entity\Subscriber $subscriber
 	 * @return array
 	 */
-	protected function getCommonReplacementsValues(Entity\Subscriber $subscriber)
+	public function getCommonReplacementsValues(Entity\Subscriber $subscriber)
 	{
 		$replacements = array(
 			'%subscriberName%' => $subscriber->getName(),
@@ -41,7 +41,7 @@ class MassMailContent
 
 		return $replacements;
 	}
-
+	
 	/**
 	 * Prepare (make replacements) content
 	 * @param Entity\Subscriber $subscriber

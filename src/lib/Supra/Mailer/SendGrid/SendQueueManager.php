@@ -63,9 +63,12 @@ class SendQueueManager extends \Supra\Mailer\MassMail\Manager\SendQueueManager
 		try {
 
 			$sendGridHeader = new SmtpApiHeader();
-//			$sendGridHeader->addTo($messageData['name'] . ' <' . $messageData['email'] . '>');
 			$sendGridHeader->addTo($messageData['email']);
 			$sendGridHeader->setUniqueArgs(array('campaignId' => $messageData['campaignId']));
+			
+			foreach($messageData['replacements'] as $k => $v) {
+				$sendGridHeader->addSubVal($k, $v);
+			}
 
 			$mailer = ObjectRepository::getMailer($this);
 			$message = new \Supra\Mailer\Message\SimpleMessage();

@@ -154,7 +154,7 @@ class MassMail
 			$sendQueueItem->setNameFrom($campaign->getFromName());
 			$sendQueueItem->setReplyTo($campaign->getReplyTo());
 			$sendQueueItem->setCampaign($campaign);
-
+			$sendQueueItem->setTemplateVar($massMailContentHtml->getCommonReplacementsValues($subscriber));
 			$subject = $massMailContentSubject->getPreparedContent($subscriber);
 			$htmlContent = $massMailContentHtml->getPreparedContent($subscriber);
 			$textContent = $massMailContentText->getPreparedContent($subscriber);
