@@ -4,8 +4,8 @@ namespace Supra\Controller\Pages\Event;
 
 use Supra\Event\EventArgs;
 
-class BlockEventsArgs  extends EventArgs {
-	
+class BlockEventsArgs extends EventArgs
+{
 	/**
 	 * @var float
 	 */
@@ -26,4 +26,3 @@ class BlockEventsArgs  extends EventArgs {
 	 */
 	public $cached;
 }
-

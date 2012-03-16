@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Filter;
 
 use Supra\Editable\Filter\FilterInterface;
 use Supra\Controller\Pages\Entity\BlockProperty;
+use Twig_Markup;
 
 /**
  * Filters the value to enable Html editing for CMS
@@ -40,6 +41,8 @@ class EditableHtml extends ParsedHtmlFilter
 		$html .= $content;
 		$html .= '</div>';
 		
-		return $html;
+		$markup = new Twig_Markup($html);
+		
+		return $markup;
 	}
 }

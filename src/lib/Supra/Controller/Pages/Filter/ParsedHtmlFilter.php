@@ -11,6 +11,7 @@ use Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Markup;
 use Supra\FileStorage\Entity\Image;
+use Twig_Markup;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -79,7 +80,7 @@ class ParsedHtmlFilter implements FilterInterface
 		}
 
 		$html = $tag->toHtml();
-
+		
 		return $html;
 	}
 
@@ -215,7 +216,7 @@ class ParsedHtmlFilter implements FilterInterface
 
 	/**
 	 * @param string $content
-	 * @return string
+	 * @return Twig_Markup
 	 */
 	public function filter($content)
 	{
@@ -223,8 +224,9 @@ class ParsedHtmlFilter implements FilterInterface
 		$metadata = $this->property->getMetadata();
 
 		$filteredValue = $this->parseSupraMarkup($value, $metadata);
-
-		return $filteredValue;
+		$markup = new Twig_Markup($filteredValue);
+		
+		return $markup;
 	}
 
 }

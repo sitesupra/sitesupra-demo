@@ -52,9 +52,10 @@ class StreamWriter extends WriterAbstraction
 
 	/**
 	 * Get stream resource
+	 * @param LogEvent $event used if stream selction differs from event parameters
 	 * @return resource
 	 */
-	protected function getStream()
+	protected function getStream(LogEvent $event)
 	{
 		if (is_null($this->stream)) {
 
@@ -90,7 +91,7 @@ class StreamWriter extends WriterAbstraction
 	 */
 	protected function _write(LogEvent $event)
 	{
-		$stream = $this->getStream();
+		$stream = $this->getStream($event);
 		$message = $event->getMessage();
 
 		if ($this->coloredLogs) {

@@ -14,11 +14,20 @@ if (empty($auditLogDbConnectionOptions)) {
 	$auditLogDbConnectionOptions = $ini->getSection('database');
 }
 
-
 /*
- * Default log
+ * Default log, will use STDOUT and STDERR if run in interactive mode
  */
-$loggerClass = $ini->getValue('log', 'logger', 'Supra\Log\Writer\FileWriter');
+$loggerClass = null;
+$isInteractiveTerminal = defined('STDERR')
+		&& function_exists('posix_isatty')
+		&& @posix_isatty(STDERR);
+
+if ($isInteractiveTerminal) {
+	$loggerClass = 'Supra\Log\Writer\ConsoleWriter';
+} else {
+	$loggerClass = $ini->getValue('log', 'logger', 'Supra\Log\Writer\FileWriter');
+}
+
 $defaultWriter = Loader::getClassInstance($loggerClass, ObjectRepository::INTERFACE_LOGGER);
 $defaultWriter->setName('Supra7');
 
