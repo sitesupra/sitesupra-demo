@@ -277,7 +277,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
         // then we have to reindex children too.
         if (
                 (
-                ($localization->isActive() != $previousLocalization->isActive() ) ||
+                empty($previousLocalization) ||
+                ($localization->isActive() != $previousLocalization->isActive()) ||
                 ($localizationMoved) ||
                 empty($currentIndexedDocument) ||
                 ($currentIndexedDocument->revisionId != $previousLocalization->getRevisionId())

@@ -20,230 +20,248 @@ use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
 abstract class PaymentProviderAbstraction
 {
-	const EVENT_PROXY = 'proxy';
-	const EVENT_CUSTOMER_RETURN = 'customerReturnAction';
-	const EVENT_PROVIDER_NOTIFICATION = 'providerNotificationAction';
 
-	const PROXY_URL_POSTFIX = 'proxy';
-	const PROVIDER_NOTIFICATION_URL_POSTFIX = 'notification';
-	const CUSTOMER_RETURN_URL_POSTFIX = 'return';
+    const EVENT_PROXY = 'proxy';
+    const EVENT_CUSTOMER_RETURN = 'customerReturnAction';
+    const EVENT_PROVIDER_NOTIFICATION = 'providerNotificationAction';
+    const PROXY_URL_POSTFIX = 'proxy';
+    const PROVIDER_NOTIFICATION_URL_POSTFIX = 'notification';
+    const CUSTOMER_RETURN_URL_POSTFIX = 'return';
+    const REQUEST_KEY_SHOP_ORDER_ID = 'shopo';
+    const REQUEST_KEY_ORDER_ID = 'o';
+    const REQUEST_KEY_RECURRING_ORDER_ID = 'recurro';
 
-	const REQUEST_KEY_SHOP_ORDER_ID = 'shopo';
-	const REQUEST_KEY_ORDER_ID = 'o';
-	const REQUEST_KEY_RECURRING_ORDER_ID = 'recurro';
-	
-	/**
-	 * @var string
-	 */
-	protected $id;
+    /**
+     * @var string
+     */
+    protected $id;
 
-	/**
-	 * @var string;
-	 */
-	protected $baseUrl;
+    /**
+     * @var string;
+     */
+    protected $baseUrl;
 
-	/**
-	 * @var EntityManager
-	 */
-	protected $em;
+    /**
+     * @var EntityManager
+     */
+    protected $em;
 
-	/**
-	 * @return string
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
-	/**
-	 * @param string $id 
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
+    /**
+     * @param string $id 
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
-	/**
-	 * @return EntityManager
-	 */
-	public function getEntityManager()
-	{
-		if (empty($this->em)) {
-			$this->em = ObjectRepository::getEntityManager($this);
-		}
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        if (empty($this->em)) {
+            $this->em = ObjectRepository::getEntityManager($this);
+        }
 
-		return $this->em;
-	}
+        return $this->em;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getBaseUrl()
-	{
-		return $this->baseUrl;
-	}
+    /**
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
+    }
 
-	/**
-	 * @param string $baseUrl 
-	 */
-	public function setBaseUrl($baseUrl)
-	{
-		$this->baseUrl = $baseUrl;
-	}
+    /**
+     * @param string $baseUrl 
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+    }
 
-	/**
-	 * @param array $queryData
-	 * @return string
-	 */
-	public function getProxyActionUrl($queryData)
-	{
-		$queryString = http_build_query($queryData);
+    /**
+     * @param array $queryData
+     * @return string
+     */
+    public function getProxyActionUrl($queryData)
+    {
+        $queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::PROXY_URL_POSTFIX . '?' . $queryString;
-	}
+        return $this->getBaseUrl() . '/' . self::PROXY_URL_POSTFIX . '?' . $queryString;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getCustomerReturnActionUrl($queryData)
-	{
-		$queryString = http_build_query($queryData);
+    /**
+     * @return string
+     */
+    public function getCustomerReturnActionUrl($queryData)
+    {
+        $queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX . '?' . $queryString;
-	}
+        return $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX . '?' . $queryString;
+    }
 
-	/**
-	 * @return string
-	 */
-	public function getProviderNotificationActionUrl($queryData)
-	{
-		$queryString = http_build_query($queryData);
+    /**
+     * @return string
+     */
+    public function getProviderNotificationActionUrl($queryData)
+    {
+        $queryString = http_build_query($queryData);
 
-		return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $queryString;
-	}
+        return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $queryString;
+    }
 
-	/**
-	 * @return Transaction 
-	 */
-	protected function createShopOrderTransaction(ShopOrder $order)
-	{
-		$transaction = new Transaction();
+    /**
+     * @return Transaction 
+     */
+    protected function createShopOrderTransaction(ShopOrder $order)
+    {
+        $transaction = new Transaction();
 
-		$transaction->setPaymentProviderId($this->getId());
+        $transaction->setPaymentProviderId($this->getId());
 
-		$transaction->setUserId($order->getUserId());
-		$transaction->setCurrencyId($order->getCurrency()->getId());
-		$transaction->setStatus(TransactionStatus::STARTED);
+        $transaction->setUserId($order->getUserId());
+        $transaction->setCurrencyId($order->getCurrency()->getId());
+        $transaction->setStatus(TransactionStatus::STARTED);
 
-		$transaction->setAmount($order->getTotal());
+        $transaction->setAmount($order->getTotal());
 
-		return $transaction;
-	}
+        return $transaction;
+    }
 
-	/**
-	 * @param RecurringOrder $order
-	 * @return RecurringPayment 
-	 */
-	protected function createRecurringOrderRecurringPayment(RecurringOrder $order)
-	{
-		$recurringPayment = new RecurringPayment();
+    /**
+     * @param RecurringOrder $order
+     * @return RecurringPayment 
+     */
+    protected function createRecurringOrderRecurringPayment(RecurringOrder $order)
+    {
+        $recurringPayment = new RecurringPayment();
 
-		$recurringPayment->setPaymentProviderId($this->getId());
-		$recurringPayment->setAmount($order->getTotal());
-		$recurringPayment->setUserId($order->getUserId());
-		$recurringPayment->setCurrencyId($order->getCurrency()->getId());
+        $recurringPayment->setPaymentProviderId($this->getId());
+        $recurringPayment->setAmount($order->getTotal());
+        $recurringPayment->setUserId($order->getUserId());
+        $recurringPayment->setCurrencyId($order->getCurrency()->getId());
 
-		$recurringPayment->setStatus(RecurringPaymentStatus::REQUESTED);
+        $recurringPayment->setStatus(RecurringPaymentStatus::REQUESTED);
 
-		return $recurringPayment;
-	}
+        return $recurringPayment;
+    }
 
-	/**
-	 * @param ShopOrder $order 
-	 */
-	public function validateShopOrder(ShopOrder $order)
-	{
-		return true;
-	}
+    /**
+     * @param ShopOrder $order 
+     */
+    public function validateShopOrder(ShopOrder $order)
+    {
+        return true;
+    }
 
-	/**
-	 * @param RecurringOrder $order 
-	 */
-	public function validateRecurringOrder(RecurringOrder $order)
-	{
-		return true;
-	}
+    /**
+     * @param RecurringOrder $order 
+     */
+    public function validateRecurringOrder(RecurringOrder $order)
+    {
+        return true;
+    }
 
-	/**
-	 * @param Order $order
-	 * @return float
-	 */
-	protected function finalizeShopOrder(ShopOrder $order)
-	{
-		$order->setStatus(OrderStatus::FINALIZED);
-	}
+    /**
+     * @param Order $order
+     * @return float
+     */
+    protected function finalizeShopOrder(ShopOrder $order)
+    {
+        $order->setStatus(OrderStatus::FINALIZED);
+    }
 
-	protected function finalizeRecurringOrder(RecurringOrder $order)
-	{
-		$order->setStatus(OrderStatus::FINALIZED);
-	}
+    protected function finalizeRecurringOrder(RecurringOrder $order)
+    {
+        $order->setStatus(OrderStatus::FINALIZED);
+    }
 
-	/**
-	 * @param Order $order 
-	 */
-	public function updateShopOrder(ShopOrder $order)
-	{
-		
-	}
+    /**
+     * @param Order $order 
+     */
+    public function updateShopOrder(ShopOrder $order)
+    {
+        
+    }
 
-	/**
-	 * @param array $queryData
-	 * @param ResponseInterface $response
-	 */
-	protected function redirectToProxy($queryData, ResponseInterface $response)
-	{
-		$proxyUrl = $this->getProxyActionUrl($queryData);
+    /**
+     * @param array $queryData
+     * @param ResponseInterface $response
+     */
+    protected function redirectToProxy($queryData, ResponseInterface $response)
+    {
+        $proxyUrl = $this->getProxyActionUrl($queryData);
 
-		if ($response instanceof TwigResponse) {
-			$response->redirect($proxyUrl);
-			$response->flush();
-		} else {
-			throw new Exception\RuntimeException('Do not know how to do redirect with response type "' . get_class($response) . '".');
-		}
-	}
+        if ($response instanceof TwigResponse) {
+            $response->redirect($proxyUrl);
+            $response->flush();
+        } else {
+            throw new Exception\RuntimeException('Do not know how to do redirect with response type "' . get_class($response) . '".');
+        }
+    }
 
-	/**
-	 * @param ShopOrder $order
-	 * @param ResponseInterface $response 
-	 */
-	public function  processShopOrder(ShopOrder $order, ResponseInterface $response)
-	{
-		$transaction = $this->createShopOrderTransaction($order);
-		$order->setTransaction($transaction);
+    /**
+     * @param ShopOrder $order
+     * @param ResponseInterface $response 
+     */
+    public function processShopOrder(ShopOrder $order, ResponseInterface $response)
+    {
+        $transaction = $this->createShopOrderTransaction($order);
 
-		$this->finalizeShopOrder($order);
-	}
+        $em = $this->getEntityManager();
 
-	/**
-	 * @param RecurringOrder $order
-	 * @param ResponseInterface $response 
-	 */
-	public function processRecurringOrder(RecurringOrder $order, ResponseInterface $response)
-	{
-		$recurringPayment = $this->createRecurringOrderRecurringPayment($order);
-		$order->setRecurringPayment($recurringPayment);
+        $em->persist($transaction);
+        $em->flush();
 
-		$this->finalizeRecurringOrder($order);
-	}
+        $order->setTransaction($transaction);
 
-	abstract function getOrderItemDescription(Order $order, Locale $locale);
+        $this->finalizeShopOrder($order);
+    }
 
-	/**
-	 * @return string
-	 */
-	public static function CN()
-	{
-		return get_called_class();
-	}
+    /**
+     * @param RecurringOrder $order
+     * @param ResponseInterface $response 
+     */
+    public function processRecurringOrder(RecurringOrder $order, ResponseInterface $response)
+    {
+        $recurringPayment = $this->createRecurringOrderRecurringPayment($order);
+        $order->setRecurringPayment($recurringPayment);
+
+        $this->finalizeRecurringOrder($order);
+    }
+
+    /**
+     * @param RecurringOrder $order
+     * @param float $newAmount
+     * @param string $newDescription
+     * @throws Exception\RuntimeException 
+     */
+    public function initializeRecurringTransaction(RecurringOrder $order, $newAmount = null, $newDescription = null)
+    {
+        throw new Exception\RuntimeException('Recurring payment transactions not implemented.');
+    }
+
+    abstract function getOrderItemDescription(Order $order, Locale $locale);
+
+    /**
+     * @return string
+     */
+    public static
+
+    function CN()
+    {
+        return get_called_class();
+    }
 
 }
