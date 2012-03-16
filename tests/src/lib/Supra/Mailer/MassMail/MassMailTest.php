@@ -17,6 +17,31 @@ require_once dirname(__FILE__) . '/../../../../../../src/lib/Supra/Mailer/MassMa
  */
 class MassMailTest extends \PHPUnit_Framework_TestCase
 {
+	
+	const SEND_GRID_TEST_MESSAGE = "Message-ID: <1331889515.4f63056b4ab14@swift.generated>
+Date: Fri, 16 Mar 2012 11:18:35 +0200
+Subject: test campaign
+From: test sender <test.sender@test.test>
+To: example@example.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary=\"_=_swift_v4_13318895154f63056b4e24d_=_\"
+X-SMTPAPI: {\"to\": [\"test.user.sendGrid1@test.test\",
+ \"test.user.sendGrid2@test.test\", \"test.user.sendGrid3@test.test\"],
+ \"unique_args\": {\"campaignId\": \"CAMPAIGN_ID\"}}
+
+
+--_=_swift_v4_13318895154f63056b4e24d_=_
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<h1>Test content</h1>
+
+--_=_swift_v4_13318895154f63056b4e24d_=_--
+";
+	
+	
+	
 	const EMAIL_FROM_ADDRESS = 'test.from.address@email.vig';
 	const EMAIL_FROM_NAME = 'Test from name';
 	const REPLY_TO = 'reply.to@email.vig';
@@ -208,6 +233,8 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 
 		$massMail->getSendQueueManager()->send();
 
+		$campaignId = $campaign->getId();
+		
 		//Drop test data
 		$massMail->getCampaignManager()->dropCampaign($campaign);
 		$massMail->flush();
@@ -218,6 +245,16 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		}
 		
 		$massMail->flush();
+		
+		$mailer = ObjectRepository::getMailer($this);
+		self::assertEquals(1, count($mailer->receavedMessage));
+		$sentMessage = $mailer->receavedMessage[0]->toString();
+		
+		$exampleMessage = $this->prepareSendGridExampleMessage(self::SEND_GRID_TEST_MESSAGE, $campaignId);
+		$compareToMessage = $this->prepareSendGridExampleMessage($sentMessage);
+		
+		self::assertEquals($exampleMessage, $compareToMessage);
+		
 	}
 	
 	public function testInActiveSubscriberSend()
@@ -556,6 +593,25 @@ class MassMailTest extends \PHPUnit_Framework_TestCase
 		return $campaign;
 	}
 
+	
+	private function prepareSendGridExampleMessage($message, $campaignId = null){
+		
+		$replacement = "********************";
+		$message = preg_replace("/\r\n\/", "\n", $message);
+		$message = preg_replace('/Message\-ID\: \<([A-Za-z0-9\@\.]{1,})\>/', $replacement, $message);
+		$message = preg_replace('/Date:([A-Za-z0-9\ \-\+\,\.\:]{1,})/', $replacement, $message);
+		$message = preg_replace('/_=_([A-Za-z0-9_]{1,})_=_/', $replacement, $message);
+		
+		
+		if( ! empty($campaignId)) {
+			$message = preg_replace('/CAMPAIGN_ID/', $campaignId, $message);		
+		}
+		
+		return $message;
+		
+	}
+	
+	
 }
 
 ?>
