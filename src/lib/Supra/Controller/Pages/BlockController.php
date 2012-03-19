@@ -14,6 +14,8 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Loader;
+use Supra\Response\TwigResponse;
+use Supra\Controller\Pages\Request\PageRequestView;
 
 /**
  * Block controller abstraction
@@ -161,14 +163,14 @@ abstract class BlockController extends ControllerAbstraction
 			/* @var $propertyCheck BlockProperty */
 			/* @var $property BlockProperty */
 			if ($propertyCheck->getName() === $name) {
-				
+
 				$property = $propertyCheck;
-				
+
 				if ($propertyCheck->getType() !== $expectedType) {
 					$property->setEditable($editable);
 					$property->setValue($editable->getDefaultValue());
 				}
-				
+
 				break;
 			}
 		}
@@ -177,7 +179,7 @@ abstract class BlockController extends ControllerAbstraction
 		 * Must create new property here
 		 */
 		if (empty($property)) {
-			
+
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
 
@@ -192,7 +194,7 @@ abstract class BlockController extends ControllerAbstraction
 //			//TODO: should we overwrite editable content parameters from the block controller config?
 //			$property->setEditable($editable);
 //		}
-		
+
 		$editable = $property->getEditable();
 
 		//TODO: do this some way better..
@@ -222,8 +224,7 @@ abstract class BlockController extends ControllerAbstraction
 				$filter->property = $property;
 				$editable->addFilter($filter);
 				// View
-			}
-			else {
+			} else {
 				$filter = new Filter\ParsedHtmlFilter();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
@@ -237,7 +238,7 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		if ($editable instanceof \Supra\Editable\InlineString) {
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 				$filter = new Filter\EditableString();
@@ -322,10 +323,41 @@ abstract class BlockController extends ControllerAbstraction
 	static function createController()
 	{
 		$className = self::CN();
-		
+
 		$controller = Loader\Loader::getClassInstance($className, 'Supra\Controller\Pages\BlockController');
-		
+
 		return $controller;
+	}
+
+	protected function getExceptionResponseTemplate()
+	{
+		return 'template/block-exception.html.twig';
+	}
+
+	public function exceptionResponse(Entity\Abstraction\Block $block)
+	{
+		$request = $this->getRequest();
+
+		if ($request instanceof PageRequestView) {
+			return;
+		}
+
+		$response = $this->getResponse();
+
+		$blockControllerCollection = BlockControllerCollection::getInstance();
+
+		$configuration = $blockControllerCollection->getBlockConfiguration($block->getComponentName());
+
+		if ($response instanceof TwigResponse) {
+
+			$response->cleanOutput();
+
+			$response->setLoaderContext(null);
+
+			$response->assign('blockName', $configuration->title);
+
+			$response->outputTemplate($this->getExceptionResponseTemplate());
+		}
 	}
 
 }
