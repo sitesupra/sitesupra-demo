@@ -7,9 +7,9 @@ use Supra\Authentication\Adapter;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\AuthenticationFailure;
 
-
 interface UserProviderInterface
 {
+
 	/**
 	 * Passes user to authentication adapter
 	 * @param string $login 
@@ -18,14 +18,14 @@ interface UserProviderInterface
 	 * @throws AuthenticationFailure
 	 */
 	public function authenticate($login, AuthenticationPassword $password);
-	
+
 	/**
 	 * Find user by login
 	 * @param string $login
 	 * @return Entity\User 
 	 */
 	public function findUserByLogin($login);
-	
+
 	/**
 	 * Find user by email
 	 * @param string $email
@@ -39,7 +39,7 @@ interface UserProviderInterface
 	 * @return Entity\User 
 	 */
 	public function findUserById($id);
-	
+
 	/**
 	 * Find user by name
 	 * @param string $id
@@ -60,7 +60,7 @@ interface UserProviderInterface
 	 * @return Entity\Group
 	 */
 	public function findGroupById($id);
-	
+
 	/**
 	 * Find all users
 	 * @return array
@@ -79,31 +79,31 @@ interface UserProviderInterface
 	 * @return array
 	 */
 	public function getAllUsersInGroup(Entity\Group $group);
-	
+
 	/**
 	 * Create and return new user
 	 * @return Entity\User
 	 */
 	public function createUser();
-	
+
 	/**
 	 * Create and return new group
 	 * @return Entity\Group
 	 */
 	public function createGroup();
-	
+
 	/**
 	 * Remove user
 	 * @param Entity\User $user
 	 */
 	public function doDeleteUser(Entity\User $user);
-	
+
 	/**
 	 * Update/store user property changes
 	 * @param Entity\User $user
 	 */
 	public function updateUser(Entity\User $user);
-	
+
 	/**
 	 * Update/store group property changes
 	 * @param Entity\Group $group
@@ -116,6 +116,7 @@ interface UserProviderInterface
 	 * @param AuthenticationPassword $password
 	 */
 	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null);
-	
-	
+
+	public function canUpdate();
+	public function canCreate();
 }

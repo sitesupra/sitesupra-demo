@@ -19,25 +19,25 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	/**
 	 * Event names
 	 */
+
 	const EVENT_PRE_SIGN_IN = 'preSignIn';
 	const EVENT_POST_SIGN_IN = 'postSignIn';
 	const EVENT_PRE_SIGN_OUT = 'preSignOut';
 	const EVENT_POST_SIGN_OUT = 'postSignOut';
-	
 	const EVENT_POST_USER_CREATE = 'postUserCreate';
-	
+
 	/**
 	 * Validation filters
 	 * @var array 
 	 */
-	private $validationFilters = array();
-	
+	private $validatioFilters = array();
+
 	/**
 	 * Authentication adapter
 	 * @var Adapter\AuthenticationAdapterInterface
 	 */
 	protected $authAdapter;
-	
+
 	/**
 	 * Entity manager
 	 * @var EntityManager 
@@ -51,7 +51,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		return ObjectRepository::getEntityManager($this);
 	}
-	
+
 	/**
 	 * Adds validation filter to array
 	 * @param Validation\UserValidationInterface $validationFilter 
@@ -92,17 +92,17 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		ObjectRepository::setCallerParent($authAdapter, $this);
 		$this->authAdapter = $authAdapter;
 	}
-	
+
 	/**
 	 * @return SessionManager
 	 */
 	public function getSessionManager()
 	{
 		$manager = ObjectRepository::getSessionManager($this);
-		
+
 		return $manager;
 	}
-	
+
 	/**
 	 * @return AuthenticationSessionNamespace
 	 */
@@ -110,10 +110,10 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$session = $this->getSessionManager()
 				->getAuthenticationSpace();
-		
+
 		return $session;
 	}
-	
+
 	/**
 	 * API method
 	 * @param string $login
@@ -125,7 +125,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		return $user;
 	}
-	
+
 	/**
 	 * Inner authentication method
 	 * @param string $login
@@ -146,7 +146,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		return $user;
 	}
-	
+
 	/**
 	 * TODO: throw exception on failure
 	 * @return Entity\User
@@ -155,43 +155,43 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$sessionManager = $this->getSessionManager();
 		$session = $this->getSessionSpace();
-		
+
 		if ( ! $updateSessionTime) {
 			$sessionManager->getHandler()
 					->setSilentAccess(true);
 		}
-		
+
 		$user = $session->getUser();
 		if ( ! ($user instanceof Entity\User)) {
 			return null;
 		}
-		
+
 		$sessionId = $sessionManager->getHandler()->getSessionId();
-		
+
 		$entityManager = $this->getEntityManager();
 		$userSession = $entityManager->find(Entity\UserSession::CN(), $sessionId);
-		
+
 		if ( ! $userSession instanceof Entity\UserSession) {
 			return null;
 		}
-		
+
 		$sessionUser = $userSession->getUser();
 		if ( ! ($sessionUser instanceof Entity\User)
 				|| $sessionUser->getId() != $user->getId()) {
-			
+
 			return null;
 		}
-		
-	
+
+
 		// Update the last access time
 		if ($updateSessionTime) {
 			$userSession->setModificationTime();
 			$entityManager->flush();
 		}
-		
+
 		return $user;
 	}
-	
+
 	/**
 	 * Saves the user in the session storage
 	 * @param Entity\User $user
@@ -199,35 +199,35 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	public function signIn(Entity\User $user)
 	{
 		$entityManager = $this->getEntityManager();
-		
+
 		// Trigger pre sign in listener
 		$eventArgs = new Event\UserEventArgs();
 		$eventArgs->entityManager = $entityManager;
 		$eventArgs->user = $user;
-		
+
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(self::EVENT_PRE_SIGN_IN, $eventArgs);
-		
+
 		// Create session record
 		$sessionEntity = new Entity\UserSession();
 		$sessionEntity->setUser($user);
 		$entityManager->persist($sessionEntity);
 		$sessionId = $sessionEntity->getId();
-		
+
 		// Set entity generated session ID
 		$sessionManager = $this->getSessionManager();
 		$sessionManager->changeSessionId($sessionId);
-		
+
 		// Store user inside session storage
 		$session = $this->getSessionSpace();
 		$session->setUser($user);
-		
+
 		$entityManager->flush();
-		
+
 		// Trigger post sign in listener
 		$eventManager->fire(self::EVENT_POST_SIGN_IN, $eventArgs);
 	}
-	
+
 	/**
 	 * Removes the user from the session storage
 	 */
@@ -236,32 +236,32 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$entityManager = $this->getEntityManager();
 		$session = $this->getSessionSpace();
 		$user = $session->getUser();
-		
+
 		// Remove the user from the session storage
 		$session->removeUser();
-		
+
 		// Trigger pre sign out listeners
 		$eventArgs = new Event\UserEventArgs();
 		$eventArgs->entityManager = $entityManager;
 		$eventArgs->user = $user;
-		
+
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(self::EVENT_PRE_SIGN_OUT, $eventArgs);
-		
+
 		// Find and remove user session from the database
 		$sessionManager = $this->getSessionManager();
 		$sessionId = $sessionManager->getHandler()->getSessionId();
 		$sessionEntity = $entityManager->find(Entity\UserSession::CN(), $sessionId);
-		
+
 		if ($sessionEntity instanceof Entity\UserSession) {
 			$entityManager->remove($sessionEntity);
 			$entityManager->flush();
 		}
-		
+
 		// Trigger post sign out listeners
 		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);
 	}
-	
+
 	/**
 	 * Remove user
 	 * @param Entity\User $user
@@ -271,7 +271,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$this->deleteUserSession($user);
 		$this->doDeleteUser($user);
 	}
-	
+
 	/**
 	 * Remove all user sessions
 	 * @param Entity\User $user
@@ -279,15 +279,15 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	protected function deleteUserSession($user)
 	{
 		$userId = $user->getId();
-		
+
 		$em = $this->getEntityManager();
-		
+
 		$qb = $em->createQueryBuilder();
-		
+
 		$qb->delete(Entity\UserSession::CN(), 'us')
-			->where('us.user = :userId')
-			->setParameter('userId', $userId)
-			->getQuery()->execute();
+				->where('us.user = :userId')
+				->setParameter('userId', $userId)
+				->getQuery()->execute();
 	}
 
 	/**
@@ -299,7 +299,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$this->authAdapter->credentialChange($user, $password);
 	}
-	
+
 	/**
 	 * Generates hash for password recovery
 	 * @param Entity\User $user 
@@ -321,7 +321,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		return $hash;
 	}
-	
+
 	/**
 	 * Wrapper around doInsertUser method, which stores newly created user
 	 * and fires "user-post-create-event"
@@ -330,14 +330,14 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	final public function insertUser(Entity\User $user)
 	{
 		$this->doInsertUser($user);
-		
+
 		$eventManager = ObjectRepository::getEventManager($this);
-		
+
 		$eventArgs = new UserCreateEventArgs($user);
 		$eventArgs->setUserProvider($this);
 		$eventManager->fire(self::EVENT_POST_USER_CREATE, $eventArgs);
 	}
-	
+
 	/**
 	 * Store newly created group
 	 * @param Entity\Group $group
@@ -345,20 +345,31 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	final public function insertGroup(Entity\Group $group)
 	{
 		$this->doInsertGroup($group);
-		
+
 		// TODO: similar to insertUser(), this method also could fire event, 
 		// related with new group creation
 	}
-	
+
 	/**
 	 * Insert newly created user
 	 * @param Entity\User $user
 	 */
 	abstract protected function doInsertUser(Entity\User $user);
-	
+
 	/**
 	 * Insert newly created group
 	 * @param Entity\Group $group
 	 */
 	abstract protected function doInsertGroup(Entity\Group $group);
+
+	public function canUpdate()
+	{
+		return true;
+	}
+
+	public function canCreate()
+	{
+		return true;
+	}
+
 }

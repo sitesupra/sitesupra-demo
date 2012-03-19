@@ -95,21 +95,6 @@ class RemoteUserProvider extends UserProviderAbstract
 		return $this->findUserByCriteria(array('field' => 'group', 'value' => $group->getId()));
 	}
 
-	public function loadUserByUsername($username)
-	{
-		return $this->findUserByLogin($username);
-	}
-
-	public function refreshUser(UserInterface $user)
-	{
-		throw new \Exception('Not implemented');
-	}
-
-	public function supportsClass($class)
-	{
-		throw new \Exception('Not implemented');
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -125,7 +110,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	{
 		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -133,7 +118,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	{
 		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -141,7 +126,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	{
 		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -209,7 +194,7 @@ class RemoteUserProvider extends UserProviderAbstract
 
 					return;
 				}
-				
+
 				break;
 
 			case Entity\Group::CN():
@@ -224,7 +209,7 @@ class RemoteUserProvider extends UserProviderAbstract
 					if ( ! empty($response['error'])) {
 						$message .= $response['error'];
 					}
-					
+
 					$logger->error($message, $searchCriteria);
 
 					return;
@@ -272,5 +257,14 @@ class RemoteUserProvider extends UserProviderAbstract
 		$this->siteKey = $siteKey;
 	}
 
+	public function canUpdate()
+	{
+		return false;
+	}
+
+	public function canCreate()
+	{
+		return true;
+	}
 
 }

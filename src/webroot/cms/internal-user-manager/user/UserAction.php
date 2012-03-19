@@ -23,6 +23,7 @@ use Supra\Cms\CmsController;
 
 class UserAction extends InternalUserManagerAbstractAction
 {
+
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat userAction() as a constructor
 	 */
@@ -57,6 +58,8 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		$response = $this->getUserResponseArray($user);
 		$response['permissions'] = $this->getApplicationPermissionsResponseArray($user);
+
+		$response['canUpdate'] = $this->userProvider->canUpdate();
 
 		$this->getResponse()->setResponseData($response);
 	}
@@ -98,7 +101,7 @@ class UserAction extends InternalUserManagerAbstractAction
 		//$entityManager = ObjectRepository::getEntityManager($this->userProvider);
 		//$entityManager->remove($user);
 		//$entityManager->flush();
-		
+
 		$this->userProvider
 				->deleteUser($user);
 
@@ -180,7 +183,7 @@ class UserAction extends InternalUserManagerAbstractAction
 
 				$basePath = $this->getAvatarsPath();
 				$userId = $user->getId();
-				
+
 				// Moving from the temporary path
 				if ($userId != $avatar) {
 					$result = false;
@@ -209,12 +212,12 @@ class UserAction extends InternalUserManagerAbstractAction
 			//FIXME: don't pass original message!
 			throw new CmsException(null, "Not valid input: {$exc->getMessage()}");
 		}
-		
+
 		$this->userProvider->credentialChange($user);
 		$this->userProvider->insertUser($user);
-		
+
 		$this->writeAuditLog("User '" . $user->getName() . "' created");
-		
+
 		$this->getResponse()->setResponseData(array('user_id' => $user->getId()));
 	}
 

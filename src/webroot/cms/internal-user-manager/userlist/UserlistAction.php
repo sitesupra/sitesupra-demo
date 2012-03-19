@@ -78,6 +78,8 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 		}
 
+		//$result['canInsert'] = true;
+		
 		$this->getResponse()->setResponseData($result);
 	}
 	
