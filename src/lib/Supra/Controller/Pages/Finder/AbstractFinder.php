@@ -28,8 +28,9 @@ abstract class AbstractFinder
 	
 	public function getResult()
 	{
-		return $this->getQueryBuilder()
-				->getQuery()
-				->getResult();
+		$query = $this->getQueryBuilder()
+				->getQuery();
+		
+		return $query->getResult();
 	}
 }

@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Finder;
 
 use Supra\Controller\Pages\Entity;
+use Supra\Locale\Locale;
 
 /**
  * LocalizationFinder
@@ -20,6 +21,9 @@ class LocalizationFinder extends AbstractFinder
 	
 	private $visibleInSitemap = false;
 	
+	/**
+	 * @var string
+	 */
 	private $locale;
 	
 	/**
@@ -28,6 +32,8 @@ class LocalizationFinder extends AbstractFinder
 	public function __construct(PageFinder $pageFinder)
 	{
 		$this->pageFinder = $pageFinder;
+		
+		parent::__construct($pageFinder->getEntityManager());
 	}
 	
 	/**
@@ -72,7 +78,7 @@ class LocalizationFinder extends AbstractFinder
 		$this->public = $public;
 		
 		if ($public) {
-			$this->setActive(true);
+			$this->isActive(true);
 		}
 	}
 	

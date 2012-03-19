@@ -64,11 +64,11 @@ class PageFinder extends AbstractFinder
 	public function addLevelFilter($min = 0, $max = null)
 	{
 		$this->getSearchCondition()
-				->levelGreaterThan($min);
+				->levelGreaterThanOrEqualsTo($min);
 		
 		if ( ! is_null($max)) {
 			$this->getSearchCondition()
-				->levelLessThan($max);
+				->levelLessThanOrEqualsTo($max);
 		}
 	}
 	

@@ -5,6 +5,8 @@ namespace Project\Blocks\Sitemap;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Repository;
+use Supra\Controller\Pages\Finder\PageFinder;
+use Supra\Controller\Pages\Finder\LocalizationFinder;
 
 /**
  * SitemapBlock
@@ -20,83 +22,37 @@ class SitemapBlock extends LinksBlock
 	{
 		$response = $this->getResponse();
 		$em = ObjectRepository::getEntityManager($this);
-		$pageRepo = $em->getRepository(Entity\Page::CN());
 		$locale = $this->getRequest()->getLocale();
 		/* @var $pageRepo Repository\PageRepository */
 		
-		$rootPages = $pageRepo->getRootNodes();
-		$rootPage = $rootPages[0];
-		
-		if ( ! $rootPage instanceof Entity\Page) {
-			$this->log->warn("No root page found in sitemap");
-			return;
-		}
-		
 		$localizations = array();
 		
-		// This called 2 queries
-//		$children = $rootPage->getDescendants(5, false);
-//		$localizations = array();
-//
-//		$ids = \Supra\Database\Entity::collectIds($children);
-//
-//		$localizations = $em->getRepository(Entity\PageLocalization::CN())
-//				->findBy(array('master' => $ids, 'locale' => $locale));
-//
-//		$map = array_fill_keys($ids, null);
-//
-//		foreach ($localizations as $localization) {
-//			$masterId = $localization->getMaster()->getId();
-//			$map[$masterId] = $localization;
+		$pageFinder = new PageFinder($em);
+		$pageFinder->addLevelFilter(1, 5);
+		
+		$localizationFinder = new LocalizationFinder($pageFinder);
+		
+		// these are defaults in fact
+		$localizationFinder->isActive(true);
+		$localizationFinder->isPublic(true);
+		
+		// custom
+		$localizationFinder->setLocale($locale);
+		
+		//FIXME: Problem – what if parent is not visible?
+		$localizationFinder->isVisibleInSitemap(true);
+		
+//		$organizer = new LocalizationOrganizer();
+//		$organizer->organize($localizationFinder);
+//		
+//		$resultTree = $organizer->getResults();
+//		
+//		$resultTree->getNode();
+//		foreach ($resultTree->getChildren() as $child) {
+//			$child->getNode();
 //		}
-//
-//		foreach ($map as $key => $nullCheck) {
-//			if (is_null($nullCheck)) {
-//				unset($map[$key]);
-//			}
-//		}
 		
-		// Manually creating getDescendants request with 5 levels
-		$nsn = $rootPage->getNestedSetNode();
-
-		$nsr = $nsn->getRepository();
-		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
-
-		// @TODO: Managable sitemap depth
-		$sc = $nsr->createSearchCondition();
-		$sc->leftGreaterThan($rootPage->getLeftValue());
-		$sc->leftLessThan($rootPage->getRightValue());
-		$sc->levelLessThanOrEqualsTo($rootPage->getLevel() + 5);
-
-		$oc = $nsr->createSelectOrderRule();
-		$oc->byLeftAscending();
-
-		$qb = $nsr->createSearchQueryBuilder($sc, $oc);
-		/* @var $qb \Doctrine\ORM\QueryBuilder */
-
-		// This loads all current locale localizations and masters with one query
-		$qb->from(Entity\PageLocalization::CN(), 'l');
-		$qb->andWhere('l.master = e')
-				->andWhere('l.locale = :locale')
-				->setParameter('locale', $locale);
-
-		// Need to include "e" as well so it isn't requested by separate query
-		$qb->select('l, e, p');
-		$qb->andWhere('l.active = true');
-		$qb->join('l.path', 'p');
-		$qb->andWhere('p.path IS NOT NULL');
-		$qb->andWhere('p.limited = false');
-
-		$query = $qb->getQuery();
-		$result = $query->getResult();
-		
-		// Filter out localizations only
-		foreach ($result as $record) {
-			if ($record instanceof Entity\PageLocalization) {
-				$localizations[] = $record;
-			}
-		}
-		
+		$localizations = $localizationFinder->getResult();
 		$map = $this->addRealLevels($localizations);
 		
 		$response->getContext()
