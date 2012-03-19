@@ -6,6 +6,7 @@
 		"email": "no-spam@chuck.noriss",
 		"avatar": "/cms/lib/supra/img/avatars/penguins_48x48.jpg",
 		"avatar_id": 1,
+		"canUpdate": true,
 		"group": 1,
 		
 		"permissions": {
