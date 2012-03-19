@@ -53,37 +53,41 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 	function configure()
 	{
-		$this->paymentProvider = new Transact\PaymentProvider();
-		$this->requestControllerClass = Transact\RequestController::CN();
-
+		// Skip configuratin if INI section does not exist
 		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
+		$section = $iniLoader->getSection($this->iniSectionName, false);
+		
+		if ( ! empty($section)) {
+			$this->paymentProvider = new Transact\PaymentProvider();
+			$this->requestControllerClass = Transact\RequestController::CN();
 
-		$merchantGuid = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_MERCHANT_GUID);
-		$this->paymentProvider->setMerchantGuid($merchantGuid);
+			$merchantGuid = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_MERCHANT_GUID);
+			$this->paymentProvider->setMerchantGuid($merchantGuid);
 
-		$password = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PASSWORD);
-		$this->paymentProvider->setPassword($password);
+			$password = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PASSWORD);
+			$this->paymentProvider->setPassword($password);
 
-		$routingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_ROUTING_STRING);
-		$this->paymentProvider->setRoutingstring($routingString);
+			$routingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_ROUTING_STRING);
+			$this->paymentProvider->setRoutingstring($routingString);
 
-		$recurrentRoutingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_RECURRENT_ROUTING_STRING);
-		$this->paymentProvider->setRecurrentRoutingString($recurrentRoutingString);
+			$recurrentRoutingString = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_RECURRENT_ROUTING_STRING);
+			$this->paymentProvider->setRecurrentRoutingString($recurrentRoutingString);
 
-		$apiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_URL);
-		$this->paymentProvider->setApiUrl($apiUrl);
+			$apiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_URL);
+			$this->paymentProvider->setApiUrl($apiUrl);
 
-		$userIpOverride = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_USER_IP_OVERRIDE, null);
-		$this->paymentProvider->setUserIpOverride($userIpOverride);
+			$userIpOverride = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_USER_IP_OVERRIDE, null);
+			$this->paymentProvider->setUserIpOverride($userIpOverride);
 
-		$this->paymentProvider->setIs3dAccount((boolean) $this->is3dAccount);
-		$this->paymentProvider->setGatewayCollects((boolean) $this->gatewayCollects);
+			$this->paymentProvider->setIs3dAccount((boolean) $this->is3dAccount);
+			$this->paymentProvider->setGatewayCollects((boolean) $this->gatewayCollects);
 
-		$this->paymentProvider->setReturnHost($this->returnHost);
-		$this->paymentProvider->setCallbackHost($this->callbackHost);
-		$this->paymentProvider->setFormDataPath($this->formDataPath);
+			$this->paymentProvider->setReturnHost($this->returnHost);
+			$this->paymentProvider->setCallbackHost($this->callbackHost);
+			$this->paymentProvider->setFormDataPath($this->formDataPath);
 
-		parent::configure();
+			parent::configure();
+		}
 	}
 
 }

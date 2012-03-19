@@ -14,14 +14,11 @@ class LocalizationFinder extends AbstractFinder
 	 */
 	private $pageFinder;
 	
-//	/**
-//	 * @var \Doctrine\ORM\QueryBuilder
-//	 */
-//	private $queryBuilder;
-	
 	private $active = true;
 	
 	private $public = true;
+	
+	private $visibleInSitemap = false;
 	
 	private $locale;
 	
@@ -58,6 +55,10 @@ class LocalizationFinder extends AbstractFinder
 			$qb->andWhere('p.limited = false');
 		}
 		
+		if ($this->visibleInSitemap) {
+			$qb->andWhere('l.visibleInSitemap = true');
+		}
+		
 		return $qb;
 	}
 	
@@ -75,8 +76,31 @@ class LocalizationFinder extends AbstractFinder
 		}
 	}
 	
+	public function isVisibleInSitemap($visibleInSitemap)
+	{
+		$this->visibleInSitemap = $visibleInSitemap;
+	}
+	
 	public function setLocale($locale)
 	{
 		$this->locale = $locale;
+	}
+	
+	/**
+	 * Filter out localizations only
+	 * @return array
+	 */
+	public function getResult()
+	{
+		$result = parent::getResult();
+		$localizationResult = array();
+		
+		foreach ($result as $entity) {
+			if ($entity instanceof Entity\Abstraction\Localization) {
+				$localizationResult[] = $entity;
+			}
+		}
+		
+		return $localizationResult;
 	}
 }

@@ -26,8 +26,8 @@ To: example@example.com
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
  boundary=\"_=_swift_v4_13318895154f63056b4e24d_=_\"
-X-SMTPAPI: {\"to\": [\"test user 1<test.sender@test.test>\", \"test user
- 2<test.sender@test.test>\", \"test user 3<test.sender@test.test>\"],
+X-SMTPAPI: {\"to\": [\"test.user.sendGrid1@test.test\",
+ \"test.user.sendGrid2@test.test\", \"test.user.sendGrid3@test.test\"],
  \"unique_args\": {\"campaignId\": \"CAMPAIGN_ID\"}, \"sub\":
  {\"%subscriberName%\": [\"test user 1\", \"test user 2\", \"test user 3\"],
  \"%subscriberEmail%\": [\"test.user.sendGrid1@test.test\",

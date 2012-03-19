@@ -36,7 +36,7 @@ class SubscriberManager extends MassMailManager
 		$activeSubscriber = $this->getSubscriberByEmail($email, null, true);
 
 		if ( ! empty($activeSubscriber)) {
-			throw new Exception\RuntimeException("Subscriber with {$email} already esxists and activated");
+			throw new Exception\RuntimeException("Subscriber with {$email} already exists and activated");
 		}
 
 		$subscriber = new Entity\Subscriber();

@@ -17,6 +17,13 @@ abstract class Entity
 	protected $id;
 	
 	/**
+	 * Self increasing key used for ID generation, put right after microtime as
+	 * 2 characters to make sure the ID is always increasing.
+	 * @var integer
+	 */
+	private static $idSequence = 0;
+	
+	/**
 	 * Locks to pervent infinite loop calls
 	 * @var array
 	 */
@@ -215,17 +222,24 @@ abstract class Entity
 	 */
 	public static function generateId($className = '') 
 	{
-		$time = microtime(true) - 1324027985;
-		$time = (int) (1000 * $time);
+		// TODO: on 32bit systems this might generate low precision hashes due to float number usage in the base_convert function
+		$timeParts = explode(' ', microtime(false));
+		$timeParts[0] = substr($timeParts[0], 2, 3);
+		$time = ((int) $timeParts[1] - 1324027985) . $timeParts[0];
 		$time = base_convert($time, 10, 36);
-		$time = substr($time, 0, 9);
+		$time = substr($time, -9);
 		$time = str_pad($time, 9, '0', STR_PAD_LEFT);
+		
+		// Local sequence usage
+		$sequence = base_convert(self::$idSequence++, 10, 36);
+		$sequence = substr($sequence, -2);
+		$sequence = str_pad($sequence, 2, '0', STR_PAD_LEFT);
 		
 		$random = sha1(uniqid($className, true));
 		$random = base_convert($random, 16, 36);
-		$random = substr($random, 0, 11);
-		$random = str_pad($random, 11, '0', STR_PAD_LEFT);
+		$random = substr($random, -9);
+		$random = str_pad($random, 9, '0', STR_PAD_LEFT);
 		
-		return $time . $random;
+		return $time . $sequence . $random;
 	}
 }

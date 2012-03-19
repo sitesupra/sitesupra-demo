@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManager;
 /**
  * AbstractFinder
  */
-class AbstractFinder
+abstract class AbstractFinder
 {
 	/**
 	 * @var EntityManager
@@ -26,10 +26,10 @@ class AbstractFinder
 	
 	abstract public function getQueryBuilder();
 	
-//	public function getResult()
-//	{
-//		return $this->getQueryBuilder()
-//				->getQuery()
-//				->getResult();
-//	}
+	public function getResult()
+	{
+		return $this->getQueryBuilder()
+				->getQuery()
+				->getResult();
+	}
 }
