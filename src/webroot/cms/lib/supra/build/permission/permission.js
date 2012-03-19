@@ -245,7 +245,7 @@ YUI.add("supra.permission", function (Y) {
 						} else {
 							//All dependancies has been resolved
 							callbacks.push(listener);
-							listeners.splice(l);
+							listeners.splice(l, 1);
 						}
 					}
 				}

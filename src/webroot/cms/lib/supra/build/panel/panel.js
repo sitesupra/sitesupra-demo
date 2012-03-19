@@ -147,7 +147,7 @@ YUI.add('supra.panel', function (Y) {
 		 * @type {Number}
 		 * @private
 		 */
-		ARROW_OFFSET: 15,
+		ARROW_OFFSET: 20,
 		
 		/**
 		 * Close button template
@@ -216,7 +216,7 @@ YUI.add('supra.panel', function (Y) {
 					
 					this._arrow = Y.Node.create(this.ARROW_TEMPLATE);
 					this._arrow.addClass(this.getClassName(this.ARROW_CLASSNAME));
-					this._arrow.addClass(this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]));
+					this.get('boundingBox').addClass(this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]));
 					this.get('contentBox').prepend(this._arrow);
 				}
 				
@@ -249,11 +249,12 @@ YUI.add('supra.panel', function (Y) {
 			}
 			
 			if (old[0] != pos[0] && this._arrow) {
+				var boundingBox = this.get('boundingBox');
 				var classname = this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[old[0]]);
-				this._arrow.removeClass(classname);
+				boundingBox.removeClass(classname);
 				
-				var classname = this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]);
-				this._arrow.addClass(classname);
+				classname = this.getClassName(this.ARROW_CLASSNAME, ARROW_CLASSNAMES[pos[0]]);
+				boundingBox.addClass(classname);
 			}
 			
 			return pos;
@@ -310,6 +311,7 @@ YUI.add('supra.panel', function (Y) {
 			
 			if (position[0] == 'L' || position[0] == 'R') {
 				//Arrow is positioned on the left or right side of the panel
+				
 				switch(position[1]) {
 					//Arrow should be near left/right top corner
 					case 'T': offset = this.ARROW_OFFSET; break;
@@ -388,7 +390,7 @@ YUI.add('supra.panel', function (Y) {
 				target_offset = 0, target_size = 0,
 				style_attr = 'left', offset = null;
 			
-			if (position[0] == 'L' || position[1] == 'R') {
+			if (position[0] == 'L' || position[0] == 'R') {
 				//Arrow is positioned on the left or right side of panel
 				host_offset = box.getY();
 				host_size = box.get('offsetHeight');
@@ -410,6 +412,39 @@ YUI.add('supra.panel', function (Y) {
 			this._arrow.setStyle(style_attr, offset + 'px');
 			
 			return target;
+		},
+		
+		/**
+		 * Align the given point on the widget, with the XY page co-ordinates provided.
+         *
+         * @param {String} widgetPoint Supported point constant (e.g. WidgetPositionAlign.TL)
+         * @param {Number} x X page co-ordinate to align to
+         * @param {Number} y Y page co-ordinate to align to
+         * @private
+		 */
+		_doAlign: function (widgetPoint, x, y) {
+			var arrowVisible  = this.get('arrowVisible'),
+				arrowAlign    = this.get('arrowAlign'),
+				arrowPosition = this.get('arrowPosition');
+			
+			if (arrowVisible && arrowAlign && arrowPosition) {
+				switch (arrowPosition[0]) {
+					case 'L':
+						x += 17;
+						break;
+					case 'R':
+						x -= 17;
+						break;
+					case 'T':
+						y += 17;
+						break;
+					case 'B':
+						y -= 17;
+						break;
+				}
+			}
+			
+			Panel.superclass._doAlign.call(this, widgetPoint, x, y);
 		},
 		
 		/**
@@ -531,10 +566,18 @@ YUI.add('supra.panel', function (Y) {
 			return this;
 		},
 		
-		_checkHide: function (event) {
-			var target = event.target.closest('div.su-panel');
-			if (this.get('autoClose') && (!target || !target.compareTo(this.get('boundingBox')))) {
-				this.hide();
+		/**
+		 * Check if user clicked outside panel
+		 * 
+		 * @param {Event} event Event facade object
+		 * @private
+		 */
+		validateClick: function (event) {
+			if (this.get('autoClose')) {
+				var target = event.target.closest('div.su-panel');
+				if (!target || !target.compareTo(this.get('boundingBox'))) {
+					this.hide();
+				}
 			}
 		},
 		
@@ -548,10 +591,14 @@ YUI.add('supra.panel', function (Y) {
 			
 			this.syncUI();
 			
-			//Auto hide when clicked outside panel
-			if (this.get('autoClose')) {
-				this._on_click = Y.one(document).on('click', this._checkHide, this);
-			}
+			Y.later(16, this, function () {
+				this.syncUI();
+				
+				//Auto hide when clicked outside panel
+				if (this.get('visible') && this.get('autoClose')) {
+					this._on_click = Y.one(document).on('click', this.validateClick, this);
+				}
+			});
 			
 			return this;
 		},
@@ -566,15 +613,40 @@ YUI.add('supra.panel', function (Y) {
 			this.show();
 			this.syncUI();
 			
+			var from = {opacity: 0},
+				to   = {opacity: 1},
+				pos  = this.get('alignPosition');
+			
+			if (this.get('arrowVisible')) {
+				switch(pos) {
+					case 'L':
+						from['margin-left'] = '-18px';
+						to['margin-left'] = '0';
+						break;
+					case 'R':
+						from['margin-left'] = '18px';
+						to['margin-left'] = '0';
+						break;
+					case 'T':
+						from['margin-top'] = '-18px';
+						to['margin-top'] = '0';
+						break;
+					case 'B':
+						from['margin-top'] = '18px';
+						to['margin-top'] = '0';
+						break;
+				}
+			}
+			
 			if (this._fade_anim) {
 				this._fade_anim.stop(true);
-				this._fade_anim.set('from', {opacity: 0});
-				this._fade_anim.set('to', {opacity: 1});
+				this._fade_anim.set('from', from);
+				this._fade_anim.set('to', to);
 			} else {
 				this._fade_anim = new Y.Anim({
 					'node': bounding_box,
-					'from': {opacity: 0},
-					'to': {opacity: 1},
+					'from': from,
+					'to': to,
 					'duration': 0.25,
 					'easing': Y.Easing.easeOut
 				});

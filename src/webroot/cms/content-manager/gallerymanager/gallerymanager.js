@@ -48,7 +48,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @type {String}
 		 * @private
 		 */
-		PREVIEW_SIZE: '60x60',
+		PREVIEW_SIZE: '200x200',
 		
 		/**
 		 * Gallery data
@@ -139,19 +139,19 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			form.get('contentBox').insert(buttons, 'before');
 			
 			//Save button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'small-blue'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.settingsFormApply, this);
 			
 			//Close button
 			/*
-			var btn = new Supra.Button({'label': 'Close', 'style': 'small'});
+			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
 				btn.render(buttons).on('click', this.settingsFormCancel, this);
 			*/
 			
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
 				btn.render(form.get('contentBox'));
-				btn.addClass('su-button-delete');
+				btn.addClass('yui3-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
 			
 			this.settings_form = form;
@@ -167,7 +167,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			for(var i=0,ii=images.length; i<ii; i++) {
 				if (images[i] === selected) {
-					this.one('.list img[alt="' + selected.id + '"]').ancestor('li').remove();
+					this.one('.list li[data-id="' + selected.id + '"]').remove();
 					this.data.images.splice(i,1);
 					this.settingsFormCancel();
 					return this;
@@ -186,12 +186,12 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			var buttons = this.one('.yui3-form-buttons');
 			
 			//Done button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'small-blue'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
 				btn.render(buttons).on('click', this.applyChanges, this);
 			
 			//Close button
 			/*
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'close']), 'style': 'small'});
+			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'close']), 'style': 'mid'});
 				btn.render(buttons).on('click', this.cancelChanges, this);
 			*/
 			
@@ -199,7 +199,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			//Position sync with other actions
 			this.plug(SU.PluginLayout, {
-				'offset': [0, 0, 0, 0]	//Default offset from page viewport
+				'offset': [10, 10, 10, 10]	//Default offset from page viewport
 			});
 			
 			var layoutTopContainer = Manager.getAction('LayoutTopContainer'),
@@ -207,9 +207,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				layoutRightContainer = Manager.getAction('LayoutRightContainer');
 			
 			//Top bar 
-			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
-			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
-			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
+			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
+			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
+			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 		},
 		
 		/**
@@ -381,12 +381,16 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//Add new items
 			for(var i=0,ii=images.length; i<ii; i++) {
 				src = null;
-				if (preview_size in images[i].sizes) {
+				if (images[i].sizes && preview_size in images[i].sizes) {
 					src = images[i].sizes[preview_size].external_path;
 				}
 				
 				if (src) {
-					item = Y.Node.create('<li class="yui3-dd-drop gallery-item"><img src="' + src + '" alt="' + images[i].id + '" /></li>');
+					item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + images[i].id + '"><img src="' + src + '" alt="" /></li>');
+					item.setData('imageId', images[i].id);
+					list.append(item);
+				} else {
+					item = Y.Node.create('<li class="yui3-dd-drop gallery-item gallery-item-empty" data-id="' + images[i].id + '"></li>');
 					item.setData('imageId', images[i].id);
 					list.append(item);
 				}

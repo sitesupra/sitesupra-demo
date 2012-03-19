@@ -186,8 +186,11 @@ YUI.add('supra.scrollable', function (Y) {
 				scroll_distance = Math.min(this.viewSize, Math.abs(e.wheelDelta * SCROLL_DISTANCE));
 			
 			if (e.wheelDelta < 0) scroll_distance = -scroll_distance;
-			
-			node.set('scrollTop', node.get('scrollTop') - scroll_distance);
+			if (scroll_distance) {
+				
+				node.set('scrollTop', node.get('scrollTop') - scroll_distance);
+				
+			}
 		},
 		
 		/**
@@ -322,6 +325,8 @@ YUI.add('supra.scrollable', function (Y) {
 					'left': ~~(scrollPos / pxRatio)
 				});
 			}
+			
+			this.fire('sync');
 		},
 		
 		/**
@@ -345,6 +350,8 @@ YUI.add('supra.scrollable', function (Y) {
 				scrollPos = -parseInt(contentBox.get('margin-left'), 10);
 				dragableNode.setStyle('left', ~~(scrollPos / this.pxRatio));
 			}
+			
+			this.fire('sync');
 		},
 		
 		/**

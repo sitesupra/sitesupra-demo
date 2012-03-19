@@ -43,9 +43,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		renderUISettings: function () {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
-			var container = this.properties.get('form').get('contentBox');
-			var buttons = Y.Node.create('<div class="su-buttons"></div>');
-				container.append(buttons);
+			var container = this.properties.get('form').get('contentBox').one('.yui3-slideshow-slide');
+			var buttons = Y.Node.create('<div class="yui3-buttons"></div>');
+				container.prepend(buttons);
 			
 			//Manage image button
 			var button = new Supra.Button({
@@ -125,6 +125,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Data
 			var gallery_data = this.properties.getValues();
+			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
 			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (gallery_data, changed) {
@@ -143,7 +144,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		openMediaLibrary: function () {
 			
-			Manager.executeAction('MediaSidebar', {
+			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
 				}, this),
@@ -199,6 +200,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				image = {},
 				properties = Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES),
 				kk = properties.length;
+			
+			//Default data
+			data.images = data.images || [];
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data.images.length; i<ii; i++) {

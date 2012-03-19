@@ -7,7 +7,7 @@
 	.box-shadow (0, 1px, 0px, rgba(128, 133, 156, 0.18) inset, 0, 2px, 4px, rgba(0,0,0,0.3));
 	
 	.su-panel-content {
-		background: url(../../supra/img/panel/bg.gif) 0 0 repeat;
+		background: url(bg.gif) 0 0 repeat;
 		.border-radius (3px);
 		margin: 6px;
 	}
@@ -29,35 +29,35 @@
 	
 	.su-panel-arrow {
 		position: absolute;
-		
-		&.su-panel-arrow-top {
-			background: url(../../supra/img/panel/arrow-top.png) 0 0 no-repeat;
-			width: 17px;
-			height: 11px;
-			top: -9px;
-			margin-left: -9px;
-		}
-		&.su-panel-arrow-bottom {
-			background: url(../../supra/img/panel/arrow-bottom.png) 0 0 no-repeat;
-			width: 17px;
-			height: 11px;
-			bottom: -9px;
-			margin-left: -9px;
-		}
-		&.su-panel-arrow-left {
-			background: url(../../supra/img/panel/arrow-left.png) 0 0 no-repeat;
-			width: 12px;
-			height: 19px;
-			left: -10px;
-			margin-top: -8px;
-		}
-		&.su-panel-arrow-right {
-			background: url(../../supra/img/panel/arrow-right.png) 0 0 no-repeat;
-			width: 12px;
-			height: 19px;
-			right: -10px;
-			margin-top: -8px;
-		}
+	}
+	&.su-panel-arrow-top .su-panel-arrow {
+		background: url(arrow-top.png) 0 0 no-repeat;
+		width: 36px;
+		height: 23px;
+		top: -17px;
+		margin-left: -19px;
+	}
+	&.su-panel-arrow-bottom .su-panel-arrow {
+		background: url(arrow-bottom.png) 0 0 no-repeat;
+		width: 36px;
+		height: 23px;
+		bottom: -17px;
+		margin-left: -19px;
+	}
+	&.su-panel-arrow-left .su-panel-arrow {
+		background: url(arrow-left.png) 0 0 no-repeat;
+		width: 23px;
+		height: 36px;
+		left: -17px !important;
+		margin-top: -19px;
+	}
+	&.su-panel-arrow-right .su-panel-arrow {
+		background: url(arrow-right.png) 0 0 no-repeat;
+		width: 23px;
+		height: 36px;
+		left: auto !important;
+		right: -17px !important;
+		margin-top: -19px;
 	}
 	
 	.su-panel-inner {

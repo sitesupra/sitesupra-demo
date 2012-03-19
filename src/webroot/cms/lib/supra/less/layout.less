@@ -3,5 +3,9 @@
 @header-height: 48px;
 
 .layout-fullscreen () {
-	padding: @layout-padding + @header-height @layout-padding @layout-padding @layout-padding;
+	position: absolute;
+	top: @header-height;
+	left: @layout-padding;
+	right: @layout-padding;
+	bottom: @layout-padding;
 }

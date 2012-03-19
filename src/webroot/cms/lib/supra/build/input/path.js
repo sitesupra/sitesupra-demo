@@ -19,7 +19,11 @@ YUI.add('supra.input-path', function (Y) {
 		}
 	};
 	
-	Input.HTML_PARSER = {};
+	Input.HTML_PARSER = {
+		'path': function (srcNode) {
+			return srcNode.getAttribute('suPath') || '';
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.String, {
 		

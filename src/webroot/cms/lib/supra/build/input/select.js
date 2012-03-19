@@ -21,6 +21,15 @@ YUI.add("supra.input-select", function (Y) {
 		},
 		
 		/**
+		 * Loading icon
+		 * @type {Boolean}
+		 */
+		"loading": {
+			value: false,
+			setter: '_setLoading'
+		},
+		
+		/**
 		 * Show empty value in the list
 		 * @type {Boolean}
 		 */
@@ -42,6 +51,14 @@ YUI.add("supra.input-select", function (Y) {
 		 * @type {Object}
 		 */
 		"innerNode": {
+			value: null
+		},
+		
+		/**
+		 * Node for loading icon
+		 * @type {Object}
+		 */
+		"loadingNode": {
 			value: null
 		},
 		
@@ -477,6 +494,31 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Loading attribute setter
+		 * 
+		 * @param {Boolean} loading Loading attribute value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setLoading: function (loading) {
+			var box = this.get('innerNode');
+			
+			if (box) {
+				if (loading && !this.get('nodeLoading')) {
+					var node = Y.Node.create('<span class="loading-icon"></span>');
+					box.append(node);
+					this.set('nodeLoading', node);
+				}
+				
+				box.setClass(this.getClassName('loading'), loading);
+			}
+			
+			this.set('disabled', loading);
+			return loading;
 		},
 		
 		/**
