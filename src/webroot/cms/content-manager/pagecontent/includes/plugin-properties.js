@@ -55,7 +55,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		callback: null,
 		
 		// Editor toolbar was visible
-		editor_toolbar_visible: false,
+		open_toolbar_on_hide: false,
 		
 		// Set page button visibility
 		tooglePageButtons: function (visible) {
@@ -89,14 +89,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			//Hide form
 			if (this.form) {
-				if (this.editor_toolbar_visible) {
+				if (this.open_toolbar_on_hide) {
 					Manager.EditorToolbar.execute();
 				}
 				
 				this.form.hide();
 				this.form = null;
 				this.callback = null;
-				this.editor_toolbar_visible = false;
+				this.open_toolbar_on_hide = false;
 			}
 			
 		},
@@ -107,6 +107,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'doneCallback': null,
 				'hideEditorToolbar': false,
 				
+				'properties': null,		//Properties class instance
 				'scrollable': false,
 				'title': null,
 				'icon': '/cms/lib/supra/img/sidebar/icons/settings.png'
@@ -127,8 +128,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 				this.tooglePageButtons(!!options.doneCallback);
 				
 				if (options.hideEditorToolbar) {
-					this.editor_toolbar_visible = Manager.EditorToolbar.get('visible');
-					if (this.editor_toolbar_visible) {
+					var has_html_inputs          = options.properties.get('host').html_inputs_count,
+						toolbar_currenly_visible = Manager.EditorToolbar.get('visible');
+					
+					//Store if editor toolbar should be shown when properties form is closed
+					this.open_toolbar_on_hide = has_html_inputs && toolbar_currenly_visible;
+					
+					if (toolbar_currenly_visible) {
 						Manager.EditorToolbar.hide();
 					}
 				}
@@ -591,6 +597,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('action').execute(this.get('form'), {
 				'doneCallback': Y.bind(this.savePropertyChanges, this),
 				'hideEditorToolbar': true,
+				'properties': this,
 				
 				'scrollable': false,
 				'title': this.getTitle()

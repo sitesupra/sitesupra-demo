@@ -81,16 +81,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				'placeholder_id': list.getId()
 			}, function (data) {
 				this.createChildFromData(data);
-				
+					
+				//Add images to gallery block
 				var block = this.get('super').get('activeChild');
-				if (block.addImage) {
+				if (Y.Lang.isFunction(block.addImage)) {
 					for(var i=0,ii=images.length; i<ii; i++) {
 						block.addImage(images[i]);
 					}
 				} else {
 					Y.log('Block "' + gallery_block_id + '" doesn\'t have required method "addImage"');
 				}
-				
 			}, list);
 		},
 		
