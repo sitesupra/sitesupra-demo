@@ -25,7 +25,7 @@
     icon: /cms/lib/supra/img/apps/pages
     url: content-manager
     allowLimitedPageOption: true
-    galleryBlockId: Project\Gallery\GalleryBlock
+    galleryBlockId: Project\Blocks\Gallery\GalleryBlock
     authorizationAccessPolicy:
       Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
 #       @TODO: Could assign this value from application configuration "id" parameter somehow
