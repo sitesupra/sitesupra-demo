@@ -128,6 +128,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 	/**
 	 * Inner authentication method
+	 * FIXME: maybe the "findUser" part should go to common authentication method?
 	 * @param string $login
 	 * @param AuthenticationPassword $password
 	 * @return Entity\User
