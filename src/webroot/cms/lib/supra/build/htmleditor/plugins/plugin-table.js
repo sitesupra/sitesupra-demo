@@ -588,9 +588,9 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * On node change check if settings form needs to be hidden
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement('td,th,table');
+			var element = this.htmleditor.getSelectedElement('img,td,th,table');
 			
-			if (element) {
+			if (element && !Y.Node(element).test('img')) {
 				var element = new Y.Node(element),
 					table = element.closest('table');
 				
@@ -638,10 +638,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			//When image looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);
-			
-			// When clicking on table show settings
-			var container = htmleditor.get('srcNode');
-			container.delegate('click', Y.bind(this.showTableSettings, this), 'table');
 			
 			//Disable inline table insert row/column, delete row/column
 			this.disableInlineTableEditing();

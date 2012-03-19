@@ -311,13 +311,13 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		/**
 		 * Show image settings bar
 		 */
-		showImageSettings: function (event) {
-			if (event.target.test('.gallery')) return;
+		showImageSettings: function (target) {
+			if (target.test('.gallery')) return false;
 			
-			var data = this.getImageDataFromNode(event.target);
+			var data = this.getImageDataFromNode(target);
 			if (!data) {
-				Y.log('Missing image data for image ' + event.target.getAttribute('src'), 'debug');
-				return;
+				Y.log('Missing image data for image ' + target.getAttribute('src'), 'debug');
+				return false;
 			}
 			
 			var action = Manager.getAction('PageContentSettings');
@@ -330,7 +330,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			});
 			
 			//
-			this.selected_image = event.target;
+			this.selected_image = target;
 			this.selected_image.addClass('yui3-image-selected');
 			this.selected_image_id = this.selected_image.getAttribute('id');
 			
@@ -342,7 +342,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			//Clone data because data properties will change and orginal properties should stay intact
 			this.original_data = Supra.mix({}, data);
 			
-			event.halt();
+			return true;
 		},
 		
 		/**
@@ -529,6 +529,22 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				} catch (err) {}
 			}
 		},
+		
+		/**
+		 * On node change check if selected node is image and show settings
+		 * 
+		 * @private
+		 */
+		onNodeChange: function () {
+			var element = this.htmleditor.getSelectedElement('img');
+			if (element) {
+				if (!this.showImageSettings(Y.Node(element))) {
+					this.settingsFormApply();
+				}
+			} else {
+				this.settingsFormApply();
+			}
+		},
 			
 		/**
 		 * Initialize plugin for editor,
@@ -545,12 +561,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			// Add command
 			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaSidebar, this));
 			
-			//When image looses focus hide settings form
-			htmleditor.on('selectionChange', this.settingsFormApply, this);
-			
 			// When clicking on image show image settings
-			var container = htmleditor.get('srcNode');
-			container.delegate('click', Y.bind(this.showImageSettings, this), 'img');
+			htmleditor.on('nodeChange', this.onNodeChange, this);
 			
 			if (button) {
 				//When media library is shown/hidden make button selected/unselected

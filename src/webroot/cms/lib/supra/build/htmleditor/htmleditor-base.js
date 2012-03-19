@@ -330,10 +330,17 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		_handleNodeChange: function (event, force) {
 			if (this.get('disabled') && !force) return false;
 			
-			var oldSel = this.selection;
-			var newSel = this.getSelection();
-			var fireSelectionEvent = false,
+			var oldSel = this.selection,
+				newSel = this.getSelection(),
+				fireSelectionEvent = false,
 				fireNodeEvent = false;
+			
+			//On mouse click / mouse down check if user clicked on image
+			if (event && event.type && (event.type == 'mouseup' || event.type == 'click')) {
+				if (event.target.test('img')) {
+					newSel = this._handleImageClick(event.target);
+				}
+			}
 			
 			if (oldSel) {
 				if (oldSel.start !== newSel.start || oldSel.end !== newSel.end) {
@@ -373,6 +380,23 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				return true;
 			}
 			return false;
+		},
+		
+		/**
+		 * Handle click on image
+		 * @private
+		 */
+		_handleImageClick: function (target) {
+			var node = target.getDOMNode(),
+				selection = {
+					'start': node,
+					'start_offset': 0,
+					'end': node,
+					'end_offset': 0,
+					'collapsed': true
+				};
+			
+			return selection;
 		},
 		
 		/**
