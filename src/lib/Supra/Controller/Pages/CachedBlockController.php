@@ -25,14 +25,4 @@ class CachedBlockController extends BlockController
 	{
 		return $this->response;
 	}
-	
-//	public function setBlockPropertySet()
-//	{
-//		
-//	}
-//	
-//	public function prepareTwigHelper()
-//	{
-//		
-//	}
 }

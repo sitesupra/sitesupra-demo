@@ -132,9 +132,10 @@ class SearchConditionAbstraction implements SearchConditionInterface
 		if (  ! is_int($arguments[0])) {
 			throw new Exception\InvalidArgument("Not integer value passed to method $method");
 		}
-		$value = (int)$arguments[0];
+		$value = (int) $arguments[0];
 		
 		$this->add($fieldFound, $relationFound, $value);
+		
 		return $this;
 	}
 }

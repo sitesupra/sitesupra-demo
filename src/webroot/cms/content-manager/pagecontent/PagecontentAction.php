@@ -217,7 +217,7 @@ class PagecontentAction extends PageManagerAction
 		try {
 			$block->prepareController($blockController, $request);
 
-			$blockController->prepareTwigHelper();
+			$blockController->prepareTwigEnvironment();
 			$block->executeController($blockController);
 
 			$response = $blockController->getResponse();

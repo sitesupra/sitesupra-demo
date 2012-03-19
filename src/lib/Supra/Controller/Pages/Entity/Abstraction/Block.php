@@ -227,7 +227,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		// Prepare
 		$controller->prepare($request, $response);
 
-		$controller->prepareTwigHelper();
+		$controller->prepareTwigEnvironment();
 	}
 
 	/**

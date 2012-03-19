@@ -31,30 +31,34 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 	function configure()
 	{
-		$this->paymentProvider = new Paypal\PaymentProvider();
-		$this->requestControllerClass = Paypal\RequestController::CN();
-
+		// Skip configuratin if INI section does not exist
 		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
-
-		$apiUsername = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_USERNAME);
-		$this->paymentProvider->setApiUsername($apiUsername);
+		$section = $iniLoader->getSection($this->iniSectionName, false);
 		
-		$apiPassword = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_PASSWORD);
-		$this->paymentProvider->setApiPassword($apiPassword);
+		if ( ! empty($section)) {
+			$this->paymentProvider = new Paypal\PaymentProvider();
+			$this->requestControllerClass = Paypal\RequestController::CN();
 
-		$apiSignature = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_SIGNATURE);
-		$this->paymentProvider->setApiSignature($apiSignature);
+			$apiUsername = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_USERNAME);
+			$this->paymentProvider->setApiUsername($apiUsername);
 
-		$paypalApiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_API_URL);
-		$this->paymentProvider->setPaypalApiUrl($paypalApiUrl);
+			$apiPassword = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_PASSWORD);
+			$this->paymentProvider->setApiPassword($apiPassword);
 
-		$paypalRedirectUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_REDIRECT_URL);
-		$this->paymentProvider->setPaypalRedirectUrl($paypalRedirectUrl);
+			$apiSignature = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_API_SIGNATURE);
+			$this->paymentProvider->setApiSignature($apiSignature);
 
-		$this->paymentProvider->setReturnHost($this->returnHost);
-		$this->paymentProvider->setCallbackHost($this->callbackHost);
+			$paypalApiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_API_URL);
+			$this->paymentProvider->setPaypalApiUrl($paypalApiUrl);
 
-		parent::configure();
+			$paypalRedirectUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_REDIRECT_URL);
+			$this->paymentProvider->setPaypalRedirectUrl($paypalRedirectUrl);
+
+			$this->paymentProvider->setReturnHost($this->returnHost);
+			$this->paymentProvider->setCallbackHost($this->callbackHost);
+
+			parent::configure();
+		}
 	}
 
 }

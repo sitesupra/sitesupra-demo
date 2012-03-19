@@ -42,7 +42,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	protected $locale;
 
 	/**
-	 * @Column(type="string")
+	 * @Column(type="text")
 	 * @var string
 	 */
 	protected $title;

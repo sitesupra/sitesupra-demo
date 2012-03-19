@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Helper;
+namespace Supra\Controller\Pages\Twig;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
@@ -14,7 +14,7 @@ use Supra\Response\ResponseContext;
 /**
  * Helper object for twig processor
  */
-class TwigHelper
+class TwigSupraGlobal
 {
 
 	/**

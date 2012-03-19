@@ -107,21 +107,20 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * Assigns supra helper to the twig as global helper
 	 */
-	public function prepareTwigHelper()
+	public function prepareTwigEnvironment()
 	{
 		$response = $this->getResponse();
 
 		if ($response instanceof Response\TwigResponse) {
 			$twig = $response->getTwigEnvironment();
 
-			// Now it 
-			$helper = new Helper\TwigHelper();
+			$helper = new Twig\TwigSupraGlobal();
 			$helper->setRequest($this->request);
 			$helper->setResponseContext($response->getContext());
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
 
-			$blockHelper = new Helper\TwigBlockHelper($this);
+			$blockHelper = new Twig\TwigSupraBlockGlobal($this);
 			ObjectRepository::setCallerParent($blockHelper, $this);
 			$twig->addGlobal('supraBlock', $blockHelper);
 		}

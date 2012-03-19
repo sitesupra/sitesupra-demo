@@ -467,7 +467,7 @@ class PageController extends ControllerAbstraction
 			}
 			
 			// It is important to prepare the twig helper for each block controller right before execution
-			$blockController->prepareTwigHelper();
+			$blockController->prepareTwigEnvironment();
 
 			$blockController->execute();
 			

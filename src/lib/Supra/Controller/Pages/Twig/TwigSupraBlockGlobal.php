@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Helper;
+namespace Supra\Controller\Pages\Twig;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\Response\TwigResponse;
@@ -11,7 +11,7 @@ use Supra\Locale\Locale;
 /**
  * Supra page controller twig helper
  */
-class TwigBlockHelper
+class TwigSupraBlockGlobal
 {
 	/**
 	 * @var BlockController
