@@ -113,8 +113,14 @@
 		margin-top: 17px;
 	}
 	.redirect-target.hidden + .button-section {
+		/* There is no redirect target */
 		margin-top: 25px;
 	}
+	.button-redirect.hidden + .redirect-target.hidden + .button-section {
+		/* Redirect button is also hidden */
+		margin-top: 15px;
+	}
+	
 	
 	/**
 	 * LinkManager slide inside PageSettings

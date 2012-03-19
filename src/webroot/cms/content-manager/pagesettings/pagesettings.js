@@ -849,7 +849,7 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 			
 			for(var i=inputs.length - 1; i>=0; i--) {
 				if (typeof inputs[i][1] == 'string') {
-					this.one(inputs[i][1]).ancestor().setClass('hidden', inputs[i][0] == type);
+					this.one(inputs[i][1]).setClass('hidden', inputs[i][0] == type);
 				} else {
 					if (inputs[i][0] == type) {
 						inputs[i][1].hide();
