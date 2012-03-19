@@ -522,6 +522,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-image': {
+		path: 'input/image.js',
+		requires: ['supra.input-proto']
+	},
 	'supra.input-map': {
 		path: 'input/map.js',
 		requires: ['supra.input-proto']
@@ -543,6 +547,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-list',
 			'supra.input-slider',
 			'supra.input-link',
+			'supra.input-image',
 			'supra.input-map'
 		]
 	},

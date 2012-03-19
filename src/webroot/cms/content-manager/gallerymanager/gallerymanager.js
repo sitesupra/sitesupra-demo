@@ -20,7 +20,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 	
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginContainer, {
 		
 		/**
 		 * Unique action name
@@ -182,34 +182,19 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @private
 		 */
 		render: function () {
-			//Buttons
-			var buttons = this.one('.yui3-form-buttons');
+			//Add buttons to toolbar
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			
-			//Done button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
-				btn.render(buttons).on('click', this.applyChanges, this);
-			
-			//Close button
-			/*
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'close']), 'style': 'mid'});
-				btn.render(buttons).on('click', this.cancelChanges, this);
-			*/
+			//Add side buttons
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'done',
+				'context': this,
+				'callback': function () {
+					this.applyChanges();
+				}
+			}]);
 			
 			this.bindDragDrop();
-			
-			//Position sync with other actions
-			this.plug(SU.PluginLayout, {
-				'offset': [10, 10, 10, 10]	//Default offset from page viewport
-			});
-			
-			var layoutTopContainer = Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = Manager.getAction('LayoutRightContainer');
-			
-			//Top bar 
-			this.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 10);
-			this.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 10);
-			this.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 10);
 		},
 		
 		/**
@@ -446,12 +431,27 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		},
 		
 		/**
+		 * Hide
+		 */
+		hide: function () {
+			Action.Base.prototype.hide.apply(this, arguments);
+			
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+		},
+		
+		/**
 		 * Execute action
 		 * 
 		 * @param {Object} data Gallery data
 		 * @param {Function} callback Callback function
 		 */
 		execute: function (data, callback) {
+			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			}
+			
 			this.data = data;
 			this.callback = callback;
 			this.renderData();

@@ -192,6 +192,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 			'value': null
 		},
 		
+		/**
+		 * Supra.Button instance for delete button
+		 */
+		'buttonDelete': {
+			'value': null
+		},
+		
 		/*
 		 * Automatically show form when content is being edited
 		 */
@@ -353,6 +360,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Delete button
 			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
 				btn.render(slide).on('click', this.deleteContent, this);
+			
+			this.set('buttonDelete', btn);
 			
 			//Don't show delete button if block or placeholder is closed
 			if (host.isClosed() || host.isParentClosed()) {

@@ -310,6 +310,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			value: null
 		},
 		
+		/**
+		 * Drag and drop is enabled
+		 */
+		'dndEnabled': {
+			value: true,
+			setter: '_setDndEnabled'
+		},
+		
 		
 		/**
 		 * Image thumbnail size id
@@ -969,7 +977,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var slideshow = this.slideshow,
 				from = 0,
 				stack = path,
-				root_folder_id = this.get('rootFolderId');
+				root_folder_id = this.get('rootFolderId'),
+				noAnimations = this.get('noAnimations');
 			
 			//Check if root folder is in path, if not then add
 			if (path[0] != root_folder_id) {
@@ -988,9 +997,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (stack.length) {
 				var next = Y.bind(function (item_id, data) {
 					if (stack.length && data) {
-						var id = stack[0];
+						var id = stack[0],
+							attr = this.get('noAnimations');
+						
 						stack = stack.slice(1);
+						
+						this.set('noAnimations', noAnimations)
 						this.open(id, next);
+						this.set('noAnimations', attr)
 					} else {
 						//Execute callback
 						if (Y.Lang.isFunction(callback)) {
@@ -1279,6 +1293,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					this.get('dataObject').setRequestParam('type', value);
 					//this.reload();
 				}
+			}
+			return value;
+		},
+		
+		/**
+		 * Enable or disable drag and drop support
+		 */
+		_setDndEnabled: function (value) {
+			if (value) {
+				this.get('boundingBox').addClass(this.getClassName('dnd'));
+			} else {
+				this.get('boundingBox').removeClass(this.getClassName('dnd'));
 			}
 			return value;
 		}

@@ -172,16 +172,39 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 				this.medialist.upload.set('disabled', true);
 				
 				//Show media library
-				Manager.executeAction('MediaLibrary');
+				var action = Manager.getAction('MediaLibrary');
 				
-				Manager.getAction('MediaLibrary').once('hide', function () {
-					//Enable upload back
-					this.medialist.upload.set('disabled', false);
-					
-					//Reload data
-					this.medialist.reload();
-				}, this);
+				action.once('execute', this.mediaLibraryOnExecute, this);
+				action.once('hide', this.mediaLibraryOnHide, this);
+				
+				action.execute();
 			}, this);
+		},
+		
+		/**
+		 * On media library execute hide sidebar
+		 * 
+		 * @private
+		 */
+		mediaLibraryOnExecute: function () {
+			//Hide sidebar
+			this.one().addClass('yui3-mediasidebar-hidden');
+		},
+		
+		/**
+		 * On media library hide show sidebar
+		 * 
+		 * @private
+		 */
+		mediaLibraryOnHide: function () {
+			//Show sidebar
+			this.one().removeClass('yui3-mediasidebar-hidden');
+			
+			//Enable upload back
+			this.medialist.upload.set('disabled', false);
+			
+			//Reload data
+			this.medialist.reload();
 		},
 		
 		/**
@@ -246,11 +269,15 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			
 			//Set options
 			this.options = Supra.mix({
-				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES
+				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
+				'dndEnabled': true
 			}, options || {}, true);
 			
 			//Scroll to folder / item
 			this.medialist.set('displayType', this.options.displayType);
+			
+			//Drag and drop
+			this.medialist.set('dndEnabled', this.options.dndEnabled);
 			
 			this.medialist.reset();
 			this.medialist.set('noAnimations', true);

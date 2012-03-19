@@ -59,7 +59,10 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 		 */
 		onDragStart: function (e) {
 			var target = e.target.closest('LI, .image');
-			if (!target) return;
+			
+			if (!target || !this.get('host').get('dndEnabled')) {
+				return;
+			}
 			
 			var widget = this.get('host'),
 				item_id = target.getData('itemId'),

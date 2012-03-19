@@ -43,24 +43,31 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		renderUISettings: function () {
 			ContentGallery.superclass.renderUISettings.apply(this, arguments);
 			
-			var container = this.properties.get('form').get('contentBox').one('.yui3-slideshow-slide');
-			var buttons = Y.Node.create('<div class="yui3-buttons"></div>');
-				container.prepend(buttons);
+			/*
+			var slideshow = this.properties.get('slideshow'),
+				container = slideshow.getSlide('propertySlideMain').one('.su-slide-content');
+			*/
+			var container = Y.Node.create('<div class="su-button-group"></div>')
+			
+			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
 			
 			//Manage image button
 			var button = new Supra.Button({
 				'label': SU.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
-			button.render(buttons);
+			button.render(container);
 			button.on('click', this.openGalleryManager, this);
+			
+			//Separator
+			container.append(Y.Node.create('<br />'));
 			
 			//Add image button
 			var button = new Supra.Button({
 				'label': SU.Intl.get(['htmleditor', 'add_images'])
 			});
 			
-			button.render(buttons);
+			button.render(container);
 			button.on('click', this.openMediaLibrary, this);
 			
 			//Add image drag and drop support
