@@ -21,6 +21,10 @@ class LocalizationFinder extends AbstractFinder
 	
 	private $visibleInSitemap = false;
 	
+	private $redirect = null;
+	
+	private $customConditions = array();
+	
 	/**
 	 * @var string
 	 */
@@ -65,6 +69,15 @@ class LocalizationFinder extends AbstractFinder
 			$qb->andWhere('l.visibleInSitemap = true');
 		}
 		
+		if ( ! is_null($this->redirect)) {
+			$qb->andWhere('l.redirect IS ' . ($this->redirect ? 'NOT ' : '') . 'NULL');
+		}
+		
+		// Custom conditions
+		foreach ($this->customConditions as $customCondition) {
+			$qb->andWhere($customCondition);
+		}
+		
 		return $qb;
 	}
 	
@@ -80,6 +93,16 @@ class LocalizationFinder extends AbstractFinder
 		if ($public) {
 			$this->isActive(true);
 		}
+	}
+	
+	public function isRedirect($redirect)
+	{
+		$this->redirect = $redirect;
+	}
+	
+	public function addCustomCondition($customCondition)
+	{
+		$this->customConditions[] = $customCondition;
 	}
 	
 	public function isVisibleInSitemap($visibleInSitemap)

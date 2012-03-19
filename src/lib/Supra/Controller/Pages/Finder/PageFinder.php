@@ -87,7 +87,8 @@ class PageFinder extends AbstractFinder
 		$this->getSearchCondition()
 				->leftGreaterThanOrEqualsTo($leftLimit);
 		
+		// Left will be definitely strictly less than the right limit
 		$this->getSearchCondition()
-				->leftLessThanOrEqualsTo($rightLimit);
+				->leftLessThan($rightLimit);
 	}
 }

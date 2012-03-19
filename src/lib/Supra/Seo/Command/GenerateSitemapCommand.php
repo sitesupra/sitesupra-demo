@@ -46,68 +46,22 @@ class GenerateSitemapCommand extends Command
 	private function prepareSitemap(Console\Output\OutputInterface $output)
 	{
 		$em = ObjectRepository::getEntityManager($this);
-		$pageRepo = $em->getRepository(Entity\Page::CN());
 
-		$rootPages = $pageRepo->getRootNodes();
-		$rootPage = $rootPages[0];
+		$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($em);
+		$localizationFinder = new \Supra\Controller\Pages\Finder\LocalizationFinder($pageFinder);
+		$localizationFinder->isActive(true);
+		$localizationFinder->isPublic(true);
+		$localizationFinder->isRedirect(false);
+		$localizationFinder->addCustomCondition('l.includedInSearch = true OR e.level = 0');
 
-		if ( ! $rootPage instanceof Entity\Page) {
-			$output->writeln('No root page found in sitemap');
-			return;
-		}
-
-		$localizations = array();
-
-		// Manually creating getDescendants request with 5 levels
-		$nestedSetNode = $rootPage->getNestedSetNode();
-
-		$nestedSetRepository = $nestedSetNode->getRepository();
-		/* @var $nestedSetRepository \Supra\NestedSet\DoctrineRepository */
-
-		$searchCondition = $nestedSetRepository->createSearchCondition();
-		
-		// Don't need to limit
-//		$searchCondition->leftGreaterThanOrEqualsTo($rootPage->getLeftValue());
-//		$searchCondition->leftLessThanOrEqualsTo($rootPage->getRightValue());
-//		$searchCondition->levelLessThanOrEqualsTo(10);
-
-		$orderCondition = $nestedSetRepository->createSelectOrderRule();
-		$orderCondition->byLeftAscending();
-
-		$qb = $nestedSetRepository->createSearchQueryBuilder($searchCondition, $orderCondition);
-		/* @var $qb \Doctrine\ORM\QueryBuilder */
-
-		// This loads all current locale localizations and masters with one query
-		$qb->from(Entity\PageLocalization::CN(), 'l');
-		$qb->andWhere('l.master = e');
-
-		// Need to include "e" as well so it isn't requested by separate query
-		$qb->select('l, e');
-		$qb->andWhere('l.active = true');
-		$qb->join('l.path', 'p');
-		$qb->andWhere('p.path IS NOT NULL');
-		$qb->andWhere('l.redirect IS NULL');
-		
-		// Include root page
-		$qb->andWhere('(l.includedInSearch = true OR e.level = 0)');
-
-		$result = $qb->getQuery()->getResult();
+		$result = $localizationFinder->getResult();
 
 		$records = array();
 		$revisions = array();
-		// Filter out localizations only
+		
 		foreach ($result as $record) {
-			if ( ! $record instanceof Entity\PageLocalization) {
-				continue;
-			}
 			
 			$locale = $record->getLocale();
-
-//			if ( ! $record->isIncludedInSearch()) {
-//				$this->notIncludedInSearch[$record->getId()] = '/' . $locale . $record->getPath()->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-//				continue;
-//			}
-
 			$revisions[] = $record->getRevisionId();
 
 			$records[$record->getId()] = array(
