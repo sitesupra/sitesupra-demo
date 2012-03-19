@@ -290,9 +290,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 				if (properties[i].inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
 					host_properties.srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + properties[i].id);
-					host_properties.contentBox = host_properties.srcNode;
-					host_properties.boundingBox = host_properties.srcNode;
-					form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+					
+					if (host_properties.srcNode) {
+						host_properties.contentBox = host_properties.srcNode;
+						host_properties.boundingBox = host_properties.srcNode;
+						form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+					} else {
+						//If there is no inline node, fail silently
+					}
 				} else {
 					//Grouping
 					if (properties[i].group) {
