@@ -61,8 +61,24 @@ class SitemapAction extends PageManagerAction
 	public function moveAction()
 	{
 		$this->isPostRequest();
+		
+		$page = null;
+		
+		$localization = $this->getPageLocalizationByRequestKey('page_id');
+		if (is_null($localization)) {
 
-		$page = $this->getPageLocalization()->getMaster();
+			$page = $this->getPageByRequestKey('page_id');
+			
+			if (is_null($page)) {
+				$pageId = $this->getRequestParameter('page_id');				
+				throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
+			}
+		}
+
+		if (is_null($page)) {
+			$page = $localization->getMaster();
+		}
+		
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 
@@ -238,7 +254,6 @@ class SitemapAction extends PageManagerAction
 
 		if ($isGlobal) {
 			$array['global'] = true;
-			$array['isDragable'] = false;
 		}
 
 		return $array;
