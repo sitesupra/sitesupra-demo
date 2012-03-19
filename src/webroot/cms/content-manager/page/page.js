@@ -607,6 +607,10 @@ Supra(function (Y) {
 		 */
 		onDeleteComplete: function (data, status) {
 			if (status) {
+				//Reset toolbar state
+				Supra.Manager.PageToolbar.setActiveAction('Root');
+				Supra.Manager.PageButtons.setActiveAction('Root');
+				
 				Supra.Manager.PageContent.onStopEditingRoute();
 				Supra.Manager.executeAction('SiteMap');
 			}
