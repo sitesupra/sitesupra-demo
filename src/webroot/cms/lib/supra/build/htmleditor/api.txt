@@ -77,6 +77,9 @@ HTMLEditor
 			
 		getSelectionText()
 			Returns selected text (without HTML tags)
+		
+		resetSelection()
+			Reset selection to nothing
 	
 	Editable (htmleditor-editable):
 		editingAllowed

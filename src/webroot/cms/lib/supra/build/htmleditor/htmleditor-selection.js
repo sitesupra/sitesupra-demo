@@ -270,6 +270,16 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		},
 		
 		/**
+		 * Reset selection to nothing
+		 */
+		resetSelection: function () {
+			var node = this.get('srcNode').getDOMNode();
+			
+			this.selectNode(node);
+			this.refresh(true);
+		},
+		
+		/**
 		 * Replace selection or wrap selection in tag
 		 * 
 		 * @param {String} tagName
