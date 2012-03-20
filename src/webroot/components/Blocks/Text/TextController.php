@@ -2,9 +2,8 @@
 
 namespace Project\Blocks\Text;
 
-use Supra\Controller\Pages\BlockController,
-		Supra\Request,
-		Supra\Response;
+use Supra\Controller\Pages\BlockController;
+use Supra\Response;
 
 /**
  * Simple text block

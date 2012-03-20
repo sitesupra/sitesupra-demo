@@ -64,11 +64,12 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * Prepares controller for execution
+	 * Prepares controller for execution. This method is final, use doPrepare
+	 * for defining actions in prepare step.
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
 	 */
-	public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
+	final public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
 		parent::prepare($request, $response);
 
@@ -76,6 +77,16 @@ abstract class BlockController extends ControllerAbstraction
 			$page = $request->getPage();
 			$this->setPage($page);
 		}
+		
+		$this->doPrepare();
+	}
+	
+	/**
+	 * Method used by block controllers to implement things to do in this step
+	 */
+	protected function doPrepare()
+	{
+		
 	}
 
 	/**
@@ -320,21 +331,16 @@ abstract class BlockController extends ControllerAbstraction
 		return $this->configuration;
 	}
 
-	static function createController()
-	{
-		$className = self::CN();
-
-		$controller = Loader\Loader::getClassInstance($className, 'Supra\Controller\Pages\BlockController');
-
-		return $controller;
-	}
-
 	protected function getExceptionResponseTemplate()
 	{
 		return 'template/block-exception.html.twig';
 	}
 
-	public function exceptionResponse(Entity\Abstraction\Block $block)
+	/**
+	 * Block controller exception handler
+	 * @param \Exception $exception
+	 */
+	public function exceptionResponse(\Exception $exception)
 	{
 		$request = $this->getRequest();
 
@@ -343,19 +349,13 @@ abstract class BlockController extends ControllerAbstraction
 		}
 
 		$response = $this->getResponse();
-
 		$blockControllerCollection = BlockControllerCollection::getInstance();
-
-		$configuration = $blockControllerCollection->getBlockConfiguration($block->getComponentName());
+		$configuration = $blockControllerCollection->getBlockConfiguration($this->getBlock()->getComponentName());
 
 		if ($response instanceof TwigResponse) {
-
 			$response->cleanOutput();
-
-			$response->setLoaderContext(null);
-
+			$response->setLoaderContext(__CLASS__);
 			$response->assign('blockName', $configuration->title);
-
 			$response->outputTemplate($this->getExceptionResponseTemplate());
 		}
 	}

@@ -52,8 +52,13 @@ class PageController extends ControllerAbstraction
 	 * @var array
 	 */
 	private $blockContentCache = array();
+	
+	/**
+	 * Keeps info about blocks which result must be cached in the end
+	 * @var array
+	 */
 	private $blockCacheRequests = array();
-
+	
 	/**
 	 * Binds entity manager
 	 */
@@ -329,8 +334,6 @@ class PageController extends ControllerAbstraction
 						throw new Exception\InvalidBlockException('Block controller was not found');
 					}
 
-//			$blockController->setPage($page);
-
 					return $blockController;
 				};
 
@@ -597,6 +600,7 @@ class PageController extends ControllerAbstraction
 		foreach ($blocks as $index => $block) {
 
 			$blockController = null;
+			$blockId = $block->getId();
 			/* @var $blockController BlockController */
 
 			if (isset($this->blockControllers[$index])) {
@@ -621,7 +625,7 @@ class PageController extends ControllerAbstraction
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
 					$eventArgs->duration = $blockExecutionTime;
-					$eventArgs->cached = isset($this->blockContentCache[$block->getId()]);
+					$eventArgs->cached = isset($this->blockContentCache[$blockId]);
 					$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
 				}
 			} catch (Exception\InvalidBlockException $e) {
@@ -629,8 +633,16 @@ class PageController extends ControllerAbstraction
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);
 			} catch (\Exception $e) {
-				\Log::error($e);
-				$blockController->exceptionResponse($block);
+				
+				// Don't cache such blocks
+				unset($this->blockCacheRequests[$blockId]);
+				
+				// Report about the problem
+				$this->log->error($e);
+				
+				if ($blockController instanceof BlockController) {
+					$blockController->exceptionResponse($e);
+				}
 			}
 		}
 

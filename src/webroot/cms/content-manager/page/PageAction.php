@@ -19,7 +19,6 @@ use Supra\Authorization\Exception\AuthorizationException;
 use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
-use Supra\Controller\Pages\Exception\InvalidBlockException;
 use Supra\Controller\Pages\BrokenBlockController;
 use Supra\Uri\Path;
 use Supra\Locale\Locale;
@@ -104,6 +103,9 @@ class PageAction extends PageManagerAction
 				$controller->execute($request);
 			} catch (LayoutNotFound $e) {
 				$templateError = true;
+			} catch (\Exception $e) {
+				ObjectRepository::endControllerContext($controller);
+				throw $e;
 			}
 			ObjectRepository::endControllerContext($controller);
 		} else {

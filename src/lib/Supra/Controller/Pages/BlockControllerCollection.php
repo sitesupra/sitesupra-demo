@@ -118,15 +118,21 @@ class BlockControllerCollection
 			$configuration = $this->getBlockConfiguration(BrokenBlockController::BLOCK_NAME);
 			$controllerClass = $configuration->controllerClass;
 		}
+		
+		$controller = null;
 
-		/* @var $controller BlockController */
-
-		$controller = $controllerClass::createController();
-
-		//$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-
-		$controller->setConfiguration($configuration);
-
+		try {
+			/* @var $controller BlockController */
+			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+			$controller->setConfiguration($configuration);
+		} catch (\Exception $e) {
+			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
+			$controller = Loader::getClassInstance($controllerClass);
+			/* @var $controller BlockController */
+			$controller->exception = $e;
+			$controller->setConfiguration($configuration);
+		}
+		
 		return $controller;
 	}
 	

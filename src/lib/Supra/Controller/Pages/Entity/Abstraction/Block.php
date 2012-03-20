@@ -182,7 +182,6 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	public function createController()
 	{
 		$blockController = null;
-
 		$component = $this->getComponentClass();
 
 		if ( ! Loader\Loader::classExists($component)) {
@@ -190,14 +189,10 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		}
 
 		try {
-
 			$blockControllerCollection = BlockControllerCollection::getInstance();
-
 			$blockController = $blockControllerCollection->getBlockController($component);
-
 			$blockController->setBlock($this);
-		}
-		catch (Loader\Exception\ClassMismatch $e) {
+		} catch (Loader\Exception\ClassMismatch $e) {
 			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
 		}
 
