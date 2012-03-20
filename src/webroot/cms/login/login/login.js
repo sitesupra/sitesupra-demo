@@ -77,7 +77,9 @@ SU('supra.input', 'cookie', function (Y) {
 		 * 
 		 * @private
 		 */
-		submit: function () {
+		submit: function (e) {
+			e.halt();
+			
 			var uri = Loader.getDynamicPath() + Loader.getActionBasePath('Login');
 			var data = this.loginform.getValues('name', true);
 			

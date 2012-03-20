@@ -56,6 +56,7 @@ HTMLEditor
 			Returns path (Array) from selected element (element where selection starts) to editor container node
 			
 		getSelection()
+			Shouldn't be used directly, use .selection property instead
 			Return selection object with values:
 				start - node where selection starts
 				start_offset - cursor offset position relative to start node
