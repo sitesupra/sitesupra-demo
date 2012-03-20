@@ -3,9 +3,9 @@
 <div class="text">
 	{#% if supraBlock.property('title') %#}
 	{% if supraBlock.property('usePageTitle') %}
-		<h2{% if supra.cmsRequest %} class="yui3-settings-title"{% endif %}>{{ supra.request.pageLocalization.title }}</h2>
+		<h2{% if supra.cmsRequest %} class="su-settings-title"{% endif %}>{{ supra.request.pageLocalization.title }}</h2>
 	{% else %}
-		<h2{% if supra.cmsRequest %} class="yui3-settings-title"{% endif %}>{{ supraBlock.property('title') }}</h2>
+		<h2{% if supra.cmsRequest %} class="su-settings-title"{% endif %}>{{ supraBlock.property('title') }}</h2>
 	{% endif %}
 	
 	{{ supraBlock.property('content') }}
