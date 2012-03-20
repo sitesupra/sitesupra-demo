@@ -69,7 +69,8 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 		$this->addSimpleFilter('isRedirected', 'false');
 		
 		$isAuthorized = false;
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$userProvider = ObjectRepository::getUserProvider($this, false);
+		
 		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$user = $userProvider->getSignedInUser(false);
 			
