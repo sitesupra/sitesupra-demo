@@ -13,8 +13,8 @@ use Supra\Search\IndexedDocument;
  * @Entity
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"pageLocalization" = "Supra\Controller\Pages\Entity\PageLocalizationIndexerQueueItem"})
- */
+ * @DetachedDiscriminators
+  */
 abstract class IndexerQueueItem extends Entity implements Timestampable
 {
 	const DEFAULT_PRIORITY = 50;

@@ -26,6 +26,7 @@ use Doctrine\ORM\EntityManager;
 
 /**
  * @Entity
+ * @DetachedDiscriminatorValue("pageLocalization")
  */
 class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 {
