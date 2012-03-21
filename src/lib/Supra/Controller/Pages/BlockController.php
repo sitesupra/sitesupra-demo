@@ -16,6 +16,7 @@ use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Loader;
 use Supra\Response\TwigResponse;
 use Supra\Controller\Pages\Request\PageRequestView;
+use Supra\Log\Log;
 
 /**
  * Block controller abstraction
@@ -54,6 +55,11 @@ abstract class BlockController extends ControllerAbstraction
 	protected $configuredBlockProperties = array();
 
 	/**
+	 * @var \Exception
+	 */
+	private $hadException = null;
+
+	/**
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
@@ -71,22 +77,68 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	final public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
 	{
-		parent::prepare($request, $response);
+		try {
 
-		if ($request instanceof PageRequest) {
-			$page = $request->getPage();
-			$this->setPage($page);
+			parent::prepare($request, $response);
+
+			if ($request instanceof PageRequest) {
+				$page = $request->getPage();
+				$this->setPage($page);
+			}
+
+			$this->doPrepare();
+		} catch (\Exception $e) {
+
+			$this->log->error($e);
+			$this->hadException = $e;
 		}
-		
-		$this->doPrepare();
 	}
-	
+
 	/**
 	 * Method used by block controllers to implement things to do in this step
 	 */
 	protected function doPrepare()
 	{
 		
+	}
+
+	/**
+	 * @return \Exception|null 
+	 */
+	public function hadException()
+	{
+		return $this->hadException;
+	}
+
+	/**
+	 * Method used by block controllers to implement actual controlling
+	 */
+	protected function doExecute()
+	{
+		
+	}
+
+	/**
+	 * This is called by PageController and has safeguards to catch
+	 * unexpected behaviour. Also, does not doExecute() if prepare phase failed
+	 * with exception.
+	 */
+	final public function execute()
+	{
+		if (empty($this->hadException)) {
+
+			try {
+				$this->doExecute();
+			} catch (\Exception $e) {
+
+				$this->log->error($e);
+				$this->hadException = $e;
+
+				$this->setExceptionResponse($e);
+			}
+		} else {
+			$this->setExceptionResponse($this->hadException);
+		}
 	}
 
 	/**
@@ -331,7 +383,10 @@ abstract class BlockController extends ControllerAbstraction
 		return $this->configuration;
 	}
 
-	protected function getExceptionResponseTemplate()
+	/**
+	 * @return string 
+	 */
+	protected function getExceptionResponseTemplateFilename()
 	{
 		return 'template/block-exception.html.twig';
 	}
@@ -340,7 +395,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * Block controller exception handler
 	 * @param \Exception $exception
 	 */
-	public function exceptionResponse(\Exception $exception)
+	public function setExceptionResponse(\Exception $exception)
 	{
 		$request = $this->getRequest();
 
@@ -356,7 +411,7 @@ abstract class BlockController extends ControllerAbstraction
 			$response->cleanOutput();
 			$response->setLoaderContext(__CLASS__);
 			$response->assign('blockName', $configuration->title);
-			$response->outputTemplate($this->getExceptionResponseTemplate());
+			$response->outputTemplate($this->getExceptionResponseTemplateFilename());
 		}
 	}
 

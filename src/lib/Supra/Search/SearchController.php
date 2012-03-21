@@ -57,6 +57,11 @@ class SearchController extends BlockController
 		$this->configuration = $configuration;
 	}
 
+	protected function doPrepare() {
+		
+		throw new \Exception("Trololo 544");
+	}
+	
 	/**
 	 * @return SearchControllerConfiguration
 	 */
@@ -65,7 +70,7 @@ class SearchController extends BlockController
 		return $this->configuration;
 	}
 
-	public function execute()
+	public function doExecute()
 	{
 		$response = $this->getResponse();
 		$configuration = $this->getConfiguration();

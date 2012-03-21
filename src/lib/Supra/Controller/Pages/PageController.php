@@ -52,13 +52,13 @@ class PageController extends ControllerAbstraction
 	 * @var array
 	 */
 	private $blockContentCache = array();
-	
+
 	/**
 	 * Keeps info about blocks which result must be cached in the end
 	 * @var array
 	 */
 	private $blockCacheRequests = array();
-	
+
 	/**
 	 * Binds entity manager
 	 */
@@ -621,6 +621,15 @@ class PageController extends ControllerAbstraction
 
 				$return[$index] = $function($block, $blockController);
 
+				if (
+						$blockController instanceof BlockController &&
+						$blockController->hadException()
+				) {
+
+					// Don't cache failed blocks 
+					unset($this->blockCacheRequests[$blockId]);
+				}
+
 				if ( ! is_null($eventAction)) {
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
@@ -632,17 +641,6 @@ class PageController extends ControllerAbstraction
 
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
 				unset($blocks[$index]);
-			} catch (\Exception $e) {
-				
-				// Don't cache such blocks
-				unset($this->blockCacheRequests[$blockId]);
-				
-				// Report about the problem
-				$this->log->error($e);
-				
-				if ($blockController instanceof BlockController) {
-					$blockController->exceptionResponse($e);
-				}
 			}
 		}
 

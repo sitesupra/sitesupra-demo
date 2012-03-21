@@ -16,7 +16,7 @@ class CachedBlockController extends BlockController
 		$this->response = $response;
 	}
 	
-	public function execute()
+	public function doExecute()
 	{
 		
 	}

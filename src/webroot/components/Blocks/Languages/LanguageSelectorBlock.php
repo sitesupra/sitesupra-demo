@@ -19,7 +19,7 @@ class LanguageSelectorBlock extends BlockController
 		
 	}
 
-	public function execute()
+	public function doExecute()
 	{
 		$request = $this->getRequest();
 		$page = $request->getPage();

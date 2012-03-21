@@ -135,7 +135,7 @@ class FeedbackBlock extends BlockController
 	/**
 	 * Main method
 	 */
-	public function execute()
+	public function doExecute()
 	{
 		$response = $this->getResponse();
 		

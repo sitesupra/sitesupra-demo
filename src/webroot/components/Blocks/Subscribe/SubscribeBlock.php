@@ -48,7 +48,7 @@ class SubscribeBlock extends BlockController
 		$this->subscriberManager = $this->massMail->getSubscriberManager();
 	}
 
-	public function execute()
+	public function doExecute()
 	{
 
 		$this->request = $this->getRequest();

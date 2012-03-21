@@ -18,7 +18,7 @@ class SitemapBlock extends LinksBlock
 		return array();
 	}
 	
-	public function execute()
+	public function doExecute()
 	{
 		$response = $this->getResponse();
 		$em = ObjectRepository::getEntityManager($this);

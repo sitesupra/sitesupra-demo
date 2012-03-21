@@ -42,7 +42,7 @@ class BannerMachineController extends BlockController
 						->getType($bannerTypeId);
 	}
 
-	public function execute()
+	public function doExecute()
 	{
 		$request = $this->getRequest();
 

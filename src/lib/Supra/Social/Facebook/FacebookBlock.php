@@ -12,7 +12,7 @@ use Supra\Editable;
 class FacebookBlock extends BlockController
 {
 	
-	public function execute()
+	public function doExecute()
 	{
 		$response = $this->getResponse();
 		$response->output('Facebook block');

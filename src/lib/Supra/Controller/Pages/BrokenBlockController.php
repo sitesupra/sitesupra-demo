@@ -10,7 +10,7 @@ class BrokenBlockController extends BlockController
 	
 	const BLOCK_NAME = 'Supra_Controller_Pages_BrokenBlockController';
 
-	public function execute()
+	public function doExecute()
 	{
 		$request = $this->getRequest();
 		if ($request instanceof PageRequestEdit) {

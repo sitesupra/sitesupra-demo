@@ -9,7 +9,7 @@ class NotInitializedBlockController extends BlockController
 {
 	public $exception;
 	
-	public function execute()
+	public function doExecute()
 	{
 		throw new Exception\RuntimeException("Could not initialize block controller", null, $this->exception);
 	}

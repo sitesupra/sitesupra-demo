@@ -10,7 +10,7 @@ use Supra\Response;
  */
 class TextController extends BlockController
 {
-	public function execute()
+	public function doExecute()
 	{
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
