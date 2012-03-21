@@ -12,6 +12,7 @@ use Supra\Statistics\GoogleAnalytics\Listener\GoogleAnalyticsListener;
 use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
+use Supra\Controller\Pages\Listener\PageMetadataOutputListener;
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
 
@@ -64,5 +65,9 @@ $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
 $listener = new FacebookPagePublishingListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
+
+$listener = new PageMetadataOutputListener();
+$listener->setUseParentOnEmptyMetadata(true);
+$eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 
 ObjectRepository::setDefaultEventManager($eventManager);
