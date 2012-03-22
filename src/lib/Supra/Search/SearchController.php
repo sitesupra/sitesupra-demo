@@ -27,6 +27,7 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
  */
 class SearchController extends BlockController
 {
+
 	const RESPONSE_CONTEXT_KEY_RESULTS = 'search-results';
 
 	/**
@@ -57,11 +58,11 @@ class SearchController extends BlockController
 		$this->configuration = $configuration;
 	}
 
-	protected function doPrepare() {
+	protected function doPrepare()
+	{
 		
-		throw new \Exception("Trololo 544");
 	}
-	
+
 	/**
 	 * @return SearchControllerConfiguration
 	 */
@@ -85,7 +86,7 @@ class SearchController extends BlockController
 			$totalResultCount = $results->getTotalResultCount();
 
 			if ($totalResultCount == 0) {
-				
+
 				$response->assign('resultCount', '0');
 				$response->outputTemplate($configuration->noResultsTemplateFilename);
 			} else {
@@ -126,7 +127,7 @@ class SearchController extends BlockController
 		if ( ! is_null($results)) {
 			return $results;
 		}
-		
+
 		if ($request instanceof PageRequestView) {
 
 			if ( ! is_null($q)) {
@@ -175,10 +176,10 @@ class SearchController extends BlockController
 		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 
 		$results = $searchService->processRequest($searchRequest);
-		
+
 		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
 		$results->addPostprocesser($pageLocalizationPostProcesser);
-		
+
 		$results->runPostprocessers();
 
 		return $results;
