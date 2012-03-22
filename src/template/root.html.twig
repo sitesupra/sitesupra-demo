@@ -8,8 +8,7 @@
 	<meta name="Generator" content="SiteSupra" />
 	<meta http-equiv="MSSmartTagsPreventParsing" content="TRUE" />
 	<meta http-equiv="imagetoolbar" content="no" />
-	<meta name="description" content="{{ supra.responseContext.getLayoutSnippetContents('metaDescription') }}" />
-	<meta name="keywords" content="{{ supra.responseContext.getLayoutSnippetContents('metaKeywords') }}" />
+	{{ supra.responseContext.getLayoutSnippetContents('meta') | raw }}
 	<title>{% block title %}SiteSupra{% endblock %}</title>
 	<link rel="stylesheet" href="/resources/css/supra.css" type="text/css" />
 	<link rel="icon" type="image/png" href="/favicon.png" />

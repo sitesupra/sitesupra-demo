@@ -7,6 +7,10 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Response\HttpResponse;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Html\HtmlTag;
+use Supra\Controller\Pages\Finder\LocalizationFinder;
+use Supra\Controller\Pages\Finder\PageFinder;
+use Doctrine\ORM\EntityManager;
 
 class PageMetadataOutputListener
 {
@@ -15,6 +19,16 @@ class PageMetadataOutputListener
 	 * @var boolean
 	 */
 	protected $useParentOnEmptyMetadata = false;
+
+	/**
+	 * @var EntityManager
+	 */
+	protected $em;
+
+	/**
+	 * @var LocalizationFinder
+	 */
+	protected $localizationFinder;
 
 	/**
 	 * @return boolean
@@ -32,6 +46,51 @@ class PageMetadataOutputListener
 		$this->useParentOnEmptyMetadata = $useParentOnEmptyMetadata;
 	}
 
+	/**
+	 * @return EntityManager
+	 */
+	public function getEntityManager()
+	{
+		if (empty($this->em)) {
+			throw new Exception\RuntimeException('Entity manager not set.');
+		}
+
+		return $this->em;
+	}
+
+	/**
+	 * @param EntityManager $em 
+	 */
+	public function setEntityManager(EntityManager $em)
+	{
+		$this->em = $em;
+	}
+
+	/**
+	 * @return LocalizationFinder
+	 */
+	public function getLocalizationFinder()
+	{
+		if (empty($this->localizationFinder)) {
+
+			$em = $this->getEntityManager();
+
+			$pageFinder = new PageFinder($em);
+
+			$this->localizationFinder = new LocalizationFinder($pageFinder);
+		}
+
+		return $this->localizationFinder;
+	}
+
+	/**
+	 * @param LocalizationFinder $localizationFinder
+	 */
+	public function setLocalizationFinder(LocalizationFinder $localizationFinder)
+	{
+		$this->localizationFinder = $localizationFinder;
+	}
+
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
 		$request = $eventArgs->request;
@@ -43,27 +102,33 @@ class PageMetadataOutputListener
 		$pageLocalization = $request->getPageLocalization();
 
 		$metaNames = array(
-			'metaDescription', 'metaKeywords'
+			'metaDescription' => 'description', 'metaKeywords' => 'keywords'
 		);
 
-		$metaData = array();
+		$metaTagHtml = array();
 
-		foreach ($metaNames as $name) {
+		foreach ($metaNames as $propertyName => $tagName) {
 
-			$metaData[$name] = $this->getMetaContent($pageLocalization, $name);
-		}
+			$content = $this->getMetaContent($pageLocalization, $propertyName);
 
-		$response = $eventArgs->response;
-		/* @var $response HttpResponse */
-
-		foreach ($metaData as $name => $content) {
-
-			if ($name == 'metaKeywords') {
+			// Special case for "metaKeywords" - replace ";" with ", "
+			if ($propertyName == 'metaKeywords') {
 				$content = join(', ', explode(';', $content));
 			}
 
-			$response->getContext()->addToLayoutSnippet($name, $contents);
+			if ( ! empty($content)) {
+
+				$metaTag = new HtmlTag('meta');
+				$metaTag->setAttribute('name', $tagName);
+				$metaTag->setAttribute('content', $content);
+
+				$metaTagHtml[] = $metaTag->toHtml();
+			}
 		}
+
+		$responseContext = $eventArgs->response->getContext();
+
+		$responseContext->addToLayoutSnippet('meta', join("\n", $metaTagHtml));
 	}
 
 	private function getMetaContent(PageLocalization $pageLocalization, $metaName)
@@ -74,17 +139,13 @@ class PageMetadataOutputListener
 
 		if (empty($value) && $useParent) {
 
-			$ancestors = $pageLocalization->getAuthorizationAncestors();
+			$ancestors = $this->getLocalizationFinder()->getAncestors($pageLocalization);
 
 			foreach ($ancestors as $ancestor) {
-
-				if ($ancestor instanceof PageLocalization) {
-
-					$value = $ancestor->getProperty($metaName);
-
-					if ( ! empty($value)) {
-						break;
-					}
+				
+				$value = $ancestor->getProperty($metaName);
+				if ( ! empty($value)) {
+					break;
 				}
 			}
 		}

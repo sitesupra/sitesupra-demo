@@ -10,7 +10,7 @@ class ResponseContext extends FilteredInput
 	/**
 	 * @var array
 	 */
-	protected $layoutSnippetResponses;
+	protected $layoutSnippetResponses = array();
 
 	public function __construct($iterator = array())
 	{

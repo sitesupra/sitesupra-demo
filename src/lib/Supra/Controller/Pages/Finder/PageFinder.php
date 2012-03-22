@@ -10,16 +10,17 @@ use Supra\Controller\Pages\Repository;
  */
 class PageFinder extends AbstractFinder
 {
+
 	/**
 	 * @var \Supra\NestedSet\DoctrineRepository
 	 */
 	private $nestedSetRepository;
-	
+
 	/**
 	 * @var \Supra\NestedSet\SearchCondition\DoctrineSearchCondition
 	 */
 	private $searchCondition;
-	
+
 	/**
 	 * @return \Supra\NestedSet\DoctrineRepository
 	 */
@@ -34,10 +35,10 @@ class PageFinder extends AbstractFinder
 
 			$this->nestedSetRepository = $repository->getNestedSetRepository();
 		}
-		
+
 		return $this->nestedSetRepository;
 	}
-	
+
 	/**
 	 * @return \Supra\NestedSet\SearchCondition\DoctrineSearchCondition
 	 */
@@ -47,48 +48,72 @@ class PageFinder extends AbstractFinder
 			$nestedSetRepository = $this->getNestedSetRepository();
 			$this->searchCondition = $nestedSetRepository->createSearchCondition();
 		}
-		
+
 		return $this->searchCondition;
 	}
-	
+
 	public function getQueryBuilder()
 	{
 		$searchCondition = $this->getSearchCondition();
 		$nestedSetRepository = $this->getNestedSetRepository();
-		
+
 		$queryBuilder = $nestedSetRepository->createSearchQueryBuilder($searchCondition);
-		
+
 		return $queryBuilder;
 	}
-	
+
 	public function addLevelFilter($min = 0, $max = null)
 	{
 		$this->getSearchCondition()
 				->levelGreaterThanOrEqualsTo($min);
-		
+
 		if ( ! is_null($max)) {
 			$this->getSearchCondition()
-				->levelLessThanOrEqualsTo($max);
+					->levelLessThanOrEqualsTo($max);
 		}
 	}
-	
+
 	public function addFilterByParent(Entity\Abstraction\AbstractPage $page, $minDepth = 1, $maxDepth = null)
 	{
 		// Make sure it's positive
 		$minDepth = max($minDepth, 0);
-		
+
 		$parentLevel = $page->getLevel();
 		$this->addLevelFilter($parentLevel + $minDepth, is_null($maxDepth) ? null : $parentLevel + $maxDepth);
-		
+
 		// Can change the left/right by min depth without loosing any results
 		$leftLimit = $page->getLeftValue() + $minDepth;
 		$rightLimit = $page->getRightValue() - $minDepth;
-		
+
 		$this->getSearchCondition()
 				->leftGreaterThanOrEqualsTo($leftLimit);
-		
+
 		// Left will be definitely strictly less than the right limit
 		$this->getSearchCondition()
 				->leftLessThan($rightLimit);
 	}
+
+	public function getAncestors($page)
+	{
+		$left = $page->getLeftValue();
+		$right = $page->getRightValue();
+		$level = $page->getLevel();
+
+		$searchCondition = $this->getSearchCondition();
+		$repository = $this->getNestedSetRepository();
+
+		// Will include the self node if required in the end
+		$searchCondition->leftLessThan($left)
+				->rightGreaterThan($right);
+
+		//$searchCondition->levelGreaterThanOrEqualsTo($level);
+
+		$orderRule = $repository->createSelectOrderRule()
+				->byLevelDescending();
+
+		$ancestors = $repository->search($searchCondition, $orderRule);
+
+		return $ancestors;
+	}
+
 }

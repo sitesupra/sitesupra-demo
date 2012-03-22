@@ -66,8 +66,16 @@ $eventManager->listen($listener->getSubscribedEvents(), $listener);
 $listener = new FacebookPagePublishingListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
+
+// Page metadata output listener
 $listener = new PageMetadataOutputListener();
+
 $listener->setUseParentOnEmptyMetadata(true);
+
+$em = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
+$listener->setEntityManager($em);
+
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
+
 
 ObjectRepository::setDefaultEventManager($eventManager);
