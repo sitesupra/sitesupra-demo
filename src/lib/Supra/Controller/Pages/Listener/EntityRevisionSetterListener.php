@@ -234,7 +234,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 		$revision->setReferenceId($this->referenceId);
 		$revision->setAdditionalInfo($this->revisionInfo);
 		
-		$userId = '#';
+		$userId = null;
 		if ($this->user instanceof \Supra\User\Entity\User) {
 			$userId = $this->user->getId();
 		}

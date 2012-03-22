@@ -169,6 +169,10 @@ class EntityAuditListener implements EventSubscriber
 		$userProvider = ObjectRepository::getUserProvider($this, false);
 		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$this->user = $userProvider->getSignedInUser();
+			
+			if (is_null($this->user)) {
+				$this->user = new \Supra\User\SystemUser();
+			}
 		}
 	}
 	
