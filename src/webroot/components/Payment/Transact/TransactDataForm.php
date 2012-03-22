@@ -93,7 +93,7 @@ class TransactDataForm extends BlockController
 		return $formInputs;
 	}
 
-	public function execute()
+	public function doExecute()
 	{
 		$request = $this->getRequest();
 
