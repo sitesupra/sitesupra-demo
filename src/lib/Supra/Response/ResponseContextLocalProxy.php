@@ -29,20 +29,21 @@ class ResponseContextLocalProxy extends ResponseContext
 	
 	/**
 	 * Serializing local context only
-	 * @return array
+	 * @return string
 	 */
-	public function __sleep()
+	public function serialize()
 	{
-		$fieldNames = array('localContext');
-		
-		return $fieldNames;
+		return serialize($this->localContext);
 	}
 	
 	/**
 	 * Makes sure local context is created
+	 * @param string $serialized
 	 */
-	public function __wakeup()
+	public function unserialize($serialized)
 	{
+		$this->localContext = unserialize($serialized);
+		
 		if ( ! $this->localContext instanceof ResponseContext) {
 			$this->localContext = new ResponseContext();
 		}

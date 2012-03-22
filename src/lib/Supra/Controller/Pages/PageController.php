@@ -571,7 +571,7 @@ class PageController extends ControllerAbstraction
 							$cache->save($cacheKey, $serializedResponse, $lifetime);
 						} catch (\Exception $e) {
 							$blockName = $block->getComponentName();
-							$log->error("Could not serialize response of block $blockName");
+							$log->error("Could not serialize response of block $blockName: ", $e->__toString());
 						}
 					}
 				};
