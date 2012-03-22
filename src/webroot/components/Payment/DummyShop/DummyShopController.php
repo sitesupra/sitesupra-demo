@@ -27,533 +27,571 @@ use Supra\Payment\Provider\PaymentProviderAbstraction;
 class DummyShopController extends BlockController
 {
 
-    const ACTION_TYPE_SUBMIT_ORDER = 'submit';
-    const ACTION_TYPE_SUBMIT_RECURRING_ORDER = 'submitRecurring';
-    const ACTION_TYPE_UPDATE_ORDER = 'update';
-    const ACTION_TYPE_RETURN = 'return';
-    const ACTION_TYPE_RETURN_RECURRING = 'returnRecurring';
-    const ACTION_TYPE_MAKE_NEXT_RECURRING = 'submitMakeNextRecurring';
-    const ACTION_KEY = 'shopAction';
-    const DEFAULT_SUBSCRIPTION = 'default-subscription';
-    const TWIG_INDEX = 'index.html.twig';
-
-    /**
-     * @var ShoOrder
-     */
-    protected $order;
-
-    /**
-     * @var RecurringOrder
-     */
-    protected $recurringOrder;
-
-    /**
-     * @var OrderProvider
-     */
-    protected $orderProvider;
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * @return EntityManager
-     */
-    public function getEntityManager()
-    {
-        if (empty($this->em)) {
-            $this->em = ObjectRepository::getEntityManager($this);
-        }
-        return $this->em;
-    }
-
-    /**
-     * @param EntityManager $em 
-     */
-    public function setEntityManager(EntityManager $em)
-    {
-        $this->em = $em;
-    }
-
-    /**
-     * @return OrderProvider
-     */
-    public function getOrderProvider()
-    {
-        if (empty($this->orderProvider)) {
-
-            $em = $this->getEntityManager();
-
-            $provider = new OrderProvider();
-            $provider->setEntityManager($em);
-
-            $this->orderProvider = $provider;
-        }
-
-        return $this->orderProvider;
-    }
-
-    /**
-     * Returns URL for order submit action.
-     * @return string
-     */
-    private function getSubmitOrderUrl()
-    {
-        /* @var $request PageRequestView */
-        $request = $this->getRequest();
-
-        $url = '/' . $request->getActionString();
-
-        $queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_ORDER);
-
-        return $url . '?' . http_build_query($queryParameters);
-    }
-
-    /**
-     * 
-     */
-    private function getSubmitRecurringOrderUrl()
-    {
-        $request = $this->getRequest();
-
-        $url = '/' . $request->getActionString();
+	const ACTION_TYPE_SUBMIT_ORDER = 'submit';
+	const ACTION_TYPE_SUBMIT_RECURRING_ORDER = 'submitRecurring';
+	const ACTION_TYPE_UPDATE_ORDER = 'update';
+	const ACTION_TYPE_RETURN = 'return';
+	const ACTION_TYPE_RETURN_RECURRING = 'returnRecurring';
+	const ACTION_TYPE_MAKE_NEXT_RECURRING = 'submitMakeNextRecurring';
+	const ACTION_TYPE_REFUND_LAST_SHOP_TRANSACTION = 'submitRefundLastShop';
+	const ACTION_KEY = 'shopAction';
+	const DEFAULT_SUBSCRIPTION = 'default-subscription';
+	const TWIG_INDEX = 'index.html.twig';
+
+	/**
+	 * @var ShoOrder
+	 */
+	protected $order;
+
+	/**
+	 * @var RecurringOrder
+	 */
+	protected $recurringOrder;
+
+	/**
+	 * @var OrderProvider
+	 */
+	protected $orderProvider;
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
+
+	/**
+	 * @return EntityManager
+	 */
+	public function getEntityManager()
+	{
+		if (empty($this->em)) {
+			$this->em = ObjectRepository::getEntityManager($this);
+		}
+		return $this->em;
+	}
+
+	/**
+	 * @param EntityManager $em 
+	 */
+	public function setEntityManager(EntityManager $em)
+	{
+		$this->em = $em;
+	}
+
+	/**
+	 * @return OrderProvider
+	 */
+	public function getOrderProvider()
+	{
+		if (empty($this->orderProvider)) {
+
+			$em = $this->getEntityManager();
+
+			$provider = new OrderProvider();
+			$provider->setEntityManager($em);
+
+			$this->orderProvider = $provider;
+		}
+
+		return $this->orderProvider;
+	}
+
+	/**
+	 * Returns URL for order submit action.
+	 * @return string
+	 */
+	private function getSubmitOrderUrl()
+	{
+		/* @var $request PageRequestView */
+		$request = $this->getRequest();
+
+		$url = '/' . $request->getActionString();
+
+		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_ORDER);
+
+		return $url . '?' . http_build_query($queryParameters);
+	}
+
+	/**
+	 * 
+	 */
+	private function getSubmitRecurringOrderUrl()
+	{
+		$request = $this->getRequest();
+
+		$url = '/' . $request->getActionString();
 
-        $queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_RECURRING_ORDER);
+		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_SUBMIT_RECURRING_ORDER);
 
-        return $url . '?' . http_build_query($queryParameters);
-    }
+		return $url . '?' . http_build_query($queryParameters);
+	}
 
-    /**
-     * Returns URL for return redirect.
-     * @return string
-     */
-    private function getReturnToShopUrl(Order $order)
-    {
+	/**
+	 * Returns URL for return redirect.
+	 * @return string
+	 */
+	private function getReturnToShopUrl(Order $order)
+	{
 
-        /* @var $request PageRequestView */
-        $request = $this->getRequest();
+		/* @var $request PageRequestView */
+		$request = $this->getRequest();
 
-        // The next two lines are NOT identical! Do not remove!
-        $scriptUri = $request->getServerValue('SCRIPT_URI');
-        $scriptUrl = $request->getServerValue('SCRIPT_URL');
+		// The next two lines are NOT identical! Do not remove!
+		$scriptUri = $request->getServerValue('SCRIPT_URI');
+		$scriptUrl = $request->getServerValue('SCRIPT_URL');
 
-        $serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
+		$serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
 
-        $url = $serverHostWithProtocol . '/' . $request->getActionString();
+		$url = $serverHostWithProtocol . '/' . $request->getActionString();
 
-        $queryParameters = array(
-            self::ACTION_KEY => self::ACTION_TYPE_RETURN,
-            PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
-        );
+		$queryParameters = array(
+			self::ACTION_KEY => self::ACTION_TYPE_RETURN,
+			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
+		);
 
-        return $url . '?' . http_build_query($queryParameters);
-    }
+		return $url . '?' . http_build_query($queryParameters);
+	}
 
-    /** Returns URL for return redirect.
-     * @return string
-     */
-    private function getReturnToShopUrlForRecurringOrder()
-    {
-        /* @var $request PageRequestView */
-        $request = $this->getRequest();
+	/** Returns URL for return redirect.
+	 * @return string
+	 */
+	private function getReturnToShopUrlForRecurringOrder()
+	{
+		/* @var $request PageRequestView */
+		$request = $this->getRequest();
 
-        // The next two lines are NOT identical! Do not remove!
-        $scriptUri = $request->getServerValue('SCRIPT_URI');
-        $scriptUrl = $request->getServerValue('SCRIPT_URL');
+		// The next two lines are NOT identical! Do not remove!
+		$scriptUri = $request->getServerValue('SCRIPT_URI');
+		$scriptUrl = $request->getServerValue('SCRIPT_URL');
 
-        $serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
+		$serverHostWithProtocol = substr($scriptUri, 0, -strlen($scriptUrl));
 
-        $url = $serverHostWithProtocol . '/' . $request->getActionString();
+		$url = $serverHostWithProtocol . '/' . $request->getActionString();
 
-        $queryParameters = array(
-            self::ACTION_KEY => self::ACTION_TYPE_RETURN_RECURRING
-        );
+		$queryParameters = array(
+			self::ACTION_KEY => self::ACTION_TYPE_RETURN_RECURRING
+		);
 
-        return $url . '?' . http_build_query($queryParameters);
-    }
+		return $url . '?' . http_build_query($queryParameters);
+	}
 
-    /**
-     * Returns URL to for order update action.
-     * @return string
-     */
-    private function getUpdateOrderUrl()
-    {
-        $request = $this->getRequest();
+	/**
+	 * Returns URL to for order update action.
+	 * @return string
+	 */
+	private function getUpdateOrderUrl()
+	{
+		$request = $this->getRequest();
 
-        $url = '/' . $request->getActionString();
+		$url = '/' . $request->getActionString();
 
-        $queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_UPDATE_ORDER);
+		$queryParameters = array(self::ACTION_KEY => self::ACTION_TYPE_UPDATE_ORDER);
 
-        return $url . '?' . http_build_query($queryParameters);
-    }
+		return $url . '?' . http_build_query($queryParameters);
+	}
 
-    /**
-     * Fetches/creates and sets this order to open order for current user.
-     */
-    protected function getOpenShopOrderForCurrentUser()
-    {
-        $user = $this->getUser();
+	/**
+	 * Fetches/creates and sets this order to open order for current user.
+	 */
+	protected function getOpenShopOrderForCurrentUser()
+	{
+		$user = $this->getUser();
 
-        $orderProvider = $this->getOrderProvider();
+		$orderProvider = $this->getOrderProvider();
 
-        $this->order = $orderProvider->getOpenShopOrderForUser($user);
+		$this->order = $orderProvider->getOpenShopOrderForUser($user);
 
-        $currentLocale = $this->getCurrentLocale();
+		$currentLocale = $this->getCurrentLocale();
 
-        $this->order->updateLocale($currentLocale);
+		$this->order->updateLocale($currentLocale);
 
-        $returnToShopUrl = $this->getReturnToShopUrl($this->order);
+		$returnToShopUrl = $this->getReturnToShopUrl($this->order);
 
-        $this->order->setInitiatorUrl($returnToShopUrl);
-    }
+		$this->order->setInitiatorUrl($returnToShopUrl);
+	}
 
-    protected function getRecurringOrderForCurrentUser()
-    {
-        $user = $this->getUser();
+	protected function getRecurringOrderForCurrentUser()
+	{
+		$user = $this->getUser();
 
-        $orderProvider = $this->getOrderProvider();
+		$orderProvider = $this->getOrderProvider();
 
-        $order = $orderProvider->getRecurringOrderForUser($user);
+		$order = $orderProvider->getRecurringOrderForUser($user);
 
-        if (empty($order)) {
+		if (empty($order)) {
 
-            $currentLocale = $this->getCurrentLocale();
+			$currentLocale = $this->getCurrentLocale();
 
-            $currency = $this->getCurrencyByIsoCode('USD');
+			$currency = $this->getCurrencyByIsoCode('USD');
 
-            $user = $this->getUser();
+			$user = $this->getUser();
 
-            $order = new RecurringOrder();
+			$order = new RecurringOrder();
 
-            $order->setUserId($user->getId());
+			$order->setUserId($user->getId());
 
-            $order->setCurrency($currency);
+			$order->setCurrency($currency);
 
-            $order->updateLocale($currentLocale);
-            $order->setInitiatorUrl($this->getReturnToShopUrlForRecurringOrder());
+			$order->updateLocale($currentLocale);
+			$order->setInitiatorUrl($this->getReturnToShopUrlForRecurringOrder());
 
-            $order->setPeriodLength(1);
-            $order->setPeriodDimension(RecurringOrderPeriodDimension::MONTH);
+			$order->setPeriodLength(1);
+			$order->setPeriodDimension(RecurringOrderPeriodDimension::MONTH);
 
-            $product = new DummyProduct(999);
+			$product = new DummyProduct(999);
 
-            $orderItem = $order->getOrderItemByProduct($product);
+			$orderItem = $order->getOrderItemByProduct($product);
 
-            $orderItem->setQuantity(1);
-            $orderItem->setPriceFromProduct($currency);
+			$orderItem->setQuantity(1);
+			$orderItem->setPriceFromProduct($currency);
 
-            $order->setBillingDescription('Just some billing description');
+			$order->setBillingDescription('Just some billing description');
 
-            $orderProvider->store($order);
-        }
+			$orderProvider->store($order);
+		}
 
-        $this->recurringOrder = $order;
-    }
+		$this->recurringOrder = $order;
+	}
 
-    /**
-     * Fetches and sets this order from order id retreived from request.
-     */
-    protected function getShopOrderFromRequest()
-    {
-        $request = $this->getRequest();
+	/**
+	 * Fetches and sets this order from order id retreived from request.
+	 */
+	protected function getShopOrderFromRequest()
+	{
+		$request = $this->getRequest();
 
-        $orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID);
+		$orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID);
 
-        $orderProvider = $this->getOrderProvider();
+		$orderProvider = $this->getOrderProvider();
 
-        $this->order = $orderProvider->getOrder($orderId);
-    }
+		$this->order = $orderProvider->getOrder($orderId);
+	}
 
-    public function execute()
-    {
-        $request = $this->getRequest();
+	public function doExecute()
+	{
+		$request = $this->getRequest();
 
-        if ($request instanceof PageRequestView) {
+		if ($request instanceof PageRequestView) {
 
-            $action = $request->getParameter(self::ACTION_KEY);
+			$action = $request->getParameter(self::ACTION_KEY);
 
-            switch ($action) {
+			switch ($action) {
 
-                case self::ACTION_TYPE_UPDATE_ORDER: {
+				case self::ACTION_TYPE_UPDATE_ORDER: {
 
-                        $this->getOpenShopOrderForCurrentUser();
-                        $this->updateOrder();
-                    } break;
+						$this->getOpenShopOrderForCurrentUser();
+						$this->updateOrder();
+					} break;
 
-                case self::ACTION_TYPE_SUBMIT_ORDER: {
+				case self::ACTION_TYPE_SUBMIT_ORDER: {
 
-                        $this->getOpenShopOrderForCurrentUser();
-                        $this->submitOrder();
-                    } break;
+						$this->getOpenShopOrderForCurrentUser();
+						$this->submitOrder();
+					} break;
 
-                case self::ACTION_TYPE_SUBMIT_RECURRING_ORDER: {
+				case self::ACTION_TYPE_SUBMIT_RECURRING_ORDER: {
 
-                        $this->getRecurringOrderForCurrentUser();
-                        $this->submitRecurringOrder();
-                    } break;
+						$this->getRecurringOrderForCurrentUser();
+						$this->submitRecurringOrder();
+					} break;
 
-                case self::ACTION_TYPE_RETURN: {
+				case self::ACTION_TYPE_RETURN: {
 
-                        $this->getShopOrderFromRequest();
-                        $this->handleReturn();
-                    } break;
+						$this->getShopOrderFromRequest();
+						$this->handleReturn();
+					} break;
 
-                case self::ACTION_TYPE_MAKE_NEXT_RECURRING: {
+				case self::ACTION_TYPE_MAKE_NEXT_RECURRING: {
 
-                        $this->getRecurringOrderForCurrentUser();
-                        $this->makeNextRecurringTransaction();
-                    } break;
+						$this->getRecurringOrderForCurrentUser();
+						$this->makeNextRecurringTransaction();
+					} break;
 
-                default: {
+				case self::ACTION_TYPE_REFUND_LAST_SHOP_TRANSACTION: {
 
-                        $this->getOpenShopOrderForCurrentUser();
-                        $this->showOrder();
-                    }
-            }
-        } else {
+						$this->refundLastShopOrder();
+						$this->showOrder();
+					} break;
 
-            $this->showOrderForCms();
-        }
-    }
 
-    /**
-     * Loads property definition array.
-     * @return array
-     */
-    public function getPropertyDefinition()
-    {
-        return array();
-    }
+				default: {
 
-    /**
-     * Dummy current user source, always returns "admin" user.
-     * @return User
-     */
-    protected function getUser()
-    {
-        $up = ObjectRepository::getUserProvider('#cms');
+						$this->getOpenShopOrderForCurrentUser();
+						$this->showOrder();
+					}
+			}
+		} else {
 
-        return $up->findUserByLogin('external-user-01');
-    }
+			$this->showOrderForCms();
+		}
+	}
 
-    /**
-     * Dummy payment provider source, allways returns last payment provider configured and added to collection.
-     * @return PaymentProviderAbstraction 
-     */
-    private function getPaymentProvider()
-    {
-        $paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
-        $providerIds = $paymentProviderCollection->getIds();
+	/**
+	 * Loads property definition array.
+	 * @return array
+	 */
+	public function getPropertyDefinition()
+	{
+		return array();
+	}
 
-        $firstPaymentProviderId = array_pop($providerIds);
-        $paymentProvider = $paymentProviderCollection->get($firstPaymentProviderId);
+	/**
+	 * Dummy current user source, always returns "admin" user.
+	 * @return User
+	 */
+	protected function getUser()
+	{
+		$up = ObjectRepository::getUserProvider('#cms');
 
-        return $paymentProvider;
-    }
+		return $up->findUserByLogin('external-user-01');
+	}
 
-    /**
-     * Dummy order update - only adjusts amount of products.
-     */
-    private function updateOrder()
-    {
-        $request = $this->getRequest();
+	/**
+	 * Dummy payment provider source, allways returns last payment provider configured and added to collection.
+	 * @return PaymentProviderAbstraction 
+	 */
+	private function getPaymentProvider()
+	{
+		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
+		$providerIds = $paymentProviderCollection->getIds();
 
-        $orderProvider = $this->getOrderProvider();
+		$firstPaymentProviderId = array_pop($providerIds);
+		$paymentProvider = $paymentProviderCollection->get($firstPaymentProviderId);
 
-        $itemAmount = $request->getParameter('amount');
+		return $paymentProvider;
+	}
 
-        $productIds = array(111, 222, 333);
+	/**
+	 * Dummy order update - only adjusts amount of products.
+	 */
+	private function updateOrder()
+	{
+		$request = $this->getRequest();
 
-        $currency = $this->getCurrencyByIsoCode('USD');
-        $this->order->setCurrency($currency);
+		$orderProvider = $this->getOrderProvider();
 
-        foreach ($productIds as $productId) {
+		$itemAmount = $request->getParameter('amount');
 
-            $product = new DummyProduct($productId);
+		$productIds = array(111, 222, 333);
 
-            $orderItem = $this->order->getOrderItemByProduct($product);
+		$currency = $this->getCurrencyByIsoCode('USD');
+		$this->order->setCurrency($currency);
 
-            $orderItem->setQuantity($itemAmount);
-            $orderItem->setPriceFromProduct($currency);
-        }
+		foreach ($productIds as $productId) {
 
-        $paymentProvider = $this->getPaymentProvider();
+			$product = new DummyProduct($productId);
 
-        $paymentProvider->updateShopOrder($this->order);
+			$orderItem = $this->order->getOrderItemByProduct($product);
 
-        $orderProvider->store($this->order);
+			$orderItem->setQuantity($itemAmount);
+			$orderItem->setPriceFromProduct($currency);
+		}
 
-        $this->showOrder();
-    }
+		$paymentProvider = $this->getPaymentProvider();
 
-    /**
-     * Validates order and submits ot to processing via payment provider.
-     */
-    public function submitOrder()
-    {
-        $response = $this->getResponse();
+		$paymentProvider->updateShopOrder($this->order);
 
-        $orderProvider = $this->getOrderProvider();
+		$orderProvider->store($this->order);
 
-        $paymentProvider = $this->getPaymentProvider();
+		$this->showOrder();
+	}
 
-        if ($paymentProvider->validateShopOrder($this->order)) {
+	/**
+	 * Validates order and submits ot to processing via payment provider.
+	 */
+	public function submitOrder()
+	{
+		$response = $this->getResponse();
 
-            $paymentProvider->processShopOrder($this->order, $response);
+		$orderProvider = $this->getOrderProvider();
 
-            $orderProvider->store($this->order);
-        } else {
+		$paymentProvider = $this->getPaymentProvider();
 
-            $this->showOrder();
-        }
-    }
+		if ($paymentProvider->validateShopOrder($this->order)) {
 
-    /**
-     * Assigns "#" to various action variables and renders shop block  
-     * for CMS.
-     */
-    public function showOrderForCms()
-    {
-        $response = $this->getResponse();
+			$paymentProvider->processShopOrder($this->order, $response);
 
-        $response->assign('submitOrderUrl', '#');
-        $response->assign('updateOrderUrl', '#');
-        $response->outputTemplate(self::TWIG_INDEX);
-    }
+			$orderProvider->store($this->order);
+		} else {
 
-    /**
-     * Assigns order data and various URLs to response and renders shop 
-     * block for frontend.
-     */
-    public function showOrder()
-    {
-        $response = $this->getResponse();
+			$this->showOrder();
+		}
+	}
 
-        $submitOrderUrl = $this->getSubmitOrderUrl();
-        $submitRecurringOrderUrl = $this->getSubmitRecurringOrderUrl();
-        $updateOrderUrl = $this->getUpdateOrderUrl();
+	/**
+	 * Assigns "#" to various action variables and renders shop block  
+	 * for CMS.
+	 */
+	public function showOrderForCms()
+	{
+		$response = $this->getResponse();
 
-        $orderItems = $this->order->getItems();
+		$response->assign('submitOrderUrl', '#');
+		$response->assign('updateOrderUrl', '#');
+		$response->outputTemplate(self::TWIG_INDEX);
+	}
 
-        $response->assign('orderItems', $orderItems);
-        $response->assign('orderId', $this->order->getId());
-        $response->assign('submitOrderUrl', $submitOrderUrl);
-        $response->assign('submitRecurringOrderUrl', $submitRecurringOrderUrl);
+	/**
+	 * Assigns order data and various URLs to response and renders shop 
+	 * block for frontend.
+	 */
+	public function showOrder()
+	{
+		$response = $this->getResponse();
 
-        $response->assign('updateOrderUrl', $updateOrderUrl);
+		$submitOrderUrl = $this->getSubmitOrderUrl();
+		$submitRecurringOrderUrl = $this->getSubmitRecurringOrderUrl();
+		$updateOrderUrl = $this->getUpdateOrderUrl();
 
-        $response->outputTemplate(self::TWIG_INDEX);
-    }
+		$orderItems = $this->order->getItems();
 
-    /**
-     * Handles return from payment provider.
-     */
-    public function handleReturn()
-    {
-        /* @var $order ShopOrder */
-        $order = $this->order;
+		$response->assign('orderItems', $orderItems);
+		$response->assign('orderId', $this->order->getId());
+		$response->assign('submitOrderUrl', $submitOrderUrl);
+		$response->assign('submitRecurringOrderUrl', $submitRecurringOrderUrl);
 
-        /* @var $transaction Transaction */
-        $transaction = $order->getTransaction();
+		$response->assign('updateOrderUrl', $updateOrderUrl);
 
-        $transactionStatus = $transaction->getStatus();
+		$response->outputTemplate(self::TWIG_INDEX);
+	}
 
-        switch ($transactionStatus) {
+	/**
+	 * Handles return from payment provider.
+	 */
+	public function handleReturn()
+	{
+		/* @var $order ShopOrder */
+		$order = $this->order;
 
-            case TransactionStatus::SUCCESS: {
+		/* @var $transaction Transaction */
+		$transaction = $order->getTransaction();
 
-                    $this->getResponse()
-                            ->output('<h1>THANKS FOR THE PAYMENT!!!</h1>');
-                } break;
+		$transactionStatus = $transaction->getStatus();
 
-            case TransactionStatus::PAYER_CANCELED: {
+		switch ($transactionStatus) {
 
-                    $this->getResponse()
-                            ->output('<h1>YOU CANCELED THE PAYMENT!!!</h1>');
-                } break;
+			case TransactionStatus::SUCCESS: {
 
-            case TransactionStatus::PENDING: {
+					$this->getResponse()
+							->output('<h1>THANKS FOR THE PAYMENT!!!</h1>');
+				} break;
 
-                    $this->getResponse()
-                            ->output('<h1>PAYMENT STILL PENDING!!!</h1>');
-                } break;
+			case TransactionStatus::PAYER_CANCELED: {
 
-            case TransactionStatus::STARTED: {
+					$this->getResponse()
+							->output('<h1>YOU CANCELED THE PAYMENT!!!</h1>');
+				} break;
 
-                    $this->getResponse()
-                            ->output('<h1>YOU STARTED PAYMENT PROCEDURE!!!</h1>');
-                } break;
+			case TransactionStatus::PENDING: {
 
-            case TransactionStatus::FAILED: {
+					$this->getResponse()
+							->output('<h1>PAYMENT STILL PENDING!!!</h1>');
+				} break;
 
-                    $this->getResponse()
-                            ->output('<h1>PAYMENT HAS FAILED!!!</h1>');
-                } break;
+			case TransactionStatus::STARTED: {
 
-            default: {
+					$this->getResponse()
+							->output('<h1>YOU STARTED PAYMENT PROCEDURE!!!</h1>');
+				} break;
 
-                    $this->getResponse()
-                            ->output('<h1>!!! ERROR #' . $transactionStatus . ' !!!</h1>');
-                }
-        }
-    }
+			case TransactionStatus::FAILED: {
 
-    protected function submitRecurringOrder()
-    {
-        $order = $this->recurringOrder;
+					$this->getResponse()
+							->output('<h1>PAYMENT HAS FAILED!!!</h1>');
+				} break;
 
-        $response = $this->getResponse();
+			default: {
 
-        $orderProvider = $this->getOrderProvider();
+					$this->getResponse()
+							->output('<h1>!!! ERROR #' . $transactionStatus . ' !!!</h1>');
+				}
+		}
+	}
 
-        $paymentProvider = $this->getPaymentProvider();
+	protected function submitRecurringOrder()
+	{
+		$order = $this->recurringOrder;
 
-        if ($paymentProvider->validateRecurringOrder($order)) {
+		$response = $this->getResponse();
 
-            $paymentProvider->processRecurringOrder($order, $response);
+		$orderProvider = $this->getOrderProvider();
 
-            $orderProvider->store($order);
-        } else {
+		$paymentProvider = $this->getPaymentProvider();
 
-            throw new Exception\RuntimeException('Recurring order validation failed.');
-        }
-    }
+		if ($paymentProvider->validateRecurringOrder($order)) {
 
-    /**
-     * @param string $isoCode
-     * @return Curreny
-     */
-    protected function getCurrencyByIsoCode($isoCode)
-    {
-        $currencyProvider = new CurrencyProvider();
-        $currency = $currencyProvider->getCurrencyByIso4217Code($isoCode);
+			$paymentProvider->processRecurringOrder($order, $response);
 
-        return $currency;
-    }
+			$orderProvider->store($order);
+		} else {
 
-    /**
-     * @return Locale
-     */
-    protected function getCurrentLocale()
-    {
-        $lm = ObjectRepository::getLocaleManager($this);
-        $currentLocale = $lm->getCurrent();
+			throw new Exception\RuntimeException('Recurring order validation failed.');
+		}
+	}
 
-        return $currentLocale;
-    }
+	/**
+	 * @param string $isoCode
+	 * @return Curreny
+	 */
+	protected function getCurrencyByIsoCode($isoCode)
+	{
+		$currencyProvider = new CurrencyProvider();
+		$currency = $currencyProvider->getCurrencyByIso4217Code($isoCode);
 
-    protected function makeNextRecurringTransaction()
-    {
-        $order = $this->recurringOrder;
-        /* @var $order RecurringOrder */
+		return $currency;
+	}
 
-        $response = $this->getResponse();
-		
+	/**
+	 * @return Locale
+	 */
+	protected function getCurrentLocale()
+	{
+		$lm = ObjectRepository::getLocaleManager($this);
+		$currentLocale = $lm->getCurrent();
+
+		return $currentLocale;
+	}
+
+	protected function makeNextRecurringTransaction()
+	{
+		$order = $this->recurringOrder;
+		/* @var $order RecurringOrder */
+
 		$paymentProvider = $this->getPaymentProvider();
 
 		$paymentProvider->processNextRecurringOrderTransaction($order);
+	}
 
-    }
+	protected function refundLastShopOrder()
+	{
+		$orderProvider = $this->getOrderProvider();
+
+		$user = $this->getUser();
+		
+		$orders = $orderProvider->getUserOrders($user);
+
+		if ( ! empty($orders)) {
+
+			$lastOrder = array_pop($orders);
+
+			foreach ($orders as $order) {
+				
+				$transaction = $order->getTransaction();
+				
+				if (! empty($transaction) && $transaction->getCreationTime() > $lastOrder->getTransaction()->getCreationTime()) {
+
+					if ($lastOrder instanceof ShopOrder && $lastOrder->getTransaction()->getStatus() == TransactionStatus::SUCCESS) {
+						$lastOrder = $order;
+					}
+				}
+			}
+
+			if ($lastOrder instanceof ShopOrder && $lastOrder->getTransaction()->getStatus() == TransactionStatus::SUCCESS) {
+
+				$paymentProvider = $this->getPaymentProvider();
+
+				$paymentProvider->refundShopOrder($lastOrder);
+			}
+		}
+	}
 
 }
