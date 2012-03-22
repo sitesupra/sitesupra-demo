@@ -3,7 +3,7 @@
 namespace Supra\Payment\Entity\RecurringPayment;
 
 use Supra\Payment\Entity\Abstraction\PaymentEntityParameter;
-use \DateTime;
+use DateTime;
 use Supra\Payment\Entity\Abstraction\LogEntry;
 
 /**

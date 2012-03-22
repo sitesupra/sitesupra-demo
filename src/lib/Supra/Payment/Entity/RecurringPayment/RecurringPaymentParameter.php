@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Supra\Payment\Entity\RecurringPayment;
 
