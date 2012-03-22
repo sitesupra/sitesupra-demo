@@ -130,9 +130,14 @@ var AjaxForm = $.AjaxForm = function (container, options) {
 		 */
 		'setErrorMessage': function (name, error, silent) {
 			if (!this.validation_enabled) return false;
+
+			if (name == "submit") {
+				var row = this.form.find('[name="' + name + '"]').closest('.button-row');
+			} else {
+				var row = this.form.find('[name="' + name + '"]').closest('.input-row');
+			}
 			
-			var row = this.form.find('[name="' + name + '"]').closest('.input-row'),
-				message = row.next('.error-message');
+			var message = row.next('.error-message');
 			
 			if (error) {
 				if (!message.length && error !== true) {
@@ -278,7 +283,7 @@ var AjaxForm = $.AjaxForm = function (container, options) {
 					//Handle errors
 					for(var name in response.errors) {
 						msg = error_messages[name][response.errors[name]];
-						this.setErrorMessage(name, msg || true, true);
+						this.setErrorMessage(name, msg || true, true);						
 					}
 
 					//After validation update lightbox position if there is one

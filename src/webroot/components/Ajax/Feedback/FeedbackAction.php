@@ -8,7 +8,7 @@ use Supra\Validator\Exception\ValidatorException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Validator\Exception\ValidationFailure;
 use Supra\Validator\Type\AbstractType;
-use Project\Feedback\FeedbackBlock;
+use Project\Blocks\Feedback\FeedbackBlock;
 
 
 /**
@@ -56,9 +56,18 @@ class FeedbackAction extends SimpleController
 		$errorArray = $this->checkDependencyRequiredInputs($errorArray, $postValues, $formInputs);
 		
 		if (empty($errorArray)) {
-			$this->sendMail($postValues, $formInputs);
-		} else {
-			// simplify error output for js: only first error label will be returned
+			try {
+				$this->sendMail($postValues, $formInputs);
+			} catch (\Exception $e) {
+				$errorArray['submit'][] = 'failed';
+				
+				$logger = ObjectRepository::getLogger($this);
+				$logger->error("Failed to send email with reason: {$e->getMessage()}");
+			}
+		}
+		
+		// simplify error output for js: only first error label will be returned
+		if ( ! empty($errorArray)) {
 			foreach($errorArray as $key => &$error) {
 				if (isset($error[0]) && ! is_null($error[0])) {
 					$error = $error[0];
@@ -67,7 +76,7 @@ class FeedbackAction extends SimpleController
 				}
 			}
 		}
-		
+				
 		$response = array(
 			'success' => (empty($errorArray) ? true : false),
 			'errors' => $errorArray,

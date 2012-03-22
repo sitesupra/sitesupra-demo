@@ -153,6 +153,8 @@ class FeedbackBlock extends BlockController
 			$errorLabels[$id] = $this->getValidationErrorLabels($input);
 		}
 		
+		$errorLabels['submit']['failed'] = $this->getPropertyValue('internalError');
+		
 		$response->assign('errorLabels', $errorLabels);
 		$response->assign('formInputs', $this->formInputs);
 		$response->assign('requestPath', self::AJAX_ACTION_PATH);
@@ -166,10 +168,10 @@ class FeedbackBlock extends BlockController
 		$context->addJsUrlToLayoutSnippet('js', "http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js");
 		
 		if ($this->getRequest() instanceof PageRequestView) {
-			$context->addJsUrlToLayoutSnippet('js', "/components/Feedback/feedback.js");
+			$context->addJsUrlToLayoutSnippet('js', "/components/Blocks/Feedback/feedback.js");
 		}
 		
-		$context->addCssLinkToLayoutSnippet('js', "/components/Feedback/feedback.css");		
+		$context->addCssLinkToLayoutSnippet('js', "/components/Blocks/Feedback/feedback.css");		
 		
 		$response->outputTemplate('index.html.twig');
 	}
@@ -250,6 +252,10 @@ class FeedbackBlock extends BlockController
 			}
 					
 		}
+		
+		$label = new Editable\String('Internal server error', self::GROUP_ERRORS);
+		$label->setDefaultValue('Internal server error');
+		$properties['internalError'] = $label;
 		
 		// Additional properties
 		//     success message
