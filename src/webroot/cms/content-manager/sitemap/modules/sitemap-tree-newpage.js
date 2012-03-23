@@ -481,12 +481,12 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				pagedata.reference = drop_data.id;
 				pagedata.parent = parent;
 			} else if (position == 'after') {
-				var parent = target.get('parent'),
+				var parent = target ? target.get('parent') : null,
 					parent_data = parent ? parent.get('data') : null;
 				
 				parent = parent_data ? parent_data.id : 0;
 				
-				var ref = target.next(); 
+				var ref = target ? target.next() : null; 
 				if (ref) {
 					pagedata.reference = ref.get('data').id;
 				}
@@ -503,7 +503,7 @@ YUI.add('website.sitemap-tree-newpage', function (Y) {
 				}
 			} else {
 				if (position == 'after') {
-					this.new_page_index = target.get('index') + 1;
+					this.new_page_index = target ? target.get('index') + 1 : 0;
 				} else {
 					this.new_page_index = target.get('index');
 				}
