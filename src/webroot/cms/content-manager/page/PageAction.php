@@ -363,12 +363,15 @@ class PageAction extends PageManagerAction
 						}
 						
 						if ($editable instanceof Editable\Image) {
-							$fileStorage = ObjectRepository::getFileStorage($this);
-							$image = $fileStorage->getDoctrineEntityManager()
-									->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
 							
-							if ($image instanceof \Supra\FileStorage\Entity\Image) {
-								$propertyData = $fileStorage->getFileInfo($image, $localeId);
+							if ($propertyValue) {
+								$fileStorage = ObjectRepository::getFileStorage($this);
+								$image = $fileStorage->getDoctrineEntityManager()
+										->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
+
+								if ($image instanceof \Supra\FileStorage\Entity\Image) {
+									$propertyData = $fileStorage->getFileInfo($image, $localeId);
+								}
 							}
 						}
 						

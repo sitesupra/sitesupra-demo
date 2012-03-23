@@ -47,8 +47,12 @@ class TwigSupraBlockGlobal
 	 * @param boolean $cropped
 	 * @return HtmlTag
 	 */
-	public function imageHtmlTag($imageId, $width, $height, $cropped = false)
+	public function imageHtmlTag($imageId, $width = null, $height = null, $cropped = false)
 	{
+		if (empty($imageId)) {
+			return;
+		}
+		
 		$img = new HtmlTag('img');
 		
 		$fileStorage = ObjectRepository::getFileStorage($this);
@@ -65,13 +69,23 @@ class TwigSupraBlockGlobal
 			return;
 		}
 		
-		$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
-		$imageSize = $image->getImageSize($sizeName);
+		$sizeName = null;
+		
+		// Needs original version
+		if ( ! is_null($width) && ! is_null($height)) {
+			$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
+			$imageSize = $image->getImageSize($sizeName);
+			$width = $imageSize->getWidth();
+			$height = $imageSize->getHeight();
+		} else {
+			$width = $image->getWidth();
+			$height = $image->getHeight();
+		}
 		
 		$webPath = $fileStorage->getWebPath($image, $sizeName);
 		$img->setAttribute('src', $webPath);
-		$img->setAttribute('width', $imageSize->getWidth());
-		$img->setAttribute('height', $imageSize->getHeight());
+		$img->setAttribute('width', $width);
+		$img->setAttribute('height', $height);
 		
 		return $img;
 	}

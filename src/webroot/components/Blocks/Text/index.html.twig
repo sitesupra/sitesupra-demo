@@ -8,5 +8,12 @@
 		<h2{% if supra.cmsRequest %} class="su-settings-title"{% endif %}>{{ supraBlock.property('title') }}</h2>
 	{% endif %}
 	
+	{% set image = supraBlock.property('image') %}
+	{% set imageTagHtml = supraBlock.imageHtmlTag( image, 200, 100, false ).toHtml() %}
+	
+	{% if imageTagHtml %}
+		<div class="image">{{ imageTagHtml | raw }}</div>
+	{% endif %}
+	
 	{{ supraBlock.property('content') }}
 </div>

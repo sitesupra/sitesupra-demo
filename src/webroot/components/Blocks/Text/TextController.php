@@ -54,6 +54,8 @@ class TextController extends BlockController
 		$html = new \Supra\Editable\Html("Content");
 		$contents['content'] = $html;
 		
+		$contents['image'] = new \Supra\Editable\Image('Picture');
+		
 		return $contents;
 	}
 }
