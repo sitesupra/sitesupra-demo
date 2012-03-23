@@ -217,6 +217,8 @@ class PagecontentAction extends PageManagerAction
 				if ( ! empty($metadataCollection)) {
 					foreach($metadataCollection as $metadataItem) {
 						
+						/* @var $metadataItem Entity\BlockPropertyMetadata */
+						
 						$name = $metadataItem->getName();
 						if ($name == $elementName) {
 							$element = $metadataItem->getReferencedElement();

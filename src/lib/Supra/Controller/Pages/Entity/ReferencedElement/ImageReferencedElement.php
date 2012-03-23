@@ -214,6 +214,8 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	{
 		$array = array(
 			'type' => self::TYPE_ID,
+			'id' => $this->imageId,
+			//TODO: Remove after JS change (#5686)
 			'image' => $this->imageId,
 			'align' => $this->align,
 			'style' => $this->style,
@@ -242,6 +244,11 @@ class ImageReferencedElement extends ReferencedElementAbstract
 			'description' => null,
 			'size_name' => null,
 		);
+		
+		// TODO: should be removed after JS changes (#5686)
+		if (empty($array['id']) && ! empty($array['image'])) {
+			$array['id'] = $array['image'];
+		}
 
 		$this->imageId = $array['id'];
 		$this->align = $array['align'];

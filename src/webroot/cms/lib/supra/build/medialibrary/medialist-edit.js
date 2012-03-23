@@ -66,14 +66,14 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			
 			//Create input
 			var input = Y.Node.create('<input type="text" value="" />');
-			input.setAttribute('value', data.title);
+			input.setAttribute('value', data.filename);
 			
 			target.one('span').insert(input, 'after');
 			target.addClass('renaming');
 			
 			var string = new Supra.Input.String({
 				'srcNode': input,
-				'value': data.title,
+				'value': data.filename,
 				'blurOnReturn': true
 			});
 			string.render();
@@ -101,9 +101,10 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				post_data = null,
 				original_title;
 			
-			if (obj.data.title != value && value) {
-				original_title = obj.data.title;
-				obj.data.title = value;
+			if (obj.data.filename != value && value) {
+				original_title = obj.data.filename;
+				obj.data.filename = value;
+				obj.data.defaultTitle = value;
 				obj.node.one('span').set('innerHTML', Y.Escape.html(value));
 				
 				post_data = {
@@ -132,7 +133,8 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					} else {
 						if (!status) {
 							//Revert title changes
-							obj.data.title = original_title;
+							obj.data.filename = original_title;
+							obj.data.defaultTitle = original_title;
 							obj.node.one('span').set('innerHTML', Y.Escape.html(original_title));
 						} else {
 							this.get('host').reloadFolder(obj.id);
@@ -199,6 +201,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
 					
 					li.one('span').set('text', value);
+					data.data['defaultTitle'] = value;
 				}
 			} else if (!value) {
 				data.input.set('value', data.data[name]);

@@ -208,8 +208,11 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		$info = parent::getInfo($locale);
 		
 		$info = $info + array(
-			'title' => (is_null($locale) ? $this->getTitleArray() : $this->getTitle($locale) ),
-			'description' => (is_null($locale) ? $this->getDescriptionArray() :  $this->getDescription($locale)),
+			// FIXME: returns different type depending on the input (string, array)
+			'defaultTitle' => $this->getTitle($locale),
+			'defaultDescription' => $this->getDescription($locale),
+			'title' => $this->getTitleArray(),
+			'description' => $this->getDescriptionArray(),
 			'size' => $this->getSize()
 		);
 		

@@ -183,7 +183,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	 */
 	Extended.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('\
 		<li class="type-temp" data-id="{{ id }}">\
-			<span class="title">{{ title|escape }}</span>\
+			<span class="title">{{ filename|escape }}</span>\
 			<span class="progress"><em></em></span>\
 		</li>');
 	
@@ -194,7 +194,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
 		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
-			<span>{{title|escape }}</span>\
+			<span>{{ defaultTitle|escape }}</span>\
 		</li>');
 		
 	
@@ -214,7 +214,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @type {String}
 		 */
 		'sortBy': {
-			value: 'title'
+			value: 'defaultTitle'
 		},
 		
 		/**

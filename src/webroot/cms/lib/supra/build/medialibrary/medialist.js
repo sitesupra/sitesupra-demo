@@ -92,7 +92,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_FOLDER = Template.compile('\
 		<li class="type-folder {% if private %}type-folder-private{% endif %}" data-id="{{ id }}">\
 			<a></a>\
-			<span>{{ title|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 	
 	/**
@@ -102,7 +102,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
 		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
-			<span>{{ title|escape }}</span>\
+			<span>{{ defaultTitle|escape }}</span>\
 		</li>');
 	
 	/**
@@ -112,7 +112,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
 		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
-			<span>{{ title|escape }}</span>\
+			<span>{{ defaultTitle|escape }}</span>\
 		</li>');
 	
 	/**
@@ -610,7 +610,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					id: file_id,
 					parent: parent_id,
 					type: Supra.MediaLibraryData.TYPE_TEMP,
-					title: '',
+					filename: '',
 					thumbnail: null,
 					preview: null
 				}, data || {});

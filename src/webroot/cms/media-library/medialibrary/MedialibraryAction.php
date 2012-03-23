@@ -85,9 +85,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			$title = $rootNode->getFileName();
+			$titles = null;
 			
 			if ($rootNode instanceof Entity\File) {
 				$title = $rootNode->getTitle($localeId);
+				$titles = $rootNode->getTitleArray();
 				$extension = mb_strtolower($rootNode->getExtension());
 				
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
@@ -112,7 +114,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 
 			$item['id'] = $rootNode->getId();
-			$item['title'] = $title;
+			$item['defaultTitle'] = $title;
+			$item['title'] = $titles;
 			$item['filename'] = $rootNode->getFileName();
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
@@ -437,7 +440,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$this->entityManager->flush();
 
 			// genrating output
-			$output = $this->imageAndFileOutput($fileEntity, $localeId);
+			$output = $this->imageAndFileOutput($fileEntity);
 
 			$this->writeAuditLog('%item% uploaded', $fileEntity);
 			$this->getResponse()->setResponseData($output);
