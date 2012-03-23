@@ -46,7 +46,7 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	 * @var string
 	 */
 	public $iconWebPath = '/cms/lib/supra/img/blocks/icons-items/default.png';
-
+	
 	/**
 	 * CMS classname for the block
 	 * @var string
@@ -115,6 +115,10 @@ class BlockControllerConfiguration implements ConfigurationInterface
 			$iconPath = null;
 		} else {
 			$iconPath = substr($iconPath, strlen(SUPRA_WEBROOT_PATH) - 1);
+		}
+		
+		if (DIRECTORY_SEPARATOR === '\\') {
+			$iconPath = str_replace(DIRECTORY_SEPARATOR, '/', $iconPath);
 		}
 
 		return $iconPath;

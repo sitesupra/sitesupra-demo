@@ -38,13 +38,13 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $sizeName;
 	
 	/**
-	 * @Column(type="integer")
+	 * @Column(type="integer", nullable=true)
 	 * @var integer
 	 */
 	protected $width;
 	
 	/**
-	 * @Column(type="integer")
+	 * @Column(type="integer", nullable=true)
 	 * @var integer
 	 */
 	protected $height;
@@ -139,6 +139,14 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setWidth($width)
 	{
+		$width = (int) $width;
+		
+		if ($width < 0) {
+			throw new \InvalidArgumentException("Negative width '$width' received");
+		} elseif ($width == 0) {
+			$width = null;
+		}
+		
 		$this->width = $width;
 	}
 
@@ -155,6 +163,14 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setHeight($height)
 	{
+		$height = (int) $height;
+		
+		if ($height < 0) {
+			throw new \InvalidArgumentException("Negative height '$height' received");
+		} elseif ($height == 0) {
+			$height = null;
+		}
+		
 		$this->height = $height;
 	}
 
@@ -217,11 +233,21 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 */
 	public function fillArray(array $array)
 	{
-		$this->imageId = $array['image'];
+		$array = $array + array(
+			'align' => null,
+			'style' => null,
+			'size_width' => null,
+			'size_height' => null,
+			'title' => null,
+			'description' => null,
+			'size_name' => null,
+		);
+
+		$this->imageId = $array['id'];
 		$this->align = $array['align'];
 		$this->style = $array['style'];
-		$this->width = $array['size_width'];
-		$this->height = $array['size_height'];
+		$this->setWidth($array['size_width']);
+		$this->setHeight($array['size_height']);
 		$this->title = $array['title'];
 		$this->alternativeText = $array['description'];
 		$this->sizeName = $array['size_name'];

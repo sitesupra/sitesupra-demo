@@ -179,6 +179,30 @@ class FilteredInput extends \ArrayIterator
 	}
 	
 	/**
+	 * If the next value is an array
+	 * @return boolean
+	 */
+	public function hasNextChild()
+	{
+		$key = $this->key();
+		$has = $this->hasChild($key);
+		
+		return $has;
+	}
+	
+	/**
+	 * If the next value is scalar
+	 * @return boolean
+	 */
+	public function hasNext()
+	{
+		$key = $this->key();
+		$has = $this->has($key);
+		
+		return $has;
+	}
+	
+	/**
 	 * Whether the value in the index is empty.
 	 * "0" is treated empty only if $strict is off.
 	 * NB! empty array is not treated as empty, exception will be raised.

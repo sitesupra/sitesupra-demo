@@ -4,12 +4,12 @@ namespace Supra\Html;
 
 abstract class HtmlTagAbstraction
 {
- /**
+	/**
 	 * @var string
 	 */
 	protected $tagName;
 	
- /**
+	/**
 	 * @param string $tagName
 	 * @param string $content
 	 */
@@ -36,4 +36,12 @@ abstract class HtmlTagAbstraction
 	}	
 	
 	abstract function toHtml();
+	
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->toHtml();
+	}
 }

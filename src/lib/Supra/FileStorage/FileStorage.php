@@ -1069,8 +1069,8 @@ class FileStorage
 	/**
 	 * Loads item info array
 	 * @param Entity\Abstraction\File $file
-	 * @param type $locale
-	 * @return type 
+	 * @param string $locale
+	 * @return array
 	 */
 	public function getFileInfo(Entity\Abstraction\File $file, $locale = null)
 	{
@@ -1131,10 +1131,16 @@ class FileStorage
 		return $this->fileAccessMode;
 	}
 	
+	/**
+	 * Checks if the file exists
+	 * @param Entity\File $file
+	 * @return boolean
+	 */
 	public function fileExists(Entity\Abstraction\File $file)
 	{
-		$path = $this->getFilesystemPath($file, true);
+		$path = $this->getFilesystemPath($file);
+		$fileExists = file_exists($path);
 		
-		return file_exists($path);
+		return $fileExists;
 	}
 }

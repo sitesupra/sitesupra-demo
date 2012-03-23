@@ -62,12 +62,12 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				sel.removeAllRanges();
 				sel.addRange(range);
 				
-				this._resetSelection();
+				this._resetSelection(selection);
 			} else if (doc.selection) {
 				//IE < 9
 				//@TODO
 				
-				this._resetSelection();
+				this._resetSelection(selection);
 			}
 		},
 		

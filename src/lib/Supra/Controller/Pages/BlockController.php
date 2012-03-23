@@ -17,6 +17,7 @@ use Supra\Loader;
 use Supra\Response\TwigResponse;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
+use Supra\Editable;
 
 /**
  * Block controller abstraction
@@ -280,7 +281,7 @@ abstract class BlockController extends ControllerAbstraction
 		}
 
 		// Html content additional filters
-		if ($editable instanceof \Supra\Editable\Html) {
+		if ($editable instanceof Editable\Html) {
 			// Editable action
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 				$filter = new Filter\EditableHtml();
@@ -295,20 +296,34 @@ abstract class BlockController extends ControllerAbstraction
 			}
 		}
 
-		if ($editable instanceof \Supra\Editable\Link) {
+		if ($editable instanceof Editable\Link) {
 			$filter = new Filter\LinkFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
 
-		if ($editable instanceof \Supra\Editable\InlineString) {
+		if ($editable instanceof Editable\InlineString) {
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 				$filter = new Filter\EditableString();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
+		}
+
+		if ($editable instanceof Editable\Textarea) {
+			$filter = new Filter\EditableTextarea();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
+		
+		if ($editable instanceof Editable\Gallery) {
+			$filter = new Filter\GalleryFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
 		}
 
 		$this->configuredBlockProperties[$propertyId] = true;

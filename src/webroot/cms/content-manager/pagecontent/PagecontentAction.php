@@ -118,8 +118,10 @@ class PagecontentAction extends PageManagerAction
 		// Load received property values and data from the POST
 		$properties = $input->getChild('properties', true);
 
-		foreach ($properties as $propertyName => $propertyPost) {
+		while ($properties->valid()) {
 
+			$propertyName = $properties->key();
+			
 			$property = $blockController->getProperty($propertyName);
 
 			// Could be new, should persist
@@ -133,19 +135,54 @@ class PagecontentAction extends PageManagerAction
 
 			// Specific result received from CMS for HTML
 			if ($editable instanceof Editable\Html) {
-				$value = $propertyPost['html'];
-				if (isset($propertyPost['data'])) {
+				
+				$propertyPost = $properties->getNextChild();
+				
+				$value = $propertyPost->get('html');
+				
+				if ($propertyPost->hasChild('data')) {
 					$valueData = $propertyPost['data'];
 				}
 			} elseif ($editable instanceof Editable\Link) {
-				// No value for the link, just metadata
-				$value = null;
+				
+				if ($properties->hasNextChild()) {
+					$propertyPost = $properties->getNextChild()
+							->getArrayCopy();
 
-				if ( ! empty($propertyPost)) {
-					$valueData = array($propertyPost);
-					$valueData[0]['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+					$propertyPost['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+					$valueData[0] = $propertyPost;
+				} else {
+					// Scalar sent if need to empty the link
+					$checkValue = $properties->getNext();
+					
+					if ( ! empty($checkValue)) {
+						throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
+					}
+				}
+			} elseif ($editable instanceof Editable\Gallery) {
+				
+				if ($properties->hasNextChild()) {
+					$imageList = $properties->getNextChild();
+
+					while ($imageList->valid()) {
+						$imageData = $imageList->getNextChild()
+								->getArrayCopy();
+
+						// Mark the data with image type
+						$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+
+						$valueData[] = $imageData;
+					}
+				} else {
+					// Scalar sent if need to empty the gallery
+					$checkValue = $properties->getNext();
+					
+					if ( ! empty($checkValue)) {
+						throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
+					}
 				}
 			} else {
+				$propertyPost = $properties->getNext();
 				$value = $propertyPost;
 			}
 
@@ -197,11 +234,6 @@ class PagecontentAction extends PageManagerAction
 				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
 				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
 				$property->addMetadata($blockPropertyMetadata);
-
-				// Should be persisted by cascade
-//					// Let's persist new elements
-//					$this->entityManager->persist($element);
-//					$this->entityManager->persist($blockPropertyMetadata);
 			}
 		}
 		

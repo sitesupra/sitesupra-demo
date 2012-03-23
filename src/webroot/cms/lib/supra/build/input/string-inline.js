@@ -100,6 +100,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 		},
 		
 		_setValue: function (value) {
+			value = value || '';
 			value = value.replace(HTML_CHARS_REGEXP, escapeHtml);
 			if (this.htmleditor) {
 				this.htmleditor.setHTML(value);

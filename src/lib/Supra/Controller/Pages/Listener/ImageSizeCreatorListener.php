@@ -111,17 +111,20 @@ class ImageSizeCreatorListener implements EventSubscriber
 			return;
 		}
 
-		$sizeName = $fileStorage->createResizedImage($image, $width, $height);
-		$entity->setSizeName($sizeName);
+		// No dimensions
+		if ($width > 0 && $height > 0) {
+			$sizeName = $fileStorage->createResizedImage($image, $width, $height);
+			$entity->setSizeName($sizeName);
 		
 		// Maybe could update to real width/height inside image metadata?
 //		$size = $image->getImageSize($sizeName);
 //		$entity->setWidth($size->getWidth());
 //		$entity->setHeight($size->getHeight());
 
-		// Recalculate the changeset because of changed size name field
-		$class = $em->getClassMetadata(ImageReferencedElement::CN());
-		$unitOfWork = $em->getUnitOfWork();
-		$unitOfWork->recomputeSingleEntityChangeSet($class, $entity);
+			// Recalculate the changeset because of changed size name field
+			$class = $em->getClassMetadata(ImageReferencedElement::CN());
+			$unitOfWork = $em->getUnitOfWork();
+			$unitOfWork->recomputeSingleEntityChangeSet($class, $entity);
+		}
 	}
 }

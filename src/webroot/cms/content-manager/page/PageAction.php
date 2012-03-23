@@ -361,6 +361,20 @@ class PageAction extends PageManagerAction
 								$propertyData = $data[0];
 							}
 						}
+						
+						if ($editable instanceof Editable\Image) {
+							$fileStorage = ObjectRepository::getFileStorage($this);
+							$image = $fileStorage->getDoctrineEntityManager()
+									->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
+							
+							if ($image instanceof \Supra\FileStorage\Entity\Image) {
+								$propertyData = $fileStorage->getFileInfo($image, $localeId);
+							}
+						}
+						
+						if ($editable instanceof Editable\Gallery) {
+							$propertyData = $data;
+						}
 
 						$blockData['properties'][$propertyName] = $propertyData;
 					}

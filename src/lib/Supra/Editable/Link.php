@@ -13,6 +13,7 @@ class Link extends EditableAbstraction
 	const EDITOR_INLINE_EDITABLE = false;
 	
 	private $groupsSelectable = false;
+	private $managerMode = 'link';
 	
 	/**
 	 * Return editor type
@@ -41,6 +42,11 @@ class Link extends EditableAbstraction
 		$this->groupsSelectable = $groupsSelectable;
 	}
 	
+	public function setManagerMode($mode)
+	{
+		$this->managerMode = $mode;
+	}
+	
 	/**
 	 * @return array
 	 */
@@ -48,6 +54,7 @@ class Link extends EditableAbstraction
 	{
 		return array(
 			'groupsSelectable' => $this->groupsSelectable,
+			'mode' => $this->managerMode,
 		);
 	}
 }

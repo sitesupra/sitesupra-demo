@@ -84,7 +84,7 @@ class Image extends File
 	 * @param ImageSize $size
 	 * @return boolean
 	 */
-	public function setImageSize($size)
+	public function addImageSize(ImageSize $size)
 	{
 		if ($this->imageSizes->containsKey($size->getName())) {
 			return false;

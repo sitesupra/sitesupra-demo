@@ -179,7 +179,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */	
 		addImage: function (image_data) {
 			var values = this.properties.getValues();
-			var images = values.images || [];
+			var images = (values && Y.Lang.isArray(values.images)) ? values.images : [];
 			
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
@@ -218,6 +218,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				for(var k=0; k<kk; k++) {
 					image[properties[k].id] = data.images[i][properties[k].id] || '';
 				}
+			}
+			
+			if (images.length == 0) {
+				images = 0;
 			}
 			
 			data.images = images;

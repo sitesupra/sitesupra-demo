@@ -161,6 +161,7 @@ class ImageSize extends Abstraction\Entity
 	public function getFolderName()
 	{
 		$return = $this->getWidth() . 'x' . $this->getHeight();
+		
 		return $return;
 	}
 
@@ -171,8 +172,8 @@ class ImageSize extends Abstraction\Entity
 	 */
 	public function setMaster(Image $master)
 	{
-		// TODO match/writeOnce
-		$attached = $master->setImageSize($this);
+		$attached = $master->addImageSize($this);
+		
 		if ($attached) {
 			$this->master = $master;
 			return true;
