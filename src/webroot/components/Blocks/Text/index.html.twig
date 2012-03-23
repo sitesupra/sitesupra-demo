@@ -1,11 +1,11 @@
 <!-- {{ comment }} -->
 
 <div class="text">
-	{#% if supraBlock.property('title') %#}
+	
 	{% if supraBlock.property('usePageTitle') %}
-		<h2{% if supra.cmsRequest %} class="su-settings-title"{% endif %}>{{ supra.request.pageLocalization.title }}</h2>
+		{{ supra.pageTitleHtmlTag('h2') | raw }}
 	{% else %}
-		<h2{% if supra.cmsRequest %} class="su-settings-title"{% endif %}>{{ supraBlock.property('title') }}</h2>
+		<h2>{{ supraBlock.property('title') }}</h2>
 	{% endif %}
 	
 	{% set image = supraBlock.property('image') %}

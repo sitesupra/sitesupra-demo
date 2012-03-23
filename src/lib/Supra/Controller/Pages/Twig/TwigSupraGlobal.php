@@ -9,7 +9,9 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Response\ResponseContext;
+use Supra\Html\HtmlTag;
 
 /**
  * Helper object for twig processor
@@ -89,13 +91,7 @@ class TwigSupraGlobal
 
 		$path = $pathData['path'];
 
-		$request = $this->request;
-
-		if ( ! $request instanceof PageRequest) {
-			return false;
-		}
-
-		$localization = $request->getPageLocalization();
+		$localization = $this->getLocalization();
 
 		if ( ! $localization instanceof PageLocalization) {
 			return false;
@@ -122,6 +118,26 @@ class TwigSupraGlobal
 		}
 
 		return false;
+	}
+	
+	/**
+	 * @return Localization
+	 */
+	public function getLocalization()
+	{
+		$request = $this->request;
+
+		if ( ! $request instanceof PageRequest) {
+			return;
+		}
+
+		$localization = $request->getPageLocalization();
+
+		if ( ! $localization instanceof Localization) {
+			return;
+		}
+		
+		return $localization;
 	}
 
 	/**
@@ -163,6 +179,29 @@ class TwigSupraGlobal
 		// From info package
 		return $this->getInfo()
 				->getHostName(\Supra\Info::WITH_SCHEME);
+	}
+	
+	/**
+	 * Generates page title tag with class name CMS would recognize
+	 * @param string $tagName
+	 * @return HtmlTag
+	 */
+	public function pageTitleHtmlTag($tagName = 'span')
+	{
+		$localization = $this->getLocalization();
+		
+		if (is_null($localization)) {
+			return;
+		}
+		
+		$title = $localization->getTitle();
+		$htmlTag = new HtmlTag($tagName, $title);
+		
+		if ($this->isCmsRequest()) {
+			$htmlTag->addClass('su-settings-title');
+		}
+		
+		return $htmlTag;
 	}
 
 }
