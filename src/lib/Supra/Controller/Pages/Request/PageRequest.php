@@ -199,8 +199,17 @@ abstract class PageRequest extends HttpRequest
 	 */
 	public function getPage()
 	{
-		return $this->getPageLocalization()
-						->getMaster();
+		$master = $this->getPageLocalization()
+				->getMaster();
+				
+		if (is_null($master)) {
+			$localizationId = $this->getPageLocalization()
+					->getId();
+			
+			throw new Exception\RuntimeException("Master page entity is missing for localization [{$localizationId}]");
+		}
+		
+		return $master;
 	}
 
 	/**
@@ -433,8 +442,6 @@ abstract class PageRequest extends HttpRequest
 		$cnt = 0;
 
 		$blockSet = $this->getBlockSet();
-
-		$page = $this->getPage();
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
