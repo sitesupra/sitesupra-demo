@@ -626,11 +626,17 @@ class HistoryPageRequestEdit extends PageRequest
 	public function restoreLocalization()
 	{
 		$draftEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+				
 		$draftEntityManager->getEventManager()
 				->dispatchEvent(AuditEvents::localizationPreRestoreEvent);
 		
 		$auditLocalization = $this->getPageLocalization();
+		$auditEm->detach($auditLocalization);
+		
+		if ($auditLocalization instanceof Entity\PageLocalization) {
+			$auditLocalization->resetPath();
+		}
 
 		$localization = $draftEntityManager->merge($auditLocalization);
 	
