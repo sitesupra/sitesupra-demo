@@ -505,22 +505,33 @@ abstract class PageManagerAction extends CmsAction
 			if ($element->getResource() == 'file') {
 
 				$fileId = $element->getFileId();
-				$file = $em->find(File::CN(), $fileId);
+				
+				if ( ! empty($fileId)) {
+					$file = $em->find(File::CN(), $fileId);
 
-				if ($file instanceof File) {
-					$fileInfo = $fs->getFileInfo($file, $localeId);
-					$data['file_path'] = $fileInfo['path'];
+					if ($file instanceof File) {
+						$fileInfo = $fs->getFileInfo($file, $localeId);
+						$data['file_path'] = $fileInfo['path'];
+					}
 				}
 			}
 		}
 		elseif ($element instanceof ReferencedElement\ImageReferencedElement) {
 
 			$imageId = $element->getImageId();
-			$image = $em->find(Image::CN(), $imageId);
+			
+			// ID will be set even if image not found
+			$data['image'] = array(
+				'id' => $imageId
+			);
+			
+			if ( ! empty($imageId)) {
+				$image = $em->find(Image::CN(), $imageId);
 
-			if ($image instanceof Image) {
-				$info = $fs->getFileInfo($image, $localeId);
-				$data['image'] = $info;
+				if ($image instanceof Image) {
+					$info = $fs->getFileInfo($image, $localeId);
+					$data['image'] = $info;
+				}
 			}
 		}
 
