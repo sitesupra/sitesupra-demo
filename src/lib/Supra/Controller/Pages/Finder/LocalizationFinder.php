@@ -129,7 +129,7 @@ class LocalizationFinder extends AbstractFinder
 		return $localizationResult;
 	}
 
-	public function getAncestors(Entity\Abstraction\Localization $localization)
+	public function getAncestors(Entity\Abstraction\Localization $localization, $sortOrder = 'ASC')
 	{
 		$page = $localization->getMaster();
 
@@ -153,7 +153,14 @@ class LocalizationFinder extends AbstractFinder
 		
 		$this->locale = $localization->getLocale();
 
-		return $this->getResult();
+		$qb = $this->getQueryBuilder();
+		
+		$qb->select('l');
+		$qb->addOrderBy('e.level', $sortOrder);
+		
+		$query = $qb->getQuery();
+		
+		return $query->getResult();
 	}
 
 }

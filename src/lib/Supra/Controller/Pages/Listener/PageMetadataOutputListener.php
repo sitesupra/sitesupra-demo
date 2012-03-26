@@ -139,7 +139,7 @@ class PageMetadataOutputListener
 
 		if (empty($value) && $useParent) {
 
-			$ancestors = $this->getLocalizationFinder()->getAncestors($pageLocalization);
+			$ancestors = $this->getLocalizationFinder()->getAncestors($pageLocalization, 'DESC');
 
 			foreach ($ancestors as $ancestor) {
 				
