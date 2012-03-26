@@ -496,7 +496,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		getImageURLBySize: function (data, size) {
 			var size = size ? size : this.configuration.size;
 			
-			if (size in data.sizes) {
+			if (data && data.sizes && size in data.sizes) {
 				return data.sizes[size].external_path;
 			}
 			

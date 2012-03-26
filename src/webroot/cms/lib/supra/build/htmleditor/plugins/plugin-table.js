@@ -446,7 +446,10 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			if (this.selected_table) {
 				
 				this.selected_table.removeClass('yui3-table-selected');
-				this.selected_cell.removeClass('yui3-cell-selected');
+				
+				if (this.selected_cell) {
+					this.selected_cell.removeClass('yui3-cell-selected');
+				}
 				
 				this.selected_table = null;
 				this.selected_cell = null;
