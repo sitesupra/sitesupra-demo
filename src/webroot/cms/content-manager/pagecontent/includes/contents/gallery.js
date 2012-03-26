@@ -135,9 +135,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
-			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (gallery_data, changed) {
+			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
 				if (changed) {
 					this.unresolved_changes = true;
+					
+					//Update data
+					this.properties.setValues(data);
 				}
 				
 				//Show settings form
@@ -178,19 +181,38 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * Add image to the gallery
 		 */	
 		addImage: function (image_data) {
-			var values = this.properties.getValues();
-			var images = (values && Y.Lang.isArray(values.images)) ? values.images : [];
+			var values = this.properties.getValues(),
+				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
+				properties = this.getImageProperties(),
+				property = null,
+				image  = {'image': image_data};
 			
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
-				if (images[i].id == image_data.id) return;
+				if (images[i].image.id == image_data.id) return;
 			}
 			
-			images.push(image_data);
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				property = properties[i].id;
+				image[property] = image_data[property] || properties[i].value || '';
+			}
+			
+			images.push(image);
 			
 			this.properties.setValues({
 				'images': images
 			});
+		},
+		
+		/**
+		 * Returns image properties
+		 * 
+		 * @return List of image properties
+		 * @type {Array}
+		 * @private
+		 */
+		getImageProperties: function () {
+			return Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES);
 		},
 		
 		/**
@@ -205,7 +227,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		processData: function (data) {
 			var images = [],
 				image = {},
-				properties = Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES),
+				properties = this.getImageProperties(),
 				kk = properties.length;
 			
 			//Default data
@@ -213,8 +235,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data.images.length; i<ii; i++) {
-				image = {'id': data.images[i].id};
+				image = Supra.mix({}, data.images[i], {'image': data.images[i].image.id});
 				images.push(image);
+				
 				for(var k=0; k<kk; k++) {
 					image[properties[k].id] = data.images[i][properties[k].id] || '';
 				}

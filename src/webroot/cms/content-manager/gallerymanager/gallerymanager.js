@@ -304,7 +304,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				image_data = null;
 			
 			for(var i=0,ii=data.images.length; i<ii; i++) {
-				if (data.images[i].id == image_id) {
+				if (data.images[i].image.id == image_id) {
 					image_data = data.images[i];
 					break;
 				}
@@ -324,11 +324,11 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 */
 		settingsFormApply: function (dont_hide) {
 			if (this.settings_form.get('visible')) {
-				var image_data = Supra.mix(this.selected_image_data, this.settings_form.getValues('id')),
+				var image_data = Supra.mix(this.selected_image_data, this.settings_form.getValuesObject('id')),
 					data = this.data;
 				
 				for(var i=0,ii=data.images.length; i<ii; i++) {
-					if (data.images[i].id == image_data.id) {
+					if (data.images[i].image.id == image_data.image.id) {
 						data.images[i] = image_data;
 						break;
 					}
@@ -366,17 +366,17 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			//Add new items
 			for(var i=0,ii=images.length; i<ii; i++) {
 				src = null;
-				if (images[i].sizes && preview_size in images[i].sizes) {
-					src = images[i].sizes[preview_size].external_path;
+				if (images[i].image.sizes && preview_size in images[i].image.sizes) {
+					src = images[i].image.sizes[preview_size].external_path;
 				}
 				
 				if (src) {
-					item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + images[i].id + '"><img src="' + src + '" alt="" /></li>');
-					item.setData('imageId', images[i].id);
+					item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + images[i].image.id + '"><img src="' + src + '" alt="" /></li>');
+					item.setData('imageId', images[i].image.id);
 					list.append(item);
 				} else {
-					item = Y.Node.create('<li class="yui3-dd-drop gallery-item gallery-item-empty" data-id="' + images[i].id + '"></li>');
-					item.setData('imageId', images[i].id);
+					item = Y.Node.create('<li class="yui3-dd-drop gallery-item gallery-item-empty" data-id="' + images[i].image.id + '"></li>');
+					item.setData('imageId', images[i].image.id);
 					list.append(item);
 				}
 			}
@@ -396,7 +396,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				images = [];
 			
 			//Get image order
-			if (items.length) {
+			if (items.size()) {
 				items.each(function (item, index) {
 					order[this.getData('imageId')] = index;
 				});
@@ -404,8 +404,8 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			//Sort images array
 			data.images.sort(function (a, b) {
-				var oa = order[a.id],
-					ob = order[b.id];
+				var oa = order[a.image.id],
+					ob = order[b.image.id];
 				
 				return oa > ob;
 			});
