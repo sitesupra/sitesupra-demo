@@ -185,7 +185,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
 				properties = this.getImageProperties(),
 				property = null,
-				image  = {'image': image_data};
+				image  = {'image': image_data, 'id': image_data.id};
 			
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
@@ -235,7 +235,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data.images.length; i<ii; i++) {
-				image = Supra.mix({}, data.images[i], {'image': data.images[i].image.id});
+				image = Supra.mix({}, data.images[i]);
+				delete(image.image);
+				
 				images.push(image);
 				
 				for(var k=0; k<kk; k++) {
