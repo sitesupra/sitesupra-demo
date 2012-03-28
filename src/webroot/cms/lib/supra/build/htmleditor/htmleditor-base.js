@@ -19,6 +19,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		'srcNode': {
 			value: null
 		},
+		'iframeNode': {
+			value: null
+		},
 		'disabled': {
 			value: false,
 			setter: '_setDisabled'
@@ -35,6 +38,12 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 */
 		'mode': {
 			value: 3
+		},
+		/**
+		 * HTMLEditor is in standalone mode
+		 */
+		'standalone': {
+			value: false
 		}
 	};
 	

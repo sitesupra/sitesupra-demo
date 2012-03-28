@@ -249,6 +249,9 @@
  */
 .standalone {
 	height: 100%;
+	min-width: 0 !important;
+	width: auto !important;
+	overflow: auto !important;
 }
 .standalone body {
 	min-width: 0 !important;

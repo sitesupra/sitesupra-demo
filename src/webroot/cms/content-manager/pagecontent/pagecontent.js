@@ -103,6 +103,8 @@ Supra('dd-drag', function (Y) {
 					return message;
 				}
 			}, this);
+			
+			Manager.getAction('Page').on('loaded', this.ready, this);
 		},
 		
 		loadModules: function () {

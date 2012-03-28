@@ -73,6 +73,7 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'doc': doc,
 					'win': win,
 					'srcNode': src,
+					'iframeNode': this.get('nodeIframe'),
 					'toolbar': toolbar,
 					'mode': Supra.HTMLEditor.MODE_RICH
 				});

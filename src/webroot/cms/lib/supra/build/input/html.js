@@ -129,8 +129,10 @@ YUI.add("supra.input-html", function (Y) {
 					'doc': doc,
 					'win': win,
 					'srcNode': Y.Node(doc).one('.editing'),
+					'iframeNode': this.get('nodeIframe'),
 					'toolbar': toolbar,
-					'mode': Supra.HTMLEditor.MODE_RICH
+					'mode': Supra.HTMLEditor.MODE_RICH,
+					'standalone': true
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);

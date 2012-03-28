@@ -141,13 +141,7 @@ SU('transition', 'supra.htmleditor', function (Y) {
 					
 					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 				}, this)
-			}/*, {
-				'id': 'close',
-				'callback': Y.bind(function () {
-					var active_content = Manager.PageContent.getContent().get('activeChild');
-						active_content.fire('block:cancel');
-				}, this)
-			}*/]);
+			}]);
 		},
 		
 		/**
