@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add('website.sitemap-linkmanager-node', function (Y) {
+YUI.add('linkmanager.sitemap-linkmanager-node', function (Y) {
 
 	function LinkMapTreeNode (config) {
 		LinkMapTreeNode.superclass.constructor.apply(this, [config]);

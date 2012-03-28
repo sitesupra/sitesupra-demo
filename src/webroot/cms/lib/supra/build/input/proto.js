@@ -257,11 +257,22 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			if (typeof error == 'string' && error) {
 				this.showError(error);
+				return error;
 			} else {
 				this.hideError();
+				return false;
 			}
 		},
 		
+		/**
+		 * Disabled attribute setter
+		 * Disable / enable HTMLEditor
+		 * 
+		 * @param {Boolean} value New state value
+		 * @return New state value
+		 * @type {Boolean}
+		 * @private
+		 */
 		_setDisabled: function (value) {
 			var node = this.get('inputNode');
 			if (node) {
@@ -273,14 +284,39 @@ YUI.add('supra.input-proto', function (Y) {
 			return !!value;
 		},
 		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @param {String} value Previous value
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
 		_getValue: function () {
 			return this.get('inputNode').get('value');
 		},
 		
+		/**
+		 * saveValue attribute getter
+		 * Returns value for sending to server
+		 * 
+		 * @param {String} value Previous value
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
 		_getSaveValue: function () {
 			return this.get('value');
 		},
 		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String} value New value
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
 		_setValue: function (value) {
 			value = (value === undefined || value === null ? '' : value);
 			this.get('inputNode').set('value', value);
@@ -289,6 +325,14 @@ YUI.add('supra.input-proto', function (Y) {
 			return value;
 		},
 		
+		/**
+		 * Label attribute setter
+		 * 
+		 * @param {String} lbl Label text
+		 * @return New label
+		 * @type {String}
+		 * @private
+		 */
 		_setLabel: function (lbl) {
 			var node = this.get('labelNode');
 			if (node) {
@@ -303,6 +347,8 @@ YUI.add('supra.input-proto', function (Y) {
 		 * Description attribute setter
 		 * 
 		 * @param {String} descr Description text
+		 * @return New description
+		 * @type {String}
 		 * @private
 		 */
 		_setDescription: function (descr) {

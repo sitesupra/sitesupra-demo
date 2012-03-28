@@ -21,14 +21,39 @@ YUI.add("supra.input-html", function (Y) {
 		'nodeIframe': null
 	};
 	
+	/**
+	 * Parse
+	 */
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.Proto, {
-		INPUT_TEMPLATE: '',
-		LABEL_TEMPLATE: '',
+		/**
+		 * Constants
+		 */
+		INPUT_TEMPLATE: '<textarea spellcheck="false"></textarea>',
+		LABEL_TEMPLATE: '<label></label>',
 		
+		/**
+		 * HTMLEditor instance
+		 * @type {Object}
+		 * @private
+		 */
 		htmleditor: null,
 		
+		
+		
+		
+		/**
+		 * ----------------------------------- PRIVATE --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Attach event listeners
+		 * 
+		 * @private
+		 */
 		bindUI: function () {
 			if (this.htmleditor) {
 				this.htmleditor.on('change', function (evt) {
@@ -37,12 +62,30 @@ YUI.add("supra.input-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * Render widgets
+		 * 
+		 * @private
+		 */
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('boundingBox', this.get('srcNode'));
 			
 			this.createIframe();
+		},
+		
+		/**
+		 * Clean up
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.htmleditor) {
+				this.htmleditor.detach('change');
+				this.htmleditor.destroy();
+				this.htmleditor = null;
+			}
 		},
 		
 		/**
@@ -92,7 +135,7 @@ YUI.add("supra.input-html", function (Y) {
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
 				
-				Y.Node(doc.body).on('click', this.onIframeClick, this);
+				Y.Node(doc).one('html').on('click', this.onIframeClick, this);
 			}
 		},
 		
@@ -129,7 +172,7 @@ YUI.add("supra.input-html", function (Y) {
 		 * @private
 		 */
 		createIframe: function () {
-			var textarea = this.get('srcNode'),
+			var textarea = this.get('inputNode'),
 				iframe = Y.Node.create('<iframe />'),
 				html = '';
 			
@@ -137,10 +180,10 @@ YUI.add("supra.input-html", function (Y) {
 			textarea.addClass('hidden');
 			
 			html = Supra.data.get(['supra.htmleditor', 'standalone', 'doctype'], '<!DOCTYPE html>');
-			html+= '<html lang="en"><head>';
+			html+= '<html lang="en" class="standalone standalone-disabled"><head>';
 			
 			//Add stylesheets to iframe
-			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
+			if (!Supra.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
 				var uri = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('Header') + '/pagecontent/iframe.css';
 				html+= '<link rel="stylesheet" type="text/css" href="' + uri + '" />';
 			}
@@ -153,8 +196,8 @@ YUI.add("supra.input-html", function (Y) {
 				html+= '<link rel="stylesheet" type="text/css" href="' + stylesheets[i] + '" />';
 			}
 			
-			html+= '</head><body class="standalone standalone-disabled">';
-			html+= this.selectorToHTML(Supra.data.get(['supra.htmleditor', 'standalone', 'selector'], 'div'));
+			html+= '</head><body>';
+			html+= this.selectorToHTML(Supra.data.get(['supra.htmleditor', 'standalone', 'wrap'], ''));
 			html+= '</body></html>';
 			
 			this.writeHTML(iframe, html);
@@ -179,7 +222,7 @@ YUI.add("supra.input-html", function (Y) {
 			if (!this.get('disabled')) {
 				if (this.htmleditor.get('disabled') && !Manager.EditorToolbar.get('visible')) {
 					
-					Y.Node(this.get('doc').body).removeClass('standalone-disabled');
+					Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
 					
 					//Show toolbar without "Settings" button
 					Manager.EditorToolbar.execute();
@@ -195,14 +238,12 @@ YUI.add("supra.input-html", function (Y) {
 		/**
 		 * On blur disable editor and 
 		 */
-		onIframeBlur: function () {
-			if (!this.htmleditor.get('disabled')) {
-				Y.Node(this.get('doc').body).addClass('standalone-disabled');
+		onIframeBlur: function (e) {
+			if (!this.htmleditor.get('disabled') && !e.silent) {
+				Y.Node(this.get('doc')).one('html').addClass('standalone-disabled');
 				
 				this.htmleditor.set('disabled', true);
 				this.fire('change', {'value': this.get('value')});
-				
-				Manager.EditorToolbar.getToolbar().getButton('settings').set('visible', true);
 			}
 		},
 		
@@ -229,7 +270,7 @@ YUI.add("supra.input-html", function (Y) {
 				attrs = {'class': 'yui3-box-reset'};
 				tag = 'div';
 				
-				selector[i] = selector[i].replace(/(\.|#)?([a-z0-9\-\_]+)/g, function (all, type, value) {
+				selector[i].replace(/(\.|#)?([a-z0-9\-\_]+)/g, function (all, type, value) {
 					if (type == '.') { //Classname
 						attrs['class'] += ' ' + value;
 					} else if (type == '#') { //ID attribute
@@ -284,18 +325,56 @@ YUI.add("supra.input-html", function (Y) {
 		},
 		
 		
+		
+		
+		/**
+		 * ----------------------------------- API --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Returns HTMLEditor instance
+		 * 
+		 * @return HTMLEditor instance
+		 * @type {Object}
+		 */
 		getEditor: function () {
 			return this.htmleditor;
 		},
 		
-		getAttribute: function (key) {
-			return this.get('srcNode').getAttribute(key);
-		},
 		
+		
+		
+		/**
+		 * ----------------------------------- ATTRIBUTES --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Disabled attribute setter
+		 * Disable / enable HTMLEditor
+		 * 
+		 * @param {Boolean} value New state value
+		 * @return New state value
+		 * @type {Boolean}
+		 * @private
+		 */
 		_setDisabled: function (value) {
+			//HTMLEditor is already disabled while used is not editing
 			return !!value;
 		},
 		
+		/**
+		 * Value attribute getter
+		 * Returns value, object with 'html' and 'data' keys
+		 * 
+		 * @param {Object} value Previous value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_getValue: function (value) {
 			if (this.htmleditor) {
 				//Remove data which is not bound to anything
@@ -310,6 +389,15 @@ YUI.add("supra.input-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * saveValue attribute getter
+		 * Returns value for sending to server, object with 'html' and 'data' keys
+		 * 
+		 * @param {Object} value Previous value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
 				return {
@@ -321,6 +409,15 @@ YUI.add("supra.input-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * Value attribute setter
+		 * Set HTMLEdtior html and data
+		 * 
+		 * @param {Object} value New value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_setValue: function (value) {
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value.data);
@@ -328,17 +425,6 @@ YUI.add("supra.input-html", function (Y) {
 			}
 			
 			return value;
-		},
-		
-		/**
-		 * Clean up
-		 */
-		destructor: function () {
-			if (this.htmleditor) {
-				this.htmleditor.detach('change');
-				this.htmleditor.destroy();
-				this.htmleditor = null;
-			}
 		}
 		
 	});

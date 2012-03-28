@@ -1,9 +1,13 @@
 //Invoke strict mode
 "use strict";
 
+//Add module group
+SU.setModuleGroupPath('linkmanager', Supra.Manager.Loader.getActionFolder('LinkManager') + 'modules/');
+
 //Add module definitions
-SU.addModule('website.sitemap-linkmanager-node', {
-	path: 'linkmanager/modules/tree-node.js',
+SU.addModule('linkmanager.sitemap-linkmanager-node', {
+	//Link manager can be included from other managers, make sure 'website.' prefix doesn't break it
+	path: 'tree-node.js',
 	requires: ['supra.tree', 'supra.tree-node']
 });
 
@@ -23,7 +27,7 @@ SU.addModule('website.sitemap-linkmanager-node', {
  *   hideToolbar - toolbar buttons will be hidden while link manager is open
  *   hideLinkControls - link controls will be hidden, default is false
  */
-SU('supra.input', 'supra.slideshow', 'website.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
+SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
 	var Manager = SU.Manager,

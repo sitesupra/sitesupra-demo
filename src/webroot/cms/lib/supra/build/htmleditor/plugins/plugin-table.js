@@ -503,7 +503,20 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * Show table settings bar
 		 */
 		showTableSettings: function (event) {
-			Manager.executeAction('PageContentSettings', this.settings_form || this.createSettingsForm(), {
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createSettingsForm(),
+				action = Manager.getAction('PageContentSettings');
+			
+			if (!form) {
+				if (action.get('loaded') && !action.get('created')) {
+					action.renderAction();
+					this.showTableSettings(event);
+				}
+				return;
+			}
+			
+			
+			action.execute(form, {
 				'doneCallback': Y.bind(this.settingsFormApply, this),
 				'title': Supra.Intl.get(['htmleditor', 'table_properties']),
 				'scrollable': true

@@ -108,6 +108,7 @@ if (typeof Supra === "undefined") {
 		},
 		
 		//Add groups to enable automatic loading of Supra modules
+		//Additional groups can be added using Supra.setModuleGroupPath
 		groups: {
 			supra: {
 				//Supra modules

@@ -10,7 +10,10 @@
 	 */
 	Supra.addModule = function (id, definition) {
 		if (Y.Lang.isString(id) && Y.Lang.isObject(definition)) {
-			var groupId = id.indexOf('website.') == 0 ? 'website' : 'supra';
+			var groupId = id.match(/^[a-z0-9\_\-]+/);
+			if (!groupId || !Supra.YUI_BASE.groups[groupId]) {
+				groupId = 'supra';
+			}
 			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
 		}
 	};
@@ -20,8 +23,22 @@
 	 * 
 	 * @param {String} path
 	 */
-	Supra.setWebsiteModulePath = function (path) {
-		var config = Supra.YUI_BASE.groups.website;
+	Supra.setModuleGroupPath = function (group, path) {
+		var config = Supra.YUI_BASE.groups[group];
+		
+		//Set default configuration
+		if (!config) {
+			config = Supra.YUI_BASE.groups[group] = {
+				//Website specific modules
+				combine: true,
+				root: "/cms/",
+				base: "/cms/",
+				//Use YUI file combo
+				comboBase: "/cms/lib/supra/combo/combo.php?",
+				filter: "raw",
+				modules: {}
+			};
+		}
 		
 		//Add trailing slash
 		path = path.replace(/\/$/, '') + '/';

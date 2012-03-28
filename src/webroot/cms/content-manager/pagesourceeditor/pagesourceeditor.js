@@ -7,7 +7,7 @@ SU(function (Y) {
 	var Manager = SU.Manager;
 	var Action = Manager.Action;
 	
-	//Add as child, when EditorToolbar will be hidden GalleryManager will be hidden also (page editing is closed)
+	//Add as child, when EditorToolbar will be hidden PageSourceEditor will be hidden also (page editing is closed)
 	Manager.getAction('EditorToolbar').addChildAction('PageSourceEditor');
 	
 	//Includes
@@ -146,7 +146,7 @@ SU(function (Y) {
 			this.callback = data.callback;
 			
 			//Show buttons
-			Manager.getAction('EditorToolbar').set('visible', false);
+			Manager.getAction('EditorToolbar').set('visible', false, {'silent': true});
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			
 			//Show content

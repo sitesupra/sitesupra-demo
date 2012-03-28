@@ -18,11 +18,33 @@ YUI.add("supra.input-inline-html", function (Y) {
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.Proto, {
+		/**
+		 * Constants
+		 */
 		INPUT_TEMPLATE: '',
 		LABEL_TEMPLATE: '',
 		
+		/**
+		 * HTMLEditor instance
+		 * @type {Object}
+		 * @private
+		 */
 		htmleditor: null,
 		
+		
+		
+		
+		/**
+		 * ----------------------------------- PRIVATE --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Attach event listeners
+		 * 
+		 * @private
+		 */
 		bindUI: function () {
 			if (this.htmleditor) {
 				this.htmleditor.on('change', function (evt) {
@@ -31,6 +53,11 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * Render widgets
+		 * 
+		 * @private
+		 */
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
@@ -54,14 +81,66 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * Clean up
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.htmleditor) {
+				this.htmleditor.detach('change');
+				this.htmleditor.destroy();
+				this.htmleditor = null;
+			}
+		},
+		
+		
+		
+		/**
+		 * ----------------------------------- API --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Returns HTMLEditor instance
+		 * 
+		 * @return HTMLEditor instance
+		 * @type {Object}
+		 */
 		getEditor: function () {
 			return this.htmleditor;
 		},
 		
+		/**
+		 * Returns attribute value
+		 * 
+		 * @param {String} key Attribute name
+		 * @return Attribute value
+		 * @type {String}
+		 */
 		getAttribute: function (key) {
 			return this.get('srcNode').getAttribute(key);
 		},
 		
+		
+		
+		
+		/**
+		 * ----------------------------------- ATTRIBUTES --------------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Disabled attribute setter
+		 * Disable / enable HTMLEditor
+		 * 
+		 * @param {Boolean} value New state value
+		 * @return New state value
+		 * @type {Boolean}
+		 * @private
+		 */
 		_setDisabled: function (value) {
 			if (this.htmleditor) {
 				this.htmleditor.set('disabled', !!value);
@@ -71,6 +150,15 @@ YUI.add("supra.input-inline-html", function (Y) {
 			return false;
 		},
 		
+		/**
+		 * Value attribute getter
+		 * Returns value, object with 'html' and 'data' keys
+		 * 
+		 * @param {Object} value Previous value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_getValue: function (value) {
 			if (this.htmleditor) {
 				//Remove data which is not bound to anything
@@ -85,6 +173,15 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * saveValue attribute getter
+		 * Returns value for sending to server, object with 'html' and 'data' keys
+		 * 
+		 * @param {Object} value Previous value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
 				return {
@@ -96,6 +193,15 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 		},
 		
+		/**
+		 * Value attribute setter
+		 * Set HTMLEdtior html and data
+		 * 
+		 * @param {Object} value New value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
 		_setValue: function (value) {
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value.data);
@@ -103,17 +209,6 @@ YUI.add("supra.input-inline-html", function (Y) {
 			}
 			
 			return value;
-		},
-		
-		/**
-		 * Clean up
-		 */
-		destructor: function () {
-			if (this.htmleditor) {
-				this.htmleditor.detach('change');
-				this.htmleditor.destroy();
-				this.htmleditor = null;
-			}
 		}
 		
 	});

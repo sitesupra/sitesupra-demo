@@ -113,7 +113,10 @@ Supra(
 		 * @type {Object}
 		 */
 		getFormContainer: function (id) {
-			return this.slideshow.addSlide({'id': 'form-' + id}).one('.su-slide-content');
+			return this.slideshow.addSlide({'id': 'form-' + id})
+									.one('.su-slide-content')
+										.addClass('ui-light')
+										.addClass('ui-light-background');
 		},
 		
 		/**
@@ -154,6 +157,9 @@ Supra(
 				provider = e.providers[provider_id];
 				provider.after('modeChange', this.handleModeChange, this);
 			}
+			
+			this.slideshow.syncUI();
+			this.one().after('contentResize', this.slideshow.syncUI, this.slideshow);
 		},
 		
 		/**

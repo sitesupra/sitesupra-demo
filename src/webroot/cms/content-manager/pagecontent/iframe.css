@@ -36,6 +36,14 @@
 	border: 0 !important;
 	background: none !important;
 }
+.yui3-box-reset {
+	float: none !important;
+	position: static !important;
+	left: auto !important;
+	right: auto !important;
+	top: auto !important;
+	bottom: auto !important;
+}
 
 /**
  * Overlay
@@ -235,14 +243,26 @@
 	min-height: 1em;
 }
 
-.standalone .editing {
-	outline: none;    /* Don't need outline, because everything is editable */
-	min-height: 100%; /* Fill all height */
-	margin: 0 10px !important;   /* Margins to make sure content is not at the border*/
+
+/**
+ * Standalone HTML editor content
+ */
+.standalone {
+	height: 100%;
+}
+.standalone body {
+	min-width: 0 !important;
+	width: auto !important;
 }
 .standalone-disabled,
 .standalone-disabled * {
 	cursor: pointer;
+}
+
+.standalone .editing {
+	outline: none;    /* Don't need outline, because everything is editable */
+	min-height: 100%; /* Fill all height */
+	padding: 0 10px !important;   /* to make sure content is not at the border*/
 }
 
 /**
