@@ -8,26 +8,9 @@
 
 .yui3-content {
 	overflow: hidden;
+	min-height: 60px;
 }
-/*
-.yui3-content:after {
-	clear: both;
-	content: ' ';
-	display: block;
-	font-size: 0;
-	line-height: 0;
-	visibility: hidden;
-	width: 0;
-	height: 0;
-}
-.yui3-content {
-	display: block;
-	min-height: 0;
-}
-*/
 
-/* .yui3-widget,
-.yui3-input, */
 .yui3-content,
 .yui3-box-reset,
 .yui3-dd-proxy {
@@ -58,8 +41,6 @@
 	
 	display: block;
 	position: absolute;
-	/*padding: 5px;
-	margin: -5px 0 0 -5px;*/
 	cursor: pointer;
 	z-index: 9999;
 	
@@ -192,12 +173,6 @@
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
-	
-	/*
-	-moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
-	-webkit-box-shadow:  0 1px 5px rgba(0, 0, 0, 0.25) inset;
-	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
-	*/
 }
 
 /**
@@ -281,12 +256,10 @@
  */
 .yui3-content-list {
 	overflow: visible;
-	min-height: 10px;
 }
 
 .yui3-content-list.editing {
 	overflow: hidden;
-	min-height: 90px;
 }
 .yui3-content-list.editing .yui3-content-inline {
 	/* If list is being edited, then don't highlight inline contents */
@@ -405,20 +378,6 @@
 		box-shadow: none;
 	}
 }
-
-/*
-table:focus {
-	-moz-box-shadow: 0 0 3px #A2E4FF;
-	-webkit-box-shadow: 0 0 3px #A2E4FF;
-	box-shadow: 0 0 3px #A2E4FF;
-}
-th:focus,
-td:focus {
-	-moz-box-shadow: 0 0 1px #A2E4FF;
-	-webkit-box-shadow: 0 0 1px #A2E4FF;
-	box-shadow: 0 0 1px #A2E4FF;
-}
-*/
 
 .su-uneditable, .su-uneditable * {
 	cursor: default !important;
