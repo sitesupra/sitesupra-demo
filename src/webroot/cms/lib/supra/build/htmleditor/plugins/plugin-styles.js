@@ -16,25 +16,25 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	var GROUPS = [
 		{
 			'id': 'text',
-			'title': Supra.Intl.get(['htmleditor', 'group_text']),
+			'title': '{# htmleditor.group_text #}',
 			'tags': (tmp = ['H1', 'H2', 'H3', 'H4', 'H5', 'P', 'B', 'EM', 'U', 'S', 'A']),
 			'tagsObject': toObject(tmp)
 		},
 		{
 			'id': 'list',
-			'title': Supra.Intl.get(['htmleditor', 'group_list']),
+			'title': '{# htmleditor.group_list #}',
 			'tags': (tmp = ['UL', 'OL', 'LI']),
 			'tagsObject': toObject(tmp)
 		},
 		{
 			'id': 'table',
-			'title': Supra.Intl.get(['htmleditor', 'group_table']),
+			'title': '{# htmleditor.group_table #}',
 			'tags': (tmp = ['TABLE', 'TR', 'TD', 'TH']),
 			'tagsObject': toObject(tmp)
 		},
 		{
 			'id': 'image',
-			'title': Supra.Intl.get(['htmleditor', 'group_image']),
+			'title': '{# htmleditor.group_image #}',
 			'tags': (tmp = ['IMG']),
 			'tagsObject': toObject(tmp)
 		}
@@ -245,6 +245,15 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				}
 			}
 			
+			//Text noeds can changed be changed between P, H1, H2, H3 and H4
+			//add these to the selector list to allow them changing even if there are
+			//no styles in the list
+			if (!result['P'])  result['P'] = [];
+			if (!result['H1']) result['H1'] = [];
+			if (!result['H2']) result['H2'] = [];
+			if (!result['H3']) result['H3'] = [];
+			if (!result['H4']) result['H4'] = [];
+			
 			return result;
 		},
 		
@@ -258,15 +267,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var result = [],
 				rules,
 				doc = new SU.Y.Node(this.htmleditor.get('doc')),
-				links = doc.all('link[rel="stylesheet"]');
+				links = doc.all('link[rel="stylesheet"]'),
+				link = null;
 			
 			if (links) {
 				for(var i=0,ii=links.size(); i<ii; i++) {
-					rules = SU.Y.Node.getDOMNode(links.item(i)).sheet.cssRules;
-					for(var k=0,kk=rules.length; k<kk; k++) {
-					    if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
-					        result.push(rules[k].cssText);
-					    }
+					link = links.item(i).getDOMNode();
+					if (link.sheet) {
+						rules = link.sheet.cssRules;
+						for(var k=0,kk=rules.length; k<kk; k++) {
+						    if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
+						        result.push(rules[k].cssText);
+						    }
+						}
 					}
 				}
 			}
@@ -408,20 +421,27 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				targetNodes = this.targetNodes = [],
 				i = 0,
 				ii = 0,
-				groups = {'text': true}, /* Text group is always available */
-				tags = {}; 
+				groups = {'text': true},	/* Text group is always available */
+				includedTags = {};			/* List of tags already included in the list */
 			
 			//Traverse up the tree and find tags which has selectors
 			while(node && !srcNode.compareTo(node)) {
+				//All tagnames for this node, SPAN may have more than 1 tag name
+				//because its style may match B, U, I, S
 				tagNames = this.htmleditor.getNodeTagName(node);
 				
 				for(i=0,ii=tagNames.length; i<ii; i++) {
 					//If such tag is not in the list already and there are
 					//selectors for this tag
-					if (!tags[tagNames[i]] && selectors[tagNames[i]]) {
-						groups[selectors[tagNames[i]][0].group] = true;
+					if (!includedTags[tagNames[i]] && selectors[tagNames[i]]) {
+						
+						if (selectors[tagNames[i]].length) {
+							groups[selectors[tagNames[i]][0].group] = true;
+						}
+						
 						targetNodes.push({'node': node, 'tag': tagNames[i]});
-						tags[tagNames[i]] = true;
+						includedTags[tagNames[i]] = true;
+						
 						break;
 					}
 				}
@@ -521,7 +541,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var item		= e.target.closest('.yui3-input-select-item'),
 				tag			= item.getAttribute('data-tag');
 			
-			if (e.type == 'mouseenter') {
+			//While dropdown is closing it's possible to hover one of the items
+			//but in this case we don't want to highlight anything
+			if (e.type == 'mouseenter' && this.dropdownStyles.get('opened')) {
 				this.highlightElementByTag(tag);
 			} else if (e.type == 'mouseleave') {
 				this.highlightElementByTag(null);
@@ -593,6 +615,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				match		= this.getMatchingTarget(tag),
 				target 		= match ? match.target : null,
 				changeTag	= match ? !match.exact : true;
+			
+			//Remove highlight
+			this.highlightElement(null);
 			
 			if (!target) {
 				//No matching elements were found, user has selected simple text

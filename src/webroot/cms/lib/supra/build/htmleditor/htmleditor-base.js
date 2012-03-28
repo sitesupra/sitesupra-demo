@@ -155,6 +155,11 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				}
 			}
 			
+			//Replace with <p></p> if empty
+			if (this.get('mode') == SU.HTMLEditor.MODE_RICH) {
+				if (!html) html = '<p>&nbsp;</p>';
+			}
+			
 			//Set HTML
 			this.get('srcNode').set('innerHTML', html);
 			this.restoreEditableStates();

@@ -539,6 +539,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-hidden',
 			'supra.input-string',
 			'supra.input-text',
+			'supra.input-html',
 			'supra.input-number',
 			'supra.input-path',
 			'supra.input-checkbox',
@@ -555,6 +556,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/input.js',
 		requires: ['supra.form'],
 		skinnable: true
+	},
+	
+	//HTML editor
+	'supra.input-html': {
+		path: 'input/html.js',
+		requires: ['supra.input-proto', 'supra.htmleditor']
 	},
 	
 	//In-line HTML editor

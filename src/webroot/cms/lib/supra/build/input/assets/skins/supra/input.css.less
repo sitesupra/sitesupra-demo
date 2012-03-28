@@ -15,6 +15,7 @@
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
 	.yui3-input-text-hidden,
+	.yui3-input-html-hidden,
 	.yui3-input-number-hidden,
 	.yui3-input-select-hidden,
 	.yui3-input-select-list-hidden,
@@ -79,6 +80,8 @@
 /* Input, textarea, select */
 	.yui3-input input,
 	.yui3-input textarea,
+	.yui3-input iframe,
+	.yui3-input iframe,
 	.yui3-input select {
 		font-size: 11px;
 		height: 24px;
@@ -97,8 +100,10 @@
 	
 	.yui3-input input,
 	.yui3-input textarea,
+	.yui3-input iframe,
 	.ui-dark .ui-light .yui3-input input,
-	.ui-dark .ui-light .yui3-input textarea {
+	.ui-dark .ui-light .yui3-input textarea,
+	.ui-dark .ui-light .yui3-input iframe {
 		color: #58586C;
 		border: 0;
 		background: url(input-bg.png) 0 0 repeat;
@@ -107,7 +112,8 @@
 
 		/* Dark color theme */
 		.ui-dark .yui3-input input,
-		.ui-dark .yui3-input textarea {
+		.ui-dark .yui3-input textarea,
+		.ui-dark .yui3-input iframe {
 			color: #6A6A7E;
 			background: #090613;
 			box-shadow: 0 2px 5px rgba(0,0,0,.75) inset, 0 1px 0 rgba(52, 51, 66, 0.75);
@@ -119,6 +125,12 @@
 		line-height: 16px;
 		padding: 3px;
 		resize: vertical;
+	}
+	.yui3-input iframe {
+		height: 300px;
+		max-height: 300px;
+		padding: 0;
+		border: 0;
 	}
 	.yui3-input select {
 		height: auto;
@@ -419,7 +431,9 @@
 	
 	.yui3-input-string input,
 	.yui3-input-number input,
-	.yui3-input-text textarea {
+	.yui3-input-text textarea,
+	.yui3-input-html textarea,
+	.yui3-input-html iframe {
 		width: 400px;
 	}
 	
@@ -460,10 +474,10 @@
 	.yui3-form-vertical .yui3-input-string label,
 	.yui3-form-vertical .yui3-input-number label,
 	.yui3-form-vertical .yui3-input-text label,
+	.yui3-form-vertical .yui3-input-html label,
 	.yui3-form-vertical .yui3-input-path label,
 	.yui3-form-vertical .yui3-input-select label,
 	.yui3-form-vertical .yui3-input-select-list label,
-	.yui3-form-vertical .yui3-input-text label,
 	.yui3-form-vertical .yui3-input-file-upload label,
 	.yui3-form-vertical .yui3-input-slider label,
 	.yui3-form-vertical .yui3-input-link label,
@@ -473,7 +487,9 @@
 	.yui3-form-vertical .yui3-input-string input,
 	.yui3-form-vertical .yui3-input-number input,
 	.yui3-form-vertical .yui3-input-select select,
-	.yui3-form-vertical .yui3-input-text textarea {
+	.yui3-form-vertical .yui3-input-text textarea,
+	.yui3-form-vertical .yui3-input-html textarea,
+	.yui3-form-vertical .yui3-input-html iframe {
 		width: 100%;
 	}
 	.yui3-form-vertical .yui3-input-path input {

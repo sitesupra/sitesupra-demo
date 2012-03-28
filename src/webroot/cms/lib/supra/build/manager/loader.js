@@ -268,7 +268,7 @@ YUI.add('supra.manager-loader', function (Y) {
 				this.loadTemplate(action_name, function (template) {
 					
 					//Locale strings were already replaced by Supra.IO
-					action.template = template;
+					action.template = template || action.template;
 					
 					if (!(action_name in self.dependancies)) {
 						//There are no depedancies, fire loaded

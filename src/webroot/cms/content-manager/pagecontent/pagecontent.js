@@ -48,7 +48,6 @@ Supra('dd-drag', function (Y) {
 		
 		
 		
-		
 		/**
 		 * Page editing state
 		 * @type {Boolean}
@@ -87,6 +86,26 @@ Supra('dd-drag', function (Y) {
 		 * @private
 		 */
 		initialize: function () {
+			//Load sidebar content settings before all other modules
+			Manager.loadAction('PageContentSettings');
+			Manager.getAction('PageContentSettings').on('loaded', this.loadModules, this);
+			
+			//Y.Controller route
+			Root.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
+			Root.route(Root.ROUTE_PAGE_EDIT,	Y.bind(this.onStartEditingRoute, this));
+			
+			//If user tries to navigate away show prompt if there are unsaved changes
+			window.onbeforeunload = Y.bind(function (evt) {
+			    window.onbeforeunload = null;
+				if (this.hasUnsavedChanges()) {
+					var message = Supra.Intl.get(['page', 'unsaved_changed']);
+					evt.returnValue = message;
+					return message;
+				}
+			}, this);
+		},
+		
+		loadModules: function () {
 			var incl = includes,
 				blocks = this.BLOCK_PROTOTYPES = BLOCK_PROTOTYPES,
 				path = this.getActionPath(),
@@ -96,10 +115,6 @@ Supra('dd-drag', function (Y) {
 			for(var i=blocks.length-1; i>=0; i--) {
 				incl.unshift('{pagecontent}includes/contents/' + blocks[i].toLowerCase() + '.js');
 			}
-			
-			//Y.Controller route
-			Root.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
-			Root.route(Root.ROUTE_PAGE_EDIT,	Y.bind(this.onStartEditingRoute, this));
 			
 			//Change path	
 			for(var id in incl) {
@@ -121,19 +136,6 @@ Supra('dd-drag', function (Y) {
 				},
 				'context': this
 			});
-			
-			//If user tries to navigate away show prompt if there are unsaved changes
-			window.onbeforeunload = Y.bind(function (evt) {
-			    window.onbeforeunload = null;
-				if (this.hasUnsavedChanges()) {
-					var message = Supra.Intl.get(['page', 'unsaved_changed']);
-					evt.returnValue = message;
-					return message;
-				}
-			}, this);
-			
-			
-			Manager.getAction('Page').on('loaded', this.ready, this);
 		},
 		
 		/**

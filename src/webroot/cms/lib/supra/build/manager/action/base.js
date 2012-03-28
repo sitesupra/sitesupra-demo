@@ -727,6 +727,8 @@ YUI.add('supra.manager-action-base', function (Y) {
 			}
 		},
 		
+		
+		
 		/**
 		 * Called after execute()
          *
@@ -785,6 +787,13 @@ YUI.add('supra.manager-action-base', function (Y) {
 		hide: function () {
 			this.set('visible', false);
 			return this;
+		},
+		
+		/**
+		 * Render action
+		 */
+		renderAction: function () {
+			this._preExecute();
 		},
 		
 		/**

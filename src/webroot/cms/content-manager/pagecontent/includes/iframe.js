@@ -431,6 +431,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			this._handleContentElementBehaviour(body);
 			
+			//Add "supra-cms" class to the <html> element
+			Y.Node(doc).one('html').addClass('supra-cms');
+			
 			//Get all stylesheet links
 			var links = [],
 				elements = Y.Node(doc).all('link[rel="stylesheet"]'),

@@ -24,6 +24,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	 * shows / hides other LayoutRightContainer child actions when action is shown / hidden
 	 */
 	
+	/*
 	//Add as right bar child
 	Manager.getAction('LayoutRightContainer').addChildAction('PageContentSettings');
 	
@@ -156,6 +157,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 		}
 	});
+	*/
 	
 	/*
 	 * Properties plugin

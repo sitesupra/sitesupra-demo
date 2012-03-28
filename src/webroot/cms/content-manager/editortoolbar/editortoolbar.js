@@ -128,12 +128,18 @@ SU('transition', 'supra.htmleditor', function (Y) {
 				'id': 'done',
 				'context': this,
 				'callback': Y.bind(function () {
-					var active_content = Manager.PageContent.getContent().get('activeChild');
-					if (active_content) {
-						active_content.fire('block:save');
+					if (Manager.PageContent) {
+						var active_content = Manager.PageContent.getContent().get('activeChild');
+						if (active_content) {
+							active_content.fire('block:save');
+							return;
+						}
 					} else {
-						Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+						//There is no page content, CRUD?
+						this.hide();
 					}
+					
+					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 				}, this)
 			}/*, {
 				'id': 'close',

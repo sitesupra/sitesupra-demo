@@ -537,7 +537,8 @@ YUI.add("supra.input-select", function (Y) {
 				item_class = this.getClassName('item'),
 				renderer = this.get('itemRenderer'),
 				show_empty_value = this.get('showEmptyValue'),
-				html = null;
+				html = null,
+				title = null;
 			
 			if (inputNode) {
 				var domNode = Y.Node.getDOMNode(inputNode),
@@ -554,17 +555,24 @@ YUI.add("supra.input-select", function (Y) {
 				}
 				
 				for(var i=0,ii=values.length; i<ii; i++) {
-					domNode.options[i] = new Option(values[i].title, values[i].id, values[i].id == value);
+					
+					//Check if title is localized
+					title = values[i].title;
+					if (title.indexOf('{#') != -1) {
+						title = Supra.Intl.replace(title);
+					}
+					
+					domNode.options[i] = new Option(title, values[i].id, values[i].id == value);
 					
 					if (values[i].id == value && text_node) {
-						text_node.set('text', values[i].title);
+						text_node.set('text', title);
 					}
 					
 					if (contentNode && (show_empty_value || values[i].id !== '')) {
 						if (renderer) {
 							html = renderer(values[i], i);
 						} else {
-							html = '<a class="' + item_class + '" data-id="' + values[i].id + '">' + Supra.Y.Escape.html(values[i].title) + '</a>';
+							html = '<a class="' + item_class + '" data-id="' + values[i].id + '">' + Supra.Y.Escape.html(title) + '</a>';
 						}
 						if (html) {
 							contentNode.append(html);
@@ -611,10 +619,19 @@ YUI.add("supra.input-select", function (Y) {
 			//If not rendered yet, then textNode will not exist
 			if (!this.get('textNode')) return value;
 			
-			var values = this.get('values');
+			var values = this.get('values'),
+				title  = null;
+			
 			for(var i=0,ii=values.length; i<ii; i++) {
 				if (values[i].id == value) {
-					this.get('textNode').set('text', values[i].title);
+					
+					//Check if title is localized
+					title = values[i].title;
+					if (title.indexOf('{#') != -1) {
+						title = Supra.Intl.replace(title);
+					}
+					
+					this.get('textNode').set('text', title);
 					break;
 				}
 			}

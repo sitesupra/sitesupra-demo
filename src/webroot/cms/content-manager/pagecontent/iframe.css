@@ -29,6 +29,7 @@
 /* .yui3-widget,
 .yui3-input, */
 .yui3-content,
+.yui3-box-reset,
 .yui3-dd-proxy {
 	padding: 0 !important;
 	margin: 0 !important;
@@ -232,6 +233,16 @@
 .editing .yui3-input-string-inline.yui3-content-inline {
 	overflow: visible;
 	min-height: 1em;
+}
+
+.standalone .editing {
+	outline: none;    /* Don't need outline, because everything is editable */
+	min-height: 100%; /* Fill all height */
+	margin: 0 10px !important;   /* Margins to make sure content is not at the border*/
+}
+.standalone-disabled,
+.standalone-disabled * {
+	cursor: pointer;
 }
 
 /**

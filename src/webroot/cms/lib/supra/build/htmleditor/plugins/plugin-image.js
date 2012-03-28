@@ -607,10 +607,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			srcNode.on('dataDrop', this.onDrop, this);
 			
 			//Enable drag & drop
-			this.drop = new Manager.PageContent.PluginDropTarget({
-				'srcNode': srcNode,
-				'doc': doc
-			});
+			if (Manager.PageContent) {
+				this.drop = new Manager.PageContent.PluginDropTarget({
+					'srcNode': srcNode,
+					'doc': doc
+				});
+			}
 		},
 		
 		/**
