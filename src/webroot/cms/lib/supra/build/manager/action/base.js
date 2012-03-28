@@ -772,6 +772,17 @@ YUI.add('supra.manager-action-base', function (Y) {
 		},
 		
 		/**
+		 * Call manager to load action
+		 */
+		load: function () {
+			if (!this.get('loaded')) {
+				Manager.loadAction(this.NAME);
+			}
+			
+			return this;
+		},
+		
+		/**
 		 * Show action, Action plugins are responsible for showing
 		 * needed elements
 		 */

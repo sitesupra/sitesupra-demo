@@ -508,13 +508,19 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				action = Manager.getAction('PageContentSettings');
 			
 			if (!form) {
-				if (action.get('loaded') && !action.get('created')) {
-					action.renderAction();
-					this.showTableSettings(event);
+				if (action.get('loaded')) {
+					if (!action.get('created')) {
+						action.renderAction();
+						this.showTableSettings(event);
+					}
+				} else {
+					action.once('loaded', function () {
+						this.showTableSettings(event);
+					}, this);
+					action.load();
 				}
-				return;
+				return false;
 			}
-			
 			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.settingsFormApply, this),
@@ -522,6 +528,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				'scrollable': true
 			});
 			
+			//
 			this.selected_table = event.target.closest('table');
 			this.selected_cell = event.target.closest('td,th');
 			

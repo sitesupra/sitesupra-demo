@@ -320,9 +320,26 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				return false;
 			}
 			
-			var action = Manager.getAction('PageContentSettings');
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createSettingsForm(),
+				action = Manager.getAction('PageContentSettings');
 			
-			action.execute(this.settings_form || this.createSettingsForm(), {
+			if (!form) {
+				if (action.get('loaded')) {
+					if (!action.get('created')) {
+						action.renderAction();
+						this.showImageSettings(target);
+					}
+				} else {
+					action.once('loaded', function () {
+						this.showImageSettings(target);
+					}, this);
+					action.load();
+				}
+				return false;
+			}
+			
+			action.execute(form, {
 				'doneCallback': Y.bind(this.settingsFormApply, this),
 				
 				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
