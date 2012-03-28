@@ -39,7 +39,8 @@ YUI().add('supra.htmleditor-plugin-formats', function (Y) {
 			
 			if (Y.UA.ie) {
 				//If selection length is 0 then IE fails to change node
-				selection = htmleditor.getSelection();
+				selection = htmleditor.selection;
+				
 				if (selection.start == selection.end && selection.start_offset == selection.end_offset) {
 					if (selection.end_offset == selection.end.length) {
 						selection.start_offset--;

@@ -97,7 +97,6 @@ YUI.add("supra.input-html", function (Y) {
 			//Toolbar needs to exist
 			var action = Manager.getAction('EditorToolbar');
 			if (!action.get('created')) {
-				action.execute(true);
 				action.once('executedChange', function () {
 					action = Manager.getAction('PageContentSettings');
 					if (!action.get('loaded')) {
@@ -106,6 +105,8 @@ YUI.add("supra.input-html", function (Y) {
 						this.createEditor();
 					}
 				}, this);
+				
+				action.execute(true);
 			} else {
 				this.createEditor();
 			}

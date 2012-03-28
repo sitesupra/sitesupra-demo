@@ -165,7 +165,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			}
 			
 			//Replace with <p></p> if empty
-			if (this.get('mode') == SU.HTMLEditor.MODE_RICH) {
+			if (!Y.UA.ie && this.get('mode') == SU.HTMLEditor.MODE_RICH) {
 				if (!html) html = '<p>&nbsp;</p>';
 			}
 			

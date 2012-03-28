@@ -379,6 +379,14 @@
 	}
 }
 
+/* Fix for cursor position in lists in IE */
+.standalone .editing li > div,
+.editing .yui3-input-html-inline li > div {
+	display: inline;
+	vertical-align: top;
+}
+
+/* Cursors */
 .su-uneditable, .su-uneditable * {
 	cursor: default !important;
 }
