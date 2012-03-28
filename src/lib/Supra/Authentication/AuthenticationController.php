@@ -206,7 +206,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				// Authenticating user
 				$user = null;
 				
-				$eventArgs = new Event\EventArgs();
+				$eventArgs = new Event\EventArgs($this);
 				$eventArgs->request = $request;
 
 				try {

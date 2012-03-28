@@ -447,9 +447,9 @@ class ProxyAction extends ProxyActionAbstraction
 	/**
 	 * @return ProxyEventArgs 
 	 */
-	protected function getProxtyEventArgs()
+	protected function getProxyEventArgs()
 	{
-		$args = new ProxyEventArgs();
+		$args = new ProxyEventArgs($this);
 
 		$order = $this->getOrder();
 

@@ -107,7 +107,7 @@ class SitemapAction extends PageManagerAction
 		
 		foreach ($page->getLocalizations() as $localization) {
 
-			$eventArgs = new CmsPagePublishEventArgs();
+			$eventArgs = new CmsPagePublishEventArgs($this);
 			$eventArgs->user = $this->getUser();
 			$eventArgs->localization = $localization;
 

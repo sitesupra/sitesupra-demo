@@ -157,7 +157,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 
 		// Fire event on received checkout details.
 		$eventManager = ObjectRepository::getEventManager($this);
-		$eventArgs = new Paypal\Event\PayerCheckoutDetailsEventArgs();
+		$eventArgs = new Paypal\Event\PayerCheckoutDetailsEventArgs($this);
 		$eventArgs->setOrder($order);
 		$eventArgs->setPayerCheckoutDetails($checkoutDetails);
 		$eventManager->fire(Paypal\PaymentProvider::EVENT_PAYER_CHECKOUT_DETAILS, $eventArgs);
@@ -379,7 +379,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$order = $this->getOrder();
 		$response = $this->getResponse();
 
-		$eventArgs = new CustomerReturnEventArgs();
+		$eventArgs = new CustomerReturnEventArgs($this);
 		$eventArgs->setOrder($order);
 		$eventArgs->setResponse($response);
 

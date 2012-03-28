@@ -4,6 +4,7 @@ namespace Supra\Event;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\UserProvider;
+use Supra\User\UserProviderAbstract;
 use Supra\Cms\CmsPageLocalizationIndexerQueueListener;
 use Supra\Cms\CmsUserSingleSessionListener;
 use Supra\Cms\CmsController;
@@ -15,31 +16,21 @@ use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
 use Supra\Controller\Pages\Listener\PageMetadataOutputListener;
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
-
-/*
- * CMS user provider event manager
- */
-$userEventManager = new EventManager();
+$eventManager = ObjectRepository::getEventManager();
 
 // Limits one session per user
+$userProvider = ObjectRepository::getUserProvider('#cms');
 $externalUserProviderActive = $ini->getValue('external_user_database', 'active', false);
 if ( ! $externalUserProviderActive) {
 	$cmsUserSingleSessionListener = new CmsUserSingleSessionListener();
-	$userEventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener);
+	$eventManager->listen(UserProvider::EVENT_PRE_SIGN_IN, $cmsUserSingleSessionListener, $userProvider);
 }
 
 // Sends email for newly created users
 $listener = new \Supra\User\Listener\UserCreateListener();
-$userEventManager->listen(\Supra\User\UserProviderAbstract::EVENT_POST_USER_CREATE, $listener);
+$eventManager->listen(UserProviderAbstract::EVENT_POST_USER_CREATE, $listener, $userProvider);
 
-$userProvider = ObjectRepository::getUserProvider('#cms');
-ObjectRepository::setEventManager($userProvider, $userEventManager);
-
-/*
- * General event manager
- */
-$eventManager = new EventManager();
-
+// Search index
 $listener = new CmsPageLocalizationIndexerQueueListener();
 $eventManager->listen(CmsController::EVENT_POST_PAGE_PUBLISH, $listener);
 $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
@@ -48,34 +39,29 @@ $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
 $listener = new GoogleAnalyticsListener();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 
+// Block execution log
 $blockSql = $ini->getValue('log', 'block_log', false);
 if ($blockSql) {
 	$listener = new BlockExecuteListener();
 	$eventManager->listen($listener->getSubscribedEvents(), $listener);
 }
 
+// SQL log
 $logSql = $ini->getValue('log', 'sql_log', false);
 if ($logSql) {
 	$listener = new \Supra\Log\Logger\SqlLogger();
 	$eventManager->listen($listener->getSubscribedEvents(), $listener);
 }
 
+// Drops page cache group
 $listener = new PageGroupCacheDropListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
+// Facebook events
 $listener = new FacebookPagePublishingListener();
 $eventManager->listen($listener->getSubscribedEvents(), $listener);
 
-
 // Page metadata output listener
 $listener = new PageMetadataOutputListener();
-
 $listener->setUseParentOnEmptyMetadata(true);
-
-$em = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
-$listener->setEntityManager($em);
-
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
-
-
-ObjectRepository::setDefaultEventManager($eventManager);

@@ -199,7 +199,7 @@ class PageController extends ControllerAbstraction
 
 		$placeResponses = $this->getPlaceResponses($request);
 
-		$eventArgs = new Event\PostPrepareContentEventArgs();
+		$eventArgs = new Event\PostPrepareContentEventArgs($this);
 		$eventArgs->request = $this->getRequest();
 		$eventArgs->response = $this->getResponse();
 
@@ -610,7 +610,7 @@ class PageController extends ControllerAbstraction
 			try {
 
 				if ( ! is_null($eventAction)) {
-					$eventArgs = new BlockEventsArgs();
+					$eventArgs = new BlockEventsArgs($this);
 					$eventArgs->block = $block;
 					$eventArgs->actionType = $eventAction;
 

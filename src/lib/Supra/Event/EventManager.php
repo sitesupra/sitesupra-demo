@@ -4,6 +4,7 @@ namespace Supra\Event;
 
 use Supra\Log\Log;
 use Supra\Loader\Loader;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Event manager object
@@ -38,8 +39,9 @@ class EventManager
 	 * Add listener
 	 * @param string|array $eventType
 	 * @param callback|object|\Closure $listener
+	 * @param mixed $bindingFilter
 	 */
-	public function listen($eventTypes, $listener)
+	public function listen($eventTypes, $listener, $bindingFilter = null)
 	{
 		// Do nothing for empty instance
 		if ($this === self::$emptyInstance) {
@@ -47,6 +49,12 @@ class EventManager
 		}
 		
 		$eventTypes = (array) $eventTypes;
+		
+		if ( ! is_null($bindingFilter)) {
+			$bindingFilter = ObjectRepository::normalizeCallerArgument($bindingFilter);
+		} else {
+			$bindingFilter = ObjectRepository::DEFAULT_KEY;
+		}
 		
 		foreach ($eventTypes as $eventType) {
 
@@ -56,7 +64,10 @@ class EventManager
 			
 			// don't validate callback now for performance reasons
 			//TODO: could add validation for development environment
-			$this->listeners[$eventType][] = $listener;
+			$this->listeners[$eventType][] = array(
+				$listener,
+				$bindingFilter,
+			);
 		}
 	}
 
@@ -78,8 +89,18 @@ class EventManager
 			$eventArgs = EventArgs::getEmptyInstance();
 		}
 		
+		$caller = $eventArgs->getCaller();
+		
 		if ( ! empty($this->listeners[$eventType])) {
-			foreach ($this->listeners[$eventType] as $listener) {
+			foreach ($this->listeners[$eventType] as $listenerData) {
+				
+				$listener = $listenerData[0];
+				$bindingFilter = $listenerData[1];
+				
+				// Skip if the event is not bound to the caller
+				if ( ! ObjectRepository::isParentCaller($caller, $bindingFilter)) {
+					continue;
+				}
 				
 				if ($listener instanceof \Closure) {
 					$listener($eventArgs);
@@ -147,9 +168,10 @@ class EventManager
 			$keys = array_reverse(array_keys($this->listeners[$eventType]));
 
 			foreach ($keys as $key) {
-				if ($this->listeners[$eventType][$key] === $listener) {
+				if ($this->listeners[$eventType][$key][0] === $listener) {
 					unset($this->listeners[$eventType][$key]);
 					
+					// Check the next event type
 					continue 2;
 				}
 			}

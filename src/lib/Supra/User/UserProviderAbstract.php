@@ -202,7 +202,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$entityManager = $this->getEntityManager();
 
 		// Trigger pre sign in listener
-		$eventArgs = new Event\UserEventArgs();
+		$eventArgs = new Event\UserEventArgs($this);
 		$eventArgs->entityManager = $entityManager;
 		$eventArgs->user = $user;
 
@@ -242,7 +242,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$session->removeUser();
 
 		// Trigger pre sign out listeners
-		$eventArgs = new Event\UserEventArgs();
+		$eventArgs = new Event\UserEventArgs($this);
 		$eventArgs->entityManager = $entityManager;
 		$eventArgs->user = $user;
 
@@ -334,8 +334,9 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		$eventManager = ObjectRepository::getEventManager($this);
 
-		$eventArgs = new UserCreateEventArgs($user);
+		$eventArgs = new UserCreateEventArgs($this);
 		$eventArgs->setUserProvider($this);
+		$eventArgs->setUser($user);
 		$eventManager->fire(self::EVENT_POST_USER_CREATE, $eventArgs);
 	}
 

@@ -20,7 +20,7 @@ class EventsSqlLogger implements SQLLoggerInterface
 	 */
     public function startQuery($sql, array $params = null, array $types = null)
 	{
-		$eventArgs = new SqlEventsArgs();
+		$eventArgs = new SqlEventsArgs($this);
 		$eventArgs->sql = $sql;
 		$eventArgs->params = $params;
 		$eventArgs->types = $types;

@@ -1005,7 +1005,7 @@ class FileStorage
 	 */
 	public function remove(Entity\Abstraction\File $entity)
 	{
-		$eventArgs = new FileEventArgs();
+		$eventArgs = new FileEventArgs($this);
 		$eventArgs->setFile($entity);
 		$this->fireFileEvent(FileEventArgs::FILE_EVENT_PRE_DELETE, $eventArgs);
 

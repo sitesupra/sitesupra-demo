@@ -111,7 +111,7 @@ class UserNotificationService
 	{
 		$eventManager = ObjectRepository::getEventManager($this);
 
-		$eventArgs = new UserNotificationEventArgs();
+		$eventArgs = new UserNotificationEventArgs($this);
 		$eventArgs->setNotification($notification);
 
 		$eventManager->fire($eventType, $eventArgs);

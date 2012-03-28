@@ -480,7 +480,7 @@ abstract class PageManagerAction extends CmsAction
 		$publicEm->transactional($copyContent);
 
 		// If all went well, fire the post-publish event for published page localization.
-		$eventArgs = new CmsPagePublishEventArgs();
+		$eventArgs = new CmsPagePublishEventArgs($this);
 		$eventArgs->user = $this->getUser();
 		$eventArgs->localization = $this->getPageLocalization();
 
@@ -573,7 +573,7 @@ abstract class PageManagerAction extends CmsAction
 		
 		$eventManager = ObjectRepository::getEventManager($this);
 		
-		$eventArgs = new CmsPageDeleteEventArgs();
+		$eventArgs = new CmsPageDeleteEventArgs($this);
 		$eventArgs->localization = $this->getPageLocalization();
 		$eventArgs->user = $this->getUser();
 		$eventManager->fire(CmsController::EVENT_POST_PAGE_DELETE, $eventArgs);

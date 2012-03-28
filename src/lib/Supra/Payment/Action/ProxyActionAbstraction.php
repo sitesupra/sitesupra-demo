@@ -21,7 +21,7 @@ use Supra\Payment\Transaction\TransactionProvider;
 abstract class ProxyActionAbstraction extends ActionAbstraction
 {
 
-	protected function getProxtyEventArgs()
+	protected function getProxyEventArgs()
 	{
 		throw new Exception\RuntimeException('Not implemented yet.');
 	}
@@ -30,7 +30,7 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 	{
 		$eventManager = ObjectRepository::getEventManager($this);
 
-		$eventArgs = $this->getProxtyEventArgs();
+		$eventArgs = $this->getProxyEventArgs();
 
 		$eventManager->fire(PaymentProviderAbstraction::EVENT_PROXY, $eventArgs);
 	}

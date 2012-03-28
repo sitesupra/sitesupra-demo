@@ -54,7 +54,7 @@ class ProcessScheduledPagesCommand extends Command
 			try {
 				$request->publish();
 				
-				$eventArgs = new CmsPagePublishEventArgs();
+				$eventArgs = new CmsPagePublishEventArgs($this);
 				$eventArgs->localization = $localization;
 				
 				// FIXME!!!

@@ -11,6 +11,7 @@ use Supra\Html\HtmlTag;
 use Supra\Controller\Pages\Finder\LocalizationFinder;
 use Supra\Controller\Pages\Finder\PageFinder;
 use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\PageController;
 
 class PageMetadataOutputListener
 {
@@ -52,7 +53,7 @@ class PageMetadataOutputListener
 	public function getEntityManager()
 	{
 		if (empty($this->em)) {
-			throw new Exception\RuntimeException('Entity manager not set.');
+			$this->em = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
 		}
 
 		return $this->em;

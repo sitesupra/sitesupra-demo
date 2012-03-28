@@ -20,14 +20,6 @@ class UserCreateEventArgs extends EventArgs
 	public $userProvider;
 	
 	/**
-	 * @param User $user
-	 */
-	public function __construct(User $user) 
-	{
-		$this->user = $user;
-	}
-	
-	/**
 	 * @return User
 	 */
 	public function getUser()

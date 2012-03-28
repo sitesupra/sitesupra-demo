@@ -227,7 +227,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		$order = $this->getOrder();
 		$notificationData = $this->getNotificationData();
 
-		$eventArgs = new ProviderNotificationEventArgs();
+		$eventArgs = new ProviderNotificationEventArgs($this);
 		$eventArgs->setOrder($order);
 		$eventArgs->setNotificationData($notificationData);
 

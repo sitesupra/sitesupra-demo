@@ -145,7 +145,7 @@ class ObjectRepository
 	 * @param mixed $caller
 	 * @return string
 	 */
-	private static function normalizeCallerArgument($caller)
+	public static function normalizeCallerArgument($caller)
 	{
 		if (is_object($caller)) {
 			$callerClass = get_class($caller);
@@ -925,12 +925,13 @@ class ObjectRepository
 	 * @param mixed $caller
 	 * @return EventManager
 	 */
-	public static function getEventManager($caller)
+	public static function getEventManager($caller = self::DEFAULT_KEY)
 	{
 		$eventManager = self::getObject($caller, self::INTERFACE_EVENT_MANAGER);
 
 		if (is_null($eventManager)) {
-			$eventManager = EventManager::getEmptyInstance();
+			$eventManager = new EventManager();
+			self::setObject(self::DEFAULT_KEY, $eventManager, self::INTERFACE_EVENT_MANAGER);
 		}
 
 		return $eventManager;
@@ -1220,6 +1221,4 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_REMOTE_COMMAND_SERVICE);
 	}
-	
-	
 }
