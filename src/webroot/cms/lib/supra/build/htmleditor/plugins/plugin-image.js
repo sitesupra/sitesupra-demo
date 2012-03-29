@@ -426,7 +426,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				} else {
 					//Find image by size and set initial image properties
 					var size_data = this.getImageDataBySize(image_data),
-						src = size_data.external_path;
+						src = this.getImageURLBySize(image_data);
 					
 					var data = Supra.mix({}, defaultProps, {
 						'type': this.NAME,
@@ -476,7 +476,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			var uid = htmleditor.generateDataUID(),
 				size_data = this.getImageDataBySize(image_data),
-				src = size_data.external_path,
+				src = this.getImageURLBySize(image_data),
 				img = null;
 			
 			var locale = Supra.data.get('locale');
@@ -511,7 +511,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @param {String} size
 		 */
 		getImageURLBySize: function (data, size) {
-			var size = size ? size : this.configuration.size;
+			// Always return original if not specified size
+			var size = size ? size : 'original';
 			
 			if (data && data.sizes && size in data.sizes) {
 				return data.sizes[size].external_path;

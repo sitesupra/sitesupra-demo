@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Supra\User\Entity;
 
