@@ -779,7 +779,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function pathToIdAction()
 	{
-		$input = $this->getRequestInput();
+ 		$input = $this->getRequestInput();
 		$controller = $this->getPageController();
 		$em = $controller->getEntityManager();
 		$localizationEntity = Entity\PageLocalization::CN();
@@ -796,12 +796,12 @@ class PageAction extends PageManagerAction
 		foreach ($locales as $locale) {
 			/* @var $locale Locale */
 
-			$localeId = $locale->getId();
+			$_localeId = $locale->getId();
 			$pathPrefix = new Path($localeId);
 
 			if ($path->startsWith($pathPrefix)) {
 				$path->setBasePath($pathPrefix);
-				$locale = $localeId;
+				$localeId = $_localeId;
 				break;
 			}
 		}
