@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Event;
 
 use Supra\Event\EventArgs;
+use Supra\Controller\Pages\BlockController;
 
 class BlockEventsArgs extends EventArgs
 {
@@ -15,6 +16,11 @@ class BlockEventsArgs extends EventArgs
 	 * @var \Supra\Controller\Pages\Entity\Abstraction\Block
 	 */
 	public $block;
+	
+	/**
+	 * @var BlockController
+	 */
+	public $blockController;
 	
 	/**
 	 * @var string

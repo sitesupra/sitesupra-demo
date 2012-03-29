@@ -6,10 +6,17 @@ if(typeof console != 'undefined' ) {
 		{% for actionValue in blockStats.actions %}
 			console.log({{ actionValue | json_encode | raw}});
 		{% endfor %}
+			
+		{% if blockStats.cache %}
+			console.log({{ blockStats.cache | json_encode | raw}});
+
+			{% for actionValue in blockStats.actions_cache %}
+				console.log({{ actionValue | json_encode | raw}});
+			{% endfor %}
+		{% endif %}
 		
 		console.log(' ');
 		
 	{% endfor %} 
 
 }
-

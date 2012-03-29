@@ -78,4 +78,12 @@ class ResponseContextLocalProxy extends ResponseContext
 		$this->localContext->flushToContext($mainContext);
 	}
 	
+	/**
+	 * @return ResponseContext
+	 */
+	public function getLocalContext()
+	{
+		return $this->localContext;
+	}
+	
 }

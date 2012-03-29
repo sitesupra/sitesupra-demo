@@ -320,12 +320,14 @@ class PageController extends ControllerAbstraction
 		$blockContentCache = &$this->blockContentCache;
 
 		// function which adds controllers for the block
-		$controllerFactory = function(Entity\Abstraction\Block $block) use ($page, &$blockContentCache) {
+		$controllerFactory = function(Entity\Abstraction\Block $block, &$blockController) use ($page, &$blockContentCache) {
 
 					// Skip controller creation if cache found
 					$blockId = $block->getId();
 					if (array_key_exists($blockId, $blockContentCache)) {
-						return new CachedBlockController($blockContentCache[$blockId]);
+						$blockController = new CachedBlockController($blockContentCache[$blockId]);
+						
+						return;
 					}
 
 					$blockController = $block->createController();
@@ -333,12 +335,10 @@ class PageController extends ControllerAbstraction
 					if (empty($blockController)) {
 						throw new Exception\InvalidBlockException('Block controller was not found');
 					}
-
-					return $blockController;
 				};
 
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($controllerFactory, Listener\BlockExecuteListener::ACTION_CONTROLLER_SEARCH);
+		$this->iterateBlocks($controllerFactory, Listener\BlockExecuteListener::ACTION_CONTROLLER_SEARCH);
 	}
 
 	/**
@@ -366,7 +366,10 @@ class PageController extends ControllerAbstraction
 						$cachedResponse = $blockContentCache[$blockId];
 						/* @var $cachedResponse Response\HttpResponse */
 						$context = $cachedResponse->getContext();
+						/* @var $context ResponseContext */
+						
 						$context->flushToContext($responseContext);
+						
 						return;
 					} else {
 
@@ -405,7 +408,7 @@ class PageController extends ControllerAbstraction
 		$response = $this->getResponse();
 		$context = $response->getContext();
 
-		$cacheSearch = function(Entity\Abstraction\Block $block, BlockController $blockController)
+		$cacheSearch = function(Entity\Abstraction\Block $block, BlockController &$blockController)
 				use ($localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request, $context) {
 
 					$blockId = $block->getId();
@@ -416,7 +419,7 @@ class PageController extends ControllerAbstraction
 						$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
 
 						if (empty($cacheKey)) {
-							return $blockController;
+							return;
 						}
 
 						$content = $cache->fetch($cacheKey);
@@ -442,11 +445,10 @@ class PageController extends ControllerAbstraction
 						}
 					}
 
-					return $blockController;
 				};
 
 		// Iterates through all blocks and calls the function passed
-		$this->blockControllers = $this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH);
+		$this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH);
 	}
 
 	/**
@@ -599,19 +601,22 @@ class PageController extends ControllerAbstraction
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $index => $block) {
 
-			$blockController = null;
 			$blockId = $block->getId();
 			/* @var $blockController BlockController */
 
-			if (isset($this->blockControllers[$index])) {
-				$blockController = $this->blockControllers[$index];
+			if ( ! isset($this->blockControllers[$index])) {
+				$this->blockControllers[$index] = null;
 			}
+			
+			$blockController = &$this->blockControllers[$index];
 
 			try {
 
 				if ( ! is_null($eventAction)) {
 					$eventArgs = new BlockEventsArgs($this);
 					$eventArgs->block = $block;
+					// Assigned by reference because "null" can change to object after closure execution
+					$eventArgs->blockController = &$blockController;
 					$eventArgs->actionType = $eventAction;
 
 					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
@@ -619,6 +624,7 @@ class PageController extends ControllerAbstraction
 					$blockTimeStart = microtime(true);
 				}
 
+				// NB! Block controller variable might be rewritten in the function
 				$return[$index] = $function($block, $blockController);
 
 				if (

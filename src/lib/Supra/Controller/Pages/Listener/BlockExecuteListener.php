@@ -11,23 +11,23 @@ use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Controller\Pages\Event\SqlEventsArgs;
 use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
 use Supra\Event\Exception\LogicException;
+use Supra\Response;
 
 /**
  * BlockExecuteListener
  */
 class BlockExecuteListener implements EventSubscriber
 {
-	
 	const ACTION_CACHE_SEARCH = 'search cache';
 	const ACTION_CONTROLLER_SEARCH = 'find controller';
 	const ACTION_CONTROLLER_PREPARE = 'prepare controller';
 	const ACTION_DEPENDENT_CACHE_SEARCH = 'search context dependent cache';
 	const ACTION_CONTROLLER_EXECUTE = 'execute controller';
 	const ACTION_RESPONSE_COLLECT = 'collect responses';
-	
+
 	const CACHE_TYPE_FULL = 'full';
 	const CACHE_TYPE_CONTEXT = 'context dependent';
-	
+
 	/**
 	 * Statistics output array
 	 * @var array
@@ -51,13 +51,13 @@ class BlockExecuteListener implements EventSubscriber
 	 * @var boolean
 	 */
 	private $runBlockFlag = false;
-	
+
 	/**
 	 * Storage for executed block class names
 	 * @var array
 	 */
 	private $blockClassNames = array();
-	
+
 	/**
 	 * Contais records about blocks, that were loaded from blocks cache 
 	 * @var array
@@ -90,6 +90,36 @@ class BlockExecuteListener implements EventSubscriber
 
 		$this->runBlockFlag = true;
 	}
+	
+	/**
+	 *
+	 * @param BlockEventsArgs $eventArgs
+	 * @return Response\ResponseContextLocalProxy
+	 */
+	private function getLocalResponseContext(BlockEventsArgs $eventArgs)
+	{
+		$controller = $eventArgs->blockController;
+		
+		if ( ! $controller instanceof Pages\BlockController) {
+			return;
+		}
+		
+		$response = $controller->getResponse();
+
+		if ( ! $response instanceof Response\HttpResponse) {
+			return;
+		}
+
+		$context = $response->getContext();
+
+		if ( ! $context instanceof Response\ResponseContextLocalProxy) {
+			return;
+		}
+		
+		$context = $context->getLocalContext();
+
+		return $context;
+	}
 
 	/**
 	 * End of the block execution event handler
@@ -98,35 +128,58 @@ class BlockExecuteListener implements EventSubscriber
 	public function blockEndExecuteEvent(BlockEventsArgs $eventArgs)
 	{
 		$this->runBlockFlag = false;
-		
-		$blockOid = spl_object_hash($eventArgs->block);
-		
-		$this->statisticsData[$blockOid][$eventArgs->actionType] = array();
-		$stats = &$this->statisticsData[$blockOid][$eventArgs->actionType];
+
+		$blockOid = $eventArgs->block->getId();
+		$context = $this->getLocalResponseContext($eventArgs);
+		$actionType = $eventArgs->actionType;
+
+		// Load data from the cache if cached
+		if (isset($this->blockCacheTypes[$blockOid]) && ! empty($context)) {
+			
+			$originalData = $context->getValue(__CLASS__ . '_' . $blockOid);
+			
+			if (isset($originalData[$actionType])) {
+				
+				// Mark as cache
+				$stats = $originalData[$actionType];
+				$stats[3] = 1;
+				
+				$this->statisticsData[$blockOid][$actionType] = $stats;
+				
+				return;
+			}
+		}
+
+		$this->statisticsData[$blockOid][$actionType] = array_fill(0, 4, null);
+		$stats = &$this->statisticsData[$blockOid][$actionType];
 
 		$this->blockClassNames[$blockOid] = $eventArgs->block->getComponentClass();
-		
+
 		$time = round($eventArgs->duration * 1000);
 
-		$stats[] = $time;
+		$stats[0] = $time;
 
 		if ($this->queriesCounter) {
 			$time = round($this->queriesTimeCounter * 1000);
-			
-			$stats[] = $this->queriesCounter;
-			$stats[] = $time;
-			
+
+			$stats[1] = $this->queriesCounter;
+			$stats[2] = $time;
 		}
-		
+
 		// passing info about block cache
 		if ($eventArgs->cached && ! isset($this->blockCacheTypes[$blockOid])) {
-			if ($eventArgs->actionType == self::ACTION_CACHE_SEARCH) {
+			if ($actionType == self::ACTION_CACHE_SEARCH) {
 				$this->blockCacheTypes[$blockOid] = self::CACHE_TYPE_FULL;
-			} elseif ($eventArgs->actionType == self::ACTION_DEPENDENT_CACHE_SEARCH) {
+			} elseif ($actionType == self::ACTION_DEPENDENT_CACHE_SEARCH) {
 				$this->blockCacheTypes[$blockOid] = self::CACHE_TYPE_CONTEXT;
 			} else {
 				$this->blockCacheTypes[$blockOid] = 'unknown cache';
 			}
+		}
+
+		// Save stats cache after execution
+		if ($actionType == self::ACTION_CONTROLLER_EXECUTE && ! empty($context)) {
+			$context->setValue(__CLASS__ . '_' . $blockOid, $this->statisticsData[$blockOid]);
 		}
 	}
 
@@ -160,52 +213,82 @@ class BlockExecuteListener implements EventSubscriber
 		if (empty($this->statisticsData)) {
 			return;
 		}
-		
+
 		$responseData = array();
-		
+
 		foreach ($this->statisticsData as $oid => $stats) {
-			
+
 			$name = $this->blockClassNames[$oid];
+
+			$blockStats = array(
+				'totals' => null,
+				'actions' => array(),
+				'cache' => null,
+				'actions_cache' => array(),
+			);
+			$overallTime =
+					$totalQueries =
+					$totalQueryTime = 0;
 			
-			$blockStats = array();
-			$overallTime = 
-				$totalQueries = 
-				$totalQueryTime = 0;
-			
+			$overallTimeCached =
+					$totalQueriesCached =
+					$totalQueryTimeCached = 0;
+
 			foreach ($stats as $actionType => $singleActionStats) {
 				
-				$overallTime += $singleActionStats[0];
+				$actionCategory = null;
+
+				if ( ! empty($singleActionStats[3])) {
+					$overallTimeCached += $singleActionStats[0];
+					$totalQueriesCached += $singleActionStats[1];
+					$totalQueryTimeCached += $singleActionStats[2];
+					
+					$actionCategory = 'actions_cache';
+				} else {
+					$overallTime += $singleActionStats[0];
+					$totalQueries += $singleActionStats[1];
+					$totalQueryTime += $singleActionStats[2];
+					
+					$actionCategory = 'actions';
+				}
 				
 				if ($singleActionStats[0] < 2) {
 					continue;
 				}
 				
-				if (isset($singleActionStats[1])) {
-					$totalQueries += $singleActionStats[1];
-					$totalQueryTime += $singleActionStats[2];
-					
-					array_unshift($singleActionStats, $actionType);
-					$blockStats['actions'][] = vsprintf('     %-45s %4dms %3d queries (%4dms)', $singleActionStats);
-					
-				} else {
-					$blockStats['actions'][] = vsprintf('     %-45s %4dms', array($actionType, $singleActionStats[0]));
+				array_unshift($singleActionStats, $actionType);
+				
+				$message = vsprintf('    %-46s %4dms', array_slice($singleActionStats, 0, 2));
+				
+				if ( ! empty($singleActionStats[2])) {
+					$message .= vsprintf(' %3d queries (%4dms)', array_slice($singleActionStats, 2, 2));
 				}
+				
+				$blockStats[$actionCategory][] = $message;
 			}
-			
+
 			if ($totalQueries > 0) {
 				$blockStats['totals'] = vsprintf('%-50s %4dms %3d queries (%4dms)', array($name, $overallTime, $totalQueries, $totalQueryTime));
 			} else {
 				$blockStats['totals'] = vsprintf('%-50s %4dms', array($name, $overallTime));
 			}
-			
+
 			if ( ! empty($this->blockCacheTypes[$oid])) {
-				$blockStats['actions'][] = vsprintf('     %-48s %s', array('cache used', $this->blockCacheTypes[$oid]));
+				$cacheName = $this->blockCacheTypes[$oid];
+				
+				$message = vsprintf('  %-48s %4dms', array('Cached stages', $overallTimeCached));
+				
+				if ($totalQueriesCached > 0) {
+					$message .= vsprintf(' %3d queries (%4dms)', array($totalQueriesCached, $totalQueryTimeCached));
+				}
+				
+				$blockStats['cache'] = $message;
 			}
-			
+
 			$responseData[] = $blockStats;
 		}
-		
-		$response = new \Supra\Response\TwigResponse($this);
+
+		$response = new Response\TwigResponse($this);
 		$response->assign('debugData', $responseData);
 		$response->outputTemplate('block_execute_listener.js.twig');
 
