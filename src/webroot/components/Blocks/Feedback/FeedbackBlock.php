@@ -53,7 +53,7 @@ class FeedbackBlock extends BlockController
 	 * 
 	 * @var array
 	 */
-	protected $formInputs = array(
+	protected static $formInputs = array(
 		'name' => array(
 			'type' => 'text',
 			'name' => 'Name',
@@ -149,14 +149,14 @@ class FeedbackBlock extends BlockController
 		}
 		
 		$errorLabels = array();
-		foreach($this->formInputs as $id => $input) {
+		foreach(self::$formInputs as $id => $input) {
 			$errorLabels[$id] = $this->getValidationErrorLabels($input);
 		}
 		
 		$errorLabels['submit']['failed'] = $this->getPropertyValue('internalError');
 		
 		$response->assign('errorLabels', $errorLabels);
-		$response->assign('formInputs', $this->formInputs);
+		$response->assign('formInputs', self::$formInputs);
 		$response->assign('requestPath', self::AJAX_ACTION_PATH);
 		
 		$blockId = $this->getBlock()
@@ -183,11 +183,11 @@ class FeedbackBlock extends BlockController
 	 * 
 	 * @return array
 	 */
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$properties = array();
 		
-		foreach($this->formInputs as $id => $input) {
+		foreach(self::$formInputs as $id => $input) {
 			
 			// Inputs labels
 			$propertyName = $input['name'] . ' label';
@@ -271,7 +271,7 @@ class FeedbackBlock extends BlockController
 	 */
 	public function getFormInputs()
 	{
-		return $this->formInputs;
+		return self::$formInputs;
 	}
 	
 	/**

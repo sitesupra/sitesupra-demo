@@ -18,7 +18,7 @@ class ProjectSearchController extends SearchController
 	const PROPERTY_NAME_NUMBER_OF_RESULTS_LABEL = 'numberOfResultsLabel';
 	const PROPERTY_NAME_ERROR = 'errorMessage';	
 	
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$contents = array();
 

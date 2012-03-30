@@ -12,7 +12,7 @@ class LoginBlock extends BlockController
 	/**
 	 * @return array
 	 */
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$properties = array();
 		

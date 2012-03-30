@@ -14,11 +14,6 @@ use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
  */
 class LanguageSelectorBlock extends BlockController
 {
-	public function getPropertyDefinition()
-	{
-		
-	}
-
 	public function doExecute()
 	{
 		$request = $this->getRequest();

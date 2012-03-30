@@ -335,11 +335,11 @@ class SubscribeBlock extends BlockController
 	 * Loads property definition array
 	 * @return array
 	 */
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$contents = array();
 
-		$hostName = ObjectRepository::getSystemInfo($this)
+		$hostName = ObjectRepository::getSystemInfo(get_called_class())
 				->getHostName(\Supra\Info::NO_SCHEME);
 
 		$stringValue = new \Supra\Editable\LabelString("Email from address");

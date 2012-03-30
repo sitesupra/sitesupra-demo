@@ -9,7 +9,7 @@ use Supra\Editable;
 
 class GalleryBlock extends BlockController
 {
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$images = new Editable\Gallery('Images');
 		

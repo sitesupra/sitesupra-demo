@@ -13,7 +13,7 @@ use Supra\Controller\Pages\Finder\LocalizationFinder;
  */
 class SitemapBlock extends LinksBlock
 {
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		return array();
 	}

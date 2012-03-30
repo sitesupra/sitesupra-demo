@@ -50,30 +50,38 @@ class TransactDataForm extends BlockController
 		'bin_phone' => '111222333',
 		'card_bin' => '541333'
 	);
+	
+	private static $allFormInputMetadata = array(
+		'formInputs' => array(
+			'name_on_card' => 'Name on Card',
+			'street' => 'Street',
+			'zip' => 'Zip',
+			'city' => 'City',
+			'country' => 'Country',
+			'state' => 'State',
+			'email' => 'Email',
+			'phone' => 'Phone',
+		),
+
+		'gatewayDoesNotCollect' => array(
+			'cc' => 'Card number',
+			'cvv' => 'Card CCV number',
+			'expire' => 'Card expiration date, MM/YY',
+
+			'bin_name' => 'BIN name',
+			'bin_phone' => 'BIN phone',
+		),
+
+		'gatewayCollects' => array(
+			'card_bin' => 'Card BIN',
+		)
+	);
 
 	private function getFormInputMetadata()
 	{
-		$formInputs = array();
-
-		$formInputs['name_on_card'] = 'Name on Card';
-		$formInputs['street'] = 'Street';
-		$formInputs['zip'] = 'Zip';
-		$formInputs['city'] = 'City';
-		$formInputs['country'] = 'Country';
-		$formInputs['state'] = 'State';
-		$formInputs['email'] = 'Email';
-		$formInputs['phone'] = 'Phone';
-
-		$gatewayDoesNotCollect = array();
-		$gatewayDoesNotCollect['cc'] = 'Card number';
-		$gatewayDoesNotCollect['cvv'] = 'Card CCV number';
-		$gatewayDoesNotCollect['expire'] = 'Card expiration date, MM/YY';
-
-		$gatewayDoesNotCollect['bin_name'] = 'BIN name';
-		$gatewayDoesNotCollect['bin_phone'] = 'BIN phone';
-
-		$gatewayCollects = array();
-		$gatewayCollects['card_bin'] = 'Card BIN';
+		$formInputs = self::$allFormInputMetadata['formInputs'];
+		$gatewayDoesNotCollect = self::$allFormInputMetadata['gatewayDoesNotCollect'];
+		$gatewayCollects = self::$allFormInputMetadata['gatewayCollects'];
 
 		$request = $this->getRequest();
 
@@ -182,9 +190,9 @@ class TransactDataForm extends BlockController
 		return $formElements;
 	}
 
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
-		$formInputMetadata = $this->getFormInputMetadata();
+		$formInputMetadata = call_user_func_array('array_merge', self::$allFormInputMetadata);
 
 		$contents = array();
 

@@ -15,7 +15,7 @@ abstract class LinksBlock extends BlockController
 
 	public static $linkCount = 8;
 
-	public function getPropertyDefinition($prefix = 'link', $title = 'Link', $count = null, $groupLabel = null)
+	public static function getPropertyDefinition($prefix = 'link', $title = 'Link', $count = null, $groupLabel = null)
 	{
 		if (is_null($count)) {
 			$count = static::$linkCount;

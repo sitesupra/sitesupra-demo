@@ -329,7 +329,7 @@ class DummyShopController extends BlockController
 	 * Loads property definition array.
 	 * @return array
 	 */
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		return array();
 	}
