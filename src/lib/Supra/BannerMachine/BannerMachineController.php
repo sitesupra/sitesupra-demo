@@ -123,7 +123,7 @@ class BannerMachineController extends BlockController
 		$response->outputTemplate('banner-bo.html.twig');
 	}
 
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$contents = array();
 
@@ -131,7 +131,7 @@ class BannerMachineController extends BlockController
 		$html->setDefaultValue('');
 		$contents[self::PROPERTY_NAME_APPEND_TO_URL] = $html;
 
-		$bannerProvider = ObjectRepository::getBannerProvider($this);
+		$bannerProvider = ObjectRepository::getBannerProvider(get_called_class());
 
 		$types = $bannerProvider->getTypes();
 

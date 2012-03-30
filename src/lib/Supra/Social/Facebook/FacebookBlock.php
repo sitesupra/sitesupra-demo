@@ -18,7 +18,7 @@ class FacebookBlock extends BlockController
 		$response->output('Facebook block');
 	}
 
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		$properties = array();
 

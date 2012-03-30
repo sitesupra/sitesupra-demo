@@ -65,7 +65,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
 	 */
-	public function getPropertyDefinition()
+	public static function getPropertyDefinition()
 	{
 		return array();
 	}
