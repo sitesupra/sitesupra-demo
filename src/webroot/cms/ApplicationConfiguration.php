@@ -33,6 +33,12 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var AuthorizationAccessPolicyAbstraction
 	 */
 	public $authorizationAccessPolicy;
+	
+	/**
+	 * Controller classname
+	 * @var string
+	 */
+	public $classname;
 
 	/**
 	 * Configure
