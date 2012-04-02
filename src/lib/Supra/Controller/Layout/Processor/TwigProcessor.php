@@ -22,12 +22,19 @@ class TwigProcessor extends HtmlProcessor
 	 */
 	protected function getContent($layoutSrc)
 	{
-		$themeProvider = ObjectRepository::getThemeProvider($this);
-		
-		$theme = $themeProvider->getActiveTheme();
+		$theme = null;
 
-		parent::setLayoutDir($theme->getLayoutRoot());
-		
+		// FIXME
+		try {
+			
+			$themeProvider = ObjectRepository::getThemeProvider($this);
+			$theme = $themeProvider->getActiveTheme();
+			parent::setLayoutDir($theme->getLayoutRoot());
+		} catch (\Exception $e) {
+
+			parent::setLayoutDir(SUPRA_TEMPLATE_PATH);
+		}
+
 		$twig = ObjectRepository::getTemplateParser($this);
 		/* @var $twig Twig */
 
@@ -44,8 +51,10 @@ class TwigProcessor extends HtmlProcessor
 		} else {
 			$helper->setResponseContext(new ResponseContext());
 		}
-		
-		$helper->setTheme($theme);
+
+		if ( ! empty($theme)) {
+			$helper->setTheme($theme);
+		}
 
 		$twig->addGlobal('supra', $helper);
 
