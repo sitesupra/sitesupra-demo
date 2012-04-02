@@ -14,7 +14,16 @@ class CmsController extends DistributedController
 {
 	const ACTION_CLASS_SUFFIX = 'Controller';
 	
+	/**
+	 * Moved to CmsPageEventArgs
+	 * @deprecated
+	 */
 	const EVENT_POST_PAGE_PUBLISH = 'postPagePublish';
+	
+	/**
+	 * Moved to CmsPageEventArgs
+	 * @deprecated
+	 */
 	const EVENT_POST_PAGE_DELETE = 'postPageDelete';
 	
 	/**

@@ -259,6 +259,8 @@ class PagesettingsAction extends PageManagerAction
         } catch (\Supra\Controller\Pages\Exception\DuplicatePagePathException $e) {
             throw new CmsException(null, $e->getMessage());
         }
+		
+		$this->savePostTrigger();
 
         $this->writeAuditLog('Settings of %item% saved', $pageData);
     }

@@ -25,7 +25,6 @@ use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Cms\CmsController;
 use Supra\Loader\Loader;
 use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
@@ -40,6 +39,7 @@ use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
+use Supra\Controller\Pages\Event\CmsPageEventArgs;
 
 /**
  * Controller containing common methods
@@ -485,7 +485,7 @@ abstract class PageManagerAction extends CmsAction
 		$eventArgs->localization = $this->getPageLocalization();
 
 		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+		$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
 	}
 
 	/**
@@ -576,7 +576,7 @@ abstract class PageManagerAction extends CmsAction
 		$eventArgs = new CmsPageDeleteEventArgs($this);
 		$eventArgs->localization = $this->getPageLocalization();
 		$eventArgs->user = $this->getUser();
-		$eventManager->fire(CmsController::EVENT_POST_PAGE_DELETE, $eventArgs);
+		$eventManager->fire(CmsPageEventArgs::postPageDelete, $eventArgs);
 
 		$this->getResponse()
 				->setResponseData(true);
@@ -1089,6 +1089,19 @@ abstract class PageManagerAction extends CmsAction
 		}
 		
 		parent::writeAuditLog($action, $message, $item, $level);
+	}
+	
+	/**
+	 * Run after page change
+	 */
+	protected function savePostTrigger()
+	{
+		$eventArgs = new CmsPageEventArgs();
+		$eventArgs->user = $this->getUser();
+		$eventArgs->localization = $this->getPageLocalization();
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(CmsPageEventArgs::postPageChange, $eventArgs);
 	}
 	
 }

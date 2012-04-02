@@ -53,12 +53,14 @@ class PagecontentAction extends PageManagerAction
 		$this->entityManager->persist($block);
 		$this->entityManager->flush();
 
+		$this->savePostTrigger();
+		
 		$controller = $block->createController();
 		$block->prepareController($controller, $request);
 		$block->executeController($controller);
 		$response = $controller->getResponse();
 		$locked = $block->getLocked();
-		
+
 		$array = array(
 			'id' => $block->getId(),
 			'type' => $blockType,
@@ -266,6 +268,8 @@ class PagecontentAction extends PageManagerAction
 			throw $e;
 		}
 		
+		$this->savePostTrigger();
+		
 		// Block HTML in response
 		$this->getResponse()->setResponseData(
 				array('internal_html' => $outputString));
@@ -290,6 +294,8 @@ class PagecontentAction extends PageManagerAction
 		
 		$this->entityManager->remove($block);
 		$this->entityManager->flush();
+		
+		$this->savePostTrigger();
 		
 		// OK response
 		$this->getResponse()->setResponseData(true);
@@ -342,6 +348,8 @@ class PagecontentAction extends PageManagerAction
 		
 		$this->entityManager->flush();
 		
+		$this->savePostTrigger();
+		
 		$this->getResponse()->setResponseData(true);
 	}
 	
@@ -359,6 +367,7 @@ class PagecontentAction extends PageManagerAction
 	public function savePlaceholderAction()
 	{
 		$this->isPostRequest();
+		$this->checkLock();
 		$input = $this->getRequestInput();
 		$request = $this->getPageRequest();
 		
@@ -381,5 +390,7 @@ class PagecontentAction extends PageManagerAction
 		$placeHolder->setLocked($locked);
 		
 		$this->entityManager->flush();
+		
+		$this->savePostTrigger();
 	}
 }

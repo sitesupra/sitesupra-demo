@@ -157,6 +157,8 @@ class TemplateAction extends PageManagerAction
 
 		$this->entityManager->flush();
 
+		$this->savePostTrigger();
+		
 		$this->writeAuditLog('%item% saved', $pageData);
 	}
 

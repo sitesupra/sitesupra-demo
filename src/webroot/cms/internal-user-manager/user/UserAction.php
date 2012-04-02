@@ -19,7 +19,6 @@ use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\User\Entity\Group;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
-use Supra\Cms\CmsController;
 
 class UserAction extends InternalUserManagerAbstractAction
 {

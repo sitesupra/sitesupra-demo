@@ -16,8 +16,8 @@ use Supra\Controller\Pages\PageController;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Cms\CmsController;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Event\CmsPageEventArgs;
 
 /**
  * Sitemap
@@ -111,7 +111,7 @@ class SitemapAction extends PageManagerAction
 			$eventArgs->user = $this->getUser();
 			$eventArgs->localization = $localization;
 
-			$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+			$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
 		}
 
 		$this->writeAuditLog('Move', $page);
