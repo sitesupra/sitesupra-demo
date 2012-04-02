@@ -67,6 +67,9 @@ class FacebookPagePublishingListener implements EventSubscriber
 	 */
 	private function togglePageOnFacebook($eventArgs, $publish)
 	{
+		$userProvider = ObjectRepository::getUserProvider($this);
+		$user = $userProvider->getSignedInUser();
+		
 		$localization = $eventArgs->localization;
 		if ( ! $localization instanceof PageLocalization) {
 			$this->logger->info('Expected PageLocalization');
@@ -122,7 +125,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 		$page = $repo->findOneByPageId($pageId);
 
 		if ( ! $page instanceof UserFacebookPage) {
-			$this->logger->info('Could not find page with id ' . $tabId);
+			$this->logger->info('Could not find page with id ' . $pageId);
 			return;
 		}
 		
@@ -176,8 +179,6 @@ class FacebookPagePublishingListener implements EventSubscriber
 
 	private function getFacebookBlock($eventArgs)
 	{
-		$facebookBlock = null;
-
 		// fetch FB page block ids and then check if block was removed
 		$values = $eventArgs->localization->getPlaceHolders()->getValues();
 
@@ -192,7 +193,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 			}
 		}
 
-		return $fbBlock;
+		return null;
 	}
 
 }
