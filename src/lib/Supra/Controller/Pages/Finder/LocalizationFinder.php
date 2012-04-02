@@ -19,7 +19,6 @@ class LocalizationFinder extends AbstractFinder
 	private $public = true;
 	private $visibleInSitemap = false;
 	private $redirect = null;
-	private $customConditions = array();
 
 	/**
 	 * @var string
@@ -39,14 +38,19 @@ class LocalizationFinder extends AbstractFinder
 	/**
 	 * @return \Doctrine\ORM\QueryBuilder
 	 */
-	public function getQueryBuilder()
+	protected function doGetQueryBuilder()
 	{
 		// Clones the query builder for local usage
 		$qb = clone $this->pageFinder->getQueryBuilder();
 		$qb->from(Entity\PageLocalization::CN(), 'l');
 		$qb->andWhere('l.master = e');
 		$qb->join('l.path', 'p');
-		$qb->select('l, e, p');
+		
+		// Join only to fetch the master
+		$qb->join('l.master', 'e2');
+		
+		// It's important to include all or else extra queries will be executed
+		$qb->select('l, e2, p');
 
 		if ( ! empty($this->locale)) {
 			$qb->andWhere('l.locale = :locale')
@@ -69,11 +73,6 @@ class LocalizationFinder extends AbstractFinder
 			$qb->andWhere('l.redirect IS ' . ($this->redirect ? 'NOT ' : '') . 'NULL');
 		}
 
-		// Custom conditions
-		foreach ($this->customConditions as $customCondition) {
-			$qb->andWhere($customCondition);
-		}
-
 		return $qb;
 	}
 
@@ -94,11 +93,6 @@ class LocalizationFinder extends AbstractFinder
 	public function isRedirect($redirect)
 	{
 		$this->redirect = $redirect;
-	}
-
-	public function addCustomCondition($customCondition)
-	{
-		$this->customConditions[] = $customCondition;
 	}
 
 	public function isVisibleInSitemap($visibleInSitemap)
@@ -128,39 +122,17 @@ class LocalizationFinder extends AbstractFinder
 
 		return $localizationResult;
 	}
-
-	public function getAncestors(Entity\Abstraction\Localization $localization, $sortOrder = 'ASC')
+	
+	public function addFilterByParent(Entity\Abstraction\Localization $localization, $minDepth = 1, $maxDepth = null)
 	{
-		$page = $localization->getMaster();
-
-		$em = $this->getEntityManager();
-
-		$ancestorPageFinder = new PageFinder($em);
-
-		$pageAncestors = $ancestorPageFinder->getAncestors($page);
-
-		$qb = $this->getQueryBuilder();
-		
-		$pageAncestorIds = array();
-		
-		foreach ($pageAncestors as $pageAncestor) {
-			$pageAncestorIds[] = $pageAncestor->getId();
-		}
-
-		if ( ! empty($pageAncestorIds)) {
-			$this->addCustomCondition($qb->expr()->in('l.master', $pageAncestorIds));
-		}
-		
-		$this->locale = $localization->getLocale();
-
-		$qb = $this->getQueryBuilder();
-		
-		$qb->select('l');
-		$qb->addOrderBy('e.level', $sortOrder);
-		
-		$query = $qb->getQuery();
-		
-		return $query->getResult();
+		$this->setLocale($localization->getLocale());
+		$this->pageFinder->addFilterByParent($localization->getMaster(), $minDepth, $maxDepth);
+	}
+	
+	public function addFilterByChild(Entity\Abstraction\Localization $localization, $minDepth = 0, $maxDepth = null)
+	{
+		$this->setLocale($localization->getLocale());
+		$this->pageFinder->addFilterByChild($localization->getMaster(), $minDepth, $maxDepth);
 	}
 
 }

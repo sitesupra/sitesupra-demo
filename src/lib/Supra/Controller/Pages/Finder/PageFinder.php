@@ -52,7 +52,7 @@ class PageFinder extends AbstractFinder
 		return $this->searchCondition;
 	}
 
-	public function getQueryBuilder()
+	protected function doGetQueryBuilder()
 	{
 		$searchCondition = $this->getSearchCondition();
 		$nestedSetRepository = $this->getNestedSetRepository();
@@ -91,6 +91,30 @@ class PageFinder extends AbstractFinder
 		// Left will be definitely strictly less than the right limit
 		$this->getSearchCondition()
 				->leftLessThan($rightLimit);
+	}
+	
+	public function addFilterByChild(Entity\Abstraction\AbstractPage $page, $minDepth = 0, $maxDepth = null)
+	{
+		$level = $page->getLevel();
+		
+		if ($minDepth < 0) {
+			$minDepth = $level + $minDepth;
+		}
+		
+		if ($maxDepth < 0) {
+			$maxDepth = $level + $maxDepth;
+		}
+		
+		$this->addLevelFilter($minDepth, is_null($maxDepth) ? null : $maxDepth);
+		
+		$leftLimit = $page->getLeftValue();
+		$rightLimit = $page->getRightValue();
+		
+		$this->getSearchCondition()
+				->leftLessThanOrEqualsTo($leftLimit);
+
+		$this->getSearchCondition()
+				->rightGreaterThanOrEqualsTo($rightLimit);
 	}
 
 	public function getAncestors($page)

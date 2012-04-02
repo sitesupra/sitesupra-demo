@@ -68,23 +68,6 @@ class PageMetadataOutputListener
 	}
 
 	/**
-	 * @return LocalizationFinder
-	 */
-	public function getLocalizationFinder()
-	{
-		if (empty($this->localizationFinder)) {
-
-			$em = $this->getEntityManager();
-
-			$pageFinder = new PageFinder($em);
-
-			$this->localizationFinder = new LocalizationFinder($pageFinder);
-		}
-
-		return $this->localizationFinder;
-	}
-
-	/**
 	 * @param LocalizationFinder $localizationFinder
 	 */
 	public function setLocalizationFinder(LocalizationFinder $localizationFinder)
@@ -140,10 +123,18 @@ class PageMetadataOutputListener
 
 		if (empty($value) && $useParent) {
 
-			$ancestors = $this->getLocalizationFinder()->getAncestors($pageLocalization, 'DESC');
-
+			$em = $this->getEntityManager();
+			$pageFinder = new PageFinder($em);
+			$localizationFinder = new LocalizationFinder($pageFinder);
+			$localizationFinder->addFilterByChild($pageLocalization);
+			
+			$ancestors = $localizationFinder->getQueryBuilder()
+					->addOrderBy('e.level', 'DESC')
+					->getQuery()
+					->getResult();
+			
 			foreach ($ancestors as $ancestor) {
-				
+				/* @var $ancestor PageLocalization */
 				$value = $ancestor->getProperty($metaName);
 				if ( ! empty($value)) {
 					break;

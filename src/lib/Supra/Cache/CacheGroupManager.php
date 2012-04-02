@@ -5,6 +5,7 @@ namespace Supra\Cache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\ORM\Query;
+use Supra\Controller\Pages\PageController;
 
 /**
  * 
@@ -73,6 +74,14 @@ class CacheGroupManager
 	 */
 	public function configureQueryResultCache(Query $query, $groups)
 	{
+		// Cache only for public schema
+		$em = $query->getEntityManager();
+		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
+		
+		if ($em !== $publicEm) {
+			return;
+		}
+		
 		$query->useResultCache(true);
 		
 		$cacheProfile = $query->getQueryCacheProfile();
