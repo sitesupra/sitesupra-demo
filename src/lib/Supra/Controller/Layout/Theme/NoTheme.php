@@ -57,14 +57,14 @@ class NoTheme implements ThemeInterface
 		throw new Exception\RuntimeException('Not implemented.');
 	}
 
-	public function getActiveParmeterValues()
+	public function getCurrentParameterValues()
 	{
 		return array();
 	}
 
-	public function getPreviewParmeterValues()
+	public function setPreviewParametersAsCurrentParameters()
 	{
-		return array();
+		throw new Exception\RuntimeException('Not implemented.');
 	}
 
 }

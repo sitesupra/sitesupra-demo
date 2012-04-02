@@ -14,6 +14,13 @@
         class: Supra\Cms\AuthenticationPreFilterController
 
 - Supra\Router\Configuration\RouterConfiguration:
+    url: /
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Controller\Pages\ThemePreviewPreFilterController
+
+- Supra\Router\Configuration\RouterConfiguration:
     url: /cms
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:

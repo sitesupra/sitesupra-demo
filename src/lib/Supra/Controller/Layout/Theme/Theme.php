@@ -4,6 +4,8 @@ namespace Supra\Controller\Layout\Theme;
 
 use Supra\Controller\Pages\Entity\ThemeParameterValue;
 use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Request\HttpRequest;
+use Supra\Controller\Pages\ThemePreviewPreFilterController;
 
 class Theme implements ThemeInterface
 {
@@ -37,6 +39,11 @@ class Theme implements ThemeInterface
 	 * @var array
 	 */
 	protected $parameterConfigurations = array();
+
+	/**
+	 * @var array
+	 */
+	protected $currentParameters = array();
 
 	public function getName()
 	{
@@ -151,21 +158,52 @@ class Theme implements ThemeInterface
 	/**
 	 * @return array
 	 */
-	public function getActiveParmeterValues()
+	protected function getCurrentParameters()
 	{
-		$activeParameters = $this->getActiveParameters();
+		if (empty($this->currentParameters)) {
+			$this->currentParameters = $this->activeParameters;
+		}
 
-		return $this->getParameterValues($activeParameters);
+		return $this->currentParameters;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getPreviewParmeterValues()
+	public function getCurrentParameterValues()
 	{
-		$activeParameters = $this->getPreviewParameters();
+		$currentParameters = $this->getCurrentParameters();
 
-		return $this->getParameterValues($activeParameters);
+		return $this->getParameterValues($currentParameters);
+	}
+
+	/**
+	 * 
+	 */
+	public function setPreviewParametersAsCurrentParameters()
+	{
+		$this->currentParameters = $this->previewParameters;
+	}
+
+	/**
+	 * @param HttpRequest $request 
+	 */
+	public function setPreviewThemeCookie(HttpRequest $request)
+	{
+		$cookies = $request->getCookies();
+
+		$cookies[ThemePreviewPreFilterController::COOKIE_NAME_PREVIEW_THEME_NAME] = $this->getName();
+
+		$request->setCookies($cookies);
+	}
+
+	public function removePreviewThemeCookie(HttpRequest $request)
+	{
+		$cookies = $request->getCookies();
+
+		unset($cookies[ThemePreviewPreFilterController::COOKIE_NAME_PREVIEW_THEME_NAME]);
+
+		$request->setCookies($cookies);
 	}
 
 }

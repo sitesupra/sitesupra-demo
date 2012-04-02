@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Supra\Controller\Pages\Entity\ThemeParameterValue;
 use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Request\HttpRequest;
 
 class DefaultThemeProvider extends ThemeProviderAbstraction
 {
@@ -22,7 +23,16 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	 * @var EntityRepository
 	 */
 	protected $themeParameterRepository;
+
+	/**
+	 * @var array
+	 */
 	protected $parametersLoaded = array();
+
+	/**
+	 * @var ThemeInterface
+	 */
+	protected $currentTheme;
 
 	/**
 	 * @return EntityManager
@@ -98,12 +108,17 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 			$activeParameters = $this->loadParameterValues($theme, ThemeParameterValue::SET_NAME_ACTIVE);
 			$theme->setActiveParameters($activeParameters);
 		}
-		
+
 		$this->storeThemeParameters($theme);
 
 		return $theme;
 	}
 
+	/**
+	  s	 * @param Theme $theme
+	 * @param string $setName
+	 * @return array
+	 */
 	protected function loadParameterValues(Theme $theme, $setName)
 	{
 		$parameterConfigurations = $theme->getParameterConfigurations();
@@ -132,6 +147,10 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $parameters;
 	}
 
+	/**
+	 * @param ThemeParameterConfiguration $configuration
+	 * @return ThemeParameterValue 
+	 */
 	protected function makeThemeParameterValueFromConfiguration(ThemeParameterConfiguration $configuration)
 	{
 		$parameter = new ThemeParameterValue();
@@ -142,6 +161,11 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $parameter;
 	}
 
+	/**
+	 * @param string $themeName
+	 * @param string $setName
+	 * @return array
+	 */
 	protected function getThemeParameterValueEntities($themeName, $setName)
 	{
 		$parameterRepository = $this->getThemeParameterRepository();
@@ -191,6 +215,26 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
+	}
+
+	/**
+	 * @return ThemeInterface
+	 */
+	public function getCurrentTheme()
+	{
+		if (empty($this->currentTheme)) {
+			$this->currentTheme = $this->getActiveTheme();
+		}
+
+		return $this->currentTheme;
+	}
+
+	/**
+	 * @param ThemeInterface $theme 
+	 */
+	public function setCurrentTheme(ThemeInterface $theme)
+	{
+		$this->currentTheme = $theme;
 	}
 
 }

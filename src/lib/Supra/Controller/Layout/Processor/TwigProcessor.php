@@ -24,7 +24,7 @@ class TwigProcessor extends HtmlProcessor
 	{
 		$themeProvider = ObjectRepository::getThemeProvider($this);
 		
-		$theme = $themeProvider->getActiveTheme();
+		$theme = $themeProvider->getCurrentTheme();
 		parent::setLayoutDir($theme->getLayoutRoot());
 
 		$twig = ObjectRepository::getTemplateParser($this);

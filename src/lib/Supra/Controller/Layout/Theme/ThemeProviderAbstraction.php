@@ -70,8 +70,17 @@ abstract class ThemeProviderAbstraction
 	abstract public function getActiveTheme();
 
 	/**
-	 * @param ThemeInterface 
+	 * @param $teme ThemeInterface 
 	 */
 	abstract public function setActiveTheme(ThemeInterface $theme);
-}
 
+	/**
+	 * @return ThemeInterface
+	 */
+	abstract public function getCurrentTheme();
+
+	/**
+	 * @param $teme ThemeInterface 
+	 */
+	abstract public function setCurrentTheme(ThemeInterface $theme);
+}

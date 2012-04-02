@@ -25,21 +25,21 @@
           title: Nyancat Theme
           description: NYANCAT IS FOR GREAT JUSTICE!
           parameters:
-            - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration:
+           - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration:
                 name: headerBackgroundUrl
                 type: url
                 defaultValue: /resources/themes/nyancat/images/nyancat.gif
                 description: Soem header bak graund nyancat URL
-            - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
+           - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
                 name: footerBackgroundUrl
                 defaultValue: /resources/themes/nyancat/images/nyancat.gif
                 type: url
                 description: Soem footar bak graund nyancat URL
-            - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
-                name: backgroundColor
-                defaultValue: "#A0FF80"
-                type: color
-                description: Bakground colo!
+           - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
+               name: backgroundColor
+               defaultValue: "#A0FF80"
+               type: color
+               description: Bakground colo!
       - Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
           name: default
           title: Default Theme
