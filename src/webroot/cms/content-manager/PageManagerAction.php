@@ -366,7 +366,7 @@ abstract class PageManagerAction extends CmsAction
 			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
 					($data instanceof Entity\GroupLocalization ? 'group' :
 							($page->getLevel() === 0 ? 'home' : 'page')),
-			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group' : 'blank') . '.jpg',
+			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
 		);
 		
 		// Template ID

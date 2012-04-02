@@ -401,6 +401,27 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * DataGrid
+	 */
+	'supra.datagrid': {
+		path: 'datagrid/datagrid.js',
+		requires: ['widget', 'datasource', 'dataschema', 'datatype', 'querystring', 'supra.datagrid-row', 'supra.scrollable'],
+		skinnable: true
+	},
+	'supra.datagrid-loader': {
+		path: 'datagrid/datagrid-loader.js',
+		requires: ['plugin', 'supra.datagrid']
+	},
+	'supra.datagrid-dragable': {
+		path: 'datagrid/datagrid-dragable.js',
+		requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'supra.datagrid']
+	},
+	'supra.datagrid-row': {
+		path: 'datagrid/datagrid-row.js',
+		requires: ['widget']
+	},
+	
+	/**
 	 * DataTable
 	 */
 	'supra.datatable': {

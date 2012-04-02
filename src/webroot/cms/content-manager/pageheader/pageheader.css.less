@@ -1,0 +1,37 @@
+.loading .cms-page-header {
+	display: none;
+}
+
+.cms-page-header {
+	float: left;
+	position: relative;
+	z-index: 12;
+	color: #fff;
+	
+	.page-title {
+		padding: 8px 0 0 3px;
+		font-weight: bold;
+		
+		width: 200px;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.languages {
+		float: left;
+	}
+	.version {
+		float: left;
+		padding: 2px 0 0;
+	}
+	
+	.version,
+	.yui3-languagebar a.selected {
+		color: #ACACBE;
+		font-size: 10px;
+		line-height: 14px;
+	}
+	.yui3-languagebar span.title {
+		vertical-align: text-bottom;
+	}
+}

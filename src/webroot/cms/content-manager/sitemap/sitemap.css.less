@@ -1,595 +1,768 @@
+/**
+ * Table of contents:
+ * 		- Tree
+ * 		- TreeNode proxy
+ * 		- Buttons
+ * 		- Language selector
+ */
 @import "/cms/lib/supra/less/common.less";
+@import "/cms/lib/supra/build/button/assets/skins/supra/less/button-mixin.less";
 
-.yui3-sitemap {
-	position: absolute;
+.su-sitemap {
+	.layout-fullscreen();
 	z-index: 2;
-	top: 48px;
-	bottom: 0px;
-	left: 0;
-	right: 0;
-	background: #fff;
-	overflow: hidden;
-}
-.yui3-sitemap-content {
-	.box-sizing (border-box);
+	background: url(/cms/lib/supra/img/background-center.jpg) 50% -48px no-repeat,
+				url(/cms/lib/supra/img/background-pattern.jpg) 50% -48px repeat;
 	
-	width: 100%;
-	height: 100%;
-}
-
-.yui3-sitemap-scrollable {
-	overflow: auto;
-	height: 100%;
-	width: 100%;
-}
-
-/**
- * Animation
- */
-.yui3-sitemap-anim {
-	position: absolute;
-	top: 48px;
-	bottom: 0px;
-	left: 0;
-	right: 0;
-	background: #fff;
-	z-index: 100;
-	border: 1px solid #aaa;
-	display: block;
-}
-
-
-/**
- * Language bar
- */
-.yui3-sitemap {
-	.languages,
-	.type {
-		border-bottom: 1px solid #eee;
-		padding: 3px 13px;
-		margin: 0 13px 5px;
-		text-align: center;
-	}
-}
-
-/**
- * Type list
- */
-.yui3-sitemap .type {
-	padding-bottom: 8px;
-	
-	.yui3-input label {
+	.loading-icon {
 		display: none;
 	}
+	&.loading {
+		.su-tree {
+			visibility: hidden;
+		}
+		.loading-icon {
+			display: block;
+		}
+	}
+	
+	.animation-node {
+		background: #fff;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 100;
+	}
+}
+
+.su-sitemap-scrollable {
+	position: absolute;
+	left: 190px;
+	top: 80px;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	
+	.su-sitemap-content {
+		.user-select (none);
+		
+		position: absolute;
+		width: 5000px;
+		height: 2500px;
+		top: 0;
+		left: 50%;
+		margin-top: 0;
+		margin-left: -2500px;
+		
+		text-align: center;
+		
+		&.su-sitemap-dragging {
+			cursor: move;
+		}
+	}
 }
 
 /**
- * New page icon
+ * ---------------------------- Tree ----------------------------
  */
-.yui3-sitemap .new-item {
+.su-tree {
+	display: inline-block;
+	padding: 30px 20px 0;
+}
+
+.su-tree-node {
+	display: inline-block;
+	vertical-align: top;
+	width: 100px;
+	height: 154px;
+	position: relative;
+	padding: 22px 10px 0;
+	
+	background: url(images/tree-item-lines.png) -675px 0 no-repeat;
+	
+	&:first-child {
+		background-position: -185px 0;
+	}
+	&:last-child {
+		background-position: -1165px 0;
+	}
+	&:first-child:last-child {
+		background-position: -1655px 0;
+	}
+	
+	& > .su-tree-node-content {
+		.background {
+			background: url(images/tree-item.png) 0 0 no-repeat;
+			width: 200px;
+			height: 167px;
+			position: absolute;
+			z-index: -1;
+			top: 22px;
+			left: -40px;
+		}
+		
+		.item {
+			.user-select (none);
+			padding: 10px;
+			position: relative;
+			height: 80px;
+			
+			img {
+				display: inline-block;
+			}
+			
+			.edit {
+				.border-radius (8px, 8px, 0, 0);
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				padding: 7px 9px 4px 0;
+				display: none;
+				background: rgba(0, 0, 0, 0.65);
+				cursor: default;
+				text-align: right;
+				
+				.su-button-sitemap-blue p {
+					padding: 0 0 0 20px;
+					background: url(images/buttons-icon-open.png) 2px 5px no-repeat;
+				}
+				.su-button-sitemap-gray p {
+					padding: 0;
+					width: 12px;
+					background: url(images/buttons-icon-edit.png) 50% 5px no-repeat;
+				}
+			}
+			
+			.su-button-sitemap-blue,
+			.su-button-sitemap-gray {
+				display: none;
+			}
+			
+			.status-global {
+				display: none;
+				position: absolute;
+				left: -2px;
+				top: 71px;
+				width: 104px;
+				height: 18px;
+				background: url(images/tree-item-status-unpublished.png) 0 0 no-repeat;
+				padding: 12px 0 0;
+				
+				color: #676876;
+				font-size: 10px;
+				font-weight: bold;
+				line-height: 12px;
+				text-align: center;
+				text-transform: uppercase;
+				text-shadow: 0 1px 0 rgba(255,255,255,0.42);
+			}
+			
+			.loading-icon {
+				margin: -18px 0 0 -18px;
+			}
+			&.loading .loading-icon {
+				display: block;
+			}
+		}
+		
+		label {
+			color: #fff;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 14px;
+			text-overflow: ellipsis;
+			text-shadow: 0 1px 0 rgba(0,0,0,0.75);
+			white-space: normal;
+			display: inline-block;
+			width: 90px;
+			height: 30px;
+			overflow: hidden;
+			padding: 8px 0 0 0;
+		}
+		
+		.arrow {
+			position: absolute;
+			left: 59px;
+			bottom: 0;
+			display: none;
+			width: 2px;
+			height: 11px;
+			background: #fff;
+		}
+	}
+	
+	.children {
+		position: absolute;
+		left: 0;
+		top: 100%;
+		white-space: nowrap;
+		display: none;
+	}
+	
+	&.root {
+		height: 141px;
+		padding-top: 0;
+		background: none;
+		
+		& > .su-tree-node-content {
+			.background {
+				top: 0;
+			}
+			
+			label {
+				font-size: 14px;
+				line-height: 16px;
+				height: 16px;
+				white-space: nowrap;
+			}
+		}
+	}
+	
+	&.page {
+		& > .su-tree-node-content {
+			.item img {
+				.box-shadow (0, 2px, 3px, rgba(0,0,0,0.4));
+			}
+		}
+	}
+	
+	&.expandable {
+		& > .su-tree-node-content {
+			.item {
+				cursor: pointer;
+			}
+			.highlight {
+				cursor: default;
+			}
+		}
+	}
+	
+	&.expanded {
+		& > .su-tree-node-content {
+			.arrow {
+				display: block;
+			}
+		}
+		& > .children {
+			display: block;
+		}
+	}
+	
+	&.editable {
+		& > .su-tree-node-content {
+			.item:hover .edit,
+			.item.hover .edit {
+				display: block;
+			}
+			.su-button-sitemap-gray {
+				display: inline-block;
+			}
+		}
+	}
+	
+	&.selectable.editable {
+		& > .su-tree-node-content {
+			.su-button-sitemap-blue {
+				display: inline-block;
+			}
+		}
+	}
+	
+	&.global {
+		& > .su-tree-node-content {
+			.status-global {
+				display: block;
+			}
+		}
+	}
+	
+	/* Highlight */
+	&.highlighted > .su-tree-node-content {
+		.highlight {
+			display: none;
+		}
+		& > label {
+			color: #fff !important;
+		}
+	}
+	
+	/* Drag and drop marker */
+	&.marker-before {
+		& > .su-tree-node-content .marker {
+			position: absolute;
+			width: 10px;
+			height: 10px;
+			background: red;
+			left: -5px;
+			top: 65px;
+		}
+	}
+	&.marker-after {
+		& > .su-tree-node-content .marker {
+			position: absolute;
+			width: 10px;
+			height: 10px;
+			background: red;
+			right: -5px;
+			top: 65px;
+		}
+	}
+	&.marker-inside {
+		& > .su-tree-node-content .marker {
+			position: absolute;
+			z-index: 1;
+			width: 100px;
+			height: 100px;
+			background: red;
+			left: 10px;
+			top: 22px;
+		}
+	}
+	
+	&.root.marker-before,
+	&.root.marker-after {
+		& > .su-tree-node-content .marker {
+			top: 43px;
+		}
+	}
+	&.root.marker-inside {
+		& > .su-tree-node-content .marker {
+			top: 0;
+		}
+	}
+	
+	/* CSS3 animations */
+	&.animate {
+		& > .children {
+			@duration: 0.15s;
+			@easing: ease-in;
+			
+			-o-transition: -o-transform @duration @easing, opacity @duration @easing;
+			-moz-transition: -moz-transform @duration @easing, opacity @duration @easing;
+			-webkit-transition: -webkit-transform @duration @easing, opacity @duration @easing;
+			transition: transform @duration @easing, opacity @duration @easing;
+			
+			//.transform-origin (center top);
+			//.transform (scale(0.35));
+			
+			opacity: 0;
+			display: block;
+		}
+		&.expanded > .children {
+			.transition-duration (0.25s, 0.25s);
+			//.transform (scale(1));
+			opacity: 1;
+			
+			@easing: ease-out;
+			-o-transition-timing-function: @easing;
+			-moz-transition-timing-function: @easing;
+			-webkit-transition-timing-function: @easing;
+			transition-timing-function: @easing;
+		}
+		&.children-hidden > .children {
+			display: none !important;
+		}
+	}
+	
+	//Draging
+	&.yui3-dd-dragging.expanded > .children,
+	&.yui3-dd-dragging > .su-tree-node-content {
+		opacity: 0.25;
+	}
+}
+
+/* List node */
+.su-tree-node-list {
+	.su-panel {
+		position: relative !important;
+		left: 0 !important;
+		top: 0 !important;
+	}
+	
+	&.expanded-list {
+		width: 470px;
+		height: auto;
+		background-position: -490px 0;
+		
+		&:first-child {
+			background-position: 0 0;
+		}
+		&:last-child {
+			background-position: -980px 0;
+		}
+		&:first-child:last-child {
+			background-position: -1470px 0;
+		}
+		
+		& > .su-tree-node-content {
+			label,
+			.background,
+			.item {
+				display: none;
+			}
+		}
+	}
+	
+	.su-datagrid td {
+		cursor: pointer;
+	}
+	.su-datagrid tr:hover .row-title {
+		text-decoration: underline;
+	}
+	&.highlighted .su-datagrid td,
+	&.highlighted .su-datagrid tr:hover .row-title {
+		cursor: default;
+		text-decoration: none;
+	}
+	
+	/* Drag and drop */
+	&.marker-inside > .su-tree-node-content .marker {
+		.border-radius (6px);
+		
+		z-index: 2;
+		right: 10px;
+		bottom: 0;
+		width: auto;
+		height: auto;
+	}
+}
+
+/* Highlighted item */
+.su-tree-highlighted {
+	.su-tree-node .highlight {
+		position: absolute;
+		background: rgb(4, 0, 16);
+		opacity: 0.5;
+		border-radius: 8px;
+		left: 0;
+		top: 0;
+		right: 0;
+		height: 100px;
+	}
+	.su-tree-node > .su-tree-node-content {
+		.item:hover .edit {
+			display: none;
+		}
+		.item.hover .edit {
+			display: block;
+		}
+		label {
+			color: #BDB8C4;
+		}
+	}
+}
+
+.su-tree-node.visibility-root {
+	background: none;
+	
+	& > .su-tree-node-content {
+		visibility: hidden;
+	}
+}
+
+.children.visibility-siblings {
+	& > .su-tree-node {
+		visibility: hidden;
+	}
+	& > .visibility-root {
+		visibility: visible;
+	}
+}
+
+/**
+ * ---------------------------- TreeNode proxy ----------------------------
+ */
+.su-tree-node-proxy {
+	background: none;
+	z-index: 300;
+	text-align: center;
+	cursor: move;
+	width: 100px !important;
+	
+	.item {
+		cursor: move;
+		text-align: center;
+	}
+	
+	.arrow,
+	.children,
+	span.title {
+		display: none !important;
+	}
+	
+	// Item from recycle bin
+	span.img-restore {
+		display: block;
+		overflow: hidden;
+		width: 52px;
+		height: 52px;
+		
+		img {
+			display: block;
+			position: relative;
+			margin-left: -382px;
+		}
+	}
+}
+
+/**
+ * ---------------------------- Tree View ----------------------------
+ */
+.su-treeview-center {
 	position: absolute;
-	z-index: 10;
-	left: 15px;
+	left: 50%;
+	top: 0;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+.su-treeview-left,
+.su-treeview-right {
+	background: url(images/side-arrows.png) 0 0 no-repeat;
+	display: block;
+	width: 28px;
+	height: 50px;
+	position: absolute;
+	z-index: 1;
 	top: 50%;
-	margin-top: -100px;
+	margin-top: -25px;
+	cursor: pointer;
+}
+.su-treeview-left {
+	left: 7px;
+	
+	&:hover,
+	&.yui3-dd-drop-over {
+		background-position: 0 -50px;
+	}
+}
+.su-treeview-right {
+	background-position: 0 -100px;
+	right: 7px;
+	
+	&:hover,
+	&.yui3-dd-drop-over {
+		background-position: 0 -150px;
+	}
+}
+
+.su-treeview-up {
+	display: block;
+	height: 61px;
+	margin: 0 0 0 -25px;
+	position: absolute;
+	top: 2px;
+	left: 0;
+	right: 0;
+	background: url(images/navigation-arrows.png) 50% -6px no-repeat;
+	cursor: pointer;
+	
+	&:hover,
+	&.yui3-dd-drop-over {
+		background-position: 50% -67px;
+	}
+}
+
+.su-treeview-fade-left,
+.su-treeview-fade-left div,
+.su-treeview-fade-right {
+	background: url(images/side-fadeout.png) 0 0 repeat-y;
+	position: absolute;
+	top: 0;
+	bottom: 0;
 	width: 60px;
+}
+
+.su-treeview-fade-left {
+	width: 190px;
+	background: url(/cms/lib/supra/img/background-pattern.jpg) 0 -48px repeat;
+	
+	div {
+		left: 190px;
+	}
+}
+
+.su-treeview-fade-right {
+	background-position: -60px 0;
+	right: 0;
+}
+
+/**
+ * ---------------------------- Buttons ----------------------------
+ */
+/* Default */
+.su-button-sitemap-blue {
+	.button (url(images/buttons.png), 21px, 0px);
 	
 	p {
 		font-size: 10px;
-		padding: 0 0 15px;
 	}
 }
-
-.yui3-sitemap .additional img {
-	cursor: pointer;
+.su-button-sitemap-gray {
+	.button (url(images/buttons.png), 21px, 252px);
 }
 
-.yui3-sitemap .additional .icon-templates,
-.yui3-sitemap .additional.type-templates .icon-sitemap {
-	display: none;
-}
-.yui3-sitemap .additional.type-templates .icon-templates,
-.yui3-sitemap .additional.type-sitemap .icon-sitemap {
-	display: block;
-}
-.yui3-sitemap .additional.type-sitemap-first {
-	span[data-type="group"],
-	span[data-type="application"] {
-		display: none;
+.gecko .su-button-sitemap-blue,
+.gecko .su-button-sitemap-gray {
+	/* Fix button > p offset */
+	p {
+		position: relative;
+		margin: 0 -2px;
 	}
 }
 
 /**
- * Flowmap
+ * ---------------------------- Language selector ----------------------------
  */
-.flowmap {
+.su-sitemap-languages {
+	position: absolute;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	right: 0;
 	text-align: center;
-	padding-bottom: 20px;	/* Needed space for properties panel */
-	margin: 0 20px 0 80px;
-}
-.flowmap-node,
-.flowmap-node-inner,
-.flowmap-children .yui3-flowmap-item {
-	display: inline-block;
-	text-align: center;
-	vertical-align: top;
-}
-.flowmap-node {
-	position: relative;
-	position: relative;
-	width: 100%;
-}
-
-.flowmap-node-inner {
-	display: block;
-	cursor: pointer;
-	padding: 10px 10px 0;
-	position: relative;
-	overflow: hidden;
-}
-.flowmap-node-inner * {
-	cursor: pointer;
-}
-.flowmap-node-inner.type-group,
-.flowmap-node-inner.type-group * {
-	cursor: default;
-}
-.yui3-tree-node-temp .flowmap-node-inner,
-.yui3-tree-node-temp .flowmap-node-inner * {
-	cursor: default;
-}
-
-.flowmap-node-inner:hover {
-	.border-radius (5px);
-	background: #eee;
-}
-
-
-.flowmap > .yui3-tree-node {
-	width: auto !important;
-	border-top: 2px solid #eee;
-	padding-right: 80px;
-	padding: 20px 80px 0 0;
-	margin: 20px 0 0;
-}
-.flowmap > .yui3-tree-node:first-child {
-	border-top: 0;
-	margin: 0;
-}
-
-.yui3-tree-node-selected .flowmap-node-inner {
-	.border-radius (5px);
-}
-
-.flowmap-node label {
-	display: block;
-	font-size: 14px;
-	padding: 5px 0 9px;
-	white-space: normal;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	max-height: 26px;
-}
-
-.flowmap .tree-node label.state-draft,
-.flowmap .flowmap-node label.state-draft {
-	color: #36c;
-}
-.flowmap .tree-node label.state-global,
-.flowmap .flowmap-node label.state-global {
-	color: #bbb;
-}
-.flowmap .tree-node label.state-unpublished,
-.flowmap .flowmap-node label.state-unpublished {
-	color: #777;
-}
-
-.flowmap-node .yui3-input-string-inline-focused {
-	/* Inline editing */
-	padding: 4px 0;
-	margin: 0 0 4px;
-	background: #fff;
-	overflow: hidden;
-	max-height: 26px;
+	padding-bottom: 10px;
 	
-	color: #333;
-	cursor: text;
-	font-size: 14px;
-	outline: none;
-	white-space: normal;
-	
-	border: 1px solid #36c;
-	.border-radius (3px);
-}
-
-.flowmap-node span.img {
-	display: inline-block;
-}
-.flowmap-node img {
-	.box-shadow (0, 1px, 3px, rgba(0,0,0,.15));
-	
-	display: block;
-	margin: 0 auto;
-}
-
-/* Show all */
-.flowmap-children .yui3-tree-node > .show-all {
-	display: inline-block;
-	padding: 0 0 0 50px;
-}
-.flowmap-children .yui3-flowmap-item > .show-all {
-	display: block;
-	float: left;
-	margin: -15px 0 0 50px;
-	padding: 0;
-	position: relative;
-}
-.flowmap-children .yui3-tree-node-collapsed > .show-all {
-	display: none;
-}
-
-/* Loading */
-.yui3-sitemap .loading {
-	background: url("/cms/lib/supra/img/ajax-loader.gif") 50% 50% no-repeat;
-}
-.yui3-sitemap .loading .yui3-tree {
-	position: absolute;
-	left: -9000px;
-	top: -9000px;
-}
-
-/* Root */
-.flowmap > .yui3-flowmap-item > .flowmap-node {
-	width: auto;
-	padding: 0 5px 20px;
-}
-.flowmap > .yui3-flowmap-item.has-children > .flowmap-node {
-	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 100% no-repeat;
-}
-
-
-/* Children */
-.flowmap-children .yui3-flowmap-item {
-	.transition (width 0.25s);
-	
-	padding: 23px 0 0;
-	width: 146px;
-	background: url(/cms/lib/supra/img/sitemap/lines.png) 50% 0 no-repeat;
-}
-.flowmap-children .yui3-flowmap-item:first-child {
-	background-position: 50% -240px;
-}
-.flowmap-children .yui3-flowmap-item:last-child {
-	background-position: 50% -480px;
-}
-.flowmap-children .yui3-flowmap-item:first-child:last-child {
-	background: url(/cms/lib/supra/img/sitemap/lines-root.png) 50% 0 no-repeat;
-}
-
-.flowmap-children .flowmap-node {
-	height: 212px;
-	padding: 0 5px;
-}
-.flowmap-children .flowmap-children-container {
-	.border-radius (8px);
-	
-	background: url(/cms/lib/supra/img/panel/bg.gif) 0 0 repeat;
-	
-	text-align: left;
-	margin-bottom: 20px;
-	padding: 5px;
-	
-	position: relative;
-	display: none;
-}
-.flowmap-children .flowmap-children-container.offscreen {
-	position: absolute;
-}
-.flowmap-children .flowmap-children-container .flowmap-arrow {
-	width: 23px;
-	height: 12px;
-	position: absolute;
-	left: 50%;
-	top: -12px;
-	margin-left: -6px;
-	background: url(/cms/lib/supra/img/sitemap/arrow.gif) 0 0 no-repeat;
-}
-
-.yui3-tree-node.has-children > .flowmap-children-container {
-	display: block;
-}
-.yui3-tree-node-collapsed.has-children > .flowmap-children-container {
-	display: none;
-}
-
-/* Label clipping */
-.flowmap-children .tree-node label {
-	max-width: 180px;
-	display: inline-block;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-/* Toggle */
-.flowmap-children .flowmap-node .toggle {
-	position: absolute;
-	width: 28px;
-	height: 28px;
-	display: block;
-	left: 50%;
-	top: 170px;
-	margin-left: -14px;
-	background: url(/cms/lib/supra/img/sitemap/icon-toggle.png) 0 -28px no-repeat;
-	cursor: pointer;
-}
-.flowmap-children .flowmap-node .toggle:hover {
-	background-position: 0 -84px;
-}
-.flowmap-children .flowmap-node .toggle.hidden {
-	display: none;
-}
-
-.flowmap-children .yui3-tree-node-collapsed .flowmap-node .toggle {
-	background-position: 0 0;
-}
-.flowmap-children .yui3-tree-node-collapsed .flowmap-node .toggle:hover {
-	background-position: 0 -56px;
-}
-
-
-/* Drag icon */
-.flowmap-children .tree-node div {
-	float: none;
-}
-.flowmap-children .tree-children .tree-node div {
-	padding-left: 10px;
-}
-.flowmap-children .tree-children .tree-children .tree-node div {
-	padding-left: 30px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 50px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 70px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 90px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 110px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 130px;
-}
-.flowmap-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
-	padding-left: 150px;
-}
-
-.flowmap-children .tree-node.isdragable .tree-node div {
-	background: none;
-}
-.flowmap-children .tree-node.isdragable:hover div {
-	background: #eee;
-}
-.flowmap-children .yui3-tree-node-selected div,
-.flowmap-children .yui3-tree-node-selected.isdragable:hover div {
-	background: #CDECFF;
-}
-
-/* Root template drop target */
-.item-drop {
-	margin: 0 20px 0 80px;
-	padding: 0 80px 20px 0;
-	display: none;
-	
-	div {
-		.border-radius (3px);
+	.su-sitemap-languages-bg {
+		background: url(/cms/lib/supra/img/background-center.jpg)  50% -48px no-repeat,
+					url(/cms/lib/supra/img/background-pattern.jpg) 50% -48px repeat;
 		
-		display: none;
-		border: 2px dashed #eee;
-		padding: 20px;
-		font-size: 14px;
-		text-align: center;
-	}
-	&.yui3-dd-drop-over div {
-		border-color: #CDECFF;
-		border-style: solid;
+		position: absolute;
+		width: 100%;
+		height: 100%;
 	}
 	
-	&.template-drop,
-	&.page-drop {
-		display: block;
+	.yui3-input-select-list {
+		position: relative;
+		z-index: 1;
+		
+		label {
+			color: #BDB8C4;
+			text-align: center;
+			text-shadow: 0 1px 0 rgba(0,0,0,.75);
+			
+			display: block;
+			width: auto;
+			padding: 19px 0 2px;
+		}
+		
+		.su-button {
+			width: auto !important;
+			
+			&,
+			div,
+			button {
+				height: 34px;
+				width: auto;
+				background: url(images/language-selector.png) 0 -170px no-repeat;
+			}
+			div {
+				padding: 0 17px;
+			}
+			
+			&,
+			&.su-button-first {
+				background-position: 100% -170px;
+			}
+			button {
+				background-repeat: repeat-x;
+			}
+			
+			p {
+				color: #BDB8C4;
+				text-shadow: 0 -1px 0 rgba(0,0,0,.75);
+				padding: 0 7px;
+			}	
+		
+			&.su-button-first div {
+				background-position: 0 -204px;
+			}
+			&.su-button-last {
+				background-position: 100% -238px;
+			}
+		
+			&.su-button-down,
+			&.su-button-mouse-down {
+				& {
+					background-position: 100% -68px;
+				}
+				div {
+					background-position: 0 0;
+				}
+				button {
+					background-position: 0 -34px;
+				}
+				p {
+					color: #fff;
+					text-shadow: 0 -1px 0 rgba(0,0,0,.5);
+				}
+				
+				&.su-button-first div {
+					background-position: 0 -102px;
+				}
+				&.su-button-last {
+					background-position: 100% -136px;
+				}
+			}
+			&.su-button-down.su-button-mouse-hover {
+				& {
+					background-position: 100% -340px;
+				}
+				div {
+					background-position: 0 -272px;
+				}
+				button {
+					background-position: 0 -306px;
+				}
+				
+				&.su-button-first div {
+					background-position: 0 -374px;
+				}
+				&.su-button-last {
+					background-position: 100% -408px;
+				}
+			}
+			&.su-button-mouse-down,
+			&.su-button-mouse-down.su-button-mouse-hover {
+				& {
+					background-position: 100% -510px;
+				}
+				div {
+					background-position: 0 -442px;
+				}
+				button {
+					background-position: 0 -476px;
+				}
+				p {
+					color: #fff;
+					text-shadow: 0 -1px 0 rgba(0,0,0,.5);
+				}
+				
+				&.su-button-first div {
+					background-position: 0 -544px;
+				}
+				&.su-button-last {
+					background-position: 100% -578px;
+				}
+			}
+		}
 	}
-	
-	&.template-drop .template-drop,
-	&.page-drop .page-drop {
-		display: block;
-	}
-}
-.loading .item-drop {
-	display: none;
-}
-
-/* Edit */
-.tree-node span.edit,
-.flowmap-node span.edit {
-	background: url(/cms/lib/supra/img/sitemap/edit.png) 0 0 no-repeat;
-	width: 16px;
-	height: 16px;
-	margin-left: 3px;
-	vertical-align: middle;
-	cursor: pointer !important;
-}
-.tree-node span.edit.hidden,
-.flowmap-node span.edit {
-	display: inline-block !important;
-	visibility: hidden;
-}
-.flowmap-node span.edit-hidden,
-.tree-node span.edit-hidden,
-.yui3-tree-node-temp span.edit {
-	visibility: hidden !important;
-}
-.tree-node:hover span.edit,
-.flowmap-node-inner:hover span.edit {
-	visibility: visible;
-}
-.tree-node span.edit:hover,
-.flowmap-node-inner span.edit:hover {
-	background-position: 0 -16px;
-}
-
-.flowmap-node span.edit {
-	position: absolute;
-	margin: 0;
-	right: 16px;
-	top: 109px;
-}
-
-.yui3-dd-drop-active-valid span.edit,
-.yui3-dd-dragging-active-valid span.edit {
-	/* while dragging don't show edit icon */
-	display: none !important;
-}
-
-/* Off screen proxy */
-.flowmap-children-container.offscreen .tree-children {
-	display: block !important;
-}
-.flowmap-children-container.offscreen .tree-children .yui3-flowmap-item {
-	.transition (none);
 }
 
 /**
- * Panel
+ * ---------------------------- Recycle bin ----------------------------
  */
-.sitemap-settings .middle {
-	padding: 10px;
-	white-space: nowrap;
-}
-.sitemap-settings .middle .su-button {
-	margin-left: 5px;
-}
-.sitemap-settings .middle .su-button:first-child {
-	margin-left: 0;
-}
-.sitemap-settings p.hidden-pages {
-	font-size: 14px;
-	white-space: nowrap;
-	padding: 0 10px 10px;
-}
-
-/* New page form */
-.sitemap-new-page {
-	width: 450px;
-}
-.sitemap-new-page form {
-	padding: 10px 0 0;
-}
-.sitemap-new-page .yui3-input-string input {
-	width: 100%;
-}
-
-.sitemap-new-page .middle {
-	padding: 10px 0;
-	text-align: left;
-}
-.sitemap-new-page .middle .su-button {
-	vertical-align: middle;
-}
-.sitemap-new-page .middle a {
-	display: inline-block;
-	vertical-align: middle;
-	margin-left: 10px;
-}
-.sitemap-new-page .yui3-input {
-	margin: 0;
-}
-.sitemap-new-page .yui3-input span {
-	.box-sizing (border-box);
-	width: 100%;
-}
-
-.sitemap-new-page .yui3-input-focused span {
-	display: none;
-}
-
-.sitemap-new-page .yui3-input-template {
-	padding: 5px 280px 5px 0;
-	cursor: pointer;
-	overflow: hidden;
-}
-.sitemap-new-page .yui3-input-template-hidden {
-	display: none;
-}
-.sitemap-new-page .yui3-input-template div {
-	.border-radius (3px);
-	
-	width: 31px;
-	height: 31px;
-	border: 3px solid #f5f5f5;
-	float: right;
-	margin-right: -130px;
-}
-.sitemap-new-page .yui3-input-template:hover div {
-	border-color: #e0e0e0;
-}
-.sitemap-new-page .yui3-input-template.selected div,
-.sitemap-new-page .yui3-input-template.yui3-input-disabled.selected div {
-	border-color: #CDECFF;
-}
-.sitemap-new-page .yui3-input-template img {
-	display: block;
-}
-.sitemap-new-page .yui3-input-template p {
-	padding: 13px 20px 0 5px;
-	font-size: 14px;
-	line-height: 16px;
-	text-align: left;
-}
-
-.sitemap-new-page .yui3-input-template.yui3-input-disabled {
-	cursor: default;
-}
-.sitemap-new-page .yui3-input-template.yui3-input-disabled:hover div {
-	border-color: #f5f5f5;
-}
-
-/**
- * Template list
- */
-.yui3-sitemap-template-list {
-	list-style: none;
-	padding: 5px 10px;
-	max-height: 420px;
-	overflow-y: auto;
-	float: left;
-	min-width: 170px;
-}
-.yui3-sitemap-template-list li {
-	padding: 5px 40px 5px 0;
+.su-sitemap .su-delete-page {
 	cursor: pointer;
 }
-.yui3-sitemap-template-list div {
-	.border-radius (3px);
-	
-	width: 31px;
-	height: 31px;
-	border: 3px solid #f5f5f5;
-	float: right;
-	margin-right: -40px;
-}
-.yui3-sitemap-template-list li:hover div {
-	border-color: #e0e0e0;
-}
-.yui3-sitemap-template-list li.selected div {
-	border-color: #CDECFF;
-}
-.yui3-sitemap-template-list img {
-	display: block;
-}
-.yui3-sitemap-template-list p {
-	padding: 13px 20px 0 0;
-	font-size: 12px;
-}
+
+
+@import "modules/new-page.less";
+@import "modules/delete-page.less";
+@import "modules/plugin-page-edit.less";
+@import "modules/plugin-page-add.less";
+@import "modules/plugin-page-global.less";

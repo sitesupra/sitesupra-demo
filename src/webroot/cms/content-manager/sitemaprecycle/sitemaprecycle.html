@@ -1,4 +1,6 @@
-<div class="yui3-recycle sidebar">
+<div class="su-recycle sidebar loading">
+	
+	<div class="loading-icon"></div>
 	
 	<!-- Header -->
 	<div class="sidebar-header">
@@ -17,13 +19,20 @@
 	
 	<div class="sidebar-content scrollable has-header">
 		
+		<div class="drag-icon"><span>{# sitemap.drag_n_drop #}</span><span class="icon"></span></div>
+		
 		<ul class="recycle-list"></ul>
 		
 		<script type="text/html" id="recycleItemList">
 			{% for item in items %}
-			<li data-id="{{ item.id }}">
-				<h3 class="{% if !item.date_diff %}hidden{% endif %}">{{ item.date_title }}</h3>
-				<label>{{ item.title }}</label>
+			<li class="{% if !item.date_diff %}hidden{% endif %}">
+				<h3>{{ item.date_title }}</h3>
+			</li>
+			<li class="item" data-id="{{ item.id }}">
+				<p class="title">
+					<span class="img-restore"><img src="/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
+					<span class="title">{{ item.title }}</span>
+				</p>
 			</li>
 			{% endfor %}
 		</script>

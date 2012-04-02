@@ -127,6 +127,7 @@ Supra(function (Y) {
 		
 		
 		ROUTE_SITEMAP:		'/h/sitemap',
+		ROUTE_TEMPLATES:	'/h/templates',
 		ROUTE_PAGE:			'/h/page/:page_id',
 		ROUTE_PAGE_EDIT:	'/h/page/:page_id/edit',
 		ROUTE_PAGE_CONT:	'/h/page/:page_id/edit/:block_id',
@@ -143,7 +144,8 @@ Supra(function (Y) {
 		initialize: function () {
 			//Routes
 			this.route('/', 'routePage');
-			this.route(this.ROUTE_SITEMAP, 'routeSitemap');
+			this.route(this.ROUTE_SITEMAP,   'routeSitemap');
+			this.route(this.ROUTE_TEMPLATES, 'routeTemplates');
 			this.route(this.ROUTE_PAGE, 'routePage');
 		},
 		
@@ -177,7 +179,17 @@ Supra(function (Y) {
 		 * Open sitemap
 		 */
 		routeSitemap: function (req) {
-			Supra.Manager.executeAction('SiteMap');
+			Supra.Manager.executeAction('SiteMap', {'mode': 'pages'});
+			
+			//Make sure other routes are also executed
+			req.next();
+		},
+		
+		/**
+		 * Open sitemap
+		 */
+		routeTemplates: function (req) {
+			Supra.Manager.executeAction('SiteMap', {'mode': 'templates'});
 			
 			//Make sure other routes are also executed
 			req.next();
@@ -187,7 +199,12 @@ Supra(function (Y) {
 		 * Change route to sitemap
 		 */
 		routeSiteMapSave: function () {
-			this.save(this.ROUTE_SITEMAP);
+			var page_data = Supra.Manager.Page.getPageData();
+			if (page_data && page_data.type == 'template') {
+				this.save(this.ROUTE_TEMPLATES);
+			} else {
+				this.save(this.ROUTE_SITEMAP);
+			}
 		},
 		
 		
@@ -205,7 +222,7 @@ Supra(function (Y) {
 			SU.Manager.getAction('PageContent').after('iframeReady', function () {
 				Y.one('body').removeClass('loading');
 			});
-			
+						
 			//On page unload destroy everything???
 			Y.on('beforeunload', function () {
 			    this.destroy();
@@ -225,14 +242,19 @@ Supra(function (Y) {
 				}
 				
 				//If there is no page ID or /h/sitemap is in path, then open SiteMap
-				if (!page_id || this.getPath() == this.ROUTE_SITEMAP) {
-					SU.Manager.executeAction('SiteMap');
+				if (!page_id || this.getPath() == this.ROUTE_SITEMAP || this.getPath() == this.ROUTE_TEMPLATES) {
+					var mode = 'pages';
+					if (this.getPath() == this.ROUTE_TEMPLATES) {
+						mode = 'templates';
+					}
 					
-					//Remove loading style
-					Y.one('body').removeClass('loading');
+					SU.Manager.executeAction('SiteMap', {'mode': mode});
 				} else {
 					SU.Manager.executeAction('Page', page_id);
 					SU.Manager.executeAction('Template');
+					
+					//Remove loading style
+					Y.one('body').removeClass('loading');
 				}
 			});
 			
@@ -245,41 +267,8 @@ Supra(function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
-				
-				if (evt.data.global) {
-					var fn = 'duplicateGlobalPage',
-						context = Supra.Manager.getAction('Page');
-					
-					if (evt.data.type == 'template') {
-						fn = 'duplicateGlobalTemplate';
-						context = Supra.Manager.getAction('Template');
-					}
-					
-					Manager.executeAction('SiteMapDuplicate', {
-						'context': this,
-						'locales': evt.data.localizations || [],
-						'on': {
-							'create': function (source_locale) {
-								//Show transition
-								Manager.getAction('SiteMap').onPageOpen(evt.data.id);
-								
-								//Call duplicate request
-								context[fn](evt.data.id, Supra.data.get('locale'), source_locale, function (data, status) {
-									//After duplicate change path
-									if (status && data) {
-										this.save(this.ROUTE_PAGE.replace(':page_id', data.id));
-									} else {
-										Supra.Manager.SiteMap.execute();
-									}
-								}, this);
-								
-							}
-						}
-					});
-					
-					evt.halt();
-					
-				} else {
+				//If global then there is no page in this locale
+				if (!evt.data.global) {
 					//Change path
 					this.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
 				}

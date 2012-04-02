@@ -4,7 +4,7 @@
 		{
 			"id": "news",
 			"title": "News",
-			"icon": "/cms/lib/supra/img/sitemap/new-news-app.png"
+			"icon": "/cms/content-manager/sitemap/images/apps/news.png"
 		}
 	]
 }

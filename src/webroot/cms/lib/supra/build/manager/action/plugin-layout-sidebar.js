@@ -249,6 +249,9 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 						toolbar.setActiveAction(this.host.NAME);
 						buttons.setActiveAction(this.host.NAME);
 					}
+					
+					//Event
+					this.host.fire('show');
 				} else {
 					if (!this.host.get('frozen')) {
 						//Hide buttons
@@ -264,7 +267,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					}
 					
 					//Hide container
-					if (container) container.addClass('hidden');				
+					if (container) container.addClass('hidden');
+					
+					//Event
+					this.host.fire('hide');				
 				}
 				
 			}

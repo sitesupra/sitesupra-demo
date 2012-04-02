@@ -90,8 +90,8 @@
 - Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
     id: news
     className: Supra\Controller\Pages\News\NewsApplication
-    title: News application
-    icon: /cms/lib/supra/img/sitemap/new-news-app.png
+    title: News
+    icon: /cms/content-manager/sitemap/images/apps/news.png
     newChildrenFirst: true
 
 #FIXME: move configuration to project-specific location

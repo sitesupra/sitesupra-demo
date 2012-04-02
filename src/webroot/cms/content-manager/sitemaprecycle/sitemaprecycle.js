@@ -17,28 +17,28 @@ SU('anim', 'transition', function (Y) {
 		 * Unique action name
 		 * @type {String}
 		 */
-		NAME: 'SiteMapRecycle',
+		'NAME': 'SiteMapRecycle',
 		
 		/**
 		 * Load stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: true,
+		'HAS_STYLESHEET': true,
 		
 		/**
 		 * Load template
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_TEMPLATE: true,
+		'HAS_TEMPLATE': true,
 		
 		/**
 		 * Layout container action NAME
 		 * @type {String}
 		 * @private
 		 */
-		LAYOUT_CONTAINER: 'LayoutLeftContainer',
+		'LAYOUT_CONTAINER': 'LayoutLeftContainer',
 		
 		
 		
@@ -47,7 +47,7 @@ SU('anim', 'transition', function (Y) {
 		 * Tree node list
 		 * @type {Array}
 		 */
-		treenodes: [],
+		'treenodes': [],
 		
 		
 		
@@ -56,16 +56,22 @@ SU('anim', 'transition', function (Y) {
 		 * 
 		 * @private
 		 */
-		render: function () {
+		'render': function () {
 			//Close button
 			this.get('controlButton').on('click', this.hide, this);
 			
 			//On locale change reload data
-			Manager.SiteMap.languagebar.on('localeChange', function (evt) {
+			Manager.SiteMap.languageSelector.on('valueChange', function (evt) {
 				if (this.get('visible') && evt.newVal != evt.prevVal) {
 					this.load(null, evt.newVal);
 				}
 			}, this);
+			
+			//When page is restore, send request
+			Manager.SiteMap.tree.on('page:restore', this.onPageRestore, this);
+			
+			//When page is restore, send request
+			Manager.SiteMap.tree.on('page:delete', this.load, this);
 		},
 		
 		/**
@@ -75,7 +81,7 @@ SU('anim', 'transition', function (Y) {
 		 * @param {Boolean} status Response status
 		 * @private
 		 */
-		renderItems: function (data, status) {
+		'renderItems': function (data, status) {
 			var container = this.one('.recycle-list'),
 				treenodes = this.treenodes,
 				html = null,
@@ -92,7 +98,7 @@ SU('anim', 'transition', function (Y) {
 			html = Supra.Template('recycleItemList', {'items': data});
 			
 			container.set('innerHTML', html);
-			container.removeClass('loading');
+			this.one().removeClass('loading');
 			
 			for(var i=0,ii=treenodes.length; i<ii; i++) {
 				treenodes[i].destroy();
@@ -100,7 +106,14 @@ SU('anim', 'transition', function (Y) {
 			this.treenodes = treenodes = [];
 			
 			for(var i=0,ii=data.length; i<ii; i++) {
-				node = container.one('li[data-id="' + data[i].id + '"] label');
+				node = container.one('li[data-id="' + data[i].id + '"] p.title');
+				
+				//Attributes
+				data[i].state = data[i].state || (data[i].published ? 'published' : 'draft');
+				
+				//Data
+				data[i].full_path = data[i].full_path || '';
+				
 				this.bindItem(node, data[i]);
 			}
 		},
@@ -112,8 +125,7 @@ SU('anim', 'transition', function (Y) {
 		 * @return Date title
 		 * @type {String}
 		 */
-		dateToTitle: function (date) {
-//			var date = Y.DataType.Date.parse(date).getTime(),
+		'dateToTitle': function (date) {
 			var date = Date.parse(date),
 				diff = Math.ceil(((new Date()).getTime() - date) / 86400000),
 				title = '';
@@ -134,117 +146,182 @@ SU('anim', 'transition', function (Y) {
 		/**
 		 * Bind drag & drop
 		 */
-		bindItem: function (node, data) {
-			var container = this.one();
-			var tree = Manager.getAction('SiteMap').getTree();
-			var treenode = new Supra.FlowMapItemNormal({
+		'bindItem': function (node, data) {
+			var action = Manager.SiteMap,
+				tree   = action.tree,
+				view   = tree.get('view'),
+				mode   = this.getMode(),
+				type   = data.type || (mode == 'pages' ? 'page' : 'template');
+			
+			var treeNode = new action.TreeNodeFake({
+				'srcNode': node,
+				'tree': tree,
+				'view': view,
 				'data': data,
-				'label': data.title,
-				'icon': data.icon
+				'dragable': true,
+				'groups': ['restore-' + type],
+				'type': type
 			});
 			
-			treenode.render(document.body);
-			treenode.get('boundingBox').remove();
+			treeNode.render();
 			
-			treenode._tree = tree;
-			
-			var dd = this.dd = new Y.DD.Drag({
-				'node': node,
-				'dragMode': 'point',
-				'target': false
-			}).plug(Y.Plugin.DDProxy, {
-				moveOnEnd: false,			// Don't move original node at the end of drag
-				cloneNode: true
-			});
-			
-			dd.set('treeNode', treenode);
-			
-			if (dd.target) {
-				dd.target.set('treeNode', treenode);
-			}
-			
-			//When starting drag all children must be locked to prevent
-			//parent drop inside children
-			dd.on('drag:afterMouseDown', treenode._afterMouseDown);
-			
-			//Set special style to proxy node
-			dd.on('drag:start', treenode._dragStart);
-			dd.on('drag:start', function () {
-				container.append(this.get('dragNode'));
-			});
-			
-			// When we leave drop target hide marker
-			dd.on('drag:exit', treenode._dragExit);
-			
-			// When we move mouse over drop target update marker
-			dd.on('drag:over', treenode._dragOver);
-			
-			dd.on('drag:end', function (e) { this._dragEnd(e, treenode, node) }, this);
-			
-			this.treenodes.push(treenode);
+			this.treenodes.push(treeNode);
 		},
 		
 		/**
-		 * 
-		 * @param {Object} e
+		 * On page:restore collect data and send to server
 		 */
-		_dragEnd: function(e, treenode, node){
-			var tree = Manager.getAction('SiteMap').getTree();
-			
-			if (treenode.drop_target) {
-				var target = treenode.drop_target,
-					drag_id = treenode.get('data').id,
-					drop_id = target.get('data').id,
-					position = treenode.marker_position,
-					post_data = Manager.getAction('SiteMap').getDropPositionData(target, drop_id, drag_id, position);
+		'onPageRestore': function (e) {
+			var node   = e.node,
+				data   = node.get('data'),
 				
-				Supra.io(this.getDataPath('restore'), {
-					'data': post_data,
-					'method': 'post',
-					'context': this,
-					'on': {
-						'complete': function (data, status) {
-							if (status) this.restoreComplete(node);
-						}
-					}
-				})
+				out    = {
+					'locale': this.getLocale(),
+					'parent_id': 0,
+					'reference_id': 0,
+					'page_id': data.id
+				},
+				
+				next =   null;
+			
+			//parent_id
+			if (node.isInstanceOf('TreeNode')) {
+				if (!node.get('root')) {
+					out.parent_id = node.get('parent').get('data').id;
+					
+					//Set full path
+					data.full_path = (node.get('parent').get('data').full_path || '') + data.path + '/';
+				}
+			} else if (node.isInstanceOf('DataGridRow')) {
+				out.parent_id = node.get('parent').get('parent').get('data').id;
 			}
 			
-			//Hide marker and cleanup data
-			treenode.setMarker(null);
+			//reference_id
+			next = node.next();
+			if (next) {
+				out.reference = next.get('data').id;
+			}
 			
-			//Unlock children to allow them being draged
-			treenode.unlockChildren();
+			//Loading icon
+			this.one().addClass('loading');
 			
-			//Make sure node is not actually moved
-			e.preventDefault();
+			Supra.io(this.getDataPath('restore'), {
+				'data': out,
+				'method': 'post',
+				'context': this,
+				'on': {
+					'complete': function (response, status) {
+						if (status) {
+							this.restoreSuccess(node, data);
+						} else {
+							this.restoreFailure(node, data);
+						}
+						
+						this.one().removeClass('loading');
+					}
+				}
+			});
 		},
 		
-		restoreComplete: function (node) {
-			var sitemap = Manager.getAction('SiteMap');
-			sitemap.flowmap.reload();
-			sitemap.setLoading(true);
+		/**
+		 * On restore success remove item from list and 
+		 * hide list if there are no more items
+		 * 
+		 * @param {Object} node TreeNode instance
+		 * @param {Object} data Page data
+		 * @private
+		 */
+		'restoreSuccess': function (node, data) {
+			var id = data.id,
+				element = this.one('.recycle-list li.item[data-id="' + data.id + '"]');
 			
-			node.remove();
+			//Remove element
+			if (element) {
+				element.remove();
+			}
 			
-			if (!this.one('.recycle-list li')) {
+			//Load permissions
+			var tree = node.get('tree');
+			tree.loadPagePermissions(data);
+			
+			//If last item was removed then hide recycle bin
+			if (!this.one('.recycle-list li.item')) {
 				this.hide();
 			}
 		},
 		
 		/**
+		 * On failure revert
+		 * 
+		 * @param {Object} node TreeNode instance
+		 * @private
+		 */
+		'restoreFailure': function (node) {
+			var tree = node.get('tree'),
+				data = tree.get('data');
+			
+			data.remove(node);
+			tree.remove(node);
+			node.destroy();
+		},
+		
+		/**
+		 * Returns data request URI
+		 * 
+		 * @param {String} mode Optional, suggested mode
+		 * @return Request URI
+		 * @type {String}
+		 * @private
+		 */
+		'getLoadRequestURI': function (mode) {
+			mode = this.getMode(mode);
+			
+			//Fix URI
+			if (mode == 'pages') {
+				mode = 'sitemap';
+			}
+			
+			return this.getDataPath(mode);
+		},
+		
+		/**
+		 * Returns current mode
+		 * 
+		 * @param {String} mode Optional, suggested mode
+		 * @return Mode
+		 * @type {String}
+		 * @private
+		 */
+		'getMode': function (mode) {
+			if (mode && typeof mode == 'string') {
+				return mode;
+			} else {
+				return Manager.getAction('SiteMap').tree.get('mode');
+			}
+		},
+		
+		/**
+		 * Returns locale
+		 * 
+		 * @param {String} locale Optional, suggested locale
+		 * @return Locale
+		 * @type {String}
+		 * @private 
+		 */
+		'getLocale': function (locale) {
+			return locale || Manager.getAction('SiteMap').languageSelector.get('value');
+		},
+		
+		/**
 		 * Load recycle bin data
 		 */
-		load: function (type, locale) {
-			var sitemap = Manager.getAction('SiteMap'),
-				type = type || sitemap.input_type.getValue(),
-				locale = locale || sitemap.languagebar.get('locale');
+		'load': function (mode, locale) {
+			//Loading style
+			this.one().addClass('loading');
 			
-			this.one('.recycle-list').addClass('loading');
-			
-			Supra.io(this.getDataPath(type), {
+			Supra.io(this.getLoadRequestURI(mode), {
 				'data': {
-					'locale': locale
+					'locale': this.getLocale(locale)
 				},
 				'context': this,
 				'on': {'complete': this.renderItems}
@@ -253,12 +330,9 @@ SU('anim', 'transition', function (Y) {
 		
 		/**
 		 * Execute action
-		 *
-		 * @param {Object} request_params Optional. Request parameters
 		 */
-		execute: function (request_params /* Request parameters */) {
+		'execute': function () {
 			this.show();
-			
 			this.load();
 		}
 	});

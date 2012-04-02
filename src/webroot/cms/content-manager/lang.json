@@ -250,8 +250,19 @@
 			
 			"undo_history": "Undo history",
 			"recycle_bin": "Recycle bin",
+			"drag_n_drop": "Drag-and-drop",
 			
-			"viewing_structure": "Viewing structure for:",
+			"select_language": "Select language",
+			
+			"status_not_created": "NOT-CREATED",
+			
+			"new_page": "New page",
+			"new_template": "New template",
+			
+			"new_page_label_title": "Title",
+			"new_template_label_title": "Title",
+			"new_page_label_path": "Path",
+			"new_template_label_layout": "Layout",
 			
 			"create_page": "Create",
 			"create_template": "Create",
@@ -268,17 +279,20 @@
 			"duplicate_page": "Duplicate",
 			"duplicate_template": "Duplicate",
 			
+			"page_title": "Page title",
+			"page_title_template": "Template title",
+			
 			"show_hidden_pages": "Show hidden pages",
 			"show_all_pages": "Show all",
 			
-			"drag_and_drop": "Drag and drop page on desired location",
 			"pages": "Pages",
 			"templates": "Templates",
 			
 			"new_root_page": "Drop here to create a new master page",
 			"new_root_template": "Drop here to create a new master template",
 			
-			"app_group": "Virtual folder",
+			"new_page_title": "New",
+			"app_group": "Folder",
 			"app_news": "News",
 			
 			"today": "Today",

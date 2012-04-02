@@ -1,0 +1,58 @@
+@import "/cms/lib/supra/less/common.less";
+
+.su-datagrid {
+	height: 100%;
+	
+	table {
+		width: 100%;
+		margin: 8px 0 8px 10px;
+	}
+	thead {
+		display: none;
+	}
+	
+	.su-datagrid-spacer {
+		width: 100%;
+		clear: both;
+	}
+}
+
+.su-datagrid-list {
+	color: #323144;
+	font-size: 13px;
+	line-height: 16px;
+	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
+	text-align: left;
+	
+	td {
+		padding: 5px 8px 5px 0;
+		vertical-align: middle;
+		
+		img {
+			margin-top: 3px;
+		}
+		
+		.format-date {
+			font-size: 16px;
+			font-weight: bold;
+			line-height: 16px;
+			text-align: center;
+			display: block;
+			width: 24px;
+			
+			small {
+				font-size: 11px;
+				font-weight: normal;
+				line-height: 11px;
+				display: block;
+			}
+		}
+		
+		&.row-date {
+			width: 24px;
+		}
+		&.row-icon {
+			width: 20px;
+		}
+	}
+}

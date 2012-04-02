@@ -3,6 +3,9 @@
 
 YUI.add('supra.input-select-list', function (Y) {
 	
+	/**
+	 * Horizontal button list for selecting values
+	 */
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);

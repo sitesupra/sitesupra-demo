@@ -2,39 +2,84 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.sitemap-flowmap-item-normal', {
-	path: 'sitemap/modules/flowmap-item-normal.js',
-	requires: ['supra.tree-dragable', 'supra.tree-node-dragable']
-});
-SU.addModule('website.sitemap-flowmap-item', {
-	path: 'sitemap/modules/flowmap-item.js',
-	requires: ['website.sitemap-flowmap-item-normal']
-});
-SU.addModule('website.sitemap-tree-newpage', {
-	path: 'sitemap/modules/sitemap-tree-newpage.js',
-	requires: ['website.sitemap-flowmap-item']
-});
-SU.addModule('website.input-template', {
-	path: 'sitemap/modules/input-template.js',
-	requires: ['supra.input-proto']
-});
-SU.addModule('website.sitemap-settings', {
-	path: 'sitemap/modules/sitemap-settings.js',
-	requires: ['supra.panel', 'supra.input', 'website.input-template']
-});
-SU.addModule('website.sitemap-new-page', {
-	path: 'sitemap/modules/sitemap-new-page.js',
-	requires: ['supra.panel', 'supra.input', 'website.input-template']
+SU.addModule('website.sitemap-tree', {
+	path: 'sitemap/modules/tree/tree.js',
+	requires: ['widget']
 });
 
-SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'website.sitemap-flowmap-item-normal', 'website.sitemap-tree-newpage', 'website.sitemap-new-page', 'website.sitemap-settings', function (Y) {
+SU.addModule('website.sitemap-tree-node', {
+	path: 'sitemap/modules/tree/tree-node.js',
+	requires: ['website.sitemap-tree', 'supra.template', 'dd']
+});
+SU.addModule('website.sitemap-tree-node-fake', {
+	path: 'sitemap/modules/tree/tree-node-fake.js',
+	requires: ['website.sitemap-tree', 'supra.template', 'dd', 'website.sitemap-tree-node']
+});
+SU.addModule('website.sitemap-tree-node-list', {
+	path: 'sitemap/modules/tree/tree-node-list.js',
+	requires: ['website.sitemap-tree-node-app', 'supra.datagrid', 'supra.datagrid-loader']
+});
+SU.addModule('website.sitemap-tree-node-app', {
+	path: 'sitemap/modules/tree/tree-node-app.js',
+	requires: ['website.sitemap-tree-node']
+});
+SU.addModule('website.sitemap-tree-node-app-news', {
+	path: 'sitemap/modules/tree/tree-node-app-news.js',
+	requires: ['website.sitemap-tree-node-app']
+});
+
+SU.addModule('website.sitemap-tree-view', {
+	path: 'sitemap/modules/tree/tree-view.js',
+	requires: ['website.sitemap-tree']
+});
+SU.addModule('website.sitemap-tree-data', {
+	path: 'sitemap/modules/tree/tree-data.js',
+	requires: ['website.sitemap-tree']
+});
+SU.addModule('website.sitemap-tree-util', {
+	path: 'sitemap/modules/tree/tree-util.js',
+	requires: ['website.sitemap-tree']
+});
+
+SU.addModule('website.sitemap-plugin-page-edit', {
+	path: 'sitemap/modules/plugin-page-edit.js',
+	requires: ['supra.input']
+});
+SU.addModule('website.sitemap-plugin-page-add', {
+	path: 'sitemap/modules/plugin-page-add.js',
+	requires: ['supra.input']
+});
+SU.addModule('website.sitemap-plugin-page-global', {
+	path: 'sitemap/modules/plugin-page-global.js',
+	requires: ['supra.input']
+});
+
+
+SU.addModule('website.sitemap-new-page', {
+	path: 'sitemap/modules/new-page.js',
+	requires: ['supra.scrollable']
+});
+SU.addModule('website.sitemap-delete-page', {
+	path: 'sitemap/modules/delete-page.js',
+	requires: ['widget', 'dd']
+});
+
+
+Supra(
+	'anim', 'transition',
+	'website.sitemap-tree',
+	'website.sitemap-tree-node', 'website.sitemap-tree-node-fake', 'website.sitemap-tree-node-list', 'website.sitemap-tree-node-app', 'website.sitemap-tree-node-app-news',
+	'website.sitemap-tree-view', 'website.sitemap-tree-data', 'website.sitemap-tree-util',
+	'website.sitemap-plugin-page-edit', 'website.sitemap-plugin-page-add', 'website.sitemap-plugin-page-global',
+	'website.sitemap-new-page', 'website.sitemap-delete-page',
+function (Y) {
 	
 	//Shortcut
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class
-	new Action(Manager.Action.PluginContainer, Manager.Action.PluginSitemapSettings, Manager.Action.PluginSitemapNewPage, {
+	new Action(Manager.Action.PluginContainer, Action.PluginMainContent, {
 		
 		/**
 		 * Unique action name
@@ -60,32 +105,53 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		
 		
 		/**
-		 * Language bar widget instance
+		 * Tree instance {Supra.Manager.SiteMap.Tree}
 		 * @type {Object}
 		 * @private
 		 */
-		languagebar: null,
+		tree: null,
 		
 		/**
-		 * Property panel
+		 * New page list, instance of {Supra.Manager.SiteMap.NewPage}
 		 * @type {Object}
 		 * @private
 		 */
-		panel: null,
+		newPage: null,
 		
 		/**
-		 * Flowmap tree
+		 * Recycle bin, instance of {Supra.Manager.SiteMap.DeletePage}
 		 * @type {Object}
 		 * @private
 		 */
-		flowmap: null,
+		deletePage: null,
 		
 		/**
-		 * Animate node
+		 * Language selector
 		 * @type {Object}
 		 * @private
 		 */
-		anim_node: null,
+		languageSelector: null,
+		
+		/**
+		 * Sitemap action is executed for first time
+		 * @type {Boolean}
+		 * @private
+		 */
+		firstExec: true,
+		
+		/**
+		 * Hiding in progress
+		 * @type {Boolean}
+		 * @private
+		 */
+		hiding: false,
+		
+		/**
+		 * Node which is used for animation
+		 * @type {Object}
+		 * @private
+		 */
+		animationNode: null,
 		
 		/**
 		 * Animation object
@@ -94,572 +160,284 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		 */
 		animation: null,
 		
-		/**
-		 * Type inputs
-		 * @type {Object}
-		 * @private
-		 */
-		input_type: null,
+		
 		
 		/**
-		 * First execute request
-		 * @type {Boolean}
-		 * @private
+		 * ------------------------------ PRIVATE ------------------------------
 		 */
-		first_exec: true,
-		
-		/**
-		 * Last known locale
-		 * @type {String}
-		 * @private
-		 */
-		locale: null,
 		
 		
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
+		 * 
+		 * @private
 		 */
 		initialize: function () {
 			//Set locale
 			this.locale = Supra.data.get('locale');
 			
 			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [/*{
 				'id': 'recyclebin',
 				'title': SU.Intl.get(['sitemap', 'recycle_bin']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
+				
 				'action': 'SiteMapRecycle'
-			}/*, {
-				'id': 'history',
-				'title': SU.Intl.get(['sitemap', 'undo_history']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
-				'action': 'PageHistory'
-			}*/]);
+			}, */{
+				'id': 'mode_pages',
+				'type': 'button',
+				'title': SU.Intl.get(['sitemap', 'pages']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
+				
+				'action': 'SiteMap',
+				'actionFunction': 'setModePages'
+			}, {
+				'id': 'mode_templates',
+				'type': 'button',
+				'title': SU.Intl.get(['sitemap', 'templates']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-templates.png',
+				
+				'action': 'SiteMap',
+				'actionFunction': 'setModeTemplates'
+			}]);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
-			
-			//Drag & drop
-			Manager.getAction('PageContent').initDD();
-			
-			this.initializeLanguageBar();
-			this.initializeTypeInput();
-			this.initializeFlowMap();
-			this.initializeApplicationList();
 		},
 		
 		/**
-		 * Create language bar
+		 * Render widgets and attach event listeners
 		 * 
 		 * @private
 		 */
-		initializeLanguageBar: function () {
-			//Create language bar
-			this.languagebar = new SU.LanguageBar({
-				'locale': SU.data.get('locale'),
-				'contexts': SU.data.get('contexts'),
-				'localeLabel': SU.Intl.get(['sitemap', 'viewing_structure'])
+		render: function () {
+			//Animation
+			this.animationNode = this.one('div.animation-node');
+			this.animation = new Y.Anim({
+				'node': this.animationNode,
+				'duration': 0.5,
+				'easing': Y.Easing.easeIn
 			});
 			
-			this.languagebar.on('localeChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					this.locale = evt.newVal;
-					this.flowmap.set('requestUri', this.getRequestUri(evt.newVal));
-					this.flowmap.reload();
-					this.setLoading(true);
-				}
-			}, this);
-		},
-		
-		/**
-		 * Create type selection list
-		 *
-		 * @private
-		 */
-		initializeTypeInput: function () {
-			this.input_type = new Supra.Input.SelectList({
-				'srcNode': this.one('select[name="type"]')
+			//Language selector
+			this.languageSelector = this.renderLanguageBar();
+			
+			//New page list
+			this.newPage = this.renderNewPage();
+			
+			//Recycle bin
+			this.deletePage = this.renderRecycleBin();
+			
+			//Tree
+			this.tree = new this.Tree({
+				'srcNode': this.one('#tree'),
+				'requestURI': this.getDataPath('sitemap'),
+				'mode': 'pages',
+				'locale': this.locale
 			});
 			
-			this.input_type.on('change', function (evt) {
-				this.flowmap.set('requestUri', this.getRequestUri(null, evt.value));
-				this.flowmap.reload();
-				this.flowmap.newpage.setType(evt.value);
-				this.setLoading(true);
-				
-				//Trigger event on Action
-				this.fire('typeChange', {'value': evt.value});
-				
-				var recycle = Manager.getAction('SiteMapRecycle');
-				if (recycle.get('visible')) {
-					recycle.load(evt.value);
-				}
-				
-				//Template drop target
-				var new_root_item = this.one('div.item-drop');
-				
-				if (evt.value == 'templates') {
-					new_root_item.removeClass('page-drop').addClass('template-drop');
-				} else {
-					new_root_item.removeClass('template-drop');
-				}
-				
-			}, this);
+			//Add plugins
+			this.tree.plug(this.PluginTreeUtilities, {});
+			this.tree.plug(this.PluginPageEdit, {});
+			this.tree.plug(this.PluginPageAdd, {});
+			this.tree.plug(this.PluginPageGlobal, {});
+			
+			//Render
+			this.tree.render();
+			
+			//While tree is loading show icon
+			this.tree.on('loadingChange', this.handleLoading, this);
+			this.tree.on('page:select', this.triggerPageSelect, this);
+			this.tree.on('page:move', this.handlePageMove, this)
 		},
 		
 		/**
-		 * Returns sitemap type (page or template)
-		 *
-		 * @return Sitemap type
-		 * @type {String}
-		 */
-		getType: function () {
-			return this.input_type.getValue();
-		},
-		
-		/**
-		 * Create flow map
+		 * Render language bar widget
 		 * 
 		 * @private
 		 */
-		initializeFlowMap: function () {
+		renderLanguageBar: function () {
+			//Get locales
+			var contexts = Supra.data.get('contexts'),
+				values = [],
+				widget = null;
+			
+			for(var i=0,ii=contexts.length; i<ii; i++) values = values.concat(contexts[i].languages);
+			
 			//Create widget
-			this.flowmap = new SU.TreeDragable({
-				'srcNode': this.one('.flowmap'),
-				'requestUri': this.getRequestUri(),
-				'defaultChildType': Supra.FlowMapItem
+			widget = new Supra.Input.SelectList({
+				'label': Supra.Intl.get(['sitemap', 'select_language']),
+				'values': values,
+				'value': this.locale
 			});
 			
-			this.flowmap.plug(SU.Tree.ExpandHistoryPlugin);
+			widget.render(this.one('div.su-sitemap-languages'));
 			
-			//After load update permission list
-			this.flowmap.after('render:complete', this.loadFlowMapPermissions, this);
+			widget.set('value', this.locale);
+			widget.after('valueChange', this.handleLocaleChange, this);
 			
-			//Page move
-			this.flowmap.on('drop', this.onPageMove, this);
-			
-			//New page
-			var new_page_list_node = this.one('.additional'),
-				new_item_drop = this.one('div.item-drop');
-			
-			this.flowmap.plug(SU.Tree.NewPagePlugin, {
-				'dragNode': new_page_list_node,
-				'newItemDropNode': new_item_drop
-			});
-			
-			//When tree is rendered set selected page
-			this.flowmap.after('render:complete', function () {
-				var page = Supra.data.get('page', {'id': 0});
-				this.flowmap.set('selectedNode', null);
-				this.flowmap.set('selectedNode', this.flowmap.getNodeById(page.id));
-				
-				this.setLoading(false);
-			}, this);
+			return widget;
 		},
 		
 		/**
-		 * Load permissions for all pages
-		 */
-		loadFlowMapPermissions: function () {
-			var data = this.flowmap.getData(),
-				permission  = [];
-			
-			
-			//Get all page IDs
-			var traverse = function (data, permission) {
-				for(var i=0,ii=data.length; i<ii; i++) {
-					if (!data[i].temporary) {
-						permission.push({'id': data[i].id, 'type': 'page'});
-						
-						if (data[i].children && data[i].children.length) {
-							traverse(data[i].children, permission);
-						}
-					}
-				}
-			};
-			
-			traverse(data, permission);
-				
-			//Request permission list
-			if (permission.length) {
-				Supra.Permission.request(permission, this.onLoadFlowMapPermissions, this);
-			}
-			
-			//If there are no pages, then allow creating new root page
-			var new_root_page = this.one('div.item-drop'),
-				drag_drop_types = this.one('div.additional'),
-				has_pages = false;
-			
-			for(var i=0,ii=data.length; i<ii; i++) {
-				if (!data[i].temporary) {
-					has_pages = true; break;
-				}
-			}
-			
-			if (has_pages || this.input_type.get('value') != 'sitemap') {
-				new_root_page.removeClass('page-drop');
-				drag_drop_types.removeClass('type-sitemap-first');
-			} else {
-				new_root_page.addClass('page-drop');
-				drag_drop_types.addClass('type-sitemap-first');
-			}
-		},
-		
-		/**
-		 * On permission load
-		 */
-		onLoadFlowMapPermissions: function (permissions) {
-			var pages = permissions.page,
-				id    = null,
-				tree  = this.flowmap,
-				node  = null,
-				type  = this.getType(),
-				is_global = false;
-			
-			//Enable editing if it's allowed
-			for(id in pages) {
-				node = tree.getNodeById(id);
-				if (node) {
-					if (pages[id].edit_page) {
-						
-						is_global = node.get('data').global;
-						
-						//Enable editing only if not global and not root page
-						if (!is_global && (!node.isRoot() || type == 'templates')) {
-							node.get('boundingBox').one('.edit').removeClass('edit-hidden');
-						}
-						
-						//Enable selecting global pages which were disabled
-						if (is_global) {
-							node.set('selectable', true);
-						}
-						
-						//Enable drag and drop
-						if (node.dd) {
-							node.dd.set('lock', false);
-						}
-					} else {
-						if (node.dd) {
-							node.dd.set('lock', true);
-						}
-					}
-				}
-			}
-		},
-		
-		/**
-		 * New item application list
-		 */
-		initializeApplicationList: function () {
-			Supra.io(this.getDataPath('applications'), {
-				'context': this,
-				'on': {
-					'success': this.renderApplicationList
-				}
-			});
-		},
-		
-		/**
-		 * Render application list
-		 */
-		renderApplicationList: function (data) {
-			var target = this.one('div.new-item div.additional'),
-				tpl = Supra.Template('additionalNewItems'),
-				i = 0,
-				ii = data.length,
-				node = null;
-			
-			for(; i<ii; i++) {
-				node = Y.Node.create(tpl(data[i]));
-				target.append(node);
-				
-				this.flowmap.newpage.createProxyTreeNode(node, {'type': 'application', 'application_id': data[i].id});
-			}
-		},
-		
-		/**
-		 * Load and show hidden pages
+		 * Render NewPage widget
 		 * 
-		 * @param {String} page_id Page ID
-		 */
-		showHiddenPages: function (page_id) {
-			var uri = this.getRequestUri();
-			Supra.io(uri, {
-				'data': {
-					'root': page_id
-				},
-				'context': this,
-				'on': {
-					'success': function (data) {
-						for(var i=0,ii=data.length; i<ii; i++) {
-							data[i].is_hidden_page = true;
-						}
-						this.flowmap.getNodeById(page_id).get('data').has_hidden_pages = false;
-						this.addPagesToTree(page_id, data);
-					}
-				}
-			});
-		},
-		
-		/**
-		 * Load and show all pages (except hidden)
-		 * 
-		 * @param {String} page_id Page ID
-		 */
-		showAllPages: function (page_id) {
-			var uri = this.getRequestUri();
-			Supra.io(uri, {
-				'data': {
-					'root': page_id,
-					'expand': true
-				},
-				'context': this,
-				'on': {
-					'success': function (data) {
-						var tree_node = this.flowmap.getNodeById(page_id)
-						
-						tree_node.removeNonHiddenChildren();
-						this.addPagesToTree(page_id, data);
-						
-						//Collapse all children
-						for(var i=0,ii=tree_node.size(); i<ii; i++) {
-							tree_node.item(i).collapseAll();
-						}
-					}
-				}
-			})
-		},
-		
-		/**
-		 * Add pages to the tree
-		 * 
-		 * @param {String} page_id
-		 * @param {Array} Children data
-		 */
-		addPagesToTree: function (page_id, data) {
-			var node = this.flowmap.getNodeById(page_id),
-				node_data = node.get('data'),
-				indexed_data = this.flowmap.getIndexedData();
-			
-			//Update data with 'parent' property
-			for(var i=0,ii=data.length; i<ii; i++) {
-				data[i].parent = page_id;
-				indexed_data[data[i].id] = data[i];
-			}
-			
-			//Add children data to the node data
-			node_data.children = node_data.children || [];
-			node_data.children = node_data.children.concat(data);
-			
-			//Add to tree
-			node.addChildren(data);
-		},
-		
-		/**
-		 * Returns flowmap request URI
-		 * 
-		 * @param {String} locale Optional. Locale
-		 * @param {String} type Optional. Type
 		 * @private
 		 */
-		getRequestUri: function (locale, type) {
-			var locale = locale || this.locale;
-			var type = type || this.input_type.getValue();
+		renderNewPage: function () {
+			var widget = new Manager.SiteMap.NewPage();
+			widget.render(this.one());
 			
-			return this.getDataPath(type) + '?locale=' + locale;
+			return widget;
 		},
 		
 		/**
-		 * Set loading state
-		 *
-		 * @param {Boolean} state Loading state
+		 * Render recycle bin widget
+		 * 
 		 * @private
 		 */
-		setLoading: function (state) {
-			var node = this.one('div.yui3-sitemap-scrollable');
-			node.setClass('loading', state);
+		renderRecycleBin: function () {
+			var widget = new Manager.SiteMap.DeletePage();
+			widget.render(this.one());
+			
+			return widget;
 		},
 		
 		/**
-		 * Returns drop position data
+		 * Handle locale change
 		 * 
-		 * @param {Object} target Drop target
-		 * @param {String} drop_id Drop target ID
-		 * @param {String} drag_id Drag ID
-		 * @param {String} position Drop position
-		 * @return Drop data
-		 * @type {Object}
+		 * @param {Event} e Event facade object
+		 * @private
 		 */
-		getDropPositionData: function (target, drop_id, drag_id, position) {
-			var data = {
-				//New parent ID
-				'parent_id': drop_id,
-				//Item ID before which drag item was inserted
-				'reference_id': '',
-				//Dragged item ID
-				'page_id': drag_id,
-				
-				//Locale
-				'locale': this.languagebar.get('locale')
-			};
-			
-			if (position == 'before') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
-				
-				data.reference_id = drop_id;
-				data.parent_id = parent;
-			} else if (position == 'after') {
-				var parent = target.get('parent');
-				parent = parent ? parent.get('data').id : 0;
-				
-				var ref = target.next(); 
-				if (ref) {
-					data.reference_id = ref.get('data').id;
-				}
-				
-				data.parent_id = parent;
+		handleLocaleChange: function (e) {
+			if (this.tree && !e.silent) {
+				this.tree.set('locale', e.newVal);
 			}
-			
-			return data;
 		},
 		
-		onPageMove: function (event) {
-			//New page also triggers this event, but drag.id is empty
-			if (!event.drag.id) return;
-			
-			//New page can be dragged, but shouldn't send request to server 
-			if (String(event.drag.id).indexOf('yui_') != -1) {
-				var drag_id = event.drag.id;
+		/**
+		 * Trigger page:select event on SiteMap
+		 * 
+		 * @param {Event} evt Event facade object
+		 * @private
+		 */
+		triggerPageSelect: function (evt) {
+			this.fire('page:select', {
+				'data': evt.data,
+				'node': evt.node
+			});
+		},
+		
+		/**
+		 * Save new page location
+		 * 
+		 * @param {Event} evt Event facade object
+		 * @private
+		 */
+		handlePageMove: function (evt) {
+			var node = evt.node,
+				reference = node.next(),
 				
-				//Update new page popup position
-				Y.later(250, this, function () {
-					var source = source = this.flowmap.getNodeById(drag_id),
-						node = source.get('boundingBox').one('.tree-node, .flowmap-node-inner');
-					this.plugins.getPlugin('PluginSitemapNewPage').position(node);
-				});
-				
-				return;
-			}
-			
-			var position = event.position,
-				drag_id = event.drag.id,
-				drop_id = event.drop.id,
-				source = this.flowmap.getNodeById(drag_id),
-				target = this.flowmap.getNodeById(drop_id),
-				post_data = this.getDropPositionData(target, drop_id, drag_id, position);
+				post_data = {
+					//New parent ID
+					'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
+					//Item ID before which drag item was inserted
+					'reference_id': reference ? reference.get('data').id : '',
+					//Dragged item ID
+					'page_id': node.get('data').id,
+					
+					//Locale
+					'locale': this.languageSelector.get('value')
+				};
 			
 			//Send request
-			var uri = this.getDataPath('move');
-			
-			Supra.io(uri, {
+			Supra.io(this.getDataPath('move'), {
 				'data': post_data,
 				'method': 'post',
 				'context': this,
 				'on': {
 					'failure': function () {
 						//Revert changes
-						this.flowmap.reload();
-						this.setLoading(true);
+						//@TODO
 					}
 				}
 			});
 		},
 		
 		/**
-		 * Handle tree node click event
+		 * When tree loading attribute value changes show or hide icon
 		 * 
-		 * @param {Object} evt Event
+		 * @param {Event} evt Event facade object
 		 * @private
 		 */
-		onTreeNodeClick: function (evt) {
-			//Can't open page which is not create yet (temporary node)
-			if (evt.data.id.match(/^yui_/)) {
-				evt.halt();
-				return false;
+		handleLoading: function (evt) {
+			if (evt.newVal != evt.prevVal) {
+				if (evt.newVal) {
+					this.one().addClass('loading');
+				} else {
+					this.one().removeClass('loading');
+				}
 			}
-			
-			//Before changing page update locale
-			Supra.data.set('locale', this.languagebar.get('locale'));
-			
-			//Change page
-			if (this.fire('page:select', {'data': evt.data})) {
-				this.onPageOpen(evt.data.id);
-			}
-			
 		},
 		
-		onPageOpen: function (page_id) {
-			//Set selected in data
-			Supra.data.set('page', {
-				'id': page_id
-			});
-			
-			var target = this.flowmap.getNodeById(page_id);
-			this.animate(target.get('boundingBox'));
-		},
+		
 		
 		/**
-		 * Animate sitemap out
+		 * ------------------------------ ANIMATION ------------------------------
+		 */
+		
+		
+		
+		/**
+		 * Animate sitemap in/out
+		 * 
+		 * @param {Object} node Node to animate into
+		 * @param {Boolean} reverse Reverse animation
+		 * @private
 		 */
 		animate: function (node, reverse) {
+			//Visiblity state, set before calculating regions
 			if (reverse) {
-				if (this.anim_node) {
-					this.anim_node.setStyles({'opacity': 1, 'display': 'block'});
-				}
+				this.animationNode.setStyles({'opacity': 1, 'display': 'block', 'left': 0, 'top': 0, 'right': 0, 'bottom': 0});
 				this.set('visible', true);
 			}
 			
-			var node = node ? node.one('div.flowmap-node-inner, div.tree-node') : null,
-				node_region = node ? node.get('region') : null,
-				anim_from = null,
-				anim_to = {'left': '10px', 'top': '60px', 'right': '10px', 'bottom': '10px', 'opacity': 1},
-				target_region = this.one().get('region');
-			
-			if (!this.animation) {
-				this.anim_node = this.one('.yui3-sitemap-anim');
-				this.one('.yui3-sitemap').insert(this.anim_node, 'after');
+			//
+			var animationNode = this.animationNode,
+				animation     = this.animation,
 				
-				this.animation = new Y.Anim({
-					'node': this.anim_node,
-					'duration': 0.5,
-					'easing': Y.Easing.easeIn
-				});
-			}
+				styles_from   = {},
+				styles_to     = {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'opacity': 1},
+				
+				target_reg    = this.one().get('region'),
+				
+				node          = node || this.tree.get('contentBox'),
+				node_reg      = node.get('region');
 			
-			if (!node_region) {
-				node_region = {
-					'width': 146,
-					'height': 182,
-					'left': ~~(target_region.width / 2 - 73),
-					'top': 103
-				};
-			}
-			
-			anim_from = {
-				'left': node_region.left + 'px',
-				'right': target_region.width - node_region.width - node_region.left + 'px',
-				'top': node_region.top + 'px',
-				'bottom': target_region.height - node_region.height - node_region.top + 'px',
+			//Animation styles
+			styles_from = {
+				'left':    node_reg.left,
+				'right':   target_reg.width - node_reg.width - node_reg.left,
+				'top':     node_reg.top,
+				'bottom':  target_reg.height - node_reg.height - node_reg.top,
 				'opacity': 0.35
 			};
 			
 			if (reverse) {
-				this.animation.set('from', anim_to);
-				this.animation.set('to', anim_from);
+				animation.set('from', styles_to);
+				animation.set('to', styles_from);
 			} else {
-				this.animation.set('from', anim_from);
-				this.animation.set('to', anim_to);
+				animation.set('from', styles_from);
+				animation.set('to', styles_to);
 				
-				this.anim_node.setStyles({'opacity': 0, 'display': 'block'});
+				animationNode.setStyles({'opacity': 0, 'display': 'block'});
 			}
 			
-			this.animation.run();
+			animation.run();
 			
-			this.animation.once('end', function () {
+			animation.once('end', function () {
 				if (!reverse) {
 					//Fade out
-					
-					this.anim_node.transition({
+					this.animationNode.transition({
 						'opacity': 0,
 						'easing': 'ease-out',
     					'duration': 0.25
@@ -675,64 +453,102 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 					Manager.executeAction('PageHeader', true);
 					
 					//Clean up tree
-					this.flowmap.empty();
+					this.tree.removeAll(null, true);
+					
+					//State
+					this.hiding = false;
 				} else {
 					Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 					Manager.getAction('PageButtons').setActiveAction(this.NAME);
 					
-					this.anim_node.hide();
+					this.animationNode.hide();
 				}
 			}, this);
+			
 		},
 		
+		
+		
 		/**
-		 * Render widgets and attach event listeners
+		 * ------------------------------ API ------------------------------
 		 */
-		render: function () {
-			//Render language bar
-			this.languagebar.render(this.one('.languages'));
-			
-			//Render type input
-			this.input_type.render();
-			
-			//Render tree
-			this.flowmap.render();
-			
-			//Page select event
-			this.flowmap.on('node-click', this.onTreeNodeClick, this);
-			
-			//Layout
-			var node = this.one(),
-				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+		
+		
+		
+		/**
+		 * Set mode to pages
+		 * 
+		 * @param {Boolean} silent Change mode silently without triggering reload
+		 * @param {Boolean} force Force mode change even if current mode is already pages
+		 */
+		setModePages: function (silent, force) {
+			if (this.tree.get('mode') != 'pages' || force === true) {
+				this.tree.set('requestURI', this.getDataPath('sitemap'));
+				this.tree.set('mode', 'pages', {'silent': true});
 				
-			//Content position sync with other actions
-			node.plug(SU.PluginLayout, {
-				'offset': [0, 0, 0, 0]	//Default offset from page viewport
-			});
-			
-			//Top bar 
-			node.layout.addOffset(layoutTopContainer, layoutTopContainer.one(), 'top', 0);
-			node.layout.addOffset(layoutLeftContainer, layoutLeftContainer.one(), 'left', 0);
-			node.layout.addOffset(layoutRightContainer, layoutRightContainer.one(), 'right', 0);
+				Manager.getAction('PageToolbar').getActionButton('mode_pages').set('down', true);
+				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', false);
+				
+				if (silent !== true) {
+					//Update URI
+					var Root = Supra.Manager.Root;
+					Root.save(Root.ROUTE_SITEMAP);
+				}
+			}
 		},
 		
 		/**
-		 * Returns tree instance
-		 *
-		 * @return Tree instance
+		 * Set mode to templates
+		 * 
+		 * @param {Boolean} silent Change mode silently without triggering reload
+		 * @param {Boolean} force Force mode change even if current mode is already templates
+		 */
+		setModeTemplates: function (silent, force) {
+			if (this.tree.get('mode') != 'templates' || force === true) {
+				this.tree.set('requestURI', this.getDataPath('templates'));
+				this.tree.set('mode', 'templates', {'silent': true});
+				
+				Manager.getAction('PageToolbar').getActionButton('mode_pages').set('down', false);
+				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', true);
+				
+				if (silent !== true) {
+					//Update URI
+					var Root = Supra.Manager.Root;
+					Root.save(Root.ROUTE_TEMPLATES);
+				}
+			}
+		},
+		
+		/**
+		 * Returns selected node or root node
+		 * 
+		 * @return Selected or root node if none is selected or can't be found
 		 * @type {Object}
 		 */
-		getTree: function () {
-			return this.flowmap;
+		getSelectedNode: function () {
+			var page_id = Supra.data.get(['page', 'id'], null),
+				node = null;
+			
+			if (page_id) {
+				node = this.tree.item(page_id);
+				if (node) return node;
+			}
+			
+			return null;
 		},
 		
+		/**
+		 * Hide sitemap
+		 */
 		hide: function () {
+			if (this.hiding) return;
+			this.hiding = true;
 			
-			var node = this.flowmap.get('selectedNode');
+			var page_id = Supra.data.get(['page', 'id'], null),
+				node = this.getSelectedNode();
+			
 			if (node) {
-				this.animate(node.get('boundingBox'));
+				this.animate(node.get('itemBox'));
 			} else {
 				this.animate(null);
 			}
@@ -740,13 +556,23 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 			return this;
 		},
 		
+		/**
+		 * Show sitemap
+		 */
 		show: function () {
+			var node = this.getSelectedNode();
 			
-			var node = this.flowmap.get('selectedNode');
-			if (node) {
-				this.animate(node.get('boundingBox'), true);
+			if (Manager.getAction('PageContent').get('executed')) {
+				//If opening from page
+				if (node) {
+					this.animate(node.get('itemBox'), true);
+				} else {
+					this.animate(null, true);
+				}
 			} else {
-				this.animate(null, true);
+				//Opening on load
+				this.animationNode.setStyle('display', 'none');
+				this.set('visible', true);
 			}
 			
 			return this;
@@ -755,26 +581,39 @@ SU('anim', 'transition', 'supra.languagebar', 'website.sitemap-flowmap-item', 'w
 		/**
 		 * Execute action
 		 */
-		execute: function () {
-			this.show();
+		execute: function (options) {
+			if (!this.get('visible')) {
+				this.show();
+				
+				//Hide page header
+				Manager.getAction('PageHeader').hide();
+			}
 			
-			if (!this.first_exec) {
+			options = Supra.mix({'mode': 'pages'}, options || {});
+			
+			if (this.firstExec) {
+				this.firstExec = false;
+				Y.one('body').removeClass('loading');
+			} else {
 				var page_data = Manager.Page.getPageData(),
-					page_locale = page_data ? page_data.locale : this.languagebar.get('locale');
+					page_locale = page_data ? page_data.locale : this.languageSelector.get('value');
 				
 				//Open sitemap in same language as currently opened page
-				if (page_locale != this.languagebar.get('locale')) {
-					this.languagebar.set('locale', page_locale);
-				} else {
-					this.flowmap.reload();
-					this.setLoading(true);
+				if (page_locale != this.languageSelector.get('value')) {
+					//Change locale without triggering reload
+					this.languageSelector.set('value', page_locale, {'silent': true});
 				}
 			}
 			
-			this.first_exec = false;
+			//Change mode
+			if (options.mode == 'pages') {
+				this.setModePages(true, true);
+			} else {
+				this.setModeTemplates(true, true);
+			}
 			
-			//Hide page header
-			Manager.getAction('PageHeader').hide();
+			//Start loading data
+			this.tree.get('data').load();
 		}
 	});
 	

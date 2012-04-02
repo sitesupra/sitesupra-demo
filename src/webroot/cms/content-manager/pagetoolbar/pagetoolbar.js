@@ -183,7 +183,7 @@ SU(function (Y) {
 					
 					for(var i=0,ii=button_config.length; i<ii; i++) {
 						type = button_config[i].type || 'toggle';
-						if (type == 'toggle' || type == 'tab') {
+						if ((type == 'toggle' || type == 'tab')) {
 							action = Manager.getAction(button_config[i].action);
 							action.hide();
 						}
