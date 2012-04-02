@@ -797,7 +797,7 @@ class PageAction extends PageManagerAction
 			/* @var $locale Locale */
 
 			$_localeId = $locale->getId();
-			$pathPrefix = new Path($localeId);
+			$pathPrefix = new Path($_localeId);
 
 			if ($path->startsWith($pathPrefix)) {
 				$path->setBasePath($pathPrefix);
