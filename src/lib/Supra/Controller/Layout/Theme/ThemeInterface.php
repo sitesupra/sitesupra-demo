@@ -24,4 +24,8 @@ interface ThemeInterface
 	public function getParameterConfigurations();
 
 	public function setParameterConfigurations($configurations);
+
+	public function getPreviewParmeterValues();
+
+	public function getActiveParmeterValues();
 }

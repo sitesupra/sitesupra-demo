@@ -12,7 +12,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Response\ResponseContext;
 use Supra\Html\HtmlTag;
-use Supra\Controller\Layout\Theme\Theme;
+use Supra\Controller\Layout\Theme\ThemeInterface;
 
 /**
  * Helper object for twig processor
@@ -211,7 +211,7 @@ class TwigSupraGlobal
 	}
 
 	/**
-	 * @return Theme
+	 * @return array
 	 */
 	public function getTheme()
 	{
@@ -219,9 +219,9 @@ class TwigSupraGlobal
 	}
 
 	/**
-	 * @param Theme $theme 
+	 * @param ThemeInterface $theme 
 	 */
-	public function setTheme(Theme $theme)
+	public function setTheme(ThemeInterface $theme)
 	{
 		$this->theme = $theme->getActiveParmeterValues();
 	}

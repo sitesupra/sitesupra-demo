@@ -1,4 +1,5 @@
 <?php
+
 namespace Supra\ObjectRepository;
 
 use Doctrine\ORM\EntityManager;
@@ -26,12 +27,14 @@ use Doctrine\Common\Cache\Cache;
 use Supra\Info;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
+use Supra\Controller\Layout\Theme\NoThemeProvider;
 
 /**
  * Object repository
  */
 class ObjectRepository
 {
+
 	const DEFAULT_KEY = '';
 
 	/**
@@ -39,7 +42,6 @@ class ObjectRepository
 	 * TODO: just an idea, not realized because of multiple methods which should be implemented
 	 */
 	const CONTROLLER_PREFIX = 'CONTROLLER/';
-
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_AUDIT_LOGGER = 'Supra\AuditLog\Writer\AuditLogWriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
@@ -115,7 +117,7 @@ class ObjectRepository
 		if (is_object($expectedControllerId)) {
 			$expectedControllerId = get_class($expectedControllerId);
 		}
-		
+
 		$actualControllerId = array_shift(self::$controllerStack);
 
 		if ($actualControllerId != $expectedControllerId) {
@@ -124,8 +126,7 @@ class ObjectRepository
 
 			if (empty($actualControllerId)) {
 				$expectationString = "No controller";
-			}
-			else {
+			} else {
 				$expectationString = "Controller '$actualControllerId'";
 			}
 
@@ -152,11 +153,9 @@ class ObjectRepository
 			$callerClass = get_class($caller);
 			$callerHash = self::getObjectHash($caller);
 			$caller = $callerClass . '\\' . $callerHash;
-		}
-		elseif ( ! is_string($caller)) {
+		} elseif ( ! is_string($caller)) {
 			throw new Exception\RuntimeException('Caller must be class instance or class name');
-		}
-		else {
+		} else {
 			$caller = trim($caller, '\\');
 		}
 
@@ -203,11 +202,11 @@ class ObjectRepository
 		foreach ($debugBacktrace as $trace) {
 
 			$trace = (array) $trace + array(
-					'class' => null,
-					'type' => null,
-					'function' => null,
-					'line' => null,
-					'file' => null,
+				'class' => null,
+				'type' => null,
+				'function' => null,
+				'line' => null,
+				'file' => null,
 			);
 
 			if ($trace['class'] == __CLASS__) {
@@ -240,8 +239,7 @@ class ObjectRepository
 
 		if (is_null($interface)) {
 			$interfaces = array_keys(static::$lateBindingCheckCache);
-		}
-		else {
+		} else {
 			$interfaces = (array) $interface;
 		}
 
@@ -351,12 +349,11 @@ class ObjectRepository
 		do {
 			$object = self::findObject($caller, $interface);
 			$caller = self::getParentCaller($caller, $visited);
-		}
-		while (is_null($object) && ! is_null($caller));
+		} while (is_null($object) && ! is_null($caller));
 
 		return $object;
 	}
-	
+
 	/**
 	 * Finds all objects matching the caller name trace
 	 * @param mixed $caller
@@ -371,7 +368,7 @@ class ObjectRepository
 		do {
 			$object = self::findObject($caller, $interface);
 			$caller = self::getParentCaller($caller, $visited);
-			
+
 			if ( ! empty($object) && ! in_array($object, $objects, true)) {
 				$objects[] = $object;
 			}
@@ -430,11 +427,9 @@ class ObjectRepository
 			$visited[] = $caller;
 
 			$parentCaller = self::$callerHierarchy[$caller];
-		}
-		elseif ($backslashPos !== false) {
+		} elseif ($backslashPos !== false) {
 			$parentCaller = substr($caller, 0, $backslashPos);
-		}
-		else {
+		} else {
 			$parentCaller = self::DEFAULT_KEY;
 		}
 
@@ -452,7 +447,6 @@ class ObjectRepository
 	public static function getObject($caller, $interface, $throwOnMiss = false)
 	{
 //		$interface = self::normalizeInterfaceArgument($interface);
-
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
 			$controllerCaller = $controllerId;
@@ -475,14 +469,14 @@ class ObjectRepository
 		}
 
 		$object = self::findNearestObject($caller, $interface);
-		
+
 		if (is_null($object) && $throwOnMiss) {
 			throw Exception\RuntimeException::objectNotFound($caller, $interface);
 		}
 
 		return $object;
 	}
-	
+
 	/**
 	 * Get array of objects of specified interface
 	 * 
@@ -632,7 +626,7 @@ class ObjectRepository
 	{
 		return self::getObject($caller, self::INTERFACE_SESSION_NAMESPACE_MANAGER, true);
 	}
-	
+
 	public static function getAllSessionManagers()
 	{
 		return self::getAllObjects(self::INTERFACE_SESSION_NAMESPACE_MANAGER);
@@ -713,7 +707,7 @@ class ObjectRepository
 	{
 		self::addBinding($caller, $object, self::INTERFACE_LOCALE_MANAGER);
 	}
-	
+
 	/**
 	 * Get assigned cache adapter
 	 *
@@ -775,7 +769,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MAILER);
 	}
-	
+
 	/**
 	 * Get assigned mailer
 	 *
@@ -786,7 +780,7 @@ class ObjectRepository
 	{
 		return self::getObject($caller, self::INTERFACE_MAILER, true);
 	}
-	
+
 	/**
 	 * Get assigned authorization provider.
 	 *
@@ -1058,7 +1052,6 @@ class ObjectRepository
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_TEMPLATE_PARSER);
 	}
 
-
 	/**
 	 * Get assigned banner provider.
 	 * @param mixed $caller
@@ -1152,8 +1145,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SYSTEM_INFO);
 	}
-	
-	
+
 	/**
 	 * Get assigned MassMail instance.
 	 *
@@ -1187,8 +1179,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_MASS_MAIL);
 	}
-	
-	
+
 	/**
 	 * Get assigned RemoteCommandService instance.
 	 *
@@ -1222,8 +1213,7 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_REMOTE_COMMAND_SERVICE);
 	}
-	
-	
+
 	/**
 	 * Get assigned ThemeProviderAbstraction instance.
 	 *
@@ -1232,7 +1222,11 @@ class ObjectRepository
 	 */
 	public static function getThemeProvider($caller)
 	{
-		$themeProvider = self::getObject($caller, self::INTERFACE_THEME_PROVIDER, true);
+		$themeProvider = self::getObject($caller, self::INTERFACE_THEME_PROVIDER, false);
+
+		if (empty($themeProvider)) {
+			$themeProvider = new NoThemeProvider();
+		}
 
 		return $themeProvider;
 	}
@@ -1257,6 +1251,5 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_THEME_PROVIDER);
 	}
-	
-		
+
 }
