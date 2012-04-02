@@ -2,12 +2,7 @@
 
 namespace Supra\Controller\Pages\Event;
 
-use Supra\Event\EventArgs;
-
-class CmsPageDeleteEventArgs extends EventArgs
+class CmsPageDeleteEventArgs extends CmsPageEventArgs
 {
-
-	public $user;
-	public $localization;
-
+	
 }

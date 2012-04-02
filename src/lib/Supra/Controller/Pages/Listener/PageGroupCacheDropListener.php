@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\Common\EventSubscriber;
-use Supra\Cms\CmsController;
+use Supra\Controller\Pages\Event\CmsPageEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
@@ -24,7 +24,7 @@ class PageGroupCacheDropListener implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-		return array(NestedSetEvents::nestedSetPostMove, CmsController::EVENT_POST_PAGE_PUBLISH, CmsController::EVENT_POST_PAGE_DELETE);
+		return array(NestedSetEvents::nestedSetPostMove, CmsPageEventArgs::postPagePublish, CmsPageEventArgs::postPageDelete);
 	}
 	
 	public function nestedSetPostMove(NestedSetEventArgs $eventArgs)

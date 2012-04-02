@@ -15,7 +15,8 @@ use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Log\Log;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Cms\CmsController;
+use Supra\Controller\Pages\Event\CmsPageEventArgs;
+
 /**
  *
  */
@@ -46,6 +47,8 @@ class ProcessScheduledPagesCommand extends Command
 	
 		$scheduledLocalizations = $this->findScheduled();
 		
+		$events = array();
+		
 		foreach ($scheduledLocalizations as $localization) {
 			$request = PageRequestEdit::factory($localization);
 			$request->setDoctrineEntityManager($this->_em);
@@ -57,9 +60,8 @@ class ProcessScheduledPagesCommand extends Command
 				$eventArgs = new CmsPagePublishEventArgs($this);
 				$eventArgs->localization = $localization;
 				
-				// FIXME!!!
-				$eventManager = ObjectRepository::getEventManager('Supra\Cms\ContentManager');
-				$eventManager->fire(CmsController::EVENT_POST_PAGE_PUBLISH, $eventArgs);
+				// Keep for triggers after flush
+				$events[] = $eventArgs;
 				
 				//$publicEm->getConnection()->commit();
 			} catch (\Exception $e) {
@@ -80,6 +82,13 @@ class ProcessScheduledPagesCommand extends Command
 			
 		}
 		$this->_em->flush();
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		// Trigger post publish events
+		foreach ($events as $eventArgs) {
+			$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
+		}
     }
 	
 	/**

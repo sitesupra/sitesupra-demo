@@ -2,12 +2,7 @@
 
 namespace Supra\Controller\Pages\Event;
 
-use Supra\Event\EventArgs;
-
-class CmsPagePublishEventArgs extends EventArgs
+class CmsPagePublishEventArgs extends CmsPageEventArgs
 {
-
-	public $user;
-	public $localization;
-
+	
 }

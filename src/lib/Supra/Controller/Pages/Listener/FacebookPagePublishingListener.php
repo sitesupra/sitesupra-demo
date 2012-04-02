@@ -3,7 +3,6 @@
 namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\Common\EventSubscriber;
-use Supra\Cms\CmsController;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
@@ -14,6 +13,7 @@ use Supra\Social\Facebook;
 use Project\SocialMedia\SocialMediaController;
 use Supra\User\Entity\UserFacebookPage;
 use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Controller\Pages\Event\CmsPageEventArgs;
 
 class FacebookPagePublishingListener implements EventSubscriber
 {
@@ -34,8 +34,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-//		return array(PagePathGenerator::postPageMove, CmsController::EVENT_POST_PAGE_PUBLISH, CmsController::EVENT_POST_PAGE_DELETE);
-		return array(CmsController::EVENT_POST_PAGE_PUBLISH, CmsController::EVENT_POST_PAGE_DELETE);
+		return array(CmsPageEventArgs::postPageDelete, CmsPageEventArgs::postPagePublish);
 	}
 
 //	public function postPageMove(LifecycleEventArgs $eventArgs)

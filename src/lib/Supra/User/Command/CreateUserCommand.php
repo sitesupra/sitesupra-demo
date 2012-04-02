@@ -19,7 +19,6 @@ use Doctrine\ORM\EntityManager;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\User\Entity\Group;
 use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
-use Supra\Cms\CmsController;
 
 /**
  * CreateUserCommand
