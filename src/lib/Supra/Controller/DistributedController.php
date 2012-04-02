@@ -7,6 +7,7 @@ use Supra\Response;
 use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Loader\Loader;
+use Supra\Uri\Path;
 
 /**
  * Simple HTTP controller based on subcontrollers
@@ -46,31 +47,21 @@ abstract class DistributedController extends ControllerAbstraction
 	 */
 	public function execute()
 	{
-		//FIXME: make it work for CLI request as well
 		$request = $this->getRequest();
 		
 		if ( ! $request instanceof Request\HttpRequest) {
 			throw new Exception\NotImplementedException("Not http requests are not supported yet");
 		}
-			
-		$action = $request->getActions(1);
-
-		\Log::debug('Action: ', $action);
-		$baseAction = $this->defaultAction;
-
-		if ( ! empty($action)) {
-			$baseAction = $action[0];
-			$request->getPath()->setBasePath(new \Supra\Uri\Path($baseAction));
-		}
+		
+		$path = $request->getPath();
 		
 		// Finding class NAMESPACE\AbcDef\AbcDefAction
-		$baseNamespace = $this->getBaseNamespace();
-		$class = $this->getClassName($baseNamespace, $baseAction);
+		$class = $this->getFullClassName($path);
 
 		\Log::debug('Class: ', $class);
 
 		if ( ! Loader::classExists($class)) {
-			throw new Exception\ResourceNotFoundException("Action '$baseAction' was not found (class '$class')");
+			throw new Exception\ResourceNotFoundException("Action '$path' was not found (class '$class')");
 		}
 		
 		$actionController = FrontController::getInstance()->runController($class, $request);
@@ -105,6 +96,26 @@ abstract class DistributedController extends ControllerAbstraction
 		
 		$class = $namespace . '\\' . $action . '\\' . $action 
 				. static::ACTION_CLASS_SUFFIX;
+		
+		return $class;
+	}
+	
+	protected function getFullClassName(Path $path)
+	{
+		$request = $this->getRequest();
+		
+		$action = $request->getActions(1);
+
+		\Log::debug('Action: ', $action);
+		$baseAction = $this->defaultAction;
+
+		if ( ! empty($action)) {
+			$baseAction = $action[0];
+			$path->setBasePath(new \Supra\Uri\Path($baseAction));
+		}
+		
+		$baseNamespace = $this->getBaseNamespace();
+		$class = $this->getClassName($baseNamespace, $baseAction);
 		
 		return $class;
 	}
