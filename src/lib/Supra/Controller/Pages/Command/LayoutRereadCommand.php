@@ -39,7 +39,7 @@ class LayoutRereadCommand extends Command
 		
 		//TODO: fixed processor class us used now, should be configurable somehow
 		$layoutProcessor = new TwigProcessor();
-		$layoutProcessor->setLayoutDir(SUPRA_TEMPLATE_PATH);
+		//$layoutProcessor->setLayoutDir(SUPRA_TEMPLATE_PATH);
 		
 		$layoutUpdateTask = new LayoutProcessorTask();
 		$layoutUpdateTask->setEntityManager($entityManager);

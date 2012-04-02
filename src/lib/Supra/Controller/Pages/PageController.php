@@ -216,7 +216,7 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function processLayout(Entity\Layout $layout, array $placeResponses)
 	{
-		$layoutProcessor = $this->getLayoutProcessor();
+		$layoutProcessor = $this->getLayoutProcessor();		
 		$layoutSrc = $layout->getFile();
 		$response = $this->getResponse();
 		$layoutProcessor->setRequest($this->request);
@@ -231,8 +231,8 @@ class PageController extends ControllerAbstraction
 	public function getLayoutProcessor()
 	{
 		$processor = new Layout\Processor\TwigProcessor();
+		
 		ObjectRepository::setCallerParent($processor, $this);
-		$processor->setLayoutDir(SUPRA_TEMPLATE_PATH);
 
 		return $processor;
 	}

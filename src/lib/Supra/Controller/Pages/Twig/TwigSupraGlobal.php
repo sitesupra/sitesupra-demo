@@ -12,6 +12,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Response\ResponseContext;
 use Supra\Html\HtmlTag;
+use Supra\Controller\Layout\Theme\Theme;
 
 /**
  * Helper object for twig processor
@@ -28,6 +29,11 @@ class TwigSupraGlobal
 	 * @var ResponseContext
 	 */
 	protected $responseContext;
+
+	/**
+	 * @var Theme
+	 */
+	protected $theme;
 
 	/**
 	 * @return RequestInterface
@@ -119,7 +125,7 @@ class TwigSupraGlobal
 
 		return false;
 	}
-	
+
 	/**
 	 * @return Localization
 	 */
@@ -136,7 +142,7 @@ class TwigSupraGlobal
 		if ( ! $localization instanceof Localization) {
 			return;
 		}
-		
+
 		return $localization;
 	}
 
@@ -150,17 +156,17 @@ class TwigSupraGlobal
 
 		return $locale;
 	}
-	
+
 	/**
 	 * @return Info
 	 */
 	public function getInfo()
 	{
 		$info = ObjectRepository::getSystemInfo($this);
-		
+
 		return $info;
 	}
-	
+
 	/**
 	 * Try getting 1) from request 2) from system settings
 	 * @return string
@@ -170,17 +176,17 @@ class TwigSupraGlobal
 		// From request
 		if ($this->request instanceof \Supra\Request\HttpRequest) {
 			$fromRequest = $this->request->getBaseUrl();
-			
+
 			if ( ! empty($fromRequest)) {
 				return $fromRequest;
 			}
 		}
-		
+
 		// From info package
 		return $this->getInfo()
-				->getHostName(\Supra\Info::WITH_SCHEME);
+						->getHostName(\Supra\Info::WITH_SCHEME);
 	}
-	
+
 	/**
 	 * Generates page title tag with class name CMS would recognize
 	 * @param string $tagName
@@ -189,19 +195,35 @@ class TwigSupraGlobal
 	public function pageTitleHtmlTag($tagName = 'span')
 	{
 		$localization = $this->getLocalization();
-		
+
 		if (is_null($localization)) {
 			return;
 		}
-		
+
 		$title = $localization->getTitle();
 		$htmlTag = new HtmlTag($tagName, $title);
-		
+
 		if ($this->isCmsRequest()) {
 			$htmlTag->addClass('su-settings-title');
 		}
-		
+
 		return $htmlTag;
+	}
+
+	/**
+	 * @return Theme
+	 */
+	public function getTheme()
+	{
+		return $this->theme;
+	}
+
+	/**
+	 * @param Theme $theme 
+	 */
+	public function setTheme(Theme $theme)
+	{
+		$this->theme = $theme->getActiveParmeterValues();
 	}
 
 }

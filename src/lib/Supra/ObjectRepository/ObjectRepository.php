@@ -1,5 +1,4 @@
 <?php
-
 namespace Supra\ObjectRepository;
 
 use Doctrine\ORM\EntityManager;
@@ -26,6 +25,7 @@ use Supra\AuditLog\Writer\NullAuditLogWriter;
 use Doctrine\Common\Cache\Cache;
 use Supra\Info;
 use Supra\Remote\Client\RemoteCommandService;
+use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 
 /**
  * Object repository
@@ -62,6 +62,7 @@ class ObjectRepository
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
 	const INTERFACE_REMOTE_COMMAND_SERVICE = 'Supra\Remote\Client\RemoteCommandService';
+	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\ThemeProviderAbstraction';
 
 	/**
 	 * Object relation storage
@@ -1221,4 +1222,41 @@ class ObjectRepository
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_REMOTE_COMMAND_SERVICE);
 	}
+	
+	
+	/**
+	 * Get assigned ThemeProviderAbstraction instance.
+	 *
+	 * @param mixed $caller
+	 * @return ThemeProviderAbstraction
+	 */
+	public static function getThemeProvider($caller)
+	{
+		$themeProvider = self::getObject($caller, self::INTERFACE_THEME_PROVIDER, true);
+
+		return $themeProvider;
+	}
+
+	/**
+	 * Assign ThemeProviderAbstraction to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param ThemeProviderAbstraction $object 
+	 */
+	public static function setThemeProvider($caller, ThemeProviderAbstraction $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_THEME_PROVIDER);
+	}
+
+	/**
+	 * Set default ThemeProviderAbstraction object.
+	 *
+	 * @param ThemeProviderAbstraction $object 
+	 */
+	public static function setDefaultThemeProvider(ThemeProviderAbstraction $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_THEME_PROVIDER);
+	}
+	
+		
 }

@@ -14,12 +14,12 @@ class IniConfigurationLoader
 	 * @var string
 	 */
 	protected $filename;
-	
+
 	/**
 	 * @var array
 	 */
 	protected $data;
-	
+
 	/**
 	 * @param string $filename
 	 * @param string $directory
@@ -27,13 +27,13 @@ class IniConfigurationLoader
 	public function __construct($filename, $directory = SUPRA_CONF_PATH)
 	{
 		$this->filename = $directory . DIRECTORY_SEPARATOR . $filename;
-		
+
 		$parser = new IniParser();
 		$data = $parser->parseFile($this->filename);
-		
+
 		$this->data = $data;
 	}
-	
+
 	/**
 	 * Get all data
 	 * @return array
@@ -42,7 +42,7 @@ class IniConfigurationLoader
 	{
 		return $this->data;
 	}
-	
+
 	/**
 	 * @param string $section
 	 * @param string $key
@@ -55,14 +55,14 @@ class IniConfigurationLoader
 		if (isset($this->data[$section][$key])) {
 			return $this->data[$section][$key];
 		}
-		
+
 		if (func_num_args() > 2) {
 			return $default;
 		}
-		
+
 		throw new Exception\ConfigurationMissing("Section '$section' value '$key' not configured in file '{$this->filename}'");
 	}
-	
+
 	/**
 	 * @param string $section
 	 * @param string $default
@@ -74,11 +74,20 @@ class IniConfigurationLoader
 		if (isset($this->data[$section])) {
 			return $this->data[$section];
 		}
-		
+
 		if ( ! is_null($default)) {
 			return $default;
 		}
-		
+
 		throw new Exception\ConfigurationMissing("Section '$section' not configured in file '{$this->filename}'");
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getFilename()
+	{
+		return $this->filename;
+	}
+
 }

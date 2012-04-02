@@ -15,12 +15,19 @@ use Supra\Response\ResponseContext;
  */
 class TwigProcessor extends HtmlProcessor
 {
+
 	/**
 	 * @param string $layoutSrc
 	 * @return string
 	 */
 	protected function getContent($layoutSrc)
 	{
+		$themeProvider = ObjectRepository::getThemeProvider($this);
+		
+		$theme = $themeProvider->getActiveTheme();
+
+		parent::setLayoutDir($theme->getLayoutRoot());
+		
 		$twig = ObjectRepository::getTemplateParser($this);
 		/* @var $twig Twig */
 
@@ -37,6 +44,8 @@ class TwigProcessor extends HtmlProcessor
 		} else {
 			$helper->setResponseContext(new ResponseContext());
 		}
+		
+		$helper->setTheme($theme);
 
 		$twig->addGlobal('supra', $helper);
 
