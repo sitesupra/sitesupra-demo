@@ -306,6 +306,8 @@ class PagesettingsAction extends PageManagerAction
         $pageLocalizationRepository = $em->getRepository(Entity\PageLocalization::CN());
         $pageLocalization = $pageLocalizationRepository->find($pageLocalizationId);
         /* @var $pageLocalization Entity\PageLocalization */
+		
+		$revisionId = $pageLocalization->getRevisionId();
 
         $searchService = new SearchService();
         $indexerService = new IndexerService();
