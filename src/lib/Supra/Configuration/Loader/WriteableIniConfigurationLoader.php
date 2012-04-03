@@ -7,6 +7,7 @@ use Supra\Configuration\Writer\DatabaseWriter;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\FrontController;
 use Supra\Session\WriteableIniConfigurationLoaderEventListener;
+use Supra\Controller\Event\FrontControllerShutdownEventArgs;
 
 class WriteableIniConfigurationLoader extends IniConfigurationLoader
 {
@@ -33,7 +34,7 @@ class WriteableIniConfigurationLoader extends IniConfigurationLoader
 
 		$listener = new WriteableIniConfigurationLoaderEventListener($this);
 
-		$eventManager->listen(FrontController::EVENT_FRONTCONTROLLER_SHUTDOWN, $listener);
+		$eventManager->listen(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $listener);
 	}
 
 	/**

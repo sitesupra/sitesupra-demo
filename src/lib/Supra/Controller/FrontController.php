@@ -143,7 +143,7 @@ class FrontController
 		$shutdownEventArgs = new FrontControllerShutdownEventArgs();
 		$shutdownEventArgs->frontController = $this;
 
-		$eventManager->fire(self::EVENT_FRONTCONTROLLER_SHUTDOWN, $shutdownEventArgs);
+		$eventManager->fire(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $shutdownEventArgs);
 	}
 
 	/**

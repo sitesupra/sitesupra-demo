@@ -14,7 +14,7 @@ class SessionManagerEventListener
 		$this->sessionManager = $sessionManager;
 	}
 
-	public function onFrontControlerShutdown(FrontControllerShutdownEventArgs $eventArgs)
+	public function frontControllerShutdownEvent(FrontControllerShutdownEventArgs $eventArgs)
 	{
 		$sessionHandler = $this->sessionManager->getHandler();
 

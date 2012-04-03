@@ -4,8 +4,6 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Session\SessionManagerEventListener;
 use Supra\Controller\FrontController;
 
-$eventManager = ObjectRepository::getEventManager();
-
 $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerConfiguration();
 $sessionManagerConfiguration->handlerClass = 'Supra\Session\Handler\PhpSessionHandler';
 $sessionManagerConfiguration->sessionExpirationTime = 1440;
@@ -20,10 +18,8 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\CmsRemoteLogin\Controller',
 	'Project\Payment',
 );
-$sessionManager = $sessionManagerConfiguration->configure();
+$sessionManagerConfiguration->configure();
 
-$listener = new SessionManagerEventListener($sessionManager);
-$eventManager->listen(FrontController::EVENT_FRONTCONTROLLER_SHUTDOWN, $listener);
 
 // frontend session manager
 $sessionManagerConfiguration = new \Supra\Session\Configuration\SessionManagerConfiguration();
@@ -37,7 +33,4 @@ $sessionManagerConfiguration->namespaces = array(
 	'Supra\User',
 	'Project\Payment',
 );
-$sessionManager = $sessionManagerConfiguration->configure();
-
-$listener = new SessionManagerEventListener($sessionManager);
-$eventManager->listen(FrontController::EVENT_FRONTCONTROLLER_SHUTDOWN, $listener);
+$sessionManagerConfiguration->configure();
