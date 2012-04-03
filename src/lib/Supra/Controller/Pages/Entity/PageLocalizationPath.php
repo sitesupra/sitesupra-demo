@@ -37,6 +37,15 @@ class PageLocalizationPath extends Abstraction\Entity
 	 * @var boolean
 	 */
 	protected $limited = false;
+	
+	/**
+	 * Path entity and owner localization ids are equals
+	 * @param PageLocalization $localization
+	 */
+	public function __construct(PageLocalization $localization) 
+	{
+		$this->id = $localization->getId();
+	}
 
 	/**
 	 * Special ID setter for path regeneration command so the ID in draft and 

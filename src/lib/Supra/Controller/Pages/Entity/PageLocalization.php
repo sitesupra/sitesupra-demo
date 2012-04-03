@@ -117,7 +117,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		parent::__construct($locale);
 
-		$this->path = new PageLocalizationPath();
+		$this->path = new PageLocalizationPath($this);
 		$this->path->setLocale($locale);
 		$this->setCreationTime();
 		$this->publishTimeSet = false;
@@ -243,7 +243,7 @@ class PageLocalization extends Abstraction\Localization
 	public function getPathEntity()
 	{
 		if (is_null($this->path)) {
-			$this->path = new PageLocalizationPath();
+			$this->path = new PageLocalizationPath($this);
 			$this->path->setLocale($this->locale);
 		}
 
@@ -421,7 +421,7 @@ class PageLocalization extends Abstraction\Localization
 				$this->redirect = clone $this->redirect;
 			}
 			
-			$this->path = new PageLocalizationPath();
+			$this->path = new PageLocalizationPath($this);
 			$this->path->setLocale($this->locale);
 		}
 	}

@@ -636,6 +636,13 @@ class HistoryPageRequestEdit extends PageRequest
 		
 		if ($auditLocalization instanceof Entity\PageLocalization) {
 			$auditLocalization->resetPath();
+			
+			// remove original page path
+			$originalLocalization = $draftEntityManager->getRepository(Entity\PageLocalization::CN())
+					->find($auditLocalization->getId());
+			
+			$originalPath = $originalLocalization->getPathEntity();
+			$draftEntityManager->remove($originalPath);
 		}
 
 		$localization = $draftEntityManager->merge($auditLocalization);
@@ -709,7 +716,14 @@ class HistoryPageRequestEdit extends PageRequest
 				}
 			}
 		}
-		$draftEntityManager->flush();
+		
+		// force to recalculate localization path, relies on PagePathGenerator::onFlush() event
+		if ($localization instanceof Entity\PageLocalization) {
+			$draftUow = $draftEntityManager->getUnitOfWork();
+			$draftUow->propertyChanged($localization, 'pathPart', null, $localization->getPathPart());
+			$draftUow->scheduleForUpdate($localization);
+			$draftEntityManager->flush();
+		}
 		
 		foreach ($auditProperties as $auditProperty) {
 			$draftEntityManager->merge($auditProperty);
