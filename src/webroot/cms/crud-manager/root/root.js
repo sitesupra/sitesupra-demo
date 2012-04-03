@@ -6,34 +6,37 @@
  */
 SU.addModule('website.providers', {
 	path: 'providers/providers.js',
-	requires: ['widget', 'website.provider']
+	requires: [
+		'widget',
+		'website.provider'
+	]
 });
 SU.addModule('website.provider', {
 	path: 'providers/provider.js',
-	requires: ['widget', 'website.datagrid', 'website.datagrid-bar', 'supra.form']
+	requires: [
+		'widget',
+		'supra.datagrid',
+		'supra.datagrid-loader',
+		'supra.datagrid-dragable',
+		'website.datagrid-delete',
+		'website.datagrid-new-item',
+		'supra.form'
+	]
 });
 
-SU.addModule('website.datagrid', {
-	path: 'datagrid/datagrid.js',
-	skinnable: true,
-	requires: ['widget', 'datasource', 'dataschema', 'datatype', 'querystring', 'website.datagrid-row']
+SU.addModule('website.datagrid-delete', {
+	path: 'datagrid-delete/datagrid-delete.js',
+	requires: [
+		'widget',
+		'dd-drop'
+	]
 });
-SU.addModule('website.datagrid-loader', {
-	path: 'datagrid/datagrid-loader.js',
-	requires: ['plugin', 'website.datagrid']
-});
-SU.addModule('website.datagrid-dragable', {
-	path: 'datagrid/datagrid-dragable.js',
-	requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'website.datagrid']
-});
-SU.addModule('website.datagrid-row', {
-	path: 'datagrid/datagrid-row.js',
-	requires: ['widget']
-});
-
-SU.addModule('website.datagrid-bar', {
-	path: 'datagrid-bar/datagrid-bar.js',
-	requires: ['widget', 'dd-drag', 'dd-drop']
+SU.addModule('website.datagrid-new-item', {
+	path: 'datagrid-new-item/datagrid-new-item.js',
+	requires: [
+		'widget',
+		'dd-drag'
+	]
 });
 
 /**
@@ -41,12 +44,14 @@ SU.addModule('website.datagrid-bar', {
  */
 Supra(
 	'supra.slideshow',
-	'website.providers',
-	'website.datagrid',
-	'website.datagrid-loader',
-	'website.datagrid-dragable',
 	
-	function (Y) {
+	'supra.datagrid',
+	'supra.datagrid-loader',
+	'supra.datagrid-dragable',
+	
+	'website.providers',
+	
+function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -102,7 +107,10 @@ Supra(
 		 * @type {Object}
 		 */
 		getDataGridContainer: function (id) {
-			return this.slideshow.addSlide({'id': 'datagrid-' + id}).one('.su-slide-content');
+			return this.slideshow.addSlide({
+				'id': 'datagrid-' + id,
+				'scrollable': false
+			}).one('.su-slide-content');
 		},
 		
 		/**

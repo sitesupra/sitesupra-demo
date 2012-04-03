@@ -27,40 +27,40 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		/**
 		 * Loading data
 		 */
-		loading: false,
+		'loading': false,
 		
 		/**
 		 * Number of records loaded
 		 * @type {Number}
 		 * @private
 		 */
-		loaded: 0,
+		'loaded': 0,
 		
 		/**
 		 * Total number of records
 		 * @type {Number}
 		 * @private
 		 */
-		total: 0,
+		'total': 0,
 		
 		/**
 		 * Last known results per request
 		 * @type {Number}
 		 * @private
 		 */
-		resultsPerRequest: 0,
+		'resultsPerRequest': 0,
 		
 		/**
 		 * Spacing node
 		 */
-		tableSpacerNode: null,
+		'tableSpacerNode': null,
 		
 		
 		
 		/**
 		 * Load records, which should be in view now
 		 */
-		checkRecordsInView: function () {
+		'checkRecordsInView': function () {
 			if (!this.get('host').get('visible') || this.loading || this.loaded >= this.total) return;
 			
 			var host = this.get('host'),
@@ -82,7 +82,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * @return Optimal results per request
 		 * @type {Number}
 		 */
-		getResultsPerRequest: function () {
+		'getResultsPerRequest': function () {
 			var host = this.get('host'),
 				scroll_height = host.scrollable.get('contentBox').get('offsetHeight'),
 				content_height = host.tableBodyNode.get('offsetHeight'),			// Loaded data height
@@ -111,7 +111,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * 
 		 * @private
 		 */
-		onLoadComplete: function () {
+		'onLoadComplete': function () {
 			this.loading = true;
 		},
 		
@@ -120,7 +120,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * 
 		 * @private
 		 */
-		beforeReset: function () {
+		'beforeReset': function () {
 			this.loaded = 0;
 			
 			//Set initial results per request
@@ -140,7 +140,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * 
 		 * @private
 		 */
-		load: function () {
+		'load': function () {
 			//Event
 			this.fire('load');
 			
@@ -161,7 +161,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * @param {Object} e Response event
 		 * @private
 		 */
-		_dataReceivedSuccess: function (e) {
+		'_dataReceivedSuccess': function (e) {
 			var response = e.response,
 				loader = this.loader;
 			
@@ -176,14 +176,12 @@ YUI.add('supra.datagrid-loader', function (Y) {
 			
 			//Add new rows
 			var results = response.results, i = null;
+			
 			for(i in results) {
 				if (results.hasOwnProperty(i)) {
 					this.add(results[i]);
 				}
 			}
-			
-			//Current style doesn't support this
-			//this._renderEvenOddRows();
 			
 			//Event
 			this.fire('load:success', {'results': results});
@@ -205,7 +203,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * @param {Object} e Response event
 		 * @private
 		 */
-		_dataReceivedFailure: function (e) {
+		'_dataReceivedFailure': function (e) {
 			Y.log(e, 'error');
 			
 			this.loader.loading = false;
@@ -214,7 +212,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		/**
 		 * Update UI to reflect loaded items
 		 */
-		syncTotal: function () {
+		'syncTotal': function () {
 			var total = this.total,
 				loaded = this.loaded,
 				host = this.get('host'),
@@ -240,7 +238,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		/**
 		 * Constructor
 		 */
-		initializer: function () {
+		'initializer': function () {
 			var host = this.get('host');
 			
 			//Overwrite some of the DataGrid functionality
@@ -276,7 +274,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		/**
 		 * Destructor
 		 */
-		destructor: function () {
+		'destructor': function () {
 			
 		}
 		

@@ -89,6 +89,7 @@ YUI.add('supra.datagrid-dragable', function (Y) {
 		 */
 		decorateProxy: function (e) {
 			var row = this.get('host').getRowByNode(e.target.get('node'));
+			
 			if (!row) return;
 			
 			var td = row.getTitleColumnNode(),
@@ -99,7 +100,7 @@ YUI.add('supra.datagrid-dragable', function (Y) {
 			e.target.deltaXY = [-16, 16];
 			
 			drag_node.empty().append(content);
-			drag_node.setStyles({'width': td.get('offsetWidth') - 20 + 'px'});
+			drag_node.setStyles({'width': td.get('offsetWidth') - 26 + 'px'});
 			drag_node.addClass('su-datagrid-proxy');
 		},
 		

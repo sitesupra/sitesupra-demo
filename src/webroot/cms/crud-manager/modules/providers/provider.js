@@ -342,7 +342,7 @@ YUI.add('website.provider', function (Y) {
 					'context': this,
 					'on': {
 						'success': function () {
-							this.data_grid.removeRow(record_id);
+							this.data_grid.remove(record_id);
 						}
 					}
 				});
@@ -377,13 +377,15 @@ YUI.add('website.provider', function (Y) {
 					'requestParams': request_params,
 					'columns': this.getListFields(),
 					'dataColumns': this.getEditFields(),
-					'idColumn': this.get('primaryKey'),
+					'idColumn': [this.get('primaryKey')],
 					'tableHeadingFixed': false
 				});
 				
-				this.data_grid.plug(Supra.DataGrid.LoaderPlugin);
+				this.data_grid.plug(Supra.DataGrid.LoaderPlugin, {
+					'recordHeight': 40
+				});
 				this.data_grid.plug(Supra.DataGrid.DragablePlugin, {
-					'dd-sort': this.get('sortable'),
+					'dd-sort':   this.get('sortable'),
 					'dd-insert': this.get('create'),
 					'dd-delete': this.get('delete')
 				});
@@ -395,15 +397,20 @@ YUI.add('website.provider', function (Y) {
 				this.data_grid.on('drag:insert', this._handleRowInsert, this);
 				
 				/**
-				 * Create drag and drop bar
+				 * Create new item and delete icons
 				 */
-				this.bar = new Supra.DataGridBar({
-					'new-item': this.get('create'),
-					'recycle-bin': this.get('delete')
-				});
-				this.bar.render(container);
+				if (this.get('create')) {
+					this.data_grid_new = new Supra.DataGridNewItem();
+					
+					this.data_grid_new.render(container);
+					this.data_grid_new.on('insert:click', this._handleRowInsert, this);
+				}
 				
-				this.bar.on('insert:click', this._handleRowInsert, this);
+				if (this.get('delete')) {
+					this.data_grid_delete = new Supra.DataGridDelete();
+					this.data_grid_delete.render(container);
+				}
+				
 			}
 		},
 		
@@ -625,4 +632,4 @@ YUI.add('website.provider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['widget', 'supra.form', 'website.datagrid', 'website.datagrid-bar']});
+}, YUI.version, {requires: ['widget', 'supra.datagrid', 'supra.datagrid-loader', 'supra.datagrid-dragable', 'website.datagrid-delete', 'website.datagrid-new-item', 'supra.form']});

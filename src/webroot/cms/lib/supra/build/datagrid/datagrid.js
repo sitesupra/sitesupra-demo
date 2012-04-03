@@ -33,6 +33,9 @@ YUI.add("supra.datagrid", function (Y) {
 		
 		//Empty params
 		this.requestParams.data = this.get('requestParams');
+		
+		//Set initial property values
+		this.rows = [];
 	}
 	
 	DataGrid.NAME = 'datagrid';
@@ -487,6 +490,28 @@ YUI.add("supra.datagrid", function (Y) {
 		},
 		
 		/**
+		 * Returns row by ID, index or node
+		 * 
+		 * @param {Object} id ID or index or node
+		 * @return DataGridRow instance for row
+		 * @type {Object}
+		 */
+		'item': function (id) {
+			if (typeof id === 'string') {
+				return this.getRowByID(id);
+			} else if (typeof id === 'number') {
+				return this.getRowByIndex(id);
+			} else if (typeof id === 'object' && id.isInstanceOf) {
+				if (id.isInstanceOf('Node')) {
+					return this.getRowByNode(id);
+				} else if (id.isInstanceOf('DataGridRow')) {
+					return id;
+				}
+			}
+			return null;
+		},
+		
+		/**
 		 * Returns row by ID
 		 * 
 		 * @param {String} row_id
@@ -540,10 +565,13 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @type {Object}
 		 */
 		'remove': function (row_id, keep) {
-			var rows = this.rows;
+			var row = this.item(row_id),
+				rows = this.rows;
+			
+			if (!row) return null;
+			
 			for(var i=0,ii=rows.length; i<ii; i++) {
-				if (rows[i].getID() == row_id) {
-					var row = rows[i];
+				if (rows[i] === row) {
 					var data = row.getData();
 					this.rows = rows.slice(0, i).concat(rows.slice(i+1));
 					

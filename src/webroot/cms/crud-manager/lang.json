@@ -2,7 +2,7 @@
 	"status": true,
 	"data": {
 		"crud": {
-			"new_item": "New item",
+			"new_item": "New",
 			"delete_confirmation": "Are you sure you want to delete selected item?"
 		}
 	}

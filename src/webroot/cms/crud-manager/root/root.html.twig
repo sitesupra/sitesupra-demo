@@ -11,6 +11,23 @@
 	'delete': {{path | json_encode | raw}} + 'form/delete.json',
 	'sort': {{path | json_encode | raw}} + 'form/sort.json'
 },
+'supra.htmleditor': {
+	'standalone': {
+		'stylesheets': [
+			'/assets/css/normalize.css',
+			'/assets/css/main.css'
+		]
+	},
+	'stylesheets': {
+		'skip_default': false
+	},
+	'plugins': {
+		'image': {
+			'size': '200x200',
+			'styles': false
+		}
+	}
+},
 {% endblock %}
 
 {% block jsPathConfiguration %}
