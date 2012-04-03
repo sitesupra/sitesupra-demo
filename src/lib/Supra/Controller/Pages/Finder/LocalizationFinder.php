@@ -99,6 +99,12 @@ class LocalizationFinder extends AbstractFinder
 	{
 		$this->visibleInSitemap = $visibleInSitemap;
 	}
+	
+	public function removeDefaultFilters()
+	{
+		$this->active = null;
+		$this->public = null;
+	}
 
 	public function setLocale($locale)
 	{

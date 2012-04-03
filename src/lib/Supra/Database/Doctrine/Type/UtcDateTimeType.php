@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\DateTimeType;
 use DateTimeZone;
 use DateTime;
+use Supra\ObjectRepository\ObjectRepository;
 
 class UtcDateTimeType extends DateTimeType
 {
@@ -69,6 +70,18 @@ class UtcDateTimeType extends DateTimeType
 		$val->setTimeZone($timezone);
 		
 		return $val;
+	}
+	
+	public static function staticConvertToPHPValue($value)
+	{
+		$platform = ObjectRepository::getEntityManager(__CLASS__)
+				->getConnection()
+				->getDatabasePlatform();
+		
+		$datetimeType = self::getType('datetime');
+		$datetime = $datetimeType->convertToPHPValue($value, $platform);
+		
+		return $datetime;
 	}
 
 }
