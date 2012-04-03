@@ -10,6 +10,7 @@ use Supra\Configuration\Exception;
  */
 class IniConfigurationLoader
 {
+
 	/**
 	 * @var string
 	 */
@@ -18,7 +19,12 @@ class IniConfigurationLoader
 	/**
 	 * @var array
 	 */
-	protected $data;
+	protected $data = null;
+
+	/**
+	 * @var Parser\AbstractParser
+	 */
+	protected $parser;
 
 	/**
 	 * @param string $filename
@@ -26,9 +32,33 @@ class IniConfigurationLoader
 	 */
 	public function __construct($filename, $directory = SUPRA_CONF_PATH)
 	{
-		$this->filename = $directory . DIRECTORY_SEPARATOR . $filename;
+ 		$this->filename = $directory . DIRECTORY_SEPARATOR . $filename;
+	}
 
-		$parser = new IniParser();
+	/**
+	 * @return Parser\AbstractParser
+	 */
+	public function getParser()
+	{
+		if (empty($this->parser)) {
+			$this->parser = new IniParser();
+		}
+
+		return $this->parser;
+	}
+
+	/**
+	 * @param Parser\AbstractParser $parser 
+	 */
+	public function setParser(Parser\AbstractParser $parser)
+	{
+		$this->parser = $parser;
+	}
+
+	protected function parse()
+	{
+		$parser = $this->getParser();
+
 		$data = $parser->parseFile($this->filename);
 
 		$this->data = $data;
@@ -40,6 +70,10 @@ class IniConfigurationLoader
 	 */
 	public function getData()
 	{
+		if (is_null($this->data)) {
+			$this->parse();
+		}
+
 		return $this->data;
 	}
 
@@ -52,8 +86,10 @@ class IniConfigurationLoader
 	 */
 	public function getValue($section, $key, $default = null)
 	{
-		if (isset($this->data[$section][$key])) {
-			return $this->data[$section][$key];
+		$data = $this->getData();
+		
+		if (isset($data[$section][$key])) {
+			return $data[$section][$key];
 		}
 
 		if (func_num_args() > 2) {
@@ -71,8 +107,10 @@ class IniConfigurationLoader
 	 */
 	public function getSection($section, $default = null)
 	{
-		if (isset($this->data[$section])) {
-			return $this->data[$section];
+		$data = $this->getData();
+		
+		if (isset($data[$section])) {
+			return $data[$section];
 		}
 
 		if ( ! is_null($default)) {

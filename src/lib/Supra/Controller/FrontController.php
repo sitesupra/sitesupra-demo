@@ -15,12 +15,15 @@ use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
+use Supra\Controller\Event\FrontControllerShutdownEventArgs;
 
 /**
  * Front controller
  */
 class FrontController
 {
+
+	const EVENT_FRONTCONTROLLER_SHUTDOWN = 'onFrontControlerShutdown';
 
 	/**
 	 * Singleton instance
@@ -95,22 +98,20 @@ class FrontController
 			$routerPriorities = array();
 			$routerOrder = array();
 			$orderKey = 0;
-			
+
 			// Generate arrays to order routers by priority and then by order 
 			// how they were added initially
 			foreach ($this->routers as $router) {
 				/* @var $router Router\RouterInterface  */
 				$routerPriorities[] = $router->getPriority();
-				$routerOrder[] = $orderKey++;
+				$routerOrder[] = $orderKey ++;
 			}
-			
-			array_multisort($routerPriorities, SORT_DESC, SORT_REGULAR,
-					$routerOrder, SORT_ASC, SORT_NUMERIC,
-					$this->routers);
-			
+
+			array_multisort($routerPriorities, SORT_DESC, SORT_REGULAR, $routerOrder, SORT_ASC, SORT_NUMERIC, $this->routers);
+
 			$this->routersOrdered = true;
 		}
-		
+
 		return $this->routers;
 	}
 
@@ -137,13 +138,12 @@ class FrontController
 			$exceptionController->output();
 		}
 
-		$sessionManagers = ObjectRepository::getAllSessionManagers();
-		if ( ! empty($sessionManagers)) {
+		$eventManager = ObjectRepository::getEventManager();
 
-			foreach ($sessionManagers as $manager) {
-				$manager->getHandler()->close();
-			}
-		}
+		$shutdownEventArgs = new FrontControllerShutdownEventArgs();
+		$shutdownEventArgs->frontController = $this;
+
+		$eventManager->fire(self::EVENT_FRONTCONTROLLER_SHUTDOWN, $shutdownEventArgs);
 	}
 
 	/**
@@ -156,17 +156,17 @@ class FrontController
 	{
 		if ( ! $controllerClosure instanceof Closure) {
 			$controllerClosure = function() use ($controllerClass) {
-				return Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
-			};
+						return Loader::getClassInstance($controllerClass, 'Supra\Controller\ControllerInterface');
+					};
 		}
-		
+
 		ObjectRepository::beginControllerContext($controllerClass);
 		$controller = $controllerClosure();
-		
+
 		if (get_class($controller) != $controllerClass) {
 			$this->log->warn("Controller classname $controllerClass doesn't match with object classname initialized");
 		}
-		
+
 		if ( ! $controller instanceof ControllerInterface) {
 			throw new Exception\RuntimeException("Controller initialization step failed to generate controller instance using class $controllerClass");
 		}

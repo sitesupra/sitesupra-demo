@@ -64,6 +64,8 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'Supra/BannerMachine/Entity',
 		'Supra/Payment/Entity',
 		'Supra/Mailer/MassMail/Entity',
+		'Supra/Configuration/Entity',
+		
 	);
 
 	/**
