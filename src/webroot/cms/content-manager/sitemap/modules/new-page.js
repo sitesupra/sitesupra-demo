@@ -78,8 +78,8 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			//Create animation
 				this._anim = new Y.Anim({
 					'node': this.get('contentBox').one('.children'),
-					'from': {'bottom': 0},
-					'to': {'bottom': 0},
+					'from': {'height': 0},
+					'to': {'height': 0},
 					'duration': 0.25
 				});
 				
@@ -127,16 +127,16 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			if (value) {
 				//Slide down
 				anim.stop();
-				anim.set('from', {'bottom': boundingBox.get('offsetHeight') - 84});
-				anim.set('to', {'bottom': 0});
+				anim.set('from', {'height': '0px'});
+				anim.set('to', {'height': '235px'});
 				anim.run();
 				
 				boundingBox.addClass('expanded');
 			} else {
 				//Slide up
 				anim.stop();
-				anim.set('from', {'bottom': 0});
-				anim.set('to', {'bottom': boundingBox.get('offsetHeight') - 84});
+				anim.set('from', {'height': '235px'});
+				anim.set('to', {'height': '0px'});
 				anim.run();
 				
 				this._scrollable.set('disabled', true);
