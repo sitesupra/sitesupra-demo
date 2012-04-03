@@ -496,7 +496,7 @@ class EntityAuditListener implements EventSubscriber
 		
 		$this->staticRevisionId = $revisionData->getId();
 
-		$this->createPageCopy($eventArgs);
+		$this->createPageCopy();
 		
 		$this->_pageCreateState = false;
 		

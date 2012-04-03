@@ -759,7 +759,7 @@ class HistoryPageRequestEdit extends PageRequest
 	private function getAuditMetadataByProperty($properties) 
 	{
 		
-		if (empty($properties)) {
+		if ( ! ($properties instanceof Set\BlockPropertySet) || $properties->count() == 0) {
 			return null;
 		}
 		

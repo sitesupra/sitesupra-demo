@@ -718,6 +718,7 @@ abstract class PageManagerAction extends CmsAction
 			'localizationId' => $localizationId,
 			'types' => array(
 				PageRevisionData::TYPE_HISTORY,
+				PageRevisionData::TYPE_HISTORY_RESTORE,
 				PageRevisionData::TYPE_CREATE,
 				PageRevisionData::TYPE_DUPLICATE,
 			),

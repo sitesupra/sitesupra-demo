@@ -73,6 +73,8 @@ class EntityRevisionSetterListener implements EventSubscriber
 			AuditEvents::pagePostRestoreEvent,
 			AuditEvents::pagePreEditEvent,
 			AuditEvents::pageContentEditEvent,
+			AuditEvents::localizationPreRestoreEvent,
+			AuditEvents::localizationPostRestoreEvent,
 			
 			self::pagePreDeleteEvent,
 			self::pagePostDeleteEvent,
@@ -210,6 +212,16 @@ class EntityRevisionSetterListener implements EventSubscriber
 	public function postDeleteEvent()
 	{
 		$this->_pageDeleteState = false;
+	}
+	
+	public function localizationPreRestoreEvent()
+	{
+		$this->_pageRestoreState = true;
+	}
+	
+	public function localizationPostRestoreEvent()
+	{
+		$this->_pageRestoreState = false;
 	}
 	
 	public function pagePreEditEvent(PageEventArgs $eventArgs)
