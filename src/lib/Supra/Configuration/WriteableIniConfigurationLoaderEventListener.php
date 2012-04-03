@@ -1,9 +1,9 @@
 <?php
 
-namespace Supra\Session;
+namespace Supra\Configuration;
 
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
-use \Supra\Configuration\Loader\WriteableIniConfigurationLoader;
+use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 class WriteableIniConfigurationLoaderEventListener
 {
@@ -24,7 +24,7 @@ class WriteableIniConfigurationLoaderEventListener
 	/**
 	 * @param FrontControllerShutdownEventArgs $eventArgs 
 	 */
-	public function onFrontControlerShutdown(FrontControllerShutdownEventArgs $eventArgs)
+	public function frontControllerShutdownEvent(FrontControllerShutdownEventArgs $eventArgs)
 	{
 		$loader = $this->loader;
 

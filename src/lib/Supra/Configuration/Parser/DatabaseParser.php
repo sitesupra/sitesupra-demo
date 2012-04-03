@@ -19,6 +19,13 @@ class DatabaseParser extends AbstractParser
 	 */
 	protected $loadedIniItems;
 
+	function __construct()
+	{
+		parent::__construct();
+
+		$this->loadedIniItems = array();
+	}
+
 	/**
 	 * @return EntityManager
 	 */
@@ -66,7 +73,7 @@ class DatabaseParser extends AbstractParser
 
 		$criteria = array('filename' => $filename);
 
-		$iniItems = $repository->find($criteria);
+		$iniItems = $repository->findBy($criteria);
 
 		$data = array();
 

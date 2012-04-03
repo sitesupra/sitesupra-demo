@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\Configuration\Entity\IniConfigurationItem;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\Parser\DatabaseParser;
+use Supra\Configuration\Parser\AbstractParser;
 
 class DatabaseWriter extends AbstractWriter
 {
@@ -50,10 +51,10 @@ class DatabaseWriter extends AbstractWriter
 		$this->entityManger = $entityManger;
 	}
 
-	public function write()
+	protected function write()
 	{
-		$em = $this->getEntityManager();
-
+		$em = $this->getEntityManger();
+		
 		$data = $this->data;
 
 		foreach ($data as $sectionName => $sectionData) {

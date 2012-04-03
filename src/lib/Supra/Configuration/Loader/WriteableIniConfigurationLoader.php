@@ -3,10 +3,13 @@
 namespace Supra\Configuration\Loader;
 
 use Supra\Log\Writer\WriterAbstraction;
+use Supra\Configuration\Parser\DatabaseParser;
 use Supra\Configuration\Writer\DatabaseWriter;
+use Supra\Configuration\Parser\AbstractParser;
+use Supra\Configuration\Writer\AbstractWriter;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\FrontController;
-use Supra\Session\WriteableIniConfigurationLoaderEventListener;
+use Supra\Configuration\WriteableIniConfigurationLoaderEventListener;
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
 
 class WriteableIniConfigurationLoader extends IniConfigurationLoader
@@ -28,17 +31,29 @@ class WriteableIniConfigurationLoader extends IniConfigurationLoader
 	 */
 	public function __construct($filename, $directory = SUPRA_CONF_PATH)
 	{
-		parent::__construct($filename, $directory);
+		parent::__construct($filename, '[Database]');
 
 		$eventManager = ObjectRepository::getEventManager();
-
 		$listener = new WriteableIniConfigurationLoaderEventListener($this);
-
 		$eventManager->listen(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $listener);
 	}
 
 	/**
-	 * @return WriterAbstraction
+	 *
+	 * @return AbstractParser
+	 */
+	public function getParser()
+	{
+		if (empty($this->parser)) {
+
+			$this->parser = new DatabaseParser();
+		}
+
+		return $this->parser;
+	}
+
+	/**
+	 * @return AbstractWriter
 	 */
 	public function getWriter()
 	{
@@ -52,19 +67,25 @@ class WriteableIniConfigurationLoader extends IniConfigurationLoader
 	}
 
 	/**
-	 * @param WriterAbstraction $writer 
+	 * @param AbstractWriter $writer 
 	 */
-	public function setWriter(WriterAbstraction $writer)
+	public function setWriter(AbstractWriter $writer)
 	{
 		$this->writer = $writer;
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public function isDirty()
 	{
 		return $this->dirty;
 	}
 
-	public function setDirty($dirty)
+	/**
+	 * @param boolean $dirty 
+	 */
+	protected function setDirty($dirty)
 	{
 		$this->dirty = $dirty;
 	}
@@ -106,7 +127,9 @@ class WriteableIniConfigurationLoader extends IniConfigurationLoader
 	{
 		if ($this->isDirty()) {
 
-			$this->writer->write();
+			$writer = $this->getWriter();
+			
+			$writer->writeData($this->filename, $this->data);
 
 			$this->setDirty(false);
 		}

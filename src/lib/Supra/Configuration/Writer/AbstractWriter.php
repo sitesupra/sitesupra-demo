@@ -29,7 +29,10 @@ abstract class AbstractWriter
 		$this->write();
 	}
 
-	abstract function write();
+	/**
+	 * @param $data array 
+	 */
+	abstract protected function write();
 	
 	abstract function setParser(AbstractParser $parser);
 }

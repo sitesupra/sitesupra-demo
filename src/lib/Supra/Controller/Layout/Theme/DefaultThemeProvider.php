@@ -84,6 +84,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
 
 		$themeName = $iniLoader->getValue('system', 'active_theme', 'default');
+		
+		//$iniLoader->setValue('system', 'active_theme', 'default');
 
 		return $this->getTheme($themeName);
 	}

@@ -4,8 +4,11 @@ use Supra\Configuration\Loader\ComponentConfigurationLoader;
 
 error_reporting(E_ALL | E_NOTICE);
 
-$iniParser = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
-Supra\ObjectRepository\ObjectRepository::setDefaultIniConfigurationLoader($iniParser);
+$iniLoader = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
+Supra\ObjectRepository\ObjectRepository::setDefaultIniConfigurationLoader($iniLoader);
+
+$writeableIniLoader = new Supra\Configuration\Loader\WriteableIniConfigurationLoader('theme.ini');
+Supra\ObjectRepository\ObjectRepository::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
 
 require_once SUPRA_CONF_PATH . 'loader.php';
 require_once SUPRA_CONF_PATH . 'log.php';
