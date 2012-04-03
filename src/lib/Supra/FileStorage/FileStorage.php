@@ -1143,4 +1143,34 @@ class FileStorage
 		
 		return $fileExists;
 	}
+	
+	public function calculateImageSizeFromHeight($originalWidth, $originalHeight, $expectedHeight)
+	{
+		$newWidth = null;
+		if($originalWidth > $originalHeight) {
+			$newWidth = round(($originalHeight/$originalWidth) * $expectedHeight);
+		} else{
+			$newWidth = round(($originalWidth/$originalHeight) * $expectedHeight);
+		}
+		
+		return array(
+			'height' => $expectedHeight,
+			'width' => $newWidth,
+		);
+	}
+	
+	public function calculateImageSizeFromWidth($originalWidth, $originalHeight, $expectedWidth)
+	{
+		$newHeight = null;
+		if($originalWidth > $originalHeight) {
+			$newHeight = round(($originalWidth/$originalHeight) * $expectedWidth);
+		} else{
+			$newHeight = round(($originalHeight/$originalWidth) * $expectedWidth);
+		}
+		
+		return array(
+			'height' => $newHeight,
+			'width' => $expectedWidth,
+		);
+	}
 }
