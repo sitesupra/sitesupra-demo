@@ -7,8 +7,9 @@
 	
 	.deco {
 		position: absolute;
-		left: 0;
-		top: -61px;
+		z-index: 1;
+		left: 120px;
+		top: 25px;
 		
 		img {
 			display: block;
@@ -91,6 +92,20 @@
 	//Drag and drop
 	.children .yui3-dd-dragging {
 		opacity: 0.25;
+	}
+	
+	//Templates mode
+	&.mode-templates .item-page {
+		.drag {
+			height: 120px;
+		}
+		label {
+			padding-top: 0;
+			cursor: default;
+		}
+		.img {
+			background-position: -434px 0;
+		}
 	}
 }
 

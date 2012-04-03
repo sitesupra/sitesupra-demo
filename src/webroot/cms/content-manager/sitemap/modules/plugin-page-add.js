@@ -661,6 +661,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					//Only for root templates can be set layout
 					if (node.get('root')) {
 						out.layout = data.layout = form.getInput('layout').get('value');
+					} else {
+						//Inherit from parent
+						out.layout = node.get('parent').get('data').layout;
 					}
 				}
 			}
@@ -670,7 +673,16 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			this._widgets.buttonCreate.set('loading', true);
 			this._widgets.buttonCancel.set('disabled', true);
 			
-			Supra.Manager.Page.createPage(out, function (data, status) {
+			//Create
+			var context	= Supra.Manager.Page,
+				func	= context.createPage;
+			
+			if (mode != 'pages') {
+				context = Supra.Manager.Template,
+				func	= context.createTemplate;
+			}
+			
+			func.call(context, out, function (data, status) {
 				if (status) {
 					//Update data
 					if (is_tree_node) {

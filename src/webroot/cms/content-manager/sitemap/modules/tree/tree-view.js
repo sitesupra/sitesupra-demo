@@ -170,14 +170,14 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 			}, this);
 			
 			this.get('arrowLeftNode').on('mousedown', function (e) {
-				if (e.button == 1) this.scrollLeft();
+				if (e.button == 1 && !this.get('disabled')) this.scrollLeft();
 			}, this);
 			
 			this.get('arrowRightNode').on('mousedown', function (e) {
-				if (e.button == 1) this.scrollRight();
+				if (e.button == 1 && !this.get('disabled')) this.scrollRight();
 			}, this);
 			this.get('arrowUpNode').on('mousedown', function (e) {
-				this.get('tree').visibilityRootNodeUp(e);
+				if (!this.get('disabled')) this.get('tree').visibilityRootNodeUp(e);
 			}, this);
 			
 			//On resize show/hide arrows

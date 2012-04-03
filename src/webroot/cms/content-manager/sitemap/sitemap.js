@@ -485,6 +485,7 @@ function (Y) {
 			if (this.tree.get('mode') != 'pages' || force === true) {
 				this.tree.set('requestURI', this.getDataPath('sitemap'));
 				this.tree.set('mode', 'pages', {'silent': true});
+				this.newPage.set('mode', 'pages');
 				
 				Manager.getAction('PageToolbar').getActionButton('mode_pages').set('down', true);
 				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', false);
@@ -507,6 +508,7 @@ function (Y) {
 			if (this.tree.get('mode') != 'templates' || force === true) {
 				this.tree.set('requestURI', this.getDataPath('templates'));
 				this.tree.set('mode', 'templates', {'silent': true});
+				this.newPage.set('mode', 'templates');
 				
 				Manager.getAction('PageToolbar').getActionButton('mode_pages').set('down', false);
 				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', true);

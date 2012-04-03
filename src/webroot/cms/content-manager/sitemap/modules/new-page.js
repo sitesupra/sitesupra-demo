@@ -37,6 +37,13 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		'expanded': {
 			'value': false,
 			'setter': '_setExpanded'
+		},
+		/**
+		 * Mode
+		 */
+		'mode': {
+			'value': 'pages',
+			'setter': '_setMode'
 		}
 	};
 	
@@ -260,14 +267,31 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		},
 		
 		/**
+		 * Update UI
+		 */
+		'_setMode': function (mode) {
+			if (mode == 'pages') {
+				this.get('boundingBox').removeClass('mode-templates');
+			} else {
+				this.get('boundingBox').addClass('mode-templates');
+				this.set('expanded', false);
+			}
+		},
+		
+		
+		/**
 		 * ------------------------------ API ------------------------------
 		 */
+		
 		
 		/**
 		 * Toggle list collapsed/expanded state
 		 */
 		'toggle': function () {
-			this.set('expanded', !this.get('expanded'));
+			//Templates doesn't have "applications"
+			if (this.get('mode') == 'pages') {
+				this.set('expanded', !this.get('expanded'));
+			}
 		}
 	});
 	
