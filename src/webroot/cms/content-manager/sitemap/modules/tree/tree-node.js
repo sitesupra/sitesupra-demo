@@ -1242,7 +1242,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (parent) {
 				parent.children().some(function (item) {
 					if (item.get('expanded')) {
-						collapsed = true;
 						item._expandingSibling = true;
 						item.set('expanded', false);
 						item._expandingSibling = false;

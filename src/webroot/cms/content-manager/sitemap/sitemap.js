@@ -573,6 +573,9 @@ function (Y) {
 				//Opening on load
 				this.animationNode.setStyle('display', 'none');
 				this.set('visible', true);
+				
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
 			return this;

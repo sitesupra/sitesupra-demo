@@ -58,6 +58,12 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 			'arrowRightNode': {
 				'value': Y.Node.create('<a class="su-treeview-right hidden"></a>')
 			},
+			'shadowLeftNode': {
+				'value': Y.Node.create('<div class="su-treeview-fade-left hidden"></div>')
+			},
+			'shadowRightNode': {
+				'value': Y.Node.create('<div class="su-treeview-fade-right hidden"></div>')
+			},
 			
 			//Animation is in progress
 			'animating': {
@@ -131,6 +137,8 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 			boundingBox.append(this.get('arrowUpNode'));
 			boundingBox.append(this.get('arrowLeftNode'));
 			boundingBox.append(this.get('arrowRightNode'));
+			boundingBox.closest('.su-sitemap').append(this.get('shadowLeftNode'));
+			boundingBox.closest('.su-sitemap').append(this.get('shadowRightNode'));
 			
 			this.set('contentBox', contentBox);
 		},
@@ -407,18 +415,25 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				viewHeight = boundingBox.get('offsetHeight'),
 				
 				arrowLeft  = this.get('arrowLeftNode'),
-				arrowRight = this.get('arrowRightNode');
+				arrowRight = this.get('arrowRightNode'),
+				
+				shadowLeft = this.get('shadowLeftNode'),
+				shadowRight = this.get('shadowRightNode');
 			
 			if (region.left + scrollLeft < - viewWidth / 2 + SPACING.left) {
 				arrowLeft.removeClass('hidden');
+				shadowLeft.removeClass('hidden');
 			} else {
 				arrowLeft.addClass('hidden').removeClass('yui3-dd-drop-over');
+				shadowLeft.addClass('hidden');
 			}
 			
 			if (region.right + scrollLeft > viewWidth / 2 - SPACING.right) {
 				arrowRight.removeClass('hidden');
+				shadowRight.removeClass('hidden');
 			} else {
 				arrowRight.addClass('hidden').removeClass('yui3-dd-drop-over');
+				shadowRight.addClass('hidden');
 			}
 		},
 		

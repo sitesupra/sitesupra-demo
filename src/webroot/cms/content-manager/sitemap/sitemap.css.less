@@ -527,7 +527,7 @@
 	width: 28px;
 	height: 50px;
 	position: absolute;
-	z-index: 1;
+	z-index: 2;
 	top: 50%;
 	margin-top: -25px;
 	cursor: pointer;
@@ -570,9 +570,11 @@
 .su-treeview-fade-left,
 .su-treeview-fade-right {
 	position: absolute;
+	z-index: 1;
 	top: 0;
 	bottom: 0;
-	width: 60px;
+	width: 28px;
+	background: url(images/content-shadows.png) 0 50% no-repeat;
 }
 
 .su-treeview-fade-left {
@@ -580,6 +582,7 @@
 }
 .su-treeview-fade-right {
 	right: 0;
+	background-position: -28px 50%;
 }
 
 /**
