@@ -953,6 +953,10 @@ abstract class PageManagerAction extends CmsAction
 					
 			$newPage = $request->recursiveClone($page, null, true);
 			
+			$eventArgs = new LifecycleEventArgs($newPage, $em);
+			$em->getEventManager()
+					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+			
 			// page indexes in sitemap tree
 			$newPage->setLeftValue(0);
 			$newPage->setRightValue(0);
@@ -968,10 +972,6 @@ abstract class PageManagerAction extends CmsAction
 				$newPage->moveAsFirstChildOf($page);
 			}
 
-			$eventArgs = new LifecycleEventArgs($newPage, $em);
-			$em->getEventManager()
-					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
-			
 			$eventArgs = new PageEventArgs();
 			$eventArgs->setEntityManager($em);
 			
