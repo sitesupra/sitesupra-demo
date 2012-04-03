@@ -50,7 +50,7 @@ YUI().add('website.sitemap-delete-page', function (Y) {
 			dnd.on('drop:hit', this._nodeDrop, this);
 			
 			//On click open recycle bin action
-			this.get('boundingBox').on('click', this._openRecycleBin, this);
+			this.get('boundingBox').on('click', this._toggleRecycleBin, this);
 			
 			//Recycle bin
 			var recycle = Supra.Manager.getAction('SiteMapRecycle'),
@@ -85,8 +85,13 @@ YUI().add('website.sitemap-delete-page', function (Y) {
 		 * 
 		 * @private
 		 */
-		'_openRecycleBin': function () {
-			Supra.Manager.executeAction('SiteMapRecycle');
+		'_toggleRecycleBin': function () {
+			var action = Supra.Manager.getAction('SiteMapRecycle');
+			if (action.get('visible')) {
+				action.hide();
+			} else {
+				action.execute();
+			}
 		},
 		
 		/**
