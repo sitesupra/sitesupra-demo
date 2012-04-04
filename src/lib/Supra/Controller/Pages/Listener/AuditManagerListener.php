@@ -12,6 +12,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
+use Supra\Controller\Pages\Entity;
 /**
  * Makes sure no manual changes are performed
  */
@@ -57,6 +58,22 @@ class AuditManagerListener implements EventSubscriber
 				$entity->setTemplate($draftTemplate);
 			} else {
 				$entity->setNullTemplate();
+			}
+			
+			// PageLocalization loaded from Audit schema could contain null path id
+			// or id of unexisting path, which will cause EntityNotFoundException
+			// if someone will try to get localization path
+			// To avoid that, we will load path entity from actual localization
+			// 
+			// @TODO: generate new path entity using audit localization pathPart and
+			// and parents draft pathes
+			$id = $entity->getId();
+			$draftLocalization = $draftEm->find(PageLocalization::CN(), $id);
+			if ( ! is_null($draftLocalization)) {
+				$draftPath = $draftLocalization->getPathEntity();
+				
+				$em->detach($entity);
+				$entity->setPathEntity($draftPath);
 			}
 		}
 		
