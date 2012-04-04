@@ -133,7 +133,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * Used for page localization only but moved to the abstract class so it can
 	 * be fetched in DQL when join happens from BlockProperty side
-	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\PageLocalizationPath", cascade={"remove", "persist", "merge"}, nullable=true)
+	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\PageLocalizationPath", cascade={"remove", "persist", "merge"})
 	 * @var PageLocalizationPath
 	 * @TODO: remove field from audit scheme maybe?
 	 */
