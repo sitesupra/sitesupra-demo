@@ -68,6 +68,8 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
                 return array_values($row);
             } else if ($fetchStyle === PDO::FETCH_BOTH) {
                 return array_merge($row, array_values($row));
+            } else if ($fetchStyle === PDO::FETCH_COLUMN) {
+                return reset($row);
             }
         }
         return false;
