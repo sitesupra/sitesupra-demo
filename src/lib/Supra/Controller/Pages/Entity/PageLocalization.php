@@ -33,13 +33,6 @@ class PageLocalization extends Abstraction\Localization
 	protected $template;
 
 	/**
-	 * @OneToOne(targetEntity="PageLocalizationPath", cascade={"remove", "persist", "merge"})
-	 * @var PageLocalizationPath
-	 * @TODO: remove field from audit scheme maybe?
-	 */
-	protected $path;
-
-	/**
 	 * @Column(type="string", name="path_part")
 	 * @var string
 	 */
@@ -212,6 +205,18 @@ class PageLocalization extends Abstraction\Localization
 		$path = $this->getRealPath(true);
 
 		return $path;
+	}
+	
+	/**
+	 * Shortcut for accessing the full page path
+	 * @return string
+	 */
+	public function getFullPath($format = Path::FORMAT_NO_DELIMITERS)
+	{
+		$pathString = $this->getPath()
+				->getFullPath($format);
+		
+		return $pathString;
 	}
 
 	/**

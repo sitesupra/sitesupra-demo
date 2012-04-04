@@ -18,6 +18,11 @@ abstract class AbstractFinder
 	protected $em;
 	
 	/**
+	 * @var boolean
+	 */
+	private $cache = true;
+	
+	/**
 	 * @var array
 	 */
 	private $customConditions = array();
@@ -50,9 +55,21 @@ abstract class AbstractFinder
 			$qb->andWhere($customCondition);
 		}
 		
-		$cachedQb = new CachedQueryBuilderWrapper($qb, PageController::CACHE_GROUP_NAME);
+		// Wrap only if not wrapped already
+		if ($this->cache && ! $qb instanceof CachedQueryBuilderWrapper) {
+			$qb = new CachedQueryBuilderWrapper($qb, PageController::CACHE_GROUP_NAME);
+		}
 		
-		return $cachedQb;
+		if ( ! $this->cache && $qb instanceof CachedQueryBuilderWrapper) {
+			$qb = $qb->getWrappedQueryBuilder();
+		}
+		
+		return $qb;
+	}
+	
+	public function disableCache()
+	{
+		$this->cache = false;
 	}
 	
 	abstract protected function doGetQueryBuilder();

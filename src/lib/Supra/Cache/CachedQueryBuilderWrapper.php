@@ -7,14 +7,29 @@ use Doctrine\ORM\Query;
 
 class CachedQueryBuilderWrapper extends QueryBuilder
 {
+	/**
+	 * @var QueryBuilder
+	 */
 	private $qb;
 	
+	/**
+	 * Cache group name or group array
+	 * @var mixed
+	 */
 	private $groups;
 	
 	public function __construct(QueryBuilder $qb, $groups)
 	{
 		$this->qb = $qb;
 		$this->groups = $groups;
+	}
+	
+	/**
+	 * @return QueryBuilder
+	 */
+	public function getWrappedQueryBuilder()
+	{
+		return $this->qb;
 	}
 	
 	/**
