@@ -229,7 +229,7 @@
 			"redirect_relative_title": "Relative redirect to",
 			"redirect_fixed": "Fixed",
 			"redirect_off": "Off",
-			"redirect_relative_hint": "Current page will be opened if there is none active child",
+			"redirect_relative_hint": "Current page will be opened if there is no active child",
 						
 			"advanced": "More settings",
 			"advanced_title": "More settings",
