@@ -18,7 +18,7 @@ use Supra\Response\TwigResponse;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
 use Supra\Editable;
-
+use Supra\Controller\Pages\Exception;
 /**
  * Block controller abstraction
  * @method PageRequest getRequest()
@@ -85,6 +85,18 @@ abstract class BlockController extends ControllerAbstraction
 			if ($request instanceof PageRequest) {
 				$page = $request->getPage();
 				$this->setPage($page);
+			}
+
+			// check for uniqness 
+			$blockOutputCount = $this->getBlockOutputCount();
+			
+			$blockControllerCollection = BlockControllerCollection::getInstance();
+			$blockClass = $this->getBlock()->getComponentClass();
+			
+			$configuration = $blockControllerCollection->getBlockConfiguration($blockClass);
+			
+			if ($blockOutputCount > 1 && $configuration->unique) {
+				throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' ({$configuration->controllerClass}) can exist on a page");
 			}
 
 			$this->doPrepare();
@@ -318,7 +330,7 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		if ($editable instanceof Editable\Gallery) {
 			$filter = new Filter\GalleryFilter();
 			ObjectRepository::setCallerParent($filter, $this);
@@ -428,6 +440,28 @@ abstract class BlockController extends ControllerAbstraction
 			$response->assign('blockName', $configuration->title);
 			$response->outputTemplate($this->getExceptionResponseTemplateFilename());
 		}
+	}
+
+	/**
+	 * Returns count of how much same type blocks will be sent to output
+	 * 
+	 * @return integer 
+	 */
+	protected function getBlockOutputCount()
+	{
+		$blockClassName = $this->getBlock()->getComponentName();
+		$response = $this->getResponse();
+		$context = $response->getContext();
+
+		if ( ! $context->offsetExists($blockClassName)) {
+			$context->offsetSet($blockClassName, 1);
+			return 1;
+		}
+
+		$blockOutputCount = $context->offsetGet($blockClassName);
+		$context->offsetSet($blockClassName,  ++ $blockOutputCount);
+		
+		return $blockOutputCount;
 	}
 
 }
