@@ -36,6 +36,10 @@ class TwigSupraBlockGlobal
 	 */
 	public function property($name)
 	{
+		if (empty($name)) {
+			return;
+		}
+		
 		$value = $this->blockController->getPropertyValue($name);
 
 		return $value;
