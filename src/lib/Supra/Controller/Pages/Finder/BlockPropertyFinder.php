@@ -45,10 +45,11 @@ class BlockPropertyFinder extends AbstractFinder
 		$qb->join('bp.block', 'b');
 		$qb->join('b.placeHolder', 'ph');
 		$qb->leftJoin('bp.metadata', 'bpm');
+		$qb->leftJoin('bpm.referencedElement', 're');
 		$qb->join('l3.master', 'e3');
 		$qb->join('l3.path', 'lp3');
 		
-		$qb->select('bp, b, l3, e3, bpm, ph, lp3');
+		$qb->select('bp, b, l3, e3, bpm, ph, lp3, re');
 		
 		if ( ! empty($this->components)) {
 			$or = $qb->expr()->orX();
