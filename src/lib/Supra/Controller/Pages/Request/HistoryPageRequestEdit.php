@@ -634,17 +634,6 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditLocalization = $this->getPageLocalization();
 		$auditEm->detach($auditLocalization);
 		
-		if ($auditLocalization instanceof Entity\PageLocalization) {
-			$auditLocalization->resetPath();
-			
-			// remove original page path
-			$originalLocalization = $draftEntityManager->getRepository(Entity\PageLocalization::CN())
-					->find($auditLocalization->getId());
-			
-			$originalPath = $originalLocalization->getPathEntity();
-			$draftEntityManager->remove($originalPath);
-		}
-
 		$localization = $draftEntityManager->merge($auditLocalization);
 	
 		// merge placeholders
