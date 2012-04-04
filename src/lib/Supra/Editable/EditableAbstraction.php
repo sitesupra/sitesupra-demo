@@ -10,7 +10,7 @@ use Supra\Loader;
 abstract class EditableAbstraction implements EditableInterface
 {
 	/**
-	 * Array of content filters
+	 * Array of content filters 
 	 * @var array
 	 */
 	protected $filters = array();
@@ -76,12 +76,12 @@ abstract class EditableAbstraction implements EditableInterface
 	}
 
 	/**
-	 * Adds filter for the editable content
+	 * Adds filter for the editable content, one of type
 	 * @param Filter\FilterInterface $filter
 	 */
 	public function addFilter(Filter\FilterInterface $filter)
 	{
-		$this->filters[] = $filter;
+		$this->filters[get_class($filter)] = $filter;
 	}
 
 	public function getFilters()

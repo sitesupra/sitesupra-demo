@@ -218,58 +218,65 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function getProperty($name)
 	{
-		// Find editable by name
-		$propertyDefinitions = $this->getPropertyDefinition();
-
-		if ( ! isset($propertyDefinitions[$name])) {
-			throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
-		}
-
-		$editable = $propertyDefinitions[$name];
-
-		if ( ! $editable instanceof EditableInterface) {
-			throw new Exception\RuntimeException("Definition of property must be an instance of editable");
-		}
-
-		// Find property by name
 		$property = null;
-		$expectedType = get_class($editable);
+		
+		if ($name instanceof Entity\BlockProperty) {
+			$property = $name;
+		} else {
+		
+			// Find editable by name
+			$propertyDefinitions = $this->getPropertyDefinition();
 
-		foreach ($this->properties as $propertyCheck) {
-			/* @var $propertyCheck BlockProperty */
-			/* @var $property BlockProperty */
-			if ($propertyCheck->getName() === $name) {
-
-				$property = $propertyCheck;
-
-				if ($propertyCheck->getType() !== $expectedType) {
-					$property->setEditable($editable);
-					$property->setValue($editable->getDefaultValue());
-				}
-
-				break;
+			if ( ! isset($propertyDefinitions[$name])) {
+				throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 			}
+
+			$editable = $propertyDefinitions[$name];
+
+			if ( ! $editable instanceof EditableInterface) {
+				throw new Exception\RuntimeException("Definition of property must be an instance of editable");
+			}
+
+			// Find property by name
+			$property = null;
+			$expectedType = get_class($editable);
+
+			foreach ($this->properties as $propertyCheck) {
+				/* @var $propertyCheck BlockProperty */
+				/* @var $property BlockProperty */
+				if ($propertyCheck->getName() === $name) {
+
+					$property = $propertyCheck;
+
+					if ($propertyCheck->getType() !== $expectedType) {
+						$property->setEditable($editable);
+						$property->setValue($editable->getDefaultValue());
+					}
+
+					break;
+				}
+			}
+
+			/*
+			 * Must create new property here
+			 */
+			if (empty($property)) {
+
+				$property = new Entity\BlockProperty($name);
+				$property->setEditable($editable);
+
+				$property->setValue($editable->getDefaultValue());
+				$property->setBlock($this->getBlock());
+
+				// Must set some DATA object. Where to get this? And why data is set to property not block?
+				//FIXME: should do somehow easier than that
+				$property->setLocalization($this->getRequest()->getPageLocalization());
+			}
+	//		else {
+	//			//TODO: should we overwrite editable content parameters from the block controller config?
+	//			$property->setEditable($editable);
+	//		}
 		}
-
-		/*
-		 * Must create new property here
-		 */
-		if (empty($property)) {
-
-			$property = new Entity\BlockProperty($name);
-			$property->setEditable($editable);
-
-			$property->setValue($editable->getDefaultValue());
-			$property->setBlock($this->getBlock());
-
-			// Must set some DATA object. Where to get this? And why data is set to property not block?
-			//FIXME: should do somehow easier than that
-			$property->setLocalization($this->getRequest()->getPageLocalization());
-		}
-//		else {
-//			//TODO: should we overwrite editable content parameters from the block controller config?
-//			$property->setEditable($editable);
-//		}
 
 		$editable = $property->getEditable();
 
