@@ -302,7 +302,13 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		$fileId = $file->getId();
 		$this->writeAuditLog('%item% saved', $file);
-		$this->getResponse()->setResponseData($fileId);
+		
+		$response = array();
+		if ($file instanceof Entity\File) {
+			$response = $this->imageAndFileOutput($file);
+		}
+		
+		$this->getResponse()->setResponseData($response);
 	}
 
 	/**

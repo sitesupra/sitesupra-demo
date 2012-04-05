@@ -171,7 +171,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					original_value = data.data[name],
 					props = {},
 					locale = null;
-				
+					
 				if (Y.Lang.isObject(data.data[name])) {
 					//Localized value
 					locale = this.getItemLocale();
@@ -181,7 +181,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					props[name] = item_data[name] = data.data[name] = value;
 				}
 				
-				data_object.saveData(id, props, Y.bind(function (status) {
+				data_object.saveData(id, props, Y.bind(function (status, responseData) {
 					if (!status) {
 						//Revert changes
 						this.revertItemPropertyChange(id, name, original_value);
@@ -190,6 +190,10 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 							data.data[name][locale] = original_value;
 						} else {
 							data.data[name] = original_value;
+						}
+					} else {
+						if (responseData && responseData.id && responseData.id == id) {
+							Supra.mix(item_data, responseData);
 						}
 					}
 				}, this));
