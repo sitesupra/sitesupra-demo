@@ -376,7 +376,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'dropable': editable,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),
-				'selectable': editable && data.type != 'temporary',
+				'selectable': editable && data.type != 'temporary' && data.type != 'group',
 				'editable': editable,
 				'publishable': publishable,
 				'global': data.global || false,
