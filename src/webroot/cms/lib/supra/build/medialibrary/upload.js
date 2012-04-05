@@ -611,7 +611,12 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file_id = evt.file_id,
 				node = evt.node,
 				folder = evt.folder,
-				temp_file = (typeof file_id == 'number' && file_id < 0);
+				temp_file = (typeof file_id == 'number' && file_id < 0), 
+				img_node = host.getImageNode();
+				
+			if (img_node) {
+				img_node.ancestor().removeClass('loading');
+			}
 			
 			if (data) {
 				if (temp_file) {
@@ -648,13 +653,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				if (new_file_node && node) {
 					node.insert(new_file_node, 'before');
 				}
+				
+				//Remove temporary data and node
+				if (file_id) data_object.removeData(file_id, true);
+				if (node) node.remove();
+				
 			} else {
 				Y.log('Failed to upload "' + evt.file_name + '"', 'debug');
-			}
-			
-			//Remove temporary data and node
-			if (file_id) data_object.removeData(file_id, true);
-			if (node) node.remove();
+			}		
 		},
 		
 		/**
