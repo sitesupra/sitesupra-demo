@@ -174,7 +174,7 @@ class ComponentConfigurationLoader
 	protected function processItem($item)
 	{
 		$return = $item;
-
+		
 		if (is_array($item) && (count($item) == 1)) {
 			$value = end($item);
 			$key = key($item);
@@ -190,7 +190,7 @@ class ComponentConfigurationLoader
 				} else {
 					throw new \Exception("Constant $value not found");
 				}
-			} else if (is_string($key)) {
+			} else if (is_string($key) && is_array($value)) {
 				// try to setup config object
 				$object = $this->processObject($key, $value);
 				
