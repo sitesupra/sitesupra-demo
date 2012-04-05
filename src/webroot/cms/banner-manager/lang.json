@@ -48,17 +48,6 @@
 			"average_ctr": "Average CTR on the site"
 		},
 		
-		"linkmanager": {
-			"title": "Target page",
-			"link_internal": "Internal",
-			"link_external": "External",
-			"link_address": "Link address",
-			"new_window": "Open link in new window",
-			"link_title": "Link title",
-			"open_library_app": "Open Library app",
-			"remove": "Remove link"
-		},
-		
 		"schedule_sidebar": {
 			"title": "Schedule",
 			

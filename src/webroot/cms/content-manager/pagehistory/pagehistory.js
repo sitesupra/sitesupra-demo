@@ -4,10 +4,10 @@
 SU('anim', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager;
-	var Action = Manager.Action;
-	var Loader = Manager.Loader;
-	var YDate = Y.DataType.Date;
+	var Manager = SU.Manager,
+		Action = Manager.Action,
+		Loader = Manager.Loader,
+		YDate = Y.DataType.Date;
 	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {

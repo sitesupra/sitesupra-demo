@@ -1,10 +1,5 @@
 .banner {
-	position: absolute;
 	z-index: 5;
-	bottom: 10px;
-	background: #fff;
-	border: 1px solid #eee;
-	overflow: auto;
 }
 .banner.loading {
 	background: #fff url(/cms/lib/supra/img/ajax-loader.gif) 50% 50% no-repeat;
@@ -40,16 +35,18 @@
 .banner .stats {
 	width: 290px;
 	margin: 10px auto;
-	padding: 15px 15px 10px;
-	border-top: 1px solid #eee;
+	padding: 15px 15px 5px;
+	border-top: 1px solid #A3A4B7;
 }
 .banner .stats h3 {
-	color: #777;
+	color: #0A0616;
+	font-size: 12px;
+	font-weight: bold;
+	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
 }
 .banner .stats-field {
-	padding: 20px 20px 0 0;
+	padding: 10px 20px 0 0;
 	display: block;
-	font-size: 14px;
 	line-height: 20px;
 }
 .banner .stats-field span {
@@ -74,23 +71,28 @@
 	position: relative;
 	margin: 0 -10px;
 	padding: 0 10px;
-	border-top: 1px solid #eee;
-}
-.banner .input-group:first-child {
-	border-top: 0;
+	border-top: 1px solid #A3A4B7;
+	
+	.yui3-input {
+		margin-bottom: 20px;
+	}
+	
+	&:first-child {
+		border-top: 0;
+	}
 }
 
 .banner .input-group-button {
-	padding: 10px;
+	padding: 10px 10px 20px;
+	
+	.su-button,
+	.su-button div {
+		display: block;
+	}
+	.su-button button {
+		width: 100%;
+	}
 }
-.banner .input-group-button .su-button,
-.banner .input-group-button .su-button div {
-	display: block;
-}
-.banner .input-group-button .su-button button {
-	width: 100%;
-}
-
 
 
 .banner .target .yui3-input-hidden,
@@ -109,7 +111,7 @@
 .banner .delete-group {
 	width: 300px;
 	margin: 0 auto;
-	border-top: 1px solid #eee;
+	border-top: 1px solid #A3A4B7;
 	padding: 10px;
 }
 .banner .delete-group .su-button,

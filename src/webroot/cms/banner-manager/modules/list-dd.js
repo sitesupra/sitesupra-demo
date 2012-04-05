@@ -64,14 +64,20 @@ YUI.add('website.list-dd', function (Y) {
 		 * Add drag node
 		 */
 		addDrag: function (node) {
-			var dd = new Y.DD.Drag({
-				'node': node,
-				'target': false
-			});
-			dd.plug(Y.Plugin.DDProxy, {
-				moveOnEnd: false,
-				cloneNode: true
-			});
+			var dd = null;
+			
+			if (node.isInstanceOf('Drag')) {
+				dd = node;
+			} else {
+				var dd = new Y.DD.Drag({
+					'node': node,
+					'target': false
+				});
+				dd.plug(Y.Plugin.DDProxy, {
+					moveOnEnd: false,
+					cloneNode: true
+				});
+			}
 			
 			//Set special style to proxy node
 			dd.on('drag:start', this.ddDragStart, this);

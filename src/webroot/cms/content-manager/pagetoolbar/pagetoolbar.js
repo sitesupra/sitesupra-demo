@@ -149,6 +149,27 @@ SU(function (Y) {
 		},
 		
 		/**
+		 * Returns all butons for action
+		 * 
+		 * @param {String} active_group Action ID
+		 * @return Array with all buttons
+		 * @type {Array}
+		 */
+		getActionButtons: function (active_group) {
+			var config = this.get('buttons'),
+				buttons = [];
+			
+			if (active_group in config) {
+				config = config[active_group];
+				for(var i=0,ii=config.length; i<ii; i++) {
+					buttons.push(this.getActionButton(config[i].id));
+				}
+			}
+			
+			return buttons;
+		},
+		
+		/**
 		 * Set active group action, changes buttons to ones associated with action.
 		 * Chainable
 		 * 

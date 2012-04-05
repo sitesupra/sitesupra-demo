@@ -4,28 +4,29 @@
 SU('supra.calendar', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager;
-	var Action = Manager.Action;
-	var Loader = Manager.Loader;
-	
+	var Manager = SU.Manager,
+		Action = Manager.Action,
+		Loader = Manager.Loader,
+		YDate = Y.DataType.Date;
 	
 	//Calendar dates
 	var DEFAULT_DATES = [
 		{
-			'date': Y.DataType.Date.format(new Date(), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'date': YDate.reformat(new Date(), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['schedule_sidebar', 'select_today'])
 		},
 		{
-			'date': Y.DataType.Date.format(new Date(+new Date() + 86400000), Supra.Calendar.INTERNAL_DATE_FORMAT),
+			'date': YDate.reformat(new Date(+new Date() + 86400000), 'raw', 'in_date'),
 			'title': Supra.Intl.get(['schedule_sidebar', 'select_tomorrow'])
 		}
 	];
 	
 	//Add as right bar child
-	Manager.getAction('LayoutRightContainer').addChildAction('Schedule');
+	Manager.getAction('BannerEdit').addChildAction('Schedule');
+	
 	
 	//Create Action class
-	new Action({
+	new Action(Action.PluginLayoutSidebar, {
 		
 		/**
 		 * Unique action name
@@ -46,6 +47,13 @@ SU('supra.calendar', function (Y) {
 		 * @private
 		 */
 		HAS_TEMPLATE: true,
+		
+		/**
+		 * Layout container action NAME
+		 * @type {String}
+		 * @private
+		 */
+		LAYOUT_CONTAINER: 'LayoutRightContainer',
 		
 		
 		
@@ -83,26 +91,14 @@ SU('supra.calendar', function (Y) {
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
-			this.on('visibleChange', function (evt) {
-				if (evt.newVal != evt.prevVal) {
-					if (evt.newVal) {
-						this.one().removeClass('hidden');
-					} else {
-						this.one().addClass('hidden');
-					}
-				}
-			}, this);
-			
 			//Buttons
+			/*
 			var buttons = this.all('button');
-			
-			this.button_close = new Supra.Button({'srcNode': buttons.filter('.button-save').item(0), 'style': 'small-blue'});
-			this.button_close.render();
-			this.button_close.on('click', this.close, this);
 			
 			this.button_remove = new Supra.Button({'srcNode': buttons.filter('.button-remove-schedule').item(0), 'style': 'small'});
 			this.button_remove.render();
 			this.button_remove.on('click', this.cancel, this);
+			*/
 			
 			//Create calendars
 			this.calendarFrom = new Supra.Calendar({
@@ -125,6 +121,9 @@ SU('supra.calendar', function (Y) {
 			});
 			this.calendarTo.render();
 			
+			
+			//Control button
+			this.get('controlButton').on('click', this.close, this);
 		},
 		
 		/**
@@ -184,9 +183,9 @@ SU('supra.calendar', function (Y) {
 			this.calendarFrom.set('date', data.from);
 			this.calendarFrom.set('displayDate', data.from);
 			
-			this.calendarTo.set('minDate', data.from);
 			this.calendarTo.set('date', data.to);
 			this.calendarTo.set('displayDate', data.to);
+			this.calendarTo.set('minDate', data.from);
 			
 			this.calendarFrom.set('noAnimations', false);
 			this.calendarTo.set('noAnimations', false);
@@ -204,16 +203,12 @@ SU('supra.calendar', function (Y) {
 		 */
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
-			//Hide action
-			Manager.getAction('LayoutRightContainer').unsetActiveAction(this.NAME);
 		},
 		
 		/**
 		 * Execute action
 		 */
 		execute: function (data, callback) {
-			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
-			
 			this.setData(data || {});
 			this.callback = callback;
 		}

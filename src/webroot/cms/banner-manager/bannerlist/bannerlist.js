@@ -10,7 +10,7 @@ SU.addModule('website.list-dd', {
 /**
  * Main manager action, initiates all other actions
  */
-Supra('website.list-dd', 'supra.languagebar', function (Y) {
+Supra('website.list-dd', 'supra.list', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -76,11 +76,23 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		banner_index: 0,
 		
 		/**
-		 * Language bar widget instance
+		 * Language selector
 		 * @type {Object}
 		 * @private
 		 */
-		languagebar: null,
+		languageSelector: null,
+		
+		/**
+		 * New banner button, Supra.ListNewItem instance
+		 * @type {Object}
+		 * @private
+		 */
+		newBanner: null,
+		
+		/**
+		 * Selected group ID
+		 */
+		groupId: null,
 		
 		
 		
@@ -91,16 +103,10 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		 */
 		render: function () {
 			//Set default buttons
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
-			//Create list group select
-			this.select = new Supra.Input.SelectList();
-			this.select.render(this.one('div.list-group-select'));
-			this.select.on('change', this.fillBannerList, this);
-			
-			//Create languagebar
-			this.initializeLanguageBar();
+			//Language selector
+			this.languageSelector = this.renderLanguageSelector();
 			
 			//Load banners
 			this.load();
@@ -140,23 +146,37 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		},
 		
 		/**
-		 * Create language bar
+		 * Render language bar widget
 		 * 
 		 * @private
 		 */
-		initializeLanguageBar: function () {
-			//Create language bar
-			this.languagebar = new SU.LanguageBar({
-				'locale': SU.data.get('locale'),
-				'contexts': SU.data.get('contexts'),
-				'localeLabel': SU.Intl.get(['list', 'viewing_banners'])
+		renderLanguageSelector: function () {
+			//Get locales
+			var locale = Supra.data.get('locale'),
+				contexts = Supra.data.get('contexts'),
+				values = [],
+				widget = null;
+			
+			for(var i=0,ii=contexts.length; i<ii; i++) {
+				values = values.concat(contexts[i].languages);
+			}
+			
+			//Create widget
+			widget = new Supra.Input.SelectList({
+				'label': Supra.Intl.get(['sitemap', 'select_language']),
+				'values': values,
+				'value': locale
 			});
-			this.languagebar.on('localeChange', function (evt) {
+			
+			widget.render(this.one('.languages'));
+			
+			widget.set('value', locale);
+			
+			widget.after('valueChange', function (evt) {
 				Supra.data.set('locale', evt.newVal);
 			}, this);
 			
-			//Render language bar
-			this.languagebar.render(this.one('.languages'));
+			return widget;
 		},
 		
 		/**
@@ -184,16 +204,39 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		 */
 		fillGroupList: function (data /* Banner list */, status /* Request response status */) {
 			if (status && data) {
+				var buttons = [];
+				
 				//Save data, will be used if creating new banner
 				this.data = data;
 				
 				//Set groups
 				var values = [],
 					i = 0,
-					ii = data.length;
+					ii = data.length,
+					toolbar = Supra.Manager.PageToolbar,
+					buttons = toolbar.getActionButtons(this.NAME);
 				
-				for(; i<ii; i++) values.push({'id': data[i].group_id, 'title': data[i].title});
-				this.select.set('values', values);
+				if (!buttons.length) {
+					for(; i<ii; i++) {
+						buttons.push({
+							'id': data[i].group_id,
+							'type': 'button',
+							'title': data[i].title,
+							'icon': '/cms/banner-manager/bannerlist/images/icon-banner.png',
+							'action': this.NAME,
+							'actionFunction': 'setBannerGroup'
+						});
+						
+						if (!this.groupId) {
+							this.groupId = data[i].group_id;
+						}
+					}
+					
+					toolbar.addActionButtons(this.NAME, buttons);
+					toolbar.setActiveAction(this.NAME);
+					
+					this.setBannerGroup(this.groupId, true);
+				}
 				
 				//Banner hover
 				var container = this.one('div.list-banners');
@@ -205,11 +248,30 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 					container.removeClass('hover');
 				}, 'div.size0 > div', this);
 				
-				this.fillBannerList(this.select.get('value'));
+				this.fillBannerList(this.groupId);
 			}
 			
 			//Hide loading icon
 			Y.one('body').removeClass('loading');
+		},
+		
+		setBannerGroup: function (groupId, silent) {
+			var toolbar = Supra.Manager.PageToolbar,
+				buttons = toolbar.getActionButtons(this.NAME);
+			
+			for(var i=0,ii=buttons.length; i<ii; i++) {
+				if (buttons[i].get('topbarButtonId') == groupId) {
+					buttons[i].set('down', true);
+				} else {
+					buttons[i].set('down', false);
+				}
+			}
+			
+			this.groupId = groupId;
+			
+			if (!silent) {
+				this.fillBannerList(this.groupId);
+			}
 		},
 		
 		/**
@@ -284,6 +346,18 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
+			//New item dragable node
+			this.newBanner = new Supra.ListNewItem({
+				'srcNode': this.one('.list-add'),
+				'title': Supra.Intl.get(['userlist', 'new']),
+				'dndGroups': ['default']
+			});
+			
+			this.newBanner.on('insert:click', this.addNewBanner, this)
+			
+			this.newBanner.render();
+			
+			//List DnD
 			this.plug(Supra.ListDD, {
 				'dragContainerSelector': 'div.main-list',
 				'proxyClass': 'list-proxy',
@@ -292,11 +366,9 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 			
 			this.dd.addDrop(this.one('div.list-banners'));
 			
-			this.dd.addDrag(this.one('div.list-add'));
+			this.dd.addDrag(this.newBanner.getDrag());
 			
 			this.dd.on('drop', this.addNewBanner, this);
-			
-			this.one('div.list-add').on('click', this.addNewBanner, this);
 		},
 		
 		/**
@@ -305,7 +377,7 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 		 * @private
 		 */
 		addNewBanner: function (e /* Event */) {
-			var group_id = this.select.getValue();
+			var group_id = this.groupId;
 			Supra.Manager.executeAction('BannerEdit', null, group_id);
 			this.hide();
 		},
@@ -318,7 +390,7 @@ Supra('website.list-dd', 'supra.languagebar', function (Y) {
 			var toolbar = Manager.getAction('PageToolbar'),
 				buttons = Manager.getAction('PageButtons');
 			
-			if (toolbar.get('created')) {
+			if (toolbar.get('created') && toolbar.getActionButtons(this.NAME).length) {
 				toolbar.setActiveAction(this.NAME);
 			}
 			if (buttons.get('created')) {

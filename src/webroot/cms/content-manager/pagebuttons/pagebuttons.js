@@ -280,6 +280,17 @@ SU('anim', function (Y) {
 		},
 		
 		/**
+		 * Returns all butons for action
+		 * 
+		 * @param {String} active_group Action ID
+		 * @return Array with all buttons
+		 * @type {Array}
+		 */
+		getActionButtons: function (active_group) {
+			return active_group in this.buttons ? this.buttons[active_group] : [];
+		},
+		
+		/**
 		 * Display buttons for action
 		 * 
 		 * @param {String} action_id Action ID

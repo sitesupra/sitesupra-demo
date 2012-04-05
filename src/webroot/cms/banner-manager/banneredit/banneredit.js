@@ -104,6 +104,13 @@ Supra(function (Y) {
 		 */
 		button_delete: null,
 		
+		/**
+		 * Scrollable
+		 * @type {Object}
+		 * @private
+		 */
+		scrollable: null,
+		
 		
 		
 		/**
@@ -112,6 +119,12 @@ Supra(function (Y) {
 		 * @private
 		 */
 		render: function () {
+			//Scrollable
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.one('.banner-inner')
+				});
+				this.scrollable.render();
+			
 			//Set default buttons
 				Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 					{
@@ -137,7 +150,7 @@ Supra(function (Y) {
 			//Target button
 				var button = new Supra.Button({
 					'srcNode': this.one('fieldset.target button'),
-					'style': 'group'
+					'style': 'small'
 				});
 				button.addClass('su-button-first').addClass('su-button-last');
 				button.render();
@@ -147,7 +160,7 @@ Supra(function (Y) {
 			//Schedule button
 				button = new Supra.Button({
 					'srcNode': this.one('fieldset.schedule button'),
-					'style': 'group'
+					'style': 'small'
 				});
 				button.addClass('su-button-first').addClass('su-button-last');
 				button.render();
@@ -370,6 +383,7 @@ Supra(function (Y) {
 			
 			if (image.id) {
 				img.setAttribute('src', image.external_path);
+				img.setAttribute('height', image.height);
 				container.removeClass('hidden');
 				
 				if (image.width > image.height) {
@@ -380,6 +394,8 @@ Supra(function (Y) {
 			} else {
 				container.addClass('hidden');
 			}
+			
+			this.scrollable.syncUI();
 		},
 		
 		/**
@@ -580,6 +596,7 @@ Supra(function (Y) {
 			}
 			
 			this.show();
+			this.scrollable.syncUI();
 		}
 	});
 	
