@@ -381,7 +381,9 @@ YUI.add("website.input-keywords", function (Y) {
 			
 			//Validate
 			keyword = Y.Lang.trim(keyword);
-			if (!keyword.length || Y.Array.indexOf(keywords, keyword) != -1) {
+			if (!keyword.length 
+				|| Y.Array.indexOf(keywords, keyword) != -1
+				|| keyword.split(/\s+/).length > 5) {
 				return;
 			}
 			
