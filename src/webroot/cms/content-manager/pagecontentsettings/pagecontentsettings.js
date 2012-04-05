@@ -24,9 +24,6 @@ Supra(function (Y) {
 	 * shows / hides other LayoutRightContainer child actions when action is shown / hidden
 	 */
 	
-	//Add as right bar child
-	Manager.getAction('LayoutRightContainer').addChildAction('PageContentSettings');
-	
 	new Action(Action.PluginLayoutSidebar, {
 		// Unique action name
 		NAME: 'PageContentSettings',

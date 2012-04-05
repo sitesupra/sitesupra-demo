@@ -95,6 +95,18 @@
 			Supra.data.set(target, Supra.Y.mix(source, Supra.data.get(target, {}), false, null, 0, 2));
 		},
 		
+		/**
+		 * Add function which will handle property change
+		 * 
+		 * @param {String} property Property name
+		 * @param {Function} handler Handler function
+		 */
+		registerHandler: function (property, handler) {
+			if (Y.Lang.isFunction(handler)) {
+				this['_' + name + 'Change'] = handler;
+			}
+		},
+		
 		
 		
 		/**

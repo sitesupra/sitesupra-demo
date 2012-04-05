@@ -21,6 +21,15 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		scrollable: null,
 		
 		
+		/**
+		 * Set as sidebar child
+		 */
+		create: function () {
+			//Add as right bar child
+			if (this.host.LAYOUT_CONTAINER) {
+				Manager.getAction(this.host.LAYOUT_CONTAINER).addChildAction(this.host.NAME);
+			}
+		},
 		
 		/**
 		 * Initialize plugin

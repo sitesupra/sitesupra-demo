@@ -11,9 +11,6 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 	var SLIDE_ROOT = 'slideMain',
 		ICON_GROUP_PATH = '/cms/lib/supra/img/blocks/icons-groups/';
 	
-	//Add as left bar child
-	Manager.getAction('LayoutLeftContainer').addChildAction('PageInsertBlock');
-	
 	/**
 	 * Sidebar panel action to Insert new block 
 	 * Actual block information is taken from Blocks action

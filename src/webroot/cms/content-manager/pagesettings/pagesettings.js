@@ -26,9 +26,6 @@ SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.cale
 	var SLIDE_ROOT = 'slideMain';
 	
 	
-	//Add as right bar child
-	Manager.getAction('LayoutRightContainer').addChildAction('PageSettings');
-	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		

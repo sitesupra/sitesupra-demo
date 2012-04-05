@@ -364,6 +364,7 @@ YUI.add('supra.slideshow', function (Y) {
 					slide.removeClass('hidden');
 					this.history.push(slideId);
 					this.set('slide', slideId, {'silent': true});
+					this.syncUI();
 				}
 				
 				return slide;

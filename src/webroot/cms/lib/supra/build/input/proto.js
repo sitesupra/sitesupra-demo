@@ -509,7 +509,7 @@ YUI.add('supra.input-proto', function (Y) {
 		 * @type {String}
 		 */
 		toString: function () {
-			return String(this.getValue());
+			return String(this.getValue() || '');
 		}
 		
 	});

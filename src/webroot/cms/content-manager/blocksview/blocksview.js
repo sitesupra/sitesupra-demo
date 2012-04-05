@@ -8,9 +8,6 @@ SU(function (Y) {
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
-	//Add as right bar child
-	Manager.getAction('LayoutRightContainer').addChildAction('BlocksView');
-	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		

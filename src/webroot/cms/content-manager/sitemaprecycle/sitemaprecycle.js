@@ -7,9 +7,6 @@ SU('anim', 'transition', function (Y) {
 	var Manager = SU.Manager,
 		Action = Manager.Action;
 	
-	//Add as right bar child
-	Manager.getAction('LayoutLeftContainer').addChildAction('SiteMapRecycle');
-	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		

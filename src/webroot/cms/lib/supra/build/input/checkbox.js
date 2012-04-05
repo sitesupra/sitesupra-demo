@@ -38,14 +38,6 @@ YUI.add("supra.input-checkbox", function (Y) {
 	};
 	Input.ATTRS = {
 		/**
-		 * Selecting multiple values is not allowed
-		 */
-		'multiple': {
-			readOnly: true,
-			value: false
-		},
-		
-		/**
 		 * Value/option list
 		 */
 		'labels': {

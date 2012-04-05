@@ -644,6 +644,9 @@ YUI.add('supra.manager-action-base', function (Y) {
          * @private
 		 */
 		_preInitialize: function () {
+			//Initialize plugins
+			this.plugins.create();
+			
 			//Insert template into DOM
 			if (this.template) {
 				var container = this.getPlaceHolder();

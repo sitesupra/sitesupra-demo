@@ -13,18 +13,25 @@ YUI.add('supra.template', function (Y) {
 	 * @type {Function}
 	 */
 	function Template (id, data) {
+		if (!id && id !== '') return null;
+		
 		var source = null,
 			template = id ? cache[id] : null;
 		
 		if (template) {
 			return data ? template(data) : template;
 		}
-		
-		var node = Y.one('#' + id);
-		if (!node) {
-			node = Y.one(id);
-			if (node) {
-				id = node.getAttribute('id');
+
+		if (id.isInstanceOf && id.isInstanceOf('Node')) {
+			node = id;
+			id = node.getAttribute('id');
+		} else if (typeof id == 'string') {
+			var node = Y.one('#' + id);
+			if (!node) {
+				node = Y.one(id);
+				if (node) {
+					id = node.getAttribute('id');
+				}
 			}
 		}
 		

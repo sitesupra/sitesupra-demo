@@ -8,9 +8,6 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
-	//Add as left bar child
-	Manager.getAction('LayoutLeftContainer').addChildAction('MediaSidebar');
-	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		

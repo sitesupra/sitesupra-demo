@@ -513,6 +513,7 @@ YUI.add("supra.form", function (Y) {
 		 * @param {String} id
 		 * @param {Object} value
 		 * @param {Object} out
+		 * @private
 		 */
 		unserializeItem: function (id, value, out, skip_decode) {
 			var m, name, is_string;

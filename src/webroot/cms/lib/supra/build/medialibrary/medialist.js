@@ -537,6 +537,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					}
 				}, this);
 			}
+			
+			this.slideshow.on('slideChange', function (evt) {
+				var slide = this.slideshow.getSlide(evt.newVal);
+				if (slide) {
+					slide.all('li').removeClass('selected');
+				}
+			}, this);
 		},
 		
 		/**

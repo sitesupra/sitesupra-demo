@@ -195,7 +195,9 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 			
 			//Change action place holder
 			var action = Manager.getAction(actionId);
-			action.hide();
+			if (action.get('visible')) {
+				action.hide();
+			}
 			action.setPlaceHolder(this.get('contentBox'));
 			
 			//Call super class method

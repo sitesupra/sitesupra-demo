@@ -9,8 +9,6 @@ YUI.add('supra.manager-action-plugin-base', function (Y) {
 	function PluginBase (host) {
 		this.host = host;
 		this.instances = {};
-		
-		this.placeholders = host.getContainers();
 	};
 	
 	PluginBase.NAME = 'PluginBase';
@@ -93,6 +91,21 @@ YUI.add('supra.manager-action-plugin-base', function (Y) {
 		 */
 		getWidgets: function () {
 			return this.instances;
+		},
+		
+		/**
+		 * Actions create phase
+		 */
+		create: function () {
+		},
+		
+		/**
+		 * Set placeholders, this shouldn't be overwritten
+		 * @private
+		 */
+		initializeBase: function () {
+			//Set placeholders
+			this.placeholders = this.host.getContainers();
 		},
 		
 		/**

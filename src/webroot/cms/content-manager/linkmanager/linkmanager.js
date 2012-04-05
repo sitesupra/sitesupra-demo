@@ -434,6 +434,9 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 					
 					//Reload data
 						this.medialist.reload();
+					
+					//Update slideshow
+						this.medialist.slideshow.syncUI();
 				}
 			},
 		},

@@ -19,6 +19,7 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 		this.plugins = plugins || [];
 		this.instances = {};
 		this.initialized = false;
+		this.created = false;
 	};
 	
 	PluginManager.prototype = {
@@ -27,6 +28,12 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 		 * @type {Boolean}
 		 */
 		initialized: false,
+		
+		/**
+		 * Created state
+		 * @type {Boolean}
+		 */
+		created: false,
 		
 		/**
 		 * Action object
@@ -63,25 +70,11 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 		},
 		
 		/**
-		 * Render plugins
+		 * Call create on plugins for compatibility with action
 		 */
-		render: function () {
-			var host = this.host,
-				instances = this.instances;
-			
-			for(var i in instances) {
-				instances[i].render();
-			}
-			
-			host.fire('plugins:render');
-		},
-		
-		/**
-		 * @constructor
-		 */
-		initialize: function () {
-			if (this.initialized) return;
-			this.initialized = true;
+		create: function () {
+			if (this.created) return;
+			this.created = true;
 			
 			var host = this.host,
 				plugins = this.plugins,
@@ -107,12 +100,44 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 					this.instances[plugin_id] = plugin;
 					
 					//Initialize
-					plugin.initialize();
+					plugin.create();
 				} else {
 					//Debug info
 					var trace_path = SU.Manager.Loader.getActionInfo(host.NAME).path_script;
 					Y.log('Plugin ' + plugins[i].NAME || '"unnamed"' + ' is not subclass of PluginBase. Used in action ' + host.NAME + ' (' + trace_path + ')', 'error');
 				}
+			}
+			
+			host.fire('plugins:create');
+		},
+		
+		/**
+		 * Render plugins
+		 */
+		render: function () {
+			var host = this.host,
+				instances = this.instances;
+			
+			for(var i in instances) {
+				instances[i].render();
+			}
+			
+			host.fire('plugins:render');
+		},
+		
+		/**
+		 * @constructor
+		 */
+		initialize: function () {
+			if (this.initialized) return;
+			this.initialized = true;
+			
+			var host = this.host,
+				instances = this.instances;
+			
+			for(var i in instances) {
+				instances[i].initializeBase();
+				instances[i].initialize();
 			}
 			
 			host.fire('plugins:initialize');

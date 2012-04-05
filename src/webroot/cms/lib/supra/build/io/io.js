@@ -32,6 +32,11 @@ YUI().add("supra.io", function (Y) {
 			cfg._data = cfg.data = {};
 		}
 		
+		//Convert Supra.Form into data
+		if (cfg.data.isInstanceOf && cfg.data.isInstanceOf('form')) {
+			cfg.data = cfg.data.getSaveValues();
+		}
+		
 		var sid_name = SU.data.get('sessionName', null),
 			sid_id = SU.data.get('sessionId', null);
 			

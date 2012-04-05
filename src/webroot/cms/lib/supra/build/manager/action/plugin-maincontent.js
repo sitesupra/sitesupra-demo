@@ -23,6 +23,12 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
 				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
 			
+			//Position
+			this.host.one().setStyle({
+				'position': 'absolute',
+				'bottom': '0px'
+			});
+			
 			//Container position sync with other actions
 			this.host.plug(SU.PluginLayout, {
 				'offset': [0, 0, 0, 0]	//Default offset from page viewport

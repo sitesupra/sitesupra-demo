@@ -9,9 +9,6 @@ SU('anim', function (Y) {
 	var Loader = Manager.Loader;
 	var YDate = Y.DataType.Date;
 	
-	//Add as right bar child
-	Manager.getAction('LayoutLeftContainer').addChildAction('PageHistory');
-	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		
