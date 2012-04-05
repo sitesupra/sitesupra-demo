@@ -178,7 +178,6 @@
 		border-radius: 3px 3px 3px 3.1px;	/* 3.1px is for IE9 fix */
 		
 		span {
-			cursor: pointer;
 			text-overflow: hidden;
 			vertical-align: middle;
 			
@@ -190,6 +189,18 @@
 			
 			background: #36333E url(modules/assets/icon-remove.gif) 100% 0 no-repeat;
 			.border-radius (5px);
+
+			position: relative;
+
+			a {
+				display: inline-block;
+				width: 15px;
+				height: 15px;
+
+				position: absolute;
+				top: 0;
+				right: 0;
+			}
 		}
 		
 		input {
@@ -224,6 +235,7 @@
 				background: #393846;
 				padding: 0 8px;
 				margin: 0 4px 8px 0;
+				cursor: pointer;
 			}
 
 			.suggestion-msg {

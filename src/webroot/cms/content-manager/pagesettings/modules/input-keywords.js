@@ -111,7 +111,7 @@ YUI.add("website.input-keywords", function (Y) {
 				inputNode = this.get('inputNode');
 			
 			//On keyword click remove it
-			inputListNode.delegate('click', this._onRemoveKeyword, 'span', this);
+			inputListNode.delegate('click', this._onRemoveKeyword, 'a', this);
 			
 			//On click inside focus on input
 			inputListNode.on('click', this.focus, this);
@@ -160,6 +160,7 @@ YUI.add("website.input-keywords", function (Y) {
 					tempNode = Y.Node.create('<span></span>');
 					tempNode.set('text', keywords[i]);
 					tempNode.setAttribute('data-keyword', keywords[i]);
+					tempNode.appendChild('<a></a>');
 					inputListNode.prepend(tempNode);
 				}
 			}
@@ -373,7 +374,7 @@ YUI.add("website.input-keywords", function (Y) {
 			var keywords = this.get('keywords'),
 				inputNode = this.get('inputNode'),
 				tempNode = Y.Node.create('<span></span>');
-			
+							
 			if (!keywords) {
 				keywords = [];
 				this.set('keywords', keywords);
@@ -393,6 +394,7 @@ YUI.add("website.input-keywords", function (Y) {
 			//Add node
 			tempNode.set('text', keyword);
 			tempNode.setAttribute('data-keyword', keyword);
+			tempNode.appendChild('<a></a>');
 			
 			inputNode.insert(tempNode, 'before');
 			
