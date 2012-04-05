@@ -94,22 +94,24 @@ class PageAction extends PageManagerAction
 		}
 
 		$request->setPageLocalization($pageData);
-		$templateError = false;
+		$templateError = null;
 
 		// TODO: handling?
 		if ($pageData->getTemplate() != null) {
 			ObjectRepository::beginControllerContext($controller);
 			try {
 				$controller->execute($request);
+			} catch (\Twig_Error_Loader $e) {
+				$templateError = $e;
 			} catch (LayoutNotFound $e) {
-				$templateError = true;
+				$templateError = $e;
 			} catch (\Exception $e) {
 				ObjectRepository::endControllerContext($controller);
 				throw $e;
 			}
 			ObjectRepository::endControllerContext($controller);
 		} else {
-			$templateError = true;
+			$templateError = new \RuntimeException("No template is chosen");
 		}
 
 		$pathPart = null;
@@ -150,12 +152,12 @@ class PageAction extends PageManagerAction
 						'img' => '/cms/lib/supra/img/templates/template-3-small.png',
 					);
 				} else {
-					$templateError = true;
+					$templateError = new \RuntimeException("No template localization was found");
 					//TODO: warn
 //					throw new \Supra\Controller\Pages\Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
 				}
 			} else {
-				$templateError = true;
+				$templateError = new \RuntimeException("No template entity was assigned or found");
 				//TODO: warn
 			}
 			
@@ -252,7 +254,9 @@ class PageAction extends PageManagerAction
 			'published' => $isPublished,
 		);
 
-		if ($templateError) {
+		if ( ! is_null($templateError)) {
+			$this->log->warn("Page could not be shown in CMS because of exception:\n", $templateError);
+			
 			$array['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
 		}
 
@@ -279,7 +283,7 @@ class PageAction extends PageManagerAction
 		$placeHolderSet = array();
 		$blockSet = new \Supra\Controller\Pages\Set\BlockSet();
 
-		if ( ! $templateError) {
+		if (is_null($templateError)) {
 			$placeHolderSet = $request->getPlaceHolderSet()
 					->getFinalPlaceHolders();
 			$blockSet = $request->getBlockSet();
