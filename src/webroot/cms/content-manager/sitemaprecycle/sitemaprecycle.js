@@ -64,6 +64,13 @@ SU('anim', 'transition', function (Y) {
 				}
 			}, this);
 			
+			//On mode change reload data
+			Manager.SiteMap.tree.on('modeChange', function (evt) {
+				if (evt.newVal != evt.prevVal) {
+					this.load(evt.newVal, null);
+				}
+			}, this);
+			
 			//When page is restore, send request
 			Manager.SiteMap.tree.on('page:restore', this.onPageRestore, this);
 			
@@ -85,34 +92,42 @@ SU('anim', 'transition', function (Y) {
 				node = null,
 				last_title = '';
 			
-			//Set date titles
-			for(var i=0,ii=data.length; i<ii; i++) {
-				data[i].date_title = this.dateToTitle(data[i].date);
-				data[i].date_diff = (last_title != data[i].date_title);
-				last_title = data[i].date_title;
+			if (data.length) {
+				//Set date titles
+				for(var i=0,ii=data.length; i<ii; i++) {
+					data[i].date_title = this.dateToTitle(data[i].date);
+					data[i].date_diff = (last_title != data[i].date_title);
+					last_title = data[i].date_title;
+				}
+				
+				html = Supra.Template('recycleItemList', {'items': data});
+				
+				container.set('innerHTML', html);
+				
+				for(var i=0,ii=treenodes.length; i<ii; i++) {
+					treenodes[i].destroy();
+				}
+				this.treenodes = treenodes = [];
+				
+				for(var i=0,ii=data.length; i<ii; i++) {
+					node = container.one('li[data-id="' + data[i].id + '"] p.title');
+					
+					//Attributes
+					data[i].state = data[i].state || (data[i].published ? 'published' : 'draft');
+					
+					//Data
+					data[i].full_path = data[i].full_path || '';
+					
+					this.bindItem(node, data[i]);
+				}
+			} else {
+				//No items
+				html = Supra.Template('recycleItemEmpty', {});
+				container.set('innerHTML', html);
 			}
 			
-			html = Supra.Template('recycleItemList', {'items': data});
-			
-			container.set('innerHTML', html);
+			//Hide loading icon
 			this.one().removeClass('loading');
-			
-			for(var i=0,ii=treenodes.length; i<ii; i++) {
-				treenodes[i].destroy();
-			}
-			this.treenodes = treenodes = [];
-			
-			for(var i=0,ii=data.length; i<ii; i++) {
-				node = container.one('li[data-id="' + data[i].id + '"] p.title');
-				
-				//Attributes
-				data[i].state = data[i].state || (data[i].published ? 'published' : 'draft');
-				
-				//Data
-				data[i].full_path = data[i].full_path || '';
-				
-				this.bindItem(node, data[i]);
-			}
 		},
 		
 		/**

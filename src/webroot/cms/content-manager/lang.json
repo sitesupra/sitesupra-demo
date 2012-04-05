@@ -249,8 +249,13 @@
 			"button": "Sitemap",
 			
 			"undo_history": "Undo history",
-			"recycle_bin": "Recycle bin",
 			"drag_n_drop": "Drag-and-drop",
+			
+			"recycle_bin": {
+				"title": "Recycle bin",
+				"empty": "Your recycle bin is empty",
+				"drag_n_drop": "Drag and drop to restore"
+			},
 			
 			"select_language": "Select language",
 			

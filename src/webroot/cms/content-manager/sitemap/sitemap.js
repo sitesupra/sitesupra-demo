@@ -178,13 +178,7 @@ function (Y) {
 			this.locale = Supra.data.get('locale');
 			
 			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [/*{
-				'id': 'recyclebin',
-				'title': SU.Intl.get(['sitemap', 'recycle_bin']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
-				
-				'action': 'SiteMapRecycle'
-			}, */{
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
 				'id': 'mode_pages',
 				'type': 'button',
 				'title': SU.Intl.get(['sitemap', 'pages']),
