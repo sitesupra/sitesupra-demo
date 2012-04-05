@@ -400,18 +400,21 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 * @private
 		 */
 		'_setHighlighted': function (e) {
+			var newVal = (e.newVal && !e.newVal.get('destroyed') ? e.newVal : null),
+				prevVal = (e.prevVal && !e.prevVal.get('destroyed') ? e.prevVal : null);
+			
 			if (!e.silent) {
-				if (e.newVal) {
-					e.newVal.set('highlighted', true, {'silent': true});
+				if (newVal) {
+					newVal.set('highlighted', true, {'silent': true});
 				}
-				if (e.prevVal) {
-					e.prevVal.set('highlighted', false, {'silent': true});
+				if (prevVal) {
+					prevVal.set('highlighted', false, {'silent': true});
 				}
-			} else if (e.newVal && e.prevVal) {
-				e.prevVal.set('highlighted', false, {'silent': true});
+			} else if (newVal && prevVal) {
+				prevVal.set('highlighted', false, {'silent': true});
 			}
 			
-			if (e.newVal) {
+			if (newVal) {
 				this.get('boundingBox').addClass(this.getClassName('highlighted'));
 			} else {
 				this.get('boundingBox').removeClass(this.getClassName('highlighted'));
@@ -419,7 +422,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 			
 			//Prevent drag and drop during highlight
 			for(var i=0, ii=this.size(); i<ii; i++) {
-				this.item(i).set('dndLocked', e.newVal);
+				this.item(i).set('dndLocked', newVal);
 			}
 		},
 		
@@ -449,7 +452,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 		'_setVisibilityRootNode': function (event) {
 			if (event.newVal !== event.prevVal) {
 				if (event.prevVal && event.prevVal.get('visibilityRoot')) {
-					event.prevVal.set('visibilityRoot', false);
+					
+					if (!event.prevVal.get('destroyed')) {
+						event.prevVal.set('visibilityRoot', false);
+					}
 				}
 				if (event.newVal && !event.newVal.get('visibilityRoot')) {
 					event.newVal.set('visibilityRoot', true);
@@ -771,6 +777,14 @@ YUI().add('website.sitemap-tree', function (Y) {
 			
 			node._children = [];
 			if (node._index) node._index = {};
+			
+			if (this.get('highlighted')) {
+				this.set('highlighted', false);
+			}
+			
+			if (this.get('visibilityRootNode')) {
+				this.set('visibilityRootNode', null);
+			}
 			
 			//Update arrows
 			this.get('view').checkOverflow();
