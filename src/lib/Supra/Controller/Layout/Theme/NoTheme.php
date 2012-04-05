@@ -67,4 +67,9 @@ class NoTheme implements ThemeInterface
 		throw new Exception\RuntimeException('Not implemented.');
 	}
 
+	public function generateCssFiles()
+	{
+		throw new Exception\RuntimeException('Not implemented.');
+	}
+
 }

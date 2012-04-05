@@ -12,21 +12,27 @@ use Supra\Template\Parser\Twig\Loader\FilesystemLoaderByContext;
  */
 class TwigResponse extends HttpResponse
 {
+
 	/**
 	 * @var array
 	 */
 	protected $templateVariables = array();
-	
+
 	/**
 	 * @var mixed
 	 */
 	protected $loaderContext;
-	
+
 	/**
 	 * @var Twig
 	 */
 	protected $twigEnvironment;
-	
+
+	/**
+	 * @var mixed
+	 */
+	protected $loader;
+
 	/**
 	 * Can set context classname or object to search for the templates there
 	 * @param mixed $loaderContext
@@ -34,20 +40,20 @@ class TwigResponse extends HttpResponse
 	public function __construct($loaderContext = null)
 	{
 		parent::__construct();
-		
+
 		$this->loaderContext = $loaderContext;
 		$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
-		
+
 		if ( ! $this->twigEnvironment instanceof Twig) {
 			throw new Exception\IncompatibleObject("Twig response object must have Twig template parser assigned");
 		}
 	}
-	
+
 	public function __sleep()
 	{
 		return parent::__sleep();
 	}
-	
+
 	/**
 	 * Override loader context
 	 * @param mixed $loaderContext
@@ -56,7 +62,12 @@ class TwigResponse extends HttpResponse
 	{
 		$this->loaderContext = $loaderContext;
 	}
-		
+
+	public function setLoader($loader)
+	{
+		$this->loader = $loader;
+	}
+
 	/**
 	 * @return Twig
 	 */
@@ -72,18 +83,20 @@ class TwigResponse extends HttpResponse
 	public function outputTemplate($templateName)
 	{
 		$loader = null;
-		
-		if ( ! is_null($this->loaderContext)) {
-			$loader = new FilesystemLoaderByContext($this->loaderContext);
+
+		if ( ! is_null($this->loader)) {
+			$loader = $this->loader;
+		} else {
+			
+			if ( ! is_null($this->loaderContext)) {
+				$loader = new FilesystemLoaderByContext($this->loaderContext);
+			}
 		}
-		
-		$content = $this->twigEnvironment->parseTemplate($templateName, 
-				$this->templateVariables,
-				$loader);
+		$content = $this->twigEnvironment->parseTemplate($templateName, $this->templateVariables, $loader);
 
 		$this->output($content);
 	}
-	
+
 	/**
 	 * Assign parameter for the Twig template
 	 * @param string $name
@@ -97,10 +110,10 @@ class TwigResponse extends HttpResponse
 		} else {
 			$this->templateVariables[$name] = $value;
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Get assigned template data
 	 * @return array

@@ -23,8 +23,6 @@ use Supra\Controller\Event\FrontControllerShutdownEventArgs;
 class FrontController
 {
 
-	const EVENT_FRONTCONTROLLER_SHUTDOWN = 'onFrontControlerShutdown';
-
 	/**
 	 * Singleton instance
 	 * @var FrontController
@@ -143,7 +141,7 @@ class FrontController
 		$shutdownEventArgs = new FrontControllerShutdownEventArgs();
 		$shutdownEventArgs->frontController = $this;
 
-		$eventManager->fire(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $shutdownEventArgs);
+		$eventManager->fire(FrontControllerShutdownEventArgs::frontControllerShutdownEvent, $shutdownEventArgs);
 	}
 
 	/**

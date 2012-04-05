@@ -12,6 +12,7 @@ class ThemeProviderConfiguration implements ConfigurationInterface
 	public $isDefault;
 	public $class;
 	public $themes;
+	public $assetsPath;
 
 	public function configure()
 	{
@@ -31,6 +32,8 @@ class ThemeProviderConfiguration implements ConfigurationInterface
 			$themeConfiguration->configure();
 
 			$theme = $themeConfiguration->getTheme();
+			
+			$theme->setAssetsPath($this->assetsPath);
 
 			$provider->addTheme($theme);
 		}

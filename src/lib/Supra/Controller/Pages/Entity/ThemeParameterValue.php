@@ -4,6 +4,7 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Database;
 use Layout\Exception;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 
 /**
  * @Entity 
@@ -46,6 +47,12 @@ class ThemeParameterValue extends Database\Entity
 	 * @var string
 	 */
 	protected $defaultValue;
+	
+	/**
+	 *
+	 * @var ThemeParameterConfiguration
+	 */
+	protected $configuration;
 
 	public function __clone()
 	{
@@ -105,5 +112,17 @@ class ThemeParameterValue extends Database\Entity
 	{
 		$this->defaultValue = $defaultValue;
 	}
+	
+	public function getConfiguration()
+	{
+		return $this->configuration;
+	}
+
+	public function setConfiguration($configuration)
+	{
+		$this->configuration = $configuration;
+	}
+
+
 
 }

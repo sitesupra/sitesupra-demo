@@ -4,26 +4,10 @@ namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Controller\Layout\Theme\Theme;
+use Supra\Configuration\Exception;
 
 class ThemeConfiguration implements ConfigurationInterface
 {
-	/*
-	 *         name: nyancat
-	  title: Nyancat Theme
-	  description: NYANCAT FOR GREAT JUSTICE!
-	  parameters:
-	 * 
-	  - Supra\Controller\Layout\Theme\ThemeParameterConfiguration:
-	  name: headerBackgroundUrl
-	  value: /resources/themes/nyancat/images/nyancat.gif
-	 * 
-	  - Supra\Controller\Layout\Theme\EditableThemeParameterConfiguration:
-	  name: footerBackgroundUrl
-	  defaultValue: /resources/themes/nyancat/images/nyancat.gif
-	  type: url
-	  description: Soem footar bak graun UREL!
-
-	 */
 
 	/**
 	 * @var string
@@ -51,6 +35,11 @@ class ThemeConfiguration implements ConfigurationInterface
 	public $parameters;
 
 	/**
+	 * @var array
+	 */
+	public $variants;
+
+	/**
 	 * @var Theme
 	 */
 	protected $theme;
@@ -66,7 +55,7 @@ class ThemeConfiguration implements ConfigurationInterface
 		$parameterConfigurations = array();
 
 		if ( ! empty($this->parameters)) {
-			
+
 			foreach ($this->parameters as $parameterConfiguration) {
 				/* @var $parameterConfiguration ThemeParameterConfiguration */
 
@@ -76,6 +65,21 @@ class ThemeConfiguration implements ConfigurationInterface
 		}
 
 		$theme->setParameterConfigurations($parameterConfigurations);
+
+		if ( ! empty($this->variants)) {
+
+			foreach ($this->variants as $variant) {
+				/* @var $variant ThemeVariantConfiguration */
+
+				foreach (array_keys($variant->parameterValues) as $name) {
+					if ( ! isset($parameterConfigurations[$name])) {
+						throw new Exception\RuntimeException('Parameter variant "' . $variant->name . '" of theme "' . $theme->getName() . '" refers to parameter "' . $name . '" that is not present in theme parameter configuration.');
+					}
+				}
+
+				$theme->addVariant($variant->name, $variant->parameterValues);
+			}
+		}
 
 		$this->theme = $theme;
 	}

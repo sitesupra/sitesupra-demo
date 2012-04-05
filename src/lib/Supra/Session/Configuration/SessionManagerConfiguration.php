@@ -69,7 +69,7 @@ class SessionManagerConfiguration implements ConfigurationInterface
 
 		$eventManager = ObjectRepository::getEventManager();
 		$listener = new SessionManagerEventListener($sessionManager);
-		$eventManager->listen(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $listener);
+		$eventManager->listen(FrontControllerShutdownEventArgs::frontControllerShutdownEvent, $listener);
 
 		return $sessionManager;
 	}

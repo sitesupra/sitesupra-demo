@@ -35,7 +35,7 @@ class WriteableIniConfigurationLoader extends IniConfigurationLoader
 
 		$eventManager = ObjectRepository::getEventManager();
 		$listener = new WriteableIniConfigurationLoaderEventListener($this);
-		$eventManager->listen(FrontControllerShutdownEventArgs::FRONTCONTROLLER_SHUTDOWN, $listener);
+		$eventManager->listen(FrontControllerShutdownEventArgs::frontControllerShutdownEvent, $listener);
 	}
 
 	/**

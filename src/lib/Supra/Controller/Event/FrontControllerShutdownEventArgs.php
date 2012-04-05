@@ -6,8 +6,7 @@ use Supra\Event\EventArgs;
 
 class FrontControllerShutdownEventArgs extends EventArgs
 {
-	const FRONTCONTROLLER_SHUTDOWN = 'frontControllerShutdownEvent';
+	const frontControllerShutdownEvent = 'frontControllerShutdownEvent';
 	
 	public $frontController;
 }
-

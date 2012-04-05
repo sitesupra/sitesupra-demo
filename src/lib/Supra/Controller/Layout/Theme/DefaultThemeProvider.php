@@ -84,7 +84,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
 
 		$themeName = $iniLoader->getValue('system', 'active_theme', 'default');
-		
+
 		//$iniLoader->setValue('system', 'active_theme', 'default');
 
 		return $this->getTheme($themeName);
@@ -112,6 +112,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$this->storeThemeParameters($theme);
+		
+		$theme->generateCssFiles();		
 
 		return $theme;
 	}
@@ -144,6 +146,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 				$parameter->setDefaultValue($configuration->defaultValue);
 			}
+			
+			$parameter->setConfiguration($configuration);
 		}
 
 		return $parameters;
@@ -217,6 +221,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
+
+		$theme->generateCssFiles();
 	}
 
 	/**

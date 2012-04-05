@@ -28,4 +28,6 @@ interface ThemeInterface
 	public function setPreviewParametersAsCurrentParameters();
 
 	public function getCurrentParameterValues();
+	
+	public function generateCssFiles();
 }

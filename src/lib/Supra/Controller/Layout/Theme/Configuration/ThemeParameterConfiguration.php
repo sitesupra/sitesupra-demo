@@ -31,6 +31,11 @@ class ThemeParameterConfiguration implements ConfigurationInterface
 	 * @var string
 	 */
 	public $groupName;
+	
+	/**
+	 * @var boolean
+	 */
+	public $locked = false;
 
 	public function configure()
 	{
