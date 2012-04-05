@@ -177,6 +177,19 @@ class FileStorage
 	// TODO: setDbConnection
 
 	/**
+	 * Validates against filters
+	 * @param Entity\File $file
+	 */
+	private function validateFileUpload(Entity\File $file)
+	{
+		// file validation
+		foreach ($this->fileUploadFilters as $filter) {
+			/* @var $filter Validation\FileValidationInterface */
+			$filter->validateFile($file);
+		}
+	}
+	
+	/**
 	 * Store file data
 	 *
 	 * @param Entity\File $file
@@ -184,10 +197,7 @@ class FileStorage
 	 */
 	public function storeFileData(Entity\File $file, $sourceFilePath)
 	{
-		// file validation
-		foreach ($this->fileUploadFilters as $filter) {
-			$filter->validateFile($file);
-		}
+		$this->validateFileUpload($file);
 
 		$this->createBothFoldersInFileSystem($file);
 
@@ -222,9 +232,7 @@ class FileStorage
 			throw new Exception\UploadFilterException(self::VALIDATION_EXTENSION_RENAME_MESSAGE_KEY, 'You can\'t change file extension');
 		}
 
-		foreach ($this->fileUploadFilters as $filter) {
-			$filter->validateFile($newFile);
-		}
+		$this->validateFileUpload($newFile);
 
 		$this->renameFileInFileSystem($file, $filename);
 
@@ -927,6 +935,7 @@ class FileStorage
 	//FIXME: pass required parameters as arguments not an array (tmp_name and name)
 	public function replaceFile(Entity\File $fileEntity, $file)
 	{
+		$entityManager = $this->getDoctrineEntityManager();
 		$oldFileIsImage = $fileEntity instanceof Entity\Image;
 		$newFileIsImage = $this->isMimeTypeImage($file['type']);
 
@@ -934,12 +943,17 @@ class FileStorage
 			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
 		}
 		
-		$this->removeFileInFileSystem($fileEntity);
+		$originalFile = clone($fileEntity);
+		$entityManager->detach($originalFile);
 
 		// setting new data
 		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
+		
+		$this->validateFileUpload($fileEntity);
+		
+		$this->removeFileInFileSystem($originalFile);
 
 		$this->storeFileData($fileEntity, $file['tmp_name']);
 
@@ -956,7 +970,6 @@ class FileStorage
 		
 		$fileEntity->setModificationTime();
 
-		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->flush();
 	}
 
