@@ -10,7 +10,7 @@ SU.addModule('website.list-dd', {
 /**
  * Main manager action, initiates all other actions
  */
-Supra('website.list-dd', function (Y) {
+Supra('website.list-dd', 'supra.list', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -52,7 +52,14 @@ Supra('website.list-dd', function (Y) {
 		 */
 		group_mode: false,
 		
+		/**
+		 * New user button, Supra.ListNewItem instance
+		 * @type {Object}
+		 * @private
+		 */
+		new_user: null,
 		
+		scrollables: [],
 		
 		/**
 		 * Bind Actions together
@@ -82,6 +89,18 @@ Supra('website.list-dd', function (Y) {
 					'type': 'button'
 				}
 			]);
+			
+			//Scrollable contents
+			var items = this.all('div.userlist-group-content'),
+				i = 0,
+				ii = items.size(),
+				scrollable = null,
+				scrollables = this.scrollables;
+			
+			for(; i<ii; i++) {
+				scrollable = new Supra.Scrollable({'srcNode': items.item(i)});
+				scrollables.push(scrollable.render());
+			}
 			
 			//Load users
 			this.load();
@@ -129,19 +148,19 @@ Supra('website.list-dd', function (Y) {
 		 */
 		toggleGroupMode: function () {
 			var node = this.one('div.userlist-groups');
-			var new_user = this.one('div.user-add');
+			var new_user = this.new_user;
 			
 			this.group_mode = !this.group_mode;
 			
 			if (!this.group_mode) {
 				node.removeClass('group-mode');
-				new_user.removeClass('hidden');
+				new_user.show();
 				
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			} else {
 				node.addClass('group-mode');
-				new_user.addClass('hidden');
+				new_user.hide();
 				
 				Manager.getAction('PageButtons').setActiveAction(this.NAME + '-groups');
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME + '-groups');
@@ -164,7 +183,7 @@ Supra('website.list-dd', function (Y) {
 			if (data && (status === undefined || status)) {
 				//Find all group nodes
 				this.all('.userlist-group ul').each(function () {
-					var group_id = this.ancestor().getAttribute('data-group');
+					var group_id = this.closest('.userlist-group').getAttribute('data-group');
 					groups[group_id] = this.empty();
 				});
 				
@@ -178,6 +197,11 @@ Supra('website.list-dd', function (Y) {
 			
 			//Hide loading icon
 			Y.one('body').removeClass('loading');
+			
+			//Update scrollables
+			Y.Array.each(this.scrollables, function (scrollable) {
+				scrollable.syncUI();
+			});
 		},
 		
 		/**
@@ -187,6 +211,16 @@ Supra('website.list-dd', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
+			//New item dragable node
+			this.new_user = new Supra.ListNewItem({
+				'srcNode': this.one('.user-add'),
+				'title': Supra.Intl.get(['userlist', 'new']),
+				'dndGroups': ['default']
+			});
+			
+			this.new_user.render();
+			
+			//List DnD
 			this.plug(Supra.ListDD, {
 				'dropSelector': 'div.userlist-groups ul',
 				'dragContainerSelector': 'div.userlist-groups',
@@ -195,7 +229,7 @@ Supra('website.list-dd', function (Y) {
 				'targetClass': 'userlist-group-target'
 			});
 			
-			this.dd.addDrag(this.one('div.user-add'));
+			this.dd.addDrag(this.new_user.getDrag());
 			
 			this.dd.on('drop', this.onDrop, this);
 		},

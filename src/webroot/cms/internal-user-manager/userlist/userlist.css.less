@@ -1,19 +1,10 @@
 @import "/cms/lib/supra/less/common.less";
 
 .userlist {
-	position: absolute;
-	bottom: 0;
 	font-size: 13px;
 }
 
-.userlist .user-add {
-	position: absolute;
-	display: block;
-	top: 50%;
-	left: 70px;
-	cursor: move;
-}
-.userlist .user-add em,
+.userlist-proxy,
 .userlist-groups li em,
 .userlist-groups .edit-label em {
 	display: block;
@@ -24,30 +15,21 @@
 	.box-shadow (0, 1px, 3px, rgba(0, 0, 0, 0.75));
 }
 
-.userlist .user-add img {
-	display: block;
-}
-.userlist .user-add span {
-	display: block;
-	text-align: center;
-	padding: 5px 0 0;
-}
-
 .userlist-groups {
 	position: absolute;
 	left: 200px;
-	right: 0;
-	top: 100px;
-	bottom: 0;
-	border: 1px solid #eee;
+	right: 20px;
+	top: 60px;
+	bottom: 20px;
+	border: 1px solid #45454E;
+	background: rgba(21, 23, 37, 0.25);
 }
 .userlist-groups .userlist-group {
 	height: 100%;
-	width: 33%;
-	border-left: 1px solid #eee;
+	width: 33.33%;
+	border-left: 1px solid #45454E;
 	float: left;
 	position: relative;
-	padding: 2px 2px 2px 1px;
 	
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
@@ -55,35 +37,39 @@
 }
 .userlist-groups .userlist-group:first-child {
 	border-left: 0;
-	padding-left: 2px;
 }
 
-.userlist-groups ul {
-	list-style: none;
-	position: absolute;
-	padding: 2px;
-	left: 0;
-	top: 40px;
-	right: 0;
-	bottom: 0;
-	overflow: hidden;
-	overflow-y: auto;
+.userlist-groups {
+	ul {
+		list-style: none;
+		min-height: 100%;
+		overflow: hidden;
+	}
+	.userlist-group .su-scrollable {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		top: 42px;
+		height: auto;
+		width: auto;
+	}
 }
-.userlist-groups .userlist-group-target ul {
-	border: 2px solid #3B85D1 !important;
-	padding: 0;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+
+.userlist-groups .userlist-group-target {
+	background: rgba(27, 26, 33, 0.15);
 }
 .userlist-groups li,
 .userlist-groups .edit-label {
 	padding: 5px 10px;
 	cursor: pointer;
 }
+.userlist-groups li:first-child {
+	margin-top: 5px;
+}
 .userlist-groups li:hover,
 .userlist-groups .edit-label:hover {
-	background: #f5f5f5;
+	background: rgba(27, 26, 33, 0.15);
 }
 .userlist-groups li em,
 .userlist-groups li a,
@@ -103,26 +89,41 @@
 	padding-left: 10px;
 	text-decoration: none;
 	
-	color: #323144;
-	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
+	color: #fff;
 }
 
 .userlist-groups h2 {
+	.linear-gradient (#A3A4B9, 0%, #787990, 100%);
+	
+	color: #040010;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 22px;
 	text-align: center;
+	text-shadow: 0 1px 0 #AEADBD;
+	
 	padding: 10px;
 }
 .userlist-groups h3 {
 	position: absolute;
 	color: #777;
+	font-size: 12px;
 	text-align: center;
 	left: 0;
 	right: 0;
-	top: -70px;
+	top: -35px;
 }
 
 .userlist-groups .userlist-proxy {
+	width: 48px !important;
+	height: 48px !important;
 	opacity: 0.5;
-	width: auto !important;
+	background: #fff url(/cms/lib/supra/img/avatar-default-48x48.png) 50% 50% no-repeat;
+	padding: 0;
+	
+	* {
+		display: none;
+	}
 }
 
 /**

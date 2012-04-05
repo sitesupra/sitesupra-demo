@@ -24,10 +24,7 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
 			
 			//Position
-			this.host.one().setStyle({
-				'position': 'absolute',
-				'bottom': '0px'
-			});
+			this.host.one().addClass('center-container');
 			
 			//Container position sync with other actions
 			this.host.plug(SU.PluginLayout, {

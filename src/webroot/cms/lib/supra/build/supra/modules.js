@@ -422,19 +422,18 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
-	 * DataTable
+	 * List
 	 */
-	'supra.datatable': {
-		path: 'datatable/datatable.js',
-		requires: ['widget', 'datasource', 'dataschema', 'datatype', 'querystring', 'supra.datatable-row', 'supra.datatable-checkboxes'],
+	'supra.list': {
+		path: 'list/list.js',
+		requires: [
+			'supra.list-new-item'
+		],
 		skinnable: true
 	},
-	'supra.datatable-row': {
-		path: 'datatable/datatable-row.js'
-	},
-	'supra.datatable-checkboxes': {
-		path: 'datatable/plugin-checkboxes.js',
-		requires: ['supra.datatable']
+	'supra.list-new-item': {
+		path: 'list/new-item.js',
+		requires: ['widget', 'dd-drag']
 	},
 	
 	/**

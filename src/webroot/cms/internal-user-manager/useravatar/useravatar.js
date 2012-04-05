@@ -77,7 +77,7 @@ Supra('supra.panel', 'transition', function (Y) {
 				target = details.one('div.info em');
 			
 			this.panel.set('autoClose', true);
-			this.panel.set('arrowVisible', false);
+			this.panel.set('arrowVisible', true);
 			this.panel.set('alignTarget', target);
 			this.panel.set('alignPosition', 'T');
 			this.panel.get('boundingBox').addClass('useravatar-container');
