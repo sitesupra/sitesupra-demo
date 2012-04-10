@@ -7,6 +7,7 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 use Supra\Request\HttpRequest;
 use Supra\Controller\Pages\ThemePreviewPreFilterController;
 use Supra\Less\SupraLessC;
+use Supra\Controller\Layout\Exception;
 
 class Theme implements ThemeInterface
 {
@@ -370,7 +371,7 @@ class Theme implements ThemeInterface
 		$result = file_put_contents($cssFilename, $content);
 
 		if ($result === false) {
-			throw new Execption\RuntimeException('Could not write theme CSS file to "' . $cssFilename . '".');
+			throw new Exception\RuntimeException('Could not write theme CSS file to "' . $cssFilename . '".');
 		}
 	}
 
