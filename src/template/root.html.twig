@@ -11,6 +11,9 @@
 	{{ supra.responseContext.getLayoutSnippetContents('meta') | raw }}
 	<title>{% block title %}SiteSupra{% endblock %}</title>
 	<link rel="stylesheet" href="/resources/css/supra.css" type="text/css" />
+	{% if supra.cmsRequest %}
+		<link href="/assets/css/editor.css" rel="stylesheet" type="text/css" />
+	{% endif %}
 	<link rel="icon" type="image/png" href="/favicon.png" />
 </head>
 <body>
