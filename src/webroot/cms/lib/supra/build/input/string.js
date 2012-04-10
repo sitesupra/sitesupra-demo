@@ -170,6 +170,10 @@ YUI.add('supra.input-string', function (Y) {
 				}
 			}
 			
+			if (this.get('srcNode').getAttribute('suBlurOnReturn') == 'true') {
+				this.set('blurOnReturn', true);
+			}
+			
 			if (this.get('useReplacement')) {
 				var node = this.get('replacementNode');
 				var srcNode = this.get('srcNode');

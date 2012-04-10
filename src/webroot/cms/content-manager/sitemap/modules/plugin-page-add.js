@@ -187,6 +187,13 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			for(id in inputs) {
 				inputs[id].on('change', this._onPagePropertyChange, this);
+				
+				//On return key create page
+				if (inputs[id].isInstanceOf('input-string'))	{
+					inputs[id].get('inputNode').on('keydown', function (e) {
+						if (e.keyCode == 13) this.createPage();
+					}, this);
+				}
 			}
 			
 			//Fill template list
