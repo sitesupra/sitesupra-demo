@@ -28,7 +28,7 @@
 					<input type="text" name="title" id="title" value="" />
 					
 					<label for="path">{#settings.page_url#}</label>
-					<input type="text" name="path" id="path" value="" suValueMask="^[0-9a-zA-Z\-\_]*$" />
+					<input type="text" name="path" id="path" value="" suValueMask="^[^\\\/\?\#\s]*$" />
 					
 					<label for="layout">{#settings.page_layout#}</label>
 					<input type="text" name="layout" id="layout" value="" suValueMask="^[0-9a-zA-Z\-\_\.\/\\]*$" />
