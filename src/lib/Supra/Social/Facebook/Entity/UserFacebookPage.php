@@ -1,11 +1,12 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Social\Facebook\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Database\Entity;
 use Doctrine\Common\Collections;
+use Supra\Controller\Pages\Entity\PageLocalization;
 
 /**
  * User facebook pages
@@ -61,7 +62,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @param string $pageId 
+	 * @param string $pageId
 	 */
 	public function setPageId($pageId)
 	{
@@ -69,7 +70,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public function getPageTitle()
 	{
@@ -77,7 +78,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @param string $pageTitle 
+	 * @param string $pageTitle
 	 */
 	public function setPageTitle($pageTitle)
 	{
@@ -85,7 +86,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public function getPageIcon()
 	{
@@ -93,7 +94,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @param string $pageIcon 
+	 * @param string $pageIcon
 	 */
 	public function setPageIcon($pageIcon)
 	{
@@ -101,7 +102,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @return UserFacebookData 
+	 * @return UserFacebookData
 	 */
 	public function getUserData()
 	{
@@ -122,7 +123,7 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @param string $pageLink 
+	 * @param string $pageLink
 	 */
 	public function setPageLink($pageLink)
 	{
@@ -130,7 +131,7 @@ class UserFacebookPage extends Entity
 	}
 	
 	/**
-	 * @return PageLocalization 
+	 * @return PageLocalization
 	 */
 	public function getPageLocalization()
 	{
@@ -138,9 +139,9 @@ class UserFacebookPage extends Entity
 	}
 
 	/**
-	 * @param PageLocalization $pageLocalization 
+	 * @param PageLocalization $pageLocalization
 	 */
-	public function setPageLocalization($pageLocalization)
+	public function setPageLocalization(PageLocalization $pageLocalization)
 	{
 		$this->pageLocalization = $pageLocalization;
 	}

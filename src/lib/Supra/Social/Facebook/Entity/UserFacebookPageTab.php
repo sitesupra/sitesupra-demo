@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Social\Facebook\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
@@ -118,7 +118,7 @@ class UserFacebookPageTab extends Entity implements Timestampable
 	}
 
 	/**
-	 * @return \DateTime 
+	 * @return DateTime 
 	 */
 	public function getCreationTime()
 	{
@@ -126,7 +126,7 @@ class UserFacebookPageTab extends Entity implements Timestampable
 	}
 
 	/**
-	 * @return \DateTime  
+	 * @return DateTime  
 	 */
 	public function getModificationTime()
 	{

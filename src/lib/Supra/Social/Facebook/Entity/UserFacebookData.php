@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Social\Facebook\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
@@ -8,6 +8,7 @@ use Supra\Database\Entity;
 use Doctrine\Common\Collections;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use DateTime;
+use Supra\User\Entity\User;
 
 /**
  * User facebook data
@@ -18,7 +19,7 @@ class UserFacebookData extends Entity implements Timestampable
 {
 
 	/**
-	 * @OneToOne(targetEntity="User")
+	 * @OneToOne(targetEntity="Supra\User\Entity\User")
 	 * @JoinColumn(name="user_id", referencedColumnName="id")
 	 * @var User
 	 */
@@ -112,7 +113,7 @@ class UserFacebookData extends Entity implements Timestampable
 	}
 
 	/**
-	 * @return \DateTime  
+	 * @return DateTime
 	 */
 	public function getModificationTime()
 	{
@@ -144,7 +145,5 @@ class UserFacebookData extends Entity implements Timestampable
 	{
 		$this->active = $active;
 	}
-
-
 
 }

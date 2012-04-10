@@ -9,9 +9,9 @@ use Supra\Social\Facebook\Exception\FacebookApiException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\User\Entity\User;
 use Supra\Social\Facebook\Adapter;
-use Supra\User\Entity\UserFacebookData;
-use Supra\User\Entity\UserFacebookPage;
-use Supra\User\Entity\UserFacebookPageTab;
+use Supra\Social\Facebook\Entity\UserFacebookData;
+use Supra\Social\Facebook\Entity\UserFacebookPage;
+use Supra\Social\Facebook\Entity\UserFacebookPageTab;
 use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\PageLocalization;
@@ -58,7 +58,7 @@ class SocialMediaController extends SimpleController
 
 		$data['application_id'] = $facebook->getAppId();
 
-		$repo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookData');
+		$repo = ObjectRepository::getEntityManager($this)->getRepository(UserFacebookData::CN());
 		$facebookData = $repo->findOneByUser($user->getId());
 
 		$data['facebook_data'] = false;
@@ -69,7 +69,7 @@ class SocialMediaController extends SimpleController
 
 		$data = $data + $this->getAllAvailablePages();
 
-		/* @var $response \Supra\Response\JsonResponse */
+		/* @var $response Response\JsonResponse */
 		$response->setResponseData($data);
 	}
 
@@ -112,7 +112,7 @@ class SocialMediaController extends SimpleController
 		$em = ObjectRepository::getEntityManager($this);
 		$facebookData = new UserFacebookData();
 
-		$userDataRepo = $em->getRepository('\Supra\User\Entity\UserFacebookData');
+		$userDataRepo = $em->getRepository(UserFacebookData::CN());
 		$userDataRecord = $userDataRepo->findOneByUser($user->getId());
 
 		if ($userDataRecord instanceof UserFacebookData) {
@@ -135,7 +135,7 @@ class SocialMediaController extends SimpleController
 	{
 
 		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
+		/* @var $response Response\TwigResponse */
 
 		$user = $this->getCurrentCmsUser();
 
@@ -174,7 +174,7 @@ class SocialMediaController extends SimpleController
 		$response = $this->getResponse();
 		$request = $this->getRequest();
 		/* @var $request Request\HttpRequest */
-		/* @var $response \Supra\Response\TwigResponse */
+		/* @var $response Response\TwigResponse */
 
 		$user = $this->getCurrentCmsUser();
 
@@ -264,7 +264,7 @@ class SocialMediaController extends SimpleController
 			return;
 		}
 
-		$pageRepo = $em->getRepository('\Supra\User\Entity\UserFacebookPage');
+		$pageRepo = $em->getRepository(UserFacebookPage::CN());
 		$existingPage = $pageRepo->findOneByPageId($pageId);
 
 		if ($existingPage instanceof UserFacebookPage) {
@@ -280,7 +280,7 @@ class SocialMediaController extends SimpleController
 		$page->setPageIcon($pageData['picture']);
 		$page->setPageLink($pageData['link']);
 
-		$repo = $em->getRepository('\Supra\User\Entity\UserFacebookData');
+		$repo = $em->getRepository(UserFacebookData::CN());
 		$facebookData = $repo->findOneByUser($user->getId());
 		if ( ! $facebookData instanceof UserFacebookData) {
 			$this->setErrorOutput('Facebook saved data is not accessable');
@@ -326,7 +326,7 @@ class SocialMediaController extends SimpleController
 		}
 
 		$post = $request->getPost();
-		/* @var $post Supra\Request\RequestData */
+		/* @var $post Request\RequestData */
 		$em = ObjectRepository::getEntityManager($this);
 
 		if ( ! $post->has('page_id')) {
@@ -337,7 +337,7 @@ class SocialMediaController extends SimpleController
 
 		$pageId = $post->get('page_id');
 
-		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPage');
+		$repo = $em->getRepository(UserFacebookPage::CN());
 
 		$page = $repo->findOneByPageId($pageId);
 
@@ -352,7 +352,7 @@ class SocialMediaController extends SimpleController
 		// if has tab_id will try to find it and edit, instead of creating new record
 		if ($post->has('tab_id')) {
 			$tabId = $post->get('tab_id');
-			$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+			$repo = $em->getRepository(UserFacebookPageTab::CN());
 			$tab = $repo->findOneById($tabId);
 
 			if ( ! $tab instanceof UserFacebookPageTab) {
@@ -427,10 +427,10 @@ class SocialMediaController extends SimpleController
 
 		$output = array();
 
-		$pageRepo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookPage');
+		$pageRepo = ObjectRepository::getEntityManager($this)->getRepository(UserFacebookPage::CN());
 		$page = $pageRepo->findOneByPageId($pageId);
 
-		$tabsRepo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookPageTab');
+		$tabsRepo = ObjectRepository::getEntityManager($this)->getRepository(UserFacebookPageTab::CN());
 		$tabs = $tabsRepo->findByPage($page->getId());
 
 
@@ -443,7 +443,7 @@ class SocialMediaController extends SimpleController
 			);
 		}
 		// change to database page
-		/* @var $response \Supra\Response\TwigResponse */
+		/* @var $response Response\TwigResponse */
 		$response->assign('tabs', $output);
 		$response->assign('page', $this->getPageData($page));
 
@@ -458,13 +458,13 @@ class SocialMediaController extends SimpleController
 	{
 		//TODO Check current user access rights to particular page
 		$em = ObjectRepository::getEntityManager($this);
-		$query = $em->createQuery('SELECT p FROM Supra\User\Entity\UserFacebookPage p JOIN p.userData ud WHERE ud.active = :active');
+		$query = $em->createQuery('SELECT p FROM ' . UserFacebookPage::CN() . ' p JOIN p.userData ud WHERE ud.active = :active');
 		$query->setParameter('active', true);
 		$databasePages = $query->getResult();
 
 		$savedPages = array();
 		foreach ($databasePages as $page) {
-			/* @var $page \Supra\User\Entity\UserFacebookPage */
+			/* @var $page UserFacebookPage */
 			$savedPages[$page->getPageId()] = $this->getPageData($page);
 		}
 
@@ -540,7 +540,7 @@ class SocialMediaController extends SimpleController
 		}
 
 		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('\Supra\User\Entity\UserFacebookPageTab');
+		$repo = $em->getRepository(UserFacebookPageTab::CN());
 		$tab = $repo->findOneById($tabId);
 		/* @var $tab UserFacebookPageTab */
 		$pageId = $tab->getPage()->getPageId();
@@ -588,7 +588,7 @@ class SocialMediaController extends SimpleController
 
 		$em = ObjectRepository::getEntityManager($this);
 		$tabId = $request->getParameter('tab_id');
-		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+		$repo = $em->getRepository(UserFacebookPageTab::CN());
 		$tab = $repo->findOneById($tabId);
 
 		if ( ! $tab instanceof UserFacebookPageTab) {
@@ -632,7 +632,7 @@ class SocialMediaController extends SimpleController
 
 		$em = ObjectRepository::getEntityManager($this);
 		$tabId = $request->getParameter('tab_id');
-		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+		$repo = $em->getRepository(UserFacebookPageTab::CN());
 		$tab = $repo->findOneById($tabId);
 
 		if ( ! $tab instanceof UserFacebookPageTab) {
@@ -689,7 +689,7 @@ class SocialMediaController extends SimpleController
 		/* @var $request Request\HttpRequest */
 		$em = ObjectRepository::getEntityManager($this);
 		$tabId = $request->getParameter('tab_id');
-		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPageTab');
+		$repo = $em->getRepository(UserFacebookPageTab::CN());
 		$tab = $repo->findOneById($tabId);
 
 		// TODO: Redirect to default supra tab?
@@ -721,7 +721,7 @@ class SocialMediaController extends SimpleController
 		$data = array();
 
 		$post = $request->getPost();
-		/* @var $post Supra\Request\RequestData */
+		/* @var $post Request\RequestData */
 		if ($post->has('signed_request')) {
 			$data = $this->parseSignedRequest($post->get('signed_request'));
 		}
@@ -735,7 +735,7 @@ class SocialMediaController extends SimpleController
 		$pageId = $data['page']['id'];
 
 		$em = ObjectRepository::getEntityManager($this);
-		$page = $em->getRepository('Supra\User\Entity\UserFacebookPage')->findOneByPageId($pageId);
+		$page = $em->getRepository(UserFacebookPage::CN())->findOneByPageId($pageId);
 
 		if ( ! $page instanceof UserFacebookPage) {
 			$this->log->error('Could not find page ' . $pageId);
@@ -796,7 +796,7 @@ class SocialMediaController extends SimpleController
 		$em = ObjectRepository::getEntityManager($this);
 		$pageId = $request->getParameter('page_id');
 
-		$repo = $em->getRepository('Supra\Controller\Pages\Entity\Page');
+		$repo = $em->getRepository(Page::CN());
 		$page = $repo->findOneById($pageId);
 
 		if ( ! $page instanceof Page) {
@@ -818,7 +818,7 @@ class SocialMediaController extends SimpleController
 
 		$pageId = '327221123967786';
 
-		$fbPageRepo = $em->getRepository('Supra\User\Entity\UserFacebookPage');
+		$fbPageRepo = $em->getRepository(UserFacebookPage::CN());
 		$fbPage = $fbPageRepo->findOneByPageId($pageId);
 		if ( ! $fbPage instanceof UserFacebookPage) {
 			throw new \Exception('Could not find page');
@@ -851,18 +851,17 @@ class SocialMediaController extends SimpleController
 		$facebook->postMessage($postMessageParams);
 	}
 
-	public static function deactivateUserDataRecord(User $user)
+	protected function deactivateUserDataRecord(User $user)
 	{
-		$em = ObjectRepository::getEntityManager(self);
-		$userDataRepo = $em->getRepository('\Supra\User\Entity\UserFacebookData');
+		$em = ObjectRepository::getEntityManager($this);
+		$userDataRepo = $em->getRepository(UserFacebookData::CN());
 		$userDataRecord = $userDataRepo->findOneByUser($user->getId());
 		if ($userDataRecord instanceof UserFacebookData) {
-			$em->persist($userDataRecord);
 			$userDataRecord->setActive(false);
 			$em->flush();
 		}
 
-		ObjectRepository::getLogger(self)->info('Deactivating user facebook data record');
+		ObjectRepository::getLogger($this)->info('Deactivating user facebook data record');
 		return true;
 	}
 

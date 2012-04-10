@@ -10,10 +10,11 @@ use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Social\Facebook;
-use Project\SocialMedia\SocialMediaController;
-use Supra\User\Entity\UserFacebookPage;
+use Supra\Social\Facebook\Entity\UserFacebookPage;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Event\CmsPageEventArgs;
+use Supra\User\Entity\User;
+use Supra\Social\Facebook\Entity\UserFacebookData;
 
 class FacebookPagePublishingListener implements EventSubscriber
 {
@@ -61,13 +62,12 @@ class FacebookPagePublishingListener implements EventSubscriber
 	}
 
 	/**
-	 * @param CmsPageDeleteEventArgs $eventArgs
+	 * @param CmsPageEventArgs $eventArgs
 	 * @param boolean $publish
 	 */
-	private function togglePageOnFacebook($eventArgs, $publish)
+	private function togglePageOnFacebook(CmsPageEventArgs $eventArgs, $publish)
 	{
-		$userProvider = ObjectRepository::getUserProvider($this);
-		$user = $userProvider->getSignedInUser();
+		$user = $eventArgs->user;
 		
 		$localization = $eventArgs->localization;
 		if ( ! $localization instanceof PageLocalization) {
@@ -83,7 +83,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 			if ($publish) {
 				// check was block deleted or not? 
 				$em = ObjectRepository::getEntityManager($this);
-				$repo = $em->getRepository('Supra\User\Entity\UserFacebookPage');
+				$repo = $em->getRepository(UserFacebookPage::CN());
 				$page = $repo->findOneByPageLocalization($localization->getId());
 
 				if ($page instanceof UserFacebookPage) {
@@ -96,7 +96,9 @@ class FacebookPagePublishingListener implements EventSubscriber
 
 						if ((strpos($e->getMessage(), 'has not authorized application') != false)
 								|| $e->getCode() == Facebook\Exception\FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
-							SocialMediaController::deactivateUserDataRecord($user);
+							if ($user instanceof User) {
+								$this->deactivateUserDataRecord($user);
+							}
 						}
 
 						return;
@@ -120,7 +122,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 		$pageId = $properties['available_pages'];
 
 		$em = ObjectRepository::getEntityManager($this);
-		$repo = $em->getRepository('Supra\User\Entity\UserFacebookPage');
+		$repo = $em->getRepository(UserFacebookPage::CN());
 		$page = $repo->findOneByPageId($pageId);
 
 		if ( ! $page instanceof UserFacebookPage) {
@@ -142,7 +144,10 @@ class FacebookPagePublishingListener implements EventSubscriber
 
 			if ((strpos($e->getMessage(), 'has not authorized application') != false)
 					|| $e->getCode() == Facebook\Exception\FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
-				SocialMediaController::deactivateUserDataRecord($user);
+				
+				if ($user instanceof User) {
+					$this->deactivateUserDataRecord($user);
+				}
 			}
 
 			return;
@@ -176,7 +181,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 		return $properties;
 	}
 
-	private function getFacebookBlock($eventArgs)
+	private function getFacebookBlock(CmsPageEventArgs $eventArgs)
 	{
 		// fetch FB page block ids and then check if block was removed
 		$values = $eventArgs->localization->getPlaceHolders()->getValues();
@@ -193,6 +198,18 @@ class FacebookPagePublishingListener implements EventSubscriber
 		}
 
 		return null;
+	}
+	
+	private function deactivateUserDataRecord(User $user)
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		$userDataRepo = $em->getRepository(UserFacebookData::CN());
+		$userDataRecord = $userDataRepo->findOneByUser($user->getId());
+		
+		if ($userDataRecord instanceof UserFacebookData) {
+			$userDataRecord->setActive(false);
+			$em->flush($userDataRecord);
+		}
 	}
 
 }

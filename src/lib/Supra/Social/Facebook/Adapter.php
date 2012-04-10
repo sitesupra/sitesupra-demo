@@ -7,9 +7,9 @@ use Supra\Social\Exception\SocialMediaException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Social\Facebook\Exception\FacebookApiException;
 use Supra\User\Entity\User;
-use Supra\User\Entity\UserFacebookData;
-use Supra\User\Entity\UserFacebookPage;
-use Supra\User\Entity\UserFacebookPageTab;
+use Supra\Social\Facebook\Entity\UserFacebookData;
+use Supra\Social\Facebook\Entity\UserFacebookPage;
+use Supra\Social\Facebook\Entity\UserFacebookPageTab;
 
 class Adapter extends AdapterAbstraction
 {
@@ -76,7 +76,7 @@ class Adapter extends AdapterAbstraction
 		$this->instance->clearAllData();
 		$this->cmsUser = $user;
 
-		$repo = ObjectRepository::getEntityManager($this)->getRepository('\Supra\User\Entity\UserFacebookData');
+		$repo = ObjectRepository::getEntityManager($this)->getRepository(UserFacebookData::CN());
 		$facebookData = $repo->findOneByUser($user->getId());
 
 		if ($facebookData instanceof UserFacebookData) {
