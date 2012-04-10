@@ -387,7 +387,7 @@ YUI.add('supra.scrollable', function (Y) {
 		},
 		
 		/**
-		 * Scroll ndoe in view
+		 * Scroll node in view
 		 * 
 		 * @param {Object} node Node
 		 * @return True if scrolled to the node, false if node was already in view
