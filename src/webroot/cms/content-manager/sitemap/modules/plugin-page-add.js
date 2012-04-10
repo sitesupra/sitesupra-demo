@@ -737,6 +737,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						
 						node.get('view').set('disabled', false);
 						node.set('highlighted', false);
+						node.set('state', 'draft');
+						
 					} else if (is_row_node) {
 						node.get('parent').get('parent').set('highlighted', false);
 						this.get('host').get('view').set('disabled', false);
