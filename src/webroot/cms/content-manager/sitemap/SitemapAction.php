@@ -38,7 +38,14 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function sitemapAction()
 	{
-		$response = $this->loadSitemapTree(Entity\Page::CN());
+		$input = $this->getRequestInput();
+		$parentId = null;
+		
+		if ( ! $input->isEmpty('parent_id', false)) {
+			$parentId = $input->get('parent_id');
+		}
+		
+		$response = $this->loadSitemapTree(Entity\Page::CN(), $parentId, 1);
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -121,9 +128,13 @@ class SitemapAction extends PageManagerAction
 	 * Helper method for the main sitemap action
 	 * @param Entity\Abstraction\AbstractPage $page
 	 * @param string $locale
+	 * @param boolean $skipRoot
+	 * @param boolean $skipGlobal
+	 * @param array $inheritConfig
+	 * @param integer $levels
 	 * @return array
 	 */
-	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false, $inheritConfig = null)
+	private function buildTreeArray(Entity\Abstraction\AbstractPage $page, $locale, $skipRoot = false, $skipGlobal = false, $inheritConfig = array(), $levels = null)
 	{
 		/* @var $data Entity\Abstraction\Localization */
 		$data = null;
@@ -193,54 +204,72 @@ class SitemapAction extends PageManagerAction
 
 		$children = null;
 
-		if ( ! $isGlobal) {
+		if ( ! $isGlobal && (is_null($levels) || $levels >= 0)) {
 			if ($page instanceof Entity\ApplicationPage) {
 				$application = PageApplicationCollection::getInstance()
 						->createApplication($data, $this->entityManager);
 
 				$application->showInactivePages(true);
 
-				$modes = $application->getAvailableSitemapViewModes();
+//				$modes = $application->getAvailableSitemapViewModes();
+//
+//				$collapsedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes);
+//				$expandedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes);
+//
+//				$forceExpand = $this->hasRequestParameter('expand');
+//				$hasRootId = $this->hasRequestParameter('root');
+//				$showHidden = ($hasRootId && ! $forceExpand);
+//
+//				if ($showHidden) {
+//					$children = $application->getHiddenPages();
+//				} elseif ($forceExpand && $expandedMode) {
+//					$children = $application->expandedSitemapView();
+//				} elseif ($collapsedMode) {
+//					//TODO: children could be a grouped array
+//					$children = $application->collapsedSitemapView();
+//
+//					// Send sitemap that expanded view is available for the root node
+//					if ($expandedMode) {
+//						$array['collapsed'] = true;
+//					}
+//				} elseif ($expandedMode) {
+//					$children = $application->expandedSitemapView();
+//				} else {
+//					$children = array();
+//				}
 
-				$collapsedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_COLLAPSED, $modes);
-				$expandedMode = in_array(PageApplicationInterface::SITEMAP_VIEW_EXPANDED, $modes);
-
-				$forceExpand = $this->hasRequestParameter('expand');
-				$hasRootId = $this->hasRequestParameter('root');
-				$showHidden = ($hasRootId && ! $forceExpand);
-
-				if ($showHidden) {
-					$children = $application->getHiddenPages();
-				} elseif ($forceExpand && $expandedMode) {
-					$children = $application->expandedSitemapView();
-				} elseif ($collapsedMode) {
-					//TODO: children could be a grouped array
-					$children = $application->collapsedSitemapView();
-
-					// Send sitemap that expanded view is available for the root node
-					if ($expandedMode) {
-						$array['collapsed'] = true;
-					}
-				} elseif ($expandedMode) {
-					$children = $application->expandedSitemapView();
-				} else {
-					$children = array();
-				}
-
-				$array['has_hidden_pages'] = $application->hasHiddenPages();
+//				$array['has_hidden_pages'] = $application->hasHiddenPages();
+//				$array['childrenListStyle'] = 'scrollList';
+				
+//				$inheritConfig = $application->getInheritConfig();
 
 				if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
-					$inheritConfig['isDropTarget'] = false;
+					$children = $application->getSitemap();
+					$array['isDropTarget'] = true;
+					$inheritConfig['isDropTarget'] = true;
+					
+					$this->applications[$data->getId()] = $application;
 				}
 			} else {
 				$children = $page->getChildren();
 			}
 
-			$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal, $inheritConfig);
+			$childrenArray = array();
+			
+			if (is_array($children)) {
+				$childrenArray = $this->convertPagesToArray($children, $locale, $skipGlobal, $inheritConfig, $levels);
+			}
 
 			if ( ! $skipRoot) {
+				$array['children_count'] = 0;
+				
 				if (count($childrenArray) > 0) {
-					$array['children'] = $childrenArray;
+					
+					$array['children_count'] = count($childrenArray);
+					
+					if (is_null($levels) || $levels > 0) {
+						$array['children'] = $childrenArray;
+					}
 
 					// TODO: hardcoded
 					if ($array['icon'] == 'page') {
@@ -262,21 +291,49 @@ class SitemapAction extends PageManagerAction
 	/**
 	 * @param array $children
 	 * @param string $locale
+	 * @param boolean $skipGlobal
+	 * @param array $config
+	 * @param integer $levels
 	 * @return array
 	 */
-	private function convertPagesToArray(array $children, $locale, $skipGlobal = false, $config = null)
+	private function convertPagesToArray(array $children, $locale, $skipGlobal = false, $config = array(), $levels = null)
 	{
 		$childrenArray = array();
+		if ( ! is_null($levels)) {
+			$levels--;
+		}
 
 		foreach ($children as $name => $child) {
 
+			// TODO: remove
 			if (is_array($child)) {
 				$group = new Entity\TemporaryGroupPage();
 				$group->setTitle($name);
 				$group->setChildren($child);
 
-				$childArray = $this->buildTreeArray($group, $locale, false, $skipGlobal, $config);
+				// Ignore the levels if array is received
+				$childArray = $this->buildTreeArray($group, $locale, false, $skipGlobal, $config, null);
 				$childArray['isDragable'] = false;
+				$childArray['childrenListStyle'] = 'scrollList';
+			// TODO: remove
+			} elseif (is_integer($child)) {
+				$group = new Entity\TemporaryGroupPage();
+				$group->setTitle($name);
+				$group->setNumberChildren($child);
+				
+				// Ignore the levels if array is received
+				$childArray = $this->buildTreeArray($group, $locale, false, $skipGlobal, $config, null);
+				$childArray['isDragable'] = false;
+				$childArray['childrenListStyle'] = 'scrollList';
+				$childArray['children_count'] = $child;
+			} elseif ($child instanceof Entity\TemporaryGroupPage) {
+				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal, $config, null);
+				
+				//TODO: move to "buildTreeArray" and Entity\TemporaryGroupPage properties
+				$childArray['isDragable'] = true;
+				$childArray['isDropTarget'] = true;
+				$childArray['childrenListStyle'] = 'scrollList';
+				$childArray['children_count'] = $child->getNumberChildren();
 			} else {
 
 				// Application responds with localization objects..
@@ -291,7 +348,7 @@ class SitemapAction extends PageManagerAction
 					continue;
 				}
 
-				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal);
+				$childArray = $this->buildTreeArray($child, $locale, false, $skipGlobal, $config, $levels);
 			}
 
 			// it is possibly, that childrens should inherit some config values from parent node
@@ -313,7 +370,7 @@ class SitemapAction extends PageManagerAction
 	 * @param string $entity
 	 * @return array
 	 */
-	protected function loadSitemapTree($entity)
+	protected function loadSitemapTree($entity, $parentId = null, $levels = null)
 	{
 		$localeId = $this->getLocale()->getId();
 
@@ -333,28 +390,91 @@ class SitemapAction extends PageManagerAction
 
 		$rootNodes = array();
 		$skipRoot = false;
-
+		
+		// Is this used now?
 		if ($this->hasRequestParameter('root')) {
-			$rootId = $this->getRequestParameter('root');
-			$rootNodeLocalization = $em->find(Entity\PageLocalization::CN(), $rootId);
+			$parentId = $this->getRequestParameter('root');
+		}
+		
+		if ( ! empty($parentId)) {
+			
+			$temporaryGroupId = null;
+			list($parentId, $temporaryGroupId) = explode('_', $parentId);
+			
+			$rootNodeLocalization = null;
+			
+			if ($entity == Entity\Page::CN()) {
+				$rootNodeLocalization = $em->find(Entity\PageLocalization::CN(), $parentId);
+			} else {
+				$rootNodeLocalization = $em->find(Entity\TemplateLocalization::CN(), $parentId);
+			}
 
 			/* @var $rootNodeLocalization Entity\PageLocalization */
 
 			if (is_null($rootNodeLocalization)) {
-				$this->log->warn("Root node $rootId not found in sitemap action");
-
-				return array();
+				
+				$rootNode = $em->find($entity, $parentId);
+				
+				if ($rootNode instanceof Entity\GroupPage) {
+					$rootNodeLocalization = $rootNode->getLocalization($localeId);
+				}
+			}
+			
+			if (is_null($rootNodeLocalization)) {
+				throw new CmsException(null, 'The parent page not found');
 			}
 
 			$rootNode = $rootNodeLocalization->getMaster();
 			$skipRoot = true;
 
-			$response = $this->buildTreeArray($rootNode, $localeId, true, $existingOnly);
+			if ( ! is_null($temporaryGroupId) && ! is_null($levels)) {
+				$levels++;
+			}
+			
+			$response = $this->buildTreeArray($rootNode, $localeId, true, $existingOnly, null, $levels);
+			
+			if ( ! is_null($temporaryGroupId)) {
+				
+				$found = false;
+				
+				if (isset($this->applications[$rootNodeLocalization->getId()])) {
+					
+					$application = $this->applications[$rootNodeLocalization->getId()];
+					
+					// FIXME: just a temporary implementation of news application list...
+					if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
+						$response = array();
+						
+						$resultsPerRequest = null;
+						if ($input->has('resultsPerRequest')) {
+							$resultsPerRequest = $input->getValid('resultsPerRequest', 'integer');
+						}
+						
+						$offset = null;
+						if ($input->has('offset')) {
+							$offset = $input->getValid('offset', 'integer');
+						}
+						
+						$news = $application->getList($resultsPerRequest, $offset);
+						
+						foreach ($news as $newsItem) {
+							$response[] = $this->buildTreeArray($newsItem, $localeId, false, $existingOnly, null, $levels);
+						}
+						
+						$found = true;
+					}
+					
+				}
+				
+				if ( ! $found) {
+					throw new CmsException(null, "The application subgroup not found");
+				}
+			}
 		} else {
 			$rootNodes = $pageRepository->getRootNodes();
 
 			foreach ($rootNodes as $rootNode) {
-				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot, $existingOnly);
+				$tree = $this->buildTreeArray($rootNode, $localeId, $skipRoot, $existingOnly, null, $levels);
 				if ( ! is_null($tree)) {
 					$response[] = $tree;
 				}

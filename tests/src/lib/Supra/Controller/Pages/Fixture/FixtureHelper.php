@@ -303,7 +303,7 @@ class FixtureHelper
 
 			$creationTime = new \DateTime();
 
-			$publicationCount = 5;
+			$publicationCount = 50;
 
 			for ($i = $publicationCount; $i > 0; $i -- ) {
 				$length = count(self::$constants);

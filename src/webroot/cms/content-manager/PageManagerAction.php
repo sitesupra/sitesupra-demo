@@ -356,10 +356,15 @@ abstract class PageManagerAction extends CmsAction
 	{
 		$page = $data->getMaster();
 		$locale = $data->getLocale();
-
+		$id = $data->getId();
+		
+		if ( ! $localizationExists) {
+			$id = $page->getId();
+		}
+		
 		// Main data
 		$array = array(
-			'id' => $localizationExists ? $data->getId() : $page->getId(),
+			'id' => $id,
 			'master_id' => $page->getId(),
 			'title' => $data->getTitle(),
 			// TODO: hardcoded

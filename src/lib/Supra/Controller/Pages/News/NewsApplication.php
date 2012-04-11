@@ -519,4 +519,59 @@ class NewsApplication implements PageApplicationInterface
 		
 		return $query;
 	}
+	
+	public function getPaginator()
+	{
+		$locale = $this->applicationLocalization->getLocale();
+		$page = $this->applicationLocalization->getMaster();
+		
+		$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($this->em);
+		$pageFinder->addFilterByParent($page, 1, 1);
+		
+		$queryBuilder = $pageFinder->getQueryBuilder();
+		
+		$queryBuilder->leftJoin('e.localizations', 'l_', 'WITH', 'l_.locale = :locale')
+				->setParameter('locale', $locale)
+				->join('e.localizations', 'l')
+				->andWhere('l_.id IS NOT NULL OR e.global = true')
+				->select('e, l, COALESCE(l_.creationTime, l.creationTime) as HIDDEN ct')
+				->orderBy('ct', 'DESC');
+		
+		$query = $queryBuilder->getQuery();
+		
+		$paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, true);
+		
+		return $paginator;
+	}
+	
+	public function getSitemap()
+	{
+		$paginator = $this->getPaginator();
+		$count = $paginator->count();
+		
+		$sitemap = array();
+		
+		$group = new Entity\TemporaryGroupPage();
+		$group->setTitle('list');
+		$group->setNumberChildren($count);
+		
+		// FIXME: bad workaround for children fetching
+		$id = $this->applicationLocalization->getId()
+				. '_' . 'list';
+		$group->setId($id);
+		
+		$sitemap[] = $group;
+		$sitemap = array_merge($sitemap, $this->getHiddenPages());
+		
+		return $sitemap;
+	}
+	
+	public function getList($limit = null, $offset = null)
+	{
+		$paginator = $this->getPaginator();
+		$paginator->getQuery()->setMaxResults($limit)
+				->setFirstResult($offset);
+		
+		return $paginator;
+	}
 }

@@ -76,26 +76,6 @@ class PageLocalization extends Abstraction\Localization
 	protected $redirect;
 
 	/**
-	 * @Column(type="datetime")
-	 * @var DateTime
-	 */
-	protected $creationTime;
-
-	/**
-	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
-	 * @Column(type="smallint")
-	 * @var int
-	 */
-	protected $creationYear;
-
-	/**
-	 * See $creationYear doc
-	 * @Column(type="smallint")
-	 * @var int
-	 */
-	protected $creationMonth;
-
-	/**
 	 * Used to reset the creation time on first publish or creation time set
 	 * @Column(type="boolean")
 	 * @var boolean
@@ -144,9 +124,8 @@ class PageLocalization extends Abstraction\Localization
 	}
 	
 	/**
-	 * Set null as page template, 
-	 * used for deleted pages that have unexisted template assigned
-	 * @param Template $template
+	 * Set null as page template, used for deleted pages that have unexisted 
+	 * template assigned.
 	 */
 	public function setNullTemplate()
 	{

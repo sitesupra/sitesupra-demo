@@ -13,6 +13,11 @@ class TemporaryGroupPage extends GroupPage
 	 * @var array
 	 */
 	private $children;
+	
+	/**
+	 * @var integer
+	 */
+	private $numberChildren;
 
 	/**
 	 * @return array
@@ -28,5 +33,20 @@ class TemporaryGroupPage extends GroupPage
 	public function setChildren(array $children)
 	{
 		$this->children = $children;
+	}
+	
+	public function setNumberChildren($numberChildren)
+	{
+		$this->numberChildren = $numberChildren;
+	}
+	
+	public function getNumberChildren()
+	{
+		return is_null($this->numberChildren) ? count($this->children) : $this->numberChildren;
+	}
+	
+	public function setId($id)
+	{
+		$this->id = $id;
 	}
 }
