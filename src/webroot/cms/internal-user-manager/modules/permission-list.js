@@ -22,7 +22,7 @@ YUI.add('website.permission-list', function (Y) {
 		 * @type {Object}
 		 */
 		'tree': {
-			value: null,
+			value: null
 		},
 		
 		/**
@@ -185,6 +185,7 @@ YUI.add('website.permission-list', function (Y) {
 		 * @param {String} node_id Tree node ID
 		 */
 		addPermissionException: function (data) {
+			
 			var tree = this.get('tree'),
 				values = null,
 				localized = this.get('localized'),
@@ -308,7 +309,9 @@ YUI.add('website.permission-list', function (Y) {
 			this.resetValue();
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
-				this.addPermissionException(values[i]);
+				if (values[i].value) {
+					this.addPermissionException(values[i]);
+				}
 			}
 		},
 		
