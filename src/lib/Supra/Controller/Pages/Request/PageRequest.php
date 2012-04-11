@@ -561,7 +561,9 @@ abstract class PageRequest extends HttpRequest
 						->join('l.master', 'm')
 						->join('l.path', 'p')
 						->select('l, m, p')
-						->where($qb->expr()->in('l.master', $elementPageIds));
+						->where($qb->expr()->in('l.master', $elementPageIds))
+						->andWhere('l.locale = :locale')
+						->setParameter('locale', $this->getLocale());
 
 				$query = $qb->getQuery();
 				$this->prepareQueryResultCache($query);
