@@ -520,6 +520,9 @@ class NewsApplication implements PageApplicationInterface
 		return $query;
 	}
 	
+	/**
+	 * @return \Doctrine\ORM\Tools\Pagination\Paginator
+	 */
 	public function getPaginator()
 	{
 		$locale = $this->applicationLocalization->getLocale();
@@ -544,7 +547,7 @@ class NewsApplication implements PageApplicationInterface
 		return $paginator;
 	}
 	
-	public function getSitemap()
+	public function getSitemap($level = null)
 	{
 		$paginator = $this->getPaginator();
 		$count = $paginator->count();
@@ -559,6 +562,10 @@ class NewsApplication implements PageApplicationInterface
 		$id = $this->applicationLocalization->getId()
 				. '_' . 'list';
 		$group->setId($id);
+		
+		if (is_null($level) || $level > 1) {
+			$group->setChildren(iterator_to_array($paginator));
+		}
 		
 		$sitemap[] = $group;
 		$sitemap = array_merge($sitemap, $this->getHiddenPages());

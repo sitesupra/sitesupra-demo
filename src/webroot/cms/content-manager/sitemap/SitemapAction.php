@@ -40,12 +40,14 @@ class SitemapAction extends PageManagerAction
 	{
 		$input = $this->getRequestInput();
 		$parentId = null;
+		$level = null;
 		
-		if ( ! $input->isEmpty('parent_id', false)) {
+		if ($input->has('parent_id')) {
 			$parentId = $input->get('parent_id');
+			$level = 1;
 		}
 		
-		$response = $this->loadSitemapTree(Entity\Page::CN(), $parentId, 1);
+		$response = $this->loadSitemapTree(Entity\Page::CN(), $parentId, $level);
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -244,7 +246,7 @@ class SitemapAction extends PageManagerAction
 //				$inheritConfig = $application->getInheritConfig();
 
 				if ($application instanceof \Supra\Controller\Pages\News\NewsApplication) {
-					$children = $application->getSitemap();
+					$children = $application->getSitemap($levels);
 					$array['isDropTarget'] = true;
 					$inheritConfig['isDropTarget'] = true;
 					
