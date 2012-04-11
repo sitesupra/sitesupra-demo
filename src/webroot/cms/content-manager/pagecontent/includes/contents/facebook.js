@@ -70,9 +70,9 @@ YUI.add('supra.page-content-facebook', function (Y) {
 			form.getInput('tab_name').addClass('hidden');
 			
 			existingPages = this.existingPages = form.getInput('available_pages');
-//			if(existingPages.get('values').length > 0) {
-//				this.fillDropdown(existingPages.get('values'));
-//			}
+			//			if(existingPages.get('values').length > 0) {
+			//				this.fillDropdown(existingPages.get('values'));
+			//			}
 			
 			existingPages.hide();
 			
@@ -159,10 +159,14 @@ YUI.add('supra.page-content-facebook', function (Y) {
 					'success': function (data, status) {
 						var values = this.existingPages.get('values');
 						
+						if( ! data.page) {
+							return;
+						}
+						
 						values = values.concat([{
 							'id': id, 
 							'title': data.page.name
-							}]);
+						}]);
 						
 						this.fillDropdown(values);
 						
@@ -283,4 +287,4 @@ YUI.add('supra.page-content-facebook', function (Y) {
 	
 }, YUI.version, {
 	requires:['supra.page-content-editable', 'supra.template']
-	});
+});

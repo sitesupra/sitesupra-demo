@@ -237,10 +237,11 @@ class SocialMediaController extends SimpleController
 
 			// if we receive "has not authorized application" exception - then removing already stored data
 			if ((strpos($e->getMessage(), 'has not authorized application') != false)
+					|| (strpos($e->getMessage(), 'access token') != false)
 					|| $e->getCode() == FacebookApiException::CODE_PERMISSIONS_PROBLEM) {
 				$this->deactivateUserDataRecord($user);
-
-				return;
+				
+				throw new \Supra\Cms\Exception\CmsException(null, 'Deactivated facebook data record. Please refresh page');
 			}
 
 			$this->setErrorOutput($e->getMessage());
