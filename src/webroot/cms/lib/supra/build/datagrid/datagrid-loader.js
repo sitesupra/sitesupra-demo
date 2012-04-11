@@ -192,7 +192,11 @@ YUI.add('supra.datagrid-loader', function (Y) {
 			this.endChange();
 			
 			this.loader.loading = false;
-			this.loader.syncTotal();
+			
+			// Don't sync if no results are returned, might result loading loop
+			if (response.results.length > 0) {
+				this.loader.syncTotal();
+			}
 		},
 		
 		/**
