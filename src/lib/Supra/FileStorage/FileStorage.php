@@ -572,11 +572,7 @@ class FileStorage
 			throw new Exception\RuntimeException('Dimensions are invalid');
 		}
 
-		// FIXME move to seperate helper-method somewhere
-		$sizeName = $targetWidth . 'x' . $targetHeight;
-		if ($cropped) {
-			$sizeName .= 'cropped';
-		}
+		$sizeName = $this->getImageSizeName($targetWidth, $targetHeight, $cropped);
 
 		$size = $file->getImageSize($sizeName);
 
@@ -629,6 +625,23 @@ class FileStorage
 
 		$entityManager->persist($size);
 		$entityManager->flush();
+
+		return $sizeName;
+	}
+
+	/**
+	 * Returns image size name, based on image height, weight and cropped flag
+	 * @param integer $targetWidth
+	 * @param integer $targetHeight
+	 * @param boolean $cropped
+	 * @return string 
+	 */
+	public function getImageSizeName($targetWidth, $targetHeight, $cropped = false)
+	{
+		$sizeName = $targetWidth . 'x' . $targetHeight;
+		if ($cropped) {
+			$sizeName .= 'cropped';
+		}
 
 		return $sizeName;
 	}
