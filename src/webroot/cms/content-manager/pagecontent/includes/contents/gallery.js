@@ -111,6 +111,19 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
 				
+				// if folder is empty
+				if ( ! item_data.children.length) {
+					SU.Manager.executeAction('Confirmation', {
+					    'message': '{#medialibrary.validation_error.empty_folder_drop#}',
+					    'useMask': true,
+					    'buttons': [
+					        {'id': 'delete', 'label': 'Ok'}
+					    ]
+					});
+				
+					return;
+				}
+				
 				//Add all images from folder
 				for(var i in item_data.children) {
 					image = item_data.children[i];

@@ -70,7 +70,8 @@
 				"not_allowed_mime": "File type is not allowed",
 				"extension_rename": "File extension cannot be changed",
 				"image_to_file": "Image cannot be replaced with regular file and vice versa",
-				"invalid_drop": "File type was not recognized"
+				"invalid_drop": "File type was not recognized",
+				"empty_folder_drop": "There were no images to place from that folder"
 			}
 		},
 		
