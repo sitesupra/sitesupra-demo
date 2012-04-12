@@ -573,6 +573,12 @@ class FileStorage
 		}
 
 		$sizeName = $this->getImageSizeName($targetWidth, $targetHeight, $cropped);
+		
+		if ( ! $this->fileExists($file)) {
+			$this->log()->warn("Image '{$file->getFileName()}' is missing in the filesystem, tried to resize to {$sizeName}");
+			
+			return $sizeName;
+		}
 
 		$size = $file->getImageSize($sizeName);
 
