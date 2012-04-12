@@ -158,8 +158,6 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		onPropertyChange: function (event) {
 			
-			console.log('onImageProp');
-			
 			if (this.silent || !this.selected_image) return;
 			
 			var target = event.target,
