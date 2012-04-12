@@ -141,21 +141,21 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	
 	/**
 	 * Moved to abstraction so it can be used inside queries
-	 * @Column(type="datetime")
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $creationTime;
 
 	/**
 	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
-	 * @Column(type="smallint")
+	 * @Column(type="smallint", nullable=true)
 	 * @var int
 	 */
 	protected $creationYear;
 
 	/**
 	 * See $creationYear doc
-	 * @Column(type="smallint")
+	 * @Column(type="smallint", nullable=true)
 	 * @var int
 	 */
 	protected $creationMonth;
