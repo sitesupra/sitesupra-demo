@@ -395,6 +395,11 @@ class SitemapAction extends PageManagerAction
 						
 						// TODO: for now it's enabled for all filter folders
 						$pageData['childrenListStyle'] = 'scrollList';
+						$pageData['selectable'] = false;
+						$pageData['editable'] = false;
+						$pageData['isDragable'] = false;
+						$pageData['isDropTarget'] = true;
+						$pageData['new_children_first'] = true;
 					}
 					
 					if ($levels === 0) {
