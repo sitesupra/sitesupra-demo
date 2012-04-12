@@ -135,36 +135,6 @@ class PagesettingsAction extends PageManagerAction
 
 					$templateLayout = $template->addLayout($media, $layout);
 				}
-
-				/**
-				 * @TODO: Move that code to separate command? 
-				 * Task #5116
-
-				  //TODO: validate
-				  $layoutId = $input->get('layout');
-
-				  $layoutProcessor = $this->getPageController()
-				  ->getLayoutProcessor();
-
-				  // Create or update layout
-				  $layoutTask = new LayoutProcessorTask();
-				  $layoutTask->setLayoutId($layoutId);
-				  $layoutTask->setEntityManager($this->entityManager);
-				  $layoutTask->setLayoutProcessor($layoutProcessor);
-
-				  try {
-				  $layoutTask->perform();
-				  } catch (LayoutException\LayoutNotFoundException $e) {
-				  throw new CmsException('template.error.layout_not_found', null, $e);
-				  } catch (LayoutException\RuntimeException $e) {
-				  throw new CmsException('template.error.layout_error', null, $e);
-				  }
-
-				  $layout = $layoutTask->getLayout();
-
-				  $templateLayout = $template->addLayout($media, $layout);
-
-				 */
 				
 				// Persist the new template layout object (cascade)
 				$this->entityManager->persist($templateLayout);

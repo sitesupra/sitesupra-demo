@@ -17,6 +17,7 @@ $cliCommandClasses = array(
 	'Supra\Search\Command\WipeQueuesCommand',
 	'Supra\Search\Command\QueueAllPageLocalizationsCommand',
 	'Supra\Controller\Pages\Command\LayoutRereadCommand',
+	'Supra\Controller\Pages\Command\LayoutAddCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
