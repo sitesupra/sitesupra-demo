@@ -40,7 +40,7 @@ class PageApplicationConfiguration implements ConfigurationInterface
 	/**
 	 * @var boolean 
 	 */
-	public $isDragable = true;
+	public $isDraggable = true;
 
 	/**
 	 * @var boolean 

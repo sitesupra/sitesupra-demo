@@ -134,7 +134,7 @@ class SitemapAction extends PageManagerAction
 				'title' => $applicationConfiguration->title,
 				'icon' => $applicationConfiguration->icon,
 				'new_children_first' => $applicationConfiguration->newChildrenFirst,
-				'isDragable' => $applicationConfiguration->isDragable,
+				'isDraggable' => $applicationConfiguration->isDraggable,
 				'isDropTarget' => $applicationConfiguration->isDropTarget,
 			);
 		}
@@ -397,7 +397,7 @@ class SitemapAction extends PageManagerAction
 						$pageData['childrenListStyle'] = 'scrollList';
 						$pageData['selectable'] = false;
 						$pageData['editable'] = false;
-						$pageData['isDragable'] = false;
+						$pageData['isDraggable'] = false;
 						$pageData['isDropTarget'] = true;
 						$pageData['new_children_first'] = true;
 					}

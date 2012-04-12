@@ -414,7 +414,7 @@ abstract class PageManagerAction extends CmsAction
 			$array['application_id'] = $page->getApplicationId();
 			$conf = PageApplicationCollection::getInstance()->getConfiguration($page->getApplicationId());
 			$array['new_children_first'] = $conf->newChildrenFirst;
-			$array['isDragable'] = $conf->isDragable;
+			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
 		}
 		$array['type'] = $type;

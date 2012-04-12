@@ -711,7 +711,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							if (permissions.page[data.id].edit_page) {
 								node.set('editable', true);
 								node.set('publishable', true);
-								node.set('dragable', !('isDragable' in data) || data.isDragable);
+								node.set('dragable', !('isDraggable' in data) || data.isDraggable);
 								
 								if (data.type != 'group') {
 									node.set('selectable', true);

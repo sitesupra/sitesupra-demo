@@ -72,7 +72,7 @@
 				"full_path": "/news/",
 				"application_id": "news",
 				"new_children_first": true,
-				"isDragable": true,
+				"isDraggable": true,
 				"isDropTarget": true,
 				"type": "application",
 				"unpublished_draft": false,
@@ -96,7 +96,7 @@
 						"published": false,
 						"unpublished_draft": false,
 						
-						"isDragable": false,
+						"isDraggable": false,
 						"isDropTarget": true,
 						"childrenListStyle": "scrollList",
 						"new_children_first": true,
@@ -422,7 +422,7 @@
 						"published": false,
 						"path": null,
 						"basePath": "",
-						"isDragable": false,
+						"isDraggable": false,
 						"children": [
 							{
 								"id": "0030eolm7jbd0u6m4mcq",

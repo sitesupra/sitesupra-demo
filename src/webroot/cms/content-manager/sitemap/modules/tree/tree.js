@@ -317,7 +317,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 						
 						//Enable dragging
 						data = node.get('data');
-						if (!('isDragable' in data) || data.isDragable) {
+						if (!('isDraggable' in data) || data.isDraggable) {
 							node.set('dragable', true);
 						}
 						if (!('isDropTarget' in data) || data.isDropTarget) {
@@ -372,7 +372,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'preview': data.preview || preview,
 				'type': data.type,
 				
-				'dragable': editable && (!('isDragable' in data) || data.isDragable),
+				'dragable': editable && (!('isDraggable' in data) || data.isDraggable),
 				'dropable': editable,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),

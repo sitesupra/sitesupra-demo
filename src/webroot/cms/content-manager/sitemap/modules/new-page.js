@@ -230,7 +230,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				data.push({
 					'type': apps[i].type,
 					'application_id': (apps[i].type == 'application' ? apps[i].id : null),
-					'dragable': apps[i].isDragable,
+					'dragable': apps[i].isDraggable,
 					'dropable': apps[i].isDropTarget,
 					'new_children_first': apps[i].new_children_first,
 					'state': 'temporary',
