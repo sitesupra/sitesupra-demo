@@ -48,7 +48,8 @@ Supra(function (Y) {
 				'context': this,
 				'callback': this.save
 			}]);
-			
+		
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);	
 		},
 		
 		/**
@@ -76,6 +77,9 @@ Supra(function (Y) {
 			
 			//Disable save button
 			button.set('loading', true);
+			
+			// Hide media sidebar (if any)
+			Manager.getAction('MediaSidebar').hide();
 		},
 		
 		/**
@@ -94,6 +98,7 @@ Supra(function (Y) {
 		hide: function () {
 			//Hide buttons
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			
 			//Change back to list mode
 			CRUD.Providers.getActiveProvider().set('mode', 'list');
@@ -105,6 +110,7 @@ Supra(function (Y) {
 		execute: function () {
 			//Show buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 		}
 	});
 	
