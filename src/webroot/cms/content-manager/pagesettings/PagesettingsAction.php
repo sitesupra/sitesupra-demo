@@ -19,6 +19,7 @@ use Supra\Search\SearchService;
 use Supra\Controller\Pages\Search\PageLocalizationKeywordsRequest;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
+use Supra\Controller\Pages\Exception\RuntimeException;
 
 /**
  * Page settings actions
@@ -26,352 +27,396 @@ use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 class PagesettingsAction extends PageManagerAction
 {
 
-    /**
-     * Saves page properties
-     */
-    public function saveAction()
-    {
-        $this->isPostRequest();
-        $input = $this->getRequestInput();
-        $this->checkLock();
-        $page = $this->getPage();
-        $localeId = $this->getLocale()->getId();
-        $pageData = $page->getLocalization($localeId);
+	/**
+	 * Saves page properties
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+		$input = $this->getRequestInput();
+		$this->checkLock();
+		$page = $this->getPage();
+		$localeId = $this->getLocale()->getId();
+		$pageData = $page->getLocalization($localeId);
 
-        if (empty($pageData)) {
-            $this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-            $pageData = Entity\Abstraction\Localization::factory($page, $localeId);
-        } else {
-            $this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-        }
+		if (empty($pageData)) {
+			$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+			$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
+		} else {
+			$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+		}
 
-        if ($input->has('global')) {
-            $global = $input->getValid('global', AbstractType::BOOLEAN);
-            $page->setGlobal($global);
-        }
+		if ($input->has('global')) {
+			$global = $input->getValid('global', AbstractType::BOOLEAN);
+			$page->setGlobal($global);
+		}
 
-        //TODO: create some simple objects for save post data with future validation implementation?
-        if ($input->has('title')) {
-            $title = $input->get('title');
-            $pageData->setTitle($title);
-        }
+		//TODO: create some simple objects for save post data with future validation implementation?
+		if ($input->has('title')) {
+			$title = $input->get('title');
+			$pageData->setTitle($title);
+		}
 
-        if ($input->has('is_visible_in_menu')) {
-            $visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
-            $pageData->setVisibleInMenu($visibleInMenu);
-        }
+		if ($input->has('is_visible_in_menu')) {
+			$visibleInMenu = $input->getValid('is_visible_in_menu', AbstractType::BOOLEAN);
+			$pageData->setVisibleInMenu($visibleInMenu);
+		}
 
-        if ($input->has('is_limited') && $pageData instanceof Entity\PageLocalization) {
-            $limitedAccess = $input->getValid('is_limited', AbstractType::BOOLEAN);
-            $pageData->setLimitedAccessPage($limitedAccess);
-        }
+		if ($input->has('is_limited') && $pageData instanceof Entity\PageLocalization) {
+			$limitedAccess = $input->getValid('is_limited', AbstractType::BOOLEAN);
+			$pageData->setLimitedAccessPage($limitedAccess);
+		}
 
-        if ($input->has('is_visible_in_sitemap')) {
-            $visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
-            $pageData->setVisibleInSitemap($visibleInSitemap);
-        }
+		if ($input->has('is_visible_in_sitemap')) {
+			$visibleInSitemap = $input->getValid('is_visible_in_sitemap', AbstractType::BOOLEAN);
+			$pageData->setVisibleInSitemap($visibleInSitemap);
+		}
 
-        if ($input->has('include_in_search')) {
-            $includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
-            $pageData->setIncludedInSearch($includedInSearch);
-        }
+		if ($input->has('include_in_search')) {
+			$includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
+			$pageData->setIncludedInSearch($includedInSearch);
+		}
 
-        if ($pageData instanceof Entity\TemplateLocalization) {
-            if ($input->has('layout')) {
+		if ($pageData instanceof Entity\TemplateLocalization) {
+			if ($input->has('layout')) {
 
-                $media = $this->getMedia();
-                $template = $pageData->getMaster();
+				$media = $this->getMedia();
+				$template = $pageData->getMaster();
+				/* @var $template Entity\Template */
+				$templateLayout = null;
 
-                // Remove current layout if any
-                $templateLayout = $template->getTemplateLayouts()
-                        ->get($media);
+				// use parent layout
+				if ($input->isEmpty('layout')) {
+					if ($template->isRoot()) {
+						throw new CmsException(null, "Can not use parent layout because current page is root page");
+					}
 
-                if ( ! empty($templateLayout)) {
-                    $this->entityManager->remove($templateLayout);
-                }
+					$parentTemplate = $template->getParent();
+					/* @var $parentTemplate Entity\Template */
 
-                // Add new layout
-                if ( ! $input->isEmpty('layout')) {
-                    //TODO: validate
-                    $layoutId = $input->get('layout');
+					$parentTemplateLayout = $parentTemplate->getTemplateLayouts()->get($media);
 
-                    $layoutProcessor = $this->getPageController()
-                            ->getLayoutProcessor();
+					if ( ! $parentTemplateLayout instanceof Entity\TemplateLayout) {
+						throw new RuntimeException('Parent layout should be instance of ' . Entity\TemplateLayout::CN() . ' class');
+					}
 
-                    // Create or update layout
-                    $layoutTask = new LayoutProcessorTask();
-                    $layoutTask->setLayoutId($layoutId);
-                    $layoutTask->setEntityManager($this->entityManager);
-                    $layoutTask->setLayoutProcessor($layoutProcessor);
+					$parentLayout = $parentTemplateLayout->getLayout();
 
-                    try {
-                        $layoutTask->perform();
-                    } catch (LayoutException\LayoutNotFoundException $e) {
-                        throw new CmsException('template.error.layout_not_found', null, $e);
-                    } catch (LayoutException\RuntimeException $e) {
-                        throw new CmsException('template.error.layout_error', null, $e);
-                    }
+					// Remove current layout if any
+					$templateLayout = $template->getTemplateLayouts()
+							->get($media);
 
-                    $layout = $layoutTask->getLayout();
+					if ( ! empty($templateLayout)) {
+						$this->entityManager->remove($templateLayout);
+					}
 
-                    $templateLayout = $template->addLayout($media, $layout);
+					$templateLayout = $template->addLayout($media, $parentLayout);
+				}
+				// Search for provided layout
+				else {
 
-                    // Persist the new template layout object (cascade)
-                    $this->entityManager->persist($templateLayout);
-                } else {
-                    if ($template->isRoot()) {
-                        throw new CmsException(null, "Cannot remove layout for root template");
-                    }
-                }
-            }
-        }
+					$layoutId = $input->get('layout');
 
-        if ($pageData instanceof Entity\PageLocalization) {
+					$layout = $this->entityManager
+							->getRepository(Entity\Layout::CN())
+							->findOneBy(array('file' => $layoutId));
 
-            if ($input->has('path')) {
-                //TODO: validation 
-                $pathPart = $input->get('path');
-                $pageData->setPathPart($pathPart);
-            }
+					if ( ! $layout instanceof Entity\Layout) {
+						throw new RuntimeException('Can\'t find layout with file name ' . $layoutId);
+					}
 
-            if ($input->has('template')) {
-                //TODO: validation
-                $templateId = $input->get('template');
+					// Remove current layout if any
+					$templateLayout = $template->getTemplateLayouts()
+							->get($media);
 
-                /* @var $template Entity\Template */
-                $template = $this->entityManager->find(Entity\Template::CN(), $templateId);
-                $pageData->setTemplate($template);
-            }
+					if ( ! empty($templateLayout)) {
+						$this->entityManager->remove($templateLayout);
+					}
 
-            if ($input->has('active')) {
-                $active = $input->getValid('active', AbstractType::BOOLEAN);
-                $pageData->setActive($active);
-            }
+					$templateLayout = $template->addLayout($media, $layout);
+				}
 
-            if ($input->has('description')) {
-                $metaDescription = $input->get('description');
-                $pageData->setMetaDescription($metaDescription);
-            }
+				/**
+				 * @TODO: Move that code to separate command? 
+				 * Task #5116
 
-            if ($input->has('keywords')) {
-                $metaKeywords = $input->get('keywords');
-                $pageData->setMetaKeywords($metaKeywords);
-            }
+				  //TODO: validate
+				  $layoutId = $input->get('layout');
 
-            if ($input->has('scheduled_date')) {
+				  $layoutProcessor = $this->getPageController()
+				  ->getLayoutProcessor();
 
-                try {
-                    $this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
+				  // Create or update layout
+				  $layoutTask = new LayoutProcessorTask();
+				  $layoutTask->setLayoutId($layoutId);
+				  $layoutTask->setEntityManager($this->entityManager);
+				  $layoutTask->setLayoutProcessor($layoutProcessor);
 
-                    //TODO: validation
-                    $date = $input->get('scheduled_date');
-                    $time = $input->get('scheduled_time', '00:00');
+				  try {
+				  $layoutTask->perform();
+				  } catch (LayoutException\LayoutNotFoundException $e) {
+				  throw new CmsException('template.error.layout_not_found', null, $e);
+				  } catch (LayoutException\RuntimeException $e) {
+				  throw new CmsException('template.error.layout_error', null, $e);
+				  }
 
-                    if (empty($date)) {
-                        $pageData->unsetScheduleTime();
-                    } else {
-                        if (empty($time)) {
-                            $time = '00:00';
-                        }
+				  $layout = $layoutTask->getLayout();
 
-                        $dateTime = "{$date}T{$time}";
+				  $templateLayout = $template->addLayout($media, $layout);
 
-                        $scheduleTime = new DateTime($dateTime);
+				 */
+				
+				// Persist the new template layout object (cascade)
+				$this->entityManager->persist($templateLayout);
+			}
+		}
 
-                        if ($scheduleTime instanceof DateTime) {
-                            $pageData->setScheduleTime($scheduleTime);
-                        } else {
-                            throw new CmsException(null, "Schedule time provided in unrecognized format");
-                        }
-                    }
-                } catch (EntityAccessDeniedException $e) {
+		if ($pageData instanceof Entity\PageLocalization) {
 
-                    $this->getResponse()
-                            ->addWarningMessage('Scheduled publish date is not saved. You must have Supervise permission to use scheduling functionality.');
-                }
-            }
+			if ($input->has('path')) {
+				//TODO: validation 
+				$pathPart = $input->get('path');
+				$pageData->setPathPart($pathPart);
+			}
 
-            if ($input->has('created_date')) {
+			if ($input->has('template')) {
+				//TODO: validation
+				$templateId = $input->get('template');
 
-                $date = $input->get('created_date');
-                $time = $input->get('created_time', '00:00');
+				/* @var $template Entity\Template */
+				$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
+				$pageData->setTemplate($template);
+			}
 
-                // Set manually only if both elements are received
-                if ( ! empty($date) && ! empty($time)) {
-                    $dateTime = "{$date}T{$time}";
+			if ($input->has('active')) {
+				$active = $input->getValid('active', AbstractType::BOOLEAN);
+				$pageData->setActive($active);
+			}
 
-                    $creationTime = new DateTime($dateTime);
+			if ($input->has('description')) {
+				$metaDescription = $input->get('description');
+				$pageData->setMetaDescription($metaDescription);
+			}
 
-                    if ($creationTime instanceof DateTime) {
-                        $pageData->setCreationTime($creationTime);
-                    } else {
-                        throw new CmsException(null, "Creation time provided in unrecognized format");
-                    }
-                }
-            }
+			if ($input->has('keywords')) {
+				$metaKeywords = $input->get('keywords');
+				$pageData->setMetaKeywords($metaKeywords);
+			}
 
-            //TODO: validation
-            $redirect = null;
+			if ($input->has('scheduled_date')) {
 
-            // Setting redirect
-            if ($input->hasChild('redirect')) {
-                $redirect = $input->getChild('redirect')
-                        ->getArrayCopy();
-                // Removing redirect
-            } elseif ($input->has('redirect')) {
-                $redirect = false;
-            }
+				try {
+					$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_SUPERVISE_PAGE);
 
-            if ( ! is_null($redirect)) {
+					//TODO: validation
+					$date = $input->get('scheduled_date');
+					$time = $input->get('scheduled_time', '00:00');
 
-                // Delete current link object
-                $currentRedirect = $pageData->getRedirect();
+					if (empty($date)) {
+						$pageData->unsetScheduleTime();
+					} else {
+						if (empty($time)) {
+							$time = '00:00';
+						}
 
-                if ( ! empty($currentRedirect)) {
-                    $this->entityManager->remove($currentRedirect);
-                }
+						$dateTime = "{$date}T{$time}";
 
-                // Set new link, JS should send empty value if link must be removed
-                if (empty($redirect)) {
-                    $pageData->setRedirect(null);
-                } else {
-                    $link = new Entity\ReferencedElement\LinkReferencedElement();
-                    $link->fillArray($redirect);
-                    $this->entityManager->persist($link);
+						$scheduleTime = new DateTime($dateTime);
 
-                    $pageData->setRedirect($link);
-                }
-            }
+						if ($scheduleTime instanceof DateTime) {
+							$pageData->setScheduleTime($scheduleTime);
+						} else {
+							throw new CmsException(null, "Schedule time provided in unrecognized format");
+						}
+					}
+				} catch (EntityAccessDeniedException $e) {
 
-            if ($input->has('page_change_frequency')) {
-                $changeFrequency = $input->get('page_change_frequency');
-                $pageData->setChangeFrequency($changeFrequency);
-            }
+					$this->getResponse()
+							->addWarningMessage('Scheduled publish date is not saved. You must have Supervise permission to use scheduling functionality.');
+				}
+			}
 
-            if ($input->has('page_priority')) {
-                $pagePriority = $input->get('page_priority');
-                $pageData->setPagePriority($pagePriority);
-            }
-        }
+			if ($input->has('created_date')) {
 
-        try {
-            $this->entityManager->flush();
-        } catch (\Supra\Controller\Pages\Exception\DuplicatePagePathException $e) {
-            throw new CmsException(null, $e->getMessage());
-        }
-		
+				$date = $input->get('created_date');
+				$time = $input->get('created_time', '00:00');
+
+				// Set manually only if both elements are received
+				if ( ! empty($date) && ! empty($time)) {
+					$dateTime = "{$date}T{$time}";
+
+					$creationTime = new DateTime($dateTime);
+
+					if ($creationTime instanceof DateTime) {
+						$pageData->setCreationTime($creationTime);
+					} else {
+						throw new CmsException(null, "Creation time provided in unrecognized format");
+					}
+				}
+			}
+
+			//TODO: validation
+			$redirect = null;
+
+			// Setting redirect
+			if ($input->hasChild('redirect')) {
+				$redirect = $input->getChild('redirect')
+						->getArrayCopy();
+				// Removing redirect
+			} elseif ($input->has('redirect')) {
+				$redirect = false;
+			}
+
+			if ( ! is_null($redirect)) {
+
+				// Delete current link object
+				$currentRedirect = $pageData->getRedirect();
+
+				if ( ! empty($currentRedirect)) {
+					$this->entityManager->remove($currentRedirect);
+				}
+
+				// Set new link, JS should send empty value if link must be removed
+				if (empty($redirect)) {
+					$pageData->setRedirect(null);
+				} else {
+					$link = new Entity\ReferencedElement\LinkReferencedElement();
+					$link->fillArray($redirect);
+					$this->entityManager->persist($link);
+
+					$pageData->setRedirect($link);
+				}
+			}
+
+			if ($input->has('page_change_frequency')) {
+				$changeFrequency = $input->get('page_change_frequency');
+				$pageData->setChangeFrequency($changeFrequency);
+			}
+
+			if ($input->has('page_priority')) {
+				$pagePriority = $input->get('page_priority');
+				$pageData->setPagePriority($pagePriority);
+			}
+		}
+
+		try {
+			$this->entityManager->flush();
+		} catch (\Supra\Controller\Pages\Exception\DuplicatePagePathException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
+
 		$this->savePostTrigger();
 
-        $this->writeAuditLog('Settings of %item% saved', $pageData);
-    }
+		$this->writeAuditLog('Settings of %item% saved', $pageData);
+	}
 
-    /**
-     * List of templates
-     */
-    public function templatesAction()
-    {
-        $localeId = $this->getLocale()->getId();
-        $templateArray = array();
-        $templateTitles = array();
+	/**
+	 * List of templates
+	 */
+	public function templatesAction()
+	{
+		$localeId = $this->getLocale()->getId();
+		$templateArray = array();
+		$templateTitles = array();
 
-        $templateDataDao = $this->entityManager->getRepository(Entity\TemplateLocalization::CN());
-        $templateDataList = $templateDataDao->findByLocale($localeId);
+		$templateDataDao = $this->entityManager->getRepository(Entity\TemplateLocalization::CN());
+		$templateDataList = $templateDataDao->findByLocale($localeId);
 
-        /* @var $templateData Entity\TemplateLocalization */
-        foreach ($templateDataList as $templateData) {
+		/* @var $templateData Entity\TemplateLocalization */
+		foreach ($templateDataList as $templateData) {
 
-            $templateArray[] = array(
-                'id' => $templateData->getMaster()->getId(),
-                'title' => $templateData->getTitle(),
-                //TODO: hardcoded
-                'img' => "/cms/lib/supra/img/templates/template-3-small.png"
-            );
+			$templateArray[] = array(
+				'id' => $templateData->getMaster()->getId(),
+				'title' => $templateData->getTitle(),
+				//TODO: hardcoded
+				'img' => "/cms/lib/supra/img/templates/template-3-small.png"
+			);
 
-            $templateTitles[] = $templateData->getTitle();
-        }
+			$templateTitles[] = $templateData->getTitle();
+		}
 
-        array_multisort($templateTitles, $templateArray);
+		array_multisort($templateTitles, $templateArray);
 
-        $this->getResponse()->setResponseData($templateArray);
-    }
+		$this->getResponse()->setResponseData($templateArray);
+	}
 
-    public function suggestionsAction()
-    {
-        $suggestions = array();
+	public function suggestionsAction()
+	{
+		$suggestions = array();
 
-        $request = $this->getRequest();
+		$request = $this->getRequest();
 
-        $pageLocalizationId = $request->getParameter('page_id');
+		$pageLocalizationId = $request->getParameter('page_id');
 
-        $em = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 
-        $pageLocalizationRepository = $em->getRepository(Entity\PageLocalization::CN());
-        $pageLocalization = $pageLocalizationRepository->find($pageLocalizationId);
-        /* @var $pageLocalization Entity\PageLocalization */
-		
+		$pageLocalizationRepository = $em->getRepository(Entity\PageLocalization::CN());
+		$pageLocalization = $pageLocalizationRepository->find($pageLocalizationId);
+		/* @var $pageLocalization Entity\PageLocalization */
+
 		$revisionId = $pageLocalization->getRevisionId();
 
-        $searchService = new SearchService();
-        $indexerService = new IndexerService();
+		$searchService = new SearchService();
+		$indexerService = new IndexerService();
 
-        $findRequest = new PageLocalizationFindRequest();
-        $findRequest->setPageLocalizationId($pageLocalizationId);
-        $findRequest->setRevisionId($pageLocalization->getRevisionId());
-        $findRequest->setSchemaName(PageController::SCHEMA_DRAFT);
+		$findRequest = new PageLocalizationFindRequest();
+		$findRequest->setPageLocalizationId($pageLocalizationId);
+		$findRequest->setRevisionId($pageLocalization->getRevisionId());
+		$findRequest->setSchemaName(PageController::SCHEMA_DRAFT);
 
-        $findResults = $searchService->processRequest($findRequest);
+		$findResults = $searchService->processRequest($findRequest);
 
-        $doCleanup = false;
+		$doCleanup = false;
 
-        if ($findResults->getTotalResultCount() == 0) {
+		if ($findResults->getTotalResultCount() == 0) {
 
-            $doCleanup = true;
+			$doCleanup = true;
 
-            $indexerQueueItem = new Entity\PageLocalizationIndexerQueueItem($pageLocalization);
-            $indexerQueueItem->setIgnoreChildren(true);
-            $indexerService->processItem($indexerQueueItem);
-        }
+			$indexerQueueItem = new Entity\PageLocalizationIndexerQueueItem($pageLocalization);
+			$indexerQueueItem->setIgnoreChildren(true);
+			$indexerService->processItem($indexerQueueItem);
+		}
 
-        $getKeywordsRequest = new PageLocalizationKeywordsRequest();
-        $getKeywordsRequest->setPageLocalizationId($pageLocalizationId);
-        $getKeywordsRequest->setRevisionId($revisionId);
-        $getKeywordsRequest->setLocaleId($pageLocalization->getLocale());
-        $getKeywordsRequest->setSchemaName(PageController::SCHEMA_DRAFT);
+		$getKeywordsRequest = new PageLocalizationKeywordsRequest();
+		$getKeywordsRequest->setPageLocalizationId($pageLocalizationId);
+		$getKeywordsRequest->setRevisionId($revisionId);
+		$getKeywordsRequest->setLocaleId($pageLocalization->getLocale());
+		$getKeywordsRequest->setSchemaName(PageController::SCHEMA_DRAFT);
 
-        $result = $searchService->processRequest($getKeywordsRequest);
+		$result = $searchService->processRequest($getKeywordsRequest);
 
-        $resultItems = $result->getItems();
-        $keywords = array();
+		$resultItems = $result->getItems();
+		$keywords = array();
 
-        foreach ($resultItems as $resultItem) {
+		foreach ($resultItems as $resultItem) {
 
-            /* @var $resultItem PageLocalizationSearchResultItem */
-            if ($resultItem->getPageLocalizationId() == $pageLocalizationId) {
+			/* @var $resultItem PageLocalizationSearchResultItem */
+			if ($resultItem->getPageLocalizationId() == $pageLocalizationId) {
 
-                $allKeywords = $resultItem->getKeywordsFromText();
+				$allKeywords = $resultItem->getKeywordsFromText();
 
-                if ( ! empty($allKeywords)) {
+				if ( ! empty($allKeywords)) {
 
-                    foreach ($allKeywords as $keyword => $keywordData) {
+					foreach ($allKeywords as $keyword => $keywordData) {
 
-                        $keywords[$keyword] = $keywordData['tf'];
-                    }
+						$keywords[$keyword] = $keywordData['tf'];
+					}
 
-                    arsort($keywords);
+					arsort($keywords);
 
-                    $suggestions = array_keys(array_slice($keywords, 0, 10));
-                }
+					$suggestions = array_keys(array_slice($keywords, 0, 10));
+				}
 
-                if ($doCleanup) {
+				if ($doCleanup) {
 
-                    $indexerService->removeFromIndex($resultItem->getUniqueId());
-                }
+					$indexerService->removeFromIndex($resultItem->getUniqueId());
+				}
 
-                break;
-            }
-        }
+				break;
+			}
+		}
 
-        $this->getResponse()->setResponseData($suggestions);
-    }
+		$this->getResponse()->setResponseData($suggestions);
+	}
 
 }

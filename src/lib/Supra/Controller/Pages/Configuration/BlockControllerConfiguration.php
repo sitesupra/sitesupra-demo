@@ -65,6 +65,11 @@ class BlockControllerConfiguration implements ConfigurationInterface
 	 */
 	public $hidden = false;
 	
+	/**
+	 * Can only one block exist on a page
+	 * @var boolean
+	 */
+	public $unique = false;
 	
 	/**
 	 * Block HTML description

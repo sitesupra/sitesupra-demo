@@ -274,6 +274,9 @@ class PageAction extends PageManagerAction
 			}
 
 			$array['layout'] = $layout;
+			
+			// fetch all layouts
+			$array['layouts'] = $this->getLayouts();
 		}
 
 		$array['root'] = $page->isRoot();
@@ -839,6 +842,36 @@ class PageAction extends PageManagerAction
 
 			return;
 		}
+	}
+	
+	protected function getLayouts()
+	{
+		$layouts = array();
+		
+		$em = ObjectRepository::getEntityManager($this);
+		$qb = $em->createQueryBuilder();
+		
+		$qb->select('l.file')
+				->from(Entity\Layout::CN(), 'l');
+		
+		$query = $qb->getQuery();
+		$results = $query->getResult();
+
+		foreach ($results as $layout) {
+			// FIXME: Remove later when  theme change feature will work
+			$title = str_replace('.html.twig', '', $layout['file']);
+			$title = ucfirst(str_replace('_', ' ', $title));
+
+			// Format for pagesettings.js [{id:'root.html.twig', title:'Root page'}]
+			$layouts[] = array(
+				'id' => $layout['file'],
+				// @TODO: Layout title fetching must be done so it works together 
+				// with the theme change feature well
+				'title' => $title,
+			);
+		}
+
+		return $layouts;
 	}
 
 }

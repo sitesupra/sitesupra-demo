@@ -164,6 +164,7 @@
 			"page_url": "Page URL",
 			
 			"page_layout": "Layout",
+			"use_parent_layout": "Use parent layout",
 			
 			"is_active": "Page active",
 			
