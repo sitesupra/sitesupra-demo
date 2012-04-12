@@ -1,6 +1,6 @@
 DirectorySlash Off
-
 RewriteEngine on
+
 RewriteCond %{REQUEST_FILENAME}.less -f
 RewriteRule ^.*\.css$ /cms/lib/supra/combo/combo.php?/$0 [L,NS]
 

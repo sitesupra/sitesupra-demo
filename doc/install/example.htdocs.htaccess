@@ -1,0 +1,20 @@
+DirectorySlash Off
+RewriteEngine on
+
+RewriteCond %{DOCUMENT_ROOT}/src/webroot/$0.less -f
+RewriteRule ^.*\.css$ /cms/lib/supra/combo/combo.php?/$0 [L,NS]
+
+RewriteCond $0 !^(src/webroot/)?(cms|components)/ [OR]
+RewriteCond $0 \.(gif|jpe?g|png|js|css|html|json|swf|ico)$ [OR,NC]
+RewriteCond $0 ^(src/webroot/)?cms/lib/supra/combo/combo.php$
+RewriteRule ^.*$ - [E=SUPRA_STATIC_ALLOW:true]
+
+RewriteCond %{DOCUMENT_ROOT}/src/webroot/$0 -f
+RewriteCond %{ENV:SUPRA_STATIC_ALLOW} true
+RewriteRule ^.*$ src/webroot/$0 [L,NS]
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{ENV:SUPRA_STATIC_ALLOW} true
+RewriteRule ^src/webroot/.*$ - [L,NS]
+
+RewriteRule ^.*$ src/webroot/index.php/$0 [L,NS]
