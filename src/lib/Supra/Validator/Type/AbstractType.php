@@ -128,12 +128,31 @@ abstract class AbstractType implements ValidationTypeInterface
 	/**
 	 * Check if the received value is valid (currently by checking error exception)
 	 * @param string $value
+	 * @param mixed $additionalParameters
 	 */
-	public function isValid($value)
+	public function isValid($value, $additionalParameters = null)
 	{
 		try {
-			$this->validate($value);
+			$this->validate($value, $additionalParameters);
 		} catch (Exception\ValidationFailure $exception) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 * @param mixed $value
+	 * @param mixed $additionalParameters
+	 * @return boolean
+	 */
+	public function sanitize(&$value, $additionalParameters = null)
+	{
+		try {
+			$this->validate($value, $additionalParameters);
+		} catch (Exception\ValidationFailure $exception) {
+			$value = null;
 			return false;
 		}
 		

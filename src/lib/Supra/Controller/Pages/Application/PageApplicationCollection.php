@@ -105,9 +105,9 @@ class PageApplicationCollection
 			}
 		}
 		
-		// TODO: this might cause some problems because this instance could be shared
-		// Still resetting this value is better than not doing this.
-		$this->loadedApplications[$cacheId]->showInactivePages(false);
+//		// TODO: this might cause some problems because this instance could be shared
+//		// Still resetting this value is better than not doing this.
+//		$this->loadedApplications[$cacheId]->showInactivePages(false);
 		
 		return $this->loadedApplications[$cacheId];
 	}

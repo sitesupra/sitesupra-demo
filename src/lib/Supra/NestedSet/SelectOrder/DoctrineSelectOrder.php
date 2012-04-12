@@ -17,7 +17,7 @@ class DoctrineSelectOrder extends SelectOrderAbstraction
 	 * @param QueryBuilder $qb
 	 * @throws Exception\InvalidArgument
 	 */
-	public function applyToQueryBuilder(QueryBuilder $qb, $parameterOffset = 0)
+	public function applyToQueryBuilder(QueryBuilder $qb, &$parameterOffset = 0)
 	{
 		$orderRules = $this->orderRules;
 		foreach ($orderRules as $orderRule) {
@@ -47,7 +47,5 @@ class DoctrineSelectOrder extends SelectOrderAbstraction
 			}
 			$qb->addOrderBy($field, $directionSQL);
 		}
-		
-		return $parameterOffset;
 	}
 }

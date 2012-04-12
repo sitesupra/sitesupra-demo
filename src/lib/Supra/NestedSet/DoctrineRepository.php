@@ -315,6 +315,14 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function createSearchQueryBuilder(SearchCondition\SearchConditionInterface $filter = null, SelectOrder\SelectOrderInterface $order = null)
 	{
+		if ( ! is_null($filter) && ! $filter instanceof SearchCondition\DoctrineSearchCondition) {
+			throw new Exception\WrongInstance($filter, 'SearchCondition\DoctrineSearchCondition');
+		}
+		
+		if ( ! is_null($order) && ! $order instanceof SelectOrder\DoctrineSelectOrder) {
+			throw new Exception\WrongInstance($order, 'SelectOrder\DoctrineSelectOrder');
+		}
+		
 		$this->parameterOffset = 0;
 		
 		$em = $this->getEntityManager();
@@ -329,11 +337,15 @@ class DoctrineRepository extends RepositoryAbstraction
 			$filter = $this->createSearchCondition();
 		}
 		
-		$this->parameterOffset = $filter->applyToQueryBuilder($qb, $this->parameterOffset);
+		$filter->applyToQueryBuilder($qb, $this->parameterOffset);
 
-		if ( ! is_null($order)) {
-			$this->parameterOffset = $order->applyToQueryBuilder($qb, $this->parameterOffset);
+		// Default order
+		if (is_null($order)) {
+			$order = $this->createSelectOrderRule();
+			$order->byLeftAscending();
 		}
+		
+		$order->applyToQueryBuilder($qb, $this->parameterOffset);
 		
 		return $qb;
 	}

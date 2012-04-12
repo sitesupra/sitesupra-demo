@@ -22,12 +22,20 @@ class PageFinder extends AbstractFinder
 	private $searchCondition;
 
 	/**
+	 * @return Repository\PageAbstractRepository
+	 */
+	protected function getRepository()
+	{
+		return $this->em->getRepository(Entity\Page::CN());
+	}
+	
+	/**
 	 * @return \Supra\NestedSet\DoctrineRepository
 	 */
 	public function getNestedSetRepository()
 	{
 		if (is_null($this->nestedSetRepository)) {
-			$repository = $this->em->getRepository(Entity\Page::CN());
+			$repository = $this->getRepository();
 
 			if ( ! $repository instanceof Repository\PageAbstractRepository) {
 				throw new \Supra\Controller\Pages\Exception\ConfigurationException("Wrong repository received");

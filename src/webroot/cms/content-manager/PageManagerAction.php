@@ -433,8 +433,6 @@ abstract class PageManagerAction extends CmsAction
 					$application = PageApplicationCollection::getInstance()
 							->createApplication($parentLocalization, $this->entityManager);
 
-					$application->showInactivePages(true);
-
 					if (empty($application)) {
 						throw new CmsException(null, "Application '$applicationId' was not found");
 					}

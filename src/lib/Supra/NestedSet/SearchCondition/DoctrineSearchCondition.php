@@ -21,9 +21,10 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 	 * Adds search filter to the query builder passed.
 	 * NB! The alias of the main table must be "e".
 	 * @param QueryBuilder $qb
+	 * @param integer $parameterOffset
 	 * @throws Exception\InvalidArgument on invalid parameters
 	 */
-	function applyToQueryBuilder(QueryBuilder $qb, $parameterOffset = 0)
+	public function applyToQueryBuilder(QueryBuilder $qb, &$parameterOffset = 0)
 	{
 		$expr = $qb->expr();
 
@@ -78,8 +79,6 @@ class DoctrineSearchCondition extends SearchConditionAbstraction
 		if ( ! empty($this->additionalCondition)) {
 			$qb->andWhere($this->additionalCondition);
 		}
-		
-		return $parameterOffset;
 	}
 	
 	/**

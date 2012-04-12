@@ -228,19 +228,14 @@ class FilteredInput extends \ArrayIterator
 	 * Static validation method
 	 * @param string $value
 	 * @param string $type
-	 * @param array $additionalParameters
+	 * @param mixed $additionalParameters
 	 * @return mixed
+	 * @throws Exception\ValidationFailure
 	 */
-	public static function validate($value, $type, array $additionalParameters = array())
+	public static function validate($value, $type, $additionalParameters = null)
 	{
 		$validator = Type\AbstractType::getType($type);
-		
-		// Mainly done for "find usages" feature
-		if (empty($additionalParameters)) {
-			$validator->validate($value);
-		} else {
-			call_user_func_array(array($validator, 'validate'), array(&$value, $additionalParameters));
-		}
+		$validator->validate($value, $additionalParameters);
 		
 		return $value;
 	}
@@ -249,30 +244,78 @@ class FilteredInput extends \ArrayIterator
 	 * Get validated (and sanitized) value
 	 * @param mixed $index
 	 * @param string $type
-	 * @param mixed $additionalParameter
-	 * @param mixed $additionalParameter2
+	 * @param mixed $additionalParameters
 	 * @return mixed
+	 * @throws Exception\ValidationFailure
 	 */
-	public function getValid($index, $type, $additionalParameter = null, $additionalParameter2 = null)
+	public function getValid($index, $type, $additionalParameters = null)
 	{
 		$value = $this->get($index);
-		$additionalParameters = array_slice(func_get_args(), 2);
 		$validValue = self::validate($value, $type, $additionalParameters);
 		
 		return $validValue;
 	}
 	
 	/**
-	 * Get validated (and sanitized) next value
+	 * Return valid value or null if offset doesn't exist, throws exception if
+	 * not valid.
+	 * @param string $index
 	 * @param string $type
-	 * @param mixed $additionalParameter
-	 * @param mixed $additionalParameter2
+	 * @param mixed $additionalParameters
+	 * @return mixed
+	 * @throws Exception\ValidationFailure
+	 */
+	public function getValidIfExists($index, $type, $additionalParameters = null)
+	{
+		$valid = null;
+		
+		if ( ! $this->has($index)) {
+			return null;
+		}
+		
+		$value = $this->getValid($index, $type, $additionalParameters);
+		
+		return $value;
+	}
+	
+	/**
+	 * Return valid value or null if offset doesn't exist or is not valid
+	 * @param string $index
+	 * @param string $type
+	 * @param mixed $additionalParameters
 	 * @return mixed
 	 */
-	public function getNextValid($type, $additionalParameter = null, $additionalParameter2 = null)
+	public function getValidOrNull($index, $type, $additionalParameters = null)
+	{
+		$valid = null;
+		
+		if ( ! $this->has($index)) {
+			return null;
+		}
+		
+		$value = $this->get($index);
+		
+		$validator = Type\AbstractType::getType($type);
+		$valid = null;
+		
+		$valid = $validator->isValid($value, $additionalParameters);
+		
+		if ( ! $valid) {
+			return null;
+		}
+		
+		return $value;
+	}
+	
+	/**
+	 * Get validated (and sanitized) next value
+	 * @param string $type
+	 * @param mixed $additionalParameters
+	 * @return mixed
+	 */
+	public function getNextValid($type, $additionalParameters = null)
 	{
 		$value = $this->getNext();
-		$additionalParameters = array_slice(func_get_args(), 1);
 		$validValue = self::validate($value, $type, $additionalParameters);
 		
 		return $validValue;
@@ -284,24 +327,18 @@ class FilteredInput extends \ArrayIterator
 	 * @param string $type
 	 * @return mixed
 	 */
-	public function isValid($index, $type, $additionalParameter = null, $additionalParameter2 = null)
+	public function isValid($index, $type, $additionalParameters = null)
 	{
 		if ( ! $this->has($index)) {
 			return false;
 		}
 		
 		$value = $this->get($index);
-		$additionalParameters = array_slice(func_get_args(), 2);
 		
 		$validator = Type\AbstractType::getType($type);
 		$valid = null;
 		
-		// Mainly done for "find usages" feature
-		if (empty($additionalParameters)) {
-			$valid = $validator->isValid($value);
-		} else {
-			$valid = call_user_func_array(array($validator, 'isValid'), $additionalParameters);
-		}
+		$valid = $validator->isValid($value, $additionalParameters);
 		
 		return $valid;
 	}
