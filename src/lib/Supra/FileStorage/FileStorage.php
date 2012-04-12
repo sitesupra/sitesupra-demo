@@ -53,7 +53,7 @@ class FileStorage
 	 * TODO: separate messages to MediaLibrary UI and to Logger
 	 * @var array
 	 */
-	public $fileUploadErrorMessages = array(
+	public static $fileUploadErrorMessages = array(
 			'1' => 'The uploaded file exceeds the maximum upload file size',
 			'2' => 'The uploaded file exceeds the maximum upload file size',
 			'3' => 'The uploaded file was only partially uploaded',
