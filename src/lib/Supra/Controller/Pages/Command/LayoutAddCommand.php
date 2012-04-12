@@ -25,8 +25,7 @@ class LayoutAddCommand extends Command
 	{
 		$this->setName('su:layout:add')
 				->setDescription("Adds new layout to database")
-				->addArgument('layout', Input\InputArgument::REQUIRED, 'Layout name')
-				->addOption('force', null, Input\InputOption::VALUE_NONE, 'Overwrites already existing layout');
+				->addArgument('layout', Input\InputArgument::REQUIRED, 'Layout name');
 	}
 
 	/**
@@ -50,14 +49,8 @@ class LayoutAddCommand extends Command
 		$layout = $layoutRepo->findOneBy(array('file' => $fileName));
 
 		if ($layout instanceof Layout) {
-			$force = $input->getOption('force');
-			if ( ! $force) {
 				$output->writeln("<error>Layout {$fileName} already exist in database. Use --force parameter to overwrite layout</error>");
 				return;
-			}
-			
-			$em->remove($layout);
-			$em->flush();
 		}
 		// Creating layout
 		$twigProcessor = new TwigProcessor();
