@@ -157,6 +157,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @param {Object} event Event
 		 */
 		onPropertyChange: function (event) {
+			
+			console.log('onImageProp');
+			
 			if (this.silent || !this.selected_image) return;
 			
 			var target = event.target,
@@ -200,6 +203,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					height = value ? Math.round(value / ratio) : size.height,
 					width = value || size.width;
 				
+				data.size_width = width;
 				data.size_height = height;
 				image.setAttribute('width', width);
 				image.setAttribute('height', height);
@@ -219,6 +223,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					height = value || size.height;
 				
 				data.size_width = width;
+				data.size_height = height;
 				image.setAttribute('width', width);
 				image.setAttribute('height', height);
 				
