@@ -3,6 +3,7 @@
 namespace Supra\Validator\Type;
 
 use Supra\Validator\Exception;
+use Supra\FileStorage\Exception\FileUploadException;
 
 /**
  * Post uploaded file validation type
@@ -18,40 +19,7 @@ class PostFileType extends AbstractType
 		}
 		
 		if ($value['error'] != UPLOAD_ERR_OK) {
-			switch ($value['error']) {
-				case UPLOAD_ERR_INI_SIZE:
-					$thrownError = 'The uploaded file exceeds the upload_max_filesize directive';
-				break;
-			
-				case UPLOAD_ERR_FORM_SIZE:
-					$thrownError = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
-				break;
-			
-				case UPLOAD_ERR_PARTIAL:
-					$thrownError = 'The uploaded file was only partially uploaded';
-				break;
-			
-				case UPLOAD_ERR_NO_FILE:
-					$thrownError = 'No file was uploaded';
-				break;
-			
-				case UPLOAD_ERR_NO_TMP_DIR:
-					$thrownError = 'Missing a temporary folder';
-				break;
-			
-				case UPLOAD_ERR_CANT_WRITE:
-					$thrownError = 'Failed to write file to disk';
-				break;
-					
-				case UPLOAD_ERR_EXTENSION:
-					$thrownError = 'A PHP extension stopped the file upload';
-				break;
-			
-				default:
-					$thrownError = 'An unknown error happened when trying to upload file';
-			}
-			
-			throw new Exception\ValidationFailure($thrownError);
+			throw new Exception\ValidationFailure('Failed to upload file', null, FileUploadException::fire($value['error']));
 		}
 		
 		if ( ! is_readable($value['tmp_name'])) {

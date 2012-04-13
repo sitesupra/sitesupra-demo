@@ -49,21 +49,6 @@ class FileStorage
 	private $folderUploadFilters = array();
 
 	/**
-	 * $_FILES['error'] messages
-	 * TODO: separate messages to MediaLibrary UI and to Logger
-	 * @var array
-	 */
-	public static $fileUploadErrorMessages = array(
-			'1' => 'The uploaded file exceeds the maximum upload file size',
-			'2' => 'The uploaded file exceeds the maximum upload file size',
-			'3' => 'The uploaded file was only partially uploaded',
-			'4' => 'No file was uploaded',
-			'6' => 'Missing a temporary folder',
-			'7' => 'Failed to write file to disk',
-			'8' => 'A PHP extension stopped the file upload',
-	);
-
-	/**
 	 * @return EntityManager
 	 */
 	public function getDoctrineEntityManager()
@@ -159,7 +144,7 @@ class FileStorage
 	{
 		$this->fileUploadFilters[] = $filter;
 	}
-
+	
 	/**
 	 * Add folder upload filter
 	 * @param Validation\FolderValidationInterface $filter
