@@ -111,8 +111,19 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
 				
-				// if folder is empty
-				if ( ! item_data.children.length) {
+				var folderHasImages = false;
+				
+				//Add all images from folder
+				for(var i in item_data.children) {
+					image = item_data.children[i];
+					if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+						this.addImage(item_data.children[i]);
+						folderHasImages = true;
+					}
+				}
+				
+				//folder was without images
+				if ( ! folderHasImages) {
 					SU.Manager.executeAction('Confirmation', {
 					    'message': '{#medialibrary.validation_error.empty_folder_drop#}',
 					    'useMask': true,
@@ -123,16 +134,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 					return;
 				}
-				
-				//Add all images from folder
-				for(var i in item_data.children) {
-					image = item_data.children[i];
-					if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-						this.addImage(item_data.children[i]);
-					}
-				}
-				
 			}
+			
+			Manager.MediaSidebar.hide();
+			this.properties.showPropertiesForm();
 		},
 		
 		/**
