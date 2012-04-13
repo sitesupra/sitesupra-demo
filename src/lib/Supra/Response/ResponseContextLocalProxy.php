@@ -50,13 +50,25 @@ class ResponseContextLocalProxy extends ResponseContext
 	}
 	
 	/**
-	 * @param string $key
+	 * Overrides ArrayIterator function
+	 * @param mixed $key
 	 * @param mixed $value
 	 */
-	public function setValue($key, $value)
+	public function offsetSet($key, $value)
 	{
-		$this->localContext->setValue($key, $value);
-		parent::setValue($key, $value);
+		$this->localContext->offsetSet($key, $value);
+		parent::offsetSet($key, $value);
+	}
+	
+	/**
+	 * Overrides ArrayIterator function
+	 * @param mixed $key
+	 * @param mixed $value
+	 */
+	public function offsetUnset($key)
+	{
+		$this->localContext->offsetUnset($key);
+		parent::offsetUnset($key);
 	}
 	
 	/**

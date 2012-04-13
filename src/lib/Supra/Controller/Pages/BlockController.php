@@ -87,16 +87,24 @@ abstract class BlockController extends ControllerAbstraction
 				$this->setPage($page);
 			}
 
-			// check for uniqness 
-			$blockOutputCount = $this->getBlockOutputCount();
-			
 			$blockControllerCollection = BlockControllerCollection::getInstance();
-			$blockClass = $this->getBlock()->getComponentClass();
-			
+			$blockClass = $this->getBlock()->getComponentName();
 			$configuration = $blockControllerCollection->getBlockConfiguration($blockClass);
 			
-			if ($blockOutputCount > 1 && $configuration->unique) {
-				throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' ({$configuration->controllerClass}) can exist on a page");
+			if ($configuration->unique) {
+				// check for uniqness
+				$blockOutputCount = $this->increaseBlockOutputCount();
+
+				if ($blockOutputCount > 1) {
+					$pageTitle = null;
+					
+					if ($request instanceof PageRequest) {
+						$pageTitle = $request->getPageLocalization()
+								->getTitle();
+					}
+					
+					throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
+				}
 			}
 
 			$this->doPrepare();
@@ -450,25 +458,32 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * Returns count of how much same type blocks will be sent to output
+	 * Block controller local counter. Usually might be used to count the number
+	 * of the block instances in the page.
 	 * 
-	 * @return integer 
+	 * @return integer
 	 */
-	protected function getBlockOutputCount()
+	private function increaseBlockOutputCount()
 	{
-		$blockClassName = $this->getBlock()->getComponentName();
+		$blockClassName = get_class($this);
+		$offset = 'BLOCK_COUNTER_' . $blockClassName;
 		$response = $this->getResponse();
-		$context = $response->getContext();
-
-		if ( ! $context->offsetExists($blockClassName)) {
-			$context->offsetSet($blockClassName, 1);
-			return 1;
-		}
-
-		$blockOutputCount = $context->offsetGet($blockClassName);
-		$context->offsetSet($blockClassName,  ++ $blockOutputCount);
 		
-		return $blockOutputCount;
+		if ( ! $response instanceof Response\HttpResponse) {
+			return null;
+		}
+		
+		$count = 0;
+		$context = $response->getContext();
+		
+		if (isset($context[$offset])) {
+			$count = max((int) $context[$offset], 0);
+		}
+		
+		$count++;
+		$context[$offset] = $count;
+		
+		return $count;
 	}
 
 }
