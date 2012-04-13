@@ -179,7 +179,7 @@
 		
 	</fields>
 
- 	<uniqueKey>uniqueId</uniqueKey>
+	<uniqueKey>uniqueId</uniqueKey>
 
 	<defaultSearchField>text_general</defaultSearchField>
 
