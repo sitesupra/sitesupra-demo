@@ -239,6 +239,15 @@ class PagecontentAction extends PageManagerAction
 				$blockPropertyMetadata = new Entity\BlockPropertyMetadata($elementName, $property, $element);
 				$property->addMetadata($blockPropertyMetadata);
 			}
+			
+			// Delete removed metadata
+			foreach ($metadataCollection as $metadataName => $metadataValue) {
+				/* @var $metadataValue Entity\BlockPropertyMetadata */
+				if ( ! array_key_exists($metadataName, $valueData)) {
+					$metadataCollection->remove($metadataName);
+					$this->entityManager->remove($metadataValue);
+				}
+			}
 		}
 		
 		$this->entityManager->flush();
