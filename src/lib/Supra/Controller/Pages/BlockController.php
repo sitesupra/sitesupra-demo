@@ -13,7 +13,7 @@ use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Loader;
+use Supra\Loader\Loader;
 use Supra\Response\TwigResponse;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
@@ -148,6 +148,10 @@ abstract class BlockController extends ControllerAbstraction
 	{
 		if (empty($this->hadException)) {
 
+			$className = get_class($this);
+			$file = Loader::getInstance()->findClassPath($className);
+			$this->getResponse()->addResponseResourceFile($file);
+			
 			try {
 				$this->doExecute();
 			} catch (\Exception $e) {

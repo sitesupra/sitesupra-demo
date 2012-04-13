@@ -9,6 +9,8 @@ use Supra\Response\TwigResponse;
  */
 class ResponseContextLocalProxy extends ResponseContext
 {
+	const RESOURCE_FILE_OFFSET = 'resources';
+	
 	/**
 	 * @var ResponseContext
 	 */
@@ -96,6 +98,37 @@ class ResponseContextLocalProxy extends ResponseContext
 	public function getLocalContext()
 	{
 		return $this->localContext;
+	}
+	
+	/**
+	 * @param string $file
+	 */
+	public function addResourceFile($file)
+	{
+		$resources = array();
+		$context = $this->getLocalContext();
+		$offset = __CLASS__ . '$' . self::RESOURCE_FILE_OFFSET;
+		
+		if ($context->offsetExists($offset)) {
+			$resources = $context->offsetGet($offset);
+		}
+		
+		//TODO: what if such file does not exist?
+		$resources[$file] = filemtime($file);
+		
+		$context->offsetSet($offset, $resources);
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getResourceFiles()
+	{
+		$offset = __CLASS__ . '$' . self::RESOURCE_FILE_OFFSET;
+		$context = $this->getLocalContext();
+		$resources = $context->offsetGet($offset);
+		
+		return $resources;
 	}
 	
 }

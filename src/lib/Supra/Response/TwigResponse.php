@@ -95,6 +95,9 @@ class TwigResponse extends HttpResponse
 		$content = $this->twigEnvironment->parseTemplate($templateName, $this->templateVariables, $loader);
 
 		$this->output($content);
+		
+		$file = $this->twigEnvironment->getTemplateFilename($templateName, $loader);
+		$this->addResponseResourceFile($file);
 	}
 
 	/**
@@ -122,5 +125,5 @@ class TwigResponse extends HttpResponse
 	{
 		return $this->templateVariables;
 	}
-
+	
 }

@@ -12,14 +12,7 @@ use Supra\Template\Parser\TemplateParser;
  */
 class Twig extends Twig_Environment implements TemplateParser
 {
-	/**
-	 * Can pass loader to use, the old loader is backed up and restored afterwards
-	 * @param string $templateName
-	 * @param array $templateParameters
-	 * @param Twig_LoaderInterface $loader
-	 * @return string
-	 */
-	public function parseTemplate($templateName, array $templateParameters = array(), Twig_LoaderInterface $loader = null)
+	private function transactional(\Closure $closure, Twig_LoaderInterface $loader = null)
 	{
 		$e = null;
 		$contents = null;
@@ -32,8 +25,7 @@ class Twig extends Twig_Environment implements TemplateParser
 		}
 
 		try {
-			$template = $this->loadTemplate($templateName);
-			$contents = $template->render($templateParameters);
+			$data = $closure($this);
 		} catch (\Exception $e) {}
 
 		if ( ! is_null($oldLoader)) {
@@ -44,7 +36,52 @@ class Twig extends Twig_Environment implements TemplateParser
 			throw $e;
 		}
 
+		return $data;
+	}
+	
+	/**
+	 * Can pass loader to use, the old loader is backed up and restored afterwards
+	 * @param string $templateName
+	 * @param array $templateParameters
+	 * @param Twig_LoaderInterface $loader
+	 * @return string
+	 */
+	public function parseTemplate($templateName, array $templateParameters = array(), Twig_LoaderInterface $loader = null)
+	{
+		$closure = function(Twig $self) use ($templateName, $templateParameters) {
+			$template = $self->loadTemplate($templateName);
+			$contents = $template->render($templateParameters);
+			
+			return $contents;
+		};
+		
+		$contents = $this->transactional($closure, $loader);
+		
 		return $contents;
 	}
 	
+	/**
+	 * Returns template filename if uses filesystem loader
+	 * @param string $templateName
+	 * @param Twig_LoaderInterface $loader
+	 * @return string
+	 */
+	public function getTemplateFilename($templateName, Twig_LoaderInterface $loader = null)
+	{
+		$closure = function(Twig $self) use ($templateName) {
+			$loader = $self->getLoader();
+			
+			if ( ! $loader instanceof \Twig_Loader_Filesystem) {
+				return;
+			}
+			
+			$filename = $loader->getCacheKey($templateName);
+			
+			return $filename;
+		};
+		
+		$filename = $this->transactional($closure, $loader);
+		
+		return $filename;
+	}
 }

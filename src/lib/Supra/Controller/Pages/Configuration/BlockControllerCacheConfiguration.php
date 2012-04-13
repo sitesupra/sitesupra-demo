@@ -59,33 +59,30 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	 * @param Localization $page
 	 * @param Block $block
 	 * @param ResponseContext $context used if cache is context dependent
-	 * @return string 
+	 * @return string, null if disabled, empty string if context required
 	 */
 	public function getCacheKey(Localization $page, Block $block, ResponseContext $context = null)
 	{
+		// Not possible to determine without the context
+		if ($this->isContextDependent() && is_null($context)) {
+			return '';
+		}
+		
 		if ( ! $this->enabled) {
-			return;
+			return null;
 		}
 		
 		// No cache if lifetime is negative
 		$lifetime = $this->getLifetime();
 		if ($lifetime < 0) {
-			return;
-		}
-		
-		if ( ! empty($this->context) && is_null($context)) {
-			return;
+			return null;
 		}
 		
 		if ( ! empty($this->enabledByContext)) {
-			if (is_null($context)) {
-				return;
-			} else {
-				$value = $context->getValue($this->enabledByContext);
-				
-				if (empty($value)) {
-					return;
-				}
+			$value = $context->getValue($this->enabledByContext);
+
+			if (empty($value)) {
+				return null;
 			}
 		}
 		
@@ -93,7 +90,7 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
 		
 		// Cache always differs for different block instances for now
-		$cacheGroups[] = $block->getId();;
+		$cacheGroups[] = $block->getId();
 
 		if ( ! $this->global) {
 			$cacheGroups[] = $page->getId();
@@ -135,7 +132,7 @@ class BlockControllerCacheConfiguration implements ConfigurationInterface
 	 * Whether the cache depends on context (can be found after block prepare stage)
 	 * @return boolean
 	 */
-	public function isContextDependent()
+	private function isContextDependent()
 	{
 		return ! empty($this->context) || ! empty($this->enabledByContext);
 	}
