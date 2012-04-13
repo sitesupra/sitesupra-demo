@@ -59,7 +59,6 @@ class PostFileType extends AbstractType
 		}
 		
 		if ( ! empty($additionalParams)) {
-			$additionalParams = array_shift($additionalParams);
 			
 			if (isset($additionalParams['types'])) {
 				$mimeType = $this->detectMimeType($value['tmp_name']);
