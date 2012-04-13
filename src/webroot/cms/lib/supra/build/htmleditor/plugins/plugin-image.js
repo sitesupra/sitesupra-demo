@@ -399,11 +399,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			if (!htmleditor.get('disabled') && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
 				var image_data = event.image;
 				
-				if (this.selected_image) {
+			if (this.selected_image) {
 					//If image in content is already selected, then replace
 					var imageId = this.selected_image_id,
 						imageData = this.htmleditor.getData(imageId);
-					
+
 					var data = Supra.mix({}, defaultProps, {
 						'type': this.NAME,
 						'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
@@ -682,7 +682,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * 
 		 * @param {Object} e Event
 		 */
-		onDrop: function (e) {
+		onDrop: function (e) {			
 			var image_id = e.drag_id;
 			if (!image_id) return;
 			
@@ -761,9 +761,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
-					var style = (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + 'px" height="' + data[id].size_height + '"' : '');
+					var style = ( ! data[id].image.exists ? '' : (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + 'px" height="' + data[id].size_height + '"' : ''));
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
-					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + src + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
+					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + ( ! data[id].image.exists ? data[id].image.missing_path : src ) + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
 					
 					if (data.type == 'lightbox') {
 						//For lightbox add link around image

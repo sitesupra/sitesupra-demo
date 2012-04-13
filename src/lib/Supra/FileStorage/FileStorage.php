@@ -23,6 +23,8 @@ class FileStorage
 
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
+	
+	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
 
 	/**
 	 * File Storage internal path
@@ -1098,6 +1100,13 @@ class FileStorage
 			$info['file_web_path'] = $filePath;
 
 			if ($file instanceof Entity\Image) {
+				
+				//CMS need to know, if image still exists in file storage
+				$fileExists = $this->fileExists($file);
+				$info['exists'] = $fileExists;
+				if ( ! $fileExists) {
+					$info['missing_path'] = self::MISSING_IMAGE_PATH;
+				}
 
 				foreach ($info['sizes'] as $sizeName => &$size) {
 

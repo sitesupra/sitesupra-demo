@@ -66,7 +66,14 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 		showResizeHandle: function (e) {
 			if (this.resizing || this.htmleditor.get('disabled')) return;
 			
-			var target = e.target;
+			var target = e.target,
+				data = this.htmleditor.getData(target);
+			
+			//disable resize if image is marked as non existent
+			if (data && ! data.image.exists) {
+				return;
+			}
+			
 			if (target && target.test('img') && !target.hasClass('gallery')) {
 				if (this.mouse_timer) {
 					this.mouse_timer.cancel();

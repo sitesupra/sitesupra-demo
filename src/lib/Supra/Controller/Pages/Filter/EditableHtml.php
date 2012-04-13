@@ -16,6 +16,12 @@ class EditableHtml extends ParsedHtmlFilter
 	 */
 	public $property;
 	
+	public function __construct()
+	{
+		$this->requestType = parent::REQUEST_TYPE_EDIT;
+		parent::__construct();
+	}
+	
 	/**
 	 * Filters the editable content's data, adds Html Div node for CMS
 	 * @params string $content

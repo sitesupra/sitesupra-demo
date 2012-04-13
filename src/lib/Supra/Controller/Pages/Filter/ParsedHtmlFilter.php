@@ -19,6 +19,9 @@ use Twig_Markup;
 class ParsedHtmlFilter implements FilterInterface
 {
 
+	const REQUEST_TYPE_VIEW = 0;
+	const REQUEST_TYPE_EDIT = 1;
+	
 	/**
 	 * @var BlockProperty
 	 */
@@ -30,13 +33,18 @@ class ParsedHtmlFilter implements FilterInterface
 	private $log;
 
 	/**
+	 * @var int
+	 */
+	protected $requestType;
+	
+	/**
 	 * Create log instance
 	 */
 	public function __construct()
 	{
 		$this->log = ObjectRepository::getLogger($this);
 	}
-
+	
 	/**
 	 * Parse supra.link, return beginning part of referenced link element.
 	 * @param Entity\ReferencedElement\LinkReferencedElement $link
@@ -107,7 +115,7 @@ class ParsedHtmlFilter implements FilterInterface
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
 		$image = $em->find(Image::CN(), $imageId);
-		
+				
 		if ( ! $image instanceof Image) {
 			$this->log->warn("Image #{$imageId} has not been found");
 		}
@@ -120,9 +128,24 @@ class ParsedHtmlFilter implements FilterInterface
 				return;
 			}
 			
-			$src = $fs->getWebPath($image, $size);
-
 			$tag = new \Supra\Html\HtmlTag('img');
+			$src = $width = $height = null;
+			
+			$width = $size->getWidth();
+			$height = $size->getHeight();
+			
+			$src = $fs->getWebPath($image, $size);
+			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+				$fileExists = $fs->fileExists($image);
+				
+				$tag->setAttribute('data-exists', $fileExists);
+				
+				if ( ! $fileExists) {
+					$src =  \Supra\FileStorage\FileStorage::MISSING_IMAGE_PATH;
+					$width = $height = null;
+				}
+			}
+			
 			$tag->setAttribute('src', $src);
 
 			$align = $imageData->getAlign();
@@ -132,12 +155,10 @@ class ParsedHtmlFilter implements FilterInterface
 
 			$tag->addClass($imageData->getStyle());
 
-			$width = $size->getWidth();
 			if ( ! empty($width)) {
 				$tag->setAttribute('width', $width);
 			}
 
-			$height = $size->getHeight();
 			if ( ! empty($height)) {
 				$tag->setAttribute('height', $height);
 			}
@@ -148,10 +169,8 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 			
 			$alternativeText = trim($imageData->getAlternativeText());
-			if ( ! empty($alternativeText)) {
-				$tag->setAttribute('alt', $alternativeText);
-			}
-
+			$tag->setAttribute('alt', ( ! empty($alternativeText) ? $alternativeText : ''));
+			
 			$html = $tag->toHtml();
 		}
 
