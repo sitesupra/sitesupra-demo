@@ -398,7 +398,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 * Reload content HTML
 		 * Load html from server
 		 */
-		reloadContentHTML: function () {
+		reloadContentHTML: function (callback) {
 			var uri = PageContent.getDataPath('contenthtml'),
 				page_data = Page.getPageData(),
 				data = null;
@@ -425,7 +425,13 @@ YUI.add('supra.page-content-editable', function (Y) {
 				'data': data,
 				'context': this,
 				'on': {
-					'success': this._reloadContentSetHTML
+					'success': function(data) {
+						 this._reloadContentSetHTML(data);
+
+						if (Y.Lang.isFunction(callback)) {
+							 callback(this);
+						 }
+					}
 				}
 			})
 		},

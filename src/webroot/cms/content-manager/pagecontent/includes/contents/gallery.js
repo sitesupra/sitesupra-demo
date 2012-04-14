@@ -136,8 +136,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				}
 			}
 			
-			Manager.MediaSidebar.hide();
-			this.properties.showPropertiesForm();
+			this.reloadContent();
 		},
 		
 		/**
@@ -159,6 +158,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					
 					//Update data
 					this.properties.setValues(data);
+					this.reloadContent();
 				}
 				
 				//Show settings form
@@ -175,6 +175,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
+					this.reloadContent();
 				}, this),
 				'onclose': Y.bind(function () {
 					this.properties.showPropertiesForm();
@@ -269,6 +270,15 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			data.images = images;
 			return data;
+		},
+		
+		reloadContent: function () {
+			this.set('loading', true);
+			this.properties.get('host').reloadContentHTML(
+				function(editable) { 
+					editable.set('loading', false);
+				}
+			);
 		}
 		
 	});
