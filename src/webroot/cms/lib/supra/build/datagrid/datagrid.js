@@ -662,9 +662,6 @@ YUI.add("supra.datagrid", function (Y) {
 				this.tableBodyNode.append(row.getNode());
 			}
 			
-			//Trigger change
-			this.handleChange();
-			
 			return row;
 		},
 		

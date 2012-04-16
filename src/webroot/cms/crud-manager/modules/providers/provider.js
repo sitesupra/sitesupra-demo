@@ -569,7 +569,7 @@ YUI.add('website.provider', function (Y) {
 				data_grid = this.data_grid;
 			
 			//Update data
-			data_grid.addRow(e.record, e.newRecordNext);
+			data_grid.add(e.record, e.newRecordNext);
 			
 			Supra.io(uri, {
 				'data': {
@@ -583,7 +583,7 @@ YUI.add('website.provider', function (Y) {
 				'on': {
 					'failure': function () {
 						//Restore previous position
-						data_grid.addRow(e.record, e.oldRecordNext);
+						data_grid.add(e.record, e.oldRecordNext);
 					}
 				}
 			});
