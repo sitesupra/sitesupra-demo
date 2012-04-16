@@ -193,6 +193,9 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 		 * @type {Object}
 		 */
 		'item': function (id) {
+			if (id && id.isInstanceOf && id.isInstanceOf('Tree')) {
+				id = null;
+			}
 			if (id && id.isInstanceOf && id.isInstanceOf('TreeNode')) {
 				id = id.get('data')._id;
 			}

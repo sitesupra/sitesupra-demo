@@ -579,46 +579,57 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				dropNode = e.drop.get('node').closest('.su-tree-node'),
 				view     = this.get('view');
 			
-			if (!view.get('animating') && dropNode && !dragNode.compareTo(dropNode)) {
-				var target = e.drop.get('treeNode');
-				if (!target || target.get('dndLocked')) return;
-				
-				var place = 'inside',
-					node = Y.Node.getDOMNode(dropNode),
-					siblingsAllowed = (!target.get('root') || this.get('tree').get('mode') != 'pages'),
-					padding = 10,
-					dropablePlaces = target.get('dropablePlaces'),
-					
-					dragMouse = e.drag.mouseXY,
-					dropRegion = e.drop.region;
-				
-				if (!dropRegion) {
-					return this.hideDropMarker(e);
-				}
-				
-				if (siblingsAllowed) {
-					if (dropablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
-						place = 'before';
-					} else if (dropablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
-						place = 'after';
-					}
-				}
-				
-				if (place == 'inside'  && !dropablePlaces.inside) {
-					return this.hideDropMarker(e);
-				}
-				
-				if (node != this._dndTargetNode || place != this._dndTargetPlace) {
-					if (this._dndTarget && this._dndTarget != target) {
-						this._dndTarget.set('dndMarker', false);
-					}
-					if (target) {
-						target.set('dndMarker', place);
-					}
+			if (!view.get('animating')) {
+				if (!dropNode && !this.get('tree').size()) {
+					//If tree doesn't have any children
+					var target = this.get('tree');
+					dropNode = e.drop.get('node').closest('.su-tree-content');
 					
 					this._dndTarget = target;
-					this._dndTargetPlace = place;
-					this._dndTargetNode = node;
+					this._dndTargetPlace = 'inside';
+					this._dndTargetNode = Y.Node.getDOMNode(dropNode);
+					
+				} else if (dropNode && !dragNode.compareTo(dropNode)) {
+					var target = e.drop.get('treeNode');
+					if (!target || target.get('dndLocked')) return;
+					
+					var place = 'inside',
+						node = Y.Node.getDOMNode(dropNode),
+						siblingsAllowed = (!target.get('root') || this.get('tree').get('mode') != 'pages'),
+						padding = 10,
+						dropablePlaces = target.get('dropablePlaces'),
+						
+						dragMouse = e.drag.mouseXY,
+						dropRegion = e.drop.region;
+					
+					if (!dropRegion) {
+						return this.hideDropMarker(e);
+					}
+					
+					if (siblingsAllowed) {
+						if (dropablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
+							place = 'before';
+						} else if (dropablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
+							place = 'after';
+						}
+					}
+					
+					if (place == 'inside'  && !dropablePlaces.inside) {
+						return this.hideDropMarker(e);
+					}
+					
+					if (node != this._dndTargetNode || place != this._dndTargetPlace) {
+						if (this._dndTarget && this._dndTarget != target) {
+							this._dndTarget.set('dndMarker', false);
+						}
+						if (target) {
+							target.set('dndMarker', place);
+						}
+						
+						this._dndTarget = target;
+						this._dndTargetPlace = place;
+						this._dndTargetNode = node;
+					}
 				}
 			}
 		},

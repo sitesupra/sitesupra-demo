@@ -99,6 +99,13 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 */
 		'_index': {},
 		
+		/**
+		 * Tree drop target, used when there
+		 * are no items in the tree
+		 * @type {Object}
+		 * @private
+		 */
+		'_dndDrop': null,
 		
 		/**
 		 * Render UI
@@ -146,6 +153,27 @@ YUI().add('website.sitemap-tree', function (Y) {
 			this.on('highlightedChange', this._setHighlighted, this);
 			
 			this.on('load', this._reset, this);
+			
+			this.bindDnD();
+		},
+		
+		/**
+		 * Attach drag and drop event listeners
+		 * 
+		 * @private
+		 */
+		'bindDnD': function () {
+			//Drop target for root item when tree is empty
+			this._dndDrop = new Y.DD.Drop({
+				'node': this.get('contentBox'),
+				'groups': [
+					'default',
+					'new-page', 'restore-page',
+					'new-template', 'restore-template'
+				]
+			});
+			
+			this._dndDrop.set('treeNode', this);
 		},
 		
 		/**
@@ -201,7 +229,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 			this.removeAll(this, true);
 			
 			//Remove element from DOM to prevent unneeded reflows
-			var contentBox = this.get('contentBox'),
+			var boundingBox = this.get('boundingBox'),
+				contentBox = this.get('contentBox'),
 				reference = Y.DOM.removeFromDOM(contentBox),
 				
 				data = event.data,
@@ -219,31 +248,41 @@ YUI().add('website.sitemap-tree', function (Y) {
 			//Create tree
 			contentBox.empty();
 			
-			for(; d<dd; d++) {
-				//Since permissions are not loaded yet, we assume that page
-				//can't be edited 
-				item = data[d];
-				node = this._createNode({
-					'identifier': item._id,
-					'data': item,
-					
-					'depth': 0,
-					'expanded': false
-				});
+			//Different style when empty
+			if (!dd) {
+				boundingBox.addClass(this.getClassName('empty'));
+				this._dndDrop.set('lock', false);
+			} else {
+				//Different style when empty
+				boundingBox.removeClass(this.getClassName('empty'));
+				this._dndDrop.set('lock', true);
 				
-				//First root item should be expanded
-				if (d === 0) {
-					first_root_node = node;
+				for(; d<dd; d++) {
+					//Since permissions are not loaded yet, we assume that page
+					//can't be edited 
+					item = data[d];
+					node = this._createNode({
+						'identifier': item._id,
+						'data': item,
+						
+						'depth': 0,
+						'expanded': false
+					});
+					
+					//First root item should be expanded
+					if (d === 0) {
+						first_root_node = node;
+					}
+					
+					children.push(node);
+					index[item._id] = node;
+					
+					node.render(contentBox);
 				}
 				
-				children.push(node);
-				index[item._id] = node;
-				
-				node.render(contentBox);
-			}
-			
-			if (first_root_node) {
-				first_root_node.expand();
+				if (first_root_node) {
+					first_root_node.expand();
+				}
 			}
 			
 			//Restore in DOM
@@ -609,7 +648,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				item = null;
 			
 			//Create TreeNode if it doesn't exist
-			if (node === 'null') {
+			if (typeof node === 'null') {
 				
 			} else if (typeof node === 'object' && !node.isInstanceOf) {
 				var depth = reference ? (reference.get('depth') + (where == 'inside' ? 1 : 0)) : 0;
@@ -654,11 +693,21 @@ YUI().add('website.sitemap-tree', function (Y) {
 					reference._children.push(node);
 					this._index[node.get('identifier')] = node;
 					
-					node.set('parent', reference);
-					node.set('root', false);
-					
-					//Move nodes
-					reference.get('childrenBox').append(node.get('boundingBox'));
+					if (reference && reference.isInstanceOf('Tree')) {
+						//Add as tree root node
+						node.set('parent', reference);
+						node.set('root', true);
+						
+						//Move nodes
+						reference.get('contentBox').append(node.get('boundingBox'));
+					} else {
+						//Add as child of other node
+						node.set('parent', reference);
+						node.set('root', false);
+						
+						//Move nodes
+						reference.get('childrenBox').append(node.get('boundingBox'));
+					}
 				}
 			}
 			
@@ -702,6 +751,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 				old_parent.fire('child:remove', {'node': node, 'data': node.get('data')});
 				new_parent.fire('child:add', {'node': node, 'data': node.get('data')});
 			}
+			
+			//Style tree
+			this.get('boundingBox').removeClass(this.getClassName('empty'));
+			this._dndDrop.set('lock', true);
 			
 			//Update arrows
 			this.get('view').checkOverflow();
@@ -749,6 +802,12 @@ YUI().add('website.sitemap-tree', function (Y) {
 					
 					//Update arrows
 					this.get('view').checkOverflow();
+					
+					//Style tree
+					if (!this.size()) {
+						this.get('boundingBox').addClass(this.getClassName('empty'));
+						this._dndDrop.set('lock', false);
+					}
 				}
 			}
 		},
@@ -785,6 +844,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 			if (this.get('visibilityRootNode')) {
 				this.set('visibilityRootNode', null);
 			}
+			
+			//Different style when empty
+			this.get('boundingBox').addClass(this.getClassName('empty'));
+			this._dndDrop.set('lock', false);
 			
 			//Update arrows
 			this.get('view').checkOverflow();

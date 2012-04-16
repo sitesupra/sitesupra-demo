@@ -558,9 +558,15 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				form.getInput('path').set('visible', true);
 				form.getInput('layout').set('visible', false);
 				form.getInput('template').set('visible', true);
+				
+				if (node.get('root')) {
+					//Root page doesn't have a path
+					form.getInput('path').set('visible', false);
+				} else {
+					form.getInput('path').set('visible', true);
+				}
 			} else {
 				title = Supra.Intl.get(['sitemap', 'new_template']);
 				path = 'new-template';
@@ -662,7 +668,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				out.scheduled = false;
 				
 				if (mode == 'pages') {
-					out.path = data.path = form.getInput('path').get('value');
+					out.path = data.path = (node.get('root') ? '' : form.getInput('path').get('value'));
 					out.template = data.template = form.getInput('template').get('value');
 				} else {
 					//Only for root templates can be set layout
