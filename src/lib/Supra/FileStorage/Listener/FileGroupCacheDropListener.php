@@ -14,6 +14,7 @@ use Supra\Cache\CacheGroupManager;
  */
 class FileGroupCacheDropListener implements EventSubscriber
 {
+
 	/**
 	 * {@inheritdoc}
 	 * @return array
@@ -30,8 +31,9 @@ class FileGroupCacheDropListener implements EventSubscriber
 
 		$scheduledInsertions = $uow->getScheduledEntityInsertions();
 		$scheduledUpdates = $uow->getScheduledEntityUpdates();
+		$scheduledDeletions = $uow->getScheduledEntityDeletions();
 
-		foreach (array_merge($scheduledInsertions, $scheduledUpdates) as $entity) {
+		foreach (array_merge($scheduledInsertions, $scheduledUpdates, $scheduledDeletions) as $entity) {
 			if ($entity instanceof Entity) {
 				$cache = new CacheGroupManager();
 				$cache->resetRevision(FileStorage::CACHE_GROUP_NAME);
@@ -40,4 +42,5 @@ class FileGroupCacheDropListener implements EventSubscriber
 			}
 		}
 	}
+
 }
