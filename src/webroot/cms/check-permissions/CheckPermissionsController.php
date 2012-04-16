@@ -31,8 +31,10 @@ class CheckPermissionsController extends CmsAction
 
 		$user = $this->getUser();
 
-		foreach ($entitiesToQuery as $entityToQuery) {
+		foreach ($entitiesToQuery as $key => $entityToQuery) {
 
+			$result[$key] = null;
+			
 			$id = $entityToQuery[self::REQUEST_KEY_ID];
 			$alias = $entityToQuery[self::REQUEST_KEY_TYPE];
 			
@@ -47,7 +49,7 @@ class CheckPermissionsController extends CmsAction
 				$entity = $policy->getAuthorizedEntityFromId($id);
 				
 				if(!empty($entity)) {
-					$result[] = $policy->getPermissionStatusesForAuthorizedEntity($user, $entity);
+					$result[$key] = $policy->getPermissionStatusesForAuthorizedEntity($user, $entity);
 				}
 			}
 		}
