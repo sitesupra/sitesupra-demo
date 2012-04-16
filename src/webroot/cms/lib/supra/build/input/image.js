@@ -150,7 +150,7 @@ YUI.add('supra.input-image', function (Y) {
 				title = SU.Intl.replace(this.get('label_set'));
 			} else {
 				url = (data.sizes[this.PREVIEW_SIZE] || data.sizes.original).external_path;
-				title = data.title[Supra.data.get('locale')] || url || '';
+				title = data.title[Supra.data.get('locale')] || data.defaultTitle || '';
 			}
 			
 			this.button.set('label', title);
