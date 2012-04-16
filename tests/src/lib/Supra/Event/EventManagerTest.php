@@ -132,16 +132,16 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
 		$this->object->listen(array('c'), $this->createListener(5, 'o'));
 		$this->object->listen(array('c'), $this->createListener(5, 'o'));
 		
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1, 2 => 1, 3 => 1, 4 => 1), $this->getAndCleanFired());
 		
-		$this->object->fire('A', new EventArgs('A'));
+		$this->object->fire('A', new EventArgs($this, 'A'));
 		self::assertEquals(array(), $this->getAndCleanFired());
 		
-		$this->object->fire('b', new EventArgs('b'));
+		$this->object->fire('b', new EventArgs($this, 'b'));
 		self::assertEquals(array(4 => 1), $this->getAndCleanFired());
 		
-		$this->object->fire('c', new EventArgs('c'));
+		$this->object->fire('c', new EventArgs($this, 'c'));
 		self::assertEquals(array(5 => 2), $this->getAndCleanFired());
 	}
 
@@ -151,19 +151,19 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
 	public function testRemoveListeners()
 	{
 		$this->object->listen('a', $this->createListener(1, 'f'));
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1), $this->getAndCleanFired());
 		
 		$this->object->removeListeners(null);
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1), $this->getAndCleanFired());
 		
 		$this->object->removeListeners('A');
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1), $this->getAndCleanFired());
 		
 		$this->object->removeListeners('a');
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(), $this->getAndCleanFired());
 	}
 
@@ -179,24 +179,24 @@ class EventManagerTest extends \PHPUnit_Framework_TestCase
 		$this->object->listen(array('a', 'b'), $listenerA);
 		$this->object->listen('a', $listenerB);
 		$this->object->listen(array('c', 'd'), $listenerC);
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1, 2 => 1), $this->getAndCleanFired());
 		
 		$removed = $this->object->removeListener('a', $listenerC);
 		self::assertEquals(false, $removed);
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(1 => 1, 2 => 1), $this->getAndCleanFired());
 		
 		$removed = $this->object->removeListener('a', $listenerA);
 		self::assertEquals(true, $removed);
-		$this->object->fire('a', new EventArgs('a'));
+		$this->object->fire('a', new EventArgs($this, 'a'));
 		self::assertEquals(array(2 => 1), $this->getAndCleanFired());
 		
 		$removed = $this->object->removeListener(array('c', 'd'), $listenerC);
 		self::assertEquals(true, $removed);
-		$this->object->fire('c', new EventArgs('c'));
+		$this->object->fire('c', new EventArgs($this, 'c'));
 		self::assertEquals(array(), $this->getAndCleanFired());
-		$this->object->fire('d', new EventArgs('d'));
+		$this->object->fire('d', new EventArgs($this, 'd'));
 		self::assertEquals(array(), $this->getAndCleanFired());
 	}
 

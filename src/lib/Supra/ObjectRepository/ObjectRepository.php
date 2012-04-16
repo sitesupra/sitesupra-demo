@@ -154,7 +154,7 @@ class ObjectRepository
 			$callerHash = self::getObjectHash($caller);
 			$caller = $callerClass . '\\' . $callerHash;
 		} elseif ( ! is_string($caller)) {
-			throw new Exception\RuntimeException('Caller must be class instance or class name');
+			throw new Exception\RuntimeException('Caller must be class instance or class name, ' . gettype($caller) . ' was given');
 		} else {
 			$caller = trim($caller, '\\');
 		}
