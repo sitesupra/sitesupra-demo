@@ -537,7 +537,7 @@ function (Y) {
 		 * Hide sitemap
 		 */
 		hide: function () {
-			if (this.hiding) return;
+			if (this.hiding) return this;
 			this.hiding = true;
 			
 			var page_id = Supra.data.get(['page', 'id'], null),

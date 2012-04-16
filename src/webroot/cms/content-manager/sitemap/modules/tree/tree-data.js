@@ -401,7 +401,9 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 		'removeAll': function () {
 			this._index = {};
 			this._data = [];
-			
+			this._loaded = {};
+			this._loading = {};
+
 			return this;
 		},
 		
@@ -474,6 +476,9 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 			if (!id) {
 				tree.set('loading', true);
 				tree.fire('load');
+
+				// Reset all loaded data when root sitemap is requested
+				this.removeAll();
 			}
 			
 			Supra.io(uri, {
