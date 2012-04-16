@@ -45,7 +45,7 @@ class FileUploadException extends \RuntimeException implements FileStorageExcept
 			return new LogicException('Error code 0 means upload was successful');
 		}
 
-		if ( ! in_array($code, self::$messages)) {
+		if ( ! in_array($code, array_keys(self::$messages))) {
 			return new self(self::$default, self::UPPLOAD_ERR_DEFAULT);
 		}
 
