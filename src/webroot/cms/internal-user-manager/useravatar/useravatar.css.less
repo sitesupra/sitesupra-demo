@@ -51,22 +51,24 @@
 		.transition (border-color ease 0.2s);
 		
 		cursor: pointer;
-	}
-	
-	&:hover,
-	&.selected {
-		.transition (none);
-		border-color: #36c;
-	}
-	&.drop-target {
-		border-style: dashed;
-	}
-	&.drop-target em {
-		padding: 8px 2px;
-		height: 48px;
-		font-size: 11px;
-		text-align: center;
-		display: block;
+
+		&.drop-target {
+			border-style: dashed;
+		}
+
+		&.drop-target em {
+			padding: 8px 2px;
+			height: 48px;
+			font-size: 11px;
+			text-align: center;
+			display: block;
+		}
+
+		&:hover,
+		&.selected {
+			.transition (none);
+			border-color: #36c;
+		}
 	}
 	
 	img {
