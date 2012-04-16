@@ -307,21 +307,19 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 */
 		'_loadPermissions': function (e) {
 			var data = e.data,
-				i = 0,
-				ii = data.length,
 				permissions = [];
 			
-			var itterate = function (item) {
+			var iterate = function (item) {
 				permissions.push({
 					'id': item.id,
 					'type': 'page'
 				});
 				if (item.children && item.children.length) {
-					Y.Array(item.children).forEach(itterate);
+					Y.Array(item.children).forEach(iterate);
 				}
 			};
 			
-			Y.Array(data).forEach(itterate);
+			Y.Array(data).forEach(iterate);
 			
 			if (permissions.length) {
 				Supra.Permission.request(permissions, this._setPermissions, this);
