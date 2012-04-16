@@ -1108,15 +1108,21 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_setDndMarker': function (marker) {
-			var node = this.get('boundingBox');
-			
+			var node = this.get('boundingBox'),
+				tree = this.get('tree');
+
+			if (marker != 'inside') {
+				tree.stopExpand();
+			}
+
 			if (marker == 'inside') {
-				
+
 				//Expand item to allow drop on children
 				if (this.get('expandable') && !this.get('expanded')) {
-					this.expand();
+					// Expand after 300ms
+					tree.expand(this, 300);
 				}
-				
+
 				node.removeClass('marker-before').removeClass('marker-after').addClass('marker-inside');
 			} else if (marker == 'before') {
 				node.removeClass('marker-inside').removeClass('marker-after').addClass('marker-before');

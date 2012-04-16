@@ -106,7 +106,14 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 * @private
 		 */
 		'_dndDrop': null,
-		
+
+		/**
+		 * Deferred expand timer
+		 * @type {Object}
+		 * @private
+		 */
+		'_expandTimer': null,
+
 		/**
 		 * Render UI
 		 * 
@@ -853,6 +860,31 @@ YUI().add('website.sitemap-tree', function (Y) {
 			this.get('view').checkOverflow();
 			
 			return this;
+		},
+
+		/**
+		 * Expands the node using some timeout, used for dnd
+		 *
+		 * @param {Object} node TreeNode to expand
+		 * @param {Number} time in milliseconds to wait
+		 */
+		'expand': function(node, when) {
+			when = when || 0;
+			this.stopExpand();
+			this._expandTimer = Y.later(when, this, function(node) {
+				this._expandTimer = null;
+				node.expand();
+			}, [node]);
+		},
+
+		/**
+		 * Stops deferred expand timer if active
+		 */
+		'stopExpand': function() {
+			if (this._expandTimer) {
+				this._expandTimer.cancel();
+				this._expandTimer = null;
+			}
 		}
 	});
 	

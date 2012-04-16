@@ -52,7 +52,7 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 		 */
 		'_loading': {},
 		
-		
+
 		/**
 		 * Initialize
 		 * 
@@ -416,7 +416,6 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 		 */
 		'index': function (id) {
 			var item = this.item(id),
-				index = null,
 				list = null;
 			
 			if (item) {

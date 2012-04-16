@@ -138,7 +138,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 			} else {
 				return TREENODE_TEMPLATE_DATA;
 			}
-		},
+		}
 		
 		
 	});

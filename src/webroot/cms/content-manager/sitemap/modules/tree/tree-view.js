@@ -120,9 +120,15 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 		 * @private
 		 */
 		'dropArrowRight': null,
-		
-		
-		
+
+		/**
+		 * Timer for sitemap level up transition
+		 * @type {Object}
+		 * @private
+		 */
+		'_timer': null,
+
+
 		/**
 		 * Add needed elements, etc.
 		 * 
@@ -199,9 +205,12 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				'node': this.get('arrowUpNode'),
 				'groups': groups
 			});
-			
-			this.dropArrowUp.on('drop:hit', function (e) { e.halt(); });
+
+			this.dropArrowUp.on('drop:hit', function (e) { this._cancelTimer(); e.halt(); }, this);
+			this.dropArrowUp.on('drop:exit', this._cancelTimer, this);
 			this.dropArrowUp.on('drop:enter', function (e) { 
+				this._cancelTimer();
+
 				if (this.get('disabled')) {
 					e.halt();
 					return;
@@ -211,8 +220,10 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 					root = tree.get('visibilityRootNode');
 				
 				if (root) {
-					tree.visibilityRootNodeUp(e);
-					this.onArrowScroll(e);
+					this._timer = Y.later(600, this, function(e, tree) {
+						tree.visibilityRootNodeUp(e);
+						this.onArrowScroll(e);
+					}, [e, tree], true);
 				}
 			}, this);
 			
@@ -221,15 +232,20 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				'node': this.get('arrowLeftNode'),
 				'groups': groups
 			});
-			this.dropArrowLeft.on('drop:hit', function (e) { e.halt(); });
+			this.dropArrowLeft.on('drop:hit', function (e) { this._cancelTimer(); e.halt(); }, this);
+			this.dropArrowLeft.on('drop:exit', this._cancelTimer, this);
 			this.dropArrowLeft.on('drop:enter', function (e) {
+				this._cancelTimer();
+
 				if (this.get('disabled')) {
 					e.halt();
 					return;
 				}
 				
-				this.scrollLeft();
-				this.onArrowScroll(e);
+				this._timer = Y.later(300, this, function(e) {
+					this.scrollLeft();
+					this.onArrowScroll(e);
+				}, [e], true);
 			}, this);
 			
 			//Right
@@ -237,15 +253,20 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				'node': this.get('arrowRightNode'),
 				'groups': groups
 			});
-			this.dropArrowRight.on('drop:hit', function (e) { e.halt(); });
+			this.dropArrowRight.on('drop:hit', function (e) { this._cancelTimer(); e.halt(); }, this);
+			this.dropArrowRight.on('drop:exit', this._cancelTimer, this);
 			this.dropArrowRight.on('drop:enter', function (e) {
+				this._cancelTimer();
+
 				if (this.get('disabled')) {
 					e.halt();
 					return;
 				}
 				
-				this.scrollRight();
-				this.onArrowScroll(e);
+				this._timer = Y.later(300, this, function(e) {
+					this.scrollRight();
+					this.onArrowScroll(e);
+				}, [e], true);
 			}, this);
 		},
 		
@@ -628,6 +649,18 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 		 */
 		'_setSpacing': function (px) {
 			return parseInt(px, 10) || 0;
+		},
+
+		/**
+		 * Removes tree arrow scroll execution timer
+		 *
+		 * @private
+		 */
+		'_cancelTimer': function () {
+			if (this._timer) {
+				this._timer.cancel();
+				this._timer = null;
+			}
 		}
 	};
 	
