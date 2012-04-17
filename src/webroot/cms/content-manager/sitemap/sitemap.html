@@ -16,7 +16,7 @@
 	
 	<!-- Sitemap edit form -->
 	<div class="su-sitemap-edit ui-light hidden">
-		<form>
+		<form class="yui3-form-vertical">
 			
 			<input type="text" name="title" suUseReplacement="true" value="{# sitemap.page_title #}" />
 			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://videinfra.com/" />
@@ -31,7 +31,7 @@
 	
 	<!-- Sitemap new item form -->
 	<div class="su-sitemap-add ui-light hidden">
-		<form>
+		<form class="yui3-form-vertical">
 			
 			<label for="title">{# sitemap.new_page_label_title #}</label>
 			<input type="text" name="title" value="" />
@@ -54,7 +54,7 @@
 	
 	<!-- Sitemap global page form -->
 	<div class="su-sitemap-global ui-light hidden">
-		<form>
+		<form class="yui3-form-vertical">
 			
 			<p class="txt"><b>Choose language to use as a source for translation.</b></p>
 			<p class="txt">Page will be created with text in source language.</p>
