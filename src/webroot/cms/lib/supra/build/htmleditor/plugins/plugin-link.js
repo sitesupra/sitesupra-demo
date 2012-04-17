@@ -2,10 +2,10 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
-	SU.HTMLEditor.addPlugin('link', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('link', defaultConfiguration, {
 		
 		/**
 		 * Link editor is visible
@@ -175,11 +175,11 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		showLinkManager: function (data, callback, context) {
 			if (!callback) return;
 			
-			SU.Manager.getAction('LinkManager').once('execute', function () {
+			Supra.Manager.getAction('LinkManager').once('execute', function () {
 				this.visible = true;
 			}, this);
 			
-			SU.Manager.getAction('LinkManager').execute(data, {
+			Supra.Manager.getAction('LinkManager').execute(data, {
 				'mode': 'link'
 			}, callback, context || this);
 		},
@@ -189,7 +189,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 */
 		hideLinkManager: function () {
 			if (this.visible) {
-				SU.Manager.getAction('LinkManager').hide();
+				Supra.Manager.getAction('LinkManager').hide();
 				this.visible = false;
 				this.htmleditor.refresh();
 			}

@@ -2,7 +2,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
 		/*
 		 * Selects whether pressing return inside a paragraph creates another paragraph or just inserts a <br> tag.
@@ -16,7 +16,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 	 */
 	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i;
 	
-	SU.HTMLEditor.addPlugin('paragraph', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('paragraph', defaultConfiguration, {
 		
 		/**
 		 * Handle keyDown in IE and WebKit browsers to insert BR
@@ -85,8 +85,8 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 			
 			/*
 			var target = this.selection.end,
-			    html = SU.Y.Node.create(html),
-				nodes = SU.Y.Node.getDOMNode(html),
+			    html = Y.Node.create(html),
+				nodes = Y.Node.getDOMNode(html),
 				inline = false;
 			
 			nodes = nodes.nodeType != 11 ? [nodes] : nodes.childNodes;

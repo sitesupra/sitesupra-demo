@@ -5,7 +5,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
 	//Convert arrays to object, because object lookup is much faster
@@ -57,7 +57,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	 * Style plugin handles P, H1-H5 tag change and tag styling using
 	 * dropdown menus
 	 */
-	SU.HTMLEditor.addPlugin('styles', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('styles', defaultConfiguration, {
 		
 		/**
 		 * Formats plugin instance
@@ -266,7 +266,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		collectStyleSelectors: function () {
 			var result = [],
 				rules,
-				doc = new SU.Y.Node(this.htmleditor.get('doc')),
+				doc = new Y.Node(this.htmleditor.get('doc')),
 				links = doc.all('link[rel="stylesheet"]'),
 				link = null;
 			

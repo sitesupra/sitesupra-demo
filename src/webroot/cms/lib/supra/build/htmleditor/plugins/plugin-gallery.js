@@ -12,7 +12,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
 		/* Default image size */
 		size: '200x200',
@@ -38,7 +38,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var htmleditor = this.htmleditor,
 				folder_data = Manager.MediaSidebar.getData(gallery_id, true);
 			
-			if (!folder_data || folder_data.type != SU.MediaLibraryData.TYPE_FOLDER) {
+			if (!folder_data || folder_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
@@ -53,7 +53,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Get first image data
 			for(var i in folder_data.children) {
 				image = folder_data.children[i];
-				if (image.type == SU.MediaLibraryData.TYPE_IMAGE) {
+				if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
 					image_data.push(folder_data.children[i]);
 				}
 			}

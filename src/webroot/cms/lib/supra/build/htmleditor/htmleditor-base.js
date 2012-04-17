@@ -34,7 +34,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			value: null
 		},
 		/**
-		 * HTMLEditor mode: SU.HTMLEditor.MODE_SIMPLE or SU.HTMLEditor.MODE_RICH
+		 * HTMLEditor mode: Supra.HTMLEditor.MODE_SIMPLE or Supra.HTMLEditor.MODE_RICH
 		 */
 		'mode': {
 			value: 3
@@ -165,7 +165,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			}
 			
 			//Replace with <p></p> if empty
-			if (!Y.UA.ie && this.get('mode') == SU.HTMLEditor.MODE_RICH) {
+			if (!Y.UA.ie && this.get('mode') == Supra.HTMLEditor.MODE_RICH) {
 				if (!html) html = '<p>&nbsp;</p>';
 			}
 			

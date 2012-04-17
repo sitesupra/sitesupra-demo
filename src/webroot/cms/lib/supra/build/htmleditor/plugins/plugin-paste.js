@@ -22,7 +22,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 		removeAttributes: ['xmlns', 'style', 'lang', 'id', 'name', 'class', 'width', 'height', 'v:[a-z0-9\\-\\_]+', 'w:[a-z0-9\\-\\_]+']
 	};
 	
-	SU.HTMLEditor.addPlugin('paste', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('paste', defaultConfiguration, {
 		
 		/**
 		 * Configuration
@@ -151,7 +151,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			var htmleditor = this.htmleditor,
 				mode = htmleditor.get('mode');
 			
-			if (mode == SU.HTMLEditor.MODE_STRING) {
+			if (mode == Supra.HTMLEditor.MODE_STRING) {
 				//Remove all tags
 				html = html.replace(/<[^>]+>/g, '');
 				

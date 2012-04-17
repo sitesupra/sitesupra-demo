@@ -2,10 +2,10 @@ YUI().add('supra.htmleditor-plugin-paragraph-string', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_STRING]
+		modes: [Supra.HTMLEditor.MODE_STRING]
 	};
 	
-	SU.HTMLEditor.addPlugin('paragraph-string', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('paragraph-string', defaultConfiguration, {
 		
 		/**
 		 * Prevent return key

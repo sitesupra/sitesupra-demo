@@ -1,16 +1,16 @@
 YUI().add('supra.htmleditor-plugin-source', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
-	SU.HTMLEditor.addPlugin('source', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('source', defaultConfiguration, {
 		
 		showSourceEditor: function () {
 			

@@ -5,13 +5,13 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH],
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
 		/* List types */
 		lists: ['ul', 'ol']
 	};
 	
-	SU.HTMLEditor.addPlugin('lists', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('lists', defaultConfiguration, {
 		
 		lists:  null,
 		commands: {'ul': 'insertunorderedlist', 'ol': 'insertorderedlist'},

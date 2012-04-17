@@ -6,7 +6,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [SU.HTMLEditor.MODE_SIMPLE, SU.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
 	
@@ -14,7 +14,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 	var Manager = Supra.Manager;
 	
 	
-	SU.HTMLEditor.addPlugin('table', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin('table', defaultConfiguration, {
 		
 		settings_form: null,
 		selected_cell: null,
