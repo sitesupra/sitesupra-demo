@@ -59,10 +59,16 @@ class BlockExecuteListener implements EventSubscriber
 	private $blockClassNames = array();
 
 	/**
-	 * Contais records about blocks, that were loaded from blocks cache 
+	 * Contains records about blocks, that were loaded from blocks cache 
 	 * @var array
 	 */
 	private $blockCacheTypes = array();
+
+	/**
+	 * Contains exception object of failed blocks.
+	 * @var array
+	 */
+	private $blockExceptions = array();
 
 	/**
 	 * Return subscribed events list
@@ -90,7 +96,7 @@ class BlockExecuteListener implements EventSubscriber
 
 		$this->runBlockFlag = true;
 	}
-	
+
 	/**
 	 *
 	 * @param BlockEventsArgs $eventArgs
@@ -99,11 +105,11 @@ class BlockExecuteListener implements EventSubscriber
 	private function getLocalResponseContext(BlockEventsArgs $eventArgs)
 	{
 		$controller = $eventArgs->blockController;
-		
+
 		if ( ! $controller instanceof Pages\BlockController) {
 			return;
 		}
-		
+
 		$response = $controller->getResponse();
 
 		if ( ! $response instanceof Response\HttpResponse) {
@@ -115,7 +121,7 @@ class BlockExecuteListener implements EventSubscriber
 		if ( ! $context instanceof Response\ResponseContextLocalProxy) {
 			return;
 		}
-		
+
 		$context = $context->getLocalContext();
 
 		return $context;
@@ -135,17 +141,17 @@ class BlockExecuteListener implements EventSubscriber
 
 		// Load data from the cache if cached
 		if (isset($this->blockCacheTypes[$blockOid]) && ! empty($context)) {
-			
+
 			$originalData = $context->getValue(__CLASS__ . '_' . $blockOid);
-			
+
 			if (isset($originalData[$actionType])) {
-				
+
 				// Mark as cache
 				$stats = $originalData[$actionType];
 				$stats[3] = 1;
-				
+
 				$this->statisticsData[$blockOid][$actionType] = $stats;
-				
+
 				return;
 			}
 		}
@@ -180,6 +186,10 @@ class BlockExecuteListener implements EventSubscriber
 		// Save stats cache after execution
 		if ($actionType == self::ACTION_CONTROLLER_EXECUTE && ! empty($context)) {
 			$context->setValue(__CLASS__ . '_' . $blockOid, $this->statisticsData[$blockOid]);
+		}
+
+		if ( ! empty($eventArgs->exception)) {
+			$this->blockExceptions[$blockOid] = $eventArgs->exception;
 		}
 	}
 
@@ -229,41 +239,41 @@ class BlockExecuteListener implements EventSubscriber
 			$overallTime =
 					$totalQueries =
 					$totalQueryTime = 0;
-			
+
 			$overallTimeCached =
 					$totalQueriesCached =
 					$totalQueryTimeCached = 0;
 
 			foreach ($stats as $actionType => $singleActionStats) {
-				
+
 				$actionCategory = null;
 
 				if ( ! empty($singleActionStats[3])) {
 					$overallTimeCached += $singleActionStats[0];
 					$totalQueriesCached += $singleActionStats[1];
 					$totalQueryTimeCached += $singleActionStats[2];
-					
+
 					$actionCategory = 'actions_cache';
 				} else {
 					$overallTime += $singleActionStats[0];
 					$totalQueries += $singleActionStats[1];
 					$totalQueryTime += $singleActionStats[2];
-					
+
 					$actionCategory = 'actions';
 				}
-				
+
 				if ($singleActionStats[0] < 2) {
 					continue;
 				}
-				
+
 				array_unshift($singleActionStats, $actionType);
-				
+
 				$message = vsprintf('    %-46s %4dms', array_slice($singleActionStats, 0, 2));
-				
+
 				if ( ! empty($singleActionStats[2])) {
 					$message .= vsprintf(' %3d queries (%4dms)', array_slice($singleActionStats, 2, 2));
 				}
-				
+
 				$blockStats[$actionCategory][] = $message;
 			}
 
@@ -275,14 +285,21 @@ class BlockExecuteListener implements EventSubscriber
 
 			if ( ! empty($this->blockCacheTypes[$oid])) {
 				$cacheName = $this->blockCacheTypes[$oid];
-				
+
 				$message = vsprintf('  %-48s %4dms', array('Cached stages', $overallTimeCached));
-				
+
 				if ($totalQueriesCached > 0) {
 					$message .= vsprintf(' %3d queries (%4dms)', array($totalQueriesCached, $totalQueryTimeCached));
 				}
-				
+
 				$blockStats['cache'] = $message;
+			}
+
+			if ( ! empty($this->blockExceptions[$oid])) {
+
+				$exception = $this->blockExceptions[$oid];
+
+				$blockStats['exception'] = 'Had ' . (string) $exception;
 			}
 
 			$responseData[] = $blockStats;

@@ -1,6 +1,9 @@
 if(typeof console != 'undefined' ) {
 
 	{% for blockStats in debugData %}				
+		
+		//console.group({{ blockStats.totals | json_encode | raw}});
+
 		console.log({{ blockStats.totals | json_encode | raw}});
 		
 		{% for actionValue in blockStats.actions %}
@@ -14,8 +17,13 @@ if(typeof console != 'undefined' ) {
 				console.log({{ actionValue | json_encode | raw}});
 			{% endfor %}
 		{% endif %}
+
+		{% if blockStats.exception %} 
+			console.log('%c'  + {{ blockStats.exception | json_encode | raw }}, 'color:red;');
+		{% endif %}
 		
 		console.log(' ');
+		//console.groupEnd();
 		
 	{% endfor %} 
 

@@ -216,7 +216,7 @@ class PageController extends ControllerAbstraction
 	 */
 	protected function processLayout(Entity\Layout $layout, array $placeResponses)
 	{
-		$layoutProcessor = $this->getLayoutProcessor();		
+		$layoutProcessor = $this->getLayoutProcessor();
 		$layoutSrc = $layout->getFile();
 		$response = $this->getResponse();
 		$layoutProcessor->setRequest($this->request);
@@ -231,7 +231,7 @@ class PageController extends ControllerAbstraction
 	public function getLayoutProcessor()
 	{
 		$processor = new Layout\Processor\TwigProcessor();
-		
+
 		ObjectRepository::setCallerParent($processor, $this);
 
 		return $processor;
@@ -305,7 +305,7 @@ class PageController extends ControllerAbstraction
 					$blockId = $block->getId();
 					if (array_key_exists($blockId, $blockContentCache)) {
 						$blockController = new CachedBlockController($blockContentCache[$blockId]);
-						
+
 						return;
 					}
 
@@ -346,9 +346,9 @@ class PageController extends ControllerAbstraction
 						/* @var $cachedResponse Response\HttpResponse */
 						$context = $cachedResponse->getContext();
 						/* @var $context ResponseContext */
-						
+
 						$context->flushToContext($responseContext);
-						
+
 						return;
 					} else {
 
@@ -399,7 +399,7 @@ class PageController extends ControllerAbstraction
 		// Iterates through all blocks and calls the function passed
 		$this->iterateBlocks($cacheSearch, Listener\BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH);
 	}
-	
+
 	/**
 	 * Try searching the response cache
 	 * @param string $blockId
@@ -414,22 +414,22 @@ class PageController extends ControllerAbstraction
 		if ( ! array_key_exists($blockId, $this->blockCacheRequests)) {
 			return false;
 		}
-		
+
 		$blockCache = $this->blockCacheRequests[$blockId];
 		/* @var $blockCache Configuration\BlockControllerCacheConfiguration */
-		
+
 		$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
-		
+
 		if (is_null($cacheKey)) {
 			// Cache disabled, forget the request
 			unset($this->blockCacheRequests[$blockId]);
 			return false;
 		}
-		
+
 		if (empty($cacheKey)) {
 			return false;
 		}
-		
+
 		$cache = ObjectRepository::getCacheAdapter($this);
 
 		$content = $cache->fetch($cacheKey);
@@ -445,9 +445,9 @@ class PageController extends ControllerAbstraction
 		if ( ! $responseCache instanceof Response\HttpResponse) {
 			return false;
 		}
-		
+
 		$resources = $responseCache->getResponseResourceFiles();
-		
+
 		foreach ($resources as $file => $mtime) {
 			if (filemtime($file) != $mtime) {
 				return false;
@@ -458,7 +458,7 @@ class PageController extends ControllerAbstraction
 
 		// Cache found, don't need to cache
 		unset($this->blockCacheRequests[$blockId]);
-		
+
 		// Don't load properties
 		$this->request->skipBlockPropertyLoading($blockId);
 
@@ -468,7 +468,7 @@ class PageController extends ControllerAbstraction
 		$cachedContext = $responseCache->getContext();
 		$mainContext = $this->getResponse()->getContext();
 		$cachedContext->flushToContext($mainContext);
-		
+
 		return true;
 	}
 
@@ -627,7 +627,7 @@ class PageController extends ControllerAbstraction
 			if ( ! isset($this->blockControllers[$blockId])) {
 				$this->blockControllers[$blockId] = null;
 			}
-			
+
 			$blockController = &$this->blockControllers[$blockId];
 
 			try {
@@ -654,6 +654,9 @@ class PageController extends ControllerAbstraction
 
 					// Don't cache failed blocks 
 					unset($this->blockCacheRequests[$blockId]);
+					
+					// Add exception to blockEndExecute event.
+					$eventArgs->exception = $blockController->hadException();
 				}
 
 				if ( ! is_null($eventAction)) {
