@@ -37,8 +37,8 @@ YUI().add("supra.io", function (Y) {
 			cfg.data = cfg.data.getSaveValues();
 		}
 		
-		var sid_name = SU.data.get('sessionName', null),
-			sid_id = SU.data.get('sessionId', null);
+		var sid_name = Supra.data.get('sessionName', null),
+			sid_id = Supra.data.get('sessionId', null);
 			
 		if (sid_name && sid_id) {
 			cfg.data[sid_name] = sid_id;
@@ -325,7 +325,7 @@ YUI().add("supra.io", function (Y) {
 		//No error or warning messages when "suppress_errors" parameter is set
 		if (cfg.suppress_errors) return;
 		
-		SU.Manager.executeAction('Confirmation', {
+		Supra.Manager.executeAction('Confirmation', {
 		    'message': response.error_message,
 		    'useMask': true,
 		    'buttons': [
@@ -368,7 +368,7 @@ YUI().add("supra.io", function (Y) {
 			}
 		} 
 		
-		SU.Manager.executeAction('Confirmation', {
+		Supra.Manager.executeAction('Confirmation', {
 			'message': message,
 			'align': single ? 'center' : 'left',
 			'useMask': true,
@@ -387,7 +387,7 @@ YUI().add("supra.io", function (Y) {
 	 * @private
 	 */
 	Supra.io.handleConfirmationMessage = function (cfg, response) {
-		SU.Manager.executeAction('Confirmation', {
+		Supra.Manager.executeAction('Confirmation', {
 		    'message': response.confirmation.question,
 		    'useMask': true,
 		    'buttons': [

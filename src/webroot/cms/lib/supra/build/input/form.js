@@ -843,15 +843,4 @@ YUI.add("supra.form", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:[
-	"widget",
-	"supra.input-proto",
-	"supra.input-hidden",
-	"supra.input-string",
-	"supra.input-path",
-	"supra.input-checkbox",
-	"supra.input-file-upload",
-	"supra.input-select",
-	"supra.input-select-list",
-	"supra.input-slider"
-]});
+}, YUI.version);

@@ -109,7 +109,7 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 				form.submit();
 			} catch (e) {
 				//Error occured
-				this.fire('load', SU.mix({'data': null}, this.get('eventData') || {}));
+				this.fire('load', Supra.mix({'data': null}, this.get('eventData') || {}));
 				return;
 			}
 			
@@ -139,9 +139,9 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 			Supra.io.handleResponse({}, response);
 			
 			if (response.status && response.data) {
-				this.fire('load', SU.mix({'data': response.data}, event_data));
+				this.fire('load', Supra.mix({'data': response.data}, event_data));
 			} else {
-				this.fire('load', SU.mix({'data': null}, event_data));
+				this.fire('load', Supra.mix({'data': null}, event_data));
 			}
 			
 			//Once file is uploaded, this object becomes useless

@@ -53,7 +53,7 @@ YUI.add('supra.intl', function (Y) {
 			
 			//Add to Y.Intl
 			for(var ns in data) {
-				SU.Y.Intl.add(ns, '', data[ns]);
+				Supra.Y.Intl.add(ns, '', data[ns]);
 			}
 		},
 		

@@ -87,7 +87,7 @@ YUI.add('supra.manager-action', function (Y) {
 				delete(action._beforeLoaded);
 				
 				//
-				if (action.execute !== SU.Manager.Action.Base.prototype.execute) {
+				if (action.execute !== Supra.Manager.Action.Base.prototype.execute) {
 					action._originalExecute = action.execute;
 				} else {
 					action._originalExecute = function () {};

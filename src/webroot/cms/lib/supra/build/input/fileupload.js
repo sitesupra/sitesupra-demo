@@ -243,7 +243,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 	};
 	
 	Y.extend(Fileupload, Supra.Input.Proto, {
-		INPUT_TEMPLATE: '<input type="file" value="' + SU.Intl.get(['buttons', 'browse']) + '" />',
+		INPUT_TEMPLATE: '<input type="file" value="' + Supra.Intl.get(['buttons', 'browse']) + '" />',
 		LABEL_TEMPLATE: '<label></label>',
 		
 		/**
@@ -369,7 +369,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 				} else {
 					value = [];
 				}
-			} else if (!SU.Y.Lang.isArray(value)) {
+			} else if (!Supra.Y.Lang.isArray(value)) {
 				value = [];
 			}
 			
@@ -392,7 +392,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 		 * @type {Array}
 		 */
 		_getValue: function (value) {
-			if (SU.Y.Lang.isArray(value)) {
+			if (Supra.Y.Lang.isArray(value)) {
 				return value;
 			} else {
 				return [];

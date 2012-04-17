@@ -147,7 +147,7 @@ YUI.add('supra.input-image', function (Y) {
 			
 			if (!data || !data.id) {
 				data = '';
-				title = SU.Intl.replace(this.get('label_set'));
+				title = Supra.Intl.replace(this.get('label_set'));
 			} else {
 				url = (data.sizes[this.PREVIEW_SIZE] || data.sizes.original).external_path;
 				title = data.title[Supra.data.get('locale')] || data.defaultTitle || '';

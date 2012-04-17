@@ -116,9 +116,9 @@ YUI.add('supra.io-upload', function (Y) {
 			Supra.io.handleResponse({}, response);
 			
 			if (response.status && response.data) {
-				this.fire('load', SU.mix({'data': response.data}, event_data));
+				this.fire('load', Supra.mix({'data': response.data}, event_data));
 			} else {
-				this.fire('load', SU.mix({'data': null}, event_data));
+				this.fire('load', Supra.mix({'data': null}, event_data));
 			}
 			
 			//Once file is uploaded, this object becomes useless
@@ -136,7 +136,7 @@ YUI.add('supra.io-upload', function (Y) {
 				var percentage = Math.round((evt.loaded * 100) / evt.total),
 					event_data = this.get('eventData');
 				
-				this.fire('progress', SU.mix({
+				this.fire('progress', Supra.mix({
 					'total': evt.total,
 					'loaded': evt.loaded,
 					'percentage': percentage

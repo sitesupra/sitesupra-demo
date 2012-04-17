@@ -648,7 +648,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (item_id) {
 				item_id = item_id.replace('slide_', '');
 				data = data_object.getData(item_id);
-				data = SU.mix({
+				data = Supra.mix({
 					'path': data_object.getPath(item_id)
 				}, data);
 				
@@ -1233,7 +1233,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		getRenderData: function (data) {
 			var preview_size = this.get('previewSize'),
 				thumbnail_size = this.get('thumbnailSize'),
-				item_data = SU.mix({}, data || {}),
+				item_data = Supra.mix({}, data || {}),
 				extension = null;
 			
 			//Extension

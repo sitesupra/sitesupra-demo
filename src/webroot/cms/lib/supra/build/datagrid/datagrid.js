@@ -320,8 +320,8 @@ YUI.add("supra.datagrid", function (Y) {
 			}
 			
 			//Add session ID to request params
-			var sid_name = SU.data.get('sessionName', null),
-				sid_id = SU.data.get('sessionId', null);
+			var sid_name = Supra.data.get('sessionName', null),
+				sid_id = Supra.data.get('sessionId', null);
 			
 			if (sid_name && sid_id) {
 				this.requestParams.set(sid_name, sid_id);

@@ -84,7 +84,7 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 				//If plugin doesn't exist, throw error
 				if (!plugins[i]) {
 					//Debug info
-					var trace_path = SU.Manager.Loader.getActionInfo(host.NAME).path_script;
+					var trace_path = Supra.Manager.Loader.getActionInfo(host.NAME).path_script;
 					Y.log('Action plugin doesn\'t exist, used in ' + host.NAME + ' (' + trace_path + ')', 'error');
 					continue;
 				}
@@ -103,7 +103,7 @@ YUI.add('supra.manager-action-plugin-manager', function (Y) {
 					plugin.create();
 				} else {
 					//Debug info
-					var trace_path = SU.Manager.Loader.getActionInfo(host.NAME).path_script;
+					var trace_path = Supra.Manager.Loader.getActionInfo(host.NAME).path_script;
 					Y.log('Plugin ' + plugins[i].NAME || '"unnamed"' + ' is not subclass of PluginBase. Used in action ' + host.NAME + ' (' + trace_path + ')', 'error');
 				}
 			}

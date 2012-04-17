@@ -118,7 +118,7 @@ YUI.add('supra.input-link', function (Y) {
 				data = '';
 			}
 			
-			var title = (data && data.href ? data.title || data.href : SU.Intl.replace(this.get('label_set')));
+			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('label_set')));
 			this.button.set('label', title);
 			
 			return data;

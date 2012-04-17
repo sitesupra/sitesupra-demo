@@ -19,15 +19,15 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 	Y.extend(PluginMainContent, Action.PluginBase, {
 		
 		initialize: function () {
-			var layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+			var layoutTopContainer = Supra.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
 			//Position
 			this.host.one().addClass('center-container');
 			
 			//Container position sync with other actions
-			this.host.plug(SU.PluginLayout, {
+			this.host.plug(Supra.PluginLayout, {
 				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			

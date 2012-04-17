@@ -321,7 +321,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 					this.uploadFiles(folder, files);
 				} else {
 					//No files detected
-					SU.Manager.executeAction('Confirmation', {
+					Supra.Manager.executeAction('Confirmation', {
 					    'message': '{#medialibrary.validation_error.invalid_drop#}',
 					    'useMask': true,
 					    'buttons': [

@@ -370,7 +370,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		getActionPath: function () {
 			var path = this.get('actionPath');
 			if (!path) {
-				path = SU.Manager.Loader.getActionInfo(this.NAME).folder;
+				path = Supra.Manager.Loader.getActionInfo(this.NAME).folder;
 			}
 			return path;
 		},
