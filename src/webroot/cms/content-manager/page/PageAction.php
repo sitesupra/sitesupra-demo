@@ -497,9 +497,11 @@ class PageAction extends PageManagerAction
 			try {
 				$page->moveAsLastChildOf($parent);
 			} catch (\Exception $e) {
-				$this->entityManager->remove($page);
-				$this->entityManager->remove($pageData);
-				$this->entityManager->flush();
+				if ($this->entityManager->isOpen()) {
+					$this->entityManager->remove($page);
+					$this->entityManager->remove($pageData);
+					$this->entityManager->flush();
+				}
 				
 				throw $e;
 			}
