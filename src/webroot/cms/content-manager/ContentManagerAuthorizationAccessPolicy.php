@@ -13,6 +13,7 @@ use Supra\Authorization\Exception\RuntimeException as AuthorizationRuntimeExcept
 use Supra\Validator\FilteredInput;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Page;
+use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\PageLocalization;
 
 class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAccessPolicy
@@ -210,7 +211,8 @@ class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAcc
 
 		$classesToTry = array(
 			Localization::CN(),
-			Page::CN()
+			Page::CN(),
+			Template::CN()
 		);
 
 		$entity = null;
