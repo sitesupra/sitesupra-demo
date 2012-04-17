@@ -30,7 +30,7 @@ SU.addModule('website.sitemap-tree-node-app-news', {
 
 SU.addModule('website.sitemap-tree-view', {
 	path: 'sitemap/modules/tree/tree-view.js',
-	requires: ['website.sitemap-tree']
+	requires: ['website.sitemap-tree', 'anim']
 });
 SU.addModule('website.sitemap-tree-data', {
 	path: 'sitemap/modules/tree/tree-data.js',

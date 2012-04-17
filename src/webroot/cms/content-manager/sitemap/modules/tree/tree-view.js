@@ -500,7 +500,7 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 					'easing': Y.Easing.easeOutStrong,
 					'duration': 0.35,
 					'to': {
-						'margin-left': posX
+						'marginLeft': posX
 					}
 				});
 				
@@ -509,7 +509,7 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				}, this);
 			} else {
 				this.viewAnimX.stop();
-				this.viewAnimX.set('to', {'margin-left': posX});
+				this.viewAnimX.set('to', {'marginLeft': posX});
 			}
 			
 			this.viewScrollLeft = posX;
@@ -523,7 +523,7 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 			//Update drop target regions
 			this.viewAnimX.once('end', this.resetDropCache, this);
 			
-			if (callback) {
+			if (typeof callback === 'function') {
 				this.viewAnimX.once('end', callback, context || this);
 			}
 			
@@ -540,7 +540,7 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 					'easing': Y.Easing.easeOutStrong,
 					'duration': 0.35,
 					'to': {
-						'margin-top': posY
+						'marginTop': posY
 					}
 				});
 				
@@ -549,12 +549,12 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 				}, this);
 			} else {
 				this.viewAnimY.stop();
-				this.viewAnimY.set('to', {'margin-top': posY});
+				this.viewAnimY.set('to', {'marginTop': posY});
 			}
 			
 			this.viewScrollTop = posY;
 			
-			if (callback) {
+			if (typeof callback === 'function') {
 				this.viewAnimY.once('end', callback, context || this);
 			}
 			
@@ -572,8 +572,8 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 		 */
 		'resetCenter': function () {
 			this.get('contentBox').setStyles({
-				'margin-left': -2500,
-				'margin-top': 0
+				'marginLeft': -2500,
+				'marginTop': 0
 			});
 			
 			this.viewScrollLeft = -2500;
@@ -673,4 +673,4 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['website.sitemap-tree']});
+}, YUI.version, {'requires': ['website.sitemap-tree', 'anim']});
