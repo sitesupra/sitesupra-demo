@@ -215,61 +215,59 @@ class SitemapAction extends PageManagerAction
 	 */
 	private function convertPageToArray(Entity\Abstraction\AbstractPage $page, $locale)
 	{
-		/* @var $data Entity\Abstraction\Localization */
-		$data = null;
+		/* @var $localization Entity\Abstraction\Localization */
+		$localization = null;
 
 		// Must have group localization with ID equal with master because group localizations are not published currently
 		if ($page instanceof Entity\GroupPage) {
-			$data = $page->createLocalization($locale);
+			$localization = $page->createLocalization($locale);
 		} else {
-			$data = $page->getLocalization($locale);
+			$localization = $page->getLocalization($locale);
 		}
 
 		$array = array();
 		$localizationExists = true;
 
-		if (empty($data)) {
+		if (empty($localization)) {
 
 			$localeManager = ObjectRepository::getLocaleManager($this);
 			$localizationExists = false;
 
-			// try to get any localization if page is global
+			// try to get any localization if page is not localized and is global
 			if ($page->isGlobal()) {
 
 				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
 				// this, i suppose, will be replaced with dialog window with localization selector
 				$localizations = $page->getLocalizations();
-				$data = $localizations->first();
+				$localization = $localizations->first();
 
 				// Search for the first created localization by it's ID
-				foreach ($localizations as $globalLocalization) {
-					/* @var $globalLocalization Entity\Abstraction\Localization */
-					if (strcmp($globalLocalization->getId(), $data->getId()) < 0) {
-						$localeId = $globalLocalization->getLocale();
+				foreach ($localizations as $_localization) {
+					/* @var $_localization Entity\Abstraction\Localization */
+					if (strcmp($_localization->getId(), $localization->getId()) < 0) {
+						$localeId = $_localization->getLocale();
 
 						if ($localeManager->exists($localeId, false)) {
-							$data = $globalLocalization;
+							$localization = $_localization;
 						}
 					}
 				}
 
 				// collecting available localizations
-				foreach ($localizations as $globalLocalization) {
-					$localeId = $globalLocalization->getLocale();
+				foreach ($localizations as $_localization) {
+					$localeId = $_localization->getLocale();
 
 					if ($localeManager->exists($localeId, false)) {
-						$array['localizations'][] = $globalLocalization->getLocale();
+						$array['localizations'][] = $_localization->getLocale();
 					}
 				}
-
-				$array['global'] = true;
 			} else {
 				//FIXME: maybe need to throw exception here?
 				return null;
 			}
 		}
 
-		$nodeData = $this->loadNodeMainData($data, $localizationExists);
+		$nodeData = $this->loadNodeMainData($localization, $localizationExists);
 		if ( ! empty($nodeData)) {
 			$array = array_merge($nodeData, $array);
 		}

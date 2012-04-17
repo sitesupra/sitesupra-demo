@@ -17,8 +17,9 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 		'type': 'page',
 		'published': false,
 		'scheduled': false,
-		'global': false,
-		'global_disabled': true,
+		'global': true,
+		'localized': true,
+		'localization_count': null,
 		'unpublished_draft': false
 	};
 	
@@ -34,8 +35,9 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 		'type': 'page',
 		'published': false,
 		'scheduled': false,
-		'global': false,
-		'global_disabled': true,
+		'global': true,
+		'localized': true,
+		'localization_count': null,
 		'unpublished_draft': false
 	};
 	

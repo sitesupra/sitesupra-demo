@@ -204,7 +204,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				data = node.get('data'),
 				view = this.get('host').get('view');
 			
-			if (data.global) {
+			if ( ! data.localized) {
 				this._node = e.node;
 				
 				if (!this._widgets.panel) {
@@ -307,9 +307,9 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 					};
 				
 				//Update data
-				node.set('global', false);
+				node.set('localized', true);
 				Supra.mix(node_data, data, {
-					'global': false
+					'localized': true
 				})
 				
 				//Hide panel

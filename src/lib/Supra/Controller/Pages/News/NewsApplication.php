@@ -22,12 +22,12 @@ class NewsApplication implements PageApplicationInterface
 	 * @var EntityManager
 	 */
 	protected $em;
-	
+
 	/**
 	 * @var Entity\ApplicationLocalization
 	 */
 	protected $applicationLocalization;
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @param EntityManager $em
@@ -36,7 +36,7 @@ class NewsApplication implements PageApplicationInterface
 	{
 		$this->em = $em;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @param Entity\ApplicationLocalization $localization
@@ -57,7 +57,7 @@ class NewsApplication implements PageApplicationInterface
 
 		$pathString = $creationTime->format('Y/m/d');
 		$path = new Path($pathString);
-		
+
 		return $path;
 	}
 
@@ -71,7 +71,7 @@ class NewsApplication implements PageApplicationInterface
 		switch ((string) $filter) {
 			case 'list':
 				return array();
-			
+
 			case '':
 				$group = new Entity\TemporaryGroupPage();
 				$group->setTitle('list');
@@ -82,12 +82,12 @@ class NewsApplication implements PageApplicationInterface
 				$group->setId($id);
 
 				return array($group);
-				
+
 			default:
 				throw new \RuntimeException("Filter $filter is not recognized");
 		}
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @param QueryBuilder $queryBuilder
@@ -98,9 +98,9 @@ class NewsApplication implements PageApplicationInterface
 		switch ((string) $filter) {
 			case 'list':
 				$queryBuilder
-					->addSelect('COALESCE(l_.creationTime, l.creationTime) as HIDDEN ct')
-					->andWhere('l INSTANCE OF ' . Entity\PageLocalization::CN())
-					->orderBy('ct', 'DESC');
+						->addSelect('COALESCE(l_.creationTime, l.creationTime) as HIDDEN ct')
+						->andWhere('l INSTANCE OF ' . Entity\PageLocalization::CN())
+						->orderBy('ct', 'DESC');
 				break;
 			case '':
 				$queryBuilder->andWhere('e INSTANCE OF ' . Entity\GroupPage::CN());

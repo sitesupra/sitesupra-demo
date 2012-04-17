@@ -140,7 +140,7 @@ YUI.add("supra.permission", function (Y) {
 			//If all permissions already are known, execute callback immediately
 			var data = this.getPermissions(permissions),
 				diff = null;
-			
+
 			if (data) {
 				if (Y.Lang.isFunction(callback)) {
 					callback.call(context || this, data);
@@ -149,10 +149,10 @@ YUI.add("supra.permission", function (Y) {
 			} else {
 				diff = this.diff(permissions);
 			}
-			
+
 			//Wait till permissions are loaded and execute callback
 			this.done(permissions, diff, callback, context);
-			
+
 			//Load permissions
 			Supra.io(REQUEST_URI, {'suppress_errors': true, 'method': 'post'}, diff);
 		},

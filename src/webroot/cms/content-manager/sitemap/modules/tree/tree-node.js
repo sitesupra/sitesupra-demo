@@ -24,8 +24,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					</div>\
 					<img src="{{ preview }}" onerror="this.src=\'/cms/lib/supra/img/sitemap/preview/blank.jpg\';" alt="" />\
 					<div class="highlight"></div>\
-					{% if global %}\
-						<div class="status-global">{{ "sitemap.status_not_created"|intl }}</div>\
+					{% if ! localized %}\
+						<div class="status-not-localized">{{ "sitemap.status_not_created"|intl }}</div>\
 					{% endif %}\
 				</div>\
 				<label>{{ label|escape }}</label>\
@@ -128,6 +128,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		},
 		'global': {
 			'value': false,
+			'setter': '_setAttributeClass'
+		},
+		'localized': {
+			'value': true,
 			'setter': '_setAttributeClass'
 		},
 		'state': {
@@ -324,7 +328,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'syncUI': function () {
 			var boundingBox = this.get('boundingBox'),
-				attrClasses = ['root', 'editable', 'publishable', 'selectable', 'selected', 'expanded', 'expandable', 'global'],
+				attrClasses = ['root', 'editable', 'publishable', 'selectable', 'selected', 'expanded', 'expandable', 'global', 'localized'],
 				i = 0,
 				ii = attrClasses.length;
 			

@@ -375,8 +375,7 @@
 			 * Delete page
 			 */
 			deletePage: function () {
-				if (this.page_data.global_disabled) {
-					//Global_disabled is true if page has more than one localization
+				if (this.page_data.localization_count > 1) {
 					var message_id = 'delete_message_all';
 				} else {
 					var message_id = 'delete_message';
@@ -753,7 +752,7 @@
 					delete(post_data.is_limited);
 				}
 
-				delete(post_data.global_disabled);
+				delete(post_data.localization_count);
 				delete(post_data.type);
 				delete(post_data.id);
 				delete(post_data.path_prefix);

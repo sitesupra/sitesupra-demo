@@ -383,7 +383,6 @@ YUI().add('website.sitemap-tree', function (Y) {
 		'_createNode': function (item) {
 			var classname = Action.TreeNode,
 				appId = null,
-				node = null,
 				data = item.data,
 				
 				editable = Supra.Permission.get('page', data.id, 'edit_page', false),
@@ -424,6 +423,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'editable': editable,
 				'publishable': publishable,
 				'global': data.global || false,
+				'localized': ('localized' in data) ? data.localized : true,
 				
 				'expanded': false,
 				'selected': false,

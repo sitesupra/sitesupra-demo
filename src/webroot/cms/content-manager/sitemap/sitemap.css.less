@@ -152,8 +152,8 @@
 				display: none;
 			}
 			
-			.status-global {
-				display: none;
+			.status-not-localized {
+				display: block;
 				position: absolute;
 				left: -2px;
 				top: 71px;
@@ -282,10 +282,10 @@
 		}
 	}
 	
-	&.global {
+	&.localized {
 		& > .su-tree-node-content {
-			.status-global {
-				display: block;
+			.status-not-localized {
+				display: none;
 			}
 		}
 	}

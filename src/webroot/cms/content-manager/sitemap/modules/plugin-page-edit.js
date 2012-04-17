@@ -442,7 +442,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				message_id = '';
 			
 			if (this.get('host').get('mode') == 'pages') {
-				if (data.global_disabled) {
+				if (data.localization_count > 1) {
 					message_id = 'message_delete_page_all'
 				} else {
 					message_id = 'message_delete_page';

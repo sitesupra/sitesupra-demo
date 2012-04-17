@@ -372,6 +372,8 @@ abstract class PageManagerAction extends CmsAction
 					($data instanceof Entity\GroupLocalization ? 'group' :
 							($page->getLevel() === 0 ? 'home' : 'page')),
 			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
+			'global' => $page->getGlobal(),
+			'localized' => $localizationExists,
 		);
 		
 		// Template ID
@@ -390,13 +392,8 @@ abstract class PageManagerAction extends CmsAction
 				$array['scheduled'] = true;
 			}
 			
-			$array['global_disabled'] = false;
-			
-			$localizations = $page->getLocalizations()->count();
-			
-			if($localizations > 1) {
-				$array['global_disabled'] = true;
-			}
+			$localizationCount = $page->getLocalizations()->count();
+			$array['localization_count'] = $localizationCount;
 			
 			$array['full_path'] = $data->getPath()
 					->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
