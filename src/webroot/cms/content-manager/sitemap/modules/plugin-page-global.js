@@ -350,7 +350,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			this._widgets.panel.set('autoClose', false);
 			
 			//Call duplicate request
-			context[fn](data.id, Supra.data.get('locale'), locale, this._onCreatePageComplete, this);
+			context[fn](data.id, this.get('host').get('locale'), locale, this._onCreatePageComplete, this);
 		},
 		
 		/**
