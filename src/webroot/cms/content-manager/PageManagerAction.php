@@ -706,6 +706,7 @@ abstract class PageManagerAction extends CmsAction
 		$localizationId = $localization->getId();
 
 		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$draftEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		
 //		$pageLocalization = $auditEm->find(Entity\Abstraction\Localization::CN(),
 //				array('id' => $localizationId, 'revision' => $revisionId));
@@ -807,6 +808,12 @@ abstract class PageManagerAction extends CmsAction
 
 		$this->entityManager
 				->transactional($restoreLocalization);
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setEntityManager($draftEntityManager);
+				
+		$draftEntityManager->getEventManager()
+				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 		
 	}
 
