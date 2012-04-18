@@ -346,7 +346,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
-			//New item dragable node
+			//New item draggable node
 			this.newBanner = new Supra.ListNewItem({
 				'srcNode': this.one('.list-add'),
 				'title': Supra.Intl.get(['userlist', 'new']),

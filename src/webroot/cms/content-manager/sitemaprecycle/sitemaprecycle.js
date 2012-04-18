@@ -170,7 +170,7 @@ SU('anim', 'transition', function (Y) {
 				'tree': tree,
 				'view': view,
 				'data': data,
-				'dragable': true,
+				'draggable': true,
 				'groups': ['restore-' + type],
 				'type': type
 			});

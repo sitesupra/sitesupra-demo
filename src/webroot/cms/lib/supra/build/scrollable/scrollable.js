@@ -19,7 +19,7 @@ YUI.add('supra.scrollable', function (Y) {
 		'scrollbarNode': {
 			value: null
 		},
-		'dragableNode': {
+		'draggableNode': {
 			value: null
 		},
 		
@@ -94,19 +94,19 @@ YUI.add('supra.scrollable', function (Y) {
 			Scrollable.superclass.renderUI.apply(this, arguments);
 			
 			var boundingBox = this.get('boundingBox'),
-				dragableNode = null,
+				draggableNode = null,
 				scrollbarNode = Y.Node.create('\
 									<div class="' + this.getClassName('scrollbar') + ' ' + this.getClassName('invisible') + '">\
-										<div class="' + this.getClassName('dragable') + '"></div>\
+										<div class="' + this.getClassName('draggable') + '"></div>\
 									</div>');
 			
 			boundingBox.addClass(this.getClassName(this.get('axis')));
 			
-			dragableNode = scrollbarNode.one('div');
+			draggableNode = scrollbarNode.one('div');
 			boundingBox.append(scrollbarNode);
 			
 			this.set('scrollbarNode', scrollbarNode);
-			this.set('dragableNode', dragableNode);
+			this.set('draggableNode', draggableNode);
 		},
 		
 		/**
@@ -133,7 +133,7 @@ YUI.add('supra.scrollable', function (Y) {
 			node.on('scroll', this.syncUIPositionThrottled);
 			
 			//Drag and drop
-			node = this.get('dragableNode');
+			node = this.get('draggableNode');
 			node.on('mousedown', this.onDragStart, this);
 			
 			//Disabled state
@@ -199,17 +199,17 @@ YUI.add('supra.scrollable', function (Y) {
 		onDragStart: function (e) {
 			if (this.get('disabled')) return;
 			
-			this.get('dragableNode').addClass(this.getClassName('dragable-drag'));
+			this.get('draggableNode').addClass(this.getClassName('draggable-drag'));
 			
 			this.dragging = true;
 			
 			if (this.get('axis') == 'y') {
 				this.dragStartPos = e.clientY;
-				this.dragableStartPos = parseInt(this.get('dragableNode').getStyle('top'), 10);
+				this.draggableStartPos = parseInt(this.get('draggableNode').getStyle('top'), 10);
 				this.scrollStartPos = this.get('contentBox').get('scrollTop');
 			} else {
 				this.dragStartPos = e.clientX;
-				this.dragableStartPos = parseInt(this.get('dragableNode').getStyle('left'), 10);
+				this.draggableStartPos = parseInt(this.get('draggableNode').getStyle('left'), 10);
 				this.scrollStartPos = -parseInt(this.get('contentBox').getStyle('margin-left'), 10);
 			}
 			
@@ -233,7 +233,7 @@ YUI.add('supra.scrollable', function (Y) {
 				this.dragEndEvent.detach();
 				this.dragEndEvent = null;
 				
-				this.get('dragableNode').removeClass(this.getClassName('dragable-drag'));
+				this.get('draggableNode').removeClass(this.getClassName('draggable-drag'));
 			}
 		},
 		
@@ -243,16 +243,16 @@ YUI.add('supra.scrollable', function (Y) {
 			var axis = this.get('axis'),
 				mousePos = (axis == 'y' ? e.clientY : e.clientX),
 				maxDragPos = this.scrollbarAreaSize - this.scrollbarSize,
-				diff = Math.min(mousePos - this.dragStartPos, maxDragPos - this.dragableStartPos),
+				diff = Math.min(mousePos - this.dragStartPos, maxDragPos - this.draggableStartPos),
 				scroll = Math.max(0, ~~(this.scrollStartPos + diff * this.pxRatio)),
-				pos = ~~Math.min(Math.max(0, this.dragableStartPos + diff), maxDragPos);
+				pos = ~~Math.min(Math.max(0, this.draggableStartPos + diff), maxDragPos);
 			
 			if (axis == 'y') {
 				this.get('contentBox').set('scrollTop', scroll);
-				this.get('dragableNode').setStyle('top', pos);
+				this.get('draggableNode').setStyle('top', pos);
 			} else {
 				this.get('contentBox').setStyle('margin-left', -scroll);
-				this.get('dragableNode').setStyle('left', pos);
+				this.get('draggableNode').setStyle('left', pos);
 			}
 		},
 		
@@ -266,7 +266,7 @@ YUI.add('supra.scrollable', function (Y) {
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
 				
 				contentBox = this.get('contentBox'),
-				dragableNode = this.get('dragableNode'),
+				draggableNode = this.get('draggableNode'),
 				scrollbarNode = this.get('scrollbarNode'),
 				viewSize = contentBox.get('offset' + axisSizeProperty),
 				scrollSize = contentBox.get('scroll' + axisSizeProperty) || viewSize,
@@ -309,7 +309,7 @@ YUI.add('supra.scrollable', function (Y) {
 			this.viewSize = viewSize;
 			
 			if (axis == 'y') {
-				dragableNode.setStyles({
+				draggableNode.setStyles({
 					'height': scrollbarSize,
 					'top': ~~(scrollPos / pxRatio)
 				});
@@ -320,7 +320,7 @@ YUI.add('supra.scrollable', function (Y) {
 					contentBox.setStyle('margin-left', - scrollPos + 'px');
 				}
 				
-				dragableNode.setStyles({
+				draggableNode.setStyles({
 					'width': scrollbarSize,
 					'left': ~~(scrollPos / pxRatio)
 				});
@@ -340,15 +340,15 @@ YUI.add('supra.scrollable', function (Y) {
 			var axis = this.get('axis'),
 				
 				contentBox = this.get('contentBox'),
-				dragableNode = this.get('dragableNode'),
+				draggableNode = this.get('draggableNode'),
 				scrollPos = 0;
 			
 			if (axis == 'y') {
 				scrollPos = contentBox.get('scrollTop');
-				dragableNode.setStyle('top', ~~(scrollPos / this.pxRatio));
+				draggableNode.setStyle('top', ~~(scrollPos / this.pxRatio));
 			} else {
 				scrollPos = -parseInt(contentBox.get('margin-left'), 10);
-				dragableNode.setStyle('left', ~~(scrollPos / this.pxRatio));
+				draggableNode.setStyle('left', ~~(scrollPos / this.pxRatio));
 			}
 			
 			this.fire('sync');

@@ -211,7 +211,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
-			//New item dragable node
+			//New item draggable node
 			this.new_user = new Supra.ListNewItem({
 				'srcNode': this.one('.user-add'),
 				'title': Supra.Intl.get(['userlist', 'new']),
@@ -224,7 +224,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 			this.plug(Supra.ListDD, {
 				'dropSelector': 'div.userlist-groups ul',
 				'dragContainerSelector': 'div.userlist-groups',
-				'dragSelector': 'li.dragable',
+				'dragSelector': 'li.draggable',
 				'proxyClass': 'userlist-proxy',
 				'targetClass': 'userlist-group-target'
 			});

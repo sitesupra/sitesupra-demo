@@ -362,7 +362,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 						//Enable dragging
 						data = node.get('data');
 						if (!('isDraggable' in data) || data.isDraggable) {
-							node.set('dragable', true);
+							node.set('draggable', true);
 						}
 						if (!('isDropTarget' in data) || data.isDropTarget) {
 							node.set('dropable', true);
@@ -415,7 +415,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'preview': data.preview || preview,
 				'type': data.type,
 				
-				'dragable': editable && (!('isDraggable' in data) || data.isDraggable),
+				'draggable': editable && (!('isDraggable' in data) || data.isDraggable),
 				'dropable': editable,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),
@@ -663,7 +663,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 					'identifier': node._id,
 					'data': node,
 					
-					'dragable': true,
+					'draggable': true,
 					'dropable': true,
 					
 					'editable': true,

@@ -384,7 +384,7 @@ YUI.add('website.provider', function (Y) {
 				this.data_grid.plug(Supra.DataGrid.LoaderPlugin, {
 					'recordHeight': 40
 				});
-				this.data_grid.plug(Supra.DataGrid.DragablePlugin, {
+				this.data_grid.plug(Supra.DataGrid.DraggablePlugin, {
 					'dd-sort':   this.get('sortable'),
 					'dd-insert': this.get('create'),
 					'dd-delete': this.get('delete')
@@ -632,4 +632,4 @@ YUI.add('website.provider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['widget', 'supra.datagrid', 'supra.datagrid-loader', 'supra.datagrid-dragable', 'website.datagrid-delete', 'website.datagrid-new-item', 'supra.form']});
+}, YUI.version, {requires: ['widget', 'supra.datagrid', 'supra.datagrid-loader', 'supra.datagrid-draggable', 'website.datagrid-delete', 'website.datagrid-new-item', 'supra.form']});

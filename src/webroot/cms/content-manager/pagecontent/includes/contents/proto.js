@@ -32,7 +32,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
-		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),					// yui3-content-dragable
+		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
 		CLASSNAME_EDITING = 'editing';												// editing
 	
 	ContentProto.ATTRS = {
@@ -80,11 +80,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Is block dragable
+		 * Is block draggable
 		 */
-		'dragable': {
+		'draggable': {
 			value: false,
-			setter: '_setDragable'
+			setter: '_setDraggable'
 		},
 		
 		/**
@@ -496,7 +496,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
 					this.createChild(data.contents[i], {
-						'dragable': !data.contents[i].closed && !this.isClosed() && permission_order,
+						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
 						'editable': !data.contents[i].closed && permission_edit
 					}, true);
 				}
@@ -516,11 +516,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.set('editable', false);
 			}
 			
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				if (!this.isClosed() && permission_order) {
-					this.set('dragable', true);
+					this.set('draggable', true);
 				} else {
-					this.set('dragable', false);
+					this.set('draggable', false);
 				}
 			}
 		},
@@ -557,8 +557,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			this.overlay = div;
 			
-			if (this.get('dragable')) {
-				this.overlay.addClass(CLASSNAME_DRAGABLE);
+			if (this.get('draggable')) {
+				this.overlay.addClass(CLASSNAME_DRAGGABLE);
 				html = HTML_CLICK_DRAG;
 			}
 			
@@ -568,16 +568,16 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * dragable attribute setter
+		 * draggable attribute setter
 		 * 
 		 * @param {Boolean} value
 		 * @private
 		 */
-		_setDragable: function (value) {
+		_setDraggable: function (value) {
 			var node = this.overlay;
 			
 			if (node) {
-				node.setClass(CLASSNAME_DRAGABLE, value);
+				node.setClass(CLASSNAME_DRAGGABLE, value);
 			}
 			
 			return !!value;

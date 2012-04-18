@@ -33,9 +33,9 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			'value': null
 		},
 		
-		'dragable': {
+		'draggable': {
 			'value': true,
-			'setter': '_setDragable'
+			'setter': '_setDraggable'
 		},
 		
 		'type': {
@@ -142,7 +142,7 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			
 			dnd.set('treeNode', this);
 			
-			if (!this.get('dragable')) {
+			if (!this.get('draggable')) {
 				dnd.set('lock', true);
 			}
 			
@@ -254,23 +254,23 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 		
 		
 		/**
-		 * Dragable attribute setter
+		 * Draggable attribute setter
 		 * 
-		 * @param {Boolean} dragable New dragable value
-		 * @return Dragable attribute value
+		 * @param {Boolean} draggable New draggable value
+		 * @return Draggable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDragable': function (dragable) {
+		'_setDraggable': function (draggable) {
 			//Root nodes can't be dragged
 			if (this.get('root')) {
 				return false;
 			}
 			if (this._dnd) {
-				this._dnd.set('lock', !dragable);
+				this._dnd.set('lock', !draggable);
 			}
 			
-			return !!dragable;
+			return !!draggable;
 		}
 	});
 	

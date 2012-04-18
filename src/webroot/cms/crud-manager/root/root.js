@@ -17,7 +17,7 @@ SU.addModule('website.provider', {
 		'widget',
 		'supra.datagrid',
 		'supra.datagrid-loader',
-		'supra.datagrid-dragable',
+		'supra.datagrid-draggable',
 		'website.datagrid-delete',
 		'website.datagrid-new-item',
 		'supra.form'
@@ -47,7 +47,7 @@ Supra(
 	
 	'supra.datagrid',
 	'supra.datagrid-loader',
-	'supra.datagrid-dragable',
+	'supra.datagrid-draggable',
 	
 	'website.providers',
 	

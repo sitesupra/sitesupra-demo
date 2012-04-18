@@ -59,9 +59,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': null
 		},
 		
-		'dragable': {
+		'draggable': {
 			'value': false,
-			'setter': '_setDragable'
+			'setter': '_setDraggable'
 		},
 		'dropable': {
 			'value': false,
@@ -512,7 +512,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			dnd.target.set('node', this.get('itemBox'));
 			dnd.target.set('treeNode', this);
 			
-			if (!this.get('dragable')) {
+			if (!this.get('draggable')) {
 				dnd.set('lock', true);
 			}
 			if (!this.get('dropable')) {
@@ -541,7 +541,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_dndLockChildren': function () {
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				this.children().forEach(function (child) {
 					child.set('dndLocked', true);
 				});
@@ -639,7 +639,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'_dndEnd': function (e) {
 			//Unlock children to allow them being draged
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				this.children().forEach(function (child) {
 					child.set('dndLocked', false);
 				});
@@ -998,7 +998,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Label attribute setter
 		 * 
-		 * @param {String} dragable New label value
+		 * @param {String} draggable New label value
 		 * @return Label attribute value
 		 * @type {String}
 		 * @private
@@ -1014,7 +1014,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Preview attribute setter
 		 * 
-		 * @param {String} dragable New preview value
+		 * @param {String} draggable New preview value
 		 * @return Preview attribute value
 		 * @type {String}
 		 * @private
@@ -1032,23 +1032,23 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		},
 		
 		/**
-		 * Dragable attribute setter
+		 * Draggable attribute setter
 		 * 
-		 * @param {Boolean} dragable New dragable value
-		 * @return Dragable attribute value
+		 * @param {Boolean} draggable New draggable value
+		 * @return Draggable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDragable': function (dragable) {
+		'_setDraggable': function (draggable) {
 			//Root nodes can't be dragged
 			if (this.get('root')) {
 				return false;
 			}
 			if (this._dnd && !this.get('dndLocked')) {
-				this._dnd.set('lock', !dragable);
+				this._dnd.set('lock', !draggable);
 			}
 			
-			return !!dragable;
+			return !!draggable;
 		},
 		
 		/**
@@ -1083,7 +1083,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			});
 			
 			if (this._dnd) {
-				if (this.get('dragable') || locked) {
+				if (this.get('draggable') || locked) {
 					this._dnd.set('lock', locked);
 				}
 				if (this.get('dropable') || locked) {

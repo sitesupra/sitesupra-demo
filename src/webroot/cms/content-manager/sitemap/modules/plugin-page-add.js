@@ -326,7 +326,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			//Change node style
 			node.set('highlighted', true);
-			node.set('dragable', false);
+			node.set('draggable', false);
 			node.getWidget('buttonEdit').set('disabled', true);
 			node.getWidget('buttonOpen').set('disabled', true);
 			
@@ -722,7 +722,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							if (permissions.page[data.id].edit_page) {
 								node.set('editable', true);
 								node.set('publishable', true);
-								node.set('dragable', !('isDraggable' in data) || data.isDraggable);
+								node.set('draggable', !('isDraggable' in data) || data.isDraggable);
 								
 								if (data.type != 'group') {
 									node.set('selectable', true);

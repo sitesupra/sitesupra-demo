@@ -25,7 +25,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			value: true,
 			writeOnce: true
 		},
-		'dragable': {
+		'draggable': {
 			value: true
 		},
 		'active_inline_property': {

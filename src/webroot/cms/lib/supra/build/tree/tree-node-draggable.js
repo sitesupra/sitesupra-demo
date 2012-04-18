@@ -2,22 +2,22 @@
 "use strict";
 
 
-YUI.add('supra.tree-node-dragable', function(Y) {
+YUI.add('supra.tree-node-draggable', function(Y) {
 	
-	function TreeNodeDragable (config) {
-		TreeNodeDragable.superclass.constructor.apply(this, arguments);
+	function TreeNodeDraggable (config) {
+		TreeNodeDraggable.superclass.constructor.apply(this, arguments);
 		
 		this.init.apply(this, arguments);
 	}
 	
-	TreeNodeDragable.NAME = 'tree-node-dragable';
-	TreeNodeDragable.ATTRS = {
+	TreeNodeDraggable.NAME = 'tree-node-draggable';
+	TreeNodeDraggable.ATTRS = {
 		/**
 		 * Node can be dragged
 		 */
 		'isDraggable': {
 			value: true,
-			setter: '_setDragable'
+			setter: '_setDraggable'
 		},
 		/**
 		 * Inside node, before and after can be dropped 
@@ -31,19 +31,19 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		 * Child class
 		 */
 		'defaultChildType': {  
-            value: TreeNodeDragable
+            value: TreeNodeDraggable
         },
 		
 		/**
-		 * Dragable node selector
+		 * Draggable node selector
 		 */
-		'dragableSelector': {
+		'draggableSelector': {
 			value: 'div.tree-node'
 		}
 	};
 	
-	Y.extend(TreeNodeDragable, Supra.TreeNode, {
-		ROOT_TYPE: TreeNodeDragable,
+	Y.extend(TreeNodeDraggable, Supra.TreeNode, {
+		ROOT_TYPE: TreeNodeDraggable,
 		
 		dd: null,
 		
@@ -53,13 +53,13 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		drop_target: null,
 		
 		renderUI: function () {
-			TreeNodeDragable.superclass.renderUI.apply(this, arguments);
+			TreeNodeDraggable.superclass.renderUI.apply(this, arguments);
 			
 			if (this.get('isDraggable')) {
-				var node = this.get('boundingBox').one(this.get('dragableSelector'));
+				var node = this.get('boundingBox').one(this.get('draggableSelector'));
 				
 				//If class is extended node may not be present
-				if (node) node.addClass('isdragable');
+				if (node) node.addClass('isdraggable');
 			}
 		},
 		
@@ -272,16 +272,16 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 		},
 		
 		expand: function () {
-			TreeNodeDragable.superclass.expand.apply(this, arguments);
+			TreeNodeDraggable.superclass.expand.apply(this, arguments);
 			this.unlockChildren();
 		},
 		
 		bindUI: function () {
-			TreeNodeDragable.superclass.bindUI.apply(this, arguments);
+			TreeNodeDraggable.superclass.bindUI.apply(this, arguments);
 			
 			if (this.get('isDraggable')) {
 				var node = this.get('boundingBox');
-				var treenode = node.one(this.get('dragableSelector'));
+				var treenode = node.one(this.get('draggableSelector'));
 				
 				//If class is extended node may not be present
 				if (!treenode) return;
@@ -319,7 +319,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 				
 			} else if (this.get('isDropTarget')) {
 				var node = this.get('boundingBox');
-				var treenode = node.one(this.get('dragableSelector'));
+				var treenode = node.one(this.get('draggableSelector'));
 				
 				//If class is extended node may not be present
 				if (!treenode) return;
@@ -351,12 +351,12 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 			}
 		},
 		
-		_setDragable: function (val) {
+		_setDraggable: function (val) {
 			if (val && val != this.get('isDraggable')) {
-				var node = this.get('boundingBox').one(this.get('dragableSelector'));
+				var node = this.get('boundingBox').one(this.get('draggableSelector'));
 				if (!node) return !val;
 				
-				node.setClass('isdragable', val);				
+				node.setClass('isdraggable', val);
 			}
 			
 			return !!val;
@@ -364,7 +364,7 @@ YUI.add('supra.tree-node-dragable', function(Y) {
 	});
 	
 	
-	Supra.TreeNodeDragable = TreeNodeDragable;
+	Supra.TreeNodeDraggable = TreeNodeDraggable;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

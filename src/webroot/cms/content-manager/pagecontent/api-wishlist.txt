@@ -85,7 +85,7 @@ ContentProto
 		editing - current editing state
 		changed - has content changed
 		
-		dragable - content can be dragged and droped (order)
+		draggable - content can be dragged and droped (order)
 		highlight - current highlight state
 		highlightOverlay - current overlay highlight state
 		

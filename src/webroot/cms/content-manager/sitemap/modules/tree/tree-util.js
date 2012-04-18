@@ -98,7 +98,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 				'identifier': data.id || Y.guid(),
 				'data': data,
 				
-				'dragable': true,
+				'draggable': true,
 				'dropable': false,
 				
 				'editable': false,

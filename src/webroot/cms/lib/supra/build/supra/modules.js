@@ -412,8 +412,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datagrid/datagrid-loader.js',
 		requires: ['plugin', 'supra.datagrid']
 	},
-	'supra.datagrid-dragable': {
-		path: 'datagrid/datagrid-dragable.js',
+	'supra.datagrid-draggable': {
+		path: 'datagrid/datagrid-draggable.js',
 		requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'supra.datagrid']
 	},
 	'supra.datagrid-row': {
@@ -491,16 +491,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.tree-node', 'supra.tree-plugin-expand-history', 'widget', 'widget-parent'],
 		skinnable: true
 	},
-	'supra.tree-dragable': {
-		path: 'tree/tree-dragable.js',
-		requires: ['supra.tree', 'supra.tree-node-dragable']
+	'supra.tree-draggable': {
+		path: 'tree/tree-draggable.js',
+		requires: ['supra.tree', 'supra.tree-node-draggable']
 	},
 	'supra.tree-node': {
 		path: 'tree/tree-node.js',
 		requires: ['widget', 'widget-child']
 	},
-	'supra.tree-node-dragable': {
-		path: 'tree/tree-node-dragable.js',
+	'supra.tree-node-draggable': {
+		path: 'tree/tree-node-draggable.js',
 		requires: ['dd', 'supra.tree-node']
 	},
 	'supra.tree-plugin-expand-history': {

@@ -1,21 +1,21 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add('supra.tree-dragable', function(Y) {
+YUI.add('supra.tree-draggable', function(Y) {
 	
-	function TreeDragable (config) {
-		TreeDragable.superclass.constructor.apply(this, arguments);
+	function TreeDraggable (config) {
+		TreeDraggable.superclass.constructor.apply(this, arguments);
 	}
 	
-	TreeDragable.NAME = 'tree-dragable';
+	TreeDraggable.NAME = 'tree-draggable';
 	
-	TreeDragable.ATTRS = {
+	TreeDraggable.ATTRS = {
 		/**
 		 * Default children class
 		 * @type {Function}
 		 */
 		'defaultChildType': {  
-            value: Supra.TreeNodeDragable
+            value: Supra.TreeNodeDraggable
 		},
 		
 		/**
@@ -27,7 +27,7 @@ YUI.add('supra.tree-dragable', function(Y) {
 		}
 	};
 	
-	Y.extend(TreeDragable, Supra.Tree, {
+	Y.extend(TreeDraggable, Supra.Tree, {
 		_renderTreeUIChild: function (data, i) {
 			var isDraggable = (data && 'isDraggable' in data ? data.isDraggable : true);
 			var isDropTarget = (data && 'isDropTarget' in data ? data.isDropTarget : true);
@@ -35,10 +35,10 @@ YUI.add('supra.tree-dragable', function(Y) {
 		}
 	});
 	
-	Supra.TreeDragable = TreeDragable;
+	Supra.TreeDraggable = TreeDraggable;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.tree', 'supra.tree-node-dragable']});
+}, YUI.version, {requires:['supra.tree', 'supra.tree-node-draggable']});

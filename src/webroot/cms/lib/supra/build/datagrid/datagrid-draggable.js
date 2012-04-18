@@ -4,18 +4,18 @@
 /**
  * Continuous loader plugin
  */
-YUI.add('supra.datagrid-dragable', function (Y) {
+YUI.add('supra.datagrid-draggable', function (Y) {
 	
-	function DragablePlugin (config) {
-		DragablePlugin.superclass.constructor.apply(this, arguments);
+	function DraggablePlugin (config) {
+		DraggablePlugin.superclass.constructor.apply(this, arguments);
 	}
 
 	// When plugged into a DataGrid instance, the plugin will be 
 	// available on the "loader" property.
-	DragablePlugin.NS = 'dragable';
+	DraggablePlugin.NS = 'draggable';
 	
 	// Attributes
-	DragablePlugin.ATTRS = {
+	DraggablePlugin.ATTRS = {
 		/**
 		 * Allow sorting elements using drag and drop
 		 */
@@ -39,7 +39,7 @@ YUI.add('supra.datagrid-dragable', function (Y) {
 	};
 	
 	// Extend Plugin.Base
-	Y.extend(DragablePlugin, Y.Plugin.Base, {
+	Y.extend(DraggablePlugin, Y.Plugin.Base, {
 		
 		/**
 		 * Drag and drop delegation instance
@@ -256,7 +256,7 @@ YUI.add('supra.datagrid-dragable', function (Y) {
 		 * @private
 		 */
 		newItemDragOverMain: function (e) {
-			//Only if 'new-item' is present in dragable items groups
+			//Only if 'new-item' is present in draggable items groups
 			if (!e.drag._groups['new-item']) return;
 			
 			var drag = this.temp_node,
@@ -430,7 +430,7 @@ YUI.add('supra.datagrid-dragable', function (Y) {
 		
 	});
 	
-	Supra.DataGrid.DragablePlugin = DragablePlugin;
+	Supra.DataGrid.DraggablePlugin = DraggablePlugin;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

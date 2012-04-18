@@ -11,7 +11,7 @@ YUI.add('supra.page-content-list', function (Y) {
 	var CLASSNAME_REORDER = Y.ClassNameManager.getClassName('content', 'reorder'),		//yui3-content-reorder
 		CLASSNAME_DRAGING = Y.ClassNameManager.getClassName('content', 'draging'),		//yui3-content-draging
 		CLASSNAME_PROXY = Y.ClassNameManager.getClassName('content', 'proxy'),			//yui3-content-proxy
-		CLASSNAME_DRAGABLE = Y.ClassNameManager.getClassName('content', 'dragable'),	//yui3-content-dragable
+		CLASSNAME_DRAGGABLE = Y.ClassNameManager.getClassName('content', 'draggable'),	//yui3-content-draggable
 		CLASSNAME_OVERLAY = Y.ClassNameManager.getClassName('content', 'overlay');		//yui3-content-overlay
 	
 	/**
@@ -25,9 +25,9 @@ YUI.add('supra.page-content-list', function (Y) {
 	ContentList.CLASS_NAME = Y.ClassNameManager.getClassName(ContentList.NAME);
 	ContentList.ATTRS = {
 		/**
-		 * Placeholders are not dragable
+		 * Placeholders are not draggable
 		 */
-		'dragable': {
+		'draggable': {
 			'value': false
 		}
 	};
@@ -35,7 +35,7 @@ YUI.add('supra.page-content-list', function (Y) {
 	Y.extend(ContentList, PageContent.Editable, {
 		drag_delegate: null,
 		drag_selector: null,
-		dragable_regions: null,
+		draggable_regions: null,
 		drag_region: null,
 		drag_index: 0,
 		drag_order_changed: false,
@@ -57,7 +57,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				for(var id in this.children) {
 					block = this.children[id];
 					//If children is editable and is not part of drag & drop
-					if (block.get('editable') && block.get('dragable') && !block.get('loading')) {
+					if (block.get('editable') && block.get('draggable') && !block.get('loading')) {
 						overlay = this.children[id].overlay;
 						if (overlay.compareTo(target)) {
 							this.get('super').set('activeChild', this.children[id]);
@@ -95,7 +95,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				'data': data,
 				'value': data.html
 			}, {
-				'dragable': !this.isClosed(),
+				'draggable': !this.isClosed(),
 				'editable': true
 			});
 			
@@ -108,9 +108,9 @@ YUI.add('supra.page-content-list', function (Y) {
 		 */
 		bindOrderDnD: function () {
 			var cont = this.getNode(),
-				selector = 'div.' + CLASSNAME_DRAGABLE,
+				selector = 'div.' + CLASSNAME_DRAGGABLE,
 				nodes = null,
-				dragable_regions = null;
+				draggable_regions = null;
 			
 			this.drag_selector = selector;
 			
@@ -170,17 +170,17 @@ YUI.add('supra.page-content-list', function (Y) {
 			if (node) node.addClass(CLASSNAME_DRAGING);
 			
 			//Find drop target regions
-			var dragable_regions = [],
+			var draggable_regions = [],
 				region = null,
 				order = this.children_order;
 			
 			for(var i=0,ii=order.length; i<ii; i++) {
 				region = this.getChildRegion(order[i]);
-				if (region) dragable_regions.push(region);
+				if (region) draggable_regions.push(region);
 			}
 			
 			this.drag_order_changed = false;
-			this.dragable_regions = dragable_regions;
+			this.draggable_regions = draggable_regions;
 		},
 		
 		onDragEnd: function (e) {
@@ -198,8 +198,8 @@ YUI.add('supra.page-content-list', function (Y) {
 			}
 			
 			//Clean up
-			this.dragable_regions = null;
-			this.dragable_regions_initial = null;
+			this.draggable_regions = null;
+			this.draggable_regions_initial = null;
 			this.drag_index = null;
 			this.drag_region = null;
 		},
@@ -213,7 +213,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				drag_region = null,
 				drag_index = null,
 				top = e.target.get('dragNode').getY(),
-				regions = this.dragable_regions,
+				regions = this.draggable_regions,
 				
 				direction = 0;
 			
@@ -293,8 +293,8 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * @type {Boolean}
 		 */
 		testDrop: function (top, drag, drop) {
-			var drag_region = this.dragable_regions[drag].region,
-				drop_region = this.dragable_regions[drop].region,
+			var drag_region = this.draggable_regions[drag].region,
+				drop_region = this.draggable_regions[drop].region,
 				target_y = drop_region.top + drop_region.height / 2;
 			
 			if (drag < drop) {
@@ -318,7 +318,7 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * @type {Object}
 		 */
 		getChildRegion: function (id) {
-			if (this.children[id].get('dragable')) {
+			if (this.children[id].get('draggable')) {
 				var node = this.children[id].getNode(),
 					overlay = this.children[id].overlay;
 				

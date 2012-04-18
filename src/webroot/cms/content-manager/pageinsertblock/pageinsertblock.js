@@ -59,7 +59,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		slideshow: null,
 		
 		/**
-		 * Elements which are dragable
+		 * Elements which are draggable
 		 * @type {Array}
 		 */
 		drags: [],

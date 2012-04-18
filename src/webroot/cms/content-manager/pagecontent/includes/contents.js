@@ -216,7 +216,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 								'data': data[i],
 								'parent': null,
 								'super': this,
-								'dragable': !data[i].closed,
+								'draggable': !data[i].closed,
 								'editable': !data[i].closed
 							});
 							block.render();

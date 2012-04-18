@@ -117,7 +117,7 @@ Supra.Manager.PageContent.Proto
 			Has content changed since last save
 		
 		draggable
-			Is content dragable (sort sorting) or not
+			Is content draggable (sort sorting) or not
 			
 		highlight
 			If true content will be highlighted

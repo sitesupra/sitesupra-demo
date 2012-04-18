@@ -10,7 +10,7 @@ YUI.add('website.tree-node-permissions', function(Y) {
 		this.init.apply(this, arguments);
 	}
 	
-	TreeNodePermissions.NAME = 'tree-node-dragable';
+	TreeNodePermissions.NAME = 'tree-node-draggable';
 	TreeNodePermissions.ATTRS = {
 		/**
 		 * Inside node, before and after can be dropped 
@@ -35,7 +35,7 @@ YUI.add('website.tree-node-permissions', function(Y) {
         }
 	};
 	
-	Y.extend(TreeNodePermissions, Supra.TreeNodeDragable, {
+	Y.extend(TreeNodePermissions, Supra.TreeNodeDraggable, {
 		ROOT_TYPE: TreeNodePermissions,
 		
 		renderUI: function () {
@@ -54,4 +54,4 @@ YUI.add('website.tree-node-permissions', function(Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.tree-node-dragable']});
+}, YUI.version, {requires:['supra.tree-node-draggable']});
