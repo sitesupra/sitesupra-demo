@@ -99,7 +99,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 				'data': data,
 				
 				'draggable': true,
-				'dropable': false,
+				'droppable': false,
 				
 				'editable': false,
 				'publishable': false,

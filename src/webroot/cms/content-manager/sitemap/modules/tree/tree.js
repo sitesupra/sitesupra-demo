@@ -365,7 +365,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 							node.set('draggable', true);
 						}
 						if (!('isDropTarget' in data) || data.isDropTarget) {
-							node.set('dropable', true);
+							node.set('droppable', true);
 						}
 					}
 					if (pages[id].supervise_page) {
@@ -416,7 +416,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'type': data.type,
 				
 				'draggable': editable && (!('isDraggable' in data) || data.isDraggable),
-				'dropable': editable,
+				'droppable': editable,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),
 				'selectable': editable && data.type != 'temporary' && data.type != 'group',
@@ -664,7 +664,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 					'data': node,
 					
 					'draggable': true,
-					'dropable': true,
+					'droppable': true,
 					
 					'editable': true,
 					'publishable': true,

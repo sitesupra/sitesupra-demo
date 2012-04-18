@@ -63,12 +63,12 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': false,
 			'setter': '_setDraggable'
 		},
-		'dropable': {
+		'droppable': {
 			'value': false,
-			'setter': '_setDropable'
+			'setter': '_setDroppable'
 		},
 		//Places where items can be dropped
-		'dropablePlaces': {
+		'droppablePlaces': {
 			'value': {'inside': true, 'before': true, 'after': true}
 		},
 		//All children drag and drop is locked, used when draging this node
@@ -515,7 +515,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (!this.get('draggable')) {
 				dnd.set('lock', true);
 			}
-			if (!this.get('dropable')) {
+			if (!this.get('droppable')) {
 				dnd.target.set('lock', true);
 			}
 			
@@ -594,7 +594,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 						node = Y.Node.getDOMNode(dropNode),
 						siblingsAllowed = (!target.get('root') || this.get('tree').get('mode') != 'pages'),
 						padding = 10,
-						dropablePlaces = target.get('dropablePlaces'),
+						droppablePlaces = target.get('droppablePlaces'),
 						
 						dragMouse = e.drag.mouseXY,
 						dropRegion = e.drop.region;
@@ -604,14 +604,14 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					}
 					
 					if (siblingsAllowed) {
-						if (dropablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
+						if (droppablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
 							place = 'before';
-						} else if (dropablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
+						} else if (droppablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
 							place = 'after';
 						}
 					}
 					
-					if (place == 'inside'  && !dropablePlaces.inside) {
+					if (place == 'inside'  && !droppablePlaces.inside) {
 						return this.hideDropMarker(e);
 					}
 					
@@ -1052,19 +1052,19 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		},
 		
 		/**
-		 * Dropable attribute setter
+		 * Droppable attribute setter
 		 * 
-		 * @param {Boolean} dropable New dropable value
-		 * @return Dropable attribute value
+		 * @param {Boolean} droppable New droppable value
+		 * @return Droppable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDropable': function (dropable) {
+		'_setDroppable': function (droppable) {
 			if (this._dnd && this._dnd.target && !this.get('dndLocked')) {
-				this._dnd.target.set('lock', !dropable);
+				this._dnd.target.set('lock', !droppable);
 			}
 			
-			return !!dropable;
+			return !!droppable;
 		},
 		
 		/**
@@ -1086,7 +1086,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				if (this.get('draggable') || locked) {
 					this._dnd.set('lock', locked);
 				}
-				if (this.get('dropable') || locked) {
+				if (this.get('droppable') || locked) {
 					if (this._dnd.target) {
 						this._dnd.target.set('lock', locked);
 					}

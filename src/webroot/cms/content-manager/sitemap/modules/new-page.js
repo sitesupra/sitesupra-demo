@@ -210,14 +210,14 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			var data = [{
 				'type': 'page',
 				'draggable': true,
-				'dropable': true,
+				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
 				'children': []
 			}, {
 				'type': 'group',
 				'draggable': true,
-				'dropable': true,
+				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
 				'children': []
@@ -231,7 +231,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					'type': apps[i].type,
 					'application_id': (apps[i].type == 'application' ? apps[i].id : null),
 					'draggable': apps[i].isDraggable,
-					'dropable': apps[i].isDropTarget,
+					'droppable': apps[i].isDropTarget,
 					'new_children_first': apps[i].new_children_first,
 					'state': 'temporary',
 					'children': []
