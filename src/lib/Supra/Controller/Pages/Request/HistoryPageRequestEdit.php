@@ -750,12 +750,6 @@ class HistoryPageRequestEdit extends PageRequest
 		//}
 		
 		$draftEntityManager->flush();
-		
-		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setEntityManager($draftEntityManager);
-		
-		$draftEntityManager->getEventManager()
-				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 	
 	}
 	
