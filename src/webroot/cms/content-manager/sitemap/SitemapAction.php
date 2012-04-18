@@ -66,7 +66,7 @@ class SitemapAction extends PageManagerAction
 		$localization = $this->getPageLocalizationByRequestKey('page_id');
 		if (is_null($localization)) {
 
-			$page = $this->getPageByRequestKey('page_id');
+			$page = $this->getPage();
 			
 			if (is_null($page)) {
 				$pageId = $this->getRequestParameter('page_id');				

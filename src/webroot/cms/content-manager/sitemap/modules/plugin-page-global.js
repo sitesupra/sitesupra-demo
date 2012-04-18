@@ -20,11 +20,18 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 	
 	Y.extend(Plugin, Y.Plugin.Base, {
 		/**
-		 * TreeNode which currently user has selected
+		 * TreeNode or DataGridRow which currently user has selected
 		 * @type {Object}
 		 * @private
 		 */
 		'_node': null,
+		
+		/**
+		 * TreeNode which currently user has selected or parent of DataGridRow
+		 * @type {Object}
+		 * @private
+		 */
+		'_treeNode': null,
 		
 		/**
 		 * Children widget list
@@ -205,7 +212,15 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				view = this.get('host').get('view');
 			
 			if ( ! data.localized) {
-				this._node = e.node;
+				this._node = node;
+				
+				if (node.isInstanceOf('TreeNode')) {
+					this._treeNode = node;
+				} else if (node.isInstanceOf('DataGridRow')) {
+					this._treeNode = node.get('parent').get('parent');
+				} else {
+					return;
+				}
 				
 				if (!this._widgets.panel) {
 					this._createPanel();
@@ -300,17 +315,18 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			if (status && data) {
 				var node = this._node,
 					node_data = node.get('data'),
-					tree = node.get('tree'),
-					params = {
-						'data': data,
-						'node': this._node
-					};
+					tree = this._treeNode.get('tree');
 				
 				//Update data
 				node.set('localized', true);
 				Supra.mix(node_data, data, {
 					'localized': true
 				})
+				
+				var params = {
+					'data': node_data,
+					'node': node
+				};
 				
 				//Hide panel
 				this.hide();
@@ -333,7 +349,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		 * @param {String} locale Page locale to copy from
 		 */
 		'createPage': function (locale) {
-			var mode    = this._node.get('tree').get('mode'),
+			var mode    = this._treeNode.get('tree').get('mode'),
 				fn      = 'duplicateGlobalPage',
 				context = Supra.Manager.getAction('Page'),
 				data    = this._node.get('data');

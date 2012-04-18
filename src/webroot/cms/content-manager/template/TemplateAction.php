@@ -232,7 +232,11 @@ class TemplateAction extends PageManagerAction
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
-		$this->duplicate();
+		$localization = $this->getPageLocalization();
+		$master = $localization->getMaster();
+		$this->duplicate($localization);
+		
+		$this->writeAuditLog('%item% duplicated', $master);
 	}
 
 	/**

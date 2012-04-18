@@ -113,16 +113,20 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
+	 * @param Localization $pageLocalization
 	 * @return PageRequestEdit
 	 */
-	protected function getPageRequest()
+	protected function getPageRequest(Localization $pageLocalization = null)
 	{
 		$controller = $this->getPageController();
 		$media = $this->getMedia();
 		$user = $this->getUser();
-		$requestPageLocalization = $this->getPageLocalization();
+		
+		if (is_null($pageLocalization)) {
+			$pageLocalization = $this->getPageLocalization();
+		}
 
-		$request = PageRequestEdit::factory($requestPageLocalization, $media);
+		$request = PageRequestEdit::factory($pageLocalization, $media);
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
@@ -941,14 +945,13 @@ abstract class PageManagerAction extends CmsAction
 	}
 	
 	/**
-	 * 
+	 * Duplicate the page
 	 */
-	protected function duplicate()
+	protected function duplicate(Localization $pageLocalization)
 	{
-		$pageLocalization = $this->getPageLocalizationByRequestKey('page_id');
-		$request = $this->getPageRequest();
+		$request = $this->getPageRequest($pageLocalization);
 		$em = $this->entityManager;
-
+		
 		$page = $pageLocalization->getMaster();
 
 		$clonePage = function() use ($request, $em, $page) {
@@ -1008,7 +1011,12 @@ abstract class PageManagerAction extends CmsAction
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeManager->exists($localeId);
 		
-		$master = $this->getPageByRequestKey('page_id');
+		$master = $this->getPage();
+		
+		if (is_null($master)) {
+			$pageId = $this->getRequestParameter('page_id');
+			throw new CmsException('sitemap.error.page_not_found', "Page $pageId not found");
+		}
 		
 		$sourceLocaleId = $this->getRequestParameter('source_locale');
 		$localeManager->exists($sourceLocaleId);

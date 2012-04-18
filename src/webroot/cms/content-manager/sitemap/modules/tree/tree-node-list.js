@@ -133,7 +133,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				'requestTotalRecords': this.get('data').children_count,
 				
 				'dataColumns': [
-					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}
+					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}, {'id': 'localizations'}
 				],
 				'columns': [
 					{
@@ -170,7 +170,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				
 				var params = {
 					'data': e.data,
-					'node': this
+					'node': e.row
 				};
 				
 				this.get('tree').fire('page:select', params);

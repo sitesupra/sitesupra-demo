@@ -769,9 +769,11 @@ class PageAction extends PageManagerAction
 	public function duplicateAction()
 	{
 		$this->isPostRequest();
-		$this->duplicate();
-
-		$this->writeAuditLog('%item% duplicated', $this->getPageByRequestKey('page_id'));
+		$localization = $this->getPageLocalization();
+		$master = $localization->getMaster();
+		$this->duplicate($localization);
+		
+		$this->writeAuditLog('%item% duplicated', $master);
 	}
 
 	/**
