@@ -22,6 +22,11 @@
 			"visible": "Visible",
 			"hidden": "Hidden"
 		},
+		"inputs": {
+			"red": "Red",
+			"green": "Green",
+			"blue": "Blue"
+		},
 		
 		"error": {
 			"warnings": "Warnings:"
@@ -84,6 +89,7 @@
 			"insertlink": "Link",
 			"inserttable": "Table",
 			"source": "Source",
+			"fullscreen": "Fullscreen",
 			"settings": "Settings",
 			
 			"bold": "Bold",

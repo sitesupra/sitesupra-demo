@@ -286,6 +286,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
 			'supra.htmleditor-plugin-textstyle',
@@ -352,6 +353,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-table': {
 			path: 'htmleditor/plugins/plugin-table.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-fullscreen': {
+			path: 'htmleditor/plugins/plugin-fullscreen.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-textstyle': {
@@ -471,7 +476,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.scrollable': {
 		path: 'scrollable/scrollable.js',
-		requires: ['widget'],
+		requires: ['widget', 'anim'],
 		skinnable: true
 	},
 	
@@ -567,6 +572,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/map.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-color': {
+		path: 'input/color.js',
+		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -586,7 +595,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-slider',
 			'supra.input-link',
 			'supra.input-image',
-			'supra.input-map'
+			'supra.input-map',
+			'supra.input-color'
 		]
 	},
 	'supra.input': {
@@ -630,6 +640,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'calendar/calendar.js',
 		requires: ['widget', 'anim', 'datatype-date'],
 		skinnable: true
+	},
+	
+	/**
+	 * Color
+	 */
+	'supra.datatype-color': {
+		path: 'datatype/datatype-color.js'
 	},
 	
 	/**

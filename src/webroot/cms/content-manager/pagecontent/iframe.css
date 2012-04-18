@@ -420,3 +420,14 @@
 	line-height: 24px;
 	text-decoration: none;
 }
+
+/**
+ * = Fullscreen mode
+ */
+body.yui3-fullscreen > * {
+	display: none;
+}
+body.yui3-fullscreen > .yui3-fullscreen {
+	display: block;
+	margin: 10px 0 0 !important;
+}
