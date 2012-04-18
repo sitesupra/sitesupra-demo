@@ -267,8 +267,8 @@ Supra(function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
-				//If global then there is no page in this locale
-				if (!evt.data.global) {
+				//Only if page is localized
+				if (evt.data.localized) {
 					//Change path
 					this.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
 				}
