@@ -379,6 +379,8 @@ abstract class PageManagerAction extends CmsAction
 			'global' => $page->getGlobal(),
 			'localized' => $localizationExists,
 			'editable' => $localizationExists,
+			'isDraggable' => $localizationExists,
+			'isDropTarget' => $localizationExists,
 		);
 		
 		// Template ID
