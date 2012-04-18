@@ -627,15 +627,20 @@ abstract class PageRequest extends HttpRequest
 	{
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		
-		if (empty($layoutPlaceHolderNames) || ! isset($this->placeHolderSet)) {
+		if (empty($layoutPlaceHolderNames)) {
 			return;
 		}
+		
+		// getPlaceHolderSet() already contains current method call inside
+		// but it should not go recursivelly, as getPlaceHolderSet() will return
+		// set without executing, if it is already loaded
+		$placeHolderSet = $this->getPlaceHolderSet();
 		
 		$entityManager = $this->getDoctrineEntityManager();
 		$localization = $this->getPageLocalization();
 		
-		$finalPlaceHolders = $this->placeHolderSet->getFinalPlaceHolders();
-		$parentPlaceHolders = $this->placeHolderSet->getParentPlaceHolders();
+		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
+		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
 		
 		foreach ($layoutPlaceHolderNames as $name) {
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
@@ -662,7 +667,7 @@ abstract class PageRequest extends HttpRequest
 					$entityManager->persist($placeHolder);
 				}
 
-				$this->placeHolderSet->append($placeHolder);
+				$placeHolderSet->append($placeHolder);
 			}
 		}
 

@@ -85,6 +85,8 @@ class PageRequestEdit extends PageRequest
 			return;
 		}
 		
+		$this->createMissingPlaceHolders();
+		
 		$draftData = $this->getPageLocalization();
 		
 		if ($draftData instanceof Entity\PageLocalization) {
@@ -163,7 +165,7 @@ class PageRequestEdit extends PageRequest
 		}
 
 		// 1. Get all blocks to be copied
-		$draftBlocks = $this->getBlocksInPage($draftEm, $publicData);
+		$draftBlocks = $this->getBlocksInPage($draftEm, $draftData);
 
 		// 2. Get all blocks existing in public
 		$existentBlocks = $this->getBlocksInPage($publicEm, $publicData);
@@ -368,7 +370,6 @@ class PageRequestEdit extends PageRequest
 	private function getBlocksInPage(EntityManager $em, Entity\Abstraction\Localization $localization)
 	{
 		$localizationId = $localization->getId();
-		$locale = $localization->getLocale();
 		$blockEntity = Entity\Abstraction\Block::CN();
 		
 		$dql = "SELECT b FROM $blockEntity b 
