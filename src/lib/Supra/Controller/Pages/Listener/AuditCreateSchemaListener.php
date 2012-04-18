@@ -98,6 +98,11 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$name = &$classMetadata->table['name'];
 		$class = new ReflectionClass($className);
 		
+		if ($className == \Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract::CN()
+				|| $className == \Supra\Controller\Pages\Entity\Abstraction\AbstractPage::CN()) {
+			$classMetadata->setIdentifier(array('id', 'revision'));
+		}
+		
 		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
 			$name = $name . self::AUDIT_SUFFIX;
 		} else if ($className == \Supra\Controller\Pages\Entity\PageLocalizationPath::CN()) {
