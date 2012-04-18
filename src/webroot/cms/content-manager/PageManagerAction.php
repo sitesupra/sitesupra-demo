@@ -345,7 +345,7 @@ abstract class PageManagerAction extends CmsAction
 			$parentDataId = $parentData->getId();
 		}
 
-		$data['parent'] = $parentDataId;
+		$data['parent_id'] = $parentDataId;
 
 		$this->getResponse()->setResponseData($data);
 	}

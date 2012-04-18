@@ -195,7 +195,7 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 				
 				//Add TreeNodeList row
 				var datagrid = target.getWidget('datagrid'),
-					data = Supra.mix({'tree': tree, 'id': Y.guid()}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
+					data = Supra.mix({'tree': tree}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
 					row = datagrid.insert(data, target.get('data').new_children_first ? 0 : null),
 					params = {
 						'data': row.get('data'),

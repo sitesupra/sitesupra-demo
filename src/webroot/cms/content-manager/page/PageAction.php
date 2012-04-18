@@ -413,7 +413,7 @@ class PageAction extends PageManagerAction
 
 		$type = $this->getRequestParameter('type');
 		$templateId = $this->getRequestParameter('template');
-		$parent = $this->getPageByRequestKey('parent');
+		$parent = $this->getPageByRequestKey('parent_id');
 		$localeId = $this->getLocale()->getId();
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);

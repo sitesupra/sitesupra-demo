@@ -630,6 +630,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'createPage': function () {
 			var node   = this._node,
+				treeNode = null,
 				data   = node.get('data'),
 				form   = this._widgets.form,
 				mode   = this.get('host').get('mode'),
@@ -641,14 +642,16 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (node.isInstanceOf('TreeNode')) {
 				is_tree_node = true;
+				treeNode = node;
 			} else if (node.isInstanceOf('DataGridRow')) {
 				is_row_node = true;
+				treeNode = node.get('parent').get('parent');
 			}
 			
 			out.locale = this.get('host').get('locale');
 			out.title = data.title = form.getInput('title').get('value');
 			out.type = data.type;
-			out.parent = 0;
+			out.parent_id = 0;
 			
 			next = node.next();
 			
@@ -658,10 +661,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (is_tree_node) {
 				if (!node.get('root')) {
-					out.parent = node.get('parent').get('data').id;
+					out.parent_id = node.get('parent').get('data').id;
 				}
 			} else if (is_row_node) {
-				out.parent = node.get('parent').get('parent').get('data').id;
+				out.parent_id = node.get('parent').get('parent').get('data').id;
 			}
 			
 			if (data.type != 'group') {
@@ -713,8 +716,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					}, data);
 					
 					//Success
-					node.getWidget('buttonOpen').set('disabled', false);
-					node.getWidget('buttonEdit').set('disabled', false);
+					treeNode.getWidget('buttonOpen').set('disabled', false);
+					treeNode.getWidget('buttonEdit').set('disabled', false);
 					
 					//Load permissions
 					Supra.Permission.request([{'id': data.id, 'type': 'page'}], function (permissions) {

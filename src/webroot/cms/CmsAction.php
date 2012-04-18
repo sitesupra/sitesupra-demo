@@ -281,6 +281,11 @@ abstract class CmsAction extends SimpleController
 		} else {
 			$value = $request->getQueryValue($key);
 		}
+		
+		// Fix for news application filter folders
+		if (strpos($value, '_') !== false) {
+			$value = strstr($value, '_', true);
+		}
 
 		return $value;
 	}

@@ -207,6 +207,11 @@ class ContentManagerAuthorizationAccessPolicy extends CmsThreewayWithEntitiesAcc
 
 	public function getAuthorizedEntityFromId($id)
 	{
+		// Fix for news app filter suffix
+		if (strpos($id, '_') !== false) {
+			$id = strstr($id, '_', true);
+		}
+		
 		$em = $this->getEntityManager();
 
 		$classesToTry = array(

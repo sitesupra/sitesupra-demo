@@ -48,7 +48,7 @@ class CheckPermissionsController extends CmsAction
 				
 				$entity = $policy->getAuthorizedEntityFromId($id);
 				
-				if(!empty($entity)) {
+				if ( ! empty($entity)) {
 					$result[$key] = $policy->getPermissionStatusesForAuthorizedEntity($user, $entity);
 				}
 			}
