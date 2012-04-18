@@ -55,7 +55,12 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 		 */
 		'_widgets': null,
 		
-		
+		/**
+		 * Drop object for news datagrid panel
+		 * @type {Object}
+		 * @private
+		 */
+		'_panelDnd': null,
 		
 		
 		/**
@@ -91,6 +96,15 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			Node.superclass.syncUI.apply(this, arguments);
 		},
 		
+		/**
+		 * Clean up
+		 * @private
+		 */
+		'destructor': function () {
+			//Remove drag and drop
+			this._panelDnd.destroy();
+		},
+		
 		
 		/**
 		 * ------------------------------ PRIVATE ------------------------------
@@ -116,6 +130,14 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			});
 			panel.render(container);
 			panel.get('contentBox').setStyle('height', 312);
+			
+			//Up
+			this._panelDnd = new Y.DD.Drop({
+				'node': panel.get('contentBox'),
+				'groups': ['default', 'new-page', 'restore-page']
+			});
+			
+			this._panelDnd.set('treeNode', this);
 			
 			//Datagrid
 			widgets.datagrid = datagrid = new Supra.DataGrid({
