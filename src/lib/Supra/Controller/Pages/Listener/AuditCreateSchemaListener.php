@@ -78,7 +78,10 @@ class AuditCreateSchemaListener implements EventSubscriber
 			$pkColumns = $entityTable->getPrimaryKey()
 					->getColumns();
 			
-			$pkColumns[] = self::REVISION_COLUMN_NAME;
+			if ( ! in_array(self::REVISION_COLUMN_NAME, $pkColumns)) {
+				$pkColumns[] = self::REVISION_COLUMN_NAME;
+			}
+			
 			$revisionTable->setPrimaryKey($pkColumns);
 			
 		// Don't need any other tables in the audit schema
