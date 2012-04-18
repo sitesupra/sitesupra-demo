@@ -146,6 +146,24 @@
 					background: url(images/buttons-icon-edit.png) 50% 5px no-repeat;
 				}
 			}
+
+			.translate {
+				.border-radius (8px, 8px, 0, 0);
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				padding: 7px 9px 4px 9px;
+				display: none;
+				background: rgba(0, 0, 0, 0.65);
+				cursor: default;
+				text-align: left;
+				
+				.su-button-sitemap-blue p {
+					padding: 0 0 0 20px;
+					background: url(images/buttons-icon-open.png) 2px 5px no-repeat;
+				}
+			}
 			
 			.su-button-sitemap-blue,
 			.su-button-sitemap-gray {
@@ -266,6 +284,10 @@
 		& > .su-tree-node-content {
 			.item:hover .edit,
 			.item.hover .edit {
+				display: none;
+			}
+			.item:hover .translate,
+			.item.hover .translate {
 				display: block;
 			}
 			.su-button-sitemap-gray {
@@ -281,6 +303,19 @@
 			}
 		}
 	}
+
+	&.localized.editable {
+		& > .su-tree-node-content {
+			.item:hover .edit,
+			.item.hover .edit {
+				display: block;
+			}
+			.item:hover .translate,
+			.item.hover .translate {
+				display: none;
+			}
+		}
+	}
 	
 	&.localized {
 		& > .su-tree-node-content {
@@ -289,7 +324,7 @@
 			}
 		}
 	}
-	
+
 	/* Highlight */
 	&.highlighted > .su-tree-node-content {
 		.highlight {
@@ -454,10 +489,12 @@
 		height: 100px;
 	}
 	.su-tree-node > .su-tree-node-content {
-		.item:hover .edit {
+		.item:hover .edit,
+		.item:hover .translate {
 			display: none;
 		}
-		.item.hover .edit {
+		.item.hover .edit,
+		.item.hover .translate {
 			display: block;
 		}
 		label {

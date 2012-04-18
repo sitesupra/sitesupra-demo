@@ -20,7 +20,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				<div class="item">\
 					<div class="edit">\
 						<button type="button">Open</button>\
-						<button type="button"></button>\
+						<button type="button" class="button-edit"></button>\
+					</div>\
+					<div class="translate">\
+						<button type="button">Translate</button>\
 					</div>\
 					<img src="{{ preview }}" onerror="this.src=\'/cms/lib/supra/img/sitemap/preview/blank.jpg\';" alt="" />\
 					<div class="highlight"></div>\
@@ -264,6 +267,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				buttons = contentBox.all('button');
 				this._widgets['buttonEdit'] = new Supra.Button({'srcNode': buttons.item(1), 'style': 'sitemap-gray'});
 				this._widgets['buttonOpen'] = new Supra.Button({'srcNode': buttons.item(0), 'style': 'sitemap-blue'});
+				this._widgets['buttonTranslate'] = new Supra.Button({'srcNode': buttons.item(2), 'style': 'sitemap-blue'});
 				
 			//Move child container
 				childrenBox = contentBox.one('div.children');
@@ -305,6 +309,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			
 			//"Open" button
 			this._widgets.buttonOpen.on('click', this._onSelectClick, this);
+			
+			//"Translate" button
+			this._widgets.buttonTranslate.on('click', this._onSelectClick, this);
 			
 			//"Edit" button
 			this._widgets.buttonEdit.on('click', this.edit, this);

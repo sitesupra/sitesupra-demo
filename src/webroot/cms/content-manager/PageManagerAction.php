@@ -378,6 +378,7 @@ abstract class PageManagerAction extends CmsAction
 			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
 			'global' => $page->getGlobal(),
 			'localized' => $localizationExists,
+			'editable' => $localizationExists,
 		);
 		
 		// Template ID
