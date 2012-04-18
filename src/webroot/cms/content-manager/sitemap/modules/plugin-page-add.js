@@ -651,6 +651,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			out.parent = 0;
 			
 			next = node.next();
+			
 			if (next) {
 				out.reference = next.get('data').id;
 			}
@@ -666,6 +667,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			if (data.type != 'group') {
 				out.published = false;
 				out.scheduled = false;
+				
+				if (data.type == 'application') {
+					out.application_id = data.application_id;
+				}
 				
 				if (mode == 'pages') {
 					out.path = data.path = (node.get('root') ? '' : form.getInput('path').get('value'));
