@@ -258,7 +258,14 @@ class SitemapAction extends PageManagerAction
 					$localeId = $_localization->getLocale();
 
 					if ($localeManager->exists($localeId, false)) {
-						$array['localizations'][] = $_localization->getLocale();
+						
+						$data = array('title' => $_localization->getTitle());
+						
+						if ($_localization instanceof Entity\PageLocalization) {
+							$data['path'] = $_localization->getPathPart();
+						}
+						
+						$array['localizations'][$_localization->getLocale()] = $data;
 					}
 				}
 			} else {

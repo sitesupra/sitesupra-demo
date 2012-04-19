@@ -57,8 +57,8 @@ YUI.add('supra.input-path', function (Y) {
 		},
 		
 		_onBlur: function () {
-			var input = this.get('inputNode');
-			this.set('value', input.get('value').replace(/[^a-z0-9\-\_]/gi, ''));
+//			var input = this.get('inputNode');
+//			this.set('value', input.get('value').replace(/[^a-z0-9\-\_]/gi, ''));
 			
 			Input.superclass._onBlur.apply(this, arguments);
 			

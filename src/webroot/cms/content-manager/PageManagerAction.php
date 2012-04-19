@@ -1016,6 +1016,7 @@ abstract class PageManagerAction extends CmsAction
 	
 	protected function duplicateGlobal()
 	{
+		$input = $this->getRequestInput();
 		$localeId = $this->getRequestParameter('locale');
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeManager->exists($localeId);
@@ -1051,14 +1052,23 @@ abstract class PageManagerAction extends CmsAction
 		$em->getEventManager()
 				->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
 		
-		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId) {
+		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId, $input) {
 			
 			// 1. duplicate localization
 			$localization = $request->recursiveClone($existingLocalization, null, true, $localeId);
 			// 2. set new locale for localization itself
 			$localization->setLocale($localeId);
 			
+			if ($input->has('title')) {
+				$localization->setTitle($input->get('title'));
+			}
+			
 			if ($localization instanceof Entity\PageLocalization) {
+				
+				if ($input->has('path')) {
+					$localization->setPathPart($input->get('path'));
+				}
+				
 				// 3. set new locale for path entity also
 				$path = $localization->getPathEntity();
 				$path->setLocale($localeId);

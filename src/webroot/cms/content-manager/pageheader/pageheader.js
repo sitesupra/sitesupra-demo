@@ -144,7 +144,7 @@ Supra('supra.languagebar', function (Y) {
 				fn = 'duplicateGlobalPage';
 			}
 			
-			Manager.Page[fn](page.id, newLocale, oldLocale, this._createLocalizationComplete, this);
+			Manager.Page[fn](page.id, {locale: newLocale}, oldLocale, this._createLocalizationComplete, this);
 		},
 		
 		/**
