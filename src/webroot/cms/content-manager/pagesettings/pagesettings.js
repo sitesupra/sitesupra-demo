@@ -474,7 +474,7 @@
 				//Created button
 				this.button_created = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
 				this.button_created.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
-
+				
 				//Slideshow
 				var slideshow = this.slideshow = new Supra.Slideshow({
 					'srcNode': this.one('div.slideshow')
@@ -507,7 +507,15 @@
 					this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
 					// Redirect -> Relative "Last child" button
 					this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
-
+				
+				this.global_checkbox = form.getInput('global');
+					this.global_checkbox.render();
+					this.global_checkbox.on('valueChange', function (evt) {
+						if (evt.newVal != evt.prevVal) {
+							var page = Manager.Page.getPageData();
+							Manager.getAction('PageHeader').setAvailableLocalizations(page.localizations, evt.newVal);
+						}
+					});
 			},
 
 			/**

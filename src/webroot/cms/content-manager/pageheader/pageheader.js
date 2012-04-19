@@ -73,13 +73,12 @@ Supra('supra.languagebar', function (Y) {
 			//Set available localizations
 			var page = Manager.Page.getPageData();
 			if (page && page.localizations) {
-				this.setAvailableLocalizations(page.localizations);
+				this.setAvailableLocalizations(page.localizations, page.global);
 			}
 			
 			//On change reload page
 			this.languagebar.on('localeChange', function (evt) {
 				if (evt.newVal != evt.prevVal) {
-					var currentLocale = Supra.data.get('locale');
 					var page = Manager.Page.getPageData();
 					
 					// No page loaded
@@ -94,21 +93,74 @@ Supra('supra.languagebar', function (Y) {
 						var pageId = page.localizations[evt.newVal].page_id;
 						Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
 					} else {
-						//Warning about not exising translation
+						//Warning about not exising translation, offer to translate
 						Manager.executeAction('Confirmation', {
 							'message': '{#page.page_doesnt_exist_in_locale#}',
 							'useMask': true,
 							'buttons': [{
-								'id': 'ok',
-								'label': Supra.Intl.get(['buttons', 'error'])
+								'id': 'yes',
+								'label': Supra.Intl.get(['buttons', 'yes']),
+								'click': this._createLocalization,
+								'context': this,
+								'args': [true, evt.prevVal, evt.newVal]
+							},
+							{
+								'id': 'no',
+								'label': Supra.Intl.get(['buttons', 'no']),
+								'click': this._createLocalization,
+								'context': this,
+								'args': [false, evt.prevVal, evt.newVal]
 							}]
 						});
-						
-						//Prevent language change
-						evt.halt();
 					}
 				}
 			}, this);
+		},
+		
+		/**
+		 * Calls localization server method or cancels the process
+		 * @param evt {Object}
+		 * @param args {Array}
+		 * @private
+		 */
+		_createLocalization: function(evt, args) {
+			
+			var success = args[0],
+				oldLocale = args[1],
+				newLocale = args[2];
+			
+			if ( ! success) {
+				this.languagebar.set('locale', oldLocale);
+				
+				return;
+			}
+			
+			var page = Manager.Page.getPageData(),
+				fn;
+
+			if (page.type == 'templates') {
+				fn = 'duplicateGlobalTemplate';
+			} else {
+				fn = 'duplicateGlobalPage';
+			}
+			
+			Manager.Page[fn](page.id, newLocale, oldLocale, this._createLocalizationComplete, this);
+		},
+		
+		/**
+		 * Opens the newly created localization on success
+		 * @param data {Object}
+		 * @param status {Boolean}
+		 * @private
+		 */
+		_createLocalizationComplete: function(data, status) {
+
+			if (status) {
+				Supra.data.set('locale', data.locale);
+
+				var pageId = data.id;
+				Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
+			}
 		},
 		
 		/**
@@ -156,13 +208,14 @@ Supra('supra.languagebar', function (Y) {
 		 * 
 		 * @param {Object} locales
 		 */
-		setAvailableLocalizations: function (locales) {
+		setAvailableLocalizations: function (locales, global) {
 			if (!this.languagebar) return;
 			
 			var contexts = SU.data.get('contexts'),
 				context = null,
 				item = null,
-				filtered = [];
+				filtered = [],
+				global = global || false;
 			
 			if (locales) {
 				for(var i=0,ii=contexts.length; i<ii; i++) {
@@ -174,7 +227,7 @@ Supra('supra.languagebar', function (Y) {
 					};
 					
 					for(var k=0,kk=context.languages.length; k<kk; k++) {
-						if (context.languages[k].id in locales) {
+						if (global || context.languages[k].id in locales) {
 							item.languages.push(context.languages[k]);
 						}
 					}

@@ -122,7 +122,7 @@ SU('supra.input', function (Y) {
 					button.focus();
 				}
 				if ('click' in buttons[i]) {
-					button.on('click', buttons[i].click, buttons[i].context || null);
+					button.on('click', buttons[i].click, buttons[i].context || null, buttons[i].args);
 				}
 			}
 		},
