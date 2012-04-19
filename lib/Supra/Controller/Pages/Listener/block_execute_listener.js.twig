@@ -1,0 +1,30 @@
+if(typeof console != 'undefined' ) {
+
+	{% for blockStats in debugData %}				
+		
+		//console.group({{ blockStats.totals | json_encode | raw}});
+
+		console.log({{ blockStats.totals | json_encode | raw}});
+		
+		{% for actionValue in blockStats.actions %}
+			console.log({{ actionValue | json_encode | raw}});
+		{% endfor %}
+			
+		{% if blockStats.cache %}
+			console.log({{ blockStats.cache | json_encode | raw}});
+
+			{% for actionValue in blockStats.actions_cache %}
+				console.log({{ actionValue | json_encode | raw}});
+			{% endfor %}
+		{% endif %}
+
+		{% if blockStats.exception %} 
+			console.log('%c'  + {{ blockStats.exception | json_encode | raw }}, 'color:red;');
+		{% endif %}
+		
+		console.log(' ');
+		//console.groupEnd();
+		
+	{% endfor %} 
+
+}

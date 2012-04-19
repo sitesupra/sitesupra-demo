@@ -1,0 +1,30 @@
+<div class="yui3-page-blocks">
+	
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2>{# blocks.title #}</h2>
+	</div>
+	
+	<div class="sidebar-content scrollable has-header">
+	
+		<ul class="block-list"></ul>
+		
+		<script type="text/html" id="pageBlockListItems">
+			{% for block in blocks %}
+			<li class="clearfix" data-id="{{ block.id|e }}">
+				<div><img src="{{ block.icon }}" alt="" /></div>
+				<p>{{ block.title|e }}</p>
+			</li>
+			{% endfor %}
+		</script>
+	
+	</div>
+	
+</div>

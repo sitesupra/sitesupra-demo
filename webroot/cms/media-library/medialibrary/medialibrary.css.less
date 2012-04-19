@@ -1,0 +1,51 @@
+@import "/cms/lib/supra/less/common.less";
+
+.yui3-medialibrary {
+	.layout-fullscreen();
+	
+	z-index: 6;
+	background: #fff;
+	overflow: hidden;
+	
+	.yui3-input-select-list .su-button {
+		width: 100px !important;
+	}
+	
+	.yui3-medialibrary-content {
+		.box-sizing (border-box);
+		
+		width: 100%;
+		height: 100%;
+	}
+	
+	.yui3-medialibrary-controls {
+		height: 37px;
+		padding: 7px 0 0 10px;
+		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
+		border-bottom: 1px solid #B3B3C3;
+		
+		.su-button p {
+			display: inline-block;
+			min-width: 60px;
+		}
+		label {
+			width: auto;
+		}
+	}
+	
+	.yui3-medialist {
+		position: absolute;
+		left: 0;
+		top: 45px;
+		right: 0;
+		bottom: 0;
+	}
+	
+	/*
+	 * Slideshow
+	 */
+	.su-multiview-slide {
+		background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+	}
+	
+}

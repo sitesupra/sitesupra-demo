@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<meta name="robots" content="noindex,nofollow" />
+	<title>{{ manager.title }}</title>
+	
+	<!-- Fav icon -->
+	<link rel="icon" type="image/png" href="/favicon.png" />
+
+	{# @FIXME: there is no such icon #}
+	{#
+	<!--[if lte IE 8]>
+	<link rel="shortcut icon" href="/favicon-simple.ico" type="image/vnd.microsoft.icon" />
+	<![endif]-->
+	#}
+	
+	<!--[if gt IE 8]>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
+	<![endif]-->
+	
+	<!-- Load all base (YUI, Loader, Supra) JS files at once -->
+	<script src="/cms/lib/supra/combo/combo.php?/cms/lib/yui.3.4.0/build/yui/yui-min.js&amp;/cms/lib/yui.3.4.0/build/loader/loader-min.js&amp;/cms/lib/supra/build/supra/supra.js&amp;/cms/lib/supra/build/supra/data.js&amp;/cms/lib/supra/build/supra/modules.js"></script>
+	
+	<!-- Load all base CSS files at once -->
+	<link rel="stylesheet" type="text/css" href="/cms/lib/supra/combo/combo.php?/cms/lib/yui.3.4.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css" />
+	
+</head>
+<body class="yui3-skin-supra {% block bodyClass %}{% endblock %}">
+	
+	<div class="loading-icon"></div>
+	
+	{% block htmlBodyHeader %}
+	<div class="cms-header" id="cmsHeader"></div>
+	{% endblock %}
+	
+	<div class="cms-content" id="cmsContent"></div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		Supra('supra.manager', function (Y) {
+			{% block jsPathConfiguration %}
+			var APP_PATH = '/{{ manager.url }}',
+				STATIC_PATH = '/cms',
+				DYNAMIC_PATH = '/cms';
+			
+			//Set current manager paths
+			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
+			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
+			
+			Supra.Manager.Loader.setBasePath(APP_PATH);
+			
+			Supra.setModuleGroupPath('website', STATIC_PATH + APP_PATH + {% block jsModulePath %}''{% endblock %});
+			{% endblock %}
+			
+			//Configuration / parameters
+			Supra.data.set({
+				//Session (used in Ajax requests)
+				'sessionName': null,
+				'sessionId': null,
+				
+				//Date & time formats
+				'dateFormat': '%d.%m.%Y',
+				'timeFormat': '%H:%M:%S',
+				'timeFormatShort': '%H:%M',
+				
+				//User data
+				'user': {
+					'name': {{ action.user.name | json_encode | raw }},
+					'login': {{ action.user.login | json_encode | raw }},
+					'avatar': {{ action.user.avatar | json_encode | raw }},
+					'id': {{ action.user.id| json_encode | raw }}
+				},
+				
+				{% block jsSupraDataSet %}{% endblock %}
+				
+				//Languages
+				'locale': {{ currentLocale | json_encode | raw }},
+				
+				'contexts': {{ localesList | json_encode | raw }},
+				
+				//Application
+				'application': {
+					'id': {{ manager.id | json_encode | raw }},
+					'path': DYNAMIC_PATH + APP_PATH,
+					'icon': {{ manager.icon | json_encode | raw }},
+					'title': {{ manager.title | json_encode | raw }}
+				},
+				
+				//CMS Internationalization
+				'lang': 'en'
+			});
+			
+			//Start pinging server
+			Supra.data.set('sessionCheckPings', true);
+			
+			{% block jsSupraManager %}
+			//Start loading actions
+			Supra.Manager.loadActions([
+				'Header',
+				'Root',
+				'LayoutContainers',
+				'PageToolbar',
+				'PageButtons'
+			]);
+			
+			//Execute initial actions
+			Supra.Manager.executeAction('Header');
+			Supra.Manager.executeAction('Root');
+			{% endblock %}
+			
+		});
+		
+	//]]>
+	</script>
+
+</body>
+</html>

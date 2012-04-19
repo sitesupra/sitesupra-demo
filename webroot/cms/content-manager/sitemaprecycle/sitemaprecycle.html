@@ -1,0 +1,46 @@
+<div class="su-recycle sidebar loading">
+	
+	<div class="loading-icon"></div>
+	
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/history.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2>{# sitemap.recycle_bin.title #}</h2>
+	</div>
+	
+	<div class="sidebar-content scrollable has-header">
+		
+		<div class="drag-icon"><span>{# sitemap.recycle_bin.drag_n_drop #}</span><span class="icon"></span></div>
+		
+		<ul class="recycle-list"></ul>
+		
+		<script type="text/html" id="recycleItemList">
+			{% for item in items %}
+			<li class="{% if !item.date_diff %}hidden{% endif %}">
+				<h3>{{ item.date_title }}</h3>
+			</li>
+			<li class="item" data-id="{{ item.id }}">
+				<p class="title">
+					<span class="img-restore"><img src="/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
+					<span class="title">{{ item.title }}</span>
+				</p>
+			</li>
+			{% endfor %}
+		</script>
+		<script type="text/html" id="recycleItemEmpty">
+			<li class="empty">
+				<h3>{# sitemap.recycle_bin.empty #}</h3>
+			</li>
+		</script>
+		
+	</div>
+</div>

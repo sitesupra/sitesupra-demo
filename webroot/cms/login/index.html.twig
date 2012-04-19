@@ -1,0 +1,10 @@
+{% extends 'template/index.html.twig' %}
+
+{% block htmlBodyHeader %}{% endblock %}
+
+{% block bodyClass %}loading{% endblock %}
+
+{% block jsSupraManager %}
+	//Execute initial actions
+	Supra.Manager.executeAction('Login');
+{% endblock %}

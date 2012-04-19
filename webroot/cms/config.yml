@@ -1,0 +1,129 @@
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+    objectRepositoryCaller: Supra\Cms\CmsController
+
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Cms\AuthenticationPreFilterController
+
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /
+    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Controller\Pages\ThemePreviewPreFilterController
+
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /cms
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Cms\CmsController
+
+- Supra\Cms\ContentManager\ApplicationConfiguration:
+    id: Supra\Cms\ContentManager
+    title: Pages
+    icon: /cms/lib/supra/img/apps/pages
+    url: content-manager
+    allowLimitedPageOption: true
+    galleryBlockId: Project\Blocks\Gallery\GalleryBlock
+    authorizationAccessPolicy:
+      Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
+#       @TODO: Could assign this value from application configuration "id" parameter somehow
+        applicationNamespace: Supra\Cms\ContentManager
+  
+- Supra\Cms\InternalUserManager\ApplicationConfiguration:
+#   Assigned to controller because inside this namespace is password restore controller
+    id: Supra\Cms\InternalUserManager\InternalUserManagerController
+    title: Backoffice Users
+    url: internal-user-manager
+    icon: /cms/lib/supra/img/apps/backoffice_users
+#   For development only
+#    allowGroupEditing: true
+    authorizationAccessPolicy:
+      Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
+
+- Supra\Cms\ApplicationConfiguration:
+    id: Supra\Cms\BannerManager
+    title: Banners
+    url: banner-manager
+    icon: /cms/lib/supra/img/apps/banners
+    authorizationAccessPolicy:
+      Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\BannerManager
+
+- Supra\Cms\MediaLibrary\ApplicationConfiguration:
+    id: Supra\Cms\MediaLibrary
+    title: Media Library
+    url: media-library
+    icon: /cms/lib/supra/img/apps/media_library
+    
+##  possible values: "full", "partial" and "none"
+##   - "none" will disable any existence check
+##   - "partial" will force to check only when tab with file info is displayed
+##   - "full" will force to check file existence also when complete list of files is displayed
+##  default is "none"
+    checkFileExistence: full
+    knownFileExtensions: 
+      - pdf
+      - xls
+      - xlsx
+      - doc
+      - docx
+      - swf
+      - ppt
+      - pptx
+    authorizationAccessPolicy:
+      Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:
+        applicationNamespace: Supra\Cms\MediaLibrary
+
+#- Supra\Cms\CrudManager\ApplicationConfiguration:
+#    id: Supra\Cms\CrudManager
+#    title: Branches Manager
+#    url: crud-manager
+#    icon: /cms/lib/supra/img/apps/media_library
+#    entity: fill the entity name here
+#    authorizationAccessPolicy:
+#      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
+#        applicationNamespace: Supra\Cms\CrudManager
+
+- Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
+    id: news
+    className: Supra\Controller\Pages\News\NewsApplication
+    title: News
+    icon: /cms/content-manager/sitemap/images/apps/news.png
+    newChildrenFirst: true
+
+#FIXME: move configuration to project-specific location
+- Supra\BannerMachine\Configuration\ProviderConfiguration:
+    id: banner-machine-one
+    redirectorPath: /banner-machine-one
+    types: 
+      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
+          id: square
+          name: Square (215 x 246)
+          width: 215
+          height: 246
+          ratioDelta: 0.1
+      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
+          id: wide
+          name: Wide (952 x 130)
+          width: 952
+          height: 130
+          ratioDelta: 0.1
+
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Broken block
+    groupId: system
+    hidden: true
+    controllerClass: Supra\Controller\Pages\BrokenBlockController
+
+- Supra\Event\EventConfiguration:
+    listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector

@@ -1,0 +1,144 @@
+Media Library
+	Base:
+	
+	
+	
+	Data:
+		Constants:
+			Supra.MediaLibraryData.TYPE_FOLDER
+			Supra.MediaLibraryData.TYPE_IMAGE
+			Supra.MediaLibraryData.TYPE_FILE
+	
+	
+		Attributes:
+			listURI
+				Request URI or folder, file and image list
+			
+			viewURI
+				Request URI for file or image
+			
+			requestParams
+				Request params
+		
+		
+		Events:
+			load:failure
+				Data loading failed,
+				event object has additional property id, which is folder or item id
+			
+			load:failure:N
+				Data loading for item with ID "N" failed,
+				event object has additional property id, which is folder or item id
+			
+			load:success
+				Data loading was successful,
+				event object has additional properties data and id, which is folder or item id
+			
+			load:success:N
+				Data loading for item with ID "N" was successful,
+				event object has additional properties data and id, which is folder or item id
+				
+		
+		Methods:
+			loadData (id, properties)
+				Loads folder, file or image data by ID
+				Only specified properties are loaded for files and images
+			
+			getData (id)
+				Returns all loaded data about folder, file or image
+			
+			hasData (id, property)
+				Returns if item has specific data loaded
+				Property can be string, array of properties or object with property values which should match
+			
+			getChildrenData (id)
+				Returns list of all children data for folder
+				
+			removeData (id, all)
+				Removes folder, image or file data
+				If all is true, then removes item also from parents child list
+				
+			setRequestParam (name, value)
+				Set additional GET request parameter
+			
+			setRequestParams (params)
+				Set additional GET request parameters
+			
+			destroy ()
+				Destroys all data
+	
+	
+	
+	
+	List:
+		Constants:
+			Supra.MediaLibraryList.DISPLAY_ALL
+			Supra.MediaLibraryList.DISPLAY_FOLDERS
+			Supra.MediaLibraryList.DISPLAY_IMAGES
+			Supra.MediaLibraryList.DISPLAY_FILES
+		
+		
+		Attributes:
+			listURI
+				Request URI or folder, file and image list
+			
+			viewURI
+				Request URI for file or image
+			
+			rootFolderId
+				Root folder ID
+			
+			foldersSelectable
+				Folder can be selected
+			
+			filesSelectable
+				Files can be selected
+				
+			imagesSelectable
+				Images can be selected
+			
+			displayType
+				Type of data which should be displayed
+			
+			dataObject
+				Data handler object
+			
+			thumbnailSize
+				Image thumbnail size ID
+				
+			previewSize
+				Image preview size ID
+			
+			loadItemProperties
+				Additional properties which always should be loaded
+			
+			noAnimations
+				Enable/disable animations. Default is enabled (false)
+		
+		
+		Events:
+			itemRender
+				After item (file, image, folder) is rendered
+				
+			select
+				After item is selected
+		
+		
+		Methods:
+			getSelectedItem ()
+				Returns selected item data
+			
+			setSelectedItem (id)
+				Marks item as selected if it's opened
+		
+			getItemNode (id)
+				Return item node (which is in folder list) 
+			
+			load (id, callback)
+				Load item information
+				Callback arguments are item ID and data
+			
+			open (id, callback)
+				Load and show item
+				ID is item ID or array of IDs (path to item)
+				Callback arguments are item ID and data

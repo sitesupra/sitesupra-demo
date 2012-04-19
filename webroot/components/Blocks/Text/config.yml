@@ -1,0 +1,16 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    controllerClass: Project\Blocks\Text\TextController
+    title: Text
+    groupId: system
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+        

@@ -1,0 +1,99 @@
+/* Default */
+.su-button-small {
+	.button (url(button-small-light.png), 25px, 600px);
+	
+	&,
+	div {
+		.border-radius (3px);
+	}
+}
+.ui-dark .su-button-small {
+	.button (url(button-small-dark.png), 27px, 600px);
+}
+
+/* Gray */
+.su-button-small-gray {
+	.button (url(button-small-light.png), 25px, 0px);
+	
+	p {
+		color: #A3A4B9;
+	}
+	&.su-button-focused p,
+	&.su-button-mouse-hover p {
+		color: #FFF;
+	}
+	&.button-back.su-button-down p,
+	&.button-back.su-button-mouse-down p,
+	&.button-back.su-button-disabled p {
+		color: #A3A4B9;
+	}
+	
+	&.button-back p {
+		background: url(icon-back-light.png) 50% 0 no-repeat;
+		width: 5px;	/* 5px width + 10px padding + 10px padding on button = 25px */
+	}
+	&.button-back.su-button-focused p,
+	&.button-back.su-button-mouse-hover p {
+		background-position: 50% -25px;
+	}
+	&.button-back.su-button-down p,
+	&.button-back.su-button-mouse-down p {
+		background-position: 50% -50px;
+	}
+	&.button-back.su-button-disabled p {
+		background-position: 50% -75px;
+	}
+}
+
+/* Blue */
+.su-button-small-blue {
+	.button (url(button-small-light.png), 25px, 300px);
+}
+
+/* Red */
+.su-button-small-red {
+	.button (url(button-small-light.png), 25px, 900px);
+}
+
+
+/* Dark background */
+.ui-dark {
+	.su-button-small,
+	.su-button-small-gray,
+	.su-button-small-blue,
+	.su-button-small-red {
+		.button-background (url(button-small-dark.png));
+	}
+}
+
+/* Shadow */
+.su-button-small,
+.su-button-small-gray {
+	.box-shadow (0, 1px, 0, rgba(0, 15, 53, 0.4) );
+}
+.su-button-small-blue,
+.su-button-small-red {
+	.box-shadow (0, 1px, 0, rgba(55, 55, 55, 0.19) );
+}
+
+.ui-dark {
+	.su-button-small,
+	.su-button-small-gray,
+	.su-button-small-blue,
+	.su-button-small-red {
+		.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.15) );
+	}
+	.su-button-small-red {
+		.box-shadow (0, 1px, 0, rgba(64, 59, 94, 0.15));
+	}
+	
+	.su-button-small-gray {
+		&.button-back p {
+			background-image: url(icon-back-dark.png);
+		}
+	}
+	
+	.su-button-small-red {
+		.button (url(button-small-dark.png), 27px, 924px);
+	}
+}

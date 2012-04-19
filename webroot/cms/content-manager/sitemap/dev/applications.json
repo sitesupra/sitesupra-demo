@@ -1,0 +1,10 @@
+{
+	"status": true,
+	"data": [
+		{
+			"id": "news",
+			"title": "News",
+			"icon": "/cms/content-manager/sitemap/images/apps/news.png"
+		}
+	]
+}

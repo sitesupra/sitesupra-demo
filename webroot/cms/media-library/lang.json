@@ -1,0 +1,83 @@
+{
+	"status": true,
+	"data": {
+		"buttons": {
+			"yes": "Yes",
+			"no": "No",
+			"on": "On",
+			"off": "Off",
+			"done": "Done",
+			"back": "Back",
+			"close": "Close",
+			"save": "Save",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"apply": "Apply",
+			"replace": "Replace",
+			"rename": "Rename",
+			"browse": "Browse",
+			"error": "Ok",
+			"insert": "Insert",
+			"visible": "Visible",
+			"hidden": "Hidden"
+		},
+		
+		"medialibrary": {
+			"upload": "Upload",
+			"new_folder": "New folder",
+			"delete": "Delete",
+			"undo_history": "Undo history",
+			"private": "Make private",
+			"public": "Make public",
+			
+			"rotate_left": "Rotate left",
+			"rotate_right": "Rotate right",
+			"crop": "Crop",
+			
+			"sort_by": "Sort by",
+			"sort_az": "A-Z",
+			"sort_date": "Date added",
+			
+			"folder_empty": "No files in this folder",
+			
+			"label_title": "Title",
+			"label_description": "Description",
+			"label_filename": "Filename",
+			
+			"localize": "Localize",
+			"download": "Download",
+			"edit": "Edit",
+			
+			"more_info": "More info",
+			"less_info": "Less info",
+			
+			"kind": "Kind",
+			"size": "Size",
+			"created": "Created",
+			"dimensions": "Dimensions",
+			"image": "Image",
+			"file": "File",
+			
+			"drag_n_drop": "Drag-and-drop",
+			
+			"validation_error": {
+				"file_id_not_provided": "File ID has not been provided",
+				"file_not_exists": "Requested file does not exist",
+				"already_exists": "Element with this name already exists",
+				"not_allowed_extension": "File type is not allowed",
+				"invalid_name": "Name contains not allowed characers or starts with a dot or underscore",
+				"file_size": "File size exceeds the allowed limit",
+				"not_allowed_mime": "File type is not allowed",
+				"extension_rename": "File extension cannot be changed",
+				"image_to_file": "Image cannot be replaced with regular file and vice versa",
+				"invalid_drop": "File type was not recognized",
+				"empty_folder_drop": "There were no images to place from that folder"
+			}
+		},
+		
+		"mediasidebar": {
+			"insert_image": "Files",
+			"open_app": "Open Library App"
+		}
+	}
+}

@@ -1,0 +1,433 @@
+/**
+ * This stylesheet is added to iframe content
+ */
+
+.yui3-hidden {
+	display: none !important;
+}
+
+.yui3-content {
+	overflow: hidden;
+	min-height: 60px;
+}
+
+.yui3-content,
+.yui3-box-reset,
+.yui3-dd-proxy {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: 0 !important;
+	background: none !important;
+}
+.yui3-box-reset {
+	float: none !important;
+	position: static !important;
+	left: auto !important;
+	right: auto !important;
+	top: auto !important;
+	bottom: auto !important;
+}
+
+/**
+ * Overlay
+ */
+.yui3-content-overlay,
+.yui3-editable .yui3-content-overlay.editing {
+	/* By default not visible */
+	display: none;
+}
+.yui3-editable .yui3-content-overlay {
+	/* Show if content is editable */
+	
+	display: block;
+	position: absolute;
+	cursor: pointer;
+	z-index: 9999;
+	
+	/* FF 3 */
+	-moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+	-moz-border-radius: 4px;
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.35s;
+	
+	/* Webkit */
+	-webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+	-webkit-border-radius: 4px;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.35s;
+	
+	/* FF4, IE9, ... */
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+	border-radius: 4px;
+	transition-property: opacity;
+	transition-duration: 0.35s;
+	
+	box-shadow: 0;
+	border: 2px solid #3B85D1;
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	opacity: 0;
+}
+.yui3-editable .yui3-content-overlay:hover,
+.yui3-editable .yui3-content-overlay-hover,
+.yui3-editable .yui3-content-overlay-loading {
+	/* FF3 */
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 0.35s;
+	
+	/* WebKit */
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.35s;
+	
+	/* FF4, IE9, ... */
+	transition-property: opacity;
+	transition-duration: 0.35s;
+	
+	opacity: 1;
+}
+
+.yui3-editable .yui3-content-overlay span {
+	display: none;
+	background: #3B85D1;
+	padding: 8px 20px;
+	margin: -18px 0 0 -66px;
+	
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	
+	color: #ffffff;
+	font: 18px/21px Arial, Helvetica;
+	text-align: center;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.15);
+}
+.yui3-editable .yui3-content-draggable.yui3-content-overlay span {
+	margin: -29px 0 0 -103px;
+}
+
+.yui3-editable .yui3-content-overlay:hover span {
+	display: block;
+}
+
+/* Overlay loading indicator */
+.yui3-editable .yui3-content-overlay-loading {
+	cursor: default;
+}
+.yui3-editable .yui3-content-overlay-loading span {
+	cursor: default;
+	display: block;
+	overflow: hidden;
+	padding: 24px 0 0;
+	height: 0;
+	width: 24px;
+	margin: -12px 0 0 -12px !important;
+	background: url(/cms/lib/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
+	text-indent: 100px;
+}
+
+
+/* Overlay shouldn't be visible while reordering */
+.yui3-editable .yui3-content-reorder .yui3-content-overlay {
+	/* All overlays */
+	opacity: 0.5;
+	background: none;
+}
+.yui3-editable .yui3-content-reorder .yui3-content-overlay span {
+	/* All overlay inner nodes */
+	display: none;
+}
+.yui3-editable .yui3-content-reorder .yui3-content-proxy {
+	/* Proxy node */
+	opacity: 1;
+}
+.yui3-editable .yui3-content-reorder .yui3-dd-dragging {
+	/* Overlay node */
+	display: none;
+}
+
+/* Overlay proxy element */
+.yui3-editable .yui3-content-proxy {
+	opacity: 1;
+	padding: 0;
+	background: none;
+	display: block !important;
+	
+	/* Remove animation, looks better without it */
+	-moz-transition-property: none;
+	-webkit-transition-property: none;
+	transition-property: none;
+}
+
+/**
+ * Element highlight overlay
+ */
+.yui3-element-overlay {
+	position: absolute;
+	z-index: 9000;
+	overflow: hidden;
+	
+	border: 2px solid #3B85D1;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+/**
+ * Drag & drop
+ */
+.yui3-dd-shim {
+	width: auto !important;
+	height: auto !important;
+	position: fixed !important;
+	right: 0;
+	bottom: 0;
+}
+.yui3-editable .yui3-content-proxy span {
+	display: none !important;
+}
+
+.yui3-editable .yui3-content-draging {
+	/* Item which is being dragged (this is not proxy) */
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+
+/**
+ * Default content
+ */
+.editing,
+.editing .yui3-content-inline {
+	outline: 2px dashed rgba(0,0,0,.35);
+	
+	-moz-outline-radius: 4px;
+	-webkit-outline-radius: 4px;
+	outline-radius: 4px;
+	
+	overflow: hidden;
+	min-height: 1.5em;
+}
+.editing {
+	position: relative;
+	z-index: 10000;
+}
+.editing .yui3-input-string-inline.yui3-content-inline {
+	overflow: visible;
+	min-height: 1em;
+}
+
+
+/**
+ * Standalone HTML editor content
+ */
+.standalone {
+	height: 100%;
+	min-width: 0 !important;
+	width: auto !important;
+	overflow: auto !important;
+}
+.standalone body {
+	min-width: 0 !important;
+	width: auto !important;
+}
+.standalone-disabled,
+.standalone-disabled * {
+	cursor: pointer;
+}
+
+.standalone .editing {
+	outline: none;    /* Don't need outline, because everything is editable */
+	min-height: 100%; /* Fill all height */
+	padding: 0 10px !important;   /* to make sure content is not at the border*/
+}
+
+/**
+ * HTML content
+ */
+.editing.yui3-content-inline-editable {
+	outline: none;
+	overflow: visible;
+}
+
+/**
+ * List content
+ */
+.yui3-content-list {
+	overflow: visible;
+}
+
+.yui3-content-list.editing {
+	overflow: hidden;
+}
+.yui3-content-list.editing .yui3-content-inline {
+	/* If list is being edited, then don't highlight inline contents */
+	outline: none;
+	min-height: 0;
+	overflow: visible;
+}
+
+/**
+ * Specific content styles
+ */
+
+.editing .yui3-input-html-inline img {
+	cursor: pointer !important;
+}
+.editing .yui3-input-html-inline img.yui3-image-selected,
+.editing .yui3-input-html-inline img.yui3-gallery-selected {
+	/* Image focused */
+	-moz-box-shadow: 0 0 4px #39f;
+	-webkit-box-shadow: 0 0 4px #39f;
+	box-shadow: 0 0 4px #39f;
+}
+
+.yui3-highlight .yui3-highlight-list {
+	outline: 2px solid #3B85D1;
+	
+	-moz-outline-radius: 4px;
+	-webkit-outline-radius: 4px;
+	outline-radius: 4px;
+	
+	-moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	-webkit-box-shadow:  0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	
+	overflow: hidden;
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	
+	/* Expand to for easier drag and drop of new blocks */
+	min-height: 90px;
+}
+
+/**
+ * = Image resize handle
+ */
+.yui3-image-resize-handle {
+	display: none;
+	position: absolute;
+	width: 37px;
+	height: 37px;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle.png) 0 0 repeat;
+	cursor: move;
+	cursor: se-resize;
+	z-index: 10001;
+	margin: -15px 0 0 -19px;
+}
+.yui3-image-resize-handle:hover {
+	background-position: 0 -37px;
+}
+.yui3-image-resize-handle:active {
+	background-position: 0 -74px;
+}
+
+/**
+ * = Controls
+ */
+.yui3-controls {
+	position: relative;
+	height: 0px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	z-index: 10001;
+}
+	.yui3-controls-content {
+		position: absolute;
+		top: -44px;
+		left: -2px;
+		right: -2px;
+		
+		background: #f5f5f5;
+		-moz-border-radius: 4px 4px 0 0;
+		-webkit-border-radius: 4px 4px 0 0;
+		border-radius: 4px 4px 0 0;
+		border: 2px solid #f00;
+		border-bottom: 0;
+		
+		-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+		-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+		
+		padding: 5px;
+	}
+	.yui3-controls-content .su-button-mid-blue {
+		float: right;
+	}
+
+/**
+ * = Content
+ */
+*::-moz-focus-inner {
+	border: 0;
+	outline: none;
+}
+
+.editing table.yui3-table-selected td,
+.editing table.yui3-table-selected th {
+	/*outline: 1px dotted #ccc;*/
+}
+.editing table.yui3-table-selected .yui3-cell-selected {
+	box-shadow: 0 0 4px #39f;
+	-moz-box-shadow: 0 0 4px #39f;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.editing table.yui3-table-selected .yui3-cell-selected {
+		outline: 2px dotted #39f;
+		box-shadow: none;
+	}
+}
+
+/* Fix for cursor position in lists in IE */
+.standalone .editing li > div,
+.editing .yui3-input-html-inline li > div {
+	display: inline;
+	vertical-align: top;
+}
+
+/* Cursors */
+.su-uneditable, .su-uneditable * {
+	cursor: default !important;
+}
+.su-editable, .su-editable * {
+	cursor: text !important;
+}
+
+/**
+ * = Broken block style
+ */
+.yui3-content-Supra_Controller_Pages_BrokenBlockController {
+	text-align: center;
+}
+.yui3-content-Supra_Controller_Pages_BrokenBlockController p {
+	text-align: center;
+	margin: 0;
+	padding: 2px 0 3px;
+	border: 1px dashed #F26786;
+	background: none;
+}
+.yui3-content-Supra_Controller_Pages_BrokenBlockController p span {
+	display: inline-block;
+	padding: 0 0 0 35px;
+	margin: 0;
+	background: url(/cms/lib/supra/img/blocks/broken-icon.png) 0 0 no-repeat;
+	
+	color: #999;
+	font-size: 14px;
+	font-weight: bold;
+	font-style: normal;
+	line-height: 24px;
+	text-decoration: none;
+}
+
+/**
+ * = Fullscreen mode
+ */
+body.yui3-fullscreen > * {
+	display: none;
+}
+body.yui3-fullscreen > .yui3-fullscreen {
+	display: block;
+	margin: 10px 0 0 !important;
+}

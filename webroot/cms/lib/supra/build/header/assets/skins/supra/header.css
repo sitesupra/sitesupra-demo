@@ -1,0 +1,148 @@
+/**
+  * = Page header 
+  */
+.cms-header {
+	min-height: 48px; /* App dock height */
+}
+.cms-header .yui3-app {
+	float: left;
+}
+
+
+/**
+  * = Current app icon 
+  */
+.yui3-app-current {
+	position: relative;
+	z-index: 101;
+	left: 0;
+	top: 0;
+	display: block;
+	padding: 8px;
+	cursor: pointer;
+	text-decoration: none;
+}
+/*
+	-moz-transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+.yui3-app-current:hover img {
+	opacity: 1;
+	
+	-moz-transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+*/
+
+/**
+  * = App dock 
+  */
+.yui3-app-dock {
+	position: absolute;
+	z-index: 100;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+}
+.yui3-app-dock ul {
+	width: 444px;
+	overflow: hidden;
+	margin: 70px 10px 10px 20px;
+}
+.yui3-app-dock li {
+	display: block;
+	float: left;
+	padding: 10px 0 0;
+	margin: 15px 10px 30px;
+	width: 128px;
+	text-align: center;
+}
+.yui3-app-dock li a {
+	display: block;
+	text-decoration: none;
+}
+.yui3-app-dock li img {
+	display: inline-block;
+}
+.yui3-app-dock li span {
+	display: block;
+	white-space: nowrap;
+	color: #333;
+	padding-top: 5px;
+}
+.yui3-app-dock li:hover span {
+	text-decoration: underline;
+}
+
+/* Logout action */
+.yui3-app-dock li.logout {
+	clear: both;
+}
+.yui3-app-dock li.logout div {
+	display: inline-block;
+	background-image: url(/cms/lib/supra/img/icon-logout.png);
+	background-repeat: no-repeat;
+	margin: 0px 5px -4px 0px;
+	height: 16px;
+	width: 16px;
+}
+.yui3-app-dock li.logout:hover div {
+	background-position: 0px -32px;
+}
+.yui3-app-dock li.logout span {
+	display: inline;
+}
+
+/* FadeIn / FadeOut animation */
+.yui3-app-dock {
+	opacity: 0;
+	
+	-moz-transition: opacity 0.35s;
+	-webkit-transition: opacity 0.35s;
+	transition: opacity 0.35s;
+}
+.yui3-app-dock-visible .yui3-app-dock {
+	opacity: 1;
+	
+	-moz-transition: opacity 0.15s;
+	-webkit-transition: opacity 0.15s;
+	transition: opacity 0.15s;
+}
+
+.yui3-app-dock ul {
+	-moz-transform: scale(1.75) translate(0, 0);
+	-webkit-transform: scale(1.75) translate(0, 0);
+	transform: scale(1.75) translate(0, 0);
+	
+	-moz-transition: all 0.35s;
+	-webkit-transition: all 0.35s;
+	transition: all 0.5s;
+}
+.yui3-app-dock-visible .yui3-app-dock ul {
+	-moz-transform: scale(1) translate(0, 0);
+	-webkit-transform: scale(1) translate(0, 0);
+	transform: scale(1) translate(0, 0);
+	
+	-moz-transition: all 0.35s;
+	-webkit-transition: all 0.35s;
+	transition: all 0.35s;
+}
+
+.yui3-app-dock-stats {
+	position: absolute;
+	z-index: 101;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+}
+
+.yui3-app-dock-stats .stat-content {
+	width: 444px;
+	overflow: hidden;
+	margin: 70px 0px 10px 20px;
+}

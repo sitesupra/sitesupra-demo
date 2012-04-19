@@ -1,0 +1,198 @@
+//Invoke strict mode
+"use strict";
+
+YUI.add('supra.intl', function (Y) {
+	
+	var Intl = Supra.Intl = {
+		
+		/**
+		 * Data filename
+		 * @type {String}
+		 * @private
+		 */
+		FILENAME: 'lang.json',
+		
+		/**
+		 * Internationalized data
+		 * @type {Object}
+		 * @private
+		 */
+		data: {},
+		
+		/**
+		 * Paths for which Intl data is loaded
+		 * @type {Object}
+		 * @private
+		 */
+		loaded: {},
+		
+		/**
+		 * List of Intl data which is being loaded
+		 * @type {Object}
+		 * @private
+		 */
+		loading: {},
+		
+		/**
+		 * Callbacks
+		 * @type {Object}
+		 * @private
+		 */
+		callbacks: {},
+		
+		
+		/**
+		 * Add internationalization
+		 * 
+		 * @param {Object} data Data
+		 */
+		add: function (data /* Data */) {
+			
+			//Add to data
+			Supra.mix(this.data, data || {}, true);
+			
+			//Add to Y.Intl
+			for(var ns in data) {
+				Supra.Y.Intl.add(ns, '', data[ns]);
+			}
+		},
+		
+		/**
+		 * Returns true if internationalization data is already loaded
+		 * 
+		 * @param {String} app_path Application path
+		 * @return True if already loaded
+		 * @type {Boolean}
+		 */
+		isLoaded: function (app_path /* Application path */) {
+			return this.loaded[app_path];
+		},
+		
+		/**
+		 * Load internationalization data
+		 * 
+		 * @param {String} app_path Application path
+		 * @param {String} requestURI Request URI
+		 * @param {Function} callback Optional. Callback function
+		 * @param {Object} context Optional. Callback execution context
+		 */
+		load: function (app_path /* Application path*/, requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
+			Supra.io(requestURI, {
+				'data': {
+					'lang': Supra.data.get('lang', '')
+				},
+				'context': this,
+				'on': {
+					'complete': function (data, status) {
+						this.loading[app_path] = false;
+						this.loaded[app_path] = true;
+						
+						if (data) this.add(data);
+						
+						//Execute callbacks
+						var callbacks = this.callbacks[app_path];
+						if (callbacks) {
+							delete(this.callbacks[app_path]);
+							for(var i=0,ii=callbacks.length; i<ii; i++) {
+								callbacks[i][0].call(callbacks[i][1], data);
+							}
+						}
+					}
+				}
+			});
+			
+		},
+		
+		/**
+		 * Load internationalization data for application
+		 * 
+		 * @param {String} app_path Application path
+		 * @param {Function} callback Optional. Callback function
+		 * @param {Object} context Optional. Callback execution context
+		 */
+		loadAppData: function (app_path /* Application path */, callback /* Callback */, context /* Context */) {
+			if (this.loaded[app_path]) {
+				//Call callback
+				if (Y.Lang.isFunction(callback)) {
+					callback.call(context || window, this.data);
+				}
+				//Skip
+				return;
+			}
+			
+			//Add callback to the list
+			if (Y.Lang.isFunction(callback)) {
+				if (!this.callbacks[app_path]) this.callbacks[app_path] = [];
+				this.callbacks[app_path].push([callback, context || window]);
+			}
+			
+			//Already loading, skip
+			if (this.loading[app_path]) return;
+			this.loading[app_path] = true;
+			
+			var uri = app_path + '/' + this.FILENAME;
+			this.load(app_path, uri, callback ,context);
+		},
+		
+		/**
+		 * Returns internationalized string
+		 * 
+		 * @param {Array} ns Namespace
+		 * @param {Object} data Optional. Data to check against
+		 * @return Internationalized string
+		 * @type {String}
+		 */
+		get: function (ns /* Namespace */, data /* Data to check against */) {
+			var obj = data || this.data,
+				i = 0,
+				ii = ns.length;
+			
+			for(; i<ii; i++) {
+				obj = obj[ns[i]];
+				if (obj === undefined) {
+					//If data exists then already checked against Y.Intl
+					if (data) return null;
+					return this.get(ns.slice(1), Y.Intl.get(ns[0]));
+				}
+			}
+			
+			return obj;
+		},
+		
+		/**
+		 * Replace all occurances of {#...#} with internationalized strings
+		 * 
+		 * @param {String} template Template
+		 * @param {String} escape Escape type
+		 * @return Internationalized template
+		 * @type {String}
+		 */
+		replace: function (template /* Template */, escape /* Escape type */) {
+			var self = this,
+				template = template || '';
+			
+			if (template.indexOf('#') == -1) {
+				return template;
+			}
+			
+			return template.replace(/{#([^#]+)#}/g, function (all, key) {
+				var key = Y.Lang.trim(key),
+					ret = self.get(key.split('.')) || all;
+				
+				if (escape == 'json') { //Escape as JSON string without leading and trailing quotes
+					ret = Y.JSON.stringify(ret).replace(/^"|"$/g, '');
+				} else if (escape == 'html') {
+					ret = Y.Escape.html(ret);
+				}
+				
+				return ret;
+			});
+		}
+	};
+	
+	//Since this object has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+	
+}, YUI.version, {'requires': ['intl', 'supra.io']});
