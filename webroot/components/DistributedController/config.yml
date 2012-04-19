@@ -1,5 +1,0 @@
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /dc
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\DistributedController\DistributedController

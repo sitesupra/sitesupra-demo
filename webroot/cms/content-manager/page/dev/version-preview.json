@@ -1,6 +1,0 @@
-{
-	"status": 1,
-	"data": {
-		"internal_html": <?php echo json_encode(file_get_contents('../../sample-acme-page.html')); ?>
-	}
-}

@@ -1,2 +1,0 @@
-sitemap.xml
-robots.txt

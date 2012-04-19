@@ -1,9 +1,0 @@
-<div class="language-selector">
-{% for locale in locales %}
-	<a href="/{{ locale.id }}/{{ localizedUrl[locale.id] }}"
-	   {% if locale.id == currentLocale.id %}
-			class="active"
-	   {% endif %}
-	   >{{ locale.title }}</a>
-{% endfor %}
-</div>

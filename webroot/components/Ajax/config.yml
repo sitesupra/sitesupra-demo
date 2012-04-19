@@ -1,5 +1,0 @@
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /ajax
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\Ajax\AjaxController
