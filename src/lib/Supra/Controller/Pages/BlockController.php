@@ -150,7 +150,7 @@ abstract class BlockController extends ControllerAbstraction
 
 			$className = get_class($this);
 			$file = Loader::getInstance()->findClassPath($className);
-			$this->getResponse()->addResponseResourceFile($file);
+			$this->getResponse()->addResourceFile($file);
 			
 			try {
 				$this->doExecute();

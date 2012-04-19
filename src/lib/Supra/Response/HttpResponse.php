@@ -458,7 +458,7 @@ class HttpResponse implements ResponseInterface
 	 * Add resource file used for generating the response
 	 * @param string $file
 	 */
-	public function addResponseResourceFile($file)
+	public function addResourceFile($file)
 	{
 		// It's available only for blocks with local context proxy
 		//TODO: might store in both places – all resources for global context, local for local context
@@ -473,7 +473,7 @@ class HttpResponse implements ResponseInterface
 	 * Get resource file list used for generating the response
 	 * @return array
 	 */
-	public function getResponseResourceFiles()
+	public function getResourceFiles()
 	{
 		// It's available only for blocks with local context proxy
 		//TODO: might store in both places – all resources for global context, local for local context
@@ -484,5 +484,17 @@ class HttpResponse implements ResponseInterface
 		$resources = $this->context->getResourceFiles();
 		
 		return $resources;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isResourceChanged()
+	{
+		if ( ! $this->context instanceof ResponseContextLocalProxy) {
+			return false;
+		}
+		
+		return $this->context->isResourceChanged();
 	}
 }

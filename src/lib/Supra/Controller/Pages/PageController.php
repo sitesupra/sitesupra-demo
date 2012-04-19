@@ -446,12 +446,10 @@ class PageController extends ControllerAbstraction
 			return false;
 		}
 
-		$resources = $responseCache->getResponseResourceFiles();
+		$changed = $responseCache->isResourceChanged();
 
-		foreach ($resources as $file => $mtime) {
-			if (filemtime($file) != $mtime) {
-				return false;
-			}
+		if ($changed) {
+			return false;
 		}
 
 		$this->blockContentCache[$blockId] = $responseCache;
