@@ -228,6 +228,12 @@ abstract class PageManagerAction extends CmsAction
 	private function searchLocalizationByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
+		
+		// Fix for news application filter folders
+		if (strpos($pageId, '_') !== false) {
+			$pageId = strstr($pageId, '_', true);
+		}
+		
 		$localization = $this->entityManager->find(
 				Entity\Abstraction\Localization::CN(), $pageId);
 
