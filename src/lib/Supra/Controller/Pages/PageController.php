@@ -446,7 +446,7 @@ class PageController extends ControllerAbstraction
 			return false;
 		}
 
-		$changed = $responseCache->isResourceChanged();
+		$changed = $responseCache->hasResourceChanged();
 
 		if ($changed) {
 			return false;

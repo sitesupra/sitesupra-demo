@@ -194,7 +194,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				space = winHeight - region.top - region.height;
 			
 			if (space < 300) {
-				return 'B';
+				return 'L';
 			} else {
 				return 'T';
 			}

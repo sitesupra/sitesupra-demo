@@ -489,12 +489,12 @@ class HttpResponse implements ResponseInterface
 	/**
 	 * @return boolean
 	 */
-	public function isResourceChanged()
+	public function hasResourceChanged()
 	{
 		if ( ! $this->context instanceof ResponseContextLocalProxy) {
 			return false;
 		}
 		
-		return $this->context->isResourceChanged();
+		return $this->context->hasResourceChanged();
 	}
 }

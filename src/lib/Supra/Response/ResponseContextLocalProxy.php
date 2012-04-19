@@ -138,7 +138,7 @@ class ResponseContextLocalProxy extends ResponseContext
 	/**
 	 * @return boolean
 	 */
-	public function isResourceChanged()
+	public function hasResourceChanged()
 	{
 		$files = $this->getResourceFiles();
 		

@@ -301,6 +301,8 @@ YUI.add('supra.panel', function (Y) {
 		_syncArrowPosition: function () {
 			if (!this.get('arrowVisible')) return;
 			
+			this._arrow.setStyle('top', null);
+			
 			var target = this.get('arrowAlign');
 			if (target) {
 				this._arrowAlign(target);
