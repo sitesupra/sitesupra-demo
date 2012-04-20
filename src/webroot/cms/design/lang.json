@@ -1,0 +1,42 @@
+{
+	"status": true,
+	"data": {
+		"design": {
+			"toolbar": {
+				"overview": "Overview",
+				"themes": "Themes",
+				"preview": "Preview",
+				"customize": "Customize",
+				
+				"background": "Background",
+				"menu": "Menu",
+				"fonts": "Fonts",
+				"buttons": "Buttons",
+				
+				"select": "Select",
+				"back": "Go back"
+			},
+			
+			"sidebar": {
+				"background": "Background",
+				"menu": "Menu",
+				"fonts": "Fonts",
+				"buttons": "Buttons",
+				
+				"color": "Color",
+				"pattern": "Pattern",
+				"menu": "Menu",
+				
+				"header": "Header",
+				"body": "Body",
+				
+				"style": "Style"
+			},
+			
+			"overview": {
+				"author": "Author:",
+				"purchases": "Purchases:"
+			}
+		}
+	}
+}

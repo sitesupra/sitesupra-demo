@@ -1,0 +1,93 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.design .list {
+	overflow: hidden;
+	
+	& > div {
+		height: 100%;
+	}
+	
+	.designs {
+		
+		ul {
+			list-style: none;
+			overflow: hidden;
+			height: 100%;
+		}
+		
+		li {
+			float: left;
+			
+			& > div {
+				height: 50%;
+				text-align: center;
+			}
+			
+			a {
+				.box-shadow (0, 3px, 6px, rgba(9, 8, 18, 0.5));
+				
+				display: inline-block;
+				vertical-align: middle;
+				margin-top: 40px;
+			}
+			
+			span {
+				display: inline-block;
+				width: 0;
+				height: 100%;
+				vertical-align: middle;
+			}
+			img {
+				display: inline-block;
+				vertical-align: bottom;
+			}
+			
+			.loading {
+				position: relative;
+				
+				.loading-icon {
+					//Adjust position because <a> has margin
+					margin-top: 5px;
+				}
+			}
+		}
+	}
+	
+	.su-scrollable > .su-scrollable-scrollbar {
+		background: url(/cms/lib/supra/img/background-pattern-dark.jpg) 0 0 repeat;
+	}
+}
+
+.list .disabled .designs li a {
+	//When disabled prevent user from clicking on other items
+	cursor: default;
+}
+
+.design .arrow {
+	.user-select (none);
+	display: block;
+	position: absolute;
+	z-index: 2;
+	left: 10px;
+	top: 50%;
+	margin-top: -28px;
+	width: 35px;
+	height: 56px;
+	background: url(../images/list/side-arrows.png) 0 0 no-repeat;
+	cursor: pointer;
+	
+	&:hover {
+		background-position: 0 -56px;
+	}
+	
+	&.next {
+		background-position: 0 -112px;
+		left: auto;
+		right: 10px;
+		
+		&:hover {
+			background-position: 0 -168px;
+		}
+	}
+}

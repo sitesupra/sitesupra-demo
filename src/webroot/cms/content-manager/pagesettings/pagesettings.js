@@ -434,23 +434,7 @@
 			 */
 			createForm: function () {
 
-				//Section buttons
-				var buttons = this.all('a[data-target]');
-
-				buttons.on('click', function (event) {
-					var node = event.target.closest('a');
-					if (!node.hasClass('disabled')) {
-						this.slideshow.set('slide', node.getAttribute('data-target'));
-					}
-				}, this);
-				buttons.on('keyup', function (event) {
-					if (event.keyCode == 13 || event.keyCode == 39) { //Return key or arrow right
-						var node = event.target.closest('a');
-						this.slideshow.set('slide', node.getAttribute('data-target'));
-					}
-				}, this);
-
-				//Normal buttons
+				//Buttons
 				var buttons = this.all('button');
 
 				//Back button

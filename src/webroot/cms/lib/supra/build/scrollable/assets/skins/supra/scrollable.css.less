@@ -17,18 +17,26 @@
 		height: 100%;
 	}
 	& > .su-scrollable-scrollbar {
-		.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.2));
-		.border-radius (6px);
-		.transition (opacity 0.35s);
-		.user-select (none);
-		
-		background: #85869E;
 		position: absolute;
-		right: 6px;
-		top: 16px;
-		bottom: 16px;
-		width: 6px;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		width: 18px;
 		opacity: 1;
+		
+		.su-scrollable-scrollbar-background {
+			.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.2));
+			.border-radius (6px);
+			.transition (opacity 0.35s);
+			.user-select (none);
+			
+			background: #85869E;
+			position: absolute;
+			top: 16px;
+			bottom: 16px;
+			right: 6px;
+			width: 6px;
+		}
 		
 		.su-scrollable-draggable {
 			.border-radius (6px);
@@ -55,8 +63,10 @@
 
 .ui-dark .su-scrollable {
 	& > .su-scrollable-scrollbar {
-		background: #2B2838;
-		top: 0;
+		.su-scrollable-scrollbar-background {
+			background: #2B2838;
+			top: 0;
+		}
 	}
 }
 
@@ -71,17 +81,35 @@
 	}
 	& > .su-scrollable-scrollbar {
 		top: auto;
-		bottom: 9px;
-		left: 11px;
-		right: 11px;
+		bottom: 0;
+		left: 0;
+		right: 0;
 		width: auto;
-		height: 6px;
+		height: 24px;
+		
+		.su-scrollable-scrollbar-background {
+			top: auto;
+			bottom: 9px;
+			left: 11px;
+			right: 11px;
+			width: auto;
+			height: 6px;
+		}
 		
 		.su-scrollable-draggable {
 			min-height: 0;
 			min-width: 50px;
 			width: auto;
 			height: 6px;
+		}
+	}
+}
+
+.ui-center-dark .su-scrollable {
+	& > .su-scrollable-scrollbar {
+		.su-scrollable-scrollbar-background {
+			.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.05));
+			background: #1E1D27;
 		}
 	}
 }

@@ -1,0 +1,39 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+/**
+ * Design
+ */
+.design {
+	position: absolute;
+	bottom: 0;
+	
+	/**
+	 * Slideshow
+	 */
+	.su-slide-content {
+		height: 100%;
+	}
+	
+	/**
+	 * Slideshow slide contents
+	 */
+	.su-slide > .overview,
+	.su-slide > .themes,
+	.su-slide > .preview {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		overflow: hidden;
+		height: auto;
+	}
+}
+.design.has-design-bar {
+	.su-slide > .overview,
+	.su-slide > .themes,
+	.su-slide > .preview {
+		bottom: 176px;
+	}
+}

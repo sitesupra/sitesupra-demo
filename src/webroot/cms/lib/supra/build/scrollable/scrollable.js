@@ -83,6 +83,27 @@ YUI.add('supra.scrollable', function (Y) {
 		 */
 		scrollbarAreaSize: 0,
 		
+		/**
+		 * Animation object for content
+		 * @type {Object}
+		 * @private
+		 */
+		animContent: null,
+		
+		/**
+		 * Animation object for scrollbar
+		 * @type {Object}
+		 * @private
+		 */
+		animScrollBar: null,
+		
+		/**
+		 * Resize event listener
+		 * @type {Object}
+		 * @private
+		 */
+		resizeListener: null,
+		
 		
 		
 		/**
@@ -97,12 +118,14 @@ YUI.add('supra.scrollable', function (Y) {
 				draggableNode = null,
 				scrollbarNode = Y.Node.create('\
 									<div class="' + this.getClassName('scrollbar') + ' ' + this.getClassName('invisible') + '">\
-										<div class="' + this.getClassName('draggable') + '"></div>\
+										<div class="' + this.getClassName('scrollbar', 'background') + '">\
+											<div class="' + this.getClassName('draggable') + '"></div>\
+										</div>\
 									</div>');
 			
 			boundingBox.addClass(this.getClassName(this.get('axis')));
 			
-			draggableNode = scrollbarNode.one('div');
+			draggableNode = scrollbarNode.one('div div');
 			boundingBox.append(scrollbarNode);
 			
 			this.set('scrollbarNode', scrollbarNode);
@@ -122,7 +145,7 @@ YUI.add('supra.scrollable', function (Y) {
 			//Scroll
 			var throttle = this.get('throttle');
 			if (throttle) {
-				this.syncUIPositionThrottled = this.throttle(this.syncUIPosition, this.get('throttle'), this);
+				this.syncUIPositionThrottled = Supra.throttle(this.syncUIPosition, this.get('throttle'), this);
 			} else {
 				this.syncUIPositionThrottled = Y.bind(this.syncUIPosition, this);
 			}
@@ -149,7 +172,7 @@ YUI.add('supra.scrollable', function (Y) {
 			//On resize update scrollbars
 			var throttle = this.get('throttle');
 			if (throttle) {
-				this.syncUIThrottled = this.throttle(this.syncUI, this.get('throttle'), this);
+				this.syncUIThrottled = Supra.throttle(this.syncUI, this.get('throttle'), this);
 			} else {
 				this.syncUIThrottled = Y.bind(this.syncUI, this);
 			}
@@ -163,7 +186,7 @@ YUI.add('supra.scrollable', function (Y) {
 				node.on('contentResize', this.syncUIThrottled);
 			}
 			
-			Y.on('resize', this.syncUIThrottled);
+			this.resizeListener = Y.on('resize', this.syncUIThrottled);
 		},
 		
 		/**
@@ -210,7 +233,7 @@ YUI.add('supra.scrollable', function (Y) {
 			} else {
 				this.dragStartPos = e.clientX;
 				this.draggableStartPos = parseInt(this.get('draggableNode').getStyle('left'), 10);
-				this.scrollStartPos = -parseInt(this.get('contentBox').getStyle('margin-left'), 10);
+				this.scrollStartPos = -parseInt(this.get('contentBox').getStyle('marginLeft'), 10);
 			}
 			
 			
@@ -234,6 +257,8 @@ YUI.add('supra.scrollable', function (Y) {
 				this.dragEndEvent = null;
 				
 				this.get('draggableNode').removeClass(this.getClassName('draggable-drag'));
+				
+				this.fire('sync');
 			}
 		},
 		
@@ -251,7 +276,7 @@ YUI.add('supra.scrollable', function (Y) {
 				this.get('contentBox').set('scrollTop', scroll);
 				this.get('draggableNode').setStyle('top', pos);
 			} else {
-				this.get('contentBox').setStyle('margin-left', -scroll);
+				this.get('contentBox').setStyle('marginLeft', -scroll);
 				this.get('draggableNode').setStyle('left', pos);
 			}
 		},
@@ -260,7 +285,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * Update UI
 		 */
 		syncUI: function () {
-			if (this.dragging || this.get('disabled')) return;
+			if (this.dragging || this.get('disabled') || !this.get('rendered')) return;
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
@@ -268,6 +293,7 @@ YUI.add('supra.scrollable', function (Y) {
 				contentBox = this.get('contentBox'),
 				draggableNode = this.get('draggableNode'),
 				scrollbarNode = this.get('scrollbarNode'),
+				backgroundNode = draggableNode.ancestor(),
 				viewSize = contentBox.get('offset' + axisSizeProperty),
 				scrollSize = contentBox.get('scroll' + axisSizeProperty) || viewSize,
 				classInvisible = this.getClassName('invisible'),
@@ -275,6 +301,16 @@ YUI.add('supra.scrollable', function (Y) {
 				padding = null;
 			
 			if (!viewSize) return;
+			
+			//Gecho doesn't returns correct scrollWidth value
+			if (axis == 'x' && Y.UA.gecko) {
+				scrollSize = viewSize;
+				
+				contentBox.get('children').each(function (item) {
+					scrollSize = Math.max(scrollSize, item.get('offsetLeft') + item.get('offsetWidth'));
+				});
+			}
+			
 			if (viewSize == scrollSize) {
 				if (!scrollbarNode.hasClass(classInvisible)) {
 					scrollbarNode.addClass(classInvisible);
@@ -286,9 +322,9 @@ YUI.add('supra.scrollable', function (Y) {
 			}
 			
 			if (axis == 'y') {
-				padding = parseInt(scrollbarNode.getStyle('top'), 10) + parseInt(scrollbarNode.getStyle('bottom'), 10);
+				padding = parseInt(backgroundNode.getStyle('top'), 10) + parseInt(backgroundNode.getStyle('bottom'), 10) || 0;
 			} else {
-				padding = parseInt(scrollbarNode.getStyle('left'), 10) + parseInt(scrollbarNode.getStyle('right'), 10);
+				padding = parseInt(backgroundNode.getStyle('left'), 10) + parseInt(backgroundNode.getStyle('right'), 10) || 0;
 			}
 			
 			var scrollbarAreaSize = viewSize - padding,
@@ -299,7 +335,7 @@ YUI.add('supra.scrollable', function (Y) {
 			if (axis == 'y') {
 				scrollPos = contentBox.get('scrollTop');
 			} else {
-				scrollPos = - parseInt(contentBox.getStyle('margin-left'), 10);
+				scrollPos = - parseInt(contentBox.getStyle('marginLeft'), 10);
 			}
 			
 			this.pxRatio = pxRatio;
@@ -317,7 +353,7 @@ YUI.add('supra.scrollable', function (Y) {
 				//Make sure all content is in view
 				if (viewSize + scrollPos > scrollSize) {
 					scrollPos = Math.max(0, scrollSize - viewSize);
-					contentBox.setStyle('margin-left', - scrollPos + 'px');
+					contentBox.setStyle('marginLeft', - scrollPos + 'px');
 				}
 				
 				draggableNode.setStyles({
@@ -387,6 +423,60 @@ YUI.add('supra.scrollable', function (Y) {
 		},
 		
 		/**
+		 * Returns current scroll position
+		 * 
+		 * @return Scroll position
+		 * @type {Number}
+		 */
+		getScrollPosition: function () {
+			var axis = this.get('axis'),
+				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				
+				contentBox = this.get('contentBox'),
+				scrollPos = null;
+			
+			if (axis == 'y') {
+				scrollPos = contentBox.get('scrollTop');
+			} else {
+				scrollPos = -parseInt(contentBox.getStyle('marginLeft'), 10) || 0;
+			}
+			
+			return scrollPos;
+		},
+		
+		/**
+		 * Returns max scroll position
+		 * 
+		 * @return Max scroll position
+		 * @type {Number}
+		 */
+		getMaxScrollPosition: function () {
+			return Math.max(0, this.contentSize - this.viewSize);
+		},
+		
+		/**
+		 * Returns content size
+		 * For horizontal scroller returns width, for vertical returns height
+		 * 
+		 * @return Content size
+		 * @type {Number}
+		 */
+		getContentSize: function () {
+			return this.contentSize;
+		},
+		
+		/**
+		 * Returns visible area size
+		 * For horizontal scroller returns width, for vertical returns height
+		 * 
+		 * @return View size
+		 * @type {Number}
+		 */
+		getViewSize: function () {
+			return this.viewSize;
+		},
+		
+		/**
 		 * Scroll node in view
 		 * 
 		 * @param {Object} node Node
@@ -410,7 +500,7 @@ YUI.add('supra.scrollable', function (Y) {
 			if (pos < scrollPos) {
 				contentBox.set('scroll' + axisPosProperty, pos);
 				this.syncUIPosition();
-			} else if ((pos + height) > (scrollPos + viewSize)) {
+			} else if ((pos + size) > (scrollPos + viewSize)) {
 				contentBox.set('scroll' + axisPosProperty, pos + size - viewSize);
 				this.syncUIPosition();
 			} else {
@@ -419,36 +509,81 @@ YUI.add('supra.scrollable', function (Y) {
 		},
 		
 		/**
-		 * Throttle function call
+		 * Animate element into view
 		 * 
-		 * @param {Function} fn
-		 * @param {Number} ms
-		 * @param {Object} context
-		 * @private
+		 * @param {Object} node Node
+		 * @return True if scrolled to the node, false if node was already in view
+		 * @type {Boolean}
 		 */
-		throttle: function (fn, ms, context) {
-			ms = (ms) ? ms : 150;
+		animateInView: function (node) {
+			if (this.get('disabled')) return;
 			
-			if (true || ms === -1) {
-				return (function() {
-					fn.apply(context, arguments);
+			var axis = this.get('axis'),
+				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
+				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				
+				contentBox = this.get('contentBox'),
+				scrollPos = this.getScrollPosition(),
+				viewSize = this.viewSize,
+				
+				size = node.get('offset' + axisSizeProperty),
+				pos = node.get('offset' + axisPosProperty);
+			
+			if (pos < scrollPos) {
+				this.animateTo( pos );
+			} else if ((pos + size) > (scrollPos + viewSize)) {
+				this.animateTo( pos + size - viewSize );
+			} else {
+				return false;
+			}
+		},
+		
+		/**
+		 * Animate to position
+		 * 
+		 * @param {Number} pos Position
+		 */
+		animateTo: function (pos) {
+			if (this.get('disabled')) return;
+			
+			var animContent   = this.animContent,
+				animScrollBar = this.animScrollBar,
+				
+				toContent   = {},
+				toScrollBar = {},
+				
+				axis = this.get('axis'),
+				contentBox = this.get('contentBox');
+			
+			if (!animContent) {
+				animContent = this.animContent = new Y.Anim({
+					'node': contentBox,
+					'duration': 0.35,
+					'easing': 'easeBoth'
+				});
+				animScrollBar = this.animScrollBar = new Y.Anim({
+					'node': this.get('draggableNode'),
+					'duration': 0.35,
+					'easing': 'easeBoth'
 				});
 			}
 			
-			var last = (new Date()).getTime();
-			var t = null;
+			if (axis == 'y') {
+				toContent['scroll'] = [0, pos];
+				toScrollBar['top'] = pos / this.pxRatio;
+			} else {
+				toContent['marginLeft'] = -pos;
+				toScrollBar['left'] = pos / this.pxRatio;
+			}
 			
-			return (function() {
-				var now = (new Date()).getTime();
-				if (now - last > ms) {
-					last = now;
-					fn.apply(context, arguments);
-					clearTimeout(t);
-				} else {
-					clearTimeout(t);
-					t = setTimeout(arguments.callee, ms);
-				}
-			});
+			animContent.stop();
+			animContent.set('to', toContent);
+			animContent.once('end', this.syncUI, this);
+			animContent.run();
+			
+			animScrollBar.stop();
+			animScrollBar.set('to', toScrollBar);
+			animScrollBar.run();
 		},
 		
 		/**
@@ -465,6 +600,48 @@ YUI.add('supra.scrollable', function (Y) {
 					this.syncUI();
 				}
 			}
+		},
+		
+		/**
+		 * Destructor
+		 * Clean up
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.resizeListener) {
+				this.resizeListener.detach();
+				this.resizeListener = null;
+			}
+			
+			if (this.animScrollBar) {
+				this.animScrollBar.destroy();
+				this.animScrollBar = null;
+			}
+			
+			if (this.animContent) {
+				this.animContent.destroy();
+				this.animContent = null;	
+			}
+			
+			//Mouse wheel
+			var node = this.get('contentBox');
+			node.detach('mousewheel');
+			node.detach('scroll', this.syncUIPositionThrottled);
+			
+			//Resize
+			node.detach('contentResize', this.syncUIThrottled);
+			node.get('parentNode').detach('contentResize', this.syncUIThrottled);
+			
+			//Container resize
+			node = node.closest('.left-container, .right-container');
+			if (node) {
+				node.detach('contentResize', this.syncUIThrottled);
+			}
+			
+			//Drag and drop
+			node = this.get('draggableNode');
+			node.detach('mousedown', this.onDragStart);
 		}
 	});
 	
@@ -474,4 +651,4 @@ YUI.add('supra.scrollable', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget']});
+}, YUI.version, {requires:['widget', 'anim']});
