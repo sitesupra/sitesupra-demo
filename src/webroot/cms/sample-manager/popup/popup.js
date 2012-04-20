@@ -1,7 +1,7 @@
 SU('supra.input', function (Y) {
 	
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Action = Supra.Manager.Action;
 	
 	//Create Action class
 	new Action(Action.PluginPanel, Action.PluginForm, Action.PluginFooter, {

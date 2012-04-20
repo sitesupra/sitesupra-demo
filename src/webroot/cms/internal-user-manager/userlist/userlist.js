@@ -2,7 +2,7 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.list-dd', {
+Supra.addModule('website.list-dd', {
 	path: 'modules/list-dd.js',
 	requires: ['dd', 'dd-delegate']
 });
@@ -82,7 +82,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 				{
 					'id': 'details',
-					'title': SU.Intl.get(['userlist', 'manage_groups']),
+					'title': Supra.Intl.get(['userlist', 'manage_groups']),
 					'icon': this.getActionPath() + 'images/icon-groups.png',
 					'action': 'UserList',
 					'actionFunction': 'toggleGroupMode',

@@ -2,7 +2,7 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.list-dd', {
+Supra.addModule('website.list-dd', {
 	path: 'modules/list-dd.js',
 	requires: ['dd', 'dd-delegate']
 });

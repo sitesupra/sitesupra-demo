@@ -3,7 +3,7 @@
  */
 Supra.Manager.executeAction('Confirmation', {
 	//Take locale string from lang.json
-	'message': SU.Intl.get(['sample', 'confirmation']),
+	'message': Supra.Intl.get(['sample', 'confirmation']),
 	
 	//Don't block all other content, default value is "true"
 	'useMask': false,
