@@ -4,7 +4,7 @@
 SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
@@ -213,8 +213,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 */
 		getData: function (id /* File, image or folder ID */) {
 			var data = this.medialist.get('dataObject').getData(id);
-			if (data && data.type == SU.MediaLibraryData.TYPE_FOLDER) {
-				data = SU.mix({}, data);
+			if (data && data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
+				data = Supra.mix({}, data);
 				data.children = this.medialist.get('dataObject').getChildrenData(id);
 			}
 			return data;

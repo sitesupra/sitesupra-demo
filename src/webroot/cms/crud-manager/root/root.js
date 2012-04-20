@@ -4,14 +4,14 @@
 /**
  * Custom modules
  */
-SU.addModule('website.providers', {
+Supra.addModule('website.providers', {
 	path: 'providers/providers.js',
 	requires: [
 		'widget',
 		'website.provider'
 	]
 });
-SU.addModule('website.provider', {
+Supra.addModule('website.provider', {
 	path: 'providers/provider.js',
 	requires: [
 		'widget',
@@ -24,14 +24,14 @@ SU.addModule('website.provider', {
 	]
 });
 
-SU.addModule('website.datagrid-delete', {
+Supra.addModule('website.datagrid-delete', {
 	path: 'datagrid-delete/datagrid-delete.js',
 	requires: [
 		'widget',
 		'dd-drop'
 	]
 });
-SU.addModule('website.datagrid-new-item', {
+Supra.addModule('website.datagrid-new-item', {
 	path: 'datagrid-new-item/datagrid-new-item.js',
 	requires: [
 		'widget',

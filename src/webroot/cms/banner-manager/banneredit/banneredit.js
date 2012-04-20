@@ -129,7 +129,7 @@ Supra(function (Y) {
 				Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 					{
 						'id': 'change',
-						'title': SU.Intl.get(['edit', 'change']),
+						'title': Supra.Intl.get(['edit', 'change']),
 						'icon': this.getActionPath() + 'images/icon-change.png',
 						'action': 'BannerEdit',
 						'actionFunction': 'showMediaSidebar',
@@ -405,7 +405,7 @@ Supra(function (Y) {
 		 */
 		updateLinkUI: function (e) {
 			var data = ('newVal' in e ? e.newVal : e);
-			var title = (data && data.href ? data.title || data.href : SU.Intl.get(['edit', 'target_set']));
+			var title = (data && data.href ? data.title || data.href : Supra.Intl.get(['edit', 'target_set']));
 			this.button_target.set('label', title);
 		},
 		
@@ -426,9 +426,9 @@ Supra(function (Y) {
 				from = Y.DataType.Date.reformat(data.from, 'in_date', 'out_date');
 				to = Y.DataType.Date.reformat(data.to, 'in_date', 'out_date');
 				
-				title = SU.Intl.get(['edit', 'schedule_from']) + from + SU.Intl.get(['edit', 'schedule_to']) + to;
+				title = Supra.Intl.get(['edit', 'schedule_from']) + from + Supra.Intl.get(['edit', 'schedule_to']) + to;
 			} else {
-				title = SU.Intl.get(['edit', 'schedule_set']);
+				title = Supra.Intl.get(['edit', 'schedule_set']);
 			}
 			
 			this.button_schedule.set('label', title);

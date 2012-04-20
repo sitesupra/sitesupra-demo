@@ -127,21 +127,21 @@ Supra('supra.slideshow', function (Y) {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 				{
 					'id': 'details',
-					'title': SU.Intl.get(['userdetails', 'title']),
+					'title': Supra.Intl.get(['userdetails', 'title']),
 					'icon': this.getActionPath() + 'images/icon-details.png',
 					'action': 'UserDetails',
 					'type': 'tab'	//like 'toggle', only it can't be unset by clicking again
 				},
 				{
 					'id': 'permissions',
-					'title': SU.Intl.get(['userpermissions', 'title']),
+					'title': Supra.Intl.get(['userpermissions', 'title']),
 					'icon': this.getActionPath() + 'images/icon-permissions.png',
 					'action': 'UserPermissions',
 					'type': 'tab'
 				}/*,
 				{
 					'id': 'stats',
-					'title': SU.Intl.get(['userstats', 'title']),
+					'title': Supra.Intl.get(['userstats', 'title']),
 					'icon': this.getActionPath() + 'images/icon-stats.png',
 					'action': 'UserStats',
 					'type': 'tab'
