@@ -4,8 +4,8 @@
  */
 SU(function () {
 	
-	var M = SU.Manager;
-	var layout = SU.LayoutManager;
+	var M = Supra.Manager;
+	var layout = Supra.LayoutManager;
 	
 	var container = M.getAction('PageManager');
 	var top = M.getAction('PageTop');
