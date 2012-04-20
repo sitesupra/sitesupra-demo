@@ -138,12 +138,12 @@ big {
 	padding: 30px 46px;
 }
 
-#content table {
+table {
 	width: 100%;
 	margin: 10px 0;
 }
 
-#content table td, #content table th {
+table td, table th {
 	padding: 3px 5px;
 	border: 1px solid #CCC;
 }
