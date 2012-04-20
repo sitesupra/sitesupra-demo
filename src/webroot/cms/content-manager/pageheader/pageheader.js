@@ -250,6 +250,12 @@ Supra('supra.languagebar', function (Y) {
 		 * @param {Boolean} ignore_locale_change Don't update locale
 		 */
 		execute: function (ignore_locale_change) {
+			//Don't change locale if page is loading
+			if (!ignore_locale_change) {
+				var locale = Supra.data.get('locale');
+				this.languagebar.set('locale', locale);
+			}
+			
 			//If SiteMap is visible, then don't show header
 			if (Supra.Manager.getAction('SiteMap').get('visible')) return;
 			
@@ -261,12 +267,6 @@ Supra('supra.languagebar', function (Y) {
 			
 			this.setVersionTitle(page && page.published ? 'published' : 'draft');
 			this.has_changes = false;
-			
-			//Don't change locale if page is loading
-			if (!ignore_locale_change) {
-				var locale = Supra.data.get('locale');
-				this.languagebar.set('locale', locale);
-			}
 		}
 	});
 	
