@@ -20,8 +20,6 @@
           label: Use page title
           default: true
           shared: page
-          additionalParameters:
-            a: b
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title
           editable: Supra\Editable\InlineString
