@@ -577,7 +577,37 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				
 				//Only for root template user can set layout
 				if (node.get('root')) {
-					form.getInput('layout').set('visible', true);
+						var select_layout_title = SU.Intl.get(['settings', 'select_layout']);
+						var layoutsPath = Supra.Manager.Page.getDataPath('layouts');
+						
+						// Fetching all layouts from database
+						Supra.io(layoutsPath, {
+							'data': data,
+							'method': 'get',
+							'on': {
+								'success': function (data) {
+									var fetchedDataCount = data.length;
+									
+									if(fetchedDataCount == 0) {
+										// throwing an error message
+										Supra.Manager.executeAction('Confirmation', {
+											'message': SU.Intl.get(['error', 'no_layouts']),
+											'buttons': [{
+												'id': 'ok', 
+												'label': 'Ok'
+											}]
+										});
+										
+										// removing layout node
+										form.getInput('layout').hide();
+									} else {
+										data.unshift({id:'', title: select_layout_title});
+										form.getInput('layout').set('values', data);
+									}
+								}
+							}
+						});
+						
 				} else {
 					form.getInput('layout').set('visible', false);
 				}

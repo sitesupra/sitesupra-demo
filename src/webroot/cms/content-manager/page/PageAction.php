@@ -848,6 +848,14 @@ class PageAction extends PageManagerAction
 		}
 	}
 	
+	/**
+	 * Returns all layouts
+	 */
+	public function layoutsAction()
+	{
+		$this->getResponse()->setResponseData($this->getLayouts());
+	}
+
 	protected function getLayouts()
 	{
 		$layouts = array();
