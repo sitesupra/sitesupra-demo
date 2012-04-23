@@ -237,13 +237,13 @@ abstract class BlockController extends ControllerAbstraction
 		} else {
 		
 			// Find editable by name
-			$propertyDefinitions = $this->configuration->properties;
+			$propertyDefinition = $this->configuration->getProperty($name);
 
-			if ( ! isset($propertyDefinitions[$name])) {
+			if ( ! isset($propertyDefinition)) {
 				throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 			}
 
-			$editable = $propertyDefinitions[$name];
+			$editable = $propertyDefinition->editableInstance;
 
 			if ( ! $editable instanceof EditableInterface) {
 				throw new Exception\RuntimeException("Definition of property must be an instance of editable");

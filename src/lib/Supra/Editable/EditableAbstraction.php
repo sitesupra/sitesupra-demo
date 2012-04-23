@@ -41,7 +41,7 @@ abstract class EditableAbstraction implements EditableInterface
 	/**
 	 * @param string $label
 	 */
-	public function __construct($label, $groupLabel = null)
+	public function __construct($label = null, $groupLabel = null)
 	{
 		$this->setLabel($label);
 		$this->setGroupLabel($groupLabel);
@@ -175,7 +175,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		return array();
 	}
-
+	
 	public static function CN()
 	{
 		return get_called_class();

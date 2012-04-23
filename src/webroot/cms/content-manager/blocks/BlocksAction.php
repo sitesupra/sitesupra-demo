@@ -8,6 +8,7 @@ use Supra\Request;
 use Supra\Response;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\Exception\ConfigurationMissing;
+use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 class BlocksAction extends PageManagerAction
 {
@@ -96,17 +97,19 @@ class BlocksAction extends PageManagerAction
 
 			$properties = array();
 
-			foreach ($propertyDefinition as $key => $property) {
-				/* @var $property \Supra\Editable\EditableInterface */
+			foreach ($propertyDefinition as $property) {
+				/* @var $property BlockPropertyConfiguration */
+				$editable = $property->editableInstance;
+				
 				$properties[] = array(
-					'id' => $key,
-					'type' => $property->getEditorType(),
-					'inline' => $property->isInlineEditable(),
-					'label' => $property->getLabel(),
-					'value' => $property->getDefaultValue(),
-					'group' => $property->getGroupLabel(),
+					'id' => $property->name,
+					'type' => $editable->getEditorType(),
+					'inline' => $editable->isInlineEditable(),
+					'label' => $editable->getLabel(),
+					'value' => $editable->getDefaultValue(),
+					'group' => $editable->getGroupLabel(),
 				) 
-				+ $property->getAdditionalParameters();
+				+ $editable->getAdditionalParameters();
 				
 			}
 

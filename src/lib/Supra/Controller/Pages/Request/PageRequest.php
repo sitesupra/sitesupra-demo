@@ -12,6 +12,7 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Doctrine\ORM\Query;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 /**
  * Page controller request
@@ -448,32 +449,19 @@ abstract class PageRequest extends HttpRequest
 			/* @var $block Entity\Abstraction\Block */
 
 			$blockId = $block->getId();
-			
+
+			// Skip if the block response is read from the cache already
 			if (in_array($blockId, $this->skipBlockPropertyLoading)) {
 				continue;
 			}
 			
-			$master = null;
 			$data = null;
 
 			if ($block->getLocked()) {
 				$data = $block->getPlaceHolder()
 						->getMaster();
-				
-				$master = $data->getMaster();
-			}
-			else {
-				//$master = $page;
+			} else {
 				$data = $this->getPageLocalization();
-			}
-
-			//\Log::debug("Master node for {$block} is found - {$master}");
-
-			// FIXME: n+1 problem
-			if (empty($data)) {
-				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
-				$blockSet->removeInvalidBlock($block, "Page data for locale not found");
-				continue;
 			}
 
 			$dataId = $data->getId();
@@ -485,10 +473,9 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
-			// \Log::debug("Have generated condition for properties fetch for block $block");
 		}
 
-		// Stop if no propereties were found
+		// Stop if no blocks required to load the properties
 		if ($cnt == 0) {
 			return $this->blockPropertySet;
 		}
