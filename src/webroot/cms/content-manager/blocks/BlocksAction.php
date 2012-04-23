@@ -26,9 +26,6 @@ class BlocksAction extends PageManagerAction
 	{
 		$logger = ObjectRepository::getLogger($this);
 		$blockCollection = BlockControllerCollection::getInstance();
-		$blockConfigurationList = $blockCollection->getBlocksConfigurationList();
-
-		$groupConfigurationList = $blockCollection->getGroupsConfigurationList();
 
 		$response = array(
 			'blocks' => array(),
@@ -38,6 +35,9 @@ class BlocksAction extends PageManagerAction
 		$isDefaultGroupSet = false;
 		$defaultGroupKey = 0;
 		$groupIds = array();
+		
+		$groupConfigurationList = $blockCollection->getGroupsConfigurationList();
+		
 		foreach ($groupConfigurationList as $group) {
 			/* @var $group \Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration */
 
@@ -67,8 +67,6 @@ class BlocksAction extends PageManagerAction
 		}
 
 		if (empty($response['groups'])) {
-//			throw new ConfigurationMissing('At least one block group should be configured');
-			
 			$response['groups'][] = array(
 				'id' => 'all_blocks',
 				'title' => 'All Blocks',
@@ -82,7 +80,9 @@ class BlocksAction extends PageManagerAction
 		// Title array for ordering
 		$titles = array();
 
-		foreach ($blockConfigurationList as $blockId => $conf) {
+		$blockConfigurationList = $blockCollection->getBlocksConfigurationList();
+		
+		foreach ($blockConfigurationList as $conf) {
 			/* @var $conf \Supra\Controller\Pages\Configuration\BlockControllerConfiguration */
 
 			$blockGroup = $conf->groupId;
@@ -91,8 +91,8 @@ class BlocksAction extends PageManagerAction
 				$blockGroup = $response['groups'][$defaultGroupKey]['id'];
 			}
 
-			$controller = $blockCollection->getBlockController($blockId);
-			$propertyDefinition = (array) $controller->getPropertyDefinition();
+			$controller = $blockCollection->getBlockController($conf->class);
+			$propertyDefinition = $conf->properties;
 
 			$properties = array();
 

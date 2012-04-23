@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Blocks\Text\TextController
+    class: Project\Blocks\Text\TextController
     title: Text
     groupId: system
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.

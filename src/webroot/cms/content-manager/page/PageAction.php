@@ -318,13 +318,13 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$controller = $block->createController();
+				$configuration = $controller->getConfiguration();
 
 				if ($controller instanceof BrokenBlockController) {
-					$componentName = $controller->getConfiguration()
-							->controllerClass;
+					$componentName = $configuration->class;
 					$block->setComponentName($componentName);
 				}
-
+				
 				$block->prepareController($controller, $request, $responseContext);
 
 				$blockData = array(
@@ -335,7 +335,7 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$editables = (array) $controller->getPropertyDefinition();
+				$editables = $configuration->properties;
 
 				foreach ($editables as $propertyName => $editable) {
 					$blockProperty = $controller->getProperty($propertyName);

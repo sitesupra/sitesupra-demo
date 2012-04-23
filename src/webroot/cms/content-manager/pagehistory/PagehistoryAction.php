@@ -12,6 +12,7 @@ use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Cms\ContentManager\Pagecontent\PagecontentAction;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -204,7 +205,6 @@ class PagehistoryAction extends PageManagerAction
 		$blockName = null;
 		
 		$entityManager = ObjectRepository::getEntityManager('#audit');
-		$blockCollection = \Supra\Controller\Pages\BlockControllerCollection::getInstance();
 		
 		$params = array(
 			'id' => $revision->getElementId(),
@@ -247,8 +247,9 @@ class PagehistoryAction extends PageManagerAction
 			
 			if ( ! is_null($block)) {
 				$componentName = $block->getComponentName();
-				$blockConfiguration = $blockCollection->getBlockConfiguration($componentName);
-				if ($blockConfiguration instanceof \Supra\Controller\Pages\Configuration\BlockControllerConfiguration) {
+				$blockConfiguration = ObjectRepository::getComponentConfiguration($componentName);
+				
+				if ($blockConfiguration instanceof BlockControllerConfiguration) {
 					$blockName = $blockConfiguration->title;
 				}
 			}

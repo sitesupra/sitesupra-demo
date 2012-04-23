@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Blocks\Subscribe\SubscribeBlock
+    class: Project\Blocks\Subscribe\SubscribeBlock
     title: Subscribe Block
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Editable

@@ -8,7 +8,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Login
     groupId: system
-    controllerClass: Project\Blocks\Login\LoginBlock
+    class: Project\Blocks\Login\LoginBlock
     description: Frontend login page block
     cmsClassname: Editable
     icon: icon.png

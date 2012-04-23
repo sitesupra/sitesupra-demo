@@ -15,6 +15,7 @@ use Supra\Controller\Pages\Entity\TemplateBlock;
 use Supra\Loader;
 use Supra\Controller\Pages\BlockControllerCollection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Block database entity abstraction
@@ -188,13 +189,9 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 			$this->log()->warn("Block component $component was not found for block $this");
 		}
 
-		try {
-			$blockControllerCollection = BlockControllerCollection::getInstance();
-			$blockController = $blockControllerCollection->getBlockController($component);
-			$blockController->setBlock($this);
-		} catch (Loader\Exception\ClassMismatch $e) {
-			$this->log()->warn("Block controller $component must be instance of BlockController in block $this");
-		}
+		$blockControllerCollection = BlockControllerCollection::getInstance();
+		$blockController = $blockControllerCollection->getBlockController($component);
+		$blockController->setBlock($this);
 
 		return $blockController;
 	}

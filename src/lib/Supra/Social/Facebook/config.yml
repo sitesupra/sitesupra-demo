@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Facebook
     groupId: system
-    controllerClass: Supra\Social\Facebook\FacebookBlock
+    class: Supra\Social\Facebook\FacebookBlock
     description: Facebook page block
     cmsClassname: Facebook

@@ -454,13 +454,13 @@ abstract class PageRequest extends HttpRequest
 			}
 			
 			$master = null;
+			$data = null;
 
 			if ($block->getLocked()) {
-				$master = $block->getPlaceHolder()
-						->getMaster()
+				$data = $block->getPlaceHolder()
 						->getMaster();
 				
-				$data = $master->getLocalization($this->locale);
+				$master = $data->getMaster();
 			}
 			else {
 				//$master = $page;

@@ -64,6 +64,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
+	 * @internal
 	 */
 	public static function getPropertyDefinition()
 	{
@@ -87,9 +88,8 @@ abstract class BlockController extends ControllerAbstraction
 				$this->setPage($page);
 			}
 
-			$blockControllerCollection = BlockControllerCollection::getInstance();
 			$blockClass = $this->getBlock()->getComponentName();
-			$configuration = $blockControllerCollection->getBlockConfiguration($blockClass);
+			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 			
 			if ($configuration->unique) {
 				// check for uniqness
@@ -237,7 +237,7 @@ abstract class BlockController extends ControllerAbstraction
 		} else {
 		
 			// Find editable by name
-			$propertyDefinitions = $this->getPropertyDefinition();
+			$propertyDefinitions = $this->configuration->properties;
 
 			if ( ! isset($propertyDefinitions[$name])) {
 				throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
@@ -450,10 +450,11 @@ abstract class BlockController extends ControllerAbstraction
 		}
 
 		$response = $this->getResponse();
-		$blockControllerCollection = BlockControllerCollection::getInstance();
-		$configuration = $blockControllerCollection->getBlockConfiguration($this->getBlock()->getComponentName());
 
 		if ($response instanceof TwigResponse) {
+			$blockClass = $this->getBlock()->getComponentName();
+			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
+			
 			$response->cleanOutput();
 			$response->setLoaderContext(__CLASS__);
 			$response->assign('blockName', $configuration->title);

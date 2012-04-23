@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Blocks\Languages\LanguageSelectorBlock
+    class: Project\Blocks\Languages\LanguageSelectorBlock
     title: Language Selector
     groupId: system
     description: 
