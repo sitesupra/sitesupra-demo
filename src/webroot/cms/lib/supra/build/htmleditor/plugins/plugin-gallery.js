@@ -103,7 +103,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
-			if (configuration.galleryBlockId) {
+			var block_data = Manager.Blocks.getBlock(configuration.galleryBlockId);
+			if (configuration.galleryBlockId && block_data.classname) {
 				//On image folder drop add gallery
 				htmleditor.get('srcNode').on('dataDrop', this.dropFolder, this);
 			}
