@@ -318,13 +318,13 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$controller = $block->createController();
-				$configuration = $controller->getConfiguration();
 
 				if ($controller instanceof BrokenBlockController) {
-					$componentName = $configuration->class;
+					$componentName = $controller->getConfiguration()
+							->controllerClass;
 					$block->setComponentName($componentName);
 				}
-				
+
 				$block->prepareController($controller, $request, $responseContext);
 
 				$blockData = array(
@@ -335,7 +335,7 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$editables = $configuration->properties;
+				$editables = (array) $controller->getPropertyDefinition();
 
 				foreach ($editables as $propertyName => $editable) {
 					$blockProperty = $controller->getProperty($propertyName);
@@ -725,6 +725,13 @@ class PageAction extends PageManagerAction
 		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}
+		
+		$master = $localization->getMaster();
+		
+		// workaround for wrong master page
+		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
+				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
+		$localization->overrideMaster($auditMasterPage);
 
 		$controller = $this->getPageController();
 
