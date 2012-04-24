@@ -421,6 +421,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			// adding file as folders child if parent folder is set
+			$folder = null;
 			if ( ! $this->emptyRequestParameter('folder')) {	
 
 				$folder = $this->getFolder('folder');
@@ -452,6 +453,13 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$fileData = new Entity\MetaData($localeId);
 					$fileData->setMaster($fileEntity);
 					$fileData->setTitle($humanName);
+					
+					if ( ! is_null($folder)) {
+						$publicStatus = $folder->isPublic();
+						$fileEntity->setPublic($publicStatus);
+				
+						$folder->addChild($fileEntity);
+					}
 					
 					$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
 					$this->getResponse()
