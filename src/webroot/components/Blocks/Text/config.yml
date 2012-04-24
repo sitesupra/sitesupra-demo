@@ -13,4 +13,22 @@
           - Supra\FileStorage
           - Supra\Controller\Pages
         lifetime: 60 seconds
-        
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: usePageTitle
+          editable: Supra\Editable\Checkbox
+          label: Use page title
+          default: true
+          shared: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content
+          editable: Supra\Editable\Html
+          label: Content
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: image
+          editable: Supra\Editable\Image
+          label: Picture

@@ -10,7 +10,7 @@ ob_start();
 // Check the PHP version installed. Supra7 requires 5.3.3 version as minimum
 const SUPRA_REQUIRED_PHP_VERSION = '5.3.3';
 if (version_compare(phpversion(),  SUPRA_REQUIRED_PHP_VERSION, 'lt')) {
-	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.');
+	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.' . PHP_EOL);
 }
 
 define('SUPRA_ERROR_MESSAGE', '500 INTERNAL SERVER ERROR');

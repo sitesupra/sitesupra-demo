@@ -100,9 +100,20 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		if (empty($this->properties)) {
 			$class = $this->class;
 			
+			// TODO: might be removed later
 			if (Loader::classExists($class)) {
 				if (method_exists($class, 'getPropertyDefinition')) {
-					$this->properties = (array) $class::getPropertyDefinition();
+					$editables = (array) $class::getPropertyDefinition();
+					
+					foreach ($editables as $name => $editable) {
+						/* @var $editable \Supra\Editable\EditableInterface */
+						$this->properties[] = $property = new BlockPropertyConfiguration();
+						$property->name = $name;
+						$property->editableInstance = $editable;
+						$property->editable = get_class($editable);
+						$property->label = $editable->getLabel();
+						$property->default = $editable->getDefaultValue();
+					}
 				}
 			}
 		}
@@ -139,6 +150,20 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 
 		return $iconPath;
+	}
+	
+	/**
+	 * @param string $name
+	 * @return BlockPropertyConfiguration
+	 */
+	public function getProperty($name)
+	{
+		foreach ($this->properties as $property) {
+			/* @var $property BlockPropertyConfiguration */
+			if ($property->name === $name) {
+				return $property;
+			}
+		}
 	}
 	
 }

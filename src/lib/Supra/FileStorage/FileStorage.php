@@ -957,6 +957,7 @@ class FileStorage
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 		
+		// This must be call before removing the old file
 		$this->validateFileUpload($fileEntity, $file['tmp_name']);
 		
 		$this->removeFileInFileSystem($originalFile);

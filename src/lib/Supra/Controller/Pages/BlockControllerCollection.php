@@ -92,7 +92,7 @@ class BlockControllerCollection
 	}
 
 	/**
-	 * @param string $controllerClass
+	 * @param string $blockId
 	 * @return BlockController 
 	 */
 	public function getBlockController($blockId)
@@ -112,7 +112,7 @@ class BlockControllerCollection
 			$controller->setConfiguration($configuration);
 		} catch (\Exception $e) {
 			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
-			$controller = Loader::getClassInstance($controllerClass);
+			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
 			/* @var $controller BlockController */
 			$controller->exception = $e;
 			$controller->setConfiguration($configuration);

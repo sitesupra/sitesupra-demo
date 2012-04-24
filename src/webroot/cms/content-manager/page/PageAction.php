@@ -25,6 +25,7 @@ use Supra\Locale\Locale;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 /**
  * 
@@ -318,10 +319,10 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$controller = $block->createController();
+				$configuration = $controller->getConfiguration();
 
 				if ($controller instanceof BrokenBlockController) {
-					$componentName = $controller->getConfiguration()
-							->controllerClass;
+					$componentName = $configuration->class;
 					$block->setComponentName($componentName);
 				}
 
@@ -335,9 +336,13 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$editables = (array) $controller->getPropertyDefinition();
+				$propertyDefinition = $configuration->properties;
 
-				foreach ($editables as $propertyName => $editable) {
+				foreach ($propertyDefinition as $property) {
+					
+					/* @var $property BlockPropertyConfiguration */
+					$propertyName = $property->name;
+					
 					$blockProperty = $controller->getProperty($propertyName);
 
 					if ($page->isBlockPropertyEditable($blockProperty)) {
