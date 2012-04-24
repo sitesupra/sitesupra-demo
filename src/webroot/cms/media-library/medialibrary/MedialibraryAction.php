@@ -432,6 +432,33 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$folder->addChild($fileEntity);
 			}
 			
+			if ($fileEntity instanceof Entity\Image) {
+				try {
+					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
+					
+					$this->entityManager->flush();
+					$this->entityManager->remove($fileEntity);
+					$this->entityManager->flush();
+					
+					$fileEntity = new Entity\File();
+					
+					$this->entityManager->persist($fileEntity);
+					
+					$fileEntity->setFileName($file['name']);
+					$fileEntity->setSize($file['size']);
+					$fileEntity->setMimeType($file['type']);
+					
+					$fileData = new Entity\MetaData($localeId);
+					$fileData->setMaster($fileEntity);
+					$fileData->setTitle($humanName);
+					
+					$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
+					$this->getResponse()
+							->addWarningMessage($message);
+				}
+			}
+			
 			try {
 				// trying to upload file
 				$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
