@@ -106,9 +106,13 @@ class BlockControllerConfiguration extends ComponentConfiguration
 					$editables = (array) $class::getPropertyDefinition();
 					
 					foreach ($editables as $name => $editable) {
+						/* @var $editable \Supra\Editable\EditableInterface */
 						$this->properties[] = $property = new BlockPropertyConfiguration();
 						$property->name = $name;
 						$property->editableInstance = $editable;
+						$property->editable = get_class($editable);
+						$property->label = $editable->getLabel();
+						$property->default = $editable->getDefaultValue();
 					}
 				}
 			}
