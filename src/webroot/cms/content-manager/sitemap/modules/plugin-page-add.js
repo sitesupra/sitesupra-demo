@@ -587,11 +587,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				path_regex = null,
 				index = 0,
 				is_tree_node = node.isInstanceOf('TreeNode'),
-				is_row_node = node.isInstanceOf('DataGridRow');
+				is_row_node = node.isInstanceOf('DataGridRow'),
+				layoutInput = form.getInput('layout');
+				
+			layoutInput.set('showEmptyValue', false);
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 				form.getInput('template').set('visible', true);
 				
 				if (node.get('root')) {
@@ -623,19 +626,19 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							// removing layout node
 							form.getInput('layout').hide();
 						} else {
-							form.getInput('layout').set('values', this._layouts);
-							form.getInput('layout').set('visible', true);
+							layoutInput.set('values', this._layouts);
+							layoutInput.set('visible', true);
 						}
 						
 				} else {
-					form.getInput('layout').set('visible', false);
+					layoutInput.set('visible', false);
 				}
 			}
 			
 			if (data.type == 'group') {
 				form.getInput('path').set('visible', false);
 				form.getInput('template').set('visible', false);
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings
