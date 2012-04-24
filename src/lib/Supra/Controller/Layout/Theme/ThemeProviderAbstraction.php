@@ -4,7 +4,7 @@ namespace Supra\Controller\Layout\Theme;
 
 use Supra\Controller\Layout\Exception;
 
-abstract class ThemeProviderAbstraction
+abstract class ThemeProviderAbstraction extends NewThemeProviderAbstraction
 {
 
 	/**

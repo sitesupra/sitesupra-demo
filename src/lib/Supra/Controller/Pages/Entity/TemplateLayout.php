@@ -13,6 +13,7 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	/**
 	 * {@inheritdoc}
 	 */
+
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
 	/**
@@ -27,6 +28,12 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	 * @var Layout
 	 */
 	protected $layout;
+
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $layoutName;
 
 	/**
 	 * @ManyToOne(targetEntity="Template", inversedBy="templateLayouts")

@@ -26,7 +26,7 @@ use Supra\AuditLog\Writer\NullAuditLogWriter;
 use Doctrine\Common\Cache\Cache;
 use Supra\Info;
 use Supra\Remote\Client\RemoteCommandService;
-use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
+use Supra\Controller\Layout\Theme\NewThemeProviderAbstraction;
 use Supra\Controller\Layout\Theme\NoThemeProvider;
 
 /**
@@ -64,7 +64,7 @@ class ObjectRepository
 	const INTERFACE_CACHE = 'Doctrine\Common\Cache\Cache';
 	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
 	const INTERFACE_REMOTE_COMMAND_SERVICE = 'Supra\Remote\Client\RemoteCommandService';
-	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\ThemeProviderAbstraction';
+	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\NewThemeProviderAbstraction';
 
 	/**
 	 * Object relation storage
@@ -1215,10 +1215,10 @@ class ObjectRepository
 	}
 
 	/**
-	 * Get assigned ThemeProviderAbstraction instance.
+	 * Get assigned NewThemeProviderAbstraction instance.
 	 *
 	 * @param mixed $caller
-	 * @return ThemeProviderAbstraction
+	 * @return NewThemeProviderAbstraction
 	 */
 	public static function getThemeProvider($caller)
 	{
@@ -1232,22 +1232,22 @@ class ObjectRepository
 	}
 
 	/**
-	 * Assign ThemeProviderAbstraction to namespace.
+	 * Assign NewThemeProviderAbstraction to namespace.
 	 *
 	 * @param mixed $caller
-	 * @param ThemeProviderAbstraction $object 
+	 * @param NewThemeProviderAbstraction $object 
 	 */
-	public static function setThemeProvider($caller, ThemeProviderAbstraction $object)
+	public static function setThemeProvider($caller, NewThemeProviderAbstraction $object)
 	{
 		self::addBinding($caller, $object, self::INTERFACE_THEME_PROVIDER);
 	}
 
 	/**
-	 * Set default ThemeProviderAbstraction object.
+	 * Set default NewThemeProviderAbstraction object.
 	 *
 	 * @param ThemeProviderAbstraction $object 
 	 */
-	public static function setDefaultThemeProvider(ThemeProviderAbstraction $object)
+	public static function setDefaultThemeProvider(NewThemeProviderAbstraction $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_THEME_PROVIDER);
 	}

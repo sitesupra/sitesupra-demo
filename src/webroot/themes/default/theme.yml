@@ -1,0 +1,29 @@
+- Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
+    name: default
+    title: Default theme
+    description: DEFAULT THEME IS DEFAULT, ALWAYS!
+    enabled: true
+    parameters:
+      - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
+         name: fontColor
+         title: Base Font Color
+         defaultValue: gray
+         type: color
+         description: Base font color
+    parameterSets:
+      - Supra\Controller\Layout\Theme\Configuration\ThemeParameterSetConfiguration:
+          name: banana
+          title: BANANA!
+          locked: false
+          values:
+            fontColor: yellow
+    layouts:
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: root
+          title: Root Layout
+          filename: root.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: child
+          title: Child Layout
+          filename: child.html.twig
+          

@@ -95,7 +95,7 @@ class SearchController extends BlockController
 
 				$totalPages = ceil($results->getTotalResultCount() / $configuration->resultsPerPage);
 				$response->assign('resultsPerPage', $configuration->resultsPerPage);
-				$response->assign('searchResults', $results->getItems());
+				$response->assign('searchResults', $results->getParameters());
 				$response->assign('pages', range(1, $totalPages));
 				$response->assign('pageCount', $totalPages);
 				$response->assign('resultCount', $results->getTotalResultCount());

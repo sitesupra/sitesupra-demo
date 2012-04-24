@@ -22,10 +22,10 @@ class TwigProcessor extends HtmlProcessor
 	 */
 	protected function getContent($layoutSrc)
 	{
-		$themeProvider = ObjectRepository::getThemeProvider($this);
+//		$themeProvider = ObjectRepository::getThemeProvider($this);
 		
-		$theme = $themeProvider->getCurrentTheme();
-		parent::setLayoutDir($theme->getLayoutRoot());
+//		$theme = $themeProvider->getCurrentTheme();
+//		parent::setLayoutDir($theme->getLayoutRoot());
 
 		$twig = ObjectRepository::getTemplateParser($this);
 		/* @var $twig Twig */
@@ -44,7 +44,7 @@ class TwigProcessor extends HtmlProcessor
 			$helper->setResponseContext(new ResponseContext());
 		}
 
-		$helper->setTheme($theme);
+		//$helper->setTheme($theme);
 
 		$twig->addGlobal('supra', $helper);
 

@@ -8,34 +8,23 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 
 /**
  * @Entity 
- * @Table(indexes={
- * 		@index(name="themeName_idx", columns={"themeName"}),
- * 		@index(name="themeNameSetName_idx", columns={"themeName", "setName"})
- * })
+ * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_in_set_idx", columns={"parameterName", "set_id"})}))
  */
 class ThemeParameterValue extends Database\Entity
 {
 
-	const SET_NAME_ACTIVE = 'active';
-	const SET_NAME_PREVIEW = 'preview';
+	/**
+	 * @ManyToOne(targetEntity="ThemeParameterSet", inversedBy="values")
+	 * @JoinColumn(name="set_id", referencedColumnName="id")
+	 * @var ThemeParameterSet
+	 */
+	protected $set;
 
 	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
-	protected $themeName;
-
-	/**
-	 * @Column(type="string")
-	 * @var string
-	 */
-	protected $setName = self::SET_NAME_ACTIVE;
-
-	/**
-	 * @Column(type="string")
-	 * @var string
-	 */
-	protected $name;
+	protected $parameterName;
 
 	/**
 	 * @Column(type="string", nullable=true)
@@ -43,86 +32,87 @@ class ThemeParameterValue extends Database\Entity
 	 */
 	protected $value;
 
-	/**
-	 * @var string
-	 */
-	protected $defaultValue;
-	
-	/**
-	 *
-	 * @var ThemeParameterConfiguration
-	 */
-	protected $configuration;
-
 	public function __clone()
 	{
 		$this->regenerateId();
 	}
 
-	public function getThemeName()
+	/**
+	 * @return ThemeParameterSet
+	 */
+	public function getSet()
 	{
-		return $this->themeName;
+		return $this->set;
 	}
 
-	public function setThemeName($themeName)
+	/**
+	 * @param ThemeParameterSet $set 
+	 */
+	public function setSet(ThemeParameterSet $set = null)
 	{
-		$this->themeName = $themeName;
+		$this->set = $set;
 	}
 
-	public function getSetName()
+	/**
+	 * @return string
+	 */
+	public function getParameterName()
 	{
-		return $this->setName;
+		return $this->parameterName;
 	}
 
-	public function setSetName($setName)
+	/**
+	 * @param string $parameterName 
+	 */
+	public function setParameterName($parameterName)
 	{
-		if ( ! in_array($setName, array(self::SET_NAME_ACTIVE, self::SET_NAME_PREVIEW))) {
-			throw new Exception\RuntimeException('Theme parameter set name "' . $setName . '" is not recignized. Use SET_NAME_* constants from ' . __CLASS__);
-		}
-
-		$this->setName = $setName;
+		$this->parameterName = $parameterName;
 	}
 
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
-
+	/**
+	 * @return string
+	 */
 	public function getValue()
 	{
 		return $this->value;
 	}
 
+	/**
+	 * @param string $value 
+	 */
 	public function setValue($value)
 	{
 		$this->value = $value;
 	}
 
-	public function getDefaultValue()
+	/**
+	 * @return string
+	 */
+	public function getOutputValue()
 	{
-		return $this->defaultValue;
+		return $this->getValue();
 	}
 
-	public function setDefaultValue($defaultValue)
+	/**
+	 * @return ThemeParameter
+	 */
+	public function getParameter()
 	{
-		$this->defaultValue = $defaultValue;
-	}
-	
-	public function getConfiguration()
-	{
-		return $this->configuration;
-	}
+		if (empty($this->parameter)) {
 
-	public function setConfiguration($configuration)
-	{
-		$this->configuration = $configuration;
+			$set = $this->getSet();
+
+			$theme = $set->getTheme();
+
+			$parameters = $theme->getParameters();
+
+			if ( ! empty($parameters[$this->getParameterName()])) {
+
+				$this->parameter = $parameters[$this->getParameterName()];
+			}
+		}
+
+		return $this->parameter;
 	}
-
-
 
 }

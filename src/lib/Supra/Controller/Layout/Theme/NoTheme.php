@@ -72,4 +72,19 @@ class NoTheme implements ThemeInterface
 		throw new Exception\RuntimeException('Not implemented.');
 	}
 
+	public function getCurrentParameterOutputValues()
+	{
+		
+	}
+
+	public function getLayoutsDirectory()
+	{
+		
+	}
+
+	public function setCurrentParameterSet(ThemeParameterSet $parameterSet)
+	{
+		
+	}
+
 }

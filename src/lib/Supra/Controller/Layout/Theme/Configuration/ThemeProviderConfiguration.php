@@ -9,33 +9,37 @@ use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 class ThemeProviderConfiguration implements ConfigurationInterface
 {
 
+	/**
+	 * @var boolean
+	 */
 	public $isDefault;
+
+	/**
+	 * @var string
+	 */
 	public $class;
-	public $themes;
-	public $assetsPath;
+
+	/**
+	 * @var string
+	 */
+	public $rootDirectory;
 
 	public function configure()
 	{
 		$provider = new $this->class();
-		/* @var $provider ThemeProviderAbstraction */
+
+		$directory = SUPRA_PATH . DIRECTORY_SEPARATOR . $this->rootDirectory;
+
+		if ( ! file_exists($directory)) {
+			throw new Exception\RuntimeException('Theme provider root directory "' . $directory . '" does not exist.');
+		}
+
+		$provider->setRootDir($directory);
 
 		if ($this->isDefault) {
 			ObjectRepository::setDefaultThemeProvider($provider);
 		} else {
 			ObjectRepository::setThemeProvider($this->namespace, $provider);
-		}
-
-		foreach ($this->themes as $themeConfiguration) {
-
-			/* @var $themeConfiguration ThemeConfiguration */
-
-			$themeConfiguration->configure();
-
-			$theme = $themeConfiguration->getTheme();
-			
-			$theme->setAssetsPath($this->assetsPath);
-
-			$provider->addTheme($theme);
 		}
 	}
 
