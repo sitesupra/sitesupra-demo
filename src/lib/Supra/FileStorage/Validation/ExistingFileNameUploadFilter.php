@@ -16,7 +16,7 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 	 * Shared validation function
 	 * @param File $file
 	 */
-	public function validate(File $entity, $typeName)
+	public function validate(File $entity, $typeName, $sourceFilePath = null)
 	{
 		$siblings = $entity->getSiblings();
 		$creatingFilename = $entity->getFileName();

@@ -13,6 +13,7 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Doctrine\ORM\Query;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 /**
  * Page controller request
@@ -473,6 +474,31 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
+			
+			// Shared block properties
+			$class = $block->getComponentClass();
+			$configuration = ObjectRepository::getComponentConfiguration($class);
+			
+			$shares = array();
+			
+			if ($configuration instanceof BlockControllerConfiguration) {
+				foreach ($configuration->properties as $property) {
+					/* @var $property BlockPropertyConfiguration */
+					if ($property->shared) {
+						
+						$shares[] = array(
+							'block_id' => $blockId,
+							'property_name' => $property->name,
+							'property_editable' => $property->editable,
+						);
+						
+					}
+				}
+			}
+			
+			if ( ! empty($shares)) {
+				// TODO: some magic to find the original properties
+			}
 		}
 
 		// Stop if no blocks required to load the properties
@@ -555,6 +581,8 @@ abstract class PageRequest extends HttpRequest
 				$query = $qb->getQuery();
 				$this->prepareQueryResultCache($query);
 				$localizations = $query->getResult();
+				
+				$localizationIds = array();
 				
 				foreach($localizations as $pageLocalization) {
 					$entityData = $em->getUnitOfWork()

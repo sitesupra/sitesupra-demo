@@ -17,11 +17,15 @@ $extensionFilter->addItems(
 $fileNameFilter = new Supra\FileStorage\Validation\FileNameUploadFilter();
 
 $existingFileNameFilter = new Supra\FileStorage\Validation\ExistingFileNameUploadFilter();
+$imageSizeFilter =  new Supra\FileStorage\Validation\ImageSizeUploadFilter();
 
 // file filters
 $fileStorage->addFileUploadFilter($extensionFilter);
 $fileStorage->addFileUploadFilter($fileNameFilter);
 $fileStorage->addFileUploadFilter($existingFileNameFilter);
+
+// image filter: image resizing required amount memory filter
+$fileStorage->addFileUploadFilter($imageSizeFilter);
 
 // folder filters
 $fileStorage->addFolderUploadFilter($fileNameFilter);

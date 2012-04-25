@@ -194,6 +194,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				html = html.replace(/(<a [^>]+>)\s/g, ' $1');
 				html = html.replace(/\s(<\/a[^>]*>)/g, '$1 ');
 				
+				//Moves <BR> outside <A> tags
+				html = html.replace(/<br\s*\/?>\s*(<\/a[^>]*>)/gi, ' $1<br />');
+				
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
 				
