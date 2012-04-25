@@ -265,17 +265,10 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		}
 	}
 	
-	/**
-	 * Doctrine safe clone method with cloning of children
-	 */
-//	public function __clone()
-//	{
-//		if ( ! empty($this->id)) {
-//			$this->regenerateId();
-//			$this->block = null;
-//			$this->localization = null;
-//		}
-//	}
+	public function overrideMetadataCollection(Collections\ArrayCollection $collection)
+	{
+		$this->metadata = $collection;
+	}
 	
 	public function getOwner()
 	{

@@ -82,8 +82,17 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'_templatesLoading': false,
 		
+		/**
+		 * Fetched layouts
+		 * 
+		 * @type {Array}
+		 * @private
+		 */
+		
+		'_layouts': null,
 		
 		
+	
 		/**
 		 * ------------------------------ PRIVATE ------------------------------
 		 */
@@ -462,7 +471,31 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					'complete': this._loadTemplatesComplete
 				}
 			});
+			
+			this._loadLayouts();
 		},
+		
+		'_loadLayouts': function () {
+			var layoutsPath = Supra.Manager.Page.getDataPath('layouts');
+					
+			// Fetching all layouts from database
+			Supra.io(layoutsPath, {
+				'method': 'get',
+				'context': this,
+				'on': {
+					'success': function (data) {
+						var fetchedDataCount = data.length;
+
+						if(fetchedDataCount != 0) {
+							this._layouts = data;
+							var select_layout_title = SU.Intl.get(['settings', 'select_layout']);
+							this._layouts.unshift({id:'', title: select_layout_title});
+						}
+					}
+				}
+			});
+		},
+		
 		
 		/**
 		 * Templates finished loading
@@ -554,11 +587,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				path_regex = null,
 				index = 0,
 				is_tree_node = node.isInstanceOf('TreeNode'),
-				is_row_node = node.isInstanceOf('DataGridRow');
+				is_row_node = node.isInstanceOf('DataGridRow'),
+				layoutInput = form.getInput('layout');
+				
+			layoutInput.set('showEmptyValue', false);
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 				form.getInput('template').set('visible', true);
 				
 				if (node.get('root')) {
@@ -577,16 +613,32 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				
 				//Only for root template user can set layout
 				if (node.get('root')) {
-					form.getInput('layout').set('visible', true);
+						if(this._layouts.lenght == 0) {
+							// throwing an error message
+							Supra.Manager.executeAction('Confirmation', {
+								'message': SU.Intl.get(['error', 'no_layouts']),
+								'buttons': [{
+									'id': 'ok', 
+									'label': 'Ok'
+								}]
+							});
+
+							// removing layout node
+							form.getInput('layout').hide();
+						} else {
+							layoutInput.set('values', this._layouts);
+							layoutInput.set('visible', true);
+						}
+						
 				} else {
-					form.getInput('layout').set('visible', false);
+					layoutInput.set('visible', false);
 				}
 			}
 			
 			if (data.type == 'group') {
 				form.getInput('path').set('visible', false);
 				form.getInput('template').set('visible', false);
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings

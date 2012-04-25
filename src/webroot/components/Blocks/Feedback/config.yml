@@ -1,7 +1,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Feedback form
     groupId: system
-    controllerClass: Project\Blocks\Feedback\FeedbackBlock
+    class: Project\Blocks\Feedback\FeedbackBlock
     description: Feedback form
     cmsClassname: Editable
     icon: icon.png

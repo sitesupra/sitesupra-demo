@@ -167,12 +167,12 @@ class FileStorage
 	 * Validates against filters
 	 * @param Entity\File $file
 	 */
-	private function validateFileUpload(Entity\File $file)
+	public function validateFileUpload(Entity\File $file, $sourceFilePath)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
 			/* @var $filter Validation\FileValidationInterface */
-			$filter->validateFile($file);
+			$filter->validateFile($file, $sourceFilePath);
 		}
 	}
 	
@@ -184,7 +184,7 @@ class FileStorage
 	 */
 	public function storeFileData(Entity\File $file, $sourceFilePath)
 	{
-		$this->validateFileUpload($file);
+		$this->validateFileUpload($file, $sourceFilePath);
 
 		$this->createBothFoldersInFileSystem($file);
 
@@ -957,7 +957,8 @@ class FileStorage
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 		
-		$this->validateFileUpload($fileEntity);
+		// This must be call before removing the old file
+		$this->validateFileUpload($fileEntity, $file['tmp_name']);
 		
 		$this->removeFileInFileSystem($originalFile);
 

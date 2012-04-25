@@ -25,6 +25,7 @@ use Supra\Locale\Locale;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 /**
  * 
@@ -318,10 +319,10 @@ class PageAction extends PageManagerAction
 			foreach ($blockSubset as $block) {
 
 				$controller = $block->createController();
+				$configuration = $controller->getConfiguration();
 
 				if ($controller instanceof BrokenBlockController) {
-					$componentName = $controller->getConfiguration()
-							->controllerClass;
+					$componentName = $configuration->class;
 					$block->setComponentName($componentName);
 				}
 
@@ -335,9 +336,13 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$editables = (array) $controller->getPropertyDefinition();
+				$propertyDefinition = $configuration->properties;
 
-				foreach ($editables as $propertyName => $editable) {
+				foreach ($propertyDefinition as $property) {
+					
+					/* @var $property BlockPropertyConfiguration */
+					$propertyName = $property->name;
+					
 					$blockProperty = $controller->getProperty($propertyName);
 
 					if ($page->isBlockPropertyEditable($blockProperty)) {
@@ -725,6 +730,13 @@ class PageAction extends PageManagerAction
 		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}
+		
+		$master = $localization->getMaster();
+		
+		// workaround for wrong master page
+		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
+				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
+		$localization->overrideMaster($auditMasterPage);
 
 		$controller = $this->getPageController();
 
@@ -848,6 +860,14 @@ class PageAction extends PageManagerAction
 		}
 	}
 	
+	/**
+	 * Returns all layouts
+	 */
+	public function layoutsAction()
+	{
+		$this->getResponse()->setResponseData($this->getLayouts());
+	}
+
 	protected function getLayouts()
 	{
 		$layouts = array();

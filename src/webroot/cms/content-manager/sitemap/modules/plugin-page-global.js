@@ -129,10 +129,9 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		'_bindEventListeners': function () {
 			//Inputs
 			var widgets = this._widgets,
-				inputs = widgets.form.getInputs(),
-				id = null;
+				inputs = widgets.form.getInputs();
 			
-			//@TODO ???
+			inputs['locale'].on('valueChange', this._fillLocaleData, this);
 		},
 		
 		/**
@@ -401,6 +400,12 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				languages = null,
 				k = 0, kk = 0;
 			
+			// Reset data
+			form.getInput('title').set('value', '');
+			form.getInput('title').set('originalValue', '');
+			form.getInput('path').set('value', '');
+			form.getInput('path').set('originalValue', '');
+			
 			//Find titles for locales
 			for(l=0; l<ll; l++) {
 				languages = contexts[l].languages;
@@ -435,12 +440,6 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_template_label_title']));
 				form.getInput('path').set('visible', false);
 			}
-			
-			form.getInput('title').set('value', '');
-			form.getInput('path').set('value', '');
-			
-			input.on('valueChange', this._fillLocaleData, this);
-			this._fillLocaleData({'newVal': default_value});
 		},
 		
 		/**

@@ -12,6 +12,8 @@ use Supra\Log\Writer\WriterAbstraction;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Doctrine\ORM\Query;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 /**
  * Page controller request
@@ -448,32 +450,19 @@ abstract class PageRequest extends HttpRequest
 			/* @var $block Entity\Abstraction\Block */
 
 			$blockId = $block->getId();
-			
+
+			// Skip if the block response is read from the cache already
 			if (in_array($blockId, $this->skipBlockPropertyLoading)) {
 				continue;
 			}
 			
-			$master = null;
+			$data = null;
 
 			if ($block->getLocked()) {
-				$master = $block->getPlaceHolder()
-						->getMaster()
+				$data = $block->getPlaceHolder()
 						->getMaster();
-				
-				$data = $master->getLocalization($this->locale);
-			}
-			else {
-				//$master = $page;
+			} else {
 				$data = $this->getPageLocalization();
-			}
-
-			//\Log::debug("Master node for {$block} is found - {$master}");
-
-			// FIXME: n+1 problem
-			if (empty($data)) {
-				\Log::warn("The data record has not been found for page {$master} locale {$this->locale}, will not fill block parameters");
-				$blockSet->removeInvalidBlock($block, "Page data for locale not found");
-				continue;
 			}
 
 			$dataId = $data->getId();
@@ -485,10 +474,34 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
-			// \Log::debug("Have generated condition for properties fetch for block $block");
+			
+			// Shared block properties
+			$class = $block->getComponentClass();
+			$configuration = ObjectRepository::getComponentConfiguration($class);
+			
+			$shares = array();
+			
+			if ($configuration instanceof BlockControllerConfiguration) {
+				foreach ($configuration->properties as $property) {
+					/* @var $property BlockPropertyConfiguration */
+					if ($property->shared) {
+						
+						$shares[] = array(
+							'block_id' => $blockId,
+							'property_name' => $property->name,
+							'property_editable' => $property->editable,
+						);
+						
+					}
+				}
+			}
+			
+			if ( ! empty($shares)) {
+				// TODO: some magic to find the original properties
+			}
 		}
 
-		// Stop if no propereties were found
+		// Stop if no blocks required to load the properties
 		if ($cnt == 0) {
 			return $this->blockPropertySet;
 		}
@@ -568,6 +581,8 @@ abstract class PageRequest extends HttpRequest
 				$query = $qb->getQuery();
 				$this->prepareQueryResultCache($query);
 				$localizations = $query->getResult();
+				
+				$localizationIds = array();
 				
 				foreach($localizations as $pageLocalization) {
 					$entityData = $em->getUnitOfWork()

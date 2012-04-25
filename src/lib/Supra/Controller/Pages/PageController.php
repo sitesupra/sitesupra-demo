@@ -272,8 +272,7 @@ class PageController extends ControllerAbstraction
 				use ($self, $localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request) {
 
 					$blockClass = $block->getComponentClass();
-					$blockCollection = BlockControllerCollection::getInstance();
-					$configuration = $blockCollection->getBlockConfiguration($blockClass);
+					$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 					$blockCache = $configuration->cache;
 
 					if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {

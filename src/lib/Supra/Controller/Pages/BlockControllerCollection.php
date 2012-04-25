@@ -1,20 +1,17 @@
 <?php
 
-/**
- * Collection of blocks and block groups
- *
- * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
- */
-
 namespace Supra\Controller\Pages;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration;
 use Supra\Loader\Loader;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
- * Singleton storing all block configuration
+ * Singleton storing collection if block configuration and block groups
+ *
+ * @author Dmitry Polovka <dmitry.polovka@videinfra.com>
  */
 class BlockControllerCollection
 {
@@ -52,22 +49,11 @@ class BlockControllerCollection
 	}
 
 	/**
-	 * @param string $blockId
-	 * @return BlockControllerConfiguration 
-	 */
-	public function getBlockConfiguration($blockId)
-	{
-		$blockId = str_replace('\\', '_', $blockId);
-
-		return $this->configuration['blocks'][$blockId];
-	}
-
-	/**
 	 * @param BlockControllerConfiguration $configuration 
 	 */
 	public function addBlockConfiguration(BlockControllerConfiguration $configuration)
 	{
-		$blockId = str_replace('\\', '_', $configuration->id);
+		$blockId = $configuration->id;
 
 		$this->configuration['blocks'][$blockId] = $configuration;
 	}
@@ -106,19 +92,18 @@ class BlockControllerCollection
 	}
 
 	/**
-	 * @param string $controllerClass
+	 * @param string $blockId
 	 * @return BlockController 
 	 */
 	public function getBlockController($blockId)
 	{
-		$configuration = $this->getBlockConfiguration($blockId);
-		$controllerClass = $configuration->controllerClass;
+		$configuration = ObjectRepository::getComponentConfiguration($blockId);
 
-		if ( ! Loader::classExists($controllerClass)) {
-			$configuration = $this->getBlockConfiguration(BrokenBlockController::BLOCK_NAME);
-			$controllerClass = $configuration->controllerClass;
+		if ( ! Loader::classExists($configuration->class)) {
+			$configuration = ObjectRepository::getComponentConfiguration(BrokenBlockController::BLOCK_NAME);
 		}
 		
+		$controllerClass = $configuration->class;
 		$controller = null;
 
 		try {
@@ -127,7 +112,7 @@ class BlockControllerCollection
 			$controller->setConfiguration($configuration);
 		} catch (\Exception $e) {
 			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
-			$controller = Loader::getClassInstance($controllerClass);
+			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
 			/* @var $controller BlockController */
 			$controller->exception = $e;
 			$controller->setConfiguration($configuration);

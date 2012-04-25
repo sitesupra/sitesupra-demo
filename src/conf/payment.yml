@@ -39,9 +39,8 @@
                      
                      
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Payment\Transact\TransactDataForm
+    class: Project\Payment\Transact\TransactDataForm
     title: Transact Form
     groupId: system
     description: It's a Transact Form.
     cmsClassname: Editable
-

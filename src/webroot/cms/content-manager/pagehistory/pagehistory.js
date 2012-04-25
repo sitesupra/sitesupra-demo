@@ -287,6 +287,7 @@ SU('anim', function (Y) {
 				return a.sort < b.sort ? 1 : -1;
 			});
 			
+			console.log(data);
 			return data;
 		},
 		
@@ -331,7 +332,7 @@ SU('anim', function (Y) {
 			}
 			else if (raw.getTime() >= month.getTime())
 			{
-				out.group = YDate.reformat(raw, 'raw', '%Y-%m-99');
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
 				out.group_title = Supra.Intl.get(['history', 'this_month']);
 				out.group_datetime = raw.getDate();
 			}

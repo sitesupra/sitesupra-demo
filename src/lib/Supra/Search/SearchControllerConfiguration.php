@@ -22,11 +22,6 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	public $resultsPerPage = 10;
 
 	/**
-	 * @var string
-	 */
-	public $controllerClass;
-	
-	/**
 	 * Whether to use the controller location to search for templates or use 
 	 * system template directory.
 	 * @var boolean
@@ -38,8 +33,8 @@ class SearchControllerConfiguration extends BlockControllerConfiguration
 	 */
 	public function configure()
 	{
-		if (empty($this->controllerClass)) {
-			$this->controllerClass = SearchController::CN();
+		if (empty($this->class)) {
+			$this->class = SearchController::CN();
 			$this->localTemplateDirectory = false;
 		}
 

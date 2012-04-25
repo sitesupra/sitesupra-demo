@@ -18,6 +18,12 @@ class ComponentConfiguration implements ConfigurationInterface
 	 * @var string
 	 */
 	public $id;
+	
+	/**
+	 * Component class
+	 * @var string
+	 */
+	public $class;
 
 	/**
 	 * Component title
@@ -38,6 +44,12 @@ class ComponentConfiguration implements ConfigurationInterface
 	 */
 	public function configure() 
 	{
-		ObjectRepository::setComponentConfiguration($this->id, $this);
+		if (empty($this->id)) {
+			$this->id = $this->class;
+		} elseif (empty($this->class)) {
+			$this->class = $this->id;
+		}
+		
+		ObjectRepository::setComponentConfiguration($this->class, $this);
 	}
 }
