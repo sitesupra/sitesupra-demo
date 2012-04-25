@@ -394,7 +394,7 @@ YUI.add('supra.template-compiler', function (Y) {
 			 * @type {String}
 			 */
 			'default': function (str, val) {
-				return str || val;
+				return str || (val === undefined || val === null ? '' : val);
 			},
 			
 			/**
@@ -425,12 +425,23 @@ YUI.add('supra.template-compiler', function (Y) {
 			 * @return Escaped string
 			 * @type {String} 
 			 */
-			'escape': function (str) {
-				return (''+str).replace(/&/g, '&amp;')
-							   .replace(/</g, '&lt;')
-							   .replace(/>/g, '&gt;')
-							   .replace(/"/g, '&quot;')
-							   .replace(/'/g, '&#39;');
+			'escape': function (str, type) {
+				if (!type || type === 'html') {
+					return (''+str).replace(/&/g, '&amp;')
+								   .replace(/</g, '&lt;')
+								   .replace(/>/g, '&gt;')
+								   .replace(/"/g, '&quot;')
+								   .replace(/'/g, '&#39;');	
+				} else if (type == 'js') {
+					return (''+str).replace(/\\/g, '\\\\')
+								   .replace(/"/g, '\\"')
+								   .replace(/'/g, '\\\'')
+								   .replace(/\r/g, '\\r')
+								   .replace(/\n/g, '\\n')
+								   .replace(/\t/g, '\\t')
+				} else {
+					return str;
+				}
 			},
 			
 			/**

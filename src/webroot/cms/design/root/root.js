@@ -83,7 +83,12 @@ function (Y) {
 		 * Show slide
 		 */
 		slide: function (slide) {
-			this.slideshow.set('slide', slide);
+			if (!this.slideshow.getSlide(slide)) {
+				this.slideshow.hide();
+			} else {
+				this.slideshow.show();
+				this.slideshow.set('slide', slide);
+			}
 		},
 		
 		/**

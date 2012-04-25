@@ -159,9 +159,6 @@ function (Y) {
 			//Render template list
 			this.renderDesignList(data, status);
 			
-			//Update main slideshow
-			Manager.getAction('Root').sync();
-			
 			//Start loading other actions
 			Manager.loadActions(['DesignOverview', 'DesignBar']);
 		},
