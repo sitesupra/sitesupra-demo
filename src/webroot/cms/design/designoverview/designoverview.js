@@ -369,10 +369,11 @@ function (Y) {
 		 * Open design list
 		 */
 		back: function () {
-			this.data = null;
-			
 			Manager.executeAction('DesignList');
+			Manager.getAction('DesignList').fadeIn(this.data.id);
 			Manager.getAction('DesignBar').hide();
+			
+			this.data = null;
 		},
 		
 		/**

@@ -76,6 +76,12 @@ function (Y) {
 		 */
 		nodeLoading: null,
 		
+		/**
+		 * Fade overlay
+		 * @type {Object}
+		 * @private
+		 */
+		nodeFadeOverlay: null,
 		
 		
 		/**
@@ -118,6 +124,23 @@ function (Y) {
 			
 			//On item click open it
 			this.one('.designs ul').delegate('click', this.onItemClick, 'a', this);
+			
+			//Fade overlay
+			this.nodeFadeOverlay = Y.one('div.fade-overlay');
+			
+			//On visibility change show/hide container
+			this.on('visibleChange', function (evt) {
+				var node = this.one().ancestor();
+				if (node && evt.newVal != evt.prevVal) {
+					node.setClass('hidden', !evt.newVal);
+					
+					if (evt.newVal) {
+						this.fire('show');
+					} else {
+						this.fire('hide');
+					}
+				}
+			});
 		},
 		
 		/**
@@ -140,6 +163,9 @@ function (Y) {
 			//Open overview
 			Manager.executeAction('DesignOverview');
 			Manager.executeAction('DesignBar');
+			
+			//Fade out
+			this.fadeOut(target);
 		},
 		
 		/**
@@ -308,6 +334,70 @@ function (Y) {
 			return !!value;
 		},
 		
+		/**
+		 * Fade out
+		 */
+		fadeOut: function (target) {
+			if (target && target.isInstanceOf) {
+				var region	= target.get('region'),
+					node	= this.nodeFadeOverlay,
+					content	= Supra.Manager.Root.one().get('region');
+				
+				node.setStyles({
+					'left': region.left,
+					'top': region.top - 48,
+					'width': region.width,
+					'height': region.height,
+					'opacity': 0.2,
+					'display': 'block'
+				});
+				
+				node.transition({
+					'left': 0,
+					'top': 0,
+					'width': content.width + 'px',
+					'height': content.height + 'px',	//175 == design selector
+					'opacity': 1,
+					'duration': 0.5
+				}, Y.bind(function () {
+					this.nodeFadeOverlay.setStyle('display', 'none');
+					this.set('visible', false);
+				}, this));
+				
+			} else {
+				this.hide();
+			}
+		},
+		
+		/**
+		 * Fade out
+		 */
+		fadeIn: function (id) {
+			var target = this.one('a[data-id="' + id + '"]');
+			
+			this.set('visible', true);
+			
+			if (target) {
+				var region	= target.get('region'),
+					node	= this.nodeFadeOverlay;
+				
+				node.setStyles({
+					'display': 'block'
+				});
+				
+				node.transition({
+					'left': region.left + 'px',
+					'top': region.top - 48 + 'px',
+					'width': region.width + 'px',
+					'height': region.height + 'px',
+					'opacity': 0.2,
+					'duration': 0.5
+				}, Y.bind(function () {
+					this.nodeFadeOverlay.setStyle('display', 'none');
+				}, this));
+				
+			}
+		},
 		
 		/*
 		 * ------------------------------- API --------------------------------
