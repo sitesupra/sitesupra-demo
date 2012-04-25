@@ -167,7 +167,7 @@ class FileStorage
 	 * Validates against filters
 	 * @param Entity\File $file
 	 */
-	public function validateFileUpload(Entity\File $file, $sourceFilePath)
+	public function validateFileUpload(Entity\File $file, $sourceFilePath = null)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
