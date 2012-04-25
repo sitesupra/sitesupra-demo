@@ -7,5 +7,5 @@ use Supra\FileStorage\Entity\File;
 
 interface FileValidationInterface
 {
-	public function validateFile(File $file, $sourceFilePath);
+	public function validateFile(File $file, $sourceFilePath = null);
 }

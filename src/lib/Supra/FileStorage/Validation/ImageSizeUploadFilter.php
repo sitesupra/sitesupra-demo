@@ -25,9 +25,13 @@ class ImageSizeUploadFilter implements FileValidationInterface
 	 * Validates file size
 	 * @param Entity\File $file 
 	 */
-	public function validateFile(Entity\File $file, $sourceFilePath)
+	public function validateFile(Entity\File $file, $sourceFilePath = null)
 	{
 		if ( ! $file instanceof Entity\Image) {
+			return;
+		}
+		
+		if (is_null($sourceFilePath)) {
 			return;
 		}
 		

@@ -23,7 +23,7 @@ abstract class FileFolderSharedValidation implements FileValidationInterface,
 	 * Calls shared validation method
 	 * @param Entity\File $file
 	 */
-	public function validateFile(Entity\File $file, $sourceFilePath)
+	public function validateFile(Entity\File $file, $sourceFilePath = null)
 	{
 		$this->validate($file, self::TYPE_FILE, $sourceFilePath);
 	}
