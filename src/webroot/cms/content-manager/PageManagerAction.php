@@ -1005,13 +1005,17 @@ abstract class PageManagerAction extends CmsAction
 					->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
 			}
 			
-			
+			return $newPage;			
 		};
 		
-		$em->transactional($clonePage);
+		$newPage = $em->transactional($clonePage);
+		$currentLocale = $this->getLocale()
+				->getId();
+		
+		$response = $this->convertPageToArray($newPage, $currentLocale);
 		
 		$this->getResponse()
-				->setResponseData(true);
+				->setResponseData($response);
 	}
 	
 	protected function duplicateGlobal()
@@ -1139,6 +1143,81 @@ abstract class PageManagerAction extends CmsAction
 		
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(CmsPageEventArgs::postPageChange, $eventArgs);
+	}
+	
+	/**
+	 * Helper method for the main sitemap action
+	 * @param Entity\Abstraction\AbstractPage $page
+	 * @param string $locale
+	 * @return array
+	 */
+	protected function convertPageToArray(Entity\Abstraction\AbstractPage $page, $locale)
+	{
+		/* @var $localization Entity\Abstraction\Localization */
+		$localization = null;
+
+		// Must have group localization with ID equal with master because group localizations are not published currently
+		if ($page instanceof Entity\GroupPage) {
+			$localization = $page->createLocalization($locale);
+		} else {
+			$localization = $page->getLocalization($locale);
+		}
+
+		$array = array();
+		$localizationExists = true;
+
+		if (empty($localization)) {
+
+			$localeManager = ObjectRepository::getLocaleManager($this);
+			$localizationExists = false;
+
+			// try to get any localization if page is not localized and is global
+			if ($page->isGlobal()) {
+
+				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
+				// this, i suppose, will be replaced with dialog window with localization selector
+				$localizations = $page->getLocalizations();
+				$localization = $localizations->first();
+
+				// Search for the first created localization by it's ID
+				foreach ($localizations as $_localization) {
+					/* @var $_localization Entity\Abstraction\Localization */
+					if (strcmp($_localization->getId(), $localization->getId()) < 0) {
+						$localeId = $_localization->getLocale();
+
+						if ($localeManager->exists($localeId, false)) {
+							$localization = $_localization;
+						}
+					}
+				}
+
+				// collecting available localizations
+				foreach ($localizations as $_localization) {
+					$localeId = $_localization->getLocale();
+
+					if ($localeManager->exists($localeId, false)) {
+						
+						$data = array('title' => $_localization->getTitle());
+						
+						if ($_localization instanceof Entity\PageLocalization) {
+							$data['path'] = $_localization->getPathPart();
+						}
+						
+						$array['localizations'][$_localization->getLocale()] = $data;
+					}
+				}
+			} else {
+				//FIXME: maybe need to throw exception here?
+				return null;
+			}
+		}
+
+		$nodeData = $this->loadNodeMainData($localization, $localizationExists);
+		if ( ! empty($nodeData)) {
+			$array = array_merge($nodeData, $array);
+		}
+		
+		return $array;
 	}
 	
 }
