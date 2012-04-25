@@ -200,7 +200,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				//On return key create page
 				if (inputs[id].isInstanceOf('input-string'))	{
 					inputs[id].get('inputNode').on('keydown', function (e) {
-						if (e.keyCode == 13) this.createPage();
+						if (e.keyCode == 13) {
+							var input = Y.Widget.getByNode(e.target);
+							this._onPagePropertyChange({"target": input});				
+							
+							this.createPage();
+						}
 					}, this);
 				}
 			}
@@ -495,7 +500,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			});
 		},
-		
 		
 		/**
 		 * Templates finished loading

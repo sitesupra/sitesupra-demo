@@ -287,7 +287,6 @@ SU('anim', function (Y) {
 				return a.sort < b.sort ? 1 : -1;
 			});
 			
-			console.log(data);
 			return data;
 		},
 		
