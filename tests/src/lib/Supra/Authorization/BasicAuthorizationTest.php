@@ -35,10 +35,11 @@ class BasicAuthorizationTest extends \PHPUnit_Framework_TestCase
 		
 		$this->em = ObjectRepository::getEntityManager($this);
 		
-		// ACL model creation
-		try {
-			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
-		} catch (\Exception $e) {}
+		// Should be created by supra schema update task
+//		// ACL model creation
+//		try {
+//			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
+//		} catch (\Exception $e) {}
 		
 		$this->up = ObjectRepository::getUserProvider($this);
 		

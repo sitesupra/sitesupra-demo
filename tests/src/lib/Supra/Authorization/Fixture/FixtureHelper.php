@@ -44,13 +44,14 @@ class FixtureHelper
 		$this->em = ObjectRepository::getEntityManager($this->namespace);
 		$this->up = ObjectRepository::getUserProvider($this->namespace);
 
-		// ACL model drop/create
-		try {
-			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
-		}
-		catch (\Exception $e) {
-			
-		}
+		// Should be created by supra schema update task
+//		// ACL model drop/create
+//		try {
+//			$this->em->getConnection()->getWrappedConnection()->exec(file_get_contents(SUPRA_PATH . '/../database/authorization-mysql.sql'));
+//		}
+//		catch (\Exception $e) {
+//			
+//		}
 
 		$this->ap = ObjectRepository::getAuthorizationProvider($this->namespace);
 	}
