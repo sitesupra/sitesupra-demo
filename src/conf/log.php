@@ -47,7 +47,9 @@ if ($sqlLog) {
 	$sqlWriter->setName('SQL');
 
 	// Info level filter skips SELECT statements
-//	$sqlWriter->addFilter(new Filter\LevelFilter(array('level' => LogEvent::INFO)));
+	if (is_string($sqlLog)) {
+		$sqlWriter->addFilter(new Filter\LevelFilter(array('level' => $sqlLog)));
+	}
 
 	ObjectRepository::setLogger('Supra\Log\Logger\SqlLogger', $sqlWriter);
 }
