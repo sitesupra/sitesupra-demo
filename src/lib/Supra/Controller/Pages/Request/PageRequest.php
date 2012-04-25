@@ -44,7 +44,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * @var string
 	 */
-	private $media = Entity\Layout::MEDIA_SCREEN;
+	private $media = Entity\TemplateLayout::MEDIA_SCREEN;
 
 	/**
 	 * @var Entity\Abstraction\Localization
@@ -62,7 +62,7 @@ abstract class PageRequest extends HttpRequest
 	private $pageSet;
 
 	/**
-	 * @var Entity\Layout
+	 * @var Entity\ThemeLayout
 	 */
 	private $layout;
 
@@ -92,7 +92,7 @@ abstract class PageRequest extends HttpRequest
 	 * @param string $locale
 	 * @param string $media
 	 */
-	public function __construct($locale, $media = Entity\Layout::MEDIA_SCREEN)
+	public function __construct($locale, $media = Entity\TemplateLayout::MEDIA_SCREEN)
 	{
 		parent::__construct();
 		
@@ -249,7 +249,7 @@ abstract class PageRequest extends HttpRequest
 	}
 
 	/**
-	 * @return Entity\Layout
+	 * @return Entity\ThemeLayout
 	 */
 	public function getLayout()
 	{

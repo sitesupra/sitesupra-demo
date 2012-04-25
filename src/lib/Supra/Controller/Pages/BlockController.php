@@ -19,6 +19,7 @@ use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
 use Supra\Editable;
 use Supra\Controller\Pages\Exception;
+
 /**
  * Block controller abstraction
  * @method PageRequest getRequest()
@@ -90,22 +91,26 @@ abstract class BlockController extends ControllerAbstraction
 
 			$blockClass = $this->getBlock()->getComponentName();
 			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
-			
-			if ($configuration->unique) {
-				// check for uniqness
-				$blockOutputCount = $this->increaseBlockOutputCount();
 
-				if ($blockOutputCount > 1) {
-					$pageTitle = null;
-					
-					if ($request instanceof PageRequest) {
-						$pageTitle = $request->getPageLocalization()
-								->getTitle();
+			if ( ! empty($configuration)) {
+
+				if ($configuration->unique) {
+					// check for uniqness
+					$blockOutputCount = $this->increaseBlockOutputCount();
+
+					if ($blockOutputCount > 1) {
+						$pageTitle = null;
+
+						if ($request instanceof PageRequest) {
+							$pageTitle = $request->getPageLocalization()
+									->getTitle();
+						}
+
+						throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
 					}
-					
-					throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
 				}
 			}
+
 
 			$this->doPrepare();
 		} catch (\Exception $e) {
@@ -151,7 +156,7 @@ abstract class BlockController extends ControllerAbstraction
 			$className = get_class($this);
 			$file = Loader::getInstance()->findClassPath($className);
 			$this->getResponse()->addResourceFile($file);
-			
+
 			try {
 				$this->doExecute();
 			} catch (\Exception $e) {
@@ -231,11 +236,11 @@ abstract class BlockController extends ControllerAbstraction
 	public function getProperty($name)
 	{
 		$property = null;
-		
+
 		if ($name instanceof Entity\BlockProperty) {
 			$property = $name;
 		} else {
-		
+
 			// Find editable by name
 			$propertyDefinition = $this->configuration->getProperty($name);
 
@@ -284,10 +289,10 @@ abstract class BlockController extends ControllerAbstraction
 				//FIXME: should do somehow easier than that
 				$property->setLocalization($this->getRequest()->getPageLocalization());
 			}
-	//		else {
-	//			//TODO: should we overwrite editable content parameters from the block controller config?
-	//			$property->setEditable($editable);
-	//		}
+			//		else {
+			//			//TODO: should we overwrite editable content parameters from the block controller config?
+			//			$property->setEditable($editable);
+			//		}
 		}
 
 		$editable = $property->getEditable();
@@ -454,7 +459,7 @@ abstract class BlockController extends ControllerAbstraction
 		if ($response instanceof TwigResponse) {
 			$blockClass = $this->getBlock()->getComponentName();
 			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
-			
+
 			$response->cleanOutput();
 			$response->setLoaderContext(__CLASS__);
 			$response->assign('blockName', $configuration->title);
@@ -473,21 +478,21 @@ abstract class BlockController extends ControllerAbstraction
 		$blockClassName = get_class($this);
 		$offset = 'BLOCK_COUNTER_' . $blockClassName;
 		$response = $this->getResponse();
-		
+
 		if ( ! $response instanceof Response\HttpResponse) {
 			return null;
 		}
-		
+
 		$count = 0;
 		$context = $response->getContext();
-		
+
 		if (isset($context[$offset])) {
 			$count = max((int) $context[$offset], 0);
 		}
-		
-		$count++;
+
+		$count ++;
 		$context[$offset] = $count;
-		
+
 		return $count;
 	}
 

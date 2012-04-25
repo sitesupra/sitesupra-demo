@@ -65,12 +65,12 @@ class ThemeParameterSet extends Database\Entity
 	{
 		$values = array();
 
-		foreach ($this->parameters as $parameter) {
-			/* @var $parameter ThemeParameterValue */
+		foreach ($this->values as $value) {
+			/* @var $value ThemeParameterValue */
 
-			$name = $parameter->getName();
+			$name = $value->getParameterName();
 
-			$values[$name] = $parameter->getOutputValue();
+			$values[$name] = $value->getOutputValue();
 		}
 
 		return $values;

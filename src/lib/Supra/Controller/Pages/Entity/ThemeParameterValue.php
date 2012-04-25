@@ -90,7 +90,19 @@ class ThemeParameterValue extends Database\Entity
 	 */
 	public function getOutputValue()
 	{
-		return $this->getValue();
+		$parameter = $this->getParameter();
+
+		$theme = $parameter->getTheme();
+
+		$outputValue = $this->getValue();
+
+		if ($parameter->getType() == 'url') {
+
+			$outputValue = "'" . $theme->getUrlBase() . DIRECTORY_SEPARATOR . $this->getValue() . "'";
+			$outputValue = str_replace('//', '/', $outputValue);
+		}
+
+		return $outputValue;
 	}
 
 	/**

@@ -17,35 +17,7 @@
         class: Supra\Controller\Pages\PageController
 
 - Supra\Controller\Layout\Theme\Configuration\ThemeProviderConfiguration:
-   class: Supra\Controller\Layout\Theme\NewThemeProvider
+   class: Supra\Controller\Layout\Theme\DefaultThemeProvider
    isDefault: true
-   rootDirectory: webroot/themes
-  
-#- Supra\Controller\Layout\Theme\Configuration\ThemeProviderConfiguration:
-#    class: Supra\Controller\Layout\Theme\DefaultThemeProvider
-#    isDefault: true
-#    themes:
-#      - Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
-#          name: nyancat
-#          title: Nyancat Theme
-#          description: NYANCAT IS FOR GREAT JUSTICE!
-#          parameters:
-#           - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration:
-#                name: headerBackgroundUrl
-#                type: url
-#                defaultValue: /resources/themes/nyancat/images/nyancat.gif
-#               description: Soem header bak graund nyancat URL
-#          - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
-#                name: footerBackgroundUrl
-#                defaultValue: /resources/themes/nyancat/images/nyancat.gif
-#                type: url
-#                description: Soem footar bak graund nyancat URL
-#           - Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration: 
-#               name: backgroundColor
-#               defaultValue: "#A0FF80"
-#              type: color
-#               description: Bakground colo!
-#      - Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
-#          name: default
-#          title: Default Theme
-#          description: DEFAULT IS THE BEST!
+   rootDir: webroot/themes
+   urlBase: /themes/

@@ -223,7 +223,7 @@ class TwigSupraGlobal
 	 */
 	public function setTheme(ThemeInterface $theme)
 	{
-		$this->theme = $theme->getCurrentParameterValues();
+		$this->theme = $theme->getCurrentParameterSetOutputValues();
 	}
 
 }

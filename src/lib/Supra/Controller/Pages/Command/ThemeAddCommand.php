@@ -4,7 +4,6 @@ namespace Supra\Controller\Pages\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Layout\Exception\LayoutException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +16,8 @@ use Supra\Controller\Pages\Entity\ThemeLayout;
 use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
 use Supra\Controller\Pages\Entity\ThemeParameterSet;
 use Supra\Controller\Pages\Entity\ThemeParameter;
-use Supra\Controller\Layout\Theme\NewThemeProvider;
+use Supra\Controller\Layout\Theme\ThemeProvider;
+use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Exception;
 
@@ -30,7 +30,7 @@ class ThemeAddCommand extends Command
 	protected $themeProviderNamespace;
 
 	/**
-	 * @var NewThemeProvider
+	 * @var ThemeProvider
 	 */
 	protected $themeProvider;
 
@@ -80,7 +80,7 @@ class ThemeAddCommand extends Command
 	}
 
 	/**
-	 * @return NewThemeProvider
+	 * @return ThemeProviderAbstraction
 	 */
 	public function getThemeProvider()
 	{
@@ -99,9 +99,9 @@ class ThemeAddCommand extends Command
 	}
 
 	/**
-	 * @param NewThemeProvider $themeProvider 
+	 * @param ThemeProviderAbstraction $themeProvider 
 	 */
-	public function setThemeProvider(NewThemeProvider $themeProvider)
+	public function setThemeProvider(ThemeProviderAbstraction $themeProvider)
 	{
 		$this->themeProvider = $themeProvider;
 	}
@@ -137,15 +137,15 @@ class ThemeAddCommand extends Command
 		}
 
 		$theme = $themeProvider->findThemeByName($themeName);
-		
+
 		if (empty($theme)) {
 			$theme = new Theme();
 			$theme->setName($themeName);
 			$themeProvider->setProviderData($theme);
 		}
 
-		$theme->setConfigMd5(md5(file_get_contents($themeConfigurationFilename)));		
-		
+		$theme->setConfigMd5(md5(file_get_contents($themeConfigurationFilename)));
+
 		$yamlParser = new YamlParser();
 		$configurationLoader = new ThemeConfigurationLoader();
 		$configurationLoader->setParser($yamlParser);
@@ -155,6 +155,8 @@ class ThemeAddCommand extends Command
 		$configurationLoader->loadFile($themeConfigurationFilename);
 
 		$themeProvider->storeTheme($theme);
+		
+		$theme->generateCssFiles();
 
 		$output->writeln('Theme "' . $themeName . '" added/updated.');
 	}

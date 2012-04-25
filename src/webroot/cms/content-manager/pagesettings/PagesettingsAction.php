@@ -100,7 +100,11 @@ class PagesettingsAction extends PageManagerAction
 						throw new RuntimeException('Parent layout should be instance of ' . Entity\TemplateLayout::CN() . ' class');
 					}
 
-					$parentLayout = $parentTemplateLayout->getLayout();
+					$parentLayoutName = $parentTemplateLayout->getLayoutName();
+					
+					$theme = $template->getTheme();
+					
+					$parentLayout = $theme->getLayout($parentLayoutName);
 
 					// Remove current layout if any
 					$templateLayout = $template->getTemplateLayouts()
@@ -115,14 +119,14 @@ class PagesettingsAction extends PageManagerAction
 				// Search for provided layout
 				else {
 
-					$layoutId = $input->get('layout');
+					$layoutName = $input->get('layout');
 
-					$layout = $this->entityManager
-							->getRepository(Entity\Layout::CN())
-							->findOneBy(array('file' => $layoutId));
+					$theme = $template->getTheme();
 
-					if ( ! $layout instanceof Entity\Layout) {
-						throw new RuntimeException('Can\'t find layout with file name ' . $layoutId);
+					$layout = $theme->getLayout($layoutName);
+
+					if (empty($layout)) {
+						throw new RuntimeException('Can\'t find layout with name ' . $layoutName);
 					}
 
 					// Remove current layout if any
@@ -135,7 +139,7 @@ class PagesettingsAction extends PageManagerAction
 
 					$templateLayout = $template->addLayout($media, $layout);
 				}
-				
+
 				// Persist the new template layout object (cascade)
 				$this->entityManager->persist($templateLayout);
 			}

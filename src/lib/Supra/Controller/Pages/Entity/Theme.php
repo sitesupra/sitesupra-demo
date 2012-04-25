@@ -4,15 +4,14 @@ namespace Supra\Controller\Pages\Entity;
 
 use Supra\Database;
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Configuration\Parser\YamlParser;
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\ThemeInterface;
+use Supra\Less\SupraLessC;
 
 /**
  * @Entity
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_idx", columns={"name"})}))
  */
-class Theme extends Database\Entity
+class Theme extends Database\Entity implements ThemeInterface
 {
 
 	const PATH_PART_GENERATED_CSS = 'generatedCss';
@@ -188,7 +187,7 @@ class Theme extends Database\Entity
 	/**
 	 * @return string
 	 */
-	protected function getUrlBase()
+	public function getUrlBase()
 	{
 		return $this->providerUrlBase . DIRECTORY_SEPARATOR . $this->getName() . DIRECTORY_SEPARATOR;
 	}
@@ -267,13 +266,17 @@ class Theme extends Database\Entity
 	{
 		$currentParameterSet = $this->getCurrentParameterSet();
 
-		$parameterOutputValues = $currentParameterSet->getOutputValues();
+		$outputValues = $currentParameterSet->getOutputValues();
+		
+		$outputValues['name'] = $this->getName();		
 
-		$parameterOutputValues['cssUrl'] = $this->getCurrentCssUrl();
+		$outputValues['urlBase'] = $this->getUrlBase();
+		
+		$outputValues['generatedCssUrl'] = $this->getCurrentGeneratedCssUrl();
 
-		$parameterOutputValues['name'] = $this->getName();
+		$outputValues['parameterSetName'] = $currentParameterSet->getName();
 
-		return $parameterOutputValues;
+		return $outputValues;
 	}
 
 	public function generateCssFiles()
@@ -289,11 +292,9 @@ class Theme extends Database\Entity
 	 */
 	protected function generateCssFileFromLess(ThemeParameterSet $parameterSet)
 	{
-		$parameterSet = $this->getParameters($parameterSetName);
+		$lessc = new SupraLessC($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.less');
 
-		$lessc = new SupraLessC($this->getLayoutRoot() . DIRECTORY_SEPARATOR . 'theme.less');
-
-		$lessc->setRootDir($this->setRootDir());
+		$lessc->setRootDir($this->getRootDir());
 
 		$values = $parameterSet->getOutputValues();
 
@@ -316,19 +317,6 @@ class Theme extends Database\Entity
 		if ($result === false) {
 			throw new Exception\RuntimeException('Could not write theme CSS file to "' . $cssFilename . '".');
 		}
-	}
-
-	/**
-	 * @param string $parameterSetName
-	 * @throws Execption\RuntimeException 
-	 */
-	protected function generateCssFileFromTemplate($parameterSetName)
-	{
-		$parameters = $this->getParameters($parameterSetName);
-
-		$cssContent = $this->getCssContent($parameters);
-
-		$this->writeToCssFile($parameterSetName, $cssContent);
 	}
 
 	/**
@@ -365,7 +353,7 @@ class Theme extends Database\Entity
 	 */
 	protected function getCurrentGeneratedCssUrl()
 	{
-		return $this->getCssUrl($this->getCurrentParameterSet());
+		return $this->getGeneratedCssUrl($this->getCurrentParameterSet());
 	}
 
 	/**
@@ -373,8 +361,8 @@ class Theme extends Database\Entity
 	 */
 	public function getCurrentParameterSet()
 	{
-		if (emtpy($this->currentParameterSet)) {
-			$this->currentParameterSet = $this->activeParameterSet;
+		if (empty($this->currentParameterSet)) {
+			$this->currentParameterSet = $this->getActiveParameterSet();
 		}
 
 		return $this->currentParameterSet;
@@ -393,6 +381,10 @@ class Theme extends Database\Entity
 	 */
 	public function getActiveParameterSet()
 	{
+		if (empty($this->activeParameterSet)) {
+			$this->activeParameterSet = $this->parameterSets->first();
+		}
+
 		return $this->activeParameterSet;
 	}
 
@@ -474,6 +466,15 @@ class Theme extends Database\Entity
 		$layout->setTheme(null);
 
 		$this->layouts->removeElement($layout);
+	}
+
+	/**
+	 * @param string $layoutName
+	 * @return ThemeLayout
+	 */
+	public function getLayout($layoutName)
+	{
+		return $this->layouts->get($layoutName);
 	}
 
 }

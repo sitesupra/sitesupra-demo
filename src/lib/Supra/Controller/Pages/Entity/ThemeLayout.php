@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Database;
+use Supra\Controller\Layout\Exception;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -140,6 +141,46 @@ class ThemeLayout extends Database\Entity
 		$placeholder->setLayout(null);
 
 		$this->placeholders->removeElement($placeholder);
+	}
+
+	/**
+	 * @return string 
+	 */
+	protected function getFullFilename()
+	{
+		$theme = $this->getTheme();
+
+		$themeLayoutDir = $theme->getLayoutDir();
+
+		$fullFilename = $themeLayoutDir . DIRECTORY_SEPARATOR . $this->getFilename();
+
+		return $fullFilename;
+	}
+
+	/**
+	 * @return string
+	 * @throws Exception\RuntimeException 
+	 */
+	public function getContent()
+	{
+		$fullFilename = $this->getFullFilename();
+
+		if ( ! \file_exists($fullFilename) || ! \is_readable($fullFilename)) {
+			throw new Exception\RuntimeException("Layout file {$fullFilename} is not found
+					or not readable for layout {$this}");
+		}
+
+		$content = \file_get_contents($fullFilename);
+
+		return $content;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPlaceholderNames()
+	{
+		return $this->getPlaceholders()->getKeys();
 	}
 
 }

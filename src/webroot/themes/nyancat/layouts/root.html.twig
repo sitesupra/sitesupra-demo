@@ -10,8 +10,8 @@
 	<meta http-equiv="imagetoolbar" content="no" />
 	{{ supra.responseContext.getLayoutSnippetContents('meta') | raw }}
 	<title>{% block title %}SiteSupra{% endblock %}</title>
-	<link rel="stylesheet" href="/resources/themes/nyancat/css/nyancat.css" type="text/css" />
-	<link rel="stylesheet" href="{{ supra.theme.cssUrl }}" type="text/css" />
+	<link rel="stylesheet" href="{{ supra.theme.urlBase }}css/nyancat.css" type="text/css" />
+	<link rel="stylesheet" href="{{ supra.theme.generatedCssUrl }}" type="text/css" />
 	<link rel="icon" type="image/png" href="/favicon.png" />
 </head>
 <body>

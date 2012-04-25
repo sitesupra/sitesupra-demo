@@ -17,23 +17,27 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
 	/**
+	 * 
+	 */
+	const MEDIA_SCREEN = 'screen';
+	const MEDIA_PRINT = 'print';
+
+	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $media;
 
 	/**
-	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
-	 * @var Layout
-	 */
-	protected $layout;
-
-	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $layoutName;
+
+	/**
+	 * @var ThemeLayout
+	 */
+	protected $layout;
 
 	/**
 	 * @ManyToOne(targetEntity="Template", inversedBy="templateLayouts")
@@ -71,20 +75,42 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	}
 
 	/**
-	 * Set layout
-	 * @param Layout $layout
+	 * @return string
 	 */
-	public function setLayout(Layout $layout)
+	public function getLayoutName()
 	{
+		return $this->layoutName;
+	}
+
+	/**
+	 * @param string $layoutName 
+	 */
+	public function setLayoutName($layoutName)
+	{
+		$this->layoutName = $layoutName;
+	}
+
+	/**
+	 * @param ThemeLayout $layout 
+	 */
+	public function setLayout(ThemeLayout $layout)
+	{
+		$this->layoutName = $layout->getName();
 		$this->layout = $layout;
 	}
 
 	/**
-	 * Get template layout
-	 * @return Layout
+	 * @return ThemeLayout
 	 */
 	public function getLayout()
 	{
+		if (empty($this->layout)) {
+
+			$templateTheme = $this->getTemplate()->getTheme();
+
+			$this->layout = $templateTheme->getLayout($this->getLayoutName());
+		}
+
 		return $this->layout;
 	}
 

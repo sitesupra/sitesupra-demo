@@ -39,10 +39,14 @@
     layouts:
       - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
           name: root
-          title: Root Layout !!!!
+          title: Root Layout
           filename: root.html.twig
       - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
           name: child
           title: Child Layout
           filename: child.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: banana
+          title: Banana Layout
+          filename: banana.html.twig
           

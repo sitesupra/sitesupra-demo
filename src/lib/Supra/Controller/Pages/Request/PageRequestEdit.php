@@ -55,7 +55,7 @@ class PageRequestEdit extends PageRequest
 	 * @param string $media
 	 * @return PageRequestEdit
 	 */
-	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\Layout::MEDIA_SCREEN)
+	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\TemplateLayout::MEDIA_SCREEN)
 	{
 		$locale = $localization->getLocale();
 		$instance = null;

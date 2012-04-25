@@ -4,7 +4,6 @@ namespace Supra\Controller\Pages\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Layout\Exception\LayoutException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,9 +16,10 @@ use Supra\Controller\Pages\Entity\ThemeLayout;
 use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
 use Supra\Controller\Pages\Entity\ThemeParameterSet;
 use Supra\Controller\Pages\Entity\ThemeParameter;
-use Supra\Controller\Layout\Theme\NewThemeProvider;
+use Supra\Controller\Layout\Theme\ThemeProvider;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Exception;
+use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 
 class ThemeRemoveCommand extends Command
 {
@@ -30,7 +30,7 @@ class ThemeRemoveCommand extends Command
 	protected $themeProviderNamespace;
 
 	/**
-	 * @var NewThemeProvider
+	 * @var ThemeProviderAbstraction
 	 */
 	protected $themeProvider;
 
@@ -80,7 +80,7 @@ class ThemeRemoveCommand extends Command
 	}
 
 	/**
-	 * @return NewThemeProvider
+	 * @return ThemeProviderAbstraction
 	 */
 	public function getThemeProvider()
 	{
@@ -99,9 +99,9 @@ class ThemeRemoveCommand extends Command
 	}
 
 	/**
-	 * @param NewThemeProvider $themeProvider 
+	 * @param ThemeProviderAbstraction $themeProvider 
 	 */
-	public function setThemeProvider(NewThemeProvider $themeProvider)
+	public function setThemeProvider(ThemeProvider $themeProvider)
 	{
 		$this->themeProvider = $themeProvider;
 	}

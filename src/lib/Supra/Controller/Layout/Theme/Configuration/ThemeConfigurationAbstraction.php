@@ -8,7 +8,7 @@ use Supra\Configuration\Exception;
 use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
-use Supra\Controller\Layout\Theme\NewThemeProvider;
+use Supra\Controller\Layout\Theme\ThemeProvider;
 
 abstract class ThemeConfigurationAbstraction implements ConfigurationInterface, LoaderRequestingConfigurationInterface
 {
@@ -48,7 +48,7 @@ abstract class ThemeConfigurationAbstraction implements ConfigurationInterface, 
 	}
 
 	/**
-	 *  @return NewThemeProvider
+	 *  @return ThemeProvider
 	 */
 	protected function getThemeProvider()
 	{

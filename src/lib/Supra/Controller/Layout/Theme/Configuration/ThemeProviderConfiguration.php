@@ -22,19 +22,31 @@ class ThemeProviderConfiguration implements ConfigurationInterface
 	/**
 	 * @var string
 	 */
-	public $rootDirectory;
+	public $rootDir;
+
+	/**
+	 * @var string
+	 */
+	public $urlBase;
+
+	/**
+	 * @var string
+	 */
+	public $namespace;
 
 	public function configure()
 	{
 		$provider = new $this->class();
 
-		$directory = SUPRA_PATH . DIRECTORY_SEPARATOR . $this->rootDirectory;
+		$directory = SUPRA_PATH . DIRECTORY_SEPARATOR . $this->rootDir;
 
 		if ( ! file_exists($directory)) {
 			throw new Exception\RuntimeException('Theme provider root directory "' . $directory . '" does not exist.');
 		}
 
 		$provider->setRootDir($directory);
+
+		$provider->setUrlBase($this->urlBase);
 
 		if ($this->isDefault) {
 			ObjectRepository::setDefaultThemeProvider($provider);

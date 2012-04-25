@@ -12,48 +12,16 @@ class NoThemeProvider extends ThemeProviderAbstraction
 	 */
 	protected $noTheme;
 
-	function __construct()
-	{
-		$this->noTheme = new NoTheme();
-	}
-
-	/**
-	 * @return NoTheme
-	 */
-	public function getActiveTheme()
-	{
-		return $this->noTheme;
-	}
-
-	/**
-	 * @param ThemeInterface $theme
-	 * @throws Exception\RuntimeException 
-	 */
-	public function setActiveTheme(ThemeInterface $theme)
-	{
-		throw new Exception\RuntimeException('Not implemented.');
-	}
-
-	/**
-	 * @param ThemeInterface $theme
-	 * @throws Exception\RuntimeException 
-	 */
-	public function storeThemeParameters(ThemeInterface $theme)
-	{
-		throw new Exception\RuntimeException('Not implemented.');
-	}
-
 	/**
 	 * @return NoTheme
 	 */
 	public function getCurrentTheme()
 	{
-		return $this->noTheme;
-	}
+		if (empty($this->noTheme)) {
+			$this->noTheme = new NoTheme();
+		}
 
-	public function setCurrentTheme(ThemeInterface $theme)
-	{
-		throw new Exception\RuntimeException('Not implemented.');
+		return $this->noTheme;
 	}
 
 }
