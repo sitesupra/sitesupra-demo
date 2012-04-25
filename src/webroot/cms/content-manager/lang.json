@@ -91,7 +91,7 @@
 			"inserttable": "Table",
 			"source": "Source",
 			"fullscreen": "Fullscreen",
-			"settings": "Settings",
+			"settings": "Block settings",
 			
 			"bold": "Bold",
 			"italic": "Italic",
@@ -164,7 +164,7 @@
 			"title_page": "Page settings",
 			"title_template": "Template settings",
 			
-			"button": "Settings",
+			"button": "Page settings",
 			
 			"page_title": "Page title",
 			"page_title_template": "Template title",

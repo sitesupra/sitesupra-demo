@@ -40,12 +40,6 @@ Supra(function (Y) {
 				'action': 'PageHistory'
 			},
 			{
-				'id': 'settings',
-				'title': SU.Intl.get(['settings', 'button']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
-				'action': 'PageSettings'
-			},
-			{
 				'id': 'blocksview',
 				'title': SU.Intl.get(['blocks', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-blocks.png',
@@ -58,6 +52,12 @@ Supra(function (Y) {
 				'icon': '/cms/lib/supra/img/toolbar/icon-placeholders.png',
 				'action': 'BlocksView',
 				'actionFunction': 'setType'
+			},
+			{
+				'id': 'settings',
+				'title': SU.Intl.get(['settings', 'button']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
+				'action': 'PageSettings'
 			}
 		]
 	};

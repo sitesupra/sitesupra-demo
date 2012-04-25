@@ -14,11 +14,11 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 					{"id": "inserttable", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
 					{"type": "separator"},
-					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"},
-					{"type": "separator"},
 					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
 					{"type": "separator"},
-					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"}
+					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
+					{"type": "separator"},
+					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]
 			},
 			{
