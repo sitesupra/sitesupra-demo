@@ -373,20 +373,26 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 					data
 				);
 				
+				var duplicatedNode = null;
+				
 				if (node.get('root')) {
 					node.expand();
 					if (node.size()) {
 						//As first child
-						this.get('host').insert(data, node.item(0), 'before');
+						duplicatedNode = this.get('host').insert(data, node.item(0), 'before');
 					} else {
 						//Append
-						this.get('host').insert(data, node, 'inside');
+						 duplicatedNode = this.get('host').insert(data, node, 'inside');
 					}
 				} else {
 					//Insert after
-					this.get('host').insert(data, node, 'after');
+					duplicatedNode = this.get('host').insert(data, node, 'after');
 				}
 			}
+			
+			// skip permissions loading, assume, that if user has rights to clone page,
+			// then he has rights to edit cloned instance of page
+			duplicatedNode.set('selectable', true);
 			
 			this._widgets.form.set('disabled', false);
 			this._widgets.buttonDelete.set('disabled', false);
