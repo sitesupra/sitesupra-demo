@@ -39,6 +39,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
 					{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
 					{"type": "separator"},
+					{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
+					{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
+					{"type": "separator"},
 					{"id": "type", "type": "dropdown", "command": "type"},
 					{"id": "style", "type": "dropdown", "command": "style"}
 				]

@@ -29,6 +29,14 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 				var res = this.htmleditor.get('doc').execCommand(this.commands[command], false, null);
 				this.htmleditor._changed();
 				return res;
+			} else if (command == 'indent') {
+				var res = this.htmleditor.get('doc').execCommand('indent', false, null);
+				this.htmleditor._changed();
+				return res;
+			} else if (command == 'outdent') {
+				var res = this.htmleditor.get('doc').execCommand('outdent', false, null);
+				this.htmleditor._changed();
+				return res;
 			} else {
 				return false;
 			}
@@ -68,6 +76,9 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 				buttons[i].set('down', i == selected);
 				buttons[i].set('disabled', !allowEditing);
 			}
+			
+			buttons.INDENT.set('visible', !!selected);
+			buttons.OUTDENT.set('visible', !!selected);
 		},
 		
 		/**
@@ -98,7 +109,7 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			this.buttons = {};
 			
 			// Add command
-			var lists = this.lists,
+			var lists = ['indent', 'outdent'].concat(this.lists),
 				i = 0,
 				imax = lists.length,
 				execCallback = Y.bind(this.exec, this);
