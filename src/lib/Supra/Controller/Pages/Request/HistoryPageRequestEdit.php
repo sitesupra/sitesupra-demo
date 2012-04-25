@@ -398,8 +398,10 @@ class HistoryPageRequestEdit extends PageRequest
 		$this->blockPropertySet = new Set\BlockPropertySet();
 	
 		$auditProperties = $this->getAuditBaseRevisionProperties();
-		$auditPropertyIds = DatabaseEntity::collectIds($auditProperties);
-		$auditProperties = array_combine($auditPropertyIds, $auditProperties);
+		if ( ! empty($auditProperties)) {
+			$auditPropertyIds = DatabaseEntity::collectIds($auditProperties);
+			$auditProperties = array_combine($auditPropertyIds, $auditProperties);
+		}
 		
 		$versionedProperties = $this->getAuditProperties();
 		if ( ! empty($versionedProperties)) {

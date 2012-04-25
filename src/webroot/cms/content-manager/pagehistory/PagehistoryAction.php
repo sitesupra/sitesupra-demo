@@ -254,11 +254,11 @@ class PagehistoryAction extends PageManagerAction
 			}
 			
 			if ( ! is_null($block)) {
-				$componentName = $block->getComponentName();
-				$blockConfiguration = ObjectRepository::getComponentConfiguration($componentName);
+				$componentClass = $block->getComponentClass();
+				$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
 				
-				if ($blockConfiguration instanceof BlockControllerConfiguration) {
-					$blockName = $blockConfiguration->title;
+				if ($componentConfiguration instanceof BlockControllerConfiguration) {
+					$blockName = $componentConfiguration->title;
 				}
 			}
 		}
