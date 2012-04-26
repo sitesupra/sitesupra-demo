@@ -31,9 +31,9 @@ class TwigSupraGlobal
 	protected $responseContext;
 
 	/**
-	 * @var Theme
+	 * @var array
 	 */
-	protected $theme;
+	protected $currentThemeParameterValues;
 
 	/**
 	 * @return RequestInterface
@@ -215,7 +215,7 @@ class TwigSupraGlobal
 	 */
 	public function getTheme()
 	{
-		return $this->theme;
+		return $this->currentThemeParameterValues;
 	}
 
 	/**
@@ -223,7 +223,7 @@ class TwigSupraGlobal
 	 */
 	public function setTheme(ThemeInterface $theme)
 	{
-		$this->theme = $theme->getCurrentParameterSetOutputValues();
+		$this->currentThemeParameterValues = $theme->getCurrentParameterSetOutputValues();
 	}
 
 }

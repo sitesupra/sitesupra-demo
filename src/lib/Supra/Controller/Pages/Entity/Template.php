@@ -30,11 +30,6 @@ class Template extends Abstraction\AbstractPage
 	protected $templateLayouts;
 
 	/**
-	 * @var Theme
-	 */
-	protected $theme;
-
-	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -141,29 +136,6 @@ class Template extends Abstraction\AbstractPage
 	public function getNestedSetRepositoryClassName()
 	{
 		return __CLASS__;
-	}
-
-	/**
-	 * @return Theme 
-	 */
-	public function getTheme()
-	{
-		if (empty($this->theme)) {
-
-			$themeProvider = \Supra\ObjectRepository\ObjectRepository::getThemeProvider($this);
-
-			$this->theme = $themeProvider->getCurrentTheme();
-		}
-
-		return $this->theme;
-	}
-
-	/**
-	 * @param Theme $theme 
-	 */
-	public function setTheme(Theme $theme)
-	{
-		$this->theme = $theme;
 	}
 
 }

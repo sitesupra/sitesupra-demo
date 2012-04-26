@@ -11,6 +11,8 @@ use Supra\Controller\Pages\Entity\ThemeParameter;
 use Supra\Controller\Pages\Entity\ThemeLayout;
 use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Exception;
+use Supra\Controller\Pages\Entity\TemplateLayout;
+use Supra\Controller\Pages\Entity\Template;
 
 class DefaultThemeProvider extends ThemeProviderAbstraction
 {
@@ -321,6 +323,20 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 		$em->remove($theme);
 		$em->flush();
+	}
+
+	public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN)
+	{
+		$currentTheme = $this->getCurrentTheme();
+
+		$templateLayouts = $template->getTemplateLayouts();
+
+		/* @var $templateLayout TemplateLayout */
+		$templateLayout = $templateLayouts->get($media);
+
+		$themeLayout = $currentTheme->getLayout($templateLayout->getLayoutName());
+
+		return $themeLayout;
 	}
 
 }

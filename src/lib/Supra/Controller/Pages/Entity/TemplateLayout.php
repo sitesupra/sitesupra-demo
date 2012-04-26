@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Page controller template-layout class
@@ -105,10 +106,12 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	public function getLayout()
 	{
 		if (empty($this->layout)) {
-
-			$templateTheme = $this->getTemplate()->getTheme();
-
-			$this->layout = $templateTheme->getLayout($this->getLayoutName());
+			
+			$template = $this->getTemplate();
+			
+			$themeProvider = ObjectRepository::getThemeProvider($this);
+			
+			$this->layout = $themeProvider->getCurrentThemeLayoutForTemplate($template, $this->getMedia());
 		}
 
 		return $this->layout;

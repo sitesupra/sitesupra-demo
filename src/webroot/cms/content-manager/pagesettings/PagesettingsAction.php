@@ -76,6 +76,9 @@ class PagesettingsAction extends PageManagerAction
 			$includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
 			$pageData->setIncludedInSearch($includedInSearch);
 		}
+		
+		$themeProvider = ObjectRepository::getThemeProvider($this);
+		$theme = $themeProvider->getCurrentTheme();
 
 		if ($pageData instanceof Entity\TemplateLocalization) {
 			if ($input->has('layout')) {
@@ -100,11 +103,9 @@ class PagesettingsAction extends PageManagerAction
 						throw new RuntimeException('Parent layout should be instance of ' . Entity\TemplateLayout::CN() . ' class');
 					}
 
-					$parentLayoutName = $parentTemplateLayout->getLayoutName();
+					$parentThemeLayoutName = $parentTemplateLayout->getLayoutName();
 					
-					$theme = $template->getTheme();
-					
-					$parentLayout = $theme->getLayout($parentLayoutName);
+					$parentThemeLayout = $theme->getLayout($parentThemeLayoutName);
 
 					// Remove current layout if any
 					$templateLayout = $template->getTemplateLayouts()
@@ -114,19 +115,17 @@ class PagesettingsAction extends PageManagerAction
 						$this->entityManager->remove($templateLayout);
 					}
 
-					$templateLayout = $template->addLayout($media, $parentLayout);
+					$templateLayout = $template->addLayout($media, $parentThemeLayout);
 				}
 				// Search for provided layout
 				else {
 
-					$layoutName = $input->get('layout');
+					$themeLayoutName = $input->get('layout');
 
-					$theme = $template->getTheme();
+					$themeLayout = $theme->getLayout($themeLayoutName);
 
-					$layout = $theme->getLayout($layoutName);
-
-					if (empty($layout)) {
-						throw new RuntimeException('Can\'t find layout with name ' . $layoutName);
+					if (empty($themeLayout)) {
+						throw new RuntimeException('Can\'t find layout with name ' . $themeLayoutName);
 					}
 
 					// Remove current layout if any
@@ -137,7 +136,7 @@ class PagesettingsAction extends PageManagerAction
 						$this->entityManager->remove($templateLayout);
 					}
 
-					$templateLayout = $template->addLayout($media, $layout);
+					$templateLayout = $template->addLayout($media, $themeLayout);
 				}
 
 				// Persist the new template layout object (cascade)
