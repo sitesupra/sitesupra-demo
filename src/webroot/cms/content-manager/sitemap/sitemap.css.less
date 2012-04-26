@@ -170,14 +170,15 @@
 				display: none;
 			}
 			
-			.status-not-localized {
+			.status-not-localized, 
+			.status-special {
 				display: block;
 				position: absolute;
 				left: -2px;
 				top: 71px;
 				width: 104px;
 				height: 18px;
-				background: url(images/tree-item-status-unpublished.png) 0 0 no-repeat;
+				background: url(images/tree-item-status-not-localized.png) 0 0 no-repeat;
 				padding: 12px 0 0;
 				
 				color: #676876;
@@ -187,6 +188,14 @@
 				text-align: center;
 				text-transform: uppercase;
 				text-shadow: 0 1px 0 rgba(255,255,255,0.42);
+
+				.status-not-published {
+					background: url(images/tree-item-status-unpublished.png) 0 0 no-repeat;
+				}
+
+				.status-draft {
+					background: url(images/tree-item-status-draft.png) 0 0 no-repeat;
+				}
 			}
 			
 			.loading-icon {

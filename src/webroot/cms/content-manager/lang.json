@@ -271,6 +271,8 @@
 			"select_language": "Select language",
 			
 			"status_not_created": "NOT-CREATED",
+			"status_draft": "DRAFT",
+			"status_not_published": "NOT-PUBLISHED",
 			
 			"new_page": "New page",
 			"new_template": "New template",

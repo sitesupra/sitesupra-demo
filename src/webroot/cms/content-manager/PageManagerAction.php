@@ -470,6 +470,11 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 		
+		$array['active'] = true;
+		if ($data instanceof Pagelocalization) {
+			$array['active'] = $data->isActive();
+		}
+		
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 		$array['path'] = $pathPart;
 		// Additional base path received from application
