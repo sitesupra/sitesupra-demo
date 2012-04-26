@@ -472,7 +472,9 @@ abstract class PageManagerAction extends CmsAction
 				$array['published'] = true;
 			}
 			
-			$array['active'] = $publicLocalization->isActive();
+			if ($publicLocalization instanceof Entity\PageLocalization) {
+				$array['active'] = $publicLocalization->isActive();
+			}
 		}
 				
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
