@@ -460,6 +460,9 @@ abstract class PageManagerAction extends CmsAction
 		$localizationId = $data->getId();
 		$publicEm = ObjectRepository::getEntityManager('#public');
 		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		
+		
+		$array['active'] = true;
 		if ($publicLocalization instanceof Localization) {
 			$array['unpublished_draft'] = false;
 			
@@ -468,13 +471,10 @@ abstract class PageManagerAction extends CmsAction
 			if ($draftRevision == $publicRevision) {
 				$array['published'] = true;
 			}
+			
+			$array['active'] = $publicLocalization->isActive();
 		}
-		
-		$array['active'] = true;
-		if ($data instanceof Pagelocalization) {
-			$array['active'] = $data->isActive();
-		}
-		
+				
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 		$array['path'] = $pathPart;
 		// Additional base path received from application
