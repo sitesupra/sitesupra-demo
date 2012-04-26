@@ -433,6 +433,9 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'root': (item.depth == 0),
 				'index': 0,
 				
+				'active': data.active,
+				'published': data.published,
+				
 				'parent': this
 			}, item));
 		},

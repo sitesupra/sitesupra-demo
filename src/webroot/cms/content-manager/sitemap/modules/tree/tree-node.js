@@ -28,7 +28,14 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					<img src="{{ preview }}" onerror="this.src=\'/cms/lib/supra/img/sitemap/preview/blank.jpg\';" alt="" />\
 					<div class="highlight"></div>\
 					{% if ! localized %}\
-						<div class="status-not-localized">{{ "sitemap.status_not_created"|intl }}</div>\
+						<div class="status-not-localized">{{ "sitemap.status_not_created"|intl }}</div>\\n\
+					\
+					{# NB! is/not active actually means published/unpublished #}\
+					\
+					{% elseif (type == "page" or type == "template") and ! active %}\\n\
+						<div class="status-special status-not-published">{{ "sitemap.status_not_published"|intl }}</div>\
+					{% elseif (type == "page" or type == "template") and ! published %}\\n\
+						<div class="status-special status-draft">{{ "sitemap.status_draft"|intl }}</div>\
 					{% endif %}\
 				</div>\
 				<label>{{ label|escape }}</label>\
@@ -175,7 +182,15 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		'visibilityRoot': {
 			'value': true,
 			'setter': '_setVisibilityRoot'
+		},
+		
+		'published': {
+			'value': false
+		},
+		'active': {
+			'value': true
 		}
+		
 	};
 	
 	Y.extend(TreeNode, Y.Widget, {
