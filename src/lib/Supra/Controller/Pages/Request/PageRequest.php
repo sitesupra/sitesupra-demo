@@ -80,7 +80,7 @@ abstract class PageRequest extends HttpRequest
 	 * @var BlockPropertySet
 	 */
 	protected $blockPropertySet;
-	
+
 	/**
 	 * Block ID array to skip property loading for them.
 	 * These are usually blocks with cached results.
@@ -95,7 +95,7 @@ abstract class PageRequest extends HttpRequest
 	public function __construct($locale, $media = Entity\Layout::MEDIA_SCREEN)
 	{
 		parent::__construct();
-		
+
 		$this->locale = $locale;
 		$this->media = $media;
 		$this->log = ObjectRepository::getLogger($this);
@@ -125,8 +125,8 @@ abstract class PageRequest extends HttpRequest
 	{
 		$this->pageData = $pageData;
 	}
-	
-	public function resetPageLocalization() 
+
+	public function resetPageLocalization()
 	{
 		$this->pageData = null;
 	}
@@ -203,14 +203,14 @@ abstract class PageRequest extends HttpRequest
 	{
 		$master = $this->getPageLocalization()
 				->getMaster();
-				
+
 		if (is_null($master)) {
 			$localizationId = $this->getPageLocalization()
 					->getId();
-			
+
 			throw new Exception\RuntimeException("Master page entity is missing for localization [{$localizationId}]");
 		}
-		
+
 		return $master;
 	}
 
@@ -415,7 +415,7 @@ abstract class PageRequest extends HttpRequest
 
 		return $this->blockSet;
 	}
-	
+
 	/**
 	 * Mark that properties must not be loaded for this block
 	 * @param string $blockId
@@ -444,6 +444,8 @@ abstract class PageRequest extends HttpRequest
 		$cnt = 0;
 
 		$blockSet = $this->getBlockSet();
+		
+		$sharedPropertyFinder = new SharedPropertyFinder($em);
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
@@ -455,7 +457,7 @@ abstract class PageRequest extends HttpRequest
 			if (in_array($blockId, $this->skipBlockPropertyLoading)) {
 				continue;
 			}
-			
+
 			$data = null;
 
 			if ($block->getLocked()) {
@@ -474,33 +476,10 @@ abstract class PageRequest extends HttpRequest
 			$qb->setParameter($cnt, $dataId);
 
 			$or->add($and);
-			
-			// Shared block properties
-			$class = $block->getComponentClass();
-			$configuration = ObjectRepository::getComponentConfiguration($class);
-			
-			$shares = array();
-			
-			if ($configuration instanceof BlockControllerConfiguration) {
-				foreach ($configuration->properties as $property) {
-					/* @var $property BlockPropertyConfiguration */
-					if ($property->shared) {
-						
-						$shares[] = array(
-							'block_id' => $blockId,
-							'property_name' => $property->name,
-							'property_editable' => $property->editable,
-						);
-						
-					}
-				}
-			}
-			
-			if ( ! empty($shares)) {
-				// TODO: some magic to find the original properties
-			}
-		}
 
+			$sharedPropertyFinder->addBlock($block, $data);
+		}
+		
 		// Stop if no blocks required to load the properties
 		if ($cnt == 0) {
 			return $this->blockPropertySet;
@@ -515,17 +494,20 @@ abstract class PageRequest extends HttpRequest
 
 		$this->prepareQueryResultCache($query);
 		$result = $query->getResult();
-
+		
 		$this->blockPropertySet->exchangeArray($result);
+		
+		// Overwrite some properties with shared data
+		$sharedPropertyFinder->replaceInPropertySet($this->blockPropertySet);
 
 		// Preload blockPropertyMetadata using single query for public requests to increase performance
 		if ($this instanceof PageRequestView) {
 			$this->preLoadPropertyMetadata();
 		}
-		
+
 		return $this->blockPropertySet;
 	}
-	
+
 	/**
 	 * Technically, this should optimize blockPropertyMetadata collections loading
 	 * by doing it in single query
@@ -534,7 +516,7 @@ abstract class PageRequest extends HttpRequest
 	{
 		$em = $this->getDoctrineEntityManager();
 		$blockPropertyIds = $this->blockPropertySet->collectIds();
-		
+
 		if ( ! empty($blockPropertyIds)) {
 			// 3 stages to preload block property metadata
 			// stage 1: collect referenced elements IDs
@@ -548,7 +530,7 @@ abstract class PageRequest extends HttpRequest
 			$query = $qb->getQuery();
 			$this->prepareQueryResultCache($query);
 			$metadataArray = $query->getResult();
-			
+
 			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
 			$referencedElements = array();
 			foreach ($metadataArray as $metadata) {
@@ -567,7 +549,7 @@ abstract class PageRequest extends HttpRequest
 					}
 				}
 			}
-			
+
 			if ( ! empty($elementPageIds)) {
 				$qb = $em->createQueryBuilder();
 				$qb->from(Entity\PageLocalization::CN(), 'l')
@@ -581,19 +563,19 @@ abstract class PageRequest extends HttpRequest
 				$query = $qb->getQuery();
 				$this->prepareQueryResultCache($query);
 				$localizations = $query->getResult();
-				
+
 				$localizationIds = array();
-				
-				foreach($localizations as $pageLocalization) {
+
+				foreach ($localizations as $pageLocalization) {
 					$entityData = $em->getUnitOfWork()
 							->getOriginalEntityData($pageLocalization);
-					
+
 					$localizationIds[] = $entityData['master_id'];
 				}
-				
+
 				$localizations = array_combine($localizationIds, $localizations);
-				
-				foreach($referencedElements as $element) {
+
+				foreach ($referencedElements as $element) {
 					if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
 						$pageId = $element->getPageId();
 						if (isset($localizations[$pageId])) {
@@ -602,61 +584,57 @@ abstract class PageRequest extends HttpRequest
 					}
 				}
 			}
-			
+
 			// stage 3: load metadata
 			foreach ($this->blockPropertySet as $blockProperty) {
 				/* @var $blockProperty BlockProperty */
 				$blockProperty->initializeOverridenMetadata();
 			}
-			
+
 			foreach ($metadataArray as $propertyMetadata) {
 				/* @var $propertyMetadata BlockPropertyMetadata */
 				$property = $propertyMetadata->getBlockProperty();
-//				$propertyId = $property->getId();
-				
+				$propertyId = $property->getId();
+
 				$propertyData = $em->getUnitOfWork()
 						->getOriginalEntityData($propertyMetadata);
-				
+
 				if (isset($propertyData['referencedElement_id'])) {
-					
+
 					$elementId = $propertyData['referencedElement_id'];
 					if (isset($referencedElements[$elementId])) {
 						$propertyMetadata->setOverridenReferencedElement($referencedElements[$elementId]);
 					}
 				}
-
-//				$property = $this->blockPropertySet->findById($propertyId);
-//				if ( ! is_null($property)) {
-					/* @var $property BlockProperty */
-					$property->addOverridenMetadata($propertyMetadata);
-//				}
+				
+				// Can't add for $property because of shared property feature
+				$this->blockPropertySet->addOverridenMetadata($propertyId, $propertyMetadata);
 			}
 		}
-		
 	}
-	
+
 	/**
 	 * 
 	 */
 	public function createMissingPlaceHolders()
 	{
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
-		
+
 		if (empty($layoutPlaceHolderNames)) {
 			return;
 		}
-		
+
 		// getPlaceHolderSet() already contains current method call inside
-		// but it should not go recursivelly, as getPlaceHolderSet() will return
+		// but it should not go recursively, as getPlaceHolderSet() will return
 		// set without executing, if it is already loaded
 		$placeHolderSet = $this->getPlaceHolderSet();
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$localization = $this->getPageLocalization();
-		
+
 		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
-		
+
 		foreach ($layoutPlaceHolderNames as $name) {
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
 

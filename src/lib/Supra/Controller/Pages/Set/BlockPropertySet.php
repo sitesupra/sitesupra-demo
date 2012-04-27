@@ -68,4 +68,18 @@ class BlockPropertySet extends AbstractSet
 		
 		return $blockPropertySet;
 	}
+	
+	/**
+	 * Add overriden metadata for all properties with the ID provided
+	 * @param string $propertyId
+	 * @param Entity\BlockPropertyMetadata $propertyMetadata
+	 */
+	public function addOverridenMetadata($propertyId, Entity\BlockPropertyMetadata $propertyMetadata)
+	{
+		foreach ($this as $property) {
+			if ($property->getId() === $propertyId) {
+				$property->addOverridenMetadata($propertyMetadata);
+			}
+		}
+	}
 }

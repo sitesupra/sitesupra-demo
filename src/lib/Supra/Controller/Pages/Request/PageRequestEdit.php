@@ -346,7 +346,10 @@ class PageRequestEdit extends PageRequest
 				$metadata->initialize();
 			}
 			
-			$publicEm->merge($property);
+			// Skip shared properties
+			if ( ! $property instanceof Entity\SharedBlockProperty) {
+				$publicEm->merge($property);
+			}
 		}
 		
 		$draftEm->flush();

@@ -5,3 +5,17 @@
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Gallery
     icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          # becase has shared properties
+          - Supra\Controller\Pages
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: images
+          editable: Supra\Editable\Gallery
+          label: Images
+          shared: true

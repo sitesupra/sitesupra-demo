@@ -127,8 +127,10 @@ class PagecontentAction extends PageManagerAction
 			$property = $blockController->getProperty($propertyName);
 
 			// Could be new, should persist
-			$this->entityManager->persist($property);
-			/* @var $property Entity\BlockProperty */
+			if ( ! $property instanceof Entity\SharedBlockProperty) {
+				$this->entityManager->persist($property);
+				/* @var $property Entity\BlockProperty */
+			}
 
 			$editable = $property->getEditable();
 
