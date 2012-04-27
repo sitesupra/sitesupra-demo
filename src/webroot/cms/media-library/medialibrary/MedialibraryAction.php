@@ -85,11 +85,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			$title = $rootNode->getFileName();
-			$titles = null;
+			$titles = $description = $descriptions = null;
 			
 			if ($rootNode instanceof Entity\File) {
 				$title = $rootNode->getTitle($localeId);
 				$titles = $rootNode->getTitleArray();
+				
+				$description = $rootNode->getDescription($localeId);
+				$descriptions = $rootNode->getDescriptionArray();
+				
 				$extension = mb_strtolower($rootNode->getExtension());
 				
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
@@ -120,6 +124,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
 			$item['private'] = ! $rootNode->isPublic();
+			$item['defaultDescription'] = $description;
+			$item['description'] = $descriptions;
 
 			$output[] = $item;
 		}
