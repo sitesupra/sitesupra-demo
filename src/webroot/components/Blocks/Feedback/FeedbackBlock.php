@@ -124,12 +124,6 @@ class FeedbackBlock extends BlockController
 			'name' => 'Submit button',
 			'labelValue' => 'Nosūtīt',
 		),
-		
-		'close' => array(
-			'type' => 'button',
-			'name' => 'Close button',
-			'labelValue' => 'Aizvērt',
-		),
 	);
 	
 	/**
