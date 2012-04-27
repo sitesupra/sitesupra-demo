@@ -53,12 +53,14 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		$this->editableInstance = Loader::getClassInstance($this->editable, 'Supra\Editable\EditableInterface');
 		$this->editableInstance->setLabel($this->label);
 		$this->editableInstance->setDefaultValue($this->default);
-		
+
 		//FIXME: not nice. Editable might inform about its additionals maybe?
 		foreach ($this->additionalParameters as $name => $value) {
-			
-			if (method_exists($this->editableInstance, 'set' . $name)) {
-				call_user_method('set' . $name, $this->editableInstance, $value);
+
+			$methodName = 'set' . $name;
+
+			if (method_exists($this->editableInstance, $methodName)) {
+				$this->editableInstance->$methodName($value);
 			} else {
 				\Log::warn("No additional parameter setter found for editable {$this->editable} with name {$name}");
 			}
