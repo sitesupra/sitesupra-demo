@@ -423,12 +423,17 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'_onToggleClick': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
+				
+				var view = this.get('tree').get('view');
+				
 				//Prevent overflow check, otherwise it will be done
 				//on toggle and on center, while we need only on center
-				this.get('tree').get('view').set('disabled', true);
+				view.set('disabled', true);
 				
 				//Toggle item
 				this.toggle();
+				
+				view.set('disabled', false);
 			}
 		},
 		
