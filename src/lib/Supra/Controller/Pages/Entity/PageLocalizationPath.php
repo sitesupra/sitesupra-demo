@@ -11,12 +11,13 @@ use Supra\Uri\Path;
  */
 class PageLocalizationPath extends Abstraction\Entity
 {
+
 	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $locale;
-	
+
 	/**
 	 * Limitation because of MySQL unique constraint 1k byte limit
 	 * @Column(type="path", length=255, nullable=true)
@@ -30,19 +31,26 @@ class PageLocalizationPath extends Abstraction\Entity
 	 * @var boolean
 	 */
 	protected $active = true;
-	
+
 	/**
 	 * Marks, if page is with limited access (requires an authorization)
 	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
 	protected $limited = false;
-	
+
+	/**
+	 * Marks, if page is visible in sitemap
+	 * @Column(type="boolean", nullable=false)
+	 * @var boolean
+	 */
+	protected $visibleInSitemap = true;
+
 	/**
 	 * Path entity and owner localization ids are equals
 	 * @param PageLocalization $localization
 	 */
-	public function __construct(PageLocalization $localization) 
+	public function __construct(PageLocalization $localization)
 	{
 		$this->id = $localization->getId();
 	}
@@ -56,7 +64,7 @@ class PageLocalizationPath extends Abstraction\Entity
 	{
 		$this->id = $id;
 	}
-	
+
 	public function getLocale()
 	{
 		return $this->locale;
@@ -101,7 +109,7 @@ class PageLocalizationPath extends Abstraction\Entity
 	{
 		$this->active = $active;
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -109,7 +117,7 @@ class PageLocalizationPath extends Abstraction\Entity
 	{
 		return $this->limited;
 	}
-	
+
 	/**
 	 * @param boolean $limited
 	 */
@@ -117,5 +125,21 @@ class PageLocalizationPath extends Abstraction\Entity
 	{
 		$this->limited = $limited;
 	}
-	
+
+	/**
+	 * @return boolean
+	 */
+	public function isVisibleInSitemap()
+	{
+		return $this->visibleInSitemap;
+	}
+
+	/**
+	 * @param boolean $visibleInSitemap 
+	 */
+	public function setVisibleInSitemap($visibleInSitemap)
+	{
+		$this->visibleInSitemap = $visibleInSitemap;
+	}
+
 }
