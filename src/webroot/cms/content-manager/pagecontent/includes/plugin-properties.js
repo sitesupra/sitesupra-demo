@@ -585,12 +585,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getNonInlineSaveValues: function (values) {
 			var values = values ? values : this.getSaveValues(),
 				properties = this.get('properties'),
-				out = {};
-			
+				out = {},
+				value = null;
+				
 			for(var i=0,ii=properties.length; i<ii; i++) {
-				if (!properties[i].inline) out[properties[i].id] = values[properties[i].id];
+				if (!properties[i].inline) {
+
+					value = values[properties[i].id];
+					
+					// replace empty arrays with nulls
+					if (typeof(value) == 'object' && value.length === 0) {
+						value = null;
+					}
+
+					out[properties[i].id] = value;		
+				}
 			}
-			
+					
 			return out;
 		}
 		
