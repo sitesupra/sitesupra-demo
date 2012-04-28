@@ -62,8 +62,6 @@
 	box-shadow: 0;
 	border: 2px solid #009DF8;
 	
-	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;
-	
 	opacity: 0;
 }
 .yui3-editable .yui3-content-overlay:hover,
@@ -89,6 +87,24 @@
 	position: absolute;
 	left: 50%;
 	top: 50%;
+	
+	width: 59px;
+	height: 59px;
+	margin: -30px 0 0 -30px;
+	
+	-moz-border-radius: 59px;
+	-webkit-border-radius: 59px;
+	border-radius: 59px;
+	
+	-moz-box-shadow: 0 1px 0 rgba(0, 0, 0, .43);
+	-webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .43);
+	box-shadow: 0 1px 0 rgba(0, 0, 0, .43);
+	
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
+}
+.yui3-editable .yui3-content-overlay:hover span,
+.yui3-editable .yui3-content-overlay-hover span {
+	display: block;
 }
 
 /* Overlay loading indicator */
@@ -105,6 +121,14 @@
 	padding: 0;
 	margin: -12px 0 0 -12px !important;
 	background: url(/cms/lib/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
+	
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
+	border-radius: 0;
+	
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
 }
 
 
@@ -270,7 +294,8 @@
 	outline-radius: 5px;
 	
 	overflow: hidden;
-	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;
+	
+	/*background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;*/
 	
 	/* Expand to for easier drag and drop of new blocks */
 	min-height: 90px;
