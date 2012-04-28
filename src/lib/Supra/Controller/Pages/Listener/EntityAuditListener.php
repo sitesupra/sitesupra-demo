@@ -695,6 +695,11 @@ class EntityAuditListener implements EventSubscriber
 		
 		$blockPropertySet = $request->getBlockPropertySet();
 		foreach($blockPropertySet as $property) {
+			
+			if ($property instanceof Entity\SharedBlockProperty) {
+				continue;
+			}
+			
 			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
 
 			$metaData = $property->getMetadata();
