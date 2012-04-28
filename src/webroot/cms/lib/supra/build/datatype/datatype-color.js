@@ -212,6 +212,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			a = Color.parse(a);
 			b = Color.parse(b);
 			
+			if (!a || !b) return null;
+			
 			var d = {
 				'red': b.red - 128,
 				'green': b.green - 128,

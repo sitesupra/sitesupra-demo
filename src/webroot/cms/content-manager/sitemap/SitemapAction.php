@@ -60,6 +60,7 @@ class SitemapAction extends PageManagerAction
 	public function moveAction()
 	{
 		$this->isPostRequest();
+		$input = $this->getRequestInput();
 		
 		$page = null;
 		
@@ -88,7 +89,14 @@ class SitemapAction extends PageManagerAction
 				}
 				$parent->addChild($page);
 			} else {
-				$page->moveAsPrevSiblingOf($reference);
+				
+				$referenceType = $input->get('reference_type', 'before');
+				
+				if ($referenceType == 'after') {
+					$page->moveAsNextSiblingOf($reference);
+				} else {
+					$page->moveAsPrevSiblingOf($reference);
+				}
 			}
 		} catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');

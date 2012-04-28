@@ -1,0 +1,114 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.overview {
+	.ui-center-dark {
+		border: 1px solid rgba(142, 143, 152, 0.2);
+		border-right: 0;
+		position: absolute;
+		right: 0;
+		width: 288px;
+	}
+	
+	.author,
+	.description .heading {
+		color: #fff;
+		line-height: 22px;
+		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+	}
+	
+	.author {
+		top: 37px;
+		height: 83px;
+		
+		img {
+			float: left;
+			margin: 20px 0 0 28px;
+		}
+		p {
+			float: left;
+			margin: 21px 0 0 12px;
+		}
+		span {
+			font-weight: bold;
+			
+			&.purchases {
+				color: #00A0F1;
+			}
+		}
+	}
+	
+	.description {
+		top: 145px;
+		bottom: 32px;
+		
+		.heading {
+			border-bottom: 1px solid #252731;
+			box-shadow: 0 1px 0 #414555;
+			margin: 0 20px;
+			padding: 0 11px 4px;
+		}
+		
+		//Text styles
+		.text {
+			position: absolute;
+			top: 69px;
+			bottom: 0;
+			left: 20px;
+			right: 0;
+			
+			color: #C9CCD6;
+			line-height: 16px;
+			
+			h2, h3, h4 {
+				font-size: 12px;
+				font-weight: bold;
+			}
+			h2, h3, h4, p {
+				margin: 0 0 14px;
+			}
+			ul, ol {
+				margin: 0 0 9px;
+			}
+			li {
+				padding: 0 0 5px 19px;
+				background: url(/cms/design/images/overview/text-bullet.png) 2px 3px no-repeat; 
+			}
+			
+			.su-scrollable-content {
+				//Text padding
+				padding: 20px 29px 0 11px !important;
+			}
+		}
+		h1 {
+			font-size: 18px;
+			padding: 20px 0 0;
+		}
+		.category {
+			font-size: 14px;
+		}
+	}
+	
+	.su-image-slider {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 290px;
+		bottom: 0;
+	}
+	
+	.arrow {
+		margin-top: -28px;
+		left: 39px;
+		
+		&.next {
+			left: auto;
+			right: 326px;
+		}
+	}
+}
+
+
+//ImageSlider widget style
+@import "../modules/imageslider.less";
+@import "../modules/iframe.less";

@@ -1,0 +1,30 @@
+<div class="ui-center-dark">
+	
+	<!-- Filter list -->
+	<ul class="filters"></ul>
+	
+	<!-- Design list -->
+	<div class="designs"><ul></ul></div>
+	
+	<script type="text/html" id="designTemplate">
+		{% set len = designs|length %}
+		{% if len %}
+			{% for key, design in designs %}
+				{% if (key % 2 == 0) %}
+					{% if key != 0 %}</li>{% endif %}
+					<li style="width: {{ size }}%">
+				{% endif %}
+				
+				<div>
+					<span></span>
+					<a data-id="{{ design.id|escape }}"><img src="{{ design.image_large }}" /></a>
+				</div>
+				
+			{% endfor %}
+			</li>
+		{% endif %}
+	</script>
+	
+	<a class="arrow next hidden"></a>
+	<a class="arrow prev hidden"></a>
+</div>

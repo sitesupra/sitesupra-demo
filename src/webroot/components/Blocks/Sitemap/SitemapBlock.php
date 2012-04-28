@@ -40,7 +40,7 @@ class SitemapBlock extends LinksBlock
 		$localizationFinder->setLocale($locale);
 		
 		//FIXME: Problem – what if parent is not visible?
-		$localizationFinder->isVisibleInSitemap(true);
+		//$localizationFinder->isVisibleInSitemap(true);
 		
 //		$organizer = new LocalizationOrganizer();
 //		$organizer->organize($localizationFinder);
@@ -77,6 +77,8 @@ class SitemapBlock extends LinksBlock
 		
 		foreach ($localizations as $localization) {
 			
+			//\Log::debug('LLL: ', $localization->getId(), ' - ', $localization->isVisibleInSitemap());
+			
 			$lft = $localization->getMaster()->getLeftValue();
 			$rgt = $localization->getMaster()->getRightValue();
 			
@@ -105,6 +107,8 @@ class SitemapBlock extends LinksBlock
 			if ($visibleInSitemap) {
 				$map[] = array(
 					'level' => $level,
+					//'rgt' => $rgt,
+					//'lft' => $lft,
 					'localization' => $localization
 				);
 			}

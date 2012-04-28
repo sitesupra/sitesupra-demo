@@ -180,7 +180,10 @@ abstract class HandlerAbstraction
 	 */
 	public function checkSessionExpire()
 	{
-
+		if (empty($this->expirationTime)) {
+			return;
+		}
+		
 		$expireTime = $this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] + $this->expirationTime;
 		
 		if ($expireTime < time()) {

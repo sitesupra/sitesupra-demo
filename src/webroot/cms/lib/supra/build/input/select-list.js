@@ -113,11 +113,8 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			this.buttons = {};
 			
-			var value = this._getInternalValue(),
-				multiple = this.get('multiple'),
+			var value = null,
 				has_value_match = false,
-				contentBox = this.get('contentBox'),
-				button,
 				input = Y.Node.getDOMNode(this.get('inputNode'));
 			
 			if (this.buttons_rendered && input.options && input.options.length) {
@@ -131,45 +128,15 @@ YUI.add('supra.input-select-list', function (Y) {
 			}
 			
 			
-			if (contentBox.test('input,select')) {
-				contentBox = this.get('boundingBox');
-			}
-			
 			//Buttons will be placed instead of input
 			this.get('inputNode').addClass('hidden');
 			
 			var button_width = 100 / values.length;
 			
 			for(var i=0,ii=values.length-1; i<=ii; i++) {
-				button = new Supra.Button({'label': values[i].title, 'icon': values[i].icon, 'type': 'toggle', 'style': 'group'});
-				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
-				this.buttons[values[i].id] = button;
-				
-				if (i == 0) {
-					button.get('boundingBox').addClass('su-button-first');
-				}
-				if (i == ii) {
-					button.get('boundingBox').addClass('su-button-last');
-				}
-				
-				if (input && input.options) {
-					//Add options to allow selecting value
-					input.options[input.options.length] = new Option(values[i].title, values[i].id);
-					if (value == values[i].id) input.value = value;
-				}
-				
-				if (values[i].id == value) {
-					//Mark value as found
+				if (this.renderButton(input, values[i], i == 0, i == ii, button_width)) {
 					has_value_match = true;
 				}
-				
-				button.render(contentBox);
-				
-				//Set button width
-				button.get('boundingBox').setStyle('width', button_width + '%');
-				
-				//On click update input value
-				button.on('click', this._onClick, this, values[i].id);
 			}
 			
 			if (!has_value_match) {
@@ -186,6 +153,48 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			//Buttons rendered
 			this.buttons_rendered = true;
+		},
+		
+		renderButton: function (input, definition, first, last, button_width) {
+			var contentBox = this.get('contentBox'),
+				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': 'group'}),
+				value = this._getInternalValue(),
+				has_value_match = false;
+			
+			if (contentBox.test('input,select')) {
+				contentBox = this.get('boundingBox');
+			}
+			
+			button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
+			this.buttons[definition.id] = button;
+			
+			if (first) {
+				button.get('boundingBox').addClass('su-button-first');
+			}
+			if (last) {
+				button.get('boundingBox').addClass('su-button-last');
+			}
+			
+			if (input && input.options) {
+				//Add options to allow selecting value
+				input.options[input.options.length] = new Option(definition.title, definition.id);
+				if (value == definition.id) input.value = value;
+			}
+			
+			if (definition.id == value) {
+				//Mark value as found
+				has_value_match = true;
+			}
+			
+			button.render(contentBox);
+			
+			//Set button width
+			button.get('boundingBox').setStyle('width', button_width + '%');
+			
+			//On click update input value
+			button.on('click', this._onClick, this, definition.id);
+			
+			return has_value_match;
 		},
 		
 		_onClick: function (event, id) {

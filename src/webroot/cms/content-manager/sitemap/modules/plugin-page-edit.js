@@ -373,26 +373,13 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 					data
 				);
 				
-				var duplicatedNode = null;
+				//Insert after
+				var duplicatedNode = this.get('host').insert(data, node, 'after');
 				
-				if (node.get('root')) {
-					node.expand();
-					if (node.size()) {
-						//As first child
-						duplicatedNode = this.get('host').insert(data, node.item(0), 'before');
-					} else {
-						//Append
-						 duplicatedNode = this.get('host').insert(data, node, 'inside');
-					}
-				} else {
-					//Insert after
-					duplicatedNode = this.get('host').insert(data, node, 'after');
-				}
+				// skip permissions loading, assume, that if user has rights to clone page,
+				// then he has rights to edit cloned instance of page
+				duplicatedNode.set('selectable', true);
 			}
-			
-			// skip permissions loading, assume, that if user has rights to clone page,
-			// then he has rights to edit cloned instance of page
-			duplicatedNode.set('selectable', true);
 			
 			this._widgets.form.set('disabled', false);
 			this._widgets.buttonDelete.set('disabled', false);
@@ -436,6 +423,19 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				} else {
 					input.set('visible', true);
 				}
+				
+			}
+			
+			// Hide duplicate for root page
+			if (mode == 'pages' && this._node.get('root')) {
+				this._widgets.buttonDuplicate.set('visible', false);
+			}
+			
+			// Hide delete for nodes with children
+			if (this._node.get('expandable')) {
+				this._widgets.buttonDelete.set('visible', false);
+			} else {
+				this._widgets.buttonDelete.set('visible', true);
 			}
 		},
 		

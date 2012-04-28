@@ -357,8 +357,10 @@ SU(function (Y) {
 						action[config.actionFunction](config.id);
 					} else {
 						//Call after action is executed
-						action.once('execute', function () {
-							action[config.actionFunction](config.id);
+						action.once('executedChange', function (e) {
+							if (e.newVal != e.prevVal && e.newVal) {
+								action[config.actionFunction](config.id);
+							}
 						});
 						action.execute();
 					}

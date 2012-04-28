@@ -1,0 +1,219 @@
+//This file is included from customizesidebar/customizesidebar.css.less
+
+.yui3-input-pattern {
+	
+	.su-button {
+		position: relative;
+		
+		&, .su-button-content, button {
+			.border-radius (3px);
+			
+			background: url(../modules/input/pattern-background.png) 0 0 no-repeat;
+			height: 73px;
+			display: block;
+			width: 100%;
+		}
+		& {
+			background-position: 0 -73px;
+			background-repeat: repeat-x;
+			width: 100% !important;
+		}
+		button {
+			background-position: 100% -146px;
+		}
+		
+		div {
+			padding: 0;
+		}
+		.su-button-bg {
+			display: block;
+			height: 37px;
+			padding: 3px 3px 2px;
+			background: #1D1F29;
+			border-bottom: 1px solid #333851;
+			margin: 0 33px 0 6px;
+			position: relative;
+			top: 11px;
+			
+			div {
+				display: block;
+				height: 37px;
+				border-bottom: 1px solid #0D0E12;
+				background-repeat: repeat;
+				/*background-color: #61C061;*/
+				background-position: 0 50%;
+			}
+			
+			p {
+				color: #6F7183;
+				font-size: 10px;
+				text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+				position: absolute;
+				top: -22px;
+				left: 0;
+			}
+		}
+		
+		&.su-button-mouse-hover {
+			background-position: 0 -292px;
+			
+			.su-button-content {
+				background-position: 0 -219px;
+			}
+			button {
+				background-position: 100% -365px;
+			}
+		}
+		
+		&.su-button-down {
+			background-position: 0 -511px;
+			
+			.su-button-content {
+				background-position: 0 -438px;
+			}
+			button {
+				background-position: 100% -584px;
+			}
+		}
+		
+		&.su-button-mouse-hover,
+		&.su-button-down {
+			
+			.su-button-bg {
+				border-bottom-color: #898EA8;
+				
+				p {
+					color: #fff;
+				}
+			}
+			
+		}
+	}
+	
+	.su-button + .su-button {
+		margin-top: 11px;
+	}
+}
+
+.yui3-form-vertical .yui3-input-pattern label {
+	padding-bottom: 8px;
+}
+
+/*
+ * No label style
+ */
+.yui3-input-pattern-no-labels,
+.yui3-input-fonts-no-labels {
+	
+	.su-button {
+		&, .su-button-content, button {
+			background-image: url(../modules/input/pattern-background-lbl.png);
+			height: 49px;
+		}
+		
+		& {
+			background-position: 0 -49px;
+			background-repeat: repeat-x;
+			width: 100% !important;
+		}
+		button {
+			background-position: 100% -98px;
+		}
+		
+		&.su-button-mouse-hover {
+			background-position: 0 -196px;
+			
+			.su-button-content {
+				background-position: 0 -147px;
+			}
+			button {
+				background-position: 100% -245px;
+			}
+		}
+		
+		&.su-button-down {
+			background-position: 0 -343px;
+			
+			.su-button-content {
+				background-position: 0 -294px;
+			}
+			button {
+				background-position: 100% -392px;
+			}
+		}
+		
+		.su-button-bg {
+			height: 31px;
+			top: 0;
+			
+			div {
+				height: 31px;
+				background-position: 50% 50%;
+			}
+			
+			p {
+				display: none;
+			}
+		}
+	}
+}
+
+/**
+ * Background styles
+ */
+.yui3-input-pattern-normal .su-button .su-button-bg div {
+	background-position: 0 0;
+	background-repeat: no-repeat;
+}
+.yui3-input-pattern-fill .su-button .su-button-bg div {
+	background-position: 0 0;
+	background-repeat: repeat;
+}
+.yui3-input-pattern-center .su-button .su-button-bg {
+	.border-radius (3px);
+	.box-shadow (0, 1px, 2px, rgba(0,0,0,0.75) inset);
+	
+	div {
+		background-position: 50% 50%;
+		background-repeat: no-repeat;
+	}
+}
+.yui3-input-pattern-button .su-button .su-button-bg {
+	.border-radius (3px);
+	.box-shadow (0, 1px, 2px, rgba(0,0,0,0.75) inset);
+	
+	div {
+		background-position: 0 0, 100% -74px, 0 -37px;
+		background-repeat: no-repeat;
+	}
+}
+
+.yui3-input-pattern-no-labels.yui3-input-pattern-button .su-button .su-button-bg div {
+	background-position: 50% -31px, 0 0, 100% -62px;
+	background-repeat: no-repeat;
+}
+
+/**
+ * Fonts input
+ */
+.yui3-input-fonts .su-button {
+	.su-button-bg p {
+		display: block;
+		position: static;
+		padding: 0 7px;
+		
+		font-size: 14px;
+		line-height: 32px;
+		text-align: left;
+		text-shadow: none;
+		white-space: nowrap;
+	}
+	
+	&,
+	&.su-button-mouse-hover,
+	&.su-button-down {
+		.su-button-bg p {
+			color: #007CCB;
+		}
+	}
+}

@@ -166,6 +166,13 @@ YUI.add('supra.slideshow', function (Y) {
 				duration: this.get('animationDuration'),
 				easing: Y.Easing.easeOutStrong
 			});
+		},
+		
+		bindUI: function () {
+			
+			//On a[data-target] link click change slide
+			this.get('contentBox').delegate('click', this._onSectionLinkClick, 'a[data-target]', this);
+			this.get('contentBox').delegate('keyup', this._onSectionLinkKey, 'a[data-target]', this);
 			
 			//On slide change scroll to it
 			this.on('slideChange', function (e) {
@@ -184,6 +191,7 @@ YUI.add('supra.slideshow', function (Y) {
 				render_queue[i].render();
 			}
 			this.render_queue = [];
+			
 		},
 		
 		syncUI: function () {
@@ -201,6 +209,35 @@ YUI.add('supra.slideshow', function (Y) {
 				if (content) {
 					content.fire('contentResize');
 				}
+			}
+		},
+		
+		/**
+		 * If user clicks on section link change slide to it
+		 * 
+		 * @param {Event} event Event facade object
+		 * @private
+		 */
+		_onSectionLinkClick: function (event) {
+			var node = event.target.closest('a');
+			if (!node.hasClass('disabled')) {
+				var slide = node.getAttribute('data-target');
+				if (this.slides[slide]) this.set('slide', slide);
+			}
+		},
+		
+		/**
+		 * If user presses key on section link change slide to it
+		 * 
+		 * @param {Event} event Event facade object
+		 * @private
+		 */
+		_onSectionLinkKey: function (event) {
+			if (event.keyCode == 13 || event.keyCode == 39) { //Return key or arrow right
+				var node = event.target.closest('a'),
+					slide = node.getAttribute('data-target');
+				
+				if (this.slides[slide]) this.set('slide', slide);
 			}
 		},
 		
