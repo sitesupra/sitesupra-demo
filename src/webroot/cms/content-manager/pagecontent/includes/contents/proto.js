@@ -8,10 +8,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		PageContent = Manager.PageContent,
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
-	//Templates
-	var HTML_CLICK = '<span>' + SU.Intl.get(['page', 'click_to_edit']) + '</span>';
-	var HTML_CLICK_DRAG = '<span>' + SU.Intl.get(['page', 'click_to_edit_drag_to_move']) + '</span>';
-	
 	/**
 	 * Content block
 	 */
@@ -552,18 +548,16 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		renderOverlay: function () {
-			var div = new Y.Node(this.get('doc').createElement('DIV')),
-				html = HTML_CLICK;
+			var div = new Y.Node(this.get('doc').createElement('DIV'));
 			
 			this.overlay = div;
 			
 			if (this.get('draggable')) {
 				this.overlay.addClass(CLASSNAME_DRAGGABLE);
-				html = HTML_CLICK_DRAG;
 			}
 			
 			this.overlay.addClass(CLASSNAME_OVERLAY);
-			this.overlay.set('innerHTML', html);
+			this.overlay.set('innerHTML', '<span></span>');
 			this.getNode().insert(div, 'before');
 		},
 		

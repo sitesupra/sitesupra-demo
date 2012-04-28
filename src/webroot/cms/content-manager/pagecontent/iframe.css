@@ -45,26 +45,25 @@
 	z-index: 9999;
 	
 	/* FF 3 */
-	-moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-	-moz-border-radius: 4px;
+	-moz-border-radius: 5px;
 	-moz-transition-property: opacity;
 	-moz-transition-duration: 0.35s;
 	
 	/* Webkit */
-	-webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-	-webkit-border-radius: 4px;
+	-webkit-border-radius: 5px;
 	-webkit-transition-property: opacity;
 	-webkit-transition-duration: 0.35s;
 	
 	/* FF4, IE9, ... */
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-	border-radius: 4px;
+	border-radius: 5px;
 	transition-property: opacity;
 	transition-duration: 0.35s;
 	
 	box-shadow: 0;
-	border: 2px solid #3B85D1;
-	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	border: 2px solid #009DF8;
+	
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;
+	
 	opacity: 0;
 }
 .yui3-editable .yui3-content-overlay:hover,
@@ -87,45 +86,25 @@
 
 .yui3-editable .yui3-content-overlay span {
 	display: none;
-	background: #3B85D1;
-	padding: 8px 20px;
-	margin: -18px 0 0 -66px;
-	
 	position: absolute;
 	left: 50%;
 	top: 50%;
-	
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-	
-	color: #ffffff;
-	font: 18px/21px Arial, Helvetica;
-	text-align: center;
-	text-shadow: 0 -1px 0 rgba(0,0,0,.15);
-}
-.yui3-editable .yui3-content-draggable.yui3-content-overlay span {
-	margin: -29px 0 0 -103px;
-}
-
-.yui3-editable .yui3-content-overlay:hover span {
-	display: block;
 }
 
 /* Overlay loading indicator */
 .yui3-editable .yui3-content-overlay-loading {
 	cursor: default;
+	background: none;
 }
 .yui3-editable .yui3-content-overlay-loading span {
 	cursor: default;
 	display: block;
 	overflow: hidden;
-	padding: 24px 0 0;
-	height: 0;
+	height: 24px;
 	width: 24px;
+	padding: 0;
 	margin: -12px 0 0 -12px !important;
 	background: url(/cms/lib/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
-	text-indent: 100px;
 }
 
 
@@ -169,10 +148,10 @@
 	z-index: 9000;
 	overflow: hidden;
 	
-	border: 2px solid #3B85D1;
-	-moz-border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border-radius: 4px;
+	border: 2px solid #009DF8;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
 /**
@@ -200,11 +179,11 @@
  */
 .editing,
 .editing .yui3-content-inline {
-	outline: 2px dashed rgba(0,0,0,.35);
+	outline: 2px dashed #00A5F8;
 	
-	-moz-outline-radius: 4px;
-	-webkit-outline-radius: 4px;
-	outline-radius: 4px;
+	-moz-outline-radius: 5px;
+	-webkit-outline-radius: 5px;
+	outline-radius: 5px;
 	
 	overflow: hidden;
 	min-height: 1.5em;
@@ -284,18 +263,14 @@
 }
 
 .yui3-highlight .yui3-highlight-list {
-	outline: 2px solid #3B85D1;
+	outline: 2px solid #009DF8;
 	
-	-moz-outline-radius: 4px;
-	-webkit-outline-radius: 4px;
-	outline-radius: 4px;
-	
-	-moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
-	-webkit-box-shadow:  0 1px 5px rgba(0, 0, 0, 0.25) inset;
-	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25) inset;
+	-moz-outline-radius: 5px;
+	-webkit-outline-radius: 5px;
+	outline-radius: 5px;
 	
 	overflow: hidden;
-	background: url(/cms/lib/supra/img/htmleditor/editable-background.png) 0 0 repeat;
+	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;
 	
 	/* Expand to for easier drag and drop of new blocks */
 	min-height: 90px;
