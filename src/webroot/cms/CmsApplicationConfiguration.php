@@ -55,7 +55,7 @@ class CmsApplicationConfiguration {
 	 *
 	 * @param ApplicationConfiguration $appConfig
 	 */
-	public function addConfiguration($appConfig) 
+	public function addConfiguration(ApplicationConfiguration $appConfig) 
 	{
 		if (( ! $appConfig instanceof ApplicationConfiguration)
 			|| empty($appConfig->id)
@@ -64,6 +64,16 @@ class CmsApplicationConfiguration {
 		}
 		$id = $appConfig->id;
 		$this->collection[$id] = $appConfig;
+	}
+	
+	/**
+	 * Disables the application
+	 * @param ApplicationConfiguration $appConfig
+	 */
+	public function removeConfiguration(ApplicationConfiguration $appConfig)
+	{
+		$id = $appConfig->id;
+		unset($this->collection[$id]);
 	}
 
 	/**
