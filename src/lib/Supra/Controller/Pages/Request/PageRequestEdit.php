@@ -93,6 +93,8 @@ class PageRequestEdit extends PageRequest
 			// Set creation time if empty
 			if ( ! $draftData->isPublishTimeSet()) {
 				$draftData->setCreationTime();
+				
+				$draftEm->flush();
 			}
 			
 			// Pages also need to be checked for path duplicates
