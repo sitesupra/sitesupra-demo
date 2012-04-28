@@ -393,6 +393,7 @@ function (Y) {
 					input = form.getInput(source);
 					if (input) {
 						item = this.getDataListValue(input.get('id'), input.get('value'));
+						
 						if (item) {
 							node.one('span span')
 								.set('text', item.title)
@@ -582,12 +583,12 @@ function (Y) {
 				if (input) input.set('values', data[lists[i]]);
 			}
 			
-			//Set button styles
-			this.styleFontButtons(form);
-			
 			//Show form and update values
 			form.show();
 			form.setValues(data.customize, 'id');
+			
+			//Set button styles
+			this.styleFontButtons(form);
 		},
 		
 		/**
