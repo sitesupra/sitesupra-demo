@@ -188,7 +188,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': false
 		},
 		'active': {
-			'value': true
+			'value': false
 		}
 		
 	};
@@ -423,17 +423,12 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'_onToggleClick': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
-				
-				var view = this.get('tree').get('view');
-				
 				//Prevent overflow check, otherwise it will be done
 				//on toggle and on center, while we need only on center
-				view.set('disabled', true);
+				this.get('tree').get('view').set('disabled', true);
 				
 				//Toggle item
 				this.toggle();
-				
-				view.set('disabled', false);
 			}
 		},
 		
