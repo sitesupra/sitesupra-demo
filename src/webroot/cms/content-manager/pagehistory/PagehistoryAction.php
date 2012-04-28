@@ -73,7 +73,12 @@ class PagehistoryAction extends PageManagerAction
 		foreach ($historyRevisions as $revision) {
 			
 			$userId = $revision->getUser();
-				
+			
+			if (is_null($userId)) {
+				// skip record, if user is not set
+				continue;
+			}
+			
 			$userName = '#' . $userId;
 			$user = $userProvider->findUserById($userId);
 			if ($user instanceof User) {

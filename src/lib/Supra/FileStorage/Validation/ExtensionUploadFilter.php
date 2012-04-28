@@ -14,7 +14,7 @@ class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidatio
 	 * Validates file extension
 	 * @param File $file 
 	 */
-	public function validateFile(File $file, $sourceFilePath)
+	public function validateFile(File $file, $sourceFilePath = null)
 	{
 		$result = $this->checkList($file->getExtension());
 		

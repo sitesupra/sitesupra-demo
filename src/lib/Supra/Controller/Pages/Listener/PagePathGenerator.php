@@ -25,22 +25,23 @@ class PagePathGenerator implements EventSubscriber
 //	 * Called after page structure changes
 //	 */
 //	const postPageMove = 'postPageMove';
-	
+
 	/**
 	 * Called after page duplication
 	 */
+
 	const postPageClone = 'postPageClone';
-	
+
 	/**
 	 * @var EntityManager
 	 */
 	private $em;
-	
+
 	/**
 	 * @var UnitOfWork
 	 */
 	private $unitOfWork;
-	
+
 	/**
 	 * This class is used by path regeneration command as well
 	 * @param EntityManager $em
@@ -52,7 +53,7 @@ class PagePathGenerator implements EventSubscriber
 			$this->unitOfWork = $em->getUnitOfWork();
 		}
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @return array
@@ -60,12 +61,12 @@ class PagePathGenerator implements EventSubscriber
 	public function getSubscribedEvents()
 	{
 		return array(
-			Events::onFlush, 
+			Events::onFlush,
 			NestedSetEvents::nestedSetPostMove,
 			self::postPageClone
 		);
 	}
-	
+
 	/**
 	 * @param OnFlushEventArgs $eventArgs
 	 */
@@ -73,7 +74,7 @@ class PagePathGenerator implements EventSubscriber
 	{
 		$this->em = $eventArgs->getEntityManager();
 		$this->unitOfWork = $this->em->getUnitOfWork();
-		
+
 		// New localization creation, could contain children already, need to recurse into children
 		foreach ($this->unitOfWork->getScheduledEntityInsertions() as $entity) {
 			if ($entity instanceof Entity\PageLocalization) {
@@ -84,11 +85,11 @@ class PagePathGenerator implements EventSubscriber
 		// Page path is not set from inserts, updates only
 		foreach ($this->unitOfWork->getScheduledEntityUpdates() as $entity) {
 			if ($entity instanceof Entity\PageLocalization) {
-				
+
 				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
-				
+
 				// Run only if pathPart or page activity has changed. Run for all children.
-				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess'])) {
+				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess']) || isset($changeSet['visibleInSitemap'])) {
 					$this->pageLocalizationChange($entity);
 				}
 			}
@@ -100,7 +101,7 @@ class PagePathGenerator implements EventSubscriber
 			}
 		}
 	}
-	
+
 	/**
 	 * This is called for public schema when structure is changed in draft schema
 	 * @param NestedSetEventArgs $eventArgs
@@ -113,13 +114,13 @@ class PagePathGenerator implements EventSubscriber
 
 		if ($entity instanceof Entity\Page) {
 			$changedLocalizations = $this->pageChange($entity, false);
-			
+
 			foreach ($changedLocalizations as $changedLocalization) {
 				$this->em->flush($changedLocalization);
 			}
 		}
 	}
-	
+
 	/**
 	 * Finds Localizations without generated path, but with defined pathPart
 	 * (happens when page is cloned, also is usable on page create action), and 
@@ -132,15 +133,15 @@ class PagePathGenerator implements EventSubscriber
 		$entity = $eventArgs->getEntity();
 		$this->em = $eventArgs->getEntityManager();
 		$this->unitOfWork = $this->em->getUnitOfWork();
-		
+
 		if ($entity instanceof Entity\PageLocalization) {
 			$this->generatePath($entity, true);
-		} else 	if ($entity instanceof Entity\Page) {
+		} else if ($entity instanceof Entity\Page) {
 			// Run for all children, every locale
 			$this->pageChange($entity, true);
 		}
 	}
-	
+
 	/**
 	 * Called when page structure is changed
 	 * @param Entity\Page $master
@@ -164,17 +165,17 @@ class PagePathGenerator implements EventSubscriber
 				->getResult();
 
 		$changedLocalizations = array();
-		
+
 		foreach ($pageLocalizations as $pageLocalization) {
 			$changedLocalization = $this->generatePath($pageLocalization, $force);
 			if ( ! is_null($changedLocalization)) {
 				$changedLocalizations[] = $changedLocalization;
 			}
 		}
-		
+
 		return $changedLocalizations;
 	}
-	
+
 	/**
 	 * Recurse path regeneration for the localization and all its descendants
 	 * @param Entity\PageLocalization $localization
@@ -202,7 +203,7 @@ class PagePathGenerator implements EventSubscriber
 			$this->generatePath($pageLocalization);
 		}
 	}
-	
+
 	/**
 	 * Generates new full path and validates its uniqueness
 	 * @param Entity\PageLocalization $pageData
@@ -211,23 +212,23 @@ class PagePathGenerator implements EventSubscriber
 	public function generatePath(Entity\PageLocalization $pageData, $force = false)
 	{
 		$page = $pageData->getMaster();
-		
+
 		$oldPath = $pageData->getPath();
 		$changes = false;
-		
+
 		$oldPathEntity = $pageData->getPathEntity();
-		
-		list($newPath, $active, $limited) = $this->findPagePath($pageData);
-		
+
+		list($newPath, $active, $limited, $inSitemap) = $this->findPagePath($pageData);
+
 		if ( ! $page->isRoot()) {
-			
+
 			if ( ! Path::compare($oldPath, $newPath)) {
 
 				$suffix = null;
-				
+
 				// Check duplicates only if path is not null
 				if ( ! is_null($newPath)) {
-					
+
 					// Additional check for path length
 					$pathString = $newPath->getPath();
 					if (mb_strlen($pathString) > 255) {
@@ -250,7 +251,7 @@ class PagePathGenerator implements EventSubscriber
 								if ($i > 101) {
 									throw new Exception\RuntimeException("Couldn't find unique path for new page", null, $e);
 								}
-								
+
 								// Will try adding unique suffix after 100 iterations
 								if ($i > 100) {
 									$suffix = uniqid();
@@ -258,20 +259,20 @@ class PagePathGenerator implements EventSubscriber
 									$suffix = $i;
 								}
 								$pageData->setPathPart($pathPart . '-' . $suffix);
-								list($newPath, $active, $limited) = $this->findPagePath($pageData);
+								list($newPath, $active, $limited, $inSitemap) = $this->findPagePath($pageData);
 
-								$i++;
+								$i ++;
 							}
 						}
-					}  while ($force && ! $pathValid);
-					
+					} while ($force && ! $pathValid);
+
 					if ($e instanceof DuplicatePagePathException && ! $pathValid) {
 						throw $e;
 					}
 				}
 
 				// Validation passed, set the new path
-				$pageData->setPath($newPath, $active, $limited);
+				$pageData->setPath($newPath, $active, $limited, $inSitemap);
 				if ( ! is_null($suffix)) {
 					$pageData->setTitle($pageData->getTitle() . " ($suffix)");
 				}
@@ -279,35 +280,35 @@ class PagePathGenerator implements EventSubscriber
 			}
 		} elseif ($page->getLeftValue() == 1) {
 			$newPath = new Path('');
-			
+
 			// Root page
 			if ( ! $newPath->equals($oldPath)) {
 				$changes = true;
-				$pageData->setPath($newPath);
+				$pageData->setPath($newPath, $active, $limited, $inSitemap);
 			}
-		// Another root page...
+			// Another root page...
 		} else {
 			$newPath = null;
 			$active = false;
-			$pageData->setPath($newPath, $active);
+			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 		}
-		
-		if ($oldPathEntity->isLimited() !== $limited 
+
+		if ($oldPathEntity->isLimited() !== $limited
 				|| $oldPathEntity->isActive() !== $active) {
-				
-			$pageData->setPath($newPath, $active, $limited);
+
+			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 			$changes = true;
 		}
-		
+
 		if ($changes) {
 			$pathEntity = $pageData->getPathEntity();
 			$pathMetaData = $this->em->getClassMetadata($pathEntity->CN());
 			$localizationMetaData = $this->em->getClassMetadata($pageData->CN());
-			
+
 			if ($this->unitOfWork->getEntityState($pathEntity) === UnitOfWork::STATE_NEW) {
 				$this->em->persist($pathEntity);
 			}
-			
+
 			/*
 			 * Add the path changes to the changeset, must call different 
 			 * methods depending on is the entity inside the unit of work
@@ -318,17 +319,17 @@ class PagePathGenerator implements EventSubscriber
 			} else {
 				$this->unitOfWork->computeChangeSet($pathMetaData, $pathEntity);
 			}
-			
+
 			if ($this->unitOfWork->getEntityChangeSet($pageData)) {
 				$this->unitOfWork->recomputeSingleEntityChangeSet($localizationMetaData, $pageData);
 			} else {
 				$this->unitOfWork->computeChangeSet($localizationMetaData, $pageData);
 			}
-			
+
 			return $pageData;
 		}
 	}
-	
+
 	/**
 	 * Throws exception if page duplicate is found
 	 * @param Entity\PageLocalization $pageData
@@ -339,7 +340,7 @@ class PagePathGenerator implements EventSubscriber
 		$page = $pageData->getMaster();
 		$locale = $pageData->getLocale();
 		$repo = $this->em->getRepository(Entity\PageLocalizationPath::CN());
-		
+
 		$newPathString = $newPath->getFullPath();
 
 		// Duplicate path validation
@@ -355,7 +356,7 @@ class PagePathGenerator implements EventSubscriber
 			throw new Exception\DuplicatePagePathException("Page with path \"{$newPathString}\" already exists", $pageData);
 		}
 	}
-	
+
 	/**
 	 * Loads page path
 	 * @param Entity\PageLocalization $pageData
@@ -365,41 +366,47 @@ class PagePathGenerator implements EventSubscriber
 	{
 		$active = true;
 		$limited = false;
+		$inSitemap = true;
+
 		$path = new Path();
-		
+
 		// Inactive page children have no path
 		if ( ! $pageData->isActive()) {
 			$active = false;
 		}
-		
+
 		if ($pageData->isLimitedAccessPage()) {
 			$limited = true;
 		}
-		
-		$pathPart = $pageData->getPathPart();
-		
-		if (is_null($pathPart)) {
-			return array(null, false, false);
+
+		if (! $pageData->isVisibleInSitemap()) {
+			$inSitemap = false;
 		}
-		
+
+		$pathPart = $pageData->getPathPart();
+
+		if (is_null($pathPart)) {
+			return array(null, false, false, false);
+		}
+
 		$path->prependString($pathPart);
-		
+
 		$page = $pageData->getMaster();
 		$locale = $pageData->getLocale();
-		
+
 		$parentPage = $page->getParent();
 
 		if (is_null($parentPage)) {
-			return array($path, $active, $limited);
+			return array($path, $active, $limited, $inSitemap);
 		}
-		
+
 		$parentLocalization = $parentPage->getLocalization($locale);
-		
+
 		// No parent page localization
 		if (is_null($parentLocalization)) {
-			return array(null, false, false);
+			return array(null, false, false, false);
 		}
-		
+
 		// Page application feature to generate base path for pages
 		if ($parentPage instanceof Entity\ApplicationPage) {
 			$applicationId = $parentPage->getApplicationId();
@@ -414,20 +421,20 @@ class PagePathGenerator implements EventSubscriber
 			$pathBasePart = $application->generatePath($pageData);
 			$path->prepend($pathBasePart);
 		}
-		
+
 		// Search nearest page parent
 		while ( ! $parentLocalization instanceof Entity\PageLocalization) {
 			$parentPage = $parentPage->getParent();
-			
+
 			if (is_null($parentPage)) {
-				return array($pageData->getPathPart(), $active, $limited);
+				return array($pageData->getPathPart(), $active, $limited, $inSitemap);
 			}
-			
+
 			$parentLocalization = $parentPage->getLocalization($locale);
-			
+
 			// No parent page localization
 			if (is_null($parentLocalization)) {
-				return array(null, false, false);
+				return array(null, false, false, false);
 			}
 		}
 
@@ -435,27 +442,31 @@ class PagePathGenerator implements EventSubscriber
 //		if ( ! $parentLocalization->isActive()) {
 //			$active = false;
 //		}
-		
 		// Assume that path is already regenerated for the parent
 		$parentPath = $parentLocalization->getPathEntity()->getPath();
 		$parentActive = $parentLocalization->getPathEntity()->isActive();
 		$parentLimited = $parentLocalization->getPathEntity()->isLimited();
+		$parentInSitemap = $parentLocalization->getPathEntity()->isVisibleInSitemap();
 
 		if ( ! $parentActive) {
 			$active = false;
 		}
-		
+
 		if ($parentLimited) {
 			$limited = true;
 		}
 
-		if (is_null($parentPath)) {
-			return array(null, false, false);
+		if ( ! $parentInSitemap) {
+			$inSitemap = false;
 		}
-		
+
+		if (is_null($parentPath)) {
+			return array(null, false, false, false);
+		}
+
 		$path->prepend($parentPath);
 
-		return array($path, $active, $limited);
+		return array($path, $active, $limited, $inSitemap);
 	}
-		
+
 }

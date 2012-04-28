@@ -14,11 +14,11 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 					{"id": "inserttable", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
 					{"type": "separator"},
-					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"},
-					{"type": "separator"},
 					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
 					{"type": "separator"},
-					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"}
+					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
+					{"type": "separator"},
+					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]
 			},
 			{
@@ -38,6 +38,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 					{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
 					{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+					{"type": "separator"},
+					{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
+					{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
 					{"id": "type", "type": "dropdown", "command": "type"},
 					{"id": "style", "type": "dropdown", "command": "style"}
