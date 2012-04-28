@@ -330,12 +330,19 @@ function (Y) {
 		handlePageMove: function (evt) {
 			var node = evt.node,
 				reference = node.next(),
-				
-				post_data = {
+				reference_type = 'before';
+			
+			if ( ! reference) {
+				reference = node.previous();
+				reference_type = 'after';
+			}
+			
+			var post_data = {
 					//New parent ID
 					'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
 					//Item ID before which drag item was inserted
 					'reference_id': reference ? reference.get('data').id : '',
+					'reference_type': reference_type,
 					//Dragged item ID
 					'page_id': node.get('data').id,
 					

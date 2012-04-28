@@ -969,6 +969,10 @@ abstract class PageManagerAction extends CmsAction
 		$em = $this->entityManager;
 		
 		$page = $pageLocalization->getMaster();
+		
+		if ($page instanceof Page && $page->isRoot()) {
+			throw new CmsException(null, 'Not allowed to duplicate the root page');
+		}
 
 		$clonePage = function() use ($request, $em, $page) {
 			/* @var $request PageRequestEdit */
@@ -994,11 +998,7 @@ abstract class PageManagerAction extends CmsAction
 				->getNestedSetRepository()
 				->add($newPage);
 			
-			if ($page->hasParent()) {
-				$newPage->moveAsNextSiblingOf($page);
-			} else {
-				$newPage->moveAsFirstChildOf($page);
-			}
+			$newPage->moveAsNextSiblingOf($page);
 
 			$eventArgs = new PageEventArgs();
 			$eventArgs->setEntityManager($em);

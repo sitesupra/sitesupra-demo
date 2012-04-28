@@ -1060,8 +1060,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_setDraggable': function (draggable) {
-			//Root nodes can't be dragged
-			if (this.get('root')) {
+			//Page root node can't be dragged
+			if (this.get('root') && this.get('tree').get('mode') == 'pages') {
 				return false;
 			}
 			if (this._dnd && !this.get('dndLocked')) {
