@@ -82,7 +82,7 @@ function (Y) {
 				"id": "headingFont",
 				"type": "Fonts",
 				
-				"property": "font-family",				//css property which will be changed
+				"property": "fontFamily",				//css property which will be changed
 				"target": ".su-customize-font-heading"	//css classname which will be changed
 			},
 			"bodyColor": {
@@ -96,7 +96,7 @@ function (Y) {
 				"id": "bodyFont",
 				"type": "Fonts",
 				
-				"property": "font-family",				//css property which will be changed
+				"property": "fontFamily",				//css property which will be changed
 				"target": ".su-customize-font-body"		//css classname which will be changed
 			}
 		}
@@ -393,7 +393,6 @@ function (Y) {
 					input = form.getInput(source);
 					if (input) {
 						item = this.getDataListValue(input.get('id'), input.get('value'));
-						
 						if (item) {
 							node.one('span span')
 								.set('text', item.title)

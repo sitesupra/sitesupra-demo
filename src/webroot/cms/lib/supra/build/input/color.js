@@ -468,6 +468,8 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_moveMapCursor: function (e) {
+			if (!this.mapPosition) return;
+			
 			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
 				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
 				dark = ((x + y) < 55),
@@ -543,6 +545,8 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_updateMapColor: function (e) {
+			if (!this.mapPosition) return;
+			
 			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
 				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
 				dark = (x + y) < 55,

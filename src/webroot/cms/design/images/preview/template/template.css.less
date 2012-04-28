@@ -174,6 +174,9 @@ input[type="submit"], button {
 	background-image: -moz-linear-gradient(top, @colorA @posA, @colorB @posB);
 	background-image: -webkit-linear-gradient(top, @colorA @posA, @colorB @posB);
 	background-image: -ms-linear-gradient(top, @colorA @posA, @colorB @posB);
+	
+	//IE7 - IE9 fallback
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=@colorA, endColorstr=@colorB);
 }
 .multi-gradient (@colorA, @posA: 0%, @colorB, @posB: 50%, @colorC, @posC: 51%, @colorD, @posD: 100%) {
 	background-image: linear-gradient(top, @colorA @posA, @colorB @posB, @colorC @posC, @colorD @posD);
@@ -181,6 +184,9 @@ input[type="submit"], button {
 	background-image: -moz-linear-gradient(top, @colorA @posA, @colorB @posB, @colorC @posC, @colorD @posD);
 	background-image: -webkit-linear-gradient(top, @colorA @posA, @colorB @posB, @colorC @posC, @colorD @posD);
 	background-image: -ms-linear-gradient(top, @colorA @posA, @colorB @posB, @colorC @posC, @colorD @posD);
+	
+	//IE7 - IE9 fallback
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=@colorA, endColorstr=@colorD);
 }
 
 .btn {

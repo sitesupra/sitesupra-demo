@@ -278,7 +278,7 @@ YUI.add("website.iframe", function (Y) {
 				
 				//Update styles
 				if (style) {
-					replaced = style.replace(/(#[0-9ABCDEF]+|rgb(a)?\([0-9\.\,\s]+\))/g, function (a) { return colorMix(a, color) });
+					replaced = style.replace(/(#[0-9ABCDEF]+|rgb(a)?\([0-9\.\,\s]+\))/gi, function (a) { return colorMix(a, color) });
 					
 					if (replaced != style) {
 						styles[property] = replaced;
@@ -455,7 +455,13 @@ YUI.add("website.iframe", function (Y) {
 			var rules = this.getStyleSheetRulesBySelector(selector);
 			
 			this.updateRulesPropertyColor('backgroundColor', rules, color);
-			this.updateRulesPropertyColor('backgroundImage', rules, color);
+			
+			if (Y.UA.ie && Y.UA.ie < 10) {
+				this.updateRulesPropertyColor('filter', rules, color);
+			} else {
+				this.updateRulesPropertyColor('backgroundImage', rules, color);
+			}
+			
 			this.updateRulesPropertyColor('borderTopColor', rules, color);
 			this.updateRulesPropertyColor('borderBottomColor', rules, color);
 			this.updateRulesPropertyColor('borderLeftColor', rules, color);

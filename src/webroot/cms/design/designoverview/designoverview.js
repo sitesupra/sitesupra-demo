@@ -114,13 +114,13 @@ function (Y) {
 					'action': 'DesignOverview',
 					'type': 'tab'
 				},
-				{
+				/*{
 					'id': 'themes',
 					'title': Supra.Intl.get(['design', 'toolbar', 'themes']),
 					'icon': icon_path + 'icon-themes.png',
 					'action': 'Themes',
 					'type': 'tab'
-				},
+				},*/
 				{
 					'id': 'preview',
 					'title': Supra.Intl.get(['design', 'toolbar', 'preview']),

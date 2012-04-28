@@ -39,6 +39,18 @@ YUI.add("website.imageslider", function (Y) {
 		{"transform": "scale(0.6) translate(360px, 0)", "opacity": 0}
 	];
 	
+	//IE9 fix
+	if (Y.UA.ie && Y.UA.ie < 10) {
+		TRANSFORMATIONS = Y.Array.map(TRANSFORMATIONS, function (item) {
+			if (item.transform) {
+				//YUI doesn't convert transform into msTransform
+				item.msTransform = item.transform;
+			}
+			return item;
+		});
+	}
+	
+	
 	function ImageSlider (config) {
 		ImageSlider.superclass.constructor.apply(this, arguments);
 		
@@ -85,6 +97,13 @@ YUI.add("website.imageslider", function (Y) {
 		 * @private
 		 */
 		nodes: null,
+		
+		/**
+		 * Key event object
+		 * @type {Object}
+		 * @private
+		 */
+		eventKeyPress: null,
 		
 		
 		
@@ -228,8 +247,12 @@ YUI.add("website.imageslider", function (Y) {
 						easing: "ease-in-out"
 					}, trans);
 					
-					node.setStyles(prop);
-					node.transition(trans);
+					if (Y.UA.ie && Y.UA.ie < 10) {
+						node.setStyles(prop).setStyles(trans);
+					} else {
+						node.setStyles(prop);
+						node.transition(trans);
+					}
 				}
 				
 			} else {
@@ -271,8 +294,12 @@ YUI.add("website.imageslider", function (Y) {
 						easing: "ease-in-out"
 					}, trans);
 					
-					node.setStyles(prop);
-					node.transition(trans);
+					if (Y.UA.ie && Y.UA.ie < 10) {
+						node.setStyles(prop).setStyles(trans);
+					} else {
+						node.setStyles(prop);
+						node.transition(trans);
+					}
 				}
 			}
 			
@@ -403,9 +430,11 @@ YUI.add("website.imageslider", function (Y) {
 			var prev = this.get('disabled');
 			if (prev != disabled) {
 				if (disabled) {
-					Y.detach('key', this._onKeyProxy);
+					if (this.eventKeyPress) {
+						this.eventKeyPress.detach();
+					}
 				} else {
-					Y.on('key', this._onKeyProxy, document, 'arrowleft,arrowright');
+					this.eventKeyPress = Y.on('key', this._onKeyProxy, document, 'arrowleft,arrowright');
 				}
 			}
 			

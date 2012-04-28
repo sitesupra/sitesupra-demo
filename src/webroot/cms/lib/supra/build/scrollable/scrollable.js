@@ -631,7 +631,9 @@ YUI.add('supra.scrollable', function (Y) {
 			
 			//Resize
 			node.detach('contentResize', this.syncUIThrottled);
-			node.get('parentNode').detach('contentResize', this.syncUIThrottled);
+			
+			var parent = node.get('parentNode');
+			if (parent) parent.detach('contentResize', this.syncUIThrottled);
 			
 			//Container resize
 			node = node.closest('.left-container, .right-container');
