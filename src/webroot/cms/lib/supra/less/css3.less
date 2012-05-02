@@ -72,11 +72,13 @@
 .transform (@property) {
 	-moz-transform: @property;
 	-webkit-transform: @property;
+	-ms-transform: @property;
 	transform: @property;
 }
 .transform-origin (@property) {
 	-moz-transform-origin: @property;
 	-webkit-transform-origin: @property;
+	-ms-transform-origin: @property;
 	transform-origin: @property;
 }
 /*
@@ -86,36 +88,40 @@
 	-o-transition: @property;
 	-moz-transition: @property;
 	-webkit-transition: @property;
+	-ms-transition: @property;
 	transition: @property;
 }
 .transition (@a, @b) {
 	-o-transition: @a, @b;
 	-moz-transition: @a, @b;
 	-webkit-transition: @a, @b;
+	-ms-transition: @a, @b;
 	transition: @a, @b;
 }
 .transition (@a, @b, @c) {
 	-o-transition: @a, @b, @c;
 	-moz-transition: @a, @b, @c;
 	-webkit-transition: @a, @b, @c;
+	-ms-transition: @a, @b, @c;
 	transition: @a, @b, @c;
 }
 .transition-origin (@property) {
 	-o-transition-origin: @property;
 	-moz-transition-origin: @property;
 	-webkit-transition-origin: @property;
+	-ms-transition-origin: @property;
 	transition-origin: @property;
 }
 
 .transition-property (@property) {
-	-o-transition-property: @property; -moz-transition-property: @property; -webkit-transition-property: @property; transition-property: @property;
+	-o-transition-property: @property; -moz-transition-property: @property; -webkit-transition-property: @property; -ms-transition-property: @property; transition-property: @property;
 }
 
 .transition-duration (@duration) {
-	-o-transition-duration: @arguments; -moz-transition-duration: @arguments; -webkit-transition-duration: @arguments; transition-duration: @arguments;
+	-o-transition-duration: @arguments; -moz-transition-duration: @arguments; -webkit-transition-duration: @arguments; -ms-transition-duration: @arguments; transition-duration: @arguments;
 }
 .transition-duration (@a, @b) {
-	-o-transition-duration: @a, @b; -moz-transition-duration: @a, @b; -webkit-transition-duration: @a, @b; transition-duration: @a, @b;
+	-o-transition-duration: @a, @b; -moz-transition-duration: @a, @b; -webkit-transition-duration: @a, @b; -ms-transition-duration: @a, @b; transition-duration: @a, @b;
 }
 
 /*

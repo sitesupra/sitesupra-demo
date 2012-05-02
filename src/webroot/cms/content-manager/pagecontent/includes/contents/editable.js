@@ -331,7 +331,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 					//If there is no inline node, fail silently
 					inline_node = node.one('#' + this.getNodeId() + '_' + properties[i].id);
 					if (!inline_node) {
-						//Y.error('Block "' + this.getId() + '" (' + this.getBlockType() + ') is missing HTML node for property "' + id + '" (' + properties[i].type + ')');
 						continue;
 					}
 					
@@ -447,13 +446,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 		_reloadContentSetHTML: function (data) {
 			if (data && data.internal_html) {
 				//Get values
-				var inline_inputs = this.inline_inputs,
-					values = {},
+				var values = this.properties.get('form').getValues('id'),
 					active_inline_property = this.get('active_inline_property');
-				
-				for(var i in inline_inputs) {
-					values[i] = inline_inputs[i].get('value');
-				}
 				
 				//Unset active inline property
 				if (active_inline_property) {
@@ -464,11 +458,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 				this.getNode().set('innerHTML', data.internal_html);
 				
 				//Recreate inline inputs
-				var properties_handler = this.properties,
-					input = null;
+				var properties_handler	= this.properties,
+					properties			= properties_handler.get('properties'),
+					id					= null;
 				
-				for(var i in inline_inputs) {
-					input = properties_handler.resetProperty(i, values[i]);
+				for(var i=0, ii=properties.length; i<ii; i++) {
+					if (properties[i].inline) {
+						id = properties[i].id;
+						properties_handler.resetProperty(id, values[id]);
+					}
 				}
 				
 				//Update inline input list
@@ -476,7 +474,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 				
 				//Restore current active inline property
 				if (active_inline_property) {
-					this.set('active_inline_property', active_inline_property);
+					if (!(active_inline_property in this.inline_inputs)) {
+						for(active_inline_property in this.inline_inputs) {
+							//We need only first property
+							break;
+						}
+					}
+					if (active_inline_property in this.inline_inputs) {
+						this.set('active_inline_property', active_inline_property);
+					}
 				}
 				
 				//Update overlay position
