@@ -20,6 +20,7 @@ $cliCommandClasses = array(
 	//'Supra\Controller\Pages\Command\LayoutAddCommand',
 	'Supra\Controller\Pages\Command\ThemeAddCommand',
 	'Supra\Controller\Pages\Command\ThemeRemoveCommand',
+	'Supra\Controller\Pages\Command\ThemeSetActiveCommand',
 	'Supra\Controller\Pages\Command\UpgradeTemplateLayoutsCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
