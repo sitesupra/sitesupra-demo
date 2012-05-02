@@ -501,6 +501,23 @@ YUI().add('website.sitemap-tree-data', function (Y) {
 		},
 		
 		/**
+		 * Sets page children as loaded
+		 * 
+		 * @param {String} id Page ID
+		 * @param {Boolean} loaded True to set page as loaded, otherwise false
+		 * @return TreeData object for chaining
+		 * @type {Object}
+		 */
+		'setIsLoaded': function (id, loaded) {
+			if (loaded) {
+				this._loaded[id] = true;
+			} else {
+				delete(this._loaded[id]);
+			}
+			return this;
+		},
+		
+		/**
 		 * Returns true if children data for this item is being loaded,
 		 * otherwise false
 		 * 

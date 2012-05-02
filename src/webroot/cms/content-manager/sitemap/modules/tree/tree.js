@@ -870,6 +870,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 * @param {Number} time in milliseconds to wait
 		 */
 		'expand': function(node, when) {
+			if (!node) return;
+			
 			when = when || 0;
 			this.stopExpand();
 			this._expandTimer = Y.later(when, this, function(node) {
