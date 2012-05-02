@@ -1017,6 +1017,15 @@ abstract class PageManagerAction extends CmsAction
 		};
 		
 		$newPage = $em->transactional($clonePage);
+		
+		$newLocalizations = $newPage->getLocalizations();
+		foreach($newLocalizations as $newLocalization) {
+			if ($newLocalization instanceof Entity\TemplateLocalization) {
+				$this->pageData = $newLocalization;
+				$this->publish();
+			}	
+		}
+		
 		$currentLocale = $this->getLocale()
 				->getId();
 		

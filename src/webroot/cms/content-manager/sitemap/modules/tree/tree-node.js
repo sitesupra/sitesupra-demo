@@ -32,9 +32,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					\
 					{# NB! is/not active actually means published/unpublished #}\
 					\
-					{% elseif (type == "page" or type == "template") and ! active %}\\n\
+					{% elseif type == "page" and !active %}\\n\
 						<div class="status-special status-not-published">{{ "sitemap.status_not_published"|intl }}</div>\
-					{% elseif (type == "page" or type == "template") and ! published %}\\n\
+					{% elseif type == "page" and ! published %}\\n\
 						<div class="status-special status-draft">{{ "sitemap.status_draft"|intl }}</div>\
 					{% endif %}\
 				</div>\
