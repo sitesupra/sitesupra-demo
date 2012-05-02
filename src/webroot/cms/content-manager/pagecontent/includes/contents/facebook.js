@@ -116,27 +116,27 @@ YUI.add('supra.page-content-facebook', function (Y) {
 		},
 		
 		onApplicationData: function (data, status) {
-			if(data !== false) {	
+			if (data !== false) {	
 				this.initFB(data.application_id);
 				
-				if(data.facebook_data != true){
+				if (data.facebook_data != true) {
 					this.container.one('a').removeClass('hidden');
 				}
 				
-				if(data.facebook_data == true && data.fetched_pages.length > 0) {	
+				if (data.facebook_data == true && data.fetched_pages && data.fetched_pages.length > 0) {	
 					this.container.one('h2').removeClass('hidden');
-				
+					
 					var html = this.fetchedTemplate({
 						'pages': data.fetched_pages
 					});
 					this.container.one('ul.fetched-pages').set('innerHTML', html);
 				}
 				
-				if(data.available_pages.length > 0) {	
+				if (data.available_pages && data.available_pages.length > 0) {	
 					
 					this.fillDropdown(data.available_pages);
 					
-					if(this.existingPages.get('value') != ''){
+					if(this.existingPages.get('value') != '') {
 						this.form.getInput('tab_name').removeClass('hidden');
 					}
 					
