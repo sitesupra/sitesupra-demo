@@ -253,7 +253,10 @@ class PagecontentAction extends PageManagerAction
 		$this->entityManager->flush();
 		
 		$controllerClass = $this->getPageControllerClass();
-		
+
+		// Regenerate the request object
+		$request = $this->getPageRequest();
+
 		// Need to be inside page and block controller scopes
 		ObjectRepository::beginControllerContext($controllerClass);
 		ObjectRepository::beginControllerContext($blockController);
