@@ -114,6 +114,7 @@ class UpgradeTemplateLayoutsCommand extends Command
 	{
 		$this->setName('su:pages:upgrade_layouts')
 				->setDescription('Upgrade template layouts to support themes.')
+				->addOption('theme', null, Input\InputArgument::OPTIONAL, 'Theme name', 'default')
 				->addOption('provider', null, Input\InputArgument::OPTIONAL, 'Theme provider namespance', null);
 	}
 
@@ -127,9 +128,11 @@ class UpgradeTemplateLayoutsCommand extends Command
 		$this->setThemeProviderNamespace($providerNamespace);
 
 		$themeProvider = $this->getThemeProvider();
+		
+		$themeName = $input->getOption('provider');
 
 		/* @var $theme Theme */
-		$theme = $themeProvider->findThemeByName('default');
+		$theme = $themeProvider->findThemeByName($themeName);
 
 		$em = $this->getEntityManager();
 
