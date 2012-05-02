@@ -6,9 +6,12 @@ use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 
-$rootDir = getcwd();
+// When used with symbolic links
+$rootDir = dirname(dirname(__DIR__));
+$baseName = basename(__FILE__);
 
-if ( ! file_exists($rootDir . '/src/conf/supra.ini')) {
+// Otherwise
+if (realpath($rootDir . '/bin/' . $baseName) !== realpath(__FILE__)) {
 	$rootDir = dirname(__DIR__);
 }
 
