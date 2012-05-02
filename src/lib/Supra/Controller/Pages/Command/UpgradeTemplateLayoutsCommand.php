@@ -129,7 +129,7 @@ class UpgradeTemplateLayoutsCommand extends Command
 
 		$themeProvider = $this->getThemeProvider();
 		
-		$themeName = $input->getOption('provider');
+		$themeName = $input->getOption('theme');
 
 		/* @var $theme Theme */
 		$theme = $themeProvider->findThemeByName($themeName);

@@ -24,7 +24,7 @@ class WriteableIniConfigurationLoaderEventListener
 	/**
 	 * @param FrontControllerShutdownEventArgs $eventArgs 
 	 */
-	public function frontControllerShutdownEvent(FrontControllerShutdownEventArgs $eventArgs)
+	public function frontControllerShutdownEvent(FrontControllerShutdownEventArgs $eventArgs = null)
 	{
 		$loader = $this->loader;
 
