@@ -28,6 +28,7 @@ use Supra\Info;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Controller\Layout\Theme\DefaultThemeProvider;
+use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 /**
  * Object repository
@@ -1229,6 +1230,9 @@ class ObjectRepository
 			$themeProvider = new DefaultThemeProvider();
 			$themeProvider->setUrlBase('/themes/');
 			$themeProvider->setRootDir(SUPRA_PATH . DIRECTORY_SEPARATOR . 'webroot/themes');
+			
+			$writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
+			self::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
 
 			self::setDefaultThemeProvider($themeProvider);
 		}

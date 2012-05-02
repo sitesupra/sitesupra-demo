@@ -37,7 +37,7 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 
 	/**
 	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
+	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=true)
 	 * @var Layout
 	 */
 	protected $layoutOld;

@@ -92,6 +92,16 @@ class ThemeLayout extends Database\Entity
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getFile()
+	{
+		\Log::warn('getFile() is depreacted, use getFilename() instead!');
+
+		return $this->getFilename();
+	}
+
+	/**
 	 * @param string $filename 
 	 */
 	public function setFilename($filename)
