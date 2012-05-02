@@ -137,7 +137,9 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	 */
 	public function setActiveTheme(Theme $theme)
 	{
-		throw new Exception\RuntimeException('Theme change not implemented.');
+		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
+
+		$iniLoader->getValue('system', 'active_theme', $theme->getName());
 	}
 
 	/**
