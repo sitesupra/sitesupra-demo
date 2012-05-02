@@ -144,6 +144,14 @@ SU('anim', function (Y) {
 		 * @param {String} version_id
 		 */
 		restoreVersion: function (version_id) {
+			var iframe = Manager.getAction('PageContent').iframe_handler;
+			
+			//Make sure there are no leftovers from previous JS by reloading iframe
+			iframe.get('doc').location = "about:blank";
+			
+			//Disable page preview
+			iframe.set('loading', true);
+			
 			//Disable elements
 			this.set('loading', true);
 			this.get('controlButton').set('disabled', true);
