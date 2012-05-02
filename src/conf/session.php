@@ -16,7 +16,6 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\SampleAuthentication\SampleAuthenticationPreFilter',
 	'Project\SocialMedia\SocialMediaController',
 	'Project\CmsRemoteLogin\Controller',
-	'Project\Payment',
 );
 $sessionManagerConfiguration->configure();
 
@@ -32,5 +31,6 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\Blocks\Login\LoginBlock',
 	'Supra\User',
 	'Project\Payment',
+	'Supra\Controller\Pages\PageController',
 );
 $sessionManagerConfiguration->configure();
