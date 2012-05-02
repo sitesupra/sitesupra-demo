@@ -241,7 +241,9 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					this._widgets.datagrid.handleChange();
 					
 					//Center panel
-					this.get('tree').get('view').center(this.get('parent'));
+					this.get('tree').get('view').center(this,
+						this.get('tree').set('visibilityRootNode', this.get('parent'))
+					);
 				} else {
 					return this._setExpandedCollapse();
 				}
