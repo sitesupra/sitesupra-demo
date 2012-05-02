@@ -161,6 +161,8 @@ YUI.add('supra.scrollable', function (Y) {
 			
 			//Disabled state
 			this.after('disabledChange', this.onDisabledChange, this);
+			
+			this.after('renderedChange', this.syncUI, this);
 		},
 		
 		/**
