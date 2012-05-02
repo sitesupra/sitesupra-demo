@@ -297,6 +297,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				i = 0,
 				ii = properties.length,
 				inputs = form.getInputs(),
+				inputs_definition = form.inputs_definition,
 				
 				host = this.get('host'),
 				host_node = host.getNode(),
@@ -311,8 +312,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			if (property && id in inputs) {
-				var srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+			if (property) {
+				var srcNode = null;
+				
+				//Destroy old input
+				if (id in inputs) {
+					inputs[id].destroy();
+				}
+				
+				//Check if input node exists
+				srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+				if (!srcNode) {
+					//Save into plain values
+					form.get('plainValues')[id] = value;
+					
+					delete(inputs[id]);
+					return null;
+				}
 				
 				//Get input config
 				config = Supra.mix({
@@ -326,12 +342,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 					'value': value ? value : property.value
 				});
 				
-				//Destroy old input
-				inputs[id].destroy();
-				
 				//Create new input 
 				inputs[id] = form.factoryField(config);
 				inputs[id].render();
+				
+				//Set config, because inputs without definitions will break form
+				inputs_definition[id] = config;
 				
 				//Restore value
 				inputs[id].set('value', value);
