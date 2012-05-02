@@ -25,5 +25,5 @@
       - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
           name: child
           title: Child Layout
-          filename: child.html.twig
+          filename: zzz/child.html.twig
           

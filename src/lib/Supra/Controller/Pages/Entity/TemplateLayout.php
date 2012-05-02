@@ -36,6 +36,13 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	protected $layoutName;
 
 	/**
+	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
+	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
+	 * @var Layout
+	 */
+	protected $layoutOld;
+
+	/**
 	 * @var ThemeLayout
 	 */
 	protected $layout;
@@ -106,11 +113,11 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	public function getLayout()
 	{
 		if (empty($this->layout)) {
-			
+
 			$template = $this->getTemplate();
-			
+
 			$themeProvider = ObjectRepository::getThemeProvider($this);
-			
+
 			$this->layout = $themeProvider->getCurrentThemeLayoutForTemplate($template, $this->getMedia());
 		}
 
@@ -135,6 +142,11 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	public function getTemplate()
 	{
 		return $this->template;
+	}
+
+	public function getOldLayout()
+	{
+		return $this->layoutOld;
 	}
 
 }
