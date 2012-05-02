@@ -237,11 +237,15 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					this.get('boundingBox').addClass('expanded-list');
 					this.get('parent').syncChildrenPosition();
 					
-					this._widgets.panel.show();
+					this._widgets.panel.show();	
 					this._widgets.datagrid.handleChange();
 					
+					var view = this.get('tree').get('view');
+					view.set('disabled', false);
 					//Center panel
-					this.get('tree').get('view').center(this.get('parent'));
+					view.center(this.get('parent'),
+						this.get('tree').set('visibilityRootNode', this.get('parent'))
+					);	
 				} else {
 					return this._setExpandedCollapse();
 				}

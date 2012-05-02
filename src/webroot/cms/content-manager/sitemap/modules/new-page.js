@@ -213,14 +213,16 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
-				'children': []
+				'children': [],
+				'children_count': 0
 			}, {
 				'type': 'group',
 				'draggable': true,
 				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
-				'children': []
+				'children': [],
+				'children_count': 0
 			}];
 			
 			var i = 0,
@@ -234,7 +236,8 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					'droppable': apps[i].isDropTarget,
 					'new_children_first': apps[i].new_children_first,
 					'state': 'temporary',
-					'children': []
+					'children': [],
+					'children_count': 0
 				});
 			}
 			

@@ -27,7 +27,7 @@ SU('anim', function (Y) {
 	};
 	
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Action = Supra.Manager.Action;
 	
 	//Create Action class
 	new Action(Action.PluginContainer, {
@@ -219,7 +219,7 @@ SU('anim', function (Y) {
 			if (typeof config == 'string') {
 				config = {'message': config};
 			}
-			config = SU.mix({}, DEFAULT_CONFIG, config || {});
+			config = Supra.mix({}, DEFAULT_CONFIG, config || {});
 			
 			this.addMessage(config);
 			

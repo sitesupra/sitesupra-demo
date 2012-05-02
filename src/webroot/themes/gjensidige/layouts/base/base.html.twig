@@ -1,0 +1,84 @@
+<!doctype html>
+<!--[if IE 7]>    <html class="ie ie7 oldie" lang="{{ supra.locale.getProperty('language') }}"> <![endif]-->
+<!--[if IE 8]>    <html class="ie ie8 oldie" lang="{{ supra.locale.getProperty('language') }}"> <![endif]-->
+<!--[if IE 9]>    <html class="ie ie9" lang="{{ supra.locale.getProperty('language') }}"> <![endif]-->
+<!--[if gt IE 9]><!--> <html lang="{{ supra.locale.getProperty('language') }}"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<meta name="Generator" content="SiteSupra&reg; http://www.sitesupra.com" />
+
+	{{ supra.responseContext.getLayoutSnippetContents('meta') | raw }}
+	
+	{% spaceless %}
+		{% set page = supra.request.pageLocalization %}
+		{% if not page.master.isRoot and not page.includedInSearch %}
+			<meta name="robots" content="noindex,follow" />
+		{% endif %}
+	{% endspaceless %}
+	
+	<title>{% block title %}GJENSIDIGE{% endblock %} &ndash; {{ supra.request.pageLocalization.title }}</title>
+	
+	<link type="image/vnd.microsoft.icon" href="/favicon.ico" rel="icon"/>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	
+	<link href="/assets/css/common/reset.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/css/common/common.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/css/common/inputs.css" rel="stylesheet" type="text/css" />
+	<link href="/assets/css/print/common.css" rel="stylesheet" type="text/css" media="print"/>
+
+	{% if supra.cmsRequest %}
+		<link href="/assets/css/editor.css" rel="stylesheet" type="text/css" />
+	{% endif %}
+
+	{{ supra.responseContext.getLayoutSnippetContents('css') | raw }}
+	
+	{% block head %}{% endblock %}
+	{% block css %}{% endblock %}
+	
+	{% if not supra.cmsRequest %}
+	<!--[if lt IE 9]>
+		<link href="/assets/css/common/oldie.css" rel="stylesheet" type="text/css" />
+		<script src="/assets/js/lib/html5.js"></script>
+		{{ supra.responseContext.getLayoutSnippetContents('css-ie9') | raw }}
+	<![endif]-->
+	{% endif %}
+</head>
+
+{% set fontClass = false %}
+{% if supra.request.cookies.font_size %}
+	{% set font_size = supra.request.cookies.font_size %}
+	{% if font_size == 1 %}
+		{% set fontClass = 'font-small' %}
+	{% elseif font_size == 3 %}
+		{% set fontClass = 'font-large' %}
+	{% endif%}
+{% endif%}
+
+<body class="color-{% block color %}blue{% endblock %}{% if fontClass %} {{fontClass}}{% endif %} {{ supra.locale.id}}">
+
+	{% block body %}{% endblock %}
+	
+	<script src="{{ supra.getHost }}/assets/js/lib/jquery-1.7.1.min.js"></script>
+	
+	{% if not supra.cmsRequest %}
+		{% if supra.locale.id != 'ru' %}
+			<script src="/assets/js/lib/cufon.js"></script>
+			<script src="/assets/js/lib/cufon.section.font.js"></script>
+		{% endif %}
+	{% endif %}
+	
+	<script src="{{ supra.getHost }}/assets/js/lib/jquery.dropdown.js"></script>
+	<script src="{{ supra.getHost }}/assets/js/lib/jquery.file.js"></script>
+	<script src="{{ supra.getHost }}/assets/js/common.js"></script>
+	<script src="{{ supra.getHost }}/assets/js/lightbox.js"></script>
+	
+	{% if not supra.cmsRequest %}
+		<script src="/assets/js/lib/jquery.columns.js"></script>
+	{% endif %}
+	{% block js %}{% endblock %}
+	
+	{{ supra.responseContext.getLayoutSnippetContents('js') | raw }}
+		
+</body>
+</html>

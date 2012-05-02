@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-properties', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	var ACTION_TEMPLATE = '\
@@ -168,7 +168,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					if (host_properties.srcNode) {
 						host_properties.contentBox = host_properties.srcNode;
 						host_properties.boundingBox = host_properties.srcNode;
-						form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
 					} else {
 						//If there is no inline node, fail silently
 					}
@@ -225,7 +225,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
 				btn.render(slide).on('click', this.deleteContent, this);
 			
 			this.set('buttonDelete', btn);
@@ -297,6 +297,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				i = 0,
 				ii = properties.length,
 				inputs = form.getInputs(),
+				inputs_definition = form.inputs_definition,
 				
 				host = this.get('host'),
 				host_node = host.getNode(),
@@ -311,8 +312,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			if (property && id in inputs) {
-				var srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+			if (property) {
+				var srcNode = null;
+				
+				//Destroy old input
+				if (id in inputs) {
+					inputs[id].destroy();
+				}
+				
+				//Check if input node exists
+				srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+				if (!srcNode) {
+					//Save into plain values
+					form.get('plainValues')[id] = value;
+					
+					delete(inputs[id]);
+					return null;
+				}
 				
 				//Get input config
 				config = Supra.mix({
@@ -326,12 +342,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 					'value': value ? value : property.value
 				});
 				
-				//Destroy old input
-				inputs[id].destroy();
-				
 				//Create new input 
 				inputs[id] = form.factoryField(config);
 				inputs[id].render();
+				
+				//Set config, because inputs without definitions will break form
+				inputs_definition[id] = config;
 				
 				//Restore value
 				inputs[id].set('value', value);
@@ -404,7 +420,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		deleteContent: function () {
 			Supra.Manager.executeAction('Confirmation', {
-				'message': SU.Intl.get(['page', 'delete_block_confirmation']),
+				'message': Supra.Intl.get(['page', 'delete_block_confirmation']),
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {

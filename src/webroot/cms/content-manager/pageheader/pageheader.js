@@ -65,9 +65,9 @@ Supra('supra.languagebar', function (Y) {
 		 */
 		initialize: function () {
 			//Create language bar
-			this.languagebar = new SU.LanguageBar({
-				'locale': SU.data.get('locale'),
-				'contexts': SU.data.get('contexts')
+			this.languagebar = new Supra.LanguageBar({
+				'locale': Supra.data.get('locale'),
+				'contexts': Supra.data.get('contexts')
 			});
 			
 			//Set available localizations
@@ -211,7 +211,7 @@ Supra('supra.languagebar', function (Y) {
 		setAvailableLocalizations: function (locales, global) {
 			if (!this.languagebar) return;
 			
-			var contexts = SU.data.get('contexts'),
+			var contexts = Supra.data.get('contexts'),
 				context = null,
 				item = null,
 				filtered = [],

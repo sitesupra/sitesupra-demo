@@ -24,7 +24,7 @@ SU('supra.input', function (Y) {
 	};
 	
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Action = Supra.Manager.Action;
 	
 	//Create Action class
 	new Action(Action.PluginPanel, Action.PluginFooter, {
@@ -128,7 +128,7 @@ SU('supra.input', function (Y) {
 		},
 		
 		execute: function (config) {
-			this.config = config = SU.mix({}, DEFAULT_CONFIG, config || {});
+			this.config = config = Supra.mix({}, DEFAULT_CONFIG, config || {});
 			
 			this.renderMessage(config);
 			this.renderButtons(config);

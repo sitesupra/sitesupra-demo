@@ -4,14 +4,14 @@
 SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 
 	//Shortcuts
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
 	//Default properties if none is set in configuration
 	var DEFAULT_PROPERTIES = [{
 			'id': 'title',
 			'type': 'String',
-			'label': SU.Intl.get(['gallerymanager', 'label_title']),
+			'label': Supra.Intl.get(['gallerymanager', 'label_title']),
 			'value': ''
 	}];
 	

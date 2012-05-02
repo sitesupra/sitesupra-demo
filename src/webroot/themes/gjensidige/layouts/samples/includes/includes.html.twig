@@ -1,0 +1,34 @@
+{% block header %}
+	{# Logo #}
+	<a href="/{{ supra.locale.id }}/" title="GJENSIDIGE" class="logo"><img src="/assets/img/common/header/logo.gif" alt="GJENSIDIGE" /></a>
+
+	{# Tools #}
+	{% include 'samples/includes/tools.html.twig' %}
+
+	{# Navigation #}
+	{% include 'samples/includes/first-menu.html.twig' %}
+
+	{# Breadcrumbs #}
+	{% include 'samples/includes/breadcrumbs.html.twig' %}
+{% endblock %}
+
+{% block bottom %}
+	{# Breadcrumbs #}
+	{% include 'samples/includes/breadcrumbs.html.twig' %}
+{% endblock %}
+
+{% block right_menu %}
+	{% include 'samples/includes/third-menu.html.twig' %}
+{% endblock %}
+
+{% block center_menu %}
+	{% include 'samples/includes/second-menu.html.twig' %}
+{% endblock %}
+
+{% block left_menu %}
+	{% include 'samples/includes/fourth-menu.html.twig' %}
+{% endblock %}
+
+{% block footer %}
+	{% include 'samples/includes/footer.html.twig' %}
+{% endblock %}

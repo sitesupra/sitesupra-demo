@@ -2,12 +2,12 @@
 "use strict";
 
 /*
- * SU.Manager.PageContent.Iframe
+ * Supra.Manager.PageContent.Iframe
  */
 YUI.add('supra.iframe-handler', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.PageContent,
 		Root = Manager.getAction('Root');
 	
@@ -445,7 +445,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			}
 			
 			//Add stylesheets to iframe
-			if (!SU.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
+			if (!Supra.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
 				app_path = Supra.data.get(['application', 'path']);
 				link = this.addStyleSheet(app_path + "/pagecontent/iframe.css");
 				if (link) {

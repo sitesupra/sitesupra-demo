@@ -7,13 +7,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	 * Default gallery image properties
 	 */
 	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': SU.Intl.get(['htmleditor', 'label_title']), 'value': ''}
+		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
 	];
 	
 	/*
 	 * Shortcuts
 	 */
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		PageContent = Manager.PageContent;
 	
 	
@@ -53,7 +53,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Manage image button
 			var button = new Supra.Button({
-				'label': SU.Intl.get(['htmleditor', 'manage_images'])
+				'label': Supra.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
 			button.render(container);
@@ -64,7 +64,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Add image button
 			var button = new Supra.Button({
-				'label': SU.Intl.get(['htmleditor', 'add_images'])
+				'label': Supra.Intl.get(['htmleditor', 'add_images'])
 			});
 			
 			button.render(container);
@@ -124,7 +124,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 				//folder was without images
 				if ( ! folderHasImages) {
-					SU.Manager.executeAction('Confirmation', {
+					Supra.Manager.executeAction('Confirmation', {
 					    'message': '{#medialibrary.validation_error.empty_folder_drop#}',
 					    'useMask': true,
 					    'buttons': [
@@ -152,7 +152,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
-			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
+			Supra.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
 				if (changed) {
 					this.unresolved_changes = true;
 					

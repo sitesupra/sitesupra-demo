@@ -1,0 +1,54 @@
+- Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
+    name: gjensidige
+    title: Gjensidige Theme
+    description: Gjensidige Theme
+    enabled: true
+    layouts:
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: base-root
+          title: Root Layout
+          filename: base/root.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: main
+          title: Main Layout
+          filename: main.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: base-wrap
+          title: Base Wrap Layout
+          filename: base/wrap.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: travel-insurance
+          title: Travel Insurance Layout
+          filename: travel-insurance.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: inner-text
+          title: Inner Text Layout
+          filename: inner-text.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: 404
+          title: 404 Layout
+          filename: 404.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: vehicle-insurance
+          title: Vehicle Insurance Layout
+          filename: vehicle-insurance.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: health-insurance
+          title: Health Insurance Layout
+          filename: health-insurance.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: search
+          title: Search Layout
+          filename: search.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: feedback-form
+          title: Feedback Form Layout
+          filename: feedback-form.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: vacancy
+          title: Vacancy Layout
+          filename: vacancy.html.twig
+      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+          name: property-insurance
+          title: Property Insurance Layout
+          filename: property-insurance.html.twig

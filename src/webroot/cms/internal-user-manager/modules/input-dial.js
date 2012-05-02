@@ -211,10 +211,16 @@ YUI.add('website.input-dial', function (Y) {
 					i = 0,
 					ii = values.length - 1,
 					angle = 0;
-					
+				
 				for(; i<=ii; i++) if (values[i].id == value) {
 					angle = ~~((ii - i) * angle_per_item);
-					this.dial.setStyle('transform', 'rotate(-' + angle + 'deg)');
+					
+					if (Y.UA.ie && Y.UA.ie < 10) {
+						this.dial.setStyle('msTransform', 'rotate(-' + angle + 'deg)');
+					} else {
+						this.dial.setStyle('transform', 'rotate(-' + angle + 'deg)');
+					}
+					
 					break;
 				}
 			}

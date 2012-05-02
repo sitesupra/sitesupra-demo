@@ -1,0 +1,34 @@
+{% extends "travel-insurance.html.twig" %}
+
+{% use "samples/includes/includes.html.twig" %}
+
+{% block text %}
+	{# Text #}
+	<div class="text">
+		<h1>Apdrošināmie riski</h1>
+
+		<table class="table-bordered">
+			<tr>
+				<th>Riska nosaukums</th>
+				<th>Riska skaidrojums</th>
+			</tr>
+			<tr>
+				<td>Veselības apdrošināšana</td>
+				<td>Pēkšņa slimība;<br />Ķermeņa traumas un veselības traucējumi, kas radušies nelaimes gadījumā;<br />Nāve.</td>
+			</tr>
+			<tr>
+				<td>Lidojuma aizkavēšanās</td>
+				<td>Lidojums aizkavējies ne mazāk kā uz 6 stundām vai tiek atcelts.</td>
+			</tr>
+			<tr>
+				<td>Bagāžas aizkavēšanās</td>
+				<td>Ja bagāža netiek atdota 12 stundu laikā pēc reisa paredzētās ierašanās galapunktā;<br />Bagāžas pazaudēšana, ja bagāža netiek atdota 72 stundu laikā pēc reisa paredzētās ierašanās galapunktā. </td>
+			</tr>
+			<tr>
+				<td>Civiltiesiskā atbildība</td>
+				<td>Ja ceļojuma laikā ir iestājusies civiltiesiskā atbildība par trešajai personai nodarītajiem zaudējumiem vai trešās personas veselībai nodarītu kaitējumu.</td>
+			</tr>
+		</table>
+
+	</div>
+{% endblock %}

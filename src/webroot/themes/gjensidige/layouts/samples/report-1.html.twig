@@ -1,0 +1,26 @@
+{% extends "inner-text.html.twig" %}
+
+{% use "samples/includes/includes.html.twig" %}
+
+{% block css %}
+	<link href="/assets/css/page-report.css" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block text %}
+	{# Text #}
+	<h1>Finanšu atskaites</h1>
+
+	<form class="form" action="page-report-2.html">
+		<select name="period" onchange="$(this).closest('form').submit();">
+			<option value="">Izvēlieties periodu</option>
+			<option value="1">2010. gada 4. ceturkšņa pārskats</option>
+			<option value="2">2010. gada 3. ceturkšņa pārskats</option>
+			<option value="3">2010. gada 2. ceturkšņa pārskats</option>
+			<option value="4">2010. gada 1. ceturkšņa pārskats</option>
+			<option value="5">2009. gada pārskats</option>
+			<option value="6">2008. gada pārskats</option>
+			<option value="7">2007. gada pārskats</option>
+			<option value="8">2006. gada pārskats</option>
+		</select>
+	</form>
+{% endblock %}

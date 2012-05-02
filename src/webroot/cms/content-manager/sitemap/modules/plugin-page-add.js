@@ -247,6 +247,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							node.set('highlighted', false);
 						} else if (node.isInstanceOf('DataGridRow')) {
 							node.get('parent').get('parent').set('highlighted', false);
+							var datagrid = node.get('parent');
 						}
 						
 						//Remove node and data
@@ -254,6 +255,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						node.get('tree').remove(node);
 						node.destroy();
 						this._node = null;
+						
+						if (datagrid) {
+							datagrid.handleChange();
+						}
 						
 						view.set('disabled', false);
 						
@@ -367,13 +372,19 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'__showOverRow': function () {
 			var node = this._node,
 				widgets = this._widgets,
-				panel = widgets.panel;
+				panel = widgets.panel,
+				datagrid = this._node.get('parent');
 			
 			//Change node style
 			this._node.get('parent').get('parent').set('highlighted', true);
 			
 			//Panel position and style
 			var target = node.getNode();
+			
+			datagrid.handleChange();
+			if (datagrid.scrollable) {	
+				datagrid.scrollable.scrollInView(node);
+			}
 			
 			if (target === panel.get('alignTarget')) {
 				panel.show();
@@ -493,7 +504,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 
 						if(fetchedDataCount != 0) {
 							this._layouts = data;
-							var select_layout_title = SU.Intl.get(['settings', 'select_layout']);
+							var select_layout_title = Supra.Intl.get(['settings', 'select_layout']);
 							this._layouts.unshift({id:'', title: select_layout_title});
 						}
 					}
@@ -620,7 +631,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						if(this._layouts.lenght == 0) {
 							// throwing an error message
 							Supra.Manager.executeAction('Confirmation', {
-								'message': SU.Intl.get(['error', 'no_layouts']),
+								'message': Supra.Intl.get(['error', 'no_layouts']),
 								'buttons': [{
 									'id': 'ok', 
 									'label': 'Ok'
@@ -771,6 +782,11 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						'children_count': 0
 					}, data);
 					
+					//Make sure children is not loaded dynamically, since this is new page
+					if (data.type == 'page' || data.type == 'group') {
+						node.get('tree').get('data').setIsLoaded(data.id, true);
+					}
+					
 					//Success
 					treeNode.getWidget('buttonOpen').set('disabled', false);
 					treeNode.getWidget('buttonEdit').set('disabled', false);
@@ -851,6 +867,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
-	delete(this.fn); this.fn = function () {};
+	delete(this.fn);this.fn = function () {};
 	
 }, YUI.version, {'requires': ['supra.input']});

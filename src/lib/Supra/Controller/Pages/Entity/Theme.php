@@ -267,11 +267,11 @@ class Theme extends Database\Entity implements ThemeInterface
 		$currentParameterSet = $this->getCurrentParameterSet();
 
 		$outputValues = $currentParameterSet->getOutputValues();
-		
-		$outputValues['name'] = $this->getName();		
+
+		$outputValues['name'] = $this->getName();
 
 		$outputValues['urlBase'] = $this->getUrlBase();
-		
+
 		$outputValues['generatedCssUrl'] = $this->getCurrentGeneratedCssUrl();
 
 		$outputValues['parameterSetName'] = $currentParameterSet->getName();
@@ -365,6 +365,10 @@ class Theme extends Database\Entity implements ThemeInterface
 			$this->currentParameterSet = $this->getActiveParameterSet();
 		}
 
+		if (empty($this->currentParameterSet)) {
+			$this->currentParameterSet = new ThemeParameterSet();
+		}
+
 		return $this->currentParameterSet;
 	}
 
@@ -377,12 +381,17 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	 * @return ThemeParameterSet
+	 * @return ThemeParameterSet | null
 	 */
 	public function getActiveParameterSet()
 	{
 		if (empty($this->activeParameterSet)) {
-			$this->activeParameterSet = $this->parameterSets->first();
+
+			if ($this->parameterSets->isEmpty()) {
+				return null;
+			} else {
+				$this->activeParameterSet = $this->parameterSets->first();
+			}
 		}
 
 		return $this->activeParameterSet;

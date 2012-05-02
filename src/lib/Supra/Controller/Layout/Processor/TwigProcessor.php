@@ -63,15 +63,16 @@ class TwigProcessor extends HtmlProcessor
 		ObjectRepository::setCallerParent($helper, $this);
 		$helper->setRequest($this->request);
 
+		if ( ! empty($theme)) {
+			$helper->setTheme($theme);
+		}
+		
 		if ($this->response instanceof HttpResponse) {
 			$helper->setResponseContext($this->response->getContext());
 		} else {
 			$helper->setResponseContext(new ResponseContext());
 		}
 
-		if ( ! empty($theme)) {
-			$helper->setTheme($theme);
-		}
 
 		$twig->addGlobal('supra', $helper);
 

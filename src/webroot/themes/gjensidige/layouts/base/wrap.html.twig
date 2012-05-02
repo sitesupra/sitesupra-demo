@@ -1,0 +1,37 @@
+{% extends "base/base.html.twig" %}
+
+{% block body %}
+	<div class="wrapper">
+		
+		<div class="wrapper-inner">
+		
+			{# Header #}
+			<header>
+				
+				{# Header blocks #}
+				{% block header %}
+					<!--placeHolder(header)-->
+				{% endblock %}
+				
+			</header>
+			
+			{# Main content #}
+			{% block content %}{% endblock %}
+			
+			{# Bottom breadcrumbs #}
+			{% block bottom %}
+				<!--placeHolder(bottom)-->
+			{% endblock %}
+			
+			
+			<div class="l"></div><div class="r"></div><div class="b"></div><div class="rb"></div><div class="lb"></div>
+		</div>
+	
+		{# Footer #}
+		{% block footer %}
+			<!--placeHolder(footer)-->
+		{% endblock %}
+		
+	</div>
+	
+{% endblock %}

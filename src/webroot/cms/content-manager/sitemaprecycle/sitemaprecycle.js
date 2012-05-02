@@ -4,7 +4,7 @@
 SU('anim', 'transition', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class

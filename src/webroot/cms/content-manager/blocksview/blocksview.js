@@ -4,7 +4,7 @@
 SU(function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	

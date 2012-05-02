@@ -32,9 +32,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					\
 					{# NB! is/not active actually means published/unpublished #}\
 					\
-					{% elseif (type == "page" or type == "template") and ! active %}\\n\
+					{% elseif type == "page" and !active %}\\n\
 						<div class="status-special status-not-published">{{ "sitemap.status_not_published"|intl }}</div>\
-					{% elseif (type == "page" or type == "template") and ! published %}\\n\
+					{% elseif type == "page" and ! published %}\\n\
 						<div class="status-special status-draft">{{ "sitemap.status_draft"|intl }}</div>\
 					{% endif %}\
 				</div>\
@@ -145,7 +145,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'setter': '_setAttributeClass'
 		},
 		'state': {
-			'value': 'draft'
+			'value': 'draft',
+			'setter': '_setStateAttributeClass'
 		},
 		
 		'children': {
@@ -188,7 +189,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': false
 		},
 		'active': {
-			'value': true
+			'value': false
 		}
 		
 	};
@@ -1060,8 +1061,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_setDraggable': function (draggable) {
-			//Root nodes can't be dragged
-			if (this.get('root')) {
+			//Page root node can't be dragged
+			if (this.get('root') && this.get('tree').get('mode') == 'pages') {
 				return false;
 			}
 			if (this._dnd && !this.get('dndLocked')) {
@@ -1459,6 +1460,31 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * On state attribute change add or remove classname
+		 * 
+		 * @param {String} value New attribute value
+		 * @return New attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setStateAttributeClass': function (value) {
+			//Do anything only if already rendered
+			if (!this.get('rendered')) return value;
+			var prevValue = this.get('state');
+			
+			if (value != prevValue) {
+				if (prevValue) {
+					this.get('boundingBox').removeClass(prevValue);
+				}
+				if (value) {
+					this.get('boundingBox').addClass(value);
+				}
+			}
+			
+			return value;
 		},
 		
 		/**

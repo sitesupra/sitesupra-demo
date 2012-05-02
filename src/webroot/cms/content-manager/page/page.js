@@ -122,12 +122,12 @@ Supra(function (Y) {
 		onIframeReady: function () {
 			var pagecontent = Manager.getAction('PageContent'),
 				iframe_handler = pagecontent.iframe_handler,
-				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				layoutTopContainer = Supra.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 				
 			//iFrame position sync with other actions
-			iframe_handler.plug(SU.PluginLayout, {
+			iframe_handler.plug(Supra.PluginLayout, {
 				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			

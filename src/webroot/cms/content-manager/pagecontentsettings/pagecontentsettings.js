@@ -4,7 +4,7 @@
 Supra(function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	var ACTION_TEMPLATE = '\
@@ -57,7 +57,7 @@ Supra(function (Y) {
 		
 		// Set page button visibility
 		tooglePageButtons: function (visible) {
-			var buttons = SU.Manager.PageButtons.buttons[this.NAME];
+			var buttons = Supra.Manager.PageButtons.buttons[this.NAME];
 			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].set('visible', visible);
 			
 			this.get('controlButton').get('visible', !!visible);

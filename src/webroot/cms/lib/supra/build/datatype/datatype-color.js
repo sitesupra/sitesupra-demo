@@ -162,7 +162,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
-		 * Normalize RGB color object by validating all properties
+		 * Normalize RGB or HSB color object by validating all properties
 		 * 
 		 * @param {Object} object Color object
 		 * @param {Boolean} clone Clone color object instead of changing passed in
@@ -174,9 +174,17 @@ YUI.add('supra.datatype-color', function(Y) {
 				object = Supra.mix({}, object);
 			}
 			
-			object.red   = Math.min(255, Math.max(0, object.red));
-			object.green = Math.min(255, Math.max(0, object.green));
-			object.blue  = Math.min(255, Math.max(0, object.blue));
+			if ('red' in value && 'green' in value && 'blue' in value) {
+				//RGB
+				object.red   = Math.min(255, Math.max(0, object.red));
+				object.green = Math.min(255, Math.max(0, object.green));
+				object.blue  = Math.min(255, Math.max(0, object.blue));
+			} else {
+				//HSB
+				object.hue         = Math.min(255, Math.max(0, object.hue));
+				object.saturation  = Math.min(100, Math.max(0, object.saturation));
+				object.brightness  = Math.min(100, Math.max(0, object.brightness));
+			}
 			
 			return object;
 		},
@@ -211,6 +219,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		'overlay': function (a, b) {
 			a = Color.parse(a);
 			b = Color.parse(b);
+			
+			if (!a || !b) return null;
 			
 			var d = {
 				'red': b.red - 128,

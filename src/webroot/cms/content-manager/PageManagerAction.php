@@ -461,7 +461,6 @@ abstract class PageManagerAction extends CmsAction
 		$publicEm = ObjectRepository::getEntityManager('#public');
 		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
 		
-		
 		$array['active'] = true;
 		if ($publicLocalization instanceof Localization) {
 			$array['unpublished_draft'] = false;
@@ -471,10 +470,12 @@ abstract class PageManagerAction extends CmsAction
 			if ($draftRevision == $publicRevision) {
 				$array['published'] = true;
 			}
-			
+				
 			if ($publicLocalization instanceof Entity\PageLocalization) {
 				$array['active'] = $publicLocalization->isActive();
 			}
+		} else {
+			$array['active'] = false;
 		}
 				
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
@@ -969,6 +970,10 @@ abstract class PageManagerAction extends CmsAction
 		$em = $this->entityManager;
 		
 		$page = $pageLocalization->getMaster();
+		
+		if ($page instanceof Page && $page->isRoot()) {
+			throw new CmsException(null, 'Not allowed to duplicate the root page');
+		}
 
 		$clonePage = function() use ($request, $em, $page) {
 			/* @var $request PageRequestEdit */
@@ -994,11 +999,7 @@ abstract class PageManagerAction extends CmsAction
 				->getNestedSetRepository()
 				->add($newPage);
 			
-			if ($page->hasParent()) {
-				$newPage->moveAsNextSiblingOf($page);
-			} else {
-				$newPage->moveAsFirstChildOf($page);
-			}
+			$newPage->moveAsNextSiblingOf($page);
 
 			$eventArgs = new PageEventArgs();
 			$eventArgs->setEntityManager($em);
@@ -1016,6 +1017,15 @@ abstract class PageManagerAction extends CmsAction
 		};
 		
 		$newPage = $em->transactional($clonePage);
+		
+		$newLocalizations = $newPage->getLocalizations();
+		foreach($newLocalizations as $newLocalization) {
+			if ($newLocalization instanceof Entity\TemplateLocalization) {
+				$this->pageData = $newLocalization;
+				$this->publish();
+			}	
+		}
+		
 		$currentLocale = $this->getLocale()
 				->getId();
 		

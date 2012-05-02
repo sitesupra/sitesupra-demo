@@ -433,8 +433,9 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'root': (item.depth == 0),
 				'index': 0,
 				
-				'active': data.active,
-				'published': data.published,
+				// templates by default are active, published
+				'active': (this.get('mode') == 'templates' ? true : data.active),
+				'published': (this.get('mode') == 'templates' ? true : data.published),
 				
 				'parent': this
 			}, item));
@@ -870,6 +871,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 * @param {Number} time in milliseconds to wait
 		 */
 		'expand': function(node, when) {
+			if (!node) return;
+			
 			when = when || 0;
 			this.stopExpand();
 			this._expandTimer = Y.later(when, this, function(node) {
