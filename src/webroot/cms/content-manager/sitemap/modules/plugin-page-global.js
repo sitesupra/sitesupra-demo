@@ -81,7 +81,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				'srcNode': container,
 				'autoClose': true,
 				'arrowVisible': true,
-				'zIndex': 1,
+				'zIndex': 2,
 				'visible': false
 			});
 			

@@ -40,7 +40,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				</div>\
 				<label>{{ label|escape }}</label>\
 				<div class="arrow"></div>\
-				<div class="children"></div>\
+				<div class="children"><div class="new-item-fake-preview"></div></div>\
 			');
 	
 	TreeNode.ATTRS = {

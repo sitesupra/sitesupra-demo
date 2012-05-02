@@ -140,7 +140,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				'srcNode': container,
 				'autoClose': false,
 				'arrowVisible': true,
-				'zIndex': 1,
+				'zIndex': 2,
 				'visible': false
 			});
 			
