@@ -48,10 +48,6 @@ class FilesystemLoaderByContext extends Twig_Loader_Filesystem
 		$supraPath = realpath(SUPRA_PATH) . DIRECTORY_SEPARATOR;
 		$templatePath = realpath($templatePath);
 		
-		if (strpos($templatePath, $supraPath) !== 0) {
-			throw new \RuntimeException("Template directory outside supra path is not allowed");
-		}
-		
 		$this->setPaths($templatePath);
 	}
 

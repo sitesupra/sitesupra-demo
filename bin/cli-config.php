@@ -6,16 +6,24 @@ use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
 
+$rootDir = getcwd();
+
+if ( ! file_exists($rootDir . '/src/conf/supra.ini')) {
+	$rootDir = dirname(__DIR__);
+}
+
+define('SUPRA_PATH', $rootDir . DIRECTORY_SEPARATOR . 'src/');
+
 //require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
 
 // This loads test connection as well.
 // We need test connection because of fixtures now.
-$testBootstrap = __DIR__ . '/../tests/bootstrap.php';
+$testBootstrap = $rootDir . '/tests/bootstrap.php';
 
 if (file_exists($testBootstrap)) {
 	require_once $testBootstrap;
 } else {
-	require_once __DIR__ . '/../src/lib/Supra/bootstrap.php';
+	require_once $rootDir . '/src/lib/Supra/bootstrap.php';
 }
 
 $namespace = '';
