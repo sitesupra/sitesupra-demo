@@ -75,7 +75,14 @@
 		text-overflow: ellipsis;
 	}
 	.yui3-input-select-list {
-		padding: 0 20px 0 110px;
+		padding: 0 21px 0 110px;
+	}
+	.yui3-input-select-list .su-button {
+		margin-left: -1px;
+		
+		&.su-button-first {
+			margin-left: 0;
+		}
 	}
 	.yui3-input-select-list a.remove {
 		display: block;
@@ -83,7 +90,7 @@
 		margin: 4px -21px 0 0;
 		width: 22px;
 		height: 21px;
-		background: url(images/remove.png) 5px 3px no-repeat;
+		background: url(images/remove.png) 6px 3px no-repeat;
 	}
 	
 }
@@ -140,7 +147,7 @@
 		.border-radius (5px);
 		
 		.transform (rotate(0deg));
-		.transform-origin (left center);
+		.transform-origin (-1px -1px);
 		.transition (all 0.2s ease);
 	}
 	em {
