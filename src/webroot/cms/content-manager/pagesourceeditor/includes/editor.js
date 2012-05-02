@@ -2,12 +2,12 @@
 "use strict";
 
 /*
- * SU.Manager.PageContent.Iframe
+ * Supra.Manager.PageContent.Iframe
  */
 YUI.add('supra.source-editor', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.PageContent;
 	
 	/*

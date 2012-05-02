@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-properties', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	var ACTION_TEMPLATE = '\
@@ -168,7 +168,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					if (host_properties.srcNode) {
 						host_properties.contentBox = host_properties.srcNode;
 						host_properties.boundingBox = host_properties.srcNode;
-						form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
 					} else {
 						//If there is no inline node, fail silently
 					}
@@ -225,7 +225,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
 				btn.render(slide).on('click', this.deleteContent, this);
 			
 			this.set('buttonDelete', btn);
@@ -404,7 +404,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		deleteContent: function () {
 			Supra.Manager.executeAction('Confirmation', {
-				'message': SU.Intl.get(['page', 'delete_block_confirmation']),
+				'message': Supra.Intl.get(['page', 'delete_block_confirmation']),
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {

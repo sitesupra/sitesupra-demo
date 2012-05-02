@@ -18,7 +18,7 @@ Supra(function (Y) {
 		'Root': [
 			{
 				'id': 'sitemap',
-				'title': SU.Intl.get(['sitemap', 'button']),
+				'title': Supra.Intl.get(['sitemap', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-sitemap.png',
 				'action': 'Root',
 				'actionFunction': 'routeSiteMapSave',
@@ -28,34 +28,34 @@ Supra(function (Y) {
 		'Page': [
 			{
 				'id': 'blockbar',
-				'title': SU.Intl.get(['insertblock', 'button']),
+				'title': Supra.Intl.get(['insertblock', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-insert.png',
 				'action': 'PageInsertBlock',
 				'permissions': ['block', 'insert']
 			},
 			{
 				'id': 'history',
-				'title': SU.Intl.get(['history', 'button']),
+				'title': Supra.Intl.get(['history', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 				'action': 'PageHistory'
 			},
 			{
 				'id': 'blocksview',
-				'title': SU.Intl.get(['blocks', 'button']),
+				'title': Supra.Intl.get(['blocks', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-blocks.png',
 				'action': 'BlocksView',
 				'actionFunction': 'setType'
 			},
 			{
 				'id': 'placeholderview',
-				'title': SU.Intl.get(['placeholders', 'button']),
+				'title': Supra.Intl.get(['placeholders', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-placeholders.png',
 				'action': 'BlocksView',
 				'actionFunction': 'setType'
 			},
 			{
 				'id': 'settings',
-				'title': SU.Intl.get(['settings', 'button']),
+				'title': Supra.Intl.get(['settings', 'button']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
 				'action': 'PageSettings'
 			}
@@ -219,7 +219,7 @@ Supra(function (Y) {
 			//Show loading screen until content is loaded (last executed action)
 			Y.one('body').addClass('loading');
 			
-			SU.Manager.getAction('PageContent').after('iframeReady', function () {
+			Supra.Manager.getAction('PageContent').after('iframeReady', function () {
 				Y.one('body').removeClass('loading');
 			});
 						
@@ -248,10 +248,10 @@ Supra(function (Y) {
 						mode = 'templates';
 					}
 					
-					SU.Manager.executeAction('SiteMap', {'mode': mode});
+					Supra.Manager.executeAction('SiteMap', {'mode': mode});
 				} else {
-					SU.Manager.executeAction('Page', page_id);
-					SU.Manager.executeAction('Template');
+					Supra.Manager.executeAction('Page', page_id);
+					Supra.Manager.executeAction('Template');
 					
 					//Remove loading style
 					Y.one('body').removeClass('loading');

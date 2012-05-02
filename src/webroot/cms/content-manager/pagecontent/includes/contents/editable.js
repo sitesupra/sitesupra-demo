@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-editable', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Page = Manager.Page,
 		PageContent = Manager.PageContent;
 	

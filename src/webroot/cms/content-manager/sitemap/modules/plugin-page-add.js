@@ -493,7 +493,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 
 						if(fetchedDataCount != 0) {
 							this._layouts = data;
-							var select_layout_title = SU.Intl.get(['settings', 'select_layout']);
+							var select_layout_title = Supra.Intl.get(['settings', 'select_layout']);
 							this._layouts.unshift({id:'', title: select_layout_title});
 						}
 					}
@@ -620,7 +620,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						if(this._layouts.lenght == 0) {
 							// throwing an error message
 							Supra.Manager.executeAction('Confirmation', {
-								'message': SU.Intl.get(['error', 'no_layouts']),
+								'message': Supra.Intl.get(['error', 'no_layouts']),
 								'buttons': [{
 									'id': 'ok', 
 									'label': 'Ok'

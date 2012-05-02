@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-list', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		PageContent = Manager.PageContent;
 	
 	//CSS classes
