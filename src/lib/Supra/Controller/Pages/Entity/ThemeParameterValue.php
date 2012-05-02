@@ -8,7 +8,7 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 
 /**
  * @Entity 
- * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_in_set_idx", columns={"parameterName", "set_id"})}))
+ * @Table(name="ThemeParameterValue_", uniqueConstraints={@UniqueConstraint(name="unique_name_in_set_idx", columns={"parameterName", "set_id"})}))
  */
 class ThemeParameterValue extends Database\Entity
 {

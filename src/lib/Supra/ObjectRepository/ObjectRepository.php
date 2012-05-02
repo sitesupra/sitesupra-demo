@@ -27,7 +27,7 @@ use Doctrine\Common\Cache\Cache;
 use Supra\Info;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
-use Supra\Controller\Layout\Theme\NoThemeProvider;
+use Supra\Controller\Layout\Theme\DefaultThemeProvider;
 
 /**
  * Object repository
@@ -1225,7 +1225,12 @@ class ObjectRepository
 		$themeProvider = self::getObject($caller, self::INTERFACE_THEME_PROVIDER, false);
 
 		if (empty($themeProvider)) {
-			$themeProvider = new NoThemeProvider();
+
+			$themeProvider = new DefaultThemeProvider();
+			$themeProvider->setUrlBase('/themes/');
+			$themeProvider->setRootDir(SUPRA_PATH . DIRECTORY_SEPARATOR . 'webroot/themes');
+
+			self::setDefaultThemeProvider($themeProvider);
 		}
 
 		return $themeProvider;
