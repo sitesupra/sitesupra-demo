@@ -771,6 +771,11 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						'children_count': 0
 					}, data);
 					
+					//Make sure children is not loaded dynamically, since this is new page
+					if (data.type == 'page' || data.type == 'group') {
+						node.get('tree').get('data').setIsLoaded(data.id, true);
+					}
+					
 					//Success
 					treeNode.getWidget('buttonOpen').set('disabled', false);
 					treeNode.getWidget('buttonEdit').set('disabled', false);

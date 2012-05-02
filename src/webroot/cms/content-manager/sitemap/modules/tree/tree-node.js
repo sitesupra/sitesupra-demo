@@ -145,7 +145,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'setter': '_setAttributeClass'
 		},
 		'state': {
-			'value': 'draft'
+			'value': 'draft',
+			'setter': '_setStateAttributeClass'
 		},
 		
 		'children': {
@@ -1459,6 +1460,31 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * On state attribute change add or remove classname
+		 * 
+		 * @param {String} value New attribute value
+		 * @return New attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setStateAttributeClass': function (value) {
+			//Do anything only if already rendered
+			if (!this.get('rendered')) return value;
+			var prevValue = this.get('state');
+			
+			if (value != prevValue) {
+				if (prevValue) {
+					this.get('boundingBox').removeClass(prevValue);
+				}
+				if (value) {
+					this.get('boundingBox').addClass(value);
+				}
+			}
+			
+			return value;
 		},
 		
 		/**
