@@ -293,8 +293,11 @@ class PagePathGenerator implements EventSubscriber
 			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 		}
 
-		if ($oldPathEntity->isLimited() !== $limited
-				|| $oldPathEntity->isActive() !== $active) {
+		if (
+				$oldPathEntity->isLimited() !== $limited
+				|| $oldPathEntity->isActive() !== $active
+				|| $oldPathEntity->isVisibleInSitemap() != $inSitemap
+		) {
 
 			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 			$changes = true;
@@ -379,7 +382,7 @@ class PagePathGenerator implements EventSubscriber
 			$limited = true;
 		}
 
-		if (! $pageData->isVisibleInSitemap()) {
+		if ( ! $pageData->isVisibleInSitemap()) {
 			$inSitemap = false;
 		}
 
