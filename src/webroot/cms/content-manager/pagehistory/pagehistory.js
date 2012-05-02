@@ -4,7 +4,7 @@
 SU('anim', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader,
 		YDate = Y.DataType.Date;

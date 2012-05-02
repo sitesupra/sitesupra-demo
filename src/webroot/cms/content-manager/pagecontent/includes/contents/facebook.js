@@ -6,7 +6,7 @@ YUI.add('supra.page-content-facebook', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 	PageContent = Manager.PageContent;
 	
 	

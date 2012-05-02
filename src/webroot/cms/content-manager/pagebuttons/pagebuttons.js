@@ -7,14 +7,14 @@
 SU('anim', function (Y) {
 
 	var BUTTON_DEFAULTS = {
-		'cancel':	{'label': SU.Intl.get(['buttons', 'cancel'])},
-		'close':	{'label': SU.Intl.get(['buttons', 'close'])},
-		'save': 	{'label': SU.Intl.get(['buttons', 'save'])},
-		'publish':	{'label': SU.Intl.get(['page', 'publish']), 'style': 'mid-blue'},
-		'apply':	{'label': SU.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'},
-		'done':		{'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'},
-		'edit':		{'label': SU.Intl.get(['page', 'edit']), 'style': 'mid-blue'},
-		'unlock':	{'label': SU.Intl.get(['page', 'unlock']), 'style': 'mid-blue'}
+		'cancel':	{'label': Supra.Intl.get(['buttons', 'cancel'])},
+		'close':	{'label': Supra.Intl.get(['buttons', 'close'])},
+		'save': 	{'label': Supra.Intl.get(['buttons', 'save'])},
+		'publish':	{'label': Supra.Intl.get(['page', 'publish']), 'style': 'mid-blue'},
+		'apply':	{'label': Supra.Intl.get(['buttons', 'apply']), 'style': 'mid-blue'},
+		'done':		{'label': Supra.Intl.get(['buttons', 'done']), 'style': 'mid-blue'},
+		'edit':		{'label': Supra.Intl.get(['page', 'edit']), 'style': 'mid-blue'},
+		'unlock':	{'label': Supra.Intl.get(['page', 'unlock']), 'style': 'mid-blue'}
 	};
 	var BUTTON_DEFAULT_CONF = {
 		'type': 'button',
@@ -42,7 +42,7 @@ SU('anim', function (Y) {
 	};
 	
 	//Shortcut
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
 	//Create Action class

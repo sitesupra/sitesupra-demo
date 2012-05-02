@@ -91,7 +91,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 			var tree = this.get('host'),
 				mode = tree.get('mode'),
 			
-				data = SU.mix({}, this.getDefaultNodeData(data.type), data),
+				data = Supra.mix({}, this.getDefaultNodeData(data.type), data),
 				node = null;
 			
 			node = tree._createNode({

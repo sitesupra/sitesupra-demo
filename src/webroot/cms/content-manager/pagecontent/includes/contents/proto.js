@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-proto', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		PageContent = Manager.PageContent,
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
@@ -339,7 +339,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			if (!use_only || body.one(html_id)) {
 				if (classname in PageContent) {
-					var block = this.children[data.id] = new PageContent[classname](SU.mix(attrs || {}, {
+					var block = this.children[data.id] = new PageContent[classname](Supra.mix(attrs || {}, {
 						'doc': doc,
 						'win': win,
 						'body': body,

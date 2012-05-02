@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-droptarget', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	

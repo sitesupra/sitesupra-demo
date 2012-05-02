@@ -11,7 +11,7 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 	};
 	
 	//Shortcuts
-	var Action = SU.Manager.getAction('SiteMap');
+	var Action = Supra.Manager.getAction('SiteMap');
 	
 	
 	

@@ -4,7 +4,7 @@
 SU(function (Y) {
 
 	//Shortcuts
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
 	//Add as child, when EditorToolbar will be hidden PageSourceEditor will be hidden also (page editing is closed)
