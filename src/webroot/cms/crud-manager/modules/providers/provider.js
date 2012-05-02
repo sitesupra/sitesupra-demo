@@ -528,6 +528,7 @@ YUI.add('website.provider', function (Y) {
 				//Hide buttons, because we are using slider and form will not be
 				//automatically hidden
 				Supra.Manager.getAction('PageButtons').unsetActiveAction('Form');
+				Supra.Manager.getAction('PageToolbar').unsetActiveAction('Form');
 			}
 			
 			return state;
