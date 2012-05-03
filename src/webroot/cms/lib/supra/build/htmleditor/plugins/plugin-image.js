@@ -458,14 +458,14 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		dropImage: function (target, image_id) {
 			//If dropped on un-editable element
-			if (!this.htmleditor.isEditable(target)) return;
+			if (!this.htmleditor.isEditable(target)) return true;
 			
 			var htmleditor = this.htmleditor,
 				image_data = Manager.MediaSidebar.getData(image_id);
 			
 			if (image_data.type != Supra.MediaLibraryData.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
-				return;
+				return false;
 			}
 			
 			if (!image_data.sizes) {
@@ -474,7 +474,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					this.dropImage(target, image_id);
 				}, this);
 				
-				return;
+				return true;
 			}
 			
 			var uid = htmleditor.generateDataUID(),
@@ -505,6 +505,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			//Save into HTML editor data about image
 			htmleditor.setData(uid, data);
+			
+			return true;
 		},
 		
 		/**
@@ -688,8 +690,12 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			//Only if dropped from gallery
 			if (image_id.match(/^\d[a-z0-9]+$/i) && e.drop) {
-				if (e.halt) e.halt();
-				this.dropImage(e.drop, image_id);
+				if (this.dropImage(e.drop, image_id)) {
+					//If image drop was successful then prevent other plugins
+					//from doing anything
+					if (e.halt) e.halt();
+					return false;
+				}
 			}
 		},
 		

@@ -117,7 +117,7 @@ YUI.add('supra.page-content-droptarget', function (Y) {
 				//Clean up
 				this.onDragEnd();
 				
-				//If any listener called e.halt() then stop item from being
+				//If any listener called returned false then stop item from being
 				//dropped using native drop
 				if (res === false) {
 					if (e.preventDefault) e.preventDefault(); // Don't drop anything
