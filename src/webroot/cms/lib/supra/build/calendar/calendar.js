@@ -22,7 +22,6 @@ YUI.add("supra.calendar", function (Y) {
 	Calendar.ATTRS = {
 		'firstWeekDay': Supra.data.get('dateFirstWeekDay'),
 		
-		'headerTitle': '',
 		'navigationNode': null,
 		'bodyNode': null,
 		'datesNode': null,
@@ -457,10 +456,14 @@ YUI.add("supra.calendar", function (Y) {
 					datesNode.all('a').remove();
 				}
 				
-				var date = '';
+				var date = '',
+					title = '';
+				
 				for(var i=0,ii=dates.length; i<ii; i++) {
 					date = YDate.reformat(dates[i].date, 'in_date', 'in_date');
-					datesNode.append(Y.Node.create('<a data-date="' + date + '">' + dates[i].title + '</a>'));
+					title = Supra.Intl.replace(dates[i].title);
+					
+					datesNode.append(Y.Node.create('<a data-date="' + date + '">' + title + '</a>'));
 				}
 				
 				this.get('contentBox').append(datesNode);

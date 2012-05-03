@@ -308,7 +308,7 @@
 				if (!this.template_list) {
 					this.template_list = new Supra.TemplateList({
 						'srcNode': node.one('ul.template-list'),
-						'requestUri': this.getActionPath() + 'templates' + Loader.EXTENSION_DATA,
+						'requestUri': this.getDataPath('templates'),
 						'template': this.page_data.template.id
 					});
 
