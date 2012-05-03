@@ -658,7 +658,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * @return array
 	 */
-	protected function getAuthizationAncestorsDirect()
+	protected function getAuthorizationAncestorsDirect()
 	{
 		// This is overriden because page localizations themselves are not nested set element, so
 		// we take master page, fetch all of its ancestors and then fetch page localizations from those.
