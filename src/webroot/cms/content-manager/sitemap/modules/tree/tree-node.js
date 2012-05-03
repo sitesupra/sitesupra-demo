@@ -698,8 +698,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_drawNewItemMakerLine': function (visible) {
-			var target	= this.get('boundingBox');
-				node	= this.get('childrenBox').get('children').filter('.new-item-fake-preview').item(0);
+			var target	= this.get('boundingBox'),
+				node	= this.get('childrenBox').get('children').filter('.new-item-fake-preview').item(0),
 				line	= node.one('div'),
 				
 				tpos	= target.getX(),
