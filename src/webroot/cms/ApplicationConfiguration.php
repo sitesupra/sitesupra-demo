@@ -78,7 +78,7 @@ class ApplicationConfiguration extends ComponentConfiguration
 			'title' => $this->title,
 			'icon' => $this->icon,
 			//TODO: hardcoded CMS URL
-			'path' => '/cms/' . $this->url,
+			'path' => '/' . SUPRA_CMS_URL . '/' . $this->url . '/',
 		);
 		
 		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {

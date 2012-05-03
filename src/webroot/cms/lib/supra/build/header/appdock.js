@@ -249,7 +249,7 @@ YUI.add('supra.header.appdock', function(Y) {
 		loadStats: function (callback) {
 			var node_dock_stats = this.get('nodeDock').one('.yui3-app-dock-stats'),
 				classname = getClassName(AppDock.NAME, 'dock', 'loading'),
-				uri = '/cms/dashboard/stats/list.json';
+				uri = Supra.Manager.Loader.getDynamicPath() + '/dashboard/stats/list.json';
 			
 			node_dock_stats.addClass(classname);
 			

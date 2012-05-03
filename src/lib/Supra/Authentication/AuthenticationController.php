@@ -146,7 +146,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 */
 	public function getBasePath()
 	{
-		return '/' . trim($this->basePath, '/');
+		$basePath = '/' . trim($this->basePath, '/');
+		$basePath = rtrim($basePath, '/') . '/';
+
+		return $basePath;
 	}
 
 	/**
@@ -357,6 +360,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 			if ($externalUrl === false) {
 				$redirectTo = '/' . trim($redirectTo, '/');
+				$redirectTo = rtrim($redirectTo, '/') . '/';
 
 				return $redirectTo;
 			}

@@ -88,6 +88,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					for(var i=0,ii=images.length; i<ii; i++) {
 						block.addImage(images[i]);
 					}
+					
+					if (Y.Lang.isFunction(block.reloadContent())) {
+						block.reloadContent();
+					}
 				} else {
 					Y.log('Block "' + gallery_block_id + '" doesn\'t have required method "addImage"');
 				}
