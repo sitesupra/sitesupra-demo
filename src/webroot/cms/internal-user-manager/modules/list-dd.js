@@ -173,7 +173,7 @@ YUI.add('website.list-dd', function (Y) {
 			
 			//Make sure node is not actually moved
 			e.preventDefault();
-		},
+		}
 		
 	});
 	
