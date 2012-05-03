@@ -189,7 +189,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 		$host = $systemInfo->getHostName(\Supra\Info::WITH_SCHEME);
 
 		// TODO: hardcoded CMS path
-		$url = $host . '/cms/restore';
+		$url = $host . '/' . SUPRA_CMS_URL . '/restore/';
 		$query = http_build_query(array(
 			'e' => $userMail,
 			't' => $time,

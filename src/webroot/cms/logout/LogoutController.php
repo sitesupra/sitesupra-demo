@@ -21,14 +21,11 @@ class LogoutController extends SimpleController
 	
 	/**
 	 * Login page path
-	 * @var string
+	 * @return string
 	 */
-	//TODO: Move configuration to Configuration object
-	private $loginPage = '/cms/login';
-	
 	public function getLoginPage()
 	{
-		return $this->loginPage;
+		return '/' . SUPRA_CMS_URL . '/login/';
 	}
 	
 	/**

@@ -4,7 +4,7 @@
 YUI().add("supra.io-session", function (Y) {
 	
 	var PING_INTERVAL = 60000;
-	var PING_URI = '/cms/check-session';
+	var PING_URI = '/check-session';
 	
 	/**
 	 * Supra.session pings server at specific interval to keep
@@ -106,7 +106,7 @@ YUI().add("supra.io-session", function (Y) {
 		 * @private
 		 */
 		_pingRequest: function () {
-			Supra.io(PING_URI, {
+			Supra.io(Supra.Manager.Loader.getDynamicPath() + PING_URI, {
 				'data': {
 					'activity': this.activity
 				}

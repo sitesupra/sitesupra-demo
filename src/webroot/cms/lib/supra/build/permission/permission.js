@@ -3,7 +3,7 @@
 
 YUI.add("supra.permission", function (Y) {
 	
-	var REQUEST_URI = "/cms/check-permissions";
+	var REQUEST_URI = "/check-permissions";
 	
 	Supra.Permission = {
 		
@@ -154,7 +154,7 @@ YUI.add("supra.permission", function (Y) {
 			this.done(permissions, diff, callback, context);
 
 			//Load permissions
-			Supra.io(REQUEST_URI, {'suppress_errors': true, 'method': 'post'}, diff);
+			Supra.io(Supra.Manager.Loader.getDynamicPath() + REQUEST_URI, {'suppress_errors': true, 'method': 'post'}, diff);
 		},
 		
 		/**
