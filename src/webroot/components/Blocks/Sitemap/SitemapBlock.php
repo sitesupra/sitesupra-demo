@@ -77,9 +77,7 @@ class SitemapBlock extends LinksBlock
 
 		foreach ($localizations as $localization) {
 			/* @var $localization Entity\PageLocalization */
-			
 			//\Log::debug('LLL: ', $localization->getId(), ' - ', $localization->isVisibleInSitemap());
-			
 			$lft = $localization->getMaster()->getLeftValue();
 			$rgt = $localization->getMaster()->getRightValue();
 

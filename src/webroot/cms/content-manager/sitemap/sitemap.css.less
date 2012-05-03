@@ -93,13 +93,13 @@
 	
 	background: url(images/tree-item-lines.png) -675px 0 no-repeat;
 	
-	&:first-child {
+	.new-item-fake-preview + & {
 		background-position: -185px 0;
 	}
 	&:last-child {
 		background-position: -1165px 0;
 	}
-	&:first-child:last-child {
+	.new-item-fake-preview + &:last-child {
 		background-position: -1655px 0;
 	}
 	
@@ -175,6 +175,7 @@
 			.status-special {
 				display: block;
 				position: absolute;
+				z-index: 1;
 				left: -2px;
 				top: 71px;
 				width: 104px;
@@ -348,36 +349,36 @@
 	}
 	
 	/* Drag and drop marker */
-	&.marker-before {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			width: 10px;
-			height: 10px;
-			background: red;
-			left: -5px;
-			top: 65px;
-		}
+	&.marker-before > .su-tree-node-content .marker {
+		.border-radius (8px);
+		.box-shadow (0px, 18px, 18px, #000);
+		position: absolute;
+		width: 4px;
+		height: 94px;
+		border: 3px solid #3A96EC;
+		background: #33303D;
+		left: -5px;
+		top: 22px;
 	}
-	&.marker-after {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			width: 10px;
-			height: 10px;
-			background: red;
-			right: -5px;
-			top: 65px;
-		}
+	&.marker-after > .su-tree-node-content .marker {
+		.border-radius (8px);
+		.box-shadow (0px, 18px, 18px, #000);
+		position: absolute;
+		width: 4px;
+		height: 94px;
+		border: 3px solid #3A96EC;
+		background: #33303D;
+		right: -5px;
+		top: 22px;
 	}
-	&.marker-inside {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			z-index: 1;
-			width: 100px;
-			height: 100px;
-			background: red;
-			left: 10px;
-			top: 22px;
-		}
+	&.marker-inside > .su-tree-node-content .marker {
+		position: absolute;
+		z-index: 1;
+		width: 100px;
+		height: 100px;
+		background: url(images/tree-item-marker.png) 0 0 no-repeat;
+		left: 10px;
+		top: 22px;
 	}
 	
 	&.root.marker-before,
@@ -445,13 +446,13 @@
 		height: auto;
 		background-position: -490px 0;
 		
-		&:first-child {
+		.new-item-fake-preview + & {
 			background-position: 0 0;
 		}
 		&:last-child {
 			background-position: -980px 0;
 		}
-		&:first-child:last-child {
+		.new-item-fake-preview + &:last-child {
 			background-position: -1470px 0;
 		}
 		
@@ -477,14 +478,16 @@
 	}
 	
 	/* Drag and drop */
-	&.marker-inside > .su-tree-node-content .marker {
+	&.expanded-list.marker-inside > .su-tree-node-content .marker {
 		.border-radius (6px);
 		
-		z-index: 2;
+		z-index: 3;
 		right: 10px;
 		bottom: 0;
 		width: auto;
 		height: auto;
+		background: none;
+		border: 3px solid #3A96EC;
 	}
 }
 
@@ -492,6 +495,7 @@
 .su-tree-highlighted {
 	.su-tree-node .highlight {
 		position: absolute;
+		z-index: 2;
 		background: rgb(4, 0, 16);
 		opacity: 0.5;
 		border-radius: 8px;
@@ -530,6 +534,20 @@
 	& > .visibility-root {
 		visibility: visible;
 	}
+}
+
+/* Fake new item preview */
+.su-tree .new-item-fake-preview {
+	width: 205px;
+	height: 183px;
+	position: absolute;
+	right: -146px;
+	top: 0;
+	background: url(images/tree-item-new-last.png) 0 0 no-repeat;
+	display: none;
+}
+.su-tree-node.marker-inside > .children > .new-item-fake-preview {
+	display: block;
 }
 
 /**

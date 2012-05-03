@@ -40,7 +40,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				</div>\
 				<label>{{ label|escape }}</label>\
 				<div class="arrow"></div>\
-				<div class="children"></div>\
+				<div class="children"><div class="new-item-fake-preview"></div></div>\
 			');
 	
 	TreeNode.ATTRS = {
@@ -1366,6 +1366,11 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				this.children().forEach(function (item) {
 					if (item._dnd) {
 						item._dnd.target.addToGroup('default');
+						
+						//Unlock
+						if (Y.DD.DDM.activeDrag) {
+							item._dnd.target.set('lock', false);
+						}
 					}
 				}, this);
 				

@@ -129,7 +129,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				form.hide();
 						
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedImage, this);

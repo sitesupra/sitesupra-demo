@@ -126,7 +126,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			widgets.panel = panel = new Supra.Panel({
 				'autoClose': false,
 				'arrowVisible': true,
-				'zIndex': 1
+				'zIndex': 2
 			});
 			panel.render(container);
 			panel.get('contentBox').setStyle('height', 312);
@@ -166,7 +166,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					{
 						'id': 'icon',
 						'title': '',
-						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" alt="" />'; }
+						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" height="22" width="20" alt="" />'; }
 					},
 					{
 						'id': 'title',

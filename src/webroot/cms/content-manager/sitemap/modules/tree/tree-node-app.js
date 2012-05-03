@@ -32,6 +32,9 @@ YUI().add('website.sitemap-tree-node-app', function (Y) {
 			TreeNodeApp.superclass.renderUI.apply(this, arguments);
 			
 			this.set('application_id', this.get('data').application_id);
+			
+			//Application specific classname
+			this.get('boundingBox').addClass(this.getClassName(this.get('data').application_id));
 		}
 	});
 	
