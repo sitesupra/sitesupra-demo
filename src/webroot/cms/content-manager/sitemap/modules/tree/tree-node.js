@@ -1366,6 +1366,11 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				this.children().forEach(function (item) {
 					if (item._dnd) {
 						item._dnd.target.addToGroup('default');
+						
+						//Unlock
+						if (Y.DD.DDM.activeDrag) {
+							item._dnd.target.set('lock', false);
+						}
 					}
 				}, this);
 				
