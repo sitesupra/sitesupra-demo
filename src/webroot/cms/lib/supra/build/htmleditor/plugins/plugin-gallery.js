@@ -46,7 +46,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Prevent default (which is insert folder thumbnail image) 
 			if (e.halt) e.halt();
 			
-			
 			var image_data = [],
 				image;
 			
@@ -66,6 +65,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				this.insertGalleryBlock(image_data);
 			}
 			
+			return false;
 		},
 		
 		insertGalleryBlock: function (images) {
