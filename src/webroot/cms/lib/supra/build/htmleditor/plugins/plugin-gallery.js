@@ -46,7 +46,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Prevent default (which is insert folder thumbnail image) 
 			if (e.halt) e.halt();
 			
-			
 			var image_data = [],
 				image;
 			
@@ -66,6 +65,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				this.insertGalleryBlock(image_data);
 			}
 			
+			return false;
 		},
 		
 		insertGalleryBlock: function (images) {
@@ -87,6 +87,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				if (Y.Lang.isFunction(block.addImage)) {
 					for(var i=0,ii=images.length; i<ii; i++) {
 						block.addImage(images[i]);
+					}
+					
+					if (Y.Lang.isFunction(block.reloadContent())) {
+						block.reloadContent();
 					}
 				} else {
 					Y.log('Block "' + gallery_block_id + '" doesn\'t have required method "addImage"');

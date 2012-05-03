@@ -455,10 +455,22 @@ class FileStorage
 				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
 						. DIRECTORY_SEPARATOR
 						. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
+				
 				foreach ($sizes as $size) {
+					
+					$sizeDir = $fileDir .  DIRECTORY_SEPARATOR
+							. $size->getFolderName() . DIRECTORY_SEPARATOR;
+					
+					$externalPath = $this->getExternalPath() . $sizeDir;
+					$this->createFolderInFileSystem($externalPath);
+					
+					$internalPath = $this->getInternalPath() . $sizeDir;
+					$this->createFolderInFileSystem($internalPath);
+						
 					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR
 							. $file->getFileName();
+				
 				}
 			}
 		}
@@ -477,7 +489,7 @@ class FileStorage
 			}
 			$file->setPublic(false);
 		}
-
+		
 		$file->setModificationTime();
 	}
 

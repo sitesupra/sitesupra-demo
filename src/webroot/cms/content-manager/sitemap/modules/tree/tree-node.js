@@ -40,7 +40,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				</div>\
 				<label>{{ label|escape }}</label>\
 				<div class="arrow"></div>\
-				<div class="children"><div class="new-item-fake-preview"></div></div>\
+				<div class="children"><div class="new-item-fake-preview"><div></div></div></div>\
 			');
 	
 	TreeNode.ATTRS = {
@@ -692,6 +692,32 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			this._dndTargetNode = null;
 		},
 		
+		/**
+		 * Draw line from new item to its parent
+		 * 
+		 * @private
+		 */
+		'_drawNewItemMakerLine': function (visible) {
+			var target	= this.get('boundingBox'),
+				node	= this.get('childrenBox').get('children').filter('.new-item-fake-preview').item(0),
+				line	= node.one('div'),
+				
+				tpos	= target.getX(),
+				npos	= node.getX(),
+				
+				diff	= npos - tpos - 59;
+			
+			if (!npos || diff <= 0 || !visible) {
+				line.setStyle('display', 'none');
+			} else {
+				line.setStyles({
+					'left': -diff + 'px',
+					'width': diff + 'px',
+					'display': 'block'
+				});
+			}
+		},
+		
 		
 		
 		/**
@@ -976,40 +1002,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			return this._widgets[id] || null;
 		},
 		
-		/**
-		 * Show or hide layers above given depth
-		 * 
-		 * @param {Number} depth Depth
-		 * @private
-		 */
-		/*
-		'setVisibleLayerDepth': function (depth) {
-			var node_depth = this.get('depth');
-			
-			if (depth > node_depth) {
-				//Hide children layers
-				this.set('childLayerVisible', false);
-				
-				if (depth >= node_depth + 1) {
-					var children = this.children(),
-						i = 0,
-						ii = children.length;
-					
-					for(; i<ii; i++) {
-						if (children[i].get('expanded')) {
-							children[i].setVisibleLayerDepth(depth);
-						}
-					}
-				}
-			} else {
-				//Show children layers
-				if (!this.get('childLayerVisible')) {
-					this.set('childLayerVisible', true);
-				}
-			}
-		},
-		*/
-		
 		
 		/**
 		 * ------------------------------ ATTRIBUTES ------------------------------
@@ -1142,6 +1134,14 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				}
 
 				node.removeClass('marker-before').removeClass('marker-after').addClass('marker-inside');
+				
+				// Draw line
+				if (this.get('expandable')) {
+					this._drawNewItemMakerLine(true);
+				} else {
+					this._drawNewItemMakerLine(false)
+				}
+				
 			} else if (marker == 'before') {
 				node.removeClass('marker-inside').removeClass('marker-after').addClass('marker-before');
 			} else if (marker == 'after') {
@@ -1264,6 +1264,18 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					result = this._setExpandedCollapse();
 				}
 				
+				//on second level nodes expand hide all other roots
+				if( ! this.get('root') && this.get('parent').get('root')) {
+					//second level nodes
+					var rootNodes = this.get('parent').get('parent').children();
+	
+					for (var i in rootNodes) {
+						if (rootNodes[i] !== this) {
+							rootNodes[i].get('boundingBox').setClass('visibility-root', expanded);
+						}
+					}
+				}
+						
 				Y.later(16, this, this._afterToggle);
 				
 				return result;
