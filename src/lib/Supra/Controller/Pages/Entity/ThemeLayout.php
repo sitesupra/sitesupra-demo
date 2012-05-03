@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @Entity 
+ * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_in_theme_idx", columns={"name", "theme_id"})}))
  */
 class ThemeLayout extends Database\Entity
@@ -193,4 +194,4 @@ class ThemeLayout extends Database\Entity
 		return $this->getPlaceholders()->getKeys();
 	}
 
-}
+	}

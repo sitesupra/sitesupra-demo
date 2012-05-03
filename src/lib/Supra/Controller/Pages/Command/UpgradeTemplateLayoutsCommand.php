@@ -128,7 +128,7 @@ class UpgradeTemplateLayoutsCommand extends Command
 		$this->setThemeProviderNamespace($providerNamespace);
 
 		$themeProvider = $this->getThemeProvider();
-		
+
 		$themeName = $input->getOption('theme');
 
 		/* @var $theme Theme */
@@ -154,13 +154,16 @@ class UpgradeTemplateLayoutsCommand extends Command
 
 			$oldLayout = $templateLayout->getOldLayout();
 
-			$oldLayoutFilename = $oldLayout->getFile();
+			if ( ! empty($oldLayout)) {
 
-			$layoutName = $themeLayoutFilenameNameMap[$oldLayoutFilename];
+				$oldLayoutFilename = $oldLayout->getFile();
 
-			$templateLayout->setLayoutName($layoutName);
+				$layoutName = $themeLayoutFilenameNameMap[$oldLayoutFilename];
 
-			$em->persist($templateLayout);
+				$templateLayout->setLayoutName($layoutName);
+
+				$em->persist($templateLayout);
+			}
 		}
 
 		$em->flush();

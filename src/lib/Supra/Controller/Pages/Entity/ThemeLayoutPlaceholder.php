@@ -6,6 +6,7 @@ use Supra\Database;
 
 /**
  * @Entity 
+ * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_in_layout_idx", columns={"name", "layout_id"})}))
  */
 class ThemeLayoutPlaceholder extends Database\Entity

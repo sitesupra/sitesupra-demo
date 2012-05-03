@@ -9,13 +9,14 @@ use Supra\Controller\Pages\Entity\ThemeParameter;
 
 /**
  * @Entity 
+ * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_in_theme_idx", columns={"name", "theme_id"})}))
  */
 class ThemeParameterSet extends Database\Entity
 {
 
 	/**
-	 * @ManyToOne(targetEntity="Theme", inversedBy="parameterSets")
+	 * @ManyToOne(targetEntity="Theme", inversedBy="parameterSets", fetch="EAGER")
 	 * @JoinColumn(name="theme_id", referencedColumnName="id")
 	 * @var Theme
 	 */

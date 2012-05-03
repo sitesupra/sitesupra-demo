@@ -284,10 +284,10 @@ abstract class PageRequest extends HttpRequest
 		$localization = $this->getPageLocalization();
 		$localeId = $localization->getLocale();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
-
+		
 		$pageSetIds = $this->getPageSetIds();
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
-
+		
 		$em = $this->getDoctrineEntityManager();
 
 		// Nothing to search for
@@ -650,14 +650,14 @@ abstract class PageRequest extends HttpRequest
 		// but it should not go recursivelly, as getPlaceHolderSet() will return
 		// set without executing, if it is already loaded
 		$placeHolderSet = $this->getPlaceHolderSet();
-		
+
 		$entityManager = $this->getDoctrineEntityManager();
 		$localization = $this->getPageLocalization();
 		
 		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
 		
-		foreach ($layoutPlaceHolderNames as $name) {
+		foreach ($layoutPlaceHolderNames as $name) {		
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
 
 

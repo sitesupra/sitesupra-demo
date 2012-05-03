@@ -154,7 +154,7 @@ class PageRequestEdit extends PageRequest
 		if ($draftData instanceof PageLocalization) {
 			$draftData->initializeProxyAssociations();
 		}
-
+		
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
@@ -165,7 +165,7 @@ class PageRequestEdit extends PageRequest
 		if ($publicData instanceof Entity\PageLocalization) {
 			$newRedirect = $publicData->getRedirect();
 		}
-
+		
 		// 1. Get all blocks to be copied
 		$draftBlocks = $this->getBlocksInPage($draftEm, $draftData);
 
@@ -176,7 +176,7 @@ class PageRequestEdit extends PageRequest
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
 		$existentBlockIdList = Entity\Abstraction\Entity::collectIds($existentBlocks);
 		$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);
-
+		
 		if ( ! empty($removedBlockIdList)) {
 			//$this->removeBlocks($publicEm, $removedBlockIdList);
 			foreach($removedBlockIdList as $removedBlockId) {
@@ -191,7 +191,7 @@ class PageRequestEdit extends PageRequest
 		
 		$placeHolderIds = array();
 		$placeHolderNames = array();
-
+		
 		// 4. Merge all placeholders, don't delete not used, let's keep them
 		foreach ($draftBlocks as $block) {
 			$placeHolder = $block->getPlaceHolder();

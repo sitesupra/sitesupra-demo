@@ -9,6 +9,7 @@ use Supra\Less\SupraLessC;
 
 /**
  * @Entity
+ * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_idx", columns={"name"})}))
  */
 class Theme extends Database\Entity implements ThemeInterface
