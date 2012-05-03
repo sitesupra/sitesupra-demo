@@ -541,10 +541,18 @@
 	width: 205px;
 	height: 183px;
 	position: absolute;
+	z-index: 1;
 	right: -146px;
 	top: 0;
 	background: url(images/tree-item-new-last.png) 0 0 no-repeat;
 	display: none;
+	
+	div {
+		position: absolute;
+		height: 13px;
+		top: -11px;
+		background: url(images/tree-item-line.gif) 0 0 no-repeat, url(images/tree-item-line.gif) 0 -13px repeat-x;
+	}
 }
 .su-tree-node.marker-inside > .children > .new-item-fake-preview {
 	display: block;
