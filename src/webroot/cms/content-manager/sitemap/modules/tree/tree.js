@@ -692,6 +692,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 				child = reference.item(-1);
 				
 				if (child) {
+					if (child === node) {
+						return;
+					}
+					
 					reference = child;
 					where = 'after';
 				} else {
