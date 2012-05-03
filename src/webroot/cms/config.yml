@@ -1,5 +1,9 @@
+- Supra\Configuration\ConstantConfiguration:
+    name: SUPRA_CMS_URL
+    value: cms
+
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
@@ -7,7 +11,7 @@
     objectRepositoryCaller: Supra\Cms\CmsController
 
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
@@ -21,7 +25,7 @@
         class: Supra\Controller\Pages\ThemePreviewPreFilterController
 
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
         class: Supra\Cms\CmsController

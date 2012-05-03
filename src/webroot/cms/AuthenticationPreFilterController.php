@@ -13,17 +13,19 @@ class AuthenticationPreFilterController extends AuthenticationController
 {
 	public function __construct()
 	{
-		$this->setLoginPath('cms/login');
-		$this->setBasePath('cms');
+		$cmsBase = SUPRA_CMS_URL;
+
+		$this->setLoginPath($cmsBase . '/login/');
+		$this->setBasePath($cmsBase . '/');
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');
 		
 		$this->publicUrlList = array(
-			'cms/restore',
-			'cms/restore/changepassword',
-			'cms/restore/request',
-			'cms/restore',
-			'cms/logout'
+			$cmsBase . '/restore',
+			$cmsBase . '/restore/changepassword',
+			$cmsBase . '/restore/request',
+			$cmsBase . '/restore',
+			$cmsBase . '/logout'
 		);
 		
 		parent::__construct();

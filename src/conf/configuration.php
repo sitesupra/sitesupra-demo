@@ -26,6 +26,7 @@ require_once SUPRA_CONF_PATH . 'authorization.php';
 require_once SUPRA_CONF_PATH . 'event.php';
 require_once SUPRA_CONF_PATH . 'search.php';
 require_once SUPRA_CONF_PATH . 'payment.php';
+require_once SUPRA_CONF_PATH . 'cms.php';
 
 $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new ComponentConfigurationLoader($parser);

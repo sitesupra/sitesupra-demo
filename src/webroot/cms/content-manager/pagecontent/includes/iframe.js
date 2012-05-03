@@ -446,8 +446,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//Add stylesheets to iframe
 			if (!Supra.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				app_path = Supra.data.get(['application', 'path']);
-				link = this.addStyleSheet(app_path + "/pagecontent/iframe.css");
+				link = this.addStyleSheet(Action.getActionPath() + "iframe.css");
 				if (link) {
 					links.push(link);
 				}

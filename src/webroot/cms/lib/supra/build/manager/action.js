@@ -38,7 +38,7 @@ YUI.add('supra.manager-action', function (Y) {
 		/*
 		 * Set router root path
 		 */
-			action.root = Loader.getStaticPath() + Loader.getActionBasePath(name);
+			action.root = Loader.getDynamicPath() + Loader.getActionBasePath(name);
 		
 		/*
 		 * Change placeholder if it's defined in Action
