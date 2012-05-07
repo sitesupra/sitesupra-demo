@@ -771,16 +771,34 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @param {Number} id Folder ID
 		 */
 		updatePrivateStateUI: function (id /* Folder ID */, state /* State */) {
-			var node = this.getItemNode(id);
+			var node = this.getItemNode(id),
+				dataObject = this.get('dataObject'),
+				slide = null;
+				
 			if (!node) return this;
 			
 			node.setClass('type-folder-private', state);
 			
 			//Update all children
-			var children = this.get('dataObject').getChildrenData(id);
+			var children = dataObject.getChildrenData(id);
 			for(var i=0,ii=children.length; i<ii; i++) {
 				//Update children data
 				children[i]['private'] = state;
+				
+				// clear properties, to force medialibrary reload item data (thumbnails, previews)
+				if (children[i].type != Data.TYPE_FOLDER) {
+					if (dataObject.hasData(children[i].id)) {
+						delete children[i][List.FILE_PROPERTIES[0]];
+					}
+				} else {
+					delete children[i].children;
+					
+					var childId = children[i].id;
+					slide = this.slideshow.getSlide('slide_' + childId);
+					if (slide) {
+						this.slideshow.removeSlide('slide_' + childId);
+					}			
+				}
 				
 				//Update children UI
 				if (children[i].type == Data.TYPE_FOLDER) {

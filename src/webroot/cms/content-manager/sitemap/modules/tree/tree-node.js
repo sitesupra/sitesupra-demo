@@ -1264,6 +1264,18 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					result = this._setExpandedCollapse();
 				}
 				
+				//on second level nodes expand hide all other roots
+				if( ! this.get('root') && this.get('parent').get('root')) {
+					//second level nodes
+					var rootNodes = this.get('parent').get('parent').children();
+	
+					for (var i in rootNodes) {
+						if (rootNodes[i] !== this) {
+							rootNodes[i].get('boundingBox').setClass('visibility-root', expanded);
+						}
+					}
+				}
+						
 				Y.later(16, this, this._afterToggle);
 				
 				return result;

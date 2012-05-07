@@ -258,14 +258,12 @@ abstract class BlockController extends ControllerAbstraction
 				/* @var $property BlockProperty */
 				if ($propertyCheck->getName() === $name) {
 
-					$property = $propertyCheck;
-
-					if ($propertyCheck->getType() !== $expectedType) {
-						$property->setEditable($editable);
-						$property->setValue($editable->getDefaultValue());
+					if ($propertyCheck->getType() === $expectedType) {
+						$property = $propertyCheck;
+//						$property->setEditable($editable);
+//						$property->setValue($editable->getDefaultValue());
+						break;
 					}
-
-					break;
 				}
 			}
 
