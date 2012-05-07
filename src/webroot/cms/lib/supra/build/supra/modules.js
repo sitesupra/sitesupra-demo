@@ -15,6 +15,9 @@
 				groupId = 'supra';
 			}
 			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
+			
+			//Reset configuration state
+			Supra.yui_base_set = false;
 		}
 	};
 	
@@ -44,6 +47,9 @@
 		path = path.replace(/\/$/, '') + '/';
 		config.root = path;
 		config.base = path;
+		
+		//Reset configuration state
+		Supra.yui_base_set = false;
 	};
 	
 	/**
