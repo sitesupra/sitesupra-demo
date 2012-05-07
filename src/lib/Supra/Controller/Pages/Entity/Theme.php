@@ -152,7 +152,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function setRootDir($rootDir)
 	{
-		$this->rootDir = $rootDir;
+		$this->rootDir = preg_replace('@/+@', '/', $rootDir);
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function setUrlBase($urlBase)
 	{
-		$this->urlBase = $urlBase;
+		$this->urlBase = preg_replace('@/+@', '/', $urlBase . DIRECTORY_SEPARATOR);
 	}
 
 	/**

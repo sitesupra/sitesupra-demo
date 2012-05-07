@@ -131,10 +131,10 @@ class ThemeAddCommand extends Command
 
 		$themeName = $input->getArgument('name');
 
-		$themeDirectory = realpath($input->getOption('directory'));
+		$themeDirectory = $input->getOption('directory');
 
 		if ( ! empty($themeDirectory)) {
-			$themeConfigurationFilename = $themeDirectory . DIRECTORY_SEPARATOR . 'theme.yml';
+			$themeConfigurationFilename = realpath($themeDirectory) . DIRECTORY_SEPARATOR . 'theme.yml';
 		} else {
 
 			$themeDirectory = $themeProvider->getRootDir() . DIRECTORY_SEPARATOR . $themeName;
@@ -151,7 +151,6 @@ class ThemeAddCommand extends Command
 
 			$theme = new Theme();
 			$theme->setName($themeName);
-			$themeProvider->setProviderData($theme);
 		}
 
 		$theme->setRootDir($themeDirectory);
