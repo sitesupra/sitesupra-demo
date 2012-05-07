@@ -255,7 +255,11 @@ Supra('anim', function (Y) {
 				
 				conf = Supra.mix({}, BUTTON_DEFAULT_CONF, conf);
 				
+				//Remove ID from config to prevent ID attribute collision
+				delete(conf.id);
+				
 				button = new Supra.Button(conf);
+				
 				if (conf.callback && Y.Lang.isFunction(conf.callback)) {
 					button.on('click', conf.callback, conf.context || button);
 				}

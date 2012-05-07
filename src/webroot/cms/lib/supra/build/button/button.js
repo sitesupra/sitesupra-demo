@@ -233,16 +233,6 @@ YUI.add('supra.button', function (Y) {
 			this.get('boundingBox').on('click', this._onDisabledPreventClick, this);
 			
 			this.on('click', this._onClick, this);
-			
-			//On focus, focus input
-			/*
-			this.on('focusedChange', function (event) {
-				if (event.newVal) {
-					var btn = this.get('nodeButton');
-					if (btn) btn.focus();
-				}
-			}, this);
-			*/
 		},
 		
 		_syncUIStyle: function (name, add) {
