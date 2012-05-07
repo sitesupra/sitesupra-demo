@@ -130,12 +130,6 @@ class ThemeRemoveCommand extends Command
 
 		$themeProvider = $this->getThemeProvider();
 
-		$themeConfigurationFilename = $themeProvider->getThemeConfigurationFilename($themeName);
-
-		if ( ! file_exists($themeConfigurationFilename)) {
-			throw new Exception\RuntimeException('Theme configuration file "' . $themeConfigurationFilename . '" does not exist.');
-		}
-
 		$theme = $themeProvider->findThemeByName($themeName);
 
 		if (empty($theme)) {
