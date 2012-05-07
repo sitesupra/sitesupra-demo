@@ -131,7 +131,7 @@ class ThemeRemoveCommand extends Command
 		$themeProvider = $this->getThemeProvider();
 
 		$theme = $themeProvider->findThemeByName($themeName);
-
+		
 		if (empty($theme)) {
 			throw new Exception\RuntimeException('Theme "' . $themeName . '" not found.');
 		}

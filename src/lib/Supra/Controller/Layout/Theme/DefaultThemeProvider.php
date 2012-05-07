@@ -276,9 +276,9 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 					/* @var $parameter ThemeParameterValue */
 					$parameterSet->removeValue($value);
 				}
-			}
 
-			$theme->removeParameterSet($parameterSet);
+				$theme->removeParameterSet($parameterSet);
+			}
 		}
 
 		$parameters = $theme->getParameters();
