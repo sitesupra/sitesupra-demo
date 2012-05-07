@@ -2,7 +2,7 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.imageslider', {
+Supra.addModule('website.imageslider', {
 	path: 'imageslider.js',
 	requires: ['widget', 'transition']
 });

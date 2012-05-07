@@ -27,7 +27,7 @@ Supra.addModule('linkmanager.sitemap-linkmanager-node', {
  *   hideToolbar - toolbar buttons will be hidden while link manager is open
  *   hideLinkControls - link controls will be hidden, default is false
  */
-SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
+Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

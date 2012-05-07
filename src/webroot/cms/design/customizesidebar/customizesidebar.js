@@ -2,11 +2,11 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.input-pattern', {
+Supra.addModule('website.input-pattern', {
 	path: 'input/pattern.js',
 	requires: ['supra.input-select-list']
 });
-SU.addModule('website.input-fonts', {
+Supra.addModule('website.input-fonts', {
 	path: 'input/fonts.js',
 	requires: ['website.input-pattern']
 });

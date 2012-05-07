@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', function (Y) {
+Supra('anim', function (Y) {
 	
 	//Shortcut
 	var Manager = Supra.Manager,

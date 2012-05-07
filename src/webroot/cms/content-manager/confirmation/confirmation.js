@@ -13,7 +13,7 @@
  * 			]
  * 		});
  */
-SU('supra.input', function (Y) {
+Supra('supra.input', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',

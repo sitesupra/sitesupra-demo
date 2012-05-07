@@ -2,7 +2,7 @@
  * Layout
  * DEPRECATED!? In content-manager was replaced with PluginLayout 
  */
-SU(function () {
+Supra(function () {
 	
 	var M = Supra.Manager;
 	var layout = Supra.LayoutManager;

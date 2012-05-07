@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
+Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

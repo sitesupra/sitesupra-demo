@@ -16,7 +16,7 @@
 	});
 
 
-	SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
+	Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 
 		//Shortcut
 		var Manager = Supra.Manager;
