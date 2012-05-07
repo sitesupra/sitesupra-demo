@@ -18,9 +18,14 @@
 		
 		<script type="text/html" id="pageBlockListItems">
 			{% for block in blocks %}
-			<li class="clearfix" data-id="{{ block.id|e }}">
-				<div><img src="{{ block.icon }}" alt="" /></div>
-				<p>{{ block.title|e }}</p>
+			<li class="clearfix item" data-id="{{ block.id|e }}">
+				<div class="item-content">
+					<div class="item-content-inner">
+						<div class="img"><img src="{{ block.icon }}" alt="" /></div>
+						<span></span>
+						<p><b>{{ block.title|e }}</b></p>
+					</div>
+				</div>
 			</li>
 			{% endfor %}
 		</script>
