@@ -224,15 +224,12 @@ YUI.add('supra.manager-loader', function (Y) {
 			var path = Supra.YUI_BASE.groups.website.comboBase + paths.join('&');
 			
 			//Get SCRIPT
-			Y.Get.script(path, {
+			Y.Get.js(path, {
 				onSuccess: function (o) {
 					//Script is loaded, but template and stylesheet is not
 					//rest is handled by Supra.Managet.Action
 				},
-				attributes: {
-					'async': 'async',	//Load asynchronously
-					'defer': 'defer'	//For browsers that doesn't support async
-				},
+				async: true,
 				context: this,
 				data: load_list
 			});

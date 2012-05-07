@@ -357,7 +357,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-fullscreen': {
 			path: 'htmleditor/plugins/plugin-fullscreen.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
@@ -389,7 +389,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 	
 	/**

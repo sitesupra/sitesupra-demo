@@ -174,7 +174,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				object = Supra.mix({}, object);
 			}
 			
-			if ('red' in value && 'green' in value && 'blue' in value) {
+			if ('red' in object && 'green' in object && 'blue' in object) {
 				//RGB
 				object.red   = Math.min(255, Math.max(0, object.red));
 				object.green = Math.min(255, Math.max(0, object.green));

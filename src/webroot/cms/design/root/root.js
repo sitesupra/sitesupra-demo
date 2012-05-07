@@ -5,6 +5,7 @@
  * Main manager action, initiates all other actions
  */
 Supra(
+	
 	'supra.slideshow',
 	
 function (Y) {

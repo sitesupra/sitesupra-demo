@@ -4,8 +4,8 @@
 /**
  * Create and show/hide specific buttons when required
  */
-SU('anim', function (Y) {
-
+Supra('anim', function (Y) {
+	
 	var BUTTON_DEFAULTS = {
 		'cancel':	{'label': Supra.Intl.get(['buttons', 'cancel'])},
 		'close':	{'label': Supra.Intl.get(['buttons', 'close'])},

@@ -28,7 +28,7 @@ $pre = realpath('../../../../');
 $preLength = strlen($pre);
 $checkFileModificationTime = true;
 $cacheDir = dirname($pre) . '/tmp';
-//$version = '3.4.0';
+//$version = '3.5.0';
 
 foreach ($files as $file) {
 	// Only CSS/JS allowed
