@@ -13,5 +13,10 @@ interface ThemeInterface
 	/**
 	 * @var string
 	 */
-	public function getLayoutDir();
+	public function getRootDir();
+
+	/**
+	 * @var string 
+	 */
+	public function getUrlBase();
 }

@@ -217,8 +217,6 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
-
-		$this->setProviderData($theme);
 	}
 
 	/**
@@ -236,8 +234,6 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 			throw new Exception\RuntimeException('Theme named "' . $name . '" is not found.');
 		}
 
-		$this->setProviderData($theme);
-
 		return $theme;
 	}
 
@@ -251,17 +247,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 		$theme = $repo->findOneBy(array('name' => $name));
 
-		if ( ! empty($theme)) {
-			$this->setProviderData($theme);
-		}
-
 		return $theme;
-	}
-
-	public function setProviderData(Theme $theme)
-	{
-		$theme->setProviderRootDir($this->getRootDir());
-		$theme->setProviderUrlBase($this->getUrlBase());
 	}
 
 	/**

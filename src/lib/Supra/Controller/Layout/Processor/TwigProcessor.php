@@ -49,7 +49,7 @@ class TwigProcessor extends HtmlProcessor
 		$theme = $this->getTheme();
 
 		if ( ! empty($theme)) {
-			$this->setLayoutDir($theme->getLayoutDir());
+			$this->setLayoutDir($theme->getRootDir());
 		}
 
 		$twig = ObjectRepository::getTemplateParser($this);

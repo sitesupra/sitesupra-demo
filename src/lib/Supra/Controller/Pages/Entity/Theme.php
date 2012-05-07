@@ -37,6 +37,12 @@ class Theme extends Database\Entity implements ThemeInterface
 	protected $title;
 
 	/**
+	 * @Column(type="string");
+	 * @var string
+	 */
+	protected $rootDir;
+
+	/**
 	 * @Column(type="string")
 	 * @var string 
 	 */
@@ -79,14 +85,10 @@ class Theme extends Database\Entity implements ThemeInterface
 	protected $currentParameterSet;
 
 	/**
+	 * @Column(type="string");
 	 * @var string
 	 */
-	protected $providerRootDir;
-
-	/**
-	 * @var string
-	 */
-	protected $providerUrlBase;
+	protected $urlBase;
 
 	public function __construct()
 	{
@@ -146,11 +148,11 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	 * @param string $themeDir 
+	 * @param string $rootDir 
 	 */
-	public function setProviderRootDir($providerRootDir)
+	public function setRootDir($rootDir)
 	{
-		$this->providerRootDir = $providerRootDir;
+		$this->rootDir = $rootDir;
 	}
 
 	/**
@@ -158,15 +160,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function getRootDir()
 	{
-		return $this->providerRootDir . DIRECTORY_SEPARATOR . $this->getName();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLayoutDir()
-	{
-		return $this->getRootDir() . DIRECTORY_SEPARATOR . self::PATH_PART_LAYOUTS;
+		return $this->rootDir;
 	}
 
 	/**
@@ -178,11 +172,11 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	 * @param string $providerUrlBase 
+	 * @param string $urlBase 
 	 */
-	public function setProviderUrlBase($providerUrlBase)
+	public function setUrlBase($urlBase)
 	{
-		$this->providerUrlBase = $providerUrlBase;
+		$this->urlBase = $urlBase;
 	}
 
 	/**
@@ -190,7 +184,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function getUrlBase()
 	{
-		return $this->providerUrlBase . DIRECTORY_SEPARATOR . $this->getName() . DIRECTORY_SEPARATOR;
+		return $this->urlBase;
 	}
 
 	/**

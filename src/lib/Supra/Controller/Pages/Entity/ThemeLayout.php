@@ -161,9 +161,9 @@ class ThemeLayout extends Database\Entity
 	{
 		$theme = $this->getTheme();
 
-		$themeLayoutDir = $theme->getLayoutDir();
+		$rootDir = $theme->getRootDir();
 
-		$fullFilename = $themeLayoutDir . DIRECTORY_SEPARATOR . $this->getFilename();
+		$fullFilename = $rootDir . DIRECTORY_SEPARATOR . $this->getFilename();
 
 		return $fullFilename;
 	}

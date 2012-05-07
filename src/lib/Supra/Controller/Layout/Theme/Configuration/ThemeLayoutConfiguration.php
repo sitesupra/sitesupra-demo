@@ -73,10 +73,10 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		$currentPlaceholderNames = $placeholders->getKeys();
 
 		$theme = $this->getTheme();
-		$themeLayoutDir = $theme->getLayoutDir();
+		$rootDir = $theme->getRootDir();
 		
 		$twigProcessor = new TwigProcessor();
-		$twigProcessor->setLayoutDir($themeLayoutDir);
+		$twigProcessor->setLayoutDir($rootDir);
 
 		$placeholderNamesInTemplate = $twigProcessor->getPlaces($this->filename);
 

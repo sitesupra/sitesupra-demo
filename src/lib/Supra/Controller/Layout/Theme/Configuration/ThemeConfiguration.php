@@ -24,17 +24,17 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	/**
 	 * @var string
 	 */
-	public $title;
+	public $title = '';
 
 	/**
 	 * @var string
 	 */
-	public $description;
+	public $description = '';
 
 	/**
 	 * @var boolean
 	 */
-	public $enabled;
+	public $enabled = true;
 
 	/**
 	 * @var string
@@ -45,6 +45,11 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 * @var array
 	 */
 	public $parameterSets;
+
+	/**
+	 * @var string
+	 */
+	public $urlBase;
 
 	/**
 	 * @var array
@@ -61,6 +66,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);
 		$theme->setEnabled((boolean) $this->enabled);
+
+		if ( ! empty($this->urlBase)) {
+			$theme->setUrlBase($this->urlBase);
+		}
 
 		$this->processParameters();
 
@@ -171,10 +180,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		$parameterSets = $theme->getParameterSets();
 
 		foreach ($parameterSets as $parameterSet) {
-			
+
 			foreach ($parameters as $parameter) {
 				/* @var $parameter ThemeParameter */
-				
+
 				$parameterSetValues = $parameterSet->getValues();
 
 				if (empty($parameterSetValues[$parameter->getName()])) {

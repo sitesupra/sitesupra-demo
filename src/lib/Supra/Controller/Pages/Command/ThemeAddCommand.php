@@ -114,6 +114,7 @@ class ThemeAddCommand extends Command
 		$this->setName('su:themes:add')
 				->setDescription('Add/update theme')
 				->addArgument('name', Input\InputArgument::REQUIRED, 'Theme name')
+				->addOption('directory', null, Input\InputArgument::OPTIONAL, 'Theme directory', null)
 				->addOption('provider', null, Input\InputArgument::OPTIONAL, 'Theme provider namespance', null);
 	}
 
@@ -126,11 +127,19 @@ class ThemeAddCommand extends Command
 		$providerNamespace = $input->getOption('provider');
 		$this->setThemeProviderNamespace($providerNamespace);
 
-		$themeName = $input->getArgument('name');
-
 		$themeProvider = $this->getThemeProvider();
 
-		$themeConfigurationFilename = $themeProvider->getThemeConfigurationFilename($themeName);
+		$themeName = $input->getArgument('name');
+
+		$themeDirectory = realpath($input->getOption('directory'));
+
+		if ( ! empty($themeDirectory)) {
+			$themeConfigurationFilename = $themeDirectory . DIRECTORY_SEPARATOR . 'theme.yml';
+		} else {
+
+			$themeDirectory = $themeProvider->getRootDir() . DIRECTORY_SEPARATOR . $themeName;
+			$themeConfigurationFilename = $themeProvider->getThemeConfigurationFilename($themeName);
+		}
 
 		if ( ! file_exists($themeConfigurationFilename)) {
 			throw new Exception\RuntimeException('Theme configuration file "' . $themeConfigurationFilename . '" does not exist.');
@@ -139,10 +148,14 @@ class ThemeAddCommand extends Command
 		$theme = $themeProvider->findThemeByName($themeName);
 
 		if (empty($theme)) {
+
 			$theme = new Theme();
 			$theme->setName($themeName);
 			$themeProvider->setProviderData($theme);
 		}
+
+		$theme->setRootDir($themeDirectory);
+		$theme->setUrlBase($themeProvider->getUrlBase() . DIRECTORY_SEPARATOR . $themeName);
 
 		$theme->setConfigMd5(md5(file_get_contents($themeConfigurationFilename)));
 
@@ -155,7 +168,7 @@ class ThemeAddCommand extends Command
 		$configurationLoader->loadFile($themeConfigurationFilename);
 
 		$themeProvider->storeTheme($theme);
-		
+
 		$theme->generateCssFiles();
 
 		$output->writeln('Theme "' . $themeName . '" added/updated.');

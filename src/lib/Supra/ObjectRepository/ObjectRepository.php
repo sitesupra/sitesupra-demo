@@ -1228,8 +1228,8 @@ class ObjectRepository
 		if (empty($themeProvider)) {
 
 			$themeProvider = new DefaultThemeProvider();
-			$themeProvider->setUrlBase('/themes/');
-			$themeProvider->setRootDir(SUPRA_PATH . DIRECTORY_SEPARATOR . 'webroot/themes');
+			$themeProvider->setUrlBase('/');
+			$themeProvider->setRootDir(SUPRA_TEMPLATE_PATH);
 			
 			$writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
 			self::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
