@@ -383,9 +383,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				widgets[i].destroy();
 			}
 			
-			//Remove element
-			this.get('boundingBox').remove(true);
-			
 			//Clean up references
 			this._children = null;
 			this._widgets = null;
