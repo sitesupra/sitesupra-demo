@@ -1,7 +1,8 @@
 <?php
 
 // Bootstrap supra
-require_once dirname(__DIR__) . '/lib/Supra/bootstrap.php';
+define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
+require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
 
 // Start the front cotroller
 $frontController = Supra\Controller\FrontController::getInstance();
