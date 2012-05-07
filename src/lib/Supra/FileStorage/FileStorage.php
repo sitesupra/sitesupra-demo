@@ -916,25 +916,8 @@ class FileStorage
 			
 			return $path;
 		}
-		else {
-
-			//TODO: hardcoded now
-			$path = '/cms/media-library/download/' . rawurlencode($file->getFileName());
-
-			$query = array(
-				'inline' => 'inline',
-				'id' => $file->getId(),
-			);
-
-			if ($size instanceof Entity\ImageSize) {
-				$query['size'] = $size->getFolderName();
-			}
-			
-			$queryOutput = http_build_query($query);
-			$output = $path . '?' . $queryOutput . '&';
-			
-			return $output;
-		}
+		
+		return null;
 	}
 
 	/**
