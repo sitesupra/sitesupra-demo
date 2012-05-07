@@ -43,6 +43,9 @@ YUI.add('supra.tree', function(Y) {
 	
 	
 	Supra.Tree = Y.Base.create('tree', Tree, [Y.WidgetParent], {
+		
+		CONTENT_TEMPLATE: '<ul></ul>',
+		
 		/** 
 		 * First level page data 
 		 * @type {Array} 
