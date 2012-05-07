@@ -21,7 +21,6 @@ class BlockPropertySet extends AbstractSet
 		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($this as $blockProperty) {
 			if ($blockProperty->getBlock()->equals($block)) {
-				$blockPropertyName = $blockProperty->getName();
 				$blockPropertySet->append($blockProperty);
 			}
 		}
@@ -61,7 +60,6 @@ class BlockPropertySet extends AbstractSet
 		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($this as $blockProperty) {
 			if ($blockProperty->getLocalization()->equals($data)) {
-				$blockPropertyName = $blockProperty->getName();
 				$blockPropertySet->append($blockProperty);
 			}
 		}
