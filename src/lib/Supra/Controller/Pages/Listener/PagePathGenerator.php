@@ -86,12 +86,13 @@ class PagePathGenerator implements EventSubscriber
 		foreach ($this->unitOfWork->getScheduledEntityUpdates() as $entity) {
 			if ($entity instanceof Entity\PageLocalization) {
 
-				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
-
-				// Run only if pathPart or page activity has changed. Run for all children.
-				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess']) || isset($changeSet['visibleInSitemap'])) {
+				// Removed because news application needs to regenerate the path on creation time change
+//				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
+//
+//				// Run only if pathPart or page activity has changed. Run for all children.
+//				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess']) || isset($changeSet['visibleInSitemap'])) {
 					$this->pageLocalizationChange($entity);
-				}
+//				}
 			}
 
 			// this should be covered by the move trigger
