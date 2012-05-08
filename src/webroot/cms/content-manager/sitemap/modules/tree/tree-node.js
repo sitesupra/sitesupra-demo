@@ -1388,6 +1388,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				
 				//Update arrows
 				this.get('view').checkOverflow();
+				
+				//Fire event
+				this.fire('expanded');
 			}
 		},
 		
@@ -1435,6 +1438,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				
 				//Update arrows
 				this.get('view').checkOverflow();
+				
+				//Fire event
+				this.fire('collapsed');
 			}
 		},
 		
