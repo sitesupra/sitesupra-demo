@@ -21,7 +21,8 @@ Supra('supra.slideshow', function (Y) {
 			'email': '',
 			'avatar': null,
 			'group': 1,
-			'permissions': {}
+			'permissions': {},
+			'canUpdate': true
 		},
 		'2': {
 			'user_id': null,
@@ -29,7 +30,8 @@ Supra('supra.slideshow', function (Y) {
 			'email': '',
 			'avatar': null,
 			'group': 2,
-			'permissions': {}
+			'permissions': {},
+			'canUpdate': true
 		},
 		'3': {
 			'user_id': null,
@@ -37,7 +39,8 @@ Supra('supra.slideshow', function (Y) {
 			'email': '',
 			'avatar': null,
 			'group': 3,
-			'permissions': {}
+			'permissions': {},
+			'canUpdate': true
 		}
 	};
 	
@@ -279,6 +282,11 @@ Supra('supra.slideshow', function (Y) {
 		 * @private
 		 */
 		deleteUser: function () {
+			
+			if(!Manager.getAction('UserDetails').isAllowedToUpdate(this.data)) {
+				return;
+			}
+			
 			var uri = this.getDataPath('delete');
 			
 			Supra.io(uri, {
@@ -302,7 +310,11 @@ Supra('supra.slideshow', function (Y) {
 		 * 
 		 * @private
 		 */
-		resetPassword: function () {
+		resetPassword: function () {						
+			if(!Manager.getAction('UserDetails').isAllowedToUpdate(this.data)) {
+				return;
+			}
+			
 			var uri = this.getDataPath('reset');
 			Supra.io(uri, {
 				'method': 'post',
@@ -338,6 +350,11 @@ Supra('supra.slideshow', function (Y) {
 					//Cancel if 'name' is missing
 					return;					
 				}
+				
+				if (!data.canUpdate) {
+					return;
+				}
+				
 				uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
 				
 				if (!data.avatar_id) {
