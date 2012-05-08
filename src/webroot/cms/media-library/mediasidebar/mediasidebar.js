@@ -70,6 +70,10 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 		 * @private
 		 */
 		render: function () {
+			//Toolbar buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
 			//Create media list
 			this.renderMediaList();
 			
@@ -226,9 +230,18 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
+			//Show previous buttons
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
 			this.medialist.upload.set('disabled', true);
+			
+			//Retore editor toolbar
+			if (this.options.retoreEditorToolbar) {
+				Manager.getAction('EditorToolbar').execute();
+			}
 		},
 		
 		/**
@@ -267,7 +280,8 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			//Set options
 			this.options = Supra.mix({
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
-				'dndEnabled': true
+				'dndEnabled': true,
+				'hideToolbar': false
 			}, options || {}, true);
 			
 			//Scroll to folder / item
@@ -286,6 +300,19 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			//Update slideshow
 			this.medialist.slideshow.syncUI();
+			
+			//Hide toolbar
+			if (this.options.hideToolbar) {
+				//Hide editor toolbar
+				if (Manager.getAction('EditorToolbar').get('visible')) {
+					this.options.retoreEditorToolbar = true;
+					Manager.getAction('EditorToolbar').hide();
+				}
+				
+				//Hide buttons
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			}
 		}
 	});
 	
