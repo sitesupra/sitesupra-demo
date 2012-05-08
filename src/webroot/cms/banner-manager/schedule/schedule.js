@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.calendar', function (Y) {
+Supra('supra.calendar', function (Y) {
 	
 	//Shortcut
 	var Manager = Supra.Manager,

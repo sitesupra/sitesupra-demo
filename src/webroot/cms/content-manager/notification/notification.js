@@ -18,7 +18,7 @@
  * 			'escape': false							// don't escape text
  * 		});
  */
-SU('anim', function (Y) {
+Supra('anim', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',

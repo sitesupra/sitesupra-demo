@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
+Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

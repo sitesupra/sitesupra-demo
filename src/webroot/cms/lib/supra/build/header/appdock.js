@@ -193,8 +193,8 @@ YUI.add('supra.header.appdock', function(Y) {
 				this.set('nodeDock', node_dock);
 				this.get('contentBox').append(node_dock);
 				
-				node_dock.append('<div class="yui3-app-dock-stats">\n\
-							<div class="stat-content"></div>\n\
+				node_dock.append('<div class="yui3-app-dock-stats">\
+						<div class="stat-content"></div>\
 					</div>');
 				
 			} else {

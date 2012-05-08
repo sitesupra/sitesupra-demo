@@ -70,4 +70,4 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.htmleditor-base']});
+}, YUI.version, {'requires': ['supra.manager', 'supra.htmleditor-base']});

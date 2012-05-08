@@ -1,4 +1,4 @@
-SU('supra.input', function (Y) {
+Supra('supra.input', function (Y) {
 	
 	//Shortcut
 	var Action = Supra.Manager.Action;

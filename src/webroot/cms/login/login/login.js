@@ -1,4 +1,4 @@
-SU('supra.input', 'cookie', function (Y) {
+Supra('supra.input', 'cookie', function (Y) {
 
 	var COOKIE_CHANGE_CHECK_INTERVAL = 3000;
 

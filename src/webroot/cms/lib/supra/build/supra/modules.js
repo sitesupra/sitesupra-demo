@@ -15,6 +15,9 @@
 				groupId = 'supra';
 			}
 			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
+			
+			//Reset configuration state
+			Supra.yui_base_set = false;
 		}
 	};
 	
@@ -44,6 +47,9 @@
 		path = path.replace(/\/$/, '') + '/';
 		config.root = path;
 		config.base = path;
+		
+		//Reset configuration state
+		Supra.yui_base_set = false;
 	};
 	
 	/**
@@ -357,7 +363,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-fullscreen': {
 			path: 'htmleditor/plugins/plugin-fullscreen.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
@@ -389,7 +395,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 	
 	/**

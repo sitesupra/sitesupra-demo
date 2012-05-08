@@ -1,4 +1,4 @@
-SU('supra.datatable', function (Y) {
+Supra('supra.datatable', function (Y) {
 
 	//Shortcut
 	var Action = Supra.Manager.Action;

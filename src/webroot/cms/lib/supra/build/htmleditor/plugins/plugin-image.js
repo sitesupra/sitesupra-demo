@@ -372,7 +372,8 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			var button = this.htmleditor.get('toolbar').getButton('insertimage');
 			if (button.get('down')) {
 				Manager.executeAction('MediaSidebar', {
-					onselect: Y.bind(this.insertImage, this)
+					'onselect': Y.bind(this.insertImage, this),
+					'hideToolbar': true
 				});
 			} else {
 				this.hideMediaSidebar();

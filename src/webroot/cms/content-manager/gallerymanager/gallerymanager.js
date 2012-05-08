@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
+Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 
 	//Shortcuts
 	var Manager = Supra.Manager;

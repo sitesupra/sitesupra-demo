@@ -12,7 +12,7 @@ if (typeof Supra === "undefined") {
 	/**
 	 * Create YUI instance for internal use
 	 */
-	var Y = YUI(), yui_base_set = false;
+	var Y = YUI();
 	
 	/**
 	 * Global Supra namespace
@@ -61,6 +61,7 @@ if (typeof Supra === "undefined") {
 				
 				// additional parameters for base
 				base = arguments[i];
+				Supra.yui_base_set = false;
 				
 				if ('modules' in base) {
 					base = {'groups': {'supra': base}};
@@ -68,8 +69,9 @@ if (typeof Supra === "undefined") {
 			}
 		}
 		
-		if (!yui_base_set) {
+		if (!Supra.yui_base_set) {
 			base = (base ? Y.mix(base, Supra.YUI_BASE, false, null, 0, true) : Supra.YUI_BASE);
+			Supra.yui_base_set = true;
 		}
 		
 		//Re-use same YUI instance
@@ -131,6 +133,9 @@ if (typeof Supra === "undefined") {
 			}
 		}
 	};
+	
+	//YUI() base configuration has been applied
+	Supra.yui_base_set = false;
 	
 	/**
 	 * Mix objects or arrays together

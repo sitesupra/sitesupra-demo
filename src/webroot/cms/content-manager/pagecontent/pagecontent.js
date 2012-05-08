@@ -127,7 +127,7 @@ Supra('dd-drag', function (Y) {
 			Y.Get.script(args, {
 				'onSuccess': function () {
 					//Create classes
-					SU('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
+					Supra('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
 						this.dependancies_loaded = true;
 						this.ready();
 					}, this));

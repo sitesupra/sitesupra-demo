@@ -4,8 +4,8 @@
 /**
  * Create and show/hide specific buttons when required
  */
-SU('anim', function (Y) {
-
+Supra('anim', function (Y) {
+	
 	var BUTTON_DEFAULTS = {
 		'cancel':	{'label': Supra.Intl.get(['buttons', 'cancel'])},
 		'close':	{'label': Supra.Intl.get(['buttons', 'close'])},
@@ -255,7 +255,11 @@ SU('anim', function (Y) {
 				
 				conf = Supra.mix({}, BUTTON_DEFAULT_CONF, conf);
 				
+				//Remove ID from config to prevent ID attribute collision
+				delete(conf.id);
+				
 				button = new Supra.Button(conf);
+				
 				if (conf.callback && Y.Lang.isFunction(conf.callback)) {
 					button.on('click', conf.callback, conf.context || button);
 				}

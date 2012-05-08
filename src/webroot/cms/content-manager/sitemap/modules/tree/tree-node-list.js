@@ -170,7 +170,8 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					},
 					{
 						'id': 'title',
-						'title': 'Title'
+						'title': 'Title',
+						'formatter': 'ellipsis'
 					}
 				]
 			});

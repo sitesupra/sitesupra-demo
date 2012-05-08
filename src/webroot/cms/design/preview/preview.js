@@ -3,7 +3,7 @@
 
 
 //Add module definitions
-SU.addModule('website.iframe', {
+Supra.addModule('website.iframe', {
 	path: 'iframe.js',
 	requires: ['widget', 'supra.datatype-color']
 });

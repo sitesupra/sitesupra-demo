@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
+Supra(function (Y) {
 
 	//Shortcuts
 	var Manager = Supra.Manager;
@@ -79,7 +79,7 @@ SU(function (Y) {
 			Y.Get.script(args, {
 				'onSuccess': function () {
 					//Create classes
-					SU('supra.source-editor', Y.bind(function () {
+					Supra('supra.source-editor', Y.bind(function () {
 						this.ready();
 					}, this));
 				},
