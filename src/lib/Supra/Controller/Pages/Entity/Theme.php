@@ -277,7 +277,11 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function generateCssFiles()
 	{
 		foreach ($this->parameterSets as $parameterSet) {
+			
+
 			/* @var $parameterSet ThemeParameterSet */
+			
+			\Log::debug($parameterSet->getName());
 			$this->generateCssFileFromLess($parameterSet);
 		}
 	}

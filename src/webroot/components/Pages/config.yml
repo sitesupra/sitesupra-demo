@@ -16,8 +16,8 @@
       Supra\Controller\Configuration\ControllerConfiguration:
         class: Supra\Controller\Pages\PageController
 
-- Supra\Controller\Layout\Theme\Configuration\ThemeProviderConfiguration:
-   class: Supra\Controller\Layout\Theme\DefaultThemeProvider
-   isDefault: true
-   rootDir: webroot/themes
-   urlBase: /themes/
+#- Supra\Controller\Layout\Theme\Configuration\ThemeProviderConfiguration:
+#   class: Supra\Controller\Layout\Theme\DefaultThemeProvider
+#   isDefault: true
+#   rootDir: webroot/themes
+#   urlBase: /themes/

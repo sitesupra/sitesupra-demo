@@ -130,8 +130,14 @@ class ThemeRemoveCommand extends Command
 
 		$themeProvider = $this->getThemeProvider();
 
+		$activeTheme = $themeProvider->getActiveTheme();
+
+		if ($activeTheme->getName() == $themeName) {
+			throw new Exception\RuntimeException('Can not remove theme "' . $themeName . '" because it is currently active.');
+		}
+
 		$theme = $themeProvider->findThemeByName($themeName);
-		
+
 		if (empty($theme)) {
 			throw new Exception\RuntimeException('Theme "' . $themeName . '" not found.');
 		}

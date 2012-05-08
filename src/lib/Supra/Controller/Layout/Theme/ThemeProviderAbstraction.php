@@ -12,6 +12,11 @@ abstract class ThemeProviderAbstraction
 	 * @return Theme
 	 */
 	abstract public function getCurrentTheme();
+	
+	/**
+	 * @return Theme
+	 */
+	abstract public function getActiveTheme();	
 
 	/**
 	 * @return ThemeLayout 

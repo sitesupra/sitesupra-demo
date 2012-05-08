@@ -60,34 +60,6 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		
 		$output->writeln('Updating database schema...');
 		
-		// Supra upgrade runner
-		$supraUpgradeRunner = new DatabaseUpgradeRunner();
-		$pendingUpgrades = $supraUpgradeRunner->getPendingUpgrades();
-		$output->write('General');
-		
-		if ( ! empty($pendingUpgrades)) {
-			
-			$updateRequired = true;
-			
-			$output->writeln("\t - " . count($pendingUpgrades) . " files");
-			
-			if ($force) {
-				$supraUpgradeRunner->executePendingUpgrades();
-			}
-			
-			if ($dumpSql) {
-				$output->writeln('');
-				foreach ($pendingUpgrades as $file) {
-					/* @var $file SqlUpgradeFile */
-					$output->writeln("\t\\. " . $file->getPathname());
-				}
-				$output->writeln('');
-			}
-		} else {
-			$output->writeln("\t - up to date");
-		}
-		
-		
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
@@ -123,7 +95,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		}
 		
 		if ($updateRequired && $assertUpdated) {
-			throw new \RuntimeException("Schema is not up to date.");
+			throw new \RuntimeException('Schema is not up to date.');
 		}
 
 		if ($updateRequired && ! $force && ! $dumpSql) {

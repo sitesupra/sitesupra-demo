@@ -1,13 +1,13 @@
 <?php
 
-namespace Supra\Database\Upgrade;
+namespace Supra\Upgrade;
 
-use SplFileInfo;
+use \SplFileInfo;
 
 /**
- * SQL upgrade file metadata
+ * Upgrade file metadata
  */
-class SqlUpgradeFile extends SplFileInfo
+abstract class UpgradeFileAbstraction extends SplFileInfo
 {
 	const CN = __CLASS__;
 	
@@ -15,6 +15,11 @@ class SqlUpgradeFile extends SplFileInfo
 	 * @var string
 	 */
 	private $shortPath;
+	
+	/**
+	 * @var string
+	 */
+	private $contents;
 	
 	/**
 	 * @param string $shortPath
