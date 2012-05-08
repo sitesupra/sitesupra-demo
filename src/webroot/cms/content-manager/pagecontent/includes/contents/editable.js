@@ -125,7 +125,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 					
 					if (status) {
 						var data = this.get('data');
-						data.properties = this.properties.getValues();
+						data.properties = this.properties.get('data').properties;
 						this.set('data', data);
 					}
 					

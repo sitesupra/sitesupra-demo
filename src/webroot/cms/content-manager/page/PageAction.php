@@ -391,7 +391,10 @@ class PageAction extends PageManagerAction
 							$propertyData = $data;
 						}
 
-						$blockData['properties'][$propertyName] = $propertyData;
+						$blockData['properties'][$propertyName] = array(
+							'value' => $propertyData,
+							'shared' => ($blockProperty instanceof Entity\SharedBlockProperty),
+						);
 					}
 				}
 

@@ -831,6 +831,20 @@ YUI.add("supra.form", function (Y) {
 			for(var id in inputs) inputs[id].set("disabled", disabled);
 			
 			return disabled;
+		},
+		
+		setSharedInputs: function(list) {
+			var input = null,
+				sharedDescription =  SU.Intl.get(['form', 'shared_property_description']);
+				
+			for(var i in list) {
+				if (this.inputs[list[i]]) {
+					input = this.inputs[list[i]];
+					
+					input.set('disabled', true);
+					input.set('description', sharedDescription);
+				}
+			}
 		}
 		
 	});

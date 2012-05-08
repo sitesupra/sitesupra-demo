@@ -24,6 +24,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	function Properties () {
 		Properties.superclass.constructor.apply(this, arguments);
 		this._original_values = null;
+		this._shared_properties = {};
 	}
 	
 	Properties.NAME = 'page-content-properties';
@@ -463,6 +464,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'scrollable': false,
 				'title': this.getTitle()
 			});
+			
+			this.get('host').fire('properties:show');
 		},
 		
 		/**
@@ -480,11 +483,21 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			var form = this.get('form'),
-				data = Supra.mix({}, data);
+			var data = Supra.mix({}, data),
+				values = [],
+				shared_properties = [];
+				
+			for (var name in data.properties) {
+				if (data.properties[name].shared) shared_properties.push(name);
+				
+				values[name] = data.properties[name].value;
+			}
 			
-			this._original_values = data.properties;
-			this.setValues(data.properties);
+			this._shared_properties = Supra.mix(shared_properties, this._shared_properties);
+			this._original_values = values;
+			
+			this.setValues(values);
+			
 			return data;
 		},
 		
@@ -496,8 +509,19 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_getData: function (data) {
-			var data = data || {};
-			data.properties = this.getValues();
+			var data = data || {},
+				properties = {},
+				values = null;
+				
+			values = this.getValues();
+			for (var name in values) {
+				properties[name] = {
+					value: values[name],
+					shared: this.isPropertyShared(name)
+				}
+			}
+			
+			data.properties = properties;
 			return data;
 		},
 		
@@ -553,6 +577,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 				
 				form.setValuesObject(values, 'id');
+				form.setSharedInputs(this._shared_properties);
 			}
 		},
 		
@@ -570,7 +595,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getSaveValues: function () {
 			var form = this.get('form');
 			if (form) {
-				return form.getValues('id', true);
+				var values = form.getValues('id', true);
+				
+				for (var name in values) {
+					if (this.isPropertyShared(name)) delete values[name];
+				}
+
+				return values;
 			} else {
 				return {};
 			}
@@ -592,6 +623,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			return out;
+		},
+		
+		isPropertyShared: function (name) {
+			if (Y.Lang.isArray(this._shared_properties)) {
+				for (var i in this._shared_properties) {
+					if (this._shared_properties[i] == name)	return true;
+				}
+			}
+			return false;
 		}
 		
 	});

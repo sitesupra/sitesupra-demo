@@ -47,7 +47,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			var slideshow = this.properties.get('slideshow'),
 				container = slideshow.getSlide('propertySlideMain').one('.su-slide-content');
 			*/
-			var container = Y.Node.create('<div class="su-button-group"></div>')
+		   
+			var container = Y.Node.create('<div class="su-button-group"></div>');
+			this.buttonsContainer = container;
 			
 			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
 			
@@ -91,6 +93,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'srcNode': srcNode,
 				'doc': doc
 			});
+		},
+		
+		bindUI: function () {
+			ContentGallery.superclass.bindUI.apply(this, arguments);
+			this.once('properties:show', this.checkAreImagesShared, this);
 		},
 		
 		/**
@@ -244,6 +251,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @type {Object}
 		 */
 		processData: function (data) {
+			
+			if (this.properties.isPropertyShared('images')) {
+				return data.images = [];
+			}
+			
 			var images = [],
 				image = {},
 				properties = this.getImageProperties(),
@@ -279,8 +291,25 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					editable.set('loading', false);
 				}
 			);
-		}
+		},
 		
+		/**
+		 * Check
+		 */
+		checkAreImagesShared: function()
+		{
+			if (this.properties.isPropertyShared('images')) {
+				if (this.buttonsContainer) {
+					this.buttonsContainer.hide();
+				}
+				
+				var notice = Y.Node.create('<p class="description"></p>');
+				
+				notice.append(SU.Intl.get(['form', 'shared_gallery_notice']));	
+				
+				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
+			}
+		}
 	});
 	
 	PageContent.Gallery = ContentGallery;
