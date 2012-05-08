@@ -391,10 +391,19 @@ class PageAction extends PageManagerAction
 							$propertyData = $data;
 						}
 
-						$blockData['properties'][$propertyName] = array(
+						$propertyInfo = array(
 							'value' => $propertyData,
-							'shared' => ($blockProperty instanceof Entity\SharedBlockProperty),
+							'shared' => false,
+							'language' => null,
 						);
+
+						if ($blockProperty instanceof Entity\SharedBlockProperty) {
+							$propertyInfo['shared'] = true;
+							$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
+									->getLocale();
+						}
+
+						$blockData['properties'][$propertyName] = $propertyInfo;
 					}
 				}
 

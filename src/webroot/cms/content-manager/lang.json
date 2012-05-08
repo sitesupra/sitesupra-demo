@@ -39,8 +39,8 @@
 			"style": "Style",
 			"set_image": "Set image",
 			"set_link": "Set link",
-			"shared_property_description": "This property is shared and belongs to another page, you cannot edit it here",
-			"shared_gallery_notice": "This gallery images are shared and belongs to another page. You cannot edit them here"
+			"shared_property_description": "This property is shared and belongs to page {{ localeTitle }} version, you cannot edit it here",
+			"shared_gallery_notice": "This gallery images are shared and belongs to page {{ localeTitle }} version. You cannot edit them here"
 		},
 		
 		"page": {

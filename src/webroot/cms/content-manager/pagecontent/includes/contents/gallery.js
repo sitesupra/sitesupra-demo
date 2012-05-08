@@ -303,9 +303,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					this.buttonsContainer.hide();
 				}
 				
-				var notice = Y.Node.create('<p class="description"></p>');
+				var notice = Y.Node.create('<p class="description"></p>'),
+					template = SU.Intl.get(['form', 'shared_gallery_notice']),
+					info = this.properties.getSharedPropertyInfo('images');
 				
-				notice.append(SU.Intl.get(['form', 'shared_gallery_notice']));	
+				template = Supra.Template.compile(template);
+				notice.append(template(info));
 				
 				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
 			}

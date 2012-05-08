@@ -12,6 +12,11 @@ class SharedBlockProperty extends BlockProperty
 	 * @var string
 	 */
 	private $groupId;
+
+	/**
+	 * @var Abstraction\Localization
+	 */
+	private $originalLocalization;
 	
 	public function __construct(BlockProperty $blockProperty, Abstraction\Block $block, Abstraction\Localization $localization, $groupId)
 	{
@@ -19,6 +24,8 @@ class SharedBlockProperty extends BlockProperty
 		foreach ($blockProperty as $field => $value) {
 			$this->$field = $value;
 		}
+
+		$this->originalLocalization = $this->localization;
 		
 		$this->block = $block;
 		$this->localization = $localization;
@@ -28,5 +35,13 @@ class SharedBlockProperty extends BlockProperty
 	public function getGroupId()
 	{
 		return $this->groupId;
+	}
+
+	/**
+	 * @return Abstraction\Localization
+	 */
+	public function getOriginalLocalization()
+	{
+		return $this->originalLocalization;
 	}
 }

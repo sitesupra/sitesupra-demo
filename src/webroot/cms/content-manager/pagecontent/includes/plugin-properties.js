@@ -485,10 +485,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 		_setData: function (data) {
 			var data = Supra.mix({}, data),
 				values = [],
-				shared_properties = [];
+				shared_properties = {};
 				
 			for (var name in data.properties) {
-				if (data.properties[name].shared) shared_properties.push(name);
+				if (data.properties[name].shared) {
+					shared_properties[name] = data.properties[name];
+				}
 				
 				values[name] = data.properties[name].value;
 			}
@@ -577,7 +579,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 				
 				form.setValuesObject(values, 'id');
-				form.setSharedInputs(this._shared_properties);
+
+				var input = null,
+					template = SU.Intl.get(['form', 'shared_property_description']),
+					list = this._shared_properties,
+					inputs = form.inputs,
+					info;
+
+				template = Supra.Template.compile(template);
+
+				for (var name in list) {
+					
+					if (inputs[name]) {
+						input = inputs[name];
+
+						info = this.getSharedPropertyInfo(name);
+
+						input.set('disabled', true);
+						input.set('description', template(info));
+					}
+				}
 			}
 		},
 		
@@ -626,12 +647,29 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		isPropertyShared: function (name) {
-			if (Y.Lang.isArray(this._shared_properties)) {
-				for (var i in this._shared_properties) {
-					if (this._shared_properties[i] == name)	return true;
-				}
+			for (name in this._shared_properties) {
+				return true;
 			}
 			return false;
+		},
+
+		getSharedPropertyInfo: function (name) {
+			var list = this._shared_properties;
+
+			if ( ! (name in list)) {
+				return {};
+			}
+
+			var localeTitle = list[name].locale,
+				locale = Supra.data.getLocale(list[name].locale);
+
+			if (locale && locale.title) {
+				localeTitle = locale.title;
+			}
+
+			var info = Supra.mix({'localeTitle': localeTitle}, list[name]);
+
+			return info;
 		}
 		
 	});
