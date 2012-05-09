@@ -412,9 +412,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 						var host = this.get('host');
 						var parent = host.get('parent');
 						
-						//Discard all changes
-						host.unresolved_changes = false;
-						
 						//Close form
 						this.hidePropertiesForm();
 						

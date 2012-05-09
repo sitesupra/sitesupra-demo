@@ -14,6 +14,7 @@ use Supra\Editable;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 /**
  * Controller for page content requests
@@ -295,13 +296,14 @@ class PagecontentAction extends PageManagerAction
 		$this->checkLock();
 		
 		$blockId = $this->getRequestParameter('block_id');
-		
-		$blockEntity = Entity\Abstraction\Block::CN();
-		$blockQuery = $this->entityManager->createQuery("SELECT b FROM $blockEntity b
-					WHERE b.id = ?0");
-		
-		$blockQuery->setParameters(array($blockId));
-		$block = $blockQuery->getSingleResult();
+
+		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
+
+		if (empty($block)) {
+			throw new CmsException(null, 'Block was not found');
+		}
+
+		$this->checkBlockSharedProperties($block);
 		
 		$this->entityManager->remove($block);
 		$this->entityManager->flush();
@@ -310,6 +312,35 @@ class PagecontentAction extends PageManagerAction
 		
 		// OK response
 		$this->getResponse()->setResponseData(true);
+	}
+
+	/**
+	 * Will confirm the removal if shared properties exist
+	 * @param Entity\Abstraction\Block $block
+	 */
+	private function checkBlockSharedProperties(Entity\Abstraction\Block $block)
+	{
+		$class = $block->getComponentClass();
+		$configuration = ObjectRepository::getComponentConfiguration($class);
+
+		$hasSharedProperties = false;
+
+		// Collects all shared properties
+		if ($configuration instanceof BlockControllerConfiguration) {
+			foreach ($configuration->properties as $property) {
+				/* @var $property BlockPropertyConfiguration */
+				if ($property->shared) {
+					$hasSharedProperties = true;
+
+					// enough to find one
+					break;
+				}
+			}
+		}
+
+		if ($hasSharedProperties) {
+			$this->getConfirmation("The block might contain properties which could be used by other page localizations.\nAre you sure you want to delete the block?");
+		}
 	}
 	
 	/**
