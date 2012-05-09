@@ -42,6 +42,32 @@ abstract class UpgradeRunnerAbstraction
 	protected $executedUpgrades = array();
 
 	/**
+	 * @var array
+	 */
+	protected $pendingUpgrades = array();
+
+	/**
+	 * @var OutputInterface
+	 */
+	protected $output;
+
+	/**
+	 * @return OutputInterface
+	 */
+	public function getOutput()
+	{
+		return $this->output;
+	}
+
+	/**
+	 * @param OutputInterface $output 
+	 */
+	public function setOutput(OutputInterface $output)
+	{
+		$this->output = $output;
+	}
+
+	/**
 	 * Bind log, normalize directory names
 	 */
 	public function __construct()
@@ -93,7 +119,7 @@ abstract class UpgradeRunnerAbstraction
 		$files = iterator_to_array($iterator);
 
 		$files = $this->normalizePathnames($files);
-		usort($files, array($this, 'sortFiles'));
+		uasort($files, array($this, 'sortFiles'));
 
 		return $files;
 	}
@@ -127,26 +153,29 @@ abstract class UpgradeRunnerAbstraction
 	 */
 	public function getPendingUpgrades()
 	{
-		$foundFiles = $this->getAllUpgradeFiles();
-		$executedPaths = $this->getExecutedUpgradePaths();
+		if (empty($this->pendingUpgrades)) {
 
-		foreach ($foundFiles as $path => $file) {
+			$this->pendingUpgrades = $this->getAllUpgradeFiles();
+			$executedPaths = $this->getExecutedUpgradePaths();
 
-			// Already executed
-			if (in_array($path, $executedPaths)) {
-				unset($foundFiles[$path]);
-				continue;
-			}
+			foreach ($this->pendingUpgrades as $path => $file) {
 
-			// Check if upgrade file is valid and needed
-			$allow = $this->allowUpgrade($file);
-			if ( ! $allow) {
-				unset($foundFiles[$path]);
-				continue;
+				// Already executed
+				if (in_array($path, $executedPaths)) {
+					unset($this->pendingUpgrades[$path]);
+					continue;
+				}
+
+				// Check if upgrade file is valid and needed
+				$allow = $this->allowUpgrade($file);
+				if ( ! $allow) {
+					unset($this->pendingUpgrades[$path]);
+					continue;
+				}
 			}
 		}
 
-		return $foundFiles;
+		return $this->pendingUpgrades;
 	}
 
 	/**
@@ -225,7 +254,7 @@ abstract class UpgradeRunnerAbstraction
 	 * @param string $path2
 	 * @return integer
 	 */
-	private function sortFiles($path1, $path2)
+	protected function sortFiles($path1, $path2)
 	{
 		$sort = array(0 => array(), 1 => array());
 

@@ -56,14 +56,6 @@ class S001_AddThemes extends UpgradeScriptAbstraction
 		return $this->themeProvider;
 	}
 
-	/**
-	 * @return boolean 
-	 */
-	public function validate()
-	{
-		return true;
-	}
-
 	public function upgrade()
 	{
 		$this->runCommand('su:theme:add', array('name' => self::THEME_NAME_DEFAULT), array('directory' => SUPRA_TEMPLATE_PATH));
@@ -116,11 +108,6 @@ class S001_AddThemes extends UpgradeScriptAbstraction
 		$em->flush();
 
 		$output->writeln('Upgrade complete.');
-	}
-
-	public function rollback()
-	{
-		
 	}
 
 }

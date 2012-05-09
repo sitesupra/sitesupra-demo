@@ -36,7 +36,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 						'Causes the generated SQL statements to be output.'
 					),
 					new InputOption(
-						'assert-updated', null, InputOption::VALUE_NONE,
+						'check', null, InputOption::VALUE_NONE,
 						'Causes exception if schema is not up to date.'
 					),
 				));
@@ -55,15 +55,17 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		
         $force = (true === $input->getOption('force'));
         $dumpSql = (true === $input->getOption('dump-sql'));
-		$assertUpdated = (true === $input->getOption('assert-updated'));
+		$check = (true === $input->getOption('check'));
 		$updateRequired = false;
 		
-		$output->writeln('Updating database schema...');
+		
+		$output->writeln('Checking database schemas...');
 		
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
-			$output->write($entityManagerName);
+			$output->write("\t - " . $entityManagerName);
+			
 			$metadatas = $em->getMetadataFactory()->getAllMetadata();
 			$schemaTool = new SchemaTool($em);
 			$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
@@ -88,13 +90,12 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			}
 
 		}
-		
 
 		if ($force) {
 			$output->writeln('Database schema updated successfully!');
 		}
 		
-		if ($updateRequired && $assertUpdated) {
+		if ($updateRequired && $check) {
 			throw new \RuntimeException('Schema is not up to date.');
 		}
 

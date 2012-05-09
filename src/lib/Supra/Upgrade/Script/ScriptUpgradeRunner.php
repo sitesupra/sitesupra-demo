@@ -16,31 +16,10 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 	const UPGRADE_PATH = '../upgrade/script';
 
 	/**
-	 * @var OutputInterface
-	 */
-	protected $output;
-
-	/**
 	 *
 	 * @var Application
 	 */
 	protected $application;
-
-	/**
-	 * @return OutputInterface
-	 */
-	public function getOutput()
-	{
-		return $this->output;
-	}
-
-	/**
-	 * @param OutputInterface $output 
-	 */
-	public function setOutput(OutputInterface $output)
-	{
-		$this->output = $output;
-	}
 
 	/**
 	 * @return Application

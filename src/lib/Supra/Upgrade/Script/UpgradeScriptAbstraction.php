@@ -53,19 +53,18 @@ abstract class UpgradeScriptAbstraction
 	}
 
 	/**
+	 * Determines wether this particular script needs to run now.
 	 * @return boolean 
 	 */
-	abstract public function validate();
+	public function validate()
+	{
+		return true;
+	}
 
 	/**
 	 * 
 	 */
 	abstract public function upgrade();
-
-	/**
-	 * 
-	 */
-	abstract public function rollback();
 
 	/**
 	 * @param string $commandName

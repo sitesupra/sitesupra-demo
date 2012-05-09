@@ -11,11 +11,6 @@ use Supra\ObjectRepository\ObjectRepository;
 class S000_UpgradeLinks extends UpgradeScriptAbstraction
 {
 
-	public function validate()
-	{
-		return true;
-	}
-
 	public function upgrade()
 	{
 		$output = $this->getOutput();
@@ -63,11 +58,6 @@ class S000_UpgradeLinks extends UpgradeScriptAbstraction
 		foreach ($statistics as $scheme => $rowCount) {
 			$output->writeln(sprintf(' %-7s - %3d rows', $scheme, $rowCount));
 		}
-	}
-
-	public function rollback()
-	{
-		
 	}
 
 }
