@@ -762,6 +762,33 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Update UI private state for this and all sub-folders
 			this.updatePrivateStateUI(id, force);
+			
+			this.reloadFolderContent(id);
+		},
+		
+		reloadFolderContent: function (id) {
+			var data_object = this.get('dataObject'),
+				item = data_object.getData(id);
+			
+			this.removeChildrenSlides(item.children);
+			
+			delete(item.children);
+			this.open(item.id);
+		},
+		
+		removeChildrenSlides: function (children) {
+			var slide = null,
+				slideshow = this.slideshow;
+			
+			for(var i=0,ii=children.length; i<ii; i++) {
+				slide = slideshow.getSlide('slide_' + children[i].id);
+				if (slide) {
+					slideshow.removeSlide('slide_' + children[i].id);
+					if (children[i].children) {
+						this.removeChildrenSlides(children[i].children);
+					}
+				}
+			}
 		},
 		
 		/**
@@ -785,22 +812,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				//Update children data
 				children[i]['private'] = state;
 				
-				// clear properties, to force medialibrary reload item data (thumbnails, previews)
-				if (children[i].type != Data.TYPE_FOLDER) {
-					if (dataObject.hasData(children[i].id)) {
-						delete children[i][List.FILE_PROPERTIES[0]];
-					}
-				} else {
-					delete children[i].children;
-					
-					var childId = children[i].id;
-					slide = this.slideshow.getSlide('slide_' + childId);
-					if (slide) {
-						this.slideshow.removeSlide('slide_' + childId);
-					}			
-				}
+				dataObject.removeData(children[i].id);
 				
-				//Update children UI
+				// clear properties, to force medialibrary reload item data (thumbnails, previews)
 				if (children[i].type == Data.TYPE_FOLDER) {
 					this.updatePrivateStateUI(children[i].id, state);
 				}
