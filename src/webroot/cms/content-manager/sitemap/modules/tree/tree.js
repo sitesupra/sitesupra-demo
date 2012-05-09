@@ -763,6 +763,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 			} else {
 				old_parent.fire('child:remove', {'node': node, 'data': node.get('data')});
 				new_parent.fire('child:add', {'node': node, 'data': node.get('data')});
+				
+				new_parent.expand();
 			}
 			
 			//Style tree

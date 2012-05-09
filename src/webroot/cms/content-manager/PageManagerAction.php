@@ -667,10 +667,18 @@ abstract class PageManagerAction extends CmsAction
 
 				throw new CmsException(null, "It is impossible to restore root template as a child");
 			}
+		} else {
+			throw new CmsException(null, "Cannot find page [{$pageId}]");
 		}
-		
+				
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
+		
+		$pageLocalization = $page->getLocalization($localeId);
+		
+		if (is_null($pageLocalization)) {
+			throw new CmsException(null, 'This page has no localization for current locale');
+		}
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
 		$request->setDoctrineEntityManager($auditEm);
@@ -681,35 +689,37 @@ abstract class PageManagerAction extends CmsAction
 		$draftEm = $this->entityManager;
 		$draftEventManager = $draftEm->getEventManager();
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
+		
+		$parent = $this->getPageByRequestKey('parent_id');
+		$reference = $this->getPageByRequestKey('reference_id');
 
-		$restorePage = function() use ($request) {
-				$page = $request->restorePage();
-			};
+		$restorePage = function() use ($request, $parent, $reference, $draftEm) {
+			
+			$page = $request->restorePage();
+				
+			$page = $draftEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
+		
+			try {
+				if (is_null($reference)) {
+					if (is_null($parent)) {
+						throw new CmsException('sitemap.error.parent_page_not_found');
+					}
+					$parent->addChild($page);
+				}
+				else {
+					$page->moveAsPrevSiblingOf($reference);
+				}
+			}
+			catch (DuplicatePagePathException $uniqueException) {
+				throw new CmsException('sitemap.error.duplicate_path');
+			}
+				
+		};
 
 		$this->entityManager
 				->transactional($restorePage);
 
-		$page = $this->entityManager
-				->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
-
-		$parent = $this->getPageByRequestKey('parent_id');
-		$reference = $this->getPageByRequestKey('reference_id');
-		try {
-			if (is_null($reference)) {
-				if (is_null($parent)) {
-					throw new CmsException('sitemap.error.parent_page_not_found');
-				}
-				$parent->addChild($page);
-			}
-			else {
-				$page->moveAsPrevSiblingOf($reference);
-			}
-		}
-		catch (DuplicatePagePathException $uniqueException) {
-			throw new CmsException('sitemap.error.duplicate_path');
-		}
-		
-		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
+		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 		
 		$this->getResponse()
 				->setResponseData(true);
