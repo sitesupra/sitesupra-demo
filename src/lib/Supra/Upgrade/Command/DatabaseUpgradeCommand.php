@@ -112,12 +112,12 @@ class DatabaseUpgradeCommand extends Command
 		$this->output->writeln('Have ' . count($pendingUpgrades) . ' pending database upgrade(s):');
 
 		$this->output->writeln('');
-		
+
 		foreach ($pendingUpgrades as $file) {
 			/* @var $file SqlUpgradeFile */
 			$this->output->writeln("\t\\. " . $file->getPathname());
 		}
-		
+
 		$this->output->writeln('');
 
 		// Whether this executes sometging is up to values of $dumpSql and 

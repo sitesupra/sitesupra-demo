@@ -9,6 +9,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Events;
 use Supra\Database\Upgrade\DatabaseUpgradeRunner;
 use Supra\Database\Upgrade\SqlUpgradeFile;
+use Supra\Database\Exception;
 
 /**
  * Schema update command
@@ -94,7 +95,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		}
 		
 		if ($updateRequired && $check) {
-			throw new \RuntimeException('Database schema(s) not up to date.');
+			throw new Exception\RuntimeException('Database schema(s) not up to date.');
 		}
 
 		if ($updateRequired && ! $force && ! $dumpSql) {

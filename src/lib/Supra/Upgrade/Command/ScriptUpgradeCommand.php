@@ -63,6 +63,7 @@ class ScriptUpgradeCommand extends Command
 		$pendingUpgrades = $scriptUpgradeRunner->getPendingUpgrades();
 
 		if (empty($pendingUpgrades)) {
+
 			
 			$output->writeln('No pending update files.');
 		} else {
