@@ -11,29 +11,24 @@ use Supra\ObjectRepository\ObjectRepository;
 class S000_UpgradeLinks extends UpgradeScriptAbstraction
 {
 
-	public function validate()
-	{
-		return true;
-	}
-
 	public function upgrade()
 	{
 		$output = $this->getOutput();
 
-		$schemes = array(
+		$schemas = array(
 			PageController::SCHEMA_PUBLIC,
 			PageController::SCHEMA_DRAFT,
 			PageController::SCHEMA_AUDIT
 		);
 
-		$statistics = array_fill_keys($schemes, 0);
+		$statistics = array_fill_keys($schemas, 0);
 
 		$linkEntity = LinkReferencedElement::CN();
 		$localizationEntity = Localization::CN();
 
-		foreach ($schemes as $scheme) {
+		foreach ($schemas as $schema) {
 
-			$entityManager = ObjectRepository::getEntityManager($scheme);
+			$entityManager = ObjectRepository::getEntityManager($schema);
 
 			$linkMetadata = $entityManager->getClassMetadata($linkEntity);
 			$linkTableName = $linkMetadata->getTableName();
@@ -54,20 +49,15 @@ class S000_UpgradeLinks extends UpgradeScriptAbstraction
 				$updateStatement = $conn->prepare($updateSql);
 				$updateStatement->execute($row);
 
-				$statistics[$scheme] += $updateStatement->rowCount();
+				$statistics[$schema] += $updateStatement->rowCount();
 			}
 		}
 
-		$output->writeln('Done. Updated rows by scheme: ');
+		$output->writeln('Updated rows by schema: ');
 
-		foreach ($statistics as $scheme => $rowCount) {
-			$output->writeln(sprintf(' %-7s - %3d rows', $scheme, $rowCount));
+		foreach ($statistics as $schema => $rowCount) {
+			$output->writeln(sprintf(' %-7s - %3d rows', $schema, $rowCount));
 		}
-	}
-
-	public function rollback()
-	{
-		
 	}
 
 }

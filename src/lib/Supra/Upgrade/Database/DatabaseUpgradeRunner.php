@@ -21,6 +21,48 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 	const UPGRADE_PATH = '../upgrade/database';
 
 	/**
+	 * @var boolean
+	 */
+	protected $dumpSql;
+
+	/**
+	 * @var boolean
+	 */
+	protected $force;
+
+	/**
+	 * @return boolean
+	 */
+	public function getDumpSql()
+	{
+		return $this->dumpSql;
+	}
+
+	/**
+	 * @param boolean $dumpSql 
+	 */
+	public function setDumpSql($dumpSql)
+	{
+		$this->dumpSql = $dumpSql;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getForce()
+	{
+		return $this->force;
+	}
+
+	/**
+	 * @param boolean $dumpSql 
+	 */
+	public function setForce($force)
+	{
+		$this->force = $force;
+	}
+
+	/**
 	 * Whether to run the upgrade
 	 * @param SqlUpgradeFile $file
 	 * @return boolean
@@ -32,6 +74,7 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 		$annotations = $file->getAnnotations();
 
 		if ( ! isset($annotations['upgrade'])) {
+
 			$this->log->debug("Skipping $path, no @upgrade annotation");
 			return false;
 		}
@@ -45,14 +88,17 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 		}
 
 		if ( ! empty($runUnless)) {
+
 			$connection->beginTransaction();
 			try {
+
 				$connection->fetchAll($runUnless);
 				$connection->rollback();
 				$this->log->debug("Skipping $path, SQL '$runUnless' succeeded");
 
 				return false;
 			} catch (\PDOException $expected) {
+
 				$connection->rollback();
 				// Exception was expected
 			}
@@ -74,17 +120,26 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 		try {
 			$statement = $file->getContents();
 
-			// Can't fetch database output notices yet
-			$output = $connection->exec($statement);
+			if ($this->getDumpSql()) {
+				$this->getOutput()
+						->writeln($statement);
+			}
 
-			$insert = array(
-				'filename' => $path,
-				'md5sum' => md5($statement),
-				'output' => $output,
-			);
+			if ($this->getForce()) {
 
-			$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
+				// Can't fetch database output notices yet
+				$output = $connection->exec($statement);
+
+				$insert = array(
+					'filename' => $path,
+					'md5sum' => md5($statement),
+					'output' => $output,
+				);
+
+				$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
+			}
 		} catch (\PDOException $e) {
+
 			$connection->rollback();
 			$this->log->error("Could not perform upgrade for $path: {$e->getMessage()}");
 

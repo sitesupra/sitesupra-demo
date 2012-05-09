@@ -36,7 +36,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 						'Causes the generated SQL statements to be output.'
 					),
 					new InputOption(
-						'assert-updated', null, InputOption::VALUE_NONE,
+						'check', null, InputOption::VALUE_NONE,
 						'Causes exception if schema is not up to date.'
 					),
 				));
@@ -50,20 +50,20 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln('Updating database schemas...');
+		
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
-		$output->writeln('');
 		
         $force = (true === $input->getOption('force'));
         $dumpSql = (true === $input->getOption('dump-sql'));
-		$assertUpdated = (true === $input->getOption('assert-updated'));
+		$check = (true === $input->getOption('check'));
 		$updateRequired = false;
-		
-		$output->writeln('Updating database schema...');
 		
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
 			$output->write($entityManagerName);
+			
 			$metadatas = $em->getMetadataFactory()->getAllMetadata();
 			$schemaTool = new SchemaTool($em);
 			$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
@@ -88,14 +88,13 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			}
 
 		}
-		
 
 		if ($force) {
-			$output->writeln('Database schema updated successfully!');
+			$output->writeln('Database schemas updated successfully!');
 		}
 		
-		if ($updateRequired && $assertUpdated) {
-			throw new \RuntimeException('Schema is not up to date.');
+		if ($updateRequired && $check) {
+			throw new \RuntimeException('Database schema(s) not up to date.');
 		}
 
 		if ($updateRequired && ! $force && ! $dumpSql) {
@@ -105,6 +104,8 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
 			$output->writeln(sprintf('    <info>%s --dump-sql</info> to show the commands', $this->getName()));
 		}
+		
+		$output->writeln('Done updating database schemas.');
 	}
 	
 }

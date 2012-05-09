@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Supra\Upgrade\Script\ScriptUpgradeRunner;
 use Supra\Upgrade\Script\ScriptUpgradeFile;
+use Supra\Upgrade\Exception;
 
 /**
  * Runs upgrade scripts.
@@ -26,7 +27,15 @@ class ScriptUpgradeCommand extends Command
 				->setHelp('Runs upgrade scripts.')
 				->setDefinition(array(
 					new InputOption(
-							'assert-updated', null, InputOption::VALUE_NONE,
+							'force', null, InputOption::VALUE_NONE,
+							'Must be specified for upgrades to execute.'
+					),
+					new InputOption(
+							'list', null, InputOption::VALUE_NONE,
+							'Lists files of upgrades to be executed.'
+					),
+					new InputOption(
+							'check', null, InputOption::VALUE_NONE,
 							'Causes exception if upgrade scripts have not been executed.'
 					),
 				));
@@ -40,36 +49,45 @@ class ScriptUpgradeCommand extends Command
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
-		$output->writeln('');
-
-		//$assertUpdated = (true === $input->getOption('assert-updated'));
-		$updateRequired = false;
-
 		$output->writeln('Running upgrade scripts...');
+
+		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
+
+		$force = (true === $input->getOption('force'));
+		$check = (true === $input->getOption('check'));
 
 		$scriptUpgradeRunner = new ScriptUpgradeRunner();
 		$scriptUpgradeRunner->setOutput($output);
 		$scriptUpgradeRunner->setApplication($this->getApplication());
-		
+
 		$pendingUpgrades = $scriptUpgradeRunner->getPendingUpgrades();
 
-		if ( ! empty($pendingUpgrades)) {
+		if (empty($pendingUpgrades)) {
+			
+			$output->writeln('No pending update files.');
+		} else {
 
-			$updateRequired = true;
-
-			$output->writeln("\t - " . count($pendingUpgrades) . " files");
-
-			$scriptUpgradeRunner->executePendingUpgrades();
+			$output->writeln('Have '. count($pendingUpgrades) . ' pending upgrade file(s):');
 
 			$output->writeln('');
+			
 			foreach ($pendingUpgrades as $file) {
 				/* @var $file SqlUpgradeFile */
 				$output->writeln("\t\\. " . $file->getPathname());
 			}
-		} else {
-			$output->writeln("\t - installation is up to date.");
+			
+			$output->writeln('');
+
+			if ($check) {
+				throw new Exception\RuntimeException('Have pending upgrade script(s) files.');
+			}
+
+			if ($force) {
+				$scriptUpgradeRunner->executePendingUpgrades();
+			}
 		}
+
+		$output->writeln('Done running upgrade scripts.');
 	}
 
 }

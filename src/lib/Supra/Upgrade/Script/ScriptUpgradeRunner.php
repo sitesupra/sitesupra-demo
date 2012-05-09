@@ -16,31 +16,10 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 	const UPGRADE_PATH = '../upgrade/script';
 
 	/**
-	 * @var OutputInterface
-	 */
-	protected $output;
-
-	/**
 	 *
 	 * @var Application
 	 */
 	protected $application;
-
-	/**
-	 * @return OutputInterface
-	 */
-	public function getOutput()
-	{
-		return $this->output;
-	}
-
-	/**
-	 * @param OutputInterface $output 
-	 */
-	public function setOutput(OutputInterface $output)
-	{
-		$this->output = $output;
-	}
 
 	/**
 	 * @return Application
@@ -92,8 +71,12 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 
 		try {
 			$upgradeScript = $file->getUpgradeScriptInstance();
+			
+			$this->getOutput()->writeln('Running upgrade script "' . $file->getShortPath() .'".');
 
 			$upgradeOutput = $upgradeScript->upgrade();
+			
+			$this->getOutput()->writeln('Done running upgrade script "' . $file->getShortPath() . '".');
 
 			$insert = array(
 				'filename' => $path,
@@ -103,6 +86,7 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 
 			$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
 		} catch (\PDOException $e) {
+			
 			$connection->rollback();
 			$this->log->error("Could not perform upgrade for $path: {$e->getMessage()}");
 
