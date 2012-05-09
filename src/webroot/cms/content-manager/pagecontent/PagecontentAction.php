@@ -339,7 +339,7 @@ class PagecontentAction extends PageManagerAction
 		}
 
 		if ($hasSharedProperties) {
-			$this->getConfirmation("The block might contain properties which could be used by other page localizations.\nAre you sure you want to delete the block?");
+			$this->getConfirmation("{#page.delete_block_shared_confirmation#}");
 		}
 	}
 	
