@@ -19,7 +19,6 @@ use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
-use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\AuditCreateSchemaListener;
@@ -238,7 +237,9 @@ class EntityAuditListener implements EventSubscriber
 
 		$visitedIds = array();
 		foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
-			if ( ! in_array($entity->getId(), $visitedIds)) {
+			
+			$entityId = $entity->getId() . $entity::CN();
+			if ( ! in_array($entityId, $visitedIds)) {
 				
 				$revisionType = self::REVISION_TYPE_DELETE;
 				if ($this->_pageDeleteState) {
@@ -246,7 +247,7 @@ class EntityAuditListener implements EventSubscriber
 				}
 	
 				$this->insertAuditRecord($entity, $revisionType);
-				$visitedIds[] = $entity->getId();
+				array_push($visitedIds, $entityId );
 			}
 		}
 	}
@@ -415,10 +416,11 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * Prepare Audit listener for draft page delete event
 	 */
-	public function pagePreDeleteEvent(PageDeleteEventArgs $eventArgs) 
+	public function pagePreDeleteEvent(PageEventArgs $eventArgs) 
 	{
 		$this->_pageDeleteState = true;
-		$pageId = $eventArgs->getPageId();
+		$page = $eventArgs->getProperty('master');
+		$pageId = $page->getId();
 		
 		$revisionData = new PageRevisionData();
 		$revisionData->setUser($this->getCurrentUserId());
@@ -523,23 +525,11 @@ class EntityAuditListener implements EventSubscriber
 	}
 	
 	/**
-	 * Take a full page snapshot inside audit tables under special revision with
-	 * type "TYPE_HISTORY_RESTORE"
-	 *  
-	 * @param PageEventArgs $eventArgs
+	 *
 	 */
-	public function pagePostRestoreEvent(PageEventArgs $eventArgs) 
+	public function pagePostRestoreEvent() 
 	{
-		//$this->prepareEnvironment($eventArgs);
-		
-		//$revisionData = $this->createRevisionData(PageRevisionData::TYPE_HISTORY_RESTORE);
-					
-		//$this->staticRevisionId = $revisionData->getId();
-		
-		//$this->createPageFullCopy();
-		
-		$this->_pageRestoreState = false;
-				
+		$this->_pageRestoreState = false;			
 	}
 	
 	/**

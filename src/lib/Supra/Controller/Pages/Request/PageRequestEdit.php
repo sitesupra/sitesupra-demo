@@ -519,56 +519,40 @@ class PageRequestEdit extends PageRequest
 	}
 	
 	/**
-	 * Move page and all localizations to trash
+	 * Delete page (AbstractPage and all related Localizations)
 	 */
 	public function delete()
 	{
-		// Remove any published version first
+		// 1. remove any published version first
 		$this->unPublish();
 		
-		$em = $this->getDoctrineEntityManager();
-		$connection = $em->getConnection();
-		$eventManager = $em->getEventManager();
+		// 2. fire pageDeleteEvent which will cause EntityAuditListener to
+		// catch all entity deletions and store them under single revision
+		$draftEm = $this->getDoctrineEntityManager();
+		$eventManager = $draftEm->getEventManager();
 		
-		$pageLocalization = $this->getPageLocalization();
-		$pageId = $pageLocalization->getMaster()
+		$localization = $this->getPageLocalization();
+		$masterId = $localization->getMaster()
 				->getId();
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setProperty('master', $localization->getMaster());
+		$eventManager->dispatchEvent(AuditEvents::pagePreDeleteEvent, $pageEventArgs);
 	
-		// prepare audit listener for page delete
-		$pageDeleteEventArgs = new PageDeleteEventArgs();
-		$pageDeleteEventArgs->setPageId($pageId);
-		$eventManager->dispatchEvent(AuditEvents::pagePreDeleteEvent, $pageDeleteEventArgs);
-		
-		$connection->beginTransaction();
-		try{
+		// 3. remove master from draft.
+		// all related entites will be removed by cascade removal
+		$removePage = function() use ($draftEm, $masterId) {
 			
-			$pageId = $pageLocalization->getMaster()
-					->getId();
+			$master = $draftEm->find(AbstractPage::CN(), $masterId);
 			
-			$page = $em->find(AbstractPage::CN(), $pageId);
-		
-			$localizations = $page->getLocalizations();
-			foreach($localizations as $localization) {
-				if ($localization instanceof PageLocalization) {
-					$pathEntity = $localization->getPathEntity();
-					$em->remove($pathEntity);
-					
-					$localization->resetPath();
-				}
+			if ( ! is_null($master)) {
+				$draftEm->remove($master);
 			}
-			$em->flush();
-
-			$em->remove($page);
- 			$em->flush();
-			
-		} catch (\Exception $e) {
-			$connection->rollBack();
-			throw $e;
-		}
-
-		$connection->commit();
+		};
 		
-		// reset audit listener state
+		$draftEm->transactional($removePage);
+		
+		// 4. return EntityAuditListener in normal state
 		$eventManager->dispatchEvent(AuditEvents::pagePostDeleteEvent);
 	}
 	
