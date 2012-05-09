@@ -218,10 +218,10 @@ abstract class UpgradeRunnerAbstraction
 
 			$path = $realPath;
 
-			if (strpos($path, $this->upgradeDir . DIRECTORY_SEPARATOR) !== 0) {
-				$this->log->warn("Upgrade file $path is not inside upgrade directory.");
-				continue;
-			}
+			//if (strpos($path, $this->upgradeDir . DIRECTORY_SEPARATOR) !== 0) {
+			//	$this->log->warn("Upgrade file $path is not inside upgrade directory.");
+			//	continue;
+			//}
 
 			$path = substr($path, strlen($this->upgradeDir) + 1);
 

@@ -17,6 +17,7 @@ abstract class UpgradeFileRecursiveIteratorAbstraction extends FilterIterator
 		FilesystemIterator::KEY_AS_PATHNAME,
 		FilesystemIterator::CURRENT_AS_FILEINFO,
 		FilesystemIterator::SKIP_DOTS,
+		FilesystemIterator::FOLLOW_SYMLINKS,
 		FilesystemIterator::UNIX_PATHS
 	);
 
