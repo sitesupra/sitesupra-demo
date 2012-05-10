@@ -47,7 +47,7 @@ Supra(function (Y) {
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		duplicateGlobalTemplate: DEFINITION.duplicateGlobalPage,
+		createTemplateLocalization: DEFINITION.createPageLocalization,
 		
 		/**
 		 * Create new template and returns page data to callback

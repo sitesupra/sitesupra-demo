@@ -661,7 +661,7 @@ Supra(function (Y) {
 		},
 		
 		/**
-		 * Duplicate global page
+		 * Create page localization
 		 *
 		 * @param {Number} page_id Page ID
 		 * @param {Object} newData Object containing locale for the new page and path, title
@@ -669,8 +669,8 @@ Supra(function (Y) {
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		duplicateGlobalPage: function (page_id, newData, source_locale, callback, context) {
-			var uri = this.getDataPath('duplicate-global');
+		createPageLocalization: function (page_id, newData, source_locale, callback, context) {
+			var uri = this.getDataPath('create-localization');
 			
 			var post_data = Supra.mix({
 				'page_id': page_id,

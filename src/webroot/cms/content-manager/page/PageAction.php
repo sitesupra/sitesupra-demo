@@ -805,12 +805,12 @@ class PageAction extends PageManagerAction
 	}
 
 	/**
-	 * Duplicate global localization
+	 * Create localization
 	 */
-	public function duplicateGlobalAction()
+	public function createLocalizationAction()
 	{
 		$this->isPostRequest();
-		$this->duplicateGlobal();
+		$this->createLocalization();
 	}
 
 	/**

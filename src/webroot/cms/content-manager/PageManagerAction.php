@@ -1045,7 +1045,7 @@ abstract class PageManagerAction extends CmsAction
 				->setResponseData($response);
 	}
 	
-	protected function duplicateGlobal()
+	protected function createLocalization()
 	{
 		$input = $this->getRequestInput();
 		$localeId = $this->getRequestParameter('locale');
@@ -1089,7 +1089,11 @@ abstract class PageManagerAction extends CmsAction
 			$localization = $request->recursiveClone($existingLocalization, null, true, $localeId);
 			// 2. set new locale for localization itself
 			$localization->setLocale($localeId);
-			
+
+			if ($localization instanceof Entity\PageLocalization) {
+				$localization->resetCreationTime();
+			}
+
 			if ($input->has('title')) {
 				$localization->setTitle($input->get('title'));
 			}
