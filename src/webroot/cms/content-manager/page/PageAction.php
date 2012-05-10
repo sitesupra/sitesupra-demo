@@ -396,7 +396,19 @@ class PageAction extends PageManagerAction
 							$propertyData = $data;
 						}
 
-						$blockData['properties'][$propertyName] = $propertyData;
+						$propertyInfo = array(
+							'value' => $propertyData,
+							'shared' => false,
+							'language' => null,
+						);
+
+						if ($blockProperty instanceof Entity\SharedBlockProperty) {
+							$propertyInfo['shared'] = true;
+							$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
+									->getLocale();
+						}
+
+						$blockData['properties'][$propertyName] = $propertyInfo;
 					}
 				}
 
@@ -793,12 +805,12 @@ class PageAction extends PageManagerAction
 	}
 
 	/**
-	 * Duplicate global localization
+	 * Create localization
 	 */
-	public function duplicateGlobalAction()
+	public function createLocalizationAction()
 	{
 		$this->isPostRequest();
-		$this->duplicateGlobal();
+		$this->createLocalization();
 	}
 
 	/**

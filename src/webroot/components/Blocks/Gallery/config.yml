@@ -5,3 +5,32 @@
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Gallery
     icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          # becase has shared properties
+          - Supra\Controller\Pages
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: images
+          editable: Supra\Editable\Gallery
+          label: Images
+          shared: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: title
+          editable: Supra\Editable\String
+          label: Title
+          shared: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: checkboxgg
+          editable: Supra\Editable\Checkbox
+          label: Checkbox
+          shared: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: title_nonshared
+          editable: Supra\Editable\String
+          label: Nonshared title
+          shared: false

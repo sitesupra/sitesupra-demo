@@ -410,6 +410,9 @@ YUI().add("supra.io", function (Y) {
 		
 		// Wrong answer, do nothing
 		if (response.confirmation.answer != null && response.confirmation.answer != answer) {
+			if (cfg.on._complete) {
+				cfg.on._complete.apply(cfg.context, [null, false]);
+			}
 			return;
 		}
 		

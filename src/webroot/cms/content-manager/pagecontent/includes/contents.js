@@ -282,16 +282,18 @@ YUI.add('supra.iframe-contents', function (Y) {
 				'block_id': block.getId(),
 				'locale': Supra.data.get('locale')
 			};
-			
+
 			Supra.io(url, {
 				'data': data,
 				'method': 'post',
 				'on': {
-					'success': function (data) {
-						callback.call(this, data);
-						
-						//Change page version title
-						Manager.getAction('PageHeader').setVersionTitle('autosaved');
+					'complete': function (data, status) {
+						callback.call(this, data, status);
+
+						if (status) {
+							//Change page version title
+							Manager.getAction('PageHeader').setVersionTitle('autosaved');
+						}
 					}
 				},
 				'context': context
@@ -435,30 +437,35 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//Global activity
 			Supra.session.triggerActivity();
 		},
-		
-		/**
-		 * Remove child Supra.Manager.PageContent.Proto object
-		 * 
-		 * @param {Object} child
-		 */
-		removeChild: function (child) {
-			for(var i in this.children) {
-				if (this.children[i] === child) {
-					
-					//Send request
-					this.sendBlockDelete(child, function () {
-						var node = child.getNode();
-						
-						//Remove from child list
-						delete(this.children[i]);
-						
-						//Destroy block
-						child.destroy();
-						if (node) node.remove();
-					}, this);
-				}
-			}
-		},
+
+		// Seems this isn't used because it is not possible to delete a placeholder
+//		/**
+//		 * Remove child Supra.Manager.PageContent.Proto object
+//		 *
+//		 * @param {Object} child
+//		 */
+//		removeChild: function (child) {
+//			for(var i in this.children) {
+//				if (this.children[i] === child) {
+//
+//					//Send request
+//					this.sendBlockDelete(child, function (data, status) {
+//						if (status) {
+//							var node = child.getNode();
+//
+//							//Remove from child list
+//							delete(this.children[i]);
+//
+//							//Destroy block
+//							child.destroy();
+//							if (node) node.remove();
+//						} else {
+//							child.properties.showPropertiesForm();
+//						}
+//					}, this);
+//				}
+//			}
+//		},
 		
 		/**
 		 * highlight attribute setter
