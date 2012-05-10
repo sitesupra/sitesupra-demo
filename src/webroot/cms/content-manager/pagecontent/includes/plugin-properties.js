@@ -24,6 +24,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	function Properties () {
 		Properties.superclass.constructor.apply(this, arguments);
 		this._original_values = null;
+		this._shared_properties = {};
 	}
 	
 	Properties.NAME = 'page-content-properties';
@@ -427,9 +428,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 						var host = this.get('host');
 						var parent = host.get('parent');
 						
-						//Discard all changes
-						host.unresolved_changes = false;
-						
 						//Close form
 						this.hidePropertiesForm();
 						
@@ -479,6 +477,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'scrollable': false,
 				'title': this.getTitle()
 			});
+			
+			this.get('host').fire('properties:show');
 		},
 		
 		/**
@@ -496,11 +496,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			var form = this.get('form'),
-				data = Supra.mix({}, data);
+			var data = Supra.mix({}, data),
+				values = [],
+				shared_properties = {};
+				
+			for (var name in data.properties) {
+				if (data.properties[name].shared) {
+					shared_properties[name] = data.properties[name];
+				}
+				
+				values[name] = data.properties[name].value;
+			}
 			
-			this._original_values = data.properties;
-			this.setValues(data.properties);
+			this._shared_properties = Supra.mix(shared_properties, this._shared_properties);
+			this._original_values = values;
+			
+			this.setValues(values);
+			
 			return data;
 		},
 		
@@ -512,8 +524,19 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_getData: function (data) {
-			var data = data || {};
-			data.properties = this.getValues();
+			var data = data || {},
+				properties = {},
+				values = null;
+				
+			values = this.getValues();
+			for (var name in values) {
+				properties[name] = {
+					value: values[name],
+					shared: this.isPropertyShared(name)
+				}
+			}
+			
+			data.properties = properties;
 			return data;
 		},
 		
@@ -569,6 +592,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 				
 				form.setValuesObject(values, 'id');
+
+				var input = null,
+					template = SU.Intl.get(['form', 'shared_property_description']),
+					list = this._shared_properties,
+					inputs = form.inputs,
+					info;
+
+				template = Supra.Template.compile(template);
+
+				for (var name in list) {
+					
+					if (inputs[name]) {
+						input = inputs[name];
+
+						info = this.getSharedPropertyInfo(name);
+
+						input.set('disabled', true);
+						input.set('description', template(info));
+					}
+				}
 			}
 		},
 		
@@ -586,7 +629,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getSaveValues: function () {
 			var form = this.get('form');
 			if (form) {
-				return form.getValues('id', true);
+				var values = form.getValues('id', true);
+				
+				for (var name in values) {
+					if (this.isPropertyShared(name)) delete values[name];
+				}
+
+				return values;
 			} else {
 				return {};
 			}
@@ -619,6 +668,32 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 					
 			return out;
+		},
+		
+		isPropertyShared: function (name) {
+			for (name in this._shared_properties) {
+				return true;
+			}
+			return false;
+		},
+
+		getSharedPropertyInfo: function (name) {
+			var list = this._shared_properties;
+
+			if ( ! (name in list)) {
+				return {};
+			}
+
+			var localeTitle = list[name].locale,
+				locale = Supra.data.getLocale(list[name].locale);
+
+			if (locale && locale.title) {
+				localeTitle = locale.title;
+			}
+
+			var info = Supra.mix({'localeTitle': localeTitle}, list[name]);
+
+			return info;
 		}
 		
 	});
