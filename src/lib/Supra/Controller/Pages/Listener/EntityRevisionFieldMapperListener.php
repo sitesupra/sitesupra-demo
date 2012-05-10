@@ -34,7 +34,7 @@ class EntityRevisionFieldMapperListener implements EventSubscriber
 		$metadata = $eventArgs->getClassMetadata();
 		$class = new ReflectionClass($metadata->name);
 		
-		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
+		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
 			if ( ! $metadata->hasField('revision')) {
 				$metadata->mapField(array(
 					'fieldName' => 'revision',

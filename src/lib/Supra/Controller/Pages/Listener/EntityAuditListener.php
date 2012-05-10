@@ -96,7 +96,7 @@ class EntityAuditListener implements EventSubscriber
 	 * @var PageRevisionData
 	 */
 	private $revision;
-
+	
 	
 	/**
 	 * @return array
@@ -107,7 +107,7 @@ class EntityAuditListener implements EventSubscriber
 			Events::onFlush,
 			Events::postUpdate,
 			Events::postPersist,
-			
+
 			AuditEvents::pagePublishEvent,
 			
 			AuditEvents::pagePreDeleteEvent,
@@ -523,23 +523,11 @@ class EntityAuditListener implements EventSubscriber
 	}
 	
 	/**
-	 * Take a full page snapshot inside audit tables under special revision with
-	 * type "TYPE_HISTORY_RESTORE"
-	 *  
 	 * @param PageEventArgs $eventArgs
 	 */
 	public function pagePostRestoreEvent(PageEventArgs $eventArgs) 
 	{
-		//$this->prepareEnvironment($eventArgs);
-		
-		//$revisionData = $this->createRevisionData(PageRevisionData::TYPE_HISTORY_RESTORE);
-					
-		//$this->staticRevisionId = $revisionData->getId();
-		
-		//$this->createPageFullCopy();
-		
 		$this->_pageRestoreState = false;
-				
 	}
 	
 	/**
@@ -701,24 +689,6 @@ class EntityAuditListener implements EventSubscriber
 					$this->insertAuditRecord($metaDataItem, self::REVISION_TYPE_COPY);
 				}
 			}
-		}
-	}
-	
-	private function createPageFullCopy()
-	{
-		$page = $this->em->find(Entity\Abstraction\AbstractPage::CN(), $this->referenceId);
-		
-		/* @var $page Entity\Abstraction\AbstractPage */
-		if (is_null($page)) {
-			throw new RuntimeException("Failed to find page by reference #{$this->referenceId}");
-		}
-		
-		$pageLocalizations = $this->em->getRepository(Localization::CN())
-				->findBy(array('master' => $page->getId()));
-		
-		foreach($pageLocalizations as $localization) {
-			$this->referenceId = $localization->getId();
-			$this->createPageCopy(true);
 		}
 	}
 	

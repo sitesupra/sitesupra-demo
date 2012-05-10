@@ -63,7 +63,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
     protected $nestedSetNode;
 
     /**
-     * @OneToMany(targetEntity="Localization", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
+     * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Localization", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
      * @var Collection
      */
     protected $localizations;

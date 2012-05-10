@@ -112,7 +112,7 @@ class HistoryPageRequestEdit extends PageRequest
 		
 		$this->pageSet = $this->getPageLocalization()
 				->getTemplateHierarchy();
-
+		
 		return $this->pageSet;
 	}
 	
@@ -750,12 +750,6 @@ class HistoryPageRequestEdit extends PageRequest
 		//}
 		
 		$draftEntityManager->flush();
-		
-		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setEntityManager($draftEntityManager);
-		
-		$draftEntityManager->getEventManager()
-				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 	
 	}
 	
