@@ -1,14 +1,20 @@
-- Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration:
+- _version: 2
+
+- _namespace: Supra\Controller\Layout\Theme
+
+- _use: Supra\Controller\Layout\Theme\Configuration
+
+- Configuration\ThemeConfiguration:
     name: default
     title: Default theme
     description: DEFAULT THEME IS DEFAULT, ALWAYS!
     enabled: true
     layouts:
-      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+      - Configuration\ThemeLayoutConfiguration:
           name: root
           title: Root Layout
           filename: root.html.twig
-      - Supra\Controller\Layout\Theme\Configuration\ThemeLayoutConfiguration:
+      - Configuration\ThemeLayoutConfiguration:
           name: child
           title: Child Layout
           filename: child.html.twig
