@@ -20,7 +20,7 @@ class ComponentConfigurationLoader
 	const KEY_NAME_CLASS = '_class';
 	const KEY_NAME_ARRAY = '_array';
 	const KEY_NAME_ITEMS = '_items';
-	
+
 
 	/**
 	 * Lowest caching level, means no cache at all
@@ -217,8 +217,8 @@ class ComponentConfigurationLoader
 			if (is_object($object)) {
 				$return = $object;
 			}
-		} 
-		
+		}
+
 		if (is_array($return)) {
 			foreach ($return as &$subitem) {
 
@@ -257,7 +257,7 @@ class ComponentConfigurationLoader
 	{
 		try {
 
-			if ( ! Loader\Loader::classExists($className) && ! empty($this->uses)) {
+			if ( ! empty($this->uses)) {
 
 				$classNameParts = explode('\\', $className);
 
@@ -266,7 +266,11 @@ class ComponentConfigurationLoader
 				if (isset($this->uses[$firstNamePart])) {
 
 					array_unshift($classNameParts, $this->uses[$firstNamePart]);
-					$className = join('\\', $classNameParts);
+					$tryClassName = join('\\', $classNameParts);
+
+					if (Loader\Loader::classExists($tryClassName)) {
+						$className = $tryClassName;
+					}
 				}
 			}
 
